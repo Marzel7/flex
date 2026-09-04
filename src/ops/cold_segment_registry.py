@@ -47,10 +47,15 @@ logger = logging.getLogger(__name__)
 # flex_complete_database.db's place) needs no code change here.
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 _DEFAULT_HOT_DB_PATH = os.path.join(_REPO_ROOT, "database", "flex_complete_database.db")
-_DEFAULT_COLD_ROOT = os.path.join(_REPO_ROOT, "database", "cold_segments")
+# Current cold storage is deliberately version-neutral.  Historical P5A
+# material may be inspected only through an explicit override; it is never a
+# normal-runtime fallback.
+CURRENT_COLD_STORAGE_ROOT = os.path.join(_REPO_ROOT, "database", "current_cold_storage")
+CURRENT_COLD_SEGMENTS_ROOT = os.path.join(CURRENT_COLD_STORAGE_ROOT, "segments")
+CURRENT_COLD_SUMMARIES_ROOT = os.path.join(CURRENT_COLD_STORAGE_ROOT, "summaries")
+_DEFAULT_COLD_ROOT = CURRENT_COLD_SEGMENTS_ROOT
 
 HOT_DB_PATH_ENV = "DB_PATH"          # reuse main.py's existing env var name
-COLD_ROOT_ENV = "TRANSFER_COLD_ROOT"  # new env var for the COLD segment directory
 
 
 def resolve_hot_db_path(override: str | None = None) -> str:
@@ -58,8 +63,8 @@ def resolve_hot_db_path(override: str | None = None) -> str:
     contract as src/core/main.py's DB_PATH constant (env var 'DB_PATH',
     falling back to database/flex_complete_database.db). `override` is for
     R2's own qualification runs against the candidate build -- callers
-    doing real qualification against database/_p5a_migration_build/ should
-    pass override=".../replacement_main.db" explicitly; production code
+    doing historical P5A qualification should pass an explicit override;
+    production code
     should never pass override and rely on the env/default resolution so
     that a future Stage 3 rename-in-place takes effect automatically."""
     if override is not None:
@@ -68,11 +73,25 @@ def resolve_hot_db_path(override: str | None = None) -> str:
 
 
 def resolve_cold_root(override: str | None = None) -> str:
-    """Resolves the production COLD segment root directory. Same
-    override-for-testing discipline as resolve_hot_db_path."""
+    """Resolve the one production COLD segment root directory.
+
+    ``override`` remains available for explicitly-scoped tests and historical
+    qualification.  Normal runtime deliberately has no environment fallback
+    or legacy-P5A fallback, so readers and the rollover writer share one
+    current authority.
+    """
     if override is not None:
         return override
-    return os.path.abspath(os.environ.get(COLD_ROOT_ENV, _DEFAULT_COLD_ROOT))
+    return os.path.abspath(_DEFAULT_COLD_ROOT)
+
+
+def resolve_summary_root() -> str:
+    """Return the single current rollover-summary location.
+
+    Summary storage intentionally has no environment fallback: a writer and
+    its paired reader must use the same current namespace.
+    """
+    return os.path.abspath(CURRENT_COLD_SUMMARIES_ROOT)
 
 
 @dataclass
@@ -285,9 +304,8 @@ def get_transfer_reader(*, hot_db_path: str | None = None, cold_root: str | None
     ColdSegmentRegistry, opened once); subsequent calls in the SAME process
     reuse those connections -- no new connections are opened per call.
 
-    hot_db_path/cold_root overrides are for qualification/testing only
-    (e.g. pointing at database/_p5a_migration_build/ in R2's own tests).
-    Production call sites should omit them and rely on env/default
+    hot_db_path/cold_root overrides are for qualification/testing only.
+    Production call sites should omit them and rely on the canonical current
     resolution (see resolve_hot_db_path/resolve_cold_root).
     """
     global _factory

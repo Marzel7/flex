@@ -2,11 +2,9 @@
 `/api/transfer-graph/stats` full-history fields, computed once per closed
 COLD segment and merged with a fresh live HOT query at request time.
 
-NOT WIRED INTO THE LIVE ROUTE. api_transfer_graph_stats() in src/core/main.py
-is untouched production code and is not modified or called by this module.
-This module is a candidate optimization built and qualified against the
-disposable candidate database (database/_p5a_migration_build/) plus
-read-only production comparison, per the R2.2 milestone contract.
+The current rollover publication gate writes digest-bound summaries under the
+version-neutral current cold-storage namespace. This module remains separate
+from the existing live route unless an explicit consumer wires it in.
 
 --------------------------------------------------------------------------
 DESIGN
@@ -240,8 +238,8 @@ class SummaryStore:
     database/_p5a_migration_build/ (gitignored) or /tmp -- see module
     docstring / Part 3 handoff notes for the real Stage-3 production
     location proposal (a small SQLite table alongside the COLD registry,
-    e.g. database/cold_segments/_stats_summary_index.sqlite, built by the
-    same runbook step that closes+registers a new COLD segment)."""
+    e.g. database/current_cold_storage/summaries/, built by the same runbook
+    step that closes+registers a new COLD segment)."""
 
     def __init__(self, store_dir: str):
         self.store_dir = store_dir

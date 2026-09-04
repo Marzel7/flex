@@ -1,9 +1,8 @@
 """STORAGE-LIFECYCLE-P5D: HOT->COLD rollover automation runner.
 
-BUILD-TEST-QUALIFY milestone. This module is qualified but NOT activated:
-no crontab entry, no supervisord program, nothing invokes it on a
-schedule. See docs/audits/storage_lifecycle_p5d_activation_contract.json
-for the proposed (not installed) activation.
+Current lifecycle runner. It is scheduled by the bounded user-crontab
+rollover cadence; no Supervisor program owns it. Its canonical COLD output is
+the version-neutral ``database/current_cold_storage/segments`` namespace.
 
 Reuses, rather than reinvents:
   - src.ops.p5b_delta_reconciler.classify()/PinSets for HOT/COLD
@@ -90,7 +89,12 @@ from src.ops.storage_lock_safety import (  # noqa: E402
 from src.ops.storage_monitor import measure_disk_free  # noqa: E402
 from src.ops.storage_audit_ledger import LedgerEntry, append_entry, new_run_id  # noqa: E402
 from src.ops.durable_execution_evidence import PhaseEvidenceStore  # noqa: E402
-from src.ops.cold_segment_registry import ColdSegmentRegistry, TransferReaderFactory  # noqa: E402
+from src.ops.cold_segment_registry import (  # noqa: E402
+    CURRENT_COLD_SEGMENTS_ROOT,
+    CURRENT_COLD_SUMMARIES_ROOT,
+    ColdSegmentRegistry,
+    TransferReaderFactory,
+)
 from src.ops.transfer_graph_stats_summary import SummaryStore, build_segment_summary  # noqa: E402
 
 # ---------------------------------------------------------------------
@@ -102,7 +106,7 @@ HOT_RETENTION_DAYS = 90  # matches src/scripts/cleanup_transfers.py's TransferIn
 DEFAULT_BATCH_SIZE = 500  # see Part 6-7 measurement in the design artifact for the evidence behind this default
 
 DEFAULT_HOT_DB_PATH = str(ROOT / "database" / "flex_complete_database.db")
-DEFAULT_COLD_ROOT = str(ROOT / "database" / "_p5a_migration_build" / "cold_segments")
+DEFAULT_COLD_ROOT = CURRENT_COLD_SEGMENTS_ROOT
 DEFAULT_LEASE_PATH = str(ROOT / "database" / "hot_cold_rollover.lease")
 DEFAULT_CHECKPOINT_PATH = str(ROOT / "database" / "hot_cold_rollover_checkpoint.json")
 DEFAULT_LEDGER_PATH = str(ROOT / "docs" / "audits" / "storage_lifecycle_p5d_execution_ledger.jsonl")
@@ -114,6 +118,19 @@ DISK_CAUTION_BYTES = 25 * 1024 ** 3  # proceed only if proven safe
 
 CONFIRM_ENV_VAR = "HOT_COLD_ROLLOVER_CONFIRM"
 CONFIRM_ENV_VALUE = "YES-RETIRE-PRODUCTION-HOT-ROWS"
+
+
+def summary_root_for_cold_root(cold_root: str) -> str:
+    """Keep summaries in the same namespace as their COLD segments.
+
+    The canonical production root has one fixed summary directory.  An
+    explicit non-production root (tests, qualification, or historical
+    inspection) must never be able to overwrite those current summaries.
+    """
+    normalized = os.path.abspath(cold_root)
+    if normalized == os.path.abspath(CURRENT_COLD_SEGMENTS_ROOT):
+        return os.path.abspath(CURRENT_COLD_SUMMARIES_ROOT)
+    return os.path.join(os.path.dirname(normalized), "summaries")
 
 # Rollback DB path -- referenced ONLY in this string constant, for the
 # structural "never opened" test to assert against; no connection is ever
@@ -445,7 +462,7 @@ def run_one_batch(
     for seg_path in outcome.segments_touched:
         close_segment(seg_path, source_run_id=f"{run_id}:{batch_id}")
     registry = ColdSegmentRegistry(cold_root).build()
-    summaries = SummaryStore(str(ROOT / "database" / "_p5a_migration_build" / "transfer_stats_summary"))
+    summaries = SummaryStore(summary_root_for_cold_root(cold_root))
     for seg_path in outcome.segments_touched:
         segment_id = Path(seg_path).stem
         conn = next((conn for info, conn in zip(registry.segments, registry.connections) if info.segment_id == segment_id), None)

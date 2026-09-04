@@ -14629,6 +14629,20 @@
     "next_action": "Begin product/coverage work: operation discovery coverage, Robinhood/Solana birth integration, FundingAnalytics productization, bounded valuation evaluation, or P3R intelligence improvements. Do not continue reduction by inertia.",
     "remote": "HANDOFF_TRANSPORT_DEGRADED: local commits remain unpublished pending explicit remote-export approval."
   },
+  "system_wide_token_birth_authority_and_opening_replay": {
+    "status": "PARTIAL",
+    "verdict": "SYSTEM_BIRTH_TO_OPENING_REPLAY_MAPPING_PARTIAL",
+    "engineering_revision": "0ad0aba2d6be93cc26b68abec9e8ac874b69ea9a",
+    "scope": "Read-only source and local SQLite authority/coverage trace; no provider calls, source edits, schema changes, membership writes, or service changes.",
+    "system_birth_authority": "token_analysis mint-keyed ingestion record in flex_complete_database.db; its live Pump.fun birth writer is PumpFunCurveListener._insert_bonding_curve_token.",
+    "identity_rule": "One row per mint. The current live Pump.fun listener records an observed validated CREATE with blockTime-derived created_at when available, but historic migration/minimal-entry writers also populate the same row and preserve first non-NULL created_at/create_tx_signature via COALESCE.",
+    "coverage": "operator_launch_membership=598, token_analysis rows=595/598; Byzantine=36/36; Byzantine recent cohort=12/12. The three current operation members lacking token_analysis rows are two FOUR_STEP and one Nexus member. Therefore the literal all-current-operation coverage claim is not met by the observable retained authority.",
+    "canonical_create_state": "wt_create_event_ledger is the intended canonical validated Create authority (writer _write_create_ledger_durable -> record_create_event, reader lookup_create_anchor) but has 0 rows in the current ops DB. It cannot presently be the system-wide historic birth source.",
+    "timing_integrity": "token_analysis.created_at is explicitly documented by src/ops/behaviour_queue.py as rejected for about 96% of rows because ingestion-time fallback masquerades as birth time. It is not a generic bounded Create-search anchor. Watchtower BuY3 happens to align with its creation blockTime, while Byzantine 3dg differs by 288 seconds; no general precision guarantee exists.",
+    "replay_mapping": "For the Byzantine 12: mint=direct; creator=available from pf_ws_creator/earliest_tx_creator; signature=present in token_analysis but unvalidated in this trace; birth slot=NOT_STORED; bonding curve=NOT_STORED for 12/12; associated curve/supply/decimals=NOT_STORED. Neither direct replay nor a safe time-window route is qualified. Existing reference anchors map correctly: BuY3 signature 2m5b... and slot 443452972; 3dg signature Zx765... and slot 443375106.",
+    "decision": "MORE_SYSTEM_BIRTH_AUTHORITY_TRACE_REQUIRED",
+    "next_action": "Do not adapt opening replay from token_analysis.created_at. Before implementation, obtain a retained per-mint canonical Create projection with validated signature/slot and provenance for the target cohort, or explicitly authorize a separately bounded exact-signature validation/acquisition path."
+  },
   "updated_at": "2026-09-04T20:00:00Z",
   "updated_at_utc": "2026-09-04T20:00:00Z",
   "updated_by": "agent_local",

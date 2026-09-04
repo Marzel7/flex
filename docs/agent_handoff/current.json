@@ -14449,10 +14449,21 @@
     "blocker": "Staged-deletion reference proof found that HEAD src/core/liquidity_worker.py still imports src.core.liquidity_intelligence. Deleting liquidity_intelligence without staging the out-of-scope current compact liquidity_worker replacement would make the committed runtime import fail. All temporary staged selections were safely restored to the index; no worktree file changed and no engineering commit was created.",
     "next_action": "Qualify the current compact liquidity_worker replacement as its own coherent commit (or explicitly authorize including it in this market retirement); only then retire liquidity_intelligence and its dependent API paths. Do not stage the mixed compact-valuation transitions in this milestone without separate authorization."
   },
-  "updated_at": "2026-09-04T15:10:00Z",
-  "updated_at_utc": "2026-09-04T15:10:00Z",
+  "liquidity_worker_replacement_commit": {
+    "status": "COMPLETE",
+    "verdict": "LIQUIDITY_WORKER_REPLACEMENT_COMMIT_COMPLETE",
+    "commit": "874690173d08c8b801fe5224ccbecf15cf9b310a",
+    "remote_verified": true,
+    "scope": "Only src/core/liquidity_worker.py and tests/test_liquidity_owned_bounded_state.py; no legacy module deletion, API retirement, service restart, provider/RPC call, or database/schema mutation.",
+    "replacement_contract": "No real-position authority exists, so the eligibility interface returns an empty list and performs no work. A future authoritative eligible mint receives one bounded token_owned_liquidity_state row: entry is frozen and latest updates in place. Paper simulations are not an eligibility source.",
+    "validation": "8 focused tests passed; staged worker compiled/imported; staged worker has zero executable liquidity_intelligence, PriceWorkerRegistry, or self.intelligence references; read-only Supervisor check found watchtower_listener, creator_funding_worker, walkback_worker, and operation_scheduler RUNNING.",
+    "blocker_removed": "Committed liquidity_worker no longer imports src.core.liquidity_intelligence, so the preceding market-retirement dependency blocker is removed. The legacy liquidity module remains dirty/uncommitted for the separately authorized retirement batch.",
+    "next_action": "Return to retire: legacy market and prediction surfaces; do not begin automatically."
+  },
+  "updated_at": "2026-09-04T15:25:00Z",
+  "updated_at_utc": "2026-09-04T15:25:00Z",
   "updated_by": "agent_local",
-  "verdict": "MARKET_PREDICTION_RETIREMENT_COMMIT_PARTIAL",
+  "verdict": "LIQUIDITY_WORKER_REPLACEMENT_COMMIT_COMPLETE",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

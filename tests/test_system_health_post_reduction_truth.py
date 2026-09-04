@@ -95,3 +95,32 @@ def test_operator_registry_polling_is_visible_tab_only_and_minute_cadence() -> N
     assert "if (!document.hidden)" in source
     assert "visibilitychange" in source
     assert "},15000)" not in source
+
+
+def test_operator_detail_secondary_fetches_are_post_render_deferred() -> None:
+    source = (ROOT / "templates/operator_intelligence.html").read_text()
+    start = source.index("var operatorDetailNativeFetch")
+    end = source.index("/* OPS-UI-P2:", start)
+    gate = source[start:end]
+
+    assert "window.requestIdleCallback" in source
+    assert "window.setTimeout(releaseOperatorDetailPostRenderFetches, 0)" in source
+    assert "window.fetch = operatorDetailNativeFetch" in source
+    assert "operatorDetailDeferredFetches.push" in gate
+    for deferred_path in (
+        "/api/ops/investigation/",
+        "/api/ops/inbox/operator-resolution",
+        "/observations",
+        "/behaviour",
+        "/behaviour/change",
+        "/assessment",
+        "/forecast",
+        "/similarity",
+    ):
+        assert deferred_path in gate
+
+    # Command-centre enrichment stays eager and is excluded from the gate.
+    assert "/api/ops/emerging-operators/" in source
+    assert "/api/ops/treasury-review" in source
+    assert "emerging-operators" not in gate
+    assert "treasury-review" not in gate

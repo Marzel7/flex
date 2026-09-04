@@ -1001,6 +1001,42 @@
   buildOperations(OP.evidence || []);
   renderCommandCentre();
 
+  /* The command-centre's two enrichment calls remain eager.  The remaining
+     secondary panels retain their existing requests and renderers, but do not
+     compete with the first paint. */
+  var operatorDetailNativeFetch = window.fetch.bind(window);
+  var operatorDetailDeferredFetches = [];
+  var operatorDetailDeferring = true;
+  function isOperatorDetailPostRenderFetch(input) {
+    var value = typeof input === 'string' ? input : (input && input.url) || '';
+    var path = new URL(value, window.location.origin).pathname;
+    var operatorPath = '/api/operators/' + encodeURIComponent(OP.operator_id);
+    return (path.indexOf('/api/ops/investigation/') === 0 && path.endsWith('/unified')) ||
+      path === '/api/ops/inbox/operator-resolution' ||
+      path === operatorPath + '/observations' ||
+      path === operatorPath + '/behaviour' ||
+      path === operatorPath + '/behaviour/change' ||
+      path === operatorPath + '/assessment' ||
+      path === operatorPath + '/forecast' ||
+      path === operatorPath + '/similarity';
+  }
+  window.fetch = function(input, init) {
+    if (!operatorDetailDeferring || !isOperatorDetailPostRenderFetch(input)) {
+      return operatorDetailNativeFetch(input, init);
+    }
+    return new Promise(function(resolve, reject) {
+      operatorDetailDeferredFetches.push(function() {
+        operatorDetailNativeFetch(input, init).then(resolve, reject);
+      });
+    });
+  };
+  function releaseOperatorDetailPostRenderFetches() {
+    if (!operatorDetailDeferring) return;
+    operatorDetailDeferring = false;
+    window.fetch = operatorDetailNativeFetch;
+    operatorDetailDeferredFetches.splice(0).forEach(function(run) { run(); });
+  }
+
   /* OPS-UI-P2: unified read-time projection (historical population vs
      evidence-qualified subset) for the operator's primary entity. This
      is EVIDENCE_QUALIFICATION context only -- it can never set or change
@@ -1695,6 +1731,11 @@
   });
   var governance = document.getElementById('oi-command-centre');
   if (governance) governance.remove();
+  if (window.requestIdleCallback) {
+    window.requestIdleCallback(releaseOperatorDetailPostRenderFetches, {timeout: 1000});
+  } else {
+    window.setTimeout(releaseOperatorDetailPostRenderFetches, 0);
+  }
 })();
 </script>
 {% endblock %}

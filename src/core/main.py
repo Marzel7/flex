@@ -9491,19 +9491,16 @@ def index():
     return redirect('/ops-os')
 
 
-@app.route('/live-launches')
 def live_launches():
     """Serve the migration tracking dashboard (formerly served at /)."""
     return render_template('dashboard_home.html', active_page='tokens')
 
 
-@app.route('/pumpfun')
 def pumpfun_watchlist():
     """Serve the Pump.fun pre-migration watchlist page."""
     return render_template('pumpfun_tokens.html', active_page='pumpfun')
 
 
-@app.route('/coordinated-funder-analysis/<creator_address>')
 def coordinated_funder_analysis_view(creator_address: str):
     """Serve a full webview for coordinated funder analysis results"""
     try:
@@ -9898,7 +9895,6 @@ def api_db_serializer_metrics():
         return jsonify({"error": str(e)}), 200
 
 
-@app.route('/db-serializer')
 def db_serializer_dashboard():
     """DB write-serializer monitoring dashboard (polls /api/db-serializer-metrics)."""
     return """<!doctype html><html><head><meta charset=utf-8><title>DB Serializer</title>
@@ -9967,7 +9963,6 @@ def api_future_bound_tokens():
     return response
 
 
-@app.route('/usage')
 def usage_dashboard():
     return render_template('usage_dashboard.html', active_page='usage')
 
@@ -12919,7 +12914,6 @@ coordinated_funders_html = '''
 '''
 
 
-@app.route('/coordinated-funders')
 def coordinated_funders_view():
     """Serve a full webview for coordinated funders analysis"""
     try:
@@ -13193,7 +13187,6 @@ def coordinated_funders_view():
         return f"<html><body style='background:#0a0a0e; color: red;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
 
 
-@app.route('/clusters')
 def clusters_dashboard():
     """Serve a full webview for cross-funding clusters"""
     try:
@@ -14416,7 +14409,6 @@ def coordinated_funders_view_old():
         return f"<html><body style='background: #0a0e27; color: var(--text-primary);'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
 
 
-@app.route('/funder-details/<funder_address>')
 def funder_details_view(funder_address: str):
     """Serve a full webview for detailed funder analysis with transfer details"""
     try:
@@ -15008,7 +15000,6 @@ def api_funder_networks():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/api/funding-networks')
 def api_funding_networks():
     """Get funding network clusters (groups of funders that fund overlapping tokens)"""
     try:
@@ -15079,7 +15070,6 @@ def api_funding_networks():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/api/funding-networks-list')
 
 def api_funding_networks_list():
     """Get simplified list of all funding networks with their names and stats"""
@@ -15154,7 +15144,6 @@ def api_funding_networks_list():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/api/funding-network-details/<int:network_id>')
 
 def api_funding_network_details(network_id):
     """Get detailed stats for a specific network by ID"""
@@ -15361,7 +15350,6 @@ def api_funding_network_details(network_id):
     return route_phase2c('/api/funding-network-details', new_path, legacy_path)
 
 
-@app.route('/api/build-funding-networks', methods=['POST'])
 def api_build_funding_networks():
     """Build/rebuild funding network clusters from scratch"""
     try:
@@ -16671,7 +16659,6 @@ def api_validate_transaction():
         return jsonify({'error': f'Validation error: {str(e)}'}), 500
 
 
-@app.route('/api/funder-clusters')
 def api_funder_clusters():
     """Get all funder clusters from analyzer with cluster_id (FUNDERS_1, FUNDERS_9, etc.)"""
     try:
@@ -16762,7 +16749,6 @@ def api_funder_clusters():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/api/funder-cluster/<cluster_id>')
 def api_funder_cluster_details(cluster_id):
     """Get detailed info for a specific funder cluster"""
     try:
@@ -17546,17 +17532,14 @@ def api_network_tokens(network_name):
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/network-intelligence')
 def network_intelligence_page():
     return render_template('network_intelligence.html', active_page='network_intelligence')
 
 
-@app.route('/ecosystems')
 def ecosystems_alias_page():
     return redirect('/ecosystem', code=302)
 
 
-@app.route('/risk-scoring')
 def risk_scoring_page():
     return render_template('risk_scoring.html', active_page='risk_scoring')
 
@@ -17736,7 +17719,6 @@ def api_risk_scoring_run():
         return jsonify({"status": "failed", "error": str(exc)}), 500
 
 
-@app.route('/predictions')
 def predictions_page():
     return jsonify({
         "status": "decommissioned",
@@ -18382,7 +18364,6 @@ def _run_prediction_reset_job() -> None:
             })
 
 
-@app.route('/approval-queue')
 def approval_queue_page():
     return render_template('approval_queue.html', active_page='approval_queue')
 
@@ -18431,7 +18412,6 @@ def api_creator_resolution_queue_run_now():
         return jsonify({'status': 'failed', 'error': str(exc)}), 500
 
 
-@app.route('/network-approval')
 def network_approval_page():
     return render_template('network_approval.html', active_page='network_approval')
 
@@ -19923,7 +19903,6 @@ def api_second_hop_lite_run_now():
     return jsonify({"status": "started", "message": "Worker running in background — refresh status in a few seconds"})
 
 
-@app.route('/networks')
 def networks_dashboard():
     """Serve a full webview for atomic funder networks"""
 
@@ -20226,7 +20205,6 @@ def networks_dashboard():
     )
 
 
-@app.route('/top-funding-hubs')
 def top_funding_hubs():
     """Display dashboard of all top funding hubs (duplicate senders)"""
     try:
@@ -20600,7 +20578,6 @@ def top_funding_hubs():
         return f"<html><body style='background:#0a0a0e; color: red;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
 
 
-@app.route('/funding-hub/<hub_address>')
 def funding_hub(hub_address):
     """Display funding hub network: sender -> funders -> creators -> tokens, OR funder -> creators -> tokens"""
     try:
@@ -21192,15 +21169,12 @@ def api_creator_analysis_queue_status():
 
 
 
-@app.route('/profitable-creators')
 def profitable_creators_page():
     return render_template('profitability_rankings.html', active_page='profitable-creators', entity='creators', title='Profitable Creators')
 
-@app.route('/profitable-networks')
 def profitable_networks_page():
     return render_template('profitability_rankings.html', active_page='profitable-networks', entity='networks', title='Profitable Networks')
 
-@app.route('/profitable-funders')
 def profitable_funders_page():
     return render_template('profitability_rankings.html', active_page='profitable-funders', entity='funders', title='Profitable Funders')
 
@@ -21225,23 +21199,18 @@ def api_profitability_rankings(entity: str):
         return jsonify({'ok': False, 'error': str(exc)}), 500
 
 
-@app.route('/ecosystem')
 def ecosystem_home_page():
     return render_template('ecosystem_home.html', active_page='ecosystem', title='Ecosystem')
 
-@app.route('/ecosystem-creators')
 def ecosystem_creators_page():
     return render_template('ecosystem_rankings.html', active_page='ecosystem-creators', entity='creators', title='Ecosystem Creators')
 
-@app.route('/ecosystem-networks')
 def ecosystem_networks_page():
     return render_template('ecosystem_rankings.html', active_page='ecosystem-networks', entity='networks', title='Ecosystem Networks')
 
-@app.route('/ecosystem-funders')
 def ecosystem_funders_page():
     return render_template('ecosystem_rankings.html', active_page='ecosystem-funders', entity='funders', title='Ecosystem Funders')
 
-@app.route('/ecosystem-clusters')
 def ecosystem_clusters_page():
     return render_template('ecosystem_rankings.html', active_page='ecosystem-clusters', entity='clusters', title='Ecosystem Clusters')
 
@@ -21275,13 +21244,11 @@ def api_creator_profitability(creator_address: str):
     except Exception as exc:
         return jsonify({'ok': False, 'error': str(exc)}), 500
 
-@app.route('/creator-analysis')
 def creator_analysis_page():
     """Display creator scan history, findings, and network impacts"""
     return render_template("creator_analysis.html", active_page="creator-analysis")
 
 
-@app.route('/creators')
 def creators_alias_page():
     return redirect('/creator-analysis', code=302)
 
@@ -22513,7 +22480,6 @@ def _build_score_section(score_info: dict) -> str:
     """
 
 
-@app.route('/creator-network/<network_name>')
 
 def creator_network_page(network_name: str):
     """Display creator network details and members separated by role"""
@@ -22873,7 +22839,6 @@ def system_health():
     return render_template('system_health_dashboard.html', active_page='system_health')
 
 
-@app.route('/network-monitoring')
 def network_monitoring():
     """
     Phase 8A: Monitoring Dashboard with Risk Band & Trend Surfacing
@@ -23063,7 +23028,6 @@ def network_monitoring():
         '''), 500
 
 
-@app.route('/network-monitoring/alerts.csv')
 def network_monitoring_csv():
     """
     Phase 4E: Export alerts as CSV
@@ -23307,13 +23271,11 @@ def unsuppress_alert(alert_id):
 
 
 
-@app.route('/settings')
 def settings_page():
     return render_template('settings.html', active_page='settings')
 
 
 
-@app.route('/rpc-savings-dashboard')
 def rpc_savings_dashboard():
     """
     RPC Savings Dashboard - Visualizes real savings from optimization.
@@ -25715,7 +25677,6 @@ def api_funding_queue_clear():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
-@app.route('/funding-queue')
 def funding_queue_page():
     return render_template("creator_funding_queue.html", active_page="funding_queue")
 
@@ -25938,12 +25899,10 @@ def api_funding_queue_recent_activity():
         return {"ok": False, "error": str(e)}, 500
 
 
-@app.route('/transfer-graph')
 def transfer_graph_page():
     return render_template("transfer_graph.html", active_page="transfer_graph")
 
 
-@app.route('/network-diagram')
 def network_diagram_index():
     investigations = [
         {
@@ -25981,7 +25940,6 @@ def network_diagram_index():
     ]
     return render_template("network_diagram_index.html", investigations=investigations)
 
-@app.route('/network-diagram/htx')
 def network_diagram_htx():
     return render_template("network_diagram_htx.html")
 
@@ -26055,7 +26013,6 @@ def api_network_diagram_htx_live():
     except Exception as exc:
         return jsonify({"error": str(exc)}), 500
 
-@app.route('/network-diagram/okx')
 def network_diagram_okx():
     return render_template("network_diagram_okx.html")
 
@@ -26127,32 +26084,26 @@ def api_network_diagram_okx_live():
     except Exception as exc:
         return jsonify({"error": str(exc)}), 500
 
-@app.route('/network-diagram/watchtower')
 def network_diagram_watchtower():
     return render_template("network_diagram_watchtower.html")
 
 
-@app.route('/watchtower')
 def watchtower_intelligence():
     from flask import redirect
     return redirect('/watchtower/intelligence')
 
 
-@app.route('/watchtower/operator/<address>')
 def watchtower_operator_detail(address: str):
     return render_template("watchtower_operator_detail.html", address=address, active_page='watchtower')
 
-@app.route('/watchtower/intelligence')
 def watchtower_operational_intelligence():
     return render_template("watchtower_operational_intelligence.html", active_page='watchtower_ops')
 
 
-@app.route('/watchtower/operations')
 def watchtower_operations():
     return render_template("watchtower_operations.html", active_page='watchtower_operations')
 
 
-@app.route('/command-center')
 def command_center():
     """FLEX v2 attention-first home (Phase 0+1). Mission Status banner + attention +
     live ops + work queues, all before any table. Backed by the existing
@@ -26160,11 +26111,9 @@ def command_center():
     return render_template("command_center.html", active_page='command_center')
 
 
-@app.route('/watchtower/operators')
 def watchtower_operators():
     return render_template("watchtower_operators.html", active_page='watchtower_operators')
 
-@app.route('/watchtower/candidate/<mint>')
 def watchtower_candidate_detail(mint: str):
     return render_template("watchtower_candidate_detail.html", mint=mint, active_page='watchtower_operators')
 
@@ -26502,7 +26451,6 @@ def api_watchtower_candidate_chain(mint: str):
     })
 
 
-@app.route('/watchtower/dashboard')
 def watchtower_dashboard():
     return render_template("watchtower_dashboard.html", active_page='watchtower_dashboard')
 
@@ -29208,7 +29156,6 @@ def _start_watchtower_activation_poller(db_path: str, interval_seconds: int = 60
     print("[WATCHTOWER] Poller started — watching 496 wallets for creator/funder activation every 60s", flush=True)
 
 
-@app.route('/network-diagram/coinbase-cluster')
 def network_diagram_coinbase_cluster():
     return render_template("network_diagram_coinbase_cluster.html")
 
@@ -29427,7 +29374,6 @@ def api_transfer_graph_stats():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/webhook-monitor')
 def webhook_monitor():
     """
     Webhook monitoring dashboard page.
@@ -29436,7 +29382,6 @@ def webhook_monitor():
     return render_template("webhook_monitor.html", active_page="webhook")
 
 
-@app.route('/webhook-metrics')
 def webhook_metrics_proxy():
     """
     Proxy endpoint that fetches webhook metrics from the RPC metrics API.
@@ -36126,7 +36071,6 @@ def api_interceptor_recent_validations():
         return jsonify({"error": str(_e)}), 500
 
 
-@app.route('/watchtower/interceptor')
 def watchtower_interceptor_dashboard():
     """Monitoring dashboard for CREATE Interceptor (PASSIVE validation)."""
     return render_template("watchtower_interceptor_dashboard.html", active_page='watchtower_interceptor')
@@ -39284,7 +39228,6 @@ def api_graph_cluster_detail(cluster_id):
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/coordinators')
 def coordinators_page():
     """Coordinator wallets — high-signal funder wallets from wallet_clusters."""
     return render_template('coordinators.html', active_page='coordinators')
@@ -40102,7 +40045,6 @@ def api_dashboard():
         }), 500
 
 
-@app.route('/test-prices')
 def test_prices():
     """Serve the live price update test dashboard"""
     return render_template_string("""
@@ -40469,7 +40411,6 @@ def test_prices():
 # FUNDER INTELLIGENCE PAGE
 # =========================================================================
 
-@app.route('/spike-analysis')
 def spike_analysis_page():
     return render_template('spike_analysis.html', active_page='spike_analysis')
 
@@ -40600,12 +40541,10 @@ def api_spike_analysis():
         conn.close()
 
 
-@app.route('/funder-intelligence')
 def funder_intelligence_page():
     return render_template('funder_intelligence.html', active_page='funder_intelligence')
 
 
-@app.route('/funding')
 def funding_alias_page():
     return redirect('/funder-intelligence', code=302)
 

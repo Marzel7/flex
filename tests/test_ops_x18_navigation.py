@@ -12,8 +12,7 @@ WIREFRAME = (ROOT / "docs/audits/X18_WIREFRAMES.html").read_text()
 
 def test_navigation_is_ordered_by_analyst_work():
     labels = [
-        ">◆ Mission Control<", ">Investigate<", ">Operations<", ">Review<", ">Analysis<",
-        ">Legacy Features ", ">Legacy WATCHTOWER ", ">System<",
+        ">◆ Mission Control<", ">Intelligence<", ">System<",
     ]
     positions = [SIDEBAR.index(label) for label in labels]
     assert positions == sorted(positions)
@@ -21,26 +20,23 @@ def test_navigation_is_ordered_by_analyst_work():
 
 def test_canonical_routes_are_primary_and_preserved():
     routes = [
-        "/ops-os", "/discovery", "/intelligence/entity/", "/intelligence/operators",
-        "/ops", "/watchtower/intelligence", "/ops-os/launcher-observatory",
-        "/ops-os/buy-swarm-observatory", "/intelligence/inbox",
-        "/intelligence/operator-promotions", "/intelligence/cross-operation",
-        "/intelligence/knowledge",
+        "/ops-os", "/intelligence/operators", "/intelligence/potential-operations",
+        "/system-health",
     ]
     for route in routes:
         assert f'href="{route}"' in SIDEBAR
 
 
-def test_legacy_pages_remain_reachable_and_are_marked():
+def test_retired_legacy_pages_are_not_linked_from_navigation():
     for route in (
         "/live-launches", "/approval-queue", "/funding-queue", "/network-approval",
-        "/predictions", "/spike-analysis", "/network-diagram", "/token-intelligence",
+        "/predictions", "/spike-analysis", "/network-diagram",
         "/creator-analysis", "/funder-intelligence",
         "/watchtower/operators", "/watchtower/interceptor", "/ops/tokens",
         "/ops/detection-health", "/ops/discovery-assurance", "/ops/webhook-coverage",
     ):
-        assert f'href="{route}"' in SIDEBAR
-    assert SIDEBAR.count("legacy-tag") >= 20
+        assert f'href="{route}"' not in SIDEBAR
+    assert "/api/funding-queue" not in SIDEBAR
 
 
 def test_home_redirects_to_mission_control():

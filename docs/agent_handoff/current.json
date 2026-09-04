@@ -14542,10 +14542,22 @@
     "recommendation": "Do not stage main.py in this task. The one remaining high-value reduction wave is a separately authorized, product-reviewed generic funding/network UI and route retirement, including its current navigation/tests and compatibility commitments.",
     "next_action": "ONE_FINAL_HIGH_VALUE_REDUCTION_WAVE: qualify the generic funding/network route family as a coherent product-surface change, or retain it as current compatibility; do not perform cosmetic main.py decomposition."
   },
-  "updated_at": "2026-09-04T18:00:00Z",
-  "updated_at_utc": "2026-09-04T18:00:00Z",
+  "generic_funding_network_ui_route_product_review": {
+    "status": "HOLD",
+    "verdict": "MORE_PRODUCT_REVIEW_REQUIRED",
+    "engineering_revision": "454b37bc5ad947a281354a78deb9341c25df4070",
+    "freeze": "39 tracked dirty paths, 424 untracked paths, and 0 staged entries. The candidate main.py delta remains 46 additions and 971 deletions.",
+    "finding": "The proposed deletion set is materially broader than generic funding/network UI. It also removes legacy Watchtower aliases, operator workflow pages, queues, diagrams, prediction and monitoring pages, their route handlers, and archive compatibility.",
+    "client_evidence": "Current templates/partials/sidebar.html actively links to /live-launches, /approval-queue, /funding-queue, /network-approval, /spike-analysis, /network-diagram, /creator-analysis, /funder-intelligence, /watchtower/operators, and /watchtower/interceptor; it automatically fetches /api/funding-queue. Current templates also make automatic calls to removed network-diagram, prediction, funding-queue, Watchtower, and funder-intelligence APIs. tests/test_ops_x18_navigation.py expressly requires these legacy routes remain reachable.",
+    "authority": "Protected current authority remains present: operator/potential-operation routes are declared outside main.py; /system-health and /ops-os are retained. The candidate diff must not be used to infer that creator_funders, Walkback, topology/provisioning, FundingAnalytics, P3R, Operations, Potential Operations, Evidence, compact market, or valuation may retire.",
+    "startup": "No startup hunk was qualified independently: main.py retains optional Flask worker ownership and the Watchtower activation poller. Supervisor status is unavailable in this environment due to permission-denied socket access; no service action was taken.",
+    "safety": "No provider/RPC calls, service restart, Supervisor change, database/schema mutation, index staging, engineering commit, or generated-artifact deletion occurred.",
+    "next_action": "Obtain an explicit product decision for each still-linked legacy route/API family, then build a narrow atomic backend+frontend projection that removes every link/automatic caller and updates the X18 navigation contract. Until then retain current compatibility."
+  },
+  "updated_at": "2026-09-04T18:30:00Z",
+  "updated_at_utc": "2026-09-04T18:30:00Z",
   "updated_by": "agent_local",
-  "verdict": "ONE_FINAL_HIGH_VALUE_REDUCTION_WAVE",
+  "verdict": "MORE_PRODUCT_REVIEW_REQUIRED",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

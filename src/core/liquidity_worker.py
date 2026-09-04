@@ -1,42 +1,80 @@
 """
 FLEX Liquidity Worker
 
-Background worker that continuously refreshes liquidity data.
+Background worker that maintains BOUNDED liquidity state for real, currently-
+held positions only. Today that eligible set is always empty (see
+REAL_POSITION_AUTHORITY_NOT_IMPLEMENTED below) -- capability is retained,
+persistence is not activated.
 
-Tasks:
-1. Fetch liquidity from Dexscreener for tracked tokens
-2. Store snapshots every 30-120 seconds
-3. Compute health and risk scores
-4. Update cache
+LIQUIDITY_STORAGE_LIFECYCLE_MIGRATION: dense unconditional liquidity-history
+persistence (token_liquidity_snapshots, appended for every active tracked
+token every ~60s regardless of ownership) has been retired. It served no
+current operation/P3R/Walkback/discovery path (LIQUIDITY_STORAGE_DECOMMISSIONING
+_QUALIFICATION), and its legacy health/risk derivation
+(compute_health_score/detect_rug_pull_risk -> token_liquidity_health/
+token_liquidity_risks) was independently proven LEGACY_DERIVED_STATE (stale
+since 2026-04-28, zero live consumers).
+
+New model (LIQUIDITY_REAL_POSITION_BOUNDARY correction):
+  - No real-position authority currently exists anywhere in this codebase
+    (real-money submit is explicitly disabled: SUBMIT_DISABLED=true,
+    ENABLE_CREATE_INTERCEPTOR=false, INTERCEPTOR_MODE=PASSIVE; no table/code
+    path tracks an actually-executed buy or held wallet balance).
+    REAL_POSITION_AUTHORITY_NOT_IMPLEMENTED.
+  - Therefore _get_live_position_mints() is a small, explicit, currently-empty
+    eligibility interface: it returns [] until a real trading system
+    implements the authoritative source.
+  - Only mints returned by _get_live_position_mints() are processed at all --
+    today that is always zero, so ordinary/migrated/candidate/operation
+    tokens (and paper-simulation tokens) are skipped entirely: no
+    price_service call, no DB write, no loop work for them here.
+  - First qualifying observation for a mint freezes an ENTRY liquidity value
+    in the compact token_owned_liquidity_state table (one row per mint).
+  - Subsequent observations UPDATE the LATEST value in place -- no new
+    dense historical row is ever appended.
+  - Once a mint drops out of _get_live_position_mints() (position closed),
+    it is no longer processed and its state simply stops updating.
+  - Liquidity persistence is optional/best-effort: any failure here must
+    never interrupt birth/migration/Walkback/operation-discovery, so all
+    per-mint work is wrapped and logged, never raised.
 
 Architecture:
-Tracked Token Registry
+_get_live_position_mints() (currently always [])
     ↓
-Fetch Liquidity (Dexscreener)
+Fetch Liquidity (via price_service, same acquisition path as before)
     ↓
-Store Snapshot
-    ↓
-Compute Scores
-    ↓
-Update Cache
+Freeze ENTRY (first time) / Update LATEST (subsequent) in
+token_owned_liquidity_state
 """
 
 import sqlite3
 import logging
 import time
 import threading
-import aiohttp
-import asyncio
 from typing import Dict, Optional, List
-from src.core.liquidity_intelligence import get_liquidity_intelligence
-from src.core.price_worker import PriceWorkerRegistry
 from src.core.price_service import get_price_service
 
 logger = logging.getLogger(__name__)
 
 
+def _ensure_owned_liquidity_state_table(conn: sqlite3.Connection) -> None:
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS token_owned_liquidity_state (
+            mint                  TEXT PRIMARY KEY,
+            entry_liquidity_usd   REAL,
+            entry_liquidity_at    INTEGER,
+            latest_liquidity_usd  REAL,
+            latest_liquidity_at   INTEGER,
+            final_liquidity_usd   REAL,
+            final_liquidity_at    INTEGER,
+            source                TEXT,
+            updated_at            INTEGER
+        )
+    """)
+
+
 class LiquidityWorker:
-    """Background worker for liquidity tracking."""
+    """Background worker maintaining bounded liquidity state for real, currently-held positions (see _get_live_position_mints)."""
 
     def __init__(self, db_path: str = 'database/flex_complete_database.db',
                  interval: int = 60, batch_size: int = 20):
@@ -51,16 +89,14 @@ class LiquidityWorker:
         self.db_path = db_path
         self.interval = interval
         self.batch_size = batch_size
-        self.intelligence = get_liquidity_intelligence(db_path)
         self.price_service = get_price_service(db_path)
-        self.registry = PriceWorkerRegistry(db_path)
         self.running = False
         self.thread = None
         self.stats = {
             'cycles': 0,
-            'snapshots_stored': 0,
-            'health_scores_computed': 0,
-            'risk_scores_computed': 0,
+            'entry_values_frozen': 0,
+            'latest_values_updated': 0,
+            'live_positions_seen': 0,
             'errors': 0,
             'last_run': None,
             'last_error': None
@@ -96,22 +132,37 @@ class LiquidityWorker:
                 self.stats['errors'] += 1
                 time.sleep(self.interval)
 
+    def _get_live_position_mints(self) -> List[str]:
+        """The single, explicit eligibility interface for production liquidity
+        acquisition/persistence.
+
+        REAL_POSITION_AUTHORITY_NOT_IMPLEMENTED: no real-money position
+        authority exists in this codebase today (real-trade submission is
+        disabled system-wide). This deliberately returns [] until a future
+        real trading system provides an authoritative source of currently-held
+        positions. It must never infer ownership from tracked-token metadata
+        as a substitute for a future authoritative real-position source.
+
+        Fail closed: any future implementation of this method must also
+        return [] rather than guess on any uncertainty about position state.
+        """
+        return []
+
     def _refresh_cycle(self) -> None:
-        """One complete refresh cycle."""
+        """One complete refresh cycle. Only processes mints returned by
+        _get_live_position_mints() -- today that is always zero (no real
+        position authority exists), so ordinary/migrated/candidate/operation
+        tokens AND paper-simulation tokens are never touched here."""
         cycle_start = time.time()
         self.stats['cycles'] += 1
 
-        # Get all active tracked tokens
-        tokens = self.registry.get_tracked_tokens(active_only=True)
+        mints = self._get_live_position_mints()
+        self.stats['live_positions_seen'] = len(mints)
 
-        if not tokens:
-            logger.debug("No tracked tokens for liquidity refresh")
+        if not mints:
+            logger.debug("No real eligible positions; liquidity worker skipping cycle")
             return
 
-        # Fetch prices (which include liquidity)
-        mints = [t['mint'] for t in tokens]
-
-        # Process in batches
         for i in range(0, len(mints), self.batch_size):
             batch = mints[i:i + self.batch_size]
             self._process_liquidity_batch(batch)
@@ -121,44 +172,94 @@ class LiquidityWorker:
 
         logger.debug(
             f"Liquidity cycle {self.stats['cycles']}: "
-            f"{len(mints)} tokens, {duration:.2f}s, "
-            f"{self.stats['snapshots_stored']} snapshots stored"
+            f"{len(mints)} live positions, {duration:.2f}s"
         )
 
     def _process_liquidity_batch(self, mints: List[str]) -> None:
-        """Process liquidity for a batch of tokens."""
+        """Fetch and persist bounded liquidity state for a batch of real,
+        currently-eligible position mints (from _get_live_position_mints).
+        Never raises -- a liquidity failure must not interrupt the wider
+        production pipeline."""
         try:
-            # Fetch prices (includes liquidity)
             prices = self.price_service.get_token_prices_sync(mints, cache_type='org')
+        except Exception as e:
+            logger.error(f"Liquidity worker: price fetch failed for batch: {e}")
+            self.stats['errors'] += 1
+            return
 
-            for mint, price in prices.items():
+        for mint, price in prices.items():
+            try:
                 if price.source == 'unavailable':
                     continue
-
-                # Store liquidity snapshot
-                stored = self.intelligence.store_snapshot(
+                self._upsert_owned_liquidity_state(
                     mint=mint,
                     liquidity_usd=price.liquidity_usd,
-                    liquidity_sol=price.price_sol,  # Approximate SOL equivalent
-                    pair_address=price.pair_address
+                    source=price.source,
                 )
+            except Exception as e:
+                logger.error(f"Liquidity worker: failed to persist state for {mint}: {e}")
+                self.stats['errors'] += 1
+                # Continue with the rest of the batch -- one mint's failure
+                # must not abort others, and never propagates upward.
 
-                if stored:
-                    self.stats['snapshots_stored'] += 1
+    def _upsert_owned_liquidity_state(self, mint: str, liquidity_usd: Optional[float],
+                                       source: Optional[str]) -> None:
+        """First observation for a mint freezes ENTRY; every observation
+        after that updates LATEST in place. No dense historical row is ever
+        appended -- state stays bounded at one row per mint."""
+        if liquidity_usd is None:
+            return
+        now = int(time.time())
+        conn = sqlite3.connect(self.db_path, timeout=5)
+        try:
+            conn.execute("PRAGMA busy_timeout = 5000")
+            _ensure_owned_liquidity_state_table(conn)
+            conn.execute("""
+                INSERT INTO token_owned_liquidity_state
+                    (mint, entry_liquidity_usd, entry_liquidity_at,
+                     latest_liquidity_usd, latest_liquidity_at, source, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(mint) DO UPDATE SET
+                    latest_liquidity_usd = excluded.latest_liquidity_usd,
+                    latest_liquidity_at  = excluded.latest_liquidity_at,
+                    source               = excluded.source,
+                    updated_at           = excluded.updated_at
+            """, (mint, liquidity_usd, now, liquidity_usd, now, source, now))
+            conn.commit()
+            if conn.total_changes:
+                # Distinguish first-insert (entry frozen) from update for stats;
+                # cheap enough to just check whether entry_liquidity_at == now.
+                row = conn.execute(
+                    "SELECT entry_liquidity_at, latest_liquidity_at FROM token_owned_liquidity_state WHERE mint = ?",
+                    (mint,)
+                ).fetchone()
+                if row and row[0] == now and row[1] == now:
+                    self.stats['entry_values_frozen'] += 1
+                else:
+                    self.stats['latest_values_updated'] += 1
+        finally:
+            conn.close()
 
-                # Compute and cache health score
-                health = self.intelligence.compute_health_score(mint)
-                self.intelligence.cache_health_assessment(mint, health)
-                self.stats['health_scores_computed'] += 1
-
-                # Compute and cache risk score
-                risk = self.intelligence.detect_rug_pull_risk(mint)
-                self.intelligence.cache_risk_assessment(mint, risk)
-                self.stats['risk_scores_computed'] += 1
-
+    def close_position_liquidity(self, mint: str) -> None:
+        """Optional: freeze a final liquidity value when a position closes.
+        Best-effort, never raises. Not required for correctness -- the
+        latest value already reflects the last observation before close."""
+        try:
+            conn = sqlite3.connect(self.db_path, timeout=5)
+            try:
+                conn.execute("PRAGMA busy_timeout = 5000")
+                _ensure_owned_liquidity_state_table(conn)
+                conn.execute("""
+                    UPDATE token_owned_liquidity_state
+                    SET final_liquidity_usd = latest_liquidity_usd,
+                        final_liquidity_at  = ?
+                    WHERE mint = ? AND final_liquidity_at IS NULL
+                """, (int(time.time()), mint))
+                conn.commit()
+            finally:
+                conn.close()
         except Exception as e:
-            logger.error(f"Error processing liquidity batch: {e}")
-            self.stats['errors'] += 1
+            logger.debug(f"close_position_liquidity best-effort failed for {mint}: {e}")
 
     def get_stats(self) -> Dict:
         """Get worker statistics."""

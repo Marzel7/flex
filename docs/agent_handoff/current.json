@@ -14443,14 +14443,14 @@
     "status": "PARTIAL",
     "verdict": "MARKET_PREDICTION_RETIREMENT_COMMIT_PARTIAL",
     "scope": "Selective staging audit only; no engineering commit, service restart, provider/RPC call, database/schema mutation, or working-tree discard.",
-    "freeze": "Engineering HEAD 18e401c422f1747ff93add6194ae03071cc5f05a; 57 tracked dirty paths; worktree main.py hash 99fcfa1e900d547068eef304eaad8b6ec22d962e.",
-    "qualified_market_units": "price_api removes dense history, anomaly, and liquidity-intelligence endpoints/imports; liquidity_intelligence and price_anomaly_detection are deleted with zero current imports; price_confidence is neutral without dense price history; price_service replaces dense snapshot schema/cache/writes/classification/history with compact valuation and peak facts; price_worker removes legacy snapshot-retention hooks and dense-history gates.",
-    "protected_replacement": "liquidity_worker remains current compact functionality and is excluded. Generic dashboard, profitability, token behaviour, Helius, retained acquisition, operations, valuation, FundingAnalytics, and cold-storage changes are excluded.",
-    "blocker": "The final price_worker compact-write/neutral-scoring transitions remain mixed. The staging safety gate requires a separately enumerated, exact hunk-order proof before they can be selected. No partial commit is allowed, so all six temporarily staged market files were returned to the unstaged worktree.",
-    "next_action": "Resume by individually mapping the remaining price_worker hunks against the current compact valuation contract, then stage only those exact hunks, audit the complete batch, run focused market and protected tests, and commit only if all gates pass."
+    "freeze": "Engineering HEAD 18e401c422f1747ff93add6194ae03071cc5f05a; 57 tracked dirty paths before this targeted audit; worktree price_worker hash bb73ad5984769170f5b97c885652011aaab29ba1 and price_service hash 0ea0755a25ef9c1340964c5bd7f0da5321ecdd20 remained unchanged.",
+    "qualified_market_units": "price_worker classification is complete: retention-cleanup removal hunks and dense-history neutral scoring are retirement-only; three unconditional _store_snapshot changes are current compact-valuation transitions and excluded. price_service dense schema/writes/classification/history are retirement candidates, while its process-local cache transition is excluded.",
+    "protected_replacement": "liquidity_worker is a dirty, current compact replacement which removes its liquidity_intelligence import and adds bounded owned-liquidity state. It is explicitly outside this commit. Generic dashboard, profitability, token behaviour, Helius, retained acquisition, operations, valuation, FundingAnalytics, and cold-storage changes remain excluded.",
+    "blocker": "Staged-deletion reference proof found that HEAD src/core/liquidity_worker.py still imports src.core.liquidity_intelligence. Deleting liquidity_intelligence without staging the out-of-scope current compact liquidity_worker replacement would make the committed runtime import fail. All temporary staged selections were safely restored to the index; no worktree file changed and no engineering commit was created.",
+    "next_action": "Qualify the current compact liquidity_worker replacement as its own coherent commit (or explicitly authorize including it in this market retirement); only then retire liquidity_intelligence and its dependent API paths. Do not stage the mixed compact-valuation transitions in this milestone without separate authorization."
   },
-  "updated_at": "2026-09-04T14:40:00Z",
-  "updated_at_utc": "2026-09-04T14:40:00Z",
+  "updated_at": "2026-09-04T15:10:00Z",
+  "updated_at_utc": "2026-09-04T15:10:00Z",
   "updated_by": "agent_local",
   "verdict": "MARKET_PREDICTION_RETIREMENT_COMMIT_PARTIAL",
   "watchtower_buy3_historical_first_buy_opening_mc": {

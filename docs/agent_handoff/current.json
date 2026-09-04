@@ -12973,7 +12973,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "P5A_NAMESPACE_SEPARATION_QUALIFIED",
+  "status": "P5A_CURRENT_COLD_STORAGE_CUTOVER_COMPLETE",
   "storage_incident_2026_09_01": {
     "critical_accounting_warning": "macOS `stat -f %b` is POSIX st_blocks in FIXED 512-byte units. allocated_bytes = %b * 512. NEVER multiply %b by %k (an unrelated filesystem I/O-transfer-size field). An earlier pass in this incident used %b*4096 and overstated every physical-allocation figure by exactly 8x. Do not let that error re-enter future storage analysis.",
     "future_triggers": {
@@ -13872,7 +13872,7 @@
       "net_available_kib_change_observed": 1377328,
       "note": "APFS free-space accounting can vary with concurrent writer activity; exact removed file allocation is separately recorded."
     },
-    "next_action": "P5A_CURRENT_HISTORICAL_NAMESPACE_SEPARATION read-only qualification; no further destructive action is implied."
+    "next_action": "P5A_CURRENT_COLD_STORAGE_SINGLE_PATH_CUTOVER implementation is complete; next separately-authorized work is a historical-residue retirement audit."
   },
   "p5a_current_historical_namespace_separation": {
     "status": "COMPLETE",
@@ -13919,6 +13919,45 @@
     "dependency_matrix": "Direct: historical transfer-index lifecycle / FundingAnalytics-style transfer readers and runner validation. Indirect: Watchtower, creator-funding, topology, P3R/Operations/Potential Operations where historical transfer reader is invoked. None observed: births, migrations, canonical Evidence, retained UI as a direct P5A file consumer. No claim of complete independence is made for paths with cold-only data.",
     "readiness": "SEPARATE_CURRENT_NAMESPACE_FIRST",
     "safety": {"provider_rpc_calls": 0, "source_or_production_rows_modified": false, "p5a_paths_modified": false, "code_config_schema_ui_modified": false, "service_restarts": 0, "rollover_or_replay_run": false}
+  },
+  "p5a_current_cold_storage_cutover": {
+    "status": "COMPLETE",
+    "verdict": "P5A_CURRENT_COLD_STORAGE_CUTOVER_COMPLETE",
+    "engineering_revision": "f661ae4593e5aaf434c4d0c91e9fb8dc2afd4f08",
+    "canonical_paths": {
+      "segments": "database/current_cold_storage/segments",
+      "summaries": "database/current_cold_storage/summaries",
+      "normal_runtime_rule": "ColdSegmentRegistry and the rollover runner use only the current namespace by default; historical P5A access requires an explicit override and has no environment fallback."
+    },
+    "migration": {
+      "verified_current_segments": 46,
+      "verified_current_segment_rows": 1738085,
+      "digest_bound_summaries_verified": 46,
+      "old_duplicate_files_removed": 90,
+      "old_p5a_remaining": "4 historical SQLite stage/delta segments and 31 historical summary files remain untouched pending a separate historical-contract audit.",
+      "summary_exception": "Two stale historical source summaries (2025_07 and 2026_02) were rebuilt from verified immutable current segments; both now pass digest verification."
+    },
+    "writer_isolation": "summary_root_for_cold_root() binds a non-current explicit cold root to its sibling summaries directory, preventing historical qualification from publishing into current summaries. A current-root dry run preserved the repaired summary SHA-256 values.",
+    "activation": {
+      "user_crontab_rollover_entries": 20,
+      "old_p5a_current_root_entries": 0,
+      "all_entries_explicit_current_root": true,
+      "controlled_dry_run": "1 row scanned; 1 pinned excluded; 0 copied; 0 retired; no HOT deletion."
+    },
+    "verification": {
+      "focused_and_protected_tests": "111 passed",
+      "reader": "UnifiedTransferReader opened 46 qualified current COLD connections.",
+      "ui_smokes": "operators, Byzantine operator, potential operations, system-health, and ops-os all returned HTTP 200.",
+      "services": "watchtower API/listener, creator resolution/funding, Walkback, operation scheduler, and websocket cascade observed RUNNING; Codex performed no service restart.",
+      "protected_data": "No Codex-driven protected database/source mutation, provider/RPC, getTransaction, schema/UI change, or suppression. Active ingestion naturally advanced creator-funding and token-analysis counts."
+    },
+    "storage": {
+      "old_p5a_before_kib": 1654712,
+      "old_p5a_after_kib": 511856,
+      "current_cold_storage_kib": 1141492,
+      "note": "New current copies occupy their own space; only the individually SHA-verified duplicate old copies were retired."
+    },
+    "next_action": "P5A_HISTORICAL_RESIDUE_RETIREMENT_AUDIT: classify remaining historical P5A stage data, summaries, checkpoints, and repair workspace without touching the current cold authority."
   },
   "transaction_first_lineage_recovery_cache_audit": {
     "access": {
@@ -14007,10 +14046,10 @@
     "tests": "53 focused tests passed: UI-contraction route guards plus creator-funding fast paths, Walkback startup resilience, P3R, Potential Operation visual structure, and operational topology. compileall and git diff --check passed.",
     "verdict": "UI_SURFACE_CONTRACTION_AND_BACKEND_REACHABILITY_PARTIAL_GENERIC_FUNDING_SLICE_RETIRED"
   },
-  "updated_at": "2026-09-04T06:45:00Z",
-  "updated_at_utc": "2026-09-04T06:45:00Z",
+  "updated_at": "2026-09-04T07:15:00Z",
+  "updated_at_utc": "2026-09-04T07:15:00Z",
   "updated_by": "agent_local",
-  "verdict": "P5A_NAMESPACE_SEPARATION_QUALIFIED",
+  "verdict": "P5A_CURRENT_COLD_STORAGE_CUTOVER_COMPLETE",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

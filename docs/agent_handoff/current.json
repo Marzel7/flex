@@ -14341,6 +14341,18 @@
     "worktree": "Expected dirty worktree remains; unrelated source, runtime, lock, audit, database, and handoff changes are unstaged/uncommitted.",
     "safety": "No provider/RPC calls, historical Dust mutation, normal Walkback mutation, source/runtime database staging, suppression, discard, reset, rebase, stash, or Git maintenance."
   },
+  "legacy_simulation_market_dashboard_commit_hygiene": {
+    "status": "PARTIAL",
+    "verdict": "LEGACY_RETIREMENT_COMMIT_PARTIAL",
+    "scope": "Read-only dirty-worktree semantic census after the separately committed graph and Dust retirements. No source/config/database/runtime mutation, no provider/RPC, and no staging/commit occurred.",
+    "census": "64 tracked dirty paths; 402 untracked paths. After excluding generated/runtime material: 24 runtime/lock paths and 353 generated audit/evidence paths; 23 untracked source/test candidates, one docs-contract candidate, and one other path remain for later classification.",
+    "classification": "Simulation core deletions are clear (src/trading/simulation.py, templates/trading_sim.html, simulation exports, navigation/config residue, price-worker and prediction auto-buy hooks). Dense market/liquidity retirement is a distinct batch (legacy liquidity/anomaly modules and dense reader/writer removals). Dashboard/route contraction is a third family. Current cold storage, retained acquisition, FundingAnalytics/valuation, Helius, operation work, and broad main.py cleanup remain excluded.",
+    "blocker": "The essential simulation Flask route/API deletion is embedded in a single 1,035-line src/core/main.py hunk that also removes legacy prediction/API behavior. Whole-file staging would contaminate a simulation-only commit; mechanically splitting/reconstructing that shared source hunk would exceed this commit-hygiene authorization. The stale untracked simulation liquidity compatibility test also imports the deleted module and is not part of a tracked historical deletion.",
+    "proof": "Current executable source has zero src.trading.simulation imports and zero /trading-sim or /api/trading-sim route declarations. Retained UI routes remain declared for operators, operator detail, potential operations/detail, system-health, and ops-os. Core services remain running: watchtower_api=37424, listener=33586, creator_funding_worker=56190, walkback_worker=33579, operation_scheduler=35254, ws_cascade=39633; Dust and Helius monitor Supervisor entries are absent.",
+    "decision": "BLOCKED_BY_MIXED_HUNKS. No index entries were created. Recommended later order: (1) separately review/split the combined main.py simulation+prediction retirement hunk, then commit the coherent simulation subsystem; (2) legacy market/liquidity/prediction retirement; (3) legacy dashboard/UI/route contraction.",
+    "checks": "compileall for current main/price-worker/token-prediction/trading init passed; working-tree and index diff checks passed. No provider/RPC or service restart.",
+    "safety": "Previous graph/Dust commits unchanged; no staging, commit, push, database/schema mutation, discard, reset, stash, rebase, force-push, or Git maintenance."
+  },
   "creator_funding_graph_lifecycle_audit": {
     "status": "COMPLETE",
     "verdict": "CREATOR_FUNDING_GRAPH_LIFECYCLE_QUALIFIED",
@@ -14414,10 +14426,10 @@
     "next_action": "MORE_EVIDENCE_QUALIFICATION_REQUIRED: if desired, separately authorize a bounded semantic fixture review of primitive_replay.sqlite, authority_projection.sqlite, and the 1D/2A/2C1 audit DBs, with a no-artifact-recursion measurement plan. Otherwise retain the current Evidence set and move to main.py cleanup.",
     "safety": "No Evidence, database, service, Supervisor, creator-funding, Walkback, topology, P3R, Operations, Potential Operations, UI, cron, RPC/provider, VACUUM, REINDEX, checkpoint, or Git maintenance change. Temporary diagnostic du processes started by this audit were terminated."
   },
-  "updated_at": "2026-09-04T12:30:00Z",
-  "updated_at_utc": "2026-09-04T12:30:00Z",
+  "updated_at": "2026-09-04T13:00:00Z",
+  "updated_at_utc": "2026-09-04T13:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "DUST_RETIREMENT_COMMIT_COMPLETE",
+  "verdict": "LEGACY_RETIREMENT_COMMIT_PARTIAL",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

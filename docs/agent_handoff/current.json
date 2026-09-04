@@ -14470,7 +14470,7 @@
     "production_flags": "No provider/RPC calls, database/schema mutation, service restart, or flag change. Retained acquisition V1 and V2 are both disabled by default; V2 remains optional when explicitly enabled.",
     "safety": "Canonical Evidence, compact provenance, indexed authority, recovery stores, Walkback, creator funding, P3R, Operations, Potential Operations, and Byzantine valuation are untouched. No generated RA audit/runtime evidence or capture-manifest formatting was staged.",
     "index": "The protected eight-file market-retirement index was revalidated after commit and contains only price_api, liquidity_intelligence, main, price_anomaly_detection, price_confidence, price_service, price_worker, and snapshot_retention_manager.",
-    "remote": "HANDOFF_TRANSPORT_DEGRADED: push to origin/classification-attribution-axis was rejected by environment egress policy because origin trust was not established. No push workaround attempted.",
+    "remote": "HANDOFF_TRANSPORT_DEGRADED: pushes of both the engineering commit to origin/classification-attribution-axis and this handoff commit to origin/agent-handoff are blocked pending explicit user authorization to export repository contents to unestablished origin. No push workaround attempted.",
     "next_action": "CURRENT_COLD_STORAGE_COMMIT_AUDIT; do not start automatically."
   },
   "updated_at": "2026-09-04T16:00:00Z",

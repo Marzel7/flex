@@ -24583,33 +24583,6 @@ def api_db_health():
         wal_path = DB_PATH + '-wal'
         wal_mb = round(os.path.getsize(wal_path) / 1024 / 1024, 1) if os.path.exists(wal_path) else 0
 
-        rpc_cache_rows = count('rpc_response_cache')
-        rpc_metrics_rows = count('rpc_metrics')
-        helius_snapshots_rows = count('helius_usage_snapshots')
-
-        last_run = None
-        try:
-            has_log = conn.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' AND name='db_maintenance_log'"
-            ).fetchone()
-            if has_log:
-                row = conn.execute(
-                    """SELECT ran_at, rpc_cache_deleted, rpc_metrics_deleted,
-                              helius_snapshots_deleted, wal_checkpoint_pages, duration_ms
-                       FROM db_maintenance_log ORDER BY ran_at DESC LIMIT 1"""
-                ).fetchone()
-                if row:
-                    last_run = {
-                        'ran_at': row[0],
-                        'rpc_cache_deleted': row[1],
-                        'rpc_metrics_deleted': row[2],
-                        'helius_snapshots_deleted': row[3],
-                        'wal_checkpoint_pages': row[4],
-                        'duration_ms': row[5],
-                    }
-        except Exception:
-            pass
-
         # Queue depths
         queue_depths = {}
         for q_table, q_label in [
@@ -24638,11 +24611,7 @@ def api_db_health():
             pass
 
         return {
-            'rpc_cache_rows': rpc_cache_rows,
-            'rpc_metrics_rows': rpc_metrics_rows,
-            'helius_snapshots_rows': helius_snapshots_rows,
             'wal_mb': wal_mb,
-            'last_maintenance': last_run,
             'queue_depths': queue_depths,
             'write_reliability': write_metrics,
         }

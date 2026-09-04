@@ -14473,10 +14473,23 @@
     "remote": "HANDOFF_TRANSPORT_DEGRADED: pushes of both the engineering commit to origin/classification-attribution-axis and this handoff commit to origin/agent-handoff are blocked pending explicit user authorization to export repository contents to unestablished origin. No push workaround attempted.",
     "next_action": "CURRENT_COLD_STORAGE_COMMIT_AUDIT; do not start automatically."
   },
-  "updated_at": "2026-09-04T16:00:00Z",
-  "updated_at_utc": "2026-09-04T16:00:00Z",
+  "current_cold_storage_commit_audit": {
+    "status": "COMPLETE",
+    "verdict": "CURRENT_COLD_STORAGE_COMMIT_COMPLETE",
+    "engineering_revision": "4feacc0e06c88f4ed943d592e7970acfb52d3a34",
+    "commit": "4feacc0e06c88f4ed943d592e7970acfb52d3a34",
+    "scope": "Four-file single-path cutover: canonical current_cold_storage segments/summaries roots, registry and reader default without environment or P5A fallback, rollover summary namespace binding, and deterministic namespace tests.",
+    "validation": "74 passed, 11 skipped focused cold tests; staged py_compile/import passed. 20 user-crontab rollover entries explicitly target database/current_cold_storage/segments. Protected provider-free subset had 41 passes and one pre-existing Potential Operations fixture mismatch; a legacy PumpSwap test was excluded after unrelated collection failure importing absent top-level main.",
+    "corpus_boundary": "46 untracked production SQLite segments and 86 untracked digest summaries were excluded. No runtime DB, WAL/SHM, lock, lease, checkpoint, generated lifecycle evidence, or historical P5 artifact was staged.",
+    "safety": "No rollover execution, HOT deletion, database/schema mutation, cron modification, service restart, or provider/RPC call. Core services were read-only checked RUNNING. Byzantine first-second valuation files were untouched.",
+    "index": "Protected eight-file market-retirement index revalidated unchanged after commit.",
+    "remote": "HANDOFF_TRANSPORT_DEGRADED: engineering and handoff pushes remain awaiting explicit user authorization to export repository contents to unestablished origin; no push attempted this turn.",
+    "next_action": "FUNDING_ANALYTICS_VALUATION_COMMIT_AUDIT; do not start automatically."
+  },
+  "updated_at": "2026-09-04T16:20:00Z",
+  "updated_at_utc": "2026-09-04T16:20:00Z",
   "updated_by": "agent_local",
-  "verdict": "RETAINED_ACQUISITION_COMMIT_COMPLETE",
+  "verdict": "CURRENT_COLD_STORAGE_COMMIT_COMPLETE",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

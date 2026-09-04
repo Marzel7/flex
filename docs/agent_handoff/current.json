@@ -1,4 +1,12 @@
 {
+  "bounded_pumpfun_creation_anchor_recovery": {
+    "engineering_revision": "696bd465492c74ff208820481472efd6c99131c3",
+    "tests": "not run; qualification stopped before implementation because the required birth-time input is absent",
+    "production_flags": "no provider calls, no source edits, no DB writes, no listener/Walkback/attribution changes",
+    "verdict": "BLOCKED",
+    "blocker": "0/12 retained genuine Pump.fun birth timestamps. The existing timestamp-to-slot method uses migration-era timestamps and has a recorded 0/9 true-creation recovery result; it is explicitly unreliable and cannot supply a fixed creation-search window.",
+    "next_action": "Acquire or identify durable true Pump.fun birth timestamp/slot evidence under a separately qualified bounded source contract; do not use migration timestamps, address-history pagination, or automatic widening."
+  },
   "byzantine_opening_anchor_recovery": {
     "engineering_revision": "696bd465492c74ff208820481472efd6c99131c3",
     "tests": "not run; read-only local evidence census",

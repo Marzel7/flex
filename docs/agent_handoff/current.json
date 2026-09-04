@@ -14368,6 +14368,15 @@
     "future_wave": "Create the bounded labelled exception set; if justified create a tiny completeness cache; remove graph lookup/write and unused views; remove stale listener CREATE IF NOT EXISTS residue; prove zero readers/writers; drop graph/indexes; run creator-funding/canonical/cache/Walkback/FundingAnalytics/P3R/Operations/Potential/spam-dust/CEX-infra regressions and measure provider/write-lane effect.",
     "safety": "Graph, creator_funders, creator funding, Walkback, topology, FundingAnalytics, P3R, Operations, Potential Operations, Evidence, services, UI and schema unchanged; provider/RPC=0."
   },
+  "creator_funding_graph_retirement_implementation": {
+    "status": "HOLD",
+    "verdict": "CREATOR_FUNDING_GRAPH_RETIREMENT_AWAITING_SAFETY_GATE_REAPPROVAL",
+    "implementation_preflight": "Scoped retirement tests passed 5/5; compileall passed; the current src tree has zero creator_funding_graph/CreatorFundingGraphCache/CREATOR_CACHE runtime references. The only remaining matches are the intentional one-shot retirement migration, its test fixture, and historical handoff narrative.",
+    "runtime": "Restarted only creator_funding_worker (34645 -> 56190); it is RUNNING. watchtower_listener remained RUNNING (33586); evidence_writer was already STOPPED and untouched.",
+    "blocked_action": "The exact 12-row non-authoritative exception preservation plus DROP creator_funding_graph write was rejected by the execution safety gate pending an explicit post-proof user reapproval. No database mutation was attempted after rejection.",
+    "safety": "No provider/RPC calls, no source/production database writes, no schema drop, no Walkback mutation, no UI/schema change, and no suppression. The 12 exceptions remain unmigrated and GMH/Erx remains preserved by its existing selected Walkback/role evidence.",
+    "next_action": "On explicit reapproval after this documented zero-consumer proof, execute scripts/retire_creator_funding_graph.py once; verify exactly 12 canonical_authority=0 INSUFFICIENT_EVIDENCE legacy facts, creator_funding_graph absent, idempotent rerun, and worker continuity."
+  },
   "updated_at": "2026-09-04T11:31:00Z",
   "updated_at_utc": "2026-09-04T11:31:00Z",
   "updated_by": "agent_local",

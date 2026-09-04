@@ -1,4 +1,12 @@
 {
+  "pumpfun_opening_impulse_replay": {
+    "engineering_revision": "696bd465492c74ff208820481472efd6c99131c3",
+    "tests": "13 passed: tests/test_pumpfun_opening_impulse.py and tests/test_operation_launch_valuation_stage0.py; provider calls=0",
+    "production_flags": "no runtime wiring, no provider calls, no DB schema or UI changes",
+    "verdict": "PASS",
+    "blocker": "The current 12 Byzantine rows retain migration data but no canonical Pump.fun creation-slot/bonding-curve anchor; bounded cohort acquisition is not yet qualified.",
+    "next_action": "Recover canonical Pump.fun creation anchors for the intended retrospective cohort before authorizing a bounded opening-impulse acquisition run."
+  },
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {

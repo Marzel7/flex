@@ -14566,10 +14566,21 @@
     "remote": "HANDOFF_TRANSPORT_DEGRADED: engineering and handoff publication await explicit remote-export approval; no push attempted.",
     "next_action": "Return to feature or coverage engineering; do not continue reduction by inertia."
   },
-  "updated_at": "2026-09-04T19:15:00Z",
-  "updated_at_utc": "2026-09-04T19:15:00Z",
+  "final_dirty_tree_disposition_and_reduction_closeout": {
+    "status": "COMPLETE",
+    "verdict": "REDUCTION_PROGRAMME_COMPLETE",
+    "engineering_revision": "70c552bd964b531733cc5b95012d050000bd4fdb",
+    "freeze": "34 tracked dirty paths, 424 untracked paths, and 0 staged entries.",
+    "runtime": "Read-only Supervisor inspection: watchtower_api, watchtower_listener, creator_funding_worker, walkback_worker, operation_scheduler, and ws_cascade are RUNNING; watchtower_helius_monitor and dust_observatory_enricher are absent from the Supervisor catalogue.",
+    "finding": "Remaining tracked work is current feature work, qualified uncommitted hygiene, or parked Helius hygiene. Untracked state is predominantly generated audit evidence, current cold-storage/runtime DB sidecars, locks/leases, and historical proof; untracked Python/test modules are retained feature or maintenance work, not disposable output.",
+    "closure": "No material current duplicate writer, duplicate authority, retired-store runtime reader, automatic recreation path, stale provider daemon, unbounded low-value store, or unnecessary provider path was identified in the committed runtime surface. Historical price-table maintenance remains optional and does not block closure.",
+    "next_action": "Begin product/coverage work: operation discovery coverage, Robinhood/Solana birth integration, FundingAnalytics productization, bounded valuation evaluation, or P3R intelligence improvements. Do not continue reduction by inertia.",
+    "remote": "HANDOFF_TRANSPORT_DEGRADED: local commits remain unpublished pending explicit remote-export approval."
+  },
+  "updated_at": "2026-09-04T20:00:00Z",
+  "updated_at_utc": "2026-09-04T20:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "FINAL_LEGACY_PRODUCT_SURFACE_RETIREMENT_COMPLETE",
+  "verdict": "REDUCTION_PROGRAMME_COMPLETE",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

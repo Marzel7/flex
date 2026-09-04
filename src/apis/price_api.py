@@ -16,9 +16,6 @@ from src.core.price_confidence import get_confidence_scorer
 from src.core.launch_outcome_tracker import get_outcome_tracker
 from src.core.price_worker import get_price_worker, PriceWorkerRegistry
 from src.core.price_aggregation import get_price_aggregator
-from src.core.price_anomaly_detection import get_anomaly_detector
-from src.core.liquidity_intelligence import get_liquidity_intelligence
-from src.core.liquidity_worker import get_liquidity_worker
 
 logger = logging.getLogger(__name__)
 
@@ -547,35 +544,6 @@ def get_prices_batch():
         return jsonify({'error': str(e)}), 500
 
 
-@price_api.route('/<mint>/history', methods=['GET'])
-def get_price_history(mint: str):
-    """
-    Get historical price snapshots.
-    
-    Query params:
-    - hours: Number of hours to look back. Default: 24
-    
-    Returns: List of snapshots with timestamps
-    """
-    try:
-        hours = request.args.get('hours', 24, type=int)
-        
-        if hours < 1 or hours > 720:  # Max 30 days
-            return jsonify({'error': 'hours must be between 1 and 720'}), 400
-        
-        service = get_price_service()
-        history = service.get_price_history(mint, hours)
-        
-        return jsonify({
-            'mint': mint,
-            'hours': hours,
-            'snapshots': history,
-            'count': len(history)
-        })
-    except Exception as e:
-        logger.error(f"Error getting price history for {mint}: {e}")
-        return jsonify({'error': str(e)}), 500
-
 
 def _db_snapshot_cleanup(db_path: str) -> dict:
     """Read latest cleanup stats from snapshot_cleanup_log."""
@@ -622,19 +590,6 @@ def _db_health_signals(db_path: str, window_secs: int = 60) -> dict:
         conn = sqlite3.connect(db_path, timeout=3)
         cur = conn.cursor()
 
-        cur.execute("SELECT MAX(captured_at) FROM token_price_snapshots")
-        signals['last_snapshot_at'] = cur.fetchone()[0] or 0
-
-        cur.execute(
-            "SELECT COUNT(*), COUNT(DISTINCT mint) FROM token_price_snapshots "
-            "WHERE captured_at > strftime('%s','now',?)",
-            (f'-{window_secs} seconds',)
-        )
-        row = cur.fetchone()
-        signals['snapshots_in_window'] = row[0] or 0
-        signals['snapshots_60s'] = row[0] or 0
-        signals['unique_mints_60s'] = row[1] or 0
-
         cur.execute(
             "SELECT COUNT(*) FROM tracked_tokens "
             "WHERE last_price_update > strftime('%s','now',?)",
@@ -654,19 +609,6 @@ def _db_health_signals(db_path: str, window_secs: int = 60) -> dict:
             (f'-{window_secs} seconds',)
         )
         signals['last_analysis_at'] = cur.fetchone()[0] or 0
-
-        cur.execute("SELECT MAX(last_updated) FROM token_snapshot_counts")
-        signals['last_snapshot_count_update_at'] = cur.fetchone()[0] or 0
-
-        cur.execute(
-            "SELECT source FROM token_price_snapshots "
-            "WHERE captured_at > strftime('%s','now','-300 seconds') "
-            "GROUP BY source ORDER BY COUNT(*) DESC LIMIT 1"
-        )
-        row = cur.fetchone()
-        if row:
-            src = row[0] or ''
-            signals['active_writer'] = 'listener' if src == 'pool' else ('main' if src else 'fallback')
 
         conn.close()
     except Exception:
@@ -1114,47 +1056,6 @@ def get_aggregated_price(mint: str):
         return jsonify({'error': str(e)}), 500
 
 
-@price_api.route('/<mint>/anomaly', methods=['GET'])
-def get_price_anomaly(mint: str):
-    """
-    Detect price anomalies.
-
-    Returns: Anomaly detection result with score, type, and reasons
-    """
-    try:
-        # Get current price
-        service = get_price_service()
-        price = service.get_token_price_sync(mint, cache_type='org')
-
-        if price.source == 'unavailable':
-            return jsonify({'error': 'No price data available'}), 404
-
-        # Detect anomalies
-        detector = get_anomaly_detector()
-        result = detector.detect_anomaly(
-            mint=mint,
-            current_price=price.price_usd,
-            current_liquidity=price.liquidity_usd,
-            current_volume=price.volume_24h
-        )
-
-        return jsonify({
-            'mint': result.mint,
-            'is_anomaly': result.is_anomaly,
-            'anomaly_type': result.anomaly_type,
-            'anomaly_score': result.anomaly_score,
-            'confidence': result.confidence,
-            'reasons': result.reasons,
-            'price_current': result.current_price,
-            'price_previous': result.previous_price,
-            'price_change_percent': result.price_change_percent,
-            'liquidity': result.current_liquidity,
-            'volume_to_liquidity_ratio': result.volume_to_liquidity_ratio
-        })
-    except Exception as e:
-        logger.error(f"Error detecting anomaly for {mint}: {e}")
-        return jsonify({'error': str(e)}), 500
-
 
 @price_api.route('/<mint>/full', methods=['GET'])
 def get_full_price_data(mint: str):
@@ -1177,15 +1078,6 @@ def get_full_price_data(mint: str):
         scorer = get_confidence_scorer()
         confidence = scorer.compute_confidence(price)
 
-        # Get anomaly detection
-        detector = get_anomaly_detector()
-        anomaly = detector.detect_anomaly(
-            mint=mint,
-            current_price=price.price_usd,
-            current_liquidity=price.liquidity_usd,
-            current_volume=price.volume_24h
-        )
-
         return jsonify({
             'mint': price.mint,
             'price_usd': price.price_usd,
@@ -1206,14 +1098,6 @@ def get_full_price_data(mint: str):
                 'source_score': confidence.source_score,
                 'stability_score': confidence.stability_score,
                 'reasons': confidence.reasons
-            },
-            'anomaly': {
-                'is_anomaly': anomaly.is_anomaly,
-                'anomaly_type': anomaly.anomaly_type,
-                'anomaly_score': anomaly.anomaly_score,
-                'confidence': anomaly.confidence,
-                'reasons': anomaly.reasons,
-                'price_change_percent': anomaly.price_change_percent
             }
         })
     except Exception as e:
@@ -1221,139 +1105,6 @@ def get_full_price_data(mint: str):
         return jsonify({'error': str(e)}), 500
 
 
-@price_api.route('/<mint>/liquidity/health', methods=['GET'])
-def get_liquidity_health(mint: str):
-    """
-    Get liquidity health score for a token.
-
-    Returns: health band, score, trend, current liquidity
-    """
-    try:
-        intelligence = get_liquidity_intelligence()
-        health = intelligence.compute_health_score(mint)
-
-        return jsonify({
-            'mint': health.mint,
-            'health_band': health.health_band,
-            'health_score': health.health_score,
-            'liquidity_level_score': health.liquidity_level_score,
-            'liquidity_growth_score': health.liquidity_growth_score,
-            'liquidity_stability_score': health.liquidity_stability_score,
-            'current_liquidity': health.current_liquidity,
-            'liquidity_trend': health.liquidity_trend,
-            'reasons': health.reasons
-        })
-    except Exception as e:
-        logger.error(f"Error getting liquidity health for {mint}: {e}")
-        return jsonify({'error': str(e)}), 500
-
-
-@price_api.route('/<mint>/liquidity/risk', methods=['GET'])
-def get_liquidity_risk(mint: str):
-    """
-    Get liquidity-based risk assessment for a token.
-
-    Returns: risk band, rug pull likelihood, warnings
-    """
-    try:
-        intelligence = get_liquidity_intelligence()
-        risk = intelligence.detect_rug_pull_risk(mint)
-
-        return jsonify({
-            'mint': risk.mint,
-            'liquidity_risk': risk.liquidity_risk,
-            'risk_score': risk.risk_score,
-            'drop_percent_24h': risk.drop_percent_24h,
-            'drop_percent_7d': risk.drop_percent_7d,
-            'rug_pull_likelihood': risk.rug_pull_likelihood,
-            'warning_reasons': risk.warning_reasons
-        })
-    except Exception as e:
-        logger.error(f"Error getting liquidity risk for {mint}: {e}")
-        return jsonify({'error': str(e)}), 500
-
-
-@price_api.route('/<mint>/liquidity/history', methods=['GET'])
-def get_liquidity_history(mint: str):
-    """
-    Get historical liquidity data for charting.
-
-    Query params:
-    - hours: Number of hours to look back (default 24)
-
-    Returns: Array of liquidity snapshots with timestamps
-    """
-    try:
-        hours = request.args.get('hours', 24, type=int)
-        if hours < 1 or hours > 720:  # Max 30 days
-            return jsonify({'error': 'hours must be between 1 and 720'}), 400
-
-        intelligence = get_liquidity_intelligence()
-        snapshots = intelligence.get_snapshot_history(mint, hours)
-
-        return jsonify({
-            'mint': mint,
-            'hours': hours,
-            'snapshots': [
-                {
-                    'liquidity_usd': s.liquidity_usd,
-                    'liquidity_sol': s.liquidity_sol,
-                    'captured_at': s.captured_at
-                }
-                for s in snapshots
-            ],
-            'count': len(snapshots)
-        })
-    except Exception as e:
-        logger.error(f"Error getting liquidity history for {mint}: {e}")
-        return jsonify({'error': str(e)}), 500
-
-
-@price_api.route('/liquidity/worker/start', methods=['POST'])
-def start_liquidity_worker_endpoint():
-    """Start the background liquidity worker."""
-    try:
-        worker = get_liquidity_worker()
-        if not worker.running:
-            worker.start()
-
-        return jsonify({
-            'status': 'started' if worker.running else 'already_running',
-            'running': worker.running
-        })
-    except Exception as e:
-        logger.error(f"Error starting liquidity worker: {e}")
-        return jsonify({'error': str(e)}), 500
-
-
-@price_api.route('/liquidity/worker/stop', methods=['POST'])
-def stop_liquidity_worker_endpoint():
-    """Stop the background liquidity worker."""
-    try:
-        worker = get_liquidity_worker()
-        worker.stop()
-
-        return jsonify({
-            'status': 'stopped',
-            'running': worker.running
-        })
-    except Exception as e:
-        logger.error(f"Error stopping liquidity worker: {e}")
-        return jsonify({'error': str(e)}), 500
-
-
-@price_api.route('/liquidity/worker/stats', methods=['GET'])
-def get_liquidity_worker_stats():
-    """Get liquidity worker statistics."""
-    try:
-        worker = get_liquidity_worker()
-        return jsonify({
-            'running': worker.running,
-            'stats': worker.get_stats()
-        })
-    except Exception as e:
-        logger.error(f"Error getting liquidity worker stats: {e}")
-        return jsonify({'error': str(e)}), 500
 
 
 @price_api.route('/batch/register', methods=['POST'])
@@ -1514,15 +1265,6 @@ def fetch_price_now(mint: str):
         # Get confidence
         scorer = get_confidence_scorer()
         confidence = scorer.compute_confidence(price)
-
-        # Get anomaly detection
-        detector = get_anomaly_detector()
-        anomaly = detector.detect_anomaly(
-            mint=mint,
-            current_price=price.price_usd,
-            current_liquidity=price.liquidity_usd,
-            current_volume=price.volume_24h
-        )
 
         return jsonify({
             'mint': price.mint,

@@ -735,9 +735,6 @@ class BackgroundPriceWorker:
         snapshot_drainer = threading.Thread(target=self._drain_snapshot_queue, daemon=True, name="SnapshotDrainer")
         snapshot_drainer.start()
 
-        # Run retention cleanup once on startup (clears accumulated stale registry entries)
-        threading.Thread(target=self._run_retention_cleanup, daemon=True, name="SnapshotRetentionStartup").start()
-
         logger.info(f"Background price worker started (interval={self.interval}s, using request queue)")
 
     def _initialize_pool_state_sync(self) -> None:
@@ -1190,15 +1187,6 @@ class BackgroundPriceWorker:
         if self.stats['cycles'] % 3 == 0:  # Every ~30 seconds
             self.log_system_health_metrics()
 
-        # 🧹 Run snapshot retention cleanup every hour
-        if time.time() - self._last_cleanup_run >= 3600:
-            self._last_cleanup_run = time.time()
-            threading.Thread(
-                target=self._run_retention_cleanup,
-                daemon=True,
-                name="SnapshotRetentionCleanup",
-            ).start()
-
         logger.debug(
             f"Prefetch cycle {self.stats['cycles']}: "
             f"enqueued {len(tasks)} tokens (activity-based), "
@@ -1406,19 +1394,6 @@ class BackgroundPriceWorker:
         except Exception as e:
             logger.error(f"Error warming snapshot cache: {e}")
 
-    def _run_retention_cleanup(self) -> None:
-        """Run snapshot retention cleanup in a background thread once per hour."""
-        try:
-            from src.core.snapshot_retention_manager import SnapshotRetentionManager
-            mgr = SnapshotRetentionManager(self.db_path)
-            stats = mgr.run_cleanup()
-            logger.info(
-                f"[RETENTION] cleanup done — tokens_deactivated={stats.get('tokens_deleted', 0)} "
-                f"snaps_deleted={stats.get('snapshots_deleted', 0)} "
-                f"downsampled={stats.get('snapshots_downsampled', 0)}"
-            )
-        except Exception as e:
-            logger.error(f"[RETENTION] cleanup error: {e}", exc_info=True)
 
     def _fetch_pool_prices(self) -> None:
         """Recompute prices from PoolStateStore (populated by 10s RPC poll)."""
@@ -2154,55 +2129,12 @@ class BackgroundPriceWorker:
             return 'medium'  # Safe default  # Safe default
 
     def _compute_price_movement_score(self, mint: str) -> int:
+        """Legacy dense-history movement scoring is retired.
+
+        The remaining worker uses current observations only; neutral scoring
+        prevents an implicit historical-table dependency.
         """
-        Compute price movement in last hour.
-
-        Returns: 0-20 points
-        """
-        try:
-            import sqlite3
-            from datetime import datetime, timedelta
-
-            conn = db_connect(self.db_path, timeout=15)
-            cursor = conn.cursor()
-
-            # Get prices from last 1 hour
-            one_hour_ago = int((datetime.now() - timedelta(hours=1)).timestamp())
-            cursor.execute("""
-                SELECT price_usd FROM token_price_snapshots
-                WHERE mint = ? AND captured_at > ?
-                ORDER BY captured_at DESC
-                LIMIT 2
-            """, (mint, one_hour_ago))
-
-            rows = cursor.fetchall()
-            conn.close()
-
-            if len(rows) < 2:
-                return 5  # Not enough data, neutral score
-
-            current_price = rows[0][0] or 0
-            older_price = rows[-1][0] or 0
-
-            if older_price == 0:
-                return 5
-
-            change_pct = abs((current_price - older_price) / older_price) * 100
-
-            if change_pct > 50:
-                return 20
-            elif change_pct > 25:
-                return 15
-            elif change_pct > 10:
-                return 10
-            elif change_pct > 5:
-                return 5
-            else:
-                return 2
-
-        except Exception as e:
-            logger.debug(f"Error computing price movement for {mint}: {e}")
-            return 5
+        return 5
 
     def _get_refresh_interval_for_activity(self, activity: str) -> int:
         """

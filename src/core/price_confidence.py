@@ -158,48 +158,8 @@ class PriceConfidenceScorer:
         return source_reliability.get(source, 50)
 
     def _stability_score(self, mint: str) -> float:
-        """
-        Score based on price stability over last 24 hours.
-
-        Returns: 0-100
-        """
-        try:
-            conn = self._get_conn()
-            cursor = conn.cursor()
-
-            # Get price snapshots from last 24 hours
-            cutoff_time = int(time.time()) - (24 * 3600)
-            cursor.execute("""
-                SELECT price_usd FROM token_price_snapshots
-                WHERE mint = ? AND captured_at > ?
-                ORDER BY captured_at ASC
-            """, (mint, cutoff_time))
-
-            prices = [row['price_usd'] for row in cursor.fetchall()]
-            conn.close()
-
-            if len(prices) < 2:
-                return 50  # Insufficient data
-
-            # Compute coefficient of variation (volatility)
-            min_price = min(prices)
-            max_price = max(prices)
-            avg_price = sum(prices) / len(prices)
-
-            if avg_price == 0:
-                return 0
-
-            price_range = (max_price - min_price) / avg_price
-            volatility = price_range * 100  # As percentage
-
-            # Convert volatility to stability score
-            # 0% change = 100, 10% change = 90, 50% change = 50, 100%+ = 0
-            stability = max(0, 100 - volatility)
-            return min(100, stability)
-
-        except Exception as e:
-            logger.error(f"Error computing stability score for {mint}: {e}")
-            return 50  # Default to neutral
+        """Return neutral confidence without a retired dense history store."""
+        return 50
 
     def batch_confidence(self, prices: Dict[str, TokenPrice]) -> Dict[str, PriceConfidence]:
         """Compute confidence scores for multiple prices."""

@@ -359,36 +359,6 @@ class TokenPriceService:
         """Implementation split out so _ensure_tables owns cleanup."""
         cursor = conn.cursor()
 
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS token_price_snapshots (
-                snapshot_id     INTEGER PRIMARY KEY AUTOINCREMENT,
-                mint            TEXT NOT NULL,
-                price_usd       REAL NOT NULL,
-                price_sol       REAL NOT NULL,
-                liquidity_usd   REAL DEFAULT 0,
-                volume_24h      REAL DEFAULT 0,
-                market_cap      REAL DEFAULT 0,
-                source          TEXT NOT NULL,
-                pair_address    TEXT,
-                captured_at     INTEGER NOT NULL,
-                created_at      INTEGER NOT NULL
-            )
-        """)
-
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_tps_mint_time
-            ON token_price_snapshots(mint, captured_at DESC)
-        """)
-
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_tps_captured_at
-            ON token_price_snapshots(captured_at)
-        """)
-
-        cursor.execute("""
-            CREATE INDEX IF NOT EXISTS idx_tps_mint_mc
-            ON token_price_snapshots(mint, market_cap) WHERE market_cap > 0
-        """)
 
         # NEW: Circuit breaker persistence table
         cursor.execute("""
@@ -584,62 +554,6 @@ class TokenPriceService:
                     price.mint,
                 ))
 
-            cursor.execute("""
-                INSERT INTO token_price_snapshots
-                (mint, price_usd, price_sol, liquidity_usd, volume_24h,
-                 market_cap, source, pair_address, captured_at, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                price.mint,
-                price.price_usd,
-                price.price_sol,
-                price.liquidity_usd,
-                price.volume_24h,
-                price.market_cap,
-                price.source,
-                price.pair_address,
-                captured_at,
-                observed_at
-            ))
-
-            # Reuse the exact liquidity already observed for pricing; no extra RPC.
-            if price.liquidity_usd is not None and price.liquidity_usd >= 0:
-                cursor.execute("""
-                    CREATE TABLE IF NOT EXISTS token_liquidity_snapshots (
-                        snapshot_id     INTEGER PRIMARY KEY AUTOINCREMENT,
-                        mint            TEXT NOT NULL,
-                        pair_address    TEXT,
-                        liquidity_usd   REAL NOT NULL,
-                        liquidity_sol   REAL,
-                        captured_at     INTEGER NOT NULL,
-                        created_at      INTEGER NOT NULL
-                    )
-                """)
-                cursor.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_tls_mint_time
-                    ON token_liquidity_snapshots(mint, captured_at DESC)
-                """)
-                cursor.execute("""
-                    INSERT INTO token_liquidity_snapshots
-                    (mint, pair_address, liquidity_usd, liquidity_sol, captured_at, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                """, (
-                    price.mint,
-                    price.pair_address,
-                    price.liquidity_usd,
-                    price.liquidity_usd / price.price_usd * price.price_sol if price.price_usd and price.price_sol else 0.0,
-                    captured_at,
-                    observed_at,
-                ))
-
-            # Keep summary table in sync so /api/token-behaviour never scans 2.9M rows
-            cursor.execute("""
-                INSERT INTO token_snapshot_counts (mint, snap_count, last_updated)
-                VALUES (?, 1, ?)
-                ON CONFLICT(mint) DO UPDATE SET
-                    snap_count   = snap_count + 1,
-                    last_updated = excluded.last_updated
-            """, (price.mint, int(time.time())))
 
             # Peak write — backend owns peak monotonicity. Every higher current MC advances peak.
             if price.market_cap and price.market_cap > 0:
@@ -701,7 +615,6 @@ class TokenPriceService:
 
             conn.close()
 
-            self._maybe_classify_after_snapshot(price.mint)
         except Exception as e:
             if conn is not None:
                 try:
@@ -709,35 +622,6 @@ class TokenPriceService:
                 except Exception:
                     pass
             logger.error(f"Error storing price snapshot for {price.mint}: {e}")
-
-    def _maybe_classify_after_snapshot(self, mint: str) -> None:
-        # Skip if already queued for classification this session
-        if not hasattr(self, '_classified_mints'):
-            self._classified_mints = set()
-        if mint in self._classified_mints:
-            return
-        conn = None
-        try:
-            conn = db_connect(self.db_path, timeout=3)
-            row = conn.execute(
-                "SELECT snap_count FROM token_snapshot_counts WHERE mint = ?",
-                (mint,)
-            ).fetchone()
-            conn.close()
-            snap_count = row[0] if row else 0
-            if snap_count < 8:
-                return
-            # Mark as classified to avoid re-running on every subsequent snapshot
-            self._classified_mints.add(mint)
-            from src.core.token_behavior import classify_mint
-            classify_mint(mint, self.db_path, skip_upsert=False)
-        except Exception as e:
-            if conn is not None:
-                try:
-                    conn.close()
-                except Exception:
-                    pass
-            logger.debug(f"[CLASSIFY_AFTER_SNAP] {mint[:16]}: {e}")
 
     def _fetch_birdeye_sync(self, mint: str) -> Optional[TokenPrice]:
         """
@@ -1208,65 +1092,6 @@ class TokenPriceService:
         finally:
             loop.close()
     
-    def get_price_history(self, mint: str, hours: int = 24) -> List[Dict]:
-        """Get historical price snapshots."""
-        conn = None
-        try:
-            conn = self._get_conn()
-            cursor = conn.cursor()
-            
-            cutoff_time = int(time.time()) - (hours * 3600)
-            
-            cursor.execute("""
-                SELECT 
-                    price_usd, price_sol, liquidity_usd, volume_24h, 
-                    market_cap, captured_at
-                FROM token_price_snapshots
-                WHERE mint = ? AND captured_at > ?
-                ORDER BY captured_at ASC
-            """, (mint, cutoff_time))
-            
-            rows = cursor.fetchall()
-            conn.close()
-            
-            return [dict(row) for row in rows]
-        except Exception as e:
-            if conn is not None:
-                try:
-                    conn.close()
-                except Exception:
-                    pass
-            logger.error(f"Error getting price history for {mint}: {e}")
-            return []
-    
-    def clear_old_snapshots(self, days: int = 30) -> int:
-        """Clear old price snapshots."""
-        conn = None
-        try:
-            conn = self._get_conn()
-            cursor = conn.cursor()
-            
-            cutoff_time = int(time.time()) - (days * 86400)
-            
-            cursor.execute("""
-                DELETE FROM token_price_snapshots
-                WHERE created_at < ?
-            """, (cutoff_time,))
-            
-            deleted = cursor.rowcount
-            conn.commit()
-            conn.close()
-            
-            logger.info(f"Cleared {deleted} old price snapshots")
-            return deleted
-        except Exception as e:
-            if conn is not None:
-                try:
-                    conn.close()
-                except Exception:
-                    pass
-            logger.error(f"Error clearing old snapshots: {e}")
-            return 0
 
 
 # Singleton instance

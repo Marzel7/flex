@@ -1484,11 +1484,11 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 ta.pool_address,
                 ta.source_platform,
                 ta.is_new,
-                COALESCE(tsc.last_updated, 0) as snap_last_updated,
-                tps.price_usd as snap_price_usd,
-                tps.market_cap as snap_market_cap,
-                tps.captured_at as snap_captured_at,
-                COALESCE(NULLIF(tmp.peak_market_cap, 0), NULLIF(ta.market_cap_highest, 0), NULLIF(tps.market_cap, 0)) as peaks_market_cap,
+                COALESCE(ta.price_updated_at, 0) as snap_last_updated,
+                ta.price_current as snap_price_usd,
+                ta.market_cap_current as snap_market_cap,
+                ta.price_updated_at as snap_captured_at,
+                COALESCE(NULLIF(tmp.peak_market_cap, 0), NULLIF(ta.market_cap_highest, 0), NULLIF(ta.market_cap_current, 0)) as peaks_market_cap,
                 COALESCE(tmp.peak_market_cap_at, ta.market_cap_highest_at_ts, ta.market_cap_highest_at) as peaks_market_cap_at,
                 tpa.pool_address         as active_pool_address,
                 tpa.quote_liquidity      as pool_quote_liquidity,
@@ -1519,8 +1519,6 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 FROM network_membership
                 GROUP BY creator_address
             ) nm ON ta.earliest_tx_creator = nm.creator_address
-            LEFT JOIN token_snapshot_counts tsc
-                ON tsc.mint = ta.mint
             LEFT JOIN token_market_cap_peaks tmp
                 ON tmp.mint = ta.mint
             LEFT JOIN token_pool_accounts tpa
@@ -1528,12 +1526,6 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                AND tpa.is_active = 1
             LEFT JOIN metadata_cache mc
                 ON mc.mint = ta.mint
-            LEFT JOIN token_price_snapshots tps
-                ON tps.snapshot_id = (
-                    SELECT snapshot_id FROM token_price_snapshots
-                    WHERE mint = ta.mint
-                    ORDER BY captured_at DESC LIMIT 1
-                )
             LEFT JOIN creator_self_funding csf
                 ON csf.creator_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
             WHERE ta.mint IS NOT NULL
@@ -1545,7 +1537,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                   OR NULLIF(TRIM(COALESCE(ta.dex, ta.pumpswap_pool_address, tpa.pool_address, '')), '') IS NOT NULL
               )
               AND (
-                  COALESCE(tps.market_cap, 0) >= ?
+                  COALESCE(ta.market_cap_current, 0) >= ?
                   OR MAX(
                       CAST(COALESCE(
                           CASE WHEN CAST(ta.created_at AS REAL) > 1000000000
@@ -1565,9 +1557,9 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                          THEN CAST(ta.created_at AS INTEGER)
                          ELSE CAST(strftime('%s', ta.created_at) AS INTEGER)
                     END, 0) AS INTEGER) >= ? DESC,
-                (COALESCE(tsc.last_updated, 0) > ?) DESC,
-                COALESCE(tsc.last_updated, 0) DESC,
-                COALESCE(tps.market_cap, 0) DESC,
+                (COALESCE(ta.price_updated_at, 0) > ?) DESC,
+                COALESCE(ta.price_updated_at, 0) DESC,
+                COALESCE(ta.market_cap_current, 0) DESC,
                 ta.created_at DESC
             LIMIT ?
         """, (_live_feed_floor, now_ts - 900, now_ts - 1800, now_ts - 60, limit,))
@@ -2798,8 +2790,8 @@ def get_pumpfun_pre_migration_tokens(
                 ta.curve_complete,
                 ta.curve_completed_at,
                 ta.curve_completed_slot,
-                COALESCE(tps.market_cap, ta.market_cap_current, 0) as resolved_market_cap,
-                COALESCE(tps.captured_at, ta.price_updated_at, 0) as market_cap_updated_at,
+                COALESCE(ta.market_cap_current, 0) as resolved_market_cap,
+                COALESCE(ta.price_updated_at, 0) as market_cap_updated_at,
                 COALESCE(mc.symbol, tt.symbol) as token_symbol,
                 mc.name as token_name
             FROM token_analysis ta
@@ -2809,12 +2801,6 @@ def get_pumpfun_pre_migration_tokens(
                 ON tt.mint = ta.mint
             LEFT JOIN token_pool_accounts tpa
                 ON tpa.mint = ta.mint AND tpa.is_active = 1
-            LEFT JOIN token_price_snapshots tps
-                ON tps.snapshot_id = (
-                    SELECT snapshot_id FROM token_price_snapshots
-                    WHERE mint = ta.mint
-                    ORDER BY captured_at DESC LIMIT 1
-                )
             WHERE ta.mint IS NOT NULL
               AND (
                   ta.source_platform = 'pumpfun'
@@ -2832,7 +2818,7 @@ def get_pumpfun_pre_migration_tokens(
             ORDER BY
                 COALESCE(ta.is_about_to_migrate, 0) DESC,
                 COALESCE(ta.migration_progress_pct, 0) DESC,
-                COALESCE(tps.market_cap, ta.market_cap_current, 0) DESC,
+                COALESCE(ta.market_cap_current, 0) DESC,
                 COALESCE(ta.migration_signal_updated_at, 0) DESC,
                 ta.created_at DESC
         """
@@ -10452,17 +10438,14 @@ def api_token_metrics(token_mint: str):
         if not peak_market_cap:
             peak_market_cap = row['market_cap_highest'] or 0
 
-        # Price source (uses idx_tps_mint_time on captured_at)
-        src_row = cursor.execute(
-            "SELECT source, captured_at FROM token_price_snapshots WHERE mint = ? ORDER BY captured_at DESC LIMIT 1",
-            (token_mint,)
-        ).fetchone()
+        # Compact current observation provenance replaces retired dense history.
+        src_row = None
         conn.close()
 
         current_market_cap = row['market_cap_current'] if row['market_cap_current'] else 0
         if current_market_cap and current_market_cap > peak_market_cap:
             peak_market_cap = current_market_cap
-            peak_market_cap_at = src_row['captured_at'] if src_row and src_row['captured_at'] else peak_market_cap_at
+            peak_market_cap_at = row['price_updated_at'] or peak_market_cap_at
         created_ts = _parse_unix_ts(row['created_at'])
         migrated_ts = _parse_unix_ts(row['migrated_at'])
         arrival_ts = migrated_ts if migrated_ts and migrated_ts > (created_ts or 0) else created_ts
@@ -24143,8 +24126,8 @@ def api_health_full():
         _db3.row_factory = _sq.Row
 
         _peak_ts = _db3.execute("SELECT MAX(peak_market_cap_at) FROM token_market_cap_peaks").fetchone()[0]
-        _snap_ts = _db3.execute("SELECT MAX(captured_at) FROM token_price_snapshots").fetchone()[0]
-        _scnt_ts = _db3.execute("SELECT MAX(last_updated) FROM token_snapshot_counts").fetchone()[0]
+        _snap_ts = _db3.execute("SELECT MAX(price_updated_at) FROM token_analysis").fetchone()[0]
+        _scnt_ts = 0
 
         _tier = _db3.execute("""
             SELECT

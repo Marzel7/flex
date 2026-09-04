@@ -24080,73 +24080,15 @@ def api_health_full():
     except Exception as _e:
         ingestion = {"status": "UNKNOWN", "error": str(_e)[:120]}
 
-    # ── 2. Price Worker ───────────────────────────────────────────────────────
-    price_worker = {"status": "UNKNOWN"}
-    try:
-        _db3 = _sq.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=1)
-        _db3.row_factory = _sq.Row
-
-        _peak_ts = _db3.execute("SELECT MAX(peak_market_cap_at) FROM token_market_cap_peaks").fetchone()[0]
-        _snap_ts = _db3.execute("SELECT MAX(price_updated_at) FROM token_analysis").fetchone()[0]
-        _scnt_ts = 0
-
-        _tier = _db3.execute("""
-            SELECT
-              COUNT(*) FILTER (WHERE is_active=1)                                            AS total,
-              COUNT(*) FILTER (WHERE is_active=1 AND tracking_reason IN ('WATCH','OWNED','MANUAL')) AS watch_owned,
-              COUNT(*) FILTER (WHERE is_active=1 AND tracking_reason='DISCOVERY'
-                               AND created_at > strftime('%s','now') - 3600)                AS disc_active,
-              COUNT(*) FILTER (WHERE is_active=1 AND tracking_reason='DISCOVERY'
-                               AND created_at <= strftime('%s','now') - 3600)               AS disc_expired
-            FROM tracked_tokens
-        """).fetchone()
-        _db3.close()
-
-        peak_age   = _age(_peak_ts)
-        snap_age   = _age(_snap_ts)
-        scnt_age   = _age(_scnt_ts)
-        wo_count   = int(_tier["watch_owned"])
-        snap_expected = wo_count > 0
-
-        # Derive enabled state from listener log scan (already in ingestion block)
-        _pw_enabled = ingestion.get("price_worker_enabled")  # True/False/None
-
-        # worker_alive: peak OR snapshot_count updated in last 90s
-        effective_age = min(x for x in [peak_age, snap_age, scnt_age] if x is not None) if any(
-            x is not None for x in [peak_age, snap_age, scnt_age]) else 9999
-        worker_alive  = effective_age <= 90
-
-        pw_status = "HEALTHY"
-        if _pw_enabled is False:
-            # Intentionally disabled — peak MC still updates via listener cycle
-            pw_status = "PEAK-ONLY"
-        elif not worker_alive and int(_tier["total"]) > 0:
-            pw_status = "DOWN"
-        elif peak_age is not None and peak_age > 120 and int(_tier["total"]) > 0:
-            pw_status = "STALE"
-        elif snap_expected and snap_age is not None and snap_age > 120:
-            pw_status = "DEGRADED"
-
-        price_worker = {
-            # X78.26: these counters are retained historical telemetry, not a
-            # live capability. Intentional shutdown must never become DOWN.
-            "status":                       "DECOMMISSIONED",
-            "worker_alive":                 False,
-            "runtime_enabled":              False,
-            "last_peak_update_age_secs":    peak_age,
-            "last_peak_update_at":          int(_peak_ts) if _peak_ts else None,
-            "last_peak_update_at_utc":      _ts(_peak_ts) if _peak_ts else None,
-            "last_snapshot_write_age_secs": snap_age,
-            "last_snapshot_write_at":       int(_snap_ts) if _snap_ts else None,
-            "last_snapshot_write_at_utc":   _ts(_snap_ts) if _snap_ts else None,
-            "snapshot_expected":            snap_expected,
-            "active_tokens":                int(_tier["total"]),
-            "watch_owned_count":            wo_count,
-            "discovery_active_count":       int(_tier["disc_active"]),
-            "discovery_expired_count":      int(_tier["disc_expired"]),
-        }
-    except Exception as _e:
-        price_worker = {"status": "UNKNOWN", "error": str(_e)[:120]}
+    # ── 2. Retired price worker ────────────────────────────────────────────────
+    # Dense price snapshots and tracked-token telemetry are historical data, not
+    # a retained runtime capability.  Keep this compatibility key informational
+    # without opening the database or evaluating retired freshness thresholds.
+    price_worker = {
+        "status": "DECOMMISSIONED",
+        "health_role": "RETIRED",
+        "runtime_enabled": False,
+    }
 
     # ── 3. Cascade Infrastructure ─────────────────────────────────────────────
     cascade_infra = {"status": "UNKNOWN"}
@@ -24387,21 +24329,10 @@ def api_health_full():
         ).fetchone()[0]
         _idb.close()
 
-        # The historical ``watch-pipeline`` heartbeat belongs to an optional
-        # in-Gunicorn candidate processor. Production deliberately suppresses
-        # all Flask background workers; canonical WATCHTOWER monitoring is the
-        # supervised WS cascade, while Operational Intelligence snapshots are
-        # owned by intelligence_snapshot_scheduler. Do not report a retired
-        # legacy heartbeat as a current Operational Intelligence failure.
-        wp_age = None
-        wp_legacy_age = None
         cp_age = None
         pending_attr = 0
         try:
             _wdb = _sq.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=1)
-            _wp = _wdb.execute(
-                "SELECT last_seen, meta_json FROM wt_worker_heartbeat WHERE worker_name='watch-pipeline' LIMIT 1"
-            ).fetchone()
             _cp = _wdb.execute(
                 "SELECT last_seen, meta_json FROM wt_worker_heartbeat WHERE worker_name='creator-resolution' LIMIT 1"
             ).fetchone()
@@ -24409,15 +24340,6 @@ def api_health_full():
                 "SELECT COUNT(*) FROM wt_operations WHERE state='UNKNOWN'"
             ).fetchone()
             _wdb.close()
-            if _wp:
-                wp_legacy_age = now - int(_wp[0])
-                try:
-                    _wpm = _json.loads(_wp[1]) if _wp[1] else {}
-                    wp_interval = int(_wpm.get("interval_s", 300))
-                except Exception:
-                    wp_interval = 300
-            else:
-                wp_interval = 300
             if _cp:
                 cp_age = now - int(_cp[0])
                 try:
@@ -24439,15 +24361,7 @@ def api_health_full():
             if _pa:
                 pending_attr = int(_pa[0])
         except Exception:
-            wp_interval = 300
-
-        watch_pipeline_lifecycle = (
-            "ACTIVE"
-            if os.environ.get("FLEX_ENABLE_FLASK_BACKGROUND_WORKERS", "0") == "1"
-            else "RETIRED"
-        )
-        if watch_pipeline_lifecycle == "ACTIVE":
-            wp_age = wp_legacy_age
+            pass
 
         operational_snapshot = {}
         try:
@@ -24526,8 +24440,6 @@ def api_health_full():
         int_status = "HEALTHY"
         if crq_failed > 5:
             int_status = "DEGRADED"
-        elif operational_snapshot.get("health") in ("STALE_FAILED", "NO_SNAPSHOT", "UNKNOWN"):
-            int_status = "DEGRADED"
         elif cp_age is not None and cp_age > cp_stale_threshold:
             int_status = "DEGRADED"
         elif fq_worker_status != "RUNNING" and int(_fq) > 0:
@@ -24563,10 +24475,10 @@ def api_health_full():
             "crq_worker_age_secs":          cp_age,
             "crq_worker_meta":              cp_meta,
             "missing_creators_1h":          int(_miss),
-            "watch_pipeline_age_secs":      wp_age,
-            "watch_pipeline_interval_secs": wp_interval,
-            "watch_pipeline_lifecycle":     watch_pipeline_lifecycle,
-            "watch_pipeline_legacy_age_secs": wp_legacy_age,
+            # A derived snapshot may be stale while current authority is
+            # served by live/SWR paths.  Expose it as informational only.
+            "operational_snapshot_role": "SUPPORTING_CACHE",
+            "operational_snapshot_severity": "INFO",
             "operational_snapshot_health": operational_snapshot.get("health"),
             "operational_snapshot_age_secs": operational_snapshot.get("snapshot_age_seconds"),
             "operational_snapshot_last_update": operational_snapshot.get("last_successful_refresh"),
@@ -24591,20 +24503,17 @@ def api_health_full():
     top = "HEALTHY"
     if (
         _s(ingestion) == "DOWN"
-        or _s(price_worker) == "DOWN"   # PARKED is excluded — only true DOWN
         or _s(api_health) == "DOWN"
     ):
         top = "DOWN"
     elif (
         _s(database) in ("AT_RISK", "CRITICAL")
         or _s(cascade_infra) == "OFFLINE"
-        or (_s(price_worker) == "STALE" and price_worker.get("active_tokens", 0) > 0)
     ):
         top = "AT_RISK"
     elif (
         _s(ingestion) == "DEGRADED"
         or _s(cascade_infra) == "DEGRADED"
-        or _s(price_worker) == "DEGRADED"
         or _s(database) in ("PRESSURE",)
         or _s(api_health) == "ERRORS"
         or _s(intelligence) == "DEGRADED"

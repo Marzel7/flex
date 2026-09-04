@@ -575,7 +575,6 @@
             pumpportal_connection: 'PumpPortal retrying',
             pumpswap_connection: 'PumpSwap retrying',
             listener_log_freshness: 'Listener stale',
-            watch_pipeline_freshness: 'Pipeline stale',
             creator_resolution_freshness: 'Resolution stale',
             resolution_failures: 'Resolution failing',
             missing_creator_attribution: 'Attribution gap',
@@ -803,7 +802,7 @@
                     <div class="mc-metrics-block">
                         ${row('Creator queue', intel.creator_queue_pending != null ? intel.creator_queue_pending.toLocaleString() : '—')}
                         ${row('Resolution efficiency', intel.crq_resolution_efficiency != null ? intel.crq_resolution_efficiency + '%' : '—')}
-                        ${row('Last pipeline activity', mcFormatAgo(intel.watch_pipeline_age_secs))}
+                        ${row('Resolution heartbeat', mcFormatAgo(intel.crq_worker_age_secs))}
                         ${genericTrendHtml}
                     </div>`;
             }
@@ -814,7 +813,7 @@
                 return `
                     <div class="mc-metrics-block">
                         ${row('Subscriptions', infra.subs_total != null ? infra.subs_total : '—')}
-                        ${row('Watch pipeline freshness', mcFormatAgo(infra.heartbeat_age_secs))}
+                        ${row('Cascade heartbeat', mcFormatAgo(infra.heartbeat_age_secs))}
                         ${row('Latest launch', mcFormatAgo(activity.last_launch_age_secs))}
                         ${genericTrendHtml}
                     </div>`;
@@ -1498,14 +1497,11 @@
         }
 
         // ══════════════════════════════════════════════════════════════════
-        // GROUP 3 — INTELLIGENCE (Discovery / Walkback / Registry / Reconciliation / Snapshots)
+        // GROUP 3 — INTELLIGENCE (creator resolution/funding and Walkback)
         // ══════════════════════════════════════════════════════════════════
         async function renderIntelligenceGroup(fullHealth) {
             const ss = fullHealth?.subsystems || {};
             const intel = ss.intelligence || {};
-
-            let snapHealth = null;
-            try { snapHealth = await fetch('/api/ops-v2/intelligence-snapshots/health').then(r => r.json()); } catch(e) {}
 
             // X76.5A -- Walkback Candidate Generation. Fetched here (not a
             // separate top-level group) per the milestone's own instruction
@@ -1533,32 +1529,14 @@
             } else if (fqOldestAge != null && fqOldestAge > 3600) {
                 warningMsgs.push(`Funding queue oldest pending row is ${_fmtAge(fqOldestAge)}`);
             }
-            // Defer to the backend's own subsystem classification for anything
-            // else it catches (watch-pipeline staleness, candidate-processor
-            // staleness) that isn't already explained by the funding-worker
-            // checks above.
+            // Defer to the backend's current subsystem classification for
+            // creator-resolution failures not already explained above.
             if (intel.status && _wtColor(intel.status) === 'critical' && !criticalMsgs.length && !warningMsgs.length) {
                 criticalMsgs.push(`Intelligence ${intel.status}`);
             } else if (intel.status && _wtColor(intel.status) === 'warning' && !criticalMsgs.length && !warningMsgs.length) {
                 warningMsgs.push(`Intelligence ${intel.status}`);
             }
             if (crqFailed > 0) warningMsgs.push(`${crqFailed} creator-resolution failures`);
-            const eo = snapHealth?.emerging_operators;
-            if (eo) {
-                if (eo.state === 'STALE_FAILED' || eo.health === 'STALE_FAILED') criticalMsgs.push('Emerging Operators snapshot STALE_FAILED');
-                else if (eo.health === 'STALE_REFRESHING') warningMsgs.push('Emerging Operators snapshot refreshing');
-            }
-            const windows = snapHealth?.windows || {};
-            let anyWindowFailed = false, anyWindowRefreshing = false;
-            Object.values(windows).forEach(w => {
-                Object.values(w).forEach(k => {
-                    if (k.health === 'STALE_FAILED') anyWindowFailed = true;
-                    else if (k.health === 'STALE_REFRESHING') anyWindowRefreshing = true;
-                });
-            });
-            if (anyWindowFailed) criticalMsgs.push('Intelligence snapshot build failed');
-            else if (anyWindowRefreshing) warningMsgs.push('Intelligence snapshot refreshing');
-
             // X76.5A -- Walkback Candidate Generation status folds into this
             // group's overall verdict. STOPPED/STALLED are critical (per the
             // milestone: "Mission Control cannot show Healthy while
@@ -1583,7 +1561,7 @@
             else if (warningMsgs.length) color = 'warning';
 
             mcSetGroupStatus('grp-intelligence', color,
-                `Creator Queue ${intel.creator_queue_pending ?? '—'} pending · Funding Worker ${fqWorkerStatus} · Walkback ${wbStatus} · Snapshot ${eo ? (eo.state || eo.health) : '—'}`);
+                `Creator Queue ${intel.creator_queue_pending ?? '—'} pending · Funding Worker ${fqWorkerStatus} · Walkback ${wbStatus}`);
 
             const fqWorkerColor = fqWorkerStatus === 'RUNNING' ? 'healthy' : fqWorkerStatus === 'STALLED' ? 'warning' : fqWorkerStatus === 'STOPPED' ? 'critical' : 'neutral';
             const fqMeta = intel.funding_worker_meta || {};
@@ -1600,10 +1578,6 @@
                     <div class="mc-kpi">
                         <div class="mc-kpi-label">Missing Creators (1h)</div>
                         <div class="mc-kpi-value ${(intel.missing_creators_1h||0)>0?'warn':'ok'}" style="font-size:1.1rem;">${intel.missing_creators_1h ?? '—'}</div>
-                    </div>
-                    <div class="mc-kpi">
-                        <div class="mc-kpi-label">Snapshot</div>
-                        <div class="mc-kpi-value" style="font-size:1rem;">${eo ? pillHtml(eo.health==='FRESH'?'healthy':eo.health==='STALE_REFRESHING'?'warning':eo.health==='STALE_FAILED'?'critical':'neutral', eo.state||eo.health) : '—'}</div>
                     </div>
                 </div>
 
@@ -1629,11 +1603,6 @@
                 <div class="mc-subpanel">
                     <div class="mc-subpanel-title"><i class="fas fa-route"></i> Walkback Candidate Generation</div>
                     ${renderWalkbackCandidateHealth(wb)}
-                </div>
-
-                <div class="mc-subpanel">
-                    <div class="mc-subpanel-title"><i class="fas fa-camera"></i> Intelligence Snapshots (Phase 5)</div>
-                    <div id="mc-snapshot-card">${renderSnapshotHealthCard(snapHealth)}</div>
                 </div>
 
                 <button class="l3-toggle" id="intel-l3-btn" onclick="mcL3Toggle('intel-l3-btn','intel-l3-body','WATCHTOWER intelligence tiers')">

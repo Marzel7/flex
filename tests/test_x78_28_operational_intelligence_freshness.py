@@ -54,14 +54,11 @@ def test_recent_missing_creator_promotion_is_bounded_and_idempotent(tmp_path: Pa
     assert priorities == {"recent": 200, "old": 100, "resolved": 100}
 
 
-def test_retired_legacy_watch_pipeline_does_not_degrade_fresh_snapshots() -> None:
+def test_stale_supporting_snapshot_does_not_degrade_current_intelligence() -> None:
     cap = _compute_operational_intelligence({
         "intelligence": {
-            "watch_pipeline_lifecycle": "RETIRED",
-            "watch_pipeline_age_secs": None,
-            "watch_pipeline_interval_secs": 900,
-            "operational_snapshot_health": "FRESH",
-            "operational_snapshot_age_secs": 30,
+            "operational_snapshot_health": "STALE_FAILED",
+            "operational_snapshot_age_secs": 9999,
             "crq_worker_age_secs": 180,
             "crq_heartbeat_threshold_secs": 320,
             "creator_queue_failed": 0,
@@ -70,19 +67,17 @@ def test_retired_legacy_watch_pipeline_does_not_degrade_fresh_snapshots() -> Non
     })
     assert cap["status"] == "HEALTHY"
     signals = {item["name"]: item for item in cap["signals"]}
-    assert signals["watch_pipeline_freshness"]["abnormal"] is False
-    assert "RETIRED" in signals["watch_pipeline_freshness"]["detail"]
     assert signals["operational_snapshot_freshness"]["abnormal"] is False
+    assert "informational" in signals["operational_snapshot_freshness"]["detail"]
     assert signals["creator_resolution_freshness"]["abnormal"] is False
 
 
-def test_failed_current_snapshot_degrades_even_when_legacy_watch_is_retired() -> None:
+def test_current_creator_resolution_failure_still_degrades_intelligence() -> None:
     cap = _compute_operational_intelligence({
         "intelligence": {
-            "watch_pipeline_lifecycle": "RETIRED",
             "operational_snapshot_health": "STALE_FAILED",
             "operational_snapshot_age_secs": 9999,
-            "crq_worker_age_secs": 10,
+            "crq_worker_age_secs": 121,
             "crq_heartbeat_threshold_secs": 120,
             "creator_queue_failed": 0,
             "missing_creators_1h": 0,
@@ -90,4 +85,5 @@ def test_failed_current_snapshot_degrades_even_when_legacy_watch_is_retired() ->
     })
     assert cap["status"] == "WARNING"
     signals = {item["name"]: item for item in cap["signals"]}
-    assert signals["operational_snapshot_freshness"]["abnormal"] is True
+    assert signals["operational_snapshot_freshness"]["abnormal"] is False
+    assert signals["creator_resolution_freshness"]["abnormal"] is True

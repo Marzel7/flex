@@ -46,6 +46,20 @@ def test_mission_control_omits_retired_price_capability_and_incidents():
     )
 
 
+def test_system_health_price_worker_is_informational_without_legacy_queries():
+    source = (ROOT / "src/core/main.py").read_text()
+    start = source.index("# ── 2. Retired price worker")
+    end = source.index("# ── 3. Cascade Infrastructure", start)
+    block = source[start:end]
+
+    assert '"status": "DECOMMISSIONED"' in block
+    assert '"health_role": "RETIRED"' in block
+    assert "_sq.connect" not in block
+    assert "tracked_tokens" not in block
+    assert "token_market_cap_peaks" not in block
+    assert "price_updated_at" not in block
+
+
 def test_compact_price_and_owned_liquidity_paths_remain():
     price_service = (ROOT / "src/core/price_service.py").read_text()
     liquidity = (ROOT / "src/core/liquidity_worker.py").read_text()

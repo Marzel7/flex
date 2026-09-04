@@ -794,9 +794,6 @@ def _compute_creator_funding(subsystems: Dict[str, Any]) -> Dict[str, Any]:
 def _compute_operational_intelligence(subsystems: Dict[str, Any]) -> Dict[str, Any]:
     intelligence = subsystems.get("intelligence") or {}
 
-    wp_age = intelligence.get("watch_pipeline_age_secs")
-    wp_interval = intelligence.get("watch_pipeline_interval_secs") or 300
-    wp_lifecycle = intelligence.get("watch_pipeline_lifecycle") or "ACTIVE"
     snapshot_health = intelligence.get("operational_snapshot_health")
     snapshot_age = intelligence.get("operational_snapshot_age_secs")
     cp_age = intelligence.get("crq_worker_age_secs")
@@ -806,18 +803,9 @@ def _compute_operational_intelligence(subsystems: Dict[str, Any]) -> Dict[str, A
 
     signals = [
         _signal(
-            "watch_pipeline_freshness",
-            wp_lifecycle == "ACTIVE" and wp_age is not None and wp_age > wp_interval * 2,
-            (
-                "RETIRED (legacy Flask worker disabled)"
-                if wp_lifecycle == "RETIRED"
-                else (f"{wp_age}s (interval {wp_interval}s)" if wp_age is not None else "unknown")
-            ),
-        ),
-        _signal(
             "operational_snapshot_freshness",
-            snapshot_health in ("STALE_FAILED", "NO_SNAPSHOT", "UNKNOWN"),
-            f"{snapshot_health} age={snapshot_age}s",
+            False,
+            f"{snapshot_health} age={snapshot_age}s (supporting cache; informational)",
         ),
         _signal(
             "creator_resolution_freshness",
@@ -838,8 +826,6 @@ def _compute_operational_intelligence(subsystems: Dict[str, Any]) -> Dict[str, A
 
     status = "HEALTHY"
     if crq_failed > 5:
-        status = "WARNING"
-    elif snapshot_health in ("STALE_FAILED", "NO_SNAPSHOT", "UNKNOWN"):
         status = "WARNING"
     elif cp_age is not None and cp_age > cp_threshold:
         status = "WARNING"
@@ -1040,7 +1026,6 @@ _IMPACT_LABELS = {
     "peak_update_freshness": "Peak price updates stale",
     "snapshot_freshness": "Price snapshots stale",
     "queue_backlog_growth": "Funding queue backlog growing",
-    "watch_pipeline_freshness": "Watch pipeline stale",
     "creator_resolution_freshness": "Creator resolution worker stale",
     "resolution_failures": "Creator resolution failures elevated",
     "missing_creator_attribution": "Missing creator attribution",

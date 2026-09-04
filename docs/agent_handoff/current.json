@@ -14532,10 +14532,20 @@
     "runtime_dependency": "Committed runtime readers/writers/recreators remain zero. Historical Evidence contracts and fixtures still retain snapshot-era schema/replay references; they are not current runtime dependencies.",
     "next_action": "KEEP_PRICE_HISTORY_READ_ONLY until a separately authorized stable read-only snapshot/maintenance window can establish a consistent catalog and preservation boundary."
   },
-  "updated_at": "2026-09-04T17:45:00Z",
-  "updated_at_utc": "2026-09-04T17:45:00Z",
+  "final_main_py_and_reduction_census": {
+    "status": "PARTIAL",
+    "verdict": "ONE_FINAL_HIGH_VALUE_REDUCTION_WAVE",
+    "engineering_revision": "454b37bc",
+    "freeze": "39 tracked dirty paths, 424 untracked paths, and 0 staged entries. Recent price/runtime retirement commits are retained; no alternate index was active.",
+    "main_py": "The dirty main.py delta is 46 additions/971 deletions. It combines generic funding/network/dashboard route contraction, archive compatibility removal, generic UI removal, legacy behavior monitor startup removal, and unrelated current feature adjustments. It is not an independently safe narrow cleanup projection.",
+    "runtime": "Supervisor read-only status was unavailable to this environment because supervisor XML-RPC socket access is permission-denied; no service action was attempted. Live DB has active writer handles, so its runtime artifacts remain DATABASE_STATE/GENERATED_RUNTIME, not reduction candidates.",
+    "recommendation": "Do not stage main.py in this task. The one remaining high-value reduction wave is a separately authorized, product-reviewed generic funding/network UI and route retirement, including its current navigation/tests and compatibility commitments.",
+    "next_action": "ONE_FINAL_HIGH_VALUE_REDUCTION_WAVE: qualify the generic funding/network route family as a coherent product-surface change, or retain it as current compatibility; do not perform cosmetic main.py decomposition."
+  },
+  "updated_at": "2026-09-04T18:00:00Z",
+  "updated_at_utc": "2026-09-04T18:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "TOKEN_PRICE_HISTORICAL_TABLE_RETIREMENT_AUDIT_BLOCKED",
+  "verdict": "ONE_FINAL_HIGH_VALUE_REDUCTION_WAVE",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

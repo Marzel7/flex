@@ -14446,8 +14446,8 @@
     "freeze": "Engineering HEAD 18e401c422f1747ff93add6194ae03071cc5f05a; 57 tracked dirty paths before this targeted audit; worktree price_worker hash bb73ad5984769170f5b97c885652011aaab29ba1 and price_service hash 0ea0755a25ef9c1340964c5bd7f0da5321ecdd20 remained unchanged.",
     "qualified_market_units": "price_worker classification is complete: retention-cleanup removal hunks and dense-history neutral scoring are retirement-only; three unconditional _store_snapshot changes are current compact-valuation transitions and excluded. price_service dense schema/writes/classification/history are retirement candidates, while its process-local cache transition is excluded.",
     "protected_replacement": "liquidity_worker is a dirty, current compact replacement which removes its liquidity_intelligence import and adds bounded owned-liquidity state. It is explicitly outside this commit. Generic dashboard, profitability, token behaviour, Helius, retained acquisition, operations, valuation, FundingAnalytics, and cold-storage changes remain excluded.",
-    "blocker": "Staged-deletion reference proof found that HEAD src/core/liquidity_worker.py still imports src.core.liquidity_intelligence. Deleting liquidity_intelligence without staging the out-of-scope current compact liquidity_worker replacement would make the committed runtime import fail. All temporary staged selections were safely restored to the index; no worktree file changed and no engineering commit was created.",
-    "next_action": "Qualify the current compact liquidity_worker replacement as its own coherent commit (or explicitly authorize including it in this market retirement); only then retire liquidity_intelligence and its dependent API paths. Do not stage the mixed compact-valuation transitions in this milestone without separate authorization."
+    "blocker": "The liquidity-worker blocker is resolved by committed 87469017. A fresh staged-tree audit found the next shared transition: HEAD src/core/main.py still reads token_price_snapshots in migrated-token, pre-migration-token, token-metrics, and health paths. Its dirty replacements read token_analysis current fields. Removing the generic schema/writes without that main migration leaves fresh-schema behavior dependent on the retired table; staging it would introduce explicitly excluded current compact-valuation work. All temporary staged selections were restored; no worktree hash changed and no engineering commit was created.",
+    "next_action": "Qualify the main.py token_analysis compact-market projection as its own coherent current-replacement commit (or explicitly authorize its exact hunk set as inseparable within market retirement), then rerun the market/prediction retirement batch."
   },
   "liquidity_worker_replacement_commit": {
     "status": "COMPLETE",
@@ -14460,10 +14460,10 @@
     "blocker_removed": "Committed liquidity_worker no longer imports src.core.liquidity_intelligence, so the preceding market-retirement dependency blocker is removed. The legacy liquidity module remains dirty/uncommitted for the separately authorized retirement batch.",
     "next_action": "Return to retire: legacy market and prediction surfaces; do not begin automatically."
   },
-  "updated_at": "2026-09-04T15:25:00Z",
-  "updated_at_utc": "2026-09-04T15:25:00Z",
+  "updated_at": "2026-09-04T15:45:00Z",
+  "updated_at_utc": "2026-09-04T15:45:00Z",
   "updated_by": "agent_local",
-  "verdict": "LIQUIDITY_WORKER_REPLACEMENT_COMMIT_COMPLETE",
+  "verdict": "MARKET_PREDICTION_RETIREMENT_COMMIT_PARTIAL",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

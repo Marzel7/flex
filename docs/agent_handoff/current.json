@@ -12973,7 +12973,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "P5A_HISTORICAL_RESIDUE_RETIRED_CURRENT_COLD_PRESERVED",
+  "status": "STOPPED_SERVICE_RETIREMENT_QUALIFIED",
   "storage_incident_2026_09_01": {
     "critical_accounting_warning": "macOS `stat -f %b` is POSIX st_blocks in FIXED 512-byte units. allocated_bytes = %b * 512. NEVER multiply %b by %k (an unrelated filesystem I/O-transfer-size field). An earlier pass in this incident used %b*4096 and overstated every physical-allocation figure by exactly 8x. Do not let that error re-enter future storage analysis.",
     "future_triggers": {
@@ -14030,6 +14030,42 @@
     "next_action": "P5A_STAGE_DELTA_FACT_PRESERVATION_AUDIT, followed by STOPPED_SUPERVISOR_SERVICE_RESIDUE_AUDIT.",
     "safety": {"provider_rpc_calls": 0, "current_cold_modified": false, "protected_database_or_source_rows_modified": false, "code_config_cron_modified": false, "services_restarted": false, "vacuum_reindex_checkpoint": false}
   },
+  "stopped_supervisor_service_residue_audit": {
+    "status": "COMPLETE",
+    "verdict": "STOPPED_SERVICE_RETIREMENT_QUALIFIED",
+    "scope": "Strictly read-only Supervisor/service ownership, reachability, queue, state, log, and dependency audit. No service/config/code/database/cron action taken.",
+    "supervisor_census": {
+      "stopped": ["dust_observatory_enricher", "evidence_writer", "infra_sync_scheduler", "intelligence_snapshot_scheduler", "watchtower_helius_monitor", "webhook_worker"],
+      "other_stopped_programs": 0,
+      "protected_running": ["watchtower_api", "watchtower_listener", "creator_resolution_worker", "creator_funding_worker", "walkback_worker", "operation_scheduler", "ws_cascade"]
+    },
+    "verdicts": {
+      "evidence_writer": "KEEP_STOPPED_SUPPORTED: production Evidence DB has zero envelopes and intake has zero files; no active producer/backlog; mirror/normalization/primitive flags remain disabled; canonical operational evidence is written through other current paths.",
+      "infra_sync_scheduler": "KEEP_STOPPED_SUPPORTED: infra_wallets is a current supporting table, but consumers tolerate last-successful state and current inline/manual callers remain; last scheduler success was 2026-08-09.",
+      "dust_observatory_enricher": "CURRENT_REQUIRED_BUT_MISCONFIGURED: ws_cascade still invokes its enqueue hook while the dedicated consumer is stopped. Persistent pending table is empty, but the in-process queue cannot be drained by a separate process. Do not retire before an explicit producer/consumer architecture decision.",
+      "webhook_worker": "KEEP_STOPPED_SUPPORTED: routes and queue schema remain current/manual, but no producer activity since 2026-08-09 and 545 stale work items have attempts in the thousands. Starting risks legacy processing and provider/DB cost.",
+      "watchtower_helius_monitor": "REMOVE_SUPERVISOR_ENTRY_CANDIDATE: no automatic caller; current API reads the retained usage table and can perform an explicit manual lookup without the daemon. The stopped daemon is historically associated with a WAL-reader risk. Retain its module/table until separately scoped.",
+      "intelligence_snapshot_scheduler": "KEEP_STOPPED_SUPPORTED: current UI hydrates persisted snapshots and has SWR/live-build fallback. Snapshots are stale since 2026-09-01, creating degraded/stale health semantics but not a proven correctness outage; restart/retirement requires a dedicated pressure decision."
+    },
+    "critical_findings": [
+      "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
+      "STALE_SNAPSHOT_CURRENT_READER: snapshot files remain current-reader inputs but are stale; SWR/live recomputation is the fallback.",
+      "DANGEROUS_STALE_ENTRY: watchtower_helius_monitor remains a manually startable provider/WAL-risk daemon despite no automatic role."
+    ],
+    "queues_and_state": {
+      "evidence_intake_files": 0,
+      "evidence_envelopes": 0,
+      "dust_pending_signatures": 0,
+      "webhook_work_queue": 545,
+      "webhook_work_queue_latest_update": "2026-08-09",
+      "creator_analysis_queue": "681 complete; no pending/processing",
+      "infra_sync_last_success": "2026-08-09T18:00:48Z"
+    },
+    "recommended_wave_s1": "Remove only the watchtower_helius_monitor Supervisor entry after a focused pre-delete verification that no deployment/runbook invokes the daemon. Retain its API-read module and helius_usage_snapshots table.",
+    "recommended_wave_s2": "Resolve Dust Observatory producer/consumer ownership before considering that entry; separately decide snapshot freshness/pressure policy and webhook stale-queue disposition.",
+    "next_action": "IMPLEMENT_STOPPED_SERVICE_RETIREMENT_WAVE",
+    "safety": {"provider_rpc_calls": 0, "services_started_stopped_or_restarted": false, "code_config_database_schema_cron_modified": false, "queues_or_logs_mutated": false}
+  },
   "transaction_first_lineage_recovery_cache_audit": {
     "access": {
       "current_automatic_writers": 0,
@@ -14117,10 +14153,10 @@
     "tests": "53 focused tests passed: UI-contraction route guards plus creator-funding fast paths, Walkback startup resilience, P3R, Potential Operation visual structure, and operational topology. compileall and git diff --check passed.",
     "verdict": "UI_SURFACE_CONTRACTION_AND_BACKEND_REACHABILITY_PARTIAL_GENERIC_FUNDING_SLICE_RETIRED"
   },
-  "updated_at": "2026-09-04T08:35:00Z",
-  "updated_at_utc": "2026-09-04T08:35:00Z",
+  "updated_at": "2026-09-04T07:44:04Z",
+  "updated_at_utc": "2026-09-04T07:44:04Z",
   "updated_by": "agent_local",
-  "verdict": "P5A_HISTORICAL_RESIDUE_RETIRED_CURRENT_COLD_PRESERVED",
+  "verdict": "STOPPED_SERVICE_RETIREMENT_QUALIFIED",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

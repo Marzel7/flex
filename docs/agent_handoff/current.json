@@ -14486,10 +14486,23 @@
     "remote": "HANDOFF_TRANSPORT_DEGRADED: engineering and handoff pushes remain awaiting explicit user authorization to export repository contents to unestablished origin; no push attempted this turn.",
     "next_action": "FUNDING_ANALYTICS_VALUATION_COMMIT_AUDIT; do not start automatically."
   },
-  "updated_at": "2026-09-04T16:20:00Z",
-  "updated_at_utc": "2026-09-04T16:20:00Z",
+  "funding_analytics_valuation_commit_audit": {
+    "status": "COMPLETE",
+    "verdict": "FUNDING_ANALYTICS_VALUATION_COMMIT_COMPLETE",
+    "funding_analytics_commit": "29dc1f918fb37db5022d34c0b54d28b17964923e",
+    "valuation_commit": "34b5dcb32747a3efdb4cdf053d7608ae9f626310",
+    "funding_scope": "Read-only FundingAnalytics module, canonical-source/authority contract, and isolated SQLite tests. It writes no facts, schema, cache, or projection; its module has no current production caller.",
+    "valuation_scope": "Disabled-by-default Stage-0 post-assignment valuation library and tests. Finite durable queue, single concurrency, canonical-birth requirement, retained-first result, at most one explicit creation callback in implemented worker, and append-only content-addressed derived artifact persistence. No listener/Walkback/UI integration or live activation is included.",
+    "validation": "66 focused FundingAnalytics/valuation/Byzantine valuation tests passed; compile/import passed. Protected provider-free regression subset had 41 passes and the pre-existing Potential Operations current-census fixture mismatch. No candidate file touches legacy price history or current Byzantine early-block/first-second pipeline.",
+    "authority": "FundingAnalytics is DERIVED_READ_ONLY over creator_funders, token_analysis, retained Walkback/provisioning and explicitly labelled historical exceptions. Valuation results are non-authoritative derived artifacts; operation assignment and canonical birth remain source authorities.",
+    "safety": "No provider/RPC calls, job enqueue, database/schema mutation, service restart, runtime artifact staging, or UI/API wiring. Core services read-only checked RUNNING. The protected eight-file market index was revalidated unchanged after both commits.",
+    "remote": "HANDOFF_TRANSPORT_DEGRADED: engineering and handoff pushes await explicit user authorization to export repository contents to unestablished origin; no push attempted.",
+    "next_action": "RETURN_TO_PARKED_MARKET_DASHBOARD_RETIREMENT; do not start automatically."
+  },
+  "updated_at": "2026-09-04T16:40:00Z",
+  "updated_at_utc": "2026-09-04T16:40:00Z",
   "updated_by": "agent_local",
-  "verdict": "CURRENT_COLD_STORAGE_COMMIT_COMPLETE",
+  "verdict": "FUNDING_ANALYTICS_VALUATION_COMMIT_COMPLETE",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

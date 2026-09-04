@@ -14426,10 +14426,21 @@
     "next_action": "MORE_EVIDENCE_QUALIFICATION_REQUIRED: if desired, separately authorize a bounded semantic fixture review of primitive_replay.sqlite, authority_projection.sqlite, and the 1D/2A/2C1 audit DBs, with a no-artifact-recursion measurement plan. Otherwise retain the current Evidence set and move to main.py cleanup.",
     "safety": "No Evidence, database, service, Supervisor, creator-funding, Walkback, topology, P3R, Operations, Potential Operations, UI, cron, RPC/provider, VACUUM, REINDEX, checkpoint, or Git maintenance change. Temporary diagnostic du processes started by this audit were terminated."
   },
-  "updated_at": "2026-09-04T13:00:00Z",
-  "updated_at_utc": "2026-09-04T13:00:00Z",
+  "legacy_simulation_main_py_semantic_split": {
+    "status": "BLOCKED",
+    "verdict": "SIMULATION_RETIREMENT_COMMIT_BLOCKED",
+    "scope": "Authorized selective simulation-retirement commit preparation only. No source, runtime, database, schema, provider/RPC, service, or production mutation occurred.",
+    "preflight": "Engineering HEAD 539d94c524383540b0f9cfc75e4f315f2ca4169e; index returned to clean. The working tree remains dirty with all pre-existing changes preserved.",
+    "semantic_map": "The contiguous main.py deletion block from /trading-sim through immediately before /api/predictions/summary is simulation-only (routes, helpers, quote/buy/sell, auto-buy, analytics, and prediction buy-sim). The adjacent /predictions decorator and prediction guard changes are prediction-only and must remain outside the simulation commit.",
+    "dependency_proof": "Current working source has no executable src.trading.simulation imports or /trading-sim route declarations. Historical HEAD references are confined to main.py, price_worker.py, pumpfun_curve_listener.py, token_prediction_builder.py, sidebar/template navigation, and the retired simulation module/template.",
+    "blocker": "The Git/sandbox safety reviewer rejected index reconstruction of main.py because the one physical hunk also carries non-simulation prediction changes. The reviewer requires a fresh explicit approval specifically for staging a semantic projection of main.py that retains the unrelated prediction changes in the working tree while staging only the contiguous simulation route deletion.",
+    "staging": "The three unambiguous files (src/trading/simulation.py, templates/trading_sim.html, src/trading/__init__.py) were briefly staged for inspection, then immediately unstaged when the all-or-nothing batch gate failed. No commit was made.",
+    "next_action": "With explicit approval of that narrowly defined index-only main.py projection, stage it plus only the simulation-specific worker/listener/prediction/schema/navigation/config hunks, audit the staged diff, run focused tests, then commit and push retire: legacy simulation subsystem."
+  },
+  "updated_at": "2026-09-04T13:30:00Z",
+  "updated_at_utc": "2026-09-04T13:30:00Z",
   "updated_by": "agent_local",
-  "verdict": "LEGACY_RETIREMENT_COMMIT_PARTIAL",
+  "verdict": "SIMULATION_RETIREMENT_COMMIT_BLOCKED",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

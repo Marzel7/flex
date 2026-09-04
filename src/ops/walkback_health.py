@@ -24,16 +24,26 @@ def build_walkback_health(
     now = int(now or time.time())
     pending = int(_scalar(conn, "SELECT COUNT(*) FROM wt_walkback_queue WHERE status='pending'") or 0)
     running = int(_scalar(conn, "SELECT COUNT(*) FROM wt_walkback_queue WHERE status='running'") or 0)
-    completed_minute = int(_scalar(
-        conn,
-        "SELECT COUNT(*) FROM wt_walkback_queue WHERE status='complete' AND completed_at>=?",
-        (now - 60,),
-    ) or 0)
-    completed_hour = int(_scalar(
-        conn,
-        "SELECT COUNT(*) FROM wt_walkback_queue WHERE status='complete' AND completed_at>=?",
-        (now - 3600,),
-    ) or 0)
+    # Keep the four diagnostic predicates exactly as before, but derive them
+    # in one pass over the current queue.  The health endpoint previously
+    # scanned this large table four times on every refresh.
+    diagnostic_counts = conn.execute(
+        "SELECT "
+        "SUM(CASE WHEN status='complete' AND completed_at>=? THEN 1 ELSE 0 END),"
+        "SUM(CASE WHEN status='complete' AND completed_at>=? THEN 1 ELSE 0 END),"
+        "SUM(CASE WHEN updated_at>=? AND ("
+        "last_error LIKE '%NestedDatabaseWriteError%' OR "
+        "last_error LIKE '%database is locked%' OR "
+        "last_error LIKE '%DatabaseWriteLockError%') THEN 1 ELSE 0 END),"
+        "SUM(CASE WHEN last_error LIKE '%NestedDatabaseWriteError%' "
+        "AND updated_at>=? THEN 1 ELSE 0 END) "
+        "FROM wt_walkback_queue",
+        (now - 60, now - 3600, now - 3600, now - 3600),
+    ).fetchone()
+    completed_minute = int(diagnostic_counts[0] or 0)
+    completed_hour = int(diagnostic_counts[1] or 0)
+    write_failures = int(diagnostic_counts[2] or 0)
+    nested_write_failures = int(diagnostic_counts[3] or 0)
     average_latency = _scalar(
         conn,
         "SELECT AVG(completed_at-started_at) FROM wt_walkback_queue "
@@ -52,20 +62,6 @@ def build_walkback_health(
         "SELECT COUNT(*) FROM wt_walkback_queue WHERE status='running' "
         "AND COALESCE(started_at,updated_at,enqueued_at)<=?",
         (now - stalled_after_seconds,),
-    ) or 0)
-    write_failures = int(_scalar(
-        conn,
-        "SELECT COUNT(*) FROM wt_walkback_queue WHERE updated_at>=? AND ("
-        "last_error LIKE '%NestedDatabaseWriteError%' OR "
-        "last_error LIKE '%database is locked%' OR "
-        "last_error LIKE '%DatabaseWriteLockError%')",
-        (now - 3600,),
-    ) or 0)
-    nested_write_failures = int(_scalar(
-        conn,
-        "SELECT COUNT(*) FROM wt_walkback_queue WHERE last_error LIKE '%NestedDatabaseWriteError%' "
-        "AND updated_at>=?",
-        (now - 3600,),
     ) or 0)
     heartbeat_at = heartbeat_override
     if heartbeat_at is None:

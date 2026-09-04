@@ -26,6 +26,34 @@ def _signature(cursor: sqlite3.Cursor, mint: str) -> tuple | None:
     return tuple(rows) if rows else None
 
 
+def _signatures_by_mint(
+    cursor: sqlite3.Cursor, mints: set[str] | list[str] | tuple[str, ...], *, chunk_size: int = 900,
+) -> dict[str, tuple | None]:
+    """Build an aggregate-local exact selected-edge signature index.
+
+    This preserves ``_signature``'s selected-edge predicate and tuple ordering,
+    while replacing one query per mint with bounded ``IN`` queries.
+    """
+    unique_mints = tuple(dict.fromkeys(mints))
+    signatures: dict[str, tuple | None] = {mint: None for mint in unique_mints}
+    for offset in range(0, len(unique_mints), chunk_size):
+        chunk = unique_mints[offset:offset + chunk_size]
+        placeholders = ",".join("?" for _ in chunk)
+        rows = cursor.execute(
+            "SELECT mint, hop_depth, mechanism, amount_lamports "
+            "FROM wt_walkback_edge_candidates "
+            f"WHERE mint IN ({placeholders}) AND selection_status='SELECTED' "
+            "AND amount_lamports IS NOT NULL "
+            "ORDER BY mint, hop_depth, signature",
+            chunk,
+        ).fetchall()
+        grouped: dict[str, list[tuple]] = {}
+        for mint, hop_depth, mechanism, amount_lamports in rows:
+            grouped.setdefault(mint, []).append((hop_depth, mechanism, amount_lamports))
+        signatures.update({mint: tuple(value) for mint, value in grouped.items()})
+    return signatures
+
+
 def _state(metrics: dict[str, int]) -> str:
     if metrics["last_1d"] >= 3:
         return "VERY_ACTIVE"
@@ -49,9 +77,16 @@ def aggregate(db_path: str, now: int | None = None) -> tuple[dict[str, dict], di
             for row in json.loads(MEMBERSHIP.read_text())["families"]
             if row["candidate_id"] in snapshots
         }
+        launches = cursor.execute(
+            "SELECT mint, funder_block_time FROM wt_walkback_queue WHERE funder_block_time>?", (now - 30 * 86400,)
+        ).fetchall()
+        signature_by_mint = _signatures_by_mint(
+            cursor,
+            {mint for family in families.values() for mint in family["mints"]} | {mint for mint, _ in launches},
+        )
         signatures: dict[str, tuple | None] = {}
         for candidate_id, family in families.items():
-            values = [_signature(cursor, mint) for mint in family["mints"]]
+            values = [signature_by_mint.get(mint) for mint in family["mints"]]
             values = [value for value in values if value]
             signatures[candidate_id] = values[0] if values and len(values) == len(family["mints"]) and len(set(values)) == 1 else None
         signature_counts = Counter(value for value in signatures.values() if value)
@@ -70,11 +105,8 @@ def aggregate(db_path: str, now: int | None = None) -> tuple[dict[str, dict], di
                 "live_matches": [],
             }
         windows = {label: Counter() for label in ("24h", "7d", "30d")}
-        launches = cursor.execute(
-            "SELECT mint, funder_block_time FROM wt_walkback_queue WHERE funder_block_time>?", (now - 30 * 86400,)
-        ).fetchall()
         for mint, timestamp in launches:
-            signature = _signature(cursor, mint)
+            signature = signature_by_mint.get(mint)
             match = match_signature(signature, specs)
             for label, threshold, metric in (("24h", now - 86400, "live_launches_24h"), ("7d", now - 7 * 86400, "live_launches_7d"), ("30d", now - 30 * 86400, "live_launches_30d")):
                 if timestamp <= threshold:

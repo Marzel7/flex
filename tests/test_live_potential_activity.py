@@ -57,3 +57,51 @@ def test_live_activity_sorting_never_uses_snapshot_counts_as_current():
     live = {**base, "current_evidence": {"activity_source": "LIVE_CURRENT", "activity_state": "DORMANT", "metrics": {}, "matches": 0}}
     snapshot = {**base, "candidate_id": "y", "current_evidence": {"activity_source": "SNAPSHOT_ONLY", "activity_state": "SNAPSHOT_ONLY", "metrics": {"last_1d": 999}, "matches": 999}}
     assert _attention_sort_key(live) < _attention_sort_key(snapshot)
+
+
+def test_batched_signature_index_matches_single_mint_semantics(tmp_path, monkeypatch):
+    db = _fixture(tmp_path, monkeypatch)
+    conn = sqlite3.connect(db)
+    conn.execute("INSERT INTO wt_walkback_edge_candidates VALUES(?,?,?,?,?,?)", ("multiple", 2, "XFER", 0, "SELECTED", "z"))
+    conn.execute("INSERT INTO wt_walkback_edge_candidates VALUES(?,?,?,?,?,?)", ("multiple", 1, "WSOL", 7, "SELECTED", "a"))
+    conn.execute("INSERT INTO wt_walkback_edge_candidates VALUES(?,?,?,?,?,?)", ("null-only", 1, "XFER", None, "SELECTED", "n"))
+    conn.commit()
+    cursor = conn.cursor()
+    mints = {"seed", "multiple", "null-only", "absent"}
+    batched = activity._signatures_by_mint(cursor, mints, chunk_size=2)
+    assert batched == {mint: activity._signature(cursor, mint) for mint in mints}
+    assert batched["multiple"] == ((1, "WSOL", 7), (2, "XFER", 0))
+    assert batched["null-only"] is None
+    assert batched["absent"] is None
+    conn.close()
+
+
+def test_signature_batching_is_bounded_and_aggregate_output_is_unchanged(tmp_path, monkeypatch):
+    db = _fixture(tmp_path, monkeypatch)
+    original = activity._signatures_by_mint
+    values, stats = activity.aggregate(str(db), now=1000)
+
+    calls = []
+    def legacy_index(cursor, mints, *, chunk_size=900):
+        mints = tuple(mints)
+        calls.append(len(mints))
+        return {mint: activity._signature(cursor, mint) for mint in mints}
+
+    monkeypatch.setattr(activity, "_signatures_by_mint", legacy_index)
+    legacy_values, legacy_stats = activity.aggregate(str(db), now=1000)
+    assert (values, stats) == (legacy_values, legacy_stats)
+    assert calls and calls[0] == 6
+
+    conn = sqlite3.connect(db)
+    query_count = 0
+    # The helper accepts a 1,001-mint universe in two bounded SELECTs rather
+    # than one SELECT per mint.
+    class CountingCursor:
+        def execute(self, sql, parameters=()):
+            nonlocal query_count
+            query_count += 1
+            return conn.execute(sql, parameters)
+    index = original(CountingCursor(), {f"mint-{n}" for n in range(1001)})
+    assert len(index) == 1001
+    assert query_count == 2
+    conn.close()

@@ -15,6 +15,16 @@
     "blocker": "All 12 targets retain migration signature and slot, and both Pump.fun curve PDAs are deterministically derivable, but neither token_analysis nor pumpfun_migration_verification retains raw migration transaction accounts or a curve linkage. No retained artifact proves any migration signature touches its derived bonding curve, so it is not a qualified getSignaturesForAddress(before=migration_signature) cursor. Reference pre-migration curve-history counts are also absent from retained fixtures.",
     "next_action": "Obtain retained evidence that links each terminal migration signature to its derived Pump.fun curve, or separately authorize a bounded transaction-proof step with an explicit budget before any curve-history request. Do not use timestamp recovery, pagination, automatic expansion, or an unqualified migration cursor."
   },
+  "complete_curve_history_creation_recovery": {
+    "engineering_revision": "0ad0aba2",
+    "tests": "19 passed: tests/test_pumpfun_curve_birth_recovery.py, tests/test_pumpfun_opening_impulse.py, tests/test_operation_launch_valuation_stage0.py; provider calls during tests=0",
+    "production_flags": "no DB writes, membership writes, listener/Walkback changes, service changes, pagination, automatic expansion, or cohort acquisition",
+    "verdict": "PARTIAL",
+    "contract": "Helius getSignaturesForAddress(curve, {limit:1000}) once, no cursor/until/retry/pagination; a 1000-row result fails closed; K=1 oldest candidate transaction only.",
+    "reference_probe": "Byzantine reference curve returned exactly 1000 signatures and was HISTORY_EXCEEDS_BOUND after one history call. Watchtower reference returned 14 signatures and recovered CREATE_V2 signature 2m5b23jPBJv47FwSBRS8aTbHKpLH76iGtZWv5kRzM5fN6Qb3FtUneuLdJ94S51hjud1yX3Ggx24T6vpVb7tpJZxZ at slot 443452972. Total real reference provider calls=3; no Byzantine cohort calls.",
+    "artifacts": "File-only content-addressed raw probe responses under docs/audits/pumpfun_complete_curve_history_recovery/artifacts (not engineering-staged).",
+    "next_action": "REVIEW_HISTORY_BOUND_EXCEEDED_TOKENS; do not run the 12-token cohort under the current fixed 1000-signature one-page contract."
+  },
   "byzantine_opening_anchor_recovery": {
     "engineering_revision": "696bd465492c74ff208820481472efd6c99131c3",
     "tests": "not run; read-only local evidence census",
@@ -12166,7 +12176,7 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "f661ae4593e5aaf434c4d0c91e9fb8dc2afd4f08",
+    "git_head": "0ad0aba2",
     "name": "flex",
     "updated_at_utc": "2026-08-17T18:50:18Z",
     "working_tree": "dirty: H8-to-H4 compatibility adapter added; projection runtime and H4 rerun materialized 150 operations"

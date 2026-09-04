@@ -40,17 +40,18 @@ def _signatures_by_mint(
         chunk = unique_mints[offset:offset + chunk_size]
         placeholders = ",".join("?" for _ in chunk)
         rows = cursor.execute(
-            "SELECT mint, hop_depth, mechanism, amount_lamports "
+            "SELECT mint, hop_depth, mechanism, amount_lamports, signature "
             "FROM wt_walkback_edge_candidates "
             f"WHERE mint IN ({placeholders}) AND selection_status='SELECTED' "
-            "AND amount_lamports IS NOT NULL "
-            "ORDER BY mint, hop_depth, signature",
+            "AND amount_lamports IS NOT NULL",
             chunk,
         ).fetchall()
         grouped: dict[str, list[tuple]] = {}
-        for mint, hop_depth, mechanism, amount_lamports in rows:
-            grouped.setdefault(mint, []).append((hop_depth, mechanism, amount_lamports))
-        signatures.update({mint: tuple(value) for mint, value in grouped.items()})
+        for mint, hop_depth, mechanism, amount_lamports, signature in rows:
+            grouped.setdefault(mint, []).append((hop_depth, mechanism, amount_lamports, signature))
+        for mint, value in grouped.items():
+            value.sort(key=lambda row: (row[0], row[3]))
+            signatures[mint] = tuple((hop_depth, mechanism, amount_lamports) for hop_depth, mechanism, amount_lamports, _ in value)
     return signatures
 
 

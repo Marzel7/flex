@@ -76,6 +76,17 @@ def test_batched_signature_index_matches_single_mint_semantics(tmp_path, monkeyp
     conn.close()
 
 
+def test_hybrid_index_uses_signature_as_same_hop_tiebreaker(tmp_path, monkeypatch):
+    db = _fixture(tmp_path, monkeypatch)
+    conn = sqlite3.connect(db)
+    conn.execute("INSERT INTO wt_walkback_edge_candidates VALUES(?,?,?,?,?,?)", ("same-hop", 1, "LATE", 2, "SELECTED", "z"))
+    conn.execute("INSERT INTO wt_walkback_edge_candidates VALUES(?,?,?,?,?,?)", ("same-hop", 1, "EARLY", 3, "SELECTED", "a"))
+    conn.commit()
+    cursor = conn.cursor()
+    assert activity._signatures_by_mint(cursor, {"same-hop"})["same-hop"] == ((1, "EARLY", 3), (1, "LATE", 2))
+    conn.close()
+
+
 def test_signature_batching_is_bounded_and_aggregate_output_is_unchanged(tmp_path, monkeypatch):
     db = _fixture(tmp_path, monkeypatch)
     original = activity._signatures_by_mint

@@ -14554,10 +14554,22 @@
     "safety": "No provider/RPC calls, service restart, Supervisor change, database/schema mutation, index staging, engineering commit, or generated-artifact deletion occurred.",
     "next_action": "Obtain an explicit product decision for each still-linked legacy route/API family, then build a narrow atomic backend+frontend projection that removes every link/automatic caller and updates the X18 navigation contract. Until then retain current compatibility."
   },
-  "updated_at": "2026-09-04T18:30:00Z",
-  "updated_at_utc": "2026-09-04T18:30:00Z",
+  "final_legacy_product_surface_retirement": {
+    "status": "COMPLETE",
+    "verdict": "FINAL_LEGACY_PRODUCT_SURFACE_RETIREMENT_COMPLETE",
+    "engineering_revision": "70c552bd964b531733cc5b95012d050000bd4fdb",
+    "commit": "70c552bd964b531733cc5b95012d050000bd4fdb retire: legacy generic dashboard surfaces",
+    "scope": "HEAD-based temporary-index projection removing 61 legacy generic-dashboard route decorators, obsolete funding/network/Watchtower presentation templates, their sidebar links and funding-queue polling, and superseded navigation assertions.",
+    "validation": "Temporary staged tree: 11 provider-free UI-surface/navigation tests passed; main.py/operator_routes.py/shell_routes.py compiled; cached whitespace check passed; static route proof preserved /system-health, operator list/detail, and Potential Operations list/detail.",
+    "preserved": "creator_funders, Walkback, topology/provisioning, FundingAnalytics, P3R, Operations, Potential Operations, Evidence, compact market, bounded valuation, Byzantine first-second valuation, cold storage, and all protected backend authorities were excluded from the commit.",
+    "safety": "No provider/RPC call, service/Supervisor action, database/schema mutation, historical-table action, or remote push. The real working tree retains unrelated dirty feature/runtime/audit state.",
+    "remote": "HANDOFF_TRANSPORT_DEGRADED: engineering and handoff publication await explicit remote-export approval; no push attempted.",
+    "next_action": "Return to feature or coverage engineering; do not continue reduction by inertia."
+  },
+  "updated_at": "2026-09-04T19:15:00Z",
+  "updated_at_utc": "2026-09-04T19:15:00Z",
   "updated_by": "agent_local",
-  "verdict": "MORE_PRODUCT_REVIEW_REQUIRED",
+  "verdict": "FINAL_LEGACY_PRODUCT_SURFACE_RETIREMENT_COMPLETE",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

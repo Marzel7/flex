@@ -12973,7 +12973,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "P5A_CURRENT_COLD_STORAGE_CUTOVER_COMPLETE",
+  "status": "P5A_HISTORICAL_RESIDUE_RETIREMENT_QUALIFIED",
   "storage_incident_2026_09_01": {
     "critical_accounting_warning": "macOS `stat -f %b` is POSIX st_blocks in FIXED 512-byte units. allocated_bytes = %b * 512. NEVER multiply %b by %k (an unrelated filesystem I/O-transfer-size field). An earlier pass in this incident used %b*4096 and overstated every physical-allocation figure by exactly 8x. Do not let that error re-enter future storage analysis.",
     "future_triggers": {
@@ -13959,6 +13959,41 @@
     },
     "next_action": "P5A_HISTORICAL_RESIDUE_RETIREMENT_AUDIT: classify remaining historical P5A stage data, summaries, checkpoints, and repair workspace without touching the current cold authority."
   },
+  "p5a_historical_residue_retirement_audit": {
+    "status": "COMPLETE",
+    "verdict": "P5A_HISTORICAL_RESIDUE_RETIREMENT_QUALIFIED",
+    "scope": "Strictly read-only audit; no P5A, current cold, code, config, cron, service, database, RPC, or provider change.",
+    "current_authority": "PASS: registry, reader factory, rollover default, and all 20 active user-crontab entries resolve only database/current_cold_storage. No P5A rollover entry, live P5A handle, or P5A worker was observed.",
+    "remaining_p5a": {
+      "files": 87,
+      "logical_bytes": 522835750,
+      "allocated_bytes": 524140544,
+      "p5e_r1_work_allocated_bytes": 389083136,
+      "collocated_summary_allocated_bytes": 127094784,
+      "old_summary_store_allocated_bytes": 847872,
+      "stage_db_allocated_bytes": 3616768,
+      "august_delta_allocated_bytes": 3796992,
+      "checkpoint_allocated_bytes": 24576
+    },
+    "p5e_r1_work": {
+      "identity": "Forensic immutable-May repair workspace: base reconstruction plus incident-mutated quarantine; never current authority.",
+      "current_readers_writers_recovery_analytics": "0 / 0 / 0 / 0",
+      "preservation_proof": "The reconstructed base has the same 319318-row manifest digest as current 2026_05. The prior repair artifact proves the incident-mutated 319751-row view equals that base plus the current immutable 433-row delta bfbfb2121047 with full-identity parity.",
+      "classification": "RETIRE_NOW_HIGH_CONFIDENCE",
+      "minimum_historical_preservation": "Existing repair execution artifact, segment manifests/digests, and the current base+delta are sufficient; no full workspace required."
+    },
+    "other_families": {
+      "collocated_summaries": "41 of 44 have exact current summary digest counterparts; three stage-related summaries are historical proof. Retire the 41 exact duplicates only in a separately authorized wave; retain the three with their stage records.",
+      "old_summary_store": "31 small historical qualification snapshots; no current reader/writer/rollover dependency. Keep as small historical proof pending a focused semantic classification.",
+      "stage_and_2026_08_deltas": "Historical migration/qualification artifacts with no current reader/writer/recovery dependency, but their fact preservation is not fully mapped in this audit. RETAIN_HISTORICAL / UNKNOWN_REVIEW_REQUIRED; do not delete yet.",
+      "checkpoints": "Six completed, tiny historical build checkpoints. KEEP_SMALL_HISTORICAL until the associated stage/delta retention decision."
+    },
+    "automatic_recreation": "0: source/config scan found only one stale documentation mention; no Supervisor, scheduler, worker, API, or cron path can recreate historical P5A data.",
+    "recommended_wave_h1": "Retire only cold_segments/_p5e_r1_work after a short pre-delete recheck of the documented current base+433-delta preservation chain. Expected physical reclaim: 389083136 bytes.",
+    "recommended_wave_h2": "Retire the 41 digest-exact collocated summary duplicates after an individual path manifest is approved. Expected physical reclaim is up to 127094784 bytes but must exclude the three stage-related summaries.",
+    "next_action": "IMPLEMENT_P5A_HISTORICAL_RETIREMENT_WAVE",
+    "safety": {"provider_rpc_calls": 0, "source_or_production_rows_modified": false, "p5a_or_current_cold_files_modified": false, "code_config_cron_modified": false, "services_restarted": false, "rollover_migration_repair_replay_run": false}
+  },
   "transaction_first_lineage_recovery_cache_audit": {
     "access": {
       "current_automatic_writers": 0,
@@ -14046,10 +14081,10 @@
     "tests": "53 focused tests passed: UI-contraction route guards plus creator-funding fast paths, Walkback startup resilience, P3R, Potential Operation visual structure, and operational topology. compileall and git diff --check passed.",
     "verdict": "UI_SURFACE_CONTRACTION_AND_BACKEND_REACHABILITY_PARTIAL_GENERIC_FUNDING_SLICE_RETIRED"
   },
-  "updated_at": "2026-09-04T07:15:00Z",
-  "updated_at_utc": "2026-09-04T07:15:00Z",
+  "updated_at": "2026-09-04T08:20:00Z",
+  "updated_at_utc": "2026-09-04T08:20:00Z",
   "updated_by": "agent_local",
-  "verdict": "P5A_CURRENT_COLD_STORAGE_CUTOVER_COMPLETE",
+  "verdict": "P5A_HISTORICAL_RESIDUE_RETIREMENT_QUALIFIED",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

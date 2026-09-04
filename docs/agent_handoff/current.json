@@ -14369,13 +14369,13 @@
     "safety": "Graph, creator_funders, creator funding, Walkback, topology, FundingAnalytics, P3R, Operations, Potential Operations, Evidence, services, UI and schema unchanged; provider/RPC=0."
   },
   "creator_funding_graph_retirement_implementation": {
-    "status": "HOLD",
-    "verdict": "CREATOR_FUNDING_GRAPH_RETIREMENT_AWAITING_SAFETY_GATE_REAPPROVAL",
-    "implementation_preflight": "Scoped retirement tests passed 5/5; compileall passed; the current src tree has zero creator_funding_graph/CreatorFundingGraphCache/CREATOR_CACHE runtime references. The only remaining matches are the intentional one-shot retirement migration, its test fixture, and historical handoff narrative.",
-    "runtime": "Restarted only creator_funding_worker (34645 -> 56190); it is RUNNING. watchtower_listener remained RUNNING (33586); evidence_writer was already STOPPED and untouched.",
-    "blocked_action": "The exact 12-row non-authoritative exception preservation plus DROP creator_funding_graph write was rejected by the execution safety gate pending an explicit post-proof user reapproval. No database mutation was attempted after rejection.",
-    "safety": "No provider/RPC calls, no source/production database writes, no schema drop, no Walkback mutation, no UI/schema change, and no suppression. The 12 exceptions remain unmigrated and GMH/Erx remains preserved by its existing selected Walkback/role evidence.",
-    "next_action": "On explicit reapproval after this documented zero-consumer proof, execute scripts/retire_creator_funding_graph.py once; verify exactly 12 canonical_authority=0 INSUFFICIENT_EVIDENCE legacy facts, creator_funding_graph absent, idempotent rerun, and worker continuity."
+    "status": "COMPLETE",
+    "verdict": "CREATOR_FUNDING_GRAPH_RETIRED_CANONICAL_AUTHORITY_PRESERVED",
+    "implementation": "After explicit post-proof approval, scripts/retire_creator_funding_graph.py preserved exactly twelve frozen graph-only pairs in creator_funding_graph_legacy_exceptions, then removed creator_funding_graph and its three views/indexes. The table is absent after a live-worker continuity observation; an immediate idempotent rerun returned already_retired with the same exception digest 8ddc7cb2fb784df8a8714b08e92f8ed91c9e0f21acbfeea3914a8bf396d72ed5.",
+    "exception_boundary": "migration_run_id=creator-funding-graph-retirement-v1 has 12 distinct rows, all status=INSUFFICIENT_EVIDENCE and canonical_authority=0. There is zero creator_funders overlap. These records are explicit legacy abstentions only: not creator_funder facts, funding authority, operation attribution, recurrence eligibility, or a completeness cache.",
+    "runtime": "Restarted only creator_funding_worker (34645 -> 56190); it remained RUNNING through post-drop observation. watchtower_listener remained RUNNING (33586); evidence_writer was already STOPPED and untouched.",
+    "verification": "Current src runtime tree has zero creator_funding_graph/CreatorFundingGraphCache/CREATOR_CACHE references. Retirement and fast-path tests passed 5/5; 42 focused tests passed across creator-funding, wallet quality, unknown-edge safety, P3R, Potential Operations, and Watchtower contracts. No graph object was recreated after 15 seconds of live worker operation.",
+    "safety": "No provider/RPC calls, no normal Walkback table mutation, no UI change, no membership/attribution/topology/P3R/suppression change, and no tiny completeness cache introduced. The existing GMH/Erx direct relationship remains preserved by selected Walkback/role evidence."
   },
   "updated_at": "2026-09-04T11:31:00Z",
   "updated_at_utc": "2026-09-04T11:31:00Z",

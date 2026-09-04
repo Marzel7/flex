@@ -10896,8 +10896,8 @@
     "verdict": "SOL_USD_HISTORICAL_LOCAL_AUDIT_COMPLETE"
   },
   "next_action": {
-    "instruction": "Design/qualify compact recovery index for transaction_first_lineage; no deletion or implementation occurs without separate authorization.",
-    "next_action_code": "BUILD_COMPACT_RECOVERY_INDEX_FIRST"
+    "instruction": "Await separate destructive authorization; original remains intact while compact recovery index is the sole current manual recovery reader.",
+    "next_action_code": "RETIRE_TRANSACTION_FIRST_LINEAGE"
   },
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
@@ -12973,7 +12973,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "TRANSACTION_FIRST_LINEAGE_RETENTION_QUALIFIED",
+  "status": "TRANSACTION_FIRST_LINEAGE_COMPACT_RECOVERY_QUALIFIED",
   "storage_incident_2026_09_01": {
     "critical_accounting_warning": "macOS `stat -f %b` is POSIX st_blocks in FIXED 512-byte units. allocated_bytes = %b * 512. NEVER multiply %b by %k (an unrelated filesystem I/O-transfer-size field). An earlier pass in this incident used %b*4096 and overstated every physical-allocation figure by exactly 8x. Do not let that error re-enter future storage analysis.",
     "future_triggers": {
@@ -13766,6 +13766,67 @@
       "status": "PASS"
     }
   },
+  "transaction_first_lineage_compact_recovery_index": {
+    "contract": {
+      "acquisition_queue_rows_migrated": 0,
+      "launches_migrated": 0,
+      "paths_migrated": 0,
+      "populations_migrated": 0,
+      "preserved_matching_edges": 28,
+      "preserved_session_facts": 28,
+      "preserved_signature_metadata": 28,
+      "raw_provider_bodies_retained": 0,
+      "selection": "only tf_session_comparison CORRECT_DIRECT_RELATIONSHIP; metadata hashes only; matching exact root->child edges"
+    },
+    "index": {
+      "allocated_blocks": 112,
+      "classification": "RECOVERY_ONLY_NON_AUTHORITATIVE_CACHE",
+      "file_sha256": "6a65a13660d9bc03cba91de7d40cc5d11c19d33ada31669b6161afe6b4c3146d",
+      "logical_bytes": 57344,
+      "path": "database/transaction_first_lineage_recovery.db",
+      "schema": "transaction-first-recovery-index.v1",
+      "semantic_digest": "a02e826610044a03aa32af8de8197ca69e4111b745044fa6be8e3841d39313a0"
+    },
+    "migration": {
+      "dry_run_compact_result": "28 independently verified exact edges; applied=false",
+      "dry_run_original_vs_compact_session_parity": "PASS 28/28",
+      "fallback": "fail closed for missing/corrupt index; no original DB fallback",
+      "manual_reader": "scripts/enforce_session_root_lineage.py now defaults to compact recovery index and validates its semantic digest"
+    },
+    "next_action": "RETIRE_TRANSACTION_FIRST_LINEAGE only after separate explicit destructive approval: fresh zero-reader gate, historical-forensic decision, delete original DB + own SHM, no-recreation observation, then rerun compact recovery parity.",
+    "original_after_migration": {
+      "automatic_recreation": 0,
+      "automatic_writers": 0,
+      "current_recovery_readers": 0,
+      "do_not_delete_without_separate_authorization": true,
+      "full_db_required": false,
+      "normal_production_readers": 0,
+      "qualified_for_future_retirement": true,
+      "remaining_references": "explicit builder, historical qualification/forensic scripts, default-off unimported tf_cache_lookup adapter, and storage denylist only"
+    },
+    "status": "COMPLETE",
+    "storage": {
+      "compact_bytes": 57344,
+      "future_reclaim_bytes": 1432707072,
+      "original_bytes": 1432764416,
+      "temporary_build_bytes": 57344
+    },
+    "verdict": "TRANSACTION_FIRST_LINEAGE_COMPACT_RECOVERY_QUALIFIED",
+    "verification": {
+      "builder_replay_idempotent": true,
+      "focused_recovery_tests": "20 passed",
+      "original_identity_unchanged": {
+        "bytes": 1432764416,
+        "inode": 475631045,
+        "mtime": "2026-08-07T15:28:03Z"
+      },
+      "protected_authority_mutations": 0,
+      "protected_regressions": "51 passed",
+      "provider_calls": 0,
+      "rpc_calls": 0,
+      "service_restarts": 0
+    }
+  },
   "transaction_first_lineage_recovery_cache_audit": {
     "access": {
       "current_automatic_writers": 0,
@@ -13856,7 +13917,7 @@
   "updated_at": "2026-09-03T19:38:00Z",
   "updated_at_utc": "2026-09-03T19:38:00Z",
   "updated_by": "agent_local",
-  "verdict": "TRANSACTION_FIRST_LINEAGE_RETENTION_QUALIFIED",
+  "verdict": "TRANSACTION_FIRST_LINEAGE_COMPACT_RECOVERY_QUALIFIED",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

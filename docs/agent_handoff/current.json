@@ -1,4 +1,12 @@
 {
+  "byzantine_opening_anchor_recovery": {
+    "engineering_revision": "696bd465492c74ff208820481472efd6c99131c3",
+    "tests": "not run; read-only local evidence census",
+    "production_flags": "no provider calls, no DB writes, no listener/Walkback/attribution changes",
+    "verdict": "PARTIAL",
+    "blocker": "All 12 selected memberships lack retained canonical Pump.fun creation signature and slot. The canonical create-event ledger has zero matching rows; prior timestamp-to-slot recovery is explicitly qualified UNRELIABLE because it resolves migration, not creation.",
+    "next_action": "Obtain separate explicit authority for a bounded canonical creation-anchor recovery method; do not use migration timestamps or address-history pagination."
+  },
   "pumpfun_opening_impulse_replay": {
     "engineering_revision": "696bd465492c74ff208820481472efd6c99131c3",
     "tests": "13 passed: tests/test_pumpfun_opening_impulse.py and tests/test_operation_launch_valuation_stage0.py; provider calls=0",

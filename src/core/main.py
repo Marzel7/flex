@@ -24584,15 +24584,6 @@ def api_db_health():
         wal_mb = round(os.path.getsize(wal_path) / 1024 / 1024, 1) if os.path.exists(wal_path) else 0
 
         rpc_cache_rows = count('rpc_response_cache')
-        rpc_cache_expired = None
-        try:
-            rpc_cache_expired = conn.execute(
-                'SELECT COUNT(*) FROM rpc_response_cache WHERE cached_at + ttl_seconds <= ?',
-                (int(_time.time()),)
-            ).fetchone()[0]
-        except Exception:
-            pass
-
         rpc_metrics_rows = count('rpc_metrics')
         helius_snapshots_rows = count('helius_usage_snapshots')
 
@@ -24648,7 +24639,6 @@ def api_db_health():
 
         return {
             'rpc_cache_rows': rpc_cache_rows,
-            'rpc_cache_expired': rpc_cache_expired,
             'rpc_metrics_rows': rpc_metrics_rows,
             'helius_snapshots_rows': helius_snapshots_rows,
             'wal_mb': wal_mb,

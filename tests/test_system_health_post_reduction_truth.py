@@ -36,6 +36,16 @@ def test_system_health_route_is_retained() -> None:
     assert "system_health_dashboard.html" in source
 
 
+def test_db_health_omits_unused_expired_rpc_cache_scan() -> None:
+    source = (ROOT / "src/core/main.py").read_text()
+    start = source.index("def api_db_health():")
+    end = source.index("@app.route('/api/debug/db-connections')", start)
+    block = source[start:end]
+    assert "rpc_cache_expired" not in block
+    assert "rpc_cache_rows" in block
+    assert "cached_at + ttl_seconds <=" not in block
+
+
 def test_current_health_block_has_no_retired_watch_pipeline_probe() -> None:
     source = (ROOT / "src/core/main.py").read_text()
     start = source.index("def api_health_full():")

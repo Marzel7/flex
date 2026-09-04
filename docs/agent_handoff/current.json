@@ -14313,21 +14313,24 @@
     "safety": "No services/Supervisor/ws_cascade/Dust/funding/Walkback/topology/P3R/Operations/Potential/Evidence/UI/DB/schema change, provider/RPC call, or Git maintenance occurred."
   },
   "dust_observatory_live_retirement_implementation": {
-    "status": "PARTIAL",
-    "verdict": "DUST_OBSERVATORY_RETIREMENT_PARTIAL",
+    "status": "COMPLETE",
+    "verdict": "DUST_SUPERVISOR_CATALOGUE_ENTRY_RETIRED",
     "implemented": "Removed the Dust Supervisor definition from source config; removed all ws_cascade Dust marker initialization, low-priority subscriptions, kind=dust callback/enqueue path, and in-process writer/enricher startup; deleted Dust telemetry module and page template; removed the Dust API/detail/page routes, sidebar entry, and Operational Intelligence summary-card client/presentation code.",
     "activation": "Restarted only ws_cascade: PID 33610 -> 39633. operation_scheduler (35254), watchtower_listener (33586), and watchtower_api (37424) remained RUNNING. No other restart was performed.",
     "safeguards_preserved": "src.utils.dust_addresses and realtime creator-funding exclusion; Walkback manual wt_known_spam_wallets exclusion and wallet-quality environmental annotation; conservative unknown-funder edge-quality classifier; static CEX/infra mapping. New tests/test_dust_observatory_retirement_safeguards.py proves live Dust removal does not remove these paths.",
     "history": "Preserved without modification: wt_dust_markers=11, wt_dust_observations=27, wt_dust_recipient_lifecycle=22, wt_dust_pending_sigs=0.",
     "verification": "Source/config search finds zero remaining Dust runtime hooks, enqueue calls, subscriptions, thread startup, routes, navigation/card, or Supervisor definition. Focused Dust/safeguard suite passed through 32 completed tests (4 new retirement safeguards, 22 X29.4 wallet-quality, 6 unknown-edge-quality); 16 protected Walkback/P3R/Potential/Watchtower tests passed. The X26.3 infrastructure suite passed its first 12 assertions then stalled in its pre-existing live-DB dry-run test; no failure/correctness regression was observed and it is not attributed to this change.",
-    "blocker": "The Supervisor daemon still retains a stopped dust_observatory_enricher catalogue entry until reread/update. Targeted removal requires a preceding global reread, and an attempt was blocked because a prior reread/update caused unrelated restarts and stopped operation_scheduler. Per authorization, no workaround or broad refresh was attempted. Source config is removed; runtime service is STOPPED and has no producer/consumer role.",
-    "next_action": "Obtain explicit approval for a Supervisor reread plus targeted removal of the already-stopped dust_observatory_enricher entry, with acknowledgement of pending unrelated config risk; then verify its status is absent. No Dust code/runtime work remains.",
-    "safety": "No provider/RPC testing, DB/schema/history deletion, Walkback/funding/topology/P3R/Operation/Potential/Evidence change, or restart other than ws_cascade."
+    "supervisor_cleanup": "Preflight captured all PIDs. A permitted reread reported exactly one pending diff: dust_observatory_enricher: disappeared. Targeted `supervisorctl update dust_observatory_enricher` then stopped and removed only that already-stopped process group. Post-removal reread reports `No config updates to processes`.",
+    "runtime_continuity": "All previously RUNNING services retained identical PIDs: alert_evaluator=33558, creator_funding_worker=34645, creator_resolution_worker=33576, operation_scheduler=35254, walkback_worker=33579, watchtower_api=37424, watchtower_listener=33586, watchtower_ngrok=33589, ws_cascade=39633. Intended stopped services remained STOPPED; dust_observatory_enricher and watchtower_helius_monitor are absent.",
+    "history_reverified": "Historical Dust rows remain unchanged: wt_dust_markers=11, wt_dust_observations=27, wt_dust_recipient_lifecycle=22, wt_dust_pending_sigs=0.",
+    "verification": "Current source has no Dust Supervisor block; live catalogue has no Dust entry; source scan finds no live Dust hooks, provider path, DB writer path, routes, sidebar, or summary card. Funding safeguards remain independently present. Focused tests: 32 Dust/safeguard tests passed and 8 lifecycle/system-health telemetry tests passed. No provider/RPC calls, database/schema changes, code/config changes in this cleanup, or service restarts occurred.",
+    "next_action": "CREATOR_FUNDING_GRAPH_LIFECYCLE_AUDIT — read-only first; do not implement without a separate authorization.",
+    "safety": "Only permitted Supervisor reread and targeted removal of the stopped Dust entry were performed. No broad update, unrelated Supervisor activation, runtime restart, provider/RPC, DB/schema/history deletion, Walkback/funding/topology/P3R/Operation/Potential/Evidence change occurred."
   },
-  "updated_at": "2026-09-04T10:12:00Z",
-  "updated_at_utc": "2026-09-04T10:12:00Z",
+  "updated_at": "2026-09-04T10:31:00Z",
+  "updated_at_utc": "2026-09-04T10:31:00Z",
   "updated_by": "agent_local",
-  "verdict": "DUST_OBSERVATORY_RETIREMENT_PARTIAL",
+  "verdict": "DUST_SUPERVISOR_CATALOGUE_ENTRY_RETIRED",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

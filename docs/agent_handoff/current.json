@@ -14460,10 +14460,23 @@
     "blocker_removed": "Committed liquidity_worker no longer imports src.core.liquidity_intelligence, so the preceding market-retirement dependency blocker is removed. The legacy liquidity module remains dirty/uncommitted for the separately authorized retirement batch.",
     "next_action": "Return to retire: legacy market and prediction surfaces; do not begin automatically."
   },
-  "updated_at": "2026-09-04T15:45:00Z",
-  "updated_at_utc": "2026-09-04T15:45:00Z",
+  "retained_acquisition_commit_audit": {
+    "status": "COMPLETE",
+    "verdict": "RETAINED_ACQUISITION_COMMIT_COMPLETE",
+    "engineering_revision": "7bc49d4df56ec3c7b0c0de64abcb224668a30d8d",
+    "commit": "7bc49d4df56ec3c7b0c0de64abcb224668a30d8d",
+    "scope": "Five-file retained-acquisition V2 shadow-write retirement: admission precedes artifact creation; disk/budget/explicit-disabled paths create neither shadow artifact, SQLite row, nor outcome; successful acquisition/provider transport remains unchanged.",
+    "tests": "38 RA/factory/retained-observation/mirror tests passed; 41/42 protected provider-free regression tests passed. The sole failure, tests/test_potential_operations_current_census.py::test_current_evidence_is_read_projection_not_discovery_rewrite, is outside the staged paths and expects historical activity while current code reports no safe matcher.",
+    "production_flags": "No provider/RPC calls, database/schema mutation, service restart, or flag change. Retained acquisition V1 and V2 are both disabled by default; V2 remains optional when explicitly enabled.",
+    "safety": "Canonical Evidence, compact provenance, indexed authority, recovery stores, Walkback, creator funding, P3R, Operations, Potential Operations, and Byzantine valuation are untouched. No generated RA audit/runtime evidence or capture-manifest formatting was staged.",
+    "index": "The protected eight-file market-retirement index was revalidated after commit and contains only price_api, liquidity_intelligence, main, price_anomaly_detection, price_confidence, price_service, price_worker, and snapshot_retention_manager.",
+    "remote": "HANDOFF_TRANSPORT_DEGRADED: push to origin/classification-attribution-axis was rejected by environment egress policy because origin trust was not established. No push workaround attempted.",
+    "next_action": "CURRENT_COLD_STORAGE_COMMIT_AUDIT; do not start automatically."
+  },
+  "updated_at": "2026-09-04T16:00:00Z",
+  "updated_at_utc": "2026-09-04T16:00:00Z",
   "updated_by": "agent_local",
-  "verdict": "MARKET_PREDICTION_RETIREMENT_COMMIT_PARTIAL",
+  "verdict": "RETAINED_ACQUISITION_COMMIT_COMPLETE",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

@@ -7,6 +7,14 @@
     "blocker": "0/12 retained genuine Pump.fun birth timestamps. The existing timestamp-to-slot method uses migration-era timestamps and has a recorded 0/9 true-creation recovery result; it is explicitly unreliable and cannot supply a fixed creation-search window.",
     "next_action": "Acquire or identify durable true Pump.fun birth timestamp/slot evidence under a separately qualified bounded source contract; do not use migration timestamps, address-history pagination, or automatic widening."
   },
+  "bounded_premigration_curve_anchor_recovery": {
+    "engineering_revision": "696bd465492c74ff208820481472efd6c99131c3",
+    "tests": "not run; the proposed bounded provider run was not qualified from retained evidence",
+    "production_flags": "0 provider calls, no source edits, no DB writes, no listener/Walkback/attribution changes, no commit",
+    "verdict": "BLOCKED",
+    "blocker": "All 12 targets retain migration signature and slot, and both Pump.fun curve PDAs are deterministically derivable, but neither token_analysis nor pumpfun_migration_verification retains raw migration transaction accounts or a curve linkage. No retained artifact proves any migration signature touches its derived bonding curve, so it is not a qualified getSignaturesForAddress(before=migration_signature) cursor. Reference pre-migration curve-history counts are also absent from retained fixtures.",
+    "next_action": "Obtain retained evidence that links each terminal migration signature to its derived Pump.fun curve, or separately authorize a bounded transaction-proof step with an explicit budget before any curve-history request. Do not use timestamp recovery, pagination, automatic expansion, or an unqualified migration cursor."
+  },
   "byzantine_opening_anchor_recovery": {
     "engineering_revision": "696bd465492c74ff208820481472efd6c99131c3",
     "tests": "not run; read-only local evidence census",

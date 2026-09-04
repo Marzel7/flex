@@ -25,6 +25,16 @@
     "artifacts": "File-only content-addressed raw probe responses under docs/audits/pumpfun_complete_curve_history_recovery/artifacts (not engineering-staged).",
     "next_action": "REVIEW_HISTORY_BOUND_EXCEEDED_TOKENS; do not run the 12-token cohort under the current fixed 1000-signature one-page contract."
   },
+  "pumpportal_birth_and_alchemy_pof_reuse": {
+    "engineering_revision": "0ad0aba2",
+    "tests": "19 passed: tests/test_pumpfun_curve_birth_recovery.py, tests/test_pumpfun_opening_impulse.py, tests/test_operation_launch_valuation_stage0.py; provider calls=0",
+    "production_flags": "read-only local census; no provider calls, DB writes, membership changes, listener/Walkback changes, schema changes, or cohort replay",
+    "verdict": "BLOCKED",
+    "pumpportal_capture": "PUMPPORTAL_BIRTH_CAPTURE_PRESENT globally: PumpPortalBirthAudit records a content-addressed raw event at database/evidence_platform/production/pumpportal_birth_evidence. It records signature, mint, creator, bonding curve, receive time and raw payload, but not canonical creation slot, supply, or decimals.",
+    "cohort_census": "0/12 current Byzantine mints match the 67,300 retained PumpPortal birth artifacts. The prior audits did not miss a retained PumpPortal source for this cohort; the source has no matching historical rows.",
+    "alchemy_trace": "No reusable POF-labelled archived-state client exists. src/core/watchtower/curve_impact_analyzer.py uses Alchemy/general RPC for broad current first-block analysis and does not issue historical slot-specific getAccountInfo. The qualified slot-specific Alchemy method exists only as retained audit evidence for the Byzantine reference.",
+    "next_action": "MORE_PUMPPORTAL_BIRTH_EVIDENCE_REQUIRED; do not implement a reader that cannot recover absent cohort records, do not adapt the broad curve-impact client as an archive adapter, and do not run the 12-token replay."
+  },
   "byzantine_opening_anchor_recovery": {
     "engineering_revision": "696bd465492c74ff208820481472efd6c99131c3",
     "tests": "not run; read-only local evidence census",

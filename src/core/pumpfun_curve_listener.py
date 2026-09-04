@@ -4650,22 +4650,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
             )
         """)
 
-        # Creator funding graph - relationship graph for network analysis
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS creator_funding_graph (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                creator_address TEXT NOT NULL,
-                funding_source_address TEXT NOT NULL,
-                total_amount_sol REAL DEFAULT 0,
-                relationship_type TEXT,  -- direct, indirect, etc
-                first_detected_at TIMESTAMP,
-                last_detected_at TIMESTAMP,
-                is_suspicious INTEGER DEFAULT 0,
-                detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE(creator_address, funding_source_address)
-            )
-        """)
-
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS pumpfun_migration_verification (
                 mint TEXT PRIMARY KEY,
@@ -4920,15 +4904,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_funder_webhook_events_funder ON funder_webhook_events(funder_address)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_funder_webhook_events_block_time ON funder_webhook_events(block_time DESC)")
 
-        # Create indexes for creator_funders and creator_funding_graph
+        # Create indexes for canonical creator-funding facts.
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funders_creator ON creator_funders(creator_address)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funders_funder ON creator_funders(funder_address)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funders_analyzed ON creator_funders(fully_analyzed)")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funding_graph_creator ON creator_funding_graph(creator_address)")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funding_graph_funder ON creator_funding_graph(funder_address)")
 
         log_print("[DB] ✅ Funder webhook tables ensured", flush=True)
-        log_print("[DB] ✅ Creator funders and funding graph tables ensured", flush=True)
+        log_print("[DB] ✅ Creator funder tables ensured", flush=True)
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS migration_persist_queue (

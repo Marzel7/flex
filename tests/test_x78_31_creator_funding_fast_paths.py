@@ -6,7 +6,6 @@ import pytest
 
 import src.core.creator_funding_worker as worker
 import src.extractors.realtime_creator_funding_extractor as extractor_module
-from src.utils.creator_funding_graph_cache import CreatorFundingGraphCache
 from src.utils.infra_mapping import build_excluded_set
 
 
@@ -55,24 +54,6 @@ async def test_worker_exposes_fast_completion_without_changing_terminal_mark(tmp
     assert await worker._process_job(row) == "complete_fast"
     assert marks == [("creator", "mint", 0)]
     assert worker._outcome_deltas("complete_fast") == (1, 0, 0)
-
-
-def test_persistent_creator_graph_cache_accepts_extractor_payload_shape(tmp_path):
-    path = str(tmp_path / "cache.db")
-    conn = sqlite3.connect(path)
-    conn.execute("""
-        CREATE TABLE creator_funding_graph (
-          creator_address TEXT, funder_address TEXT, first_seen TEXT,
-          last_seen TEXT, inbound_sol REAL, inbound_tx_count INTEGER,
-          PRIMARY KEY (creator_address, funder_address))
-    """)
-    conn.commit()
-    conn.close()
-    cache = CreatorFundingGraphCache(path)
-    assert cache.store_funders("creator", {"funder": {"sol": 1.25, "tx_count": 1}})
-    assert cache.get_cached_funders("creator") == {
-        "funder": {"sol": 1.25, "tx_count": 1}
-    }
 
 
 def test_candidate_bounded_exclusion_preserves_dynamic_protocol_semantics(tmp_path):

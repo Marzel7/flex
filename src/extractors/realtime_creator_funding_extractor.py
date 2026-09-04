@@ -58,12 +58,6 @@ DB_PATH = os.environ.get(
     "DB_PATH",
     os.getenv("RPC_METRICS_DB", os.path.abspath(_DEFAULT_DB_PATH)),
 )
-# Initialize creator funding cache for Layer 6 optimization
-try:
-    from src.utils.creator_funding_graph_cache import CreatorFundingGraphCache
-    CREATOR_CACHE = CreatorFundingGraphCache(DB_PATH)
-except ImportError:
-    CREATOR_CACHE = None
 # FIX #6: Remove hardcoded API key fallback — fail safe instead
 HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "").strip()
 HELIUS_MONITORING_API_KEY = os.getenv("HELIUS_MONITORING_API_KEY", "").strip()
@@ -1334,23 +1328,6 @@ class RealTimeCreatorFundingExtractor:
         if creator in self.processed_creators:
             return {"status": "already_processed"}
 
-        # Check creator funding cache (Layer 6 optimization)
-        cache_action = "full_scan"
-        credits_saved = 0
-        if CREATOR_CACHE is not None:
-            cached_result = CREATOR_CACHE.get_cached_funders(creator)
-            if cached_result is not None:
-                # Creator already cached, skip extraction
-                cache_action = "skip"
-                credits_saved = 150  # Saved full extraction cost
-                print(f"[REALTIME_FUNDING] ✅ SKIP {creator[:16]}... (cached)", flush=True)
-                return {
-                    "status": "cached",
-                    "creator": creator,
-                    "funders": list(cached_result.keys()),
-                    "cache_action": cache_action,
-                }
-
         # Mark as processed to prevent duplicate API calls in same session
         self.processed_creators.add(creator)
 
@@ -2120,20 +2097,6 @@ class RealTimeCreatorFundingExtractor:
 
             # ✅ MARK EXTRACTION AS COMPLETE — signals to UI that extraction is done
             self._mark_extraction_complete(creator, len(funders), len(recipients), total_inbound, total_outbound)
-
-            # Cache creator funding results (Layer 6 optimization)
-            if CREATOR_CACHE is not None and funders:
-                try:
-                    CREATOR_CACHE.store_funders(
-                        creator,
-                        {
-                            address: {"sol": amount, "tx_count": 1}
-                            for address, amount in funders.items()
-                        },
-                    )
-                    print(f"[REALTIME_FUNDING] ✅ Cached creator funding for {creator[:16]}...", flush=True)
-                except Exception as cache_err:
-                    print(f"[REALTIME_FUNDING] ⚠ Could not cache creator: {cache_err}", flush=True)
 
             # Phase 1: Update cursor for next extraction (enables incremental fetching)
             if self.cursor_mgr and total_fetched > 0:

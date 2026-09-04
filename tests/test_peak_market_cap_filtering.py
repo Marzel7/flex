@@ -35,15 +35,6 @@ def test_store_snapshot_advances_peak_monotonically_and_sets_timestamp(tmp_path)
         )
         """
     )
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS token_snapshot_counts (
-            mint TEXT PRIMARY KEY,
-            snap_count INTEGER DEFAULT 0,
-            last_updated INTEGER DEFAULT 0
-        )
-        """
-    )
     conn.execute("INSERT INTO token_analysis (mint) VALUES (?)", (mint,))
     conn.commit()
     conn.close()
@@ -327,16 +318,6 @@ def test_cached_snapshot_uses_observation_time_for_freshness(tmp_path, monkeypat
     )
 
     conn = sqlite3.connect(db_path)
-    snapshot_row = conn.execute(
-        """
-        SELECT captured_at, created_at
-        FROM token_price_snapshots
-        WHERE mint = ?
-        ORDER BY snapshot_id DESC
-        LIMIT 1
-        """,
-        (mint,),
-    ).fetchone()
     peak_row = conn.execute(
         """
         SELECT peak_market_cap_at, raw_peak_mc_at
@@ -347,5 +328,4 @@ def test_cached_snapshot_uses_observation_time_for_freshness(tmp_path, monkeypat
     ).fetchone()
     conn.close()
 
-    assert snapshot_row == (observed_ts, observed_ts)
     assert peak_row == (observed_ts, observed_ts)

@@ -359,7 +359,6 @@ class TokenPriceService:
         """Implementation split out so _ensure_tables owns cleanup."""
         cursor = conn.cursor()
 
-
         # NEW: Circuit breaker persistence table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS circuit_breaker_state (
@@ -445,70 +444,22 @@ class TokenPriceService:
             logger.debug(f"Migration check for liquidity_removed: {e}")
 
         conn.commit()
-        logger.info("Database tables ensured (price snapshots + circuit breaker + pool accounts with vault tracking)")
+        logger.info("Database tables ensured (compact valuation + circuit breaker + pool accounts)")
     
     def _get_cached_price(self, mint: str) -> Optional[TokenPrice]:
-        """Get most recent price from database cache."""
-        conn = None
-        try:
-            conn = self._get_conn()
-            cursor = conn.cursor()
-            
-            cursor.execute("""
-                SELECT 
-                    mint, price_usd, price_sol, liquidity_usd, volume_24h, 
-                    market_cap, source, pair_address, captured_at
-                FROM token_price_snapshots
-                WHERE mint = ?
-                ORDER BY captured_at DESC
-                LIMIT 1
-            """, (mint,))
-            
-            row = cursor.fetchone()
-            conn.close()
-            
-            if not row:
-                return None
-            
-            # Check if older than 5 minutes
-            age = int(time.time()) - row['captured_at']
-            is_stale = age > 300
-            
-            return TokenPrice(
-                mint=row['mint'],
-                price_usd=row['price_usd'],
-                price_sol=row['price_sol'],
-                liquidity_usd=row['liquidity_usd'],
-                volume_24h=row['volume_24h'],
-                market_cap=row['market_cap'],
-                source='cached',
-                pair_address=row['pair_address'],
-                # Treat this as a fresh local observation of cached data so downstream
-                # snapshot freshness reflects when we reused it, not when the source
-                # row was originally recorded.
-                timestamp=int(time.time()),
-                is_stale=is_stale
-            )
-        except Exception as e:
-            if conn is not None:
-                try:
-                    conn.close()
-                except Exception:
-                    pass
-            logger.error(f"Error getting cached price for {mint}: {e}")
-            return None
+        """Return only the process-local, short-lived price cache.
+
+        Stage 3 deliberately removed the generic SQLite price-history cache.
+        A cache miss therefore means a momentary source lookup, never a dense
+        historical-table read.
+        """
+        return self.cache.get(mint)
     
     def _store_snapshot(self, price: TokenPrice) -> None:
         """Store price snapshot in database.
 
-        Writes to two tables with different purposes:
-          - token_price_snapshots: full history row, written in batches every ~10-20s per worker cycle.
-            Used by health endpoint (MAX(captured_at)) and historical queries.
-            NOTE: During startup (~60s after restart), no rows are written here while the worker
-            bootstraps reserves. The health endpoint may briefly show DEGRADED/CRITICAL during
-            this window — this is expected and not data loss.
-          - token_snapshot_counts: lightweight per-mint counter, always current.
-            Used by /snapshots UI and token-behaviour endpoints to avoid scanning the full table.
+        Persist compact current valuation facts only: a write-once first
+        observation and a monotonic market-cap peak.
         """
         try:
             conn = self._get_conn()
@@ -554,6 +505,10 @@ class TokenPriceService:
                     price.mint,
                 ))
 
+            # Stage 3: generic dense price/liquidity histories and snapshot
+            # counters are retired.  OWNED positions will use their dedicated
+            # bounded state seam when a real position authority exists; this
+            # generic service persists only compact valuation facts.
 
             # Peak write — backend owns peak monotonicity. Every higher current MC advances peak.
             if price.market_cap and price.market_cap > 0:
@@ -1092,7 +1047,6 @@ class TokenPriceService:
         finally:
             loop.close()
     
-
 
 # Singleton instance
 _price_service: Optional[TokenPriceService] = None

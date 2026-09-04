@@ -46,11 +46,12 @@ def test_mission_control_omits_retired_price_capability_and_incidents():
     )
 
 
-def test_historical_and_selective_price_liquidity_paths_remain():
+def test_compact_price_and_owned_liquidity_paths_remain():
     price_service = (ROOT / "src/core/price_service.py").read_text()
     liquidity = (ROOT / "src/core/liquidity_worker.py").read_text()
     listener = (ROOT / "src/core/pumpfun_curve_listener.py").read_text()
-    assert "token_price_snapshots" in price_service
+    assert "token_price_snapshots" not in price_service
+    assert "token_market_cap_peaks" in price_service
     assert "get_token_price_sync" in price_service
     assert "start_liquidity_worker" in liquidity
     assert "liquidity_removed" in listener

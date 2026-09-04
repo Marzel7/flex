@@ -10581,7 +10581,6 @@ def api_creator_details(creator_address: str):
                 FROM token_pool_accounts
                 GROUP BY mint
             ) tpa ON tpa.mint = ta.mint
-            LEFT JOIN token_behavior tb ON tb.mint = ta.mint
             WHERE ta.earliest_tx_creator = ?
               AND ta.migrated_at IS NOT NULL
             ORDER BY ta.created_at DESC

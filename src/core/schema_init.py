@@ -44,13 +44,6 @@ _MIGRATIONS = [
        SET peak_market_cap_at = COALESCE(
            peak_market_cap_at,
            (
-               SELECT MIN(tps.captured_at)
-               FROM token_price_snapshots tps
-               WHERE tps.mint = token_market_cap_peaks.mint
-                 AND tps.market_cap >= token_market_cap_peaks.peak_market_cap
-                 AND tps.market_cap > 0
-           ),
-           (
                SELECT CASE
                    WHEN CAST(ta.created_at AS REAL) > 1000000000 THEN CAST(ta.created_at AS INTEGER)
                    ELSE CAST(strftime('%s', ta.created_at) AS INTEGER)

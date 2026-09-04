@@ -47,7 +47,7 @@
 
         <!-- Routes remain supported while historical feature-area navigation is
              progressively replaced by contextual links from canonical pages. -->
-        <details class="sidebar-section sidebar-collapse legacy-nav" {% if active_page in ['tokens','approval_queue','funding_queue','network_approval','token_intelligence','creator-analysis','spike_analysis','network_diagram','funder_intelligence','hubs'] %}open{% endif %}>
+        <details class="sidebar-section sidebar-collapse legacy-nav" {% if active_page in ['tokens','approval_queue','funding_queue','network_approval','creator-analysis','spike_analysis','network_diagram','funder_intelligence','hubs'] %}open{% endif %}>
             <summary class="sidebar-section-label">Legacy Features <span class="legacy-tag">Legacy</span></summary>
             <a class="sidebar-item {% if active_page == 'tokens' %}active{% endif %}" href="/live-launches">Live Launches <span class="legacy-tag">Legacy</span></a>
             <a class="sidebar-item {% if active_page == 'approval_queue' %}active{% endif %}" href="/approval-queue">Token Review <span class="nav-badge" id="badge-token-review"></span><span class="legacy-tag">Legacy</span></a>
@@ -55,7 +55,6 @@
             <a class="sidebar-item {% if active_page == 'network_approval' %}active{% endif %}" href="/network-approval">Ecosystem Review <span class="legacy-tag">Legacy</span></a>
             <a class="sidebar-item {% if active_page == 'spike_analysis' %}active{% endif %}" href="/spike-analysis">Flash Spikes <span class="legacy-tag">Legacy</span></a>
             <a class="sidebar-item {% if active_page == 'network_diagram' %}active{% endif %}" href="/network-diagram">Network Graphs <span class="legacy-tag">Legacy</span></a>
-            <a class="sidebar-item {% if active_page == 'token_intelligence' %}active{% endif %}" href="/token-intelligence">Token Analysis <span class="legacy-tag">Legacy</span></a>
             <a class="sidebar-item {% if active_page == 'creator-analysis' %}active{% endif %}" href="/creator-analysis">Creator Analysis <span class="legacy-tag">Legacy</span></a>
             <a class="sidebar-item {% if active_page == 'funder_intelligence' or active_page == 'hubs' %}active{% endif %}" href="/funder-intelligence">Funding Hubs <span class="legacy-tag">Legacy</span></a>
         </details>

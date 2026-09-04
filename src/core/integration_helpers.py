@@ -329,10 +329,10 @@ def validate_pool_with_worker_state(
         conn = sqlite3.connect(db_path, timeout=15)
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT 1 FROM token_price_snapshots WHERE mint = ? LIMIT 1",
+            "SELECT 1 FROM token_analysis WHERE mint = ? AND first_observed_mc IS NOT NULL LIMIT 1",
             (mint,),
         )
-        results["checks"]["snapshot_exists"] = cursor.fetchone() is not None
+        results["checks"]["compact_valuation_exists"] = cursor.fetchone() is not None
         conn.close()
     except Exception as e:
         results["errors"].append(f"Error checking snapshots: {e}")

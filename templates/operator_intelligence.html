@@ -1054,7 +1054,7 @@
         var wallets = [o.controller, o.intermediary, o.creator].filter(Boolean);
         var accounts = wallets.map(function(wallet) { return '<a href="https://solscan.io/account/' + encodeURIComponent(wallet) + '" target="_blank" rel="noopener noreferrer" title="' + escapeHtml(wallet) + '">' + escapeHtml(abbr(wallet)) + ' ↗</a>'; });
         if (o.launch) accounts.push('<a href="https://solscan.io/account/' + encodeURIComponent(o.launch) + '" target="_blank" rel="noopener noreferrer" title="Token mint ' + escapeHtml(o.launch) + '">' + escapeHtml(abbr(o.launch)) + ' ↗</a>');
-        var launch = o.launch ? '<div class="oi-role-context">Observed while tracing <a href="/token-intelligence?mint=' + encodeURIComponent(o.launch) + '">Launch ' + escapeHtml(abbr(o.launch)) + '</a></div>' : '';
+        var launch = o.launch ? '<div class="oi-role-context">Observed while tracing Launch ' + escapeHtml(abbr(o.launch)) + '</div>' : '';
         var transactions = hops.map(function(hop) { return '<div><strong>' + escapeHtml(hop.mechanism || 'Observed funding') + '</strong>' + escapeHtml(hop.transaction_at ? new Date(hop.transaction_at * 1000).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}) : 'Transaction date unavailable') + (hop.transaction ? '<a href="https://solscan.io/tx/' + encodeURIComponent(hop.transaction) + '" target="_blank" rel="noopener noreferrer">Funding Tx ' + escapeHtml(abbr(hop.transaction)) + ' ↗</a>' : '') + '</div>'; }).join('');
         return '<div class="oi-role-observation"><div><div class="oi-role-path">' + accounts.join('<span class="oi-role-arrow">→</span>') + '</div>' + launch + '</div><div class="oi-role-meta">' + transactions + '</div></div>';
       }

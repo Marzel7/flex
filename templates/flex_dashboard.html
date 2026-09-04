@@ -196,7 +196,6 @@ h1, h2, h3, h4, h5, h6 { color: inherit; }
 const API_BASE = '/api';
 let currentPage = 'dashboard';
 let currentCharts = [];
-let tokenBehaviourAutoRefreshId = null;
 
 const PAGE = {{ page|tojson if page is defined else '"dashboard"' }};
 const PAGE_ORG_ID = {{ org_id|tojson if org_id is defined else 'null' }};
@@ -234,7 +233,6 @@ function setActiveShellLink(page) {
     const map = {
         dashboard: '/',
         early_signals: '/early-signals',
-        token_behaviour: '/token-behaviour',
         vaults: '/vaults',
         radar: '/launch-radar'
     };
@@ -242,13 +240,6 @@ function setActiveShellLink(page) {
     if (!href) return;
     const el = document.querySelector(`.sidebar-item[href="${href}"]`);
     if (el) el.classList.add('active');
-}
-
-function stopTokenBehaviourAutoRefresh() {
-    if (tokenBehaviourAutoRefreshId) {
-        clearInterval(tokenBehaviourAutoRefreshId);
-        tokenBehaviourAutoRefreshId = null;
-    }
 }
 
 window.toggleDevTools = () => document.getElementById('dev-tools-panel')?.classList.toggle('active');
@@ -282,7 +273,6 @@ window.fetch = async (...args) => {
 };
 
 async function loadDashboard() {
-    stopTokenBehaviourAutoRefresh();
     currentPage = 'dashboard';
     setActiveShellLink('dashboard');
     const content = document.getElementById('page-content');
@@ -423,7 +413,6 @@ async function loadDashboard() {
 }
 
 async function loadEarlySignals() {
-    stopTokenBehaviourAutoRefresh();
     currentPage = 'early_signals';
     setActiveShellLink('early_signals');
     const content = document.getElementById('page-content');
@@ -450,107 +439,7 @@ async function loadEarlySignals() {
     }
 }
 
-async function loadTokenBehaviourLeaderboard() {
-    stopTokenBehaviourAutoRefresh();
-    currentPage = 'token_behaviour';
-    setActiveShellLink('token_behaviour');
-    const content = document.getElementById('page-content');
-    content.innerHTML = showLoading('Token Behaviour');
-
-    const fmtMc = v => v == null ? '—' : v >= 1e6 ? `$${(v/1e6).toFixed(2)}M` : v >= 1e3 ? `$${(v/1e3).toFixed(1)}K` : `$${v.toFixed(0)}`;
-    const fmtSecs = s => s == null ? '—' : s < 60 ? `${s}s` : s < 3600 ? `${Math.floor(s/60)}m${s%60}s` : `${Math.floor(s/3600)}h${Math.floor((s%3600)/60)}m`;
-    const fmtPct = v => v == null ? '—' : `${(v*100).toFixed(1)}%`;
-    const ratingBadge = r => {
-        if (r == null) return '<span style="color:var(--text-secondary)">—</span>';
-        const color = r >= 8 ? '#22c55e' : r >= 5 ? '#f59e0b' : r >= 3 ? '#ef4444' : '#6b7280';
-        return `<span style="font-weight:700;color:${color}">${r}/10</span>`;
-    };
-    const stateBadge = s => {
-        const color = s === 'active' ? '#22c55e' : '#6b7280';
-        return `<span style="font-size:0.75em;color:${color};font-weight:600">${(s||'?').toUpperCase()}</span>`;
-    };
-
-    try {
-        const data = await fetch(`${API_BASE}/token-behaviour/all?per_category=10&min_snapshots=8`).then(r => r.json());
-        const stats = data.stats || {};
-        const catTokens = data.category_tokens || {};
-        const finalized = data.finalized_tokens || {};
-        const cats = [...new Set([...Object.keys(catTokens), ...Object.keys(finalized)])].sort();
-
-        const summaryCards = `
-            <div class="stats-row">
-                <div class="stat-card"><div class="stat-value">${stats.active_tokens ?? 0}</div><div class="stat-label">Active Tokens</div></div>
-                <div class="stat-card"><div class="stat-value">${stats.finalized_total ?? 0}</div><div class="stat-label">Finalized Tokens</div></div>
-                <div class="stat-card"><div class="stat-value" style="color:var(--color-low)">${(stats.finalized_by_category||{}).early_runner ?? 0}</div><div class="stat-label">Runners</div></div>
-                <div class="stat-card"><div class="stat-value" style="color:var(--color-critical)">${(stats.finalized_by_category||{}).immediate_rug ?? 0}</div><div class="stat-label">Rugs</div></div>
-                <div class="stat-card"><div class="stat-value" style="color:var(--color-medium)">${(stats.finalized_by_category||{}).unknown ?? 0}</div><div class="stat-label">Unknown</div></div>
-            </div>
-        `;
-
-        const liveRow = i => `
-            <tr>
-                <td><code style="font-size:0.75em">${i.mint?.slice(0,16)}…</code></td>
-                <td>${ratingBadge(i.rating)}</td>
-                <td>${(i.confidence*100 ?? 0).toFixed(0)}%</td>
-                <td>${fmtMc(i.peak_market_cap_usd)}</td>
-                <td>${i.max_return_multiple != null ? `${i.max_return_multiple.toFixed(1)}x` : '—'}</td>
-                <td>${fmtPct(i.drawdown_from_peak)}</td>
-                <td>${fmtSecs(i.time_to_peak_secs)}</td>
-                <td>${fmtSecs(i.lifetime_secs)}</td>
-                <td>${stateBadge(i.state)}</td>
-            </tr>`;
-
-        const finalRow = i => `
-            <tr>
-                <td><code style="font-size:0.75em">${i.mint?.slice(0,16)}…</code></td>
-                <td>${ratingBadge(i.rating_1_to_10)}</td>
-                <td>${(i.confidence*100 ?? 0).toFixed(0)}%</td>
-                <td>${fmtMc(i.peak_market_cap_usd)}</td>
-                <td>${i.max_return_multiple != null ? `${i.max_return_multiple.toFixed(1)}x` : '—'}</td>
-                <td>${fmtPct(i.drawdown_from_peak)}</td>
-                <td>${fmtSecs(i.time_to_peak_secs)}</td>
-                <td>${fmtSecs(i.lifetime_secs)}</td>
-                <td><span style="font-size:0.75em;color:#6b7280">DONE</span></td>
-            </tr>`;
-
-        const thead = `<thead><tr><th>Mint</th><th>Rating</th><th>Conf</th><th>Peak MC</th><th>Return</th><th>Drawdown</th><th>→Peak</th><th>Lifetime</th><th>State</th></tr></thead>`;
-
-        const blocks = cats.map(cat => {
-            const live = catTokens[cat] || [];
-            const fin = finalized[cat] || [];
-            const liveRows = live.map(liveRow).join('') || `<tr><td colspan="9" style="color:var(--text-secondary);text-align:center">No active</td></tr>`;
-            const finRows = fin.map(finalRow).join('') || `<tr><td colspan="9" style="color:var(--text-secondary);text-align:center">No finalized</td></tr>`;
-            return `
-            <div class="card">
-                <div class="card-header"><h5>${cat.replaceAll('_', ' ')} <span style="font-size:0.8em;color:var(--text-secondary)">(${live.length} live · ${fin.length} finalized)</span></h5></div>
-                <div class="card-body">
-                    <div style="font-size:0.8em;color:var(--text-secondary);margin-bottom:4px">Live</div>
-                    <table>${thead}<tbody>${liveRows}</tbody></table>
-                    <div style="font-size:0.8em;color:var(--text-secondary);margin:12px 0 4px">Finalized</div>
-                    <table>${thead}<tbody>${finRows}</tbody></table>
-                </div>
-            </div>`;
-        }).join('');
-
-        content.innerHTML = `
-            <div class="page-header">
-                <h1>Token Behaviour</h1>
-                <p class="subtitle">Classification, ratings, and outcome history</p>
-            </div>
-            ${summaryCards}
-            ${blocks || '<div class="alert alert-info">No token data yet</div>'}
-        `;
-
-        tokenBehaviourAutoRefreshId = setInterval(() => {
-            if (currentPage === 'token_behaviour') loadTokenBehaviourLeaderboard();
-        }, 30000);
-    } catch (e) {
-        content.innerHTML = `<div class="alert alert-danger">Error loading token behaviour: ${e.message}</div>`;
-    }
-}
-
 async function loadVaultsPage() {
-    stopTokenBehaviourAutoRefresh();
     currentPage = 'vaults';
     setActiveShellLink('vaults');
     const content = document.getElementById('page-content');
@@ -606,7 +495,6 @@ async function loadVaultsPage() {
 }
 
 async function loadPlaceholder(title) {
-    stopTokenBehaviourAutoRefresh();
     document.getElementById('page-content').innerHTML = `
         <div class="page-header">
             <h1>${title}</h1>
@@ -621,7 +509,6 @@ function loadPage(page) {
     const routes = {
         dashboard: loadDashboard,
         early_signals: loadEarlySignals,
-        token_behaviour: loadTokenBehaviourLeaderboard,
         vaults: loadVaultsPage,
         radar: () => loadPlaceholder('Launch Radar'),
         org_explorer: () => loadPlaceholder('Organizations'),

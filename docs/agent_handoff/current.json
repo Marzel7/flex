@@ -10896,8 +10896,8 @@
     "verdict": "SOL_USD_HISTORICAL_LOCAL_AUDIT_COMPLETE"
   },
   "next_action": {
-    "instruction": "Await separate destructive authorization; original remains intact while compact recovery index is the sole current manual recovery reader.",
-    "next_action_code": "RETIRE_TRANSACTION_FIRST_LINEAGE"
+    "instruction": "Read-only qualification only: separate current-versus-historical namespace/dependency review for _p5a; no further deletion is authorized by this handoff.",
+    "next_action_code": "P5A_CURRENT_HISTORICAL_NAMESPACE_SEPARATION"
   },
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
@@ -12973,7 +12973,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "TRANSACTION_FIRST_LINEAGE_COMPACT_RECOVERY_QUALIFIED",
+  "status": "TRANSACTION_FIRST_LINEAGE_RETIRED_COMPACT_RECOVERY_PRESERVED",
   "storage_incident_2026_09_01": {
     "critical_accounting_warning": "macOS `stat -f %b` is POSIX st_blocks in FIXED 512-byte units. allocated_bytes = %b * 512. NEVER multiply %b by %k (an unrelated filesystem I/O-transfer-size field). An earlier pass in this incident used %b*4096 and overstated every physical-allocation figure by exactly 8x. Do not let that error re-enter future storage analysis.",
     "future_triggers": {
@@ -13827,6 +13827,53 @@
       "service_restarts": 0
     }
   },
+  "transaction_first_lineage_retirement": {
+    "status": "COMPLETE",
+    "verdict": "TRANSACTION_FIRST_LINEAGE_RETIRED_COMPACT_RECOVERY_PRESERVED",
+    "target": "database/transaction_first_lineage.db plus only its own -wal and -shm sidecars",
+    "retirement": {
+      "original_logical_bytes_deleted": 1432764416,
+      "original_allocated_bytes_deleted": 1433468928,
+      "wal_bytes_deleted": 0,
+      "shm_bytes_deleted": 32768,
+      "total_allocated_bytes_reclaimed": 1433501696,
+      "no_recreation_observed": true,
+      "open_handles_at_final_gate": 0
+    },
+    "compact_recovery_preserved": {
+      "path": "database/transaction_first_lineage_recovery.db",
+      "file_sha256": "6a65a13660d9bc03cba91de7d40cc5d11c19d33ada31669b6161afe6b4c3146d",
+      "semantic_digest": "a02e826610044a03aa32af8de8197ca69e4111b745044fa6be8e3841d39313a0",
+      "session_facts": 28,
+      "signature_metadata": 28,
+      "exact_edges": 28,
+      "post_retirement_dry_run": "PASS: applied=false; independently_verified_exact_edges=28"
+    },
+    "continuity": {
+      "focused_tests": "19 passed, 1 skipped (original-cache source fixture absent by design)",
+      "protected_regressions": "51 passed",
+      "services": "watchtower_api, watchtower_listener, creator_resolution_worker, creator_funding_worker, walkback_worker, operation_scheduler and ws_cascade RUNNING; evidence_writer and intelligence_snapshot_scheduler remained STOPPED",
+      "ui_smoke": "operators, Byzantine operator detail, system-health and ops-os returned HTTP 200; potential-operations exceeded 10-second local response timeout and was not attributed to the retired cache",
+      "counter_observation": "creator funding/resolution and token-analysis counters advanced naturally during the observation; no protected-table regression was observed"
+    },
+    "safety": {
+      "provider_rpc_calls": 0,
+      "source_or_production_rows_modified": false,
+      "normal_walkback_tables_modified": false,
+      "schema_modified": false,
+      "ui_modified": false,
+      "service_restarts": 0,
+      "suppression": false,
+      "compact_database_deleted": false
+    },
+    "storage": {
+      "available_kib_before": 48403584,
+      "available_kib_after": 49780912,
+      "net_available_kib_change_observed": 1377328,
+      "note": "APFS free-space accounting can vary with concurrent writer activity; exact removed file allocation is separately recorded."
+    },
+    "next_action": "P5A_CURRENT_HISTORICAL_NAMESPACE_SEPARATION read-only qualification; no further destructive action is implied."
+  },
   "transaction_first_lineage_recovery_cache_audit": {
     "access": {
       "current_automatic_writers": 0,
@@ -13914,10 +13961,10 @@
     "tests": "53 focused tests passed: UI-contraction route guards plus creator-funding fast paths, Walkback startup resilience, P3R, Potential Operation visual structure, and operational topology. compileall and git diff --check passed.",
     "verdict": "UI_SURFACE_CONTRACTION_AND_BACKEND_REACHABILITY_PARTIAL_GENERIC_FUNDING_SLICE_RETIRED"
   },
-  "updated_at": "2026-09-03T19:38:00Z",
-  "updated_at_utc": "2026-09-03T19:38:00Z",
+  "updated_at": "2026-09-04T06:30:00Z",
+  "updated_at_utc": "2026-09-04T06:30:00Z",
   "updated_by": "agent_local",
-  "verdict": "TRANSACTION_FIRST_LINEAGE_COMPACT_RECOVERY_QUALIFIED",
+  "verdict": "TRANSACTION_FIRST_LINEAGE_RETIRED_COMPACT_RECOVERY_PRESERVED",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

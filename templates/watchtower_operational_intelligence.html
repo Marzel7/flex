@@ -688,22 +688,6 @@ details.collapse-section .collapse-body { padding-top:14px; }
     <table><thead><tr><th>When</th><th>Type</th><th>Wallet</th><th>Operation</th><th>Detail</th></tr></thead>
       <tbody id="feed-body"><tr><td colspan="5" class="muted">loading…</td></tr></tbody></table>
   </div>
-  <!-- Dust Observatory summary card -->
-  <div class="sec-h">🔭 Dust Observatory
-    <span class="hint">intelligence layer — longitudinal dataset, read-only · <a href="/ops/dust-observatory" style="color:var(--cyan);text-decoration:none">full view →</a></span>
-  </div>
-  <div id="dust-obs-card" class="panel" style="margin-bottom:18px">
-    <div style="padding:11px 15px;display:flex;align-items:center;gap:18px;flex-wrap:wrap">
-      <div class="hcard yl" style="min-width:0"><div class="v" id="do-markers">—</div><div class="l">Dust Markers</div></div>
-      <div class="hcard cy" style="min-width:0"><div class="v" id="do-obs">—</div><div class="l">Observations</div></div>
-      <div class="hcard go" style="min-width:0"><div class="v" id="do-recipients">—</div><div class="l">Recipients</div></div>
-      <div class="hcard" style="min-width:0"><div class="v" id="do-classified">—</div><div class="l">Classified %</div></div>
-      <div class="hcard" style="min-width:0"><div class="v" id="do-new7d">—</div><div class="l">New 7d</div></div>
-      <div style="margin-left:auto;font-size:10.5px;color:var(--text-dim)">
-        Top role: <span id="do-top-role" style="color:var(--text-sec)">—</span>
-      </div>
-    </div>
-  </div>
   <!-- Collapsed diagnostic panels -->
   <details class="collapse-section">
     <summary>
@@ -3524,22 +3508,6 @@ async function loadCdc(){
 
 function ago2(s){ if(s==null)return'—'; if(s<60)return s+'s ago'; if(s<3600)return Math.floor(s/60)+'m ago'; return Math.floor(s/3600)+'h ago'; }
 
-// ── DUST OBSERVATORY summary card ──────────────────────────────────────────────
-async function loadDustObservatory(){
-  let d; try{ d=await(await fetch('/api/ops-v2/dust-observatory')).json(); }catch(e){ return; }
-  if(!d||!d.ok) return;
-  const intel=d.intel||{};
-  const markers=d.markers||[];
-  function el(id,v){ const e=document.getElementById(id); if(e) e.textContent=v; }
-  el('do-markers', markers.length);
-  el('do-obs', intel.total_observations||0);
-  el('do-recipients', intel.total_recipients||0);
-  el('do-classified', (intel.classified_pct||0)+'%');
-  el('do-new7d', (intel.new_roles_7d||[]).reduce((s,r)=>s+(r.count||0),0));
-  const top=(intel.role_breakdown||[]).sort((a,b)=>b.count-a.count)[0];
-  el('do-top-role', top ? top.role.replace(/_/g,' ')+' ('+top.count+')' : '—');
-}
-
 function refreshSlow(){
   loadApexFunders();       // 30d-filtered, but still live-DB GROUP BY — 60s is enough
   loadVanity();
@@ -3547,7 +3515,6 @@ function refreshSlow(){
   loadRuntimeBudget();     // runtime health — counters reset on process restart
   loadScheduler();         // scheduler pressure card
   loadCdc();
-  loadDustObservatory();   // intelligence layer card — 60s is fine
 }
 
 setAuditFilter('ALL');  // initialise filter tab styles before first data load
@@ -3560,7 +3527,6 @@ loadScheduler();        // initial load
 loadCdc();              // initial load
 loadWalkback();         // initial load
 loadWalkbackTreasuryLeads(); // initial load
-loadDustObservatory();  // initial load
 document.addEventListener('click', e=>{
   const cell=e.target.closest('.latency-toggle');
   if(!cell) return;

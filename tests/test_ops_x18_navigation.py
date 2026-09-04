@@ -38,7 +38,6 @@ def test_legacy_pages_remain_reachable_and_are_marked():
         "/creator-analysis", "/funder-intelligence", "/trading-sim",
         "/watchtower/operators", "/watchtower/interceptor", "/ops/tokens",
         "/ops/detection-health", "/ops/discovery-assurance", "/ops/webhook-coverage",
-        "/ops/dust-observatory",
     ):
         assert f'href="{route}"' in SIDEBAR
     assert SIDEBAR.count("legacy-tag") >= 20

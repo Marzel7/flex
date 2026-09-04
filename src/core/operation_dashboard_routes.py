@@ -8195,52 +8195,6 @@ def api_ops_cdc_intelligence():
         ov.close()
 
 
-@ops_dashboard_bp.route("/api/ops-v2/dust-observatory")
-def dust_observatory_summary():
-    """Dust Observatory: marker summary + role transition stats + intelligence overview."""
-    try:
-        from src.core import dust_observatory as dobs
-        markers    = dobs.get_dust_marker_summary()
-        stats      = dobs.get_role_transition_stats()
-        intel      = dobs.get_intelligence_summary()
-        recipients = dobs.get_all_recipients()
-        return jsonify({
-            "ok": True,
-            "generated_at": time.time(),
-            "markers": markers,
-            "stats": stats,
-            "intel": intel,
-            "recipients": recipients,
-        })
-    except Exception as e:
-        return jsonify({
-            "ok": False,
-            "generated_at": time.time(),
-            "markers": [],
-            "stats": {},
-            "intel": {},
-            "error": str(e),
-        })
-
-
-@ops_dashboard_bp.route("/api/ops-v2/dust-observatory/recipient/<wallet>")
-def dust_observatory_recipient(wallet):
-    """Return the full lifecycle record for one recipient wallet."""
-    try:
-        from src.core import dust_observatory as dobs
-        data = dobs.get_recipient_lifecycle(wallet)
-        if data is None:
-            return jsonify({"error": "not found"}), 404
-        return jsonify(data)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@ops_dashboard_bp.route("/ops/dust-observatory")
-def dust_observatory_page():
-    return render_template("watchtower_dust_observatory.html", active_page="dust_observatory")
-
-
 @ops_dashboard_bp.route("/ops/detection-health")
 def detection_health_page():
     return render_template("watchtower_detection_health.html", active_page="detection_health")

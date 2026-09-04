@@ -2683,12 +2683,6 @@ class Cascade:
 
         # Candidate wallets are NOT subscribed — CREATE detection is via ProgramWatcher (one stream).
 
-        # P5: DUST OBSERVATORY — subscribe known DUST_MARKER wallets (permanent, low-priority).
-        # Purely observational: notifications are only enqueued for off-thread processing.
-        _dust = getattr(self, "_dust_markers", set())
-        for dm in _dust:
-            await _rate_send(dm, "dust", SUB_PRIORITY_OTHER)
-
         _log(f"resync complete: sent={_sent_this_resync} gen={self.mgr._reconnect_gen} "
              f"pending={len(self.mgr.pending_req)} rate={RECONNECT_SUBSCRIBE_RATE}/s")
 
@@ -5314,18 +5308,6 @@ async def run_cascade():
     if prog_watcher:
         prog_watcher._cascade_ref = casc  # back-ref so ProgramWatcher can call process_candidate_sig
 
-    # Dust Observatory — subscribe to known DUST_MARKER wallets.
-    # Purely observational: enqueues sigs for off-thread processing, zero influence on detection.
-    _dust_markers: list = []
-    try:
-        from src.core import dust_observatory as _dobs
-        _dust_markers = _dobs.init(start_enricher=True)
-        casc._dust_markers = set(_dust_markers)
-        _log(f"[DustObs] loaded {len(_dust_markers)} dust marker wallet(s)")
-    except Exception as _de:
-        _log(f"[DustObs] init failed (non-fatal): {_de}")
-        casc._dust_markers = set()
-
     def _meta():
         kinds = casc.mgr.wallet_kind
         pending_by_kind = casc.mgr.pending_count_by_kind()
@@ -5829,14 +5811,6 @@ async def _on_message(casc: Cascade, raw):
                     prog_watcher.add_candidates(watcher_metas, conn_pw)
                 finally:
                     conn_pw.close()
-    elif kind == "dust":
-        # Dust Observatory: enqueue the sig for off-thread processing.
-        # No RPC here — the writer thread fetches the tx and extracts recipients.
-        try:
-            from src.core import dust_observatory as _dobs
-            _dobs.enqueue_sig(wallet, sig)
-        except Exception:
-            pass
     elif kind == "candidate":
         # Should not be reached: candidate wallets are no longer individually subscribed.
         # ProgramWatcher handles CREATE detection via the pump.fun program stream.

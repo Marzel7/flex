@@ -10896,8 +10896,8 @@
     "verdict": "SOL_USD_HISTORICAL_LOCAL_AUDIT_COMPLETE"
   },
   "next_action": {
-    "instruction": "Read-only qualification only; remaining Evidence rollback, supporting, and recovery corpora remain protected.",
-    "next_action_code": "TRANSACTION_FIRST_LINEAGE_RECOVERY_CACHE_AUDIT"
+    "instruction": "Design/qualify compact recovery index for transaction_first_lineage; no deletion or implementation occurs without separate authorization.",
+    "next_action_code": "BUILD_COMPACT_RECOVERY_INDEX_FIRST"
   },
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
@@ -12973,7 +12973,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "QUALIFIED_EVIDENCE_CORPORA_RETIRED_CORE_PRESERVED",
+  "status": "TRANSACTION_FIRST_LINEAGE_RETENTION_QUALIFIED",
   "storage_incident_2026_09_01": {
     "critical_accounting_warning": "macOS `stat -f %b` is POSIX st_blocks in FIXED 512-byte units. allocated_bytes = %b * 512. NEVER multiply %b by %k (an unrelated filesystem I/O-transfer-size field). An earlier pass in this incident used %b*4096 and overstated every physical-allocation figure by exactly 8x. Do not let that error re-enter future storage analysis.",
     "future_triggers": {
@@ -13766,6 +13766,79 @@
       "status": "PASS"
     }
   },
+  "transaction_first_lineage_recovery_cache_audit": {
+    "access": {
+      "current_automatic_writers": 0,
+      "current_runtime_readers": 0,
+      "last_confirmed_read": "UNKNOWN; do not infer reads from SHM mtime",
+      "manual_processes_running": 0,
+      "recent_use_24h": "NO",
+      "recent_use_30d": "YES: frozen historical reconstruction wrote on 2026-08-07",
+      "recent_use_7d": "NO"
+    },
+    "bounded_overlap_sample": {
+      "atomic_flows_exact_signature": 3,
+      "creator_funders_creator_overlap": 15,
+      "interpretation": "Raw response bodies are not canonically duplicated; some semantic funding facts overlap current Walkback/creator evidence.",
+      "sample_size": 50,
+      "walkback_roles_exact_signature": 0,
+      "walkback_selected_edges_exact_signature": 24
+    },
+    "classification": "MIGRATE_TO_COMPACT_RECOVERY_CACHE",
+    "coverage": {
+      "acquisition_queue": 1529992,
+      "cache_misses": 31,
+      "context_observations": 22006,
+      "derived_edges": 14062,
+      "earliest_cached_block_time": "2022-01-26T12:04:34Z",
+      "estimated_backlog_rpc_calls": 3059984,
+      "frozen_launch_census": 1596895,
+      "last_confirmed_write": "2026-08-07T14:27:29Z",
+      "latest_cached_block_time": "2026-08-07T13:37:50Z",
+      "paths": 3849,
+      "populations": 891,
+      "rpc_verified_cache_rows": 21994,
+      "runs": 8,
+      "transaction_cache_rows": 22025
+    },
+    "dependency": {
+      "current_manual_recovery": "enforce_session_root_lineage.py can read 28 CORRECT_DIRECT_RELATIONSHIP rows; --apply is explicit and writes only to wt_ops_v2, not the cache",
+      "default_off_future_adapter": "src/acquisition/tf_cache_lookup.py is unimported and is a future B2Z cache-first building block, not a current runtime fallback",
+      "normal_production": "NO for births, migrations, creator resolution/funding, second-hop, Walkback, topology, FundingAnalytics, P3R, operations, potential operations, canonical Evidence and UI"
+    },
+    "identity": {
+      "allocated_bytes": 1433468928,
+      "freelist_count": 64,
+      "inode": 475631045,
+      "logical_bytes": 1432764416,
+      "mtime": "2026-08-07T15:28:03Z",
+      "open_handles": 0,
+      "page_count": 349796,
+      "path": "database/transaction_first_lineage.db",
+      "shm_bytes": 32768,
+      "wal_bytes": 0
+    },
+    "minimal_retention_model": "Preserve cache-only, non-authoritative compact index: 28 verified session-edge facts, signature/block-time/source/digest metadata for bounded recovery manifests, and derived edge/path summaries. Re-derive 1.53M acquisition queue from current launch facts; reacquire raw payload only on explicit bounded operator request. Conservative target <100MB, subject to a separately authorized implementation and parity qualification.",
+    "next_action": "BUILD_COMPACT_RECOVERY_INDEX_FIRST: design and qualify a compact index/manifest with exact recovery-tool inputs before any transaction_first_lineage deletion or source cleanup.",
+    "provenance_and_rebuildability": {
+      "derived_cache": "edges, contexts, paths, populations and queue are X78 historical derived outputs",
+      "local_rebuildability": "PARTIALLY_REBUILDABLE: current retained Walkback/creator evidence can recreate some semantic facts, but not every raw historical provider response",
+      "provider_avoidance": "MODERATE for optional historical recovery: 21,994 requests avoided absolutely, but only about 0.72% of the 3,059,984-call historical backlog and no current runtime uses it",
+      "raw_provider_cache": "21,994 RPC-verified raw responses; unique raw bodies are recovery-only and provider-rebuildable, but availability/expense are uncertain"
+    },
+    "risk": "No authority conflict: current canonical sources win; transaction-first module/documentation declares non-authoritative. Keeping full DB only benefits manual historical recovery/qualification, not normal production.",
+    "safety": {
+      "database_modified": false,
+      "production_rows_modified": false,
+      "provider_calls": 0,
+      "rpc_calls": 0,
+      "services_restarted": false,
+      "source_modified": false
+    },
+    "semantics": "Historical X78.13 reconstruction substrate: 22,025 cached getTransaction responses plus derived explicit-edge/path/population graph and a 1.53M-mint provider acquisition queue; explicitly non-authoritative.",
+    "status": "COMPLETE",
+    "verdict": "TRANSACTION_FIRST_LINEAGE_RETENTION_QUALIFIED"
+  },
   "ui_surface_contraction_and_backend_reachability": {
     "activation": "Restarted only watchtower_api twice for the two bounded route slices, latest PID 63885 to 65355. watchtower_listener, creator_funding_worker, walkback_worker, and operation_scheduler remained RUNNING. intelligence_snapshot_scheduler remained STOPPED.",
     "engineering_revision": "f661ae4593e5aaf434c4d0c91e9fb8dc2afd4f08",
@@ -13783,7 +13856,7 @@
   "updated_at": "2026-09-03T19:38:00Z",
   "updated_at_utc": "2026-09-03T19:38:00Z",
   "updated_by": "agent_local",
-  "verdict": "QUALIFIED_EVIDENCE_CORPORA_RETIRED_CORE_PRESERVED",
+  "verdict": "TRANSACTION_FIRST_LINEAGE_RETENTION_QUALIFIED",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

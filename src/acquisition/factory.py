@@ -26,9 +26,10 @@ class MirroringTransactionAcquisition(SharedTransactionAcquisition):
         response = await super().request_once(**kwargs)
         if self._retained_store is not None and response.error is None and response.status is not None:
             try:
-                self._retained_store.retain(response, http_method=str(kwargs["http_method"]),
-                                            url=str(kwargs["url"]), request_payload=kwargs.get("json_payload"))
-                self._retained_store.record_outcome(response, "RETAINED")
+                retained = self._retained_store.retain(response, http_method=str(kwargs["http_method"]),
+                                                       url=str(kwargs["url"]), request_payload=kwargs.get("json_payload"))
+                if retained is not None:
+                    self._retained_store.record_outcome(response, "RETAINED")
             except Exception as exc:
                 if self._degraded_journal is not None: _journal_failure(self._degraded_journal.append(response.metadata.__dict__, stage="OBSERVATION_WRITE_FAILED", error=exc))
         self._mirror.publish_nowait(
@@ -112,9 +113,10 @@ class RetainingTransactionAcquisition(SharedTransactionAcquisition):
         response = await super().request_once(**kwargs)
         if response.error is None and response.status is not None:
             try:
-                self._retained_store.retain(response, http_method=str(kwargs["http_method"]),
-                                            url=str(kwargs["url"]), request_payload=kwargs.get("json_payload"))
-                self._retained_store.record_outcome(response, "RETAINED")
+                retained = self._retained_store.retain(response, http_method=str(kwargs["http_method"]),
+                                                       url=str(kwargs["url"]), request_payload=kwargs.get("json_payload"))
+                if retained is not None:
+                    self._retained_store.record_outcome(response, "RETAINED")
             except Exception as exc:
                 # Do not stack gap/outcome writes against a known failed main store.
                 if self._degraded_journal is not None: _journal_failure(self._degraded_journal.append(response.metadata.__dict__, stage="OBSERVATION_WRITE_FAILED", error=exc))

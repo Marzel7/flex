@@ -82,7 +82,7 @@ class RetainedAcquisitionStore:
         """Open the isolated store strictly read-only for health/reconstruction."""
         return sqlite3.connect(f"file:{self.path.resolve()}?mode=ro", uri=True)
 
-    def retain(self, response: AcquisitionResponse, *, http_method: str, url: str, request_payload: Any) -> RetainedObservation:
+    def retain(self, response: AcquisitionResponse, *, http_method: str, url: str, request_payload: Any) -> RetainedObservation | None:
         metadata = asdict(response.metadata)
         raw = response.raw_body
         if raw is None:
@@ -264,8 +264,13 @@ class RetainedAcquisitionStoreV2:
         artifacts: ArtifactStore,
         *,
         daily_payload_cap_bytes: int = 1 * GIB_BYTES,
+        shadow_enabled: bool = True,
     ) -> None:
         self.path, self.artifacts = Path(database_path), artifacts
+        # This is an explicit diagnostic/qualification capability, never an
+        # implied dependency of a successful provider response.
+        self.shadow_enabled = bool(shadow_enabled)
+        self.last_retention_status = "SHADOW_DISABLED" if not self.shadow_enabled else None
         self.daily_payload_cap_bytes = max(1_000_000, daily_payload_cap_bytes)
         self._observation_count, self._payload_bytes = self._reconcile_durable_usage()
 
@@ -330,26 +335,32 @@ class RetainedAcquisitionStoreV2:
         usage = shutil.disk_usage(self.path.parent)
         budget_remaining = {"daily_payload_cap_bytes": self.daily_payload_cap_bytes, "used_payload_bytes": self._payload_bytes}
         if usage.free < 10 * GIB_BYTES:
-            return False, budget_remaining
+            return False, {**budget_remaining, "retention_status": "SHADOW_DISK_GUARD"}
         if not self._is_within_budget(payload_bytes):
-            return False, budget_remaining
+            return False, {**budget_remaining, "retention_status": "SHADOW_BUDGET_GUARD"}
         self._payload_bytes += payload_bytes
         self._observation_count += 1
         return True, {
             **budget_remaining,
             "used_payload_bytes": self._payload_bytes,
             "observation_count": self._observation_count,
+            "retention_status": "RETAINED",
         }
 
     def retain(self, response: AcquisitionResponse, *, http_method: str, url: str, request_payload: Any) -> RetainedObservation:
+        if not self.shadow_enabled:
+            self.last_retention_status = "SHADOW_DISABLED"
+            return None
         metadata = asdict(response.metadata)
         raw = response.raw_body
         if raw is None:
             raw = canonical({"status": response.status, "data": response.data, "text": response.text, "headers": dict(response.headers)})
         content_type = next((v for k, v in response.headers.items() if k.lower() == "content-type"), "application/octet-stream")
-        artifact = self.artifacts.put(raw, content_type=content_type, metadata={"source": "retained_acquisition_v2_shadow", "acquisition_id": metadata["acquisition_id"]})
-
         sanitized_url = sanitize_url(url)
+        # Admission is intentionally BEFORE ArtifactStore.put(). The old order
+        # wrote a permanent raw artifact even when disk/budget policy rejected
+        # the shadow row, which defeated the storage guard entirely.
+        raw_digest = hashlib.sha256(raw).hexdigest()
         identity = {
             "schema_version": SCHEMA_VERSION_V2,
             "metadata": {
@@ -361,12 +372,12 @@ class RetainedAcquisitionStoreV2:
             },
             "http_method": http_method.upper(),
             "url": sanitized_url,
-            "artifact_digest": artifact.digest,
+            "artifact_digest": raw_digest,
             "response_status": int(response.status or 0),
             "request_payload_sha256": _sha256_json(request_payload) if request_payload is not None else None,
         }
         observation_id = hashlib.sha256(canonical(identity)).hexdigest()
-        full = RetainedObservation(
+        tentative = RetainedObservation(
             observation_id,
             SCHEMA_VERSION_V2,
             metadata,
@@ -379,22 +390,32 @@ class RetainedAcquisitionStoreV2:
             dict(response.headers),
             base64.b64encode(response.raw_body).decode() if response.raw_body is not None else None,
             response.artifact_representation,
-            artifact.digest,
-            artifact.size_bytes,
-            artifact.compressed_bytes,
-            artifact.content_type,
+            raw_digest,
+            len(raw),
+            0,  # exact gzip size is unavailable until after admission
+            content_type,
         )
-
-        _, hot_payload, hot_bytes = _build_v2_hot_payload(value=full, metadata=metadata, sanitized_url=sanitized_url)
-        full_payload = canonical(asdict(full))
-        full_payload_bytes = len(full_payload)
-        write_full, budget_state = self._write_budgeted(full_payload_bytes)
+        # 128 bytes safely covers the decimal representation of the eventual
+        # compressed length and keeps the admission conservative without a disk
+        # write or a second raw compression pass.
+        write_full, budget_state = self._write_budgeted(len(canonical(asdict(tentative))) + 128)
         if not write_full:
-            payload_json = hot_payload
-            schema_version = SCHEMA_VERSION_V2
-        else:
-            payload_json = full_payload.decode()
-            schema_version = SCHEMA_VERSION_V2
+            self.last_retention_status = str(budget_state["retention_status"])
+            return None
+        try:
+            artifact = self.artifacts.put(raw, content_type=content_type, metadata={"source": "retained_acquisition_v2_shadow", "acquisition_id": metadata["acquisition_id"]})
+        except Exception:
+            self.last_retention_status = "SHADOW_WRITE_FAILURE"
+            raise
+        full = RetainedObservation(
+            observation_id, SCHEMA_VERSION_V2, metadata, http_method.upper(), sanitized_url,
+            request_payload, int(response.status or 0), response.data, response.text,
+            dict(response.headers), base64.b64encode(response.raw_body).decode() if response.raw_body is not None else None,
+            response.artifact_representation, artifact.digest, artifact.size_bytes,
+            artifact.compressed_bytes, artifact.content_type,
+        )
+        payload_json = canonical(asdict(full)).decode()
+        schema_version = SCHEMA_VERSION_V2
         connection = self._connect()
         try:
             connection.execute(
@@ -404,9 +425,12 @@ class RetainedAcquisitionStoreV2:
             connection.commit()
         finally:
             connection.close()
+        self.last_retention_status = "RETAINED"
         return full
 
     def record_outcome(self, response: AcquisitionResponse, outcome: str) -> None:
+        if self.last_retention_status != "RETAINED":
+            return
         connection = self._connect()
         try:
             connection.execute("INSERT OR IGNORE INTO retained_acquisition_outcomes VALUES(?,?,?)", (response.metadata.acquisition_id, outcome, int(time.time())))

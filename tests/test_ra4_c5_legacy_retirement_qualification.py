@@ -19,6 +19,7 @@ relies on:
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -52,7 +53,8 @@ def test_v2_store_has_no_legacy_path_dependency(tmp_path):
     assert store.get() == []  # succeeds with no legacy DB anywhere on disk
 
 
-def test_replay_reconstruction_and_artifact_resolution_without_legacy_db(tmp_path):
+def test_replay_reconstruction_and_artifact_resolution_without_legacy_db(tmp_path, monkeypatch):
+    monkeypatch.setattr("shutil.disk_usage", lambda _path: SimpleNamespace(free=11 * 1024**3))
     artifact_store = ArtifactStore(tmp_path / "artifacts", enabled=True)
     store = RetainedAcquisitionStoreV2(tmp_path / "v2.db", artifact_store)
     value = store.retain(
@@ -124,10 +126,11 @@ def test_observation_from_payload_full_payload_unaffected_by_hot_backfill(tmp_pa
     assert obs.metadata.get("launch") == "mintFull"
 
 
-def test_wrong_artifact_root_does_not_resolve_v2_digest(tmp_path):
+def test_wrong_artifact_root_does_not_resolve_v2_digest(tmp_path, monkeypatch):
     """Regression guard for the exact investigation mistake this milestone made:
     querying a different (e.g. legacy-shared) artifact root for a V2 digest
     must NOT silently succeed or be mistaken for a real evidence gap."""
+    monkeypatch.setattr("shutil.disk_usage", lambda _path: SimpleNamespace(free=11 * 1024**3))
     store_a = ArtifactStore(tmp_path / "artifacts_a", enabled=True)
     store_b = ArtifactStore(tmp_path / "artifacts_b", enabled=True)  # a different root entirely
     v2 = RetainedAcquisitionStoreV2(tmp_path / "v2.db", store_a)

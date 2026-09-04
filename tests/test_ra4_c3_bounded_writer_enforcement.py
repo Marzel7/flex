@@ -67,22 +67,41 @@ def test_write_budgeted_refuses_once_daily_cap_exceeded(tmp_path, monkeypatch):
     assert state2["used_payload_bytes"] == 900_000  # second write did NOT count toward usage
 
 
-def test_retain_falls_back_to_hot_payload_once_cap_exceeded(tmp_path, monkeypatch):
+def test_budget_guard_writes_no_artifact_or_shadow_row(tmp_path, monkeypatch):
     monkeypatch.setattr("shutil.disk_usage", lambda path: _AboveFloorUsage())
     st = v2_store(tmp_path, daily_cap_bytes=1_000_000)
     st._payload_bytes = 1_000_000  # simulate the day's budget already fully consumed
-    result = st.retain(response(), http_method="POST", url="https://mainnet.helius-rpc.com/", request_payload={"a": 1})
-    assert result.schema_version == SCHEMA_VERSION_V2  # returned dataclass is always the full value...
-    # ...but what's ACTUALLY stored on disk must be the condensed hot payload, not the full one
+    with mock.patch.object(st.artifacts, "put", wraps=st.artifacts.put) as put:
+        result = st.retain(response(), http_method="POST", url="https://mainnet.helius-rpc.com/", request_payload={"a": 1})
+    assert result is None
+    assert st.last_retention_status == "SHADOW_BUDGET_GUARD"
+    put.assert_not_called()
     import sqlite3
-    conn = sqlite3.connect(st.path)
-    row = conn.execute("SELECT payload_json FROM retained_acquisition_observations").fetchone()
+    assert not st.path.exists()
+    conn = sqlite3.connect(":memory:")
+    # No shadow DB was created, so there is necessarily no compact fallback
+    # row and no raw artifact/sidecar.
     conn.close()
-    import json
-    stored = json.loads(row[0])
-    assert stored["schema_version"] == SCHEMA_VERSION_V2
-    assert "response_data_present" in stored  # hot-payload-only field
-    assert "response_data" not in stored  # full payload field must be ABSENT from the hot fallback
+
+
+def test_disk_guard_writes_no_artifact_or_shadow_row(tmp_path, monkeypatch):
+    st = v2_store(tmp_path, daily_cap_bytes=GIB_BYTES)
+    class LowDisk: free = 5 * GIB_BYTES
+    monkeypatch.setattr("shutil.disk_usage", lambda path: LowDisk())
+    with mock.patch.object(st.artifacts, "put", wraps=st.artifacts.put) as put:
+        assert st.retain(response(), http_method="POST", url="https://mainnet.helius-rpc.com/", request_payload={}) is None
+    assert st.last_retention_status == "SHADOW_DISK_GUARD"
+    put.assert_not_called()
+    assert not st.path.exists()
+
+
+def test_explicit_shadow_disable_writes_nothing(tmp_path, monkeypatch):
+    st = RetainedAcquisitionStoreV2(tmp_path / "shadow.db", ArtifactStore(tmp_path / "artifacts", enabled=True), shadow_enabled=False)
+    with mock.patch.object(st.artifacts, "put", wraps=st.artifacts.put) as put:
+        assert st.retain(response(), http_method="POST", url="https://mainnet.helius-rpc.com/", request_payload={}) is None
+    assert st.last_retention_status == "SHADOW_DISABLED"
+    put.assert_not_called()
+    assert not st.path.exists()
 
 
 def test_retain_stores_full_payload_when_within_budget(tmp_path, monkeypatch):
@@ -125,7 +144,8 @@ def test_write_budgeted_allows_above_10gib_disk_reserve(tmp_path, monkeypatch):
 
 # --- hot payload preserves required replay/evidence fields ------------------
 
-def test_hot_payload_preserves_required_identity_fields(tmp_path):
+def test_hot_payload_preserves_required_identity_fields(tmp_path, monkeypatch):
+    monkeypatch.setattr("shutil.disk_usage", lambda path: _AboveFloorUsage())
     st = v2_store(tmp_path, daily_cap_bytes=GIB_BYTES)
     resp = response()
     full_value = st.retain(resp, http_method="POST", url="https://mainnet.helius-rpc.com/?api-key=SECRET", request_payload={"a": 1})

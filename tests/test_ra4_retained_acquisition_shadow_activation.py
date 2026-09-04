@@ -10,6 +10,13 @@ def _set_common_retention_env(monkeypatch, tmp_path):
     monkeypatch.setenv("RETAINED_ACQUISITION_V2_DAILY_PAYLOAD_CAP_BYTES", str(1024 * 1024))
 
 
+def test_production_default_disables_all_retained_acquisition(monkeypatch, tmp_path):
+    _set_common_retention_env(monkeypatch, tmp_path)
+    monkeypatch.setenv("RETAINED_ACQUISITION_OBSERVATIONS_ENABLED", "0")
+    monkeypatch.setenv("RETAINED_ACQUISITION_V2_SHADOW_ENABLED", "0")
+    assert factory._configured_retained_store() is None
+
+
 def test_shadow_only_activation_selects_ra4_store(monkeypatch, tmp_path):
     _set_common_retention_env(monkeypatch, tmp_path)
     monkeypatch.setenv("RETAINED_ACQUISITION_OBSERVATIONS_ENABLED", "0")

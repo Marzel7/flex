@@ -14327,6 +14327,20 @@
     "next_action": "CREATOR_FUNDING_GRAPH_LIFECYCLE_AUDIT — read-only first; do not implement without a separate authorization.",
     "safety": "Only permitted Supervisor reread and targeted removal of the stopped Dust entry were performed. No broad update, unrelated Supervisor activation, runtime restart, provider/RPC, DB/schema/history deletion, Walkback/funding/topology/P3R/Operation/Potential/Evidence change occurred."
   },
+  "dust_observatory_live_retirement_commit": {
+    "status": "COMPLETE",
+    "verdict": "DUST_RETIREMENT_COMMIT_COMPLETE",
+    "engineering_commit": "539d94c524383540b0f9cfc75e4f315f2ca4169e",
+    "branch": "classification-attribution-axis",
+    "contents": "Selective Dust-only batch: removed the live Supervisor program, ws_cascade subscriptions/init/enqueue handling, telemetry module, API/page routes, page/template/sidebar/card, and the stale Dust navigation expectation; added focused retirement safeguards.",
+    "proof": "Runtime/config source has no live Dust service, subscriber, enqueue path, provider path, DB writer, telemetry route, navigation, or Operational Intelligence card. Historical tables remain 11 markers, 27 observations, 22 lifecycle rows, and 0 pending rows.",
+    "safeguards": "Creator-funding DUST_ADDRESSES exclusion, Walkback known-spam exclusion, wallet-quality environmental semantics, conservative unknown-funder classification, and CEX/infra precedence remain independently present.",
+    "tests": "36 focused tests passed: 32 Dust/wallet-quality/unknown-funder tests and 4 ws_cascade/audit-safety tests. Staged Python compileall and diff --check passed.",
+    "runtime": "Read-only Supervisor status: ws_cascade RUNNING pid 39633; operation_scheduler RUNNING pid 35254; dust_observatory_enricher and watchtower_helius_monitor absent. No service restart was performed for this commit.",
+    "remote": "origin/classification-attribution-axis verified at 539d94c524383540b0f9cfc75e4f315f2ca4169e without force push.",
+    "worktree": "Expected dirty worktree remains; unrelated source, runtime, lock, audit, database, and handoff changes are unstaged/uncommitted.",
+    "safety": "No provider/RPC calls, historical Dust mutation, normal Walkback mutation, source/runtime database staging, suppression, discard, reset, rebase, stash, or Git maintenance."
+  },
   "creator_funding_graph_lifecycle_audit": {
     "status": "COMPLETE",
     "verdict": "CREATOR_FUNDING_GRAPH_LIFECYCLE_QUALIFIED",
@@ -14400,10 +14414,10 @@
     "next_action": "MORE_EVIDENCE_QUALIFICATION_REQUIRED: if desired, separately authorize a bounded semantic fixture review of primitive_replay.sqlite, authority_projection.sqlite, and the 1D/2A/2C1 audit DBs, with a no-artifact-recursion measurement plan. Otherwise retain the current Evidence set and move to main.py cleanup.",
     "safety": "No Evidence, database, service, Supervisor, creator-funding, Walkback, topology, P3R, Operations, Potential Operations, UI, cron, RPC/provider, VACUUM, REINDEX, checkpoint, or Git maintenance change. Temporary diagnostic du processes started by this audit were terminated."
   },
-  "updated_at": "2026-09-04T12:00:00Z",
-  "updated_at_utc": "2026-09-04T12:00:00Z",
+  "updated_at": "2026-09-04T12:30:00Z",
+  "updated_at_utc": "2026-09-04T12:30:00Z",
   "updated_by": "agent_local",
-  "verdict": "GRAPH_RETIREMENT_COMMIT_COMPLETE",
+  "verdict": "DUST_RETIREMENT_COMMIT_COMPLETE",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

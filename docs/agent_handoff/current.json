@@ -14499,10 +14499,21 @@
     "remote": "HANDOFF_TRANSPORT_DEGRADED: engineering and handoff pushes await explicit user authorization to export repository contents to unestablished origin; no push attempted.",
     "next_action": "RETURN_TO_PARKED_MARKET_DASHBOARD_RETIREMENT; do not start automatically."
   },
-  "updated_at": "2026-09-04T16:40:00Z",
-  "updated_at_utc": "2026-09-04T16:40:00Z",
+  "market_dashboard_retirement": {
+    "status": "PARTIAL",
+    "verdict": "MARKET_DASHBOARD_RETIREMENT_PARTIAL",
+    "engineering_revision": "dc869b94",
+    "commits": ["508203fb retire: remove snapshot behavior dashboard", "dc869b94 retire: remove dense price history writers"],
+    "validation": "10 focused tests passed: broad price-tracking decommission, retained vault dashboard projection, and compact current-market-data contract; syntax validation passed.",
+    "preserved": "token_analysis first_observed_* facts, token_market_cap_peaks, bounded owned-liquidity seam, and Byzantine first-second valuation pipeline remain intact.",
+    "blocker": "Committed runtime census still finds a token_behavior join in src/core/main.py and snapshot reader/writer residues in src/core/price_service.py; price_worker retains an unused snapshot eligibility helper. These must be retired with a narrow source projection before final completion.",
+    "remote": "HANDOFF_TRANSPORT_DEGRADED: no engineering or handoff push attempted; explicit user approval to export to origin remains required.",
+    "next_action": "MARKET_DASHBOARD_STAGING_BLOCKER_REMAINS: remove the exact residual main.py behavior join and price-service/worker snapshot paths, re-run the committed-runtime census, then publish a new qualified retirement commit."
+  },
+  "updated_at": "2026-09-04T17:15:00Z",
+  "updated_at_utc": "2026-09-04T17:15:00Z",
   "updated_by": "agent_local",
-  "verdict": "FUNDING_ANALYTICS_VALUATION_COMMIT_COMPLETE",
+  "verdict": "MARKET_DASHBOARD_RETIREMENT_PARTIAL",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

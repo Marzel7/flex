@@ -611,26 +611,6 @@ class BackgroundPriceWorker:
 
         self.running = True
 
-        # Reactivate any pools that were deactivated while a trade position was open
-        try:
-            from src.utils.db_locking import db_connect as _db_connect
-            _conn = _db_connect(self.db_path, timeout=10)
-            n = _conn.execute(
-                """UPDATE token_pool_accounts SET is_active = 1, updated_at = strftime('%s','now')
-                   WHERE mint IN (
-                       SELECT tpa.mint FROM token_pool_accounts tpa
-                       JOIN trade_simulations ts ON ts.mint = tpa.mint
-                       WHERE ts.status = 'OPEN' AND tpa.is_active = 0
-                         AND tpa.base_account IS NOT NULL AND tpa.base_account != ''
-                   )"""
-            ).rowcount
-            _conn.commit()
-            _conn.close()
-            if n:
-                logger.info(f"[PRICE_WORKER] Reactivated {n} pools for open trade positions")
-        except Exception as _e:
-            logger.warning(f"[PRICE_WORKER] Pool reactivation on startup failed: {_e}")
-        
         # ✅ CRITICAL FIX: Bootstrap PoolStateStore with REAL reserves from RPC
         # Since start() is called from async context (listener), we must run bootstrap
         # in a background thread, but BEFORE the worker thread starts pricing
@@ -1799,23 +1779,6 @@ class BackgroundPriceWorker:
                 except Exception as e:
                     logger.debug(f"Failed to update token_analysis with pool prices: {e}")
 
-            # Process cascade/strategy sells in background thread — never block price cycle
-            _cache_snapshot = dict(new_cache)
-            _db_path = self.db_path
-            def _run_cascade_sells():
-                try:
-                    from src.trading.simulation import process_cascade_sells, TradingSimulationService
-                    from src.utils.db_locking import db_connect as _db_connect
-                    _conn = _db_connect(_db_path, timeout=3)
-                    TradingSimulationService().ensure_schema(_conn)
-                    n = process_cascade_sells(_conn, _cache_snapshot)
-                    _conn.close()
-                    if n:
-                        logger.info(f"[CASCADE_SELLS] Booked {n} new strategy sell rows")
-                except Exception as _e:
-                    logger.debug(f"[CASCADE_SELLS] Error: {_e}")
-            import threading as _threading
-            _threading.Thread(target=_run_cascade_sells, daemon=True, name="cascade-sells").start()
 
         except Exception as e:
             logger.error(f"Error recomputing prices from WS state: {e}")

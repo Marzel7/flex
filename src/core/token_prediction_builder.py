@@ -288,7 +288,6 @@ class TokenPredictionBuilder:
         self._schedule_outcome_checks(mint)
         label = self._label_for_score(score)
         risk_level = self._risk_level_for_score(score, label)
-        self._maybe_trigger_auto_sim_buy(score, event_type, label, risk_level)
         return {
             "prediction_score": score.prediction_score,
             "risk_level": risk_level,
@@ -297,91 +296,6 @@ class TokenPredictionBuilder:
             "prediction_confidence": score.prediction_confidence,
             "data_completeness": score.data_completeness,
         }
-
-    def _maybe_trigger_auto_sim_buy(
-        self,
-        score: TokenScore,
-        event_type: str,
-        label: str,
-        risk_level: str | None,
-    ) -> None:
-        """Open a paper buy when a fresh prediction becomes actionable."""
-        enabled = os.environ.get("TRADING_SIM_AUTO_BUY_ENABLED", "1").lower() not in {"0", "false", "no", "off"}
-        if not enabled:
-            return
-        if event_type not in AUTO_SIM_BUY_EVENTS:
-            return
-
-        buy_on_migration = event_type == "MIGRATED"
-        if not buy_on_migration:
-            if score.prediction_status != "COMPLETE":
-                return
-            if risk_level not in {"LOW", "WATCH"}:
-                return
-
-        try:
-            sol_amount = float(os.environ.get("TRADING_SIM_AUTO_BUY_SOL", "0.1"))
-            slippage_bps = int(os.environ.get("TRADING_SIM_AUTO_BUY_SLIPPAGE_BPS", "500"))
-        except ValueError:
-            logger.warning("[PREDICTION] invalid trading sim auto-buy env values")
-            return
-        if sol_amount <= 0:
-            return
-
-        import threading
-
-        def _run_auto_buy() -> None:
-            conn = None
-            try:
-                from src.trading.simulation import TradingSimulationService
-
-                service = TradingSimulationService()
-                conn = db_connect(self.db_path, timeout=30)
-                conn.row_factory = sqlite3.Row
-                service.ensure_schema(conn)
-                if service.has_simulation_for_mint(conn, score.mint):
-                    return
-                token_row = conn.execute(
-                    """
-                    SELECT COALESCE(mc.symbol, mc.name) AS token_symbol
-                    FROM token_analysis ta
-                    LEFT JOIN metadata_cache mc ON mc.mint = ta.mint
-                    WHERE ta.mint = ?
-                    """,
-                    (score.mint,),
-                ).fetchone()
-                token_symbol = token_row["token_symbol"] if token_row else None
-                trigger = "migration" if buy_on_migration else "prediction"
-                notes = (
-                    f"auto_paper_buy_on_{trigger} event={event_type} "
-                    f"status={score.prediction_status} risk={risk_level} "
-                    f"score={score.prediction_score} label={label} "
-                    f"confidence={score.prediction_confidence}"
-                )
-                service.simulate_buy(
-                    conn,
-                    mint=score.mint,
-                    sol_amount=sol_amount,
-                    slippage_bps=slippage_bps,
-                    token_symbol=token_symbol,
-                    notes=notes,
-                )
-                logger.info(
-                    "[PREDICTION] auto paper buy opened mint=%s trigger=%s status=%s risk=%s score=%s",
-                    score.mint,
-                    trigger,
-                    score.prediction_status,
-                    risk_level,
-                    score.prediction_score,
-                )
-            except Exception as exc:
-                logger.warning("[PREDICTION] auto paper buy failed for %s: %s", score.mint, exc)
-            finally:
-                if conn is not None:
-                    conn.close()
-
-        thread = threading.Thread(target=_run_auto_buy, name=f"auto-sim-buy-{score.mint[:8]}", daemon=True)
-        thread.start()
 
     def _schedule_outcome_checks(self, mint: str) -> None:
         import threading
@@ -429,61 +343,7 @@ class TokenPredictionBuilder:
                 )
             """)
         self._ensure_prediction_schema(conn)
-        self._ensure_trading_sim_schema(conn)
         _migration_applied_paths.add(db_key)
-
-    def _ensure_trading_sim_schema(self, conn: sqlite3.Connection) -> None:
-        """Create paper trading tables alongside prediction schema.
-
-        Auto paper buys are triggered from prediction scoring, so the tables
-        should exist before the background quote task starts. Keeping the DDL
-        here avoids a first-request DDL hit on /trading-sim.
-        """
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS trade_simulations (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                mint TEXT NOT NULL,
-                token_symbol TEXT,
-                status TEXT NOT NULL DEFAULT 'OPEN',
-                entry_sol REAL NOT NULL,
-                entry_lamports INTEGER NOT NULL,
-                token_amount_raw INTEGER NOT NULL,
-                token_amount_ui REAL,
-                entry_price_sol REAL,
-                slippage_bps INTEGER NOT NULL DEFAULT 500,
-                entry_quote_json TEXT,
-                opened_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-                closed_at INTEGER,
-                exit_sol REAL,
-                exit_lamports INTEGER,
-                exit_price_sol REAL,
-                exit_quote_json TEXT,
-                pnl_sol REAL,
-                pnl_pct REAL,
-                notes TEXT
-            )
-            """
-        )
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS trade_simulation_events (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                simulation_id INTEGER,
-                mint TEXT NOT NULL,
-                event_type TEXT NOT NULL,
-                payload_json TEXT,
-                created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-                FOREIGN KEY(simulation_id) REFERENCES trade_simulations(id)
-            )
-            """
-        )
-        conn.execute(
-            "CREATE INDEX IF NOT EXISTS idx_trade_simulations_status_opened ON trade_simulations(status, opened_at DESC)"
-        )
-        conn.execute(
-            "CREATE INDEX IF NOT EXISTS idx_trade_simulations_mint ON trade_simulations(mint)"
-        )
 
     def _preensure_legacy_columns(self, conn: sqlite3.Connection) -> None:
         table = conn.execute("""

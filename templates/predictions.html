@@ -269,16 +269,12 @@ tbody tr:last-child td { border-bottom:none; }
       <select class="pd-select" id="filterLiquidity" onchange="applyFilters()">
         <option value="">Any Liquidity</option><option value="removed">Liquidity removed</option><option value="healthy">No removal seen</option>
       </select>
-      <select class="pd-select" id="filterSim" onchange="applyFilters()">
-        <option value="">Any Simulation</option><option value="NOT_SIMULATED">Not Simulated</option><option value="OPEN">Open</option><option value="CLOSED">Closed</option>
-      </select>
     </div>
   </div>
   <div class="pd-modes" style="padding:12px 12px 0">
     <button class="pd-mode active" data-mode="ACTION" onclick="setMode(this)">Auto-Eligible</button>
     <button class="pd-mode" data-mode="WATCHLIST" onclick="setMode(this)">Watchlist</button>
     <button class="pd-mode" data-mode="IGNORE" onclick="setMode(this)">Rejected</button>
-    <button class="pd-mode" data-mode="SIMULATED" onclick="setMode(this)">Already Simulated</button>
     <button class="pd-mode" data-mode="PENDING" onclick="setMode(this)">Pending Funding</button>
     <button class="pd-mode" data-mode="WATCHTOWER" onclick="setMode(this)" style="color:#f97316;border-color:rgba(249,115,22,0.4)">⬡ WATCHTOWER</button>
     <button class="pd-mode" data-mode="ALL" onclick="setMode(this)">All</button>
@@ -499,7 +495,6 @@ function applyFilters() {
   const ecosystemQuality = document.getElementById('filterEcosystemQuality').value;
   const funding = document.getElementById('filterFunding').value;
   const liquidity = document.getElementById('filterLiquidity').value;
-  const sim = document.getElementById('filterSim').value;
   const nowSecs = Math.floor(Date.now() / 1000);
   let rows = _allRows;
   if (time === '24+') {
@@ -522,11 +517,9 @@ function applyFilters() {
   if (funding === 'thin') rows = rows.filter(r => r.funding_score == null || r.funding_score < 40);
   if (liquidity === 'removed') rows = rows.filter(r => r.liquidity_removed);
   if (liquidity === 'healthy') rows = rows.filter(r => !r.liquidity_removed);
-  if (sim) rows = rows.filter(r => (r.post_prediction_simulation_status || 'NOT_SIMULATED') === sim);
   if (_mode === 'ACTION') rows = rows.filter(r => ['AUTO_ELIGIBLE','SIMULATE','ALLOCATE'].includes(r.suggested_action));
   if (_mode === 'WATCHLIST') rows = rows.filter(r => r.suggested_action === 'WATCH');
   if (_mode === 'IGNORE') rows = rows.filter(r => r.suggested_action === 'IGNORE');
-  if (_mode === 'SIMULATED') rows = rows.filter(r => (r.post_prediction_simulation_status || 'NOT_SIMULATED') !== 'NOT_SIMULATED');
   if (_mode === 'PENDING') rows = rows.filter(r => ['PENDING_FUNDING','PENDING_RISK_SCORE','PENDING_CREATOR','INSUFFICIENT_HISTORY','NO_FUNDING_FOUND'].includes(r.prediction_status));
   if (_mode === 'WATCHTOWER') rows = rows.filter(r => r.watchtower_linked);
   renderPredictionRows(rows);
@@ -740,7 +733,6 @@ async function openDrawer(mint) {
     `<a href="/token-intelligence" class="pd-btn" style="text-decoration:none">Token dossier</a>`,
     creatorAddr ? `<a href="/creator-analysis?creator=${creatorAddr}" class="pd-btn" style="text-decoration:none">Creator</a>` : '',
     (s.network_name || ex.network_name) ? `<a href="/ecosystem-networks" class="pd-btn" style="text-decoration:none">Ecosystem</a>` : '',
-    fb.simulation_status_now && fb.simulation_status_now !== 'NOT_SIMULATED' ? `<a href="/trading-sim" class="pd-btn" style="text-decoration:none">Portfolio</a>` : '',
   ].filter(Boolean).join('');
   html += `<div class="pd-card"><div class="pd-card-title">Drill Through</div><div style="display:flex;gap:8px;flex-wrap:wrap">${links}</div></div>`;
 
@@ -771,8 +763,6 @@ async function openDrawer(mint) {
       ${statBox('Creator Quality Now', fb.creator_quality_now != null ? fb.creator_quality_now.toFixed(1) : '—', '#4ade80', 'rgba(74,222,128,.06)')}
       ${statBox('Creator Hist. Now', fb.creator_historical_score_now != null ? fb.creator_historical_score_now.toFixed(1) : '—', '#38bdf8', 'rgba(56,189,248,.06)')}
       ${statBox('Hist. Tokens Now', fb.creator_historical_tokens_now ?? '—', '#94a3b8', 'rgba(148,163,184,.06)')}
-      ${statBox('Simulation Now', fb.simulation_status_now || 'NOT SIMULATED', '#94a3b8', 'rgba(148,163,184,.06)')}
-      ${statBox('Simulation PnL Now', fb.simulation_pnl_now != null ? fb.simulation_pnl_now : '—', '#fbbf24', 'rgba(251,191,36,.06)')}
       ${statBox('Outbound Findings', fb.outbound_wallets_after_prediction ?? 0, '#fb923c', 'rgba(251,146,60,.06)')}
     </div>
     ${fb.outbound_types_after_prediction ? `<div style="margin-top:10px" class="evidence-strip">

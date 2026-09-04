@@ -182,7 +182,6 @@ class PredictionDecisionContextAnalyzer:
                 # used as decision-time evidence.
                 'coordinator_exposed': 0,
                 'liquidity_removed': 0,
-                'simulation_status': 'NOT_SIMULATED',
                 'refreshed_at': int(time.time()),
         }
 
@@ -212,14 +211,14 @@ class PredictionDecisionContextAnalyzer:
                       coordinator_exposure_at_prediction,liquidity_health_at_prediction,risk_state_at_prediction,
                       funding_context_at_prediction,prediction_features_json,evidence_summary_json,
                       confidence_at_prediction,snapshot_source,created_at
-                      ,coordinator_exposed,liquidity_removed,simulation_status,refreshed_at
+                      ,coordinator_exposed,liquidity_removed,refreshed_at
                     ) VALUES (:mint,:prediction_id,:predicted_at,:suggested_action,:action_reason,:blocking_risk_flags_json,
                       :positive_evidence_flags_json,:why_reasons_json,:creator_quality_at_prediction,
                       :creator_history_count_at_prediction,:ecosystem_quality_at_prediction,:network_size_at_prediction,
                       :coordinator_exposure_at_prediction,:liquidity_health_at_prediction,:risk_state_at_prediction,
                       :funding_context_at_prediction,:prediction_features_json,:evidence_summary_json,
                       :confidence_at_prediction,:snapshot_source,:created_at,
-                      :coordinator_exposed,:liquidity_removed,:simulation_status,:refreshed_at)
+                      :coordinator_exposed,:liquidity_removed,:refreshed_at)
                 ''', payload)
             conn.commit()
             repaired = self.repair_legacy_prior_history(conn)
@@ -305,12 +304,12 @@ def insert_prediction_snapshots(conn: sqlite3.Connection, score_rows: list[dict[
           coordinator_exposure_at_prediction,liquidity_health_at_prediction,risk_state_at_prediction,
           funding_context_at_prediction,prediction_features_json,evidence_summary_json,
           confidence_at_prediction,snapshot_source,created_at
-          ,coordinator_exposed,liquidity_removed,simulation_status,refreshed_at
+          ,coordinator_exposed,liquidity_removed,refreshed_at
         ) VALUES (:mint,:prediction_id,:predicted_at,:suggested_action,:action_reason,:blocking_risk_flags_json,
           :positive_evidence_flags_json,:why_reasons_json,:creator_quality_at_prediction,
           :creator_history_count_at_prediction,:ecosystem_quality_at_prediction,:network_size_at_prediction,
           :coordinator_exposure_at_prediction,:liquidity_health_at_prediction,:risk_state_at_prediction,
           :funding_context_at_prediction,:prediction_features_json,:evidence_summary_json,
           :confidence_at_prediction,:snapshot_source,:created_at,
-          :coordinator_exposed,:liquidity_removed,:simulation_status,:refreshed_at)
+          :coordinator_exposed,:liquidity_removed,:refreshed_at)
     ''', payload)

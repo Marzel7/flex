@@ -1,2 +1,1 @@
-"""Trading simulation helpers."""
-
+"""Reserved namespace for future real-trading integrations."""

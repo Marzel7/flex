@@ -35,7 +35,7 @@ def test_legacy_pages_remain_reachable_and_are_marked():
     for route in (
         "/live-launches", "/approval-queue", "/funding-queue", "/network-approval",
         "/predictions", "/spike-analysis", "/network-diagram", "/token-intelligence",
-        "/creator-analysis", "/funder-intelligence", "/trading-sim",
+        "/creator-analysis", "/funder-intelligence",
         "/watchtower/operators", "/watchtower/interceptor", "/ops/tokens",
         "/ops/detection-health", "/ops/discovery-assurance", "/ops/webhook-coverage",
     ):

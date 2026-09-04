@@ -147,10 +147,9 @@ def _mint_rows(conn: sqlite3.Connection) -> list[sqlite3.Row]:
       SELECT cm.creator_address, ta.mint, ta.created_at, ta.market_cap_current, ta.market_cap_highest,
              ta.migrated_at, ta.migration_tx, ta.rug_indicator,
              ta.first_observed_mc AS initial_mc,
-             CASE WHEN ts.mint IS NULL THEN 0 ELSE 1 END simulated
+             0 AS simulated
       FROM creator_mints cm
       JOIN token_analysis ta ON ta.mint=cm.mint
-      LEFT JOIN (SELECT DISTINCT mint FROM trade_simulations) ts ON ts.mint=ta.mint
     """).fetchall()
 
 

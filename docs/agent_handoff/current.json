@@ -14105,6 +14105,73 @@
     },
     "next_action": "With explicit runtime authority, start only operation_scheduler, prove its health/queue continuity, then reissue the final retirement verification. After closure, perform DUST_OBSERVATORY_PRODUCER_CONSUMER_OWNERSHIP_AUDIT."
   },
+  "operation_scheduler_runtime_restoration": {
+    "status": "COMPLETE",
+    "verdict": "OPERATION_SCHEDULER_RUNTIME_RESTORED",
+    "scope": "Narrow runtime recovery only: started the already-loaded operation_scheduler Supervisor definition after read-only ownership, configuration, duplicate-process, lock, and state gates. No Supervisor reread/update/config edit occurred.",
+    "cause": "SUPERVISOR_UPDATE_REAPPLIED_EXISTING_PROGRAM_WITH_AUTOSTART_FALSE: the prior Helius-entry update reconfigured all programs; operation_scheduler did not autostart when re-added. The current and backup definitions are semantically identical.",
+    "config": {
+      "current": "YES",
+      "command": "python -m src.core.operation_scheduler --loop",
+      "workdir": "/Users/kevinkeaveney/Dev/claude/flex",
+      "environment": "PYTHONPATH plus existing intake/forward interval and RPC-budget values",
+      "autostart_policy": "INTENTIONAL_MANUAL_START_POLICY: documented to avoid automatic launch on config reload; no configuration change made",
+      "autorestart": true
+    },
+    "ownership": "Current standalone scheduler: operation intake, forward monitoring, sub-provider discovery, farm scan, operation activity/lifecycle and associated dashboard projection inputs. No other running service supersedes these jobs.",
+    "gates": {
+      "previously_running": true,
+      "stop_cause_understood": true,
+      "current_config_valid": true,
+      "current_implementation": true,
+      "superseded": false,
+      "duplicate_process": false,
+      "stale_scheduler_lock_blocker": false,
+      "state_safe_to_resume": true,
+      "qualified_for_runtime_restoration": true
+    },
+    "runtime": {
+      "first_start_pid": 35136,
+      "first_start_outcome": "initial schema ensure hit the existing ws_cascade cross-process write lease timeout after 60s; Supervisor autorestart occurred as configured",
+      "current_pid": 35254,
+      "current_state": "RUNNING",
+      "stable_observation": "current PID remained running for more than two minutes and advanced wt_scheduler_state",
+      "natural_work": "successful FORWARD_MONITOR run: 83 RPC calls, 11.4 seconds, last_success_at=1788509775; intake remained safety-deferred while pressure was HIGH",
+      "no_unrelated_service_action": true
+    },
+    "continuity": {
+      "supervisor_core": "watchtower_listener, watchtower_api, creator_resolution_worker, creator_funding_worker, walkback_worker, operation_scheduler, ws_cascade, alert_evaluator and watchtower_ngrok RUNNING",
+      "required_stopped": "evidence_writer, infra_sync_scheduler, dust_observatory_enricher, webhook_worker and intelligence_snapshot_scheduler remained STOPPED",
+      "helius_monitor": "absent from Supervisor",
+      "ui_smoke": "operators, Byzantine operator detail, potential operations, system health and Ops OS each returned HTTP 200",
+      "focused_tests": "61 passed: Watchtower operation contract, P3R tiering, Potential candidate matcher, canonical Evidence foundation and Supervisor telemetry observer"
+    },
+    "after_baseline": {
+      "operations": 223,
+      "operations_digest": "f1dd55dbdd98bd0bb4196fa74767508f157d717ca581c3826e9db9abc326e2dd",
+      "p3r_families": 880,
+      "p3r_membership": 9422,
+      "p3r_membership_digest": "5d76e1388f4cc0a6d7e39ef49d38461c6cdcf60a24e625b3b72f9740be492db6",
+      "behavioural_profiles": 6,
+      "potential_identity": 2,
+      "potential_evidence_associations": 183,
+      "potential_current": 2,
+      "walkback": "queue=42393, edges=87703, roles=10381, atomic_flows=10145; natural progression only",
+      "operation_activity": 54633,
+      "helius_usage_snapshots": "12774 retained; latest captured_at 2026-08-09T19:35:54.940257"
+    },
+    "safety": {
+      "provider_calls_solely_for_testing": 0,
+      "supervisor_reread_or_update": false,
+      "supervisor_config_modified": false,
+      "other_stopped_services_started": false,
+      "running_services_restarted": false,
+      "manual_membership_or_authority_mutation": false,
+      "schema_or_source_rows_modified": false,
+      "vacuum_reindex_checkpoint": false
+    },
+    "next_action": "DUST_OBSERVATORY_PRODUCER_CONSUMER_OWNERSHIP_AUDIT; do not change Dust runtime in the scheduler-restoration scope."
+  },
   "transaction_first_lineage_recovery_cache_audit": {
     "access": {
       "current_automatic_writers": 0,
@@ -14192,10 +14259,10 @@
     "tests": "53 focused tests passed: UI-contraction route guards plus creator-funding fast paths, Walkback startup resilience, P3R, Potential Operation visual structure, and operational topology. compileall and git diff --check passed.",
     "verdict": "UI_SURFACE_CONTRACTION_AND_BACKEND_REACHABILITY_PARTIAL_GENERIC_FUNDING_SLICE_RETIRED"
   },
-  "updated_at": "2026-09-04T07:59:00Z",
-  "updated_at_utc": "2026-09-04T07:59:00Z",
+  "updated_at": "2026-09-04T08:17:26Z",
+  "updated_at_utc": "2026-09-04T08:17:26Z",
   "updated_by": "agent_local",
-  "verdict": "HELIUS_MONITOR_SUPERVISOR_RETIREMENT_PARTIAL",
+  "verdict": "OPERATION_SCHEDULER_RUNTIME_RESTORED",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

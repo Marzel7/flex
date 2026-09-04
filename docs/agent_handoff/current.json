@@ -10896,8 +10896,8 @@
     "verdict": "SOL_USD_HISTORICAL_LOCAL_AUDIT_COMPLETE"
   },
   "next_action": {
-    "instruction": "Await explicit destructive authorization for only the three qualified independent targets. Canonical rollback corpus and OIP supporting/recovery corpora remain protected.",
-    "next_action_code": "DELETE_QUALIFIED_EVIDENCE_STORES"
+    "instruction": "Read-only qualification only; remaining Evidence rollback, supporting, and recovery corpora remain protected.",
+    "next_action_code": "TRANSACTION_FIRST_LINEAGE_RECOVERY_CACHE_AUDIT"
   },
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
@@ -12359,6 +12359,97 @@
       "verdict": "LOCAL_QUALIFICATION_PASS"
     }
   ],
+  "qualified_evidence_retirement_wave": {
+    "allocated_bytes_retired": 1974923264,
+    "continuity": {
+      "baseline_losses": 0,
+      "natural_monotonic_advances": [
+        "creator_funders +1",
+        "creator_funding_graph +1",
+        "token_analysis +26",
+        "wt_subprov_sig_retry +21"
+      ],
+      "runtime": "required workers running; evidence_writer and intelligence_snapshot_scheduler remain STOPPED; no restarts",
+      "ui_http_200": [
+        "/intelligence/operators",
+        "/intelligence/operator/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334",
+        "/intelligence/potential-operations",
+        "/system-health",
+        "/ops-os"
+      ]
+    },
+    "filesystem": {
+      "df_after": "50,695,960 KiB / 48.35GiB",
+      "df_before": "47GiB rounded (preflight df -h)",
+      "note": "exact df delta is unavailable because the preflight recorded rounded df -h only; retired logical bytes are exact."
+    },
+    "gates": {
+      "current_recovery_dependencies_all_targets": 0,
+      "fixtures_and_parity": "PASS",
+      "open_handles_all_targets": 0,
+      "production_runtime_dependencies_all_targets": 0,
+      "recreation_after_bounded_observation": "NO"
+    },
+    "logical_bytes_retired": 1955022144,
+    "next_action": "Do not perform more evidence deletion without a new qualification. Recommended next low-risk target: transaction_first_lineage recovery/cache audit.",
+    "protected_store_identities": {
+      "canonical_shadow.db": {
+        "bytes": 5725278208,
+        "inode": 481066024,
+        "mtime": "2026-08-09T22:57:48Z"
+      },
+      "compact_provenance.sqlite": {
+        "bytes": 521883648,
+        "inode": 480586384,
+        "mtime": "2026-08-09T13:27:20Z"
+      },
+      "compact_sidecar.db": {
+        "bytes": 521940992,
+        "inode": 481101056,
+        "mtime": "2026-08-09T22:53:01Z"
+      },
+      "indexed_authority_compact.sqlite": {
+        "bytes": 924835840,
+        "inode": 480937655,
+        "mtime": "2026-08-09T19:11:30Z"
+      },
+      "production_evidence.db": {
+        "bytes": 114688,
+        "inode": 487364257,
+        "mtime": "2026-08-14T08:30:31Z"
+      },
+      "retained_acquisition_legacy_compact.db": {
+        "bytes": 1776209920,
+        "inode": 533240328,
+        "mtime": "2026-08-18T21:33:49Z"
+      }
+    },
+    "retired_historical_corpus": [
+      "database/evidence_platform/watchtower_shadow_ep3_0d/evidence.db",
+      "database/evidence_platform/watchtower_shadow_ep3_0d/evidence.db-wal",
+      "database/evidence_platform/watchtower_shadow_ep3_0d/evidence.db-shm",
+      "database/evidence_platform/production/retained_acquisition_ra0_probe.db",
+      "database/evidence_platform/production/retained_acquisition_ra0_probe.db-journal",
+      "database/evidence_platform/oip_v2_2c3_indexed_authority/indexed_authority.sqlite",
+      "database/evidence_platform/oip_v2_2c3_indexed_authority/indexed_authority.sqlite-wal",
+      "database/evidence_platform/oip_v2_2c3_indexed_authority/indexed_authority.sqlite-shm"
+    ],
+    "safety": {
+      "canonical_shadow_changed": false,
+      "evidence_writer_restarted": false,
+      "normal_walkback_tables_modified": false,
+      "production_rows_modified": false,
+      "provider_calls": 0,
+      "rpc_calls": 0,
+      "snapshot_scheduler_restarted": false
+    },
+    "status": "COMPLETE",
+    "tests": {
+      "focused_protected": "30 passed, 2 pre-existing unrelated fixture failures: test_operation_summary bounded ordering; test_potential_operations_current_census unavailable live matcher expectation",
+      "historical": "20 passed (foundation 3, RA0/fixtures 7, indexed/fixtures 10)"
+    },
+    "verdict": "QUALIFIED_EVIDENCE_CORPORA_RETIRED_CORE_PRESERVED"
+  },
   "ra4_authorization": {
     "authoritative_cutover": false,
     "authorization_id": "RA4_GO_BOUNDED_PRODUCTION_SHADOW_2026-08-18",
@@ -12882,7 +12973,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL",
+  "status": "QUALIFIED_EVIDENCE_CORPORA_RETIRED_CORE_PRESERVED",
   "storage_incident_2026_09_01": {
     "critical_accounting_warning": "macOS `stat -f %b` is POSIX st_blocks in FIXED 512-byte units. allocated_bytes = %b * 512. NEVER multiply %b by %k (an unrelated filesystem I/O-transfer-size field). An earlier pass in this incident used %b*4096 and overstated every physical-allocation figure by exactly 8x. Do not let that error re-enter future storage analysis.",
     "future_triggers": {
@@ -13692,7 +13783,7 @@
   "updated_at": "2026-09-03T19:38:00Z",
   "updated_at_utc": "2026-09-03T19:38:00Z",
   "updated_by": "agent_local",
-  "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL",
+  "verdict": "QUALIFIED_EVIDENCE_CORPORA_RETIRED_CORE_PRESERVED",
   "watchtower_buy3_historical_first_buy_opening_mc": {
     "archive": "Alchemy archive exact-slot response for actual curve 776Pqg...wUX succeeded (151 bytes, SHA-256 49812911...f48f1c), but is necessarily post-buy/post-completion because the creation slot contains all five buys.",
     "artifact_digest": "1aad06cc04167484a05c4f7545dcebaffef534d0797bb30ba1c5b2116826e70c",

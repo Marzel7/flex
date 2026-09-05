@@ -14775,6 +14775,17 @@
     "safety": "Read-only review; no membership replay, DB writes, provider calls, or schema changes.",
     "next_action": "REPLAY_SAFE_CREATOR_CONTINUITY_MEMBERS under a separately authorized bounded replay milestone."
   },
+  "byzantine_creator_continuity_replay": {
+    "status": "COMPLETE",
+    "verdict": "BYZANTINE_CREATOR_CONTINUITY_REPLAY_COMPLETE",
+    "engineering_revision": "f4ed9d8c75efdd0af5660da2304489b3d66415d7",
+    "scope": "Authorized local canonical-membership materialization only; 211 prequalified creator-continuity launches were replayed one at a time through src.ops.wsol_10_sol_four_step_operation.project_completed_walkback.",
+    "result": "Membership changed from 36 to 247: strict=36 and PROVEN_CREATOR_CONTINUITY=211. zRoYAdLYogsS491qazGakt2BDvgjMMiE8xQWpSVpump is now canonical through BYZANTINE_PROVEN_CREATOR_CONTINUITY, with creator EiwpFhN3... and retained strict proof mint J59LU...pump.",
+    "integrity": "Replay-set drift=0; attempted=211; succeeded=211; failed=0; duplicate mints=0; cross-operation conflicts=0; invalid creator proofs=0; pre-proof continuity members=0; unexplainable continuity members=0; second indexed dry replay candidates=0. Continuity-plus-current-infrastructure=65; continuity-only=146.",
+    "validation": "17 focused provider-free tests passed: test_wsol_10_sol_four_step_operation, test_byzantine_creator_continuity, test_byzantine_dual_funding_leg_projection, and test_byzantine_operation_rename.",
+    "safety": "No direct SQL membership insertion, provider calls, schema/table changes, service restart, source edit, engineering commit, or engineering remote push. The normal writer remained idempotent and each replay item was handled independently; no global write transaction was used.",
+    "next_action": "BUILD_BYZANTINE_PRICE_BEHAVIOUR_COHORT under a separately authorized product/evidence milestone."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

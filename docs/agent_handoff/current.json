@@ -14955,6 +14955,14 @@
     "artifact": "docs/audits/pumpfun_opening_model_v3_frozen.json",
     "next_action": "OPERATION_EXPANSION_READY; apply the shared bounded opening state/FDV model only under a separately authorized operation cohort."
   },
+  "early_byzantine_buyer_affiliation_audit": {
+    "engineering_revision": "8338d876",
+    "tests": "Not applicable; read-only audit initiated.",
+    "production_flags": "Provider/Birdeye/GMGN=0; DB/membership writes=0; opening replay changes=0.",
+    "verdict": "PARTIAL",
+    "finding": "The first post-create buyer in the retained V3 action stream is 5JTvwLFy1EPWoSWbVqjp4x9rfg961P9iKV3vsSubDFXd for every latest-five token. A repository text/evidence search found no direct recorded Byzantine relation for that buyer, which is insufficient to assert no retained affiliation without the remaining bounded relational-DB census.",
+    "next_action": "COMPLETE_RETAINED_BUYER_RELATION_CENSUS before classifying first unaffiliated entries; do not call providers or modify membership."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

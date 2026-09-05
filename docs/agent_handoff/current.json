@@ -1,4 +1,12 @@
 {
+  "byzantine_detection_to_entry_latency": {
+    "engineering_revision": "ef02cad7066d36cdb0a63adc24511792acd1c219",
+    "tests": "read-only retained-artifact and SQLite chronology audit",
+    "production_flags": "0 provider calls; SQLite PRAGMA query_only=ON; no source, DB, membership, replay, schema, or runtime changes",
+    "verdict": "QUALIFIED",
+    "evidence": "For all five continuity launches, strict proof predates Create by 2,387,321–4,598,309 slots (781,664–1,637,663 seconds). Current theoretical continuity detection occurs at Create; the first operation-filtered buy is the next transaction in that same slot (tx-index delta +1). The median causal entry remains 30.15728741334000141131099353 SOL FDV; median first-second peak is 164.5215176847536240221517378 SOL FDV. Historical Flex receipt/classification timing is not reconstructable and creator-continuity was introduced later, so this is causal availability, not historical live execution proof.",
+    "next_action": "MEASURE_PUMPPORTAL_BIRTH_TO_SUBMISSION_LATENCY; model real receipt, signal, construction and send latency before claiming executable opportunity."
+  },
   "latest_5_buyer_overlap_repeated_wallet_census": {
     "engineering_revision": "ef02cad7066d36cdb0a63adc24511792acd1c219",
     "tests": "read-only retained-artifact extraction and SQLite census; no test or source execution",

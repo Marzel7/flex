@@ -58,26 +58,29 @@ def creation_context(transaction: Mapping[str, Any], *, mint: str) -> dict[str, 
             "creation_slot": transaction["slot"]}
 
 
+def _actions_from_item(item: Mapping[str, Any], *, mint: str, slot: int, transaction_index: int | None) -> list[dict[str, Any]]:
+    if (item.get("meta") or {}).get("err") is not None:
+        return []
+    message = (item.get("transaction") or {}).get("message") or {}
+    signatures = message.get("signatures") or []
+    result=[]
+    for action_index, line in enumerate((item.get("meta") or {}).get("logMessages") or []):
+        if not isinstance(line,str) or not line.startswith("Program data: "): continue
+        try: event=decode_trade_event(base64.b64decode(line.split(": ",1)[1]))
+        except Exception: event=None
+        if event and event["mint"]==mint:
+            event.update({"slot":slot,"transaction_index":transaction_index,"action_index":action_index,"signature":signatures[0] if signatures else None}); result.append(event)
+    return result
+
+def actions_from_transaction(transaction: Mapping[str, Any], *, mint: str, slot: int) -> list[dict[str, Any]]:
+    """Single getTransaction envelope; transaction index is intentionally None."""
+    return _actions_from_item(transaction.get("result",transaction),mint=mint,slot=slot,transaction_index=None)
+
 def actions_from_block(block: Mapping[str, Any], *, mint: str, slot: int) -> list[dict[str, Any]]:
     """Extract only successful target TradeEvents, preserving tx/log order."""
     result = block.get("result", block)
     transactions = result.get("transactions", []) if isinstance(result, Mapping) else []
     actions: list[dict[str, Any]] = []
     for tx_index, item in enumerate(transactions):
-        if not isinstance(item, Mapping) or (item.get("meta") or {}).get("err") is not None:
-            continue
-        message = (item.get("transaction") or {}).get("message") or {}
-        signatures = message.get("signatures") or []
-        signature = signatures[0] if signatures else None
-        for action_index, line in enumerate((item.get("meta") or {}).get("logMessages") or []):
-            if not isinstance(line, str) or not line.startswith("Program data: "):
-                continue
-            try:
-                event = decode_trade_event(base64.b64decode(line.split(": ", 1)[1]))
-            except Exception:
-                event = None
-            if event and event["mint"] == mint:
-                event.update({"slot": slot, "transaction_index": tx_index,
-                              "action_index": action_index, "signature": signature})
-                actions.append(event)
+        if isinstance(item,Mapping): actions.extend(_actions_from_item(item,mint=mint,slot=slot,transaction_index=tx_index))
     return actions

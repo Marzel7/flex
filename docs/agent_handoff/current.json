@@ -14643,6 +14643,20 @@
     "decision": "MORE_SYSTEM_BIRTH_AUTHORITY_TRACE_REQUIRED",
     "next_action": "Do not adapt opening replay from token_analysis.created_at. Before implementation, obtain a retained per-mint canonical Create projection with validated signature/slot and provenance for the target cohort, or explicitly authorize a separately bounded exact-signature validation/acquisition path."
   },
+  "detailed_birth_and_alchemy_opening_replay": {
+    "status": "PARTIAL",
+    "verdict": "DETAILED_BIRTH_PLUS_ALCHEMY_OPENING_REPLAY_PARTIAL",
+    "engineering_revision": "0ad0aba2d6be93cc26b68abec9e8ac874b69ea9a",
+    "scope": "Read-only detailed-birth/Alchemy capability census. No provider calls, source edits, database/schema writes, membership writes, listener or Walkback changes.",
+    "detailed_capture": "The only newer raw create capture discovered is src/core/pumpportal_birth_audit.py::PumpPortalBirthAudit, called from PumpFunCurveListener.listen_pumpportal_websocket. It writes content-addressed JSON to database/evidence_platform/production/pumpportal_birth_evidence. The Evidence database has zero envelopes, artifacts, normalized records, or primitive observations, so it supplies no alternate detailed historic launch source.",
+    "schema": "67,594 PumpPortal records; envelope fields mint, creator, signature, bonding_curve, receive/parser timestamps, market_cap_sol, virtual_sol_reserves, raw payload and SHA-256. Raw payload can include initialBuy, pool, vTokensInBondingCurve, tokensInPool and solInPool, but does not retain creation slot, validated Create/CreateV2 type, associated bonding curve, supply, decimals, or canonical transaction digest.",
+    "cohort": "Current Byzantine recent-12 exact-mint scan: 0/12 PumpPortal records. Thus creation signature/slot/curve/supply/decimals from the detailed store are all 0/12 and no retrospective opening replay can start from this store for the cohort.",
+    "alchemy": "Retained audit evidence proves historical getAccountInfo(account, {encoding: base64, slot: exact_slot}) for the Byzantine reference with returned context slot equal to requested slot. It does not prove configured Alchemy getBlock/getTransaction capability, and no live probe was appropriate because detailed birth lacks creation slots. Watchtower archive evidence is explicitly end-of-creation-slot/post-buy, not generic pre-buy state.",
+    "reference_boundary": "The two references remain replay-qualified only through their dedicated retained audit fixtures, not through the discovered current detailed-birth store. Their fixture parity cannot establish that detailed-birth plus Alchemy is sufficient for a new cohort.",
+    "validation": "16 provider-free tests passed: pumpfun opening impulse, operation launch valuation Stage 0, and PumpPortal birth audit.",
+    "decision": "DETAILED_BIRTH_INSUFFICIENT_FOR_OPENING_REPLAY",
+    "next_action": "MORE_DETAILED_BIRTH_EVIDENCE_REQUIRED: locate or create, prospectively and separately authorized, a durable per-mint canonical Create projection containing validated signature, slot, Create type, curve accounts, supply/decimals and raw provenance before implementing any Alchemy opening-block pipeline."
+  },
   "updated_at": "2026-09-04T20:00:00Z",
   "updated_at_utc": "2026-09-04T20:00:00Z",
   "updated_by": "agent_local",

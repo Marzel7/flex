@@ -14799,6 +14799,16 @@
     "safety": "Read-only local database/filesystem census; DB writes=0, membership writes=0, provider/GMGN calls=0, schema/table/listener/Walkback changes=0, no source commit.",
     "next_action": "RECOVER_HISTORICAL_OPENING_ANCHORS under a separately authorized bounded evidence-recovery milestone."
   },
+  "byzantine_rich_birth_opening_tranche": {
+    "status": "PARTIAL",
+    "verdict": "BYZANTINE_RICH_BIRTH_OPENING_TRANCHE_PARTIAL",
+    "engineering_revision": "830fc0e1",
+    "result": "Added the isolated, provider-agnostic TradeEvent prefix decoder in src/ops/birth_anchored_opening_acquisition.py. It decodes the retained official-IDL event prefix needed by pumpfun_opening_impulse and passes retained Watchtower parity; focused tests 4 passed including the promoted replay fixture tests.",
+    "call_shape": "A birth transaction alone supplies the validated creation slot/context but does not supply the Byzantine next-slot opening stream. The bounded maximum is getTransaction(birth_signature) then, for creation-only launches, getBlock(creation_slot+1): Helius tx max=1, Helius block max=1, total Helius max=2. Alchemy archive max=1, but is only required when decoded post-action reserve continuity is insufficient; it is not automatic when the block stream is mathematically complete. No pagination, address-history search, window expansion, or real provider call occurred.",
+    "blocker": "No existing bounded executor combines the exact provider calls with mandatory file-only raw-response retention before decoding/replay. The new decoder intentionally does not perform network I/O. Running the five-token pilot through ad-hoc calls would violate the retained-evidence requirement.",
+    "safety": "No DB writes, membership/token-analysis/listener/Walkback changes, schema/table changes, GMGN calls, or provider calls. The commit was created with an alternate index and includes only the decoder and its direct test.",
+    "next_action": "REPAIR_BIRTH_ANCHORED_OPENING_ACQUISITION: implement a narrow sequential retained-response executor, prove fixture parity through it, then run the authorized five-token pilot before any expansion."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

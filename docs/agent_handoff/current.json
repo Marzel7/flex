@@ -14847,6 +14847,19 @@
     "safety": "No provider/GMGN calls, DB or membership writes, source changes, schema changes, or remaining-43 opening expansion.",
     "next_action": "REPAIR_BYZANTINE_V2_MIGRATION_ELIGIBILITY only under separate explicit authorization."
   },
+  "byzantine_historical_usd_validation": {
+    "status": "COMPLETE",
+    "verdict": "BYZANTINE_HISTORICAL_USD_VALIDATION_COMPLETE",
+    "engineering_revision": "52ced16f2a355a4823e6edf02a86d9cf75c2f409",
+    "scope": "Bounded historical SOL/USD conversion for exactly five retained canonical Byzantine opening-entry block times on 2026-09-04; no opening replay change or cohort expansion.",
+    "provider": "CoinGecko market_chart/range SOL/USD; documented auto-granularity for a non-current one-day range is hourly. Selection rule: latest provider price point at or before retained entry blockTime.",
+    "retention": "Immutable file-only ArtifactStore records: raw primary response dd44d5e5ccad2f2fba40ec52513a62055badc4d68ffdffa0e42053ea1227c68d; bounded preceding response 361aa5d29dc95492ca21056f7de5f256f7daf216ab430b2b35297ad6dddf6232; derived five-row conversion 05ef0a011c4c3fae4b6af96270c6d3c7562258c6f4279223a5775c5ca70e43e8, under database/evidence_platform/production/byzantine_historical_sol_usd_artifacts_v1.",
+    "results": "Entry SOL/USD and entry MC USD: 4ZXX=101.70927452287218 / 16386.995252136059; zRo=101.70927452287218 / 15985.976788975912; FqXi=101.55862536941393 / 16311.134730456196; 3jW=104.09750745814806 / 16249.192071453817; G5v=104.33797668682047 / 16274.068973835568.",
+    "3jw_validation": "3jW retained entry is 2026-09-04T11:08:27Z; selected 11:00:00Z SOL/USD point has a 507-second offset. $16,249.19 versus owner manual GMGN approximately $13,000 is +$3,249.19 / +24.9938%; $13,000 would imply $83.2821/SOL. Classification=RESIDUAL_3JW_MC_DISCREPANCY, not a SOL/USD explanation; not within 5% or 10%.",
+    "product_rule": "HISTORICAL_USD_MC = CHAIN_NATIVE_MC_SOL × SOL_USD_AT_EVENT_TIME. Retain MC_SOL, MC_USD, SOL_USD, SOL_USD_TIMESTAMP, SOL_USD_PROVIDER, and SOL_USD_ARTIFACT_DIGEST; never replace the chain-native SOL result retroactively.",
+    "safety": "Exactly two bounded public historical price HTTP requests; no Helius, Alchemy, GMGN, opening replay/source change, DB write, membership write, schema/table change, service restart, or engineering commit.",
+    "next_action": "REVIEW_3JW_MARKET_CAP_DISCREPANCY before expanding canonical Byzantine opening analysis."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

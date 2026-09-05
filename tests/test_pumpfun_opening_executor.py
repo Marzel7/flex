@@ -49,6 +49,7 @@ def context(monkeypatch):
 def _stub_replay(monkeypatch):
     monkeypatch.setattr(executor, "reconstruct_opening_impulse", lambda **kwargs: SimpleNamespace(
         first_independent_buy_mc_sol=1, opening_slot_peak_mc_sol=1, opening_slot_end_mc_sol=1,
+        opening_slot_trade_count=len(kwargs["actions"]),
     ))
 
 
@@ -88,6 +89,7 @@ def test_multiblock_ordering_later_buy_metrics_separate_and_early_stop(tmp_path,
     })
     assert result["status"] == "QUALIFIED"
     assert result["first_1s_start_slot"] == 11 and result["first_1s_end_slot"] == 14
+    assert result["creation_slot"] == 10 and result["opening_trading_slot"] == 11
     assert result["calls"]["helius_get_block"] == 4 and result["early_stop_used"]
     assert float(result["first_1s_peak_mc"]) > float(result["opening_slot_peak_mc"])
 
@@ -106,11 +108,37 @@ def test_creation_slot_independent_buy_uses_no_block_for_opening(tmp_path, monke
     assert result["status"] == "QUALIFIED" and result["calls"]["helius_get_block"] == 3
 
 
-def test_empty_intermediate_slots_fail_closed_without_bad_replay(tmp_path, monkeypatch, context):
+def test_empty_intermediate_slots_before_opening_are_allowed(tmp_path, monkeypatch, context):
     result = run(tmp_path, monkeypatch, block_actions={13: [action(13, 0, 0, buyer="outside")],
                  14: [action(14, 0, 0)], 15: [action(15, 0, 0)], 16: [action(16, 0, 0)]})
-    assert result["status"] == "INSUFFICIENT_EVIDENCE_BOUND_EXHAUSTED"
-    assert result["reason"] == "NO_OPENING_SLOT_ACTIONS"
+    assert result["status"] == "QUALIFIED"
+    assert result["creation_slot"] == 10 and result["opening_trading_slot"] == 13
+    assert result["first_1s_start_slot"] == 13
+
+
+def test_creator_opening_trade_then_later_independent_buy(tmp_path, monkeypatch, context):
+    result = run(tmp_path, monkeypatch, block_actions={
+        13: [action(13, 0, 0, buyer="creator")], 14: [action(14, 0, 0, buyer="outside")],
+        15: [action(15, 0, 0)], 16: [action(16, 0, 0)], 17: [action(17, 0, 0)],
+    })
+    assert result["status"] == "QUALIFIED"
+    assert result["opening_trading_slot"] == 13 and result["first_1s_start_slot"] == 14
+    assert result["first_independent_buyer"] == "outside"
+
+
+def test_pilot_shape_delayed_opening_slot_is_not_rejected(tmp_path, monkeypatch, context):
+    # Sanitized form of the real pilot: create=443645220, no target trade +1/+2, first target buy +3.
+    monkeypatch.setattr(executor, "creation_context", lambda transaction, mint: {
+        "creation_slot": 443645220, "creator": "creator", "bonding_curve": "curve",
+    })
+    result = run(tmp_path, monkeypatch, block_actions={
+        443645223: [action(443645223, 1025, 0, buyer="outside")],
+        443645224: [action(443645224, 323, 0)], 443645225: [action(443645225, 0, 0)],
+        443645226: [action(443645226, 0, 0)],
+    })
+    assert result["status"] == "QUALIFIED"
+    assert result["opening_trading_slot"] == 443645223
+    assert result["calls"]["helius_get_block"] == 6
 
 
 def test_alchemy_zero_call_when_prestate_not_required(tmp_path, monkeypatch, context):

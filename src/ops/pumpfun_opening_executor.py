@@ -120,11 +120,14 @@ def execute_birth_anchored_opening_analysis(
 
     if not actions:
         return insufficient("NO_OPENING_ACTIONS")
-    opening = actions_from_transaction(transaction, mint=mint, slot=creation_slot)
-    if not opening:
-        opening = [action for action in actions if int(action["slot"]) == start_slot]
-    if not opening:
-        return insufficient("NO_OPENING_SLOT_ACTIONS")
+    # Creation and opening-trading are different facts.  Empty slots between a
+    # Pump.fun create and the first target trade are normal and consume only the
+    # already-fixed bounded search budget.
+    opening_trades = [action for action in actions if action["action_type"] in {"BUY", "SELL"}]
+    if not opening_trades:
+        return insufficient("NO_OPENING_TRADING_SLOT")
+    opening_trading_slot = int(opening_trades[0]["slot"])
+    opening = [action for action in opening_trades if int(action["slot"]) == opening_trading_slot]
     replay = reconstruct_opening_impulse(
         mint=mint, creation_signature=signature, creation_slot=creation_slot,
         creation_time=None, creator=context["creator"], bonding_curve=context["bonding_curve"],
@@ -134,6 +137,17 @@ def execute_birth_anchored_opening_analysis(
     )
     if independent is None:
         return insufficient("NO_INDEPENDENT_BUY")
+    first_buy = next(action for action in actions if action["action_type"] == "BUY")
+    first_independent_buy_mc = market_cap_sol(
+        virtual_sol_reserves=independent["post_virtual_sol_reserves"],
+        virtual_token_reserves=independent["post_virtual_token_reserves"],
+        supply_raw=PUMP_TOTAL_SUPPLY_RAW, decimals=PUMP_DECIMALS,
+    )
+    first_buy_mc = market_cap_sol(
+        virtual_sol_reserves=first_buy["post_virtual_sol_reserves"],
+        virtual_token_reserves=first_buy["post_virtual_token_reserves"],
+        supply_raw=PUMP_TOTAL_SUPPLY_RAW, decimals=PUMP_DECIMALS,
+    )
     horizon = int(independent["slot"]) + 3
     window = [action for action in actions if int(independent["slot"]) <= int(action["slot"]) <= horizon]
     market_caps = [market_cap_sol(
@@ -142,15 +156,20 @@ def execute_birth_anchored_opening_analysis(
         supply_raw=PUMP_TOTAL_SUPPLY_RAW, decimals=PUMP_DECIMALS,
     ) for action in window]
     result = {
+        "result_schema_version": 2,
+        "opening_slot_semantics": "FIRST_BOUNDED_SLOT_WITH_QUALIFYING_TARGET_TRADE",
         "status": "QUALIFIED", "operation_id": operation_id, "mint": mint,
-        "first_independent_buy_mc": str(replay.first_independent_buy_mc_sol),
+        "creation_slot": creation_slot, "opening_trading_slot": opening_trading_slot,
+        "first_buy_mc": str(first_buy_mc), "first_independent_buyer": independent["buyer"],
+        "first_independent_buy_mc": str(first_independent_buy_mc),
         "opening_slot_peak_mc": str(replay.opening_slot_peak_mc_sol),
         "opening_slot_end_mc": str(replay.opening_slot_end_mc_sol),
+        "opening_slot_trade_count": replay.opening_slot_trade_count,
         "first_1s_start_slot": int(independent["slot"]), "first_1s_end_slot": int(window[-1]["slot"]),
         "first_1s_timing_qualification": TIMING, "first_1s_trade_count": len(market_caps),
         "first_1s_peak_mc": str(max(market_caps)), "first_1s_low_mc": str(min(market_caps)),
         "first_1s_end_mc": str(market_caps[-1]),
-        "first_1s_multiple": str(max(market_caps) / replay.first_independent_buy_mc_sol),
+        "first_1s_multiple": str(max(market_caps) / first_independent_buy_mc),
         "calls": calls, "artifacts": artifacts,
         "early_stop_used": calls["helius_get_block"] < MAX_BLOCKS,
     }

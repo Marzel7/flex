@@ -14927,6 +14927,16 @@
     "blocker": "The exact accepted one-second interval token and whether chart_type=market_cap is supported must be established before more requests. Continuing by guessing would violate the frozen one-request-per-token contract.",
     "next_action": "TRACE_BIRDEYE_ACCEPTED_OHLCV_INTERVAL_AND_CHART_TYPE before any further token request."
   },
+  "birdeye_v3_opening_validation": {
+    "engineering_revision": "ef02cad7066d36cdb0a63adc24511792acd1c219",
+    "tests": "No source/test changes. Bounded external validation: 5 V3 requests, all raw responses retained before interpretation.",
+    "production_flags": "Birdeye calls=5: 3jW=200, 4ZXX=200, zRo/FqXi/G5v=429 and not retried; Helius/Alchemy/GMGN=0; DB/membership writes=0; no source change or service restart.",
+    "verdict": "PARTIAL_RATE_LIMITED",
+    "contract": "Correct endpoint /defi/v3/ohlcv with x-chain=solana, type=1s, currency=usd, chart_type=mcap, mode=range, narrow unix window, padding=false and outlier=false. V3 success responses explicitly return type=1s and currency=usd; mcap values are direct chart values.",
+    "finding": "3jW first returned candle at 1788520107: open/low 2354.9040405571877, high/close 13057.799013545746 USD. 4ZXX first returned candle at 1788553350: open/low 2375.214079043157, high/close 13137.195193466012 USD. This independently confirms the rapid roughly $2.35k-to-$13.1k opening expansion, including the owner-observed $12k-$13k region for 3jW.",
+    "limitation": "The direct Birdeye mcap highs are materially below the full 1B-supply reserve-spot v3 first-second peaks; prior audit records an approximately-80%-supply display-denominator explanation as plausible but not proven. Do not freeze the formula or expand across Operations from this partial validation.",
+    "next_action": "REVIEW_BIRDEYE_ALIGNMENT_DIFFERENCES; a new authorized validation attempt must use a renewed rate-limit budget, not automatic retry."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

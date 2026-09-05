@@ -14739,6 +14739,16 @@
     "decision": "KEEP_CURRENT_INFRASTRUCTURE_ONLY_CLASSIFICATION",
     "next_action": "Do not implement a role-aware admission expansion from this evidence. Any future admission change needs a separately qualified canonical sample with the full strict detector proof, not the UI projection."
   },
+  "zro_byzantine_lineage_evidence_audit": {
+    "status": "COMPLETE",
+    "verdict": "ZRO_BYZANTINE_LINEAGE_EVIDENCE_AUDIT_COMPLETE",
+    "engineering_revision": "0ad0aba2d6be93cc26b68abec9e8ac874b69ea9a",
+    "scope": "Read-only local evidence audit for zRoYAdLYogsS491qazGakt2BDvgjMMiE8xQWpSVpump; zero source/database/membership/Walkback writes and zero provider calls.",
+    "zro": "Creator EiwpFhN3LmoSTEbygYnpweUJDaHNfXX3Uho2PGRVPmr3. Its mint-scoped records contain exactly two direct role projections: Df8CJ...→ByZc7... PLAIN_XFER 4,829,795,402 lamports (selected, signature 5bM4ot...) and DzT1...→ByZc7... PLAIN_XFER 19,187,977,731 lamports (alternative, signature 63Sp4...). No atomic flow, funding boundary, farm-launch evidence, or retained raw payload is associated with zRo or these signatures.",
+    "creator_history": "One direct ByZc→Eiw canonical candidate exists in the retained DB, but it belongs to J59LUFm5eG6ABGFmiDsqXS8ANrRMtgigeB5Bpvnkpump: signature 3qN6iV..., block time 1786980426, selected hop-1 WSOL_WRAP_CLOSE, 9,999,985,000 lamports, full createAccount/initializeAccount/syncNative/closeAccount flow. J59 is a canonical Byzantine member; its birth occurred on 17 Aug. zRo was born on 4 Sep, so the prior J59 funding event is not a temporally plausible zRo activation and cannot be reused across mints.",
+    "decision": "PARTIAL_BYZANTINE_LINEAGE_ONLY: known Df8/ByZc infrastructure plus the creator's earlier canonical J59 record, but no zRo-specific ByZc→creator transaction/edge/atomic evidence. There is no edge-selection or atomic-derivation loss for zRo; the missing transaction signature is not known, so one bounded provider lookup is not qualified.",
+    "next_action": "KEEP_INFRASTRUCTURE_ONLY_CLASSIFICATION. Do not weaken canonical admission or reuse historical creator provisioning for a later launch."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

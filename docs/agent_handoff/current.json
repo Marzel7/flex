@@ -14886,6 +14886,18 @@
     "safety": "Read-only retained-evidence analysis; provider calls=0, GMGN/Birdeye API calls=0, DB writes=0, membership writes=0, opening-replay changes=0, source changes=0.",
     "next_action": "REVIEW_BIRDEYE_MARKET_CAP_DENOMINATOR or obtain separately authorized, timestamp-qualified Birdeye evidence; no cohort expansion."
   },
+  "byzantine_pre_independent_action_gap_recovery": {
+    "status": "PARTIAL",
+    "verdict": "PRE_INDEPENDENT_OPENING_GAP_PARTIAL",
+    "engineering_revision": "52ced16f2a355a4823e6edf02a86d9cf75c2f409",
+    "gap_proof": "All five have an explicit 30-SOL / 1,073,000,000-token PumpPortal birth anchor but first retained action pre-states of 70.660219377-71.966762954 virtual SOL. Missing pre-action curve deltas are 4ZXX=41.966762954 SOL / 552,710,186.109898 UI tokens, zRo=40.931976224 / 546,184,926.456473, FqXi=41.655615923 / 550,767,939.203888, 3jW=40.705304471 / 544,730,056.042538, G5v=40.660219377 / 544,439,568.847104.",
+    "retained_scan": "Every retained target-curve-touching transaction was inspected, including outer instructions, inner instructions, logs, Program data, and errors. Counts: 4ZXX 15 touches/13 decoded/2 undecoded; zRo 25/21/4; FqXi 12/10/2; 3jW 15/9/6; G5v 27/20/7. All 17 undecoded touches are failed transactions (no Program data / no qualifying state change); successful-undecoded target curve touches=0.",
+    "decoder_verdict": "No missed successful Pump.fun instruction/event variant was found. Retained successful events already cover Buy, BuyExactSolIn, BuyV2, BuyExactQuoteInV2, Sell, Route and ancillary variants. DECODER_REPAIR_REQUIRED=NO.",
+    "missing_scope": "The executor retained the exact create transaction but did not retain getBlock(creation_slot) when that transaction itself had no TradeEvent; it began block acquisition at creation_slot+1. Missing evidence scope is the rest of each creation slot after the create transaction: 4ZXX slot 444335222; zRo 444333372; FqXi 444262001; 3jW 444229984; G5v 444215363. This is the only local evidence boundary consistent with the discontinuity; no interpolation was used.",
+    "continuity": "MISSING_ACTIONS_RECOVERED=0; CURVE_CONTINUITY_RESTORED=NO; 3jW Birdeye-region states cannot be recovered from current artifacts. A bounded future acquisition would need exactly one creation-slot block per token, subject to a separately qualified provider authorization and the existing retention/call-budget contract.",
+    "safety": "Read-only retained-artifact inspection; provider calls=0, GMGN/Birdeye calls=0, DB writes=0, membership writes=0, opening-replay/source changes=0.",
+    "next_action": "QUALIFY_BOUNDED_PRE_INDEPENDENT_BLOCK_ACQUISITION before any decoder repair or product-metric change."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

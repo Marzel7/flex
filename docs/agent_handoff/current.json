@@ -14898,6 +14898,16 @@
     "safety": "Read-only retained-artifact inspection; provider calls=0, GMGN/Birdeye calls=0, DB writes=0, membership writes=0, opening-replay/source changes=0.",
     "next_action": "QUALIFY_BOUNDED_PRE_INDEPENDENT_BLOCK_ACQUISITION before any decoder repair or product-metric change."
   },
+  "creation_slot_block_opening_replay_repair": {
+    "engineering_revision": "ef02cad7",
+    "tests": "26 passed: tests/test_pumpfun_opening_executor.py, tests/test_birth_anchored_opening_acquisition.py, tests/test_pumpfun_opening_impulse.py; provider calls during tests=0",
+    "production_flags": "no provider/RPC calls, no DB/schema/membership writes, no service restart, no live latest-five refetch",
+    "verdict": "COMPLETE",
+    "implementation": "The executor now always retains and verifies getBlock(creation_slot) as block one of the fixed eight-block budget, finds the exact create transaction index by signature, admits only target actions in later transactions from that block, deduplicates block actions, and starts the remaining seven-slot successor window after it.",
+    "evidence_version": "Qualified results use result_schema_version=3 and opening_evidence_version=creation-slot-block.v3; prior v2 result artifacts remain immutable and coexist.",
+    "validation": "Provider-free fixtures prove pre-create actions excluded, post-create actions included, no transaction/block double count, block retention before decode/next request, max getBlock=8 and total provider calls<=10, plus sanitized 3jW and zRo creation-slot shapes.",
+    "next_action": "RERUN_LATEST_5_WITH_CREATION_SLOT_BLOCK only under separate live provider authorization."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

@@ -14786,6 +14786,19 @@
     "safety": "No direct SQL membership insertion, provider calls, schema/table changes, service restart, source edit, engineering commit, or engineering remote push. The normal writer remained idempotent and each replay item was handled independently; no global write transaction was used.",
     "next_action": "BUILD_BYZANTINE_PRICE_BEHAVIOUR_COHORT under a separately authorized product/evidence milestone."
   },
+  "byzantine_price_behaviour_cohort": {
+    "status": "PARTIAL",
+    "verdict": "BYZANTINE_PRICE_BEHAVIOUR_COHORT_PARTIAL",
+    "engineering_revision": "f4ed9d8c75efdd0af5660da2304489b3d66415d7",
+    "cohort": "Read-only deterministic Byzantine price-behaviour cohort v1: operation d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334, 247 canonical members, 36 STRICT_LAUNCH_ACTIVATION and 211 PROVEN_CREATOR_CONTINUITY. Cohort ID=BYZANTINE_PRICE_BEHAVIOUR_V1_9be0068a73394ad6; SHA-256=9be0068a73394ad65cc1af9d83dbde1485bc48b4cbc13f71f370bad7234ece6b.",
+    "birth_coverage": "All 247 have retained core creator, birth-time, and claimed creation-signature fields; 145 have a core bonding-curve field. Rich immutable PumpPortal birth evidence covers 48/247, all PROVEN_CREATOR_CONTINUITY (48/211) and none of the 36 strict members. Those 48 are 2026-09-02 through 2026-09-05 retained txType=create records, each with mint/signature/creator/raw payload and virtual reserve evidence, but none retain creation slot, associated curve, supply, decimals, or ordered opening actions.",
+    "readiness": "OPENING_LOCAL_COMPLETE=0; OPENING_ANCHOR_PRESENT_NEEDS_BOTH=48; OPENING_HISTORICAL_ANCHOR_MISSING=199; all other opening readiness classes=0. Provider-class maximum for each of the 48 anchored records is one Helius exact-transaction/block attempt plus one Alchemy archive-state attempt; cohort maximum=48 Helius and 48 Alchemy calls. No provider acquisition was run.",
+    "reference_assets": "No current canonical 247 member has a retained qualified opening-impulse result. The known Byzantine 3dgG...pump and Watchtower BuY3...pump reference results remain external reference artifacts, not current Byzantine cohort members.",
+    "zro": "zRoYAdLYogsS491qazGakt2BDvgjMMiE8xQWpSVpump is included as PROVEN_CREATOR_CONTINUITY and has rich PumpPortal create evidence; its opening readiness is OPENING_ANCHOR_PRESENT_NEEDS_BOTH.",
+    "decision": "No route-balanced first execution tranche is qualified: strict rich-birth coverage is 0/36. Recover historical strict-route opening anchors before bounded acquisition; do not use the 48 continuity-only records as a comparison cohort.",
+    "safety": "Read-only local database/filesystem census; DB writes=0, membership writes=0, provider/GMGN calls=0, schema/table/listener/Walkback changes=0, no source commit.",
+    "next_action": "RECOVER_HISTORICAL_OPENING_ANCHORS under a separately authorized bounded evidence-recovery milestone."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

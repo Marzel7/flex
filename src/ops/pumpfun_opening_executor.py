@@ -12,7 +12,7 @@ from typing import Any, Mapping
 
 from src.ops.birth_anchored_opening_acquisition import (
     PUMP_DECIMALS, PUMP_TOTAL_SUPPLY_RAW, actions_from_block,
-    actions_from_transaction, creation_context,
+    creation_context,
 )
 from src.ops.pumpfun_opening_impulse import market_cap_sol, reconstruct_opening_impulse
 
@@ -35,6 +35,32 @@ def _order_key(action: Mapping[str, Any]) -> tuple[int, int, int]:
     transaction_index = action.get("transaction_index")
     return (int(action["slot"]), -1 if transaction_index is None else int(transaction_index),
             int(action["action_index"]))
+
+
+def _transaction_signature(item: Mapping[str, Any]) -> str | None:
+    transaction = item.get("transaction") or {}
+    signatures = transaction.get("signatures") or []
+    return str(signatures[0]) if signatures else None
+
+
+def _creation_tx_index(block: Mapping[str, Any], signature: str) -> int | None:
+    result = block.get("result", block)
+    transactions = result.get("transactions") if isinstance(result, Mapping) else None
+    if not isinstance(transactions, list):
+        return None
+    for index, item in enumerate(transactions):
+        if isinstance(item, Mapping) and _transaction_signature(item) == signature:
+            return index
+    return None
+
+
+def _action_identity(action: Mapping[str, Any]) -> tuple[int, int, int, str | None]:
+    return (
+        int(action["slot"]),
+        -1 if action.get("transaction_index") is None else int(action["transaction_index"]),
+        int(action["action_index"]),
+        str(action["signature"]) if action.get("signature") is not None else None,
+    )
 
 
 def execute_birth_anchored_opening_analysis(
@@ -101,16 +127,34 @@ def execute_birth_anchored_opening_analysis(
             return insufficient("ARCHIVE_PRESTATE_UNAVAILABLE")
 
     creation_slot = int(context["creation_slot"])
-    actions = actions_from_transaction(transaction, mint=mint, slot=creation_slot)
-    start_slot = creation_slot if actions else creation_slot + 1
+    # The exact create transaction establishes identity only.  Trading may begin
+    # in later transactions in the *same* slot, so the creation-slot block is
+    # always block one of the fixed MAX_BLOCKS budget.
+    actions: list[Mapping[str, Any]] = []
+    action_identities: set[tuple[int, int, int, str | None]] = set()
+    create_tx_index: int | None = None
     independent: Mapping[str, Any] | None = None
-    for slot in range(start_slot, start_slot + MAX_BLOCKS):
-        if slot != creation_slot or not actions:
-            calls["helius_get_block"] += 1
-            block = helius.get_block(slot)
-            # Retention completes before decoding this block or requesting N+1.
-            retain("helius", "getBlock", {"slot": slot}, block)
-            actions.extend(actions_from_block(block, mint=mint, slot=slot))
+    for slot in range(creation_slot, creation_slot + MAX_BLOCKS):
+        calls["helius_get_block"] += 1
+        block = helius.get_block(slot)
+        # Retention completes before decoding this block or requesting N+1.
+        retain("helius", "getBlock", {"slot": slot}, block)
+        decoded = actions_from_block(block, mint=mint, slot=slot)
+        if slot == creation_slot:
+            create_tx_index = _creation_tx_index(block, signature)
+            if create_tx_index is None:
+                return insufficient("CREATE_TRANSACTION_NOT_IN_CREATION_BLOCK")
+            # Actions in earlier slot transactions predate the exact create and
+            # cannot describe this launch.  The create transaction itself was
+            # already inspected through getTransaction; only later transactions
+            # contribute here.
+            decoded = [action for action in decoded
+                       if int(action.get("transaction_index", -1)) > create_tx_index]
+        for action in decoded:
+            identity = _action_identity(action)
+            if identity not in action_identities:
+                action_identities.add(identity)
+                actions.append(action)
         actions.sort(key=_order_key)
         independent = next((action for action in actions if action["action_type"] == "BUY"
                             and action["buyer"] != context["creator"]), None)
@@ -156,10 +200,12 @@ def execute_birth_anchored_opening_analysis(
         supply_raw=PUMP_TOTAL_SUPPLY_RAW, decimals=PUMP_DECIMALS,
     ) for action in window]
     result = {
-        "result_schema_version": 2,
+        "result_schema_version": 3,
+        "opening_evidence_version": "creation-slot-block.v3",
         "opening_slot_semantics": "FIRST_BOUNDED_SLOT_WITH_QUALIFYING_TARGET_TRADE",
         "status": "QUALIFIED", "operation_id": operation_id, "mint": mint,
-        "creation_slot": creation_slot, "opening_trading_slot": opening_trading_slot,
+        "creation_slot": creation_slot, "create_tx_index_in_creation_block": create_tx_index,
+        "creation_slot_block_included": True, "opening_trading_slot": opening_trading_slot,
         "first_buy_mc": str(first_buy_mc), "first_independent_buyer": independent["buyer"],
         "first_independent_buy_mc": str(first_independent_buy_mc),
         "opening_slot_peak_mc": str(replay.opening_slot_peak_mc_sol),

@@ -16,11 +16,20 @@ def action(slot, tx_index, action_index, *, buyer="buyer", reserve=35_000_000_00
 
 
 class Helius:
-    def __init__(self): self.calls = []
+    def __init__(self, *, creation_slot=10, creation_signatures=("birth",)):
+        self.calls = []
+        self.creation_slot = creation_slot
+        self.creation_signatures = creation_signatures
     def get_transaction(self, signature):
         self.calls.append(("transaction", signature)); return {"result": {"slot": 10}}
     def get_block(self, slot):
-        self.calls.append(("block", slot)); return {"result": {}}
+        self.calls.append(("block", slot))
+        if slot == self.creation_slot:
+            return {"result": {"transactions": [
+                {"transaction": {"signatures": [signature]}}
+                for signature in self.creation_signatures
+            ]}}
+        return {"result": {"transactions": []}}
 
 
 class Alchemy:
@@ -53,8 +62,7 @@ def _stub_replay(monkeypatch):
     ))
 
 
-def run(tmp_path, monkeypatch, *, block_actions, transaction_actions=(), store=None, alchemy=None, helius=None):
-    monkeypatch.setattr(executor, "actions_from_transaction", lambda *args, **kwargs: list(transaction_actions))
+def run(tmp_path, monkeypatch, *, block_actions, store=None, alchemy=None, helius=None):
     monkeypatch.setattr(executor, "actions_from_block", lambda block, *, mint, slot: list(block_actions.get(slot, ())))
     _stub_replay(monkeypatch)
     return executor.execute_birth_anchored_opening_analysis(
@@ -90,7 +98,7 @@ def test_multiblock_ordering_later_buy_metrics_separate_and_early_stop(tmp_path,
     assert result["status"] == "QUALIFIED"
     assert result["first_1s_start_slot"] == 11 and result["first_1s_end_slot"] == 14
     assert result["creation_slot"] == 10 and result["opening_trading_slot"] == 11
-    assert result["calls"]["helius_get_block"] == 4 and result["early_stop_used"]
+    assert result["calls"]["helius_get_block"] == 5 and result["early_stop_used"]
     assert float(result["first_1s_peak_mc"]) > float(result["opening_slot_peak_mc"])
 
 
@@ -102,10 +110,79 @@ def test_global_order_key_is_slot_then_transaction_then_action():
     ]
 
 
-def test_creation_slot_independent_buy_uses_no_block_for_opening(tmp_path, monkeypatch, context):
-    result = run(tmp_path, monkeypatch, transaction_actions=[action(10, None, 0, buyer="outside")],
-                 block_actions={11: [action(11, 0, 0)], 12: [action(12, 0, 0)], 13: [action(13, 0, 0)]})
-    assert result["status"] == "QUALIFIED" and result["calls"]["helius_get_block"] == 3
+def test_creation_slot_excludes_pre_create_actions_and_includes_post_create_actions(tmp_path, monkeypatch, context):
+    helius = Helius(creation_signatures=("pre-create", "birth", "post-creator", "post-independent"))
+    result = run(tmp_path, monkeypatch, helius=helius, block_actions={
+        10: [
+            action(10, 0, 0, buyer="outside", reserve=31_000_000_000),
+            action(10, 1, 0, buyer="outside", reserve=32_000_000_000),
+            action(10, 2, 0, buyer="creator", reserve=33_000_000_000),
+            action(10, 3, 0, buyer="outside", reserve=34_000_000_000),
+        ],
+        11: [action(11, 0, 0, reserve=35_000_000_000)],
+        12: [action(12, 0, 0, reserve=36_000_000_000)],
+        13: [action(13, 0, 0, reserve=37_000_000_000)],
+    })
+    assert result["status"] == "QUALIFIED"
+    assert result["create_tx_index_in_creation_block"] == 1
+    assert result["opening_trading_slot"] == 10
+    assert result["first_independent_buyer"] == "outside"
+    # The post-create independent buy is the one at index 3; indices 0/1 cannot leak in.
+    assert result["first_independent_buy_mc"] == str(executor.market_cap_sol(
+        virtual_sol_reserves=34_000_000_000,
+        virtual_token_reserves=900_000_000_000_000,
+        supply_raw=executor.PUMP_TOTAL_SUPPLY_RAW, decimals=executor.PUMP_DECIMALS,
+    ))
+
+
+def test_creation_slot_actions_are_not_double_counted_from_transaction_path(tmp_path, monkeypatch, context):
+    # The executor has deliberately no transaction-action extraction path: creation
+    # block actions are the single source for same-slot post-create activity.
+    assert not hasattr(executor, "actions_from_transaction")
+    result = run(tmp_path, monkeypatch, block_actions={
+        10: [action(10, 1, 0, buyer="outside")], 11: [action(11, 0, 0)],
+        12: [action(12, 0, 0)], 13: [action(13, 0, 0)],
+    })
+    assert result["first_1s_trade_count"] == 4
+
+
+@pytest.mark.parametrize(
+    ("mint", "creation_slot", "first_post_create_index"),
+    [
+        ("3jW73wn4skHyLMEDTZ5dzGzcF9C1YEbYuk9y61pUpump", 444229984, 12),
+        ("zRoYAdLYogsS491qazGakt2BDvgjMMiE8xQWpSVpump", 444333372, 11),
+    ],
+)
+def test_latest_byzantine_shapes_start_with_creation_slot_block(
+    tmp_path, monkeypatch, mint, creation_slot, first_post_create_index,
+):
+    """Sanitized retained shapes: a create has no trade, later same-slot actions may."""
+    monkeypatch.setattr(executor, "creation_context", lambda transaction, mint: {
+        "creation_slot": creation_slot, "creator": "creator", "bonding_curve": "curve",
+    })
+    helius = Helius(creation_slot=creation_slot, creation_signatures=("other", "birth", "later"))
+    result = run(tmp_path, monkeypatch, helius=helius, block_actions={
+        creation_slot: [
+            action(creation_slot, 0, 0, buyer="outside", reserve=30_000_000_000),
+            action(creation_slot, first_post_create_index, 0, buyer="outside", reserve=31_000_000_000),
+        ],
+        creation_slot + 1: [action(creation_slot + 1, 0, 0, reserve=32_000_000_000)],
+        creation_slot + 2: [action(creation_slot + 2, 0, 0, reserve=33_000_000_000)],
+        creation_slot + 3: [action(creation_slot + 3, 0, 0, reserve=34_000_000_000)],
+    })
+    assert result["status"] == "QUALIFIED"
+    assert result["creation_slot_block_included"] is True
+    assert result["opening_trading_slot"] == creation_slot
+
+
+def test_creation_slot_independent_buy_is_acquired_from_its_block(tmp_path, monkeypatch, context):
+    result = run(tmp_path, monkeypatch, block_actions={
+        10: [action(10, 1, 0, buyer="outside")], 11: [action(11, 0, 0)],
+        12: [action(12, 0, 0)], 13: [action(13, 0, 0)],
+    })
+    assert result["status"] == "QUALIFIED"
+    assert result["opening_trading_slot"] == 10
+    assert result["calls"]["helius_get_block"] == 4
 
 
 def test_empty_intermediate_slots_before_opening_are_allowed(tmp_path, monkeypatch, context):
@@ -131,14 +208,14 @@ def test_pilot_shape_delayed_opening_slot_is_not_rejected(tmp_path, monkeypatch,
     monkeypatch.setattr(executor, "creation_context", lambda transaction, mint: {
         "creation_slot": 443645220, "creator": "creator", "bonding_curve": "curve",
     })
-    result = run(tmp_path, monkeypatch, block_actions={
+    result = run(tmp_path, monkeypatch, helius=Helius(creation_slot=443645220), block_actions={
         443645223: [action(443645223, 1025, 0, buyer="outside")],
         443645224: [action(443645224, 323, 0)], 443645225: [action(443645225, 0, 0)],
         443645226: [action(443645226, 0, 0)],
     })
     assert result["status"] == "QUALIFIED"
     assert result["opening_trading_slot"] == 443645223
-    assert result["calls"]["helius_get_block"] == 6
+    assert result["calls"]["helius_get_block"] == 7
 
 
 def test_alchemy_zero_call_when_prestate_not_required(tmp_path, monkeypatch, context):
@@ -161,7 +238,6 @@ def test_alchemy_retention_failure_never_decodes_or_returns_qualified(tmp_path, 
     monkeypatch.setattr(executor, "creation_context", lambda transaction, mint: {
         "creation_slot": 10, "creator": "creator", "bonding_curve": "curve", "requires_archived_prestate": True,
     })
-    monkeypatch.setattr(executor, "actions_from_transaction", lambda *args, **kwargs: pytest.fail("decoded after archive retention failure"))
     with pytest.raises(OSError):
         executor.execute_birth_anchored_opening_analysis(operation_id="op", mint="mint", rich_birth={"signature": "birth"},
             helius=Helius(), alchemy=Alchemy(), artifact_store=RecordingStore(fail_at=fail_at))
@@ -184,17 +260,16 @@ def test_each_block_is_retained_before_decode_and_before_next_request(tmp_path, 
         def put(self, data, *, metadata=None):
             if metadata.get("method") == "getBlock": events.append(("retain", metadata["request"]["slot"]))
             return super().put(data, metadata=metadata)
-    monkeypatch.setattr(executor, "actions_from_transaction", lambda *args, **kwargs: [])
     monkeypatch.setattr(executor, "actions_from_block", lambda block, *, mint, slot: (events.append(("decode", slot)) or []))
     executor.execute_birth_anchored_opening_analysis(operation_id="op", mint="mint", rich_birth={"signature":"birth"},
         helius=OrderedHelius(), alchemy=None, artifact_store=OrderedStore())
-    assert events == [item for slot in range(11, 19) for item in (("request", slot), ("retain", slot), ("decode", slot))]
+    assert events == [item for slot in range(10, 18) for item in (("request", slot), ("retain", slot), ("decode", slot))]
 
 
 def test_result_retention_failure_prevents_qualified_return(tmp_path, monkeypatch, context):
-    # transaction (2) + four blocks (8); the result is the eleventh artifact.
+    # transaction (2) + creation block plus four successors (10); result is thirteenth.
     with pytest.raises(OSError):
-        run(tmp_path, monkeypatch, store=RecordingStore(fail_at=11), block_actions=qualified_blocks())
+        run(tmp_path, monkeypatch, store=RecordingStore(fail_at=13), block_actions=qualified_blocks())
 
 
 def test_call_budget_replay_identity_and_evidence_version_coexist(tmp_path, monkeypatch, context):

@@ -14860,6 +14860,19 @@
     "safety": "Exactly two bounded public historical price HTTP requests; no Helius, Alchemy, GMGN, opening replay/source change, DB write, membership write, schema/table change, service restart, or engineering commit.",
     "next_action": "REVIEW_3JW_MARKET_CAP_DISCREPANCY before expanding canonical Byzantine opening analysis."
   },
+  "byzantine_3jw_transaction_price_audit": {
+    "status": "PARTIAL",
+    "verdict": "3JW_MARKET_CAP_DISCREPANCY_PARTIAL",
+    "engineering_revision": "52ced16f2a355a4823e6edf02a86d9cf75c2f409",
+    "event_identity": "The replay entry is exactly the first retained target BUY: slot 444229985, tx index 36, log/action index 29, signature hg9696FG6MjTS1rVWZQWVRFmXf1VAPeTV8mRozHheNmqj2SPgWfXMJ1HZ2JZpnizQWAAYULABm8DGfRfn5btSfD, buyer EsbbJ9uk9KiT9XNkLt8p91PmeMC7khPsZHJBnXm3yHTX. It is independent of creator 5zSUPCnZvEmqafwndBSwrWZrdZAQQBXsBqaGjmiuNLqt.",
+    "trade_math": "TradeEvent supplies 0.180000000 SOL entering the curve for 1,156,073.040382 tokens. At 1,000,000,000 UI total supply, net execution MC=155.6995048864 SOL ($16,207.93 at retained $104.0975074581/SOL); post-trade reserve spot MC=156.0958803743 SOL ($16,249.19), a 0.2546% difference. Pre-trade reserve spot=155.3041341943 SOL ($16,166.77).",
+    "fees": "The Pump instruction's retained inner transfers show 0.180000000 SOL to the curve and three non-curve transfers totalling 0.002250000 SOL (0.000540000 + 0.000855000 + 0.000855000). Their protocol-versus-creator labels are not encoded in the retained event, so they are not guessed. Gross Pump-instruction spend=0.182250000 SOL, gross execution MC=157.6457486975 SOL ($16,410.53); separate transaction fee=0.000017029 SOL. A later 0.0015 SOL top-level transfer is outside the Pump instruction and excluded from trade price.",
+    "supply": "To make the retained net execution price equal $13,000 requires 802,076,496.03 UI supply (80.20765% of the 1,000,000,000 replay denominator); gross execution requires 792,174,317.07 UI supply (79.21743%). This makes an approximately-80%-supply display denominator plausible, but no GMGN behavior is asserted without GMGN evidence.",
+    "parity": "Post-reserve versus net-event execution differences for the other four retained latest-sample entries are 4ZXX=0.0686%, zRo=0.2785%, FqXi=0.3446%, G5v=0.2795%; 3jW=0.2546%. Thus reserve spot versus average trade execution is normal curve slope and not a 3jW-specific discrepancy.",
+    "product_implication": "For earliest realistic buyer economics, retain ACTUAL_EXECUTED_BUY_PRICE_IMPLIED_MC (gross Pump-instruction spend when complete) alongside POST_TRADE_CURVE_SPOT_MC; keep the reserve-derived metric separate. No production metric change was made.",
+    "safety": "Read-only retained-artifact audit; provider calls=0, GMGN calls=0, DB writes=0, membership writes=0, opening-replay changes=0, source changes=0.",
+    "next_action": "REVIEW_3JW_MANUAL_GMGN_ALIGNMENT; the approximate-80%-supply explanation is plausible but not independently proven as GMGN's display rule."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

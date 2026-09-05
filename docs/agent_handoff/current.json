@@ -14822,14 +14822,17 @@
     "next_action": "IMPLEMENT_DURABLE_MULTIBLOCK_OPENING_EXECUTOR through an alternate-index, exact-boundary commit; then run provider-free multiblock tests and reassess pilot readiness."
   },
   "durable_multiblock_opening_executor": {
-    "status": "COMPLETE",
-    "verdict": "DURABLE_MULTIBLOCK_OPENING_EXECUTOR_COMPLETE",
+    "status": "PARTIAL",
+    "verdict": "BYZANTINE_FIRST_SECOND_PILOT_PARTIAL",
     "engineering_revision": "b7f31853d80c88525894f95e40ef12216c164852",
     "implementation": "Added src/ops/pumpfun_opening_executor.py and a shared transaction/block TradeEvent extraction path. The executor makes at most one getTransaction, eight sequential getBlock calls, and one conditional getAccountInfo call; every raw response and provider-observation envelope is ArtifactStore.put+verify durable before decode or a subsequent request. It uses SLOT_BOUNDED_FIRST_1S_APPROXIMATION, keeps opening and first-second metrics separate, and fails closed on unavailable/undurable evidence.",
     "validation": "20 provider-free focused tests passed: 15 dedicated executor-contract tests plus 5 decoder/opening-replay regressions. They cover global ordering, later independent buy, fixed horizon early stop, null/empty slots, zero/one-call archive paths, archive retention failures, insufficient archive evidence, response ordering, result retention failure, call budget, idempotent logical replay identity, evidence variation coexistence, artifact secret exclusion, and transaction/block decoder parity.",
     "commit_scope": "src/ops/birth_anchored_opening_acquisition.py; src/ops/pumpfun_opening_executor.py; tests/test_birth_anchored_opening_acquisition.py; tests/test_pumpfun_opening_executor.py. Commit b7f31853 was built through an alternate temporary index; the contaminated real index was not changed.",
     "safety": "Provider calls=0; DB writes=0; membership writes=0; no schema/table/listener/Walkback/UI/GMGN change; no pilot execution; no engineering remote push.",
-    "next_action": "RUN_5_TOKEN_FIRST_SECOND_PILOT only under separately authorized bounded live-provider execution."
+    "pilot": "Authorized pilot began sequentially with H5EU6BVkNfzpfZ16TQXEfDvbPAPHep6so1WR2Z4fpump (canonical Byzantine PROVEN_CREATOR_CONTINUITY; rich birth digest=e1eab48f9d9a228486fa17024c79433ea8bd5313d8d3e7395107b40a832fb8b1). It made one Helius getTransaction and six sequential getBlock calls (slots 443645221 through 443645226), zero Alchemy calls, and durably retained raw-response plus observation artifacts for all seven responses. Local artifact inspection shows valid creation context at slot 443645220 but no target TradeEvent in the creation/first successor slots; first target BUY is in slot 443645223. The executor therefore cannot truthfully replay the required opening slot from this evidence. No final qualified result artifact was produced.",
+    "blocker": "The execution guard requires a stop/review after this first non-qualified pilot outcome before remaining tokens are acquired. No second token was requested. The captured runner output was unavailable after the first execution, so no unsupported exception classification is asserted; the durable artifacts establish the bounded calls and missing opening-slot evidence.",
+    "safety": "Provider calls so far: Helius=7, Alchemy=0, total=7. DB writes=0, membership writes=0, source changes=0, no service restart, no pilot scaling.",
+    "next_action": "REVIEW_PILOT_INSUFFICIENT_EVIDENCE (or explicitly reauthorize continuation after this first non-qualified pilot outcome)."
   },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",

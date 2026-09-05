@@ -1,4 +1,13 @@
 {
+  "pumpportal_birth_to_byzantine_signal_latency": {
+    "engineering_revision": "ef02cad7066d36cdb0a63adc24511792acd1c219",
+    "tests": "read-only source and retained-artifact trace; no provider or transaction calls",
+    "production_flags": "0 provider calls, 0 sendRawTransaction calls, 0 trades, 0 source/DB/membership changes",
+    "verdict": "PARTIAL",
+    "evidence": "Current birth path is PumpFunCurveListener.listen_pumpportal_websocket. It records PumpPortal payload timing through PumpPortalBirthAudit.record, extracts mint/creator directly from data['mint']/data['traderPublicKey'], updates local maps, then awaits _insert_bonding_curve_token and asynchronously starts _ensure_pf_ws_creator. There is no Byzantine creator-continuity lookup, no non-canonical signal emission, no Pump.fun buy transaction builder, signer, blockhash strategy, or send path on this listener route.",
+    "blocker": "The requested T3–T10 path does not exist in current production code. Benchmarking synthetic transaction construction/signing would not be an actual production path, and current birth handling includes SQLite persistence before any future signal could be inserted.",
+    "next_action": "DESIGN_NON_TRADING_BYZANTINE_BIRTH_SIGNAL_HOT_PATH: qualify a non-canonical, in-memory proven-creator lookup before existing SQLite persistence, plus a separately qualified Pump.fun buy construction boundary; do not add trading or canonical membership mutation."
+  },
   "byzantine_detection_to_entry_latency": {
     "engineering_revision": "ef02cad7066d36cdb0a63adc24511792acd1c219",
     "tests": "read-only retained-artifact and SQLite chronology audit",

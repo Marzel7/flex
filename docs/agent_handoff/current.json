@@ -14749,6 +14749,16 @@
     "decision": "PARTIAL_BYZANTINE_LINEAGE_ONLY: known Df8/ByZc infrastructure plus the creator's earlier canonical J59 record, but no zRo-specific ByZc→creator transaction/edge/atomic evidence. There is no edge-selection or atomic-derivation loss for zRo; the missing transaction signature is not known, so one bounded provider lookup is not qualified.",
     "next_action": "KEEP_INFRASTRUCTURE_ONLY_CLASSIFICATION. Do not weaken canonical admission or reuse historical creator provisioning for a later launch."
   },
+  "byzantine_creator_continuity_admission": {
+    "status": "COMPLETE",
+    "verdict": "BYZANTINE_CREATOR_CONTINUITY_ADMISSION_COMPLETE",
+    "engineering_revision": "f4ed9d8c",
+    "implementation": "Extended src/ops/wsol_10_sol_four_step_operation.py::project_completed_walkback with a second PROVEN_CREATOR_CONTINUITY route. The unchanged strict route remains primary. Continuity derives its creator proof only from an already canonical strict Byzantine member with selected ByZc WSOL_WRAP_CLOSE 9,999,985,000-lamport four-step atomic evidence, requires pf_ws_creator plus retained creation signature and a later birth time, and blocks an active CREATOR_FAMILY identity for another operator.",
+    "delta": "Read-only current dry run: 36 strict members/proven creators; 247 later launches, 36 already Byzantine, 211 newly qualifying, 0 current cross-operation memberships. No historical replay was performed.",
+    "validation": "17 focused provider-free tests passed (strict detector, rename, dual-leg projection, and new creator-continuity tests).",
+    "safety": "No provider calls, schema/table changes, direct membership SQL insertion, service restart, or historical membership replay. Commit contains only src/ops/wsol_10_sol_four_step_operation.py and tests/test_byzantine_creator_continuity.py.",
+    "next_action": "REVIEW_CREATOR_CONTINUITY_MEMBERSHIP_DELTA before separately authorizing any bounded historical replay."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

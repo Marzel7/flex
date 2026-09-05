@@ -14937,6 +14937,15 @@
     "limitation": "The direct Birdeye mcap highs are materially below the full 1B-supply reserve-spot v3 first-second peaks; prior audit records an approximately-80%-supply display-denominator explanation as plausible but not proven. Do not freeze the formula or expand across Operations from this partial validation.",
     "next_action": "REVIEW_BIRDEYE_ALIGNMENT_DIFFERENCES; a new authorized validation attempt must use a renewed rate-limit budget, not automatic retry."
   },
+  "pumpfun_v3_valuation_denominator_audit": {
+    "engineering_revision": "ef02cad7066d36cdb0a63adc24511792acd1c219",
+    "tests": "Read-only calculation from retained V3 chain artifacts and the two retained Birdeye V3 responses; no source/test changes.",
+    "production_flags": "Birdeye/Helius/Alchemy/GMGN=0 for this audit; DB/membership writes=0; no source change or service restart.",
+    "verdict": "STATE_VALIDATED_MCAP_PARTIAL",
+    "finding": "FLEX computes reserve spot token price multiplied by PUMP_TOTAL_SUPPLY_RAW=1,000,000,000,000,000 (1,000,000,000 UI), which is a full-supply valuation/FDV rather than independently proven circulating market cap. Retained 3jW and 4ZXX Birdeye mcap candles have no supply/price metadata and their reverse-implied denominators are not stable across safely nearest states (3jW open ~750.1M vs high ~944.1M; 4ZXX open ~755.9M vs high ~784.4M).",
+    "conclusion": "No evidence-supported, provider-independent circulating-supply formula was proven. Preserve chain-native token price and full-supply valuation; label circulating market cap as unavailable/external enrichment rather than rename historical fields now.",
+    "next_action": "FREEZE_OPENING_STATE_AND_FDV_MODEL_WITH_MCAP_AS_ENRICHMENT."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

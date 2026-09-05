@@ -282,6 +282,22 @@ def test_call_budget_replay_identity_and_evidence_version_coexist(tmp_path, monk
     assert changed["logical_id"] != first["logical_id"]
 
 
+def test_explicit_fdv_semantics_preserve_legacy_mc_compatibility(tmp_path, monkeypatch, context):
+    result = run(tmp_path, monkeypatch, block_actions=qualified_blocks())
+    assert result["valuation_semantics_version"] == "v2_fdv_vs_mcap"
+    assert result["canonical_valuation_name"] == "FDV"
+    assert result["first_independent_entry_fdv_sol"] == result["first_independent_buy_mc"]
+    assert result["first_1s_peak_fdv_sol"] == result["first_1s_peak_mc"]
+    assert result["circulating_supply"] is None and result["market_cap_sol"] is None
+
+
+def test_valuation_semantics_version_participates_in_result_identity(tmp_path, monkeypatch, context):
+    current = run(tmp_path / "current", monkeypatch, block_actions=qualified_blocks())
+    monkeypatch.setattr(executor, "VALUATION_SEMANTICS", "legacy-mc.v1")
+    legacy = run(tmp_path / "legacy", monkeypatch, block_actions=qualified_blocks())
+    assert current["logical_id"] != legacy["logical_id"]
+
+
 def test_artifact_metadata_contains_no_provider_secret(tmp_path, monkeypatch, context):
     store = RecordingStore(); run(tmp_path, monkeypatch, store=store, block_actions=qualified_blocks())
     assert all("api_key" not in str(meta).lower() and "authorization" not in str(meta).lower()

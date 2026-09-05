@@ -18,6 +18,7 @@ from src.ops.pumpfun_opening_impulse import market_cap_sol, reconstruct_opening_
 
 MAX_BLOCKS = 8
 TIMING = "SLOT_BOUNDED_FIRST_1S_APPROXIMATION"
+VALUATION_SEMANTICS = "v2_fdv_vs_mcap"
 
 
 def _raw(value: Any) -> bytes:
@@ -199,9 +200,15 @@ def execute_birth_anchored_opening_analysis(
         virtual_token_reserves=action["post_virtual_token_reserves"],
         supply_raw=PUMP_TOTAL_SUPPLY_RAW, decimals=PUMP_DECIMALS,
     ) for action in window]
+    # ``*_mc`` fields are immutable compatibility aliases from result v2/v3.
+    # They are full-supply valuations (FDV), never inferred circulating MC.
     result = {
         "result_schema_version": 3,
         "opening_evidence_version": "creation-slot-block.v3",
+        "valuation_semantics_version": VALUATION_SEMANTICS,
+        "canonical_valuation_name": "FDV",
+        "circulating_supply": None,
+        "market_cap_sol": None,
         "opening_slot_semantics": "FIRST_BOUNDED_SLOT_WITH_QUALIFYING_TARGET_TRADE",
         "status": "QUALIFIED", "operation_id": operation_id, "mint": mint,
         "creation_slot": creation_slot, "create_tx_index_in_creation_block": create_tx_index,
@@ -219,6 +226,16 @@ def execute_birth_anchored_opening_analysis(
         "calls": calls, "artifacts": artifacts,
         "early_stop_used": calls["helius_get_block"] < MAX_BLOCKS,
     }
+    result.update({
+        "first_target_trade_fdv_sol": str(first_buy_mc),
+        "first_independent_entry_fdv_sol": str(first_independent_buy_mc),
+        "post_first_independent_curve_spot_fdv_sol": str(first_independent_buy_mc),
+        "launch_open_fdv_sol": str(replay.opening_slot_peak_mc_sol),
+        "opening_slot_peak_fdv_sol": str(replay.opening_slot_peak_mc_sol),
+        "opening_slot_end_fdv_sol": str(replay.opening_slot_end_mc_sol),
+        "first_1s_peak_fdv_sol": str(max(market_caps)),
+        "first_1s_end_fdv_sol": str(market_caps[-1]),
+    })
     result["logical_id"] = hashlib.sha256(_raw(
         {key: value for key, value in result.items() if key not in {"artifacts", "calls"}}
     )).hexdigest()

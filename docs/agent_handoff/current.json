@@ -3,10 +3,10 @@
     "engineering_revision": "ef02cad7066d36cdb0a63adc24511792acd1c219",
     "tests": "read-only retained-artifact extraction and SQLite census; no test or source execution",
     "production_flags": "0 provider calls; SQLite PRAGMA query_only=ON; no source, DB, membership, replay, schema, or runtime changes",
-    "verdict": "PARTIAL",
-    "evidence": "All five creation-slot-block.v3 streams were extracted: 148 buys, 51 unique early buyers, 33 buyers present in at least two launches. 5JTv is first post-create buy in all five at FDV 30.13862084374933336228865589–30.18365023775733056806548054 SOL. Exact structured-table census found no direct relation for repeated wallets to ByZc or Df8.",
-    "blocker": "The requested current 36 strict / 67 continuity canonical creator and funder identity sets are not present under the supplied d8ee UUID in database/flex_complete_database.db: wt_operation_members contains numeric legacy operation IDs and wt_ops_v2 has no Byzantine row. Therefore a negative intersection against the full canonical identity set cannot be safely claimed from this database alone.",
-    "next_action": "Locate the authoritative current canonical Byzantine identity projection, then rerun only the exact repeated-wallet intersections and derive the operation-filtered entry metric; do not acquire providers or change replay/membership."
+    "verdict": "COMPLETE",
+    "evidence": "Authoritative membership is database/wt_ops_v2.db operator_launch_membership joined to confirmed_operation_matches, not legacy flex DB tables. It reproduces 103/103 memberships: 36 strict and 67 creator-continuity. The in-memory projection has 37 wallets (36 canonical creators plus ByZc). Across 51 retained early buyers, direct projection matches=0; one-hop structured relation matches=1: J4iit8Mm... is funded by projected canonical creator HfBJnWC6... in creator_funders. 5JTv remains NO_STRUCTURED_BYZANTINE_RELATION_FOUND and first post-create on all five. The five median operation-filtered entry remains 30.15728741334000141131099353 SOL, with a 5.458827015930788 median first-second peak multiple.",
+    "blocker": "None for retrospective operation-filtered entry; this does not establish live actionability or detection timing.",
+    "next_action": "MEASURE_BYZANTINE_DETECTION_TO_ENTRY_LATENCY; retain the metric as retrospective only."
   },
   "bounded_pumpfun_creation_anchor_recovery": {
     "engineering_revision": "696bd465492c74ff208820481472efd6c99131c3",

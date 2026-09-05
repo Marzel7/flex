@@ -14946,6 +14946,15 @@
     "conclusion": "No evidence-supported, provider-independent circulating-supply formula was proven. Preserve chain-native token price and full-supply valuation; label circulating market cap as unavailable/external enrichment rather than rename historical fields now.",
     "next_action": "FREEZE_OPENING_STATE_AND_FDV_MODEL_WITH_MCAP_AS_ENRICHMENT."
   },
+  "pumpfun_opening_fdv_model_freeze": {
+    "engineering_revision": "8338d876",
+    "tests": "28 passed: opening executor, acquisition and impulse focused suites; immutable model spec JSON validated.",
+    "production_flags": "Birdeye/Helius/Alchemy/GMGN=0; DB/membership writes=0; no service restart.",
+    "verdict": "COMPLETE",
+    "implementation": "New results retain legacy *_mc compatibility fields but explicitly emit valuation_semantics_version=v2_fdv_vs_mcap, canonical_valuation_name=FDV, FDV aliases, and null circulating_supply/market_cap_sol until independently evidenced. Result logical identity includes valuation semantics.",
+    "artifact": "docs/audits/pumpfun_opening_model_v3_frozen.json",
+    "next_action": "OPERATION_EXPANSION_READY; apply the shared bounded opening state/FDV model only under a separately authorized operation cohort."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

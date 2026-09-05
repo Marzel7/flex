@@ -21,10 +21,12 @@ from src.core.database_write_service import (
 import sys
 import time
 import threading
+from pathlib import Path
 import websockets
 import aiohttp
 import requests
 from src.core.pumpportal_birth_audit import configured_birth_audit
+from src.ops.byzantine_birth_signal import ByzantineBirthSignalEmitter, load_proven_creators
 from src.core.pumpportal_migration_census import configured_migration_census
 from datetime import datetime
 from src.core import runtime_budget as _budget
@@ -1339,6 +1341,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
         # work and records receive timing immediately after ws.recv(), before
         # JSON parsing or ingestion work.
         self._eb_birth_audit = configured_birth_audit()
+        self._byzantine_birth_signal = None
+        if os.environ.get("BYZANTINE_BIRTH_SIGNAL_ENABLED", "0").lower() in {"1", "true", "yes"}:
+            try:
+                creators = load_proven_creators(Path(__file__).resolve().parents[2] / "database" / "wt_ops_v2.db")
+                self._byzantine_birth_signal = ByzantineBirthSignalEmitter(creators, enabled=True)
+            except Exception as _byz_signal_error:
+                log_print(f"[BYZANTINE_SIGNAL] disabled: {_byz_signal_error}", flush=True)
         self._migration_census = configured_migration_census()
         # MC1.4 -- explicit window anchor for birth_persistence_telemetry()'s
         # in-memory counters, so a consumer of the snapshot file always knows
@@ -11143,6 +11152,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 virtual_sol_reserves=v_sol, bonding_curve=bonding_curve_pda,
                                 raw_payload=data,
                             )
+                            # Non-canonical O(1) creator-continuity signal.  It is deliberately
+                            # before the awaited SQLite persistence below and cannot affect it.
+                            if self._byzantine_birth_signal is not None:
+                                self._byzantine_birth_signal.observe(
+                                    mint=mint, creator=creator, signature=sig,
+                                    receive_utc_ns=receive_utc_ns,
+                                    monotonic_ns=time.monotonic_ns(),
+                                )
 
                             if mint:
                                 self._portal_vsol[mint] = {

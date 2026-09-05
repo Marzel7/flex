@@ -14908,6 +14908,16 @@
     "validation": "Provider-free fixtures prove pre-create actions excluded, post-create actions included, no transaction/block double count, block retention before decode/next request, max getBlock=8 and total provider calls<=10, plus sanitized 3jW and zRo creation-slot shapes.",
     "next_action": "RERUN_LATEST_5_WITH_CREATION_SLOT_BLOCK only under separate live provider authorization."
   },
+  "latest_five_creation_slot_v3_rerun": {
+    "engineering_revision": "ef02cad7066d36cdb0a63adc24511792acd1c219",
+    "tests": "Prior provider-free repair validation: 26 passed. Live bounded execution: 5/5 qualified.",
+    "production_flags": "Real Helius calls=25 (5 getTransaction + 20 getBlock); Alchemy=0; GMGN/Birdeye=0; DB/membership/token-analysis writes=0; no source change or service restart.",
+    "verdict": "COMPLETE_WITH_USD_ALIGNMENT_LIMITATION",
+    "implementation": "Ran exactly 4ZXX, zRo, FqXi, 3jW and G5 under creation-slot-block.v3. Each result is immutable and coexists with v2 artifacts. Each used one getTransaction and four getBlock calls, with raw and observation artifacts retained before decode.",
+    "finding": "All five have post-create creation-slot buys. New first-independent entries are 30.139-30.184 SOL, rather than the prior successor-slot 155.975-161.116 SOL entries. 3jW has 12 post-create buys (slots 444229984, transactions 962-965), progressing from 30.157 to 155.304 SOL before the old next-slot reference.",
+    "limitation": "No same-token, timestamp-qualified retained SOL/USD observation for the five birth times was located in this execution; no external price API was used. USD outputs and exact Birdeye-dollar alignment therefore remain unqualified.",
+    "next_action": "REVIEW_REMAINING_OPENING_ALIGNMENT; do not expand beyond the five-token cohort without separate approval."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

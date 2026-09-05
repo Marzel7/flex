@@ -14767,6 +14767,14 @@
     "zro": "zRo is explainable: creator Eiw..., strict proof J59..., proof signature 3qN6iV..., proof time 1786980426, zRo birth 2026-09-04T20:14:36Z, 18.20-day gap, and current Byzantine infrastructure present.",
     "next_action": "REVIEW_ANOMALOUS_SUBSET_BEFORE_REPLAY: despite no formal conflicts, the 6.86x expansion and 146 continuity-only members require owner review before materialization."
   },
+  "byzantine_creator_continuity_exception_review": {
+    "status": "COMPLETE",
+    "verdict": "BYZANTINE_CREATOR_CONTINUITY_REPLAY_APPROVED",
+    "engineering_revision": "f4ed9d8c",
+    "findings": "All 211 proposed additions passed the frozen evidence-quality review: authoritative pf_ws_creator plus creation signature 211/211; launch after strict proof 211/211; strict creator proofs valid 36/36; cross-operation conflicts=0; governance overrides=0; duplicate/reused creation-signature conflicts=0. Continuity-only status was not treated as anomalous. zRo passed proof, identity, chronology, and governance gates.",
+    "safety": "Read-only review; no membership replay, DB writes, provider calls, or schema changes.",
+    "next_action": "REPLAY_SAFE_CREATOR_CONTINUITY_MEMBERS under a separately authorized bounded replay milestone."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

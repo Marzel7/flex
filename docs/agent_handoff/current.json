@@ -14873,6 +14873,19 @@
     "safety": "Read-only retained-artifact audit; provider calls=0, GMGN calls=0, DB writes=0, membership writes=0, opening-replay changes=0, source changes=0.",
     "next_action": "REVIEW_3JW_MANUAL_GMGN_ALIGNMENT; the approximate-80%-supply explanation is plausible but not independently proven as GMGN's display rule."
   },
+  "byzantine_3jw_birdeye_opening_alignment": {
+    "status": "PARTIAL",
+    "verdict": "3JW_BIRDEYE_OPENING_ALIGNMENT_PARTIAL",
+    "engineering_revision": "52ced16f2a355a4823e6edf02a86d9cf75c2f409",
+    "3jw_birth_anchor": "Exact immutable PumpPortal create artifact cf23684a2eb5df02b6971011f8589aa682b367e718ce238bbc6409b2596ff187 records initialBuy=0, virtual SOL=30, virtual tokens=1,073,000,000 and market_cap_sol=27.958993476234856. At the retained hourly SOL/USD observation this is $2,910.46.",
+    "3jw_retained_actions": "Creation slot 444229984 has no decoded target TradeEvent. The retained opening blocks contain nine decoded target BUYs, ordered from slot 444229985 tx 36 action 29 through slots 444229987. The first retained target action is also the first retained independent BUY. Its mathematically reconstructed pre-state is 155.3041341943 SOL / $16,166.77 and post-state is 156.0958803743 SOL / $16,249.19.",
+    "continuity_limit": "Birth state (30 virtual SOL) and first retained action pre-state (70.705304471 virtual SOL) do not reconcile through retained target TradeEvents: an approximately 40.705304471 SOL state transition is absent. Therefore the retained action stream is incomplete between creation and the first decoded opening action. It cannot prove an exact $12k/$13k state or exact Birdeye one-second candle open.",
+    "time_alignment": "Creation block time and first retained action block time are both 1788520107 (2026-09-04T11:08:27Z), although slots differ (444229984 vs 444229985). Whole-second evidence supports that a displayed 1s candle can contain pre-independent and independent states, but cannot establish millisecond candle boundaries or the missing intermediate action order.",
+    "five_token_pattern": "All five rich-birth artifacts record initial MC 27.958993476234856 SOL ($2,839.48-$2,917.18 using retained entry-hour SOL/USD). First independent net execution MCs are 155.5397-161.0056 SOL ($15,941.58-$16,375.76), giving pre-independent markup 456.31%-475.86%; median earliest opening USD=$2,843.69, median independent-entry USD=$16,228.70, median markup=460.60%, maximum=475.86%.",
+    "product_implication": "The evidence supports retaining both LAUNCH_OPEN_MC (birth-anchor curve state) and FIRST_INDEPENDENT_ENTRY_MC (actual executed price), alongside opening-slot and first-second peaks. It does not authorize a production semantics change.",
+    "safety": "Read-only retained-evidence analysis; provider calls=0, GMGN/Birdeye API calls=0, DB writes=0, membership writes=0, opening-replay changes=0, source changes=0.",
+    "next_action": "REVIEW_BIRDEYE_MARKET_CAP_DENOMINATOR or obtain separately authorized, timestamp-qualified Birdeye evidence; no cohort expansion."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

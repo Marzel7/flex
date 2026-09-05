@@ -1,5 +1,5 @@
 import json
-from scripts.run_pumpfun_opening_analysis import resolve_rich_birth, run_mints
+from scripts.run_pumpfun_opening_analysis import resolve_rich_birth, run_mints, build_helius_client_from_env, build_alchemy_client_from_env, main
 
 def birth(root, filename, mint):
     (root/filename).write_text(json.dumps({"mint":mint,"signature":"s","raw_payload":{"txType":"create"}}))
@@ -17,3 +17,9 @@ def test_failure_does_not_stop_next_mint(tmp_path):
         if kw["mint"]=="a": raise RuntimeError("x")
         return {"mint":"b","status":"QUALIFIED"}
     assert run_mints(["a","b"],operation_id="op",birth_root=tmp_path,helius=object(),alchemy=object(),artifact_store=object(),execute=execute)[1]["status"]=="QUALIFIED" and seen==["a","b"]
+
+def test_env_bindings_and_dry_run(monkeypatch, tmp_path, capsys):
+    monkeypatch.setenv("HELIUS_RPC_URL","https://helius.invalid"); monkeypatch.setenv("ALCHEMY","https://alchemy.invalid")
+    assert build_helius_client_from_env()._endpoint.endswith("invalid") and build_alchemy_client_from_env() is not None
+    birth(tmp_path,"x.json","a"); assert main(["--mint","a","--birth-root",str(tmp_path),"--dry-run"]) == 0
+    assert "a" in capsys.readouterr().out

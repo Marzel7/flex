@@ -14657,6 +14657,18 @@
     "decision": "DETAILED_BIRTH_INSUFFICIENT_FOR_OPENING_REPLAY",
     "next_action": "MORE_DETAILED_BIRTH_EVIDENCE_REQUIRED: locate or create, prospectively and separately authorized, a durable per-mint canonical Create projection containing validated signature, slot, Create type, curve accounts, supply/decimals and raw provenance before implementing any Alchemy opening-block pipeline."
   },
+  "recent_byzantine_rich_birth_zroyadly": {
+    "status": "MISSING",
+    "verdict": "RECENT_BYZANTINE_RICH_BIRTH_MISSING",
+    "engineering_revision": "0ad0aba2d6be93cc26b68abec9e8ac874b69ea9a",
+    "scope": "Read-only exact-mint audit; zero provider calls, DB/source/runtime writes, replay attempts, or reconstruction.",
+    "mint": "zRoYAdLYogsS491qazGakt2BDvgjMMiE8xQWpSVpump",
+    "membership": "No operator_launch_membership row exists for this mint, including Byzantine operator d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334. The claimed current canonical Byzantine membership is not observable.",
+    "system_record": "token_analysis row exists: source_platform=pumpfun, lifecycle_stage=migrated, creator EiwpFhN3LmoSTEbygYnpweUJDaHNfXX3Uho2PGRVPmr3, created_at=2026-09-04T20:14:36Z, create_tx_signature=4JZUGMsSQp4PRcm1mBdn7SggeFM9diLjXGZ9co5MTaUWZsVuD6G3vNprMxaMHU1noXntHZ35vdvi7guHvJEBdfM7, first_pre_migration_signal_at=1788552769, migration_tx=5SmxDx7ndSnqT8G46Zs15oTuQ4kx2LZXEDS5XfsQfcis6ZyCLmrQS6oanXze1FjH5QpfBLkPjA93vgXHJiSLuVQm, migration_slot=444333715, migrated_at=1788552877, migration_source=WEBSOCKET. bonding_curve_pda is NULL.",
+    "detailed_capture": "Exact-mint search of database/evidence_platform/production/pumpportal_birth_evidence found 0 records. Therefore no raw detailed PumpPortal birth envelope, Create type, receive timestamp, market-cap/reserve state, or artifact digest exists for this token.",
+    "decision": "MORE_LOCAL_EVIDENCE_REQUIRED",
+    "next_action": "Resolve the absence of canonical Operation assignment and detailed PumpPortal birth retention for this current token before any bounded opening replay or Alchemy acquisition is considered."
+  },
   "updated_at": "2026-09-04T20:00:00Z",
   "updated_at_utc": "2026-09-04T20:00:00Z",
   "updated_by": "agent_local",

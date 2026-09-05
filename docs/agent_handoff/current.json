@@ -14726,6 +14726,19 @@
     "verdict": "WATCHTOWER_BYZANTINE_OPENING_IMPULSE_REFERENCE_PAIR_READ_ONLY_AUDIT_COMPLETE",
     "watchtower": "BuY3...pump: creator-embedded first buy; 5 buys/5 buyers; 85.005359057 SOL; curve completes in creation slot; 410.880168121 SOL migration MC."
   },
+  "byzantine_canonical_admission_audit": {
+    "status": "COMPLETE",
+    "verdict": "BYZANTINE_CANONICAL_ADMISSION_AUDIT_COMPLETE",
+    "engineering_revision": "0ad0aba2d6be93cc26b68abec9e8ac874b69ea9a",
+    "scope": "Read-only retained-topology and admission-path audit; no source, database, membership, schema, service, provider/RPC, or remote engineering change.",
+    "topology": "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY is canonical Byzantine infrastructure for the strict detector: 36/36 canonical members have it as their selected parent, with no ByZc-linked canonical members of another operation. However 218 completed queue rows share ByZc, so a ByZc route alone is deliberately not sufficient for admission.",
+    "admission": "src/ops/wsol_10_sol_four_step_operation.py::project_completed_walkback is the sole canonical Byzantine writer, invoked by src/core/walkback_worker.py. It requires a selected hop-1 ByZc parent, exact WSOL_WRAP_CLOSE mechanism, exactly 9,999,985,000 lamports, and retained atomic order createAccount/initializeAccount/syncNative/closeAccount; it writes confirmed_operation_matches then operator_launch_membership idempotently.",
+    "current_mint": "zRoYAdLYogsS491qazGakt2BDvgjMMiE8xQWpSVpump has a transaction-derived selected Df8→ByZc PLAIN_XFER of 4.829795 SOL, and token_analysis proves creator EiwpFhN3... plus the creation signature. It has no retained ByZc→creator transaction edge or atomic-flow record and fails the strict detector on mechanism, amount, and all atomic steps. It is correctly CURRENT_BYZANTINE_INFRASTRUCTURE, not canonically admissible under the retained contract.",
+    "reference_correction": "The supplied 4ZXXiMMyN3wotCEW2QfmRbesHg3pS7S3rovnrKcYpump is not a canonical Byzantine member in the current DB either. It has the same completed queue projection but no operator_launch_membership, edge candidates, atomic-flow, or confirmed-match row. It therefore cannot be used as a canonical reference route.",
+    "validation": "15 provider-free tests passed: test_wsol_10_sol_four_step_operation, test_byzantine_operation_rename, test_byzantine_dual_funding_leg_projection.",
+    "decision": "KEEP_CURRENT_INFRASTRUCTURE_ONLY_CLASSIFICATION",
+    "next_action": "Do not implement a role-aware admission expansion from this evidence. Any future admission change needs a separately qualified canonical sample with the full strict detector proof, not the UI projection."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

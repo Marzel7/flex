@@ -14836,6 +14836,17 @@
     "safety": "Repair provider calls=0; resumed pilot provider calls=20 new Helius and 0 new Alchemy; DB/membership/token-analysis writes=0; source changes=0; no schema/table/listener/Walkback/UI/GMGN change; no service restart. The two-file repair was committed via alternate index, preserving the contaminated real index/worktree.",
     "next_action": "RUN_REMAINING_43_RICH_BIRTH_OPENINGS only under a separate explicit scaling authorization."
   },
+  "byzantine_v2_migration_denominator_audit": {
+    "status": "COMPLETE",
+    "verdict": "BYZANTINE_V2_COHORT_CONTAMINATION_CONFIRMED",
+    "engineering_revision": "7cb3cd6c7bb3ee693d827e15ca0fbec086c2761c",
+    "findings": "Read-only census: strict=36/36 migrated and 36/36 completed Walkback. V2 proven-creator-continuity=211: 67 migrated, 144 non-migrated; Walkback rows=66 (65 COMPLETE, 1 waiting), absent=145. All V2 assignments occurred in an approximately seven-second batch. The normal hook is post-terminal-Walkback, but V2's projector accepts an arbitrary mint and only reads token_analysis creator/birth identity plus a prior strict creator proof; it contains no migration or current-Walkback predicate. The batch therefore reached the projector outside the normal completion-only path.",
+    "cohort_semantics": "Pre-V2 Byzantine membership was produced only by the post-completed-Walkback strict detector, which requires selected hop-1 ByZc WSOL_WRAP_CLOSE and exact atomic sequence. This establishes MIGRATED/COMPLETED_WALKBACK as the historical launch universe, separate from valid Byzantine creator identity. V2 conflated creator-family identity with canonical launch eligibility.",
+    "pilot": "The five opening-pilot members split 2 migrated (DrZbMBkh..., zRoYAdLY...) and 3 non-migrated (H5EU6BVk..., 3bTgy1xL..., FmVBbE3f...). Do not combine them into one historic migrated-Byzantine performance estimate. zRo is migrated, completed Walkback, V2 member, and would remain in the migration-qualified cohort.",
+    "recommendation": "Do not delete evidence. Treat the 144 non-migrated later births as retained Byzantine creator intelligence. Preferred future repair: canonical membership = strict route OR (proven creator continuity AND current launch migrated), producing a projected 103-member canonical cohort; preserve a separate all-creator-birth analytical population if useful. No mutation was authorized or performed.",
+    "safety": "No provider/GMGN calls, DB or membership writes, source changes, schema changes, or remaining-43 opening expansion.",
+    "next_action": "REPAIR_BYZANTINE_V2_MIGRATION_ELIGIBILITY only under separate explicit authorization."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

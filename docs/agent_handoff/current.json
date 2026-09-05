@@ -14821,6 +14821,16 @@
     "safety": "No provider calls, DB writes, membership/token-analysis/listener/Walkback/schema changes, or real-pilot execution. No source modification was made in this correction audit.",
     "next_action": "IMPLEMENT_DURABLE_MULTIBLOCK_OPENING_EXECUTOR through an alternate-index, exact-boundary commit; then run provider-free multiblock tests and reassess pilot readiness."
   },
+  "durable_multiblock_opening_executor": {
+    "status": "PARTIAL",
+    "verdict": "DURABLE_MULTIBLOCK_OPENING_EXECUTOR_PARTIAL",
+    "engineering_revision": "830fc0e1dfb2ded5c16a58f14b03ef1ecc25485f",
+    "artifact_store": "src.evidence.artifacts.ArtifactStore; write=put; read=get; verification=verify; SHA-256 digest of raw bytes; gzip payload plus metadata use fsync-backed temporary-file atomic replacement. SQLite writes=0 and no RetainedAcquisitionStore dependency is required.",
+    "frozen_executor_contract": "One getTransaction plus at most eight sequential getBlock calls and one conditional archive getAccountInfo call. Every response must be ArtifactStore.put+verify and accompanied by a file-only observation envelope before decoding or issuing the next request. Timing remains SLOT_BOUNDED_FIRST_1S_APPROXIMATION.",
+    "blocker": "The real Git index is contaminated and stages unrelated work plus deletions of the committed decoder/replay files. No source implementation or staging was attempted through that index. The durable executor and its provider-free failure/early-stop test suite still require an alternate-index implementation commit.",
+    "safety": "No provider calls, DB writes, schema/table/listener/Walkback changes, or pilot execution.",
+    "next_action": "IMPLEMENT_DURABLE_MULTIBLOCK_OPENING_EXECUTOR in new isolated files and commit only them through an alternate temporary index; then run provider-free multiblock tests before authorizing the pilot."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

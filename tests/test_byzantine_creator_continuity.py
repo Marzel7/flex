@@ -4,7 +4,7 @@ import sqlite3
 from src.ops import wsol_10_sol_four_step_operation as subject
 
 
-def _dbs(tmp_path, *, launch_time=200, conflict=False):
+def _dbs(tmp_path, *, launch_time=200, conflict=False, migrated=True):
     tmp_path.mkdir(exist_ok=True)
     ops = sqlite3.connect(tmp_path / "ops.db")
     ops.executescript("""
@@ -27,8 +27,8 @@ def _dbs(tmp_path, *, launch_time=200, conflict=False):
         ops.execute("INSERT INTO operator_identity_assets VALUES('other','CREATOR_FAMILY',?,'ACTIVE')", (creator,))
     ops.commit()
     core_path = tmp_path / "core.db"; core = sqlite3.connect(core_path)
-    core.execute("CREATE TABLE token_analysis(mint TEXT,pf_ws_creator TEXT,created_at INT,create_tx_signature TEXT)")
-    core.execute("INSERT INTO token_analysis VALUES('later',?,?, 'birth')", (creator, launch_time))
+    core.execute("CREATE TABLE token_analysis(mint TEXT,pf_ws_creator TEXT,created_at INT,create_tx_signature TEXT,migration_tx TEXT)")
+    core.execute("INSERT INTO token_analysis VALUES('later',?,?, 'birth', ?)", (creator, launch_time, 'migration' if migrated else None))
     core.commit(); core.close()
     return ops, str(core_path)
 
@@ -45,5 +45,15 @@ def test_creator_route_rejects_preproof_and_governance_conflict(monkeypatch, tmp
     monkeypatch.setattr('src.ops.manual_registry.refresh_operator_activity_snapshot', lambda *a, **k: {})
     ops, core = _dbs(tmp_path / 'pre', launch_time=99)
     assert subject.project_completed_walkback(ops, 'later', core_db_path=core) == 'not_wsol_10_four_step'
+
+
+def test_creator_continuity_requires_current_migration_and_reconciles_projection(monkeypatch, tmp_path):
+    monkeypatch.setattr('src.ops.manual_registry.refresh_operator_activity_snapshot', lambda *a, **k: {})
+    ops, core = _dbs(tmp_path, migrated=False)
+    assert subject.project_completed_walkback(ops, 'later', core_db_path=core) == 'not_wsol_10_four_step'
+    # Simulate only the formerly over-broad projection: evidence remains after withdrawal.
+    ops.execute("INSERT INTO operator_launch_membership VALUES('later',?,?,1,'event')", (subject.OPERATOR_ID, 'BYZANTINE_PROVEN_CREATOR_CONTINUITY'))
+    result = subject.reconcile_invalid_creator_continuity_memberships(ops, core_db_path=core)
+    assert result['removed'] == ['later']
     ops, core = _dbs(tmp_path / 'conflict', conflict=True)
     assert subject.project_completed_walkback(ops, 'later', core_db_path=core) == 'not_wsol_10_four_step'

@@ -14918,6 +14918,15 @@
     "limitation": "No same-token, timestamp-qualified retained SOL/USD observation for the five birth times was located in this execution; no external price API was used. USD outputs and exact Birdeye-dollar alignment therefore remain unqualified.",
     "next_action": "REVIEW_REMAINING_OPENING_ALIGNMENT; do not expand beyond the five-token cohort without separate approval."
   },
+  "birdeye_v3_opening_validation_preflight": {
+    "engineering_revision": "ef02cad7066d36cdb0a63adc24511792acd1c219",
+    "tests": "No source/test changes. One bounded external contract probe retained before interpretation.",
+    "production_flags": "Birdeye calls=1/5 for 3jW only; Helius/Alchemy/GMGN=0; DB/membership writes=0; no source change or service restart.",
+    "verdict": "PARTIAL",
+    "finding": "The assumed /defi/ohlcv parameter type=1s was rejected by Birdeye with TYPE_INVALID_FORMAT. Raw response is immutable content-addressed artifact d3a8dcc50e8466931c4444ffbff914010178ba47e624437769702f09e243a4bb with sanitized request metadata and no secret.",
+    "blocker": "The exact accepted one-second interval token and whether chart_type=market_cap is supported must be established before more requests. Continuing by guessing would violate the frozen one-request-per-token contract.",
+    "next_action": "TRACE_BIRDEYE_ACCEPTED_OHLCV_INTERVAL_AND_CHART_TYPE before any further token request."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

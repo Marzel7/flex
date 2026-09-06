@@ -14998,6 +14998,17 @@
     "result": "CREATE_FRAME_HANDLER_EXTRACTED=YES; WEBSOCKET_LOOP_CALLS_EXTRACTED_HANDLER=YES; TEST_SEAM_BEHAVIORAL_CHANGE=NO; LATEST_5_HANDLER_SIGNALS=5/5; FEATURE_FLAG_DISABLED_REGRESSION=PASS; STARTUP_LOAD_FAILURE_BREAKS_NORMAL_INGESTION=NO; OVERFLOW_HANDLER_CONTINUES=YES; WEBSOCKET_LOOP_DELEGATION_TEST=PASS",
     "next_action": "QUALIFY_PUMPFUN_BUY_TRANSACTION_CONSTRUCTION_PATH"
   },
+  "pumpfun_create_to_pumpportal_receive_latency": {
+    "status": "PARTIAL",
+    "verdict": "PUMPPORTAL_CREATE_DELIVERY_LATENCY_PARTIAL",
+    "engineering_revision": "9cd7de02b8448c3667d75bda69d25a2f795bf841",
+    "tests": "6 focused tests passed in an isolated HEAD projection; passive matcher and create-frame handler compiled.",
+    "production_flags": "PUMPFUN_DELIVERY_LATENCY_CAPTURE_ENABLED defaults to 0; no provider/RPC calls, DB writes, membership writes, trading actions, or service restart.",
+    "historical_evidence": "PumpPortal canonical birth records retain receive_utc_ns and receive_monotonic_ns at nanosecond precision for 4ZXX and zRo; no retained blockTime/create slot was found for the latest-five sample, and raw PumpPortal payloads have no upstream source timestamp field. Historical exact create-to-receive latency is therefore NOT_AVAILABLE.",
+    "measurement_design": "Default-off file-only matcher joins PumpPortal and existing Helius logsSubscribe Pump.fun create notifications by signature on the same process monotonic clock. It emits mint, signature, slot, both monotonic and UTC receive times, and delta_ms. The Helius birth feed must be explicitly enabled for a passive sample.",
+    "blocker": "No passive matched sample exists yet; chain block time is only whole-second precision and cannot supply exact historical latency.",
+    "next_action": "RUN_PASSIVE_PUMPFUN_DELIVERY_LATENCY_CAPTURE"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

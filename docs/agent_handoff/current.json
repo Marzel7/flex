@@ -15003,11 +15003,11 @@
     "verdict": "PUMPPORTAL_CREATE_DELIVERY_LATENCY_PARTIAL",
     "engineering_revision": "9cd7de02b8448c3667d75bda69d25a2f795bf841",
     "tests": "6 focused tests passed in an isolated HEAD projection; passive matcher and create-frame handler compiled.",
-    "production_flags": "PUMPFUN_DELIVERY_LATENCY_CAPTURE_ENABLED defaults to 0; no provider/RPC calls, DB writes, membership writes, trading actions, or service restart.",
+    "production_flags": "Authorized capture enabled HELIUS_BIRTH_WS_ENABLED=1 and PUMPFUN_DELIVERY_LATENCY_CAPTURE_ENABLED=1 in the supervised listener; listener restarted once. No provider-history/RPC polling calls, DB writes, membership writes, or trading actions.",
     "historical_evidence": "PumpPortal canonical birth records retain receive_utc_ns and receive_monotonic_ns at nanosecond precision for 4ZXX and zRo; no retained blockTime/create slot was found for the latest-five sample, and raw PumpPortal payloads have no upstream source timestamp field. Historical exact create-to-receive latency is therefore NOT_AVAILABLE.",
     "measurement_design": "Default-off file-only matcher joins PumpPortal and existing Helius logsSubscribe Pump.fun create notifications by signature on the same process monotonic clock. It emits mint, signature, slot, both monotonic and UTC receive times, and delta_ms. The Helius birth feed must be explicitly enabled for a passive sample.",
-    "blocker": "No passive matched sample exists yet; chain block time is only whole-second precision and cannot supply exact historical latency.",
-    "next_action": "RUN_PASSIVE_PUMPFUN_DELIVERY_LATENCY_CAPTURE"
+    "blocker": "After 2 minutes, both feeds were connected on listener pid 1093 but telemetry had 0 matched signatures. The Helius subscription retained two raw messages and zero create candidates; no latency conclusion is valid. Chain block time remains whole-second precision and cannot supply exact historical latency.",
+    "next_action": "CONTINUE_PASSIVE_PUMPFUN_DELIVERY_LATENCY_CAPTURE"
   },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",

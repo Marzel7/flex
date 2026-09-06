@@ -31,6 +31,11 @@ class _Ws:
         self.sent.append(json.loads(message))
 
 
+class _Latency:
+    def observe_pumpportal(self, **_kwargs):
+        pass
+
+
 class _Listener:
     _handle_pumpportal_create_frame = PumpFunCurveListener._handle_pumpportal_create_frame
 
@@ -38,6 +43,7 @@ class _Listener:
         self.calls = []
         self._eb_birth_audit = _Audit(self.calls)
         self._byzantine_birth_signal = signal
+        self._pumpfun_delivery_latency = _Latency()
         self._portal_vsol = {}
         self.completed_launches = set()
         self.seen_mints = set()

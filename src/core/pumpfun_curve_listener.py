@@ -26,6 +26,7 @@ import websockets
 import aiohttp
 import requests
 from src.core.pumpportal_birth_audit import configured_birth_audit
+from src.core.pumpfun_delivery_latency import configured_pumpfun_delivery_latency_capture
 from src.ops.byzantine_birth_signal import ByzantineBirthSignalEmitter, load_proven_creators
 from src.core.pumpportal_migration_census import configured_migration_census
 from datetime import datetime
@@ -1341,6 +1342,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         # work and records receive timing immediately after ws.recv(), before
         # JSON parsing or ingestion work.
         self._eb_birth_audit = configured_birth_audit()
+        self._pumpfun_delivery_latency = configured_pumpfun_delivery_latency_capture()
         self._byzantine_birth_signal = None
         if os.environ.get("BYZANTINE_BIRTH_SIGNAL_ENABLED", "0").lower() in {"1", "true", "yes"}:
             try:
@@ -11072,6 +11074,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
             virtual_sol_reserves=v_sol, bonding_curve=bonding_curve_pda,
             raw_payload=data,
         )
+        self._pumpfun_delivery_latency.observe_pumpportal(
+            signature=signature, mint=mint,
+            receive_monotonic_ns=receive_monotonic_ns,
+            receive_utc_ns=receive_utc_ns,
+        )
         # Non-canonical O(1) creator-continuity signal.  It is deliberately
         # before the awaited SQLite persistence below and cannot affect it.
         if self._byzantine_birth_signal is not None:
@@ -11639,6 +11646,8 @@ class PumpFunCurveListener(PumpFunCurveListener):  # type: ignore[no-redef]
                     while True:
                         try:
                             msg = await asyncio.wait_for(ws.recv(), timeout=60)
+                            chain_receive_utc_ns = time.time_ns()
+                            chain_receive_monotonic_ns = time.monotonic_ns()
                             data = json.loads(msg)
 
                             if 'params' not in data or 'result' not in data['params']:
@@ -11677,6 +11686,12 @@ class PumpFunCurveListener(PumpFunCurveListener):  # type: ignore[no-redef]
                                 continue
 
                             if self._is_pumpfun_create_candidate(logs):
+                                self._pumpfun_delivery_latency.observe_chain(
+                                    signature=signature,
+                                    slot=(result.get("context") or {}).get("slot"),
+                                    receive_monotonic_ns=chain_receive_monotonic_ns,
+                                    receive_utc_ns=chain_receive_utc_ns,
+                                )
                                 premig_log(f"[WS_MESSAGE_ROUTED] sig={signature[:16]} route=handle_birth")
                                 asyncio.create_task(self.handle_birth(signature, logs))
                                 continue

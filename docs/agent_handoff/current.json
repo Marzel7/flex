@@ -14989,6 +14989,15 @@
     "finding": "The first post-create buyer in the retained V3 action stream is 5JTvwLFy1EPWoSWbVqjp4x9rfg961P9iKV3vsSubDFXd for every latest-five token. A repository text/evidence search found no direct recorded Byzantine relation for that buyer, which is insufficient to assert no retained affiliation without the remaining bounded relational-DB census.",
     "next_action": "COMPLETE_RETAINED_BUYER_RELATION_CENSUS before classifying first unaffiliated entries; do not call providers or modify membership."
   },
+  "pumpportal_create_frame_handler_qualification": {
+    "status": "COMPLETE",
+    "verdict": "BIRTH_SIGNAL_HOT_PATH_QUALIFIED",
+    "engineering_revision": "208a576faf793574ca61885549ce370192ecf6ec",
+    "tests": "4 focused create-handler tests passed in an isolated HEAD projection; no provider calls.",
+    "production_flags": "No provider calls, no production changes, no service restart.",
+    "result": "CREATE_FRAME_HANDLER_EXTRACTED=YES; WEBSOCKET_LOOP_CALLS_EXTRACTED_HANDLER=YES; TEST_SEAM_BEHAVIORAL_CHANGE=NO; LATEST_5_HANDLER_SIGNALS=5/5; FEATURE_FLAG_DISABLED_REGRESSION=PASS; STARTUP_LOAD_FAILURE_BREAKS_NORMAL_INGESTION=NO; OVERFLOW_HANDLER_CONTINUES=YES; WEBSOCKET_LOOP_DELEGATION_TEST=PASS",
+    "next_action": "QUALIFY_PUMPFUN_BUY_TRANSACTION_CONSTRUCTION_PATH"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

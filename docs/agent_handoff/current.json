@@ -6,6 +6,7 @@
     "materialization": "Byzantine operator d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334: 103 rows, 101 QUALIFIED, 2 INSUFFICIENT_EVIDENCE, source digest f5fdadab2af130d3f0cf06244eb3a880b61f035b9a4c8896bfa4f255de5f0f51; idempotent playbook v1 strategy pending.",
     "validation": "78 provider-free tests passed after the navigation correction: lifecycle/identity/playbook index/sidebar/API, Watchtower registry/membership/legacy reader/funnel/confirmation, and birth/migration tests. X73's minimal fixture declares the existing operation_qualification_contracts and retained queue read-schema contracts; production OperatorReader was not changed.",
     "navigation": "templates/partials/sidebar.html is the canonical sidebar included by base_shell.html. Generic Operation Playbook uses existing active_page highlighting, links to /operations/<current operator_id>/playbook when context is supplied, and otherwise opens the DB-backed generic /operations/playbooks selector without a default operator.",
+    "runtime_verification": "watchtower_api was restarted after route implementation; localhost:5002/operations/playbooks and the Byzantine Playbook API both returned HTTP 200.",
     "next_action": "ANALYZE_AND_QUALIFY_BYZANTINE_BUY_SELL_PLAYBOOK"
   },
   "wt_lifecycle_operator_id_migration_plan": {

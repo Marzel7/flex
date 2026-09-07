@@ -15118,6 +15118,18 @@
     "artifact_sha256": "331f5c0b5a0c5a29191e22c5b589384eccc5720de8332b5dfae410b5ee06692e",
     "next_action": "RESUME_BIRDEYE_LIFECYCLE_AFTER_RATE_LIMIT; do not retry the already RATE_LIMITED opening request automatically."
   },
+  "byzantine_birdeye_lifecycle_resume": {
+    "engineering_revision": "8338d876",
+    "tests": "28 provider-free tests passed before manual resume.",
+    "production_flags": "Helius/Alchemy/GMGN=0; DB/membership writes=0; active lifecycle ledger SHA-256 b6971ecd277a4fce5add0ea8685771d0d8d4a15e2452d6d3b398676f24478581 unchanged.",
+    "verdict": "HOLD_BIRDEYE_RATE_LIMIT_AFTER_PARTIAL_SAMPLE_PROGRESS",
+    "execution": "Explicit manual resume retried exactly the checkpointed 2LVe request: success. The immediately following 2Mm request returned 429, its body was retained and ledger checkpointed, then execution stopped. This resume made 2 calls; cumulative 4 calls, 2 successes, 2 429s.",
+    "sample": "2/5 retained 1-second opening windows. Both 2GAd and 2LVe have observed candle-high price peaks (USD 0.000034562786212766696 and USD 0.00003425871724845284) with FDV-only full-supply equivalents USD 34562.786212766696 and USD 34258.71724845284. Each window is truncated before a 95% drawdown; status is INSUFFICIENT_EVIDENCE, not NO.",
+    "retry_after": "Provider supplied Retry-After: 1 for 2Mm; no chained retry was made under the one-manual-resume policy.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_103_birdeye_price_lifecycle_sample.json",
+    "artifact_sha256": "3929f3d785ee353d8a3f8fe06029e0e35dd7a4448e4d694c1613cb3c14206e51",
+    "next_action": "RESUME_BIRDEYE_LIFECYCLE_AFTER_RATE_LIMIT with a new explicit manual-resume authorization; do not repeat either successful window."
+  },
   "pumpportal_create_frame_handler_qualification": {
     "status": "COMPLETE",
     "verdict": "BIRTH_SIGNAL_HOT_PATH_QUALIFIED",

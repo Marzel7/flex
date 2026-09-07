@@ -1,4 +1,12 @@
 {
+  "wt_lifecycle_operator_id_migration_plan": {
+    "status": "COMPLETE",
+    "verdict": "MIGRATION_PLAN_QUALIFIED_FUTURE_PATH_LEGACY_ROWS_UNBOUND",
+    "artifact": "docs/audits/wt_token_lifecycle_operator_id_migration_plan.v1.json",
+    "digest": "d05097c2f3d06e6ac2eeb16df0b435a3698db8a3e828b4416b3cfd270b2d849d",
+    "result": "All 29 legacy rows are distinct, preserved, and unbound; no identity is invented. A future generic operator_id/mint derived-fact projection is the minimal non-duplicative extension. No dual write: canonical future writes only, legacy Watchtower reads use a read-only fallback until separately retired.",
+    "next_action": "Implement the additive canonical operator_id lifecycle-fact projection and shared post-commit writer, then qualify Operation Playbook on that authority."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "status": "HOLD",
     "verdict": "MIGRATION_REQUIRED",

@@ -15079,11 +15079,11 @@
   },
   "early_byzantine_buyer_affiliation_audit": {
     "engineering_revision": "8338d876",
-    "tests": "Not applicable; read-only audit initiated.",
-    "production_flags": "Provider/Birdeye/GMGN=0; DB/membership writes=0; opening replay changes=0.",
-    "verdict": "PARTIAL",
-    "finding": "The first post-create buyer in the retained V3 action stream is 5JTvwLFy1EPWoSWbVqjp4x9rfg961P9iKV3vsSubDFXd for every latest-five token. A repository text/evidence search found no direct recorded Byzantine relation for that buyer, which is insufficient to assert no retained affiliation without the remaining bounded relational-DB census.",
-    "next_action": "COMPLETE_RETAINED_BUYER_RELATION_CENSUS before classifying first unaffiliated entries; do not call providers or modify membership."
+    "tests": "21 provider-free lifecycle tests passed; retained-event reconstruction completed.",
+    "production_flags": "Provider/Birdeye/GMGN=0; DB/membership writes=0; active lifecycle ledger SHA-256 b6971ecd277a4fce5add0ea8685771d0d8d4a15e2452d6d3b398676f24478581 unchanged.",
+    "verdict": "PARTIAL_RETAINED_EVIDENCE_EXHAUSTED",
+    "finding": "5JTv is first non-creator buyer on 101/101 qualified openings spanning 36 creators. Retained streams also show J4iit8MmXd2P46DzQxk7dj3qjY3m9G3Ck5zrPkBV54JV second on 101/101 and 7j4uWuDdZnJFKMwQK4TezBhipVCugdUW3NzCW7CGecvC third on 101/101. Excluding 5JTv selects the second wallet on 101/101 and moves median FDV entry to 32.8551 SOL (+8.72% from 30.22), but no retained funding provenance or defensible non-Byzantine equivalent-stream denominator exists. Behavioral coordination is not identity proof.",
+    "next_action": "If further resolution is required, authorize an explicitly frozen, raw-before-derived bounded 5JTv provenance method; do not infer funding or general-sniper behavior from this corpus."
   },
   "pumpportal_create_frame_handler_qualification": {
     "status": "COMPLETE",

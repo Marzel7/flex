@@ -15106,6 +15106,18 @@
     "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_103_birdeye_opening_comparison.json",
     "next_action": "Resume only after the existing Birdeye free-tier rate-limit window permits it and after an approved direct-market-cap endpoint/field contract is supplied or verified; do not retry the checkpointed RATE_LIMITED mint automatically."
   },
+  "byzantine_birdeye_price_lifecycle_model": {
+    "engineering_revision": "8338d876",
+    "tests": "28 provider-free tests passed: 7 lifecycle parser/reconstruction tests plus 21 lifecycle executor tests.",
+    "production_flags": "No new provider calls; Helius/Alchemy/GMGN=0; DB/membership writes=0; active lifecycle ledger unchanged.",
+    "verdict": "MODEL_QUALIFIED_SAMPLE_BLOCKED_BY_RATE_LIMIT",
+    "contract": "1s OHLC, initial window 60 seconds, post-rug recovery 60 seconds, maximum horizon 300 seconds, maximum five requests/token. Sequential, raw-before-derived, checkpoint-before-dispatch; successful windows never repeat and RATE_LIMITED has no automatic retry.",
+    "qualified_response_schema": "data.items contains unix_time, o/h/l/c, v, v_usd, type and currency. Price OHLC supported; direct mcap OHLC absent. Observed response had 42 rows; maximum rows/range is not established from retained evidence.",
+    "sample_replay": "One retained 2GAd response parsed deterministically at 1s. Observed candle-high peak was USD 0.000034562786212766696 at 1788209152. The response ends before a 95% threshold crossing, so RUG_95_STATUS=INSUFFICIENT_EVIDENCE rather than NO. No retained 3jW Birdeye raw response was found.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_103_birdeye_price_lifecycle_sample.json",
+    "artifact_sha256": "331f5c0b5a0c5a29191e22c5b589384eccc5720de8332b5dfae410b5ee06692e",
+    "next_action": "RESUME_BIRDEYE_LIFECYCLE_AFTER_RATE_LIMIT; do not retry the already RATE_LIMITED opening request automatically."
+  },
   "pumpportal_create_frame_handler_qualification": {
     "status": "COMPLETE",
     "verdict": "BIRTH_SIGNAL_HOT_PATH_QUALIFIED",

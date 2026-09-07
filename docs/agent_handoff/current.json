@@ -1,4 +1,14 @@
 {
+  "byzantine_birdeye_rate_limit_retry": {
+    "status": "PARTIAL",
+    "verdict": "ENVIRONMENT_TERMINATED_CONTINUOUS_ACQUISITION",
+    "engineering_revision": "classification-attribution-axis working tree",
+    "implementation": "bounded same-logical-window retry: eight retries, progressive 2/5/10/30/60-second waits capped at 60 seconds; all retry attempts account before dispatch and retain append-only raw attempt evidence",
+    "validation": "59 focused provider-free tests passed",
+    "live_result": "G5v Tier 4 recovered to SUCCESS while preserving its prior 429. Continuous acquisition reached 323 successful logical windows before the execution environment terminated.",
+    "safety": "Helius/Alchemy/GMGN/DB/membership/trades: 0. Birdeye only, sequentially.",
+    "next_action": "RESUME_BYZANTINE_24H_LIFECYCLE_FROM_NEXT_INCOMPLETE_MINT: 32JYTad94RuoXZnuwfAyD3137d7qpUgVKSfm8BFrpump Tier 3"
+  },
   "pumpportal_birth_to_byzantine_signal_latency": {
     "engineering_revision": "ef02cad7066d36cdb0a63adc24511792acd1c219",
     "tests": "read-only source and retained-artifact trace; no provider or transaction calls",
@@ -15138,6 +15148,16 @@
     "execution": "After provider Retry-After elapsed, paced manual resume made 3 calls and all succeeded. Cumulative opening-ledger state is 5 successes / 2 retained 429s; no successful window was repeated.",
     "integrity_finding": "The existing request identity uses retained creation blockTime, not migration timestamp. Every successful initial price window is therefore creation-anchored; at least observed peaks precede the retained migration anchor. These raw responses remain valid opening-price evidence but cannot be silently reclassified as the requested migration-to-peak/rug lifecycle evidence.",
     "next_action": "Implement and provider-free qualify a migration-anchored, multi-window request identity within the existing ledger (mint+interval+start+end), then acquire only those new bounded windows; do not overwrite or relabel existing creation-anchored raw evidence."
+  },
+  "byzantine_migration_anchored_birdeye_windows": {
+    "engineering_revision": "8338d876",
+    "tests": "39 provider-free tests passed.",
+    "production_flags": "Helius/Alchemy/GMGN=0; DB/membership writes=0; active lifecycle ledger unchanged.",
+    "verdict": "PARTIAL_INITIAL_MIGRATION_WINDOWS_QUALIFIED",
+    "result": "Append-only migration_windows namespace preserves all five creation entries and uses mint+interval+start+end+anchor+index. Five paced migration-to+60s windows succeeded, zero 429s.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_103_birdeye_migration_lifecycle_sample.json",
+    "artifact_sha256": "3bf6edbb090e144390d69a0bae3556e1de3841554c1098f0f52c01ed92925394",
+    "next_action": "Acquire migration window indices 1..4 only under the frozen per-token budget; current index-0 windows do not establish RUG_95/recovery."
   },
   "pumpportal_create_frame_handler_qualification": {
     "status": "COMPLETE",

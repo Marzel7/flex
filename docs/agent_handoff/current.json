@@ -15130,6 +15130,15 @@
     "artifact_sha256": "3929f3d785ee353d8a3f8fe06029e0e35dd7a4448e4d694c1613cb3c14206e51",
     "next_action": "RESUME_BIRDEYE_LIFECYCLE_AFTER_RATE_LIMIT with a new explicit manual-resume authorization; do not repeat either successful window."
   },
+  "byzantine_birdeye_lifecycle_resume_second_wave": {
+    "engineering_revision": "8338d876",
+    "tests": "28 provider-free tests passed after paced manual-resume implementation.",
+    "production_flags": "Helius/Alchemy/GMGN=0; DB/membership writes=0; active lifecycle ledger SHA-256 b6971ecd277a4fce5add0ea8685771d0d8d4a15e2452d6d3b398676f24478581 unchanged.",
+    "verdict": "HOLD_LIFECYCLE_REQUEST_IDENTITY_INTEGRITY",
+    "execution": "After provider Retry-After elapsed, paced manual resume made 3 calls and all succeeded. Cumulative opening-ledger state is 5 successes / 2 retained 429s; no successful window was repeated.",
+    "integrity_finding": "The existing request identity uses retained creation blockTime, not migration timestamp. Every successful initial price window is therefore creation-anchored; at least observed peaks precede the retained migration anchor. These raw responses remain valid opening-price evidence but cannot be silently reclassified as the requested migration-to-peak/rug lifecycle evidence.",
+    "next_action": "Implement and provider-free qualify a migration-anchored, multi-window request identity within the existing ledger (mint+interval+start+end), then acquire only those new bounded windows; do not overwrite or relabel existing creation-anchored raw evidence."
+  },
   "pumpportal_create_frame_handler_qualification": {
     "status": "COMPLETE",
     "verdict": "BIRTH_SIGNAL_HOT_PATH_QUALIFIED",

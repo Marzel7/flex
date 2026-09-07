@@ -120,6 +120,15 @@
     "blocker": null,
     "next_action": "Replace the frozen lifecycle plan's MIGRATION_ANCHOR input with a read-only token_analysis projection for all 10 mints, retaining a derived local-evidence artifact with zero provider calls. Do not use migration discovery RPC for this cohort."
   },
+  "byzantine_lifecycle_10_frozen_acquisition_completion": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 (working tree)",
+    "tests": "21 passed: tests/test_acquire_byzantine_lifecycle_10.py; post-run idempotency replay PASS with zero new calls",
+    "production_flags": "60 Helius calls total (10 exact creation + 50 frozen opening-v3); 0 Alchemy calls; 0 migration provider calls; 0 DB/membership/trading writes; no Birdeye/GMGN",
+    "verdict": "PASS",
+    "evidence": "All 30 frozen ledger phases are QUALIFIED: CREATION_ANCHOR 10/10, OPENING_V3 10/10, MIGRATION_ANCHOR 10/10. Migration phases use deterministic query-only token_analysis/pumpfun_migration_verification source projections with zero provider calls. Ledger digest a0495d5b9d40ba4b5289348c821a91bbf03d22c4c0065a7a9425c4d281847fa6.",
+    "blocker": null,
+    "next_action": "EXPAND_BYZANTINE_103_OPENING_AND_MIGRATION_ACQUISITION only under a separate authorization and bounded cohort/transport contract."
+  },
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {
     "authorization_consumed_at_utc": "2026-08-12T20:55:26Z",

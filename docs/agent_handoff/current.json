@@ -1,13 +1,15 @@
 {
   "canonical_operator_lifecycle_projection": {
-    "status": "COMPLETE",
-    "verdict": "GENERIC_LIFECYCLE_PLAYBOOK_FOUNDATION_QUALIFIED",
+    "status": "HOLD",
+    "verdict": "GENERIC_FOUNDATION_QUALIFIED_STRATEGY_ANALYSIS_BLOCKED_BY_MISSING_MATERIALIZED_FACTS",
     "implementation": "src/ops/operator_lifecycle_projection.py owns the single additive operator_id/mint lifecycle writer, canonical Actual-operation contract gate, failure-isolated post_commit_enrol and idempotent bootstrap; src/ops/operator_identity_governance.py invokes bootstrap only after its write-service transaction has committed. It never writes wt_token_lifecycle.",
     "materialization": "Byzantine operator d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334: 103 rows, 101 QUALIFIED, 2 INSUFFICIENT_EVIDENCE, source digest f5fdadab2af130d3f0cf06244eb3a880b61f035b9a4c8896bfa4f255de5f0f51; idempotent playbook v1 strategy pending.",
     "validation": "78 provider-free tests passed after the navigation correction: lifecycle/identity/playbook index/sidebar/API, Watchtower registry/membership/legacy reader/funnel/confirmation, and birth/migration tests. X73's minimal fixture declares the existing operation_qualification_contracts and retained queue read-schema contracts; production OperatorReader was not changed.",
     "navigation": "templates/partials/sidebar.html is the canonical sidebar included by base_shell.html. Generic Operation Playbook uses existing active_page highlighting, links to /operations/<current operator_id>/playbook when context is supplied, and otherwise opens the DB-backed generic /operations/playbooks selector without a default operator.",
     "runtime_verification": "watchtower_api was restarted after route implementation; localhost:5002/operations/playbooks and the Byzantine Playbook API both returned HTTP 200.",
-    "next_action": "ANALYZE_AND_QUALIFY_BYZANTINE_BUY_SELL_PLAYBOOK"
+    "strategy_coverage_audit": "101/103 canonical rows are lifecycle qualified and contain collapse.max_drawdown_percent, collapse.peak_fdv_usd, threshold hits, and post-collapse recovery. Recomputed retained facts: median drawdown 97.7047%, P25 94.4322%, P75 99.2236%; 80/101 reach 92.5% and 71/101 reach 95%; median observed peak FDV $97,062.29; 92.5%-hit median peak-to-hit time 148.5 seconds; median post-collapse recovery 4.8896%.",
+    "strategy_blocker": "The generic projection does not persist birth/migration timestamps, entry A/B/C SOL-FDV values/times, strict-versus-continuity classification, qualified historical SOL/USD, lifecycle horizon metadata, or interval-aware candle trajectory/executable exit observations. Therefore entry-to-ATH unit parity, entry opportunity, target exits, trailing exits, and conservative sell backtests are NOT_QUALIFIED. No candidate strategy/playbook version was created or activated.",
+    "next_action": "MATERIALIZE_VERSIONED_ENTRY_MIGRATION_AND_INTERVAL_AWARE_PRICE_FACTS_INTO_THE_EXISTING_GENERIC_LIFECYCLE_PROJECTION_THEN_REPLAY_STRATEGY_ANALYSIS"
   },
   "wt_lifecycle_operator_id_migration_plan": {
     "status": "COMPLETE",

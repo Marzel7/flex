@@ -138,6 +138,15 @@
     "blocker": "EXTERNAL_EXECUTION_WINDOW_TERMINATION with one intentionally unreplayed ambiguous accounted opening dispatch.",
     "next_action": "Resume at 8JdWj6G2X9ByPPcKpaLUEso3w62yNnbVwmzXmhAEpump OPENING_V3 only after manual reconciliation of the accounted fifth request; then continue sequentially from the next pending mint. Do not replay that request automatically."
   },
+  "byzantine_lifecycle_103_completion": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 (working tree)",
+    "tests": "21 passed: tests/test_acquire_byzantine_lifecycle_10.py; post-run idempotency replay PASS with zero new calls/artifacts",
+    "production_flags": "606 Helius calls total (101 creation + 505 opening); 0 Alchemy/migration-provider calls; 0 DB/membership/canonical-operation/trading writes; no Birdeye/GMGN",
+    "verdict": "COMPLETE_WITH_EXPLICIT_INSUFFICIENT_ROWS",
+    "evidence": "103-wave ledger has no PENDING/IN_PROGRESS phases. Creation 101 QUALIFIED / 2 INSUFFICIENT; Opening 101 QUALIFIED / 2 INSUFFICIENT; Migration 101 QUALIFIED / 2 INSUFFICIENT; all-three intersection 99. The deterministic 103-row artifact is docs/audits/byzantine_lifecycle_103/byzantine_103_opening_migration_results.json SHA-256 cc9b8d76a9e38e8586508d3454453ee40568a183e575bda24fd94cc79bc88cc8. Operation-filtered entries remain NOT_AVAILABLE because no qualified affiliation projection was implemented; first non-creator fields are retained separately.",
+    "blocker": "Two frozen records lack an exact retained create signature and two lack required retained migration fields; no discovery was widened. Operation-filtered entry is not available under the existing evidence projection.",
+    "next_action": "Before post-migration trajectory work, separately qualify an affiliation projection for operation-filtered entry and decide whether the two explicit insufficient rows warrant a bounded evidence-recovery authorization. Do not begin trajectory/peak/rug acquisition automatically."
+  },
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {
     "authorization_consumed_at_utc": "2026-08-12T20:55:26Z",

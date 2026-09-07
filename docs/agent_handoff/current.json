@@ -15294,6 +15294,16 @@
     "blocker": "The existing Helius Pump.fun logsSubscribe implementation is unsuitable as a passive reference: it processes the full program firehose through handle_pumpfun_trade/getTransaction work, with observed 15-65 second loop stalls and PumpPortal reconnect/outage failures. It cannot be enabled for the requested comparison without a separately isolated observation-only chain feed. Telemetry remained at 0 matched records.",
     "next_action": "DESIGN_ISOLATED_PASSIVE_PUMPFUN_CHAIN_NOTIFICATION_FEED"
   },
+  "pumpfun_scenario_d_post_order_flow_pagination_extension": {
+    "status": "HOLD",
+    "verdict": "MINIMAL_TWO_PAGE_EXTENSION_DID_NOT_REACH_SCENARIO_D_BOUNDARY",
+    "engineering_revision": "classification-attribution-axis working tree",
+    "reused_calls": 561,
+    "extension_contract": "At most two additional 128-signature pages per known bonding curve, stop per token once oldest returned slot is <= Scenario D, then exact-getTransaction only newly returned in-range signatures. Extension maximum 1,290 calls; 1,290 dispatched, zero duplicate requests, all successful/raw-retained.",
+    "result": "Cumulative 1,851 successful Helius calls. None of 5 history pages crossed the Scenario-D boundary after 384 newest signatures per curve: 2Br oldest 439408953>439408900; 2GAd 443245330>443245273; 2Gw 441367101>441367060; 2J7 439008329>439008282; 2LVe 442292993>442292907. Therefore complete interval order flow and historical control remain 0/5; no counterfactual completion, principal recovery or runner calculation is claimed.",
+    "safety": "No Birdeye, GMGN, SOL/USD, PumpSwap, DB, membership, Watchtower, Playbook or live-execution mutation; no trade sent.",
+    "next_action": "REVIEW_MINIMAL_ADDITIONAL_POST_SCENARIO_D_HISTORY_DEPTH"
+  },
   "pumpfun_scenario_d_post_order_flow_sample": {
     "status": "HOLD",
     "verdict": "ONE_PAGE_HISTORY_CONTRACT_INSUFFICIENT_FOR_COUNTERFACTUAL_PATH",

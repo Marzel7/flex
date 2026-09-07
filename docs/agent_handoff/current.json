@@ -17,6 +17,13 @@
     "summary": "99 complete windows; 89 retained candle payloads parse to qualified lifetime peak/rug status; 65 RUG_95 observed; 24 no RUG_95 within horizon. Ten retained SUCCESS responses have no parseable OHLC items and remain insufficient rather than inferred.",
     "next_action": "ANALYZE_BYZANTINE_BUY_SELL_STRATEGY_FROM_COMPLETE_HISTORICAL_LIFECYCLES"
   },
+  "byzantine_lifecycle_gap_closure": {
+    "status": "COMPLETE",
+    "verdict": "DATA_COMPLETION_GATE_PASS",
+    "result": "Exact retained census identified ten all-tier empty Birdeye successes and two birth-anchorable migration-insufficient rows; exact reacquisition yielded parseable retained OHLC for all ten. The two birth-anchored lifecycles qualified; 2aZR and VGpx remain insufficient due to missing retained birth anchors.",
+    "replay": "Two retained-only replays matched digest fa2e75e5c26c73e6b4ebf12b811c0f10b24f10e3116907a19aca50dc51066ab4: peaks/rug status 101/103, RUG_95 observed 71, no RUG_95 in 24h 30, insufficient 2.",
+    "next_action": "ANALYZE_BYZANTINE_BUY_SELL_STRATEGY_FROM_COMPLETE_HISTORICAL_LIFECYCLES"
+  },
   "pumpportal_birth_to_byzantine_signal_latency": {
     "engineering_revision": "ef02cad7066d36cdb0a63adc24511792acd1c219",
     "tests": "read-only source and retained-artifact trace; no provider or transaction calls",

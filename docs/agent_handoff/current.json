@@ -9,6 +9,14 @@
     "safety": "Helius/Alchemy/GMGN/DB/membership/trades: 0. Birdeye only, sequentially.",
     "next_action": "RESUME_BYZANTINE_24H_LIFECYCLE_FROM_NEXT_INCOMPLETE_MINT: 32JYTad94RuoXZnuwfAyD3137d7qpUgVKSfm8BFrpump Tier 3"
   },
+  "byzantine_birdeye_24h_cohort_completion": {
+    "status": "COMPLETE_WITH_RETAINED_EVIDENCE_LIMITATIONS",
+    "verdict": "COHORT_ACQUISITION_COMPLETE_REPLAY_STABLE",
+    "provider_acquisition": "99/99 migration-qualified mints have successful Tier 1-4 windows; 421 successful logical migration windows total; no retained rate-limited logical window remains.",
+    "retained_replay": "docs/audits/byzantine_lifecycle_103/byzantine_103_birdeye_24h_cohort_replay.json; two retained-only runs produced digest 42366dceb05ff62220a60e0e91df04f95fa7af3d01a2d207087be352ba1ba6b4.",
+    "summary": "99 complete windows; 89 retained candle payloads parse to qualified lifetime peak/rug status; 65 RUG_95 observed; 24 no RUG_95 within horizon. Ten retained SUCCESS responses have no parseable OHLC items and remain insufficient rather than inferred.",
+    "next_action": "ANALYZE_BYZANTINE_BUY_SELL_STRATEGY_FROM_COMPLETE_HISTORICAL_LIFECYCLES"
+  },
   "pumpportal_birth_to_byzantine_signal_latency": {
     "engineering_revision": "ef02cad7066d36cdb0a63adc24511792acd1c219",
     "tests": "read-only source and retained-artifact trace; no provider or transaction calls",

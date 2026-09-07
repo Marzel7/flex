@@ -1,4 +1,12 @@
 {
+  "wt_to_generic_lifecycle_bridge_audit": {
+    "status": "HOLD",
+    "verdict": "MIGRATION_REQUIRED",
+    "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",
+    "writers": "src/core/ws_cascade_store.py lifecycle upsert/update functions; scripts/backfill_token_lifecycle.py historical backfill.",
+    "readers": "operational_intelligence, emerging_operator_service, observation_providers, watchtower funnel/dashboard and related Watchtower analytics.",
+    "conclusion": "No authoritative operation_uuid→operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist."
+  },
   "generic_operation_lifecycle_authority_audit": {
     "status": "HOLD",
     "verdict": "AUTHORITY_CONFLICT_REQUIRES_RESOLUTION",

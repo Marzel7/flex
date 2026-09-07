@@ -15085,6 +15085,16 @@
     "finding": "5JTv is first non-creator buyer on 101/101 qualified openings spanning 36 creators. Retained streams also show J4iit8MmXd2P46DzQxk7dj3qjY3m9G3Ck5zrPkBV54JV second on 101/101 and 7j4uWuDdZnJFKMwQK4TezBhipVCugdUW3NzCW7CGecvC third on 101/101. Excluding 5JTv selects the second wallet on 101/101 and moves median FDV entry to 32.8551 SOL (+8.72% from 30.22), but no retained funding provenance or defensible non-Byzantine equivalent-stream denominator exists. Behavioral coordination is not identity proof.",
     "next_action": "If further resolution is required, authorize an explicitly frozen, raw-before-derived bounded 5JTv provenance method; do not infer funding or general-sniper behavior from this corpus."
   },
+  "byzantine_three_wallet_cluster_sensitivity": {
+    "engineering_revision": "8338d876",
+    "tests": "21 provider-free lifecycle tests passed.",
+    "production_flags": "Helius/Alchemy/Birdeye/GMGN=0; DB/membership writes=0; active lifecycle ledger SHA-256 b6971ecd277a4fce5add0ea8685771d0d8d4a15e2452d6d3b398676f24478581 unchanged.",
+    "verdict": "THREE_WALLET_CLUSTER_DOES_NOT_EXPLAIN_OPENING_GAP",
+    "finding": "The retained V3 streams independently confirm 5JTv first, J4iit8MmXd2P46DzQxk7dj3qjY3m9G3Ck5zrPkBV54JV second, and 7j4uWuDdZnJFKMwQK4TezBhipVCugdUW3NzCW7CGecvC third on all 101 qualified openings. Excluding exactly those three selects a fourth buyer on 101/101: median entry FDV 42.928245 SOL, +42.05% versus Scenario A, median remaining multiple 3.7962x, and median entry 26.34% of retained first-second peak. Positions 4-6 remain highly repetitive (96/101 each), reported separately without expanding the frozen three-wallet exclusion.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_103_three_wallet_cluster_sensitivity.json",
+    "artifact_sha256": "bbd101976e4e85a92d8bc2e8d641fa36b83580d1defc7ac7d21b2d58a6857c0b",
+    "next_action": "COMPARE_SCENARIOS_A_B_C_WITH_BIRDEYE_OPENING_CANDLES only if separately authorized."
+  },
   "pumpportal_create_frame_handler_qualification": {
     "status": "COMPLETE",
     "verdict": "BIRTH_SIGNAL_HOT_PATH_QUALIFIED",

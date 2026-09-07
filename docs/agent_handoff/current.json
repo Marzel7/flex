@@ -102,6 +102,15 @@
     "blocker": "EXTERNAL_ENVIRONMENT_TERMINATION: HELIUS_RPC_URL, HELIUS_API_KEY, and HELIUS_TEMP_API_KEY are absent from both process environment and .env. No reviewed Helius endpoint can be constructed, so the authorized smoke call cannot be dispatched.",
     "next_action": "Supply HELIUS_RPC_URL as a reviewed mainnet endpoint in the execution environment, then run the one-call exact-signature creation smoke for 4ZXXiMMyN3wotCEW2QfmRbesHg3pS7S3rovnrKcYpump before any opening/migration call."
   },
+  "byzantine_lifecycle_10_live_smoke": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 (working tree)",
+    "tests": "18 passed: tests/test_acquire_byzantine_lifecycle_10.py",
+    "production_flags": "6 Helius calls total (1 exact creation getTransaction, 5 bounded creation-slot-block.v3 calls); 0 Alchemy calls; 0 DB/membership/trading writes; credentials not retained in artifacts/logs",
+    "verdict": "HOLD",
+    "evidence": "4ZXXiMMyN3wotCEW2QfmRbesHg3pS7S3rovnrKcYpump CREATION_ANCHOR=QUALIFIED at slot 444335222 after one exact-signature call. OPENING_V3=QUALIFIED using five calls through the existing creation-slot-block.v3 executor. Its MIGRATION_ANCHOR=INSUFFICIENT_EVIDENCE without a provider call because its frozen manifest row has no exact migration signature.",
+    "blocker": "GENUINELY_INSUFFICIENT_EVIDENCE: the frozen 10-token manifest contains exact creation signatures for 10/10 but migration signatures for 0/10. The narrow exact-signature migration contract cannot run, and address-history discovery/pagination is forbidden.",
+    "next_action": "Obtain frozen exact migration signatures under a separately authorized bounded evidence contract before any migration-anchor acquisition; do not continue to token 2 or broaden discovery."
+  },
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {
     "authorization_consumed_at_utc": "2026-08-12T20:55:26Z",

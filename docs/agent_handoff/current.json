@@ -1,4 +1,12 @@
 {
+  "generic_operation_lifecycle_authority_audit": {
+    "status": "HOLD",
+    "verdict": "AUTHORITY_CONFLICT_REQUIRES_RESOLUTION",
+    "canonical_generic_authorities": "operators (identity/status), operator_launch_membership (mint membership), operation_qualification_contracts (promotion/qualification), confirmed_operation_matches (confirmed assignment).",
+    "conflict": "wt_token_lifecycle is a separate WATCHTOWER lifecycle store keyed by operation_uuid, while the generic authority uses operator_id. Neither can be adopted for all operations without a deliberate authority migration or bridge contract; adding a third generic lifecycle store would violate the no-duplicate-model constraint.",
+    "safety": "Read-only schema/source audit only; no schema, DB, provider, listener, membership, or UI mutation.",
+    "next_action": "Explicitly choose and qualify either migration of wt_token_lifecycle into the canonical operator_id authority, or a constrained generic projection/bridge contract that proves one-way ownership and prevents competing writers."
+  },
   "byzantine_collapse_severity_replay": {
     "status": "COMPLETE",
     "verdict": "USE_COLLAPSE_92_5_AS_PRIMARY_AND_KEEP_RUG_95_AS_TERMINAL",

@@ -129,6 +129,15 @@
     "blocker": null,
     "next_action": "EXPAND_BYZANTINE_103_OPENING_AND_MIGRATION_ACQUISITION only under a separate authorization and bounded cohort/transport contract."
   },
+  "byzantine_lifecycle_103_expansion": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 (working tree)",
+    "tests": "21 passed: tests/test_acquire_byzantine_lifecycle_10.py",
+    "production_flags": "201 Helius calls total; 0 Alchemy/migration-provider calls; 0 DB/membership/trading writes; no Birdeye/GMGN",
+    "verdict": "PARTIAL",
+    "evidence": "qualification_103_phase_ledger.json initialized with the completed 10. At external execution-window termination: Creation 34 QUALIFIED / 1 INSUFFICIENT_EVIDENCE / 68 PENDING; Opening 33 QUALIFIED / 1 INSUFFICIENT_EVIDENCE / 1 ERROR / 68 PENDING; Migration 33 QUALIFIED / 1 INSUFFICIENT_EVIDENCE / 69 PENDING. The 1 opening ERROR is 8JdWj6G2X9ByPPcKpaLUEso3w62yNnbVwmzXmhAEpump: fifth opening call was accounted but raw response was not retained before external termination, so it was not replayed.",
+    "blocker": "EXTERNAL_EXECUTION_WINDOW_TERMINATION with one intentionally unreplayed ambiguous accounted opening dispatch.",
+    "next_action": "Resume at 8JdWj6G2X9ByPPcKpaLUEso3w62yNnbVwmzXmhAEpump OPENING_V3 only after manual reconciliation of the accounted fifth request; then continue sequentially from the next pending mint. Do not replay that request automatically."
+  },
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {
     "authorization_consumed_at_utc": "2026-08-12T20:55:26Z",

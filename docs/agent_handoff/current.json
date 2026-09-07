@@ -12582,6 +12582,17 @@
     "safety": "0 provider calls, DB writes, membership/Watchtower/Playbook changes, or trades. Active playbook unchanged.",
     "next_action": "QUALIFY_MINIMAL_VARIANT_SPECIFIC_BUY_SELL_VALIDATION_SAMPLE"
   },
+  "pumpfun_scenario_d_variant_validation": {
+    "status": "PARTIAL",
+    "verdict": "SELL_VALIDATED_SCENARIO_D_VARIANT_COVERAGE_INCOMPLETE",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_scenario_d_variant_validation.v1.json",
+    "digest": "6ce1bf39194f7d649172e237a012b50241f65e608c6cdbf7db4be716b6af581c",
+    "result": "Five additional fully retained standard-Sell cases replay exactly, giving 6/6 total Sell validation including the prior case. The retained 101-entry Scenario-D summary carries buyer/slot/net-SOL but null transaction signatures. Only 10 entries resolve to a unique retained TradeEvent: Buy=3, BuyExactSolIn=2, BuyExactQuoteInV2=5; 91/101 have no retained entry transaction/instruction evidence.",
+    "v2": "1/1 replayable BuyExactQuoteInV2 case exact; the second is structurally nonreplayable due to missing retained predecessor state, with zero formula contradictions.",
+    "gate": "Scenario-D execution contract remains NO because the required buy variant distribution cannot be qualified cohort-wide. Generic fee semantics are PARTIAL: 95 protocol / 30 creator, buyback=50% protocol allocation and no user-price effect, with all observed calculator paths exact but V2 independent-case breadth limited.",
+    "safety": "0 new provider calls (of 15), no database, execution, Watchtower, trading, or active-Playbook changes. 19 focused provider-free tests passed.",
+    "next_action": "RESOLVE_SCENARIO_D_BUY_VARIANT_COVERAGE_GAP"
+  },
   "pumpfun_virtual_reserve_decoder_qualification_poc": {
     "artifact_digest": "50340514fda74fce75c30543a1db2615ae1be58a30c18fe16643c6ac8893664a",
     "artifacts": "docs/audits/pumpfun_virtual_reserve_decoder_qualification_poc/qualification_manifest.v1.json",

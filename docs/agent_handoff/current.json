@@ -1,4 +1,12 @@
 {
+  "byzantine_7d_eventual_rug_replay": {
+    "status": "COMPLETE",
+    "verdict": "EVENTUAL_RUG_7D_DATA_COMPLETION_PASS",
+    "result": "Two retained-only replays matched digest bb3a4960e781c6ae413b0f3591e0a2435ff1071468c2c4d038d0f67837efaa76. No extended survivor met the strict prior-running-peak RUG_95 criterion through 7d; all 30 remain qualified NO_RUG_95_WITHIN_7D. Total observed remains 71/101.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_103_birdeye_7d_eventual_rug_replay.json",
+    "safety": "0 provider calls during replay; no DB/membership/trade activity.",
+    "next_action": "ANALYZE_BYZANTINE_BUY_SELL_STRATEGY_FROM_COMPLETE_HISTORICAL_LIFECYCLES"
+  },
   "byzantine_extended_survivor_wave": {
     "status": "PARTIAL",
     "verdict": "ENVIRONMENT_TERMINATED_CONTINUOUS_ACQUISITION",

@@ -156,6 +156,15 @@
     "blocker": "One-hop/strong-association stores were not joined into a qualified relation projection in this pass; NO_STRUCTURED relation is not external-independence proof. Later-buy substitution was not needed because no direct identity match was found.",
     "next_action": "Before interpreting as trading evidence, qualify the full one-hop/strong-association relationship projection and then reassess whether any early buyer should be excluded. Do not start post-migration trajectory automatically."
   },
+  "byzantine_103_post_migration_local_coverage": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 (working tree)",
+    "tests": "21 passed: tests/test_acquire_byzantine_lifecycle_10.py; read-only local census",
+    "production_flags": "0 provider calls; 0 DB/membership/canonical-operation/trading writes; no Birdeye/GMGN",
+    "verdict": "COMPLETE_LOCAL_CENSUS_BOUNDARY",
+    "evidence": "Deterministic census docs/audits/byzantine_lifecycle_103/byzantine_103_post_migration_local_coverage.json SHA-256 2c9d4497834d63750248b55a62926d1706c4d4dff9197c1cf06e2e6768c0d794: COMPLETE=0, PARTIAL=88, NONE=15. Partial rows retain only scalar current/high price or valuation summaries; they cannot establish ordered executed PumpSwap trades, peak provenance, drawdowns, rug timing, or recovery. database/pumpswap_tokens.db is empty.",
+    "blocker": "No retained ordered successful PumpSwap trade/valuation history exists for the canonical cohort, so chain-native trajectory reconstruction is not qualified from local evidence alone.",
+    "next_action": "Design and separately authorize a bounded, checkpointed raw-before-derived PumpSwap ordered-trade history acquisition contract with explicit per-token and total budgets before representative trajectory reconstruction. Do not use unbounded address or pool-history crawling."
+  },
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {
     "authorization_consumed_at_utc": "2026-08-12T20:55:26Z",

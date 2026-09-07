@@ -1,4 +1,12 @@
 {
+  "canonical_operator_lifecycle_projection": {
+    "status": "PARTIAL",
+    "verdict": "PROJECTION_AND_BYZANTINE_BOOTSTRAP_COMPLETE_UI_ENROLMENT_PENDING",
+    "implementation": "src/ops/operator_lifecycle_projection.py creates the additive operator_id/mint derived lifecycle projection and versioned playbooks, gated by canonical operators and operator_launch_membership. It never writes wt_token_lifecycle.",
+    "materialization": "Byzantine operator d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334: 103 rows, 101 QUALIFIED, 2 INSUFFICIENT_EVIDENCE, source digest f5fdadab2af130d3f0cf06244eb3a880b61f035b9a4c8896bfa4f255de5f0f51; idempotent playbook v1 strategy pending.",
+    "validation": "97 focused provider-free tests passed, including existing operation identity/behaviour regressions.",
+    "next_action": "Implement and register a generic operator playbook UI/API projection and explicit post-commit enrolment hook without modifying Watchtower detection paths."
+  },
   "wt_lifecycle_operator_id_migration_plan": {
     "status": "COMPLETE",
     "verdict": "MIGRATION_PLAN_QUALIFIED_FUTURE_PATH_LEGACY_ROWS_UNBOUND",

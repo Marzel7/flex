@@ -147,6 +147,15 @@
     "blocker": "Two frozen records lack an exact retained create signature and two lack required retained migration fields; no discovery was widened. Operation-filtered entry is not available under the existing evidence projection.",
     "next_action": "Before post-migration trajectory work, separately qualify an affiliation projection for operation-filtered entry and decide whether the two explicit insufficient rows warrant a bounded evidence-recovery authorization. Do not begin trajectory/peak/rug acquisition automatically."
   },
+  "byzantine_103_operation_filtered_entry": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 (working tree)",
+    "tests": "21 passed: tests/test_acquire_byzantine_lifecycle_10.py; local read-only projection",
+    "production_flags": "0 Helius/Alchemy/Birdeye/GMGN calls; 0 DB/membership/canonical-operation/trading writes",
+    "verdict": "QUALIFIED_WITH_LIMITED_STRUCTURED_SCOPE",
+    "evidence": "Read-only authoritative Byzantine membership projection (operator_launch_membership JOIN confirmed_operation_matches) plus creator and operation-wallet direct-identity checks. All 101 qualified opening first non-creator buyers are NO_STRUCTURED_BYZANTINE_RELATION_FOUND; none are direct matches. They therefore survive the operation filter with their classification explicitly retained. Deterministic artifact docs/audits/byzantine_lifecycle_103/byzantine_103_operation_filtered_entry.json SHA-256 a7964e5b310161436c6e80f0340146654f325a259a97450b22210e3e85558356.",
+    "blocker": "One-hop/strong-association stores were not joined into a qualified relation projection in this pass; NO_STRUCTURED relation is not external-independence proof. Later-buy substitution was not needed because no direct identity match was found.",
+    "next_action": "Before interpreting as trading evidence, qualify the full one-hop/strong-association relationship projection and then reassess whether any early buyer should be excluded. Do not start post-migration trajectory automatically."
+  },
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {
     "authorization_consumed_at_utc": "2026-08-12T20:55:26Z",

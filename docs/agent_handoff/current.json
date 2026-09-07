@@ -12556,15 +12556,16 @@
     "verdict": "TARGET_DEPLOYMENT_BOUND_SOURCE_SEMANTICS_NOT_BINARY_BOUND_BOUNDARY_REMAINS_PRECISE"
   },
   "pumpfun_target_era_global_config_qualification": {
-    "status": "HOLD",
-    "verdict": "TRUE_HISTORICAL_SOURCE_QUALIFIED_BINDING_UNAVAILABLE",
+    "status": "PARTIAL",
+    "verdict": "TRUE_HISTORICAL_SOURCE_AND_BINDING_QUALIFIED",
     "engineering_revision": "classification-attribution-axis working tree",
     "result": "Retained target-era opening transactions contain 29 direct Pump trade instructions whose first account is invariantly 4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf. The retained official Pump IDL commit 9c82f61cb711b044a17f770ab8ce9f9bdf78f333 declares that account as the Global PDA with sole UTF-8 seed global; local PDA derivation matches it. The same retained standard Buy/BuyExactSolIn instructions carry FeeConfig PDA 8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt, derived from fee_config plus the documented static seed under pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ. Thus account identity and the observed multiple Global/FeeConfig dependency are established, but no retained historical Global/FeeConfig account bytes or known update signatures cover Byzantine slots 438962813-444335877.",
     "integrity_finding": "The prior archived-prestate raw artifact labels a getAccountInfo request config with slot, while scripts/run_pumpfun_opening_analysis.py sends minContextSlot. minContextSlot is a context lower bound, not an archival state selector. This mismatch means the retained artifact cannot establish historical account state without a provider-specific documented slot parameter and request/response parity.",
     "true_historical_contract": "Alchemy Account Archive official documentation qualifies getAccountInfo({slot:S}) for finalized historical state and firstUpdateAfterSlot cursor walking; those parameters are mutually exclusive with minContextSlot. New provider-free adapter src/ops/pumpfun_config_archive.py permits only those two forms, accounts before dispatch, retains raw before interpretation, checkpoints every attempt, has no signature or transaction discovery path, and fixes MAX_TOTAL_PROVIDER_CALLS=32 (two accounts x sixteen responses). Focused tests: 8 passed.",
-    "blocker": "This execution environment does not expose the required ALCHEMY endpoint binding. Presence check found no ALCHEMY entry in .env; no endpoint, credential, ledger, raw artifact, or provider request was created.",
-    "safety": "0 provider/RPC calls; no DB, membership, Watchtower, trading, or active-playbook changes.",
-    "next_action": "Expose the existing authorized ALCHEMY endpoint binding to this execution environment, then run scripts/acquire_pumpfun_config_history.py under its frozen 32-call ceiling. Do not use scripts/run_pumpfun_opening_analysis.py or minContextSlot for target-era configuration."
+    "binding": "Existing canonical .env export ALCHEMY is consumed through scripts/run_pumpfun_opening_analysis.py::build_alchemy_client_from_env and JsonRpcClient. The earlier absence finding missed the export prefix; no new provider configuration or credential convention was created.",
+    "smoke": "One authorized Alchemy Account Archive call succeeded through that existing binding. The append-only smoke ledger accounted the request before dispatch, retained raw response digest before interpretation, and verified returned context slot 443375106 for known control account FJPbTzeUy4pzPT3r7c2fNxccNvvhbC7LJkSqXux8xU1g using config {encoding:base64,slot:443375106}. No Byzantine Global/FeeConfig range acquisition was performed.",
+    "safety": "1 Alchemy historical smoke call; 0 Helius/Birdeye/GMGN/DB/membership/Watchtower/trading/active-playbook changes.",
+    "next_action": "QUALIFY_BYZANTINE_HISTORICAL_GLOBAL_AND_FEECONFIG_STATE_WITH_ALCHEMY_ARCHIVE under the frozen 32-call ceiling. Do not use minContextSlot."
   },
   "pumpfun_virtual_reserve_decoder_qualification_poc": {
     "artifact_digest": "50340514fda74fce75c30543a1db2615ae1be58a30c18fe16643c6ac8893664a",

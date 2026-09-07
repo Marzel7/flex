@@ -111,6 +111,15 @@
     "blocker": "GENUINELY_INSUFFICIENT_EVIDENCE: the frozen 10-token manifest contains exact creation signatures for 10/10 but migration signatures for 0/10. The narrow exact-signature migration contract cannot run, and address-history discovery/pagination is forbidden.",
     "next_action": "Obtain frozen exact migration signatures under a separately authorized bounded evidence contract before any migration-anchor acquisition; do not continue to token 2 or broaden discovery."
   },
+  "byzantine_lifecycle_10_retained_migration_evidence": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 (working tree)",
+    "tests": "read-only SQLite inspection; 0 provider calls",
+    "production_flags": "0 Helius/Alchemy calls; 0 DB/membership/trading writes",
+    "verdict": "COMPLETE",
+    "evidence": "PumpFunCurveListener.listen_pumpswap_websocket -> handle_migration -> _process_migration_with_mint persists signature, observed migrated_at, tx slot when available, PumpSwap pool and WEBSOCKET provenance. database/flex_complete_database.db token_analysis has all 10 frozen mints: migration_tx, migration_slot, migrated_at, pumpswap_pool_address/pool_address, creator fields, lifecycle_stage and migration_source. pumpfun_migration_verification also has 10 matching mint rows.",
+    "blocker": null,
+    "next_action": "Replace the frozen lifecycle plan's MIGRATION_ANCHOR input with a read-only token_analysis projection for all 10 mints, retaining a derived local-evidence artifact with zero provider calls. Do not use migration discovery RPC for this cohort."
+  },
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {
     "authorization_consumed_at_utc": "2026-08-12T20:55:26Z",

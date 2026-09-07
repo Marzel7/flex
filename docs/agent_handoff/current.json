@@ -15294,6 +15294,17 @@
     "blocker": "The existing Helius Pump.fun logsSubscribe implementation is unsuitable as a passive reference: it processes the full program firehose through handle_pumpfun_trade/getTransaction work, with observed 15-65 second loop stalls and PumpPortal reconnect/outage failures. It cannot be enabled for the requested comparison without a separately isolated observation-only chain feed. Telemetry remained at 0 matched records.",
     "next_action": "DESIGN_ISOLATED_PASSIVE_PUMPFUN_CHAIN_NOTIFICATION_FEED"
   },
+  "pumpfun_scenario_d_counterfactual_execution": {
+    "status": "PARTIAL",
+    "verdict": "ENTRY_EXECUTION_QUALIFIED_COUNTERFACTUAL_PATH_UNQUALIFIED",
+    "engineering_revision": "classification-attribution-axis working tree",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_scenario_d_counterfactual_execution.v1.json",
+    "result": "Retained opening blocks reconstruct pre-position-13 virtual and real reserve state for 101/101 Scenario-D entries. Fixed Flex BuyExactSolIn quotes for 0.1/0.25/0.5/1.0 SOL replay deterministically with raw-integer fee, rounding, output and post-buy reserve fields. Historical external buyer variant is not an input to that counterfactual quote.",
+    "limits": "TradeEvent does not retain complete flag; it is recorded as unavailable. Retained opening streams stop before migration, so later historical curve states/actions cannot be applied unchanged after a hypothetical Flex buy. Exact counterfactual principal-recovery/runner path is therefore not qualified.",
+    "validation": "20 focused provider-free tests passed; two retained-only runs are byte-identical.",
+    "safety": "Provider, DB, membership, Watchtower and trading calls: 0. No live execution code or Playbook state changed.",
+    "next_action": "QUALIFY_MINIMAL_COUNTERFACTUAL_PUMPFUN_CURVE_PATH_EVIDENCE"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

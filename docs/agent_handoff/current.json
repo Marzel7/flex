@@ -14992,11 +14992,12 @@
   "pumpportal_create_frame_handler_qualification": {
     "status": "COMPLETE",
     "verdict": "BIRTH_SIGNAL_HOT_PATH_QUALIFIED",
-    "engineering_revision": "208a576faf793574ca61885549ce370192ecf6ec",
-    "tests": "4 focused create-handler tests passed in an isolated HEAD projection; no provider calls.",
+    "engineering_revision": "5904a907",
+    "tests": "7 focused provider-free create-handler tests passed: positive ordering, feature disabled, startup failure state, latest-five replay, non-Byzantine control, queue overflow, and websocket delegation.",
     "production_flags": "No provider calls, no production changes, no service restart.",
     "result": "CREATE_FRAME_HANDLER_EXTRACTED=YES; WEBSOCKET_LOOP_CALLS_EXTRACTED_HANDLER=YES; TEST_SEAM_BEHAVIORAL_CHANGE=NO; LATEST_5_HANDLER_SIGNALS=5/5; FEATURE_FLAG_DISABLED_REGRESSION=PASS; STARTUP_LOAD_FAILURE_BREAKS_NORMAL_INGESTION=NO; OVERFLOW_HANDLER_CONTINUES=YES; WEBSOCKET_LOOP_DELEGATION_TEST=PASS",
-    "next_action": "QUALIFY_PUMPFUN_BUY_TRANSACTION_CONSTRUCTION_PATH"
+    "next_action": "QUALIFY_PUMPFUN_BUY_TRANSACTION_CONSTRUCTION_PATH",
+    "test_qualification_commit": "5904a907"
   },
   "pumpfun_create_to_pumpportal_receive_latency": {
     "status": "PARTIAL",

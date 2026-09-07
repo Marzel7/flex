@@ -1,11 +1,11 @@
 {
   "canonical_operator_lifecycle_projection": {
     "status": "PARTIAL",
-    "verdict": "PROJECTION_AND_BYZANTINE_BOOTSTRAP_COMPLETE_UI_ENROLMENT_PENDING",
-    "implementation": "src/ops/operator_lifecycle_projection.py creates the additive operator_id/mint derived lifecycle projection and versioned playbooks, gated by canonical operators and operator_launch_membership. It never writes wt_token_lifecycle.",
+    "verdict": "POST_COMMIT_GOVERNANCE_ENROLMENT_AND_PLAYBOOK_SURFACE_COMPLETE_WIDER_LEGACY_FIXTURE_HOLD",
+    "implementation": "src/ops/operator_lifecycle_projection.py owns the single additive operator_id/mint lifecycle writer, canonical Actual-operation contract gate, failure-isolated post_commit_enrol and idempotent bootstrap; src/ops/operator_identity_governance.py invokes bootstrap only after its write-service transaction has committed. It never writes wt_token_lifecycle.",
     "materialization": "Byzantine operator d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334: 103 rows, 101 QUALIFIED, 2 INSUFFICIENT_EVIDENCE, source digest f5fdadab2af130d3f0cf06244eb3a880b61f035b9a4c8896bfa4f255de5f0f51; idempotent playbook v1 strategy pending.",
-    "validation": "97 focused provider-free tests passed, including existing operation identity/behaviour regressions.",
-    "next_action": "Implement and register a generic operator playbook UI/API projection and explicit post-commit enrolment hook without modifying Watchtower detection paths."
+    "validation": "53 focused provider-free tests passed: lifecycle hook/API/page, Watchtower registry and membership, candidates, Byzantine birth signal, and migration recording. The broader x73 identity-lifecycle fixture has two pre-existing failures because its minimal DB omits operation_qualification_contracts, which OperatorReader currently assumes; no detection semantics were changed to mask it.",
+    "next_action": "Decide whether to repair the unrelated minimal legacy OperatorReader fixture/schema compatibility, then extend the explicit post-commit consumer to any future non-governance membership commit path under a separately reviewed integration seam."
   },
   "wt_lifecycle_operator_id_migration_plan": {
     "status": "COMPLETE",

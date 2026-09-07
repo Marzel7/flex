@@ -15294,6 +15294,17 @@
     "blocker": "The existing Helius Pump.fun logsSubscribe implementation is unsuitable as a passive reference: it processes the full program firehose through handle_pumpfun_trade/getTransaction work, with observed 15-65 second loop stalls and PumpPortal reconnect/outage failures. It cannot be enabled for the requested comparison without a separately isolated observation-only chain feed. Telemetry remained at 0 matched records.",
     "next_action": "DESIGN_ISOLATED_PASSIVE_PUMPFUN_CHAIN_NOTIFICATION_FEED"
   },
+  "pumpfun_scenario_d_post_order_flow_sample": {
+    "status": "HOLD",
+    "verdict": "ONE_PAGE_HISTORY_CONTRACT_INSUFFICIENT_FOR_COUNTERFACTUAL_PATH",
+    "engineering_revision": "classification-attribution-axis working tree",
+    "retained_inventory": "101/101 Scenario-D rows have retained post-D TradeEvents: 1,072 total (1,023 buys, 49 sells). TradeEvent retains reserve observations/order but not historical instruction arguments; it is PARTIAL for counterfactual replay.",
+    "bounded_live_sample": "Deterministic lexical five-mint sample used exactly one Helius getSignaturesForAddress page (limit 128) per known bonding curve, then 556 exact getTransaction lookups for returned in-range signatures: 561/645 frozen maximum calls, all SUCCESS and raw retained. No pagination, Birdeye, GMGN, DB, membership, Watchtower, Playbook or trading action.",
+    "failure": "For all five targets the oldest one-page signature slot remains after the Scenario-D lower boundary (2Br 439409130>439408900; 2GAd 443245446>443245273; 2Gw 441367145>441367060; 2J7 439008370>439008282; 2LVe 442293175>442292907). The omitted intervening orders cause historical no-Flex path control 0/5. No counterfactual path, completion, principal-recovery or runner fraction is claimed.",
+    "artifacts": "docs/audits/byzantine_lifecycle_103/byzantine_scenario_d_post_order_flow_inventory.v1.json; docs/audits/byzantine_lifecycle_103/scenario_d_post_order_flow_sample/ledger.v1.json; replay.v1.json",
+    "validation": "23 focused provider-free tests passed.",
+    "next_action": "REVIEW_POST_SCENARIO_D_ORDER_FLOW_REPLAY_GAP"
+  },
   "pumpfun_scenario_d_counterfactual_execution": {
     "status": "PARTIAL",
     "verdict": "ENTRY_EXECUTION_QUALIFIED_COUNTERFACTUAL_PATH_UNQUALIFIED",

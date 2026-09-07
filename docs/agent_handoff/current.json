@@ -15095,6 +15095,17 @@
     "artifact_sha256": "bbd101976e4e85a92d8bc2e8d641fa36b83580d1defc7ac7d21b2d58a6857c0b",
     "next_action": "COMPARE_SCENARIOS_A_B_C_WITH_BIRDEYE_OPENING_CANDLES only if separately authorized."
   },
+  "byzantine_birdeye_opening_comparison": {
+    "engineering_revision": "8338d876",
+    "tests": "21 provider-free lifecycle tests passed after the checkpoint/parser safety correction.",
+    "production_flags": "Helius/Alchemy/GMGN=0; DB/membership writes=0; active lifecycle ledger SHA-256 b6971ecd277a4fce5add0ea8685771d0d8d4a15e2452d6d3b398676f24478581 unchanged.",
+    "verdict": "HOLD_BIRDEYE_FREE_TIER_RATE_LIMIT",
+    "frozen_contract": "At most 101 sequential /defi/v3/ohlcv interval=1s, 60-second opening windows; account/checkpoint before dispatch; raw retained before interpretation; no retry on 429.",
+    "execution": "2 requests accounted: 1 raw response retained and safely parsed, then 1 HTTP 429. Executor stopped; a no-network resume re-derived the retained raw response and made 0 calls.",
+    "semantic_blocker": "The retained successful v3 OHLCV response supplies price OHLC (o/h/l/c) and volume fields but no direct mcap OHLC fields. Historical SOL/USD is not locally qualified. Thus valuation parity and the requested 101-token mcap comparison cannot be computed from present evidence.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_103_birdeye_opening_comparison.json",
+    "next_action": "Resume only after the existing Birdeye free-tier rate-limit window permits it and after an approved direct-market-cap endpoint/field contract is supplied or verified; do not retry the checkpointed RATE_LIMITED mint automatically."
+  },
   "pumpportal_create_frame_handler_qualification": {
     "status": "COMPLETE",
     "verdict": "BIRTH_SIGNAL_HOT_PATH_QUALIFIED",

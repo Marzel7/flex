@@ -165,6 +165,15 @@
     "blocker": "No retained ordered successful PumpSwap trade/valuation history exists for the canonical cohort, so chain-native trajectory reconstruction is not qualified from local evidence alone.",
     "next_action": "Design and separately authorize a bounded, checkpointed raw-before-derived PumpSwap ordered-trade history acquisition contract with explicit per-token and total budgets before representative trajectory reconstruction. Do not use unbounded address or pool-history crawling."
   },
+  "byzantine_recurring_early_buyer_audit": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 (working tree)",
+    "tests": "21 passed: tests/test_acquire_byzantine_lifecycle_10.py; read-only retained-evidence audit",
+    "production_flags": "0 provider calls; 0 DB/membership/canonical-operation/trading writes; no Birdeye/GMGN",
+    "verdict": "INSUFFICIENT_EVIDENCE_FOR_AFFILIATION",
+    "evidence": "The source artifacts contain one non-null recurring first buyer, not two: 5JTvwLFy1EPWoSWbVqjp4x9rfg961P9iKV3vsSubDFXd, 101/101 qualified openings (36 strict, 65 continuity), spanning 36 distinct creators. Direct canonical creator/operation-wallet identity checks are negative. Retained funder incoming/outgoing, funder interactions, WT graph edges, trader-wallet and operation-wallet stores have zero rows for this wallet. This absence does not establish external independence; no qualified non-Byzantine control population or funding provenance exists.",
+    "blocker": "The prompt's two-buyer premise is contradicted by the retained non-null opening data (one buyer plus null/insufficient rows). Funding provenance, control-population behavior, later-sell behavior and full ordered buyer streams are unavailable locally.",
+    "next_action": "If materially needed, separately design a minimal bounded affiliation provenance lookup and an independently qualified non-Byzantine control census before excluding this buyer as coordinated or claiming public actionability. Preserve the 30 SOL entry as SURVIVES_KNOWN_RELATION_FILTER_ONLY."
+  },
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {
     "authorization_consumed_at_utc": "2026-08-12T20:55:26Z",

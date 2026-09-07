@@ -1,4 +1,12 @@
 {
+  "byzantine_extended_survivor_wave": {
+    "status": "PARTIAL",
+    "verdict": "ENVIRONMENT_TERMINATED_CONTINUOUS_ACQUISITION",
+    "contract": "Official supplied allowlist frozen; Tier 5=15m 24h-48h, Tier 6=30m 48h-72h, Tier 7=1H 72h-7d.",
+    "validation": "63 focused provider-free tests passed.",
+    "progress": "20 sequential Birdeye calls completed without 429; 12 successful extended windows are retained.",
+    "next_action": "Resume the 7d survivor driver at 998RhDdzrBAQj6rC4Mu9N6vMpyVV8gMKrh98FsN6pump Tier 5."
+  },
   "byzantine_birdeye_rate_limit_retry": {
     "status": "PARTIAL",
     "verdict": "ENVIRONMENT_TERMINATED_CONTINUOUS_ACQUISITION",

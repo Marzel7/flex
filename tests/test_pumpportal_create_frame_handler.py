@@ -90,7 +90,7 @@ async def test_positive_byzantine_signal_precedes_birth_insert_and_creator_task(
 
 
 @pytest.mark.asyncio
-async def test_disabled_or_failed_startup_signal_keeps_normal_ingestion(monkeypatch):
+async def test_feature_disabled_keeps_normal_ingestion(monkeypatch):
     listener = _Listener(None)
     monkeypatch.setattr(asyncio, "create_task", lambda coro: coro.close())
 
@@ -103,15 +103,44 @@ async def test_disabled_or_failed_startup_signal_keeps_normal_ingestion(monkeypa
     assert listener.calls == ["audit", "remember", "insert"]
 
 
-def test_latest_five_replay_non_byzantine_control_and_overflow_are_unchanged():
+@pytest.mark.asyncio
+async def test_startup_signal_load_failure_keeps_normal_ingestion(monkeypatch):
+    # __init__ intentionally turns a failed strict-creator load into None.
+    # The handler must retain the normal birth path for that startup state.
+    listener = _Listener(None)
+    monkeypatch.setattr(asyncio, "create_task", lambda coro: coro.close())
+
+    await listener._handle_pumpportal_create_frame(
+        _frame(), signature="signature", mint="mint", receive_utc_ns=1,
+        receive_monotonic_ns=2, tracked_trade_mints=set(), migration_sol_threshold=60,
+        ws=_Ws(),
+    )
+
+    assert listener.calls == ["audit", "remember", "insert"]
+
+
+def test_latest_five_byzantine_signals_replay_in_order():
     creators = {"byzantine": {"mint": "proof", "signature": "proof", "creator": "byzantine"}}
     emitter = ByzantineBirthSignalEmitter(creators, enabled=True, capacity=5)
     signals = [
         emitter.observe(mint=f"mint-{n}", creator="byzantine", signature=f"sig-{n}", receive_utc_ns=n)
         for n in range(5)
     ]
-    assert len([signal for signal in signals if signal]) == 5
+    assert [signal["mint"] for signal in signals if signal] == [f"mint-{n}" for n in range(5)]
+    assert [emitter.events.get_nowait()["mint"] for _ in range(5)] == [f"mint-{n}" for n in range(5)]
+
+
+def test_non_byzantine_creator_emits_no_signal():
+    emitter = ByzantineBirthSignalEmitter({}, enabled=True, capacity=5)
     assert emitter.observe(mint="control", creator="other", signature="control", receive_utc_ns=6) is None
+    assert emitter.events.empty()
+
+
+def test_signal_queue_overflow_drops_only_extra_signal():
+    creators = {"byzantine": {"mint": "proof", "signature": "proof", "creator": "byzantine"}}
+    emitter = ByzantineBirthSignalEmitter(creators, enabled=True, capacity=5)
+    for n in range(5):
+        assert emitter.observe(mint=f"mint-{n}", creator="byzantine", signature=f"sig-{n}", receive_utc_ns=n)
     assert emitter.observe(mint="overflow", creator="byzantine", signature="overflow", receive_utc_ns=7) is None
     assert emitter.dropped == 1
 

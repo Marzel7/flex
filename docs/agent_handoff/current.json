@@ -94,6 +94,14 @@
     "blocker": "AUTHORITATIVE_EXECUTION_INTEGRITY_FAILURE: scripts/acquire_byzantine_lifecycle_10.py has no endpoint, transport, request builder, or dispatch code; it explicitly declares live provider dispatch disabled and rejects mutation of the active ledger. The frozen ledger contains no provider budget or provider binding. A live run cannot account/checkpoint before dispatch under this implementation.",
     "next_action": "Provide or separately authorize a reviewed live executor plus frozen Helius/Alchemy endpoint, per-phase/provider budgets, request contracts, retention paths, and active-ledger mutation authority; do not send an unaccounted provider request."
   },
+  "byzantine_lifecycle_10_live_provider_layer": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 (working tree)",
+    "tests": "18 passed: tests/test_acquire_byzantine_lifecycle_10.py (provider-free mocked dispatch coverage)",
+    "production_flags": "0 Helius calls; 0 Alchemy calls; 0 DB/membership/trading writes; active ledger SHA-256 unchanged at c931861109955c4ce1509351ebcf3faad48f71224c608b5973b9178927f7b94a",
+    "verdict": "HOLD",
+    "blocker": "EXTERNAL_ENVIRONMENT_TERMINATION: HELIUS_RPC_URL, HELIUS_API_KEY, and HELIUS_TEMP_API_KEY are absent from both process environment and .env. No reviewed Helius endpoint can be constructed, so the authorized smoke call cannot be dispatched.",
+    "next_action": "Supply HELIUS_RPC_URL as a reviewed mainnet endpoint in the execution environment, then run the one-call exact-signature creation smoke for 4ZXXiMMyN3wotCEW2QfmRbesHg3pS7S3rovnrKcYpump before any opening/migration call."
+  },
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {
     "authorization_consumed_at_utc": "2026-08-12T20:55:26Z",

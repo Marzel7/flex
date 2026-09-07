@@ -12570,6 +12570,18 @@
     "safety": "19 Alchemy historical calls total (one smoke, six required snapshots, thirteen redundant retained Global cursor reads); 0 Helius/Birdeye/GMGN/DB/membership/Watchtower/trading/active-playbook changes.",
     "next_action": "REVIEW_TARGET_ERA_GLOBAL_FEECONFIG_LAYOUT_BINDING_GAP: qualify BuyExactQuoteInV2/buyback and sell variant arithmetic/rounding against exact retained transaction cases before any five-token final pre-migration state sample."
   },
+  "pumpfun_target_era_variant_execution_replay": {
+    "status": "PARTIAL",
+    "verdict": "BUY_VARIANTS_EXACTLY_REPLAYED_SELL_VALIDATION_PENDING",
+    "engineering_revision": "classification-attribution-axis working tree",
+    "implementation": "src/ops/pumpfun_execution_model_target_era.py is research-only variant dispatch; it has no RPC, wallet, or live-execution path and fails closed for unknown variants. scripts/replay_pumpfun_target_era_variants.py produces the retained-only audit.",
+    "evidence": "Retained slot 443375107 state stream has 7 buy events: Buy=2, BuyExactSolIn=3, BuyExactQuoteInV2=2. One first V2 event has no retained predecessor state and is explicitly excluded. The six transition-replayable buys and one Sell reproduce exactly using raw integer semantics; audit digest 15cc53e11d599358a56a03b211f5e5e36301b2e9bacfecd5d52411773d765e11.",
+    "semantics": "BuyExactSolIn and BuyExactQuoteInV2 use net=floor(spendable*10000/10125), individual 95/30 bp ceil fees and the documented net correction, followed by floor((net-1)*v_token/(v_sol+net-1)). Buy is exact token amount with curve SOL ceil(token*v_sol/(v_token-token)) then individual ceil fees. Sell is gross SOL floor(token*v_sol/(v_token+token)) then individual ceil fees. The 5000 bp buyback field is evidenced as a 50% allocation of protocol fee (for the retained V2 case), not an added user-price fee or reserve adjustment.",
+    "binding": "Observed discriminators: Buy=66063d1201daebea, BuyExactSolIn=38fc74089edfcd5f, BuyExactQuoteInV2=c2ab1c46684d5b2f, Sell=33e685a4017f83ad. The official IDL/source to target binary relationship remains PARTIAL, so this is explicit target-era observed behavior rather than a silently current-documentation claim.",
+    "validation": "18 focused provider-free tests passed (variant replay, config archive, and runner). Sell is 1/1 exact but needs independent cases before promotion; no additional transaction requests were authorized or made.",
+    "safety": "0 provider calls, DB writes, membership/Watchtower/Playbook changes, or trades. Active playbook unchanged.",
+    "next_action": "QUALIFY_MINIMAL_VARIANT_SPECIFIC_BUY_SELL_VALIDATION_SAMPLE"
+  },
   "pumpfun_virtual_reserve_decoder_qualification_poc": {
     "artifact_digest": "50340514fda74fce75c30543a1db2615ae1be58a30c18fe16643c6ac8893664a",
     "artifacts": "docs/audits/pumpfun_virtual_reserve_decoder_qualification_poc/qualification_manifest.v1.json",

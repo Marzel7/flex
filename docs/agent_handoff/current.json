@@ -12555,6 +12555,15 @@
     "status": "PARTIAL",
     "verdict": "TARGET_DEPLOYMENT_BOUND_SOURCE_SEMANTICS_NOT_BINARY_BOUND_BOUNDARY_REMAINS_PRECISE"
   },
+  "pumpfun_target_era_global_config_qualification": {
+    "status": "HOLD",
+    "verdict": "HISTORICAL_CONFIG_METHOD_INTEGRITY_UNQUALIFIED",
+    "engineering_revision": "classification-attribution-axis working tree",
+    "result": "Retained target-era opening transactions contain 29 direct Pump trade instructions whose first account is invariantly 4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf. The retained official Pump IDL commit 9c82f61cb711b044a17f770ab8ce9f9bdf78f333 declares that account as the Global PDA with sole UTF-8 seed global; local PDA derivation matches it. The same retained standard Buy/BuyExactSolIn instructions carry FeeConfig PDA 8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt, derived from fee_config plus the documented static seed under pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ. Thus account identity and the observed multiple Global/FeeConfig dependency are established, but no retained historical Global/FeeConfig account bytes or known update signatures cover Byzantine slots 438962813-444335877.",
+    "integrity_finding": "The prior archived-prestate raw artifact labels a getAccountInfo request config with slot, while scripts/run_pumpfun_opening_analysis.py sends minContextSlot. minContextSlot is a context lower bound, not an archival state selector. This mismatch means the retained artifact cannot establish historical account state without a provider-specific documented slot parameter and request/response parity. No provider request was made in this continuation.",
+    "safety": "0 provider/RPC calls; no DB, membership, Watchtower, trading, or active-playbook changes.",
+    "next_action": "REVIEW_HISTORICAL_PUMPFUN_GLOBAL_CONFIG_STATE_GAP: first qualify a provider-specific archival getAccountInfo request schema whose transmitted parameters exactly match retained raw evidence; then authorize a frozen bounded Global-plus-FeeConfig endpoint-snapshot or known-update-signature contract. Do not derive target-era buy/sell/fee/rounding semantics before that historical-state gate passes."
+  },
   "pumpfun_virtual_reserve_decoder_qualification_poc": {
     "artifact_digest": "50340514fda74fce75c30543a1db2615ae1be58a30c18fe16643c6ac8893664a",
     "artifacts": "docs/audits/pumpfun_virtual_reserve_decoder_qualification_poc/qualification_manifest.v1.json",

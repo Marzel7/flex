@@ -1,4 +1,12 @@
 {
+  "byzantine_collapse_severity_replay": {
+    "status": "COMPLETE",
+    "verdict": "USE_COLLAPSE_92_5_AS_PRIMARY_AND_KEEP_RUG_95_AS_TERMINAL",
+    "result": "101 retained lifecycles replayed twice identically. Threshold coverage: 90/92.5=80, 95=71. The nine-token 92.5-<95 band is the only material near-boundary addition; there are no 90-<92.5 or 85-<90 cases.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_103_collapse_severity_replay.json",
+    "safety": "0 provider/DB/membership/trade calls.",
+    "next_action": "Review the frozen collapse-severity result before any strategy engineering."
+  },
   "byzantine_7d_eventual_rug_replay": {
     "status": "COMPLETE",
     "verdict": "EVENTUAL_RUG_7D_DATA_COMPLETION_PASS",

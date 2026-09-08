@@ -15564,6 +15564,18 @@
     "blocker": "PumpSwapProgramWebsocketTask is fixture-qualified but lacks a concrete supervised production connector/registration. More importantly, signature/log-only raw events have EVENT_INDEX_UNRESOLVED_AT_SOURCE while semantic enqueue requires pool and instruction identity; no bounded post-commit retained/cache transaction materializer or max-10 asynchronous enrichment worker exists. Direct listener-to-semantic binding is forbidden.",
     "next_action": "IMPLEMENT_BOUNDED_POST_COMMIT_PUMPSWAP_RAW_EVENT_MATERIALIZER_AND_SUPERVISED_REGISTRATION"
   },
+  "pumpswap_isolated_20_event_session": {
+    "status": "PARTIAL",
+    "verdict": "PUMPSWAP_ISOLATED_20_EVENT_SESSION_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "ListenerPumpSwapRuntime.default_evidence_paths honors PUMPSWAP_RAW_SESSION_STORE, allowing the existing raw retention/materializer/semantic pipeline to operate against database/research_evidence/pumpswap_sessions/pumpswap_20_event_20260908_raw.sqlite without altering the frozen 1000-event smoke corpus.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pump_swap_isolated_20_event_live_session_qualification.v1.json",
+    "artifact_file_sha256": "05804b1b8661a8bd7be9084bab151a06b631b06ea104d45dd704c8fe7d7d0505",
+    "validation": "Empty start verified. Live session admitted exactly 20 unique raw events then closed; 25,904 post-limit notifications rejected. Funnel: 9 provider exact transactions, 9 unavailable, 3 no PumpSwap instruction, 6 PumpSwap instruction materializations, 4 direct pool-qualified semantic transforms/results, all 4 direction ambiguous. Two raw rows remained materializer lagged at required shutdown.",
+    "production_flags": "raw ON and semantic ON only during authorized isolated session; both OFF after shutdown; Byzantine shadow OFF. Two authorized listener restarts enabled/disabled the session. No signing/submission, automated exit, or canonical mutation.",
+    "blocker": "Fixture quality remains transaction-boundary/direction ambiguous; two admitted rows remained materializer-lagged when the bounded session was closed. Admission control successfully prevented storage-cap saturation.",
+    "next_action": "COLLECT_BOUNDED_PUMPSWAP_SEMANTIC_FIXTURES_UNTIL_QUALIFICATION_THRESHOLD"
+  },
   "pumpswap_supervised_semantic_workers": {
     "status": "PARTIAL",
     "verdict": "PUMPSWAP_SUPERVISED_SEMANTIC_PIPELINE_PARTIALLY_QUALIFIED",

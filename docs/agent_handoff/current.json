@@ -1,4 +1,16 @@
 {
+  "watchtower_current_universe_relay_solver_decontamination": {
+    "status": "COMPLETE",
+    "verdict": "WATCHTOWER_RELAY_SOLVER_DECONTAMINATION_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "artifacts": ["docs/audits/operation_infrastructure_role_exclusion_contract.v1.json", "docs/audits/watchtower_current_universe_relay_solver_decontamination.v1.json", "docs/audits/watchtower_historical_strategy_readiness.v1.json"],
+    "result": "Read-only current-universe replay froze 529 canonical mints (high-water 1788884142); 54 direct 69SN→F7p3d relay-dependent mints are excluded only from the research cohort and 475 clean mints remain. F7p3d is RELAY_SOLVER_ROLE_STRONGLY_SUPPORTED; retained edge evidence is preserved and operational continuity is prohibited.",
+    "validation": "4 focused provider-free generic role-exclusion tests passed; canonical production membership mutation 0; no provider/network, listener, observation, budget, or Byzantine-priority interaction.",
+    "strategy_readiness": "WATCHTOWER_HISTORICAL_STRATEGY_PIPELINE_NOT_READY: causal Watchtower qualification/entry boundary is not retained, despite 461/475 clean rows having migration timestamps/signatures.",
+    "cohort_lineage_id": "3bdf02087f11c5a7fa19af12923de01d8fcd4a55c8571f66ec6527bf2a7c8c67",
+    "blocker": "Qualify an operation-specific causal Watchtower entry reference before authorizing any price-history acquisition.",
+    "next_action": "QUALIFY_WATCHTOWER_CAUSAL_ENTRY_REFERENCE_THEN_REAUTHORIZE_LINEAGE_BOUND_HISTORICAL_PRICE_ACQUISITION"
+  },
   "byzantine_targeted_valuation_bridge_acquisition": {
     "status": "HOLD",
     "verdict": "BYZANTINE_TARGETED_VALUATION_BRIDGE_ACQUISITION_NOT_QUALIFIED",

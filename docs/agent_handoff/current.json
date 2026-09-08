@@ -15997,6 +15997,18 @@
     "blocker": "Concrete existing websocket connector and retained/cache/provider resolver remain injected test interfaces, not safely wired into a supervised production registration.",
     "next_action": "ENABLE_BOUNDED_PUMPSWAP_RAW_CAPTURE_AND_MATERIALIZER_THEN_BIND_SEMANTIC_CAPTURE"
   },
+  "byzantine_live_cluster_recurrence_asap_entry": {
+    "status": "PARTIAL",
+    "verdict": "LIVE_SCENARIO_D_TRIGGER_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "src/ops/byzantine_live_cluster_recurrence.py freezes the BYZANTINE_OPENING_CLUSTER_V1 12-wallet seed from the retained historical classifier and accepts only matching post-activation BUY actions as causal membership; src/ops/earliest_actionable_entry.py provides generic immutable post-qualification entry anchoring. The historical seed remains distinct from prospective admission.",
+    "asap_entry": "ASAP_POST_QUALIFICATION_ENTRY_CONTRACT_READY: first market observation whose availability timestamp is >= durable qualification commit is immutable; theoretical Scenario-D and practical actionable denominators remain separate.",
+    "gate": "Partial only: no listener binding to the existing ordered-action worker and no natural live 12+13 sequence has been observed. No Scenario-D trigger/outbox is claimed from fixtures.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_live_cluster_recurrence_and_asap_entry_qualification.v1.json SHA-256 c5380cc89069c43d66d3ca7b05d30cdd0286739c27182eb3694d8e3c64dfd4ee.",
+    "validation": "10 focused recurrence/entry/action-evidence/projection tests passed.",
+    "safety": "Action evidence flag OFF; Byzantine shadow OFF; no live smoke, provider/network acquisition, signing, submission or automated exits.",
+    "next_action": "BIND_EXISTING_POST_COMMIT_ORDERED_ACTION_WORKER_TO_COMMITTED_LIVE_ACTIONS_AND_RUN_A_SMALL_PASSIVE_SMOKE_BEFORE_ENABLING_GATE_A"
+  },
   "committed_ordered_opening_action_evidence_source": {
     "status": "HOLD",
     "verdict": "COMMITTED_ORDERED_OPENING_ACTION_SOURCE_PARTIALLY_IMPLEMENTED_NOT_LIVE_BOUND",

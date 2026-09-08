@@ -16372,4 +16372,12 @@
     "remaining": "Required final cache-path, retry ordinal/failed-attempt, crash-before/after-dispatch, retained-response recovery, concurrent actual-wrapper races, terminal attribution, batch cleanup, monitor restart/source mutation, and full flag-off/classifier equivalence scenarios have not been exercised. TWO_HOUR_PRIORITY_OBSERVATION_NOT_READY.",
     "next_action": "Complete the remaining specified injected integration scenarios before claiming controls/monitor qualification or two-hour readiness."
   }
+,
+  "final_worker_rpc_integration_continuation": {
+    "status": "PARTIAL",
+    "validation": "15 focused tests passed. Actual bound _rpc wrapper verifies getSignaturesForAddress=10, getTransaction=10, getAccountInfo=1; at exact 400 no dispatch; normal context bypasses ledger; two injected timeout dispatches consume conservative 20 across distinct attempt ordinals.",
+    "production_flags": "priority OFF; no real provider/network/canonical DB/shadow/trading activity.",
+    "remaining": "Cache path, denial result persistence, crash-before-dispatch RELEASED recovery, post-dispatch/retained-response recovery, concurrent actual-wrapper races, terminal handling, batch exception/early-return cleanup, monitor restart at exact 400, and full OFF/classifier equivalence still lack required integration proof. TWO_HOUR_PRIORITY_OBSERVATION_NOT_READY.",
+    "next_action": "Finish the remaining required injected scenarios rather than start the two-hour observation."
+  }
 }

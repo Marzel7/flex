@@ -15685,6 +15685,19 @@
     "blocker": "Persist an authoritative ordered recurrent-opening-cluster evidence stream and compact entry-state reference in the live operation path, then invoke the generic accumulator post-commit.",
     "next_action": "IMPLEMENT_DURABLE_LIVE_BYZANTINE_OPENING_CLUSTER_EVIDENCE_PROJECTION"
   },
+  "byzantine_live_opening_cluster_evidence_projection": {
+    "status": "PARTIAL",
+    "verdict": "BYZANTINE_OPENING_CLUSTER_PROJECTION_IMPLEMENTED_LIVE_HANDOFF_UNQUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "src/ops/byzantine_opening_cluster_projection.py adds a separate durable SQLite source/projection/cursor store. It accepts only compact post-commit canonical envelopes, orders recurrent members by the historical slot -> transaction_index -> action_index -> signature key, rejects missing order evidence, and requires an ordering-complete certificate before the 13th boundary. It forwards only the exact first recurrent 13th member with an entry-state reference to the existing generic producer; the projection commits before evaluation.",
+    "historical_equivalence": "scripts/analyze_byzantine_opening_cluster.py establishes the same causal ordering and the 12 position-specific recurrent-wallet cluster. Deterministic fixture replay produced TRIGGER_QUALIFIED for the exact 13th recurrent member; an activation boundary classifies the identical replay as HISTORICAL_REPLAY_ONLY and never grows the prospective cohort.",
+    "source_inventory": "Canonical membership currently supplies mint/operator/source/assigned_at/event_id; wt_create_event_ledger supplies signature/mint/creator/slot/block-time/instruction indexes. The actual live route still lacks committed recurrent-cluster classification, transaction index, ordering-complete certificate, and compact entry-state evidence reference, so it cannot yet construct an admissible envelope.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_live_opening_cluster_evidence_projection_qualification.v1.json SHA-256 17152de45e62919d03009770696fff9b4beaf4ba2a644f4f0ed970df856c4d78",
+    "validation": "7 focused projection/producer tests passed: exact 13th qualification, unrelated operation-member rejection, missing ordering/state failure, and provisional late-evidence hold. Provider/network calls 0; dispatcher not implemented because no live-compatible canonical envelope exists.",
+    "production_flags": "PumpSwap raw OFF; PumpSwap semantic OFF; Byzantine prospective shadow OFF; prospective cohort 0; signing/submission and automated exits NONE.",
+    "blocker": "Add a canonical post-commit producer of the four missing envelope facts from a retained authoritative opening-action stream; do not use receipt time or an in-memory birth signal.",
+    "next_action": "QUALIFY_AND_PERSIST_CANONICAL_BYZANTINE_OPENING_ACTION_ORDER_AND_ENTRY_STATE_ENVELOPE"
+  },
   "pumpswap_instruction_boundary_state_capability": {
     "status": "HOLD",
     "verdict": "PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_NOT_QUALIFIED",

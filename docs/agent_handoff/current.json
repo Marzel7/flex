@@ -1,4 +1,13 @@
 {
+  "watchtower_effective_ui_and_88wr_cross_operation_audit": {
+    "status": "PARTIAL",
+    "verdict": "WATCHTOWER_EFFECTIVE_UI_PROJECTION_QUALIFIED__88WR_ROLE_COLLISION_UNRESOLVED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "result": "Watchtower active-registry read model now consumes the frozen clean-cohort projection, yielding 475 rather than raw 529 without deleting canonical rows. 88WR is a direct Watchtower treasury for 79 clean mints and a repeated hop-2 predecessor in seven selected P3R-20f7 routes; the P3R address-independent candidate fingerprint remains 12/12 after removing 88WR.",
+    "artifacts": ["docs/audits/watchtower_effective_membership_ui_projection.v1.json", "docs/audits/p3r_20f7_88wr_watchtower_cross_operation_role_audit.v1.json"],
+    "blocker": "88WR role is unresolved: retained evidence establishes participation but not controller, service, signer, or fee-payer semantics; P3R promotion remains prohibited.",
+    "next_action": "RETAIN_P3R_20F7_AS_UNPROMOTED_AND_AUDIT_88WR_TRANSACTION_ROLE_SEMANTICS_ONLY_IF_SEPARATELY_AUTHORIZED"
+  },
   "watchtower_current_universe_relay_solver_decontamination": {
     "status": "COMPLETE",
     "verdict": "WATCHTOWER_RELAY_SOLVER_DECONTAMINATION_QUALIFIED",

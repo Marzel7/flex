@@ -15564,6 +15564,18 @@
     "blocker": "PumpSwapProgramWebsocketTask is fixture-qualified but lacks a concrete supervised production connector/registration. More importantly, signature/log-only raw events have EVENT_INDEX_UNRESOLVED_AT_SOURCE while semantic enqueue requires pool and instruction identity; no bounded post-commit retained/cache transaction materializer or max-10 asynchronous enrichment worker exists. Direct listener-to-semantic binding is forbidden.",
     "next_action": "IMPLEMENT_BOUNDED_POST_COMMIT_PUMPSWAP_RAW_EVENT_MATERIALIZER_AND_SUPERVISED_REGISTRATION"
   },
+  "pumpswap_supervised_semantic_workers": {
+    "status": "PARTIAL",
+    "verdict": "PUMPSWAP_SUPERVISED_SEMANTIC_PIPELINE_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "src/ops/pumpswap_semantic_workers.py creates one bounded wake-up consumer that transforms committed instruction materializations, then calls the existing semantic spool processor. ListenerPumpSwapRuntime creates it and PumpFunCurveListener.run supervises it alongside the materializer; materializer commit signals it only after materialization persistence.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pump_swap_supervised_semantic_workers_and_20_event_session_qualification.v1.json",
+    "artifact_file_sha256": "3ebf70392fce17f2da1c95a59a2444f160d27ae7f14a24069478ed53c0fce4f2",
+    "validation": "10 focused tests passed. Existing retained gate passed with 2 eligible materializations, 0 provider calls, 2 transformed records and 2 committed semantic results; both direction ambiguous.",
+    "production_flags": "raw OFF; semantic OFF; Byzantine shadow OFF; no new live session/provider/network call/signing/submission/automated exit/canonical mutation.",
+    "blocker": "The retained raw smoke store is intentionally preserved at its full 1000-event capacity. No separate empty per-session raw store is configured, so the authorized 20-event session cannot safely begin.",
+    "next_action": "CONFIGURE_EMPTY_BOUNDED_PUMPSWAP_SESSION_STORE_AND_RUN_20_EVENT_SESSION"
+  },
   "pumpswap_pool_identity_binding": {
     "status": "PARTIAL",
     "verdict": "PUMPSWAP_POOL_IDENTITY_BINDING_PARTIALLY_QUALIFIED",

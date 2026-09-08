@@ -15997,6 +15997,19 @@
     "blocker": "Concrete existing websocket connector and retained/cache/provider resolver remain injected test interfaces, not safely wired into a supervised production registration.",
     "next_action": "ENABLE_BOUNDED_PUMPSWAP_RAW_CAPTURE_AND_MATERIALIZER_THEN_BIND_SEMANTIC_CAPTURE"
   },
+  "byzantine_current_universe_creator_false_positive_gate": {
+    "status": "COMPLETE",
+    "verdict": "BYZANTINE_CREATOR_FAST_PATH_SAFE_WITH_TOKEN_LEVEL_GATE",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "current_snapshot": "103 canonical Byzantine mints, 101 creator-resolved (98.06%), 36 unique creators, membership high-water 1788589878, and no mint difference from the prior retained 103-mint snapshot (identity SHA-256 40084c96dd1d4bb8166a145cde5477707fab33037ce6674dee637026c666f04b).",
+    "false_positive_boundary": "Across 397 retained launches from those 36 creators: 103 CANONICAL_BYZANTINE, 28 CANONICAL_UNASSIGNED, 266 CLASSIFICATION_UNKNOWN, and no CANONICAL_OTHER_OPERATION/PENDING. 21 creators have both Byzantine and confirmed-unassigned launches. Creator-only post-admission replay has 1 confirmed TP, 0 confirmed FP, and 122 unresolved candidates, so zero false positives is not proven and creator-only eligibility is rejected.",
+    "latency": "Only 1 retained launch-to-local-canonical-assignment pair had non-negative comparable timing (125610 seconds); membership assigned_at is availability-only, not a proven causal launch-time event. No retrospective entry or live latency claim is qualified.",
+    "contract": "Known subject/creator association is prewarm/context only; every strategy or shadow admission requires THIS mint's canonical operator_launch_membership assignment. Creator prewarm never consumes a cohort slot.",
+    "artifacts": "docs/audits/byzantine_lifecycle_103/byzantine_current_universe_creator_false_positive_and_trade_gate_audit.v1.json SHA-256 592f2823352096893569302677ffd994d7d95fb421a9d776b6ebd1c2e8a86e9e; docs/audits/byzantine_lifecycle_103/operation_subject_signal_vs_entity_membership_gate_contract.v1.json SHA-256 58da1f428bd6d7fa4e28e64dafbb83d21c591d13446df14491350e2eec8b4386.",
+    "validation": "python scripts/audit_byzantine_creator_false_positive_gate.py; pytest -q tests/test_byzantine_creator_false_positive_gate.py: 1 passed; provider/network NONE.",
+    "safety": "Shadow OFF; no source/runtime/DB/membership changes; no signing, submission, or automated exits.",
+    "next_action": "IF_AUTHORIZED_IMPLEMENT_GENERIC_KNOWN_OPERATION_SUBJECT_PREWARM_WITH_MANDATORY_COMMITTED_MINT_MEMBERSHIP_GATE; DO_NOT_IMPLEMENT_CREATOR_ONLY_TRADING_FAST_PATH"
+  },
   "byzantine_ui_creator_lineage_canonical_membership": {
     "status": "PARTIAL",
     "verdict": "BYZANTINE_CANONICAL_CREATOR_MEMBERSHIP_AUTHORITY_PARTIALLY_QUALIFIED",

@@ -15564,6 +15564,18 @@
     "blocker": "PumpSwapProgramWebsocketTask is fixture-qualified but lacks a concrete supervised production connector/registration. More importantly, signature/log-only raw events have EVENT_INDEX_UNRESOLVED_AT_SOURCE while semantic enqueue requires pool and instruction identity; no bounded post-commit retained/cache transaction materializer or max-10 asynchronous enrichment worker exists. Direct listener-to-semantic binding is forbidden.",
     "next_action": "IMPLEMENT_BOUNDED_POST_COMMIT_PUMPSWAP_RAW_EVENT_MATERIALIZER_AND_SUPERVISED_REGISTRATION"
   },
+  "pumpswap_live_raw_materializer_semantic_capture": {
+    "status": "HOLD",
+    "verdict": "PUMPSWAP_PASSIVE_EVIDENCE_PIPELINE_INTEGRATED_NOT_LEFT_LIVE",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "src/ops/pumpswap_materializer_worker.py is an event-driven maxsize-1 signal worker. ListenerPumpSwapRuntime.bind_materializer creates its concrete resolver and the listener starts it separately from the websocket. Provider work occurs in a worker thread after raw read completion and before short evidence/materialization commits.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pump_swap_live_raw_materializer_semantic_capture_qualification.v1.json",
+    "artifact_file_sha256": "2e41513bc1cada2830d502c92f9a3f9db4fae8d597b6c4e31677064b483ff4ef",
+    "validation": "15 focused tests passed. Live short smoke retained 1000 unique raw events; 10 provider exact-response artifacts; 4 instruction-bearing materializations; 717 bounded unavailable materializations.",
+    "production_flags": "raw was enabled for the authorized smoke then returned OFF after the raw event cap saturated; semantic OFF throughout; Byzantine shadow OFF. One authorized listener restart enabled the smoke and one restart disabled it. No signing/submission, automated exit, or canonical mutation.",
+    "blocker": "The program-log source volume saturated the 1000 raw cap during the short smoke and left a 273-row backlog. A committed-materialized-to-semantic record transformer is also absent, so semantic capture cannot be safely enabled.",
+    "next_action": "Introduce an explicit lower live session admission cap and a committed materialized-to-semantic record transformer before another live enablement attempt."
+  },
   "pumpswap_concrete_transaction_resolver": {
     "status": "PARTIAL",
     "verdict": "PUMPSWAP_CONCRETE_TRANSACTION_RESOLVER_PARTIALLY_QUALIFIED",

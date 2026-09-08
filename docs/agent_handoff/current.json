@@ -15997,6 +15997,22 @@
     "blocker": "Concrete existing websocket connector and retained/cache/provider resolver remain injected test interfaces, not safely wired into a supervised production registration.",
     "next_action": "ENABLE_BOUNDED_PUMPSWAP_RAW_CAPTURE_AND_MATERIALIZER_THEN_BIND_SEMANTIC_CAPTURE"
   },
+  "byzantine_priority_walkback_latency_qualification": {
+    "status": "PARTIAL",
+    "verdict": "BYZANTINE_PRIORITY_WALKBACK_GATE_PARTIALLY_QUALIFIED",
+    "latency_verdict": "INSUFFICIENT_LATENCY_OBSERVATION",
+    "readiness": "PRIORITY_WALKBACK_GATE_NOT_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "queue_trace": "Existing wt_walkback_queue already has mint-PK dedupe, priority/priority_reason fields, lease/retry fields, and worker ordering priority DESC then FIFO in src/core/walkback_worker.py::drain_batch. Existing enqueue is migration fallback via PumpFunCurveListener::_check_watchtower_migration -> walkback_queue.enqueue_migration.",
+    "early_enqueue": "SAFE: enqueue_migration already accepts committed mint, creator, create signature/slot/block time and does not itself require migration. The predecessor evidence existed before launch. The same FULL_WALKBACK job can be represented from a committed launch without changing strict evidence semantics.",
+    "blocker": "A priority field is not a qualified lane: there is no generic post-commit priority request producer, persistent priority-request identity/upgrade contract, bounded starvation-prevention policy, T0-T6 timing instrumentation, or isolated semantic-equivalence adapter. Current strict priority ordering can starve normal jobs. No live priority request or smoke was dispatched.",
+    "queue_pressure": "Read-only current queue census retained in artifact; current queue has no pending high-priority sample suitable for normal-vs-high queue-wait comparison. Average historical completed processing was observed, but strict evidence/classifier timestamps are absent, so end-to-end latency is unavailable.",
+    "semantics": "Creator context may affect queue order only. Existing Walkback acquisition, route selection, atomic evaluator, governance lookup and strict classifier remain authoritative and reusable. Provider work remains outside DB write transactions.",
+    "artifacts": "docs/audits/byzantine_lifecycle_103/byzantine_priority_walkback_latency_qualification.v1.json SHA-256 ff9ecba202a7baa96eeb3ad38220334ae9759427d0d566e749e3cb3bab64d4e5; docs/audits/byzantine_lifecycle_103/operation_priority_mint_evidence_fast_path_contract.v2.json SHA-256 3ebe4076a0bf5d4965d4bf7b13dd20d392e65d741f6812509e7bdb9166fd237b.",
+    "validation": "python scripts/audit_byzantine_priority_walkback_lane.py; pytest -q tests/test_byzantine_priority_walkback_lane_audit.py tests/test_byzantine_launch_time_strict_evidence_audit.py tests/test_byzantine_mint_specific_discriminator_audit.py tests/test_byzantine_prefilter_existing_classifier_audit.py tests/test_byzantine_creator_continuity.py: 7 passed.",
+    "safety": "Provider/network NONE; canonical membership writes NONE; shadow OFF; signing/submission/automated exits NONE.",
+    "next_action": "IMPLEMENT_GENERIC_POST_COMMIT_OPERATION_EVIDENCE_PRIORITY_REQUEST_WITH_PERSISTENT_DEDUPE_FAIR_SCHEDULING_AND_T0_T6_TIMING_THEN_RUN_ISOLATED_REPLAY_BEFORE_A_BOUNDED_PASSIVE_SMOKE"
+  },
   "byzantine_launch_time_strict_mint_evidence_fast_path": {
     "status": "COMPLETE",
     "verdict": "BYZANTINE_LAUNCH_TIME_STRICT_MINT_GATE_NOT_QUALIFIED",

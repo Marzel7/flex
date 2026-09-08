@@ -16269,4 +16269,18 @@
     "production_flags": "OPERATION_EVIDENCE_PRIORITY_ENABLED remains 0; no PREPARED state, watchdog process, activation, listener/worker restart, provider activity, or canonical DB write was performed. Shadow remains unmodified/off.",
     "next_action": "Separately authorize implementation and qualification of a narrowly scoped durable real-priority feature adapter plus deployment binding, then repeat identity and health gates before any two-hour activation."
   }
+,
+  "real_priority_feature_watchdog_adapter": {
+    "status": "COMPLETE",
+    "verdict": "REAL_PRIORITY_FEATURE_WATCHDOG_ADAPTER_QUALIFIED",
+    "platform_verdict": "OPERATION_AGNOSTIC_STRATEGY_PIPELINE_LOCKED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus isolated priority adapter/runtime files",
+    "runtime": "isolated /private/tmp/flex-priority-deploy; listener after one required reload/restart pid 44429, worker pid 32048; listener sha256 f1e544eaddeea1b09f48a406a22bfc11277966f90ef6a82b7b6ac3bbb3e79896; worker sha256 101555855ea2cbc659fd775d5f4f9b1f19d5579db4b9b81d5a92940d782a94ea.",
+    "implementation": "src/ops/durable_runtime_feature_adapter.py atomically owns a feature/runtime-bound state file. operation_evidence_priority.enabled dynamically consumes that path when configured and otherwise preserves env behavior. Watchdog reconstructs the adapter from durable observation metadata. Controller detects unmanaged adapter-owned ON, forces verified OFF, then rejects preparation.",
+    "live_proof": "30s isolated test observation 98b11ef7-73f7-4907-9950-5e8b289ed911: PREPARED then ARMED then real ON; controller SIGKILL confirmed; independent watchdog alive; at original deadline watchdog set/verified real OFF and persisted off_actor=WATCHDOG reason=ABSOLUTE_DEADLINE success=true. Listener/worker remained RUNNING. No creator-hit observation or two-hour run occurred.",
+    "validation": "17 focused tests passed; post-OFF priority flag tests 9 passed; py_compile and JSON validation passed. No intentional provider/network activity, adapter/watchdog canonical DB writes, shadow, signing, submission, or exits.",
+    "artifacts": {"contract": "docs/audits/durable_runtime_feature_adapter_contract.v1.json", "contract_sha256": "4af7b33e2dfefd6a23f29440728fe1940c59558c42057baa7ca4b67ad2735b73", "qualification": "docs/audits/operation_evidence_priority_real_feature_watchdog_binding_qualification.v1.json", "qualification_sha256": "8e4acbcc924e682ac401ad78fa130cf78eb0015679c7a9709da675db4373383f"},
+    "production_flags": "OPERATION_EVIDENCE_PRIORITY_ENABLED is OFF and runtime-visible OFF after qualification.",
+    "next_action": "USE_REAL_PRIORITY_ADAPTER_WITH_QUALIFIED_CONTROLLER_AND_WATCHDOG_TO_RUN_TWO_HOUR_LATENCY_OBSERVATION"
+  }
 }

@@ -16348,4 +16348,12 @@
     "artifact_sha256": "2616a0517e9d916c386ff2e0e3093e9bbdd06bc3244b8456ea88b7f6194c315b",
     "next_action": "Authorize/implement a narrow per-row durable observation attribution context in the Walkback worker, then bind reserve/consume at _rpc and qualify cache/retry/crash recovery before live activation."
   }
+,
+  "durable_walkback_observation_attribution_binding": {
+    "status": "PARTIAL",
+    "implementation": "src/ops/walkback_observation_attribution.py persists one ACTIVE observation linkage per mint. Byzantine priority binding records it after observation admission/request linkage. walkback_worker reconstructs row context durably and _rpc reserves exact scheduled credits before actual dispatch; normal rows retain context NONE and batch reset prevents legacy early-return context leakage.",
+    "validation": "py_compile passed; 7 existing focused binding/ledger tests passed. Priority OFF; provider/network/canonical DB/shadow/trading activity none.",
+    "remaining": "No injected integration tests yet cover cache-before-reservation, retry attempt ordinals, denied dispatch, crash/recovery states, or actual monitor rebind. Do not claim fully qualified or activate priority.",
+    "next_action": "Add injected worker-RPC integration tests and recovery state transitions, then rebind monitor to admissions/ledger and qualify before the two-hour observation."
+  }
 }

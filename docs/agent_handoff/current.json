@@ -15737,6 +15737,19 @@
     "blocker": "The worker is not yet fed by a durable live post-commit raw-artifact spool, and current Pump.fun curve accountSubscribe has only slot-level—not action-local—temporal semantics. It cannot produce qualified PRE_ACTION_STATE or POST_ACTION_STATE.",
     "next_action": "IMPLEMENT_PASSIVE_POST_COMMIT_PUMPFUN_RAW_ACTION_SPOOL_BINDING_AND_ACTION_LOCAL_STATE_SOURCE"
   },
+  "pumpfun_passive_raw_action_spool_and_action_local_state": {
+    "status": "PARTIAL",
+    "verdict": "PUMPFUN_PASSIVE_RAW_ACTION_AND_LOCAL_STATE_SOURCE_PARTIALLY_QUALIFIED",
+    "platform_verdict": "OPERATION_AGNOSTIC_STRATEGY_PIPELINE_LOCKED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "live_binding": "src/core/pumpfun_curve_listener.py::PumpFunCurveListener.handle_birth now conditionally invokes the generic bind_committed_transaction only after its second durable CREATE-ledger commit. With the feature enabled, raw exact getTransaction evidence plus the one logical spool job commit atomically in the generic evidence SQLite via asyncio.to_thread; no network/block/state work occurs in the listener. OFF remains a strict no-op.",
+    "state": "The existing Pump.fun TradeEvent parser carries four explicitly post-transition reserve fields and these are retained as EVENT_EMITTED_POST_ACTION_RESERVES_PARTIAL POST_ACTION_STATE artifacts only when all are present. It does not carry curve raw bytes/account identity, completion, full fee/global/creator configuration, program-version binding, or an authoritative PRE state. The accountSubscribe path remains slot-level and is explicitly rejected as action-local exact state. No state chaining is implemented without a full qualified seed/config checkpoint.",
+    "validation": "16 focused tests passed: feature gating, listener-equivalent raw/spool atomic binding and dedupe, worker retries/dead letter/local block reuse, reserve completeness contract, slot-state exclusion, generic source behavior, and existing projection/evaluator safeguards. No provider/network request or live capture occurred.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pumpfun_passive_raw_action_spool_and_action_local_state_qualification.v1.json SHA-256 b020342acd53c6d82c91cf1a00c59cef3e7b98843ac58e2a53abdd45cb53671a",
+    "safety": "PUMPFUN_OPENING_ACTION_EVIDENCE_ENABLED OFF; Byzantine shadow OFF; prospective cohort 0; PumpSwap/Birdeye untouched; signing/submission and automated exits NONE. Shared listener worktree was pre-staged/dirty, so no engineering files were staged or committed by this milestone.",
+    "blocker": "Need a full action-local Pump.fun curve/config checkpoint source: curve identity/raw bytes, completion, fee/global/creator config and program version, plus authoritative PRE seed or resynchronization. Reserve-only TradeEvents cannot make a model-ready Scenario-D entry state.",
+    "next_action": "QUALIFY_FULL_PUMPFUN_ACTION_LOCAL_CURVE_STATE_AND_CONFIG_CHECKPOINT_SOURCE"
+  },
   "pumpswap_instruction_boundary_state_capability": {
     "status": "HOLD",
     "verdict": "PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_NOT_QUALIFIED",

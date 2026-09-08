@@ -15997,6 +15997,17 @@
     "blocker": "Concrete existing websocket connector and retained/cache/provider resolver remain injected test interfaces, not safely wired into a supervised production registration.",
     "next_action": "ENABLE_BOUNDED_PUMPSWAP_RAW_CAPTURE_AND_MATERIALIZER_THEN_BIND_SEMANTIC_CAPTURE"
   },
+  "byzantine_v1_prospective_mark_shadow_binding": {
+    "status": "HOLD",
+    "verdict": "PROSPECTIVE_VALIDATION_BLOCKED_BY_LIVE_TRIGGER",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "gate_a": "BLOCKED: generic trigger/outbox and opening-cluster projection exist but production listener has no durable ordered opening-cluster accumulator/caller. Canonical membership does not retain recurrent cluster identity, positions 1..13, exact Scenario-D boundary, or admissible entry reference. No live causal Scenario-D qualification can be emitted.",
+    "gate_b": "PARTIAL_NOT_BINDABLE: locked same-token mark basis is conceptually sufficient for mark-based shadow validation, but no causal Gate-A boundary exists to attach bounded SOL/USD/token/migration/+2m collection to.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_v1_prospective_mark_shadow_binding_qualification.v1.json SHA-256 10d2673a06d2c3eda4437d702481b8f7ac6f093a061c82a6b217bba1f381668d.",
+    "validation": "11 focused generic trigger, worker, and opening-cluster projection tests passed. They are fixture/component tests and do not prove production listener binding.",
+    "safety": "BYZANTINE_PROSPECTIVE_SHADOW_OBSERVER_ENABLED remains OFF; cohort store/admissions/provider/network acquisition/signing/submission/automated exits all NONE.",
+    "next_action": "IMPLEMENT_AND_QUALIFY_LIVE_CAUSAL_SCENARIO_D_EVIDENCE_ACCUMULATOR_BEFORE_REAUTHORING_PROSPECTIVE_MARK_SHADOW_ENABLEMENT"
+  },
   "byzantine_locked_strategy_validation_readiness": {
     "status": "COMPLETE",
     "verdict": "BYZANTINE_LOCKED_STRATEGY_VALIDATION_PARTIALLY_READY",

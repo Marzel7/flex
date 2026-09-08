@@ -16429,6 +16429,16 @@
     "contract": "All reachable provider request costs are <=10 under the frozen Helius schedule; 40 claimed dispatches imply theoretical smoke maximum <=400 credits. Claimed ordinal never refunds after crash/failure.",
     "next_action": "RUN_TWO_HOUR_REAL_PRIORITY_LATENCY_OBSERVATION_WITH_ALL_FROZEN_STOPS_ENFORCED"
   },
+  "durable_birth_migration_acquisition_availability": {
+    "status": "PARTIAL",
+    "verdict": "DURABLE_TRANSITION_STORE_AND_PRIMARY_LISTENER_HOOKS_IMPLEMENTED_HEALTH_READ_MODEL_PENDING",
+    "engineering_revision": "working-tree partial implementation",
+    "implementation": "src/ops/acquisition_availability.py adds a generic low-volume append-only transition store and deterministic clipped rolling interval reader. pumpfun_curve_listener initializes BIRTH/MIGRATION UNKNOWN, records BIRTH AVAILABLE after connected PumpPortal subscribeNewToken send and DOWN on websocket failure, and records MIGRATION AVAILABLE only after logsSubscribe confirmation and DOWN on websocket failure. Writes are isolated and return failure rather than raising into event acquisition.",
+    "validation": "py_compile passed; local deterministic transition exercise verified idempotent repeated DOWN, one bounded incident, recovery, and unknown pre-observation time.",
+    "invariants": "Birth/migration parsing, dedupe, persistence, enqueue, Walkback, and operation membership paths were not modified. Additional provider/network activity NONE; Byzantine observation untouched.",
+    "blocker": "Health API/read-model integration, compact page incident/availability rendering, durable restart/process-death semantics, artifacts, and required full test matrix remain unfinished.",
+    "next_action": "Add shared /api/health/full availability summaries from the durable store, render Health-page Acquisition Availability, then complete restart/failure/24h tests and qualification artifacts before claiming durable availability qualified."
+  },
   "shared_health_and_24h_capture_coverage_qualification": {
     "status": "PARTIAL",
     "verdict": "SHARED_HEALTH_READ_MODEL_PARTIALLY_QUALIFIED",

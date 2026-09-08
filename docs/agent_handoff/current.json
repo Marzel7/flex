@@ -16407,5 +16407,18 @@
     "validation": "6 focused monitor-dispatch/ordinal/actual-worker-RPC tests passed; monitor restart with durable 40 ordinals forced test feature OFF. Priority OFF; no provider/network/canonical/shadow/trading activity.",
     "contract": "All reachable provider request costs are <=10 under the frozen Helius schedule; 40 claimed dispatches imply theoretical smoke maximum <=400 credits. Claimed ordinal never refunds after crash/failure.",
     "next_action": "RUN_TWO_HOUR_REAL_PRIORITY_LATENCY_OBSERVATION_WITH_ALL_FROZEN_STOPS_ENFORCED"
+  },
+  "qualified_40_dispatch_isolated_runtime_deployment": {
+    "status": "HOLD",
+    "verdict": "QUALIFIED_40_DISPATCH_GATE_DEPLOYMENT_NOT_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "runtime": "/private/tmp/flex-priority-deploy",
+    "runtime_identity_before": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "deployment_manifest": "priority_runtime_40_dispatch_deployment_manifest.v1.json sha256 be5c0cce40164b97ef0f719ae4a41a82aba6df200858cbcb25d8c1dd8afb9df8",
+    "requalification_artifact": "isolated_runtime_40_dispatch_requalification.v1.json sha256 135c192ed0a2fb960089b717ab6df721002d4e0754b8f8a6e4989e2625bbc282",
+    "tests": "3 exact-runtime imports tests passed: dispatch ordinal, monitor cap, candidate admission; ordinal 41 impossible assertion passed.",
+    "production_flags": "priority OFF; no process restart; provider/network NONE; canonical production activity NONE; shadow OFF; signing/submission NONE.",
+    "blocker": "The required deployment manifest was not created and verified before isolated-runtime mutation. Process snapshot access was also sandbox-denied. Do not restart or claim runtime readiness from this attempt.",
+    "next_action": "Restore the isolated runtime to its captured pre-deployment identity, create and verify a manifest before any mutation, then rerun the full required offline matrix and only then evaluate scoped process restart."
   }
 }

@@ -15725,6 +15725,18 @@
     "blocker": "No durable post-commit live spool/worker yet feeds exact listener transaction payloads into this generic store, and no prospective source captures temporally exact per-action Pump.fun curve state. Slot-level account notifications must remain BOUNDARY_STATE_UNAVAILABLE.",
     "next_action": "QUALIFY_BOUNDED_POST_COMMIT_PUMPFUN_BLOCK_AND_BOUNDARY_STATE_CAPTURE_WORKER"
   },
+  "pumpfun_post_commit_opening_action_worker": {
+    "status": "PARTIAL",
+    "verdict": "PUMPFUN_POST_COMMIT_BLOCK_AND_BOUNDARY_STATE_WORKER_PARTIALLY_QUALIFIED",
+    "platform_verdict": "OPERATION_AGNOSTIC_STRATEGY_PIPELINE_LOCKED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "src/ops/pumpfun_opening_action_worker.py adds a generic durable enrichment spool keyed one-per-committed raw artifact. It has single-call processing, a local retained-slot block check before an injected/shared block resolver, max-three retry/dead-letter semantics, short transactions, and metrics. Resolvers execute only after source/job reads have closed. Immutable exact PRE_ACTION_STATE/POST_ACTION_STATE artifacts are committed through the existing generic evidence store before job completion; slot-level states are not accepted.",
+    "qualification": "Deterministic tests prove post-commit enqueue/deduplication, three-attempt dead letter, one local block reuse, and slot-level-state exclusion. Generic source/projection/producer tests remain passing. The implementation contains no Byzantine, operation, strategy, candidate, signer, or submission dependency.",
+    "artifacts": "docs/audits/byzantine_lifecycle_103/pumpfun_boundary_state_artifact_contract.v1.json SHA-256 e1d26c4b084e00c60649e3edaf45c729462c9580f928e45fb51bd4235c8f43ea; docs/audits/byzantine_lifecycle_103/pumpfun_post_commit_opening_action_worker_qualification.v1.json SHA-256 d36787ddf6a92b92ea3be6b020fd064e76958e558aa495e7e8a8585c929ff01c",
+    "safety": "PUMPFUN_OPENING_ACTION_EVIDENCE_ENABLED OFF; Byzantine shadow OFF; no live listener binding, provider/network request, block/state fetch, canonical mutation, prospective cohort, signing/submission, or automated exit.",
+    "blocker": "The worker is not yet fed by a durable live post-commit raw-artifact spool, and current Pump.fun curve accountSubscribe has only slot-level—not action-local—temporal semantics. It cannot produce qualified PRE_ACTION_STATE or POST_ACTION_STATE.",
+    "next_action": "IMPLEMENT_PASSIVE_POST_COMMIT_PUMPFUN_RAW_ACTION_SPOOL_BINDING_AND_ACTION_LOCAL_STATE_SOURCE"
+  },
   "pumpswap_instruction_boundary_state_capability": {
     "status": "HOLD",
     "verdict": "PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_NOT_QUALIFIED",

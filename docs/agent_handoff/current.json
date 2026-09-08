@@ -15997,6 +15997,19 @@
     "blocker": "Concrete existing websocket connector and retained/cache/provider resolver remain injected test interfaces, not safely wired into a supervised production registration.",
     "next_action": "ENABLE_BOUNDED_PUMPSWAP_RAW_CAPTURE_AND_MATERIALIZER_THEN_BIND_SEMANTIC_CAPTURE"
   },
+  "byzantine_creator_prefilter_existing_mint_classifier_fast_path": {
+    "status": "COMPLETE",
+    "verdict": "BYZANTINE_CREATOR_PREFILTER_MINT_CLASSIFIER_FAST_PATH_NOT_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "classifier_trace": "The existing canonical writer is src/ops/wsol_10_sol_four_step_operation.py::project_completed_walkback, invoked by src/core/walkback_worker.py::_promote_if_canonical_watchtower only after a completed Walkback commit. It writes confirmed_operation_matches then operator_launch_membership. Its continuity version is BYZANTINE_PROVEN_CREATOR_CONTINUITY.v1 and requires creator/create signature/migration plus a prior strict proof; it is not launch-time and does not require Scenario-D.",
+    "replay": "Causal current-universe replay across 397 retained launches produced 87 prefilter hits and 310 misses. Of 103 canonical Byzantine mints, 67 were hits and 36 were expected first-creator discovery misses (65.05% coverage). Among 79 would-be existing-classifier admissions, 12 are non-canonical false positives (15.19%); 11 are confirmed unassigned. The exact existing classifier therefore fails the mandatory known-creator + non-Byzantine rejection fixture.",
+    "decision": "No creator-prefilter binding, cohort projector, priority lane, shadow activation, or ASAP-entry adapter was added. Creator context cannot safely target this classifier until a mint-specific zero-false-positive classifier/equivalence is separately qualified.",
+    "latency": "Creator lookup is not bound; classifier/qualification occurs only after asynchronous Walkback and migration evidence. No causal launch-to-qualification or ASAP-entry latency is qualified.",
+    "artifacts": "docs/audits/byzantine_lifecycle_103/byzantine_creator_prefilter_existing_mint_classifier_fast_path_qualification.v1.json SHA-256 ab988d5afd6af5920c5ddb70da4ca77ab688627cf08b8c1c981892c296a55fd4; docs/audits/byzantine_lifecycle_103/operation_subject_prefilter_entity_classifier_fast_path_contract.v1.json SHA-256 932bad7839270275bbdcdf2552feefadfd8a814f99ae61c21bb20ca238ad7185.",
+    "validation": "python scripts/audit_byzantine_prefilter_existing_classifier.py; pytest -q tests/test_byzantine_prefilter_existing_classifier_audit.py tests/test_byzantine_creator_continuity.py: 4 passed; provider/network NONE.",
+    "safety": "Shadow OFF; no signing, submission, automated exits, provider calls, or runtime/DB/membership writes.",
+    "next_action": "DO_NOT_BIND_OR_OPTIMIZE_CREATOR_PREFILTER_UNTIL_A_MINT-SPECIFIC_CLASSIFIER_WITH_ZERO_FALSE_POSITIVE_PROOF_IS_DEFINED_AND_QUALIFIED"
+  },
   "byzantine_current_universe_creator_false_positive_gate": {
     "status": "COMPLETE",
     "verdict": "BYZANTINE_CREATOR_FAST_PATH_SAFE_WITH_TOKEN_LEVEL_GATE",

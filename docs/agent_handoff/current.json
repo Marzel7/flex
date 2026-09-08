@@ -15552,6 +15552,18 @@
     "production_flags": "PUMPSWAP_RAW_SWAP_EVENT_RETENTION_ENABLED remains OFF; PUMPSWAP_PROSPECTIVE_SEMANTIC_EVIDENCE_ENABLED remains OFF; BYZANTINE_PROSPECTIVE_SHADOW_OBSERVER_ENABLED remains OFF. No live smoke, provider enrichment, signing/submission, automated exit, production/canonical change, or task-list registration occurred.",
     "next_action": "ENABLE_BOUNDED_PASSIVE_PUMPSWAP_RAW_CAPTURE_AND_BIND_SEMANTIC_CONSUMER"
   },
+  "pumpswap_passive_raw_and_semantic_live_enablement": {
+    "status": "HOLD",
+    "verdict": "PUMPSWAP_PASSIVE_CAPTURE_BINDING_NOT_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pump_swap_passive_raw_and_semantic_live_enablement_qualification.v1.json",
+    "artifact_payload_digest": "bedd68679e9d0eed4dec39bd0eb57394293401a2f6d7446b7a07c7e9621a8086",
+    "artifact_file_sha256": "2915c2b0058b4b5fbad19a1600b2e1c93665ccebe555e299f98f4491db86a360",
+    "validation": "Artifact JSON validation and diff --check passed. No live enablement test was run because the safety gates failed before flags/registering any task.",
+    "production_flags": "All remain OFF: PUMPSWAP_RAW_SWAP_EVENT_RETENTION_ENABLED, PUMPSWAP_PROSPECTIVE_SEMANTIC_EVIDENCE_ENABLED, and BYZANTINE_PROSPECTIVE_SHADOW_OBSERVER_ENABLED. Provider transaction enrichment requests 0; signing/submission NONE; automated exits NONE; production/canonical changes NONE.",
+    "blocker": "PumpSwapProgramWebsocketTask is fixture-qualified but lacks a concrete supervised production connector/registration. More importantly, signature/log-only raw events have EVENT_INDEX_UNRESOLVED_AT_SOURCE while semantic enqueue requires pool and instruction identity; no bounded post-commit retained/cache transaction materializer or max-10 asynchronous enrichment worker exists. Direct listener-to-semantic binding is forbidden.",
+    "next_action": "IMPLEMENT_BOUNDED_POST_COMMIT_PUMPSWAP_RAW_EVENT_MATERIALIZER_AND_SUPERVISED_REGISTRATION"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

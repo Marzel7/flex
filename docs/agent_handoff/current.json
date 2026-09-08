@@ -15294,6 +15294,16 @@
     "blocker": "The existing Helius Pump.fun logsSubscribe implementation is unsuitable as a passive reference: it processes the full program firehose through handle_pumpfun_trade/getTransaction work, with observed 15-65 second loop stalls and PumpPortal reconnect/outage failures. It cannot be enabled for the requested comparison without a separately isolated observation-only chain feed. Telemetry remained at 0 matched records.",
     "next_action": "DESIGN_ISOLATED_PASSIVE_PUMPFUN_CHAIN_NOTIFICATION_FEED"
   },
+  "pumpfun_scenario_d_frozen_post_d_signature_denominator": {
+    "status": "COMPLETE",
+    "verdict": "FIVE_TOKEN_BOUNDARY_CROSSED_DENOMINATOR_FROZEN",
+    "engineering_revision": "classification-attribution-axis working tree",
+    "result": "2J7-only final pagination used 5 of 6 allowed signature pages and crossed at slot 439008282 (Scenario D boundary), making 5/5 complete; no exact transaction lookup was dispatched. Cumulative Helius calls 1,877, duplicate calls 0.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/scenario_d_post_order_flow_sample/frozen_post_d_signature_denominator.v1.json",
+    "denominator": "4,915 exact deduplicated signatures in Scenario-D<slot<=migration intervals: 2Br 911, 2GAd 760, 2Gw 727, 2J7 2,020, 2LVe 497. Existing exact raw transactions 1,836; missing 3,079; safe state-neutral exclusions 0; exact next lookup requirement 3,079.",
+    "safety": "No exact transaction lookup in final boundary wave; no Birdeye, GMGN, SOL/USD, PumpSwap, DB, membership, Watchtower, Playbook, live execution or trade action.",
+    "next_action": "ACQUIRE_ONLY_THE_FROZEN_MISSING_POST_D_EXACT_TRANSACTIONS"
+  },
   "pumpfun_scenario_d_final_two_token_boundary_wave": {
     "status": "HOLD",
     "verdict": "ONE_FINAL_TOKEN_REMAINS_OUTSIDE_FROZEN_PAGE_BOUND",

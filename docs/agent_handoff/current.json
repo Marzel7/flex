@@ -15354,6 +15354,15 @@
     "safety": "Provider, DB, membership, Watchtower and trading calls: 0. No live execution code or Playbook state changed.",
     "next_action": "QUALIFY_MINIMAL_COUNTERFACTUAL_PUMPFUN_CURVE_PATH_EVIDENCE"
   },
+  "pumpfun_scenario_d_frozen_missing_exact_acquisition": {
+    "status": "HOLD",
+    "verdict": "ACCOUNTED_DISPATCH_AMBIGUITY_REQUIRES_INTEGRITY_RECONCILIATION",
+    "engineering_revision": "classification-attribution-axis working tree",
+    "contract": "Frozen exact-only queue from frozen_post_d_signature_denominator.v1.json; no signature pagination, discovery, or duplicate exact lookup.",
+    "result": "Sequential acquisition retained 726 new exact getTransaction responses. Coverage is 2,562/4,915 and 2,353 exact frozen signatures remain. The next request was durably accounted before dispatch but has no raw response, dispatch timestamp, or outcome: mint 2GAd4qECH8cN4oQWwhiaBMADNupKCv8h9m9x3a4mpump, signature 4mGAB4rCbAqK95bqnJDgUEUyAR83Jfs3wS2W5nCmzq64a6r1uqjgZeEM3HNSoBMqu1Epd1PpihzL7fbhRo6cppB1.",
+    "safety": "No follow-on provider request was dispatched after the ambiguous accounted attempt; no Birdeye, GMGN, SOL/USD, PumpSwap, DB, membership, Watchtower, Playbook, live execution, or trade action.",
+    "next_action": "RECONCILE_OR_EXPLICITLY_RESOLVE_THE_SINGLE_ACCOUNTED_EXACT_DISPATCH_BEFORE_RESUMING_FROZEN_QUEUE"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

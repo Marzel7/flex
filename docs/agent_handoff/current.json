@@ -15426,6 +15426,17 @@
     "blocker": "No currently available provider/interface demonstrates authoritative intra-slot transaction-boundary bonding-curve account state. Slot-end observations cannot bridge the 27 same-slot intervals.",
     "next_action": "RESOLVE_COUNTERFACTUAL_RELEVANT_UNKNOWN_PUMPFUN_DISCRIMINATORS"
   },
+  "pumpfun_counterfactual_relevant_unknown_discriminators": {
+    "status": "COMPLETE",
+    "verdict": "COUNTERFACTUAL_RELEVANT_UNKNOWN_DISCRIMINATORS_NOT_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted retained semantic-denominator analysis",
+    "tests": "Focused semantic denominator test passed.",
+    "production_flags": "RPC/provider/network acquisition: NONE; production/canonical changes: NONE.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pumpfun_counterfactual_relevant_unknown_discriminator_resolution.v1.json; file SHA-256 e5c6584e0685bf40e964a09710173d749a478ad070bf5dc75c5db8d0ce80b9bf; payload digest 8c4ed6bb8f790a34203356c8a5266279b520fca5bc6c9276f623d91f61b88a29.",
+    "result": "The 32 counterfactual-relevant intervals span five discriminator classes: 5df6823ce7e940b2 (14 intervals), b817ee6167c5d33d (8), bbcb121fceedfe29 (7), 5e06ca73ff60e8b7 (4), and 9beae792ec9ea21e (1). All 64 retained occurrences were structurally inventoried. No class has an instruction-boundary normalized pre/post state sandwich; retained balance deltas do not identify virtual and real curve reserves, and historical control checkpoints cannot be reset into a counterfactual path. No transition adapter is implemented, and all five tokens remain COUNTERFACTUAL_REPLAY_BLOCKED.",
+    "blocker": "The smallest exact residual blocker is a counterfactual-safe transition function for any one relevant discriminator, requiring an instruction-boundary state constraint or independently qualified semantics; none exists in retained evidence.",
+    "next_action": "PRESERVE_COUNTERFACTUAL_REPLAY_BLOCKED_UNTIL_INSTRUCTION_BOUNDARY_SEMANTIC_EVIDENCE_IS_AVAILABLE"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

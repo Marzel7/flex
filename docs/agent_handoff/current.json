@@ -16439,6 +16439,18 @@
     "blocker": "Normal watchtower_listener is running from /private/tmp/flex-priority-deploy and predates instrumentation. It must not be restarted because that isolated priority runtime is explicitly frozen. Therefore no real durable production transitions/observation clock exist yet, and no 24-hour duration is claimed.",
     "next_action": "After explicit approval to replace the frozen isolated listener runtime with a clean observational-only build, deploy the existing hooks, observe actual subscription transitions, and allow the window to accumulate without fabricating coverage."
   },
+  "production_birth_migration_availability_only_deployment": {
+    "status": "PARTIAL",
+    "verdict": "PRODUCTION_BIRTH_MIGRATION_AVAILABILITY_VISIBILITY_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted observability-only development changes",
+    "artifact": "docs/audits/production_birth_migration_availability_only_deployment.v1.json sha256 aad1b366c638cb35d9b964dd236a3af641bfedfb0c5ebe96a5412189aaf2bcbc",
+    "runtime": "watchtower_listener is running at /private/tmp/flex-priority-deploy, revision 5904a907. It contains neither availability instrumentation nor experimental migration journal fallback.",
+    "deployment_classification": "Availability transition hooks are the only approved delta. Migration journal/fallback and all unrelated dirty runtime changes are explicitly NOT_APPROVED/NOT_DEPLOYED.",
+    "validation": "21 focused provider-free tests passed: durable transition/restart intervals, DB grouping, shared Health/sidebar, partial rendering, and explicit deployment-boundary exclusion.",
+    "safety": "No listener restart, provider/RPC traffic, priority observation, Byzantine restart, operation mutation, or migration durability matrix.",
+    "blocker": "The running normal listener is the protected isolated priority runtime; restart/replacement is forbidden by the no-Byzantine-restart constraint. Real durable Birth/Migration AVAILABLE transitions and observation clock cannot begin until a clean availability-only runtime is explicitly authorized.",
+    "next_action": "Obtain explicit authority to replace the protected runtime with a clean availability-only deployment; prove journal fallback absent from its diff, then observe natural subscription transitions."
+  },
   "shared_health_and_24h_capture_coverage_qualification": {
     "status": "PARTIAL",
     "verdict": "SHARED_HEALTH_READ_MODEL_PARTIALLY_QUALIFIED",
@@ -16473,13 +16485,14 @@
   },
   "migration_file_fallback_durability": {
     "status": "PARTIAL",
-    "verdict": "MIGRATION_INITIAL_DURABLE_BOUNDARY_IMPLEMENTED_FOCUSED_FIXTURE_QUALIFIED",
+    "verdict": "MIGRATION_JOURNAL_FALLBACK_IMPLEMENTED_EXPERIMENTALLY_NOT_APPROVED_FOR_PRODUCTION",
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 (working tree contains the uncommitted implementation)",
     "implementation": "src/core/pumpfun_curve_listener.py journals a compact versioned migration envelope with O_APPEND plus fsync only after migration final-write and migration_persist_queue insertion both fail. The existing migration_persist_queue remains the sole DB queue; its drainer reconciles the journal before normal PENDING/RETRY processing. Queue commit precedes journal acknowledgement/delete, and signature uniqueness makes interrupted import/replay idempotent. A fallback-write failure raises MIGRATION_TERMINAL_DURABILITY_RISK and attempts a separate compact terminal-risk journal. /api/health/full.ingestion_persistence.migration reports pending, retrying, fallback_pending, terminal_durability_risk, oldest unresolved age, latest error, and state.",
     "validation": "py_compile src/core/pumpfun_curve_listener.py src/core/main.py passed. Focused tests/test_migration_file_fallback.py passed 4/4: restart import, duplicate replay, crash before cleanup, and failed import retention. The compact existing Birth durability/compatibility pytest invocation completed successfully without errors.",
     "invariants": "NEW_MIGRATION_QUEUE_CREATED=NO; EXISTING_MIGRATION_PERSIST_QUEUE_REUSED=YES. No listener restart, production DB mutation, provider/network call, PumpSwap subscription change, classification change, or Byzantine runtime action was performed.",
     "blocker": "The full requested matrix has not yet been executed against the real _mark_token_migrated_in_db failure boundary: queue-insert lock, drainer lock/RETRY restart, final-commit-before-PROCESSED crash, background writer contention, combined Birth+Migration contention, and terminal-risk health/API fixture remain to qualify. The main worktree is materially dirty and the running listener predates this code, so deployment/restart is not safe or authorized.",
-    "next_action": "Add boundary-level failure-injection and /api/health/full persistence-summary tests, then run the remaining non-production matrix. Deploy only from a separately reviewed clean runtime revision."
+    "production_deployment": "FORBIDDEN in the current availability-only milestone. The active listener runtime /private/tmp/flex-priority-deploy at 5904a907 does not contain the fallback; no listener restart occurred.",
+    "next_action": "Keep the experimental journal frozen. Separately review it before any future non-production qualification or production deployment decision."
   },
   "qualified_40_dispatch_isolated_runtime_deployment": {
     "status": "HOLD",

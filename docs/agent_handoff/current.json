@@ -4,6 +4,16 @@
     "verdict": "BYZANTINE_TARGETED_VALUATION_BRIDGE_ACQUISITION_NOT_QUALIFIED",
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_targeted_historical_valuation_bridge_acquisition.v1.json",
+    "artifact_sha256": "0c4a179a50da16a1a54e1069c60e2064a10deef9181d2955c088584074cb93bb",
+    "result": "Existing Helius configuration was restored safely. One getMultipleAccounts batch request retained supply metadata for 99/99 mints. Current supply differs from the Scenario-D 1B supply assumption for all 99, and no configured historical SOL/USD source exists; true bridge coverage remains 0.",
+    "safety": "One bounded Helius request only; Birdeye none; no signing, submission, or automated exits.",
+    "next_action": "OBTAIN_EXPLICIT_AUTHORIZATION_FOR_A_HISTORICAL_SOL_USD_AND_HISTORICAL_MINT_SUPPLY_SOURCE_OR_KEEP_PRICE_DRIVEN_STRATEGY_SEARCH_BLOCKED"
+  },
+  "byzantine_targeted_valuation_bridge_acquisition": {
+    "status": "HOLD",
+    "verdict": "BYZANTINE_TARGETED_VALUATION_BRIDGE_ACQUISITION_NOT_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_targeted_historical_valuation_bridge_acquisition.v1.json",
     "artifact_sha256": "33ab2106e2517409f97c5c0f31929371d3a2c719789a8b504f5545866d33a345",
     "result": "Predeclared minimum plan is one shared 1m historical SOL/USD series and at most one supply lookup per 99 outcome-qualified mint, ceiling 100 requests. .env and process environment have no configured Birdeye/RPC credential; actual requests 0 and no unconfigured source was substituted.",
     "safety": "Provider/network/Birdeye NONE; no signing, submission, or automated exits.",

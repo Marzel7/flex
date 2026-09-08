@@ -15997,6 +15997,16 @@
     "blocker": "Concrete existing websocket connector and retained/cache/provider resolver remain injected test interfaces, not safely wired into a supervised production registration.",
     "next_action": "ENABLE_BOUNDED_PUMPSWAP_RAW_CAPTURE_AND_MATERIALIZER_THEN_BIND_SEMANTIC_CAPTURE"
   },
+  "committed_ordered_opening_action_evidence_source": {
+    "status": "HOLD",
+    "verdict": "COMMITTED_ORDERED_OPENING_ACTION_SOURCE_PARTIALLY_IMPLEMENTED_NOT_LIVE_BOUND",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "finding": "Existing generic Pump.fun post-commit action evidence already provides raw-first transaction retention, one block artifact per slot, authoritative transaction ordinal plus event ordinal, retry/dead-letter and provider-outside-write isolation. Event post reserves can reproduce the narrow Scenario-D FDV spot formula. It is not live-bound and no causal live Byzantine cluster membership/recurrent-cluster adapter exists, so no order-complete action can safely become a Scenario-D envelope.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/committed_ordered_opening_action_evidence_source_qualification.v1.json SHA-256 e962eb9b432c8cb6d398260d5dba74b81d1220e26d391432b229a02d4e14257d.",
+    "validation": "13 focused action-evidence/worker/projection tests passed; fixture proof only.",
+    "safety": "PUMPFUN_OPENING_ACTION_EVIDENCE_ENABLED OFF; Byzantine shadow OFF; no live smoke, provider/network acquisition, signing, submission or automated exits.",
+    "next_action": "QUALIFY_AND_FREEZE_A_CAUSAL_LIVE_BYZANTINE_OPENING_CLUSTER_MEMBERSHIP_AND_RECURRENCE_ADAPTER_THEN_BIND_EXISTING_POST_COMMIT_ACTION_EVIDENCE_WORKER"
+  },
   "byzantine_live_causal_scenario_d_evidence_accumulator": {
     "status": "HOLD",
     "verdict": "LIVE_SCENARIO_D_TRIGGER_NOT_QUALIFIED",

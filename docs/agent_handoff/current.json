@@ -16429,6 +16429,16 @@
     "contract": "All reachable provider request costs are <=10 under the frozen Helius schedule; 40 claimed dispatches imply theoretical smoke maximum <=400 credits. Claimed ordinal never refunds after crash/failure.",
     "next_action": "RUN_TWO_HOUR_REAL_PRIORITY_LATENCY_OBSERVATION_WITH_ALL_FROZEN_STOPS_ENFORCED"
   },
+  "p3r_20f7_full_64_watchtower_coverage_audit": {
+    "status": "COMPLETE",
+    "verdict": "P3R_20F7_IS_WATCHTOWER_DISCOVERY_ENRICHMENT_SIGNAL",
+    "engineering_revision": "working-tree read-only audit",
+    "artifact": "docs/audits/p3r_20f7_full_64_watchtower_lineage_audit.v1.json sha256 d1e7afd9d9c8778b780306989f28abceeee6525e6ddb997872654e2dbe307592",
+    "result": "The authoritative live reader verified 4/29/64 as unique wt_walkback_queue mints under exact selected-edge matching. All frozen 12 are in the live 64. Of 64, 60 are clean Watchtower members, 3 are retained WATCHTOWER_CONFIRMED projection omissions (Eyom, 3478Wd, GShWsw), and 1 is LINEAGE_GAP (33Rz). The route fingerprint is uniform: hop-1 WSOL_WRAP_CLOSE 2.122039 SOL and hop-2 PLAIN_XFER 1,000 SOL-equivalent. No provider/network, DB, membership, UI, service, or observation mutation occurred.",
+    "proposed_correction_only": "Current effective 475; confirmed omissions 3; proposed governance-reviewed count 478. Do not apply in this audit.",
+    "production_flags": "P3R promotion BLOCKED; Byzantine observation untouched.",
+    "next_action": "Review Watchtower confirmation-to-membership projection for the three retained confirmed omissions before any governed correction; keep P3R-20f7 unpromoted pending canonical-overlap reconciliation."
+  },
   "qualified_40_dispatch_isolated_runtime_deployment": {
     "status": "ACTIVE",
     "verdict": "MINIMAL_RPC_40_DISPATCH_RUNTIME_DEPLOYMENT_QUALIFIED",

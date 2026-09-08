@@ -15294,6 +15294,15 @@
     "blocker": "The existing Helius Pump.fun logsSubscribe implementation is unsuitable as a passive reference: it processes the full program firehose through handle_pumpfun_trade/getTransaction work, with observed 15-65 second loop stalls and PumpPortal reconnect/outage failures. It cannot be enabled for the requested comparison without a separately isolated observation-only chain feed. Telemetry remained at 0 matched records.",
     "next_action": "DESIGN_ISOLATED_PASSIVE_PUMPFUN_CHAIN_NOTIFICATION_FEED"
   },
+  "pumpfun_scenario_d_final_two_token_boundary_wave": {
+    "status": "HOLD",
+    "verdict": "ONE_FINAL_TOKEN_REMAINS_OUTSIDE_FROZEN_PAGE_BOUND",
+    "engineering_revision": "classification-attribution-axis working tree",
+    "contract": "Only 2Br (maximum 2 pages) and 2J7 (maximum 4 pages), signature-only; no transaction expansion unless all five boundary conditions pass.",
+    "result": "5 additional successful Helius pages, cumulative 1,872 calls, duplicate 0. 2Br crossed at page 8 / slot 439408900. 2J7 did not cross after pages 8-11: oldest 439008299 > Scenario D 439008282 (17 slots). Overall boundary coverage is 4/5; denominator and exact transaction acquisition intentionally not performed.",
+    "safety": "No exact transaction lookups in this wave; no Birdeye, GMGN, SOL/USD, PumpSwap, DB, membership, Watchtower, Playbook, live execution or trade action.",
+    "next_action": "REVIEW_FINAL_REMAINING_SIGNATURE_HISTORY_DEPTH"
+  },
   "pumpfun_scenario_d_signature_first_boundary_wave": {
     "status": "HOLD",
     "verdict": "FROZEN_FOUR_PAGE_SIGNATURE_BOUND_INSUFFICIENT_FOR_2_OF_5",

@@ -15588,6 +15588,19 @@
     "blocker": "No signed/reproducible source-to-ProgramData build attestation and no retained versioned pool/FeeConfig pre-state for exact-output validation.",
     "next_action": "OBTAIN_A_VERSION_BOUND_SIGNED_OR_REPRODUCIBLE_PUMPSWAP_PROGRAM_SEMANTICS_ARTIFACT_AND_A_RETAINED_VERSIONED_POOL_FEE_STATE_TO_UPGRADE_OUTPUT_VALIDATION"
   },
+  "pumpswap_version_bound_execution_validation": {
+    "status": "PARTIAL",
+    "verdict": "PUMPSWAP_VERSION_BOUND_EXECUTION_MODEL_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907",
+    "gate_a": "SOURCE_PROGRAMDATA_BINDING_PARTIAL: official SDK/IDL and post-upgrade retained fixtures match, but no reproducible/signed source-to-ProgramData binding was located.",
+    "gate_b": "Four retained transaction-boundary vault pre-state hits (two Sell, two Buy) are uniquely isolatable at the PumpSwap outer instruction, but raw pool state and versioned FeeConfig bytes are absent. Current account RPC cannot establish historical instruction-boundary state, so no provider acquisition was performed.",
+    "implementation": "Generic PumpSwap solve_principal_recovery accepts arbitrary holdings and principal target, proves N/N-1 minimality, and contains no operation-specific assumptions. It has no signer/submission capability.",
+    "validation": "7 focused tests passed. Exact output/full-state/flow validation remains 0; structural matches remain 4 and mismatches 0.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pump_swap_version_bound_execution_validation.v1.json SHA-256 adb30a2e3daa8e0391a4cffe49b0371c0752cfc94d2ec36bdf7fcb8369d5c2c2",
+    "flags": "raw OFF; semantic OFF; Byzantine shadow OFF; transaction signing/submission NONE; automated exits NONE.",
+    "blocker": "Version-bound signed/reproducible source-to-ProgramData attestation and archival authoritative pool/FeeConfig state at an isolatable retained Sell boundary.",
+    "next_action": "OBTAIN_ARCHIVAL_AUTHORITATIVE_POOL_AND_FEECONFIG_STATE_AT_AN_ISOLATABLE_RETAINED_SELL_BOUNDARY_OR_PRESERVE_PARTIAL_QUALIFICATION"
+  },
   "pumpswap_instruction_boundary_state_capability": {
     "status": "HOLD",
     "verdict": "PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_NOT_QUALIFIED",

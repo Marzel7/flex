@@ -15382,6 +15382,17 @@
     "blocker": "The retained corpus has no instruction-local bonding-curve account bytes or independent post-Scenario-D authoritative checkpoints. Scenario-D seed states are known-transition-derived trade-event inversions; one stream predecessor is therefore invalid for a qualified Buy and becomes a barrier rather than an inferred state.",
     "next_action": "EXTRACT_OR_LOCATE_RETAINED_INSTRUCTION_LOCAL_BONDING_CURVE_CHECKPOINTS_TO_SEED_AND_RESYNCHRONIZE_THE_FIVE_TOKEN_CHAIN; then use per-instruction evidence to resolve the five unknown discriminators."
   },
+  "pumpfun_post_scenario_d_checkpoint_gap": {
+    "status": "COMPLETE",
+    "verdict": "POST_SCENARIO_D_CHECKPOINT_GAP_REQUIRES_BOUNDED_ACQUISITION",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted retained-only checkpoint-gap audit",
+    "tests": "4 focused retained-only tests passed: checkpoint interval grouping and reconstruction barriers/resynchronization.",
+    "production_flags": "RPC/provider/network acquisition: NONE; production/canonical DB, membership, listeners, workers and trading changes: NONE.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pumpfun_post_scenario_d_checkpoint_gap_resolution.v1.json; file SHA-256 00b6f8c8baad225896845f1e22297dfa4cb65cb698c7ae9d921241e2142b41c8; payload digest 9a324596e4a7c4e9227c61fcbc69e68781449fadc8961cab4cde296d9c4f5246.",
+    "result": "Exhaustive retained families in scope were classified: the ordered corpus and all 4,915 exact getTransaction payloads retain account metas, transaction ordering and balances but no bonding-curve account bytes; retained archived byte fixtures exist only for unrelated mints/slots; migration transaction payloads are later transaction-boundary-only evidence. No post-Scenario-D authoritative checkpoint exists for the five corpus mints. The 64 unresolved single-Pump.fun-instruction transactions form 56 independent intervals (2Br5=10, 2GAd=6, 2Gw=13, 2J7=14, 2LVe=21). Existing dry-run metrics remain unchanged: 381 known transitions, 1,219 neutral rows, 65 barriers, 3,250 downstream blocked, and 0 resynchronizations.",
+    "blocker": "Exact normalized curve state requires retained historical bonding-curve account data; transaction balance evidence cannot authoritatively recover virtual and real reserve fields. The minimal future cut set is one post-state archived account observation after each of 56 unresolved groups, with no address pagination or transaction reacquisition.",
+    "next_action": "ACQUIRE_MINIMUM_HISTORICAL_BONDING_CURVE_CHECKPOINT_CUT_SET"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

@@ -15997,6 +15997,18 @@
     "blocker": "Concrete existing websocket connector and retained/cache/provider resolver remain injected test interfaces, not safely wired into a supervised production registration.",
     "next_action": "ENABLE_BOUNDED_PUMPSWAP_RAW_CAPTURE_AND_MATERIALIZER_THEN_BIND_SEMANTIC_CAPTURE"
   },
+  "byzantine_price_strategy_accounting_reconciliation": {
+    "status": "COMPLETE",
+    "verdict": "BYZANTINE_PRICE_STRATEGY_ACCOUNTING_RECONCILED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "result": "The apparent ~317% versus ~166% simple-exit conflict is a crossing/mark-selection difference, not a principal double-count or omission. The earlier surface used sparse, lexically ordered horizon marks and actual observed closes; the later search used dense causal earliest crossing closes. Canonical v1 now uses the conservative target-assumed-fill convention after the first causal qualifying close.",
+    "canonical_results": "F1 1.5x: 60 resolved/58 target hits/2 backstops, deployed 15 SOL, gross 20.735866 SOL, net 5.735866 SOL, ROI 38.2391%, 58 wins. F2 2x: gross 27.623366 SOL, net 12.623366 SOL, ROI 84.1558%, 58 wins. Best fixed complex 3x/50%-recovery/5x-runner/+2m/5%: gross 48.575224 SOL, net 33.575224 SOL, ROI 223.8348%, 47 wins. The conservative 100%-recovery form: net 31.671957 SOL, ROI 211.1464%.",
+    "rug_denominators": "Recovery-before-collapse evidence is 55/77 rows with a severe-collapse timestamp in the prior actual-close analysis; portfolio accounting is separately 60 rows with a +2m backstop. They are not interchangeable.",
+    "artifacts": "byzantine_price_strategy_accounting_reconciliation.v1.json SHA-256 8122169f5d48ccff020ff6ac28166c023e6a9bd31cffabfd6c78491e0e4e5f92; operation_price_strategy_accounting_contract.v1.json SHA-256 c1f699364dabf0a0c646342561e87f51b0817210bd497e22c49df0a2df8d911e.",
+    "validation": "5 focused generic accounting invariant tests passed; retained-only replay; provider/network/Birdeye acquisition NONE.",
+    "safety": "No signing, submission, automated exits, production activation, or live-flag change.",
+    "next_action": "LOCK_HISTORICAL_PRICE_STRATEGY_ACCOUNTING_RESULT_NO_EXECUTION_PROMOTION"
+  },
   "byzantine_principal_recovery_runner_strategy_search": {
     "status": "COMPLETE",
     "verdict": "BYZANTINE_PRINCIPAL_RECOVERY_RUNNER_STRATEGY_SEARCH_QUALIFIED_FOR_HISTORICAL_DISCOVERY",

@@ -15475,6 +15475,19 @@
     "blocker": "A real durable Byzantine Scenario-D qualification commit point does not currently exist in source, so a post-commit callback cannot be safely bound without inventing detection semantics.",
     "next_action": "QUALIFY_PROSPECTIVE_PUMPSWAP_EXECUTION_AND_SELL_MECHANICS"
   },
+  "pumpswap_prospective_execution_and_sell_mechanics": {
+    "status": "HOLD",
+    "verdict": "PROSPECTIVE_PUMPSWAP_EXECUTION_AND_SELL_MECHANICS_NOT_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "src/ops/pumpswap_boundary.py retains the existing strict CreatePool pool-owned reserve decoder and now defines a prospective instruction-boundary pool-state contract. prospective_sell_status explicitly returns PUMPSWAP_SELL_UNSUPPORTED without a version-bound fee/config decoder and exact Sell replay; counterfactual migration mapping explicitly returns COUNTERFACTUAL_MIGRATION_MAPPING_UNQUALIFIED.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pump_swap_prospective_execution_and_sell_mechanics_qualification.v1.json",
+    "artifact_payload_digest": "75b644dabb58088a18d62cca94fc9663a9000cec1f14fe64448c73660b86c6be",
+    "artifact_file_sha256": "919c8bc2062c8847ed9476c42268437dfb9f3dab84c38931aaf279e5ef0d9852",
+    "validation": "pytest -q tests/test_pumpswap_boundary.py tests/test_pumpswap_prospective_execution_contract.py: 5 passed; artifact JSON validation and diff --check passed.",
+    "production_flags": "BYZANTINE_PROSPECTIVE_SHADOW_OBSERVER_ENABLED remains OFF; provider/RPC/network acquisition NONE; signing/submission NONE; automated exits NONE; production/canonical changes NONE.",
+    "blocker": "No retained exact PumpSwap Sell fixture binds instruction-local pre/post vault states, input/output, and version-bound fee configuration. The hypothetical final Pump state to initial PumpSwap pool mapping is also not retained/qualified.",
+    "next_action": "ACQUIRE_OR_RETAIN_PROSPECTIVE_INSTRUCTION_BOUNDARY_PUMPSWAP_SELL_EVIDENCE_BEFORE_ANY_SELL_MODEL"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

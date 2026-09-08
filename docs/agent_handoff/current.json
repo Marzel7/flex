@@ -15638,6 +15638,18 @@
     "validation": "9 focused generic/PumpSwap tests passed.",
     "next_action": "DEFINE_AND_RUN_PROSPECTIVE_SHADOW_FOR_SELECTED_OPERATION_STRATEGIES"
   },
+  "byzantine_predeclared_prospective_shadow_candidates": {
+    "status": "PARTIAL",
+    "verdict": "BYZANTINE_PREDECLARED_PROSPECTIVE_SHADOW_PARTIALLY_READY",
+    "platform_verdict": "OPERATION_AGNOSTIC_STRATEGY_PIPELINE_LOCKED",
+    "engineering_revision": "5904a907",
+    "candidates": "Five frozen configuration-only candidates: A full-principal recovery then 50% runner +5m/+30m; B 75% then +10m/+60m; C 50% then +30m/+60m; D full exit at first qualified PumpSwap state; E full exit at migration+2m. Each compares 0.1/0.25/0.5/1 SOL; prospective cohort target 20.",
+    "observer": "Existing durable worker is post-commit guarded, separate research SQLite, idempotent, and has no RPC/wallet/signer/submitter. However no live authoritative Scenario-D detector/commit producer exists to bind safely, and prospective Pool/vault/FeeConfig capture is consequently not wired.",
+    "flags": "BYZANTINE_PROSPECTIVE_SHADOW_OBSERVER_ENABLED OFF; PumpSwap capture flags OFF; no naturally occurring launches captured.",
+    "artifacts": "docs/audits/byzantine_lifecycle_103/byzantine_predeclared_prospective_shadow_candidates.v1.json SHA-256 774a1bdf60dc08f8ad6a7585829b38be9ee6864a87dc68195add1e08b585f9f2; docs/audits/byzantine_lifecycle_103/byzantine_prospective_strategy_observer_qualification.v1.json SHA-256 e3738103f8a7809d50b6fd4de16ddbf34ee2e6514467aefadd4b37adb655285a",
+    "validation": "11 focused tests passed.",
+    "next_action": "ESTABLISH_DURABLE_LIVE_QUALIFIED_SCENARIO_D_COMMIT_BOUNDARY_BEFORE_ENABLING_OBSERVATION"
+  },
   "pumpswap_instruction_boundary_state_capability": {
     "status": "HOLD",
     "verdict": "PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_NOT_QUALIFIED",

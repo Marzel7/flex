@@ -16214,6 +16214,19 @@
     "safety": "Feature flag OFF; provider/network/Birdeye acquisition NONE; no live smoke or restart; shadow NO; membership writes, signing, submission and automated exits NONE.",
     "next_action": "RUN_BOUNDED_PASSIVE_PRIORITY_WALKBACK_LATENCY_SMOKE"
   },
+  "byzantine_bounded_priority_walkback_latency_smoke": {
+    "status": "PARTIAL",
+    "verdict": "BYZANTINE_BOUNDED_PRIORITY_WALKBACK_SMOKE_PARTIALLY_QUALIFIED",
+    "latency_verdict": "INSUFFICIENT_LATENCY_OBSERVATION",
+    "readiness": "SAFE_PRIORITY_WALKBACK_GATE_QUALIFIED_NEEDS_MORE_LATENCY_OBSERVATION",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 (priority implementation remains uncommitted and not loaded by live services)",
+    "preflight": "watchtower_listener RUNNING pid 47568 uptime 6:12:31; walkback_worker RUNNING pid 33579 uptime 4d 8:36:52; queue accessible. Queue has 0 pending/leased normal and high jobs, 4718 waiting normal jobs, 1 failed terminal row. Current cohort remains 103/101/36 high-water 1788589878.",
+    "result": "No activation was performed. The running listener predates the uncommitted priority binding and generic schema; priority request table is absent. Loading it requires listener restart, which would also deploy pre-existing unrelated uncommitted listener changes and is outside the bounded passive-smoke authorization. Flag stayed OFF; candidate/provider/Birdeye/membership/shadow/execution activity all 0.",
+    "provider_ceiling": "Frozen but unused: existing 80 RPC credits per Walkback batch/job × maximum 5 hits = 400 smoke-wide maximum.",
+    "validation": "56 focused priority/CREATE-ledger/commit-hardening/strict-classifier/canonical-evidence/fairness tests passed after the unactivated preflight.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_live_launch_priority_walkback_binding_and_latency_smoke.v2.json SHA-256 c87ad9fa96ee13d64349ca8178739f1e093e651a4e9459d696b1d7449e2d0e30.",
+    "next_action": "REVIEW_AND_DEPLOY_ONLY_THE_PRIORITY_BINDING_AND_GENERIC_SCHEMA_HUNKS_THEN_RUN_A_NEW_BOUNDED_PASSIVE_SMOKE"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

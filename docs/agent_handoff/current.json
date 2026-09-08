@@ -16259,4 +16259,14 @@
     "residual_limitation": "A host/OS outage prevents local execution at the deadline. On resume, watchdog/recovery against an expired persisted state must force OFF before a new supervised activation.",
     "next_action": "Do not activate real priority without a separately authorized live-observation milestone."
   }
+,
+  "byzantine_two_hour_priority_latency_observation": {
+    "status": "HOLD",
+    "verdict": "BYZANTINE_TWO_HOUR_PRIORITY_LATENCY_OBSERVATION_NOT_STARTED",
+    "engineering_revision": "running isolated priority runtime is /private/tmp/flex-priority-deploy at 5904a907f606b62f37fb4ab3ae3f8368e8a95028 with uncommitted qualified priority delta",
+    "runtime_verification": "watchtower_listener RUNNING pid 32618 and walkback_worker RUNNING pid 32048. Deployment listener sha256=f1e544eaddeea1b09f48a406a22bfc11277966f90ef6a82b7b6ac3bbb3e79896; worker sha256=101555855ea2cbc659fd775d5f4f9b1f19d5579db4b9b81d5a92940d782a94ea; priority module sha256=ab6f9c09f4fb9ec7b496ddde8c703b45f48e61cadff95a4001999049dc414028.",
+    "blocker": "The qualified controller/watchdog exists only in the primary dirty worktree, not the deployed runtime. Its independently runnable watchdog explicitly accepts durable-dummy-feature.v1 only and states it is never a production binding. No qualified durable real-priority adapter, real runtime watchdog deployment, or real priority OFF verification interface exists. Enabling OPERATION_EVIDENCE_PRIORITY_ENABLED would therefore bypass the requested qualified independent deadline-OFF guarantee.",
+    "production_flags": "OPERATION_EVIDENCE_PRIORITY_ENABLED remains 0; no PREPARED state, watchdog process, activation, listener/worker restart, provider activity, or canonical DB write was performed. Shadow remains unmodified/off.",
+    "next_action": "Separately authorize implementation and qualification of a narrowly scoped durable real-priority feature adapter plus deployment binding, then repeat identity and health gates before any two-hour activation."
+  }
 }

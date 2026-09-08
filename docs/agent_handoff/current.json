@@ -1,4 +1,14 @@
 {
+  "byzantine_scenario_d_post_migration_valuation_bridge": {
+    "status": "HOLD",
+    "verdict": "VALUATION_BRIDGE_UNAVAILABLE",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_scenario_d_post_migration_valuation_bridge.v1.json",
+    "artifact_sha256": "0d01f09e09c6760f42b0b1546f65fea3775cf8c1d85e64933aeb24010d54880e",
+    "result": "Scenario-D metric is reserve-derived SOL FDV using a 1B supply assumption; post-migration retained Birdeye OHLC is USD token price. Post-migration supply and broad timestamped SOL/USD are not retained, so neither direct nor two-stage conversion qualifies; true Scenario-D-to-post-migration multiples cover 0/99.",
+    "safety": "Provider/network/Birdeye NONE; no signing, submission, or automated exits.",
+    "next_action": "DO_NOT_RESUME_PRICE_MULTIPLE_STRATEGY_SEARCH_UNTIL_A_RETAINED_OR_EXPLICITLY_AUTHORIZED_HISTORICAL_SUPPLY_AND_SOL_USD_BRIDGE_IS_QUALIFIED"
+  },
   "byzantine_price_driven_profit_taking_boundary": {
     "status": "HOLD",
     "verdict": "BYZANTINE_PRICE_DRIVEN_PROFIT_TAKING_NOT_QUALIFIED",

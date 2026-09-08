@@ -16429,6 +16429,17 @@
     "contract": "All reachable provider request costs are <=10 under the frozen Helius schedule; 40 claimed dispatches imply theoretical smoke maximum <=400 credits. Claimed ordinal never refunds after crash/failure.",
     "next_action": "RUN_TWO_HOUR_REAL_PRIORITY_LATENCY_OBSERVATION_WITH_ALL_FROZEN_STOPS_ENFORCED"
   },
+  "global_canonical_operation_exact_mint_collision_audit": {
+    "status": "COMPLETE",
+    "verdict": "NO_EFFECTIVE_MULTI_OPERATION_EXACT_MINT_COLLISIONS",
+    "engineering_revision": "working-tree read-only audit",
+    "artifact": "docs/audits/global_canonical_operation_exact_mint_collision_audit.v1.json sha256 da7ff227a9c22c03f49cd8c7630801b675711a9b102e2ce37cf290f0332e34c3",
+    "result": "Eight non-merged canonical operations cover 931 unique effective mints. The complete raw and effective pairwise matrices have zero off-diagonal overlap; persisted operator_launch_membership has 694 rows/694 unique mints because mint is its primary key. No retained sequential reassignment spans two destination operations. The three P3R-derived Watchtower confirmed omissions have no effective other-operation conflict.",
+    "safeguards": "Schema mint primary key; Watchtower/P3R writers reject existing-other-operator; explicit governed reassignment is history-backed. Watchtower's ledger/effective read-model remains a separate projection that must be reconciled before any projection repair.",
+    "tests": "10 provider-free tests passed.",
+    "production_flags": "canonical/UI mutation NONE; provider/network NONE; Byzantine observation untouched PASS.",
+    "next_action": "Governance-review Watchtower confirmation-to-membership projection using the collision snapshot before any projection; retain candidate-to-parent reconciliation before P3R promotion."
+  },
   "p3r_20f7_full_64_watchtower_coverage_audit": {
     "status": "COMPLETE",
     "verdict": "P3R_20F7_IS_WATCHTOWER_DISCOVERY_ENRICHMENT_SIGNAL",

@@ -15364,6 +15364,13 @@
     "safety": "No request was dispatched after budget exhaustion; no Birdeye, GMGN, SOL/USD, PumpSwap, DB, membership, Watchtower, Playbook, live execution, or trade action.",
     "next_action": "INTEGRATE_FROZEN_EXACT_TRANSACTION_STREAM_AND_RETAINED_SIGNATURE_ORDER_INTO_FIVE_TOKEN_CONTROL_REPLAY"
   },
+  "pumpfun_target_era_binary_acquisition": {
+    "status": "COMPLETE",
+    "verdict": "EXACT_TARGET_ERA_BINARY_VERIFIED",
+    "result": "One finalized exact ProgramData getAccountInfo read for B5MvUwXdiW1NMM6QFFD3ssPKBujD4zMohncbM73Z2BQu retained a 10,485,715-byte ELF. SHA-256 exactly matches 5d65238ffd3513fa5980c01ba1eb2da9cc050091ad9c46b75916ce4a09b02bbf. Existing deployment binding identifies the ProgramData deployment slot as 433095571, preceding the target cohort.",
+    "artifacts": "docs/audits/pumpfun_target_era_binary_acquisition/pumpfun_programdata_slot_433095571.elf; pumpfun_target_era_binary_acquisition.v1.json; raw response retained alongside them.",
+    "next_action": "BINARY_SEMANTIC_QUALIFICATION_OF_THE_FIVE_TARGET_ERA_UNKNOWN_DISCRIMINATORS"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

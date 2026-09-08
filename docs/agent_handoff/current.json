@@ -15404,6 +15404,17 @@
     "blocker": "27 intervals require transaction-indexed historical account state; five slot-level requests did not return qualifying state. The 24 retained checkpoints must be wired into the chain before control-replay coverage can be measured.",
     "next_action": "WIRE_24_QUALIFIED_HISTORICAL_CHECKPOINTS_AND_RERUN_FIVE_TOKEN_CONTROL_REPLAY"
   },
+  "pumpfun_24_checkpoint_control_replay": {
+    "status": "PARTIAL",
+    "verdict": "CHECKPOINT_RESYNCHRONIZATION_CONTROL_REPLAY_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted retained-checkpoint replay measurement",
+    "tests": "4 focused tests passed: qualified checkpoint identity plus replay comparator/barrier/resynchronization coverage.",
+    "production_flags": "RPC/provider/network acquisition: NONE; production/canonical DB, membership, listeners, workers and trading changes: NONE.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pumpfun_24_checkpoint_control_replay_coverage.v1.json; file SHA-256 595744b662b0abf8db22dcec878e0749631d1355a1a88692e8814c10ddd76178; payload digest 8987678682da70b0eab03bf03cceebe57c390ab6cc1e2e3af40ee120cf0ba0c4.",
+    "result": "All 24 retained direct checkpoints were loaded; 23 had a downstream replay position and successfully resynchronized. Frozen chain improved from 381 to 815 known transitions (+434), 1,219 to 2,213 state-neutral rows (+994), and 3,250 to 1,799 blocked downstream rows (1,451 unblocked); 0 checkpoint divergences. Interval reconciliation: 23 RESYNCHRONIZED, 5 FAILED_ACQUISITION, 27 SAME_SLOT_AMBIGUOUS, 1 OTHER_UNRESOLVED terminal interval. Four tokens are CONTROL_REPLAY_PARTIAL; 2Gw remains CONTROL_REPLAY_BLOCKED. Historical resynchronization does not resolve any unknown discriminator semantic rule.",
+    "blocker": "32 intervals lack usable resume coverage: 27 require transaction-indexed historical account state, five archive reads failed, and one acquired terminal checkpoint has no downstream replay ordinal. Counterfactual replay still requires unknown semantics for all 56 intervals.",
+    "next_action": "QUALIFY_TRANSACTION_INDEXED_HISTORICAL_ACCOUNT_STATE_FOR_SAME_SLOT_INTERVALS_OR_RESOLVE_COUNTERFACTUAL_RELEVANT_UNKNOWN_DISCRIMINATORS"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

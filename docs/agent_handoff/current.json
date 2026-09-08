@@ -15750,6 +15750,19 @@
     "blocker": "Need a full action-local Pump.fun curve/config checkpoint source: curve identity/raw bytes, completion, fee/global/creator config and program version, plus authoritative PRE seed or resynchronization. Reserve-only TradeEvents cannot make a model-ready Scenario-D entry state.",
     "next_action": "QUALIFY_FULL_PUMPFUN_ACTION_LOCAL_CURVE_STATE_AND_CONFIG_CHECKPOINT_SOURCE"
   },
+  "pumpfun_full_action_local_curve_state_and_config_checkpoint": {
+    "status": "HOLD",
+    "verdict": "PUMPFUN_FULL_ACTION_LOCAL_STATE_CHECKPOINT_SOURCE_NOT_QUALIFIED",
+    "platform_verdict": "OPERATION_AGNOSTIC_STRATEGY_PIPELINE_LOCKED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "audit": "The pure target-era BuyExactSolIn model consumes exact virtual SOL/token reserves, while the existing prospective boundary contract additionally requires mint, bonding curve, signature/slot/order, real token state, completion, global/fee configuration identities, raw state digest, and provenance. TradeEvent provides only post virtual/real reserve integers; CREATE supplies identity but not a full raw curve/config state; accountSubscribe is slot-level; transaction/block payloads have ordering but no account-write trace; token_analysis is current metadata only.",
+    "conclusion": "No MODEL_READY_DIRECT, MODEL_READY_DERIVED, or MODEL_READY_ISOLATED_TRANSACTION checkpoint can be constructed. There is no authoritative full seed, version-bound config artifact, action-local account bytes, or resynchronization source. State chaining is correctly not implemented; any gap would be a fail-closed barrier. Immediate-after-position-13 entry would require a model-ready POST action state and remains unavailable.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pumpfun_full_action_local_curve_state_and_config_checkpoint_qualification.v1.json SHA-256 b8e12f27e3690a4eea3be03efd02a06657ff91120e3360000629815d29d0b3c6",
+    "validation": "16 existing generic passive-source/worker/projection/producer tests passed. Provider/network acquisition NONE; no new checkpoint fixture was fabricated.",
+    "safety": "Pump.fun evidence capture OFF; Byzantine shadow OFF; prospective cohort 0; PumpSwap/Birdeye untouched; signing/submission and automated exits NONE.",
+    "blocker": "An authoritative Pump.fun action-boundary account-write/runtime trace or complete event-emitted curve-plus-config checkpoint is required. Standard accountSubscribe/getAccountInfo semantics remain slot/current boundary only.",
+    "next_action": "HOLD_UNTIL_AUTHORITATIVE_PUMPFUN_ACTION_BOUNDARY_ACCOUNT_WRITE_OR_COMPLETE_EVENT_STATE_SOURCE_AVAILABLE"
+  },
   "pumpswap_instruction_boundary_state_capability": {
     "status": "HOLD",
     "verdict": "PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_NOT_QUALIFIED",

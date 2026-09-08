@@ -16429,6 +16429,17 @@
     "contract": "All reachable provider request costs are <=10 under the frozen Helius schedule; 40 claimed dispatches imply theoretical smoke maximum <=400 credits. Claimed ordinal never refunds after crash/failure.",
     "next_action": "RUN_TWO_HOUR_REAL_PRIORITY_LATENCY_OBSERVATION_WITH_ALL_FROZEN_STOPS_ENFORCED"
   },
+  "shared_health_and_24h_capture_coverage_qualification": {
+    "status": "PARTIAL",
+    "verdict": "SHARED_HEALTH_READ_MODEL_PARTIALLY_QUALIFIED",
+    "engineering_revision": "working-tree shared read-model implementation",
+    "implementation": "src/ops/shared_system_health.py derives Platform, Live Ingestion, Intelligence, and Infrastructure solely from /api/health/full subsystem evidence. The Health-page compact strip and sidebar consume shared_health_metrics; sidebar no longer polls /healthz or renders the obsolete oldest-worker heartbeat.",
+    "artifacts": "docs/audits/shared_system_health_read_model_contract.v1.json; docs/audits/birth_migration_24h_coverage_contract.v1.json; docs/audits/health_sidebar_and_birth_migration_coverage_qualification.v1.json",
+    "coverage": "Birth and migration independent 24h expected-event denominators are NOT QUALIFIED. No percentage, interval count, duration, or mint-specific outage causality is fabricated. Reconciliation is PARTIAL: retained events/logs exist but no independent expected corpus or bounded replay high-water is retained.",
+    "validation": "16 focused provider-free tests passed; py_compile passed.",
+    "production_flags": "birth/migration capture semantics unchanged; canonical membership/UI governance unchanged; provider/network NONE; Byzantine observation untouched PASS.",
+    "next_action": "Qualify an independent retained expected birth/migration event authority and bounded replay high-water before rendering any 24h coverage percentage or acquisition-gap duration."
+  },
   "global_canonical_operation_exact_mint_collision_audit": {
     "status": "COMPLETE",
     "verdict": "NO_EFFECTIVE_MULTI_OPERATION_EXACT_MINT_COLLISIONS",

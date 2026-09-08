@@ -15601,6 +15601,19 @@
     "blocker": "Version-bound signed/reproducible source-to-ProgramData attestation and archival authoritative pool/FeeConfig state at an isolatable retained Sell boundary.",
     "next_action": "OBTAIN_ARCHIVAL_AUTHORITATIVE_POOL_AND_FEECONFIG_STATE_AT_AN_ISOLATABLE_RETAINED_SELL_BOUNDARY_OR_PRESERVE_PARTIAL_QUALIFICATION"
   },
+  "pumpswap_final_archival_sell_validation": {
+    "status": "PARTIAL",
+    "verdict": "PUMPSWAP_VERSION_BOUND_EXECUTION_MODEL_PARTIALLY_QUALIFIED",
+    "platform_verdict": "OPERATION_AGNOSTIC_STRATEGY_PIPELINE_PRESERVED",
+    "engineering_revision": "5904a907",
+    "selected_fixture": "m1DAxhoH7pYqpTtzk4c1vWjk5kMWoP8kkb8YXB19BvE2GGF8jYH2ioruD29LiJENEkqUjKsExjHxv8PS1nNkMt2 at slot 445313859, outer instruction 1: ISOLATABLE_RETAINED_SELL_BOUNDARY. It is the only PumpSwap outer instruction and no other outer instruction targets its pool/vaults.",
+    "state_result": "Retained vault pre-state and exact transfer flows are available, but raw pool bytes/virtual reserves and raw versioned FeeConfig bytes are absent. Configured standard Solana JSON-RPC only returns current account state; it cannot supply exact historical pre-Sell account versions. No temporally invalid provider request was made.",
+    "validation": "Exact Sell replay/output validation not performed; 0 full-state/output/flow exact matches, 4 structural exact matches, 0 mismatches, 4 insufficient. 9 focused tests passed.",
+    "implementation": "Generic principal recovery supports arbitrary holdings/targets and no Byzantine hard-coding; signing/submission and automated exits are NONE.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pump_swap_final_archival_sell_validation.v1.json SHA-256 bf104848de24c95ff29bbd8534e1951fa8c426e5ecb5d8dee019a981d2397bbe",
+    "final_blocker": "No archival exact pre-Sell Pool and FeeConfig state source in configured provider surface; current state would be temporally invalid.",
+    "next_action": "LOCK_OPERATION_STRATEGY_RESEARCH_PIPELINE_AND_BACKFILL_BYZANTINE"
+  },
   "pumpswap_instruction_boundary_state_capability": {
     "status": "HOLD",
     "verdict": "PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_NOT_QUALIFIED",

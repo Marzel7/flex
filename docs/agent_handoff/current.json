@@ -1,4 +1,16 @@
 {
+  "byzantine_cohort_wide_strategy_search": {
+    "status": "PARTIAL",
+    "verdict": "BYZANTINE_COHORT_WIDE_STRATEGY_SEARCH_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_cohort_wide_strategy_search.v1.json",
+    "artifact_sha256": "08c74b4824f3539ea0fb8bd78708c1eb077189b6d7530a1d84290489f6e112c6",
+    "result": "Scenario-D FDV SOL is the only retained consistent entry metric; executed token price / 0.00035 mapping and causal post-Scenario-D threshold crossings are unavailable. The legal Scenario-D to migration+2m 5%-haircut bridge is positive on the common 60 exit-observable rows, but cannot establish all-101 programme profitability.",
+    "safety": "Provider/network/Birdeye NONE; no signing, submission, or automated exits.",
+    "validation": "5 focused provider-free tests passed.",
+    "blocker": "No causal entry-threshold series and unequal exit observation coverage; exact holdings, fills, recovery fractions, and runner proceeds remain unqualified.",
+    "next_action": "QUALIFY_A_CAUSAL_POST_SCENARIO_D_ENTRY_METRIC_AND_EXECUTION_MODEL_BEFORE_SELECTING_A_COHORT_WIDE_TRADING_RULE"
+  },
   "byzantine_corrected_causal_migration_hazard_review": {
     "status": "PARTIAL",
     "verdict": "BYZANTINE_CORRECTED_CAUSAL_MIGRATION_HAZARD_PARTIALLY_QUALIFIED",

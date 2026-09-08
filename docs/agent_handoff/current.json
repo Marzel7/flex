@@ -16397,4 +16397,15 @@
     "production_flags": "priority OFF; no live/provider/canonical/shadow/trading action.",
     "next_action": "Implement the authorized compatibility result wrapper and durable attempt provenance together with injected payload-helper and recovery tests before claiming the bound path qualified."
   }
+,
+  "conservative_40_dispatch_monitor": {
+    "status": "COMPLETE",
+    "verdict": "CONSERVATIVE_40_PROVIDER_DISPATCH_CAP_QUALIFIED",
+    "monitor_verdict": "DURABLE_PRIORITY_OBSERVATION_MONITOR_QUALIFIED",
+    "readiness": "TWO_HOUR_PRIORITY_OBSERVATION_READY",
+    "implementation": "observation_dispatch_cap atomically claims durable no-refund ordinal 1..40; observation-aware worker dispatch consults it. Monitor now reads exact observation_provider_dispatches count, not rpc_used or credit ledger, and stops VERIFIED OFF at count>=40 with PROVIDER_DISPATCH_CAP precedence below SAFETY_ABORT and above CANDIDATE_CAP.",
+    "validation": "6 focused monitor-dispatch/ordinal/actual-worker-RPC tests passed; monitor restart with durable 40 ordinals forced test feature OFF. Priority OFF; no provider/network/canonical/shadow/trading activity.",
+    "contract": "All reachable provider request costs are <=10 under the frozen Helius schedule; 40 claimed dispatches imply theoretical smoke maximum <=400 credits. Claimed ordinal never refunds after crash/failure.",
+    "next_action": "RUN_TWO_HOUR_REAL_PRIORITY_LATENCY_OBSERVATION_WITH_ALL_FROZEN_STOPS_ENFORCED"
+  }
 }

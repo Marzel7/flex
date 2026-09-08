@@ -16462,8 +16462,8 @@
     "next_action": "Review Watchtower confirmation-to-membership projection for the three retained confirmed omissions before any governed correction; keep P3R-20f7 unpromoted pending canonical-overlap reconciliation."
   },
   "qualified_40_dispatch_isolated_runtime_deployment": {
-    "status": "ACTIVE",
-    "verdict": "MINIMAL_RPC_40_DISPATCH_RUNTIME_DEPLOYMENT_QUALIFIED",
+    "status": "HOLD",
+    "verdict": "PRIORITY_OBSERVATION_DEADLINE_SUPERVISION_FAILED",
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "runtime": "/private/tmp/flex-priority-deploy",
     "runtime_identity_before": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
@@ -16472,7 +16472,7 @@
     "tests": "3 exact-runtime imports tests passed: dispatch ordinal, monitor cap, candidate admission; ordinal 41 impossible assertion passed.",
     "production_flags": "priority OFF; no process restart; provider/network NONE; canonical production activity NONE; shadow OFF; signing/submission NONE.",
     "blocker": null,
-    "observation": "729ca33f-eb43-424e-b013-2348100b2e81 ACTIVE; deadline 1788900834.842102 unchanged; candidate cap 10; provider-dispatch cap 40; watchdog ARMED pid 90666; initial monitor exited from its accumulating runner. Recovery used the existing monitor class with a non-accumulating loop, now active pid 11353; durable counters remain candidates=0 and dispatches=0; listener pid 90361 and worker pid 90435 retain the same observation ID; priority ON through the isolated durable state file.",
-    "next_action": "ALLOW_LOCAL_OBSERVATION_TO_RUN_TO_FROZEN_STOP_CONDITION_THEN_REVIEW_T0_T5_RESULTS"
+    "observation": "729ca33f-eb43-424e-b013-2348100b2e81 reached its original deadline with zero candidates and zero provider dispatches, but its watchdog/monitor processes were absent and priority remained ON. The existing controller recovery terminalized it as RECOVERY_FORCED_OFF / RECOVERY_DEADLINE; priority is now OFF.",
+    "next_action": "Before authorizing any 8-hour rerun, deploy and prove a persistent independently supervised deadline watchdog and durable monitor process; do not rely on transient nohup children."
   }
 }

@@ -15997,6 +15997,17 @@
     "blocker": "Concrete existing websocket connector and retained/cache/provider resolver remain injected test interfaces, not safely wired into a supervised production registration.",
     "next_action": "ENABLE_BOUNDED_PUMPSWAP_RAW_CAPTURE_AND_MATERIALIZER_THEN_BIND_SEMANTIC_CAPTURE"
   },
+  "byzantine_historical_strategy_accounting_lock": {
+    "status": "COMPLETE",
+    "verdict": "BYZANTINE_HISTORICAL_STRATEGY_ACCOUNTING_LOCKED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "result": "Canonical target-price-assumed-fill accounting is frozen for a 101 Scenario-D / 99 outcome-qualified / 98 bridge-qualified cohort, with a separate 60-row +2m-backstop portfolio denominator and 38 unresolved rows. Balanced V1 (3x, 50% recovery, 5x runner, +2m, 5%) has historical mark-based gross 48.575224 SOL, net 33.575224 SOL, ROI 223.8348%; Conservative V1 (100% recovery) gross 46.671957 SOL, net 31.671957 SOL, ROI 211.1464%. Both are research definitions only.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_historical_strategy_accounting_lock.v1.json SHA-256 3383e3f3fa3336fa596d30ccea8d937d9520888cdacea6793e69e4ff513cc18e; summary SHA-256 6daf4312a7a945b124063c2d061dac2c7851cf754a6877f9b3140dbdcf801704.",
+    "replay": "Two consecutive retained-only replays matched exactly; metrics digest c1b7c4ce6793238973dca187fb83fd17a246f6c3b97da1923a0e365ff434728c. Five focused generic accounting tests passed.",
+    "classification": "Earlier sparse observed-close 317% simple surface remains DIFFERENT_VALID_ASSUMPTION; prior runner headline summaries are SUPERSEDED_ACCOUNTING; reconciliation is authoritative canonical accounting.",
+    "safety": "Provider/network acquisition NONE; signing/submission NONE; automated exits NONE; no production or live flag change.",
+    "next_action": "RETAIN_AS_HISTORICAL_RESEARCH_BASELINE_PENDING_SEPARATE_PROSPECTIVE_VALIDATION"
+  },
   "byzantine_price_strategy_accounting_reconciliation": {
     "status": "COMPLETE",
     "verdict": "BYZANTINE_PRICE_STRATEGY_ACCOUNTING_RECONCILED",

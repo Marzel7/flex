@@ -16419,7 +16419,7 @@
     "tests": "3 exact-runtime imports tests passed: dispatch ordinal, monitor cap, candidate admission; ordinal 41 impossible assertion passed.",
     "production_flags": "priority OFF; no process restart; provider/network NONE; canonical production activity NONE; shadow OFF; signing/submission NONE.",
     "blocker": null,
-    "observation": "729ca33f-eb43-424e-b013-2348100b2e81 ACTIVE; deadline 1788900834.842102; candidate cap 10; provider-dispatch cap 40; watchdog ARMED pid 90666; durable monitor active pid 90853; listener pid 90361 and worker pid 90435 inherited the same observation ID; priority ON through the isolated durable state file.",
+    "observation": "729ca33f-eb43-424e-b013-2348100b2e81 ACTIVE; deadline 1788900834.842102 unchanged; candidate cap 10; provider-dispatch cap 40; watchdog ARMED pid 90666; initial monitor exited from its accumulating runner. Recovery used the existing monitor class with a non-accumulating loop, now active pid 11353; durable counters remain candidates=0 and dispatches=0; listener pid 90361 and worker pid 90435 retain the same observation ID; priority ON through the isolated durable state file.",
     "next_action": "ALLOW_LOCAL_OBSERVATION_TO_RUN_TO_FROZEN_STOP_CONDITION_THEN_REVIEW_T0_T5_RESULTS"
   }
 }

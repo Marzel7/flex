@@ -15564,6 +15564,18 @@
     "blocker": "PumpSwapProgramWebsocketTask is fixture-qualified but lacks a concrete supervised production connector/registration. More importantly, signature/log-only raw events have EVENT_INDEX_UNRESOLVED_AT_SOURCE while semantic enqueue requires pool and instruction identity; no bounded post-commit retained/cache transaction materializer or max-10 asynchronous enrichment worker exists. Direct listener-to-semantic binding is forbidden.",
     "next_action": "IMPLEMENT_BOUNDED_POST_COMMIT_PUMPSWAP_RAW_EVENT_MATERIALIZER_AND_SUPERVISED_REGISTRATION"
   },
+  "pumpswap_instruction_boundary_state_capability": {
+    "status": "HOLD",
+    "verdict": "PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_NOT_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "src/ops/pumpswap_instruction_boundary_capability.py explicitly classifies only existing configured mechanisms: logsSubscribe/getTransaction as TRANSACTION_BOUNDARY_ONLY, accountSubscribe/programSubscribe as SLOT_BOUNDARY_ONLY, and no retained runtime execution trace or validator account-write hook as available.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pump_swap_prospective_instruction_boundary_state_qualification.v1.json",
+    "artifact_file_sha256": "4c56270107123dfb9cdc000789799dd9f8a742d257cf252c4dfa70e4bc5ee291",
+    "validation": "1 deterministic capability-audit test passed; repository source audit only, provider/runtime probe requests 0.",
+    "production_flags": "raw OFF; semantic OFF; Byzantine shadow OFF; no new live capture, provider/runtime call, signing/submission, automated exit, or canonical mutation.",
+    "blocker": "Current configured provider/listener architecture has no authoritative per-instruction account-write trace. Standard account/program subscriptions are slot-bound and getTransaction is transaction-bound, so neither proves pre-I→post-I state.",
+    "next_action": "HOLD_UNTIL_AUTHORITATIVE_SOLANA_INSTRUCTION_ACCOUNT_WRITE_TRACE_SOURCE_AVAILABLE"
+  },
   "pumpswap_bounded_semantic_fixture_collection": {
     "status": "HOLD",
     "verdict": "PUMPSWAP_SEMANTIC_FIXTURE_THRESHOLD_NOT_QUALIFIED",

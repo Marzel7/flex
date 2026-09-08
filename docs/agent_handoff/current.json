@@ -16380,4 +16380,12 @@
     "remaining": "Cache path, denial result persistence, crash-before-dispatch RELEASED recovery, post-dispatch/retained-response recovery, concurrent actual-wrapper races, terminal handling, batch exception/early-return cleanup, monitor restart at exact 400, and full OFF/classifier equivalence still lack required integration proof. TWO_HOUR_PRIORITY_OBSERVATION_NOT_READY.",
     "next_action": "Finish the remaining required injected scenarios rather than start the two-hour observation."
   }
+,
+  "remaining_rpc_cache_crash_replay_qualification": {
+    "status": "HOLD",
+    "verdict": "OBSERVATION_RPC_CREDIT_BOUND_PATH_NOT_QUALIFIED",
+    "blocker": "At the actual shared worker boundary, _rpc returns None for both budget denial and ordinary provider failure. No durable observation-specific budget-exhausted outcome, retained-response identity, or cache-dispatch provenance is carried through the existing acquisition call contract. The requested cache/crash/replay qualification cannot distinguish or recover those cases without a material result-contract change, which the task forbids as new architecture/minimal-only work.",
+    "production_flags": "OPERATION_EVIDENCE_PRIORITY_ENABLED remains OFF; no live/provider/canonical/shadow/trading action performed.",
+    "next_action": "Explicitly authorize a minimal existing-worker result-contract extension that carries OBSERVATION_RPC_BUDGET_EXHAUSTED and retained dispatch/response provenance through _rpc acquisition callers, then complete the remaining offline qualification matrix."
+  }
 }

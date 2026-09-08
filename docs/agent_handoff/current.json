@@ -16203,6 +16203,17 @@
     "blocker": "No runtime latency sample: the task did not enable the flag on the live listener because the listener worktree carries unrelated uncommitted work. Isolated equivalence is semantic/fixture coverage, not measured end-to-end latency.",
     "next_action": "REVIEW_AND_COMMIT_ONLY_PRIORITY_BINDING_HUNKS_THEN_RUN_SEPARATELY_AUTHORIZED_BOUNDED_PASSIVE_SMOKE_MAX_5_NATURAL_HITS_AND_RETURN_FLAG_TO_OFF"
   },
+  "priority_flag_off_listener_behavioural_equivalence": {
+    "status": "COMPLETE",
+    "verdict": "PRIORITY_FLAG_OFF_LISTENER_BEHAVIOUR_EQUIVALENT",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 (priority implementation remains uncommitted in a dirty engineering worktree)",
+    "baseline": "Immediately pre-binding uncommitted listener state, compared only against the reversible surgical priority hunk; unrelated listener work is preserved and excluded. Current listener worktree blob 76efa4f13a21a6a6b8d06bf3a4e5dae928768601.",
+    "result": "With OPERATION_EVIDENCE_PRIORITY_ENABLED absent/OFF, handle_birth falls through after the existing resolved CREATE-ledger commit. It does not dispatch a thread, resolve the cohort, create/request priority storage, enqueue/upgrade Walkback, issue provider/RPC work or change downstream flow. The disabled-path cost is one local env-string condition.",
+    "validation": "9 focused flag/default/short-circuit/binding tests passed; 55 broader CREATE-ledger, commit-hardening, strict-classifier, canonical-evidence and priority-lane tests passed; diff --check passed.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/priority_flag_off_listener_behavioural_equivalence.v1.json SHA-256 d48a0be79edead64db3710d367d18635c0a0558a5803eb92f52228b7929c5f1d.",
+    "safety": "Feature flag OFF; provider/network/Birdeye acquisition NONE; no live smoke or restart; shadow NO; membership writes, signing, submission and automated exits NONE.",
+    "next_action": "RUN_BOUNDED_PASSIVE_PRIORITY_WALKBACK_LATENCY_SMOKE"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

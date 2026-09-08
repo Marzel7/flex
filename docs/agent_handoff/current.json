@@ -15662,6 +15662,17 @@
     "blocker": "Implement and commit a real live operation-specific evidence accumulator and canonical OperationStrategyTriggerQualification writer at the exact Scenario-D boundary, then bind existing worker through durable post-commit outbox recovery.",
     "next_action": "IMPLEMENT_DURABLE_LIVE_OPERATION_STRATEGY_TRIGGER_QUALIFICATION_PRODUCER"
   },
+  "operation_strategy_trigger_qualification_producer": {
+    "status": "PARTIAL",
+    "verdict": "OPERATION_STRATEGY_TRIGGER_QUALIFICATION_PRODUCER_PARTIALLY_QUALIFIED",
+    "platform_verdict": "OPERATION_AGNOSTIC_STRATEGY_PIPELINE_LOCKED",
+    "engineering_revision": "5904a907",
+    "implementation": "src/ops/operation_strategy_trigger_producer.py provides generic deterministic OperationStrategyTriggerQualification persistence and a durable outbox inserted atomically in one compact SQLite transaction. Strict Byzantine Scenario-D evaluator requires operation, complete recurrent 1..12 cluster, cluster membership, exact position 13, boundary signature/slot/event index, and entry-state reference. Duplicate processing is idempotent and strategy versions coexist.",
+    "validation": "10 focused tests passed. Unrelated 13th launch rejected; missing evidence fails closed; qualification/outbox atomic/idempotent fixture passes. No provider/network work, signer/submission, or automated exits.",
+    "limit": "The component is not wired to a real live listener evidence accumulator or post-commit dispatcher. Feature flag remains OFF; pending outbox must not fabricate observer triggers.",
+    "artifacts": "docs/audits/byzantine_lifecycle_103/operation_strategy_trigger_qualification_producer.v1.json SHA-256 96343489594187b824717049869f7628cd5922bb1dd08f1e70267c86f2525a5d; docs/audits/byzantine_lifecycle_103/byzantine_scenario_d_live_trigger_producer_qualification.v1.json SHA-256 176881269caa7a7a9e8cac31930c85e4e3a1449f89f3d6c8830f25dabc238d00",
+    "next_action": "BIND_COMMITTED_LIVE_OPERATION_EVIDENCE_ACCUMULATOR_AND_POST_COMMIT_DISPATCHER"
+  },
   "pumpswap_instruction_boundary_state_capability": {
     "status": "HOLD",
     "verdict": "PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_NOT_QUALIFIED",

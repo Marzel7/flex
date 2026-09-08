@@ -15564,6 +15564,18 @@
     "blocker": "PumpSwapProgramWebsocketTask is fixture-qualified but lacks a concrete supervised production connector/registration. More importantly, signature/log-only raw events have EVENT_INDEX_UNRESOLVED_AT_SOURCE while semantic enqueue requires pool and instruction identity; no bounded post-commit retained/cache transaction materializer or max-10 asynchronous enrichment worker exists. Direct listener-to-semantic binding is forbidden.",
     "next_action": "IMPLEMENT_BOUNDED_POST_COMMIT_PUMPSWAP_RAW_EVENT_MATERIALIZER_AND_SUPERVISED_REGISTRATION"
   },
+  "pumpswap_live_session_admission_and_semantic_transformer": {
+    "status": "PARTIAL",
+    "verdict": "PUMPSWAP_BOUNDED_LIVE_SEMANTIC_PIPELINE_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "src/ops/pumpswap_capture_session.py provides durable deterministic session IDs, a default 20-event admission limit, duplicate-safe accounting, and closed-state rejection separate from the 1000-event store cap. src/ops/pumpswap_materialized_semantic_transformer.py consumes only committed instruction-bearing materializations and records deterministic transform results before any semantic enqueue.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pump_swap_live_session_admission_and_semantic_transformer_qualification.v1.json",
+    "artifact_file_sha256": "34796df30a049be523b228114b0f8b4e3d084f5e665f88e7e78249c47a6b2a0b",
+    "validation": "12 focused tests passed. Reprocessing the four committed prior-smoke PumpSwap instruction materializations used 0 provider calls and yielded four deterministic BOUNDARY_INSUFFICIENT transforms.",
+    "production_flags": "raw OFF; semantic OFF; Byzantine shadow OFF; no new live session, provider/network request, signing/submission, automated exit, or canonical mutation.",
+    "blocker": "Existing materialized evidence lacks a proven pool identity, so the transformer correctly cannot produce the semantic input contract. The old raw store remains full and preserved; a new live session is not justified before this evidence gap is closed.",
+    "next_action": "Extend exact materialization with a fail-closed evidence-backed pool-identity binding, reprocess the preserved corpus, then run a 20-event bounded session only if semantic eligibility results."
+  },
   "pumpswap_live_raw_materializer_semantic_capture": {
     "status": "HOLD",
     "verdict": "PUMPSWAP_PASSIVE_EVIDENCE_PIPELINE_INTEGRATED_NOT_LEFT_LIVE",

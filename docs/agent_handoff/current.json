@@ -15650,6 +15650,18 @@
     "validation": "11 focused tests passed.",
     "next_action": "ESTABLISH_DURABLE_LIVE_QUALIFIED_SCENARIO_D_COMMIT_BOUNDARY_BEFORE_ENABLING_OBSERVATION"
   },
+  "byzantine_live_scenario_d_commit_boundary": {
+    "status": "HOLD",
+    "verdict": "BYZANTINE_LIVE_SCENARIO_D_COMMIT_BOUNDARY_NOT_QUALIFIED",
+    "platform_verdict": "OPERATION_AGNOSTIC_STRATEGY_PIPELINE_LOCKED",
+    "engineering_revision": "5904a907",
+    "audit": "No live Scenario-D recognizer, recurrent-opening-cluster state machine, durable Scenario-D qualification writer, or authoritative post-commit producer exists in src/core/live src/ops. Historical Scenario-D code is analysis-only. The downstream shadow worker remains correctly post-commit guarded and durable but has no safe producer hook.",
+    "safety": "BYZANTINE_PROSPECTIVE_SHADOW_OBSERVER_ENABLED remains OFF; no provider/network work in a qualification transaction; no launches captured; signing/submission and automated exits NONE.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_live_scenario_d_commit_boundary_qualification.v1.json SHA-256 6de7e55f796a448ead7b0215303fddcc2f8f235de7b60adc958b882996f75f28",
+    "validation": "11 existing prospective-worker/generic-candidate tests passed. No live-boundary test can truthfully pass without the missing live producer.",
+    "blocker": "Implement and commit a real live operation-specific evidence accumulator and canonical OperationStrategyTriggerQualification writer at the exact Scenario-D boundary, then bind existing worker through durable post-commit outbox recovery.",
+    "next_action": "IMPLEMENT_DURABLE_LIVE_OPERATION_STRATEGY_TRIGGER_QUALIFICATION_PRODUCER"
+  },
   "pumpswap_instruction_boundary_state_capability": {
     "status": "HOLD",
     "verdict": "PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_NOT_QUALIFIED",

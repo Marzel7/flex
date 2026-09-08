@@ -16409,8 +16409,8 @@
     "next_action": "RUN_TWO_HOUR_REAL_PRIORITY_LATENCY_OBSERVATION_WITH_ALL_FROZEN_STOPS_ENFORCED"
   },
   "qualified_40_dispatch_isolated_runtime_deployment": {
-    "status": "HOLD",
-    "verdict": "QUALIFIED_40_DISPATCH_GATE_DEPLOYMENT_NOT_QUALIFIED",
+    "status": "ACTIVE",
+    "verdict": "MINIMAL_RPC_40_DISPATCH_RUNTIME_DEPLOYMENT_QUALIFIED",
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "runtime": "/private/tmp/flex-priority-deploy",
     "runtime_identity_before": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
@@ -16418,7 +16418,8 @@
     "requalification_artifact": "isolated_runtime_40_dispatch_requalification.v1.json sha256 135c192ed0a2fb960089b717ab6df721002d4e0754b8f8a6e4989e2625bbc282",
     "tests": "3 exact-runtime imports tests passed: dispatch ordinal, monitor cap, candidate admission; ordinal 41 impossible assertion passed.",
     "production_flags": "priority OFF; no process restart; provider/network NONE; canonical production activity NONE; shadow OFF; signing/submission NONE.",
-    "blocker": "Admission test race was made deterministic and focused checks passed; isolated listener and worker restarted healthy from /private/tmp/flex-priority-deploy with priority OFF. Activation prerequisite failed: supervisor environments do not set OPERATION_EVIDENCE_PRIORITY_OBSERVATION_ID, so enabling priority would not bind live work to the durable observation/candidate/dispatch controls. Observation not started.",
-    "next_action": "Create and persist the observation ID, then add that exact ID to the isolated listener and worker supervised environments before enabling priority; verify both processes inherited it and only then activate."
+    "blocker": null,
+    "observation": "729ca33f-eb43-424e-b013-2348100b2e81 ACTIVE; deadline 1788900834.842102; candidate cap 10; provider-dispatch cap 40; watchdog ARMED pid 90666; durable monitor active pid 90853; listener pid 90361 and worker pid 90435 inherited the same observation ID; priority ON through the isolated durable state file.",
+    "next_action": "ALLOW_LOCAL_OBSERVATION_TO_RUN_TO_FROZEN_STOP_CONDITION_THEN_REVIEW_T0_T5_RESULTS"
   }
 }

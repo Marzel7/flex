@@ -16300,4 +16300,17 @@
     "production_flags": "OPERATION_EVIDENCE_PRIORITY_ENABLED remains OFF. No PREPARED state, watchdog, activation, live observation, provider action, restart, or canonical DB write occurred.",
     "next_action": "Authorize the missing narrow durable observation monitor, or explicitly amend the observation contract to remove the cap/RPC/safety-stop requirements; do not activate priority under the current contract."
   }
+,
+  "durable_priority_observation_monitor": {
+    "status": "PARTIAL",
+    "verdict": "DURABLE_PRIORITY_OBSERVATION_MONITOR_PARTIALLY_QUALIFIED",
+    "two_hour_readiness": "TWO_HOUR_PRIORITY_OBSERVATION_NOT_READY",
+    "implementation": "src/ops/durable_priority_observation_monitor.py reuses existing priority-request rows and qualified adapter OFF semantics. It persists a rowid baseline plus exact operation/version/reason filters and request-id dedupe; restart reconstructs candidates and forces OFF on observed cap/safety stop.",
+    "validation": "14 focused tests passed; py_compile and artifact JSON validation passed. Priority remained OFF; no provider/network activity, adapter/monitor canonical DB writes, shadow, signing, submission, or exits.",
+    "rpc_accounting": "wt_walkback_queue.rpc_used is a durable internal worker aggregate scoped by candidate mint, but it carries no per-request method/explicit provider-credit ledger. Exact external credit mapping and strict 400-credit enforcement are therefore unqualified.",
+    "remaining_blockers": "Existing listener admission does not consult monitor state atomically, so candidate #11 can be observed/disabled after admission but cannot be proven prevented before request creation. Exact external RPC-credit ceiling is also unavailable from retained rows.",
+    "artifact": "docs/audits/durable_priority_observation_monitor_qualification.v1.json",
+    "artifact_sha256": "9671f2e478a24bff20163c5f2917448052656e86f816b63c655b767b1b5e489b",
+    "next_action": "Separately authorize an atomic observation admission gate and per-request Walkback provider-credit ledger, then requalify monitor before the two-hour observation."
+  }
 }

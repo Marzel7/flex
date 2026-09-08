@@ -15564,6 +15564,18 @@
     "blocker": "PumpSwapProgramWebsocketTask is fixture-qualified but lacks a concrete supervised production connector/registration. More importantly, signature/log-only raw events have EVENT_INDEX_UNRESOLVED_AT_SOURCE while semantic enqueue requires pool and instruction identity; no bounded post-commit retained/cache transaction materializer or max-10 asynchronous enrichment worker exists. Direct listener-to-semantic binding is forbidden.",
     "next_action": "IMPLEMENT_BOUNDED_POST_COMMIT_PUMPSWAP_RAW_EVENT_MATERIALIZER_AND_SUPERVISED_REGISTRATION"
   },
+  "pumpswap_bounded_semantic_fixture_collection": {
+    "status": "HOLD",
+    "verdict": "PUMPSWAP_SEMANTIC_FIXTURE_THRESHOLD_NOT_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "No new general architecture was added. The prior session materializer cursor was checked to terminal completion and its six committed instruction materializations were deterministically reprocessed through the existing transformer; this introduced 0 provider requests and no extra semantic results beyond the four existing eligible ambiguous records.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pump_swap_bounded_semantic_fixture_collection.v1.json",
+    "artifact_file_sha256": "2dc33f0a08d1127e6ede81dda999d5a8a99cbb60d28e35e9399dae19b7e8d04e",
+    "validation": "One 20-event session fully terminally accounted: 9 provider exact transactions, 6 PumpSwap instruction materializations, 4 pool-qualified semantic results, all direction ambiguous / transaction-boundary-only / fee unresolved / reserve unresolved. No random second session was opened because it would not meet the evidence-based admission requirement.",
+    "production_flags": "raw OFF; semantic OFF; Byzantine shadow OFF; no new provider/network session, signing/submission, automated exit, or canonical mutation.",
+    "blocker": "Current exact transaction evidence cannot deterministically attribute trader↔pool token and SOL/WSOL flow, fees, or instruction-local reserve transitions. The Sell threshold is not reachable through more unprioritized generic program-log sampling.",
+    "next_action": "QUALIFY_PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_CAPTURE"
+  },
   "pumpswap_isolated_20_event_session": {
     "status": "PARTIAL",
     "verdict": "PUMPSWAP_ISOLATED_20_EVENT_SESSION_PARTIALLY_QUALIFIED",

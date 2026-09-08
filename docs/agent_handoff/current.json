@@ -16451,6 +16451,17 @@
     "blocker": "The running normal listener is the protected isolated priority runtime; restart/replacement is forbidden by the no-Byzantine-restart constraint. Real durable Birth/Migration AVAILABLE transitions and observation clock cannot begin until a clean availability-only runtime is explicitly authorized.",
     "next_action": "Obtain explicit authority to replace the protected runtime with a clean availability-only deployment; prove journal fallback absent from its diff, then observe natural subscription transitions."
   },
+  "production_birth_migration_availability_only_runtime_replacement": {
+    "status": "PARTIAL",
+    "verdict": "PRODUCTION_BIRTH_MIGRATION_AVAILABILITY_VISIBILITY_PARTIALLY_QUALIFIED",
+    "runtime": "watchtower_listener replaced 2026-09-08T22:28:23Z from /private/tmp/flex-priority-deploy (pid 90361) to /private/tmp/flex-availability-only (pid 84128), both based on 5904a907.",
+    "deployment": "Only src/ops/acquisition_availability.py and four listener subscription-control-flow transition calls were deployed. Experimental migration journal/fallback symbols were grep-verified absent. Unrelated dirty/Walkback/priority/Byzantine/strategy changes excluded.",
+    "natural_evidence": "Durable transitions in production DB: BIRTH AVAILABLE at 1788906508 after PumpPortal subscribeNewToken; MIGRATION AVAILABLE at 1788906508 after PumpSwap logsSubscribe confirmation id=22743646. At first verification both had 68 available seconds, zero down seconds/incidents, partial 24h window.",
+    "artifact": "docs/audits/production_birth_migration_availability_only_runtime_replacement.v1.json sha256 a6e970eaeddf9d2660a70e846da532e22403f78acd5818f5b8c7a090adb1af7c",
+    "safety": "MIGRATION_JOURNAL_FALLBACK_DEPLOYED=NO; priority OFF; Byzantine restart NO; operation mutations NONE; provider/RPC test traffic NONE; migration durability matrix NO.",
+    "blocker": "Clean API/template Health-card runtime was not replaced in this listener-only activation, so live card rendering/shared sidebar cannot yet be asserted despite real transition persistence.",
+    "next_action": "Build and separately authorize a clean API/template availability-only runtime, then restart watchtower_api only and verify /api/health/full card data against the accumulating durable transitions."
+  },
   "shared_health_and_24h_capture_coverage_qualification": {
     "status": "PARTIAL",
     "verdict": "SHARED_HEALTH_READ_MODEL_PARTIALLY_QUALIFIED",

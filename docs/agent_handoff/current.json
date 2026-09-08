@@ -16191,6 +16191,18 @@
     "blocker": "The committed launch path still needs a narrowly reviewed post-commit caller, then isolated semantic replay and a separately bounded passive smoke before the gate can qualify.",
     "next_action": "BIND_DEFAULT_OFF_POST_COMMIT_LAUNCH_CALLER_TO_record_post_commit_request_AND_apply_walkback_request_AFTER_SOURCE_COMMIT_THEN_RUN_ISOLATED_SEMANTIC_REPLAY"
   },
+  "byzantine_live_launch_priority_walkback_binding": {
+    "status": "PARTIAL",
+    "verdict": "BYZANTINE_LIVE_PRIORITY_WALKBACK_BINDING_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 (working tree binding implementation pending independent review/commit)",
+    "implementation": "A surgical PumpFunCurveListener.handle_birth call occurs only after the resolved canonical CREATE-ledger write returns written+committed_at. The operation-specific adapter resolves the current local canonical creator cohort, creates/reuses the generic request and reuses/upgrades the existing mint-keyed Walkback job. The generic flag remains default OFF and all priority failures are listener-isolated.",
+    "cohort": "Current local snapshot: 103 canonical mints, 101 creator-resolved, 36 creators, membership high-water 1788589878; runtime cohort version OPERATION_ASSOCIATED_CREATOR_COHORT.v1:1788589878.",
+    "validation": "7 priority binding/core tests passed; 7 strict classifier/canonical-evidence tests passed; py_compile and diff --check passed.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_live_launch_priority_walkback_binding_and_latency_smoke.v1.json SHA-256 c8423d9dafcbae7f86c1a4597d9eb83d8d1a7f9e56bac995d42663a62e916a63.",
+    "safety": "Pre-existing unrelated listener changes preserved; priority feature flag OFF; bounded live smoke not performed; provider/RPC/Birdeye acquisition 0; no membership write, shadow, signing, submission or automated exit.",
+    "blocker": "No runtime latency sample: the task did not enable the flag on the live listener because the listener worktree carries unrelated uncommitted work. Isolated equivalence is semantic/fixture coverage, not measured end-to-end latency.",
+    "next_action": "REVIEW_AND_COMMIT_ONLY_PRIORITY_BINDING_HUNKS_THEN_RUN_SEPARATELY_AUTHORIZED_BOUNDED_PASSIVE_SMOKE_MAX_5_NATURAL_HITS_AND_RETURN_FLAG_TO_OFF"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

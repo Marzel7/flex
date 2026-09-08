@@ -15570,7 +15570,7 @@
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "implementation": "src/ops/pumpswap_live_runtime.py binds ListenerPumpSwapRuntime to the listener-owned _websocket_endpoints()[0], listener.tx_cache, and call_discovery_rpc(getTransaction), while src/core/pumpfun_curve_listener.py registers exactly one feature-gated PumpSwapResearchSupervisor task. No endpoint, provider account, signer, or submission path was introduced.",
     "artifact": "docs/audits/byzantine_lifecycle_103/pump_swap_live_passive_capture_materializer_semantic_binding.v1.json",
-    "artifact_file_sha256": "85fdc4f2b4a7c165bcaf02ee81128758ebf43e8a23ded99662f9fc2678edda64",
+    "artifact_file_sha256": "778ba7b9e44737de6ead401a1e144b5f03b0839225f0c73d5ca7561a79e13478",
     "validation": "pytest -q tests/test_pumpswap_live_runtime.py tests/test_pumpswap_program_websocket_task.py tests/test_pumpswap_raw_materializer.py tests/test_pumpswap_raw_event_retention.py tests/test_pumpswap_generic_subscription.py: 11 passed; artifact JSON validated.",
     "production_flags": "PUMPSWAP_RAW_SWAP_EVENT_RETENTION_ENABLED remains OFF; PUMPSWAP_PROSPECTIVE_SEMANTIC_EVIDENCE_ENABLED remains OFF; BYZANTINE_PROSPECTIVE_SHADOW_OBSERVER_ENABLED remains OFF. No listener restart, provider request, raw capture, signing, submission, automated exit, or canonical DB write occurred.",
     "blocker": "The present materializer does not retain provider responses before parsing and does not publish a committed materialized-instruction interface for the semantic consumer. Enabling raw capture would violate the task's Phase D/E gates.",

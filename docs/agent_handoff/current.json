@@ -15673,6 +15673,18 @@
     "artifacts": "docs/audits/byzantine_lifecycle_103/operation_strategy_trigger_qualification_producer.v1.json SHA-256 96343489594187b824717049869f7628cd5922bb1dd08f1e70267c86f2525a5d; docs/audits/byzantine_lifecycle_103/byzantine_scenario_d_live_trigger_producer_qualification.v1.json SHA-256 176881269caa7a7a9e8cac31930c85e4e3a1449f89f3d6c8830f25dabc238d00",
     "next_action": "BIND_COMMITTED_LIVE_OPERATION_EVIDENCE_ACCUMULATOR_AND_POST_COMMIT_DISPATCHER"
   },
+  "operation_strategy_live_evidence_accumulator_and_dispatcher": {
+    "status": "HOLD",
+    "verdict": "LIVE_OPERATION_EVIDENCE_ACCUMULATOR_AND_DISPATCHER_NOT_QUALIFIED",
+    "platform_verdict": "OPERATION_AGNOSTIC_STRATEGY_PIPELINE_LOCKED",
+    "engineering_revision": "5904a907",
+    "audit": "The actual canonical membership writer src/ops/wsol_10_sol_four_step_operation.py::project_completed_walkback persists mint/operator/source/assigned_at/event_id only after completed walkback. It lacks ordered opening positions, recurrent cluster identity, exact first post-12 boundary, and entry-state reference. src/ops/byzantine_birth_signal.py is explicitly non-canonical/in-memory. Both are rejected as Scenario-D trigger substrates.",
+    "result": "Generic producer remains correctly isolated but no dispatcher was implemented because no valid committed Scenario-D qualification can be emitted. Historical replay remains protected by non-binding; observer and PumpSwap flags remain OFF.",
+    "artifacts": "docs/audits/byzantine_lifecycle_103/operation_strategy_live_evidence_accumulator_and_dispatcher_qualification.v1.json SHA-256 ee5eecb5bbbd69fb90f96ce979e8e1a6b159f67b8964ee469ecbffd0116c759c; docs/audits/byzantine_lifecycle_103/byzantine_live_scenario_d_evidence_binding_qualification.v1.json SHA-256 45f2cadb5ab12f95f2dc17f59374d2be55cf4c34bfa35c0875e21c76f9b44487",
+    "validation": "10 focused generic producer/shadow tests passed; provider/network, signing/submission, automated exits NONE.",
+    "blocker": "Persist an authoritative ordered recurrent-opening-cluster evidence stream and compact entry-state reference in the live operation path, then invoke the generic accumulator post-commit.",
+    "next_action": "IMPLEMENT_DURABLE_LIVE_BYZANTINE_OPENING_CLUSTER_EVIDENCE_PROJECTION"
+  },
   "pumpswap_instruction_boundary_state_capability": {
     "status": "HOLD",
     "verdict": "PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_NOT_QUALIFIED",

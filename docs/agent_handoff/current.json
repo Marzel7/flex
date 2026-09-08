@@ -16388,4 +16388,13 @@
     "production_flags": "OPERATION_EVIDENCE_PRIORITY_ENABLED remains OFF; no live/provider/canonical/shadow/trading action performed.",
     "next_action": "Explicitly authorize a minimal existing-worker result-contract extension that carries OBSERVATION_RPC_BUDGET_EXHAUSTED and retained dispatch/response provenance through _rpc acquisition callers, then complete the remaining offline qualification matrix."
   }
+,
+  "worker_rpc_result_contract_extension": {
+    "status": "HOLD",
+    "verdict": "OBSERVATION_RPC_CREDIT_BOUND_PATH_NOT_QUALIFIED",
+    "trace": "walkback_worker._rpc is the sole raw transport boundary, but its list/dict/None payload is consumed through _get_sigs, _get_tx, and _get_account_owner helpers. Existing worker source exposes route/evidence caches but no retained raw provider-response identity/store at this boundary.",
+    "blocker": "A minimal explicit result wrapper requires compatibility adaptation of all three payload helpers plus durable dispatch/response provenance for crash/replay. Implementing only a wrapper would silently alter list/dict truthiness and failure behavior; no safe change was made in this continuation.",
+    "production_flags": "priority OFF; no live/provider/canonical/shadow/trading action.",
+    "next_action": "Implement the authorized compatibility result wrapper and durable attempt provenance together with injected payload-helper and recovery tests before claiming the bound path qualified."
+  }
 }

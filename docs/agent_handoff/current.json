@@ -15614,6 +15614,18 @@
     "final_blocker": "No archival exact pre-Sell Pool and FeeConfig state source in configured provider surface; current state would be temporally invalid.",
     "next_action": "LOCK_OPERATION_STRATEGY_RESEARCH_PIPELINE_AND_BACKFILL_BYZANTINE"
   },
+  "operation_strategy_research_pipeline_and_byzantine_backfill": {
+    "status": "PARTIAL",
+    "platform_verdict": "OPERATION_AGNOSTIC_STRATEGY_PIPELINE_LOCKED",
+    "byzantine_verdict": "BYZANTINE_STRATEGY_BACKFILL_PARTIALLY_QUALIFIED_FOR_SHADOW",
+    "engineering_revision": "5904a907",
+    "implementation": "src/ops/operation_strategy_research.py adds versioned generic operation/entry contracts, evidence taxonomy, deterministic strategy definition construction, and no submission capability. Byzantine remains configuration in the retained-only backfill script, not a dependency of generic code.",
+    "backfill": "Frozen Scenario-D cohort preserved at 101. All 101 retained exact target-era entry quotes were materialized across 0.1/0.25/0.5/1 SOL. Birdeye outcomes qualify 99/101, with observed migration+2m benchmark coverage retained separately. Hypothetical post-entry Pump.fun propagation and PumpSwap exits remain unqualified; no P&L or recovery/runner fill was fabricated.",
+    "artifacts": "docs/audits/byzantine_lifecycle_103/operation_agnostic_strategy_research_pipeline.v1.json SHA-256 f7682cd5ca567b791238a159b5515082b0dabdaa33aa5363891566283f3be5c3; docs/audits/byzantine_lifecycle_103/byzantine_operation_strategy_backfill.v1.json SHA-256 210331396e18ca15b8c0a66e74f0f9067701ee36899bc172dde5ae660335c6de",
+    "validation": "9 focused tests passed. Provider/Birdeye acquisition 0; no signing/submission or automated exits.",
+    "blocker": "No durable qualified live Scenario-D commit boundary and no qualified prospective PumpSwap exit evidence; historical counterfactual exit propagation remains blocked.",
+    "next_action": "DEFINE_PROSPECTIVE_SHADOW_ONLY_AFTER_LIVE_QUALIFIED_TRIGGER_BOUNDARY"
+  },
   "pumpswap_instruction_boundary_state_capability": {
     "status": "HOLD",
     "verdict": "PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_NOT_QUALIFIED",

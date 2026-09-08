@@ -15763,6 +15763,18 @@
     "blocker": "An authoritative Pump.fun action-boundary account-write/runtime trace or complete event-emitted curve-plus-config checkpoint is required. Standard accountSubscribe/getAccountInfo semantics remain slot/current boundary only.",
     "next_action": "HOLD_UNTIL_AUTHORITATIVE_PUMPFUN_ACTION_BOUNDARY_ACCOUNT_WRITE_OR_COMPLETE_EVENT_STATE_SOURCE_AVAILABLE"
   },
+  "byzantine_partial_event_state_prospective_shadow": {
+    "status": "HOLD",
+    "verdict": "EVIDENCE_BOUNDED_PROSPECTIVE_SHADOW_NOT_QUALIFIED",
+    "platform_verdict": "OPERATION_AGNOSTIC_STRATEGY_PIPELINE_LOCKED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "assessment": "TradeEvent retains mint/actor, SOL/token amounts, timestamp/signature/slot/action identity and post virtual/real reserves, but lacks boundary curve/config bytes, completion/supply binding, global/fee/creator configuration, program version, and PRE state. It is PARTIAL_EVENT_STATE, not exact entry evidence. The independent Scenario-D live trigger gate remains BLOCKED because cluster classification/complete ordering envelope is still absent.",
+    "implementation": "src/ops/prospective_strategy_observation_evidence_grade.py adds an operation-independent grade contract. Result evidence is deterministically capped by the weakest trigger/entry/lifecycle/exit input; exact execution requires all material inputs QUALIFIED_EXACT_STATE, and cross-candidate comparison requires a qualified trigger plus a common entry/exit evidence basis. It has submission capability NONE.",
+    "conclusion": "Exact holdings, principal recovery (including estimated recovery under unproven assumptions), entry-to-exit P&L, and candidate ranking are unsupported. A 20-launch partial cohort is LOW_VALUE: it cannot resolve trigger precision or execution and would largely duplicate the 99/101 historical Birdeye lifecycle marks. No observer enablement is justified.",
+    "artifacts": "docs/audits/byzantine_lifecycle_103/prospective_strategy_observation_evidence_grade_contract.v1.json SHA-256 214e95708e48222527dfc00eec0fb2ed2b9cc11890ed2ad5d89d8da5c1ee1481; docs/audits/byzantine_lifecycle_103/byzantine_partial_event_state_prospective_shadow_feasibility.v1.json SHA-256 c5b6643daeaf554aa7b3c8d4708eafb9c15b5b0bd13923774b57a9ce7d4643c4",
+    "validation": "18 focused generic evidence-grade/source/worker/projection/producer tests passed. Provider/network NONE; flags OFF; cohort 0; signing/submission and automated exits NONE.",
+    "next_action": "HOLD_PROSPECTIVE_STRATEGY_EXECUTION_UNTIL_STRONGER_PUMPFUN_STATE_SOURCE_AVAILABLE"
+  },
   "pumpswap_instruction_boundary_state_capability": {
     "status": "HOLD",
     "verdict": "PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_NOT_QUALIFIED",

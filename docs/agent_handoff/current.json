@@ -15501,6 +15501,19 @@
     "blocker": "No safe live post-commit retained-event trigger is currently bound, so no constrained natural migration/Sell fixture can be collected until separately authorized after operational review.",
     "next_action": "SEPARATE_DECISION_ON_BINDING_AND_ENABLING_PUMPSWAP_SEMANTIC_CAPTURE_ONLY"
   },
+  "pumpswap_semantic_capture_live_binding": {
+    "status": "HOLD",
+    "verdict": "PUMPSWAP_SEMANTIC_CAPTURE_BINDING_NOT_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "The prospective semantic spool's MAX_FIXTURES_PER_POOL=8 cap is now enforced across pending/retry/leased/completed jobs, preventing burst bypass. The live-source audit found src/core/pumpfun_curve_listener.py::listen_pumpswap_websocket subscribes only the Pump.fun migration account and routes only migration logs to handle_migration; generic PumpSwap swaps are explicitly skipped and no raw swap payload is retained for semantic capture.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pump_swap_semantic_capture_live_binding_and_enablement_qualification.v1.json",
+    "artifact_payload_digest": "62d5ec04e9cbdec803bfa856cf616975eeadb6b479d173d1ac5df0661cce74e5",
+    "artifact_file_sha256": "defb77aa9d6ec3d979f1b4ee88e767105b93b7bcfe4830a1476d3456532fa6a9",
+    "validation": "pytest -q tests/test_pumpswap_prospective_semantic_capture.py tests/test_pumpswap_prospective_execution_contract.py tests/test_pumpswap_boundary.py: 9 passed; artifact JSON validation and diff --check passed.",
+    "production_flags": "PUMPSWAP_PROSPECTIVE_SEMANTIC_EVIDENCE_ENABLED remains OFF because the binding gate failed; BYZANTINE_PROSPECTIVE_SHADOW_OBSERVER_ENABLED remains OFF; trigger provider/RPC calls 0; signing/submission NONE; automated exits NONE; production/canonical changes NONE.",
+    "blocker": "There is no durable post-commit generic PumpSwap swap event/payload-retention source. Enabling a migration-only path would not collect the mandatory Sell fixtures and would misrepresent capture coverage.",
+    "next_action": "QUALIFY_SAFE_POST_COMMIT_PUMPSWAP_SWAP_EVENT_RETENTION_SOURCE"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

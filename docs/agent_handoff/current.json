@@ -15997,6 +15997,17 @@
     "blocker": "Concrete existing websocket connector and retained/cache/provider resolver remain injected test interfaces, not safely wired into a supervised production registration.",
     "next_action": "ENABLE_BOUNDED_PUMPSWAP_RAW_CAPTURE_AND_MATERIALIZER_THEN_BIND_SEMANTIC_CAPTURE"
   },
+  "byzantine_locked_strategy_validation_readiness": {
+    "status": "COMPLETE",
+    "verdict": "BYZANTINE_LOCKED_STRATEGY_VALIDATION_PARTIALLY_READY",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "historical_validation": "FULL_HISTORICAL_COHORT_DISCOVERY_CONTAMINATED: the same historical operation/migration/bridge/price/runner/accounting surfaces informed selection and lock. There is no frozen pre-selection chronological cutoff and the 38 unresolved +2m rows are not a holdout. Deterministic chronological thirds are RETROSPECTIVE_ROBUSTNESS_CHECK only: early has 0/32 resolved, middle 27/33 resolved, late 33/33 resolved; resolved middle and late remain profitable, so stability is TEMPORALLY_MIXED rather than out-of-sample evidence.",
+    "prospective_protocol": "A generic, paired MARK_BASED_SHADOW_VALIDATION protocol is frozen for 20 new qualifying launches after handoff 9c275036, using immutable Balanced/Conservative V1 IDs, causal Scenario-D/bridge/price/migration/+2m retention and the canonical accounting contract. The observer remains OFF and no collection is started.",
+    "mark_readiness": "MARK_BASED_PROSPECTIVE_VALIDATION_PARTIAL: same-token spot marks are conceptually sufficient for historical-style shadow validation, but a separately authorized task must bind and verify live causal evidence retention. This does not qualify execution.",
+    "artifact": "byzantine_locked_strategy_validation_readiness.v1.json SHA-256 9e9e282c653af06649656922288e808e94a4c4b85462176de55082c41e6dbf70; operation_locked_strategy_validation_contract.v1.json SHA-256 f1c2116234eda8d5e1203c492aa75150f90e84fac89343cf5d5ad115e2adf7d9.",
+    "validation": "5 focused generic accounting tests passed; provider/network acquisition NONE; signing/submission/automated exits NONE.",
+    "next_action": "SEPARATELY_AUTHORIZE_AND_BIND_MARK_BASED_PROSPECTIVE_SHADOW_VALIDATION_WITHOUT_EXECUTION"
+  },
   "byzantine_historical_strategy_accounting_lock": {
     "status": "COMPLETE",
     "verdict": "BYZANTINE_HISTORICAL_STRATEGY_ACCOUNTING_LOCKED",

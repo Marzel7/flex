@@ -16325,4 +16325,16 @@
     "artifact_sha256": "8119705539ab6ee0c7ece83aa7dd363486b311c99079ef06a2dcc8beff5c1ae4",
     "next_action": "Resolve the authoritative Walkback provider-credit unit/cost contract, then wire the gate immediately before priority request creation and add exact per-attempt ledger/reservation tests before two-hour activation."
   }
+,
+  "walkback_provider_credit_schedule_and_ledger": {
+    "status": "PARTIAL",
+    "schedule_verdict": "WALKBACK_PROVIDER_CREDIT_SCHEDULE_QUALIFIED",
+    "ledger_verdict": "ISOLATED_LEDGER_QUALIFIED_LIVE_BINDING_PENDING",
+    "authority": "src/apis/rpc_metrics_config.py CREDIT_SCHEDULE is the retained Helius runtime contract: getSignaturesForAddress=10, getTransaction=10, getAccountInfo=1. The worker's 1cr comments are classified stale/internal request-count comments; wt_walkback_queue.rpc_used remains its legacy internal aggregate.",
+    "implementation": "src/ops/observation_provider_credit_ledger.py creates exact per-attempt deterministic reservations using BEGIN IMMEDIATE; 400 exact cap has zero overshoot in isolated concurrent tests. RESERVED/AMBIGUOUS attempts remain conservatively counted.",
+    "validation": "3 focused credit/admission tests passed; py_compile and two JSON contracts validated. Priority remained OFF; provider/network/canonical DB activity none.",
+    "remaining": "Neither atomic admission nor credit reservation is yet wired into the live listener/Walkback provider wrappers. Required cache/retry/crash wrapper integration qualification remains before declaring end-to-end controls or two-hour readiness.",
+    "artifacts": {"schedule":"docs/audits/walkback_provider_credit_schedule_contract.v1.json","schedule_sha256":"9b3d0e3fb5e29b24a616260a2702cbb1f7d90001a795ad19a9885811375fec38","ledger":"docs/audits/operation_observation_provider_credit_ledger_contract.v1.json","ledger_sha256":"2538c88c49a00248672a5674919ff063aee25b69d4370884d40b7cdfb00cc03b"},
+    "next_action":"Authorize narrow live-path wrapper binding of admission immediately before priority request creation and exact credit reserve/consume around each Walkback provider call, then test cache/retry/crash recovery without enabling priority."
+  }
 }

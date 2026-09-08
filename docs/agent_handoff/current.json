@@ -15799,6 +15799,17 @@
     "safety": "Provider/Birdeye acquisition NONE; flags OFF; signing/submission and automated exits NONE.",
     "next_action": "REVIEW_MARK_BASED_MIGRATION_HAZARD_DISCOVERY_BEFORE_ANY_NEW_EXECUTION_AUTHORIZATION"
   },
+  "byzantine_migration_hazard_and_harvest_window_review": {
+    "status": "HOLD",
+    "verdict": "BYZANTINE_MIGRATION_HAZARD_REVIEW_NOT_QUALIFIED",
+    "platform_verdict": "OPERATION_AGNOSTIC_STRATEGY_PIPELINE_LOCKED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "correction": "The preceding practical surface is not a causal exit surface: it used eventual post_migration_max_multiple conditioned on ATH timing, not retained marks at fixed migration-relative horizons. Its survival computation also omitted no-collapse censored rows from the numerator. Neither a harvest-window ranking nor a migration exit recommendation may be drawn from it.",
+    "retained_facts": "Valid descriptive facts remain: 99 outcome-qualified rows; Scenario-D-to-migration distribution; 78 observed >=92.5% severe-collapse timestamps and their migration-relative buckets; ATH timing. The explicit historical +2m benchmark is preserved separately as n=60, median 1.498x, P25 .952x, P75 1.936x, >=2x 21.67%, <.5x 25%; it is historically observed, not a fill.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_migration_hazard_and_harvest_window_review.v1.json SHA-256 301df839cc833ee631aef93b5f5494c21d8df5e44659fc5063cb32f9c8042469",
+    "safety": "No provider/network/Birdeye acquisition, flags remain OFF, signing/submission and automated exits NONE.",
+    "next_action": "HOLD_MARK_BASED_HARVEST_WINDOW_CONCLUSIONS_UNTIL_RETAINED_CAUSAL_HORIZON_MARK_SERIES_IS_INDEXED"
+  },
   "pumpswap_instruction_boundary_state_capability": {
     "status": "HOLD",
     "verdict": "PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_NOT_QUALIFIED",

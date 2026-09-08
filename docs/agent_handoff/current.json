@@ -16364,4 +16364,12 @@
     "remaining": "No injected worker-RPC cache-hit, retry ordinal, denial/no-dispatch, crash-before/after-dispatch, retained-response, context-cleanup, or normal-row isolation integration tests. Therefore end-to-end bound path and two-hour readiness remain unqualified.",
     "next_action": "Add those injected integration tests, including actual _rpc wrapper dispatch fake and monitor restart at exact 400, before any live priority activation."
   }
+,
+  "final_worker_rpc_integration_qualification": {
+    "status": "PARTIAL",
+    "implementation": "tests/test_walkback_observation_rpc_integration.py injects urllib urlopen at the actual walkback_worker._rpc boundary with temporary OPS DB/ledger and ContextVar attribution.",
+    "validation": "12 focused integration/ledger/monitor/binding tests passed. Actual observation _rpc reserved 10 at 390, dispatched once, then denied 1 at exact 400 with no second dispatch. Normal context at 400 dispatched once without ledger reservation. Priority OFF; provider/network/canonical DB/shadow/trading activity none.",
+    "remaining": "Required final cache-path, retry ordinal/failed-attempt, crash-before/after-dispatch, retained-response recovery, concurrent actual-wrapper races, terminal attribution, batch cleanup, monitor restart/source mutation, and full flag-off/classifier equivalence scenarios have not been exercised. TWO_HOUR_PRIORITY_OBSERVATION_NOT_READY.",
+    "next_action": "Complete the remaining specified injected integration scenarios before claiming controls/monitor qualification or two-hour readiness."
+  }
 }

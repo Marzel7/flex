@@ -15626,6 +15626,18 @@
     "blocker": "No durable qualified live Scenario-D commit boundary and no qualified prospective PumpSwap exit evidence; historical counterfactual exit propagation remains blocked.",
     "next_action": "DEFINE_PROSPECTIVE_SHADOW_ONLY_AFTER_LIVE_QUALIFIED_TRIGGER_BOUNDARY"
   },
+  "byzantine_birdeye_price_path_strategy_surface": {
+    "status": "PARTIAL",
+    "verdict": "BYZANTINE_BIRDEYE_STRATEGY_SURFACE_PARTIALLY_QUALIFIED",
+    "platform_verdict": "OPERATION_AGNOSTIC_STRATEGY_PIPELINE_LOCKED",
+    "engineering_revision": "5904a907",
+    "result": "Retained-only generic mark surface evaluated 30 predeclared fixed-fraction/time configurations over 99/101 Birdeye-qualified lifecycles at 5/15/30/60/120 seconds. Every mark is ESTIMATED_WITH_EXPLICIT_ASSUMPTION, never an executable PumpSwap fill. The existing migration+2m benchmark was preserved unchanged.",
+    "blocked": "No qualified common-currency Scenario-D entry-to-Birdeye valuation bridge and no historical PumpSwap reserve/FeeConfig state. Therefore principal recovery, entry-to-exit returns, size-sensitive exits, risk-adjusted ranking, and candidate strategies remain unqualified; no strategy was promoted.",
+    "safety": "Provider/Birdeye acquisition 0; signing/submission NONE; automated exits NONE; shadow remains OFF.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_birdeye_strategy_surface.v1.json SHA-256 d7461daa358566fa6cec69d06280c4de064644a680ba8d943709adb7c73cc00e",
+    "validation": "9 focused generic/PumpSwap tests passed.",
+    "next_action": "DEFINE_AND_RUN_PROSPECTIVE_SHADOW_FOR_SELECTED_OPERATION_STRATEGIES"
+  },
   "pumpswap_instruction_boundary_state_capability": {
     "status": "HOLD",
     "verdict": "PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_NOT_QUALIFIED",

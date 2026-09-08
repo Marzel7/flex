@@ -15997,6 +15997,17 @@
     "blocker": "Concrete existing websocket connector and retained/cache/provider resolver remain injected test interfaces, not safely wired into a supervised production registration.",
     "next_action": "ENABLE_BOUNDED_PUMPSWAP_RAW_CAPTURE_AND_MATERIALIZER_THEN_BIND_SEMANTIC_CAPTURE"
   },
+  "byzantine_live_causal_scenario_d_evidence_accumulator": {
+    "status": "HOLD",
+    "verdict": "LIVE_SCENARIO_D_TRIGGER_NOT_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "finding": "The actual post-commit live CREATE ledger has signature/mint/slot but lacks authoritative transaction/action ordinal, recurrent-cluster identity/membership and the Scenario-D FDV/spot-reference inputs. The existing opening-cluster projection/generic trigger are correct consumers of a richer committed envelope, but no production caller supplies it. Receipt or insertion order cannot safely fill the gap.",
+    "implementation": "No misleading unbound accumulator store or listener hook was added. That is intentional fail-closed behavior: it would otherwise invent ordering/cluster/entry facts. The generic producer and projection remain reusable unchanged.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_live_causal_scenario_d_evidence_accumulator_qualification.v1.json SHA-256 e983758013ddd473b11ed48968cbf23a81159a51e44e8d82bd1192e58430daca.",
+    "validation": "7 focused generic trigger/projection tests passed; they prove component fixtures, not a production live source.",
+    "safety": "No provider/network acquisition, no canonical ingestion change, no accumulator enablement, shadow flag OFF, signing/submission/automated exits NONE.",
+    "next_action": "IMPLEMENT_A_COMMITTED_ORDERED_OPENING_ACTION_EVIDENCE_SOURCE_WITH_RECURRENT_CLUSTER_AND_SCENARIO_D_SPOT_REFERENCE_FIELDS_THEN_BIND_THE_EXISTING_GENERIC_PROJECTION_POST_COMMIT"
+  },
   "byzantine_v1_prospective_mark_shadow_binding": {
     "status": "HOLD",
     "verdict": "PROSPECTIVE_VALIDATION_BLOCKED_BY_LIVE_TRIGGER",

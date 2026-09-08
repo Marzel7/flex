@@ -15997,6 +15997,17 @@
     "blocker": "Concrete existing websocket connector and retained/cache/provider resolver remain injected test interfaces, not safely wired into a supervised production registration.",
     "next_action": "ENABLE_BOUNDED_PUMPSWAP_RAW_CAPTURE_AND_MATERIALIZER_THEN_BIND_SEMANTIC_CAPTURE"
   },
+  "byzantine_ui_creator_lineage_canonical_membership": {
+    "status": "PARTIAL",
+    "verdict": "BYZANTINE_CANONICAL_CREATOR_MEMBERSHIP_AUTHORITY_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "lineage": "The Byzantine operation launch UI obtains creator_wallet through src/ops/operator_reader.py: operator_launch_membership m LEFT JOIN wt_walkback_queue q ON mint, using q.creator. This is retained mint→creator evidence; canonical mint→Byzantine remains operator_launch_membership.operator_id.",
+    "coverage": "103 canonical Byzantine mints; 101 creator-resolved (98.06%); 36 unique creators; 32 have >=2 launches, 20 >=3, 5 >=5; maximum 5; 65/101 creator-resolved launches (64.36%) occur after that creator's first retained Byzantine launch.",
+    "boundary": "The join is partially qualified, but current retained rows do not preserve a joint creator+operator admission commit. A future post-commit canonical CREATOR asset projection must establish effective boundary=max(two committed source facts); no historical fast-path eligibility is backfilled.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_ui_creator_lineage_and_canonical_membership_qualification.v1.json SHA-256 b924d5e5fdf5bfdd38b63e830c9307517d207de2b1e2f5c32679816a651c9150.",
+    "validation": "11 focused operator strategy/identity lifecycle tests passed; provider/network NONE; shadow OFF; signing/submission/automated exits NONE.",
+    "next_action": "IMPLEMENT_POST_COMMIT_CANONICAL_CREATOR_SUBJECT_MEMBERSHIP_PROJECTOR_FROM_WALKBACK_CREATOR_AND_OPERATOR_LAUNCH_MEMBERSHIP"
+  },
   "byzantine_creator_fast_path_authority": {
     "status": "HOLD",
     "verdict": "CREATOR_FAST_PATH_BLOCKED_NO_AUTHORITATIVE_BYZANTINE_CREATOR_MEMBERSHIP",

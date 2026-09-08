@@ -1,4 +1,18 @@
 {
+  "byzantine_corrected_causal_migration_hazard_review": {
+    "status": "PARTIAL",
+    "verdict": "BYZANTINE_CORRECTED_CAUSAL_MIGRATION_HAZARD_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "platform_verdict": "OPERATION_AGNOSTIC_STRATEGY_PIPELINE_LOCKED",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_corrected_causal_migration_hazard_review.v2.json",
+    "artifact_sha256": "396e8804edaaa57c558a31f093ae11e7afea9e47888d1f24360b51038efb1a22",
+    "source_causal_index": "byzantine_causal_fixed_horizon_mark_index.v1.json sha256 f4fb32f2f972430fc603211faf5f173e7995bc017f415a7f267f939f8b633b60",
+    "result": "99 outcome-qualified rows, 60 common +30s/+1m/+2m/+5m marks, 78 observed severe-collapse events and 21 right-censored rows. KM survival is 1.0000/+30s, 1.0000/+1m, 0.9899/+2m, 0.9394/+5m, 0.5859/+10m, 0.3030/+30m, 0.2222/+60m. Conditional collapse hazard is 0, 0, 1.01%, 5.10%, 37.63%, 48.28%, 26.67% across the requested intervals. +2m is the descriptive balanced mark horizon; this is not execution qualification.",
+    "safety": "Provider/RPC/Birdeye acquisition NONE; all production evidence flags remain OFF; no signing, submission, or automated exits.",
+    "validation": "18 focused provider-free tests passed.",
+    "blocker": "No causal T+0 candle-close mark; marks are retained-candle ratios to first available post-migration close, not fills; later horizons are coverage-sensitive and execution mechanics remain unqualified.",
+    "next_action": "RETAIN_THE_MARK_BASED_HISTORICAL_TIMING_HYPOTHESES_AS_RESEARCH_ONLY_PENDING_SEPARATE_EXECUTION_QUALIFICATION"
+  },
   "canonical_operator_lifecycle_projection": {
     "status": "HOLD",
     "verdict": "SCENARIO_D_GRADUATION_ENDPOINT_QUALIFIED_CONSERVATIVE_EXIT_UNQUALIFIED",

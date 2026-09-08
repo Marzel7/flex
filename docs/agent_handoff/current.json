@@ -16433,10 +16433,10 @@
     "status": "PARTIAL",
     "verdict": "SHARED_HEALTH_READ_MODEL_PARTIALLY_QUALIFIED",
     "engineering_revision": "working-tree shared read-model implementation",
-    "implementation": "src/ops/shared_system_health.py derives Platform, Live Ingestion, Intelligence, and Infrastructure solely from /api/health/full subsystem evidence. The Health-page compact strip and sidebar consume shared_health_metrics; sidebar no longer polls /healthz or renders the obsolete oldest-worker heartbeat.",
+    "implementation": "src/ops/shared_system_health.py derives Platform, Live Ingestion, Intelligence, and Infrastructure solely from /api/health/full subsystem evidence. The Health-page compact strip and sidebar consume shared_health_metrics; sidebar no longer polls /healthz or renders the obsolete oldest-worker heartbeat. Missing shared data now renders neutral UNKNOWN, while only explicit DOWN/API-unreachable state renders red.",
     "artifacts": "docs/audits/shared_system_health_read_model_contract.v1.json; docs/audits/birth_migration_24h_coverage_contract.v1.json; docs/audits/health_sidebar_and_birth_migration_coverage_qualification.v1.json",
     "coverage": "Birth and migration independent 24h expected-event denominators are NOT QUALIFIED. No percentage, interval count, duration, or mint-specific outage causality is fabricated. Reconciliation is PARTIAL: retained events/logs exist but no independent expected corpus or bounded replay high-water is retained.",
-    "validation": "16 focused provider-free tests passed; py_compile passed.",
+    "validation": "16 focused provider-free tests passed; py_compile passed. Local /api/health/full runtime read returned HEALTHY for all four shared metrics after the sidebar correction.",
     "production_flags": "birth/migration capture semantics unchanged; canonical membership/UI governance unchanged; provider/network NONE; Byzantine observation untouched PASS.",
     "next_action": "Qualify an independent retained expected birth/migration event authority and bounded replay high-water before rendering any 24h coverage percentage or acquisition-gap duration."
   },

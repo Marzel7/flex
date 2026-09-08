@@ -15437,6 +15437,17 @@
     "blocker": "The smallest exact residual blocker is a counterfactual-safe transition function for any one relevant discriminator, requiring an instruction-boundary state constraint or independently qualified semantics; none exists in retained evidence.",
     "next_action": "PRESERVE_COUNTERFACTUAL_REPLAY_BLOCKED_UNTIL_INSTRUCTION_BOUNDARY_SEMANTIC_EVIDENCE_IS_AVAILABLE"
   },
+  "byzantine_evidence_bounded_candidate_playbook": {
+    "status": "PARTIAL",
+    "verdict": "BYZANTINE_CANDIDATE_PLAYBOOK_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted evidence-bounded playbook builder",
+    "tests": "Focused Playbook test passed.",
+    "production_flags": "RPC/provider/Birdeye acquisition: NONE; production/canonical changes: NONE; no shadow or live execution started.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_evidence_bounded_candidate_playbook.v1.json; file SHA-256 d4a5175d1a34962014163259fb96eadca4cae5235a4f46e2f94d765c3e6e2bb3; payload digest 9d5d5376f6057cf4a8d4ed7557c46fec9069b8f58808296d439cdb608fd25e28.",
+    "result": "Exact qualified Scenario-D BuyExactSolIn quotes were aggregated for 0.1/0.25/0.5/1 SOL across 101 entries. Candidate shadow sizing is 0.25–0.5 SOL, beginning at 0.25, because execution mechanics and price impact are qualified but exit propagation is not. Principal-recovery trigger, sell percentage and runner percentage are explicitly UNQUALIFIED. A non-executable historical +2m migration-relative candle-close runner benchmark has n=60, median 1.4978x, P25 0.9522x, P75 1.9357x, 2x rate 21.67%, severe-loss-below-half 25%; it is observation only, not a fill/P&L simulation. Full hold remains a 71/101 terminal-rug benchmark. Exact counterfactual replay remains BLOCKED.",
+    "blocker": "No exact counterfactual-safe propagation through the five unresolved historical discriminator classes; principal-recovery and runner token fractions cannot be defensibly automated.",
+    "next_action": "SPECIFY_PROSPECTIVE_BYZANTINE_SHADOW_OBSERVATION_WITH_EXPLICIT_NO_AUTOMATED_EXIT_POLICY"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

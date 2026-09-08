@@ -16313,4 +16313,16 @@
     "artifact_sha256": "9671f2e478a24bff20163c5f2917448052656e86f816b63c655b767b1b5e489b",
     "next_action": "Separately authorize an atomic observation admission gate and per-request Walkback provider-credit ledger, then requalify monitor before the two-hour observation."
   }
+,
+  "atomic_admission_and_provider_credit_controls": {
+    "status": "PARTIAL",
+    "verdict": "ATOMIC_ADMISSION_AND_PROVIDER_CREDIT_CONTROLS_PARTIALLY_QUALIFIED",
+    "implementation": "src/ops/bounded_observation_admission.py provides an isolated SQLite BEGIN IMMEDIATE admission transaction: request-id replay returns existing, count<cap inserts and increments atomically, cap rejects before request work. Concurrent count=9 test admits exactly one of five and persists 10.",
+    "validation": "3 focused admission/monitor tests passed; py_compile and contract JSON validation passed. Priority remained OFF; no provider/network/canonical DB activity, shadow, signing, submission, or exits.",
+    "credit_authority_blocker": "Existing Walkback comments label getSignaturesForAddress/getTransaction as 1cr, while src/apis/rpc_metrics_config.py's explicit provider schedule maps both to 10. No per-attempt durable provider ledger exists. Freezing a mapping or wiring a 400-credit gate would choose between contradictory authorities and violate exact-credit requirements.",
+    "integration_state": "Admission gate is not wired into the running listener or isolated deployment pending resolved provider-credit contract and coordinated production-path qualification; it did not change normal processing.",
+    "artifact": "docs/audits/bounded_observation_atomic_admission_contract.v1.json",
+    "artifact_sha256": "8119705539ab6ee0c7ece83aa7dd363486b311c99079ef06a2dcc8beff5c1ae4",
+    "next_action": "Resolve the authoritative Walkback provider-credit unit/cost contract, then wire the gate immediately before priority request creation and add exact per-attempt ledger/reservation tests before two-hour activation."
+  }
 }

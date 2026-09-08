@@ -15564,6 +15564,18 @@
     "blocker": "PumpSwapProgramWebsocketTask is fixture-qualified but lacks a concrete supervised production connector/registration. More importantly, signature/log-only raw events have EVENT_INDEX_UNRESOLVED_AT_SOURCE while semantic enqueue requires pool and instruction identity; no bounded post-commit retained/cache transaction materializer or max-10 asynchronous enrichment worker exists. Direct listener-to-semantic binding is forbidden.",
     "next_action": "IMPLEMENT_BOUNDED_POST_COMMIT_PUMPSWAP_RAW_EVENT_MATERIALIZER_AND_SUPERVISED_REGISTRATION"
   },
+  "pumpswap_pool_identity_binding": {
+    "status": "PARTIAL",
+    "verdict": "PUMPSWAP_POOL_IDENTITY_BINDING_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "src/ops/pumpswap_pool_identity_binding.py binds only a unique intersection of an exact materialized mint/pool account pair with an existing token_pool_accounts row whose pool_program is the PumpSwap program. src/ops/pumpswap_materialized_semantic_transformer.py carries that direct binding, base vault, quote vault and deterministic binding ID into its committed transform record.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pump_swap_pool_identity_binding_qualification.v1.json",
+    "artifact_file_sha256": "b4f31ffcca0cb86a18160e9ffc5e17520f09d48a78eeb91a07d6c1063eb4b15f",
+    "validation": "8 focused tests passed. The four preserved instruction materializations were reprocessed with 0 provider requests: two POOL_IDENTITY_QUALIFIED_DIRECT / semantic eligible, two unresolved; four vault identities carried where direct mapping qualified.",
+    "production_flags": "raw OFF; semantic OFF; Byzantine shadow OFF; no new live session/provider/network call/signing/submission/automated exit/canonical mutation.",
+    "blocker": "Although pool identity and semantic eligibility improved for two records, the transformer and semantic spool processor are not registered as event-driven supervised post-materialization consumers. The authorized 20-event session is therefore not safe to run yet.",
+    "next_action": "WIRE_SUPERVISED_COMMITTED_MATERIALIZATION_TO_SEMANTIC_WORKERS_THEN_RUN_20_EVENT_SESSION"
+  },
   "pumpswap_live_session_admission_and_semantic_transformer": {
     "status": "PARTIAL",
     "verdict": "PUMPSWAP_BOUNDED_LIVE_SEMANTIC_PIPELINE_PARTIALLY_QUALIFIED",

@@ -1,4 +1,14 @@
 {
+  "byzantine_price_driven_profit_taking_boundary": {
+    "status": "HOLD",
+    "verdict": "BYZANTINE_PRICE_DRIVEN_PROFIT_TAKING_NOT_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_price_driven_profit_taking_boundary.v1.json",
+    "artifact_sha256": "44c8f4d08f49425c9d8fe2120103295cc781a7b9c1b31812aa74770a56c5afbc",
+    "result": "0/99 outcome-qualified rows have retained causal candle observations from Scenario-D through migration. Retained trajectory starts after migration and has no qualified conversion to Scenario-D FDV, so first price-target crossings, principal recovery, runners, and price-driven backstops cannot be calculated without a fabricated bridge.",
+    "safety": "Provider/network/Birdeye NONE; no signing, submission, or automated exits.",
+    "next_action": "PRESERVE_SCENARIO_D_TO_MIGRATION_ENDPOINT_AS_THE_ONLY_RETAINED_ENTRY_BRIDGE_AND_DO_NOT_PROMOTE_PRICE_DRIVEN_EXIT_RULES"
+  },
   "byzantine_cohort_wide_strategy_search": {
     "status": "PARTIAL",
     "verdict": "BYZANTINE_COHORT_WIDE_STRATEGY_SEARCH_PARTIALLY_QUALIFIED",

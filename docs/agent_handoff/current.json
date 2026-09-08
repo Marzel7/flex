@@ -15448,6 +15448,20 @@
     "blocker": "No exact counterfactual-safe propagation through the five unresolved historical discriminator classes; principal-recovery and runner token fractions cannot be defensibly automated.",
     "next_action": "SPECIFY_PROSPECTIVE_BYZANTINE_SHADOW_OBSERVATION_WITH_EXPLICIT_NO_AUTOMATED_EXIT_POLICY"
   },
+  "byzantine_prospective_shadow_observation": {
+    "status": "PARTIAL",
+    "verdict": "BYZANTINE_PROSPECTIVE_SHADOW_OBSERVER_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "src/ops/byzantine_prospective_shadow.py is a pure, no-RPC/no-DB/no-wallet contract for Scenario-D eligibility, deterministic shadow identity, qualified BuyExactSolIn entry quotes, separated observed/counterfactual paths, fail-closed unknown transitions, and integer Sell-based principal-recovery measurement. scripts/build_byzantine_prospective_shadow_observation.py emits the research contract. No listener, migration, UI, signing, submission, or production activation path was changed.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_scenario_d_prospective_shadow_observation_v1.json",
+    "artifact_payload_digest": "807234e10537a85726ce7b8b836794783162b1532bccf5e2c9eccbfb8f21fa2b",
+    "artifact_file_sha256": "2e76978b8bae67640aafd3044aafb00358881dde19d155d02b8f9dbbfed1a843",
+    "validation": "pytest -q tests/test_byzantine_prospective_shadow.py: 4 passed; artifact JSON validation and diff --check passed.",
+    "feature_flag": "BYZANTINE_PROSPECTIVE_SHADOW_OBSERVER_ENABLED defaults OFF and was not wired or enabled.",
+    "safety": "Transaction signing/submission capability NONE; real trading DISABLED; automated exit DISABLED; provider/RPC calls 0; historical COUNTERFACTUAL_REPLAY_BLOCKED remains unchanged.",
+    "blocker": "Separate authorization is needed to bind a post-commit compact job and bounded worker to retained live evidence, then to qualify PumpSwap and newly observed discriminator semantic adapters. No final exit fractions or Playbook promotion are authorized.",
+    "next_action": "SEPARATE_DECISION_ON_ENABLING_SHADOW_OBSERVER_ONLY"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

@@ -15997,6 +15997,20 @@
     "blocker": "Concrete existing websocket connector and retained/cache/provider resolver remain injected test interfaces, not safely wired into a supervised production registration.",
     "next_action": "ENABLE_BOUNDED_PUMPSWAP_RAW_CAPTURE_AND_MATERIALIZER_THEN_BIND_SEMANTIC_CAPTURE"
   },
+  "byzantine_launch_time_strict_mint_evidence_fast_path": {
+    "status": "COMPLETE",
+    "verdict": "BYZANTINE_LAUNCH_TIME_STRICT_MINT_GATE_NOT_QUALIFIED",
+    "readiness": "SAFE_GATE_STILL_WALKBACK_BOUND",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "finding": "For all 21 frozen strict true-positive fixtures, the exact atomic/route transaction is a distinct immediately preceding transaction, 63-687 seconds before the create transaction. No strict proof is launch-transaction-local. The committed create event neither includes nor causally identifies its predecessor signature, so the same semantics cannot be reconstructed at launch.",
+    "replay": "TP21 early reconstruction 0 launch-time, 0 bounded-immediate, 21 Walkback-required. FP12 early qualified 0; confirmed-unassigned early qualified 0. All-397 early path fails closed: 0 qualified, 397 insufficient. Existing Walkback strict gate captures 36/103; early captures 0. There are no semantic mismatches because early returns insufficient instead of reinterpreting evidence.",
+    "lineage": "Walkback post-commit path: src/core/walkback_worker.py::_mark_complete then _promote_if_canonical_watchtower; src/ops/wsol_10_sol_four_step_operation.py::selected_evidence/is_strict_match/project_completed_walkback; facts reside in wt_walkback_edge_candidates and wt_walkback_atomic_flows. Atomic matching is transaction-local once the predecessor signature is known, but predecessor discovery/route selection remains historical Walkback work.",
+    "reuse": "Reuse existing acquisition adapter, parser, atomic detector, route selector, and evaluator. A new launch-time binding is not safe; a future bounded Walkback priority lane is the only viable latency direction, pending separate qualification.",
+    "artifacts": "docs/audits/byzantine_lifecycle_103/byzantine_launch_time_strict_mint_evidence_fast_path_qualification.v1.json SHA-256 0b10f52b11e87627e2e2097fec1815955c9588eb4e4a939641a761b3d09173ec; docs/audits/byzantine_lifecycle_103/operation_priority_mint_evidence_fast_path_contract.v1.json SHA-256 22cc215f5876e83018bcd3529e9078c458699386c975284a3fc633baca919285.",
+    "validation": "python scripts/audit_byzantine_launch_time_strict_evidence.py; pytest -q tests/test_byzantine_launch_time_strict_evidence_audit.py tests/test_byzantine_mint_specific_discriminator_audit.py tests/test_byzantine_prefilter_existing_classifier_audit.py tests/test_byzantine_creator_continuity.py: 6 passed.",
+    "safety": "Provider/network NONE; canonical membership writes NONE; shadow OFF; signing/submission/automated exits NONE.",
+    "next_action": "QUALIFY_A_BOUNDED_POST_COMMIT_WALKBACK_PRIORITY_LANE_AND_MEASURE_ITS_QUEUE_AND_EVIDENCE_LATENCY_BEFORE_ANY_ASAP_ENTRY_BINDING"
+  },
   "byzantine_mint_specific_discriminator_audit": {
     "status": "COMPLETE",
     "verdict": "BYZANTINE_MINT_SPECIFIC_SAFE_CLASSIFIER_PARTIALLY_QUALIFIED",

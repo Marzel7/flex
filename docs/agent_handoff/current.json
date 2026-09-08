@@ -15488,6 +15488,19 @@
     "blocker": "No retained exact PumpSwap Sell fixture binds instruction-local pre/post vault states, input/output, and version-bound fee configuration. The hypothetical final Pump state to initial PumpSwap pool mapping is also not retained/qualified.",
     "next_action": "ACQUIRE_OR_RETAIN_PROSPECTIVE_INSTRUCTION_BOUNDARY_PUMPSWAP_SELL_EVIDENCE_BEFORE_ANY_SELL_MODEL"
   },
+  "pumpswap_prospective_semantic_evidence_capture": {
+    "status": "PARTIAL",
+    "verdict": "PUMPSWAP_PROSPECTIVE_SEMANTIC_EVIDENCE_CAPTURE_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "src/ops/pumpswap_prospective_semantic_capture.py supplies a generic, raw-first PumpSwap semantic observation schema and separate SQLite research spool. It uses deterministic program/pool/signature/instruction identity, confirmed transfer-direction classification, boundary-strength/readiness labels, bounded retry/dead-letter, and result-before-ack processing. It has no RPC, wallet, signer, submission, or trading capability.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pump_swap_prospective_semantic_evidence_capture_qualification.v1.json",
+    "artifact_payload_digest": "4db72954fa562dcb78488f94c3f8470dd9b7027f0482eba8d10fcc9e0965089e",
+    "artifact_file_sha256": "527886b4641ff9d8121001a94c756627a78bbf92be6ee97ca80e9280d933ecd6",
+    "validation": "pytest -q tests/test_pumpswap_prospective_semantic_capture.py tests/test_pumpswap_prospective_execution_contract.py tests/test_pumpswap_boundary.py: 8 passed; artifact JSON validation and diff --check passed.",
+    "production_flags": "PUMPSWAP_PROSPECTIVE_SEMANTIC_EVIDENCE_ENABLED defaults OFF and remains unbound; BYZANTINE_PROSPECTIVE_SHADOW_OBSERVER_ENABLED remains OFF; provider/RPC/network acquisition NONE; signing/submission NONE; automated exits NONE; production/canonical changes NONE.",
+    "blocker": "No safe live post-commit retained-event trigger is currently bound, so no constrained natural migration/Sell fixture can be collected until separately authorized after operational review.",
+    "next_action": "SEPARATE_DECISION_ON_BINDING_AND_ENABLING_PUMPSWAP_SEMANTIC_CAPTURE_ONLY"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

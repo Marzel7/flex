@@ -16431,13 +16431,13 @@
   },
   "durable_birth_migration_acquisition_availability": {
     "status": "PARTIAL",
-    "verdict": "DURABLE_TRANSITION_STORE_AND_PRIMARY_LISTENER_HOOKS_IMPLEMENTED_HEALTH_READ_MODEL_PENDING",
-    "engineering_revision": "working-tree partial implementation",
-    "implementation": "src/ops/acquisition_availability.py adds a generic low-volume append-only transition store and deterministic clipped rolling interval reader. pumpfun_curve_listener initializes BIRTH/MIGRATION UNKNOWN, records BIRTH AVAILABLE after connected PumpPortal subscribeNewToken send and DOWN on websocket failure, and records MIGRATION AVAILABLE only after logsSubscribe confirmation and DOWN on websocket failure. Writes are isolated and return failure rather than raising into event acquisition.",
-    "validation": "py_compile passed; local deterministic transition exercise verified idempotent repeated DOWN, one bounded incident, recovery, and unknown pre-observation time.",
-    "invariants": "Birth/migration parsing, dedupe, persistence, enqueue, Walkback, and operation membership paths were not modified. Additional provider/network activity NONE; Byzantine observation untouched.",
-    "blocker": "Shared /api/health/full now exposes durable birth/migration interval summaries and the Health page renders truthful partial-window Birth/Migration downtime cards. src/ops/db_write_degradation.py now durably aggregates retry-managed SQLite contention into one incident per writer/database and closes it on subsequent retry success. API/read model, root-cause enrichment, restart/process-death semantics, artifacts, and required full test matrix remain unfinished.",
-    "next_action": "Render the shared Birth/Migration availability summaries on Health, then implement a separate compact retained DB-write incident authority (not raw lock counting) with root-cause attribution and complete restart/failure/24h tests before claiming the panels qualified."
+    "verdict": "BIRTH_MIGRATION_DB_DOWNTIME_VISIBILITY_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted observability-only working-tree changes",
+    "implementation": "Existing acquisition transition store/hooks remain the authority. /api/health/full passes those summaries and DB write degradation into the shared four-metric projection; Health renders truthful partial/full three-card states plus compact retained incidents. Unknown is not availability or a fabricated 1,440-minute denominator.",
+    "validation": "19 focused provider-free tests passed; py_compile and diff check passed. Artifact docs/audits/birth_migration_db_downtime_health_visibility.v1.json SHA-256 b0648e75fe8546b3b6124346277d12a00ca51279a02d853899132f8b1fc16857.",
+    "invariants": "Birth/Migration acquisition semantics unchanged; migration fallback programme not continued; provider/RPC traffic NONE; operation mutation NONE; priority OFF; Byzantine observation untouched.",
+    "blocker": "Normal watchtower_listener is running from /private/tmp/flex-priority-deploy and predates instrumentation. It must not be restarted because that isolated priority runtime is explicitly frozen. Therefore no real durable production transitions/observation clock exist yet, and no 24-hour duration is claimed.",
+    "next_action": "After explicit approval to replace the frozen isolated listener runtime with a clean observational-only build, deploy the existing hooks, observe actual subscription transitions, and allow the window to accumulate without fabricating coverage."
   },
   "shared_health_and_24h_capture_coverage_qualification": {
     "status": "PARTIAL",

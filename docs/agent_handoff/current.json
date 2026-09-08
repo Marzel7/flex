@@ -15415,6 +15415,17 @@
     "blocker": "32 intervals lack usable resume coverage: 27 require transaction-indexed historical account state, five archive reads failed, and one acquired terminal checkpoint has no downstream replay ordinal. Counterfactual replay still requires unknown semantics for all 56 intervals.",
     "next_action": "QUALIFY_TRANSACTION_INDEXED_HISTORICAL_ACCOUNT_STATE_FOR_SAME_SLOT_INTERVALS_OR_RESOLVE_COUNTERFACTUAL_RELEVANT_UNKNOWN_DISCRIMINATORS"
   },
+  "pumpfun_transaction_indexed_historical_state": {
+    "status": "COMPLETE",
+    "verdict": "TRANSACTION_INDEXED_HISTORICAL_STATE_NOT_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted retained capability qualification",
+    "tests": "Focused capability-artifact test passed.",
+    "production_flags": "Provider/RPC/network requests: 0; transaction-history acquisition: NONE; Birdeye acquisition: NONE; production/canonical changes: NONE.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pumpfun_transaction_indexed_historical_state_qualification.v1.json; file SHA-256 410066469b336c51ded115f5cc5e64c2a43b4996dbf4c18f6fd2c84fe04f7be0; payload digest 5fb2452edd5b3aadbde3d40370fb76a39c50b15d229ae55222445a2007979d60.",
+    "result": "All 27 same-slot intervals were enumerated. Alchemy Account Archive getAccountInfo supports slot/update selectors only and is SLOT_LEVEL_ONLY; Helius standard getAccountInfo exposes minContextSlot only and is TRANSACTION_INDEXED_STATE_UNAVAILABLE; retained exact getTransaction has signature/order evidence but no curve bytes and is likewise unavailable. No candidate supports signature, transaction-index or instruction-index historical account state, so a ≤3-request probe would not establish transaction-boundary semantics and was not dispatched.",
+    "blocker": "No currently available provider/interface demonstrates authoritative intra-slot transaction-boundary bonding-curve account state. Slot-end observations cannot bridge the 27 same-slot intervals.",
+    "next_action": "RESOLVE_COUNTERFACTUAL_RELEVANT_UNKNOWN_PUMPFUN_DISCRIMINATORS"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

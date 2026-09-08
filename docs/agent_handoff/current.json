@@ -16292,4 +16292,12 @@
     "production_flags": "OPERATION_EVIDENCE_PRIORITY_ENABLED remains OFF; no PREPARED state, watchdog, activation, launch observation, provider action, listener/worker restart, or canonical DB write was performed in this attempted observation.",
     "next_action": "Separately authorize implementation and qualification of a narrow durable two-hour observation monitor that consumes existing priority-request timing rows, enforces cap/RPC/safety stops, and uses the qualified controller/watchdog without changing Walkback or classification semantics."
   }
+,
+  "two_hour_real_priority_walkback_latency_observation_recheck": {
+    "status": "HOLD",
+    "verdict": "BYZANTINE_TWO_HOUR_PRIORITY_LATENCY_OBSERVATION_NOT_STARTED",
+    "recheck": "A repeated request still directs use of existing qualified implementation and expressly forbids new controller/monitor work. Observable source/runtime search again found only the generic deadline controller and completed 30-second qualification helper; neither consumes priority-request timing rows or enforces MAX_CREATOR_HITS=10, MAX_RPC_CREDITS=400, or safety-abort admission shutdown.",
+    "production_flags": "OPERATION_EVIDENCE_PRIORITY_ENABLED remains OFF. No PREPARED state, watchdog, activation, live observation, provider action, restart, or canonical DB write occurred.",
+    "next_action": "Authorize the missing narrow durable observation monitor, or explicitly amend the observation contract to remove the cap/RPC/safety-stop requirements; do not activate priority under the current contract."
+  }
 }

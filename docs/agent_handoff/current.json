@@ -16241,4 +16241,22 @@
     "validation": "py_compile passed; 57 focused protected tests passed. App route map: legacy /clusters, /api/funder-clusters, and /api/funder-cluster/<cluster_id> absent; retained operators, operator detail, potential operations, system health, and Ops OS routes declared. Archive path absent after restart.",
     "verdict": "INVESTIGATION_ARCHIVE_RETIRED_CORE_PRESERVED"
   }
+,
+  "bounded_feature_observation_watchdog": {
+    "status": "COMPLETE",
+    "verdict": "INDEPENDENT_DEADLINE_OFF_WATCHDOG_QUALIFIED",
+    "controller_verdict": "CRASH_SAFE_BOUNDED_FEATURE_OBSERVATION_CONTROLLER_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted isolated watchdog implementation",
+    "implementation": "src/ops/bounded_feature_observation.py persists durable dummy adapter/watchdog metadata; src/ops/bounded_feature_observation_watchdog.py is a separate-process absolute-deadline OFF watchdog. No live priority adapter exists.",
+    "validation": "6 focused tests passed with OPERATION_EVIDENCE_PRIORITY_ENABLED=0; includes controller SIGKILL while durable dummy is ON, ARMED acknowledgement, exact-ID/adapter validation, deadline restart cases, race/idempotency, failure recording, terminal/no-ON behavior. py_compile passed.",
+    "artifacts": {
+      "contract": "docs/audits/bounded_feature_observation_controller_contract.v1.json",
+      "contract_sha256": "9fd3680a6434a1cb136ccd93bb1dfbdc05b08a038614a1cf4ee86f0f6ea02ed0",
+      "qualification": "docs/audits/bounded_feature_observation_watchdog_qualification.v1.json",
+      "qualification_sha256": "c93be67df7f7d9b1211d6c3d84a139adda3bb99a53e4b03b416d2617d259e03f"
+    },
+    "production_flags": "OPERATION_EVIDENCE_PRIORITY_ENABLED=0; no listener/worker restart, provider/network activity, or canonical DB writes.",
+    "residual_limitation": "A host/OS outage prevents local execution at the deadline. On resume, watchdog/recovery against an expired persisted state must force OFF before a new supervised activation.",
+    "next_action": "Do not activate real priority without a separately authorized live-observation milestone."
+  }
 }

@@ -15356,13 +15356,13 @@
   },
   "pumpfun_scenario_d_frozen_missing_exact_acquisition": {
     "status": "HOLD",
-    "verdict": "FROZEN_PROVIDER_BUDGET_EXHAUSTED_ONE_EXACT_READ_REMAINS",
+    "verdict": "EXACT_DENOMINATOR_COMPLETE_REPLAY_DRIVER_REQUIRES_FROZEN_STREAM_INTEGRATION",
     "engineering_revision": "classification-attribution-axis working tree",
     "contract": "Frozen exact-only queue from frozen_post_d_signature_denominator.v1.json; no signature pagination, discovery, or duplicate exact lookup.",
-    "result": "The explicitly authorized one-time replay for legacy 2J7 signature NQc3uzx7jnXgCkNj4E1FnrJkPmRaUtvNWYrsmLKwRimvqwQySQxUSo7PNia15rqiW8jBcreJAsr79o8LoSH1s73 retained raw evidence, exactly matched its returned signature, and resolved SUCCESS without overwriting the legacy evidence. The repaired frozen wave reached 4,914/4,915 exact coverage with 0 unresolved attempts. Its original 4,956-call ceiling is exhausted because the separately authorized replay was an additional provider call. The single remaining frozen signature is 2gZ2cWGSjWq3QpPbAEazE9y9v9VzJeeBhMmdtc5ZMKh18EL1Lej5hi4wU68VcHrWrJr8dJFGtgwEpSBunCkh5exY for mint 2LVeMoPyJiYKtGhNZPouwCSFYT8Z47d8885V4aadpump.",
+    "result": "The authorized one-call extension successfully retained exact transaction 2gZ2cWGSjWq3QpPbAEazE9y9v9VzJeeBhMmdtc5ZMKh18EL1Lej5hi4wU68VcHrWrJr8dJFGtgwEpSBunCkh5exY for 2LVe; returned signature matched. Coverage is 4,915/4,915 with 0 missing and 0 unresolved attempts, at 4,957 provider calls. No further provider call is authorized or needed. The existing retained-only replay utility was executed twice internally and remains intentionally scoped to legacy '-transaction-' keys, excluding the frozen '-frozen-missing-transaction-' records; it reports 0/5 rather than fabricating a full control result. The next repair must integrate the immutable frozen stream and retained signature-order provenance before historical control/counterfactual/principal-recovery claims.",
     "repair": "The exact acquisition transport journals ACCOUNTED -> DISPATCHING -> DISPATCHED -> RAW_RETAINED -> TERMINAL_PARSED. 31 focused provider-free tests passed before final queue resume, including crash-boundary classifications, raw-retained recovery, stable denominator ordering, and authorized replay provenance. The driver now checkpoints frozen provider-budget exhaustion before a request.",
     "safety": "No request was dispatched after budget exhaustion; no Birdeye, GMGN, SOL/USD, PumpSwap, DB, membership, Watchtower, Playbook, live execution, or trade action.",
-    "next_action": "AUTHORIZE_ONE_ADDITIONAL_EXACT_READ_BUDGET_SLOT_FOR_THE_SINGLE_REMAINING_FROZEN_SIGNATURE"
+    "next_action": "INTEGRATE_FROZEN_EXACT_TRANSACTION_STREAM_AND_RETAINED_SIGNATURE_ORDER_INTO_FIVE_TOKEN_CONTROL_REPLAY"
   },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",

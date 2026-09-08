@@ -15576,6 +15576,18 @@
     "production_flags": "raw OFF; semantic OFF; Byzantine shadow OFF; signing/submission NONE; automated exits NONE; production/canonical changes NONE.",
     "next_action": "HOLD_UNTIL_AUTHORITATIVE_SOLANA_INSTRUCTION_ACCOUNT_WRITE_TRACE_SOURCE_AVAILABLE"
   },
+  "pumpswap_authoritative_execution_model": {
+    "status": "PARTIAL",
+    "verdict": "PUMPSWAP_AUTHORITATIVE_EXECUTION_MODEL_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907",
+    "implementation": "Research-only src/ops/pumpswap_authoritative_execution_model.py implements the official Pump.fun SDK 1.19.0 integer Buy/Sell formulas, fail-closed for unknown program/config, with no signer/submission capability.",
+    "program_binding": "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA ProgramData 6naEzKeUuFh1Jeeu51NXQgr5qkXgXtc9WKNct4xynVJc, observed last upgrade slot 433112355 / SHA-256 0fc775e06c8fcc2f7ea1bc118f18c4e5ed342266783f3bcd2eb870bc516e3ff8; retained fixtures at slot 445313859 postdate it. Official SDK IDL structurally matches two Sell and two Buy retained instructions.",
+    "validation": "6 focused tests passed. Structural validation: 4 exact account/discriminator matches (2 Sell / 2 Buy), 0 mismatches, 2 unknown discriminators insufficient. Output/full-state validation remains 0 because no authoritative instruction-pre pool/fee state is retained.",
+    "flags": "raw OFF; semantic OFF; Byzantine shadow OFF; no signing/submission or automated exits.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pump_swap_authoritative_execution_model_qualification.v1.json SHA-256 4a813878ade0d549988432f68a8ddba7721133ee3c8e55fd3d2593fdefb5622c",
+    "blocker": "No signed/reproducible source-to-ProgramData build attestation and no retained versioned pool/FeeConfig pre-state for exact-output validation.",
+    "next_action": "OBTAIN_A_VERSION_BOUND_SIGNED_OR_REPRODUCIBLE_PUMPSWAP_PROGRAM_SEMANTICS_ARTIFACT_AND_A_RETAINED_VERSIONED_POOL_FEE_STATE_TO_UPGRADE_OUTPUT_VALIDATION"
+  },
   "pumpswap_instruction_boundary_state_capability": {
     "status": "HOLD",
     "verdict": "PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_NOT_QUALIFIED",

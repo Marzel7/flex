@@ -15788,6 +15788,17 @@
     "safety": "All sprint research flags OFF; prospective cohort 0; private-key access/signing/submission/real buys/sells/automated exits NONE; strategy research never drives canonical membership; no provider work in canonical DB transactions.",
     "next_action": "ONBOARD_NEXT_OPERATION_WITH_OPERATION_STRATEGY_DEFINITION_OR_HOLD_BYZANTINE_PROSPECTIVE_EXECUTION_UNTIL_REOPEN_CONDITION"
   },
+  "byzantine_practical_historical_strategy_backtest": {
+    "status": "PARTIAL",
+    "verdict": "BYZANTINE_PRACTICAL_HISTORICAL_STRATEGY_BACKTEST_PARTIALLY_QUALIFIED",
+    "platform_verdict": "OPERATION_AGNOSTIC_STRATEGY_PIPELINE_LOCKED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "scripts/run_byzantine_practical_historical_backtest.py uses only retained Byzantine post-migration regime rows: 99 outcome-qualified of 101 Scenario-D entries. It keeps entry-relative and migration-relative clocks, computes severe-collapse timing/survival and ATH timing, and evaluates explicit 1%/5%/15% mark haircuts as discovery sensitivity only.",
+    "conclusion": "Useful migration hazard/harvest timing and mark-based lifecycle discovery are available. Exact P&L, holdings, principal recovery, sell fractions, runner proceeds, and size-sensitive execution ranking remain unqualified because the retained bridge does not prove historical Pump.fun holdings to PumpSwap/Birdeye fills. Post-migration maxima are explicitly not causal exits; no candidate profile is promoted.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_practical_historical_strategy_backtest.v1.json SHA-256 ba54648889fe00d1699c4850cf50a7940c37774ed16fb8cb3f15a4aef13fde77",
+    "safety": "Provider/Birdeye acquisition NONE; flags OFF; signing/submission and automated exits NONE.",
+    "next_action": "REVIEW_MARK_BASED_MIGRATION_HAZARD_DISCOVERY_BEFORE_ANY_NEW_EXECUTION_AUTHORIZATION"
+  },
   "pumpswap_instruction_boundary_state_capability": {
     "status": "HOLD",
     "verdict": "PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_NOT_QUALIFIED",

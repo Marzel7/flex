@@ -16337,4 +16337,15 @@
     "artifacts": {"schedule":"docs/audits/walkback_provider_credit_schedule_contract.v1.json","schedule_sha256":"9b3d0e3fb5e29b24a616260a2702cbb1f7d90001a795ad19a9885811375fec38","ledger":"docs/audits/operation_observation_provider_credit_ledger_contract.v1.json","ledger_sha256":"2538c88c49a00248672a5674919ff063aee25b69d4370884d40b7cdfb00cc03b"},
     "next_action":"Authorize narrow live-path wrapper binding of admission immediately before priority request creation and exact credit reserve/consume around each Walkback provider call, then test cache/retry/crash recovery without enabling priority."
   }
+,
+  "live_priority_control_binding": {
+    "status": "PARTIAL",
+    "verdict": "ATOMIC_ADMISSION_AND_PROVIDER_CREDIT_CONTROLS_PARTIALLY_QUALIFIED",
+    "admission_binding": "src/ops/byzantine_priority_walkback_binding.py now invokes bounded_observation_admission.admit immediately after a creator cohort hit and before priority request creation when OPERATION_EVIDENCE_PRIORITY_OBSERVATION_ID is set. A cap rejection returns OBSERVATION_CANDIDATE_CAP_REACHED and creates no observation priority request; absent config preserves existing path. Gate errors are isolated after canonical launch commit.",
+    "validation": "8 focused binding/admission/ledger tests passed; py_compile and artifact JSON validation passed. Priority stayed OFF; no provider/network/canonical DB/shadow/trading activity.",
+    "remaining": "Exact ledger remains unbound at actual provider dispatch. walkback_worker's shared _rpc helper has no durable observation/candidate attribution context, so wrapping it now would risk charging normal jobs or missing observation attempts. Cache/retry/crash wrapper tests therefore remain incomplete.",
+    "artifact": "docs/audits/atomic_admission_live_binding_partial.v1.json",
+    "artifact_sha256": "2616a0517e9d916c386ff2e0e3093e9bbdd06bc3244b8456ea88b7f6194c315b",
+    "next_action": "Authorize/implement a narrow per-row durable observation attribution context in the Walkback worker, then bind reserve/consume at _rpc and qualify cache/retry/crash recovery before live activation."
+  }
 }

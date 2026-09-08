@@ -15564,6 +15564,18 @@
     "blocker": "PumpSwapProgramWebsocketTask is fixture-qualified but lacks a concrete supervised production connector/registration. More importantly, signature/log-only raw events have EVENT_INDEX_UNRESOLVED_AT_SOURCE while semantic enqueue requires pool and instruction identity; no bounded post-commit retained/cache transaction materializer or max-10 asynchronous enrichment worker exists. Direct listener-to-semantic binding is forbidden.",
     "next_action": "IMPLEMENT_BOUNDED_POST_COMMIT_PUMPSWAP_RAW_EVENT_MATERIALIZER_AND_SUPERVISED_REGISTRATION"
   },
+  "byzantine_pumpswap_exact_exit_mechanics_branch_closure": {
+    "status": "HOLD",
+    "verdict": "BYZANTINE_PUMPSWAP_EXACT_EXIT_MECHANICS_PARKED_AT_EVIDENCE_BOUNDARY",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_pumpswap_exact_exit_mechanics_branch_closure.v1.json",
+    "artifact_file_sha256": "2c1316710459a207a5b76e23481d7d2da3e8495a00b2238ec90c186772e581c8",
+    "terminal_capability": "PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_NOT_QUALIFIED",
+    "blocker": "NO_AUTHORITATIVE_ORDERED_PER_INSTRUCTION_ACCOUNT_WRITE_TRACE_SOURCE",
+    "preserved": "Scenario D retains 101 qualified historical entries with FIRST_POST_12_POSITION_RECURRENT_OPENING_CLUSTER_ENTRY and target-era Pump.fun BuyExactSolIn entry execution. BYZANTINE_CANDIDATE_PLAYBOOK_PARTIALLY_QUALIFIED remains, but exact principal-recovery Sell %, runner %, PumpSwap Sell mechanics and automated exits remain unqualified/NONE.",
+    "production_flags": "raw OFF; semantic OFF; Byzantine shadow OFF; signing/submission NONE; automated exits NONE; production/canonical changes NONE.",
+    "next_action": "HOLD_UNTIL_AUTHORITATIVE_SOLANA_INSTRUCTION_ACCOUNT_WRITE_TRACE_SOURCE_AVAILABLE"
+  },
   "pumpswap_instruction_boundary_state_capability": {
     "status": "HOLD",
     "verdict": "PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_NOT_QUALIFIED",

@@ -15997,6 +15997,21 @@
     "blocker": "Concrete existing websocket connector and retained/cache/provider resolver remain injected test interfaces, not safely wired into a supervised production registration.",
     "next_action": "ENABLE_BOUNDED_PUMPSWAP_RAW_CAPTURE_AND_MATERIALIZER_THEN_BIND_SEMANTIC_CAPTURE"
   },
+  "byzantine_mint_specific_discriminator_audit": {
+    "status": "COMPLETE",
+    "verdict": "BYZANTINE_MINT_SPECIFIC_SAFE_CLASSIFIER_PARTIALLY_QUALIFIED",
+    "readiness": "SAFE_MINT_CLASSIFIER_READY_BUT_NOT_ASAP",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "frozen_surface": "67 causal creator-prefilter true positives versus 12 creator-continuity false admissions, including 11 confirmed-unassigned negatives. Existing continuity classifier FP rate is 12/79 = 15.19%.",
+    "safe_rule": "SAFE_LIVE_GATE_STRICT_WSOL_ATOMIC.v1: selected strict mint-specific WSOL route AND exact create/initialize/syncNative/close atomic sequence AND no governance conflict. On frozen 67/12 it captures 21 TP and 0 FP (31.34% recall, 100% observed precision); atomic and strict-route proof have identical retained coverage.",
+    "all_universe_replay": "Across all 397 creator-associated launches, strict proof qualifies 36, all canonically Byzantine; confirmed-unassigned qualified=0 and unknown qualified=0. It captures 36/103 current canonical Byzantine (34.95%) and every one of 21 mixed creators has zero confirmed-unassigned qualification.",
+    "ablation_and_latency": "Removing creator continuity retains 21/67 frozen TP, removes all 12 FP, and creates 58 abstentions. Strict evidence arrives only after asynchronous local Walkback selected-route/atomic-flow materialization; migration is not required, but no practical live timing is measured. This is safe-but-late, not ASAP-ready.",
+    "limitations": "Zero observed FPs applies only to the frozen 12 known negatives; its 95% one-sided binomial upper bound is approximately 22.1%. The rule does not establish unknown outcome safety beyond the observed replay.",
+    "artifacts": "docs/audits/byzantine_lifecycle_103/byzantine_mint_specific_discriminator_audit.v1.json SHA-256 b056601cfd71ad00a5a356f180de8759bb202439279a49e2a48b1da79370b767; docs/audits/byzantine_lifecycle_103/operation_mint_qualification_evidence_rule_contract.v1.json SHA-256 4f1c71f26f757dedfae5aa91c5142a7f7d46ea939cee512a66c736765a55ea71.",
+    "validation": "python scripts/audit_byzantine_mint_specific_discriminators.py; pytest -q tests/test_byzantine_mint_specific_discriminator_audit.py tests/test_byzantine_prefilter_existing_classifier_audit.py tests/test_byzantine_creator_continuity.py: 5 passed.",
+    "safety": "Provider/network NONE; canonical membership writes NONE; shadow OFF; signing/submission/automated exits NONE.",
+    "next_action": "QUALIFY_LIVE_WALKBACK_EVIDENCE_LATENCY_AND_POST_COMMIT_STRICT_MINT_GATE_BEFORE_ANY_PREFILTER_OR_ASAP_ENTRY_BINDING"
+  },
   "byzantine_creator_prefilter_existing_mint_classifier_fast_path": {
     "status": "COMPLETE",
     "verdict": "BYZANTINE_CREATOR_PREFILTER_MINT_CLASSIFIER_FAST_PATH_NOT_QUALIFIED",

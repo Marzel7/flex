@@ -15394,15 +15394,15 @@
     "next_action": "ACQUIRE_MINIMUM_HISTORICAL_BONDING_CURVE_CHECKPOINT_CUT_SET"
   },
   "pumpfun_historical_curve_checkpoint_cut_set": {
-    "status": "HOLD",
-    "verdict": "HISTORICAL_CURVE_CHECKPOINT_CUT_SET_NOT_QUALIFIED",
+    "status": "PARTIAL",
+    "verdict": "HISTORICAL_CURVE_CHECKPOINT_CUT_SET_PARTIALLY_QUALIFIED",
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted bounded cut-set acquisition planner",
-    "tests": "5 focused retained-only tests passed.",
-    "production_flags": "Transaction-history acquisition: NONE; Birdeye acquisition: NONE; provider calls: 0; production/canonical DB, membership, listeners, workers and trading changes: NONE.",
-    "artifact": "docs/audits/byzantine_lifecycle_103/pumpfun_historical_curve_checkpoint_cut_set/pumpfun_historical_curve_checkpoint_cut_set_qualification.v1.json; file SHA-256 c64145fdea1ec91c741037dfe6bc1bc92b1e319c41f0a427910116f9ef54da4a; payload digest 3666d6835007078c322235efd92481f1ee480086eb961e26b463508e421989ea.",
-    "result": "Exact deduplicated plan contains 56 historical bonding-curve post-state observations, one per independent interval. No request was issued because the proven Alchemy historical archive endpoint is not configured in this environment. Boundary analysis additionally finds 27 intervals temporally ambiguous under an account archive that exposes only end-of-slot state; the remaining 29 are potentially slot-level qualified. No raw responses/checkpoints/resynchronizations were produced, and dry-run remains 3,250 downstream blocked.",
-    "blocker": "Requires an explicitly configured historical account archive endpoint and a provider capability that returns account state at an exact transaction boundary (not merely slot end) for the 27 same-slot cases. Current environment has neither configured archive credentials nor that proven transaction-indexed state capability.",
-    "next_action": "PROVISION_OR_AUTHORIZE_TRANSACTION_INDEXED_HISTORICAL_ACCOUNT_ARCHIVE_CAPABILITY_FOR_THE_FIXED_56_CHECKPOINT_PLAN"
+    "tests": "Focused planner test passed after execution-mode correction.",
+    "production_flags": "Transaction-history acquisition: NONE; Birdeye acquisition: NONE; bounded Alchemy historical account reads: 29; production/canonical DB, membership, listeners, workers and trading changes: NONE.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pumpfun_historical_curve_checkpoint_cut_set/pumpfun_historical_curve_checkpoint_cut_set_qualification.v1.json; file SHA-256 f7ed4ddaa6ff520a99201043d76177c95700ff45b1a72bf3f23ca20a694e2aac; payload digest d71215f453d20dfe33c8ad8742fdeade6d13fca01bb98181c6a0ef9008f56afd.",
+    "result": "After loading .env correctly, 29 fixed, temporally non-same-slot Alchemy Account Archive getAccountInfo reads were issued; 24 returned valid 151-byte Pump.fun curve accounts, decoded and retained with raw response digests, while 5 were provider/account-state failures. The 27 same-slot intervals were correctly not requested because a slot-level response could not prove the required between-transaction boundary. Engine wiring/dry-run remains pending; downstream blocked remains 3,250.",
+    "blocker": "27 intervals require transaction-indexed historical account state; five slot-level requests did not return qualifying state. The 24 retained checkpoints must be wired into the chain before control-replay coverage can be measured.",
+    "next_action": "WIRE_24_QUALIFIED_HISTORICAL_CHECKPOINTS_AND_RERUN_FIVE_TOKEN_CONTROL_REPLAY"
   },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",

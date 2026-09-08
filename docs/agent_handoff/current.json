@@ -16180,6 +16180,17 @@
     "limitations": "Historical close marks are not fills; Scenario-D is a spot reference rather than average entry; collapse timestamp cannot establish intra-candle ordering; 38 plus-2m rows are unresolved and carried as stress rather than inferred. No entry-size ranking is qualified.",
     "next_action": "REVIEW_HISTORICAL_DISCOVERY_RESULT_BEFORE_ANY_NEW_EXECUTION_AUTHORIZATION"
   },
+  "byzantine_priority_walkback_generic_post_commit": {
+    "status": "PARTIAL",
+    "verdict": "BYZANTINE_PRIORITY_WALKBACK_GATE_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 (working tree priority implementation pending engineering commit)",
+    "implementation": "Added generic durable operation_evidence_priority_requests with deterministic SHA-256 identity, post-commit timestamp guard, idempotent reuse/upgrade of the mint-keyed Walkback queue, retained request states, default-OFF OPERATION_EVIDENCE_PRIORITY_ENABLED, and T0-T6 fields. Walkback now stamps T2-T5 observational boundaries and uses a persisted bounded fairness cursor: maximum three high-priority jobs before one eligible normal job.",
+    "validation": "pytest -q tests/test_operation_evidence_priority.py tests/test_byzantine_priority_walkback_lane_audit.py: 4 passed; py_compile passed.",
+    "safety": "No listener binding was made because src/core/pumpfun_curve_listener.py already has unrelated user modifications. Feature flag is OFF; no live smoke, provider/RPC acquisition, membership write, signing, submission, or strategy-shadow enablement.",
+    "artifact": "docs/audits/operation_evidence_priority_request_contract.v1.json SHA-256 af0e20995e6c571304c5b8afaae8e2b36e10cab685699cdfc7fc39100c282994.",
+    "blocker": "The committed launch path still needs a narrowly reviewed post-commit caller, then isolated semantic replay and a separately bounded passive smoke before the gate can qualify.",
+    "next_action": "BIND_DEFAULT_OFF_POST_COMMIT_LAUNCH_CALLER_TO_record_post_commit_request_AND_apply_walkback_request_AFTER_SOURCE_COMMIT_THEN_RUN_ISOLATED_SEMANTIC_REPLAY"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

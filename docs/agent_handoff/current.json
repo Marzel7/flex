@@ -15698,6 +15698,20 @@
     "blocker": "Add a canonical post-commit producer of the four missing envelope facts from a retained authoritative opening-action stream; do not use receipt time or an in-memory birth signal.",
     "next_action": "QUALIFY_AND_PERSIST_CANONICAL_BYZANTINE_OPENING_ACTION_ORDER_AND_ENTRY_STATE_ENVELOPE"
   },
+  "canonical_live_byzantine_projection_evidence_extension": {
+    "status": "HOLD",
+    "verdict": "CANONICAL_LIVE_BYZANTINE_PROJECTION_EVIDENCE_NOT_QUALIFIED",
+    "platform_verdict": "OPERATION_AGNOSTIC_STRATEGY_PIPELINE_LOCKED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "audit": "The canonical writer src/ops/wsol_10_sol_four_step_operation.py::project_completed_walkback retains selected walkback signature/anchor/block-time/atomic evidence and then membership mint/operator/source/assigned_at/event_id. The live CREATE ledger schema retains signature/mint/creator/slot/instruction/inner-instruction indices but no transaction ordinal; observed live ledger rows are 0. token_analysis has create signature and bonding-curve identifiers only, not a boundary-state artifact.",
+    "unavailable": "Recurrent cluster classification is only the historical BYZANTINE_OPENING_CLUSTER_V1 position-top-wallet analysis, not a committed live classifier. Block transaction order and ORDER_COMPLETE certification are absent. An exact Pump.fun boundary-state artifact reference with parser/digest/provenance is absent. The three facts cannot be inferred safely from listener receipt order, membership, or current account identifiers.",
+    "implementation": "No canonical callback/envelope was added: doing so would manufacture the required evidence. Added scripts/qualify_canonical_live_byzantine_projection_evidence_extension.py and focused regression audit tests that preserve this fail-closed boundary; existing projection and generic downstream schema are unchanged.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/canonical_live_byzantine_projection_evidence_extension_qualification.v1.json SHA-256 de147f90b7715b9686556b2e0e0d346004e56d45a8629b6ba7cae7b5c41e0687",
+    "validation": "9 focused audit/projection/producer tests passed. Provider/network acquisition NONE; no canonical mutation or DB-lock regression; signing/submission and automated exits NONE.",
+    "production_flags": "PumpSwap raw OFF; PumpSwap semantic OFF; Byzantine prospective shadow OFF; prospective cohort 0.",
+    "blocker": "Implement and qualify a durable live retained Pump.fun opening-action evidence source that commits recurrent-cluster classifier provenance, block transaction ordinal plus action index/order-complete certificate, and exact boundary-state artifact reference before canonical membership may export an envelope.",
+    "next_action": "IMPLEMENT_AND_QUALIFY_DURABLE_LIVE_PUMPFUN_OPENING_ACTION_EVIDENCE_SOURCE"
+  },
   "pumpswap_instruction_boundary_state_capability": {
     "status": "HOLD",
     "verdict": "PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_NOT_QUALIFIED",

@@ -16283,4 +16283,13 @@
     "production_flags": "OPERATION_EVIDENCE_PRIORITY_ENABLED is OFF and runtime-visible OFF after qualification.",
     "next_action": "USE_REAL_PRIORITY_ADAPTER_WITH_QUALIFIED_CONTROLLER_AND_WATCHDOG_TO_RUN_TWO_HOUR_LATENCY_OBSERVATION"
   }
+,
+  "two_hour_real_priority_walkback_latency_observation": {
+    "status": "HOLD",
+    "verdict": "BYZANTINE_TWO_HOUR_PRIORITY_LATENCY_OBSERVATION_NOT_STARTED",
+    "runtime_preflight": "listener RUNNING pid 44429, walkback_worker RUNNING pid 32048, isolated runtime /private/tmp/flex-priority-deploy at 5904a907; adapter and runtime-visible predicate agree OFF. No active nonterminal observation state was found.",
+    "blocker": "No existing deployed/source observation controller monitors durable creator-hit admissions, RPC credits, queue/DB safety aborts, or enforces the frozen MAX_CREATOR_HITS=10 and MAX_RPC_CREDITS=400 stops. The qualified generic controller provides only prepare/activate/tick/absolute-deadline primitives, and the only live helper is the completed 30-second adapter qualification. Enabling priority without an active cap/safety controller would violate the requested stop conditions.",
+    "production_flags": "OPERATION_EVIDENCE_PRIORITY_ENABLED remains OFF; no PREPARED state, watchdog, activation, launch observation, provider action, listener/worker restart, or canonical DB write was performed in this attempted observation.",
+    "next_action": "Separately authorize implementation and qualification of a narrow durable two-hour observation monitor that consumes existing priority-request timing rows, enforces cap/RPC/safety stops, and uses the qualified controller/watchdog without changing Walkback or classification semantics."
+  }
 }

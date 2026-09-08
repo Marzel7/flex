@@ -15540,6 +15540,18 @@
     "blocker": "No separate bounded generic PumpSwap-program websocket task is implemented or operationally qualified. Launching it on the existing migration connection would create an unproven volume/failure-domain risk.",
     "next_action": "QUALIFY_SEPARATE_BOUNDED_PUMPSWAP_PROGRAM_WEBSOCKET_TASK"
   },
+  "pumpswap_separate_program_websocket_task": {
+    "status": "COMPLETE",
+    "verdict": "PUMPSWAP_SEPARATE_PROGRAM_WEBSOCKET_TASK_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "src/ops/pumpswap_program_websocket_task.py is an independent async research task with injected connector, confirmed PumpSwap-program logsSubscribe handshake, direct fail-open raw adapter handoff, 2s-to-60s capped reconnect, cancellation-safe sleep, clean close, and lightweight health/counter metrics. It is not registered in the production listener task list while the feature remains OFF, preserving migration failure-domain isolation.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pump_swap_separate_program_websocket_task_qualification.v1.json",
+    "artifact_payload_digest": "1ace087172ea4bc93fd9a1a77e9769fa585522d0dad94741af3d873e03291928",
+    "artifact_file_sha256": "a44ad5e547c6566ea9a7e14a5081db41064aaca5c0b1802855b21f7d73ef7900",
+    "validation": "pytest -q tests/test_pumpswap_program_websocket_task.py tests/test_pumpswap_generic_subscription.py tests/test_pumpswap_raw_event_retention.py: 7 passed; artifact JSON validation and diff --check passed.",
+    "production_flags": "PUMPSWAP_RAW_SWAP_EVENT_RETENTION_ENABLED remains OFF; PUMPSWAP_PROSPECTIVE_SEMANTIC_EVIDENCE_ENABLED remains OFF; BYZANTINE_PROSPECTIVE_SHADOW_OBSERVER_ENABLED remains OFF. No live smoke, provider enrichment, signing/submission, automated exit, production/canonical change, or task-list registration occurred.",
+    "next_action": "ENABLE_BOUNDED_PASSIVE_PUMPSWAP_RAW_CAPTURE_AND_BIND_SEMANTIC_CONSUMER"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

@@ -16418,7 +16418,7 @@
     "requalification_artifact": "isolated_runtime_40_dispatch_requalification.v1.json sha256 135c192ed0a2fb960089b717ab6df721002d4e0754b8f8a6e4989e2625bbc282",
     "tests": "3 exact-runtime imports tests passed: dispatch ordinal, monitor cap, candidate admission; ordinal 41 impossible assertion passed.",
     "production_flags": "priority OFF; no process restart; provider/network NONE; canonical production activity NONE; shadow OFF; signing/submission NONE.",
-    "blocker": "The required deployment manifest was not created and verified before isolated-runtime mutation. Process snapshot access was also sandbox-denied. Do not restart or claim runtime readiness from this attempt.",
-    "next_action": "Restore the isolated runtime to its captured pre-deployment identity, create and verify a manifest before any mutation, then rerun the full required offline matrix and only then evaluate scoped process restart."
+    "blocker": "v2 manifest-before-mutation repair and exact-runtime focused tests passed, but the restored isolated worker has no dispatch-cap hook. The sole already-qualified hook is in walkback_worker._rpc, while the revised authorization forbids modifying _rpc. The supervisor listener entry also resolves the development tree, not /private/tmp/flex-priority-deploy. No restart or activation is safe.",
+    "next_action": "Resolve the explicit _rpc deployment contradiction and provide an isolated-runtime service command/configuration that loads /private/tmp/flex-priority-deploy before authorizing observation activation."
   }
 }

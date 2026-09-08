@@ -15356,13 +15356,13 @@
   },
   "pumpfun_scenario_d_frozen_missing_exact_acquisition": {
     "status": "HOLD",
-    "verdict": "LEGACY_AMBIGUOUS_DISPATCH_REQUIRES_EXPLICIT_ONE_TIME_READ_REPLAY_AUTHORIZATION",
+    "verdict": "FROZEN_PROVIDER_BUDGET_EXHAUSTED_ONE_EXACT_READ_REMAINS",
     "engineering_revision": "classification-attribution-axis working tree",
     "contract": "Frozen exact-only queue from frozen_post_d_signature_denominator.v1.json; no signature pagination, discovery, or duplicate exact lookup.",
-    "result": "The originally ambiguous 2GAd exact read was recovered from its orphaned raw response and marked SUCCESS; returned signature exactly matched. The pre-existing background process was then stopped on request after 2,213 new successful exact reads (4,049/4,915 coverage; 866 remaining). Its final legacy ACCOUNTED row has no durable phase, raw response, or dispatch marker: mint 2J7PmgeseQtUfKr1i5BU4k1UDn5Yaf4FYGwAJ6Eupump, signature NQc3uzx7jnXgCkNj4E1FnrJkPmRaUtvNWYrsmLKwRimvqwQySQxUSo7PNia15rqiW8jBcreJAsr79o8LoSH1s73. It cannot prove non-dispatch.",
-    "repair": "The exact acquisition transport now journals ACCOUNTED -> DISPATCHING -> DISPATCHED -> RAW_RETAINED -> TERMINAL_PARSED. 29 focused provider-free tests pass, including crash-boundary classifications and raw-retained recovery. Legacy unphased ACCOUNTED rows remain deliberately ambiguous.",
-    "safety": "Reconciliation/repair sent 0 provider calls after stopping the background process; no Birdeye, GMGN, SOL/USD, PumpSwap, DB, membership, Watchtower, Playbook, live execution, or trade action.",
-    "next_action": "AUTHORIZE_ONE_TIME_READ_ONLY_REPLAY_OF_THE_LEGACY_AMBIGUOUS_EXACT_TRANSACTION_OR_REVIEW_PROVIDER_DISPATCH_JOURNAL_INVARIANT"
+    "result": "The explicitly authorized one-time replay for legacy 2J7 signature NQc3uzx7jnXgCkNj4E1FnrJkPmRaUtvNWYrsmLKwRimvqwQySQxUSo7PNia15rqiW8jBcreJAsr79o8LoSH1s73 retained raw evidence, exactly matched its returned signature, and resolved SUCCESS without overwriting the legacy evidence. The repaired frozen wave reached 4,914/4,915 exact coverage with 0 unresolved attempts. Its original 4,956-call ceiling is exhausted because the separately authorized replay was an additional provider call. The single remaining frozen signature is 2gZ2cWGSjWq3QpPbAEazE9y9v9VzJeeBhMmdtc5ZMKh18EL1Lej5hi4wU68VcHrWrJr8dJFGtgwEpSBunCkh5exY for mint 2LVeMoPyJiYKtGhNZPouwCSFYT8Z47d8885V4aadpump.",
+    "repair": "The exact acquisition transport journals ACCOUNTED -> DISPATCHING -> DISPATCHED -> RAW_RETAINED -> TERMINAL_PARSED. 31 focused provider-free tests passed before final queue resume, including crash-boundary classifications, raw-retained recovery, stable denominator ordering, and authorized replay provenance. The driver now checkpoints frozen provider-budget exhaustion before a request.",
+    "safety": "No request was dispatched after budget exhaustion; no Birdeye, GMGN, SOL/USD, PumpSwap, DB, membership, Watchtower, Playbook, live execution, or trade action.",
+    "next_action": "AUTHORIZE_ONE_ADDITIONAL_EXACT_READ_BUDGET_SLOT_FOR_THE_SINGLE_REMAINING_FROZEN_SIGNATURE"
   },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",

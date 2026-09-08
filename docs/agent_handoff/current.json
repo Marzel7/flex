@@ -15527,6 +15527,19 @@
     "blocker": "The live listener subscribes only the Pump.fun migration account. No safely bounded generic PumpSwap program-swap subscription and post-commit adapter is bound, so raw live retention cannot be enabled yet.",
     "next_action": "QUALIFY_BOUNDED_GENERIC_PUMPSWAP_SWAP_SUBSCRIPTION_AND_POST_COMMIT_ADAPTER"
   },
+  "pumpswap_generic_swap_subscription": {
+    "status": "PARTIAL",
+    "verdict": "PUMPSWAP_GENERIC_SWAP_SUBSCRIPTION_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "src/ops/pumpswap_generic_subscription.py defines a disabled Solana logsSubscribe adapter using the configured PumpSwap program mention filter. It accepts only signature/log source evidence, preserves EVENT_INDEX_UNRESOLVED_AT_SOURCE rather than inventing an instruction index, and performs one fail-open bounded raw-store insert with zero RPC enrichment or semantic interpretation. Raw-store duplicate metrics now use an explicit read-only existence check.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pump_swap_generic_subscription_and_raw_adapter_qualification.v1.json",
+    "artifact_payload_digest": "21ed964d62b715818d96111adc696ab8a662cf5c386961cf4eb17ce667c52b9e",
+    "artifact_file_sha256": "cb36fe3b591e79406f9ac0d3eaab9ee25a2af89d0e20bec2735619c02387dfb4",
+    "validation": "pytest -q tests/test_pumpswap_generic_subscription.py tests/test_pumpswap_raw_event_retention.py tests/test_pumpswap_prospective_semantic_capture.py: 9 passed; artifact JSON validation and diff --check passed.",
+    "production_flags": "All flags remain OFF: PUMPSWAP_RAW_SWAP_EVENT_RETENTION_ENABLED, PUMPSWAP_PROSPECTIVE_SEMANTIC_EVIDENCE_ENABLED, and BYZANTINE_PROSPECTIVE_SHADOW_OBSERVER_ENABLED. Trigger RPC calls 0; signing/submission NONE; automated exits NONE; production/canonical changes NONE.",
+    "blocker": "No separate bounded generic PumpSwap-program websocket task is implemented or operationally qualified. Launching it on the existing migration connection would create an unproven volume/failure-domain risk.",
+    "next_action": "QUALIFY_SEPARATE_BOUNDED_PUMPSWAP_PROGRAM_WEBSOCKET_TASK"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

@@ -15371,6 +15371,17 @@
     "artifacts": "docs/audits/pumpfun_target_era_binary_acquisition/pumpfun_programdata_slot_433095571.elf; pumpfun_target_era_binary_acquisition.v1.json; raw response retained alongside them.",
     "next_action": "BINARY_SEMANTIC_QUALIFICATION_OF_THE_FIVE_TARGET_ERA_UNKNOWN_DISCRIMINATORS"
   },
+  "pumpfun_retained_state_reconstruction": {
+    "status": "PARTIAL",
+    "verdict": "RETAINED_STATE_RECONSTRUCTION_INFRASTRUCTURE_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted retained-only reconstruction implementation",
+    "tests": "3 focused reconstruction tests passed; target-era suite was previously observed through its first 7 passing tests but the combined command exceeded its window before completion.",
+    "production_flags": "RPC/provider/network acquisition: NONE; production/canonical DB, membership, listeners, workers and trading changes: NONE.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pumpfun_retained_state_reconstruction_infrastructure_qualification.v1.json; file SHA-256 3d8b305557af0493355e55b559a4187d27526287c000f9c0a34abeb357e32f12; payload digest 9feefb3a1f065d56f54da27fc997c8b17f86c7d933351926b45e22cec42abce0.",
+    "result": "Implemented immutable integer-only ReplayState, exact field comparator, target-era Buy/Sell adapter, state-neutral preservation, explicit unresolved barriers, checkpoint-driven authoritative resynchronization, and compact retained raw instruction evidence. Frozen corpus identity is ordered_replay_input.v1.json digest 3bac3197da563c92386fb326134b7b02ecf29d70ea3e1f25157160c9a2ffe229 (4,915 transactions, five tokens, 64 parser-insufficient rows). Dry run applies 381 known transitions and 1,219 state-neutral rows, emits 65 fail-closed barriers (64 parser-insufficient plus one invalid predecessor) and 3,250 blocked downstream rows; 0 authoritative post-Scenario-D account-state checkpoints exist, hence 0 resynchronizations/checkpoint matches/divergences.",
+    "blocker": "The retained corpus has no instruction-local bonding-curve account bytes or independent post-Scenario-D authoritative checkpoints. Scenario-D seed states are known-transition-derived trade-event inversions; one stream predecessor is therefore invalid for a qualified Buy and becomes a barrier rather than an inferred state.",
+    "next_action": "EXTRACT_OR_LOCATE_RETAINED_INSTRUCTION_LOCAL_BONDING_CURVE_CHECKPOINTS_TO_SEED_AND_RESYNCHRONIZE_THE_FIVE_TOKEN_CHAIN; then use per-instruction evidence to resolve the five unknown discriminators."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

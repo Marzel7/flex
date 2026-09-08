@@ -15462,6 +15462,19 @@
     "blocker": "Separate authorization is needed to bind a post-commit compact job and bounded worker to retained live evidence, then to qualify PumpSwap and newly observed discriminator semantic adapters. No final exit fractions or Playbook promotion are authorized.",
     "next_action": "SEPARATE_DECISION_ON_ENABLING_SHADOW_OBSERVER_ONLY"
   },
+  "byzantine_prospective_shadow_post_commit_worker": {
+    "status": "PARTIAL",
+    "verdict": "BYZANTINE_SHADOW_POST_COMMIT_WORKER_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "src/ops/byzantine_prospective_shadow_worker.py provides a separate durable SQLite research queue with pending/leased/retry/completed/dead-letter states, one-worker lease semantics, bounded retry, result-before-ack ordering, and entry-stage BuyExactSolIn processing. enqueue_committed_scenario_d has an explicit post-commit guard and the feature flag defaults OFF. No listener or canonical operation path was changed because the current repository has no live Scenario-D qualification commit boundary.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/byzantine_prospective_shadow_post_commit_worker_qualification.v1.json",
+    "artifact_payload_digest": "c5d014f6e4a05987339c7e994eda5473f40977b7334fcacfec07ec118e861dc2",
+    "artifact_file_sha256": "5369d6eed4eaf1be76fccaad2faeea817913520bf569d4d2bb8e55762b52834d",
+    "validation": "pytest -q tests/test_byzantine_prospective_shadow.py tests/test_byzantine_prospective_shadow_worker.py: 8 passed; artifact JSON validation and diff --check passed.",
+    "production_flags": "BYZANTINE_PROSPECTIVE_SHADOW_OBSERVER_ENABLED remains OFF; provider/RPC/network acquisition NONE; signing/submission NONE; automated exits NONE; production/canonical changes NONE.",
+    "blocker": "A real durable Byzantine Scenario-D qualification commit point does not currently exist in source, so a post-commit callback cannot be safely bound without inventing detection semantics.",
+    "next_action": "QUALIFY_PROSPECTIVE_PUMPSWAP_EXECUTION_AND_SELL_MECHANICS"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

@@ -15712,6 +15712,19 @@
     "blocker": "Implement and qualify a durable live retained Pump.fun opening-action evidence source that commits recurrent-cluster classifier provenance, block transaction ordinal plus action index/order-complete certificate, and exact boundary-state artifact reference before canonical membership may export an envelope.",
     "next_action": "IMPLEMENT_AND_QUALIFY_DURABLE_LIVE_PUMPFUN_OPENING_ACTION_EVIDENCE_SOURCE"
   },
+  "pumpfun_live_opening_action_evidence_source": {
+    "status": "PARTIAL",
+    "verdict": "PUMPFUN_LIVE_OPENING_ACTION_EVIDENCE_SOURCE_PARTIALLY_QUALIFIED",
+    "platform_verdict": "OPERATION_AGNOSTIC_STRATEGY_PIPELINE_LOCKED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "src/ops/pumpfun_opening_action_evidence.py establishes a generic, feature-off, dedicated SQLite evidence family: raw exact transaction JSON first; normalized Pump.fun Buy/Sell action rows; one idempotent retained block artifact per slot to resolve a true transaction ordinal; and immutable PRE_ACTION_STATE/POST_ACTION_STATE artifacts with raw bytes, decoded integers, parser version, provenance, and digest. Readiness requires both ORDER_COMPLETE and BOUNDARY_STATE_READY. It carries no operation or Byzantine semantics and has submission capability NONE.",
+    "source_inventory": "PumpFunCurveListener already obtains exact getTransaction payloads after logsSubscribe CREATE notifications. Existing retained block decoder provides block transaction-list ordinal and log/event ordering. Existing curve accountSubscribe is slot-level/confirmed and does not prove an action-local pre/post state; current create ledger retains metadata only.",
+    "safety": "Feature PUMPFUN_OPENING_ACTION_EVIDENCE_ENABLED defaults OFF. No listener binding, block/state acquisition, provider/network call, live session, canonical mutation, signing/submission, automated exit, or prospective cohort collection occurred.",
+    "artifacts": "docs/audits/byzantine_lifecycle_103/pumpfun_opening_action_evidence_contract.v1.json SHA-256 1b4d9ec9bcafe1eea8a712def982f27b3d4851764c1e9740cc5960a8feeea13b; docs/audits/byzantine_lifecycle_103/pumpfun_live_opening_action_evidence_source_qualification.v1.json SHA-256 4906b187e17da2f3610059ae20290b38a0d96e22f49282ac792ae5e53d06970b",
+    "validation": "11 focused generic source/projection/producer tests passed: flag off, deterministic duplicate identity, exact state-boundary contract, unresolved ordering exclusion, retained-block same-slot ordering, state-ready consumer gating, and existing Scenario-D projection/evaluator safeguards.",
+    "blocker": "No durable post-commit live spool/worker yet feeds exact listener transaction payloads into this generic store, and no prospective source captures temporally exact per-action Pump.fun curve state. Slot-level account notifications must remain BOUNDARY_STATE_UNAVAILABLE.",
+    "next_action": "QUALIFY_BOUNDED_POST_COMMIT_PUMPFUN_BLOCK_AND_BOUNDARY_STATE_CAPTURE_WORKER"
+  },
   "pumpswap_instruction_boundary_state_capability": {
     "status": "HOLD",
     "verdict": "PROSPECTIVE_INSTRUCTION_BOUNDARY_ACCOUNT_STATE_NOT_QUALIFIED",

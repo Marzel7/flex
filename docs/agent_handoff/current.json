@@ -15564,6 +15564,19 @@
     "blocker": "PumpSwapProgramWebsocketTask is fixture-qualified but lacks a concrete supervised production connector/registration. More importantly, signature/log-only raw events have EVENT_INDEX_UNRESOLVED_AT_SOURCE while semantic enqueue requires pool and instruction identity; no bounded post-commit retained/cache transaction materializer or max-10 asynchronous enrichment worker exists. Direct listener-to-semantic binding is forbidden.",
     "next_action": "IMPLEMENT_BOUNDED_POST_COMMIT_PUMPSWAP_RAW_EVENT_MATERIALIZER_AND_SUPERVISED_REGISTRATION"
   },
+  "pumpswap_supervised_registration_and_raw_materializer": {
+    "status": "PARTIAL",
+    "verdict": "PUMPSWAP_SUPERVISED_REGISTRATION_AND_RAW_MATERIALIZER_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "src/ops/pumpswap_research_supervisor.py feature-gates exactly one injected optional websocket coroutine. src/ops/pumpswap_raw_materializer.py reads only committed raw events under its own cursor, invokes an injected retained/cache/provider resolver outside raw transactions, materializes all PumpSwap outer instructions one-to-many while preserving source EVENT_INDEX_UNRESOLVED_AT_SOURCE, persists materialization before cursor acknowledgement, and records transaction-unavailable negatives.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pump_swap_supervised_registration_and_raw_materializer_qualification.v1.json",
+    "artifact_payload_digest": "c01fa960f4799d2584a1e2325c76a73118c526097cbfec32e5ff3e324cd0425d",
+    "artifact_file_sha256": "329a41cee497f9cd34f2ecad401fc7d4e7f6bfe9837df1fccf834cb612afc9c9",
+    "validation": "pytest -q tests/test_pumpswap_raw_materializer.py tests/test_pumpswap_program_websocket_task.py tests/test_pumpswap_raw_event_retention.py: 7 passed.",
+    "production_flags": "All flags remain OFF; no production lifecycle registration, provider request, signing/submission, automatic exit, or canonical change occurred.",
+    "blocker": "Concrete existing websocket connector and retained/cache/provider resolver remain injected test interfaces, not safely wired into a supervised production registration.",
+    "next_action": "ENABLE_BOUNDED_PUMPSWAP_RAW_CAPTURE_AND_MATERIALIZER_THEN_BIND_SEMANTIC_CAPTURE"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

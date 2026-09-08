@@ -16356,4 +16356,12 @@
     "remaining": "No injected integration tests yet cover cache-before-reservation, retry attempt ordinals, denied dispatch, crash/recovery states, or actual monitor rebind. Do not claim fully qualified or activate priority.",
     "next_action": "Add injected worker-RPC integration tests and recovery state transitions, then rebind monitor to admissions/ledger and qualify before the two-hour observation."
   }
+,
+  "bound_observation_rpc_credit_path_qualification": {
+    "status": "PARTIAL",
+    "implementation": "observation_provider_credit_ledger now has RESERVED/AMBIGUOUS(dispatching)/CONSUMED/RELEASED transitions; ambiguous issued attempts remain counted conservatively. Worker marks dispatching after reservation before network call. durable_priority_observation_monitor now reads exact ledger total for RPC_CEILING, retaining rpc_used only as diagnostic compatibility.",
+    "validation": "10 focused ledger/monitor/binding tests passed and py_compile passed. Priority OFF; no provider/network/canonical DB/shadow/trading activity.",
+    "remaining": "No injected worker-RPC cache-hit, retry ordinal, denial/no-dispatch, crash-before/after-dispatch, retained-response, context-cleanup, or normal-row isolation integration tests. Therefore end-to-end bound path and two-hour readiness remain unqualified.",
+    "next_action": "Add those injected integration tests, including actual _rpc wrapper dispatch fake and monitor restart at exact 400, before any live priority activation."
+  }
 }

@@ -15294,6 +15294,15 @@
     "blocker": "The existing Helius Pump.fun logsSubscribe implementation is unsuitable as a passive reference: it processes the full program firehose through handle_pumpfun_trade/getTransaction work, with observed 15-65 second loop stalls and PumpPortal reconnect/outage failures. It cannot be enabled for the requested comparison without a separately isolated observation-only chain feed. Telemetry remained at 0 matched records.",
     "next_action": "DESIGN_ISOLATED_PASSIVE_PUMPFUN_CHAIN_NOTIFICATION_FEED"
   },
+  "pumpfun_scenario_d_signature_first_boundary_wave": {
+    "status": "HOLD",
+    "verdict": "FROZEN_FOUR_PAGE_SIGNATURE_BOUND_INSUFFICIENT_FOR_2_OF_5",
+    "engineering_revision": "classification-attribution-axis working tree",
+    "contract": "Signature pagination only; maximum four new 128-record pages per token; no exact transaction lookup after the wave until all five boundaries cross.",
+    "result": "16 additional successful Helius history pages, cumulative 1,867 calls and duplicate calls 0. Boundary crossed 3/5: 2GAd at 443245273, 2Gw at 441367060, 2LVe at 442292907. Not crossed: 2Br page-7 oldest 439408903 > 439408900 (3 slots); 2J7 page-7 oldest 439008315 > 439008282 (33 slots). No transaction expansion was dispatched.",
+    "safety": "No Birdeye, GMGN, SOL/USD, PumpSwap, DB, membership, Watchtower, Playbook, live execution or trade action.",
+    "next_action": "REVIEW_REMAINING_SIGNATURE_HISTORY_DEPTH"
+  },
   "pumpfun_scenario_d_post_order_flow_pagination_extension": {
     "status": "HOLD",
     "verdict": "MINIMAL_TWO_PAGE_EXTENSION_DID_NOT_REACH_SCENARIO_D_BOUNDARY",

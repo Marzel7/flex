@@ -15564,6 +15564,18 @@
     "blocker": "PumpSwapProgramWebsocketTask is fixture-qualified but lacks a concrete supervised production connector/registration. More importantly, signature/log-only raw events have EVENT_INDEX_UNRESOLVED_AT_SOURCE while semantic enqueue requires pool and instruction identity; no bounded post-commit retained/cache transaction materializer or max-10 asynchronous enrichment worker exists. Direct listener-to-semantic binding is forbidden.",
     "next_action": "IMPLEMENT_BOUNDED_POST_COMMIT_PUMPSWAP_RAW_EVENT_MATERIALIZER_AND_SUPERVISED_REGISTRATION"
   },
+  "pumpswap_concrete_transaction_resolver": {
+    "status": "PARTIAL",
+    "verdict": "PUMPSWAP_CONCRETE_TRANSACTION_RESOLVER_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "src/ops/pumpswap_transaction_resolver.py implements strict retained evidence, transaction-first cache, shared RPC-cache, then single bounded-provider resolution. Provider responses are SHA-256 retained in a separate exact-transaction store before materialization. src/ops/pumpswap_raw_materializer.py now accepts its provenance envelope and resolves compiled instruction program/account indexes against loaded writable/readonly addresses.",
+    "artifact": "docs/audits/byzantine_lifecycle_103/pump_swap_concrete_transaction_resolver_qualification.v1.json",
+    "artifact_file_sha256": "be9f57af85bd589c52e3ee18a43c934f0b1d39ce3c2ef156838c941eef7d13fc",
+    "validation": "pytest -q tests/test_pumpswap_transaction_resolver.py tests/test_pumpswap_raw_materializer.py tests/test_pumpswap_live_runtime.py tests/test_pumpswap_raw_event_retention.py tests/test_pumpswap_program_websocket_task.py tests/test_pumpswap_generic_subscription.py: 14 passed.",
+    "production_flags": "raw OFF; semantic OFF; Byzantine shadow OFF; live provider/network requests 0; signing/submission NONE; automated exits NONE; canonical changes NONE.",
+    "blocker": "The fixture-qualified resolver is not yet invoked by a bounded supervised asynchronous post-commit materializer worker using ListenerPumpSwapRuntime.call_discovery_rpc. Live capture remains prohibited.",
+    "next_action": "Bind the concrete resolver through a bounded supervised post-commit materializer worker, then requalify before enabling passive raw capture."
+  },
   "pumpswap_live_passive_capture_materializer_semantic_binding": {
     "status": "HOLD",
     "verdict": "PUMPSWAP_PASSIVE_EVIDENCE_PIPELINE_NOT_QUALIFIED",

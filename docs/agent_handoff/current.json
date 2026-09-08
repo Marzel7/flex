@@ -16418,7 +16418,7 @@
     "requalification_artifact": "isolated_runtime_40_dispatch_requalification.v1.json sha256 135c192ed0a2fb960089b717ab6df721002d4e0754b8f8a6e4989e2625bbc282",
     "tests": "3 exact-runtime imports tests passed: dispatch ordinal, monitor cap, candidate admission; ordinal 41 impossible assertion passed.",
     "production_flags": "priority OFF; no process restart; provider/network NONE; canonical production activity NONE; shadow OFF; signing/submission NONE.",
-    "blocker": "Outstanding isolated-runtime candidate-cap regression failed: tests/test_bounded_observation_admission.py::test_atomic_cap_and_dedupe expected replay request r0 to return EXISTING after the cap but received REJECTED_CAP. No restart or activation was performed; priority remains OFF.",
-    "next_action": "Repair the isolated bounded-observation admission replay ordering so an already-admitted request returns EXISTING before cap rejection, then rerun the blocked deployment checks."
+    "blocker": "Admission test race was made deterministic and focused checks passed; isolated listener and worker restarted healthy from /private/tmp/flex-priority-deploy with priority OFF. Activation prerequisite failed: supervisor environments do not set OPERATION_EVIDENCE_PRIORITY_OBSERVATION_ID, so enabling priority would not bind live work to the durable observation/candidate/dispatch controls. Observation not started.",
+    "next_action": "Create and persist the observation ID, then add that exact ID to the isolated listener and worker supervised environments before enabling priority; verify both processes inherited it and only then activate."
   }
 }

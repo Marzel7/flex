@@ -15997,6 +15997,18 @@
     "blocker": "Concrete existing websocket connector and retained/cache/provider resolver remain injected test interfaces, not safely wired into a supervised production registration.",
     "next_action": "ENABLE_BOUNDED_PUMPSWAP_RAW_CAPTURE_AND_MATERIALIZER_THEN_BIND_SEMANTIC_CAPTURE"
   },
+  "byzantine_principal_recovery_runner_strategy_search": {
+    "status": "COMPLETE",
+    "verdict": "BYZANTINE_PRINCIPAL_RECOVERY_RUNNER_STRATEGY_SEARCH_QUALIFIED_FOR_HISTORICAL_DISCOVERY",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implementation": "Added an operation-agnostic, retained-only mark evaluator for principal recovery and runners, plus a 432-strategy staged grid and 36 simple full-exit comparisons. It reads only digest-verified lifecycle candles; no provider, database, execution, or production control is used.",
+    "artifacts": "byzantine_shared_sol_usd_1m.v1.json (raw-first retained shared series); byzantine_same_token_price_bridge.v1.json (same-token price ratio bridge); byzantine_principal_recovery_runner_strategy_search.v1.json SHA-256 63a25c52db178c406347e085b3fabd0b126c2d9d8f4f388a870e322599103254; operation_price_multiple_principal_recovery_strategy_contract.v1.json SHA-256 a10a99fd959ae2dd8c058e5456ae26e35b20ec58d310193112907255c047e894.",
+    "result": "98 bridge-qualified rows, 60 resolved at +2m and 38 unresolved. Best predeclared historical mark policy: recovery 3x, sell 50% principal target, 5x runner, +2m, 5% haircut: deployed 15 SOL, returned 50.399418 SOL, net 35.399418 SOL, ROI 235.996%, win rate 78.33%. It materially exceeds simple 1.5x and 2x full exits on the stated net-return criterion, while retaining explicit missing-cohort stress. 55 of 77 severe-rug rows recovered principal before recorded collapse; the rug subset has only 58 resolved rows and must not be extrapolated.",
+    "safety": "Provider/network/Birdeye acquisition NONE for bridge/search; signing/submission NONE; automated exits NONE; all live flags remain OFF.",
+    "validation": "3 focused generic staged-evaluator tests passed; offline replay completed without provider calls.",
+    "limitations": "Historical close marks are not fills; Scenario-D is a spot reference rather than average entry; collapse timestamp cannot establish intra-candle ordering; 38 plus-2m rows are unresolved and carried as stress rather than inferred. No entry-size ranking is qualified.",
+    "next_action": "REVIEW_HISTORICAL_DISCOVERY_RESULT_BEFORE_ANY_NEW_EXECUTION_AUTHORIZATION"
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

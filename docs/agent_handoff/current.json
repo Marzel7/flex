@@ -15002,7 +15002,28 @@
     "decision": "MORE_LOCAL_EVIDENCE_REQUIRED",
     "next_action": "Resolve the absence of canonical Operation assignment and detailed PumpPortal birth retention for this current token before any bounded opening replay or Alchemy acquisition is considered."
   },
-  "updated_at": "2026-09-04T20:00:00Z",
+  "post_failure_busy_capture": {
+    "blocker": null,
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted focused implementation",
+    "next_action": "No deployment authorized or performed; retain the one-shot diagnostic as implemented and await separately authorized deployment if needed.",
+    "production_flags": {
+      "listener_restarted": false,
+      "production_database_touched": false,
+      "production_queue_touched": false,
+      "production_runtime_changed": false
+    },
+    "qualification": {
+      "FAILURE_DETERMINED_BEFORE_CAPTURE": "PASS",
+      "ORIGINAL_FAILURE_SEMANTICS_PRESERVED": "PASS",
+      "null_owner_capture_changed": "NO",
+      "sqlite_connection_opened_by_diagnostic": "NO",
+      "writer_queue_semantics_unchanged": "PASS"
+    },
+    "status": "COMPLETE",
+    "tests": "pytest -q tests/test_post_failure_busy_capture.py tests/test_database_write_service.py tests/test_x78_20_null_owner_recovery.py: 24 passed",
+    "verdict": "POST_FAILURE_BUSY_CAPTURE_QUALIFIED"
+  },
+  "updated_at": "2026-09-10T00:00:00Z",
   "updated_at_utc": "2026-09-04T20:00:00Z",
   "updated_by": "agent_local",
   "verdict": "REDUCTION_PROGRAMME_COMPLETE",

@@ -16555,5 +16555,15 @@
     "production_flags": "Priority unchanged; listener/worker/classifiers/memberships untouched; no health indicator implemented; MIGRATION_JOURNAL_FALLBACK_DEPLOYED=NO.",
     "blocker": "Repair is not authorized by this audit-only request.",
     "next_action": "Authorize a narrow reconciliation-path repair so SAFE token_analysis/widened-source anchors are released, then test and observe bounded recovery without reprioritizing or treating waiting rows as retry debt."
+  },
+  "walkback_token_analysis_anchor_reconciliation_repair": {
+    "status": "PARTIAL",
+    "verdict": "WALKBACK_TOKEN_ANALYSIS_ANCHOR_RECONCILIATION_REPAIR_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "artifact": "docs/audits/walkback_token_analysis_anchor_reconciliation_repair.v1.json sha256 350bbf8a86ec8b4e0d2de787dcc340945e49b23dca04196d590e2734249d454f",
+    "result": "Minimal source repair accepts already SAFE token_analysis anchors in reconcile_waiting_create_anchors and adds a bounded only_mints allowlist. The frozen 23-row set was released with token_analysis provenance; VGpxjH2dtrk2PK9ynRLdVMZfWwwY5jaG7wNdJeYpump became pending with zero RPC. Tests: 36 passed. The 4,692 no-anchor rows were not selected; one non-frozen row changed concurrently in the live worker.",
+    "production_flags": "No operation membership, Watchtower, Byzantine classifier, or priority mutation. The repair process itself made no provider call, but the existing live worker processed two newly pending rows (11 RPC credits) before verification. An attempt to stop that worker was rejected as an unapproved service interruption. The source change is not deployed into /private/tmp/flex-priority-deploy.",
+    "blocker": "Task-level provider/RPC NONE cannot be claimed, and production deployment/temporary worker pause require explicit authority.",
+    "next_action": "Explicitly authorize deployment of the repaired module and, if a no-RPC hold is needed for future bounded releases, a temporary supervised worker pause before changing row eligibility."
   }
 }

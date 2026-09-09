@@ -16576,5 +16576,15 @@
     "production_flags": "Migration journal fallback NO; priority unchanged; Watchtower waiting 0; Byzantine classifier and operation memberships not manually changed. Normal work consumed 280 RPC credits across the 23 eligible rows.",
     "blocker": null,
     "next_action": "No further deployment action. Continue ordinary worker operation; retain remaining no-anchor waiting rows until independently qualified local anchor evidence appears."
+  },
+  "walkback_4691_missing_create_anchor_historical_root_cause_audit": {
+    "status": "COMPLETE",
+    "verdict": "MISSING_CREATE_ANCHOR_PROBLEM_STILL_OCCURRING",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "artifact": "docs/audits/walkback_4691_missing_create_anchor_historical_root_cause_audit.v1.json sha256 379903979a361e2e36da765cba8371fb0ca372e15b9d0460727f9de3612dd329; CSV docs/audits/walkback_4691_missing_create_anchor_classification.v1.csv sha256 3d106be34908e998bd225da83a69ba5cb5eefedb1bea9e9a347a8193e2803678",
+    "result": "Frozen 4,691 waiting rows are all CREATE-anchor waits. 4,586 have retained migration evidence but no CREATE signature in canonical ledger, token_analysis, creator_funding_queue, launch audit, or detected-creates; 2,956 retain a creator despite the missing anchor. The remaining 105 have neither retained migration nor Birth/CREATE evidence. Rows accumulated Aug 3-Sep 8 (median Aug 25), with 864 new in 7d and 3,492 in 30d, so this is still occurring despite zero new in 24h. No canonical operation membership remains in the frozen set.",
+    "production_flags": "Read-only local audit; waiting row mutations NONE, operation mutations NONE, provider/RPC/network NONE. No historical source or timestamped outage ledger was found that safely supports additional recovery or mint-specific PumpPortal causality.",
+    "blocker": null,
+    "next_action": "Instrument and retain a durable Birth-acquisition outage/coverage ledger and monitor new/recovered missing-anchor rates; do not release or RPC-backfill the historical rows without separate authority."
   }
 }

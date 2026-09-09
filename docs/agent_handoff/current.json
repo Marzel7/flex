@@ -15004,13 +15004,18 @@
   },
   "post_failure_busy_capture": {
     "blocker": null,
+    "deployment_artifact": "docs/audits/listener_walkback_busy_capture_deployment.v1.json sha256 dc2d6a0c981aa64b8baabc979b65cef741ba4a3e515c8f753df85aa256b4fa90",
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted focused implementation",
-    "next_action": "No deployment authorized or performed; retain the one-shot diagnostic as implemented and await separately authorized deployment if needed.",
+    "next_action": "Allow only natural production listener-walkback-enqueue SQLITE_BUSY failures to consume the bounded one-shot capture; do not remediate in this deployment milestone.",
     "production_flags": {
-      "listener_restarted": false,
+      "listener_restarted": true,
+      "listener_runtime": "/private/tmp/flex-availability-only",
+      "listener_runtime_verified": true,
+      "new_listener_pid": 50797,
+      "old_listener_pid": 84128,
       "production_database_touched": false,
       "production_queue_touched": false,
-      "production_runtime_changed": false
+      "production_runtime_changed": true
     },
     "qualification": {
       "FAILURE_DETERMINED_BEFORE_CAPTURE": "PASS",
@@ -15019,7 +15024,7 @@
       "sqlite_connection_opened_by_diagnostic": "NO",
       "writer_queue_semantics_unchanged": "PASS"
     },
-    "status": "COMPLETE",
+    "status": "DEPLOYED_ACTIVE_AWAITING_NATURAL_FAILURE",
     "tests": "pytest -q tests/test_post_failure_busy_capture.py tests/test_database_write_service.py tests/test_x78_20_null_owner_recovery.py: 24 passed",
     "verdict": "POST_FAILURE_BUSY_CAPTURE_QUALIFIED"
   },

@@ -16518,5 +16518,21 @@
     "blocker": null,
     "observation": "729ca33f-eb43-424e-b013-2348100b2e81 reached its original deadline with zero candidates and zero provider dispatches, but its watchdog/monitor processes were absent and priority remained ON. The existing controller recovery terminalized it as RECOVERY_FORCED_OFF / RECOVERY_DEADLINE; priority is now OFF.",
     "next_action": "Before authorizing any 8-hour rerun, deploy and prove a persistent independently supervised deadline watchdog and durable monitor process; do not rely on transient nohup children."
+  },
+  "byzantine_eight_hour_priority_latency_observation": {
+    "status": "ACTIVE",
+    "verdict": "EIGHT_HOUR_PRIORITY_OBSERVATION_STARTED_WITH_ACCEPTED_TRANSIENT_SUPERVISION_LIMITATION",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "runtime": "/private/tmp/flex-priority-deploy",
+    "observation_id": "d3b703d2-ff8c-4ce5-9d3a-ca460a7eae50",
+    "activation_utc": "2026-09-09T05:09:24Z",
+    "absolute_deadline_utc": "2026-09-09T13:09:24Z",
+    "duration_seconds": 28799.85065817833,
+    "start_artifact": "/private/tmp/flex-priority-deploy/runtime/byzantine_8h_priority_start.json",
+    "tests": "Preflight only: Supervisor listener and Walkback RUNNING; durable acquisition availability BIRTH=AVAILABLE and MIGRATION=AVAILABLE; candidate gate 0/10; dispatch count 0/40; durable priority ON and runtime-visible ON; watchdog ARMED and monitor running.",
+    "production_flags": "Priority ON for evidence/Walkback scheduling only; shadow OFF; prospective strategy cohort 0; signing NONE; submission NONE; automated exits NONE; trading NONE; MIGRATION_JOURNAL_FALLBACK_DEPLOYED=NO.",
+    "accepted_limitation": "The watchdog and monitor are transient processes. If either disappears, priority may remain ON beyond the persisted deadline until the next recovery or status check forces it OFF; deadline-OFF is not guaranteed.",
+    "blocker": null,
+    "next_action": "Allow natural traffic only; do not fabricate candidates or provider calls. At or after the deadline, perform a status/recovery check and record the terminal result without extending the observation."
   }
 }

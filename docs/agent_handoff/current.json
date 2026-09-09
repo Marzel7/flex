@@ -16534,5 +16534,15 @@
     "accepted_limitation": "The watchdog and monitor are transient processes. They disappeared after start in this run. Priority may remain ON beyond the persisted deadline until the next recovery or status check forces it OFF; deadline-OFF is not guaranteed.",
     "blocker": null,
     "next_action": "Allow natural traffic only; do not fabricate candidates or provider calls. At or after the deadline, perform a status/recovery check that forces OFF if overdue and record the terminal result without extending the observation."
+  },
+  "active_operations_registry_24h_denominator_pipeline_audit": {
+    "status": "COMPLETE",
+    "verdict": "REGISTRY_24H_SEMANTIC_LABEL_MISMATCH",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "artifact": "docs/audits/active_operations_registry_24h_denominator_pipeline_audit.v1.json sha256 6b5baa100506366cc4c5079aa5913156c6dc925167d91afd455faf8e8f8eaee9",
+    "result": "The Registry coverage cards use distinct wt_walkback_queue rows with status=complete and completed_at in the UTC 24-hour window, subject to active-manual membership eligibility. They do not use global Birth or Migration populations. At the frozen API cutoff, UI=2 and independent SQL=2: both old, unassigned mints completed a full Walkback during the window. Retained comparison populations were 88,382 births and 1,390 migrations; none of those migrations appeared in the Walkback queue. The collapse boundary is the intentional migration-to-Walkback admission rule, which only enqueues when no Watchtower/staged creator binding is found.",
+    "validation": "Local-only API returned eligible=2, assigned=0, potential=0, CEX=0, unknown=2; template directly renders that response. All six live activity 24h/7d/30d values matched their authoritative read-side sources. Timestamp fields are UTC Unix seconds for the denominator, and no timezone or unit defect was found. Snapshot scheduler is stopped/stale but is not a Registry API producer.",
+    "production_flags": "Read-only; listener/walkback/priority/classifiers/memberships untouched; MIGRATION_JOURNAL_FALLBACK_DEPLOYED=NO; provider/RPC/network NONE.",
+    "next_action": "Product decision only: retain the narrow completed-Walkback coverage metric with a precise label, or introduce separately labelled global Birth/Migration universe cards. Do not change classifier or membership semantics."
   }
 }

@@ -16529,10 +16529,10 @@
     "absolute_deadline_utc": "2026-09-09T13:09:24Z",
     "duration_seconds": 28799.85065817833,
     "start_artifact": "/private/tmp/flex-priority-deploy/runtime/byzantine_8h_priority_start.json",
-    "tests": "Preflight only: Supervisor listener and Walkback RUNNING; durable acquisition availability BIRTH=AVAILABLE and MIGRATION=AVAILABLE; candidate gate 0/10; dispatch count 0/40; durable priority ON and runtime-visible ON; watchdog ARMED and monitor running.",
+    "tests": "Preflight passed: Supervisor listener and Walkback RUNNING; durable acquisition availability BIRTH=AVAILABLE and MIGRATION=AVAILABLE; candidate gate 0/10; dispatch count 0/40; durable priority ON and runtime-visible ON. The watchdog and monitor were armed/started before activation, but final status verification found both transient processes absent while the durable observation remained ACTIVE.",
     "production_flags": "Priority ON for evidence/Walkback scheduling only; shadow OFF; prospective strategy cohort 0; signing NONE; submission NONE; automated exits NONE; trading NONE; MIGRATION_JOURNAL_FALLBACK_DEPLOYED=NO.",
-    "accepted_limitation": "The watchdog and monitor are transient processes. If either disappears, priority may remain ON beyond the persisted deadline until the next recovery or status check forces it OFF; deadline-OFF is not guaranteed.",
+    "accepted_limitation": "The watchdog and monitor are transient processes. They disappeared after start in this run. Priority may remain ON beyond the persisted deadline until the next recovery or status check forces it OFF; deadline-OFF is not guaranteed.",
     "blocker": null,
-    "next_action": "Allow natural traffic only; do not fabricate candidates or provider calls. At or after the deadline, perform a status/recovery check and record the terminal result without extending the observation."
+    "next_action": "Allow natural traffic only; do not fabricate candidates or provider calls. At or after the deadline, perform a status/recovery check that forces OFF if overdue and record the terminal result without extending the observation."
   }
 }

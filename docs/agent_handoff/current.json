@@ -15005,16 +15005,21 @@
   "post_failure_busy_capture": {
     "blocker": null,
     "post_restart_observation": {
-      "at_utc": "2026-09-09T23:13:39Z",
+      "artifact": "docs/audits/overnight_walkback_handoff_and_busy_capture_progress.v1.json sha256 de7db9e3809b4e51309848aa40c30fd1694f0e6176d4ac867e99e4c2912accf2",
+      "at_utc": "2026-09-09T23:17:56Z",
       "busy_capture_fired": false,
       "eligible_full_walkback_missing_queue": [
         "7EcDb2L14dSg5NvVt3e2gphEHWg41LXem61dToxJpump",
         "jvRLvU163SDVPTJCpmaSm2C2kUSLfPiXbYAJirQpump",
-        "CyUZHCkUvZ5a7QbycPZ31Vx1Q1TpqzBJpeScoiKpump"
+        "CyUZHCkUvZ5a7QbycPZ31Vx1Q1TpqzBJpeScoiKpump",
+        "Es3qeAQVBw6KTsHUkbDfs1gryJ4dEh4TpNwPwb7pump",
+        "G4HquWocdjkDbaXuogCXxBqWfjkxYqfMkJYAZ3owpump",
+        "2w4tfFB9ZKVig7AeFsejKnuxC7m5fEjfqffFjZqv5d99",
+        "7wERv2vuTLC9CsXLPXXcdUjShybesQnBMtNizpY2pump"
       ],
-      "migrations_since_restart": 4,
+      "migrations_since_restart": 11,
       "queue_high_water": 1788885589,
-      "verdict": "POST_RESTART_WALKBACK_HANDOFF_FAILURE_CONTINUES"
+      "verdict": "HANDOFF_FAILURE_CONTINUES_WITHOUT_BUSY_CAPTURE"
     },
     "deployment_artifact": "docs/audits/listener_walkback_busy_capture_deployment.v1.json sha256 dc2d6a0c981aa64b8baabc979b65cef741ba4a3e515c8f753df85aa256b4fa90",
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted focused implementation",

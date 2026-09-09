@@ -16586,5 +16586,15 @@
     "production_flags": "Read-only local audit; waiting row mutations NONE, operation mutations NONE, provider/RPC/network NONE. No historical source or timestamped outage ledger was found that safely supports additional recovery or mint-specific PumpPortal causality.",
     "blocker": null,
     "next_action": "Instrument and retain a durable Birth-acquisition outage/coverage ledger and monitor new/recovered missing-anchor rates; do not release or RPC-backfill the historical rows without separate authority."
+  },
+  "current_missing_create_anchor_rate_monitoring": {
+    "status": "PARTIAL",
+    "verdict": "CURRENT_MISSING_CREATE_ANCHOR_RATE_MONITORING_PARTIALLY_QUALIFIED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "artifact": "docs/audits/current_missing_create_anchor_rate_monitoring.v1.json sha256 c1c9be2638b23ef06d65c5ab91c7c6cca2a76621d5009094d4cef6e73578d8f8",
+    "result": "Implemented a read-only missing-create-anchor rate projection and Health API/template binding in the workspace. Current counts: new 0/0/0/1248 and recovered 24/25/26/409 for 1h/6h/24h/7d; historical unresolved 4691 is context only. Latest 100 local migrations have 74 retained CREATE signatures and 26 missing; current Birth and Migration availability are AVAILABLE.",
+    "production_flags": "No listener/anchor semantics, queue, priority, operation, migration-journal, provider/RPC, or network changes. The Health read model is not yet deployed. Existing rows do not retain event-time availability/DB snapshots, so per-case outage/degradation correlation is not yet qualified.",
+    "blocker": "Deployment and a separately authorized non-duplicative prospective correlation design are required for full qualification.",
+    "next_action": "Authorize deployment of the read-only Health API/template change and observe one bounded prospective window before concluding current Birth/CREATE retention is healthy or degraded."
   }
 }

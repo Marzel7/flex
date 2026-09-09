@@ -16544,5 +16544,16 @@
     "validation": "Local-only API returned eligible=2, assigned=0, potential=0, CEX=0, unknown=2; template directly renders that response. All six live activity 24h/7d/30d values matched their authoritative read-side sources. Timestamp fields are UTC Unix seconds for the denominator, and no timezone or unit defect was found. Snapshot scheduler is stopped/stale but is not a Registry API producer.",
     "production_flags": "Read-only; listener/walkback/priority/classifiers/memberships untouched; MIGRATION_JOURNAL_FALLBACK_DEPLOYED=NO; provider/RPC/network NONE.",
     "next_action": "Product decision only: retain the narrow completed-Walkback coverage metric with a precise label, or introduce separately labelled global Birth/Migration universe cards. Do not change classifier or membership semantics."
+  },
+  "walkback_retry_waiting_backlog_audit": {
+    "status": "COMPLETE",
+    "verdict": "WALKBACK_RETRY_BACKLOG_PARTIALLY_STALLED",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "artifact": "docs/audits/walkback_retry_waiting_backlog_audit.v1.json sha256 094ad00de193fbbb918225227414a20cd30ccfc1020cf11e827b21fcf91f1253",
+    "result": "The asserted 4,715 retry-waiting rows are actually status=waiting create-anchor waits, excluded from normal retry selection. All have attempts=0 and next_retry_at=NULL; 4,692 have no anchor in checked local sources, while 23 have locally valid token_analysis anchors that the deployed reconciliation fallback fails to release. One of those 23 is a confirmed Byzantine member (VGpx...). Watchtower has zero waiting rows. The worker is RUNNING and rechecks the full waiting population; two historical rows recovered/completed in 24h, but lock contention has occasionally skipped a cycle.",
+    "validation": "Read-only local SQLite/code/log/runtime inspection; artifact JSON validated. No provider/RPC/network calls, restart, priority change, queue or operation mutation. Normal pending retry backlog=0; expired running leases=0.",
+    "production_flags": "Priority unchanged; listener/worker/classifiers/memberships untouched; no health indicator implemented; MIGRATION_JOURNAL_FALLBACK_DEPLOYED=NO.",
+    "blocker": "Repair is not authorized by this audit-only request.",
+    "next_action": "Authorize a narrow reconciliation-path repair so SAFE token_analysis/widened-source anchors are released, then test and observe bounded recovery without reprioritizing or treating waiting rows as retry debt."
   }
 }

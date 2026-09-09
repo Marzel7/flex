@@ -15004,6 +15004,18 @@
   },
   "post_failure_busy_capture": {
     "blocker": null,
+    "post_restart_observation": {
+      "at_utc": "2026-09-09T23:13:39Z",
+      "busy_capture_fired": false,
+      "eligible_full_walkback_missing_queue": [
+        "7EcDb2L14dSg5NvVt3e2gphEHWg41LXem61dToxJpump",
+        "jvRLvU163SDVPTJCpmaSm2C2kUSLfPiXbYAJirQpump",
+        "CyUZHCkUvZ5a7QbycPZ31Vx1Q1TpqzBJpeScoiKpump"
+      ],
+      "migrations_since_restart": 4,
+      "queue_high_water": 1788885589,
+      "verdict": "POST_RESTART_WALKBACK_HANDOFF_FAILURE_CONTINUES"
+    },
     "deployment_artifact": "docs/audits/listener_walkback_busy_capture_deployment.v1.json sha256 dc2d6a0c981aa64b8baabc979b65cef741ba4a3e515c8f753df85aa256b4fa90",
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted focused implementation",
     "next_action": "Allow only natural production listener-walkback-enqueue SQLITE_BUSY failures to consume the bounded one-shot capture; do not remediate in this deployment milestone.",

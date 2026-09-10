@@ -1,4 +1,16 @@
 {
+  "byzantine_compact_opening_signature_reference_12": {
+    "engineering_revision": "5904a907 plus uncommitted retained-reference reconstruction work",
+    "tests": "artifact JSON validated; offline deterministic reconstruction completed",
+    "production_flags": "0 provider/network calls; no production mutation; no full blocks retained",
+    "verdict": "HOLD_REFERENCE_GATE_FAILED",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_compact_opening_signature_reference_12.v1.json",
+    "manifest_sha256": "5b058a26b38ac86d60326ed936ef3d8b491ebd1d4df2a357506be4f379765a7d",
+    "selection": "first 12 rows in existing frozen 103 lifecycle artifact order",
+    "result": "4 REFERENCE_QUALIFIED, 8 REFERENCE_INSUFFICIENT, 0 conflict. Four signatures were recovered from the same retained block transaction envelopes by transaction index; eight selected rows lack locally retained qualified opening evidence.",
+    "blocker": "The explicit minimum 10/12 signature-level reference gate failed. No provider regression is authorized under the supplied contract.",
+    "next_action": "Do not expand automatically. Human must authorize a different named retained-evidence subset, or acquire missing historical evidence under a separately bounded plan."
+  },
   "byzantine_103_compact_opening_baseline_freeze": {
     "engineering_revision": "5904a907 plus uncommitted baseline-freeze/compact work",
     "tests": "JSON validated; deterministic baseline manifest generated",

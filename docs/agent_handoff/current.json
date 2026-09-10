@@ -14728,6 +14728,19 @@
       "original_workspace_cause": "UNRESOLVED",
       "next_action": "Do not change production further in this milestone. Review the captured canonical SQLITE_BUSY begin-acquired failure as a separate issue before authorizing any targeted remediation; do not recover outage mints."
     },
+    "canonical_walkback_busy_capture_analysis": {
+      "status": "COMPLETE",
+      "verdict": "TRANSIENT_CANONICAL_SQLITE_BUSY_PROVEN_BLOCKER_UNRESOLVED",
+      "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted focused implementation; analysis made no code changes",
+      "artifact": "docs/audits/canonical_walkback_busy_capture_analysis.v1.json sha256 eaac2d79085431610c0b8c5ba2c92462e172f761513b676ee30e4326504eb67e",
+      "capture": "one canonical event at 1789025039.4161751, listener PID 18647, transaction 2a116c2e-8c82-40fe-ad63-a3f719db1aed, SQLITE_BUSY code 5, phase begin-acquired; synchronous correlation to wMdfe6BvamMjEnJGyX4sttshd3ww95sMddyTFweaimh is PASS (0.4161751 seconds)",
+      "finding": "The managed lane, native connection and plain BEGIN all succeeded. BUSY arose inside the unretained enqueue callback operation; capture proves neither an external SQLite lock holder, a same-process independent connection, nor a sidecar owner mismatch.",
+      "current_health": "HEALTHY on current read-only bounded guard observation: 8 eligible, 8 durable, 0 missing; prior failing cohort has aged out.",
+      "correction_class": "BOUNDED_DURABLE_RETRY_FOR_ENQUEUE justified; no implementation, deployment, restart, DB/queue/schema mutation, timeout/priority/diagnostic/UI change, recovery, or provider/RPC/network action performed.",
+      "existing_authority": "migration_persist_queue is not suitable without conflating migration persistence with downstream Walkback enqueue intent.",
+      "original_workspace_cause": "UNRESOLVED",
+      "next_action": "Under separate authorization, design and qualify only a bounded durable retry/reconciliation intent for transient migration-to-Walkback enqueue failure; do not attribute a holder or recover outage mints from this capture."
+    },
     "routing_repair_live_deployment": {"status":"PARTIAL","verdict":"LIVE_WALKBACK_HANDOFF_RESTORED_PARTIALLY_QUALIFIED","deployment_artifact":"docs/audits/walkback_routing_repair_production_deployment.v1.json sha256 a67ad977241552676b946471b987da287509eadd06e5bef2ff3c3dcdef89703d","natural_artifact":"docs/audits/walkback_post_repair_natural_handoff_qualification.v1.json sha256 0e18f7c5de95d50b18643d853a693dd561169d5b9ac9f1edb670ac3742b57f37","guard_artifact":"docs/audits/migration_walkback_recurrence_guard_qualification.v1.json sha256 a9e5248be699de4f36ef43a448f02787612e1f650d6fcf697b4e03976800bb29","listener":"50797 to 6383; only listener restarted","path_authority":"PASS","busy":"UNCHANGED_AND_ARMED","natural_traffic":"No post-repair migration arrived during bounded observation; no replay/recovery.","original_workspace_cause":"UNRESOLVED","next_action":"Observe natural FULL_WALKBACK handoffs; do not deploy the local-only guard without authorization."},
     "activation_boundary_audit": {
       "artifact": "docs/audits/walkback_db_path_defect_activation_boundary_audit.v1.json sha256 23ebe19aae037e528be436284ac1215e6e44c70106e8da3a8c5a57661adc4895",

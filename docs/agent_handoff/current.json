@@ -14703,6 +14703,17 @@
       "next_action": "Obtain authorization for the minimal listener enqueue operations-path correction; do not replay or recover the six outage mints before that correction is separately qualified.",
       "status": "COMPLETE"
     },
+    "listener_walkback_writer_ops_path_repair": {
+      "status": "COMPLETE",
+      "verdict": "LISTENER_WALKBACK_OPS_PATH_REPAIR_QUALIFIED",
+      "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 (workspace remains dirty; repair is local-only)",
+      "audit_artifact": "docs/audits/listener_walkback_writer_ops_path_registration_audit.v1.json sha256 a8f1332f1c5ef1d44f02ea27b55b550c98970420533e51d839e2f2d542cc2da5",
+      "qualification_artifact": "docs/audits/listener_walkback_writer_ops_path_repair_qualification.v1.json sha256 3a6e85ae2fac3d5b235a2f685241f69d90711f9bc40e7c72a8352e42d59de27f",
+      "repair": "src/core/pumpfun_curve_listener.py now resolves listener Walkback OPS authority as explicit WT_OPS_DB_PATH, otherwise beside canonical DB_PATH/FLEX_DB_PATH; it no longer derives this registration path from __file__ or cwd.",
+      "qualification": "18 focused tests passed, including workspace/availability/priority/cwd variants, explicit override, actual writer registration, a FULL_WALKBACK fixture with one durable row, and idempotent repeat.",
+      "production_flags": "No deployment, listener/service restart, production DB/queue/schema mutation, priority change, BUSY diagnostic change, recurrence-guard deployment, replay/recovery, or provider/RPC/network activity.",
+      "next_action": "Review and explicitly authorize deployment of only the listener source hunk plus its tests; restart only watchtower_listener once, then observe natural eligible migration handoffs without replaying the existing outage cohort."
+    },
     "routing_repair_live_deployment": {"status":"PARTIAL","verdict":"LIVE_WALKBACK_HANDOFF_RESTORED_PARTIALLY_QUALIFIED","deployment_artifact":"docs/audits/walkback_routing_repair_production_deployment.v1.json sha256 a67ad977241552676b946471b987da287509eadd06e5bef2ff3c3dcdef89703d","natural_artifact":"docs/audits/walkback_post_repair_natural_handoff_qualification.v1.json sha256 0e18f7c5de95d50b18643d853a693dd561169d5b9ac9f1edb670ac3742b57f37","guard_artifact":"docs/audits/migration_walkback_recurrence_guard_qualification.v1.json sha256 a9e5248be699de4f36ef43a448f02787612e1f650d6fcf697b4e03976800bb29","listener":"50797 to 6383; only listener restarted","path_authority":"PASS","busy":"UNCHANGED_AND_ARMED","natural_traffic":"No post-repair migration arrived during bounded observation; no replay/recovery.","original_workspace_cause":"UNRESOLVED","next_action":"Observe natural FULL_WALKBACK handoffs; do not deploy the local-only guard without authorization."},
     "activation_boundary_audit": {
       "artifact": "docs/audits/walkback_db_path_defect_activation_boundary_audit.v1.json sha256 23ebe19aae037e528be436284ac1215e6e44c70106e8da3a8c5a57661adc4895",

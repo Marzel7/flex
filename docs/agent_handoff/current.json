@@ -15004,6 +15004,7 @@
   },
   "post_failure_busy_capture": {
     "blocker": null,
+    "routing_repair_live_deployment": {"status":"PARTIAL","verdict":"LIVE_WALKBACK_HANDOFF_RESTORED_PARTIALLY_QUALIFIED","deployment_artifact":"docs/audits/walkback_routing_repair_production_deployment.v1.json sha256 a67ad977241552676b946471b987da287509eadd06e5bef2ff3c3dcdef89703d","natural_artifact":"docs/audits/walkback_post_repair_natural_handoff_qualification.v1.json sha256 0e18f7c5de95d50b18643d853a693dd561169d5b9ac9f1edb670ac3742b57f37","guard_artifact":"docs/audits/migration_walkback_recurrence_guard_qualification.v1.json sha256 a9e5248be699de4f36ef43a448f02787612e1f650d6fcf697b4e03976800bb29","listener":"50797 to 6383; only listener restarted","path_authority":"PASS","busy":"UNCHANGED_AND_ARMED","natural_traffic":"No post-repair migration arrived during bounded observation; no replay/recovery.","original_workspace_cause":"UNRESOLVED","next_action":"Observe natural FULL_WALKBACK handoffs; do not deploy the local-only guard without authorization."},
     "activation_boundary_audit": {
       "artifact": "docs/audits/walkback_db_path_defect_activation_boundary_audit.v1.json sha256 23ebe19aae037e528be436284ac1215e6e44c70106e8da3a8c5a57661adc4895",
       "boundary": "2026-09-08T16:36:50Z to 2026-09-08T16:42:45Z (355 seconds); retained listener PID 47568 on both sides",

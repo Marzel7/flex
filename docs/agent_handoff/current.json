@@ -3,12 +3,13 @@
     "engineering_revision": "5904a907 plus uncommitted compact Batch-01 runner/artifacts",
     "tests": "runner syntax-compiled; 50/50 canonical record read-backs and report digest verified",
     "production_flags": "no production mutation; transient-only provider payload handling; zero durable full Birdeye payloads/full Helius blocks; raw_blocks not created",
-    "verdict": "HOLD_DISK_DELTA_RECONCILIATION_REQUIRED",
+    "verdict": "HOLD_CONCURRENT_WRITER_RISK",
     "manifest": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_compact_opening_batch_01_manifest.v1.json (95dad5eac473968b9e7bc5f033368f21dfcb576293b6e36a73a2e5143ba0e9da)",
     "result": "50/50 terminal records: 49 QUALIFIED FIRST_NON_CREATOR_BUY, 1 INSUFFICIENT_EVIDENCE, 0 PROVIDER_FAILURE. Birdeye 50 logical/50 attempts, 524,079 bytes; Helius 50 getTransaction and 49 getBlock calls, 275,510,873 bytes; total 276,034,952 bytes; largest response 10,687,583 bytes.",
     "storage": "58,536 canonical bytes; no full payload/block retention; observed free-disk delta 1.0303 GiB despite compact artifacts.",
     "artifacts": "byzantine_compact_opening_batch_01.v1.json report sha256 0e7c6fb397bc2be7f8cc4c0e437107b388ea9146587e9ba6a72928c5903bfc65",
-    "next_action": "Do not start Batch 02. Reconcile the >100 MiB persistent disk delta, update the Batch-01 cleanup verdict, and obtain/continue only under the frozen runbook."
+    "reconciliation": "docs/audits/operation_all_birth_research/byzantine_428_v1/batch_01_disk_reconciliation_interval.v1.json sha256 89c25324e8c0b9b09ac120ef050290dcb689a23ea68eab958b48a6ee3df7bdf0; known Batch-01 artifacts total ~288 KiB and cannot explain 1.055 GiB; active Flex DB/WAL writers overlap but lack before/after measurements.",
+    "next_action": "Do not start Batch 02. Obtain bounded before/after measurement or write accounting for active Flex DB/WAL writers, then reassess the 1.05475 GiB residual."
   },
   "byzantine_compact_opening_phase_b": {
     "engineering_revision": "5904a907 plus uncommitted compact Phase-B runner/artifacts",

@@ -1,4 +1,15 @@
 {
+  "byzantine_compact_opening_phase_a_retry_rerun": {
+    "engineering_revision": "5904a907 plus uncommitted Phase-A retry runner/artifact",
+    "tests": "Phase-A execution: 4 serialized successful Birdeye attempts, 4 bounded Helius transaction/block verifications",
+    "production_flags": "no production mutation; zero durable Birdeye payloads; zero durable full Helius blocks; raw_blocks absent; disk floor respected",
+    "verdict": "PASS",
+    "result": "4/4 exact combined historical matches; 0/4 Birdeye-only matches; all four successful Birdeye responses entered semantic fallback and were resolved by exact getTransaction plus one in-memory getBlock.",
+    "acquisition": "Birdeye logical requests/attempts 4/4, 0 retries/429, 43,709 bytes, six seconds deliberate pacing. Helius getTransaction/getBlock 4/4, 20,861,989 bytes transient.",
+    "storage": "3,494 compact evidence bytes, zero durable full blocks.",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_compact_opening_phase_a.v1.json",
+    "next_action": "Phase B remains separately gated and was not started, per authorization."
+  },
   "byzantine_compact_opening_phase_a": {
     "engineering_revision": "5904a907 plus uncommitted Phase-A runner/artifacts",
     "tests": "disk preflight PASS; one authenticated Birdeye Phase-A dispatch attempted",

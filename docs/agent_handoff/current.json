@@ -14898,6 +14898,16 @@
     "tests": "pytest -q tests/test_post_failure_busy_capture.py tests/test_database_write_service.py tests/test_x78_20_null_owner_recovery.py: 24 passed",
     "verdict": "POST_FAILURE_BUSY_CAPTURE_QUALIFIED"
   },
+  "byzantine_all_births_denominator_audit": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "tests": "Not yet run; read-only audit in progress.",
+    "production_flags": {"service_restarts": 0, "database_or_queue_mutation": false, "rpc_provider_network_activity": "NONE"},
+    "frozen_input": "operators.operator_id=d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334, display_name=Byzantine; retained memberships: 36 P3R_063E_BYZC_CURRENT and 67 BYZANTINE_PROVEN_CREATOR_CONTINUITY.",
+    "birth_candidate_authority": "database/flex_complete_database.db token_analysis (mint, pf_ws_creator/earliest_tx_creator, created_at, create_tx_signature, migration_tx, migrated_at).",
+    "verdict": "IN_PROGRESS",
+    "blocker": null,
+    "next_action": "Materialize the frozen address-role set and all token_analysis births for frozen creators; then classify retained migration, Walkback, and prior-membership coverage without RPC."
+  },
   "cascade_stale_heartbeat_ui_fix": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted focused implementation",
     "tests": "pytest -q tests/test_cascade_health_semantics.py tests/test_system_health_post_reduction_truth.py: 15 passed",

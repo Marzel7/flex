@@ -15146,9 +15146,11 @@
     },
     "provider_calls": 0,
     "production_flags": "no provider, database, queue, service, or configuration mutation",
-    "verdict": "HOLD_PROVIDER_BACKED_EXECUTOR_ABSENT",
-    "blocker": "src/ops/early_buyer_bundle_provider_adapter.py is explicitly injected-transport only and contains no real HTTP transport, Retry-After handling, checkpointed pilot orchestration, or response-lifecycle implementation. No script invokes provider adapter -> normalize_v2 -> build_v2 -> offline_execute_v2 for the frozen manifest.",
-    "next_action": "Implement and qualify a separately authorized real bounded pilot runner before issuing any provider request; then rerun this frozen 12-mint pilot from clean preflight."
+    "verdict": "REAL_EARLY_BUYER_BUNDLE_PILOT_RUNNER_QUALIFIED",
+    "implementation": "src/ops/early_buyer_bundle_real_pilot.py (uncommitted workspace implementation); real network behavior remains explicit in RealProviderTransport, while the provider adapter remains injected-only.",
+    "tests": "pytest -q tests/test_early_buyer_bundle_real_pilot.py tests/test_early_buyer_bundle_provider_adapter.py tests/test_early_buyer_bundle_v2_phase4b.py tests/test_early_buyer_bundle_atomic_ceiling.py: 9 passed",
+    "qualification": "Injected 12-mint interruption/resume, terminal-mint skip, persisted bytes, 429 attempt preservation, manifest mismatch, credential fail-closed, network hold, record read-back, and raw-payload absence passed. No real provider calls.",
+    "next_action": "Authorize and execute the frozen real 12-mint provider-backed pilot using the qualified runner; retain first_actionable_buy=null."
   },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",

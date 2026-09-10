@@ -14743,18 +14743,18 @@
     },
     "migration_walkback_durable_handoff_retry": {
       "status": "COMPLETE",
-      "verdict": "MIGRATION_WALKBACK_DURABLE_HANDOFF_RETRY_QUALIFIED",
+      "verdict": "MIGRATION_WALKBACK_DURABLE_HANDOFF_RETRY_PARTIALLY_QUALIFIED",
       "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus local uncommitted dedicated handoff implementation",
-      "design_artifact": "docs/audits/migration_walkback_durable_handoff_retry_design.v1.json sha256 a87caab6ac2a9661cf53a4b6cda2255e2120433b9690ac6363489d7f680d98bf",
-      "qualification_artifact": "docs/audits/migration_walkback_durable_handoff_retry_qualification.v1.json sha256 ae5279c5d72d810eb9bf3bd460720e185264c4e3ee251908d84bc79f21778d1c",
+      "design_artifact": "docs/audits/migration_walkback_durable_handoff_retry_design.v1.json sha256 18dea84d43167f86cb266f297bcb97b425507e8911740fba6632ebc9cc9894f2",
+      "qualification_artifact": "docs/audits/migration_walkback_durable_handoff_retry_qualification.v1.json sha256 03c6146b68017cd1f34191950bd55013ebb210674ef1b111f5058fd27c3689ad",
       "authority": "Dedicated migration_walkback_handoff intent in canonical main DB; migration_persist_queue not reused. It retains PENDING/RETRY/COMPLETE/TERMINAL separately from migration persistence and wt_walkback_queue.",
       "policy": "three attempts; 10s, 60s, 300s backoff; only SQLITE_BUSY/SQLITE_LOCKED/database locked, DatabaseWriteLockError and CrossProcessDatabaseWriteTimeout retry; schema/no-such-table and unclassified exceptions terminal.",
       "crash_boundaries": "bounded reconciliation derives prospective missing intents from committed token_analysis using existing classify_creator; existing canonical queue row completes post-enqueue/pre-COMPLETE crash without duplicate.",
-      "tests": "32 focused tests passed, including A-R and injected post-enqueue process-stop boundary.",
+      "tests": "32 focused tests passed, including A-R and injected post-enqueue process-stop boundary. The processor is not yet scheduled into the listener loop.",
       "wMdfe6": "read-only check: no canonical queue row; automatic recovery mechanism unresolved; no recovery performed.",
       "production_flags": "NO deployment, restart, production DB/queue/schema mutation, timeout/priority/Health/UI/BUSY diagnostic change, historical recovery, or provider/RPC/network activity.",
       "original_workspace_cause": "UNRESOLVED",
-      "next_action": "Review the local implementation. A separate explicit authorization is required before deployment or activation; do not seed historical outage mints."
+      "next_action": "Under separate authorization, add and qualify only the existing-listener periodic scheduling hook for the already-tested processor, then review deployment; do not seed historical outage mints."
     },
     "routing_repair_live_deployment": {"status":"PARTIAL","verdict":"LIVE_WALKBACK_HANDOFF_RESTORED_PARTIALLY_QUALIFIED","deployment_artifact":"docs/audits/walkback_routing_repair_production_deployment.v1.json sha256 a67ad977241552676b946471b987da287509eadd06e5bef2ff3c3dcdef89703d","natural_artifact":"docs/audits/walkback_post_repair_natural_handoff_qualification.v1.json sha256 0e18f7c5de95d50b18643d853a693dd561169d5b9ac9f1edb670ac3742b57f37","guard_artifact":"docs/audits/migration_walkback_recurrence_guard_qualification.v1.json sha256 a9e5248be699de4f36ef43a448f02787612e1f650d6fcf697b4e03976800bb29","listener":"50797 to 6383; only listener restarted","path_authority":"PASS","busy":"UNCHANGED_AND_ARMED","natural_traffic":"No post-repair migration arrived during bounded observation; no replay/recovery.","original_workspace_cause":"UNRESOLVED","next_action":"Observe natural FULL_WALKBACK handoffs; do not deploy the local-only guard without authorization."},
     "activation_boundary_audit": {

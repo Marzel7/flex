@@ -15016,6 +15016,16 @@
       "qualified_repair_addresses_later_activation": true,
       "status": "COMPLETE"
     },
+    "workspace_pid47568_original_failure_audit": {
+      "artifact": "docs/audits/workspace_pid47568_original_walkback_failure_audit.v1.json sha256 a38382136ed5b0d89692179de2a995b6f2ac3a43350651ff0bb133551027252f",
+      "classification": "ORIGINAL_WORKSPACE_FAILURE_PERSISTED_CAUSE_UNRESOLVED",
+      "correction": "A durable FULL_WALKBACK enqueue at 1788885589 exists between the previously stated LAST_GOOD and FIRST_BAD markers.",
+      "deployment": "NONE",
+      "finding": "47 workspace migrations after FIRST_BAD and before priority activation; five independently classified FULL_WALKBACK samples have no queue rows; post-FIRST_BAD durable enqueue count is zero. No retained PID-47568 enqueue exception or writer episode proves a cause.",
+      "next_action": "Do not claim routing repair recovers the original workspace incident. Under separate authorization, retain timestamped per-enqueue OPS writer diagnostics and wait for a natural failure.",
+      "routing_repair_original_failure": "UNRESOLVED",
+      "status": "COMPLETE"
+    },
     "connection_routing_repair": {
       "audit_artifact": "docs/audits/walkback_no_such_table_connection_authority_audit.v1.json sha256 67b30f55815b26eb3f388ff6d2c700bd57221d430b4a9f6932f5bbc5cb993059",
       "classification": "WRONG_DB_PATH for both errors; common isolated-runtime fallback-path defect",

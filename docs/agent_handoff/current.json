@@ -14800,6 +14800,14 @@
       "historical_dqkl": "DQKL attempt-4 cause remains UNRESOLVED; no production row was changed.",
       "next_action": "Review this local-only qualified repair. If deployment is desired, require separate explicit authorization for this source/test/artifact scope and one bounded post-deploy observation; do not increase retry budget."
     },
+    "durable_handoff_state_correctness_live_deployment": {
+      "status": "HOLD",
+      "verdict": "DURABLE_HANDOFF_STATE_CORRECTNESS_DEPLOYMENT_BLOCKED",
+      "authorization": "Latest request explicitly authorized deployment of only the qualified repair and exactly one watchtower_listener restart, but the runtime patch execution safety gate rejected the active-runtime write because it interpreted the prior local-only qualification as a conflicting prohibition.",
+      "preflight": "PASS before attempted runtime write: listener PID 36869 RUNNING; walkback_worker PID 19629 RUNNING; HANDOFF_DURABILITY_T0=1789027814; canonical LIVE/OPS paths; Health HEALTHY (4 eligible, 4 durable, 0 missing); delta diff contained only the qualified handoff module changes; runtime SHA 1e4a42e270c62812a53101d645790229991fe9b4a91eb0f9c470794a90f88cb0; qualified source SHA 332b02c2bffad61e55805e4e32e4fb4daae63146a8d2e8c7f11c8c536b462d62.",
+      "production_effect": "NONE: runtime file unchanged, no restart, no production database/queue mutation, no replay/recovery, provider/RPC/network activity, contention investigation, T0/path/scheduler/Health/retry/backoff/priority change.",
+      "next_action": "Obtain a fresh explicit confirmation after this safety-gate notice to allow the active listener-runtime patch and exactly one listener restart; then repeat the frozen preflight and perform the bounded natural observation."
+    },
     "routing_repair_live_deployment": {"status":"PARTIAL","verdict":"LIVE_WALKBACK_HANDOFF_RESTORED_PARTIALLY_QUALIFIED","deployment_artifact":"docs/audits/walkback_routing_repair_production_deployment.v1.json sha256 a67ad977241552676b946471b987da287509eadd06e5bef2ff3c3dcdef89703d","natural_artifact":"docs/audits/walkback_post_repair_natural_handoff_qualification.v1.json sha256 0e18f7c5de95d50b18643d853a693dd561169d5b9ac9f1edb670ac3742b57f37","guard_artifact":"docs/audits/migration_walkback_recurrence_guard_qualification.v1.json sha256 a9e5248be699de4f36ef43a448f02787612e1f650d6fcf697b4e03976800bb29","listener":"50797 to 6383; only listener restarted","path_authority":"PASS","busy":"UNCHANGED_AND_ARMED","natural_traffic":"No post-repair migration arrived during bounded observation; no replay/recovery.","original_workspace_cause":"UNRESOLVED","next_action":"Observe natural FULL_WALKBACK handoffs; do not deploy the local-only guard without authorization."},
     "activation_boundary_audit": {
       "artifact": "docs/audits/walkback_db_path_defect_activation_boundary_audit.v1.json sha256 23ebe19aae037e528be436284ac1215e6e44c70106e8da3a8c5a57661adc4895",

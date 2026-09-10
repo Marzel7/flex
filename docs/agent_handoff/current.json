@@ -1,4 +1,14 @@
 {
+  "byzantine_compact_opening_phase_a": {
+    "engineering_revision": "5904a907 plus uncommitted Phase-A runner/artifacts",
+    "tests": "disk preflight PASS; one authenticated Birdeye Phase-A dispatch attempted",
+    "production_flags": "no production mutation; zero Helius calls; zero raw payload retention; zero durable full blocks",
+    "verdict": "FAIL_BIRDEYE_RATE_LIMITED",
+    "execution": "Phase A stopped on its first fixture when Birdeye returned HTTP 429. The attempted call was not retried; no response body was retained.",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_compact_opening_phase_a.v1.json",
+    "blocker": "Phase-A combined 4/4 equivalence cannot be evaluated while primary provider is rate-limited under the no-automatic-retry contract.",
+    "next_action": "Await explicit authorization for a bounded resumed Phase-A run after provider rate-limit recovery, with durable per-fixture accounting before dispatch. Do not start Phase B."
+  },
   "byzantine_compact_opening_phase_a_contract_validation": {
     "engineering_revision": "5904a907 plus uncommitted compact pipeline work",
     "tests": "two bounded authenticated Birdeye request-contract validations",

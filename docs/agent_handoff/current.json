@@ -1,4 +1,15 @@
 {
+  "byzantine_opening_path_recovery": {
+    "engineering_revision": "5904a907 plus uncommitted compact pilot/path-recovery work",
+    "tests": "28 passed: Pump.fun opening executor/impulse and compact early-trade tests",
+    "production_flags": "0 network/provider calls during recovery or offline regression; no production mutation; no new raw payload retained",
+    "verdict": "PROVEN_OPENING_PATH_RECOVERED_NOT_COMPACT_SCALABLE",
+    "finding": "The proven opening path is Helius getTransaction + full getBlock (one plus at most eight), not Birdeye. It establishes FIRST_NON_CREATOR_BUY from exact block transaction/log order and Pump.fun post-event reserves; it does not establish a launch-controlled bundle boundary or qualified FIRST_ACTIONABLE_BUY_OPPORTUNITY.",
+    "regression": "Offline replay of 2GAd4qECH8cN4oQWwhiaBMADNupKCv8h9m9x3a4mpump exactly matched nine material historical result fields and logical ID c9cc9a7a2009bc7fa52532eb85e08fa48521b84c9a8f55f52b81309c3bc98cf4.",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_opening_path_recovery_qualification.v1.json",
+    "blocker": "Replacing compact acquisition with full blocks recreates the rejected multi-GiB retention path. The claimed exact 36-mint opening corpus was not found; observable retained scopes are 9 pilot v2 mints, 5 opening-results mints, and 103 lifecycle rows; 36 is the creator count.",
+    "next_action": "Require a separately authorized minimal transaction-level design that can prove order/reserve facts without full-block retention; otherwise retain FIRST_ACTIONABLE_BUY as insufficient evidence."
+  },
   "byzantine_428_compact_early_trade_pilot": {
     "engineering_revision": "5904a907 plus uncommitted compact adapter/pilot runner",
     "tests": "12 passed: compact early-trade record, earliest actionable entry, early buyer identity, Pump.fun opening impulse",

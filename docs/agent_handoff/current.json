@@ -1,4 +1,18 @@
 {
+  "operation_all_birth_research_protocol_v1": {
+    "engineering_revision": "5904a907",
+    "tests": "6 passed: tests/test_earliest_actionable_entry.py and tests/test_byzantine_live_cluster_recurrence.py; JSON schema validated",
+    "production_flags": "no production DB/queue/membership/service mutation; no provider/RPC/network activity",
+    "verdict": "PASS",
+    "protocol": "OPERATION_ALL_BIRTH_RESEARCH_PROTOCOL_V1",
+    "artifacts": {
+      "protocol": "docs/research/operation_all_birth_research_protocol.md",
+      "protocol_sha256": "a6e1bf16131b6b038a49ec9720dad1204ba6df5ccd197e3c5f108fd0cbd8f901",
+      "input_schema": "docs/contracts/operation_research_input.v1.schema.json",
+      "input_schema_sha256": "06de8b4dd34e6bb4f1d9d779c8af14b6986d07e67f964b14d77d4f598813666c"
+    },
+    "next_action": "Use the versioned input contract to freeze an explicitly authorized operation corpus before any evidence acquisition or performance run."
+  },
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {

@@ -9,7 +9,9 @@
       "protocol": "docs/research/operation_all_birth_research_protocol.md",
       "protocol_sha256": "a6e1bf16131b6b038a49ec9720dad1204ba6df5ccd197e3c5f108fd0cbd8f901",
       "input_schema": "docs/contracts/operation_research_input.v1.schema.json",
-      "input_schema_sha256": "06de8b4dd34e6bb4f1d9d779c8af14b6986d07e67f964b14d77d4f598813666c"
+      "input_schema_sha256": "06de8b4dd34e6bb4f1d9d779c8af14b6986d07e67f964b14d77d4f598813666c",
+      "qualification": "docs/audits/operation_all_birth_research_protocol_v1_qualification.json",
+      "qualification_sha256": "8abb88a7d826458584fa80c7bb04e584468187572636f04a9c727701e2e804d5"
     },
     "next_action": "Use the versioned input contract to freeze an explicitly authorized operation corpus before any evidence acquisition or performance run."
   },

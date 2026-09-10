@@ -1,4 +1,12 @@
 {
+  "post_create_slot_neighborhood_adapter": {
+    "engineering_revision": "5904a907 plus uncommitted local generic adapter/preflight",
+    "tests": "11 passed: slot-neighborhood adapter, early-buyer identity, earliest-actionable-entry",
+    "production_flags": "no provider/RPC/network calls; no production mutation",
+    "verdict": "POST_CREATE_SLOT_NEIGHBORHOOD_ADAPTER_QUALIFIED",
+    "byzantine_preflight": "422 exact anchors, 6 missing anchors, 3798 unique slots/calls, 0 deduplication savings, 0 cached qualified blocks",
+    "next_action": "Await separately authorized bulk getBlock execution; do not exceed the frozen 3798-call ceiling or +8 slot radius."
+  },
   "operation_all_birth_research_protocol_v1": {
     "engineering_revision": "5904a907",
     "tests": "6 passed: tests/test_earliest_actionable_entry.py and tests/test_byzantine_live_cluster_recurrence.py; JSON schema validated",

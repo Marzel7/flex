@@ -1,4 +1,13 @@
 {
+  "compact_early_trade_record_schema": {
+    "engineering_revision": "5904a907 plus uncommitted compact record schema work",
+    "tests": "6 passed: compact early-trade record and earliest actionable-entry tests",
+    "production_flags": "no provider/network calls; no production mutation",
+    "verdict": "PASS",
+    "shape": "mint, creator, launch_time_or_slot, bounded early_buys(signature/block_or_time/buyer_or_signer/SOL/tokens/price/source_or_venue/provider_order), first_non_creator_buy with confidence, provider query bounds/parser/response digests/acquired_at",
+    "semantic_guard": "provider-only records retain first_actionable_buy=null and INSUFFICIENT_EVIDENCE; first_non_creator_buy is never promoted to actionable entry.",
+    "next_action": "Await authorized compact acquisition contract that can populate this schema without full blocks."
+  },
   "byzantine_opening_path_recovery": {
     "engineering_revision": "5904a907 plus uncommitted compact pilot/path-recovery work",
     "tests": "28 passed: Pump.fun opening executor/impulse and compact early-trade tests",

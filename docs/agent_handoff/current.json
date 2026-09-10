@@ -14955,19 +14955,19 @@
     "next_action": "No action required for this semantic-cleanup milestone; observe the ordinary 60-second dashboard polling cadence."
   },
   "byzantine_create_evidence_retention_verification": {
-    "artifact": "docs/audits/byzantine_create_evidence_retention_verification.v1.json sha256 42732b9ebcc31444d8286187077999eaf659317181651d8e08cfc0250a734c2b",
-    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted retention-audit script and local acquisition artifacts",
-    "normalized_authority": "Research/audit artifact docs/audits/byzantine_create_raw_transaction_observations.v1.json only; 422 rows; no canonical production DB table, append-only evidence store, or canonical transaction cache persistence.",
+    "artifacts": "docs/audits/byzantine_create_durable_persistence_manifest.v1.json sha256 0223ac51cb626200fe82f28d0c81dc34c3235e06cc7d029d3e7164d94923532f; docs/audits/byzantine_create_durable_persistence_qualification.v1.json sha256 5063fb8317f5d169b9941556861843ed2675fa11865e06a5a6a70e49fdb846e9",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted offline durable-persistence importer and audit artifacts",
+    "normalized_authority": "Existing append-only Evidence DB database/evidence_platform/production/evidence.db; normalized_evidence_records fact_family=ByzantineCreateTransactionObservation; 422 logical/observation identities; raw links through immutable_artifacts, evidence_envelopes, evidence_provenance, artifact_references, and normalized_evidence_provenance.",
     "production_flags": {
       "operation_membership_changed": false,
-      "production_db_mutations": "NONE",
+      "production_db_mutations": "AUTHORIZED_APPEND_ONLY_EVIDENCE_ONLY",
       "provider_rpc_network_activity": "NONE"
     },
-    "raw_authority": "Local untracked content-addressed audit directory docs/audits/byzantine_create_exact_raw; 422 JSON responses; integrity-valid raw-tree SHA-256 a6be3fd6dfffdc597f3edef5e78555cf8945064928cfcf471292f1b796dc6007.",
-    "replay_without_provider": "YES in the current workspace; not yet durable forever because neither raw nor normalized artifacts are source-controlled or persisted in a canonical evidence authority.",
-    "status": "HOLD",
-    "verdict": "CREATE_OBSERVATIONS_DURABLY_RETAINED_PARTIAL__DISCRIMINATOR_STOPPED",
-    "next_action": "Under separate explicit authorization, persist and integrity-bind the 422 exact raw and normalized CREATE observations in the approved durable evidence/transaction authority; then rerun the frozen 428 discriminator entirely locally with zero provider calls."
+    "raw_authority": "Existing immutable ArtifactStore database/evidence_platform/production/byzantine_create_artifacts; 422 raw payload artifacts linked by SHA-256 to their normalized observations; source raw-tree SHA-256 a6be3fd6dfffdc597f3edef5e78555cf8945064928cfcf471292f1b796dc6007.",
+    "replay_without_provider": "PASS: durable normalized-record read-back gives 422/422 signatures, slots, block times, signers, fee payers, and shape fields with zero provider calls.",
+    "status": "COMPLETE",
+    "verdict": "BYZANTINE_CREATE_EVIDENCE_DURABLY_QUALIFIED",
+    "next_action": "Run the frozen 428 Byzantine CREATE-event discriminator analysis entirely from the durable Evidence authority; no provider calls, operation-membership writes, or discovery of the six missing CREATE signatures."
   },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",

@@ -1,4 +1,14 @@
 {
+  "byzantine_compact_opening_phase_a_contract_validation": {
+    "engineering_revision": "5904a907 plus uncommitted compact pipeline work",
+    "tests": "two bounded authenticated Birdeye request-contract validations",
+    "production_flags": "no production mutation; no Helius calls; no durable provider payload retained; disk preflight PASS (about 40.8 GiB free)",
+    "verdict": "PARTIAL_BIRDEYE_CONTRACT_VALIDATED",
+    "execution": "For fixture 2GAd4qECH8cN4oQWwhiaBMADNupKCv8h9m9x3a4mpump, GET /defi/v3/token/txs with x-chain=solana, address, tx_type=buy, limit=10 succeeded (11,228 bytes). A bounded 60-second launch-time query using after_time/before_time also succeeded (10,901 bytes, 10 items).",
+    "observed_fields": "tx_hash, owner, signers, block_number, block_unix_time, ins_index, inner_ins_index, source, volume and volume_usd",
+    "important_correction": "Prior HTTP 400 came from the unsupported sort parameters, not endpoint/credential failure.",
+    "next_action": "Implement the compact four-fixture comparison and bounded in-memory Helius verifier; classify all four before deciding whether Phase B may start."
+  },
   "byzantine_compact_opening_signature_reference_12": {
     "engineering_revision": "5904a907 plus uncommitted retained-reference reconstruction work",
     "tests": "artifact JSON validated; offline deterministic reconstruction completed",

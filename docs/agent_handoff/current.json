@@ -1,4 +1,15 @@
 {
+  "byzantine_428_compact_early_trade_pilot": {
+    "engineering_revision": "5904a907 plus uncommitted compact adapter/pilot runner",
+    "tests": "12 passed: compact early-trade record, earliest actionable entry, early buyer identity, Pump.fun opening impulse",
+    "production_flags": "no production DB/queue/membership/service mutation; no block acquisition; no wallet-history crawl; 0 raw provider payloads retained",
+    "verdict": "PARTIAL_PROVIDER_QUERY_REJECTED",
+    "authorization": "user authorized compact 10-mint pilot only; maximum 20 Birdeye calls and 3 MiB retained pilot output",
+    "execution": "One authenticated Birdeye /defi/v3/token/txs request was durably accounted and rejected HTTP 400 before a response body was retained. The initial sandbox DNS failure did not reach the provider.",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/compact_pilot.v1.json",
+    "blocker": "Provider query contract must be corrected and explicitly reauthorized; no automatic retry was performed.",
+    "next_action": "Inspect Birdeye's accepted historical token-trade request parameters, amend the generic pilot contract, then request authorization for a new bounded pilot run with a new call ledger. Do not read or rely on raw_blocks."
+  },
   "byzantine_428_post_create_slot_execution": {
     "engineering_revision": "5904a907 plus uncommitted generic adapter/preflight",
     "tests": "11 passed during adapter qualification",

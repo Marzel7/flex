@@ -15004,6 +15004,15 @@
   },
   "post_failure_busy_capture": {
     "blocker": null,
+    "connection_routing_repair": {
+      "audit_artifact": "docs/audits/walkback_no_such_table_connection_authority_audit.v1.json sha256 67b30f55815b26eb3f388ff6d2c700bd57221d430b4a9f6932f5bbc5cb993059",
+      "classification": "WRONG_DB_PATH for both errors; common isolated-runtime fallback-path defect",
+      "deployment": "NOT AUTHORIZED / NOT PERFORMED",
+      "qualification_artifact": "docs/audits/walkback_connection_routing_repair_qualification.v1.json sha256 acca1f8feb1da1b8549dfbc8a64c62ce8e4d99b958258f8f68b23b0910380d9f",
+      "repair": "walkback_queue defaults derive LIVE_DB_PATH from DB_PATH and OPS_DB_PATH from its directory while preserving explicit overrides",
+      "tests": "46 passed focused authority, anchor, idempotence, writer-release, and database-write-service regressions",
+      "verdict": "WALKBACK_CONNECTION_ROUTING_REPAIR_QUALIFIED"
+    },
     "post_restart_observation": {
       "artifact": "docs/audits/overnight_walkback_handoff_and_busy_capture_progress.v1.json sha256 de7db9e3809b4e51309848aa40c30fd1694f0e6176d4ac867e99e4c2912accf2",
       "at_utc": "2026-09-09T23:17:56Z",

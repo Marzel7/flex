@@ -7,13 +7,24 @@
     "protocol": "OPERATION_ALL_BIRTH_RESEARCH_PROTOCOL_V1",
     "artifacts": {
       "protocol": "docs/research/operation_all_birth_research_protocol.md",
-      "protocol_sha256": "a6e1bf16131b6b038a49ec9720dad1204ba6df5ccd197e3c5f108fd0cbd8f901",
+      "protocol_sha256": "b703c6b1f27e334d3c5bacf2906e5d2035ef5e1e1d700b86e087691302719bc1",
       "input_schema": "docs/contracts/operation_research_input.v1.schema.json",
-      "input_schema_sha256": "06de8b4dd34e6bb4f1d9d779c8af14b6986d07e67f964b14d77d4f598813666c",
+      "input_schema_sha256": "91dad76c27f8e5e63531b7e907994eeac7d9bafbea85e47127c0a7433cdd12d2",
       "qualification": "docs/audits/operation_all_birth_research_protocol_v1_qualification.json",
       "qualification_sha256": "8abb88a7d826458584fa80c7bb04e584468187572636f04a9c727701e2e804d5"
     },
     "next_action": "Use the versioned input contract to freeze an explicitly authorized operation corpus before any evidence acquisition or performance run."
+  },
+  "byzantine_428_operation_all_birth_protocol_instantiation": {
+    "engineering_revision": "5904a907 plus uncommitted local protocol-instantiation artifacts/code",
+    "tests": "9 passed: earliest actionable entry, early buyer identity/reuse, and Byzantine recurrence tests; JSON Schema validation and two-pass artifact digest replay passed",
+    "production_flags": "no production DB/queue/membership/service mutation; no provider/RPC/network activity; Birdeye ledger attached without restart",
+    "verdict": "PASS",
+    "operation_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334",
+    "corpus": "428 unique births / 36 creators / 138 migrated / 290 non-migrated / 103 old-surfaced / 325 unsurfaced",
+    "actionable_entry_readiness": "0 ready; 0 first observed external only; 422 bundle boundary unresolved; 0 same-slot unresolved; 0 no-post-bundle trade observed; 6 actionable-entry evidence missing",
+    "artifacts": "docs/audits/operation_all_birth_research/byzantine_428_v1/",
+    "next_action": "Obtain explicitly authorized, exact transaction-level post-CREATE/bundle, ordering, reserve, and first-external-buyer evidence for the frozen 428 cohort; do not restart Birdeye or reacquire lineage."
   },
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,

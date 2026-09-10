@@ -14812,6 +14812,19 @@
       "production_effect": "No retry/backoff/T0/path/schema/scheduler/Health/priority change; no other restart, manual retry/enqueue/replay/recovery, synthetic traffic, audit RPC/provider activity, or contention investigation.",
       "next_action": "Stop this bounded deployment task. Live stability remains partially observed solely because zero fresh FULL_WALKBACK controls arrived; do not reopen incident engineering or perform historical recovery."
     },
+    "ingestion_panel_current_values_and_semantics_audit": {
+      "status": "COMPLETE",
+      "verdict": "INGESTION_UI_NUMERICALLY_CURRENT_WITH_SEMANTIC_ISSUES",
+      "audit_t0": 1789033417,
+      "artifact": "docs/audits/ingestion_panel_current_values_and_semantics_audit.v1.json sha256 fc28ac85d3c51d673ac3da0150bf806ae3e1aea9d5eef513d6442a7e1d076619",
+      "authority": "PASS: System Health API uses configured canonical main DB /Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db and canonical OPS DB /Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db; no private/tmp database query authority.",
+      "current_snapshot": "Listener PID 58282 RUNNING; PumpPortal/PumpSwap CONNECTED; log age 8s; Birth/Migration queues 0/0; Migration persistence HEALTHY; Migration-to-Walkback HEALTHY 4 eligible/4 durable/0 missing. Display drift of Processing 1247 vs API 1248 and Migrations/hr 41 vs API 42 is normal live movement under 60-second independent polling.",
+      "semantic_findings": "Top Queue is a Funding Queue alias (pending+retry), so generic label is misleading. Oldest Signal is max(latest birth age, latest migration age), not oldest outstanding work. Funding Failed=all-time creator_funding_queue status=failed (2655), with 2256 older than 7d and only 71 in 24h; Issues is its direct alias, therefore historical cumulative presented as current rather than current actionable work.",
+      "separate_signals": "Missing CREATE anchors remains distinct downstream waiting-anchor state (24h new=14, recovered=29, recent unresolved=10, historical=4701); not conflated with Migration-to-Walkback.",
+      "minimal_recommendation": "No implementation authorized: rename Queue to Funding queue (pending+retry); rename Oldest Signal to older latest birth/migration activity; rename Funding Failed/Issues as historical failed funding jobs and expose actionable ready retry work separately.",
+      "production_effect": "READ-ONLY: no code, deployment, restart, DB/queue, retry/recovery, provider/RPC/network or Health/UI mutation.",
+      "next_action": "Review the label/query semantics separately if a UI wording correction is desired; do not treat 2655 as current operational failures."
+    },
     "routing_repair_live_deployment": {"status":"PARTIAL","verdict":"LIVE_WALKBACK_HANDOFF_RESTORED_PARTIALLY_QUALIFIED","deployment_artifact":"docs/audits/walkback_routing_repair_production_deployment.v1.json sha256 a67ad977241552676b946471b987da287509eadd06e5bef2ff3c3dcdef89703d","natural_artifact":"docs/audits/walkback_post_repair_natural_handoff_qualification.v1.json sha256 0e18f7c5de95d50b18643d853a693dd561169d5b9ac9f1edb670ac3742b57f37","guard_artifact":"docs/audits/migration_walkback_recurrence_guard_qualification.v1.json sha256 a9e5248be699de4f36ef43a448f02787612e1f650d6fcf697b4e03976800bb29","listener":"50797 to 6383; only listener restarted","path_authority":"PASS","busy":"UNCHANGED_AND_ARMED","natural_traffic":"No post-repair migration arrived during bounded observation; no replay/recovery.","original_workspace_cause":"UNRESOLVED","next_action":"Observe natural FULL_WALKBACK handoffs; do not deploy the local-only guard without authorization."},
     "activation_boundary_audit": {
       "artifact": "docs/audits/walkback_db_path_defect_activation_boundary_audit.v1.json sha256 23ebe19aae037e528be436284ac1215e6e44c70106e8da3a8c5a57661adc4895",

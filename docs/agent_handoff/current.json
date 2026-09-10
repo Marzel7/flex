@@ -1,4 +1,15 @@
 {
+  "byzantine_103_compact_opening_baseline_freeze": {
+    "engineering_revision": "5904a907 plus uncommitted baseline-freeze/compact work",
+    "tests": "JSON validated; deterministic baseline manifest generated",
+    "production_flags": "0 provider/network calls; no production mutation",
+    "verdict": "HOLD_SIGNATURE_LEVEL_EQUIVALENCE_BASELINE_INCOHERENT",
+    "manifest": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_103_compact_opening_regression_baseline.v1.json",
+    "manifest_sha256": "4614b4ec61ece7dcbea7cf5a0de9e71f35887ab111a32fc7285ddd888f6645d0",
+    "population": "103 unique rows/mints; 101 QUALIFIED opening rows and 2 pre-existing INSUFFICIENT_EVIDENCE rows",
+    "blocker": "All 103 rows lack the historical first-non-creator transaction signature and order fields required by the expressly requested exact-match comparison. The derived opening result schema likewise omits first_independent_buy_signature.",
+    "next_action": "Do not issue Birdeye or Helius requests. Authorize either reconstructing signature-level references from retained raw evidence for a bounded named population, or revise the regression comparator to the actually retained buyer/FDV semantics."
+  },
   "byzantine_36_compact_opening_regression": {
     "engineering_revision": "5904a907 plus uncommitted compact record/path-recovery work",
     "tests": "not run: execution halted before implementation because the required frozen 36-mint denominator is absent",

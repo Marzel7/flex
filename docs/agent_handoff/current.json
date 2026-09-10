@@ -14965,9 +14965,11 @@
     },
     "raw_authority": "Existing immutable ArtifactStore database/evidence_platform/production/byzantine_create_artifacts; 422 raw payload artifacts linked by SHA-256 to their normalized observations; source raw-tree SHA-256 a6be3fd6dfffdc597f3edef5e78555cf8945064928cfcf471292f1b796dc6007.",
     "replay_without_provider": "PASS: durable normalized-record read-back gives 422/422 signatures, slots, block times, signers, fee payers, and shape fields with zero provider calls.",
+    "analysis_artifacts": "docs/audits/byzantine_create_birth_discriminator_feature_matrix.v1.json sha256 e4c989756da2687adc5b571cf64c5183b37b328a3f4b5a2d9cf2a55335cd2fdd; qualification sha256 9b4d7fb9676e8d765fe54f62ddce2049f4393207f8b789a8422aecae4cd3e054; results sha256 262cc4d47561800ba55f66f1982d4b2091cb5664dccf2040781a99525bf2973f; analysis sha256 5a1231ed5cfad06b7917ccd6196ffc501316e463b8182fabe850de8ffc8d2729; reproducibility sha256 39836a641c37be918f64a8e24fd39cba2ba5f8a8940056c4413e969868a77d2f",
+    "analysis_verdict": "NO_QUALIFIED_BIRTH_DISCRIMINATOR; BIRTH_LEVEL_EVIDENCE_INSUFFICIENT; BYZANTINE_BIRTH_LEVEL_EVIDENCE_INSUFFICIENT. All 422 qualified births are BIRTH_NO_SIGNAL and six missing CREATE births BIRTH_INSUFFICIENT_EVIDENCE.",
     "status": "COMPLETE",
     "verdict": "BYZANTINE_CREATE_EVIDENCE_DURABLY_QUALIFIED",
-    "next_action": "Run the frozen 428 Byzantine CREATE-event discriminator analysis entirely from the durable Evidence authority; no provider calls, operation-membership writes, or discovery of the six missing CREATE signatures."
+    "next_action": "Do not classify or expand Byzantine membership from these CREATE features. Any further discriminator requires separately authorized, qualified, non-circular birth-time evidence."
   },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",

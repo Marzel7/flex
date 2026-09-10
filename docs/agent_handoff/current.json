@@ -15004,6 +15004,18 @@
   },
   "post_failure_busy_capture": {
     "blocker": null,
+    "activation_boundary_audit": {
+      "artifact": "docs/audits/walkback_db_path_defect_activation_boundary_audit.v1.json sha256 23ebe19aae037e528be436284ac1215e6e44c70106e8da3a8c5a57661adc4895",
+      "boundary": "2026-09-08T16:36:50Z to 2026-09-08T16:42:45Z (355 seconds); retained listener PID 47568 on both sides",
+      "causal_verdict": "PATH_DEFECT_ACTIVATION_CAUSE_UNRESOLVED",
+      "classification": "PREEXISTING_LATENT_BRANCH",
+      "conclusion": "The priority isolated-runtime switch at 2026-09-08T17:42:01Z activated the latent fallback defect 3556 seconds after FIRST_BAD; it cannot explain the original boundary. Both boundary mints classified FULL_WALKBACK / unknown in the workspace runtime.",
+      "deployment": "NONE",
+      "next_action": "Separately trace the workspace PID-47568 handoff failure between the retained migrations; do not deploy on the premise that priority runtime caused FIRST_BAD.",
+      "priority_runtime_activation": "PROVEN_LATER_ACTIVATION",
+      "qualified_repair_addresses_later_activation": true,
+      "status": "COMPLETE"
+    },
     "connection_routing_repair": {
       "audit_artifact": "docs/audits/walkback_no_such_table_connection_authority_audit.v1.json sha256 67b30f55815b26eb3f388ff6d2c700bd57221d430b4a9f6932f5bbc5cb993059",
       "classification": "WRONG_DB_PATH for both errors; common isolated-runtime fallback-path defect",

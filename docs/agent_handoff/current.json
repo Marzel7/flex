@@ -1,4 +1,13 @@
 {
+  "byzantine_428_post_create_slot_execution": {
+    "engineering_revision": "5904a907 plus uncommitted generic adapter/preflight",
+    "tests": "11 passed during adapter qualification",
+    "production_flags": "0 provider/RPC calls; no production mutation",
+    "verdict": "HOLD_ENDPOINT_NOT_CONFIGURED",
+    "frozen_ceiling": "3798 getBlock calls, 422 exact anchors, CREATE through +8 only, no retries/failover",
+    "blocker": "HELIUS_RPC_URL is absent from the process environment, .env, and config/.env; no alternate provider was used.",
+    "next_action": "Provide the approved Helius JSON-RPC endpoint through the process environment, then execute the already-qualified frozen profile without changing its bounds."
+  },
   "post_create_slot_neighborhood_adapter": {
     "engineering_revision": "5904a907 plus uncommitted local generic adapter/preflight",
     "tests": "11 passed: slot-neighborhood adapter, early-buyer identity, earliest-actionable-entry",

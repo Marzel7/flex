@@ -1,4 +1,16 @@
 {
+  "byzantine_compact_opening_phase_b": {
+    "engineering_revision": "5904a907 plus uncommitted compact Phase-B runner/artifacts",
+    "tests": "runner compiled; deterministic 12-mint Phase-B execution completed; final JSON artifacts parsed",
+    "production_flags": "no production mutation; no durable raw Birdeye payloads; no durable full Helius blocks; raw_blocks absent; disk guard passed",
+    "verdict": "FRESH_PILOT_QUALIFIED",
+    "manifest": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_compact_opening_phase_b_manifest.v1.json (feee48f414466150445e116a071271c37e5e93f2131551c566f3c6a186eb8534)",
+    "result": "12/12 terminal records, 11 QUALIFIED FIRST_NON_CREATOR_BUY, 1 INSUFFICIENT_EVIDENCE, zero implementation/safety failures. Birdeye 12 requests/130,604 bytes; Helius 12 getTransaction and 11 in-memory getBlock calls/60,000,617 bytes.",
+    "storage": "10,572 compact evidence bytes; zero durable full block/Birdeye source bytes; phase-B directory about 1.37 MiB including existing artifacts.",
+    "projection": "Observed 100% fallback projects about 2.14 GB provider transfer for 428 but about 377 KB compact evidence. Storage qualifies; full acquisition requires separate explicit network/call batch authorization.",
+    "artifacts": "byzantine_compact_opening_phase_b.v1.json and byzantine_compact_opening_phase_b_projection.v1.json",
+    "next_action": "Do not start 428 acquisition. Review the QUALIFIED_WITH_CONSTRAINTS full-run posture and authorize a separate network/call-bounded batch only if desired."
+  },
   "byzantine_compact_opening_phase_a_retry_rerun": {
     "engineering_revision": "5904a907 plus uncommitted Phase-A retry runner/artifact",
     "tests": "Phase-A execution: 4 serialized successful Birdeye attempts, 4 bounded Helius transaction/block verifications",

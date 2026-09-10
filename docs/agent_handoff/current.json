@@ -14898,6 +14898,23 @@
     "tests": "pytest -q tests/test_post_failure_busy_capture.py tests/test_database_write_service.py tests/test_x78_20_null_owner_recovery.py: 24 passed",
     "verdict": "POST_FAILURE_BUSY_CAPTURE_QUALIFIED"
   },
+  "ingestion_ui_semantic_cleanup": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted focused implementation",
+    "tests": "pytest -q tests/test_ingestion_ui_semantic_cleanup.py tests/test_system_health_post_reduction_truth.py: 15 passed",
+    "production_flags": {
+      "watchtower_api_restarted": true,
+      "watchtower_listener_restarted": false,
+      "creator_funding_worker_restarted": false,
+      "database_or_queue_mutation": false
+    },
+    "artifacts": {
+      "qualification": "docs/audits/ingestion_ui_semantic_cleanup_qualification.v1.json sha256 213e4d79bab23300dd698142893231c46d312b8a1fbdd5306448ef0e08d5ab54",
+      "deployment": "docs/audits/ingestion_ui_semantic_cleanup_live_deployment.v1.json sha256 fd628a1105a48713f624387a05665e6fd7d97a53a7774ab46401305a29d3fb7d"
+    },
+    "verdict": "DEPLOYED_AND_VERIFIED",
+    "blocker": null,
+    "next_action": "No action required for this semantic-cleanup milestone; observe the ordinary 60-second dashboard polling cadence."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

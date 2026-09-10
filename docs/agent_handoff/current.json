@@ -15135,6 +15135,21 @@
     "verdict": "BYZANTINE_CREATE_EVIDENCE_DURABLY_QUALIFIED",
     "next_action": "Do not classify or expand Byzantine membership from these CREATE features. Any further discriminator requires separately authorized, qualified, non-circular birth-time evidence."
   },
+  "early_buyer_bundle_real_12_pilot_preflight": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted EARLY_BUYER_BUNDLE_HISTORY_V1 files",
+    "manifest": {
+      "path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_compact_opening_phase_b_manifest.v1.json",
+      "physical_file_sha256": "16a42d4710dc4433655a667beb761dbf620e0afb9b1d725716afcdf3c2e6f11b",
+      "embedded_historical_manifest_sha256": "feee48f414466150445e116a071271c37e5e93f2131551c566f3c6a186eb8534",
+      "population": 12,
+      "unique_mints": 12
+    },
+    "provider_calls": 0,
+    "production_flags": "no provider, database, queue, service, or configuration mutation",
+    "verdict": "HOLD_PROVIDER_BACKED_EXECUTOR_ABSENT",
+    "blocker": "src/ops/early_buyer_bundle_provider_adapter.py is explicitly injected-transport only and contains no real HTTP transport, Retry-After handling, checkpointed pilot orchestration, or response-lifecycle implementation. No script invokes provider adapter -> normalize_v2 -> build_v2 -> offline_execute_v2 for the frozen manifest.",
+    "next_action": "Implement and qualify a separately authorized real bounded pilot runner before issuing any provider request; then rerun this frozen 12-mint pilot from clean preflight."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

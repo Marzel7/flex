@@ -1,4 +1,13 @@
 {
+  "operation_opening_history_v1_production_transport_runner_final": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 + uncommitted focused production-wrapper, qualification-test, and deterministic-artifact changes",
+    "tests": "PASS: compact representative regression 21 passed: production transport matrix (7), actual production runner 3-row parity, pending CREATE restart, extension restart, canonical restart, batch-gate restart, 7 GiB HOLD, 512 KiB canonical boundary, and production dry-run/safety (7).",
+    "production_flags": "offline only; real provider calls=0; Production Batch 1=NOT STARTED; rows attempted=0; frozen production manifest unmodified; no large historical regression corpus.",
+    "verdict": "PRODUCTION_TRANSPORT_RUNNER_QUALIFIED",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_opening_history_production_transport_runner_qualification.v1.json; file_sha256=3844851964301c3175af6b27ed05e964c0e0c0df94a70b2b2f0ade4cee84da52; generated twice byte-identically; JSON-valid; self-digest/read-back PASS.",
+    "bound_identities": "production_manifest=2d60d4052a6726d4adf90ff9989b39def40a0093f99fcc86476bd39ab23b81b5; final_crash_matrix=d452a15f80f7e942158e2ab7feeb0bd772bb07c60ea41272455d3981d9f4b795; six_restart=56bda647b56734603d163c4ba1ab883fc9f0d1319830faa0dd756edeb4af862d; failure_hooks=4ef6770b0cbdff46464d1a35e26186cd69e07d9ddf3744d1e3d2be2abeba5af1; restarted_driver=fa5abdddfbcb571aa0b8670c0a4e51da7cc0f423607f79f5ca777777b2b9c7b6.",
+    "next_action": "Qualification is complete. Any real Production Batch 1 execution requires separate explicit authorization; this handoff does not authorize it."
+  },
   "operation_opening_history_v1_chunk_4_production_dryrun_safety": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 + uncommitted focused production-wrapper guard/test changes",
     "tests": "PASS: 1 passed: tests/test_opening_history_production_batch_safety.py::test_default_production_dry_run_validates_frozen_identity_without_network; 6 passed: remaining default-CLI, four identity-guard, and Batch-2-auto-start nodes.",

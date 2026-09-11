@@ -15599,5 +15599,14 @@
     "verdict": "FINAL_FAILURE_HOOKS_QUALIFIED",
     "blocker": "Final integrated crash matrix and restarted batch loop remain intentionally unrun/unimplemented in this hook-only milestone.",
     "next_action": "Under a separately authorized milestone, run the final crash/recovery matrix using these durable boundaries; do not activate production Batch 1."
+  },
+  "operation_opening_history_v1_restarted_batch_driver": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted offline restarted batch driver",
+    "artifact": "docs/audits/byzantine_opening_history_restarted_batch_driver_qualification.v1.json",
+    "artifact_file_sha256": "fa5abdddfbcb571aa0b8670c0a4e51da7cc0f423607f79f5ca777777b2b9c7b6",
+    "tests": "59 passed: driver clean/fresh-midstate, six restart, pending dispatch, canonical resume, final hooks, and executor suites",
+    "production_flags": "offline only; provider calls=0; Batch 1=0; production manifest/fixtures unchanged",
+    "verdict": "RESTARTED_BATCH_DRIVER_QUALIFIED",
+    "next_action": "Run the separately authorized final crash/recovery matrix; do not activate production Batch 1."
   }
 }

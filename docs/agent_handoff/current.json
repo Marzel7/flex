@@ -15924,6 +15924,16 @@
     "finding": "Each GeckoTerminal public token-pool discovery request returned HTTP 403, so no pool or Gecko OHLCV call was made. GMGN 1h K-line returned 1, 11, and 1 candle(s) across fixed seven-day windows: partial price-only data, not canonical-pool, complete-history, or market-cap evidence.",
     "next_action": "Do not scale. Any retry with authenticated CoinGecko/Gecko access or a separately qualified historical ATH provider requires explicit authorization and a fixed manifest."
   },
+  "byzantine_final_strategy_research_dataset_v1": {
+    "engineering_revision": "5904a907 plus uncommitted bounded Birdeye price acquisition/final-dataset materializer",
+    "tests": "python -m py_compile plus JSON validation of manifest, 428-attempt ledger, dataset, summary, coverage, and missingness artifacts",
+    "production_flags": "Birdeye=428 unique serial price-OHLCV requests; no retry/pagination; spacing >=1.1 seconds; raw provider response retention=0; no Solana RPC, DB, queue, service, membership, trade, or frozen-corpus mutation.",
+    "verdict": "BYZANTINE_STRATEGY_RESEARCH_DATASET_PARTIAL",
+    "denominators": "births=428; opening-qualified=420; opening-insufficient=8; Birdeye-any-data=250; price-qualified=250; MC-qualified=0; complete-7d price outcomes=1; 90%-drawdown-qualified=1; no-provider-history=178.",
+    "provider_result": "HTTP 200=258 (250 usable timestamped price series, 8 no-data); HTTP 429=170 retained as unavailable. All records are explicitly price-only because chart_type=price was used; generic mcap fallback ambiguity is not used.",
+    "artifacts": "dataset=6bb3b29d8adf6786677712cf639cbb72d7b6bbe616d1a265d926200fe97c8253; summary=e04b78a62ea1d209c6e481def88b7c64183f1922884f770bb5c94baaf79a98bd; coverage=fd3cc14b22d6fc0475255fbba19fc3f28d68acd1d27ec953ab15f9eaf05caa42; missingness=d1b2215f13b75a52db4f5eec2ec9c3ef9f635431843b7987c4d2faf545c50bc7.",
+    "next_action": "Byzantine research is frozen. Do not scale/retry provider acquisition absent separately authorized provider strategy; prospective capture requirements are documented only."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

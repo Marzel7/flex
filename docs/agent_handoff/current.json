@@ -47,6 +47,16 @@
     "artifacts": "manifest=7af3ec71571ac4825a0ba540b010d4d0580e510eed2177398fb6114e2f2f4968; provider_schema=fa326bd65134127faf412716125d66bf04d485a76dda84396135760473882bdf; observations=3e0a2311359fce531550722439269f47ad52c5feaf8994bc450d094af3e9d009; results=755b2fbaaf036339a7b3bf83182ec13b697cd293eb9796b840e39a36b12d61cc; scale_projection=ae018476ad44a13f0dfd8db1c0410dc21c6c7298898168898a8ddc33c5bfbc7f.",
     "next_action": "STOP. Any further provider request requires separately authorized adapter-semantics/rate-limit remediation; do not scale to 428."
   },
+  "market_outcome_v1_birdeye_provider_contract_investigation": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 + uncommitted documentation investigation artifact",
+    "tests": "PASS: artifact json.tool-valid; official Birdeye documentation inspected; live provider/RPC calls=0.",
+    "production_flags": "Birdeye/RPC calls=0; frozen corpus unchanged; no pagination; no 428 scaling; MARKET_OUTCOME_V1 semantics unchanged.",
+    "verdict": "BIRDEYE_PROVIDER_CONTRACT_STILL_BLOCKED",
+    "finding": "Official V3 OHLCV documentation says chart_type=mcap displays OHLC as market cap for Solana token OHLCV but falls back to price when supply is unavailable. It documents 5000 maximum records and retention: 1s up to two weeks, 15s/30s up to three months. Therefore the frozen four-window plan is structurally invalid for old Byzantine births because required 10s/30s outcomes need 1s observations well beyond retention. The original generic-field pilot remains unqualified because its response did not expose an explicit mcap/fallback marker.",
+    "rate_limits": "Official reviewed rate table records legacy OHLCV 100 rps but no V3/current-tier rule. Pilot response headers varied between 300 and 1 with Retry-After=1; most likely short-window cap/burst behavior, but tier and credit causes are unproven. A future separately authorized pilot would be serial, >=1.1-second spacing, Retry-After honoring, no retry/pagination absent explicit new authorization.",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/market_outcome_v1_birdeye_provider_contract_investigation.v1.json sha256=c08750b19a6b967687ab626212d9ed5c9e63d78d5bf847c98b3b1b0f4f078322.",
+    "next_action": "STOP. Do not authorize another Birdeye pilot or scale until a provider/source strategy can satisfy old-token 10s/30s market-cap evidence without changing MARKET_OUTCOME_V1 semantics."
+  },
   "operation_opening_history_v1_production_transport_runner_final": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 + uncommitted focused production-wrapper, qualification-test, and deterministic-artifact changes",
     "tests": "PASS: compact representative regression 21 passed: production transport matrix (7), actual production runner 3-row parity, pending CREATE restart, extension restart, canonical restart, batch-gate restart, 7 GiB HOLD, 512 KiB canonical boundary, and production dry-run/safety (7).",

@@ -16028,6 +16028,18 @@
     "artifacts": "manifest=93b9662f490e7f9fa53019cf8f6489f0636a64db8bc634fb74101e5142102541; summary=5a420840ded65bed064cf13d3e6e7919eb6754583247aeeab22d37ef6ccd7436; result=02bf18100ca2187395d2af70950458b97482f62c4255131f166823d42011f30b; replay=47d602950ccbaacecc71ce5ad745bacf0c96b7ac04104d572b88efdb3a0e0410.",
     "next_action": "Do not scale automatically. A separately authorized historical-price scale may cover the remaining 64 count-unresolved tokens, with token-trade fallback only where historical-price is empty or unavailable."
   },
+  "byzantine_historical_price_collapse_scale": {
+    "engineering_revision": "5904a907 plus uncommitted checkpointed historical-price scale and provider-disabled final materializer",
+    "tests": "Python compile; frozen 77-token scale manifest; JSON validation of all seven required artifacts; deterministic provider-disabled replay PASS.",
+    "production_flags": "Birdeye=77 serial historical-price scale calls plus 5 reused pilot observations; five-second baseline spacing, no retries, raw response retention=0; no on-chain, DB, queue, service, trade, or Opening History mutation.",
+    "verdict": "BYZANTINE_HISTORICAL_PRICE_COLLAPSE_PARTIAL",
+    "provider": "scale HTTP200=60, HTTP429=17, useful later history=60, no-useful successful responses=0. The five pilot observations were reused, not reacquired.",
+    "result": "Final PRICE drawdown coverage remains 80/85/90=25/25/21 of 103. Historical-price added no new threshold proof and produced no new peak revision; 82 rows remain without a 90% crossing in retained provider evidence. Existing first-crossing-qualified evidence=71 across the three thresholds; collapse-by-timestamp-only=0.",
+    "timing": "Launch-to-80 median/p75/p90=1411/2447/5420 seconds; launch-to-85=1411/2447/5420; launch-to-90=1580/3112/5420. Peak-to-80/85/90 medians=900/900/900 seconds. All existing proved events are retained 15-minute OHLCV evidence.",
+    "token_trade": "No token-trade calls made. 57 successful-historical-price yet 90%-unresolved rows are candidates for a separately authorized trade fallback; 17 scale HTTP429 rows remain provider-blocked.",
+    "artifacts": "manifest=141fa280097b3e4fa6b64f578f396607ceb78a9a71618defc32ca860054d2163; observations=32c3251fee51451f6f4b886cbe59bb509dffb6af6e4ef085b4eecc4539637c77; peaks=6a0c32973439d56e7fee15a24898268293c1b8abe2a247c33eb1102e6d3cbb85; timing=25a9dae3fff7866098327db4714d4c33bde9ab476ab49ef3ce304ab6e3e5a062; summary=4e256bc55ba1b589c83ec0118cbc3b5d9b55d79cc323787c805e51a860f3b15a; dataset=a1c07319050d81cc54f22255a6102332cb36a5910d4c5b37a420783da06549aa; unresolved=ad8c17c02f5b42a891d98405fe865dfeb665664b24f4fb08c1d2bd2f0e0dd634.",
+    "next_action": "Stop. Do not retry historical-price or call trades without separate authorization; a bounded token-trade fallback should distinguish the 57 successful-query unresolved rows from the 17 rate-blocked rows."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

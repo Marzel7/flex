@@ -1,4 +1,14 @@
 {
+  "opening_price_remaining_11_event_cohorts": {
+    "engineering_revision": "classification-attribution-axis plus uncommitted bounded remaining-11 runner, compact event/candle artifacts, and provider-free 12-row finalizer",
+    "tests": "6 passed: event cohort, semantic reacquisition, and semantic scanner focused tests; compact artifact read-backs passed",
+    "production_flags": "no production mutation; no raw block or Birdeye retention; 10 exact CREATE getTransaction calls, 10 CREATE-slot getBlock calls, 10 Birdeye calls; 91,683,254 Solana bytes and 7,734 Birdeye bytes, within 768 MiB/2 MiB caps",
+    "verdict": "EVENT_LEVEL_OPENING_COHORT_PATTERN_PARTIAL",
+    "result": "10 of the 11 remaining mints qualified CREATE and event-level B1/B2/B3 from their CREATE slot only. Combined with 2Bhjt, 11/12 have qualified B1/B2/B3; all 11 use the same ordinal wallets: 5JTv...DFXd=B1, J4iit...54JV=B2, 7j4u...ecvC=B3. All B1/B2/B3 equality tests are false within each launch; cross-launch reuse is 11/11 per ordinal. 2WG2...pump lacks a retained CREATE signature and remains CREATE_ANCHOR_UNAVAILABLE_LOCAL without history discovery.",
+    "candle": "Five of ten new requests and the prior 2Bhjt request returned an opening-second generic OHLC row, all with REQUESTED_MCAP_RESPONSE_BASIS_UNATTESTED. Five new requests did not return the opening candle. No rows are promoted to price/market cap or used for cross-unit comparison.",
+    "artifacts": "docs/audits/operation_all_birth_research/byzantine_428_v1/opening_price_remaining_11_event_cohorts_and_birdeye_1s.v1.json and opening_price_12_event_level_opening_cohort_audit.v1.json (digest a3ddd10e468f4a7377944dd1f67a415c545aa135ebc8671c80bde9a4d9445375)",
+    "next_action": "Do not infer operation attribution from this ordinal/reuse pattern. Do not broaden beyond the 12. Any candle-basis repair or missing CREATE recovery requires separately bounded, explicitly authorized source semantics or discovery."
+  },
   "opening_price_2bhjt_event_level_cohort_and_birdeye_1s": {
     "engineering_revision": "classification-attribution-axis plus uncommitted event-level cohort/candle compact reducer, runner, tests, and artifact",
     "tests": "4 passed: event-level canonical ordering, chart-semantic non-promotion, and semantic reacquisition regression",

@@ -15974,6 +15974,17 @@
     "artifacts": "collapse=76b7a44bc88d3e27a77c05cb87ec5f01e2c4bf19bb196860edb52ceb763a389c; summary=ac44d41e105588d587917f12dcc3a2acf58cccffbc3c56d40b133f3d3300a00a; censoring=c7cbcfa6c05422c752d12e3b7db4c49051b7db750184718f059d257e5e7f5d9c; distribution=7cb45bcd222ff8b042d0e1b1befb0d041bf889b7a50faeb4cfb38f067bcf787c; join=b9511cb8f6fb21766630194d968e406444dbde761a572b1505bc5a6a8e64b5fe.",
     "next_action": "Stop. Censored rows must never be inferred safe/non-rug; no new historical coverage was acquired."
   },
+  "byzantine_multi_threshold_collapse_audit": {
+    "engineering_revision": "5904a907 plus uncommitted provider-free multi-threshold reducer",
+    "tests": "Python compile and JSON read-back validation; provider-disabled retained-observation replay PASS.",
+    "production_flags": "Provider/on-chain calls=0; raw retention=0; frozen price evidence only.",
+    "verdict": "BYZANTINE_MULTI_THRESHOLD_COLLAPSE_PARTIAL",
+    "result": "103 trajectories; reaches 50/75/90=30/25/21. Median peak-to-threshold=900s for all, but all values are 15-minute candle quantized. First-post-peak crossings=25/22/19; >1 candle=5/3/2.",
+    "progression": "50→75=25 proven,5 censored; 50→90=21 proven,9 censored; 75→90=21 proven,4 censored; zero proven non-progression. No recovery conclusion because retained reduced ledger lacks qualifying post-crossing series.",
+    "interpretation": "BEST_PRACTICAL_COLLAPSE_THRESHOLD=NONE: all thresholds materially right-censored and complete-no-crossing controls=0. Retain all PRICE_DRAWDOWN_50/75/90 separately.",
+    "artifacts": "audit=a5b305f8b7649282fa6290af83879df9c17eeaae13e9e4ea7dda334825b03aab; summary=179dddf9f4fc3121d84a297d51e82029e90d052c11afb685be3654a41d238751.",
+    "next_action": "Stop. No threshold selection/strategy claim from censored evidence."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

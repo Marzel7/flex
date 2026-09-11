@@ -1,4 +1,13 @@
 {
+  "operation_opening_history_v1_after_b1_b2_b3_selection": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "tests": "1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_recovers_after_b1_b2_b3_selection",
+    "production_flags": "offline fixture only; no provider calls, production Batch 1, or production manifest mutation",
+    "verdict": "PASS",
+    "finding": "Added the existing post-selection seam to the restarted continuation path. Crash occurs after true B1/B2/B3 selection with only durable CREATE/BLOCK handoffs; restart begins CONTINUE_FROM_BLOCK_HANDOFF and reselects the exact ordered trio with no Row-1 provider replay.",
+    "baseline": "One reduction binds both source handoffs; Row-1 reaches TERMINAL with opening_amount_sol=3.911480317, frozen record digest, matching fingerprint, and B1/B2/B3 count=3.",
+    "next_action": "No later crash-matrix boundary is authorized by this task."
+  },
   "operation_opening_history_v1_after_semantic_reduction": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_recovers_after_semantic_reduction",

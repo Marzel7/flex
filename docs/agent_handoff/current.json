@@ -15339,6 +15339,18 @@
     "later_transaction": "The 0.647362223-SOL transaction is outside the probe; it is later than the first confirmed post-CREATE buy but cannot yet be classified B4+ because B2/B3 are not fully qualified and intervening slots were not scanned.",
     "next_action": "If authorized, reacquire only the same three semantic blocks under the stated compact-field reduction contract. Do not widen slots or call arbitrary getTransaction signatures."
   },
+  "opening_price_12_birdeye_1s_429_gap_retry": {
+    "engineering_revision": "classification-attribution-axis plus uncommitted bounded retry executor, frozen manifest, and compact retry artifact",
+    "tests": "2 passed: tests/test_opening_price_event_cohort.py; retry runner syntax compile, manifest/result JSON validation, checkpoint read-back, and 2Bhjt regression passed",
+    "production_flags": "no production mutation; Birdeye only; no Solana calls; serial execution; 3 new calls below the 6-call/1 MiB ceilings; raw response retention 0",
+    "verdict": "BIRDEYE_1S_GAP_RETRY_QUALIFIED",
+    "manifest": "Exactly the three frozen HTTP-429 rows, SHA-256 a3786e40611e280b80d2202886ae5dd3ea6d931da4f0473d4c6c4c9719b6bb8f. Existing two OPENING_SECOND_MISSING rows, six observations, and 2WG2 were not retried.",
+    "result": "Each eligible mint consumed only additional attempt 1 after the deterministic five-second backoff and returned HTTP 200 with a structurally valid empty 1-second response: 81 wire bytes each, 0 returned candles, terminal OPENING_SECOND_MISSING. No 429, second attempt, Retry-After, or other failure occurred.",
+    "coverage": "Final observed opening candles remain 6/12 (54.55% of population; 6/11 = 54.55% CREATE-qualified). Final valid absences are five: two pre-existing plus the three retry rows. Distribution and basis counts remain unchanged; 2Bhjt exact O/H/L/C regression passed.",
+    "payload": "243 retry wire bytes, 0 accepted evidence bytes, 3 compact immutable attempt records, 0 raw payloads retained, result checkpoint digest deee745fbb39a4690d9072cbbddf303b615c67eac2ccc52d1695c90957e7e2f0.",
+    "artifacts": "docs/audits/operation_all_birth_research/byzantine_428_v1/opening_price_12_birdeye_1s_429_retry_manifest.v1.json and opening_price_12_birdeye_1s_429_retry.v1.json",
+    "next_action": "Do not retry these valid absences or reacquire existing candles. Any broader/coarser historical candle work requires a separately authorized contract."
+  },
   "opening_price_12_cohort_birdeye_1s_opening_value_audit": {
     "engineering_revision": "classification-attribution-axis plus uncommitted bounded cohort Birdeye compact reducer/artifact",
     "tests": "2 passed: tests/test_opening_price_event_cohort.py; runner syntax compile, JSON validation, compact read-back, and exact 2Bhjt reference check passed",

@@ -15273,6 +15273,18 @@
     "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/opening_price_semantic_block_probe_2bhjt.v1.json",
     "next_action": "Stop. Use measured candidate density and block bytes in a separately authorized 12-mint CREATE-to-B3 budget/design; exact getTransaction is permitted only for scanner-emitted signatures."
   },
+  "opening_price_historical_36_audit": {
+    "engineering_revision": "classification-attribution-axis; read-only git-history and retained-artifact audit",
+    "tests": "not applicable; repository/commit and JSON artifact inspection only",
+    "production_flags": "0 provider/network calls; no code, production, source, schema, or audit-artifact changes",
+    "verdict": "MEMORY_MISMATCH_NO_36_MINT_OPENING_PRICE_BATCH",
+    "what_36_was": "A 36-launch/36-mint Byzantine funding-architecture membership census, not a frozen 36-mint opening-price or B1/B2/B3 analysis. Historical census has 36 unique mint records (SHA-256 4da92fdd73d994e0e643fa1afca6554bbbb7dc8422ee2b32cd3aad228ac3cfff).",
+    "historical_opening_result": "One Byzantine retained reference mint, 3dgGSHC49cbcmdjuZD6y1WDAtsP91v7j8Z1hTey9pump, had a creation-only anchor and 10 successful target Pump.fun buys across five slots; seven successful buys were in the next slot. Its first three buyers are distinct, including B2 != B3. The artifact explicitly leaves market-cap unsupported. No 36-mint opening valuation, B2=B3 study, operation-controlled first-three cohort, or ~$15K result was frozen.",
+    "reusable_code": "Commit 696bd465 Pump.fun post-action reserve replay; commit 830fc0e1/b7f31853 bounded birth-anchored extraction/executor. These depend on already-decoded target TradeEvents and valid CREATE anchors, retain full raw responses, and are Pump.fun-only; they do not discover B1/B2/B3 candidates or support pAMM historical price replay.",
+    "pamm": "Historical paths recognize PumpSwap for migration/detection only. No historical pool pre-state reconstruction, fee-model decoder, reverse-CPMM method, or qualified pAMM opening-price artifact was found.",
+    "sources": "f661ae4593e5aaf434c4d0c91e9fb8dc2afd4f08:docs/audits/byzantine_funding_transaction_census.v1.json; pumpfun_opening_sequence_poc; pumpfun_creation_first_buy_boundary; watchtower_buy3_opening_mc; commits 696bd465492c74ff208820481472efd6c99131c3, 830fc0e1dfb2ded5c16a58f14b03ef1ecc25485f, b7f31853d80c88525894f95e40ef12216c164852.",
+    "next_action": "Do not revive a nonexistent 36-mint historical result. Continue the separately qualified semantic candidate-discovery path only under a new bounded CREATE-to-B3 authorization."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

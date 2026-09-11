@@ -1,4 +1,12 @@
 {
+  "operation_opening_history_v1_chunk_4_production_dryrun_safety": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "tests": "FAIL: python -m pytest -q tests/test_opening_history_production_batch_safety.py -> 1 failed, 6 passed. Hard stop reached; no rerun/final artifact.",
+    "production_flags": "offline only; real provider calls=0; Production Batch 1=NOT STARTED; frozen production manifest unmodified; no large regression suite.",
+    "verdict": "CHUNK_4_PRODUCTION_DRYRUN_SAFETY_FAILED",
+    "blocker": "Dry-run test incorrectly asserted full equality of manifest['budgets'] with only the three required frozen limits. The physical frozen production manifest contains those exact required values plus 11 additional budget metadata fields (including additional_block_contingency=40 and batch_size_max=50). The error is a test oracle subset-vs-equality defect, not a runtime or manifest defect.",
+    "next_action": "Await explicit instruction before correcting the focused Chunk-4 test oracle and rerunning it. Do not generate final artifact or proceed to Chunk 5/6/production Batch 1."
+  },
   "operation_opening_history_v1_chunk_3_actual_runner_resume_b": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "PASS: 1 passed: tests/test_opening_history_actual_runner_resume_b.py::test_actual_production_runner_skips_row_terminal_then_completes_batch; then 4 passed: tests/test_opening_history_actual_runner_resume_b.py.",

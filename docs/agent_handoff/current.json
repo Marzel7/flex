@@ -1,4 +1,13 @@
 {
+  "operation_opening_history_v1_after_continue_commit": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "tests": "1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_recovers_after_continue_commit; regression 1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_recovers_during_batch_gate",
+    "production_flags": "offline fixture only; no provider calls, production Batch 1, or production manifest mutation",
+    "verdict": "PASS",
+    "restart_invariants": "Crash reaches the real AFTER_CONTINUE_COMMIT hook only after the gate durably stores {batch_id:1, decision:CONTINUE, reasons:[]} and the single-batch run state is COMPLETE. Fresh driver recognizes COMPLETE immediately and returns with no actions, row/provider/fixture work, gate re-evaluation, gate commit, or canonical rewrite.",
+    "baseline": "Checkpoint sequence/digest and all logical, attempt, wire, durable, extension, terminal, gate, and canonical target inode/mtime/digest values are unchanged across restart; wire_bytes_received=32304098 and raw/scratch=0.",
+    "next_action": "No HOLD crash boundary is authorized by this task."
+  },
   "operation_opening_history_v1_during_batch_gate": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_recovers_during_batch_gate; regression 1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_recovers_before_batch_gate",

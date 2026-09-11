@@ -3,6 +3,7 @@
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_create_response_consumed_without_handoff_fails_closed",
     "production_flags": "offline fixture only; no provider calls, production Batch 1, or production manifest mutation",
+    "restart_invariants": "transport calls=1 unchanged; getTransaction logical calls=1 unchanged; getBlock calls=0; ledger entries=1; attempt number=1; wire bytes and checkpoint sequence unchanged; compact handoffs, reductions, canonical records, scratch, and raw payloads absent",
     "verdict": "PASS",
     "finding": "Restarted driver now reports the canonical NON_REPLAYABLE_RESPONSE_BOUNDARY as FAIL_CLOSED after a durable consumed CREATE response without compact handoff; no request replay or raw payload retention occurs.",
     "next_action": "No later crash-matrix boundary is authorized by this task."

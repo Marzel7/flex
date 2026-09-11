@@ -1,4 +1,16 @@
 {
+  "opening_price_2bhjt_b1_b2_b3_semantic_reacquisition": {
+    "engineering_revision": "classification-attribution-axis plus uncommitted compact semantic reducer, bounded runner, tests, and artifact",
+    "tests": "9 passed: semantic reacquisition, semantic scanner, instruction normalization, and retained Pump.fun event decoding",
+    "production_flags": "no production mutation; exactly three temporary in-memory Helius getBlock responses; no getTransaction/Birdeye calls; no retained raw blocks or transactions",
+    "verdict": "2BHJT_B1_B2_B3_QUALIFIED",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/opening_price_2bhjt_b1_b2_b3_semantic_reacquisition.v1.json (readback digest 653ad5ec1e2af19c7abfbd7c73e2b780bdce40aa534ae0d11efaf55bccc3490a)",
+    "result": "The first Buy event in each exact ordered transaction 289/290/291 qualifies: B1=5JTvwLFy1EPWoSWbVqjp4x9rfg961P9iKV3vsSubDFXd, 1.223703796 SOL; B2=MFQKMm2NPcVtnmBZFouvQpowvD4EJDWjWs238NdXL9P, 1.646117176 SOL; B3=sR4QwzCRt7yJ14x6oxqcAWLXTN8Q7feS4CkiVYhdX7F, 2.63894722 SOL. All three are successful non-creator Pump.fun buys at event-log index 39, with distinct buyers and 5.508768192 SOL cumulative first-event capital. Each transaction also contains two subsequent target Buy events, retained as compact evidence rather than relabelled.",
+    "provider": "3 getBlock calls for only slots 445614529, 445614530, 445614531; 21,244,572 wire bytes, largest 8,635,585, under 32 MiB; 0 getTransaction; 0 Birdeye.",
+    "valuation": "Post-event Pump.fun curve-implied market caps qualify at 30.28641437487238797650318484, 42.90426562642485284309531382, and 65.2986427531814295336953154 SOL, grounded in CREATE MintTo supply=1e15, decimals=6, and exact TradeEvent post-reserves.",
+    "blocker": "No retained 2Bhjt Birdeye 1-second OHLC/candle artifact was found in the local audit tree, so candle membership and the USD ~$15K hypothesis are INSUFFICIENT_CANDLE_EVIDENCE. No network query was made to fill that gap.",
+    "next_action": "Do not broaden acquisition. If candle comparison is required, explicitly provide or authorize acquisition of the named retained/one-second candle evidence; do not use it for canonical ordering."
+  },
   "byzantine_compact_opening_batch_01": {
     "engineering_revision": "5904a907 plus uncommitted compact Batch-01 runner/artifacts",
     "tests": "runner syntax-compiled; 50/50 canonical record read-backs and report digest verified",

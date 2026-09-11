@@ -16050,6 +16050,17 @@
     "artifacts": "manifest=67e87ec321fbbe0dffe650e5a00b5e41d24e5e40b78beb6bedfa57094d58d9b5; summary=1ad8a16cc0800f2ae4f56da87cdc7622e63c73ed3c6c3cef63d92761222f330b; result=4daee33f1887fb6205655c5a2408c4e9ac367975836157b32419c48c12fd04c3; replay=d25408ad3d74335877ba15eab9bc7080dbb267348c66b4c3159b543f6902f2d7.",
     "next_action": "Obtain a separately authorized, provider-contract investigation using a new bounded request form before any trade retry. The remaining 52 successful-historical-price unresolved and 17 rate-blocked tokens remain untouched."
   },
+  "byzantine_token_trade_request_contract_qualification": {
+    "engineering_revision": "5904a907 plus uncommitted one-call token-trade contract qualifier",
+    "tests": "Python compile; frozen request artifact; JSON validation.",
+    "production_flags": "Birdeye=1 token-trade request only; no retry/pagination, no raw response retention, no on-chain/DB/service mutation.",
+    "verdict": "BIRDEYE_TOKEN_TRADE_REQUEST_CONTRACT_QUALIFIED",
+    "previous_failure": "Five prior HTTP400 requests used sort_type=asc. Current official V3 token-trade documentation permits desc only; prior compact evidence did not retain the provider error message.",
+    "corrected_request": "GET /defi/v3/token/txs; x-chain=solana; token mint address; tx_type=all; after_time=peak+1; before_time=frozen reference; limit=100; sort_by=block_unix_time; sort_type=desc; one page.",
+    "result": "HTTP200 with valid data.items schema. trade_count=1, but the returned item supplied no normalizable timestamp+price pair; no later trade or threshold evidence was inferred. The five-token trade pilot was not rerun.",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_birdeye_token_trade_request_contract_qualification.v1.json sha256 f315a62196fcec280f6ad1c6f0b094335f3afdb6d3f3caafbf79000d9ce449e5.",
+    "next_action": "Any five-token trade-data pilot now requires separate authorization to inspect response field semantics and use the qualified descending request form; do not infer trade price availability from this one schema-only response."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

@@ -1,4 +1,12 @@
 {
+  "operation_opening_history_v1_production_batch_1_execution": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 + uncommitted focused production-wrapper, qualification-test, and deterministic-artifact changes",
+    "tests": "Pre-dispatch read-back PASS: production manifest, final qualification artifact, and final crash matrix physical SHA identities; 399 rows; 50x7+49 partition; reconciliation 23+399+6=428; frozen budgets.",
+    "production_flags": "real provider calls=0; Production Batch 1 rows attempted=0; no durable Batch-1 state existed or was created; frozen production manifest unmodified.",
+    "verdict": "HOLD_PRE_DISPATCH_ENDPOINT_UNAVAILABLE",
+    "blocker": "OpeningHistoryProductionTransport requires HELIUS_RPC_URL. It was absent from the process environment and .env; the read-only configuration-key inventory contains no HELIUS/RPC/SOLANA endpoint alias. Dispatch was not attempted because the qualified transport must fail closed without its runtime endpoint.",
+    "next_action": "Provide HELIUS_RPC_URL through the approved runtime secret mechanism, then re-run identity read-back and execute only Batch 1 through scripts/run_opening_history_production_batch.py --execute."
+  },
   "operation_opening_history_v1_production_transport_runner_final": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 + uncommitted focused production-wrapper, qualification-test, and deterministic-artifact changes",
     "tests": "PASS: compact representative regression 21 passed: production transport matrix (7), actual production runner 3-row parity, pending CREATE restart, extension restart, canonical restart, batch-gate restart, 7 GiB HOLD, 512 KiB canonical boundary, and production dry-run/safety (7).",

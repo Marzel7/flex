@@ -16018,6 +16018,16 @@
     "artifacts": "pilot-manifest=e4ac7a0e06b4f148d304b9b6260b73f93ae8394f698a0bd919c158847e428c2a; pilot-summary=038f9999b748e9310fe3f7159241fbf96a3633f7881067cea90a14238bd11779; scale-manifest=f55b5113589ad922dd0d7e5470edb5c564762b665b437fc1c7b58099698bee6d; scale-summary=b3cc492e204639eee20e59202960056c47f7bdb7c2c7500d7a6c15f1ff665bc9; result=b782467be533f6c475efe5bb592bb333c49ddbd2b18218a0094930f806fbcc9f; replay=0002cdc9bf3c7d5338e1ec951f1e394421fd99eab2dbb2df8f8bc5b8b8793c0a.",
     "next_action": "Revise the V2 rate controller to stop immediately and honor Retry-After, then obtain/execute bounded authorization for the documented historical-price and time-bounded token-trade fallback routes for count-empty/rate-limited tokens."
   },
+  "byzantine_fallback_route_pilot": {
+    "engineering_revision": "5904a907 plus uncommitted five-token historical-price/trade fallback pilot and provider-disabled materializer",
+    "tests": "Python compile; immutable five-token manifest; JSON validation; provider-disabled replay PASS.",
+    "production_flags": "Birdeye=5 bounded serial historical-price requests at 5-second spacing; token-trade calls=0 because historical-price was useful for every pilot token; raw retention=0; no on-chain, DB, queue, service, trade, or Opening History mutation.",
+    "verdict": "BIRDEYE_FALLBACK_ROUTE_QUALIFIED",
+    "result": "Historical price returned 2,792 normalized observations later than retained evidence for all 5/5 selected count-unresolved tokens, HTTP200=5 and HTTP429=0. No later point established a new 80/85/90 collapse proof, no peak revision occurred, and no first crossing was fabricated.",
+    "route": "HISTORICAL_PRICE is the qualified next scale route. Token trades remain untested and unnecessary for this pilot because the prescribed first route was useful on all five.",
+    "artifacts": "manifest=93b9662f490e7f9fa53019cf8f6489f0636a64db8bc634fb74101e5142102541; summary=5a420840ded65bed064cf13d3e6e7919eb6754583247aeeab22d37ef6ccd7436; result=02bf18100ca2187395d2af70950458b97482f62c4255131f166823d42011f30b; replay=47d602950ccbaacecc71ce5ad745bacf0c96b7ac04104d572b88efdb3a0e0410.",
+    "next_action": "Do not scale automatically. A separately authorized historical-price scale may cover the remaining 64 count-unresolved tokens, with token-trade fallback only where historical-price is empty or unavailable."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

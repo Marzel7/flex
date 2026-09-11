@@ -15954,6 +15954,16 @@
     "artifacts": "supply=137e6b8f8dec165a521a427affebd947de594eb40611ba2e09f9ee1f617b0694; outcomes=95d2f15df57205ba35729ab3a5c22499b4e7ffa4fb695b981eaf93ad0e67cbcd; summary=0c924baa52ab36624c676fccc51a1e3ab0529f759ec0725ed6322d6b4cf07f5d.",
     "next_action": "Stop. A historical per-mint supply/constancy evidence source would need separate authorization before MC derivation."
   },
+  "byzantine_recent_entry_price_outcome_dataset": {
+    "engineering_revision": "5904a907 plus uncommitted provider-free entry-price materializer",
+    "tests": "Python compile, deterministic Decimal derivation, and JSON read-back validation of all four final artifacts.",
+    "production_flags": "Provider/on-chain calls=0; raw response retention=0; only retained explicit-price observations and frozen Opening History used.",
+    "verdict": "BYZANTINE_RECENT_ENTRY_PRICE_OUTCOME_DATASET_PARTIAL",
+    "denominators": "428 total; 180 recent; 178 recent opening-qualified; 103 price trajectories; 0 MC-qualified.",
+    "outcomes": "maximum-price/multiple=103; median maximum multiple=1.015699233431696077400720180; median birth-to-max=859 seconds; 50/75/90% reached=30/25/21. Missingness retained for 77 without price history.",
+    "artifacts": "dataset=feaecfb4da5da64d3ef4568f0721e77498768d6b2667dbf2abaa2bcb40715eed; summary=b261a7d837d85fa4470cad6caf451e4fcdfbe4bc3e49a9e42afd9ff3cedeaf4e; drawdowns=6d8690a194b10b433e406bb8ddc99a1c7d48a73463f39f1452681af568d121d5; missingness=183658d9f2dd7b01163fb57ecb7472c039d749daf82328aa4d85141a98c17c76; prospective-supply-requirement=bb1aef9c80ce9e555a3a123499b0d69dce78c0cfae35d5b3f373cf9e8490cda8.",
+    "next_action": "Stop. Do not derive historical MC absent separately qualified per-mint supply/constancy evidence."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

@@ -11926,7 +11926,8 @@
   "operation_opening_history_v1_3row_derived_fixtures": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "fixture_manifest": "tests/fixtures/opening_history_batch_executor/derived_3row_v1/manifest.v1.json",
-    "fixture_manifest_sha256": "985ff24e9be98f625fc33656e1b30ba0f409a78f2ea42ac7c9b38f2008e0e843",
+    "fixture_manifest_canonical_content_sha256": "985ff24e9be98f625fc33656e1b30ba0f409a78f2ea42ac7c9b38f2008e0e843",
+    "fixture_manifest_sha256": "98a13bc21d32834f84c3034c345f86b5e0108c6bbb71d4fbe449aec9ae049b09",
     "next_action": "Review the qualified derived fixtures before separately authorizing any fixture transport or 3-row runner work.",
     "production_flags": "offline only; provider calls=0; adapter runner not executed; Batch 1 not started; frozen 399-row production manifest unchanged",
     "tests": "1 passed: tests/test_opening_history_3row_derived_fixtures.py",

@@ -11992,6 +11992,15 @@
     "tests": "23 passed: generic profile, event cohort, PumpSwap/pAMM, instruction normalization, semantic scanner, and semantic reacquisition focused matrix",
     "verdict": "FRAMEWORK_FREEZE_QUALIFIED_NOT_ACTIVATED"
   },
+  "operation_opening_history_v1_opening_reduction_self_sufficiency": {
+    "blocker": "Remaining explicitly authorized template/source-checkpoint/readback corruption negatives and final qualification artifact have not yet been completed.",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implemented": "Opening reduction checkpoint now includes compact deterministic canonical input/template plus digest; resume validates it and constructs existing canonical lifecycle with no provider replay.",
+    "next_action": "Add remaining negative tests and generate canonical-resume qualification artifact.",
+    "production_flags": "offline only; provider calls=0; Batch 1=0; fixtures/production manifest unchanged",
+    "tests": "3 passed: opening-reduction restart self-sufficiency and 3-row runner regression",
+    "verdict": "PARTIAL"
+  },
   "operation_opening_history_v1_post_reduction_recovery": {
     "blocker": "resume() does not yet repair/reconcile TEMP_WRITTEN, COMMITTED, or READBACK_VERIFIED lifecycle states after a process crash; focused crash-restart cases remain unqualified.",
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",

@@ -11953,6 +11953,15 @@
     "tests": "3 passed: post-reduction lifecycle, compact-handoff recovery, 3-row runner regression",
     "verdict": "PARTIAL"
   },
+  "operation_opening_history_v1_canonical_resume_matrix": {
+    "blocker": "OPENING_REDUCTION_COMMITTED alone cannot deterministically construct canonical bytes because the checkpoint does not yet retain the canonical template; its required positive restart case and remaining negative readback/checkpoint tests are unqualified.",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implemented": "True-restart tests cover PREPARED/TEMP_WRITTEN/COMMITTED/READBACK lifecycle reconciliation, corrupt temp rebuilding, and missing/conflicting committed records fail-closed with unchanged provider counters.",
+    "next_action": "Persist deterministic canonical template or fully sufficient canonical inputs in opening reduction checkpoint, then complete the remaining explicitly requested cases/artifact.",
+    "production_flags": "offline only; provider calls=0; Batch 1=0; fixtures/production manifest unchanged",
+    "tests": "9 passed: canonical resume matrix, compact-handoff, three-row runner",
+    "verdict": "PARTIAL"
+  },
   "operation_opening_history_v1_compact_handoff": {
     "blocker": "Opening-reduction checkpoints, canonical lifecycle markers/temp recovery, and full adapter-driven restart continuation harness are not yet implemented.",
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",

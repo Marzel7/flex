@@ -16040,6 +16040,16 @@
     "artifacts": "manifest=141fa280097b3e4fa6b64f578f396607ceb78a9a71618defc32ca860054d2163; observations=32c3251fee51451f6f4b886cbe59bb509dffb6af6e4ef085b4eecc4539637c77; peaks=6a0c32973439d56e7fee15a24898268293c1b8abe2a247c33eb1102e6d3cbb85; timing=25a9dae3fff7866098327db4714d4c33bde9ab476ab49ef3ce304ab6e3e5a062; summary=4e256bc55ba1b589c83ec0118cbc3b5d9b55d79cc323787c805e51a860f3b15a; dataset=a1c07319050d81cc54f22255a6102332cb36a5910d4c5b37a420783da06549aa; unresolved=ad8c17c02f5b42a891d98405fe865dfeb665664b24f4fb08c1d2bd2f0e0dd634.",
     "next_action": "Stop. Do not retry historical-price or call trades without separate authorization; a bounded token-trade fallback should distinguish the 57 successful-query unresolved rows from the 17 rate-blocked rows."
   },
+  "byzantine_token_trade_fallback_pilot": {
+    "engineering_revision": "5904a907 plus uncommitted five-token trade-pilot runner and provider-disabled HOLD materializer",
+    "tests": "Python compile; immutable five-token manifest; JSON validation; provider-disabled replay PASS.",
+    "production_flags": "Birdeye=5 serial bounded non-paginated indexed-token-trade requests; raw retention=0; no retries, no on-chain, DB, queue, service, trade, or Opening History mutation.",
+    "verdict": "BIRDEYE_TOKEN_TRADE_FALLBACK_HOLD",
+    "result": "All five exact pilot requests returned HTTP400; HTTP200=0 and HTTP429=0. No normalized trade payload was retained, so no later-trade, no-collapse, or threshold conclusion is made.",
+    "contract": "TOKEN_TRADES_PROVIDER_CONTRACT_UNRESOLVED. The fixed one-page request form (after_time=final peak+1, before_time=frozen reference, tx_type=all, limit=100, ascending block time) is rejected by this provider/account context. Do not mechanically retry or scale it.",
+    "artifacts": "manifest=67e87ec321fbbe0dffe650e5a00b5e41d24e5e40b78beb6bedfa57094d58d9b5; summary=1ad8a16cc0800f2ae4f56da87cdc7622e63c73ed3c6c3cef63d92761222f330b; result=4daee33f1887fb6205655c5a2408c4e9ac367975836157b32419c48c12fd04c3; replay=d25408ad3d74335877ba15eab9bc7080dbb267348c66b4c3159b543f6902f2d7.",
+    "next_action": "Obtain a separately authorized, provider-contract investigation using a new bounded request form before any trade retry. The remaining 52 successful-historical-price unresolved and 17 rate-blocked tokens remain untouched."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

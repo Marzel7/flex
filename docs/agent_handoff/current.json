@@ -15339,6 +15339,19 @@
     "later_transaction": "The 0.647362223-SOL transaction is outside the probe; it is later than the first confirmed post-CREATE buy but cannot yet be classified B4+ because B2/B3 are not fully qualified and intervening slots were not scanned.",
     "next_action": "If authorized, reacquire only the same three semantic blocks under the stated compact-field reduction contract. Do not widen slots or call arbitrary getTransaction signatures."
   },
+  "opening_price_12_cohort_birdeye_1s_opening_value_audit": {
+    "engineering_revision": "classification-attribution-axis plus uncommitted bounded cohort Birdeye compact reducer/artifact",
+    "tests": "2 passed: tests/test_opening_price_event_cohort.py; runner syntax compile, JSON validation, compact read-back, and exact 2Bhjt reference check passed",
+    "production_flags": "no production mutation; Birdeye only; five new bounded 1-second OHLCV calls across the five retained gaps; no Solana calls; zero raw response retention",
+    "verdict": "COHORT_OPENING_1S_VALUES_PARTIALLY_QUALIFIED",
+    "coverage": "6/12 compact opening-second rows: all six were retained prior rows, zero newly recovered, two responses contained no exact opening-second candle, three received HTTP 429, and 2WG2 remains CREATE_ANCHOR_UNAVAILABLE_LOCAL. No automatic retry or widening occurred.",
+    "distribution": "For the six returned generic OHLC observations, open min/median/max = 2935.9452770677053 / 3007.5606192683285 / 3159.9442839122685; high = 15067.454336834964 / 16635.794219400344 / 16923.767562032048; close equals the high range; high/open = 4.9461318677189805 / 5.514640399530144 / 5.667782375605506. All six fall in the descriptive 15K-20K high band, but response basis remains unattested.",
+    "timing": "2Bhjt alone has retained event timestamps proving B1/B2/B3 occur in the canonical opening second. The other ten CREATE-qualified rows retain canonical event ordering but not per-event epoch timestamps; timing is TIMESTAMP_PRECISION_INSUFFICIENT, not outside-candle.",
+    "basis": "0 rows have explicit market-cap semantics; all six records are REQUESTED_MCAP_RESPONSE_BASIS_UNATTESTED generic OHLC observations and must not be promoted to formal USD market cap.",
+    "provider": "5 calls, 303 received bytes, 0 raw response bytes retained; no provider call occurred in the sandbox DNS-blocked attempt.",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/opening_price_12_cohort_birdeye_1s_opening_value_audit.v1.json (digest 00e9ec22d612e482492248c0e3a1018e964a3201b07d402f66602f2eb1b4fdd1)",
+    "next_action": "Do not retry the three 429 rows automatically or promote generic OHLC to market cap. A later retry requires separately authorized rate-limit posture; timestamp coincidence for the other rows requires retained/authorized timestamp evidence."
+  },
   "historical_fixed_opening_buyer_archaeology": {
     "engineering_revision": "classification-attribution-axis; read-only retained-artifact and reachable-git-history archaeology",
     "tests": "not applicable; JSON/script/commit inspection only",

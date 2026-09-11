@@ -9,6 +9,14 @@
     "artifacts": "per-row=fcdce5743bc4355a215f054517a1d8a529c37082108215030c7d97767779f070; execution=15022e888e9e394a11d596f82e7f46823f9d486070715a7f41d4b4954214e52f; accounting=8360248f8787ffad5867fdc681b2a5d0f9b31d3cfe1ab6e013eace9bd0a7bba7; gate=19243ee6d439cc4f739bca30c06ff0511bd6913c81683059233a1b91fcddbb10; checkpoint_provenance=3d167cc40e5a176ff2e2e2a9286a96bc3d3096507acffbf0faf9cdb3b6a60281.",
     "next_action": "STOP. Batch 2 requires separate explicit authorization; this successful Batch-1 gate does not authorize it."
   },
+  "operation_opening_history_v1_production_399_execution": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 + uncommitted qualified runner/artifact changes",
+    "tests": "Live durable execution only: Batch gates 2 through 8 each persisted CONTINUE; Batch 8 reached COMPLETE.",
+    "production_flags": "real provider calls=802; all 399 frozen rows attempted/terminal; Batch 9 not started; frozen manifest unmodified; raw retention=0.",
+    "verdict": "BYZANTINE_399_PRODUCTION_COMPLETE",
+    "execution": "Final state COMPLETE, gate={batch_id:8, decision:CONTINUE, reasons:[]}; qualified=397, insufficient=2; B1=398/B2=398/B3=397; fingerprint non-match=397, insufficient=2. getTransaction=399; CREATE-slot getBlock=399; extension getBlock=4; remaining extensions=36; wire=3988185768; compact bytes=11272538; canonical bytes=1140191; raw=0.",
+    "next_action": "Freeze the requested 399-row raw-free artifacts and publish their hashes; do not execute Tier-D, Birdeye, or any further provider work."
+  },
   "operation_opening_history_v1_production_transport_runner_final": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 + uncommitted focused production-wrapper, qualification-test, and deterministic-artifact changes",
     "tests": "PASS: compact representative regression 21 passed: production transport matrix (7), actual production runner 3-row parity, pending CREATE restart, extension restart, canonical restart, batch-gate restart, 7 GiB HOLD, 512 KiB canonical boundary, and production dry-run/safety (7).",

@@ -15428,12 +15428,12 @@
   },
   "byzantine_399_execution_adapter_implementation": {
     "engineering_revision": "uncommitted adapter implementation",
-    "tests": "39 passed: focused adapter, durable executor, semantic reducer/scanner, and operation-history regressions",
+    "tests": "40 passed: focused adapter, durable executor, semantic reducer/scanner, and operation-history regressions",
     "production_flags": "offline only; provider calls 0; Batch 1 rows attempted 0",
     "verdict": "BYZANTINE_399_EXECUTABLE_ADAPTER_NOT_QUALIFIED",
-    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_399_execution_adapter_qualification.v1.json",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_399_execution_adapter_qualification.v2.json",
     "implemented": "injectable transport, exact CREATE/block request builders, compact CREATE validator, event-level ordered reducer, profile fingerprint, canonical record builder, and one control-plane ledger integration flow",
-    "blocker": "The requested retained-real-shape fixture corpus, multi-row/extension integration, and adapter-wired crash matrix are not yet qualified.",
+    "blocker": "One retained real Helius full-block fixture is now bound and passes event-level regression; exact getTransaction isolation, multi-row/extension integration, and adapter-wired crash matrix are not yet qualified.",
     "next_action": "Complete only those remaining offline fixture/integration qualifications before reauthorizing Batch 1."
   },
   "byzantine_399_manifest_identity_reconciliation": {

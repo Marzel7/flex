@@ -15346,7 +15346,7 @@
     "verdict": "BIRDEYE_1S_GAP_RETRY_QUALIFIED",
     "manifest": "Exactly the three frozen HTTP-429 rows, SHA-256 a3786e40611e280b80d2202886ae5dd3ea6d931da4f0473d4c6c4c9719b6bb8f. Existing two OPENING_SECOND_MISSING rows, six observations, and 2WG2 were not retried.",
     "result": "Each eligible mint consumed only additional attempt 1 after the deterministic five-second backoff and returned HTTP 200 with a structurally valid empty 1-second response: 81 wire bytes each, 0 returned candles, terminal OPENING_SECOND_MISSING. No 429, second attempt, Retry-After, or other failure occurred.",
-    "coverage": "Final observed opening candles remain 6/12 (54.55% of population; 6/11 = 54.55% CREATE-qualified). Final valid absences are five: two pre-existing plus the three retry rows. Distribution and basis counts remain unchanged; 2Bhjt exact O/H/L/C regression passed.",
+    "coverage": "Final observed opening candles remain 6/12 (50.00% of population; 6/11 = 54.55% CREATE-qualified). Final valid absences are five: two pre-existing plus the three retry rows. Distribution and basis counts remain unchanged; 2Bhjt exact O/H/L/C regression passed.",
     "payload": "243 retry wire bytes, 0 accepted evidence bytes, 3 compact immutable attempt records, 0 raw payloads retained, result checkpoint digest deee745fbb39a4690d9072cbbddf303b615c67eac2ccc52d1695c90957e7e2f0.",
     "artifacts": "docs/audits/operation_all_birth_research/byzantine_428_v1/opening_price_12_birdeye_1s_429_retry_manifest.v1.json and opening_price_12_birdeye_1s_429_retry.v1.json",
     "next_action": "Do not retry these valid absences or reacquire existing candles. Any broader/coarser historical candle work requires a separately authorized contract."

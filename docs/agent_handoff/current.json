@@ -15173,6 +15173,13 @@
     "verdict": "EVENT_SCOPED_IDENTITY_QUALIFIED_AND_ORDERING_RECOVERY_CONTRACT_QUALIFIED",
     "next_action": "Human authorization required to select a bounded relevant-block ceiling and perform a new versioned replay; do not resume the completed pilot or start 428 acquisition."
   },
+  "early_buyer_bundle_real_ordering_recovery_preflight": {
+    "scope": "read-only implementation preflight; no provider calls",
+    "verdict": "HOLD_RECOVERY_EXECUTOR_ABSENT",
+    "finding": "src/ops/early_buyer_bundle_real_pilot.py exposes RealProviderTransport.helius(method, params) but FrozenPilotRunner has no recovery manifest, relevant-slot checkpoint state, getBlock signature-to-transaction-index matcher, successor-record construction, or planner/fallback invocation. The existing runner only invokes Birdeye acquire_one then normalize_v2/build_v2.",
+    "provider_calls": 0,
+    "next_action": "Authorize implementation and offline qualification of the bounded three-mint ordering-recovery executor before any real getBlock request."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

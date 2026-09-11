@@ -15339,6 +15339,19 @@
     "later_transaction": "The 0.647362223-SOL transaction is outside the probe; it is later than the first confirmed post-CREATE buy but cannot yet be classified B4+ because B2/B3 are not fully qualified and intervening slots were not scanned.",
     "next_action": "If authorized, reacquire only the same three semantic blocks under the stated compact-field reduction contract. Do not widen slots or call arbitrary getTransaction signatures."
   },
+  "byzantine_opening_amount_consolidation_and_discovery_preflight": {
+    "engineering_revision": "classification-attribution-axis plus uncommitted offline opening-amount materializer and three compact artifacts",
+    "tests": "two-pass byte-identical replay and JSON validation passed for all three artifacts; no provider calls",
+    "production_flags": "0 Birdeye/Helius/Alchemy/other calls; no production, DB, queue, UI, membership, or flag mutation",
+    "current_12_verdict": "CURRENT_12_OPENING_AMOUNTS_FROZEN",
+    "current_12": "11/12 qualified with opening amount min/median/max 3.862313187 / 3.952718626 / 4.006079280 SOL; 2WG2 remains CREATE_ANCHOR_UNAVAILABLE_LOCAL with null amount. Artifact inner digest ec0b42289dae5fa3bddd2d1cb660fc1403fc57e6111426fb677637a685d93211.",
+    "historical_101_verdict": "HISTORICAL_101_OPENING_AMOUNTS_REPLAY_PARTIAL",
+    "historical_101": "The historical artifact claims 101 qualified openings/36 creators, but only 10 rows across 8 creators can be re-certified under current event-level amount semantics because 91 referenced retained opening raw paths are missing. All 10 replayed rows match the fixed distinct B1/B2/B3 wallets. Their opening amount min/median/max is 3.796025668 / 3.911480317 / 4.003801976 SOL. Do not represent this as a 101-row current-semantic amount replay.",
+    "preflight_verdict": "FULL_COHORT_DISCOVERY_PREFLIGHT_QUALIFIED",
+    "preflight": "Frozen Pump.fun-only, event-level, creator-excluded fingerprint rule (amount descriptive, control separate) is PASS. Retained offline testable union is 18 launches: 10 historical current-semantic replays plus 11 current qualified with 3 overlap; all 18 match, zero testable non-matches, 93 known rows insufficient. No broad discovery was run.",
+    "artifacts": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_current_12_opening_amounts.v1.json (file SHA-256 376b1b951b0131cc766b1f7e4e7ef43f97c5659a8ec8485d3629c57608b14f60); byzantine_historical_101_opening_amounts_replay.v1.json (5741005b03ee2a59ed9d00343bf21bd75b1db35c7ad769316e11b3d3ab1687c6); byzantine_full_cohort_discovery_preflight.v1.json (865b94c7f9918ee9c257f5372d71fbf1087bdd3fb6fa7ecd95d2ee0f49c1f013).",
+    "next_action": "Do not acquire. A separately authorized discovery run must freeze Tier B/C populations and call/byte ceilings; recovering the 91 missing historical paths requires a separate retained-evidence recovery or bounded provider plan."
+  },
   "operation_opening_history_v1_framework_freeze": {
     "engineering_revision": "classification-attribution-axis plus uncommitted generic opening-history reducer, profile fixture test, parent contract, and protocol/valuation-contract integration",
     "tests": "23 passed: generic profile, event cohort, PumpSwap/pAMM, instruction normalization, semantic scanner, and semantic reacquisition focused matrix",

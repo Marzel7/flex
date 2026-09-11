@@ -1,4 +1,12 @@
 {
+  "operation_opening_history_v1_chunk_2_actual_runner_resume_a": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "tests": "PASS: 4 passed: tests/test_opening_history_actual_runner_resume_a.py. All cases enter through scripts/run_opening_history_production_batch.py::run_production_batch(execute=True), using OpeningHistoryProductionTransport with a mock HTTP opener and retained three-row fixture bytes.",
+    "production_flags": "offline only; real provider calls=0; Production Batch 1=NOT STARTED; frozen production manifest unmodified; no large combined regression, safety guard, dry run, or final artifact run.",
+    "verdict": "CHUNK_2_RUNNER_RESUME_A_QUALIFIED",
+    "restart_matrix": "CREATE handoff: persisted CREATE response/handoff reused, getTransaction replay=0, exactly one CREATE-slot getBlock request, baseline-identical terminal record. BLOCK handoff: getTransaction replay=0 and getBlock replay=0, reduction/canonical continuation only, baseline-identical terminal digest. OPENING_REDUCTION_COMMITTED: mock HTTP=0, re-reduction=0, canonical continuation only. CANONICAL_COMMITTED: mock HTTP=0, existing target validates/terminalizes in place with inode/mtime unchanged and no rewrite. Every case asserts persisted getTransaction, getBlock, wire, durable, and extension counters are monotonic from its pre-restart checkpoint.",
+    "next_action": "STOP. Do not proceed to Chunk 3 unless separately instructed."
+  },
   "operation_opening_history_v1_production_transport_runner": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "PASS: python -m py_compile src/ops/opening_history_production_transport.py scripts/run_opening_history_production_batch.py; PASS: default dry run with mock endpoint -> READY_FOR_PRODUCTION_BATCH_1, batch=1, rows=50, network_calls=0; PASS: injected frozen three-row manifest/temp run-dir/fixture transport through run_production_batch(execute=True) -> CONTINUE without network; PASS: 7 passed tests/test_opening_history_production_transport.py (exact getTransaction/getBlock request/bytes, JSON-RPC error, HTTP error, timeout ambiguity, malformed success, single-attempt/no credential persistence); PASS: actual runner core with OpeningHistoryProductionTransport(injected mock HTTP) and retained three-row fixtures -> CONTINUE, exactly 7 requests, getTransaction/getBlock only",

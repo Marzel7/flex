@@ -11953,6 +11953,15 @@
     "tests": "3 passed: post-reduction lifecycle, compact-handoff recovery, 3-row runner regression",
     "verdict": "PARTIAL"
   },
+  "operation_opening_history_v1_canonical_resume_final": {
+    "artifact": "docs/audits/byzantine_opening_history_canonical_resume_qualification.v1.json",
+    "artifact_file_sha256": "b865723520e991988bdab31630cf1a9411219a22a001d5688165c5130ff81c31",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "next_action": "Canonical-resume qualification complete; do not run production Batch 1 without separate authorization.",
+    "production_flags": "offline only; provider calls=0; Batch 1=0; fixtures/production manifest unchanged",
+    "tests": "15 passed: final negatives, canonical restart matrix, compact-handoff, three-row runner",
+    "verdict": "PASS"
+  },
   "operation_opening_history_v1_canonical_resume_matrix": {
     "blocker": "OPENING_REDUCTION_COMMITTED alone cannot deterministically construct canonical bytes because the checkpoint does not yet retain the canonical template; its required positive restart case and remaining negative readback/checkpoint tests are unqualified.",
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",

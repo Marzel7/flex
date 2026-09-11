@@ -15146,12 +15146,12 @@
     },
     "provider_calls": 0,
     "production_flags": "no provider, database, queue, service, or configuration mutation",
-    "verdict": "REAL_BIRDEYE_RESPONSE_SHAPE_QUALIFIED",
+    "verdict": "REAL_12_MINT_EARLY_BUYER_BUNDLE_PILOT_QUALIFIED",
     "implementation": "src/ops/early_buyer_bundle_real_pilot.py (uncommitted workspace implementation); real network behavior remains explicit in RealProviderTransport, while the provider adapter remains injected-only.",
     "tests": "pytest -q tests/test_early_buyer_bundle_real_pilot.py tests/test_early_buyer_bundle_provider_adapter.py tests/test_early_buyer_bundle_v2_phase4b.py tests/test_early_buyer_bundle_atomic_ceiling.py: 9 passed",
-    "qualification": "Real-response-shape fixture confirms partial evidence (slot/block time and trade identities; no usable transaction or instruction index). normalize_v2 now preserves unresolved events and emits ORDER_MISSING/ORDERING_UNRESOLVED without artificial ordering. pytest focused parser/Phase-3A/adapter/runner regressions: 11 passed. No provider calls.",
-    "execution": {"provider_calls": 1, "provider_bytes": 21683, "completed_mints": 0, "current_mint": "12GDLxNHvw4QKuBM1SMr6FhTiEVLeWQJYWfEjLCpump", "raw_payloads_retained": 0, "checkpoint": "docs/audits/operation_all_birth_research/byzantine_428_v1/early_buyer_bundle_real_pilot_v1/checkpoint.json"},
-    "next_action": "Separately authorize resumption of the frozen pilot. Preserve its checkpointed one Birdeye attempt and 21,683 bytes; planner may authorize getTransaction for ORDERING_UNRESOLVED only where the missing fact can change a bundle candidate."
+    "qualification": "Resumed frozen pilot completed 12/12 terminal records. All checkpointed canonical record digests verify; every record keeps first_actionable_buy=null. Birdeye supplied partial order only, so all twelve records explicitly retain ORDER_MISSING/ORDERING_UNRESOLVED and identity-conflict insufficiency; no artificial ordering, Helius fallback, or bundle qualification was produced.",
+    "execution": {"provider_calls": 24, "provider_bytes": 281588, "completed_mints": 12, "early_buyer_qualified": 0, "early_buyer_insufficient": 12, "raw_payloads_retained": 0, "helius_calls": 0, "canonical_bytes": 900180, "checkpoint": "docs/audits/operation_all_birth_research/byzantine_428_v1/early_buyer_bundle_real_pilot_v1/checkpoint.json"},
+    "next_action": "Review observed all-insufficient coverage and bandwidth before deciding whether a separately authorized 428-mint early-buyer/bundle history run is justified."
   },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",

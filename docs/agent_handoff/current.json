@@ -5,8 +5,8 @@
     "production_flags": "real provider calls=0; --execute is required for dispatch; production Batch 1 rows attempted=0; production manifest unmodified",
     "verdict": "PARTIAL",
     "implementation": "Added the bounded OpeningHistoryProductionTransport (getTransaction/getBlock only, runtime endpoint, exact method/params, raw bytes transient, no retries) and a thin manifest/matrix-bound Batch-1 runner wiring the existing DurableOpeningHistoryExecutor, OpeningHistoryExecutionAdapter, and resume_batch_until_gate. Default mode is dry-run.",
-    "blocker": "Required offline mock-HTTP request-equality, response/error/timeout, fixture-parity, resumed-checkpoint, and three-row end-to-end qualification plus deterministic qualification artifact have not yet been implemented/run.",
-    "next_action": "Complete the offline transport/runner qualification suite and deterministic artifact; do not use --execute or issue a provider request until it passes."
+    "blocker": "Focused qualification review found that scripts/run_opening_history_production_batch.py hard-codes the production manifest/run directory and exposes no injected manifest/state/transport seam. Therefore the required offline three-row production-runner parity and resumed-checkpoint tests cannot be run through the runner. Mock-HTTP request-equality, response/error/timeout, fixture parity, resume suite, and deterministic qualification artifact remain incomplete.",
+    "next_action": "Add a narrow test-only dependency-injection/configuration seam to the existing runner (not a second execution path), then complete the specified offline transport/runner suite and deterministic artifact; do not use --execute or issue a provider request until it passes."
   },
   "operation_opening_history_v1_production_batch_1_predispatch": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",

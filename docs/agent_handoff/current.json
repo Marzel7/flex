@@ -15995,6 +15995,17 @@
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
     "next_action": "Stop. Remaining censored trajectories must not be called non-collapse; a new provider strategy requires separate authorization."
   },
+  "byzantine_82_censored_post_peak_search": {
+    "engineering_revision": "5904a907 plus uncommitted bounded overlap-gate/result materializers",
+    "tests": "Python compile, immutable 82-token manifest validation, JSON read-back, and provider-disabled replay validation.",
+    "production_flags": "Birdeye=10 bounded serial price-only OHLCV requests at 3-second spacing; no retry/pagination; raw response retention=0; no on-chain, DB, queue, service, trade, or frozen-corpus mutation.",
+    "verdict": "BYZANTINE_POST_PEAK_COLLAPSE_COMPLETION_PARTIAL",
+    "window_semantics": "The revised form used exactly one 15-minute overlap before each retained latest observation. All 10 HTTP-200 responses returned exactly that known overlap candle and no strictly later candle, confirming the boundary form while producing no new history.",
+    "result": "103 trajectories; previously/new/total 90% proven=21/0/21; search denominator=82; remaining right-censored=82; 10 sampled HISTORY_EXHAUSTED_BEFORE_90; 72 CENSORED_UNSEARCHED_AFTER_GATE_STOP; higher peaks=0; provider unavailable=0.",
+    "provider": "new calls=10; HTTP200=10; HTTP429=0; useful later-history responses=0; overlap-only responses=10; raw retained=0; provider-disabled replay=PASS.",
+    "artifacts": "manifest=2267155e51b12179231224887a99c67562e0b986c3ad95743411c14114ae9a97; attempts=a984990b2e4fbc1989b6662f883db15a7e859966fe505f7cfdb28e6e4d1f93e5; gate-summary=e753e4711eb42f76f79120343553c7f1911b2d602a534be492d5eb4348a33654; observations=45b598695be02fa7b7e91ba5a3cc042588d8a5cd5d80d239b24a5f52e1f5ca38; replay=20973f16e4954cfbfc5624d15e38654d85c48243b0d3d952174d1f64b9457710; result=08ce7e2bd88ed6fbc179f0758fb66eaeba3a735f58d242113947c17278163ddb.",
+    "next_action": "HOLD further 72-token acquisition. Inspect/provider-qualify a materially different historical-coverage strategy before any further calls; do not repeat either no-overlap or one-candle-overlap form."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

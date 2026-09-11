@@ -1,11 +1,11 @@
 {
   "operation_opening_history_v1_chunk_3_actual_runner_resume_b": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
-    "tests": "PARTIAL/FAIL: python -m pytest -q tests/test_opening_history_actual_runner_resume_b.py -> 3 passed, 1 failed. Extension reservation, extension handoff, and before-gate cases passed before the hard stop.",
+    "tests": "FAIL: after the capacity-oracle correction, the required single node python -m pytest -q tests/test_opening_history_actual_runner_resume_b.py::test_actual_production_runner_skips_row_terminal_then_completes_batch failed again. No full Chunk-3 rerun was performed.",
     "production_flags": "offline only; real provider calls=0; Production Batch 1=NOT STARTED; frozen production manifest unmodified; no large combined regression or production dry run.",
     "verdict": "CHUNK_3_RUNNER_RESUME_B_FAILED",
-    "blocker": "ROW_TERMINAL test used a generic final[counter] >= pre[counter] assertion for extension_blocks_remaining. Row 1 was terminal pre-restart and the actual runner then completed Rows 2-3; Row 3 correctly reserves its one CREATE+1 extension, so the persisted remaining pool changes 40 -> 39. The assertion is semantically wrong for a remaining-capacity value and stopped the authorized matrix before qualification can be claimed.",
-    "next_action": "Await explicit direction before correcting/rerunning Chunk 3. Do not proceed to Chunk 4/5/6 or production Batch 1."
+    "blocker": "The remaining-capacity oracle was corrected, but the required ROW_TERMINAL next-row assertion exposed a separate test-fixture setup defect: _prefix_and_row3 terminalizes Rows 1 and 2 before restart, so the actual runner correctly begins at Row 3. Assertion failed: http.fixture.calls[0]['row_id'] == 'ROW_2'; actual 'ROW_3'. Runtime implementation, reservation logic, and extension accounting were not changed.",
+    "next_action": "Await explicit direction before repairing the Row-1-only durable setup and rerunning Chunk 3. Do not proceed to Chunk 4/5/6 or production Batch 1."
   },
   "operation_opening_history_v1_chunk_2_actual_runner_resume_a": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",

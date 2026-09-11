@@ -15410,6 +15410,14 @@
     "artifact_content_sha256": "c6055a15a188cd01a3e5e9219eb8958ad4e23f896713ae43223fbe2479a0d0a2",
     "next_action": "With explicit authorization, configure an explicit durable-output ceiling and execute real Batch 1 under the frozen 399-row manifest."
   },
+  "byzantine_batch_1_execution": {
+    "engineering_revision": "uncommitted durable executor runtime qualification",
+    "production_flags": "no provider calls; Batch 1 not started; no manifest mutation",
+    "verdict": "BYZANTINE_BATCH_1_HELD",
+    "blocker": "AUTHORIZATION_MANIFEST_SHA_MISMATCH: authorization requires 164c6ec3ba07526d5492f5396c73f11874290ef1ab173c160a543cc760dfbe40; physical frozen file is 2d60d4052a6726d4adf90ff9989b39def40a0093f99fcc86476bd39ab23b81b5",
+    "provider_calls": 0,
+    "next_action": "Obtain a corrected authorization binding to the physical manifest, or provide the manifest whose SHA is 164c6ec3ba07526d5492f5396c73f11874290ef1ab173c160a543cc760dfbe40; do not dispatch before reconciliation."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

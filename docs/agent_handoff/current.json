@@ -15401,6 +15401,15 @@
     "sources": "docs/audits/byzantine_lifecycle_103/byzantine_103_opening_cluster_full_replay.json; byzantine_103_three_wallet_cluster_sensitivity.json; commits a8dad73516d3de33fa9e1bb4ae6fff4fc645692e, 64fea727bca7a71a8f436eb1c6c30157255b32c4, and 4f4f03c1821019ae6ada1399ecc2451c9778a499; current 12-row cohort audit digest a3ddd10e468f4a7377944dd1f67a415c545aa135ebc8671c80bde9a4d9445375.",
     "next_action": "Do not revive a nonexistent 36-mint/$15K result or promote ordinal reuse to control. Any dollar valuation or ownership attribution needs separately authorized authoritative price/funding evidence."
   },
+  "byzantine_399_durable_batch_executor": {
+    "engineering_revision": "uncommitted durable executor runtime qualification",
+    "tests": "36 passed: tests/test_opening_history_batch_executor.py tests/test_operation_opening_history.py tests/test_post_create_slot_neighborhood.py tests/test_opening_price_semantic_block_scanner.py tests/test_opening_price_event_cohort.py",
+    "production_flags": "provider-free; no Batch 1 dispatch; no runtime/DB/service mutation",
+    "verdict": "BYZANTINE_399_DURABLE_BATCH_EXECUTOR_QUALIFIED",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_399_durable_batch_executor_qualification.v1.json",
+    "artifact_content_sha256": "76f08701e8961e10e582654c52fbd76ced6850f520d8cb50c542c327914d8ec6",
+    "next_action": "With explicit authorization, configure an explicit durable-output ceiling and execute real Batch 1 under the frozen 399-row manifest."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

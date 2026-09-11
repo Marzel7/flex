@@ -11923,6 +11923,17 @@
     "previous_count": 2,
     "reason": "H8->H4 continuity-aware projection preserved 150 deterministic operation populations from H7D-backed H8 evidence without widening scope."
   },
+  "operation_opening_history_v1_3row_adapter_runner": {
+    "artifact": "docs/audits/byzantine_3row_adapter_runner_qualification.v1.json",
+    "artifact_canonical_content_sha256": "ff3e3aa765d3a5429a21ff2ea17763deb6a8997f2769879e89073f639c3c1058",
+    "artifact_file_sha256": "a5019b935709a4fccba16fe20d9305567e191ae029c92cde421c7dd5fa54def5",
+    "batch_gate": "CONTINUE",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "next_action": "Do not extend this runner; any failure-injection/recovery harness requires a separately authorized task.",
+    "production_flags": "offline only; provider calls=0; production Batch 1 rows=0; frozen 399-row manifest verified unchanged",
+    "tests": "45 passed: executor, adapter, derived-fixture integrity, exact fixture transport, and 3-row adapter integration",
+    "verdict": "PASS"
+  },
   "operation_opening_history_v1_3row_derived_fixtures": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "fixture_manifest": "tests/fixtures/opening_history_batch_executor/derived_3row_v1/manifest.v1.json",

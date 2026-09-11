@@ -15407,7 +15407,7 @@
     "production_flags": "provider-free; no Batch 1 dispatch; no runtime/DB/service mutation",
     "verdict": "BYZANTINE_399_DURABLE_BATCH_EXECUTOR_QUALIFIED",
     "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_399_durable_batch_executor_qualification.v1.json",
-    "artifact_content_sha256": "32fbf733131abf01fa72a57098539dd79b09f98132db57be2e9b01e570576a65",
+    "artifact_content_sha256": "c6055a15a188cd01a3e5e9219eb8958ad4e23f896713ae43223fbe2479a0d0a2",
     "next_action": "With explicit authorization, configure an explicit durable-output ceiling and execute real Batch 1 under the frozen 399-row manifest."
   },
   "wt_to_generic_lifecycle_bridge_audit": {

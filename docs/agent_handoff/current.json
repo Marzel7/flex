@@ -67,6 +67,17 @@
     "artifacts": "pilot=09bfd394c6c710a38a43e9a25f1e4921885aa192d26c6419c77ae2ea3d71051c; peak_drawdown_rules=29d069e285610fad09a55c23965932c7fae4387d0cb7e1fd341824dea6ae9e0c; scale_plan=a26bbc91b9d8bc6aa1c1df07fa8b2a1846b94c87106f5302ffbeb8d6b3c931c9; entry_outcome_join_policy=4b685f3bb603eb76ab89504a5239ca52ddc4a430d41998c0f52eae9c8e6464e6.",
     "next_action": "STOP. Do not scale. Any next work needs separately authorized investigation of a provider/source with response-specific market-cap semantics and complete historical trajectory coverage."
   },
+  "market_outcome_v1_onchain_peak_drawdown_preflight": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 + uncommitted on-chain preflight artifacts",
+    "tests": "PASS: four artifacts json.tool-valid; offline repository/source inventory only.",
+    "production_flags": "Birdeye calls=0; Solana RPC calls=0; frozen corpus unchanged; no scale execution; raw retention=0; MARKET_OUTCOME_V1 semantics unchanged.",
+    "verdict": "ONCHAIN_PEAK_DRAWDOWN_PREFLIGHT_BLOCKED",
+    "finding": "Pump.fun post-action MC is a qualified formula candidate from retained virtual SOL/token reserves, 1e15 total supply, and 6 decimals. PumpSwap has an exact initial-pool-price extractor and version-bound quote model, but no qualified retained historical post-migration swap/reserve transition sequence. The three deterministic pilot mints each retain CREATE/opening evidence only, not a complete price-changing-event trajectory through birth+7d.",
+    "policy": "SOL-denominated MC can be authoritative where state is qualified; USD needs independent historical SOL/USD. State may persist between events descriptively, but a drawdown only reaches at an observed qualifying price-changing event. No-trade is NOT_REACHED only after complete horizon coverage; otherwise INSUFFICIENT_POST_PEAK_EVIDENCE. Migration gaps must remain unsmoothed.",
+    "scale": "Retained-only reconstructable count=0 for the inspected pilot; no corpus-wide bounded call count is supportable because exact post-opening event identities/slots are not retained and discovery would otherwise risk prohibited history pagination.",
+    "artifacts": "preflight=320eaab01ff94c743493fc648ff032fda328875e9a169e5f4d096b0cdf2e9bf8; event_schema=e2454f92dbf8028cdb740c7a9689a60806f8c46d7bd07de537f46dd098518bfb; three_token_feasibility=f81107c27bed72ab83aeb1f20bc7f8e4fe33e60b7187800d7cd69e4540fc6e70; scale_projection=59a7245c6dc97707b23de017ec68cf7c615adf4ceffc061eeb2baa304c13d700.",
+    "next_action": "STOP. Any live work requires separately authorized design/qualification of an exact bounded event-index acquisition mechanism across Pump.fun and PumpSwap; do not use address-history pagination."
+  },
   "operation_opening_history_v1_production_transport_runner_final": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 + uncommitted focused production-wrapper, qualification-test, and deterministic-artifact changes",
     "tests": "PASS: compact representative regression 21 passed: production transport matrix (7), actual production runner 3-row parity, pending CREATE restart, extension restart, canonical restart, batch-gate restart, 7 GiB HOLD, 512 KiB canonical boundary, and production dry-run/safety (7).",

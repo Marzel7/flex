@@ -1,4 +1,13 @@
 {
+  "operation_opening_history_v1_after_canonical_temp_written": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "tests": "1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_recovers_after_canonical_temp_written",
+    "production_flags": "offline fixture only; no provider calls, production Batch 1, or production manifest mutation",
+    "verdict": "PASS",
+    "restart_invariants": "Crash has CANONICAL_TEMP_WRITTEN with a present temp whose digest/size exactly match expected and absent final target. Durable classifier is CONTINUE_CANONICAL; resume verifies and atomically promotes the same temp inode to one final target, then readbacks and terminals without Row-1 provider/reduction replay.",
+    "baseline": "Expected digest/size unchanged; frozen Row-1 record digest, opening_amount_sol=3.911480317, and fingerprint match; raw retention=0.",
+    "next_action": "No later canonical or batch-gate boundary is authorized by this task."
+  },
   "operation_opening_history_v1_after_canonical_prepared": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_recovers_after_canonical_prepared",

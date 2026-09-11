@@ -5,7 +5,7 @@
     "production_flags": "real provider calls=0; --execute is required for dispatch; production Batch 1 rows attempted=0; production manifest unmodified",
     "verdict": "PARTIAL",
     "implementation": "Added the bounded OpeningHistoryProductionTransport (getTransaction/getBlock only, runtime endpoint, exact method/params, raw bytes transient, no retries) and a thin manifest/matrix-bound Batch-1 runner wiring the existing DurableOpeningHistoryExecutor, OpeningHistoryExecutionAdapter, and resume_batch_until_gate. The runner now has one callable test-injection seam for manifest/identity/run-dir/transport/profile/execute; CLI retains frozen defaults and dry-run behavior.",
-    "blocker": "Production-transport fixture parity, resumed-checkpoint matrix, full 3-row baseline assertions, real-default dry-run verification, and deterministic qualification artifact remain incomplete.",
+    "blocker": "Production-transport fixture parity through the injected runner, full runner-specific resumed-checkpoint matrix/baseline assertions, real-default dry-run verification, and deterministic qualification artifact remain incomplete. A combined 42-test offline regression was started but did not complete within the initial execution window, so it is not recorded as PASS.",
     "next_action": "Complete the specified offline transport/runner suite and deterministic artifact; do not use production --execute or issue a provider request until it passes."
   },
   "operation_opening_history_v1_production_batch_1_predispatch": {

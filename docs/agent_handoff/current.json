@@ -15211,6 +15211,16 @@
     "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/opening_price_venue_split_balance_delta_qualification.v1.json",
     "next_action": "If separately authorized, reduce Anchor 3 with the existing valuation reducer without changing its anchor. Separately design a bounded historical pAMM successor adapter for Anchors 1/2; do not force them through Pump.fun semantics."
   },
+  "opening_price_anchor3_price_pamm_adapter": {
+    "engineering_revision": "classification-attribution-axis with uncommitted scoped valuation and injected-only pAMM adapter",
+    "tests": "33 passed: 11 pAMM adapter tests, 10 balance-delta tests, valuation/amount and PumpSwap model/boundary regressions",
+    "production_flags": "offline only; no production mutation; 0 Birdeye, Helius, Alchemy, or other provider calls; no remaining-nine, creation, or actionable work",
+    "verdict": "ANCHOR_3_FIRST_BUY_PRICE_QUALIFIED_AND_PAMM_HISTORICAL_BINDING_ADAPTER_QUALIFIED",
+    "anchor_3": "Qualified AVERAGE_EXECUTION_PRICE is 0.0000002123316972565205456173382352947231503023458737806 SOL/token from 3048825.170073 tokens and 0.647362223 SOL. Market cap remains insufficient due to no supply evidence; actionable fields remain null.",
+    "pamm": "The new injected-only adapter validates frozen successor identity, pAMM program/direction, event index, compact amount/fee/pool/version evidence, and optional authoritative-model pre-state consistency. Anchor 1 and Anchor 2 are both PAMM_PRICE_INPUT_PROVIDER_EVIDENCE_REQUIRED: retained compact evidence lacks pool identity, event-bound token/quote amounts, versioned fee model/pool version, and pre-state for model consistency.",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/opening_price_anchor3_price_pamm_adapter.v1.json",
+    "next_action": "If separately authorized, acquire only the named missing pAMM transaction/pool-state evidence for Anchors 1/2 through the new compact adapter; do not revisit Anchor 3 or expand to other anchors."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

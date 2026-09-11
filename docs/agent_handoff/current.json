@@ -11944,6 +11944,15 @@
     "tests": "1 passed: tests/test_opening_history_3row_derived_fixtures.py",
     "verdict": "PASS"
   },
+  "operation_opening_history_v1_final_crash_recovery": {
+    "blocker": "Current durable state has no persisted compact normalized/reduced handoff or canonical recovery marker; resume intentionally fails closed after any consumed-but-unaccepted action, so required deterministic recovery cases cannot truthfully be qualified without extending durable recovery state.",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implemented": "Generic inert FailureInjector seam at create/block dispatch-intent, response-consumed, and extension-reservation durable boundaries.",
+    "next_action": "Authorize and implement durable compact-handoff/canonical recovery state, then run the complete crash/restart matrix.",
+    "production_flags": "offline only; provider calls=0; production Batch 1=0; no fixture or production manifest mutation",
+    "tests": "41 passed: tests/test_opening_history_batch_executor.py and tests/test_opening_history_execution_adapter.py",
+    "verdict": "PARTIAL"
+  },
   "operation_opening_history_v1_framework_freeze": {
     "activation_gap": "No durable operation-research queue/worker/status projection, promoted-operation profile registry, production-safe live compact capture, or UI read model exists yet. Any future automatic invocation must be post-commit, async, idempotent, bounded, outside DB write transactions, and feature-flagged OFF by default.",
     "artifacts": "docs/contracts/operation_opening_history_v1.md; docs/contracts/opening_price_history_v1.md; docs/research/operation_all_birth_research_protocol.md; src/ops/operation_opening_history.py; tests/test_operation_opening_history.py",

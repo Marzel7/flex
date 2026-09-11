@@ -15262,6 +15262,17 @@
     "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/opening_price_create_b3_execution_gap_12.v1.json",
     "next_action": "Require a separate authorization for either an event/mint candidate source with explicit ordering semantics, or a versioned bounded full-block semantic scan with a per-block byte ceiling and compact reduction contract. Do not dispatch signature-only blocks or arbitrary transaction decodes."
   },
+  "opening_price_semantic_block_candidate_scanner_2bhjt": {
+    "engineering_revision": "classification-attribution-axis with uncommitted semantic scanner, focused tests, bounded runner, and compact probe artifact",
+    "tests": "8 passed: semantic scanner (2), instruction normalization (3), and existing successor ordering (3); compact artifact JSON validated",
+    "production_flags": "one authorized local-temp-key Helius probe only: 3 getBlock calls, 0 getTransaction/other calls; no production mutation; raw block retention 0; raw_blocks absent",
+    "verdict": "SEMANTIC_BLOCK_CANDIDATE_SCANNER_QUALIFIED",
+    "anchor": "2Bhjt canonical CREATE locally qualified from retained exact transaction: 5KSHxYNHcMrVNV6o3kzHZ9wcQbuxHrGftJRezvtWzBj5Zzp7VzumbypQc5BbKAU6sDjuvbdpymR58JuXbxUbaVrP at slot 445614529; target mint, successful Pump.fun outer instruction, and Create log all present.",
+    "configuration": "getBlock encoding=jsonParsed, transactionDetails=full, rewards=false, maxSupportedTransactionVersion=0, finalized; 256 MiB fail-closed 3-block qualification ceiling.",
+    "measurement": "slots 445614529-445614531: 3 accepted blocks, 21,244,548 wire bytes, largest 8,635,577 bytes, 7,823 compact bytes. Candidate reduction surfaced 1 CREATE (tx index 288), 10 Pump.fun BUYs, 0 pAMM BUYs, 0 creator activity, and 8 unsupported relevant shapes. Exact block-array indices preserved. The known 0.647362223-SOL later transaction is NOT_IN_PROBE_WINDOW.",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/opening_price_semantic_block_probe_2bhjt.v1.json",
+    "next_action": "Stop. Use measured candidate density and block bytes in a separately authorized 12-mint CREATE-to-B3 budget/design; exact getTransaction is permitted only for scanner-emitted signatures."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

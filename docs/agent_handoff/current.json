@@ -1,11 +1,11 @@
 {
   "operation_opening_history_v1_chunk_4_production_dryrun_safety": {
-    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
-    "tests": "FAIL: python -m pytest -q tests/test_opening_history_production_batch_safety.py -> 1 failed, 6 passed. Hard stop reached; no rerun/final artifact.",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 + uncommitted focused production-wrapper guard/test changes",
+    "tests": "PASS: 1 passed: tests/test_opening_history_production_batch_safety.py::test_default_production_dry_run_validates_frozen_identity_without_network; 6 passed: remaining default-CLI, four identity-guard, and Batch-2-auto-start nodes.",
     "production_flags": "offline only; real provider calls=0; Production Batch 1=NOT STARTED; frozen production manifest unmodified; no large regression suite.",
-    "verdict": "CHUNK_4_PRODUCTION_DRYRUN_SAFETY_FAILED",
-    "blocker": "Dry-run test incorrectly asserted full equality of manifest['budgets'] with only the three required frozen limits. The physical frozen production manifest contains those exact required values plus 11 additional budget metadata fields (including additional_block_contingency=40 and batch_size_max=50). The error is a test oracle subset-vs-equality defect, not a runtime or manifest defect.",
-    "next_action": "Await explicit instruction before correcting the focused Chunk-4 test oracle and rerunning it. Do not generate final artifact or proceed to Chunk 5/6/production Batch 1."
+    "verdict": "CHUNK_4_PRODUCTION_DRYRUN_SAFETY_QUALIFIED",
+    "safety": "Production default dry run and normal CLI without --execute return READY_FOR_PRODUCTION_BATCH_1 with network/provider calls=0, rows attempted=0, and no provider action ledger. Exact production manifest SHA=2d60d4052a6726d4adf90ff9989b39def40a0093f99fcc86476bd39ab23b81b5, 399 rows, 50x7+49 partition, reconciliation 23+399+6=428, exact crash-matrix SHA=d452a15f80f7e942158e2ab7feeb0bd772bb07c60ea41272455d3981d9f4b795, and required limits getTransaction=399/getBlock=439/wire=7GiB validate. Execute guards reject wrong manifest, wrong matrix identity, non-production run directory for production manifest, and batch_id != 1 before transport. Injected qualification Batch-1 CONTINUE returns immediately with no Batch-2 fall-through.",
+    "next_action": "STOP. Do not generate the final qualification artifact or proceed to Chunk 5/6 unless separately instructed."
   },
   "operation_opening_history_v1_chunk_3_actual_runner_resume_b": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",

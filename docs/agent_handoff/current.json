@@ -15416,7 +15416,15 @@
     "verdict": "BYZANTINE_BATCH_1_HELD",
     "blocker": "AUTHORIZATION_MANIFEST_SHA_MISMATCH: authorization requires 164c6ec3ba07526d5492f5396c73f11874290ef1ab173c160a543cc760dfbe40; physical frozen file is 2d60d4052a6726d4adf90ff9989b39def40a0093f99fcc86476bd39ab23b81b5",
     "provider_calls": 0,
-    "next_action": "Obtain a corrected authorization binding to the physical manifest, or provide the manifest whose SHA is 164c6ec3ba07526d5492f5396c73f11874290ef1ab173c160a543cc760dfbe40; do not dispatch before reconciliation."
+    "next_action": "Implement and offline-qualify the missing provider transport, CREATE-slot validation, event-level reducer, compact-record schema, and real Batch-1 runner behind the existing durable executor; then request a new execution authorization."
+  },
+  "byzantine_batch_1_execution_adapter_preflight": {
+    "physical_manifest_sha256": "2d60d4052a6726d4adf90ff9989b39def40a0093f99fcc86476bd39ab23b81b5",
+    "logical_manifest_sha256": "164c6ec3ba07526d5492f5396c73f11874290ef1ab173c160a543cc760dfbe40",
+    "provider_calls": 0,
+    "verdict": "HOLD_EXECUTABLE_ADAPTER_MISSING",
+    "finding": "src/ops/opening_history_batch_executor.py supplies durable accounting primitives only. It has no transport, no CREATE-slot validator, no event-level B1/B2/B3 reducer, and no real Batch-1 orchestration path. Existing historical scripts are differently bounded and do not meet this authorization's executor contract.",
+    "next_action": "Offline implement and qualify the missing adapter/runner; do not dispatch using an unqualified substitute."
   },
   "byzantine_399_manifest_identity_reconciliation": {
     "engineering_revision": "uncommitted read-only reconciliation",

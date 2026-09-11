@@ -1,4 +1,13 @@
 {
+  "operation_opening_history_v1_final_hold_and_crash_matrix": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "tests": "1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_preserves_hold_after_hold_commit; 1 passed: tests/test_opening_history_execution_adapter.py::test_adapter_wire_handoff_overrun_holds_before_semantic_acceptance",
+    "production_flags": "offline fixture only; real provider calls=0; production Batch 1 not started; production manifest unmodified",
+    "verdict": "BYZANTINE_OPENING_HISTORY_FINAL_CRASH_MATRIX_QUALIFIED",
+    "hold_invariants": "A run-owned isolated scratch residual is introduced only after the real three-row driver terminalizes all rows. The actual gate durably records HOLD with SCRATCH_RESIDUAL, the real AFTER_HOLD_COMMIT hook raises, and a fresh driver returns HOLD with no actions, provider/fixture calls, gate reevaluation, canonical rewrite, counter change, or HOLD replacement. The 7 GiB wire-overrun regression also passes before semantic acceptance.",
+    "artifact": "docs/audits/byzantine_opening_history_final_crash_matrix.v1.json sha256=d452a15f80f7e942158e2ab7feeb0bd772bb07c60ea41272455d3981d9f4b795; canonical serialization generated twice byte-identically; production manifest physical sha256=2d60d4052a6726d4adf90ff9989b39def40a0093f99fcc86476bd39ab23b81b5.",
+    "next_action": "Final crash matrix freeze is complete; no production execution is authorized by this qualification."
+  },
   "operation_opening_history_v1_after_continue_commit": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_recovers_after_continue_commit; regression 1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_recovers_during_batch_gate",

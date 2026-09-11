@@ -1,4 +1,13 @@
 {
+  "operation_opening_history_v1_after_extension_transport_return": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "tests": "1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_extension_transport_return_fails_closed",
+    "production_flags": "offline fixture only; no provider calls, production Batch 1, or production manifest mutation",
+    "verdict": "PASS",
+    "finding": "Added the extension transport-return seam and durable transport_invoked checkpoint to the restarted extension continuation path. Crash has one DISPATCH_INTENT_BOUND reservation, bound CREATE+1 request, transport_invoked=true, response_consumed=false, and no extension handoff.",
+    "restart_invariants": "Restart returns FAIL_CLOSED/NON_REPLAYABLE_RESPONSE_BOUNDARY; Row-3 CREATE, CREATE-slot BLOCK, CREATE+1, and CREATE+2 calls do not replay. Reservation digest/status/ordinal/slot and pool=39 remain unchanged, with no second reservation/decrement or raw retention.",
+    "next_action": "No later crash-matrix boundary is authorized by this task."
+  },
   "operation_opening_history_v1_after_extension_reservation": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_recovers_after_extension_reservation",

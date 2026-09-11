@@ -11980,6 +11980,14 @@
     "tests": "15 passed: compact handoff, adapter qualification regression, adapter suite",
     "verdict": "PARTIAL"
   },
+  "operation_opening_history_v1_final_crash_matrix": {
+    "blocker": "Current FailureInjector is only wired at limited executor boundaries. Adapter transport-return/normalization/selection/amount boundaries and a durable integrated continuation dispatcher are absent, so the requested true end-to-end matrix cannot be executed or qualified without concrete implementation work.",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "next_action": "Authorize implementation of adapter boundary hooks plus a handoff-driven integrated resume dispatcher, then run the full requested matrix.",
+    "production_flags": "offline only; provider calls=0; Batch 1=0; fixtures/production manifest unchanged",
+    "tests": "No new matrix run: current injector/resume coverage audited against requested integrated boundaries.",
+    "verdict": "HOLD"
+  },
   "operation_opening_history_v1_final_crash_recovery": {
     "blocker": "Current durable state has no persisted compact normalized/reduced handoff or canonical recovery marker; resume intentionally fails closed after any consumed-but-unaccepted action, so required deterministic recovery cases cannot truthfully be qualified without extending durable recovery state.",
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",

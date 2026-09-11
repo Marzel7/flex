@@ -15242,6 +15242,16 @@
     "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/opening_price_pamm_historical_prestate_qualification_2.v1.json",
     "next_action": "Preserve Anchor 1/2 as PAMM_PRICE_INPUT_INSUFFICIENT. Only an explicitly authorized archival state source capable of exact historical Pool and FeeConfig bytes could reopen authoritative pAMM replay; do not use current state or pool-vault credits as price."
   },
+  "opening_price_b1_b2_b3_preflight_12": {
+    "engineering_revision": "classification-attribution-axis; no new executor implementation",
+    "tests": "5 passed: existing successor-ordering and event-scoped correction regressions",
+    "production_flags": "retained local audit only; 0 provider calls; no 428 work, strategy/backtest, price, or actionable analysis",
+    "verdict": "INSUFFICIENT_EVIDENCE",
+    "finding": "The frozen 12-mint successor corpus holds bounded later early_buy sequences and one selected successor per mint, but contains zero canonical CREATE anchors and zero true post-CREATE B1/B2/B3 sequences. The existing RecoveryExecutor recovers transaction indices only for preselected provider events and cannot start from CREATE, classify creator buys, or stop at B3.",
+    "two_bhjt": "The qualified 0.647362223-SOL transaction is 45 seconds after the stored launch reference. Its true B ordinal cannot be established from the retained successor corpus and must not be called B1.",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/opening_price_b1_b2_b3_preflight_12.v1.json",
+    "next_action": "A separate authorization must freeze canonical CREATE references and a bounded post-CREATE slot/call/byte manifest for all 12, then implement an event-level B1/B2/B3 executor. No provider path was dispatched because the request contains no explicit acquisition ceiling."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

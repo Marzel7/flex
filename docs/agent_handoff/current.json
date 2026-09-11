@@ -1,4 +1,13 @@
 {
+  "operation_opening_history_v1_during_batch_gate": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "tests": "1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_recovers_during_batch_gate; regression 1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_recovers_before_batch_gate",
+    "production_flags": "offline fixture only; no provider calls, production Batch 1, or production manifest mutation",
+    "verdict": "PASS",
+    "restart_invariants": "Crash reaches the real DURING_BATCH_GATE hook after invariant evaluation starts but before a gate verdict is durable: all rows are terminal, completed_row_count=3, batch_gate absent, raw retention=0, and scratch empty. Fresh driver does zero row/provider/fixture work, reselects BATCH_GATE, re-evaluates its invariants, and commits CONTINUE exactly once.",
+    "baseline": "Logical/attempt/wire/durable/extension/terminal counters are unchanged across restart except the durable gate state; all canonical target inode/mtime/digest values remain unchanged. Single-batch fixture ends COMPLETE with wire_bytes_received=32304098 and raw/scratch=0.",
+    "next_action": "No AFTER_CONTINUE_COMMIT or HOLD crash boundary is authorized by this task."
+  },
   "operation_opening_history_v1_before_batch_gate": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_recovers_before_batch_gate; regression 1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_recovers_after_row_terminal",

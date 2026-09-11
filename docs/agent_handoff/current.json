@@ -11989,6 +11989,14 @@
     "tests": "15 passed: compact handoff, adapter qualification regression, adapter suite",
     "verdict": "PARTIAL"
   },
+  "operation_opening_history_v1_continuation_executor": {
+    "blocker": "OpeningHistoryExecutionAdapter.execute_row is not phase-resumable: it always dispatches CREATE and does not expose durable compact-handoff continuation methods. A safe continuation executor requires extracting phase-specific adapter methods and preserving/reconstructing row profile and multi-block reducer inputs; a wrapper would duplicate provider actions.",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "next_action": "Authorize refactoring execute_row into durable phase-specific continuation methods, then implement the six fresh-instance restart cases.",
+    "production_flags": "offline only; provider calls=0; Batch 1=0; fixtures/production manifest unchanged",
+    "tests": "No new continuation execution: existing adapter/resume contract audited.",
+    "verdict": "HOLD"
+  },
   "operation_opening_history_v1_final_crash_matrix": {
     "blocker": "Current FailureInjector is only wired at limited executor boundaries. Adapter transport-return/normalization/selection/amount boundaries and a durable integrated continuation dispatcher are absent, so the requested true end-to-end matrix cannot be executed or qualified without concrete implementation work.",
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",

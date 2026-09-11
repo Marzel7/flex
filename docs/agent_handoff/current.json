@@ -15178,7 +15178,9 @@
     "verdict": "HOLD_RECOVERY_EXECUTOR_ABSENT",
     "finding": "src/ops/early_buyer_bundle_real_pilot.py exposes RealProviderTransport.helius(method, params) but FrozenPilotRunner has no recovery manifest, relevant-slot checkpoint state, getBlock signature-to-transaction-index matcher, successor-record construction, or planner/fallback invocation. The existing runner only invokes Birdeye acquire_one then normalize_v2/build_v2.",
     "provider_calls": 0,
-    "next_action": "Authorize implementation and offline qualification of the bounded three-mint ordering-recovery executor before any real getBlock request."
+    "implementation": "src/ops/early_buyer_order_recovery.py added as injected-only bounded successor executor with deterministic low/median/high selection, frozen relevant slots, compact checkpoint, exact signature matcher, immutable successor storage, and read-back verification.",
+    "tests": "pytest -q tests/test_early_buyer_order_recovery.py tests/test_early_buyer_bundle_two_corrections.py: 3 passed; provider calls 0",
+    "next_action": "Authorize the three-mint real ordering-recovery qualification with its frozen manifest before any real getBlock request."
   },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",

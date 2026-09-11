@@ -15589,5 +15589,15 @@
     "status": "HOLD",
     "verdict": "MIGRATION_REQUIRED",
     "writers": "src/core/ws_cascade_store.py lifecycle upsert/update functions; scripts/backfill_token_lifecycle.py historical backfill."
+  },
+  "operation_opening_history_v1_final_failure_hooks": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 plus uncommitted offline failure-hook qualification",
+    "artifact": "docs/audits/byzantine_opening_history_final_failure_hooks_qualification.v1.json",
+    "artifact_file_sha256": "ed6ce73ef1bbd3084da01ce32c6496ef39539b5c235b5acde27cecb89c5ab652",
+    "tests": "54 passed: final hook reachability, six-restart, canonical resume, extension reservation, exact request payload, and durable batch executor suites",
+    "production_flags": "offline only; provider calls=0; Batch 1=0; production manifest/fixtures unchanged",
+    "verdict": "FINAL_FAILURE_HOOKS_QUALIFIED",
+    "blocker": "Final integrated crash matrix and restarted batch loop remain intentionally unrun/unimplemented in this hook-only milestone.",
+    "next_action": "Under a separately authorized milestone, run the final crash/recovery matrix using these durable boundaries; do not activate production Batch 1."
   }
 }

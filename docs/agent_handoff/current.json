@@ -15339,6 +15339,18 @@
     "later_transaction": "The 0.647362223-SOL transaction is outside the probe; it is later than the first confirmed post-CREATE buy but cannot yet be classified B4+ because B2/B3 are not fully qualified and intervening slots were not scanned.",
     "next_action": "If authorized, reacquire only the same three semantic blocks under the stated compact-field reduction contract. Do not widen slots or call arbitrary getTransaction signatures."
   },
+  "operation_opening_history_v1_framework_freeze": {
+    "engineering_revision": "classification-attribution-axis plus uncommitted generic opening-history reducer, profile fixture test, parent contract, and protocol/valuation-contract integration",
+    "tests": "23 passed: generic profile, event cohort, PumpSwap/pAMM, instruction normalization, semantic scanner, and semantic reacquisition focused matrix",
+    "production_flags": "0 provider/network calls; no production behavior, DB, listener, queue, UI, feature-flag, or deployment mutation",
+    "verdict": "FRAMEWORK_FREEZE_QUALIFIED_NOT_ACTIVATED",
+    "authority": "docs/research/operation_all_birth_research_protocol.md remains authoritative for frozen inputs, all-birth denominator, acquisition/replay, and actionable-entry semantics; docs/contracts/opening_price_history_v1.md remains the frozen valuation sub-contract. The new docs/contracts/operation_opening_history_v1.md is their additive parent contract for generic ordered opening-event history and optional candles.",
+    "generic_contract": "Profiles define operation ID/version, configured B1..Bn depth, creator exclusion, venues, valuation/candle requirements, budgets, stop conditions, and operation-specific detector. Canonical order is slot→transaction_index→event_index. Pump.fun is qualified; PumpSwap/pAMM fails closed with PAMM_PRICE_INPUT_INSUFFICIENT where historical state/fee/version facts are absent. Birdeye remains optional corroboration with explicit basis/absence/retry/budget states.",
+    "byzantine": "Retained as an instance only: fixed three-wallet template confirmed on 101 historical qualified openings/36 creators and 11/11 current CREATE-qualified launches; control remains unresolved. Six generic-OHLC observations are not USD market cap.",
+    "activation_gap": "No durable operation-research queue/worker/status projection, promoted-operation profile registry, production-safe live compact capture, or UI read model exists yet. Any future automatic invocation must be post-commit, async, idempotent, bounded, outside DB write transactions, and feature-flagged OFF by default.",
+    "artifacts": "docs/contracts/operation_opening_history_v1.md; docs/contracts/opening_price_history_v1.md; docs/research/operation_all_birth_research_protocol.md; src/ops/operation_opening_history.py; tests/test_operation_opening_history.py",
+    "next_action": "Do not activate automatically. Separately design and qualify the durable queue/profile registry/live-capture/UI status integration before any promotion-triggered execution."
+  },
   "opening_price_12_birdeye_1s_429_gap_retry": {
     "engineering_revision": "classification-attribution-axis plus uncommitted bounded retry executor, frozen manifest, and compact retry artifact",
     "tests": "2 passed: tests/test_opening_price_event_cohort.py; retry runner syntax compile, manifest/result JSON validation, checkpoint read-back, and 2Bhjt regression passed",

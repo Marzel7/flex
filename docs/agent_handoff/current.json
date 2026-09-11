@@ -1,4 +1,12 @@
 {
+  "operation_opening_history_v1_production_batch_1_predispatch": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "tests": "Read-only pre-dispatch identity verification: manifest physical SHA, 399 rows, 50x7+49 partition, Batch 1=50, reconciliation 23+399+6=428, and final crash-matrix SHA all PASS",
+    "production_flags": "provider dispatch NOT started; real provider calls=0; production Batch 1 rows=0; production manifest unmodified",
+    "verdict": "HOLD",
+    "blocker": "No production-safe opening-history RPC transport or production Batch-1 runner exists. The only present transport, src/ops/opening_history_fixture_transport.py::ExactQualificationFixtureTransport, explicitly rejects real_provider_transport with QUALIFICATION_MANIFEST_REAL_DISPATCH_FORBIDDEN; scripts/run_opening_history_3row_adapter_qualification.py is an offline three-row artifact writer only.",
+    "next_action": "Explicitly authorize implementation and qualification of a production-safe JSON-RPC transport plus manifest-bound Batch-1 runner/artifact path, or provide the intended existing production runner. Do not issue a provider request until that path exists and passes pre-dispatch verification."
+  },
   "operation_opening_history_v1_final_hold_and_crash_matrix": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_preserves_hold_after_hold_commit; 1 passed: tests/test_opening_history_execution_adapter.py::test_adapter_wire_handoff_overrun_holds_before_semantic_acceptance",

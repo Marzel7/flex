@@ -15985,6 +15985,16 @@
     "artifacts": "audit=a5b305f8b7649282fa6290af83879df9c17eeaae13e9e4ea7dda334825b03aab; summary=179dddf9f4fc3121d84a297d51e82029e90d052c11afb685be3654a41d238751.",
     "next_action": "Stop. No threshold selection/strategy claim from censored evidence."
   },
+  "byzantine_103_collapse_timing_completion": {
+    "engineering_revision": "5904a907 plus uncommitted bounded rate-gate/completion materializers",
+    "tests": "Python compile and JSON read-back validation of manifest, extension evidence, timing, summary, and censored artifacts.",
+    "production_flags": "Birdeye=10 bounded serial price-extension calls only; 3-second spacing, no retry/pagination, raw retention=0; no on-chain calls.",
+    "verdict": "BYZANTINE_103_COLLAPSE_TIMING_PARTIAL",
+    "rate_gate": "HTTP200=10, HTTP429=0, useful later history=0. Gate technically passed but empty-history evidence stopped further unproven extension dispatch.",
+    "result": "103 tokens; prior/new/total 90% proven=21/0/21; 50/75 proven=30/25; still right-censored=82; sampled history-exhausted=10. Fully timed=20.3883%; censored=79.6117%.",
+    "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
+    "next_action": "Stop. Remaining censored trajectories must not be called non-collapse; a new provider strategy requires separate authorization."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

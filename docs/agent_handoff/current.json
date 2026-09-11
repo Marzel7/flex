@@ -15339,6 +15339,18 @@
     "later_transaction": "The 0.647362223-SOL transaction is outside the probe; it is later than the first confirmed post-CREATE buy but cannot yet be classified B4+ because B2/B3 are not fully qualified and intervening slots were not scanned.",
     "next_action": "If authorized, reacquire only the same three semantic blocks under the stated compact-field reduction contract. Do not widen slots or call arbitrary getTransaction signatures."
   },
+  "historical_fixed_opening_buyer_archaeology": {
+    "engineering_revision": "classification-attribution-axis; read-only retained-artifact and reachable-git-history archaeology",
+    "tests": "not applicable; JSON/script/commit inspection only",
+    "production_flags": "0 provider/network calls; no engineering-tree, database, source, schema, or audit-artifact changes",
+    "verdict": "HISTORICAL_101_OPENING_FIXED_TRIO_CONFIRMED_CONTROL_UNRESOLVED",
+    "population": "The historical opening corpus is 101 qualified openings spanning 36 distinct creators (36 strict-route and 65 continuity-route openings). Thus the remembered 36 denotes creators, not a 36-mint opening cohort.",
+    "result": "Historical event-level ordering fixes B1=5JTvwLFy1EPWoSWbVqjp4x9rfg961P9iKV3vsSubDFXd at position 1, B2=J4iit8MmXd2P46DzQxk7dj3qjY3m9G3Ck5zrPkBV54JV at position 2, and B3=7j4uWuDdZnJFKMwQK4TezBhipVCugdUW3NzCW7CGecvC at position 3 for all 101 qualified openings. The wallets are fixed but distinct; B2 and B3 were never equal in the frozen result.",
+    "method": "scripts/analyze_byzantine_opening_cluster.py replayed retained opening evidence through actions_from_block, ordered buys by slot, transaction_index, and Pump.fun event action_index, excluding the creator. The sensitivity replay used the same ordered event stream and virtual-reserve FDV-in-SOL semantics.",
+    "limits": "No historical exact ~$15K conversion was recovered. The retained Birdeye 1-second OHLC payloads use generic o/h/l/c fields without response-level market-cap semantics, and no qualified exact-time SOL/USD bridge proves a dollar value. Historical and current retained attribution evidence establish coordinated behaviour, not shared control: direct creator/operation-wallet, funding, and interaction checks are negative or insufficient.",
+    "sources": "docs/audits/byzantine_lifecycle_103/byzantine_103_opening_cluster_full_replay.json; byzantine_103_three_wallet_cluster_sensitivity.json; commits a8dad73516d3de33fa9e1bb4ae6fff4fc645692e, 64fea727bca7a71a8f436eb1c6c30157255b32c4, and 4f4f03c1821019ae6ada1399ecc2451c9778a499; current 12-row cohort audit digest a3ddd10e468f4a7377944dd1f67a415c545aa135ebc8671c80bde9a4d9445375.",
+    "next_action": "Do not revive a nonexistent 36-mint/$15K result or promote ordinal reuse to control. Any dollar valuation or ownership attribution needs separately authorized authoritative price/funding evidence."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

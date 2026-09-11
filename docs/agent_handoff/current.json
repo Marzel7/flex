@@ -1,4 +1,13 @@
 {
+  "operation_opening_history_v1_after_extension_response_consumed": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "tests": "1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_extension_response_consumed_without_handoff_fails_closed",
+    "production_flags": "offline fixture only; no provider calls, production Batch 1, or production manifest mutation",
+    "verdict": "PASS",
+    "finding": "Added the extension-specific post-consumption hook to the shared durable consume transition. Crash has durable CREATE+1 response bytes/digest, transport_invoked=true, response_consumed=true, and no extension handoff/reduction/canonical state.",
+    "restart_invariants": "Restart returns FAIL_CLOSED/NON_REPLAYABLE_RESPONSE_BOUNDARY with no Row-3 CREATE, CREATE-slot BLOCK, CREATE+1, or CREATE+2 replay; no new actions/intents/reservations/pool decrements; reservation remains DISPATCH_INTENT_BOUND at pool=39 and raw retention=0.",
+    "next_action": "No later crash-matrix boundary is authorized by this task."
+  },
   "operation_opening_history_v1_after_extension_transport_return": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_extension_transport_return_fails_closed",

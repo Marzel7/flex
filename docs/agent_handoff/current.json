@@ -15426,6 +15426,16 @@
     "finding": "src/ops/opening_history_batch_executor.py supplies durable accounting primitives only. It has no transport, no CREATE-slot validator, no event-level B1/B2/B3 reducer, and no real Batch-1 orchestration path. Existing historical scripts are differently bounded and do not meet this authorization's executor contract.",
     "next_action": "Offline implement and qualify the missing adapter/runner; do not dispatch using an unqualified substitute."
   },
+  "byzantine_399_execution_adapter_implementation": {
+    "engineering_revision": "uncommitted adapter implementation",
+    "tests": "39 passed: focused adapter, durable executor, semantic reducer/scanner, and operation-history regressions",
+    "production_flags": "offline only; provider calls 0; Batch 1 rows attempted 0",
+    "verdict": "BYZANTINE_399_EXECUTABLE_ADAPTER_NOT_QUALIFIED",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_399_execution_adapter_qualification.v1.json",
+    "implemented": "injectable transport, exact CREATE/block request builders, compact CREATE validator, event-level ordered reducer, profile fingerprint, canonical record builder, and one control-plane ledger integration flow",
+    "blocker": "The requested retained-real-shape fixture corpus, multi-row/extension integration, and adapter-wired crash matrix are not yet qualified.",
+    "next_action": "Complete only those remaining offline fixture/integration qualifications before reauthorizing Batch 1."
+  },
   "byzantine_399_manifest_identity_reconciliation": {
     "engineering_revision": "uncommitted read-only reconciliation",
     "production_flags": "offline only; provider calls 0; manifest unmodified; Batch 1 not started",

@@ -15146,11 +15146,12 @@
     },
     "provider_calls": 0,
     "production_flags": "no provider, database, queue, service, or configuration mutation",
-    "verdict": "REAL_EARLY_BUYER_BUNDLE_PILOT_RUNNER_QUALIFIED",
+    "verdict": "REAL_12_MINT_EARLY_BUYER_BUNDLE_PILOT_PARTIAL",
     "implementation": "src/ops/early_buyer_bundle_real_pilot.py (uncommitted workspace implementation); real network behavior remains explicit in RealProviderTransport, while the provider adapter remains injected-only.",
     "tests": "pytest -q tests/test_early_buyer_bundle_real_pilot.py tests/test_early_buyer_bundle_provider_adapter.py tests/test_early_buyer_bundle_v2_phase4b.py tests/test_early_buyer_bundle_atomic_ceiling.py: 9 passed",
-    "qualification": "Injected 12-mint interruption/resume, terminal-mint skip, persisted bytes, 429 attempt preservation, manifest mismatch, credential fail-closed, network hold, record read-back, and raw-payload absence passed. No real provider calls.",
-    "next_action": "Authorize and execute the frozen real 12-mint provider-backed pilot using the qualified runner; retain first_actionable_buy=null."
+    "qualification": "Injected tests passed, but the real pilot exposed an unqualified provider-shape path: after one Birdeye response the parser yielded absent structural ordering fields and normalize_v2 raised TypeError while sorting unresolved canonical keys.",
+    "execution": {"provider_calls": 1, "provider_bytes": 21683, "completed_mints": 0, "current_mint": "12GDLxNHvw4QKuBM1SMr6FhTiEVLeWQJYWfEjLCpump", "raw_payloads_retained": 0, "checkpoint": "docs/audits/operation_all_birth_research/byzantine_428_v1/early_buyer_bundle_real_pilot_v1/checkpoint.json"},
+    "next_action": "Separately authorize a minimal parser/runner error-boundary correction and real-response-shape qualification. Do not resume or widen the frozen pilot under the current runner."
   },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",

@@ -15418,6 +15418,17 @@
     "provider_calls": 0,
     "next_action": "Obtain a corrected authorization binding to the physical manifest, or provide the manifest whose SHA is 164c6ec3ba07526d5492f5396c73f11874290ef1ab173c160a543cc760dfbe40; do not dispatch before reconciliation."
   },
+  "byzantine_399_manifest_identity_reconciliation": {
+    "engineering_revision": "uncommitted read-only reconciliation",
+    "production_flags": "offline only; provider calls 0; manifest unmodified; Batch 1 not started",
+    "verdict": "LEGITIMATE_SEMANTICALLY_IDENTICAL_SUCCESSOR",
+    "physical_manifest_sha256": "2d60d4052a6726d4adf90ff9989b39def40a0093f99fcc86476bd39ab23b81b5",
+    "logical_manifest_sha256": "164c6ec3ba07526d5492f5396c73f11874290ef1ab173c160a543cc760dfbe40",
+    "finding": "The historical authorization SHA is the deterministic generator's canonical digest before adding manifest_sha256; two isolated generator runs reproduce current physical bytes exactly.",
+    "executor_qualification_binding": "current physical manifest SHA 2d60d4052a6726d4adf90ff9989b39def40a0093f99fcc86476bd39ab23b81b5",
+    "recommendation": "AUTHORIZE_CURRENT_PHYSICAL_SHA; no dispatch performed by this reconciliation.",
+    "next_action": "Obtain explicit Batch 1 authorization that binds physical SHA 2d60d4052a6726d4adf90ff9989b39def40a0093f99fcc86476bd39ab23b81b5 and preserves logical SHA 164c6ec3ba07526d5492f5396c73f11874290ef1ab173c160a543cc760dfbe40."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

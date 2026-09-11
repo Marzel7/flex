@@ -1,4 +1,13 @@
 {
+  "operation_opening_history_v1_after_opening_reduction_committed": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "tests": "1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_recovers_after_opening_reduction_committed",
+    "production_flags": "offline fixture only; no provider calls, production Batch 1, or production manifest mutation",
+    "verdict": "PASS",
+    "restart_invariants": "Pre-resume classifier is CONTINUE_CANONICAL. The existing executor resume path immediately prepares, writes, commits, readbacks, and terminals canonical state from the authoritative persisted checkpoint before driver action classification; no Row-1 provider replay or checkpoint rewrite occurs.",
+    "baseline": "Checkpoint and canonical-input digests validate and remain unchanged; one canonical target reaches ROW_TERMINAL with frozen Row-1 digest, opening_amount_sol=3.911480317, matching fingerprint, and raw retention=0.",
+    "next_action": "No later canonical crash-matrix boundary is authorized by this task."
+  },
   "operation_opening_history_v1_after_extension_handoff_committed": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "1 passed: tests/test_opening_history_final_crash_matrix.py::test_driver_recovers_after_extension_handoff_committed",

@@ -11944,6 +11944,15 @@
     "tests": "1 passed: tests/test_opening_history_3row_derived_fixtures.py",
     "verdict": "PASS"
   },
+  "operation_opening_history_v1_canonical_reconciliation": {
+    "blocker": "The five prescribed injected process-restart cases and negative recovery tests have not yet been implemented/executed.",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implemented": "resume() reconciles PREPARED/TEMP_WRITTEN via digest-bound compact canonical record, validates COMMITTED without rewrite, and terminalizes verified read-back state; conflicts/missing committed records fail closed.",
+    "next_action": "Add only the five focused restart tests plus negative conflict cases, then rerun stated regressions.",
+    "production_flags": "offline only; provider calls=0; Batch 1=0; fixtures/production manifest unchanged",
+    "tests": "3 passed: post-reduction lifecycle, compact-handoff recovery, 3-row runner regression",
+    "verdict": "PARTIAL"
+  },
   "operation_opening_history_v1_compact_handoff": {
     "blocker": "Opening-reduction checkpoints, canonical lifecycle markers/temp recovery, and full adapter-driven restart continuation harness are not yet implemented.",
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",

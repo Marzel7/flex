@@ -15232,6 +15232,16 @@
     "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/opening_price_pamm_real_input_acquisition_2.v1.json",
     "next_action": "Do not approximate from pool credits. A separate authorization must establish whether archived exact pre-state/versioned fee evidence can be obtained; ordinary current account lookup cannot prove the historical pAMM state."
   },
+  "opening_price_pamm_historical_prestate_qualification_2": {
+    "engineering_revision": "classification-attribution-axis with uncommitted compact FeeConfig-identity extraction",
+    "tests": "22 passed: pAMM historical adapter, authoritative model, archival validation, and boundary regressions",
+    "production_flags": "retained local evidence only; 0 new transaction, account-state, block, history, Birdeye, Alchemy, or other provider calls; no production mutation",
+    "verdict": "PAMM_HISTORICAL_STATE_UNAVAILABLE",
+    "finding": "Both exact anchors have direct pool/vault identity, transaction-boundary deltas, and the same observed FeeConfig account identity C2aFPdENg4A2HQsmrd5rTw5TaYBX5Ku887cWjbFKtZpw. The retained program deployment is post-upgrade for both slots, but source-to-ProgramData binding remains partial and does not prove a historical pool version or parameters.",
+    "blocker": "No retained raw pool/FeeConfig bytes, absolute vault balances, virtual quote reserve, or decoded versioned fee parameters exist for either anchor. Deltas cannot be reversed into absolute state. Standard configured RPC account reads are current-state only and cannot satisfy the exact historical instruction-boundary requirement.",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/opening_price_pamm_historical_prestate_qualification_2.v1.json",
+    "next_action": "Preserve Anchor 1/2 as PAMM_PRICE_INPUT_INSUFFICIENT. Only an explicitly authorized archival state source capable of exact historical Pool and FeeConfig bytes could reopen authoritative pAMM replay; do not use current state or pool-vault credits as price."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

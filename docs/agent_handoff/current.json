@@ -17,6 +17,15 @@
     "execution": "Final state COMPLETE, gate={batch_id:8, decision:CONTINUE, reasons:[]}; qualified=397, insufficient=2; B1=398/B2=398/B3=397; fingerprint non-match=397, insufficient=2. getTransaction=399; CREATE-slot getBlock=399; extension getBlock=4; remaining extensions=36; wire=3988185768; compact bytes=11272538; canonical bytes=1140191; raw=0.",
     "next_action": "Freeze the requested 399-row raw-free artifacts and publish their hashes; do not execute Tier-D, Birdeye, or any further provider work."
   },
+  "operation_opening_history_v1_byzantine_428_final_corpus": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 + uncommitted deterministic final-corpus freezer and artifacts",
+    "tests": "PASS: deterministic freezer executed; JSON validation and assertions passed: 428 unique rows, 420 qualified, 8 insufficient, 2 production exceptions, 6 Tier-D exceptions.",
+    "production_flags": "new real provider calls=0; completed 399-row production records unmodified; frozen 399 manifest unmodified; raw retention=0; Birdeye/MARKET_OUTCOME not started.",
+    "verdict": "BYZANTINE_428_OPENING_HISTORY_CORPUS_FROZEN",
+    "execution": "Reconciled 23 predecessor qualified + 397 production qualified + 2 production insufficient + 6 Tier-D = 428 unique mints. The two production insufficiencies are NO_B3_WITHIN_BOUND after CREATE+2 (2 and 1 qualified events respectively). The six Tier-D rows have no retained CREATE signature and prior compact bounded evidence reports block_count=0; exact CREATE discovery cannot be bounded without prohibited creator-history pagination, so all six are retained INSUFFICIENT_EVIDENCE with no new dispatch.",
+    "artifacts": "corpus=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_428_opening_history_corpus.v1.json sha256=a9e8fe951633422e177bcb1a77686836f40f132d99cc8b27bfec523387bcdd3d; summary=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_428_opening_history_summary.v1.json sha256=9ef1452052e6bb320ac10c652454e823491eb5b7f3fe4393dcb43c4c9e2c2d96; exceptions=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_428_opening_history_exceptions.v1.json sha256=877e4290153bc087b89ba9cd80b0f4469fbf36230ef68ba4ab08199559143d1b.",
+    "next_action": "STOP. MARKET_OUTCOME_V1 is ready for separately authorized design/execution only; do not start it from this handoff."
+  },
   "operation_opening_history_v1_production_transport_runner_final": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 + uncommitted focused production-wrapper, qualification-test, and deterministic-artifact changes",
     "tests": "PASS: compact representative regression 21 passed: production transport matrix (7), actual production runner 3-row parity, pending CREATE restart, extension restart, canonical restart, batch-gate restart, 7 GiB HOLD, 512 KiB canonical boundary, and production dry-run/safety (7).",

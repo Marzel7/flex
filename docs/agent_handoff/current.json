@@ -1,4 +1,15 @@
 {
+  "opening_price_2bhjt_event_level_cohort_and_birdeye_1s": {
+    "engineering_revision": "classification-attribution-axis plus uncommitted event-level cohort/candle compact reducer, runner, tests, and artifact",
+    "tests": "4 passed: event-level canonical ordering, chart-semantic non-promotion, and semantic reacquisition regression",
+    "production_flags": "no production mutation; no new Solana calls; one Birdeye OHLCV call only; 1,575 transient bytes; raw Birdeye response released; zero raw block/transaction retention",
+    "event_verdict": "2BHJT_EVENT_LEVEL_B1_B2_B3_QUALIFIED",
+    "event_result": "Nine successful target Buy events are fully enumerated and canonically ordered by slot, transaction index, event-log index. True B1/B2/B3 are all in transaction 289 at event-log indices 39/80/121: 5JTvwLFy1EPWoSWbVqjp4x9rfg961P9iKV3vsSubDFXd (1.223703796 SOL), J4iit8MmXd2P46DzQxk7dj3qjY3m9G3Ck5zrPkBV54JV (1.341690029 SOL), and 7j4uWuDdZnJFKMwQK4TezBhipVCugdUW3NzCW7CGecvC (1.402410908 SOL). All are distinct; first-three capital is exactly 3.967804733 SOL. The earlier transaction-level B2/B3 labels are superseded.",
+    "candle_verdict": "2BHJT_BIRDEYE_OPENING_1S_UNAVAILABLE",
+    "candle_result": "One accepted bounded /defi/v3/ohlcv request (1s, CREATE-1 through CREATE+5, requested chart_type=mcap/currency=usd/padding=false) returned six compact OHLC records including timestamp 1788958021. Response used generic o/h/l/c fields and did not provide explicit response chart-type semantics, so values are frozen but cannot be called market cap or price. No second request was authorized by a deterministic parameter-correction finding.",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/opening_price_2bhjt_event_level_opening_cohort_and_birdeye_1s.v1.json (readback digest d78b1bc8c358556f8ecc9948392fba256cf855f5fac33bef5e926e7d8b472f1c)",
+    "next_action": "Do not use generic candle values for USD/SOL or ~$15K comparison. A future request must first establish an authoritative response-level chart-type contract; do not broaden to other mints."
+  },
   "opening_price_2bhjt_b1_b2_b3_semantic_reacquisition": {
     "engineering_revision": "classification-attribution-axis plus uncommitted compact semantic reducer, bounded runner, tests, and artifact",
     "tests": "9 passed: semantic reacquisition, semantic scanner, instruction normalization, and retained Pump.fun event decoding",

@@ -11944,6 +11944,15 @@
     "tests": "1 passed: tests/test_opening_history_3row_derived_fixtures.py",
     "verdict": "PASS"
   },
+  "operation_opening_history_v1_adapter_hooks_resume_dispatcher": {
+    "blocker": "Dispatcher currently classifies but does not execute continuations through fresh adapter/transport instances; six required true-restart integration cases remain unimplemented.",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implemented": "Adapter failure hooks at genuine transport/normalization/reduction/selection/amount boundaries and generic durable-state next-action classifier with ambiguity fail-closed classification.",
+    "next_action": "Wire classifier actions to compact-handoff continuation methods and execute the six focused true-restart cases.",
+    "production_flags": "offline only; provider calls=0; Batch 1=0; fixtures/production manifest unchanged",
+    "tests": "2 passed: durable-state dispatcher table and 3-row adapter runner regression",
+    "verdict": "PARTIAL"
+  },
   "operation_opening_history_v1_canonical_reconciliation": {
     "blocker": "The five prescribed injected process-restart cases and negative recovery tests have not yet been implemented/executed.",
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",

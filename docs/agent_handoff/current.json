@@ -57,6 +57,16 @@
     "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/market_outcome_v1_birdeye_provider_contract_investigation.v1.json sha256=c08750b19a6b967687ab626212d9ed5c9e63d78d5bf847c98b3b1b0f4f078322.",
     "next_action": "STOP. Do not authorize another Birdeye pilot or scale until a provider/source strategy can satisfy old-token 10s/30s market-cap evidence without changing MARKET_OUTCOME_V1 semantics."
   },
+  "market_outcome_v1_adaptive_birdeye_peak_drawdown_pilot": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 + uncommitted adaptive bounded-pilot runner/artifacts",
+    "tests": "PASS: four adaptive artifacts json.tool-valid; exact 3-call serial pilot completed with >=1.1-second dispatch spacing.",
+    "production_flags": "Birdeye calls=3; HTTP200=3; HTTP429=0; Solana RPC=0; retries/pagination=0; raw response retention=0; 428 scale=not started; frozen corpus unchanged.",
+    "verdict": "BIRDEYE_PEAK_DRAWDOWN_PILOT_HOLD",
+    "execution": "Opening-authoritative selections/reference binding PASS: FmVBbE3f7oncfPZ2TDRbWb6gZKggtky977pwqasnpump lowest, 4t1BKf7bPDWCGx8Dmdwfw3oZvM7uPmEqiJaHKRm6pump median-nearest, Buqf6vj4JZoDJKRFfS1t7hxLG6eDsak4moC6cvg5pump highest. One 15m/mcap/range birth-to-7d request each returned 2, 10, and 1 generic candles respectively (13 total); expected opportunities=672 each. Last observed timestamps fell before the requested 7-day endpoints; largest observed gaps=349200 and 205200 seconds where applicable.",
+    "blocker": "Response-specific MC fallback cannot be excluded because records contain generic o/h/l/c without an explicit mcap/fallback marker, and the trajectories are materially incomplete. Consequently peak/drawdown, NOT_REACHED, recovery, and provider-disabled replay are not run; no scale projection is qualified.",
+    "artifacts": "pilot=09bfd394c6c710a38a43e9a25f1e4921885aa192d26c6419c77ae2ea3d71051c; peak_drawdown_rules=29d069e285610fad09a55c23965932c7fae4387d0cb7e1fd341824dea6ae9e0c; scale_plan=a26bbc91b9d8bc6aa1c1df07fa8b2a1846b94c87106f5302ffbeb8d6b3c931c9; entry_outcome_join_policy=4b685f3bb603eb76ab89504a5239ca52ddc4a430d41998c0f52eae9c8e6464e6.",
+    "next_action": "STOP. Do not scale. Any next work needs separately authorized investigation of a provider/source with response-specific market-cap semantics and complete historical trajectory coverage."
+  },
   "operation_opening_history_v1_production_transport_runner_final": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028 + uncommitted focused production-wrapper, qualification-test, and deterministic-artifact changes",
     "tests": "PASS: compact representative regression 21 passed: production transport matrix (7), actual production runner 3-row parity, pending CREATE restart, extension restart, canonical restart, batch-gate restart, 7 GiB HOLD, 512 KiB canonical boundary, and production dry-run/safety (7).",

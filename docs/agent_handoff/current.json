@@ -15252,6 +15252,16 @@
     "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/opening_price_b1_b2_b3_preflight_12.v1.json",
     "next_action": "A separate authorization must freeze canonical CREATE references and a bounded post-CREATE slot/call/byte manifest for all 12, then implement an event-level B1/B2/B3 executor. No provider path was dispatched because the request contains no explicit acquisition ceiling."
   },
+  "opening_price_create_b3_authorized_execution_gap_12": {
+    "engineering_revision": "classification-attribution-axis with uncommitted execution-gap artifact",
+    "tests": "3 passed: tests/test_early_buyer_order_recovery.py; execution-gap artifact JSON validated",
+    "production_flags": "0 provider/network calls despite bounded acquisition authorization; no production mutation; no raw provider payload or full-block retention",
+    "verdict": "CREATE_B1_B2_B3_RECONSTRUCTION_FAILED_EXECUTOR_GAP",
+    "finding": "Eleven of the frozen twelve token_analysis rows retain a candidate create signature; one does not. Those references do not themselves prove canonical CREATE instruction, slot, or time. The approved getBlock mode, transactionDetails=signatures, contains no mint, program, instruction, balances, buyer, or success fields and cannot identify which signatures are relevant buys.",
+    "blocker": "No deterministic candidate selector exists in the frozen CREATE-to-B3 inputs. The existing RecoveryExecutor only orders already-selected early-buy signatures. Arbitrary exact transaction decodes within the eight-per-mint cap could not prove the absence of earlier buys and would violate the bounded exact-evidence objective.",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/opening_price_create_b3_execution_gap_12.v1.json",
+    "next_action": "Require a separate authorization for either an event/mint candidate source with explicit ordering semantics, or a versioned bounded full-block semantic scan with a per-block byte ceiling and compact reduction contract. Do not dispatch signature-only blocks or arbitrary transaction decodes."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

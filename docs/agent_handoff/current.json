@@ -15910,6 +15910,20 @@
     "status": "COMPLETE",
     "verdict": "MIGRATION_PLAN_QUALIFIED_FUTURE_PATH_LEGACY_ROWS_UNBOUND"
   },
+  "market_outcome_external_ath_provider_pilot": {
+    "engineering_revision": "5904a907 plus uncommitted bounded external-pilot script/artifacts",
+    "tests": "python -m py_compile scripts/run_market_outcome_external_ath_3token_pilot.py; manifest/result/assessment JSON validated",
+    "production_flags": "No on-chain RPC, DB, queue, service, membership, trade, or Opening History corpus mutation. Six bounded external-provider calls only; raw response retention 0.",
+    "verdict": "NOT_QUALIFIED",
+    "artifacts": {
+      "manifest": "docs/audits/operation_all_birth_research/byzantine_428_v1/market_outcome_v1_external_ath_3token_manifest.v1.json sha256 80c8d7867091e1d54cd8c6149f9a0a80f595e55dddd360925e51ee99e288e775",
+      "results": "docs/audits/operation_all_birth_research/byzantine_428_v1/market_outcome_v1_external_ath_3token_results.v1.json sha256 4fe153d9c93181ddfaaa4c9c8ba8573fd0660155793d1b020d7400417bfe64eb",
+      "assessment": "docs/audits/operation_all_birth_research/byzantine_428_v1/market_outcome_v1_external_ath_provider_assessment.v1.json sha256 f5ed393191903b02ffb072a738c6f816116d390e536883e43503a59c3ae89cf2"
+    },
+    "provider_calls": {"geckoterminal": 3, "gmgn": 3, "total": 6, "ceiling": 9, "pagination": 0, "retries": 0},
+    "finding": "Each GeckoTerminal public token-pool discovery request returned HTTP 403, so no pool or Gecko OHLCV call was made. GMGN 1h K-line returned 1, 11, and 1 candle(s) across fixed seven-day windows: partial price-only data, not canonical-pool, complete-history, or market-cap evidence.",
+    "next_action": "Do not scale. Any retry with authenticated CoinGecko/Gecko access or a separately qualified historical ATH provider requires explicit authorization and a fixed manifest."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

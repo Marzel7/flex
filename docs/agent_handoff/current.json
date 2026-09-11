@@ -15614,7 +15614,8 @@
     "tests": "FAIL: tests/test_opening_history_final_crash_matrix.py::test_driver_reaches_create_transport_return_boundary (1 failed)",
     "production_flags": "offline only; provider calls=0; Batch 1=0; production manifest/fixtures unchanged",
     "verdict": "HOLD",
-    "blocker": "The restarted driver uses execute_next_action_from_durable_state(), whose transport path does not emit AFTER_CREATE_TRANSPORT_RETURN. DeterministicFailureInjector therefore does not raise at this genuine adapter boundary.",
-    "next_action": "Authorize a narrowly scoped continuation-path hook threading fix, then restart the final matrix from this first failing boundary."
+    "blocker": "Further final-matrix cases intentionally unrun after the narrowly scoped first-boundary repair.",
+    "tests": "3 passed: focused create transport-return hook propagation plus pending dispatch restart",
+    "next_action": "Resume the final crash matrix from the next boundary under its existing authorization."
   }
 }

@@ -15153,6 +15153,17 @@
     "execution": {"provider_calls": 24, "provider_bytes": 281588, "completed_mints": 12, "early_buyer_qualified": 0, "early_buyer_insufficient": 12, "raw_payloads_retained": 0, "helius_calls": 0, "canonical_bytes": 900180, "checkpoint": "docs/audits/operation_all_birth_research/byzantine_428_v1/early_buyer_bundle_real_pilot_v1/checkpoint.json"},
     "next_action": "Review observed all-insufficient coverage and bandwidth before deciding whether a separately authorized 428-mint early-buyer/bundle history run is justified."
   },
+  "early_buyer_bundle_real_12_semantic_audit": {
+    "scope": "offline retained canonical-record and contract audit; no provider calls or frozen-artifact mutation",
+    "identity_root_cause": "IMPLEMENTATION_DEFECT: normalize_v2 groups every buyer assertion and every signature assertion for a mint by field alone, then identity_resolution treats distinct trades as assertions of one fact. The frozen v2 contract says buyer/signature assertions conflict only for one logical event. This creates 38 false conflicts on each 20-buy mint (19 buyer + 19 signature) and 36 on the 19-buy mint.",
+    "identity_consequence": "All 12 records receive primary IDENTITY_CONTRADICTION despite each retained early_buy having a valid buyer and signature. Neither creator nor mint identity conflicts occur.",
+    "ordering": "slot/block, event/instruction index, provider order, and signatures are retained for all 12; transaction index is retained for 0/12. Provider order cannot become blockchain order. The 12 mints span 6-19 distinct slots each, so the <=2 getBlock ceiling cannot reconstruct full sequences from retained signatures.",
+    "planner_contract_classification": "CONTRACT_MISMATCH: the history contract requires ordered early buys, but its escalation clause requires a reason how a bounded call changes relationship classification. ORDERING_UNRESOLVED can change EARLY_BUYER_INSUFFICIENT to qualified before any bundle candidate exists, but the current planner does not express that purpose.",
+    "recovery_estimate": "0/12 have a likely complete recovery within the existing <=2-block ceiling; exact getTransaction alone does not supply block transaction position.",
+    "storage_scope": "5 MiB is explicitly a pilot gate in the contract, not a stated full-execution ceiling; it nevertheless requires an explicit separate full-run storage authorization before 428 execution.",
+    "verdict": "SEMANTIC_AUDIT_COMPLETE_TWO_NARROW_CORRECTIONS_REQUIRED",
+    "next_action": "Authorize only (1) event-scoped buyer/signature identity resolution and replay qualification, and (2) explicit early-history ordering-recovery planner purpose/ceiling reconciliation. Do not authorize 428 acquisition."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

@@ -1,4 +1,14 @@
 {
+  "fixed_opening_buyer_attribution_audit": {
+    "engineering_revision": "classification-attribution-axis plus uncommitted read-only fixed-buyer attribution audit",
+    "tests": "audit script syntax-compiled; compact artifact read-back and digest verified",
+    "production_flags": "no production mutation; no provider calls; read-only local retained-evidence/database audit; no raw retention",
+    "verdict": "COORDINATED_OPENING_BEHAVIOUR_PROVEN_CONTROL_UNRESOLVED",
+    "two_wg": "Full mint 2WG2adv7FdJLRSBjnq2WKiuM82sJMiwwrcJH7h2bpump remains NO_LOCAL_CREATE_REFERENCE / NO_RETAINED_CREATE_SIGNATURE across canonical birth and CREATE qualification artifacts. The authorized exact getTransaction fallback cannot apply because no deterministic candidate exists; no history discovery, getBlock, or Birdeye call was made.",
+    "attribution": "No direct trio transfers, shared direct funder, shared upstream, shared controller, operation-wallet membership, or pre-launch replenishment path is retained. B1 appears as creator for 52 retained token rows, weakening an operation-exclusive explanation. B2 has one unrelated creator-funder row (0.466923197 SOL), not linked to this operation. B3 has no retained independent role evidence.",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/fixed_opening_buyer_attribution_audit.v1.json (digest 4e71af8c0df15ecb1e3dad95705c6305978e228647e5d48b57980b8bfa7bbde0)",
+    "next_action": "Keep 11/12 behavioural fingerprint and control attribution separate. Completing 2WG2 requires separately authorized, deterministic CREATE discovery; strengthening attribution requires separately authorized retained or new funding evidence, not ordinal reuse."
+  },
   "opening_price_remaining_11_event_cohorts": {
     "engineering_revision": "classification-attribution-axis plus uncommitted bounded remaining-11 runner, compact event/candle artifacts, and provider-free 12-row finalizer",
     "tests": "6 passed: event cohort, semantic reacquisition, and semantic scanner focused tests; compact artifact read-backs passed",

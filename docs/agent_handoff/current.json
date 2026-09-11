@@ -15934,6 +15934,16 @@
     "artifacts": "dataset=6bb3b29d8adf6786677712cf639cbb72d7b6bbe616d1a265d926200fe97c8253; summary=e04b78a62ea1d209c6e481def88b7c64183f1922884f770bb5c94baaf79a98bd; coverage=fd3cc14b22d6fc0475255fbba19fc3f28d68acd1d27ec953ab15f9eaf05caa42; missingness=d1b2215f13b75a52db4f5eec2ec9c3ef9f635431843b7987c4d2faf545c50bc7.",
     "next_action": "Byzantine research is frozen. Do not scale/retry provider acquisition absent separately authorized provider strategy; prospective capture requirements are documented only."
   },
+  "byzantine_recent_14d_market_outcome_v1": {
+    "engineering_revision": "5904a907 plus uncommitted bounded recent-mcap runner/artifacts",
+    "tests": "JSON validation/read-back of all five frozen recent-run artifacts; provider-disabled derived replay PASS.",
+    "production_flags": "Birdeye=180 unique serial requests for frozen <=14d timestamp cohort; no retry/pagination; raw provider response retention=0; no on-chain reconstruction or Opening History mutation.",
+    "verdict": "BYZANTINE_RECENT_14D_MARKET_OUTCOME_PARTIAL",
+    "denominator": "428 total; 180 recent; 248 older excluded; recent opening-qualified=178; recent opening-insufficient=2.",
+    "provider": "HTTP200=61; HTTP429=119; all 180 response dispositions MC_SEMANTICS_UNQUALIFIED because generic OHLC fields lack a response-specific MC/fallback marker. MC-qualified=0, complete-7d MC trajectories=0, peak/drawdown metrics=0.",
+    "artifacts": "manifest=fc5fcb216f4d72aa9d36eb0769c30bd4696bf77891fae910f739781f13273754; observations=743706c22fafff7b6ee8529a6ead49e87f8e9ff135e9f4ed4b7b34490ab8b870; outcomes=f0590a21f61e6c81e11de009adc1fd8a30adcb108ec07d8c791441796da9719c; join=1513c4aad2561882ecccf49630672fefc1f201a8b29d360b6d9299639a230a5d; summary=244dcae059ebde913b1995abd1159634afa0138a350d71c17bd25d37ae10e534.",
+    "next_action": "Stop. Prospective Market Outcome capture remains a separately authorized future implementation."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

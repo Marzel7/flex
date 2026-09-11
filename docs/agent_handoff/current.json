@@ -16061,6 +16061,17 @@
     "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_birdeye_token_trade_request_contract_qualification.v1.json sha256 f315a62196fcec280f6ad1c6f0b094335f3afdb6d3f3caafbf79000d9ce449e5.",
     "next_action": "Any five-token trade-data pilot now requires separate authorization to inspect response field semantics and use the qualified descending request form; do not infer trade price availability from this one schema-only response."
   },
+  "byzantine_token_trade_response_schema_qualification": {
+    "engineering_revision": "5904a907 plus uncommitted provider-free response-schema qualifier",
+    "tests": "Python compile and JSON validation; provider-disabled no-normalization replay PASS.",
+    "production_flags": "Provider calls=0; raw retention=0; no on-chain, DB, queue, service, or Opening History mutation.",
+    "verdict": "BIRDEYE_TOKEN_TRADE_RESPONSE_SCHEMA_BLOCKED",
+    "result": "The successful request artifact retained data.items and item_count=1 but deliberately retained neither the raw body nor an item field map. It contains no qualified timestamp, trade identity, token/quote amount, USD value, price, base/quote orientation, or decimals; deterministic one-item normalization is therefore impossible.",
+    "documentation": "Current official documentation establishes the V3 token-trade request contract and data.items container, but no retained official/local response-field example establishes price units for this item.",
+    "fallback": "Candidate only: /defi/txs/token/seek_by_time is documented as a time-bounded token-trade route. Its response schema must be separately, boundedly qualified before any use; no live call was made.",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_birdeye_token_trade_response_schema_qualification.v1.json sha256 349947de736e07cbf9916f5532c8625788ed90728dbc5080d4aa0c50b35f2ad0.",
+    "next_action": "A fresh, separately authorized single-request schema capture must retain a compact field-type map (not raw body) before any token-trade price derivation or pilot retry."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

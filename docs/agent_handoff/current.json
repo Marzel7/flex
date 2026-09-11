@@ -15164,6 +15164,15 @@
     "verdict": "SEMANTIC_AUDIT_COMPLETE_TWO_NARROW_CORRECTIONS_REQUIRED",
     "next_action": "Authorize only (1) event-scoped buyer/signature identity resolution and replay qualification, and (2) explicit early-history ordering-recovery planner purpose/ceiling reconciliation. Do not authorize 428 acquisition."
   },
+  "early_buyer_bundle_two_correction_qualification": {
+    "scope": "offline only; no pilot resume, no provider calls, no frozen canonical mutation",
+    "identity": "normalize_v2 now scopes buyer/signature assertions by stable event_id while mint/creator remain mint-scoped. Compact 12-record replay: prior conflicts=454 (227 buyer, 227 signature); corrected conflicts=0; IDENTITY_CONTRADICTION primary=0/12; ORDERING_UNRESOLVED primary=12/12.",
+    "planner": "plan_escalation now explicitly accepts objective EARLY_HISTORY_ORDERING as well as BUNDLE_RELATIONSHIP, and refuses early-history recovery when estimated blocks exceed the stated ceiling. Provider order remains non-authoritative.",
+    "slot_distribution": "[6,7,11,12,13,14,15,16,17,17,18,19], median=14.5; existing 2-block ceiling covers 0/12 full sequences. Recommended observed-coverage ceiling is 19 relevant blocks/mint (12/12), subject to separate authorization. A 428 projection is 6,? blocks only derivable after choosing a target coverage rule; no provider/network projection was asserted.",
+    "tests": "16 passed: focused two-correction, v2 phase2/phase3a, adapter, runner regressions",
+    "verdict": "EVENT_SCOPED_IDENTITY_QUALIFIED_AND_ORDERING_RECOVERY_CONTRACT_QUALIFIED",
+    "next_action": "Human authorization required to select a bounded relevant-block ceiling and perform a new versioned replay; do not resume the completed pilot or start 428 acquisition."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

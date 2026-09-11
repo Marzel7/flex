@@ -1,12 +1,12 @@
 {
   "operation_opening_history_v1_production_transport_runner": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
-    "tests": "PASS: python -m py_compile src/ops/opening_history_production_transport.py scripts/run_opening_history_production_batch.py; PASS: HELIUS_RPC_URL=mock://qualification python scripts/run_opening_history_production_batch.py --state-dir /private/tmp/opening-history-dry-run -> READY_FOR_PRODUCTION_BATCH_1, batch=1, rows=50, network_calls=0",
+    "tests": "PASS: python -m py_compile src/ops/opening_history_production_transport.py scripts/run_opening_history_production_batch.py; PASS: default dry run with mock endpoint -> READY_FOR_PRODUCTION_BATCH_1, batch=1, rows=50, network_calls=0; PASS: injected frozen three-row manifest/temp run-dir/fixture transport through run_production_batch(execute=True) -> CONTINUE without network",
     "production_flags": "real provider calls=0; --execute is required for dispatch; production Batch 1 rows attempted=0; production manifest unmodified",
     "verdict": "PARTIAL",
-    "implementation": "Added the bounded OpeningHistoryProductionTransport (getTransaction/getBlock only, runtime endpoint, exact method/params, raw bytes transient, no retries) and a thin manifest/matrix-bound Batch-1 runner wiring the existing DurableOpeningHistoryExecutor, OpeningHistoryExecutionAdapter, and resume_batch_until_gate. Default mode is dry-run.",
-    "blocker": "Focused qualification review found that scripts/run_opening_history_production_batch.py hard-codes the production manifest/run directory and exposes no injected manifest/state/transport seam. Therefore the required offline three-row production-runner parity and resumed-checkpoint tests cannot be run through the runner. Mock-HTTP request-equality, response/error/timeout, fixture parity, resume suite, and deterministic qualification artifact remain incomplete.",
-    "next_action": "Add a narrow test-only dependency-injection/configuration seam to the existing runner (not a second execution path), then complete the specified offline transport/runner suite and deterministic artifact; do not use --execute or issue a provider request until it passes."
+    "implementation": "Added the bounded OpeningHistoryProductionTransport (getTransaction/getBlock only, runtime endpoint, exact method/params, raw bytes transient, no retries) and a thin manifest/matrix-bound Batch-1 runner wiring the existing DurableOpeningHistoryExecutor, OpeningHistoryExecutionAdapter, and resume_batch_until_gate. The runner now has one callable test-injection seam for manifest/identity/run-dir/transport/profile/execute; CLI retains frozen defaults and dry-run behavior.",
+    "blocker": "Mock-HTTP request-equality, response/error/timeout, production-transport fixture parity, resumed-checkpoint matrix, full 3-row baseline assertions, and deterministic qualification artifact remain incomplete.",
+    "next_action": "Complete the specified offline transport/runner suite and deterministic artifact; do not use production --execute or issue a provider request until it passes."
   },
   "operation_opening_history_v1_production_batch_1_predispatch": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",

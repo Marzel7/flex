@@ -15964,6 +15964,16 @@
     "artifacts": "dataset=feaecfb4da5da64d3ef4568f0721e77498768d6b2667dbf2abaa2bcb40715eed; summary=b261a7d837d85fa4470cad6caf451e4fcdfbe4bc3e49a9e42afd9ff3cedeaf4e; drawdowns=6d8690a194b10b433e406bb8ddc99a1c7d48a73463f39f1452681af568d121d5; missingness=183658d9f2dd7b01163fb57ecb7472c039d749daf82328aa4d85141a98c17c76; prospective-supply-requirement=bb1aef9c80ce9e555a3a123499b0d69dce78c0cfae35d5b3f373cf9e8490cda8.",
     "next_action": "Stop. Do not derive historical MC absent separately qualified per-mint supply/constancy evidence."
   },
+  "byzantine_eventual_price_collapse_audit_v1": {
+    "engineering_revision": "5904a907 plus uncommitted provider-free eventual-collapse reducer",
+    "tests": "Python compile, deterministic Decimal recomputation, and JSON read-back of all five audit artifacts.",
+    "production_flags": "Provider/on-chain calls=0; raw retention=0; only retained normalized recent price observations used.",
+    "verdict": "BYZANTINE_EVENTUAL_COLLAPSE_AUDIT_PARTIAL",
+    "result": "103 trajectories; proven 90%=21; late >7d retained crossings=0; right-censored=82. Classes: ACTIVE=33, INSUFFICIENT_POST_PEAK=26, POST_PEAK_WINDOW_TOO_SHORT=17, TRAJECTORY_ENDED=6, COMPLETE_NO_90=0.",
+    "time": "birth-to-90 count=21 min/p25/median/p75/p90/max=910/1239/1580/3112/5420/283633 seconds; max-to-90=900/900/900/900/900/283500 seconds. Naive observed rate=20.3883%; evaluable rate undefined because complete-no-90 count=0.",
+    "artifacts": "collapse=76b7a44bc88d3e27a77c05cb87ec5f01e2c4bf19bb196860edb52ceb763a389c; summary=ac44d41e105588d587917f12dcc3a2acf58cccffbc3c56d40b133f3d3300a00a; censoring=c7cbcfa6c05422c752d12e3b7db4c49051b7db750184718f059d257e5e7f5d9c; distribution=7cb45bcd222ff8b042d0e1b1befb0d041bf889b7a50faeb4cfb38f067bcf787c; join=b9511cb8f6fb21766630194d968e406444dbde761a572b1505bc5a6a8e64b5fe.",
+    "next_action": "Stop. Censored rows must never be inferred safe/non-rug; no new historical coverage was acquired."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

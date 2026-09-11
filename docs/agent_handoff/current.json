@@ -15221,6 +15221,17 @@
     "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/opening_price_anchor3_price_pamm_adapter.v1.json",
     "next_action": "If separately authorized, acquire only the named missing pAMM transaction/pool-state evidence for Anchors 1/2 through the new compact adapter; do not revisit Anchor 3 or expand to other anchors."
   },
+  "opening_price_pamm_real_input_acquisition_2": {
+    "engineering_revision": "classification-attribution-axis with uncommitted compact pAMM vault-delta extractor",
+    "tests": "34 passed: pAMM adapter/vault extraction, balance-delta, valuation, PumpSwap model and boundary regressions",
+    "production_flags": "2 authorized exact Helius getTransaction calls only; 0 blocks, account-state, Birdeye, Alchemy, history, remaining-nine, creation, actionable, or production mutation; raw provider payload retention 0",
+    "verdict": "REAL_3_FIRST_BUY_PRICES_PARTIAL",
+    "acquisition": "Both exact transaction responses matched prior frozen digests (13,303 and 13,312 bytes; 26,615 total). Direct retained local pool binding qualified the pAMM pool/base-vault/quote-vault for each anchor. Event-scoped vault balance deltas qualified received token amounts and quote-vault credits.",
+    "anchor_1": "PAMM_PRICE_INPUT_INSUFFICIENT: token=1,405,742,860,679 raw at 6 decimals; quote-vault credit=706,715,850 lamports. Total trader quote, versioned fee model/pool version, and historical pre-state remain unproven.",
+    "anchor_2": "PAMM_PRICE_INPUT_INSUFFICIENT: token=877,657,620,797 raw at 6 decimals; quote-vault credit=388,283,909 lamports. Total trader quote, versioned fee model/pool version, and historical pre-state remain unproven.",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/opening_price_pamm_real_input_acquisition_2.v1.json",
+    "next_action": "Do not approximate from pool credits. A separate authorization must establish whether archived exact pre-state/versioned fee evidence can be obtained; ordinary current account lookup cannot prove the historical pAMM state."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

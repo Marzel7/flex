@@ -11944,6 +11944,15 @@
     "tests": "1 passed: tests/test_opening_history_3row_derived_fixtures.py",
     "verdict": "PASS"
   },
+  "operation_opening_history_v1_compact_handoff": {
+    "blocker": "Opening-reduction checkpoints, canonical lifecycle markers/temp recovery, and full adapter-driven restart continuation harness are not yet implemented.",
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "implemented": "Digest-bound compact CREATE and BLOCK handoffs persisted after consumed response; restart permits only a stranded action with its durable handoff, otherwise retains fail-closed behavior.",
+    "next_action": "Implement durable opening-reduction and canonical lifecycle recovery, then execute the authorized crash matrix.",
+    "production_flags": "offline only; provider calls=0; production Batch 1=0; production manifest/fixtures unchanged",
+    "tests": "15 passed: compact handoff, adapter qualification regression, adapter suite",
+    "verdict": "PARTIAL"
+  },
   "operation_opening_history_v1_final_crash_recovery": {
     "blocker": "Current durable state has no persisted compact normalized/reduced handoff or canonical recovery marker; resume intentionally fails closed after any consumed-but-unaccepted action, so required deterministic recovery cases cannot truthfully be qualified without extending durable recovery state.",
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",

@@ -15944,6 +15944,16 @@
     "artifacts": "manifest=fc5fcb216f4d72aa9d36eb0769c30bd4696bf77891fae910f739781f13273754; observations=743706c22fafff7b6ee8529a6ead49e87f8e9ff135e9f4ed4b7b34490ab8b870; outcomes=f0590a21f61e6c81e11de009adc1fd8a30adcb108ec07d8c791441796da9719c; join=1513c4aad2561882ecccf49630672fefc1f201a8b29d360b6d9299639a230a5d; summary=244dcae059ebde913b1995abd1159634afa0138a350d71c17bd25d37ae10e534.",
     "next_action": "Stop. Prospective Market Outcome capture remains a separately authorized future implementation."
   },
+  "byzantine_recent_price_supply_outcomes": {
+    "engineering_revision": "5904a907 plus uncommitted retained-only supply qualification/price reuse materializer",
+    "tests": "Python compile and JSON read-back validation of the 180-row supply audit, outcomes, and summary.",
+    "production_flags": "New provider/on-chain calls=0; existing explicit-price observations reused only; raw provider retention=0; frozen Opening History unchanged.",
+    "verdict": "BYZANTINE_RECENT_PRICE_SUPPLY_OUTCOMES_PARTIAL",
+    "supply": "constant=0; variable=0; unqualified=180; standard 1B supply proven per-mint-and-constant=0. Retained global preflight expressly records constancy unresolved and canonical records lack per-mint CREATE supply proof.",
+    "outcomes": "Price trajectories=103, entry+price-only=101, entry-only=77; MC trajectories=0; full entry+MC outcomes=0. New calls=0, rate gate=N/A, provider-disabled replay=PASS.",
+    "artifacts": "supply=137e6b8f8dec165a521a427affebd947de594eb40611ba2e09f9ee1f617b0694; outcomes=95d2f15df57205ba35729ab3a5c22499b4e7ffa4fb695b981eaf93ad0e67cbcd; summary=0c924baa52ab36624c676fccc51a1e3ab0529f759ec0725ed6322d6b4cf07f5d.",
+    "next_action": "Stop. A historical per-mint supply/constancy evidence source would need separate authorization before MC derivation."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

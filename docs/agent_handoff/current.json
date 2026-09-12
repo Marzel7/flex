@@ -15320,6 +15320,15 @@
     "result": "The requested 52 completed lifecycle-research rows cannot be materialized as canonical operation-lifecycle rows without either omitting 33 non-members or changing canonical Byzantine membership. The existing lifecycle projection correctly rejects non-canonical members.",
     "next_action": "User must choose: display only the 19 canonical-member rows, or authorize a clearly labelled research-only 52-row table that is not operation membership and does not modify membership."
   },
+  "byzantine_scenario_d_authority_audit": {
+    "engineering_revision": "5904a907 plus provider-disabled Scenario-D authoritative provenance audit",
+    "tests": "Artifact validation PASS: target entries=23, original Scenario-D authority rows=23, provider/RPC/network calls=0. Original implementation trace establishes retained action ordering by slot, transaction_index, action_index and deterministic quote replay.",
+    "production_flags": "Provider/RPC/network calls=0; production trading changes=0; UI changes=0; canonical membership writes=0.",
+    "verdict": "BYZANTINE_LOCAL_ACTIONABLE_ENTRY_RECOVERY_PARTIAL",
+    "result": "The original Scenario-D qualification is authoritative upstream proof for FIRST_REPLAYABLE_COUNTERFACTUAL_ENTRY: it parses retained opening blocks, orders actions by slot/transaction/action index, selects the 13th distinct non-creator BUY after positions 1..12, inverse-reconstructs pre-trade reserves, and quotes frozen 0.25 SOL BuyExactSolIn at average counterfactual execution price. Therefore the prior 23/23 ENTRY_ORDER_UNRESOLVED finding was a downstream provenance-compression error, not proof absence. Scenario-D is hindsight-independent and proves multiple opening activity before entry. It does not prove LIVE_ACTIONABLE, and atomic hypothetical insertion safety is PARTIAL; temporal external-price alignment remains separate and was not reopened.",
+    "artifacts": "audit=docs/audits/operation_all_birth_research/byzantine_428_v1/scenario_d_authoritative_provenance_audit.v1.json; replay=docs/audits/operation_all_birth_research/byzantine_428_v1/scenario_d_23_provider_disabled_replay.v1.json; entries=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_23_authoritative_counterfactual_entries.v1.json; gap=docs/audits/operation_all_birth_research/byzantine_428_v1/scenario_d_proof_vs_materialization_gap.v1.json.",
+    "next_action": "STOP. Treat Scenario-D as authoritative for replayable counterfactual-entry research only. Before entry-to-exit scoring, separately qualify atomic insertion and the chain-boundary-to-external-price temporal bridge."
+  },
   "byzantine_scenario_d_chain_order_forensic": {
     "engineering_revision": "5904a907 plus provider-disabled Scenario-D chain-order forensic artifacts",
     "tests": "Artifact validation PASS: target=23, entry-order-unresolved=23, qualified alignment=0, and provider/RPC/network calls=0.",

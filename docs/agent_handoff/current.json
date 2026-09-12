@@ -14673,6 +14673,14 @@
     "result": "64/64 Scenario-D and lifecycle join is exact, but only 16/64 have retained compatible SOL/USD and 0/64 have deterministic temporal entry-to-lifecycle alignment. Strategy-usable denominator is zero; no upside, exit policy, or Playbook result was calculated.",
     "next_action": "Separately qualify deterministic temporal alignment and contemporaneous SOL/USD evidence before re-running provider-disabled entry-to-exit research."
   },
+  "byzantine_temporal_alignment_2026_09_12": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "status": "PARTIAL",
+    "verdict": "ENTRY_TO_LIFECYCLE_TEMPORAL_BRIDGE = PARTIAL",
+    "provider_rpc_network_calls": 0,
+    "result": "41 newly reconstructed entries have retained exact boundary-slot blockTime and conservatively align to the next minute Birdeye point. The 23 historical compact entries lack retained boundary raw block time and remain unresolved. SOL/USD-qualified entries remain disjoint from aligned entries, so strategy-ready remains 0.",
+    "next_action": "Acquire no data under this provider-disabled milestone. Separately resolve historical 23 boundary-time/SOL-USD overlap before strategy scoring."
+  },
   "updated_by": "agent_local",
   "verdict": "MARKET_PREDICTION_RETIREMENT_COMMIT_PARTIAL",
   "watchtower_buy3_historical_first_buy_opening_mc": {

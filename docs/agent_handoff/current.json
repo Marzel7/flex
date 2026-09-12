@@ -15320,6 +15320,15 @@
     "result": "The requested 52 completed lifecycle-research rows cannot be materialized as canonical operation-lifecycle rows without either omitting 33 non-members or changing canonical Byzantine membership. The existing lifecycle projection correctly rejects non-canonical members.",
     "next_action": "User must choose: display only the 19 canonical-member rows, or authorize a clearly labelled research-only 52-row table that is not operation membership and does not modify membership."
   },
+  "byzantine_operation_playbook_64_mature_lifecycle_ui": {
+    "engineering_revision": "5904a907 plus uncommitted read-only Playbook lifecycle-view update",
+    "tests": "3 passed: tests/test_operator_research_module.py. Read-model verification against retained final artifact PASS: research=103, mature=64, qualified=64, unresolved=0, right-censored=39; thresholds=33/33/29/21/19. Template safety check confirms no MATURE_DATA_PENDING wording.",
+    "production_flags": "Read-only Playbook/model/template/test changes only. Canonical membership writes=0. Provider/RPC calls from Playbook=0. No provider acquisition, database, service, or UI deployment action occurred.",
+    "verdict": "OPERATION_PLAYBOOK_64_MATURE_LIFECYCLE_UI_QUALIFIED",
+    "result": "Lifecycle Behaviour now derives maturity counts from the retained qualified artifact, presents 64 mature qualified / 0 mature pending / 39 horizon not elapsed, uses the 64-lifecycle denominator for threshold percentages, and labels the retained-point full-seven-day methodology. Canonical/research membership remains independently classified per row; the table exposes all 64 mature-qualified rows with MATURE_QUALIFIED state.",
+    "artifacts": "read_model=src/ops/operator_research_module.py; template=templates/operation_playbook.html; tests=tests/test_operator_research_module.py; qualified_artifact=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_full_lifecycle_peak_reevaluation.v1.json.",
+    "next_action": "STOP. Review or deploy through the existing application process; do not alter canonical membership or invoke a provider from the Playbook."
+  },
   "byzantine_64_mature_full_7d_lifecycle_completion": {
     "engineering_revision": "5904a907 plus explicit alternate-credential frozen-retry completion and provider-disabled full-seven-day replay",
     "tests": "Provider-disabled accounting/replay PASS: raw digest, parser, normalized observation, and deterministic request-ledger replay all PASS; duplicate successful identities=0; right-censored dispatches=0. Full retained-point replay PASS: MAX_RETAINED_QUALIFIED_POINT_WITHIN_7D across opening 1m plus later 15m, earliest equal maximum, minimum strictly after maximum, no interpolation. 4CgD regression PASS (90.98281994755806%).",

@@ -15320,6 +15320,15 @@
     "result": "The requested 52 completed lifecycle-research rows cannot be materialized as canonical operation-lifecycle rows without either omitting 33 non-members or changing canonical Byzantine membership. The existing lifecycle projection correctly rejects non-canonical members.",
     "next_action": "User must choose: display only the 19 canonical-member rows, or authorize a clearly labelled research-only 52-row table that is not operation membership and does not modify membership."
   },
+  "byzantine_entry_to_exit_research": {
+    "engineering_revision": "5904a907 plus provider-disabled entry-to-exit research blocker artifacts",
+    "tests": "Artifact validation PASS: mature=64, qualified actionable-entry overlap=0, 64 explicit exclusions, and final manifest is provider/RPC/network calls=0. No UI test or render was changed because the milestone forbids UI updates.",
+    "production_flags": "Provider/RPC/network calls=0; production trading changes=0; UI changes=0; canonical membership writes=0.",
+    "verdict": "BYZANTINE_ENTRY_TO_EXIT_RESEARCH_BLOCKED",
+    "result": "The mature lifecycle population is fully qualified (64), but no retained case-level FIRST_ACTIONABLE_BUY_OPPORTUNITY satisfies the required order-complete, contemporaneously actionable execution contract. The retained source readiness classifies the old-surfaced population as BUNDLE_BOUNDARY_UNRESOLVED, and the committed ordered source is not live-bound. Exact strategy overlap is therefore 0/64; no entry-price conversion, post-entry multiple, strategy return, or Playbook card value was calculated or invented.",
+    "artifacts": "manifest=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_entry_to_exit_research_manifest.v1.json; contract=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_actionable_entry_contract.v1.json; overlap=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_mature_entry_lifecycle_overlap.v1.json; generic_contract=docs/audits/operation_all_birth_research/byzantine_428_v1/generic_entry_to_exit_research_contract.v1.json.",
+    "next_action": "STOP. Separately qualify and retain order-complete actionable-entry evidence with an execution-relevant value basis before reopening entry-to-exit strategy research; then use a temporal holdout without retuning."
+  },
   "byzantine_operation_playbook_64_mature_lifecycle_ui": {
     "engineering_revision": "5904a907 plus uncommitted read-only Playbook lifecycle-view update",
     "tests": "3 passed: tests/test_operator_research_module.py. Read-model verification against retained final artifact PASS: research=103, mature=64, qualified=64, unresolved=0, right-censored=39; thresholds=33/33/29/21/19. Template safety check confirms no MATURE_DATA_PENDING wording.",

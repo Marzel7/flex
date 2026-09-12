@@ -15286,6 +15286,15 @@
     "artifacts": "plan=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_request_plan.v1.json; acquisition=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_acquisition.v1.json; replay=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_replay.v1.json.",
     "next_action": "STOP. Method did not qualify for cohort planning; do not generate/dispatch a 77-mint scale plan without separate authorization."
   },
+  "byzantine_corrected_64_mature_lifecycle": {
+    "engineering_revision": "5904a907 plus frozen-ledger provider-disabled reconstruction",
+    "tests": "Raw digest validation, parser/normalized replay, deterministic ledger replay, and 4CgD corrected-lifecycle regression PASS.",
+    "production_flags": "Birdeye history_price acquisition stopped after quota-style HTTP 400 responses; no further requests dispatched by this continuation; no RPC, database, service, trade, or Opening History mutation.",
+    "verdict": "BYZANTINE_64_CORRECTED_LIFECYCLE_HOLD_PROVIDER_QUOTA",
+    "result": "Frozen mature=64, right-censored=39, planned identities=128. Raw-qualified successes=104, one 4CgD later request reused, 23 identities terminally failed with HTTP400 Compute units usage limit exceeded, yielding 52 reconstructed and 12 unresolved mature lifecycles. HTTP attempts: 200=104, 429=5 (all subsequently resolved), 400=23; duplicate successful frozen request identities=0. 4CgD regression reproduced 90.98281994755806%. Ten of 52 cases had a later 15m point exceeding the opening 1m maximum, so GENERIC_TWO_HOUR_PEAK_WINDOW_NOT_QUALIFIED.",
+    "artifacts": "ledger=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_lifecycle_request_ledger.v1.json; accounting_replay=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_lifecycle_acquisition_accounting_replay.v1.json; cases=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_cases.v1.json; summary=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_summary.v1.json.",
+    "next_action": "HOLD. A separate authorization after quota recovery is required to retry only the 23 terminal-failure identities; do not reopen successful identities or censored mints."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

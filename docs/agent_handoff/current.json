@@ -15286,6 +15286,15 @@
     "artifacts": "plan=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_request_plan.v1.json; acquisition=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_acquisition.v1.json; replay=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_replay.v1.json.",
     "next_action": "STOP. Method did not qualify for cohort planning; do not generate/dispatch a 77-mint scale plan without separate authorization."
   },
+  "byzantine_playbook_research_membership_separation": {
+    "engineering_revision": "5904a907 plus read-only lifecycle research Playbook module",
+    "tests": "13 passed: tests/test_operator_lifecycle_projection.py and tests/test_operator_research_module.py. Live-DB Flask render: status=200, rows=52, CANONICAL=19, RESEARCH_ONLY=33.",
+    "production_flags": "Provider/RPC calls=0; canonical membership writes=0; research artifacts read-only; no membership, database, service, trade, or provider mutation. Local localhost:5002 service was not running, so no service restart was performed.",
+    "verdict": "OPERATION_PLAYBOOK_RESEARCH_MEMBERSHIP_SEPARATION_QUALIFIED",
+    "result": "Lifecycle Behaviour is a read-only research module attached to the Playbook, not a member-management surface. It calculates canonical=110, completed research=52, overlap=19, research-only=33 at read time from independent authoritative sets. The table supports All/Canonical/Research-only filters and numeric sort controls, labels denominators as 52 research cases, and keeps 12 mature-data-pending and 39 horizon-not-elapsed out of the completed statistics.",
+    "files": "src/ops/operator_research_module.py; src/ops/operator_routes.py; templates/operation_playbook.html; tests/test_operator_research_module.py.",
+    "next_action": "UI source is ready. Start/reload the local web service through normal operations if a live localhost:5002 page is required; do not alter canonical membership."
+  },
   "byzantine_playbook_population_identity_check": {
     "engineering_revision": "5904a907 plus local playbook data-contract inspection",
     "tests": "Read-only local SQLite reconciliation: Byzantine operator is CONFIRMED/ELIGIBLE with 110 canonical members; 52 full-lifecycle research cases intersect canonical membership in 19 only, leaving 33 non-members.",

@@ -14636,6 +14636,16 @@
     "tests": "pytest -q tests/test_byzantine_41_scenario_d_rpc_plan.py tests/test_byzantine_larger_opening_corpus_audit.py (4 passed)",
     "next_action": "Run the retained-23 parser/reconstruction regression gate, then obtain explicit confirmation to dispatch only the three frozen pilot mints."
   },
+  "byzantine_scenario_d_41_rpc_pilot": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "status": "HOLD",
+    "verdict": "BYZANTINE_SCENARIO_D_41_RPC_PILOT_BLOCKED",
+    "provider_rpc_network_calls": 0,
+    "blocker": "HELIUS_RPC_URL_UNAVAILABLE: neither environment nor project .env had a Helius endpoint/API-key variable (presence checked without exposing values).",
+    "result": "Frozen three-mint request ledger exists with five pre-anchor identities (one anchor getTransaction, four exact getBlock calls); no request dispatched, no raw bytes retained, no successful identity, and no scale.",
+    "regression": "KNOWN_23_SCENARIO_D_REGRESSION=PASS",
+    "next_action": "Provide/configure HELIUS_RPC_URL or HELIUS_TEMP_API_KEY, then rerun only the same frozen three-mint pilot ledger; do not scale."
+  },
   "updated_by": "agent_local",
   "verdict": "MARKET_PREDICTION_RETIREMENT_COMMIT_PARTIAL",
   "watchtower_buy3_historical_first_buy_opening_mc": {

@@ -15268,6 +15268,15 @@
     "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_historical_ohlcv_contract_known_validation.v1.json; raw=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_historical_contract_validation_raw/.",
     "next_action": "STOP. Do not test 2kt5 under this authorization because the required known-answer validation did not pass. Any subsequent work requires a separately authorized investigation of provider historical-retention/version semantics."
   },
+  "byzantine_historical_ohlcv_current_forensics": {
+    "engineering_revision": "5904a907 plus provider-disabled historical/current OHLCV raw diff",
+    "tests": "Raw SHA-256 comparison and parser replay PASS; no additional provider calls.",
+    "production_flags": "Provider/RPC calls=0; no 2kt5 call; no database, service, trade, or Opening History mutation.",
+    "verdict": "BYZANTINE_HISTORICAL_OHLCV_FORENSIC_DIFF_COMPLETE",
+    "result": "The historical 94.4322% drawdown candle at TIER_7 timestamp 1788498000 and low 3.019503195758691e-06 is still present in the current response with the same low. The divergence is caused by missing historical peak evidence: old raw had 162 candles, current raw 24; all 135 retained TIER_1 candles including high 5.423155029320257e-05 are absent from the current TIER_1 response. Current maximum high is only 8.910197100114678e-06, yielding 66.1118%. This proves missing historical peak candles in this control; it does not prove a provider retention policy, pair drift, or systematic drift across all tokens. Old/new raw lack venue/pair identifiers and response headers, so those hypotheses remain unsupported/unknown. Historical raw corpus remains replayable qualified historical observation evidence bounded to its retained windows.",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_historical_ohlcv_current_response_forensic_diff.v1.json",
+    "next_action": "STOP. Do not query 2kt5. Any new provider work requires a separate authorization after deciding whether to investigate historical data-retention/version semantics."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

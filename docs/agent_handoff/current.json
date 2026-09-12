@@ -14627,6 +14627,15 @@
     ],
     "next_action": "No acquisition authorized. Any future recovery must obtain bounded CREATE/opening actions through the 13th distinct non-creator buy plus position-13 reserve state for the 41 unresolved mature mints."
   },
+  "byzantine_scenario_d_41_rpc_plan": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "status": "PLAN_QUALIFIED_NOT_DISPATCHED",
+    "verdict": "BYZANTINE_SCENARIO_D_41_RPC_PLAN_QUALIFIED",
+    "provider_rpc_network_calls": 0,
+    "result": "41 exact missing mature targets frozen: all have CREATE signatures; 37 have retained CREATE slots. Helius plan is CREATE/CREATE+1 getBlock, preceded only by four CREATE getTransaction anchor calls. Expected 45 calls; hard ceiling 86; no pagination, no widening.",
+    "tests": "pytest -q tests/test_byzantine_41_scenario_d_rpc_plan.py tests/test_byzantine_larger_opening_corpus_audit.py (4 passed)",
+    "next_action": "Run the retained-23 parser/reconstruction regression gate, then obtain explicit confirmation to dispatch only the three frozen pilot mints."
+  },
   "updated_by": "agent_local",
   "verdict": "MARKET_PREDICTION_RETIREMENT_COMMIT_PARTIAL",
   "watchtower_buy3_historical_first_buy_opening_mc": {

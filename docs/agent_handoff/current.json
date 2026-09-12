@@ -15286,6 +15286,14 @@
     "artifacts": "plan=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_request_plan.v1.json; acquisition=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_acquisition.v1.json; replay=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_replay.v1.json.",
     "next_action": "STOP. Method did not qualify for cohort planning; do not generate/dispatch a 77-mint scale plan without separate authorization."
   },
+  "byzantine_playbook_ui_deployed_local": {
+    "engineering_revision": "5904a907 plus Playbook index lifecycle research summary",
+    "tests": "13 focused tests passed. Post-restart served-content verification: /operations/playbooks contains Lifecycle research, 52 completed, 19 canonical, 33 research-only; Byzantine detail contains Lifecycle Behaviour and membership badges.",
+    "production_flags": "watchtower_api only restarted to load approved UI code. Provider/RPC calls=0; canonical membership writes=0; research artifacts remain read-only.",
+    "verdict": "OPERATION_PLAYBOOK_RESEARCH_MEMBERSHIP_SEPARATION_QUALIFIED",
+    "result": "The index now visibly exposes Byzantine's independent lifecycle-research cohort, while the detail page provides the 52-row filtered research table. Canonical membership remains 110 and is never modified by research rendering.",
+    "next_action": "No action required; refresh localhost:5002/operations/playbooks."
+  },
   "byzantine_playbook_research_membership_separation": {
     "engineering_revision": "5904a907 plus read-only lifecycle research Playbook module",
     "tests": "13 passed: tests/test_operator_lifecycle_projection.py and tests/test_operator_research_module.py. Live-DB Flask render: status=200, rows=52, CANONICAL=19, RESEARCH_ONLY=33.",

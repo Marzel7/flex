@@ -15286,6 +15286,14 @@
     "artifacts": "plan=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_request_plan.v1.json; acquisition=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_acquisition.v1.json; replay=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_replay.v1.json.",
     "next_action": "STOP. Method did not qualify for cohort planning; do not generate/dispatch a 77-mint scale plan without separate authorization."
   },
+  "byzantine_playbook_population_identity_check": {
+    "engineering_revision": "5904a907 plus local playbook data-contract inspection",
+    "tests": "Read-only local SQLite reconciliation: Byzantine operator is CONFIRMED/ELIGIBLE with 110 canonical members; 52 full-lifecycle research cases intersect canonical membership in 19 only, leaving 33 non-members.",
+    "production_flags": "Provider/RPC/network calls=0; no database, membership, playbook, UI, or service mutation.",
+    "verdict": "HOLD_POPULATION_IDENTITY_SCOPE_UNRESOLVED",
+    "result": "The requested 52 completed lifecycle-research rows cannot be materialized as canonical operation-lifecycle rows without either omitting 33 non-members or changing canonical Byzantine membership. The existing lifecycle projection correctly rejects non-canonical members.",
+    "next_action": "User must choose: display only the 19 canonical-member rows, or authorize a clearly labelled research-only 52-row table that is not operation membership and does not modify membership."
+  },
   "byzantine_23_quota_recovery_probe_second_attempt": {
     "engineering_revision": "5904a907 plus second bounded next-identity quota probe",
     "tests": "Published handoff 35f4038a read; zero-call reconciliation PASS: frozen=23, resolved=0, prior quota probes=1, next unprobed identity selected deterministically.",

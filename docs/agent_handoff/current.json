@@ -14646,6 +14646,17 @@
     "scale_gate": "BYZANTINE_SCENARIO_D_41_SCALE_ACQUISITION_QUALIFIED: extrapolated 82 calls and 224,206,231 bytes are under frozen ceilings, but scale execution was not performed because user scope was pilot-only.",
     "next_action": "Await explicit authorization before dispatching any of the remaining 38 frozen targets."
   },
+  "byzantine_scenario_d_41_scale": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "status": "COMPLETE",
+    "verdict": "BYZANTINE_64_SCENARIO_D_ENTRY_RECONSTRUCTION_QUALIFIED",
+    "provider_rpc_network_calls": 53,
+    "result": "All 38 scale mints qualified under the frozen CREATE..CREATE+1 contract. Combined 23 historical + 3 pilot + 38 scale gives 64/64 mature Scenario-D entries. Cumulative retained raw bytes: 208,565,781; duplicate successful identities: 0.",
+    "replay": "KNOWN_23_SCENARIO_D_REGRESSION=PASS; PILOT_3_SCENARIO_D_REGRESSION=PASS; scale deterministic replay=PASS.",
+    "sol_usd": "16/64 locally qualified; 48 missing without provider acquisition.",
+    "strategy_readiness": "0 fully ready: entry-to-canonical-lifecycle temporal bridge remains unresolved. No strategy scoring or Playbook changes performed.",
+    "next_action": "If separately authorized, resolve temporal entry/lifecycle alignment before entry-to-exit strategy research."
+  },
   "updated_by": "agent_local",
   "verdict": "MARKET_PREDICTION_RETIREMENT_COMMIT_PARTIAL",
   "watchtower_buy3_historical_first_buy_opening_mc": {

@@ -14657,6 +14657,14 @@
     "strategy_readiness": "0 fully ready: entry-to-canonical-lifecycle temporal bridge remains unresolved. No strategy scoring or Playbook changes performed.",
     "next_action": "If separately authorized, resolve temporal entry/lifecycle alignment before entry-to-exit strategy research."
   },
+  "byzantine_entry_to_exit_research": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "status": "BLOCKED",
+    "verdict": "BYZANTINE_ENTRY_TO_EXIT_RESEARCH_STATUS = INSUFFICIENT_EVIDENCE",
+    "provider_rpc_network_calls": 0,
+    "result": "64/64 Scenario-D and lifecycle join is exact, but only 16/64 have retained compatible SOL/USD and 0/64 have deterministic temporal entry-to-lifecycle alignment. Strategy-usable denominator is therefore zero; no upside, exit policy, or Playbook result was calculated.",
+    "next_action": "Separately qualify a deterministic chain-order-to-external-lifecycle temporal bridge and contemporaneous SOL/USD evidence before rerunning provider-disabled entry-to-exit research."
+  },
   "updated_by": "agent_local",
   "verdict": "MARKET_PREDICTION_RETIREMENT_COMMIT_PARTIAL",
   "watchtower_buy3_historical_first_buy_opening_mc": {

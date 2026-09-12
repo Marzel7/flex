@@ -15320,6 +15320,15 @@
     "result": "The requested 52 completed lifecycle-research rows cannot be materialized as canonical operation-lifecycle rows without either omitting 33 non-members or changing canonical Byzantine membership. The existing lifecycle projection correctly rejects non-canonical members.",
     "next_action": "User must choose: display only the 19 canonical-member rows, or authorize a clearly labelled research-only 52-row table that is not operation membership and does not modify membership."
   },
+  "byzantine_23_quota_recovery_probe_fourth_attempt": {
+    "engineering_revision": "5904a907 plus fourth bounded next-identity quota probe",
+    "tests": "Published handoff f31755c0 read; provider-disabled reconciliation PASS: frozen=23, offline_resolved=0, live=23, prior quota probes=3, next unprobed identity selected deterministically. Durable-ledger accounting and raw-response checkpoint verification PASS.",
+    "production_flags": "Exactly one authorized Birdeye history_price request reached the provider: zRoYAdLYogsS491qazGakt2BDvgjMMiE8xQWpSVpump later 15m. Raw response retained. No other provider/RPC call; no database, service, trade, UI, production, or right-censored dispatch.",
+    "verdict": "BIRDEYE_COMPUTE_QUOTA_NOT_RECOVERED",
+    "result": "The sole provider probe returned HTTP400 Compute units usage limit exceeded, no Retry-After, zero observations. Remaining retry identities were not dispatched. Cumulative attempts=136: HTTP200=104, HTTP429=5 resolved, HTTP400=27. The 104 successful raw-qualified identities plus one reusable 4CgD later identity remain protected; 23 quota-failed identities remain unresolved. Four quota probes separated by the documented extended interval have now failed identically: investigate Birdeye account compute-unit usage, plan/reset/billing-credit state, API-key/project quota, and documented compute-unit policy; this is distinct from HTTP429 rate limiting.",
+    "artifacts": "retry_set=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_23_quota_failed_retry_set.v1.json; durable_acquisition=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_acquisition.v1.json; raw=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/340ec4ec8069f8fced743a422bdfa1415114ddb8cc6ca3f397e57d8fbabc81ae.json.",
+    "next_action": "STOP. Do not perform another quota probe or reconstruct as 64 complete until a separately authorized later recovery attempt. Before any further provider call, investigate and resolve the Birdeye compute-unit allowance condition; then begin with provider-disabled reconciliation and exactly one probe."
+  },
   "byzantine_23_quota_recovery_probe_third_attempt": {
     "engineering_revision": "5904a907 plus third bounded next-identity quota probe",
     "tests": "Published handoff 6c7b5305 read; zero-call ledger reconciliation PASS: frozen=23, HTTP200=104, HTTP429=5 resolved, prior quota probes=2, next unprobed identity selected deterministically. Durable-ledger accounting and raw-response checkpoint verification PASS.",

@@ -15286,6 +15286,15 @@
     "artifacts": "plan=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_request_plan.v1.json; acquisition=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_acquisition.v1.json; replay=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_replay.v1.json.",
     "next_action": "STOP. Method did not qualify for cohort planning; do not generate/dispatch a 77-mint scale plan without separate authorization."
   },
+  "byzantine_23_quota_recovery_probe": {
+    "engineering_revision": "5904a907 plus bounded frozen retry-set probe",
+    "tests": "Zero-call ledger reconciliation PASS: frozen retry set=23, offline-resolved=0, live=23; no successful frozen request identity redispatched.",
+    "production_flags": "Exactly one authorized Birdeye history_price request: zRoYAdLYogsS491qazGakt2BDvgjMMiE8xQWpSVpump opening 1m. Raw response retained. No RPC, database, service, trade, UI, or right-censored dispatch.",
+    "verdict": "BIRDEYE_COMPUTE_QUOTA_NOT_RECOVERED",
+    "result": "Retry-set digest=13240f931b5de5dfc3b26fde9643b349f0f153d04cfee78646a3a8df5f027d35. The first and only live probe returned HTTP400 Compute units usage limit exceeded, with no Retry-After and zero observations. Stop rule engaged; remaining 22 identities were not dispatched. Cumulative attempts=133: HTTP200=104, HTTP429=5 resolved, HTTP400=24. Successful identities remain 104 plus one reused 4CgD later identity; unresolved terminal failures remain 23.",
+    "artifacts": "retry_set=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_23_quota_failed_retry_set.v1.json; durable_acquisition=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_acquisition.v1.json.",
+    "next_action": "STOP. A later, separately authorized quota-recovery attempt must begin with zero-call reconciliation and one bounded probe; do not retry the other 22 identities until that probe succeeds."
+  },
   "byzantine_64_full_lifecycle_peak_reevaluation": {
     "engineering_revision": "5904a907 plus provider-disabled mixed-resolution full-lifecycle peak replay",
     "tests": "Raw-derived case replay and repeated-output SHA-256 determinism PASS (efc5c93018ab9bbf5efed0ce486fd446a410bdcaab2db8dc008f16b169dde6bd).",

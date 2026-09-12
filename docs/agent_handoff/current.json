@@ -14681,6 +14681,14 @@
     "result": "41 newly reconstructed entries have retained exact boundary-slot blockTime and conservatively align to the next minute Birdeye point. The 23 historical compact entries lack retained boundary raw block time and remain unresolved. SOL/USD-qualified entries remain disjoint from aligned entries, so strategy-ready remains 0.",
     "next_action": "Acquire no data under this provider-disabled milestone. Separately resolve historical 23 boundary-time/SOL-USD overlap before strategy scoring."
   },
+  "byzantine_41_sol_usd_local_recovery_2026_09_12": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "status": "PARTIAL",
+    "verdict": "BYZANTINE_41_SOL_USD_LOCAL_RECOVERY_QUALIFIED",
+    "provider_rpc_network_calls": 0,
+    "result": "25/41 temporally aligned new entries have retained raw 1m SOL/USD at-or-before effective entry within 60 seconds. 16 are outside retained local coverage. New strategy-ready denominator is 25/41; historical subset remains 0 pending entry-time recovery.",
+    "next_action": "Await separate authorization to run provider-disabled entry-to-exit strategy scoring for the 25-case qualified denominator, or plan bounded SOL/USD-only coverage for the remaining 16."
+  },
   "updated_by": "agent_local",
   "verdict": "MARKET_PREDICTION_RETIREMENT_COMMIT_PARTIAL",
   "watchtower_buy3_historical_first_buy_opening_mc": {

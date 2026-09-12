@@ -15286,6 +15286,15 @@
     "artifacts": "plan=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_request_plan.v1.json; acquisition=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_acquisition.v1.json; replay=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_replay.v1.json.",
     "next_action": "STOP. Method did not qualify for cohort planning; do not generate/dispatch a 77-mint scale plan without separate authorization."
   },
+  "byzantine_playbook_lifecycle_presentation": {
+    "engineering_revision": "5904a907 plus lifecycle Playbook presentation redesign",
+    "tests": "13 focused tests passed. Restarted localhost route verified hero metrics, 52 COMPLETE/12 DATA PENDING status strip, membership-boundary notice, View all 52 progressive disclosure, and 4CgD…Qbpump truncation.",
+    "production_flags": "watchtower_api only restarted to load UI template/read-model formatting. Provider/RPC calls=0; canonical membership writes=0; research artifacts/calculations unchanged.",
+    "verdict": "OPERATION_PLAYBOOK_LIFECYCLE_PRESENTATION_QUALIFIED",
+    "result": "The Playbook now prioritizes operation context and lifecycle findings: 110/52/19/33 hero, severity counts, concise evidence strip and boundary notice, top-10 drawdown-first table with filters/sorting/View-all, abbreviated copyable mints, human-readable USD/token displays, and collapsible methodology. Canonical coverage remains separate and research-only mints are not promoted.",
+    "files": "templates/operation_playbook.html; src/ops/operator_research_module.py; tests/test_operator_research_module.py.",
+    "next_action": "No action required; refresh localhost:5002/operations/playbooks and open Byzantine."
+  },
   "byzantine_playbook_ui_deployed_local": {
     "engineering_revision": "5904a907 plus Playbook index lifecycle research summary",
     "tests": "13 focused tests passed. Post-restart served-content verification: /operations/playbooks contains Lifecycle research, 52 completed, 19 canonical, 33 research-only; Byzantine detail contains Lifecycle Behaviour and membership badges.",

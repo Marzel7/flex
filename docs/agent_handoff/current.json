@@ -15286,6 +15286,15 @@
     "artifacts": "plan=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_request_plan.v1.json; acquisition=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_acquisition.v1.json; replay=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_replay.v1.json.",
     "next_action": "STOP. Method did not qualify for cohort planning; do not generate/dispatch a 77-mint scale plan without separate authorization."
   },
+  "byzantine_64_full_lifecycle_peak_reevaluation": {
+    "engineering_revision": "5904a907 plus provider-disabled mixed-resolution full-lifecycle peak replay",
+    "tests": "Raw-derived case replay and repeated-output SHA-256 determinism PASS (efc5c93018ab9bbf5efed0ce486fd446a410bdcaab2db8dc008f16b169dde6bd).",
+    "production_flags": "Provider/RPC/network calls=0; raw artifacts, request ledger, normalized observations, and provisional two-hour artifacts unchanged.",
+    "verdict": "BYZANTINE_64_FULL_LIFECYCLE_PEAK_REEVALUATION_COMPLETE",
+    "result": "Across 52 retained/reconstructed mature lifecycles, maximum qualified retained point occurs in opening 1m evidence for 42 and later 15m evidence for 10; all 52 have a strictly later retained observation and 18 have equal maxima resolved by earliest timestamp. The full-lifecycle mixed-resolution definition changes nine individual drawdowns but preserves all threshold counts: >=80=28, >=85=28, >=90=25, >=92.5=18, >=95=16. It is qualified only as MAX_RETAINED_QUALIFIED_POINT_WITHIN_7D, not true ATH or uniformly sampled lifecycle maximum. No provider retry was performed; the 12 quota-unresolved mature mints remain unresolved.",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_full_lifecycle_peak_reevaluation.v1.json",
+    "next_action": "Do not treat this partial 52-case replay as a 64- or 103-launch prevalence result. The frozen two-hour peak method remains not qualified; any method adoption needs cross-operation validation and completion of the separately-held quota-failed requests."
+  },
   "byzantine_corrected_64_mature_lifecycle": {
     "engineering_revision": "5904a907 plus frozen-ledger provider-disabled reconstruction",
     "tests": "Raw digest validation, parser/normalized replay, deterministic ledger replay, and 4CgD corrected-lifecycle regression PASS.",

@@ -15320,6 +15320,15 @@
     "result": "The requested 52 completed lifecycle-research rows cannot be materialized as canonical operation-lifecycle rows without either omitting 33 non-members or changing canonical Byzantine membership. The existing lifecycle projection correctly rejects non-canonical members.",
     "next_action": "User must choose: display only the 19 canonical-member rows, or authorize a clearly labelled research-only 52-row table that is not operation membership and does not modify membership."
   },
+  "byzantine_23_sol_usd_conversion": {
+    "engineering_revision": "5904a907 plus provider-disabled retained SOL/USD conversion recovery",
+    "tests": "Artifact validation PASS: target entries=23, conversion-qualified=16, max prior-only conversion offset=55 seconds, lifecycle-compatible join=0, and resume readiness provider/RPC/network calls=0.",
+    "production_flags": "Provider/RPC/network calls=0; production trading changes=0; UI changes=0; canonical membership writes=0.",
+    "verdict": "BYZANTINE_23_ENTRY_USD_CONVERSION_PARTIAL",
+    "result": "Selected retained raw 1-minute SOL/USD OHLC close series from byzantine_shared_sol_usd_1m.v1.json. Frozen conversion rule is latest raw-qualified close at or before entry, max offset 60 seconds, never future price. It materialized 16/23 USD/token average counterfactual execution prices (offset median=30s; max=55s); 7 lack a compatible retained prior point. All 16 Scenario-D timestamps precede canonical lifecycle birth, so ENTRY_LIFECYCLE_USD_COMPATIBLE_COUNT=0 and no post-entry upside or strategy analysis was run. This is a temporal-contract gap, not a price-conversion fabrication.",
+    "artifacts": "inventory=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_23_sol_usd_source_inventory.v1.json; conversion_cases=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_23_entry_usd_conversion_cases.v1.json; join=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_23_entry_lifecycle_join.v1.json; readiness=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_entry_to_exit_resume_readiness.v1.json.",
+    "next_action": "STOP. Resolve the canonical-birth versus Scenario-D counterfactual-boundary temporal contract provider-disabled before strategy research; do not broaden entry timestamps or acquire data."
+  },
   "byzantine_local_actionable_entry_recovery": {
     "engineering_revision": "5904a907 plus provider-disabled local Scenario-D entry materialization",
     "tests": "Provider-disabled artifact validation PASS: target=64, recovered cases=64, replayable counterfactual entries=23, live actionable=0, USD/lifecycle compatible=0; all required output artifacts parse and preserve provider/RPC/network calls=0.",

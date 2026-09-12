@@ -14612,7 +14612,21 @@
     "verdict": "UI_SURFACE_CONTRACTION_AND_BACKEND_REACHABILITY_PARTIAL_GENERIC_FUNDING_SLICE_RETIRED"
   },
   "updated_at": "2026-09-04T15:45:00Z",
-  "updated_at_utc": "2026-09-04T15:45:00Z",
+  "updated_at_utc": "2026-09-12T00:00:00Z",
+  "byzantine_larger_opening_corpus_audit": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "status": "PARTIAL",
+    "verdict": "BYZANTINE_LARGER_SCENARIO_D_CORPUS_PARTIAL",
+    "provider_rpc_network_calls": 0,
+    "result": "428 births and 420 opening-history-qualified (397 production + 23 predecessor) are locally proven, but they have different semantics from Scenario-D. All 64 mature mints overlap opening-history qualification; only 23 overlap the retained 101-row Scenario-D position-13/pre-state/quote materialization. Coverage did not expand.",
+    "tests": "pytest -q tests/test_byzantine_larger_opening_corpus_audit.py (3 passed)",
+    "artifacts": [
+      "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_428_opening_population_lineage.v1.json",
+      "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_entry_recoverability_from_larger_corpus.v1.json",
+      "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_remaining_entry_acquisition_gap.v1.json"
+    ],
+    "next_action": "No acquisition authorized. Any future recovery must obtain bounded CREATE/opening actions through the 13th distinct non-creator buy plus position-13 reserve state for the 41 unresolved mature mints."
+  },
   "updated_by": "agent_local",
   "verdict": "MARKET_PREDICTION_RETIREMENT_COMMIT_PARTIAL",
   "watchtower_buy3_historical_first_buy_opening_mc": {

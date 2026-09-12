@@ -15286,6 +15286,15 @@
     "artifacts": "plan=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_request_plan.v1.json; acquisition=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_acquisition.v1.json; replay=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_replay.v1.json.",
     "next_action": "STOP. Method did not qualify for cohort planning; do not generate/dispatch a 77-mint scale plan without separate authorization."
   },
+  "byzantine_23_quota_recovery_probe_second_attempt": {
+    "engineering_revision": "5904a907 plus second bounded next-identity quota probe",
+    "tests": "Published handoff 35f4038a read; zero-call reconciliation PASS: frozen=23, resolved=0, prior quota probes=1, next unprobed identity selected deterministically.",
+    "production_flags": "Exactly one authorized Birdeye history_price request: eH9uErNehYg3p8Y14Ujf5eUBNnX6AkaEqkxLbvRpump later 15m. Raw response retained. No other provider/RPC call; no database, service, trade, UI, or right-censored dispatch.",
+    "verdict": "BIRDEYE_COMPUTE_QUOTA_NOT_RECOVERED",
+    "result": "The sole probe returned HTTP400 Compute units usage limit exceeded, no Retry-After, zero observations. Remaining retry identities were not dispatched. Cumulative attempts=134: HTTP200=104, HTTP429=5 resolved, HTTP400=25. The 104 successes plus one reusable 4CgD later identity remain protected; 23 quota-failed identities remain unresolved.",
+    "artifacts": "retry_set=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_23_quota_failed_retry_set.v1.json; durable_acquisition=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_acquisition.v1.json.",
+    "next_action": "STOP. Do not perform another quota probe or reconstruct as 64 complete until a separately authorized later recovery attempt. Begin any such attempt with zero-call reconciliation and exactly one probe."
+  },
   "byzantine_23_quota_recovery_probe": {
     "engineering_revision": "5904a907 plus bounded frozen retry-set probe",
     "tests": "Zero-call ledger reconciliation PASS: frozen retry set=23, offline-resolved=0, live=23; no successful frozen request identity redispatched.",

@@ -14638,13 +14638,13 @@
   },
   "byzantine_scenario_d_41_rpc_pilot": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
-    "status": "HOLD",
-    "verdict": "BYZANTINE_SCENARIO_D_41_RPC_PILOT_BLOCKED",
-    "provider_rpc_network_calls": 0,
-    "blocker": "HELIUS_RPC_URL_UNAVAILABLE: neither environment nor project .env had a Helius endpoint/API-key variable (presence checked without exposing values).",
-    "result": "Frozen three-mint request ledger exists with five pre-anchor identities (one anchor getTransaction, four exact getBlock calls); no request dispatched, no raw bytes retained, no successful identity, and no scale.",
+    "status": "PILOT_QUALIFIED_SCALE_NOT_EXECUTED",
+    "verdict": "BYZANTINE_SCENARIO_D_41_RPC_PILOT_QUALIFIED",
+    "provider_rpc_network_calls": 6,
+    "result": "All three frozen pilot mints qualified Scenario-D position 13 within CREATE..CREATE+1. Six unique Helius requests retained 16,405,334 raw bytes; provider-disabled raw replay produced compact boundary/state/0.25 SOL quote facts.",
     "regression": "KNOWN_23_SCENARIO_D_REGRESSION=PASS",
-    "next_action": "Provide/configure HELIUS_RPC_URL or HELIUS_TEMP_API_KEY, then rerun only the same frozen three-mint pilot ledger; do not scale."
+    "scale_gate": "BYZANTINE_SCENARIO_D_41_SCALE_ACQUISITION_QUALIFIED: extrapolated 82 calls and 224,206,231 bytes are under frozen ceilings, but scale execution was not performed because user scope was pilot-only.",
+    "next_action": "Await explicit authorization before dispatching any of the remaining 38 frozen targets."
   },
   "updated_by": "agent_local",
   "verdict": "MARKET_PREDICTION_RETIREMENT_COMMIT_PARTIAL",

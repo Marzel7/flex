@@ -15277,6 +15277,15 @@
     "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_historical_ohlcv_current_response_forensic_diff.v1.json",
     "next_action": "STOP. Do not query 2kt5. Any new provider work requires a separate authorization after deciding whether to investigate historical data-retention/version semantics."
   },
+  "byzantine_2kt5_tail_only_lifecycle_pilot": {
+    "engineering_revision": "5904a907 plus bounded tail-only OHLCV pilot",
+    "tests": "Raw-digest replay, normalized chronological merge, no-interpolation check, and JSON validation PASS.",
+    "production_flags": "Birdeye V3 OHLCV only; 6 fixed post-peak tail requests, HTTP200=6, HTTP429=0; raw retention enabled; no cohort scale, RPC, database, service, trade, or Opening History mutation.",
+    "verdict": "BYZANTINE_2KT5_TAIL_ONLY_LIFECYCLE_BLOCKED",
+    "result": "Post-peak tier schedule 15s/1m/5m/15m/30m/1H yielded five candles. TIER2=2, TIER3=0, TIER4=0, TIER5=0, TIER6=3, TIER7=0. Latest observation is 1788994800, so coverage does not extend beyond the prior endpoint. Minimum later low=2.0015757918987697e-06 at 1788994800 from TIER6; immutable peak drawdown=6.4738966754689351%; 80/85/90/92.5/95 are not provable. No rate blocks or duplicate successful requests occurred.",
+    "artifacts": "plan=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_request_plan.v1.json; acquisition=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_acquisition.v1.json; replay=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_tail_only_replay.v1.json.",
+    "next_action": "STOP. Method did not qualify for cohort planning; do not generate/dispatch a 77-mint scale plan without separate authorization."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

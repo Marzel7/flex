@@ -15320,6 +15320,15 @@
     "result": "The requested 52 completed lifecycle-research rows cannot be materialized as canonical operation-lifecycle rows without either omitting 33 non-members or changing canonical Byzantine membership. The existing lifecycle projection correctly rejects non-canonical members.",
     "next_action": "User must choose: display only the 19 canonical-member rows, or authorize a clearly labelled research-only 52-row table that is not operation membership and does not modify membership."
   },
+  "byzantine_local_actionable_entry_recovery": {
+    "engineering_revision": "5904a907 plus provider-disabled local Scenario-D entry materialization",
+    "tests": "Provider-disabled artifact validation PASS: target=64, recovered cases=64, replayable counterfactual entries=23, live actionable=0, USD/lifecycle compatible=0; all required output artifacts parse and preserve provider/RPC/network calls=0.",
+    "production_flags": "Provider/RPC/network calls=0; production trading changes=0; UI changes=0; canonical membership writes=0.",
+    "verdict": "BYZANTINE_LOCAL_ACTIONABLE_ENTRY_RECOVERY_PARTIAL",
+    "result": "Existing Scenario-D evidence was located in docs/audits/byzantine_lifecycle_103/byzantine_scenario_d_counterfactual_execution.v1.json. It means a frozen 0.25 SOL hypothetical Pump.fun buy at the retained position-13 pre-entry curve boundary, priced as average counterfactual execution (not marginal price or historical Flex fill). Exact mint join recovers 23/64 deterministic replayable counterfactual entries; 41/64 have no equivalent local entry row. No retained per-entry SOL/USD conversion was materialized, so all 23 are USD_CONVERSION_MISSING and strategy-usable entries remain 0. The previous 0/64 live-actionable/USD-compatible result remains historically correct under its stronger contract.",
+    "artifacts": "inventory=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_local_entry_evidence_inventory.v1.json; trace=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_scenario_d_entry_provenance_trace.v1.json; cases=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_recovered_entry_cases.v1.json; summary=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_recovered_entry_summary.v1.json; gap_plan=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_entry_evidence_gap_plan.v1.json.",
+    "next_action": "STOP. Provider-disabled follow-up may only materialize a qualified retained contemporaneous SOL/USD conversion for the 23 timestamps; do not acquire new data. Live-actionability requires separate retained contemporaneous binding evidence."
+  },
   "byzantine_entry_to_exit_research": {
     "engineering_revision": "5904a907 plus provider-disabled entry-to-exit research blocker artifacts",
     "tests": "Artifact validation PASS: mature=64, qualified actionable-entry overlap=0, 64 explicit exclusions, and final manifest is provider/RPC/network calls=0. No UI test or render was changed because the milestone forbids UI updates.",

@@ -15259,6 +15259,15 @@
     "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_contiguous_ohlcv_source_qualification.v1.json; raw=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_2kt5_contiguous_ohlcv_raw/.",
     "next_action": "STOP. A separate authorization is required for any later request, including the unattempted third fixed chunk or any retry after the rate block. Do not scale the route."
   },
+  "byzantine_historical_ohlcv_contract_known_answer": {
+    "engineering_revision": "5904a907 plus exact historical seven-tier OHLCV contract validator",
+    "tests": "Recovered query contract inspected against acquisition code/ledger; seven raw response digests verified; parser replay and monotonic timeline PASS; historical known-answer equality FAIL.",
+    "production_flags": "Birdeye V3 OHLCV only; exactly seven requests to one retained known-answer mint; raw response retention enabled; no 2kt5 request, no cohort scale, no RPC, database, service, trade, or Opening History mutation.",
+    "verdict": "HISTORICAL_CONTRACT_KNOWN_ANSWER_MISMATCH",
+    "result": "Historical contract exactly recovered as GET /defi/v3/ohlcv with only address, type, time_from and time_to query parameters; headers X-API-KEY and accept; no x-chain/currency/chart_type/limit/padding/outlier/pagination. It used contiguous migration/birth anchored tiers 1s[0,300], 15s[300,1800], 1m[1800,21600], 5m[21600,86400], 15m[86400,172800], 30m[172800,259200], 1H[259200,604800], with equality at adjacent boundaries. Known mint 2LVe... was replayed through all seven current requests: HTTP200=7, 24 parsed candles, raw replay PASS, but current maximum drawdown=66.11182489195633% versus retained historical known answer=94.43220195728544%. The current provider no longer reproduces the retained raw corpus, so the validation gate fails.",
+    "artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_historical_ohlcv_contract_known_validation.v1.json; raw=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_historical_contract_validation_raw/.",
+    "next_action": "STOP. Do not test 2kt5 under this authorization because the required known-answer validation did not pass. Any subsequent work requires a separately authorized investigation of provider historical-retention/version semantics."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

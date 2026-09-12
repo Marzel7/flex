@@ -15320,6 +15320,15 @@
     "result": "The requested 52 completed lifecycle-research rows cannot be materialized as canonical operation-lifecycle rows without either omitting 33 non-members or changing canonical Byzantine membership. The existing lifecycle projection correctly rejects non-canonical members.",
     "next_action": "User must choose: display only the 19 canonical-member rows, or authorize a clearly labelled research-only 52-row table that is not operation membership and does not modify membership."
   },
+  "byzantine_scenario_d_chain_order_forensic": {
+    "engineering_revision": "5904a907 plus provider-disabled Scenario-D chain-order forensic artifacts",
+    "tests": "Artifact validation PASS: target=23, entry-order-unresolved=23, qualified alignment=0, and provider/RPC/network calls=0.",
+    "production_flags": "Provider/RPC/network calls=0; production trading changes=0; UI changes=0; canonical membership writes=0.",
+    "verdict": "BYZANTINE_LOCAL_ACTIONABLE_ENTRY_RECOVERY_BLOCKED",
+    "result": "Scenario-D position 13 is a globally frozen 13th retained opening-cluster position after excluded positions 1..12, not proven to be a transaction or instruction ordinal. The retained Scenario-D replay supplies slot and opening-event timestamp but boundary signature=null and no CREATE signature/slot, transaction index, instruction index, or complete opening transaction sequence for these 23 cases. The apparent timestamp mismatch cannot invalidate Scenario-D from Unix time alone, but stronger chain ordering cannot be established locally. All 23 remain ENTRY_ORDER_UNRESOLVED; no effective entry time, post-alignment SOL/USD replay, lifecycle join, or strategy resumption is authorized.",
+    "artifacts": "forensic=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_23_create_entry_order_forensic.v1.json; sequences=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_23_complete_opening_sequences.v1.json; semantics=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_scenario_d_position_13_semantics.v1.json; alignment=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_23_entry_lifecycle_alignment.v1.json.",
+    "next_action": "STOP. A future local-only continuation must locate a retained artifact containing matched CREATE and boundary signature/transaction/instruction order; otherwise separate authorized acquisition is required. Do not bridge by timestamp inference."
+  },
   "byzantine_23_sol_usd_conversion": {
     "engineering_revision": "5904a907 plus provider-disabled retained SOL/USD conversion recovery",
     "tests": "Artifact validation PASS: target entries=23, conversion-qualified=16, max prior-only conversion offset=55 seconds, lifecycle-compatible join=0, and resume readiness provider/RPC/network calls=0.",

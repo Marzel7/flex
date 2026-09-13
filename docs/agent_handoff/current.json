@@ -1,4 +1,12 @@
 {
+  "byzantine_64_15s_sparse_accounting_reconciliation": {
+    "engineering_revision": "5904a907",
+    "tests": "2 passed: tests/test_byzantine_64_15s_sparse_accounting.py",
+    "production_flags": "Provider/RPC/network calls=0; no reacquisition, Playbook, strategy, database, membership, or production mutation.",
+    "verdict": "BYZANTINE_64_15S_ACCOUNTING_RECONCILED / BYZANTINE_64_V3_PEAK_QUALIFICATION_PARTIAL",
+    "result": "Correct global-grid request-overlap accounting: expected=2008, returned inside grid=734, outside boundary=4, missing=1274, internal-gap missing=509, boundary missing=765; all methods reconcile. The prior 1902 count was an entry-stepped grid defect. Exact V3 peaks=2; remaining rows preserve lower-bound or entry-floor authority. 15s > v2 remains 45.",
+    "next_action": "Keep STRATEGY_SCORING_HOLD_FOR_EARLY_UPSIDE_COVERAGE. Use only proven reaches for any future lower-bound analysis; exact strategy research needs residual on-chain activity evidence for sparse cases."
+  },
   "byzantine_64_15s_sparse_semantics_audit": {
     "engineering_revision": "5904a907",
     "tests": "Provider-disabled deterministic raw inventory, digest, grid, duplicate, boundary, gap, and target tri-state audit completed.",

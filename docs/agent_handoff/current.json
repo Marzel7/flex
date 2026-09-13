@@ -1,4 +1,17 @@
 {
+  "byzantine_track_b_capacity_preflight_2026_09_13": {
+    "engineering_revision": "5904a907",
+    "tests": "py_compile Track-B freeze script; target/ledger/preflight JSON validation PASS",
+    "production_flags": "SOL/USD only; zero provider calls; no Helius/opening/lifecycle/token-price/UI/trading mutation",
+    "verdict": "BYZANTINE_TRACK_B_PROVIDER_CAPACITY_BLOCKED",
+    "starting_gap": 23,
+    "local_recovered": 0,
+    "provider_required": 23,
+    "unique_frozen_windows": 23,
+    "existing_41_sol_usd_regression": "PASS",
+    "capacity_gate": "FAIL: current Birdeye CU plan/consumed/remaining/reset evidence and conservative required CU are unavailable",
+    "next_action": "Obtain non-probe provider quota/credit evidence or authorize/configure an independently capacity-proven historical 1-minute SOL/USD provider; do not dispatch the frozen ledger otherwise."
+  },
   "byzantine_final_evidence_reconciliation_2026_09_13": {
     "engineering_revision": "5904a907",
     "tests": "py_compile and provider-disabled three-case forensic reconciliation; JSON validation PASS",

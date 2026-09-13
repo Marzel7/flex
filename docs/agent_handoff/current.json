@@ -1,4 +1,13 @@
 {
+  "fqxi_ath_discrepancy_diagnosis": {
+    "engineering_revision": "d905fe3b",
+    "tests": "python -m py_compile scripts/audit_fqxi_ath_discrepancy.py; regenerated artifact JSON-validated; recomputed drawdown exactly equals retained stored drawdown (0.9737755505723503).",
+    "production_flags": "Provider/RPC/network calls=0; token-analysis, peak, collapse, UI, membership, and source-evidence writes=0. Only the explicitly requested diagnostic script and durable audit artifact were created.",
+    "verdict": "ROOT_CAUSE_PROVEN_RETAINED_LOCAL_EVIDENCE",
+    "result": "For FqXipMyKJJUrU9MASnpWqTESVcdZjkK83ttFmWdVpump, displayed Proven High is $42,786.08 (2.67848x), sourced from the frozen pre-migration 15s window ending at migration+60s (1788530815). Retained local post-migration raw has a $85,895.76 maximum at 1788531854 (1s candle), outside that window. This proves acquisition-window truncation/post-migration omission, not provider coverage, supply, or SOL/USD conversion error. The GMGN $82.81K observation has local near matches but no exact $82,810 observation. Drawdown correctly uses a separate retained $77,820.44 lifecycle peak, hence the displayed-high/drawdown inconsistency. 85% state remains PROVEN under either high.",
+    "artifacts": "audit=docs/audits/fqxi_ath_discrepancy_diagnosis.v1.json; sha256=b8d28bcf2a8902dc4763179608199f55a2959b28b07f4e09515c764310be197c; generator=scripts/audit_fqxi_ath_discrepancy.py",
+    "next_action": "No remediation was authorized. Await separate authorization before changing peak selection, read models, UI, or cohort artifacts."
+  },
   "byzantine_playbook_v3_responsiveness_repair": {
     "engineering_revision": "d905fe3b",
     "tests": "5 passed: tests/test_operator_research_module.py; local-only route verification HTTP 200 in 0.470s.",

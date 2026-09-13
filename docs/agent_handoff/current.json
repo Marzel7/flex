@@ -1,4 +1,12 @@
 {
+  "byzantine_4zxx_15s_ohlc_pilot_preflight": {
+    "engineering_revision": "5904a907",
+    "tests": "Credential-presence check only; no provider, RPC, or quota probe executed.",
+    "production_flags": "No production mutation; provider calls=0.",
+    "verdict": "HOLD",
+    "blockers": ["4ZXX_15S_PILOT_CREDENTIAL_NOT_BOUND", "4ZXX_15S_PILOT_QUOTA_NOT_PROVEN"],
+    "next_action": "Bind BIRDEYE_KK in the execution environment and supply retained/current positive account quota evidence before creating or dispatching the frozen request ledger."
+  },
   "byzantine_track_b_capacity_preflight_2026_09_13": {
     "engineering_revision": "5904a907",
     "tests": "py_compile Track-B freeze script; target/ledger/preflight JSON validation PASS",

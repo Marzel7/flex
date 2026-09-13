@@ -1,4 +1,12 @@
 {
+  "byzantine_428_to_64_population_lineage": {
+    "engineering_revision": "5904a907",
+    "tests": "2 passed: tests/test_byzantine_population_lineage.py",
+    "production_flags": "Provider/RPC/network calls=0; no Playbook, strategy, position-peak, membership, database, or production mutation.",
+    "verdict": "BYZANTINE_428_TO_64_POPULATION_LINEAGE_QUALIFIED / MIGRATION_23_41_CLASSIFICATION_SEMANTICALLY_MISLABELED",
+    "result": "428 is retained birth research, and migration is not required for 428 or 64 membership. 420 opening qualification is 397 production opening-history plus 23 predecessor FIRST_NON_CREATOR_BUY compact records. The 15s planner joined 103 migration results and tested MIGRATION_TIME > entry: 23 had a qualified post-entry timestamp, 41 did not. This is timestamp availability, not a true non-migrator claim. Historic opening 23 overlaps planner 23 by 22 mints.",
+    "next_action": "Use NO_QUALIFIED_POST_ENTRY_MIGRATION_TIME terminology. If exact migration behavior matters later, audit retained PumpSwap/completion evidence per mint without altering the completed 15s acquisition or calculating migration USD."
+  },
   "byzantine_64_strategy_grade_peak_policy": {
     "engineering_revision": "5904a907",
     "tests": "2 passed: tests/test_byzantine_strategy_grade_policy.py",

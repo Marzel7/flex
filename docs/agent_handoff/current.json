@@ -1,4 +1,14 @@
 {
+  "nexus_14i7_defining_event_valuation_correction": {
+    "engineering_revision": "5904a907",
+    "tests": "evidence-model correction validation PASS: defining/event/bucket arithmetic, launch-in-candle assertion, JSON parse, and diff check",
+    "production_flags": "0 Birdeye/RPC/provider/network calls; 0 Nexus membership, detector, identity, UI, token-analysis, source-evidence, or compact-fact writes",
+    "verdict": "PARTIAL — corrects the prior 451-second label to event-to-provider-bucket-start; retained evidence does not establish a USD MC at the detector-defining 10,000-lamport transfer",
+    "artifact": "docs/audits/nexus_14i7_defining_event_valuation_correction.v1.json",
+    "artifact_sha256": "bf748d4cd093ebbf7e15ed2ea969fdf3040854a7200f40982acdf9c71967d8dd",
+    "key_evidence": "defining transfer 1787743949; first provider 1m bucket 1787744400; retained launch/CreateV2+Buy 1787744439 within that bucket but +490s from defining transfer; no retained contemporaneous SOL/USD valuation",
+    "next_action": "Do not manufacture DEFINING_EVENT_MC. If separately authorized, qualify an event-state valuation acquisition/retention contract before applying the corrected three-token comparison."
+  },
   "nexus_14i7_defining_event_to_peak": {
     "engineering_revision": "5904a907",
     "tests": "offline join validation PASS: 1,000 retained observations; peak/index/timing assertions; JSON parse; git diff --check",

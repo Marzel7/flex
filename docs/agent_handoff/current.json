@@ -1,4 +1,12 @@
 {
+  "byzantine_migration_sol_usd_local_recovery": {
+    "engineering_revision": "5904a907",
+    "tests": "Shared Track-B raw SOL/USD time-index join applied with <=60s no-future rule.",
+    "production_flags": "Provider/RPC/network calls=0; no residual acquisition, target, Playbook, strategy, database, membership, or production mutation.",
+    "verdict": "BYZANTINE_MIGRATION_SOL_USD_LOCAL_RECOVERY_PARTIAL",
+    "result": "23 exact websocket migration times joined against all retained Track-B 1m SOL/USD raw points: qualified=3, missing=20. Qualified conversions use latest at-or-before migration with offset <=60s. Dynamic 410.880168-SOL diagnostic now exists only for the three qualified cases; no price/migration authority changed.",
+    "next_action": "Freeze deduplicated SOL/USD-only residual windows for the 20 missing migration times, then await separate explicit provider-dispatch authorization."
+  },
   "byzantine_usd_provenance_join": {
     "engineering_revision": "5904a907",
     "tests": "64-row source-linked valuation materialization and 23-row conversion accounting completed provider-disabled.",

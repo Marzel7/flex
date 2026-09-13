@@ -1,4 +1,13 @@
 {
+  "byzantine_64_15s_early_upside_acquisition": {
+    "engineering_revision": "5904a907",
+    "tests": "Frozen-ledger integrity and raw SHA-256 replay passed; provider-disabled normalization completed.",
+    "production_flags": "64 Birdeye /defi/v3/ohlcv 15s calls, serialized; 0 retries, 0 HTTP429, no alternate credential/endpoint/window/resolution, no Playbook, strategy, membership, or production mutation.",
+    "verdict": "BYZANTINE_64_15S_EARLY_UPSIDE_ACQUISITION_COMPLETE / V3_CANDIDATES_PARTIAL_WINDOW_COVERAGE",
+    "result": "64/64 HTTP200, 204754 raw bytes, duplicate successful identities=0. Normalization retained 738 candles: 18 complete expected windows and 46 partial. 45 rows have a 15s candidate exceeding v2, but incomplete-window candidates are not full-cohort authority. Rug replay and v3 read-model promotion are not executed.",
+    "artifacts": "checkpoint=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_15s_early_upside_acquisition_checkpoint.v1.json; accounting=byzantine_64_15s_early_upside_acquisition_accounting.v1.json; normalized=byzantine_64_15s_early_upside_normalized.v1.json; cases=byzantine_64_15s_early_upside_cases.v1.json; v3=byzantine_64_position_peak_v3_candidates.v1.json",
+    "next_action": "Keep STRATEGY_SCORING_HOLD_FOR_EARLY_UPSIDE_COVERAGE. Audit the 46 partial provider windows before any separately authorized gap policy, rug replay, or authority promotion."
+  },
   "byzantine_64_15s_early_upside_plan": {
     "engineering_revision": "5904a907",
     "tests": "6 passed: tests/test_byzantine_64_15s_early_upside_plan.py",

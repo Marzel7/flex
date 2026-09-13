@@ -1,4 +1,13 @@
 {
+  "byzantine_migration_sol_usd_residual_acquisition": {
+    "engineering_revision": "d905fe3b",
+    "tests": "4 passed: tests/test_byzantine_migration_sol_usd_v2.py",
+    "production_flags": "Exactly 20 authorized serialized Birdeye SOL/USD 1m calls using BIRDEYE_KK; HTTP200=20, HTTP429=0, retries=0, raw_bytes=11572. Provider calls during normalization=0. No target authority, Playbook, strategy, database, membership, or production mutation.",
+    "verdict": "BYZANTINE_MIGRATION_SOL_USD_RECOVERY_COMPLETE / BYZANTINE_GRADUATION_RESEARCH_BENCHMARK_AUDIT_COMPLETE",
+    "result": "The frozen residual population was 20 and existing qualified conversions=3 were preserved. Final no-future, <=60-second migration-time SOL/USD conversions=23/23 (missing=0; offsets min=1, median=31, max=60). Dynamic 410.880168-SOL research benchmark: median=$42688.417932560325, mean=$42566.65113203896, p25=$42207.3797657147, p75=$43138.19596109153, p90=$43241.74468027349, min=$40201.23381769166, max=$43530.00206019122. Fixed-$40K cross-tab: proven/migration-proven=23, proven/event-missing=3, not-proven/migration-proven=0, not-proven/event-missing=38. Both fixed and dynamic recall are 23/23; verdict FIXED_40K_DIAGNOSTIC_SUFFICIENT. No incremental hypothetical target promotions. 4ZXX is dynamic-eligible at $41763.254534310734 (2.595855684040812x entry), dynamic benchmark proven reached; retained strongest post-entry valuation=$48684.0558870607 and prior 15s high remains >=2.93684x.",
+    "artifacts": "ledger=byzantine_20_migration_sol_usd_request_ledger.v1.json; checkpoint=byzantine_20_migration_sol_usd_acquisition_checkpoint.v1.json; conversions=byzantine_23_migration_time_sol_usd.v2.json; dynamic=byzantine_23_410sol_dynamic_benchmark_cases.v2.json; crosstab=byzantine_64_40k_migration_crosstab.v1.json; summary=byzantine_graduation_benchmark_empirical_summary.v3.json; preview=byzantine_graduation_benchmark_target_impact_preview.v3.json",
+    "next_action": "Review diagnostic-only evidence before any separately authorized target-authority augmentation. Do not treat 410.880168 SOL as a universal protocol constant or infer migration from price."
+  },
   "byzantine_migration_sol_usd_local_recovery": {
     "engineering_revision": "5904a907",
     "tests": "Shared Track-B raw SOL/USD time-index join applied with <=60s no-future rule.",

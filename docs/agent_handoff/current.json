@@ -4,7 +4,7 @@
     "tests": "5 passed: tests/test_operator_research_module.py; local-only route verification HTTP 200.",
     "production_flags": "No provider/RPC/external network calls; no evidence, membership, target authority, strategy, trading, or database mutation. Local Watchtower API restarted solely to load the UI repair.",
     "verdict": "BYZANTINE_PLAYBOOK_V3_RENDER_REPAIRED",
-    "result": "The V3 suppression of unqualified High→85 timings exposed a legacy template division of None by 60 for rows with a retained 85% drawdown state. The compatibility projection now prevents server-side formatting failure and client display replaces all non-strategy-grade High→85 values with —. Local GET /operations/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334/playbook returned HTTP 200 after restart.",
+    "result": "The V3 suppression of unqualified High→85 timings exposed a legacy template division of None by 60 for rows with a retained 85% drawdown state. The compatibility projection now prevents server-side formatting failure and client display replaces all non-strategy-grade High→85 values with —. Local GET /operations/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334/playbook returned HTTP 200 after restart and a subsequent availability check returned HTTP 200 in 0.186s; watchtower_api is RUNNING.",
     "next_action": "User may reload the local Playbook URL. Keep target authority and strategy scoring unchanged."
   },
   "byzantine_playbook_trading_opportunity_v3": {

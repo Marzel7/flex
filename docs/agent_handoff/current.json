@@ -1,4 +1,12 @@
 {
+  "byzantine_graduation_research_benchmark": {
+    "engineering_revision": "5904a907",
+    "tests": "Generated diagnostic artifacts JSON-validate.",
+    "production_flags": "Provider/RPC/network calls=0; no protocol-constant claim, USD benchmark, target, Playbook, strategy, database, membership, or production mutation.",
+    "verdict": "BYZANTINE_GRADUATION_RESEARCH_BENCHMARK_PARTIAL",
+    "result": "The requested $40K and 410.880168-SOL empirical cross-tabs cannot be calculated safely from current V3 inputs: they preserve multiples but not qualified strongest per-mint post-entry USD valuation provenance, and the 23 retained migration events have no qualifying no-future migration-time SOL/USD join. No negative price/migration conclusion was made.",
+    "next_action": "Provider-disabled materialize a provenance-preserving per-mint USD valuation join from retained 15s/lifecycle raw evidence and retained SOL/USD windows, then rerun the diagnostic-only cross-tab without treating price as migration proof."
+  },
   "pumpfun_graduation_mc_sol_retained_binary_qualification": {
     "engineering_revision": "5904a907",
     "tests": "Local SHA-256 re-verification passed for the retained ELF.",

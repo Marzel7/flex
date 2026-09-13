@@ -1,4 +1,14 @@
 {
+  "nexus_14i7_defining_event_to_peak": {
+    "engineering_revision": "5904a907",
+    "tests": "offline join validation PASS: 1,000 retained observations; peak/index/timing assertions; JSON parse; git diff --check",
+    "production_flags": "0 Birdeye/RPC/provider/network calls; 0 detector, membership, identity, UI, token-analysis, source-evidence, or compact-fact writes",
+    "verdict": "PARTIAL — retained lifecycle sequence supports rapid extreme drawdown after a near-immediate observed peak, but does not prove second-level peak ordering or an operation-wide pattern",
+    "artifact": "docs/audits/nexus_14i7_defining_event_to_peak.v1.json",
+    "artifact_sha256": "d8b60abbe1a226b3ba7c6fb27793eab0c7bd661f1062cd032dde76cae70c3bfe",
+    "key_timing": "canonical defining event 1787743949; first retained/max 1787744400 (+451s); retained low 1787748420 (+4471s); peak-to-low 4020s / 67m; retained drawdown 99.81262388877191%",
+    "next_action": "Do not generalize. Apply the frozen comparison schema only if separately authorized retained/acquired evidence becomes available for 247a and 26MG."
+  },
   "research_entry_semantics_audit": {
     "engineering_revision": "d905fe3b",
     "tests": "Provider-disabled 64-row deterministic entry replay JSON-valid; every entry recomputes exactly as USD price × 1B UI supply.",

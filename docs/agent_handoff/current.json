@@ -1,4 +1,12 @@
 {
+  "byzantine_64_pumpfun_ws_migration_reconciliation": {
+    "engineering_revision": "5904a907",
+    "tests": "1 passed: tests/test_byzantine_pumpfun_ws_migrations.py",
+    "production_flags": "Provider/RPC/network calls=0; no target, USD benchmark, Playbook, strategy, database, membership, or production mutation.",
+    "verdict": "BYZANTINE_64_PUMPFUN_WS_MIGRATION_PARTIAL",
+    "result": "Direct retained WEBSOCKET migration-anchor reconciliation: 23/64 PUMPFUN_WS_MIGRATION_PROVEN, 41/64 event missing, conflict=0; all 23 proven events order after Scenario-D entry. The old 41 have 0 recovered events in this retained websocket corpus. Anchor schema retains time, slot, signature, pool and provenance, but no SOL amount/state; migration SOL benchmark remains not qualified.",
+    "next_action": "Treat missing event rows as WS coverage/retention gaps, not non-migration. Before migration can become a strategy benchmark, separately recover/qualify authoritative migration SOL-state evidence and coverage for the 41."
+  },
   "byzantine_428_to_64_population_lineage": {
     "engineering_revision": "5904a907",
     "tests": "2 passed: tests/test_byzantine_population_lineage.py",

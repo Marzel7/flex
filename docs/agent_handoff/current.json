@@ -1,4 +1,13 @@
 {
+  "research_peak_semantics_ui_promotion": {
+    "engineering_revision": "d905fe3b",
+    "tests": "12 passed: tests/test_peak_fact_semantics.py tests/test_operator_research_module.py; V4 read model has 64 rows and 23 unchanged migration badges; template compiles.",
+    "production_flags": "Provider/RPC/network calls=0; token-analysis, source-evidence, collapse, membership, and detector writes=0. Authorized read-model/template/test/audit/playbook projection only.",
+    "verdict": "RESEARCH_PEAK_SEMANTICS_UI_PROMOTED",
+    "result": "Versioned V4 promotes MAX_PROVEN_LIFECYCLE_MC and ENTRY_TO_LIFECYCLE_MAX_MULTIPLE to the primary Playbook table as Max Proven MC and Entry → Max. EARLY_WINDOW_PROVEN_HIGH remains retained per row. Partial-retained evidence drives ≥ formatting. Drawdown reference, 85% policy/state, entry-time ranking, and M migration markers are unchanged. FqXi now projects $85,895.76/5.37722x; 4ZXX remains $48,684.06/3.02603x; zRoY projects $55,475.65/3.45532x.",
+    "artifacts": "model=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_playbook_read_model.v4.json; audit=docs/audits/research_peak_semantics_ui_promotion.v1.json sha256=c80191fa892c01aa82f84fa85165715eb67cd53137b1b9d9cad295de04a6010f",
+    "next_action": "User may reload the local Playbook. No further peak, drawdown, 85%, rank, or source-evidence changes are implied."
+  },
   "research_peak_semantics_cohort_replay": {
     "engineering_revision": "d905fe3b",
     "tests": "10 passed: tests/test_peak_fact_semantics.py tests/test_operator_research_module.py; generated artifact JSON-valid and SHA-256 verified.",

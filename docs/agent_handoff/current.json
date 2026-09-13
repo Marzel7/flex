@@ -1,4 +1,13 @@
 {
+  "research_entry_semantics_audit": {
+    "engineering_revision": "d905fe3b",
+    "tests": "Provider-disabled 64-row deterministic entry replay JSON-valid; every entry recomputes exactly as USD price × 1B UI supply.",
+    "production_flags": "RPC/provider/network calls=0; token-analysis, UI, source-evidence, peak, and collapse writes=0.",
+    "verdict": "RESEARCH_ENTRY_SEMANTICS_PARTIAL",
+    "result": "Entry is consistently the Scenario-D 0.25-SOL counterfactual actionable-entry floor, not birth/first-observed/migration MC. 3jW7 $10,371.57 exactly recomputes from $0.000010371570672810786 per UI token × 1B; retained SOL/USD is $104.20157242539524 at 1788520080 (27 seconds before entry) under the no-future <=60-second rule. Arithmetic/conversion errors=0. Event slot/signature and lifecycle-alignment provenance remain unavailable/unresolved for 23 rows, so event-anchor qualification is partial.",
+    "artifacts": "audit=docs/audits/research_entry_semantics_cohort_replay.v1.json sha256=1347030a709dd7ed2b40c96e129fb18f7549433995bfd41f76695231cc4cc689; playbook_note=docs/playbooks/entry_anchor_semantics.v1.md",
+    "next_action": "Do not change UI. Separate authorization is required to recover/qualify missing entry-boundary transaction slot/signature provenance for the 23 unresolved rows."
+  },
   "research_peak_semantics_ui_promotion": {
     "engineering_revision": "d905fe3b",
     "tests": "12 passed: tests/test_peak_fact_semantics.py tests/test_operator_research_module.py; V4 read model has 64 rows and 23 unchanged migration badges; template compiles.",

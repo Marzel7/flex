@@ -1,4 +1,13 @@
 {
+  "byzantine_playbook_trading_opportunity_v3": {
+    "engineering_revision": "d905fe3b",
+    "tests": "9 passed: tests/test_operator_research_module.py tests/test_byzantine_migration_sol_usd_v2.py",
+    "production_flags": "Provider/RPC/network calls=0; no strategy scoring, target authority, Playbook artifact mutation, membership, database, trading, or production mutation.",
+    "verdict": "BYZANTINE_TRADING_OPPORTUNITY_READ_MODEL_V3_UI_PROMOTION_COMPLETE",
+    "result": "The 64-row Playbook now reads a versioned V3 model from strongest source-linked retained post-entry valuation evidence. It labels lower-bound values as Proven High with >= markers, uses Entry→High timing, retains lifecycle drawdown evidence, and exposes 23/23 exact PUMPFUN_WS_MIGRATION_PROVEN M badges only. High→85 timing is shown only for RUG_TIMING_STRATEGY_GRADE cases. 4ZXX renders entry=$16.1K, proven high >=$48.7K, >=3.03x (therefore satisfies >=2.93684x), and M. The three price-only migration retention-gap candidates have no M badge. No target authority or strategy result changed.",
+    "artifacts": "read_model=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_playbook_read_model.v3.json; materializer=scripts/materialize_byzantine_trading_opportunity_read_model_v3.py; UI=templates/operation_playbook.html",
+    "next_action": "Review the promoted UI at the local Playbook route. Any target-authority augmentation remains a separate authorization."
+  },
   "byzantine_migration_sol_usd_residual_acquisition": {
     "engineering_revision": "d905fe3b",
     "tests": "4 passed: tests/test_byzantine_migration_sol_usd_v2.py",

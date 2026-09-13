@@ -1,4 +1,13 @@
 {
+  "byzantine_64_15s_early_upside_plan": {
+    "engineering_revision": "5904a907",
+    "tests": "6 passed: tests/test_byzantine_64_15s_early_upside_plan.py",
+    "production_flags": "Provider calls during planning=0; no Playbook, strategy scoring, production, membership, or database mutation.",
+    "verdict": "BYZANTINE_64_15S_EARLY_UPSIDE_PLAN_QUALIFIED / BYZANTINE_64_15S_ACQUISITION_CAPACITY_BLOCKED",
+    "result": "64 exact targets, 23 qualified post-entry migrations and 41 fallback non-migrators. Candidate windows are entry->min(migration+60s, entry+10m) or entry->10m. Planned dispatches=64, expected candles=1956, CU cost and current available CU are not proven.",
+    "artifacts": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_15s_early_upside_request_ledger.v1.json; byzantine_64_15s_early_upside_provider_budget.v1.json; byzantine_64_15s_early_upside_storage_budget.v1.json; generic_15s_early_upside_ohlc_contract.v1.json; generic_early_ohlc_position_peak_rematerialization_contract.v1.json",
+    "next_action": "STOP before cohort dispatch. Supply positive current BIRDEYE_KK capacity evidence and separately authorize acquisition."
+  },
   "byzantine_4zxx_15s_ohlc_pilot_preflight": {
     "engineering_revision": "5904a907",
     "tests": "Frozen-run source compiles; ledger/raw SHA-256 verification and provider-disabled normalization passed. Root .env BIRDEYE_KK was read only into the one-call pilot process and never emitted or persisted.",

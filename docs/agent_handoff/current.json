@@ -1,4 +1,13 @@
 {
+  "byzantine_final_evidence_reconciliation_2026_09_13": {
+    "engineering_revision": "5904a907",
+    "tests": "py_compile and provider-disabled three-case forensic reconciliation; JSON validation PASS",
+    "production_flags": "no production/UI/trading mutation; Task A provider calls=0; Track B not dispatched",
+    "verdict": "PARTIAL",
+    "task_a": "PASS: historical economics 23/23 reconciled; 20 compact-identical and 3 NEW_RAW_BACKED_REPLAY_AUTHORITATIVE with compact provenance preserved",
+    "task_b": "HOLD: local SOL/USD recheck recovered 0; 23 gaps remain; Birdeye compute-unit availability has not been proven after prior exhaustion",
+    "next_action": "Perform an explicit Track-B provider quota/credit preflight before any SOL/USD request. Do not run strategy scoring."
+  },
   "byzantine_track_a_historical_timing_2026_09_12": {
     "engineering_revision": "5904a907",
     "tests": "py_compile Track-A runner; provider-disabled raw/parser/ordering/boundary replay PASS; JSON validation PASS",

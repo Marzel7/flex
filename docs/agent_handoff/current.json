@@ -1,4 +1,12 @@
 {
+  "byzantine_64_strategy_grade_peak_policy": {
+    "engineering_revision": "5904a907",
+    "tests": "2 passed: tests/test_byzantine_strategy_grade_policy.py",
+    "production_flags": "Provider/RPC/network calls=0; no Playbook, strategy scoring, membership, database, or production mutation.",
+    "verdict": "BYZANTINE_64_FIXED_TARGET_STRATEGY_RESEARCH_READY / PEAK_DEPENDENT_STRATEGY_RESEARCH_HOLD",
+    "result": "5% material-tolerance policy is explicitly decision policy, not fabricated evidence. Peak states: strategy-grade=2, target-grade=51, lower-bound-only=11, unresolved=0. Proven reaches remain authoritative; sparse target absences stay boundary-sensitive or unresolved. Rug timing strategy-grade=2, unresolved=62.",
+    "next_action": "A separately authorized fixed-target strategy study may use the four-way target states without treating unresolved as misses. Keep peak-dependent strategy scoring and all Playbook/read-model authority promotion on hold."
+  },
   "byzantine_64_15s_sparse_accounting_reconciliation": {
     "engineering_revision": "5904a907",
     "tests": "2 passed: tests/test_byzantine_64_15s_sparse_accounting.py",

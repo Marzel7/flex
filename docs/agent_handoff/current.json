@@ -1,4 +1,12 @@
 {
+  "byzantine_usd_provenance_join": {
+    "engineering_revision": "5904a907",
+    "tests": "64-row source-linked valuation materialization and 23-row conversion accounting completed provider-disabled.",
+    "production_flags": "Provider/RPC/network calls=0; no protocol research, target authority, Playbook, strategy, database, membership, or production mutation.",
+    "verdict": "BYZANTINE_USD_PROVENANCE_JOIN_PARTIAL_DYNAMIC_CONVERSION_BLOCKED",
+    "result": "64/64 strongest retained USD valuations materialized from Scenario-D floor plus fully-post-entry 15s OHLC highs with raw digests and 1B UI supply basis. 26/64 observed retained valuations are >=$40K (diagnostic only). Migration-time SOL/USD: qualified=0, missing=23 under no-future existing-offset rule; dynamic 410.880168 SOL conversion is not computed.",
+    "next_action": "Use the new valuation artifact to rerun only the fixed-$40K diagnostic if desired. Dynamic benchmark requires separately qualified retained migration-time SOL/USD observations; do not substitute entry/future prices."
+  },
   "byzantine_graduation_research_benchmark": {
     "engineering_revision": "5904a907",
     "tests": "Generated diagnostic artifacts JSON-validate.",

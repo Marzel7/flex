@@ -1,4 +1,12 @@
 {
+  "pumpfun_graduation_mc_sol_retained_binary_qualification": {
+    "engineering_revision": "5904a907",
+    "tests": "Local SHA-256 re-verification passed for the retained ELF.",
+    "production_flags": "Provider/RPC/network calls=0; no binary acquisition, USD conversion, target, Playbook, strategy, database, membership, or production mutation.",
+    "verdict": "PUMPFUN_GRADUATION_MC_SOL_BENCHMARK_BLOCKED",
+    "result": "ELF SHA-256 5d65238ffd3513fa5980c01ba1eb2da9cc050091ad9c46b75916ce4a09b02bbf at retained reference slot 433095571 verifies. But its authoritative semantic-replay qualification is NOT_QUALIFIED (static inspection only; no SBF runtime), and no retained upgrade/config binding covers all Byzantine launches. Terminal completion/constants and migration-fee semantics therefore remain unqualified. 410.880168 SOL remains a partial observation only.",
+    "next_action": "Need a separately retained/qualified historical program-config and terminal-state evidence chain before any deterministic graduation-MC derivation or migration benchmark application."
+  },
   "pumpfun_graduation_mc_sol_benchmark": {
     "engineering_revision": "5904a907",
     "tests": "Provider-disabled artifact validation passed.",

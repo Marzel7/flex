@@ -1,4 +1,12 @@
 {
+  "pumpfun_graduation_mc_sol_benchmark": {
+    "engineering_revision": "5904a907",
+    "tests": "Provider-disabled artifact validation passed.",
+    "production_flags": "Provider/RPC/network calls=0; no USD conversion, target, Playbook, strategy, membership, database, or production mutation.",
+    "verdict": "PUMPFUN_GRADUATION_MC_SOL_BENCHMARK_BLOCKED",
+    "result": "Prior retained bridge records a 410.880168 SOL scenario-D-to-migration endpoint, but declares it PARTIAL and lacks version-compatible terminal curve constants, completion condition, terminal reserve state, migration fee/LP semantics, and per-launch applicability. It is preserved as observation only, not universal graduation MC or ~85 SOL accumulation proof.",
+    "next_action": "Separately qualify the historical Pump.fun program/config and completion-state constants before applying a SOL graduation benchmark to the 23 proven migration events or deriving USD/target lower bounds."
+  },
   "byzantine_64_pumpfun_ws_migration_reconciliation": {
     "engineering_revision": "5904a907",
     "tests": "1 passed: tests/test_byzantine_pumpfun_ws_migrations.py",

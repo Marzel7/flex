@@ -1,4 +1,12 @@
 {
+  "byzantine_playbook_v3_responsiveness_repair": {
+    "engineering_revision": "d905fe3b",
+    "tests": "5 passed: tests/test_operator_research_module.py; local-only route verification HTTP 200 in 0.470s.",
+    "production_flags": "No provider/RPC/external network calls; no evidence, membership, target authority, strategy, trading, or database mutation. Local Watchtower API restarted solely to load the UI repair.",
+    "verdict": "BYZANTINE_PLAYBOOK_V3_RESPONSIVENESS_REPAIRED",
+    "result": "The detail-panel MutationObserver observed its own DOM writes and recursively retriggered, making the page unresponsive. The observer is now suppressed during the one-time V3 detail decoration, preventing the self-triggering mutation loop. The local Playbook route remains HTTP 200 after restart.",
+    "next_action": "User may reopen the local Playbook URL; retain all evidence and authority constraints."
+  },
   "byzantine_playbook_v3_render_repair": {
     "engineering_revision": "d905fe3b",
     "tests": "5 passed: tests/test_operator_research_module.py; local-only route verification HTTP 200.",

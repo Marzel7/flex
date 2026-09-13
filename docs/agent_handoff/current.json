@@ -1,4 +1,12 @@
 {
+  "byzantine_64_15s_sparse_semantics_audit": {
+    "engineering_revision": "5904a907",
+    "tests": "Provider-disabled deterministic raw inventory, digest, grid, duplicate, boundary, gap, and target tri-state audit completed.",
+    "production_flags": "Provider/RPC/network calls=0; no reacquisition, Playbook, strategy, membership, database, or production mutation.",
+    "verdict": "BYZANTINE_64_15S_SPARSE_SEMANTICS_PARTIAL",
+    "result": "64 raw responses and 738 candles inspected. Candle schema includes unix_time,o,h,l,c,v,v_usd; all timestamps align to 15-second grid; duplicates=0; returned candles have positive volume and no explicit zero/null inactive buckets. Gap counts: 15s=573,30s=36,45s=17,60s=3,75-120s=24,>120s=21. Missing nominal buckets=1902, all activity unknown under retained local evidence; endpoint activity-driven sparse emission is supported but not proven.",
+    "next_action": "Keep STRATEGY_SCORING_HOLD_FOR_EARLY_UPSIDE_COVERAGE. Treat sparse-window 15s highs as lower bounds; audit residual on-chain activity/boundary semantics before any authority promotion or separately authorized evidence acquisition."
+  },
   "byzantine_64_15s_early_upside_acquisition": {
     "engineering_revision": "5904a907",
     "tests": "Frozen-ledger integrity and raw SHA-256 replay passed; provider-disabled normalization completed.",

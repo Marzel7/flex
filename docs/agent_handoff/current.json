@@ -5,7 +5,7 @@
     "production_flags": "Provider/RPC/network calls=0; token-analysis, peak, collapse, UI, membership, and source-evidence writes=0. Shadow replay and operation-agnostic fact model only; no FqXi/manual value patch and no GMGN data ingestion.",
     "verdict": "RESEARCH_PEAK_SEMANTICS_QUALIFIED",
     "result": "The mature Byzantine cohort has 64 tokens (23 migration-proven, 41 non-migrated) with local lifecycle evidence for all 64. 18/64 (28.125%) have lifecycle maximum greater than early-window high; affected-token median lifecycle/early ratio=3.3424107498 and max=37.6542407325. FqXi reproduces entry=$15,974.02, early=$42,786.08, retained lifecycle maximum=$85,895.76, and independent drawdown reference=$77,820.44. The correct generic display fact is MAX_PROVEN_LIFECYCLE_MC (user-facing term Max Proven MC); early high and drawdown reference remain independent facts. No UI or source artifact was changed.",
-    "artifacts": "replay=docs/audits/research_peak_semantics_cohort_replay.v1.json sha256=392c145e5c66fa6e5e48b293566824466bdb3e0a2ce418be389e5f26e96723ca; model=src/analysis/peak_fact_semantics.py; generator=scripts/replay_research_peak_semantics.py; playbook_note=docs/playbooks/peak_fact_semantics.v1.md",
+    "artifacts": "replay=docs/audits/research_peak_semantics_cohort_replay.v1.json sha256=5e68a0e819f970645c99fb3a1e560eebb8695954af4f6ada4888cde478fd7492; model=src/analysis/peak_fact_semantics.py; generator=scripts/replay_research_peak_semantics.py; playbook_note=docs/playbooks/peak_fact_semantics.v1.md",
     "next_action": "Await separate authorization before promoting shadow MAX_PROVEN_LIFECYCLE_MC facts into any read model, UI, ranking, or policy."
   },
   "fqxi_ath_discrepancy_diagnosis": {

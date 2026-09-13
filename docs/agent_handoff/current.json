@@ -1,11 +1,12 @@
 {
   "byzantine_4zxx_15s_ohlc_pilot_preflight": {
     "engineering_revision": "5904a907",
-    "tests": "Root .env contains a non-empty BIRDEYE_KK declaration (checked without reading or outputting its value); no provider, RPC, or quota probe executed.",
+    "tests": "Root .env contains a non-empty BIRDEYE_KK declaration (checked without reading or outputting its value). Retained 4ZXX baseline/window resolved provider-disabled; no provider, RPC, or quota probe executed.",
     "production_flags": "No production mutation; provider calls=0.",
     "verdict": "HOLD",
     "blockers": ["4ZXX_15S_PILOT_QUOTA_NOT_PROVEN"],
-    "next_action": "Load the non-empty root-.env BIRDEYE_KK only into the frozen pilot process, then supply retained/current positive account quota evidence before creating or dispatching the frozen request ledger."
+    "frozen_baseline_pending_quota_gate": {"mint":"4ZXXiMMyN3wotCEW2QfmRbesHg3pS7S3rovnrKcYpump","effective_entry_unix":1788553350,"entry_usd_per_ui_token":0.000016088434650303978,"entry_equivalent_valuation_usd":16088.434650303978,"migration_unix":1788553555,"candidate_time_from":1788553350,"candidate_time_to":1788553555,"window_seconds":205,"provider_calls":0},
+    "next_action": "Supply retained/current positive account quota evidence (package, CU included/consumed/remaining, billing period and required-pilot headroom). Only then load the non-empty root-.env BIRDEYE_KK into the frozen pilot process, create the one-request ledger, and dispatch exactly once."
   },
   "byzantine_track_b_capacity_preflight_2026_09_13": {
     "engineering_revision": "5904a907",

@@ -16001,6 +16001,14 @@
     "artifact": "docs/audits/manual_attribution_proposal_store_placement.v1.json (SHA-256 048a542fe22013715d9cdae6512639d0a69ac07a19fad2ced0614644cea514b1)",
     "next_action": "If separately authorized, create one tiny dedicated non-authoritative manual-workflow SQLite store and move only proposal/decision state there; canonical promotion remains in wt_ops_v2.db."
   },
+  "manual_attribution_dedicated_workflow_db": {
+    "engineering_revision": "5904a907",
+    "tests": "6 passed: tests/test_operation_attribution_manual.py, tests/test_operation_attribution_manual_bridge.py, tests/test_operation_attribution_evidence.py, tests/test_manual_attribution_ui_routes.py",
+    "production_flags": "Dedicated non-authoritative workflow DB only; no canonical membership promotion; no provider/RPC/actionability/F7p3 action; API restarted to load finalized V1 metadata handling",
+    "verdict": "PASS",
+    "artifact": "docs/audits/manual_attribution_dedicated_workflow_db.v1.json (SHA-256 4eb8f4d401a239147ad83737e9fb94b435db644f0e30fcd70add61cfabfedcf4)",
+    "next_action": "Manual Validate is now available without normal Walkback write contention. Promotion remains explicit and canonically writes only after an ATTRIBUTION_PROVEN decision."
+  },
   "f7p3_relay_semantic_decontamination_retry": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "No code or database change was made; prior focused infrastructure suites remain 27 passed.",

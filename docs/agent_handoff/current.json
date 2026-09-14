@@ -15975,6 +15975,15 @@
     "artifact": "docs/audits/manual_operation_attribution_ui_page_load_fix.v1.json (SHA-256 699555b7e46fb8f3faa27f39ebab372f0cc41d3d81bfb6c66ced4596ff0ceebf)",
     "next_action": "None for this fix; manual V1 UI workflow remains complete."
   },
+  "manual_attribution_storage_runtime_p3r_20f7": {
+    "engineering_revision": "5904a907",
+    "tests": "6 passed: manual workflow, bridge, V1 evidence, and UI route tests",
+    "production_flags": "No production database write; no membership/provider/RPC action; active walkback writer was not stopped or bypassed",
+    "verdict": "HOLD",
+    "artifact": "docs/audits/manual_attribution_storage_runtime_p3r_20f7.v1.json (SHA-256 536d37aec861e260bb0ee134dd0d7eb5d3ddac64cf4ab9613b42e166f94ed499)",
+    "blocker": "The existing wt_ops_v2.db proposal-store schema is absent and the active walkback_worker write lease prevents safe initialization. The exact Validate request is idempotent once initialization is safely authorized after lease release.",
+    "next_action": "Wait for the existing writer to release the lease, then perform only qualified proposal-store schema initialization and allow a user-initiated retry."
+  },
   "f7p3_relay_semantic_decontamination_retry": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "No code or database change was made; prior focused infrastructure suites remain 27 passed.",

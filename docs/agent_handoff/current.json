@@ -16124,5 +16124,14 @@
     "result": "A pure operation-agnostic DAG/runner now isolates terminal fact failures, materializes qualified dependent request identities inside an authorization envelope, and blocks only for authorization, method change, or safety. Offline replay of the existing five-token Watchtower result returns RUN_QUALIFIED_PARTIAL: opening state unrecoverable, migration preserved, and Birdeye facts rate-limited.",
     "artifact": "docs/audits/operation_token_data_orchestration_contract.v1.json (sha256 5ffb55402882d0b29a75d7cbd31bf139ca668fa2c3794ffa55667645610e5846)",
     "next_action": "Use RUN_OPERATION_TOKEN_DATA_RESEARCH with a frozen authorization envelope for a future authorized operation. Do not reinterpret the completed Watchtower opening-state recovery or retry its consumed requests."
+  },
+  "watchtower_token_data_final_orchestrated_run": {
+    "engineering_revision": "e21867c1 plus generic no-call finalization runner",
+    "tests": "27 passed: tests/test_token_data_orchestration.py, tests/test_watchtower_confirmed_membership_projection.py, and tests/test_x65_44_watchtower_registry_promotion.py; py_compile, JSON, and diff checks passed.",
+    "production_flags": "New provider/RPC/network/database/membership/attribution/UI/V1/historical-fact writes=0; prior request identities repeated=0; raw payload retention=0.",
+    "verdict": "WATCHTOWER_TOKEN_DATA_SAMPLE_RUN_QUALIFIED",
+    "result": "The generic DAG finalized the already-consumed five-token sample as RUN_QUALIFIED_PARTIAL without reopening terminal facts: qualified=25, unrecoverable=5 opening-state, rate-limited=8 Birdeye, insufficient=2 usable-series/FX gaps, dependency-blocked=30, provider-blocked=0. Qualified migration facts and first PumpSwap MC in SOL are preserved.",
+    "artifact": "docs/audits/watchtower_token_data_final_orchestrated_run.v1.json (sha256 c8fcd1e5b239b3de8b0f8811732946cc96d7624317233ed8ce9cfe890c3d3d79)",
+    "next_action": "No further work is authorized for this frozen sample. Any later provider-capacity recovery must be separately authorized, begin with zero-call reconciliation, and exclude all previously dispatched identities."
   }
 }

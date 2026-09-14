@@ -15894,5 +15894,14 @@
     "result": "The definitive retained 15-token data proves coverage of opening 5/15, price history 10/15, FX 10/15 and pool MC 15/15. Ten opening histories are RECOVERABLE_BOUNDED_PROVIDER with a one-getBlock-per-mint minimal plan and 1-8 early-stop bound; five historical lifecycle/FX cases are UNKNOWN_REQUIRES_DIAGNOSTIC and are deliberately not scheduled. The complete immutable 140-gap ledger preserves per-token facts, dependencies, classifications, sources, and source digests.",
     "artifact": "docs/audits/watchtower_remaining_fact_recoverability_audit.v1.json (SHA-256 e80ef45f326387d714bfd24842d19b36eaef79a709f4a31cd8de063312c01a60)",
     "next_action": "If further historical recovery is authorized, run only the ten bounded opening-block recoveries first; separately qualify a V1 availability diagnostic before scheduling any historical lifecycle or FX request."
+  },
+  "watchtower_opening_gap_remediation": {
+    "engineering_revision": "e21867c1 plus bounded opening-only remediation and immutable V2 overlay materializers",
+    "tests": "5 passed: tests/test_watchtower_remaining_fact_recoverability_audit.py and tests/test_watchtower_operation_playbook_ui.py",
+    "production_flags": "Helius getBlock only: 40 logical requests / 40 physical attempts / 40 HTTP 200; Birdeye=0; price-history=0; FX=0; raw provider payload bytes retained=0; no database, membership, or operation mutation.",
+    "verdict": "WATCHTOWER_OPENING_GAP_REMEDIATION_QUALIFIED",
+    "result": "Frozen ten-token set recovered through OPENING_SEQUENCE_AGGREGATOR_V1 from retained Create slots. Each qualified after four blocks under the first-independent-buy-plus-three-slots early-stop condition. Coverage moved from opening 5/15 to 15/15; USD opening valuation moved from 5/15 to 10/15 because the five lifecycle-gap tokens still lack qualified FX. The five historical lifecycle/FX gaps were untouched.",
+    "artifact": "docs/audits/watchtower-opening-remediation-68469070250b4e2f.opening_remediation.v1.json (SHA-256 de383aaece1fee5ac4d982e908826d013fd6079b9079c275148e53e379a3e098); watchtower_opening_remediation_overlay.v1.json; definitive dataset/profile/completion V2",
+    "next_action": "If separately authorized, use 2YrEhbVAKGojhZn2SYjQc7EYLixrBLHmqFjME69Gpump as a one-token known-answer lifecycle/FX availability diagnostic; no lifecycle or FX request is authorized by this remediation result."
   }
 }

@@ -1,4 +1,14 @@
 {
+  "watchtower_final_compact_replay": {
+    "engineering_revision": "working-tree qualified compact-retention runtime",
+    "tests": "frozen preflight passed: hashes match; 20 initial requests (10 Create, 10 Migration); prior focused retention suite passed",
+    "production_flags": "authorized frozen 10-token final replay; existing five provider calls=0; raw payload retention=false",
+    "verdict": "PARTIAL",
+    "run_id": "watchtower-final-10-9c4ef37489a043af98b3cc2aa2731a0c",
+    "final_state": "COMPLETED",
+    "durable_accounting": "120 rows/attempts; 100 HTTP200; 20 HTTP400; 90 SUCCEEDED; 30 FAILED; compact records=120; FACT_QUALIFIED=90; FACT_PROVIDER_BLOCKED=20; FACT_INSUFFICIENT_EVIDENCE=10; duplicates=0; succeeded-without-compact=0",
+    "next_action": "Offline-finalize the completed run from compact results only and reconcile it with retained five; do not issue any further provider call."
+  },
   "generic_token_data_compact_result_retention_qualified": {
     "engineering_revision": "working-tree compact retention plus production-runtime restart regression",
     "tests": "18 passed: production-runtime compact restart, compact-result, provider-durability tests",

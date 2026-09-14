@@ -15480,5 +15480,14 @@
     "result": "Recovered creation-slot-block.v3 generic method: exact Create getTransaction plus up to eight ordered getBlock slots. The generic decoder was corrected to accept real RPC transaction-level signatures. All five recent tokens produced a qualified first independent Buy and post-action full-supply FDV_SOL. Conservative/exact actionability remains unqualified because linkage/exclusivity are absent; curve-completion/bundle claims remain unproven.",
     "artifact": "docs/audits/watchtower_recent_opening_sequence_final.v1.json (sha256 68b0c3c6d2c083fdde943bb7263eaef78a4b8fe713f5519ca2918136f87529e7)",
     "next_action": "Do not expand. Any change from FDV_SOL to circulating MC or any bundle/curve-completion method needs separate qualification."
+  },
+  "watchtower_token_data_final_reconciliation": {
+    "engineering_revision": "e21867c1 plus provider-disabled opening-sequence reconciliation",
+    "tests": "34 passed: token-data orchestration, birth-anchored acquisition, and Pump.fun opening executor suites",
+    "production_flags": "Provider/Helius/Birdeye/retry/repeated-identity calls=0; database/membership/attribution/UI/V1/historical writes=0; raw payload retention=0.",
+    "verdict": "WATCHTOWER_TOKEN_DATA_PLAYBOOK_FINAL_RECONCILIATION_QUALIFIED",
+    "result": "The corrected DAG has qualified=35, insufficient=20, dependency-blocked=15, unrecoverable=0 across 70 facts (50% recoverable qualification rate). Opening/theoretical FDV facts and native-SOL migration pools are qualified. Birdeye no-data outcomes remain insufficient; conservative/exact actionability remains unsupported by linkage/exclusivity evidence. The playbook is COMPLETE_WITH_LEGITIMATE_DATA_GAPS and provides data partially.",
+    "artifact": "docs/audits/watchtower_token_data_final_reconciliation.v1.json (sha256 d40a3e8a35ac543a3709a882f34c5cc8f102a1562ab3c21215e567ad3d482b52)",
+    "next_action": "No further action is authorized; prospective linkage/exclusivity capture or a separately qualified lifecycle source would be distinct work."
   }
 }

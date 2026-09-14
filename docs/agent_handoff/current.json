@@ -15488,6 +15488,15 @@
     "verdict": "WATCHTOWER_TOKEN_DATA_PLAYBOOK_FINAL_RECONCILIATION_QUALIFIED",
     "result": "The corrected DAG has qualified=35, insufficient=20, dependency-blocked=15, unrecoverable=0 across 70 facts (50% recoverable qualification rate). Opening/theoretical FDV facts and native-SOL migration pools are qualified. Birdeye no-data outcomes remain insufficient; conservative/exact actionability remains unsupported by linkage/exclusivity evidence. The playbook is COMPLETE_WITH_LEGITIMATE_DATA_GAPS and provides data partially.",
     "artifact": "docs/audits/watchtower_token_data_final_reconciliation.v1.json (sha256 d40a3e8a35ac543a3709a882f34c5cc8f102a1562ab3c21215e567ad3d482b52)",
-    "next_action": "No further action is authorized; prospective linkage/exclusivity capture or a separately qualified lifecycle source would be distinct work."
+    "next_action": "Superseded for completion-control purposes by watchtower_token_data_completion_v1: a primary no-data result is not full recovery-hierarchy exhaustion."
+  },
+  "watchtower_token_data_completion_v1": {
+    "engineering_revision": "e21867c1 plus provider-disabled completion gate",
+    "tests": "37 passed: completion gate, token-data orchestration, birth-anchored acquisition, and Pump.fun opening executor suites",
+    "production_flags": "Provider/RPC/network/database/membership/attribution/UI/V1/historical-fact writes=0; raw payload/provider response retention=0.",
+    "verdict": "WATCHTOWER_TOKEN_DATA_INCOMPLETE_LIFECYCLE",
+    "result": "Opening/theoretical native-SOL FDV and native-SOL migration-pool facts are qualified for the frozen five recent tokens. Birdeye HTTP200 no-candle/no-valid-FX results are only primary-path outcomes: the generic DAG registers no lifecycle or FX fallback hierarchy, so neither absence is proven after hierarchy exhaustion. Historical conservative/exact actionability is insufficient but is not a completion blocker; prospective linkage/exclusivity capture is identified. The five-token qualification sample is also not yet proven sufficient to characterize the 48-member recent cohort.",
+    "artifact": "docs/audits/watchtower_token_data_completion.v1.json (sha256 923d1b6468e63cc605dd7e0b84bd29a51a739ba707be35a0a962c1ed817a9619)",
+    "next_action": "Before any completion verdict or OPERATION_TOKEN_DATA_PLAYBOOK_V1 freeze, qualify and freeze an operation-agnostic lifecycle and SOL/USD recovery hierarchy, then exhaust it under separately authorized bounded acquisition. Separately determine sample sufficiency using deterministic non-performance expansion within the frozen 48 recent-eligible members."
   }
 }

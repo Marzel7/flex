@@ -1,4 +1,13 @@
 {
+  "watchtower_birdeye_request_parameter_diff": {
+    "engineering_revision": "retained-manifest inspection only",
+    "tests": "no provider calls; no code changes",
+    "production_flags": "PROVIDER_CALLS=0; RAW_BYTES_RETAINED=0",
+    "verdict": "WATCHTOWER_BIRDEYE_REQUEST_PARAMETER_DIFF_QUALIFIED",
+    "finding": "Good PRICE_HISTORY and SOL_USD_FX rows (HTTP200) and failed rows (HTTP400) retain provider=Birdeye, endpoint=/defi/v3/ohlcv, family, token, state/outcome, timestamps, and parameters_digest only. Neither manifest retains normalized parameter names or values.",
+    "classification": "PRICE_HISTORY_REQUEST_CONSTRUCTION_CLASSIFICATION=INSUFFICIENT_RETAINED_REQUEST_DETAIL; SOL_USD_FX_REQUEST_CONSTRUCTION_CLASSIFICATION=INSUFFICIENT_RETAINED_REQUEST_DETAIL. No concrete difference or malformed field is provable from retained manifests.",
+    "next_action": "Do not infer or change request construction from digest-only evidence. Any future diagnostic contract would need explicitly authorized normalized parameter retention."
+  },
   "watchtower_definitive_offline_reconciliation": {
     "engineering_revision": "working-tree compact retention and migration remediation artifacts",
     "tests": "offline compact-store overlay reconciliation only; no provider calls",

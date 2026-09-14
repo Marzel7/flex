@@ -1,4 +1,14 @@
 {
+  "nexus_provisioning_to_create_timing_census": {
+    "engineering_revision": "5904a907",
+    "tests": "5 passed: census known-answer/join invariants, gap semantics, Nexus adapter; census audit validation PASS",
+    "production_flags": "read-only local census; 0 SQLite busy/locked, write transactions, RPC, provider, Birdeye, network, membership, detector, identity, token-analysis, source-evidence, UI, or production-fact writes",
+    "verdict": "PARTIAL — 84 exact Nexus matches; 75 unambiguous creator+mint CreateV2 joins; 74 provision-before-create, 1 provision-after-create, 9 missing local create evidence. Pre-create provisioning is predominant but timing is long-tailed, not a fixed universal delay.",
+    "artifact": "docs/audits/nexus_provisioning_to_create_timing_census.v1.json",
+    "artifact_sha256": "59e4b1c79d203abf17af57921c3379dcd8ca0938ce2865ef4a19e81248c1f5da",
+    "key_metrics": "pre-create median 371s, P25 95.75s, P75 1173s, max 7267026s; 14i7=490s, 58.1081 percentile, not outlier",
+    "next_action": "Do not calculate ACTIONABLE_ENTRY_MC yet. Separately qualify an executable post-create actionability boundary and its valuation evidence, retaining both provisioning and create/executable provenance prospectively."
+  },
   "nexus_14i7_opening_mc_source_trace": {
     "engineering_revision": "5904a907",
     "tests": "opening-MC source trace validation PASS: event delta, distinct-event assertion, retained-opening classification, no shadow fact, zero-network accounting, JSON parse, and diff check",

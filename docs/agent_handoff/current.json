@@ -16106,5 +16106,14 @@
     "result": "All ten chain requests returned HTTP200 and supplied create/migration slots/timestamps. All five migration transactions prove Migrate/CreatePool and yield first-PumpSwap pool MC in SOL. Birdeye returned 429 for 8/10 requests; the other FX response had no qualifying at-or-before point and the other price response had no usable market-cap candle. Therefore the framework is compatible, but all USD/peak/drawdown facts remain insufficient and a full cohort is not recommended without separate provider-capacity authorization.",
     "artifacts": "facts=docs/audits/watchtower_token_data_two_stage_sample.v1.json (sha256 d40c827ac507fc76bd89cd0a67d808742c50605d843008a84a6cf679b7c66dcb); stage1=docs/audits/watchtower_token_data_stage1_request_manifest.v1.json (sha256 a3ae46fbdc6235a2d58e7c7d0ddbb5d9ee48a4d45c341d0ec199cda0ab1506a5); stage2=docs/audits/watchtower_token_data_stage2_request_manifest.v1.json (sha256 94a0b9b40894be728fb56f3648a11b93f3f1e1e6019c41c75397f8e74ea42b5a).",
     "next_action": "Do not retry these identities. A separately authorized provider-capacity recovery must begin with zero-call accounting reconciliation and exclude all 20 already-dispatched identities."
+  },
+  "watchtower_opening_state_recovery": {
+    "engineering_revision": "e21867c1 plus retained-only Watchtower opening-state audit",
+    "tests": "24 passed: tests/test_watchtower_confirmed_membership_projection.py and tests/test_x65_44_watchtower_registry_promotion.py; JSON and diff checks passed.",
+    "production_flags": "Provider/RPC/network/database/membership/attribution/UI/V1/historical-fact writes=0; no raw retention.",
+    "verdict": "WATCHTOWER_OPENING_STATE_RECOVERY_BLOCKED",
+    "result": "All five bonding-curve PDAs are deterministically derivable from the supported Pump.fun seed rule. No retained action-boundary curve-state checkpoint, virtual reserves, real reserves, supply/decimals, opening price, transaction ordinal, or curve-completion transition exists for any sample token. Compact getTransaction facts only prove signature/slot/time and migration CreatePool. Current or slot-level account methods are temporally invalid; getBlock is both unauthorized and insufficient for account bytes.",
+    "artifact": "docs/audits/watchtower_opening_state_recovery.v1.json (sha256 a9294a4907bb4c42ce58a71e773d9afb4b45dc9dcb33f89ca8b9cede614605b1)",
+    "next_action": "HOLD until an authoritative transaction/instruction-bound historical Pump.fun curve-account state source is separately qualified. Do not issue current-state, whole-block, or repeat-transaction probes as a substitute."
   }
 }

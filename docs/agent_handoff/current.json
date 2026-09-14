@@ -1,4 +1,14 @@
 {
+  "watchtower_birdeye_replay_execution": {
+    "engineering_revision": "bounded Birdeye-only replay attempt",
+    "tests": "all 20 parameter digests verified before dispatch",
+    "production_flags": "no Helius/getBlock calls; raw retention=false; provider dispatch stopped on safety defect",
+    "verdict": "WATCHTOWER_BIRDEYE_REPLAY_BLOCKED",
+    "run_id": "watchtower-birdeye-replay-0c4ba5f697f448d8a166d4c57ff35187",
+    "observed_state": "15 durable manifests: 14 SUCCEEDED HTTP200, 1 RATE_LIMIT_RETRY_PENDING HTTP429; remaining five identities were not dispatched",
+    "blocker": "The direct Birdeye-only replay composition did not create/persist a token_data_run_state record and stopped with a retry-pending logical identity. It cannot be resumed or extended while preserving the required run-state authority.",
+    "next_action": "Do not dispatch further. Require an explicitly authorized generic Birdeye-only run composition that creates a durable ACTIVE run before planning and supports restart-safe retry-pending recovery, then requalify before any continuation."
+  },
   "watchtower_birdeye_fx_rate_limit_diagnostic": {
     "engineering_revision": "generic BIRDEYE_KK-preferred production binding",
     "tests": "single exact digest-matched FX logical request; first local command had indentation error and sent zero requests",

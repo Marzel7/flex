@@ -15536,13 +15536,13 @@
     "next_action": "The separately authorized frozen ten-token acquisition can now begin from a new durable run ID; do not reacquire the existing five or reuse any prior dispatched identity."
   },
   "watchtower_expanded_token_data_execution": {
-    "engineering_revision": "e21867c1 plus generic non-retryable transport termination",
-    "tests": "24 passed: runtime, provider binding, request-DAG, durability, adapter, and HTTP400 terminal regressions.",
-    "production_flags": "No provider/RPC/network/database/membership/attribution/UI writes in repair; raw payload retention=0. Aborted run remains immutable: 3 touched, 7 untouched, HTTP200=30, HTTP400=248, duplicate rows=244, OUTCOME_UNRETAINED=1.",
-    "verdict": "GENERIC_TOKEN_DATA_NON_RETRYABLE_FAILURE_TERMINATION_QUALIFIED",
-    "result": "Generic non-429 HTTP4xx failures now terminate as PROVIDER_BLOCKED and propagate FACT_PROVIDER_BLOCKED to the affected fact. Terminal fact states suppress re-planning, while independent fact families continue. Actual-runtime mocked lifecycle/FX HTTP400 regression proves one attempt per identity and no duplicate storm. Timeout/5xx behavior and qualified 429 retry semantics remain unchanged. Frozen Watchtower dry preflight remains exactly 20 initial identities.",
-    "artifact": "docs/audits/generic_token_data_non_retryable_failure_termination.v1.json (sha256 6ab305a3f9f83c198c8197bfe18db26001cd4c28e33d5b5671c20fa39f7bdc58)",
-    "next_action": "Do not resume the aborted run. A new execution authorization must explicitly define treatment of the three touched mints and seven untouched mints; the one OUTCOME_UNRETAINED identity remains non-retryable."
+    "engineering_revision": "e21867c1; post-handoff aborted-run state discrepancy reconciliation",
+    "tests": "24 prior focused tests; no new test run in this read-only reconciliation.",
+    "production_flags": "No new provider/RPC/network/database/membership/attribution/UI writes this turn; raw payload retention=0. Existing aborted run manifests now show all 10 mints touched, 1,200 rows, HTTP200=100, HTTP400=1100, duplicate rows=1080.",
+    "verdict": "WATCHTOWER_EXPANDED_TOKEN_DATA_SAMPLE_BLOCKED",
+    "result": "The old run was not actually quiescent after the incident handoff. Its manifests changed from 280 rows/3 mints/one DISPATCHING row to 1,200 terminal rows across all ten mints, with no ambiguous row. Because the runtime's deterministic identities have now all appeared in that aborted run, a fresh invocation would violate ABORTED_RUN_IDENTITIES_REUSED=0. No new run was created and no new call was made.",
+    "artifact": "docs/audits/watchtower_aborted_run_post_handoff_state_discrepancy.v1.json (sha256 217c27ac3dcd6dd502ccee1b3235dcbbc3d1cf56de17eefaa1e031b5abb6bbee)",
+    "next_action": "Do not dispatch a fresh run. Reconcile the process-continuation and identity-accounting incident, then obtain explicit authority defining whether terminally recorded old identities may be relied on, excluded, or replaced by a newly authorized methodology."
   },
   "generic_token_data_production_runtime": {
     "engineering_revision": "e21867c1 plus mocked production-runtime qualification",

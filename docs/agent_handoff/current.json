@@ -15536,13 +15536,13 @@
     "next_action": "The separately authorized frozen ten-token acquisition can now begin from a new durable run ID; do not reacquire the existing five or reuse any prior dispatched identity."
   },
   "watchtower_expanded_token_data_execution": {
-    "engineering_revision": "e21867c1; frozen ten-token live execution incident",
-    "tests": "23 prior focused tests; no new test run after the live incident.",
-    "production_flags": "Live run watchtower-expanded-10-ead73b0a8a1444db870a37298f23e32b: 3 new mints touched, 280 durable rows, HTTP200=30, HTTP400=248, duplicate identity rows=244, raw payload retention=0, database/membership/UI writes=0.",
-    "verdict": "WATCHTOWER_EXPANDED_TOKEN_DATA_SAMPLE_BLOCKED",
-    "result": "Final frozen gate passed and live execution began through the qualified runtime. Non-429 HTTP400 outcomes were not converted to terminal retained fact states, so PRICE_HISTORY and SOL_USD_FX were re-planned in later batches under the same logical identities. The halted run has 244 duplicate identity rows. One row is DISPATCHING and is OUTCOME_UNRETAINED; it must not be resent. Seven frozen new mints and all existing five remain untouched.",
-    "artifact": "docs/audits/watchtower_expanded_execution_incident.v1.json (sha256 2a393c43cf68741bbc1e3ef16b0163b38688a5bd563e09189acc55fd2d98f436)",
-    "next_action": "Do not resume or retry this run. Before any new execution authority, perform an incident review and authorize a bounded terminal-transport-state correction plus a duplicate-identity-across-batches regression. Reconcile the one DISPATCHING row as OUTCOME_UNRETAINED without dispatch."
+    "engineering_revision": "e21867c1 plus generic non-retryable transport termination",
+    "tests": "24 passed: runtime, provider binding, request-DAG, durability, adapter, and HTTP400 terminal regressions.",
+    "production_flags": "No provider/RPC/network/database/membership/attribution/UI writes in repair; raw payload retention=0. Aborted run remains immutable: 3 touched, 7 untouched, HTTP200=30, HTTP400=248, duplicate rows=244, OUTCOME_UNRETAINED=1.",
+    "verdict": "GENERIC_TOKEN_DATA_NON_RETRYABLE_FAILURE_TERMINATION_QUALIFIED",
+    "result": "Generic non-429 HTTP4xx failures now terminate as PROVIDER_BLOCKED and propagate FACT_PROVIDER_BLOCKED to the affected fact. Terminal fact states suppress re-planning, while independent fact families continue. Actual-runtime mocked lifecycle/FX HTTP400 regression proves one attempt per identity and no duplicate storm. Timeout/5xx behavior and qualified 429 retry semantics remain unchanged. Frozen Watchtower dry preflight remains exactly 20 initial identities.",
+    "artifact": "docs/audits/generic_token_data_non_retryable_failure_termination.v1.json (sha256 6ab305a3f9f83c198c8197bfe18db26001cd4c28e33d5b5671c20fa39f7bdc58)",
+    "next_action": "Do not resume the aborted run. A new execution authorization must explicitly define treatment of the three touched mints and seven untouched mints; the one OUTCOME_UNRETAINED identity remains non-retryable."
   },
   "generic_token_data_production_runtime": {
     "engineering_revision": "e21867c1 plus mocked production-runtime qualification",

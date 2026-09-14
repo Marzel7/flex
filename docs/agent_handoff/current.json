@@ -15498,5 +15498,14 @@
     "result": "Opening/theoretical native-SOL FDV and native-SOL migration-pool facts are qualified for the frozen five recent tokens. Birdeye HTTP200 no-candle/no-valid-FX results are only primary-path outcomes: the generic DAG registers no lifecycle or FX fallback hierarchy, so neither absence is proven after hierarchy exhaustion. Historical conservative/exact actionability is insufficient but is not a completion blocker; prospective linkage/exclusivity capture is identified. The five-token qualification sample is also not yet proven sufficient to characterize the 48-member recent cohort.",
     "artifact": "docs/audits/watchtower_token_data_completion.v1.json (sha256 923d1b6468e63cc605dd7e0b84bd29a51a739ba707be35a0a962c1ed817a9619)",
     "next_action": "Before any completion verdict or OPERATION_TOKEN_DATA_PLAYBOOK_V1 freeze, qualify and freeze an operation-agnostic lifecycle and SOL/USD recovery hierarchy, then exhaust it under separately authorized bounded acquisition. Separately determine sample sufficiency using deterministic non-performance expansion within the frozen 48 recent-eligible members."
+  },
+  "watchtower_2yre_birdeye_known_answer_diagnostic": {
+    "engineering_revision": "e21867c1 plus bounded 2YrE Birdeye V3 parser correction",
+    "tests": "18 passed: Watchtower V3 parser, token-data orchestration, Birdeye lifecycle, and opening-price parser suites",
+    "production_flags": "New Birdeye request identities=2 (mcap and price); physical attempts=3 due one qualified 429 retry; Helius=0; database/membership/UI/V1/historical-fact writes=0; raw response retention=0.",
+    "verdict": "WATCHTOWER_2YRE_BIRDEYE_KNOWN_ANSWER_DIAGNOSTIC_QUALIFIED",
+    "result": "The original mcap request used a future end time (create+86400, 79,779 seconds after the sample run timestamp) and omitted mode/x-chain. The bounded current-window diagnostic with mode=range and x-chain=solana returned HTTP200 and 39 token-level rows for both mcap and price. The actual V3 rows use unix_time, but the playbook parser only accepted unixTime/time/timestamp, so it discarded valid OHLC rows. The smallest generic parser fix now accepts unix_time for lifecycle and FX parsing. The first PumpSwap pool is HkeRqGMF1w6YS3WzKHHwrjodfWjD5X4kb3UbzsUwpzcZ; no pair request was sent.",
+    "artifact": "docs/audits/watchtower_2yre_birdeye_known_answer_diagnostic.v1.json (sha256 34424f225cd64476d5a7ce5154dc18b12a8268eb26e904aea173597613fec3bf)",
+    "next_action": "Provider-disabled replay/reclassification of retained Watchtower compact results may proceed under the parser correction. Do not add pair fallback or treat future-end capping as proven causal without separate qualification."
   }
 }

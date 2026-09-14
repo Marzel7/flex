@@ -1,4 +1,13 @@
 {
+  "operation_bundle_evidence_source_qualification": {
+    "engineering_revision": "5904a907 plus uncommitted bundle-evidence source qualification",
+    "tests": "3 passed: tests/test_operation_bundle_evidence_source_qualification.py; JSON validation and git diff --check passed.",
+    "production_flags": "Two official-documentation research requests only. Jito/API bundle lookup calls=0, third-party bundle lookup calls=0, provider calls=0; no database, service, trade, UI, membership, detector, Byzantine-boundary/entry, operation-identity, source-evidence rewrite, or production-fact mutation.",
+    "verdict": "OPERATION_BUNDLE_EVIDENCE_SOURCE_PARTIAL",
+    "result": "Local code can submit Jito bundles and query status with a known bundle ID, while local retained data includes Jito-tip observations only; it contains zero actual Jito bundle IDs and no signature-to-bundle mapping. Official Jito documentation establishes that sendBundle returns a bundle ID at submission, getBundleStatuses accepts bundle IDs (not signatures) and uses recent RPC history with searchTransactionHistory=false / MAX_RECENT_BLOCKHASHES=300, while getInflightBundleStatuses is only a five-minute lookback. Therefore no valid historical arbitrary-signature lookup exists for 14i7, no Jito endpoint was queried, and no-record/non-bundle inference is avoided. Migration and tx468 bundle identity remains INSUFFICIENT_EVIDENCE; 14i7 actionability remains historical partial. Byzantine artifact inventory has no retained bundle/tip fields.",
+    "artifacts": "audit=docs/audits/operation_bundle_evidence_source_qualification.v1.json (sha256 1d065c450dc705b1e16ecc3628e04323475a59577355269eb9188fdcccd4da5e); test=tests/test_operation_bundle_evidence_source_qualification.py.",
+    "next_action": "Do not query old signatures as if Jito were an archive. Prospectively bind submission-time bundle/exclusivity responses, ordered members, tips, and first-external-candidate state to operation evidence."
+  },
   "nexus_14i7_tx468_role_actionability": {
     "engineering_revision": "5904a907 plus uncommitted tx468 wallet/role provenance audit",
     "tests": "3 passed: tests/test_nexus_14i7_tx468_role_actionability.py; JSON validation and git diff --check passed.",

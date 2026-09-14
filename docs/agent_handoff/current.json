@@ -16115,5 +16115,14 @@
     "result": "All five bonding-curve PDAs are deterministically derivable from the supported Pump.fun seed rule. No retained action-boundary curve-state checkpoint, virtual reserves, real reserves, supply/decimals, opening price, transaction ordinal, or curve-completion transition exists for any sample token. Compact getTransaction facts only prove signature/slot/time and migration CreatePool. Current or slot-level account methods are temporally invalid; getBlock is both unauthorized and insufficient for account bytes.",
     "artifact": "docs/audits/watchtower_opening_state_recovery.v1.json (sha256 a9294a4907bb4c42ce58a71e773d9afb4b45dc9dcb33f89ca8b9cede614605b1)",
     "next_action": "HOLD until an authoritative transaction/instruction-bound historical Pump.fun curve-account state source is separately qualified. Do not issue current-state, whole-block, or repeat-transaction probes as a substitute."
+  },
+  "operation_token_data_orchestration_contract": {
+    "engineering_revision": "e21867c1 plus generic fact-isolated token-data orchestration contract",
+    "tests": "27 passed: tests/test_token_data_orchestration.py, tests/test_watchtower_confirmed_membership_projection.py, and tests/test_x65_44_watchtower_registry_promotion.py; py_compile, JSON, and diff checks passed.",
+    "production_flags": "Provider/RPC/network/database/membership/attribution/UI/V1/historical-fact writes=0; raw payload retention=0.",
+    "verdict": "OPERATION_TOKEN_DATA_ORCHESTRATION_CONTRACT_QUALIFIED",
+    "result": "A pure operation-agnostic DAG/runner now isolates terminal fact failures, materializes qualified dependent request identities inside an authorization envelope, and blocks only for authorization, method change, or safety. Offline replay of the existing five-token Watchtower result returns RUN_QUALIFIED_PARTIAL: opening state unrecoverable, migration preserved, and Birdeye facts rate-limited.",
+    "artifact": "docs/audits/operation_token_data_orchestration_contract.v1.json (sha256 5ffb55402882d0b29a75d7cbd31bf139ca668fa2c3794ffa55667645610e5846)",
+    "next_action": "Use RUN_OPERATION_TOKEN_DATA_RESEARCH with a frozen authorization envelope for a future authorized operation. Do not reinterpret the completed Watchtower opening-state recovery or retry its consumed requests."
   }
 }

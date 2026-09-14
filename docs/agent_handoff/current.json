@@ -1,4 +1,16 @@
 {
+  "generic_token_data_durable_run_state": {
+    "engineering_revision": "working-tree (run-state guard implementation)",
+    "tests": "23 passed: tests/test_token_data_run_state.py tests/test_provider_request_durability.py tests/test_operation_token_data_production_runtime.py tests/test_operation_token_data_runtime.py tests/test_token_data_provider_bindings.py",
+    "production_flags": "no live provider calls; HELIUS_CALLS=0; BIRDEYE_CALLS=0; RAW_BYTES_RETAINED=0",
+    "verdict": "GENERIC_TOKEN_DATA_DURABLE_RUN_STATE_QUALIFIED",
+    "contract_version": "TOKEN_DATA_RUN_STATE_CONTRACT_V1",
+    "run_state_db": "database/token_data_run_state.db",
+    "contaminated_run_id": "watchtower-expanded-10-ead73b0a8a1444db870a37298f23e32b",
+    "contaminated_run_state": "ABORTED",
+    "guards": "before planning/materialization/dispatch/retry sleep/after retry sleep/before retry dispatch/dependent planning",
+    "next_action": "Do not dispatch Watchtower providers. A separately authorized frozen-sample dry preflight may use a new run ID only."
+  },
   "byzc7_early_creator_history_v2": {"engineering_revision":"5904a907","tests":"3 passed: tests/test_byzc7_early_creator_history_v2.py","production_flags":"no production DB/queue/membership/service mutation","verdict":"PASS","run_id":"BYZC7_EARLY_CREATOR_HISTORY_V2","completed_creators":36,"cap_exhausted_creators":36,"provider_interrupted_creators":0,"failed_creators":0,"next_action":"Review final V2 artifacts; no further acquisition is authorized."},
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,

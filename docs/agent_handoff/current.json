@@ -15526,6 +15526,15 @@
     "artifact": "docs/audits/watchtower_expanded_token_data_sample_preflight_blocked.v1.json (sha256 e0bcb7d394eba27780822e325f942edb7cdddfb3d2cb277bd203f52ca9aef49a)",
     "next_action": "Authorize a bounded generic-runner implementation milestone for the missing DAG materialization and durable same-identity retry integration; then rerun frozen preflight before any provider dispatch."
   },
+  "generic_token_data_request_dag": {
+    "engineering_revision": "e21867c1 plus generic request-DAG planner",
+    "tests": "24 passed: request DAG, token-data orchestration, generic runner, durability, canonical extraction",
+    "production_flags": "Live provider/Helius/Birdeye/RPC/network/database/membership/attribution/UI writes=0; raw payload retention=0; no new database.",
+    "verdict": "GENERIC_TOKEN_DATA_REQUEST_DAG_QUALIFIED",
+    "result": "TOKEN_DATA_REQUEST_DAG_V1 is owned by OPERATION_TOKEN_DATA_RUNNER_V1. It materializes only fact-gated Create, one-at-a-time opening-block, migration, lifecycle, and FX logical requests; all execution remains through the durable executor. Mocked full-DAG, ceiling, retained-fact suppression, crash, terminal, duplicate, and same-identity retry checks passed. Frozen Watchtower dry-run verified all 10 new mints and exactly 20 initially plannable Create/migration requests; opening/lifecycle/FX remain automatic dependent nodes.",
+    "artifact": "docs/audits/generic_token_data_request_dag_qualification.v1.json (sha256 27465f789e88aa53fbc0c6099d36185597829f7d2250fb4b8c32e236eea8039c)",
+    "next_action": "The separately authorized frozen ten-token acquisition can now begin from a new durable run ID; do not reacquire the existing five or reuse any prior dispatched identity."
+  },
   "watchtower_corrected_birdeye_replay": {
     "engineering_revision": "e21867c1 plus corrected V3 replay runner",
     "tests": "runner py_compile and capped-window smoke checks passed before dispatch",

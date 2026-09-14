@@ -1,4 +1,12 @@
 {
+  "watchtower_migration_remediation": {
+    "engineering_revision": "working-tree corrected migration compact retention",
+    "tests": "pre-dispatch source/adapter compatibility inspection; no provider calls",
+    "production_flags": "LIVE_PROVIDER_CALLS=0; HELIUS_CALLS=0; BIRDEYE_CALLS=0; raw retention=false",
+    "verdict": "WATCHTOWER_MIGRATION_REMEDIATION_AND_FINALIZATION_BLOCKED",
+    "blocker": "All ten frozen execution anchors lack pool. The unchanged canonical tx_summary/migration_fact derives first_pumpswap_pool_mc_sol only when token['pool'] is supplied, and the corrected compact guard now rejects a qualified migration compact that lacks the field. Dispatch would consume ten calls yet necessarily yield OUTCOME_UNRETAINED rather than the authorized recovery.",
+    "next_action": "Require an explicitly authorized, evidence-qualified pool-identity binding for the exact ten frozen mint/migration signatures (or an approved canonical parser change) before rerunning the migration-only preflight. Do not dispatch current inputs."
+  },
   "generic_migration_compact_retention": {
     "engineering_revision": "working-tree migration compact completeness guard",
     "tests": "18 passed: production-runtime compact retention, compact-result, durability tests",

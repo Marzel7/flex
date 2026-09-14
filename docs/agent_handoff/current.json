@@ -15544,6 +15544,15 @@
     "artifact": "docs/audits/watchtower_expanded_token_data_execution_preflight_blocked.v1.json (sha256 7ce17d3bc88d53e99d0d21fb51f10d9e8bb25b559f3efe5a8a377a150b6e50e3)",
     "next_action": "Authorize a bounded generic runtime-composition milestone to wire the existing canonical adapters, opening decoder, provider bindings, and durable same-identity retry to run_token_data_request_dag; then rerun preflight before any provider call."
   },
+  "generic_token_data_production_runtime": {
+    "engineering_revision": "e21867c1; runtime contract audit only",
+    "tests": "29 passed: generic runner, provider durability, Pump.fun opening executor",
+    "production_flags": "Provider/Helius/Birdeye/RPC/network/database/membership/attribution/UI writes=0; raw payload retention=0; no new database.",
+    "verdict": "GENERIC_TOKEN_DATA_PRODUCTION_RUNTIME_BLOCKED",
+    "result": "The requested thin production composition is contractually impossible without an authorized semantic choice. Existing creation-slot-block.v3 executor directly calls Helius (and optionally Alchemy) and durably retains raw provider responses/observations/results; this conflicts with the requested all-calls-through-execute_durable_provider_request and raw-retention=0 path. The existing Birdeye retry wrapper is outside that durable executor as well. Wiring either unchanged violates the task; changing either is prohibited.",
+    "artifact": "docs/audits/generic_token_data_production_runtime_contract_blocked.v1.json (sha256 c9e6e175d21449146d3e6eabb8d1cd16ed21de16bf8201cffc9f6e72363eacfa)",
+    "next_action": "Authorize a coherent contract revision: permit the existing opening executor's retention/direct acquisition model, or authorize a pre-fetched-payload opening reduction plus durable retry integration. Then requalify before any provider request."
+  },
   "watchtower_corrected_birdeye_replay": {
     "engineering_revision": "e21867c1 plus corrected V3 replay runner",
     "tests": "runner py_compile and capped-window smoke checks passed before dispatch",

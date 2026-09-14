@@ -15508,6 +15508,15 @@
     "artifact": "docs/audits/watchtower_2yre_birdeye_known_answer_diagnostic.v1.json (sha256 34424f225cd64476d5a7ce5154dc18b12a8268eb26e904aea173597613fec3bf)",
     "next_action": "Provider-disabled replay/reclassification of retained Watchtower compact results may proceed under the parser correction. Do not add pair fallback or treat future-end capping as proven causal without separate qualification."
   },
+  "generic_token_data_canonical_extraction": {
+    "engineering_revision": "e21867c1 plus canonical fact extraction",
+    "tests": "22 passed: canonical extraction, adapters, runner, durability, lifecycle, Birdeye parser, opening history",
+    "production_flags": "Provider/RPC/network/database/membership/attribution/UI/V1/historical-fact writes=0; raw payload retention=0; no new database.",
+    "verdict": "GENERIC_TOKEN_DATA_CANONICAL_EXTRACTION_QUALIFIED",
+    "result": "The legacy Watchtower acquisition script and its retained consumers now import the canonical chain, lifecycle, and FX fact modules directly. Script-local tx_summary/history_summary/fx_summary/result_items/as_number copies are removed. The generic runner composes only canonical adapters; actionability remains an external fail-closed evidence input. Frozen recent-eligibility and 15-token manifest hashes reverified.",
+    "artifact": "docs/audits/generic_token_data_canonical_extraction.v1.json (sha256 e88d335f86ba1f96fb38418ab8476aee6bd5a00907c78d684ad7f242aec97a4a)",
+    "next_action": "The separately authorized ten-token run may proceed only under the frozen manifest and provider-durability envelope; no previously dispatched identity may be reused."
+  },
   "watchtower_corrected_birdeye_replay": {
     "engineering_revision": "e21867c1 plus corrected V3 replay runner",
     "tests": "runner py_compile and capped-window smoke checks passed before dispatch",

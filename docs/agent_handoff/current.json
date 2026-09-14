@@ -16097,5 +16097,14 @@
     "result": "The generic methodology is recoverable: Helius getTransaction jsonParsed, Birdeye /defi/v3/ohlcv 1m, 24-hour bounded post-create market-cap window, and at-or-before 60-second FX. Ten exact chain requests are bound to retained create/migration signatures. The remaining ten price/FX requests cannot be exactly bound offline: all sampled create anchors retain null block time/slot, and the qualified timestamps are outputs of the opening requests. Retained detection times cannot be substituted.",
     "artifact": "docs/audits/watchtower_token_data_request_identity_qualification.v1.json (sha256 34c4b3f2163b82122103d96616ef19d5013100a7a3b14c2fab68f9334e78d55e)",
     "next_action": "Authorize an explicitly sequenced acquisition contract, or retain qualified chain-derived timestamps in a prior authorized stage before freezing price/FX requests. Do not issue the 20 calls under a falsely complete one-stage manifest."
+  },
+  "watchtower_token_data_two_stage_sample": {
+    "engineering_revision": "e21867c1 plus local bounded-acquisition helper",
+    "tests": "24 passed: tests/test_watchtower_confirmed_membership_projection.py and tests/test_x65_44_watchtower_registry_promotion.py; py_compile, JSON, request-identity uniqueness, and diff checks passed.",
+    "production_flags": "Exactly 20 authorized calls: Helius getTransaction=10; Birdeye price history=5; Birdeye FX=5. No retry, duplicate, database, membership, attribution, UI, V1, or historical-fact writes; raw payload retention=0.",
+    "verdict": "WATCHTOWER_TOKEN_DATA_TWO_STAGE_SAMPLE_QUALIFIED",
+    "result": "All ten chain requests returned HTTP200 and supplied create/migration slots/timestamps. All five migration transactions prove Migrate/CreatePool and yield first-PumpSwap pool MC in SOL. Birdeye returned 429 for 8/10 requests; the other FX response had no qualifying at-or-before point and the other price response had no usable market-cap candle. Therefore the framework is compatible, but all USD/peak/drawdown facts remain insufficient and a full cohort is not recommended without separate provider-capacity authorization.",
+    "artifacts": "facts=docs/audits/watchtower_token_data_two_stage_sample.v1.json (sha256 d40c827ac507fc76bd89cd0a67d808742c50605d843008a84a6cf679b7c66dcb); stage1=docs/audits/watchtower_token_data_stage1_request_manifest.v1.json (sha256 a3ae46fbdc6235a2d58e7c7d0ddbb5d9ee48a4d45c341d0ec199cda0ab1506a5); stage2=docs/audits/watchtower_token_data_stage2_request_manifest.v1.json (sha256 94a0b9b40894be728fb56f3648a11b93f3f1e1e6019c41c75397f8e74ea42b5a).",
+    "next_action": "Do not retry these identities. A separately authorized provider-capacity recovery must begin with zero-call accounting reconciliation and exclude all 20 already-dispatched identities."
   }
 }

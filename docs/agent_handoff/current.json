@@ -1,4 +1,14 @@
 {
+  "watchtower_birdeye_fx_rate_limit_diagnostic": {
+    "engineering_revision": "generic BIRDEYE_KK-preferred production binding",
+    "tests": "single exact digest-matched FX logical request; first local command had indentation error and sent zero requests",
+    "production_flags": "BIRDEYE logical requests=1; physical attempts=1; Helius=0; raw retention=false",
+    "verdict": "WATCHTOWER_BIRDEYE_FX_RATE_LIMIT_DIAGNOSTIC_QUALIFIED",
+    "run_id": "watchtower-fx-rate-limit-b502ecdb3afe443ab1c5065562da8a1b",
+    "result": "Exact historical FX digest matched; BIRDEYE_KK selected; HTTP200 reached on attempt 1; canonical FX parser returned QUALIFIED.",
+    "assessment": "SOL_USD_FX_CREDENTIAL_DIAGNOSTIC=CREDENTIAL_BINDING_LIKELY_CAUSAL. Together with PRICE_HISTORY, WATCHTOWER_FAILED_BIRDEYE_REPLAY_READY=true; recommended future scope PRICE_HISTORY=10 and SOL_USD_FX=10, not executed here.",
+    "next_action": "Await explicit authority before replaying the 20 failed Birdeye logical facts."
+  },
   "watchtower_birdeye_credential_known_answer": {
     "engineering_revision": "generic BIRDEYE_KK-preferred production binding",
     "tests": "two exact digest-matched durable Birdeye diagnostic logical requests",

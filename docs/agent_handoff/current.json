@@ -1,4 +1,14 @@
 {
+  "watchtower_migration_pool_bindings": {
+    "engineering_revision": "working-tree offline binding artifact",
+    "tests": "local token_analysis exact mint/migration_tx/pumpswap_pool_address reconciliation; no provider calls",
+    "production_flags": "LIVE_PROVIDER_CALLS=0; raw retention=false",
+    "verdict": "WATCHTOWER_MIGRATION_POOL_BINDINGS_QUALIFIED",
+    "coverage": "10 frozen mints; pool found=10; verified=10; missing=0; conflicts=0",
+    "artifact": "docs/audits/watchtower_expanded_10_migration_pool_bindings.v1.json",
+    "artifact_sha256": "b605f8f69eef57b2eac85990f48b38182a32c256617943f1e1b9f351227b6250",
+    "next_action": "A separately authorized migration-only ten-request run may bind these verified pools; do not make Create/getBlock/Birdeye calls."
+  },
   "watchtower_migration_remediation": {
     "engineering_revision": "working-tree corrected migration compact retention",
     "tests": "pre-dispatch source/adapter compatibility inspection; no provider calls",

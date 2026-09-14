@@ -1,4 +1,13 @@
 {
+  "generic_token_data_compact_result_retention_regression": {
+    "engineering_revision": "working-tree compact result extension",
+    "tests": "21 passed focused compact-result/runtime/durability/provider-binding tests",
+    "production_flags": "no live provider calls; raw provider payload retention=false",
+    "verdict": "PARTIAL",
+    "improvement": "parser-terminal INSUFFICIENT_EVIDENCE outcomes now persist raw-free compact records before their terminal request state, in addition to qualified/provider-blocked/rate-limited outcomes",
+    "blocker": "Missing explicit actual-production-runtime three-token mixed-outcome process-restart offline-finalization regression required for contract qualification.",
+    "next_action": "Implement that exact mocked regression and only then set GENERIC_TOKEN_DATA_COMPACT_RESULT_RETENTION_QUALIFIED."
+  },
   "generic_token_data_compact_result_retention_completion": {
     "engineering_revision": "working-tree compact result extension",
     "tests": "21 passed: compact-result, provider durability, production-runtime, provider-binding focused tests",

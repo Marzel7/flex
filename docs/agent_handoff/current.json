@@ -1,4 +1,14 @@
 {
+  "operation_opening_lifecycle_gap_semantics_14i7": {
+    "engineering_revision": "5904a907",
+    "tests": "5 passed: gap payload determinism/no special cases, provider offset != peak timing, closure rule, framework idempotency, Nexus adapter; audit replay validation PASS",
+    "production_flags": "0 Birdeye/RPC/provider/network calls; 0 production fact, membership, detector, identity, token-analysis, source-evidence, or UI writes",
+    "verdict": "PARTIAL — generic OPERATION_OPENING_TO_LIFECYCLE_GAP_V1 is implemented and tested; 14i7 has a correctly represented 451-second UNOBSERVED gap, but no retained qualified OPERATION_OPENING_MC source was found to demonstrate value invariance",
+    "artifact": "docs/audits/operation_opening_lifecycle_gap_semantics_14i7.v1.json",
+    "artifact_sha256": "790b850a54b12ee6cd8c6c0013412d2f4de329d23dcfb98312bda93c2d614885",
+    "key_semantics": "opening facts survive later gaps; no interpolation; first provider offset is not peak time; max lifecycle MC remains lower-bound and drawdown remains provider-window scoped",
+    "next_action": "Locate or separately qualify a durable 14i7 OPERATION_OPENING_MC source before materializing a gap fact that claims opening-MC invariance; do not infer it from Birdeye/GMGN."
+  },
   "nexus_14i7_birdeye_451s_gap_diagnosis": {
     "engineering_revision": "5904a907",
     "tests": "451s provenance validation PASS: raw 1,000-row chronology, first 15 timestamps, raw/normalized equality, 60-second regular interval, event-bucket arithmetic, JSON parse, and diff check",

@@ -1,4 +1,14 @@
 {
+  "watchtower_final_offline_finalization": {
+    "engineering_revision": "working-tree compact-retention runtime",
+    "tests": "offline retained-artifact inspection only; no provider calls",
+    "production_flags": "OFFLINE_FINALIZATION_PROVIDER_CALLS=0; RAW_BYTES_RETAINED=0",
+    "verdict": "WATCHTOWER_TOKEN_DATA_FINALIZATION_BLOCKED",
+    "run_id": "watchtower-final-10-9c4ef37489a043af98b3cc2aa2731a0c",
+    "accounting": "120 manifests and 120 compact records; 90 succeeded with compact records; 10 HTTP200 parser-terminal insufficient opening blocks; 20 HTTP400 provider-blocked Birdeye records; no rate-limit or outcome-unretained",
+    "blocker": "Offline compact-store inspection proves all 10 CHAIN_MIGRATION_TRANSACTION canonical results retain signature/slot/timestamp/status but omit FIRST_PUMPSWAP_POOL_MC_SOL. The required migration/pool valuation and resulting 15-token profile cannot be reconstructed from retained compact artifacts alone. No malformed-request cause can be inferred for the 20 raw-free HTTP400 records.",
+    "next_action": "Do not replay or alter this finalization task. Require explicit authority for a retention-contract defect remediation and a separately authorized new acquisition strategy; current final replay cannot supply the missing retained value."
+  },
   "watchtower_final_compact_replay": {
     "engineering_revision": "working-tree qualified compact-retention runtime",
     "tests": "frozen preflight passed: hashes match; 20 initial requests (10 Create, 10 Migration); prior focused retention suite passed",

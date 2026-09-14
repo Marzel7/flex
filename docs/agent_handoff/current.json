@@ -15933,6 +15933,15 @@
     "artifacts": "ledger=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_lifecycle_request_ledger.v1.json; accounting_replay=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_lifecycle_acquisition_accounting_replay.v1.json; cases=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_cases.v1.json; summary=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_summary.v1.json.",
     "next_action": "HOLD. A separate authorization after quota recovery is required to retry only the 23 terminal-failure identities; do not reopen successful identities or censored mints."
   },
+  "f7p3_relay_semantic_decontamination_retry": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "tests": "No code or database change was made; prior focused infrastructure suites remain 27 passed.",
+    "production_flags": "Writer precheck found three active local writer-capable processes on wt_ops_v2.db WAL/SHM. No write lock was attempted; no database/membership/detector/V1/UI/historical/provider/RPC/network mutation occurred.",
+    "verdict": "F7P3_RELAY_SEMANTIC_DECONTAMINATION_DEFERRED",
+    "result": "Frozen target remains exactly 148 selected candidate_parent F7p3 rows and 268 raw provenance rows. Watchtower remains 274 members with mint-set hash 94578ab34ee060ec2f1e0427a1c5dbc61b763934126804212f3991ec37ba389f and ESTABLISHED operation status.",
+    "artifact": "docs/audits/f7p3_relay_semantic_decontamination_deferred.v1.json (SHA-256 8f272a4b0a5e01434c8632aa795d791084553e9185b927d726c30b76913509a9)",
+    "next_action": "On a later authorized retry, run one precheck only. If no writer is active, execute only the already-approved 148-row atomic candidate-layer update; otherwise defer without writes."
+  },
   "f7p3_relay_semantic_decontamination": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "27 passed: infrastructure-role exclusion, unified terminal-infrastructure, and attribution-outcome focused suites.",

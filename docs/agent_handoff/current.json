@@ -1,4 +1,15 @@
 {
+  "watchtower_definitive_offline_reconciliation": {
+    "engineering_revision": "working-tree compact retention and migration remediation artifacts",
+    "tests": "offline compact-store overlay reconciliation only; no provider calls",
+    "production_flags": "OFFLINE_FINALIZATION_PROVIDER_CALLS=0; HELIUS_CALLS=0; BIRDEYE_CALLS=0; raw retention=false",
+    "verdict": "WATCHTOWER_MIGRATION_REMEDIATION_AND_FINALIZATION_QUALIFIED",
+    "runs": "final acquisition watchtower-final-10-9c4ef37489a043af98b3cc2aa2731a0c; remediation watchtower-migration-remediation-ae244480db7244d48cabaf8c957d9bc6",
+    "overlay": "match=10; conflicts=0; qualified pool MC=10; 325.7895300531658 SOL x9, 1125.8532265041988 SOL x1; create-to-migration seconds=0 x10",
+    "coverage": "new ten compact facts: qualified=90, provider_blocked=20 (PRICE_HISTORY=10, SOL_USD_FX=10), insufficient=10 opening blocks; no Birdeye lifecycle price facts available from this final acquisition",
+    "assessment": "WATCHTOWER_TOKEN_DATA_INCOMPLETE_LIFECYCLE; WATCHTOWER_SAMPLE_SUFFICIENCY=INSUFFICIENT_DATA_TO_JUDGE; OPERATION_TOKEN_DATA_PLAYBOOK_FREEZE_READY=false; GLOBAL_OPERATION_TOKEN_DATA_FEATURE_STATUS=NOT_READY_DATA_COVERAGE",
+    "next_action": "Do not replay within this milestone. Any future coverage action requires separate authorization and must not treat native-SOL pool valuation as lifecycle price data."
+  },
   "watchtower_migration_remediation_execution": {
     "engineering_revision": "working-tree corrected migration compact retention",
     "tests": "migration-only dry scope passed: 10 CHAIN_MIGRATION_TRANSACTION, all other families zero",

@@ -15536,13 +15536,13 @@
     "next_action": "The separately authorized frozen ten-token acquisition can now begin from a new durable run ID; do not reacquire the existing five or reuse any prior dispatched identity."
   },
   "watchtower_expanded_token_data_execution": {
-    "engineering_revision": "e21867c1 plus retained-only execution-anchor binding",
-    "tests": "18 passed: runtime qualification plus existing runtime, request-DAG, durability, and fact-adapter regressions; actual anchored run_operation_token_data_research(..., dry_run=True) returned 20 initial requests with 0 provider bindings dispatched.",
+    "engineering_revision": "e21867c1; frozen execution pre-dispatch safety verification",
+    "tests": "18 prior focused tests remain the runtime qualification baseline; actual anchored run_operation_token_data_research(..., dry_run=True) returned 20 initial requests with 0 provider bindings dispatched.",
     "production_flags": "Provider/Helius/Birdeye/RPC/network/database/membership/attribution/UI writes=0; raw payload retention=0; no new database.",
-    "verdict": "WATCHTOWER_EXPANDED_EXECUTION_ANCHORS_QUALIFIED",
-    "result": "Retained canonical token_analysis evidence supplied one exact-mint create_tx_signature and one exact-mint migration_tx for every frozen NEW_ACQUISITION member. No retained conflict candidate was found in token_analysis, migrated_tokens, migration queues, or Watchtower launch records. The compact anchor manifest preserves only the frozen mint/creator/timestamp and two verified signatures per member. The actual qualified runtime consumed that anchor input in dry mode and materialized exactly 20 initial logical requests: CHAIN_CREATE_TRANSACTION=10 and CHAIN_MIGRATION_TRANSACTION=10.",
-    "artifact": "docs/audits/watchtower_expanded_10_execution_anchors.v1.json (sha256 12317b392a2d79e50b89b7fc3bce7561af57f5a3fe68409bb30c9df9d769bf3d)",
-    "next_action": "A separately authorized execution milestone may use this frozen anchor manifest for exactly the ten NEW_ACQUISITION mints; rerun the current dry preflight immediately before any provider dispatch and retain the existing five as evidence-only."
+    "verdict": "WATCHTOWER_EXPANDED_TOKEN_DATA_SAMPLE_BLOCKED",
+    "result": "All three frozen hashes match, all ten anchors are complete, and the actual runtime dry-run still yields exactly 20 initial logical requests. Execution stopped before the first provider call because run_operation_token_data_research has no qualified production provider-binding composition. Its binding contract also cannot carry Retry-After into execute_durable_provider_request or enforce the required 45-second timeout. Legacy scripts use direct provider transport and cannot be substituted without violating this execution contract.",
+    "artifact": "docs/audits/watchtower_expanded_execution_runtime_safety_blocked.v1.json (sha256 ef7e3bbaa86b17104b984e09603aea1de342cf918fa6ca1a017f77eed46d19a8)",
+    "next_action": "Authorize a bounded production binding-contract correction for Helius/Birdeye injection, 45-second timeout, and capped Retry-After propagation through the durable executor; requalify with mocks before any frozen-run dispatch."
   },
   "generic_token_data_production_runtime": {
     "engineering_revision": "e21867c1 plus mocked production-runtime qualification",

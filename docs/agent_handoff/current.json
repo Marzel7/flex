@@ -1,4 +1,13 @@
 {
+  "watchtower_definitive_dataset_materialization": {
+    "engineering_revision": "offline-source inspection only",
+    "tests": "no provider calls; legacy writer compatibility inspection",
+    "production_flags": "OFFLINE_FINALIZATION_PROVIDER_CALLS=0; raw retention=false",
+    "verdict": "PARTIAL",
+    "finding": "Existing scripts/finalize_watchtower_token_data_reconciliation.py is a legacy five-token writer bound to old artifacts and would overwrite watchtower_token_data_final_reconciliation.v1.json; it cannot safely materialize the new 15-token overlay dataset.",
+    "source_readiness": "admitted Birdeye overlay contains PRICE_HISTORY=10 qualified and SOL_USD_FX=10 qualified compact results; migration and final-acquisition overlays are present.",
+    "next_action": "Create a dedicated deterministic offline 15-token projection/artifact writer with explicit source precedence and validation, then run it provider-disabled. Do not modify legacy artifacts."
+  },
   "watchtower_final_admitted_birdeye_reconciliation": {
     "engineering_revision": "offline compact-store reconciliation",
     "tests": "read-only store coverage verification; no provider calls",
@@ -15822,5 +15831,68 @@
     "result": "A local serialization defect attempted to read migration data from the opening-sequence artifact after the first token's two requests. Because their compact outcomes were not materialized and repeat identities are prohibited, the five-token replay cannot safely continue without an explicit accounting/recovery authorization.",
     "artifact": "docs/audits/watchtower_corrected_birdeye_replay_blocked.v1.json",
     "next_action": "Resolve only the two dispatched-but-unmaterialized identity accounting under explicit authorization; do not redispatch or continue the other eight identities meanwhile."
+  },
+  "watchtower_definitive_dataset_materialization": {
+    "engineering_revision": "e21867c1 plus generic offline projection/materializer",
+    "tests": "7 passed: tests/test_token_data_offline_projection.py and tests/test_token_data_completion.py",
+    "production_flags": "Provider/Helius/Birdeye/RPC/network/database/membership/UI writes=0; raw payload retention=0; immutable legacy artifact SHA unchanged.",
+    "verdict": "WATCHTOWER_FINAL_OFFLINE_RECONCILIATION_QUALIFIED",
+    "result": "Provider-free deterministic materialization produced the new 15-token dataset, profile, and completion assessment. Ten migration overlays and twenty admitted Birdeye facts were consumed without conflict; retained original-five facts were preserved. The root Git index lock remains present and process ownership cannot be safely re-queried in this sandbox, so transport remains degraded and no handoff commit/push was attempted.",
+    "artifact": "docs/audits/watchtower_definitive_15_token_dataset.v1.json (sha256 ebda47693ef94fe85265074acd3d5ec5745bf6cc50109543a52df96dc4b7d8bb); docs/audits/watchtower_definitive_15_token_profile.v1.json (sha256 da3b0ff3961cef417bb35b8516ca1f5071df87479e7f06c9ac7c56b40b08674f); docs/audits/watchtower_token_data_completion_assessment.v1.json (sha256 db774d062d343e93a04284554a02c165b395080c1d86cb230af5a989dcee6df7)",
+    "next_action": "When the active Git process has ended and the lock is safely absent, commit and publish this handoff-only update from agent-handoff; no further Watchtower acquisition is required for this reconciliation."
+  },
+  "watchtower_operations_playbook_ui": {
+    "engineering_revision": "e21867c1 plus generic operation Playbook registry/view model",
+    "tests": "14 passed: tests/test_watchtower_operation_playbook_ui.py and tests/test_operator_lifecycle_projection.py",
+    "production_flags": "Provider/Helius/Birdeye/RPC/network/database/membership writes=0; raw payload retention=0; Watchtower source and legacy five-token artifact SHA unchanged.",
+    "verdict": "WATCHTOWER_OPERATIONS_PLAYBOOK_UI_QUALIFIED",
+    "result": "OPERATION_TOKEN_DATA_PLAYBOOK_V1 is frozen as an immutable contract. The existing DB-backed Byzantine Playbook remains unchanged; the generic registry adds a second artifact-backed operation view for Watchtower without provider access or a Watchtower-specific UI parser. Watchtower visibly reports qualified playbook status, complete-with-legitimate-gaps, 15-token/49-eligible coverage, 10/15 price and FX coverage, the minority pool value, and NOT WIRED automation.",
+    "artifact": "docs/operations/playbooks/operation_token_data_playbook.v1.json (sha256 b038cdcd09f7744a2e8f11e50bef05eec31480b112d5b0b47de5ba5570843810); docs/operations/playbooks/operation_playbook_registry.v1.json (sha256 ddec9b384536cb473c40455ddb88e3be7bd6fe200467427261931adc7fa7ac07)",
+    "next_action": "Wire a generic post-promotion token-data workflow at the existing post_commit_enrol/bootstrap_after_actual_commit seam only after explicit product authorization; do not add an operation-specific trigger."
+  },
+  "global_operation_token_data_promotion_trigger": {
+    "engineering_revision": "e21867c1 plus durable generic post-commit workflow record",
+    "tests": "17 passed: operation-token-data workflow, Watchtower Playbook UI, and existing lifecycle projection regressions",
+    "production_flags": "Live provider/Helius/Birdeye/RPC calls=0; raw payload retention=0; no Watchtower source or legacy artifact mutation.",
+    "verdict": "GLOBAL_OPERATION_TOKEN_DATA_PROMOTION_TRIGGER_QUALIFIED",
+    "result": "The governance write service commits before its post-commit seam invokes bootstrap_after_actual_commit. That seam now also idempotently creates OPERATION_TOKEN_DATA_WORKFLOW_V1 keyed by operation_id/playbook_version, records retained eligibility/readiness, and never calls a provider. Failure is isolated after the operation commit. Existing Watchtower presentation is marked ADOPTED_FROM_RETAINED_EVIDENCE and automatic trigger WIRED. Qualified provider runtime dispatch remains deliberately asynchronous and is not invoked by this hook.",
+    "artifact": "src/ops/operation_token_data_workflow.py; docs/operations/playbooks/operation_playbook_registry.v1.json (sha256 0218d9331a76bd8eb53a8aed840659ed916aa04a2c7b773547448dd832f92f3d)",
+    "next_action": "Authorize and attach a generic durable worker that consumes READY_FOR_ACQUISITION records and hands them to run_operation_token_data_research outside a UI request; no operation-specific worker or inline provider dispatch."
+  },
+  "global_operation_token_data_worker": {
+    "engineering_revision": "e21867c1 plus durable generic workflow worker seam",
+    "tests": "20 passed: workflow creation/worker claiming, Watchtower UI, and lifecycle projection regressions",
+    "production_flags": "Live provider/Helius/Birdeye/RPC calls=0; raw payload retention=0; no historical artifact mutation.",
+    "verdict": "GLOBAL_OPERATION_TOKEN_DATA_PROMOTION_TRIGGER_BLOCKED",
+    "result": "OPERATION_TOKEN_DATA_WORKER_V1 now atomically claims READY_FOR_ACQUISITION through persisted ACQUIRING state and a durable run ID, releases the DB before injected runtime/finalizer execution, supports provider-free finalization restart, and preserves failure isolation. Qualification stopped before live dispatch: there is no existing generic durable manifest/anchor materializer or managed worker registration that can supply run_operation_token_data_research with required frozen inputs. The worker therefore exposes an injected qualified-runtime seam, not an unsafe invented provider composition.",
+    "artifact": "src/ops/operation_token_data_workflow.py; tests/test_operation_token_data_worker.py",
+    "next_action": "Implement and qualify one generic provider-free workflow-input materializer plus a supervised worker entrypoint that invokes the existing runtime with those durable inputs; then requalify no-inline-provider and restart recovery end-to-end."
+  },
+  "potential_operation_validation_promotion_gate": {
+    "engineering_revision": "e21867c1 plus authoritative validation-gated promotion UI",
+    "tests": "9 passed: manual attribution routes/workflow, validation-promotion gate, and token-data workflow regressions",
+    "production_flags": "Provider/Helius/Birdeye/RPC calls=0; no membership reassessment or historical artifact mutation.",
+    "verdict": "POTENTIAL_OPERATION_VALIDATION_PROMOTION_GATE_QUALIFIED",
+    "result": "Potential Operation list and detail actions now render Promote only for the existing authoritative ATTRIBUTION_PROVEN validation state (displayed as Validated); all other states render Validate only. The backend already fail-closes promotion unless ATTRIBUTION_PROVEN and a current evidence snapshot/decision are retained. Canonical membership is committed before post_commit_ensure creates the bounded OPERATION_TOKEN_DATA_WORKFLOW_V1 record; failure remains post-commit isolated. No override exists.",
+    "artifact": "src/ops/operation_attribution_manual_bridge.py; templates/potential_operations.html; templates/potential_operation_detail.html; tests/test_potential_operation_validation_promotion_gate.py",
+    "next_action": "Implement the separately scoped generic durable workflow-input materializer/worker before enabling any provider acquisition dispatch."
+  },
+  "watchtower_playbook_token_detail_parity": {
+    "engineering_revision": "e21867c1 plus generic artifact-playbook token collection renderer",
+    "tests": "15 passed: Watchtower Playbook detail/UI and existing Byzantine lifecycle projection regressions",
+    "production_flags": "Provider/Helius/Birdeye/RPC calls=0; retained Watchtower dataset/profile/assessment read only; no raw payload retention.",
+    "verdict": "WATCHTOWER_PLAYBOOK_TOKEN_DETAIL_PARITY_QUALIFIED",
+    "result": "The generic artifact Playbook renderer now consumes declaratively mapped token rows and full profile data. Watchtower renders all 15 definitive tokens with abbreviated/copyable identities, compact retained facts, and expandable exact fact fields; opening, migration, lifecycle, coverage, legitimate gaps, methodology, and artifact sections are retained-data only. Byzantine remains on its existing DB-backed Playbook renderer unchanged.",
+    "artifact": "templates/operation_artifact_playbook.html; docs/operations/playbooks/operation_playbook_registry.v1.json; tests/test_watchtower_operation_playbook_ui.py",
+    "next_action": "No Watchtower data acquisition is authorized or required. Complete the separately blocked generic workflow-input materializer before provider-backed automatic workflow execution."
+  },
+  "watchtower_remaining_fact_recoverability_audit": {
+    "engineering_revision": "e21867c1 plus provider-free recoverability audit materializer",
+    "tests": "1 passed: tests/test_watchtower_remaining_fact_recoverability_audit.py",
+    "production_flags": "Provider/Helius/Birdeye/RPC calls=0; raw bytes retained=0; database writes=0; no token-data acquisition, membership reassessment, or operation mutation.",
+    "verdict": "WATCHTOWER_REMAINING_FACT_RECOVERABILITY_AUDIT_QUALIFIED",
+    "result": "The definitive retained 15-token data proves coverage of opening 5/15, price history 10/15, FX 10/15 and pool MC 15/15. Ten opening histories are RECOVERABLE_BOUNDED_PROVIDER with a one-getBlock-per-mint minimal plan and 1-8 early-stop bound; five historical lifecycle/FX cases are UNKNOWN_REQUIRES_DIAGNOSTIC and are deliberately not scheduled. The complete immutable 140-gap ledger preserves per-token facts, dependencies, classifications, sources, and source digests.",
+    "artifact": "docs/audits/watchtower_remaining_fact_recoverability_audit.v1.json (SHA-256 e80ef45f326387d714bfd24842d19b36eaef79a709f4a31cd8de063312c01a60)",
+    "next_action": "If further historical recovery is authorized, run only the ten bounded opening-block recoveries first; separately qualify a V1 availability diagnostic before scheduling any historical lifecycle or FX request."
   }
 }

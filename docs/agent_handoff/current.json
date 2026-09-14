@@ -1,4 +1,15 @@
 {
+  "watchtower_token_data_finalization": {
+    "engineering_revision": "e21867c1 plus qualified working-tree runtime",
+    "tests": "No provider calls; retained-manifest reconciliation only.",
+    "production_flags": "NEW_PROVIDER_CALLS=0; HELIUS_CALLS=0; BIRDEYE_CALLS=0; RAW_BYTES_RETAINED=0",
+    "verdict": "WATCHTOWER_TOKEN_DATA_FINALIZATION_BLOCKED",
+    "run_id": "watchtower-fresh-10-871d2f63f6c347e895f8ebfdc320cfc6",
+    "request_accounting": "120 attempts/rows; 100 HTTP200; 20 HTTP400; 90 SUCCEEDED (70 opening, 10 create, 10 migration); 30 FAILED (10 opening INSUFFICIENT_EVIDENCE at HTTP200, 20 Birdeye PROVIDER_BLOCKED at HTTP400); 0 duplicates/rate limits/outcome-unretained.",
+    "http_400_by_family": "PRICE_HISTORY=10; SOL_USD_FX=10; all Birdeye /defi/v3/ohlcv.",
+    "blocker": "The fresh runtime retained manifest outcomes but did not durably retain compact parser/fact results. The required per-token facts and definitive 15-token profile cannot be reconstructed without replay/reacquisition, both prohibited. HTTP400 response bodies were deliberately not retained, so request-construction versus provider-data classification cannot be proven from retained state.",
+    "next_action": "Do not replay. Require an explicitly authorized durable compact-fact-result retention/reconciliation design and a separately authorized acquisition strategy before attempting finalization."
+  },
   "watchtower_fresh_expanded_token_data_sample": {
     "engineering_revision": "e21867c1 plus qualified working-tree runtime",
     "tests": "23 focused mocked runtime/durability tests passed before dispatch; frozen dry preflight: 20 initial requests (10 Create, 10 Migration)",

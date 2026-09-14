@@ -15933,6 +15933,15 @@
     "artifacts": "ledger=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_lifecycle_request_ledger.v1.json; accounting_replay=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_lifecycle_acquisition_accounting_replay.v1.json; cases=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_cases.v1.json; summary=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_summary.v1.json.",
     "next_action": "HOLD. A separate authorization after quota recovery is required to retry only the 23 terminal-failure identities; do not reopen successful identities or censored mints."
   },
+  "operation_attribution_evidence_contract_v1": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "tests": "5 passed: V1 proof gate and infrastructure-role exclusion.",
+    "production_flags": "Non-live only; no DB, membership, detector, UI, V1 runtime, historical fact, provider, or F7p3 deferred correction write.",
+    "verdict": "OPERATION_ATTRIBUTION_EVIDENCE_CONTRACT_V1_QUALIFIED",
+    "result": "Generic V1 now materializes a deterministic decision schema and excludes common infrastructure dependency groups. Synthetic safety/positive controls pass; Nexus remains detector-proven but attribution-not-proven and non-promotable. Byzantine and Watchtower statuses remain ESTABLISHED with INCOMPLETE_MAPPING replayability.",
+    "artifact": "docs/audits/operation_attribution_evidence_contract_v1_qualification.json (SHA-256 73cd4d060d7268daeca992879a4e001897cd4017cecbf79021736274104b7db0)",
+    "next_action": "Do not integrate the gate into production promotion without separate authorization."
+  },
   "f7p3_relay_semantic_decontamination_retry": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "No code or database change was made; prior focused infrastructure suites remain 27 passed.",

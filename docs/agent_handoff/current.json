@@ -1,4 +1,14 @@
 {
+  "generic_token_data_compact_result_retention_completion": {
+    "engineering_revision": "working-tree compact result extension",
+    "tests": "21 passed: compact-result, provider durability, production-runtime, provider-binding focused tests",
+    "production_flags": "no live provider calls; zero raw payload retention",
+    "verdict": "PARTIAL",
+    "contract_version": "TOKEN_DATA_COMPACT_RESULT_RETENTION_V1",
+    "implemented": "raw-free compact outputs persisted before success; provider-blocked/rate-limit terminal compact records; offline load and token projection API",
+    "watchtower_prior_run": "compact fact count=0; offline finalizable=false; replay required under separate authorization",
+    "next_action": "Add and pass a production-runtime full-family process-restart/mixed-outcome offline-finalization regression before declaring the retention contract qualified."
+  },
   "generic_token_data_compact_result_retention": {
     "engineering_revision": "working-tree compact-result retention implementation",
     "tests": "17 passed: compact result, durability, and production-runtime focused tests",

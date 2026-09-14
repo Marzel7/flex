@@ -1,4 +1,14 @@
 {
+  "nexus_three_token_post_create_actionable_mc": {
+    "engineering_revision": "5904a907",
+    "tests": "2 passed: frozen-scope/fail-closed valuation assertion and deterministic replay digest; audit JSON validation PASS",
+    "production_flags": "0 RPC, provider, Birdeye, GMGN, network, token-analysis, source-evidence, UI, production-fact, membership, or detector writes",
+    "verdict": "PARTIAL — exact retained CreateV2 TradeEvent logs qualify post-create virtual reserve state and 1B/6-decimal supply for all three. The frozen at-or-before <=60s local SOL/USD rule qualifies exactly 247a ($5,421.061317369334495174080149); 14i7’s closest prior point is 238,179 seconds old and 26MG predates the retained series, so those two remain INSUFFICIENT_EVIDENCE.",
+    "artifact": "docs/audits/nexus_three_token_post_create_actionable_mc.v1.json",
+    "artifact_sha256": "77d2d3bb9d982bd5791723046c69de0675d360947e29945c8c41a2101a8207e1",
+    "key_evidence": "All boundaries remain POST_CREATE_EXECUTABLE_STATE after creator embedded Buy; no embedded price, later unprovenanced MC observation, GMGN, Birdeye, or hypothetical buy size was promoted.",
+    "next_action": "Do not expand beyond the frozen three. Retain or separately authorize compliant contemporaneous SOL/USD observations for 14i7 and 26MG before emitting their USD ACTIONABLE_ENTRY_MC values."
+  },
   "nexus_three_token_actionable_entry_mc_qualification": {
     "engineering_revision": "5904a907",
     "tests": "3 passed: frozen-three boundary policy, timing-census invariant, Nexus adapter; actionable-entry audit validation PASS",

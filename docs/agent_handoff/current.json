@@ -1,4 +1,13 @@
 {
+  "nexus_14i7_initial_pumpswap_single_tx_completion": {
+    "engineering_revision": "5904a907 plus uncommitted single-transaction PumpSwap initial-state recovery",
+    "tests": "3 passed: tests/test_nexus_14i7_initial_pumpswap_single_tx_completion.py; JSON validation and git diff --check passed.",
+    "production_flags": "Exactly one authorized Helius getTransaction RPC and one conditionally authorized Birdeye SOL/USD OHLC request succeeded. Both raw responses were atomically retained, fsynced, read back, and SHA-256 verified. No database, service, trade, UI, membership, detector, operation-identity, source-evidence rewrite, or production-fact mutation.",
+    "verdict": "NEXUS_14I7_INITIAL_PUMPSWAP_SINGLE_TX_QUALIFIED",
+    "result": "The exact successful migration/CreatePool transaction directly proves initial pool-owned post balances of 206900000 tokens and 67.405853768 WSOL. This gives 0.0000003257895300531657805703238279 SOL/token and 325.7895300531657805703238279 SOL market cap. The retained at-or-before SOL/USD close is $97.15330251655658 at 39 seconds before migration, yielding $31651.52876998201657988493687 ($31.7K). The ~921K GMGN/Birdeye opening diagnostics are ~96.6% higher and are not explained by the actual initial PumpSwap state. A retained +20 second swap is validation-only and proves rapid intervening activity; it cannot replace initial post-CreatePool state.",
+    "artifacts": "audit=docs/audits/nexus_14i7_initial_pumpswap_single_tx_completion.v1.json (sha256 7df127e4070cfda481c7ddcc5e57e858253c36e9348f4c8c2af19a8e8b88665f); raw_tx=docs/audits/nexus_14i7_initial_pumpswap_raw/2Cg3sCeUhZnxghWe6wfjritvj7SHwEJBRE2oXDxbgMqfxUqbCjYnBMLCAV2ioDXZRrUHmxKha7qvvwQkQH54t7gp.raw.json; raw_sol_usd=docs/audits/nexus_14i7_initial_pumpswap_raw/sol_usd_1m_1787744400.raw.json; test=tests/test_nexus_14i7_initial_pumpswap_single_tx_completion.py.",
+    "next_action": "STOP acquisition. If downstream research consumes this case, use explicitly named FIRST_POST_MIGRATION_EXECUTABLE_STATE / ACTIONABLE_ENTRY_MC and keep later-trade/chart values diagnostic-only."
+  },
   "nexus_14i7_initial_pumpswap_actionable_mc": {
     "engineering_revision": "5904a907",
     "tests": "2 passed: initial reserves fail closed rather than backfilled from later swap, and same-slot pool/order identity invariant; audit JSON validation PASS",

@@ -1,4 +1,14 @@
 {
+  "nexus_14i7_birdeye_451s_gap_diagnosis": {
+    "engineering_revision": "5904a907",
+    "tests": "451s provenance validation PASS: raw 1,000-row chronology, first 15 timestamps, raw/normalized equality, 60-second regular interval, event-bucket arithmetic, JSON parse, and diff check",
+    "production_flags": "0 Birdeye/RPC/provider/network calls; 0 UI, membership, detector, identity, source-evidence, or production-fact writes",
+    "verdict": "INSUFFICIENT_RETAINED_REQUEST_PROVENANCE — raw response begins at 1787744400 and normalizer retained all rows; no request ledger/window/builder invocation survives to assign responsibility to request selection or provider coverage",
+    "artifact": "docs/audits/nexus_14i7_birdeye_451s_gap_diagnosis.v1.json",
+    "artifact_sha256": "5ca5e87c941e72545722aadc90415b11e3a9cf919d20b1551aec924c9275329a",
+    "key_evidence": "defining-event bucket 1787743920–1787743980; raw and normalized first response 1787744400; 0 rows dropped; all 1,000 timestamps 60-second regular",
+    "next_action": "For any future authorized acquisition, first freeze a request ledger with anchor, exact window, resolution, request time, provider response range, and raw hash; do not reissue a request under this audit authorization."
+  },
   "nexus_14i7_defining_event_valuation_correction": {
     "engineering_revision": "5904a907",
     "tests": "evidence-model correction validation PASS: defining/event/bucket arithmetic, launch-in-candle assertion, JSON parse, and diff check",

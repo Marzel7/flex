@@ -1,4 +1,13 @@
 {
+  "nexus_remaining_price_history_audit": {
+    "engineering_revision": "5904a907 plus target-identity resolution hold",
+    "tests": "Blocked-artifact JSON validation and git diff --check passed.",
+    "production_flags": "RPC/provider/network calls=0; LIVE_ACTIONABILITY_CAPTURE_ENABLED=false; production fact writes, membership, detector, UI, and historical-fact changes=0.",
+    "verdict": "NEXUS_REMAINING_PRICE_HISTORY_AUDIT_BLOCKED",
+    "result": "The requested aliases 17Z9 and 3C2M do not resolve to complete token mints in the retained Nexus small-sample corpus, token-analysis registry, or operation-membership registry. Broad substring hits occur only inside unrelated transaction signatures and are not a valid identity mapping. No acquisition or valuation was attempted because that would risk querying or attributing the wrong token.",
+    "artifacts": "blocker=audit docs/audits/nexus_remaining_price_history_audit_blocked.v1.json (sha256 ac909ba1b88f4f6e28e3f0d02595992bc5ead2c8b5f60500882f6b0bfa41fe18).",
+    "next_action": "Obtain the full mint address for each requested alias, or an authoritative local alias-to-mint mapping; then freeze the smallest per-mint acquisition plan before provider use."
+  },
   "prospective_actionability_evidence_framework": {
     "engineering_revision": "5904a907 plus uncommitted prospective actionability evidence framework",
     "tests": "12 passed: tests/test_operation_fact_framework.py, tests/test_nexus_operation_adapter.py, tests/test_prospective_actionability_evidence_framework.py, and tests/test_conservative_actionable_entry_cross_operation_audit.py; JSON validation and git diff --check passed.",

@@ -1,4 +1,14 @@
 {
+  "nexus_14i7_initial_pumpswap_actionable_mc": {
+    "engineering_revision": "5904a907",
+    "tests": "2 passed: initial reserves fail closed rather than backfilled from later swap, and same-slot pool/order identity invariant; audit JSON validation PASS",
+    "production_flags": "0 RPC, provider, Birdeye, network, Nexus membership, detector, identity, source-evidence, UI, or production-fact writes",
+    "verdict": "PARTIAL — migration signature 2Cg3… (slot 441859052, transaction index 467) and PumpSwap pool/vault identity are retained, but its full CreatePool transaction and pool-owned post-vault balances are not. The generic strict extractor therefore cannot derive initial executable reserves, price, or ACTIONABLE_ENTRY_MC. The later +20s external BuyExactQuoteIn confirms an active pool at pre-swap 9,107.382325980747 SOL MC but is not substituted for initial state.",
+    "artifact": "docs/audits/nexus_14i7_initial_pumpswap_actionable_mc.v1.json",
+    "artifact_sha256": "cedc39da3c09d57782b4b8666c8ec36dc0774744c75f72bbd56c4b82b8b8bf10",
+    "key_diagnostic": "The later active-pool MC would require SOL/USD 101.1454188513 for $921,170 or 101.5987952400 for $925,299; these are descriptive only, not retained conversions or proof of initial pool value.",
+    "next_action": "Do not recalculate any other token. Require separately retained/authorized raw migration CreatePool transaction with pool-owned post-vault balances before materializing initial PumpSwap actionable MC."
+  },
   "nexus_14i7_curve_closure_actionability_recompute": {
     "engineering_revision": "5904a907",
     "tests": "2 passed: terminal-curve/actionable-state separation and ordered same-slot migration fail-closed invariant; audit JSON validation PASS",

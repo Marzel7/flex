@@ -15536,13 +15536,13 @@
     "next_action": "The separately authorized frozen ten-token acquisition can now begin from a new durable run ID; do not reacquire the existing five or reuse any prior dispatched identity."
   },
   "watchtower_expanded_token_data_execution": {
-    "engineering_revision": "e21867c1 plus production durable-sleeper injection",
-    "tests": "23 passed: runtime, provider binding, request-DAG, durability, and adapter regressions; actual anchored dry-run returned exactly 20 initial identities with 0 provider bindings dispatched.",
-    "production_flags": "Provider/Helius/Birdeye/RPC/network/database/membership/attribution/UI writes=0; raw payload retention=0; no new database.",
-    "verdict": "GENERIC_TOKEN_DATA_PRODUCTION_BACKOFF_QUALIFIED",
-    "result": "run_operation_token_data_research now injects time.sleep into execute_durable_provider_request by default and accepts a per-invocation retry_sleeper for tests. Actual-runtime mocked regression proves [2,5] on a two-429 recovery and [2,5,10,30,60,60,60,60] across nine 429s with no tenth attempt. Retry-After remains capped at 60 seconds; bindings remain one-attempt and own neither sleep nor retries. Frozen Watchtower inputs are unchanged and dry-run remains 20 initial identities.",
-    "artifact": "docs/audits/generic_token_data_production_backoff_qualification.v1.json (sha256 b979bde5e18210d7941f153b523194b83cf121403ef8b9f9cb0ecf8c2e967cd4)",
-    "next_action": "The separately authorized frozen ten-token Watchtower execution may proceed through run_operation_token_data_research with production_provider_bindings and its default real sleeper; retain the existing five evidence-only."
+    "engineering_revision": "e21867c1; frozen ten-token live execution incident",
+    "tests": "23 prior focused tests; no new test run after the live incident.",
+    "production_flags": "Live run watchtower-expanded-10-ead73b0a8a1444db870a37298f23e32b: 3 new mints touched, 280 durable rows, HTTP200=30, HTTP400=248, duplicate identity rows=244, raw payload retention=0, database/membership/UI writes=0.",
+    "verdict": "WATCHTOWER_EXPANDED_TOKEN_DATA_SAMPLE_BLOCKED",
+    "result": "Final frozen gate passed and live execution began through the qualified runtime. Non-429 HTTP400 outcomes were not converted to terminal retained fact states, so PRICE_HISTORY and SOL_USD_FX were re-planned in later batches under the same logical identities. The halted run has 244 duplicate identity rows. One row is DISPATCHING and is OUTCOME_UNRETAINED; it must not be resent. Seven frozen new mints and all existing five remain untouched.",
+    "artifact": "docs/audits/watchtower_expanded_execution_incident.v1.json (sha256 2a393c43cf68741bbc1e3ef16b0163b38688a5bd563e09189acc55fd2d98f436)",
+    "next_action": "Do not resume or retry this run. Before any new execution authority, perform an incident review and authorize a bounded terminal-transport-state correction plus a duplicate-identity-across-batches regression. Reconcile the one DISPATCHING row as OUTCOME_UNRETAINED without dispatch."
   },
   "generic_token_data_production_runtime": {
     "engineering_revision": "e21867c1 plus mocked production-runtime qualification",

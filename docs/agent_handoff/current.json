@@ -1,4 +1,14 @@
 {
+  "nexus_14i7_opening_mc_source_trace": {
+    "engineering_revision": "5904a907",
+    "tests": "opening-MC source trace validation PASS: event delta, distinct-event assertion, retained-opening classification, no shadow fact, zero-network accounting, JSON parse, and diff check",
+    "production_flags": "0 Birdeye/RPC/provider/network calls; 0 production fact, membership, detector, identity, token-analysis, source-evidence, or UI writes",
+    "verdict": "OPENING_MC_NOT_RETAINED — token opening CreateV2+Buy is 490 seconds after Nexus's defining provisioning transfer and has partial local valuation inputs, but no executable state reconstruction or contemporaneous SOL/USD; $925,299.07 originates solely in the later retained Birdeye window",
+    "artifact": "docs/audits/nexus_14i7_opening_mc_source_trace.v1.json",
+    "artifact_sha256": "b6a79132c5efcac4ec17f35b80d469ead0e71760e415f78e32387639e1ecece8",
+    "key_events": "Nexus defining: 1787743949 slot 441857714; token opening: 1787744439 slot 441859052; events are distinct",
+    "next_action": "Keep OPERATION_OPENING_MC=INSUFFICIENT_EVIDENCE. Do not backfill it from Birdeye or GMGN; separately qualify a local opening valuation contract only if authorized."
+  },
   "operation_opening_lifecycle_gap_semantics_14i7": {
     "engineering_revision": "5904a907",
     "tests": "5 passed: gap payload determinism/no special cases, provider offset != peak timing, closure rule, framework idempotency, Nexus adapter; audit replay validation PASS",

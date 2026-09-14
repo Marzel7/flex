@@ -1,4 +1,13 @@
 {
+  "nexus_residual_price_history_recovery": {
+    "engineering_revision": "5904a907 plus provider-disabled residual evidence audit",
+    "tests": "JSON validation passed for docs/audits/nexus_residual_price_history_local_evidence_audit.v1.json; SHA-256 readback verified.",
+    "production_flags": "Provider/RPC/network calls=0 this run; no production fact, historical fact, membership, detector, UI, database, or live-capture writes.",
+    "verdict": "NEXUS_RESIDUAL_PRICE_HISTORY_RECOVERY_BLOCKED",
+    "result": "Retained evidence leaves 247a's $7,209,830.20 as PEAK_OBSERVED_WINDOW_ONLY and leaves its migration transition unqualified. 26MG retains a qualified 305.3093299463898849379034365-SOL theoretical state but lacks a retained at-or-before SOL/USD conversion and all qualified post-create lifecycle evidence. Both cached values are only unqualified DexScreener snapshots adjacent to application migration metadata. The repeated serialized Birdeye pattern is classified UNKNOWN because no rate-limit headers or account-bucket evidence was retained; no mechanically repetitive request was sent.",
+    "artifacts": "audit=docs/audits/nexus_residual_price_history_local_evidence_audit.v1.json (sha256 6b4df64005269dcf666001793aca547fa7a5c844c750c1adc3f26c8f41ff03b2).",
+    "next_action": "If separately authorized with a fresh provider budget, freeze a new non-overlapping minimal plan: 26MG at-or-before SOL/USD, 26MG post-create lifecycle/state, and 247a lifecycle-boundary/migration-state evidence. Do not reuse the old four-request plan."
+  },
   "nexus_remaining_price_history_authoritative_resolution": {
     "engineering_revision": "5904a907 plus authoritative Nexus sample resolution and bounded lifecycle attempt",
     "tests": "8 passed: tests/test_nexus_remaining_price_history_identity.py and tests/test_prospective_actionability_evidence_framework.py; JSON validation and git diff --check passed.",

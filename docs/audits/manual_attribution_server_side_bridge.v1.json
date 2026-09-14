@@ -1,0 +1,40 @@
+{
+  "artifact_version": "MANUAL_ATTRIBUTION_SERVER_SIDE_BRIDGE_V1",
+  "status": "QUALIFIED",
+  "resolver": {
+    "version": "POTENTIAL_OPERATION_VALIDATION_INPUT_RESOLVER_V1",
+    "input": "candidate_source_id only",
+    "source": "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/p3r_v2_candidate_membership.v1.json",
+    "client_supplied_evidence_accepted": false,
+    "acquisition_policy": "RETAINED_EVIDENCE_ONLY",
+    "unresolved_state": "VALIDATION_INPUT_UNRESOLVED"
+  },
+  "promotion": {
+    "adapter": "canonical_manual_operation_promotion",
+    "membership_owner": "operator_launch_membership",
+    "commit_intent_schema": "CANONICAL_MANUAL_OPERATION_COMMIT_INTENT_V1",
+    "membership_source": "MANUAL_V1_PROMOTION",
+    "preconditions": ["ATTRIBUTION_PROVEN", "promotion_eligible", "current candidate snapshot", "validated member-set equality"],
+    "provider_calls_inside_write_transaction": 0
+  },
+  "controls": {
+    "positive_before_canonical_writes": 0,
+    "positive_after_canonical_writes": 2,
+    "positive_duplicate_writes_after_second_promotion": 0,
+    "nexus_candidate_source_id": "p3r-v2-6437acd385e566e301a7",
+    "nexus_result": "ADDITIONAL_EVIDENCE_REQUIRED",
+    "nexus_promotion_eligible": false,
+    "sqlite_busy_count": 0,
+    "sqlite_locked_count": 0
+  },
+  "invariants": {
+    "byzantine_operation_status": "ESTABLISHED",
+    "watchtower_operation_status": "ESTABLISHED",
+    "watchtower_member_count": 274,
+    "browser_routes_added": 0,
+    "ui_changes": 0,
+    "provider_rpc_calls": 0,
+    "f7p3_retry": false
+  },
+  "tests": "4 passed: tests/test_operation_attribution_manual.py, tests/test_operation_attribution_manual_bridge.py, tests/test_operation_attribution_evidence.py"
+}

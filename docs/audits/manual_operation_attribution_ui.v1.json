@@ -1,0 +1,39 @@
+{
+  "artifact_version": "MANUAL_ATTRIBUTION_UI_CONTRACT_V1",
+  "status": "QUALIFIED",
+  "routes": [
+    "POST /potential-operations/<candidate_id>/validate",
+    "POST /potential-operations/proposals/<proposal_id>/promote"
+  ],
+  "ui": {
+    "page": "/intelligence/potential-operations",
+    "new_pages": 0,
+    "new_navigation_routes": 0,
+    "controls": ["validation status", "Validate", "Promote"],
+    "proposal_creation_on_page_read": false
+  },
+  "safety": {
+    "client_supplied_attribution_evidence_accepted": false,
+    "automatic_provider_acquisition": false,
+    "automatic_promotion": false,
+    "get_requests_mutate": false,
+    "nexus_validation_state": "ADDITIONAL_EVIDENCE_REQUIRED",
+    "nexus_promotion_available": false
+  },
+  "controls": {
+    "canonical_writes_before_explicit_promotion": 0,
+    "canonical_writes_after_explicit_promotion": 2,
+    "second_promotion_additional_writes": 0,
+    "validation_double_click": "same proposal id; no duplicate decision",
+    "promotion_double_click": "0 additional canonical membership writes"
+  },
+  "invariants": {
+    "byzantine_operation_status": "ESTABLISHED",
+    "watchtower_operation_status": "ESTABLISHED",
+    "watchtower_member_count": 274,
+    "live_attribution_enforcement_enabled": false,
+    "automatic_provider_acquisition_enabled": false,
+    "f7p3_retry": false
+  },
+  "tests": "6 passed: manual workflow, bridge, V1 evidence, and UI route tests"
+}

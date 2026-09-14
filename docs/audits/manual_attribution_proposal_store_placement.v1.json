@@ -1,0 +1,31 @@
+{
+  "artifact_version": "MANUAL_ATTRIBUTION_PROPOSAL_STORE_PLACEMENT_V1",
+  "status": "QUALIFIED",
+  "existing_store_count": 14,
+  "requirements_result": "No existing store satisfies persistence, low interactive-write contention, and a semantically appropriate non-authoritative workflow boundary together.",
+  "inventory": [
+    {"path":"database/wt_ops_v2.db","purpose":"canonical operations, Walkback, identity and membership","authority":"canonical operations","primary_write_owner":"walkback_worker and scheduler","active_writer_pattern":"continuous/recurring","write_frequency":"high","size_bytes":8003362816,"wal_mode":"wal","schema_owner":"operations runtime","suitable":false},
+    {"path":"database/flex_complete_database.db","purpose":"core live ingestion and analytical facts","authority":"core production facts","primary_write_owner":"listener, ingestion and schedulers","active_writer_pattern":"continuous/recurring","write_frequency":"high","size_bytes":29180346368,"wal_mode":"wal","schema_owner":"core runtime","suitable":false},
+    {"path":"database/wt_alerts.db","purpose":"detection-health alert state","authority":"alert evaluator only","primary_write_owner":"alert_evaluator","active_writer_pattern":"every 30 seconds","write_frequency":"low but recurring","size_bytes":12288,"wal_mode":"wal","schema_owner":"alert evaluator","suitable":false},
+    {"path":"database/local_operation_discovery_corpus.db","purpose":"provider-free discovery projection","authority":"derived research corpus","primary_write_owner":"offline projection builder","active_writer_pattern":"batch/rebuild","write_frequency":"infrequent","size_bytes":23187456,"wal_mode":"delete","schema_owner":"local discovery projection","suitable":false},
+    {"path":"database/transaction_first_lineage_recovery.db","purpose":"transaction-first recovery index","authority":"recovery evidence index","primary_write_owner":"recovery scripts","active_writer_pattern":"batch","write_frequency":"infrequent","size_bytes":57344,"wal_mode":"delete","schema_owner":"lineage recovery","suitable":false}
+  ],
+  "excluded_store_classes": ["empty legacy/runtime placeholders", "Pumpswap raw/semantic/materialization evidence stores", "canonical evidence placeholder", "provider/acquisition evidence stores"],
+  "wt_ops_evaluation": {
+    "write_contention":"structural: continuous Walkback/scheduler ownership, confirmed by active lease during Validate attempts",
+    "validate_ux_risk":"high: interactive writes can fail or wait behind high-volume worker transactions",
+    "proposal_store_suitability":"UNSUITABLE"
+  },
+  "ranked_options": [
+    {"option":"NEW_DEDICATED_STORE","ux_contention_risk":"low","semantic_fit":"high","operational_complexity":"low","storage_growth_risk":"low","recommendation":"PREFERRED"},
+    {"option":"wt_alerts.db","ux_contention_risk":"low-to-medium","semantic_fit":"low; alert-only authority","operational_complexity":"medium","storage_growth_risk":"low","recommendation":"REJECT"},
+    {"option":"wt_ops_v2.db","ux_contention_risk":"high","semantic_fit":"medium","operational_complexity":"low","storage_growth_risk":"low","recommendation":"REJECT"},
+    {"option":"flex_complete_database.db","ux_contention_risk":"high","semantic_fit":"low","operational_complexity":"medium","storage_growth_risk":"low","recommendation":"REJECT"}
+  ],
+  "new_database_required": true,
+  "new_database_reason":"The only low-contention existing runtime SQLite file is an alert-state domain. Reusing it would create a parallel, unrelated workflow authority; all semantically closer stores are hot authoritative or evidence stores.",
+  "canonical_promotion_store_unchanged": true,
+  "proposal_data_migration_required": false,
+  "storage_projection": {"assumption":"approximately 1 KiB per proposal including compact decision/reference fields, SQLite pages and indexes; no raw evidence","proposals_1000":"~1 MiB","proposals_10000":"~10 MiB","proposals_100000":"~100 MiB"},
+  "writes": {"database":0,"provider":0,"membership":0}
+}

@@ -1,0 +1,24 @@
+{
+  "artifact_version": "MANUAL_ATTRIBUTION_PROPOSAL_STORE_INIT_V1",
+  "status": "DEFERRED",
+  "store_path": "database/wt_ops_v2.db",
+  "writability_precheck": "ACTIVE_WRITER_PRESENT",
+  "active_writer": {
+    "process_pid": 19629,
+    "command": "walkback_worker.py:531 in _ops_conn",
+    "lease_state": "ACTIVE",
+    "transaction_id": "d57c32e1-2a2a-4534-8172-2e4000f3337a"
+  },
+  "writes": {
+    "proposal_tables_created": 0,
+    "indexes_created": 0,
+    "existing_tables_changed": 0,
+    "existing_rows_changed": 0,
+    "membership_writes": 0,
+    "detector_writes": 0,
+    "walkback_writes": 0,
+    "provider_calls": 0
+  },
+  "validate_retry": "NOT_ATTEMPTED_WHILE_ACTIVE_WRITER_PRESENT",
+  "next_action": "Run one fresh lease precheck after the existing writer naturally releases it; initialize only the qualified manual proposal-store schema if safely writable."
+}

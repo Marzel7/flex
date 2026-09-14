@@ -1,0 +1,18 @@
+{
+  "artifact_version": "MANUAL_OPERATION_ATTRIBUTION_UI_PAGE_LOAD_FIX_V1",
+  "status": "PASS",
+  "root_cause": "A pre-restart Gunicorn worker rendered the updated Potential Operations template without the newly introduced validation_by_candidate context value.",
+  "correction": "The template defaults missing validation_by_candidate to an empty mapping during worker transitions.",
+  "verification": {
+    "live_get": "HTTP 200 /intelligence/potential-operations",
+    "rendered_controls": ["Validation", "Validate", "Promote"],
+    "focused_tests": "6 passed",
+    "api_restarted": true
+  },
+  "safety": {
+    "proposal_creation_on_page_read": false,
+    "provider_rpc_calls": 0,
+    "membership_writes": 0,
+    "new_routes": 0
+  }
+}

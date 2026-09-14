@@ -1,0 +1,50 @@
+{
+  "artifact_version": "MANUAL_ATTRIBUTION_DEDICATED_WORKFLOW_DB_V1",
+  "status": "QUALIFIED",
+  "workflow_db": {
+    "path": "database/manual_operation_attribution.db",
+    "authority": "NON_AUTHORITATIVE_MANUAL_V1_PROPOSAL_AND_DECISION_STATE",
+    "write_owner": "existing web/manual workflow adapter",
+    "schema_version": "OPERATION_ATTRIBUTION_MANUAL_PROPOSAL_STORE_V1",
+    "table_count": 4,
+    "explicit_index_count": 1,
+    "journal_mode": "wal",
+    "policy": "COMPACT_REFERENCE_ONLY",
+    "membership_tables": 0
+  },
+  "store_boundary": {
+    "validation_store_path": "database/manual_operation_attribution.db",
+    "canonical_membership_store_path": "database/wt_ops_v2.db",
+    "stores_separated": true,
+    "canonical_promotion_owner": "operator_launch_membership",
+    "proposal_data_migration_performed": false
+  },
+  "real_validate": {
+    "candidate_source_id": "p3r-v2-20f7d4056f9a44e9304d",
+    "result": "ADDITIONAL_EVIDENCE_REQUIRED",
+    "proposal_created": true,
+    "promotion_writes": 0,
+    "provider_calls": 0,
+    "client_supplied_evidence_accepted": false
+  },
+  "positive_control": {
+    "canonical_writes_before_promote": 0,
+    "canonical_writes_after_promote": 2,
+    "duplicate_writes_after_second_promote": 0
+  },
+  "storage": {
+    "initial_size_bytes": 0,
+    "size_after_tests_bytes": 40960,
+    "test_storage_delta_bytes": 40960,
+    "largest_proposal_row_bytes": 804,
+    "largest_decision_row_bytes": 275
+  },
+  "concurrency": {
+    "validate_while_walkback_writer_active": "NOT_EXERCISED: the single authorized real Validate occurred without an active lease; a Walkback lease was later observed, but no second real validation was dispatched.",
+    "sqlite_busy_count": 0,
+    "sqlite_locked_count": 0
+  },
+  "ui": {"validate_post_endpoint_still_implemented": true,"promote_post_endpoint_still_implemented": true,"new_pages":0,"new_navigation_routes":0},
+  "invariants": {"byzantine_operation_status":"ESTABLISHED","watchtower_operation_status":"ESTABLISHED","watchtower_member_count":274,"nexus_operation_status":"UNPROVEN","live_attribution_enforcement_enabled":false},
+  "tests": "6 passed: manual workflow, bridge separation/idempotency, V1 evidence, and UI routes"
+}

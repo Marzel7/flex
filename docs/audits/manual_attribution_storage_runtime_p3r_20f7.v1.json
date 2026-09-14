@@ -1,0 +1,35 @@
+{
+  "artifact_version": "MANUAL_ATTRIBUTION_STORAGE_RUNTIME_AUDIT_V1",
+  "candidate_source_id": "p3r-v2-20f7d4056f9a44e9304d",
+  "status": "BLOCKED",
+  "manual_proposal_store_path": "database/wt_ops_v2.db",
+  "store_exists": true,
+  "store_schema_present": false,
+  "schema_missing_tables": [
+    "operation_attribution_manual_proposals",
+    "proposed_operations",
+    "manual_attribution_decisions",
+    "manual_operation_membership",
+    "canonical_manual_operation_commit_intents"
+  ],
+  "failure_stage": "qualified proposal-store schema initialization before proposal creation",
+  "failure_class": "ACTIVE_WRITE_LEASE / SQLITE_OPERATIONAL_ERROR (endpoint response intentionally redacted to storage temporarily unavailable)",
+  "active_writer": {
+    "process_pid": 19629,
+    "command": "python -m src.core.walkback_worker --loop",
+    "lease_command": "walkback_worker.py:531 in _ops_conn",
+    "lease_state": "RELEASE_PENDING"
+  },
+  "request_observations": {
+    "validate_503_count": 3,
+    "sqlite_busy_count": 3,
+    "sqlite_locked_count": 0,
+    "partial_proposal_rows": 0,
+    "partial_decision_rows": 0,
+    "membership_writes": 0,
+    "provider_calls": 0
+  },
+  "idempotent_retry_safe": true,
+  "required_correction": "After the existing writer releases the lease, initialize only the already-qualified manual proposal-store schema in database/wt_ops_v2.db, then permit the user to retry the same Validate action. Do not initialize while the active lease remains.",
+  "safety": ["no process signalling", "no lock bypass", "no database replacement", "no membership mutation", "no provider acquisition"]
+}

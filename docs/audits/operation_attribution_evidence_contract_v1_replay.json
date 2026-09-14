@@ -1,0 +1,119 @@
+{
+  "decisions": {
+    "byzantine": {
+      "attribution_state": "ATTRIBUTION_NOT_PROVEN",
+      "builder_version": "V1_NON_LIVE",
+      "candidate_id": "byzantine",
+      "cohort_state": "INSUFFICIENT_EVIDENCE",
+      "completeness_state": "PARTIAL_RETAINED",
+      "contract_version": "OPERATION_ATTRIBUTION_EVIDENCE_CONTRACT_V1",
+      "contradictions": [],
+      "decision_timestamp": "REPLAY_FIXED",
+      "dependency_groups": [
+        "byz_funding",
+        "unknown"
+      ],
+      "detector_contract": "retained historical detector",
+      "detector_evidence_refs": [
+        "retained source"
+      ],
+      "evidence_families": [
+        {
+          "dependency_group": "byz_funding",
+          "evidence_refs": [],
+          "family": "FUNDING_CONTINUITY",
+          "independence_from_detector": "PASS",
+          "independence_from_other_families": "PASS",
+          "rationale": "",
+          "state": "PROVEN_STRONG"
+        },
+        {
+          "dependency_group": "unknown",
+          "evidence_refs": [],
+          "family": "TRANSACTION_FINGERPRINT",
+          "independence_from_detector": "UNKNOWN",
+          "independence_from_other_families": "UNKNOWN",
+          "rationale": "",
+          "state": "NOT_PROVEN"
+        }
+      ],
+      "member_attribution": [],
+      "minimum_proof_set": [],
+      "pairwise_attribution": [],
+      "promotion_eligible": false,
+      "proposed_operation_id": "byzantine"
+    },
+    "nexus": {
+      "attribution_state": "ATTRIBUTION_NOT_PROVEN",
+      "builder_version": "V1_NON_LIVE",
+      "candidate_id": "nexus",
+      "cohort_state": "CANDIDATE_COHORT_OPERATION_UNPROVEN",
+      "completeness_state": "PARTIAL_RETAINED",
+      "contract_version": "OPERATION_ATTRIBUTION_EVIDENCE_CONTRACT_V1",
+      "contradictions": [],
+      "decision_timestamp": "REPLAY_FIXED",
+      "dependency_groups": [
+        "detector"
+      ],
+      "detector_contract": "retained historical detector",
+      "detector_evidence_refs": [
+        "retained source"
+      ],
+      "evidence_families": [
+        {
+          "dependency_group": "detector",
+          "evidence_refs": [],
+          "family": "FUNDING_CONTINUITY",
+          "independence_from_detector": "FAIL",
+          "independence_from_other_families": "FAIL",
+          "rationale": "",
+          "state": "PROVEN_STRONG"
+        },
+        {
+          "dependency_group": "detector",
+          "evidence_refs": [],
+          "family": "TRANSACTION_FINGERPRINT",
+          "independence_from_detector": "FAIL",
+          "independence_from_other_families": "FAIL",
+          "rationale": "",
+          "state": "PROVEN_MODERATE"
+        },
+        {
+          "dependency_group": "detector",
+          "evidence_refs": [],
+          "family": "TEMPORAL_FINGERPRINT",
+          "independence_from_detector": "FAIL",
+          "independence_from_other_families": "FAIL",
+          "rationale": "",
+          "state": "PROVEN_MODERATE"
+        }
+      ],
+      "member_attribution": [],
+      "minimum_proof_set": [],
+      "pairwise_attribution": [],
+      "promotion_eligible": false,
+      "proposed_operation_id": "nexus"
+    }
+  },
+  "detector_preservation": {
+    "14i7": "UNIQUE_MATCH",
+    "247a": "UNIQUE_MATCH",
+    "26MG": "UNIQUE_MATCH"
+  },
+  "fixtures": {
+    "behavioural_only": "ATTRIBUTION_NOT_PROVEN",
+    "common_tooling": "ATTRIBUTION_NOT_PROVEN",
+    "contradiction": "ATTRIBUTION_NOT_PROVEN",
+    "dependent_strong_moderate": "ATTRIBUTION_NOT_PROVEN",
+    "detector_only": "ATTRIBUTION_NOT_PROVEN",
+    "detector_split": "ATTRIBUTION_NOT_PROVEN",
+    "independent_strong_moderate": "ATTRIBUTION_PROVEN",
+    "mixed_cohort": "MIXED_COHORT",
+    "non_byzantine_topology": "ATTRIBUTION_PROVEN",
+    "one_strong": "ATTRIBUTION_NOT_PROVEN",
+    "two_weak": "ATTRIBUTION_NOT_PROVEN",
+    "weak_transitive": "UNATTRIBUTED"
+  },
+  "no_live_or_production_writes": true,
+  "schema_version": "OPERATION_ATTRIBUTION_EVIDENCE_CONTRACT_V1_REPLAY_V1"
+}

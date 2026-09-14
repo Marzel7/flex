@@ -18,7 +18,7 @@ import os
 import time
 import sqlite3
 from pathlib import Path
-from flask import Blueprint, jsonify, redirect, request
+from flask import Blueprint, current_app, jsonify, redirect, request
 
 from src.ops.operator_model import (
     EVIDENCE_CATALOGUE,
@@ -551,6 +551,26 @@ def potential_operations_page():
     from src.ops.generic_living_active_components import generic_dispatch_enabled
     import sqlite3
     projected=rows(str(OPS_DB_PATH))
+    validation_by_candidate={}
+    from src.ops.operation_attribution_manual_bridge import read_model
+    from src.ops.potential_operation_validation import resolve_validation_input, ValidationInputUnresolved
+    from src.ops.manual_attribution_workflow_store import connect_readonly
+    workflow_path=current_app.config.get("MANUAL_ATTRIBUTION_WORKFLOW_DB_PATH")
+    c_read=None
+    try:
+        c_read=connect_readonly(workflow_path)
+        has_proposals=c_read.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='operation_attribution_manual_proposals'").fetchone()
+        if has_proposals:
+            for candidate in projected:
+                try:
+                    resolved=resolve_validation_input(candidate["candidate_id"])
+                    validation_by_candidate[candidate["candidate_id"]]=read_model(c_read,candidate["candidate_id"],resolved["candidate_snapshot_ref"])
+                except ValidationInputUnresolved:
+                    continue
+    except (OSError, sqlite3.Error):
+        pass
+    finally:
+        if c_read: c_read.close()
     activity_by_candidate={row["candidate_id"]: {**row["current_evidence"], "creator_quality": row.get("creator_quality", {})} for row in projected}
     c=sqlite3.connect(str(OPS_DB_PATH)); c.row_factory=sqlite3.Row
     try:
@@ -568,7 +588,61 @@ def potential_operations_page():
             bindings=c.execute("SELECT count(*) FROM potential_operation_assessment_association_binding b JOIN potential_operation_assessment_version v ON v.assessment_id=b.assessment_id WHERE v.potential_operation_id=? AND v.assessment_id=?",(op,current['assessment_id'])).fetchone()[0]
             living.append(dict(operation_id=op,name=name,candidate_id=candidate_id,version=history,generation=current['freshness_key'],associations=associations,bindings=bindings,activity=activity_by_candidate.get(candidate_id)))
     finally: c.close()
-    return render_template("potential_operations.html", active_page="potential_operations", rows=projected, evolution_watch=evolution_watch(projected), living=living, living_dispatch=generic_dispatch_enabled(), activity_label=activity_label)
+    return render_template("potential_operations.html", active_page="potential_operations", rows=projected, evolution_watch=evolution_watch(projected), living=living, living_dispatch=generic_dispatch_enabled(), activity_label=activity_label, validation_by_candidate=validation_by_candidate)
+
+
+def _manual_workflow_connection():
+    from src.ops.manual_attribution_workflow_store import connect
+    return connect(current_app.config.get("MANUAL_ATTRIBUTION_WORKFLOW_DB_PATH"), timeout=1)
+
+
+def _canonical_membership_connection():
+    from src.core.db import OPS_DB_PATH
+    path=current_app.config.get("OPS_DB_PATH", str(OPS_DB_PATH))
+    conn=sqlite3.connect(path, timeout=1)
+    conn.row_factory=sqlite3.Row
+    return conn
+
+
+@operator_bp.route("/potential-operations/<candidate_id>/validate", methods=["POST"])
+def validate_potential_operation_action(candidate_id: str):
+    """Validate only the route id; all V1 inputs are server-resolved."""
+    from src.ops.operation_attribution_manual_bridge import validate_potential_operation
+    from src.ops.potential_operation_validation import ValidationInputUnresolved
+    try:
+        conn=_manual_workflow_connection()
+        try:
+            proposal_id, decision=validate_potential_operation(conn,candidate_id)
+        finally:
+            conn.close()
+        return jsonify({"proposal_id":proposal_id,"validation_state":decision.get("validation_state",decision.get("attribution_state")),"additional_evidence_manifest":decision.get("additional_evidence_manifest")})
+    except ValidationInputUnresolved as exc:
+        return jsonify({"error":exc.code}),404
+    except sqlite3.Error:
+        return jsonify({"error":"WORKFLOW_STORAGE_UNAVAILABLE"}),503
+    except ValueError as exc:
+        return jsonify({"error":str(exc)}),409
+
+
+@operator_bp.route("/potential-operations/proposals/<proposal_id>/promote", methods=["POST"])
+def promote_potential_operation_action(proposal_id: str):
+    """Explicitly promote a current, proven proposal through canonical membership."""
+    from src.ops.operation_attribution_manual_bridge import promote_validated_operation
+    try:
+        workflow_conn=_manual_workflow_connection()
+    except sqlite3.Error:
+        return jsonify({"error":"WORKFLOW_STORAGE_UNAVAILABLE"}),503
+    try:
+        canonical_conn=_canonical_membership_connection()
+        try:
+            outcome=promote_validated_operation(workflow_conn,canonical_conn,proposal_id)
+        finally:
+            workflow_conn.close(); canonical_conn.close()
+        return jsonify(outcome)
+    except sqlite3.Error:
+        return jsonify({"error":"PROMOTION_TEMPORARILY_UNAVAILABLE"}),503
+    except ValueError as exc:
+        return jsonify({"error":str(exc)}),409
 
 @operator_bp.route("/intelligence/potential-operations/<candidate_id>")
 def potential_operation_detail(candidate_id: str):

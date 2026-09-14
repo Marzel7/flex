@@ -1,0 +1,39 @@
+{
+  "artifact_version": "MANUAL_OPERATION_ATTRIBUTION_UI_ROUTE_CONTRACT_V1",
+  "status": "BLOCKED",
+  "scope": "Two requested browser POST actions on the existing Potential Operations surface.",
+  "observed_contract": {
+    "validate_adapter": "validate_potential_operation(connection, source_id, snapshot, detector_contract, families, source_type='POTENTIAL_OPERATION', label=None)",
+    "promote_adapter": "promote_validated_operation(connection, proposal_id)",
+    "potential_operation_projection": "rows(db_path) supplies workflow/current-evidence projections, but no retained V1 detector contract, evidence-family set, immutable candidate snapshot reference, or canonical member-commit intent."
+  },
+  "blocking_findings": [
+    {
+      "id": "NO_RETAINED_V1_INPUT_BUILDER",
+      "detail": "The validation adapter requires detector_contract and families as caller inputs. No existing adapter derives those values from a potential-operation candidate using retained evidence. Accepting them from a browser would let a client manufacture attribution evidence. Supplying an empty list would force ADDITIONAL_EVIDENCE_REQUIRED for every candidate and would not implement the qualified workflow."
+    },
+    {
+      "id": "PROMOTION_NOT_CANONICAL",
+      "detail": "The current promotion adapter inserts only manual_operation_membership(proposal_id, decision_id, committed_at). It does not invoke a canonical operation-identity writer and has no operation id, source population, mint membership, or event-id commit intent required by operator_launch_membership."
+    },
+    {
+      "id": "ROUTE_WIRING_WOULD_MISREPRESENT_STATE",
+      "detail": "Adding Validate/Promote controls now would either expose a client-controlled proof path or display a Promote action whose successful result cannot create a canonical approved operation. Both violate the requested fail-safe and positive-control semantics."
+    }
+  ],
+  "verified": {
+    "focused_tests": "3 passed: tests/test_operation_attribution_manual.py, tests/test_operation_attribution_manual_bridge.py, tests/test_operation_attribution_evidence.py",
+    "browser_routes_added": 0,
+    "pages_added": 0,
+    "navigation_routes_added": 0,
+    "database_writes": 0,
+    "provider_rpc_calls": 0,
+    "watchtower_or_byzantine_changes": 0
+  },
+  "minimum_unblock": [
+    "A server-side retained-evidence resolver that maps candidate_id to an immutable snapshot, detector contract, and independently classified V1 evidence families; it must not accept proof inputs from the browser.",
+    "An explicit, already-authorized canonical promotion command that carries an operation identity and an immutable member-commit intent and delegates to the established membership writer.",
+    "Focused endpoint tests proving Nexus returns ADDITIONAL_EVIDENCE_REQUIRED with promotion unavailable, a positive control makes zero canonical membership writes before promotion, one on first promotion, and zero on repeat."
+  ],
+  "next_action": "Qualify the two missing server-side adapters before exposing browser mutation endpoints; no UI wiring is safe before then."
+}

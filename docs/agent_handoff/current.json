@@ -15993,6 +15993,14 @@
     "blocker": "walkback_worker PID 19629 owns an ACTIVE wt_ops_v2.db write lease.",
     "next_action": "After the writer naturally releases its lease, run one fresh precheck; only then initialize the qualified manual proposal-store schema and retry one user-authorized Validate."
   },
+  "manual_attribution_proposal_store_placement": {
+    "engineering_revision": "5904a907",
+    "tests": "Read-only storage-placement audit; JSON artifact validation passed. No runtime test or database write was appropriate.",
+    "production_flags": "No database/schema/data write; no Validate retry; no membership/provider/RPC action",
+    "verdict": "PASS",
+    "artifact": "docs/audits/manual_attribution_proposal_store_placement.v1.json (SHA-256 048a542fe22013715d9cdae6512639d0a69ac07a19fad2ced0614644cea514b1)",
+    "next_action": "If separately authorized, create one tiny dedicated non-authoritative manual-workflow SQLite store and move only proposal/decision state there; canonical promotion remains in wt_ops_v2.db."
+  },
   "f7p3_relay_semantic_decontamination_retry": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "No code or database change was made; prior focused infrastructure suites remain 27 passed.",

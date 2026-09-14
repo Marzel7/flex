@@ -15951,6 +15951,14 @@
     "blocker": "The existing browser bridge has no retained candidate-to-V1-evidence resolver and promotion writes only manual_operation_membership, not canonical operator_launch_membership. Exposing routes would either accept browser-controlled proof inputs or report a non-canonical promotion.",
     "next_action": "Qualify the server-side retained-evidence validation resolver and central canonical membership promotion adapter, then add only the two authorized POST handlers and focused endpoint tests."
   },
+  "manual_attribution_server_side_bridge": {
+    "engineering_revision": "5904a907",
+    "tests": "4 passed: tests/test_operation_attribution_manual.py, tests/test_operation_attribution_manual_bridge.py, tests/test_operation_attribution_evidence.py",
+    "production_flags": "LIVE_ATTRIBUTION_ENFORCEMENT_ENABLED=false; AUTOMATIC_PROVIDER_ACQUISITION_ENABLED=false; browser routes/UI unchanged; isolated SQLite qualification only",
+    "verdict": "PASS",
+    "artifact": "docs/audits/manual_attribution_server_side_bridge.v1.json (SHA-256 bb6a251febb81b46165a5e3e55aedd5e200ab2897d9059fa2f7fcde9a653562a)",
+    "next_action": "A separately authorized UI task may expose exactly the two browser POST routes and compact controls; it must use validate_potential_operation(connection, candidate_source_id) and promote_validated_operation(connection, proposal_id) without accepting proof inputs from the browser."
+  },
   "f7p3_relay_semantic_decontamination_retry": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "No code or database change was made; prior focused infrastructure suites remain 27 passed.",

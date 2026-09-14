@@ -15984,6 +15984,15 @@
     "blocker": "The existing wt_ops_v2.db proposal-store schema is absent and the active walkback_worker write lease prevents safe initialization. The exact Validate request is idempotent once initialization is safely authorized after lease release.",
     "next_action": "Wait for the existing writer to release the lease, then perform only qualified proposal-store schema initialization and allow a user-initiated retry."
   },
+  "manual_attribution_proposal_store_init": {
+    "engineering_revision": "5904a907",
+    "tests": "Not run: the one authorized precheck found an active external writer; no initialization or Validate retry was permitted.",
+    "production_flags": "No database/schema/data write; no membership/detector/walkback/provider action; walkback worker was not interfered with",
+    "verdict": "HOLD",
+    "artifact": "docs/audits/manual_attribution_proposal_store_init_deferred.v1.json (SHA-256 05f613860b026334f2fc4fb140d2e4a5bd873ebbbc4bdadafc9bd1e5df65e7f4)",
+    "blocker": "walkback_worker PID 19629 owns an ACTIVE wt_ops_v2.db write lease.",
+    "next_action": "After the writer naturally releases its lease, run one fresh precheck; only then initialize the qualified manual proposal-store schema and retry one user-authorized Validate."
+  },
   "f7p3_relay_semantic_decontamination_retry": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "No code or database change was made; prior focused infrastructure suites remain 27 passed.",

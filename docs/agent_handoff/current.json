@@ -1,4 +1,13 @@
 {
+  "conservative_actionable_entry_cross_operation_audit": {
+    "engineering_revision": "5904a907 plus uncommitted conservative actionable-entry cross-operation audit",
+    "tests": "3 passed: tests/test_conservative_actionable_entry_cross_operation_audit.py; JSON validation and git diff --check passed.",
+    "production_flags": "Offline audit only. RPC/provider/Birdeye/network calls=0; no SQLite writes, Byzantine entry/boundary/16K changes, Nexus entry or membership writes, detector, source-evidence, UI, or production-fact mutation.",
+    "verdict": "CONSERVATIVE_ACTIONABLE_ENTRY_CROSS_OPERATION_QUALIFIED",
+    "result": "The operation-agnostic candidate fact model separates THEORETICAL_FIRST_EXECUTABLE_MC, CONSERVATIVE_ACTIONABLE_ENTRY_MC, and EXACT_ACTIONABLE_ENTRY_MC. For 14i7, direct creator funding (325 SOL), migration/buyer signer continuity, a 320-SOL buy within 5%, and immediate next transaction index satisfy the declared conservative linkage gate, producing a $850,783.8146933435 shadow candidate versus $31,651.52876998201657988493687 theoretical state; exact execution exclusivity remains unproven. The frozen Byzantine 64-row Scenario-D replay preserves every position-13 boundary and all 58 ~$15K–$17K controls (changed=0). Six low-band rows remain unresolved and unchanged: two semantic mismatches and four insufficient-lineage cases. No absence inference is made from missing bundle evidence.",
+    "artifacts": "audit=docs/audits/conservative_actionable_entry_cross_operation_audit.v1.json (sha256 48817d309a8f23b3ab0d35a9d7d8bec1cd390a42a6d2f0a080bd9265ee6ced92); test=tests/test_conservative_actionable_entry_cross_operation_audit.py.",
+    "next_action": "Keep the candidate shadow-only. Do not alter historical Byzantine entries or the Scenario-D position-13 boundary; a future promotion requires a prospective cohort-wide linkage plus exact-exclusivity retention contract."
+  },
   "operation_bundle_evidence_source_qualification": {
     "engineering_revision": "5904a907 plus uncommitted bundle-evidence source qualification",
     "tests": "3 passed: tests/test_operation_bundle_evidence_source_qualification.py; JSON validation and git diff --check passed.",

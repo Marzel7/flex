@@ -1,4 +1,14 @@
 {
+  "watchtower_birdeye_replay_run_state_remediation": {
+    "engineering_revision": "working-tree shared run-state initializer",
+    "tests": "13 passed: production runtime and run-state focused tests",
+    "production_flags": "no provider calls in remediation phase; raw retention=false",
+    "verdict": "PARTIAL",
+    "fix": "initialize_operation_token_data_run is now the shared ACTIVE-state gate used by full runtime; intended family-scoped compositions must invoke it before materialization/dispatch.",
+    "historical_run": "watchtower-birdeye-replay-0c4ba5f697f448d8a166d4c57ff35187 was recorded ABORTED_INCOMPLETE_RUN_STATE and cannot resume.",
+    "state_discrepancy": "Contrary to prior handoff's 14/1/5 snapshot, observable manifests now total 20 and all are SUCCEEDED. No unresolved six-identity continuation exists. The 20 success artifacts remain retained evidence but originate from a composition without pre-dispatch run-state authority.",
+    "next_action": "Do not dispatch. Reconcile whether those 20 retained successes may be accepted under policy or require a separately authorized fresh run-state-qualified replay; no minimal continuation is currently derivable."
+  },
   "watchtower_birdeye_replay_execution": {
     "engineering_revision": "bounded Birdeye-only replay attempt",
     "tests": "all 20 parameter digests verified before dispatch",

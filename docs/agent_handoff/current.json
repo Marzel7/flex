@@ -16070,5 +16070,14 @@
     "result": "The 274-member historical census has no retained member list. Its digest does not match a leave-one-out replay of the current 275 rows; only 238 current rows have assigned_at at or before the census handoff timestamp, leaving 37 post-handoff automatic projection rows. Therefore the exact population diff and legitimacy of the current cohort cannot be proven from retained data.",
     "artifact": "docs/audits/watchtower_membership_count_reconciliation.v1.json (sha256 77341efdab48e21ca82776310a24b8302a0ed7b6e5b5eafb495efdacd1a23100)",
     "next_action": "Separate membership-governance work must recover or authoritatively re-freeze a complete ordered membership manifest before token-data sampling."
+  },
+  "watchtower_token_data_research_snapshot": {
+    "engineering_revision": "e21867c1",
+    "tests": "24 passed: Watchtower membership-projection and registry-promotion suites; snapshot and request-manifest double regeneration SHA-256 stable.",
+    "production_flags": "Provider/RPC/network/database/membership/attribution/UI/V1/historical-fact writes=0.",
+    "verdict": "WATCHTOWER_TOKEN_DATA_RESEARCH_SNAPSHOT_QUALIFIED",
+    "result": "A complete immutable 275-member ORDER BY mint research manifest is retained with deterministic positions 1/69/138/207/275. Retained evidence inventory is complete; cached token values are not promoted. The separate bounded plan has 20 maximum future requests: five each for opening state, migration pool state, lifecycle history, and timestamp-aligned SOL/USD FX.",
+    "artifacts": "snapshot=docs/audits/watchtower_token_data_research_snapshot.v1.json (sha256 3e4dbb706465ac3904d0c424ecf551491c2a0706b72ce7eb335d37a4839b111c); manifest=docs/audits/watchtower_token_data_acquisition_manifest.v1.json (sha256 6865ea42f503d816dc585a637d7f2f1afcc14d0eddd11eb765765e0e6a236658)",
+    "next_action": "A separately authorized task may execute only this frozen five-token, 20-request maximum acquisition plan; do not expand to 275 tokens."
   }
 }

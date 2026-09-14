@@ -1,4 +1,15 @@
 {
+  "generic_aborted_run_result_admissibility": {
+    "engineering_revision": "working-tree request-result admissibility gate",
+    "tests": "5 passed: generic admissibility and run-state tests",
+    "production_flags": "no provider calls; raw retention=false",
+    "verdict": "GENERIC_ABORTED_RUN_RESULT_ADMISSIBILITY_QUALIFIED",
+    "contract_version": "TOKEN_DATA_ABORTED_RUN_RESULT_ADMISSIBILITY_V1",
+    "historical_run": "watchtower-birdeye-replay-0c4ba5f697f448d8a166d4c57ff35187 remains ABORTED_INCOMPLETE_RUN_STATE, unqualified, non-resumable, and cannot dispatch.",
+    "application": "20/20 individual results admissible from unqualified run; rejected=0; PRICE_HISTORY=10, SOL_USD_FX=10; each has deterministic identity/digest verification, known terminal success, one compact result, parser version, and no outcome-unretained/conflict.",
+    "violation_effect": "CONTROL_PLANE_ONLY; no dispatch occurred after an active durable abort because the historical defect was missing pre-dispatch state authority.",
+    "next_action": "Admissible 20 Birdeye compact facts may participate in offline Watchtower reconciliation; do not treat the historical run itself as qualified."
+  },
   "watchtower_birdeye_replay_run_state_remediation": {
     "engineering_revision": "working-tree shared run-state initializer",
     "tests": "13 passed: production runtime and run-state focused tests",

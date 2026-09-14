@@ -1,4 +1,13 @@
 {
+  "nexus_remaining_price_history_authoritative_resolution": {
+    "engineering_revision": "5904a907 plus authoritative Nexus sample resolution and bounded lifecycle attempt",
+    "tests": "8 passed: tests/test_nexus_remaining_price_history_identity.py and tests/test_prospective_actionability_evidence_framework.py; JSON validation and git diff --check passed.",
+    "production_flags": "LIVE_ACTIONABILITY_CAPTURE_ENABLED=false; no production fact, membership, detector, UI, or historical fact writes. Exactly four bounded Birdeye OHLCV requests after identity resolution: one 200 and three 429; retries=0.",
+    "verdict": "NEXUS_REMAINING_PRICE_HISTORY_AUDIT_BLOCKED",
+    "result": "The authoritative retained Nexus sample uniquely resolves 14i7…, 247a…, and 26MG…; unsupported aliases 17Z9 and 3C2M are rejected. 247a has retained qualified theoretical post-create MC $5,421.061317369334495174080149 and no conservative/exact qualification. 26MG has qualified 305.3093299463898849379034365 SOL post-create state but no qualified USD conversion. The fixed 4-request lifecycle plan yielded 247a opening 1m HTTP200 (pre-create diagnostic only) and three HTTP429 responses; no retry was dispatched. Peak, migration transition, terminal MC, and drawdown remain insufficient.",
+    "artifacts": "247a=docs/audits/nexus_247a_price_history_audit.v1.json (sha256 cfc302d95ba1977134618a046527794de72270ff87fce34966104fa4405f6097); 26MG=docs/audits/nexus_26mg_price_history_audit.v1.json (sha256 c13ba64cdc75bc9b96d5b129891a22953b18a8060305c6453a1f3715207f6966); reconciliation=docs/audits/nexus_three_token_price_history_reconciliation.v1.json (sha256 8a99551fcf7ab37d3f3611731afeb6e74852d704e7807d907586545d0019cd9d).",
+    "next_action": "Do not retry under this authorization. A separately authorized provider budget and raw-retention plan is required for lifecycle completion."
+  },
   "nexus_remaining_price_history_audit": {
     "engineering_revision": "5904a907 plus target-identity resolution hold",
     "tests": "Blocked-artifact JSON validation and git diff --check passed.",

@@ -15462,5 +15462,14 @@
     "result": "BIRDEYE_RECENT_TOKEN_SAMPLE_POLICY_V1 is an operation-agnostic playbook selection policy, not a Birdeye retention claim. Lifecycle-dependent sample requests filter only retained create timestamps within 604800 seconds before deterministic frozen-order quantile selection. Watchtower's prior sample remains HISTORICAL/UNFILTERED_PROVIDER_COVERAGE_SAMPLE. The new run found 48 recent eligible members from complete 275/275 retained create-timestamp coverage and froze five deterministic mints.",
     "artifact": "docs/audits/watchtower_recent_token_sample_policy.v1.json (sha256 110782962919d6641c35463aa99e538a5ad1bd7fc16010d749c0486b17760bad); generic contract=docs/audits/operation_token_data_orchestration_contract.v1.json (sha256 d28298e1bb659775cfff85bba2ab38177c1091cf2677e6d5793e2c4e0f106523)",
     "next_action": "A later separately authorized run may acquire only the frozen recent sample under the normal generic token-data envelope; older-token coverage needs separate authorization."
+  },
+  "watchtower_recent_token_data_playbook": {
+    "engineering_revision": "e21867c1 plus bounded recent Watchtower playbook runner",
+    "tests": "17 passed: tests/test_token_data_orchestration.py and tests/test_birdeye_rate_limit.py",
+    "production_flags": "Five frozen recent tokens only; provider initial requests=20, authorized Birdeye retries=9, total attempts=29; database/membership/attribution/UI/V1/historical writes=0; raw payload retention=0.",
+    "verdict": "WATCHTOWER_RECENT_TOKEN_DATA_PLAYBOOK_QUALIFIED",
+    "result": "All ten compact Helius create/migration reads qualified and all five migration transactions yielded first-PumpSwap pool MC in SOL. All ten Birdeye identities reached HTTP200, but every MC series had no usable candles and every FX series lacked an at-or-before point, so lifecycle-data provision is INSUFFICIENT_DATA_PROVISION. This is evidence about the bounded request outputs, not a universal provider-retention claim.",
+    "artifact": "docs/audits/watchtower_recent_token_data_playbook_final.v1.json (sha256 d7ad6388d594f835fba3ce1c0d2667362740dc71aaadfa0400017256d2c653b2)",
+    "next_action": "Do not expand the cohort. Any alternative lifecycle-coverage methodology/provider/window requires separate authorization."
   }
 }

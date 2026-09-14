@@ -15562,6 +15562,14 @@
     "artifact": "docs/audits/generic_token_data_transport_boundary_partial.v1.json (sha256 cce14c807e7ee69fe3a57f297ef82ad570a910cb90c65045cc01ce977fc91fb0)",
     "next_action": "Complete durable Birdeye retry ownership and the production composition with mocked end-to-end regression; do not dispatch Watchtower tokens until qualified."
   },
+  "generic_token_data_production_runtime_retry": {
+    "engineering_revision": "e21867c1 plus durable Birdeye retry ownership",
+    "tests": "7 passed: provider durability and generic runner",
+    "production_flags": "Provider/Helius/Birdeye/RPC/network/database/membership/attribution/UI writes=0; raw payload retention=0; no new database.",
+    "verdict": "PARTIAL",
+    "result": "execute_durable_provider_request now owns bounded HTTP429 retry attempts with one logical identity, durable per-attempt state transitions, 2/5/10/30/60-second policy delays, and RATE_LIMIT_TERMINAL exhaustion. The production composition remains unimplemented.",
+    "next_action": "Implement the one thin production composition entrypoint around run_token_data_request_dag using injected Helius/Birdeye bindings, callback-fed zero-raw opening semantics, and canonical compact fact ingestion; then add mocked end-to-end tests."
+  },
   "watchtower_corrected_birdeye_replay": {
     "engineering_revision": "e21867c1 plus corrected V3 replay runner",
     "tests": "runner py_compile and capped-window smoke checks passed before dispatch",

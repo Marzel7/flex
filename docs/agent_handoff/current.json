@@ -1,4 +1,13 @@
 {
+  "nexus_14i7_first_second_actionability": {
+    "engineering_revision": "5904a907 plus uncommitted one-block same-slot actionability reconstruction",
+    "tests": "3 passed: tests/test_nexus_14i7_first_second_actionability.py; JSON validation and git diff --check passed.",
+    "production_flags": "Exactly one authorized Helius getBlock call for slot 441859052 succeeded; raw block was atomically retained, fsynced, read back, and SHA-256 verified. No other RPC/provider/Birdeye calls and no database, service, trade, UI, membership, detector, operation-identity, source-evidence rewrite, or production-fact mutation.",
+    "verdict": "NEXUS_14I7_FIRST_SECOND_ACTIONABILITY_PARTIAL",
+    "result": "The full 1212-transaction slot proves index 468, immediately after migration index 467, is a successful PumpSwap Buy by the same sole signer/fee payer as migration. Pool state moves from 206900000 tokens / 67.405853768 SOL ($31.65K) to 43853427.127719 tokens / 384.030033490 SOL ($850.78K). Two later same-slot pool buy attempts revert; a final successful 0.000019841-SOL buy leaves $850.7839K. This is near the $921K diagnostics but does not exactly reach/reproduce them. The early buy is a distinct transaction, and no retained bundle ID, atomic/exclusive ordering proof, protocol sequencing constraint, or Nexus-control evidence prevents external interleaving before it. Same-slot proximity and signer reuse alone are insufficient. Therefore H1 is supported, H2 is not supported, while historical actionability remains partial because no retained first-external-candidate/bundle provenance exists.",
+    "artifacts": "audit=docs/audits/nexus_14i7_first_second_actionability.v1.json (sha256 0928e805fe6b9f2ede987ca754df44ad2b8a1770a915d8f6e05b99d39bb6ef13); raw_block=docs/audits/nexus_14i7_first_second_raw/block_441859052.raw.json; test=tests/test_nexus_14i7_first_second_actionability.py.",
+    "next_action": "Do not acquire more data automatically. Retain prospective slot/index/bundle/signer/fee-payer/pool-state/wallet-role/first-external-candidate evidence if future launch actionability must be elevated from partial to conclusive."
+  },
   "nexus_14i7_initial_pumpswap_single_tx_completion": {
     "engineering_revision": "5904a907 plus uncommitted single-transaction PumpSwap initial-state recovery",
     "tests": "3 passed: tests/test_nexus_14i7_initial_pumpswap_single_tx_completion.py; JSON validation and git diff --check passed.",

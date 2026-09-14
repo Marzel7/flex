@@ -16088,5 +16088,14 @@
     "result": "Frozen snapshot integrity and the five-token sample pass, but all 20 request records lack a provider, endpoint or RPC method, exact window/resolution, and FX timing rule. Dispatching any call would invent request scope prohibited by the authorization.",
     "artifact": "docs/audits/watchtower_token_data_acquisition_preflight_blocked.v1.json (sha256 2f4839e159959001950caccddc6a552679c471cc0ace7552257197203d5c77f7)",
     "next_action": "Separately materialize and authorize an immutable execution manifest binding each request to provider, endpoint or RPC method, parameters/window/resolution, timestamp and FX rule, retention rule, and duplicate identity; rerun preflight before dispatch."
+  },
+  "watchtower_token_data_request_identities": {
+    "engineering_revision": "e21867c1",
+    "tests": "24 passed: tests/test_watchtower_confirmed_membership_projection.py and tests/test_x65_44_watchtower_registry_promotion.py; JSON and diff checks passed.",
+    "production_flags": "Provider/RPC/network/database/membership/attribution/UI/V1/historical-fact writes=0.",
+    "verdict": "WATCHTOWER_TOKEN_DATA_REQUEST_IDENTITIES_BLOCKED",
+    "result": "The generic methodology is recoverable: Helius getTransaction jsonParsed, Birdeye /defi/v3/ohlcv 1m, 24-hour bounded post-create market-cap window, and at-or-before 60-second FX. Ten exact chain requests are bound to retained create/migration signatures. The remaining ten price/FX requests cannot be exactly bound offline: all sampled create anchors retain null block time/slot, and the qualified timestamps are outputs of the opening requests. Retained detection times cannot be substituted.",
+    "artifact": "docs/audits/watchtower_token_data_request_identity_qualification.v1.json (sha256 34c4b3f2163b82122103d96616ef19d5013100a7a3b14c2fab68f9334e78d55e)",
+    "next_action": "Authorize an explicitly sequenced acquisition contract, or retain qualified chain-derived timestamps in a prior authorized stage before freezing price/FX requests. Do not issue the 20 calls under a falsely complete one-stage manifest."
   }
 }

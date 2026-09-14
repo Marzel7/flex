@@ -15536,13 +15536,13 @@
     "next_action": "The separately authorized frozen ten-token acquisition can now begin from a new durable run ID; do not reacquire the existing five or reuse any prior dispatched identity."
   },
   "watchtower_expanded_token_data_execution": {
-    "engineering_revision": "e21867c1 plus generic durable provider-binding composition",
-    "tests": "22 passed: provider bindings, runtime, request-DAG, durability, and adapter regressions; actual anchored run_operation_token_data_research(..., dry_run=True) returned 20 initial requests with 0 provider bindings dispatched.",
+    "engineering_revision": "e21867c1; final frozen execution pre-dispatch safety verification",
+    "tests": "22 prior focused tests remain the baseline; final actual anchored dry-run passed with exactly 20 initial identities and 0 provider bindings dispatched.",
     "production_flags": "Provider/Helius/Birdeye/RPC/network/database/membership/attribution/UI writes=0; raw payload retention=0; no new database.",
-    "verdict": "GENERIC_TOKEN_DATA_PROVIDER_BINDINGS_QUALIFIED",
-    "result": "TOKEN_DATA_PROVIDER_BINDING_CONTRACT_V1 now provides one-attempt Helius getTransaction/getBlock and Birdeye OHLCV bindings through the runtime's durable executor. Both enforce a 45-second timeout. The compact transport outcome carries Retry-After, which the durable executor caps at 60 seconds and honors without creating a new logical identity. Mocked actual-runtime composition exercised Create, opening, migration, lifecycle, and FX nodes. All frozen Watchtower inputs remain unchanged and dry-run still returns exactly 20 initial identities.",
-    "artifact": "docs/audits/generic_token_data_provider_bindings_qualification.v1.json (sha256 43065029a77f8ca4e68ce8b943c22caed5549fcfc0e6eb4eb8e902b1f64dfd78)",
-    "next_action": "The separately authorized frozen ten-token Watchtower execution may be rerun through production_provider_bindings, with the existing five retained-evidence-only."
+    "verdict": "WATCHTOWER_EXPANDED_TOKEN_DATA_SAMPLE_BLOCKED",
+    "result": "All frozen hashes and the final 20-identity dry gate pass. Before first dispatch, a concrete live-rate-limit safety defect was found: execute_durable_provider_request defaults to a no-op sleeper, and run_operation_token_data_research does not inject a real sleep function. A live HTTP429 would therefore retry immediately rather than honoring the required 2/5/10/30/60-second backoff and capped Retry-After. No provider call was made.",
+    "artifact": "docs/audits/watchtower_expanded_execution_backoff_safety_blocked.v1.json (sha256 a3a1a2b96d6dcf01f39ef7ac7d5f46032b58ebe501a9895740654fe01daaa5a3)",
+    "next_action": "Authorize the smallest runtime/durability integration correction that injects a real monotonic sleep function for live retry delays, add an actual-runtime live-sleeper mock assertion, and requalify before dispatch."
   },
   "generic_token_data_production_runtime": {
     "engineering_revision": "e21867c1 plus mocked production-runtime qualification",

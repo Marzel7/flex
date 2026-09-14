@@ -1,4 +1,14 @@
 {
+  "watchtower_birdeye_request_reconstruction": {
+    "engineering_revision": "retained deterministic-input digest reconstruction only",
+    "tests": "canonical JSON SHA-256 matched retained parameter digests for good and failed PRICE_HISTORY and SOL_USD_FX requests; no provider calls",
+    "production_flags": "PROVIDER_CALLS=0; RAW_BYTES_RETAINED=0",
+    "verdict": "WATCHTOWER_BIRDEYE_REQUEST_RECONSTRUCTION_QUALIFIED",
+    "digest_contract": "sha256(json.dumps(parameters, sort_keys=true, separators=(',',':'))) from provider_request_durability.canonical/plan; only parameter map is hashed (no headers/request_time/URL encoding).",
+    "finding": "Good 2YrE digests and failed new-token digests exactly reconstruct under operation_token_data_runner.plan_token_data_requests. Both use address,type=1m,chart_type,currency=usd,mode=range,time_from,time_to. Differences are token/time values only; no endpoint/chain/address-field/query-shape defect is proven.",
+    "classification": "PRICE_HISTORY=IDENTICAL_PARAMETERS_EXCEPT_TOKEN_TIME_VALUES; SOL_USD_FX=IDENTICAL_PARAMETERS_EXCEPT_TOKEN_TIME_VALUES.",
+    "next_action": "Future manifests should retain normalized non-secret request parameters plus builder version; do not infer provider failure cause from the reconstructed shape alone."
+  },
   "watchtower_birdeye_request_parameter_diff": {
     "engineering_revision": "retained-manifest inspection only",
     "tests": "no provider calls; no code changes",

@@ -15517,6 +15517,15 @@
     "artifact": "docs/audits/generic_token_data_canonical_extraction.v1.json (sha256 e88d335f86ba1f96fb38418ab8476aee6bd5a00907c78d684ad7f242aec97a4a)",
     "next_action": "The separately authorized ten-token run may proceed only under the frozen manifest and provider-durability envelope; no previously dispatched identity may be reused."
   },
+  "watchtower_expanded_token_data_sample": {
+    "engineering_revision": "e21867c1; no source implementation changes authorized",
+    "tests": "11 passed: generic runner, provider durability, canonical extraction",
+    "production_flags": "Provider/Helius/Birdeye/RPC/network/database/membership/attribution/UI writes=0; raw payload retention=0; no new database.",
+    "verdict": "WATCHTOWER_EXPANDED_TOKEN_DATA_SAMPLE_BLOCKED",
+    "result": "Both frozen input hashes verified: eligibility snapshot has 49 eligible members; expanded manifest contains exactly 15 members (5 existing, 10 new) with no overlap and all new mints in the frozen eligible cohort. Preflight then fail-closed: OPERATION_TOKEN_DATA_RUNNER_V1 only dispatches a prebuilt manifest and does not materialize the required retained-evidence-first Create/opening/migration/lifecycle/FX DAG or durable retry flow. Legacy scripts cannot be substituted because they do not satisfy the required durable-dispatch contract.",
+    "artifact": "docs/audits/watchtower_expanded_token_data_sample_preflight_blocked.v1.json (sha256 e0bcb7d394eba27780822e325f942edb7cdddfb3d2cb277bd203f52ca9aef49a)",
+    "next_action": "Authorize a bounded generic-runner implementation milestone for the missing DAG materialization and durable same-identity retry integration; then rerun frozen preflight before any provider dispatch."
+  },
   "watchtower_corrected_birdeye_replay": {
     "engineering_revision": "e21867c1 plus corrected V3 replay runner",
     "tests": "runner py_compile and capped-window smoke checks passed before dispatch",

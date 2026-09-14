@@ -15453,5 +15453,14 @@
     "result": "Recovered shared policy permits the same deterministic identity to retry HTTP429 up to eight times after the initial dispatch with 2/5/10/30/60-second capped backoff and Retry-After capped at 60 seconds. All eight Watchtower recovery identities returned HTTP200; seven required one retry. None yielded usable MC candles or timestamp-qualified FX, so final state remains RUN_QUALIFIED_PARTIAL with qualified=25, insufficient=10, unrecoverable=5, dependency-blocked=30, rate-limited-terminal=0.",
     "artifacts": "policy=docs/audits/operation_token_data_orchestration_contract.v1.json (sha256 1a6b9b803117b3b3bc4345d198f8ad5837894c250bb31848c09674bb5d702846); recovery=docs/audits/watchtower_token_data_birdeye_rate_limit_recovery.v1.json (sha256 1f92d86df9361d6e0ec1d7a67d2ff639548adfedf4cee0a0e4b74eb1bd490c31); final=docs/audits/watchtower_token_data_final_orchestrated_run.v1.json (sha256 b138d52ef00db117fd2d2b75c7525aad4a53bfae960e4388fceec5159aeeaf74).",
     "next_action": "No further acquisition is authorized by this milestone. Preserve terminal opening-state findings and the compact recovery records."
+  },
+  "birdeye_recent_token_sample_policy": {
+    "engineering_revision": "e21867c1 plus generic provider-coverage selection preflight",
+    "tests": "17 passed: tests/test_token_data_orchestration.py and tests/test_birdeye_rate_limit.py",
+    "production_flags": "Provider/Birdeye/RPC/network calls=0; database writes=0 (read-only retained timestamp census); membership/UI/attribution/V1/historical-artifact rewrites=0.",
+    "verdict": "BIRDEYE_RECENT_TOKEN_SAMPLE_POLICY_QUALIFIED",
+    "result": "BIRDEYE_RECENT_TOKEN_SAMPLE_POLICY_V1 is an operation-agnostic playbook selection policy, not a Birdeye retention claim. Lifecycle-dependent sample requests filter only retained create timestamps within 604800 seconds before deterministic frozen-order quantile selection. Watchtower's prior sample remains HISTORICAL/UNFILTERED_PROVIDER_COVERAGE_SAMPLE. The new run found 48 recent eligible members from complete 275/275 retained create-timestamp coverage and froze five deterministic mints.",
+    "artifact": "docs/audits/watchtower_recent_token_sample_policy.v1.json (sha256 110782962919d6641c35463aa99e538a5ad1bd7fc16010d749c0486b17760bad); generic contract=docs/audits/operation_token_data_orchestration_contract.v1.json (sha256 d28298e1bb659775cfff85bba2ab38177c1091cf2677e6d5793e2c4e0f106523)",
+    "next_action": "A later separately authorized run may acquire only the frozen recent sample under the normal generic token-data envelope; older-token coverage needs separate authorization."
   }
 }

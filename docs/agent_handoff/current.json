@@ -15933,6 +15933,15 @@
     "artifacts": "ledger=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_lifecycle_request_ledger.v1.json; accounting_replay=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_lifecycle_acquisition_accounting_replay.v1.json; cases=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_cases.v1.json; summary=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_summary.v1.json.",
     "next_action": "HOLD. A separate authorization after quota recovery is required to retry only the 23 terminal-failure identities; do not reopen successful identities or censored mints."
   },
+  "watchtower_f7p3_decontamination_census": {
+    "engineering_revision": "f661ae4593e5aaf434c4d0c91e9fb8dc2afd4f08",
+    "tests": "27 passed: infrastructure-role exclusion, unified terminal-infrastructure, and attribution-outcome focused suites.",
+    "production_flags": "Provider/RPC/network=0; database/membership/UI/V1 writes=0; Watchtower status and member set unchanged.",
+    "verdict": "WATCHTOWER_F7P3_DECONTAMINATION_CENSUS_QUALIFIED",
+    "result": "The authoritative 274-member Watchtower set has zero F7p3 references in selected queue fields, linked edge candidates, transaction roles, atomic flows, or terminal outcomes. The global retained corpus has 132 F7p3 queue rows (132 mints, 129 creators), 150 selected edge candidates, and 49 relay-typed terminal outcomes, none joined to an operation membership row. F7p3 remains excluded from attribution semantics; cross-operation consumer review remains required.",
+    "artifact": "docs/audits/watchtower_f7p3_decontamination_census.v1.json (SHA-256 27e4f55debc76c004780d18d72bda0a54eb018685b02ac7d84816222248ab7ac)",
+    "next_action": "Do not alter Watchtower. Separately audit global consumers that could turn relay-typed F7p3 provenance into attribution roots, common-control, funding-continuity, UI root labels, or V1 inputs."
+  },
   "wt_to_generic_lifecycle_bridge_audit": {
     "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",

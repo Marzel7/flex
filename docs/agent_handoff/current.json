@@ -1,4 +1,13 @@
 {
+  "prospective_actionability_evidence_framework": {
+    "engineering_revision": "5904a907 plus uncommitted prospective actionability evidence framework",
+    "tests": "12 passed: tests/test_operation_fact_framework.py, tests/test_nexus_operation_adapter.py, tests/test_prospective_actionability_evidence_framework.py, and tests/test_conservative_actionable_entry_cross_operation_audit.py; JSON validation and git diff --check passed.",
+    "production_flags": "LIVE_ACTIONABILITY_CAPTURE_ENABLED=false. Provider/RPC acquisition and role/exclusivity analysis are outside the compact write path. Production fact writes=0; membership, detector, UI, historical-fact, Byzantine boundary/entry, and live capture changes=0.",
+    "verdict": "PROSPECTIVE_ACTIONABILITY_EVIDENCE_FRAMEWORK_QUALIFIED",
+    "result": "Implemented ACTIONABILITY_EVIDENCE_CONTRACT_V1 with compact ordered transaction, linkage, exclusivity, boundary, valuation, completeness, and provenance support; facts are idempotent by operation/mint/fact/version/boundary/contract identity and conflicting payload/provenance fails closed. The versioned all-signals conservative linkage gate and exact>conservative>theoretical performance policy are pure and venue neutral. Pump.fun curve and PumpSwap pool adapters implement the generic valuation interface. Nexus is shadow-only, 14i7 fixture yields $31,651.53 theoretical / $850,783.81 conservative / exact insufficient with CONSERVATIVE_LINKED. Byzantine interface compatibility is proven without replay; 58 controls and all historical boundaries unchanged. Disposable 100-token WAL fixture: median 0.206ms, p95 0.5209ms, max 1.7042ms, busy=0, locked=0.",
+    "artifacts": "audit=docs/audits/prospective_actionability_evidence_framework.v1.json (sha256 a26cc7e39bb4bd66ff1d8c33b0191b02a781c3a67a5375689285fd24c068bc67); playbook=docs/playbooks/actionable_entry_evidence_contract.v1.md; test=tests/test_prospective_actionability_evidence_framework.py.",
+    "next_action": "Do not activate live capture. Review the disabled Nexus shadow path against one newly observed operation only under a separately authorized activation milestone."
+  },
   "conservative_actionable_entry_cross_operation_audit": {
     "engineering_revision": "5904a907 plus uncommitted conservative actionable-entry cross-operation audit",
     "tests": "3 passed: tests/test_conservative_actionable_entry_cross_operation_audit.py; JSON validation and git diff --check passed.",

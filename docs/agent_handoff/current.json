@@ -1,4 +1,15 @@
 {
+  "watchtower_fresh_expanded_token_data_sample": {
+    "engineering_revision": "e21867c1 plus qualified working-tree runtime",
+    "tests": "23 focused mocked runtime/durability tests passed before dispatch; frozen dry preflight: 20 initial requests (10 Create, 10 Migration)",
+    "production_flags": "authorized frozen 10-new-token run only; existing five provider calls=0; raw retention=false",
+    "verdict": "WATCHTOWER_FRESH_EXPANDED_TOKEN_DATA_SAMPLE_QUALIFIED",
+    "run_id": "watchtower-fresh-10-871d2f63f6c347e895f8ebfdc320cfc6",
+    "final_state": "COMPLETED",
+    "durable_accounting": "120 logical/physical attempts; 100 HTTP 200; 20 HTTP 400; 90 SUCCEEDED; 30 FAILED; 0 duplicate identities; families Create=10, Migration=10, Opening=80, Price=10, FX=10",
+    "contaminated_run": "watchtower-expanded-10-ead73b0a8a1444db870a37298f23e32b remains ABORTED and untouched",
+    "next_action": "Read compact terminal outcomes before making any playbook-completion decision; do not resume or alter either run."
+  },
   "generic_token_data_durable_run_state": {
     "engineering_revision": "working-tree (run-state guard implementation)",
     "tests": "23 passed: tests/test_token_data_run_state.py tests/test_provider_request_durability.py tests/test_operation_token_data_production_runtime.py tests/test_operation_token_data_runtime.py tests/test_token_data_provider_bindings.py",

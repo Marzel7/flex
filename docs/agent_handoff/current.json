@@ -1,4 +1,14 @@
 {
+  "nexus_three_token_actionable_entry_mc_qualification": {
+    "engineering_revision": "5904a907",
+    "tests": "3 passed: frozen-three boundary policy, timing-census invariant, Nexus adapter; actionable-entry audit validation PASS",
+    "production_flags": "0 write transactions, SQLite busy/locked, RPC, provider, Birdeye, network, membership, detector, identity, token-analysis, source-evidence, UI, or production-fact writes",
+    "verdict": "PARTIAL — all three frozen tokens have canonical creator embedded-buy creation events and a post-create executable-state boundary candidate, but no retained executable post-create curve valuation plus contemporaneous SOL/USD provenance; ACTIONABLE_ENTRY_MC remains INSUFFICIENT_EVIDENCE for all three",
+    "artifact": "docs/audits/nexus_three_token_actionable_entry_mc_qualification.v1.json",
+    "artifact_sha256": "5b97bddbafd5385e872006a133c91b67e8d6e6fa1e39885c3abc25de23e8594e",
+    "key_boundaries": "14i7 lead=490s; 247a=65247s; 26MG=120s. Embedded creator buys are not promoted to external same-transaction fills or a buy-size-dependent MC.",
+    "next_action": "Do not expand to 75. Separately qualify retained/authorized post-create curve-state and timestamped SOL/USD valuation evidence before emitting ACTIONABLE_ENTRY_MC."
+  },
   "nexus_provisioning_to_create_timing_census": {
     "engineering_revision": "5904a907",
     "tests": "5 passed: census known-answer/join invariants, gap semantics, Nexus adapter; census audit validation PASS",

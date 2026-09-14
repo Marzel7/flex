@@ -1,4 +1,15 @@
 {
+  "watchtower_birdeye_credential_known_answer": {
+    "engineering_revision": "generic BIRDEYE_KK-preferred production binding",
+    "tests": "two exact digest-matched durable Birdeye diagnostic logical requests",
+    "production_flags": "BIRDEYE_KK present and selected; fallback present; Helius=0; raw retention=false",
+    "verdict": "WATCHTOWER_BIRDEYE_CREDENTIAL_KNOWN_ANSWER_QUALIFIED",
+    "run_id": "watchtower-birdeye-credential-3b778d6bce574b41ac1efd8804a9102a",
+    "mint": "2dDDtevvn5V3sHCRQtMiSM3KoTDRfYdDkFrdigHNpump",
+    "result": "Exact PRICE_HISTORY digest-matched request changed from historical HTTP400 to HTTP200/QUALIFIED under BIRDEYE_KK. Exact SOL_USD_FX digest-matched request returned HTTP429/RATE_LIMIT_TERMINAL, so its credential diagnostic is inconclusive.",
+    "assessment": "PRICE_HISTORY_CREDENTIAL_DIAGNOSTIC=CREDENTIAL_BINDING_LIKELY_CAUSAL; SOL_USD_FX_CREDENTIAL_DIAGNOSTIC=INCONCLUSIVE; failed full replay is not ready because both facts did not yield usable HTTP200.",
+    "next_action": "Do not replay the ten. A separately authorized bounded FX rate-limit diagnostic is required before any FX replay recommendation."
+  },
   "birdeye_key_environment_binding": {
     "engineering_revision": "working-tree provider binding update",
     "tests": "14 passed: provider binding and production runtime focused tests",

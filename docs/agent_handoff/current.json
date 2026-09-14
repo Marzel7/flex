@@ -1,4 +1,13 @@
 {
+  "nexus_14i7_tx468_role_actionability": {
+    "engineering_revision": "5904a907 plus uncommitted tx468 wallet/role provenance audit",
+    "tests": "3 passed: tests/test_nexus_14i7_tx468_role_actionability.py; JSON validation and git diff --check passed.",
+    "production_flags": "Retained-local-only audit. RPC/provider/Birdeye/network calls=0; no database, service, trade, UI, membership, detector, operation-identity, source-evidence rewrite, or production-fact mutation.",
+    "verdict": "NEXUS_14I7_TX468_ACTIONABILITY_PARTIAL",
+    "result": "Tx468 is precisely two PumpSwap buys in one transaction. 4oh… is fee payer, sole signer, buyer, source-WSOL owner, and destination-token owner; it wraps/uses 320 SOL and receives 163046572.872281 tokens. Retained transfer_index positively proves 14i7 creator 3UMG… sent 325 SOL to 4oh… 740 seconds before migration, establishing creator-funded Nexus linkage. The same wallet is also migration fee payer/sole signer. This is strong coordination, but it is not proof of operation control or non-interleavable execution: migration and tx468 are distinct transactions, and no bundle ID, ordered bundle members, Jito/tip submission metadata, atomic package, protocol sequencing restriction, or exclusive ordering evidence is retained. H2 therefore remains unsupported and entry stays $31.65K LOWER_BOUND / NOT_FROZEN.",
+    "artifacts": "audit=docs/audits/nexus_14i7_tx468_role_actionability.v1.json (sha256 621984ff6a399da5fc2430afb70772e5a359966a80863ef778b52f1d2479375d); test=tests/test_nexus_14i7_tx468_role_actionability.py.",
+    "next_action": "Do not move the historical boundary. For future launches retain bundle/order/exclusivity and first-external-candidate evidence alongside role/funding traces."
+  },
   "nexus_14i7_first_second_actionability": {
     "engineering_revision": "5904a907 plus uncommitted one-block same-slot actionability reconstruction",
     "tests": "3 passed: tests/test_nexus_14i7_first_second_actionability.py; JSON validation and git diff --check passed.",

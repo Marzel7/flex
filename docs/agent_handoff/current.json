@@ -1,4 +1,15 @@
 {
+  "generic_token_data_compact_result_retention_qualified": {
+    "engineering_revision": "working-tree compact retention plus production-runtime restart regression",
+    "tests": "18 passed: production-runtime compact restart, compact-result, provider-durability tests",
+    "production_flags": "no live provider calls; no Watchtower replay; raw retention=false",
+    "verdict": "GENERIC_TOKEN_DATA_COMPACT_RESULT_RETENTION_QUALIFIED",
+    "contract_version": "TOKEN_DATA_COMPACT_RESULT_RETENTION_V1",
+    "authoritative_store": "docs/audits/token_data_compact_results/<run_id>/<mint>.json",
+    "regression": "actual production runtime three-token run; token A qualified, token B PRICE_HISTORY PROVIDER_BLOCKED, token C SOL_USD_FX RATE_LIMIT_TERMINAL; acquisition memory discarded and compact-store-only projections reloaded",
+    "watchtower_prior_run": "watchtower-fresh-10-871d2f63f6c347e895f8ebfdc320cfc6 compact fact count=0; offline finalizable=false; separately authorized replay required",
+    "next_action": "No Watchtower replay is authorized by this qualification; await explicit acquisition authority."
+  },
   "generic_token_data_compact_result_retention_regression": {
     "engineering_revision": "working-tree compact result extension",
     "tests": "21 passed focused compact-result/runtime/durability/provider-binding tests",

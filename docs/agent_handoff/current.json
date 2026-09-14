@@ -15903,5 +15903,14 @@
     "result": "Frozen ten-token set recovered through OPENING_SEQUENCE_AGGREGATOR_V1 from retained Create slots. Each qualified after four blocks under the first-independent-buy-plus-three-slots early-stop condition. Coverage moved from opening 5/15 to 15/15; USD opening valuation moved from 0/15 to 10/15 because only the ten remediated tokens had both an opening SOL fact and qualified FX. The five historical lifecycle/FX gaps were untouched.",
     "artifact": "docs/audits/watchtower-opening-remediation-68469070250b4e2f.opening_remediation.v1.json (SHA-256 de383aaece1fee5ac4d982e908826d013fd6079b9079c275148e53e379a3e098); watchtower_opening_remediation_overlay.v1.json; definitive dataset/profile/completion V2",
     "next_action": "If separately authorized, use 2YrEhbVAKGojhZn2SYjQc7EYLixrBLHmqFjME69Gpump as a one-token known-answer lifecycle/FX availability diagnostic; no lifecycle or FX request is authorized by this remediation result."
+  },
+  "watchtower_historical_lifecycle_fx_diagnostic": {
+    "engineering_revision": "e21867c1 plus one-token durable diagnostic runner",
+    "tests": "13 passed: provider bindings, durability, Birdeye parser, and fact adapters",
+    "production_flags": "BIRDEYE_KK selected; 2 logical Birdeye requests / 2 attempts / 2 HTTP 200; Helius=0; raw provider payload bytes retained=0; definitive V2 unmodified.",
+    "verdict": "WATCHTOWER_HISTORICAL_LIFECYCLE_FX_DIAGNOSTIC_QUALIFIED",
+    "result": "For frozen known-answer mint 2YrE..., the current V1 PRICE_HISTORY request returned 43 usable mcap candles with peak 167542.3445678831 and max proven drawdown 0.988042527906539; current V1 FX returned SOL/USD 100.74509264444444 at target minus 14 seconds. Both facts are qualified, establishing the historical gap class as RECOVERABLE_BOUNDED_PROVIDER without claiming the other four must succeed.",
+    "artifact": "docs/audits/watchtower-historical-lifecycle-fx-197a6633dffe44f9.diagnostic.v1.json (SHA-256 554cdad03b00dab2a763eff9d773d17b6b5dbdec7b82c272ee576c769ce4e5d1); request manifest SHA-256 d4c5a90370d8f262597c8a8a87e43d7054794e28fae94b4a5d258568dd34f18a",
+    "next_action": "If separately authorized, replay PRICE_HISTORY and SOL_USD_FX once each for the remaining four frozen historical-gap tokens, then reconcile only through an immutable overlay."
   }
 }

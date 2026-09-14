@@ -15536,13 +15536,13 @@
     "next_action": "The separately authorized frozen ten-token acquisition can now begin from a new durable run ID; do not reacquire the existing five or reuse any prior dispatched identity."
   },
   "watchtower_expanded_token_data_execution": {
-    "engineering_revision": "e21867c1; qualified runtime expanded-sample dry preflight",
-    "tests": "Actual run_operation_token_data_research(..., dry_run=True) invoked for the ten frozen NEW_ACQUISITION members; 0 provider bindings dispatched.",
+    "engineering_revision": "e21867c1 plus retained-only execution-anchor binding",
+    "tests": "18 passed: runtime qualification plus existing runtime, request-DAG, durability, and fact-adapter regressions; actual anchored run_operation_token_data_research(..., dry_run=True) returned 20 initial requests with 0 provider bindings dispatched.",
     "production_flags": "Provider/Helius/Birdeye/RPC/network/database/membership/attribution/UI writes=0; raw payload retention=0; no new database.",
-    "verdict": "WATCHTOWER_EXPANDED_SAMPLE_EXECUTION_PREFLIGHT_BLOCKED",
-    "result": "Both frozen hashes match and the manifest is exactly 5 existing-qualified plus 10 new, with no duplicate or out-of-cohort new mints. The now-qualified runtime was invoked in dry mode, but materialized 0 rather than 20 initial requests because all ten frozen new members lack both create_signature and migration_signature. TOKEN_DATA_REQUEST_DAG_V1 correctly refuses to invent or plan those identities. This is a frozen-input interface blocker, not a production-runtime defect.",
-    "artifact": "docs/audits/watchtower_expanded_sample_execution_preflight.v1.json (sha256 3b8276a2eb302cc653f1b26c5a41124b6d7a92309ceea64cabc33fc2fe0dd717)",
-    "next_action": "Freeze and bind verified create_signature and migration_signature identity inputs for exactly the ten already-frozen NEW_ACQUISITION mints, without changing membership or methodology; then rerun the dry preflight before any provider dispatch."
+    "verdict": "WATCHTOWER_EXPANDED_EXECUTION_ANCHORS_QUALIFIED",
+    "result": "Retained canonical token_analysis evidence supplied one exact-mint create_tx_signature and one exact-mint migration_tx for every frozen NEW_ACQUISITION member. No retained conflict candidate was found in token_analysis, migrated_tokens, migration queues, or Watchtower launch records. The compact anchor manifest preserves only the frozen mint/creator/timestamp and two verified signatures per member. The actual qualified runtime consumed that anchor input in dry mode and materialized exactly 20 initial logical requests: CHAIN_CREATE_TRANSACTION=10 and CHAIN_MIGRATION_TRANSACTION=10.",
+    "artifact": "docs/audits/watchtower_expanded_10_execution_anchors.v1.json (sha256 12317b392a2d79e50b89b7fc3bce7561af57f5a3fe68409bb30c9df9d769bf3d)",
+    "next_action": "A separately authorized execution milestone may use this frozen anchor manifest for exactly the ten NEW_ACQUISITION mints; rerun the current dry preflight immediately before any provider dispatch and retain the existing five as evidence-only."
   },
   "generic_token_data_production_runtime": {
     "engineering_revision": "e21867c1 plus mocked production-runtime qualification",

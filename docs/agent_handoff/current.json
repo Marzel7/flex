@@ -1,4 +1,14 @@
 {
+  "nexus_14i7_curve_closure_actionability_recompute": {
+    "engineering_revision": "5904a907",
+    "tests": "2 passed: terminal-curve/actionable-state separation and ordered same-slot migration fail-closed invariant; audit JSON validation PASS",
+    "production_flags": "0 RPC, provider, Birdeye, network, Nexus membership, detector, identity, token-analysis, source-evidence, UI, or production-fact writes",
+    "verdict": "PARTIAL — retained direct migration ledger identifies PumpSwap migration transaction 2Cg3… at the same slot and immediately after CreateV2 (indices 467/466), so the 410.880168 SOL post-create curve valuation is terminal market state, not externally executable entry. Exact target-era completion threshold/initial reserves and initial migrated-pool reserves remain unqualified/unretained; true ACTIONABLE_ENTRY_MC remains INSUFFICIENT_EVIDENCE.",
+    "artifact": "docs/audits/nexus_14i7_curve_closure_actionability_recompute.v1.json",
+    "artifact_sha256": "f6213e37e7e14799a56d0732f3fc5dc1b2b85aea82b119015c6698a9a6acd626",
+    "key_evidence": "Earliest retained external PumpSwap BuyExactQuoteIn is 2j53… at +20s with a pre-swap 9,107.382325980747 SOL MC, but it is explicitly not promoted as the first migrated executable state.",
+    "next_action": "Do not alter other Nexus tokens or substitute later pool-swap/Birdeye/GMGN values. A separately authorized retained initial migrated-pool reserve capture is required to materialize true 14i7 entry MC."
+  },
   "nexus_three_token_post_create_actionable_mc": {
     "engineering_revision": "5904a907",
     "tests": "2 passed: frozen-scope/fail-closed valuation assertion and deterministic replay digest; audit JSON validation PASS",

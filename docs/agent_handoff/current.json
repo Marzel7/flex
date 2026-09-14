@@ -15967,6 +15967,14 @@
     "artifact": "docs/audits/manual_operation_attribution_ui.v1.json (SHA-256 d0354a8be4110dde4e0e9f245074cb6432e8823606754afb5ec91ed11c80591f)",
     "next_action": "Manual V1 UI workflow is complete. Do not extend it into another framework or audit milestone without separate authorization."
   },
+  "manual_operation_attribution_ui_page_load_fix": {
+    "engineering_revision": "5904a907",
+    "tests": "6 passed: manual workflow, bridge, V1 evidence, and UI route tests; live GET /intelligence/potential-operations returned HTTP 200",
+    "production_flags": "No proposal/membership/provider/RPC write; API worker restarted to load route context",
+    "verdict": "PASS",
+    "artifact": "docs/audits/manual_operation_attribution_ui_page_load_fix.v1.json (SHA-256 699555b7e46fb8f3faa27f39ebab372f0cc41d3d81bfb6c66ced4596ff0ceebf)",
+    "next_action": "None for this fix; manual V1 UI workflow remains complete."
+  },
   "f7p3_relay_semantic_decontamination_retry": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "No code or database change was made; prior focused infrastructure suites remain 27 passed.",

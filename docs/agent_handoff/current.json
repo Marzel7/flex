@@ -1,4 +1,13 @@
 {
+  "watchtower_final_admitted_birdeye_reconciliation": {
+    "engineering_revision": "offline compact-store reconciliation",
+    "tests": "read-only store coverage verification; no provider calls",
+    "production_flags": "OFFLINE_FINALIZATION_PROVIDER_CALLS=0; raw retention=false",
+    "verdict": "PARTIAL",
+    "sources": "final acquisition=10 token compact records; migration remediation=10 qualified pool-MC records; aborted-run admissibility overlay=20 request-result admissible Birdeye records; original five retained authoritative facts available",
+    "overlay": "migration match=10/conflict=0; Birdeye match=20/conflict=0; PRICE_HISTORY qualified=10; SOL_USD_FX qualified=10",
+    "next_action": "Materialize and validate the complete offline 15-token dataset/profile and completion assessment from these sources only; do not dispatch providers."
+  },
   "generic_aborted_run_result_admissibility": {
     "engineering_revision": "working-tree request-result admissibility gate",
     "tests": "5 passed: generic admissibility and run-state tests",

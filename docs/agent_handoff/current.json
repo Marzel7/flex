@@ -15536,13 +15536,13 @@
     "next_action": "The separately authorized frozen ten-token acquisition can now begin from a new durable run ID; do not reacquire the existing five or reuse any prior dispatched identity."
   },
   "watchtower_expanded_token_data_execution": {
-    "engineering_revision": "e21867c1; frozen execution pre-dispatch safety verification",
-    "tests": "18 prior focused tests remain the runtime qualification baseline; actual anchored run_operation_token_data_research(..., dry_run=True) returned 20 initial requests with 0 provider bindings dispatched.",
+    "engineering_revision": "e21867c1 plus generic durable provider-binding composition",
+    "tests": "22 passed: provider bindings, runtime, request-DAG, durability, and adapter regressions; actual anchored run_operation_token_data_research(..., dry_run=True) returned 20 initial requests with 0 provider bindings dispatched.",
     "production_flags": "Provider/Helius/Birdeye/RPC/network/database/membership/attribution/UI writes=0; raw payload retention=0; no new database.",
-    "verdict": "WATCHTOWER_EXPANDED_TOKEN_DATA_SAMPLE_BLOCKED",
-    "result": "All three frozen hashes match, all ten anchors are complete, and the actual runtime dry-run still yields exactly 20 initial logical requests. Execution stopped before the first provider call because run_operation_token_data_research has no qualified production provider-binding composition. Its binding contract also cannot carry Retry-After into execute_durable_provider_request or enforce the required 45-second timeout. Legacy scripts use direct provider transport and cannot be substituted without violating this execution contract.",
-    "artifact": "docs/audits/watchtower_expanded_execution_runtime_safety_blocked.v1.json (sha256 ef7e3bbaa86b17104b984e09603aea1de342cf918fa6ca1a017f77eed46d19a8)",
-    "next_action": "Authorize a bounded production binding-contract correction for Helius/Birdeye injection, 45-second timeout, and capped Retry-After propagation through the durable executor; requalify with mocks before any frozen-run dispatch."
+    "verdict": "GENERIC_TOKEN_DATA_PROVIDER_BINDINGS_QUALIFIED",
+    "result": "TOKEN_DATA_PROVIDER_BINDING_CONTRACT_V1 now provides one-attempt Helius getTransaction/getBlock and Birdeye OHLCV bindings through the runtime's durable executor. Both enforce a 45-second timeout. The compact transport outcome carries Retry-After, which the durable executor caps at 60 seconds and honors without creating a new logical identity. Mocked actual-runtime composition exercised Create, opening, migration, lifecycle, and FX nodes. All frozen Watchtower inputs remain unchanged and dry-run still returns exactly 20 initial identities.",
+    "artifact": "docs/audits/generic_token_data_provider_bindings_qualification.v1.json (sha256 43065029a77f8ca4e68ce8b943c22caed5549fcfc0e6eb4eb8e902b1f64dfd78)",
+    "next_action": "The separately authorized frozen ten-token Watchtower execution may be rerun through production_provider_bindings, with the existing five retained-evidence-only."
   },
   "generic_token_data_production_runtime": {
     "engineering_revision": "e21867c1 plus mocked production-runtime qualification",

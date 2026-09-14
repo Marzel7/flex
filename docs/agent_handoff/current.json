@@ -1,4 +1,15 @@
 {
+  "watchtower_migration_remediation_execution": {
+    "engineering_revision": "working-tree corrected migration compact retention",
+    "tests": "migration-only dry scope passed: 10 CHAIN_MIGRATION_TRANSACTION, all other families zero",
+    "production_flags": "authorized 10 Helius getTransaction calls only; no getBlock/Birdeye; raw retention=false",
+    "verdict": "PARTIAL",
+    "run_id": "watchtower-migration-remediation-ae244480db7244d48cabaf8c957d9bc6",
+    "final_state": "COMPLETED",
+    "accounting": "10 logical/physical requests; HTTP200=10; SUCCEEDED=10; compact=10; FACT_QUALIFIED=10; duplicates=0; succeeded_without_pool_mc=0",
+    "pool_mc": "325.7895300531658 SOL for 9 tokens; 1125.8532265041988 SOL for 1 token",
+    "next_action": "Complete definitive offline 15-token reconciliation from original compact store, remediation compact store, and retained five only; make no further provider call."
+  },
   "watchtower_migration_pool_bindings": {
     "engineering_revision": "working-tree offline binding artifact",
     "tests": "local token_analysis exact mint/migration_tx/pumpswap_pool_address reconciliation; no provider calls",

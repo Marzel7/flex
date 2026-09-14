@@ -1,4 +1,14 @@
 {
+  "generic_migration_compact_retention": {
+    "engineering_revision": "working-tree migration compact completeness guard",
+    "tests": "18 passed: production-runtime compact retention, compact-result, durability tests",
+    "production_flags": "no provider calls; raw retention=false",
+    "verdict": "GENERIC_MIGRATION_COMPACT_RETENTION_QUALIFIED",
+    "contract_version": "TOKEN_DATA_COMPACT_RESULT_RETENTION_V1",
+    "guarantee": "A qualified CHAIN_MIGRATION_TRANSACTION without first_pumpswap_pool_mc_sol now fails compact persistence and cannot be committed SUCCEEDED.",
+    "completed_final_replay_recovery": "10 tokens audited; recovered=0; verified=0; missing=10; conflicts=0; no exact mint+signature-bound retained pool MC evidence was found locally.",
+    "next_action": "A separately authorized minimal new run may request CHAIN_MIGRATION_TRANSACTION only for the 10 missing identities using the corrected retention guard; do not replay the 120-request run."
+  },
   "watchtower_final_offline_finalization": {
     "engineering_revision": "working-tree compact-retention runtime",
     "tests": "offline retained-artifact inspection only; no provider calls",

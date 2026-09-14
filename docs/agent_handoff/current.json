@@ -15933,6 +15933,15 @@
     "artifacts": "ledger=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_lifecycle_request_ledger.v1.json; accounting_replay=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_lifecycle_acquisition_accounting_replay.v1.json; cases=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_cases.v1.json; summary=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_summary.v1.json.",
     "next_action": "HOLD. A separate authorization after quota recovery is required to retry only the 23 terminal-failure identities; do not reopen successful identities or censored mints."
   },
+  "f7p3_relay_semantic_decontamination": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "tests": "27 passed: infrastructure-role exclusion, unified terminal-infrastructure, and attribution-outcome focused suites.",
+    "production_flags": "One exact SQLite transaction was attempted but rejected before any change because wt_ops_v2.db was locked by active local writers. No lock bypass, process stop, membership/detector/V1/UI/historical mutation, or provider/RPC/network call occurred.",
+    "verdict": "F7P3_RELAY_SEMANTIC_DECONTAMINATION_ABORTED",
+    "result": "Preflight and post-abort both confirm 148 selected F7p3 candidate-parent rows and Watchtower membership 274 with no diff. The planned minimal correction remains frozen: retain raw rows, set those 148 semantic selections to ALTERNATIVE, and record COMMON_INFRASTRUCTURE_RELAY_SOLVER exclusion fields in rejection_reason. The transaction did not begin due SQLite error database is locked (5).",
+    "artifact": "docs/audits/f7p3_relay_semantic_decontamination_abort.v1.json (SHA-256 6f1bc55bdfd2f61737b492d61634e35eace7e4e4bcd551c791a2aca8bcc8a5d4)",
+    "next_action": "Wait for the active database writer to release wt_ops_v2.db, then rerun only the frozen 148-row transaction and immediately verify Watchtower invariants. Do not stop processes without separate authorization."
+  },
   "global_edge_infrastructure_consumer_audit": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "27 passed: infrastructure-role exclusion, unified terminal-infrastructure, and attribution-outcome focused suites.",

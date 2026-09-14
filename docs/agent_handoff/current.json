@@ -15553,6 +15553,15 @@
     "artifact": "docs/audits/generic_token_data_production_runtime_contract_blocked.v1.json (sha256 c9e6e175d21449146d3e6eabb8d1cd16ed21de16bf8201cffc9f6e72363eacfa)",
     "next_action": "Authorize a coherent contract revision: permit the existing opening executor's retention/direct acquisition model, or authorize a pre-fetched-payload opening reduction plus durable retry integration. Then requalify before any provider request."
   },
+  "generic_token_data_transport_boundary": {
+    "engineering_revision": "e21867c1 plus callback-fed opening semantic path",
+    "tests": "29 passed: opening executor, generic runner, provider durability",
+    "production_flags": "Provider/Helius/Birdeye/RPC/network/database/membership/attribution/UI writes=0; raw payload retention=0; no new database.",
+    "verdict": "GENERIC_TOKEN_DATA_TRANSPORT_BOUNDARY_BLOCKED",
+    "result": "Partial authorized transport separation completed: execute_birth_anchored_opening_analysis now accepts injected create/block callbacks and retain_provider_payloads=false, allowing a canonical zero-raw path while preserving legacy raw-retaining defaults. Remaining work is mandatory: move Birdeye same-identity retry under execute_durable_provider_request and complete the single thin production composition using the callback-fed semantic path plus canonical adapters.",
+    "artifact": "docs/audits/generic_token_data_transport_boundary_partial.v1.json (sha256 cce14c807e7ee69fe3a57f297ef82ad570a910cb90c65045cc01ce977fc91fb0)",
+    "next_action": "Complete durable Birdeye retry ownership and the production composition with mocked end-to-end regression; do not dispatch Watchtower tokens until qualified."
+  },
   "watchtower_corrected_birdeye_replay": {
     "engineering_revision": "e21867c1 plus corrected V3 replay runner",
     "tests": "runner py_compile and capped-window smoke checks passed before dispatch",

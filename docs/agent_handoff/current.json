@@ -15471,5 +15471,14 @@
     "result": "All ten compact Helius create/migration reads qualified and all five migration transactions yielded first-PumpSwap pool MC in SOL. All ten Birdeye identities reached HTTP200, but every MC series had no usable candles and every FX series lacked an at-or-before point, so lifecycle-data provision is INSUFFICIENT_DATA_PROVISION. This is evidence about the bounded request outputs, not a universal provider-retention claim.",
     "artifact": "docs/audits/watchtower_recent_token_data_playbook_final.v1.json (sha256 d7ad6388d594f835fba3ce1c0d2667362740dc71aaadfa0400017256d2c653b2)",
     "next_action": "Do not expand the cohort. Any alternative lifecycle-coverage methodology/provider/window requires separate authorization."
+  },
+  "opening_sequence_reconstruction_playbook": {
+    "engineering_revision": "e21867c1 plus generic opening-sequence recovery hierarchy",
+    "tests": "34 passed: token-data orchestration, birth-anchored acquisition, and Pump.fun opening executor suites",
+    "production_flags": "Five frozen Watchtower tokens only; Birdeye=0; Helius first pass=25 and parser-correction replay=25 calls; no DB/membership/attribution/UI/V1 writes; raw payload retention=0.",
+    "verdict": "OPENING_SEQUENCE_RECONSTRUCTION_PLAYBOOK_QUALIFIED",
+    "result": "Recovered creation-slot-block.v3 generic method: exact Create getTransaction plus up to eight ordered getBlock slots. The generic decoder was corrected to accept real RPC transaction-level signatures. All five recent tokens produced a qualified first independent Buy and post-action full-supply FDV_SOL. Conservative/exact actionability remains unqualified because linkage/exclusivity are absent; curve-completion/bundle claims remain unproven.",
+    "artifact": "docs/audits/watchtower_recent_opening_sequence_final.v1.json (sha256 68b0c3c6d2c083fdde943bb7263eaef78a4b8fe713f5519ca2918136f87529e7)",
+    "next_action": "Do not expand. Any change from FDV_SOL to circulating MC or any bundle/curve-completion method needs separate qualification."
   }
 }

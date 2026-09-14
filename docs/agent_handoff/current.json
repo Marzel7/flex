@@ -1,4 +1,15 @@
 {
+  "watchtower_birdeye_400_known_answer_diagnostic": {
+    "engineering_revision": "bounded durable known-answer diagnostic",
+    "tests": "two exact digest-matched historical parameter replays for first frozen mint; no controls issued",
+    "production_flags": "Birdeye logical requests=2; Helius=0; raw response retention=0",
+    "verdict": "WATCHTOWER_BIRDEYE_400_KNOWN_ANSWER_DIAGNOSTIC_QUALIFIED",
+    "run_id": "watchtower-birdeye-diag-23427290f68f4794aaedeb5dcf81c4e6",
+    "mint": "2dDDtevvn5V3sHCRQtMiSM3KoTDRfYdDkFrdigHNpump",
+    "result": "PRICE_HISTORY and SOL_USD_FX exact digest-matched requests each returned HTTP400 PROVIDER_BLOCKED; compact safe error summary='Compute units usage limit exceeded'.",
+    "classification": "PRICE_HISTORY_400_ROOT_CAUSE=PROVIDER_VALIDATION_RULE; SOL_USD_FX_400_ROOT_CAUSE=PROVIDER_VALIDATION_RULE; no request-construction defect proven; likely shared across the new ten because both series and all original failures share the same provider behavior.",
+    "next_action": "NO_REPLAY_REQUIRED_LEGITIMATE_PROVIDER_GAP. Do not replay remaining nine without separate evidence/authority. Future manifests need normalized non-secret parameters, builder version, and compact terminal provider-error classification."
+  },
   "watchtower_birdeye_request_reconstruction": {
     "engineering_revision": "retained deterministic-input digest reconstruction only",
     "tests": "canonical JSON SHA-256 matched retained parameter digests for good and failed PRICE_HISTORY and SOL_USD_FX requests; no provider calls",

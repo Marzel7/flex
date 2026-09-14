@@ -15933,6 +15933,15 @@
     "artifacts": "ledger=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_lifecycle_request_ledger.v1.json; accounting_replay=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_lifecycle_acquisition_accounting_replay.v1.json; cases=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_cases.v1.json; summary=docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_summary.v1.json.",
     "next_action": "HOLD. A separate authorization after quota recovery is required to retry only the 23 terminal-failure identities; do not reopen successful identities or censored mints."
   },
+  "global_edge_infrastructure_consumer_audit": {
+    "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
+    "tests": "27 passed: infrastructure-role exclusion, unified terminal-infrastructure, and attribution-outcome focused suites.",
+    "production_flags": "Provider/RPC/network=0; database, membership, detector, V1, UI and historical-artifact writes=0.",
+    "verdict": "GLOBAL_EDGE_INFRASTRUCTURE_CONSUMER_AUDIT_QUALIFIED",
+    "result": "The exact frozen population is 150 selected-edge rows involving F7p3: 148 select it as parent and two traverse it as intermediate. The 148 F7p3 parents are known RELAY_SOLVER, attribution weight 0; two next parents are unknown/non-countable. No population mint joins operation membership. 76 detector results are co-located but all negative/insufficient and provenance carries no F7p3. No positive detector, attribution/V1 fact, UI/read-model, research, or membership propagation was proven. Candidate-layer contamination only.",
+    "artifact": "docs/audits/global_edge_infrastructure_consumer_audit.v1.json (SHA-256 d96a4dc37693e4816210be701fd6824f69be003d4fc40abc1cc5eb8a0810b358)",
+    "next_action": "Separate authorization is required to implement the non-executed candidate-layer reclassification/exclusion and to continue only the one retained upstream path; do not alter Watchtower."
+  },
   "watchtower_f7p3_decontamination_census": {
     "engineering_revision": "f661ae4593e5aaf434c4d0c91e9fb8dc2afd4f08",
     "tests": "27 passed: infrastructure-role exclusion, unified terminal-infrastructure, and attribution-outcome focused suites.",

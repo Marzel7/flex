@@ -1,4 +1,15 @@
 {
+  "generic_token_data_compact_result_retention": {
+    "engineering_revision": "working-tree compact-result retention implementation",
+    "tests": "17 passed: compact result, durability, and production-runtime focused tests",
+    "production_flags": "no live provider calls; raw provider payload retention=false",
+    "verdict": "PARTIAL",
+    "contract_version": "TOKEN_DATA_COMPACT_RESULT_RETENTION_V1",
+    "persistence_authority": "docs/audits/token_data_compact_results/<run_id>/<mint>.json",
+    "implemented": "successful canonical compact output is durably persisted before SUCCEEDED; persistence failure transitions to OUTCOME_UNRETAINED/FAILED",
+    "watchtower_completed_run": "recoverable compact fact count=0; unrecoverable successful responses=90; replay required for definitive finalization under new contract",
+    "next_action": "Complete failure-result persistence and an offline token finalizer regression, then qualify the contract without replaying Watchtower."
+  },
   "watchtower_token_data_finalization": {
     "engineering_revision": "e21867c1 plus qualified working-tree runtime",
     "tests": "No provider calls; retained-manifest reconciliation only.",

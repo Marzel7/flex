@@ -15536,13 +15536,13 @@
     "next_action": "The separately authorized frozen ten-token acquisition can now begin from a new durable run ID; do not reacquire the existing five or reuse any prior dispatched identity."
   },
   "watchtower_expanded_token_data_execution": {
-    "engineering_revision": "e21867c1; execution preflight only",
-    "tests": "11 passed: request DAG, generic runner, provider durability",
+    "engineering_revision": "e21867c1; qualified runtime expanded-sample dry preflight",
+    "tests": "Actual run_operation_token_data_research(..., dry_run=True) invoked for the ten frozen NEW_ACQUISITION members; 0 provider bindings dispatched.",
     "production_flags": "Provider/Helius/Birdeye/RPC/network/database/membership/attribution/UI writes=0; raw payload retention=0; no new database.",
-    "verdict": "WATCHTOWER_EXPANDED_TOKEN_DATA_SAMPLE_BLOCKED",
-    "result": "Frozen eligibility and expanded-manifest hashes verified, with exactly 5 existing and 10 eligible new members. Execution fail-closed before creating a run: run_token_data_request_dag has only test call sites and requires injected provider bindings plus compact fact-ingestion callback. No authorized production composition exists for canonical creation-slot-block.v3 decoding or durable Birdeye same-identity retry. Legacy scripts are not substitutable because they do not meet the all-requests durable-executor requirement.",
-    "artifact": "docs/audits/watchtower_expanded_token_data_execution_preflight_blocked.v1.json (sha256 7ce17d3bc88d53e99d0d21fb51f10d9e8bb25b559f3efe5a8a377a150b6e50e3)",
-    "next_action": "Authorize a bounded generic runtime-composition milestone to wire the existing canonical adapters, opening decoder, provider bindings, and durable same-identity retry to run_token_data_request_dag; then rerun preflight before any provider call."
+    "verdict": "WATCHTOWER_EXPANDED_SAMPLE_EXECUTION_PREFLIGHT_BLOCKED",
+    "result": "Both frozen hashes match and the manifest is exactly 5 existing-qualified plus 10 new, with no duplicate or out-of-cohort new mints. The now-qualified runtime was invoked in dry mode, but materialized 0 rather than 20 initial requests because all ten frozen new members lack both create_signature and migration_signature. TOKEN_DATA_REQUEST_DAG_V1 correctly refuses to invent or plan those identities. This is a frozen-input interface blocker, not a production-runtime defect.",
+    "artifact": "docs/audits/watchtower_expanded_sample_execution_preflight.v1.json (sha256 3b8276a2eb302cc653f1b26c5a41124b6d7a92309ceea64cabc33fc2fe0dd717)",
+    "next_action": "Freeze and bind verified create_signature and migration_signature identity inputs for exactly the ten already-frozen NEW_ACQUISITION mints, without changing membership or methodology; then rerun the dry preflight before any provider dispatch."
   },
   "generic_token_data_production_runtime": {
     "engineering_revision": "e21867c1 plus mocked production-runtime qualification",

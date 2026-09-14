@@ -16061,5 +16061,14 @@
     "result": "The frozen Watchtower census binds a 274-member ordered manifest (sha256 3ce1fc9f35e06eebc0d07a291e49163fc912e9c91f9c8ab2a56208babdce03f4), while the current authoritative operator_launch_membership query returns 275 rows. The frozen artifact does not retain the historical mint list needed to reconcile that drift without prohibited membership reassessment.",
     "artifact": "docs/audits/watchtower_token_data_playbook_sample_blocked.v1.json (sha256 bd721fb093bea7e726afa680ae404728f9068fb4066385317a8f9da879f42b03)",
     "next_action": "Separately authorize membership-governance reconciliation or a new hash-bound freeze, then run the deterministic five-token token-data sample. Do not issue provider calls before that gate passes."
+  },
+  "watchtower_membership_count_reconciliation": {
+    "engineering_revision": "e21867c1",
+    "tests": "24 passed: tests/test_watchtower_confirmed_membership_projection.py and tests/test_x65_44_watchtower_registry_promotion.py",
+    "production_flags": "Provider/RPC/network/database/membership/operation-status/V1/UI/historical-fact writes=0.",
+    "verdict": "WATCHTOWER_MEMBERSHIP_COUNT_RECONCILIATION_BLOCKED",
+    "result": "The 274-member historical census has no retained member list. Its digest does not match a leave-one-out replay of the current 275 rows; only 238 current rows have assigned_at at or before the census handoff timestamp, leaving 37 post-handoff automatic projection rows. Therefore the exact population diff and legitimacy of the current cohort cannot be proven from retained data.",
+    "artifact": "docs/audits/watchtower_membership_count_reconciliation.v1.json (sha256 77341efdab48e21ca82776310a24b8302a0ed7b6e5b5eafb495efdacd1a23100)",
+    "next_action": "Separate membership-governance work must recover or authoritatively re-freeze a complete ordered membership manifest before token-data sampling."
   }
 }

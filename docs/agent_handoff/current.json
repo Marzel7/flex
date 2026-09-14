@@ -15959,6 +15959,14 @@
     "artifact": "docs/audits/manual_attribution_server_side_bridge.v1.json (SHA-256 bb6a251febb81b46165a5e3e55aedd5e200ab2897d9059fa2f7fcde9a653562a)",
     "next_action": "A separately authorized UI task may expose exactly the two browser POST routes and compact controls; it must use validate_potential_operation(connection, candidate_source_id) and promote_validated_operation(connection, proposal_id) without accepting proof inputs from the browser."
   },
+  "manual_operation_attribution_ui": {
+    "engineering_revision": "5904a907",
+    "tests": "6 passed: tests/test_operation_attribution_manual.py, tests/test_operation_attribution_manual_bridge.py, tests/test_operation_attribution_evidence.py, tests/test_manual_attribution_ui_routes.py",
+    "production_flags": "LIVE_ATTRIBUTION_ENFORCEMENT_ENABLED=false; AUTOMATIC_PROVIDER_ACQUISITION_ENABLED=false; no actionability activation; no F7p3 retry",
+    "verdict": "PASS",
+    "artifact": "docs/audits/manual_operation_attribution_ui.v1.json (SHA-256 d0354a8be4110dde4e0e9f245074cb6432e8823606754afb5ec91ed11c80591f)",
+    "next_action": "Manual V1 UI workflow is complete. Do not extend it into another framework or audit milestone without separate authorization."
+  },
   "f7p3_relay_semantic_decontamination_retry": {
     "engineering_revision": "5904a907f606b62f37fb4ab3ae3f8368e8a95028",
     "tests": "No code or database change was made; prior focused infrastructure suites remain 27 passed.",

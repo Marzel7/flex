@@ -1,4 +1,12 @@
 {
+  "birdeye_key_environment_binding": {
+    "engineering_revision": "working-tree provider binding update",
+    "tests": "14 passed: provider binding and production runtime focused tests",
+    "production_flags": "no provider calls; no secret read or exposed",
+    "verdict": "PASS",
+    "change": "BirdeyeProductionBinding now prefers BIRDEYE_KK, falling back to BIRDEYE for compatibility.",
+    "next_action": "Use BIRDEYE_KK for future authorized Birdeye calls."
+  },
   "watchtower_birdeye_400_known_answer_diagnostic": {
     "engineering_revision": "bounded durable known-answer diagnostic",
     "tests": "two exact digest-matched historical parameter replays for first frozen mint; no controls issued",

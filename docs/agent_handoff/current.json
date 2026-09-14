@@ -16052,5 +16052,14 @@
     "status": "HOLD",
     "verdict": "MIGRATION_REQUIRED",
     "writers": "src/core/ws_cascade_store.py lifecycle upsert/update functions; scripts/backfill_token_lifecycle.py historical backfill."
+  },
+  "watchtower_token_data_playbook_sample": {
+    "engineering_revision": "e21867c1",
+    "tests": "3 passed: tests/test_watchtower_confirmed_membership_projection.py",
+    "production_flags": "Provider/RPC/network calls=0; membership/attribution/UI/V1/historical-fact writes=0.",
+    "verdict": "WATCHTOWER_TOKEN_DATA_PLAYBOOK_SAMPLE_BLOCKED",
+    "result": "The frozen Watchtower census binds a 274-member ordered manifest (sha256 3ce1fc9f35e06eebc0d07a291e49163fc912e9c91f9c8ab2a56208babdce03f4), while the current authoritative operator_launch_membership query returns 275 rows. The frozen artifact does not retain the historical mint list needed to reconcile that drift without prohibited membership reassessment.",
+    "artifact": "docs/audits/watchtower_token_data_playbook_sample_blocked.v1.json (sha256 bd721fb093bea7e726afa680ae404728f9068fb4066385317a8f9da879f42b03)",
+    "next_action": "Separately authorize membership-governance reconciliation or a new hash-bound freeze, then run the deterministic five-token token-data sample. Do not issue provider calls before that gate passes."
   }
 }

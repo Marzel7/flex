@@ -15507,5 +15507,14 @@
     "result": "The original mcap request used a future end time (create+86400, 79,779 seconds after the sample run timestamp) and omitted mode/x-chain. The bounded current-window diagnostic with mode=range and x-chain=solana returned HTTP200 and 39 token-level rows for both mcap and price. The actual V3 rows use unix_time, but the playbook parser only accepted unixTime/time/timestamp, so it discarded valid OHLC rows. The smallest generic parser fix now accepts unix_time for lifecycle and FX parsing. The first PumpSwap pool is HkeRqGMF1w6YS3WzKHHwrjodfWjD5X4kb3UbzsUwpzcZ; no pair request was sent.",
     "artifact": "docs/audits/watchtower_2yre_birdeye_known_answer_diagnostic.v1.json (sha256 34424f225cd64476d5a7ce5154dc18b12a8268eb26e904aea173597613fec3bf)",
     "next_action": "Provider-disabled replay/reclassification of retained Watchtower compact results may proceed under the parser correction. Do not add pair fallback or treat future-end capping as proven causal without separate qualification."
+  },
+  "watchtower_corrected_birdeye_replay": {
+    "engineering_revision": "e21867c1 plus corrected V3 replay runner",
+    "tests": "runner py_compile and capped-window smoke checks passed before dispatch",
+    "production_flags": "The runner dispatched the first token's two Birdeye identities, then failed locally before compact materialization; no Helius/database/membership/UI/V1 writes and raw retention=0. No further provider calls were sent.",
+    "verdict": "WATCHTOWER_BIRDEYE_CORRECTED_REPLAY_AND_PLAYBOOK_UPDATE_BLOCKED",
+    "result": "A local serialization defect attempted to read migration data from the opening-sequence artifact after the first token's two requests. Because their compact outcomes were not materialized and repeat identities are prohibited, the five-token replay cannot safely continue without an explicit accounting/recovery authorization.",
+    "artifact": "docs/audits/watchtower_corrected_birdeye_replay_blocked.v1.json",
+    "next_action": "Resolve only the two dispatched-but-unmaterialized identity accounting under explicit authorization; do not redispatch or continue the other eight identities meanwhile."
   }
 }

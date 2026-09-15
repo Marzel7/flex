@@ -15828,5 +15828,14 @@
     "result": "A single local serialized dispatcher remains active under the frozen 65-second spacing contract. It is the sole process permitted to advance the ledger; auxiliary manual wrappers were removed. Snapshot checkpoint is 7/72 completed with no provider or integrity failures.",
     "artifact": "docs/audits/watchtower_recent_36_actionable_price_expansion.v1.json (snapshot file sha256 ca6aad16972cf34b8a2e0e320b40a16b2393f2c8ff136020d3724660f7ae9c8c; internal canonical sha256 eb81e0a161dea29510ba0cd42783a1f72f743df4517d09d536a642a0f61a1120)",
     "next_action": "Let the single dispatcher continue. If it is interrupted, resume only the ledger's next PENDING identity (snapshot: 76bc35469046be15f9fb1c268970b09bf65e0a0c16152f7fcc2b53c6443acf5b, 9gMyvDXBRUb4BaWSmoG7msm5eX8cCBggoBnU72Fupump, MCAP_1S)."
+  },
+  "byzantine_64_strategy_abc_2x_comparison": {
+    "engineering_revision": "e21867c1 plus retained-path A/B/C analysis script (engineering worktree commit blocked by pre-existing index.lock)",
+    "tests": "12 passed: position-peak and Byzantine strategy-grade tests; artifact regenerated twice with identical SHA-256",
+    "production_flags": "Birdeye/RPC/Helius/network calls=0; canonical Byzantine entry, policy, UI, membership, and production facts unchanged.",
+    "verdict": "BYZANTINE_64_STRATEGY_ABC_PARTIAL",
+    "result": "Retained cohort: 22/64 observed 2x hits, 42 never-2x, 13 observed 5x. A has 22 qualified trigger exits; non-hits remain marked endpoints, not fabricated exits. For all 22 hits R1/R2 retained runner exits are observed. R3 has zero exact entry+3h retained points and uses no nearest-candle substitute. R1 median totals B=1.2340053619405784x/C=1.6170026809702893x; R2 B=1.0859261850395798x/C=1.54296309251979x. This is a retained-path comparison, not a policy or execution claim.",
+    "artifact": "docs/audits/byzantine_64_strategy_abc_2x_comparison.v1.json (SHA-256 f46b9b2cd54f3b04c2b9a0270b6f52d188d9450467238b822b884e48afdbcb3f)",
+    "next_action": "If exact R3 is needed, separately authorize a compact post-entry lifecycle specification guaranteeing an admissible entry+3h observation."
   }
 }

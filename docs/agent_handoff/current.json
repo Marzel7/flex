@@ -1,257 +1,4 @@
 {
-  "watchtower_definitive_dataset_materialization": {
-    "engineering_revision": "offline-source inspection only",
-    "tests": "no provider calls; legacy writer compatibility inspection",
-    "production_flags": "OFFLINE_FINALIZATION_PROVIDER_CALLS=0; raw retention=false",
-    "verdict": "PARTIAL",
-    "finding": "Existing scripts/finalize_watchtower_token_data_reconciliation.py is a legacy five-token writer bound to old artifacts and would overwrite watchtower_token_data_final_reconciliation.v1.json; it cannot safely materialize the new 15-token overlay dataset.",
-    "source_readiness": "admitted Birdeye overlay contains PRICE_HISTORY=10 qualified and SOL_USD_FX=10 qualified compact results; migration and final-acquisition overlays are present.",
-    "next_action": "Create a dedicated deterministic offline 15-token projection/artifact writer with explicit source precedence and validation, then run it provider-disabled. Do not modify legacy artifacts."
-  },
-  "watchtower_final_admitted_birdeye_reconciliation": {
-    "engineering_revision": "offline compact-store reconciliation",
-    "tests": "read-only store coverage verification; no provider calls",
-    "production_flags": "OFFLINE_FINALIZATION_PROVIDER_CALLS=0; raw retention=false",
-    "verdict": "PARTIAL",
-    "sources": "final acquisition=10 token compact records; migration remediation=10 qualified pool-MC records; aborted-run admissibility overlay=20 request-result admissible Birdeye records; original five retained authoritative facts available",
-    "overlay": "migration match=10/conflict=0; Birdeye match=20/conflict=0; PRICE_HISTORY qualified=10; SOL_USD_FX qualified=10",
-    "next_action": "Materialize and validate the complete offline 15-token dataset/profile and completion assessment from these sources only; do not dispatch providers."
-  },
-  "generic_aborted_run_result_admissibility": {
-    "engineering_revision": "working-tree request-result admissibility gate",
-    "tests": "5 passed: generic admissibility and run-state tests",
-    "production_flags": "no provider calls; raw retention=false",
-    "verdict": "GENERIC_ABORTED_RUN_RESULT_ADMISSIBILITY_QUALIFIED",
-    "contract_version": "TOKEN_DATA_ABORTED_RUN_RESULT_ADMISSIBILITY_V1",
-    "historical_run": "watchtower-birdeye-replay-0c4ba5f697f448d8a166d4c57ff35187 remains ABORTED_INCOMPLETE_RUN_STATE, unqualified, non-resumable, and cannot dispatch.",
-    "application": "20/20 individual results admissible from unqualified run; rejected=0; PRICE_HISTORY=10, SOL_USD_FX=10; each has deterministic identity/digest verification, known terminal success, one compact result, parser version, and no outcome-unretained/conflict.",
-    "violation_effect": "CONTROL_PLANE_ONLY; no dispatch occurred after an active durable abort because the historical defect was missing pre-dispatch state authority.",
-    "next_action": "Admissible 20 Birdeye compact facts may participate in offline Watchtower reconciliation; do not treat the historical run itself as qualified."
-  },
-  "watchtower_birdeye_replay_run_state_remediation": {
-    "engineering_revision": "working-tree shared run-state initializer",
-    "tests": "13 passed: production runtime and run-state focused tests",
-    "production_flags": "no provider calls in remediation phase; raw retention=false",
-    "verdict": "PARTIAL",
-    "fix": "initialize_operation_token_data_run is now the shared ACTIVE-state gate used by full runtime; intended family-scoped compositions must invoke it before materialization/dispatch.",
-    "historical_run": "watchtower-birdeye-replay-0c4ba5f697f448d8a166d4c57ff35187 was recorded ABORTED_INCOMPLETE_RUN_STATE and cannot resume.",
-    "state_discrepancy": "Contrary to prior handoff's 14/1/5 snapshot, observable manifests now total 20 and all are SUCCEEDED. No unresolved six-identity continuation exists. The 20 success artifacts remain retained evidence but originate from a composition without pre-dispatch run-state authority.",
-    "next_action": "Do not dispatch. Reconcile whether those 20 retained successes may be accepted under policy or require a separately authorized fresh run-state-qualified replay; no minimal continuation is currently derivable."
-  },
-  "watchtower_birdeye_replay_execution": {
-    "engineering_revision": "bounded Birdeye-only replay attempt",
-    "tests": "all 20 parameter digests verified before dispatch",
-    "production_flags": "no Helius/getBlock calls; raw retention=false; provider dispatch stopped on safety defect",
-    "verdict": "WATCHTOWER_BIRDEYE_REPLAY_BLOCKED",
-    "run_id": "watchtower-birdeye-replay-0c4ba5f697f448d8a166d4c57ff35187",
-    "observed_state": "15 durable manifests: 14 SUCCEEDED HTTP200, 1 RATE_LIMIT_RETRY_PENDING HTTP429; remaining five identities were not dispatched",
-    "blocker": "The direct Birdeye-only replay composition did not create/persist a token_data_run_state record and stopped with a retry-pending logical identity. It cannot be resumed or extended while preserving the required run-state authority.",
-    "next_action": "Do not dispatch further. Require an explicitly authorized generic Birdeye-only run composition that creates a durable ACTIVE run before planning and supports restart-safe retry-pending recovery, then requalify before any continuation."
-  },
-  "watchtower_birdeye_fx_rate_limit_diagnostic": {
-    "engineering_revision": "generic BIRDEYE_KK-preferred production binding",
-    "tests": "single exact digest-matched FX logical request; first local command had indentation error and sent zero requests",
-    "production_flags": "BIRDEYE logical requests=1; physical attempts=1; Helius=0; raw retention=false",
-    "verdict": "WATCHTOWER_BIRDEYE_FX_RATE_LIMIT_DIAGNOSTIC_QUALIFIED",
-    "run_id": "watchtower-fx-rate-limit-b502ecdb3afe443ab1c5065562da8a1b",
-    "result": "Exact historical FX digest matched; BIRDEYE_KK selected; HTTP200 reached on attempt 1; canonical FX parser returned QUALIFIED.",
-    "assessment": "SOL_USD_FX_CREDENTIAL_DIAGNOSTIC=CREDENTIAL_BINDING_LIKELY_CAUSAL. Together with PRICE_HISTORY, WATCHTOWER_FAILED_BIRDEYE_REPLAY_READY=true; recommended future scope PRICE_HISTORY=10 and SOL_USD_FX=10, not executed here.",
-    "next_action": "Await explicit authority before replaying the 20 failed Birdeye logical facts."
-  },
-  "watchtower_birdeye_credential_known_answer": {
-    "engineering_revision": "generic BIRDEYE_KK-preferred production binding",
-    "tests": "two exact digest-matched durable Birdeye diagnostic logical requests",
-    "production_flags": "BIRDEYE_KK present and selected; fallback present; Helius=0; raw retention=false",
-    "verdict": "WATCHTOWER_BIRDEYE_CREDENTIAL_KNOWN_ANSWER_QUALIFIED",
-    "run_id": "watchtower-birdeye-credential-3b778d6bce574b41ac1efd8804a9102a",
-    "mint": "2dDDtevvn5V3sHCRQtMiSM3KoTDRfYdDkFrdigHNpump",
-    "result": "Exact PRICE_HISTORY digest-matched request changed from historical HTTP400 to HTTP200/QUALIFIED under BIRDEYE_KK. Exact SOL_USD_FX digest-matched request returned HTTP429/RATE_LIMIT_TERMINAL, so its credential diagnostic is inconclusive.",
-    "assessment": "PRICE_HISTORY_CREDENTIAL_DIAGNOSTIC=CREDENTIAL_BINDING_LIKELY_CAUSAL; SOL_USD_FX_CREDENTIAL_DIAGNOSTIC=INCONCLUSIVE; failed full replay is not ready because both facts did not yield usable HTTP200.",
-    "next_action": "Do not replay the ten. A separately authorized bounded FX rate-limit diagnostic is required before any FX replay recommendation."
-  },
-  "birdeye_key_environment_binding": {
-    "engineering_revision": "working-tree provider binding update",
-    "tests": "14 passed: provider binding and production runtime focused tests",
-    "production_flags": "no provider calls; no secret read or exposed",
-    "verdict": "PASS",
-    "change": "BirdeyeProductionBinding now prefers BIRDEYE_KK, falling back to BIRDEYE for compatibility.",
-    "next_action": "Use BIRDEYE_KK for future authorized Birdeye calls."
-  },
-  "watchtower_birdeye_400_known_answer_diagnostic": {
-    "engineering_revision": "bounded durable known-answer diagnostic",
-    "tests": "two exact digest-matched historical parameter replays for first frozen mint; no controls issued",
-    "production_flags": "Birdeye logical requests=2; Helius=0; raw response retention=0",
-    "verdict": "WATCHTOWER_BIRDEYE_400_KNOWN_ANSWER_DIAGNOSTIC_QUALIFIED",
-    "run_id": "watchtower-birdeye-diag-23427290f68f4794aaedeb5dcf81c4e6",
-    "mint": "2dDDtevvn5V3sHCRQtMiSM3KoTDRfYdDkFrdigHNpump",
-    "result": "PRICE_HISTORY and SOL_USD_FX exact digest-matched requests each returned HTTP400 PROVIDER_BLOCKED; compact safe error summary='Compute units usage limit exceeded'.",
-    "classification": "PRICE_HISTORY_400_ROOT_CAUSE=PROVIDER_VALIDATION_RULE; SOL_USD_FX_400_ROOT_CAUSE=PROVIDER_VALIDATION_RULE; no request-construction defect proven; likely shared across the new ten because both series and all original failures share the same provider behavior.",
-    "next_action": "NO_REPLAY_REQUIRED_LEGITIMATE_PROVIDER_GAP. Do not replay remaining nine without separate evidence/authority. Future manifests need normalized non-secret parameters, builder version, and compact terminal provider-error classification."
-  },
-  "watchtower_birdeye_request_reconstruction": {
-    "engineering_revision": "retained deterministic-input digest reconstruction only",
-    "tests": "canonical JSON SHA-256 matched retained parameter digests for good and failed PRICE_HISTORY and SOL_USD_FX requests; no provider calls",
-    "production_flags": "PROVIDER_CALLS=0; RAW_BYTES_RETAINED=0",
-    "verdict": "WATCHTOWER_BIRDEYE_REQUEST_RECONSTRUCTION_QUALIFIED",
-    "digest_contract": "sha256(json.dumps(parameters, sort_keys=true, separators=(',',':'))) from provider_request_durability.canonical/plan; only parameter map is hashed (no headers/request_time/URL encoding).",
-    "finding": "Good 2YrE digests and failed new-token digests exactly reconstruct under operation_token_data_runner.plan_token_data_requests. Both use address,type=1m,chart_type,currency=usd,mode=range,time_from,time_to. Differences are token/time values only; no endpoint/chain/address-field/query-shape defect is proven.",
-    "classification": "PRICE_HISTORY=IDENTICAL_PARAMETERS_EXCEPT_TOKEN_TIME_VALUES; SOL_USD_FX=IDENTICAL_PARAMETERS_EXCEPT_TOKEN_TIME_VALUES.",
-    "next_action": "Future manifests should retain normalized non-secret request parameters plus builder version; do not infer provider failure cause from the reconstructed shape alone."
-  },
-  "watchtower_birdeye_request_parameter_diff": {
-    "engineering_revision": "retained-manifest inspection only",
-    "tests": "no provider calls; no code changes",
-    "production_flags": "PROVIDER_CALLS=0; RAW_BYTES_RETAINED=0",
-    "verdict": "WATCHTOWER_BIRDEYE_REQUEST_PARAMETER_DIFF_QUALIFIED",
-    "finding": "Good PRICE_HISTORY and SOL_USD_FX rows (HTTP200) and failed rows (HTTP400) retain provider=Birdeye, endpoint=/defi/v3/ohlcv, family, token, state/outcome, timestamps, and parameters_digest only. Neither manifest retains normalized parameter names or values.",
-    "classification": "PRICE_HISTORY_REQUEST_CONSTRUCTION_CLASSIFICATION=INSUFFICIENT_RETAINED_REQUEST_DETAIL; SOL_USD_FX_REQUEST_CONSTRUCTION_CLASSIFICATION=INSUFFICIENT_RETAINED_REQUEST_DETAIL. No concrete difference or malformed field is provable from retained manifests.",
-    "next_action": "Do not infer or change request construction from digest-only evidence. Any future diagnostic contract would need explicitly authorized normalized parameter retention."
-  },
-  "watchtower_definitive_offline_reconciliation": {
-    "engineering_revision": "working-tree compact retention and migration remediation artifacts",
-    "tests": "offline compact-store overlay reconciliation only; no provider calls",
-    "production_flags": "OFFLINE_FINALIZATION_PROVIDER_CALLS=0; HELIUS_CALLS=0; BIRDEYE_CALLS=0; raw retention=false",
-    "verdict": "WATCHTOWER_MIGRATION_REMEDIATION_AND_FINALIZATION_QUALIFIED",
-    "runs": "final acquisition watchtower-final-10-9c4ef37489a043af98b3cc2aa2731a0c; remediation watchtower-migration-remediation-ae244480db7244d48cabaf8c957d9bc6",
-    "overlay": "match=10; conflicts=0; qualified pool MC=10; 325.7895300531658 SOL x9, 1125.8532265041988 SOL x1; create-to-migration seconds=0 x10",
-    "coverage": "new ten compact facts: qualified=90, provider_blocked=20 (PRICE_HISTORY=10, SOL_USD_FX=10), insufficient=10 opening blocks; no Birdeye lifecycle price facts available from this final acquisition",
-    "assessment": "WATCHTOWER_TOKEN_DATA_INCOMPLETE_LIFECYCLE; WATCHTOWER_SAMPLE_SUFFICIENCY=INSUFFICIENT_DATA_TO_JUDGE; OPERATION_TOKEN_DATA_PLAYBOOK_FREEZE_READY=false; GLOBAL_OPERATION_TOKEN_DATA_FEATURE_STATUS=NOT_READY_DATA_COVERAGE",
-    "next_action": "Do not replay within this milestone. Any future coverage action requires separate authorization and must not treat native-SOL pool valuation as lifecycle price data."
-  },
-  "watchtower_migration_remediation_execution": {
-    "engineering_revision": "working-tree corrected migration compact retention",
-    "tests": "migration-only dry scope passed: 10 CHAIN_MIGRATION_TRANSACTION, all other families zero",
-    "production_flags": "authorized 10 Helius getTransaction calls only; no getBlock/Birdeye; raw retention=false",
-    "verdict": "PARTIAL",
-    "run_id": "watchtower-migration-remediation-ae244480db7244d48cabaf8c957d9bc6",
-    "final_state": "COMPLETED",
-    "accounting": "10 logical/physical requests; HTTP200=10; SUCCEEDED=10; compact=10; FACT_QUALIFIED=10; duplicates=0; succeeded_without_pool_mc=0",
-    "pool_mc": "325.7895300531658 SOL for 9 tokens; 1125.8532265041988 SOL for 1 token",
-    "next_action": "Complete definitive offline 15-token reconciliation from original compact store, remediation compact store, and retained five only; make no further provider call."
-  },
-  "watchtower_migration_pool_bindings": {
-    "engineering_revision": "working-tree offline binding artifact",
-    "tests": "local token_analysis exact mint/migration_tx/pumpswap_pool_address reconciliation; no provider calls",
-    "production_flags": "LIVE_PROVIDER_CALLS=0; raw retention=false",
-    "verdict": "WATCHTOWER_MIGRATION_POOL_BINDINGS_QUALIFIED",
-    "coverage": "10 frozen mints; pool found=10; verified=10; missing=0; conflicts=0",
-    "artifact": "docs/audits/watchtower_expanded_10_migration_pool_bindings.v1.json",
-    "artifact_sha256": "b605f8f69eef57b2eac85990f48b38182a32c256617943f1e1b9f351227b6250",
-    "next_action": "A separately authorized migration-only ten-request run may bind these verified pools; do not make Create/getBlock/Birdeye calls."
-  },
-  "watchtower_migration_remediation": {
-    "engineering_revision": "working-tree corrected migration compact retention",
-    "tests": "pre-dispatch source/adapter compatibility inspection; no provider calls",
-    "production_flags": "LIVE_PROVIDER_CALLS=0; HELIUS_CALLS=0; BIRDEYE_CALLS=0; raw retention=false",
-    "verdict": "WATCHTOWER_MIGRATION_REMEDIATION_AND_FINALIZATION_BLOCKED",
-    "blocker": "All ten frozen execution anchors lack pool. The unchanged canonical tx_summary/migration_fact derives first_pumpswap_pool_mc_sol only when token['pool'] is supplied, and the corrected compact guard now rejects a qualified migration compact that lacks the field. Dispatch would consume ten calls yet necessarily yield OUTCOME_UNRETAINED rather than the authorized recovery.",
-    "next_action": "Require an explicitly authorized, evidence-qualified pool-identity binding for the exact ten frozen mint/migration signatures (or an approved canonical parser change) before rerunning the migration-only preflight. Do not dispatch current inputs."
-  },
-  "generic_migration_compact_retention": {
-    "engineering_revision": "working-tree migration compact completeness guard",
-    "tests": "18 passed: production-runtime compact retention, compact-result, durability tests",
-    "production_flags": "no provider calls; raw retention=false",
-    "verdict": "GENERIC_MIGRATION_COMPACT_RETENTION_QUALIFIED",
-    "contract_version": "TOKEN_DATA_COMPACT_RESULT_RETENTION_V1",
-    "guarantee": "A qualified CHAIN_MIGRATION_TRANSACTION without first_pumpswap_pool_mc_sol now fails compact persistence and cannot be committed SUCCEEDED.",
-    "completed_final_replay_recovery": "10 tokens audited; recovered=0; verified=0; missing=10; conflicts=0; no exact mint+signature-bound retained pool MC evidence was found locally.",
-    "next_action": "A separately authorized minimal new run may request CHAIN_MIGRATION_TRANSACTION only for the 10 missing identities using the corrected retention guard; do not replay the 120-request run."
-  },
-  "watchtower_final_offline_finalization": {
-    "engineering_revision": "working-tree compact-retention runtime",
-    "tests": "offline retained-artifact inspection only; no provider calls",
-    "production_flags": "OFFLINE_FINALIZATION_PROVIDER_CALLS=0; RAW_BYTES_RETAINED=0",
-    "verdict": "WATCHTOWER_TOKEN_DATA_FINALIZATION_BLOCKED",
-    "run_id": "watchtower-final-10-9c4ef37489a043af98b3cc2aa2731a0c",
-    "accounting": "120 manifests and 120 compact records; 90 succeeded with compact records; 10 HTTP200 parser-terminal insufficient opening blocks; 20 HTTP400 provider-blocked Birdeye records; no rate-limit or outcome-unretained",
-    "blocker": "Offline compact-store inspection proves all 10 CHAIN_MIGRATION_TRANSACTION canonical results retain signature/slot/timestamp/status but omit FIRST_PUMPSWAP_POOL_MC_SOL. The required migration/pool valuation and resulting 15-token profile cannot be reconstructed from retained compact artifacts alone. No malformed-request cause can be inferred for the 20 raw-free HTTP400 records.",
-    "next_action": "Do not replay or alter this finalization task. Require explicit authority for a retention-contract defect remediation and a separately authorized new acquisition strategy; current final replay cannot supply the missing retained value."
-  },
-  "watchtower_final_compact_replay": {
-    "engineering_revision": "working-tree qualified compact-retention runtime",
-    "tests": "frozen preflight passed: hashes match; 20 initial requests (10 Create, 10 Migration); prior focused retention suite passed",
-    "production_flags": "authorized frozen 10-token final replay; existing five provider calls=0; raw payload retention=false",
-    "verdict": "PARTIAL",
-    "run_id": "watchtower-final-10-9c4ef37489a043af98b3cc2aa2731a0c",
-    "final_state": "COMPLETED",
-    "durable_accounting": "120 rows/attempts; 100 HTTP200; 20 HTTP400; 90 SUCCEEDED; 30 FAILED; compact records=120; FACT_QUALIFIED=90; FACT_PROVIDER_BLOCKED=20; FACT_INSUFFICIENT_EVIDENCE=10; duplicates=0; succeeded-without-compact=0",
-    "next_action": "Offline-finalize the completed run from compact results only and reconcile it with retained five; do not issue any further provider call."
-  },
-  "generic_token_data_compact_result_retention_qualified": {
-    "engineering_revision": "working-tree compact retention plus production-runtime restart regression",
-    "tests": "18 passed: production-runtime compact restart, compact-result, provider-durability tests",
-    "production_flags": "no live provider calls; no Watchtower replay; raw retention=false",
-    "verdict": "GENERIC_TOKEN_DATA_COMPACT_RESULT_RETENTION_QUALIFIED",
-    "contract_version": "TOKEN_DATA_COMPACT_RESULT_RETENTION_V1",
-    "authoritative_store": "docs/audits/token_data_compact_results/<run_id>/<mint>.json",
-    "regression": "actual production runtime three-token run; token A qualified, token B PRICE_HISTORY PROVIDER_BLOCKED, token C SOL_USD_FX RATE_LIMIT_TERMINAL; acquisition memory discarded and compact-store-only projections reloaded",
-    "watchtower_prior_run": "watchtower-fresh-10-871d2f63f6c347e895f8ebfdc320cfc6 compact fact count=0; offline finalizable=false; separately authorized replay required",
-    "next_action": "No Watchtower replay is authorized by this qualification; await explicit acquisition authority."
-  },
-  "generic_token_data_compact_result_retention_regression": {
-    "engineering_revision": "working-tree compact result extension",
-    "tests": "21 passed focused compact-result/runtime/durability/provider-binding tests",
-    "production_flags": "no live provider calls; raw provider payload retention=false",
-    "verdict": "PARTIAL",
-    "improvement": "parser-terminal INSUFFICIENT_EVIDENCE outcomes now persist raw-free compact records before their terminal request state, in addition to qualified/provider-blocked/rate-limited outcomes",
-    "blocker": "Missing explicit actual-production-runtime three-token mixed-outcome process-restart offline-finalization regression required for contract qualification.",
-    "next_action": "Implement that exact mocked regression and only then set GENERIC_TOKEN_DATA_COMPACT_RESULT_RETENTION_QUALIFIED."
-  },
-  "generic_token_data_compact_result_retention_completion": {
-    "engineering_revision": "working-tree compact result extension",
-    "tests": "21 passed: compact-result, provider durability, production-runtime, provider-binding focused tests",
-    "production_flags": "no live provider calls; zero raw payload retention",
-    "verdict": "PARTIAL",
-    "contract_version": "TOKEN_DATA_COMPACT_RESULT_RETENTION_V1",
-    "implemented": "raw-free compact outputs persisted before success; provider-blocked/rate-limit terminal compact records; offline load and token projection API",
-    "watchtower_prior_run": "compact fact count=0; offline finalizable=false; replay required under separate authorization",
-    "next_action": "Add and pass a production-runtime full-family process-restart/mixed-outcome offline-finalization regression before declaring the retention contract qualified."
-  },
-  "generic_token_data_compact_result_retention": {
-    "engineering_revision": "working-tree compact-result retention implementation",
-    "tests": "17 passed: compact result, durability, and production-runtime focused tests",
-    "production_flags": "no live provider calls; raw provider payload retention=false",
-    "verdict": "PARTIAL",
-    "contract_version": "TOKEN_DATA_COMPACT_RESULT_RETENTION_V1",
-    "persistence_authority": "docs/audits/token_data_compact_results/<run_id>/<mint>.json",
-    "implemented": "successful canonical compact output is durably persisted before SUCCEEDED; persistence failure transitions to OUTCOME_UNRETAINED/FAILED",
-    "watchtower_completed_run": "recoverable compact fact count=0; unrecoverable successful responses=90; replay required for definitive finalization under new contract",
-    "next_action": "Complete failure-result persistence and an offline token finalizer regression, then qualify the contract without replaying Watchtower."
-  },
-  "watchtower_token_data_finalization": {
-    "engineering_revision": "e21867c1 plus qualified working-tree runtime",
-    "tests": "No provider calls; retained-manifest reconciliation only.",
-    "production_flags": "NEW_PROVIDER_CALLS=0; HELIUS_CALLS=0; BIRDEYE_CALLS=0; RAW_BYTES_RETAINED=0",
-    "verdict": "WATCHTOWER_TOKEN_DATA_FINALIZATION_BLOCKED",
-    "run_id": "watchtower-fresh-10-871d2f63f6c347e895f8ebfdc320cfc6",
-    "request_accounting": "120 attempts/rows; 100 HTTP200; 20 HTTP400; 90 SUCCEEDED (70 opening, 10 create, 10 migration); 30 FAILED (10 opening INSUFFICIENT_EVIDENCE at HTTP200, 20 Birdeye PROVIDER_BLOCKED at HTTP400); 0 duplicates/rate limits/outcome-unretained.",
-    "http_400_by_family": "PRICE_HISTORY=10; SOL_USD_FX=10; all Birdeye /defi/v3/ohlcv.",
-    "blocker": "The fresh runtime retained manifest outcomes but did not durably retain compact parser/fact results. The required per-token facts and definitive 15-token profile cannot be reconstructed without replay/reacquisition, both prohibited. HTTP400 response bodies were deliberately not retained, so request-construction versus provider-data classification cannot be proven from retained state.",
-    "next_action": "Do not replay. Require an explicitly authorized durable compact-fact-result retention/reconciliation design and a separately authorized acquisition strategy before attempting finalization."
-  },
-  "watchtower_fresh_expanded_token_data_sample": {
-    "engineering_revision": "e21867c1 plus qualified working-tree runtime",
-    "tests": "23 focused mocked runtime/durability tests passed before dispatch; frozen dry preflight: 20 initial requests (10 Create, 10 Migration)",
-    "production_flags": "authorized frozen 10-new-token run only; existing five provider calls=0; raw retention=false",
-    "verdict": "WATCHTOWER_FRESH_EXPANDED_TOKEN_DATA_SAMPLE_QUALIFIED",
-    "run_id": "watchtower-fresh-10-871d2f63f6c347e895f8ebfdc320cfc6",
-    "final_state": "COMPLETED",
-    "durable_accounting": "120 logical/physical attempts; 100 HTTP 200; 20 HTTP 400; 90 SUCCEEDED; 30 FAILED; 0 duplicate identities; families Create=10, Migration=10, Opening=80, Price=10, FX=10",
-    "contaminated_run": "watchtower-expanded-10-ead73b0a8a1444db870a37298f23e32b remains ABORTED and untouched",
-    "next_action": "Read compact terminal outcomes before making any playbook-completion decision; do not resume or alter either run."
-  },
-  "generic_token_data_durable_run_state": {
-    "engineering_revision": "working-tree (run-state guard implementation)",
-    "tests": "23 passed: tests/test_token_data_run_state.py tests/test_provider_request_durability.py tests/test_operation_token_data_production_runtime.py tests/test_operation_token_data_runtime.py tests/test_token_data_provider_bindings.py",
-    "production_flags": "no live provider calls; HELIUS_CALLS=0; BIRDEYE_CALLS=0; RAW_BYTES_RETAINED=0",
-    "verdict": "GENERIC_TOKEN_DATA_DURABLE_RUN_STATE_QUALIFIED",
-    "contract_version": "TOKEN_DATA_RUN_STATE_CONTRACT_V1",
-    "run_state_db": "database/token_data_run_state.db",
-    "contaminated_run_id": "watchtower-expanded-10-ead73b0a8a1444db870a37298f23e32b",
-    "contaminated_run_state": "ABORTED",
-    "guards": "before planning/materialization/dispatch/retry sleep/after retry sleep/before retry dispatch/dependent planning",
-    "next_action": "Do not dispatch Watchtower providers. A separately authorized frozen-sample dry preflight may use a new run ID only."
-  },
   "byzc7_early_creator_history_v2": {"engineering_revision":"5904a907","tests":"3 passed: tests/test_byzc7_early_creator_history_v2.py","production_flags":"no production DB/queue/membership/service mutation","verdict":"PASS","run_id":"BYZC7_EARLY_CREATOR_HISTORY_V2","completed_creators":36,"cap_exhausted_creators":36,"provider_interrupted_creators":0,"failed_creators":0,"next_action":"Review final V2 artifacts; no further acquisition is authorized."},
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
@@ -15789,22 +15536,22 @@
     "next_action": "The separately authorized frozen ten-token acquisition can now begin from a new durable run ID; do not reacquire the existing five or reuse any prior dispatched identity."
   },
   "watchtower_expanded_token_data_execution": {
-    "engineering_revision": "e21867c1; post-handoff aborted-run state discrepancy reconciliation",
-    "tests": "24 prior focused tests; no new test run in this read-only reconciliation.",
-    "production_flags": "No new provider/RPC/network/database/membership/attribution/UI writes this turn; raw payload retention=0. Existing aborted run manifests now show all 10 mints touched, 1,200 rows, HTTP200=100, HTTP400=1100, duplicate rows=1080.",
+    "engineering_revision": "e21867c1; execution preflight only",
+    "tests": "11 passed: request DAG, generic runner, provider durability",
+    "production_flags": "Provider/Helius/Birdeye/RPC/network/database/membership/attribution/UI writes=0; raw payload retention=0; no new database.",
     "verdict": "WATCHTOWER_EXPANDED_TOKEN_DATA_SAMPLE_BLOCKED",
-    "result": "The old run was not actually quiescent after the incident handoff. Its manifests changed from 280 rows/3 mints/one DISPATCHING row to 1,200 terminal rows across all ten mints, with no ambiguous row. Because the runtime's deterministic identities have now all appeared in that aborted run, a fresh invocation would violate ABORTED_RUN_IDENTITIES_REUSED=0. No new run was created and no new call was made.",
-    "artifact": "docs/audits/watchtower_aborted_run_post_handoff_state_discrepancy.v1.json (sha256 217c27ac3dcd6dd502ccee1b3235dcbbc3d1cf56de17eefaa1e031b5abb6bbee)",
-    "next_action": "Do not dispatch a fresh run. Reconcile the process-continuation and identity-accounting incident, then obtain explicit authority defining whether terminally recorded old identities may be relied on, excluded, or replaced by a newly authorized methodology."
+    "result": "Frozen eligibility and expanded-manifest hashes verified, with exactly 5 existing and 10 eligible new members. Execution fail-closed before creating a run: run_token_data_request_dag has only test call sites and requires injected provider bindings plus compact fact-ingestion callback. No authorized production composition exists for canonical creation-slot-block.v3 decoding or durable Birdeye same-identity retry. Legacy scripts are not substitutable because they do not meet the all-requests durable-executor requirement.",
+    "artifact": "docs/audits/watchtower_expanded_token_data_execution_preflight_blocked.v1.json (sha256 7ce17d3bc88d53e99d0d21fb51f10d9e8bb25b559f3efe5a8a377a150b6e50e3)",
+    "next_action": "Authorize a bounded generic runtime-composition milestone to wire the existing canonical adapters, opening decoder, provider bindings, and durable same-identity retry to run_token_data_request_dag; then rerun preflight before any provider call."
   },
   "generic_token_data_production_runtime": {
-    "engineering_revision": "e21867c1 plus mocked production-runtime qualification",
-    "tests": "18 passed: tests/test_operation_token_data_production_runtime.py plus existing runtime, request-DAG, durability, and fact-adapter regressions",
+    "engineering_revision": "e21867c1; runtime contract audit only",
+    "tests": "29 passed: generic runner, provider durability, Pump.fun opening executor",
     "production_flags": "Provider/Helius/Birdeye/RPC/network/database/membership/attribution/UI writes=0; raw payload retention=0; no new database.",
-    "verdict": "GENERIC_TOKEN_DATA_PRODUCTION_RUNTIME_QUALIFIED",
-    "result": "The actual run_operation_token_data_research entrypoint passed mocked incremental opening, eight-block terminal ceiling, ordering, dependency replanning, full canonical fact-DAG, same-identity 429 retry/exhaustion, crash uncertainty, terminal replay, duplicate identity, zero-bypass, and ten-token dry-run checks. No production code defect was exposed and no live provider binding was invoked.",
-    "artifact": "docs/audits/generic_token_data_production_runtime_qualification.v1.json (sha256 d12576b3cf1a3dc1babf44e82a010527be827462ee044144be4757f9a9a80476)",
-    "next_action": "Rerun the expanded Watchtower execution preflight before any separately authorized provider dispatch."
+    "verdict": "GENERIC_TOKEN_DATA_PRODUCTION_RUNTIME_BLOCKED",
+    "result": "The requested thin production composition is contractually impossible without an authorized semantic choice. Existing creation-slot-block.v3 executor directly calls Helius (and optionally Alchemy) and durably retains raw provider responses/observations/results; this conflicts with the requested all-calls-through-execute_durable_provider_request and raw-retention=0 path. The existing Birdeye retry wrapper is outside that durable executor as well. Wiring either unchanged violates the task; changing either is prohibited.",
+    "artifact": "docs/audits/generic_token_data_production_runtime_contract_blocked.v1.json (sha256 c9e6e175d21449146d3e6eabb8d1cd16ed21de16bf8201cffc9f6e72363eacfa)",
+    "next_action": "Authorize a coherent contract revision: permit the existing opening executor's retention/direct acquisition model, or authorize a pre-fetched-payload opening reduction plus durable retry integration. Then requalify before any provider request."
   },
   "generic_token_data_transport_boundary": {
     "engineering_revision": "e21867c1 plus callback-fed opening semantic path",
@@ -15832,103 +15579,14 @@
     "artifact": "docs/audits/watchtower_corrected_birdeye_replay_blocked.v1.json",
     "next_action": "Resolve only the two dispatched-but-unmaterialized identity accounting under explicit authorization; do not redispatch or continue the other eight identities meanwhile."
   },
-  "watchtower_definitive_dataset_materialization": {
-    "engineering_revision": "e21867c1 plus generic offline projection/materializer",
-    "tests": "7 passed: tests/test_token_data_offline_projection.py and tests/test_token_data_completion.py",
-    "production_flags": "Provider/Helius/Birdeye/RPC/network/database/membership/UI writes=0; raw payload retention=0; immutable legacy artifact SHA unchanged.",
-    "verdict": "WATCHTOWER_FINAL_OFFLINE_RECONCILIATION_QUALIFIED",
-    "result": "Provider-free deterministic materialization produced the new 15-token dataset, profile, and completion assessment. Ten migration overlays and twenty admitted Birdeye facts were consumed without conflict; retained original-five facts were preserved. The root Git index lock remains present and process ownership cannot be safely re-queried in this sandbox, so transport remains degraded and no handoff commit/push was attempted.",
-    "artifact": "docs/audits/watchtower_definitive_15_token_dataset.v1.json (sha256 ebda47693ef94fe85265074acd3d5ec5745bf6cc50109543a52df96dc4b7d8bb); docs/audits/watchtower_definitive_15_token_profile.v1.json (sha256 da3b0ff3961cef417bb35b8516ca1f5071df87479e7f06c9ac7c56b40b08674f); docs/audits/watchtower_token_data_completion_assessment.v1.json (sha256 db774d062d343e93a04284554a02c165b395080c1d86cb230af5a989dcee6df7)",
-    "next_action": "When the active Git process has ended and the lock is safely absent, commit and publish this handoff-only update from agent-handoff; no further Watchtower acquisition is required for this reconciliation."
-  },
-  "watchtower_operations_playbook_ui": {
-    "engineering_revision": "e21867c1 plus generic operation Playbook registry/view model",
-    "tests": "14 passed: tests/test_watchtower_operation_playbook_ui.py and tests/test_operator_lifecycle_projection.py",
-    "production_flags": "Provider/Helius/Birdeye/RPC/network/database/membership writes=0; raw payload retention=0; Watchtower source and legacy five-token artifact SHA unchanged.",
-    "verdict": "WATCHTOWER_OPERATIONS_PLAYBOOK_UI_QUALIFIED",
-    "result": "OPERATION_TOKEN_DATA_PLAYBOOK_V1 is frozen as an immutable contract. The existing DB-backed Byzantine Playbook remains unchanged; the generic registry adds a second artifact-backed operation view for Watchtower without provider access or a Watchtower-specific UI parser. Watchtower visibly reports qualified playbook status, complete-with-legitimate-gaps, 15-token/49-eligible coverage, 10/15 price and FX coverage, the minority pool value, and NOT WIRED automation.",
-    "artifact": "docs/operations/playbooks/operation_token_data_playbook.v1.json (sha256 b038cdcd09f7744a2e8f11e50bef05eec31480b112d5b0b47de5ba5570843810); docs/operations/playbooks/operation_playbook_registry.v1.json (sha256 ddec9b384536cb473c40455ddb88e3be7bd6fe200467427261931adc7fa7ac07)",
-    "next_action": "Wire a generic post-promotion token-data workflow at the existing post_commit_enrol/bootstrap_after_actual_commit seam only after explicit product authorization; do not add an operation-specific trigger."
-  },
-  "global_operation_token_data_promotion_trigger": {
-    "engineering_revision": "e21867c1 plus durable generic post-commit workflow record",
-    "tests": "17 passed: operation-token-data workflow, Watchtower Playbook UI, and existing lifecycle projection regressions",
-    "production_flags": "Live provider/Helius/Birdeye/RPC calls=0; raw payload retention=0; no Watchtower source or legacy artifact mutation.",
-    "verdict": "GLOBAL_OPERATION_TOKEN_DATA_PROMOTION_TRIGGER_QUALIFIED",
-    "result": "The governance write service commits before its post-commit seam invokes bootstrap_after_actual_commit. That seam now also idempotently creates OPERATION_TOKEN_DATA_WORKFLOW_V1 keyed by operation_id/playbook_version, records retained eligibility/readiness, and never calls a provider. Failure is isolated after the operation commit. Existing Watchtower presentation is marked ADOPTED_FROM_RETAINED_EVIDENCE and automatic trigger WIRED. Qualified provider runtime dispatch remains deliberately asynchronous and is not invoked by this hook.",
-    "artifact": "src/ops/operation_token_data_workflow.py; docs/operations/playbooks/operation_playbook_registry.v1.json (sha256 0218d9331a76bd8eb53a8aed840659ed916aa04a2c7b773547448dd832f92f3d)",
-    "next_action": "Authorize and attach a generic durable worker that consumes READY_FOR_ACQUISITION records and hands them to run_operation_token_data_research outside a UI request; no operation-specific worker or inline provider dispatch."
-  },
-  "global_operation_token_data_worker": {
-    "engineering_revision": "e21867c1 plus durable generic workflow worker seam",
-    "tests": "20 passed: workflow creation/worker claiming, Watchtower UI, and lifecycle projection regressions",
-    "production_flags": "Live provider/Helius/Birdeye/RPC calls=0; raw payload retention=0; no historical artifact mutation.",
-    "verdict": "GLOBAL_OPERATION_TOKEN_DATA_PROMOTION_TRIGGER_BLOCKED",
-    "result": "OPERATION_TOKEN_DATA_WORKER_V1 now atomically claims READY_FOR_ACQUISITION through persisted ACQUIRING state and a durable run ID, releases the DB before injected runtime/finalizer execution, supports provider-free finalization restart, and preserves failure isolation. Qualification stopped before live dispatch: there is no existing generic durable manifest/anchor materializer or managed worker registration that can supply run_operation_token_data_research with required frozen inputs. The worker therefore exposes an injected qualified-runtime seam, not an unsafe invented provider composition.",
-    "artifact": "src/ops/operation_token_data_workflow.py; tests/test_operation_token_data_worker.py",
-    "next_action": "Implement and qualify one generic provider-free workflow-input materializer plus a supervised worker entrypoint that invokes the existing runtime with those durable inputs; then requalify no-inline-provider and restart recovery end-to-end."
-  },
-  "potential_operation_validation_promotion_gate": {
-    "engineering_revision": "e21867c1 plus authoritative validation-gated promotion UI",
-    "tests": "9 passed: manual attribution routes/workflow, validation-promotion gate, and token-data workflow regressions",
-    "production_flags": "Provider/Helius/Birdeye/RPC calls=0; no membership reassessment or historical artifact mutation.",
-    "verdict": "POTENTIAL_OPERATION_VALIDATION_PROMOTION_GATE_QUALIFIED",
-    "result": "Potential Operation list and detail actions now render Promote only for the existing authoritative ATTRIBUTION_PROVEN validation state (displayed as Validated); all other states render Validate only. The backend already fail-closes promotion unless ATTRIBUTION_PROVEN and a current evidence snapshot/decision are retained. Canonical membership is committed before post_commit_ensure creates the bounded OPERATION_TOKEN_DATA_WORKFLOW_V1 record; failure remains post-commit isolated. No override exists.",
-    "artifact": "src/ops/operation_attribution_manual_bridge.py; templates/potential_operations.html; templates/potential_operation_detail.html; tests/test_potential_operation_validation_promotion_gate.py",
-    "next_action": "Implement the separately scoped generic durable workflow-input materializer/worker before enabling any provider acquisition dispatch."
-  },
-  "watchtower_playbook_token_detail_parity": {
-    "engineering_revision": "e21867c1 plus generic artifact-playbook token collection renderer",
-    "tests": "15 passed: Watchtower Playbook detail/UI and existing Byzantine lifecycle projection regressions",
-    "production_flags": "Provider/Helius/Birdeye/RPC calls=0; retained Watchtower dataset/profile/assessment read only; no raw payload retention.",
-    "verdict": "WATCHTOWER_PLAYBOOK_TOKEN_DETAIL_PARITY_QUALIFIED",
-    "result": "The generic artifact Playbook renderer now consumes declaratively mapped token rows and full profile data. Watchtower renders all 15 definitive tokens with abbreviated/copyable identities, compact retained facts, and expandable exact fact fields; opening, migration, lifecycle, coverage, legitimate gaps, methodology, and artifact sections are retained-data only. Byzantine remains on its existing DB-backed Playbook renderer unchanged.",
-    "artifact": "templates/operation_artifact_playbook.html; docs/operations/playbooks/operation_playbook_registry.v1.json; tests/test_watchtower_operation_playbook_ui.py",
-    "next_action": "No Watchtower data acquisition is authorized or required. Complete the separately blocked generic workflow-input materializer before provider-backed automatic workflow execution."
-  },
-  "watchtower_remaining_fact_recoverability_audit": {
-    "engineering_revision": "e21867c1 plus provider-free recoverability audit materializer",
-    "tests": "1 passed: tests/test_watchtower_remaining_fact_recoverability_audit.py",
-    "production_flags": "Provider/Helius/Birdeye/RPC calls=0; raw bytes retained=0; database writes=0; no token-data acquisition, membership reassessment, or operation mutation.",
-    "verdict": "WATCHTOWER_REMAINING_FACT_RECOVERABILITY_AUDIT_QUALIFIED",
-    "result": "The definitive retained 15-token data proves coverage of opening 5/15, price history 10/15, FX 10/15 and pool MC 15/15. Ten opening histories are RECOVERABLE_BOUNDED_PROVIDER with a one-getBlock-per-mint minimal plan and 1-8 early-stop bound; five historical lifecycle/FX cases are UNKNOWN_REQUIRES_DIAGNOSTIC and are deliberately not scheduled. The complete immutable 140-gap ledger preserves per-token facts, dependencies, classifications, sources, and source digests.",
-    "artifact": "docs/audits/watchtower_remaining_fact_recoverability_audit.v1.json (SHA-256 e80ef45f326387d714bfd24842d19b36eaef79a709f4a31cd8de063312c01a60)",
-    "next_action": "If further historical recovery is authorized, run only the ten bounded opening-block recoveries first; separately qualify a V1 availability diagnostic before scheduling any historical lifecycle or FX request."
-  },
-  "watchtower_opening_gap_remediation": {
-    "engineering_revision": "e21867c1 plus bounded opening-only remediation and immutable V2 overlay materializers",
-    "tests": "5 passed: tests/test_watchtower_remaining_fact_recoverability_audit.py and tests/test_watchtower_operation_playbook_ui.py",
-    "production_flags": "Helius getBlock only: 40 logical requests / 40 physical attempts / 40 HTTP 200; Birdeye=0; price-history=0; FX=0; raw provider payload bytes retained=0; no database, membership, or operation mutation.",
-    "verdict": "WATCHTOWER_OPENING_GAP_REMEDIATION_QUALIFIED",
-    "result": "Frozen ten-token set recovered through OPENING_SEQUENCE_AGGREGATOR_V1 from retained Create slots. Each qualified after four blocks under the first-independent-buy-plus-three-slots early-stop condition. Coverage moved from opening 5/15 to 15/15; USD opening valuation moved from 0/15 to 10/15 because only the ten remediated tokens had both an opening SOL fact and qualified FX. The five historical lifecycle/FX gaps were untouched.",
-    "artifact": "docs/audits/watchtower-opening-remediation-68469070250b4e2f.opening_remediation.v1.json (SHA-256 de383aaece1fee5ac4d982e908826d013fd6079b9079c275148e53e379a3e098); watchtower_opening_remediation_overlay.v1.json; definitive dataset/profile/completion V2",
-    "next_action": "If separately authorized, use 2YrEhbVAKGojhZn2SYjQc7EYLixrBLHmqFjME69Gpump as a one-token known-answer lifecycle/FX availability diagnostic; no lifecycle or FX request is authorized by this remediation result."
-  },
-  "watchtower_historical_lifecycle_fx_diagnostic": {
-    "engineering_revision": "e21867c1 plus one-token durable diagnostic runner",
-    "tests": "13 passed: provider bindings, durability, Birdeye parser, and fact adapters",
-    "production_flags": "BIRDEYE_KK selected; 2 logical Birdeye requests / 2 attempts / 2 HTTP 200; Helius=0; raw provider payload bytes retained=0; definitive V2 unmodified.",
-    "verdict": "WATCHTOWER_HISTORICAL_LIFECYCLE_FX_DIAGNOSTIC_QUALIFIED",
-    "result": "For frozen known-answer mint 2YrE..., the current V1 PRICE_HISTORY request returned 43 usable mcap candles with peak 167542.3445678831 and max proven drawdown 0.988042527906539; current V1 FX returned SOL/USD 100.74509264444444 at target minus 14 seconds. Both facts are qualified, establishing the historical gap class as RECOVERABLE_BOUNDED_PROVIDER without claiming the other four must succeed.",
-    "artifact": "docs/audits/watchtower-historical-lifecycle-fx-197a6633dffe44f9.diagnostic.v1.json (SHA-256 554cdad03b00dab2a763eff9d773d17b6b5dbdec7b82c272ee576c769ce4e5d1); request manifest SHA-256 d4c5a90370d8f262597c8a8a87e43d7054794e28fae94b4a5d258568dd34f18a",
-    "next_action": "If separately authorized, replay PRICE_HISTORY and SOL_USD_FX once each for the remaining four frozen historical-gap tokens, then reconcile only through an immutable overlay."
-  },
-  "watchtower_three_token_migration_slot_actionability": {
-    "engineering_revision": "e21867c1 plus offline retained-artifact analysis script",
-    "tests": "8 passed: tests/test_pumpswap_boundary.py, tests/test_nexus_14i7_initial_pumpswap_single_tx_completion.py, tests/test_nexus_14i7_initial_pumpswap_actionable_mc.py; audit regenerated twice with identical SHA-256",
-    "production_flags": "GETTRANSACTION/GETBLOCK/RPC/provider/Birdeye/GMGN/network calls=0 for this analysis; database, membership, detector, entry, Playbook, UI, and production fact writes=0.",
-    "verdict": "WATCHTOWER_THREE_TOKEN_MIGRATION_SLOT_ACTIONABILITY_QUALIFIED",
-    "result": "All three retained successful MigrateV2/CreatePool transactions reconstruct the same initial PumpSwap state: 206,900,000 tokens and 67.405853768 SOL, or 325.78953005316578057032382793620106331561140647656 SOL MC. 2YrE matches retained 325.7895300531658 SOL at retained precision. Each retained migration-slot block establishes the migration ordinal and immediate direct pool transactions; their earliest actors remain UNKNOWN from the permitted direct relationship evidence, so no conservative or exact actionable entry is admitted. The 57.275401 and 211.155216 SOL Pump.fun instruction states remain internal/non-actionable. Targeted actionability evidence is required before strategy performance entries.",
-    "artifact": "docs/audits/watchtower_three_token_migration_slot_actionability.v1.json (SHA-256 a070f81974f74ca4d1455e375935649125b6b6e179512617660d3496db67a864)",
-    "next_action": "Do not reacquire. If separately authorized, design a bounded retained-evidence actionability proof for direct post-migration actor/transaction semantics; no Playbook change is justified."
-  },
-  "watchtower_immediate_post_migration_buyers": {
-    "engineering_revision": "e21867c1 plus offline immediate-buyer audit script (engineering worktree commit blocked by pre-existing index.lock)",
-    "tests": "8 passed: retained PumpSwap-boundary and Nexus initial-pool regression tests; audit regenerated twice with identical SHA-256",
-    "production_flags": "New RPC/provider/network calls=0; migration getTransaction/getBlock reacquisition=0; address history/Birdeye/GMGN calls=0; database/membership/detector/entry/Playbook/UI/production-fact writes=0.",
-    "verdict": "WATCHTOWER_IMMEDIATE_POST_MIGRATION_BUYERS_PARTIAL",
-    "result": "The three exact next PumpSwap BUYs are distinct sole fee-payer/signers from their migration fee-payers/signers and unique creators. Their same-blockhash status is normal same-slot evidence only, not control proof. Direct local retained-evidence search found no buyer funding edge, role, creator relation, Watchtower relation, prior Watchtower appearance, or exact funding signature. Each buyer is therefore UNKNOWN; no buyer is called external and no bounded funding RPC is justified. Initial 325.789530... SOL remains theoretical only; conservative/exact entries remain insufficient.",
-    "artifact": "docs/audits/watchtower_three_immediate_post_migration_buyers.v1.json (SHA-256 a8b1650aff0a4702ae2775a514b1ee1d7efe96e46a965d2d8dbdbb8254a93dd8)",
-    "next_action": "Do not expand sample or reacquire migration data. A separately authorized, specifically bounded buyer-role evidence method or prospective capture decision is required."
+  "watchtower_post_migration_buy_decay": {
+    "status": "PARTIAL",
+    "engineering_revision": "e21867c1 plus offline slot-bounded decay audit",
+    "tests": "Offline audit runner, JSON validation, SHA-256 readback, and structural invariants passed.",
+    "production_flags": "Provider/RPC/network/database/service/UI/production writes=0; raw artifacts created=0; no production behavior change.",
+    "verdict": "WATCHTOWER_POST_MIGRATION_BUY_DECAY_PARTIAL",
+    "result": "The exact retained migration-slot blocks contain 1, 5, and 3 PumpSwap-relevant transactions after migration, yielding 1, 1, and 2 successful committed buys. Only 3C8N has a second committed buy, with pool-SOL delta 0.000019812 after 89.704035874; the other two sequences are insufficient. Failed buys were correctly retained as no-state-mutation facts. Three-token recurrence, actor linkage, bundle exclusivity, a structural boundary, and an executable entry are not established.",
+    "artifact": "docs/audits/watchtower_three_token_post_migration_buy_decay.v1.json (sha256 5cebfaa3f63791967ef7aa646d70653bffa1f1821ff53b3f1c9f176f24fb489d)",
+    "next_action": "Only a separately authorized targeted retained-evidence extension beyond the migration slots may test later post-migration decay; do not change Watchtower policy, entries, or production behavior from this result."
   }
 }

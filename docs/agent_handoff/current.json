@@ -15611,12 +15611,12 @@
   },
   "watchtower_birdeye_first_meaningful_candle_entry_reference": {
     "status": "HOLD",
-    "engineering_revision": "e21867c1 plus bounded three-token Birdeye candle-reference audit; runner credential selector set to BIRDEYE_KK",
+    "engineering_revision": "e21867c1 plus two bounded three-token Birdeye candle-reference attempts; runner credential selector BIRDEYE_KK",
     "tests": "runner py_compile; durable raw SHA-256 readback and JSON artifact validation passed",
-    "production_flags": "Birdeye calls=3 (authorized fixed queries); RPC/Helius/getBlock/getTransaction/GMGN calls=0; new full-block artifacts/bytes=0; database/UI/playbook/production/Byzantine/Nexus writes=0.",
+    "production_flags": "Birdeye calls=6 across two explicitly authorized fixed-query attempts; RPC/Helius/getBlock/getTransaction/GMGN calls=0; new full-block artifacts/bytes=0; database/UI/playbook/production/Byzantine/Nexus writes=0.",
     "verdict": "BIRDEYE_EVIDENCE_INSUFFICIENT",
-    "result": "Each frozen mint received exactly one migration-anchored 60-second request to /defi/v3/ohlcv with type=1s, chart_type=mcap, currency=usd and x-chain=solana. Birdeye returned HTTP 400 Compute units usage limit exceeded for all three; 192 bytes across three raw error responses were retained, hashed, and read back. No candle, activity, interval-availability, or entry-reference fact could be qualified. This is a provider-capacity failure, not evidence that 1-second history is unavailable. Exact actionability remains insufficient and the theoretical initial PumpSwap fact remains separate.",
-    "artifact": "docs/audits/watchtower_three_token_birdeye_first_candle_entry_reference.v1.json (sha256 46d07ab9833cd4aeca95686438c1fe54bbb7c1f4900be5cc94e76113a9bcd6c7)",
-    "next_action": "Do not retry or expand this frozen ledger. A new explicitly authorized provider-capacity recovery milestone is required before any new Birdeye request identity; use BIRDEYE_KK without recording its value."
+    "result": "Attempt one returned HTTP 400 Compute units usage limit exceeded for all three. The user authorized attempt two using BIRDEYE_KK: 2YrE returned HTTP 200 with 1-second candles, while 2dDD and 3C8N returned HTTP 429 and were not retried. The 2YrE response supplies generic o/h/l/c fields rather than direct mcap_* fields, so its value basis is UNVERIFIED_GENERIC_OHLC: it proves 1-second response availability only, not an MC or price entry reference. All six raw responses were retained, hashed, and read back; no entry fact was promoted. Exact actionability remains insufficient and the theoretical initial PumpSwap fact remains separate.",
+    "artifact": "docs/audits/watchtower_three_token_birdeye_first_candle_entry_reference_retry.v1.json (sha256 b750bad625ec1a996d3295902de4831849d66b4448d9b905cdf7bb502c296422)",
+    "next_action": "Do not retry or expand this frozen ledger. A new explicitly authorized source-schema or provider-capacity milestone is required before any new Birdeye request identity; use BIRDEYE_KK without recording its value."
   }
 }

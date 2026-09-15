@@ -15628,5 +15628,15 @@
     "result": "All three retained 60-second responses already cover T+0 through T+9, so no call was required. T+1 OPEN exactly equals T+0 CLOSE in each series: 2YrE $117,390.37685034382, 2dDD $81,517.2787970803, and 3C8N $85,973.02289660266. The simple shadow semantic FIRST_FULL_POST_MIGRATION_SECOND_OPEN excludes the mixed migration-second open, is knowable at T+1, and equals the transition-end state. Gaps later in the sequence mean no natural-stability candidate was defined. Exact actionability and theoretical on-chain facts remain unchanged; policy is not promoted.",
     "artifact": "docs/audits/watchtower_three_token_first_established_1s_market_reference.v1.json (sha256 4d7274b07bdbbf42cef8aafc18359582147bc7bdfd9289e054e735ab2b226b6c)",
     "next_action": "A separately authorized 10–15 token validation may test the shadow semantic with retained/new evidence; do not promote it to production without that validation."
+  },
+  "watchtower_live_entry_known_answer_reconciliation": {
+    "status": "PARTIAL",
+    "engineering_revision": "e21867c1 plus provider-disabled live-entry known-answer reconciliation",
+    "tests": "runner py_compile, artifact JSON validation, source SHA-256 readback, and deterministic reconciliation calculations passed",
+    "production_flags": "Provider/RPC/Helius/getBlock/getTransaction/GMGN/network calls=0; live trading/detection/feature flags/database/UI/playbook/Byzantine/Nexus writes=0.",
+    "verdict": "WATCHTOWER_LIVE_ENTRY_KNOWN_ANSWER_RECONCILIATION_PARTIAL",
+    "result": "The three evidence families remain distinct. 2YrE exact initial/on-chain-post-buy states are $32,821.69638779620466522920421 and $105,516.8640002415878121560296; closest Birdeye T0 field is HIGH, 11.252715821875683% away, though inside its T0 range. 2dDD and 3C8N closest Birdeye highs differ by 42.927984913863955% and 46.723680439600302%, respectively, and their post-buy states are outside retained T0 ranges. This proves neither a universal alignment nor an execution-price equivalence. Live entry, trade size, expected fill, disagreement tolerance, staleness, live state capture, submission, actual fill capture, and kill-switch contracts are unqualified. Required safety decision is NO_TRADE.",
+    "artifact": "docs/audits/watchtower_live_entry_known_answer_reconciliation.v1.json (sha256 aa32741c1c90b3bc8b910e8a16aba690b5fc684b2602139531b99a1d46cab0f2)",
+    "next_action": "Do not enable Watchtower trading. Separately authorize prospective live timing, state, trade-size, fill, latency, and kill-switch shadow-capture qualification before considering a live policy boundary."
   }
 }

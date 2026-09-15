@@ -15837,5 +15837,14 @@
     "result": "Retained cohort: 22/64 observed 2x hits, 42 never-2x, 13 observed 5x. A has 22 qualified trigger exits; non-hits remain marked endpoints, not fabricated exits. For all 22 hits R1/R2 retained runner exits are observed. R3 has zero exact entry+3h retained points and uses no nearest-candle substitute. R1 median totals B=1.2340053619405784x/C=1.6170026809702893x; R2 B=1.0859261850395798x/C=1.54296309251979x. This is a retained-path comparison, not a policy or execution claim.",
     "artifact": "docs/audits/byzantine_64_strategy_abc_2x_comparison.v1.json (SHA-256 f46b9b2cd54f3b04c2b9a0270b6f52d188d9450467238b822b884e48afdbcb3f)",
     "next_action": "If exact R3 is needed, separately authorize a compact post-entry lifecycle specification guaranteeing an admissible entry+3h observation."
+  },
+  "byzantine_64_entry_lifecycle_peak_semantics_audit": {
+    "engineering_revision": "e21867c1 plus provider-free entry/lifecycle semantic audit script (engineering worktree commit blocked by pre-existing index.lock)",
+    "tests": "12 passed: position-peak and Byzantine strategy-grade tests; audit JSON/readback and deterministic double materialization passed",
+    "production_flags": "Birdeye/RPC/Helius/network calls=0; Byzantine entry/peak/performance/UI changes=0; Watchtower/Nexus changes=0.",
+    "verdict": "BYZANTINE_64_ENTRY_LIFECYCLE_PEAK_AUDIT_COMPLETE",
+    "result": "All 64 entries have qualified timestamps and first retained observations. Only 1/64 starts exactly at entry; 63/64 have an unobserved entry-to-first-observation gap (maximum 605 seconds). The current displayed lifecycle maximum is below approved entry in 28 rows, violating I1/I4 when interpreted as a post-entry maximum lower bound. Entry-to-max timing is invalid in 63 gap rows. The prior 22 observed 2x hits remain positive evidence, but the 42 never-2x labels are not trustworthy across the gaps and require reclassification as unresolved before a full-cohort A/B/C loss-rate claim.",
+    "artifact": "docs/audits/byzantine_64_entry_lifecycle_peak_semantics_audit.v1.json (SHA-256 ce31be2f978addc799a3321a8b6c500c575ff2668dc89a9d9ac4cd721aec4146)",
+    "next_action": "Before rerunning full-cohort A/B/C, make the smallest semantic correction: show RETAINED_WINDOW_MAX_MC separately; floor POST_ENTRY_MAX_MC_LOWER_BOUND at approved entry; suppress timing where continuity is absent; classify 2x misses UNKNOWN."
   }
 }

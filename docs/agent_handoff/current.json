@@ -15588,5 +15588,15 @@
     "result": "The exact retained migration-slot blocks contain 1, 5, and 3 PumpSwap-relevant transactions after migration, yielding 1, 1, and 2 successful committed buys. Only 3C8N has a second committed buy, with pool-SOL delta 0.000019812 after 89.704035874; the other two sequences are insufficient. Failed buys were correctly retained as no-state-mutation facts. Three-token recurrence, actor linkage, bundle exclusivity, a structural boundary, and an executable entry are not established.",
     "artifact": "docs/audits/watchtower_three_token_post_migration_buy_decay.v1.json (sha256 5cebfaa3f63791967ef7aa646d70653bffa1f1821ff53b3f1c9f176f24fb489d)",
     "next_action": "Only a separately authorized targeted retained-evidence extension beyond the migration slots may test later post-migration decay; do not change Watchtower policy, entries, or production behavior from this result."
+  },
+  "byzantine_12_13_first_buy_reuse": {
+    "status": "PARTIAL",
+    "engineering_revision": "e21867c1; offline code and retained-artifact audit only",
+    "tests": "JSON validation, SHA-256 readback, zero-call/write invariants, and policy-separation assertions passed.",
+    "production_flags": "Provider/RPC/network/database/UI/playbook/production writes=0; no production code change.",
+    "verdict": "BYZANTINE_12_13_FIRST_BUY_REUSE_PARTIAL",
+    "result": "Authoritative replay selects distinct_buys[12]: the 13th distinct non-creator successful Pump.fun BUY action after a recurrent 12-position cluster, and inverse-reconstructs its pre-action curve state for a frozen 0.25-SOL counterfactual quote. Original ordering is (slot, transaction_index, action_index), but transaction-commit insertion safety is explicitly only partial. The historical raw opening span reaches CREATE+1 in 2/22 retained cases, while later signature-first acquisition is a bounded sample, not the original position-13 method. The 58-control source actually reports 17 changed values and 54 review-required cases, so the supplied 58/0 invariance premise does not reconcile. Watchtower may not inherit position 13; only thin shared acquisition concepts are suggested, pending separate PumpSwap commit-safe first-X qualification.",
+    "artifact": "docs/audits/byzantine_12_13_first_possible_buy_reuse_audit.v1.json (sha256 29aeb0748ade373d6b494b0a0add859dcdab4d46d5f9ddb9337ef76e5fcb2f29)",
+    "next_action": "Resolve the 16K semantic discrepancy and separately qualify bounded forward PumpSwap transaction-commit evidence before any Watchtower implementation or policy change."
   }
 }

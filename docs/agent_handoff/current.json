@@ -15708,5 +15708,15 @@
     "result": "Recovered the later immutable Watchtower 15-token chain: frozen membership manifest docs/audits/watchtower_expanded_15_sample_manifest.v1.json and definitive research/UI dataset V3. Canonical member digest recomputes 6bedcd053f16a820a26e169221ff23f180dee356e329ad5137ebe89dbf5ce01c; 15/15 unique members retain provenance, migration timestamps, and peak/lifecycle facts. This supersedes only the old HOLD premise that no frozen cohort existed. It does not satisfy the old-vs-new performance coverage gate: all 15 records have conservative_actionable_entry and exact_actionable_entry null, so current entry MC/method and old performance denominators are absent.",
     "artifact": "docs/audits/watchtower_frozen_cohort_recovery_and_integrity.v1.json (sha256 1be862cfc763b4bd61ef64dac9b260f7b1b4037a6430d50a2db70b7aba5a7631)",
     "next_action": "Locate a retained immutable old-entry/performance-baseline artifact for this exact 15-mint digest, or separately authorize baseline definition. Do not invent old values or dispatch the cohort Birdeye ledger until that coverage gate is resolved."
+  },
+  "watchtower_frozen_15_old_entry_baseline": {
+    "status": "PASS",
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee",
+    "tests": "Artifact JSON/readback validation and 15/15 manifest-to-dataset value parity passed. Focused tests/test_watchtower_operation_playbook_ui.py has 1 pass and 3 pre-existing stale UI expectations (66.67% coverage and data-index marker) against the current 100% V3 artifact/template; no test or UI code was modified.",
+    "production_flags": "Provider/RPC/Helius/getBlock/getTransaction/GMGN/network calls=0; Watchtower/database/UI/playbook/Byzantine/Nexus writes=0.",
+    "verdict": "WATCHTOWER_FROZEN_15_OLD_BASELINE_QUALIFIED",
+    "result": "Recovered the exact displayed old baseline for the immutable 15-member digest 6bedcd053f16a820a26e169221ff23f180dee356e329ad5137ebe89dbf5ce01c. The artifact-backed Playbook route maps every token's displayed Opening FDV to theoretical_first_executable_fdv_usd and displayed peak to peak_mc. All 15 values and all 15 peak facts match exactly; old entry-to-peak multiples were derived deterministically. The semantic is THEORETICAL_POST_FIRST_INDEPENDENT_BUY_VIRTUAL_RESERVE_FDV, not an actual execution, first external PumpSwap swap, conservative entry, or exact actionable entry.",
+    "artifact": "docs/audits/watchtower_frozen_15_old_entry_baseline.v1.json (sha256 cf2a2b79eeec69ed30d8bc5a8b610bcb71669e481aba8cdd15802e8493f2e040)",
+    "next_action": "Create and freeze the no-duplicate 15-token Birdeye large-to-small request ledger, then run the new-method recalculation, old-versus-new comparison, Byzantine regression, and promotion gates in that order."
   }
 }

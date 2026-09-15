@@ -15788,5 +15788,15 @@
     "result": "The frozen cohort table now formats market-cap columns as readable compact USD values while retaining full precision in the source artifacts and selected detail: 2YrE=$118.4K/$167.5K, 2dDD=$159.4K/$799.0K, and 3C8N=$177.0K/$1048.1K. Multiples and all underlying facts are unchanged.",
     "artifact": "docs/audits/watchtower_rich_playbook_ui_promotion_readback.v1.json (file sha256 120ab1efa015a5aa13536bbea0362884061070888d8f0364cac2b546e929eb2c; internal canonical sha256 32042f230ef7ecca5fd295127b5c84fbef318d74c6528f839ca89ccfd0c95f26)",
     "next_action": "No methodology or policy change is implied; preserve compact UI formatting as presentation only."
+  },
+  "watchtower_rich_playbook_time_to_peak_format": {
+    "status": "PASS",
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee plus duration presentation correction",
+    "tests": "tests/test_watchtower_operation_playbook_ui.py: 4 passed; Flask render confirms minute/hour duration labels.",
+    "production_flags": "Provider/RPC/Helius/getBlock/getTransaction/full-block/GMGN calls=0; no membership, entry, peak, performance, policy, Byzantine, or Nexus changes.",
+    "verdict": "WATCHTOWER_RICH_PLAYBOOK_UI_PROMOTION_COMPLETE",
+    "result": "Time to peak now displays seconds only below one minute; it displays minutes and seconds above one minute and hours/minutes above one hour. Examples: 2YrE=16m 45s, 6gPE=1m 31s, 2dDD=2h 31m. Underlying retained second counts are unchanged.",
+    "artifact": "docs/audits/watchtower_rich_playbook_ui_promotion_readback.v1.json (file sha256 52b84248bc68c1470f809ed8dd03c4a7d5927f334cb977d74eec79ab21c1a061; internal canonical sha256 92648773fa1945866952604c0e9ccfa468f7be4c9c1c5ed62813e6b06302105b)",
+    "next_action": "Preserve this as display-only formatting; do not change retained timing facts or research semantics."
   }
 }

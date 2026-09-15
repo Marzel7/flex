@@ -15728,5 +15728,15 @@
   "result": "All 15 frozen mints qualify under TIMESTAMP_GROUP_SEQUENCE with PUMPSWAP_POOL_SIDE_SOL_DELTA and the earliest retained 1s mcap candle close at or after the first confirmable small-dominated post-T0 group. Controls exactly match: 2YrE=118435.09891039459, 2dDD=159351.87138847043, 3C8N=177043.5654672287. No old-entry fallback or retrospective T1-open substitution was used.",
   "artifact": "docs/audits/watchtower_frozen_15_large_to_small_recalculation.v1.json (file sha256 70fb423f824fb8604be8a1b12b01788234e92d76794364ee74b9b5d9e33a6653; internal canonical sha256 1c0a57096e9ba60bae196077e1e3baa077b52c9c4240506048ed193c913eb7b5)",
   "next_action": "Run the provider-disabled Byzantine regression audit and promotion gate before any Watchtower UI or production-method change."
-}
+},
+  "byzantine_existing_entry_method_regression_before_watchtower_promotion": {
+    "status": "PASS",
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee plus uncommitted provider-disabled Byzantine entry regression auditor",
+    "tests": "Reducer py_compile; artifact JSON/SHA readback; tests/test_byzantine_larger_opening_corpus_audit.py and tests/test_byzantine_41_scenario_d_rpc_plan.py: 4 passed.",
+    "production_flags": "Birdeye/RPC/getBlock/getTransaction/Helius/GMGN calls=0; Byzantine entry/performance/policy changes=0; Watchtower/UI/Nexus/Playbook writes=0.",
+    "verdict": "BYZANTINE_EXISTING_ENTRY_METHOD_REGRESSION_PASS",
+    "result": "The approved 64-row Byzantine Playbook entry facts reproduce under the existing Scenario-D method only: ordered Pump.fun BUY actions, creator exclusion, distinct buyers, recurrent positions 1-12, position-13 boundary, and retained 0.25-SOL counterfactual average-fill valuation. Exact Decimal-string parity is 0/64 because approved values are float-serialized; all 64/64 are within the already-existing absolute $1e-9 contract, with zero material deltas. Maximum percent residue is 4.151546251539838e-14%. Known 23 replay and scale replay pass. Watchtower large-to-small logic was not applied.",
+    "artifact": "docs/audits/byzantine_existing_entry_method_regression_before_watchtower_promotion.v1.json (file sha256 47475c13b0fd44e97370093b258a8cdb7788de3e401aa4ec4ae1cd05507889ca; internal canonical sha256 301a13fe07fcd789373f29ea4d9d17f5b951ec0924ef042864349bbba46b7ecf)",
+    "next_action": "WATCHTOWER_PROMOTION_NEXT=true: run the explicitly authorized Watchtower promotion gate; do not alter Byzantine."
+  }
 }

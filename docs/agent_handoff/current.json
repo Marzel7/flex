@@ -15758,5 +15758,15 @@
     "result": "All 15 actionable-entry-to-seven-day windows are qualified from retained raw 15-minute USD market-cap candles. Median 7-day peak multiple=1.7919262290702846700180823954220908517664825521899, mean=2.3874302566467825184996341011553790370061900817515, median time-to-peak=1005 seconds, 7 reached 2x, 2 reached 5x, 0 retained >=1x at 24h/72h/7d, and all 15 crossed the existing 85%-from-peak policy threshold within observed seven-day coverage. These are retained-candle observations, not execution fills.",
     "artifact": "docs/audits/watchtower_frozen_15_post_actionable_7d_price_action.v1.json (file sha256 afae40e744d3dadbfa6a1b60246b28428fafae27e6f8f01348d3b9f4da100d89; internal canonical sha256 a4bb30bc494098127bd41fc514c7fcbd499c2ee40de6d565765c38824a49b34a)",
     "next_action": "No downstream policy or performance decision is implied. Any interpretation or operational-policy proposal must be separately authorized using this replayable observational artifact."
+  },
+  "watchtower_rich_playbook_ui_promotion": {
+    "status": "PASS",
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee plus artifact-backed Watchtower rich Playbook read model",
+    "tests": "tests/test_watchtower_operation_playbook_ui.py: 4 passed; provider-free Flask route parity audit passed; local browser readback at /operations/watchtower/playbook confirmed the rich header, three cards, 15 rows, selected-token flow, lifecycle section, and methodology boundary.",
+    "production_flags": "Birdeye/RPC/Helius/getBlock/getTransaction/full-block/GMGN calls=0; no Watchtower entry, peak, performance, policy, membership, Byzantine, or Nexus fact changes; no database writes. This is retained-data presentation work only.",
+    "verdict": "WATCHTOWER_RICH_PLAYBOOK_UI_PROMOTION_COMPLETE",
+    "result": "The Watchtower route now presents the frozen 15-token research cohort in the richer operation-playbook architecture: First Actionable MC, post-entry peak, PENDING/NOT RUN strategy card, all retained 7-day metrics, selectable First Actionable MC → Max Proven MC → 7-Day Outcome detail, lifecycle behaviour, and methodology/evidence limits. All 15 UI rows map exactly to the recalculation and lifecycle artifacts. Controls reproduce 2YrE=$118435.10/1.41x, 2dDD=$159351.87/5.01x, and 3C8N=$177043.57/5.92x. The old theoretical FDV is explicitly provenance only.",
+    "artifact": "docs/audits/watchtower_rich_playbook_ui_promotion_readback.v1.json (file sha256 e02080732a5da0b43c2a164ecaa23f13a97cfead91a4d1b3907149cab7fe2f41; internal canonical sha256 9c2514436e7dfaba06c46c00dbb160e59cad463d6386926f39d38cb790a6a31c)",
+    "next_action": "No strategy or policy change is implied by this UI presentation. Any downstream operational decision requires separate authorization and retained-evidence review."
   }
 }

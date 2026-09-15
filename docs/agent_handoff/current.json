@@ -15698,5 +15698,15 @@
     "result": "The completed three-token V2 proof is a qualified research control but cannot be extrapolated safely because no frozen authoritative Watchtower cohort manifest binds membership, migration timestamps, retained peak MC, existing entry/performance facts, and provenance. The retained Watchtower playbook explicitly reports full-275 and recent-48 cohort runs not ready. Byzantine remains canonical and untouched.",
     "artifact": "docs/audits/watchtower_cohort_first_actionable_recalculation_preflight_hold.v1.json (sha256 02ec69d8e80f021cf03a095629a405ffc0c8c7723350bffed445964ea579e494)",
     "next_action": "Provide or explicitly authorize creation of a digest-bound Watchtower cohort manifest with immutable per-mint facts, then authorize a separately bounded acquisition ledger."
+  },
+  "watchtower_frozen_cohort_recovery": {
+    "status": "HOLD",
+    "engineering_revision": "classification-attribution-axis at local recovery inspection",
+    "tests": "JSON validation, canonical manifest-digest recomputation, V3 dataset mint-set equality, and playbook-registry binding inspection passed",
+    "production_flags": "Provider/RPC/Helius/getBlock/getTransaction/GMGN/network calls=0; production/database/UI/playbook/Watchtower/Byzantine/Nexus writes=0.",
+    "verdict": "WATCHTOWER_COHORT_RECOVERY_HOLD",
+    "result": "Recovered the later immutable Watchtower 15-token chain: frozen membership manifest docs/audits/watchtower_expanded_15_sample_manifest.v1.json and definitive research/UI dataset V3. Canonical member digest recomputes 6bedcd053f16a820a26e169221ff23f180dee356e329ad5137ebe89dbf5ce01c; 15/15 unique members retain provenance, migration timestamps, and peak/lifecycle facts. This supersedes only the old HOLD premise that no frozen cohort existed. It does not satisfy the old-vs-new performance coverage gate: all 15 records have conservative_actionable_entry and exact_actionable_entry null, so current entry MC/method and old performance denominators are absent.",
+    "artifact": "docs/audits/watchtower_frozen_cohort_recovery_and_integrity.v1.json (sha256 1be862cfc763b4bd61ef64dac9b260f7b1b4037a6430d50a2db70b7aba5a7631)",
+    "next_action": "Locate a retained immutable old-entry/performance-baseline artifact for this exact 15-mint digest, or separately authorize baseline definition. Do not invent old values or dispatch the cohort Birdeye ledger until that coverage gate is resolved."
   }
 }

@@ -15720,13 +15720,13 @@
     "next_action": "Create and freeze the no-duplicate 15-token Birdeye large-to-small request ledger, then run the new-method recalculation, old-versus-new comparison, Byzantine regression, and promotion gates in that order."
   },
   "watchtower_frozen_15_large_to_small_recalculation": {
-    "status": "PARTIAL_CHECKPOINT",
-    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee plus uncommitted frozen-15 dispatcher",
-    "tests": "Dispatcher py_compile and ledger/raw readback passed.",
-    "production_flags": "Birdeye calls=10 (all HTTP 200); RPC/full-block calls=0; Watchtower/UI/performance/Playbook/Byzantine/Nexus writes=0; peaks unchanged.",
-    "verdict": "WATCHTOWER_FROZEN_15_RECALCULATION_PARTIAL_CHECKPOINT",
-    "result": "Frozen 15-mint ledger contains six retained control reuses and 24 missing identities. Ten frozen identities succeeded HTTP 200; 243,436 raw bytes retained/read back. 14 new identities remain pending. A continuous shell loop was externally stopped after its first scheduled inter-request wait; this is an execution/tool-limit interruption, not a provider or semantic failure. No result computation or promotion has occurred.",
-    "artifact": "docs/audits/watchtower_frozen_15_large_to_small_recalculation.v1.json",
-    "next_action": "After the 65-second spacing gate, invoke scripts/run_watchtower_frozen15_large_small.py once per next frozen identity; stop/reclassify only on explicit provider failure or rate block. After all succeed, run retained-only Decimal reduction and controls before any downstream gate."
-  }
+  "status": "PASS",
+  "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee plus uncommitted frozen-15 provider-disabled reducer",
+  "tests": "Frozen ledger complete (24/24 new identities; 6 retained controls); provider-disabled Decimal reduction and artifact JSON/SHA readback passed; all three controls reproduced exactly.",
+  "production_flags": "Provider calls during reduction=0; frozen acquisition totals: 24 HTTP 200, 0 HTTP 429, 0 failures, 0 duplicates, 525614 raw bytes; RPC/Helius/full-block/GMGN calls=0; Watchtower/UI/performance/Playbook/Byzantine/Nexus writes=0; peaks unchanged.",
+  "verdict": "WATCHTOWER_FROZEN_15_RECALCULATION_COMPLETE",
+  "result": "All 15 frozen mints qualify under TIMESTAMP_GROUP_SEQUENCE with PUMPSWAP_POOL_SIDE_SOL_DELTA and the earliest retained 1s mcap candle close at or after the first confirmable small-dominated post-T0 group. Controls exactly match: 2YrE=118435.09891039459, 2dDD=159351.87138847043, 3C8N=177043.5654672287. No old-entry fallback or retrospective T1-open substitution was used.",
+  "artifact": "docs/audits/watchtower_frozen_15_large_to_small_recalculation.v1.json (file sha256 70fb423f824fb8604be8a1b12b01788234e92d76794364ee74b9b5d9e33a6653; internal canonical sha256 1c0a57096e9ba60bae196077e1e3baa077b52c9c4240506048ed193c913eb7b5)",
+  "next_action": "Run the provider-disabled Byzantine regression audit and promotion gate before any Watchtower UI or production-method change."
+}
 }

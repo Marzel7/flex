@@ -15638,5 +15638,15 @@
     "result": "The three evidence families remain distinct. 2YrE exact initial/on-chain-post-buy states are $32,821.69638779620466522920421 and $105,516.8640002415878121560296; closest Birdeye T0 field is HIGH, 11.252715821875683% away, though inside its T0 range. 2dDD and 3C8N closest Birdeye highs differ by 42.927984913863955% and 46.723680439600302%, respectively, and their post-buy states are outside retained T0 ranges. This proves neither a universal alignment nor an execution-price equivalence. Live entry, trade size, expected fill, disagreement tolerance, staleness, live state capture, submission, actual fill capture, and kill-switch contracts are unqualified. Required safety decision is NO_TRADE.",
     "artifact": "docs/audits/watchtower_live_entry_known_answer_reconciliation.v1.json (sha256 aa32741c1c90b3bc8b910e8a16aba690b5fc684b2602139531b99a1d46cab0f2)",
     "next_action": "Do not enable Watchtower trading. Separately authorize prospective live timing, state, trade-size, fill, latency, and kill-switch shadow-capture qualification before considering a live policy boundary."
+  },
+  "watchtower_large_to_small_actionable_boundary": {
+    "status": "HOLD",
+    "engineering_revision": "e21867c1 plus bounded V3 token-trade historical-direction probe",
+    "tests": "runner py_compile, raw SHA-256 readback, and JSON validation passed",
+    "production_flags": "Birdeye V3 trade calls=1; RPC/Helius/getBlock/getTransaction/GMGN calls=0; new full-block artifacts/bytes=0; production/UI/playbook/Byzantine/Nexus writes=0.",
+    "verdict": "WATCHTOWER_LARGE_TO_SMALL_ACTIONABLE_BOUNDARY_HOLD",
+    "result": "Official Birdeye documentation supports time-bounded V3 token trades conceptually, but the frozen required chronological request using sort_by=block_unix_time and sort_type=asc was rejected HTTP 400: sort_type invalid format. The 54-byte raw error response was retained and read back. No descending substitution, pagination, retry, or requests for 2dDD/3C8N were made. Therefore the historical-direction gate is not qualified and no individual-trade SOL-size sequence or actionable-boundary fact can be derived.",
+    "artifact": "docs/audits/watchtower_three_token_large_to_small_trade_boundary.v1.json (sha256 6dd59e676f5313ae5a186a4ec41226a85cdd79a82f5f805dce3f1d8afa6143ab)",
+    "next_action": "Authorize a separate source-contract repair/qualification that establishes an accepted chronological historical V3 token-trade request shape before any further Watchtower trade acquisition."
   }
 }

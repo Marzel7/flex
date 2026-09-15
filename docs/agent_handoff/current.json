@@ -15738,5 +15738,25 @@
     "result": "The approved 64-row Byzantine Playbook entry facts reproduce under the existing Scenario-D method only: ordered Pump.fun BUY actions, creator exclusion, distinct buyers, recurrent positions 1-12, position-13 boundary, and retained 0.25-SOL counterfactual average-fill valuation. Exact Decimal-string parity is 0/64 because approved values are float-serialized; all 64/64 are within the already-existing absolute $1e-9 contract, with zero material deltas. Maximum percent residue is 4.151546251539838e-14%. Known 23 replay and scale replay pass. Watchtower large-to-small logic was not applied.",
     "artifact": "docs/audits/byzantine_existing_entry_method_regression_before_watchtower_promotion.v1.json (file sha256 47475c13b0fd44e97370093b258a8cdb7788de3e401aa4ec4ae1cd05507889ca; internal canonical sha256 301a13fe07fcd789373f29ea4d9d17f5b951ec0924ef042864349bbba46b7ecf)",
     "next_action": "WATCHTOWER_PROMOTION_NEXT=true: run the explicitly authorized Watchtower promotion gate; do not alter Byzantine."
+  },
+  "watchtower_frozen_15_promotion": {
+    "status": "PASS",
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee plus artifact-backed Watchtower actionable-entry Playbook overlay",
+    "tests": "tests/test_watchtower_operation_playbook_ui.py: 4 passed; local browser readback at /operations/watchtower/playbook confirmed 15/15 qualified actionable-MC rows.",
+    "production_flags": "Provider/RPC/Helius/getBlock/getTransaction/GMGN calls=0; no Watchtower entry, peak, performance, policy, membership, Byzantine, or Nexus fact changes; local Watchtower API restarted solely to serve the approved presentation update.",
+    "verdict": "WATCHTOWER_FROZEN_15_PROMOTION_QUALIFIED",
+    "result": "The Playbook now exposes the frozen large-to-small recalculation as its current qualified actionable MC reference for all 15 rows while preserving Opening FDV as an explicitly historical theoretical baseline. UI readback showed 15/15 qualified rows, including 2YrE at $118435.10. The overlay is artifact-backed and does not overwrite underlying Watchtower facts.",
+    "artifact": "docs/audits/watchtower_frozen_15_large_to_small_recalculation.v1.json (file sha256 70fb423f824fb8604be8a1b12b01788234e92d76794364ee74b9b5d9e33a6653)",
+    "next_action": "Use the frozen qualified actionable entries only for separately authorized observational post-entry analysis; do not revise policy or production behavior from presentation promotion alone."
+  },
+  "watchtower_frozen_15_post_actionable_7d_price_action": {
+    "status": "PASS",
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee plus frozen 15-token 7-day raw OHLCV ledger and provider-disabled Decimal reducer",
+    "tests": "Request ledger JSON/readback and raw SHA-256 readback passed for 15/15 identities; provider-disabled analyzer py_compile, artifact JSON/readback, and canonical digest verification passed.",
+    "production_flags": "Birdeye lifecycle calls=15, all HTTP 200; HTTP 429=0; duplicate requests=0; retained raw artifacts=15 (169863 bytes); RPC/Helius/getBlock/getTransaction/full-block/GMGN calls=0; Watchtower entry/peak/policy changes=0; Byzantine/Nexus changes=0.",
+    "verdict": "WATCHTOWER_FROZEN_15_7D_PRICE_ACTION_COMPLETE",
+    "result": "All 15 actionable-entry-to-seven-day windows are qualified from retained raw 15-minute USD market-cap candles. Median 7-day peak multiple=1.7919262290702846700180823954220908517664825521899, mean=2.3874302566467825184996341011553790370061900817515, median time-to-peak=1005 seconds, 7 reached 2x, 2 reached 5x, 0 retained >=1x at 24h/72h/7d, and all 15 crossed the existing 85%-from-peak policy threshold within observed seven-day coverage. These are retained-candle observations, not execution fills.",
+    "artifact": "docs/audits/watchtower_frozen_15_post_actionable_7d_price_action.v1.json (file sha256 afae40e744d3dadbfa6a1b60246b28428fafae27e6f8f01348d3b9f4da100d89; internal canonical sha256 a4bb30bc494098127bd41fc514c7fcbd499c2ee40de6d565765c38824a49b34a)",
+    "next_action": "No downstream policy or performance decision is implied. Any interpretation or operational-policy proposal must be separately authorized using this replayable observational artifact."
   }
 }

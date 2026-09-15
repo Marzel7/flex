@@ -15598,5 +15598,15 @@
     "result": "Authoritative replay selects distinct_buys[12]: the 13th distinct non-creator successful Pump.fun BUY action after a recurrent 12-position cluster, and inverse-reconstructs its pre-action curve state for a frozen 0.25-SOL counterfactual quote. Original ordering is (slot, transaction_index, action_index), but transaction-commit insertion safety is explicitly only partial. The historical raw opening span reaches CREATE+1 in 2/22 retained cases, while later signature-first acquisition is a bounded sample, not the original position-13 method. The 58-control source actually reports 17 changed values and 54 review-required cases, so the supplied 58/0 invariance premise does not reconcile. Watchtower may not inherit position 13; only thin shared acquisition concepts are suggested, pending separate PumpSwap commit-safe first-X qualification.",
     "artifact": "docs/audits/byzantine_12_13_first_possible_buy_reuse_audit.v1.json (sha256 29aeb0748ade373d6b494b0a0add859dcdab4d46d5f9ddb9337ef76e5fcb2f29)",
     "next_action": "Resolve the 16K semantic discrepancy and separately qualify bounded forward PumpSwap transaction-commit evidence before any Watchtower implementation or policy change."
+  },
+  "watchtower_cross_slot_first18": {
+    "status": "HOLD",
+    "engineering_revision": "e21867c1 plus audit-only bounded Watchtower first-18 runner",
+    "tests": "py_compile and checkpoint JSON validation passed; pre-dispatch URL-name-only inspection confirmed no usable HTTP endpoint.",
+    "production_flags": "Provider/RPC/network calls=0; raw bytes=0; database/UI/playbook/production/Byzantine writes=0; no detection or trading implementation.",
+    "verdict": "WATCHTOWER_CROSS_SLOT_FIRST18_ACTIONABILITY_HOLD",
+    "result": "The frozen three-token checkpoint and request ceilings were created successfully. Dispatch stopped before the transport boundary because HELIUS_RPC_URL is empty. HELIUS_WS_URL is a WebSocket endpoint and HELIUS_TEMP_API_KEY is a credential, neither a safe substitute for an HTTP JSON-RPC URL. No fallback, retry, or request was attempted.",
+    "artifact": "docs/audits/watchtower_first18_pumpswap_acquisition_checkpoint.v1.json (sha256 6b80e519de6a5e904ffbd66ad8a030186ad388d3b07bb97eb08c82f437a06d0e)",
+    "next_action": "Populate HELIUS_RPC_URL with the authorized HTTP JSON-RPC URL, then resume scripts/run_watchtower_first18_pumpswap_proof.py from the existing checkpoint; do not recreate or alter the frozen ledger."
   }
 }

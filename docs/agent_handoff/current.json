@@ -15778,5 +15778,15 @@
     "result": "At snapshot 1789485208 (rolling seven-day start 1788880408), canonical Watchtower has 285 members and 49 launches in the rolling window. All 49 are not yet mature by launch age, so mature seven-day population=0. The frozen method-validation cohort is 15: 13 are in the current window, 2 are outside it, and 36 current-window launches are not in frozen 15. The 13 overlapping frozen rows do have retained entry/lifecycle artifacts, but cannot be labelled mature seven-day population coverage at this snapshot. Five old canonical members lacked a primary create timestamp but had pre-window migration upper bounds and are safely excluded from the current seven-day count.",
     "artifact": "docs/audits/watchtower_7d_population_reconciliation.v1.json (file sha256 afd0309398551716f30cd295280108d8541044f7003c50172d26d4199d56d59e; internal canonical sha256 3fb92bc3b6e13216abb17392ee7ddba6bcc60ab5c30c6afcfe4292b7972f33b4)",
     "next_action": "Do not change the UI under this authorization. A later UI revision should distinguish 285 canonical members, 49 current research launches, 0 mature current-window seven-day lifecycles, and the separate frozen 15 validation cohort; it must not treat frozen artifacts as current population coverage."
+  },
+  "watchtower_rich_playbook_compact_amount_format": {
+    "status": "PASS",
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee plus compact USD table presentation correction",
+    "tests": "tests/test_watchtower_operation_playbook_ui.py: 4 passed; Flask and local-browser readback confirmed compact values.",
+    "production_flags": "Provider/RPC/Helius/getBlock/getTransaction/full-block/GMGN calls=0; no membership, entry, peak, performance, policy, Byzantine, or Nexus changes.",
+    "verdict": "WATCHTOWER_RICH_PLAYBOOK_UI_PROMOTION_COMPLETE",
+    "result": "The frozen cohort table now formats market-cap columns as readable compact USD values while retaining full precision in the source artifacts and selected detail: 2YrE=$118.4K/$167.5K, 2dDD=$159.4K/$799.0K, and 3C8N=$177.0K/$1048.1K. Multiples and all underlying facts are unchanged.",
+    "artifact": "docs/audits/watchtower_rich_playbook_ui_promotion_readback.v1.json (file sha256 120ab1efa015a5aa13536bbea0362884061070888d8f0364cac2b546e929eb2c; internal canonical sha256 32042f230ef7ecca5fd295127b5c84fbef318d74c6528f839ca89ccfd0c95f26)",
+    "next_action": "No methodology or policy change is implied; preserve compact UI formatting as presentation only."
   }
 }

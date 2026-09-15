@@ -15921,5 +15921,14 @@
     "result": "All three retained successful MigrateV2/CreatePool transactions reconstruct the same initial PumpSwap state: 206,900,000 tokens and 67.405853768 SOL, or 325.78953005316578057032382793620106331561140647656 SOL MC. 2YrE matches retained 325.7895300531658 SOL at retained precision. Each retained migration-slot block establishes the migration ordinal and immediate direct pool transactions; their earliest actors remain UNKNOWN from the permitted direct relationship evidence, so no conservative or exact actionable entry is admitted. The 57.275401 and 211.155216 SOL Pump.fun instruction states remain internal/non-actionable. Targeted actionability evidence is required before strategy performance entries.",
     "artifact": "docs/audits/watchtower_three_token_migration_slot_actionability.v1.json (SHA-256 a070f81974f74ca4d1455e375935649125b6b6e179512617660d3496db67a864)",
     "next_action": "Do not reacquire. If separately authorized, design a bounded retained-evidence actionability proof for direct post-migration actor/transaction semantics; no Playbook change is justified."
+  },
+  "watchtower_immediate_post_migration_buyers": {
+    "engineering_revision": "e21867c1 plus offline immediate-buyer audit script (engineering worktree commit blocked by pre-existing index.lock)",
+    "tests": "8 passed: retained PumpSwap-boundary and Nexus initial-pool regression tests; audit regenerated twice with identical SHA-256",
+    "production_flags": "New RPC/provider/network calls=0; migration getTransaction/getBlock reacquisition=0; address history/Birdeye/GMGN calls=0; database/membership/detector/entry/Playbook/UI/production-fact writes=0.",
+    "verdict": "WATCHTOWER_IMMEDIATE_POST_MIGRATION_BUYERS_PARTIAL",
+    "result": "The three exact next PumpSwap BUYs are distinct sole fee-payer/signers from their migration fee-payers/signers and unique creators. Their same-blockhash status is normal same-slot evidence only, not control proof. Direct local retained-evidence search found no buyer funding edge, role, creator relation, Watchtower relation, prior Watchtower appearance, or exact funding signature. Each buyer is therefore UNKNOWN; no buyer is called external and no bounded funding RPC is justified. Initial 325.789530... SOL remains theoretical only; conservative/exact entries remain insufficient.",
+    "artifact": "docs/audits/watchtower_three_immediate_post_migration_buyers.v1.json (SHA-256 a8b1650aff0a4702ae2775a514b1ee1d7efe96e46a965d2d8dbdbb8254a93dd8)",
+    "next_action": "Do not expand sample or reacquire migration data. A separately authorized, specifically bounded buyer-role evidence method or prospective capture decision is required."
   }
 }

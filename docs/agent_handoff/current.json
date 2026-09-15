@@ -15798,5 +15798,15 @@
     "result": "Time to peak now displays seconds only below one minute; it displays minutes and seconds above one minute and hours/minutes above one hour. Examples: 2YrE=16m 45s, 6gPE=1m 31s, 2dDD=2h 31m. Underlying retained second counts are unchanged.",
     "artifact": "docs/audits/watchtower_rich_playbook_ui_promotion_readback.v1.json (file sha256 52b84248bc68c1470f809ed8dd03c4a7d5927f334cb977d74eec79ab21c1a061; internal canonical sha256 92648773fa1945866952604c0e9ccfa468f7be4c9c1c5ed62813e6b06302105b)",
     "next_action": "Preserve this as display-only formatting; do not change retained timing facts or research semantics."
+  },
+  "watchtower_recent_36_actionable_price_expansion": {
+    "status": "PARTIAL",
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee plus recent-36 phase-A durable Birdeye ledger",
+    "tests": "Phase-A runner py_compile; ledger JSON/readback; raw SHA-256 readback for both completed identities passed.",
+    "production_flags": "Birdeye calls=2, both HTTP 200; HTTP 429=0; duplicates=0; raw artifacts=2 (13687 bytes); RPC/Helius/getBlock/getTransaction/full-block/GMGN calls=0; Watchtower membership/UI/Playbook/peak rewrites=0; Byzantine/Nexus changes=0.",
+    "verdict": "WATCHTOWER_RECENT_36_PRICE_EXPANSION_PARTIAL_CHECKPOINT",
+    "result": "Phase A froze 72 exact identities for the canonical recent-36 cohort: each mint has one bounded T0-1..T0+9 Birdeye V3 trade request and one T0..T0+10 1-second mcap request. Lifecycle requests will be frozen only after deterministic entry confirmation. The first mint GHkX4EcWr9DLmSoZ4mdaFd6ciaPEf5aSfDqDxdUgpump completed both phase-A calls, raw-retained and readback verified. The initial sandbox DNS failure occurred before socket connection, was durably recorded as a pre-dispatch transport recovery with zero provider calls, then the same frozen identity completed successfully under authorized network execution.",
+    "artifact": "docs/audits/watchtower_recent_36_actionable_price_expansion.v1.json (file sha256 46f5084fcc75c709e076d5fbd79642ac0e5cf6d13f33b4134964beed09632312; internal canonical sha256 636d5f357dd5cac96d65ed3e52aad1fba4b22c17cf4220cbcaa411c9cf5b6347)",
+    "next_action": "Resume only the exact next pending identity 926163fa8ee7339dedb7f1c6b54416a3e7b2600a0518abc32d2d8253105e97b8 (8epBCVHVZHdiAYweM9vAF57ngKtGVLC9k7oRTh2pump, TOKEN_TRADES) after the 65-second gate. Never rebuild/reorder the phase-A ledger or redispatch completed identities."
   }
 }

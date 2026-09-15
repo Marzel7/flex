@@ -15668,5 +15668,15 @@
     "result": "The sole frozen request was HTTP 200 with 35 rows and raw SHA-256 07b2c7cc488f593bf4331087ba91e9f466de34d729b2c90731ce206c3dc76258. It qualified actual tx_hash, block_unix_time, token-centric side, explicit SOL/from-to legs, owner, pool_id, source, and instruction-order fields. Yet the exact known 60.6-SOL control signature at block time 1789391594 was absent. Returned rows begin at 1789391595, empirically showing this provider response treated after_time=1789391594 as strictly later; the documentation had not declared equality semantics. No padding, retry, pagination, or calls for 2dDD/3C8N were made. Therefore control result=FAIL_SIGNATURE and the trade-sequence route is not authorized for the later analysis.",
     "artifact": "docs/audits/watchtower_2yre_birdeye_trade_schema_probe.v1.json (sha256 61bb7def8b6dddea3a75466c69764a127c5063a9bfd5e6880bf29b0eedefc369)",
     "next_action": "Do not use this frozen control to authorize 2dDD/3C8N. Any new schema-control acquisition requires explicit authorization with a separately justified boundary contract; do not reinterpret or overwrite this raw response."
+  },
+  "watchtower_2yre_birdeye_trade_schema_corrected_probe": {
+    "status": "PASS",
+    "engineering_revision": "e21867c1 plus single-call corrected 2YrE V3 trade-schema control",
+    "tests": "runner and offline-completion py_compile, JSON validation, raw SHA-256 readback, and deterministic retained-response control replay passed",
+    "production_flags": "Birdeye V3 trade calls=1; RPC/Helius/getBlock/getTransaction/GMGN calls=0; new full-block artifacts/bytes=0; production/UI/playbook/Byzantine/Nexus writes=0; no actionability or trading policy derived.",
+    "verdict": "WATCHTOWER_2YRE_BIRDEYE_TRADE_SCHEMA_CORRECTED_QUALIFIED",
+    "result": "The T0-1 lower-bound correction returned 49 rows spanning 1789391594 through 1789391603. Exact known signature was provider position 46 and reconciled timestamp 1789391594, buyer CRaSC..., PumpSwap pool HkeR..., source pump_amm, and token-centric BUY using SOL. The explicit SOL from-leg was 59.802690583, exactly the retained pool-side SOL delta (0 difference; 0.797309417 below the 60.6 gross wallet debit). The correction is bounded by the earlier empirical proof that after_time=T0 excludes T0. There are 14 T0 rows with 10 unique signatures and 35 rows overlap the prior T+1-to-T+9 raw response. Same-second cross-transaction ordering remains unqualified, so future analysis must use TIMESTAMP_GROUP_SEQUENCE, not an exact transaction sequence. No 2dDD/3C8N calls occurred in this task.",
+    "artifact": "docs/audits/watchtower_2yre_birdeye_trade_schema_corrected_probe.v1.json (sha256 2ab8228510199b1c3f214884cc0ac855c2c43420f741c35c4885f818842cd0f4)",
+    "next_action": "The 2YrE schema/control gate permits separately authorized identical bounded 2dDD and 3C8N probes, retaining raw per request and applying timestamp-group—not cross-transaction exact-order—analysis. Do not derive an actionable MC or policy from 2YrE alone."
   }
 }

@@ -15618,5 +15618,15 @@
     "result": "Official Birdeye V3 documentation qualifies generic o/h/l/c under the mcap request mode as USD market-cap OHLC (with documented fallback-to-price caveat if provider supply is unavailable). The 2dDD and 3C8N one-time backoff recovery calls returned HTTP 200, and all three frozen mints now have positive-volume 1-second candle evidence at their migration second. However, 3C8N began 59.64386034011841 seconds after 2dDD completed, 0.3561396598815918 seconds short of the required 60-second completion-to-next-dispatch gap. The evidence is retained but the backoff qualification is PARTIAL; no redispatch is permitted to repair it. Exact actionability remains insufficient and the theoretical initial PumpSwap fact remains separate.",
     "artifact": "docs/audits/watchtower_three_token_birdeye_first_candle_backoff_recovery.v1.json (sha256 d0b7307664b43813ea480826fab2610f60436e6a660df4f335ebf92ae89d7acc)",
     "next_action": "Do not retry or expand this frozen ledger. Preserve the three successful candles and require an explicitly authorized fresh spacing-compliant qualification if a formal backoff PASS is needed; use BIRDEYE_KK without recording its value."
+  },
+  "watchtower_first_established_1s_market_reference": {
+    "status": "PASS",
+    "engineering_revision": "e21867c1 plus provider-disabled retained-candle first-established-reference audit",
+    "tests": "runner py_compile, JSON validation, raw readback, and deterministic sequence invariants passed",
+    "production_flags": "Provider/RPC/Helius/getBlock/getTransaction/GMGN/network calls=0; production/UI/playbook/Byzantine/Nexus writes=0.",
+    "verdict": "WATCHTOWER_FIRST_ESTABLISHED_1S_REFERENCE_QUALIFIED",
+    "result": "All three retained 60-second responses already cover T+0 through T+9, so no call was required. T+1 OPEN exactly equals T+0 CLOSE in each series: 2YrE $117,390.37685034382, 2dDD $81,517.2787970803, and 3C8N $85,973.02289660266. The simple shadow semantic FIRST_FULL_POST_MIGRATION_SECOND_OPEN excludes the mixed migration-second open, is knowable at T+1, and equals the transition-end state. Gaps later in the sequence mean no natural-stability candidate was defined. Exact actionability and theoretical on-chain facts remain unchanged; policy is not promoted.",
+    "artifact": "docs/audits/watchtower_three_token_first_established_1s_market_reference.v1.json (sha256 4d7274b07bdbbf42cef8aafc18359582147bc7bdfd9289e054e735ab2b226b6c)",
+    "next_action": "A separately authorized 10–15 token validation may test the shadow semantic with retained/new evidence; do not promote it to production without that validation."
   }
 }

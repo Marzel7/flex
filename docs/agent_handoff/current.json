@@ -15723,9 +15723,9 @@
     "status": "PARTIAL_CHECKPOINT",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee plus uncommitted frozen-15 dispatcher",
     "tests": "Dispatcher py_compile and ledger/raw readback passed.",
-    "production_flags": "Birdeye calls=5 (all HTTP 200); RPC/full-block calls=0; Watchtower/UI/performance/Playbook/Byzantine/Nexus writes=0; peaks unchanged.",
+    "production_flags": "Birdeye calls=6 (all HTTP 200); RPC/full-block calls=0; Watchtower/UI/performance/Playbook/Byzantine/Nexus writes=0; peaks unchanged.",
     "verdict": "WATCHTOWER_FROZEN_15_RECALCULATION_PARTIAL_CHECKPOINT",
-    "result": "Frozen 15-mint ledger contains six retained control reuses and 24 missing identities. 5Eyv TOKEN_TRADES and MCAP_1S, 5dgY TOKEN_TRADES and MCAP_1S, and 6gPE TOKEN_TRADES succeeded HTTP 200; 161,463 raw bytes retained/read back. 19 new identities remain pending. No result computation or promotion has occurred.",
+    "result": "Frozen 15-mint ledger contains six retained control reuses and 24 missing identities. 5Eyv, 5dgY, and 6gPE TOKEN_TRADES/MCAP_1S pairs succeeded HTTP 200; 176,174 raw bytes retained/read back. 18 new identities remain pending. No result computation or promotion has occurred.",
     "artifact": "docs/audits/watchtower_frozen_15_large_to_small_recalculation.v1.json",
     "next_action": "After the 65-second spacing gate, invoke scripts/run_watchtower_frozen15_large_small.py once per next frozen identity; stop/reclassify only on explicit provider failure or rate block. After all succeed, run retained-only Decimal reduction and controls before any downstream gate."
   }

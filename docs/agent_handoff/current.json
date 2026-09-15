@@ -15818,5 +15818,15 @@
     "result": "The automatic serialized shell advanced the next phase-A trade identity for 8epBCVHVZHdiAYweM9vAF57ngKtGVLC9k7oRTh2pump successfully before the execution environment interrupted the long-running session. The ledger remains in PHASE_A_IN_PROGRESS, with 3/72 completed and no indeterminate dispatches.",
     "artifact": "docs/audits/watchtower_recent_36_actionable_price_expansion.v1.json (file sha256 8adf280109a7e2a47fd3047327be238c2bad615c76f6e2d62f06d27b97451e48; internal canonical sha256 214b5ac5133432d3d57d1c359eac819964ac2672daf497b8a367d2972f027191)",
     "next_action": "Resume only ab36ed3e829b31b1fbe1c7939c627dd96633f8499a0439c0ae2a9dc05d00b8be (8epBCVHVZHdiAYweM9vAF57ngKtGVLC9k7oRTh2pump, MCAP_1S) after the 65-second gate."
+  },
+  "watchtower_recent_36_phase_a_continuous_dispatch": {
+    "status": "PARTIAL",
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee plus single serialized continuous phase-A dispatcher",
+    "tests": "All completed raw artifacts retain SHA-256 readback verification; ledger duplicate count remains zero.",
+    "production_flags": "Snapshot at handoff: Birdeye calls=7, all HTTP 200; HTTP 429=0; duplicates=0; RPC/Helius/getBlock/getTransaction/full-block/GMGN calls=0; membership/UI/Playbook/Byzantine/Nexus changes=0.",
+    "verdict": "WATCHTOWER_RECENT_36_PRICE_EXPANSION_PARTIAL_CHECKPOINT",
+    "result": "A single local serialized dispatcher remains active under the frozen 65-second spacing contract. It is the sole process permitted to advance the ledger; auxiliary manual wrappers were removed. Snapshot checkpoint is 7/72 completed with no provider or integrity failures.",
+    "artifact": "docs/audits/watchtower_recent_36_actionable_price_expansion.v1.json (snapshot file sha256 ca6aad16972cf34b8a2e0e320b40a16b2393f2c8ff136020d3724660f7ae9c8c; internal canonical sha256 eb81e0a161dea29510ba0cd42783a1f72f743df4517d09d536a642a0f61a1120)",
+    "next_action": "Let the single dispatcher continue. If it is interrupted, resume only the ledger's next PENDING identity (snapshot: 76bc35469046be15f9fb1c268970b09bf65e0a0c16152f7fcc2b53c6443acf5b, 9gMyvDXBRUb4BaWSmoG7msm5eX8cCBggoBnU72Fupump, MCAP_1S)."
   }
 }

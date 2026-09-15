@@ -15688,5 +15688,15 @@
     "result": "2dDD and 3C8N each passed exact signature, timestamp, owner, token-side BUY, and pool-side SOL-delta control (79.736920777 and 89.704035874). Together with the retained 2YrE control, all three show a T0 large-dominated PumpSwap group followed by a first observed post-T0 small-dominated group. The common research rule is timestamp-group based only; cross-transaction ordering within a second remains unqualified. Market-cap values remain external historical candle references, not execution or production-actionable prices; policy remains unpromoted.",
     "artifact": "docs/audits/watchtower_three_token_large_to_small_actionable_boundary.v2.json (sha256 e855da9390bb20bf9b9eb7ec16586c8de2d7b59665e0aa9c946cc10cd108b220)",
     "next_action": "Do not make additional provider calls. Any broader validation or production-policy proposal must be separately authorized and preserve timestamp-group semantics."
+  },
+  "watchtower_cohort_first_actionable_recalculation": {
+    "status": "HOLD",
+    "engineering_revision": "e21867c1 plus zero-call cohort-authority reconciliation",
+    "tests": "JSON validation and retained artifact inspection passed",
+    "production_flags": "Provider/RPC/Helius/getBlock/getTransaction/GMGN calls=0; production/UI/playbook/Watchtower/Byzantine/Nexus writes=0.",
+    "verdict": "COHORT_PROMOTION_HOLD",
+    "result": "The completed three-token V2 proof is a qualified research control but cannot be extrapolated safely because no frozen authoritative Watchtower cohort manifest binds membership, migration timestamps, retained peak MC, existing entry/performance facts, and provenance. The retained Watchtower playbook explicitly reports full-275 and recent-48 cohort runs not ready. Byzantine remains canonical and untouched.",
+    "artifact": "docs/audits/watchtower_cohort_first_actionable_recalculation_preflight_hold.v1.json (sha256 02ec69d8e80f021cf03a095629a405ffc0c8c7723350bffed445964ea579e494)",
+    "next_action": "Provide or explicitly authorize creation of a digest-bound Watchtower cohort manifest with immutable per-mint facts, then authorize a separately bounded acquisition ledger."
   }
 }

@@ -15678,5 +15678,15 @@
     "result": "The T0-1 lower-bound correction returned 49 rows spanning 1789391594 through 1789391603. Exact known signature was provider position 46 and reconciled timestamp 1789391594, buyer CRaSC..., PumpSwap pool HkeR..., source pump_amm, and token-centric BUY using SOL. The explicit SOL from-leg was 59.802690583, exactly the retained pool-side SOL delta (0 difference; 0.797309417 below the 60.6 gross wallet debit). The correction is bounded by the earlier empirical proof that after_time=T0 excludes T0. There are 14 T0 rows with 10 unique signatures and 35 rows overlap the prior T+1-to-T+9 raw response. Same-second cross-transaction ordering remains unqualified, so future analysis must use TIMESTAMP_GROUP_SEQUENCE, not an exact transaction sequence. No 2dDD/3C8N calls occurred in this task.",
     "artifact": "docs/audits/watchtower_2yre_birdeye_trade_schema_corrected_probe.v1.json (sha256 2ab8228510199b1c3f214884cc0ac855c2c43420f741c35c4885f818842cd0f4)",
     "next_action": "The 2YrE schema/control gate permits separately authorized identical bounded 2dDD and 3C8N probes, retaining raw per request and applying timestamp-group—not cross-transaction exact-order—analysis. Do not derive an actionable MC or policy from 2YrE alone."
+  },
+  "watchtower_three_token_large_to_small_actionable_boundary_v2": {
+    "status": "PASS",
+    "engineering_revision": "e21867c1 plus bounded 2dDD/3C8N V3 acquisition and provider-disabled three-token analysis",
+    "tests": "all runner/analyzer modules py_compile; checkpoint/final JSON validation; raw SHA-256 readback; deterministic control assertions passed",
+    "production_flags": "Birdeye V3 trade calls=2, both HTTP 200; RPC/Helius/getBlock/getTransaction/GMGN calls=0; production/UI/playbook/Byzantine/Nexus writes=0; no policy promotion or trading enabled.",
+    "verdict": "WATCHTOWER_THREE_TOKEN_LARGE_TO_SMALL_ACTIONABLE_BOUNDARY_QUALIFIED",
+    "result": "2dDD and 3C8N each passed exact signature, timestamp, owner, token-side BUY, and pool-side SOL-delta control (79.736920777 and 89.704035874). Together with the retained 2YrE control, all three show a T0 large-dominated PumpSwap group followed by a first observed post-T0 small-dominated group. The common research rule is timestamp-group based only; cross-transaction ordering within a second remains unqualified. Market-cap values remain external historical candle references, not execution or production-actionable prices; policy remains unpromoted.",
+    "artifact": "docs/audits/watchtower_three_token_large_to_small_actionable_boundary.v2.json (sha256 e855da9390bb20bf9b9eb7ec16586c8de2d7b59665e0aa9c946cc10cd108b220)",
+    "next_action": "Do not make additional provider calls. Any broader validation or production-policy proposal must be separately authorized and preserve timestamp-group semantics."
   }
 }

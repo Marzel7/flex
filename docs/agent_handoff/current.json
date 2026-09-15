@@ -15658,5 +15658,15 @@
     "result": "Official documentation qualifies server-side after_time/before_time filtering, block_unix_time sorting, and documented descending order. A descending response is usable because the server-side bounded response can be retained and sorted chronologically offline, preserving same-timestamp groups. The prior HTTP 400 is explained: asc is not a documented sort_type; docs currently list desc. However, retained V3 schema evidence does not qualify individual signature, timestamp, token-side BUY/SELL perspective, SOL/WSOL quote amount, price, MC, or intra-second ordering fields. Consequently the known 60.6/80.8/90.9-SOL controls and large-to-small boundary cannot yet be derived.",
     "artifact": "docs/audits/watchtower_birdeye_v3_token_trade_route_contract.v1.json (sha256 6352af9b00d47e96cc490be56448e9ae0a53ebc55acbe5c0512f12885bbc582d)",
     "next_action": "Authorize a narrowly bounded raw response-item schema qualification before any Watchtower opening-trade acquisition; then use the documented descending time-bounded one-page route with offline chronological grouping."
+  },
+  "watchtower_2yre_birdeye_trade_schema_probe": {
+    "status": "PARTIAL",
+    "engineering_revision": "e21867c1 plus single-call 2YrE V3 trade-schema control",
+    "tests": "runner py_compile, JSON validation, raw SHA-256 readback, and provider-disabled field-inventory replay passed",
+    "production_flags": "Birdeye V3 trade calls=1; RPC/Helius/getBlock/getTransaction/GMGN calls=0; new full-block artifacts/bytes=0; production/UI/playbook/Byzantine/Nexus writes=0; no actionability or trading policy derived.",
+    "verdict": "WATCHTOWER_2YRE_BIRDEYE_TRADE_SCHEMA_PROBE_PARTIAL",
+    "result": "The sole frozen request was HTTP 200 with 35 rows and raw SHA-256 07b2c7cc488f593bf4331087ba91e9f466de34d729b2c90731ce206c3dc76258. It qualified actual tx_hash, block_unix_time, token-centric side, explicit SOL/from-to legs, owner, pool_id, source, and instruction-order fields. Yet the exact known 60.6-SOL control signature at block time 1789391594 was absent. Returned rows begin at 1789391595, empirically showing this provider response treated after_time=1789391594 as strictly later; the documentation had not declared equality semantics. No padding, retry, pagination, or calls for 2dDD/3C8N were made. Therefore control result=FAIL_SIGNATURE and the trade-sequence route is not authorized for the later analysis.",
+    "artifact": "docs/audits/watchtower_2yre_birdeye_trade_schema_probe.v1.json (sha256 61bb7def8b6dddea3a75466c69764a127c5063a9bfd5e6880bf29b0eedefc369)",
+    "next_action": "Do not use this frozen control to authorize 2dDD/3C8N. Any new schema-control acquisition requires explicit authorization with a separately justified boundary contract; do not reinterpret or overwrite this raw response."
   }
 }

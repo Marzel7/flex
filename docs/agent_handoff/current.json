@@ -15768,5 +15768,15 @@
     "result": "The Watchtower route now presents the frozen 15-token research cohort in the richer operation-playbook architecture: First Actionable MC, post-entry peak, PENDING/NOT RUN strategy card, all retained 7-day metrics, selectable First Actionable MC → Max Proven MC → 7-Day Outcome detail, lifecycle behaviour, and methodology/evidence limits. All 15 UI rows map exactly to the recalculation and lifecycle artifacts. Controls reproduce 2YrE=$118435.10/1.41x, 2dDD=$159351.87/5.01x, and 3C8N=$177043.57/5.92x. The old theoretical FDV is explicitly provenance only.",
     "artifact": "docs/audits/watchtower_rich_playbook_ui_promotion_readback.v1.json (file sha256 e02080732a5da0b43c2a164ecaa23f13a97cfead91a4d1b3907149cab7fe2f41; internal canonical sha256 9c2514436e7dfaba06c46c00dbb160e59cad463d6386926f39d38cb790a6a31c)",
     "next_action": "No strategy or policy change is implied by this UI presentation. Any downstream operational decision requires separate authorization and retained-evidence review."
+  },
+  "watchtower_7d_population_reconciliation": {
+    "status": "PASS",
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee plus read-only canonical Watchtower seven-day population reconciler",
+    "tests": "Reconciler py_compile, artifact JSON/readback, and independent SQLite count reconciliation passed.",
+    "production_flags": "Birdeye/RPC/Helius/getBlock/getTransaction/full-block/GMGN calls=0; Watchtower membership/database/UI/Playbook writes=0; Byzantine/Nexus changes=0.",
+    "verdict": "WATCHTOWER_7D_POPULATION_RECONCILED",
+    "result": "At snapshot 1789485208 (rolling seven-day start 1788880408), canonical Watchtower has 285 members and 49 launches in the rolling window. All 49 are not yet mature by launch age, so mature seven-day population=0. The frozen method-validation cohort is 15: 13 are in the current window, 2 are outside it, and 36 current-window launches are not in frozen 15. The 13 overlapping frozen rows do have retained entry/lifecycle artifacts, but cannot be labelled mature seven-day population coverage at this snapshot. Five old canonical members lacked a primary create timestamp but had pre-window migration upper bounds and are safely excluded from the current seven-day count.",
+    "artifact": "docs/audits/watchtower_7d_population_reconciliation.v1.json (file sha256 afd0309398551716f30cd295280108d8541044f7003c50172d26d4199d56d59e; internal canonical sha256 3fb92bc3b6e13216abb17392ee7ddba6bcc60ab5c30c6afcfe4292b7972f33b4)",
+    "next_action": "Do not change the UI under this authorization. A later UI revision should distinguish 285 canonical members, 49 current research launches, 0 mature current-window seven-day lifecycles, and the separate frozen 15 validation cohort; it must not treat frozen artifacts as current population coverage."
   }
 }

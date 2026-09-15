@@ -15648,5 +15648,15 @@
     "result": "Official Birdeye documentation supports time-bounded V3 token trades conceptually, but the frozen required chronological request using sort_by=block_unix_time and sort_type=asc was rejected HTTP 400: sort_type invalid format. The 54-byte raw error response was retained and read back. No descending substitution, pagination, retry, or requests for 2dDD/3C8N were made. Therefore the historical-direction gate is not qualified and no individual-trade SOL-size sequence or actionable-boundary fact can be derived.",
     "artifact": "docs/audits/watchtower_three_token_large_to_small_trade_boundary.v1.json (sha256 6dd59e676f5313ae5a186a4ec41226a85cdd79a82f5f805dce3f1d8afa6143ab)",
     "next_action": "Authorize a separate source-contract repair/qualification that establishes an accepted chronological historical V3 token-trade request shape before any further Watchtower trade acquisition."
+  },
+  "watchtower_birdeye_v3_token_trade_route_contract": {
+    "status": "PARTIAL",
+    "engineering_revision": "e21867c1 plus zero-token-call V3 historical trade-route contract audit",
+    "tests": "runner py_compile, JSON validation, and retained-source SHA-256 readback passed",
+    "production_flags": "Token-data/RPC/Helius/getBlock/getTransaction/GMGN calls=0; production/UI/playbook/Byzantine/Nexus writes=0.",
+    "verdict": "BIRDEYE_TRADE_ROUTE_PARTIAL",
+    "result": "Official documentation qualifies server-side after_time/before_time filtering, block_unix_time sorting, and documented descending order. A descending response is usable because the server-side bounded response can be retained and sorted chronologically offline, preserving same-timestamp groups. The prior HTTP 400 is explained: asc is not a documented sort_type; docs currently list desc. However, retained V3 schema evidence does not qualify individual signature, timestamp, token-side BUY/SELL perspective, SOL/WSOL quote amount, price, MC, or intra-second ordering fields. Consequently the known 60.6/80.8/90.9-SOL controls and large-to-small boundary cannot yet be derived.",
+    "artifact": "docs/audits/watchtower_birdeye_v3_token_trade_route_contract.v1.json (sha256 6352af9b00d47e96cc490be56448e9ae0a53ebc55acbe5c0512f12885bbc582d)",
+    "next_action": "Authorize a narrowly bounded raw response-item schema qualification before any Watchtower opening-trade acquisition; then use the documented descending time-bounded one-page route with offline chronological grouping."
   }
 }

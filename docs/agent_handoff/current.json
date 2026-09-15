@@ -15808,5 +15808,15 @@
     "result": "Phase A froze 72 exact identities for the canonical recent-36 cohort: each mint has one bounded T0-1..T0+9 Birdeye V3 trade request and one T0..T0+10 1-second mcap request. Lifecycle requests will be frozen only after deterministic entry confirmation. The first mint GHkX4EcWr9DLmSoZ4mdaFd6ciaPEf5aSfDqDxdUgpump completed both phase-A calls, raw-retained and readback verified. The initial sandbox DNS failure occurred before socket connection, was durably recorded as a pre-dispatch transport recovery with zero provider calls, then the same frozen identity completed successfully under authorized network execution.",
     "artifact": "docs/audits/watchtower_recent_36_actionable_price_expansion.v1.json (file sha256 46f5084fcc75c709e076d5fbd79642ac0e5cf6d13f33b4134964beed09632312; internal canonical sha256 636d5f357dd5cac96d65ed3e52aad1fba4b22c17cf4220cbcaa411c9cf5b6347)",
     "next_action": "Resume only the exact next pending identity 926163fa8ee7339dedb7f1c6b54416a3e7b2600a0518abc32d2d8253105e97b8 (8epBCVHVZHdiAYweM9vAF57ngKtGVLC9k7oRTh2pump, TOKEN_TRADES) after the 65-second gate. Never rebuild/reorder the phase-A ledger or redispatch completed identities."
+  },
+  "watchtower_recent_36_phase_a_resume": {
+    "status": "PARTIAL",
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee plus resumed frozen phase-A execution",
+    "tests": "Checkpoint JSON/readback and raw SHA-256 verification passed for all three successful identities.",
+    "production_flags": "Birdeye calls=3, all HTTP 200; HTTP 429=0; duplicates=0; raw artifacts=3 (24552 bytes); RPC/Helius/getBlock/getTransaction/full-block/GMGN calls=0; no membership/UI/Playbook/Byzantine/Nexus changes.",
+    "verdict": "WATCHTOWER_RECENT_36_PRICE_EXPANSION_PARTIAL_CHECKPOINT",
+    "result": "The automatic serialized shell advanced the next phase-A trade identity for 8epBCVHVZHdiAYweM9vAF57ngKtGVLC9k7oRTh2pump successfully before the execution environment interrupted the long-running session. The ledger remains in PHASE_A_IN_PROGRESS, with 3/72 completed and no indeterminate dispatches.",
+    "artifact": "docs/audits/watchtower_recent_36_actionable_price_expansion.v1.json (file sha256 8adf280109a7e2a47fd3047327be238c2bad615c76f6e2d62f06d27b97451e48; internal canonical sha256 214b5ac5133432d3d57d1c359eac819964ac2672daf497b8a367d2972f027191)",
+    "next_action": "Resume only ab36ed3e829b31b1fbe1c7939c627dd96633f8499a0439c0ae2a9dc05d00b8be (8epBCVHVZHdiAYweM9vAF57ngKtGVLC9k7oRTh2pump, MCAP_1S) after the 65-second gate."
   }
 }

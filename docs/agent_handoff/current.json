@@ -1,4 +1,16 @@
 {
+  "watchtower_terminal_ath_queue_repair": {
+    "engineering_revision": "e21867c1 working tree",
+    "status": "PASS_WITH_LEGACY_CLOSE_ONLY_RETENTION_NOTE",
+    "scope": "existing EvidenceIntakeQueue + Supervisor Monitor worker; Watchtower prospective terminal ATH only",
+    "work_type": "WATCHTOWER_TERMINAL_ATH_FINALIZATION",
+    "seven_xqv": "One canonical queued request completed HTTP 200 and ACKed: final ATH 230813.8524026054, 1.8706650580600652x, BIRDEYE_15M_OHLC_HIGH; no 2x/5x/10x crossing.",
+    "hxpdl": "Unchanged; zero new calls; final ATH 1015607.2718995338, 8.17794218800668x, BIRDEYE_15M_OHLC_HIGH.",
+    "tests": "27 passed focused Monitor/terminal-ATH/UI suites",
+    "audit": "docs/audits/watchtower_terminal_ath_queue_repair.v1.json sha256 6488017528e1d5232d71b888f06c5c73ea08c12b0c70150bdd29d6daf817878a",
+    "legacy_retention_note": "The queued legacy 7x response finalized the compact fact and digest, but prior close-only rows blocked OHLC-column enrichment under the old conflict-ignore statement. Future finalizations now UPSERT authoritative OHLC fields; no raw response remains to backfill the already-ACKed legacy rows without a new provider call.",
+    "next_action": "No retry is due. Restore the API socket only if UI readback is required; Supervisor reports both watchtower_api and operation_monitor_worker RUNNING."
+  },
   "watchtower_legacy_ath_repair_backoff_audit": {
     "engineering_revision": "e21867c1",
     "status": "PARTIAL_DURABLE_BACKOFF_SEAM_ABSENT",

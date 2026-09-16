@@ -1,4 +1,16 @@
 {
+  "watchtower_prospective_terminal_ath_finalization": {
+    "engineering_revision": "e21867c1",
+    "artifact": "docs/audits/watchtower_prospective_terminal_ath_finalization.v1.json",
+    "artifact_sha256": "158315dcccdee4dea8fac251b35f9a747745ed0a6e8bf9068c08726f55f9f6c9",
+    "status": "HOLD_WINDOW_COVERAGE_INCOMPLETE",
+    "provider_calls": 1,
+    "http_200": 1,
+    "http_429": 0,
+    "facts_mutated": false,
+    "summary": "HXpDL 1m canonical entry-to-terminal request failed the full-window coverage gate; finalizer stopped before 7xXQV dispatch. Both existing terminal facts remain CLOSE_ONLY_LOWER_BOUND.",
+    "next_action": "Obtain explicit authorization for one linked recovery identity after compact coverage metadata is durably retained before gate failure; do not silently retry the failed identity."
+  },
   "operations_live_monitor_formatting": {
     "engineering_revision": "e21867c1",
     "scope": "presentation/readback only; no provider, queue, or Monitor state mutation",

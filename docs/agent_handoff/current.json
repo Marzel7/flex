@@ -1,4 +1,13 @@
 {
+  "watchtower_ath_finalizer_focused_regression_tests": {
+    "engineering_revision": "e21867c1",
+    "scope": "provider-disabled unit regressions only; no production DB, queue, UI, RPC, or provider mutation",
+    "coverage": "complete OHLC-high ATH, entry floor, front/back/internal gap failures, partial-high fail-closed, terminal invariants, idempotence, crash-before-commit, historical cohort exclusion, pending/final UI rendering",
+    "tests": "21 passed: test_watchtower_terminal_ath_finalizer.py + test_operations_live_monitor_formatting.py + test_operation_monitor_worker.py",
+    "real_provider_calls": 0,
+    "verdict": "WATCHTOWER_ATH_FINALIZER_FOCUSED_REGRESSION_TESTS_PASS",
+    "next_action": "No live recovery is authorized by this test milestone."
+  },
   "operations_live_monitor_pending_ath_ui": {
     "engineering_revision": "e21867c1",
     "scope": "read-only API projection and Live Monitor presentation; no provider, queue, or fact writes",

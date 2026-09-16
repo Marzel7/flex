@@ -1,4 +1,16 @@
 {
+  "watchtower_historical_plus_prospective_cohort_model": {
+    "engineering_revision": "e21867c1 working tree",
+    "status": "PASS",
+    "model": "WATCHTOWER_HISTORICAL_COHORT(51) + WATCHTOWER_PROSPECTIVE_MONITOR_COHORT(2) = WATCHTOWER_ALL_RESEARCH(53)",
+    "inclusion": "durable canonical Watchtower assignment plus Monitor admission before performance; permanent prospective provenance label",
+    "prospective_fact_parity": "HXpDL and 7xXQV final ATH facts match canonical database readback",
+    "statistics": "historical 2x/5x/10x=27/4/1; prospective=1/1/0 of 2; all=28/5/1 of 53",
+    "ui": "Watchtower Playbook local HTTP 200 exposes ALL WATCHTOWER/HISTORICAL/PROSPECTIVE controls and rows; Live Monitor remains prospective-only",
+    "tests": "26 passed focused Monitor/finalizer/formatting suites; no provider/RPC calls",
+    "audit": "docs/audits/watchtower_historical_plus_prospective_cohorts.v1.json sha256 0b0e9b2c044293becc843c4f0ebc39db31841022bc64aa5baed836bd6d89cacb",
+    "next_action": "None. New Watchtower Monitor assignments appear in the prospective and all-research projections automatically."
+  },
   "watchtower_price_data_global_playbook_consolidation": {
     "engineering_revision": "e21867c1 working tree",
     "status": "PASS",

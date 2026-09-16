@@ -1,4 +1,16 @@
 {
+  "byzantine_prospective_monitor_pipeline": {
+    "engineering_revision": "e21867c1 working tree",
+    "status": "PARTIAL_ADMISSION_REPAIRED_SCENARIO_D_PRODUCER_UNBOUND",
+    "new_assignment": "8BCRMBPDPpimvwszDxw74AMueAgyrpiMTuWHpVK7pump assigned 1789573251 after MONITOR activation 1789543109; canonical membership source BYZANTINE_PROVEN_CREATOR_CONTINUITY.",
+    "repair": "Restored existing logical Monitor queue identity a19b4a...e21f6 from incorrect missing-envelope dead-letter to pending WAITING_FOR_ENTRY_REFERENCE; shared writer persisted compact waiting fact. No duplicate job.",
+    "readback": "Live Monitor API/page 200; mode MONITOR; 8BCRM waiting, entry_status WAITING_FOR_ENTRY_REFERENCE, evidence BYZANTINE_ENTRY_EVIDENCE_DUE, calls=0, observations=0.",
+    "root_cause": "The strict Scenario-D bridge/projection components exist but no production listener/walkback caller creates their committed ordered 1..13, recurrent-cluster, pre-entry-state, qualified-valuation envelope. Membership/creator-continuity evidence cannot be substituted.",
+    "tests": "31 passed focused Byzantine Monitor, Monitor worker/service, Live Monitor formatting, Watchtower terminal ATH regression tests.",
+    "audit": "docs/audits/byzantine_prospective_monitor_pipeline.v1.json sha256 045f7f8b136e18c979714088de34ecf1185fae3884b9127dd89390b2d4d5a70a",
+    "network_calls": "Birdeye=0; RPC=0; local API/page readback only.",
+    "next_action": "First qualify a live committed ordered-opening/cluster/valuation source before binding the existing Scenario-D projection. Do not dispatch price OHLC until that envelope qualifies."
+  },
   "watchtower_cohort_dashboard_and_finalized_multiple_audit": {
     "engineering_revision": "e21867c1 working tree",
     "status": "PASS",

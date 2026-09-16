@@ -1,4 +1,16 @@
 {
+  "byzantine_scenario_d_prospective_producer_preflight": {
+    "engineering_revision": "e21867c1 working tree",
+    "status": "HOLD_RETAINED_KNOWN_ANSWER_INTEGRITY",
+    "bridge": "Existing derive_monitor_entry accepts only complete Scenario-D 12/13 envelope and remains unchanged/fail-closed.",
+    "historical_inventory": "101 position-13 timestamps and pre-entry states exist, but 0 boundary signatures are present in the compact cluster artifact.",
+    "concrete_failure": "Retained-only counterfactual Scenario-D replay and post-Scenario-D inventory both fail because live_raw_103/opening-2MmEYtGfRFLd5L6d9Veg1WLcH23NSxQKVhR7y1Bhpump-02.raw.json is absent.",
+    "live_gap": "No production committed source provides transaction/action ordering, recurrent-cluster membership, pre-entry state, or qualified USD valuation. Existing live ledger has only CREATE identity fields.",
+    "safety": "Birdeye=0; RPC=0; no producer activation, database, writer, queue, Monitor, Watchtower, or trading mutation.",
+    "tests": "33 relevant focused tests passed. Two historical known-answer tests failed only on the missing retained fixture above.",
+    "audit": "docs/audits/byzantine_scenario_d_prospective_producer_preflight.v1.json sha256 ba00c73d05cc872c394c7803e2dfb34e6cbf0d424a4dbefe2744da732e6732f6",
+    "next_action": "Restore/qualify complete historical opening fixtures and a committed live ordered-opening source before binding the existing Scenario-D projection."
+  },
   "byzantine_ajq48_monitor_admission_trace": {
     "engineering_revision": "e21867c1 working tree",
     "status": "HOLD_NO_CANONICAL_BYZANTINE_ASSIGNMENT",

@@ -1,4 +1,14 @@
 {
+  "operations_live_monitor_pending_ath_ui": {
+    "engineering_revision": "e21867c1",
+    "scope": "read-only API projection and Live Monitor presentation; no provider, queue, or fact writes",
+    "rule": "terminal + qualified final ATH shows FINAL ATH; terminal + close-only/unqualified finalization shows PENDING plus separate retained lower bound; active shows RUNNING PEAK",
+    "readback": "HXpDL and 7xXQV both PENDING_RECONSTRUCTION with null final_proven_ath_mc and their separate retained lower bounds; active=0, completed_today=2, failed=1",
+    "tests": "15 passed: Live Monitor formatters, terminal ATH finalizer, Monitor worker",
+    "provider_calls": 0,
+    "verdict": "OPERATIONS_LIVE_MONITOR_PENDING_ATH_UI_FIXED",
+    "next_action": "Keep close-only UI pending until separately authorized linked segmented ATH recovery succeeds."
+  },
   "watchtower_prospective_terminal_ath_finalization": {
     "engineering_revision": "e21867c1",
     "artifact": "docs/audits/watchtower_prospective_terminal_ath_finalization.v1.json",

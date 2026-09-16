@@ -1,4 +1,16 @@
 {
+  "watchtower_cohort_dashboard_and_finalized_multiple_audit": {
+    "engineering_revision": "e21867c1 working tree",
+    "status": "PASS",
+    "dashboard": "Public Watchtower cohort selector is ALL WATCHTOWER/HISTORICAL/PROSPECTIVE. Cards expose historical=51, prospective=2, all=53; prospective displays the deterministic Early prospective sample · N=2 notice below N<10.",
+    "denominators": "Rates retain numerator / assigned population; ATH qualification is qualified / assigned.",
+    "multiple_presentation": "Live Monitor table header is Multiple. Active uses current_multiple; finalized collapsed uses final_ath_multiple; selected detail retains FINAL / ENTRY and ATH × separately.",
+    "readback": "Managed watchtower_api restarted; Watchtower Playbook, Live Monitor API, and Live Monitor page each returned 200. API mode=MONITOR. HXpDL current=0.0165763462 / ATH=8.1779421880; 7xXQV current=0.0148372895 / ATH=1.8706650581; both QUALIFIED and collapsed.",
+    "tests": "17 passed: cohort dashboard, live-monitor formatting, Watchtower Playbook UI, terminal ATH finalizer.",
+    "audit": "cohorts sha256 5a01a9f5ee462f235c1efda9d7a6da3baab8c825d1eabd43cdd48996af32e323; consolidation sha256 182f4ce248a8d92678171aec7c276eb1fcaa44df6a823e47ae3dd8d8a8763b4b",
+    "network_calls": "Birdeye=0; RPC=0; local API/page readback only.",
+    "next_action": "None. No SVG chart is currently rendered by these Watchtower views; apply ENTRY/ATH/FINAL terminology if chart markers are introduced."
+  },
   "operations_live_monitor_finalized_multiple_ui": {
     "engineering_revision": "e21867c1 working tree",
     "status": "PASS",

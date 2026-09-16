@@ -15846,5 +15846,14 @@
     "result": "A single local serialized dispatcher remains active under the frozen 65-second spacing contract. It is the sole process permitted to advance the ledger; auxiliary manual wrappers were removed. Snapshot checkpoint is 7/72 completed with no provider or integrity failures.",
     "artifact": "docs/audits/watchtower_recent_36_actionable_price_expansion.v1.json (snapshot file sha256 ca6aad16972cf34b8a2e0e320b40a16b2393f2c8ff136020d3724660f7ae9c8c; internal canonical sha256 eb81e0a161dea29510ba0cd42783a1f72f743df4517d09d536a642a0f61a1120)",
     "next_action": "Let the single dispatcher continue. If it is interrupted, resume only the ledger's next PENDING identity (snapshot: 76bc35469046be15f9fb1c268970b09bf65e0a0c16152f7fcc2b53c6443acf5b, 9gMyvDXBRUb4BaWSmoG7msm5eX8cCBggoBnU72Fupump, MCAP_1S)."
+  },
+  "operations_monitor_entry_qualification_20260916": {
+    "status": "HOLD",
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree; operation monitor entry-evaluation implementation",
+    "tests": "13 passed: test_operation_monitor_worker.py, test_operation_monitor_mode.py, test_operation_monitor_service.py",
+    "production_flags": "OPERATIONS_MODE=MONITOR; normal Supervisor worker made 4 Birdeye requests (two bounded 1-second Watchtower entry requests succeeded, two lifecycle requests returned HTTP 429); no manual provider requests; no DB lock errors observed.",
+    "verdict": "CONCRETE_OPERATION_ENTRY_EVIDENCE_AND_PROVIDER_BACKOFF_HOLD",
+    "result": "Watchtower 7xXQV and HXpDL each qualified FIRST_FULL_POST_MIGRATION_SECOND_MC from migration+1; lifecycle monitoring has not started because the immediately following qualified 15m requests received HTTP 429. Byzantine 8BCRM is INSUFFICIENT_EVIDENCE: canonical assignment does not retain ordered Scenario-D positions 1..13, recurrent-cluster identity, or pre-entry state.",
+    "next_action": "Do not recover/retry existing Watchtower queue identities until provider backoff policy is persisted; separately provision authoritative live Byzantine Scenario-D ordered-action evidence before creating another monitor assignment."
   }
 }

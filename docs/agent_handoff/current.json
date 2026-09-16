@@ -1,4 +1,14 @@
 {
+  "watchtower_prospective_ath_automation_inventory": {
+    "engineering_revision": "e21867c1",
+    "status": "HOLD_AUTHORITATIVE_DENOMINATOR_AND_COVERAGE_METADATA",
+    "authoritative_prospective_watchtower_count": 2,
+    "mints": ["HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump", "7xXQVWbn3ac6XoQW3RA5jqPj6eTBaBKe2o3Hk6w3pump"],
+    "queue_inventory": "No Watchtower Monitor/finalizer job exists; only one unrelated Byzantine dead-letter exists.",
+    "blockers": "No canonical third prospective Watchtower token exists to act on. HXpDL's prior incomplete full-window response was intentionally not retained and therefore lacks first/last bucket metadata needed to derive bounded missing segments without a new linked recovery discovery request.",
+    "provider_calls_this_inventory": 0,
+    "next_action": "Supply the authoritative third token/fact if one exists, and explicitly authorize one new linked compact-coverage discovery request for HXpDL before any segment continuation."
+  },
   "watchtower_ath_finalizer_focused_regression_tests": {
     "engineering_revision": "e21867c1",
     "scope": "provider-disabled unit regressions only; no production DB, queue, UI, RPC, or provider mutation",

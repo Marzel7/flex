@@ -1,4 +1,16 @@
 {
+  "watchtower_price_data_global_playbook_consolidation": {
+    "engineering_revision": "e21867c1 working tree",
+    "status": "PASS",
+    "contract": "WATCHTOWER_PRICE_FACT_CONTRACT_V1",
+    "historical_51": "51/51 entry/high parity; 2x/5x/10x=27/4/1; median entry=135667.27028755925; median/mean peak=2.0577689916146462/2.3858794118771032.",
+    "prospective": "HXpDL finalized 1015607.2718995338 / 8.17794218800668; 7xXQV finalized 230813.8524026054 / 1.8706650580600652; API 200 returns FINALIZED for both.",
+    "future": "Shared reducer backs historical replay and terminal finalizer. Complete retained 15m OHLC is reused with zero provider call; repair is exceptional.",
+    "tests": "28 passed focused suites; historical replay provider-disabled",
+    "audit": "docs/audits/watchtower_price_data_monitor_consolidation.v1.json sha256 6868a19c48d9fc760bdc936c7cbcc2e553d8f018b98934032b26a5672050b4a0",
+    "network_calls": "Birdeye=0 RPC=0; local API/page readback only.",
+    "next_action": "None. Keep terminal finalizer queue enabled as exceptional retained-evidence repair infrastructure."
+  },
   "watchtower_terminal_ath_queue_repair": {
     "engineering_revision": "e21867c1 working tree",
     "status": "PASS_WITH_LEGACY_CLOSE_ONLY_RETENTION_NOTE",

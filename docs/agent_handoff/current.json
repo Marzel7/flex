@@ -1,4 +1,14 @@
 {
+  "operations_live_monitor_finalized_multiple_ui": {
+    "engineering_revision": "e21867c1 working tree",
+    "status": "PASS",
+    "scope": "presentation only; API numeric fields preserved",
+    "rule": "Active rows render current_multiple; collapsed finalized rows render final_ath_multiple; pending terminal rows render an explicitly labelled lower bound or dash.",
+    "readback": "API 200 and page 200. HXpDL current=0.0165763462, ATH=8.1779421880, FINALIZED; 7xXQV current=0.0148372895, ATH=1.8706650581, FINALIZED.",
+    "tests": "13 passed: finalized/active/pending formatter contract plus terminal ATH regressions",
+    "network_calls": "provider=0; local UI readback only",
+    "next_action": "None. Selected-token detail exposes both Final/Entry and ATH multiples."
+  },
   "watchtower_historical_plus_prospective_cohort_model": {
     "engineering_revision": "e21867c1 working tree",
     "status": "PASS",

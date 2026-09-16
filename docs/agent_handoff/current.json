@@ -1,4 +1,17 @@
 {
+  "byzantine_ajq48_playbook_membership_reconciliation": {
+    "engineering_revision": "working tree",
+    "status": "PASS_MULTIPLE_MEMBERSHIP_SEMANTICS_CONFLATED",
+    "mint": "AJQ48erLGxjwqFAZR1vm9HBU518ArDY9iU6sceaVpump",
+    "root_cause": "The Byzantine Playbook merged additive ByZc infrastructure telemetry into Recent Launches without carrying canonical-membership state. AJQ48 is a retained infrastructure observation, not a canonical Byzantine member.",
+    "detector": "The stored NO_MATCH_AMOUNT is the separate Nexus DIRECT_10K_CREATOR_PROVISIONING result: 459,925,079 observed lamports vs 10,000 expected. Byzantine's strict selected route independently fails: PLAIN_XFER 459,925,000 lamports and no atomic flow vs required WSOL_WRAP_CLOSE 9,999,985,000 with create/initialize/sync/close.",
+    "repair": "Reader now retains CANONICAL_MEMBER versus INFRASTRUCTURE_OBSERVATION; the Byzantine surface is Recent Fingerprint Observations, and candidate rows state they are not confirmed members. Canonical membership wins if both projections contain a mint.",
+    "assignment": "AJQ48 remains unassigned: confirmed match=false, membership=false, Monitor job=false. No projection replay or detector change was warranted.",
+    "tests": "14 passed: test_byzantine_playbook_membership_reconciliation.py + test_byzantine_dual_funding_leg_projection.py. The unrelated existing operation playbooks index fixture still returns 500 because its fixture omits price_data_coverage.",
+    "audit": "docs/audits/byzantine_ajq48_playbook_membership_reconciliation.v1.json sha256 f4979b255692c683e167efa4805c8d6ce5765cd2c1f90b2122e6f18e8e67241d",
+    "safety": "Birdeye=0; RPC=0; production database writes=0; Watchtower untouched.",
+    "next_action": "No AJQ48 admission unless a future canonical Byzantine projector commits it from qualified retained evidence."
+  },
   "byzantine_scenario_d_prospective_producer_preflight": {
     "engineering_revision": "e21867c1 working tree",
     "status": "HOLD_RETAINED_KNOWN_ANSWER_INTEGRITY",

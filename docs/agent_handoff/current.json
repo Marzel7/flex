@@ -15855,5 +15855,14 @@
     "verdict": "CONCRETE_OPERATION_ENTRY_EVIDENCE_AND_PROVIDER_BACKOFF_HOLD",
     "result": "Watchtower 7xXQV and HXpDL each qualified FIRST_FULL_POST_MIGRATION_SECOND_MC from migration+1; lifecycle monitoring has not started because the immediately following qualified 15m requests received HTTP 429. Byzantine 8BCRM is INSUFFICIENT_EVIDENCE: canonical assignment does not retain ordered Scenario-D positions 1..13, recurrent-cluster identity, or pre-entry state.",
     "next_action": "Do not recover/retry existing Watchtower queue identities until provider backoff policy is persisted; separately provision authoritative live Byzantine Scenario-D ordered-action evidence before creating another monitor assignment."
+  },
+  "operations_monitor_backoff_and_byzantine_entry_pipeline_20260916": {
+    "status": "HOLD",
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "tests": "27 passed: monitor worker, shared Birdeye rate limit, Byzantine bridge/projection/trigger tests",
+    "production_flags": "managed Monitor worker naturally recovered two due HTTP 429 retry identities; no manual provider or RPC calls; both lifecycle facts committed and ACKed.",
+    "verdict": "WATCHTOWER_BACKOFF_RECOVERED_BYZANTINE_CURRENT_EVIDENCE_INSUFFICIENT",
+    "result": "Watchtower 7xXQV and HXpDL are MONITORING_ACTIVE. The reusable strict Byzantine Scenario-D bridge has known-answer parity when given a committed 12/13 envelope and USD valuation. 8BCRM remains INSUFFICIENT_EVIDENCE because its canonical record is creator-continuity only and has no bounded missing request identity.",
+    "next_action": "Bind the upstream live ordered-action producer to emit committed Scenario-D envelopes with qualified USD valuation; do not retry or synthesize evidence for 8BCRM."
   }
 }

@@ -1,4 +1,15 @@
 {
+  "byzantine_ajq48_monitor_admission_trace": {
+    "engineering_revision": "e21867c1 working tree",
+    "status": "HOLD_NO_CANONICAL_BYZANTINE_ASSIGNMENT",
+    "mint": "AJQ48erLGxjwqFAZR1vm9HBU518ArDY9iU6sceaVpump",
+    "retained_evidence": "Core token record launch=1789588284 slot=447606375 creator=2aps...; completed walkback=LINEAGE_GAP/PARTIAL_TREASURY; Byzantine direct detector=NO_MATCH/NO_MATCH_AMOUNT at 1789588448.",
+    "assignment": "No confirmed_operation_match and no operator_launch_membership row. The prior membership query correctly excluded AJQ48; it was not a stale query or missing Monitor enqueue.",
+    "readback": "Live Monitor API/page 200, mode MONITOR; Byzantine count=1 (8BCRM waiting), AJQ48 row=false.",
+    "safety": "Birdeye=0; RPC=0; production writes=0; duplicate Monitor jobs=0; DB lock errors=0.",
+    "audit": "docs/audits/byzantine_ajq48_monitor_admission_trace.v1.json sha256 fca0969794de4d570858b1889cf3c65b25d1503fabba0cafd3efd2fe822b9bb2",
+    "next_action": "Do not admit AJQ48 unless a separate canonical Byzantine attribution/projection produces a committed assignment."
+  },
   "byzantine_prospective_monitor_pipeline": {
     "engineering_revision": "e21867c1 working tree",
     "status": "PARTIAL_ADMISSION_REPAIRED_SCENARIO_D_PRODUCER_UNBOUND",

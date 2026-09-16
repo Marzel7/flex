@@ -1,4 +1,14 @@
 {
+  "watchtower_legacy_ath_repair_backoff_audit": {
+    "engineering_revision": "e21867c1",
+    "status": "PARTIAL_DURABLE_BACKOFF_SEAM_ABSENT",
+    "scope": "read-only inspection; no provider, queue, or fact mutation",
+    "observed_state": "HXpDL already has a durable BIRDEYE_15M_OHLC_HIGH final fact (1015607.2718995338); 7xXQV remains terminal with FINAL ATH pending.",
+    "backoff_finding": "The shared Monitor 429 policy is implemented only for EvidenceIntakeQueue messages. Neither Watchtower terminal ATH repair has a queue message, persisted retry identity, attempt count, or backoff_until field. The one-shot finalizer is not invoked by the Supervisor Monitor service.",
+    "provider_calls": 0,
+    "verdict": "DO_NOT_BYPASS_DURABLE_BACKOFF",
+    "next_action": "Wire the existing shared Birdeye rate-limit policy to a durable terminal-ATH repair state and have the Supervisor service consume it before authorizing another provider request."
+  },
   "watchtower_prospective_ath_automation_inventory": {
     "engineering_revision": "e21867c1",
     "status": "HOLD_AUTHORITATIVE_DENOMINATOR_AND_COVERAGE_METADATA",

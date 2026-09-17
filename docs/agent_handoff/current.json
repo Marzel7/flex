@@ -16281,5 +16281,15 @@
     "dispatch": "MECHANISM_RECOVERY_RELEASED=false; ledger=0; provider calls=0; raw files=0; membership/detector/Monitor writes=0.",
     "audit": "docs/audits/byzc_other126_mechanism_v2_recovery_predispatch_gate.v1.json sha256 513095f9140b837ab711db5035b32131d89c225df3fd971d205ad078f4feeb40",
     "next_action": "First qualify the ws_cascade incident as resolved, then separately establish the required funding-to-launch calibration bound before any 125-row provider ledger or dispatch."
+  },
+  "ws_cascade_writer_lock_root_cause": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "WS_CASCADE_WRITER_LOCK_ROOT_CAUSE_PARTIAL_HOLD",
+    "finding": "The writer lease is a real application-level kernel flock acquired by TrackedConnection on first write and released only at commit/rollback/close; sidecar metadata is diagnostic only and does not prove an SQLite transaction. ws_cascade pid=1521 holds DB/WAL/SHM/lock descriptors.",
+    "root_cause": "Two current ws_cascade paths bypass the intended no-network-inside-write-lane invariant: _handle_treasury_tx opens _ops before _get_tx; _temp_candidate_sweep writes/holds conn before _get_tx/getSignatures loops. Prior work fixed only _handle_subprov_tx.",
+    "causality": "This directly explains how a first write can retain the cross-process lane across provider latency and reproduce historical 60-second Walkback waits. A current short lease was not falsely represented as an SQLite transaction owner.",
+    "safety": "Snapshot/read-only root-cause work only: restart=0, config timeout/WAL=0, queue=0, provider=0, membership/detector/Monitor writes=0.",
+    "audit": "docs/audits/ws_cascade_writer_lock_root_cause.v1.json sha256 cb79fd298e2c84955f1c5eeb0d5146ff0c1a9776950c08202870ba0056d9e520",
+    "next_action": "Refactor both paths so reads/provider calls occur with no operations connection, then add focused duration/fairness regression tests before controlled minimum-service deployment."
   }
 }

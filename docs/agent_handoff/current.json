@@ -1,4 +1,12 @@
 {
+  "walkback_candidate_generation_runtime_diagnosis": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee runtime inspection",
+    "status": "PARTIAL_DB_WRITE_CONTENTION",
+    "finding": "walkback_worker is RUNNING (pid 5451) and completing batches, but its logs show repeated 60-second CROSS_PROCESS_LOCK timeouts on wt_ops_v2.db. The recorded owner is ws_cascade.py:_ops (pid 5455). This creates the stale Walkback Candidate Generation health signal and delays create-anchor recovery.",
+    "mint_7tby": "Still WAITING_FOR_CREATE_ANCHOR / PENDING_NOT_VISIBLE, with no recovered anchor after 49 attempts; no Watchtower classification evidence is available yet.",
+    "safety": "Read-only diagnosis; no process restart, DB mutation, provider/RPC, membership, detector, or Monitor change.",
+    "next_action": "Inspect and repair/restart the lock-owning ws_cascade process under a separately authorized runtime-recovery action; then verify the lock clears and walkback progress resumes before reassessing the mint."
+  },
   "byzc_other126_df8c_plain_target_preflight": {
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
     "status": "HOLD_PLAIN_TARGET_NOT_RETAINED",

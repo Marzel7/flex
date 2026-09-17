@@ -16271,5 +16271,15 @@
     "tests": "17 focused V2 semantic, Near47 calibration, and canonical dual-funding projection tests passed.",
     "audit": "docs/audits/byzc_other126_9t1gc_mechanism_reconciliation.v1.json sha256 a37de60ab0137c6abdd5de8b5d177b442015cc4b07abbe4e2a05165a6e72228a; docs/audits/byzc_other126_mechanism_v2_replay.v1.json sha256 95f332234d372c69858653db22657e4c06cb0b5eadf7241755ae5abc46959b65",
     "next_action": "Do not launch cohort recovery or Df8C prevalence. A separately authorized bounded recovery for the 125 insufficient frozen rows is required before B179 taxonomy V2 publication."
+  },
+  "byzc_other126_mechanism_v2_recovery_predispatch_gate": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee runtime inspection",
+    "status": "BYZC_OTHER126_MECHANISM_V2_RECOVERY_HOLD",
+    "first_failed_invariant": "FUNDING_TO_LAUNCH_BOUND_QUALIFIED",
+    "bound": "The frozen recovery population is 125, excluding proven 9t1gc. Retained operations records expose zero additional rows with both funding slot/time and launch-anchor slot/time, so the required known-answer distribution and 100% parity cannot be frozen. One 9t1gc compact known answer is insufficient.",
+    "production_gate": "At 19:57:28Z ws_cascade pid=1521 and Walkback pid=5451 were running, but the current wt_ops_v2.db writer lease was ws_cascade.py:2540 in _ops pid=1521. The recovery contract treats this unresolved production DB-lock incident as overriding nonessential provider research.",
+    "dispatch": "MECHANISM_RECOVERY_RELEASED=false; ledger=0; provider calls=0; raw files=0; membership/detector/Monitor writes=0.",
+    "audit": "docs/audits/byzc_other126_mechanism_v2_recovery_predispatch_gate.v1.json sha256 513095f9140b837ab711db5035b32131d89c225df3fd971d205ad078f4feeb40",
+    "next_action": "First qualify the ws_cascade incident as resolved, then separately establish the required funding-to-launch calibration bound before any 125-row provider ledger or dispatch."
   }
 }

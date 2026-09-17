@@ -19,6 +19,18 @@
     "audit": "docs/audits/byzc_wsol_90_fingerprint_audit.v1.json sha256 d0b87e67a1c6f6ded062b45b85103b8d19c64d197f5f2a9cd017a04a1ae53e93",
     "next_action": "Resolve intended canonical operation identity, then authorize a corrected cohort split before research clustering or Playbook changes."
   },
+  "byzc_byzantine_119_179_population_reconciliation": {
+    "engineering_revision": "working tree",
+    "status": "PASS_RETAINED_ONLY",
+    "identity": "Byzantine=d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334 (120 canonical); Nexus=bd7d7479-1454-5d41-9f68-115550348f3e (84 canonical).",
+    "sets": "A=119 Byzantine+ByZc; B=179 ByZc non-members; C=37 canonical WSOL; D=53 noncanonical WSOL; E=1 canonical non-ByZc. Set arithmetic and deterministic manifests pass.",
+    "finding": "ByZc is highly associated but neither required nor sufficient for Byzantine membership. All D53 rows miss exact 9.999985 SOL; 47 are one retained gate away and 6 have insufficient compact atomic-flow evidence for that claim.",
+    "playbook": "Read-only ByZc infrastructure card renders 120/298/119/179 and 90=37+53, explicitly not a membership or Monitor-admission primitive.",
+    "safety": "Membership/Nexus/Monitor/detector writes=0; RPC/Birdeye/provider=0; DB locks=0; AJQ48 remains non-member/unmonitored.",
+    "tests": "6 passed: identity, population comparison, and Byzantine Playbook reconciliation; Playbook Flask readback=200.",
+    "audit": "docs/audits/byzc_byzantine_119_179_population_comparison.v1.json sha256 d91755ccb45a56c69b7cf5e920db8443ff623f08ca30311992a68ff269072c10",
+    "next_action": "Use BYZC_ASSOCIATED_RESEARCH_COHORT_V1 for descriptive research only; do not promote ByZc into membership or Monitor admission."
+  },
   "pumpportal_websocket_live_ingestion_recovery": {
     "status": "PASS_SUPERVISOR_RESTART_RECOVERED_LIVE_INGESTION",
     "engineering_revision": "working tree; controlled normal Supervisor restart",

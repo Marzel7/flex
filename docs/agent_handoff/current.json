@@ -16197,5 +16197,16 @@
     "artifact": "docs/audits/byzc_near47_df8c_byzc_jit_coverage_verification.v1.json sha256 9af57be1118f41808227cf3dcabbc737013b90712d2f9932e369828d686862c8",
     "tests": "6 passed: strict evaluator plus Near47 creator/funding regressions; verifier syntax compiled.",
     "next_action": "Do not release the 46. A further action requires explicit authority because the one linked verification identity is consumed; first decide whether an offline artifact-finalization from retained compact metadata is sufficient or a new linked verification identity is authorized."
+  },
+  "byzc_near47_primary_coverage_verification_v2": {
+    "engineering_revision": "working tree; corrected linked V2 verification",
+    "status": "PARTIAL_CALIBRATION_QUALIFIED_COHORT_NOT_DISPATCHED",
+    "verification": "V2 identity 805bd324bcc6693cbfbcc8c6e7dd9c7a2c0fe231517dc6d46d495eb8a823796f is distinct from parent 2c4a... and V1 a2fc.... It crossed both frozen lower bounds without requested-intersection truncation, rediscovered Df8C->ByZc 5zWo... at 5,755,349,844 lamports, delta=1 second/4 slots, and found no competing incoming funder.",
+    "qualification": "Target amount is 5,755,334,844 lamports from RETAINED_ATOMIC_FLOW; fingerprint amount is 5,755,335,000. Strict calibration and offline independent replay both pass. Cohort release is authorized.",
+    "checkpoint": "Remaining frozen Near47 identities=46, dispatched=0, completed=0. A durable per-identity cohort runner is not yet implemented, so no untracked provider batch was started.",
+    "safety": "V2 RPC calls=3; cohort RPC=0; duplicate requests=0; raw responses=0; membership/detector/Monitor/UI/database writes=0; Birdeye=0.",
+    "artifact": "docs/audits/byzc_near47_df8c_byzc_jit_coverage_verification_v2.v1.json sha256 efb406b80d3d37dcaba2189aaf33de03d4e77775abd804d888050752c2d1e6c3",
+    "tests": "6 passed focused Near47 evaluator/funding regressions.",
+    "next_action": "Implement the authorized durable, single-concurrency runner for the already-frozen remaining 46 identities, then resume exactly PENDING identities and publish prevalence only after compact evidence and offline replay parity."
   }
 }

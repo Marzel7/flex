@@ -16171,5 +16171,18 @@
     "artifact": "docs/audits/byzc_near47_df8c_byzc_wsol_calibration.v1.json sha256 f2c3d9c5ddc2c38742fe04c5850167c1c7d9fc861ee038469f02923dbb7e2305",
     "tests": "6 passed: strict evaluator plus retained Near47 taxonomy/funding regressions.",
     "next_action": "Retain or qualify canonical paired target-slot provenance before setting the slot maximum and mint-first bounded recovery ledger; do not run cohort prevalence before CALIBRATION_STATUS=QUALIFIED."
+  },
+  "byzc_near47_jit_slot_recovery_and_primary_calibration": {
+    "engineering_revision": "working tree; bounded mint-first RPC recovery",
+    "status": "HOLD_CALIBRATION_WINDOW_COVERAGE_NOT_RETAINED",
+    "contract": "NEAR47_DF8C_BYZC_WSOL_CALIBRATION_V1",
+    "canonical_slot_recovery": "46/46 frozen canonical Df8C->ByZc/JIT target pairs recovered with 92 getTransaction calls. Slot deltas are positive: min/p25/median/p75/max=13/14/15/17/23; time deltas=6/6/6/7/10 seconds. Frozen bounds are 23 slots and 10 seconds.",
+    "primary_observation": "The one permitted primary Near47 request observed a real Df8C->ByZc transfer of 5.75535 SOL at slot 444833855/time 1788710745 preceding frozen mint 2KnKKGQ7SRBtpeJmDqy5UhBj1RZ38LR3CXJK9jcJpump target slot 444833859/time 1788710746 (4 slots/1 second). This is not accepted as CALIBRATION_PASS.",
+    "integrity_failure": "The first dispatcher retained page_count only and marked the predecessor intersection complete when either lower bound was crossed. The contract requires both time and slot lower bounds plus compact coverage boundaries. No raw page exists to repair that evidence, and redispatching the same frozen identity would violate the no-duplicate-request constraint.",
+    "repair": "The future dispatcher now requires both lower bounds and records compact first/last covered slot/time plus required starts. It has not been re-run.",
+    "safety": "No cohort release; remaining 46 requests=0; membership/detector/Monitor/UI/database writes=0; no raw responses retained. RPC calls=94 total (92 canonical slot recovery + 2 primary calibration); Birdeye=0.",
+    "artifacts": "docs/audits/byzc_near47_canonical_jit_slot_recovery.v1.json sha256 01e35bdafcdbbb51f2740161f753ad2e49bcac42f1ad958ab999e8e9662041b7; docs/audits/byzc_near47_df8c_byzc_jit_calibration_dispatch.v1.json sha256 cd6203a75227c5dbaa8aa93521acc2191506548353fa2372c2142d60f301ed2d",
+    "tests": "6 passed: calibration evaluator plus Near47 creator/funding regressions; recovery runner syntax compiled.",
+    "next_action": "Require explicit authorization for one new linked compact-coverage verification identity for the same frozen primary target. Do not rerun the existing identity, release the 46, or alter Near47 membership until it proves the complete intersection and independent replay parity."
   }
 }

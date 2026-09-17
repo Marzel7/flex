@@ -16351,5 +16351,15 @@
     "safety": "No provider, queue, database, candidate-selection, lock, WAL, ws_cascade, or Walkback mutation. No service restart performed.",
     "audit": "docs/audits/walkback_health_staleness_ui.v1.json sha256 dcb43a0b2a661a4a117ca76920c64cbcbe7ee0af0763ef48fc094c2bf93d34cf",
     "next_action": "Reload only watchtower_api to make the UI change visible. Separately hold the writer-lock incident: cleanup_pass owns a fresh blocking lease and requires a dedicated source repair."
+  },
+  "ws_cascade_cleanup_writer_scope": {
+    "engineering_revision": "working tree",
+    "status": "PARTIAL_HOLD_NEW_POST_DEPLOY_TIMEOUT_OWNER_UNAVAILABLE",
+    "repair": "cleanup now plans all scans read-only, applies only guarded local mutations, commits/releases, then performs unsubscription/events. Direct _ops caller inventory gate covers 28 production callers.",
+    "tests": "63 passed focused cleanup, direct-caller inventory, provider separation, release, and health regressions.",
+    "deployment": "ws_cascade restarted 18576 -> 26899; exactly one instance. walkback_worker remained PID 10747.",
+    "blocker": "At 2026-09-17T22:48:16Z, Walkback heartbeat write again timed out after 60.007s, but owner metadata was null. Kernel readback could not establish an exact holder; do not attribute this recurrence to cleanup or certify the fix.",
+    "audit": "docs/audits/ws_cascade_cleanup_writer_scope.v1.json sha256 7dd07696b9d632e2ce424a2032c5599b285f361d41672b6c84afcdd26ea96958",
+    "next_action": "Root-cause the owner-null post-deploy writer timeout with kernel-bound holder capture before further soak or source changes."
   }
 }

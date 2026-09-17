@@ -1,6 +1,5 @@
 {
   "pumpportal_websocket_live_ingestion_recovery": {
-    "engineering_revision": "working tree",
     "status": "PASS_SUPERVISOR_RESTART_RECOVERED_LIVE_INGESTION",
     "engineering_revision": "working tree; controlled normal Supervisor restart",
     "recovery": "Fresh Supervisor pid=5446, one master. watchtower_listener pid=5453 connected and subscribed after clean restart; fresh managed DNS passes for PumpPortal and Helius.",

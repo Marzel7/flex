@@ -16159,5 +16159,17 @@
     "artifact": "docs/audits/byzc_near47_jit_known_example_preflight.v1.json sha256 411dcde744815821b54817578794f36f0ef3a8b36c159e6beef024031103b52f",
     "tests": "3 passed: taxonomy, association identity, and retained funding regressions.",
     "next_action": "Provide or retain a Df8C->ByZc->qualified WSOL pair tied to an actual frozen Near47 mint before any JIT calibration or recovery."
+  },
+  "byzc_near47_df8c_byzc_wsol_calibration": {
+    "engineering_revision": "working tree; strict research-only calibration evaluator",
+    "status": "HOLD_RETAINED_CALIBRATION_UNQUALIFIED",
+    "contract": "NEAR47_DF8C_BYZC_WSOL_CALIBRATION_V1 is binary and requires frozen membership, mint-linked ByZc WSOL target, actual Df8C->ByZc transfer, ordering, predeclared time+slot bounds, amount provenance, full chain, and complete provenance.",
+    "coverage": "Frozen Near47=47, manifest parity=true. Target WSOL event coverage=47/47. Retained preceding neighborhoods=0/47 complete; retained Df8C candidates/passes=0; complete-window negatives=0; every Near47 row is INCOMPLETE, never negative.",
+    "baseline": "Canonical retained pairing corpus has 46 time deltas: min/p25/median/p75/max=6/6/6/7/10 seconds, so max time=10 is frozen. It lacks paired target-slot provenance, so no slot bound or safe recovery ledger can be frozen.",
+    "regressions": "9t1gc correctly evaluates NOT_NEAR47; complete-negative, incomplete-evidence, ambiguous-funder, and local-pass evaluator fixtures pass.",
+    "safety": "RPC/Birdeye/provider=0; no recovery dispatch, membership/detector/Monitor/UI writes, raw payload retention, or DB locks.",
+    "artifact": "docs/audits/byzc_near47_df8c_byzc_wsol_calibration.v1.json sha256 f2c3d9c5ddc2c38742fe04c5850167c1c7d9fc861ee038469f02923dbb7e2305",
+    "tests": "6 passed: strict evaluator plus retained Near47 taxonomy/funding regressions.",
+    "next_action": "Retain or qualify canonical paired target-slot provenance before setting the slot maximum and mint-first bounded recovery ledger; do not run cohort prevalence before CALIBRATION_STATUS=QUALIFIED."
   }
 }

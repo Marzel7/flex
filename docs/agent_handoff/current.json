@@ -1,13 +1,15 @@
 {
   "pumpportal_websocket_live_ingestion_recovery": {
     "engineering_revision": "working tree",
-    "status": "HOLD_MANAGED_LISTENER_DNS_CONTEXT",
-    "first_fixed_failure": "Supervisor pointed watchtower_listener at deleted /private/tmp/flex-availability-only/run_listener.sh. Config now uses repository-owned /Users/kevinkeaveney/Dev/claude/flex/run_listener.sh; a single managed listener process is RUNNING.",
-    "first_unresolved_failure": "The managed listener now fails before handshake with gaierror for both pumpportal.fun and mainnet.helius-rpc.com. The same production Python resolves both from a normal network-enabled shell; no proxy environment variable is set in the listener.",
-    "safety": "No ping/subscription/health-threshold change; provider=0; RPC=0; no catch-up run; Watchtower and AJQ48 semantics unchanged; Trading disabled.",
+    "status": "PASS_SUPERVISOR_RESTART_RECOVERED_LIVE_INGESTION",
+    "engineering_revision": "working tree; controlled normal Supervisor restart",
+    "recovery": "Fresh Supervisor pid=5446, one master. watchtower_listener pid=5453 connected and subscribed after clean restart; fresh managed DNS passes for PumpPortal and Helius.",
+    "observation": "292s stable; 84 natural frames (80 births, 4 migrations), zero reconnects/DNS failures/ping timeouts/listener DB lock errors. Mission Control /api/health/full=200 and live ingestion=HEALTHY.",
+    "stale_interval": "Not exactly qualified: retained pre-outage listener lines have no canonical per-frame timestamp, and process uptime was not substituted. No catch-up autorun.",
+    "safety": "No websocket/ping/subscription/endpoint/DNS implementation change; provider=0; RPC=0; manual websocket=0; catch-up=0; Watchtower and AJQ48 semantics unchanged; Operations Mode=MONITOR; Trading disabled.",
     "tests": "15 passed: Supervisor listener path + Watchtower ATH + Byzantine Playbook reconciliation.",
-    "audit": "docs/audits/pumpportal_websocket_live_ingestion_recovery.v1.json sha256 e25ea91e56748221c0a63b3b78dd67098c97a364454f33fd8ba6cc1d963b56b5",
-    "next_action": "Restore DNS/network capability in the existing Supervisor execution context, then observe connect/subscribe/first-frame stability before any catch-up decision."
+    "audit": "docs/audits/pumpportal_websocket_live_ingestion_recovery.v1.json sha256 9d5586e4609f57bd8b49977223402fa042dca3c02dff6aa80c565203777509ec",
+    "next_action": "No immediate action. Continue normal supervised live ingestion; assess catch-up only under separate authorization after an exact stale boundary is qualified."
   },
   "byzantine_ajq48_playbook_membership_reconciliation": {
     "engineering_revision": "working tree",

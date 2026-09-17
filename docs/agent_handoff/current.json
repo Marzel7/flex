@@ -16291,5 +16291,14 @@
     "safety": "Snapshot/read-only root-cause work only: restart=0, config timeout/WAL=0, queue=0, provider=0, membership/detector/Monitor writes=0.",
     "audit": "docs/audits/ws_cascade_writer_lock_root_cause.v1.json sha256 cb79fd298e2c84955f1c5eeb0d5146ff0c1a9776950c08202870ba0056d9e520",
     "next_action": "Refactor both paths so reads/provider calls occur with no operations connection, then add focused duration/fairness regression tests before controlled minimum-service deployment."
+  },
+  "ws_cascade_writer_lock_why_now": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "WS_CASCADE_WRITER_LOCK_WHY_NOW_AUDITED",
+    "verdict": "MULTIFACTOR_LATENT_BUG_EXPOSURE. The retained first owner-attributed Walkback timeout is 2026-09-07T16:27:13Z, months after the unsafe treasury/sweep paths were introduced. No retained evidence shows a treasury/sweep cadence or sweep-row increase; all observed sweep scans were one candidate. Current retained logs do show 40-50-signature catch-up batches, multi-minute processing, slow getSignaturesForAddress and retry pressure, making runtime contention a supported exposure trigger rather than a recent code regression.",
+    "control_failure": "The previous repair and test coverage were path-specific to _handle_subprov_tx. There is no shared no-provider-under-writer invariant test or structural enforcement; _temp_candidate_sweep has a direct first-write then RPC path and treasury retains a broad connection scope.",
+    "safety": "Observation only: production mutations=0; provider/RPC calls=0; service restarts=0; queue/membership/detector/Monitor writes=0.",
+    "audit": "docs/audits/ws_cascade_writer_lock_why_now.v1.json sha256 7686484a1e59ebf430e3219071d0f1ec2a5b2647009195b6a41beb20745369a8",
+    "next_action": "Refactor both remaining paths so every provider read precedes writer ownership; add shared duration/fairness regressions; deploy only ws_cascade under a separately authorized controlled soak."
   }
 }

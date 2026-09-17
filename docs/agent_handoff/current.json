@@ -1,15 +1,23 @@
 {
   "byzc_associated_token_population_audit": {
     "engineering_revision": "working tree",
-    "status": "COMPLETE_RETAINED_ONLY",
+    "status": "CORRECTED_RETAINED_ONLY",
     "definition": "BYZC_ASSOCIATED requires a token-bound retained wt_walkback_queue record with ByZc as subprov; historical detector labels without that path are excluded.",
-    "population": "2,748,651 retained token_analysis launches/distinct mints; canonical Byzantine=84; ByZc-associated=298; overlap=0; canonical-not-ByZc=84; ByZc-not-canonical=298.",
-    "finding": "ByZc is a broader, distinct infrastructure-associated research population under the current retained evidence, not a canonical-membership shortcut. Association types: one-hop=116, multi-hop=182, direct=0. Nonmember primary failures: PLAIN_XFER=208, OTHER_PROVEN=75, INSUFFICIENT_EVIDENCE=15.",
+    "population": "2,748,699 retained token_analysis launches/distinct mints; registered canonical Byzantine=120; ByZc-associated=298; overlap=119; canonical-not-ByZc=1; ByZc-not-canonical=179.",
+    "finding": "The former 84/zero-overlap figure was a Nexus (bd7d...) population incorrectly labelled Byzantine. The registered Byzantine operation is d8ee..., whose strict WSOL four-step contract overlaps ByZc on 119 rows. Among 90 ByZc WSOL_WRAP_CLOSE rows, 37 are canonical and 53 are not.",
     "ajq48": "ByZc-associated ONE_HOP; 0.459925 SOL PLAIN_XFER; NO_MATCH_AMOUNT; no atomic WSOL; not a canonical member.",
     "safety": "Membership writes=0; detector changes=0; Monitor admissions=0; RPC/Birdeye/provider=0; Watchtower unchanged.",
-    "audit": "docs/audits/byzc_associated_token_population_audit.v1.json sha256 45e789d5eaa170f63d25850d91c8561a52117799f619b1d9b3918640a962b9d1",
-    "tests": "Audit execution plus JSON contract assertions PASS.",
-    "next_action": "Keep BYZC_ASSOCIATED_RESEARCH_COHORT_V1 separate from BYZANTINE_CONFIRMED_MEMBER; any membership-contract change requires separately authorized cohort replay."
+    "audit": "docs/audits/byzc_associated_token_population_audit.v1.json sha256 95a3268ef198f8047f8ee7af7b1911dcff6eae63eee1f40162978ff72a9b8826",
+    "tests": "4 passed: identity guard plus Byzantine Playbook membership reconciliation.",
+    "next_action": "Do not run the requested BYZC WSOL 90 fingerprint or render 84/zero-overlap Playbook labels until the operation-identity conflict is explicitly resolved."
+  },
+  "byzc_wsol_90_fingerprint_integrity_gate": {
+    "engineering_revision": "working tree",
+    "status": "HOLD_CANONICAL_OPERATION_ID_MISMATCH",
+    "finding": "The requested claim that all 90 ByZc WSOL_WRAP_CLOSE rows are noncanonical fails against the repository's registered Byzantine identity: 37 are canonical, 53 noncanonical.",
+    "safety": "No UI, membership, detector, Monitor, provider, RPC, or production database mutation.",
+    "audit": "docs/audits/byzc_wsol_90_fingerprint_audit.v1.json sha256 d0b87e67a1c6f6ded062b45b85103b8d19c64d197f5f2a9cd017a04a1ae53e93",
+    "next_action": "Resolve intended canonical operation identity, then authorize a corrected cohort split before research clustering or Playbook changes."
   },
   "pumpportal_websocket_live_ingestion_recovery": {
     "status": "PASS_SUPERVISOR_RESTART_RECOVERED_LIVE_INGESTION",

@@ -16379,5 +16379,14 @@
     "safety": "No production mutation/provider call/restart/deployment; no timeout or WAL change.",
     "audit": "docs/audits/operations_db_writer_serialization_repair.v1.json",
     "next_action": "Resolve the startup-resilience fixture/source compatibility under the owning change, rerun the broader suite, then establish deployable source parity before restarting only affected services and starting a clean soak."
+  },
+  "walkback_startup_resilience_fixture_repair": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "PREDEPLOY_GATE_CLEARED_NO_DEPLOYMENT",
+    "repair": "Only the stale test fixture changed: it now creates the validator's eight required queue columns and four required indexes. The five maintenance-resilience assertions were not changed. A negative test retains fail-closed validation for the old partial schema.",
+    "tests": "12 targeted passed. The original 94-test predeploy selection now passes; total executed is 95 because of the new negative validator test.",
+    "safety": "Production validate_schema/behavior unchanged; services restarted=none; production mutations=0.",
+    "audit": "docs/audits/walkback_startup_resilience_fixture_repair.v1.json",
+    "next_action": "At a separately authorized deployment checkpoint, obtain Supervisor status and restart only services that must load db_locking.py, walkback_worker.py, or operation_scheduler.py; then create a clean post-deploy watermark and soak."
   }
 }

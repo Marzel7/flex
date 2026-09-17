@@ -31,6 +31,19 @@
     "audit": "docs/audits/byzc_byzantine_119_179_population_comparison.v1.json sha256 d91755ccb45a56c69b7cf5e920db8443ff623f08ca30311992a68ff269072c10",
     "next_action": "Use BYZC_ASSOCIATED_RESEARCH_COHORT_V1 for descriptive research only; do not promote ByZc into membership or Monitor admission."
   },
+  "byzc_noncanonical_179_taxonomy": {
+    "engineering_revision": "working tree",
+    "status": "PASS_RETAINED_ONLY_RESEARCH_TAXONOMY",
+    "taxonomy": "179 = 47 WSOL near-fingerprint (research-only) + 6 WSOL compact-evidence-incomplete + 126 PLAIN_XFER other research.",
+    "near47": "All 47 pass every retained non-amount execution gate and fail only exact 9.999985 SOL. Stable clusters: 7 SOL=14, 1 SOL=13, 20 SOL=6, 15 SOL=4; execution-variant evidence is not operation-attribution evidence.",
+    "continuity": "C37 vs Near47: temporal windows overlap; creator/root overlap=0; direct-funder/subprovider overlap=1 (ByZc); capital-path continuity=INSUFFICIENT.",
+    "replay": "85 retained ordered-four-step atomic rows are feature-qualified; provisioning amount is not normalized outside retained Walkback rows, so no unsupported 2.7M amount replay was claimed.",
+    "playbook": "Read-only Byzantine ByZc card shows Near47 / Incomplete6 / Other126 research categories. No membership or Monitor admission path added.",
+    "safety": "Membership/Nexus/detector/Monitor writes=0; RPC/Birdeye/provider=0; ByZc-only Monitor rows=0.",
+    "tests": "9 passed: identity, population and taxonomy contracts, Byzantine reconciliation, Watchtower Playbook regression; Flask Playbook readback=200.",
+    "audit": "docs/audits/byzc_noncanonical_179_taxonomy.v1.json sha256 b1ac6dd7e8b5fb0cfac5e0b58dcb1d5fa0e0eee9608a9c0071c9705742840f74",
+    "next_action": "Keep BYZC_WSOL_NEAR_BYZANTINE_RESEARCH_V1 research-only unless independently qualified identity/control/capital-path evidence is obtained."
+  },
   "pumpportal_websocket_live_ingestion_recovery": {
     "status": "PASS_SUPERVISOR_RESTART_RECOVERED_LIVE_INGESTION",
     "engineering_revision": "working tree; controlled normal Supervisor restart",

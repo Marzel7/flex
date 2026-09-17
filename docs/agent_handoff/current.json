@@ -16373,11 +16373,11 @@
   },
   "operations_db_writer_serialization_repair": {
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
-    "status": "REPAIRED_TESTED_DEPLOYMENT_SOAK_PENDING",
+    "status": "PREDEPLOY_HOLD_UNRELATED_STARTUP_RESILIENCE_REGRESSIONS",
     "repair": "The sqlite3 connection interception now covers wt_ops_v2.db, Walkback observation ledger/dispatch/consume use db_connect, scheduler catch-up uses db_connect while retaining autocommit, and the fatal self-kill write is a path-bound named emergency exemption.",
-    "tests": "20 passed: boundary interception, migration/static gate, emergency guard, concurrent writer contention, Walkback RPC/provider separation, and Cascade scope regressions.",
+    "tests": "20 focused passed; broader targeted suite 89 passed / 5 failed. The failures are tests/test_walkback_worker_startup_resilience.py: its partial fixtures now fail current run_loop validate_schema before their intended maintenance-path assertions.",
     "safety": "No production mutation/provider call/restart/deployment; no timeout or WAL change.",
     "audit": "docs/audits/operations_db_writer_serialization_repair.v1.json",
-    "next_action": "Run the full writer regression suite and establish a deployable source parity before restarting only the services that import the changed shared boundary; then perform a new clean production soak."
+    "next_action": "Resolve the startup-resilience fixture/source compatibility under the owning change, rerun the broader suite, then establish deployable source parity before restarting only affected services and starting a clean soak."
   }
 }

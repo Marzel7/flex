@@ -16303,11 +16303,11 @@
   },
   "ws_cascade_writer_lock_permanent_fix": {
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
-    "status": "WS_CASCADE_WRITER_LOCK_FIX_PARTIAL_HOLD",
-    "result": "Treasury now fetches before _ops; temp sweep closes its read snapshot before all getTransaction/getSignatures work and reopens only for write-only persistence. Existing subprov separation remains. 30 focused tests pass, including two blocked-provider concurrent managed-writer proofs, provider-exception release, and anchor-reconciliation regressions.",
-    "blocker": "Synchronous worker-thread paths have no independently cancellable task boundary. More importantly, Walkback claim contention currently has no durable separately recorded infrastructure-retry/recovery contract, so the required semantic evidence-attempt-budget test is absent. No deployment/restart/soak occurred.",
+    "status": "WS_CASCADE_WRITER_LOCK_FIX_PARTIAL_HOLD_DEPLOYMENT_PENDING",
+    "result": "31 focused tests pass. Treasury and sweep provider separation, concurrent managed writer, exception release, and the durable Walkback infrastructure-retry counter all pass. Claim contention resets status to pending with INFRASTRUCTURE_RETRY and leaves semantic attempts/outcome unchanged.",
+    "blocker": "Deployment and natural-traffic soak are pending. The infrastructure-retry change is loaded by Walkback, so it genuinely requires a controlled Walkback restart in addition to ws_cascade.",
     "safety": "production mutations=0; provider/RPC=0; ws_cascade restart=0; Other126 remains paused.",
-    "audit": "docs/audits/ws_cascade_writer_lock_permanent_fix.v1.json sha256 d0a4a15a75854d6747dcff26df749f3fe1438bd8d92a084bb580b166598dfe4e",
+    "audit": "docs/audits/ws_cascade_writer_lock_permanent_fix.v1.json sha256 30ad2c6943ef9d2b4fbdab5b551f9918c018fb0cd03211f5467334dcc1f3de15",
     "next_action": "Implement and pass dynamic contention/release/attempt-budget tests, then deploy only ws_cascade for a bounded multi-cycle soak."
   }
 }

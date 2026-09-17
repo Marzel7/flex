@@ -16361,5 +16361,14 @@
     "blocker": "At 2026-09-17T22:48:16Z, Walkback heartbeat write again timed out after 60.007s, but owner metadata was null. Kernel readback could not establish an exact holder; do not attribute this recurrence to cleanup or certify the fix.",
     "audit": "docs/audits/ws_cascade_cleanup_writer_scope.v1.json sha256 7dd07696b9d632e2ce424a2032c5599b285f361d41672b6c84afcdd26ea96958",
     "next_action": "Root-cause the owner-null post-deploy writer timeout with kernel-bound holder capture before further soak or source changes."
+  },
+  "operations_db_writer_architecture": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "HOLD_SQLITE_HOLDER_UNATTRIBUTED_ARCHITECTURE_DEFECT_PROVEN",
+    "runtime_evidence": "At 2026-09-17T22:46:25.024Z Walkback PID 10747 queue_claim_attempted received SQLITE_BUSY while its tracked transaction 78bc78bc-98b2-47d3-bd97-e8a708f33e08 had held the flock for 31.606s. The retained event has no SQLite holder identity or SQL/lifecycle timeline. At 22:48:16.590Z its following heartbeat CrossProcessDatabaseWriteTimeout waited 60.007s with current_owner=null.",
+    "proven_defect": "db_locking intercepts bare sqlite3.connect only for flex_complete_database.db, not wt_ops_v2.db. Walkback observation-credit/dispatch RPC bookkeeping and operation-scheduler catch-up discovery contain direct wt_ops connections outside the flock, provenance and TrackedConnection lifecycle path.",
+    "safety": "Read-only source/runtime audit; production mutations=0; provider calls=0; no restart, configuration, queue, database, timeout or WAL change.",
+    "audit": "docs/audits/operations_db_writer_architecture.v1.json sha256 d6026993186448b68e9a033833ab36fa7b1d97f512de7bec166fec67120548b6",
+    "next_action": "Under separately authorized repair work, require a single wt_ops connection factory/serializer for every writer (or explicit audited exception) and add holder/SQL lifecycle capture; do not claim a historical SQLite holder from the missing record."
   }
 }

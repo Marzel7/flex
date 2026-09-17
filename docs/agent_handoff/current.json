@@ -16148,5 +16148,16 @@
     "artifact": "docs/audits/byzc_near47_df8c_funding_continuity_audit.v1.json sha256 0ab12daee0dae438de2663138991e03931a2c7990a517683afe3bb82c344b98c",
     "tests": "3 passed: Near47 retained funding, taxonomy, and creator recurrence regressions; audit rerun deterministic.",
     "next_action": "No Df8C-specific recovery is warranted. Do not alter Near47 membership; any generic upstream work remains gated on a mint-anchored resolver."
+  },
+  "byzc_near47_jit_known_example_preflight": {
+    "engineering_revision": "working tree; retained-only JIT calibration validation",
+    "status": "HOLD_INVALID_NEAR47_KNOWN_ANSWER",
+    "finding": "The supplied Df8C transfer vC5bo... is retained: Df8C -> ByZc, 19,981,196,860 lamports, slot 447790006, associated with creator 6PJn.... Its mint resolves to 9t1gcZ...pump, which is Other126/PLAIN_XFER and COMPACT_ATOMIC_FLOW_MISSING, not Near47.",
+    "integrity_gate": "The supplied downstream WSOL signature 2Fbry... is absent from compact retained transaction roles and atomic flows. Therefore the required Near47-manifest calibration condition is false and cannot define DF8C_BYZC_JIT_FUNDING_V1 for the 47-token cohort.",
+    "safety": "RPC/Birdeye/provider=0; no recovery ledger, membership/detector/Monitor/UI writes, or DB locks.",
+    "verdict": "No cohort-wide transaction-first audit or bounded recovery dispatched. Do not relabel the provided example as Near47.",
+    "artifact": "docs/audits/byzc_near47_jit_known_example_preflight.v1.json sha256 411dcde744815821b54817578794f36f0ef3a8b36c159e6beef024031103b52f",
+    "tests": "3 passed: taxonomy, association identity, and retained funding regressions.",
+    "next_action": "Provide or retain a Df8C->ByZc->qualified WSOL pair tied to an actual frozen Near47 mint before any JIT calibration or recovery."
   }
 }

@@ -16300,5 +16300,14 @@
     "safety": "Observation only: production mutations=0; provider/RPC calls=0; service restarts=0; queue/membership/detector/Monitor writes=0.",
     "audit": "docs/audits/ws_cascade_writer_lock_why_now.v1.json sha256 7686484a1e59ebf430e3219071d0f1ec2a5b2647009195b6a41beb20745369a8",
     "next_action": "Refactor both remaining paths so every provider read precedes writer ownership; add shared duration/fairness regressions; deploy only ws_cascade under a separately authorized controlled soak."
+  },
+  "ws_cascade_writer_lock_permanent_fix": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "WS_CASCADE_WRITER_LOCK_FIX_PARTIAL_HOLD",
+    "result": "Treasury now fetches before _ops; temp sweep closes its read snapshot before all getTransaction/getSignatures work and reopens only for write-only persistence. Existing subprov separation remains. Three source-order regressions and py_compile pass.",
+    "blocker": "Dynamic slow-provider/concurrent-Walkback, exception-release, and evidence-attempt-budget regressions are still absent. No deployment/restart/soak occurred, so incident resolution is unproven.",
+    "safety": "production mutations=0; provider/RPC=0; ws_cascade restart=0; Other126 remains paused.",
+    "audit": "docs/audits/ws_cascade_writer_lock_permanent_fix.v1.json sha256 abb54df812b29f99c0f2a644539daf562a34136defb6c59af17ade9e8a69b31e",
+    "next_action": "Implement and pass dynamic contention/release/attempt-budget tests, then deploy only ws_cascade for a bounded multi-cycle soak."
   }
 }

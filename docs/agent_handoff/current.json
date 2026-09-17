@@ -20,6 +20,16 @@
     "safety": "Read-only trace; no restart, source/config/database/queue mutation, provider call, or Other126 work.",
     "next_action": "Add durable caller/connection/lease lifecycle correlation before asserting a per-transaction root cause; separately audit/fix the unsafe CDC path under authorization."
   },
+  "ws_cascade_ops_provenance": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "DEPLOYED_PROVENANCE_ARMED",
+    "implementation": "Cascade._ops passes a bounded upstream caller/purpose into TrackedConnection. First-write lease metadata now carries connection ID, caller, purpose, first-write and last-progress timestamps, SQLite state, and the transaction/lease generation; lifecycle updates occur before the existing release path.",
+    "tests": "18 passed focused transaction-scope and database-write-service tests.",
+    "deployment": "ws_cascade only restarted 10634 -> 18576; walkback_worker remained 10747; one ws_cascade instance reported RUNNING.",
+    "safety": "No intended flock/timeout/busy-timeout/WAL/transaction-scope/fairness behavior change; no provider or queue/database mutation. Prior incident remains unresolved pending a naturally captured recurrence.",
+    "audit": "docs/audits/ws_cascade_writer_lock_permanent_fix.v1.json sha256 b8e31eac10517bd220dfadbda8ccae1c7a8602635dc17942e36d1a15ac4ef001",
+    "next_action": "Observe natural traffic only; if a critical wait recurs, use its enriched kernel-bound owner record to trace the exact caller before any caller repair."
+  },
   "walkback_candidate_generation_runtime_diagnosis": {
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee runtime inspection",
     "status": "PARTIAL_DB_WRITE_CONTENTION",

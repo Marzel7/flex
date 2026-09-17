@@ -16136,5 +16136,17 @@
     "artifact": "docs/audits/byzc_near47_upstream_recovery_preflight.v1.json sha256 fe6cbd626663dc5045c0fc0e762ff258875a582a5c29a2f51f0218f0169dd7fc",
     "tests": "3 passed: Near47 retained funding, creator recurrence, and taxonomy regressions; audit rerun deterministic.",
     "next_action": "Before any recovery, separately qualify a mint-anchored, timestamp-bounded generic upstream-capital resolver with retained known-answer fixtures; do not change Near47 membership."
+  },
+  "byzc_near47_df8c_funding_continuity": {
+    "engineering_revision": "working tree; retained-only exact-address audit",
+    "status": "PASS_RETAINED_ONLY",
+    "finding": "Df8C occurs in 82/120 canonical Byzantine rows as a retained immediate upstream provider of ByZc, not as the direct creator funder. Exact compact evidence finds Df8C in 0/47 Near47 rows at every searched queue, selected/alternative edge, transaction-role, and atomic-flow field.",
+    "control": "Across the 298 ByZc-associated rows Df8C occurs in canonical=82, Near47=0, Incomplete6=0, Other126=126. It is therefore neither a Near47 path nor Byzantine-specific inside the larger ByZc ecosystem.",
+    "paths": "Canonical exact Df8C->ByZc selected-edge shape=74; Near47 exact shapes/edges/intermediates=0. Temporal and creator-independent Df8C continuity are not proven.",
+    "safety": "RPC/Birdeye/provider=0; membership/detector/Monitor/UI writes=0; DB locks=0; no recovery dispatched.",
+    "verdict": "Near47 remains EXECUTION_PLUS_SHARED_INFRASTRUCTURE; exact Df8C continuity is PARTIAL_LINEAGE in canonical evidence and NOT_PROVEN for Near47.",
+    "artifact": "docs/audits/byzc_near47_df8c_funding_continuity_audit.v1.json sha256 0ab12daee0dae438de2663138991e03931a2c7990a517683afe3bb82c344b98c",
+    "tests": "3 passed: Near47 retained funding, taxonomy, and creator recurrence regressions; audit rerun deterministic.",
+    "next_action": "No Df8C-specific recovery is warranted. Do not alter Near47 membership; any generic upstream work remains gated on a mint-anchored resolver."
   }
 }

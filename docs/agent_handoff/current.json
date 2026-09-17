@@ -7,7 +7,7 @@
     "finding": "ByZc is a broader, distinct infrastructure-associated research population under the current retained evidence, not a canonical-membership shortcut. Association types: one-hop=116, multi-hop=182, direct=0. Nonmember primary failures: PLAIN_XFER=208, OTHER_PROVEN=75, INSUFFICIENT_EVIDENCE=15.",
     "ajq48": "ByZc-associated ONE_HOP; 0.459925 SOL PLAIN_XFER; NO_MATCH_AMOUNT; no atomic WSOL; not a canonical member.",
     "safety": "Membership writes=0; detector changes=0; Monitor admissions=0; RPC/Birdeye/provider=0; Watchtower unchanged.",
-    "audit": "docs/audits/byzc_associated_token_population_audit.v1.json sha256 39c02a62541c65010e335256e5b25ec61fe72973f514ba517255e7341fd6ffe8",
+    "audit": "docs/audits/byzc_associated_token_population_audit.v1.json sha256 45e789d5eaa170f63d25850d91c8561a52117799f619b1d9b3918640a962b9d1",
     "tests": "Audit execution plus JSON contract assertions PASS.",
     "next_action": "Keep BYZC_ASSOCIATED_RESEARCH_COHORT_V1 separate from BYZANTINE_CONFIRMED_MEMBER; any membership-contract change requires separately authorized cohort replay."
   },

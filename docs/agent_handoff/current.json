@@ -16236,5 +16236,16 @@
     "artifact": "docs/audits/byzc_near47_df8c_byzc_jit_coverage_verification_v2.v1.json sha256 efb406b80d3d37dcaba2189aaf33de03d4e77775abd804d888050752c2d1e6c3",
     "tests": "6 passed focused Near47 evaluator/funding regressions.",
     "next_action": "Implement the authorized durable, single-concurrency runner for the already-frozen remaining 46 identities, then resume exactly PENDING identities and publish prevalence only after compact evidence and offline replay parity."
+  },
+  "ws_cascade_db_lock_incident_recovery": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "WS_CASCADE_DB_LOCK_INCIDENT_PARTIAL_HOLD",
+    "incident": "Repeated 60-second wt_ops_v2.db CrossProcessDatabaseWriteTimeout records named ws_cascade.py:2540 in _ops as owner; pre-restart ws_cascade pid=5455 had the database, WAL, SHM, and write-lock descriptors open.",
+    "root_cause_and_repair": "Cascade._handle_subprov_tx held its operations connection across _get_subprov_tx_fast_retry provider work. It now closes after reads and reopens only for persistence; only ws_cascade was restarted (5455 to 1521).",
+    "observation": "At 19:24:38Z the new ws_cascade and existing Walkback/listener/monitor processes were running. Natural Walkback completions DMTEyp... and AYqt... occurred; active write lease was Walkback pid=5451, not ws_cascade. The short window has no observed new timeout.",
+    "mint_7tby": "Unchanged waiting/WAITING_FOR_CREATE_ANCHOR, MISSING_OR_MALFORMED, PENDING_NOT_VISIBLE after 50 lookup attempts. No manual classification, queue replay, or membership override was performed.",
+    "tests": "py_compile passed; transaction-scope regression passed (1); diff check passed.",
+    "audit": "docs/audits/ws_cascade_db_lock_incident_recovery.v1.json sha256 5c4461a9ab7245de47e2ceee500176586f939e3b520d6f53bece552b72fd8b51",
+    "next_action": "Keep nonessential research paused. Passively observe a complete natural candidate-to-Walkback canary and the historical 60-second timeout horizon before declaring recovered; verify duplicate/assignment invariants then."
   }
 }

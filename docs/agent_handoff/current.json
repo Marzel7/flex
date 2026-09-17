@@ -16,7 +16,7 @@
     "transactions": "d8d45fba-cafa-47e0-9ccc-77789a9db96f and 8e83739f-3773-4dab-bb6e-8ef17db2a4df: tracked-selector owners, PID 10634 MainThread, generic command ws_cascade.py:2540 in _ops. Each blocked Walkback for 60.006s; the latter timeout timestamp is epoch 1789680476.069.",
     "limitation": "The runtime retained acquisition/owner fields but not caller stack, connection ID, SQL timeline, release, or transaction-to-event linkage. db_connect attributes the immediate _ops wrapper, so an exact upstream caller cannot be reconstructed honestly.",
     "treasury_register": "NOT_PROVEN for both. Treasury register uses the distinct operations_write managed command ws-cascade-treasury-register, while both observed IDs were direct tracked-connection owners.",
-    "static_finding": "_handle_cdc_tx currently opens _ops before _get_tx and may make a second _get_tx before close. This untested unsafe path requires a separately authorized repair/validation milestone, but it is not linked to either transaction by retained runtime evidence.",
+    "static_finding": "_handle_cdc_tx retains an _ops connection across _get_tx calls and merits a separate scope audit. This alone does not prove a flock violation because TrackedConnection acquires the flock only on the first write; no retained trace shows such a write before either provider call. It is not linked to either transaction.",
     "safety": "Read-only trace; no restart, source/config/database/queue mutation, provider call, or Other126 work.",
     "next_action": "Add durable caller/connection/lease lifecycle correlation before asserting a per-transaction root cause; separately audit/fix the unsafe CDC path under authorization."
   },

@@ -1,4 +1,14 @@
 {
+  "pumpportal_websocket_live_ingestion_recovery": {
+    "engineering_revision": "working tree",
+    "status": "HOLD_MANAGED_LISTENER_DNS_CONTEXT",
+    "first_fixed_failure": "Supervisor pointed watchtower_listener at deleted /private/tmp/flex-availability-only/run_listener.sh. Config now uses repository-owned /Users/kevinkeaveney/Dev/claude/flex/run_listener.sh; a single managed listener process is RUNNING.",
+    "first_unresolved_failure": "The managed listener now fails before handshake with gaierror for both pumpportal.fun and mainnet.helius-rpc.com. The same production Python resolves both from a normal network-enabled shell; no proxy environment variable is set in the listener.",
+    "safety": "No ping/subscription/health-threshold change; provider=0; RPC=0; no catch-up run; Watchtower and AJQ48 semantics unchanged; Trading disabled.",
+    "tests": "15 passed: Supervisor listener path + Watchtower ATH + Byzantine Playbook reconciliation.",
+    "audit": "docs/audits/pumpportal_websocket_live_ingestion_recovery.v1.json sha256 e25ea91e56748221c0a63b3b78dd67098c97a364454f33fd8ba6cc1d963b56b5",
+    "next_action": "Restore DNS/network capability in the existing Supervisor execution context, then observe connect/subscribe/first-frame stability before any catch-up decision."
+  },
   "byzantine_ajq48_playbook_membership_reconciliation": {
     "engineering_revision": "working tree",
     "status": "PASS_MULTIPLE_MEMBERSHIP_SEMANTICS_CONFLATED",

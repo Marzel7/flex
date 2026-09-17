@@ -27,7 +27,7 @@
     "finding": "ByZc is highly associated but neither required nor sufficient for Byzantine membership. All D53 rows miss exact 9.999985 SOL; 47 are one retained gate away and 6 have insufficient compact atomic-flow evidence for that claim.",
     "playbook": "Read-only ByZc infrastructure card renders 120/298/119/179 and 90=37+53, explicitly not a membership or Monitor-admission primitive.",
     "safety": "Membership/Nexus/Monitor/detector writes=0; RPC/Birdeye/provider=0; DB locks=0; AJQ48 remains non-member/unmonitored.",
-    "tests": "6 passed: identity, population comparison, and Byzantine Playbook reconciliation; Playbook Flask readback=200.",
+    "tests": "8 passed: identity, population comparison, Byzantine Playbook reconciliation, and Watchtower Playbook regression; Playbook Flask readback=200.",
     "audit": "docs/audits/byzc_byzantine_119_179_population_comparison.v1.json sha256 d91755ccb45a56c69b7cf5e920db8443ff623f08ca30311992a68ff269072c10",
     "next_action": "Use BYZC_ASSOCIATED_RESEARCH_COHORT_V1 for descriptive research only; do not promote ByZc into membership or Monitor admission."
   },

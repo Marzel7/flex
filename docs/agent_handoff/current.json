@@ -16184,5 +16184,18 @@
     "artifacts": "docs/audits/byzc_near47_canonical_jit_slot_recovery.v1.json sha256 01e35bdafcdbbb51f2740161f753ad2e49bcac42f1ad958ab999e8e9662041b7; docs/audits/byzc_near47_df8c_byzc_jit_calibration_dispatch.v1.json sha256 cd6203a75227c5dbaa8aa93521acc2191506548353fa2372c2142d60f301ed2d",
     "tests": "6 passed: calibration evaluator plus Near47 creator/funding regressions; recovery runner syntax compiled.",
     "next_action": "Require explicit authorization for one new linked compact-coverage verification identity for the same frozen primary target. Do not rerun the existing identity, release the 46, or alter Near47 membership until it proves the complete intersection and independent replay parity."
+  },
+  "byzc_near47_primary_coverage_verification": {
+    "engineering_revision": "working tree; one linked compact verification acquisition",
+    "status": "HOLD_INCOMPLETE_COMPACT_AMOUNT_AND_COVERAGE_ARTIFACT",
+    "parent_request_id": "2c4ae02201b99b4bba415a7bfc7516f71480f6d3dcd06c9d7a36e23f29302ca9",
+    "verification_request_id": "a2fc18030b658dda9595cc4c02da0192a350928376c593cb0dadff77e3fec667",
+    "observation": "The one new linked request re-read the unchanged target and rediscovered the same exact Df8C->ByZc candidate: 5zWo...NzC8, slot 444833855/time 1788710745, 5,755,349,844 lamports, before target 5JdW...metB at slot 444833859/time 1788710746. Delta=4 slots/1 second; one incoming funder event, Df8C=1, other=0.",
+    "coverage": "The page crossed both requested lower bounds (slot 444833836 and time 1788710736), but the initial compact artifact treated an exact global page limit as truncation and did not retain the target amount from the already-retained atomic-flow fact. Therefore the strict persisted gate is INCOMPLETE_EVIDENCE; independent replay and cohort release were not run.",
+    "repair": "The verifier now interprets a page as complete for this bounded domain once both lower bounds are crossed, and uses the retained atomic-flow net destination as target amount when balance delta is unavailable. It was not re-dispatched; the consumed verification identity remains immutable.",
+    "safety": "Verification RPC calls=3; cohort RPC calls=0; duplicate requests=0; raw responses=0; membership/detector/Monitor/UI/database writes=0; Birdeye=0.",
+    "artifact": "docs/audits/byzc_near47_df8c_byzc_jit_coverage_verification.v1.json sha256 9af57be1118f41808227cf3dcabbc737013b90712d2f9932e369828d686862c8",
+    "tests": "6 passed: strict evaluator plus Near47 creator/funding regressions; verifier syntax compiled.",
+    "next_action": "Do not release the 46. A further action requires explicit authority because the one linked verification identity is consumed; first decide whether an offline artifact-finalization from retained compact metadata is sufficient or a new linked verification identity is authorized."
   }
 }

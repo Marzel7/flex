@@ -16340,5 +16340,16 @@
     "safety": "production mutations=0; provider/RPC=0; ws_cascade restart=0; Other126 remains paused.",
     "audit": "docs/audits/ws_cascade_writer_lock_permanent_fix.v1.json sha256 30ad2c6943ef9d2b4fbdab5b551f9918c018fb0cd03211f5467334dcc1f3de15",
     "next_action": "Implement and pass dynamic contention/release/attempt-budget tests, then deploy only ws_cascade for a bounded multi-cycle soak."
+  },
+  "walkback_health_staleness_ui": {
+    "engineering_revision": "working tree",
+    "status": "UI_FIX_IMPLEMENTED_PENDING_API_RELOAD",
+    "finding": "The Walkback STALLED card used a generic candidate-generation sentence even when current diagnostics named an external writer lease. It concealed the actual blocker.",
+    "runtime_evidence": "Walkback PID 10747 recorded CrossProcessDatabaseWriteTimeout after 60.005 seconds; owner metadata identified ws_cascade PID 18576 at ws_cascade.py:4835 in cleanup_pass. Candidate generation was 10 in the preceding hour.",
+    "repair": "Read-only health composition now reports the held writer command, PID, and lease age in the STALLED summary. The System Health card renders structured reasons under the status line. No status threshold or production behavior changed.",
+    "tests": "32 passed: tests/test_x76_5a_walkback_candidate_health.py and tests/test_system_health_post_reduction_truth.py.",
+    "safety": "No provider, queue, database, candidate-selection, lock, WAL, ws_cascade, or Walkback mutation. No service restart performed.",
+    "audit": "docs/audits/walkback_health_staleness_ui.v1.json sha256 dcb43a0b2a661a4a117ca76920c64cbcbe7ee0af0763ef48fc094c2bf93d34cf",
+    "next_action": "Reload only watchtower_api to make the UI change visible. Separately hold the writer-lock incident: cleanup_pass owns a fresh blocking lease and requires a dedicated source repair."
   }
 }

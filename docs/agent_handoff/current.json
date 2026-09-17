@@ -16405,5 +16405,12 @@
     "safety": "Read-only logs/source audit; production mutations=0; provider calls=0; no restart/config/queue change.",
     "audit": "docs/audits/ws_cascade_catchup_runtime_budget.v1.json",
     "next_action": "Continue the separate post-deploy writer soak; only after it resolves, authorize a bounded resumable catch-up design/implementation."
+  },
+  "operations_db_postdeploy_sqlite_busy_trace": {
+    "status": "INSUFFICIENT_SQLITE_HOLDER_EVIDENCE",
+    "event": "2026-09-17T23:24:07.622Z Walkback PID 32006, transaction 52f93187-51a5-4ec1-9976-482301c271d4, anchor_reconciliation_attempted, SQLITE_BUSY while own tracked flock age was 31.147s.",
+    "finding": "Source path is run_loop -> reconcile_waiting_create_anchors on existing ops connection; the retained event lacks SQLite holder, SQL statement, connection ID, lifecycle timestamps and WAL/checkpoint state. No causal classification is honest.",
+    "audit": "docs/audits/operations_db_postdeploy_sqlite_busy_trace.v1.json",
+    "next_action": "Hold incident resolution; add/rely on exact busy holder/SQL lifecycle capture before a controlled reproduction."
   }
 }

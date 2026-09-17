@@ -16388,5 +16388,13 @@
     "safety": "Production validate_schema/behavior unchanged; services restarted=none; production mutations=0.",
     "audit": "docs/audits/walkback_startup_resilience_fixture_repair.v1.json",
     "next_action": "At a separately authorized deployment checkpoint, obtain Supervisor status and restart only services that must load db_locking.py, walkback_worker.py, or operation_scheduler.py; then create a clean post-deploy watermark and soak."
+  },
+  "operations_db_writer_restart_checkpoint": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "DEPLOYED_SOAK_PENDING",
+    "restart": "Restarted only ws_cascade 26899→31671, walkback_worker 10747→31683, watchtower_listener 65928→31757, and standalone operation_scheduler 9514→31778. Each is one RUNNING managed instance. Funding 5448, Monitor 5450, and API 25464 were not restarted.",
+    "watermark": "2026-09-18T00:19:00Z; ws inode/offset 836753327/7934730; walkback 817446381/4878155; scheduler 421165185/10280157; listener 847298526/6613834. Pre-watermark historical timeout lines excluded.",
+    "startup_health": "PASS at watermark; normal bare runtime paths=0; sole named emergency exemption=emergency_ops_recovery_connect.",
+    "next_action": "Observe only post-watermark natural writer activity, canary, errors, and duplicate/false-terminal state before declaring the incident resolved."
   }
 }

@@ -10,6 +10,16 @@
     "audit": "docs/audits/ws_cascade_writer_lock_permanent_fix.v1.json sha256 9321b7d226b49534dfd6faa9d7d8fd39b470ade197102126c25deb07166342d0",
     "next_action": "Hold final resolution. Under separately authorized diagnostic/repair work, trace ws_cascade.py:2540 lease ownership to the exact call path and correct it before another clean soak."
   },
+  "ws_cascade_blocking_transaction_trace": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "INSUFFICIENT_EXACT_CALLER_EVIDENCE",
+    "transactions": "d8d45fba-cafa-47e0-9ccc-77789a9db96f and 8e83739f-3773-4dab-bb6e-8ef17db2a4df: tracked-selector owners, PID 10634 MainThread, generic command ws_cascade.py:2540 in _ops. Each blocked Walkback for 60.006s; the latter timeout timestamp is epoch 1789680476.069.",
+    "limitation": "The runtime retained acquisition/owner fields but not caller stack, connection ID, SQL timeline, release, or transaction-to-event linkage. db_connect attributes the immediate _ops wrapper, so an exact upstream caller cannot be reconstructed honestly.",
+    "treasury_register": "NOT_PROVEN for both. Treasury register uses the distinct operations_write managed command ws-cascade-treasury-register, while both observed IDs were direct tracked-connection owners.",
+    "static_finding": "_handle_cdc_tx currently opens _ops before _get_tx and may make a second _get_tx before close. This untested unsafe path requires a separately authorized repair/validation milestone, but it is not linked to either transaction by retained runtime evidence.",
+    "safety": "Read-only trace; no restart, source/config/database/queue mutation, provider call, or Other126 work.",
+    "next_action": "Add durable caller/connection/lease lifecycle correlation before asserting a per-transaction root cause; separately audit/fix the unsafe CDC path under authorization."
+  },
   "walkback_candidate_generation_runtime_diagnosis": {
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee runtime inspection",
     "status": "PARTIAL_DB_WRITE_CONTENTION",

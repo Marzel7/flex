@@ -1,4 +1,16 @@
 {
+  "byzc_associated_token_population_audit": {
+    "engineering_revision": "working tree",
+    "status": "COMPLETE_RETAINED_ONLY",
+    "definition": "BYZC_ASSOCIATED requires a token-bound retained wt_walkback_queue record with ByZc as subprov; historical detector labels without that path are excluded.",
+    "population": "2,748,651 retained token_analysis launches/distinct mints; canonical Byzantine=84; ByZc-associated=298; overlap=0; canonical-not-ByZc=84; ByZc-not-canonical=298.",
+    "finding": "ByZc is a broader, distinct infrastructure-associated research population under the current retained evidence, not a canonical-membership shortcut. Association types: one-hop=116, multi-hop=182, direct=0. Nonmember primary failures: PLAIN_XFER=208, OTHER_PROVEN=75, INSUFFICIENT_EVIDENCE=15.",
+    "ajq48": "ByZc-associated ONE_HOP; 0.459925 SOL PLAIN_XFER; NO_MATCH_AMOUNT; no atomic WSOL; not a canonical member.",
+    "safety": "Membership writes=0; detector changes=0; Monitor admissions=0; RPC/Birdeye/provider=0; Watchtower unchanged.",
+    "audit": "docs/audits/byzc_associated_token_population_audit.v1.json sha256 39c02a62541c65010e335256e5b25ec61fe72973f514ba517255e7341fd6ffe8",
+    "tests": "Audit execution plus JSON contract assertions PASS.",
+    "next_action": "Keep BYZC_ASSOCIATED_RESEARCH_COHORT_V1 separate from BYZANTINE_CONFIRMED_MEMBER; any membership-contract change requires separately authorized cohort replay."
+  },
   "pumpportal_websocket_live_ingestion_recovery": {
     "status": "PASS_SUPERVISOR_RESTART_RECOVERED_LIVE_INGESTION",
     "engineering_revision": "working tree; controlled normal Supervisor restart",

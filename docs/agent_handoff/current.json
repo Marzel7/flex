@@ -1,4 +1,13 @@
 {
+  "byzc_other126_df8c_plain_target_preflight": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "HOLD_PLAIN_TARGET_NOT_RETAINED",
+    "first_failed_invariant": "9T1GC_PLAIN_TARGET_QUALIFIED",
+    "finding": "The known 9t1gc Other126 mint retains the Df8C→ByZc inbound transaction, but no mint-bound ByZc→creator PLAIN_XFER target transaction. The retained taxonomy and queue describe an incoming selected parent edge, not the required downstream target.",
+    "safety": "Provider/RPC=0; funding ledger=0; target-recovery ledger=0; membership/detector/Monitor writes=0; raw payload files=0.",
+    "audit": "docs/audits/byzc_other126_plain_target_preflight.v1.json sha256 fd9f0c67c23b36a62be1199b3aa16b5a4f3f851c1be1106529a57582a6895fd8",
+    "next_action": "Do not dispatch Other126. Separately qualify a bounded, mint-anchored PLAIN_XFER target-recovery contract and its known answer before freezing a bound or funding ledger."
+  },
   "byzc_near47_df8c_jit_durable_runner": {
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
     "status": "PASS_RESEARCH_ONLY_COHORT_PREVALENCE_COMPLETE",

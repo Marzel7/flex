@@ -16124,5 +16124,17 @@
     "verdict": "WATCHTOWER_BACKOFF_RECOVERED_BYZANTINE_CURRENT_EVIDENCE_INSUFFICIENT",
     "result": "Watchtower 7xXQV and HXpDL are MONITORING_ACTIVE. The reusable strict Byzantine Scenario-D bridge has known-answer parity when given a committed 12/13 envelope and USD valuation. 8BCRM remains INSUFFICIENT_EVIDENCE because its canonical record is creator-continuity only and has no bounded missing request identity.",
     "next_action": "Bind the upstream live ordered-action producer to emit committed Scenario-D envelopes with qualified USD valuation; do not retry or synthesize evidence for 8BCRM."
+  },
+  "byzc_near47_upstream_recovery_preflight": {
+    "engineering_revision": "working tree; retained-only canonical-method preflight",
+    "status": "HOLD_CANONICAL_ROOT_METHOD_NOT_MINT_ANCHORED",
+    "canonical_method": "The 82/120 projected queue treasury values come from walkback_worker PARTIAL_TREASURY: _find_with_evidence(subprov, hop_depth=1) without a mint-specific before-signature anchor. All 82 are LINEAGE_GAP, not qualified terminal roots.",
+    "known_answer": "Only 73/82 projected values have retained selected-edge identity/path/depth parity; 9/82 summary values cannot be replayed from retained edge evidence. Classification parity is 82/82 UNQUALIFIED_SELECTED_UPSTREAM_PARENT.",
+    "near47": "Frozen manifest=47, sha256 5b7dd004f9806213889f80b898330d7984954e2df41ce01a653de0be4ea40678. Retained roots=0; 47 would need recovery, but the source method would query current ByZc history rather than mint-time ancestry.",
+    "safety": "RPC/Birdeye/provider=0; request ledger=0; production/membership/Monitor/detector/UI writes=0; no raw payload retention.",
+    "verdict": "STOP required by the authorized known-answer gate. Do not repurpose the unanchored Watchtower-oriented PARTIAL_TREASURY projection as generic Byzantine capital-root evidence.",
+    "artifact": "docs/audits/byzc_near47_upstream_recovery_preflight.v1.json sha256 fe6cbd626663dc5045c0fc0e762ff258875a582a5c29a2f51f0218f0169dd7fc",
+    "tests": "3 passed: Near47 retained funding, creator recurrence, and taxonomy regressions; audit rerun deterministic.",
+    "next_action": "Before any recovery, separately qualify a mint-anchored, timestamp-bounded generic upstream-capital resolver with retained known-answer fixtures; do not change Near47 membership."
   }
 }

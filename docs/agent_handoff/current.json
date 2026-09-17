@@ -16370,5 +16370,14 @@
     "safety": "Read-only source/runtime audit; production mutations=0; provider calls=0; no restart, configuration, queue, database, timeout or WAL change.",
     "audit": "docs/audits/operations_db_writer_architecture.v1.json sha256 d6026993186448b68e9a033833ab36fa7b1d97f512de7bec166fec67120548b6",
     "next_action": "Under separately authorized repair work, require a single wt_ops connection factory/serializer for every writer (or explicit audited exception) and add holder/SQL lifecycle capture; do not claim a historical SQLite holder from the missing record."
+  },
+  "operations_db_writer_serialization_repair": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "REPAIRED_TESTED_DEPLOYMENT_SOAK_PENDING",
+    "repair": "The sqlite3 connection interception now covers wt_ops_v2.db, Walkback observation ledger/dispatch/consume use db_connect, scheduler catch-up uses db_connect while retaining autocommit, and the fatal self-kill write is a path-bound named emergency exemption.",
+    "tests": "20 passed: boundary interception, migration/static gate, emergency guard, concurrent writer contention, Walkback RPC/provider separation, and Cascade scope regressions.",
+    "safety": "No production mutation/provider call/restart/deployment; no timeout or WAL change.",
+    "audit": "docs/audits/operations_db_writer_serialization_repair.v1.json",
+    "next_action": "Run the full writer regression suite and establish a deployable source parity before restarting only the services that import the changed shared boundary; then perform a new clean production soak."
   }
 }

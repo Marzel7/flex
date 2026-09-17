@@ -1,4 +1,15 @@
 {
+  "ws_cascade_writer_lock_active_catchup_inspection": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "PARTIAL_HOLD_NEW_POST_WATERMARK_TIMEOUT",
+    "boundary": "2026-09-17T21:12:36Z; ws_cascade log inode=836753327 offset=7663533; walkback log inode=817446381 offset=4788895",
+    "finding": "A completed catch-up sweep logged eligible=51 selected=10 duration_ms=526028.2 with long individual catch_up_subprov work (390118.2ms maximum observed). Source ordering closes the initial subprov read connection before provider/retry work and reopens only for local persistence.",
+    "critical_failure": "One new post-boundary Walkback CrossProcessDatabaseWriteTimeout waited 60.006s. Its recorded application owner was ws_cascade PID 10634, command ws_cascade.py:2540 in _ops, transaction d8d45fba-cafa-47e0-9ccc-77789a9db96f, acquired_at epoch 1789680027.090061.",
+    "attribution_limit": "Available records do not retain an acquisition/release timeline or sweep-run ID that can causally assign this lease to a specific catch_up_subprov invocation. Do not infer that link merely from concurrent sweep activity.",
+    "safety": "Read-only inspection; no service restart, code/configuration/database/queue mutation, provider call, or Other126 work.",
+    "audit": "docs/audits/ws_cascade_writer_lock_permanent_fix.v1.json sha256 5e222c73b621ead360f4469647521e7aa7fa8d4670443a67cc886bcd4bbb35b3",
+    "next_action": "Hold final resolution. Under separately authorized diagnostic/repair work, trace ws_cascade.py:2540 lease ownership to the exact call path and correct it before another clean soak."
+  },
   "walkback_candidate_generation_runtime_diagnosis": {
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee runtime inspection",
     "status": "PARTIAL_DB_WRITE_CONTENTION",

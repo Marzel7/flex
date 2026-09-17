@@ -56,6 +56,18 @@
     "audit": "docs/audits/byzantine_canonical_120_creator_recurrence.v1.json sha256 a02bab8f677d095fe1b8a296445d76fda813cdf0dcc3476912ab69e2bf9a0fb2",
     "next_action": "Treat creator recurrence as descriptive retained structure only; do not use it as an admission primitive without separately qualified attribution evidence."
   },
+  "byzc_near47_creator_recurrence": {
+    "engineering_revision": "working tree",
+    "status": "PASS_RETAINED_ONLY",
+    "result": "Near47 has 47 distinct creators for 47 launches: repeat creators=0, repeat-launches=0, gap events=0, cross-amount creators=0.",
+    "comparison": "Near47 canonical creator overlap=0. Other126 has 54 creators with 79.37% of launches from repeat creators, confirming a different creator structure.",
+    "interpretation": "MOSTLY_UNIQUE; creator structure does not add internal identity/control support for a coherent Near47 operation or Byzantine attribution.",
+    "playbook": "No creator-recurrence UI metric added because absence of recurrence is the truthful result. Global population-model documentation records it.",
+    "safety": "Membership/detector/Monitor writes=0; RPC/Birdeye/provider=0; DB locks=0.",
+    "tests": "8 passed focused Near47 taxonomy/creator, canonical creator, Byzantine reconciliation, and Watchtower Playbook suites.",
+    "audit": "docs/audits/byzc_near47_creator_recurrence.v1.json sha256 3d0ab8949a11d4c9d92de979bbe791e7e73b0d9f464f074de20d1d9b0a485a41",
+    "next_action": "Keep Near47 research-only; no creator-based promotion or Monitor admission is justified."
+  },
   "pumpportal_websocket_live_ingestion_recovery": {
     "status": "PASS_SUPERVISOR_RESTART_RECOVERED_LIVE_INGESTION",
     "engineering_revision": "working tree; controlled normal Supervisor restart",

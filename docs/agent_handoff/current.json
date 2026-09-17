@@ -16396,5 +16396,14 @@
     "watermark": "2026-09-18T00:19:00Z; ws inode/offset 836753327/7934730; walkback 817446381/4878155; scheduler 421165185/10280157; listener 847298526/6613834. Pre-watermark historical timeout lines excluded.",
     "startup_health": "PASS at watermark; normal bare runtime paths=0; sole named emergency exemption=emergency_ops_recovery_connect.",
     "next_action": "Observe only post-watermark natural writer activity, canary, errors, and duplicate/false-terminal state before declaring the incident resolved."
+  },
+  "ws_cascade_catchup_runtime_budget": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "READ_ONLY_BUDGET_POLICY_RECOMMENDATION",
+    "finding": "80 retained catch-up sessions processed 2,422 signatures. Session p50/p95/max=156.312/852.846/1039.928 seconds. Per-signature serial-processing p50/p95/max=5.743/18.685/77.768 seconds. The referenced 921.845s sweep selected 10 of 19 eligible sessions; the retained maximum sweep is 1420.203s. Durable processing accounts for 92.5% of aggregate session-wall timing.",
+    "recommendation": "Separate authorized design work: 30s per-signature, 180s per-row, 600s per-sweep budgets; checkpoint/release/defer with non-semantic DEFERRED_BUDGET_EXHAUSTED or RETRY_LATER, then fair round-robin. Do not implement during the active writer soak.",
+    "safety": "Read-only logs/source audit; production mutations=0; provider calls=0; no restart/config/queue change.",
+    "audit": "docs/audits/ws_cascade_catchup_runtime_budget.v1.json",
+    "next_action": "Continue the separate post-deploy writer soak; only after it resolves, authorize a bounded resumable catch-up design/implementation."
   }
 }

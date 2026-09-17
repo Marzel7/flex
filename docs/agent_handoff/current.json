@@ -1,4 +1,14 @@
 {
+  "production_stabilization_plan": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "QUALIFIED_PLAN_RESEARCH_PAUSED",
+    "baseline": "All Tier-1 processes are RUNNING, but production is not stable: a newly observed Walkback CrossProcessDatabaseWriteTimeout waited 60.004s while ws_cascade PID 31671 held e398b17b-16bd-4664-b5c2-ff89c83e6cd7 from ws_cascade.py:2468 _process_subprov_sig_durable.",
+    "queue": "6071 active: LIVE_CURRENT=41, RECENT_RECOVERY=228, HISTORICAL_RECONCILIATION=5802, INFRASTRUCTURE_BLOCKED=0; 6009 are WAITING_FOR_CREATE_ANCHOR. 5802 rows are older than 24h, oldest 2026-08-03T18:54:25Z.",
+    "design": "Preserving live/historical split is feasible. Classify infrastructure first, then <=1h live, 1-24h recent, >24h historical. Keep evidence/state intact; remove 5802 historical rows from live pressure through durable lanes/checkpoints, not deletion or terminalization.",
+    "static_risk": "anchor_reconciliation._stuck_rows has no LIMIT and the worker invokes reconciliation each cycle; it can update all waiting rows before final commit. This is a proven unbounded historical-work risk but is not claimed as the exact current ws_cascade holder.",
+    "audit": "docs/audits/production_stabilization_plan.v1.json",
+    "next_action": "Keep research paused. Under explicit authorization, execute Phase A universal serialization repair before the live/historical lane change; do not reset queues."
+  },
   "ws_cascade_writer_lock_active_catchup_inspection": {
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
     "status": "PARTIAL_HOLD_NEW_POST_WATERMARK_TIMEOUT",

@@ -68,6 +68,17 @@
     "audit": "docs/audits/byzc_near47_creator_recurrence.v1.json sha256 3d0ab8949a11d4c9d92de979bbe791e7e73b0d9f464f074de20d1d9b0a485a41",
     "next_action": "Keep Near47 research-only; no creator-based promotion or Monitor admission is justified."
   },
+  "byzc_near47_shared_funding_audit": {
+    "engineering_revision": "working tree",
+    "status": "PASS_RETAINED_ONLY_COVERAGE_QUALIFIED",
+    "coverage": "Canonical120: direct/subprovider/ByZc=119/120, roots=82/120. Near47: direct/subprovider/ByZc=47/47, roots=0/47. Eligible non-generic root coverage=0 for both under retained labels.",
+    "finding": "The only shared direct-funder/subprovider address is ByZc (37 canonical direct-funder uses; 119 canonical subprovider uses; 47 Near47 uses). Shared independent roots, edges, and path segments=0 qualified.",
+    "verdict": "EXECUTION_PLUS_SHARED_INFRASTRUCTURE. Independent capital continuity is NOT_PROVEN_DUE_TO_COVERAGE, not proven absent; no recovery was authorized.",
+    "safety": "Membership/detector/Monitor writes=0; RPC/Birdeye/provider=0; DB locks=0; no Playbook change beyond global factual documentation.",
+    "tests": "9 passed focused funding, Near47 creator/taxonomy, canonical creator, Byzantine reconciliation, and Watchtower Playbook suites.",
+    "audit": "docs/audits/byzc_near47_shared_funding_audit.v1.json sha256 3ae664300563cb31fb8e576cbba9838ffade2369785766381b8dcfebf1b9c964",
+    "next_action": "Do not promote Near47. A separately authorized bounded retained-evidence recovery would be required before evaluating independent upstream-root continuity."
+  },
   "pumpportal_websocket_live_ingestion_recovery": {
     "status": "PASS_SUPERVISOR_RESTART_RECOVERED_LIVE_INGESTION",
     "engineering_revision": "working tree; controlled normal Supervisor restart",

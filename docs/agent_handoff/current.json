@@ -16259,5 +16259,17 @@
     "tests": "15 focused calibration and dual-funding projection tests passed.",
     "audit": "docs/audits/byzc_other126_9t1gc_plain_target_recovery.v1.json sha256 b87e8c51661a5abc1d34dac6f2a513814ae631f8f1800ee0e1601bdf61471d23",
     "next_action": "Do not dispatch Other126. A revised evidence contract requires separate authorization."
+  },
+  "byzc_other126_9t1gc_mechanism_reconciliation": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "BYZC_OTHER126_MECHANISM_TAXONOMY_RECONCILED",
+    "resolution": "Exact one-call 2Fbry reconstruction proves ByZc signed createAccount -> initializeAccount -> syncNative -> closeAccount of temporary WSOL ChJN...m5By to 9t1gc creator 6PJn...Gg7P. It followed Df8C->ByZc vC5bo by 2 seconds/4 slots; A-B=15,000 lamports.",
+    "root_cause": "The historical taxonomy classified all non-queue-WSOL B179 rows as Other126/PLAIN_XFER from an upstream edge, without requiring positive ByZc-to-creator PLAIN evidence. 9t1gc exposed the false-plain fallback.",
+    "v2": "New BYZC_CREATOR_FUNDING_MECHANISM_V2 is fail-closed. Deterministic retained replay: WSOL=1, PLAIN=0, OTHER=0, INSUFFICIENT=125, union=126. B179 total remains 179 but old internal mechanism taxonomy is stale.",
+    "impacts": "Shared18=0 WSOL/0 PLAIN/18 insufficient; Near47 remains frozen 47 (45 positive/1 negative/1 incomplete); canonical Byzantine remains 120; Other126 Df8C control remains paused.",
+    "safety": "exact signature lookups=1; provider calls=1; raw files=0; DB locks=0; membership/detector/Monitor writes=0; production detector changed=false.",
+    "tests": "17 focused V2 semantic, Near47 calibration, and canonical dual-funding projection tests passed.",
+    "audit": "docs/audits/byzc_other126_9t1gc_mechanism_reconciliation.v1.json sha256 a37de60ab0137c6abdd5de8b5d177b442015cc4b07abbe4e2a05165a6e72228a; docs/audits/byzc_other126_mechanism_v2_replay.v1.json sha256 95f332234d372c69858653db22657e4c06cb0b5eadf7241755ae5abc46959b65",
+    "next_action": "Do not launch cohort recovery or Df8C prevalence. A separately authorized bounded recovery for the 125 insufficient frozen rows is required before B179 taxonomy V2 publication."
   }
 }

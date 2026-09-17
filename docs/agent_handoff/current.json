@@ -16247,5 +16247,17 @@
     "tests": "py_compile passed; transaction-scope regression passed (1); diff check passed.",
     "audit": "docs/audits/ws_cascade_db_lock_incident_recovery.v1.json sha256 5c4461a9ab7245de47e2ceee500176586f939e3b520d6f53bece552b72fd8b51",
     "next_action": "Keep nonessential research paused. Passively observe a complete natural candidate-to-Walkback canary and the historical 60-second timeout horizon before declaring recovered; verify duplicate/assignment invariants then."
+  },
+  "byzc_other126_9t1gc_plain_target_recovery": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "OTHER126_9T1GC_PLAIN_TARGET_RECOVERY_HOLD",
+    "identity": "OTHER126_9T1GC_PLAIN_TARGET_RECOVERY_V1:ac029b2b8f4c686bb1d005f5cfa24b369e15f2c7e62a33f57d9bd291d29ec3de",
+    "anchor": "9t1gc creator 6PJnc...Gg7P was retained-authoritative; bounded launch read established create signature 5pu2...SPn2 at slot 447790459/time 1789646581.",
+    "result": "Complete interval from known Df8C->ByZc slot 447790006/time 1789646437 through the create anchor yielded zero ByZc->creator SYSTEM_PROGRAM_TRANSFER/PLAIN_XFER candidates. 3 provider calls under ceiling 12; page crossed both lower bounds; no truncation or internal gaps.",
+    "verdict": "9T1GC_PLAIN_TARGET_QUALIFIED=false; no known-answer pair, no Other126 bound, no funding ledger, and no cohort dispatch.",
+    "safety": "untracked provider calls=0; raw files=0; DB connection during provider=false; DB locks=0; membership/detector/Monitor writes=0.",
+    "tests": "15 focused calibration and dual-funding projection tests passed.",
+    "audit": "docs/audits/byzc_other126_9t1gc_plain_target_recovery.v1.json sha256 b87e8c51661a5abc1d34dac6f2a513814ae631f8f1800ee0e1601bdf61471d23",
+    "next_action": "Do not dispatch Other126. A revised evidence contract requires separate authorization."
   }
 }

@@ -7,7 +7,7 @@
     "result": "Near47 total=47: PROVEN_DF8C_JIT=45, PROVEN_OTHER_FUNDER_JIT=0, NEGATIVE_COMPLETE_WINDOW=1, INCOMPLETE_EVIDENCE=1. Complete windows=46; Df8C JIT=45/46 complete (97.8261%), lower bound=45/47 (95.7447%).",
     "interpretation": "Near47 shares the Df8C→ByZc just-in-time capital-flow chain across 45/46 complete frozen windows. This is shared capital-flow infrastructure evidence only; it does not establish operation-specific control, canonical membership, or attribution. The qualified calibration fact remains intact.",
     "audit": "docs/audits/byzc_near47_df8c_byzc_jit_final_manifest.v1.json sha256 40a0048746ff4103c8d0afbc159077ee02a699fac4837d84ecadb613fa172136; offline replay PASS with zero provider calls.",
-    "tests": "6 passed: calibration evaluator plus durable runner frozen ledger, claim, commit-before-ACK/restart tests.",
+    "tests": "7 passed: calibration evaluator plus durable runner frozen ledger, atomic claim lease/crash-resume, durable backoff, and commit-before-ACK/restart tests.",
     "next_action": "No retry is due. Treat the one incomplete row as incomplete coverage and keep all Near47 work research-only unless separately authorized attribution evidence is qualified."
   },
   "byzc_associated_token_population_audit": {

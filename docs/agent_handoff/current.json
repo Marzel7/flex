@@ -44,6 +44,18 @@
     "audit": "docs/audits/byzc_noncanonical_179_taxonomy.v1.json sha256 b1ac6dd7e8b5fb0cfac5e0b58dcb1d5fa0e0eee9608a9c0071c9705742840f74",
     "next_action": "Keep BYZC_WSOL_NEAR_BYZANTINE_RESEARCH_V1 research-only unless independently qualified identity/control/capital-path evidence is obtained."
   },
+  "byzantine_canonical_120_creator_recurrence": {
+    "engineering_revision": "working tree",
+    "status": "PASS_RETAINED_ONLY",
+    "canonical_creator_structure": "120/120 rows have retained canonical creator wallets: 36 distinct, 34 repeat creators, 118 launches (98.33%) from repeats; max=6, median=3, mean=3.3333 launches per creator.",
+    "cross_population": "Complete canonical creators vs Near47 overlap=0. Complete canonical creators vs B179 overlap=18, all in OTHER126 PLAIN_XFER; Near47 amount-variant hypothesis remains execution-supported but attribution-unsupported.",
+    "e1": "The one canonical non-ByZc mint 2aZR... has creator 8rx3... with three other canonical ByZc-associated launches, confirming ByZc is not required per launch.",
+    "playbook": "Read-only creator recurrence badges render 36 creators / 34 repeats / 118 repeat launches / top=6; no membership, detector, or Monitor semantics changed.",
+    "safety": "Membership/detector/Monitor writes=0; RPC/Birdeye/provider=0; DB locks=0.",
+    "tests": "10 passed focused identity, population, taxonomy, creator recurrence, Byzantine reconciliation, and Watchtower Playbook suites; Flask readback=200.",
+    "audit": "docs/audits/byzantine_canonical_120_creator_recurrence.v1.json sha256 a02bab8f677d095fe1b8a296445d76fda813cdf0dcc3476912ab69e2bf9a0fb2",
+    "next_action": "Treat creator recurrence as descriptive retained structure only; do not use it as an admission primitive without separately qualified attribution evidence."
+  },
   "pumpportal_websocket_live_ingestion_recovery": {
     "status": "PASS_SUPERVISOR_RESTART_RECOVERED_LIVE_INGESTION",
     "engineering_revision": "working tree; controlled normal Supervisor restart",

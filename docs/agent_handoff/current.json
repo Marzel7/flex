@@ -16372,5 +16372,14 @@
     "safety": "Read/test only; production restarts/schema mutations/provider calls=0. Heartbeat SQLite busy remains unresolved.",
     "audit": "docs/audits/operations_db_schema_ensure_dag.v1.json",
     "next_action": "Implement the qualified leaf-first extraction; do not build/deploy the central runner before all nine nodes are caller-transaction neutral."
+  },
+  "operations_db_migration_leaves_phase1": {
+    "status": "QUALIFIED_DEPLOY_PENDING",
+    "result": "All eight leaf schema routines now expose transaction-neutral migrate_schema_step(conn) functions; legacy ensure wrappers retain commit behavior. Deep Walkback, priority, and candidates no longer use executescript in declarative steps.",
+    "prerequisites": "anchor_reconciliation and watchtower_candidates explicitly require wt_walkback_queue; six leaves are schema-independent.",
+    "proof": "Prerequisite-aware caller-owned transaction probe: 8/8 remained active, rollback succeeded, then caller commit succeeded. Focused regressions: 52 passed.",
+    "safety": "No production deployment/restart/schema mutation/provider call. Walkback root remains unconverted; central runner and validators remain unbuilt; heartbeat SQLITE_BUSY unresolved.",
+    "audit": "docs/audits/operations_db_migration_leaves_phase1.v1.json",
+    "next_action": "Convert the composed walkback_queue node only under the next authorized phase."
   }
 }

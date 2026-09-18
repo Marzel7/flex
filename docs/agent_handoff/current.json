@@ -16362,5 +16362,15 @@
     "safety": "No production restart/schema mutation/provider call; heartbeat SQLITE_BUSY root cause remains unresolved.",
     "audit": "docs/audits/operations_db_migration_primitives_checkpoint.v1.json",
     "next_action": "Refactor each listed ensure into a supplied-connection no-commit/no-close step with compatibility wrappers before constructing/qualifying the central runner."
+  },
+  "operations_db_schema_ensure_dag": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "QUALIFIED_ROOT_DAG_LEAF_EXTRACTION_ORDER",
+    "dag": "Six requested roots expand to nine confirmed schema nodes and four direct composition edges: walkback_queue -> attribution_outcome, deep_walkback, watchtower_candidates, operation_evidence_priority. No cycles; max depth=2. All nine nodes retain internal commits; none independently opens a connection or lease in the schema body.",
+    "order": "Extract eight leaves first (treasury, attribution, cascade, anchor, watchtower attribution, deep Walkback, Watchtower candidates, priority), then the composed Walkback root, then compatibility wrappers, central runner, and validators.",
+    "tests": "17 passed: failed-DDL lease lifecycle and startup resilience.",
+    "safety": "Read/test only; production restarts/schema mutations/provider calls=0. Heartbeat SQLite busy remains unresolved.",
+    "audit": "docs/audits/operations_db_schema_ensure_dag.v1.json",
+    "next_action": "Implement the qualified leaf-first extraction; do not build/deploy the central runner before all nine nodes are caller-transaction neutral."
   }
 }

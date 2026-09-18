@@ -16612,5 +16612,17 @@
     "safety": "No Cascade restart, listener/API/Monitor/scheduler restart, provider call, database move/copy, queue mutation, or application-source mutation. Existing incident remains unresolved; no contention was manufactured.",
     "audit": "/private/tmp/operations_db_sqlite_provenance_supervisor_deploy_attempt_20260918T210814Z.json sha256 b4fcb24fc53142f0f291f99513005d55982db93ccb9cd412983efb2967c7a803",
     "exact_next_action": "Do not retry Cascade. Establish a fresh offset/timestamped Walkback post-start health observation that distinguishes historical log records from new failures; proceed only under renewed explicit authorization if the staged gate passes."
+  },
+  "walkback_clean_source_deployment_failure_audit": {
+    "engineering_revision": "44476d7ba3896987e4031b5f35924426af00638a clean source deployment attempt",
+    "status": "WALKBACK_CLEAN_SOURCE_DEPLOYMENT_FAILURE_PROVEN",
+    "verdict": "PREEXISTING_PRODUCTION_CONTENTION",
+    "failure": "PID 56474 successfully completed clean-source startup/schema work, then at 2026-09-18T21:10:33.844464Z its flock-owned UPDATE wt_walkback_queue from walkback_worker.py:521 waited 31133.862 ms and ended OperationalError database is locked / SQLITE_BUSY code 5. The lifecycle busy snapshot contains only PID 56474 itself, so no external blocker is claimed.",
+    "source_and_paths": "Clean walkback_worker.py line 521 exactly matches the retained caller; operations.sqlite_lifecycle.v1 proves clean db_locking instrumentation was active. Existing wt_ops/live DB, lock, and both diagnostic destinations were used. No mixed source-root evidence exists.",
+    "diagnostics": "Both Walkback SQL and SQLite lifecycle streams appended PID 56474 records; parent was writable, normal lifecycle commits/releases followed, and no diagnostic exception/rotation failure occurred. Diagnostics are non-causal.",
+    "comparison": "PID 60726 already had repeated same-path SQLITE_BUSY/CrossProcessDatabaseWriteTimeout episodes. PID 56689 restored original source configuration but later exited on a 60.003s CrossProcessDatabaseWriteTimeout with no retained owner; Supervisor autorestarted it. Thus configuration rollback succeeded but did not restore a healthy writer state.",
+    "safety": "No deployment retry, Cascade restart, listener/API/Monitor/Scheduler restart, source/config/database/queue change, provider call, or manufactured contention. Supervisor config remains restored byte-for-byte; scheduler stopped; Farm retired.",
+    "audit": "/private/tmp/walkback_clean_source_deployment_failure_audit_20260918.json sha256 b216ca3cfe72c90466835e4ef2db0162c688e30a31478d5154a75b761e724a76",
+    "exact_next_action": "Do not retry deployment. Under separate authorization, use offset-based natural observation to correlate an external blocker while lifecycle provenance is armed; do not weaken the health gate or alter deployment source from this finding."
   }
 }

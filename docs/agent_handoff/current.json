@@ -16384,12 +16384,12 @@
   },
   "operations_db_atomic_migration_runner": {
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
-    "status": "QUALIFIED_TEST_DB_SERIALIZATION_DEPLOY_PENDING",
-    "result": "Added explicit src/ops/operations_schema_migration.py. migrate_database() validates read-only first and opens one tracked writer connection only when schema migration is required. run_atomic_migration() owns one BEGIN/COMMIT-or-ROLLBACK transaction across the composed nine-node DAG, rechecks after transaction acquisition to prevent a duplicate concurrent migration, validates, and writes version 1. No service imports this path yet; legacy ensure wrappers remain unchanged.",
+    "status": "QUALIFIED_TEST_DB_ATOMICITY_SERIALIZATION_DEPLOY_PENDING",
+    "result": "Added explicit src/ops/operations_schema_migration.py. migrate_database() validates read-only first and opens one tracked writer connection only when schema migration is required. run_atomic_migration() owns one BEGIN/COMMIT-or-ROLLBACK transaction across the composed nine-node DAG, rechecks after transaction acquisition to prevent duplicate concurrent migration, validates, and writes version 1. A deterministic paused mid-DAG failure rolls back and releases before a waiting normal writer acquires and commits. No service imports this path yet; legacy ensure wrappers remain unchanged.",
     "validator": "validate_database()/validate_read_only() use SELECT sqlite_master and PRAGMA inspection only, return VALID or deterministic SCHEMA_MIGRATION_REQUIRED/INCOMPATIBLE_SCHEMA failures, and accept a compatible pre-version legacy schema without DDL.",
-    "tests": "67 passed: atomic runner, five injected rollback points, held-writer serialization, two concurrent runners (one migration plus one no-op recheck), read-only validator under a held application writer, health isolation, and failed-DDL/startup/deep/candidate/anchor regressions.",
+    "tests": "69 passed: atomic runner, five injected rollback points, held-writer serialization, two concurrent runners (one migration plus one no-op recheck), read-only validator under a held application writer, deterministic failed-migration/waiting-writer lifecycle, health isolation, and failed-DDL/startup/deep/candidate/anchor regressions. Lifecycle counters: success 1 connection/acquire/begin/commit/release; failure 1 connection/acquire/begin/rollback/release; no-op all zero.",
     "safety": "No production restart/schema mutation/provider call. Startup paths remain unchanged. This is test-DB qualification only. Heartbeat SQLITE_BUSY remains unresolved.",
-    "audit": "docs/audits/operations_db_atomic_migration_runner.v1.json sha256 58485787906b5b51983960ee1eef00895e6f1d774be6ba0fe6a7637d2865bcd3",
+    "audit": "docs/audits/operations_db_atomic_migration_runner.v1.json sha256 c61926084b27f4fea221c5b6c0d43aeb2fdc1720f0c277366ae3808f90f1a71a",
     "next_action": "Under separate authorization, plan a staged migration/startup-validator deployment; do not change timeouts or claim heartbeat remediation."
   },
   "operations_db_complete_migration_dag": {

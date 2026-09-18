@@ -16552,5 +16552,15 @@
     "audit": "docs/audits/operations_db_sqlite_provenance_clean_room_qualification.v1.json sha256 75bdfb7e9b46278166d303d0b8fdce7b48b6512403a2735290ec2a620244e494",
     "deployment_precheck": "FAIL: supervisor service definitions load /Users/kevinkeaveney/Dev/claude/flex, whose HEAD remains 77492d22497e31a5984a234e2bb1f5cd2fc10613 with 2769 dirty paths, not clean commit c0944655. No restart or deployment was performed.",
     "exact_next_action": "Create or configure a verified deployment source that resolves exactly to c0944655 and its source digest f89b98573395ff18b9850a908844bf5097ffab6f3f30fcd04f39761d3453d231; rerun parity precheck before any explicitly authorized restart."
+  },
+  "operations_db_sqlite_provenance_deployment_source_precheck": {
+    "engineering_revision": "c0944655fab2211236e9f54207a782babbfdec8d",
+    "status": "OPERATIONS_DB_SQLITE_PROVENANCE_DEPLOYMENT_PARITY_HOLD",
+    "verdict": "OPT_IN_LIFECYCLE_DESTINATION_ABSENT_AND_NON_SOURCE_CHANGE_FORBIDDEN",
+    "deploy_source": "PASS: /private/tmp/flex-sqlite-provenance-clean at c0944655fab2211236e9f54207a782babbfdec8d, clean, source digest f89b98573395ff18b9850a908844bf5097ffab6f3f30fcd04f39761d3453d231.",
+    "service_origin": "Supervisor definitions and observed processes load /Users/kevinkeaveney/Dev/claude/flex: watchtower_api Gunicorn workers PIDs 21339/25464; walkback_worker PID 60726; ws_cascade PID 31671; pumpfun_curve_listener PID 24832. operation_scheduler is not running. watchtower_api, walkback_worker, ws_cascade, and listener import the changed db_locking path; API also imports changed operator routes/database write service.",
+    "blocking_gate": "No Supervisor environment defines DB_SQLITE_LIFECYCLE_DIAGNOSTICS_PATH. Provenance output is intentionally opt-in, so source switching alone cannot establish a watermark or prove post-watermark activity. Adding that destination is a runtime/environment change, while the authorized pre-restart gate requires NON_SOURCE_RUNTIME_CHANGES=0.",
+    "safety": "No Supervisor configuration edit, reload, restart, source copy, dirty-workspace mutation, provider call, database mutation, or runtime-state path change. Farm remains retired; paused work remains paused.",
+    "exact_next_action": "Obtain explicit authority to add a bounded DB_SQLITE_LIFECYCLE_DIAGNOSTICS_PATH destination (with ownership/rotation path) as the sole non-source runtime change, then rerun source/runtime/database-path parity and stage the minimal service source switch."
   }
 }

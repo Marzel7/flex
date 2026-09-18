@@ -16400,6 +16400,15 @@
     "audit": "docs/audits/operations_db_startup_validator_cutover_preflight.v1.json sha256 a34eed6cef36aa10c2dc860955bdfb9ddbebfc7a93725e41ab44cd30fc60bcc6",
     "next_action": "Inventory every runtime wt_ops schema surface and add parity validators/stale-schema tests before replacing any ensure call."
   },
+  "operations_db_service_schema_contracts_inventory": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "HOLD_FIRST_UNMAPPED_RUNTIME_ENSURE_DEEP_WALKBACK",
+    "result": "Static inventory found 11 production-reachable wt_ops DDL ensure calls: Walkback deep (3), Treasury (2), attribution outcome (2); Scheduler Watchtower attribution (2); API Cascade (1) and Treasury (1). Listener creator-repository and funding lifecycle ensures target non-wt_ops DBs; Monitor service entrypoint already reads tables only. Current production central validation remains VALID with migration_required=false.",
+    "blocker": "The first unmapped runtime ensure is walkback_worker.py:524 deep_walkback.ensure_schema(ops). Its eight-table surface has no complete table/column/index read-only validator. The same parity gap exists for Treasury/outcome, Cascade and Watchtower attribution; replacing ensures would weaken fail-closed safety.",
+    "safety": "No production caller change/restart/schema mutation/provider call. Listener hot path unchanged. Heartbeat SQLITE_BUSY unresolved and separate.",
+    "audit": "docs/audits/operations_db_service_schema_contracts_inventory.v1.json sha256 cc0f91cb66c9e8e94476033dfdbd66c101ceec0e33114c562ff55a03e86143f9",
+    "next_action": "Define and test deep Walkback table/column/index validator parity first, then the remaining runtime schema surfaces before any caller cutover."
+  },
   "operations_db_complete_migration_dag": {
     "status": "QUALIFIED_TRANSACTION_NEUTRAL_NO_DEPLOY",
     "result": "walkback_queue now has migrate_schema_step(conn), executes supplied statements, and composes canonical attribution/deep/candidate/priority steps. Its legacy ensure_schema remains the committing compatibility wrapper. Full empty-db caller transaction created 15 objects while active; rollback returned zero; commit recreated 15.",

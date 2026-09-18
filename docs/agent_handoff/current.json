@@ -16671,5 +16671,16 @@
     "safety": "Production mutations/restarts/provider calls=0; no timeout/WAL change; no Supervisor/config change.",
     "audit": "/private/tmp/walkback_startup_validator_build_qualification_20260918.json sha256 81211d2ac155f76a1b129dbc117607a03e2df3cc7a30862a53deba5a53960874",
     "exact_next_action": "Do not deploy or commit as qualified. Complete the exact required column matrix and genuine independent 60-second valid/stale held-writer proofs; reconcile the remaining Treasury startup DDL with the requested full-startup lock gate; then rerun all specified regressions."
+  },
+  "walkback_read_only_startup_cutover_mapping": {
+    "engineering_revision": "44476d7ba3896987e4031b5f35924426af00638a clean source; queue prototype remains uncommitted",
+    "status": "WALKBACK_STARTUP_READ_ONLY_CUTOVER_HOLD",
+    "pre_work_call_graph": "queue validate_schema (read-only prototype) -> treasury_bank.initialize_schema/ensure_schema (DDL) -> attribution_outcome.ensure_schema (DDL); UNKNOWN_PRE_WORK_SCHEMA_CALLS=0.",
+    "remaining_unvalidated_startup_ddl": "treasury_bank.initialize_schema and attribution_outcome.ensure_schema",
+    "treasury_gap": "A Treasury validate_schema hunk exists only in the dirty workspace and depends on src/ops/schema_manifest_validator.py, absent from clean source. No matching Treasury validation tests or qualification audit was found; retained handoff evidence instead says Treasury/outcome validator parity was not yet qualified. It cannot be imported under the exact-qualified-hunk rule.",
+    "decision": "Stop before cutover: importing the dirty helper or designing new Treasury/outcome validators would exceed the authorization and cannot meet the hard gate.",
+    "safety": "Original dirty workspace unchanged; production mutations/restarts/provider calls=0; no timeout/WAL/config/Supervisor change.",
+    "audit": "/private/tmp/walkback_read_only_startup_cutover_mapping_20260918.json sha256 68fa4251c584b2a7dfb3daafc0bb08fc360d4e757465d4f62805d1fc30fdeb08",
+    "exact_next_action": "Separately qualify exact Treasury and attribution-outcome read-only validators for their pre-work startup contracts, then resume the complete Walkback startup cutover."
   }
 }

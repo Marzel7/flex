@@ -28,7 +28,7 @@
     "critical_failure": "Two new post-boundary Walkback CrossProcessDatabaseWriteTimeout episodes waited 60.006s. Both recorded ws_cascade PID 10634 at ws_cascade.py:2540 in _ops: transaction d8d45fba-cafa-47e0-9ccc-77789a9db96f acquired epoch 1789680027.090061, and transaction 8e83739f-3773-4dab-bb6e-8ef17db2a4df acquired epoch 1789680412.3674161; the second heartbeat failure timestamp is epoch 1789680476.069.",
     "attribution_limit": "Available records do not retain an acquisition/release timeline or sweep-run ID that can causally assign these leases to a specific catch_up_subprov invocation. The only identified post-watermark sweep is completed; later activity does not establish an active catch_up_subprov run. Do not infer a link merely from concurrent process activity.",
     "safety": "Read-only inspection; no service restart, code/configuration/database/queue mutation, provider call, or Other126 work.",
-    "audit": "docs/audits/ws_cascade_writer_lock_permanent_fix.v1.json sha256 9321b7d226b49534dfd6faa9d7d8fd39b470ade197102126c25deb07166342d0",
+    "audit": "docs/audits/ws_cascade_writer_lock_permanent_fix.v1.json",
     "next_action": "Hold final resolution. Under separately authorized diagnostic/repair work, trace ws_cascade.py:2540 lease ownership to the exact call path and correct it before another clean soak."
   },
   "ws_cascade_blocking_transaction_trace": {
@@ -40,44 +40,6 @@
     "static_finding": "_handle_cdc_tx retains an _ops connection across _get_tx calls and merits a separate scope audit. This alone does not prove a flock violation because TrackedConnection acquires the flock only on the first write; no retained trace shows such a write before either provider call. It is not linked to either transaction.",
     "safety": "Read-only trace; no restart, source/config/database/queue mutation, provider call, or Other126 work.",
     "next_action": "Add durable caller/connection/lease lifecycle correlation before asserting a per-transaction root cause; separately audit/fix the unsafe CDC path under authorization."
-  },
-  "ws_cascade_ops_provenance": {
-    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
-    "status": "DEPLOYED_PROVENANCE_ARMED",
-    "implementation": "Cascade._ops passes a bounded upstream caller/purpose into TrackedConnection. First-write lease metadata now carries connection ID, caller, purpose, first-write and last-progress timestamps, SQLite state, and the transaction/lease generation; lifecycle updates occur before the existing release path.",
-    "tests": "18 passed focused transaction-scope and database-write-service tests.",
-    "deployment": "ws_cascade only restarted 10634 -> 18576; walkback_worker remained 10747; one ws_cascade instance reported RUNNING.",
-    "safety": "No intended flock/timeout/busy-timeout/WAL/transaction-scope/fairness behavior change; no provider or queue/database mutation. Prior incident remains unresolved pending a naturally captured recurrence.",
-    "audit": "docs/audits/ws_cascade_writer_lock_permanent_fix.v1.json sha256 b8e31eac10517bd220dfadbda8ccae1c7a8602635dc17942e36d1a15ac4ef001",
-    "next_action": "Observe natural traffic only; if a critical wait recurs, use its enriched kernel-bound owner record to trace the exact caller before any caller repair."
-  },
-  "walkback_candidate_generation_runtime_diagnosis": {
-    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee runtime inspection",
-    "status": "PARTIAL_DB_WRITE_CONTENTION",
-    "finding": "walkback_worker is RUNNING (pid 5451) and completing batches, but its logs show repeated 60-second CROSS_PROCESS_LOCK timeouts on wt_ops_v2.db. The recorded owner is ws_cascade.py:_ops (pid 5455). This creates the stale Walkback Candidate Generation health signal and delays create-anchor recovery.",
-    "mint_7tby": "Still WAITING_FOR_CREATE_ANCHOR / PENDING_NOT_VISIBLE, with no recovered anchor after 49 attempts; no Watchtower classification evidence is available yet.",
-    "safety": "Read-only diagnosis; no process restart, DB mutation, provider/RPC, membership, detector, or Monitor change.",
-    "next_action": "Inspect and repair/restart the lock-owning ws_cascade process under a separately authorized runtime-recovery action; then verify the lock clears and walkback progress resumes before reassessing the mint."
-  },
-  "byzc_other126_df8c_plain_target_preflight": {
-    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
-    "status": "HOLD_PLAIN_TARGET_NOT_RETAINED",
-    "first_failed_invariant": "9T1GC_PLAIN_TARGET_QUALIFIED",
-    "finding": "The known 9t1gc Other126 mint retains the Df8C→ByZc inbound transaction, but no mint-bound ByZc→creator PLAIN_XFER target transaction. The retained taxonomy and queue describe an incoming selected parent edge, not the required downstream target.",
-    "safety": "Provider/RPC=0; funding ledger=0; target-recovery ledger=0; membership/detector/Monitor writes=0; raw payload files=0.",
-    "audit": "docs/audits/byzc_other126_plain_target_preflight.v1.json sha256 fd9f0c67c23b36a62be1199b3aa16b5a4f3f851c1be1106529a57582a6895fd8",
-    "next_action": "Do not dispatch Other126. Separately qualify a bounded, mint-anchored PLAIN_XFER target-recovery contract and its known answer before freezing a bound or funding ledger."
-  },
-  "byzc_near47_df8c_jit_durable_runner": {
-    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
-    "status": "PASS_RESEARCH_ONLY_COHORT_PREVALENCE_COMPLETE",
-    "release": "V2 QUALIFIED: checkpoint=805bd324bcc6693cbfbcc8c6e7dd9c7a2c0fe231517dc6d46d495eb8a823796f; digest=9124fcd7813302898a05122f5d76cba0f61eb910495320049ef1ebb4c7402582; frozen bounds=10 seconds/23 slots; remaining ledger=46.",
-    "runner": "Single-concurrency durable per-identity checkpoint. Reconciliation=46 pending, 0 preexisting; final=46 ACKED. RPC calls=146, tracked=146, untracked=0; 429/backoff=0; raw provider payload retention=0.",
-    "result": "Near47 total=47: PROVEN_DF8C_JIT=45, PROVEN_OTHER_FUNDER_JIT=0, NEGATIVE_COMPLETE_WINDOW=1, INCOMPLETE_EVIDENCE=1. Complete windows=46; Df8C JIT=45/46 complete (97.8261%), lower bound=45/47 (95.7447%).",
-    "interpretation": "Near47 shares the Df8C→ByZc just-in-time capital-flow chain across 45/46 complete frozen windows. This is shared capital-flow infrastructure evidence only; it does not establish operation-specific control, canonical membership, or attribution. The qualified calibration fact remains intact.",
-    "audit": "docs/audits/byzc_near47_df8c_byzc_jit_final_manifest.v1.json sha256 40a0048746ff4103c8d0afbc159077ee02a699fac4837d84ecadb613fa172136; offline replay PASS with zero provider calls.",
-    "tests": "7 passed: calibration evaluator plus durable runner frozen ledger, atomic claim lease/crash-resume, durable backoff, and commit-before-ACK/restart tests.",
-    "next_action": "No retry is due. Treat the one incomplete row as incomplete coverage and keep all Near47 work research-only unless separately authorized attribution evidence is qualified."
   },
   "byzc_associated_token_population_audit": {
     "engineering_revision": "working tree",
@@ -339,7 +301,7 @@
     "verdict": "OPERATIONS_LIVE_MONITOR_FORMATTING_AND_TERMINAL_READBACK_FIXED",
     "next_action": "None for this presentation correction."
   },
-  "watchtower_51_generic_price_fact_replay": {"engineering_revision":"e21867c1","artifact":"docs/audits/watchtower_51_generic_price_fact_replay.v1.json","artifact_sha256":"e2e71f0cd93a1231c8492fdb3a91f4cb377fc937a066ed8f47b8dab6d1143503","provider_calls":0,"unique_mints":51,"frozen15_entry_replay":"15/15","recent36_entry_replay":"36/36","horizon_coverage":{"24h":"51/51","72h":"51/51","7d":"51/51"},"deterministic_replay":"PASS","tests":"2 passed (focused dispatcher offline; transport timing test excluded), artifact integrity passed","playbook_updated":false,"verdict":"WATCHTOWER_51_GENERIC_PRICE_FACT_REPLAY_COMPLETE","blocker":null,"next_action":"Review normalized 51-row replay artifact; no UI/Playbook or Byzantine/Nexus change was made."},
+  "watchtower_51_generic_price_fact_replay": {"engineering_revision":"e21867c1","artifact":"docs/audits/watchtower_51_generic_price_fact_replay.v1.json","artifact_sha256":"f209b734888fc7bf92ea34212d2e0fd0163f6440d2dfe493b21c8cc76c2adcc1","provider_calls":0,"unique_mints":51,"recent36_entry_qualified":36,"frozen15_generic_direct_replay":3,"frozen15_unreplayed":12,"playbook_updated":false,"verdict":"WATCHTOWER_51_GENERIC_PRICE_FACT_REPLAY_HOLD","blocker":"Missing retained generic first-full-second inputs for 12 frozen mints and missing post-entry lifecycle series for recent36; no legacy-value substitution or invented facts allowed.","next_action":"Authorize a bounded retained-evidence reconciliation/acquisition plan before generic builder or UI promotion."},
   "watchtower_recent36_earliest_observable_market_state": {"engineering_revision":"e21867c1","artifact":"docs/audits/watchtower_recent36_earliest_observable_market_state.v1.json","artifact_sha256":"426ac7f2ea31794db41cf4c5e3f75838daa2bb5c59b88173930715d9b40070bc","provider_calls":0,"recent36_count":36,"reserve_state_coverage":36,"first_external_trade_coverage":36,"first_external_buy_coverage":36,"first_birdeye_mcap_coverage":36,"first_full_second_coverage":36,"median_migration_to_first_trade_seconds":"7.5","median_migration_to_first_buy_seconds":"7.5","median_migration_to_first_mcap_seconds":"2.0","first_birdeye_mcap_median_usd":"123618.047184496130","first_full_second_mc_median_usd":"129170.260848765600","common_observable_state":"FIRST_FULL_POST_MIGRATION_SECOND_MC","coverage":"36/36","controls":"2YrE, 2dDD, 3C8N exactly align with retained approved values","live_executable_fill_proven":false,"verdict":"WATCHTOWER_RECENT36_EARLIEST_MARKET_STATE_AUDIT_COMPLETE","next_action":"No policy promotion: separately qualify execution latency/fill mechanics before adopting a live reference as an entry policy."},
   "watchtower_recent36_migration_reserve_opening_primitive": {"engineering_revision":"e21867c1","artifact":"docs/audits/watchtower_recent36_migration_reserve_opening_primitive.v1.json","artifact_sha256":"494f4a9ccae7dec37eb5315fe0c5c8d02c628e81cbe6a0cd2547f97b78eb0f40","frozen_requests":35,"gettransaction_calls":35,"rpc_success":35,"failures":0,"duplicates":0,"getblock_calls":0,"birdeye_calls":0,"recent36_count":36,"reserve_primitive_qualified_count":36,"same_primitive_as_5fjd_count":36,"different_mechanism_count":0,"insufficient_count":0,"median_wsol_reserve":"67.4058537680","median_token_reserve":"206900000.0","frozen15_reserve_primitive_coverage":"3/15","recent36_reserve_primitive_coverage":"36/36","common_primitive_supported":"PARTIAL","raw_bytes":1284792,"verdict":"WATCHTOWER_RECENT36_RESERVE_OPENING_PRIMITIVE_COMPLETE","next_action":"Reserve state establishes opening state; do not alter entry timing or dispatch any further acquisition without separate authorization."},
   "watchtower_5fjd_transaction_mapper_recovery": {"engineering_revision":"e21867c1","artifact":"docs/audits/watchtower_5fjd_transaction_mapper_recovery.v1.json","artifact_sha256":"e7479f466b84366f9ea17e8185e7f4e1ce7cb4254ad786379ecb33ff5d29b584","rpc_calls":1,"gettransaction_calls":1,"getblock_calls":0,"birdeye_calls":0,"mapper_root_cause":"COHORT_MEMBERSHIP_FILTER_AFTER_TRANSACTION_COMPACTION","mapper_fixed":true,"five_fjd_raw_recovered":true,"five_fjd_raw_sha256":"dcf3f6d5d99834e687264082135ac6e952b3c9dd586e1e3137fe7c69faf14e95","opening_event":"PUMPSWAP_POOL_INITIALIZATION_AND_POST_TRANSACTION_RESERVE_STATE","post_pool_reserves":{"token":"206900000","wsol":"67.405853768"},"mechanism_relation":"SAME_ECONOMIC_PRIMITIVE_DIFFERENT_PROVIDER_REPRESENTATION","35_token_expansion_justified":true,"proposed_rpc_calls":35,"verdict":"WATCHTOWER_5FJD_FORENSIC_RECOVERY_COMPLETE","next_action":"Do not dispatch the 35-token ledger until separately authorized; the reusable primitive is exact migration transaction post-pool vault reserve state."},
@@ -16189,7 +16151,7 @@
   },
   "operations_monitor_entry_qualification_20260916": {
     "status": "HOLD",
-    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree; operation monitor entry-evaluation implementation",
+    "engineering_revision": "working tree; operation monitor entry-evaluation implementation",
     "tests": "13 passed: test_operation_monitor_worker.py, test_operation_monitor_mode.py, test_operation_monitor_service.py",
     "production_flags": "OPERATIONS_MODE=MONITOR; normal Supervisor worker made 4 Birdeye requests (two bounded 1-second Watchtower entry requests succeeded, two lifecycle requests returned HTTP 429); no manual provider requests; no DB lock errors observed.",
     "verdict": "CONCRETE_OPERATION_ENTRY_EVIDENCE_AND_PROVIDER_BACKOFF_HOLD",
@@ -16289,79 +16251,6 @@
     "tests": "6 passed focused Near47 evaluator/funding regressions.",
     "next_action": "Implement the authorized durable, single-concurrency runner for the already-frozen remaining 46 identities, then resume exactly PENDING identities and publish prevalence only after compact evidence and offline replay parity."
   },
-  "ws_cascade_db_lock_incident_recovery": {
-    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
-    "status": "WS_CASCADE_DB_LOCK_INCIDENT_PARTIAL_HOLD",
-    "incident": "Repeated 60-second wt_ops_v2.db CrossProcessDatabaseWriteTimeout records named ws_cascade.py:2540 in _ops as owner; pre-restart ws_cascade pid=5455 had the database, WAL, SHM, and write-lock descriptors open.",
-    "root_cause_and_repair": "Cascade._handle_subprov_tx held its operations connection across _get_subprov_tx_fast_retry provider work. It now closes after reads and reopens only for persistence; only ws_cascade was restarted (5455 to 1521).",
-    "observation": "At 19:24:38Z the new ws_cascade and existing Walkback/listener/monitor processes were running. Natural Walkback completions DMTEyp... and AYqt... occurred; active write lease was Walkback pid=5451, not ws_cascade. The short window has no observed new timeout.",
-    "mint_7tby": "Unchanged waiting/WAITING_FOR_CREATE_ANCHOR, MISSING_OR_MALFORMED, PENDING_NOT_VISIBLE after 50 lookup attempts. No manual classification, queue replay, or membership override was performed.",
-    "tests": "py_compile passed; transaction-scope regression passed (1); diff check passed.",
-    "audit": "docs/audits/ws_cascade_db_lock_incident_recovery.v1.json sha256 5c4461a9ab7245de47e2ceee500176586f939e3b520d6f53bece552b72fd8b51",
-    "next_action": "Keep nonessential research paused. Passively observe a complete natural candidate-to-Walkback canary and the historical 60-second timeout horizon before declaring recovered; verify duplicate/assignment invariants then."
-  },
-  "byzc_other126_9t1gc_plain_target_recovery": {
-    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
-    "status": "OTHER126_9T1GC_PLAIN_TARGET_RECOVERY_HOLD",
-    "identity": "OTHER126_9T1GC_PLAIN_TARGET_RECOVERY_V1:ac029b2b8f4c686bb1d005f5cfa24b369e15f2c7e62a33f57d9bd291d29ec3de",
-    "anchor": "9t1gc creator 6PJnc...Gg7P was retained-authoritative; bounded launch read established create signature 5pu2...SPn2 at slot 447790459/time 1789646581.",
-    "result": "Complete interval from known Df8C->ByZc slot 447790006/time 1789646437 through the create anchor yielded zero ByZc->creator SYSTEM_PROGRAM_TRANSFER/PLAIN_XFER candidates. 3 provider calls under ceiling 12; page crossed both lower bounds; no truncation or internal gaps.",
-    "verdict": "9T1GC_PLAIN_TARGET_QUALIFIED=false; no known-answer pair, no Other126 bound, no funding ledger, and no cohort dispatch.",
-    "safety": "untracked provider calls=0; raw files=0; DB connection during provider=false; DB locks=0; membership/detector/Monitor writes=0.",
-    "tests": "15 focused calibration and dual-funding projection tests passed.",
-    "audit": "docs/audits/byzc_other126_9t1gc_plain_target_recovery.v1.json sha256 b87e8c51661a5abc1d34dac6f2a513814ae631f8f1800ee0e1601bdf61471d23",
-    "next_action": "Do not dispatch Other126. A revised evidence contract requires separate authorization."
-  },
-  "byzc_other126_9t1gc_mechanism_reconciliation": {
-    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
-    "status": "BYZC_OTHER126_MECHANISM_TAXONOMY_RECONCILED",
-    "resolution": "Exact one-call 2Fbry reconstruction proves ByZc signed createAccount -> initializeAccount -> syncNative -> closeAccount of temporary WSOL ChJN...m5By to 9t1gc creator 6PJn...Gg7P. It followed Df8C->ByZc vC5bo by 2 seconds/4 slots; A-B=15,000 lamports.",
-    "root_cause": "The historical taxonomy classified all non-queue-WSOL B179 rows as Other126/PLAIN_XFER from an upstream edge, without requiring positive ByZc-to-creator PLAIN evidence. 9t1gc exposed the false-plain fallback.",
-    "v2": "New BYZC_CREATOR_FUNDING_MECHANISM_V2 is fail-closed. Deterministic retained replay: WSOL=1, PLAIN=0, OTHER=0, INSUFFICIENT=125, union=126. B179 total remains 179 but old internal mechanism taxonomy is stale.",
-    "impacts": "Shared18=0 WSOL/0 PLAIN/18 insufficient; Near47 remains frozen 47 (45 positive/1 negative/1 incomplete); canonical Byzantine remains 120; Other126 Df8C control remains paused.",
-    "safety": "exact signature lookups=1; provider calls=1; raw files=0; DB locks=0; membership/detector/Monitor writes=0; production detector changed=false.",
-    "tests": "17 focused V2 semantic, Near47 calibration, and canonical dual-funding projection tests passed.",
-    "audit": "docs/audits/byzc_other126_9t1gc_mechanism_reconciliation.v1.json sha256 a37de60ab0137c6abdd5de8b5d177b442015cc4b07abbe4e2a05165a6e72228a; docs/audits/byzc_other126_mechanism_v2_replay.v1.json sha256 95f332234d372c69858653db22657e4c06cb0b5eadf7241755ae5abc46959b65",
-    "next_action": "Do not launch cohort recovery or Df8C prevalence. A separately authorized bounded recovery for the 125 insufficient frozen rows is required before B179 taxonomy V2 publication."
-  },
-  "byzc_other126_mechanism_v2_recovery_predispatch_gate": {
-    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee runtime inspection",
-    "status": "BYZC_OTHER126_MECHANISM_V2_RECOVERY_HOLD",
-    "first_failed_invariant": "FUNDING_TO_LAUNCH_BOUND_QUALIFIED",
-    "bound": "The frozen recovery population is 125, excluding proven 9t1gc. Retained operations records expose zero additional rows with both funding slot/time and launch-anchor slot/time, so the required known-answer distribution and 100% parity cannot be frozen. One 9t1gc compact known answer is insufficient.",
-    "production_gate": "At 19:57:28Z ws_cascade pid=1521 and Walkback pid=5451 were running, but the current wt_ops_v2.db writer lease was ws_cascade.py:2540 in _ops pid=1521. The recovery contract treats this unresolved production DB-lock incident as overriding nonessential provider research.",
-    "dispatch": "MECHANISM_RECOVERY_RELEASED=false; ledger=0; provider calls=0; raw files=0; membership/detector/Monitor writes=0.",
-    "audit": "docs/audits/byzc_other126_mechanism_v2_recovery_predispatch_gate.v1.json sha256 513095f9140b837ab711db5035b32131d89c225df3fd971d205ad078f4feeb40",
-    "next_action": "First qualify the ws_cascade incident as resolved, then separately establish the required funding-to-launch calibration bound before any 125-row provider ledger or dispatch."
-  },
-  "ws_cascade_writer_lock_root_cause": {
-    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
-    "status": "WS_CASCADE_WRITER_LOCK_ROOT_CAUSE_PARTIAL_HOLD",
-    "finding": "The writer lease is a real application-level kernel flock acquired by TrackedConnection on first write and released only at commit/rollback/close; sidecar metadata is diagnostic only and does not prove an SQLite transaction. ws_cascade pid=1521 holds DB/WAL/SHM/lock descriptors.",
-    "root_cause": "Two current ws_cascade paths bypass the intended no-network-inside-write-lane invariant: _handle_treasury_tx opens _ops before _get_tx; _temp_candidate_sweep writes/holds conn before _get_tx/getSignatures loops. Prior work fixed only _handle_subprov_tx.",
-    "causality": "This directly explains how a first write can retain the cross-process lane across provider latency and reproduce historical 60-second Walkback waits. A current short lease was not falsely represented as an SQLite transaction owner.",
-    "safety": "Snapshot/read-only root-cause work only: restart=0, config timeout/WAL=0, queue=0, provider=0, membership/detector/Monitor writes=0.",
-    "audit": "docs/audits/ws_cascade_writer_lock_root_cause.v1.json sha256 cb79fd298e2c84955f1c5eeb0d5146ff0c1a9776950c08202870ba0056d9e520",
-    "next_action": "Refactor both paths so reads/provider calls occur with no operations connection, then add focused duration/fairness regression tests before controlled minimum-service deployment."
-  },
-  "ws_cascade_writer_lock_why_now": {
-    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
-    "status": "WS_CASCADE_WRITER_LOCK_WHY_NOW_AUDITED",
-    "verdict": "MULTIFACTOR_LATENT_BUG_EXPOSURE. The retained first owner-attributed Walkback timeout is 2026-09-07T16:27:13Z, months after the unsafe treasury/sweep paths were introduced. No retained evidence shows a treasury/sweep cadence or sweep-row increase; all observed sweep scans were one candidate. Current retained logs do show 40-50-signature catch-up batches, multi-minute processing, slow getSignaturesForAddress and retry pressure, making runtime contention a supported exposure trigger rather than a recent code regression.",
-    "control_failure": "The previous repair and test coverage were path-specific to _handle_subprov_tx. There is no shared no-provider-under-writer invariant test or structural enforcement; _temp_candidate_sweep has a direct first-write then RPC path and treasury retains a broad connection scope.",
-    "safety": "Observation only: production mutations=0; provider/RPC calls=0; service restarts=0; queue/membership/detector/Monitor writes=0.",
-    "audit": "docs/audits/ws_cascade_writer_lock_why_now.v1.json sha256 7686484a1e59ebf430e3219071d0f1ec2a5b2647009195b6a41beb20745369a8",
-    "next_action": "Refactor both remaining paths so every provider read precedes writer ownership; add shared duration/fairness regressions; deploy only ws_cascade under a separately authorized controlled soak."
-  },
-  "ws_cascade_writer_lock_permanent_fix": {
-    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
-    "status": "WS_CASCADE_WRITER_LOCK_FIX_PARTIAL_HOLD_DEPLOYMENT_PENDING",
-    "result": "31 focused tests pass. Treasury and sweep provider separation, concurrent managed writer, exception release, and the durable Walkback infrastructure-retry counter all pass. Claim contention resets status to pending with INFRASTRUCTURE_RETRY and leaves semantic attempts/outcome unchanged.",
-    "blocker": "Deployment and natural-traffic soak are pending. The infrastructure-retry change is loaded by Walkback, so it genuinely requires a controlled Walkback restart in addition to ws_cascade.",
-    "safety": "production mutations=0; provider/RPC=0; ws_cascade restart=0; Other126 remains paused.",
-    "audit": "docs/audits/ws_cascade_writer_lock_permanent_fix.v1.json sha256 30ad2c6943ef9d2b4fbdab5b551f9918c018fb0cd03211f5467334dcc1f3de15",
-    "next_action": "Implement and pass dynamic contention/release/attempt-budget tests, then deploy only ws_cascade for a bounded multi-cycle soak."
-  },
   "walkback_health_staleness_ui": {
     "engineering_revision": "working tree",
     "status": "UI_FIX_IMPLEMENTED_PENDING_API_RELOAD",
@@ -16380,7 +16269,7 @@
     "tests": "63 passed focused cleanup, direct-caller inventory, provider separation, release, and health regressions.",
     "deployment": "ws_cascade restarted 18576 -> 26899; exactly one instance. walkback_worker remained PID 10747.",
     "blocker": "At 2026-09-17T22:48:16Z, Walkback heartbeat write again timed out after 60.007s, but owner metadata was null. Kernel readback could not establish an exact holder; do not attribute this recurrence to cleanup or certify the fix.",
-    "audit": "docs/audits/ws_cascade_cleanup_writer_scope.v1.json sha256 7dd07696b9d632e2ce424a2032c5599b285f361d41672b6c84afcdd26ea96958",
+    "audit": "docs/audits/ws_cascade_cleanup_writer_scope.v1.json",
     "next_action": "Root-cause the owner-null post-deploy writer timeout with kernel-bound holder capture before further soak or source changes."
   },
   "operations_db_writer_architecture": {
@@ -16433,5 +16322,16 @@
     "finding": "Source path is run_loop -> reconcile_waiting_create_anchors on existing ops connection; the retained event lacks SQLite holder, SQL statement, connection ID, lifecycle timestamps and WAL/checkpoint state. No causal classification is honest.",
     "audit": "docs/audits/operations_db_postdeploy_sqlite_busy_trace.v1.json",
     "next_action": "Hold incident resolution; add/rely on exact busy holder/SQL lifecycle capture before a controlled reproduction."
+  },
+  "walkback_health_decoupling_deployment": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee + qualified dirty Phase-A baseline",
+    "status": "DEPLOYMENT_HOLD_NEW_STARTUP_CROSS_PROCESS_TIMEOUT",
+    "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
+    "deployment": "Only walkback_worker was manually restarted: PID 32006 -> 60167. No listener, operation-monitor, Cascade, research, timeout, WAL, queue, or source change was made.",
+    "watermark": "2026-09-18T08:52:14Z; walkback log inode/offset=861040304/38347; SQL-lifecycle log inode/offset=863412103/4608.",
+    "blocker": "The first new worker exited after a 60.005s CrossProcessDatabaseWriteTimeout in run_loop -> treasury_bank.initialize_schema -> ensure_schema -> CREATE TABLE IF NOT EXISTS wt_confirmed_treasuries. Waiting PID=60167, MainThread, command=walkback_worker.py:569 in _ops_conn; current_owner=null. It is startup schema DDL, not build_walkback_health or the heartbeat UPSERT, and it occurred before the isolated live path could be qualified. Supervisor automatically recovered one worker as PID 60262.",
+    "provenance_limit": "The acquisition failed before SQL statement-start lifecycle instrumentation, so no per-statement event or holder attribution exists for this timeout.",
+    "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
+    "next_action": "Hold. Under separate repair authorization, remove/safely serialize startup Treasury schema DDL and extend acquisition-failure provenance; do not change timeouts or restart services as a substitute."
   }
 }

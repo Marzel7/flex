@@ -16419,6 +16419,15 @@
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "next_action": "Qualify Treasury and attribution-outcome validator parity before any service caller cutover."
   },
+  "operations_db_remaining_validator_preflight": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "HOLD_CASCADE_MIGRATION_CONTRACT_CONTRADICTION",
+    "result": "Source inspection found ws_cascade_store.migrate_schema_step is not transaction-neutral: it calls ensure_lineage_quarantine_schema(conn) at line 189 and commits its operation_state backfill at line 327. It also owns a substantially larger schema than the initial Cascade tables. Watchtower attribution has separate lazy runtime DDL for enqueue-failure and migration-coverage surfaces outside its canonical leaf step.",
+    "blocker": "A full read-only validator cannot honestly be derived from the claimed qualified canonical steps while legacy ensure behavior includes these extra surfaces/transaction ownership. Partial validators would weaken fail-closed parity.",
+    "safety": "No source validator/caller change, deployment, restart, schema mutation, provider call, listener change, timeout/WAL change. Deep Walkback validator remains qualified; heartbeat SQLite busy remains separate and unresolved.",
+    "audit": "docs/audits/operations_db_remaining_validator_preflight.v1.json sha256 647c0608109ec7b500db73b868ff7f5bb6cd287ef4f18649d4a71affddb7caee",
+    "next_action": "Reconcile Cascade and Watchtower attribution legacy schema ownership into complete transaction-neutral versioned steps before validator construction."
+  },
   "operations_db_complete_migration_dag": {
     "status": "QUALIFIED_TRANSACTION_NEUTRAL_NO_DEPLOY",
     "result": "walkback_queue now has migrate_schema_step(conn), executes supplied statements, and composes canonical attribution/deep/candidate/priority steps. Its legacy ensure_schema remains the committing compatibility wrapper. Full empty-db caller transaction created 15 objects while active; rollback returned zero; commit recreated 15.",

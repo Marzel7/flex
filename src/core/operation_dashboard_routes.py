@@ -1371,9 +1371,9 @@ def api_intel_token_performance():
                 }
         except Exception:
             pass
-        # FARM clustering (operator detection beyond WATCHTOWER) — mint → {funder, mechanism,...}.
-        # Persisted by farm_detector.run_farm_scan; mechanism-agnostic (catches the plain-transfer
-        # farms WATCHTOWER's wrap-close detection is blind to). Zero RPC here (pure DB read).
+        # LEGACY/HISTORICAL: Farm Detector production acquisition was retired on 2026-09-18.
+        # This retained reader exposes historical Farm evidence only;
+        # it performs zero RPC and never contributes operation attribution.
         farm_by_mint = {}
         try:
             for r in ov.execute(
@@ -9794,8 +9794,8 @@ def api_discovery_assurance():
 
     Measures graph completeness: what fraction of WATCHTOWER operator
     infrastructure is visible and producing WS observations. Ground truth
-    is wt_farm_launches (populated by farm_detector.py from migrated tokens,
-    independent of WATCHTOWER detection decisions).
+    is wt_farm_launches, retained historical Farm evidence independent of
+    WATCHTOWER detection decisions. LEGACY/HISTORICAL: Farm Detector production acquisition was retired on 2026-09-18.
 
     Denominator: wt_farm_launches rows with a known-subprov funder (619).
     Numerator: those where a wrap-close candidate was observed (6).

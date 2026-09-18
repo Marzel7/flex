@@ -4,6 +4,10 @@ Launcher Observatory — Capability Provider Endpoints.
 Provides data for the Launcher Observatory operation registered in Operations OS.
 All queries are read-only, retrospective, DB-only (no RPC, no websocket).
 
+LEGACY/HISTORICAL: Farm Detector production acquisition was retired on 2026-09-18.
+Farm tables are retained solely as historical evidence and this
+module must not produce Farm classifications or provider acquisition.
+
 Qualification threshold:
   A persistent operator is a funder wallet with:
     >= 3 launches in wt_farm_launches

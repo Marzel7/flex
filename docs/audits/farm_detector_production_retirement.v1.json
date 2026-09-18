@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "incident": "legacy_farm_detector_writer_scope",
+  "date": "2026-09-18",
+  "decision": "RETIRE_PRODUCTION_ACQUISITION",
+  "root_cause": {
+    "pid": 64994,
+    "service": "operation_scheduler",
+    "transaction_id": "93226d41-4915-45b1-b80c-8bf3cb170b1e",
+    "connection_id": "faf3deb5-5bf1-4d8a-8889-e8d91924c734",
+    "call_path": "operation_scheduler.loop -> run_farm_scan -> _trace_funder_evidence -> _rpc",
+    "finding": "The writer flock was acquired after a first database write and remained held while HTTPS provider work was in progress."
+  },
+  "retirement_boundary": {
+    "scheduler_producer_removed": true,
+    "farm_detector_module_deleted": true,
+    "provider_acquisition_paths_remaining": 0,
+    "farm_table_mutation_paths_remaining": 0,
+    "historical_tables_preserved": [
+      "wt_farm_checked",
+      "wt_farm_launches",
+      "wt_farm_launch_evidence",
+      "wt_farms"
+    ],
+    "historical_readers_marked": true,
+    "attribution_influence_paths_remaining": 0
+  },
+  "recovery_safety": {
+    "current_pid_safe_to_stop": "PENDING_CONTROLLED_SUPERVISOR_ACTION",
+    "process_exit_probe": "A child process holding an uncommitted SQLite transaction and an advisory flock exited; the transaction was rolled back and a subsequent process acquired the flock.",
+    "durable_partial_state": "Earlier explicit commits, if any, remain durable; the retired scan's writes are idempotent historical evidence and require no replay."
+  },
+  "tests": {
+    "command": "python -m pytest -q tests/test_farm_detector_retirement.py tests/test_farm_launch_evidence_retention.py tests/test_monitor_first_farm_evidence_link.py tests/test_ops_registry.py tests/test_ops_shell.py",
+    "result": "43 passed",
+    "structural_gates": [
+      "no Farm producer module/import/call",
+      "no Farm-table mutation path",
+      "Farm history cannot influence Walkback, Treasury, WATCHTOWER, Byzantine, Nexus, or assignment",
+      "process-exit rollback and flock-release probe"
+    ]
+  },
+  "production": {
+    "mutations_before_deployment": 0,
+    "provider_calls": 0,
+    "research_paused": {
+      "byzantine": true,
+      "other126": true
+    }
+  },
+  "next_action": "Commit only retirement files, then perform the single supervised operation_scheduler restart and verify no Farm PID, scan, provider acquisition, or Farm writer remains while Walkback commits."
+}

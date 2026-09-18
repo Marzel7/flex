@@ -192,6 +192,10 @@ def watchtower_lifecycle() -> LifecycleSnapshot:
 
 # ── Launcher Observatory adapter ─────────────────────────────────────────────
 #
+# LEGACY/HISTORICAL: Farm Detector production acquisition was retired on 2026-09-18.
+# The retained farm-table reads below are historical presentation
+# evidence only and must not affect operation attribution.
+#
 # Internal state → Platform lifecycle mapping:
 #
 #   wt_farm_launches (last 30d, unknown funder)    → OBSERVING

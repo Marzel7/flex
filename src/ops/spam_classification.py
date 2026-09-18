@@ -1,4 +1,8 @@
-"""Read-only retained-evidence Spam Pattern A/B projection."""
+"""Read-only retained-evidence Spam Pattern A/B projection.
+
+LEGACY/HISTORICAL: Farm Detector production acquisition was retired on 2026-09-18.
+Farm-table input is historical evidence only.
+"""
 from __future__ import annotations
 
 import hashlib

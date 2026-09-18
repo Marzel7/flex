@@ -895,17 +895,10 @@ def loop(quiet=False):
                 except Exception as _sp:
                     if not quiet:
                         print(f"[SCHED][SUBPROV] error: {_sp}")
-                # FARM DETECTION
-                try:
-                    from src.core.farm_detector import run_farm_scan
-                    _fr = run_farm_scan(lookback_days=3, max_rpc=120, quiet=quiet)
-                    if not quiet:
-                        _fs = (_fr.get("summary") or {})
-                        print(f"[SCHED][FARM] {_fr['status']} scanned={_fs.get('scanned',0)} "
-                              f"farms={_fs.get('farms',0)} rpc={_fs.get('rpc_used',0)}")
-                except Exception as _fe:
-                    if not quiet:
-                        print(f"[SCHED][FARM] error: {_fe}")
+                # LEGACY/HISTORICAL: Farm Detector production acquisition was
+                # retired on 2026-09-18. Farm tables and readers are retained
+                # as compatibility evidence only; never schedule farm scans or
+                # use Farm classifications as operation attribution.
                 next_intake = time.time() + INTAKE_INTERVAL
             else:
                 if not quiet:

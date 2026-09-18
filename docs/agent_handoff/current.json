@@ -16430,12 +16430,12 @@
   },
   "operations_db_expanded_migration_dag_reconciliation": {
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
-    "status": "PARTIAL_RECONCILED_SOURCE_ONLY",
-    "result": "Superseded the old coverage claim. lineage_quarantine now exposes a supplied-connection migration step; Cascade invokes it rather than its committing wrapper and no longer commits its operation_state backfill. Watchtower attribution's canonical migration step now owns enqueue-failure and migration-coverage DDL; lazy helpers route to it. AST scan finds no commit/rollback/close/executescript in the three declarative steps. Empty caller transaction built 25 Cascade schema tables and rollback returned zero.",
-    "tests": "73 passed affected regression suite: x64.7a hardening, Cascade no-schema-call, central runner, Deep Walkback, failed-DDL lifecycle.",
+    "status": "PARTIAL_RECONCILED_SOURCE_ONLY_EXPANDED_FRESH_SCHEMA_FIXED",
+    "result": "Superseded the old coverage claim. lineage_quarantine now exposes a supplied-connection migration step; Cascade invokes it rather than its committing wrapper and no longer commits its operation_state backfill. Watchtower attribution's canonical migration step now owns enqueue-failure and migration-coverage DDL; lazy helpers route to it. AST scan finds no commit/rollback/close/executescript in the three declarative steps. Cascade's canonical step now adds monitoring_state, funding_sequence_number, treasury_rotated and last_activity_at before the operation_state backfill; a fresh caller-owned transaction remains active and rollback returns zero schema tables.",
+    "tests": "39 focused affected tests passed after fresh-schema repair: central runner, x64.7a hardening and Cascade no-schema-call. Previous 73-suite evidence remains recorded for the prior reconciliation checkpoint.",
     "blocker": "The full generated rollback/commit/backfill-failure matrix for expanded Cascade and Watchtower schema surfaces remains unbuilt, so expanded DAG qualification and validators remain HOLD.",
     "safety": "No deployment/restart/schema mutation/provider call/listener change/timeout or WAL change. Heartbeat SQLite busy remains unresolved and separate.",
-    "audit": "docs/audits/operations_db_expanded_migration_dag_reconciliation.v1.json sha256 48f7f370b5a5a975e27154a723617890cdea33739f373a23e8c9608f61c050e6",
+    "audit": "docs/audits/operations_db_expanded_migration_dag_reconciliation.v1.json sha256 1f29eb37a5369299aa8bf8e9e85e9cb8d4e76878bb2dbd221247fb2a1b7cbf4b",
     "next_action": "Add exhaustive supplied-connection rollback/commit/backfill-failure qualification for expanded Cascade and Watchtower ownership before validators."
   },
   "operations_db_complete_migration_dag": {

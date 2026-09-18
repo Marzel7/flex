@@ -1780,18 +1780,25 @@ def _check_stuck_lease() -> None:
 
 
 def run_loop() -> None:
-    from src.core.walkback_queue import ensure_schema as _ensure_walkback_schema
+    from src.core.walkback_queue import validate_schema as _validate_walkback_schema
     from src.core import treasury_bank
     from src.ops.walkback_health import recover_stalled_running_jobs
     from src.ops.walkback_cycle_trace import trace_boundary, trace_failure
     startup = _ops_conn()
     try:
-        # Schema initialization must never be silently skipped — a schema failure
-        # here means every downstream operation is unsafe, so these re-raise as before.
-        _ensure_walkback_schema(startup)
-        treasury_bank.initialize_schema(startup)
-        from src.ops.attribution_outcome import ensure_schema as _ensure_outcome_schema
-        _ensure_outcome_schema(startup)
+        # Ordinary startup must not contend for the schema writer lane.  Legacy
+        # migrations remain available to explicit maintenance paths, but this
+        # boundary validates the exact legacy contract read-only and fails closed.
+        _schema = _validate_walkback_schema(startup)
+        if not _schema.valid:
+            raise RuntimeError(f"{_schema.code}: {_schema.mismatch}")
+        _treasury_schema = treasury_bank.validate_schema(startup)
+        if _treasury_schema != "VALID":
+            raise RuntimeError(_treasury_schema)
+        from src.ops.attribution_outcome import validate_schema as _validate_outcome_schema
+        _outcome_schema = _validate_outcome_schema(startup)
+        if _outcome_schema != "VALID":
+            raise RuntimeError(_outcome_schema)
 
         # X76.5A -- this is a fresh process boot (run_loop() only executes
         # once per process). If the most recent recovery event for this
@@ -1954,14 +1961,20 @@ if __name__ == "__main__":
     if args.loop:
         run_loop()
     elif args.once:
-        from src.core.walkback_queue import ensure_schema as _ensure_walkback_schema
+        from src.core.walkback_queue import validate_schema as _validate_walkback_schema
         from src.core import treasury_bank
         from src.ops.walkback_health import recover_stalled_running_jobs
         ops = _ops_conn()
-        _ensure_walkback_schema(ops)
-        treasury_bank.initialize_schema(ops)
-        from src.ops.attribution_outcome import ensure_schema as _ensure_outcome_schema
-        _ensure_outcome_schema(ops)
+        _schema = _validate_walkback_schema(ops)
+        if not _schema.valid:
+            raise RuntimeError(f"{_schema.code}: {_schema.mismatch}")
+        _treasury_schema = treasury_bank.validate_schema(ops)
+        if _treasury_schema != "VALID":
+            raise RuntimeError(_treasury_schema)
+        from src.ops.attribution_outcome import validate_schema as _validate_outcome_schema
+        _outcome_schema = _validate_outcome_schema(ops)
+        if _outcome_schema != "VALID":
+            raise RuntimeError(_outcome_schema)
         recover_stalled_running_jobs(ops, max_attempts=MAX_ATTEMPTS)
         finalize_exhausted_pending(ops)
         result = drain_batch(ops)

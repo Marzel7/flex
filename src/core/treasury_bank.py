@@ -53,6 +53,34 @@ OPS_DB_PATH = os.path.abspath(os.path.join(
 
 _schema_ensured = False
 
+_STARTUP_TABLE_COLUMNS = {
+    "wt_confirmed_treasuries": "treasury transfer_pct out_sol recipients micro_pings method confidence confirmed_at provenance".split(),
+    "wt_confirmed_treasury_webhooks": "treasury source enrolled_at webhook_active last_hit last_fanout last_strict_candidate last_fired_token last_fired_at".split(),
+    "wt_treasury_fingerprint_decisions": "id wallet decision signals_json evidence_txs_json source_migration promoted_at webhook_status decided_at".split(),
+    "wt_treasury_review": "treasury transfer_pct out_sol recipients micro_pings detected_via status reviewed_by detected_at reviewed_at subprov_wallet creator_wallet token_mint distinct_subprovs distinct_creators evidence_sigs evidence_subprovs evidence_creators evidence_mints has_walkback_evidence first_walkback_at last_walkback_at".split(),
+}
+_STARTUP_INDEX_COLUMNS = {"ix_tfd_wallet": ["wallet"], "ix_tfd_decision": ["decision"]}
+
+
+def validate_schema(conn) -> str:
+    """Read-only contract for the Treasury schema used by Walkback startup."""
+    tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    for table, required in _STARTUP_TABLE_COLUMNS.items():
+        if table not in tables:
+            return f"SCHEMA_MIGRATION_REQUIRED:missing_table:{table}"
+        actual = {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
+        missing = sorted(set(required) - actual)
+        if missing:
+            return f"SCHEMA_MIGRATION_REQUIRED:missing_column:{table}.{missing[0]}"
+    for index, required in _STARTUP_INDEX_COLUMNS.items():
+        row = conn.execute("SELECT tbl_name FROM sqlite_master WHERE type='index' AND name=?", (index,)).fetchone()
+        if not row:
+            return f"SCHEMA_MIGRATION_REQUIRED:missing_index:{index}"
+        actual = [r[2] for r in conn.execute(f"PRAGMA index_xinfo({index})") if r[5]]
+        if actual != required:
+            return f"SCHEMA_MIGRATION_REQUIRED:wrong_index:{index}"
+    return "VALID"
+
 
 def _add_cols_if_missing(conn, table: str, cols: list) -> None:
     existing = {r[1] for r in conn.execute(f"PRAGMA table_info({table})").fetchall()}

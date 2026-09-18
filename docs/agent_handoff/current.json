@@ -16382,6 +16382,16 @@
     "audit": "docs/audits/operations_db_migration_leaves_phase1.v1.json",
     "next_action": "Convert the composed walkback_queue node only under the next authorized phase."
   },
+  "operations_db_atomic_migration_runner": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "QUALIFIED_SOURCE_ONLY_DEPLOY_PENDING",
+    "result": "Added explicit src/ops/operations_schema_migration.py. migrate_database() validates read-only first and opens one tracked writer connection only when schema migration is required. run_atomic_migration() owns one BEGIN/COMMIT-or-ROLLBACK transaction across the composed nine-node DAG, validates, and writes version 1. No service imports this path yet; legacy ensure wrappers remain unchanged.",
+    "validator": "validate_database()/validate_read_only() use SELECT sqlite_master and PRAGMA inspection only, return VALID or deterministic SCHEMA_MIGRATION_REQUIRED/INCOMPATIBLE_SCHEMA failures, and accept a compatible pre-version legacy schema without DDL.",
+    "tests": "62 passed: new atomic runner (fresh upgrade, five injected rollback points, no-op, missing-index and future-version fail-closed) plus failed-DDL, startup-resilience, deep, candidates and anchor regressions.",
+    "safety": "No production restart/schema mutation/provider call. Startup paths remain unchanged. Cross-process concurrent migration/contention qualification remains a separate deployment gate. Heartbeat SQLITE_BUSY remains unresolved.",
+    "audit": "docs/audits/operations_db_atomic_migration_runner.v1.json sha256 56b2c625e83dec3cd81298adb4b4b5ed4258e97703e2814187758e3f1dc3d598",
+    "next_action": "Under separate authorization, extend the runner with controlled writer-contention/concurrent-runner qualification, then review a staged startup-validator deployment; do not change timeouts or claim heartbeat remediation."
+  },
   "operations_db_complete_migration_dag": {
     "status": "QUALIFIED_TRANSACTION_NEUTRAL_NO_DEPLOY",
     "result": "walkback_queue now has migrate_schema_step(conn), executes supplied statements, and composes canonical attribution/deep/candidate/priority steps. Its legacy ensure_schema remains the committing compatibility wrapper. Full empty-db caller transaction created 15 objects while active; rollback returned zero; commit recreated 15.",

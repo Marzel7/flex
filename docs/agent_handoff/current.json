@@ -6,6 +6,7 @@
     "queue": "6071 active: LIVE_CURRENT=41, RECENT_RECOVERY=228, HISTORICAL_RECONCILIATION=5802, INFRASTRUCTURE_BLOCKED=0; 6009 are WAITING_FOR_CREATE_ANCHOR. 5802 rows are older than 24h, oldest 2026-08-03T18:54:25Z.",
     "design": "Preserving live/historical split is feasible. Classify infrastructure first, then <=1h live, 1-24h recent, >24h historical. Keep evidence/state intact; remove 5802 historical rows from live pressure through durable lanes/checkpoints, not deletion or terminalization.",
     "static_risk": "anchor_reconciliation._stuck_rows has no LIMIT and the worker invokes reconciliation each cycle; it can update all waiting rows before final commit. This is a proven unbounded historical-work risk but is not claimed as the exact current ws_cascade holder.",
+    "refreshed_baseline": "2026-09-18T07:14:33Z: 6208 active (LIVE_CURRENT=10, RECENT_RECOVERY=397, HISTORICAL=5801). Fresh Walkback SQLITE_BUSY events at 1789715612.977 and 1789715719.977; the latter heartbeat elapsed 61.976s and its own lease c85ba2c1-74b7-4275-b76a-99978e5c06e7 had been held 32.051s. Latest Cascade sweep took 1132800.7ms with ~914-916s individual queue waits. Verdict remains RUNNING_NOT_STABLE; listener and scheduler have restarted since the first baseline.",
     "audit": "docs/audits/production_stabilization_plan.v1.json",
     "next_action": "Keep research paused. Under explicit authorization, execute Phase A universal serialization repair before the live/historical lane change; do not reset queues."
   },

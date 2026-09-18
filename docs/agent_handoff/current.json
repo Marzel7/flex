@@ -16599,5 +16599,18 @@
     "minimal_restart_set": "walkback_worker, ws_cascade only; listener, API, Monitor, and scheduler remain untouched (scheduler remains stopped).",
     "audit": "docs/audits/walkback_sql_diagnostics_path_override_qualification.v1.json sha256 0ccda9e24989eb053254cb833c9eecd2179bbfd368edced04060aa2d6f7bcc6c",
     "exact_next_action": "Provide an approved external Supervisor overlay/control-plane path, or explicitly permit the narrowly scoped Supervisor configuration edit despite the dirty-workspace prohibition; then apply the already-qualified two-service manifest and restart only walkback_worker and ws_cascade."
+  },
+  "operations_db_sqlite_provenance_supervisor_deployment_attempt": {
+    "engineering_revision": "44476d7ba3896987e4031b5f35924426af00638a qualified clean source; production source switch backed out",
+    "status": "OPERATIONS_DB_SQLITE_PROVENANCE_DEPLOYMENT_PARITY_HOLD",
+    "verdict": "WALKBACK_STAGED_HEALTH_NOT_CONCLUSIVELY_PASSING",
+    "backup": "Supervisor config /Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf was backed up to /private/tmp/supervisord.conf.before-sqlite-provenance-20260918T210814Z.bak; both SHA256 values=43e674e059ca59dfcacadce90d783d0d2eff099449ce0f366cd462fc263a2218. The config was restored byte-for-byte after the hold.",
+    "manifest": "Only walkback_worker and ws_cascade directory/PYTHONPATH plus required persistent DB and diagnostic bindings were staged; unrelated config changes=0 and unclassified diff lines=0.",
+    "parity": "PASS before staged restart: existing wt_ops/live DBs, wt_ops lock, DB-backed queue/retry/checkpoint state, Supervisor logs, Walkback SQL diagnostics path, and lifecycle diagnostic path. Existing RotatingFileHandler bounds are 10 MiB plus two backups.",
+    "staged_action": "walkback_worker old PID 60726 was updated to clean-source PID 56474. Startup/log review could not conclusively establish required clean health because it included recent CrossProcessDatabaseWriteTimeout and DB_LOCK_ERROR records. Cascade update/restart was therefore not attempted. Supervisor backup was restored and only Walkback was returned to prior config as PID 56689.",
+    "other_services": "ws_cascade PID 31671 unchanged; listener PID 54936 unchanged; API PID 25464 unchanged; Monitor PID 5450 unchanged; scheduler remained STOPPED; Farm Detector process count=0.",
+    "safety": "No Cascade restart, listener/API/Monitor/scheduler restart, provider call, database move/copy, queue mutation, or application-source mutation. Existing incident remains unresolved; no contention was manufactured.",
+    "audit": "/private/tmp/operations_db_sqlite_provenance_supervisor_deploy_attempt_20260918T210814Z.json sha256 b4fcb24fc53142f0f291f99513005d55982db93ccb9cd412983efb2967c7a803",
+    "exact_next_action": "Do not retry Cascade. Establish a fresh offset/timestamped Walkback post-start health observation that distinguishes historical log records from new failures; proceed only under renewed explicit authorization if the staged gate passes."
   }
 }

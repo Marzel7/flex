@@ -16541,5 +16541,16 @@
     "qualification": "The dirty workspace contains the scheduler db_connect migration, whose expected form is asserted by tests/test_ops_db_writer_boundary.py. It contains no migration for _canonical_membership_connection; therefore UNKNOWN_REMAINING_BYPASSES=0 but UNQUALIFIED_REMAINING_BYPASSES=1 and the required all-qualified gate is not met.",
     "safety": "No production restart, mutation, provider call, timeout change, WAL change, or transaction-semantic change. No production hunk was applied to the clean room. Original workspace mutated=false.",
     "exact_next_action": "Obtain and qualify a minimal managed-boundary migration for src/ops/operator_routes.py::_canonical_membership_connection (including its promotion transaction semantics), then rerun the complete scan; only after every normal writer is qualified may the scheduler hunk be imported with the other qualified migrations."
+  },
+  "operations_db_sqlite_provenance_clean_room_qualification": {
+    "engineering_revision": "c0944655fab2211236e9f54207a782babbfdec8d",
+    "status": "OPERATIONS_DB_SQLITE_PROVENANCE_DEPLOY_READY",
+    "verdict": "CLEAN_ROOM_QUALIFIED_DEPLOYMENT_SOURCE_PARITY_HOLD",
+    "clean_room": "Branch codex/operations-sqlite-lifecycle-provenance at /private/tmp/flex-sqlite-provenance-clean. Production changes are exactly db_locking.py, database_write_service.py, walkback_worker.py, operation_scheduler.py, and operator_routes.py.",
+    "canonical_membership": "POST /potential-operations/proposals/<proposal_id>/promote now opens its canonical connection through db_connect(timeout=1), restores busy_timeout=1000 and synchronous=FULL, and retains sqlite3.Row. promote_canonical_manual_operation owns BEGIN IMMEDIATE/commit/rollback; route finally closes the connection. No provider, network, sleep, backoff, or long CPU work occurs while that connection transaction is active.",
+    "qualification": "42 focused tests pass: canonical promotion commit/rollback/close/flock-order/concurrent-writer coverage, manual bridge/UI, writer-boundary, and lifecycle provenance. Structural scan: normal bare writers=0, unregistered native ops paths=0, unknown paths=0. Transaction semantics/timeouts/WAL unchanged; false violation events=0; Farm remains retired.",
+    "audit": "docs/audits/operations_db_sqlite_provenance_clean_room_qualification.v1.json sha256 75bdfb7e9b46278166d303d0b8fdce7b48b6512403a2735290ec2a620244e494",
+    "deployment_precheck": "FAIL: supervisor service definitions load /Users/kevinkeaveney/Dev/claude/flex, whose HEAD remains 77492d22497e31a5984a234e2bb1f5cd2fc10613 with 2769 dirty paths, not clean commit c0944655. No restart or deployment was performed.",
+    "exact_next_action": "Create or configure a verified deployment source that resolves exactly to c0944655 and its source digest f89b98573395ff18b9850a908844bf5097ffab6f3f30fcd04f39761d3453d231; rerun parity precheck before any explicitly authorized restart."
   }
 }

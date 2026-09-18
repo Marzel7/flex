@@ -28,6 +28,15 @@ from typing import Any, Callable
 
 _log = logging.getLogger("database_write_service")
 
+
+# This is deliberately process-local diagnostic state.  The post-failure
+# capture must neither acquire a SQLite connection nor use SQLite to remember
+# that it has already emitted its single record.
+_BUSY_CAPTURE_LOCK = threading.Lock()
+_busy_capture_completed = False
+_BUSY_CAPTURE_CALLER = "listener-walkback-enqueue"
+_BUSY_CAPTURE_DATABASE = "wt_ops_v2.db"
+
 # X78.9 -- the cross-process flock() bound. Matches the existing in-process
 # _DB_WRITE_LOCK timeout (db_locking.py: DB_WRITE_LOCK.acquire(timeout=60),
 # db_write_lock(), AsyncDbWriteLock) rather than inventing a new figure --
@@ -83,6 +92,29 @@ except Exception:
 class _ServiceConnection(sqlite3.Connection):
     """Connection whose transaction boundary belongs exclusively to the service."""
 
+    def execute(self, sql, parameters=()):
+        """Metadata-only provenance for service-owned native statements."""
+        try:
+            from src.utils import db_locking
+            state = db_locking._cf_statement_start(self, sql)
+        except Exception:
+            state = None
+        success = False
+        error = None
+        try:
+            result = sqlite3.Connection.execute(self, sql, parameters)
+            success = True
+            return result
+        except Exception as exc:
+            error = exc
+            raise
+        finally:
+            try:
+                from src.utils import db_locking
+                db_locking._cf_statement_end(self, state, success=success, error=error)
+            except Exception:
+                pass
+
     def commit(self) -> None:
         # Legacy helpers may still call commit after a statement group.  Inside
         # a managed callback that must not split the service-owned transaction.
@@ -93,7 +125,29 @@ class _ServiceConnection(sqlite3.Connection):
         return None
 
     def service_commit(self) -> None:
+        try:
+            from src.utils import db_locking
+            if db_locking._sqlite_lifecycle_enabled(self):
+                db_locking._append_sqlite_lifecycle({
+                    "event": "commit_start", "timestamp": time.time(),
+                    "connection_id": getattr(self, "_db_connection_id", None),
+                    "pid": os.getpid(), "thread": threading.current_thread().name,
+                    "sqlite_tx_active": bool(self.in_transaction),
+                })
+        except Exception:
+            pass
         sqlite3.Connection.commit(self)
+        try:
+            from src.utils import db_locking
+            if db_locking._sqlite_lifecycle_enabled(self):
+                db_locking._append_sqlite_lifecycle({
+                    "event": "commit_end", "timestamp": time.time(),
+                    "connection_id": getattr(self, "_db_connection_id", None),
+                    "pid": os.getpid(), "thread": threading.current_thread().name,
+                    "sqlite_tx_active": bool(self.in_transaction),
+                })
+        except Exception:
+            pass
 
     def service_rollback(self) -> None:
         sqlite3.Connection.rollback(self)
@@ -421,6 +475,81 @@ def _capture_null_owner_episode(*, database: str, lock_path: str, owner_path: st
             output.write(json.dumps(bundle, sort_keys=True, default=str) + "\n")
     except Exception:
         _log.exception("failed to persist null-owner diagnostic episode")
+
+
+def _is_target_sqlite_busy_failure(exc: BaseException) -> bool:
+    """Whether *exc* is the SQLite lock failure for the bounded capture."""
+    if not isinstance(exc, sqlite3.OperationalError):
+        return False
+    error_code = getattr(exc, "sqlite_errorcode", None)
+    if error_code in (sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED):
+        return True
+    message = str(exc).lower()
+    return "sqlite_busy" in message or "database is locked" in message or "database is busy" in message
+
+
+def _capture_listener_walkback_enqueue_busy_failure(
+    *, item: "_Command", exc: BaseException, record: dict[str, Any]
+) -> None:
+    """Best-effort, one-shot post-classification diagnostic for this one lane.
+
+    This helper is intentionally file/process inspection only.  It is called
+    after the writer has classified a matching SQLite failure and any error is
+    swallowed so the already-determined write failure propagates unchanged.
+    """
+    global _busy_capture_completed
+    if item.command != _BUSY_CAPTURE_CALLER:
+        return
+    if Path(item.path).name != _BUSY_CAPTURE_DATABASE:
+        return
+    if not _is_target_sqlite_busy_failure(exc):
+        return
+
+    with _BUSY_CAPTURE_LOCK:
+        if _busy_capture_completed:
+            return
+        output_path = os.environ.get(
+            "DB_LISTENER_WALKBACK_BUSY_CAPTURE_PATH",
+            "logs/diagnostics/listener_walkback_enqueue_busy_capture.jsonl",
+        )
+        database = os.path.realpath(item.path)
+        inspected_paths = [
+            database,
+            f"{database}-wal",
+            f"{database}-shm",
+            f"{database}.write.lock.owner",
+        ]
+        try:
+            try:
+                lsof = subprocess.run(
+                    ["lsof", "-F", "pftl", *inspected_paths],
+                    capture_output=True, text=True, timeout=2, check=False,
+                )
+                lsof_snapshot = lsof.stdout.splitlines()[:200]
+                lsof_error = None
+            except Exception as lsof_exc:
+                lsof_snapshot = []
+                lsof_error = type(lsof_exc).__name__
+            bundle = {
+                "timestamp": time.time(),
+                "caller": item.command,
+                "database": database,
+                "failure_type": type(exc).__name__,
+                "failure_message": str(exc),
+                "failure_determined_before_capture": True,
+                "transaction_id": item.transaction_id,
+                "writer_phase": record.get("phase"),
+                "inspected_paths": inspected_paths,
+                "lsof": lsof_snapshot,
+                "lsof_error": lsof_error,
+            }
+            os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+            with open(output_path, "a", encoding="utf-8") as output:
+                output.write(json.dumps(bundle, sort_keys=True, default=str) + "\n")
+            _busy_capture_completed = True
+        except Exception:
+            # Diagnostics are explicitly unable to affect the write result.
+            _log.exception("failed to persist listener walkback BUSY diagnostic")
 
 
 # X78.20 -- per-priority acquisition telemetry (Phase I). In-memory only,
@@ -834,6 +963,40 @@ def acquire_write_lease(
     return WriteLease(lock_file, owner_path, owner, owner_thread_ident=this_thread_ident, token=token)
 
 
+def update_write_lease_provenance(lease: WriteLease, **fields: Any) -> None:
+    """Best-effort diagnostic enrichment of an already-held lease.
+
+    This changes only the owner records used for attribution; it never acquires,
+    releases, waits on, or otherwise changes the physical flock.
+    """
+    allowed = {
+        "connection_id", "upstream_caller", "purpose", "first_write_at",
+        "last_db_progress_at", "commit_at", "rollback_at", "connection_close_at",
+        "sqlite_transaction_active", "lease_generation",
+    }
+    updates = {key: value for key, value in fields.items() if key in allowed and value is not None}
+    if not updates:
+        return
+    try:
+        lease.owner.update(updates)
+        _write_lock_bound_owner(lease.file, lease.owner)
+        guard = _owner_metadata_guard(lease.owner_path)
+        try:
+            current = _read_owner_metadata(lease.owner_path)
+            if current and current.get("transaction_id") == lease.owner.get("transaction_id"):
+                _write_owner_metadata(lease.owner_path, lease.owner)
+        finally:
+            fcntl.flock(guard.fileno(), fcntl.LOCK_UN)
+            guard.close()
+        with _active_lease_lock:
+            current = _active_lease_details_by_thread_ident.get(lease.owner_thread_ident)
+            if current and current.get("transaction_id") == lease.owner.get("transaction_id"):
+                current.update(updates)
+    except Exception:
+        # Observability must never affect the owner transaction.
+        pass
+
+
 def release_write_lease(lease: WriteLease) -> None:
     # The thread-local reentrancy guard must be cleared no matter what happens
     # below -- a failure in unlink/flock/close must never leave this thread
@@ -1012,7 +1175,10 @@ class _Command:
 class DatabaseWriteService:
     """One local queue per database, backed by a cross-process write lane."""
 
-    def __init__(self) -> None:
+    def __init__(self, *, _test_sqlite_timeout: float | None = None) -> None:
+        # Explicit dependency injection for test-created services only.  The
+        # production singleton passes nothing and therefore retains 10s.
+        self._sqlite_timeout = 10.0 if _test_sqlite_timeout is None else float(_test_sqlite_timeout)
         self._lock = threading.Lock()
         self._queues: dict[str, queue.Queue[_Command]] = {}
         self._workers: dict[str, threading.Thread] = {}
@@ -1168,9 +1334,27 @@ class DatabaseWriteService:
                 self._current[item.path] = dict(owner)
             try:
                 conn = _native_connect(
-                    item.path, timeout=10, check_same_thread=False,
+                    item.path, timeout=self._sqlite_timeout, check_same_thread=False,
                     factory=_ServiceConnection,
                 )
+                conn._db_path = item.path
+                conn._db_caller = item.command
+                conn._db_connection_id = str(uuid.uuid4())
+                conn._write_transaction_id = item.transaction_id
+                conn._holds_write_lock = True
+                try:
+                    from src.utils import db_locking
+                    db_locking.register_external_ops_connection(
+                        conn, item.path, item.command,
+                        factory="DatabaseWriteService", purpose=item.command,
+                    )
+                    update_write_lease_provenance(
+                        lease, connection_id=conn._db_connection_id,
+                        purpose=item.command, lease_generation=item.transaction_id,
+                        sqlite_transaction_active=False,
+                    )
+                except Exception:
+                    pass
                 self._set_phase(record, started, "native-connection-opened")
                 conn.row_factory = sqlite3.Row
                 record["begin_timestamp"] = time.time()
@@ -1178,6 +1362,19 @@ class DatabaseWriteService:
                 before = conn.total_changes
                 self._set_phase(record, started, "begin-attempted")
                 conn.execute("BEGIN")
+                try:
+                    from src.utils import db_locking
+                    now = time.time()
+                    conn._sqlite_tx_begin_at = now
+                    if db_locking._sqlite_lifecycle_enabled(conn):
+                        db_locking._append_sqlite_lifecycle({
+                            "event": "sqlite_tx_begin", "timestamp": now,
+                            "connection_id": conn._db_connection_id, "pid": os.getpid(),
+                            "thread": threading.current_thread().name, "begin_mode": "DEFERRED",
+                            "flock_owned": True, "flock_transaction_id": item.transaction_id,
+                        })
+                except Exception:
+                    pass
                 self._set_phase(record, started, "begin-acquired")
                 self._active_transaction.value = {
                     "database": item.database.split(":", 1)[0],
@@ -1233,16 +1430,43 @@ class DatabaseWriteService:
                     record["lock_diagnostics"] = diagnostics
                     record["error_type"] = "DatabaseWriteLockError"
                     record["error"] = json.dumps(diagnostics, sort_keys=True)
+                    # The original SQLite failure is now fully classified and
+                    # recorded.  The diagnostic is strictly post-failure and
+                    # cannot change the exception raised below.
+                    _capture_listener_walkback_enqueue_busy_failure(
+                        item=item, exc=exc, record=record,
+                    )
                     raise DatabaseWriteLockError(diagnostics) from exc
                 raise
             finally:
                 if conn is not None:
+                    try:
+                        from src.utils import db_locking
+                        db_locking.unregister_external_ops_connection(conn, reason="service-close")
+                    except Exception:
+                        pass
                     conn.close()
                 record["duration_ms"] = round((time.monotonic() - started) * 1000.0, 3)
                 with self._lock:
                     self._current.pop(item.path, None)
                     self._telemetry.append(dict(record))
         finally:
+            if conn is not None:
+                try:
+                    from src.utils import db_locking
+                    if db_locking._sqlite_lifecycle_enabled(conn):
+                        db_locking._append_sqlite_lifecycle({
+                            "event": "flock_release", "timestamp": time.time(),
+                            "connection_id": getattr(conn, "_db_connection_id", None),
+                            "pid": os.getpid(), "thread": threading.current_thread().name,
+                            "flock_transaction_id": item.transaction_id,
+                            "sqlite_tx_active": bool(conn.in_transaction),
+                            "violation": "APPLICATION_FLOCK_RELEASE_WITH_SQLITE_TX_ACTIVE"
+                            if bool(conn.in_transaction) else None,
+                        })
+                    conn._holds_write_lock = False
+                except Exception:
+                    pass
             release_write_lease(lease)
 
     @staticmethod

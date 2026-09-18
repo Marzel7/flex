@@ -1761,9 +1761,9 @@ def _check_stuck_lease() -> None:
             # immediately after -- there is no risk of this write itself
             # leaving a dangling lease behind for a future cycle to trip
             # over, since there is no future cycle in this process.
-            from src.utils.db_locking import _sqlite3_connect_orig
+            from src.utils.db_locking import emergency_ops_recovery_connect
             from src.ops.walkback_recovery_log import record_self_kill
-            _log_conn = _sqlite3_connect_orig(OPS_DB_PATH, timeout=5)
+            _log_conn = emergency_ops_recovery_connect(OPS_DB_PATH, timeout=5)
             try:
                 record_self_kill(
                     _log_conn, worker="walkback_worker",

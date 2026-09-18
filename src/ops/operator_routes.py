@@ -26,6 +26,7 @@ from src.ops.operator_model import (
 )
 from src.ops.operator_reader import OperatorReader
 from src.ops.operator_resolver import OperatorResolver
+from src.utils.db_locking import db_connect
 
 operator_bp = Blueprint("operators", __name__)
 
@@ -599,7 +600,12 @@ def _manual_workflow_connection():
 def _canonical_membership_connection():
     from src.core.db import OPS_DB_PATH
     path=current_app.config.get("OPS_DB_PATH", str(OPS_DB_PATH))
-    conn=sqlite3.connect(path, timeout=1)
+    conn=db_connect(path, timeout=1)
+    # Preserve the prior native one-second connection contract.
+    # db_connect's normal defaults are deliberately overridden only for this
+    # existing latency-sensitive promotion route.
+    conn.execute("PRAGMA busy_timeout=1000")
+    conn.execute("PRAGMA synchronous=FULL")
     conn.row_factory=sqlite3.Row
     return conn
 

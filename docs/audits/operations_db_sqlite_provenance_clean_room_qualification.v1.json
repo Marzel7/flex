@@ -1,0 +1,35 @@
+{
+  "schema_version": "operations_db_sqlite_provenance_clean_room_qualification.v1",
+  "baseline": "77492d22497e31a5984a234e2bb1f5cd2fc10613",
+  "scope": "SQLite lifecycle provenance plus the three clean-room writer-boundary migrations required by structural regression.",
+  "writer_boundary": {
+    "walkback_emergency_recovery": "Qualified pre-existing named emergency exemption.",
+    "scheduler_subprovider_discovery": "Qualified pre-existing migration: db_connect(timeout=30), then isolation_level=None.",
+    "canonical_membership_post": "Qualified in this milestone: db_connect(timeout=1), busy_timeout=1000, synchronous=FULL, sqlite3.Row."
+  },
+  "canonical_scope": {
+    "route": "POST /potential-operations/proposals/<proposal_id>/promote",
+    "transaction": "promote_canonical_manual_operation owns BEGIN IMMEDIATE, commit, and rollback; the route closes the connection in finally.",
+    "external_work_inside_transaction": false,
+    "provider_network_sleep_or_backoff_inside_transaction": false
+  },
+  "contract_parity": {
+    "timeout_seconds": 1,
+    "sqlite_busy_timeout_ms": 1000,
+    "synchronous": "FULL",
+    "row_factory": "sqlite3.Row",
+    "transaction_semantics_changed": false,
+    "timeout_policy_changed": false,
+    "wal_changed": false
+  },
+  "validation": {
+    "focused_pytest": "42 passed: canonical membership boundary, manual bridge/UI, writer boundary, lifecycle provenance.",
+    "writer_boundary_test": "4 passed",
+    "normal_bare_ops_writers": 0,
+    "unregistered_production_native_ops_paths": 0,
+    "unknown_ops_writer_boundary_paths": 0,
+    "false_violation_events": 0,
+    "farm_detector_remains_retired": true
+  },
+  "safety": "No production restart, mutation, provider call, timeout-policy change, WAL change, or original-workspace modification."
+}

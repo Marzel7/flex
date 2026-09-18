@@ -1,4 +1,14 @@
 {
+  "operations_db_sqlite_blocker_trace": {
+    "engineering_revision": "77492d22497e31a5984a234e2bb1f5cd2fc10613 with dirty working tree; deployed/worktree parity not established",
+    "status": "OPERATIONS_DB_SQLITE_BLOCKER_TRACE_HOLD",
+    "captured_event": "ws_cascade PID 31671 asyncio_2 transaction d1d2ce93-b5a5-46d8-bee6-88a9d194b2a0 / connection 80154215-07c1-47ff-a10b-96f089798958 held the application flock and was sampled in sqlite3BtreeBeginTrans -> sqliteDefaultBusyCallback -> sleep. Its exact SQL/table, busy duration, and opposing SQLite connection were not retained.",
+    "reproduction": "Test DB: retaining a SQLite write transaction after the application flock boundary reproduces SQLITE_BUSY code 5 after ~221-231ms while a new flock owner waits. A WAL read-to-write upgrade produces immediate code 517 instead, so it does not match the long production waits.",
+    "monitor": "Operation Monitor PID 5450 accumulated 205 -> 211 -> 214 live wt_ops/WAL/SHM descriptors over 5s, including 70 -> 76 -> 79 update-mode descriptors. Its recurring source connections are URI mode=ro and no current write-lock FD/transaction was proven; this is a connection-lifecycle defect candidate, not proven SQLite writer ownership.",
+    "exclusions": "No emergency self-kill write, DDL/VACUUM, or overlapping PASSIVE checkpoint is retained for the exact event. Nearest listener checkpoints were busy=0 and application-lease-free.",
+    "root_cause": "SUPPORTED: a preexisting SQLite write transaction or bare/native bypass can produce the captured under-flock busy signature. Exact production owner remains unobservable.",
+    "instrumentation": "Required but not safely added to dirty shared db_locking.py: neutral lifecycle records for tracked and DatabaseWriteService native connections, including transaction/lease/busy boundaries and operation/table class only."
+  },
   "subprov_writer_scope_live_trace": {
     "engineering_revision": "77492d22497e31a5984a234e2bb1f5cd2fc10613 with dirty working tree; runtime/source parity not established",
     "status": "SUBPROV_WRITER_SCOPE_TRACE_HOLD",

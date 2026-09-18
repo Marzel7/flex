@@ -16446,6 +16446,15 @@
     "audit": "docs/audits/operations_db_complete_migration_dag.v1.json",
     "next_action": "Under separate authorization, build/test the central migration runner; do not switch startup behavior yet."
   },
+  "farm_detector_writer_scope_incident": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "PROVEN_ACTIVE_WRITER_SCOPE_DEFECT_HOLD",
+    "result": "At 2026-09-18T15:07:21Z, an independent non-mutating probe proved the wt_ops writer flock HELD. Its lock-bound record identifies operation_scheduler PID 64994 MainThread, farm_detector.py:208 run_farm_scan, transaction/lease 93226d41-4915-45b1-b80c-8bf3cb170b1e, connection faf3deb5-5bf1-4d8a-8889-e8d91924c734; first write 14:49:00.211971Z, last DB progress 14:49:20.938632Z, and SQLite transaction active. A read-only process sample captured that MainThread in TLS I/O while the same flock remained held. This proves provider/network work under the writer lane. Walkback PID 60726 has repeatedly timed out queue claims and heartbeats against this exact holder.",
+    "funding": "Funding PID 59094 is RUNNING but independently unhealthy: retained failures identify migration_walkback_handoff_retry against flex_complete_database.db, not the farm holder or wt_ops lock.",
+    "safety": "No process was terminated/restarted; no code/schema/configuration/database/queue change, provider call, or research work. Schema classification, Byzantine research and Other126 research remain paused.",
+    "audit": "docs/audits/farm_detector_writer_scope_incident.v1.json sha256 e15b26569de74504114e758d68186a9bd8ac6d67d111f1aaafae626ad3dfdda0",
+    "next_action": "Under explicit repair authorization, refactor farm scan into read/RPC/compute outside a writer, a bounded final idempotent mutation transaction, then commit/release; qualify with a 60-second blocked-RPC concurrency regression plus injected pre-provider write/cleanup failure release coverage. Do not terminate the current holder until active transaction/recovery safety is separately determined."
+  },
   "operations_db_cascade_watchtower_validator_qualification": {
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
     "status": "PARTIAL_HOLD_INCOMPLETE_GENERATED_MUTATION_MATRIX",

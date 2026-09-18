@@ -16333,5 +16333,16 @@
     "provenance_limit": "The acquisition failed before SQL statement-start lifecycle instrumentation, so no per-statement event or holder attribution exists for this timeout.",
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "next_action": "Hold. Under separate repair authorization, remove/safely serialize startup Treasury schema DDL and extend acquisition-failure provenance; do not change timeouts or restart services as a substitute."
+  },
+  "operations_db_startup_ddl_audit": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "PROVEN_ORDINARY_STARTUP_DDL_CONTENTION",
+    "runtime": "Walkback is a single Supervisor-managed PID 60726, command python -m src.core.walkback_worker --loop. It reached normal processing and completed a two-row batch after the replacement chain, then emitted a separate post-startup heartbeat SQLITE_BUSY while holding its own tracked lane for 31.131s.",
+    "failed_startup": "PID 60167 waited 60.005s in walkback run_loop -> treasury_bank.initialize_schema -> ensure_schema -> CREATE TABLE IF NOT EXISTS wt_confirmed_treasuries. Read-only schema inspection proves wt_confirmed_treasuries already exists with every required column including provenance; this was an unconditional idempotent DDL ensure, not a needed migration.",
+    "broader_evidence": "Production paths issue DDL at ordinary startup for Walkback, Cascade, listener, scheduler, Monitor, funding, and API/request paths. Retained diagnostics contain 122 startup-schema timeout log matches, including 97 listener-walkback-schema-startup operation-DB matches. Counts are log matches, not deduplicated causal incidents.",
+    "architecture": "A single controlled migration owner plus normal-service read-only schema/version validation is feasible; normal restart DDL is not required when the schema is current. Incompatible startup must fail closed with SCHEMA_MIGRATION_REQUIRED, preserving idempotent migrations and existing data.",
+    "incident_scope": "Startup DDL contention is proven material exposure but does not explain the separate post-startup SQLite holder/busy mechanism.",
+    "audit": "docs/audits/operations_db_startup_ddl_audit.v1.json",
+    "next_action": "Hold. Under separate authorization centralize versioned migrations and replace normal-startup DDL with read-only validation; separately trace the live heartbeat SQLITE_BUSY holder."
   }
 }

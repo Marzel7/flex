@@ -16446,6 +16446,16 @@
     "audit": "docs/audits/operations_db_complete_migration_dag.v1.json",
     "next_action": "Under separate authorization, build/test the central migration runner; do not switch startup behavior yet."
   },
+  "farm_detector_usage_and_retirement_qualification": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "CURRENT_OPTIONAL_COMPONENT__RETIREMENT_QUALIFIED",
+    "result": "Farm Detector has one production writer invocation: the operation scheduler unconditionally calls run_farm_scan after a successful intake opportunity (default INTAKE_INTERVAL=900 seconds; no feature/config gate). It is the sole writer of wt_farm_checked, wt_farm_launches, wt_farm_launch_evidence, and wt_farms. Current users are read-only Token Performance/Discovery Assurance/Launcher Observatory APIs and launcher-observatory lifecycle/inbox presentation. Static tracing finds no dependency in birth/migration ingestion, Walkback, funding, Treasury Review, operation assignment, membership, attribution, candidate generation, Watchtower, Byzantine, or Nexus.",
+    "history": "Introduced 2026-06-16 (48681b42); no retained disablement/re-enable history. Current scheduling is deliberate source behaviour but its value is observational rather than required pipeline correctness.",
+    "live_state": "PID 64994 remains the kernel-proven wt_ops flock holder with active SQLite transaction; do not terminate it. Farm data is preserved: checked=19082, launches=19060, evidence=8981, farms=319; latest completed data timestamp=2026-09-18T12:06:49Z.",
+    "safety": "No service/process/code/configuration/schema/database/queue mutation, provider call, or research. Preserve farm tables and read-only presentation after any future disablement.",
+    "audit": "docs/audits/farm_detector_usage_and_retirement_qualification.v1.json sha256 abdf384f7ea8ab8a8bb94e2fd5b380419fc74b942deb7d80086ac6c980a70a08",
+    "next_action": "Under explicit production authorization and only after current transaction shutdown safety is established, disable the scheduler invocation alone; preserve historical tables/read-only APIs and verify scheduler/live pipeline parity plus zero farm provider calls/writer leases."
+  },
   "farm_detector_writer_scope_incident": {
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
     "status": "PROVEN_ACTIVE_WRITER_SCOPE_DEFECT_HOLD",

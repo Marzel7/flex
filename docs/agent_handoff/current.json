@@ -16624,5 +16624,17 @@
     "safety": "No deployment retry, Cascade restart, listener/API/Monitor/Scheduler restart, source/config/database/queue change, provider call, or manufactured contention. Supervisor config remains restored byte-for-byte; scheduler stopped; Farm retired.",
     "audit": "/private/tmp/walkback_clean_source_deployment_failure_audit_20260918.json sha256 b216ca3cfe72c90466835e4ef2db0162c688e30a31478d5154a75b761e724a76",
     "exact_next_action": "Do not retry deployment. Under separate authorization, use offset-based natural observation to correlate an external blocker while lifecycle provenance is armed; do not weaken the health gate or alter deployment source from this finding."
+  },
+  "operations_db_sqlite_busy_correlation_56474": {
+    "engineering_revision": "44476d7ba3896987e4031b5f35924426af00638a clean-source attempt; read-only retained-evidence correlation",
+    "status": "OPERATIONS_DB_SQLITE_BLOCKER_PROVENANCE_COVERAGE_GAP_PROVEN",
+    "target": "PID 56474, connection 987546fc-cf0c-4d16-8477-591935ccf94d, walkback_worker.py:521 UPDATE wt_walkback_queue, flock transaction 3050f2b3-d261-4b27-b633-94b6bb4fcc72. Statement started 2026-09-18T21:10:02.710308Z and ended SQLITE_BUSY code 5 after 31133.862ms at 21:10:33.844464Z.",
+    "lifecycle": "The target lifecycle log retained the full waiter and busy event 20caeffa-600b-4cda-b915-0bfcaf0c014d. It contained only PID 56474 in the target window. No lifecycle violation occurred. The sole embedded candidate is the waiter itself, whose write/SQLite transaction began at 21:10:33.839516Z after the wait began; it has NO_OVERLAP as a blocker.",
+    "coverage_gap": "No pre-existing active tracked write candidate exists and no cross-process candidate was captured. The actual opposing SQLite writer was outside the emitted lifecycle provenance. Cascade PID 31671 is POSSIBLE_ONLY because it continued on old code without the lifecycle destination; its post-window log activity cannot prove target-window overlap. API/listener/Monitor are also neither proven nor excluded.",
+    "signature": "SQLITE_BUSY code 5, not 517/read-to-write upgrade, schema/checkpoint/DDL failure. Walkback held its application flock correctly. PID 60726 had 283 retained matching SQLITE_BUSY events and 128 cross-process timeouts, demonstrating the same historical failure class.",
+    "verdict": "Exact blocker lifecycle=false; BLOCKER_OUTSIDE_CAPTURED_PROVENANCE=true; SQLite blocker root cause remains unresolved. Health gate valid=true.",
+    "audit": "/private/tmp/operations_db_sqlite_busy_correlation_56474_20260918.json sha256 fb20da1585f75babdb9f6e22afc5d3758028ae6411b61709032a2db5bc912576",
+    "safety": "No deployment/restart/config/source/database/queue/provider mutation; Cascade untouched; scheduler stopped; Farm retired; research remains paused.",
+    "exact_next_action": "Do not retry deployment. Under separate authorization, arm provenance for the minimum collision participants with an observation design that records natural contention even if Walkback encounters busy; do not weaken the gate or implement in this task."
   }
 }

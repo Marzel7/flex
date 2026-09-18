@@ -16702,5 +16702,16 @@
     "safety": "Production mutations/restarts/provider calls=0; no source/config/service change in this proof attempt.",
     "audit": "/private/tmp/walkback_held_writer_proofs_attempt_20260918.json sha256 99c03664947cec72a0b9dc65be6e7ae02e25065a30cd3141745127824b0e2f45",
     "exact_next_action": "Repeat both proofs with a durable independently verifiable result artifact, then evaluate the existing clean-room cutover gate."
+  },
+  "walkback_read_only_startup_qualification": {
+    "engineering_revision": "3a6a3a5f00e7b0b42c5cc0ccc5e1515b0814cc3d",
+    "status": "WALKBACK_READ_ONLY_STARTUP_QUALIFIED",
+    "result": "Ordinary Walkback startup now validates queue, Treasury and attribution-outcome schemas read-only; legacy mutating ensure functions remain available for explicit migration/manual use.",
+    "held_writer_proofs": "Valid and stale isolated holders each proved application flock plus active SQLite write transaction for 60205ms. Three-validator validation completed in 3.082ms valid and 2.922ms stale, before release, with zero DDL/DML/flock/busy/locked events. Valid reached normal-work readiness; stale failed closed.",
+    "tests": "Production schema read-only validation PASS; 92 focused regressions passed. One excluded X77.3 historical hazard test explicitly expects an already-fixed failed-ALTER lease leak and is not a cutover regression.",
+    "source_digest": "git-archive sha256 de8d46cb4f9b3a4afea911bde92db59c2ca376aec02fbf37dcb5767955156183",
+    "safety": "Original dirty workspace unchanged; production mutations/restarts/provider calls=0; not deployed.",
+    "audit": "/private/tmp/walkback_read_only_startup_qualification_20260918.json sha256 8dbd69cc1a889b723e4af978fdbcb85502efbe57ecdd11b3f62188f267285953",
+    "exact_next_action": "Repeat the bounded Walkback + Cascade joint provenance deployment from clean commit 3a6a3a5f."
   }
 }

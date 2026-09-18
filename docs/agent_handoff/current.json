@@ -16428,6 +16428,16 @@
     "audit": "docs/audits/operations_db_remaining_validator_preflight.v1.json sha256 647c0608109ec7b500db73b868ff7f5bb6cd287ef4f18649d4a71affddb7caee",
     "next_action": "Reconcile Cascade and Watchtower attribution legacy schema ownership into complete transaction-neutral versioned steps before validator construction."
   },
+  "operations_db_expanded_migration_dag_reconciliation": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "PARTIAL_RECONCILED_SOURCE_ONLY",
+    "result": "Superseded the old coverage claim. lineage_quarantine now exposes a supplied-connection migration step; Cascade invokes it rather than its committing wrapper and no longer commits its operation_state backfill. Watchtower attribution's canonical migration step now owns enqueue-failure and migration-coverage DDL; lazy helpers route to it. AST scan finds no commit/rollback/close/executescript in the three declarative steps. Empty caller transaction built 25 Cascade schema tables and rollback returned zero.",
+    "tests": "73 passed affected regression suite: x64.7a hardening, Cascade no-schema-call, central runner, Deep Walkback, failed-DDL lifecycle.",
+    "blocker": "The full generated rollback/commit/backfill-failure matrix for expanded Cascade and Watchtower schema surfaces remains unbuilt, so expanded DAG qualification and validators remain HOLD.",
+    "safety": "No deployment/restart/schema mutation/provider call/listener change/timeout or WAL change. Heartbeat SQLite busy remains unresolved and separate.",
+    "audit": "docs/audits/operations_db_expanded_migration_dag_reconciliation.v1.json sha256 48f7f370b5a5a975e27154a723617890cdea33739f373a23e8c9608f61c050e6",
+    "next_action": "Add exhaustive supplied-connection rollback/commit/backfill-failure qualification for expanded Cascade and Watchtower ownership before validators."
+  },
   "operations_db_complete_migration_dag": {
     "status": "QUALIFIED_TRANSACTION_NEUTRAL_NO_DEPLOY",
     "result": "walkback_queue now has migrate_schema_step(conn), executes supplied statements, and composes canonical attribution/deep/candidate/priority steps. Its legacy ensure_schema remains the committing compatibility wrapper. Full empty-db caller transaction created 15 objects while active; rollback returned zero; commit recreated 15.",

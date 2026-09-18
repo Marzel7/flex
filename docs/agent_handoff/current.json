@@ -16344,5 +16344,14 @@
     "incident_scope": "Startup DDL contention is proven material exposure but does not explain the separate post-startup SQLite holder/busy mechanism.",
     "audit": "docs/audits/operations_db_startup_ddl_audit.v1.json",
     "next_action": "Hold. Under separate authorization centralize versioned migrations and replace normal-startup DDL with read-only validation; separately trace the live heartbeat SQLITE_BUSY holder."
+  },
+  "operations_db_schema_migration_centralization_preflight": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "HOLD_UNSAFE_LEGACY_ENSURE_COMPOSITION",
+    "finding": "The requested architecture is appropriate, but existing DDL-capable ensures are not composable as a single atomic migration: several commit internally. Wrapping them would falsely claim restart-safe atomic migration.",
+    "gate": "Focused startup resilience tests passed, but tests/test_x77_3_ensure_schema_lease_leak.py has one existing failure in test_failed_alter_table_no_longer_leaks_lease_in_isolation. The broader startup/writer gate is therefore not clear.",
+    "safety": "Incomplete candidate boundary edits were reverted. No schema migration, service restart, listener-hot-path change, production mutation, provider call, timeout/WAL change, or research activation occurred.",
+    "audit": "docs/audits/operations_db_schema_migration_centralization_preflight.v1.json",
+    "next_action": "Refactor all selected legacy ensures into declarative versioned steps with no internal commits, then implement the central runner/read-only validators and full contention suite before deployment."
   }
 }

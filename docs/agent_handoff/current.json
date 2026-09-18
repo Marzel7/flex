@@ -16661,5 +16661,15 @@
     "safety": "No deployment/restart/service/config/production-database mutation, timeout/WAL change, provider call, source change, or schema-inventory resumption.",
     "audit": "/private/tmp/walkback_startup_schema_cutover_qualification_20260918.json sha256 7fc10e4a99684fa2370c9903de11913bf5aed47d2189d63b8e457d2ad97f72cc",
     "exact_next_action": "Do not patch or deploy startup. Separately implement and qualify one complete fail-closed read-only validator covering the exact queue/outcome/deep/candidate/treasury dependency graph, with current/stale/held-lock parity tests, then repeat this gate."
+  },
+  "walkback_startup_validator_build_qualification": {
+    "engineering_revision": "44476d7ba3896987e4031b5f35924426af00638a; clean-room implementation intentionally uncommitted",
+    "status": "WALKBACK_STARTUP_VALIDATOR_CUTOVER_HOLD",
+    "result": "A narrow metadata-only validator and ordinary queue-bootstrap cutover were prototyped in the clean room. Legacy empty schema and read-only production snapshot validate; focused tests pass. The hard gate remains unmet, so no dedicated engineering commit or deployment baseline was created.",
+    "manifest": "Direct queue composition: 12 tables, 209 columns, 14 indexes, no views/triggers; digest cc38e5ffbc638db17b2908b6d346fc0bcefd35c0e399e7fe9a3b2da449ac9cad. Seven known post-bootstrap queue additions are tolerated without user_version dependence.",
+    "tests": "30 focused validator tests passed. Selected existing suites: 84 passed, 2 failed due to existing clean-room fixture/lease assumptions. Missing-column full matrix, 60-second independent holder, stale-holder, and full remaining-startup-DDL proof were not complete.",
+    "safety": "Production mutations/restarts/provider calls=0; no timeout/WAL change; no Supervisor/config change.",
+    "audit": "/private/tmp/walkback_startup_validator_build_qualification_20260918.json sha256 81211d2ac155f76a1b129dbc117607a03e2df3cc7a30862a53deba5a53960874",
+    "exact_next_action": "Do not deploy or commit as qualified. Complete the exact required column matrix and genuine independent 60-second valid/stale held-writer proofs; reconcile the remaining Treasury startup DDL with the requested full-startup lock gate; then rerun all specified regressions."
   }
 }

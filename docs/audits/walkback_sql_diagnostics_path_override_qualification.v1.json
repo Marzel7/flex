@@ -1,0 +1,19 @@
+{
+  "schema_version": "walkback_sql_diagnostics_path_override_qualification.v1",
+  "base_commit": "c0944655fab2211236e9f54207a782babbfdec8d",
+  "scope": "Single opt-in Walkback SQL diagnostics path override for clean-source runtime-path parity.",
+  "contract": {
+    "environment_variable": "DB_WALKBACK_SQL_DIAGNOSTICS_PATH",
+    "unset_or_empty": "Retains the exact existing source-relative walkback_sql_lifecycle.jsonl path.",
+    "set": "Uses the supplied path exactly without source-root prefixing."
+  },
+  "non_changes": {
+    "transaction_semantics_changed": false,
+    "flock_semantics_changed": false,
+    "sqlite_timeout_changed": false,
+    "wal_changed": false,
+    "diagnostic_event_format_changed": false
+  },
+  "tests": "45 passed: path override, lifecycle provenance, writer boundary, canonical membership boundary, manual bridge/UI.",
+  "safety": "No Supervisor change, restart, database move/copy, provider call, or dirty-workspace mutation."
+}

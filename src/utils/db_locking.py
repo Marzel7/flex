@@ -421,7 +421,9 @@ _TOKEN_PREDICTION_SQL_DIAGNOSTICS_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
     "logs", "diagnostics", "x78_23_token_prediction_sql.jsonl",
 )
-_WALKBACK_SQL_DIAGNOSTICS_PATH = os.path.join(
+_WALKBACK_SQL_DIAGNOSTICS_PATH = os.environ.get(
+    "DB_WALKBACK_SQL_DIAGNOSTICS_PATH"
+) or os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
     "logs", "diagnostics", "walkback_sql_lifecycle.jsonl",
 )

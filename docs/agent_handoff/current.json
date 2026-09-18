@@ -16693,5 +16693,14 @@
     "safety": "Original dirty workspace unchanged; production mutations/restarts/provider calls=0; no timeout/WAL/config/Supervisor change.",
     "audit": "/private/tmp/walkback_minimal_read_only_startup_cutover_20260918.json sha256 1d6ed6838008bd29a1621964764b34407e8f6185b66a73aa39d69ac718207dce",
     "exact_next_action": "Run the explicit independent >60.1-second held-writer valid/stale integration proof and rerun relevant regressions; commit only if every hard gate passes."
+  },
+  "walkback_held_writer_proofs_attempt": {
+    "engineering_revision": "44476d7ba3896987e4031b5f35924426af00638a clean room; cutover remains uncommitted",
+    "status": "WALKBACK_READ_ONLY_STARTUP_HOLD",
+    "attempt": "Ran only the two requested isolated valid/stale test-db proofs with OS flock plus BEGIN IMMEDIATE holders configured above 60.1 seconds. Processes completed.",
+    "result": "UNQUALIFIED: the execution environment did not retain subprocess result output/files, so required holder timestamps, measured durations, and validation-before-release ordering cannot be audited. Do not claim pass, commit, or deploy.",
+    "safety": "Production mutations/restarts/provider calls=0; no source/config/service change in this proof attempt.",
+    "audit": "/private/tmp/walkback_held_writer_proofs_attempt_20260918.json sha256 99c03664947cec72a0b9dc65be6e7ae02e25065a30cd3141745127824b0e2f45",
+    "exact_next_action": "Repeat both proofs with a durable independently verifiable result artifact, then evaluate the existing clean-room cutover gate."
   }
 }

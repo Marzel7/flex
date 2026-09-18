@@ -16430,13 +16430,13 @@
   },
   "operations_db_expanded_migration_dag_reconciliation": {
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
-    "status": "QUALIFIED_EXPANDED_PRODUCTION_SCHEMA_COVERAGE_NO_DEPLOY",
-    "result": "Superseded the old coverage claim. lineage_quarantine now exposes a supplied-connection migration step; Cascade invokes it rather than its committing wrapper and no longer commits its operation_state backfill. Watchtower attribution's canonical migration step now owns enqueue-failure and migration-coverage DDL; lazy helpers route to it. AST scan finds no commit/rollback/close/executescript in the three declarative steps. Cascade's canonical step now adds monitoring_state, funding_sequence_number, treasury_rotated and last_activity_at before the operation_state backfill; a fresh caller-owned transaction remains active and rollback returns zero schema tables.",
-    "tests": "120 passed combined migration/startup/expanded-step/Cascade/Deep-Walkback/health suite. Both expanded steps preserve caller transaction and rollback every schema object; an injected Cascade operation-state backfill failure propagates and caller rollback returns zero objects.",
-    "dag": "Expanded recursive source census: 10 nodes, 5 edges, max depth 2, cycles 0. All Cascade mutation work is owned by ws_cascade_store.migrate_schema_step or lineage_quarantine.migrate_schema_step; all Watchtower attribution DDL is owned by watchtower_attribution.migrate_schema_step. Unmapped runtime schema mutations: Cascade=0, Watchtower attribution=0.",
+    "status": "QUALIFIED_EXHAUSTIVE_GENERATED_COVERAGE_NO_DEPLOY",
+    "result": "Generated SQLite metadata manifests now prove exact legacy-wrapper/canonical-step parity for the expanded Cascade plus Watchtower-attribution surfaces: 29 tables, 37 indexes, 1 view; table/column/index/view mismatch counts are all zero. Representative operation-state backfill data has equal resulting rows on both paths. A recursive AST coverage gate maps all 111 direct DDL sites (Cascade 96, lineage 6, Watchtower attribution 9) to exactly one canonical supplied-connection owner and fails if a new DDL-bearing string escapes that owner.",
+    "tests": "92 passed generated coverage, expanded step, central runner, lease lifecycle, cascade, Deep-Walkback, candidate and anchor regressions. Complete runner commit/rollback/concurrency/release coverage and injected real Cascade backfill failure rollback pass.",
+    "dag": "Superseding expanded DAG digest=d9e2edc73dfee30064b67cb4f75ff2e0e40ef6466f320cdf958d67de58ba6ba0: 10 nodes, 5 edges, max depth 2, cycles 0. Unmapped runtime DDL=0; duplicate owners=0; orphan objects=0; runtime-only schema objects=0.",
     "safety": "No deployment/restart/schema mutation/provider call/listener change/timeout or WAL change. Heartbeat SQLite busy remains unresolved and separate.",
-    "audit": "docs/audits/operations_db_expanded_migration_dag_reconciliation.v1.json sha256 8b28180b505e562a23cf1f30d8001921d853c2894cceff444d15fe8b87a05920",
-    "next_action": "Under separate authorization, build the Cascade and Watchtower-attribution read-only validators and then stage caller cutover; do not deploy yet."
+    "audit": "docs/audits/operations_db_expanded_migration_dag_reconciliation.v1.json sha256 1697f1411efafa5a949d4a0f77f037ace6db0a2e544641b2321af9bb2c02e776",
+    "next_action": "Under separate authorization, build and qualify Cascade and Watchtower-attribution read-only validators from the frozen generated schema contract; do not deploy or switch callers yet."
   },
   "operations_db_complete_migration_dag": {
     "status": "QUALIFIED_TRANSACTION_NEUTRAL_NO_DEPLOY",

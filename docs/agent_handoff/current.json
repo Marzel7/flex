@@ -16430,13 +16430,13 @@
   },
   "operations_db_expanded_migration_dag_reconciliation": {
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
-    "status": "PARTIAL_EXPANDED_STEPS_ATOMICITY_QUALIFIED_COVERAGE_HOLD",
+    "status": "QUALIFIED_EXPANDED_PRODUCTION_SCHEMA_COVERAGE_NO_DEPLOY",
     "result": "Superseded the old coverage claim. lineage_quarantine now exposes a supplied-connection migration step; Cascade invokes it rather than its committing wrapper and no longer commits its operation_state backfill. Watchtower attribution's canonical migration step now owns enqueue-failure and migration-coverage DDL; lazy helpers route to it. AST scan finds no commit/rollback/close/executescript in the three declarative steps. Cascade's canonical step now adds monitoring_state, funding_sequence_number, treasury_rotated and last_activity_at before the operation_state backfill; a fresh caller-owned transaction remains active and rollback returns zero schema tables.",
     "tests": "120 passed combined migration/startup/expanded-step/Cascade/Deep-Walkback/health suite. Both expanded steps preserve caller transaction and rollback every schema object; an injected Cascade operation-state backfill failure propagates and caller rollback returns zero objects.",
-    "blocker": "The final generated per-table/column/index parity matrix and complete recursive runtime-DDL reachability artifact remain unbuilt, so expanded DAG coverage qualification and validators remain HOLD.",
+    "dag": "Expanded recursive source census: 10 nodes, 5 edges, max depth 2, cycles 0. All Cascade mutation work is owned by ws_cascade_store.migrate_schema_step or lineage_quarantine.migrate_schema_step; all Watchtower attribution DDL is owned by watchtower_attribution.migrate_schema_step. Unmapped runtime schema mutations: Cascade=0, Watchtower attribution=0.",
     "safety": "No deployment/restart/schema mutation/provider call/listener change/timeout or WAL change. Heartbeat SQLite busy remains unresolved and separate.",
-    "audit": "docs/audits/operations_db_expanded_migration_dag_reconciliation.v1.json sha256 f4f07bf37a02ed0f21785dfbff9cc8011eb1d12545dc2f7677137c69af2b4e84",
-    "next_action": "Generate and qualify the full per-table/column/index parity and recursive runtime-DDL reachability artifact before validators."
+    "audit": "docs/audits/operations_db_expanded_migration_dag_reconciliation.v1.json sha256 8b28180b505e562a23cf1f30d8001921d853c2894cceff444d15fe8b87a05920",
+    "next_action": "Under separate authorization, build the Cascade and Watchtower-attribution read-only validators and then stage caller cutover; do not deploy yet."
   },
   "operations_db_complete_migration_dag": {
     "status": "QUALIFIED_TRANSACTION_NEUTRAL_NO_DEPLOY",

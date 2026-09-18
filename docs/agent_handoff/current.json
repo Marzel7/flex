@@ -16584,5 +16584,20 @@
     "additional_scope_guard": "No source hunk was added: the current authorization explicitly requires stopping before implementation if an existing override is absent. No Supervisor configuration edit, lifecycle destination creation, source switch, reload, restart, database change, or dirty-workspace mutation occurred.",
     "parity": "OPS DB/lock, queue/fallback/checkpoint, and Supervisor log parity could be configuration-bound for the two-service set except for the source-root-derived Walkback SQL lifecycle diagnostic. Therefore CONFIG_ONLY_PATH_DECOUPLING_FEASIBLE=false and pre-restart gate fails.",
     "exact_next_action": "Separately authorize and qualify only an opt-in DB_WALKBACK_SQL_DIAGNOSTICS_PATH override in db_locking.py with regression coverage proving default behavior unchanged; then rerun the two-service path parity audit before any Supervisor change or restart."
+  },
+  "operations_db_walkback_sql_diagnostics_path_override": {
+    "engineering_revision": "44476d7ba3896987e4031b5f35924426af00638a",
+    "status": "OPERATIONS_DB_SQLITE_PROVENANCE_DEPLOY_READY",
+    "verdict": "DEPLOY_READY_CONTROL_PLANE_MUTATION_NOT_AUTHORIZED",
+    "clean_room": "PASS: /private/tmp/flex-sqlite-provenance-clean is clean at 44476d7ba3896987e4031b5f35924426af00638a; source digest f7b335a19ff7fef9166feee33d1722050f2ea789e77116916440b76d61029c91.",
+    "change": "Only db_locking _WALKBACK_SQL_DIAGNOSTICS_PATH gained DB_WALKBACK_SQL_DIAGNOSTICS_PATH with unset/empty fallback retained exactly; added its three-case path contract and the bounded qualification audit.",
+    "tests": "PASS: 45 tests covering the new default/empty/exact override cases plus SQLite lifecycle provenance, writer boundary, canonical membership boundary, and manual bridge/UI.",
+    "path_parity": "PASS for the authorized walkback_worker and ws_cascade set under explicit WT_OPS_DB_PATH, OPS_V2_DB_PATH, DB_PATH, DB_WALKBACK_SQL_DIAGNOSTICS_PATH, and DB_SQLITE_LIFECYCLE_DIAGNOSTICS_PATH: wt_ops, live DB, wt_ops lock, DB-backed queues/retries/checkpoints, and existing absolute Supervisor logs remain the current production paths.",
+    "diagnostics": "Walkback SQL path=/Users/kevinkeaveney/Dev/claude/flex/logs/diagnostics/walkback_sql_lifecycle.jsonl. Opt-in lifecycle path=/Users/kevinkeaveney/Dev/claude/flex/logs/diagnostics/operations_sqlite_lifecycle.jsonl. Lifecycle uses existing RotatingFileHandler defaults of 10 MiB with two backups (maximum retained 30 MiB).",
+    "non_changes": "Transactions, flock semantics, SQLite timeouts, WAL, diagnostic format/enablement, database contents, provider activity, and business logic unchanged. No Supervisor change/reload/restart and no dirty-workspace mutation occurred.",
+    "deployment_gate": "The active Supervisor file is /Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf, inside the explicitly protected dirty workspace, and has no include/overlay mechanism. Updating directory/PYTHONPATH/environment there is required to source-switch the two services but would violate ORIGINAL_DIRTY_WORKSPACE_MUTATED=false. Thus no restart was performed.",
+    "minimal_restart_set": "walkback_worker, ws_cascade only; listener, API, Monitor, and scheduler remain untouched (scheduler remains stopped).",
+    "audit": "docs/audits/walkback_sql_diagnostics_path_override_qualification.v1.json sha256 0ccda9e24989eb053254cb833c9eecd2179bbfd368edced04060aa2d6f7bcc6c",
+    "exact_next_action": "Provide an approved external Supervisor overlay/control-plane path, or explicitly permit the narrowly scoped Supervisor configuration edit despite the dirty-workspace prohibition; then apply the already-qualified two-service manifest and restart only walkback_worker and ws_cascade."
   }
 }

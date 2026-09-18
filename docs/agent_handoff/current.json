@@ -16531,5 +16531,15 @@
     "safety": "No production caller change/restart/schema mutation/provider call. Heartbeat SQLITE_BUSY remains unresolved and separate.",
     "audit": "docs/audits/operations_db_cascade_watchtower_validator_qualification.v1.json sha256 bc2cc82da65c628614a98cd71b591e680aa870c634d2bfd45243348e232199ed",
     "next_action": "Complete the generated mutation/concurrency/caller-map matrix before any caller cutover or deployment."
+  },
+  "operations_db_sqlite_provenance_clean_room_writer_boundary": {
+    "engineering_revision": "77492d22497e31a5984a234e2bb1f5cd2fc10613 clean-room worktree /private/tmp/flex-sqlite-provenance-clean; original workspace remains dirty and unmodified",
+    "status": "OPERATIONS_DB_SQLITE_PROVENANCE_CLEAN_ROOM_HOLD",
+    "verdict": "UNQUALIFIED_PREEXISTING_NORMAL_OPS_WRITER_DISCOVERED",
+    "writer_boundary_test": "3 passed, 1 failed: scheduler direct _sq_sched.connect(OPS_DB_PATH) remains at src/core/operation_scheduler.py:453.",
+    "scan": "Scheduler direct connection is a normal writer in run_subprov_discovery_job; scheduler URI mode=ro connections are read-only. A full source scan also found src/ops/operator_routes.py::_canonical_membership_connection, used by POST /potential-operations/proposals/<proposal_id>/promote through promote_validated_operation -> promote_canonical_manual_operation, as a direct normal wt_ops writer.",
+    "qualification": "The dirty workspace contains the scheduler db_connect migration, whose expected form is asserted by tests/test_ops_db_writer_boundary.py. It contains no migration for _canonical_membership_connection; therefore UNKNOWN_REMAINING_BYPASSES=0 but UNQUALIFIED_REMAINING_BYPASSES=1 and the required all-qualified gate is not met.",
+    "safety": "No production restart, mutation, provider call, timeout change, WAL change, or transaction-semantic change. No production hunk was applied to the clean room. Original workspace mutated=false.",
+    "exact_next_action": "Obtain and qualify a minimal managed-boundary migration for src/ops/operator_routes.py::_canonical_membership_connection (including its promotion transaction semantics), then rerun the complete scan; only after every normal writer is qualified may the scheduler hunk be imported with the other qualified migrations."
   }
 }

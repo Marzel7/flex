@@ -16713,5 +16713,17 @@
     "safety": "Original dirty workspace unchanged; production mutations/restarts/provider calls=0; not deployed.",
     "audit": "/private/tmp/walkback_read_only_startup_qualification_20260918.json sha256 8dbd69cc1a889b723e4af978fdbcb85502efbe57ecdd11b3f62188f267285953",
     "exact_next_action": "Repeat the bounded Walkback + Cascade joint provenance deployment from clean commit 3a6a3a5f."
+  },
+  "walkback_cascade_clean_deployment_observation": {
+    "engineering_revision": "3a6a3a5f00e7b0b42c5cc0ccc5e1515b0814cc3d",
+    "status": "PARTIAL_STARTUP_PASS_RUNTIME_SQLITE_BUSY_REPRODUCED",
+    "deployment": "Supervisor now runs only walkback_worker and ws_cascade from /private/tmp/flex-sqlite-provenance-clean; unrelated listener/API processes retained their PIDs. Config backup: /private/tmp/supervisord.conf.before-readonly-walkback-20260919.bak sha256 43e674e059ca59dfcacadce90d783d0d2eff099449ce0f366cd462fc263a2218.",
+    "startup": "Walkback PID 82103 passed the read-only startup path and remained RUNNING; Cascade PID 82225 remained RUNNING. No startup restart loop occurred.",
+    "runtime": "Fresh trace reproduced one Walkback wt_walkback_queue UPDATE SQLITE_BUSY after 31290.418ms while its application flock was owned. Cascade separately recorded two treasury-register SQLITE_BUSY waits of 10436.748ms and 10659.465ms plus one heartbeat busy. Both processes recovered and continued successful work.",
+    "candidate": "Operations Monitor PID 5450 held approximately 300 live wt_ops_v2 DB/WAL descriptors, many update-capable. This is strong correlation and a connection-lifecycle defect, not proof that PID 5450 owned the exact SQLite lock during the captured waits.",
+    "verdict": "Startup fix deployed successfully; restart did not fix runtime contention; optimal/healthy operation is not established.",
+    "safety": "No source, database, queue, timeout, WAL, provider, listener, API, or scheduler mutation beyond the bounded Walkback/Cascade Supervisor source cutover.",
+    "audit": "/private/tmp/walkback_cascade_clean_deployment_observation_20260919.json sha256 b808c30916c7d359db6257827e911c914b16869b3b7b7a3ad27460306f2d43d1",
+    "exact_next_action": "Audit and repair the Operations Monitor wt_ops connection lifecycle, then repeat the bounded Walkback + Cascade joint observation; do not claim exact PID 5450 writer ownership without transaction-level proof."
   }
 }

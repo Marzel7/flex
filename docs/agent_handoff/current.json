@@ -16409,6 +16409,16 @@
     "audit": "docs/audits/operations_db_service_schema_contracts_inventory.v1.json sha256 cc0f91cb66c9e8e94476033dfdbd66c101ceec0e33114c562ff55a03e86143f9",
     "next_action": "Define and test deep Walkback table/column/index validator parity first, then the remaining runtime schema surfaces before any caller cutover."
   },
+  "deep_walkback_schema_validator": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "QUALIFIED_NO_CALLER_CUTOVER",
+    "result": "Added deep_walkback.validate_schema(conn), a metadata-only full eight-table validator. It checks every DDL-derived required column and all three declared indexes including ordered index shapes. Production read-only preflight returned VALID. All three Walkback runtime Deep Walkback ensure calls are mapped logically but unchanged.",
+    "proof": "Missing each table/column/index and wrong index shape fail closed; validator trace has no DDL/DML/transaction statement; read-only validation completed during a held tracked writer. 91 combined migration/startup/Deep-Walkback/health tests passed.",
+    "inventory": "TOTAL_RUNTIME_SCHEMA_ENSURE_CALLS=11; DEEP_WALKBACK_MAPPED_ENSURES=3; UNMAPPED_RUNTIME_ENSURES_AFTER=8.",
+    "safety": "No production caller change/restart/schema mutation/provider call. Listener hot path unchanged. Heartbeat SQLITE_BUSY remains unresolved and separate.",
+    "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
+    "next_action": "Qualify Treasury and attribution-outcome validator parity before any service caller cutover."
+  },
   "operations_db_complete_migration_dag": {
     "status": "QUALIFIED_TRANSACTION_NEUTRAL_NO_DEPLOY",
     "result": "walkback_queue now has migrate_schema_step(conn), executes supplied statements, and composes canonical attribution/deep/candidate/priority steps. Its legacy ensure_schema remains the committing compatibility wrapper. Full empty-db caller transaction created 15 objects while active; rollback returned zero; commit recreated 15.",

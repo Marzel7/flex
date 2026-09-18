@@ -1,4 +1,15 @@
 {
+  "launch_audit_writer_scope_trace": {
+    "engineering_revision": "77492d22497e31a5984a234e2bb1f5cd2fc10613 working tree",
+    "status": "INSUFFICIENT_EXACT_HOLDER_BEHAVIOUR",
+    "historical_holder": "ws_cascade PID 31671 transaction 2c5bd04b-f324-4fe8-bee9-9aa1ea89dd34, command launch_audit.py:303 in _ops, acquired 1789745965.108702; sqlite_transaction_active=false; last recorded DB progress was its first write.",
+    "walkback_correlation": "The Walkback timeout at 1789745973.938 recorded that owner, but its age was only 8.829s at timeout. Launch Audit started about 51s into the 60.020s wait, so it cannot be claimed as the full wait's cause.",
+    "current_holder": "At inspection the historical Launch Audit lease had released. PID 31671 then held a separate _process_subprov_sig_durable lease (transaction 0e938421-4513-4001-9ed4-2f91cbebb380), so no live Launch Audit stack could be captured.",
+    "necessity": "CURRENT_OPTIONAL_COMPONENT: it supplies WATCHTOWER timing/actionability outcome observability, dashboard/behaviour projections and a Monitor migration fallback. It is not an operation attribution, assignment, Walkback, Treasury, Byzantine, Nexus or Watchtower-attribution dependency.",
+    "source_shape": "Phase-1 compute/provider-capable work is before final audit UPSERT; phase-2 snapshot reads are outside final write connection. Retained provenance does not identify the exact historical SQL/release lifecycle, so neither repair nor retirement is authorized from this trace.",
+    "audit": "docs/audits/launch_audit_writer_scope_trace.v1.json",
+    "next_action": "Add neutral lease/SQL lifecycle correlation for Launch Audit and reproduce a blocked audit workload while proving Walkback commits; keep Farm retired and research/classification paused."
+  },
   "farm_detector_production_retirement": {
     "engineering_revision": "77492d22497e31a5984a234e2bb1f5cd2fc10613",
     "status": "PARTIAL_CONTAINED_INDEPENDENT_WRITER_INCIDENT_REMAINS",

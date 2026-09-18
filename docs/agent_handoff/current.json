@@ -16431,11 +16431,11 @@
   "operations_db_expanded_migration_dag_reconciliation": {
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
     "status": "QUALIFIED_EXHAUSTIVE_GENERATED_COVERAGE_NO_DEPLOY",
-    "result": "Generated SQLite metadata manifests now prove exact legacy-wrapper/canonical-step parity for the expanded Cascade plus Watchtower-attribution surfaces: 29 tables, 37 indexes, 1 view; table/column/index/view mismatch counts are all zero. Representative operation-state backfill data has equal resulting rows on both paths. A recursive AST coverage gate maps all 111 direct DDL sites (Cascade 96, lineage 6, Watchtower attribution 9) to exactly one canonical supplied-connection owner and fails if a new DDL-bearing string escapes that owner.",
+    "result": "Generated SQLite metadata manifests now prove exact legacy-wrapper/canonical-step parity for the expanded Cascade plus Watchtower-attribution surfaces: 29 tables, 61 indexes/constraints, 1 view; table/column/index/view mismatch counts are all zero. Representative operation-state backfill data has equal resulting rows on both paths. A recursive AST coverage gate maps all 111 direct DDL sites (Cascade 96, lineage 6, Watchtower attribution 9) to exactly one canonical supplied-connection owner and fails if a new DDL-bearing string escapes that owner.",
     "tests": "92 passed generated coverage, expanded step, central runner, lease lifecycle, cascade, Deep-Walkback, candidate and anchor regressions. Complete runner commit/rollback/concurrency/release coverage and injected real Cascade backfill failure rollback pass.",
     "dag": "Superseding expanded DAG digest=d9e2edc73dfee30064b67cb4f75ff2e0e40ef6466f320cdf958d67de58ba6ba0: 10 nodes, 5 edges, max depth 2, cycles 0. Unmapped runtime DDL=0; duplicate owners=0; orphan objects=0; runtime-only schema objects=0.",
     "safety": "No deployment/restart/schema mutation/provider call/listener change/timeout or WAL change. Heartbeat SQLite busy remains unresolved and separate.",
-    "audit": "docs/audits/operations_db_expanded_migration_dag_reconciliation.v1.json sha256 1697f1411efafa5a949d4a0f77f037ace6db0a2e544641b2321af9bb2c02e776",
+    "audit": "docs/audits/operations_db_expanded_migration_dag_reconciliation.v1.json sha256 6bfc5e5c0cf05330643533d0d38b0928a1e845d2be6cc117b189a3070e052e4d",
     "next_action": "Under separate authorization, build and qualify Cascade and Watchtower-attribution read-only validators from the frozen generated schema contract; do not deploy or switch callers yet."
   },
   "operations_db_complete_migration_dag": {

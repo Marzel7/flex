@@ -1,4 +1,17 @@
 {
+  "farm_detector_production_retirement": {
+    "engineering_revision": "77492d22497e31a5984a234e2bb1f5cd2fc10613",
+    "status": "PARTIAL_CONTAINED_INDEPENDENT_WRITER_INCIDENT_REMAINS",
+    "root_cause": "operation_scheduler PID 64994 held the authoritative operations-db writer flock in transaction 93226d41-4915-45b1-b80c-8bf3cb170b1e while farm_detector.run_farm_scan performed HTTPS provider work.",
+    "code": "Dedicated commit deletes src/core/farm_detector.py, removes the sole operation_scheduler producer call, preserves historical Farm readers with explicit LEGACY/HISTORICAL markers, and adds structural producer/mutation/attribution and process-exit recovery regressions.",
+    "tests": "43 passed: Farm retirement, historical evidence retention, monitor evidence link, operations registry, and shell suites.",
+    "controlled_action": "Supervisor stopped only operation_scheduler. PID 64994 is absent; operation_scheduler is STOPPED and Farm can no longer execute in production.",
+    "post_action": "The Farm holder released, but Walkback's next retained 60.020s timeout was instead blocked by ws_cascade PID 31671, command launch_audit.py:303 in _ops, transaction 2c5bd04b-f324-4fe8-bee9-9aa1ea89dd34. Do not attribute that independent holder to Farm retirement.",
+    "deployment_constraint": "Do not restart operation_scheduler from the dirty shared checkout: that would load unrelated unqualified source changes. Resume it only from a verified production source baseline containing 77492d22.",
+    "research": "BYZANTINE_RESEARCH_PAUSED=true; OTHER126_RESEARCH_PAUSED=true.",
+    "audit": "docs/audits/farm_detector_production_retirement.v1.json",
+    "next_action": "Trace and structurally repair the independent ws_cascade launch_audit writer lease before claiming operations-db recovery; separately deploy the verified retirement commit from a clean parity-checked source baseline."
+  },
   "production_stabilization_plan": {
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
     "status": "QUALIFIED_PLAN_RESEARCH_PAUSED",

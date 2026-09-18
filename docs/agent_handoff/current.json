@@ -1,4 +1,17 @@
 {
+  "subprov_writer_scope_live_trace": {
+    "engineering_revision": "77492d22497e31a5984a234e2bb1f5cd2fc10613 with dirty working tree; runtime/source parity not established",
+    "status": "SUBPROV_WRITER_SCOPE_TRACE_HOLD",
+    "exact_holder": "ws_cascade PID 31671 asyncio_2 held transaction d1d2ce93-b5a5-46d8-bee6-88a9d194b2a0 / connection 80154215-07c1-47ff-a10b-96f089798958 from ws_cascade.py:3788 _handle_subprov_tx. It acquired at 2026-09-18T15:52:44.836341Z, recorded first/last DB progress at 15:52:44.836737Z, and was sampled for at least 4s.",
+    "collision": "A separate ws-cascade-event writer timed out after 60.003s behind this exact holder. The collision is proven, but it is not a retained Walkback timeout.",
+    "blocking_work": "Native stack samples captured pysqlite_connection_execute -> sqlite3_step -> sqlite3BtreeBeginTrans -> sqliteDefaultBusyCallback -> sleep while the global flock remained held. Exact statement/table and competing SQLite owner are not retained.",
+    "provider_boundary": "The direct _process_subprov_sig_durable retry RUNNING/DONE scopes are one signature each and close before handler/provider work. _handle_subprov_tx closes its read connection before _get_subprov_tx_fast_retry, then opens a separate local reduction/persistence connection. No provider/network/retry work under that final writer lane was proven.",
+    "scope_risk": "The final handler connection can span local candidate/session/fanout mutations and subsequent local classification/DB work. It is current required WATCHTOWER evidence processing, not obsolete research.",
+    "verdict": "Do not repair or retire the path yet: trace first needs statement-level lifecycle correlation and an offline reproduction identifying the competing SQLite writer. Preserve one-signature retry idempotency and prove rollback/cancellation release in the future repair.",
+    "research": "BYZANTINE_RESEARCH_PAUSED=true; OTHER126_RESEARCH_PAUSED=true.",
+    "audit": "docs/audits/subprov_writer_scope_live_trace.v1.json",
+    "next_action": "Add neutral statement lifecycle correlation and reproduce the exact nested-handler SQLite-busy collision on a test DB before authorizing a structural writer-scope change."
+  },
   "launch_audit_writer_scope_trace": {
     "engineering_revision": "77492d22497e31a5984a234e2bb1f5cd2fc10613 working tree",
     "status": "INSUFFICIENT_EXACT_HOLDER_BEHAVIOUR",

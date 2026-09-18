@@ -16392,6 +16392,14 @@
     "audit": "docs/audits/operations_db_atomic_migration_runner.v1.json sha256 c61926084b27f4fea221c5b6c0d43aeb2fdc1720f0c277366ae3808f90f1a71a",
     "next_action": "Under separate authorization, plan a staged migration/startup-validator deployment; do not change timeouts or claim heartbeat remediation."
   },
+  "operations_db_startup_validator_cutover_preflight": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "HOLD_INCOMPLETE_RUNTIME_SCHEMA_SURFACE_MAPPING",
+    "result": "Read-only production validation against database/wt_ops_v2.db returned VALID; version metadata is absent but compatible legacy schema is deliberately accepted. The DB has 180 tables. The qualified central validator covers only the nine-node DAG, while source still has production-reachable DDL ensures in Walkback startup/runtime, Scheduler per-job paths, API request paths, listener/creator initialization and untraced Monitor/funding surfaces.",
+    "safety": "No source cutover/restart/schema mutation/provider call. Listener hot path unchanged. Research remains paused. Heartbeat SQLITE_BUSY unresolved and separate.",
+    "audit": "docs/audits/operations_db_startup_validator_cutover_preflight.v1.json sha256 a34eed6cef36aa10c2dc860955bdfb9ddbebfc7a93725e41ab44cd30fc60bcc6",
+    "next_action": "Inventory every runtime wt_ops schema surface and add parity validators/stale-schema tests before replacing any ensure call."
+  },
   "operations_db_complete_migration_dag": {
     "status": "QUALIFIED_TRANSACTION_NEUTRAL_NO_DEPLOY",
     "result": "walkback_queue now has migrate_schema_step(conn), executes supplied statements, and composes canonical attribution/deep/candidate/priority steps. Its legacy ensure_schema remains the committing compatibility wrapper. Full empty-db caller transaction created 15 objects while active; rollback returned zero; commit recreated 15.",

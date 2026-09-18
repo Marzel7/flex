@@ -16353,5 +16353,14 @@
     "safety": "Incomplete candidate boundary edits were reverted. No schema migration, service restart, listener-hot-path change, production mutation, provider call, timeout/WAL change, or research activation occurred.",
     "audit": "docs/audits/operations_db_schema_migration_centralization_preflight.v1.json",
     "next_action": "Refactor all selected legacy ensures into declarative versioned steps with no internal commits, then implement the central runner/read-only validators and full contention suite before deployment."
+  },
+  "operations_db_migration_primitives_checkpoint": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "PARTIAL_FAILED_DDL_LIFECYCLE_FIXED",
+    "lease_regression": "The previously failing test asserted historical behavior. TrackedCursor now releases the lane after failed DDL when SQLite has no active transaction. The replacement test proves failed duplicate ALTER leaves no thread lease, a same-connection write commits, and a next connection commits. Focused suite: 17 passed.",
+    "remaining": "walkback_queue, treasury_bank, attribution_outcome, ws_cascade_store, anchor_reconciliation, and watchtower_attribution schema routines retain internal commit ownership; declarative steps, central runner, and validators are not yet built.",
+    "safety": "No production restart/schema mutation/provider call; heartbeat SQLITE_BUSY root cause remains unresolved.",
+    "audit": "docs/audits/operations_db_migration_primitives_checkpoint.v1.json",
+    "next_action": "Refactor each listed ensure into a supplied-connection no-commit/no-close step with compatibility wrappers before constructing/qualifying the central runner."
   }
 }

@@ -16445,5 +16445,15 @@
     "safety": "No deployment/restart/schema mutation/provider call. Central runner and validators are unbuilt; heartbeat SQLITE_BUSY unresolved.",
     "audit": "docs/audits/operations_db_complete_migration_dag.v1.json",
     "next_action": "Under separate authorization, build/test the central migration runner; do not switch startup behavior yet."
+  },
+  "operations_db_cascade_watchtower_validator_qualification": {
+    "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
+    "status": "PARTIAL_HOLD_INCOMPLETE_GENERATED_MUTATION_MATRIX",
+    "result": "Cascade and Watchtower attribution now expose supplied-connection read-only validators backed by frozen generated metadata digests. The shared inspector uses only sqlite_master SELECT and PRAGMA metadata; it validates full columns/defaults/PK positions, named and SQLite-owned constraints, index order, and the Cascade lineage view without connection, transaction, flock, DDL, or DML ownership.",
+    "tests": "70 passed, 19 skipped: valid canonical and legacy schemas pass; all 24 Cascade tables, 5 Watchtower tables, and 33 removable named Cascade indexes fail closed when removed.",
+    "blocker": "Do not claim qualification: the required generated matrix still lacks individual SQLite PK/UNIQUE constraint mutation, all-column mutation, view alteration, held-writer concurrency, and runtime-caller mapping coverage.",
+    "safety": "No production caller change/restart/schema mutation/provider call. Heartbeat SQLITE_BUSY remains unresolved and separate.",
+    "audit": "docs/audits/operations_db_cascade_watchtower_validator_qualification.v1.json sha256 bc2cc82da65c628614a98cd71b591e680aa870c634d2bfd45243348e232199ed",
+    "next_action": "Complete the generated mutation/concurrency/caller-map matrix before any caller cutover or deployment."
   }
 }

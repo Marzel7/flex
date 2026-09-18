@@ -16648,5 +16648,18 @@
     "safety": "No source modification, timeout/WAL change, provider call, manual queue work, synthetic contention, or non-target restart. Production changes were temporary qualified source selection and target service restarts only.",
     "audit": "/private/tmp/operations_db_two_process_provenance_observation_20260918.json sha256 2aadd87280b538c738c862bf4df8de52c185eeab19fcea59a5e225cd6cd07291",
     "exact_next_action": "Do not retry deployment. Offline-qualify the clean-source Walkback startup schema path while a held operations lock is present, then separately decide whether a future diagnostic observation can avoid fatal startup DDL before attempting another source switch."
+  },
+  "walkback_startup_schema_cutover_qualification": {
+    "engineering_revision": "44476d7ba3896987e4031b5f35924426af00638a clean source; no source change",
+    "status": "WALKBACK_STARTUP_VALIDATOR_CUTOVER_HOLD",
+    "verdict": "NOT_QUALIFIED_FOR_REPLACEMENT",
+    "startup_boundary": "run_loop first calls walkback_queue.ensure_schema, followed by treasury_bank.initialize_schema and attribution_outcome.ensure_schema. The first queue call caused the retained clean-source startup restart loop.",
+    "read_only_inventory": "Production wt_ops_v2.db was opened read-only only: user_version=0; all 16 directly required Walkback/Treasury/Outcome/Deep/Candidate tables, all required queue columns, and the key indexes were present. This establishes physical current-state compatibility only.",
+    "blocking_gap": "No existing Walkback startup-chain read-only schema validator, migration-required signal, declarative manifest, or version contract was found in the clean source. The relevant modules offer only mutating ensure_schema/initialize_schema APIs. A current inventory cannot safely distinguish stale schema, so it cannot replace startup DDL.",
+    "lock_and_stale_matrix": "Not executed as a qualifier: without an existing candidate validator, a held-lock or stale-schema test would test an invented contract rather than establish parity. No new validator/migration design was added because it is out of scope.",
+    "tests": "Focused baseline command yielded 40 passed and 1 existing-environment failure: test_main_loop_starts_after_skipped_maintenance_task opened the clean worktree's absent relative database after mocked startup. No source change made.",
+    "safety": "No deployment/restart/service/config/production-database mutation, timeout/WAL change, provider call, source change, or schema-inventory resumption.",
+    "audit": "/private/tmp/walkback_startup_schema_cutover_qualification_20260918.json sha256 7fc10e4a99684fa2370c9903de11913bf5aed47d2189d63b8e457d2ad97f72cc",
+    "exact_next_action": "Do not patch or deploy startup. Separately implement and qualify one complete fail-closed read-only validator covering the exact queue/outcome/deep/candidate/treasury dependency graph, with current/stale/held-lock parity tests, then repeat this gate."
   }
 }

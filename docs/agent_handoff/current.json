@@ -16756,5 +16756,14 @@
     "caveat": "The UI label 'Migration + Walkback: FAILED' describes migration-to-Walkback durable handoff integrity, not current Walkback process health. The label is technically backed by data but can be misread as a worker failure.",
     "safety": "Read-only screenshot/API/Supervisor comparison; no service, source, config, database, queue, provider, timeout, or WAL mutation.",
     "exact_next_action": "Treat the dashboard as operationally accurate; rename or annotate the migration-handoff card separately if clearer semantics are desired. Investigate live ingestion and creator-funding incidents independently of the repaired Cascade/Walkback contention."
+  },
+  "pumpportal_live_availability_check": {
+    "engineering_revision": "502dab5208b0c18eaaa0e35f9166a6c7d8417ce5 deployed for Cascade; listener source unchanged",
+    "status": "PUMPPORTAL_WEBSOCKET_UNAVAILABLE_FROM_PRODUCTION_HOST_GLOBAL_OUTAGE_UNPROVEN",
+    "local_evidence": "watchtower_listener remained supervised but repeatedly logged PumpPortal websocket TimeoutError on attempts 1 and 2, then exited for Supervisor restart; subscriptions were newToken,migration,trades=0. PumpSwap via Helius connected successfully.",
+    "external_evidence": "https://pumpportal.fun returned HTTP 200 with approximately 0.33-second total response time. No authoritative PumpPortal status page or confirmed global outage notice was found.",
+    "verdict": "PumpPortal is not wholly down, but its realtime websocket is unavailable from this production host. Provider websocket degradation, routing, or temporary host/IP rate limiting remain possible.",
+    "safety": "Read-only endpoint, log, Supervisor, HTTP reachability, and public web checks; no restart, source, config, database, queue, provider subscription, timeout, or WAL mutation.",
+    "exact_next_action": "Run one bounded standalone websocket handshake from the production host and inspect HTTP/status response details before changing reconnect behavior or credentials."
   }
 }

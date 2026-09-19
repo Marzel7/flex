@@ -16765,5 +16765,14 @@
     "verdict": "PumpPortal is not wholly down, but its realtime websocket is unavailable from this production host. Provider websocket degradation, routing, or temporary host/IP rate limiting remain possible.",
     "safety": "Read-only endpoint, log, Supervisor, HTTP reachability, and public web checks; no restart, source, config, database, queue, provider subscription, timeout, or WAL mutation.",
     "exact_next_action": "Run one bounded standalone websocket handshake from the production host and inspect HTTP/status response details before changing reconnect behavior or credentials."
+  },
+  "pumpportal_listener_path_differential": {
+    "engineering_revision": "production listener source unchanged; Cascade 502dab5208b0c18eaaa0e35f9166a6c7d8417ce5",
+    "status": "LOCAL_LISTENER_RUNTIME_FAILURE_PROVIDER_AVAILABLE",
+    "standalone_proof": "From the production host, wss://pumpportal.fun/api/data completed handshake in 345.4ms and returned subscribeNewToken confirmation in 437.0ms without credentials.",
+    "managed_path": "The supervised listener repeatedly logs TimeoutError twice then exits for Supervisor restart, while PumpSwap/Helius connects. Its logs also show dense database-lock maintenance failures and reconnect progress much slower than configured delay intervals.",
+    "interpretation": "PumpPortal is reachable and is not currently blocking the host. The differential isolates the failure to the managed listener runtime; event-loop starvation or synchronous database/retry work is the leading explanation, not a provider-wide outage or credential failure.",
+    "safety": "One bounded free websocket subscribeNewToken handshake plus read-only logs/process/socket inspection; no production subscription persistence, restart, source, config, database, queue, timeout, or WAL mutation.",
+    "exact_next_action": "Instrument or sample the listener event loop around PumpPortal connect and isolate synchronous database maintenance/retry work from the websocket coroutine before changing provider settings."
   }
 }

@@ -1,0 +1,31 @@
+{
+  "schema_version": "wal_watchdog_checkpoint_execution_bound_qualification.v1",
+  "qualified_at_utc": "2026-09-19T11:35:00Z",
+  "base_revision": "0ba80fe86384386b89da2c9db872821b1ab73f1b",
+  "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",
+  "root_cause": "The existing 250ms watchdog limit bounded only application writer-lane acquisition. The global sqlite3.connect wrapper raises tracked connections to a 30-second SQLite busy timeout, so PRAGMA wal_checkpoint(TRUNCATE) could inherit that timeout after acquiring the lane and starve useful writers.",
+  "repair": "Before acquiring the shared writer lane, the watchdog connection now sets PRAGMA busy_timeout=250. The existing 250ms writer-lane acquisition bound, TRUNCATE mode, threshold, interval, cleanup order and all normal writer settings remain unchanged.",
+  "focused_proofs": {
+    "pinned_reader": "A real WAL database with an open reader snapshot made TRUNCATE return SQLite BUSY in under 1 second; the writer lane was released and a subsequent writer committed normally.",
+    "ordering": "The SQLite busy timeout is set before application-lane acquisition.",
+    "exception_cleanup": "A synthetic checkpoint exception still releases the writer lane and closes the connection.",
+    "tests": "79 passed across 13 relevant files, each file run in an isolated Python process to avoid the repository's known global sqlite3.connect reload contamination. The direct focused set also passed 23/23 in one process."
+  },
+  "scope": {
+    "source_files_changed": [
+      "src/utils/db_locking.py"
+    ],
+    "test_files_changed": [
+      "tests/test_wal_watchdog_checkpoint_execution_bound.py",
+      "tests/test_x78_35a_nonblocking_wal_checkpoint.py"
+    ],
+    "production_deployed": false,
+    "services_restarted": false,
+    "production_database_or_queue_changes": false,
+    "sqlite_settings_changed_in_production": false,
+    "provider_calls": 0,
+    "synthetic_production_traffic": false
+  },
+  "verdict": "WAL_WATCHDOG_CHECKPOINT_EXECUTION_BOUND_OFFLINE_QUALIFIED",
+  "next_action": "Prepare a module-only deployment manifest from this repair and request separate authorization before deploying src/utils/db_locking.py or restarting any service. Derive the restart set only from running services that execute the automatic WAL watchdog."
+}

@@ -100,7 +100,10 @@ def test_heavy_threshold_checkpoint_remains_bounded_and_observable():
 
     assert db_locking._WAL_SIZE_THRESHOLD == 32 * 1024 * 1024
     assert db_locking._WAL_WATCHDOG_INTERVAL == 30
-    constants = db_locking._wal_watchdog_loop.__code__.co_consts
+    constants = (
+        db_locking._wal_watchdog_loop.__code__.co_consts
+        + db_locking._run_wal_watchdog_checkpoint.__code__.co_consts
+    )
     assert any("wal_checkpoint(TRUNCATE)" in str(value) for value in constants)
     assert any("checkpoint result=" in str(value) for value in constants)
 

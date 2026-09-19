@@ -263,6 +263,23 @@ _DB_WRITE_STATS = {"acquisitions": 0, "contended": 0, "total_wait_ms": 0.0, "max
 _DB_WRITE_STATS_LOCK = threading.Lock()
 
 
+class ApplicationWriteLockTimeout(TimeoutError):
+    """A local writer could not enter the application serialization lane.
+
+    This is deliberately raised before SQLite sees the mutating statement.
+    Falling through would create an uncoordinated SQLite writer while another
+    connection legitimately owns the application lock.
+    """
+
+    def __init__(self, *, caller: str | None, wait_seconds: float) -> None:
+        self.caller = caller
+        self.wait_seconds = float(wait_seconds)
+        super().__init__(
+            "ApplicationWriteLockTimeout: "
+            f"caller={caller or 'unknown'} wait_seconds={self.wait_seconds:.3f}"
+        )
+
+
 @contextlib.contextmanager
 def bounded_write_wait(seconds: float):
     """Temporarily bound write-lane acquisition for one logical job.
@@ -719,7 +736,9 @@ class TrackedConnection(sqlite3.Connection):
                                             # so an abandoned-after-acquire conn can't leak the counter
         if not acquired:
             record_lock_error(caller)
-            return  # fall through to SQLite's own busy_timeout rather than deadlock
+            raise ApplicationWriteLockTimeout(
+                caller=caller, wait_seconds=write_wait_timeout,
+            )
         self._holds_write_lock = True
         try:
             from src.core.database_write_service import (

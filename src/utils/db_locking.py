@@ -1574,6 +1574,30 @@ def _reaper_loop() -> None:
 
 _WAL_WATCHDOG_INTERVAL = 30        # seconds between checks (was 60)
 _WAL_SIZE_THRESHOLD    = 32 * 1024 * 1024   # 32 MB (was 200 MB — too loose; let it bloat)
+_WAL_WATCHDOG_WRITE_LANE_TIMEOUT = 0.25
+
+
+def _run_wal_watchdog_checkpoint(db_path: str):
+    """Run a TRUNCATE checkpoint only while owning the application write lane.
+
+    A checkpoint participates in SQLite's locking protocol even though it is
+    expressed as a PRAGMA.  PRAGMAs are intentionally not classified as
+    ordinary mutations by ``TrackedConnection.execute()``, so the watchdog
+    must enter the lane explicitly.  If production already owns the lane,
+    housekeeping skips immediately instead of competing inside SQLite.
+    """
+    conn = None
+    try:
+        conn = sqlite3.connect(db_path, timeout=_WAL_WATCHDOG_WRITE_LANE_TIMEOUT)
+        with bounded_write_wait(_WAL_WATCHDOG_WRITE_LANE_TIMEOUT):
+            conn._acquire_write_lane()
+        return conn.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone()
+    finally:
+        if conn is not None:
+            try:
+                conn._release_write_lane()
+            finally:
+                conn.close()
 
 
 def _wal_watchdog_loop() -> None:
@@ -1590,11 +1614,9 @@ def _wal_watchdog_loop() -> None:
             if wal_size < _WAL_SIZE_THRESHOLD:
                 continue
             _db_logger.info(f"[WAL_WATCHDOG] WAL is {wal_size/1e6:.1f} MB — running TRUNCATE checkpoint")
-            conn = sqlite3.connect(_reaper_db_path, timeout=10)
             # TRUNCATE actually shrinks the -wal file (RESTART only resets the write
             # position). Falls back to RESTART semantics if readers block truncation.
-            result = conn.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone()
-            conn.close()
+            result = _run_wal_watchdog_checkpoint(_reaper_db_path)
             wal_after = os.path.getsize(wal_path) if os.path.exists(wal_path) else 0
             _db_logger.info(f"[WAL_WATCHDOG] checkpoint result={result}  WAL after={wal_after/1e6:.1f} MB")
         except Exception as e:

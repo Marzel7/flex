@@ -1,14 +1,16 @@
 {
   "operation_monitor_connection_closure": {
     "engineering_revision": "93489cf817f8fe1359468b566aa67cacd5b4a648 on origin/codex/monitor-connection-closure; based on frozen SQLite qualification commit cb441a2899bb6f1de80dbdf08674d2dd2148acfc",
-    "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",
+    "status": "PASS_DEPLOYED_AND_LIVE_PLATEAU_QUALIFIED",
     "root_cause": "Three recurring Monitor paths per idle cycle used native URI mode=ro sqlite3 connections in with statements. URI strings bypass the path-based TrackedConnection matcher, and native sqlite3.Connection.__exit__ does not close, so descriptors remained open until garbage collection. The conditional prior-fact lookup had the same ownership defect; _watchtower_entry_inventory already closed explicitly.",
     "reproduction": "With garbage collection disabled, 25 cycles leaked exactly 75 wt_ops descriptors: baseline=0, final=75, growth=3/cycle.",
     "repair": "A Monitor-local _read_only_connection context manager explicitly closes in finally. Startup validation, assignment reconciliation, retained-fact reduction, terminal-job reconciliation, and the conditional prior-fact lookup use it. Writer, queue, provider, and SQLite settings are unchanged.",
     "qualification": "With garbage collection disabled, 100 cycles / 300 recurring opens held descriptor baseline=0, final=0, maximum after every cycle=0. Normal and exception closure tests pass. 53 focused Monitor, lifecycle-provenance, and writer-boundary tests pass; compile and diff checks pass.",
     "audit": "docs/audits/operation_monitor_connection_closure_qualification.v1.json; local/remote sha256=5830f91249cb03026de2c6d8d44baeed3236b2c30fc991fc73182917bb61d244",
-    "production": "Monitor PID 5450 was not restarted or signalled. The shared production checkout was restored after qualification so an unrelated restart cannot load the unapproved repair. Cascade/Walkback/checkpoint serialization remains frozen and untouched.",
-    "next_action": "Under separate authorization, deploy only the qualified Monitor modules from 93489cf8, restart only operation_monitor_worker, and observe natural repeated cycles until the live wt_ops descriptor count falls and reaches a stable plateau."
+    "production": "Deployed only src/ops/operation_monitor_worker.py and src/ops/operation_monitor_service.py with byte-for-byte parity to 93489cf8 (sha256 c1e90f9b...e7f7f and 7489cb25...b0b8d). Restarted only operation_monitor_worker, PID 5450 -> 5022. Cascade, Walkback, listener, funding, API, alert evaluator, creator resolution, and ngrok PIDs remained unchanged; Farm Detector count remained zero.",
+    "live_qualification": "Pre-restart Monitor exposed 303 wt_ops DB/WAL/SHM descriptors. Across 62 five-second natural-cycle samples over 308 seconds, PID 5022 held exactly 0 database descriptors and exactly 40 total descriptors in every sample. Post-restart stdout/stderr line deltas were both zero and PID remained stable.",
+    "deployment_audit": "docs/audits/operation_monitor_connection_closure_deployment.v1.json at 3dc15e27aeff63c57369f47fd693e23979e0e4c3 on origin/codex/monitor-connection-closure; local/remote sha256=aad9c558a9f4d39b8165d42d8a977a2b93f1a0d5966eb74076135c092c880744",
+    "next_action": "Keep the qualified Monitor repair deployed and continue routine observation. Treat any future descriptor growth as a new incident; do not reopen Cascade/Walkback serialization without new evidence."
   },
   "wal_watchdog_writer_lane_repair": {
     "engineering_revision": "2f70fad5657ac51650f1cf77d34650ce90f87613 (continues deployed Cascade fail-closed commit 52f06b5728461b80eb7aea088d4c41012f383c29)",

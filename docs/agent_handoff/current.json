@@ -16797,11 +16797,11 @@
       "src/ops/migration_walkback_handoff_retry.py",
       "tests/test_migration_walkback_handoff_lifecycle.py"
     ],
-    "tests": "82 focused tests passed: new deterministic concurrent funding-writer, query-only discovery, SQL rollback, BaseException cancellation, 40-cycle descriptor stability, plus existing handoff, listener ownership, funding boundary, writer-service, and SQLite provenance suites.",
+    "tests": "82 focused integration-workspace tests passed: new deterministic concurrent funding-writer, query-only discovery, SQL rollback, BaseException cancellation, 40-cycle descriptor stability, plus existing handoff, listener ownership, funding boundary, writer-service, and SQLite provenance suites. The exact commit independently passed all 5 committed lifecycle tests in a clean detached worktree.",
     "semantics": "Candidate selection, handoff eligibility, retry policy, idempotency, queue durability, and outcome semantics are unchanged.",
     "deployment_verdict": "Ready only for a separately authorized, clean-source, listener-only deployment and bounded observation. No deployment occurred in this milestone.",
     "production_flags": "PRODUCTION_DATABASES_MODIFIED=false; PRODUCTION_SERVICES_RESTARTED=false; PROVIDER_CALLS=0",
-    "audit": "/private/tmp/listener_migration_handoff_lifecycle_fix_20260919.json sha256 dbf2c3a1163a2c36380b28b080892590431de104c2ea6e9bd3837637a41b6779",
+    "audit": "/private/tmp/listener_migration_handoff_lifecycle_fix_20260919.json sha256 81cf692c381f75787977483a920410f903084e97950bf0cf5a6ea815aafc0cf1",
     "exact_next_action": "Deploy commit 8dc6f947dbc5e5821d07c5478fc23acc58987497 from a clean worktree by restarting only watchtower_listener, then observe for at least 20 minutes against the manifest success and abort gates before touching Cascade or Monitor."
   }
 }

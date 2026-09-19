@@ -16860,5 +16860,16 @@
     "safety": "BUSINESS_LOGIC_CHANGES=0; DATABASE_OR_QUEUE_MUTATIONS_BY_AUDITOR=0; SQLITE_BEHAVIOR_CHANGES=0; PROVIDER_CALLS_BY_AUDITOR=0; PRODUCTION_RESTARTS=0; SERVICE_SIGNALS=0; LISTENER_FIX_REMAINS_QUALIFIED=true; FARM_DETECTOR_REMAINS_RETIRED=true",
     "audit": "/private/tmp/cascade_sqlite_blocker_root_cause_20260919.json sha256 4e98464bc8c3b021905d6d38f3f47a890a88104354bee6a037b040b2d337662b; capture /private/tmp/cascade_sqlite_blocker_capture_20260919.jsonl sha256 949cbad79078d53ee5021b9b892da28af01aa084238f4f21298178ff8e25d2cd",
     "next_action": "Implement and offline-qualify only the fail-closed TrackedConnection local-lock-timeout behavior: raise before SQLite execute rather than falling through; explicitly prove rollback/in_transaction=false before flock release. Do not deploy or restart Cascade without separate authorization."
+  },
+  "cascade_writer_lock_fail_closed_qualification_20260919": {
+    "base_revision": "502dab5208b0c18eaaa0e35f9166a6c7d8417ce5",
+    "repair_revision": "52f06b5728461b80eb7aea088d4c41012f383c29",
+    "branch_and_checkout": "codex/cascade-writer-lock-fail-closed at /private/tmp/cascade-lock-fix2.F3gsv9",
+    "status": "CASCADE_WRITER_LOCK_FAIL_CLOSED_OFFLINE_QUALIFIED_NOT_DEPLOYED",
+    "repair": "TrackedConnection._acquire_write_lane now raises ApplicationWriteLockTimeout when its process-local writer lock cannot be acquired. It no longer returns and permits sqlite3.execute without application-flock ownership. No other writer, transaction, timeout, provider or business behavior changed.",
+    "qualification": "68 focused tests passed: 4 new fail-closed regressions plus 64 lifecycle, rotation, writer-boundary, Walkback reliability, cancellation cleanup, DatabaseWriteService and Cascade proxy-scope regressions. Direct execute, executemany and cursor mutation all fail before SQLite; no transaction or lock state is retained; the next writer commits normally.",
+    "production": "NOT_DEPLOYED. Running clean checkout remains revision 502dab52 with unchanged db_locking.py hash 9c253095...; Cascade 74842, Walkback 82103, listener 93379 and funding 59094 remained RUNNING and unchanged. Restarts/signals/database mutations/provider calls/synthetic traffic=0.",
+    "audit": "/private/tmp/cascade_writer_lock_fail_closed_qualification_20260919.json sha256 4d7d82ebae82901c83b4a430834ad9378163c71dd70940271b25ec68951d3582",
+    "next_action": "Prepare a minimal module-only deployment manifest for repair 52f06b57 and request explicit deployment/restart authorization before changing the running Cascade checkout or restarting ws_cascade."
   }
 }

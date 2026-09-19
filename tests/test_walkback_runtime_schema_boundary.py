@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import sqlite3
+import inspect
 from unittest.mock import patch
 
 from src.core import walkback_queue
 from src.ops import anchor_reconciliation as recon
 from src.ops import create_event_ledger as ledger
+from src.core import walkback_worker
 
 
 def _ops() -> sqlite3.Connection:
@@ -69,3 +71,11 @@ def test_recurring_anchor_inventory_is_bounded_to_1_oldest_row():
     rows = recon._stuck_rows(ops, limit=1)
     assert len(rows) == 1
     assert [row["mint"] for row in rows] == ["mint-00"]
+
+
+def test_each_funder_promotion_commits_before_next_candidate():
+    source = inspect.getsource(walkback_worker.promote_recurring_funders)
+    commit = source.index("ops.commit()")
+    counted = source.index("promoted += 1")
+    assert commit < counted
+    assert "if promoted:" not in source

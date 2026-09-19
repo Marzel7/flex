@@ -1625,10 +1625,11 @@ def promote_recurring_funders(ops: sqlite3.Connection) -> int:
             print(f"[WALKBACK] promoted recurring funder {fw[:14]}… "
                   f"(creators={n}, mechanism={mechanism})", flush=True)
 
-        promoted += 1
-
-    if promoted:
+        # Release the shared writer lane before classifying the next candidate.
+        # Some classification paths perform RPC; no provider or unrelated read
+        # may run behind an earlier candidate's write transaction.
         ops.commit()
+        promoted += 1
     return promoted
 
 

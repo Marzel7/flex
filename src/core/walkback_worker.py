@@ -793,6 +793,10 @@ def _promote_if_canonical_watchtower(ops: sqlite3.Connection, mint: str,
             )
 
     if not _should_attempt_promotion:
+        # Comparison telemetry may have written on this shared connection.
+        # Fingerprint monitoring performs potentially broad analytical reads;
+        # release the writer lane before entering that optional projection.
+        ops.commit()
         _observe_fingerprint_drift(ops, mint)
         return
 
@@ -819,7 +823,13 @@ def _promote_if_canonical_watchtower(ops: sqlite3.Connection, mint: str,
             if membership["action"] == "projected":
                 print(f"[WALKBACK] WATCHTOWER membership projection → {mint[:14]}…", flush=True)
     except Exception as exc:  # noqa: BLE001 -- must never break the caller's terminal transition
+        if ops.in_transaction:
+            ops.rollback()
         print(f"[WALKBACK] registry promotion call failed mint={mint}: {exc}", flush=True)
+    # Membership projection and comparison telemetry are post-commit writes.
+    # They must be durable and release the writer lane before fingerprint
+    # monitoring begins its aggregate SELECT work.
+    ops.commit()
     _observe_fingerprint_drift(ops, mint)
 
 

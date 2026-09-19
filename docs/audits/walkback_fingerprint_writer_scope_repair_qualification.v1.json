@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "audit": "walkback_fingerprint_writer_scope_repair_qualification",
+  "qualified_at_utc": "2026-09-19T16:20:35Z",
+  "base_revision": "2f5c8116af59867220e98e6cf9841d9e926df94b",
+  "branch": "codex/walkback-fingerprint-writer-scope",
+  "checkout": "/private/tmp/walkback-writer-scope-fix.vrEnbA",
+  "status": "WALKBACK_FINGERPRINT_WRITER_SCOPE_OFFLINE_QUALIFIED_NOT_DEPLOYED",
+  "production_evidence": {
+    "owner": "walkback_worker main thread through walkback_worker.py:521 _ops_conn",
+    "observed_holds_seconds": "approximately 11-21",
+    "representative_statement": "SELECT COUNT(DISTINCT mint) FROM operation_fingerprint_drift_evidence ...",
+    "attribution": "The statement belongs to operation_fingerprint_drift._refresh_health, invoked after post-walkback telemetry/projection writes on the same connection. Those writes could retain the shared writer lease across the aggregate reads."
+  },
+  "root_cause": "Post-commit comparison/membership projections and fingerprint monitoring reused one tracked connection without a durable transaction boundary before aggregate SELECT work. Fingerprint evidence, health snapshot and cluster phases also shared one transaction, so a write acquired the application lane and later full-table reads prolonged ownership.",
+  "repair": {
+    "src/core/walkback_worker.py": "Commit successful post-walkback telemetry/membership work before fingerprint analytics; roll back a failed optional promotion transaction before continuing.",
+    "src/ops/operation_fingerprint_drift.py": "Commit schema/evidence/health/cluster writes independently before the next analytical phase and roll back any failed optional projection transaction.",
+    "scope": "No detector predicate, classification, membership, queue, provider, timeout, SQLite global setting or business rule changed."
+  },
+  "qualified_hashes": {
+    "src/core/walkback_worker.py": "8ceabd5198585d955de9599430a14c04ab2b8b233d33fdc4da2fe6a6b1a020c9",
+    "src/ops/operation_fingerprint_drift.py": "6652f64488f9d0c72c8931c01b4fa547c6a5bc6da506b3cb3ede840b387dba82",
+    "tests/test_walkback_fingerprint_writer_scope.py": "3d2d1d54e16005998bb6bf3a7b5bc026fb4ef6412d4923fff5b11310432bb0e3"
+  },
+  "qualification": {
+    "new_boundary_tests": "2 passed: analytical phases begin with in_transaction=false; injected failure leaves in_transaction=false and rolls back only the failed phase.",
+    "focused_and_surrounding_tests": "48 passed.",
+    "known_baseline_failures": "Two unrelated assertions fail identically on the unmodified base: stale P3R_13A04 display-name expectation and an existing non-WATCHTOWER promotion fixture failure.",
+    "syntax": "py_compile passed for both changed modules and the new test.",
+    "diff_check": "passed"
+  },
+  "production_flags": {
+    "deployed": false,
+    "service_restarts_or_signals": 0,
+    "production_source_or_config_changes": 0,
+    "production_database_or_queue_mutations": 0,
+    "provider_calls": 0,
+    "synthetic_production_traffic": 0
+  },
+  "verdict": "OFFLINE_QUALIFIED",
+  "blocker": "Production behavior is not qualified until the two-module repair is separately authorized, deployed to the actual Supervisor runtime checkout, and walkback_worker alone is restarted and observed on natural nonempty work.",
+  "next_action": "Prepare a two-module deployment manifest and request separate authorization. If authorized, deploy only walkback_worker.py and operation_fingerprint_drift.py, restart only walkback_worker, then observe natural nonempty work and prove no fingerprint analytical SELECT occurs under a retained writer lease."
+}

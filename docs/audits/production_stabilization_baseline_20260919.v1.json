@@ -1,0 +1,102 @@
+{
+  "audit": "production_stabilization_baseline_20260919.v1",
+  "captured_at_utc": "2026-09-19T10:25:58Z",
+  "status": "PRODUCTION_BASELINE_FROZEN_OBSERVATION_PENDING",
+  "production_checkout": {
+    "path": "/Users/kevinkeaveney/Dev/claude/flex",
+    "head": "8dc6f947dbc5e5821d07c5478fc23acc58987497",
+    "branch": "classification-attribution-axis",
+    "dirty": true,
+    "tracked_diff_sha256": "0174559cdcd43c9611a902215719bc903b7fe72c19ed1504e73537345a5433a4",
+    "staged_diff_sha256": "fecc624da6232ae09c27749e8d5f028c3e785e1e896205cd41df8de23b16534b",
+    "porcelain_v1_uall_sha256": "f5ca61ab44d4ff8b4ab31ccc2e4ec0375c40755361d74a2ad23579475667e210",
+    "restart_guard": "The dirty checkout is not a deployable parity image. Do not infer running module bytes from HEAD and do not restart a qualified service from this checkout without a fresh module-level parity gate."
+  },
+  "qualified_components": {
+    "listener_handoff": {
+      "commit": "8dc6f947dbc5e5821d07c5478fc23acc58987497",
+      "module": "src/ops/migration_walkback_handoff_retry.py",
+      "production_disk_sha256": "00deb45981bcc17c58a58e1b0f553a46f30a627fdda19848a8b22d580fdca3ae",
+      "qualified_blob_sha256": "00deb45981bcc17c58a58e1b0f553a46f30a627fdda19848a8b22d580fdca3ae",
+      "parity": true,
+      "runtime_pid": 93379
+    },
+    "walkback_read_only_startup": {
+      "commit": "3a6a3a5f00e7b0b42c5cc0ccc5e1515b0814cc3d",
+      "wal_runtime_revision": "0ba80fe86384386b89da2c9db872821b1ab73f1b",
+      "runtime_pid": 79797,
+      "loaded_runtime_identity": "Qualified restart recorded at WAL/checkpoint deployment; current disk modules have subsequently diverged and are recorded below.",
+      "production_disk_sha256": {
+        "src/core/treasury_bank.py": "0a8ef2963cc9ca4cbc53a9bf8f2a486a258aebc6b68d0b090b7823281b10718b",
+        "src/core/walkback_queue.py": "65ab2d44e7e96a27ba28553108aba5408363e623043c1cac5cc7e2d0f5d394f4",
+        "src/core/walkback_worker.py": "8743d34200bfb2aae2fb090824a9ba95ce2a8922d43c21924fd7a5e7085a351a",
+        "src/ops/attribution_outcome.py": "d13679c7e61f5f9b8fb996e5322dfe97b575b6564322952493b63d7f1655090b"
+      },
+      "current_disk_matches_3a6a3a5f": false
+    },
+    "cascade_and_wal": {
+      "fail_closed_commit": "c6c12ab48a41e8df427d96fd071ddac18dd412ce",
+      "wal_checkpoint_runtime_revision": "0ba80fe86384386b89da2c9db872821b1ab73f1b",
+      "qualification_audit_commit": "cb441a2899bb6f1de80dbdf08674d2dd2148acfc",
+      "runtime_pid": 79750,
+      "production_disk_sha256": {
+        "src/core/ws_cascade.py": "de2795b857efc0f83b4d3d85cc9ee6acbc288cae061f5804390909a3d0dbde09",
+        "src/utils/db_locking.py": "3e23b1cedd311a4b4b75de2ed5abf788ddd55468289698db7381d6fe22d7c1d6"
+      },
+      "qualified_0ba80fe_db_locking_sha256": "5ea2723ade7db5d95340ed681452313a73df199f097c67d5c31a9877a033c839",
+      "current_disk_matches_0ba80fe_db_locking": false,
+      "loaded_runtime_identity": "Cascade and Walkback were restarted from the qualified 0ba80fe module-only state; current disk divergence occurred later and is not authorized for restart."
+    },
+    "monitor_connection_closure": {
+      "repair_commit": "93489cf817f8fe1359468b566aa67cacd5b4a648",
+      "deployment_audit_commit": "3dc15e27aeff63c57369f47fd693e23979e0e4c3",
+      "runtime_pid": 5022,
+      "production_disk_sha256": {
+        "src/ops/operation_monitor_service.py": "7489cb25a87c9a485a6597a46fa0bb6b971531ca8e9f3b8d4c2b7d33addb0b8d",
+        "src/ops/operation_monitor_worker.py": "c1e90f9ba54c4d6c8f86feb1b8060cff5143a6d8ec5f682bdf89a7e8809e7f7f"
+      },
+      "qualified_blob_parity": true,
+      "descriptor_baseline": {"wt_ops": 0, "total": 40}
+    }
+  },
+  "service_baseline": {
+    "alert_evaluator": 5447,
+    "creator_funding_worker": 59094,
+    "creator_resolution_worker": 20081,
+    "operation_monitor_worker": 5022,
+    "walkback_worker": 79797,
+    "watchtower_api": 25464,
+    "watchtower_listener": 93379,
+    "watchtower_ngrok": 5454,
+    "ws_cascade": 79750,
+    "farm_detector_process_count": 0
+  },
+  "health_baseline": {
+    "live_ingestion": "HEALTHY; PumpPortal CONNECTED; PumpSwap CONNECTED; births 14.47/min over 15m; migrations 0.60/min over 15m; pending birth/migration queues 0/0",
+    "creator_funding": "HEALTHY; RUNNING_AND_COMPLETING; heartbeat age 0s; backlog trend normal",
+    "infrastructure": "HEALTHY; database pressure HEALTHY; writer-lane p99 47.91ms",
+    "operational_intelligence": "HEALTHY; supporting snapshot stale informational; 3 migrated tokens missing creator in last hour"
+  },
+  "log_boundaries": {
+    "listener": {"stdout_inode": 869916931, "stdout_lines": 190873, "stderr_inode": 757092214, "stderr_lines": 27020},
+    "walkback": {"stdout_inode": 861040304, "stdout_lines": 6771, "stderr_inode": 673709305, "stderr_lines": 20241},
+    "cascade": {"stdout_inode": 858211160, "stdout_lines": 41273, "stderr_inode": 746323525, "stderr_lines": 6094},
+    "funding": {"stdout_inode": 877775776, "stdout_lines": 41904, "stderr_inode": 872063278, "stderr_lines": 28819},
+    "monitor": {"stdout_inode": 836847013, "stdout_lines": 0, "stderr_inode": 836847014, "stderr_lines": 39}
+  },
+  "observation_plan": {
+    "minimum_elapsed_hours": 4,
+    "mode": "read-only retained-log and live-state audit",
+    "engineering_changes": false,
+    "service_restarts_or_signals_by_observer": false,
+    "synthetic_traffic": false,
+    "final_gates": [
+      "listener and creator funding remain healthy",
+      "Walkback and Cascade show natural progress",
+      "Monitor descriptors remain at a stable plateau",
+      "SQLITE_BUSY and writer timeouts are absent or negligible",
+      "WAL checkpoints remain fail-closed and do not block production writers",
+      "no unexplained service restart"
+    ]
+  }
+}

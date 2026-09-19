@@ -1,0 +1,72 @@
+{
+  "schema": "wal-watchdog-writer-lane-deployment-qualification.v1",
+  "recorded_at": "2026-09-19T09:55:40Z",
+  "verdict": "PRODUCTION_QUALIFIED",
+  "engineering": {
+    "offline_qualification_revision": "2f70fad5657ac51650f1cf77d34650ce90f87613",
+    "runtime_revision": "0ba80fe86384386b89da2c9db872821b1ab73f1b",
+    "module": "src/utils/db_locking.py",
+    "repair": "PRAGMA wal_checkpoint(TRUNCATE) must acquire the bounded shared application writer lane before entering SQLite; maintenance skips fail-closed after 250ms contention."
+  },
+  "deployment": {
+    "scope": "module-only",
+    "restarted": {
+      "ws_cascade": {
+        "before_pid": 56729,
+        "after_pid": 79750
+      },
+      "walkback_worker": {
+        "before_pid": 82103,
+        "after_pid": 79797
+      }
+    },
+    "unchanged": {
+      "operation_monitor_worker": 5450,
+      "watchtower_listener": 93379,
+      "creator_funding_worker": 59094,
+      "watchtower_api": 25464,
+      "alert_evaluator": 5447,
+      "creator_resolution_worker": 20081,
+      "watchtower_ngrok": 5454
+    },
+    "configuration_changed": false,
+    "database_or_queue_mutation": false,
+    "sqlite_settings_changed": false
+  },
+  "qualification": {
+    "natural_observation_seconds_minimum": 1200,
+    "cascade_pid_stable": true,
+    "walkback_pid_stable": true,
+    "cascade_state": "LIVE",
+    "cascade_subscriptions": 65,
+    "walkback_batches": 5,
+    "walkback_items_processed": 12,
+    "sqlite_busy_events": 0,
+    "database_locked_events": 0,
+    "production_writer_timeouts": 0,
+    "tracebacks": 0,
+    "expected_checkpoint_skips": {
+      "cross_process_write_lane_timeout": 1,
+      "process_local_write_lane_timeout": 1,
+      "maximum_observed_seconds": 0.251,
+      "sqlite_checkpoint_executed_after_timeout": false
+    },
+    "offline_tests": {
+      "focused_passed": 43,
+      "suites": [
+        "tests/test_x78_35a_nonblocking_wal_checkpoint.py",
+        "tests/test_operations_sqlite_lifecycle_provenance.py",
+        "tests/test_ops_db_writer_boundary.py"
+      ]
+    },
+    "runtime_parity": {
+      "qualified_module_sha256": "5ea2723ade7db5d95340ed681452313a73df199f097c67d5c31a9877a033c839",
+      "deployed_module_sha256": "5ea2723ade7db5d95340ed681452313a73df199f097c67d5c31a9877a033c839"
+    }
+  },
+  "freeze": {
+    "cascade_and_walkback_sqlite_serialization": "PRODUCTION_QUALIFIED",
+    "instruction": "Do not reopen Cascade, Walkback, or WAL-checkpoint serialization without new production evidence.",
+    "next_independent_issue": "operation_monitor_worker PID 5450 had approximately 318 open wt_ops_v2.db/WAL/SHM descriptors after qualification. Trace and repair only its connection ownership/closure path on a separate branch; do not restart Monitor before separate authorization."
+  }
+}

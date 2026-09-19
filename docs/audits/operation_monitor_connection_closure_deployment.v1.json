@@ -1,0 +1,41 @@
+{
+  "audit": "operation_monitor_connection_closure_deployment.v1",
+  "observed_at_utc": "2026-09-19T10:20:52Z",
+  "verdict": "PASS_DEPLOYED_AND_LIVE_PLATEAU_QUALIFIED",
+  "engineering_revision": "93489cf817f8fe1359468b566aa67cacd5b4a648",
+  "deployment": {
+    "modules": [
+      "src/ops/operation_monitor_worker.py",
+      "src/ops/operation_monitor_service.py"
+    ],
+    "worker_sha256": "c1e90f9ba54c4d6c8f86feb1b8060cff5143a6d8ec5f682bdf89a7e8809e7f7f",
+    "service_sha256": "7489cb25a87c9a485a6597a46fa0bb6b971531ca8e9f3b8d4c2b7d33addb0b8d",
+    "restarted_service": "operation_monitor_worker",
+    "old_pid": 5450,
+    "new_pid": 5022
+  },
+  "live_observation": {
+    "start_utc": "2026-09-19T10:15:27Z",
+    "end_utc": "2026-09-19T10:20:35Z",
+    "duration_seconds": 308,
+    "natural_cycle_interval_seconds": 5,
+    "samples": 62,
+    "pre_restart_database_descriptors": 303,
+    "post_restart_database_descriptor_min": 0,
+    "post_restart_database_descriptor_max": 0,
+    "post_restart_total_descriptor_min": 40,
+    "post_restart_total_descriptor_max": 40,
+    "new_stdout_lines": 0,
+    "new_stderr_lines": 0,
+    "pid_stable": true
+  },
+  "isolation": {
+    "unrelated_service_pids_unchanged": true,
+    "farm_detector_process_count": 0,
+    "configuration_changed": false,
+    "database_or_queue_changed": false,
+    "sqlite_settings_changed": false,
+    "cascade_or_walkback_changed": false
+  },
+  "conclusion": "The live Monitor descriptor leak is repaired. The database descriptor count fell from 303 to zero and remained at zero over 62 repeated natural cycles; total descriptors remained exactly 40."
+}

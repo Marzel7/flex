@@ -1,0 +1,62 @@
+{
+  "schema": "operation-monitor-connection-closure-qualification.v1",
+  "recorded_at": "2026-09-19",
+  "verdict": "OFFLINE_QUALIFIED_NOT_DEPLOYED",
+  "scope": {
+    "source": [
+      "src/ops/operation_monitor_worker.py",
+      "src/ops/operation_monitor_service.py"
+    ],
+    "test": "tests/test_operation_monitor_worker.py",
+    "frozen_components_changed": false,
+    "production_restart": false,
+    "production_deployment": false
+  },
+  "root_cause": {
+    "mechanism": "Recurring Monitor reads open URI mode=ro native sqlite3 connections using a with statement. Native sqlite3.Connection.__exit__ commits or rolls back but does not close. URI strings bypass the path-based TrackedConnection matcher, so three recurring connections per idle worker cycle remained open until garbage collection.",
+    "leaking_paths": [
+      "reconcile_byzantine_assignment_admissions",
+      "MonitorWorker.reconcile_retained_watchtower_facts",
+      "MonitorWorker.reconcile_terminal_ath_jobs"
+    ],
+    "conditional_path": "MonitorWorker.process_once prior-fact lookup",
+    "non_leaking_path": "_watchtower_entry_inventory already closed explicitly"
+  },
+  "reproduction": {
+    "garbage_collection_disabled": true,
+    "cycles": 25,
+    "recurring_connection_opens": 75,
+    "descriptor_baseline": 0,
+    "descriptor_final": 75,
+    "growth_per_cycle": 3
+  },
+  "repair": {
+    "mechanism": "A Monitor-local _read_only_connection context manager owns explicit close in finally and is used by startup validation plus every recurring and conditional read-only path.",
+    "normal_exit_closes": true,
+    "exception_exit_closes": true,
+    "sqlite_settings_changed": false,
+    "writer_or_queue_semantics_changed": false
+  },
+  "plateau_proof": {
+    "garbage_collection_disabled": true,
+    "cycles": 100,
+    "recurring_connection_opens": 300,
+    "descriptor_baseline": 0,
+    "descriptor_final": 0,
+    "maximum_observed_descriptors_after_cycle": 0,
+    "stable_plateau": true
+  },
+  "tests": {
+    "passed": 53,
+    "suites": [
+      "tests/test_operation_monitor_worker.py",
+      "tests/test_operation_monitor_service.py",
+      "tests/test_operations_sqlite_lifecycle_provenance.py",
+      "tests/test_ops_db_writer_boundary.py"
+    ],
+    "compile_check": "passed",
+    "diff_check": "passed"
+  },
+  "provenance": "The live Monitor modules and focused Monitor tests were untracked in the shared workspace at the frozen checkpoint. The repair package therefore records those pre-existing files in full but stages no unrelated untracked dependency or workspace change.",
+  "next_action": "Do not deploy or restart operation_monitor_worker until separately authorized. A deployment must change only the qualified Monitor modules, restart only operation_monitor_worker, and prove the live wt_ops descriptor count falls and reaches a stable plateau under repeated natural cycles."
+}

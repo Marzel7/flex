@@ -1,7 +1,7 @@
 {
   "audit": "walkback_runtime_schema_boundary_qualification.v1",
   "qualified_at_utc": "2026-09-19T10:40:00Z",
-  "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",
+  "status": "DEPLOYED_PRE_SOAK_PASS_FOUR_HOUR_OBSERVATION_PENDING",
   "root_cause": "Walkback's ordinary cycle called create_event_ledger.retry_pending_writes, which recursively invoked ensure_schema and executed CREATE TABLE/INDEX IF NOT EXISTS under the authoritative operations writer lane. The same cycle called anchor reconciliation with an unbounded waiting-row inventory and schema ensures, allowing one transaction to span the historical population. Live owner metadata captured the recurring DDL and self-owned holds over the UI stall threshold.",
   "repair": {
     "runtime_ddl": "Recurring Walkback calls explicitly use schema-current mode. Read-only startup validators cover the anchor-reconciliation and create-ledger contracts. Standalone/default callers retain existing ensure-schema behavior.",
@@ -43,5 +43,23 @@
     ],
     "restart_only": "walkback_worker",
     "observation": "Verify zero recurring CREATE statements from Walkback, bounded writer holds, natural Walkback/Cascade progress, and no new SQLite lock failures before resetting the four-hour stabilization clock."
+  },
+  "deployment": {
+    "final_runtime_commit": "52b4fb453925fae67feb07e0366f9e64a8ea7fbf",
+    "runtime_pid": 28968,
+    "module_sha256": {
+      "src/core/walkback_worker.py": "f6fd379cf7194a6f079495592e1d5c24e716c95364373f386c0a107243cf0927",
+      "src/ops/anchor_reconciliation.py": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7",
+      "src/ops/create_event_ledger.py": "64780f0d9724153581fec2a2182eb71d2dccf53b1be7abfd23b1062360249dc4"
+    },
+    "source_preservation": "The three qualified modules were staged only for process import; after restart the dirty production checkout was restored byte-for-byte to its recorded hashes. No unrelated dirty source was activated or overwritten.",
+    "rejected_live_trials": [
+      "25-row bound, PID 23985: writer holds reached 20.7s",
+      "5-row bound, PID 25222: writer hold reached 19.3s",
+      "1-row bound before promotion repair, PID 26674: post-batch promotion hold reached 19.3s"
+    ],
+    "final_pre_soak": "PID 28968 remained stable for 367s. Across 65 five-second samples the shared writer lane was free in every sample. Seven natural empty-queue cycles completed; recurring CREATE statements=0; new SQLITE_BUSY/database-locked/CrossProcessDatabaseWriteTimeout/Traceback events=0; UI stall messages=0. Nonempty-batch behavior remains a required gate in the four-hour natural-traffic observation.",
+    "unrelated_services": "Cascade 79750, listener 93379, funding 59094, Monitor 5022, API 25464, alert 5447, creator resolution 20081 and ngrok 5454 remained unchanged.",
+    "observation_boundary_utc": "2026-09-19T10:53:00Z"
   }
 }

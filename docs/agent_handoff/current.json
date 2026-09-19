@@ -16813,5 +16813,18 @@
     "production_flags": "PRODUCTION_DEPLOYMENT_PERFORMED=false; PRODUCTION_SERVICES_RESTARTED=0; PRODUCTION_DATABASES_MODIFIED=false; SUPERVISOR_CONFIGURATION_MODIFIED=false; PROVIDER_CALLS=0",
     "audit": "/private/tmp/listener_clean_source_deployment_preflight_hold_20260919.json sha256 2b74a0ef9e400318132336880c881a82f52c4ee888e2be49115947f8cb97f3d5",
     "exact_next_action": "Authorize a narrow watchtower_listener Supervisor runtime-path change to the clean worktree, or first produce and qualify a clean deployable runtime revision containing the current required listener baseline plus 8dc6f947; then restart only the listener and begin the 20-minute observation."
+  },
+  "listener_module_only_deployment_observation_20260919": {
+    "engineering_revision": "8dc6f947dbc5e5821d07c5478fc23acc58987497",
+    "status": "LISTENER_HANDOFF_MODULE_DEPLOYMENT_OBSERVATION_INCOMPLETE",
+    "deployment": "Atomically deployed only src/ops/migration_walkback_handoff_retry.py from Git blob eda2c79aa17eafbb4f15c740037168aff6be8773. Before/after/qualified SHA256 all equal 00deb45981bcc17c58a58e1b0f553a46f30a627fdda19848a8b22d580fdca3ae; unrelated source changes 0; compile/import passed.",
+    "writer_scope_result": "PASS: 3 observed cycles; maximum live writer connection 247.083ms; 0 live holds over 5s or 30s; maximum OPS writer connection 14.014s; cross-database write transaction overlaps 0; no recurrence of the prior multi-minute live writer ownership.",
+    "funding_result": "RECOVERING without restart: PID 59094 unchanged; heartbeat 24s to 7s; queue 97 to 81; oldest hot item 21331s to 7s; completed total 165 to 219 (+54); 0 retained funding write timeouts or database-locked errors.",
+    "ingestion_result": "Real traffic resumed. End state PumpPortal CONNECTED and PumpSwap CONNECTED; births 11.2/min over 5m and 9.4/min over 15m; latest migration received a durable handoff; final eligible/durable/missing=7/7/0.",
+    "stability_caveat": "One automatic restart occurred: PID 87428 exited under the pre-existing PumpPortal policy after two TimeoutError reconnect failures, then PID 93379 recovered ingestion. No deployed-module exception caused it, so rollback was not triggered; however final uptime 9m41s does not satisfy the strict beyond-previous-interval gate.",
+    "other_services": "Walkback 82103, Cascade 74842, funding 59094, API 25464/84322, Monitor 5450 and scheduler STOPPED state all unchanged; Farm Detector process count 0. Residual Cascade contention remains context only.",
+    "production_flags": "MODULE_LEFT_DEPLOYED=true; ROLLBACK_PERFORMED=false; OTHER_SERVICES_RESTARTED=0; SUPERVISOR_CONFIG_CHANGED=false; PRODUCTION_DATABASES_DIRECTLY_MODIFIED=false; PROVIDER_CALLS_SOLELY_FOR_TASK=0",
+    "audit": "/private/tmp/listener_module_only_deployment_observation_20260919.json sha256 eba7bda1a9f665702b46b4850533c8afd5c1408f5a0d752a8e5c007742c589b1",
+    "exact_next_action": "Leave the module deployed and perform a fresh read-only system health audit/extended observation before any Cascade repair; do not restart the listener solely to manufacture additional uptime."
   }
 }

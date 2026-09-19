@@ -1,4 +1,15 @@
 {
+  "production_stabilization_frozen_baseline_20260919": {
+    "status": "PRODUCTION_BASELINE_FROZEN_OBSERVATION_PENDING",
+    "captured_at_utc": "2026-09-19T10:25:58Z",
+    "production_head": "8dc6f947dbc5e5821d07c5478fc23acc58987497 on classification-attribution-axis; dirty checkout",
+    "qualified_components": "Listener handoff 8dc6f947; Walkback read-only startup 3a6a3a5f; Cascade fail-closed c6c12ab4; WAL checkpoint runtime 0ba80fe8 with audit cb441a28; Monitor repair 93489cf8 with deployment audit 3dc15e27.",
+    "runtime_pids": "listener=93379 walkback=79797 cascade=79750 monitor=5022 funding=59094 api=25464",
+    "source_state": "Listener handoff module and both Monitor modules match their qualified blobs. Current disk Walkback modules and src/utils/db_locking.py differ from the qualified loaded runtime state. Exact current hashes and dirty-worktree fingerprints are frozen in the baseline audit. Do not restart qualified services from the dirty checkout without a fresh parity gate.",
+    "baseline_health": "Live ingestion HEALTHY with PumpPortal/PumpSwap CONNECTED; creator funding HEALTHY/RUNNING_AND_COMPLETING; infrastructure HEALTHY; Monitor wt_ops descriptors=0 and total descriptors=40.",
+    "audit": "docs/audits/production_stabilization_baseline_20260919.v1.json at 04fdc813b8b179f65e9a27d11c1603e2b62b41de on origin/codex/monitor-connection-closure; local/remote sha256=c1d49ee2d50ea54263211914822e8fb84bc0a65ad81f5040902bb9eb24e128ac",
+    "next_action": "After at least four hours of natural traffic, run one final strictly read-only audit from the recorded PID/log/hash boundaries. Close the stabilization incident only if listener/funding remain healthy, Walkback/Cascade progress, Monitor remains plateaued, SQLite contention is absent or negligible, WAL maintenance is fail-closed, and no unexplained restart occurred."
+  },
   "operation_monitor_connection_closure": {
     "engineering_revision": "93489cf817f8fe1359468b566aa67cacd5b4a648 on origin/codex/monitor-connection-closure; based on frozen SQLite qualification commit cb441a2899bb6f1de80dbdf08674d2dd2148acfc",
     "status": "PASS_DEPLOYED_AND_LIVE_PLATEAU_QUALIFIED",

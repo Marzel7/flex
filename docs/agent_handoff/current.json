@@ -16992,5 +16992,19 @@
     "blocker": "The stabilization incident remains open until a fresh uninterrupted read-only four-hour system observation passes. The prior four-hour window was invalidated by the checkpoint incident and predates this final Walkback repair.",
     "audit": "docs/audits/walkback_fingerprint_writer_scope_deployment.v1.json on codex/walkback-fingerprint-writer-scope-runtime",
     "exact_next_action": "Freeze the current runtime baseline and perform a fresh read-only four-hour observation with no engineering changes. Verify ingestion, funding, Walkback/Cascade throughput, SQLite contention, WAL/checkpoint behavior, Monitor descriptors and service restarts before closing the incident."
+  },
+  "production_stabilization_four_hour_observation_20260919": {
+    "engineering_revision": "runtime e04d6ed169b84bc9ab00fd57f8e147c22908a7de with qualified dirty module state; handoff baseline 970a8ed1affa05b9f02b9b28fa5874db55e40034",
+    "status": "OBSERVATION_IN_PROGRESS",
+    "start": "2026-09-19T19:01:29Z epoch 1789844489",
+    "end_not_before": "2026-09-19T23:01:29Z epoch 1789858889",
+    "baseline": "/private/tmp/four_hour_stabilization_observation_20260919_baseline.json",
+    "service_pids": "Cascade 69288; Walkback 4040; listener 93379; funding 59094; API 25464; Monitor 5022",
+    "baseline_state": "Walkback complete total 49891, pending 1, waiting 6944, deployed-worker completions 25; WAL 1339032 bytes; descriptors Cascade/Walkback/listener/funding/API/Monitor = 73/56/86/65/41/41.",
+    "constraints": "STRICTLY_READ_ONLY=true; ENGINEERING_CHANGES=0; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_MUTATIONS=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0",
+    "automation": "Heartbeat complete-four-hour-stabilization-audit will return this task for the final audit after the four-hour boundary.",
+    "verdict": "OPEN_PENDING_FULL_WINDOW",
+    "blocker": "The incident cannot be closed before the full uninterrupted observation boundary and final read-only audit.",
+    "exact_next_action": "At or after 2026-09-19T23:01:29Z, compare live state to the baseline and audit PID stability, connectivity/ingestion, handoffs, funding, Walkback/Cascade progress, SQLite errors and writer holds, WAL/checkpoints, Monitor descriptor plateau, Farm Detector absence and restarts; close only if every gate passes."
   }
 }

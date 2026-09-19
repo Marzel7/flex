@@ -1,0 +1,46 @@
+{
+  "audit": "walkback_runtime_schema_boundary_qualification.v1",
+  "qualified_at_utc": "2026-09-19T10:40:00Z",
+  "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",
+  "root_cause": "Walkback's ordinary cycle called create_event_ledger.retry_pending_writes, which recursively invoked ensure_schema and executed CREATE TABLE/INDEX IF NOT EXISTS under the authoritative operations writer lane. The same cycle called anchor reconciliation with an unbounded waiting-row inventory and schema ensures, allowing one transaction to span the historical population. Live owner metadata captured the recurring DDL and self-owned holds over the UI stall threshold.",
+  "repair": {
+    "runtime_ddl": "Recurring Walkback calls explicitly use schema-current mode. Read-only startup validators cover the anchor-reconciliation and create-ledger contracts. Standalone/default callers retain existing ensure-schema behavior.",
+    "writer_scope": "Recurring anchor reconciliation is deterministically limited to the 25 oldest waiting rows per cycle rather than all retained rows.",
+    "unchanged": "Queue ordering within the selected cohort, retry semantics, attribution, provider behavior, SQLite settings, WAL behavior, timeouts, and other services are unchanged."
+  },
+  "production_read_only_gate": {
+    "anchor_schema": "VALID",
+    "create_event_ledger_schema": "VALID",
+    "waiting_rows": 6858,
+    "production_writes": 0
+  },
+  "qualification": {
+    "tests": "103 passed",
+    "suites": [
+      "test_walkback_runtime_schema_boundary.py",
+      "test_x64_7_create_event_ledger.py",
+      "test_x64_5_anchor_reconciliation.py",
+      "test_x64_7a_commit_hardening.py",
+      "test_walkback_worker_startup_resilience.py",
+      "test_operations_sqlite_lifecycle_provenance.py",
+      "test_ops_db_writer_boundary.py"
+    ],
+    "new_proofs": [
+      "validators perform no writes",
+      "recurring retry path cannot call ensure_schema",
+      "recurring anchor path cannot call either schema ensure",
+      "recurring anchor inventory selects exactly the 25 oldest rows"
+    ],
+    "compile": "PASS",
+    "diff_check": "PASS"
+  },
+  "deployment_scope": {
+    "modules": [
+      "src/core/walkback_worker.py",
+      "src/ops/anchor_reconciliation.py",
+      "src/ops/create_event_ledger.py"
+    ],
+    "restart_only": "walkback_worker",
+    "observation": "Verify zero recurring CREATE statements from Walkback, bounded writer holds, natural Walkback/Cascade progress, and no new SQLite lock failures before resetting the four-hour stabilization clock."
+  }
+}

@@ -1784,6 +1784,7 @@ def run_loop() -> None:
     from src.core import treasury_bank
     from src.ops.walkback_health import recover_stalled_running_jobs
     from src.ops.walkback_cycle_trace import trace_boundary, trace_failure
+    from src.ops import anchor_reconciliation, create_event_ledger
     startup = _ops_conn()
     try:
         # Ordinary startup must not contend for the schema writer lane.  Legacy
@@ -1799,6 +1800,12 @@ def run_loop() -> None:
         _outcome_schema = _validate_outcome_schema(startup)
         if _outcome_schema != "VALID":
             raise RuntimeError(_outcome_schema)
+        _anchor_schema = anchor_reconciliation.validate_schema(startup)
+        if _anchor_schema != "VALID":
+            raise RuntimeError(_anchor_schema)
+        _ledger_schema = create_event_ledger.validate_schema(startup)
+        if _ledger_schema != "VALID":
+            raise RuntimeError(_ledger_schema)
 
         # X76.5A -- this is a fresh process boot (run_loop() only executes
         # once per process). If the most recent recovery event for this
@@ -1882,10 +1889,11 @@ def run_loop() -> None:
                 trace_boundary("anchor_reconciliation_attempted")
                 _t0 = time.monotonic()
                 try:
-                    from src.ops.anchor_reconciliation import reconcile_waiting_create_anchors
                     _live = sqlite3.connect(f"file:{LIVE_DB_PATH}?mode=ro", uri=True, timeout=5)
                     try:
-                        recon = reconcile_waiting_create_anchors(ops, _live)
+                        recon = anchor_reconciliation.reconcile_waiting_create_anchors(
+                            ops, _live, ensure_schema_first=False, limit=25,
+                        )
                         if recon["recovered"]:
                             print(f"[WALKBACK] anchor reconciliation: recovered "
                                   f"{len(recon['recovered'])} of {recon['examined']} "
@@ -1909,8 +1917,9 @@ def run_loop() -> None:
                 trace_boundary("create_ledger_retry_attempted")
                 _t0 = time.monotonic()
                 try:
-                    from src.ops.create_event_ledger import retry_pending_writes
-                    retry_result = retry_pending_writes(ops)
+                    retry_result = create_event_ledger.retry_pending_writes(
+                        ops, ensure_schema_first=False,
+                    )
                     if retry_result["recovered"]:
                         print(f"[WALKBACK] create-ledger retry: recovered "
                               f"{len(retry_result['recovered'])} of {retry_result['examined']} "

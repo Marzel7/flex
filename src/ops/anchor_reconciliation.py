@@ -44,6 +44,29 @@ _ANCHOR_LOOKUP_STATES = frozenset({
     PENDING_NOT_VISIBLE, PRESENT_VALID, PRESENT_INVALID, EXPIRED_MISSING,
 })
 
+_REQUIRED_QUEUE_COLUMNS = {
+    "mint", "status", "path_state", "create_anchor_signature",
+    "create_anchor_audit_state", "anchor_lookup_attempts",
+    "last_anchor_lookup_at", "anchor_recovered_at", "anchor_recovery_source",
+    "anchor_lookup_state",
+}
+
+
+def validate_schema(conn: sqlite3.Connection) -> str:
+    """Read-only schema-current gate for the recurring worker path."""
+    queue_columns = {row[1] for row in conn.execute("PRAGMA table_info(wt_walkback_queue)")}
+    missing = sorted(_REQUIRED_QUEUE_COLUMNS - queue_columns)
+    if missing:
+        return f"ANCHOR_RECONCILIATION_SCHEMA_MISMATCH:wt_walkback_queue:missing={','.join(missing)}"
+    log_columns = {row[1] for row in conn.execute(
+        "PRAGMA table_info(wt_anchor_reconciliation_log)"
+    )}
+    required_log = {"mint", "recovered_signature", "recovery_source", "recovery_timestamp"}
+    missing_log = sorted(required_log - log_columns)
+    if missing_log:
+        return f"ANCHOR_RECONCILIATION_SCHEMA_MISMATCH:wt_anchor_reconciliation_log:missing={','.join(missing_log)}"
+    return "VALID"
+
 
 def ensure_schema(conn: sqlite3.Connection) -> None:
     """Additive only — never alters existing wt_walkback_queue columns."""
@@ -133,14 +156,21 @@ def classify_stuck_row(
     return {"classification": "ANCHOR_PRESENT_INVALID", "signature": sig, "source": source}
 
 
-def _stuck_rows(ops_conn: sqlite3.Connection) -> list[sqlite3.Row]:
-    return ops_conn.execute(
+def _stuck_rows(
+    ops_conn: sqlite3.Connection, *, limit: Optional[int] = None,
+) -> list[sqlite3.Row]:
+    sql = (
         "SELECT mint, creator, create_anchor_signature, create_anchor_audit_state, "
         "attempts, enqueued_at FROM wt_walkback_queue "
         "WHERE status=? AND path_state=? "
-        "AND (create_anchor_signature IS NULL OR create_anchor_audit_state=?)",
-        (WAITING_STATUS, WAITING_PATH_STATE, "MISSING_OR_MALFORMED"),
-    ).fetchall()
+        "AND (create_anchor_signature IS NULL OR create_anchor_audit_state=?) "
+        "ORDER BY enqueued_at ASC"
+    )
+    params: tuple[Any, ...] = (WAITING_STATUS, WAITING_PATH_STATE, "MISSING_OR_MALFORMED")
+    if limit is not None:
+        sql += " LIMIT ?"
+        params += (max(0, int(limit)),)
+    return ops_conn.execute(sql, params).fetchall()
 
 
 def dry_run_report(
@@ -192,7 +222,8 @@ def dry_run_report(
 
 def reconcile_waiting_create_anchors(
     ops_conn: sqlite3.Connection, live_conn: sqlite3.Connection,
-    *, dry_run: bool = False,
+    *, dry_run: bool = False, ensure_schema_first: bool = True,
+    limit: Optional[int] = None,
 ) -> dict[str, Any]:
     """Phase 3 — idempotent, zero-RPC reconciliation.
 
@@ -219,8 +250,9 @@ def reconcile_waiting_create_anchors(
     dedicated log table — giving full traceability without inventing a new
     path_state value outside the existing contract.
     """
-    ensure_schema(ops_conn)
-    rows = _stuck_rows(ops_conn)
+    if ensure_schema_first:
+        ensure_schema(ops_conn)
+    rows = _stuck_rows(ops_conn, limit=limit)
     now = int(time.time())
     recovered: list[dict[str, Any]] = []
     skipped: list[dict[str, Any]] = []
@@ -237,7 +269,10 @@ def reconcile_waiting_create_anchors(
         # classify_stuck_row() widened-source search, preserving every
         # existing classification label and behavior for backward
         # compatibility with X64.5/X64.6 callers/tests.
-        priority_result = resolve_anchor_with_priority(live_conn, ops_conn, mint, queue_creator=row["creator"])
+        priority_result = resolve_anchor_with_priority(
+            live_conn, ops_conn, mint, queue_creator=row["creator"],
+            ensure_schema_first=ensure_schema_first,
+        )
         if priority_result["confidence"] == "SAFE" and priority_result["source"] == "canonical_create_ledger":
             result = {"classification": "RECOVERABLE_VALID_ANCHOR",
                       "signature": priority_result["signature"], "source": "canonical_create_ledger"}
@@ -519,7 +554,7 @@ def apply_rpc_recovered_anchor(
 
 def resolve_anchor_with_priority(
     live_conn: sqlite3.Connection, ops_conn: sqlite3.Connection, mint: str,
-    *, queue_creator: Optional[str] = None,
+    *, queue_creator: Optional[str] = None, ensure_schema_first: bool = True,
 ) -> dict[str, Any]:
     """X64.7 Phase 9 — resolve a CREATE anchor for `mint` using the
     canonical priority order:
@@ -542,7 +577,9 @@ def resolve_anchor_with_priority(
     from src.ops import create_event_ledger
 
     # Priority 1: canonical ledger.
-    ledger_result = create_event_ledger.lookup_create_anchor(ops_conn, mint)
+    ledger_result = create_event_ledger.lookup_create_anchor(
+        ops_conn, mint, ensure_schema_first=ensure_schema_first,
+    )
     if ledger_result["confidence"] == "SAFE":
         return {"signature": ledger_result["signature"], "source": "canonical_create_ledger",
                 "creator": ledger_result.get("creator") or queue_creator, "confidence": "SAFE"}

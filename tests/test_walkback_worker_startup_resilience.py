@@ -61,6 +61,8 @@ def stub_run_loop_dependencies(monkeypatch, tmp_path):
     )
     monkeypatch.setattr("src.core.treasury_bank.validate_schema", lambda conn: "VALID")
     monkeypatch.setattr("src.ops.attribution_outcome.validate_schema", lambda conn: "VALID")
+    monkeypatch.setattr("src.ops.anchor_reconciliation.validate_schema", lambda conn: "VALID")
+    monkeypatch.setattr("src.ops.create_event_ledger.validate_schema", lambda conn: "VALID")
     monkeypatch.setattr(walkback_worker, "_write_heartbeat", lambda conn: None)
     # X64.5 — run_loop's new self-healing anchor-reconciliation pre-pass
     # (src/ops/anchor_reconciliation.py) is out of scope for this file's
@@ -69,7 +71,11 @@ def stub_run_loop_dependencies(monkeypatch, tmp_path):
     # table lacks nor affects these tests' own assertions.
     monkeypatch.setattr(
         "src.ops.anchor_reconciliation.reconcile_waiting_create_anchors",
-        lambda ops_conn, live_conn: {"examined": 0, "recovered": [], "skipped": [], "conflicts": []},
+        lambda ops_conn, live_conn, **kwargs: {"examined": 0, "recovered": [], "skipped": [], "conflicts": []},
+    )
+    monkeypatch.setattr(
+        "src.ops.create_event_ledger.retry_pending_writes",
+        lambda ops_conn, **kwargs: {"examined": 0, "recovered": [], "still_failing": [], "exhausted": 0},
     )
 
     def fake_sleep(seconds):

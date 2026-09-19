@@ -16774,5 +16774,18 @@
     "interpretation": "PumpPortal is reachable and is not currently blocking the host. The differential isolates the failure to the managed listener runtime; event-loop starvation or synchronous database/retry work is the leading explanation, not a provider-wide outage or credential failure.",
     "safety": "One bounded free websocket subscribeNewToken handshake plus read-only logs/process/socket inspection; no production subscription persistence, restart, source, config, database, queue, timeout, or WAL mutation.",
     "exact_next_action": "Instrument or sample the listener event loop around PumpPortal connect and isolate synchronous database maintenance/retry work from the websocket coroutine before changing provider settings."
+  },
+  "flex_operations_production_health_audit_20260919": {
+    "engineering_revision": "77492d22497e31a5984a234e2bb1f5cd2fc10613",
+    "observed_at_utc": "2026-09-19T06:24:35Z",
+    "status": "OPERATIONS_SYSTEM_STALLED",
+    "verdict": "Production is not healthy or optimal. Live ingestion and Walkback candidate generation are stalled; creator funding is stalled; Cascade and creator resolution are degraded. The API remains reachable and Farm Detector remains retired.",
+    "primary_blocker": "The managed listener retains a transaction and application write lane in migration_walkback_handoff_retry.py:205 for hundreds of seconds, blocking creator funding and starving PumpPortal websocket progress until Supervisor cycles the listener.",
+    "secondary_blocker": "Cascade still produces operations-database contention, including two retained writer holds over 60 seconds and most observed SQLITE_BUSY events in the bounded lifecycle trace.",
+    "additional_risk": "operation_monitor_worker accumulated 318 operations-database descriptors; storage has 31 GiB free at 84% utilization. Neither is proven to be the immediate writer blocker.",
+    "tests_and_evidence": "Read-only Supervisor/process/API/log/lifecycle/database-metadata/storage inspection. Operations DB readability passed in 7.44ms; bounded quick_check did not return promptly and was not repeated. Retained lifecycle coverage was about seven minutes, so the 60-minute contention count is a lower bound.",
+    "safety": "CURRENT_WORKSPACE_MUTATED=false; PRODUCTION_MUTATIONS=0; PRODUCTION_RESTARTS=0; PROVIDER_CALLS=0. Only a /private/tmp audit artifact and this dedicated handoff record were created.",
+    "audit": "/private/tmp/flex_operations_health_audit_20260919.json sha256 79b82d4b02d25fb095a9997d02aca772b0cee1fbf1f7dc1ec7ac75c87b882e02",
+    "exact_next_action": "Repair and qualify the listener migration-walkback handoff connection/transaction lifecycle at migration_walkback_handoff_retry.py:205, keeping long scans outside the flex database writer lane; then perform a bounded restart/observation under separate explicit production authorization before addressing remaining Cascade holds."
   }
 }

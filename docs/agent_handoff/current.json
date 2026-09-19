@@ -16735,5 +16735,17 @@
     "supersession": "For this live incident, direct Cascade ownership evidence supersedes the earlier unproven Operations Monitor candidate. The Monitor descriptor leak remains a separate defect candidate.",
     "safety": "Read-only diagnosis only; no restart, source, config, database, queue, timeout, WAL, or provider mutation.",
     "exact_next_action": "Narrowly repair Cascade so no long SELECT/provider work occurs while a write transaction or global writer lease is retained; separately make the UI summary attribute STALLED to the actual triggering reason. Qualify with a joint Walkback/Cascade contention regression before deployment."
+  },
+  "cascade_proxy_classification_writer_boundary_fix": {
+    "engineering_revision": "502dab5208b0c18eaaa0e35f9166a6c7d8417ce5",
+    "status": "PASS_DEPLOYED_BOUNDED_OBSERVATION",
+    "root_cause": "Cascade acquired SQLite writer state during operational-spend-proxy classification, then retained it through production-scale expired-session SELECT scans. The same read-only scan measured 147.492 seconds, explaining repeated Walkback heartbeat and queue starvation.",
+    "change": "Classification now builds a deterministic read-only tag plan before the first UPDATE, then applies that plan in a short write phase without changing classification or commit semantics.",
+    "tests": "28 focused tests passed, including a two-thread writer-liveness regression. Production read-only scan proved query_only=1 and in_transaction=false for the full 147.492-second duration.",
+    "deployment": "Restarted only ws_cascade into PID 74842 from clean commit 502dab52. Walkback PID 82103 and unrelated services were not restarted.",
+    "live_result": "After observation beyond the measured scan duration, Walkback emitted more than 44,000 lifecycle records with zero SQLITE_BUSY and Cascade recorded zero post-restart SQLITE_BUSY. UI health recovered from STALLED to IDLE, heartbeat age 69 seconds, no active writer lease.",
+    "remaining": "The read-only classifier remains computationally expensive and merits separate query/index optimization, but it no longer monopolizes the writer lane. The UI attribution formatter defect remains separate and was not changed.",
+    "audit": "/private/tmp/cascade_proxy_classification_writer_boundary_fix_20260919.json sha256 e1dc095d64cbe5b1663260318b8af910cd3c11b4d52100d6cc2ec53d5b75e91b",
+    "exact_next_action": "Continue observation for recurrence; separately optimize the 147-second read-only classifier and correct stale-heartbeat UI attribution without reopening writer scope."
   }
 }

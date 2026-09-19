@@ -16936,5 +16936,17 @@
     "production_flags": "SOURCE_CHANGES=0; CONFIG_CHANGES=0; DATABASE_OR_QUEUE_MUTATIONS_BY_OPERATOR=0; PROVIDER_CALLS_BY_OPERATOR=0; SYNTHETIC_TRAFFIC=0; ONLY_WALKBACK_RESTARTED=true",
     "blocker": "Automatic WAL maintenance can acquire the shared writer lane and then remain blocked inside PRAGMA wal_checkpoint(TRUNCATE) without an execution-duration bound, starving Walkback useful work.",
     "exact_next_action": "Do not resume or close the four-hour observation. Offline-qualify only a fail-safe checkpoint execution repair so optional maintenance cannot hold the writer lane indefinitely after acquisition; require explicit deployment authorization before changing source or restarting any service."
+  },
+  "wal_watchdog_checkpoint_execution_bound_qualification_20260919": {
+    "engineering_revision": "2f5c8116af59867220e98e6cf9841d9e926df94b",
+    "base_revision": "0ba80fe86384386b89da2c9db872821b1ab73f1b",
+    "branch_and_checkout": "codex/wal-checkpoint-execution-bound at /private/tmp/wal-checkpoint-execution-fix.sTuSui",
+    "status": "WAL_WATCHDOG_CHECKPOINT_EXECUTION_BOUND_OFFLINE_QUALIFIED_NOT_DEPLOYED",
+    "root_cause": "The existing 250ms limit bounded only application writer-lane acquisition. The global sqlite3.connect wrapper raises tracked connections to a 30-second SQLite busy timeout, allowing PRAGMA wal_checkpoint(TRUNCATE) to retain the lane for that SQLite wait after acquisition.",
+    "repair": "The watchdog connection now sets PRAGMA busy_timeout=250 before acquiring the shared writer lane. Normal writers, global timeouts, TRUNCATE mode, WAL threshold and watchdog interval are unchanged.",
+    "qualification": "A real reader-pinned WAL proof returned SQLite BUSY in under 1 second, released the writer lane and allowed a subsequent writer to commit. Ordering and exception cleanup regressions passed. Focused set 23/23 passed; 79 relevant tests across 13 files passed when isolated per file to avoid the repository's known global sqlite3.connect reload contamination.",
+    "production_flags": "DEPLOYED=false; SERVICE_RESTARTS=0; SOURCE_OR_CONFIG_CHANGES_IN_PRODUCTION=0; DATABASE_OR_QUEUE_MUTATIONS_IN_PRODUCTION=0; SQLITE_SETTING_CHANGES_IN_PRODUCTION=0; PROVIDER_CALLS=0; SYNTHETIC_PRODUCTION_TRAFFIC=0",
+    "audit": "docs/audits/wal_watchdog_checkpoint_execution_bound_qualification.v1.json",
+    "exact_next_action": "Prepare a module-only deployment manifest and request separate authorization before deploying db_locking.py or restarting any service. Derive the restart set only from running services that execute the automatic WAL watchdog."
   }
 }

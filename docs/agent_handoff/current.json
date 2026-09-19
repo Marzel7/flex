@@ -16747,5 +16747,14 @@
     "remaining": "The read-only classifier remains computationally expensive and merits separate query/index optimization, but it no longer monopolizes the writer lane. The UI attribution formatter defect remains separate and was not changed.",
     "audit": "/private/tmp/cascade_proxy_classification_writer_boundary_fix_20260919.json sha256 e1dc095d64cbe5b1663260318b8af910cd3c11b4d52100d6cc2ec53d5b75e91b",
     "exact_next_action": "Continue observation for recurrence; separately optimize the 147-second read-only classifier and correct stale-heartbeat UI attribution without reopening writer scope."
+  },
+  "mission_control_live_accuracy_audit": {
+    "engineering_revision": "502dab5208b0c18eaaa0e35f9166a6c7d8417ce5 deployed for Cascade",
+    "status": "PASS_BROADLY_ACCURATE_WITH_LABEL_SEMANTICS_CAVEAT",
+    "verified": "Screenshot claims match live /api/health/full: overall CRITICAL; live ingestion CRITICAL with zero recent births, PumpPortal RETRYING and migration age about 146 minutes; creator funding STALLED with stale heartbeat; operational intelligence degraded; infrastructure healthy; migration handoff FAILED with 3 missing durable handoffs among 9 eligible.",
+    "walkback": "Live Walkback candidate health is IDLE, not STALLED: heartbeat age 91 seconds, no unsafe lease, no pending queue work. Cascade is CONNECTED with heartbeat age 45 seconds.",
+    "caveat": "The UI label 'Migration + Walkback: FAILED' describes migration-to-Walkback durable handoff integrity, not current Walkback process health. The label is technically backed by data but can be misread as a worker failure.",
+    "safety": "Read-only screenshot/API/Supervisor comparison; no service, source, config, database, queue, provider, timeout, or WAL mutation.",
+    "exact_next_action": "Treat the dashboard as operationally accurate; rename or annotate the migration-handoff card separately if clearer semantics are desired. Investigate live ingestion and creator-funding incidents independently of the repaired Cascade/Walkback contention."
   }
 }

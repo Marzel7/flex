@@ -16948,5 +16948,19 @@
     "production_flags": "DEPLOYED=false; SERVICE_RESTARTS=0; SOURCE_OR_CONFIG_CHANGES_IN_PRODUCTION=0; DATABASE_OR_QUEUE_MUTATIONS_IN_PRODUCTION=0; SQLITE_SETTING_CHANGES_IN_PRODUCTION=0; PROVIDER_CALLS=0; SYNTHETIC_PRODUCTION_TRAFFIC=0",
     "audit": "docs/audits/wal_watchdog_checkpoint_execution_bound_qualification.v1.json",
     "exact_next_action": "Prepare a module-only deployment manifest and request separate authorization before deploying db_locking.py or restarting any service. Derive the restart set only from running services that execute the automatic WAL watchdog."
+  },
+  "wal_watchdog_checkpoint_execution_bound_deployment_20260919": {
+    "engineering_revision": "2f5c8116af59867220e98e6cf9841d9e926df94b",
+    "runtime_revision": "e04d6ed169b84bc9ab00fd57f8e147c22908a7de with module-only dirty src/utils/db_locking.py sha256 ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89",
+    "status": "WAL_WATCHDOG_CHECKPOINT_EXECUTION_BOUND_PRODUCTION_QUALIFIED",
+    "deployment": "The qualified db_locking.py was deployed byte-for-byte to /private/tmp/flex-sqlite-provenance-clean. Only the derived continuously running watchdog services restarted: ws_cascade 56351 -> 69288 and walkback_worker 56496 -> 69337. Listener 93379, funding 59094, API 25464, Monitor 5022, alert 5447, creator resolution 20081 and ngrok 5454 remained unchanged.",
+    "observation": "Fresh valid natural-traffic window 2026-09-19T12:02:23Z through 12:22:29Z (1206s). Both target PIDs remained stable. Four natural Cascade checkpoint statement completions took 324.421, 311.021, 313.526 and 313.624ms; zero exceeded 1s; SQLite busy lifecycle events=0; lifecycle violations=0; production-writer timeouts=0. Watchdog acquisition skips near 252-261ms were expected fail-closed maintenance behavior while another writer owned the lane.",
+    "tests": "Offline qualification remains 23 focused tests and 79 relevant isolated file tests passed. Production runtime module hash exactly equals qualified source hash.",
+    "discarded_observation": "An earlier restart/soak was invalid because the main checkout, not the Supervisor runtime checkout, had been patched. It was excluded. The runtime path was then corrected and both derived services restarted before the fresh valid 20-minute window.",
+    "production_flags": "MODULES_DEPLOYED=src/utils/db_locking.py only; CONFIG_CHANGES=0; DATABASE_OR_QUEUE_MUTATIONS_BY_DEPLOYER=0; SQLITE_GLOBAL_SETTING_CHANGES=0; PROVIDER_CALLS_BY_DEPLOYER=0; SYNTHETIC_TRAFFIC=0; UNRELATED_SERVICE_RESTARTS=0",
+    "verdict": "Checkpoint execution blocker repaired and production-qualified; no rollback criterion occurred.",
+    "blocker": "Overall stabilization remains PARTIAL. Walkback still intermittently holds its main _ops_conn writer scope for approximately 11-21s across post-write analytical SELECT work, including operation_fingerprint_drift_evidence queries. This can still produce STALLED/UNHEALTHY UI periods and WAL growth independent of the now-bounded checkpoint path.",
+    "audit": "docs/audits/wal_watchdog_checkpoint_execution_bound_deployment.v1.json in qualification checkout; local JSON-valid audit not remotely published",
+    "exact_next_action": "Keep the checkpoint repair deployed and do not reopen it without new evidence. Under separate authorization, trace and offline-qualify only the Walkback _ops_conn transaction/lease boundary responsible for the residual long holds before any further production restart."
   }
 }

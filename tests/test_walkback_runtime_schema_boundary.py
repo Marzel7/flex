@@ -56,7 +56,7 @@ def test_recurring_anchor_path_does_not_call_schema_ensure():
     assert result["examined"] == 0
 
 
-def test_recurring_anchor_inventory_is_bounded_to_25_oldest_rows():
+def test_recurring_anchor_inventory_is_bounded_to_5_oldest_rows():
     ops = _ops()
     for i in range(60):
         ops.execute(
@@ -66,6 +66,6 @@ def test_recurring_anchor_inventory_is_bounded_to_25_oldest_rows():
             (f"mint-{i:02d}", recon.WAITING_STATUS, recon.WAITING_PATH_STATE, i, i),
         )
     ops.commit()
-    rows = recon._stuck_rows(ops, limit=25)
-    assert len(rows) == 25
-    assert [row["mint"] for row in rows] == [f"mint-{i:02d}" for i in range(25)]
+    rows = recon._stuck_rows(ops, limit=5)
+    assert len(rows) == 5
+    assert [row["mint"] for row in rows] == [f"mint-{i:02d}" for i in range(5)]

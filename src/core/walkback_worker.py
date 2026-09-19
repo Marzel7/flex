@@ -1892,7 +1892,7 @@ def run_loop() -> None:
                     _live = sqlite3.connect(f"file:{LIVE_DB_PATH}?mode=ro", uri=True, timeout=5)
                     try:
                         recon = anchor_reconciliation.reconcile_waiting_create_anchors(
-                            ops, _live, ensure_schema_first=False, limit=25,
+                            ops, _live, ensure_schema_first=False, limit=5,
                         )
                         if recon["recovered"]:
                             print(f"[WALKBACK] anchor reconciliation: recovered "

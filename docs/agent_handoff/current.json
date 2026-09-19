@@ -16803,5 +16803,15 @@
     "production_flags": "PRODUCTION_DATABASES_MODIFIED=false; PRODUCTION_SERVICES_RESTARTED=false; PROVIDER_CALLS=0",
     "audit": "/private/tmp/listener_migration_handoff_lifecycle_fix_20260919.json sha256 81cf692c381f75787977483a920410f903084e97950bf0cf5a6ea815aafc0cf1",
     "exact_next_action": "Deploy commit 8dc6f947dbc5e5821d07c5478fc23acc58987497 from a clean worktree by restarting only watchtower_listener, then observe for at least 20 minutes against the manifest success and abort gates before touching Cascade or Monitor."
+  },
+  "listener_clean_source_deployment_preflight_20260919": {
+    "engineering_revision": "8dc6f947dbc5e5821d07c5478fc23acc58987497",
+    "status": "HOLD_CLEAN_SOURCE_RUNTIME_PATH_CONFLICT",
+    "finding": "The authorized commit exists in a verified clean worktree at /private/tmp/listener-handoff-clean.D2idFA, but Supervisor is hard-coded to command /Users/kevinkeaveney/Dev/claude/flex/run_listener.sh with directory /Users/kevinkeaveney/Dev/claude/flex. That configured production checkout is materially dirty.",
+    "safety_decision": "No restart occurred. Restarting would not be a clean-source deployment; redirecting Supervisor violates the explicit no-configuration-change boundary; editing the launcher adds uncommitted runtime source; replacing the checkout risks unrelated user work.",
+    "runtime_snapshot": "watchtower_listener PID 83583 uptime 2m42s and already restart-cycling; unrelated PIDs preserved: funding 59094, resolution 84637, Monitor 5450, Walkback 82103, API 25464, Cascade 74842.",
+    "production_flags": "PRODUCTION_DEPLOYMENT_PERFORMED=false; PRODUCTION_SERVICES_RESTARTED=0; PRODUCTION_DATABASES_MODIFIED=false; SUPERVISOR_CONFIGURATION_MODIFIED=false; PROVIDER_CALLS=0",
+    "audit": "/private/tmp/listener_clean_source_deployment_preflight_hold_20260919.json sha256 2b74a0ef9e400318132336880c881a82f52c4ee888e2be49115947f8cb97f3d5",
+    "exact_next_action": "Authorize a narrow watchtower_listener Supervisor runtime-path change to the clean worktree, or first produce and qualify a clean deployable runtime revision containing the current required listener baseline plus 8dc6f947; then restart only the listener and begin the 20-minute observation."
   }
 }

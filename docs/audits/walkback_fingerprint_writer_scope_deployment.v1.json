@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "audit": "walkback_fingerprint_writer_scope_deployment",
+  "observed_at_utc": "2026-09-19T18:51:50Z",
+  "status": "WALKBACK_FINGERPRINT_WRITER_SCOPE_PRODUCTION_QUALIFIED",
+  "qualified_runtime_revision": "740e0629ca8e5e64178417e0c8d8d462fe6cdd92",
+  "runtime_checkout": {
+    "path": "/private/tmp/flex-sqlite-provenance-clean",
+    "git_head": "e04d6ed169b84bc9ab00fd57f8e147c22908a7de",
+    "walkback_worker_sha256": "2dc943b3eab72df84751eff278f6bb80d23248baa3b43ae6a9d144577de3f8f9",
+    "operation_fingerprint_drift_sha256": "6652f64488f9d0c72c8931c01b4fa547c6a5bc6da506b3cb3ede840b387dba82",
+    "db_locking_sha256_preserved": "ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89"
+  },
+  "deployment": {
+    "modules": [
+      "src/core/walkback_worker.py",
+      "src/ops/operation_fingerprint_drift.py"
+    ],
+    "restart": "walkback_worker only",
+    "walkback_pid_before": 69337,
+    "walkback_pid_after": 4040,
+    "unrelated_service_restarts": 0
+  },
+  "runtime_parity": {
+    "result": "PASS",
+    "detail": "The repair was reapplied and retested on exact runtime base e04d6ed1, preserving newer startup schema-validation and recurring-funder transaction-boundary changes.",
+    "tests": "48 focused and surrounding tests passed; two unrelated known failures remained identical on the unmodified base."
+  },
+  "natural_observation": {
+    "duration_seconds": 650,
+    "natural_completed_rows": 15,
+    "final_pending": 0,
+    "final_running": 0,
+    "final_heartbeat_status": "HEALTHY",
+    "final_heartbeat_age_seconds": 39,
+    "fingerprint_statement_pairs": 2160,
+    "fingerprint_select_starts": 255,
+    "fingerprint_selects_with_writer_lane_owned": 0,
+    "fingerprint_selects_with_transaction_open": 0,
+    "fingerprint_sqlite_busy": 0,
+    "fingerprint_failed_statements": 0,
+    "fingerprint_max_statement_ms": 52.252,
+    "early_all-lifecycle_capture": "182 matched Walkback writer leases; maximum 286.160ms; zero over 1s and 5s; zero SQLite busy, timeout, violation, or unmatched lease events. The rotating all-service lifecycle file later aged these records out; these metrics were captured before rotation.",
+    "health_note": "The projected health flag oscillated while pending work existed, then returned HEALTHY; no oscillation coincided with a long writer hold."
+  },
+  "final_service_state": {
+    "walkback_worker": "RUNNING pid 4040",
+    "ws_cascade": "RUNNING pid 69288 unchanged",
+    "watchtower_listener": "RUNNING pid 93379 unchanged",
+    "creator_funding_worker": "RUNNING pid 59094 unchanged",
+    "watchtower_api": "RUNNING pid 25464 unchanged",
+    "operation_monitor_worker": "RUNNING pid 5022 unchanged"
+  },
+  "production_flags": {
+    "configuration_changes": 0,
+    "database_or_queue_mutations_by_deployer": 0,
+    "provider_calls_by_deployer": 0,
+    "synthetic_traffic": 0,
+    "sqlite_setting_changes": 0
+  },
+  "verdict": "PASS: natural nonempty work proves fingerprint analytical reads no longer retain the application writer lane.",
+  "next_action": "Freeze this repair as part of the production baseline. Run a fresh read-only four-hour system observation before closing the stabilization incident; do not engineer during that window."
+}

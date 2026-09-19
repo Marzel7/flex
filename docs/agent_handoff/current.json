@@ -16725,5 +16725,15 @@
     "safety": "No source, database, queue, timeout, WAL, provider, listener, API, or scheduler mutation beyond the bounded Walkback/Cascade Supervisor source cutover.",
     "audit": "/private/tmp/walkback_cascade_clean_deployment_observation_20260919.json sha256 b808c30916c7d359db6257827e911c914b16869b3b7b7a3ad27460306f2d43d1",
     "exact_next_action": "Audit and repair the Operations Monitor wt_ops connection lifecycle, then repeat the bounded Walkback + Cascade joint observation; do not claim exact PID 5450 writer ownership without transaction-level proof."
+  },
+  "walkback_live_ui_stall_correlation": {
+    "engineering_revision": "3a6a3a5f00e7b0b42c5cc0ccc5e1515b0814cc3d deployed for Walkback and Cascade",
+    "status": "BLOCKER_IDENTIFIED_FIX_NOT_YET_AUTHORIZED",
+    "live_state": "Walkback PID 82103 and Cascade PID 82225 remain RUNNING, but Walkback heartbeat was 472 seconds stale and the composed health endpoint correctly returned STALLED.",
+    "exact_blocker": "Walkback retained multiple CrossProcessDatabaseWriteTimeout records naming Cascade PID 82225 ws_cascade.py:2540 in _ops as current owner. Cascade retained an active SQLite transaction and application writer lease while executing long SELECT scans over wt_active_subprov_sessions; Walkback timed out after 60 seconds and repeated heartbeat writes failed with SQLITE_BUSY.",
+    "ui_defect": "The STALLED state is real, but the summary formatter can blame a harmless current short lease because it reports any lease present when status is STALLED, even when stale heartbeat—not lease age—triggered the state.",
+    "supersession": "For this live incident, direct Cascade ownership evidence supersedes the earlier unproven Operations Monitor candidate. The Monitor descriptor leak remains a separate defect candidate.",
+    "safety": "Read-only diagnosis only; no restart, source, config, database, queue, timeout, WAL, or provider mutation.",
+    "exact_next_action": "Narrowly repair Cascade so no long SELECT/provider work occurs while a write transaction or global writer lease is retained; separately make the UI summary attribute STALLED to the actual triggering reason. Qualify with a joint Walkback/Cascade contention regression before deployment."
   }
 }

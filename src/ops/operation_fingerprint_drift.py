@@ -153,28 +153,44 @@ def _refresh_clusters(conn: sqlite3.Connection, operation: dict[str, Any], now: 
 
 def observe_completed_walkback(conn: sqlite3.Connection, mint: str, *, now: int | None = None) -> dict[str, int]:
     """Best-effort secondary projection. It has no membership write statements."""
-    ensure_schema(conn)
-    now = int(now or time.time())
-    rows = _rows(conn, mint)
-    observed = _route(rows)
-    exact_profiles = _exact_profiles(conn, mint) if rows is not None else set()
-    counts = Counter()
-    for operation in _active_operations(conn):
-        name = operation["display_name"]
-        if name not in DEFINITIONS:
-            continue
-        expected = _expected_route(conn, name)
-        if expected is None:
+    try:
+        ensure_schema(conn)
+        # Schema setup and each optional monitoring write are independent.  Never
+        # retain the shared writer lane while the full-table health/cluster reads
+        # below run: these projections are secondary and do not need one atomic
+        # transaction spanning evidence, aggregate reads, and snapshots.
+        conn.commit()
+        now = int(now or time.time())
+        rows = _rows(conn, mint)
+        observed = _route(rows)
+        exact_profiles = _exact_profiles(conn, mint) if rows is not None else set()
+        counts = Counter()
+        for operation in _active_operations(conn):
+            name = operation["display_name"]
+            if name not in DEFINITIONS:
+                continue
+            expected = _expected_route(conn, name)
+            if expected is None:
+                _refresh_health(conn, operation, now)
+                conn.commit()
+                continue
+            classification, matching, differing = compare_route(expected, observed)
+            if name in exact_profiles:
+                classification, matching, differing = "EXACT_MATCH", ["topology", "semantic_sequence", "amount_vector"], []
+            _upsert_evidence(conn, operation, mint, classification, matching, differing, observed, expected, rows, now)
+            conn.commit()
+            counts[classification] += 1
             _refresh_health(conn, operation, now)
-            continue
-        classification, matching, differing = compare_route(expected, observed)
-        if name in exact_profiles:
-            classification, matching, differing = "EXACT_MATCH", ["topology", "semantic_sequence", "amount_vector"], []
-        _upsert_evidence(conn, operation, mint, classification, matching, differing, observed, expected, rows, now)
-        counts[classification] += 1
-        _refresh_health(conn, operation, now)
-        _refresh_clusters(conn, operation, now)
-    return dict(counts)
+            conn.commit()
+            _refresh_clusters(conn, operation, now)
+            conn.commit()
+        return dict(counts)
+    except Exception:
+        # A best-effort projection failure must not leak a transaction/write
+        # lease into the caller's subsequent work.
+        if conn.in_transaction:
+            conn.rollback()
+        raise
 
 
 def latest_health(conn: sqlite3.Connection, operator_id: str, fingerprint_id: str) -> dict[str, Any] | None:

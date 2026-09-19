@@ -16838,5 +16838,16 @@
     "production_flags": "READ_ONLY_OBSERVATION=true; SOURCE_CHANGES=0; CONFIG_CHANGES=0; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_MUTATIONS_BY_OBSERVER=0; PROVIDER_CALLS_BY_OBSERVER=0; SYNTHETIC_TRAFFIC=0",
     "audit": "/private/tmp/listener_extended_qualification_20260919.json sha256 5c1936d4aa3c25e1da89601e7b59811bb8f49a12fd7b8248b62a9966f5b2ee88",
     "exact_next_action": "Keep the listener module deployed. Under separate authorization, investigate and repair residual Cascade OPS contention without changing the listener, Walkback, funding, API, Monitor, databases, queues, SQLite settings, or providers."
+  },
+  "cascade_writer_scope_performance_audit_20260919": {
+    "engineering_revision": "8dc6f947dbc5e5821d07c5478fc23acc58987497",
+    "status": "CASCADE_WRITER_CONTENTION_AUDIT_HOLD",
+    "current_sample": "Effective lifecycle retention was only 155.401 seconds because high-volume rotation displaced the requested 15/60-minute history. Within it, current Cascade PID 74842 completed 901 matched holds: all below 100ms, maximum 39.919ms, p50 1.934ms, p95 4.618ms, zero holds over 5s, zero SQLITE_BUSY, zero unmatched acquisitions and zero active SQLite transactions at release.",
+    "retained_incident": "Current-PID Cascade application logs retain two last-hour SQLITE_BUSY code-5 episodes while the application flock was owned and sqlite_transaction_active=false: ws-cascade-event at epoch 1789802094.588256 for 10.957s and ws-cascade-hit at epoch 1789803110.714351 for 39.114s. These prove SQLITE_UNDER_FLOCK_CONTENTION, not provider/RPC work under the writer.",
+    "walkback_correlation": "Walkback retained three current-PID acquisition timeouts at epochs 1789799870.187, 1789802705.340 and 1789803108.370 naming Cascade PID 74842 as application-flock owner. Cascade caused those application-lock waits, but the pre-existing SQLite writer that prevented Cascade progress is absent from current provenance.",
+    "path_findings": "Current _ops acquires the flock lazily at first write. Subprovider network/RPC occurs after closing the read connection and before opening the final local persistence connection. Treasury registration had one short retained write; Launch Audit had 40 short retained UPSERT holds. No current multi-second provider work under the writer or lifecycle violation is proven.",
+    "production_flags": "READ_ONLY_AUDIT=true; ENGINEERING_SOURCE_CHANGES=0; CONFIG_CHANGES=0; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_MUTATIONS_BY_AUDITOR=0; PROVIDER_CALLS_BY_AUDITOR=0; LISTENER_FIX_REMAINS_QUALIFIED=true; FARM_DETECTOR_REMAINS_RETIRED=true",
+    "audit": "/private/tmp/cascade_writer_scope_performance_audit_20260919.json sha256 e8205a3bc931bae07d3c1de9f7c3aad42c6317a8858f44d6e96d30131cf118bb",
+    "next_action": "Do not change Cascade writer scope. Extend or redirect metadata-only lifecycle retention without changing locking semantics, then observe natural traffic until the next under-flock SQLITE_BUSY event identifies the opposing SQLite connection and statement; repair only that bypass or transaction-lifecycle path."
   }
 }

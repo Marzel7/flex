@@ -16926,5 +16926,15 @@
     "safety": "OTHER_SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS_BY_DEPLOYER=0; PROVIDER_CALLS_BY_DEPLOYER=0; SYNTHETIC_TRAFFIC=0; SQLITE_SETTING_CHANGES=0; LISTENER_FIX_REMAINS_QUALIFIED=true; FARM_DETECTOR_REMAINS_RETIRED=true",
     "audit": "/private/tmp/cascade_writer_lock_fail_closed_deployment_20260919.json sha256 98f35ac0d9d8d72ef3c353b155cc1d9c66178c966888bf00524f59449bf65ddf",
     "next_action": "Keep c6c12ab4 deployed. Do not broaden or roll back Cascade. Under separate authorization, extend cross-process blocker identity across all remaining wt_ops writers and identify the residual SQLite owner before another repair."
+  },
+  "walkback_wal_checkpoint_stall_recovery_20260919": {
+    "engineering_revision": "8dc6f947dbc5e5821d07c5478fc23acc58987497 with dirty production module state",
+    "status": "OBSERVATION_FAILED_RECOVERY_PARTIAL",
+    "incident": "At 2026-09-19T11:27Z Walkback PID 28968 had a stale 281-second heartbeat while its db-wal-watchdog held the wt_ops application writer lease inside PRAGMA wal_checkpoint(TRUNCATE). Retained metadata showed no database progress after acquisition and the UI reported the hold growing from 7s to 25s. This disproves a clean four-hour stability result and demonstrates that the prior 250ms maintenance acquisition bound does not bound checkpoint execution after acquisition.",
+    "recovery": "With explicit user authorization, only walkback_worker was restarted at 2026-09-19T11:28Z: PID 28968 -> 49492. Listener 93379, funding 59094, Cascade 79750, API 25464 and Monitor 5022 remained unchanged. The stuck checkpoint lease cleared and Walkback immediately began a natural batch; its heartbeat row refreshed at epoch 1789817313.",
+    "current_state": "Walkback is RUNNING and making database progress, but the first post-restart health projection remains UNHEALTHY while four pending candidates have not yet produced a completion. Recovery is therefore partial, not a new stability qualification.",
+    "production_flags": "SOURCE_CHANGES=0; CONFIG_CHANGES=0; DATABASE_OR_QUEUE_MUTATIONS_BY_OPERATOR=0; PROVIDER_CALLS_BY_OPERATOR=0; SYNTHETIC_TRAFFIC=0; ONLY_WALKBACK_RESTARTED=true",
+    "blocker": "Automatic WAL maintenance can acquire the shared writer lane and then remain blocked inside PRAGMA wal_checkpoint(TRUNCATE) without an execution-duration bound, starving Walkback useful work.",
+    "exact_next_action": "Do not resume or close the four-hour observation. Offline-qualify only a fail-safe checkpoint execution repair so optional maintenance cannot hold the writer lane indefinitely after acquisition; require explicit deployment authorization before changing source or restarting any service."
   }
 }

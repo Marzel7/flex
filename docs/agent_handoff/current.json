@@ -16849,5 +16849,16 @@
     "production_flags": "READ_ONLY_AUDIT=true; ENGINEERING_SOURCE_CHANGES=0; CONFIG_CHANGES=0; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_MUTATIONS_BY_AUDITOR=0; PROVIDER_CALLS_BY_AUDITOR=0; LISTENER_FIX_REMAINS_QUALIFIED=true; FARM_DETECTOR_REMAINS_RETIRED=true",
     "audit": "/private/tmp/cascade_writer_scope_performance_audit_20260919.json sha256 e8205a3bc931bae07d3c1de9f7c3aad42c6317a8858f44d6e96d30131cf118bb",
     "next_action": "Do not change Cascade writer scope. Extend or redirect metadata-only lifecycle retention without changing locking semantics, then observe natural traffic until the next under-flock SQLITE_BUSY event identifies the opposing SQLite connection and statement; repair only that bypass or transaction-lifecycle path."
+  },
+  "cascade_sqlite_blocker_root_cause_20260919": {
+    "engineering_revision": "8dc6f947dbc5e5821d07c5478fc23acc58987497; running Cascade/Walkback clean deployment checkout revision 502dab5208b0c18eaaa0e35f9166a6c7d8417ce5",
+    "status": "CASCADE_SQLITE_BLOCKER_ROOT_CAUSE_PROVEN",
+    "retention": "Native lifecycle retention was 30MiB and measured 13.311MB/min / 25,863 events/min, explaining 123.378s effective coverage. A temporary external metadata-only mirror capped at 1.125GiB was activated without service change/restart and stopped after capture; it retained 64,264 valid events over 438.848s.",
+    "root_cause": "TrackedConnection._acquire_write_lane waits 60s for its process-local _DB_WRITE_LOCK, but on timeout records an error and returns. TrackedConnection.execute then proceeds with sqlite3.execute without application-flock ownership. Five natural current-Cascade writes emitted SQLITE_WRITE_WITHOUT_APPLICATION_FLOCK. Launch Audit connection 1842b454 began and completed an INSERT into wt_launch_audit with flock_owned=false while legitimate Cascade connection bad59baf held the flock and waited 64.263s on wt_subprov_sig_retry. Root class SQLITE_WRITER_BYPASS is PROVEN.",
+    "impact": "The same episode produced one 64.268s and one 10.734s Cascade hold, three Cascade SQLITE_BUSY events, one CONNECTION_RETURNED_WITH_SQLITE_TX_ACTIVE violation, and a Walkback 60.003s wait naming exact Cascade holder bad59baf/transaction 5524e955. Normal sample remained 520/522 holds below 100ms.",
+    "tests": "40 deployed-clean-checkout lifecycle/rotation tests passed in 0.60s. No synthetic production traffic or contention was generated.",
+    "safety": "BUSINESS_LOGIC_CHANGES=0; DATABASE_OR_QUEUE_MUTATIONS_BY_AUDITOR=0; SQLITE_BEHAVIOR_CHANGES=0; PROVIDER_CALLS_BY_AUDITOR=0; PRODUCTION_RESTARTS=0; SERVICE_SIGNALS=0; LISTENER_FIX_REMAINS_QUALIFIED=true; FARM_DETECTOR_REMAINS_RETIRED=true",
+    "audit": "/private/tmp/cascade_sqlite_blocker_root_cause_20260919.json sha256 4e98464bc8c3b021905d6d38f3f47a890a88104354bee6a037b040b2d337662b; capture /private/tmp/cascade_sqlite_blocker_capture_20260919.jsonl sha256 949cbad79078d53ee5021b9b892da28af01aa084238f4f21298178ff8e25d2cd",
+    "next_action": "Implement and offline-qualify only the fail-closed TrackedConnection local-lock-timeout behavior: raise before SQLite execute rather than falling through; explicitly prove rollback/in_transaction=false before flock release. Do not deploy or restart Cascade without separate authorization."
   }
 }

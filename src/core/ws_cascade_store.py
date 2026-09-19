@@ -1922,7 +1922,7 @@ def reject_unproven_sessions(conn) -> list:
     return rows
 
 
-def tag_operational_spend_proxies(conn) -> int:
+def find_operational_spend_proxy_tags(conn) -> list[tuple[int, str]]:
     """Retrospectively tag expired, zero-fanout sessions as OPERATIONAL_SPEND_PROXY.
 
     Requires dict-style row access; ensures row_factory is set if caller omitted it.
@@ -1947,13 +1947,14 @@ def tag_operational_spend_proxies(conn) -> int:
     Excludes tagged sessions from ARMED strip and Mission 3 provisioning views.
     Idempotent — skips already-tagged rows.
 
-    Returns count of newly tagged sessions.
+    Returns a deterministic mutation plan.  The classification scan is
+    deliberately read-only so it cannot retain SQLite writer state while
+    evaluating the potentially large expired-session population.
     """
     import sqlite3 as _sqlite3
     if conn.row_factory is None:
         conn.row_factory = _sqlite3.Row
-    now = int(time.time())
-    count = 0
+    tags: list[tuple[int, str]] = []
 
     # PATH A — two sub-paths:
     #
@@ -1985,10 +1986,7 @@ def tag_operational_spend_proxies(conn) -> int:
               )"""
     ).fetchall()
     for row in path_a1:
-        conn.execute(
-            "UPDATE wt_active_subprov_sessions "
-            "SET session_tag = 'OPERATIONAL_SPEND_PROXY' WHERE id = ?", (row[0],))
-        count += 1
+        tags.append((row[0], "OPERATIONAL_SPEND_PROXY"))
 
     # A2: confirmed Hello proxy wallets identified via Solscan forensic investigation.
     #     These wallets were directly observed making singleSolPayment calls to 21wG4F3Z.
@@ -2010,10 +2008,7 @@ def tag_operational_spend_proxies(conn) -> int:
             list(_CONFIRMED_HELLO_PROXIES)
         ).fetchall()
         for row in path_a2:
-            conn.execute(
-                "UPDATE wt_active_subprov_sessions "
-                "SET session_tag = 'OPERATIONAL_SPEND_PROXY' WHERE id = ?", (row[0],))
-            count += 1
+            tags.append((row[0], "OPERATIONAL_SPEND_PROXY"))
 
     # PATH B: structural — same treasury, same round PLAIN_TRANSFER amount, ≥3 peers
     # Targets the repeating spend-proxy pattern: treasury sends an identical round SOL
@@ -2052,10 +2047,7 @@ def tag_operational_spend_proxies(conn) -> int:
             (row["treasury_wallet"], row["subprov_wallet"], row["funding_amount"])
         ).fetchone()[0]
         if peers >= 3:
-            conn.execute(
-                "UPDATE wt_active_subprov_sessions "
-                "SET session_tag = 'OPERATIONAL_SPEND_PROXY' WHERE id = ?", (row["id"],))
-            count += 1
+            tags.append((row["id"], "OPERATIONAL_SPEND_PROXY"))
 
     # PATH C: fast post-expiry single-wallet classifier.
     # Fires on any expired zero-fanout session that looks like a one-shot operational
@@ -2105,12 +2097,35 @@ def tag_operational_spend_proxies(conn) -> int:
 
         # Exactly 1 inbound treasury transfer = one-shot operational budget (not seed+capital)
         if inbound_count == 1:
-            conn.execute(
-                "UPDATE wt_active_subprov_sessions "
-                "SET session_tag = 'POSSIBLE_OPERATIONAL_SPEND_PROXY' WHERE id = ?",
-                (row["id"],))
-            count += 1
+            tags.append((row["id"], "POSSIBLE_OPERATIONAL_SPEND_PROXY"))
 
+    # A row can qualify through multiple paths.  The stronger tag wins
+    # deterministically without depending on mutation order.
+    resolved: dict[int, str] = {}
+    for session_id, tag in tags:
+        if tag == "OPERATIONAL_SPEND_PROXY" or session_id not in resolved:
+            resolved[session_id] = tag
+    return sorted(resolved.items())
+
+
+def apply_operational_spend_proxy_tags(conn, tags: list[tuple[int, str]]) -> int:
+    """Apply a read-only classification plan in one short write phase."""
+    count = 0
+    for session_id, tag in tags:
+        cur = conn.execute(
+            "UPDATE wt_active_subprov_sessions SET session_tag=? "
+            "WHERE id=? AND session_tag IS NULL",
+            (tag, session_id),
+        )
+        count += max(cur.rowcount, 0)
+    return count
+
+
+def tag_operational_spend_proxies(conn) -> int:
+    """Compatibility wrapper: scan first, then acquire writer state briefly."""
+    count = apply_operational_spend_proxy_tags(
+        conn, find_operational_spend_proxy_tags(conn)
+    )
     if count:
         conn.commit()
     return count

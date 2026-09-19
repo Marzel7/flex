@@ -5,7 +5,7 @@
   "root_cause": "Walkback's ordinary cycle called create_event_ledger.retry_pending_writes, which recursively invoked ensure_schema and executed CREATE TABLE/INDEX IF NOT EXISTS under the authoritative operations writer lane. The same cycle called anchor reconciliation with an unbounded waiting-row inventory and schema ensures, allowing one transaction to span the historical population. Live owner metadata captured the recurring DDL and self-owned holds over the UI stall threshold.",
   "repair": {
     "runtime_ddl": "Recurring Walkback calls explicitly use schema-current mode. Read-only startup validators cover the anchor-reconciliation and create-ledger contracts. Standalone/default callers retain existing ensure-schema behavior.",
-    "writer_scope": "Recurring anchor reconciliation is deterministically limited to the 5 oldest waiting rows per cycle rather than all retained rows. The initial 25-row live trial still produced 12-20s holds at roughly 0.7s per row and was rejected before the stabilization clock.",
+    "writer_scope": "Recurring anchor reconciliation is deterministically limited to one oldest waiting row per cycle rather than all retained rows. Live pre-soak trials rejected 25 rows (12-20s holds) and 5 rows (19s hold); the production cost was approximately four seconds per retained row.",
     "unchanged": "Queue ordering within the selected cohort, retry semantics, attribution, provider behavior, SQLite settings, WAL behavior, timeouts, and other services are unchanged."
   },
   "production_read_only_gate": {
@@ -29,7 +29,7 @@
       "validators perform no writes",
       "recurring retry path cannot call ensure_schema",
       "recurring anchor path cannot call either schema ensure",
-      "recurring anchor inventory selects exactly the 5 oldest rows"
+      "recurring anchor inventory selects exactly the single oldest row"
     ],
     "compile": "PASS",
     "diff_check": "PASS"

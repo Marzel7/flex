@@ -17214,5 +17214,16 @@
     "production_flags": "TEMPLATE_ONLY=true; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_CHANGES=0; CONFIG_CHANGES=0",
     "verdict": "PASS: authoritative platform WARNING now renders as a warning rather than an erroneous CRITICAL badge.",
     "exact_next_action": "Refresh Mission Control and verify the platform header matches the unchanged WARNING body. Push local source commit 14830d67 only after explicit source-code egress authorization; the required agent handoff publication is independent."
+  },
+  "confirmed_treasury_subscription_30d_census_20260920": {
+    "status": "READ_ONLY_CENSUS_COMPLETE_POLICY_NOT_DEPLOYED",
+    "population": "66 confirmed treasuries: 65 currently websocket-eligible and one explicitly no_subscribe. One treasury has an ACTIVE session, but it is INTEL_ONLY; zero current sessions are LIVE_ARMED.",
+    "activity": "Five confirmed treasuries had a launch, treasury provisioning edge or active session in the last 30 days. A conservative rule retaining any treasury with activity in 60 days or any historical STRICT launch selects 13; one is the intentionally no_subscribe treasury, leaving 12 websocket-eligible permanent roots. The corresponding 90-day rule selects 14. Fifty-two treasuries have no activity in 90 days, no active session and no historical STRICT launch contribution.",
+    "launch_provenance": "Among launches attributed to currently confirmed treasuries: 367 are WALKBACK recoveries; 40 are STRICT (12 PROGRAM_LOGS live, 13 ACTIVE_CATCHUP, three PENDING_CREATE_RETRY, one OPENING_CATCHUP and 11 legacy source-unknown); one is BACKFILL and one manual. In the last 30 days, all 147 retained launches across five confirmed treasuries were WALKBACK, with zero STRICT live launches.",
+    "interpretation": "The current 65-root websocket set is materially overprovisioned. Retained evidence supports 12 permanent websocket roots plus the existing one intentional INTEL_ONLY/no-subscribe root. This preserves every treasury with <=60-day activity and every treasury that ever contributed a STRICT launch. The 52 cold roots should move to durable cursor-based catch-up, not be discarded; Walkback remains retrospective confirmation rather than pre-launch detection.",
+    "limitations": "Detection provenance cannot prove the counterfactual that every future launch missed by websocket monitoring would migrate and be recovered. Eleven historical STRICT launches have legacy-unknown detection source. Therefore subscription reduction requires an observation/shadow phase and durable catch-up coverage, not a direct one-step cutover.",
+    "production_flags": "STRICTLY_READ_ONLY=true; NO_SUBSCRIBE_FLAGS_CHANGED=0; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_CHANGES=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0",
+    "verdict": "Recommend a target permanent websocket set of 12, not 65. Keep one existing no_subscribe treasury INTEL_ONLY and place 52 cold treasuries in a bounded durable polling tier.",
+    "exact_next_action": "Offline-qualify a shadow admission policy: hot if active session, activity <=60 days, or any historical STRICT launch; preserve explicit no_subscribe; poll cold roots with durable per-wallet cursors and measure detection delay/misses for at least seven days before any production subscription reduction."
   }
 }

@@ -17379,6 +17379,19 @@
     "walkback_boundary": "Walkback PID 95615 remains deployed/stable; topology classifier hashes and automatic-promotion-disabled semantics were not changed. No service was restarted or signalled during this diagnosis.",
     "safety": "Read-only source/config/log/process/database-file inspection; source/config/database/queue mutations=0; service restarts/signals=0; provider calls=0; synthetic traffic=0.",
     "verdict": "The workers were victims of a transient external WAL pin and their own fail-safe restart policy. The system is currently recovered, but the exact PID 72923 command/connection path is irrecoverable from retained evidence, so a permanent repair is not yet justified.",
-    "exact_next_action": "Offline-qualify metadata-only watchdog provenance that records holder PID command line, connection/read-transaction age and checkpoint frame boundary before exit. Deploy it without changing WAL thresholds or restart semantics, then identify the next natural pin and repair only that ownership/closure path."
+    "exact_next_action": "Superseded by the completed offline qualification below."
+  },
+  "wal_watchdog_holder_provenance_offline_qualification_20260920": {
+    "engineering_revision": "4f7821a0 on codex/wal-watchdog-holder-provenance; isolated worktree /private/tmp/wal-watchdog-holder-provenance; not pushed or deployed",
+    "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",
+    "baseline": "Exact production-file overlays: creator_funding_worker.py 2ded9524..., creator_resolution_worker.py d936279e..., db_locking.py 8aeb4f1c...; DatabaseWriteService 4f60028b... was test parity context only and was not committed.",
+    "implementation": "Adds an opt-in shared metadata-only lifecycle stream and terminal WAL-pin collector. It records bounded holder PID/command, checkpoint busy/log/checkpointed frames, tracked connection age, deferred/read or write transaction age, caller, purpose and mode. Missing/untracked/native participants explicitly report connection_provenance_available=false.",
+    "privacy_and_bounds": "No SQL text, parameters, wallets, tokens or provider payloads. Reads at most 4 MiB of lifecycle tail, returns at most 20 PIDs and 10 connections per PID, and bounds strings to 240 characters.",
+    "behavior_parity": "64 MiB WAL threshold, three busy/stalled cycles, 60-second interval, PASSIVE checkpoint, exit code 1 and Supervisor restart semantics are unchanged. The established _wal_busy test seam is preserved. Collector errors fail open into metadata and cannot suppress os._exit(1).",
+    "qualification": "25 passed across the new holder-provenance suite and existing X78.25 watchdog, X78.40 WAL-pin snapshot and X78.15 health-recovery regressions; py_compile and git diff check pass.",
+    "audit": "docs/audits/wal_watchdog_holder_provenance_offline_qualification.v1.json",
+    "production_flags": "DEPLOYED=false; SOURCE_OR_CONFIG_CHANGED=false; SERVICES_RESTARTED_OR_SIGNALLED=0; DATABASE_OR_QUEUE_WRITES=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0; WALKBACK_DETECTOR_UNTOUCHED=true; AUTOMATIC_TREASURY_PROMOTION=false",
+    "verdict": "PASS offline: the evidence missing from PID 72923 can be retained on the next natural critical pin without changing database or watchdog behavior.",
+    "exact_next_action": "Requires separate authorization: prepare a parity-gated diagnostics-only deployment manifest. Derive every running flex_complete_database.db participant that must load db_locking.py and the shared lifecycle-path environment, restart only that exact set, then wait for a natural critical WAL pin."
   }
 }

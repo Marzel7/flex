@@ -17326,5 +17326,18 @@
     "production_flags": "DEPLOYED=false; PRODUCTION_SOURCE_MODIFIED=false; DATABASE_OR_QUEUE_MUTATIONS=0; TREASURY_PROMOTIONS=0; HISTORICAL_REPLAYS=0; SERVICE_RESTARTS_OR_SIGNALS=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0",
     "verdict": "AzkP is offline-qualified as the third positive topology cohort under a narrow repeated-multimodal amount rule. Automatic confirmation remains disabled.",
     "exact_next_action": "Assemble the classifier and review-only hook on an exact current-production Walkback source baseline, then rerun current-runtime parity and transaction-boundary suites. Deployment and restarting only walkback_worker require separate authorization."
+  },
+  "azkp_watchtower_operation_attribution_audit_20260920": {
+    "engineering_revision": "d5fa5093 on codex/walkback-topology-treasury; local isolated audit commit, not source-pushed",
+    "status": "WATCHTOWER_ATTRIBUTION_NOT_PROVEN",
+    "correction": "AzkP's 38-chain result proves a coherent treasury topology only. It does not make AzkP a WATCHTOWER identity positive control. The qualified WATCHTOWER reference remains frozen at 36 launches (11 Gzaa + 25 2gh).",
+    "wallet_overlap": "Against the current Gzaa/2gh reference, AzkP shares 0 SubProvs, 0 creators and 0 fan-out signers. Each AzkP set has 38 distinct wallets; the reference sets have 37.",
+    "mechanism_overlap": "AzkP shares exact amounts 0.203039, 1.112039 and 2.122039 SOL on 26/38 chains and the same retained outer/inner wrap-close shape. The retained route semantic is AMBIGUOUS_OR_UNSUPPORTED for all cohorts, so this is generic mechanism similarity, not identity/control evidence.",
+    "registry_context": "AzkP has no confirmed-treasury row, zero wt_launch_audit rows and remains PENDING_REVIEW. Temporal overlap with 2gh is non-identifying.",
+    "decision": "TREASURY_TOPOLOGY_QUALIFIED=true; WATCHTOWER_ATTRIBUTION_PROVEN=false; WATCHTOWER_POSITIVE_CONTROL=false; AUTOMATIC_CONFIRMATION_ALLOWED=false; WATCHTOWER_REPLAY_ALLOWED=false",
+    "audit": "docs/audits/azkp_watchtower_operation_attribution_audit.v1.json",
+    "production_flags": "STRICTLY_READ_ONLY=true; PROVIDER_CALLS=0; DATABASE_OR_QUEUE_MUTATIONS=0; PROMOTIONS=0; REPLAYS=0; SERVICE_RESTARTS_OR_SIGNALS=0; SOURCE_OR_CONFIG_CHANGES=0",
+    "verdict": "AzkP is a separate operation candidate unless independent capital-source/control evidence later proves otherwise. Keep it operation-neutral and pending review.",
+    "exact_next_action": "Do not deploy any logic that maps topology qualification to WATCHTOWER attribution. Either leave dormant AzkP pending, or separately authorize an operation-neutral capital-source/control attribution audit."
   }
 }

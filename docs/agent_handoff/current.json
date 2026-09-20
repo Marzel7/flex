@@ -17033,5 +17033,17 @@
     "production_flags": "DEPLOYED=false; SOURCE_CHANGES=0; SERVICE_RESTARTS_OR_SIGNALS=0; PRODUCTION_DATABASE_OR_QUEUE_MUTATIONS=0; CONFIG_CHANGES=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0",
     "audit": "/private/tmp/final_under_flock_sqlite_deployment_hold_20260920.json",
     "exact_next_action": "Wait for PID 4273 to exit naturally, or obtain separate authorization for a bounded read-only diagnosis followed by termination of only that stuck one-shot process. Then repeat parity and deploy only db_locking.py without restarting any service."
+  },
+  "final_under_flock_begin_boundary_deployment_abort_20260920": {
+    "engineering_revision": "2b944cd4b4ed66e189f393a1c433345921e1e9e5",
+    "status": "ROLLED_BACK_QUALIFICATION_INCOMPLETE",
+    "execution": "Authorized diagnosis confirmed old one-shot PID 4273 stuck for 21m22s in state U; SIGTERM was sent only to PID 4273 and it exited. The BEGIN-boundary patch was then applied only to main-checkout db_locking.py; no service was restarted.",
+    "natural_run": "Next cron process PID 36107 launched naturally at 08:00:00Z but remained in state U after 14m01s with zero cache log progress. A bounded stack sample placed its main thread in sqlite3_step/accessPayload/pread, proving a read-only full-database scan before the repaired writer boundary, not a new writer-lock wait.",
+    "contention": "From the 07:23:42Z watermark through abort: cache/Cascade/listener SQLITE_BUSY=0, database-locked=0, CrossProcessDatabaseWriteTimeout=0, tracebacks=0.",
+    "abort_criteria": "Retention did not complete, so the required 20-minute post-run clock never started. Independently, operation_monitor_worker PID changed 5022->16577 and creator_resolution_worker 33682->30179 without deployer action.",
+    "rollback": "Restored only src/utils/db_locking.py to exact predeployment sha256 00711a77f9487ac58498eee61078a77ecbef181364f3b3e123ac4bcc32046dc8. No service restart/signal occurred during rollback. Running PID 36107 was not signalled because authorization named only PID 4273.",
+    "production_flags": "DEPLOYED=false_after_rollback; SERVICE_RESTARTS_BY_DEPLOYER=0; ONLY_AUTHORIZED_SIGNAL=SIGTERM_PID_4273; PRODUCTION_DATABASE_OR_QUEUE_MUTATIONS_BY_DEPLOYER=0; CONFIG_CHANGES=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0",
+    "audit": "/private/tmp/final_under_flock_sqlite_deployment_attempt_20260920.json",
+    "exact_next_action": "Keep the BEGIN repair offline-qualified. Separately diagnose and bound the retention preflight full-table scan, and explain the unrelated Monitor/creator-resolution PID changes, before authorizing another deployment attempt."
   }
 }

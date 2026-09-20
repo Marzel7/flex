@@ -17136,5 +17136,16 @@
     "operational_correction": "Adding a treasury updates future list-gated decisions and discovered-subprov treasury_known synchronization, but no generic automatic requeue/reclassification of already-complete LINEAGE_GAP rows was found. Immediate 66+ reclassification therefore requires an explicit bounded evidence-preserving replay/reconciliation step, not registration alone.",
     "production_flags": "AUDIT_ONLY=true; SOURCE_CHANGES=0; SERVICES_OR_SIGNALS=0; DATABASE_OR_QUEUE_MUTATIONS=0; PROVIDER_CALLS=0",
     "exact_next_action": "Before any promotion, produce a per-wallet evidence manifest linking treasury->SubProv and SubProv wrap-close->creator for Gzaa and A6RM, independently verify at least one sample for each of the five candidates, separately reproduce the seven parent-selection disagreements and G9QZ path, then design a dry-run-only bounded reclassification manifest for completed LINEAGE_GAP rows."
+  },
+  "walkback_unknown_treasury_topology_qualification_20260920": {
+    "engineering_revision": "340b2d7c on codex/walkback-topology-treasury, based on remote-frozen health baseline 7762ecdc",
+    "status": "PASS_OFFLINE_QUALIFIED_NOT_DEPLOYED",
+    "implementation": "Added a read-only retained-evidence classifier requiring at least five distinct mints, five single-use SubProvs, five creators, a valid CREATE anchor, exact createAccountWithSeed->initializeAccount->closeAccount instruction shape, a distinct fan-out co-signer, non-dust wrap amount, and at least 80% dominant amount consistency. Confirmed treasury, spam, SubProv and canonical infrastructure exclusions fail closed. Missing infrastructure authority also fails closed. A separate explicit mutation boundary revalidates current evidence before audited TOPOLOGY_COHORT confirmation; it is not scheduled or called by production.",
+    "current_cohort": "Read-only test against current wt_ops_v2 proves GzaaMeT8... qualifies with 11 distinct mints/SubProvs/creators, dominant 0.203039 SOL and 100% consistency. HHXRs6... does not qualify. A6RM is intentionally not established because its 55 deepest-wallet rows lack the complete repeated canonical provisioning-edge topology; recurrence alone is insufficient.",
+    "qualification": "41 focused and adjacent tests passed, including 10 new topology/current-cohort/negative-control tests; py_compile, JSON validation and diff checks passed. Broader legacy suites that assume a worktree-local live DB were not admissible in the isolated worktree and failed for missing baseline tables, unrelated to this patch.",
+    "audit": "docs/audits/walkback_unknown_treasury_topology_qualification.v1.json",
+    "production_flags": "DEPLOYED=false; SCHEDULER_ENABLED=false; TREASURIES_PROMOTED=0; HISTORICAL_ROWS_REPLAYED=0; SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS=0; PROVIDER_CALLS=0",
+    "verdict": "The missing-treasury topology classifier and audited confirmation boundary are implemented and offline-qualified. They are not production-authorized.",
+    "exact_next_action": "Review a bounded dry-run candidate manifest using an explicitly precomputed infrastructure exclusion set. Under separate authorization, decide whether to promote only Gzaa first; do not schedule full discovery, promote A6RM, or replay completed LINEAGE_GAP rows without separate evidence and approval."
   }
 }

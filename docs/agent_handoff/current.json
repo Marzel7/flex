@@ -17339,5 +17339,18 @@
     "production_flags": "STRICTLY_READ_ONLY=true; PROVIDER_CALLS=0; DATABASE_OR_QUEUE_MUTATIONS=0; PROMOTIONS=0; REPLAYS=0; SERVICE_RESTARTS_OR_SIGNALS=0; SOURCE_OR_CONFIG_CHANGES=0",
     "verdict": "AzkP is a separate operation candidate unless independent capital-source/control evidence later proves otherwise. Keep it operation-neutral and pending review.",
     "exact_next_action": "Do not deploy any logic that maps topology qualification to WATCHTOWER attribution. Either leave dormant AzkP pending, or separately authorize an operation-neutral capital-source/control attribution audit."
+  },
+  "walkback_operation_neutral_topology_runtime_parity_20260920": {
+    "engineering_revision": "baseline c7881bb2 plus detector 1a99f4a7 on codex/walkback-topology-runtime-parity; local isolated commits, not source-pushed",
+    "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",
+    "parity": "The isolated baseline freezes the exact current production Walkback source. Pre-hook walkback_worker.py sha256=8743d34200bfb2aae2fb090824a9ba95ce2a8922d43c21924fd7a5e7085a351a. The detector changes only walkback_worker.py by 50 additive lines plus the new classifier module.",
+    "runtime_contract": "LINEAGE_GAP only after durable materialization/sync commit; evaluate the one retained session treasury; prefilter >=5 SubProvs/creators; insert or refresh PENDING_REVIEW evidence only; preserve human dispositions; candidate failure rolls back independently.",
+    "attribution_boundary": "Topology proves treasury role only. Runtime confirm_topology_candidate and replay_topology_candidate explicitly raise review-only RuntimeError. The hook makes zero confirmation/replay/registry calls. AzkP remains operation-neutral; WATCHTOWER controls remain 36.",
+    "qualification": "33 passed across topology/negative controls, runtime hook isolation, Walkback transaction boundary, schema lease lifecycle and combined health; py_compile and git diff checks passed.",
+    "audit": "docs/audits/walkback_operation_neutral_topology_runtime_parity.v1.json",
+    "deployment_manifest": "Deploy only src/ops/treasury_topology_classifier.py and src/core/walkback_worker.py; restart only walkback_worker; all other frozen baseline modules are parity context, not deployment payload.",
+    "production_flags": "DEPLOYED=false; PRODUCTION_SOURCE_MODIFIED=false; DATABASE_OR_QUEUE_MUTATIONS=0; SERVICE_RESTARTS_OR_SIGNALS=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0; AUTOMATIC_CONFIRMATION=false; HISTORICAL_REPLAY=false",
+    "verdict": "PASS offline: current-runtime operation-neutral treasury detection is qualified and cannot attribute AzkP or any topology candidate to WATCHTOWER.",
+    "exact_next_action": "Requires separate authorization: parity-gated module-only deployment of treasury_topology_classifier.py and walkback_worker.py, restart only walkback_worker, then observe natural LINEAGE_GAP traffic and verify only PENDING_REVIEW evidence changes."
   }
 }

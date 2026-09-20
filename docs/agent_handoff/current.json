@@ -17265,5 +17265,17 @@
     "production_flags": "DEPLOYED=false; PRODUCTION_SOURCE_MODIFIED=false; DATABASE_OR_QUEUE_MUTATIONS=0; SERVICE_RESTARTS_OR_SIGNALS=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0; AUTOMATIC_TREASURY_CONFIRMATION=false",
     "verdict": "The detector behavior is offline-qualified; deployment remains HOLD until exact current-runtime source parity is assembled and requalified.",
     "exact_next_action": "Prepare a clean parity branch from the exact current Walkback runtime source, add only the classifier module and post-commit review hook, rerun focused/current-runtime suites, and require separate authorization before any module deployment or Walkback restart."
+  },
+  "walkback_topology_other_confirmed_treasuries_cross_validation_20260920": {
+    "engineering_revision": "957b1e53 on codex/walkback-topology-treasury; local isolated audit commit, not source-pushed",
+    "status": "CROSS_VALIDATION_BLOCKED_BY_RETAINED_EVIDENCE_GAP",
+    "denominator": "67 confirmed treasuries; 17 have 435 retained WATCHTOWER launches. Excluding the two development cohorts leaves 398 launches across 15 other confirmed treasuries.",
+    "result": "Zero of the 398 other launches has a complete exact join across the classifier's treasury edge, SubProv edge, matching queue/creator, VALID CREATE anchor and matching transaction-role signature. Therefore zero other treasuries qualify, but this is missing historical evidence rather than contradictory topology.",
+    "retention_census": "Of 398 launches: 378 have queue rows, 305 valid anchors, 300 provisioning sessions, 44 sessions matching the confirmed treasury, 43 matching treasury edges, 300 SubProv edges and 94 transaction-role rows; complete all-layer joins=0. Five of the 15 treasuries have any retained treasury edge, 45 edges total.",
+    "confidence_change": "The classifier remains precision-qualified on the 36 modern retained-topology positive controls (11 plus 25), but is not broad-cohort recall-qualified against the other 398 known WATCHTOWER tokens.",
+    "safety": "Strictly read-only database inspection; production mutations=0; service restarts/signals=0; provider calls=0; synthetic traffic=0.",
+    "audit": "docs/audits/walkback_topology_other_confirmed_treasuries_cross_validation.v1.json",
+    "verdict": "Runtime deployment remains HOLD. Do not weaken topology evidence gates merely to fit historical rows that lack the required retained observations.",
+    "exact_next_action": "Build a frozen known-answer replay corpus by reconstructing or acquiring missing treasury-edge and transaction-role evidence for a representative sample across the 15 other confirmed treasuries, then rerun the unchanged classifier offline before parity/deployment work."
   }
 }

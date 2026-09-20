@@ -17121,11 +17121,11 @@
   },
   "walkback_fresh_pending_health_semantics_20260920": {
     "engineering_revision": "7762ecdc on codex/health-status-truth at /private/tmp/health-status-truth, based on deployed health baseline ed15c54b",
-    "status": "PASS_OFFLINE_QUALIFIED_NOT_DEPLOYED",
+    "status": "PASS_OFFLINE_QUALIFIED_REMOTE_FROZEN_NOT_DEPLOYED",
     "root_cause": "Walkback health classified any pending row plus a zero one-minute completion bucket as DEGRADED, without considering the pending row's age. A newly enqueued row could therefore create a transient false warning between completion buckets despite a current heartbeat and recent successful throughput.",
     "repair": "Both the detailed Walkback health model and candidate-health composition now require the oldest pending row to exceed the existing stalled_after_seconds threshold (180 seconds by default) before reporting no progress. Fresh pending work remains healthy. Missing enqueue provenance remains fail-closed; stale heartbeats, stalled running jobs and prolonged writer leases retain their existing warning behavior.",
     "qualification": "37 focused Walkback and system-health tests passed; py_compile and git diff checks passed. New regressions prove a 14-second pending row is healthy, a 181-second pending row is unhealthy, and unknown enqueue provenance remains degraded. A broader legacy alignment suite had one unrelated pre-existing template-text assertion failure (Recent WATCHTOWER absent); its other tests passed.",
-    "production": "NOT_DEPLOYED. No service restart or signal, database/queue/configuration/provider change, or synthetic traffic occurred.",
+    "production": "NOT_DEPLOYED. No service restart or signal, database/queue/configuration/provider change, or synthetic traffic occurred. The isolated qualified branch codex/health-status-truth was pushed and remote-verified at 7762ecdcaf430cceb99ed09edbd0c96a3480b05c.",
     "verdict": "PASS: the narrow UI false-degradation repair is offline-qualified on a clean deployable baseline.",
     "exact_next_action": "Under separate deployment authorization, parity-check and deploy only src/ops/walkback_health.py and src/ops/walkback_candidate_health.py from 7762ecdc, restart only watchtower_api if import/process inspection confirms it is the sole long-lived consumer requiring reload, then verify fresh pending work does not raise DEGRADED while aged pending work still does."
   }

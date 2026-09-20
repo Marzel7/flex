@@ -142,8 +142,17 @@ def _determine_status(
         reasons.append(f"{walkback_health['stalled_running_jobs']} walkback job(s) stalled in running state")
     pending = walkback_health.get("pending", 0)
     completed_per_min = walkback_health.get("completed_per_minute", 0)
-    if pending > 0 and completed_per_min == 0:
-        reasons.append("pending walkback work exists but nothing completed in the last minute")
+    oldest_pending_age = walkback_health.get("oldest_pending_age_seconds")
+    stalled_after = walkback_health.get("stalled_after_seconds", HEARTBEAT_STALE_SECONDS)
+    if (
+        pending > 0
+        and completed_per_min == 0
+        and (oldest_pending_age is None or oldest_pending_age > stalled_after)
+    ):
+        reasons.append(
+            "pending walkback work is older than the progress threshold "
+            "and nothing completed in the last minute"
+        )
     # Candidate-generation silence: only unhealthy if walkback IS
     # progressing (so we know eligible LINEAGE_GAP outcomes are being
     # produced) but nothing has reached wt_treasury_review -- a zero here

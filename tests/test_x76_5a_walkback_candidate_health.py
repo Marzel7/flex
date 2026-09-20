@@ -22,6 +22,7 @@ def _wh(**overrides):
         "pending": 3, "running": 1, "completed_last_hour": 5,
         "completed_per_minute": 1, "stalled_running_jobs": 0,
         "nested_write_failures_last_hour": 0,
+        "oldest_pending_age_seconds": 30, "stalled_after_seconds": 180,
     }
     base.update(overrides)
     return base
@@ -200,12 +201,43 @@ class TestNamedScenario6CandidateGenerationSilence:
         status, reasons = _determine_status(
             supervisor={"available": True, "running": True},
             heartbeat_age=30, lease=None,
-            walkback_health=_wh(pending=5, completed_last_hour=0, completed_per_minute=0),
+            walkback_health=_wh(
+                pending=5, completed_last_hour=0, completed_per_minute=0,
+                oldest_pending_age_seconds=181,
+            ),
             candidate_generation=_cg(generated_last_hour=0, generated_last_day=0, stalled=True),
             recent_self_kill=False,
         )
         assert status == "DEGRADED"
         assert any("pending" in r.lower() for r in reasons)
+
+    def test_fresh_pending_work_between_completion_buckets_is_healthy(self):
+        status, reasons = _determine_status(
+            supervisor={"available": True, "running": True},
+            heartbeat_age=30, lease=None,
+            walkback_health=_wh(
+                pending=1, running=0, completed_last_hour=5,
+                completed_per_minute=0, oldest_pending_age_seconds=14,
+            ),
+            candidate_generation=_cg(stalled=False),
+            recent_self_kill=False,
+        )
+        assert status == "HEALTHY"
+        assert reasons == []
+
+    def test_pending_without_enqueue_provenance_remains_fail_closed(self):
+        status, reasons = _determine_status(
+            supervisor={"available": True, "running": True},
+            heartbeat_age=30, lease=None,
+            walkback_health=_wh(
+                pending=1, completed_per_minute=0,
+                oldest_pending_age_seconds=None,
+            ),
+            candidate_generation=_cg(stalled=False),
+            recent_self_kill=False,
+        )
+        assert status == "DEGRADED"
+        assert any("pending" in reason.lower() for reason in reasons)
 
 
 class TestIncidentLabelling:

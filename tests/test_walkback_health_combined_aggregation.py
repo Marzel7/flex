@@ -21,3 +21,35 @@ def test_combined_health_counts_preserve_boundaries_errors_and_nulls():
     assert health["completed_last_hour"] == 2
     assert health["write_failures_last_hour"] == 2
     assert health["nested_write_failures_last_hour"] == 1
+
+
+def test_fresh_pending_row_does_not_create_false_no_progress_warning():
+    now = 10_000
+    conn = sqlite3.connect(":memory:")
+    conn.execute("CREATE TABLE wt_walkback_queue (status TEXT, completed_at INTEGER, updated_at INTEGER, last_error TEXT, started_at INTEGER, enqueued_at INTEGER)")
+    conn.execute("CREATE TABLE wt_worker_heartbeat (worker_name TEXT, last_seen INTEGER)")
+    conn.execute(
+        "INSERT INTO wt_walkback_queue VALUES ('pending',NULL,?,NULL,NULL,?)",
+        (now - 14, now - 14),
+    )
+    conn.execute("INSERT INTO wt_worker_heartbeat VALUES ('walkback_worker', ?)", (now,))
+    health = build_walkback_health(conn, now=now, stalled_after_seconds=180)
+    assert health["healthy"] is True
+    assert health["oldest_pending_age_seconds"] == 14
+    assert health["reasons"] == []
+
+
+def test_aged_pending_row_still_reports_no_progress():
+    now = 10_000
+    conn = sqlite3.connect(":memory:")
+    conn.execute("CREATE TABLE wt_walkback_queue (status TEXT, completed_at INTEGER, updated_at INTEGER, last_error TEXT, started_at INTEGER, enqueued_at INTEGER)")
+    conn.execute("CREATE TABLE wt_worker_heartbeat (worker_name TEXT, last_seen INTEGER)")
+    conn.execute(
+        "INSERT INTO wt_walkback_queue VALUES ('pending',NULL,?,NULL,NULL,?)",
+        (now - 181, now - 181),
+    )
+    conn.execute("INSERT INTO wt_worker_heartbeat VALUES ('walkback_worker', ?)", (now,))
+    health = build_walkback_health(conn, now=now, stalled_after_seconds=180)
+    assert health["healthy"] is False
+    assert health["oldest_pending_age_seconds"] == 181
+    assert any("pending work exists" in reason for reason in health["reasons"])

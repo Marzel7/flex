@@ -71,7 +71,17 @@ def build_walkback_health(
         )
     heartbeat_age = now - heartbeat_at if heartbeat_at else None
 
-    no_progress = pending > 0 and completed_minute == 0
+    oldest_pending_age = now - oldest_pending_at if oldest_pending_at else None
+    # A newly-enqueued row can legitimately land between one-minute
+    # completion buckets. Do not turn that ordinary snapshot race into an
+    # operator warning; require the pending work itself to have aged past the
+    # same threshold used for stalled work. Missing enqueue provenance stays
+    # fail-closed because its freshness cannot be established.
+    no_progress = (
+        pending > 0
+        and completed_minute == 0
+        and (oldest_pending_age is None or oldest_pending_age > stalled_after_seconds)
+    )
     heartbeat_stale = heartbeat_age is None or heartbeat_age > stalled_after_seconds
     unhealthy_reasons = []
     if no_progress:
@@ -91,7 +101,7 @@ def build_walkback_health(
         "pending": pending,
         "running": running,
         "oldest_pending_at": oldest_pending_at,
-        "oldest_pending_age_seconds": now - oldest_pending_at if oldest_pending_at else None,
+        "oldest_pending_age_seconds": oldest_pending_age,
         "completed_per_minute": completed_minute,
         "completed_last_hour": completed_hour,
         "average_completion_latency_seconds": round(float(average_latency), 3) if average_latency is not None else None,

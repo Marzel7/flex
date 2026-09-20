@@ -428,7 +428,24 @@ def serializer_metrics() -> dict:
 # one orderly write lane. Reads (SELECT-only conns) never acquire → read concurrency preserved.
 # Env-flagged so it can be rolled out / backed out without code changes.
 _DB_WRITE_SERIALIZE = os.environ.get("DB_WRITE_SERIALIZE", "1") == "1"
-_WRITE_SQL_PREFIXES = ("INSERT", "UPDATE", "DELETE", "REPLACE", "CREATE", "ALTER", "DROP", "UPSERT")
+# Transaction-control statements that acquire SQLite writer state must enter
+# the application write lane before SQLite sees them.  In particular,
+# ``BEGIN IMMEDIATE`` takes SQLite's RESERVED writer lock even though it does
+# not mutate a table itself.  Omitting BEGIN allowed a connection to hold the
+# SQLite writer while it subsequently waited for the application flock,
+# inverting the lock order used by every normal managed writer.
+_WRITE_SQL_PREFIXES = (
+    "BEGIN IMMEDIATE",
+    "BEGIN EXCLUSIVE",
+    "INSERT",
+    "UPDATE",
+    "DELETE",
+    "REPLACE",
+    "CREATE",
+    "ALTER",
+    "DROP",
+    "UPSERT",
+)
 
 _CF_SQL_DIAGNOSTICS_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(__file__))),

@@ -17056,5 +17056,16 @@
     "verdict": "The scan repair and prior BEGIN-boundary repair are offline-qualified together, but neither is production-qualified.",
     "blocker": "A fresh deployment manifest and explicit authorization are required. The currently running/stuck retention PID 36107 was not signalled or modified by this work.",
     "exact_next_action": "Prepare a parity-gated module-only deployment for src/utils/db_locking.py, src/core/rpc_cache.py, and src/ops/cache_metrics_retention_runner.py (plus only proven runtime dependencies if parity requires them), with no service restart. Resolve any still-live old retention one-shot under separate explicit authority, then qualify the next natural hourly run and at least 20 minutes of traffic before repeating the final stabilization observation."
+  },
+  "retention_preflight_scan_bound_deployment_hold_20260920": {
+    "engineering_revision": "c01127cc4db90281edf8a87918b57cb76d773875; preserves BEGIN repair 2b944cd4b4ed66e189f393a1c433345921e1e9e5",
+    "status": "HOLD_PREDEPLOYMENT_GATE_NO_CHANGES_MADE",
+    "authorization": "User authorized a parity-gated deployment of db_locking.py, rpc_cache.py and cache_metrics_retention_runner.py with no service restart, followed by the next natural hourly run and at least 20 minutes of observation.",
+    "candidate_hashes": "db_locking.py=8aeb4f1c30c42b1ca27f9725806f8b7b674b682cb5487e3f291286a68e7c96b9; rpc_cache.py=58cf2a632f48edc6c185f728876473695b7947a15e7a9f2c3d48b072a18aeef7; cache_metrics_retention_runner.py=83354a6abcff2452fe5c4fc840e0c21a5dc3723d7a60019baee44198c628edad",
+    "production_hashes": "db_locking.py=00711a77f9487ac58498eee61078a77ecbef181364f3b3e123ac4bcc32046dc8; rpc_cache.py=92696ac7379704e386954b1b879535dfa0391d8f4e0b98415e0217632e3e33f2; cache_metrics_retention_runner.py=df039b75576e64316aba918da635aaa5db6a9de66504ab74cf9905ff4eac5cfa",
+    "blocker": "The same pre-repair retention one-shot PID 36107 and parent shell PID 36103 remain alive from the 09:00 local cron invocation. At 08:25:41Z PID 36107 had elapsed 25m41s, state R/U across samples, only 25.64s CPU, and the retention log inode 704882014 remained unchanged at 687600 bytes with mtime 07:32:38Z. Deploying while it remains loaded would not repair it and could permit overlap with a new invocation. Authorization did not include signalling PID 36107 or its parent.",
+    "service_parity": "No service was restarted or signalled. Snapshot: listener=93379, funding=59094, Walkback=4040, Cascade=69288, API=25464, Monitor=16577, creator-resolution=30179, alert=5447, ngrok=5454.",
+    "production_flags": "DEPLOYED=false; SOURCE_CHANGES=0; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_MUTATIONS=0; CONFIG_CHANGES=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0",
+    "exact_next_action": "Obtain separate explicit authority to terminate only the stuck retention PID 36107 (and allow its cron parent 36103 to reap/exit), or wait for natural exit. Then repeat all hash/PID/dependency parity gates and, only if clear, deploy the three qualified modules with no service restart and qualify the next natural hourly invocation plus at least 20 minutes."
   }
 }

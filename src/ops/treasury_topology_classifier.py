@@ -270,3 +270,79 @@ def confirm_topology_candidate(
     from src.core.treasury_bank import auto_confirm_from_topology_cohort
 
     return auto_confirm_from_topology_cohort(conn, fresh, now=now)
+
+
+def replay_topology_candidate(
+    conn,
+    candidate: dict[str, Any],
+    *,
+    allowed_mints: Iterable[str],
+    now: int,
+    infrastructure_check: Callable[[str], bool],
+    core_conn=None,
+) -> dict[str, Any]:
+    """Replay only explicitly allow-listed terminal lineage gaps.
+
+    This is intentionally narrower than the normal worker: it performs no RPC,
+    discovers no additional rows, and refuses any row whose retained queue and
+    provisioning-session identities do not exactly match freshly classified
+    topology evidence.  The caller owns the transaction and commit.
+    """
+    wallet = str(candidate.get("wallet") or "")
+    fresh = classify_unknown_treasury(
+        conn, wallet, infrastructure_check=infrastructure_check,
+    )
+    if fresh.get("verdict") != "QUALIFIED_TOPOLOGY":
+        raise ValueError("candidate no longer topology-qualified")
+    allowed = tuple(sorted(set(allowed_mints)))
+    chains = {str(c["mint"]): c for c in fresh.get("chains") or []}
+    if not allowed or any(mint not in chains for mint in allowed):
+        raise ValueError("allow-list is not a subset of fresh topology evidence")
+
+    for mint in allowed:
+        chain = chains[mint]
+        row = conn.execute(
+            "SELECT q.status,q.intelligence_outcome,q.creator,q.subprov,q.treasury,"
+            "q.funder_sig,q.funding_mechanism,s.treasury,s.subprov,s.creator,"
+            "s.subprov_to_creator_mechanism FROM wt_walkback_queue q "
+            "JOIN wt_provisioning_sessions s ON s.source_mint=q.mint WHERE q.mint=?",
+            (mint,),
+        ).fetchone()
+        if not row:
+            raise ValueError(f"missing queue/session evidence: {mint}")
+        expected = (
+            "complete", "LINEAGE_GAP", chain["creator"], chain["subprov"],
+            None, chain["wrap_signature"], "WSOL_WRAP_CLOSE", wallet,
+            chain["subprov"], chain["creator"], "WSOL_WRAP_CLOSE",
+        )
+        if tuple(row) != expected:
+            raise ValueError(f"replay precondition mismatch: {mint}")
+
+    from src.ops.attribution_outcome import materialize_outcome
+    from src.ops.watchtower_candidates import sync_walkback_result
+
+    for mint in allowed:
+        chain = chains[mint]
+        conn.execute(
+            "INSERT INTO watchtower_token_attribution "
+            "(mint,creator,matched_subprov,matched_treasury,score,tier,reasons_json,scored_at) "
+            "VALUES (?,?,?,?,100,'CONFIRMED',?,?) "
+            "ON CONFLICT(mint) DO UPDATE SET creator=excluded.creator,"
+            "matched_subprov=excluded.matched_subprov,matched_treasury=excluded.matched_treasury,"
+            "score=excluded.score,tier=excluded.tier,reasons_json=excluded.reasons_json,"
+            "scored_at=excluded.scored_at",
+            (mint, chain["creator"], chain["subprov"], wallet,
+             json.dumps(["QUALIFIED_TOPOLOGY_COHORT"], separators=(",", ":")), int(now)),
+        )
+        changed = conn.execute(
+            "UPDATE wt_walkback_queue SET treasury=?,attribution_source='topology_cohort_replay',"
+            "intelligence_outcome='WATCHTOWER_CONFIRMED',updated_at=? "
+            "WHERE mint=? AND status='complete' AND intelligence_outcome='LINEAGE_GAP' "
+            "AND treasury IS NULL AND creator=? AND subprov=?",
+            (wallet, int(now), mint, chain["creator"], chain["subprov"]),
+        ).rowcount
+        if changed != 1:
+            raise ValueError(f"bounded queue update failed: {mint}")
+        materialize_outcome(conn, mint, core_conn=core_conn)
+        sync_walkback_result(conn, mint)
+    return {"wallet": wallet, "replayed": list(allowed), "count": len(allowed)}

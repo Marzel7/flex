@@ -8,6 +8,7 @@ from src.ops.treasury_topology_classifier import (
     TopologyThresholds,
     classify_unknown_treasury,
     confirm_topology_candidate,
+    replay_topology_candidate,
 )
 
 
@@ -59,7 +60,8 @@ def _add_chain(conn, i, *, treasury="T", amount=1.112039, valid_anchor=True,
          "WSOL_WRAP_CLOSE", amount, wrap_sig, 1, mint, "WALKBACK"),
     )
     conn.execute(
-        "INSERT INTO wt_walkback_queue VALUES (?,?,?,?)",
+        "INSERT INTO wt_walkback_queue "
+        "(mint,creator,create_anchor_signature,create_anchor_audit_state) VALUES (?,?,?,?)",
         (mint, creator, f"CREATE{i}" if valid_anchor else None,
          "VALID" if valid_anchor else "MISSING"),
     )
@@ -176,6 +178,55 @@ def test_unqualified_candidate_cannot_be_promoted():
     conn = _db()
     with pytest.raises(ValueError, match="not topology-qualified"):
         confirm_topology_candidate(conn, {"wallet": "T", "verdict": "INSUFFICIENT_EVIDENCE"})
+
+
+def test_replay_is_allowlisted_and_fails_closed(monkeypatch):
+    conn = _db()
+    conn.executescript("""
+        ALTER TABLE wt_walkback_queue ADD COLUMN status TEXT DEFAULT 'complete';
+        ALTER TABLE wt_walkback_queue ADD COLUMN intelligence_outcome TEXT DEFAULT 'LINEAGE_GAP';
+        ALTER TABLE wt_walkback_queue ADD COLUMN subprov TEXT;
+        ALTER TABLE wt_walkback_queue ADD COLUMN treasury TEXT;
+        ALTER TABLE wt_walkback_queue ADD COLUMN funder_sig TEXT;
+        ALTER TABLE wt_walkback_queue ADD COLUMN funding_mechanism TEXT;
+        ALTER TABLE wt_walkback_queue ADD COLUMN attribution_source TEXT;
+        ALTER TABLE wt_walkback_queue ADD COLUMN updated_at INTEGER;
+        CREATE TABLE wt_provisioning_sessions (
+          source_mint TEXT PRIMARY KEY, treasury TEXT, subprov TEXT, creator TEXT,
+          subprov_to_creator_mechanism TEXT);
+        CREATE TABLE watchtower_token_attribution (
+          mint TEXT PRIMARY KEY, creator TEXT, matched_subprov TEXT, matched_treasury TEXT,
+          score REAL, tier TEXT, reasons_json TEXT, scored_at INTEGER);
+    """)
+    for i in range(5):
+        _add_chain(conn, i)
+        conn.execute(
+            "UPDATE wt_walkback_queue SET subprov=?,funder_sig=?,funding_mechanism='WSOL_WRAP_CLOSE' WHERE mint=?",
+            (f"S{i}", f"W{i}", f"M{i}"),
+        )
+        conn.execute(
+            "INSERT INTO wt_provisioning_sessions VALUES (?,?,?,?,?)",
+            (f"M{i}", "T", f"S{i}", f"C{i}", "WSOL_WRAP_CLOSE"),
+        )
+    candidate = _classify(conn)
+    monkeypatch.setattr("src.ops.attribution_outcome.materialize_outcome", lambda *_a, **_k: None)
+    monkeypatch.setattr("src.ops.watchtower_candidates.sync_walkback_result", lambda *_a, **_k: None)
+    result = replay_topology_candidate(
+        conn, candidate, allowed_mints=["M0"], now=123,
+        infrastructure_check=lambda _wallet: False,
+    )
+    assert result["replayed"] == ["M0"]
+    assert tuple(conn.execute(
+        "SELECT treasury,intelligence_outcome,attribution_source FROM wt_walkback_queue WHERE mint='M0'"
+    ).fetchone()) == ("T", "WATCHTOWER_CONFIRMED", "topology_cohort_replay")
+    assert conn.execute(
+        "SELECT intelligence_outcome FROM wt_walkback_queue WHERE mint='M1'"
+    ).fetchone()[0] == "LINEAGE_GAP"
+    with pytest.raises(ValueError, match="not a subset"):
+        replay_topology_candidate(
+            conn, candidate, allowed_mints=["NOT_ALLOWED"], now=124,
+            infrastructure_check=lambda _wallet: False,
+        )
 
 
 def test_current_watchtower_cohort_read_only():

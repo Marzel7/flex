@@ -17147,5 +17147,15 @@
     "production_flags": "DEPLOYED=false; SCHEDULER_ENABLED=false; TREASURIES_PROMOTED=0; HISTORICAL_ROWS_REPLAYED=0; SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS=0; PROVIDER_CALLS=0",
     "verdict": "The missing-treasury topology classifier and audited confirmation boundary are implemented and offline-qualified. They are not production-authorized.",
     "exact_next_action": "Review a bounded dry-run candidate manifest using an explicitly precomputed infrastructure exclusion set. Under separate authorization, decide whether to promote only Gzaa first; do not schedule full discovery, promote A6RM, or replay completed LINEAGE_GAP rows without separate evidence and approval."
+  },
+  "walkback_unknown_treasury_bounded_dry_run_20260920": {
+    "engineering_revision": "340b2d7ca10de85ae5f22b5b8b33507cb02710cf; classifier unchanged",
+    "status": "DRY_RUN_COMPLETE_NO_MUTATIONS",
+    "scope": "Seven explicitly named audit wallets; exact-address checks against static infrastructure/CEX registry plus indexed infra_funders_observed, infra_wallets and active cex_wallets; classifier spam/SubProv/confirmed-treasury gates also applied.",
+    "result": "Two wallets qualified. Cohort A has 11 complete independent chains with 100% dominant wrap-amount consistency. Cohort B has 25 complete chains with 88% dominant consistency (22 dominant, 3 secondary amount) and therefore warrants additional human scrutiny despite passing the configured 80% threshold. Five wallets did not qualify: three had zero complete canonical chains, one was a known SubProv, and one lacked the required wrap-close instruction shape.",
+    "replay_impact": "Exactly 36 currently complete LINEAGE_GAP rows are topology-backed and replay-eligible if both qualified wallets are later approved: 11 plus 25. Zero rows in those two retained cohorts already had a non-LINEAGE_GAP outcome.",
+    "artifact": "Detailed wallet/mint manifest retained locally at /private/tmp/walkback-topology-treasury/docs/audits/walkback_unknown_treasury_bounded_dry_run_20260920.v1.json and JSON/live-parity validated. It was not pushed because remote export of production-derived wallet/mint identifiers was not authorized.",
+    "production_flags": "TREASURIES_PROMOTED=0; HISTORICAL_ROWS_REPLAYED=0; DATABASE_OR_QUEUE_MUTATIONS=0; SERVICE_RESTARTS_OR_SIGNALS=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0",
+    "exact_next_action": "Review the two qualified cohorts separately. Require explicit production authorization before any promotion or replay. Prefer the 11-chain 100%-consistent cohort first; independently adjudicate the 25-chain cohort's three secondary-amount routes before promotion."
   }
 }

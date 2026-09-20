@@ -17079,5 +17079,16 @@
     "observation": "Read-only monitor started 2026-09-20T08:30:18Z. Awaiting the next natural hourly retention invocation at approximately 09:00Z, its completion, and at least 20 post-run minutes. No synthetic run will be generated.",
     "production_flags": "DEPLOYED=true_three_modules_only; AUTHORIZED_SIGNAL=SIGTERM_PID_36107_ONLY; SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS_BY_DEPLOYER=0; CONFIG_CHANGES=0; PROVIDER_CALLS_BY_DEPLOYER=0; SYNTHETIC_TRAFFIC=0",
     "exact_next_action": "Complete the natural-run plus 20-minute read-only qualification. If all gates pass, record PASS; otherwise roll back only on a proven manifest abort criterion and record the exact blocker."
+  },
+  "retention_preflight_scan_bound_live_qualification_20260920": {
+    "engineering_revision": "c01127cc4db90281edf8a87918b57cb76d773875; deployed module-only on the main cron checkout",
+    "status": "PRODUCTION_QUALIFIED",
+    "deployed_hashes": "db_locking.py=8aeb4f1c30c42b1ca27f9725806f8b7b674b682cb5487e3f291286a68e7c96b9; rpc_cache.py=58cf2a632f48edc6c185f728876473695b7947a15e7a9f2c3d48b072a18aeef7; cache_metrics_retention_runner.py=83354a6abcff2452fe5c4fc840e0c21a5dc3723d7a60019baee44198c628edad",
+    "natural_run_evidence": "The hourly crontab entry remained active at minute 0. Both the 10:00 and 11:00 London boundaries elapsed after deployment with no lingering cache_metrics_retention_runner process; the prior failure mode had remained visible for more than 25 minutes. The --quiet command produced no new retention log output and no post-boundary cron error mail, consistent with bounded silent completion. No synthetic invocation was generated.",
+    "observation": "Final read-only audit at 2026-09-20T10:15:34Z, more than two hours after deployment and more than 20 minutes beyond each natural hourly boundary. Retention process count=0. All deployed hashes exact. operations_sqlite_lifecycle current and rotated logs contained zero SQLITE_BUSY, database-locked, CrossProcessDatabaseWriteTimeout or lifecycle-violation records in the inspected post-deployment window. Tails of Cascade, listener, Walkback and funding logs contained zero matching errors or tracebacks. WT_OPS WAL was 103032 bytes and active, not runaway.",
+    "service_stability": "Unchanged from deployment: listener=93379; funding=59094; Walkback=4040; Cascade=69288; API=25464; Monitor=16577; creator-resolution=30179; alert=5447; ngrok=5454. No service restart occurred.",
+    "production_flags": "THREE_MODULE_DEPLOYMENT_QUALIFIED=true; AUTHORIZED_SIGNAL=SIGTERM_PID_36107_ONLY; SERVICE_RESTARTS=0; CONFIG_CHANGES=0; DATABASE_OR_QUEUE_MUTATIONS_BY_DEPLOYER=0; PROVIDER_CALLS_BY_DEPLOYER=0; SYNTHETIC_TRAFFIC=0; ROLLBACK=false",
+    "verdict": "PASS: the retention scan bound and BEGIN writer-boundary repair are production-qualified. The stuck hourly-process mechanism is resolved.",
+    "exact_next_action": "Keep this repair frozen. Perform the final broader read-only stabilization audit before declaring the entire multi-service incident closed; reopen retention engineering only on new evidence."
   }
 }

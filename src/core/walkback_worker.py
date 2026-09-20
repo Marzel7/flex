@@ -947,6 +947,8 @@ def _mark_complete(ops: sqlite3.Connection, mint: str, outcome: str,
     from src.ops.watchtower_candidates import sync_walkback_result
     sync_walkback_result(ops, mint)
     ops.commit()
+    if outcome == "LINEAGE_GAP":
+        _detect_topology_treasury_candidate_after_commit(ops, mint)
     _notify_living_after_walkback_commit(ops, mint)
     # Generic retained-role operation projectors run only after the durable
     # Walkback commit; they must never affect completion of the walkback.
@@ -1102,6 +1104,54 @@ def _surface_treasury_review_lead(ops: sqlite3.Connection,
 
 
 # ── creator recovery (DB-only, zero RPC) ─────────────────────────────────────
+
+def _detect_topology_treasury_candidate_after_commit(
+    ops: sqlite3.Connection, mint: str,
+) -> dict:
+    """Surface an operation-neutral treasury candidate after durable commit.
+
+    Topology proves a repeated treasury role, never WATCHTOWER identity. This
+    hook may update only a PENDING_REVIEW treasury-review row; confirmation,
+    operation attribution, registry membership, and historical replay remain
+    separate human-authorized paths.
+    """
+    try:
+        row = ops.execute(
+            "SELECT treasury FROM wt_provisioning_sessions WHERE source_mint=? LIMIT 1",
+            (mint,),
+        ).fetchone()
+        wallet = row[0] if row else None
+        if not wallet:
+            return {"action": "no_observed_root", "mint": mint}
+        review = ops.execute(
+            "SELECT distinct_subprovs,distinct_creators,detected_via,status "
+            "FROM wt_treasury_review WHERE treasury=?", (wallet,),
+        ).fetchone()
+        if review is None or min(int(review[0] or 0), int(review[1] or 0)) < 5:
+            return {"action": "insufficient_cohort", "mint": mint, "wallet": wallet}
+        if review[2] == "topology_cohort_qualified":
+            return {"action": "already_surfaced", "mint": mint, "wallet": wallet}
+        if review[3] != "PENDING_REVIEW":
+            return {"action": "skipped_reviewed", "mint": mint, "wallet": wallet,
+                    "status": review[3]}
+        from src.ops.treasury_topology_classifier import surface_runtime_topology_candidate
+        from src.utils.infra_mapping import is_known_account
+        result = surface_runtime_topology_candidate(
+            ops, str(wallet), infrastructure_check=is_known_account,
+        )
+        if result.get("action") in {"inserted", "updated"}:
+            ops.commit()
+            print(
+                f"[WALKBACK] operation-neutral treasury review candidate → "
+                f"{str(wallet)[:14]}… chains={result.get('distinct_mints')}", flush=True,
+            )
+        return result
+    except Exception as exc:  # post-commit observer must never break completion
+        if ops.in_transaction:
+            ops.rollback()
+        print(f"[WALKBACK] topology candidate check failed mint={mint}: {exc}", flush=True)
+        return {"action": "failed", "mint": mint, "error": str(exc)[:300]}
+
 
 def _recover_creator_from_db(ops: sqlite3.Connection, mint: str) -> Optional[str]:
     """Attempt to resolve a missing creator wallet from local DB tables.

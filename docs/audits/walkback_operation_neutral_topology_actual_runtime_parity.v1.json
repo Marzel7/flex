@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-09-20T16:20:43Z",
+  "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",
+  "scope": "Operation-neutral Walkback treasury-topology candidate surfacing",
+  "runtime_baseline": {
+    "supervisor_directory": "/private/tmp/flex-sqlite-provenance-clean",
+    "source_revision": "e4f75a96acbc78b028da15b97ebfeb33f176a543",
+    "walkback_worker_sha256": "2dc943b3eab72df84751eff278f6bb80d23248baa3b43ae6a9d144577de3f8f9",
+    "parity": "EXACT"
+  },
+  "candidate": {
+    "walkback_worker_sha256": "94611dc0f34e7529a7e8b22fe27c083bda8dcbb566cd5bd10385fe57286f72b5",
+    "treasury_topology_classifier_sha256": "f51637e839c0fc15339ce0cca67f74e5dc9878a85b127da8c35e7906fd4d644e",
+    "worker_change": "A post-durable-commit LINEAGE_GAP observer only",
+    "allowed_write": "PENDING_REVIEW wt_treasury_review candidate metadata",
+    "prohibited_paths": [
+      "treasury confirmation",
+      "WATCHTOWER attribution",
+      "registry membership",
+      "historical replay"
+    ]
+  },
+  "qualification": {
+    "passed": 32,
+    "failed": 1,
+    "detector_and_hook_tests": "19 passed",
+    "transaction_boundary_tests": "7 passed",
+    "schema_lease_tests": "5 passed, 1 baseline-identical stale hazard assertion failed",
+    "health_aggregation_tests": "1 passed",
+    "baseline_failure_reproduction": "The same schema-lease assertion fails unchanged on clean e4f75a96; current db_locking releases the lease after failed ALTER TABLE, contrary to the old hazard assertion.",
+    "verdict": "The failure is pre-existing, favorable fail-closed behavior and unrelated to this additive candidate detector."
+  },
+  "attribution_boundary": {
+    "watchtower_positive_controls": 36,
+    "groups": {"Gzaa": 11, "2gh": 25},
+    "AzkP": "Topology-qualified but operation attribution unproven; remains PENDING_REVIEW",
+    "automatic_promotion": false
+  },
+  "aborted_preflight": {
+    "status": "ABORTED_WITHOUT_MUTATION",
+    "reason": "The first manifest referenced main-checkout worker hash 8743d342..., while Supervisor executes 2dc943b3... from a clean runtime directory.",
+    "production_files_changed": 0,
+    "services_restarted": 0
+  },
+  "authorized_manifest": {
+    "modules": [
+      "src/core/walkback_worker.py",
+      "src/ops/treasury_topology_classifier.py"
+    ],
+    "restart_only": "walkback_worker",
+    "observation_minimum_minutes": 20,
+    "synthetic_traffic": false
+  }
+}

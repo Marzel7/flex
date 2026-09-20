@@ -17045,5 +17045,16 @@
     "production_flags": "DEPLOYED=false_after_rollback; SERVICE_RESTARTS_BY_DEPLOYER=0; ONLY_AUTHORIZED_SIGNAL=SIGTERM_PID_4273; PRODUCTION_DATABASE_OR_QUEUE_MUTATIONS_BY_DEPLOYER=0; CONFIG_CHANGES=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0",
     "audit": "/private/tmp/final_under_flock_sqlite_deployment_attempt_20260920.json",
     "exact_next_action": "Keep the BEGIN repair offline-qualified. Separately diagnose and bound the retention preflight full-table scan, and explain the unrelated Monitor/creator-resolution PID changes, before authorizing another deployment attempt."
+  },
+  "retention_preflight_scan_bound_qualification_20260920": {
+    "engineering_revision": "c01127cc on codex/retention-preflight-bound at /private/tmp/retention-preflight-bound; includes and preserves BEGIN repair 2b944cd4b4ed66e189f393a1c433345921e1e9e5",
+    "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",
+    "root_cause": "The hourly retention runner called RPCCache.count_expired() before work and again after work. Its unindexed SELECT COUNT(*) scanned the multi-GB rpc_response_cache containing very large overflow payloads inside one sqlite3_step execution. The Python MAX_ELAPSED_SECONDS guard runs only between statements and therefore could not interrupt the scan. The subsequent SELECT ... LIMIT batch probe also bounded result cardinality but not SQLite VM work when no eligible row was found.",
+    "repair": "The retention runner no longer performs RPC exact-count preflight or final recount in active or dry-run mode; rpc_remaining_expired is explicitly unavailable. The bounded batch selector is now the sole eligibility probe and installs a connection-local SQLite progress handler tied to the existing 10-second maintenance deadline, clears it immediately after SELECT, and returns zero fail-closed on interruption. Retention predicate, batch ceiling, writer-lane timeout, WAL policy, data semantics and provider behavior are unchanged.",
+    "qualification": "57 focused cache/retention tests passed, including forced SQLite VM deadline interruption, zero mutation on interruption, and proofs that active and dry-run modes never call count_expired. Combined with BEGIN serialization regressions and operations writer-boundary coverage: 69 passed. py_compile and git diff --check passed.",
+    "production_flags": "DEPLOYED=false; PRODUCTION_SOURCE_CHANGES=0; SERVICE_RESTARTS_OR_SIGNALS=0; PRODUCTION_DATABASE_OR_QUEUE_MUTATIONS=0; CONFIG_CHANGES=0; SQLITE_GLOBAL_SETTING_CHANGES=0; PROVIDER_CALLS=0; SYNTHETIC_PRODUCTION_TRAFFIC=0",
+    "verdict": "The scan repair and prior BEGIN-boundary repair are offline-qualified together, but neither is production-qualified.",
+    "blocker": "A fresh deployment manifest and explicit authorization are required. The currently running/stuck retention PID 36107 was not signalled or modified by this work.",
+    "exact_next_action": "Prepare a parity-gated module-only deployment for src/utils/db_locking.py, src/core/rpc_cache.py, and src/ops/cache_metrics_retention_runner.py (plus only proven runtime dependencies if parity requires them), with no service restart. Resolve any still-live old retention one-shot under separate explicit authority, then qualify the next natural hourly run and at least 20 minutes of traffic before repeating the final stabilization observation."
   }
 }

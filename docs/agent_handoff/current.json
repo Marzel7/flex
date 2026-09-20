@@ -17300,5 +17300,17 @@
     "production_flags": "TEMPLATE_LIVE=true; BACKEND_PROCESS_RELOADED=false; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_CHANGES=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0",
     "verdict": "PASS for the observed false-warning mode: active durable progress prevents a heartbeat-only STALLED display. Genuine Walkback failures remain fail-closed.",
     "exact_next_action": "Refresh Mission Control and confirm the current Walkback card no longer says STALLED while completed_per_minute is positive. Later freeze the qualified backend modules into a clean parity deployment and restart only watchtower_api under separate authorization."
+  },
+  "walkback_third_cohort_local_evidence_census_20260920": {
+    "engineering_revision": "97a88f45 on codex/walkback-topology-treasury; local isolated audit commit, not source-pushed",
+    "status": "READ_ONLY_CENSUS_COMPLETE_CLASSIFIER_POLICY_HOLD",
+    "identity_correction": "The remembered third group is AzkPUX... with 38 complete topology chains. A6RM... is only a depth-7 upstream wallet on one AzkP launch and has zero classifier chains as an immediate treasury; it must not be counted as a treasury positive control.",
+    "third_cohort": "AzkP has 38 distinct mints, 38 one-use SubProvs and 38 creators. It fails only the unchanged amount-consistency gate: seven retained wrap amounts, dominant 1.112039 SOL on 19/38 (50%) versus required 80%.",
+    "representative_sample": "The six highest-volume older confirmed treasuries outside Gzaa/2gh cover 343 launch-audit mints. Their retention is era-split: the largest has 92 role-row mints but zero matching treasury sessions/edges; others retain partial sessions/edges but zero role rows. None is an exact unchanged-classifier known-answer corpus yet.",
+    "qualification": "Artifact JSON-valid; 13 focused topology-classifier tests passed; git diff check passed.",
+    "audit": "docs/audits/walkback_third_cohort_local_evidence_census.v1.json",
+    "production_flags": "STRICTLY_READ_ONLY=true; PROVIDER_CALLS=0; DATABASE_OR_QUEUE_MUTATIONS=0; SERVICE_RESTARTS_OR_SIGNALS=0; AUTOMATIC_PROMOTIONS=0; HISTORICAL_REPLAYS=0",
+    "verdict": "Gzaa 11 and 2gh 25 remain the 36 qualified controls. AzkP is a strong 38-chain third cohort held solely by multi-amount semantics; A6RM is not a third treasury cohort.",
+    "exact_next_action": "Offline-qualify a narrow multi-modal amount-consistency rule against Gzaa, 2gh, AzkP and all existing negative controls without promotion or deployment. Keep all topology, one-use SubProv, fan-out, valid CREATE and exclusion gates unchanged."
   }
 }

@@ -17196,5 +17196,13 @@
     "interpretation": "The UI snapshot was stale/internally inconsistent and the worker heartbeat is cycle-boundary-sensitive: useful work continued while heartbeat age increased. This does not support restarting Walkback. The separate Cascade heartbeat also remained stale after a reconnect and is still a distinct observation item.",
     "production_flags": "STRICTLY_READ_ONLY=true; SERVICE_RESTARTS_OR_SIGNALS=0; SOURCE_CONFIG_DATABASE_QUEUE_CHANGES=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0",
     "exact_next_action": "Do not restart Walkback. Resume the read-only treasury census only after confirming the current batch reaches its next heartbeat boundary. Separately consider a health-semantics repair that recognizes advancing completions/log progress or emits heartbeat during long post-batch work, without weakening true stale-worker detection."
+  },
+  "mission_control_warning_rendered_critical_diagnosis_20260920": {
+    "status": "READ_ONLY_UI_BUG_CONFIRMED",
+    "evidence": "The screenshot is internally contradictory: the authoritative platform body reads STATUS WARNING and the summary reads WATCHTOWER WARNING, while the group header badge renders CRITICAL. Listener, database, API and intelligence are HEALTHY; Cascade is DEGRADED and ingestion is WARNING.",
+    "root_cause": "templates/system_health_dashboard.html::_wtColor recognizes DEGRADED, PRESSURE and RETRYING as warning but omits the literal authoritative status WARNING. Its default branch returns critical, so renderPlatformGroup passes CRITICAL styling to mcSetGroupStatus even while printing the unchanged WARNING payload in the body.",
+    "verdict": "The red CRITICAL badge is a presentation overstatement, not evidence of a hidden critical platform condition. The underlying Cascade degradation and funding-failure warning remain real warnings and should not be suppressed.",
+    "production_flags": "READ_ONLY=true; SOURCE_CHANGES=0; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_CHANGES=0",
+    "exact_next_action": "Under explicit repair authorization, add literal WARNING to _wtColor's warning mapping and add a regression proving WARNING maps to warning while genuine failure/unknown values retain fail-closed critical behavior. Deploy only the template/API consumer as proven necessary."
   }
 }

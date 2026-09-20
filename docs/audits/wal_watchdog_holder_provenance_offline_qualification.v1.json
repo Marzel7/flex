@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-09-20T20:55:41Z",
+  "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",
+  "scope": "Metadata-only provenance for natural flex_complete_database.db WAL-pin watchdog exits",
+  "runtime_source_baseline": {
+    "repository_revision": "8dc6f947dbc5e5821d07c5478fc23acc58987497",
+    "creator_funding_worker_sha256": "2ded95240c19a04f42799ca0e42a6374ce0a2156eec18e52ed7c44d27f66df28",
+    "creator_resolution_worker_sha256": "d936279e9d9666c0e38de098cc2592c0adb458df3b52e62af736dc3f82351d21",
+    "db_locking_sha256": "8aeb4f1c30c42b1ca27f9725806f8b7b674b682cb5487e3f291286a68e7c96b9",
+    "database_write_service_sha256_parity_context_only": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2"
+  },
+  "candidate_hashes": {
+    "src/core/creator_funding_worker.py": "d29a6d0e6a8c4fba9dd7be465455e17140cbf0fb7deaa0a9fac7e1e868e1da35",
+    "src/core/creator_resolution_worker.py": "797350867ea10fdbef03933de033241ccd18bb0d137812aacac0e328ffa5fefb",
+    "src/utils/db_locking.py": "cf60acfa7306b771c3c3bf0e88d3eee0e680a09ee3f5ef1cc64bad2d22332390",
+    "src/utils/wal_watchdog_provenance.py": "4b95c72b789f8832824e3ce49e31f545b1cc327a6c835e357353bfb9d53a8b0f"
+  },
+  "contract": {
+    "activation": "Disabled unless DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_PATH is configured",
+    "captured": [
+      "holder PID and bounded process command",
+      "checkpoint busy/log/checkpointed frame boundary",
+      "tracked connection age",
+      "deferred/read or write transaction age",
+      "caller, purpose and read-only/read-write mode"
+    ],
+    "not_captured": ["SQL text", "SQL parameters", "wallets", "tokens", "provider payloads"],
+    "bounds": "4 MiB lifecycle tail, 20 holder PIDs, 10 connections per PID, 240 characters per string",
+    "failure_mode": "Fail-open metadata error embedded in the terminal watchdog record; existing os._exit(1) still executes",
+    "external_native_limit": "Processes/connections not using the configured tracked lifecycle stream retain command-level provenance with connection_provenance_available=false."
+  },
+  "unchanged_behavior": {
+    "wal_alert_mb": 64,
+    "busy_or_stalled_cycles": 3,
+    "checkpoint_mode": "PASSIVE",
+    "watchdog_interval_seconds": 60,
+    "exit_code": 1,
+    "supervisor_restart_semantics": "unchanged",
+    "database_or_queue_writes": 0
+  },
+  "qualification": {
+    "tests": "25 passed",
+    "suites": [
+      "test_wal_watchdog_holder_provenance.py",
+      "test_x78_25_wal_pin_watchdog.py",
+      "test_x78_40_wal_pinned_connection_snapshot.py",
+      "test_x78_15_health_recovery.py"
+    ],
+    "py_compile": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "production": {
+    "deployed": false,
+    "services_restarted_or_signalled": 0,
+    "source_or_config_changed": false,
+    "provider_calls": 0,
+    "synthetic_traffic": 0,
+    "walkback_detector_untouched": true,
+    "automatic_treasury_promotion": false
+  },
+  "verdict": "The missing metadata can be captured on the next natural critical WAL pin without changing checkpoint, threshold, exit or restart behavior.",
+  "next_action": "Separately authorize a parity-gated diagnostics-only deployment. Derive every running flex_complete_database.db participant that must load db_locking.py and the shared lifecycle-path environment; restart only that exact set, then wait for natural traffic."
+}

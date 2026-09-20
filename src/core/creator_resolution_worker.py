@@ -225,6 +225,21 @@ def _identify_wal_holders() -> str:
         return "unknown"
 
 
+def _identify_wal_holder_pids() -> list[int]:
+    """Best-effort PID census used only after the critical gate has fired."""
+    try:
+        result = subprocess.run(["lsof", DB_PATH], capture_output=True, text=True, timeout=5)
+        return sorted({
+            int(parts[1])
+            for line in result.stdout.splitlines()
+            if not line.startswith("COMMAND")
+            for parts in [line.split()]
+            if len(parts) >= 2 and parts[1].isdigit()
+        })
+    except Exception:
+        return []
+
+
 def _wal_watchdog() -> None:
     stalled_cycles = 0
     previous = None
@@ -253,12 +268,23 @@ def _wal_watchdog() -> None:
             if _wal_is_critically_pinned(mb, stalled_cycles):
                 holders = _identify_wal_holders()
                 self_connections = _self_connection_summary()
+                try:
+                    from src.utils.wal_watchdog_provenance import collect_wal_pin_provenance
+                    provenance = collect_wal_pin_provenance(
+                        db_path=DB_PATH,
+                        checkpoint=sample,
+                        holder_pids=_identify_wal_holder_pids(),
+                        lifecycle_path=os.environ.get("DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_PATH"),
+                    )
+                except Exception as exc:
+                    provenance = {"error": str(exc)[:160]}
                 _log(
                     f"CRITICAL_WAL_PINNED: WAL={mb:.1f}MB "
                     f"stalled_cycles={stalled_cycles} log={log_frames} "
                     f"checkpointed={checkpointed} uncheckpointed={gap} "
                     f"holders={holders} self_connections="
                     f"{json.dumps(self_connections, sort_keys=True, default=str)} "
+                    f"wal_pin_provenance={json.dumps(provenance, sort_keys=True, default=str)} "
                     "— this worker exiting for clean restart"
                 )
                 os._exit(1)

@@ -17225,5 +17225,19 @@
     "production_flags": "STRICTLY_READ_ONLY=true; NO_SUBSCRIBE_FLAGS_CHANGED=0; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_CHANGES=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0",
     "verdict": "Recommend a target permanent websocket set of 12, not 65. Keep one existing no_subscribe treasury INTEL_ONLY and place 52 cold treasuries in a bounded durable polling tier.",
     "exact_next_action": "Offline-qualify a shadow admission policy: hot if active session, activity <=60 days, or any historical STRICT launch; preserve explicit no_subscribe; poll cold roots with durable per-wallet cursors and measure detection delay/misses for at least seven days before any production subscription reduction."
+  },
+  "cascade_treasury_subscription_reduction_20260920": {
+    "engineering_revision": "local isolated commit 02f12e0a on codex/health-status-truth; runtime ws_cascade.py sha256=6218947ddcaee6c3f7b827a2548aca295578ce2fea08b98a1d3a848ee7b43bd8",
+    "status": "DEPLOYED_12_ROOTS_LIVE_HEARTBEAT_OBSERVABILITY_DEGRADED",
+    "authorization": "User explicitly authorized reducing permanent confirmed-treasury websocket coverage to 12.",
+    "repair": "Cascade's authoritative confirmed-treasury subscription loader now filters COALESCE(no_subscribe,0)=0. A focused regression proves eligible/default rows remain selected and no_subscribe rows are excluded; 14 focused/adjacent tests and py_compile/diff checks passed. The production runtime module is byte-identical to the qualified isolated module.",
+    "mutation": "A parity-gated one-shot applied the frozen census rule (active session, <=60-day treasury/launch activity, or any historical STRICT launch) to the 65 previously eligible roots. Exactly 53 were changed to no_subscribe=1, leaving exactly 12 eligible; the pre-existing no_subscribe row was preserved, for 54 excluded total. Full pre-apply snapshot is local at /private/tmp/treasury_subscription_reduction_preapply.json.",
+    "restart": "Restarted only ws_cascade: PID 69288 -> 41084. Listener=8354, Walkback=4040, funding=59094, Monitor=30337 and API=20065 remained unchanged.",
+    "live_result": "The new generation logged resync sent=12/pending=12, reconciled exactly 12 treasuries with zero missed sessions, reached LIVE, and then logged pending=0. No new SQLITE_BUSY/database-locked error was observed; only a 50ms slow launch-audit commit appeared after restart.",
+    "observability_blocker": "The persisted ws_cascade heartbeat has not refreshed after its initial post-start record and still reports CONNECTING/subs=0 even though the process log proves generation 1 reached LIVE with all 12 subscription requests drained. At final check the heartbeat age was 161s. Therefore Mission Control may continue to show Cascade degraded until this separate heartbeat path recovers or is repaired.",
+    "coverage_caveat": "No durable dormant-root polling tier currently exists. The 54 excluded roots now rely on post-migration Walkback for retrospective recovery; this cutover does not provide pre-launch detection for them.",
+    "production_flags": "TREASURY_WS_ELIGIBLE=12; NO_SUBSCRIBE_TOTAL=54; ONLY_WS_CASCADE_RESTARTED=true; OTHER_SERVICE_RESTARTS_OR_SIGNALS=0; PROVIDER_CALLS_BY_DEPLOYER=0; SYNTHETIC_TRAFFIC=0",
+    "verdict": "The authorized 12-root subscription reduction is live and operational at the websocket/log layer. Do not call overall qualification complete until the Cascade heartbeat resumes and reports the live 12-root state.",
+    "exact_next_action": "Trace read-only why _heartbeat_loop stopped updating after the restart while the main websocket loop remains LIVE. Repair only heartbeat observability if required; do not alter the 12-root selection or restart unrelated services. Separately design the durable polling tier for excluded roots."
   }
 }

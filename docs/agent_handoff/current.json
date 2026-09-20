@@ -17023,5 +17023,15 @@
     "deployment_manifest": "Deploy only src/utils/db_locking.py to the main cron runtime checkout after fresh hash/PID parity. Derived restart set is empty: the blocker is an hourly one-shot process that imports the module on its next natural invocation; Cascade/listener/Walkback are victims and are explicitly excluded. Observe the next natural hourly retention run and at least 20 minutes after it, then require a fresh uninterrupted four-hour read-only observation.",
     "blocker": "Production remains unchanged and the stabilization incident remains open until separately authorized deployment plus natural-traffic qualification passes.",
     "exact_next_action": "Request separate deployment authorization. If granted, execute only the prepared module deployment with no service restart, watermark before the next natural hourly retention run, and enforce the audit success/abort criteria."
+  },
+  "final_under_flock_begin_boundary_deployment_attempt_20260920": {
+    "engineering_revision": "2b944cd4b4ed66e189f393a1c433345921e1e9e5",
+    "status": "HOLD_PREDEPLOYMENT_GATE_NO_CHANGES_MADE",
+    "authorization": "User authorized the prepared module-only deployment with no service restarts.",
+    "parity": "Source hash remained 00711a77f9487ac58498eee61078a77ecbef181364f3b3e123ac4bcc32046dc8; qualified candidate hash 8aeb4f1c30c42b1ca27f9725806f8b7b674b682cb5487e3f291286a68e7c96b9. All Supervisor service PIDs remained stable.",
+    "blocker": "The 08:00 local hourly cache_metrics_retention_runner one-shot PID 4273 was still alive in state U after 16m26s, beyond its nominal five-minute budget. The manifest requires this process to be absent before source replacement and watermarking. Signaling it was explicitly outside the authorized scope.",
+    "production_flags": "DEPLOYED=false; SOURCE_CHANGES=0; SERVICE_RESTARTS_OR_SIGNALS=0; PRODUCTION_DATABASE_OR_QUEUE_MUTATIONS=0; CONFIG_CHANGES=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0",
+    "audit": "/private/tmp/final_under_flock_sqlite_deployment_hold_20260920.json",
+    "exact_next_action": "Wait for PID 4273 to exit naturally, or obtain separate authorization for a bounded read-only diagnosis followed by termination of only that stuck one-shot process. Then repeat parity and deploy only db_locking.py without restarting any service."
   }
 }

@@ -17252,5 +17252,18 @@
     "production_flags": "2GH_TOPOLOGY_CONFIRMED=true; APPROVED_ROWS_REPLAYED=25; UNRELATED_ROWS_REPLAYED=0; SERVICE_RESTARTS_OR_SIGNALS_BY_EXECUTOR=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0",
     "verdict": "PASS: both qualified retained-topology cohorts are now canonically promoted and their exact approved historical rows are replayed.",
     "exact_next_action": "Do not run another cohort replay. Separately decide whether to offline-qualify a bounded normal-runtime candidate detector; no scheduled or automatic topology promotion is currently enabled."
+  },
+  "walkback_runtime_topology_candidate_detector_20260920": {
+    "engineering_revision": "bd14fdb2 on codex/walkback-topology-treasury; local isolated commit, not source-pushed",
+    "status": "OFFLINE_QUALIFIED_CURRENT_RUNTIME_PARITY_HOLD",
+    "change": "Added a review-only post-commit Walkback hook. For LINEAGE_GAP only, it resolves the one already-retained upstream root, skips cohorts below five and previously surfaced/reviewed candidates, then applies the existing strict repeated-topology classifier. A qualified result only inserts or refreshes a PENDING_REVIEW row; it never confirms a treasury, replays history, scans for arbitrary wallets, or calls a provider.",
+    "safety": "The hook runs after durable terminal commit. Detector exceptions roll back only detector writes and cannot undo Walkback completion. Human non-PENDING dispositions are immutable. Repeat qualified candidates are skipped. Common work is two indexed lookups; the full classifier runs only for a threshold-sized pending cohort.",
+    "performance": "The optimized one-wallet classifier completed against the current 25-chain reference in 504.207ms read-only with no active transaction afterward. The query uses wallet-scoped treasury edges and indexed correlated SubProv counts instead of materializing all SubProv usage.",
+    "qualification": "24 focused classifier/hook/transaction-boundary tests passed; py_compile and diff checks passed. A broader legacy-fixture run produced 36 passes and eight pre-hook/pre-existing fixture failures and is not used as deployment parity evidence.",
+    "parity_blocker": "The isolated topology branch predates later production Walkback startup and transaction-boundary edits. The hook context matches the production post-commit boundary, but the full isolated walkback_worker.py is not byte/source-parity deployable. No production deployment is authorized or performed.",
+    "audit": "docs/audits/walkback_runtime_topology_candidate_detector_qualification.v1.json",
+    "production_flags": "DEPLOYED=false; PRODUCTION_SOURCE_MODIFIED=false; DATABASE_OR_QUEUE_MUTATIONS=0; SERVICE_RESTARTS_OR_SIGNALS=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0; AUTOMATIC_TREASURY_CONFIRMATION=false",
+    "verdict": "The detector behavior is offline-qualified; deployment remains HOLD until exact current-runtime source parity is assembled and requalified.",
+    "exact_next_action": "Prepare a clean parity branch from the exact current Walkback runtime source, add only the classifier module and post-commit review hook, rerun focused/current-runtime suites, and require separate authorization before any module deployment or Walkback restart."
   }
 }

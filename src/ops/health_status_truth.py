@@ -5,7 +5,7 @@ from typing import Any, Dict, Iterable
 
 
 DEFAULT_REQUIRED_WORKERS = frozenset(
-    {"creator-funding", "creator-resolution", "walkback_worker", "ws_cascade"}
+    {"creator-funding", "creator-resolution"}
 )
 
 

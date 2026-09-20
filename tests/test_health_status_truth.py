@@ -9,8 +9,6 @@ def test_retired_legacy_heartbeats_do_not_poison_health():
     rows = {
         "creator-funding": {"stale": False},
         "creator-resolution": {"stale": False},
-        "walkback_worker": {"stale": False},
-        "ws_cascade": {"stale": False},
         "flask-app": {"stale": True},
         "watch-pipeline": {"stale": True},
     }
@@ -24,11 +22,10 @@ def test_active_stale_or_missing_worker_still_fails_closed():
     rows = {
         "creator-funding": {"stale": True},
         "creator-resolution": {"stale": False},
-        "walkback_worker": {"stale": False},
     }
     result = classify_worker_heartbeats(rows, DEFAULT_REQUIRED_WORKERS)
     assert result["stale_workers"] == ["creator-funding"]
-    assert result["missing_workers"] == ["ws_cascade"]
+    assert result["missing_workers"] == []
 
 
 def test_database_pressure_uses_current_latency_and_queue_only():

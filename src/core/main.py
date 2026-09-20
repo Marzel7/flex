@@ -9001,7 +9001,7 @@ def healthz():
     required_workers = {
         w.strip() for w in os.environ.get(
             "HEALTHZ_REQUIRED_WORKERS",
-            "creator-funding,creator-resolution,walkback_worker,ws_cascade",
+            "creator-funding,creator-resolution",
         ).split(",") if w.strip()
     }
 

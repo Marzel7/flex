@@ -683,6 +683,63 @@ def auto_confirm_from_launch_chain(conn, treasury: str, *, subprov: str, creator
             "evidence": {"subprov": subprov, "creator": creator, "mint": mint}}
 
 
+def auto_confirm_from_topology_cohort(conn, candidate: dict, *, now: int | None = None) -> dict:
+    """Confirm an unknown treasury from a repeated, fully verified launch topology.
+
+    The read-only classifier owns evidence qualification. This function is only
+    the explicit audited mutation boundary and deliberately refuses raw wallet
+    addresses or unqualified candidate dictionaries.
+    """
+    _ensure_schema_once(conn)
+    if candidate.get("verdict") != "QUALIFIED_TOPOLOGY":
+        return {"verdict": "INSUFFICIENT", "treasury": candidate.get("wallet"),
+                "needs_webhook": False}
+    treasury = candidate.get("wallet")
+    chains = candidate.get("chains") or []
+    if not treasury or not chains:
+        return {"verdict": "INSUFFICIENT", "treasury": treasury, "needs_webhook": False}
+    if conn.execute("SELECT 1 FROM wt_confirmed_treasuries WHERE treasury=?", (treasury,)).fetchone():
+        _align_confirmed_treasury(conn, treasury)
+        conn.commit()
+        return {"verdict": "ALREADY_CONFIRMED", "treasury": treasury, "needs_webhook": False}
+
+    timestamp = int(time.time()) if now is None else int(now)
+    evidence = {
+        "reason": "repeated treasury->single-use-subprov->wrap-close/fanout->creator->CREATE topology",
+        "distinct_mints": int(candidate.get("distinct_mints") or 0),
+        "distinct_subprovs": int(candidate.get("distinct_subprovs") or 0),
+        "distinct_creators": int(candidate.get("distinct_creators") or 0),
+        "dominant_wrap_amount_sol": candidate.get("dominant_wrap_amount_sol"),
+        "amount_consistency": candidate.get("amount_consistency"),
+        "chains": chains,
+    }
+    conn.execute(
+        "INSERT INTO wt_confirmed_treasuries "
+        "(treasury,method,confidence,provenance,confirmed_at) "
+        "VALUES (?,'TOPOLOGY_COHORT','STRICT','CONFIRMED_TOPOLOGY_COHORT',?) "
+        "ON CONFLICT(treasury) DO NOTHING",
+        (treasury, timestamp),
+    )
+    _log_decision(
+        conn, treasury, "CONFIRMED", evidence,
+        evidence_txs=[c.get("wrap_signature") for c in chains if c.get("wrap_signature")],
+        promoted_at=timestamp, webhook_status="PENDING",
+    )
+    _align_confirmed_treasury(conn, treasury)
+    conn.commit()
+    _record_attribution_evidence(
+        conn, event_type="TOPOLOGY_COHORT_CONFIRMATION", subject_wallet=treasury,
+        claimed_role="TREASURY", decision="CONFIRMED", evidence_refs=evidence,
+        method="TOPOLOGY_COHORT", actor_or_process="treasury_topology_classifier",
+        timestamp=timestamp, source_pipeline="treasury_bank.auto_confirm_from_topology_cohort",
+        confidence_axis="treasury_role_attribution", confidence_value="STRICT",
+    )
+    return {
+        "verdict": "CONFIRMED", "treasury": treasury, "needs_webhook": True,
+        "provenance": "CONFIRMED_TOPOLOGY_COHORT", "evidence": evidence,
+    }
+
+
 def mark_webhooked(conn, treasury: str, ok: bool = True) -> None:
     """Update the ledger's webhook_status for the most recent decision of this treasury."""
     conn.execute(

@@ -1,0 +1,68 @@
+{
+  "schema": "walkback.unknown_treasury_topology_qualification.v1",
+  "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",
+  "scope": "Establish an unknown WATCHTOWER treasury from retained treasury-to-SubProv-to-wrap-close/fan-out-to-creator-to-CREATE topology.",
+  "decision_contract": {
+    "minimum_distinct_mints": 5,
+    "minimum_distinct_single_use_subprovs": 5,
+    "minimum_distinct_creators": 5,
+    "minimum_dominant_wrap_amount_ratio": 0.8,
+    "minimum_wrap_amount_sol": 0.01,
+    "required_create_anchor_state": "VALID",
+    "required_wrap_instruction_types": [
+      "createAccountWithSeed",
+      "initializeAccount",
+      "closeAccount"
+    ],
+    "required_fanout_evidence": "SubProv signer plus at least one distinct co-signer",
+    "required_exclusions": [
+      "already confirmed treasury",
+      "known spam wallet",
+      "known SubProv",
+      "canonical infrastructure authority"
+    ]
+  },
+  "current_cohort_proof": {
+    "wallet": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "verdict": "QUALIFIED_TOPOLOGY",
+    "distinct_mints": 11,
+    "distinct_subprovs": 11,
+    "distinct_creators": 11,
+    "dominant_wrap_amount_sol": 0.203039,
+    "amount_consistency": 1.0,
+    "database_access": "read-only"
+  },
+  "negative_controls": [
+    "invalid or missing CREATE anchor",
+    "missing fan-out co-signer",
+    "wrong instruction shape",
+    "reused SubProv",
+    "inconsistent wrap amount",
+    "dust or missing amount",
+    "known spam",
+    "known SubProv",
+    "known infrastructure",
+    "missing infrastructure authority",
+    "unqualified promotion request"
+  ],
+  "qualification": {
+    "focused_and_adjacent_tests": "41 passed",
+    "topology_tests": "10 passed including current live cohort read-only assertion",
+    "py_compile": "PASS",
+    "diff_check": "PASS"
+  },
+  "limitations": [
+    "No scheduler or runtime caller is enabled.",
+    "Historical completed LINEAGE_GAP replay is not part of this change.",
+    "A6RM cannot qualify from the current canonical provisioning-edge surface because the complete repeated topology is not retained there; deepest-wallet recurrence alone is intentionally insufficient.",
+    "Full-population discovery remains offline and must be invoked with a bounded wallet set plus a precomputed canonical infrastructure exclusion callback."
+  ],
+  "production_flags": {
+    "deployed": false,
+    "service_restarts": 0,
+    "database_or_queue_mutations": 0,
+    "provider_calls": 0,
+    "synthetic_production_traffic": 0
+  },
+  "next_action": "Review the evidence contract and candidate output. Under separate authorization, prepare a dry-run manifest for explicit wallets; do not enable scheduled discovery, promote a treasury, or replay historical rows yet."
+}

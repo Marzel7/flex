@@ -401,16 +401,17 @@ def test_charter_case1_connected_socket_does_not_hide_collapsed_birth_rate(monke
     assert result["flow_metrics"]["births"]["expected_per_min"] == 18.0
 
 
-def test_charter_case2_disconnected_socket_is_immediate_critical(monkeypatch):
-    """Phase D Case 2: connection genuinely down -> immediate CRITICAL,
-    independent of rate. The frozen ingestion subsystem's real status
+def test_transient_disconnected_socket_is_warning_when_flow_is_healthy(monkeypatch):
+    """A provider-status transition alone is supporting evidence and must
+    not claim a full outage while durable event flow remains healthy. The
+    frozen ingestion subsystem's real status
     enum is UNKNOWN/RETRYING/CONNECTED/STALE (no ingestion-code changes
     permitted); STALE is used here as the closest real equivalent to the
     charter's generic "DISCONNECTED" example."""
     monkeypatch.setattr(mc, "get_expected_rate_per_min",
                          lambda event_type: 18.0 if event_type == "births" else 0.1)
     monkeypatch.setattr(mc, "count_recent_events",
-                         lambda event_type, window_min=mc.RATE_WINDOW_MIN: 18)  # rate looks FINE
+                         lambda event_type, window_min=mc.RATE_WINDOW_MIN: 270)  # 18/min: rate looks FINE
 
     subsystems = _healthy_subsystems()
     subsystems["ingestion"]["pumpportal"] = "STALE"
@@ -418,9 +419,21 @@ def test_charter_case2_disconnected_socket_is_immediate_critical(monkeypatch):
 
     result = mc._compute_live_ingestion(subsystems)
 
-    assert result["status"] == "CRITICAL"
+    assert result["status"] == "WARNING"
     pp_signal = next(s for s in result["signals"] if s["name"] == "pumpportal_connection")
     assert pp_signal["abnormal"] is True
+
+
+def test_disconnected_socket_plus_flow_collapse_remains_critical(monkeypatch):
+    monkeypatch.setattr(mc, "get_expected_rate_per_min",
+                        lambda event_type: 18.0 if event_type == "births" else 0.1)
+    monkeypatch.setattr(mc, "count_recent_events",
+                        lambda event_type, window_min=mc.RATE_WINDOW_MIN: 0)
+    subsystems = _healthy_subsystems()
+    subsystems["ingestion"]["pumpportal"] = "STALE"
+    subsystems["ingestion"]["last_birth_age_secs"] = 900
+    result = mc._compute_live_ingestion(subsystems)
+    assert result["status"] == "CRITICAL"
 
 
 def test_charter_case3_partial_rate_collapse_is_warning_not_critical(monkeypatch):

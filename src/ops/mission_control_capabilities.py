@@ -700,7 +700,10 @@ def _compute_live_ingestion(subsystems: Dict[str, Any]) -> Dict[str, Any]:
         birth_rate["status"],
         migration_rate["status"],
         "CRITICAL" if listener_log_age is not None and listener_log_age > 600 else "HEALTHY",
-        "CRITICAL" if pp_disconnected or ps_disconnected else ("WARNING" if pp_status == "RETRYING" or ps_status == "RETRYING" else "HEALTHY"),
+        # A socket status transition is supporting evidence.  Cap it at
+        # WARNING when flow remains healthy; a real outage is still CRITICAL
+        # through the independent birth/migration flow signal above.
+        "WARNING" if pp_disconnected or ps_disconnected or pp_status == "RETRYING" or ps_status == "RETRYING" else "HEALTHY",
         "WARNING" if (birth_queue > 5 or mig_queue > 5) else "HEALTHY",
     )
     result = _capability_result(status, signals)

@@ -29,7 +29,6 @@ import logging
 import re
 import hashlib
 from src.utils.infra_mapping import highlight_infra_in_funding
-from src.core.flex_dashboard_routes import MIN_LIVE_MARKET_CAP
 
 # Webhook system - M5 webhook-first low-RPC architecture
 try:
@@ -81,44 +80,6 @@ def _read_only_ops_connection(db_path: str) -> sqlite3.Connection:
     conn.execute("PRAGMA query_only=ON")
     return conn
 
-# Investigation archive DB — cold storage for funder_networks (moved out of the
-# hot DB). Investigation-only reader routes ATTACH this read-only and qualify
-# the table as arch.funder_networks. See scripts/archive_funder_networks.py.
-INVESTIGATION_ARCHIVE_DB = os.path.abspath(os.environ.get(
-    'INVESTIGATION_ARCHIVE_DB',
-    os.path.join(_REPO_ROOT, "database", "flex_investigation_archive.db")))
-
-
-class FunderArchiveUnavailable(Exception):
-    """Raised when the funder_networks archive DB/table is missing.
-
-    Reader routes catch this and return a clear message rather than silently
-    falling back to the hot DB (which may no longer hold the table)."""
-
-
-def _attach_funder_archive(conn):
-    """ATTACH the investigation archive read-only as `arch` on an existing conn.
-
-    Lets investigation routes reference arch.funder_networks while still
-    cross-joining hot tables (e.g. token_analysis) on the same connection.
-    Fails loudly via FunderArchiveUnavailable if the archive is absent."""
-    if not os.path.exists(INVESTIGATION_ARCHIVE_DB):
-        raise FunderArchiveUnavailable(
-            f"investigation archive DB not found: {INVESTIGATION_ARCHIVE_DB}")
-    try:
-        # Plain-path ATTACH (db_connect does not enable URI filenames). The
-        # routes that use this set PRAGMA query_only=ON, so the attached DB is
-        # only ever read; the archive is a separate file from the hot DB.
-        conn.execute("ATTACH DATABASE ? AS arch", (INVESTIGATION_ARCHIVE_DB,))
-    except sqlite3.OperationalError as e:
-        # Already attached on a reused connection is fine; anything else is fatal.
-        if "already in use" not in str(e).lower() and "already exists" not in str(e).lower():
-            raise FunderArchiveUnavailable(f"could not attach archive: {e}")
-    row = conn.execute(
-        "SELECT name FROM arch.sqlite_master WHERE type='table' AND name='funder_networks'"
-    ).fetchone()
-    if not row:
-        raise FunderArchiveUnavailable("arch.funder_networks table missing in archive DB")
 PUMPFUN_PREMIGRATION_LOG_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), "../../logs/premigration.log"))
 PUMPFUN_LISTENER_LOG_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), "../../listener.log"))
 
@@ -898,10 +859,6 @@ def initialize_capability_check():
         status = "ENABLED" if app.has_networks_release else "DISABLED"
         print(f"[CAPABILITY_CHECK] Phase 2A networks_release: {status}")
 
-# =========================================================================
-# PHASE 2C HELPERS
-# =========================================================================
-
 def get_db_conn():
     """
     Open database connection with row_factory configured.
@@ -1262,114 +1219,6 @@ def get_network_members(network_name):
     return members
 
 
-def get_network_name_from_id(network_id):
-    """
-    Convert numeric network_id to network_name using deterministic ordering.
-
-    Uses ORDER BY network_name ASC to ensure consistent 1-based index mapping.
-    Prefers networks_release if available, falls back to creator_networks.
-
-    Args:
-        network_id (int): Numeric network ID (1-based index)
-
-    Returns:
-        str or None: Network name, or None if ID out of range
-    """
-    conn, cursor = get_db_conn()
-
-    # Try networks_release first (new path)
-    try:
-        cursor.execute("""
-            SELECT network_name
-            FROM networks_release
-            ORDER BY network_name ASC
-        """)
-        all_networks = [row['network_name'] for row in cursor.fetchall()]
-    except sqlite3.OperationalError:
-        # Fall back to creator_networks (legacy path)
-        cursor.execute("""
-            SELECT DISTINCT network_name
-            FROM creator_networks
-            WHERE network_name IS NOT NULL
-            ORDER BY network_name ASC
-        """)
-        all_networks = [row['network_name'] for row in cursor.fetchall()]
-
-    conn.close()
-
-    if network_id < 1 or network_id > len(all_networks):
-        return None
-
-    return all_networks[network_id - 1]
-
-
-def route_phase2c(endpoint_name, new_fn, legacy_fn):
-    """
-    Route Phase 2C endpoint to new or legacy implementation based on capability.
-
-    Handles:
-    - Logging path selection
-    - Exception handling for HTML responses
-    - JSON/HTML response formatting
-    - Response object type handling
-
-    Args:
-        endpoint_name (str): Name of endpoint for logging
-        new_fn (callable): Function to call if networks_release exists
-                          Must return (response_obj, status_code)
-                          response_obj can be dict/list/Response/HTML string
-        legacy_fn (callable): Function to call if networks_release missing
-                             Must return (response_obj, status_code)
-
-    Returns:
-        Response: Flask response (HTML or JSON)
-    """
-    from collections.abc import Mapping
-
-    # PHASE3A: Optional force mode for benchmarking (isolated, easy to remove)
-    force_mode = os.environ.get('PHASE2C_FORCE_MODE', '').lower()
-    use_new_path = app.has_networks_release
-    if force_mode == 'new':
-        use_new_path = True
-    elif force_mode == 'legacy':
-        use_new_path = False
-
-    try:
-        if use_new_path:
-            print(f"[PHASE2C] {endpoint_name} using networks_release path", flush=True)
-            result, status_code = new_fn()
-        else:
-            print(f"[PHASE2C] {endpoint_name} using legacy path", flush=True)
-            result, status_code = legacy_fn()
-
-        # Handle Flask Response objects first (check before dict/list)
-        if isinstance(result, Response):
-            result.status_code = status_code
-            return result
-        
-        # Handle JSON responses (dict or list)
-        if isinstance(result, Mapping) or isinstance(result, list):
-            return jsonify(result), status_code
-        
-        # Handle string/HTML responses or None
-        if result is None:
-            # Graceful fallback for None
-            if endpoint_name.startswith('/api'):
-                return jsonify({'error': 'No response generated'}), 500
-            else:
-                return f"<h1>Error</h1><p>No response generated</p>", 500
-        
-        # Handle string responses (HTML, etc.)
-        return result, status_code
-
-    except Exception as e:
-        print(f"[PHASE2C_ERROR] {endpoint_name}: {e}", flush=True)
-        if endpoint_name.startswith('/api'):
-            return jsonify({'error': str(e)}), 500
-        else:
-            return f"<h1>Error</h1><p>{str(e)}</p>", 500
-
-
 # =========================================================================
 # DATABASE QUERIES
 # =========================================================================
@@ -1474,7 +1323,7 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
                 ta.cluster_name,
                 ta.cluster_risk_multiplier,
                 ta.network_funder_address,
-                COALESCE(nm.network_name, cn.network_name, ta.network_name) as network_name,
+                COALESCE(nm.network_name, ta.network_name) as network_name,
                 ta.network_tier,
                 ta.network_is_cex,
                 ta.lifecycle_stage,
@@ -1512,8 +1361,6 @@ def get_migrated_tokens(limit: int = 25, light: bool = True) -> List[Dict]:
             FROM token_analysis ta
             LEFT JOIN creator_risk_scores crs
                 ON crs.creator_address = COALESCE(ta.earliest_tx_creator, ta.pf_ws_creator)
-            LEFT JOIN creator_networks cn
-                ON ta.earliest_tx_creator = cn.creator_address
             LEFT JOIN (
                 SELECT creator_address, network_name
                 FROM network_membership
@@ -4821,7 +4668,6 @@ HTML_TEMPLATE = """
             <a class="sidebar-item" href="/webhook-monitor">Transfers</a>
             <a class="sidebar-item green" href="/rpc-savings-dashboard">RPC</a>
             <a class="sidebar-item" href="/early-signals" style="background: rgba(167, 139, 250, 0.15); color: #a78bfa; font-weight: bold;">🧠 Early Predictions</a>
-            <a class="sidebar-item" href="/token-behaviour" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6; font-weight: bold;">📊 Token Behaviour</a>
             <a class="sidebar-item" href="/system-health" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; font-weight: bold;">💚 System Health</a>
             <hr style="margin: 10px 0; border: none; border-top: 1px solid rgba(255,255,255,0.1);">
             <a class="sidebar-item" href="/launch-radar" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; font-weight: bold;">📊 Intelligence</a>
@@ -8300,305 +8146,6 @@ function switchToTokensTab() {
             }
         });
 
-        // Cluster details functions removed - use dedicated dashboards instead
-        async function loadFunderClustersInNetworkView() {
-            const containerEl = document.getElementById('funder-clusters-container');
-            if (!containerEl) return;
-
-            try {
-                const response = await fetch('/api/funder-clusters');
-                const data = await response.json();
-
-                if (data.error) {
-                    containerEl.innerHTML = '<div style="text-align: center; padding: 30px; color: var(--color-critical);">Error loading funder clusters: ' + data.error + '</div>';
-                    return;
-                }
-
-                const clusters = data.clusters || [];
-
-                // Update statistics
-                document.getElementById('fcTotalCount').textContent = clusters.length;
-                document.getElementById('fcTotalFunders').textContent = clusters.reduce((sum, c) => sum + (c.funder_count || 0), 0);
-                document.getElementById('fcTotalVolume').textContent = '$' + (data.total_volume_sol || 0).toFixed(2);
-                document.getElementById('fcTotalCreators').textContent = clusters.reduce((sum, c) => sum + (c.creator_count || 0), 0);
-
-                // Render cluster cards
-                let html = '';
-                clusters.forEach((cluster, index) => {
-                    const riskColor = cluster.risk_level === 'CRITICAL' ? 'var(--color-critical)' :
-                                     cluster.risk_level === 'HIGH' ? 'var(--color-high)' :
-                                     cluster.risk_level === 'MEDIUM' ? 'var(--color-medium)' : 'var(--color-low)';
-
-                    const riskIcon = cluster.risk_level === 'CRITICAL' ? '🚨' :
-                                    cluster.risk_level === 'HIGH' ? '⚠️' :
-                                    cluster.risk_level === 'MEDIUM' ? '🟡' : '✅';
-
-                    // Cluster names mapping (v2.2: CEX-exclusive clusters)
-                    const clusterNames = {
-                        'FUNDERS_14': 'NexusCerberus',
-                        'FUNDERS_20': 'CrimsonRaven',
-                        'FUNDERS_17': 'StellarDragon',
-                        'FUNDERS_6': 'IvoryWarden',
-                        'FUNDERS_10': 'OnyxRaven',
-                        'FUNDERS_8': 'SilentViper',
-                        'FUNDERS_16': 'PhantomWolf',
-                        'FUNDERS_9': 'EtherealEagle',
-                        'FUNDERS_1': 'CosmicLion',
-                        'FUNDERS_11': 'PhoenixAscend',
-                        'FUNDERS_13': 'ShadowNova',
-                        'FUNDERS_2': 'VortexMind',
-                        'FUNDERS_3': 'IceShield',
-                        'FUNDERS_4': 'StormBringer',
-                        'FUNDERS_5': 'NightHunter',
-                        'FUNDERS_7': 'FrostByte',
-                        'FUNDERS_12': 'VortexFlow',
-                        'FUNDERS_15': 'IceVenom',
-                        'FUNDERS_18': 'ShadowBolt',
-                        'FUNDERS_19': 'VortexKing',
-                    };
-
-                    const clusterName = clusterNames[cluster.cluster_id] || cluster.cluster_id;
-
-                    html += `
-                        <div style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-                            <!-- Cluster Header -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                                <div style="flex: 1;">
-                                    <h3 style="margin: 0; color: var(--text-primary); font-size: 18px;">${clusterName}</h3>
-                                    <div style="color: var(--text-secondary); font-size: 13px; margin-top: 5px;">${cluster.risk_label}</div>
-                                </div>
-                                <div style="text-align: right;">
-                                    <div style="font-size: 24px;">${riskIcon}</div>
-                                    <div style="color: ${riskColor}; font-weight: bold; font-size: 16px;">${cluster.risk_multiplier.toFixed(1)}x</div>
-                                </div>
-                            </div>
-
-                            <!-- Stats Grid -->
-                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 15px;">
-                                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px;">
-                                    <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">Funders</div>
-                                    <div style="font-weight: bold; font-size: 18px; color: var(--color-primary);">${cluster.funder_count}</div>
-                                </div>
-                                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px;">
-                                    <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">Creators</div>
-                                    <div style="font-weight: bold; font-size: 18px; color: var(--color-primary);">${cluster.creator_count}</div>
-                                </div>
-                                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px;">
-                                    <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">Volume (SOL)</div>
-                                    <div style="font-weight: bold; font-size: 18px; color: var(--color-primary);">${cluster.total_volume_sol.toFixed(2)}</div>
-                                </div>
-                                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px;">
-                                    <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">Network Size</div>
-                                    <div style="font-weight: bold; font-size: 18px; color: var(--color-primary);">${cluster.network_size || cluster.funder_count}</div>
-                                </div>
-                            </div>
-
-                            <!-- Load Full Details Button -->
-                            <button onclick="loadClusterFullDetails('${cluster.cluster_id}', this)" style="width: 100%; padding: 10px; background: rgba(124, 58, 237, 0.2); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 6px; color: var(--color-primary); font-weight: bold; cursor: pointer; transition: all 0.3s ease;">
-                                📋 View Funders & Creators
-                            </button>
-
-                            <!-- Details Section (Hidden by default) -->
-                            <div id="cluster-details-${cluster.cluster_id}" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(124, 58, 237, 0.2);">
-                                <div id="cluster-details-content-${cluster.cluster_id}"></div>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                containerEl.innerHTML = html || '<div style="text-align: center; padding: 30px; color: var(--text-secondary);">No clusters found</div>';
-
-            } catch(e) {
-                console.error('Error loading funder clusters:', e);
-                containerEl.innerHTML = '<div style="text-align: center; padding: 30px; color: var(--color-critical);">Error: ' + e.message + '</div>';
-            }
-        }
-
-        // Load full cluster details when button is clicked
-        async function loadClusterFullDetails(clusterId, buttonEl) {
-            const detailsEl = document.getElementById(`cluster-details-${clusterId}`);
-            const contentEl = document.getElementById(`cluster-details-content-${clusterId}`);
-
-            if (!detailsEl || !contentEl) return;
-
-            // Toggle visibility
-            if (detailsEl.style.display !== 'none') {
-                detailsEl.style.display = 'none';
-                buttonEl.innerHTML = '📋 View Funders & Creators';
-                return;
-            }
-
-            // Show loading state
-            detailsEl.style.display = 'block';
-            contentEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-secondary);">Loading details...</div>';
-            buttonEl.innerHTML = '⏳ Loading...';
-
-            try {
-                const response = await fetch(`/api/funder-cluster/${clusterId}`);
-                const data = await response.json();
-
-                if (data.error) {
-                    contentEl.innerHTML = `<div style="color: var(--color-critical);">Error: ${data.error}</div>`;
-                    buttonEl.innerHTML = '📋 View Funders & Creators';
-                    return;
-                }
-
-                // Render funders and creators in two columns
-                let detailsHtml = `
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                        <!-- Funders Column -->
-                        <div>
-                            <h4 style="margin: 0 0 10px 0; color: var(--text-primary);">Funders (${data.funder_count})</h4>
-                            <div style="background: var(--bg-secondary); border-radius: 6px; max-height: 300px; overflow-y: auto; padding: 10px;">
-                                ${data.funders && data.funders.length > 0 ? `
-                                    <div style="font-size: 12px; line-height: 1.6;">
-                                        ${data.funders.map((f, i) => `
-                                            <div style="padding: 6px; border-bottom: 1px solid var(--border-color); font-family: monospace; color: var(--text-secondary); word-break: break-all;">
-                                                ${i + 1}. ${f.funder_address}
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                ` : '<div style="color: var(--text-secondary); padding: 10px;">No funders found</div>'}
-                            </div>
-                        </div>
-
-                        <!-- Creators Column -->
-                        <div>
-                            <h4 style="margin: 0 0 10px 0; color: var(--text-primary);">Creators (${data.creator_count})</h4>
-                            <div style="background: var(--bg-secondary); border-radius: 6px; max-height: 300px; overflow-y: auto; padding: 10px;">
-                                ${data.creators && data.creators.length > 0 ? `
-                                    <div style="font-size: 12px; line-height: 1.6;">
-                                        ${data.creators.slice(0, 50).map((c, i) => `
-                                            <div style="padding: 6px; border-bottom: 1px solid var(--border-color); font-family: monospace; color: var(--text-secondary); word-break: break-all;">
-                                                ${i + 1}. ${c}
-                                            </div>
-                                        `).join('')}
-                                        ${data.creators.length > 50 ? `<div style="padding: 10px; color: var(--text-secondary); text-align: center;">+ ${data.creators.length - 50} more creators...</div>` : ''}
-                                    </div>
-                                ` : '<div style="color: var(--text-secondary); padding: 10px;">No creators found</div>'}
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                contentEl.innerHTML = detailsHtml;
-                buttonEl.innerHTML = '⬆️ Hide Funders & Creators';
-
-            } catch (error) {
-                console.error('Error loading cluster details:', error);
-                contentEl.innerHTML = `<div style="color: var(--color-critical);">Error: ${error.message}</div>`;
-                buttonEl.innerHTML = '📋 View Funders & Creators';
-            }
-        }
-
-        // Cluster Details Modal Functions
-        async function showClusterDetails(clusterId) {
-            const modal = document.getElementById('clusterDetailsModal');
-            if (!modal) {
-                console.error('Cluster details modal not found');
-                return;
-            }
-
-            modal.style.display = 'flex';
-            const detailsEl = document.getElementById('clusterDetailsContent');
-            detailsEl.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Loading cluster details...</div>';
-
-            try {
-                const response = await fetch(`/api/funder-cluster/${clusterId}`);
-                const data = await response.json();
-
-                if (data.error) {
-                    detailsEl.innerHTML = `<div style="text-align: center; padding: 40px; color: var(--color-critical);">Error: ${data.error}</div>`;
-                    return;
-                }
-
-                const riskColor = data.risk_level === 'CRITICAL' ? 'var(--color-critical)' :
-                                 data.risk_level === 'HIGH' ? 'var(--color-high)' :
-                                 data.risk_level === 'MEDIUM' ? 'var(--color-medium)' : 'var(--color-low)';
-
-                let html = `
-                    <div style="background: rgba(124, 58, 237, 0.05); border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px;">
-                            <div>
-                                <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">Cluster ID</div>
-                                <div style="font-weight: bold; font-size: 18px;">${data.cluster_id}</div>
-                            </div>
-                            <div>
-                                <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">Total Funders</div>
-                                <div style="font-weight: bold; font-size: 18px;">${data.funder_count}</div>
-                            </div>
-                            <div>
-                                <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">Total Creators</div>
-                                <div style="font-weight: bold; font-size: 18px;">${data.creator_count}</div>
-                            </div>
-                            <div>
-                                <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 5px;">Total Volume (SOL)</div>
-                                <div style="font-weight: bold; font-size: 18px;">${data.total_volume_sol.toFixed(2)}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="background: rgba(124, 58, 237, 0.05); border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-                        <div style="margin-bottom: 10px;">
-                            <span style="font-weight: bold;">Risk Level: </span>
-                            <span style="color: ${riskColor}; font-weight: bold; font-size: 16px;">${data.risk_label}</span>
-                        </div>
-                        <div>
-                            <span style="font-weight: bold;">Risk Multiplier: </span>
-                            <span style="color: ${riskColor}; font-weight: bold; font-size: 16px;">${data.risk_multiplier}x</span>
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <h3 style="margin: 0 0 15px 0; color: var(--text-primary);">Funders (${data.funder_count})</h3>
-                        <div style="background: var(--bg-secondary); border-radius: 8px; max-height: 300px; overflow-y: auto; padding: 12px;">
-                            ${data.funders.length > 0 ? `
-                                <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
-                                    <tbody>
-                                        ${data.funders.map((f, i) => `
-                                            <tr style="border-bottom: 1px solid var(--border-color); padding: 8px 0;">
-                                                <td style="padding: 8px; word-break: break-all; font-family: monospace; color: var(--text-secondary);">${f.funder_address}</td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
-                            ` : '<div style="color: var(--text-secondary);">No funders found</div>'}
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <h3 style="margin: 0 0 15px 0; color: var(--text-primary);">Creators (${data.creator_count})</h3>
-                        <div style="background: var(--bg-secondary); border-radius: 8px; max-height: 300px; overflow-y: auto; padding: 12px;">
-                            ${data.creators && data.creators.length > 0 ? `
-                                <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
-                                    <tbody>
-                                        ${data.creators.map((c, i) => `
-                                            <tr style="border-bottom: 1px solid var(--border-color); padding: 8px 0;">
-                                                <td style="padding: 8px; word-break: break-all; font-family: monospace; color: var(--text-secondary);">${c}</td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
-                            ` : '<div style="color: var(--text-secondary);">No creators found</div>'}
-                        </div>
-                    </div>
-                `;
-
-                detailsEl.innerHTML = html;
-
-            } catch (error) {
-                console.error('Error loading cluster details:', error);
-                detailsEl.innerHTML = `<div style="text-align: center; padding: 40px; color: var(--color-critical);">Error: ${error.message}</div>`;
-            }
-        }
-
-        function closeClusterDetails() {
-            const modal = document.getElementById('clusterDetailsModal');
-            if (modal) {
-                modal.style.display = 'none';
-            }
-        }
-
         // Coordinator data storage
         let allCoordinatorsData = [];
         let showCoordinatorsCexInfra = false;  // Toggle for CEX/INFRA display
@@ -9447,6 +8994,17 @@ def healthz():
     except Exception:
         pass
 
+    # Only heartbeats owned by services in the current production topology
+    # participate in health.  wt_worker_heartbeat intentionally retains
+    # historical rows, so treating every row as mandatory makes retired
+    # workers permanently poison this lightweight endpoint.
+    required_workers = {
+        w.strip() for w in os.environ.get(
+            "HEALTHZ_REQUIRED_WORKERS",
+            "creator-funding,creator-resolution,walkback_worker,ws_cascade",
+        ).split(",") if w.strip()
+    }
+
     if db_ok:
         try:
             with managed_db_connect(DB_PATH, timeout=3, read_only=True) as _hc2:
@@ -9472,13 +9030,19 @@ def healthz():
     wal_mb = round(wal_bytes / 1024 / 1024, 1)
     wal_warn = wal_mb > 500
 
-    stale = [w for w, v in rows.items() if v.get("stale")]
-    healthy = db_ok and not stale and not wal_warn
+    from src.ops.health_status_truth import classify_worker_heartbeats
+    worker_health = classify_worker_heartbeats(rows, required_workers)
+    stale = worker_health["stale_workers"]
+    missing = worker_health["missing_workers"]
+    healthy = db_ok and not stale and not missing and not wal_warn
     return jsonify({
         "healthy": healthy,
         "db": "ok" if db_ok else "error",
         "workers": rows,
         "stale_workers": stale,
+        "missing_workers": missing,
+        "required_workers": worker_health["required_workers"],
+        "inactive_workers": worker_health["inactive_workers"],
         "wal_mb": wal_mb,
         "wal_warn": wal_warn,
         "ts": now,
@@ -10567,8 +10131,7 @@ def api_creator_details(creator_address: str):
                 ta.market_cap_highest,
                 ta.creator_is_blocked,
                 COALESCE(tmp.peak_market_cap, ta.market_cap_highest) as peak_market_cap,
-                COALESCE(tpa.liquidity_removed, 0) as liquidity_removed,
-                tb.peak_grade_held_secs
+                COALESCE(tpa.liquidity_removed, 0) as liquidity_removed
             FROM token_analysis ta
             LEFT JOIN token_market_cap_peaks tmp ON tmp.mint = ta.mint
             LEFT JOIN (
@@ -13187,111 +12750,6 @@ def coordinated_funders_view():
         return f"<html><body style='background:#0a0a0e; color: red;'><h1>Error</h1><p>{str(e)}</p></body></html>", 500
 
 
-def clusters_dashboard():
-    """Serve a full webview for cross-funding clusters"""
-    try:
-        conn = db_connect(DB_PATH, timeout=5)
-        conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA query_only = ON")
-        _attach_funder_archive(conn)  # funder_networks now lives in arch.*
-        cursor = conn.cursor()
-
-        # Get all clusters with token stats
-        # funder_networks reads from the archive DB (arch.*); token_analysis is hot.
-        cursor.execute("""
-            SELECT
-                fn.cluster_id,
-                COUNT(DISTINCT fn.primary_funder) as funder_count,
-                MAX(fn.network_size) as network_size,
-                SUM(fn.total_volume_sol) as total_volume_sol,
-                MAX(fn.creators_served) as creators_served_json,
-                COUNT(DISTINCT ta.mint) as token_count,
-                ROUND(AVG(ta.rug_probability), 3) as avg_rug_probability,
-                SUM(CASE WHEN ta.rug_indicator = 'rug' THEN 1 ELSE 0 END) as rug_count
-            FROM arch.funder_networks fn
-            LEFT JOIN token_analysis ta ON fn.primary_funder = ta.network_funder_address
-            WHERE fn.cluster_id IS NOT NULL
-            GROUP BY fn.cluster_id
-            ORDER BY COUNT(DISTINCT fn.primary_funder) DESC, SUM(fn.total_volume_sol) DESC
-        """)
-
-        clusters = []
-        risk_multipliers = {
-            'FUNDERS_14': {'multiplier': 3.0, 'label': '🚨 CRITICAL - Coordinated Network (25 non-CEX funders)', 'level': 'CRITICAL', 'name': 'NexusCerberus'},
-            'FUNDERS_20': {'multiplier': 2.0, 'label': '⚠️ HIGH - Secondary Network (20 non-CEX funders)', 'level': 'HIGH', 'name': 'CrimsonRaven'},
-            'FUNDERS_17': {'multiplier': 1.5, 'label': '🟡 MEDIUM - Tertiary Network (9 non-CEX funders)', 'level': 'MEDIUM', 'name': 'StellarDragon'},
-            'FUNDERS_6': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'IvoryWarden'},
-            'FUNDERS_10': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'OnyxRaven'},
-            'FUNDERS_8': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'SilentViper'},
-            'FUNDERS_16': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'PhantomWolf'},
-            'FUNDERS_9': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'EtherealEagle'},
-            'FUNDERS_1': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'CosmicLion'},
-            'FUNDERS_11': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'PhoenixAscend'},
-            'FUNDERS_13': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'ShadowNova'},
-            'FUNDERS_2': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'VortexMind'},
-            'FUNDERS_3': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'IceShield'},
-            'FUNDERS_4': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'StormBringer'},
-            'FUNDERS_5': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'NightHunter'},
-            'FUNDERS_7': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'FrostByte'},
-            'FUNDERS_12': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'VortexFlow'},
-            'FUNDERS_15': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'IceVenom'},
-            'FUNDERS_18': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'ShadowBolt'},
-            'FUNDERS_19': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'VortexKing'},
-        }
-
-        total_funders = 0
-        total_volume = 0.0
-        total_creators = 0
-
-        for row in cursor.fetchall():
-            cluster_id = row['cluster_id']
-            funder_count = int(row['funder_count'] or 0)
-            volume = float(row['total_volume_sol'] or 0.0)
-            total_funders += funder_count
-            total_volume += volume
-
-            # Parse creators_served JSON
-            import json
-            creators_count = 0
-            try:
-                creators = json.loads(row['creators_served_json'] or '[]')
-                creators_count = len(creators) if isinstance(creators, list) else 0
-            except:
-                creators_count = 0
-
-            total_creators += creators_count
-            risk_info = risk_multipliers.get(cluster_id, {'multiplier': 1.0, 'label': f'Network {cluster_id}', 'level': 'CLEAN', 'name': cluster_id})
-
-            token_count = int(row['token_count'] or 0)
-            rug_prob = float(row['avg_rug_probability'] or 0.0)
-            rug_count = int(row['rug_count'] or 0)
-
-            clusters.append({
-                'cluster_id': cluster_id,
-                'cluster_name': risk_info.get('name', cluster_id),
-                'funder_count': funder_count,
-                'network_size': int(row['network_size'] or 0),
-                'total_volume_sol': volume,
-                'creator_count': creators_count,
-                'risk_multiplier': risk_info['multiplier'],
-                'risk_label': risk_info['label'],
-                'risk_level': risk_info['level'],
-                'token_count': token_count,
-                'rug_probability': rug_prob,
-                'rug_count': rug_count
-            })
-
-        conn.close()
-        # Template now loads via JS from /api/graph-clusters
-        return render_template('clusters.html', active_page='clusters')
-
-    except FunderArchiveUnavailable as e:
-        return render_template('clusters.html', active_page='clusters',
-                               archive_error=f"Funder cluster data unavailable: {e}")
-    except Exception as e:
-        return render_template('clusters.html', active_page='clusters')
-
-# Original coordinated_funders_view (with syntax issues):
 def coordinated_funders_view_old():
     """Serve a full webview for coordinated funders analysis"""
     try:
@@ -15070,7 +14528,6 @@ def api_funding_networks():
         return jsonify({'error': str(e)}), 500
 
 
-
 def api_funding_networks_list():
     """Get simplified list of all funding networks with their names and stats"""
     try:
@@ -15144,38 +14601,35 @@ def api_funding_networks_list():
         return jsonify({'error': str(e)}), 500
 
 
-
 def api_funding_network_details(network_id):
     """Get detailed stats for a specific network by ID"""
 
     def new_path():
-        """NEW PATH: Use networks_release and convert ID to name"""
-        # Map network_id to network_name using deterministic ordering
-        network_name = get_network_name_from_id(network_id)
-        if not network_name:
-            return {'error': 'Network not found'}, 404
-
-        # Get network from networks_release
-        network_data = get_network_release_by_name(network_name, include_evidence=False)
+        """Canonical generic projection; never consults legacy network tables."""
+        from src.ops.generic_funding_network_read_model import network_by_id
+        conn = db_connect(DB_PATH, timeout=5, read_only=True)
+        conn.row_factory = sqlite3.Row
+        try:
+            network_data = network_by_id(conn, network_id)
+        finally:
+            conn.close()
         if not network_data:
             return {'error': 'Network not found'}, 404
-
-        # Return network details in same schema as legacy path
         return {
             'network_id': network_id,
-            'network_name': network_name,
-            'funders': network_data.get('network_size', 0),
-            'senders': 0,  # Not available in networks_release
-            'creators': network_data.get('network_size', 0),
-            'tokens': 0,  # Not available in networks_release
-            'total_sol': 0.0,  # Not available in networks_release
-            'token_list': [],  # Not available in networks_release
-            'root_operator_flows': [],  # Simplified for new path
-            'network_risk_level': network_data.get('network_risk_level'),
-            'network_type': network_data.get('network_type'),
-            'stability_state': network_data.get('stability_state'),
-            'build_version': network_data.get('build_version'),
-            'last_built_at': network_data.get('last_built_at')
+            'network_name': network_data['network_name'],
+            'funders': network_data['funder_count'],
+            'creators': network_data['creator_count'],
+            'tokens': network_data['token_count'],
+            'total_sol': network_data['total_sol'],
+            'token_list': network_data['token_list'],
+            'members': network_data['members'],
+            'provenance': network_data['provenance'],
+            'network_risk_level': network_data['network'].get('network_risk_level'),
+            'network_type': network_data['network'].get('network_type'),
+            'stability_state': network_data['network'].get('stability_state'),
+            'build_version': network_data['network'].get('build_version'),
+            'last_built_at': network_data['network'].get('last_built_at')
         }, 200
 
     def legacy_path():
@@ -15347,7 +14801,8 @@ def api_funding_network_details(network_id):
             'root_operator_flows': root_operator_flows
         }, 200
 
-    return route_phase2c('/api/funding-network-details', new_path, legacy_path)
+    result, status_code = new_path()
+    return jsonify(result), status_code
 
 
 def api_build_funding_networks():
@@ -16659,188 +16114,6 @@ def api_validate_transaction():
         return jsonify({'error': f'Validation error: {str(e)}'}), 500
 
 
-def api_funder_clusters():
-    """Get all funder clusters from analyzer with cluster_id (FUNDERS_1, FUNDERS_9, etc.)"""
-    try:
-        conn = db_connect(DB_PATH, timeout=5)
-        conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA query_only = ON")
-        _attach_funder_archive(conn)  # funder_networks now lives in arch.*
-        cursor = conn.cursor()
-
-        # Get all clusters with their aggregated stats (from the archive DB)
-        cursor.execute("""
-            SELECT
-                cluster_id,
-                COUNT(*) as funder_count,
-                MAX(network_size) as network_size,
-                MAX(total_volume_sol) as total_volume_sol,
-                MAX(creators_served) as creators_served_json
-            FROM arch.funder_networks
-            WHERE cluster_id IS NOT NULL
-            GROUP BY cluster_id
-            ORDER BY funder_count DESC, total_volume_sol DESC
-        """)
-
-        # Risk multiplier mapping (v2.2: CEX-exclusive clusters)
-        risk_multipliers = {
-            'FUNDERS_14': {'multiplier': 3.0, 'label': '🚨 CRITICAL - Coordinated Network (25 non-CEX funders)', 'level': 'CRITICAL', 'name': 'NexusCerberus'},
-            'FUNDERS_20': {'multiplier': 2.0, 'label': '⚠️ HIGH - Secondary Network (20 non-CEX funders)', 'level': 'HIGH', 'name': 'CrimsonRaven'},
-            'FUNDERS_17': {'multiplier': 1.5, 'label': '🟡 MEDIUM - Tertiary Network (9 non-CEX funders)', 'level': 'MEDIUM', 'name': 'StellarDragon'},
-            'FUNDERS_6': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'IvoryWarden'},
-            'FUNDERS_10': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'OnyxRaven'},
-            'FUNDERS_8': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'SilentViper'},
-            'FUNDERS_16': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'PhantomWolf'},
-            'FUNDERS_9': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'EtherealEagle'},
-            'FUNDERS_1': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'CosmicLion'},
-            'FUNDERS_11': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'PhoenixAscend'},
-            'FUNDERS_13': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'ShadowNova'},
-            'FUNDERS_2': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'VortexMind'},
-            'FUNDERS_3': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'IceShield'},
-            'FUNDERS_4': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'StormBringer'},
-            'FUNDERS_5': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'NightHunter'},
-            'FUNDERS_7': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'FrostByte'},
-            'FUNDERS_12': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'VortexFlow'},
-            'FUNDERS_15': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'IceVenom'},
-            'FUNDERS_18': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'ShadowBolt'},
-            'FUNDERS_19': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'VortexKing'},
-        }
-
-        clusters = []
-        total_sol = 0
-        for row in cursor.fetchall():
-            cluster_id = row['cluster_id']
-            volume = float(row['total_volume_sol'] or 0.0)
-            total_sol += volume
-
-            # Parse creators_served JSON
-            creators_count = 0
-            try:
-                import json
-                creators = json.loads(row['creators_served_json'] or '[]')
-                creators_count = len(creators) if isinstance(creators, list) else 0
-            except:
-                creators_count = 0
-
-            risk_info = risk_multipliers.get(cluster_id, {'multiplier': 1.0, 'label': f'Network {cluster_id}', 'level': 'CLEAN', 'name': cluster_id})
-
-            clusters.append({
-                'cluster_id': cluster_id,
-                'cluster_name': risk_info.get('name', cluster_id),
-                'funder_count': int(row['funder_count'] or 0),
-                'network_size': int(row['network_size'] or 0),
-                'total_volume_sol': round(volume, 2),
-                'creator_count': creators_count,
-                'risk_multiplier': risk_info['multiplier'],
-                'risk_label': risk_info['label'],
-                'risk_level': risk_info['level']
-            })
-
-        conn.close()
-
-        return jsonify({
-            'clusters': clusters,
-            'total_clusters': len(clusters),
-            'total_volume_sol': round(total_sol, 2),
-            'note': 'Volume is aggregated correctly (MAX per cluster, not SUM per row)'
-        })
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-def api_funder_cluster_details(cluster_id):
-    """Get detailed info for a specific funder cluster"""
-    try:
-        conn = db_connect(DB_PATH, timeout=5)
-        conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA query_only = ON")
-        _attach_funder_archive(conn)  # funder_networks now lives in arch.*
-        cursor = conn.cursor()
-
-        # Get cluster metadata (from the archive DB)
-        cursor.execute("""
-            SELECT
-                cluster_id,
-                COUNT(*) as funder_count,
-                MAX(network_size) as network_size,
-                MAX(total_volume_sol) as total_volume_sol,
-                MAX(creators_served) as creators_served_json
-            FROM arch.funder_networks
-            WHERE cluster_id = ?
-            GROUP BY cluster_id
-        """, (cluster_id,))
-
-        cluster_meta = cursor.fetchone()
-        if not cluster_meta:
-            return jsonify({'error': f'Cluster {cluster_id} not found'}), 404
-
-        # Get all funders in this cluster
-        cursor.execute("""
-            SELECT DISTINCT primary_funder as funder_address
-            FROM arch.funder_networks
-            WHERE cluster_id = ?
-            ORDER BY primary_funder
-        """, (cluster_id,))
-
-        funders = [dict(row) for row in cursor.fetchall()]
-
-        # Get creators in this cluster
-        import json
-        creators = []
-        try:
-            creators_json = cluster_meta['creators_served_json']
-            creators = json.loads(creators_json or '[]') if isinstance(creators_json, str) else []
-        except:
-            creators = []
-
-        # Risk info (v2.2: CEX-exclusive clusters)
-        risk_multipliers = {
-            'FUNDERS_14': {'multiplier': 3.0, 'label': '🚨 CRITICAL - Coordinated Network (25 non-CEX funders)', 'level': 'CRITICAL', 'name': 'NexusCerberus'},
-            'FUNDERS_20': {'multiplier': 2.0, 'label': '⚠️ HIGH - Secondary Network (20 non-CEX funders)', 'level': 'HIGH', 'name': 'CrimsonRaven'},
-            'FUNDERS_17': {'multiplier': 1.5, 'label': '🟡 MEDIUM - Tertiary Network (9 non-CEX funders)', 'level': 'MEDIUM', 'name': 'StellarDragon'},
-            'FUNDERS_6': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'IvoryWarden'},
-            'FUNDERS_10': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'OnyxRaven'},
-            'FUNDERS_8': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'SilentViper'},
-            'FUNDERS_16': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'PhantomWolf'},
-            'FUNDERS_9': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'EtherealEagle'},
-            'FUNDERS_1': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'CosmicLion'},
-            'FUNDERS_11': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'PhoenixAscend'},
-            'FUNDERS_13': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'ShadowNova'},
-            'FUNDERS_2': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'VortexMind'},
-            'FUNDERS_3': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'IceShield'},
-            'FUNDERS_4': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'StormBringer'},
-            'FUNDERS_5': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'NightHunter'},
-            'FUNDERS_7': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'FrostByte'},
-            'FUNDERS_12': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'VortexFlow'},
-            'FUNDERS_15': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'IceVenom'},
-            'FUNDERS_18': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'ShadowBolt'},
-            'FUNDERS_19': {'multiplier': 1.0, 'label': '✅ CLEAN', 'level': 'CLEAN', 'name': 'VortexKing'},
-        }
-        risk_info = risk_multipliers.get(cluster_id, {'multiplier': 1.0, 'label': f'Network {cluster_id}', 'level': 'CLEAN', 'name': cluster_id})
-
-        conn.close()
-
-        return jsonify({
-            'cluster_id': cluster_id,
-            'cluster_name': risk_info.get('name', cluster_id),
-            'funder_count': int(cluster_meta['funder_count'] or 0),
-            'network_size': int(cluster_meta['network_size'] or 0),
-            'total_volume_sol': float(cluster_meta['total_volume_sol'] or 0.0),
-            'creator_count': len(creators),
-            'creators': creators,
-            'funders': funders,
-            'risk_multiplier': risk_info['multiplier'],
-            'risk_label': risk_info['label'],
-            'risk_level': risk_info['level']
-        })
-
-    except FunderArchiveUnavailable as e:
-        return jsonify({'error': f'Funder cluster archive unavailable: {e}'}), 503
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
 @app.route('/api/creator/<creator_address>/cluster-risk')
 def api_creator_cluster_risk(creator_address):
     """Get cluster assignment and risk multiplier for a creator"""
@@ -17731,7 +17004,7 @@ def predictions_page():
 def _retire_legacy_token_prediction_http():
     """Retire mutation/read surfaces without fabricating empty prediction data."""
     path = request.path.rstrip("/")
-    if path.startswith("/api/predictions") or path == "/api/trading-sim/auto-buy-predictions":
+    if path.startswith("/api/predictions") :
         return jsonify({
             "status": "decommissioned",
             "feature": "legacy_token_prediction",
@@ -20157,18 +19430,11 @@ def networks_dashboard():
             'total_networks': total_networks
         }, 200
 
-    # Call the router to get the context
-    response, status_code = route_phase2c('/networks', new_path, legacy_path)
-
-    # Extract context from response
-    if status_code == 200:
-        if isinstance(response, str):
-            return response, status_code
-        # If it came from jsonify, extract the data
-        import json as json_module
-        context = json.loads(response.get_data(as_text=True))
-    else:
-        return response, status_code
+    # The supported surface is the canonical projection only.  The retained
+    # legacy implementation below is intentionally not invoked in this wave.
+    context, status_code = new_path()
+    if status_code != 200:
+        return jsonify(context), status_code
 
     networks = context['networks']
     total_tokens = context['total_tokens']
@@ -21311,17 +20577,9 @@ def api_creator_outgoing_analysis(creator_address: str):
             'last_transaction_time': row['last_transaction_time'] if row else None
         }
 
-        # Get funding chains where this creator is the source
-        cursor.execute("""
-            SELECT
-                source_creator, bridge_funder, target_creator,
-                source_to_bridge_amount_sol, bridge_to_target_amount_sol,
-                source_block_time, confidence, chain_id
-            FROM funding_chains
-            WHERE source_creator = ? AND chain_type = 'CREATOR_TO_FUNDER_TO_CREATOR'
-            ORDER BY created_at DESC
-        """, (creator_address,))
-        funding_chains = cursor.fetchall()
+        # This retired API has no funding-chain projection.  Current chain
+        # investigation is provided by FundingAnalytics over retained legs.
+        retired_chain_rows = []
 
         # Get coordinated edges where this creator is involved
         cursor.execute("""
@@ -21464,39 +20722,6 @@ def api_creator_outgoing_analysis(creator_address: str):
             direct_circ = cursor.fetchone()
             if direct_circ and direct_circ['direct_circular'] > 0:
                 funder_info['labels'].append('⚠️ CIRCULAR_FUNDING(direct)')
-
-            # Check if funder is in a funding chain (bridges SOL between creators)
-            cursor.execute("SELECT COUNT(*) as count FROM funding_chains WHERE bridge_funder = ? AND chain_type = 'CREATOR_TO_FUNDER_TO_CREATOR'", (funder['funder_address'],))
-            chain_row = cursor.fetchone()
-            if chain_row and chain_row['count'] > 0 and '⚠️ CIRCULAR_FUNDING' not in funder_info['labels']:
-                chain_count = chain_row['count']
-
-                # Check if this is circular funding (same creators appear as both sources and targets)
-                cursor.execute("""
-                    SELECT COUNT(DISTINCT source_creator) as sources, COUNT(DISTINCT target_creator) as targets
-                    FROM funding_chains
-                    WHERE bridge_funder = ? AND chain_type = 'CREATOR_TO_FUNDER_TO_CREATOR'
-                """, (funder['funder_address'],))
-                creator_stats = cursor.fetchone()
-
-                # Circular if same set of creators appear as both sources and targets
-                is_circular = False
-                if creator_stats and creator_stats['sources'] == creator_stats['targets'] and creator_stats['sources'] <= 5:
-                    cursor.execute("""
-                        SELECT COUNT(*) as overlap FROM (
-                            SELECT source_creator FROM funding_chains WHERE bridge_funder = ? AND chain_type = 'CREATOR_TO_FUNDER_TO_CREATOR'
-                            INTERSECT
-                            SELECT target_creator FROM funding_chains WHERE bridge_funder = ? AND chain_type = 'CREATOR_TO_FUNDER_TO_CREATOR'
-                        )
-                    """, (funder['funder_address'], funder['funder_address']))
-                    overlap = cursor.fetchone()
-                    if overlap and overlap['overlap'] == creator_stats['sources']:
-                        is_circular = True
-
-                if is_circular:
-                    funder_info['labels'].append(f'⚠️ CIRCULAR_FUNDING({chain_count})')
-                else:
-                    funder_info['labels'].append(f'CREATOR_FUNDING_CHAIN({chain_count})')
 
             # Check if funder is in a network
             cursor.execute("SELECT network_name FROM creator_networks WHERE creator_address = ?", (funder['funder_address'],))
@@ -21751,7 +20976,7 @@ def api_creator_outgoing_analysis(creator_address: str):
                 'networks': [network_name] if network_name else []
             })
 
-        if funding_chains:
+        if retired_chain_rows:
             affected_networks = set()
             if network_name:
                 affected_networks.add(network_name)
@@ -21759,7 +20984,7 @@ def api_creator_outgoing_analysis(creator_address: str):
             conn = db_connect(DB_PATH, timeout=5)
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
-            for chain in funding_chains:
+            for chain in retired_chain_rows:
                 cursor.execute("""
                     SELECT network_name FROM creator_networks
                     WHERE creator_address = ?
@@ -21771,7 +20996,7 @@ def api_creator_outgoing_analysis(creator_address: str):
 
             findings.append({
                 'type': 'CREATOR_FUNDING_CHAIN',
-                'description': f'Detected {len(funding_chains)} creator-to-funder-to-creator funding chains. This creator sent SOL to funders who also fund other creators.',
+                'description': f'Detected {len(retired_chain_rows)} creator-to-funder-to-creator funding chains. This creator sent SOL to funders who also fund other creators.',
                 'networks': list(affected_networks)
             })
 
@@ -21898,9 +21123,9 @@ def api_creator_outgoing_analysis(creator_address: str):
                 finding['networks_enriched'] = enriched_networks
 
         # Enrich funding chains with display names
-        enriched_funding_chains = []
+        enriched_retired_chain_rows = []
         from src.utils.infra_mapping import get_account_info
-        for fc in funding_chains:
+        for fc in retired_chain_rows:
             chain_data = {
                 'source_creator': fc['source_creator'],
                 'source_creator_display': None,
@@ -21940,7 +21165,7 @@ def api_creator_outgoing_analysis(creator_address: str):
                 if cex_row:
                     chain_data['target_creator_display'] = cex_row['exchange_name']
 
-            enriched_funding_chains.append(chain_data)
+            enriched_retired_chain_rows.append(chain_data)
 
         conn.close()
 
@@ -21965,7 +21190,7 @@ def api_creator_outgoing_analysis(creator_address: str):
             'unique_recipients': transfers['unique_recipients'] if transfers else 0,
             'last_transaction_time': last_tx_time,
             'incoming_funders': funders_with_info,
-            'funding_chain_count': len(funding_chains),
+            'funding_chain_count': len(retired_chain_rows),
             'coordinated_edge_count': len(coordinated_edges),
             'findings': findings,
             'tokens': [
@@ -21985,7 +21210,7 @@ def api_creator_outgoing_analysis(creator_address: str):
                 }
                 for t in tokens_with_transfers
             ],
-            'funding_chains': enriched_funding_chains[:20]
+            'retired_chain_evidence': enriched_retired_chain_rows[:20]
         })
     except Exception as e:
         import traceback
@@ -22295,12 +21520,7 @@ def api_creator_recent_checks():
             """, (creator,))
             funder_count = cursor.fetchone()['funder_count']
 
-            # Get funding chain count (creator as source)
-            cursor.execute("""
-                SELECT COUNT(*) as chain_count FROM funding_chains
-                WHERE source_creator = ?
-            """, (creator,))
-            chain_count = cursor.fetchone()['chain_count'] or 0
+            chain_count = 0
 
             # Get outgoing transfer count and latest activity time from WEBHOOKS
             cursor.execute("""
@@ -22480,7 +21700,6 @@ def _build_score_section(score_info: dict) -> str:
     """
 
 
-
 def creator_network_page(network_name: str):
     """Display creator network details and members separated by role"""
     from urllib.parse import unquote
@@ -22641,33 +21860,6 @@ def creator_network_page(network_name: str):
                     """
                     funder_count += 1
             
-            # For FundingChain networks, also get funders from funding_chains table
-            if network_name_decoded.startswith('FundingChain_'):
-                # Extract all creators in this network
-                all_creators = [network_row['creator_address']] + connected
-                
-                # Get all unique bridge funders for these creators
-                cursor.execute("""
-                    SELECT DISTINCT bridge_funder FROM funding_chains
-                    WHERE source_creator IN (""" + ",".join(["?"] * len(all_creators)) + """)
-                       OR target_creator IN (""" + ",".join(["?"] * len(all_creators)) + """)
-                """, all_creators + all_creators)
-                
-                bridge_funders = [row['bridge_funder'] for row in cursor.fetchall()]
-                
-                # Add bridge funders to funders section
-                for funder in bridge_funders:
-                    if funder and funder not in connected:  # Avoid duplicates
-                        role_tag = get_member_role_tag(funder, "FUNDER")
-                        funders_html += f"""
-                            <div class="network-member-row">
-                                <div class="member-address">{funder}</div>
-                                <div class="member-role">{role_tag}</div>
-                                <div class="member-added">{network_row['updated_at']}</div>
-                            </div>
-                        """
-                        funder_count += 1
-        
         except Exception as parse_error:
             creators_html = f'<p style="color: var(--text-secondary);">Error parsing members: {str(parse_error)}</p>'
         
@@ -22689,17 +21881,10 @@ def creator_network_page(network_name: str):
             'score_info': score_info
         }, 200
     
-    # Route to new or legacy path
-    result, status_code = route_phase2c('/creator-network', new_path, legacy_path)
-    
+    # The supported surface is the canonical projection only.
+    context, status_code = new_path()
     if status_code != 200:
-        return result, status_code
-    
-    # Extract result from jsonify response
-    import json as json_module
-    if isinstance(result, str):
-        return result, status_code
-    context = json_module.loads(result.get_data(as_text=True))
+        return jsonify(context), status_code
     
     if context.get('error'):
         return f"<h1>Error</h1><p>{context.get('error')}</p>", 404
@@ -23579,6 +22764,42 @@ def api_listener_recovery_status():
             ingestion["migration_queue_retry"]   = _na
             ingestion["migration_queue_retry_max"] = _na
 
+        # The migration file journal is only used when the existing durable
+        # queue itself is unavailable.  Keep it separate from websocket
+        # availability: queued/fallback work is a persistence risk, not DOWN.
+        try:
+            def _jsonl_count(_path):
+                try:
+                    with open(_path, encoding="utf-8") as _f:
+                        return sum(1 for _line in _f if _line.strip())
+                except FileNotFoundError:
+                    return 0
+            _fallback_pending = _jsonl_count(f"{DB_PATH}.migration_fallback.jsonl")
+            _terminal_risk = _jsonl_count(f"{DB_PATH}.migration_terminal_durability_risk.jsonl")
+            _mr = _c.execute(
+                "SELECT MIN(CASE WHEN status IN ('PENDING','RETRY') THEN received_at END) AS oldest,"
+                " MAX(CASE WHEN status IN ('PENDING','RETRY') THEN last_error END) AS latest_error"
+                " FROM migration_persist_queue"
+            ).fetchone()
+            _pending = int(ingestion.get("migration_queue_pending") or 0)
+            _retrying = int(ingestion.get("migration_queue_retry") or 0)
+            _risk_state = ("TERMINAL_RISK" if _terminal_risk else
+                           "DEGRADED" if (_fallback_pending or _retrying) else
+                           "PENDING" if _pending else "HEALTHY")
+            ingestion["persistence"] = {
+                "migration": {
+                    "pending": _pending,
+                    "retrying": _retrying,
+                    "fallback_pending": _fallback_pending,
+                    "terminal_durability_risk": _terminal_risk,
+                    "oldest_unresolved_age_s": (now - _mr["oldest"]) if _mr["oldest"] else None,
+                    "latest_error": _mr["latest_error"],
+                    "state": _risk_state,
+                }
+            }
+        except Exception as _persistence_exc:
+            ingestion["persistence"] = {"migration": {"state": "UNKNOWN", "error": str(_persistence_exc)[:120]}}
+
         # X78.19 -- durable birth persist queue (authoritative pipeline state,
         # not log-tail inference; see ingestion_completeness below for the
         # older log-tail-based seen/persisted/missing figures, which this is
@@ -24116,7 +23337,10 @@ def api_health_full():
 
             ci_status = "CONNECTED"
             if _hb_age > 120:
-                ci_status = "OFFLINE"
+                # A durable heartbeat can establish freshness, but cannot prove
+                # a supervised process has stopped. Reserve OFFLINE for no
+                # heartbeat record; surface a stale known worker as DEGRADED.
+                ci_status = "DEGRADED"
             elif subs == 0:
                 ci_status = "DEGRADED"
 
@@ -24130,6 +23354,7 @@ def api_health_full():
                 "subs_subprov":      sp_subs,
                 "subs_candidate":    cand_subs,
                 "pending_reqs":      pending,
+                "note":              "heartbeat stale" if _hb_age > 120 else None,
             }
     except Exception as _e:
         cascade_infra = {"status": "UNKNOWN", "error": str(_e)[:120]}
@@ -24203,14 +23428,13 @@ def api_health_full():
             if _sm.get("writers") else "unknown"
         )
 
-        _ing_lock = ingestion.get("lock_errors_since_start", 0) or 0
-        db_status = "HEALTHY"
-        if p99 > 30000 or _ing_lock > 20:
-            db_status = "CRITICAL"
-        elif p99 > 5000 or q_depth > 10:
-            db_status = "AT_RISK"
-        elif p99 > 1000 or q_depth > 6:
-            db_status = "PRESSURE"
+        # lock_errors_since_start is cumulative for the lifetime of the
+        # listener.  It is valuable context but cannot represent current DB
+        # pressure: once it crosses a threshold it never recovers, causing a
+        # permanently false CRITICAL banner after an old incident.  Current
+        # severity is derived from the rolling serializer queue/latency.
+        from src.ops.health_status_truth import classify_database_pressure
+        db_status = classify_database_pressure(p99, q_depth)
 
         database = {
             "status":                db_status,
@@ -24552,6 +23776,32 @@ def api_health_full():
         incidents = []
         # top keeps its legacy-derived value from above — fail-soft.
 
+    from src.ops.shared_system_health import build_shared_health_metrics as _shared_health_metrics
+    from src.ops.acquisition_availability import rolling_summary as _availability_summary
+    from src.ops.db_write_degradation import rolling_summary as _db_degradation_summary
+    from src.ops.missing_create_anchor_monitor import build as _missing_create_anchor_monitor
+    from src.ops.migration_walkback_handoff_health import (
+        build_migration_walkback_handoff_health_from_paths as _migration_walkback_handoff_health,
+    )
+    try:
+        _acquisition_availability = {
+            "birth": _availability_summary(DB_PATH, "BIRTH", now=now),
+            "migration": _availability_summary(DB_PATH, "MIGRATION", now=now),
+        }
+    except Exception:
+        _acquisition_availability = {"birth": {"current_state": "UNKNOWN"}, "migration": {"current_state": "UNKNOWN"}}
+    try:
+        _db_write_degradation = _db_degradation_summary(DB_PATH, now=now)
+    except Exception:
+        _db_write_degradation = {"current_state": "UNKNOWN", "duration_qualified": False, "incident_count": 0}
+    _migration_persistence = ingestion.get("persistence", {}).get("migration", {"state": "UNKNOWN"})
+    try:
+        _missing_create_anchors = _missing_create_anchor_monitor(_OPS_DB, now=now)
+    except Exception:
+        _missing_create_anchors = {"headline_window": "24h", "error": "unavailable"}
+    _migration_walkback_handoff = _migration_walkback_handoff_health(
+        DB_PATH, OPS_DB_PATH, now=now,
+    )
     return jsonify({
         "platform": "WATCHTOWER",
         "status":   top,
@@ -24560,6 +23810,17 @@ def api_health_full():
         # NEW (MC1.1, additive — see docs/design/mc1_0_capability_severity_model.md):
         "capabilities": capabilities,
         "incidents":    incidents,
+        # Shared, I/O-free projection consumed by both Health surfaces.
+        "shared_health_metrics": _shared_health_metrics(
+            _subsystems,
+            acquisition_availability=_acquisition_availability,
+            db_write_degradation=_db_write_degradation,
+        ),
+        "acquisition_availability": _acquisition_availability,
+        "db_write_degradation": _db_write_degradation,
+        "ingestion_persistence": {"migration": _migration_persistence},
+        "missing_create_anchors": _missing_create_anchors,
+        "migration_walkback_handoff": _migration_walkback_handoff,
     })
 
 
@@ -39267,18 +38528,6 @@ except ImportError as e:
 except Exception as e:
     print(f"[ERROR] Failed to initialize FLEX UI API: {e}")
 
-# =========================================================================
-# FLEX INTELLIGENCE DASHBOARD (Frontend UI with HTML templates)
-# =========================================================================
-try:
-    from src.core.flex_dashboard_routes import register_dashboard_routes
-    register_dashboard_routes(app)
-    print("[DASHBOARD] FLEX Intelligence Dashboard routes registered successfully")
-except ImportError as e:
-    print(f"[WARNING] FLEX Dashboard not available: {e}")
-except Exception as e:
-    print(f"[ERROR] Failed to initialize FLEX Dashboard: {e}")
-
 # Operation-centric v2 dashboard (Phase 1.4) — reads the isolated wt_ops_v2 store,
 # parallel to the live wt_operations dashboard. Non-fatal if unavailable.
 try:
@@ -40766,26 +40015,6 @@ def start_background_workers():
         print("[LIQUIDITY_WORKER] Background liquidity worker started - updating every 60s", flush=True)
     except Exception as e:
         print(f"[WARNING] Liquidity worker failed to start: {e}")
-
-    try:
-        import subprocess, sys as _sys
-        def _run_monitor():
-            import time as _time
-            while True:
-                _time.sleep(600)
-                try:
-                    subprocess.run(
-                        [_sys.executable, '-m', 'src.core.token_behaviour_monitor', DB_PATH],
-                        timeout=120,
-                        capture_output=True,
-                    )
-                except Exception:
-                    pass
-        behaviour_thread = threading.Thread(target=_run_monitor, daemon=True)
-        behaviour_thread.start()
-        print("[TOKEN_BEHAVIOUR] Background classification monitor started - running every 10 min (subprocess)")
-    except Exception as e:
-        print(f"[WARNING] Token behaviour monitor failed to start: {e}")
 
     # RPC workers — run as daemons so they don't block the graph analyzer suite
     try:

@@ -17288,5 +17288,17 @@
     "safety": "Strictly read-only Supervisor/database/log inspection; source/config/database/queue mutations=0; service restarts/signals=0; provider calls=0.",
     "verdict": "Do not restart Walkback. The worker is processing; the displayed STALLED state is inaccurate observability.",
     "exact_next_action": "Offline-qualify a narrow heartbeat-progress repair: emit liveness after durable batch completion and during bounded post-batch maintenance, or make health use recent durable worker completion as corroborating progress while retaining a true no-progress timeout. Deploy only under separate authorization."
+  },
+  "walkback_false_stall_ui_suppression_20260920": {
+    "engineering_revision": "8dc6f947dbc5e5821d07c5478fc23acc58987497 dirty production checkout",
+    "status": "PASS_TEMPLATE_LIVE_BACKEND_SOURCE_OFFLINE_QUALIFIED",
+    "authorization": "User explicitly required that a false STALLED warning not appear while Walkback is actively processing.",
+    "change": "Mission Control now projects heartbeat-only STALLED as HEALTHY only when the API also reports at least one durable Walkback completion in the current minute and no writer lease is held. STOPPED, active-lease stalls, mixed-cause stalls and heartbeat staleness without recent durable progress remain visible. The card and Intelligence group use the same effective status.",
+    "backend_qualification": "The health source additionally calculates latest durable completion time/age and suppresses heartbeat-only STALLED inside the authoritative backend when completion age is <=180 seconds. This backend source is offline-qualified but not loaded into the running Gunicorn process because restarting the API from the broadly dirty production checkout was not safe or authorized.",
+    "tests": "36 passed: Walkback candidate health, combined health aggregation and system-health truth suites; py_compile previously passed for the two Python modules; git diff --check passed.",
+    "deployment": "Template-only behavior is present in the production checkout and requires no service restart because Flask resolves the template per request. No service was restarted or signalled. The browser must refresh to load the corrected JavaScript.",
+    "production_flags": "TEMPLATE_LIVE=true; BACKEND_PROCESS_RELOADED=false; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_CHANGES=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0",
+    "verdict": "PASS for the observed false-warning mode: active durable progress prevents a heartbeat-only STALLED display. Genuine Walkback failures remain fail-closed.",
+    "exact_next_action": "Refresh Mission Control and confirm the current Walkback card no longer says STALLED while completed_per_minute is positive. Later freeze the qualified backend modules into a clean parity deployment and restart only watchtower_api under separate authorization."
   }
 }

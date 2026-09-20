@@ -17239,5 +17239,18 @@
     "production_flags": "TREASURY_WS_ELIGIBLE=12; NO_SUBSCRIBE_TOTAL=54; ONLY_WS_CASCADE_RESTARTED=true; OTHER_SERVICE_RESTARTS_OR_SIGNALS=0; PROVIDER_CALLS_BY_DEPLOYER=0; SYNTHETIC_TRAFFIC=0",
     "verdict": "The authorized 12-root subscription reduction is live and operational at the websocket/log layer. Do not call overall qualification complete until the Cascade heartbeat resumes and reports the live 12-root state.",
     "exact_next_action": "Trace read-only why _heartbeat_loop stopped updating after the restart while the main websocket loop remains LIVE. Repair only heartbeat observability if required; do not alter the 12-root selection or restart unrelated services. Separately design the durable polling tier for excluded roots."
+  },
+  "walkback_2gh_topology_promotion_20260920": {
+    "engineering_revision": "ee251c58 on codex/walkback-topology-treasury; local isolated commit, not source-pushed",
+    "status": "PASS_BOUNDED_PRODUCTION_PROMOTION_COMPLETE",
+    "authorization": "User explicitly approved the separately reviewed 25-chain 2gh topology cohort promotion and replay.",
+    "execution": "The frozen production executor freshly revalidated exactly 25 reviewed topology chains, promoted the one approved treasury, and replayed only the 25 allow-listed completed LINEAGE_GAP rows. No provider call, service signal/restart, synthetic traffic, automatic discovery, or unrelated queue action was performed.",
+    "resumability": "The first apply committed the authoritative confirmation and replay rows before its caller observation window ended. A blind rerun failed closed on changed preconditions. A narrowly tested safeguard now resumes only when queue, creator, SubProv, treasury, attribution and CANONICAL_OPERATOR_REACHED state exactly match the same cohort; mismatches still abort. The bounded resume completed idempotently.",
+    "verification": "Exact production gates: confirmed topology treasuries=1; approved queue confirmations=25; token attributions=25; canonical outcomes=25; WALKBACK registry launches=25; operator memberships=25; topology replay rows outside the allow-list=0; manifest distinct count=25.",
+    "qualification": "11 focused topology/replay tests passed after adding exact-state resumability coverage; py_compile and diff checks passed. Pre-apply dry run admitted exactly 25 rows.",
+    "runtime": "Final Supervisor check: Cascade PID 41084, Walkback 4040, listener 8354, funding 59094, Monitor 48376 and API 20065 all RUNNING. The executor did not restart or signal any service.",
+    "production_flags": "2GH_TOPOLOGY_CONFIRMED=true; APPROVED_ROWS_REPLAYED=25; UNRELATED_ROWS_REPLAYED=0; SERVICE_RESTARTS_OR_SIGNALS_BY_EXECUTOR=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0",
+    "verdict": "PASS: both qualified retained-topology cohorts are now canonically promoted and their exact approved historical rows are replayed.",
+    "exact_next_action": "Do not run another cohort replay. Separately decide whether to offline-qualify a bounded normal-runtime candidate detector; no scheduled or automatic topology promotion is currently enabled."
   }
 }

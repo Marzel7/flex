@@ -17277,5 +17277,16 @@
     "audit": "docs/audits/walkback_topology_other_confirmed_treasuries_cross_validation.v1.json",
     "verdict": "Runtime deployment remains HOLD. Do not weaken topology evidence gates merely to fit historical rows that lack the required retained observations.",
     "exact_next_action": "Build a frozen known-answer replay corpus by reconstructing or acquiring missing treasury-edge and transaction-role evidence for a representative sample across the 15 other confirmed treasuries, then rerun the unchanged classifier offline before parity/deployment work."
+  },
+  "walkback_repeated_false_stall_ui_diagnosis_20260920": {
+    "status": "READ_ONLY_FALSE_STALL_PROCESS_PROGRESSING",
+    "trigger": "Mission Control reported heartbeat stale beyond 180 seconds, useful work stopped, and Walkback candidate generation STALLED.",
+    "runtime": "Walkback remained RUNNING at unchanged PID 4040 with more than 20 hours uptime. No restart or signal occurred.",
+    "contradiction": "At 2026-09-20T14:59:42Z the persisted heartbeat was from 14:55:12Z, but Walkback had completed a queue row at 14:59:40Z, two seconds before the snapshot. Additional recent rows completed at 14:58:44Z and 14:57:32Z. At the final read, three pending rows and zero running rows remained; latest completion age was 59 seconds while heartbeat age was 327 seconds.",
+    "cause": "The heartbeat is cycle-boundary-sensitive and remains unchanged during long post-batch recurring-funder maintenance. Logs show current useful batch completion followed by a large recurring-funder pass. Mission Control treats the heartbeat timestamp alone as proof that useful work stopped, producing a false STALLED verdict despite advancing durable completions.",
+    "locking": "No current Walkback writer stall was observed. Retained WAL-watchdog 250ms skip/timeouts and slow-commit lines are historical/background maintenance records, not evidence of the displayed current stall.",
+    "safety": "Strictly read-only Supervisor/database/log inspection; source/config/database/queue mutations=0; service restarts/signals=0; provider calls=0.",
+    "verdict": "Do not restart Walkback. The worker is processing; the displayed STALLED state is inaccurate observability.",
+    "exact_next_action": "Offline-qualify a narrow heartbeat-progress repair: emit liveness after durable batch completion and during bounded post-batch maintenance, or make health use recent durable worker completion as corroborating progress while retaining a true no-progress timeout. Deploy only under separate authorization."
   }
 }

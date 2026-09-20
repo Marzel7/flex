@@ -17393,5 +17393,18 @@
     "production_flags": "DEPLOYED=false; SOURCE_OR_CONFIG_CHANGED=false; SERVICES_RESTARTED_OR_SIGNALLED=0; DATABASE_OR_QUEUE_WRITES=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0; WALKBACK_DETECTOR_UNTOUCHED=true; AUTOMATIC_TREASURY_PROMOTION=false",
     "verdict": "PASS offline: the evidence missing from PID 72923 can be retained on the next natural critical pin without changing database or watchdog behavior.",
     "exact_next_action": "Requires separate authorization: prepare a parity-gated diagnostics-only deployment manifest. Derive every running flex_complete_database.db participant that must load db_locking.py and the shared lifecycle-path environment, restart only that exact set, then wait for a natural critical WAL pin."
+  },
+  "gradual_watchdog_provenance_and_walkback_health_20260920": {
+    "engineering_revision": "8dc6f947dbc5e5821d07c5478fc23acc58987497 dirty production checkout; qualified diagnostic reference 4f7821a0",
+    "status": "STAGED_NO_RESTART_MONITORING_ACTIVE",
+    "diagnostic_staging": "Qualified metadata-only watchdog provenance source was copied into the production checkout with exact candidate hashes: creator_funding_worker.py d29a6d0e..., creator_resolution_worker.py 79735086..., db_locking.py cf60acfa..., wal_watchdog_provenance.py 4b95c72b.... No running process has loaded these files because no service was restarted.",
+    "activation_boundary": "External connection-age correlation is not yet active: DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_PATH has not been added to Supervisor configuration. Add the shared path only during a future independently required, parity-gated service restart/reload; do not cause a restart solely for diagnostics.",
+    "walkback_health_repair": "Source now treats pending work with no recent completion as unhealthy/degraded only after the oldest pending item exceeds the configured stall threshold. Fresh pending work remains healthy; missing age remains fail-closed. This removes false UNHEALTHY/STALLED labels during active short batches without hiding aged backlog.",
+    "qualification": "38 focused Walkback aggregation, candidate-health and system-health tests passed; relevant modules py_compile; git diff check passed.",
+    "runtime_state": "No services restarted or signalled. Supervisor remains stable: API PID 20065, Walkback 95615, Funding 99448, Creator Resolution 99555, Listener 86268, Cascade 41084. flex_complete_database.db WAL was 28,428,032 bytes, below the 64 MiB watchdog threshold.",
+    "monitoring": "Read-only automation watch-funding-creator-restarts runs every 15 minutes and should notify only on Funding/Creator Resolution PID change, non-RUNNING state, critical WAL pin, or a >64 MiB stalled WAL.",
+    "production_flags": "SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_MUTATIONS=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0; DIAGNOSTIC_SOURCE_STAGED=true; DIAGNOSTIC_RUNNING_PROCESSES_ACTIVE=false; WALKBACK_HEALTH_SOURCE_STAGED=true; API_BACKEND_RELOADED=false",
+    "verdict": "PASS_STAGED: the semantics repair is qualified and the provenance code is ready for gradual adoption. Existing services remain stable; neither change justifies an immediate restart.",
+    "exact_next_action": "Continue read-only monitoring. On the next independently required restart of an affected service, parity-check its deployed module, configure the shared bounded lifecycle path for that service, and confirm the new PID emits metadata. If WAL pinning recurs, use the retained terminal snapshot to identify the exact command/connection before changing behavior. Let the API load the Walkback backend health repair only on its next safe required restart."
   }
 }

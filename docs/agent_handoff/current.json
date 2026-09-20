@@ -17204,5 +17204,15 @@
     "verdict": "The red CRITICAL badge is a presentation overstatement, not evidence of a hidden critical platform condition. The underlying Cascade degradation and funding-failure warning remain real warnings and should not be suppressed.",
     "production_flags": "READ_ONLY=true; SOURCE_CHANGES=0; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_CHANGES=0",
     "exact_next_action": "Under explicit repair authorization, add literal WARNING to _wtColor's warning mapping and add a regression proving WARNING maps to warning while genuine failure/unknown values retain fail-closed critical behavior. Deploy only the template/API consumer as proven necessary."
+  },
+  "mission_control_warning_color_repair_20260920": {
+    "engineering_revision": "local isolated commit 14830d67 on codex/health-status-truth; source push not authorized by the execution approval boundary",
+    "status": "PASS_IMPLEMENTED_LIVE_TEMPLATE_NO_RESTART",
+    "repair": "Added literal WARNING to templates/system_health_dashboard.html::_wtColor warning values. The default remains critical for unrecognized/failure statuses, preserving fail-closed behavior. Added focused regression coverage for both properties.",
+    "qualification": "Main production checkout: 20 focused/adjacent UI and health tests passed. Isolated freeze checkout: 15 available focused/adjacent tests passed. Diff checks passed.",
+    "deployment": "The one-line template change is present in the production checkout. Flask loads the template per request, so no API or other service restart was required; a browser refresh obtains the corrected styling. No health payload, threshold, Cascade behavior or funding semantics changed.",
+    "production_flags": "TEMPLATE_ONLY=true; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_CHANGES=0; CONFIG_CHANGES=0",
+    "verdict": "PASS: authoritative platform WARNING now renders as a warning rather than an erroneous CRITICAL badge.",
+    "exact_next_action": "Refresh Mission Control and verify the platform header matches the unchanged WARNING body. Push local source commit 14830d67 only after explicit source-code egress authorization; the required agent handoff publication is independent."
   }
 }

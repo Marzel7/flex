@@ -17351,6 +17351,21 @@
     "deployment_manifest": "Deploy only src/ops/treasury_topology_classifier.py and src/core/walkback_worker.py; restart only walkback_worker; all other frozen baseline modules are parity context, not deployment payload.",
     "production_flags": "DEPLOYED=false; PRODUCTION_SOURCE_MODIFIED=false; DATABASE_OR_QUEUE_MUTATIONS=0; SERVICE_RESTARTS_OR_SIGNALS=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0; AUTOMATIC_CONFIRMATION=false; HISTORICAL_REPLAY=false",
     "verdict": "PASS offline: current-runtime operation-neutral treasury detection is qualified and cannot attribute AzkP or any topology candidate to WATCHTOWER.",
-    "exact_next_action": "Requires separate authorization: parity-gated module-only deployment of treasury_topology_classifier.py and walkback_worker.py, restart only walkback_worker, then observe natural LINEAGE_GAP traffic and verify only PENDING_REVIEW evidence changes."
+    "exact_next_action": "Superseded by the actual-runtime parity correction and bounded deployment below."
+  },
+  "walkback_topology_actual_runtime_deployment_20260920": {
+    "engineering_revision": "c06d1f7d7097dfb8b8f0f3f9116995bc9cf020ca offline qualification; 40b92f85 deployment-audit commit on codex/walkback-topology-runtime-actual",
+    "status": "DEPLOYED_WALKBACK_PASS_SYSTEM_QUALIFICATION_PARTIAL",
+    "parity_correction": "The first deployment preflight aborted without mutation because Supervisor runs /private/tmp/flex-sqlite-provenance-clean at e4f75a96 source shape, worker sha256 2dc943b3..., not the main-checkout worker sha256 8743d342.... The detector was retransplanted and qualified on the exact Supervisor runtime source before deployment.",
+    "deployed_modules": "src/core/walkback_worker.py sha256 94611dc0... and src/ops/treasury_topology_classifier.py sha256 f51637e8...; only walkback_worker was intentionally restarted, 4040 -> 95615.",
+    "offline_qualification": "32 relevant checks passed. One old schema-lease hazard assertion failed identically on untouched e4f75a96 because current db_locking safely clears the lease after failed ALTER TABLE; detector/hook tests 19/19 passed, transaction-boundary 7/7, schema lifecycle 5/6, health aggregation 1/1.",
+    "natural_observation": "20.65 minutes, PID 95615 stable; completed count 50801 -> 50814 (+13) across eight batches, including eight LINEAGE_GAP outcomes. Post-boundary Walkback SQLITE_BUSY/database-locked/CrossProcessDatabaseWriteTimeout/tracebacks=0.",
+    "candidate_result": "No treasury row reached topology_cohort_qualified during the window. Natural LINEAGE_GAP traffic exercised the post-commit observer, but no retained root plus pending-review cohort met all gates. Confirmation, WATCHTOWER attribution, registry membership and replay remained zero/disabled; AzkP remains PENDING_REVIEW.",
+    "strict_gate_failure": "Unrelated service PID stability failed: creator_resolution_worker 29553 -> 96066 -> 99555 and creator_funding_worker 95402 -> 96701 -> 97912 -> 99448. Supervisor/log evidence ties these to separate flex_complete_database WAL/lock pressure and clean-restart/crash recovery; neither service was signalled by this deployment.",
+    "health_semantics": "Walkback heartbeat row ended UNHEALTHY despite eight advancing natural batches; this is the already-known false-status semantics issue, not evidence that Walkback stopped.",
+    "production_flags": "DEPLOYED=true; WALKBACK_PID_STABLE=true; AUTOMATIC_CONFIRMATION=false; WATCHTOWER_ATTRIBUTION=false; HISTORICAL_REPLAY=false; SYNTHETIC_TRAFFIC=0; OTHER_SERVICES_SIGNALLED=0; FULL_SYSTEM_QUALIFIED=false",
+    "audits": "docs/audits/walkback_operation_neutral_topology_actual_runtime_parity.v1.json; docs/audits/walkback_operation_neutral_topology_deployment.v1.json",
+    "verdict": "The Walkback detector deployment itself passes bounded natural-work observation and remains deployed. Full-system qualification is PARTIAL because independent funding/creator workers restarted and no naturally qualifying topology cohort appeared.",
+    "exact_next_action": "Keep automatic promotion disabled. Diagnose the independent funding/creator-resolution live-database restart loop separately; continue passive observation until a natural qualifying topology cohort proves candidate-row surfacing."
   }
 }

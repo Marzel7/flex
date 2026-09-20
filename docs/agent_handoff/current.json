@@ -17312,5 +17312,19 @@
     "production_flags": "STRICTLY_READ_ONLY=true; PROVIDER_CALLS=0; DATABASE_OR_QUEUE_MUTATIONS=0; SERVICE_RESTARTS_OR_SIGNALS=0; AUTOMATIC_PROMOTIONS=0; HISTORICAL_REPLAYS=0",
     "verdict": "Gzaa 11 and 2gh 25 remain the 36 qualified controls. AzkP is a strong 38-chain third cohort held solely by multi-amount semantics; A6RM is not a third treasury cohort.",
     "exact_next_action": "Offline-qualify a narrow multi-modal amount-consistency rule against Gzaa, 2gh, AzkP and all existing negative controls without promotion or deployment. Keep all topology, one-use SubProv, fan-out, valid CREATE and exclusion gates unchanged."
+  },
+  "walkback_multimodal_amount_topology_qualification_20260920": {
+    "engineering_revision": "e0d550e3 on codex/walkback-topology-treasury; local isolated commit, not source-pushed",
+    "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",
+    "policy": "Preserve the existing >=80% single-dominant-amount path. Add a bounded fallback requiring at least two exact six-decimal amount clusters, at least two chains per cluster, and >=80% collective coverage by repeated clusters. Singletons never contribute to fallback coverage.",
+    "unchanged_safety_gates": "Minimum five distinct mints/SubProvs/creators, single-use SubProv, valid matching CREATE anchor, exact wrap-close shape, distinct fan-out co-signer, minimum amount, and confirmed/spam/SubProv/infrastructure exclusions are unchanged.",
+    "retained_results": "Gzaa qualifies SINGLE_MODE with 12 current complete chains (the frozen reference remains 11); 2gh qualifies SINGLE_MODE with 25; AzkP qualifies MULTI_MODAL_REPEATED with 38 chains and 37/38 repeated-cluster coverage; dormant A6RM remains UNQUALIFIED with zero immediate-treasury chains.",
+    "reference_accounting": "Frozen qualified corpus is 11 Gzaa + 25 2gh + 38 AzkP = 74. Current retained data contains one additional Gzaa chain, so current complete-chain total is 75 without rewriting the frozen baseline.",
+    "negative_controls": "All-unique amounts, singleton-heavy repeated coverage below 80%, invalid anchors, missing fan-out, wrong shape, reused SubProv and all exclusion categories remain rejected.",
+    "qualification": "18 focused classifier/runtime-hook tests passed; py_compile and git diff checks passed; production DB reads were query-only.",
+    "audit": "docs/audits/walkback_multimodal_amount_topology_qualification.v1.json",
+    "production_flags": "DEPLOYED=false; PRODUCTION_SOURCE_MODIFIED=false; DATABASE_OR_QUEUE_MUTATIONS=0; TREASURY_PROMOTIONS=0; HISTORICAL_REPLAYS=0; SERVICE_RESTARTS_OR_SIGNALS=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0",
+    "verdict": "AzkP is offline-qualified as the third positive topology cohort under a narrow repeated-multimodal amount rule. Automatic confirmation remains disabled.",
+    "exact_next_action": "Assemble the classifier and review-only hook on an exact current-production Walkback source baseline, then rerun current-runtime parity and transaction-boundary suites. Deployment and restarting only walkback_worker require separate authorization."
   }
 }

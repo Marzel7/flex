@@ -17067,5 +17067,17 @@
     "service_parity": "No service was restarted or signalled. Snapshot: listener=93379, funding=59094, Walkback=4040, Cascade=69288, API=25464, Monitor=16577, creator-resolution=30179, alert=5447, ngrok=5454.",
     "production_flags": "DEPLOYED=false; SOURCE_CHANGES=0; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_MUTATIONS=0; CONFIG_CHANGES=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0",
     "exact_next_action": "Obtain separate explicit authority to terminate only the stuck retention PID 36107 (and allow its cron parent 36103 to reap/exit), or wait for natural exit. Then repeat all hash/PID/dependency parity gates and, only if clear, deploy the three qualified modules with no service restart and qualify the next natural hourly invocation plus at least 20 minutes."
+  },
+  "retention_preflight_scan_bound_deployment_20260920": {
+    "engineering_revision": "c01127cc4db90281edf8a87918b57cb76d773875; includes BEGIN repair 2b944cd4b4ed66e189f393a1c433345921e1e9e5",
+    "status": "DEPLOYED_OBSERVATION_IN_PROGRESS",
+    "execution": "After explicit authorization, identity of stuck pre-repair retention PID 36107 was verified and SIGTERM was sent only to PID 36107. PID 36107 and cron parent 36103 exited. All parity gates then passed and exactly src/utils/db_locking.py, src/core/rpc_cache.py and src/ops/cache_metrics_retention_runner.py were deployed; no service was restarted.",
+    "deployed_hashes": "db_locking.py=8aeb4f1c30c42b1ca27f9725806f8b7b674b682cb5487e3f291286a68e7c96b9; rpc_cache.py=58cf2a632f48edc6c185f728876473695b7947a15e7a9f2c3d48b072a18aeef7; cache_metrics_retention_runner.py=83354a6abcff2452fe5c4fc840e0c21a5dc3723d7a60019baee44198c628edad",
+    "dependency_parity": "usage_tracker.py, subprov_sig_retry_retention.py and cdc_outbound_event_retention.py matched the qualified checkout byte-for-byte before deployment.",
+    "rollback": "/private/tmp/retention_preflight_deploy_20260920_0829_backup contains exact predeployment copies of the three modules.",
+    "service_pids": "listener=93379; funding=59094; Walkback=4040; Cascade=69288; API=25464; Monitor=16577; creator-resolution=30179; alert=5447; ngrok=5454; unchanged immediately after deployment.",
+    "observation": "Read-only monitor started 2026-09-20T08:30:18Z. Awaiting the next natural hourly retention invocation at approximately 09:00Z, its completion, and at least 20 post-run minutes. No synthetic run will be generated.",
+    "production_flags": "DEPLOYED=true_three_modules_only; AUTHORIZED_SIGNAL=SIGTERM_PID_36107_ONLY; SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS_BY_DEPLOYER=0; CONFIG_CHANGES=0; PROVIDER_CALLS_BY_DEPLOYER=0; SYNTHETIC_TRAFFIC=0",
+    "exact_next_action": "Complete the natural-run plus 20-minute read-only qualification. If all gates pass, record PASS; otherwise roll back only on a proven manifest abort criterion and record the exact blocker."
   }
 }

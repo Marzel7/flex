@@ -41,7 +41,7 @@ import logging
 import hashlib
 from typing import Optional, Dict, List
 from datetime import datetime
-from src.utils.db_locking import db_connect
+from src.utils.db_locking import db_connect, bounded_write_wait
 
 logger = logging.getLogger(__name__)
 
@@ -72,8 +72,45 @@ class RPCCache:
             logger.error(f"[RPC_CACHE] Failed to get connection: {e}")
             return None
 
+    def _table_exists_read_only(self) -> Optional[bool]:
+        """Check table existence via a mode=ro connection -- never touches
+        the write lane. Returns None (unknown) rather than False on any
+        error, so callers can distinguish "confirmed absent" from
+        "couldn't check" and fail toward the safe (write-attempting) path."""
+        conn = None
+        try:
+            conn = db_connect(self.db_path, timeout=5, read_only=True)
+            row = conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='rpc_response_cache'"
+            ).fetchone()
+            conn.close()
+            return row is not None
+        except Exception:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
+            return None
+
     def _ensure_table(self) -> None:
-        """Idempotent table creation (matches CursorManager pattern)."""
+        """
+        Idempotent table creation (matches CursorManager pattern).
+
+        WT_OPS write-lane fix: CREATE TABLE IF NOT EXISTS is itself
+        classified as a write by _is_write_sql() and queues behind the
+        cross-process write lane every time -- including every
+        RPCCache(db_path) construction, even for callers that only ever
+        intend to read (e.g. count_expired(), and the maintenance runner's
+        preflight). Skip the write path entirely once a read-only check
+        confirms the table already exists (the overwhelmingly common case
+        after the very first run in a DB's lifetime). Falls through to the
+        original write-attempting path if the read-only check is
+        inconclusive (None) or confirms the table is genuinely missing.
+        """
+        if self._table_exists_read_only() is True:
+            return
+
         conn = None
         try:
             conn = self._get_conn()
@@ -147,12 +184,17 @@ class RPCCache:
                 conn.close()
                 return None
 
-            # Cache hit: increment hit count
-            conn.execute(
-                "UPDATE rpc_response_cache SET hit_count = hit_count + 1 WHERE cache_key = ?",
-                (cache_key,)
-            )
-            conn.commit()
+            # Cache hit: PURE READ. hit_count is UNUSED_LEGACY_METRIC --
+            # confirmed zero current callers of get_stats() (its only
+            # reader) -- so the prior UPDATE hit_count = hit_count + 1 here
+            # was a write on every single cache hit for a value nothing
+            # consumes. get() is documented above as "one of the
+            # highest-frequency call sites in the whole pipeline," so this
+            # was a real, avoidable contributor to wt_ops write-lane
+            # contention. The hit_count column itself is retained
+            # unchanged (schema, cleanup, TTL, set() all untouched) in case
+            # a future consumer wants it -- it will simply stop
+            # incrementing on read.
             conn.close()
 
             # Parse and return
@@ -272,6 +314,214 @@ class RPCCache:
                 except Exception:
                     pass
             logger.warning(f"[RPC_CACHE] cleanup_expired() failed: {e}")
+            return 0
+
+    # Maintenance-path acquisition budget: an order of magnitude below the
+    # project's general-purpose 60s write-wait default. Maintenance is
+    # optional housekeeping and must yield to production writers -- it must
+    # never queue for minutes the way a critical-ingestion write legitimately
+    # might. This bounds BOTH the cross-process lane wait (via
+    # bounded_write_wait) AND the connection-level busy_timeout, and the
+    # retry loop's total wall-clock is separately capped below so no
+    # combination of attempts can silently multiply back up to minutes.
+    MAINTENANCE_LANE_TIMEOUT_SECONDS = 3.0
+    MAINTENANCE_TOTAL_BUDGET_SECONDS = 10.0
+
+    def cleanup_expired_batch(self, batch_size: int, now: Optional[float] = None,
+                               busy_retry_attempts: int = 3) -> int:
+        """
+        Bounded, production-safe expired-row cleanup.
+
+        WT_OPS_BOUNDED_MAINTENANCE: cleanup_expired() above is a single
+        unbounded bulk DELETE and must NOT be wired into any scheduled
+        maintenance path against the live backlog -- rows in this table
+        average ~692KB, so an unbounded DELETE against a multi-thousand-row
+        backlog can generate hundreds of MB to GB of WAL in one transaction.
+        This bounded variant selects and deletes at most `batch_size` expired
+        keys in ONE small transaction, returns the exact count deleted, and
+        is safe to call repeatedly (idempotent -- re-selects the current
+        qualifying set each call, no offset/cursor state).
+
+        Write-lane budget fix: the prior implementation opened a connection
+        with a 60s SQLite busy_timeout and retried up to 5 times with linear
+        backoff on EACH of its two phases (SELECT, then DELETE) -- a
+        theoretical worst case of roughly 2 x 5 x 60s = 600s, which matches
+        the >6 minute stall observed in production. This version uses a
+        short (few-second) connection timeout, wraps the DELETE phase in
+        bounded_write_wait() so the cross-process lane wait itself is
+        capped independent of the process-wide 60s default used by other
+        (non-maintenance) writers, and enforces a hard overall wall-clock
+        budget across all retries combined -- once exceeded, this returns 0
+        immediately rather than attempting another retry.
+
+        Expired predicate is unchanged and authoritative:
+            cached_at + ttl_seconds <= now
+
+        Does not touch TTL values, get()/set() lookup semantics, or provider
+        fallback behavior in any way. Does not change the process-wide write
+        wait timeout used by production writers -- bounded_write_wait() is
+        context-local to this call only.
+
+        Returns 0 (never raises) on any connection failure, empty result,
+        exhausted retry budget, or overall time-budget exhaustion --
+        callers should treat 0 as "nothing deleted this call, safe to retry
+        next invocation," not as an error signal by itself.
+        """
+        if batch_size <= 0:
+            return 0
+
+        cutoff = now if now is not None else time.time()
+        call_start = time.monotonic()
+        conn = None
+        try:
+            conn = db_connect(self.db_path, timeout=self.MAINTENANCE_LANE_TIMEOUT_SECONDS)
+            conn.execute(f"PRAGMA busy_timeout = {int(self.MAINTENANCE_LANE_TIMEOUT_SECONDS * 1000)}")
+
+            cursor = conn.cursor()
+
+            attempt = 0
+            while True:
+                if time.monotonic() - call_start >= self.MAINTENANCE_TOTAL_BUDGET_SECONDS:
+                    logger.info("[RPC_CACHE] cleanup_expired_batch() SELECT phase: "
+                                "maintenance time budget exhausted, skipping this run")
+                    conn.close()
+                    return 0
+                try:
+                    # LIMIT bounds the number of rows returned, not the work
+                    # SQLite may perform to find them.  On the production
+                    # cache (large response_json overflow payloads and no
+                    # expiry expression index), an eligibility scan can run
+                    # far beyond this method's nominal wall-clock budget.
+                    # Interrupt VM execution at the same absolute deadline so
+                    # maintenance fails closed instead of pinning a one-shot
+                    # process indefinitely.  This is connection-local and is
+                    # cleared immediately after the SELECT.
+                    query_deadline = call_start + self.MAINTENANCE_TOTAL_BUDGET_SECONDS
+                    conn.set_progress_handler(
+                        lambda: 1 if time.monotonic() >= query_deadline else 0,
+                        1000,
+                    )
+                    with bounded_write_wait(self.MAINTENANCE_LANE_TIMEOUT_SECONDS):
+                        try:
+                            cursor.execute(
+                                "SELECT cache_key FROM rpc_response_cache "
+                                "WHERE cached_at + ttl_seconds <= ? LIMIT ?",
+                                (cutoff, batch_size),
+                            )
+                            keys = [r[0] for r in cursor.fetchall()]
+                        finally:
+                            conn.set_progress_handler(None, 0)
+                    break
+                except sqlite3.OperationalError as e:
+                    attempt += 1
+                    if "interrupted" in str(e).lower():
+                        logger.info(
+                            "[RPC_CACHE] cleanup_expired_batch() SELECT phase: "
+                            "query deadline reached, skipping this run"
+                        )
+                        conn.close()
+                        return 0
+                    if "locked" in str(e).lower() or "busy" in str(e).lower():
+                        if attempt >= busy_retry_attempts:
+                            logger.info(
+                                f"[RPC_CACHE] cleanup_expired_batch() SELECT: write lane busy, "
+                                f"skipping this run after {attempt} bounded attempts"
+                            )
+                            conn.close()
+                            return 0
+                        time.sleep(0.2 * attempt)
+                        continue
+                    raise
+
+            if not keys:
+                conn.close()
+                return 0
+
+            attempt = 0
+            while True:
+                if time.monotonic() - call_start >= self.MAINTENANCE_TOTAL_BUDGET_SECONDS:
+                    logger.info("[RPC_CACHE] cleanup_expired_batch() DELETE phase: "
+                                "maintenance time budget exhausted, skipping this run")
+                    try:
+                        conn.rollback()
+                    except sqlite3.OperationalError:
+                        pass
+                    conn.close()
+                    return 0
+                try:
+                    with bounded_write_wait(self.MAINTENANCE_LANE_TIMEOUT_SECONDS):
+                        cursor.execute("BEGIN IMMEDIATE")
+                        cursor.executemany(
+                            "DELETE FROM rpc_response_cache WHERE cache_key = ? "
+                            "AND cached_at + ttl_seconds <= ?",
+                            [(k, cutoff) for k in keys],
+                        )
+                        deleted = cursor.rowcount if cursor.rowcount and cursor.rowcount > 0 else len(keys)
+                        conn.commit()
+                    conn.close()
+                    return deleted
+                except sqlite3.OperationalError as e:
+                    try:
+                        conn.rollback()
+                    except sqlite3.OperationalError:
+                        pass
+                    attempt += 1
+                    if "locked" in str(e).lower() or "busy" in str(e).lower():
+                        if attempt >= busy_retry_attempts:
+                            logger.info(
+                                f"[RPC_CACHE] cleanup_expired_batch() DELETE: write lane busy, "
+                                f"skipping this run after {attempt} bounded attempts "
+                                f"(MAINTENANCE_SKIPPED_WRITE_LANE_BUSY)"
+                            )
+                            conn.close()
+                            return 0
+                        time.sleep(0.2 * attempt)
+                        continue
+                    logger.warning(f"[RPC_CACHE] cleanup_expired_batch() DELETE failed: {e}")
+                    conn.close()
+                    return 0
+
+        except Exception as e:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
+            logger.warning(f"[RPC_CACHE] cleanup_expired_batch() failed: {e}")
+            return 0
+
+    def count_expired(self, now: Optional[float] = None) -> int:
+        """
+        Read-only count of currently-expired rows. Never raises.
+
+        WT_OPS write-lane fix: deliberately does NOT go through
+        self._get_conn() -- that path (and RPCCache.__init__ -> _ensure_table())
+        opens a normal read-write connection whose very first statement is a
+        CREATE TABLE IF NOT EXISTS, which _is_write_sql() classifies as a
+        write and therefore queues behind the cross-process write lane even
+        though this method never mutates anything. A genuinely read-only
+        `mode=ro` connection (db_connect(..., read_only=True)) never touches
+        the write lane at all, matching this method's actual semantics.
+        """
+        cutoff = now if now is not None else time.time()
+        conn = None
+        try:
+            conn = db_connect(self.db_path, timeout=10, read_only=True)
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT COUNT(*) FROM rpc_response_cache WHERE cached_at + ttl_seconds <= ?",
+                (cutoff,),
+            )
+            row = cursor.fetchone()
+            conn.close()
+            return row[0] if row else 0
+        except Exception as e:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
+            logger.warning(f"[RPC_CACHE] count_expired() failed: {e}")
             return 0
 
     def get_stats(self) -> dict:

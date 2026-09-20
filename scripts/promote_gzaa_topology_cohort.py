@@ -73,7 +73,9 @@ def main() -> int:
         os.path.realpath(args.core_db), timeout=30, row_factory=sqlite3.Row, read_only=True,
     )
     try:
-        candidate = classify_unknown_treasury(conn, WALLET, infrastructure_check=is_known_account)
+        candidate = classify_unknown_treasury(
+            conn, WALLET, infrastructure_check=is_known_account, _allow_confirmed_topology=True,
+        )
         if candidate.get("verdict") != "QUALIFIED_TOPOLOGY":
             raise SystemExit(f"ABORT candidate={candidate.get('verdict')}")
         fresh_mints = {c["mint"] for c in candidate["chains"]}

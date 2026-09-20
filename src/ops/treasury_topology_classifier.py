@@ -73,6 +73,7 @@ def classify_unknown_treasury(
     thresholds: TopologyThresholds = TopologyThresholds(),
     infrastructure_check: Callable[[str], bool] | None = None,
     _evidence_rows: list[tuple[Any, ...]] | None = None,
+    _allow_confirmed_topology: bool = False,
 ) -> dict[str, Any]:
     """Return an evidence-grade decision for one wallet; never writes.
 
@@ -87,6 +88,14 @@ def classify_unknown_treasury(
         return {"wallet": wallet, "verdict": "INSUFFICIENT_SCHEMA", "missing_tables": missing}
 
     excluded = _is_excluded(conn, wallet, infrastructure_check=infrastructure_check)
+    if excluded == "already_confirmed" and _allow_confirmed_topology:
+        confirmation = conn.execute(
+            "SELECT method,provenance FROM wt_confirmed_treasuries WHERE treasury=?", (wallet,)
+        ).fetchone()
+        if confirmation and tuple(confirmation) == (
+            "TOPOLOGY_COHORT", "CONFIRMED_TOPOLOGY_COHORT",
+        ):
+            excluded = None
     if excluded:
         return {"wallet": wallet, "verdict": "REJECTED", "reason": excluded, "chains": []}
     if infrastructure_check is None:
@@ -263,7 +272,7 @@ def confirm_topology_candidate(
     # entering the treasury bank's write boundary.
     fresh = classify_unknown_treasury(
         conn, str(candidate.get("wallet") or ""), thresholds=thresholds,
-        infrastructure_check=infrastructure_check,
+        infrastructure_check=infrastructure_check, _allow_confirmed_topology=True,
     )
     if fresh.get("verdict") != "QUALIFIED_TOPOLOGY":
         raise ValueError("candidate no longer topology-qualified")
@@ -291,6 +300,7 @@ def replay_topology_candidate(
     wallet = str(candidate.get("wallet") or "")
     fresh = classify_unknown_treasury(
         conn, wallet, infrastructure_check=infrastructure_check,
+        _allow_confirmed_topology=True,
     )
     if fresh.get("verdict") != "QUALIFIED_TOPOLOGY":
         raise ValueError("candidate no longer topology-qualified")

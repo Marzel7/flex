@@ -239,6 +239,7 @@ def test_current_watchtower_cohort_read_only():
         gzaa = classify_unknown_treasury(
             conn, "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
             infrastructure_check=lambda _wallet: False,
+            _allow_confirmed_topology=True,
         )
         assert gzaa["verdict"] == "QUALIFIED_TOPOLOGY"
         assert gzaa["distinct_mints"] >= 11

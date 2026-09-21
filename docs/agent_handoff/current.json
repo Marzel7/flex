@@ -17503,6 +17503,18 @@
     "verdict": "Narrow causal repair offline-qualified for the observed crash, but production is not repaired yet; separately verify full runtime parity before deployment.",
     "exact_next_action": "Requalify this one-file patch against a complete exact-current runtime baseline, prepare a parity-gated module-only Monitor deployment for separate authorization, and keep dev/prod source separation on HOLD independently."
   },
+  "walkback_cascade_strict_recovery_audit_20260921": {
+    "status": "HOLD_POST_RECOVERY_WRITER_TIMEOUT",
+    "engineering_revision": "durable .runtime_recovery_c06d source unchanged; read-only audit only",
+    "processes": "Walkback PID 18296 and Cascade PID 18297 remained RUNNING after the 10:06Z boundary. Listener 4299, Funding 4287, Creator Resolution 4289, API 4294 and Scheduler 4366 remained at prior PIDs; Monitor alone underwent its separate authorized repair restart to PID 61224.",
+    "natural_progress": "Read-only wt_walkback_queue query found 51,420 status=complete versus 51,343 pre-recovery (+77); newest completed_at=1789992858. Current Cascade log retained natural sweep/audit phase2 activity and pending=0 resyncs. The initial recovered process reached LIVE and admitted 13 then-eligible roots; those eligible roots are dynamic, not a permanent subscription count.",
+    "blocking_evidence": "Walkback stderr line 21043 records a post-boundary 60.0s CrossProcess lock timeout waiting in walkback_worker.py:521 at approximately 2026-09-21T11:02Z. Owner lease was acquired 11:01:01Z by PID 49268 at rpc_cache.py:377 cleanup_expired_batch, with sqlite_transaction_active=false at capture. PID 49268 had exited by audit time, so full process command/lifecycle is unverified. This single recorded timeout fails the strict zero-writer-timeout gate. Other optional 250ms WAL maintenance-acquisition skips are present and should not be conflated with the 60s application wait.",
+    "wal": "Read-only WAL sizes varied from wt_ops_v2 27,204,392 to 1,421,432 bytes and flex_complete_database 2,921,112 to 86,552 bytes across samples; no monotonically pinned growth established by these samples.",
+    "limits": "No initial per-inode error offsets were retained at recovery start, so exact total post-recovery SQLITE_BUSY/database-locked/lifecycle counts across rotations cannot be certified. This limitation does not alter the definite 60s timeout failure.",
+    "production_flags": "READ_ONLY=true; SOURCE_CONFIG_DATABASE_QUEUE_CHANGES=0; SERVICE_RESTARTS_OR_SIGNALS_BY_AUDIT=0; SYNTHETIC_TRAFFIC=0; AUTOMATIC_TREASURY_PROMOTION=false",
+    "verdict": "HOLD strict recovery qualification: processes and natural work recovered, but a post-boundary Walkback writer timeout occurred.",
+    "exact_next_action": "Diagnose the bounded rpc_cache.cleanup_expired_batch writer-lease lifecycle around PID 49268 using retained diagnostics and offline reproduction; do not restart Walkback/Cascade or widen SQLite timeouts merely because of this audit."
+  },
   "walkback_cascade_runtime_recovery_followup_20260921": {
     "status": "PARTIAL_READ_ONLY_RECOVERY_CHECK",
     "engineering_revision": "durable runtime .runtime_recovery_c06d per prior handoff; no engineering change in this check",

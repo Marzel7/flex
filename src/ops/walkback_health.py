@@ -2,10 +2,77 @@
 from __future__ import annotations
 
 import time
+import threading
 from typing import Any
 
 
 DEFAULT_STALLED_AFTER_SECONDS = 180
+
+
+class WalkbackHealthSampler:
+    """Best-effort detailed-health sampler, intentionally outside the live loop.
+
+    The caller supplies a read-only connection factory.  A slow query can only
+    occupy this daemon thread; queue claims, reconciliation, provider work, and
+    the liveness heartbeat must never wait for it.
+    """
+
+    def __init__(self, connect_read_only, *, interval_seconds: int = 300):
+        self._connect_read_only = connect_read_only
+        self._interval_seconds = max(1, int(interval_seconds))
+        self._lock = threading.Lock()
+        self._snapshot: dict[str, Any] | None = None
+        self._last_requested_at = 0.0
+        self._running = False
+
+    def request_refresh(self, *, now: int | None = None) -> bool:
+        """Start a due refresh without waiting for it. Returns whether started."""
+        timestamp = float(now if now is not None else time.time())
+        with self._lock:
+            if self._running or timestamp - self._last_requested_at < self._interval_seconds:
+                return False
+            self._running = True
+            self._last_requested_at = timestamp
+        threading.Thread(target=self._refresh, name="walkback-health-sampler", daemon=True).start()
+        return True
+
+    def _refresh(self) -> None:
+        try:
+            conn = self._connect_read_only()
+            try:
+                snapshot = build_walkback_health(conn)
+            finally:
+                conn.close()
+            with self._lock:
+                self._snapshot = snapshot
+        finally:
+            with self._lock:
+                self._running = False
+
+    def heartbeat_snapshot(self, *, now: int | None = None) -> dict[str, Any]:
+        """Return bounded metadata for the liveness heartbeat without DB reads."""
+        timestamp = int(now or time.time())
+        with self._lock:
+            snapshot = dict(self._snapshot) if self._snapshot else None
+            running = self._running
+        if snapshot is None:
+            return {
+                "status": "UNAVAILABLE",
+                "health_state": "UNAVAILABLE",
+                "generated_at": None,
+                "staleness_seconds": None,
+                "refresh_in_progress": running,
+            }
+        generated_at = int(snapshot.get("generated_at") or timestamp)
+        staleness = max(0, timestamp - generated_at)
+        state = "STALE" if staleness > self._interval_seconds else "FRESH"
+        return {
+            "status": snapshot.get("status", "UNHEALTHY"),
+            "health_state": state,
+            "generated_at": generated_at,
+            "staleness_seconds": staleness,
+            "refresh_in_progress": running,
+        }
 
 
 def _scalar(conn, sql: str, args: tuple = ()) -> Any:
@@ -36,7 +103,8 @@ def build_walkback_health(
         "last_error LIKE '%database is locked%' OR "
         "last_error LIKE '%DatabaseWriteLockError%') THEN 1 ELSE 0 END),"
         "SUM(CASE WHEN last_error LIKE '%NestedDatabaseWriteError%' "
-        "AND updated_at>=? THEN 1 ELSE 0 END) "
+        "AND updated_at>=? THEN 1 ELSE 0 END),"
+        "MAX(CASE WHEN status='complete' THEN completed_at END) "
         "FROM wt_walkback_queue",
         (now - 60, now - 3600, now - 3600, now - 3600),
     ).fetchone()
@@ -44,6 +112,7 @@ def build_walkback_health(
     completed_hour = int(diagnostic_counts[1] or 0)
     write_failures = int(diagnostic_counts[2] or 0)
     nested_write_failures = int(diagnostic_counts[3] or 0)
+    latest_completion_at = diagnostic_counts[4]
     average_latency = _scalar(
         conn,
         "SELECT AVG(completed_at-started_at) FROM wt_walkback_queue "
@@ -71,7 +140,16 @@ def build_walkback_health(
         )
     heartbeat_age = now - heartbeat_at if heartbeat_at else None
 
-    no_progress = pending > 0 and completed_minute == 0
+    oldest_pending_age = now - oldest_pending_at if oldest_pending_at else None
+    # A newly-enqueued row can legitimately land between one-minute
+    # completion buckets. Require the pending work itself to age past the
+    # stalled threshold before calling that snapshot a progress failure.
+    # Missing enqueue provenance remains fail-closed.
+    no_progress = (
+        pending > 0
+        and completed_minute == 0
+        and (oldest_pending_age is None or oldest_pending_age > stalled_after_seconds)
+    )
     heartbeat_stale = heartbeat_age is None or heartbeat_age > stalled_after_seconds
     unhealthy_reasons = []
     if no_progress:
@@ -91,9 +169,13 @@ def build_walkback_health(
         "pending": pending,
         "running": running,
         "oldest_pending_at": oldest_pending_at,
-        "oldest_pending_age_seconds": now - oldest_pending_at if oldest_pending_at else None,
+        "oldest_pending_age_seconds": oldest_pending_age,
         "completed_per_minute": completed_minute,
         "completed_last_hour": completed_hour,
+        "latest_completion_at": latest_completion_at,
+        "latest_completion_age_seconds": (
+            max(0, now - latest_completion_at) if latest_completion_at else None
+        ),
         "average_completion_latency_seconds": round(float(average_latency), 3) if average_latency is not None else None,
         "heartbeat_at": heartbeat_at,
         "heartbeat_age_seconds": heartbeat_age,

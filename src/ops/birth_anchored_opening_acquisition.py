@@ -61,8 +61,11 @@ def creation_context(transaction: Mapping[str, Any], *, mint: str) -> dict[str, 
 def _actions_from_item(item: Mapping[str, Any], *, mint: str, slot: int, transaction_index: int | None) -> list[dict[str, Any]]:
     if (item.get("meta") or {}).get("err") is not None:
         return []
-    message = (item.get("transaction") or {}).get("message") or {}
-    signatures = message.get("signatures") or []
+    transaction = item.get("transaction") or {}
+    message = transaction.get("message") or {}
+    # RPC getBlock returns signatures on ``transaction``; the historical test
+    # fixture also permits the older message-nested shape.
+    signatures = transaction.get("signatures") or message.get("signatures") or []
     result=[]
     for action_index, line in enumerate((item.get("meta") or {}).get("logMessages") or []):
         if not isinstance(line,str) or not line.startswith("Program data: "): continue

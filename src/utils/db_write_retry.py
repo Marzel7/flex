@@ -30,6 +30,7 @@ _lock_error_timestamps: list[float] = []
 _failed_write_count: int = 0
 _write_latencies: list[float] = []  # last 100 write latencies (ms)
 _MAX_LATENCY_SAMPLES = 100
+_active_db_path: str = ""
 
 
 def _record_lock_error(label: str = "") -> None:
@@ -45,6 +46,14 @@ def _record_lock_error(label: str = "") -> None:
     try:
         from src.utils.db_locking import record_lock_error as _global_record
         _global_record(label or None)
+    except Exception:
+        pass
+
+    # Bounded, failure-isolated incident aggregation; one write per retry
+    # episode, not a heartbeat and never part of the caller transaction.
+    try:
+        from src.ops.db_write_degradation import record
+        record(_active_db_path, label or "unnamed")
     except Exception:
         pass
 
@@ -117,6 +126,8 @@ def write_with_retry(
     from src.utils.db_locking import db_connect
     _connect = connect_fn or db_connect
 
+    global _active_db_path
+    _active_db_path = db_path
     for attempt in range(max_attempts):
         t0 = time.monotonic()
         conn = None
@@ -128,6 +139,11 @@ def write_with_retry(
             conn = None
             ms = (time.monotonic() - t0) * 1000
             _record_write_latency(ms)
+            try:
+                from src.ops.db_write_degradation import record
+                record(db_path, label, recovered=True)
+            except Exception:
+                pass
             return True
         except sqlite3.OperationalError as e:
             if conn:

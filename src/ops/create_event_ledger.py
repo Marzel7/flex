@@ -216,7 +216,8 @@ def record_create_event(
             (creator, new_state, now, signature),
         )
         conn.commit()
-        return {"written": True, "state": "ENRICHED", "creator": new_creator}
+        return {"written": True, "state": "ENRICHED", "creator": new_creator,
+                "committed_at": now}
 
     conn.execute(
         "INSERT INTO wt_create_event_ledger "
@@ -229,7 +230,7 @@ def record_create_event(
          creator_state, now, now),
     )
     conn.commit()
-    return {"written": True, "state": "NEW"}
+    return {"written": True, "state": "NEW", "committed_at": now}
 
 
 # ── X64.7A Phase 2 — durable failed-write recovery ───────────────────────────

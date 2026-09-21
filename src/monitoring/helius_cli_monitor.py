@@ -9,11 +9,8 @@ Usage:
     # One-time setup
     helius login --keypair ~/.config/solana/id.json --json
 
-    # Capture once
-    python helius_cli_monitor.py
-
-    # Schedule (every 5 minutes)
-    */5 * * * * cd /path/to/flex && python helius_cli_monitor.py
+    # Background/cron execution is retired.  Current code imports the helper
+    # functions below for explicit API-triggered captures and retained reads.
 """
 
 import os

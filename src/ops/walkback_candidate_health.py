@@ -124,7 +124,13 @@ def _determine_status(
     if lease and lease.get("age_seconds") is not None and lease["age_seconds"] > SAFE_LEASE_AGE_SECONDS:
         reasons.append(f"write lease held {lease['age_seconds']:.0f}s (safe threshold {SAFE_LEASE_AGE_SECONDS}s) -- candidate generation may be blocked")
         return "STALLED", reasons
-    if heartbeat_age is not None and heartbeat_age > HEARTBEAT_STALE_SECONDS:
+    latest_completion_age = walkback_health.get("latest_completion_age_seconds")
+    recent_durable_progress = (
+        latest_completion_age is not None
+        and latest_completion_age <= HEARTBEAT_STALE_SECONDS
+    )
+    if (heartbeat_age is not None and heartbeat_age > HEARTBEAT_STALE_SECONDS
+            and not recent_durable_progress):
         # Heartbeat gone stale without an explained lease -- the worker
         # has stopped making progress, which is the STALLED definition
         # even without a currently-held lease file (e.g. it died between
@@ -142,8 +148,17 @@ def _determine_status(
         reasons.append(f"{walkback_health['stalled_running_jobs']} walkback job(s) stalled in running state")
     pending = walkback_health.get("pending", 0)
     completed_per_min = walkback_health.get("completed_per_minute", 0)
-    if pending > 0 and completed_per_min == 0:
-        reasons.append("pending walkback work exists but nothing completed in the last minute")
+    oldest_pending_age = walkback_health.get("oldest_pending_age_seconds")
+    stalled_after = walkback_health.get("stalled_after_seconds", HEARTBEAT_STALE_SECONDS)
+    if (
+        pending > 0
+        and completed_per_min == 0
+        and (oldest_pending_age is None or oldest_pending_age > stalled_after)
+    ):
+        reasons.append(
+            "pending walkback work is older than the progress threshold "
+            "and nothing completed in the last minute"
+        )
     # Candidate-generation silence: only unhealthy if walkback IS
     # progressing (so we know eligible LINEAGE_GAP outcomes are being
     # produced) but nothing has reached wt_treasury_review -- a zero here
@@ -162,6 +177,39 @@ def _determine_status(
         return "IDLE", ["no pending work, no recent completions -- worker is idle, not unhealthy"]
 
     return "HEALTHY", []
+
+
+def _status_summary(
+    status: str, reasons: list[str], lease: dict[str, Any] | None,
+) -> str:
+    """Return an operator-actionable status line without inferring cause.
+
+    A stalled Walkback card used to say that Treasury Review candidates were
+    not being generated for every STALLED state.  That was misleading when
+    the actual evidence was an active *other-process* writer lease: it hid
+    the holder and implied an attribution failure rather than contention.
+    """
+    if status == "STALLED":
+        command = (lease or {}).get("command")
+        pid = (lease or {}).get("process_pid")
+        age = (lease or {}).get("age_seconds")
+        if command and age is not None:
+            holder = f"{command}"
+            if pid is not None:
+                holder += f" (PID {pid})"
+            return f"Walkback is blocked by an active writer lease held by {holder} for {age:.0f}s."
+        if reasons:
+            return f"Walkback is stalled: {reasons[0]}."
+        return "Walkback is stalled."
+    summaries = {
+        "HEALTHY": "Walkback candidate generation healthy.",
+        "IDLE": "Walkback candidate generation idle (no pending work).",
+        "RECOVERING": "Walkback recovering after stale write lease.",
+        "STOPPED": "Walkback worker is not running; candidate generation unavailable.",
+    }
+    if status == "DEGRADED":
+        return f"Walkback candidate generation degraded: {reasons[0] if reasons else 'see detail'}."
+    return summaries.get(status, status)
 
 
 def build_walkback_candidate_health(
@@ -210,21 +258,12 @@ def build_walkback_candidate_health(
     if recent_self_kill:
         warnings.append("Worker recovered automatically after a stale write lease.")
 
-    summary_by_status = {
-        "HEALTHY": "Walkback candidate generation healthy.",
-        "IDLE": "Walkback candidate generation idle (no pending work).",
-        "DEGRADED": f"Walkback candidate generation degraded: {reasons[0] if reasons else 'see detail'}.",
-        "STALLED": "Walkback stalled; Treasury Review candidates are not being generated.",
-        "RECOVERING": "Walkback recovering after stale write lease.",
-        "STOPPED": "Walkback worker is not running; candidate generation unavailable.",
-    }
-
     return {
         "ok": True,
         "generated_at": now,
         "status": status,
         "reasons": reasons,
-        "summary": summary_by_status.get(status, status),
+        "summary": _status_summary(status, reasons, lease),
         "warnings": warnings,
         "worker": {
             "supervisor": supervisor,
@@ -235,6 +274,8 @@ def build_walkback_candidate_health(
             "running": walkback_health.get("running"),
             "completed_last_hour": walkback_health.get("completed_last_hour"),
             "completed_per_minute": walkback_health.get("completed_per_minute"),
+            "latest_completion_at": walkback_health.get("latest_completion_at"),
+            "latest_completion_age_seconds": walkback_health.get("latest_completion_age_seconds"),
             "average_completion_latency_seconds": walkback_health.get("average_completion_latency_seconds"),
             "oldest_pending_age_seconds": walkback_health.get("oldest_pending_age_seconds"),
             "stalled_running_jobs": walkback_health.get("stalled_running_jobs"),

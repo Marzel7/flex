@@ -22,7 +22,7 @@ from __future__ import annotations
 import json
 import sqlite3
 import time
-from typing import Any, Optional
+from typing import Any, Collection, Optional
 
 from src.core.deep_walkback import valid_signature
 
@@ -45,7 +45,10 @@ _ANCHOR_LOOKUP_STATES = frozenset({
 })
 
 
-def ensure_schema(conn: sqlite3.Connection) -> None:
+SCHEMA_PREREQUISITES = ("wt_walkback_queue",)
+
+
+def migrate_schema_step(conn: sqlite3.Connection) -> dict:
     """Additive only — never alters existing wt_walkback_queue columns."""
     have = {r[1] for r in conn.execute("PRAGMA table_info(wt_walkback_queue)")}
     for col, ddl in (
@@ -87,6 +90,11 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
         "CREATE INDEX IF NOT EXISTS ix_anchor_recon_mint "
         "ON wt_anchor_reconciliation_log(mint)"
     )
+    return {"changed": True}
+
+
+def ensure_schema(conn: sqlite3.Connection) -> None:
+    migrate_schema_step(conn)
     conn.commit()
 
 
@@ -133,14 +141,23 @@ def classify_stuck_row(
     return {"classification": "ANCHOR_PRESENT_INVALID", "signature": sig, "source": source}
 
 
-def _stuck_rows(ops_conn: sqlite3.Connection) -> list[sqlite3.Row]:
-    return ops_conn.execute(
+def _stuck_rows(
+    ops_conn: sqlite3.Connection, *, only_mints: Optional[Collection[str]] = None,
+) -> list[sqlite3.Row]:
+    sql = (
         "SELECT mint, creator, create_anchor_signature, create_anchor_audit_state, "
         "attempts, enqueued_at FROM wt_walkback_queue "
         "WHERE status=? AND path_state=? "
-        "AND (create_anchor_signature IS NULL OR create_anchor_audit_state=?)",
-        (WAITING_STATUS, WAITING_PATH_STATE, "MISSING_OR_MALFORMED"),
-    ).fetchall()
+        "AND (create_anchor_signature IS NULL OR create_anchor_audit_state=?)"
+    )
+    params: list[Any] = [WAITING_STATUS, WAITING_PATH_STATE, "MISSING_OR_MALFORMED"]
+    if only_mints is not None:
+        mints = tuple(sorted(set(only_mints)))
+        if not mints:
+            return []
+        sql += " AND mint IN (" + ",".join("?" for _ in mints) + ")"
+        params.extend(mints)
+    return ops_conn.execute(sql, params).fetchall()
 
 
 def dry_run_report(
@@ -192,7 +209,7 @@ def dry_run_report(
 
 def reconcile_waiting_create_anchors(
     ops_conn: sqlite3.Connection, live_conn: sqlite3.Connection,
-    *, dry_run: bool = False,
+    *, dry_run: bool = False, only_mints: Optional[Collection[str]] = None,
 ) -> dict[str, Any]:
     """Phase 3 — idempotent, zero-RPC reconciliation.
 
@@ -220,7 +237,7 @@ def reconcile_waiting_create_anchors(
     path_state value outside the existing contract.
     """
     ensure_schema(ops_conn)
-    rows = _stuck_rows(ops_conn)
+    rows = _stuck_rows(ops_conn, only_mints=only_mints)
     now = int(time.time())
     recovered: list[dict[str, Any]] = []
     skipped: list[dict[str, Any]] = []
@@ -238,9 +255,10 @@ def reconcile_waiting_create_anchors(
         # existing classification label and behavior for backward
         # compatibility with X64.5/X64.6 callers/tests.
         priority_result = resolve_anchor_with_priority(live_conn, ops_conn, mint, queue_creator=row["creator"])
-        if priority_result["confidence"] == "SAFE" and priority_result["source"] == "canonical_create_ledger":
+        if (priority_result["confidence"] == "SAFE"
+                and priority_result["source"] in {"canonical_create_ledger", "token_analysis"}):
             result = {"classification": "RECOVERABLE_VALID_ANCHOR",
-                      "signature": priority_result["signature"], "source": "canonical_create_ledger"}
+                      "signature": priority_result["signature"], "source": priority_result["source"]}
         elif priority_result["confidence"] == "CONFLICT":
             result = {"classification": "AMBIGUOUS_MULTIPLE_ROWS", "signature": None, "source": None}
         else:

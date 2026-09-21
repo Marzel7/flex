@@ -355,10 +355,8 @@ def build_networks_release(db_path: str) -> dict:
             WITH network_data AS (
               SELECT
                 nm.network_name,
-                COUNT(DISTINCT nm.creator_address) as network_size,
-                cn.network_risk_level
+                COUNT(DISTINCT nm.creator_address) as network_size
               FROM network_membership nm
-              LEFT JOIN creator_networks cn ON nm.network_name = cn.network_name
               GROUP BY nm.network_name
             )
             INSERT OR REPLACE INTO networks_release
@@ -366,7 +364,7 @@ def build_networks_release(db_path: str) -> dict:
             SELECT
               nd.network_name,
               nd.network_size,
-              COALESCE(nd.network_risk_level, 'MEDIUM'),
+              'MEDIUM',
               CURRENT_TIMESTAMP,
               1
             FROM network_data nd;

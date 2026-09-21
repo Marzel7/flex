@@ -17517,6 +17517,15 @@
     "verdict": "HOLD full production baseline and all service cutovers; actual live process environment, feature enablement, and loaded-source bytes remain unverified.",
     "exact_next_action": "Test per-service candidate environment injection for the full manifest, prove API fallback consumers bind the intended existing authorities, and complete loaded-source parity. Recheck absent priority-state immediately before any Walkback cutover. Do not cut over a service based on this path observation alone."
   },
+  "dev_prod_full_baseline_preflight_20260922": {
+    "status": "PARTIAL_PASS_FULL_PRODUCTION_BASELINE_HOLD",
+    "engineering_revision": "Clean local full-source candidate 9094d2116db4a805b670cbd6001c0cc4480b4005; isolated path/audit branch 3597b249595cd4813580908cffe5b7287447d37e; actual main engineering HEAD a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43 remains dirty and in production use",
+    "audit": "docs/audits/full_baseline_preflight_20260922.v1.json and source_candidate_authorities_rehearsal_20260922.v1.json on isolated path/audit branch; both JSON validated; no credentials or raw response payloads retained",
+    "qualification": "Twelve previously untracked research JSON resources are hash-pinned into the clean local candidate. Representative read-only live/candidate parity passed on six operator GET routes, after excluding volatile timestamps. The candidate parsed 668/668 Python sources with zero syntax failures; 96/96 selected cross-service tests and 45/45 selected operator tests passed, with one undeployed Deep Walkback hook test deliberately deselected. A separate live registry GET timed out before later parity succeeded. The 28-name rehearsal manifest binds OPERATION_RESEARCH_ROOT to the clean candidate and returns covered-path PASS with deployment verdict HOLD_INCOMPLETE_TRANSITIVE_AND_LOADED_SOURCE_PARITY. Exact clean checkout guard PASS at 9094d211 with deployment_authorized=false.",
+    "production_flags": "PROD_CHECKOUT_CREATED=false; SUPERVISOR_CHANGED=false; SERVICES_RESTARTED_OR_SIGNALED=0; DATABASE_OR_QUEUE_STATE_MUTATIONS=0; CANDIDATE_BRANCH_PUSHED=false; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "No full production baseline or cutover certification yet. Representative API parity, frozen local artifacts and selected regressions reduce risk but do not prove all endpoint behaviour, transitive state-path parity or loaded-module provenance. The rehearsal source root is temporary and is not a production authority.",
+    "exact_next_action": "Define and validate the final production-root path manifest, then close remaining transitive state-path and loaded-source parity gates. Only after those pass, create the clean checkout and cut over API first with rollback; move other services separately."
+  },
   "dev_prod_api_first_cutover_continuation_20260921": {
     "status": "PARTIAL_OFFLINE_API_FIRST_CUTOVER_HOLD",
     "engineering_revision": "677c2168 on local codex/dev-prod-path-boundary; audit and read-only checkout guard only, no production baseline commit",

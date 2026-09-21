@@ -17413,6 +17413,17 @@
     "verdict": "Do not migrate source roots or restart from a new checkout. The active services still have source-relative persistent-state split risks and loaded-source parity is not fully proven.",
     "exact_next_action": "Offline-implement and test explicit state-path authority for the hardcoded operations DB, Cascade armed-state file, scheduler lock and Monitor queue; finish the listener/API/log/diagnostic transitive path matrix; only then prepare a complete parity-gated production manifest under separate deployment authorization."
   },
+  "dev_prod_source_separation_offline_overrides_20260921": {
+    "status": "PARTIAL_OFFLINE_QUALIFIED_NOT_DEPLOYED",
+    "engineering_revision": "93db4f250864df0574600d8cab996f4cf326ba1d on local codex/dev-prod-path-boundary, based on 8dc6f947dbc5e5821d07c5478fc23acc58987497; not production deployed or remote pushed",
+    "scope": "Only operation_armed.py operations DB path and ws_cascade.py armed-state path changed in isolated /private/tmp/flex-dev-prod-path-boundary. Main dirty checkout and running processes untouched.",
+    "repair": "operation_armed.py now honors WT_OPS_DB_PATH, then OPS_V2_DB_PATH, before the unchanged source-relative default. ws_cascade.py now honors WS_ARMED_STATE_PATH before the unchanged source-relative default.",
+    "tests": "Three stdlib offline override tests passed; two changed modules and test py_compile passed; git diff --check passed. Full Cascade import under system Python was unavailable because base58 is not installed; no live/runtime qualification claimed.",
+    "remaining_gates": "Scheduler OPS_SCHEDULER_LOCK and OPS_V2_DB_PATH/FLEX_DB_PATH are implemented but not configured. Monitor OPERATION_MONITOR_QUEUE_PATH is implemented in current production source but absent from isolated 8dc baseline, so this branch cannot qualify complete current-runtime parity. Listener/API/log/diagnostic transitive matrix and loaded-source hashes remain incomplete. No Supervisor changes authorized or made.",
+    "production_flags": "DEPLOYED=false; PROD_SOURCE_PATH_NOT_CREATED=true; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_MUTATIONS=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0; PATH_PARITY=FAIL",
+    "verdict": "Offline two-path repair is a partial step only. Do not migrate source roots, restart services from a new checkout, or claim a complete production baseline.",
+    "exact_next_action": "Rebase or reconstruct the isolated candidate from exact qualified current module blobs, add tests for all persistent path authorities including Monitor and scheduler, complete listener/API/log/diagnostic path census and loaded-source parity, then prepare a separate parity-gated deployment manifest."
+  },
   "walkback_operation_neutral_topology_runtime_parity_20260920": {
     "engineering_revision": "baseline c7881bb2 plus detector 1a99f4a7 on codex/walkback-topology-runtime-parity; local isolated commits, not source-pushed",
     "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",

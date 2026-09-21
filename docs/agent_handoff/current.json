@@ -17545,6 +17545,13 @@
     "verdict": "Narrow causal repair offline-qualified for the observed crash, but production is not repaired yet; separately verify full runtime parity before deployment.",
     "exact_next_action": "Requalify this one-file patch against a complete exact-current runtime baseline, prepare a parity-gated module-only Monitor deployment for separate authorization, and keep dev/prod source separation on HOLD independently."
   },
+  "watchtower_deep_operation_design_20260921": {
+    "status": "HOLD_IDENTITY_MODEL_CHOICE_REQUIRED",
+    "engineering_revision": "Main checkout HEAD 8dc6f947dbc5e5821d07c5478fc23acc58987497 dirty; read-only inspection of current operator schema/routes and wt_ops_v2.db. No source, service, database, queue, provider or classification changes.",
+    "finding": "Confirmed WATCHTOWER canonical operator is 04265d9f-6eb2-568c-a49e-9253091a4dbb with 349 current primary launch memberships. Schema already supports operator_subtypes(parent_operator_id, relationship_type, qualification_status, attribution_mode, monitoring_mode, automation_state) and non-owning operator_subtype_projection; subtype page explicitly excludes overlap with parent-owned primary membership. One existing P3R subtype demonstrates SHADOW_ONLY/OFF semantics. The 1.112039 branch shares confirmed WATCHTOWER roots and its full 60-mint causal attribution remains unproven.",
+    "verdict": "A distinct WATCHTOWER_DEEP subtype/read model is evidence-aligned; a second independent canonical operator would assert separate identity and ownership not established by the shared-root evidence. No operation created pending the user's choice of identity semantics.",
+    "exact_next_action": "Ask whether WATCHTOWER_DEEP should be a separately displayed, non-owning subtype under WATCHTOWER (recommended) or a distinct canonical operator. If subtype, qualify a strict branch-specific admission rule and projection without bulk-promoting the 60 or using amount/shared pool alone."
+  },
   "watchtower_1112039_branch_audit_20260921": {
     "status": "EXACT_RUNTIME_OFFLINE_PASS_V2_MANIFEST_PREPARED_PRODUCTION_HOLD",
     "engineering_revision": "Main checkout HEAD 8dc6f947dbc5e5821d07c5478fc23acc58987497 (dirty); inspected main-disk src/core/walkback_worker.py sha256 8743d34200bfb2aae2fb090824a9ba95ce2a8922d43c21924fd7a5e7085a351a. No source, database, queue, service or provider changes.",

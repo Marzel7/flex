@@ -17503,6 +17503,17 @@
     "verdict": "Narrow causal repair offline-qualified for the observed crash, but production is not repaired yet; separately verify full runtime parity before deployment.",
     "exact_next_action": "Requalify this one-file patch against a complete exact-current runtime baseline, prepare a parity-gated module-only Monitor deployment for separate authorization, and keep dev/prod source separation on HOLD independently."
   },
+  "operation_monitor_idle_sleep_deployment_20260921": {
+    "status": "MONITOR_ONLY_DEPLOYED_20_MINUTE_PASS",
+    "engineering_revision": "d2dc49a0697dd50f5ef276ff10be78335358d49a on local codex/monitor-idle-sleep-guard; repair commit b8463f4e97751242cfc62b3296553a93ff8dca1b",
+    "production_source": "Only src/ops/operation_monitor_service.py changed in dirty main checkout; preimage sha256 7489cb25a87c9a485a6597a46fa0bb6b971531ca8e9f3b8d4c2b7d33addb0b8d, deployed sha256 faea1dd497a2e4f8f2322f4b72dd7f09d90de3e761efc81ca295820b7d582b91. Main checkout HEAD 8dc6f947 is not the deployed module identity.",
+    "deployment": "Restarted only operation_monitor_worker, PID 53279 to 61224. Recoverable preimage: /private/tmp/monitor-idle-deploy-backup.FnK9nR/operation_monitor_service.py. No other service signalled.",
+    "qualification": "Observed 2026-09-21T11:31:37Z through 11:52:37Z under natural operation. Monitor PID 61224 and all other running service PIDs stayed stable. Descriptors: baseline 42, maximum transient 43, final 42; final DB descriptors 0. stderr inode/size unchanged at 836847014/52043, stdout size 0; no new negative-sleep traceback or unexpected respawn.",
+    "artifact": "docs/audits/monitor_idle_sleep_module_deployment_20260921.v1.json; JSON validated in isolated worktree",
+    "production_flags": "DEPLOYED=true; MONITOR_ONLY_RESTART=true; OTHER_SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_MUTATIONS_BY_DEPLOYMENT=0; SYNTHETIC_TRAFFIC=0; DEV_PROD_SOURCE_SEPARATION=HOLD",
+    "verdict": "PASS for the narrowly scoped Monitor idle-sleep crash repair after 20+ minute natural soak. Does not qualify every Monitor workload or the broader dev/prod separation.",
+    "exact_next_action": "Continue routine passive observation. Resume the dev/prod source-separation manifest only as its own parity-gated milestone; do not infer a clean production checkout from the Monitor fix."
+  },
   "operation_monitor_idle_sleep_current_overlay_20260921": {
     "status": "ONE_FILE_OFFLINE_QUALIFIED_DEPLOYMENT_REQUIRES_SEPARATE_AUTHORIZATION",
     "engineering_revision": "b4f43a5b2742d70aa2cf4cca03f472502c85ee2d on local codex/monitor-idle-sleep-guard; repair commit b8463f4e97751242cfc62b3296553a93ff8dca1b; not pushed or deployed",

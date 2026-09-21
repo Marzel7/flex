@@ -6,6 +6,7 @@ from src.ops.watchtower_deep_historical import (
     COORDINATOR, POOL, WINDOW_START, OPERATOR_ID,
     qualify_historical_mint, historical_plan, commit_historical_operation,
 )
+from src.ops.watchtower_deep_prospective import assess_prospective_route
 
 
 def _db():
@@ -179,3 +180,53 @@ def test_registration_rejects_changed_membership_before_writing():
     else:
         raise AssertionError("changed membership did not abort")
     assert conn.execute("SELECT COUNT(*) FROM operators").fetchone()[0] == 0
+
+
+def test_prospective_shape_is_review_only_not_canonical_membership():
+    result = assess_prospective_route(_db(), "mint")
+    assert result["state"] == "REVIEW_CANDIDATE"
+    assert result["authority"] == "REVIEW_ONLY"
+    assert result["automatic_membership_allowed"] is False
+    assert result["capital_continuity"] == "UNQUALIFIED"
+
+
+def test_prospective_route_discovers_rotated_wallets_without_address_allowlist():
+    conn = _db()
+    for old, new in ((POOL, "rotated-pool"), (COORDINATOR, "rotated-coordinator")):
+        conn.execute("UPDATE wt_walkback_edge_candidates SET wallet=? WHERE wallet=?", (new, old))
+        conn.execute("UPDATE wt_walkback_edge_candidates SET candidate_parent=? WHERE candidate_parent=?", (new, old))
+        conn.execute("UPDATE wt_walkback_transaction_roles SET transfer_source=? WHERE transfer_source=?", (new, old))
+        conn.execute("UPDATE wt_walkback_transaction_roles SET transfer_destination=? WHERE transfer_destination=?", (new, old))
+    result = assess_prospective_route(conn, "mint")
+    assert result["state"] == "REVIEW_CANDIDATE"
+    assert result["route"]["pool"] == "rotated-pool"
+    assert result["route"]["coordinator"] == "rotated-coordinator"
+
+
+def test_prospective_conflicting_selected_path_is_not_a_candidate():
+    conn = _db()
+    conn.execute("INSERT INTO wt_walkback_edge_candidates VALUES (?,?,?,?,?,?,?,?,?,?)", (
+        "mint", 3, "distribution", "different-parent", "conflict",
+        WINDOW_START + 9_000, 10_000_000_000, "PLAIN_XFER",
+        "TRANSACTION_DERIVED", "SELECTED",
+    ))
+    assert assess_prospective_route(conn, "mint")["state"] == "CONFLICT"
+
+
+def test_prospective_multiple_upper_routes_abstains():
+    conn = _db()
+    conn.execute("INSERT INTO wt_walkback_edge_candidates VALUES (?,?,?,?,?,?,?,?,?,?)", (
+        "other", 4, COORDINATOR, "second-pool", "second-pool-sig",
+        WINDOW_START + 9_999, 2_000_000_000_000, "PLAIN_XFER",
+        "TRANSACTION_DERIVED", "ALTERNATIVE",
+    ))
+    conn.execute("INSERT INTO wt_walkback_transaction_roles VALUES (?,?,?,?)", (
+        "second-pool-sig", "second-pool", COORDINATOR, 2_000_000_000_000,
+    ))
+    assert assess_prospective_route(conn, "mint")["state"] == "AMBIGUOUS"
+
+
+def test_prospective_existing_owner_is_preserved():
+    conn = _db()
+    conn.execute("INSERT INTO operator_launch_membership(mint,operator_id) VALUES ('mint','WATCHTOWER')")
+    assert assess_prospective_route(conn, "mint")["state"] == "EXISTING_ASSIGNMENT"

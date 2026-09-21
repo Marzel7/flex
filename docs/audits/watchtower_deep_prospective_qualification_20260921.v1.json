@@ -1,0 +1,31 @@
+{
+  "schema": "WATCHTOWER_DEEP_PROSPECTIVE_QUALIFICATION_V1",
+  "date": "2026-09-21",
+  "scope": "Read-only offline qualification; no automatic membership, production module deployment, service restart, provider call, or database mutation",
+  "detector": "src/ops/watchtower_deep_prospective.py",
+  "rule": "Address-independent selected creator-close and SubProv funding route, time-ordered transaction-role-confirmed coordinator-to-distribution and pool-to-coordinator transfers, conflicting selected upstream and competing upper routes fail closed",
+  "authority": "REVIEW_ONLY",
+  "capital_continuity": "UNQUALIFIED: retained roles show cumulative large provisioning outflows but do not establish complete opening balances, recycling flows, or exclusive upstream capital control",
+  "offline_controls": {
+    "recent_exact_amount_71": {
+      "review_candidate": 26,
+      "conflict": 23,
+      "insufficient": 22
+    },
+    "canonical_watchtower_349": {
+      "review_candidate": 0,
+      "conflict": 0,
+      "insufficient": 349
+    },
+    "ar4_same_amount_50": {
+      "review_candidate": 21,
+      "conflict": 20,
+      "insufficient": 9,
+      "confirmed_watchtower_controls": 1
+    }
+  },
+  "known_historical_deep_26": "All 26 are detected as review candidates only when diagnostic ownership exclusion is disabled; their existing memberships are preserved in normal operation.",
+  "synthetic_qualification": "14 focused historical/prospective tests passed, including rotated coordinator and pool addresses, selected-path conflicts, competing upper routes, and existing-owner protection.",
+  "verdict": "PROSPECTIVE_AUTOMATIC_MEMBERSHIP_HOLD: address-agnostic route discovery works, but the same shape yields 21 review candidates in a distinct mixed cluster. No zero-false-positive admission gate or complete capital/control proof exists. Candidate discovery is offline only; no Walkback completion hook has been deployed.",
+  "exact_next_action": "Seek an independent operation-specific discriminator for newly rotated coordinators, such as a qualified control/authority signature or complete, bounded capital lifecycle. Evaluate it against the 26 Deep, 17 excluded selected-path cases, all 349 canonical WT, and the 21 Ar4C review candidates. Keep ambiguous cases review-only and do not auto-promote treasuries or memberships."
+}

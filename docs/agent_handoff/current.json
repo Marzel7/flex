@@ -17481,6 +17481,17 @@
     "verdict": "The existing databases can remain in place for source separation if every service is pinned to their exact absolute paths. Full source cutover remains HOLD.",
     "exact_next_action": "Complete the remaining existing-path authority manifest and prove per-service producer/consumer equivalence against current and proposed checkouts, then prepare a separately authorized parity-gated cutover."
   },
+  "dev_prod_existing_path_census_20260921": {
+    "status": "TWENTY_TWO_PATHS_PINNED_SOURCE_CUTOVER_HOLD",
+    "engineering_revision": "148f58535d8fe0d37241cda33e5db7c82661a51b on local codex/dev-prod-path-boundary; read-only census artifact, not pushed or deployed",
+    "artifact": "docs/audits/existing_authority_census_20260921.v1.json and expanded docs/audits/existing_database_authorities_partial_20260921.v1.json; JSON validated; 22 of 23 pinned paths exist",
+    "path_result": "22 existing absolute locations pinned from current source/configuration, including both existing DBs, main-root Monitor queue and scheduler lock, shared logs/settings, and Cascade's recovery-root armed_mode.txt. Offline injected-env validator accepted these 22 against main, recovery and isolated checkout roots and exited 2/HOLD solely because DB_TOKEN_PREDICTION_SQL_DIAGNOSTICS_PATH is unpinned/absent. Legacy listener.log writer and recovery-root armed-state lifecycle remain ambiguous. Active Supervisor environments have not been configured with candidate overrides, so this is not live parity.",
+    "new_independent_monitor_finding": "Read-only Supervisor status showed operation_monitor_worker PID 53279, replacing earlier PID 4291. Supervisor logged unexpected exit status 1 at 2026-09-21 12:11:07 and respawn. Stderr traceback shows operation_monitor_service.py:73 time.sleep(min(0.25, deadline - time.monotonic())) raising ValueError: sleep length must be non-negative. No service was signalled or restarted by this work. Treat as a separate Monitor idle-loop stability defect, not a source-separation path repair.",
+    "tests": "22 manifest paths existence-checked without opening contents; partial validator returned exact one missing path and HOLD; six validator tests passed; JSON and diff checks passed.",
+    "production_flags": "DATABASE_MOVES_OR_COPIES=0; DATABASE_OPENS=0; SUPERVISOR_CHANGES=0; SERVICE_RESTARTS_OR_SIGNALS_BY_THIS_WORK=0; PRODUCTION_SOURCE_CHANGES=0; PROVIDER_CALLS=0; SOURCE_SEPARATION_DEPLOYED=false",
+    "verdict": "Full dev/prod source cutover remains HOLD. Independently, Monitor restart-loop risk is newly evidenced.",
+    "exact_next_action": "Resolve the unproven token-prediction diagnostic authority and legacy listener log producer; finish per-service active-environment and loaded-source parity. Separately offline-qualify the Monitor negative-sleep guard before cutover; do not combine that repair with path migration."
+  },
   "walkback_operation_neutral_topology_runtime_parity_20260920": {
     "engineering_revision": "baseline c7881bb2 plus detector 1a99f4a7 on codex/walkback-topology-runtime-parity; local isolated commits, not source-pushed",
     "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",

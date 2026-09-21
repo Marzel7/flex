@@ -1,15 +1,21 @@
 """Historical Deep route checks never turn amount-only evidence into ownership."""
 
 import sqlite3
+import time
+from pathlib import Path
+
+from flask import Flask, render_template
 
 from src.ops.watchtower_deep_historical import (
     COORDINATOR, POOL, WINDOW_START, OPERATOR_ID,
     qualify_historical_mint, historical_plan, commit_historical_operation,
 )
 from src.ops.watchtower_deep_prospective import assess_prospective_route
+from src.ops.operator_reader import OperatorReader
 from src.ops.watchtower_deep_review import (
     SCHEMA as REVIEW_SCHEMA, persist_review_lead, fetch_review_leads,
-    migrate_review_schema, validate_review_schema,
+    migrate_review_schema, validate_review_schema, assess_review_readonly,
+    review_sweep_page, run_review_sweep_page,
 )
 
 
@@ -308,3 +314,137 @@ def test_review_schema_migration_is_transaction_owned_and_rollbackable():
     conn.rollback()
     assert validate_review_schema(conn) is False
     assert conn.execute("SELECT COUNT(*) FROM wt_walkback_queue").fetchone()[0] == 1
+
+
+def test_review_sweep_requires_exact_partial_index():
+    conn = _db()
+    conn.execute(
+        "CREATE INDEX ix_wbq_deep_review_page ON wt_walkback_queue(mint)"
+    )
+    migrate_review_schema(conn)
+    assert validate_review_schema(conn) is False
+
+    clean = _db()
+    migrate_review_schema(clean)
+    plan = list(clean.execute(
+        "EXPLAIN QUERY PLAN SELECT mint FROM wt_walkback_queue "
+        "WHERE status='complete' AND intelligence_outcome='LINEAGE_GAP' "
+        "AND funding_mechanism='WSOL_WRAP_CLOSE' "
+        "AND funder_amount_sol>1.1120385 AND funder_amount_sol<1.1120395 "
+        "AND funder_block_time>=? ORDER BY funder_block_time DESC,mint DESC LIMIT 8",
+        (WINDOW_START,),
+    ))
+    assert any("ix_wbq_deep_review_page" in row[3] for row in plan)
+
+
+def test_readonly_review_assessment_and_bounded_recheck_page(tmp_path):
+    conn = _db()
+    migrate_review_schema(conn)
+    conn.commit()
+    assert review_sweep_page(conn, since=WINDOW_START, limit=1) == [
+        ("mint", WINDOW_START + 10_300),
+    ]
+    assert review_sweep_page(
+        conn, since=WINDOW_START, cursor=(WINDOW_START + 10_300, "mint"),
+    ) == []
+    path = tmp_path / "ops.db"
+    disk = sqlite3.connect(path)
+    conn.backup(disk)
+    disk.close()
+    result = assess_review_readonly(str(path), "mint")
+    assert result["state"] == "REVIEW_CANDIDATE"
+    assert result["authority"] == "REVIEW_ONLY"
+    persist_review_lead(conn, "mint", result, now=123)
+    assert review_sweep_page(conn, since=WINDOW_START) == []
+
+
+def test_readonly_review_assessment_defers_without_schema(tmp_path):
+    conn = _db()
+    conn.commit()
+    path = tmp_path / "ops.db"
+    disk = sqlite3.connect(path)
+    conn.backup(disk)
+    disk.close()
+    assert assess_review_readonly(str(path), "mint")["reason"] == (
+        "review_schema_not_current"
+    )
+
+
+def test_operator_review_api_reader_shows_deep_leads_not_membership(tmp_path):
+    conn = _db()
+    migrate_review_schema(conn)
+    persist_review_lead(conn, "mint", assess_prospective_route(conn, "mint"), now=123)
+    conn.commit()
+    path = tmp_path / "ops.db"
+    disk = sqlite3.connect(path)
+    conn.backup(disk)
+    disk.close()
+    rows = OperatorReader(str(path)).fetch_operator_review_candidates(OPERATOR_ID)
+    assert [row["mint"] for row in rows] == ["mint"]
+    assert rows[0]["authority"] == "REVIEW_ONLY"
+    assert conn.execute("SELECT COUNT(*) FROM operator_launch_membership").fetchone()[0] == 0
+
+
+def test_deep_review_ui_is_explicitly_noncanonical():
+    root = Path(__file__).resolve().parents[1]
+    app = Flask(__name__, template_folder=str(root / "templates"),
+                static_folder=str(root / "static"))
+    with app.test_request_context():
+        page = render_template("operator_deep_review.html", operator_id=OPERATOR_ID,
+                               operator_name="WATCHTOWER_DEEP")
+    assert "review-only candidate" in page
+    assert "not an operation assignment" in page
+    assert "/review-queue" in page
+    detail = (root / "templates" / "operator_intelligence.html").read_text()
+    assert "View Deep route review candidates" in detail
+
+
+def test_review_sweep_closes_all_reads_before_publishing(tmp_path):
+    conn = _db()
+    migrate_review_schema(conn)
+    conn.commit()
+    path = tmp_path / "ops.db"
+    disk = sqlite3.connect(path)
+    conn.backup(disk)
+    disk.close()
+    published = []
+
+    def publish(mint, assessment):
+        writer = sqlite3.connect(path, timeout=0.1)
+        try:
+            writer.execute("BEGIN EXCLUSIVE")
+            persist_review_lead(writer, mint, assessment, now=123)
+            writer.commit()
+        finally:
+            writer.close()
+        published.append(mint)
+
+    result = run_review_sweep_page(
+        str(path), publish, now=WINDOW_START + 11_000, limit=1,
+    )
+    assert result["checked"] == result["published"] == 1
+    assert published == ["mint"]
+    assert run_review_sweep_page(
+        str(path), publish, cursor=result["cursor"],
+        now=WINDOW_START + 11_000,
+    )["status"] == "COMPLETE_PASS"
+
+
+def test_walkback_deep_hook_records_only_review_lead(tmp_path, monkeypatch):
+    from src.core import walkback_worker
+
+    conn = _db()
+    migrate_review_schema(conn)
+    conn.execute("UPDATE wt_walkback_queue SET funder_block_time=? WHERE mint='mint'",
+                 (int(time.time()) - 10,))
+    conn.commit()
+    path = tmp_path / "ops.db"
+    disk = sqlite3.connect(path)
+    conn.backup(disk)
+    monkeypatch.setattr(walkback_worker, "OPS_DB_PATH", str(path))
+    monkeypatch.setattr(walkback_worker, "_DEEP_REVIEW_CURSOR", None)
+    walkback_worker._review_deep_routes_after_commit(disk)
+    assert disk.execute("SELECT COUNT(*) FROM wt_deep_route_review_leads").fetchone()[0] == 1
+    assert disk.execute("SELECT COUNT(*) FROM operator_launch_membership").fetchone()[0] == 0
+    assert disk.execute("SELECT COUNT(*) FROM wt_watchtower_launches").fetchone()[0] == 0
+    disk.close()

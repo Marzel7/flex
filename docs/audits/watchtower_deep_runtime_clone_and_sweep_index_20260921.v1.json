@@ -1,0 +1,17 @@
+{
+  "status": "OFFLINE_PASS_PRODUCTION_HOLD_API_PARITY",
+  "engineering_head_before_commit": "089264f37f4308bfbca40ce91343faff06dea3d2",
+  "scope": "Review-only Deep route lead detection and UI; automatic operation assignment and treasury promotion remain disabled.",
+  "source_changes": "Added a 250 ms SQLite progress deadline for the candidate sweep page, an exact partial candidate-page index to the transaction-owned rollbackable migration, and fail-closed validation of its SQL. Existing destination-role index remains required. No change to the route classifier's admission authority.",
+  "qualification": {
+    "focused_main_tests": "26 passed",
+    "isolated_exact_walkback_api_runtime_clone_tests": "26 passed",
+    "on_disk_clone": "198 MB copy of the five relevant current WT_OPS tables: queue=59642, edge_candidates=127600, transaction_roles=59874. The two-index/review migration completed in about 0.35 s on this clone; an eight-item review sweep completed in about 0.39 s.",
+    "control_replay": "26/26 current Deep members REVIEW_CANDIDATE, 350/350 current canonical WATCHTOWER members INSUFFICIENT with diagnostic ownership bypass and required role index. No canonical promotion was attempted.",
+    "caveat": "The clone excludes the large RPC cache and concurrent production writers; live-disk writer-hold and natural-work latency are not yet qualified. The main checkout is heavily dirty and is not an acceptable service-restart source."
+  },
+  "runtime_discrepancy": "Walkback PID 18296 has cwd/PYTHONPATH .runtime_recovery_c06d; API PID 4294 has cwd/PYTHONPATH main checkout. Main API modules are materially dirty relative to HEAD and the isolated runtime tree. Restarting API from main would activate unrelated changes; no API restart is authorized by this artifact.",
+  "production_flags": "DEEP_RUNTIME_DEPLOYED=false; DEEP_DB_MIGRATION=false; DEEP_UI_READBACK=false; SERVICE_RESTARTS=0; AUTOMATIC_DEEP_ASSIGNMENT=false; HISTORICAL_DEEP_MEMBERS=26; CURRENT_WT_MEMBERS=350",
+  "blockers": ["Next natural hourly retention batch-5 run plus 20-minute qualification pending", "Exact API loaded-source parity or safe isolated API runtime path not established", "Full Deep module/index/PID/rollback deployment manifest not yet approved by parity gates"],
+  "next_action": "Qualify the natural retention run read-only. Then isolate API source without loading unrelated dirty main changes, prove read-only endpoint parity, and prepare a narrow exact-hash Deep deployment manifest. Only deploy the review-only DB migration and derived restarts after all gates pass."
+}

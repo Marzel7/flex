@@ -7,21 +7,8 @@ independently of Gunicorn and independently of pumpfun_curve_listener.py,
 mirroring the proven creator_resolution_worker.py pattern (same self-kill
 guard, WAL watchdog, adaptive batching, heartbeat contract).
 
-Replaces two prior, both-inert consumer paths:
-  - pumpfun_curve_listener.py's _process_creator_funding_queue_periodic(),
-    an in-listener asyncio loop gated by LISTENER_CREATOR_FUNDING_QUEUE_ENABLED
-    (parked =0 since 2026-06-25 for a WS-recovery reason that has since
-    resolved, but never unparked). That method's *code* is left in place
-    (still reachable if the env var were ever re-enabled) but is no longer
-    the intended consumer -- this worker is. The env var is deliberately
-    NOT re-enabled here (X73.2 scope: do not re-enable it, do not install
-    the historical cron -- both become legacy/deprecated).
-  - scripts/run_creator_funding_queue_once.py, a documented but never-
-    scheduled one-shot cron script. Its queue-claim primitives were the
-    starting point for this worker's own claim/retry/fail logic. The
-    script itself is left in place (harmless if invoked manually) but is
-    no longer the intended consumer -- see the deprecation note now in its
-    own docstring.
+The earlier duplicate listener loop and manual one-shot runner have been
+retired. This worker is the sole production consumer.
 
 Reuses the existing attribution-relevant extraction call unchanged
 (extract_funding_for_new_token from realtime_creator_funding_extractor.py)
@@ -429,18 +416,29 @@ def _wal_size_mb() -> float:
         return 0.0
 
 
-def _wal_busy() -> int:
+def _wal_checkpoint_sample() -> Dict[str, int]:
     conn = None
     try:
         import sqlite3
         conn = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=3)
         r = conn.execute("PRAGMA wal_checkpoint(PASSIVE)").fetchone()
-        return r[0] if r else -1
+        if not r:
+            return {"busy": -1, "log_frames": -1, "checkpointed_frames": -1}
+        return {
+            "busy": int(r[0]),
+            "log_frames": int(r[1]),
+            "checkpointed_frames": int(r[2]),
+        }
     except Exception:
-        return -1
+        return {"busy": -1, "log_frames": -1, "checkpointed_frames": -1}
     finally:
         if conn:
             conn.close()
+
+
+def _wal_busy() -> int:
+    """Preserve the established watchdog seam and threshold behavior."""
+    return _wal_checkpoint_sample()["busy"]
 
 
 def _identify_wal_holders() -> str:
@@ -520,6 +518,7 @@ def _wal_watchdog() -> None:
             else:
                 busy_cycles = 0
             if _wal_is_critically_pinned(mb, busy_cycles):
+                checkpoint = _wal_checkpoint_sample()
                 try:
                     external_handles = _external_open_handles()
                 except Exception as exc:
@@ -528,9 +527,21 @@ def _wal_watchdog() -> None:
                     local_connections = _local_connection_snapshot()
                 except Exception as exc:
                     local_connections = {"error": str(exc)[:160], "total_count": 0, "returned_count": 0, "connections": []}
+                try:
+                    from src.utils.wal_watchdog_provenance import collect_wal_pin_provenance
+                    holder_pids = [int(row["pid"]) for row in external_handles.get("handles", [])]
+                    provenance = collect_wal_pin_provenance(
+                        db_path=DB_PATH,
+                        checkpoint=checkpoint,
+                        holder_pids=holder_pids,
+                        lifecycle_path=os.environ.get("DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_PATH"),
+                    )
+                except Exception as exc:
+                    provenance = {"error": str(exc)[:160]}
                 _log(f"CRITICAL_WAL_PINNED: WAL={mb:.1f}MB busy_cycles={busy_cycles} "
                      f"external_open_handles={json.dumps(external_handles, sort_keys=True, default=str)} "
                      f"local_connection_state={json.dumps(local_connections, sort_keys=True, default=str)} "
+                     f"wal_pin_provenance={json.dumps(provenance, sort_keys=True, default=str)} "
                      "— this worker exiting for clean restart")
                 os._exit(1)
         except Exception as e:
@@ -574,7 +585,7 @@ def _write_heartbeat(meta: Dict[str, Any]) -> None:
             conn.close()
 
 
-# ── queue primitives (adapted from scripts/run_creator_funding_queue_once.py) ──
+# ── queue primitives ────────────────────────────────────────────────────────
 def _pending_count() -> int:
     conn = None
     try:

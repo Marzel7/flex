@@ -283,7 +283,10 @@ CLASSIFICATION_ENFORCE = os.environ.get("WS_SUBPROV_CLASSIFICATION_ENFORCE", "0"
 # CANDIDATE_WATCH_ENABLED kept as alias for SAVE_CANDIDATE_FANOUT (backward compat).
 # ARMED state can be overridden by a file so the toggle works without restarting supervisord.
 # The file contains "1" or "0"; absent = fall back to env var.
-_ARMED_STATE_FILE = os.path.join(os.path.dirname(__file__), "..", "..", "database", "armed_mode.txt")
+_ARMED_STATE_FILE = os.path.abspath(os.environ.get(
+    "WS_ARMED_STATE_PATH",
+    os.path.join(os.path.dirname(__file__), "..", "..", "database", "armed_mode.txt"),
+))
 def _read_armed_file():
     try:
         return open(_ARMED_STATE_FILE).read().strip()

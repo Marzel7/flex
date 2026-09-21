@@ -17481,6 +17481,16 @@
     "verdict": "The existing databases can remain in place for source separation if every service is pinned to their exact absolute paths. Full source cutover remains HOLD.",
     "exact_next_action": "Complete the remaining existing-path authority manifest and prove per-service producer/consumer equivalence against current and proposed checkouts, then prepare a separately authorized parity-gated cutover."
   },
+  "armed_state_cascade_only_manifest_20260921": {
+    "status": "PREPARED_NOT_AUTHORIZED_NOT_EXECUTED",
+    "engineering_revision": "7188ffc5f156acff61d7b08566fa44fed92ee128 on local codex/dev-prod-path-boundary; candidate source repair 5b021bd5a8cf2e955831ba7e8113c95ed3e40317",
+    "artifact": "docs/audits/armed_state_cascade_only_deployment_manifest_20260921.v1.json; JSON validated",
+    "minimal_scope": "Deploy only recovery-root src/core/ws_cascade.py candidate sha256 6c850b70b9852a09111d86fddf62e7e016f14b05ed3a56183a4cdd2bb0ba6ce8 over exact preimage 6218947ddcaee6c3f7b827a2548aca295578ce2fea08b98a1d3a848ee7b43bd8. Add only WS_ARMED_STATE_PATH pointing to existing main-root database/armed_mode.txt in program:ws_cascade; restart only ws_cascade. The API already reads/writes that file and is not payload or restart target.",
+    "gates": "Recheck hashes, both state-file values/mtimes, Cascade PID/CWD/PYTHONPATH, unrelated PIDs and one-key Supervisor config diff before mutation; save exact module/config preimages. Observe at least 20 minutes of natural traffic after activation; abort/rollback only on manifest criteria. No synthetic armed-mode toggle.",
+    "production_flags": "DEPLOYED=false; SUPERVISOR_CHANGED=false; SERVICES_RESTARTED=0; DATABASE_OR_QUEUE_MUTATIONS=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0",
+    "verdict": "Prepared for separate explicit production authorization. Full dev/prod source cutover and retention writer-lease repair remain independent HOLD items.",
+    "exact_next_action": "Seek separate authorization for the parity-gated Cascade-only module/config deployment; otherwise continue read-only source-separation census. Do not execute this manifest merely because it is committed or published."
+  },
   "armed_state_shared_authority_offline_20260921": {
     "status": "NARROW_OFFLINE_PASS_PRODUCTION_HOLD",
     "engineering_revision": "5b021bd5a8cf2e955831ba7e8113c95ed3e40317 on local codex/dev-prod-path-boundary; not pushed or deployed",

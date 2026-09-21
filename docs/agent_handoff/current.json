@@ -17466,6 +17466,16 @@
     "verdict": "Clean offline narrow integration PASS; full-app production baseline and any source cutover HOLD because Monitor entrypoint and other service/transitive/path parity are incomplete.",
     "exact_next_action": "Finish per-running-service transitive module and persistent-authority matrix, then assemble one complete clean full-app source commit with service-specific tests and exact path parity. Do not use 034a7945 for a full-stack restart."
   },
+  "dev_prod_running_service_source_census_20260921": {
+    "status": "STATIC_SOURCE_CENSUS_PARTIAL_FULL_BASELINE_HOLD",
+    "engineering_revision": "Clean offline integration branch now 6e8a67ae7e6ba97a9fa313c972955dce3d2c1703; source-census tool/audit a649688362d74241fe25a47de387ae5191ef76ec on isolated codex/dev-prod-path-boundary; main dev/runtime untouched",
+    "audit": "docs/audits/running_service_static_source_census_20260921.v1.json; JSON validated. scripts/census_service_source_closure.py has two synthetic tests passing.",
+    "result": "Read-only AST import closures versus clean pre-repair integration candidate: listener 153/153 matched; API 358/367 matched, 6 different, 3 missing and one parse error; Scheduler 61/64 matched; funding 37/39; Creator Resolution 8/10; Monitor 14/15 with its entrypoint missing; Walkback 60/78 with 17 different and topology classifier missing; Cascade 19/25 with six different. Static import closure is neither live loaded-module proof nor dynamic-import completeness. Missing files must not be blindly copied from dirty main.",
+    "syntax_repair": "Current main-disk src/extractors/funder_helius_extractor.py fails AST parsing at malformed cursor.execute syntax. This is a lazy API import path, not evidence the currently running API is broken. Narrow repair exists only on clean integration branch at 6e8a67ae: removed extra comma/invalid keyword, scratch SQLite query test passes, integrated Deep/path suite 29/29 passes. No production source or process change.",
+    "production_flags": "PROD_CHECKOUT_CREATED=false; SUPERVISOR_CHANGED=false; SERVICES_SIGNALED_OR_RESTARTED=0; DATABASE_OR_QUEUE_STATE_MUTATIONS=0",
+    "verdict": "HOLD full-app production baseline. Exact source selection, remaining path authorities and service tests are incomplete.",
+    "exact_next_action": "Qualify exact candidate sources for missing Monitor, Walkback topology, WAL provenance and API lazy-route modules; resolve differing files against qualified runtime provenance and path effects, then rerun census and service-specific tests."
+  },
   "dev_prod_api_first_cutover_continuation_20260921": {
     "status": "PARTIAL_OFFLINE_API_FIRST_CUTOVER_HOLD",
     "engineering_revision": "677c2168 on local codex/dev-prod-path-boundary; audit and read-only checkout guard only, no production baseline commit",

@@ -17545,6 +17545,17 @@
     "verdict": "Narrow causal repair offline-qualified for the observed crash, but production is not repaired yet; separately verify full runtime parity before deployment.",
     "exact_next_action": "Requalify this one-file patch against a complete exact-current runtime baseline, prepare a parity-gated module-only Monitor deployment for separate authorization, and keep dev/prod source separation on HOLD independently."
   },
+  "retention_supervised_batch_prototype_20260921": {
+    "status": "OFFLINE_PROTOTYPE_PASS_PRODUCTION_HOLD",
+    "engineering_revision": "3a787797b4088a8847897f4325ab43aeab12b0c8 on isolated codex/retention-lease-budget; exact-current db_locking dependency alignment 8e5c5960; not pushed or deployed",
+    "artifact": "docs/audits/retention_supervised_batch_prototype_20260921.v1.json; JSON validated",
+    "candidate": "Runner sha256 74bf9d8d83986c8c10f67f1fe74fc223867472a091385b307931c5c5a176290e and new retention_batch_supervisor.py sha256 fe59b8cf02cbdc8d576e0c319cc6fef1d4e7cdc45fceba8ba43e557eb2687d3f. Disabled by default; opt-in CACHE_RETENTION_RPC_CHILD_ENABLED=1 is absent from current cron. Test worktree db_locking.py matches current main-disk sha256 cf60acfa7306b771c3c3bf0e88d3eee0e680a09ee3f5ef1cc64bad2d22332390 and is not proposed payload.",
+    "qualification": "63 focused tests passed using temporary SQLite: exact normal child result, stalled commit child termination with rollback and released writer lease, TERM-ignoring child KILL/reap, malformed-result indeterminate handling, and runner stop of all later phases on timeout. py_compile and diff checks passed.",
+    "safety_limit": "Timeout returns deleted=null and stops the run because a commit just before termination is unknowable. OS-uninterruptible child release cannot be guaranteed; it is separately reported as unreaped. Historic 86.97s commit substage remains unproven. No natural production run or activation was performed.",
+    "production_flags": "DEPLOYED=false; CRON_CHANGED=false; SOURCE_CONFIG_SERVICE_DATABASE_QUEUE_CHANGES=0; SIGNALS_OR_RESTARTS=0; PROVIDER_CALLS=0; SYNTHETIC_PRODUCTION_TRAFFIC=0; AUTOMATIC_TREASURY_PROMOTION=false",
+    "verdict": "PASS ordinary-killable-child offline fail-closed prototype only; production retention writer-lease repair remains HOLD.",
+    "exact_next_action": "Prepare an exact-current parity-gated module-and-opt-in-cron deployment manifest and seek separate production authorization. If authorized later, qualify the next natural hourly run and downstream writer contention without synthetic traffic."
+  },
   "retention_writer_lease_budget_offline_20260921": {
     "status": "HOLD_NO_FAIL_CLOSED_REPAIR_QUALIFIED",
     "engineering_revision": "bf45d72bb58e76e84302dcda4e7c21e4b576c78b on isolated codex/retention-lease-budget, based on c01127cc4db90281edf8a87918b57cb76d773875; no production source edit",

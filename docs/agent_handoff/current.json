@@ -17340,6 +17340,17 @@
     "verdict": "AzkP is a separate operation candidate unless independent capital-source/control evidence later proves otherwise. Keep it operation-neutral and pending review.",
     "exact_next_action": "Do not deploy any logic that maps topology qualification to WATCHTOWER attribution. Either leave dormant AzkP pending, or separately authorize an operation-neutral capital-source/control attribution audit."
   },
+  "azkpg_retained_operation_evidence_audit_20260921": {
+    "engineering_revision": "8dc6f947dbc5e5821d07c5478fc23acc58987497 dirty production checkout; read-only audit only",
+    "address": "AzkPg62VQYADWQ8xn24Sbrozr4xbVAXCHxw54WGx1LRM",
+    "status": "NO_RETAINED_OPERATION_EVIDENCE",
+    "operations_database": "Zero exact-address rows across confirmed treasuries, treasury review, capital-distributor candidates, WATCHTOWER launches, provisioning edges/sessions, Walkback queue, operation candidates, registry dispositions, operator membership and potential-operation state.",
+    "live_database": "Zero exact-address rows in indexed creator_funders creator and funder relationships and no exact source/log reference. Broader unindexed token-history scanning was deliberately stopped rather than burden the live 31 GB database.",
+    "interpretation": "The address is currently unknown to the retained operation model. The user's external identification may be correct, but local evidence does not yet establish treasury role, topology, launches, overlap, or WATCHTOWER attribution.",
+    "safety": "STRICTLY_READ_ONLY=true; DATABASE_OR_QUEUE_MUTATIONS=0; PROVIDER_CALLS=0; SERVICE_RESTARTS_OR_SIGNALS=0; SOURCE_OR_CONFIG_CHANGES=0; PROMOTIONS=0; REPLAYS=0",
+    "verdict": "UNPROVEN_OPERATION_CANDIDATE. Do not register, promote, subscribe, or attribute this address from its name/prefix alone.",
+    "exact_next_action": "If authorized, run a bounded provider-backed operation-neutral topology reconstruction for this address, deriving Treasury -> SubProv -> fan-out -> creator chains and comparing identities and amount/shape evidence with AzkPUX, Gzaa and 2gh. Keep automatic promotion disabled."
+  },
   "walkback_operation_neutral_topology_runtime_parity_20260920": {
     "engineering_revision": "baseline c7881bb2 plus detector 1a99f4a7 on codex/walkback-topology-runtime-parity; local isolated commits, not source-pushed",
     "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",

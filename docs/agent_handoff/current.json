@@ -17476,6 +17476,16 @@
     "verdict": "HOLD full-app production baseline. Exact source selection, remaining path authorities and service tests are incomplete.",
     "exact_next_action": "Qualify exact candidate sources for missing Monitor, Walkback topology, WAL provenance and API lazy-route modules; resolve differing files against qualified runtime provenance and path effects, then rerun census and service-specific tests."
   },
+  "dev_prod_qualified_missing_source_recovery_20260921": {
+    "status": "TWO_QUALIFIED_BLOBS_RECOVERED_FULL_BASELINE_HOLD",
+    "engineering_revision": "Clean offline integration commit ad8a5bb6218dd28902122d63b8c899bc4dbf4b6d; recovery audit 019b41a055e396e6a4d9684d2d981c074039fb9c on isolated codex/dev-prod-path-boundary; no production deployment",
+    "audit": "docs/audits/qualified_missing_source_recovery_20260921.v1.json; JSON validated",
+    "source_choice": "Added exact Monitor service blob sha256 7489cb25... from production-qualified 93489cf8, not undeployed newer b8463f4e main-disk file. Added exact Walkback topology classifier sha256 f51637e8... from recovery-root c06d1f7d. Candidate worktree is Git-clean and exact checkout guard PASS with deployment_authorized=false. WAL provenance module exactly matches 4f7821a0 but is diagnostic not deployed and is not imported by candidate workers, so was deferred. Three API research modules are untracked, source-root-artifact-relative and have no Git provenance; deferred.",
+    "qualification": "45/45 focused Monitor service, topology, lazy API query, Deep historical and integration path tests passed. Older Monitor worker suite has one pending-queue expectation failure against newer candidate worker; it was not misreported as passing, and worker-version compatibility remains unqualified. Post-recovery static closure: Monitor zero missing and Walkback zero missing but 17 differing files.",
+    "production_flags": "PROD_CHECKOUT_CREATED=false; SUPERVISOR_CHANGED=false; SERVICES_SIGNALED_OR_RESTARTED=0; DATABASE_OR_QUEUE_STATE_MUTATIONS=0",
+    "verdict": "Partial source provenance progress, full production baseline HOLD.",
+    "exact_next_action": "Resolve remaining Walkback/Cascade differences against qualified runtime hashes, then funding/Creator Resolution and untracked API research artifact paths; complete service tests and per-service persistent-state parity before a production checkout."
+  },
   "dev_prod_api_first_cutover_continuation_20260921": {
     "status": "PARTIAL_OFFLINE_API_FIRST_CUTOVER_HOLD",
     "engineering_revision": "677c2168 on local codex/dev-prod-path-boundary; audit and read-only checkout guard only, no production baseline commit",

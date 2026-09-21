@@ -17418,6 +17418,14 @@
     "verdict": "The restart guard operated correctly. Do not use --allow-dirty-main or start_supervised.sh as a workaround without a source parity review and an actual need for full-stack recovery.",
     "exact_next_action": "Continue current stable processes and complete the ongoing 20-minute Walkback/Cascade observation. For a future whole-app restart, first audit/freeze every running main-checkout service module and dependency against current disk source, then explicitly authorize the full restart with a known-good manifest."
   },
+  "dev_prod_api_clean_candidate_20260921": {
+    "status": "API_ONLY_CLEAN_CANDIDATE_PASS_FULL_PRODUCTION_CUTOVER_HOLD",
+    "engineering_revision": "API-only candidate d2fffdc34fca2539807e1463cad68dab0b3ef042 on codex/production-source-candidate; dev/prod guard and audit a6749c5b on codex/dev-prod-path-boundary; neither deployed",
+    "scope": "An isolated exploratory overlay was narrowed to 18 dynamically imported changed API modules and 12 UI/config files, committed as an API-only candidate. A separate detached /private/tmp/flex-api-source-smoke worktree at that exact commit is Git-clean. Checkout identity guard PASS there; it never authorizes deployment by itself. Against scratch databases and explicit scratch path authorities, operator summary, registry, Deep detail, Deep review API and Deep review HTML all returned HTTP 200. Static local-import closure still contains 80 changed/new modules and 117 conservative source-relative path suspects; lazy-route and state parity remain incomplete. Running watchtower_api PID 4294, Walkback 18296 and Cascade 18297 were unchanged. The broader Deep historical test suite is 25/26 in the API-only checkout: the Walkback hook test fails as expected because Walkback is intentionally excluded from this API commit. No production checkout at /Users/kevinkeaveney/Production/flex exists, no Supervisor change/restart, no database/queue mutation and automatic assignment remains off.",
+    "audit": "docs/audits/dev_prod_api_first_cutover_gate_20260921.v1.json on codex/dev-prod-path-boundary",
+    "verdict": "HOLD for actual production API source switch until lazy-route source and persistent-path authority are bounded and the clean candidate is promoted. Do not describe the API-only commit as a complete qualified all-service baseline.",
+    "exact_next_action": "Finish API lazy-route/path parity against the clean candidate, pin explicit old-state authorities, then create /Users/kevinkeaveney/Production/flex at a complete approved commit and migrate API only under a rollbackable manifest. Walkback/Cascade remain separate stages; retention is independent."
+  },
   "dev_prod_api_first_cutover_continuation_20260921": {
     "status": "PARTIAL_OFFLINE_API_FIRST_CUTOVER_HOLD",
     "engineering_revision": "677c2168 on local codex/dev-prod-path-boundary; audit and read-only checkout guard only, no production baseline commit",

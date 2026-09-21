@@ -17545,6 +17545,15 @@
     "verdict": "Narrow causal repair offline-qualified for the observed crash, but production is not repaired yet; separately verify full runtime parity before deployment.",
     "exact_next_action": "Requalify this one-file patch against a complete exact-current runtime baseline, prepare a parity-gated module-only Monitor deployment for separate authorization, and keep dev/prod source separation on HOLD independently."
   },
+  "watchtower_1112039_branch_audit_20260921": {
+    "status": "PARTIAL_READ_ONLY_AUDIT_NO_PROMOTION",
+    "engineering_revision": "Main checkout HEAD 8dc6f947dbc5e5821d07c5478fc23acc58987497 (dirty); inspected main-disk src/core/walkback_worker.py sha256 8743d34200bfb2aae2fb090824a9ba95ce2a8922d43c21924fd7a5e7085a351a. No source, database, queue, service or provider changes.",
+    "source": "User-supplied WATCHTOWER 1.112039 SOL branch artifact; its claims treated as evidence leads, not production authority.",
+    "verified": "Exactly 60 distinct ledger mints; all 60 in current wt_walkback_queue with WSOL_WRAP_CLOSE and funder_amount_sol=1.112039, matching listed SubProv, no treasury attribution, intelligence_outcome=LINEAGE_GAP. Both cited root wallets are absent from wt_confirmed_treasuries but present as treasury_wallet in wt_watchtower_launches (88 and 115 distinct launch mints in current database). _expand_unknown_upstream checks only _is_known_treasury on newly found parent; direct hop2 separately accepts cached WATCHTOWER treasury when watchtower_candidate.",
+    "qualification_limit": "The cited 33Rz mint is ARCHIVAL_GAP with deepest_wallet=88WRB... at hop_depth=2: the cached root is already the deep-walk start_wallet, so the proposed parent-only one-line change would not repair that specific case. Per-mint role rows exist for all 60 but do not individually contain every root edge; no bulk root-to-creator proof or cohort reclassification was performed. Current path states among 60 include 48 FAILED_TERMINAL, 7 ARCHIVAL_GAP, 3 CLAIMED, 1 UPSTREAM_EXPANDING, 1 TREASURY_CANDIDATE_SURFACED.",
+    "verdict": "Real treasury recognition asymmetry, but supplied one-line remedy is incomplete and automatic promotion/registration is not authorized by this audit.",
+    "exact_next_action": "Offline-qualify a narrow start_wallet plus parent cached-root recognition repair under the existing WATCHTOWER candidate gate, including the 33Rz regression and negative controls for shared-pool/mixed-operation branches; separately validate every proposed attribution before any production replay or wallet registration."
+  },
   "retention_supervised_batch_manifest_20260921": {
     "status": "DEPLOYED_NATURAL_HOURLY_RUN_AND_20_MIN_SOAK_PENDING",
     "engineering_revision": "9053014cb1d03f5530e9994174171ec000dad381 on local codex/retention-lease-budget; observable quiet-mode refinement ebb0e516bcc1b82658be6dd86b1a82377800c16b; not pushed or deployed",

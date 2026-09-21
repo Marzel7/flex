@@ -17403,6 +17403,16 @@
     "verdict": "Do not consolidate or create/use a production checkout yet. Source-root migration would risk split persistent state and exact loaded source for several main-checkout services is not proven.",
     "exact_next_action": "Complete a bounded transitive active-service path/loaded-source provenance manifest, add separately qualified external path overrides for every stateful source-relative path, freeze actual main-service disk/loaded parity at a controlled future boundary, then seek separate authorization for consolidation. No service migration until all path pairs and module hashes pass."
   },
+  "dev_prod_source_separation_path_gate_20260921": {
+    "status": "PARTIAL_OFFLINE_PATH_AUDIT_HOLD",
+    "engineering_revision": "main HEAD 8dc6f947dbc5e5821d07c5478fc23acc58987497; dirty checkout; no source edit in this continuation",
+    "scope": "Read-only active-service path inspection. No production checkout, Supervisor edit, service restart, database move, provider call, or synthetic traffic.",
+    "verified_blockers": "operation_armed.py hardcodes database/wt_ops_v2.db from __file__ and scheduler imports it; operation_scheduler.py has OPS_SCHEDULER_LOCK override but active configuration does not set it; operation_store_v2.py has FLEX_DB_PATH and OPS_V2_DB_PATH overrides but scheduler does not set them; Monitor has OPERATION_MONITOR_QUEUE_PATH override but active configuration does not set it; ws_cascade.py hardcodes database/armed_mode.txt; operator_routes.py opens a source-relative wt_ops_v2.db on the subtype route.",
+    "qualification": "Existing src/core/db.py provides DB_PATH and WT_OPS_DB_PATH plus fail-closed resolve_ops_db_path(), but the hardcoded consumers do not use it. Current armed_mode.txt copies are byte-equal, which does not prove future path parity. No override implementation or tests were performed.",
+    "production_flags": "PROD_SOURCE_PATH_NOT_CREATED=true; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_MUTATIONS=0; SOURCE_EDITS=0; PATH_PARITY=FAIL",
+    "verdict": "Do not migrate source roots or restart from a new checkout. The active services still have source-relative persistent-state split risks and loaded-source parity is not fully proven.",
+    "exact_next_action": "Offline-implement and test explicit state-path authority for the hardcoded operations DB, Cascade armed-state file, scheduler lock and Monitor queue; finish the listener/API/log/diagnostic transitive path matrix; only then prepare a complete parity-gated production manifest under separate deployment authorization."
+  },
   "walkback_operation_neutral_topology_runtime_parity_20260920": {
     "engineering_revision": "baseline c7881bb2 plus detector 1a99f4a7 on codex/walkback-topology-runtime-parity; local isolated commits, not source-pushed",
     "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",

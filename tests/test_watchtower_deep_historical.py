@@ -7,7 +7,10 @@ from src.ops.watchtower_deep_historical import (
     qualify_historical_mint, historical_plan, commit_historical_operation,
 )
 from src.ops.watchtower_deep_prospective import assess_prospective_route
-from src.ops.watchtower_deep_review import SCHEMA as REVIEW_SCHEMA, persist_review_lead, fetch_review_leads
+from src.ops.watchtower_deep_review import (
+    SCHEMA as REVIEW_SCHEMA, persist_review_lead, fetch_review_leads,
+    migrate_review_schema, validate_review_schema,
+)
 
 
 def _db():
@@ -292,3 +295,16 @@ def test_deep_review_lead_rejects_nonreview_and_watchtower_ledger():
     conn.execute("INSERT INTO wt_watchtower_launches VALUES ('mint')")
     assert persist_review_lead(conn, "mint", result)["action"] == "watchtower_ledger_present"
     assert fetch_review_leads(conn) == []
+
+
+def test_review_schema_migration_is_transaction_owned_and_rollbackable():
+    conn = _db()
+    conn.commit()
+    assert validate_review_schema(conn) is False
+    conn.execute("BEGIN IMMEDIATE")
+    migrate_review_schema(conn)
+    assert validate_review_schema(conn) is True
+    assert conn.in_transaction is True
+    conn.rollback()
+    assert validate_review_schema(conn) is False
+    assert conn.execute("SELECT COUNT(*) FROM wt_walkback_queue").fetchone()[0] == 1

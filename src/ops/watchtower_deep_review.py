@@ -11,11 +11,12 @@ import json
 import sqlite3
 import time
 
-from src.ops.watchtower_deep_prospective import DEEP_OPERATOR_ID
+from src.ops.watchtower_deep_prospective import (
+    DEEP_OPERATOR_ID, DESTINATION_INDEX, DESTINATION_INDEX_DDL,
+)
 
 
-SCHEMA = """
-CREATE TABLE IF NOT EXISTS wt_deep_route_review_leads (
+REVIEW_TABLE_DDL = """CREATE TABLE IF NOT EXISTS wt_deep_route_review_leads (
     mint TEXT PRIMARY KEY,
     operator_id TEXT NOT NULL,
     state TEXT NOT NULL CHECK(state='REVIEW_CANDIDATE'),
@@ -24,10 +25,34 @@ CREATE TABLE IF NOT EXISTS wt_deep_route_review_leads (
     route_digest TEXT NOT NULL,
     first_observed_at INTEGER NOT NULL,
     last_observed_at INTEGER NOT NULL
-);
-CREATE INDEX IF NOT EXISTS ix_wdrrl_operator_observed
-ON wt_deep_route_review_leads(operator_id,last_observed_at DESC);
-"""
+);"""
+REVIEW_INDEX_DDL = (
+    "CREATE INDEX IF NOT EXISTS ix_wdrrl_operator_observed "
+    "ON wt_deep_route_review_leads(operator_id,last_observed_at DESC)"
+)
+SCHEMA = REVIEW_TABLE_DDL + "\n" + REVIEW_INDEX_DDL + ";"
+
+
+def migrate_review_schema(conn: sqlite3.Connection) -> None:
+    """DDL under the caller's shared writer lane; no implicit commit.
+
+    This must never run from Walkback startup or a read path. A separately
+    parity-gated one-shot migration owns the transaction and rollback.
+    """
+    conn.execute(DESTINATION_INDEX_DDL)
+    conn.execute(REVIEW_TABLE_DDL)
+    conn.execute(REVIEW_INDEX_DDL)
+
+
+def validate_review_schema(conn: sqlite3.Connection) -> bool:
+    """Metadata-only check for the exact live read/write contract."""
+    destination = [row[2] for row in conn.execute(f"PRAGMA index_info({DESTINATION_INDEX})")]
+    lead_columns = {row[1] for row in conn.execute("PRAGMA table_info(wt_deep_route_review_leads)")}
+    lead_index = [row[2] for row in conn.execute("PRAGMA index_info(ix_wdrrl_operator_observed)")]
+    return (destination == ["transfer_destination", "transfer_lamports"] and
+            lead_index == ["operator_id", "last_observed_at"] and
+            {"mint", "operator_id", "state", "authority", "route_json", "route_digest",
+             "first_observed_at", "last_observed_at"}.issubset(lead_columns))
 
 
 def persist_review_lead(

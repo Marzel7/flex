@@ -17497,6 +17497,16 @@
     "verdict": "HOLD full production baseline and source cutover: source set is complete but unified behavioral/loaded-source parity, diagnostic discrepancy and complete persistent-path producer/consumer parity are not proven. Historical 23-name partial manifest pins armed state to recovery-root file while newer producer/consumer candidate chooses main-root API writer file; these distinct-inode authorities must be reconciled explicitly.",
     "exact_next_action": "Resolve or evidence-scope the WAL diagnostic test/version gap; complete per-service persistent-path and source-version parity, run broader service tests, then prepare a parity-gated service-by-service cutover. Do not create or switch production checkout from this audit alone."
   },
+  "dev_prod_24_name_path_authority_candidate_20260921": {
+    "status": "OFFLINE_COVERED_PATH_PASS_FULL_CUTOVER_HOLD",
+    "engineering_revision": "9bcf50261ea77c79be7d86b6765c8010814d360e on local codex/dev-prod-path-boundary; clean source candidate remains 4db74b28ae5f24c531e5d58ed91197811a032fb3; neither deployed",
+    "artifact": "docs/audits/existing_authorities_cutover_candidate_20260921.v2.json supersedes historical recovery-root armed-state choice. It pins main-root API armed_mode.txt for both API and Cascade and adds OPERATION_RESEARCH_ROOT to the prior 23 names. Twenty-three targets currently exist; DB_TOKEN_PREDICTION_SQL_DIAGNOSTICS_PATH is a reserved absent output under an existing directory.",
+    "qualification": "Fail-closed validator accepted all 24 explicit candidate path names across existing source roots with zero covered-path failures but returned HOLD_INCOMPLETE_TRANSITIVE_AND_LOADED_SOURCE_PARITY; 30/30 focused tests passed. API/Cascade armed files are distinct but had equal observed value 1; neither was toggled, copied or modified.",
+    "limits": "Candidate paths are not configured in live Supervisor per service. The research root still points at mutable development-root artifacts; this preserves current readback but is not durable artifact isolation. Transitive path and loaded-source parity remain incomplete, and mixed shared-module versions still require broad service qualification.",
+    "production_flags": "PROD_CHECKOUT_CREATED=false; SUPERVISOR_CHANGED=false; SERVICES_RESTARTED_OR_SIGNALED=0; DATABASE_OR_QUEUE_STATE_MUTATIONS=0",
+    "verdict": "PASS covered offline 24-name path contract only; HOLD production baseline/cutover.",
+    "exact_next_action": "Finish transitive per-service path mapping, freeze research artifacts independently of mutable development source or explicitly accept that dependency, reconcile shared-module behavior and diagnostic test discrepancy, then prepare parity-gated service cutovers."
+  },
   "dev_prod_api_first_cutover_continuation_20260921": {
     "status": "PARTIAL_OFFLINE_API_FIRST_CUTOVER_HOLD",
     "engineering_revision": "677c2168 on local codex/dev-prod-path-boundary; audit and read-only checkout guard only, no production baseline commit",

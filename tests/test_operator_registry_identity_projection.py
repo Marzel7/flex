@@ -15,7 +15,7 @@ def test_active_registry_projects_identity_family_and_persisted_24h_activity(tmp
             updated_at INTEGER
         );
         CREATE TABLE operation_registry_dispositions (
-            operator_id TEXT, disposition TEXT, updated_at INTEGER
+            operator_id TEXT, disposition TEXT, source_candidate_id TEXT, updated_at INTEGER
         );
         CREATE TABLE operation_qualification_contracts (
             operator_id TEXT, qualification_category TEXT,
@@ -27,6 +27,14 @@ def test_active_registry_projects_identity_family_and_persisted_24h_activity(tmp
             timestamp_semantics TEXT, metrics_json TEXT, activity_state TEXT
         );
         CREATE TABLE operator_launch_membership (operator_id TEXT, mint TEXT);
+        CREATE TABLE operation_behavioural_profiles (
+            operator_id TEXT, profile_version INTEGER,
+            member_mints_json TEXT, provenance_json TEXT
+        );
+        CREATE TABLE wt_walkback_queue (
+            mint TEXT, create_anchor_block_time INTEGER,
+            funder_block_time INTEGER, completed_at INTEGER
+        );
         """
     )
     conn.execute(
@@ -34,8 +42,8 @@ def test_active_registry_projects_identity_family_and_persisted_24h_activity(tmp
         ("ladder", "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER", "CONFIRMED", 1),
     )
     conn.execute(
-        "INSERT INTO operation_registry_dispositions VALUES (?, ?, ?)",
-        ("ladder", "ACTIVE_MANUAL", 1),
+        "INSERT INTO operation_registry_dispositions VALUES (?, ?, ?, ?)",
+        ("ladder", "ACTIVE_MANUAL", None, 1),
     )
     conn.execute(
         "INSERT INTO operation_qualification_contracts VALUES (?, ?, ?, ?, ?, ?)",
@@ -56,7 +64,8 @@ def test_active_registry_projects_identity_family_and_persisted_24h_activity(tmp
 
     assert row["human_display_name"] == "Sentinel"
     assert row["operation_family"] == "30 SOL WSOL Ladder"
-    assert row["launches_last_1d"] == 2
+    assert row["snapshot_launches_24h"] == 2
+    assert row["launches_last_1d"] is None
     assert row["launches_last_7d"] is None
     assert row["launches_last_30d"] is None
     assert row["activity_snapshot_observed_at"] == 2
@@ -91,6 +100,8 @@ def test_registry_uses_shared_columns_without_visible_stable_ids():
     assert "related · Unresolved" in template
     assert "row.operation_family||row.operator_id" not in template
     assert "Last launch" in template
-    assert "row.launches_last_7d" in template
-    assert "row.launches_last_30d" in template
+    assert "row.live_launches_7d" in template
+    assert "row.snapshot_launches_7d" in template
+    assert "row.live_launches_30d" in template
+    assert "row.snapshot_launches_30d" in template
     assert '<span class="registry-badge\'+cls+\'">' not in template

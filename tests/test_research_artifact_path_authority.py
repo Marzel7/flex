@@ -51,6 +51,9 @@ PINNED_ARTIFACTS = {
     "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_position_peak_trading_opportunity.v2.json": "5a45024e025ee0f1693eda3f3a234b5c1d188a20854f6c96765dd0c0ca731c39",
     "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_post_entry_rug_timing.v1.json": "50b21dbd3ce22a3f1a50668098a87b7ec7f90da7454357a3c3e912444c46a064",
     "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_strategy_evidence_cases.v1.json": "9e40cd933736bb80b38b45082d5200154a3691aca02c6fa87ba600824232b3d2",
+    "docs/audits/byzantine_canonical_120_creator_recurrence.v1.json": "a02bab8f677d095fe1b8a296445d76fda813cdf0dcc3476912ab69e2bf9a0fb2",
+    "docs/audits/byzc_byzantine_119_179_population_comparison.v1.json": "d91755ccb45a56c69b7cf5e920db8443ff623f08ca30311992a68ff269072c10",
+    "docs/audits/byzc_noncanonical_179_taxonomy.v1.json": "b1ac6dd7e8b5fb0cfac5e0b58dcb1d5fa0e0eee9608a9c0071c9705742840f74",
 }
 
 

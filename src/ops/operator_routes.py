@@ -14,6 +14,7 @@ GET  /api/ops/evidence-catalogue             → full evidence type catalogue
 from __future__ import annotations
 
 import csv
+import json
 import os
 import time
 import sqlite3
@@ -26,9 +27,113 @@ from src.ops.operator_model import (
 )
 from src.ops.operator_reader import OperatorReader
 from src.ops.operator_resolver import OperatorResolver
-from src.utils.db_locking import db_connect
 
 operator_bp = Blueprint("operators", __name__)
+
+
+def _monitor_live_projection() -> dict:
+    """Read-only projection; it never constructs a queue or provider client."""
+    from src.core.db import OPS_DB_PATH
+    now = int(time.time()); rows = []
+    storage_bytes = 0
+    try:
+        conn = sqlite3.connect(str(OPS_DB_PATH)); conn.row_factory = sqlite3.Row
+        rows = [dict(r) for r in conn.execute("SELECT f.*,CASE WHEN EXISTS(SELECT 1 FROM operation_monitor_observations o WHERE o.operation_id=f.operation_id AND o.mint=f.mint AND o.high_mc_usd IS NOT NULL) THEN 'CANDLE_HIGH' WHEN EXISTS(SELECT 1 FROM operation_monitor_observations o WHERE o.operation_id=f.operation_id AND o.mint=f.mint) THEN 'CLOSE_ONLY_LOWER_BOUND' ELSE 'ENTRY_ONLY' END AS peak_exactness FROM operation_monitor_facts f WHERE lower(f.operation_id) IN ('watchtower','byzantine') ORDER BY CASE WHEN f.monitor_state LIKE 'MONITORING%' THEN 0 WHEN f.monitor_state LIKE 'WAITING%' THEN 1 ELSE 2 END,f.next_observation_at ASC,f.assignment_timestamp DESC")]
+        # Compact logical accounting avoids reporting the whole shared DB file.
+        storage_bytes = int(conn.execute("SELECT COALESCE(SUM(LENGTH(operation_id)+LENGTH(mint)+LENGTH(provenance_digest)+160),0) FROM operation_monitor_facts").fetchone()[0] or 0)
+        try: storage_bytes += int(conn.execute("SELECT COALESCE(SUM(LENGTH(operation_id)+LENGTH(mint)+LENGTH(provenance_digest)+96),0) FROM operation_monitor_observations").fetchone()[0] or 0)
+        except sqlite3.Error: pass
+        conn.close()
+    except sqlite3.Error:
+        rows = []
+    # Queue-only assignments are live prospective state too.  This projection is
+    # deliberately file/DB read-only: it does not construct a client, claim work,
+    # or create placeholder fact rows.
+    from src.ops.operation_monitor_worker import production_queue
+    q = production_queue().queue
+    if q.enabled:
+        fact_keys = {(str(r['operation_id']).lower(), str(r['mint'])) for r in rows}
+        for state in ('pending', 'retry', 'processing', 'dead_letter'):
+            for path in sorted((q.root / state).glob('*.json')):
+                try:
+                    payload = json.loads(path.read_text(encoding='utf-8'))
+                    envelope = payload.get('envelope') or {}
+                    operation_id = str(envelope.get('operation_id') or '').lower()
+                    mint = str(envelope.get('mint') or '')
+                    if operation_id not in {'watchtower', 'byzantine'} or not mint or (operation_id, mint) in fact_keys:
+                        continue
+                    assignment = envelope.get('assignment') or {}
+                    rows.append({
+                        'operation_id': operation_id, 'mint': mint,
+                        'cohort_class': envelope.get('cohort', 'PROSPECTIVE_MONITOR_COHORT'),
+                        'assignment_timestamp': assignment.get('assigned_at'),
+                        'assignment_provenance': envelope.get('assignment_digest'),
+                        'entry_method': envelope.get('entry_method'), 'entry_timestamp': envelope.get('entry_timestamp'),
+                        'entry_mc_usd': envelope.get('entry_mc_usd'), 'latest_mc_usd': None, 'latest_mc_timestamp': None,
+                        'current_multiple': None, 'running_peak_mc_usd': None,
+                        'running_peak_multiple': None, 'drawdown_percent': None,
+                        'reached_2x': None, 'reached_5x': None, 'reached_10x': None,
+                        'monitor_state': envelope.get('monitor_state', 'WAITING_FOR_ENTRY_REFERENCE'),
+                        'last_observation_at': None, 'next_observation_at': envelope.get('next_observation_at'),
+                        'provider_call_count': int(envelope.get('provider_call_count') or 0), 'candles_retained': 0,
+                        'candle_resolution': envelope.get('candle_resolution'),
+                        'evidence_status': envelope.get('entry_evaluation_result', 'WAITING_FOR_ENTRY_REFERENCE'),
+                        'provenance_digest': envelope.get('assignment_digest'),
+                        'queue_state': state, 'queue_message_id': payload.get('message_id'),
+                    })
+                    fact_keys.add((operation_id, mint))
+                except (OSError, ValueError, TypeError):
+                    continue
+    for row in rows:
+        row['age_seconds'] = now - int(row['entry_timestamp'] or row['assignment_timestamp'] or now)
+        row['freshness_seconds'] = now - int(row['last_observation_at'] or now)
+        terminal = row.get('monitor_state') == 'PRICE_MONITOR_COMPLETE_COLLAPSED'
+        if terminal and row.get('final_proven_ath_mc') is not None:
+            row['final_ath_status'] = 'QUALIFIED'
+            row['ath_finalization_status'] = 'FINALIZED'
+        elif terminal and row.get('peak_exactness') == 'CLOSE_ONLY_LOWER_BOUND':
+            row['final_ath_status'] = 'PENDING_RECONSTRUCTION'
+            row['retained_peak_lower_bound_mc'] = row.get('retained_monitor_peak_mc_usd') or row.get('running_peak_mc_usd')
+            row['retained_peak_lower_bound_multiple'] = row.get('running_peak_multiple')
+            row['retained_peak_evidence'] = 'CLOSE_ONLY_LOWER_BOUND'
+            row['ath_finalization_status'] = 'PENDING_RECONSTRUCTION'
+        elif terminal:
+            row['final_ath_status'] = 'PENDING_RECONSTRUCTION'
+        elif row.get('monitor_state') == 'MONITORING_ACTIVE':
+            row['final_ath_status'] = 'RUNNING'
+        else:
+            row['final_ath_status'] = 'NOT_APPLICABLE'
+    ops = {}
+    for name in ('watchtower','byzantine'):
+        subset=[r for r in rows if str(r['operation_id']).lower()==name]
+        ops[name]={'active':sum(r['monitor_state']=='MONITORING_ACTIVE' for r in subset),'waiting':sum('WAITING' in r['monitor_state'] for r in subset),'completed':sum('COMPLETE' in r['monitor_state'] for r in subset),'failed':sum('FAIL' in r['monitor_state'] or 'INSUFFICIENT' in r['monitor_state'] for r in subset),'calls_today':sum(int(r.get('provider_call_count') or 0) for r in subset),'last_success':max((r.get('last_observation_at') or 0 for r in subset),default=None),'profile':('FIRST_FULL_POST_MIGRATION_SECOND_MC · >=85% running-peak drawdown' if name=='watchtower' else 'Scenario-D 12/13 · terminal rule unqualified')}
+    depth = q.depth()
+    pending_paths = list((q.root / 'pending').glob('*.json')) if q.enabled else []
+    oldest = min((now-int(p.stat().st_mtime) for p in pending_paths),default=None)
+    last_success=max((r.get('last_observation_at') or 0 for r in rows),default=None)
+    mode=os.getenv('OPERATIONS_MODE','OFF').upper()
+    return {'mode':mode,'now':now,'rows':rows,'operations':ops,'summary':{'active':sum(r['monitor_state']=='MONITORING_ACTIVE' for r in rows),'waiting':sum('WAITING' in r['monitor_state'] for r in rows),'backoff':sum('BACKOFF' in r['monitor_state'] for r in rows),'completed_today':sum('COMPLETE' in r['monitor_state'] and int(r.get('monitor_completed_at') or 0)>=now-86400 for r in rows),'failed':sum('FAIL' in r['monitor_state'] or 'INSUFFICIENT' in r['monitor_state'] for r in rows),'total':len(rows),'calls_today':sum(int(r.get('provider_call_count') or 0) for r in rows)},'storage':{'bytes':storage_bytes,'ceiling_bytes':10_000_000},'worker_health':{'status':'IDLE' if mode=='MONITOR' else 'STOPPED','last_heartbeat':None,'last_success':last_success,'last_error_class':None,'last_error_at':None},'queue_health':{'status':'BACKOFF' if depth.get('retry') else ('PENDING' if depth.get('pending') else 'IDLE'),'depth':sum(depth.values()),'pending':depth.get('pending',0),'claimed':depth.get('processing',0),'retry':depth.get('retry',0),'dead_letter':depth.get('dead_letter',0),'oldest_pending_age':oldest},'provider_health':{'status':'READY' if not depth.get('retry') else 'BACKOFF','last_success':last_success,'last_error_class':None,'backoff_until':None}}
+
+
+@operator_bp.route('/api/operations/live-monitor')
+def live_monitor_api():
+    return jsonify(_monitor_live_projection())
+
+
+@operator_bp.route('/api/operations/live-monitor/<operation_id>/<mint>/observations')
+def live_monitor_observations_api(operation_id: str, mint: str):
+    from src.core.db import OPS_DB_PATH
+    try:
+        conn=sqlite3.connect(str(OPS_DB_PATH)); conn.row_factory=sqlite3.Row
+        rows=[dict(r) for r in conn.execute("SELECT observation_timestamp,mc_usd,resolution FROM operation_monitor_observations WHERE operation_id=? AND mint=? ORDER BY observation_timestamp",(operation_id,mint))]; conn.close()
+    except sqlite3.Error: rows=[]
+    return jsonify({'operation_id':operation_id,'mint':mint,'observations':rows})
+
+
+@operator_bp.route('/operations/live-monitor')
+def live_monitor_page():
+    from flask import render_template
+    return render_template('operations_live_monitor.html', active_page='live_monitor')
 
 
 @operator_bp.app_template_filter("datetimeformat")
@@ -225,28 +330,42 @@ def operator_coverage_24h():
             "SELECT mint FROM wt_walkback_queue WHERE subprov=? AND status='complete' AND funder_block_time>=?",
             ("ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY", cutoff),
         )}
+        # Potential Operations: every OTHER live-matched P3R candidate family's
+        # 24h mints (CREATOR_PROVISIONING_CANDIDATE is PROMOTED_CONFIRMED --
+        # i.e. confirmed-adjacent telemetry, not a Potential Operation -- so it
+        # stays counted under confirmed coverage, not under this bucket).
+        nexus = set()
+        potential = set()
         try:
             live_activity, _ = aggregate_live_activity(str(OPS_DB_PATH))
-            nexus = {
-                row["mint"] for row in live_activity.get(CREATOR_PROVISIONING_CANDIDATE, {}).get("live_matches", [])
-                if row.get("funder_block_time", 0) >= cutoff
-            }
+            for candidate_id, candidate in live_activity.items():
+                mints = {
+                    m["mint"] for m in candidate.get("live_matches", [])
+                    if m.get("funder_block_time", 0) >= cutoff
+                }
+                if candidate_id == CREATOR_PROVISIONING_CANDIDATE:
+                    nexus |= mints
+                else:
+                    potential |= mints
         except (sqlite3.Error, OSError, ValueError, KeyError):
-            nexus = set()
+            pass
         covered = assigned | (byzantine & eligible) | (nexus & eligible)
+        potential_ops = (potential & eligible) - covered
         from src.utils.infra_mapping import get_funder_label
         funders = {row[0]: row[1] for row in conn.execute(
             "SELECT mint,funder_wallet FROM wt_walkback_queue WHERE mint IN (%s)" % ",".join("?" * len(eligible)), tuple(eligible)
         )} if eligible else {}
-        cex_infra = {mint for mint in (eligible - covered) if funders.get(mint) and get_funder_label(funders[mint])}
-        unknown = eligible - covered - cex_infra
+        cex_infra = {mint for mint in (eligible - covered - potential_ops) if funders.get(mint) and get_funder_label(funders[mint])}
+        unknown = eligible - covered - potential_ops - cex_infra
         return jsonify({"ok": True, "cutoff": cutoff, "eligible": len(eligible),
                         "assigned": len(covered), "unassigned": len(eligible-covered),
                         "membership_assigned": len(assigned),
                         "byzantine_infrastructure_covered": len((byzantine & eligible) - assigned),
                         "nexus_telemetry_covered": len((nexus & eligible) - assigned),
+                        "potential_operations": len(potential_ops),
                         "cex_infrastructure": len(cex_infra), "unknown": len(unknown),
                         "cex_infrastructure_percentage": round(100 * len(cex_infra) / len(eligible), 1) if eligible else None,
+                        "potential_operations_percentage": round(100 * len(potential_ops) / len(eligible), 1) if eligible else None,
                         "unknown_percentage": round(100 * len(unknown) / len(eligible), 1) if eligible else None,
                         "coverage_semantics": "distinct completed mints with confirmed-operation membership or current qualified confirmed-operation telemetry",
                         "percentage": round(100 * len(covered) / len(eligible), 1) if eligible else None})
@@ -302,6 +421,27 @@ def get_operator_identity(operator_id: str):
     if not lifecycle:
         return jsonify({"ok": False, "error": "Operator Identity not found"}), 404
     return jsonify({"ok": True, "operator_id": operator_id, "identity": lifecycle})
+
+
+@operator_bp.route("/api/ops/operators/<operator_id>/playbook")
+def get_operator_playbook(operator_id: str):
+    """Playbook projection plus any explicitly read-only research module."""
+    from src.core.db import OPS_DB_PATH
+    from src.ops.operator_lifecycle_projection import read_playbook_projection
+    conn = sqlite3.connect(str(OPS_DB_PATH))
+    try:
+        projection = read_playbook_projection(conn, operator_id)
+        from src.ops.operator_research_module import read_lifecycle_research_module
+        research = read_lifecycle_research_module(conn, operator_id)
+        from src.ops.operator_research_module import read_trading_opportunity_module
+        opportunity = read_trading_opportunity_module(conn, operator_id) or {"rows": []}
+    except sqlite3.Error:
+        return jsonify({"ok": False, "code": "PLAYBOOK_PROJECTION_UNAVAILABLE"}), 503
+    finally:
+        conn.close()
+    if projection is None:
+        return jsonify({"ok": False, "code": "OPERATOR_NOT_FOUND"}), 404
+    return jsonify({"ok": True, "playbook": projection, "lifecycle_research": research, "trading_opportunity": opportunity})
 
 
 @operator_bp.route("/api/ops/operators/<operator_id>/identity/expand", methods=["POST"])
@@ -500,17 +640,72 @@ def operator_page(operator_id: str):
         op["summary_model"] = build_operation_summary(op, op["p3r_parent_funder_records"])
     return render_template("operator_intelligence.html",
                            operator_id=operator_id,
-                           operator=op, error=None)
+                           operator=op, error=None,
+                           active_page="operators",
+                           playbook_operator_id=operator_id)
+
+
+@operator_bp.route("/operations/<operator_id>/playbook")
+@operator_bp.route("/intelligence/operator/<operator_id>/playbook")
+def operation_playbook_page(operator_id: str):
+    """Generic Playbook page backed only by canonical DB projections."""
+    from flask import render_template
+    from src.ops.operation_playbook_registry import artifact_playbook
+    artifact_view = artifact_playbook(operator_id)
+    if artifact_view is not None:
+        return render_template("operation_artifact_playbook.html", playbook=artifact_view,
+                               active_page="operation_playbook", playbook_operator_id=operator_id)
+    from src.core.db import OPS_DB_PATH
+    from src.ops.operator_lifecycle_projection import read_playbook_projection
+    research = None
+    opportunity = {"rows": []}
+    byzc_population = None
+    conn = sqlite3.connect(str(OPS_DB_PATH))
+    try:
+        projection = read_playbook_projection(conn, operator_id)
+        from src.ops.operator_reader import _BYZANTINE_OPERATOR_ID, _byzc_population_presentation
+        if operator_id == _BYZANTINE_OPERATOR_ID:
+            byzc_population = _byzc_population_presentation()
+        from src.ops.operator_research_module import read_lifecycle_research_module
+        research = read_lifecycle_research_module(conn, operator_id)
+        from src.ops.operator_research_module import read_trading_opportunity_module
+        opportunity = read_trading_opportunity_module(conn, operator_id) or {"rows": []}
+    except sqlite3.Error:
+        projection = None
+    finally:
+        conn.close()
+    if projection is None:
+        return render_template("operation_playbook.html", playbook=None,
+                               error="Operation not found or projection unavailable",
+                               active_page="operation_playbook"), 404
+    return render_template("operation_playbook.html", playbook=projection, lifecycle_research=research, trading_opportunity=opportunity, byzc_population=byzc_population, error=None,
+                           active_page="operation_playbook",
+                           playbook_operator_id=operator_id)
+
+
+@operator_bp.route("/operations/playbooks")
+def operation_playbooks_index_page():
+    """Generic selection page for existing versioned operation Playbooks."""
+    from flask import render_template
+    from src.core.db import OPS_DB_PATH
+    from src.ops.operator_lifecycle_projection import list_playbook_projections
+    from src.ops.operation_playbook_registry import all_playbook_views
+    conn = sqlite3.connect(str(OPS_DB_PATH))
+    try:
+        playbooks = all_playbook_views(list_playbook_projections(conn))
+    except sqlite3.Error:
+        playbooks = all_playbook_views([])
+    finally:
+        conn.close()
+    return render_template("operation_playbooks_index.html", playbooks=playbooks,
+                           active_page="operation_playbook")
 
 
 @operator_bp.route("/intelligence/operator/<operator_id>/subtypes/<subtype_id>")
 def operator_subtype_page(operator_id: str, subtype_id: str):
     """Non-owning subtype projection; never reads or writes primary membership."""
     from flask import render_template
-    db_path = Path(os.environ.get(
-        "WT_OPS_DB_PATH",
-        Path(__file__).resolve().parents[2] / "database/wt_ops_v2.db",
-    ))
+    db_path = Path(__file__).resolve().parents[2] / "database/wt_ops_v2.db"
     conn = sqlite3.connect(db_path); conn.row_factory = sqlite3.Row
     subtype = conn.execute("SELECT * FROM operator_subtypes WHERE subtype_id=? AND parent_operator_id=?", (subtype_id, operator_id)).fetchone()
     if not subtype:
@@ -607,12 +802,7 @@ def _manual_workflow_connection():
 def _canonical_membership_connection():
     from src.core.db import OPS_DB_PATH
     path=current_app.config.get("OPS_DB_PATH", str(OPS_DB_PATH))
-    conn=db_connect(path, timeout=1)
-    # Preserve the prior native one-second connection contract.
-    # db_connect's normal defaults are deliberately overridden only for this
-    # existing latency-sensitive promotion route.
-    conn.execute("PRAGMA busy_timeout=1000")
-    conn.execute("PRAGMA synchronous=FULL")
+    conn=sqlite3.connect(path, timeout=1)
     conn.row_factory=sqlite3.Row
     return conn
 
@@ -679,7 +869,17 @@ def potential_operation_detail(candidate_id: str):
     if not candidate: return "Potential operation not found",404
     if candidate.get("legacy_child"):
         return render_template("potential_operation_legacy_child_detail.html", active_page="potential_operations", candidate=candidate)
-    return render_template("potential_operation_detail.html", active_page="potential_operations", candidate=candidate)
+    validation={"validation_state":"NOT_VALIDATED","proposal_id":None,"promotion_state":"NOT_PROMOTED"}
+    try:
+        from src.ops.operation_attribution_manual_bridge import read_model
+        from src.ops.potential_operation_validation import resolve_validation_input
+        resolved=resolve_validation_input(candidate_id)
+        conn=_manual_workflow_connection()
+        try: validation=read_model(conn,candidate_id,resolved["candidate_snapshot_ref"])
+        finally: conn.close()
+    except Exception:
+        pass
+    return render_template("potential_operation_detail.html", active_page="potential_operations", candidate=candidate, validation=validation)
 
 
 # ── Emerging operators (read-only X20 projection) ───────────────────────────
@@ -897,6 +1097,15 @@ def register_operator_routes(app) -> None:
     # Seed schema on startup (non-blocking)
     try:
         _get_store()
+        # Operations-owned startup is the one normal configuration boundary.  A
+        # restart in the same mode is a no-op; UI/API reads never write this table.
+        from src.core.db import OPS_DB_PATH
+        from src.ops.operator_lifecycle_projection import persist_monitor_mode_transition
+        persist_monitor_mode_transition(
+            OPS_DB_PATH, os.getenv('OPERATIONS_MODE', 'OFF'),
+            config_source='SUPERVISOR_ENVIRONMENT',
+            provenance={'source': 'OPERATIONS_STARTUP', 'boundary_type': 'OBSERVED_STARTUP'},
+        )
         print("[OPERATORS] Operator Resolution registered.")
     except Exception as exc:
         print(f"[OPERATORS] Startup failed (non-fatal): {exc}")

@@ -17446,6 +17446,18 @@
     "verdict": "Do not move source roots or perform a full restart from a separate checkout. Candidate code is only partial offline preparation.",
     "exact_next_action": "Finish the transitive active-service path census, repair and test all remaining source-relative persistent/diagnostic paths, establish exact loaded-source and complete baseline parity, then prepare a separate parity-gated production deployment manifest."
   },
+  "dev_prod_source_separation_extended_paths_20260921": {
+    "status": "PARTIAL_OFFLINE_QUALIFIED_NOT_DEPLOYED",
+    "engineering_revision": "7ee74bb494093d708c9fc19ba68cc4b34cf6e694 on local codex/dev-prod-path-boundary; extends prior f13001b5 isolated candidate; not pushed or deployed",
+    "scope": "Offline-only path census and candidate repairs in isolated worktree. Main production checkout, Supervisor, services, databases, queues, providers and runtime state untouched.",
+    "additional_repairs": "Migration-coverage audit producer now honors same MIGRATION_COVERAGE_AUDIT_PATH as API reader. Gunicorn config and API reader share GUNICORN_ERROR_LOG_PATH; access log has GUNICORN_ACCESS_LOG_PATH. Import-time WS price, WS snapshot and launch-price loggers have explicit paths; launch-price DB honors DB_PATH. Price API premigration/listener/WS-stats paths externalized. API funding-log reader, debug log, listener loop-lag diagnostic directory, and migration settings paths externalized. Listener/API/intelligence refresh use MIGRATION_SETTINGS_PATH. Funding and creator-resolution serializer readers use DB_SERIALIZER_METRICS_PATH. db_locking creator-funding and token-prediction SQL diagnostics have explicit overrides.",
+    "tests": "13 focused stdlib path tests passed (10 shared-path plus 3 armed-path); affected Python modules py_compile passed; git diff --check passed. Existing unrelated main.py escape-sequence SyntaxWarning persists.",
+    "provenance_limit": "Current disk blobs for selected modules were copied into the isolated candidate and pre-patch hashes recorded where available, but loaded-source hashes for long-running main-root processes remain UNKNOWN. Some selected current-disk files contain unrelated pre-existing edits relative to 8dc6f947. This is not a complete transitive inventory or production baseline.",
+    "remaining_gates": "Active Supervisor has not been given the required absolute path variables. Scheduler and Monitor path overrides are still unconfigured. Other source-relative imported modules, retention/snapshot/cache paths, and source-vs-data authority choices still require census and parity tests. No production checkout exists.",
+    "production_flags": "DEPLOYED=false; PROD_SOURCE_PATH_NOT_CREATED=true; PRODUCTION_SOURCE_CHANGES=0; SUPERVISOR_CHANGES=0; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_MUTATIONS=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0; PATH_PARITY=HOLD",
+    "verdict": "Offline progress only; source-root migration and full restart remain unsafe.",
+    "exact_next_action": "Build a fail-closed active-service path manifest/validator from the remaining transitive imports; confirm every producer/consumer authority and exact loaded-source parity, then separately authorize a bounded deployment. Do not set Supervisor variables or move data yet."
+  },
   "walkback_operation_neutral_topology_runtime_parity_20260920": {
     "engineering_revision": "baseline c7881bb2 plus detector 1a99f4a7 on codex/walkback-topology-runtime-parity; local isolated commits, not source-pushed",
     "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",

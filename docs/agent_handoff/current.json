@@ -17481,6 +17481,17 @@
     "verdict": "The existing databases can remain in place for source separation if every service is pinned to their exact absolute paths. Full source cutover remains HOLD.",
     "exact_next_action": "Complete the remaining existing-path authority manifest and prove per-service producer/consumer equivalence against current and proposed checkouts, then prepare a separately authorized parity-gated cutover."
   },
+  "dev_prod_remaining_authorities_20260921": {
+    "status": "COVERED_PATH_PARITY_PASS_SOURCE_CUTOVER_HOLD",
+    "engineering_revision": "cdad8087b54b3243e38b4d640b62670e09e45ebf on local codex/dev-prod-path-boundary; offline audit only, not pushed or deployed",
+    "artifact": "docs/audits/dev_prod_remaining_authorities_20260921.v1.json and updated existing_database_authorities_partial_20260921.v1.json; both JSON validated",
+    "diagnostic_authority": "DB_TOKEN_PREDICTION_SQL_DIAGNOSTICS_PATH is pinned to the exact main-root source fallback logs/diagnostics/x78_23_token_prediction_sql.jsonl as a reserved, currently absent output. No live producer or existing data was claimed.",
+    "listener_log_authority": "Root listener.log is zero bytes and had no open writer in lsof; legacy start/restart scripts may truncate or append it. The active Supervisor stdout writer targets logs/supervisor/listener.log. Preserve both paths for behavior parity, but do not treat the root file as current listener health evidence.",
+    "qualification": "Offline validator accepted all 23 named path authorities against main, recovery and isolated roots with zero covered-path failures; deployment verdict remains HOLD_INCOMPLETE_TRANSITIVE_AND_LOADED_SOURCE_PARITY. Sixteen focused validator/shared-path tests passed.",
+    "production_flags": "SOURCE_CONFIG_SERVICE_DATABASE_QUEUE_CHANGES=0; SIGNALS_OR_RESTARTS=0; DATABASE_OPENS=0; PROVIDER_CALLS=0; SOURCE_SEPARATION_DEPLOYED=false",
+    "verdict": "The named path gap is closed as an offline authority manifest, but no clean production source checkout or safe cutover is qualified.",
+    "exact_next_action": "Inspect active per-service environment and loaded-source parity without exposing secrets; complete transitive producer/consumer path census and recovery-root armed-state lifecycle, then prepare a separately authorized cutover manifest. Keep the retention writer-lease repair independent."
+  },
   "dev_prod_existing_path_census_20260921": {
     "status": "TWENTY_TWO_PATHS_PINNED_SOURCE_CUTOVER_HOLD",
     "engineering_revision": "148f58535d8fe0d37241cda33e5db7c82661a51b on local codex/dev-prod-path-boundary; read-only census artifact, not pushed or deployed",

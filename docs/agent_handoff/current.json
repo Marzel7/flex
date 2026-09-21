@@ -17455,7 +17455,16 @@
     "remaining_gates": "Live process environments and loaded module bytes are not proved; producer/consumer cutover is untested; other persistent authorities and all-service source baseline remain incomplete.",
     "production_flags": "SUPERVISOR_CHANGED=false; SERVICES_SIGNALED_OR_RESTARTED=0; DATABASE_OR_QUEUE_MUTATIONS=0; PRODUCTION_CHECKOUT_CREATED=false",
     "verdict": "Offline candidate PASS, full production baseline and cutover HOLD.",
-    "exact_next_action": "Combine qualified API and path-override source in one clean candidate, complete the rest of the active-service source/path manifest, and test exact configured authorities per service before a parity-gated migration."
+    "exact_next_action": "Use the separately recorded clean narrow integration commit; complete the rest of the active-service source/path manifest and test exact configured authorities per service before a parity-gated migration."
+  },
+  "dev_prod_clean_source_integration_20260921": {
+    "status": "NARROW_CLEAN_INTEGRATION_PASS_FULL_PRODUCTION_BASELINE_HOLD",
+    "engineering_revision": "034a79450d4a9ab2a193d88e8a104342f5dda64e on local codex/production-source-integration, parent API candidate b0883b68874fb2a1bd39edcd4a7030f8936bb0f8; audit 3fb7af584d8ea2a7df48993eebe7cab548f28710 on local codex/dev-prod-path-boundary; none deployed",
+    "scope": "Combined only the qualified operation_armed.py operations-DB path override and ws_cascade.py armed-state path override with the clean API source candidate, plus two isolated cross-module path tests. The original fallback behavior remains when variables are absent.",
+    "tests": "28/28 integrated path and Deep historical tests passed; affected modules py_compile passed; diff check passed. Exact clean checkout guard passed at 034a7945 but explicitly returned deployment_authorized=false. Existing shared-authority 28-test suite passed separately on the path branch.",
+    "production_flags": "PROD_CHECKOUT_CREATED=false; SUPERVISOR_CHANGED=false; SERVICES_SIGNALED_OR_RESTARTED=0; DATABASE_OR_QUEUE_STATE_MUTATIONS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "Clean offline narrow integration PASS; full-app production baseline and any source cutover HOLD because Monitor entrypoint and other service/transitive/path parity are incomplete.",
+    "exact_next_action": "Finish per-running-service transitive module and persistent-authority matrix, then assemble one complete clean full-app source commit with service-specific tests and exact path parity. Do not use 034a7945 for a full-stack restart."
   },
   "dev_prod_api_first_cutover_continuation_20260921": {
     "status": "PARTIAL_OFFLINE_API_FIRST_CUTOVER_HOLD",

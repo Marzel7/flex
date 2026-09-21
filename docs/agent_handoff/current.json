@@ -17469,6 +17469,18 @@
     "verdict": "Source separation remains HOLD. Do not migrate or restart from a separate checkout.",
     "exact_next_action": "Inventory all remaining active-service transitive persistent paths and loaded modules read-only; expand the validator only when each path pair is proven; then prepare a parity-gated deployment manifest for separate authorization."
   },
+  "dev_prod_existing_database_authority_correction_20260921": {
+    "status": "EXISTING_DB_IDENTITY_PARTIAL_PASS_FULL_CUTOVER_HOLD",
+    "engineering_revision": "56ef003537ffac7a360b6c4cc6a9324ef437d33a on local codex/dev-prod-path-boundary; not pushed or deployed",
+    "artifact": "docs/audits/existing_database_authorities_partial_20260921.v1.json and docs/audits/dev_prod_existing_db_authority_correction_20260921.v1.json; both JSON validated",
+    "correction": "Removed the false blanket ban on paths under a source checkout. The validator now requires a versioned manifest pinning each authority to an exact absolute path. Source-root-contained paths are reported but allowed when pinned and unchanged. Missing, relative, unpinned, mismatched, malformed-manifest and DB-alias-split states fail closed. Deployment verdict remains HOLD.",
+    "existing_db_evidence": "The current flex_complete_database.db and wt_ops_v2.db files exist at the absolute paths configured for active services. A partial authority manifest pins DB_PATH/FLEX_DB_PATH to the same existing flex file and WT_OPS_DB_PATH/OPS_V2_DB_PATH to the same existing operations file. Read-only validator invocation with current and proposed source roots accepted these four pinned DB aliases, reported them as within the current source root, and exited 2/HOLD because other authorities are missing. Database contents were not read and files were not moved or copied.",
+    "tests": "19 focused tests passed: six validator, ten shared-path, three armed-path; py_compile, JSON validation and diff checks passed. No full live-service environment proof claimed; the shell invocation was a bounded parity check only.",
+    "remaining_gates": "Pin all other existing queues, locks, settings, logs and diagnostics; inspect exact active service-specific environments and transitive imports; loaded-source parity remains unknown. No production checkout has been created.",
+    "production_flags": "DATABASE_MOVES_OR_COPIES=0; DATABASE_OPENS=0; SUPERVISOR_CHANGES=0; SERVICE_RESTARTS_OR_SIGNALS=0; PRODUCTION_SOURCE_CHANGES=0; PROVIDER_CALLS=0; SOURCE_SEPARATION_DEPLOYED=false",
+    "verdict": "The existing databases can remain in place for source separation if every service is pinned to their exact absolute paths. Full source cutover remains HOLD.",
+    "exact_next_action": "Complete the remaining existing-path authority manifest and prove per-service producer/consumer equivalence against current and proposed checkouts, then prepare a separately authorized parity-gated cutover."
+  },
   "walkback_operation_neutral_topology_runtime_parity_20260920": {
     "engineering_revision": "baseline c7881bb2 plus detector 1a99f4a7 on codex/walkback-topology-runtime-parity; local isolated commits, not source-pushed",
     "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",

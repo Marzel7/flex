@@ -111,3 +111,10 @@ def test_tracked_deferred_read_transaction_is_visible(tmp_path, monkeypatch):
     finally:
         conn.rollback()
         conn.close()
+    events = [__import__("json").loads(line) for line in (tmp_path / "lifecycle.jsonl").read_text().splitlines()]
+    lifecycle = [event["event"] for event in events]
+    assert lifecycle.count("sqlite_tx_begin") == 1
+    assert lifecycle.count("commit_end") == 0
+    assert lifecycle.count("rollback_end") == 1
+    assert lifecycle[-1] == "close"
+    assert all("sql" not in event and "parameters" not in event for event in events)

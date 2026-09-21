@@ -30,8 +30,14 @@ keepalive = 5
 graceful_timeout = 10   # reduced — orphan workers linger if this is too long
 
 # Logging
-accesslog = os.path.join(os.path.dirname(__file__), "../logs/gunicorn_access.log")
-errorlog  = os.path.join(os.path.dirname(__file__), "../logs/gunicorn_error.log")
+accesslog = os.environ.get(
+    "GUNICORN_ACCESS_LOG_PATH",
+    os.path.join(os.path.dirname(__file__), "../logs/gunicorn_access.log"),
+)
+errorlog = os.environ.get(
+    "GUNICORN_ERROR_LOG_PATH",
+    os.path.join(os.path.dirname(__file__), "../logs/gunicorn_error.log"),
+)
 loglevel  = "warning"
 access_log_format = '%(t)s %(s)s %(m)s %(U)s %(D)sµs'
 

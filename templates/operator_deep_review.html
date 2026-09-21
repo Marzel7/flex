@@ -1,0 +1,54 @@
+{% extends "base_shell.html" %}
+{% block title %}{{ operator_name }} Route Review{% endblock %}
+{% block head_extra %}<link rel="stylesheet" href="{{ url_for('static', filename='css/intel-platform.css') }}">{% endblock %}
+{% block content %}
+<main class="ip-page">
+  <div class="ip-breadcrumb"><a href="/intelligence/operators">Operations Registry</a><span class="sep">›</span><a href="/intelligence/operator/{{ operator_id }}">{{ operator_name }}</a><span class="sep">›</span>Route review</div>
+  <h1>{{ operator_name }} route candidates</h1>
+  <p>These are funding-route leads from Walkback. They are not confirmed operation members and do not promote treasuries.</p>
+  <p id="deep-review-count">Loading review candidates…</p>
+  <div id="deep-review-list" aria-live="polite"></div>
+</main>
+<script>
+(() => {
+  const id = {{ operator_id|tojson }};
+  const count = document.getElementById('deep-review-count');
+  const list = document.getElementById('deep-review-list');
+  const text = (parent, tag, value) => {
+    const node = document.createElement(tag);
+    node.textContent = value || '—';
+    parent.appendChild(node);
+    return node;
+  };
+  const link = (parent, label, url) => {
+    const node = text(parent, 'a', label);
+    node.href = url;
+    node.target = '_blank';
+    node.rel = 'noopener noreferrer';
+  };
+  fetch('/api/ops/operators/' + encodeURIComponent(id) + '/review-queue')
+    .then(response => response.ok ? response.json() : Promise.reject(new Error('Review queue unavailable')))
+    .then(data => {
+      const rows = Array.isArray(data.candidates) ? data.candidates : [];
+      count.textContent = rows.length + ' review-only candidate' + (rows.length === 1 ? '' : 's');
+      if (!rows.length) { text(list, 'p', 'No Deep route candidates are awaiting review.'); return; }
+      for (const row of rows) {
+        const article = document.createElement('article');
+        article.className = 'ip-card';
+        article.style.marginBottom = '10px';
+        article.style.padding = '14px';
+        const heading = document.createElement('h2');
+        link(heading, row.mint, 'https://solscan.io/token/' + encodeURIComponent(row.mint || ''));
+        article.appendChild(heading);
+        text(article, 'p', 'REVIEW ONLY · not an operation assignment');
+        const route = row.route || {};
+        text(article, 'p', 'Funding route: ' + [route.pool, route.coordinator, route.distribution].filter(Boolean).join(' → '));
+        if (route.upper_signature) link(article, 'Upper funding transaction ↗', 'https://solscan.io/tx/' + encodeURIComponent(route.upper_signature));
+        text(article, 'p', 'First observed: ' + (row.first_observed_at ? new Date(row.first_observed_at * 1000).toLocaleString() : 'unknown'));
+        list.appendChild(article);
+      }
+    })
+    .catch(error => { count.textContent = 'Review queue unavailable'; text(list, 'p', error.message); });
+})();
+</script>
+{% endblock %}

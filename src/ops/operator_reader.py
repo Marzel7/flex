@@ -807,6 +807,14 @@ class OperatorReader:
 
     def fetch_operator_review_candidates(self, operator_id: str, *, limit: int = 500) -> list[dict]:
         """Return pending token evidence for one proposed operation, never membership."""
+        from src.ops.watchtower_deep_prospective import DEEP_OPERATOR_ID
+        if operator_id == DEEP_OPERATOR_ID:
+            try:
+                from src.ops.watchtower_deep_review import fetch_review_leads, validate_review_schema
+                with self._connect() as conn:
+                    return fetch_review_leads(conn, limit=limit) if validate_review_schema(conn) else []
+            except (sqlite3.Error, OSError, ValueError):
+                return []
         if operator_id != "04265d9f-6eb2-568c-a49e-9253091a4dbb":
             return []
         try:

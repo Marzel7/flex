@@ -6,6 +6,7 @@ Includes price confidence scoring and launch outcome tracking.
 """
 
 import logging
+import os
 import threading
 import time
 import sqlite3
@@ -33,17 +34,20 @@ _health_cache_lock = threading.Lock()
 _health_refresh_running = False
 
 # Database path (will be initialized when register_price_api is called)
-_db_path = 'database/flex_complete_database.db'
+_db_path = os.environ.get('DB_PATH', 'database/flex_complete_database.db')
 
 import os as _os
-_WS_STATS_PATH = _os.path.normpath(
-    _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', '..', 'logs', 'ws_stats.json')
+_WS_STATS_PATH = _os.environ.get(
+    'WS_STATS_PATH',
+    _os.path.normpath(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', '..', 'logs', 'ws_stats.json')),
 )
-_PUMPFUN_PREMIG_LOG_PATH = _os.path.normpath(
-    _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', '..', 'logs', 'premigration.log')
+_PUMPFUN_PREMIG_LOG_PATH = _os.environ.get(
+    'PREMIGRATION_LOG_PATH',
+    _os.path.normpath(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', '..', 'logs', 'premigration.log')),
 )
-_PUMPFUN_LISTENER_LOG_PATH = _os.path.normpath(
-    _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', '..', 'listener.log')
+_PUMPFUN_LISTENER_LOG_PATH = _os.environ.get(
+    'PUMPFUN_LISTENER_LOG_PATH',
+    _os.path.normpath(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', '..', 'listener.log')),
 )
 
 def _read_ws_stats() -> dict:
@@ -574,7 +578,11 @@ def _db_snapshot_cleanup(db_path: str) -> dict:
 
 
 def _db_health_signals(db_path: str, window_secs: int = 60) -> dict:
-    """Query DB for cross-process activity signals. All metrics are DB-backed."""
+    """Query compact/current-state activity signals only.
+
+    Stage 3 retires generic snapshot history, so health deliberately does not
+    use a historical market-data table as a liveness proxy.
+    """
     signals = {
         'last_snapshot_at': 0,
         'snapshots_in_window': 0,

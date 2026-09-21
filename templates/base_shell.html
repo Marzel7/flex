@@ -756,5 +756,7 @@
         {% block content %}{% endblock %}
     </div>
     {% block scripts %}{% endblock %}
+<script>document.addEventListener('DOMContentLoaded',()=>document.querySelectorAll('.token[data-search] td:nth-child(2) b').forEach(node=>{const row=node.closest('.token'),mint=(row.dataset.search||'').split(' ')[0];if(!mint||node.closest('a'))return;const a=document.createElement('a');a.href='https://gmgn.ai/sol/token/'+mint;a.target='_blank';a.rel='noopener noreferrer';a.title='Open token on GMGN';node.replaceWith(a);a.append(node)}));</script>
 </body>
 </html>
+<style>#mode.ip-badge{color:#86efac!important;border-color:rgba(74,222,128,.45)!important;background:rgba(34,197,94,.14)!important}</style>

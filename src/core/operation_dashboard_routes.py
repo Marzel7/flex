@@ -2463,7 +2463,9 @@ def _armed_enabled() -> bool:
     except Exception:
         return False
 
-_ARMED_STATE_FILE = os.path.join(_REPO_ROOT, "database", "armed_mode.txt")
+_ARMED_STATE_FILE = os.environ.get(
+    "WS_ARMED_STATE_PATH", os.path.join(_REPO_ROOT, "database", "armed_mode.txt")
+)
 
 def _set_armed(enabled: bool):
     """Write armed state to a file the cascade reads on startup, then SIGTERM the cascade.
@@ -9105,21 +9107,8 @@ _OPERATIONAL_INTELLIGENCE_CACHE_TTL_SEC = 300
 # state machine (FRESH/STALE/REFRESHING) and atomic-swap guarantee.
 
 
-def _persist_operational_intelligence_snapshot(window_seconds, value, build_duration_ms) -> None:
-    # X65.57 -- same discipline as _persist_pipeline_health_snapshot above:
-    # success-only, best-effort, never affects in-memory cache correctness.
-    # X65.57 follow-up -- same completeness_key sanity check; see that
-    # function's comment for the full rationale.
-    from src.ops.intelligence_snapshots import write_snapshot
-    write_snapshot(
-        "operational_intelligence", window_seconds, value, build_duration_ms=build_duration_ms,
-        completeness_key="total_launches",
-    )
-
-
 _OPERATIONAL_INTELLIGENCE_CACHE = _SWRCache(
     ttl_seconds=_OPERATIONAL_INTELLIGENCE_CACHE_TTL_SEC,
-    on_success=_persist_operational_intelligence_snapshot,
 )
 
 
@@ -9214,7 +9203,6 @@ def hydrate_intelligence_caches_from_snapshots() -> None:
     for window_param in WINDOW_ORDER:
         window_seconds = window_seconds_for(window_param)
         for function_name, cache in (
-            ("operational_intelligence", _OPERATIONAL_INTELLIGENCE_CACHE),
             ("pipeline_health", _INVESTIGATION_PIPELINE_CACHE),
         ):
             try:
@@ -9569,8 +9557,6 @@ def api_intelligence_snapshots_health():
         for window_param in WINDOW_ORDER:
             window_seconds = window_seconds_for(window_param)
             result[window_param] = {
-                "operational_intelligence": classify_snapshot_health(
-                    "operational_intelligence", window_seconds),
                 "pipeline_health": classify_snapshot_health(
                     "pipeline_health", window_seconds),
             }

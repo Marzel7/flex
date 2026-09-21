@@ -299,35 +299,6 @@ def score_network_membership(conn: sqlite3.Connection, address: str) -> Tuple[in
     except:
         pass
 
-    # Check funding network membership (optional - may not exist in webhook-only systems)
-    try:
-        cur.execute("""
-            SELECT COUNT(DISTINCT network_id) as network_count
-            FROM funding_network_members
-            WHERE funder_address = ?
-        """, (address,))
-
-        funding_net_count = cur.fetchone()[0] or 0
-        if funding_net_count > 0:
-            score += SCORING_WEIGHTS["network_member"]
-            reasons.append(f"funding_network({funding_net_count})")
-    except:
-        pass
-
-    # Check funding chains (optional - may not exist in webhook-only systems)
-    try:
-        cur.execute("""
-            SELECT COUNT(*) as chain_count FROM funding_chains
-            WHERE source_creator = ? OR dest_creator = ?
-        """, (address, address))
-
-        chain_count = cur.fetchone()[0] or 0
-        if chain_count > 0:
-            score += SCORING_WEIGHTS["funding_chain"]
-            reasons.append(f"funding_chain({chain_count})")
-    except:
-        pass
-
     return (score, reasons)
 
 

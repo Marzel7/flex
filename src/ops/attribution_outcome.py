@@ -100,7 +100,32 @@ class AttributionOutcome:
     completed_at: int
 
 
-def ensure_schema(conn) -> None:
+SCHEMA_PREREQUISITES = ()
+SCHEMA_VALID = "VALID"
+SCHEMA_MIGRATION_REQUIRED = "SCHEMA_MIGRATION_REQUIRED"
+INCOMPATIBLE_SCHEMA = "INCOMPATIBLE_SCHEMA"
+_FROZEN_SCHEMA_MANIFEST_DIGEST = "7916eb5157a820524426021c4a0c79828c767a896756fd362eab7723de912e25"
+_SCHEMA_TABLES = frozenset("wt_attribution_outcomes wt_unknown_infrastructure_registry".split())
+
+
+class AttributionOutcomeSchemaError(RuntimeError):
+    def __init__(self, state: str, detail: str):
+        self.state, self.detail = state, detail
+        super().__init__(f"{state}:{detail}")
+
+
+def validate_schema(conn) -> str:
+    """Read only validation of the frozen complete Attribution Outcome contract."""
+    from src.ops.schema_manifest_validator import validate_frozen_manifest
+    valid, observed = validate_frozen_manifest(
+        conn, expected_digest=_FROZEN_SCHEMA_MANIFEST_DIGEST, include_tables=_SCHEMA_TABLES
+    )
+    if not valid:
+        raise AttributionOutcomeSchemaError(SCHEMA_MIGRATION_REQUIRED, f"manifest={observed}")
+    return SCHEMA_VALID
+
+
+def migrate_schema_step(conn) -> None:
     # X77.5 fix: execute_script() is DDL-only and deliberately never commits
     # (see database_write_service.execute_script's own docstring) -- the
     # caller owns the transaction boundary. This function previously never
@@ -115,6 +140,11 @@ def ensure_schema(conn) -> None:
     # during the X77.5 soak, confirmed reproduced in isolation (lease
     # remained held after a fully successful ensure_schema() call).
     execute_script(conn, DDL)
+    return {"changed": True}
+
+
+def ensure_schema(conn) -> None:
+    migrate_schema_step(conn)
     conn.commit()
 
 

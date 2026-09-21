@@ -18,6 +18,7 @@
 <h1>{{ candidate.proposed_name or candidate.candidate_id }}</h1>
 <div class="pod-id">{{ candidate.candidate_id }} · frozen canonical run {{ candidate.canonical_run_id }}</div>
 </header>
+<section class="card"><h2>Validation</h2><p class="pod-note">{{ {'NOT_VALIDATED':'Not validated','ATTRIBUTION_PROVEN':'Validated','ADDITIONAL_EVIDENCE_REQUIRED':'Additional evidence required','ATTRIBUTION_NOT_PROVEN':'Not proven'}.get(validation.validation_state, validation.validation_state) }}</p>{% if validation.validation_state == 'ATTRIBUTION_PROVEN' and validation.proposal_id %}<button class="ip-badge green" data-promote="{{ validation.proposal_id }}">Promote</button>{% else %}<button class="ip-badge cyan" data-validate="{{ candidate.candidate_id }}">Validate</button>{% endif %}</section>
 <section class="pod-strip">
 <div class="metric">
 <b>{{ candidate.discovery_label|default('Frozen discovery') }}</b>
@@ -180,5 +181,5 @@
 </p>{% else %}<p class="empty">No registered operation relationship. This candidate remains review-only.</p>{% endif %}</div>
 </section>
 </main>
-<script>document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.getElementById(b.dataset.tab).classList.add('on')});const more=document.querySelector('#launch-more');if(more)more.onclick=()=>{const hidden=[...document.querySelectorAll('.launch-hidden')],open=hidden.some(x=>getComputedStyle(x).display==='none');hidden.forEach(x=>x.style.display=open?'grid':'none');more.textContent=open?'Collapse launches ↑':'View all {{ candidate.canonical_member_count }} launches →'};</script>
+<script>document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.getElementById(b.dataset.tab).classList.add('on')});document.querySelector('[data-validate]')?.addEventListener('click',async e=>{const r=await fetch('/potential-operations/'+encodeURIComponent(e.target.dataset.validate)+'/validate',{method:'POST'});if(r.ok)location.reload()});document.querySelector('[data-promote]')?.addEventListener('click',async e=>{if(!confirm('Promote this proposed operation?'))return;const r=await fetch('/potential-operations/proposals/'+encodeURIComponent(e.target.dataset.promote)+'/promote',{method:'POST'});if(r.ok)location.reload()});const more=document.querySelector('#launch-more');if(more)more.onclick=()=>{const hidden=[...document.querySelectorAll('.launch-hidden')],open=hidden.some(x=>getComputedStyle(x).display==='none');hidden.forEach(x=>x.style.display=open?'grid':'none');more.textContent=open?'Collapse launches ↑':'View all {{ candidate.canonical_member_count }} launches →'};</script>
 {% endblock %}

@@ -55,6 +55,7 @@
             font-size: 1rem; font-weight: 700;
         }
         .mc-banner.ok       { background: rgba(34,197,94,0.1);  border: 1px solid rgba(34,197,94,0.35);  color: #4ade80; }
+        .mc-banner.backlog  { background: rgba(59,130,246,0.09); border: 1px solid rgba(96,165,250,0.4);  color: #93c5fd; }
         .mc-banner.warning  { background: rgba(234,179,8,0.1);  border: 1px solid rgba(234,179,8,0.4);   color: #facc15; }
         .mc-banner.critical { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.45);  color: #f87171; }
         .mc-banner .sub { font-weight: 400; font-size: 0.85rem; opacity: 0.8; margin-left: auto; }
@@ -76,10 +77,12 @@
         }
         .mc-incident-card.CRITICAL { background: rgba(239,68,68,0.1);  border-color: rgba(239,68,68,0.45); }
         .mc-incident-card.WARNING  { background: rgba(234,179,8,0.08); border-color: rgba(234,179,8,0.4); }
+        .mc-incident-card.BACKLOG  { background: rgba(59,130,246,0.07); border-color: rgba(96,165,250,0.4); }
         .mc-incident-title { display: flex; align-items: center; gap: 0.6rem; font-size: 1rem; font-weight: 700; }
         .mc-incident-title .sev-badge { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.05em; padding: 2px 8px; border-radius: 3px; }
         .mc-incident-card.CRITICAL .sev-badge { background: rgba(239,68,68,0.25); color: #f87171; }
         .mc-incident-card.WARNING  .sev-badge { background: rgba(234,179,8,0.25); color: #facc15; }
+        .mc-incident-card.BACKLOG  .sev-badge { background: rgba(59,130,246,0.2); color: #93c5fd; }
         .mc-incident-title .duration { margin-left: auto; font-size: 0.78rem; font-weight: 400; color: var(--text-secondary); }
         .mc-incident-section { font-size: 0.82rem; }
         .mc-incident-section-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin-bottom: 0.25rem; }
@@ -95,6 +98,7 @@
             transition: box-shadow 0.3s ease;
         }
         .mc-capability-tile.WARNING  { border-color: rgba(234,179,8,0.4); }
+        .mc-capability-tile.BACKLOG  { border-color: rgba(96,165,250,0.4); }
         .mc-capability-tile.CRITICAL { border-color: rgba(239,68,68,0.45); }
         .mc-capability-tile.mc-highlight { box-shadow: 0 0 0 2px rgba(139,92,246,0.6); }
         .mc-capability-tile-head { display: flex; align-items: center; gap: 0.4rem; }
@@ -102,6 +106,7 @@
         .mc-capability-tile-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
         .mc-capability-tile.HEALTHY .mc-capability-tile-dot { background: #4ade80; }
         .mc-capability-tile.WARNING .mc-capability-tile-dot { background: #facc15; }
+        .mc-capability-tile.BACKLOG .mc-capability-tile-dot { background: #60a5fa; }
         .mc-capability-tile.CRITICAL .mc-capability-tile-dot { background: #f87171; }
         .mc-capability-tile.UNKNOWN .mc-capability-tile-dot { background: #94a3b8; }
 
@@ -311,6 +316,13 @@
             font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.2rem;
             text-transform: uppercase; letter-spacing: 0.05em;
         }
+        /* Compact availability overview — intentionally mirrors the large
+           coverage cards: one primary value, concise uppercase context. */
+        .availability-card { min-height: 146px; padding: 1.45rem 1.8rem; background:#121820; border:1px solid #28313b; border-radius:15px; }
+        .availability-card .availability-value { color:#dbe7f5; font:700 3.2rem/1 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:-.06em; }
+        .availability-card .availability-label { margin-top:.65rem; color:#9aaac0; font-size:.88rem; font-weight:700; letter-spacing:.08em; line-height:1.35; text-transform:uppercase; }
+        .availability-card .availability-detail { margin-top:.18rem; color:#62738b; font-size:.82rem; line-height:1.35; }
+        @media (max-width: 900px) { #acquisition-availability-cards { grid-template-columns:1fr !important; } }
         .metric-value { font-size: 1.4rem; font-weight: 700; color: var(--text-primary); }
         .metric-value.small { font-size: 1.1rem; }
         .metric-bar { width: 100%; height: 0.4rem; background: rgba(59,130,246,0.1); border-radius: 0.25rem; overflow: hidden; margin-top: 0.4rem; }
@@ -386,6 +398,8 @@
              as one-line collapsed summaries (Phase A/D), full detail one
              click away. ═══ -->
         <div id="mc-cap-strip" class="mc-cap-strip"></div>
+        <div id="acquisition-availability-cards" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:12px;"></div>
+        <div id="availability-recent-incidents" class="mc-muted" style="margin:0 0 18px;"></div>
         <div id="mc-incidents" class="mc-incidents-wrap"></div>
         <div id="mc-capability-grid" class="mc-capability-grid"></div>
 
@@ -457,7 +471,7 @@
             if (!s) return 'warning';
             const ok      = ['HEALTHY','CONNECTED','LIVE','WATCHING','ACTIVE','LIVE_IDLE','RUNNING'];
             const neutral = ['PARKED','PEAK-ONLY','PEAK ONLY','IDLE','UNKNOWN','PENDING'];
-            const warn    = ['DEGRADED','PRESSURE','RETRYING'];
+            const warn    = ['WARNING','DEGRADED','PRESSURE','RETRYING'];
             const up = s.toUpperCase();
             if (ok.some(v => up.includes(v))) return 'healthy';
             if (neutral.some(v => up.includes(v))) return 'neutral';
@@ -537,7 +551,7 @@
         // own incident if independently abnormal (mcRenderIncidents is
         // unaffected). Only the primary strip/grid navigation excludes it.
         const MC_PLATFORM_CAPABILITY_ORDER = Object.keys(MC_CAPABILITY_LABELS).filter(n => n !== 'watchtower');
-        const MC_SEV_ICON = { CRITICAL: 'fa-circle-exclamation', WARNING: 'fa-triangle-exclamation' };
+        const MC_SEV_ICON = { CRITICAL: 'fa-circle-exclamation', WARNING: 'fa-triangle-exclamation', BACKLOG: 'fa-list-check' };
         const MC_STATUS_STRIP_ICON = { HEALTHY: 'fa-check', WARNING: 'fa-triangle-exclamation', CRITICAL: 'fa-xmark', UNKNOWN: 'fa-question' };
 
         // MC1.1C Phase E — concise diagnostic labels. Presentation only:
@@ -840,7 +854,7 @@
         // decide DEFAULT EXPANSION STATE here -- the incidents themselves,
         // their severity, membership, and content are entirely the frozen
         // incident engine's output, untouched.
-        const MC_SEV_RANK = { CRITICAL: 2, WARNING: 1 };
+        const MC_SEV_RANK = { CRITICAL: 3, WARNING: 2, BACKLOG: 1 };
         // MC1.1E — Phase F requires WATCHTOWER be excluded from platform-
         // level capability NAVIGATION entirely, not just the strip/grid.
         // MC1.1C only filtered it out of mcRenderCapStrip/mcRenderCapabilityGrid
@@ -1061,6 +1075,21 @@
         function mcRenderCapStrip(fullHealth) {
             const el = document.getElementById('mc-cap-strip');
             if (!el) return;
+            // Shared authority consumed by the sidebar as well.  The detailed
+            // capability cards remain below; this compact four-item strip is
+            // deliberately the common current-health projection.
+            const shared = (fullHealth && fullHealth.shared_health_metrics) || {};
+            const sharedNames = ['platform', 'live_ingestion', 'intelligence', 'infrastructure'];
+            if (sharedNames.every(name => shared[name])) {
+                el.innerHTML = sharedNames.map(name => {
+                    const metric = shared[name];
+                    const capStatus = metric.status === 'DEGRADED' ? 'WARNING' : metric.status === 'DOWN' ? 'CRITICAL' : metric.status;
+                    const icon = MC_STATUS_STRIP_ICON[capStatus] || 'fa-question';
+                    return `<div class="mc-cap-strip-row ${capStatus}" title="${metric.source}: ${metric.detail}">
+                        <i class="fas ${icon} mc-cap-strip-icon"></i><span class="mc-cap-strip-name">${metric.label}</span></div>`;
+                }).join('');
+                return;
+            }
             const caps = (fullHealth && fullHealth.capabilities) || {};
             const names = MC_PLATFORM_CAPABILITY_ORDER.filter(n => caps[n]);
             if (!names.length) { el.innerHTML = ''; return; }
@@ -1074,6 +1103,43 @@
                         <span class="mc-cap-strip-name">${MC_CAPABILITY_LABELS[name]}</span>
                     </div>`;
             }).join('');
+        }
+
+        function renderAvailabilityCards(fullHealth) {
+            const el = document.getElementById('acquisition-availability-cards');
+            if (!el) return;
+            const a = (fullHealth && fullHealth.acquisition_availability) || {};
+            const card = (label, value) => {
+                if (!value) return `<div class="availability-card"><div class="availability-value">—</div><div class="availability-label">${label} downtime · 24h</div><div class="availability-detail">Awaiting durable observation</div></div>`;
+                const observed = Number(value.observation_seconds || 0), down=Number(value.down_seconds || 0), unknown=Number(value.unknown_seconds || 0);
+                const pct = value.full_24h_qualified ? ((100 * down / 86400).toFixed(2) + '%') : '—';
+                const mins = n => Math.round(n / 60);
+                const window = value.full_24h_qualified ? `${mins(down)} / 1,440 min · ${value.incident_count || 0} incidents` : `monitoring started ${Math.floor(observed/3600)}h ${Math.floor((observed%3600)/60)}m ago`;
+                const detail = value.full_24h_qualified ? window : `${window}<br>${mins(down)} min unavailable · ${value.incident_count || 0} incidents`;
+                return `<div class="availability-card"><div class="availability-value">${pct}</div><div class="availability-label">${label} downtime · 24h</div><div class="availability-detail">${detail}<br>Current: ${value.current_state || 'UNKNOWN'}</div></div>`;
+            };
+            const db = (fullHealth && fullHealth.db_write_degradation) || {};
+            const dbMins = Math.round(Number(db.degraded_seconds || 0) / 60);
+            const dbText = db.duration_qualified ? `${dbMins} / 1,440 min` : `duration partially qualified · ${dbMins} min`;
+            const missing = (fullHealth && fullHealth.missing_create_anchors) || {};
+            const handoff = (fullHealth && fullHealth.migration_walkback_handoff) || {};
+            const mn = (missing.new || {})['24h'] ?? '—', mr = (missing.recovered || {})['24h'] ?? '—', mu = (missing.recent_unresolved || {})['24h'] ?? '—';
+            const latest = missing.latest_new_missing_at ? new Date(Number(missing.latest_new_missing_at)*1000).toLocaleString() : 'none in window';
+            const hState = handoff.state || 'INSUFFICIENT_EVIDENCE';
+            const hLatest = handoff.most_recent_eligible || {};
+            const hSuccess = handoff.most_recent_successful_enqueue || {};
+            const hTime = hLatest.migrated_at ? new Date(Number(hLatest.migrated_at)*1000).toLocaleString() : 'none';
+            const hSuccessTime = hSuccess.enqueued_at ? new Date(Number(hSuccess.enqueued_at)*1000).toLocaleString() : 'none';
+            const hMint = hLatest.mint ? hLatest.mint.slice(0, 12) + '…' : '—';
+            el.innerHTML = card('Birth',a.birth) + card('Migration',a.migration) + `<div class="availability-card"><div class="availability-value">${db.duration_qualified ? (100*Number(db.degraded_seconds||0)/86400).toFixed(2)+'%' : '—'}</div><div class="availability-label">DB write degradation · 24h</div><div class="availability-detail">${dbText}<br>${db.incident_count || 0} lock incidents<br>Current: ${db.current_state || 'UNKNOWN'}</div></div>` + `<div class="availability-card"><div class="availability-value">${mn} new · 24h</div><div class="availability-label">Missing CREATE anchors</div><div class="availability-detail">${mr} recovered · ${mu} recent unresolved<br>Historical unresolved: ${missing.historical_unresolved ?? '—'}<br>Latest: ${latest}</div></div>` + `<div class="availability-card"><div class="availability-value">${hState}</div><div class="availability-label">Migration → Walkback</div><div class="availability-detail">${handoff.eligible_checked ?? 0} eligible · ${handoff.durable_handoffs ?? 0} durable · ${handoff.missing_handoffs ?? 0} missing<br>Latest: ${hMint} · ${hTime}<br>Last enqueue: ${hSuccessTime}</div></div>`;
+            const incidents = document.getElementById('availability-recent-incidents');
+            if (!incidents) return;
+            const fmt = t => t ? new Date(Number(t) * 1000).toLocaleString() : 'ongoing';
+            const duration = s => `${Math.round(Number(s || 0) / 60)}m`;
+            const acquisition = [['Birth', a.birth], ['Migration', a.migration]].flatMap(([name, v]) => (v && v.recent_incidents || []).map(i => `${name}: ${fmt(i.start)} → ${fmt(i.end)} · ${duration(i.duration)} · ${i.reason || 'UNKNOWN'}`));
+            const writes = (db.recent_incidents || []).map(i => `DB: ${fmt(i.start)} → ${fmt(i.end)} · ${duration(i.duration)} · blocked ${i.blocked_writer || 'UNKNOWN'} · holder/cause ${i.root_cause || 'UNKNOWN'} · ${i.recovery_state || 'UNKNOWN'}`);
+            const recent = [...acquisition, ...writes].slice(-6);
+            incidents.innerHTML = recent.length ? `<span style="font-weight:700;color:#9aaac0">Recent incidents</span><br>${recent.map(x => `<span>${x}</span>`).join('<br>')}` : '';
         }
 
         // ── top-of-page alert banner (Phase 9, re-sourced for MC1.1B) ────
@@ -1092,7 +1158,8 @@
             const sorted = mcSortByHierarchy(incidents || [], inc => inc.capability);
             const criticalIncidents = sorted.filter(i => i.severity === 'CRITICAL');
             const warningIncidents = sorted.filter(i => i.severity === 'WARNING');
-            const worst = criticalIncidents.length ? 'critical' : warningIncidents.length ? 'warning' : 'ok';
+            const backlogIncidents = sorted.filter(i => i.severity === 'BACKLOG');
+            const worst = criticalIncidents.length ? 'critical' : warningIncidents.length ? 'warning' : backlogIncidents.length ? 'backlog' : 'ok';
             el.className = `mc-banner ${worst}`;
 
             // Lead with the single most upstream incident (first in
@@ -1110,6 +1177,12 @@
                 el.innerHTML = `<i class="fas fa-triangle-exclamation"></i>
                     <span>Warning — ${lead.title}</span>
                     <span class="sub">${rest.length ? rest.join(' · ') : `First detected ${mcFormatDuration(lead.current_duration_secs)} ago`}</span>`;
+            } else if (worst === 'backlog') {
+                const lead = backlogIncidents[0];
+                const rest = sorted.filter(i => i !== lead).map(i => `${MC_CAPABILITY_LABELS[i.capability] || i.capability} ${i.severity}`);
+                el.innerHTML = `<i class="fas fa-list-check"></i>
+                    <span>Backlog — ${lead.title}</span>
+                    <span class="sub">${rest.length ? rest.join(' · ') : 'Worker running · work delayed'}</span>`;
             } else {
                 el.innerHTML = `<i class="fas fa-circle-check"></i> <span>System Healthy</span> <span class="sub">No action required</span>`;
             }
@@ -1199,7 +1272,7 @@
             const intel = ss.intelligence || {};
             const pills = [
                 _wtPill('Listener',     ing.status,  ing.pumpportal ? `PP:${ing.pumpportal} · PS:${ing.pumpswap}` : null),
-                _wtPill('Cascade',      ci.status,   ci.subs_total != null ? `${ci.subs_total} subs · hb ${_fmtAge(ci.heartbeat_age_secs)}` : null),
+                _wtPill('Cascade',      ci.status,   ci.subs_total != null ? `${ci.subs_total} subs · ${ci.note || ('hb ' + _fmtAge(ci.heartbeat_age_secs))}` : null),
                 _wtPill('Database',     db.status,   db.p99_wait_ms != null ? `p99 ${Math.round(db.p99_wait_ms)}ms` : null),
                 _wtPill('API',          api.status,  api.gunicorn_alive === false ? 'gunicorn dead' : null),
                 _wtPill('Intelligence', intel.status, intel.creator_queue_pending != null ? `CRQ ${intel.creator_queue_pending} · FW ${intel.funding_worker_status||'?'}` : null),
@@ -1254,9 +1327,14 @@
 
             const fundingPending = !fundingStats;
             const fq = fundingStats || {};
-            const fqPending = fundingPending ? null : (fq.pending || 0) + (fq.retry || 0);
-            const fqFailed = fundingPending ? null : (fq.failed || 0);
-            if (fqFailed > 0) warningMsgs.push(`${fqFailed} funding-queue failures`);
+            const fqPending = fundingPending ? null : (fq.pending || 0);
+            const fqRetry = fundingPending ? null : (fq.retry || 0);
+            const fqTotalActive = fundingPending ? null : (fq.total_active ?? (fqPending + fqRetry));
+            // `failed` remains a backward-compatible all-time API field. This panel
+            // deliberately uses the explicit rolling count for current issues.
+            const fqFailures24h = fundingPending ? null : (fq.failed_24h || 0);
+            const fqHistoricalFailures = fundingPending ? null : (fq.failed_historical_total ?? fq.failed ?? 0);
+            if (fqFailures24h > 0) warningMsgs.push(`${fqFailures24h} funding failures · 24h`);
 
             let color = 'healthy';
             if (criticalMsgs.length) color = 'critical';
@@ -1265,7 +1343,7 @@
 
             const wireOk = !ppDown && !psDown;
             mcSetGroupStatus('grp-ingestion', color,
-                `Listener ${wireOk ? '✓' : '⚠'} · ${fqPending == null ? 'Funding queue loading' : fqPending + ' queued'} · births ${_fmtAge(birthAge)}`);
+                `Listener ${wireOk ? '✓' : '⚠'} · ${fqTotalActive == null ? 'Funding queue loading' : fqTotalActive + ' queued'} · births ${_fmtAge(birthAge)}`);
 
             // ── Body: one consolidated card (Phase 4 target layout) ──
             const migBuckets = ing.migration_hourly || [];
@@ -1281,15 +1359,15 @@
                         <div class="mc-kpi-value" style="font-size:1rem;">${pillHtml(wireOk ? 'healthy' : 'warning', wireOk ? 'Running' : 'Degraded')}</div>
                     </div>
                     <div class="mc-kpi">
-                        <div class="mc-kpi-label">Queue</div>
-                        <div class="mc-kpi-value ${fqPending>0?'warn':'ok'}" style="font-size:1.1rem;">${fqPending == null ? 'Loading…' : fqPending.toLocaleString() + ' pending'}</div>
+                        <div class="mc-kpi-label">Funding Queue</div>
+                        <div class="mc-kpi-value ${fqTotalActive>0?'warn':'ok'}" style="font-size:1.1rem;">${fqPending == null ? 'Loading…' : fqPending.toLocaleString() + ' pending · ' + fqRetry.toLocaleString() + ' retry'}</div>
                     </div>
                     <div class="mc-kpi">
                         <div class="mc-kpi-label">Processing (24h)</div>
                         <div class="mc-kpi-value ok" style="font-size:1.1rem;">${fundingPending ? 'Loading…' : (fq.complete_24h||0).toLocaleString()}</div>
                     </div>
                     <div class="mc-kpi">
-                        <div class="mc-kpi-label">Oldest Signal</div>
+                        <div class="mc-kpi-label">Ingestion Activity</div>
                         <div class="mc-kpi-value ${(birthAge!=null&&birthAge>=300)?'warn':''}" style="font-size:1.1rem;">${_fmtAge(Math.max(birthAge||0, migAge||0))}</div>
                     </div>
                 </div>
@@ -1312,8 +1390,8 @@
                     <div style="display:flex;flex-wrap:wrap;gap:1.25rem;font-size:0.85rem;">
                         <span>Birth Queue <b>${ing.birth_queue_pending ?? '—'}</b> pending</span>
                         <span>Migration Queue <b>${ing.migration_queue_pending ?? '—'}</b> pending, <b>${ing.migration_queue_retry ?? 0}</b> retry</span>
-                        <span>Funding Queue <b>${fundingPending ? 'Loading…' : fqPending}</b>${fundingPending ? '' : ' pending'}${(fq.running||0) ? `, ${fq.running} running` : ''}</span>
-                        <span>Funding Failed <b style="color:${fqFailed>0?'#f87171':'#4ade80'}">${fundingPending ? '—' : fqFailed}</b></span>
+                        <span>Funding Queue ${fundingPending ? '<b>Loading…</b>' : `<b>${fqPending}</b> pending, <b>${fqRetry}</b> retry`}${(fq.running||0) ? `, ${fq.running} running` : ''}</span>
+                        <span>Funding Failures · 24h <b style="color:${fqFailures24h>0?'#f87171':'#4ade80'}">${fundingPending ? '—' : fqFailures24h}</b>${fundingPending ? '' : ` <span style="color:var(--text-secondary)">${fqHistoricalFailures.toLocaleString()} historical</span>`}</span>
                     </div>
                     <div style="margin-top:0.6rem;font-size:0.78rem;color:var(--text-secondary);">
                         Migrations/hr: ${migBars} ${migBuckets.length ? `<span style="margin-left:6px">${migBuckets[migBuckets.length-1].count} this hour</span>` : ''}
@@ -1526,7 +1604,7 @@
             // (the two specific messages the spec requires -- stale lease,
             // auto-recovered) are surfaced verbatim, never a generic
             // "database" message, per the spec's own instruction.
-            const wb = walkbackHealth || {};
+            const wb = _effectiveWalkbackHealth(walkbackHealth || {});
             const wbStatus = wb.status || 'UNKNOWN';
             if (!walkbackPending && (wbStatus === 'STOPPED' || wbStatus === 'STALLED')) {
                 criticalMsgs.push(wb.summary || `Walkback candidate generation ${wbStatus}`);
@@ -1602,6 +1680,26 @@
                 STALLED: 'critical', RECOVERING: 'warning', STOPPED: 'critical',
             }[status] || 'neutral';
         }
+        function _effectiveWalkbackHealth(wb) {
+            // A heartbeat records loop cadence, while a completed queue row is
+            // durable proof of useful work.  Do not call Walkback STALLED when
+            // the only complaint is heartbeat age and it completed work in the
+            // current minute.  Lease stalls, stopped workers, and mixed-cause
+            // stalls remain untouched and visible.
+            const reasons = Array.isArray(wb?.reasons) ? wb.reasons : [];
+            const heartbeatOnly = wb?.status === 'STALLED'
+                && reasons.length > 0
+                && reasons.every(reason => /heartbeat stale/i.test(String(reason)));
+            const recentDurableProgress = Number(wb?.walkback?.completed_per_minute || 0) > 0;
+            const activeLease = Boolean(wb?.lease?.held);
+            if (!heartbeatOnly || !recentDurableProgress || activeLease) return wb;
+            return {
+                ...wb,
+                status: 'HEALTHY',
+                reasons: [],
+                summary: 'Walkback candidate generation healthy (recent durable completion).',
+            };
+        }
         function renderWalkbackCandidatePending() {
             return `<div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.4rem;">
                 ${pillHtml('neutral', 'Loading')}
@@ -1610,12 +1708,16 @@
         }
         function renderWalkbackCandidateHealth(wb) {
             if (!wb || !wb.ok) return `<div style="font-size:0.82rem;color:var(--text-secondary);">Walkback candidate health unavailable.</div>`;
+            wb = _effectiveWalkbackHealth(wb);
             const status = wb.status || 'UNKNOWN';
             const color = _wbStatusColor(status);
             const w = wb.walkback || {}, cg = wb.candidate_generation || {}, lease = wb.lease || {}, rec = wb.recovery || {};
 
             const warningsHtml = (wb.warnings || []).length
                 ? `<div style="font-size:0.8rem;color:${color==='critical'?'#f87171':'#facc15'};margin:0.5rem 0;">${wb.warnings.map(m => `<div style="margin-bottom:0.2rem;">⚠ ${m}</div>`).join('')}</div>`
+                : '';
+            const reasonsHtml = (wb.reasons || []).length
+                ? `<div style="font-size:0.78rem;color:var(--text-secondary);margin:0.15rem 0 0.5rem;">${wb.reasons.map(reason => `• ${reason}`).join('<br>')}</div>`
                 : '';
 
             const metricsHtml = `
@@ -1656,6 +1758,7 @@
                     ${pillHtml(color, status)}
                     <span style="font-size:0.85rem;color:var(--text-secondary);">${wb.summary || ''}</span>
                 </div>
+                ${reasonsHtml}
                 ${warningsHtml}
                 ${metricsHtml}
                 ${leaseHtml}
@@ -2143,6 +2246,7 @@
                     renderCoreHealthFailure();
                     return;
                 }
+                renderAvailabilityCards(fullHealth);
             // MC1.1B — capability-first incident layer is now the SOLE
             // source of truth for the top banner, incident cards, and
             // capability strip/grid below it. Previously the banner

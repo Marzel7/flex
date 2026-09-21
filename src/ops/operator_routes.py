@@ -26,6 +26,7 @@ from src.ops.operator_model import (
 )
 from src.ops.operator_reader import OperatorReader
 from src.ops.operator_resolver import OperatorResolver
+from src.utils.db_locking import db_connect
 
 operator_bp = Blueprint("operators", __name__)
 
@@ -506,7 +507,10 @@ def operator_page(operator_id: str):
 def operator_subtype_page(operator_id: str, subtype_id: str):
     """Non-owning subtype projection; never reads or writes primary membership."""
     from flask import render_template
-    db_path = Path(__file__).resolve().parents[2] / "database/wt_ops_v2.db"
+    db_path = Path(os.environ.get(
+        "WT_OPS_DB_PATH",
+        Path(__file__).resolve().parents[2] / "database/wt_ops_v2.db",
+    ))
     conn = sqlite3.connect(db_path); conn.row_factory = sqlite3.Row
     subtype = conn.execute("SELECT * FROM operator_subtypes WHERE subtype_id=? AND parent_operator_id=?", (subtype_id, operator_id)).fetchone()
     if not subtype:
@@ -527,11 +531,15 @@ def operator_subtype_page(operator_id: str, subtype_id: str):
 @operator_bp.route("/intelligence/operator/<operator_id>/review")
 def operator_review_page(operator_id: str):
     from flask import render_template
+    from src.ops.watchtower_deep_prospective import DEEP_OPERATOR_ID
     store = _get_store()
     op = store.fetch_operator(operator_id)
     if not op:
         return render_template("operator_walkback_review.html", operator_id=operator_id,
                                operator_name="Unknown operation", error="Operator not found"), 404
+    if operator_id == DEEP_OPERATOR_ID:
+        return render_template("operator_deep_review.html", operator_id=operator_id,
+                               operator_name=op.get("display_name") or operator_id)
     return render_template("operator_walkback_review.html", operator_id=operator_id,
                            operator_name=op.get("display_name") or operator_id, error=None)
 
@@ -599,7 +607,12 @@ def _manual_workflow_connection():
 def _canonical_membership_connection():
     from src.core.db import OPS_DB_PATH
     path=current_app.config.get("OPS_DB_PATH", str(OPS_DB_PATH))
-    conn=sqlite3.connect(path, timeout=1)
+    conn=db_connect(path, timeout=1)
+    # Preserve the prior native one-second connection contract.
+    # db_connect's normal defaults are deliberately overridden only for this
+    # existing latency-sensitive promotion route.
+    conn.execute("PRAGMA busy_timeout=1000")
+    conn.execute("PRAGMA synchronous=FULL")
     conn.row_factory=sqlite3.Row
     return conn
 

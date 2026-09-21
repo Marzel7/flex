@@ -428,24 +428,7 @@ def serializer_metrics() -> dict:
 # one orderly write lane. Reads (SELECT-only conns) never acquire → read concurrency preserved.
 # Env-flagged so it can be rolled out / backed out without code changes.
 _DB_WRITE_SERIALIZE = os.environ.get("DB_WRITE_SERIALIZE", "1") == "1"
-# Transaction-control statements that acquire SQLite writer state must enter
-# the application write lane before SQLite sees them.  In particular,
-# ``BEGIN IMMEDIATE`` takes SQLite's RESERVED writer lock even though it does
-# not mutate a table itself.  Omitting BEGIN allowed a connection to hold the
-# SQLite writer while it subsequently waited for the application flock,
-# inverting the lock order used by every normal managed writer.
-_WRITE_SQL_PREFIXES = (
-    "BEGIN IMMEDIATE",
-    "BEGIN EXCLUSIVE",
-    "INSERT",
-    "UPDATE",
-    "DELETE",
-    "REPLACE",
-    "CREATE",
-    "ALTER",
-    "DROP",
-    "UPSERT",
-)
+_WRITE_SQL_PREFIXES = ("INSERT", "UPDATE", "DELETE", "REPLACE", "CREATE", "ALTER", "DROP", "UPSERT")
 
 _CF_SQL_DIAGNOSTICS_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
@@ -957,27 +940,19 @@ class TrackedConnection(sqlite3.Connection):
                 record_lock_error(getattr(self, "_db_caller", None))
             raise
         finally:
-            if not tx_before and bool(self.in_transaction):
+            if is_write and not tx_before and bool(self.in_transaction):
                 now = time.time()
                 self._sqlite_tx_begin_at = now
-                if is_write:
-                    self._sqlite_first_write_at = now
-                    self._sqlite_last_write_at = now
+                self._sqlite_first_write_at = now
+                self._sqlite_last_write_at = now
                 if _sqlite_lifecycle_enabled(self):
                     _append_sqlite_lifecycle({
                         "event": "sqlite_tx_begin", "timestamp": now,
                         "connection_id": getattr(self, "_db_connection_id", None),
                         "pid": os.getpid(), "thread": threading.current_thread().name,
-                        "begin_mode": "WRITE_IMPLICIT" if is_write else "READ_OR_DEFERRED",
-                        "flock_owned": bool(getattr(self, "_holds_write_lock", False)),
+                        "begin_mode": "IMPLICIT", "flock_owned": bool(getattr(self, "_holds_write_lock", False)),
                         "flock_transaction_id": getattr(self, "_write_transaction_id", None),
                     })
-                _append_connection_lifecycle({
-                    "event": "sqlite_tx_begin", "timestamp": now,
-                    "connection_id": getattr(self, "_db_connection_id", None),
-                    "pid": os.getpid(), "thread": threading.current_thread().name,
-                    "begin_mode": "WRITE_IMPLICIT" if is_write else "READ_OR_DEFERRED",
-                })
             elif is_write and bool(self.in_transaction):
                 self._sqlite_last_write_at = time.time()
             lease = getattr(self, "_cross_process_lease", None)
@@ -1046,11 +1021,6 @@ class TrackedConnection(sqlite3.Connection):
                 _append_sqlite_lifecycle({"event": "commit_end", "timestamp": time.time(),
                     "connection_id": getattr(self, "_db_connection_id", None), "pid": os.getpid(),
                     "thread": threading.current_thread().name, "sqlite_tx_active": bool(self.in_transaction)})
-            _append_connection_lifecycle({
-                "event": "commit_end", "timestamp": time.time(),
-                "connection_id": getattr(self, "_db_connection_id", None),
-                "pid": os.getpid(), "thread": threading.current_thread().name,
-            })
             self._write_rolled_back = not committed
             dur_ms = (time.monotonic() - t0) * 1000.0
             caller = getattr(self, "_db_caller", None)
@@ -1072,11 +1042,6 @@ class TrackedConnection(sqlite3.Connection):
                 _append_sqlite_lifecycle({"event": "rollback_end", "timestamp": time.time(),
                     "connection_id": getattr(self, "_db_connection_id", None), "pid": os.getpid(),
                     "thread": threading.current_thread().name, "sqlite_tx_active": bool(self.in_transaction)})
-            _append_connection_lifecycle({
-                "event": "rollback_end", "timestamp": time.time(),
-                "connection_id": getattr(self, "_db_connection_id", None),
-                "pid": os.getpid(), "thread": threading.current_thread().name,
-            })
             self._release_write_lane()
 
     def close(self):

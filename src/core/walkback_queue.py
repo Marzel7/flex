@@ -19,20 +19,20 @@ from __future__ import annotations
 import os
 import sqlite3
 import time
+import hashlib
+import json
+from dataclasses import dataclass
 from typing import Optional
 
-# A supervised isolated-code runtime can intentionally import this module from
-# a checkout that has no authoritative database directory.  DB_PATH already
-# names the listener's main authority; derive the companion defaults from it
-# unless a caller supplies the explicit authority override.
-_DEFAULT_LIVE_DB_PATH = os.environ.get(
-    "DB_PATH",
+OPS_DB_PATH = os.environ.get(
+    "WT_OPS_DB_PATH",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "database", "wt_ops_v2.db"),
+)
+
+LIVE_DB_PATH = os.environ.get(
+    "FLEX_DB_PATH",
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "database", "flex_complete_database.db"),
 )
-OPS_DB_PATH = os.environ.get(
-    "WT_OPS_DB_PATH", os.path.join(os.path.dirname(_DEFAULT_LIVE_DB_PATH), "wt_ops_v2.db")
-)
-LIVE_DB_PATH = os.environ.get("FLEX_DB_PATH", _DEFAULT_LIVE_DB_PATH)
 
 WALKBACK_CLASSES = (
     "LINK_ONLY",             # full lineage known — zero RPC
@@ -45,6 +45,97 @@ WALKBACK_CLASSES = (
     "SELF_ROOTED_OPERATION",   # treasury_root == subprov — no upstream treasury
 )
 STATUSES = ("pending", "running", "complete", "skipped", "failed")
+
+# Frozen from an empty SQLite database after this module's legacy
+# ensure_schema() (including its direct outcome/deep/candidate composition).
+# This is deliberately a structural digest, not sqlite user_version: ordinary
+# worker startup must be a read-only compatibility check, never a migration.
+WALKBACK_STARTUP_SCHEMA_TABLES = frozenset({
+    "wt_attribution_outcomes", "wt_unknown_infrastructure_registry",
+    "wt_walkback_queue", "wt_watchtower_candidates",
+    "wt_walkback_edge_candidates", "wt_walkback_atomic_flows",
+    "wt_wallet_lifecycle_evidence", "wt_infrastructure_candidates",
+    "wt_infrastructure_candidate_descendants",
+    "wt_infrastructure_candidate_evidence",
+    "wt_infrastructure_candidate_reviews", "wt_walkback_transaction_roles",
+})
+WALKBACK_STARTUP_SCHEMA_INDEXES = frozenset({
+    "ix_wao_completed_at", "ix_wao_terminal", "ix_wao_type_time",
+    "ix_wuir_eligible", "ix_wbq_class", "ix_wbq_funder", "ix_wbq_outcome",
+    "ix_wbq_priority", "ix_wbq_status", "ix_wt_candidates_status_created",
+    "ix_wwaf_signature", "ix_wwec_mint_hop", "ix_wwec_parent", "ix_wwtr_mint",
+})
+_POST_BOOTSTRAP_QUEUE_COLUMNS = frozenset({
+    "anchor_lookup_attempts", "last_anchor_lookup_at", "anchor_recovered_at",
+    "anchor_recovery_source", "anchor_lookup_state", "infrastructure_retry_count",
+    "last_infrastructure_error",
+})
+LEGACY_SCHEMA_MANIFEST_DIGEST = "cc38e5ffbc638db17b2908b6d346fc0bcefd35c0e399e7fe9a3b2da449ac9cad"
+
+
+@dataclass(frozen=True)
+class SchemaValidationResult:
+    valid: bool
+    code: str
+    mismatch: dict[str, object] | None = None
+
+
+def _startup_schema_manifest(conn: sqlite3.Connection) -> dict[str, object]:
+    """Read only SQLite metadata for the frozen direct Walkback bootstrap."""
+    tables = {}
+    indexes = {}
+    found_tables = {
+        row[0] for row in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'"
+        )
+    }
+    found_indexes = {
+        row[0]: row[1] for row in conn.execute(
+            "SELECT name, tbl_name FROM sqlite_master WHERE type='index'"
+        )
+    }
+    for table in sorted(WALKBACK_STARTUP_SCHEMA_TABLES & found_tables):
+        tables[table] = sorted([list(row[1:6]) for row in conn.execute(
+            f"PRAGMA table_xinfo({json.dumps(table)})"
+        ) if row[1] not in _POST_BOOTSTRAP_QUEUE_COLUMNS], key=lambda row: row[0])
+    for index in sorted(WALKBACK_STARTUP_SCHEMA_INDEXES & found_indexes.keys()):
+        table = found_indexes[index]
+        index_list = list(conn.execute(f"PRAGMA index_list({json.dumps(table)})"))
+        index_row = next((row for row in index_list if row[1] == index), None)
+        indexes[index] = {
+            "table": table,
+            "unique": index_row[2] if index_row else None,
+            "columns": [[row[0], row[2], row[3], row[4], row[5]] for row in conn.execute(
+                f"PRAGMA index_xinfo({json.dumps(index)})"
+            ) if row[5]],
+        }
+    return {"tables": tables, "indexes": indexes}
+
+
+def validate_schema(conn: sqlite3.Connection) -> SchemaValidationResult:
+    """Validate the direct Walkback startup schema without a transaction or DDL.
+
+    The supplied connection remains caller-owned.  This function issues only
+    sqlite_master and PRAGMA metadata reads; it never repairs a stale schema.
+    """
+    manifest = _startup_schema_manifest(conn)
+    missing_tables = sorted(WALKBACK_STARTUP_SCHEMA_TABLES - set(manifest["tables"]))
+    missing_indexes = sorted(WALKBACK_STARTUP_SCHEMA_INDEXES - set(manifest["indexes"]))
+    payload = json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
+    actual_digest = hashlib.sha256(payload).hexdigest()
+    if missing_tables or missing_indexes or actual_digest != LEGACY_SCHEMA_MANIFEST_DIGEST:
+        return SchemaValidationResult(
+            False,
+            "SCHEMA_MIGRATION_REQUIRED",
+            {
+                "missing_tables": missing_tables,
+                "missing_indexes": missing_indexes,
+                "expected_manifest_digest": LEGACY_SCHEMA_MANIFEST_DIGEST,
+                "actual_manifest_digest": actual_digest,
+                "structural_mismatch": actual_digest != LEGACY_SCHEMA_MANIFEST_DIGEST,
+            },
+        )
+    return SchemaValidationResult(True, "VALID")
 
 
 def _connect(path: str, readonly: bool = False) -> sqlite3.Connection:
@@ -77,24 +168,8 @@ _ZERO_RPC_OUTCOMES: dict[str, str] = {
     # PARTIAL_* and FULL_WALKBACK: outcome written by RPC worker after investigation
 }
 
-_REQUIRED_QUEUE_COLUMNS = frozenset({"mint", "status", "walkback_class", "enqueued_at", "attempts", "intelligence_outcome", "funder_wallet", "funder_block_time"})
-_REQUIRED_QUEUE_INDEXES = frozenset({"ix_wbq_status", "ix_wbq_class", "ix_wbq_outcome", "ix_wbq_funder"})
 
-
-def validate_schema(conn: sqlite3.Connection) -> None:
-    """Read-only worker-consumer validation; provisioning remains ensure_schema."""
-    table = conn.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='wt_walkback_queue'").fetchone()
-    if table is None:
-        raise RuntimeError("WALKBACK_SCHEMA_NOT_PROVISIONED:wt_walkback_queue")
-    columns = {row[1] for row in conn.execute("PRAGMA table_info(wt_walkback_queue)")}
-    missing = sorted(_REQUIRED_QUEUE_COLUMNS - columns)
-    indexes = {row[1] for row in conn.execute("PRAGMA index_list(wt_walkback_queue)")}
-    missing_indexes = sorted(_REQUIRED_QUEUE_INDEXES - indexes)
-    if missing or missing_indexes:
-        raise RuntimeError(f"WALKBACK_SCHEMA_NOT_PROVISIONED:columns={missing};indexes={missing_indexes}")
-
-
-def migrate_schema_step(conn: sqlite3.Connection) -> dict:
+def ensure_schema(conn: sqlite3.Connection) -> None:
     # Step 1: migrate existing tables before CREATE TABLE so new columns exist for the index.
     # X77.3 fix: check PRAGMA table_info first rather than attempting the ALTER TABLE and
     # swallowing a "duplicate column" failure -- on every restart after the table already has
@@ -132,6 +207,7 @@ def migrate_schema_step(conn: sqlite3.Connection) -> dict:
                 conn.execute(f"ALTER TABLE wt_walkback_queue ADD COLUMN {col} {typedef}")
             except Exception:
                 continue
+            conn.commit()
     # else: table doesn't exist yet -- Step 2's CREATE TABLE IF NOT EXISTS below
     # creates it with every column already present, so there is nothing to migrate.
 
@@ -147,13 +223,14 @@ def migrate_schema_step(conn: sqlite3.Connection) -> dict:
                 conn.execute(f"ALTER TABLE wt_discovered_subprovs ADD COLUMN {col} {typedef}")
             except Exception:
                 continue
+            conn.commit()
     # else: wt_discovered_subprovs is owned by ws_cascade_store.ensure_cascade_schema,
     # not this module -- if it hasn't been created yet, there's nothing to migrate here
     # (and attempting an ALTER TABLE against a nonexistent table would itself leak the
     # write lease exactly like the bug this fix addresses, so this must stay guarded).
 
     # Step 2: CREATE TABLE (no-op if already exists) + indexes
-    ddl = """
+    conn.executescript("""
         CREATE TABLE IF NOT EXISTS wt_walkback_queue (
             mint                TEXT NOT NULL,
             creator             TEXT,
@@ -190,23 +267,13 @@ def migrate_schema_step(conn: sqlite3.Connection) -> dict:
 
         CREATE INDEX IF NOT EXISTS ix_wbq_funder
             ON wt_walkback_queue(funder_wallet);
-    """
-    for statement in (part.strip() for part in ddl.split(";")):
-        if statement:
-            conn.execute(statement)
-    from src.ops.attribution_outcome import migrate_schema_step as outcome_step
-    outcome_step(conn)
-    from src.core.deep_walkback import migrate_schema_step as deep_step
-    deep_step(conn)
-    from src.ops.watchtower_candidates import migrate_schema_step as candidate_step
-    candidate_step(conn)
-    from src.ops.operation_evidence_priority import migrate_schema_step as priority_step
-    priority_step(conn)
-    return {"changed": True}
-
-
-def ensure_schema(conn: sqlite3.Connection) -> None:
-    migrate_schema_step(conn)
+    """)
+    from src.ops.attribution_outcome import ensure_schema as ensure_outcome_schema
+    ensure_outcome_schema(conn)
+    from src.core.deep_walkback import ensure_schema as ensure_deep_walkback_schema
+    ensure_deep_walkback_schema(conn)
+    from src.ops.watchtower_candidates import ensure_schema as ensure_candidate_schema
+    ensure_candidate_schema(conn)
     conn.commit()
 
 
@@ -429,10 +496,6 @@ def enqueue_migration(conn: sqlite3.Connection, *,
 
     if _owned_live_conn is not None:
         _owned_live_conn.close()
-        # Candidate evaluation below may accept a live connection.  This one
-        # was helper-owned solely for anchor lookup and is now closed; never
-        # pass a closed caller-looking handle onward.
-        live_conn = None
 
     from src.core.deep_walkback import valid_signature
     anchor_valid = valid_signature(create_signature)

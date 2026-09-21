@@ -475,27 +475,6 @@ class OperatorIdentityGovernanceService:
             execute_script(conn, DDL)
             return operation(conn)
         result = self._write_service.submit(self._database, command, transaction)
-        # The database write service has committed before submit() returns.
-        # This is the generic governance post-commit seam: lifecycle bootstrap
-        # is a best-effort downstream consumer and never participates in the
-        # identity/membership transaction or its success semantics.
-        try:
-            from src.ops.operator_lifecycle_projection import bootstrap_after_actual_commit
-            affected = set()
-            if isinstance(result, dict):
-                for key in ("operator_id", "destination_operator_id"):
-                    if result.get(key):
-                        affected.add(str(result[key]))
-                affected.update(str(value) for value in result.get("child_operator_ids", ()) if value)
-            for operator_id in affected:
-                bootstrap_after_actual_commit(self.ops_db_path, operator_id)
-                # A second post-commit consumer creates only a durable
-                # orchestration record. It does not acquire data or hold the
-                # promotion transaction open.
-                from src.ops.operation_token_data_workflow import post_commit_ensure
-                post_commit_ensure(self.ops_db_path, operator_id)
-        except Exception:
-            pass
         try:
             from src.ops.operation_attribution import clear_operation_attribution_cache
             clear_operation_attribution_cache(self.ops_db_path)

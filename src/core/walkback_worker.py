@@ -28,7 +28,6 @@ import contextvars
 from typing import Any, Callable, Optional
 from src.utils.db_locking import db_connect
 from src.core import deep_walkback
-from src.core.database_write_service import CrossProcessDatabaseWriteTimeout
 
 _REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "../.."))
 
@@ -63,7 +62,6 @@ RPC_URL = os.environ.get(
 # Tuning knobs
 BATCH_SIZE      = int(os.environ.get("WALKBACK_BATCH_SIZE",      "8"))
 INTERVAL_SEC    = int(os.environ.get("WALKBACK_INTERVAL_SEC",    "45"))
-HEALTH_SAMPLER_INTERVAL_SEC = int(os.environ.get("WALKBACK_HEALTH_SAMPLER_INTERVAL_SEC", "300"))
 MAX_ATTEMPTS    = int(os.environ.get("WALKBACK_MAX_ATTEMPTS",    "3"))
 RPC_BUDGET_BATCH= int(os.environ.get("WALKBACK_RPC_BUDGET_BATCH","80"))  # credits per batch
 SIG_LIMIT       = int(os.environ.get("WALKBACK_SIG_LIMIT",       "20"))  # getSignatures limit
@@ -90,61 +88,15 @@ MAX_LEASE_STUCK_SECONDS = int(os.environ.get("WALKBACK_MAX_LEASE_STUCK_SECONDS",
 
 
 # ── RPC helpers (blocking, for use in worker thread — never on asyncio loop) ──
-_OBSERVATION_CONTEXT = contextvars.ContextVar("walkback_observation_context", default=None)
-_HEALTH_SAMPLER = None
-
-
-def _health_sampler():
-    """Create the observational sampler once; never expose it to live work."""
-    global _HEALTH_SAMPLER
-    if _HEALTH_SAMPLER is None:
-        from src.ops.walkback_health import WalkbackHealthSampler
-
-        def _read_only_ops():
-            return db_connect(
-                OPS_DB_PATH,
-                timeout=30,
-                read_only=True,
-                _caller="walkback_health_sampler",
-            )
-
-        _HEALTH_SAMPLER = WalkbackHealthSampler(
-            _read_only_ops, interval_seconds=HEALTH_SAMPLER_INTERVAL_SEC,
-        )
-    return _HEALTH_SAMPLER
 
 def _rpc(method: str, params: list) -> Optional[object]:
-    context = _OBSERVATION_CONTEXT.get()
-    ledger_id = None
-    if context:
-        from src.ops.observation_provider_credit_ledger import reserve, consume, dispatching
-        connection = db_connect(OPS_DB_PATH, timeout=30)
-        try:
-            state, ledger_id = reserve(connection, context["observation_id"], context["priority_request_id"], context["mint"], context["mint"], method, context.setdefault("attempts", {}).get(method, 0))
-            context["attempts"][method] = context["attempts"].get(method, 0) + 1
-            if state == "DENIED": return None
-            dispatching(connection, ledger_id)
-        finally: connection.close()
-        connection = db_connect(OPS_DB_PATH, timeout=30)
-        try:
-            from src.ops.observation_dispatch_cap import claim
-            if claim(connection, context["observation_id"], context["mint"]) is None:
-                return None
-        finally: connection.close()
     try:
         body = json.dumps({"jsonrpc": "2.0", "id": 1, "method": method,
                            "params": params}).encode()
         req = urllib.request.Request(
             RPC_URL, data=body,
             headers={"Content-Type": "application/json", "User-Agent": "walkback-worker/1.0"})
-        result = json.loads(urllib.request.urlopen(req, timeout=RPC_TIMEOUT).read()).get("result")
-        if ledger_id:
-            connection = db_connect(OPS_DB_PATH, timeout=30)
-            try:
-                consume(connection, ledger_id)
-            finally:
-                connection.close()
-        return result
+        return json.loads(urllib.request.urlopen(req, timeout=RPC_TIMEOUT).read()).get("result")
     except Exception as e:
         print(f"[WALKBACK] rpc {method} failed: {e}", flush=True)
         return None
@@ -658,34 +610,10 @@ def _mark_running(ops: sqlite3.Connection, mint: str) -> bool:
     lease_seconds = int(os.environ.get("WALKBACK_LEASE_SECONDS", "300"))
     claimed = deep_walkback.claim_with_lease(ops, mint, worker_id, lease_seconds)
     if claimed:
-        try:
-            from src.ops.operation_evidence_priority import stamp_timing
-            stamp_timing(ops, mint=mint, field="t2_lease_start_at")
-        except Exception:
-            pass
         from src.ops.watchtower_candidates import sync_walkback_result
         sync_walkback_result(ops, mint)
         ops.commit()
     return claimed
-
-
-def _record_infrastructure_retry(ops: sqlite3.Connection, mint: str, error: Exception) -> None:
-    """Keep writer-lane failures outside semantic evidence attempts/outcomes."""
-    now = int(time.time())
-    try:
-        ops.rollback()
-        ops.execute(
-            "UPDATE wt_walkback_queue SET status='pending', path_state='INFRASTRUCTURE_RETRY', "
-            "infrastructure_retry_count=COALESCE(infrastructure_retry_count,0)+1, "
-            "last_infrastructure_error=?, next_retry_at=?, updated_at=? WHERE mint=?",
-            (str(error)[:500], now + 5, now, mint),
-        )
-        ops.commit()
-    except Exception:
-        # The lane may still be busy; the existing durable row is deliberately
-        # untouched, and no semantic attempt/outcome is fabricated.
-        try: ops.rollback()
-        except Exception: pass
 
 
 def _ensure_subprov_lead(ops: sqlite3.Connection, subprov: str, creator: Optional[str],
@@ -806,11 +734,6 @@ def _promote_if_canonical_watchtower(ops: sqlite3.Connection, mint: str,
     try:
         from src.ops.wsol_10_sol_four_step_operation import project_completed_walkback
         operation_action = project_completed_walkback(ops, mint, core_db_path=LIVE_DB_PATH)
-        try:
-            from src.ops.operation_evidence_priority import stamp_timing
-            stamp_timing(ops, mint=mint, field="t5_classifier_evaluated_at")
-        except Exception:
-            pass
         if operation_action == "admitted":
             print(f"[WALKBACK] Byzantine membership → {mint[:14]}… admitted", flush=True)
     except Exception as exc:  # noqa: BLE001 -- must never break terminal walkback state
@@ -870,6 +793,10 @@ def _promote_if_canonical_watchtower(ops: sqlite3.Connection, mint: str,
             )
 
     if not _should_attempt_promotion:
+        # Comparison telemetry may have written on this shared connection.
+        # Fingerprint monitoring performs potentially broad analytical reads;
+        # release the writer lane before entering that optional projection.
+        ops.commit()
         _observe_fingerprint_drift(ops, mint)
         return
 
@@ -896,27 +823,14 @@ def _promote_if_canonical_watchtower(ops: sqlite3.Connection, mint: str,
             if membership["action"] == "projected":
                 print(f"[WALKBACK] WATCHTOWER membership projection → {mint[:14]}…", flush=True)
     except Exception as exc:  # noqa: BLE001 -- must never break the caller's terminal transition
+        if ops.in_transaction:
+            ops.rollback()
         print(f"[WALKBACK] registry promotion call failed mint={mint}: {exc}", flush=True)
+    # Membership projection and comparison telemetry are post-commit writes.
+    # They must be durable and release the writer lane before fingerprint
+    # monitoring begins its aggregate SELECT work.
+    ops.commit()
     _observe_fingerprint_drift(ops, mint)
-    # Projectors above intentionally share the existing ``ops`` transaction.
-    # Commit their membership changes before any post-commit consumer runs.
-    try:
-        ops.commit()
-    except Exception as exc:
-        ops.rollback()
-        print(f"[WALKBACK] membership projection commit failed mint={mint}: {exc}", flush=True)
-        return
-    # No provider work here.  The durable membership is now the sole input to
-    # the monitor queue; queue is feature-gated OFF until activation.
-    try:
-        row=ops.execute("SELECT m.operator_id,m.assigned_at,m.event_id,o.display_name FROM operator_launch_membership m JOIN operators o ON o.operator_id=m.operator_id WHERE m.mint=?",(mint,)).fetchone()
-        if row and str(row['display_name']).upper() in {'WATCHTOWER','BYZANTINE'}:
-            from src.ops.operation_monitor_worker import production_queue
-            q=production_queue()
-            if q.enabled:
-                q.enqueue_after_assignment(mint=mint,operation_id=row['operator_id'],assignment={'event_id':row['event_id'],'assigned_at':row['assigned_at']},canonical_birth={'mint':mint})
-    except Exception as exc:
-        print(f"[WALKBACK] post-commit monitor enqueue failed mint={mint}: {exc}",flush=True)
 
 
 def _observe_fingerprint_drift(ops: sqlite3.Connection, mint: str) -> None:
@@ -969,37 +883,6 @@ def _notify_living_after_walkback_commit(ops: sqlite3.Connection, mint: str, tes
                 "sqlite_errorcode": getattr(exc, "sqlite_errorcode", None),
                 "sqlite_errorname": getattr(exc, "sqlite_errorname", None),
                 "error_stage": "PUBLISHER" if test_failure_injector is not None else "LIVING_HANDLER", "error": str(exc)[:500]}
-
-
-_DEEP_REVIEW_CURSOR: tuple[int, str] | None = None
-
-
-def _review_deep_routes_after_commit(ops: sqlite3.Connection) -> None:
-    """One best-effort review-only page, after all ordinary Walkback writes."""
-    global _DEEP_REVIEW_CURSOR
-    if getattr(ops, "in_transaction", False):
-        return
-    try:
-        from src.ops.watchtower_deep_review import persist_review_lead, run_review_sweep_page
-
-        def _publish(mint: str, assessment: dict) -> None:
-            result = persist_review_lead(ops, mint, assessment)
-            if result["action"] == "review_lead_recorded":
-                ops.commit()
-
-        result = run_review_sweep_page(
-            OPS_DB_PATH, _publish, cursor=_DEEP_REVIEW_CURSOR, limit=8,
-        )
-        _DEEP_REVIEW_CURSOR = result["cursor"]
-        if result["published"]:
-            print(f"[WALKBACK_DEEP_REVIEW] published={result['published']} "
-                  f"checked={result['checked']} authority=REVIEW_ONLY", flush=True)
-    except Exception as exc:  # review must never interrupt Walkback completion
-        try:
-            ops.rollback()
-        except Exception:
-            pass
-        print(f"[WALKBACK_DEEP_REVIEW] deferred error={type(exc).__name__}", flush=True)
 
 
 def _mark_complete(ops: sqlite3.Connection, mint: str, outcome: str,
@@ -1064,11 +947,8 @@ def _mark_complete(ops: sqlite3.Connection, mint: str, outcome: str,
     from src.ops.watchtower_candidates import sync_walkback_result
     sync_walkback_result(ops, mint)
     ops.commit()
-    try:
-        from src.ops.operation_evidence_priority import stamp_timing
-        stamp_timing(ops, mint=mint, field="t4_evidence_materialized_at")
-    except Exception:
-        pass
+    if outcome == "LINEAGE_GAP":
+        _detect_topology_treasury_candidate_after_commit(ops, mint)
     _notify_living_after_walkback_commit(ops, mint)
     # Generic retained-role operation projectors run only after the durable
     # Walkback commit; they must never affect completion of the walkback.
@@ -1224,6 +1104,54 @@ def _surface_treasury_review_lead(ops: sqlite3.Connection,
 
 
 # ── creator recovery (DB-only, zero RPC) ─────────────────────────────────────
+
+def _detect_topology_treasury_candidate_after_commit(
+    ops: sqlite3.Connection, mint: str,
+) -> dict:
+    """Surface an operation-neutral treasury candidate after durable commit.
+
+    Topology proves a repeated treasury role, never WATCHTOWER identity. This
+    hook may update only a PENDING_REVIEW treasury-review row; confirmation,
+    operation attribution, registry membership, and historical replay remain
+    separate human-authorized paths.
+    """
+    try:
+        row = ops.execute(
+            "SELECT treasury FROM wt_provisioning_sessions WHERE source_mint=? LIMIT 1",
+            (mint,),
+        ).fetchone()
+        wallet = row[0] if row else None
+        if not wallet:
+            return {"action": "no_observed_root", "mint": mint}
+        review = ops.execute(
+            "SELECT distinct_subprovs,distinct_creators,detected_via,status "
+            "FROM wt_treasury_review WHERE treasury=?", (wallet,),
+        ).fetchone()
+        if review is None or min(int(review[0] or 0), int(review[1] or 0)) < 5:
+            return {"action": "insufficient_cohort", "mint": mint, "wallet": wallet}
+        if review[2] == "topology_cohort_qualified":
+            return {"action": "already_surfaced", "mint": mint, "wallet": wallet}
+        if review[3] != "PENDING_REVIEW":
+            return {"action": "skipped_reviewed", "mint": mint, "wallet": wallet,
+                    "status": review[3]}
+        from src.ops.treasury_topology_classifier import surface_runtime_topology_candidate
+        from src.utils.infra_mapping import is_known_account
+        result = surface_runtime_topology_candidate(
+            ops, str(wallet), infrastructure_check=is_known_account,
+        )
+        if result.get("action") in {"inserted", "updated"}:
+            ops.commit()
+            print(
+                f"[WALKBACK] operation-neutral treasury review candidate → "
+                f"{str(wallet)[:14]}… chains={result.get('distinct_mints')}", flush=True,
+            )
+        return result
+    except Exception as exc:  # post-commit observer must never break completion
+        if ops.in_transaction:
+            ops.rollback()
+        print(f"[WALKBACK] topology candidate check failed mint={mint}: {exc}", flush=True)
+        return {"action": "failed", "mint": mint, "error": str(exc)[:300]}
+
 
 def _recover_creator_from_db(ops: sqlite3.Connection, mint: str) -> Optional[str]:
     """Attempt to resolve a missing creator wallet from local DB tables.
@@ -1405,20 +1333,6 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
     Process one walkback row. Returns RPC credits consumed.
     Writes result back to DB. Never raises — errors are caught and stored.
     """
-    token = None
-    try:
-        from src.ops.walkback_observation_attribution import context as observation_context
-        value = observation_context(ops, row["mint"])
-        if value: token = _OBSERVATION_CONTEXT.set({**value, "mint": row["mint"], "attempts": {}})
-    except Exception: pass
-    try:
-        # T3 means the worker began its acquisition/evidence pass.  It is
-        # deliberately stamped before any provider call and is ignored by the
-        # resolver itself.
-        from src.ops.operation_evidence_priority import stamp_timing
-        stamp_timing(ops, mint=row["mint"], field="t3_acquisition_start_at")
-    except Exception:
-        pass
     deep_walkback.ensure_schema(ops)
     mint      = row["mint"]
     creator   = row["creator"]
@@ -1681,7 +1595,6 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
                 (err[:500], rpc[0], int(time.time()), mint))
             ops.commit()
 
-    if token is not None: _OBSERVATION_CONTEXT.reset(token)
     return rpc[0]
 
 
@@ -1772,10 +1685,11 @@ def promote_recurring_funders(ops: sqlite3.Connection) -> int:
             print(f"[WALKBACK] promoted recurring funder {fw[:14]}… "
                   f"(creators={n}, mechanism={mechanism})", flush=True)
 
-        promoted += 1
-
-    if promoted:
+        # Release the shared writer lane before classifying the next candidate.
+        # Some classification paths perform RPC; no provider or unrelated read
+        # may run behind an earlier candidate's write transaction.
         ops.commit()
+        promoted += 1
     return promoted
 
 
@@ -1789,23 +1703,13 @@ def drain_batch(ops: sqlite3.Connection, batch_size: int = BATCH_SIZE,
     """
     deep_walkback.ensure_schema(ops)
     rows = ops.execute(
-        "SELECT mint, creator, subprov, treasury, walkback_class, attempts, COALESCE(priority,0) priority "
+        "SELECT mint, creator, subprov, treasury, walkback_class, attempts "
         "FROM wt_walkback_queue "
         "WHERE (status='pending' OR (status='running' AND COALESCE(lease_expires_at,0) < ?)) "
         "AND attempts < ? AND COALESCE(next_retry_at,0) <= ? "
         "ORDER BY COALESCE(priority,0) DESC, enqueued_at ASC "
         "LIMIT ?",
-        (int(time.time()), MAX_ATTEMPTS, int(time.time()), max(batch_size * 4, batch_size))).fetchall()
-
-    try:
-        from src.ops.operation_evidence_priority import ensure_schema as _priority_schema, fair_order
-        _priority_schema(ops)
-        state = ops.execute("SELECT consecutive_high FROM wt_walkback_scheduler_state WHERE scheduler_name='walkback'").fetchone()
-        high_run = int(state["consecutive_high"]) if state else 0
-        rows = fair_order(list(rows), high_run)[:batch_size]
-    except Exception:
-        high_run = 0
-        rows = rows[:batch_size]
+        (int(time.time()), MAX_ATTEMPTS, int(time.time()), batch_size)).fetchall()
 
     if not rows:
         return {"processed": 0, "rpc_used": 0, "outcomes": {}}
@@ -1822,26 +1726,11 @@ def drain_batch(ops: sqlite3.Connection, batch_size: int = BATCH_SIZE,
             break
 
         mint = row["mint"]
-        try:
-            claimed = _mark_running(ops, mint)
-        except (CrossProcessDatabaseWriteTimeout, sqlite3.OperationalError) as exc:
-            _record_infrastructure_retry(ops, mint, exc)
-            skipped_claimed += 1
-            continue
-        if not claimed:
+        if not _mark_running(ops, mint):
             skipped_claimed += 1
             continue  # another worker already claimed this row
 
-        try:
-            high_run = high_run + 1 if row["priority"] > 0 else 0
-            ops.execute("INSERT INTO wt_walkback_scheduler_state(scheduler_name,consecutive_high,updated_at) VALUES('walkback',?,?) ON CONFLICT(scheduler_name) DO UPDATE SET consecutive_high=excluded.consecutive_high,updated_at=excluded.updated_at", (high_run, int(time.time())))
-            ops.commit()
-        except Exception:
-            pass
-
         rpc = _process_row(ops, row)
-        # _process_row has legacy early returns; never let an attribution leak to next row.
-        _OBSERVATION_CONTEXT.set(None)
         rpc_used_total += rpc
 
         # Read back outcome for summary
@@ -1878,21 +1767,13 @@ def drain_batch(ops: sqlite3.Connection, batch_size: int = BATCH_SIZE,
 
 def _write_heartbeat(ops: sqlite3.Connection) -> None:
     now = int(time.time())
-    sampler = _health_sampler()
-    # This request merely launches/observes a detached read-only sampler.  It
-    # has zero synchronous dependency on detailed aggregation.
-    sampler.request_refresh(now=now)
-    health = sampler.heartbeat_snapshot(now=now)
-    liveness = {
-        "worker": "walkback_worker",
-        "last_seen": now,
-        "detailed_health": health,
-    }
+    from src.ops.walkback_health import build_walkback_health
+    health = build_walkback_health(ops, now=now, heartbeat_override=now)
     ops.execute(
         "INSERT INTO wt_worker_heartbeat (worker_name,last_seen,status,meta_json) VALUES (?,?,?,?) "
         "ON CONFLICT(worker_name) DO UPDATE SET last_seen=excluded.last_seen,"
         "status=excluded.status,meta_json=excluded.meta_json",
-        ("walkback_worker", now, "RUNNING", json.dumps(liveness, sort_keys=True)))
+        ("walkback_worker", now, health["status"], json.dumps(health, sort_keys=True)))
     ops.commit()
 
 
@@ -1964,14 +1845,28 @@ def run_loop() -> None:
     from src.core import treasury_bank
     from src.ops.walkback_health import recover_stalled_running_jobs
     from src.ops.walkback_cycle_trace import trace_boundary, trace_failure
+    from src.ops import anchor_reconciliation, create_event_ledger
     startup = _ops_conn()
     try:
-        # Worker startup consumes schema provisioned by the designated bootstrap owner.
-        # Validation is metadata-only and must not contend for a DDL/write lane.
-        _validate_walkback_schema(startup)
-        treasury_bank.initialize_schema(startup)
-        from src.ops.attribution_outcome import ensure_schema as _ensure_outcome_schema
-        _ensure_outcome_schema(startup)
+        # Ordinary startup must not contend for the schema writer lane.  Legacy
+        # migrations remain available to explicit maintenance paths, but this
+        # boundary validates the exact legacy contract read-only and fails closed.
+        _schema = _validate_walkback_schema(startup)
+        if not _schema.valid:
+            raise RuntimeError(f"{_schema.code}: {_schema.mismatch}")
+        _treasury_schema = treasury_bank.validate_schema(startup)
+        if _treasury_schema != "VALID":
+            raise RuntimeError(_treasury_schema)
+        from src.ops.attribution_outcome import validate_schema as _validate_outcome_schema
+        _outcome_schema = _validate_outcome_schema(startup)
+        if _outcome_schema != "VALID":
+            raise RuntimeError(_outcome_schema)
+        _anchor_schema = anchor_reconciliation.validate_schema(startup)
+        if _anchor_schema != "VALID":
+            raise RuntimeError(_anchor_schema)
+        _ledger_schema = create_event_ledger.validate_schema(startup)
+        if _ledger_schema != "VALID":
+            raise RuntimeError(_ledger_schema)
 
         # X76.5A -- this is a fresh process boot (run_loop() only executes
         # once per process). If the most recent recovery event for this
@@ -2055,10 +1950,11 @@ def run_loop() -> None:
                 trace_boundary("anchor_reconciliation_attempted")
                 _t0 = time.monotonic()
                 try:
-                    from src.ops.anchor_reconciliation import reconcile_waiting_create_anchors
                     _live = sqlite3.connect(f"file:{LIVE_DB_PATH}?mode=ro", uri=True, timeout=5)
                     try:
-                        recon = reconcile_waiting_create_anchors(ops, _live)
+                        recon = anchor_reconciliation.reconcile_waiting_create_anchors(
+                            ops, _live, ensure_schema_first=False, limit=1,
+                        )
                         if recon["recovered"]:
                             print(f"[WALKBACK] anchor reconciliation: recovered "
                                   f"{len(recon['recovered'])} of {recon['examined']} "
@@ -2082,8 +1978,9 @@ def run_loop() -> None:
                 trace_boundary("create_ledger_retry_attempted")
                 _t0 = time.monotonic()
                 try:
-                    from src.ops.create_event_ledger import retry_pending_writes
-                    retry_result = retry_pending_writes(ops)
+                    retry_result = create_event_ledger.retry_pending_writes(
+                        ops, ensure_schema_first=False,
+                    )
                     if retry_result["recovered"]:
                         print(f"[WALKBACK] create-ledger retry: recovered "
                               f"{len(retry_result['recovered'])} of {retry_result['examined']} "
@@ -2116,7 +2013,6 @@ def run_loop() -> None:
                     _write_heartbeat(ops)
                 else:
                     print(f"[WALKBACK] queue empty (pending=0), sleeping {INTERVAL_SEC}s", flush=True)
-                _review_deep_routes_after_commit(ops)
             finally:
                 ops.close()
             trace_boundary("cycle_completed")
@@ -2135,14 +2031,20 @@ if __name__ == "__main__":
     if args.loop:
         run_loop()
     elif args.once:
-        from src.core.walkback_queue import ensure_schema as _ensure_walkback_schema
+        from src.core.walkback_queue import validate_schema as _validate_walkback_schema
         from src.core import treasury_bank
         from src.ops.walkback_health import recover_stalled_running_jobs
         ops = _ops_conn()
-        _ensure_walkback_schema(ops)
-        treasury_bank.initialize_schema(ops)
-        from src.ops.attribution_outcome import ensure_schema as _ensure_outcome_schema
-        _ensure_outcome_schema(ops)
+        _schema = _validate_walkback_schema(ops)
+        if not _schema.valid:
+            raise RuntimeError(f"{_schema.code}: {_schema.mismatch}")
+        _treasury_schema = treasury_bank.validate_schema(ops)
+        if _treasury_schema != "VALID":
+            raise RuntimeError(_treasury_schema)
+        from src.ops.attribution_outcome import validate_schema as _validate_outcome_schema
+        _outcome_schema = _validate_outcome_schema(ops)
+        if _outcome_schema != "VALID":
+            raise RuntimeError(_outcome_schema)
         recover_stalled_running_jobs(ops, max_attempts=MAX_ATTEMPTS)
         finalize_exhausted_pending(ops)
         result = drain_batch(ops)

@@ -70,36 +70,6 @@ _SEED_WALLETS: dict[str, dict[str, Any]] = {
         "added_by": "X29.1.3 investigation, migrated by X29.4",
         "notes": "Migrated from src/utils/spam_infrastructure_registry.py (X29.1.3)",
     },
-    "GuiXaZmnYF1TaY9UuqVHm7fepudXkhdb3v26RQc1qsKB": {
-        "name": "Spam Dust Marker (WATCHTOWER lineage audit)",
-        "classification": "spam_dust",
-        "reason": "Indiscriminate 1-lamport dust-spray fan-out; misidentified by the walkback traversal as the deepest_wallet parent for six real WATCHTOWER-lineage mints, blocking their treasury attribution",
-        "evidence": (
-            "Live RPC sample of 30 most recent signatures resolved to 531 "
-            "distinct SOL-transfer destinations, the overwhelming majority "
-            "at 1 lamport per transfer -- an indiscriminate dust-spray "
-            "pattern, not operational funding. Not present in "
-            "wt_walkback_transaction_roles as a source for any of the six "
-            "mints it was recorded against, confirming its only footprint "
-            "there is the live walkback's mis-selected termination edge, "
-            "not a real funding relationship."
-        ),
-        "added_by": "watchtower_lineage_audit_2026-09-19",
-        "notes": (
-            "Confirmed via wt_walkback_queue.termination_reason_json.deepest_wallet "
-            "on 2qSFzAxbEZLxGsQCx1fABNfi7gQ1aiRYcwd7GhhGpump, "
-            "3ZuuFFC2nBbPdh5Dq8Pa3TVdXPoxaSBWBbepHnFJpump, "
-            "52qkNpgTHcjuDYhKVcg6rJS4uYYtJHpDRcJoSdKqpump, "
-            "Bp8geX7ycQkZhpN5mcQny74v1LK5pJ49LuorEf4rpump, "
-            "5iVSHXitXQMsnJNGB1K6PM3jmJmjPae5T24qwnNLpump, "
-            "GdjDc7VR1ZqtqZNgVQ77xkgtVnnAA8bD4G21ztdvpump -- each of these "
-            "resolves through wt_walkback_transaction_roles to confirmed "
-            "WATCHTOWER treasury 88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe "
-            "via 6qYNKjptyBMWiEDApkrJsZeft7qQXQ8hNYrhJyVQoVqo and "
-            "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ once this dust "
-            "wallet is excluded from parent-selection."
-        ),
-    },
 }
 
 

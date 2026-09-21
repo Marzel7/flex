@@ -51,6 +51,22 @@ CREATOR_RESOLUTION_RESOLVED = "RESOLVED"
 # stages may simply never pass PENDING — it is optional, not required.
 CREATOR_RESOLUTION_PENDING = "PENDING"
 
+_REQUIRED_SCHEMA = {
+    "wt_create_event_ledger": {"signature", "mint", "creator", "source"},
+    "wt_create_ledger_conflicts": {"signature", "mint", "conflict_type"},
+    "wt_create_ledger_pending": {"signature", "mint", "attempts", "next_retry_at"},
+}
+
+
+def validate_schema(conn: sqlite3.Connection) -> str:
+    """Read-only validation for workers that must not run recurring DDL."""
+    for table, required in _REQUIRED_SCHEMA.items():
+        columns = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
+        missing = sorted(required - columns)
+        if missing:
+            return f"CREATE_EVENT_LEDGER_SCHEMA_MISMATCH:{table}:missing={','.join(missing)}"
+    return "VALID"
+
 
 def ensure_schema(conn: sqlite3.Connection) -> None:
     """Additive only. signature is the primary key (durable, unique);
@@ -148,6 +164,7 @@ def record_create_event(
     instruction_index: int = -1, inner_instruction_index: int = -1,
     raw_detection_method: Optional[str] = None,
     creator_resolution_state: Optional[str] = None,
+    ensure_schema_first: bool = True,
 ) -> dict[str, Any]:
     """Phase 7/8 — the canonical write point. Must be called as early as
     mint is known and the CREATE instruction is validated — independent
@@ -168,7 +185,8 @@ def record_create_event(
 
     Returns {"written": True/False, "conflict": None or dict, "state": ...}.
     """
-    ensure_schema(conn)
+    if ensure_schema_first:
+        ensure_schema(conn)
     if not mint:
         return {"written": False, "reason": "mint_required"}
     if not signature or not valid_signature(signature):
@@ -216,8 +234,7 @@ def record_create_event(
             (creator, new_state, now, signature),
         )
         conn.commit()
-        return {"written": True, "state": "ENRICHED", "creator": new_creator,
-                "committed_at": now}
+        return {"written": True, "state": "ENRICHED", "creator": new_creator}
 
     conn.execute(
         "INSERT INTO wt_create_event_ledger "
@@ -230,7 +247,7 @@ def record_create_event(
          creator_state, now, now),
     )
     conn.commit()
-    return {"written": True, "state": "NEW", "committed_at": now}
+    return {"written": True, "state": "NEW"}
 
 
 # ── X64.7A Phase 2 — durable failed-write recovery ───────────────────────────
@@ -243,6 +260,7 @@ def persist_pending_write(
     conn: sqlite3.Connection, *, signature: str, mint: str,
     creator: Optional[str], slot: Optional[int], block_time: Optional[int],
     source: str, parser_path: Optional[str], last_error: str,
+    ensure_schema_first: bool = True,
 ) -> dict[str, Any]:
     """Called when record_create_event's own write path fails for a
     reason OTHER than an invalid signature or missing mint (e.g. a
@@ -251,7 +269,8 @@ def persist_pending_write(
     signature: a second failure for the same signature updates
     attempts/last_error/next_retry_at rather than duplicating a row.
     """
-    ensure_schema(conn)
+    if ensure_schema_first:
+        ensure_schema(conn)
     now = int(time.time())
     payload = {
         "signature": signature, "mint": mint, "creator": creator,
@@ -286,6 +305,7 @@ def persist_pending_write(
 
 def retry_pending_writes(
     conn: sqlite3.Connection, *, limit: int = 25,
+    ensure_schema_first: bool = True,
 ) -> dict[str, Any]:
     """Zero-RPC, idempotent, restart-safe, lock-tolerant, bounded-backoff
     retry pass. Called from the ordinary worker cycle (or any periodic
@@ -296,7 +316,8 @@ def retry_pending_writes(
     'exhausted' count so a caller can surface it distinctly from
     'still retrying'.
     """
-    ensure_schema(conn)
+    if ensure_schema_first:
+        ensure_schema(conn)
     now = int(time.time())
     rows = conn.execute(
         "SELECT * FROM wt_create_ledger_pending "
@@ -311,7 +332,7 @@ def retry_pending_writes(
         result = record_create_event(
             conn, signature=sig, mint=row["mint"], creator=row["creator"],
             slot=row["slot"], block_time=row["block_time"], source=row["source"],
-            parser_path=row["parser_path"],
+            parser_path=row["parser_path"], ensure_schema_first=False,
         )
         if result.get("written"):
             conn.execute("DELETE FROM wt_create_ledger_pending WHERE signature=?", (sig,))
@@ -331,6 +352,7 @@ def retry_pending_writes(
                     slot=row["slot"], block_time=row["block_time"], source=row["source"],
                     parser_path=row["parser_path"],
                     last_error=result.get("reason", "unknown"),
+                    ensure_schema_first=False,
                 )
             still_failing.append(sig)
     exhausted = conn.execute(
@@ -342,14 +364,15 @@ def retry_pending_writes(
 
 
 def lookup_create_anchor(
-    conn: sqlite3.Connection, mint: str,
+    conn: sqlite3.Connection, mint: str, *, ensure_schema_first: bool = True,
 ) -> dict[str, Any]:
     """Phase 9 — the first-priority anchor source for walkback resolution.
     Returns SAFE only when exactly one signature is on record for this
     mint. Creator agreement is never required — a NULL-creator ledger row
     is just as SAFE as a resolved-creator one, per the task's explicit
     instruction that creator-null launches must be recoverable."""
-    ensure_schema(conn)
+    if ensure_schema_first:
+        ensure_schema(conn)
     rows = conn.execute(
         "SELECT signature, creator, slot, block_time, source FROM wt_create_event_ledger "
         "WHERE mint=?", (mint,),

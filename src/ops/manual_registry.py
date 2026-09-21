@@ -1,7 +1,6 @@
 """Manual registry admission, versioned profiles, and activity snapshots."""
 from __future__ import annotations
 import json, os, sqlite3, statistics, time, uuid
-from pathlib import Path
 
 DISPOSITIONS=frozenset({'ACTIVE_MANUAL','REFERENCE_RETIRED','PENDING_MANUAL_REVIEW','REJECTED','HISTORICAL_ONLY'})
 COMPONENT_STATES=frozenset({'OBSERVED','RECURRING','BASELINE','VARIANT','EVOLVED','RETIRED'})
@@ -37,21 +36,7 @@ def refresh_operator_activity_snapshot(conn, operator_id, core_db_path=None, now
   ledger_rows=conn.execute("SELECT mint,MAX(create_time) FROM wt_watchtower_launches WHERE mint IS NOT NULL AND COALESCE(state,'FIRED_CREATE')!='PENDING_REVIEW' GROUP BY mint").fetchall()
   ledger_times={item[0]:item[1] for item in ledger_rows}
   member_mints=set(ledger_times)
-  # A role-aware audit may provide an immutable effective-membership replay.
-  # It is a read-side projection: raw canonical evidence remains unchanged.
-  projection=Path(__file__).resolve().parents[2]/'docs/audits/watchtower_current_universe_relay_solver_decontamination.v1.json'
-  effective_projection=False
-  try:
-   audit=json.loads(projection.read_text())
-   clean=audit.get('clean_cohort',{}).get('mints')
-   if audit.get('verdict')=='WATCHTOWER_RELAY_SOLVER_DECONTAMINATION_QUALIFIED' and isinstance(clean,list):
-    member_mints=set(clean)
-    effective_projection=True
-    ledger_times={mint:ledger_times.get(mint) for mint in member_mints}
-    source_contract='role-aware effective membership projection; raw canonical ledger retained separately'
-   else: source_contract='wt_watchtower_launches canonical ledger plus strict confirmed operator membership'
-  except (OSError, ValueError, json.JSONDecodeError): source_contract='wt_watchtower_launches canonical ledger plus strict confirmed operator membership'
-  if not effective_projection and conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='operator_launch_membership'").fetchone():
+  if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='operator_launch_membership'").fetchone():
    member_mints.update(item[0] for item in conn.execute("SELECT mint FROM operator_launch_membership WHERE operator_id=?",(operator_id,)))
   times=[value for value in ledger_times.values() if value is not None]
   path=core_db_path or os.environ.get('DB_PATH',os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'database','flex_complete_database.db')))
@@ -65,7 +50,7 @@ def refresh_operator_activity_snapshot(conn, operator_id, core_db_path=None, now
      if value is not None: times.append(int(value))
    finally: core.close()
   rows=[(mint,None) for mint in sorted(member_mints)]
-  source={'contract':source_contract,'cadence_population':f'{len(times)} distinct mints with available launch timestamps','total_population':f'{len(rows)} distinct mints','raw_canonical_population':len(ledger_rows),'effective_population':len(rows)}
+  source={'contract':'wt_watchtower_launches canonical ledger plus strict confirmed operator membership','cadence_population':f'{len(times)} distinct mints with available launch timestamps','total_population':f'{len(rows)} distinct mints'}
  else:
   profile=conn.execute("SELECT member_mints_json FROM operation_behavioural_profiles WHERE operator_id=? ORDER BY profile_version DESC LIMIT 1",(operator_id,)).fetchone()
   mints=set(json.loads(profile[0])) if profile else set()

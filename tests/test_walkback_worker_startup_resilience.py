@@ -41,6 +41,8 @@ def stub_run_loop_dependencies(monkeypatch, tmp_path):
     doesn't hang. _ops_conn() opens a FRESH connection each call (as it does in
     production) rather than reusing one closed connection object."""
     db_path = str(tmp_path / "ops.db")
+    live_db_path = str(tmp_path / "live.db")
+    sqlite3.connect(live_db_path).close()
 
     def _fresh_conn():
         conn = sqlite3.connect(db_path)
@@ -52,9 +54,15 @@ def stub_run_loop_dependencies(monkeypatch, tmp_path):
         return conn
 
     monkeypatch.setattr(walkback_worker, "_ops_conn", _fresh_conn)
-    monkeypatch.setattr("src.core.walkback_queue.ensure_schema", lambda conn: None)
-    monkeypatch.setattr("src.core.treasury_bank.initialize_schema", lambda conn: None)
-    monkeypatch.setattr("src.ops.attribution_outcome.ensure_schema", lambda conn: None)
+    monkeypatch.setattr(walkback_worker, "LIVE_DB_PATH", live_db_path)
+    monkeypatch.setattr(
+        "src.core.walkback_queue.validate_schema",
+        lambda conn: __import__("src.core.walkback_queue", fromlist=["SchemaValidationResult"]).SchemaValidationResult(True, "VALID"),
+    )
+    monkeypatch.setattr("src.core.treasury_bank.validate_schema", lambda conn: "VALID")
+    monkeypatch.setattr("src.ops.attribution_outcome.validate_schema", lambda conn: "VALID")
+    monkeypatch.setattr("src.ops.anchor_reconciliation.validate_schema", lambda conn: "VALID")
+    monkeypatch.setattr("src.ops.create_event_ledger.validate_schema", lambda conn: "VALID")
     monkeypatch.setattr(walkback_worker, "_write_heartbeat", lambda conn: None)
     # X64.5 — run_loop's new self-healing anchor-reconciliation pre-pass
     # (src/ops/anchor_reconciliation.py) is out of scope for this file's
@@ -63,7 +71,11 @@ def stub_run_loop_dependencies(monkeypatch, tmp_path):
     # table lacks nor affects these tests' own assertions.
     monkeypatch.setattr(
         "src.ops.anchor_reconciliation.reconcile_waiting_create_anchors",
-        lambda ops_conn, live_conn: {"examined": 0, "recovered": [], "skipped": [], "conflicts": []},
+        lambda ops_conn, live_conn, **kwargs: {"examined": 0, "recovered": [], "skipped": [], "conflicts": []},
+    )
+    monkeypatch.setattr(
+        "src.ops.create_event_ledger.retry_pending_writes",
+        lambda ops_conn, **kwargs: {"examined": 0, "recovered": [], "still_failing": [], "exhausted": 0},
     )
 
     def fake_sleep(seconds):

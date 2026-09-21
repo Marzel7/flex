@@ -13,18 +13,6 @@ import time
 from dataclasses import dataclass, asdict
 from typing import Callable, Iterable, Optional
 
-SCHEMA_VALID = "VALID"
-SCHEMA_MIGRATION_REQUIRED = "SCHEMA_MIGRATION_REQUIRED"
-INCOMPATIBLE_SCHEMA = "INCOMPATIBLE_SCHEMA"
-
-
-class DeepWalkbackSchemaError(RuntimeError):
-    """Deterministic result for the metadata-only deep Walkback validator."""
-
-    def __init__(self, state: str, detail: str):
-        self.state, self.detail = state, detail
-        super().__init__(f"{state}:{detail}")
-
 PATH_STATES = frozenset({
     "QUEUED", "CLAIMED", "CREATE_ANCHORED", "CREATOR_FUNDING_RECOVERED",
     "SUBPROVIDER_RECOVERED", "UPSTREAM_EXPANDING", "KNOWN_TREASURY_REACHED",
@@ -128,64 +116,8 @@ CREATE INDEX IF NOT EXISTS ix_wwtr_mint ON wt_walkback_transaction_roles(mint,si
 """
 
 
-SCHEMA_PREREQUISITES = ()
-
-# Authoritative read contract derived directly from ``SCHEMA`` above.  Only
-# objects created/consumed by this module are included; the optional queue
-# additions in migrate_schema_step belong to walkback_queue's contract.
-_REQUIRED_COLUMNS = {
-    "wt_walkback_edge_candidates": frozenset("evidence_key mint wallet candidate_parent signature block_time amount_lamports mechanism instruction_index inner_instruction_index pre_balance post_balance net_balance_change anchor_signature anchor_block_time hop_depth owner close_authority close_destination temporary_account evidence_strength selection_status rejection_reason first_observed_at last_observed_at observation_count".split()),
-    "wt_walkback_atomic_flows": frozenset("evidence_key mint signature source_wallet owner temporary_account authority close_destination transfer_lamports net_destination_lamports has_create has_sync_native has_close instruction_order_json causal_interpretation block_time first_observed_at last_observed_at observation_count".split()),
-    "wt_wallet_lifecycle_evidence": frozenset("wallet earliest_recoverable_signature earliest_recoverable_block_time first_inbound_signature first_inbound_block_time first_outbound_signature first_outbound_block_time last_activity_block_time pre_launch_tx_count total_observed_tx_count distinct_creators_funded distinct_launches_reached distinct_subproviders_funded distinct_hubs_funded lifecycle_quality updated_at".split()),
-    "wt_infrastructure_candidates": frozenset("wallet candidate_role confidence first_seen_at last_seen_at wallet_birth_at lifecycle_quality distinct_launches distinct_creators distinct_subproviders distinct_hubs distinct_treasury_branches funding_epoch_count total_sol_distributed max_single_transfer_sol median_transfer_sol account_close_descendant_count rapid_migration_descendant_count competing_inbound_source_count known_common_capital_links service_exchange_risk evidence_score counterevidence_score role_score_treasury role_score_reservoir role_score_hub role_score_relay positive_evidence_json negative_evidence_json uncertainties_json status review_state created_at updated_at".split()),
-    "wt_infrastructure_candidate_descendants": frozenset("wallet mint creator subprovider path_evidence_key first_seen_at".split()),
-    "wt_infrastructure_candidate_evidence": frozenset("wallet evidence_key evidence_type evidence_json observed_at".split()),
-    "wt_infrastructure_candidate_reviews": frozenset("candidate_wallet proposed_role confidence review_status reviewed_by reviewed_at review_notes evidence_snapshot_json created_at updated_at".split()),
-    "wt_walkback_transaction_roles": frozenset("evidence_key projection_version mint signature anchor_signature transfer_source transfer_destination transfer_lamports fee_payer signers_json outer_shape_json inner_shape_json route_semantics provenance_digest first_observed_at last_observed_at observation_count".split()),
-}
-_REQUIRED_INDEXES = {
-    "wt_walkback_edge_candidates": {"ix_wwec_mint_hop": ("mint", "hop_depth"), "ix_wwec_parent": ("candidate_parent",)},
-    "wt_walkback_atomic_flows": {"ix_wwaf_signature": ("signature",)},
-    "wt_wallet_lifecycle_evidence": {},
-    "wt_infrastructure_candidates": {},
-    "wt_infrastructure_candidate_descendants": {},
-    "wt_infrastructure_candidate_evidence": {},
-    "wt_infrastructure_candidate_reviews": {},
-    "wt_walkback_transaction_roles": {"ix_wwtr_mint": ("mint", "signature")},
-}
-
-
-def validate_schema(conn) -> str:
-    """Validate the complete Deep Walkback surface with SELECT/PRAGMA only."""
-    tables = {row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-    missing_tables = sorted(set(_REQUIRED_COLUMNS) - tables)
-    if missing_tables:
-        raise DeepWalkbackSchemaError(SCHEMA_MIGRATION_REQUIRED, f"missing_tables={missing_tables}")
-    for table, required_columns in _REQUIRED_COLUMNS.items():
-        columns = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
-        missing_columns = sorted(required_columns - columns)
-        if missing_columns:
-            raise DeepWalkbackSchemaError(SCHEMA_MIGRATION_REQUIRED, f"table={table};missing_columns={missing_columns}")
-        indexes = {row[1] for row in conn.execute(f"PRAGMA index_list({table})")}
-        for index, expected_columns in _REQUIRED_INDEXES[table].items():
-            if index not in indexes:
-                raise DeepWalkbackSchemaError(SCHEMA_MIGRATION_REQUIRED, f"table={table};missing_index={index}")
-            actual_columns = tuple(row[2] for row in conn.execute(f"PRAGMA index_info({index})"))
-            if actual_columns != expected_columns:
-                raise DeepWalkbackSchemaError(
-                    SCHEMA_MIGRATION_REQUIRED,
-                    f"table={table};wrong_index_shape={index}:{actual_columns}",
-                )
-    return SCHEMA_VALID
-
-
-def migrate_schema_step(conn) -> dict:
-    # sqlite3.executescript() commits implicitly, so declarative migration
-    # steps execute each already-delimited DDL statement on the caller's
-    # transaction instead.
-    for statement in (part.strip() for part in SCHEMA.split(";")):
-        if statement:
-            conn.execute(statement)
+def ensure_schema(conn) -> None:
+    conn.executescript(SCHEMA)
     # Some focused/offline fixtures intentionally contain only this module's
     # retained tables.  Legacy queue upgrades apply only when that base table
     # is present; production bootstrap always supplies it.
@@ -194,8 +126,6 @@ def migrate_schema_step(conn) -> dict:
     additions = {
         "claimed_by": "TEXT", "claimed_at": "INTEGER", "lease_expires_at": "INTEGER",
         "next_retry_at": "INTEGER", "path_state": "TEXT",
-        "infrastructure_retry_count": "INTEGER NOT NULL DEFAULT 0",
-        "last_infrastructure_error": "TEXT",
         "termination_reason_json": "TEXT", "create_anchor_signature": "TEXT",
         "create_anchor_slot": "INTEGER", "create_anchor_block_time": "INTEGER",
         "create_anchor_source": "TEXT", "create_anchor_audit_state": "TEXT",
@@ -203,11 +133,6 @@ def migrate_schema_step(conn) -> dict:
     for name, sql_type in additions.items():
         if queue_exists and name not in columns:
             conn.execute(f"ALTER TABLE wt_walkback_queue ADD COLUMN {name} {sql_type}")
-    return {"changed": True}
-
-
-def ensure_schema(conn) -> None:
-    migrate_schema_step(conn)
     conn.commit()
 
 def persist_transaction_roles(conn, *, mint: str, signature: str, anchor_signature: str | None,

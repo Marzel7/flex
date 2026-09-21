@@ -17361,6 +17361,19 @@
     "verdict": "HOLD: authorized narrow recovery cannot safely proceed until the exact deployed Walkback/Cascade runtime is reconstructed and parity-qualified in a durable location.",
     "exact_next_action": "Reconstruct a complete immutable module manifest from retained deployment audits/Git objects, including post-base db_locking and Cascade overlays. Build a durable runtime checkout, verify every deployed module hash and offline startup/import tests, then change only the two Supervisor directory/PYTHONPATH entries and start only Walkback/Cascade. Abort if parity remains incomplete."
   },
+  "walkback_cascade_durable_runtime_recovery_20260921": {
+    "engineering_revision": "8dc6f947dbc5e5821d07c5478fc23acc58987497 dirty main checkout; isolated runtime base c06d1f7d7097dfb8b8f0f3f9116995bc9cf020ca plus two qualified module overlays",
+    "status": "TARGETED_RECOVERY_RUNNING_OBSERVATION_IN_PROGRESS",
+    "runtime_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime_recovery_c06d",
+    "module_parity": "Walkback sha256 94611dc0f34e7529a7e8b22fe27c083bda8dcbb566cd5bd10385fe57286f72b5; topology classifier f51637e839c0fc15339ce0cca67f74e5dc9878a85b127da8c35e7906fd4d644e; Cascade 6218947ddcaee6c3f7b827a2548aca295578ce2fea08b98a1d3a848ee7b43bd8 (12-root no_subscribe filter); db_locking ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89 (bounded checkpoint). All four match retained qualified deployment records byte-for-byte.",
+    "offline_qualification": "py_compile and diff checks passed. Focused topology/hook/checkpoint suite: 24 passed; one older assertion against _wal_watchdog_loop co_consts fails because qualified checkpoint SQL moved to _run_wal_watchdog_checkpoint helper; direct helper behavior tests pass. No production fixture or synthetic traffic was run.",
+    "supervisor_change": "Changed only directory and PYTHONPATH for ws_cascade and walkback_worker from missing /private/tmp/flex-sqlite-provenance-clean to durable runtime path. Supervisor reread reported only those two changed; targeted update started only those groups. No other service was signalled or restarted.",
+    "pids": "Walkback 18296 and Cascade 18297 RUNNING from the verified runtime cwd; unrelated listener 4299, funding 4287, creator resolution 4289, API 4294, Monitor 4291 and Scheduler 4366 remained unchanged at +2 minutes.",
+    "early_natural_observation": "Cascade websocket connected, reconciled all 13 currently eligible treasuries, zero missed sessions, reached LIVE with pending subscriptions zero. Walkback completed natural nonempty work: complete count 51343 to 51346 and generated a LINEAGE_GAP lead; five further pending and one running at +2 minutes. Its stale UNHEALTHY heartbeat label does not outweigh observed advancing completions.",
+    "safety": "NO_UNRELATED_RESTARTS=true; NO_SYNTHETIC_TRAFFIC=true; NO_PROVIDER_SETTING_OR_SQLITE_SETTING_CHANGES=true; AUTOMATIC_TREASURY_PROMOTION_DISABLED=true; MAIN_SOURCE_UNTOUCHED=true",
+    "verdict": "PARTIAL: process startup and natural progress restored; full post-recovery 20-minute qualification pending.",
+    "exact_next_action": "At or after 2026-09-21T10:06:00Z run read-only 20-minute qualification of target/unrelated PIDs, natural Walkback/Cascade progress, connectivity, writer/SQLite errors, WAL/checkpoint behavior and 13-root admission. The existing 15-minute Funding/Creator heartbeat was temporarily extended with this one-time gate; restore its previous prompt after the verdict. Do not modify services or source during observation."
+  },
   "walkback_operation_neutral_topology_runtime_parity_20260920": {
     "engineering_revision": "baseline c7881bb2 plus detector 1a99f4a7 on codex/walkback-topology-runtime-parity; local isolated commits, not source-pushed",
     "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",

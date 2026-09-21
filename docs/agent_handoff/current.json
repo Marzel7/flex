@@ -17458,6 +17458,17 @@
     "verdict": "Offline progress only; source-root migration and full restart remain unsafe.",
     "exact_next_action": "Build a fail-closed active-service path manifest/validator from the remaining transitive imports; confirm every producer/consumer authority and exact loaded-source parity, then separately authorize a bounded deployment. Do not set Supervisor variables or move data yet."
   },
+  "dev_prod_source_separation_validator_20260921": {
+    "status": "PARTIAL_VALIDATOR_OFFLINE_QUALIFIED_NOT_DEPLOYED",
+    "engineering_revision": "e4f4eb46d4d891abb72d028d0cadbdf17ad6ce86 on local codex/dev-prod-path-boundary; extends path candidate 7ee74bb4; not pushed or deployed",
+    "artifact": "scripts/validate_dev_prod_paths.py and docs/audits/dev_prod_path_validator_offline_20260921.v1.json in isolated branch; audit JSON validated",
+    "contract": "Read-only validator checks 23 audited path variable names for presence, absoluteness, source-root exclusion and DB/ops aliases. It reports only variable names/failure categories, never path values or secret environment values. It always exits 2/HOLD for deployment because transitive path and loaded-source parity are incomplete, even if its covered subset passes.",
+    "tests": "Four focused validator tests passed: synthetic covered-path PASS still deployment HOLD, missing/relative/split authority failure, source-root state failure, CLI exit 2; py_compile and diff checks passed. Calling-shell run exited 2 with missing variables; this does not characterize Supervisor environments.",
+    "remaining_gates": "Complete transitive imported-path census, prove exact loaded source for main-root processes, choose external persistent-state authority and configure every active service under a separately authorized manifest. The validator is intentionally not a migration approval tool yet.",
+    "production_flags": "DEPLOYED=false; PROD_SOURCE_PATH_NOT_CREATED=true; PRODUCTION_SOURCE_CHANGES=0; SUPERVISOR_CHANGES=0; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_MUTATIONS=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0; PATH_PARITY=HOLD",
+    "verdict": "Source separation remains HOLD. Do not migrate or restart from a separate checkout.",
+    "exact_next_action": "Inventory all remaining active-service transitive persistent paths and loaded modules read-only; expand the validator only when each path pair is proven; then prepare a parity-gated deployment manifest for separate authorization."
+  },
   "walkback_operation_neutral_topology_runtime_parity_20260920": {
     "engineering_revision": "baseline c7881bb2 plus detector 1a99f4a7 on codex/walkback-topology-runtime-parity; local isolated commits, not source-pushed",
     "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",

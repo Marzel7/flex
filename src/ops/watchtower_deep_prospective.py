@@ -12,27 +12,36 @@ import sqlite3
 
 CREATOR_CLOSE_LAMPORTS = 1_112_039_000
 DEEP_OPERATOR_ID = "bb255638-a493-551f-938c-8be7c9ea4f1e"
+DESTINATION_INDEX = "ix_wwtr_destination_amount"
+DESTINATION_INDEX_DDL = (
+    "CREATE INDEX IF NOT EXISTS ix_wwtr_destination_amount "
+    "ON wt_walkback_transaction_roles(transfer_destination,transfer_lamports)"
+)
+MAX_FUNDING_PARENTS = 32
 
 
 def _funding_parents(
     conn: sqlite3.Connection, destination: str, minimum: int, before: int,
+    *, require_index: bool = False,
 ) -> list[tuple[str, str, int, int]]:
     """Return transaction-role-confirmed transfers, deduplicated by signature."""
+    index_clause = f" INDEXED BY {DESTINATION_INDEX}" if require_index else ""
     return [tuple(row) for row in conn.execute(
         "SELECT DISTINCT r.transfer_source,r.signature,r.transfer_lamports,e.block_time "
-        "FROM wt_walkback_transaction_roles r "
+        f"FROM wt_walkback_transaction_roles r{index_clause} "
         "JOIN wt_walkback_edge_candidates e ON e.signature=r.signature "
         "AND e.candidate_parent=r.transfer_source "
         "AND e.wallet=r.transfer_destination "
         "WHERE r.transfer_destination=? AND r.transfer_lamports>=? "
         "AND e.block_time>0 AND e.block_time<=? "
-        "ORDER BY e.block_time,r.signature",
-        (destination, minimum, before),
+        "ORDER BY e.block_time,r.signature LIMIT ?",
+        (destination, minimum, before, MAX_FUNDING_PARENTS + 1),
     )]
 
 
 def assess_prospective_route(
     conn: sqlite3.Connection, mint: str, *, diagnostic_ignore_ownership: bool = False,
+    require_index: bool = False,
 ) -> dict:
     """Find a route-shaped review lead without using any known wallet address.
 
@@ -87,15 +96,30 @@ def assess_prospective_route(
         return {"state": "INSUFFICIENT", "reason": "invalid_selected_lower_route",
                 "authority": "NONE"}
 
+    if require_index and [row[2] for row in conn.execute(
+        f"PRAGMA index_info({DESTINATION_INDEX})"
+    )] != ["transfer_destination", "transfer_lamports"]:
+        return {"state": "INSUFFICIENT", "reason": "missing_required_destination_index",
+                "authority": "NONE"}
+
     routes = {}
-    for coordinator, upper_sig, upper_amount, upper_time in _funding_parents(
-        conn, distribution, 100_000_000_000, int(two[4]),
-    ):
+    upper_parents = _funding_parents(
+        conn, distribution, 100_000_000_000, int(two[4]), require_index=require_index,
+    )
+    if len(upper_parents) > MAX_FUNDING_PARENTS:
+        return {"state": "AMBIGUOUS", "reason": "upper_parent_limit_exceeded",
+                "authority": "NONE"}
+    for coordinator, upper_sig, upper_amount, upper_time in upper_parents:
         if coordinator in {creator, subprov, distribution}:
             continue
-        for pool, pool_sig, pool_amount, pool_time in _funding_parents(
+        pool_parents = _funding_parents(
             conn, coordinator, 1_000_000_000_000, int(upper_time),
-        ):
+            require_index=require_index,
+        )
+        if len(pool_parents) > MAX_FUNDING_PARENTS:
+            return {"state": "AMBIGUOUS", "reason": "pool_parent_limit_exceeded",
+                    "authority": "NONE"}
+        for pool, pool_sig, pool_amount, pool_time in pool_parents:
             if pool in {creator, subprov, distribution, coordinator}:
                 continue
             routes[(pool, coordinator)] = {

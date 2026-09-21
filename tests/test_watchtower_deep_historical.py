@@ -7,6 +7,7 @@ from src.ops.watchtower_deep_historical import (
     qualify_historical_mint, historical_plan, commit_historical_operation,
 )
 from src.ops.watchtower_deep_prospective import assess_prospective_route
+from src.ops.watchtower_deep_review import SCHEMA as REVIEW_SCHEMA, persist_review_lead, fetch_review_leads
 
 
 def _db():
@@ -230,3 +231,64 @@ def test_prospective_existing_owner_is_preserved():
     conn = _db()
     conn.execute("INSERT INTO operator_launch_membership(mint,operator_id) VALUES ('mint','WATCHTOWER')")
     assert assess_prospective_route(conn, "mint")["state"] == "EXISTING_ASSIGNMENT"
+
+
+def test_prospective_live_lookup_requires_destination_index():
+    conn = _db()
+    assert assess_prospective_route(conn, "mint", require_index=True) == {
+        "state": "INSUFFICIENT", "reason": "missing_required_destination_index",
+        "authority": "NONE",
+    }
+    conn.execute(
+        "CREATE INDEX ix_wwtr_destination_amount "
+        "ON wt_walkback_transaction_roles(transfer_destination,transfer_lamports)"
+    )
+    result = assess_prospective_route(conn, "mint", require_index=True)
+    assert result["state"] == "REVIEW_CANDIDATE"
+    plan = list(conn.execute(
+        "EXPLAIN QUERY PLAN SELECT transfer_source FROM wt_walkback_transaction_roles "
+        "INDEXED BY ix_wwtr_destination_amount WHERE transfer_destination=? "
+        "AND transfer_lamports>=?", ("distribution", 100_000_000_000),
+    ))
+    assert any("ix_wwtr_destination_amount" in row[3] for row in plan)
+
+
+def test_prospective_live_lookup_rejects_misnamed_index():
+    conn = _db()
+    conn.execute(
+        "CREATE INDEX ix_wwtr_destination_amount "
+        "ON wt_walkback_transaction_roles(transfer_source)"
+    )
+    assert assess_prospective_route(conn, "mint", require_index=True)["reason"] == (
+        "missing_required_destination_index"
+    )
+
+
+def test_deep_review_lead_is_idempotent_and_not_membership():
+    conn = _db()
+    conn.executescript(REVIEW_SCHEMA)
+    result = assess_prospective_route(conn, "mint")
+    first = persist_review_lead(conn, "mint", result, now=100)
+    second = persist_review_lead(conn, "mint", result, now=200)
+    assert first == second
+    assert conn.execute("SELECT COUNT(*) FROM wt_deep_route_review_leads").fetchone()[0] == 1
+    assert conn.execute("SELECT COUNT(*) FROM operator_launch_membership").fetchone()[0] == 0
+    assert fetch_review_leads(conn)[0]["last_observed_at"] == 200
+    conn.execute("INSERT INTO operator_launch_membership(mint,operator_id) VALUES ('mint','WATCHTOWER')")
+    assert fetch_review_leads(conn) == []
+    assert persist_review_lead(conn, "mint", result)["action"] == "existing_assignment"
+
+
+def test_deep_review_lead_rejects_nonreview_and_watchtower_ledger():
+    conn = _db()
+    conn.executescript(REVIEW_SCHEMA)
+    result = assess_prospective_route(conn, "mint")
+    try:
+        persist_review_lead(conn, "mint", {**result, "automatic_membership_allowed": True})
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("automatic assignment leaked into review lead")
+    conn.execute("INSERT INTO wt_watchtower_launches VALUES ('mint')")
+    assert persist_review_lead(conn, "mint", result)["action"] == "watchtower_ledger_present"
+    assert fetch_review_leads(conn) == []

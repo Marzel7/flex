@@ -1,0 +1,29 @@
+{
+  "schema": "WATCHTOWER_DEEP_INDEXED_REVIEW_PREFLIGHT_V1",
+  "date": "2026-09-21",
+  "scope": "Offline source and in-memory data qualification; no production database, runtime, service, provider, treasury, or membership change",
+  "engineering_changes": [
+    "Live-mode prospective matcher fails closed unless ix_wwtr_destination_amount has exactly transfer_destination,transfer_lamports columns; funding-parent result count is bounded at 33",
+    "New wt_deep_route_review_leads schema and transaction-owned persistence/readback contract carries REVIEW_ONLY evidence and excludes canonical or WT-ledger-owned mints"
+  ],
+  "read_only_source_baseline": {
+    "transaction_role_rows": 59743,
+    "edge_candidate_rows": 127479,
+    "live_db_index_present": false,
+    "pre_index_example_latency_seconds": 3.401,
+    "pre_index_query_plan": "full transaction-role index scan"
+  },
+  "in_memory_copy_indexed_replay": {
+    "copy_and_index_seconds": 7.766,
+    "deep": {"count": 26, "review_candidate": 26, "mean_ms_per_mint": 3.653},
+    "ar4c": {"count": 21, "review_candidate": 21, "mean_ms_per_mint": 4.996},
+    "canonical_watchtower": {"count": 349, "insufficient": 349, "mean_ms_per_mint": 3.936},
+    "excluded_selected_upstream_screen": {"count": 18, "conflict": 17, "insufficient": 1, "mean_ms_per_mint": 5.842},
+    "query_plan": "indexed role lookup by transfer_destination and transfer_lamports",
+    "limitation": "In-memory copy is not a live production index or concurrent-load latency qualification"
+  },
+  "focused_tests": "18 passed in tests/test_watchtower_deep_historical.py",
+  "production_verdict": "HOLD: no index or review table exists in live DB, no Walkback post-commit review hook or cross-mint re-evaluation exists, the current operator review API is WT-only, and running Walkback source is a separate runtime tree without these modules",
+  "safety": "No automatic assignment or treasury promotion. No service restart, provider request, production DB write, or Supervisor change.",
+  "exact_next_action": "Offline-qualify a writer-lane schema migration and post-commit/re-evaluation hook plus API review readback against the runtime-source parity manifest. Only then run a narrow production migration/deployment and natural-work observation under the existing review-only authorization."
+}

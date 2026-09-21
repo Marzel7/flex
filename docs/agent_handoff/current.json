@@ -1,4 +1,13 @@
 {
+  "watchtower_deep_separate_operation_decision_20260921": {
+    "status": "PARTIAL_PRODUCTION_HOLD",
+    "engineering_revision": "8dc6f947dbc5e5821d07c5478fc23acc58987497; dirty main checkout and separate Walkback runtime source",
+    "user_decision": "WATCHTOWER_DEEP must be a separate canonical operation with its own launch assignments, not a WATCHTOWER subtype.",
+    "qualification": "Generic operator UI is database-driven, but 43 historical same-amount matches are only seed-anchored review candidates. The earlier address-rotation classifier confirms 0/60 proposed Deep mints from contiguous per-mint known-root paths. Existing WATCHTOWER has 349 primary members; three exact-amount controls are already WATCHTOWER_CONFIRMED. No amount-only or shared-pool assignment is safe.",
+    "production_flags": "SOURCE_CHANGES=0; OPERATOR_OR_MEMBERSHIP_WRITES=0; SERVICE_RESTARTS=0; PROVIDER_CALLS=0; AUTOMATIC_PROMOTION=false",
+    "verdict": "Separate-operation semantics accepted; live classification and UI launch assignment not activated because the rotating-address admission rule lacks a qualified fail-closed retained-evidence path.",
+    "exact_next_action": "Build and offline-qualify an address-rotation-safe Deep detector against the 60 supplied mints, all 349 WATCHTOWER members, same-amount negatives and mixed-pool controls; only then parity-gate a canonical operator registration and idempotent historical membership replay through the operations writer lane, verify generic UI readback, and preserve existing WATCHTOWER ownership."
+  },
   "production_stabilization_frozen_baseline_20260919": {
     "status": "WALKBACK_RUNTIME_BOUNDARY_DEPLOYED_PRE_SOAK_PASS_FOUR_HOUR_OBSERVATION_PENDING",
     "captured_at_utc": "2026-09-19T10:25:58Z",

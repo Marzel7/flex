@@ -17384,6 +17384,13 @@
     "verdict": "PASS for preflight/dry-run only; the full restart path has not been exercised against production and must not be described as production-qualified.",
     "exact_next_action": "Finish the at-or-after 2026-09-21T10:06:00Z read-only Walkback/Cascade recovery qualification. If a future full-stack shutdown/start is genuinely needed, run --check and review dirty-source parity first, then deliberately use --execute; do not restart merely to test the new script."
   },
+  "safe_full_stack_restart_dirty_gate_20260921": {
+    "status": "HOLD_NO_RESTART_DIRTY_SOURCE_PARITY_UNREVIEWED",
+    "observation": "User ran restart_supervised_safe.sh --execute. Preflight passed; the script detected 103 tracked main-checkout changes and aborted before requesting Supervisor shutdown. Read-only follow-up confirmed API 4294, Listener 4299, Funding 4287, Creator Resolution 4289, Monitor 4291, Scheduler 4366, Walkback 18296 and Cascade 18297 all remained RUNNING with unchanged PIDs.",
+    "risk": "Dirty source includes src/core/main.py, pumpfun_curve_listener.py, creator_funding_worker.py, creator_resolution_worker.py, database_write_service.py, db.py, db_writer.py, rpc_cache.py, src/utils/db_locking.py and health/UI modules. A full restart would load current on-disk main modules; no loaded-versus-disk parity audit has qualified that expansion.",
+    "verdict": "The restart guard operated correctly. Do not use --allow-dirty-main or start_supervised.sh as a workaround without a source parity review and an actual need for full-stack recovery.",
+    "exact_next_action": "Continue current stable processes and complete the ongoing 20-minute Walkback/Cascade observation. For a future whole-app restart, first audit/freeze every running main-checkout service module and dependency against current disk source, then explicitly authorize the full restart with a known-good manifest."
+  },
   "walkback_operation_neutral_topology_runtime_parity_20260920": {
     "engineering_revision": "baseline c7881bb2 plus detector 1a99f4a7 on codex/walkback-topology-runtime-parity; local isolated commits, not source-pushed",
     "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",

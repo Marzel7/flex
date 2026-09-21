@@ -17481,6 +17481,17 @@
     "verdict": "The existing databases can remain in place for source separation if every service is pinned to their exact absolute paths. Full source cutover remains HOLD.",
     "exact_next_action": "Complete the remaining existing-path authority manifest and prove per-service producer/consumer equivalence against current and proposed checkouts, then prepare a separately authorized parity-gated cutover."
   },
+  "dev_prod_active_service_inventory_20260921": {
+    "status": "READ_ONLY_INVENTORY_HOLD_ARMED_STATE_SPLIT",
+    "engineering_revision": "49916250e5499433dfab6c8172002d2238e9e802 on local codex/dev-prod-path-boundary; audit only, not deployed",
+    "artifact": "docs/audits/dev_prod_active_service_inventory_20260921.v1.json; JSON validated",
+    "runtime_roots": "Walkback PID 18296 and Cascade PID 18297 have cwd and PYTHONPATH at .runtime_recovery_c06d. Alert 4283, Funding 4287, Creator Resolution 4289, Monitor 61224, Scheduler 4366, API 4294, Listener 4299 and ngrok 4301 have cwd/PYTHONPATH at the main checkout. Selected live path environment was inspected without displaying non-allowlisted variables.",
+    "path_mismatch": "API disk source operation_dashboard_routes.py reads/writes main-root database/armed_mode.txt; running Cascade source reads recovery-root database/armed_mode.txt at startup. Both files currently contain 1, but an API/UI toggle would write one and restart Cascade against the other. No toggle was issued. WS_ARMED_STATE_PATH is absent from live process environments; isolated candidate override is not active.",
+    "parity_limit": "CWD, PYTHONPATH, source mtimes and hashes do not prove every imported module object in a live Python process. Full transitive and loaded-module parity remain unqualified.",
+    "production_flags": "READ_ONLY=true; SOURCE_CONFIG_SERVICE_DATABASE_QUEUE_CHANGES=0; SIGNALS_OR_RESTARTS=0; PROVIDER_CALLS=0; AUTOMATIC_TREASURY_PROMOTION=false",
+    "verdict": "HOLD full source cutover; a concrete armed-state producer/consumer path split exists despite covered named-path validator PASS.",
+    "exact_next_action": "Offline-qualify a common armed-state authority for both API and Cascade while preserving current state and toggle semantics; then complete transitive and loaded-module parity. Seek separate authorization before any production config/service change."
+  },
   "dev_prod_remaining_authorities_20260921": {
     "status": "COVERED_PATH_PARITY_PASS_SOURCE_CUTOVER_HOLD",
     "engineering_revision": "cdad8087b54b3243e38b4d640b62670e09e45ebf on local codex/dev-prod-path-boundary; offline audit only, not pushed or deployed",

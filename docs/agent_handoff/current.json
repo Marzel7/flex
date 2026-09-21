@@ -17435,6 +17435,17 @@
     "verdict": "HOLD: do not use a separate production source root or force a whole-app restart. The current source-relative cross-service files and databases require explicit shared authorities and exact runtime provenance.",
     "exact_next_action": "Reconstruct a clean candidate from qualified current module blobs; patch and test all source-relative persistent paths and cross-service telemetry pairs, including API creator/operations DB routes and listener/API log paths; then verify loaded-source parity and seek separate deployment authorization."
   },
+  "dev_prod_source_separation_shared_paths_20260921": {
+    "status": "PARTIAL_OFFLINE_QUALIFIED_NOT_DEPLOYED",
+    "engineering_revision": "f13001b5902c20d86eb1d776db72bc07698f5316 on local codex/dev-prod-path-boundary; repair commit a7b8aed75d7c53bdccabc3a91d4cfa3ee057f335; selected current-disk snapshot commit 3da24eb8090b0c650cfc8024450b1cb2739e7029",
+    "artifact": "docs/audits/dev_prod_shared_paths_offline_20260921.v1.json; JSON validated; selected pre-patch disk hashes recorded",
+    "repair": "Offline candidate resolves API system-health and subtype operations DB, listener Byzantine birth-signal DB, API/listener creator DB, shared premigration log, listener-health log, serializer snapshot and birth-durability snapshot through explicit common authorities. Listener migration log and curve-watch state also gained path overrides. Prior isolated armed DB and Cascade armed-state overrides remain.",
+    "tests": "Seven focused stdlib cross-checkout/path tests passed; changed Python modules compiled; git diff --check passed. Full service imports and live loaded-source parity were not claimed.",
+    "limits": "The isolated branch contains selected exact current disk blobs, not proof of the loaded source in long-running main-root processes. It is not a complete transitive persistent-path census. Some listener/API diagnostics and snapshots remain source-relative. No Supervisor variables were configured. Scheduler/Monitor override configuration and complete production baseline remain open.",
+    "production_flags": "DEPLOYED=false; PROD_SOURCE_PATH_NOT_CREATED=true; PRODUCTION_SOURCE_CHANGES=0; SUPERVISOR_CHANGES=0; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_MUTATIONS=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0; PATH_PARITY=HOLD",
+    "verdict": "Do not move source roots or perform a full restart from a separate checkout. Candidate code is only partial offline preparation.",
+    "exact_next_action": "Finish the transitive active-service path census, repair and test all remaining source-relative persistent/diagnostic paths, establish exact loaded-source and complete baseline parity, then prepare a separate parity-gated production deployment manifest."
+  },
   "walkback_operation_neutral_topology_runtime_parity_20260920": {
     "engineering_revision": "baseline c7881bb2 plus detector 1a99f4a7 on codex/walkback-topology-runtime-parity; local isolated commits, not source-pushed",
     "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",

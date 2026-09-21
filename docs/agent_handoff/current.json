@@ -17503,6 +17503,15 @@
     "verdict": "Narrow causal repair offline-qualified for the observed crash, but production is not repaired yet; separately verify full runtime parity before deployment.",
     "exact_next_action": "Requalify this one-file patch against a complete exact-current runtime baseline, prepare a parity-gated module-only Monitor deployment for separate authorization, and keep dev/prod source separation on HOLD independently."
   },
+  "walkback_cascade_runtime_recovery_followup_20260921": {
+    "status": "PARTIAL_READ_ONLY_RECOVERY_CHECK",
+    "engineering_revision": "durable runtime .runtime_recovery_c06d per prior handoff; no engineering change in this check",
+    "observation": "After the 10:06Z boundary, Supervisor showed Walkback PID 18296 and Cascade PID 18297 still RUNNING; listener 4299, Funding 4287, Creator Resolution 4289, API 4294 and Scheduler 4366 remained at baseline PIDs. Monitor alone had an independently authorized restart, 4291 to 61224, for its qualified idle-sleep repair. Current Cascade log shows continued audit phase2 progress and completed resync; current Walkback log shows a natural post-batch promotion and then empty-queue sleeps. flex_complete_database.db-wal was 2,921,112 bytes and wt_ops_v2.db-wal 27,204,392 bytes at local 13:11.",
+    "qualification_limit": "The sampled evidence does not establish exact post-boundary Walkback completed count, all retained-log incident deltas across rotation, or the requested 13-root LIVE snapshot; eligible sessions change naturally. Therefore do not claim full recovery PASS or zero post-boundary lock/lifecycle events. This is not a new observed failure.",
+    "production_flags": "READ_ONLY=true; SERVICE_RESTARTS_OR_SIGNALS_BY_CHECK=0; SOURCE_CONFIG_DATABASE_QUEUE_CHANGES=0; AUTOMATIC_TREASURY_PROMOTION=false",
+    "verdict": "PARTIAL: target PIDs stable with natural progress evidence, but strict recovery qualification remains unproven on this check.",
+    "exact_next_action": "If a full recovery verdict is still needed, run a separate read-only audit with explicit database counters and inode/offset log baselines. Funding/Creator heartbeat has been restored to its prior narrow monitoring scope."
+  },
   "operation_monitor_idle_sleep_deployment_20260921": {
     "status": "MONITOR_ONLY_DEPLOYED_20_MINUTE_PASS",
     "engineering_revision": "d2dc49a0697dd50f5ef276ff10be78335358d49a on local codex/monitor-idle-sleep-guard; repair commit b8463f4e97751242cfc62b3296553a93ff8dca1b",

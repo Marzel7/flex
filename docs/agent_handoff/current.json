@@ -17424,6 +17424,17 @@
     "verdict": "Offline two-path repair is a partial step only. Do not migrate source roots, restart services from a new checkout, or claim a complete production baseline.",
     "exact_next_action": "Rebase or reconstruct the isolated candidate from exact qualified current module blobs, add tests for all persistent path authorities including Monitor and scheduler, complete listener/API/log/diagnostic path census and loaded-source parity, then prepare a separate parity-gated deployment manifest."
   },
+  "dev_prod_source_separation_path_matrix_20260921": {
+    "status": "PARTIAL_OFFLINE_AUDIT_HOLD",
+    "engineering_revision": "cdc15bc132a5a2ab5ced160782fd55f8d6660f1f on local codex/dev-prod-path-boundary; based on 8dc6f947 plus two offline path overrides; not pushed or deployed",
+    "artifact": "docs/audits/dev_prod_path_authority_partial_20260921.v1.json in isolated branch; JSON validated",
+    "observed_new_blockers": "API main.py directly resolves pumpswap_tokens.db from source root and directly reads wt_ops_v2.db at a system-health call site; operator_routes.py subtype route also directly opens source-relative wt_ops_v2.db. Listener and API share source-relative premigration/listener logs, db_serializer_metrics.json and birth_durability_metrics.json. Separating roots without shared explicit authorities would split state or degrade health reporting.",
+    "existing_overrides_unconfigured": "Scheduler OPS_SCHEDULER_LOCK, FLEX_DB_PATH and OPS_V2_DB_PATH; Monitor OPERATION_MONITOR_QUEUE_PATH; manual workflow DB and retained birth-audit directory. The offline candidate adds WT_OPS_DB_PATH/OPS_V2_DB_PATH to operation_armed.py and WS_ARMED_STATE_PATH to ws_cascade.py, but neither is activated.",
+    "qualification": "Three focused override tests and compile/diff checks passed in prior isolated candidate. This continuation added a JSON-validated partial path matrix and inspected exact current disk hashes, but did not prove long-running main-root loaded-module hashes. Full transitive path census remains incomplete.",
+    "production_flags": "SOURCE_ROOT_MIGRATION=false; PROD_SOURCE_PATH_NOT_CREATED=true; SUPERVISOR_CHANGES=0; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_MUTATIONS=0; PROVIDER_CALLS=0; PATH_PARITY=FAIL",
+    "verdict": "HOLD: do not use a separate production source root or force a whole-app restart. The current source-relative cross-service files and databases require explicit shared authorities and exact runtime provenance.",
+    "exact_next_action": "Reconstruct a clean candidate from qualified current module blobs; patch and test all source-relative persistent paths and cross-service telemetry pairs, including API creator/operations DB routes and listener/API log paths; then verify loaded-source parity and seek separate deployment authorization."
+  },
   "walkback_operation_neutral_topology_runtime_parity_20260920": {
     "engineering_revision": "baseline c7881bb2 plus detector 1a99f4a7 on codex/walkback-topology-runtime-parity; local isolated commits, not source-pushed",
     "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",

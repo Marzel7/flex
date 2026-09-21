@@ -108,13 +108,14 @@ def test_statement_diagnostics_correlate_transaction_without_parameter_values(tm
     assert "must-not-appear" not in log.read_text()
 
 
-def test_trigger_migration_failure_is_fail_open(monkeypatch):
+def test_trigger_decommission_failure_is_fail_open(monkeypatch):
     import asyncio
     import src.core.creator_funding_worker as worker
 
-    monkeypatch.setattr(worker, "_ensure_creator_funding_rescore_trigger", lambda: (_ for _ in ()).throw(sqlite3.OperationalError("busy")))
+    monkeypatch.setattr(worker, "initialize_schema", lambda _path: None)
+    monkeypatch.setattr(worker, "_decommission_token_prediction_triggers", lambda: (_ for _ in ()).throw(sqlite3.OperationalError("busy")))
     monkeypatch.setattr(worker, "_STOP", True)
     messages = []
     monkeypatch.setattr(worker, "_log", messages.append)
     asyncio.run(_run_loop_async(once=True))
-    assert any("funding rescore trigger=deferred:OperationalError" in line for line in messages)
+    assert any("token prediction triggers=deferred:OperationalError" in line for line in messages)

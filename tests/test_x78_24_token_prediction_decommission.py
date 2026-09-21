@@ -102,5 +102,5 @@ def test_prediction_http_is_explicitly_retired_and_navigation_removed():
     sidebar = (ROOT / "templates/partials/sidebar.html").read_text()
     assert '"status": "decommissioned"' in main
     assert 'path.startswith("/api/predictions")' in main
-    assert 'path == "/api/trading-sim/auto-buy-predictions"' in main
+    assert "/api/trading-sim/auto-buy-predictions" not in main
     assert 'href="/predictions"' not in sidebar

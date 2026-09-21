@@ -17351,6 +17351,16 @@
     "verdict": "UNPROVEN_OPERATION_CANDIDATE. Do not register, promote, subscribe, or attribute this address from its name/prefix alone.",
     "exact_next_action": "If authorized, run a bounded provider-backed operation-neutral topology reconstruction for this address, deriving Treasury -> SubProv -> fan-out -> creator chains and comparing identities and amount/shape evidence with AzkPUX, Gzaa and 2gh. Keep automatic promotion disabled."
   },
+  "walkback_cascade_missing_runtime_recovery_20260921": {
+    "engineering_revision": "8dc6f947dbc5e5821d07c5478fc23acc58987497 dirty production checkout; no engineering change",
+    "status": "HOLD_RUNTIME_PARITY_UNPROVEN",
+    "trigger": "After an intentional stop_supervised.sh and subsequent full-stack start, Walkback and Cascade entered BACKOFF with exit 127 because Supervisor directory/PYTHONPATH /private/tmp/flex-sqlite-provenance-clean no longer exists.",
+    "current_observation": "Listener, Funding, Creator Resolution and API were RUNNING. Walkback and Cascade repeatedly failed before Python startup. No SQLite diagnosis applies to this failure.",
+    "parity_blocker": "The removed runtime checkout contained module-only deployments beyond its Git base. Retained c06d1f7d commit exactly recovers Walkback sha256 94611dc0... and topology classifier f51637e8..., but the main checkout Walkback is 8743d342... and Cascade de2795b8... versus c06d1f7d Cascade db9b6aaf.... The complete last-running source/module hash manifest is not yet reconstructed; pointing both services at main would change behavior unqualified.",
+    "action_taken": "Read-only Supervisor, error-log, config, handoff, Git-object and hash checks. No source, config, database, queue or service mutation; no restart or signal. Automatic treasury promotion remains disabled.",
+    "verdict": "HOLD: authorized narrow recovery cannot safely proceed until the exact deployed Walkback/Cascade runtime is reconstructed and parity-qualified in a durable location.",
+    "exact_next_action": "Reconstruct a complete immutable module manifest from retained deployment audits/Git objects, including post-base db_locking and Cascade overlays. Build a durable runtime checkout, verify every deployed module hash and offline startup/import tests, then change only the two Supervisor directory/PYTHONPATH entries and start only Walkback/Cascade. Abort if parity remains incomplete."
+  },
   "walkback_operation_neutral_topology_runtime_parity_20260920": {
     "engineering_revision": "baseline c7881bb2 plus detector 1a99f4a7 on codex/walkback-topology-runtime-parity; local isolated commits, not source-pushed",
     "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",

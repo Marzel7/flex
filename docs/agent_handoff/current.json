@@ -17418,6 +17418,15 @@
     "verdict": "The restart guard operated correctly. Do not use --allow-dirty-main or start_supervised.sh as a workaround without a source parity review and an actual need for full-stack recovery.",
     "exact_next_action": "Continue current stable processes and complete the ongoing 20-minute Walkback/Cascade observation. For a future whole-app restart, first audit/freeze every running main-checkout service module and dependency against current disk source, then explicitly authorize the full restart with a known-good manifest."
   },
+  "dev_prod_api_first_cutover_continuation_20260921": {
+    "status": "PARTIAL_OFFLINE_API_FIRST_CUTOVER_HOLD",
+    "engineering_revision": "677c2168 on local codex/dev-prod-path-boundary; audit and read-only checkout guard only, no production baseline commit",
+    "audit": "docs/audits/dev_prod_api_first_cutover_gate_20260921.v1.json",
+    "finding": "Original dev/prod objective re-established. Active watchtower_api PID 4294 still runs from dirty /Users/kevinkeaveney/Dev/claude/flex; /Users/kevinkeaveney/Production/flex does not exist. Existing codex/dev-prod-path-boundary override candidate is partial. An API-specific pinned scratch source tree was tested with explicit scratch DB and state authorities; five existing/Deep operator routes returned 200. A separate exploratory Git worktree copied that tree but remains dirty with 194 changed/untracked paths and was not committed, pushed or deployed. Dynamic startup/test route census observed 140 local imports with 18 changed/new paths versus clean base; static lazy import closure found 364 modules with 80 changed/new and 117 conservative source-relative-path suspects. This does not establish complete API source or state parity. A new read-only checkout guard checks exact commit, clean distinct worktree and non-shallow repository; actual invocation returned HOLD PRODUCTION_ROOT_MISSING. 24 focused path/guard tests passed; JSON and diff checks passed.",
+    "production_flags": "PROD_CHECKOUT_CREATED=false; SUPERVISOR_CHANGED=false; SERVICES_RESTARTED=0; DATABASE_OR_QUEUE_MUTATIONS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "HOLD: no safe exact qualified production baseline or complete API state-path parity yet. Do not move API or any other service to the dirty exploratory worktree; retention remains independent.",
+    "exact_next_action": "Qualify a bounded API source-and-state candidate including lazy-route dependencies and explicit persistent authorities, commit that candidate, create clean /Users/kevinkeaveney/Production/flex at the approved SHA, then migrate only API with rollback and natural traffic. Other services follow separately."
+  },
   "dev_prod_source_separation_phase1_census_20260921": {
     "status": "DEV_PROD_SOURCE_CONSOLIDATION_HOLD",
     "scope": "Read-only first-phase provenance and source-relative persistent-path census. No consolidation, production checkout, Supervisor change, restart, database move, provider call, or synthetic traffic.",

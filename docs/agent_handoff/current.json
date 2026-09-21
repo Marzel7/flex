@@ -17503,6 +17503,16 @@
     "verdict": "Narrow causal repair offline-qualified for the observed crash, but production is not repaired yet; separately verify full runtime parity before deployment.",
     "exact_next_action": "Requalify this one-file patch against a complete exact-current runtime baseline, prepare a parity-gated module-only Monitor deployment for separate authorization, and keep dev/prod source separation on HOLD independently."
   },
+  "retention_writer_lease_budget_offline_20260921": {
+    "status": "HOLD_NO_FAIL_CLOSED_REPAIR_QUALIFIED",
+    "engineering_revision": "bf45d72bb58e76e84302dcda4e7c21e4b576c78b on isolated codex/retention-lease-budget, based on c01127cc4db90281edf8a87918b57cb76d773875; no production source edit",
+    "artifact": "docs/audits/retention_writer_lease_budget_offline_20260921.v1.json; JSON validated",
+    "test_result": "58 focused retention tests passed. A new deterministic negative control delayed a one-row TrackedConnection.commit by 800ms; cleanup_expired_batch exceeded a 500ms maintenance budget while _holds_write_lock was true. This characterizes the gap, not a repair.",
+    "design_boundary": "The existing budget and SELECT progress handler cannot hard-bound an already-entered DELETE/commit. Shrinking batch size or checking the clock before commit cannot guarantee release. Retained 86.97s DB_COMMIT_SLOW spans SQLite commit plus commit-end diagnostics, so exact substage remains unproven.",
+    "production_flags": "DEPLOYED=false; SOURCE_CONFIG_SERVICE_DATABASE_QUEUE_CHANGES=0; SIGNALS_OR_RESTARTS=0; PROVIDER_CALLS=0; SYNTHETIC_PRODUCTION_TRAFFIC=0; AUTOMATIC_TREASURY_PROMOTION=false",
+    "verdict": "HOLD: no fail-closed retention writer-lease repair is offline-qualified or authorized for production.",
+    "exact_next_action": "Prototype and offline-test process-supervised bounded maintenance with atomic recovery, child teardown/lease release, accurate result reporting and stage-specific commit telemetry. Seek separate parity-gated deployment authorization only after that proof."
+  },
   "retention_cache_writer_lease_diagnosis_20260921": {
     "status": "DIAGNOSED_TRANSACTION_COMMIT_BOUNDARY_UNBOUNDED_NO_REPAIR",
     "engineering_revision": "main checkout HEAD 8dc6f947 dirty; rpc_cache.py sha256 58cf2a632f48edc6c185f728876473695b7947a15e7a9f2c3d48b072a18aeef7 and cache_metrics_retention_runner.py sha256 83354a6abcff2452fe5c4fc840e0c21a5dc3723d7a60019baee44198c628edad match production-qualified retention deployment; db_locking.py currently cf60acfa7306b771c3c3bf0e88d3eee0e680a09ee3f5ef1cc64bad2d22332390",

@@ -17503,6 +17503,17 @@
     "verdict": "Narrow causal repair offline-qualified for the observed crash, but production is not repaired yet; separately verify full runtime parity before deployment.",
     "exact_next_action": "Requalify this one-file patch against a complete exact-current runtime baseline, prepare a parity-gated module-only Monitor deployment for separate authorization, and keep dev/prod source separation on HOLD independently."
   },
+  "operation_monitor_idle_sleep_current_overlay_20260921": {
+    "status": "ONE_FILE_OFFLINE_QUALIFIED_DEPLOYMENT_REQUIRES_SEPARATE_AUTHORIZATION",
+    "engineering_revision": "b4f43a5b2742d70aa2cf4cca03f472502c85ee2d on local codex/monitor-idle-sleep-guard; repair commit b8463f4e97751242cfc62b3296553a93ff8dca1b; not pushed or deployed",
+    "artifact": "docs/audits/monitor_idle_sleep_current_overlay_20260921.v1.json; JSON validated; one-file draft deployment manifest included",
+    "parity": "Current main-disk operation_monitor_service.py sha256 7489cb25a87c9a485a6597a46fa0bb6b971531ca8e9f3b8d4c2b7d33addb0b8d equals the qualified preimage. Candidate service sha256 faea1dd497a2e4f8f2322f4b72dd7f09d90de3e761efc81ca295820b7d582b91. Complete loaded-module parity for running PID remains unknown.",
+    "qualification": "In a temporary copy of current source with only the patched Monitor service overlaid and DB env paths redirected to nonexistent temp files, service import succeeded; four deadline tests passed and actual imported helper passed mocked boundary checks. Combined worker+deadline suite: 17 passed, 1 failed. The unpatched same-current-source overlay had the exact same worker assertion failure (13 passed, 1 failed), so this is pre-existing and unrelated to the sleep patch. All test DB/queue work used temporary fixtures.",
+    "live_context": "At final read-only check, operation_monitor_worker remained RUNNING at PID 53279. It still runs the unpatched service; no restart or production edit occurred. Temporary dependency overlay files in the isolated worktree are unstaged test scaffolding and are not deployment payload.",
+    "production_flags": "DEPLOYED=false; PRODUCTION_SOURCE_CHANGES=0; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_MUTATIONS=0; PROVIDER_CALLS=0; SOURCE_SEPARATION_UNCHANGED=true",
+    "verdict": "One-file causal Monitor repair has focused and current-source overlay qualification; production remains vulnerable until a separately authorized parity-gated module-only deployment and natural soak.",
+    "exact_next_action": "Prepare clean one-file deployment payload from repair commit b8463f4e, recheck current target hash and active PID/source context, seek separate authorization to deploy only operation_monitor_service.py and restart only operation_monitor_worker, then observe natural traffic for at least 20 minutes. Keep dev/prod source separation independent and on HOLD."
+  },
   "walkback_operation_neutral_topology_runtime_parity_20260920": {
     "engineering_revision": "baseline c7881bb2 plus detector 1a99f4a7 on codex/walkback-topology-runtime-parity; local isolated commits, not source-pushed",
     "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",

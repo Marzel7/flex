@@ -17374,6 +17374,16 @@
     "verdict": "PARTIAL: process startup and natural progress restored; full post-recovery 20-minute qualification pending.",
     "exact_next_action": "At or after 2026-09-21T10:06:00Z run read-only 20-minute qualification of target/unrelated PIDs, natural Walkback/Cascade progress, connectivity, writer/SQLite errors, WAL/checkpoint behavior and 13-root admission. The existing 15-minute Funding/Creator heartbeat was temporarily extended with this one-time gate; restore its previous prompt after the verdict. Do not modify services or source during observation."
   },
+  "safe_full_stack_restart_script_20260921": {
+    "engineering_revision": "8dc6f947dbc5e5821d07c5478fc23acc58987497 dirty main checkout; new uncommitted script, preflight helper, runtime manifest and focused tests",
+    "status": "IMPLEMENTED_DRY_RUN_QUALIFIED_NOT_EXECUTED",
+    "files": "scripts/restart_supervised_safe.sh; scripts/preflight_supervisor_start.py; config/supervisor/restart_runtime_manifest.json; tests/test_preflight_supervisor_start.py",
+    "behavior": "Defaults to --check. --execute preflights every required Supervisor program directory/executable/module/PYTHONPATH and exact four qualified recovered runtime hashes before stopping anything. A dirty main checkout requires explicit --allow-dirty-main acknowledgment. Full restart uses Supervisor graceful shutdown, waits for control socket/API port release, rechecks parity, starts Supervisor and the autostart=false operation_scheduler, verifies all required RUNNING, and attaches caffeinate to the Supervisor PID. No broad pkill, SIGKILL or log truncation.",
+    "qualification": "bash -n passed; current --check passed without mutation; 3 focused pytest tests passed including missing runtime and changed module hash fail-closed cases; Python compile and diff checks passed.",
+    "production_flags": "SCRIPT_EXECUTED=false; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_MUTATIONS=0; PROVIDER_CALLS=0; SYNTHETIC_TRAFFIC=0; WALKBACK_CASCADE_20_MINUTE_QUALIFICATION_STILL_PENDING=true",
+    "verdict": "PASS for preflight/dry-run only; the full restart path has not been exercised against production and must not be described as production-qualified.",
+    "exact_next_action": "Finish the at-or-after 2026-09-21T10:06:00Z read-only Walkback/Cascade recovery qualification. If a future full-stack shutdown/start is genuinely needed, run --check and review dirty-source parity first, then deliberately use --execute; do not restart merely to test the new script."
+  },
   "walkback_operation_neutral_topology_runtime_parity_20260920": {
     "engineering_revision": "baseline c7881bb2 plus detector 1a99f4a7 on codex/walkback-topology-runtime-parity; local isolated commits, not source-pushed",
     "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",

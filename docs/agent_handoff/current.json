@@ -13165,10 +13165,10 @@
   },
   "project": {
     "branch": "classification-attribution-axis",
-    "git_head": "aa3a6d745f259cc46fad5c824ac5692946e921bc",
+    "git_head": "a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43",
     "name": "flex",
-    "updated_at_utc": "2026-09-21T18:12:56Z",
-    "working_tree": "heavily dirty main checkout with 21 unrelated user-staged paths; Walkback runs isolated .runtime_recovery_c06d, API runs from dirty main; retention helper diagnostic and hourly batch-5 cron are deployed pending natural qualification"
+    "updated_at_utc": "2026-09-21T21:28:41Z",
+    "working_tree": "heavily dirty main checkout with 21 unrelated user-staged paths; Walkback runs isolated .runtime_recovery_c06d, API runs from dirty main; separate clean API source candidate b0883b6 is offline-only, not the production runtime"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -17425,6 +17425,16 @@
     "audit": "docs/audits/dev_prod_api_first_cutover_gate_20260921.v1.json on codex/dev-prod-path-boundary",
     "verdict": "HOLD for actual production API source switch until lazy-route source and persistent-path authority are bounded and the clean candidate is promoted. Do not describe the API-only commit as a complete qualified all-service baseline.",
     "exact_next_action": "Finish API lazy-route/path parity against the clean candidate, pin explicit old-state authorities, then create /Users/kevinkeaveney/Production/flex at a complete approved commit and migrate API only under a rollbackable manifest. Walkback/Cascade remain separate stages; retention is independent."
+  },
+  "dev_prod_api_static_closure_candidate_20260921": {
+    "status": "OFFLINE_SOURCE_CANDIDATE_PASS_PRODUCTION_CUTOVER_HOLD",
+    "engineering_revision": "b0883b68874fb2a1bd39edcd4a7030f8936bb0f8 on local codex/production-source-candidate; offline gate audit 4083226d183ac50382f83767ca859545bbea87a2 on local codex/dev-prod-path-boundary; neither deployed",
+    "source_gate": "Clean detached smoke worktree at exact b0883b6, with no Git status entries. Read-only checkout validator passed with zero failures and deployment_authorized=false. Candidate includes 80 changed/new modules from conservative static API local-import closure plus selected UI/config files; dynamic imports and exact live loaded bytes remain unproven.",
+    "tests": "Five API read-only routes returned HTTP 200 against scratch databases with explicit scratch path authorities. Deep historical test suite 26/26 passed offline. Existing focused dev/prod path and checkout-validator suite 24/24 passed. Audit JSON and diff checks passed.",
+    "remaining_gates": "117 conservative source-relative path suspects require bounded persistent-state authority review; complete per-service source baseline and live state-path parity are not established. No /Users/kevinkeaveney/Production/flex checkout exists. Do not infer production qualification from scratch route or test results.",
+    "production_flags": "SUPERVISOR_CHANGED=false; SERVICES_RESTARTED=0; DATABASE_OR_QUEUE_MUTATIONS=0; PRODUCTION_CHECKOUT_CREATED=false; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "HOLD actual production source cutover; durable dev/prod separation is not complete. API-first candidate is a reproducible offline step, not a deployed production baseline.",
+    "exact_next_action": "Finish bounded API persistent-path producer/consumer parity and lazy/dynamic import review, then prepare a parity-gated API-only source cutover from a clean approved commit with explicit existing-state paths and rollback. Do not move or restart any other service as part of API qualification."
   },
   "dev_prod_api_first_cutover_continuation_20260921": {
     "status": "PARTIAL_OFFLINE_API_FIRST_CUTOVER_HOLD",

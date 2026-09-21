@@ -17444,7 +17444,18 @@
     "path_gate": "HOLD: existing 23-name path validator is partial and current active services have mixed source roots. Read-only trace proves scheduler lock and Monitor queue default into main-root paths and lack active explicit path variables. API armed-state producer uses main-root armed_mode.txt while Cascade consumer uses a distinct-inode recovery-root armed_mode.txt; both exist and WS_ARMED_STATE_PATH is not configured. operation_armed.py would also change its default ops DB path under a root move; isolated override is not deployed. No contents were changed or toggled. Supervisor config census is not live-process environment proof. Exact disk comparison shows API candidate b0883b6 matches current listener entrypoint only; API, funding, Creator Resolution and Scheduler differ from current main disk, Walkback and Cascade differ from recovery disk, and Monitor entrypoint is absent. These are not loaded-process byte proofs.",
     "production_flags": "SUPERVISOR_CHANGED=false; SERVICES_SIGNALED_OR_RESTARTED=0; DATABASE_OR_QUEUE_MUTATIONS=0; PRODUCTION_CHECKOUT_CREATED=false",
     "verdict": "No clean all-service production baseline certified; do not run a full-stack restart or point Supervisor to the API-only candidate.",
-    "exact_next_action": "Offline-qualify the four traced shared authorities as explicit existing absolute paths across their producer/consumer pairs, without changing state or services. Then complete remaining imported-source/persistent-authority manifest and assemble one clean all-service commit only when unknowns are resolved."
+    "exact_next_action": "Use the separately recorded offline shared-authority candidate; complete remaining imported-source/persistent-authority manifest and assemble one clean all-service commit only when unknowns are resolved."
+  },
+  "dev_prod_critical_shared_authorities_candidate_20260921": {
+    "status": "OFFLINE_AUTHORITY_CANDIDATE_PASS_PRODUCTION_CUTOVER_HOLD",
+    "engineering_revision": "18885108552396547e4ddfeb44b74c3e2d92602a on local codex/dev-prod-path-boundary; not deployed; main dev/runtime revision remains a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43 plus mixed recovery-root modules",
+    "artifacts": "docs/audits/critical_shared_state_authorities_candidate_20260921.v1.json and tests/test_critical_shared_state_authorities_candidate.py on isolated branch; JSON validated",
+    "finding": "Exact existing main-root paths are proposed for Scheduler lock, Monitor queue, armed-state file and operations DB aliases. Read-only observation found main and recovery armed-state files both contain 1 but have distinct inodes. API candidate b0883b6 has API armed-state override but lacks Cascade's corresponding override; isolated path branch has both. No file moved, copied, toggled or written.",
+    "tests": "28/28 focused offline path, shared-contract, checkout-guard and exact-authority tests passed; two pre-existing invalid-escape DeprecationWarnings only.",
+    "remaining_gates": "Live process environments and loaded module bytes are not proved; producer/consumer cutover is untested; other persistent authorities and all-service source baseline remain incomplete.",
+    "production_flags": "SUPERVISOR_CHANGED=false; SERVICES_SIGNALED_OR_RESTARTED=0; DATABASE_OR_QUEUE_MUTATIONS=0; PRODUCTION_CHECKOUT_CREATED=false",
+    "verdict": "Offline candidate PASS, full production baseline and cutover HOLD.",
+    "exact_next_action": "Combine qualified API and path-override source in one clean candidate, complete the rest of the active-service source/path manifest, and test exact configured authorities per service before a parity-gated migration."
   },
   "dev_prod_api_first_cutover_continuation_20260921": {
     "status": "PARTIAL_OFFLINE_API_FIRST_CUTOVER_HOLD",

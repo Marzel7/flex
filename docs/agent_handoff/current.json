@@ -17492,6 +17492,17 @@
     "verdict": "Full dev/prod source cutover remains HOLD. Independently, Monitor restart-loop risk is newly evidenced.",
     "exact_next_action": "Resolve the unproven token-prediction diagnostic authority and legacy listener log producer; finish per-service active-environment and loaded-source parity. Separately offline-qualify the Monitor negative-sleep guard before cutover; do not combine that repair with path migration."
   },
+  "operation_monitor_idle_sleep_boundary_20260921": {
+    "status": "OFFLINE_FOCUSED_PASS_DEPLOYMENT_HOLD",
+    "engineering_revision": "b8463f4e97751242cfc62b3296553a93ff8dca1b on local codex/monitor-idle-sleep-guard; based on exact qualified Monitor commit 93489cf817f8fe1359468b566aa67cacd5b4a648; not pushed or deployed",
+    "artifact": "docs/audits/monitor_idle_sleep_boundary_qualification_20260921.v1.json; JSON validated",
+    "cause": "Supervisor logged unexpected operation_monitor_worker exit status 1 at 2026-09-21 12:11:07; stderr traceback at operation_monitor_service.py:73 reports ValueError: sleep length must be non-negative. Separate monotonic reads in the while predicate and sleep argument permit deadline crossing between reads.",
+    "repair": "Only operation_monitor_service.py idle boundary changed: one remaining-time sample per tick; skip sleep if <=0, else sleep min(0.25, remaining). Stop semantics, queue, database and provider behavior unchanged. Preimage sha256 7489cb25... matches the current main-disk service module and qualified 93489cf8 blob.",
+    "tests": "Four deterministic stdlib tests passed: expired, exact and positive deadline plus run-loop guard wiring. py_compile and diff check passed. Broader test_operation_monitor_worker.py could not collect from the isolated historical baseline because its db_writer module lacks DurableWriteReceipt; no broad or live pass claimed.",
+    "production_flags": "DEPLOYED=false; PRODUCTION_SOURCE_CHANGES=0; SERVICE_RESTARTS_OR_SIGNALS=0; DATABASE_OR_QUEUE_MUTATIONS=0; PROVIDER_CALLS=0; SOURCE_SEPARATION_UNCHANGED=true",
+    "verdict": "Narrow causal repair offline-qualified for the observed crash, but production is not repaired yet; separately verify full runtime parity before deployment.",
+    "exact_next_action": "Requalify this one-file patch against a complete exact-current runtime baseline, prepare a parity-gated module-only Monitor deployment for separate authorization, and keep dev/prod source separation on HOLD independently."
+  },
   "walkback_operation_neutral_topology_runtime_parity_20260920": {
     "engineering_revision": "baseline c7881bb2 plus detector 1a99f4a7 on codex/walkback-topology-runtime-parity; local isolated commits, not source-pushed",
     "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",

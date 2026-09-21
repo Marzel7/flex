@@ -17481,6 +17481,16 @@
     "verdict": "The existing databases can remain in place for source separation if every service is pinned to their exact absolute paths. Full source cutover remains HOLD.",
     "exact_next_action": "Complete the remaining existing-path authority manifest and prove per-service producer/consumer equivalence against current and proposed checkouts, then prepare a separately authorized parity-gated cutover."
   },
+  "armed_state_shared_authority_offline_20260921": {
+    "status": "NARROW_OFFLINE_PASS_PRODUCTION_HOLD",
+    "engineering_revision": "5b021bd5a8cf2e955831ba7e8113c95ed3e40317 on local codex/dev-prod-path-boundary; not pushed or deployed",
+    "artifact": "docs/audits/armed_state_shared_authority_offline_20260921.v1.json; JSON validated",
+    "module_parity": "Current API operation_dashboard_routes.py preimage sha256 9081419c6eca1dc2ac2fcdd1dea161c6beeea7201beebdffd42ce64fb92f6642 -> offline candidate ba2244a794b2f46bbcf8e6558dd031b0dbf4a85da5b9d2f52b7c5f8e5e354cb5. Current recovery Cascade ws_cascade.py preimage 6218947ddcaee6c3f7b827a2548aca295578ce2fea08b98a1d3a848ee7b43bd8 -> offline candidate 6c850b70b9852a09111d86fddf62e7e016f14b05ed3a56183a4cdd2bb0ba6ce8. Each candidate differs from current production-disk module only in its armed-state path assignment; existing API snapshot retirement and Cascade no_subscribe filter preserved.",
+    "qualification": "22 focused path/validator tests passed, including explicit cross-checkout authority, fallback parity, and temp-file toggle/read semantics with subprocess.run mocked; py_compile and diff checks passed. No actual API or Cascade process was restarted or tested with the override live.",
+    "production_flags": "DEPLOYED=false; SOURCE_CONFIG_SERVICE_DATABASE_QUEUE_CHANGES=0; SIGNALS_OR_RESTARTS=0; PROVIDER_CALLS=0; AUTOMATIC_TREASURY_PROMOTION=false",
+    "verdict": "PASS narrow offline shared-path behavior; production armed-state split and full dev/prod source cutover remain HOLD.",
+    "exact_next_action": "Prepare a parity-gated module/config deployment manifest for separate approval, or finish broader loaded-module/transitive-path census before any full source migration. Keep cache-retention lease repair independent."
+  },
   "dev_prod_active_service_inventory_20260921": {
     "status": "READ_ONLY_INVENTORY_HOLD_ARMED_STATE_SPLIT",
     "engineering_revision": "49916250e5499433dfab6c8172002d2238e9e802 on local codex/dev-prod-path-boundary; audit only, not deployed",

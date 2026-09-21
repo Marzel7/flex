@@ -17507,6 +17507,15 @@
     "verdict": "PASS covered offline 24-name path contract only; HOLD production baseline/cutover.",
     "exact_next_action": "Finish transitive per-service path mapping, freeze research artifacts independently of mutable development source or explicitly accept that dependency, reconcile shared-module behavior and diagnostic test discrepancy, then prepare parity-gated service cutovers."
   },
+  "dev_prod_transitive_path_gap_continuation_20260921": {
+    "status": "READ_ONLY_PATH_GAP_AUDIT_FULL_BASELINE_HOLD",
+    "engineering_revision": "Clean offline full-source candidate 7daa795d73ef3d9ab59d3b22b90d0165c4e0cdbe; isolated path-audit branch be7156f0ee91056227a02741236f4a328b5aab1e; main production source remains a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43",
+    "audit": "docs/audits/transitive_persistent_path_gap_20260921.v1.json; JSON validated; static source review and existing-file metadata only",
+    "finding": "The previously covered 24-name path manifest omits at least three existing persistent authorities used by candidate runtime source: ALERTS_DB_PATH (alert evaluator and API dashboard), DATABASE_PATH (Monitor worker persistence with cwd-relative fallback), and MANUAL_ATTRIBUTION_WORKFLOW_DB_PATH (API manual workflow state). Existing main-root files were observed by metadata; contents were not read. Four additional dynamic path groups remain unqualified. The 24-name covered-path PASS is not complete transitive path parity.",
+    "production_flags": "PROD_CHECKOUT_CREATED=false; SUPERVISOR_CHANGED=false; SERVICES_RESTARTED_OR_SIGNALED=0; DATABASE_OR_QUEUE_STATE_MUTATIONS=0",
+    "verdict": "HOLD full production baseline and all service cutovers; actual live process environment, feature enablement, and loaded-source bytes remain unverified.",
+    "exact_next_action": "Verify live producer/consumer authority and feature enablement for each uncovered path, extend the fail-closed manifest and focused tests, then continue transitive path and loaded-source parity before any service migration."
+  },
   "dev_prod_api_first_cutover_continuation_20260921": {
     "status": "PARTIAL_OFFLINE_API_FIRST_CUTOVER_HOLD",
     "engineering_revision": "677c2168 on local codex/dev-prod-path-boundary; audit and read-only checkout guard only, no production baseline commit",

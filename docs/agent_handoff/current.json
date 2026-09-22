@@ -1,4 +1,13 @@
 {
+  "dev_prod_listener_explicit_path_qualification_20260922": {
+    "status": "PARTIAL_LOCAL_PATH_OVERRIDES_PASS_CUTOVER_HOLD",
+    "engineering_revision": "Local-only listener candidate 2dbc8b9f (source snapshot cf9365d8 parent) on codex/listener-source-candidate-20260922; production API remains 77623cfe and listener PID 4299 remains on main",
+    "finding": "Static path audit found checkout-derived listener outputs and imported-module defaults. Candidate-only 8-file, 13-line path repair makes listener migration/premigration/curve-watch/serializer/birth metrics, connection lifecycle diagnostics, creator-resolution metrics, WS price/snapshot logs, launch-price log/DB, migration settings and wrap-close OPS DB honor explicit environment paths while retaining old defaults. Direct candidate import test with isolated temporary authorities passed five listener and seven imported-module path assertions. The listener wrapper still changes cwd to candidate, so Supervisor must explicitly pin shared DB, birth-evidence and logging authorities. Default-on PumpPortal birth evidence retention and loop-lag diagnostic output remain source-relative; optional Byzantine/opening-action paths also need gate/authority review. No Supervisor preview or full startup qualification yet.",
+    "tests": "10 focused listener ops-path/startup-retry/enqueue-closure tests PASS; 12 explicit path override assertions PASS; seven modified Python files compile; bash -n and git diff --check PASS. No provider traffic, synthetic ingress, production DB/queue writes or service restart.",
+    "production_flags": "CANDIDATE_LOCAL_ONLY=true; SOURCE_CHANGED_IN_PRODUCTION=0; CONFIG_CHANGED=0; SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "Offline path decoupling improved but listener production cutover remains HOLD. This candidate must not be deployed without a complete source-relative authority manifest, fail-closed launch-config preview and isolated startup/behavior checks.",
+    "exact_next_action": "Finish the remaining listener birth-evidence and loop-lag path boundaries; enumerate every active checkout-relative read/write, then build a config-only preview pinning all data authorities to the current main data root. Verify isolated startup without provider calls before asking for listener-only restart authorization."
+  },
   "dev_prod_listener_disk_source_candidate_20260922": {
     "status": "PARTIAL_LOCAL_CANDIDATE_DATA_AUTHORITY_HOLD",
     "engineering_revision": "Local-only listener candidate cf9365d8 on codex/listener-source-candidate-20260922 at /private/tmp/flex-listener-source-candidate-20260922, based on clean API commit 77623cfe47b39c685cd251d1a85198b3a3572118; no production deployment",

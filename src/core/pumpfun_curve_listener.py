@@ -12084,10 +12084,10 @@ class PumpFunCurveListener(PumpFunCurveListener):  # type: ignore[no-redef]
             _last_snapshot = now
 
             ts_str = _time.strftime("%Y%m%d_%H%M%S", _time.gmtime(now))
-            snap_path = _os.path.join(
-                _os.path.dirname(_os.path.dirname(_os.path.dirname(__file__))),
-                "logs", f"loop_lag_snapshot_{ts_str}.txt"
+            snap_dir = _os.environ.get("LISTENER_LOOP_LAG_SNAPSHOT_DIR") or _os.path.join(
+                _os.path.dirname(_os.path.dirname(_os.path.dirname(__file__))), "logs"
             )
+            snap_path = _os.path.join(snap_dir, f"loop_lag_snapshot_{ts_str}.txt")
 
             lines = []
             lines.append(f"=== LOOP_LAG SNAPSHOT {ts_str} UTC  lag={lag:.1f}s ===\n")
@@ -12163,7 +12163,7 @@ class PumpFunCurveListener(PumpFunCurveListener):  # type: ignore[no-redef]
             # 6. last 50 TIMING_PROBE lines from the supervisor log
             lines.append("--- recent TIMING_PROBE (last 50) ---\n")
             try:
-                log_path = _os.path.join(
+                log_path = _os.environ.get("SUPERVISOR_LISTENER_LOG_PATH") or _os.path.join(
                     _os.path.dirname(_os.path.dirname(_os.path.dirname(__file__))),
                     "logs", "supervisor", "listener.log"
                 )

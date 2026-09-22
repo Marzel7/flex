@@ -1,4 +1,14 @@
 {
+  "dev_prod_api_playbooks_fixed_checkout_preflight_20260922": {
+    "status": "FIXED_SOURCE_CHECKOUT_READY_API_CUTOVER_HOLD",
+    "engineering_revision": "Dormant clean checkout 77623cfe47b39c685cd251d1a85198b3a3572118; isolated path audit 0a71b074; live dirty main HEAD a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43",
+    "audit": "docs/audits/api_playbooks_fixed_checkout_preflight_20260922.v1.json on codex/dev-prod-path-boundary",
+    "finding": "User approved advancing the dormant checkout and re-running gates. Checkout moved cleanly from 900f7681 to 77623cfe, which includes the offline-qualified one-line playbooks template guard and route tests. Exact source guard, twelve research hashes, 32 covered path authorities, two generated landscape hashes and API-only in-memory config/rollback preview pass. Live Supervisor config remains exact pre-switch hash, API PID 40951 remains RUNNING from dirty main, and live /operations/playbooks remains 500; no service/config change occurred in this turn.",
+    "tests": "6/6 focused checkout/config/artifact tests pass on advanced checkout; prior 49/49 selected API/playbooks tests and isolated real playbooks 200 were qualified at the same exact commit. Manifest JSON/diff checks pass.",
+    "production_flags": "DORMANT_CLEAN_CHECKOUT_ADVANCED=true; LIVE_API_SOURCE=DIRTY_MAIN; LIVE_SUPERVISOR_CONFIG=EXACT_ORIGINAL_PREIMAGE; SERVICES_RESTARTED_OR_SIGNALED=0; DATABASE_OR_QUEUE_MUTATIONS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "Fixed source is prepared; live API cutover HOLD. The prior cutover authorization was consumed by the aborted attempt and exact rollback. This promotion approval did not apply a new live switch.",
+    "exact_next_action": "Obtain separate explicit authorization for a second API-only cutover at 77623cfe. At cutover time revalidate every pinned preimage, retain an exact rollback copy, change only watchtower_api, restart only that service, verify playbooks and key API endpoints, and roll back only the API on any abort criterion."
+  },
   "dev_prod_api_playbooks_offline_fix_20260922": {
     "status": "PLAYBOOKS_RENDER_FIX_OFFLINE_QUALIFIED_PRODUCTION_HOLD",
     "engineering_revision": "Isolated clean candidate 77623cfe47b39c685cd251d1a85198b3a3572118; path-boundary audit 83091c56; dormant production checkout remains 900f768139357b3649b9c78c1f57c3ce7f0d2d3d; live main HEAD a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43",

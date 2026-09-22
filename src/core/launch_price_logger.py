@@ -18,10 +18,10 @@ import threading
 import logging
 import logging.handlers
 
-_LOG_PATH = os.path.normpath(
+_LOG_PATH = os.environ.get("LAUNCH_PRICE_LOG_PATH") or os.path.normpath(
     os.path.join(os.path.dirname(__file__), "..", "..", "logs", "launch_price.log")
 )
-_DB_PATH = os.path.normpath(
+_DB_PATH = os.environ.get("DB_PATH") or os.path.normpath(
     os.path.join(os.path.dirname(__file__), "..", "..", "database", "flex_complete_database.db")
 )
 

@@ -21,7 +21,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-_SETTINGS_FILE = os.path.join(os.path.dirname(__file__), "../../migration_settings.json")
+_SETTINGS_FILE = os.environ.get("MIGRATION_SETTINGS_PATH") or os.path.join(os.path.dirname(__file__), "../../migration_settings.json")
 
 def get_migration_setting(key: str, default=False) -> bool:
     try:

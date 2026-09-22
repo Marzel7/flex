@@ -38,7 +38,7 @@ except Exception:                                    # pragma: no cover
     def db_connect(path, timeout=30):
         c = sqlite3.connect(path, timeout=timeout); c.row_factory = sqlite3.Row; return c
 
-OPS_DB_PATH = os.path.abspath(os.path.join(
+OPS_DB_PATH = os.path.abspath(os.environ.get("WT_OPS_DB_PATH") or os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "..", "..", "database", "wt_ops_v2.db"))
 
 

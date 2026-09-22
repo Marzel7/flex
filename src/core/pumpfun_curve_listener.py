@@ -64,22 +64,22 @@ class Colors:
 # === Logging Helper ===
 
 # Migration log: pool discovery/detection events only
-_MIGRATION_LOG_PATH = os.path.join(
+_MIGRATION_LOG_PATH = os.environ.get("MIGRATION_LOG_PATH") or os.path.join(
     os.path.dirname(__file__), "../../migration.log"
 )
 
 # Pre-migration signal debug log: ALL PF signal inputs, parsing, and outputs
-PREMIG_LOG_PATH = os.path.join(
+PREMIG_LOG_PATH = os.environ.get("PREMIGRATION_LOG_PATH") or os.path.join(
     os.path.dirname(__file__), "../../logs/premigration.log"
 )
-CURVE_WATCH_STATE_PATH = os.path.join(
+CURVE_WATCH_STATE_PATH = os.environ.get("CURVE_WATCH_STATE_PATH") or os.path.join(
     os.path.dirname(__file__), "../../logs/curve_watch_state.json"
 )
 # The listener process does the bulk of DB writes, but its serializer metrics are in-memory and
 # per-process — the API process can't read them directly. The listener periodically snapshots
 # db_locking.serializer_metrics() to this file so the dashboard endpoint (API process) can surface
 # the REAL write load. JSON file (not DB) keeps measurement off the write lane it measures.
-DB_SERIALIZER_METRICS_PATH = os.path.join(
+DB_SERIALIZER_METRICS_PATH = os.environ.get("DB_SERIALIZER_METRICS_PATH") or os.path.join(
     os.path.dirname(__file__), "../../logs/db_serializer_metrics.json"
 )
 # MC1.4 -- same cross-process-visibility problem as DB_SERIALIZER_METRICS_PATH
@@ -88,7 +88,7 @@ DB_SERIALIZER_METRICS_PATH = os.path.join(
 # this process's memory holds). Snapshotted on the same cadence/thread as
 # the serializer metrics so the API process can build an authoritative,
 # same-population Birth Durability panel instead of inferring it from logs.
-BIRTH_DURABILITY_METRICS_PATH = os.path.join(
+BIRTH_DURABILITY_METRICS_PATH = os.environ.get("BIRTH_DURABILITY_METRICS_PATH") or os.path.join(
     os.path.dirname(__file__), "../../logs/birth_durability_metrics.json"
 )
 

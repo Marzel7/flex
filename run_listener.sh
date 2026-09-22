@@ -54,6 +54,6 @@ export LISTENER_WEBHOOK_BIRTH_DRAINER_ENABLED=1
 # means 2 attempts total (15s→2s max per sig) — reconciler backstop covers any misses.
 export LISTENER_DISCOVERY_RPC_CONCURRENCY=3
 export LISTENER_GETTX_RETRY_DELAYS=1
-export DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_PATH="logs/diagnostics/x78_19_listener_connections.jsonl"
+export DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_PATH="${DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_PATH:-logs/diagnostics/x78_19_listener_connections.jsonl}"
 echo "[LISTENER] $(date -u +%Y-%m-%dT%H:%M:%SZ) Starting listener (exec — supervisord owns the Python process)..."
 exec python -u -m src.core.pumpfun_curve_listener

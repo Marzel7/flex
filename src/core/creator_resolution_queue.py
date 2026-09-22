@@ -46,7 +46,7 @@ _OPS_DB_PATH = os.environ.get(
     "WT_OPS_DB_PATH",
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "database", "wt_ops_v2.db"),
 )
-_DB_SERIALIZER_METRICS_PATH = os.path.join(
+_DB_SERIALIZER_METRICS_PATH = os.environ.get("DB_SERIALIZER_METRICS_PATH") or os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "..", "..", "logs", "db_serializer_metrics.json"
 )
 

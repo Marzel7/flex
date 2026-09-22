@@ -1,4 +1,13 @@
 {
+  "dev008_beqtt4qq_deep_route_audit_20260923": {
+    "status": "PLANNED_DEV_ONLY",
+    "engineering_revision": "DEV work registry entry DEV-008 on dirty DEV branch classification-attribution-axis; no implementation candidate exists.",
+    "finding": "DEV-008 records the supplied BeqTt4qqhH4qjgA6qwN2dxjzM5M7qgabiTnT8apm4pump Deep-route evidence: legacy traversal reportedly terminates on a hop4/hop5 cycle, while the independent Deep assessor fail-closes on a stored hub-wallet selected edge whose timestamp predates the child funding event. The intended audit first confirms scope locally, then offline-qualifies only cycle prevention and time-consistent parent selection. Current CONFLICT is treated as safe behavior, not an automatic attribution failure.",
+    "tests": "Registry JSON validation/readback only. No source, provider, service, database, queue or production mutation.",
+    "production_flags": "PRODUCTION_SOURCE_CHANGED=false; PRODUCTION_CONFIG_CHANGED=false; PRODUCTION_SERVICES_RESTARTED=0; PRODUCTION_DATABASE_MUTATIONS=0; DEV008_STATUS=PLANNED; DEV008_PROD_INTENT=UNDECIDED; DEV008_PROD_APPROVAL=NOT_REQUESTED; AUTOMATIC_DEEP_MEMBERSHIP=false",
+    "verdict": "PLANNED. Any repair must lead at most to REVIEW_CANDIDATE evidence; no manual treasury registration or automatic WATCHTOWER_DEEP assignment is authorized.",
+    "exact_next_action": "Run DEV-008's zero-RPC local scope query for cyclical and time-inconsistent selected edges, then prepare a narrow offline candidate with retained control cases."
+  },
   "dev007_non_watchtower_plain_xfer_candidates_20260923": {
     "status": "PLANNED_DEV_ONLY",
     "engineering_revision": "DEV work registry entry DEV-007 on dirty DEV branch classification-attribution-axis; no implementation candidate exists.",

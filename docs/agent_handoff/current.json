@@ -1,4 +1,13 @@
 {
+  "dev_prod_remaining_services_readonly_reconciliation_20260922": {
+    "status": "PARTIAL_READ_ONLY_SOURCE_PARITY_HOLD",
+    "engineering_revision": "API live clean source 77623cfe47b39c685cd251d1a85198b3a3572118; main a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43 dirty; recovery c06d1f7d7097dfb8b8f0f3f9116995bc9cf020ca dirty",
+    "finding": "At 11m44s after API cutover, Supervisor still reported API PID 49313 RUNNING and all previously recorded unrelated PIDs unchanged. The production checkout is clean. Main has 2860 porcelain entries; recovery has two modified files (ws_cascade.py and db_locking.py). Listener, scheduler, funding, creator resolution, Monitor and alert evaluator still point to main; Walkback and Cascade point to recovery. Prior static closure census was against an older candidate and cannot authorize migration now. Current entry/shared file hash spot checks show differences, so no all-service source parity is established.",
+    "tests": "Read-only Supervisor status, git revision/status, Supervisor path inspection, prior census inspection and selected SHA-256 source comparisons; no service tests or restarts.",
+    "production_flags": "SOURCE_CHANGED=0; CONFIG_CHANGED=0; SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "API source cutover remains qualified; full clean-source production baseline remains HOLD pending current service-specific parity. Functional qualification of other services is not invalidated by this source-provenance hold.",
+    "exact_next_action": "Re-run current closure/path/data-authority parity for each remaining RUNNING service against 77623cfe, beginning with the already-static-matched listener and alert evaluator; then focused tests and separate approval before any service-specific switch/restart."
+  },
   "dev_prod_api_only_fixed_source_cutover_20260922": {
     "status": "API_ONLY_FIXED_SOURCE_CUTOVER_QUALIFIED_FIVE_MINUTE_SOAK",
     "engineering_revision": "Live watchtower_api source 77623cfe47b39c685cd251d1a85198b3a3572118 in /Users/kevinkeaveney/Production/flex; isolated cutover audit afc57feb; other services remain on their prior source paths",

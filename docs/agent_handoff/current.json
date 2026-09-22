@@ -1,4 +1,14 @@
 {
+  "dev_prod_api_only_fixed_source_cutover_20260922": {
+    "status": "API_ONLY_FIXED_SOURCE_CUTOVER_QUALIFIED_FIVE_MINUTE_SOAK",
+    "engineering_revision": "Live watchtower_api source 77623cfe47b39c685cd251d1a85198b3a3572118 in /Users/kevinkeaveney/Production/flex; isolated cutover audit afc57feb; other services remain on their prior source paths",
+    "audit": "docs/audits/api_only_fixed_source_cutover_qualified_20260922.v1.json on codex/dev-prod-path-boundary",
+    "finding": "User explicitly approved a second bounded-risk API-only switch. Exact source, 32 path authorities, twelve research hashes, two landscape reports, Supervisor config preimage and rollback copy passed immediately before cutover. Only watchtower_api changed in Supervisor; new master PID 49313/worker 49319 use clean checkout and production Gunicorn config. Previously broken /operations/playbooks returned 200/33161 bytes. Health, main UI, operator, knowledge, landscape and coverage endpoints returned 200. Gunicorn error log has not advanced since before restart. After 5m33s API PID was stable and every unrelated Supervisor PID matched pre-cutover baseline.",
+    "tests": "Six focused preflight tests PASS; exact clean source guard PASS; 32 covered authorities PASS; twelve artifact hashes and two report hashes PASS; API-only config preview/rollback PASS. Post-cutover nine read-only routes PASS; final playbooks/healthz/landscape GETs PASS. Audit JSON/diff checks PASS.",
+    "production_flags": "LIVE_API_SOURCE=CLEAN_CHECKOUT_77623cfe; ACTIVE_API_CONFIG_SHA256=de903ec9d5ca70934f98c03cf2aba58f0c366d9c37712c1f5f7d5616ee502ce3; API_ONLY_RESTART=true; OTHER_SERVICES_RESTARTED=0; DATABASE_OR_QUEUE_MUTATIONS_REQUESTED=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "API-only clean-source cutover qualified over a five-minute soak. This does not establish a full production baseline for other services, long-duration API stability, or every lazy API route. Full source candidate branch remote push remains blocked by automatic remote-trust review; the local deployed checkout is exact and clean.",
+    "exact_next_action": "Continue read-only natural-traffic observation for API regressions and representative UI routes without engineering changes. For a full dev/prod baseline, separately derive source/state parity and restart boundaries for each remaining service; do not infer that the API-only success authorizes a whole-stack switch."
+  },
   "dev_prod_api_playbooks_fixed_checkout_preflight_20260922": {
     "status": "FIXED_SOURCE_CHECKOUT_READY_API_CUTOVER_HOLD",
     "engineering_revision": "Dormant clean checkout 77623cfe47b39c685cd251d1a85198b3a3572118; isolated path audit 0a71b074; live dirty main HEAD a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43",

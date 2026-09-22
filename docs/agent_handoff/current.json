@@ -1,4 +1,13 @@
 {
+  "dev_prod_api_live_worker_coverage_parity_20260922": {
+    "status": "BOUNDED_ROUTE_PARITY_PASS_LOADED_BYTES_UNPROVEN_API_CUTOVER_HOLD",
+    "engineering_revision": "Clean API candidate 9094d2116db4a805b670cbd6001c0cc4480b4005; isolated audit d7af7c6e; main production source a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43 remains dirty",
+    "audit": "docs/audits/api_live_worker_and_coverage_parity_20260922.v1.json on codex/dev-prod-path-boundary",
+    "finding": "Gunicorn master 4294 and worker 9067 remained stable; worker launched 2026-09-22 08:47:27 London. Seven key on-disk API source files predate worker launch, supporting but not proving loaded provenance. /healthz returned 200 in about 15ms. /api/ops/operators/coverage-24h returned 200 on live and isolated candidate, with matching keys and equal repeated aggregate comparison after excluding moving cutoff. Both took roughly 9-12s; an initial 8s live bound was too short. A two-second sample showed a background SQLite read, not an attributed route cause.",
+    "production_flags": "PROD_CHECKOUT_CREATED=false; SUPERVISOR_CHANGED=false; SERVICES_RESTARTED_OR_SIGNALED=0; DATABASE_OR_QUEUE_MUTATIONS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "HOLD API cutover. This extends representative route parity but does not prove exact loaded bytes, all lazy routes, or all persistent state paths.",
+    "exact_next_action": "Extend bounded API route/state parity with a stable data boundary and resolve the loaded-module provenance requirement (or explicitly accept its observational limit) before rollback-tested API-only cutover."
+  },
   "dev_prod_api_hybrid_runtime_provenance_20260922": {
     "status": "EIGHT_RUNTIME_DISK_MATCH_ONE_DISABLED_DIAGNOSTIC_SMOKE_PASS_API_CUTOVER_HOLD",
     "engineering_revision": "Clean candidate 9094d2116db4a805b670cbd6001c0cc4480b4005; current recovery checkout c06d1f7d7097dfb8b8f0f3f9116995bc9cf020ca; isolated audit 9726b349 plus smoke update 89b1386b",

@@ -1,4 +1,14 @@
 {
+  "dev_prod_api_cutover_preview_20260922": {
+    "status": "API_ONLY_CONFIG_PREVIEW_AND_THREE_ROUTE_PARITY_PASS_CUTOVER_HOLD",
+    "engineering_revision": "Clean dormant checkout 900f768139357b3649b9c78c1f57c3ce7f0d2d3d; isolated path-boundary audit/tool commit 2680d491; dirty live main HEAD a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43",
+    "audit": "docs/audits/api_only_production_cutover_boundary_20260922.v1.json and scripts/prepare_api_cutover_config.py on codex/dev-prod-path-boundary",
+    "finding": "A read-only fail-closed Supervisor preview confirmed the pinned config preimage and exact clean source checkout. Only watchtower_api command, directory and environment would change; other Supervisor bytes remain identical. Thirty-two path authorities round-trip through Supervisor's environment parser; an in-memory rollback restores the exact source config. Candidate config SHA-256 de903ec9d5ca70934f98c03cf2aba58f0c366d9c37712c1f5f7d5616ee502ce3, preview only. Refreshed live /healthz 200; operator summary live/candidate JSON values equal in a simultaneous read (generated_at makes independent hashes volatile); Operational Landscape 200/1089187 bytes exactly equal; knowledge rules 200/1028 bytes exactly equal. No service or config change occurred.",
+    "tests": "5/5 focused preview/checkout tests pass, including preimage drift and missing authority fail-closed tests. JSON, py_compile and diff checks pass. Durable checkout remains clean at exact source SHA.",
+    "production_flags": "DURABLE_SOURCE_CHECKOUT_CREATED=true; SUPERVISOR_CHANGED=false; SERVICES_RESTARTED_OR_SIGNALED=0; DATABASE_OR_QUEUE_MUTATIONS=0; CANDIDATE_REMOTE_PUSH=false; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "HOLD API cutover. Preview and bounded route parity pass; actual cutover still requires a persistent recoverable config preimage, refresh of remaining high-value routes/artifact digests, and explicit acceptance of the loaded-byte observational limit. Candidate branch push remains blocked by automatic remote-trust review, with no workaround attempted.",
+    "exact_next_action": "Finish the bounded remaining endpoint/artifact preflight and persistent rollback preparation without touching live Supervisor, then request an explicit bounded-risk API-only switch decision. Never restart other services or use a full-stack restart."
+  },
   "dev_prod_durable_source_checkout_20260922": {
     "status": "DURABLE_CLEAN_CHECKOUT_PASS_API_CUTOVER_HOLD",
     "engineering_revision": "Detached durable source checkout /Users/kevinkeaveney/Production/flex at 900f768139357b3649b9c78c1f57c3ce7f0d2d3d; path audit eb3776f1; live dirty main HEAD a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43",

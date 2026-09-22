@@ -1,4 +1,14 @@
 {
+  "dev_prod_listener_path_preview_import_20260922": {
+    "status": "OFFLINE_IMPORT_AND_CONFIG_PREVIEW_PASS_FULL_STARTUP_HOLD",
+    "engineering_revision": "Local-only listener candidate source 0269f64c, audit commit 1eefa29d on codex/listener-source-candidate-20260922; production listener still uses main, API still uses 77623cfe",
+    "audit": "docs/audits/listener_source_path_cutover_preflight_20260922.v1.json in local candidate",
+    "finding": "Candidate listener loop-lag snapshot output and Supervisor-log read now honor explicit environment paths; default-on PumpPortal birth retention already has an explicit path override. In-memory listener-only Supervisor preview changes command/directory/PYTHONPATH and pins 24 environment names to current shared data/log authorities or disabled optional gates. Supervisor environment parser PASS, other service blocks byte-identical, exact rollback PASS, required data paths exist. Current config SHA256 de903ec9d5ca70934f98c03cf2aba58f0c366d9c37712c1f5f7d5616ee502ce3; preview 3a5731288feb78a824f617bbe9867991b7a553e0d3bf3b7d8a996c26eef55f0d. Isolated candidate import PASS without creating candidate-local live/ops DB files. Production listener PID 4299 remained unchanged at the previous live check.",
+    "tests": "10 focused listener tests PASS; birth retention path override PASS; loop-lag path static check PASS; isolated import PASS; config parser/rollback PASS; JSON and diff checks PASS. No full listener startup, provider call, synthetic ingress or production DB/queue write.",
+    "production_flags": "CANDIDATE_LOCAL_ONLY=true; SOURCE_CHANGED_IN_PRODUCTION=0; CONFIG_CHANGED=0; SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "DO_NOT_DEPLOY_OR_RESTART_LISTENER_YET. Static closure and import/config preflight do not prove dynamic paths, full startup or natural ingress from the isolated source.",
+    "exact_next_action": "Complete active checkout-relative path review across the remaining listener dependencies and a no-provider isolated startup test. Recheck live source/config parity at any eventual cutover and seek separate listener-only restart authorization."
+  },
   "dev_prod_listener_explicit_path_qualification_20260922": {
     "status": "PARTIAL_LOCAL_PATH_OVERRIDES_PASS_CUTOVER_HOLD",
     "engineering_revision": "Local-only listener candidate 2dbc8b9f (source snapshot cf9365d8 parent) on codex/listener-source-candidate-20260922; production API remains 77623cfe and listener PID 4299 remains on main",

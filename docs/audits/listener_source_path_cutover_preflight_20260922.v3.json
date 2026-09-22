@@ -1,0 +1,33 @@
+{
+  "version": 3,
+  "status": "OFFLINE_ENTRYPOINT_PASS_PRODUCTION_CUTOVER_HOLD",
+  "candidate_source_commit": "153c6756",
+  "production_changed": false,
+  "source_root": "/private/tmp/flex-listener-source-candidate-20260922",
+  "current_supervisor_config_sha256": "de903ec9d5ca70934f98c03cf2aba58f0c366d9c37712c1f5f7d5616ee502ce3",
+  "in_memory_listener_only_preview_sha256": "b259edbcce0352e5a361fa3e06540741530acd281ae1b4ade747d20d0145dbff",
+  "preview": {
+    "explicit_environment_count": 26,
+    "rpc_metrics_side_process_enabled": false,
+    "other_program_blocks_byte_identical": true,
+    "supervisor_environment_parser": "PASS",
+    "exact_rollback": "PASS",
+    "shared_data_root": "/Users/kevinkeaveney/Dev/claude/flex"
+  },
+  "entrypoint_tests": {
+    "rpc_metrics_side_process_disabled_branch": "PASS",
+    "existing_default_branch_preserved": "PASS",
+    "singleton_lock_test": "PASS: temporary lock only, listen between acquisition and release",
+    "combined_pytest_import_path_attempt": "Test-harness-only duplicate tests.conftest import mismatch; suites rerun separately",
+    "existing_listener_regressions": "10 passed",
+    "new_entrypoint_regressions": "3 passed"
+  },
+  "prior_checks": {
+    "isolated_no_provider_constructor": "PASS with zero socket/DNS calls and temporary DB",
+    "role_aware_projection_override": "PASS",
+    "projection_source_sha256": "93831bf2a3554b19fd93971fbeded96cd1ab59a60b148dc8efa48373b84d98cc"
+  },
+  "limits": "The entrypoint's complete supervised process and natural websocket traffic were not run offline. The preview points to a temporary local candidate, not a durable production source checkout. Exact running-process source bytes are not proven by disk closure. A production cutover requires a new durable source location and fresh parity checks without modifying the currently running API checkout.",
+  "verdict": "DO_NOT_DEPLOY_OR_RESTART_LISTENER_YET",
+  "exact_next_action": "Prepare a durable listener-only production source checkout outside the API checkout, verify the exact candidate commit and shared-data authorities there, then prepare a final listener-only config/rollback manifest and seek separate production authorization."
+}

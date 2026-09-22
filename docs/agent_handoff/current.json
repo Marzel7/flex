@@ -1,4 +1,14 @@
 {
+  "dev_prod_remaining_running_services_source_census_20260922": {
+    "status": "PARTIAL_READ_ONLY_FULL_BASELINE_HOLD",
+    "engineering_revision": "Live API clean 77623cfe, listener pinned bf1bdfc5, main a1f4d8e6 dirty with 2861 porcelain entries, recovery c06d1f7d dirty with ws_cascade.py and db_locking.py modifications; audit 483984ff on local codex/dev-prod-path-boundary",
+    "audit": "docs/audits/remaining_running_services_source_census_20260922.v1.json on local codex/dev-prod-path-boundary",
+    "finding": "Actual cwd matches Supervisor for all running services. API PID 49313 and listener PID 97448 use pinned production checkouts. Alert evaluator 4283, scheduler 4366, creator resolution 57710, funding 58812 and Monitor 61224 use dirty main; Walkback 18296 and Cascade 18297 use modified recovery. Against clean API checkout, direct entries match for alert, creator resolution, funding and Walkback; differ for scheduler, Monitor and Cascade; recovery db_locking also differs. Cascade holds two recovery-checkout zero-byte log descriptors last modified 2026-09-21; no active write was observed. Direct equality does not establish transitive or loaded-source parity.",
+    "tests": "Read-only Supervisor/PID/cwd, git revision/porcelain, direct file cmp, lsof and file stat; audit JSON validated. No source/config/runtime change.",
+    "production_flags": "SOURCE_OR_CONFIG_CHANGES=0; SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS_BY_AGENT=0; PROVIDER_CALLS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "API and listener source provenance qualified separately; full all-service clean-source production baseline remains HOLD on current closure/path/loaded-byte parity for seven remaining services.",
+    "exact_next_action": "Keep services running. Reconcile current transitive source/state-path closure for dirty-main and recovery services against a clean candidate, prioritizing scheduler, Monitor, Cascade and recovery db_locking direct mismatches plus Cascade's source-local log path. Run focused offline tests and obtain separate authorization for any per-service cutover; never group-restart dirty-source workers on direct entry-file equality alone."
+  },
   "dev_prod_listener_source_checkout_readonly_census_20260922": {
     "status": "OBSERVED_DATA_PATH_CLEAN_WITH_BYTECODE_CACHE_EXCEPTION",
     "engineering_revision": "Production listener remains bf1bdfc59b4acfed0338a493189d91d212bda50f, PID 97448; read-only census audit a25136d4 on local codex/dev-prod-path-boundary",

@@ -39,7 +39,8 @@ def refresh_operator_activity_snapshot(conn, operator_id, core_db_path=None, now
   member_mints=set(ledger_times)
   # A role-aware audit may provide an immutable effective-membership replay.
   # It is a read-side projection: raw canonical evidence remains unchanged.
-  projection=Path(__file__).resolve().parents[2]/'docs/audits/watchtower_current_universe_relay_solver_decontamination.v1.json'
+  projection=Path(os.environ.get('WATCHTOWER_RELAY_SOLVER_PROJECTION_PATH') or
+                  Path(__file__).resolve().parents[2]/'docs/audits/watchtower_current_universe_relay_solver_decontamination.v1.json')
   effective_projection=False
   try:
    audit=json.loads(projection.read_text())

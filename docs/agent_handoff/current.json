@@ -1,4 +1,14 @@
 {
+  "dev_prod_listener_source_checkout_readonly_census_20260922": {
+    "status": "OBSERVED_DATA_PATH_CLEAN_WITH_BYTECODE_CACHE_EXCEPTION",
+    "engineering_revision": "Production listener remains bf1bdfc59b4acfed0338a493189d91d212bda50f, PID 97448; read-only census audit a25136d4 on local codex/dev-prod-path-boundary",
+    "audit": "docs/audits/listener_source_checkout_readonly_census_20260922.v1.json on local codex/dev-prod-path-boundary",
+    "finding": "At 28+ minutes after the listener restart, no tracked source changes or new/modified operational data appeared under /Users/kevinkeaveney/Production/flex-listener. Exactly five post-restart files changed there, all Python .pyc caches. lsof showed source checkout as cwd only and active DB/log descriptors in the shared data root. The pre-existing zero-byte database and lock sidecars retained inode, size and 10:11:23Z mtime. A disabled BYZANTINE_BIRTH_SIGNAL_ENABLED source-relative ops DB fallback remains latent.",
+    "tests": "Read-only git status, post-start filesystem timestamp census, lsof path sample, sidecar stat comparison and Supervisor PID check; JSON audit validated. No source or production edits.",
+    "production_flags": "SOURCE_OR_CONFIG_CHANGES=0; SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS_BY_AGENT=0; PROVIDER_CALLS=0; OLD_CHECKOUT_LOCAL_FILES_REMOVED=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "Observed runtime operational data path is clean for the current listener PID; literal immutable source tree is not qualified because Python writes bytecode caches. Dormant paths are not exhaustively proven by point-in-time observation.",
+    "exact_next_action": "Do not restart the healthy listener for this audit. At the next authorized listener source/config deployment, suppress source-local bytecode writes and close the disabled-feature fallback before enabling it. Keep old zero-byte files until separate verified cleanup approval; continue broader all-service production baseline independently."
+  },
   "dev_prod_listener_price_worker_data_path_boundary_20260922": {
     "status": "PRODUCTION_BOUNDED_PATH_REPAIR_QUALIFIED",
     "engineering_revision": "Active production listener checkout bf1bdfc59b4acfed0338a493189d91d212bda50f, based directly on prior active 8d3a0a3731798129348a8d9cf19fcac4d58e29b9 with only three call-site edits; local engineering audit commit 7d21eefb",

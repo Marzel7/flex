@@ -1,4 +1,13 @@
 {
+  "dev_prod_api_active_path_hybrid_behavior_20260922": {
+    "status": "ACTIVE_IMPORT_PATH_PARTIAL_PASS_CANDIDATE_BEHAVIOR_HOLD",
+    "engineering_revision": "Clean candidate 9094d2116db4a805b670cbd6001c0cc4480b4005; main a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43 dirty; isolated audit commit 7ed4f12e",
+    "audit": "docs/audits/api_active_path_and_hybrid_behavior_20260922.v1.json on codex/dev-prod-path-boundary",
+    "finding": "Isolated imports of price_api, launcher_observatory_routes and intelligence_snapshots select explicit scratch WS_STATS_PATH, PUMPSWAP_TOKENS_DB_PATH and WT_INTELLIGENCE_SNAPSHOT_DIR, with no scratch files created. Of 17 hybrid API-closure files, 7 are path-only by static diff, one repairs tracked syntax, and 9 require behavior/schema review. Main-disk Treasury validator uses a frozen manifest digest; candidate uses narrower table/column/index checks. Equivalence is unproven.",
+    "production_flags": "PROD_CHECKOUT_CREATED=false; SUPERVISOR_CHANGED=false; SERVICES_RESTARTED_OR_SIGNALED=0; DATABASE_OR_QUEUE_MUTATIONS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "HOLD full production baseline and API cutover. Import-time path selection is only partial evidence; do not silently replace Treasury validation semantics.",
+    "exact_next_action": "Qualify intended Treasury schema validation and the other eight behavior-changing hybrid modules against runtime contracts, then test API routes with explicit authorities and establish loaded-source provenance."
+  },
   "dev_prod_api_snapshot_path_census_20260922": {
     "status": "OFFLINE_31_PATH_REHEARSAL_PASS_FULL_PRODUCTION_BASELINE_HOLD",
     "engineering_revision": "Clean source candidate 9094d2116db4a805b670cbd6001c0cc4480b4005; isolated path-audit commit 0c8f62db; current main source a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43 remains dirty",

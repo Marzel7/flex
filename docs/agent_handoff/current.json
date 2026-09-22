@@ -1,4 +1,14 @@
 {
+  "current_runtime_source_consolidation_feasibility_20260922": {
+    "status": "HOLD_SINGLE_TREE_CANNOT_LOSSLESSLY_FREEZE_CURRENT_SOURCE",
+    "engineering_revision": "Live API 77623cfe, listener bf1bdfc5, dirty main a1f4d8e6, modified recovery c06d1f7d; audit 999de513 on local codex/dev-prod-path-boundary",
+    "audit": "docs/audits/current_runtime_source_consolidation_feasibility_20260922.v1.json on local codex/dev-prod-path-boundary",
+    "finding": "The current production source is service-specific across four roots. Shared src/utils/db_locking.py has three distinct SHA256 variants: main/listener cf60acfa, API f4ccad54, recovery ecb8d551. A single conventional checkout cannot represent all these source bytes unchanged. Main has 2861 dirty entries including 192 src entries; recovery has two modified files. Overwriting variants into one source tree would be a new integration, not a faithful freeze.",
+    "tests": "Read-only git status by path, source SHA256 matrix and prior runtime/source inventory; audit JSON validated. No production or source changes.",
+    "production_flags": "SOURCE_OR_CONFIG_CHANGES=0; SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS_BY_AGENT=0; PROVIDER_CALLS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "A faithful production freeze is feasible as one release manifest pinning multiple clean service-source commits; the requested single ordinary source commit cannot losslessly represent current running source variants. New single-tree integration is a different, higher-risk project.",
+    "exact_next_action": "Ask the user to choose a faithful multi-commit release manifest (recommended) or a newly integrated single-tree commit. Do not silently collapse db_locking variants or cut over services before that architectural choice."
+  },
   "dev_prod_scheduler_pinned_candidate_offline_20260922": {
     "status": "PARTIAL_OFFLINE_CANDIDATE_HOLD_TRANSITIVE_PARITY",
     "engineering_revision": "Live scheduler remains PID 4366 from dirty main a1f4d8e6; clean detached offline candidate c2acc31c from API source 77623cfe; audit 61488e8b on local codex/dev-prod-path-boundary",

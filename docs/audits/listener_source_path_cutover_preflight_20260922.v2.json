@@ -1,0 +1,34 @@
+{
+  "version": 2,
+  "status": "ISOLATED_CONSTRUCTOR_PASS_ENTRYPOINT_HOLD",
+  "candidate_source_commit": "52285dd7",
+  "production_changed": false,
+  "source_root": "/private/tmp/flex-listener-source-candidate-20260922",
+  "current_supervisor_config_sha256": "de903ec9d5ca70934f98c03cf2aba58f0c366d9c37712c1f5f7d5616ee502ce3",
+  "in_memory_listener_only_preview_sha256": "c4b54654704c1d8da409bbbf2d9275aadbce2a96af75916643abdb101cc07575",
+  "preview": {
+    "explicit_environment_count": 25,
+    "other_program_blocks_byte_identical": true,
+    "supervisor_environment_parser": "PASS",
+    "exact_rollback": "PASS",
+    "data_root": "/Users/kevinkeaveney/Dev/claude/flex"
+  },
+  "role_aware_projection": {
+    "source_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/watchtower_current_universe_relay_solver_decontamination.v1.json",
+    "source_sha256": "93831bf2a3554b19fd93971fbeded96cd1ab59a60b148dc8efa48373b84d98cc",
+    "candidate_override_test": "PASS: two-row temporary canonical ledger produced one effective member from a separate temporary valid projection",
+    "candidate_checkout_copy": false
+  },
+  "isolated_constructor": {
+    "result": "PASS",
+    "temporary_live_database_initialized": true,
+    "socket_and_dns_call_count": 0,
+    "background_tasks_cancelled": true,
+    "candidate_local_live_or_ops_database_created": false
+  },
+  "focused_listener_tests": "10 passed",
+  "entrypoint_hold": "The module __main__ path calls start_rpc_metrics_api, which can probe or spawn a separate API process, and main takes the global /tmp/pumpfun_curve_listener.lock. Neither operation was run while the production listener remained active. Constructor success does not establish the full supervised entrypoint or natural ingestion behavior.",
+  "dynamic_path_limit": "Static import closure and source-relative path review do not prove every dynamic import or loaded-process byte. Recheck the projection hash and all source/config hashes at any later deployment boundary.",
+  "verdict": "DO_NOT_DEPLOY_OR_RESTART_LISTENER_YET",
+  "exact_next_action": "Qualify the entrypoint's RPC-metrics side-process and singleton-lock behavior offline without touching the live instance; only then prepare an exact listener-only cutover manifest and ask for separate production authorization."
+}

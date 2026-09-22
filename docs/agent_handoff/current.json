@@ -1,4 +1,14 @@
 {
+  "dev_prod_api_hybrid_runtime_provenance_20260922": {
+    "status": "EIGHT_RUNTIME_DISK_MATCH_ONE_DISABLED_DIAGNOSTIC_SMOKE_PASS_API_CUTOVER_HOLD",
+    "engineering_revision": "Clean candidate 9094d2116db4a805b670cbd6001c0cc4480b4005; current recovery checkout c06d1f7d7097dfb8b8f0f3f9116995bc9cf020ca; isolated audit 9726b349 plus smoke update 89b1386b",
+    "audit": "docs/audits/api_hybrid_runtime_provenance_20260922.v1.json on codex/dev-prod-path-boundary",
+    "finding": "Eight of nine behavior/schema-changing candidate files are byte-identical to current recovery checkout disk, including Treasury. Treasury candidate blob also equals previously qualified Walkback read-only startup revision 3a6a3a5f; the frozen-manifest validator seen in dirty main disk is an undeployed development variant, so the earlier implied regression against production was incorrect. Ninth file db_locking differs by additive opt-in tracked-transaction lifecycle diagnostics; existing 250 ms checkpoint bound is preserved. Supervisor does not configure its diagnostic path.",
+    "tests": "15/15 candidate WAL provenance/Walkback startup tests pass; isolated diagnostics-disabled in-memory tracked CREATE/INSERT/commit/read passes; audit JSON validated.",
+    "production_flags": "PROD_CHECKOUT_CREATED=false; SUPERVISOR_CHANGED=false; SERVICES_RESTARTED_OR_SIGNALED=0; DATABASE_OR_QUEUE_MUTATIONS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "HOLD API cutover. Runtime disk byte parity and disabled-diagnostic smoke narrow the source gap but do not prove loaded API bytes or broad route/state parity.",
+    "exact_next_action": "Establish actual live API loaded-module provenance and broader API route/state parity, then prepare rollback-tested API-only cutover."
+  },
   "dev_prod_api_active_path_hybrid_behavior_20260922": {
     "status": "ACTIVE_IMPORT_PATH_PARTIAL_PASS_CANDIDATE_BEHAVIOR_HOLD",
     "engineering_revision": "Clean candidate 9094d2116db4a805b670cbd6001c0cc4480b4005; main a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43 dirty; isolated audit commit 7ed4f12e",

@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "status": "OFFLINE_IMPORT_AND_CONFIG_PREVIEW_PASS_FULL_STARTUP_HOLD",
+  "candidate_commit_before_audit": "0269f64c",
+  "production_changed": false,
+  "source_root": "/private/tmp/flex-listener-source-candidate-20260922",
+  "current_supervisor_config_sha256": "de903ec9d5ca70934f98c03cf2aba58f0c366d9c37712c1f5f7d5616ee502ce3",
+  "in_memory_listener_only_preview_sha256": "3a5731288feb78a824f617bbe9867991b7a553e0d3bf3b7d8a996c26eef55f0d",
+  "preview": {
+    "source_path_changes": ["listener command", "listener directory", "listener PYTHONPATH"],
+    "explicit_environment_names": [
+      "DB_PATH", "FLEX_DB_PATH", "WT_OPS_DB_PATH", "OPS_V2_DB_PATH", "CREATOR_DB_PATH",
+      "MIGRATION_LOG_PATH", "PREMIGRATION_LOG_PATH", "CURVE_WATCH_STATE_PATH",
+      "DB_SERIALIZER_METRICS_PATH", "BIRTH_DURABILITY_METRICS_PATH",
+      "DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_PATH", "WS_PRICE_TRACE_LOG_PATH",
+      "WS_SNAPSHOT_LOG_PATH", "LAUNCH_PRICE_LOG_PATH", "MIGRATION_SETTINGS_PATH",
+      "LISTENER_LOOP_LAG_SNAPSHOT_DIR", "SUPERVISOR_LISTENER_LOG_PATH",
+      "MIGRATION_CENSUS_PATH", "PUMPPORTAL_CANONICAL_BIRTH_RETENTION_PATH",
+      "PUMPFUN_DELIVERY_LATENCY_CAPTURE_PATH", "PUMPFUN_OPENING_ACTION_EVIDENCE_DB",
+      "BYZANTINE_BIRTH_SIGNAL_ENABLED", "PUMPFUN_OPENING_ACTION_EVIDENCE_ENABLED",
+      "PYTHONPATH"
+    ],
+    "shared_data_root_preserved": "/Users/kevinkeaveney/Dev/claude/flex",
+    "supervisor_environment_parser": "PASS",
+    "other_program_blocks_byte_identical": true,
+    "exact_rollback": "PASS"
+  },
+  "offline_checks": {
+    "focused_listener_tests": "10 passed",
+    "birth_retention_path_override": "PASS",
+    "isolated_candidate_import": "PASS",
+    "candidate_local_live_and_ops_db_files_created": false,
+    "loop_lag_path_boundary_static": "PASS",
+    "provider_calls": 0,
+    "synthetic_ingestion": 0
+  },
+  "qualification_limit": "Import-only smoke test is not a full listener startup. The static import closure does not prove dynamic imports or exact bytes already loaded by the running PID. Source-relative paths in the full dependency graph and the natural ingestion/restart boundaries remain to be qualified.",
+  "verdict": "DO_NOT_DEPLOY_OR_RESTART_LISTENER_YET",
+  "exact_next_action": "Complete active-path review of the remaining listener dependency graph and a no-provider isolated startup test; then recheck source/config hashes and request separate authorization for a listener-only cutover."
+}

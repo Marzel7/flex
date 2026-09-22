@@ -1,10 +1,12 @@
 {
   "schema_version": 1,
   "release_id": "flex-prod-2026-09-22-rc1",
-  "release_state": "STAGED_HOLD_NOT_FULLY_ACTIVE",
+  "release_state": "ACTIVE_PRODUCTION_BASELINE",
   "created_at_utc": "2026-09-22T12:08:18Z",
   "purpose": "Faithful multi-commit snapshot of current production source variants; no db_locking convergence or bulk service restart.",
   "supervisor_config_sha256_at_staging": "2585ad8876c716825aa382577a7d949fcaf683b0ed25eb4271ac4e19bcd7598b",
+  "active_supervisor_config_sha256": "5c8709a85557ac1e5e80d20578e35524a66c77703b99ecb892278e6617aff480",
+  "promoted_at_utc": "2026-09-22T18:17:44Z",
   "rollback_config_sha256": "2585ad8876c716825aa382577a7d949fcaf683b0ed25eb4271ac4e19bcd7598b",
   "rollback_directories_for_pending_cutovers": {
     "alert_evaluator": "/Users/kevinkeaveney/Dev/claude/flex",
@@ -39,7 +41,7 @@
       "commit": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215",
       "remote_ref": "codex/prod-main-workers-snapshot-20260922",
       "checkout": "/Users/kevinkeaveney/Production/flex-main-workers",
-      "checkout_state": "CLEAN_DETACHED_STAGED_NOT_ACTIVE",
+      "checkout_state": "DETACHED_ACTIVE_WITH_PREEXISTING_UNTRACKED_ZERO_BYTE_GUARD",
       "python_source_tree_digest_sha256": "526a257d448b9df772d8794309d90eaa75891dc4eebd9ca1941d9edab5e4a8a3",
       "db_locking_sha256": "cf60acfa7306b771c3c3bf0e88d3eee0e680a09ee3f5ef1cc64bad2d22332390",
       "source_snapshot_method": "Current main src/**/*.py tree copied byte-for-byte into a clean commit; databases, logs, docs and dirty development checkout were not moved."
@@ -48,22 +50,46 @@
       "commit": "48b8964d892aa77ab7f548b68e0be3cd06040f84",
       "remote_ref": "codex/prod-recovery-workers-snapshot-20260922",
       "checkout": "/Users/kevinkeaveney/Production/flex-recovery-workers",
-      "checkout_state": "CLEAN_DETACHED_STAGED_NOT_ACTIVE",
       "python_source_tree_digest_sha256": "92d7839975a6db16827cc78de21f81145395ddb8dbfadcf9cd33d23efc541627",
       "db_locking_sha256": "ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89",
-      "source_snapshot_method": "Current recovery src/**/*.py tree copied byte-for-byte into a clean commit; two modified tracked modules are now committed."
+      "source_snapshot_method": "Current recovery src/**/*.py tree copied byte-for-byte into a clean commit; two modified tracked modules are now committed.",
+      "checkout_state": "SUPERSEDED_BY_SEPARATE_WALKBACK_AND_CASCADE_PINS"
+    },
+    "funding": {
+      "commit": "c3565a9d5c2e5199c5362ac96573246a8d5a42dc",
+      "remote_ref": "codex/funding-path-candidate-20260922",
+      "checkout": "/Users/kevinkeaveney/Production/flex-funding",
+      "checkout_state": "CLEAN_DETACHED_ACTIVE"
+    },
+    "scheduler": {
+      "commit": "78ff47bcbbcf824445a9745992ce488fcc7f74f2",
+      "remote_ref": "codex/scheduler-armed-path-candidate-20260922",
+      "checkout": "/Users/kevinkeaveney/Production/flex-scheduler",
+      "checkout_state": "CLEAN_DETACHED_ACTIVE"
+    },
+    "walkback": {
+      "commit": "ec2b75e1274ee76761d51247d345b59d77341ee9",
+      "remote_ref": "codex/walkback-fingerprint-ddl-20260922",
+      "checkout": "/Users/kevinkeaveney/Production/flex-walkback",
+      "checkout_state": "CLEAN_DETACHED_ACTIVE"
+    },
+    "cascade": {
+      "commit": "26da06daba23608bd64d5b86cde1f92b24d3a98d",
+      "remote_ref": "codex/cascade-path-bindings-20260922",
+      "checkout": "/Users/kevinkeaveney/Production/flex-cascade",
+      "checkout_state": "CLEAN_DETACHED_ACTIVE"
     }
   },
   "services": {
     "watchtower_api": {"pid_at_staging": 49313, "source_pin": "api", "state": "ACTIVE_QUALIFIED"},
     "watchtower_listener": {"pid_at_staging": 97448, "source_pin": "listener", "state": "ACTIVE_QUALIFIED"},
-    "alert_evaluator": {"pid_at_staging": 4283, "source_pin": "main_workers", "rollback_source_sha": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215", "state": "PENDING_SOURCE_CUTOVER"},
-    "operation_scheduler": {"pid_at_staging": 4366, "source_pin": "main_workers", "rollback_source_sha": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215", "state": "PENDING_PATH_PARITY_AND_SOURCE_CUTOVER"},
-    "creator_resolution_worker": {"pid_at_staging": 57710, "source_pin": "main_workers", "rollback_source_sha": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215", "state": "PENDING_SOURCE_CUTOVER"},
-    "creator_funding_worker": {"pid_at_staging": 58812, "source_pin": "main_workers", "rollback_source_sha": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215", "state": "PENDING_SOURCE_CUTOVER"},
-    "operation_monitor_worker": {"pid_at_staging": 61224, "source_pin": "main_workers", "rollback_source_sha": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215", "state": "PENDING_SOURCE_CUTOVER"},
-    "walkback_worker": {"pid_at_staging": 18296, "source_pin": "recovery_workers", "rollback_source_sha": "48b8964d892aa77ab7f548b68e0be3cd06040f84", "state": "PENDING_SOURCE_CUTOVER"},
-    "ws_cascade": {"pid_at_staging": 18297, "source_pin": "recovery_workers", "rollback_source_sha": "48b8964d892aa77ab7f548b68e0be3cd06040f84", "state": "PENDING_LOG_PATH_PARITY_AND_SOURCE_CUTOVER"},
+    "alert_evaluator": {"pid_active": 42590, "source_pin": "main_workers", "state": "ACTIVE_QUALIFIED"},
+    "operation_scheduler": {"pid_active": 7840, "source_pin": "scheduler", "state": "ACTIVE_QUALIFIED"},
+    "creator_resolution_worker": {"pid_active": 58588, "source_pin": "main_workers", "state": "ACTIVE_QUALIFIED"},
+    "creator_funding_worker": {"pid_active": 85629, "source_pin": "funding", "state": "ACTIVE_QUALIFIED_WITH_ACCEPTED_PREEXISTING_OPTIONAL_ERRORS"},
+    "operation_monitor_worker": {"pid_active": 28065, "source_pin": "main_workers", "state": "ACTIVE_QUALIFIED"},
+    "walkback_worker": {"pid_active": 58853, "source_pin": "walkback", "state": "ACTIVE_QUALIFIED"},
+    "ws_cascade": {"pid_active": 91633, "source_pin": "cascade", "state": "ACTIVE_QUALIFIED_BY_APPROVED_SUBSCRIPTION_AUDIT_DATABASE_AND_SERIALIZATION_EVIDENCE"},
     "watchtower_ngrok": {"pid_at_staging": 4301, "binary_path": "/opt/homebrew/bin/ngrok", "binary_sha256": "80725ef39b6f03ef269c0eacd5a0197e37fbfb952d06ecb043e92eb6fd6f5cdf", "state": "ACTIVE_EXTERNAL_BINARY_UNCHANGED"}
   },
   "stopped_programs_unchanged": ["evidence_writer", "infra_sync_scheduler", "intelligence_snapshot_scheduler", "webhook_worker"],
@@ -71,9 +97,10 @@
     "source_tree_exactness": "PASS for staged main and recovery Python source trees; API and listener remain on their previously qualified source commits.",
     "main_worker_offline_tests": "19 relevant focused tests passed; one stale trigger-assumption test failed and one live-DB fixture test failed in isolated checkout. Both are explicitly excluded from a deployment verdict pending review.",
     "recovery_worker_offline_tests": "16 relevant focused tests passed; one stale checkpoint-location assertion failed and is explicitly excluded from a deployment verdict pending review.",
-    "source_and_checkout_remote_reachability": "PASS for all four source commits at their pinned remote refs.",
-    "full_state_path_parity": "HOLD: scheduler needs explicit OPS_V2_DB_PATH, FLEX_DB_PATH and OPS_SCHEDULER_LOCK; Cascade's two trace/snapshot log modules still derive source-local paths. Other pending services require independent path checks.",
-    "functional_live_cutovers": "NOT_STARTED for seven pending application services."
+    "source_and_checkout_remote_reachability": "PASS for every active service source commit at its pinned remote ref.",
+    "full_state_path_parity": "PASS for every active application service. Persistent databases, locks, queues, diagnostics and logs remain explicitly bound to established production locations. Two inert zero-byte owner-guard artifacts remain documented in listener/main-worker checkouts and are not open by a process.",
+    "functional_live_cutovers": "PASS for Alert Evaluator, Creator Resolution, Funding, Scheduler, Monitor, Walkback and Cascade. Cascade's rare natural signature/session event is retained as post-qualification confirmation by explicit user-approved gate relaxation after stable subscriptions, reconciliation, audit/database progress and serialization safety.",
+    "final_read_only_audit": "PASS_WITH_DOCUMENTED_NONBLOCKING_EXCEPTIONS: /healthz HTTP 200 healthy=true db=ok; active Python PID cwd and effective PYTHONPATH all point to pinned Production checkouts; listener continues natural births/migrations; Funding and Walkback continue natural work; Cascade LIVE with 22 subscriptions and audit progress; Monitor 42 total descriptors and zero DB descriptors; WAL sizes below warning; zero Cascade/Walkback failed lifecycle SQL, SQLITE_BUSY or lifecycle violations. Accepted observations: optional Funding classifier/cache_action errors are pre-existing; fail-fast optional WAL checkpoint acquisition can skip while Scheduler legitimately owns the writer lane; Walkback's per-minute status can briefly report UNHEALTHY despite fresh heartbeat and completed work; two inert checkout-local guard artifacts are preserved and explicitly recorded."
   },
   "hard_gates": [
     "Do not promote rc1 to active v1 until every running application PID uses its pinned SHA and its loaded source identity is verified after restart.",
@@ -83,5 +110,5 @@
     "After each service-only change: verify natural useful work, source identity, persistent-state parity, error-free operation and unrelated PID stability; rollback only that service on a bounded abort criterion.",
     "Keep dirty development checkout untouched and never bulk-restart its services."
   ],
-  "next_action": "Qualify state-path and loaded-source gates for one pending service at a time. Do not treat this staged rc1 manifest as an active production release."
+  "next_action": "Treat flex-prod-2026-09-22-rc1 as the frozen active production source baseline. Keep the dirty development checkout separate. Any future production change must update a pinned service commit and this manifest through an independently qualified service-only deployment. Track the next natural Cascade signature/session event as post-qualification confirmation, not a release blocker. Address dormant Supervisor stanzas that still reference DEV and the two inert checkout guard artifacts as separate hygiene work before enabling those dormant services."
 }

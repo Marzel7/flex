@@ -1,4 +1,13 @@
 {
+  "dev_prod_listener_candidate_reconciliation_20260922": {
+    "status": "LISTENER_SOURCE_SWITCH_HOLD_CANDIDATES_DIVERGE",
+    "engineering_revision": "Live listener main checkout a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43 dirty; deployed clean API checkout 77623cfe47b39c685cd251d1a85198b3a3572118; local development candidate afc57febb3b470c1c7ba6fb39ce636ec68c4f173",
+    "finding": "Deployed clean checkout has no src.core.db.resolve_ops_db_path although its matching listener entrypoint calls it; direct isolated import fails ImportError. The development candidate already contains the resolver, so no duplicate repair was made. A fresh listener AST import-closure comparison against that newer candidate shows 157 files: 107 match, 25 differ, 25 are missing. That candidate is therefore not a listener-ready replacement either. The old deployed clean checkout comparison had 158 files: 147 match, 11 differ, none missing. Listener differences are reachable through direct imports and include database authority, queue/schema, ledger, attribution and db_locking paths. Static closure does not establish actual loaded bytes or active branches.",
+    "tests": "Read-only import-chain graph, direct clean-checkout ImportError reproduction, current local candidate closure/byte comparison and source inspection. No production changes, offline listener integration test or restart.",
+    "production_flags": "SOURCE_CHANGED=0; CONFIG_CHANGED=0; SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "Do not repoint or restart listener from either candidate. Alert evaluator remains independently offline-qualified and unaffected by this listener hold.",
+    "exact_next_action": "Build a dedicated listener source candidate from the live qualified listener dependency closure and explicit data-authority manifest, then run import/startup and behavior tests on isolated data. Do not substitute the broader incomplete development candidate or assume API source parity."
+  },
   "dev_prod_alert_offline_qualification_listener_delta_20260922": {
     "status": "ALERT_OFFLINE_PASS_LISTENER_SOURCE_HOLD",
     "engineering_revision": "Clean production checkout 77623cfe47b39c685cd251d1a85198b3a3572118; no live source or configuration change",

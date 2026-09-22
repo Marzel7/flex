@@ -1,4 +1,14 @@
 {
+  "dev_prod_api_only_cutover_abort_20260922": {
+    "status": "API_ONLY_CUTOVER_ABORTED_ROLLED_BACK_EXACTLY",
+    "engineering_revision": "Dormant clean candidate 900f768139357b3649b9c78c1f57c3ce7f0d2d3d; isolated audit commit b285be41; live dirty main HEAD a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43",
+    "audit": "docs/audits/api_only_source_cutover_aborted_20260922.v1.json on codex/dev-prod-path-boundary",
+    "finding": "User authorized bounded API-only switch. All pinned source/config/artifact/path gates passed. Supervisor reread showed only watchtower_api changed and targeted update launched master 39034/worker 39038 from /Users/kevinkeaveney/Production/flex. Main health, operator, landscape and knowledge endpoints returned 200, but /operations/playbooks returned 500 with a new Jinja UndefinedError at templates/operation_playbooks_index.html:14 for artifact playbook price_data_coverage. Abort criterion fired. Exact prior API stanza/config restored byte-for-byte; targeted API-only update launched master 40951/worker 40955 from original dirty main checkout. The same playbooks 500 persists after rollback and the template bytes are identical in both source trees: inherited route defect, not proven cutover regression. All unrelated PIDs unchanged.",
+    "tests": "Cutover preflight 6/6 focused tests, source/32-path/twelve-artifact/two-report/config checks PASS. Post-switch healthy routes PASS but playbooks 500/traceback ABORT. Post-rollback config SHA-256 equals saved preimage ab6d81e7e3cbc0b73868b7d69d0c972b0424d7b90fe4fd33a28387c9800e0b6f; /healthz and main operator routes 200; playbooks still 500. Audit JSON/diff checks PASS.",
+    "production_flags": "CURRENT_API_SOURCE=DIRTY_MAIN; CURRENT_SUPERVISOR_CONFIG=EXACT_PREIMAGE; CLEAN_CHECKOUT_NOT_ACTIVE; OTHER_SERVICES_RESTARTED=0; DATABASE_OR_QUEUE_MUTATIONS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "HOLD. API-only cutover was not retained; exact rollback succeeded. Do not reattempt under the exhausted authorization. Existing playbooks rendering defect is the precise blocker.",
+    "exact_next_action": "Offline-qualify only the artifact-backed playbooks template/view-model compatibility fix with route regression, rebuild clean candidate and repeat parity gates; then obtain separate authorization for another API-only source cutover. No production changes or restarts now."
+  },
   "dev_prod_api_cutover_preflight_ready_20260922": {
     "status": "READ_ONLY_API_ONLY_PREFLIGHT_PASS_EXPLICIT_SWITCH_DECISION_REQUIRED",
     "engineering_revision": "Dormant clean checkout 900f768139357b3649b9c78c1f57c3ce7f0d2d3d; isolated path-boundary audit 42352bad; dirty live main HEAD a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43",

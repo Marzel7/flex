@@ -1,12 +1,12 @@
 {
   "dev_monitor_compact_mirror_20260922": {
-    "status": "HOLD_OVERSIZED_SNAPSHOT_CANCELLED",
-    "engineering_revision": "Dirty DEV checkout; DEV-only monitor runtime changes remain uncommitted. No production revision changed.",
-    "finding": "The initial DEV monitor bootstrap attempted a full SQLite backup of the production operations database and grew to 7.5 GB. It was cancelled, verified to have no open file handles, and only the incomplete DEV mirror and journal were removed. Production was opened read-only; no production write or service change occurred. A full clone is rejected because it is not a bounded DEV runtime design.",
-    "tests": "Read-only file-handle check and disk-size inspection. Snapshot process cancellation and exact DEV-only partial-file removal; no production database, queue, configuration, source or service mutation.",
+    "status": "PARTIAL_COMPACT_MIRROR_BOOTSTRAP_PASS",
+    "engineering_revision": "Dirty DEV checkout; DEV-only src/dev_monitor_runtime.py changes remain uncommitted. No production revision changed.",
+    "finding": "The initial DEV monitor bootstrap attempted a full SQLite backup of the production operations database and grew to 7.5 GB. It was cancelled, verified to have no open file handles, and only the incomplete DEV mirror and journal were removed. The replacement creates a compact DEV database with the Monitor schema, 379 Watchtower/WATCHTOWER_DEEP memberships, 348 matching retained launch records, and the existing 3 Watchtower facts/20 observations. Its measured size is 456 KB and it rejects databases above 64 MB. Production is opened with SQLite mode=ro and query_only=ON; all target writes are to .dev_runtime/monitor.",
+    "tests": "Compact bootstrap/refresh/preflight PASS; measured DEV DB 466,944 bytes, below 67,108,864-byte cap; membership count 379; launch-audit count 348; Monitor facts/observations 3/20. Snapshot process cancellation and exact DEV-only partial-file removal. No production database, queue, configuration, source or service mutation.",
     "production_flags": "PRODUCTION_SOURCE_CHANGED=false; PRODUCTION_CONFIG_CHANGED=false; PRODUCTION_SERVICES_RESTARTED=0; PRODUCTION_DATABASE_MUTATIONS=0; FULL_PRODUCTION_DB_SNAPSHOT_REJECTED=true; OVERSIZED_DEV_SNAPSHOT_REMOVED=true",
-    "verdict": "HOLD. Replace the full snapshot implementation with a compact monitor mirror containing only the active Watchtower/WATCHTOWER_DEEP membership, migration evidence, Monitor schema, queue and observations required for DEV price tracking. Source production data may be read only; DEV writes must remain exclusively below .dev_runtime/monitor.",
-    "exact_next_action": "Implement and offline-qualify bounded compact-mirror bootstrap and incremental read-only membership sync; prove its byte cap, DEV-only DB/queue/log paths and no production mutations before any provider-backed DEV monitor run."
+    "verdict": "PARTIAL PASS. The oversized snapshot is eliminated and the bounded compact mirror is present. Existing retained price history can now be served from DEV data. Provider-backed DEV processing and incremental read-only cohort sync remain to be qualified before claiming that newly assigned tokens will automatically receive DEV price data.",
+    "exact_next_action": "Add and qualify incremental read-only cohort sync plus DEV-only Monitor persistence/queue processing, then run a bounded provider-backed DEV job and confirm new observations appear in the DEV UI while production remains unchanged."
   },
   "live_monitor_byzantine_price_gap_audit_20260922": {
     "status": "PASS_READ_ONLY_CAUSE_IDENTIFIED",

@@ -1706,7 +1706,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 log_print(f"[STARTUP] ws_snapshot_log={_ws_log_abs}", flush=True)
                 log_print(f"[STARTUP] cwd={os.getcwd()}", flush=True)
                 log_print(f"[STARTUP] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", flush=True)
-                self.price_worker = get_price_worker()
+                self.price_worker = get_price_worker(DB_PATH)
                 self.price_worker.start()
                 log_print(f"[INIT] ✅ Price worker started pid={os.getpid()} worker=0x{id(self.price_worker):x}", flush=True)
             except Exception as e:
@@ -7736,7 +7736,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 is_stale=False,
             )
 
-            worker = self.price_worker or get_price_worker()
+            worker = self.price_worker or get_price_worker(DB_PATH)
             worker._on_price_fetched(token_mint, token_price)
         except Exception as e:
             log_print(f"[PRICE_CANONICAL] ⚠ Failed to persist {token_mint[:16]}... via worker sink: {e}", flush=True)
@@ -8489,7 +8489,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             def _first_price_fast_lane(mint: str) -> None:
                 try:
                     from src.core.price_worker import get_price_worker
-                    worker = get_price_worker()
+                    worker = get_price_worker(DB_PATH)
                     deadline = time.time() + 60
                     interval = 3.0
                     while time.time() < deadline:

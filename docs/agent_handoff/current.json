@@ -1,13 +1,13 @@
 {
   "dev_prod_listener_price_worker_data_path_boundary_20260922": {
-    "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",
-    "engineering_revision": "718e9d92 on local codex/dev-prod-path-boundary; active production listener remains pinned at 8d3a0a3731798129348a8d9cf19fcac4d58e29b9, PID 80575 at investigation start",
-    "audit": "docs/audits/listener_price_worker_data_path_boundary_20260922.v1.json on local codex/dev-prod-path-boundary",
-    "finding": "The listener checkout-local zero-byte flex_complete_database.db and lock sidecars were created 18 seconds after listener start. The lock owner command identifies price_worker.py:70 in _ensure_token_analysis_migration_columns. Three listener get_price_worker() calls omitted the DB argument; the singleton default is relative database/flex_complete_database.db, resolving under the pinned source checkout rather than shared DB_PATH.",
-    "tests": "Six focused tests PASS: two new listener source-boundary checks and four existing singleton tests; git diff --check PASS. No production test or restart performed.",
-    "production_flags": "SOURCE_REPAIR_DEPLOYED=false; LISTENER_RESTARTS=0; OTHER_SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS_BY_AGENT=0; SUPERVISOR_CHANGES=0; PROVIDER_CALLS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
-    "verdict": "Two-call-site runtime path bypass plus disabled startup call repaired offline by passing configured DB_PATH explicitly at all three listener call sites. Production source/data boundary remains incomplete until the repair is deployed and observed.",
-    "exact_next_action": "Prepare parity-gated listener-module-only deployment and listener-only restart/soak under separate authorization. Do not delete checkout-local zero-byte database or lock sidecars without verifying lease/descriptor state and an authorized cleanup manifest."
+    "status": "PRODUCTION_BOUNDED_PATH_REPAIR_QUALIFIED",
+    "engineering_revision": "Active production listener checkout bf1bdfc59b4acfed0338a493189d91d212bda50f, based directly on prior active 8d3a0a3731798129348a8d9cf19fcac4d58e29b9 with only three call-site edits; local engineering audit commit 7d21eefb",
+    "audit": "docs/audits/listener_price_worker_data_path_deployment_20260922.v1.json on local codex/dev-prod-path-boundary",
+    "finding": "Exact-base candidate avoided unrelated branch divergence. Listener-only restart at 10:46:48Z loaded three get_price_worker(DB_PATH) calls. At 11m54s final PID check, listener 97448 RUNNING and all unrelated running PIDs unchanged. Natural traffic: 197 birth seeds, 9/9 migration completions, 27 fast-lane primary events; birth/migration AVAILABLE, current handoffs HEALTHY 4/4, funding HEALTHY. Zero listener SQLite busy/locked, writer timeout, handoff drain, traceback or fatal events. Existing checkout-local zero-byte database and lock sidecars retained original inode/size/mtime; final lsof found no open holder. No cleanup performed.",
+    "tests": "Six focused tests PASS against exact active base: two source-boundary checks and four price-worker singleton tests; candidate source diff only three call-site edits; production commit diff only the same module and edits; config SHA256 unchanged 2585ad8876c716825aa382577a7d949fcaf683b0ed25eb4271ac4e19bcd7598b.",
+    "production_flags": "SOURCE_REPAIR_DEPLOYED=true; LISTENER_ONLY_RESTARTS=1; OTHER_SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS_BY_AGENT=0; SUPERVISOR_CHANGES=0; PROVIDER_SYNTHETIC_TRAFFIC=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "PASS for observed listener price-worker source/data path repair after more than ten minutes of natural traffic. This does not certify every transitive source/data path or the full all-service production baseline.",
+    "exact_next_action": "Keep listener running. Audit remaining transitive source-local writes independently before declaring a full production source/data baseline. Leave pre-existing checkout-local files in place pending a separately bounded cleanup decision."
   },
   "dev_prod_listener_durable_source_stage_20260922": {
     "status": "LISTENER_ONLY_CUTOVER_QUALIFIED",

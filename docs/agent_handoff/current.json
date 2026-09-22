@@ -1,4 +1,13 @@
 {
+  "dev003_scheduler_wal_correlation_audit_20260922": {
+    "status": "PARTIAL_TIMESTAMP_BOUNDED_CORRELATION_REQUIRED",
+    "engineering_revision": "Read-only live audit against the active Scheduler PID 7840 and retained Supervisor logs; no engineering source revision was changed.",
+    "finding": "PID 7840 is confirmed as the active `python -m src.core.operation_scheduler --loop` process, but neither the sampled current owner guard nor the timestamped fresh Scheduler/Cascade tails identified it as the SQLite/WAL writer at a checkpoint-failure instant. Historical Scheduler timeout records instead repeatedly embed writer-owner provenance for ws_cascade paths and earlier PIDs. Therefore the reported 372 WAL watchdog checkpoint failures establish historical contention, not causal attribution to PID 7840.",
+    "tests": "Read-only process command and Supervisor status; current WAL size (29 MB); owner-guard presence check; timestamped Scheduler/Cascade log search including WAL watchdog, SQLITE_BUSY, database-locked and cross-process timeout records. No RPC, source, configuration, service, database or queue mutation.",
+    "production_flags": "PRODUCTION_SOURCE_CHANGED=false; PRODUCTION_CONFIG_CHANGED=false; PRODUCTION_SERVICES_RESTARTED=0; PRODUCTION_DATABASE_MUTATIONS=0; SCHEDULER_PID_7840_RUNNING=true; SCHEDULER_CURRENT_LOCK_OWNER_PROVEN=false; WAL_CHECKPOINT_FAILURES_ATTRIBUTED_TO_PID_7840=false",
+    "verdict": "HOLD. Do not kill, restart or modify Scheduler based on the 372 historical checkpoint failures. Timestamp-bounded provenance linking a specific watchdog failure to the then-current writer owner is required before attribution.",
+    "exact_next_action": "Perform a read-only timestamp-bounded correlation: pair each recent WAL watchdog failure with the same-window lock-owner/provenance record, process identity, transaction/connection state and Cascade/Scheduler progress. Separately authorize the 76-treasury RPC cross-check if the question is whether launches were missed."
+  },
   "dev002_legacy_operations_retirement_scope_20260922": {
     "status": "CANDIDATES_PATH_PARITY_PREFLIGHT_PASS_DEPLOYMENT_NOT_AUTHORIZED",
     "engineering_revision": "DEV implementation ec9def968a44b39f167f28b6f0f9e32db53428e3; isolated Walkback candidate afbe9e58b11eb2e4d616246da123ce31ab45700c based on active pinned production Walkback ec2b75e1274ee76761d51247d345b59d77341ee9; isolated API candidate fc6c58fc4512f781897266f03c966ace1f7cb365 based on active pinned production API 77623cfe47b39c685cd251d1a85198b3a3572118.",

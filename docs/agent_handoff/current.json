@@ -1,4 +1,14 @@
 {
+  "dev_prod_listener_entrypoint_offline_qualification_20260922": {
+    "status": "OFFLINE_ENTRYPOINT_PASS_PRODUCTION_CUTOVER_HOLD",
+    "engineering_revision": "Local-only listener source 153c6756 and audit commit 8d3a0a37 on codex/listener-source-candidate-20260922; production API remains 77623cfe and listener remains on main",
+    "audit": "docs/audits/listener_source_path_cutover_preflight_20260922.v3.json in local candidate",
+    "finding": "Candidate entrypoint now has default-preserving LISTENER_RPC_METRICS_API_START_ENABLED gate; value 0 skips RPC metrics probe/spawn while retaining WAL daemon and listener main. Offline tests passed disabled and default branches. Main singleton-lock flow was tested with builtins.open redirected solely for the lock path to a temporary file, schema thread suppressed, fake listener and fake flock; acquisition preceded listen and release followed. No live /tmp listener lock was opened or signalled. In-memory listener-only Supervisor preview pins 26 environment keys, disables metrics side process, parses, preserves unrelated blocks and exactly rolls back; preview SHA256 b259edbcce0352e5a361fa3e06540741530acd281ae1b4ade747d20d0145dbff. This preview uses temporary candidate path and is not a durable production manifest.",
+    "tests": "3 new entrypoint tests PASS; 10 existing listener tests PASS in separate suites. A combined test invocation hit duplicate tests.conftest import-path mismatch only; no product failure. Prior isolated constructor zero socket/DNS calls, projection override and path checks remain PASS.",
+    "production_flags": "CANDIDATE_LOCAL_ONLY=true; SOURCE_CHANGED_IN_PRODUCTION=0; CONFIG_CHANGED=0; SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS=0; PROVIDER_CALLS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "DO_NOT_DEPLOY_OR_RESTART_LISTENER_YET. Entrypoint behavior is offline-qualified but a temporary source worktree is not a durable production location, and the complete supervised process/natural ingress have not run from it.",
+    "exact_next_action": "Prepare a durable listener-only production source checkout separate from the running API checkout, verify exact candidate commit and shared-data authorities, then create final listener-only config/rollback manifest and request separate production authorization."
+  },
   "dev_prod_listener_constructor_entrypoint_20260922": {
     "status": "ISOLATED_CONSTRUCTOR_PASS_ENTRYPOINT_HOLD",
     "engineering_revision": "Local-only candidate source 52285dd7, audit commit 6e5542b1 on codex/listener-source-candidate-20260922; no production deployment",

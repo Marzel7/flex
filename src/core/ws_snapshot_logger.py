@@ -7,7 +7,7 @@ Import and use `ws_log` anywhere you need WS/snapshot visibility.
 import logging
 import os
 
-_LOG_PATH = os.path.join(
+_LOG_PATH = os.environ.get('WS_SNAPSHOT_LOG_PATH') or os.path.join(
     os.path.dirname(__file__), '..', '..', 'logs', 'ws_snapshot.log'
 )
 _LOG_PATH = os.path.normpath(_LOG_PATH)

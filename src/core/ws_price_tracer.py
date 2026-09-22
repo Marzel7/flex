@@ -27,6 +27,7 @@ import os
 import time
 
 _LOG_PATH = os.path.normpath(
+    os.environ.get('WS_PRICE_TRACE_LOG_PATH') or
     os.path.join(os.path.dirname(__file__), '..', '..', 'logs', 'ws_price_trace.log')
 )
 

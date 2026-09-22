@@ -1,4 +1,14 @@
 {
+  "dev_prod_api_cutover_preflight_ready_20260922": {
+    "status": "READ_ONLY_API_ONLY_PREFLIGHT_PASS_EXPLICIT_SWITCH_DECISION_REQUIRED",
+    "engineering_revision": "Dormant clean checkout 900f768139357b3649b9c78c1f57c3ce7f0d2d3d; isolated path-boundary audit 42352bad; dirty live main HEAD a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43",
+    "audit": "docs/audits/api_only_production_cutover_boundary_20260922.v1.json and docs/audits/api_cutover_research_artifacts_20260922.v1.json on codex/dev-prod-path-boundary",
+    "finding": "All twelve candidate research resources match pinned SHA-256 digests; source checkout remains clean at exact revision. Live and candidate review queue JSON matches. An initial registry mismatch under only three path overrides affected five last-launch fields; repeating with all 32 pinned authorities produced eight matching operator IDs and zero differing fields. Live/candidate operator summary values, Operational Landscape bytes and knowledge rules bytes also match. A mode-0700 temporary backup of the current Supervisor config is byte-identical to the live file at pinned SHA-256; it must be rechecked or recaptured at actual cutover. The fail-closed API-only config preview preserves unrelated Supervisor bytes and can restore the exact preimage in memory.",
+    "tests": "6/6 focused checkout/config/artifact tests PASS; JSON and diff checks PASS. Bounded read-only endpoint checks PASS with documented volatile timestamp handling. No full API route proof is claimed.",
+    "production_flags": "DURABLE_SOURCE_CHECKOUT_CREATED=true; SUPERVISOR_CHANGED=false; SERVICES_RESTARTED_OR_SIGNALED=0; DATABASE_OR_QUEUE_MUTATIONS=0; CANDIDATE_REMOTE_PUSH=false; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "HOLD pending explicit bounded-risk API-only switch decision. Preflight evidence is strong, but Python loaded-byte identity of the already-running dirty-checkout worker cannot be proven. Remote publication of full candidate source was blocked by automatic trust review; local clean checkout remains available. No live cutover occurred.",
+    "exact_next_action": "Ask the user to explicitly accept the bounded loaded-byte observational limit and authorize only watchtower_api source-path cutover. If approved, recheck all source/config/report/artifact/path preimages, keep a recoverable exact config backup, change only the validated API stanza, restart only watchtower_api, verify named endpoints and abort criteria, and roll back only the API on failure."
+  },
   "dev_prod_api_cutover_preview_20260922": {
     "status": "API_ONLY_CONFIG_PREVIEW_AND_THREE_ROUTE_PARITY_PASS_CUTOVER_HOLD",
     "engineering_revision": "Clean dormant checkout 900f768139357b3649b9c78c1f57c3ce7f0d2d3d; isolated path-boundary audit/tool commit 2680d491; dirty live main HEAD a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43",

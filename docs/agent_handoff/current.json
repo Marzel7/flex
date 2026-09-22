@@ -1,4 +1,14 @@
 {
+  "dev_prod_api_bounded_cutover_boundary_20260922": {
+    "status": "PREPARED_NOT_DEPLOYABLE_REMOTE_SOURCE_EGRESS_BLOCKED",
+    "engineering_revision": "Clean local candidate 900f768139357b3649b9c78c1f57c3ce7f0d2d3d; path-boundary manifest commit 65d71d0e; live dirty main HEAD a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43",
+    "audit": "docs/audits/api_only_production_cutover_boundary_20260922.v1.json on codex/dev-prod-path-boundary",
+    "finding": "A bounded API-only production cutover boundary now identifies the exact candidate, current API source/config preimages, 32 path authorities, hard preflight gates, isolated restart scope, abort and rollback criteria. Gunicorn master 4294 and naturally recycled worker 17736 were observed; the new worker start follows key main.py/operator_routes.py disk mtimes but cannot prove loaded-byte identity. The full-source candidate branch push was rejected by automatic review because remote trust for source egress was not established; no retry or workaround occurred.",
+    "tests": "Manifest JSON and diff checks PASS; clean candidate and previous 47/47 focused API tests remain the qualified offline source. No cutover rehearsal or production endpoint recheck was performed in this continuation.",
+    "production_flags": "PROD_CHECKOUT_CREATED=false; SUPERVISOR_CHANGED=false; SERVICES_RESTARTED_OR_SIGNALED=0; DATABASE_OR_QUEUE_MUTATIONS=0; CANDIDATE_REMOTE_PUSH=false",
+    "verdict": "HOLD. Manifest is preparation only and explicitly not deployable. Durable production checkout, refreshed config/report/source preflight, exact API-only rollback rehearsal and explicit bounded loaded-byte risk decision remain open.",
+    "exact_next_action": "Resolve remote candidate publication trust/authorization or retain a locally verified candidate, then build a durable clean production checkout and execute every hard preflight gate. Do not switch or restart watchtower_api until those gates and approval pass."
+  },
   "dev_prod_api_candidate_paths_20260922": {
     "status": "API_PATH_REPAIRS_OFFLINE_PASS_FULL_PRODUCTION_BASELINE_HOLD",
     "engineering_revision": "Clean isolated full-source candidate 900f768139357b3649b9c78c1f57c3ce7f0d2d3d; path-boundary audit commit 60802933; dirty main live source a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43",

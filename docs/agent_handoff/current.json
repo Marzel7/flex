@@ -1,4 +1,14 @@
 {
+  "dev_prod_listener_durable_source_stage_20260922": {
+    "status": "STAGED_NO_RESTART_AUTHORIZATION_REQUIRED",
+    "engineering_revision": "Listener-only durable source checkout /Users/kevinkeaveney/Production/flex-listener clean at 8d3a0a3731798129348a8d9cf19fcac4d58e29b9; API checkout /Users/kevinkeaveney/Production/flex clean and unchanged at 77623cfe47b39c685cd251d1a85198b3a3572118; staging audit ae25f77d on codex/dev-prod-path-boundary",
+    "audit": "docs/audits/listener_durable_source_stage_20260922.v1.json on local codex/dev-prod-path-boundary branch",
+    "finding": "Staged exact offline-qualified listener commit in a separate durable production source worktree without loading it. Staged checkout clean; no live/ops database files inside source. No-provider isolated constructor from staged path PASS. In-memory listener-only Supervisor preview pins 26 environment names to existing shared data authorities, disables RPC metrics side-process start, parses, preserves all other program blocks and rolls back exactly; preview SHA256 2585ad8876c716825aa382577a7d949fcaf683b0ed25eb4271ac4e19bcd7598b. Active config remains de903ec9d5ca70934f98c03cf2aba58f0c366d9c37712c1f5f7d5616ee502ce3. At final check listener PID 4299, API 49313 and alert evaluator 4283 all RUNNING and unchanged.",
+    "tests": "Both staged source revisions and clean worktrees verified; no-provider staged constructor PASS; source-local live/ops DB absent; role-aware projection hash 93831bf2a3554b19fd93971fbeded96cd1ab59a60b148dc8efa48373b84d98cc; required shared paths exist; Supervisor preview parser/rollback PASS; manifest JSON/diff PASS. Prior 3+10 focused tests PASS.",
+    "production_flags": "LISTENER_SOURCE_STAGED=true; LISTENER_NEW_SOURCE_ACTIVE=false; CONFIG_CHANGED=0; SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS=0; PROVIDER_CALLS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "Durable staging is complete, but listener production cutover is not authorized and natural traffic has not been observed from the new source.",
+    "exact_next_action": "Obtain separate authorization for manifest-bounded listener-only config switch/restart. Immediately recheck source/config/artifact hashes and unrelated PIDs, apply only the listener stanza, restart only watchtower_listener, observe at least 20 minutes of natural traffic, and roll back only on a manifest abort criterion. Do not change the API checkout or other services."
+  },
   "dev_prod_listener_entrypoint_offline_qualification_20260922": {
     "status": "OFFLINE_ENTRYPOINT_PASS_PRODUCTION_CUTOVER_HOLD",
     "engineering_revision": "Local-only listener source 153c6756 and audit commit 8d3a0a37 on codex/listener-source-candidate-20260922; production API remains 77623cfe and listener remains on main",

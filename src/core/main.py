@@ -22862,8 +22862,11 @@ def api_listener_recovery_status():
     # ── 3. Listener log scan — tail last 64 KB ────────────────────────────
     # 64 KB covers ~500 lines — enough for STARTUP flags + recent WS state.
     # All signals use last-wins so a newer CONNECTED beats an old RETRYING line.
-    _LOG = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
-                         "..", "..", "logs", "supervisor", "listener.log")
+    _LOG = _os.environ.get(
+        "SUPERVISOR_LISTENER_LOG_PATH",
+        _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                      "..", "..", "logs", "supervisor", "listener.log"),
+    )
     _LOG = _os.path.normpath(_LOG)
 
     pumpportal_status          = "UNKNOWN"
@@ -23125,8 +23128,11 @@ def api_listener_recovery_status():
     # ── Migration coverage audit — read from JSON file, no RPC, no DB ────────
     _migration_coverage = None
     try:
-        _audit_path = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
-                                    "..", "..", "logs", "migration_coverage_audit.json")
+        _audit_path = _os.environ.get(
+            "MIGRATION_COVERAGE_AUDIT_PATH",
+            _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                          "..", "..", "logs", "migration_coverage_audit.json"),
+        )
         _audit_path = _os.path.normpath(_audit_path)
         if _os.path.exists(_audit_path):
             _audit_age = now - int(_os.path.getmtime(_audit_path))
@@ -23229,9 +23235,11 @@ def api_health_full():
     ingestion = {"status": "UNKNOWN"}
     try:
         import re as _re
-        _LOG = _os.path.normpath(_os.path.join(
-            _os.path.dirname(_os.path.abspath(__file__)),
-            "..", "..", "logs", "supervisor", "listener.log"))
+        _LOG = _os.path.normpath(_os.environ.get(
+            "SUPERVISOR_LISTENER_LOG_PATH",
+            _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                          "..", "..", "logs", "supervisor", "listener.log"),
+        ))
 
         listener_log_age = None
         pp_status = "UNKNOWN"
@@ -23410,8 +23418,11 @@ def api_health_full():
     try:
         # Read listener's serializer snapshot (same source as /api/db-serializer-metrics)
         _sm = {}
-        _snap = _os.path.normpath(_os.path.join(
-            _os.path.dirname(_os.path.abspath(__file__)), "..", "..", "logs", "db_serializer_metrics.json"))
+        _snap = _os.path.normpath(_os.environ.get(
+            "DB_SERIALIZER_METRICS_PATH",
+            _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                          "..", "..", "logs", "db_serializer_metrics.json"),
+        ))
         if _os.path.exists(_snap):
             try:
                 with open(_snap) as _sf:
@@ -23469,8 +23480,11 @@ def api_health_full():
 
         errors_5m = 0
         try:
-            _GLOG = _os.path.normpath(_os.path.join(
-                _os.path.dirname(_os.path.abspath(__file__)), "..", "..", "logs", "gunicorn_error.log"))
+            _GLOG = _os.path.normpath(_os.environ.get(
+                "GUNICORN_ERROR_LOG_PATH",
+                _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                              "..", "..", "logs", "gunicorn_error.log"),
+            ))
             if _os.path.exists(_GLOG):
                 _gst = _os.stat(_GLOG)
                 with open(_GLOG, "rb") as _gf:

@@ -1845,7 +1845,7 @@ def run_loop() -> None:
     from src.core import treasury_bank
     from src.ops.walkback_health import recover_stalled_running_jobs
     from src.ops.walkback_cycle_trace import trace_boundary, trace_failure
-    from src.ops import anchor_reconciliation, create_event_ledger
+    from src.ops import anchor_reconciliation, create_event_ledger, operation_fingerprint_drift
     startup = _ops_conn()
     try:
         # Ordinary startup must not contend for the schema writer lane.  Legacy
@@ -1867,6 +1867,9 @@ def run_loop() -> None:
         _ledger_schema = create_event_ledger.validate_schema(startup)
         if _ledger_schema != "VALID":
             raise RuntimeError(_ledger_schema)
+        _fingerprint_schema = operation_fingerprint_drift.validate_schema(startup)
+        if _fingerprint_schema != "VALID":
+            raise RuntimeError(_fingerprint_schema)
 
         # X76.5A -- this is a fresh process boot (run_loop() only executes
         # once per process). If the most recent recovery event for this
@@ -2045,6 +2048,10 @@ if __name__ == "__main__":
         _outcome_schema = _validate_outcome_schema(ops)
         if _outcome_schema != "VALID":
             raise RuntimeError(_outcome_schema)
+        from src.ops.operation_fingerprint_drift import validate_schema as _validate_fingerprint_schema
+        _fingerprint_schema = _validate_fingerprint_schema(ops)
+        if _fingerprint_schema != "VALID":
+            raise RuntimeError(_fingerprint_schema)
         recover_stalled_running_jobs(ops, max_attempts=MAX_ATTEMPTS)
         finalize_exhausted_pending(ops)
         result = drain_batch(ops)

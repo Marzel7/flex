@@ -63,6 +63,7 @@ def stub_run_loop_dependencies(monkeypatch, tmp_path):
     monkeypatch.setattr("src.ops.attribution_outcome.validate_schema", lambda conn: "VALID")
     monkeypatch.setattr("src.ops.anchor_reconciliation.validate_schema", lambda conn: "VALID")
     monkeypatch.setattr("src.ops.create_event_ledger.validate_schema", lambda conn: "VALID")
+    monkeypatch.setattr("src.ops.operation_fingerprint_drift.validate_schema", lambda conn: "VALID")
     monkeypatch.setattr(walkback_worker, "_write_heartbeat", lambda conn: None)
     # X64.5 — run_loop's new self-healing anchor-reconciliation pre-pass
     # (src/ops/anchor_reconciliation.py) is out of scope for this file's

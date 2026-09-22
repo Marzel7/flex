@@ -41,6 +41,36 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
     conn.executescript(DDL)
 
 
+_REQUIRED_SCHEMA = {
+    "operation_fingerprint_drift_evidence": (
+        {"drift_id", "operator_id", "fingerprint_id", "mint", "classification", "matching_dimensions_json", "differing_dimensions_json", "observed_json", "expected_json", "infrastructure_json", "drift_signature", "first_seen", "latest_seen"},
+        ("operator_id", "fingerprint_id", "mint"),
+    ),
+    "operation_fingerprint_health_snapshots": (
+        {"snapshot_id", "operator_id", "fingerprint_id", "observed_at", "accepted_exact_matches", "external_exact_matches", "observable_comparison_count", "uniqueness_percent", "trend"},
+        ("operator_id", "fingerprint_id", "observed_at"),
+    ),
+    "operation_fingerprint_drift_clusters": (
+        {"cluster_id", "operator_id", "fingerprint_id", "drift_signature", "classification", "mint_count", "first_seen", "latest_seen", "related_potential_operation_id", "relationship_type", "reason"},
+        ("operator_id", "fingerprint_id", "drift_signature"),
+    ),
+}
+
+
+def validate_schema(conn: sqlite3.Connection) -> str:
+    """Read-only startup contract; never provision schema from a completion."""
+    for table, (required_columns, unique_columns) in _REQUIRED_SCHEMA.items():
+        if not conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table,)).fetchone():
+            return f"FINGERPRINT_SCHEMA_MISSING:{table}"
+        columns = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
+        if not required_columns <= columns:
+            return f"FINGERPRINT_SCHEMA_COLUMNS_MISSING:{table}"
+        indexes = conn.execute(f"PRAGMA index_list({table})").fetchall()
+        if not any(index[2] and tuple(row[2] for row in conn.execute(f"PRAGMA index_info({index[1]})")) == unique_columns for index in indexes):
+            return f"FINGERPRINT_SCHEMA_UNIQUE_MISSING:{table}"
+    return "VALID"
+
+
 def _rows(conn: sqlite3.Connection, mint: str) -> list[dict[str, Any]] | None:
     try:
         rows = conn.execute("SELECT hop_depth,mechanism,amount_lamports,wallet,candidate_parent,signature FROM wt_walkback_edge_candidates WHERE mint=? AND selection_status='SELECTED' ORDER BY hop_depth,signature", (mint,)).fetchall()
@@ -154,8 +184,8 @@ def _refresh_clusters(conn: sqlite3.Connection, operation: dict[str, Any], now: 
 def observe_completed_walkback(conn: sqlite3.Connection, mint: str, *, now: int | None = None) -> dict[str, int]:
     """Best-effort secondary projection. It has no membership write statements."""
     try:
-        ensure_schema(conn)
-        # Schema setup and each optional monitoring write are independent.  Never
+        # Startup validates the provisioned schema read-only. Each optional
+        # monitoring write is independent. Never
         # retain the shared writer lane while the full-table health/cluster reads
         # below run: these projections are secondary and do not need one atomic
         # transaction spanning evidence, aggregate reads, and snapshots.

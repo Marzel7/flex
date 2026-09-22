@@ -1,4 +1,13 @@
 {
+  "live_monitor_byzantine_price_gap_audit_20260922": {
+    "status": "PASS_READ_ONLY_CAUSE_IDENTIFIED",
+    "engineering_revision": "Read-only runtime/database/queue audit; no source revision changed.",
+    "finding": "All six Byzantine Monitor facts are WAITING_FOR_ENTRY_REFERENCE with entry_timestamp, entry_mc_usd, latest_mc_usd and last_observation_at null and provider_call_count=0. Their evidence status is BYZANTINE_ENTRY_EVIDENCE_DUE. Seven pending queue messages match that same intentional state. Three retry messages carry MONITOR_WAITING_FACT_UNCOMMITTED, an admission/persistence retry condition rather than provider backoff; two corresponding facts now exist. The three Watchtower rows are terminal collapsed lifecycles with entry/price/observation values and 20 retained observations total. Thus the current lack of Byzantine price data is entry-evidence gating, not a failed price fetch. New Byzantine tokens are landing in the queue/facts but are not eligible for price acquisition until entry reference evidence exists.",
+    "tests": "Read-only operations DB state/count and recent-fact inspection; observation aggregate; queue envelope inspection; Monitor Supervisor status (RUNNING PID 28065); relevant error-log review. No source/config/service/database/queue/provider mutation.",
+    "production_flags": "PRODUCTION_SOURCE_CHANGED=false; PRODUCTION_CONFIG_CHANGED=false; PRODUCTION_SERVICES_RESTARTED=0; PRODUCTION_DATABASE_MUTATIONS=0; BYZANTINE_PRICE_PROVIDER_FAILURE_NOT_DEMONSTRATED=true; BYZANTINE_ENTRY_GATE_BLOCKS_PRICE_ACQUISITION=true",
+    "verdict": "PASS audit. Do not repair the UI or invoke a provider backfill to fill these fields: the absent values correctly represent an unmet entry-reference contract. The separate question is whether Byzantine's entry-reference production/admission path should be repaired or its monitoring contract changed.",
+    "exact_next_action": "Separately authorize a bounded audit of the Byzantine entry-reference evidence path and the stale MONITOR_WAITING_FACT_UNCOMMITTED retries. Do not broaden it into a price-provider or UI change without first deciding the intended entry-evidence semantics."
+  },
   "dev005_live_monitor_metadata_backfill_20260922": {
     "status": "PLANNED_DEV_ONLY",
     "engineering_revision": "DEV registry entry DEV-005 created on dirty DEV branch classification-attribution-axis at base 870dcd71eb146532f27346e5bc8412abdf2a3b00; no implementation candidate exists.",

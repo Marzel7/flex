@@ -1,4 +1,14 @@
 {
+  "dev_prod_api_landscape_report_authority_20260922": {
+    "status": "LANDSCAPE_READBACK_PARITY_PASS_FULL_PRODUCTION_BASELINE_HOLD",
+    "engineering_revision": "Clean source candidate 9094d2116db4a805b670cbd6001c0cc4480b4005; isolated path-audit commit df1c34fa; live main source a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43 remains dirty",
+    "audit": "docs/audits/api_landscape_report_authority_20260922.v1.json on codex/dev-prod-path-boundary",
+    "finding": "Live Operational Landscape GET returned 200 while candidate initially returned 503 because two generated JSON reports were absent. They are intentionally git-ignored live data, not tracked source assets; the attempted tracked-file restore was rejected and no candidate files changed. The offline manifest now pins OIP_LANDSCAPE_REPORT_ROOT to existing main-root reports as external read-only data and records both SHA-256 digests. With that override, candidate and live GET returned 200 and byte-identical 1089187-byte responses.",
+    "tests": "26/26 focused path tests pass; 32-name covered-path rehearsal PASS with deployment HOLD; JSON and diff checks pass.",
+    "production_flags": "PROD_CHECKOUT_CREATED=false; SUPERVISOR_CHANGED=false; SERVICES_RESTARTED_OR_SIGNALED=0; DATABASE_OR_QUEUE_MUTATIONS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "HOLD API cutover. Landscape path/readback parity is qualified offline, but remaining routes, report-digest cutover check and loaded-source provenance remain open.",
+    "exact_next_action": "Continue bounded non-operator API route/state census, recheck both report digests at cutover, and resolve loaded-source provenance before rollback-tested API-only cutover."
+  },
   "dev_prod_api_live_worker_coverage_parity_20260922": {
     "status": "BOUNDED_ROUTE_PARITY_PASS_LOADED_BYTES_UNPROVEN_API_CUTOVER_HOLD",
     "engineering_revision": "Clean API candidate 9094d2116db4a805b670cbd6001c0cc4480b4005; isolated audit d7af7c6e; main production source a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43 remains dirty",

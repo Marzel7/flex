@@ -27,8 +27,11 @@ def _table_exists(conn: sqlite3.Connection, table: str) -> bool:
     ).fetchone())
 
 
-def ensure_schema(conn: sqlite3.Connection) -> None:
-    conn.executescript("""
+SCHEMA_PREREQUISITES = ("wt_walkback_queue",)
+
+
+def migrate_schema_step(conn: sqlite3.Connection) -> dict:
+    ddl = """
         CREATE TABLE IF NOT EXISTS wt_watchtower_candidates (
             candidate_id         INTEGER PRIMARY KEY AUTOINCREMENT,
             mint                 TEXT NOT NULL UNIQUE,
@@ -52,7 +55,10 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
         );
         CREATE INDEX IF NOT EXISTS ix_wt_candidates_status_created
             ON wt_watchtower_candidates(candidate_status, created_at DESC);
-    """)
+    """
+    for statement in (part.strip() for part in ddl.split(";")):
+        if statement:
+            conn.execute(statement)
     for column, typedef in (
         ("priority", "INTEGER NOT NULL DEFAULT 0"),
         ("priority_reason", "TEXT"),
@@ -74,6 +80,11 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
         "CREATE INDEX IF NOT EXISTS ix_wbq_priority "
         "ON wt_walkback_queue(status, priority DESC, enqueued_at ASC)"
     )
+    return {"changed": True}
+
+
+def ensure_schema(conn: sqlite3.Connection) -> None:
+    migrate_schema_step(conn)
     conn.commit()
 
 

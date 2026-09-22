@@ -85,37 +85,6 @@ CREATE INDEX IF NOT EXISTS ix_wuir_eligible
     ON wt_unknown_infrastructure_registry(eligible, last_seen_at DESC);
 """
 
-_STARTUP_TABLE_COLUMNS = {
-    "wt_attribution_outcomes": "mint outcome_type stop_reason terminal_entity terminal_entity_type confidence evidence_json operator_id should_seed_emerging_operator should_retry completed_at source_queue_updated_at materialized_at".split(),
-    "wt_unknown_infrastructure_registry": "terminal_entity terminal_entity_type first_source_mint latest_source_mint observation_count confidence evidence_json eligible first_seen_at last_seen_at".split(),
-}
-_STARTUP_INDEX_COLUMNS = {
-    "ix_wao_type_time": ["outcome_type", "completed_at"],
-    "ix_wao_terminal": ["terminal_entity", "outcome_type"],
-    "ix_wao_completed_at": ["completed_at"],
-    "ix_wuir_eligible": ["eligible", "last_seen_at"],
-}
-
-
-def validate_schema(conn) -> str:
-    """Read-only contract for the attribution-outcome startup schema."""
-    tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-    for table, required in _STARTUP_TABLE_COLUMNS.items():
-        if table not in tables:
-            return f"SCHEMA_MIGRATION_REQUIRED:missing_table:{table}"
-        actual = {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
-        missing = sorted(set(required) - actual)
-        if missing:
-            return f"SCHEMA_MIGRATION_REQUIRED:missing_column:{table}.{missing[0]}"
-    for index, required in _STARTUP_INDEX_COLUMNS.items():
-        row = conn.execute("SELECT tbl_name FROM sqlite_master WHERE type='index' AND name=?", (index,)).fetchone()
-        if not row:
-            return f"SCHEMA_MIGRATION_REQUIRED:missing_index:{index}"
-        actual = [r[2] for r in conn.execute(f"PRAGMA index_xinfo({index})") if r[5]]
-        if actual != required:
-            return f"SCHEMA_MIGRATION_REQUIRED:wrong_index:{index}"
-    return "VALID"
-
 
 @dataclass(frozen=True)
 class AttributionOutcome:
@@ -131,7 +100,32 @@ class AttributionOutcome:
     completed_at: int
 
 
-def ensure_schema(conn) -> None:
+SCHEMA_PREREQUISITES = ()
+SCHEMA_VALID = "VALID"
+SCHEMA_MIGRATION_REQUIRED = "SCHEMA_MIGRATION_REQUIRED"
+INCOMPATIBLE_SCHEMA = "INCOMPATIBLE_SCHEMA"
+_FROZEN_SCHEMA_MANIFEST_DIGEST = "7916eb5157a820524426021c4a0c79828c767a896756fd362eab7723de912e25"
+_SCHEMA_TABLES = frozenset("wt_attribution_outcomes wt_unknown_infrastructure_registry".split())
+
+
+class AttributionOutcomeSchemaError(RuntimeError):
+    def __init__(self, state: str, detail: str):
+        self.state, self.detail = state, detail
+        super().__init__(f"{state}:{detail}")
+
+
+def validate_schema(conn) -> str:
+    """Read only validation of the frozen complete Attribution Outcome contract."""
+    from src.ops.schema_manifest_validator import validate_frozen_manifest
+    valid, observed = validate_frozen_manifest(
+        conn, expected_digest=_FROZEN_SCHEMA_MANIFEST_DIGEST, include_tables=_SCHEMA_TABLES
+    )
+    if not valid:
+        raise AttributionOutcomeSchemaError(SCHEMA_MIGRATION_REQUIRED, f"manifest={observed}")
+    return SCHEMA_VALID
+
+
+def migrate_schema_step(conn) -> None:
     # X77.5 fix: execute_script() is DDL-only and deliberately never commits
     # (see database_write_service.execute_script's own docstring) -- the
     # caller owns the transaction boundary. This function previously never
@@ -146,6 +140,11 @@ def ensure_schema(conn) -> None:
     # during the X77.5 soak, confirmed reproduced in isolation (lease
     # remained held after a fully successful ensure_schema() call).
     execute_script(conn, DDL)
+    return {"changed": True}
+
+
+def ensure_schema(conn) -> None:
+    migrate_schema_step(conn)
     conn.commit()
 
 

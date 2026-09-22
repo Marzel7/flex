@@ -1,4 +1,14 @@
 {
+  "dev_prod_durable_source_checkout_20260922": {
+    "status": "DURABLE_CLEAN_CHECKOUT_PASS_API_CUTOVER_HOLD",
+    "engineering_revision": "Detached durable source checkout /Users/kevinkeaveney/Production/flex at 900f768139357b3649b9c78c1f57c3ce7f0d2d3d; path audit eb3776f1; live dirty main HEAD a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43",
+    "audit": "docs/audits/api_only_production_cutover_boundary_20260922.v1.json and docs/audits/source_candidate_authorities_rehearsal_20260922.v1.json on codex/dev-prod-path-boundary",
+    "finding": "Created a new detached clean local checkout at the pinned candidate revision without copying dirty main files. The production checkout guard observed the exact SHA, no dirty files, zero mutations and deployment_authorized=false. The 32-name rehearsal now pins OPERATION_RESEARCH_ROOT to this durable checkout and returns covered-path PASS with deployment HOLD. Both pinned generated Operational Landscape report digests still match. The checkout is not connected to any running service. Full candidate source branch remote publication was blocked by automatic review; no workaround attempted.",
+    "tests": "Exact clean checkout guard PASS; 32-name authority covered-path PASS/deployment HOLD; two report SHA-256 rechecks PASS; audit JSON and diff checks PASS. Earlier 47/47 focused API tests remain qualified at the same source commit.",
+    "production_flags": "DURABLE_SOURCE_CHECKOUT_CREATED=true; SUPERVISOR_CHANGED=false; SERVICES_RESTARTED_OR_SIGNALED=0; DATABASE_OR_QUEUE_MUTATIONS=0; CANDIDATE_REMOTE_PUSH=false; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "PARTIAL toward production source separation; API cutover HOLD. Remaining gates are effective API environment/config parity, research-artifact recheck at cutover, exact API-only rollback rehearsal, refreshed endpoint parity and explicit bounded loaded-byte observational-limit decision.",
+    "exact_next_action": "Prepare and validate the exact watchtower_api-only Supervisor change and rollback preimage without applying it; refresh read-only endpoint parity and path digests, then seek/confirm the bounded observational-risk decision before API-only cutover. Do not restart or change Supervisor meanwhile."
+  },
   "dev_prod_api_bounded_cutover_boundary_20260922": {
     "status": "PREPARED_NOT_DEPLOYABLE_REMOTE_SOURCE_EGRESS_BLOCKED",
     "engineering_revision": "Clean local candidate 900f768139357b3649b9c78c1f57c3ce7f0d2d3d; path-boundary manifest commit 65d71d0e; live dirty main HEAD a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43",

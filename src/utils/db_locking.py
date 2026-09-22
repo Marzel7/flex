@@ -1575,6 +1575,7 @@ def _reaper_loop() -> None:
 _WAL_WATCHDOG_INTERVAL = 30        # seconds between checks (was 60)
 _WAL_SIZE_THRESHOLD    = 32 * 1024 * 1024   # 32 MB (was 200 MB — too loose; let it bloat)
 _WAL_WATCHDOG_WRITE_LANE_TIMEOUT = 0.25
+_WAL_WATCHDOG_SQLITE_BUSY_TIMEOUT_MS = 250
 
 
 def _run_wal_watchdog_checkpoint(db_path: str):
@@ -1589,6 +1590,14 @@ def _run_wal_watchdog_checkpoint(db_path: str):
     conn = None
     try:
         conn = sqlite3.connect(db_path, timeout=_WAL_WATCHDOG_WRITE_LANE_TIMEOUT)
+        # ``sqlite3.connect`` is globally wrapped below and deliberately raises
+        # ordinary application connections to a 30-second SQLite busy timeout.
+        # Optional maintenance must not inherit that production wait after it
+        # has acquired the shared writer lane: a pinned reader would otherwise
+        # let TRUNCATE starve useful writers for the full 30 seconds.
+        conn.execute(
+            f"PRAGMA busy_timeout={_WAL_WATCHDOG_SQLITE_BUSY_TIMEOUT_MS}"
+        )
         with bounded_write_wait(_WAL_WATCHDOG_WRITE_LANE_TIMEOUT):
             conn._acquire_write_lane()
         return conn.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone()

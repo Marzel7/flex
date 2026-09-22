@@ -488,7 +488,10 @@ def _confirmed_treasuries(conn) -> set:
     """The authoritative confirmed-treasury set (wt_confirmed_treasuries, ops DB) — the wallets
     we WS-subscribe permanently. Small + stable (≈12)."""
     try:
-        return {r[0] for r in conn.execute("SELECT treasury FROM wt_confirmed_treasuries").fetchall()}
+        return {r[0] for r in conn.execute(
+            "SELECT treasury FROM wt_confirmed_treasuries "
+            "WHERE COALESCE(no_subscribe,0)=0"
+        ).fetchall()}
     except Exception:
         return set()
 

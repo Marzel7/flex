@@ -1,4 +1,13 @@
 {
+  "dev004_unified_registry_monitor_ui_20260922": {
+    "status": "PLANNED_DEV_ONLY",
+    "engineering_revision": "DEV registry entry DEV-004 created from dirty DEV branch classification-attribution-axis at base 870dcd71eb146532f27346e5bc8412abdf2a3b00; no implementation candidate exists.",
+    "finding": "User requested a presentation-only composition of the existing Active Operations Registry and Operations Live Monitor into one Mission Control route. The supplied specification requires reuse of existing routes, templates/components, live data sources, polling and status rendering; it explicitly excludes changes to registry admission, operation attribution, monitor worker/queue/provider behaviour, lifecycle/evidence semantics and production.",
+    "tests": "DEV work registry creation/readback only. No UI implementation, tests, service action, provider call or database mutation performed.",
+    "production_flags": "PRODUCTION_SOURCE_CHANGED=false; PRODUCTION_CONFIG_CHANGED=false; PRODUCTION_SERVICES_RESTARTED=0; PRODUCTION_DATABASE_MUTATIONS=0; DEV004_STATUS=PLANNED; DEV004_PROD_INTENT=UNDECIDED; DEV004_PROD_APPROVAL=NOT_REQUESTED; DEV_COMPLETE_IMPLIES_PROD=false",
+    "verdict": "PLANNED. DEV-004 is a bounded UI integration task, not a redesign or an authorization to promote any DEV UI work.",
+    "exact_next_action": "Inspect both current page routes, templates/components, client scripts, CSS, data calls, polling and navigation; map the smallest composition approach before changing code."
+  },
   "dev003_scheduler_wal_correlation_audit_20260922": {
     "status": "PASS_CURRENT_CLAIM_NOT_REPRODUCED_HISTORICAL_ATTRIBUTION_UNPROVEN",
     "engineering_revision": "Read-only live audit against the active Scheduler PID 7840 and retained Supervisor logs; no engineering source revision was changed.",

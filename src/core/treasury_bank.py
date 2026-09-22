@@ -48,8 +48,12 @@ def _record_attribution_evidence(*args, **kwargs):
                                   "(swallowed, production flow unaffected): %s", _exc)
         return None
 
-OPS_DB_PATH = os.path.abspath(os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "..", "..", "database", "wt_ops_v2.db"))
+OPS_DB_PATH = os.path.abspath(
+    os.environ.get("OPS_V2_DB_PATH")
+    or os.environ.get("WT_OPS_DB_PATH")
+    or os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                    "..", "..", "database", "wt_ops_v2.db")
+)
 
 _schema_ensured = False
 

@@ -18,6 +18,7 @@
 <h1>{{ candidate.proposed_name or candidate.candidate_id }}</h1>
 <div class="pod-id">{{ candidate.candidate_id }} · frozen canonical run {{ candidate.canonical_run_id }}</div>
 </header>
+<section class="card"><h2>Validation</h2><p class="pod-note">{{ {'NOT_VALIDATED':'Not validated','ATTRIBUTION_PROVEN':'Validated','ADDITIONAL_EVIDENCE_REQUIRED':'Additional evidence required','ATTRIBUTION_NOT_PROVEN':'Not proven'}.get(validation.validation_state, validation.validation_state) }}</p>{% if validation.validation_state == 'ATTRIBUTION_PROVEN' and validation.proposal_id %}<button class="ip-badge green" data-promote="{{ validation.proposal_id }}">Promote</button>{% else %}<button class="ip-badge cyan" data-validate="{{ candidate.candidate_id }}">Validate</button>{% endif %}</section>
 <section class="pod-strip">
 <div class="metric">
 <b>{{ candidate.discovery_label|default('Frozen discovery') }}</b>
@@ -41,7 +42,7 @@
 </div>
 </section>
 {% if candidate.current_evidence.technical_edge_metrics %}<p class="pod-note">Route counts represent distinct matching candidate instances; selected-edge counts are technical per-hop evidence ({{ candidate.current_evidence.technical_edge_metrics.last_1d }} / {{ candidate.current_evidence.technical_edge_metrics.last_7d }} / {{ candidate.current_evidence.technical_edge_metrics.last_30d }} selected-edge timestamp observations).</p>{% endif %}
-{% if candidate.relationship_label == 'Variant of Sentinel' %}<p class="warning"><strong>Related Confirmed Operation: Sentinel</strong> · <a href="/intelligence/operator/{{ candidate.related_operator_id }}">View Sentinel →</a>. Its observations are Potential evidence, not Confirmed operation memberships.</p>{% elif candidate.related_operator_id %}<p class="warning">This candidate is related to the <a href="/intelligence/operator/{{ candidate.related_operator_id }}">active Confirmed operation</a>. Its observations are Potential evidence, not Confirmed operation memberships.</p>{% endif %}
+{% if candidate.related_operator_id %}<p class="warning">This candidate is related to an active confirmed operation. Its observations are potential evidence, not confirmed operation memberships.</p>{% endif %}
 <nav class="tabs">
 <button class="on" data-tab="summary">Summary</button>
 <button data-tab="members">Members / Tokens</button>
@@ -76,8 +77,8 @@
 </dl>
 </div>{% if candidate.children %}<div class="card">
 <h2>Operation-discovery decomposition</h2>
-<p class="pod-note">Canonical P3R family remains {{ candidate.canonical_member_count }} members. These are review-only analytical children, not canonical-family replacements.</p>{% for child in candidate.children %}<div class="launch-row">
-<div class="launch-route">{% if child.child_id == 'P3R_063E_BYZC_CURRENT' %}<a href="/intelligence/operator/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334">
+<p class="pod-note">The canonical candidate family remains {{ candidate.canonical_member_count }} members. These are review-only analytical children, not canonical-family replacements.</p>{% for child in candidate.children %}<div class="launch-row">
+<div class="launch-route">{% if child.related_confirmed_operator_id %}<a href="/intelligence/operator/{{ child.related_confirmed_operator_id }}">
 <strong>{{ child.proposed_name }}</strong>
 </a>{% else %}<strong>{{ child.proposed_name }}</strong>{% endif %}<div class="launch-label">{{ child.child_id }}</div>
 </div>
@@ -180,5 +181,5 @@
 </p>{% else %}<p class="empty">No registered operation relationship. This candidate remains review-only.</p>{% endif %}</div>
 </section>
 </main>
-<script>document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.getElementById(b.dataset.tab).classList.add('on')});const more=document.querySelector('#launch-more');if(more)more.onclick=()=>{const hidden=[...document.querySelectorAll('.launch-hidden')],open=hidden.some(x=>getComputedStyle(x).display==='none');hidden.forEach(x=>x.style.display=open?'grid':'none');more.textContent=open?'Collapse launches ↑':'View all {{ candidate.canonical_member_count }} launches →'};</script>
+<script>document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.getElementById(b.dataset.tab).classList.add('on')});document.querySelector('[data-validate]')?.addEventListener('click',async e=>{const r=await fetch('/potential-operations/'+encodeURIComponent(e.target.dataset.validate)+'/validate',{method:'POST'});if(r.ok)location.reload()});document.querySelector('[data-promote]')?.addEventListener('click',async e=>{if(!confirm('Promote this proposed operation?'))return;const r=await fetch('/potential-operations/proposals/'+encodeURIComponent(e.target.dataset.promote)+'/promote',{method:'POST'});if(r.ok)location.reload()});const more=document.querySelector('#launch-more');if(more)more.onclick=()=>{const hidden=[...document.querySelectorAll('.launch-hidden')],open=hidden.some(x=>getComputedStyle(x).display==='none');hidden.forEach(x=>x.style.display=open?'grid':'none');more.textContent=open?'Collapse launches ↑':'View all {{ candidate.canonical_member_count }} launches →'};</script>
 {% endblock %}

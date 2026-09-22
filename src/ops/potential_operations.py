@@ -13,51 +13,13 @@ ACTIVE_900B="70f27e37-83eb-5c97-831c-48189ef98f6c"
 DECOMPOSED_063E_PARENT="p3r-v2-063e24a2def354f23ec5"
 LEGACY_063E_CHILD="P3R_063E_B65C_LEGACY"
 CONFIRMED_063E_OPERATOR="d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
-SENTINEL_OPERATOR="f560f4fa-770b-57aa-83be-954d11d1a3c1"
-HARBINGER_OPERATOR="ccb7b1b0-56e1-4543-9e95-3f284bed3943"
 CENSUS_RECONCILIATION=Path(__file__).resolve().parents[2]/"docs/audits/potential_operations_current_census_reconciliation.v1.json"
-SENTINEL_EVOLUTION_ADMISSIONS=Path(__file__).resolve().parents[2]/"docs/audits/sentinel_evolution_cluster_admission.v1.json"
 FOCUS_NEXT_ASSESSMENT=Path(__file__).resolve().parents[2]/"docs/audits/focus_next_potential_assessment.v2.json"
 ROUTE_ACTIVITY_SNAPSHOT=Path(__file__).resolve().parents[2]/"docs/audits/potential_route_activity_snapshot_v2/candidate_census.json"
 CREATOR_ANALYSIS=Path(__file__).resolve().parents[2]/"docs/audits/potential_operations_multi_token_creator_analysis.v1.json"
-C357_UPSTREAMS={"ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY":"Df8CJQR7fUTYAQSQwtsgUDs5b6JWNULzwhJJXDCJkdya","F5ZCNpw2xRcZNnuwYaFvNBb13Rzk3Pn4CnmSkyRsK229":"3GL5bXdDriApC4J2gn42L9fH2xFxq9Ziifr3pM79hBoi","HS5GjB4KTJbbBdYHkJV8qDpq8gmU9wck2qsxgz3ifgke":"8Bk1fBnoc9Yk3HUz1UWihT2ewgbxMm7LTEoemabUVqmk"}
-C357_UPSTREAM_AUDIT=Path(__file__).resolve().parents[2]/"docs/audits/c357_remaining_upstream_funders.v1.json"
-C357_DUTB_AUDIT=Path(__file__).resolve().parents[2]/"docs/audits/c357_dutb_common_funder_rpc.v1.json"
-C357_CANDIDATE="p3r-v2-c357da9d0d4d560311e4"
-C357_PARENT_OPERATOR="777211c3-211e-551b-9310-ff9301570627"
-C357_SUBTYPE_ID="p3r-subtype-03f916dfa97fb93a4b9c"
 CREATOR_PROVISIONING_CANDIDATE="p3r-v2-6437acd385e566e301a7"
 CREATOR_PROVISIONING_OPERATOR="bd7d7479-1454-5d41-9f68-115550348f3e"
-
-@lru_cache(maxsize=1)
-def _c357_upstream_map() -> dict[str, str]:
-    """Retained launch-linked RPC evidence; never queries a provider on page read."""
-    values=dict(C357_UPSTREAMS)
-    try:
-        for row in json.loads(C357_UPSTREAM_AUDIT.read_text()).get("providers", []):
-            sources=row.get("upstream_provisioners") or []
-            if sources:
-                values[row["direct_funder"]]=sources[0]["address"]
-    except (OSError, json.JSONDecodeError):
-        pass
-    return values
-
-@lru_cache(maxsize=1)
-def _c357_dutb_funder_map() -> dict[str, dict]:
-    """Verified DuTb-owned WSOL-close deliveries; never queries a provider on page read."""
-    values: dict[str, dict] = {}
-    try:
-        deliveries=json.loads(C357_DUTB_AUDIT.read_text()).get("dutb_to_direct_funders_via_wsol_close", {}).get("deliveries", [])
-        for delivery in deliveries:
-            funder=delivery.get("destination")
-            if not funder:
-                continue
-            row=values.setdefault(funder, {"delivery_count": 0, "funding_lamports": 0})
-            row["delivery_count"] += 1
-            row["funding_lamports"] += delivery.get("funding_lamports") or 0
-    except (OSError, json.JSONDecodeError):
-        pass
-    return values
+RETIRED_CANDIDATE_IDS=frozenset({"p3r-v2-c357da9d0d4d560311e4","p3r-v2-d3de29c88fe0ce5fa309"})
 
 def assessment_digest(value: dict) -> str:
     """Stable semantic digest; publication time never changes an assessment."""
@@ -81,7 +43,7 @@ def replay_focus_next_assessment() -> dict:
         "fingerprint":{"topology":f"{len(edges)}-hop","hop_count":len(edges),"semantics":"PLAIN_XFER × 8","amount_vector_lamports":[edge["amount_lamports"] for edge in edges],"coherence":"STRONG_COHERENCE","atomic_lifecycle":"RETAINED_EVIDENCE_UNAVAILABLE"},
         "activity_metric_contract":{"primary_unit":"MATCHED_ROUTES","technical_unit":"SELECTED_EDGE_TIMESTAMP_OBSERVATIONS","prior_incorrect_interpretation":"v1 current_census.activity exposed selected-edge timestamp counts as operational recurrence."},
         "current_census":{"matched_routes_total":33,"matched_routes_24h":2,"matched_routes_7d":14,"matched_routes_30d":30,"selected_edge_observations_24h":16,"selected_edge_observations_7d":112,"selected_edge_observations_30d":240,"selected_edge_observations_total":264},
-        "known_operation_comparison":{"exact_matches":[],"sentinel_variants":"NOT_EXACT","harbinger":"NO_MEANINGFUL_HARBINGER_RELATION"},
+        "known_operation_comparison":{"exact_matches":[]},
         "infrastructure":"NOVEL_INFRASTRUCTURE","common_root":"NOT_PROVEN","primary_classification":"DISTINCT_POTENTIAL_OPERATION","recommendation":"ADVANCE_TO_DEEP_REVIEW",
         "evidence_gaps":["retained atomic-lifecycle evidence","bounded deep review of high-volume current recurrence"],
         "source_provenance":["docs/audits/potential_operations_current_census_reconciliation.v1.json","docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/p3r_v2_candidate_membership.v1.json"],
@@ -108,16 +70,7 @@ def _current_census_evidence() -> dict:
             evidence[item["candidate_id"]]={"candidate_id":item["candidate_id"],"matches":activity["matched_routes_total"],"metrics":{"last_1d":activity["matched_routes_24h"],"last_7d":activity["matched_routes_7d"],"last_30d":activity["matched_routes_30d"],"total_observations":activity["matched_routes_total"]},"technical_edge_metrics":{"last_1d":activity["technical_selected_edge_timestamps_24h"],"last_7d":activity["technical_selected_edge_timestamps_7d"],"last_30d":activity["technical_selected_edge_timestamps_30d"],"total_observations":activity["technical_selected_edges_total"]},"current_evidence_state":"RECURRING"}
         if evidence:
             return evidence
-        evidence=json.loads(CENSUS_RECONCILIATION.read_text()).get("candidate_evidence", {})
-        for item in _sentinel_evolution_admissions().values():
-            evidence[item["candidate_id"]]={"candidate_id":item["candidate_id"],"matches":item["observation_count"],"metrics":item["metrics"],"current_evidence_state":"RECURRING"}
-        return evidence
-    except (OSError, json.JSONDecodeError):
-        return {}
-
-def _sentinel_evolution_admissions() -> dict:
-    try:
-        return {item["candidate_id"]:item for item in json.loads(SENTINEL_EVOLUTION_ADMISSIONS.read_text()).get("admitted_candidates", [])}
+        return json.loads(CENSUS_RECONCILIATION.read_text()).get("candidate_evidence", {})
     except (OSError, json.JSONDecodeError):
         return {}
 
@@ -188,9 +141,6 @@ def _attach_current_evidence(row: dict, evidence: dict, live_activity: dict | No
     return row
 
 def _relationship(row: dict) -> str:
-    if row.get("registered_subtype"):
-        return "Resolved Leviathan behaviour"
-    if row.get("latest_verdict") == "POTENTIAL_VARIANT_OF_SENTINEL": return "Variant of Sentinel"
     if row.get("workflow_status") == "ACTIVE_PROVISIONAL": return "Provisional operation"
     if row.get("candidate_id") == LEGACY_063E_CHILD: return "Legacy child of Byzantine/063e"
     return "Unresolved"
@@ -202,8 +152,6 @@ def _compact_mechanism(row: dict) -> str:
 def _presentation_name(row: dict) -> str:
     """Deterministic, relationship-free candidate name for the queue UI."""
     proposed=row.get("proposed_name")
-    if row.get("latest_verdict") == "POTENTIAL_VARIANT_OF_SENTINEL" and proposed:
-        return proposed.replace("Potential variant of Sentinel · ", "") + " Variant"
     if proposed:
         if proposed.startswith("WSOL_PROVISION_CLOSE_"):
             return "WSOL Close · " + proposed.removeprefix("WSOL_PROVISION_CLOSE_").replace("_MINUS_", " minus ").replace("_", " ")
@@ -225,10 +173,6 @@ def _presentation_name(row: dict) -> str:
     return _compact_mechanism(row).replace("transfer sequence", "Transfer Sequence").replace("WSOL provision close", "WSOL Provision Close")
 
 def _decorate(row: dict) -> dict:
-    if row["candidate_id"] == C357_CANDIDATE:
-        row.update({"registered_subtype": True, "parent_operator_id": C357_PARENT_OPERATOR,
-                    "subtype_id": C357_SUBTYPE_ID, "supported_launches": 56,
-                    "parent_owned_launches": 50, "compatible_unresolved_launches": 105})
     row["relationship_label"]=_relationship(row); row["compact_mechanism"]=_compact_mechanism(row)
     row["display_descriptor"]=_presentation_name(row)
     assessment=_persisted_assessment(row["candidate_id"])
@@ -238,10 +182,7 @@ def _decorate(row: dict) -> dict:
         row["display_descriptor"]=assessment["human_descriptor"]
         row["relationship_label"]=row["assessment_display"]["classification"]
         row["action_label"]="Deep review →"
-    elif row.get("registered_subtype"):
-        row["action_label"]="View Leviathan behaviour →"
-        row["subtype_url"]=f"/intelligence/operator/{row['parent_operator_id']}/subtypes/{row['subtype_id']}"
-    else: row["action_label"]="Review variant →" if row["relationship_label"] == "Variant of Sentinel" else "Review evidence →" if row["relationship_label"] == "Provisional operation" else "Investigate →"
+    else: row["action_label"]="Review evidence →" if row["relationship_label"] == "Provisional operation" else "Investigate →"
     return row
 
 def _current_sort_key(row: dict) -> tuple:
@@ -256,7 +197,7 @@ def _attention_sort_key(row: dict) -> tuple:
     return (creator[c], 0 if source == "LIVE_CURRENT" else 1, activity.get(row["current_evidence"].get("activity_state"), 4), *_current_sort_key(row))
 
 def evolution_watch(rows: list[dict]) -> dict:
-    return {"sentinel_variants":sorted([row for row in rows if row.get("latest_verdict")=="POTENTIAL_VARIANT_OF_SENTINEL"],key=lambda row:row["candidate_id"]),"sentinel_operator_id":SENTINEL_OPERATOR,"harbinger":{"related_observations":97,"qualifying_clusters":0,"admitted_candidates":0,"operator_id":HARBINGER_OPERATOR}}
+    return {}
 
 def _discovery_label(row: dict) -> str:
     return "Current census" if row.get("canonical_tier") == "CURRENT_CENSUS" else f"T{row['canonical_tier'][8]} · {row['priority_score']:.2f}"
@@ -273,9 +214,7 @@ def _ranking_source() -> str:
 def _overrides(candidate_id: str) -> dict:
     return {
       "p3r-v2-900b89587c6987d582df": {"workflow_status":"ACTIVE_PROVISIONAL","proposed_name":"1 SOL Provision Close","parent_mechanism":"WSOL_PROVISION_CLOSE","latest_verdict":"900B_HYBRID_OPERATION_PROVISIONAL","principal_gap":"Residual false positives prevent automatic attribution.","next_action":"Accumulate live provisional evidence / review matches.","rpc_requirement":"PAUSED","related_operator_id":ACTIVE_900B},
-      C357_CANDIDATE: {"workflow_status":"RESOLVED_AS_LEVIATHAN_BEHAVIOUR","proposed_name":"WSOL_PROVISION_CLOSE_100_SOL_MINUS_15K","parent_mechanism":"WSOL_PROVISION_CLOSE","latest_verdict":"Evidence-backed Leviathan behaviour; C357 lineage retained. 56 supported examples, with partial attribution.","principal_gap":"105 compatible launches remain unresolved and automatic attribution remains off.","next_action":"View the Leviathan behaviour projection; keep attribution shadow-only.","rpc_requirement":"NOT_CURRENTLY","related_operator_id":C357_PARENT_OPERATOR},
       "p3r-v2-063e24a2def354f23ec5": {"workflow_status":"QUEUED","proposed_name":"WSOL_PROVISION_CLOSE_10_SOL_MINUS_15K","parent_mechanism":"WSOL_PROVISION_CLOSE","latest_verdict":"Strong 10-SOL-minus-15k candidate with a distinct retained atomic lifecycle.","principal_gap":"Alternative recurrence and address blindness not proven.","next_action":"Determine whether 10-SOL-minus-15k is a third WSOL parent variant or a distinct lifecycle operation.","rpc_requirement":"LIKELY"},
-      "p3r-v2-d3de29c88fe0ce5fa309": {"workflow_status":"PROMOTED_CONFIRMED","proposed_name":"Sentinel","parent_mechanism":"30 SOL 14.479K Ladder","latest_verdict":"Confirmed operation; retained discovery provenance only.","principal_gap":"None retained.","next_action":"Not actionable — confirmed as Sentinel.","rpc_requirement":"NO"},
       CREATOR_PROVISIONING_CANDIDATE: {"workflow_status":"PROMOTED_CONFIRMED","proposed_name":"Direct 10K Creator Provisioning","parent_mechanism":"DIRECT_10K_CREATOR_PROVISIONING","latest_verdict":"Historically established strict 84-member operation; displayed in Active Operations.","principal_gap":"Prospective strict dispatch remains held pending genuine retained transaction-role evidence.","next_action":"View the Active Operations registry; do not activate prospective dispatch.","rpc_requirement":"HOLD_RETAINED_ROLE_EVIDENCE_REQUIRED","related_operator_id":CREATOR_PROVISIONING_OPERATOR},
     }.get(candidate_id,{})
 
@@ -342,6 +281,8 @@ def rows(db_path: str) -> list[dict]:
             # Lifecycle classification is read-side canonicalization for both
             # normalized workflow rows and frozen fallback rows.
             x = {**x, **_overrides(x["candidate_id"])}
+            if x["candidate_id"] in RETIRED_CANDIDATE_IDS:
+                continue
             if x["candidate_id"] == DECOMPOSED_063E_PARENT:
                 parent=x
                 continue
@@ -393,21 +334,14 @@ def detail(db_path: str, candidate_id: str) -> dict | None:
         return None
     # Optional Living projection: page reads are observational and legacy
     # candidates retain their frozen detail unchanged.
-    if candidate_id in {C357_CANDIDATE, "p3r-v2-dc4953db7adb853337c4"}:
+    if candidate_id == "p3r-v2-dc4953db7adb853337c4":
         try:
             from src.ops.living_potential_operations import living_detail_projection, TRANSFER_POTENTIAL_OPERATION_ID
-            candidate["living"] = living_detail_projection(db_path, TRANSFER_POTENTIAL_OPERATION_ID if candidate_id == "p3r-v2-dc4953db7adb853337c4" else None)
+            candidate["living"] = living_detail_projection(db_path, TRANSFER_POTENTIAL_OPERATION_ID)
         except (sqlite3.Error, ValueError, OSError, json.JSONDecodeError) as exc:
             candidate["living"] = {"unavailable": str(exc)}
     if candidate_id == LEGACY_063E_CHILD:
         return _legacy_063e_detail(db_path, candidate)
-    evolution=_sentinel_evolution_admissions().get(candidate_id)
-    if evolution:
-        candidate.update({"canonical_member_count":evolution["observation_count"],"members":[],"evidence":{},"fingerprint":{"kind":"CURRENT_CENSUS_SENTINEL_VARIANT","edges":[{"hop_depth":hop,"mechanism":mechanism,"amount_lamports":amount} for hop,mechanism,amount in evolution["observed_route"]]},"evolution":evolution,"discovery_label":"Current census"})
-        for member in evolution["members"]:
-            candidate["members"].append({"mint":member["mint"],"mint_short":_short(member["mint"]),"creator":member["creator"],"creator_short":_short(member["creator"]),"parent":member["direct_funder"],"parent_short":_short(member["direct_funder"]),"signature":None,"signature_short":"Retained evidence unavailable","observed_at":member["observed_at"],"observed_at_display":datetime.fromtimestamp(member["observed_at"],timezone.utc).strftime("%d %b %Y %H:%M UTC"),"amount_lamports":None,"mechanism":evolution["mechanism"],"hop_depth":None,"atomic":{}})
-        candidate["members"].sort(key=lambda member:member["observed_at"],reverse=True)
-        return candidate
     family = next((item for item in json.loads(MEMBERSHIP.read_text())["families"]
                    if item["candidate_id"] == candidate_id), None)
     if not family:
@@ -419,11 +353,8 @@ def detail(db_path: str, candidate_id: str) -> dict | None:
         "evidence": family.get("evidence", {}),
         "fingerprint": family.get("fingerprint", {}),
     })
-    c357=candidate_id == "p3r-v2-c357da9d0d4d560311e4"
-    upstreams=_c357_upstream_map() if c357 else {}
-    dutb_funders=_c357_dutb_funder_map() if c357 else {}
-    if upstreams:
-        candidate["verified_upstream_count"] = len(upstreams)
+    upstreams={}
+    dutb_funders={}
     forensic = (Path(__file__).resolve().parents[2] / "docs/agent_handoff/p3r/v2" / RUN_ID /
                 "063e_forensic/p3r-v2-063e-forensic-v1/p3r_v2_063e_forensic_operation_investigation.v1.json")
     if candidate_id == "p3r-v2-063e24a2def354f23ec5" and forensic.exists():

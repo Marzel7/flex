@@ -87,33 +87,18 @@ def _active_operations(conn: sqlite3.Connection) -> list[dict[str, Any]]:
 def _exact_profiles(conn: sqlite3.Connection, mint: str) -> set[str]:
     """Observe exact status through the existing detector predicates only."""
     result: set[str] = set()
-    from src.ops.d3de_operation import is_d0_match, selected_evidence as d3de_evidence
     from src.ops.wsol_10_sol_four_step_operation import is_strict_match, selected_evidence as byz_evidence
-    from src.ops.p3r_profile_candidate_matcher import evaluate_mint
-    if is_d0_match(d3de_evidence(conn, mint)):
-        result.add("FOUR_STEP_30_SOL_14_479K_WSOL_LADDER")
     if is_strict_match(byz_evidence(conn, mint)):
         result.add("Byzantine")
-    p3r = evaluate_mint(conn, mint)
-    if p3r:
-        result.update(p3r.matching_profiles)
     # WATCHTOWER remains owned by its strict canonical integration; observing
     # existing membership is intentionally the monitor's only exact signal.
     return result
 
 
 def _expected_route(conn: sqlite3.Connection, display_name: str) -> tuple[tuple[int, str, int], ...] | None:
-    if display_name == "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER":
-        from src.ops.d3de_operation import SELECTED_ROUTE
-        return SELECTED_ROUTE
     if display_name == "Byzantine":
         from src.ops.wsol_10_sol_four_step_operation import AMOUNT_LAMPORTS
         return ((1, "WSOL_WRAP_CLOSE", AMOUNT_LAMPORTS),)
-    if display_name in {"P3R", "P3R_13A04"}:
-        from src.ops.p3r_profile_candidate_matcher import load_contracts
-        for contract in load_contracts(conn):
-            if contract.display_name == display_name:
-                return contract.route
     if display_name == "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K":
         return ((1, "WSOL_WRAP_CLOSE", 999985000),)
     return None

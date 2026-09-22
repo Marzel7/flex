@@ -20,12 +20,16 @@ _PROVISIONAL_900B_DETAIL = {
     "profile": "Recurrent near-1-SOL temporary-WSOL provision-and-close variant with rotating creators and recurrent direct-funder infrastructure.",
     "validation": {"h0": "Behaviour-only: precision 74.58%, recall 100.00%.", "h1": "Hybrid recurrent-funder review-confidence contract: precision 90.70%, recall 88.64%; 4 known false positives remain."},
     "analysis": "Behaviour is strongly recurrent and recurrent direct-funder infrastructure improves precision, but the zero-false-positive automatic-attribution gate is not met. Bounded deeper-hop RPC and provenance studies did not close that gap.",
-    "history": ["P3R candidate discovery and operation-priority ranking.", "Distinctiveness and bounded RPC discriminator investigations.", "Hybrid recurrent-funder qualification and provisional Active Operations admission."],
+    "history": ["Candidate discovery and operation-priority ranking.", "Distinctiveness and bounded RPC discriminator investigations.", "Hybrid recurrent-funder qualification and provisional Active Operations admission."],
 }
 
 _CURRENT_CENSUS_PATH = Path(__file__).resolve().parents[2] / "docs/audits/p3r_current_queue_census.v1.json"
-_SENTINEL_EVOLUTION_ADMISSIONS_PATH = Path(__file__).resolve().parents[2] / "docs/audits/sentinel_evolution_cluster_admission.v1.json"
 _CURRENT_CENSUS_CACHE: dict[str, object] = {}
+_RETIRED_OPERATION_IDS = frozenset({
+    "777211c3-211e-551b-9310-ff9301570627",
+    "f560f4fa-770b-57aa-83be-954d11d1a3c1",
+    "ccb7b1b0-56e1-4543-9e95-3f284bed3943",
+})
 _BYZANTINE_OPERATOR_ID = "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
 _BYZANTINE_SUBPROVIDER = "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY"
 _BYZANTINE_DUAL_LEG_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/byzantine_dual_funding_leg_ui_read_only_design.v1.json"
@@ -34,10 +38,11 @@ _BYZANTINE_BASELINE_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/b
 _BYZANTINE_ENRICHMENT_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/byzantine_182_dual_leg_enrichment_replay.v1.json"
 _BYZANTINE_PAIRING_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/byzantine_46_missing_upstream_rpc/per_mint_pairing_results.v1.json"
 _BYZANTINE_AMBIGUITY_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/byzantine_12_ambiguous_upstream_disambiguation_read_only_audit.v1.json"
+_BYZC_BYZANTINE_POPULATION_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/byzc_byzantine_119_179_population_comparison.v1.json"
+_BYZC_NONCANONICAL_TAXONOMY_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/byzc_noncanonical_179_taxonomy.v1.json"
+_BYZANTINE_CREATOR_RECURRENCE_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/byzantine_canonical_120_creator_recurrence.v1.json"
 _NEXUS_OPERATOR_ID = "bd7d7479-1454-5d41-9f68-115550348f3e"
 _NEXUS_DETECTOR_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/direct_10k_creator_provisioning_detector_results.v3.json"
-_LEVIATHAN_OPERATOR_ID = "777211c3-211e-551b-9310-ff9301570627"
-_LEVIATHAN_DETECTOR_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/leviathan_detector_match_ui.v1.json"
 
 
 def _byzantine_dual_leg_evidence() -> dict[str, dict]:
@@ -131,50 +136,6 @@ def _nexus_detector_projection(conn: sqlite3.Connection | None = None) -> dict:
     return {"rows":rows,"counts":counts,"reviewed":counts["UNIQUE_MATCH"]+counts["NO_MATCH"]}
 
 
-def _leviathan_detector_projection(conn: sqlite3.Connection | None = None) -> dict:
-    """Leviathan's own detector semantics (P3R unified WSOL_WRAP_CLOSE contract),
-    replayed via scripts/generate_leviathan_detector_match_ui.py — NOT the Nexus
-    DIRECT_10K contract. Presentation only; never touches membership/detector state.
-
-    Every canonical operator_launch_membership row for Leviathan gets exactly one
-    detector-state entry here (EXACT unless retained evidence disagrees), so the
-    template can mark the SAME unified launch list — never a separate "recently
-    admitted" collection keyed off a stale profile snapshot."""
-    payload = json.loads(_LEVIATHAN_DETECTOR_AUDIT.read_text())
-    hist = payload["historical_population"]
-    live = payload["current_live_observations"]
-    rows_by_mint: dict[str, dict] = {}
-    for mint in live.get("pending_mints_sample", []):
-        rows_by_mint[mint] = {"mint": mint, "raw_result": "PENDING_REPLAY", "label": "Pending"}
-    if conn is not None:
-        try:
-            from src.ops.p3r_profile_candidate_matcher import evaluate_mint
-            members = [r[0] for r in conn.execute(
-                "SELECT mint FROM operator_launch_membership WHERE operator_id=?",
-                (_LEVIATHAN_OPERATOR_ID,),
-            ).fetchall()]
-            for mint in members:
-                if mint in rows_by_mint:
-                    continue
-                match = evaluate_mint(conn, mint)
-                if match and _LEVIATHAN_OPERATOR_ID in match.matching_operator_ids and match.state != "AMBIGUOUS_BEHAVIOURAL_CANDIDATE":
-                    rows_by_mint[mint] = {"mint": mint, "raw_result": "EXACT", "label": "Exact"}
-                else:
-                    # Canonical membership without a current exact replay: surface the
-                    # discrepancy rather than assuming green (evidence wins over membership).
-                    rows_by_mint[mint] = {"mint": mint, "raw_result": "MEMBER_NOT_CURRENTLY_EXACT", "label": "Review"}
-        except (sqlite3.Error, ImportError):
-            pass
-    exact_count = sum(1 for r in rows_by_mint.values() if r["raw_result"] == "EXACT")
-    return {
-        "exact_count": exact_count or hist["exact_count"],
-        "verified_total": exact_count or hist["exact_count"],
-        "pending_count": live["current_pending_replay"],
-        "rows": list(rows_by_mint.values()),
-        "rejected_lookalike_count": payload["rejected_lookalikes"]["count"],
-    }
-
-
 def _byzantine_infrastructure_activity(conn: sqlite3.Connection, *, now: int | None = None) -> dict | None:
     """Read current completed-launch activity through Byzantine's shared sub-provider.
 
@@ -201,6 +162,33 @@ def _byzantine_infrastructure_activity(conn: sqlite3.Connection, *, now: int | N
         "activity_source": "LIVE_BYZANTINE_INFRASTRUCTURE",
         "timestamp_semantics": "Completed launches sharing Byzantine sub-provider infrastructure; strict Byzantine membership is unchanged.",
     }
+
+
+def _byzc_population_presentation() -> dict | None:
+    """Read the frozen ByZc comparison; never use it for membership or admission."""
+    try:
+        payload = json.loads(_BYZC_BYZANTINE_POPULATION_AUDIT.read_text())
+        sets = payload["set_arithmetic"]
+        if payload.get("identity", {}).get("byzantine_operation_id") != _BYZANTINE_OPERATOR_ID:
+            return None
+        if [sets.get(k) for k in ("canonical_byzantine", "byzc_associated", "intersection", "canonical_not_byzc", "byzc_noncanonical", "byzc_wsol", "canonical_wsol", "noncanonical_wsol")] != [120, 298, 119, 1, 179, 90, 37, 53]:
+            return None
+        taxonomy = json.loads(_BYZC_NONCANONICAL_TAXONOMY_AUDIT.read_text())
+        taxonomy_counts = taxonomy.get("set_arithmetic", {})
+        if [taxonomy_counts.get(key) for key in ("b179", "near47", "incomplete6", "other126")] != [179, 47, 6, 126]:
+            return None
+        creator_metrics = json.loads(_BYZANTINE_CREATOR_RECURRENCE_AUDIT.read_text()).get("metrics", {})
+        if [creator_metrics.get(key) for key in ("distinct_creators", "repeat_creators", "launches_from_repeat_creators", "max_launches_per_creator")] != [36, 34, 118, 6]:
+            return None
+        return {"canonical_members": 120, "associated": 298, "overlap": 119,
+                "noncanonical": 179, "canonical_coverage": "119 / 120",
+                "wsol_total": 90, "wsol_canonical": 37, "wsol_noncanonical": 53,
+                "near47": 47, "incomplete6": 6, "other126": 126,
+                "distinct_creators": 36, "repeat_creators": 34, "repeat_launches": 118, "top_creator_launches": 6,
+                "wording": "ByZc is strongly associated infrastructure: 119/120 canonical Byzantine members touch the retained ByZc topology, while 179 additional ByZc-associated launches are not canonical members. It corroborates evidence; it is not a membership requirement.",
+                "provenance_digest": payload.get("provenance_digest")}
+    except (OSError, ValueError, TypeError, KeyError, json.JSONDecodeError):
+        return None
 
 
 def activity_read_model(timestamps: list[int], snapshot_metrics: dict, snapshot_as_of: int | None, *, now: int | None = None) -> dict:
@@ -230,18 +218,6 @@ def activity_read_model(timestamps: list[int], snapshot_metrics: dict, snapshot_
                    "live_launches_30d": counts[30], "last_launch_at": values[-1],
                    "activity_state_source": "LIVE_RECALCULATED", "activity_state": state})
     return result
-
-
-def _sentinel_evolution_presentation() -> dict:
-    """Read the explicit fixed-census review; never mutate registry state."""
-    try:
-        payload=json.loads(_SENTINEL_EVOLUTION_ADMISSIONS_PATH.read_text())
-        candidates=payload.get("admitted_candidates", [])
-        return {"state":"QUALIFIED_VARIANTS_ADMITTED", "label":f"{len(candidates)} admitted Potential variants",
-                "detail":f"75 near observations · 2 qualifying clusters · {len(candidates)} admitted Potential candidates.",
-                "links":[{"label":item["name"],"href":f"/intelligence/potential-operations/{item['candidate_id']}"} for item in candidates]}
-    except (OSError, ValueError, TypeError, json.JSONDecodeError):
-        return {"state":"DRIFT_EVIDENCE", "label":"Drift evidence", "detail":"75 near-fingerprint observations. Requires clustering before mutation or variant attribution."}
 
 
 def _current_census_by_operation() -> dict[str, dict]:
@@ -274,19 +250,12 @@ def _census_presentation(display_name: str) -> dict | None:
     if display_name == "WATCHTOWER":
         evolution = {"state": "DYNAMIC_ROLE_MONITORING", "label": "Dynamic role monitoring",
                      "detail": "Mutation monitoring: Dynamic role discovery."}
-    elif display_name == "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER":
-        evolution = _sentinel_evolution_presentation()
-    elif display_name == "P3R_13A04":
-        evolution = {"state": "RELATED_ACTIVITY_UNRESOLVED", "label": "Related activity unresolved",
-                     "detail": f"Related 30 SOL ladder behaviour ({row.get('near', 0)}) requires clustering before attribution."}
     else:
         evolution = {"state": "NONE_OBSERVED", "label": "None observed", "detail": "No meaningful near-fingerprint evidence observed in this frozen census."}
     row["evolution_watch"] = evolution
     row["activity_label"] = "PROVISIONAL" if display_name == "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K" else row.get("activity_state", "ACTIVITY_UNKNOWN")
-    row["near_label"] = "Related observations" if display_name == "P3R_13A04" else "Near"
+    row["near_label"] = "Near"
     row["exact_label"] = "Exact behavioural observations" if display_name == "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K" else "Exact observations"
-    if display_name == "P3R_13A04":
-        row["historical_baseline"] = "Not yet measured"
     return row
 
 
@@ -307,6 +276,8 @@ class OperatorReader:
             conn.close()
 
     def fetch_operator(self, operator_id: str) -> dict | None:
+        if operator_id in _RETIRED_OPERATION_IDS:
+            return None
         try:
             with self._connect() as conn:
                 row = conn.execute(
@@ -425,6 +396,9 @@ class OperatorReader:
                         }
                 if operator_id == _BYZANTINE_OPERATOR_ID:
                     infrastructure = _byzantine_infrastructure_activity(conn)
+                    byzc_population = _byzc_population_presentation()
+                    if byzc_population:
+                        op["byzc_population"] = byzc_population
                     if infrastructure:
                         op["infrastructure_activity"] = infrastructure
                         strict_total = conn.execute(
@@ -449,17 +423,11 @@ class OperatorReader:
                 if operator_id == _NEXUS_OPERATOR_ID:
                     # Authoritative frozen semantic determinations; presentation only.
                     op["nexus_detector"] = _nexus_detector_projection(conn)
-                if operator_id == _LEVIATHAN_OPERATOR_ID:
-                    # Leviathan's own P3R detector semantics; presentation only, gated to this operator.
-                    try:
-                        op["leviathan_detector"] = _leviathan_detector_projection(conn)
-                    except (OSError, json.JSONDecodeError, KeyError):
-                        pass
                 if op.get("qualification_category") == "CONFIRMED" and op.get("display_name") != "WATCHTOWER" and conn.execute(
                     "SELECT 1 FROM sqlite_master WHERE type='table' AND name='operator_launch_membership'"
                 ).fetchone():
                     op["recent_launches"] = [dict(r) for r in conn.execute(
-                        "SELECT m.mint,COALESCE(q.creator,'') AS creator_wallet,COALESCE(q.create_anchor_block_time,q.funder_block_time,q.completed_at,m.assigned_at) AS create_time,q.treasury AS treasury_wallet,q.subprov AS subprov_wallet,q.funder_sig AS wrap_close_signature,q.funding_mechanism FROM operator_launch_membership m LEFT JOIN wt_walkback_queue q ON q.mint=m.mint WHERE m.operator_id=? ORDER BY create_time DESC LIMIT 250",
+                        "SELECT m.mint,COALESCE(q.creator,'') AS creator_wallet,COALESCE(q.create_anchor_block_time,q.funder_block_time,q.completed_at,m.assigned_at) AS create_time,q.treasury AS treasury_wallet,q.subprov AS subprov_wallet,q.funder_sig AS wrap_close_signature,q.funding_mechanism,1 AS canonical_membership,'CANONICAL_MEMBER' AS membership_status FROM operator_launch_membership m LEFT JOIN wt_walkback_queue q ON q.mint=m.mint WHERE m.operator_id=? ORDER BY create_time DESC LIMIT 250",
                         (operator_id,),
                     ).fetchall()]
                 if operator_id == _BYZANTINE_OPERATOR_ID:
@@ -477,9 +445,14 @@ class OperatorReader:
                         row["activity_observation_type"] = "CURRENT_BYZANTINE_INFRASTRUCTURE"
                         row["provisional_state"] = "CURRENT_BYZANTINE_INFRASTRUCTURE"
                         row["selected_hop"] = 1
+                        row["canonical_membership"] = 0
+                        row["membership_status"] = "INFRASTRUCTURE_OBSERVATION"
                     historical = op.get("recent_launches", [])
-                    by_mint = {row.get("mint"): row for row in historical}
-                    by_mint.update({row.get("mint"): row for row in infrastructure_rows})
+                    # Canonical membership is authoritative when a mint is
+                    # present in both projections. Infrastructure telemetry is
+                    # additive evidence, never a substitute for membership.
+                    by_mint = {row.get("mint"): row for row in infrastructure_rows}
+                    by_mint.update({row.get("mint"): row for row in historical})
                     op["recent_launches"] = sorted(
                         by_mint.values(), key=lambda row: row.get("create_time") or 0, reverse=True
                     )
@@ -623,6 +596,8 @@ class OperatorReader:
                 from src.ops.operator_identity_governance import read_identity_lifecycle
                 for row in rows:
                     value = dict(row)
+                    if value["operator_id"] in _RETIRED_OPERATION_IDS:
+                        continue
                     lifecycle = read_identity_lifecycle(self._path, value["operator_id"])
                     value["identity_status"] = lifecycle.get("identity_status", value.get("status"))
                     value["activity_status"] = lifecycle.get("activity_status", "ACTIVE")
@@ -659,6 +634,8 @@ class OperatorReader:
                     current_route_activity = {}
                 for row in rows:
                     value = dict(row)
+                    if value["operator_id"] in _RETIRED_OPERATION_IDS:
+                        continue
                     value["qualification_benchmark"] = json.loads(value.pop("benchmark_json") or "{}")
                     metrics = json.loads(value.pop("metrics_json") or "{}")
                     profile = conn.execute(
@@ -807,6 +784,14 @@ class OperatorReader:
 
     def fetch_operator_review_candidates(self, operator_id: str, *, limit: int = 500) -> list[dict]:
         """Return pending token evidence for one proposed operation, never membership."""
+        from src.ops.watchtower_deep_prospective import DEEP_OPERATOR_ID
+        if operator_id == DEEP_OPERATOR_ID:
+            try:
+                from src.ops.watchtower_deep_review import fetch_review_leads, validate_review_schema
+                with self._connect() as conn:
+                    return fetch_review_leads(conn, limit=limit) if validate_review_schema(conn) else []
+            except (sqlite3.Error, OSError, ValueError):
+                return []
         if operator_id != "04265d9f-6eb2-568c-a49e-9253091a4dbb":
             return []
         try:
@@ -971,7 +956,8 @@ class OperatorReader:
                     "SUM(CASE WHEN status='CONFIRMED' THEN 1 ELSE 0 END) AS confirmed,"
                     "SUM(CASE WHEN status='REJECTED' THEN 1 ELSE 0 END) AS rejected,"
                     "SUM(CASE WHEN status IN ('REVIEW','MERGE_REVIEW','SPLIT_REVIEW') THEN 1 ELSE 0 END) AS review_pending "
-                    "FROM operators"
+                    "FROM operators WHERE operator_id NOT IN (?,?,?)",
+                    tuple(sorted(_RETIRED_OPERATION_IDS)),
                 ).fetchone()
                 if not row:
                     return empty
@@ -984,7 +970,8 @@ class OperatorReader:
                         "SUM(identity_status='RETIRED') retired,SUM(activity_status='ACTIVE') active,"
                         "SUM(activity_status='QUIET') quiet,SUM(activity_status='DORMANT') dormant,"
                         "SUM(activity_status='REACTIVATED') reactivated "
-                        "FROM operator_identity_state"
+                        "FROM operator_identity_state WHERE operator_id NOT IN (?,?,?)",
+                        tuple(sorted(_RETIRED_OPERATION_IDS)),
                     ).fetchone()
                     result.update({key: (value or 0) for key, value in dict(lifecycle).items()})
                 return result

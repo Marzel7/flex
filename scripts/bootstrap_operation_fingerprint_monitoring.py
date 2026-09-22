@@ -1,11 +1,11 @@
-"""Bounded, membership-neutral bootstrap for existing d3de and Byzantine members."""
+"""Bounded, membership-neutral bootstrap for existing Byzantine members."""
 from __future__ import annotations
 import argparse, json, os, signal, sqlite3, time, traceback
 from pathlib import Path; import sys; sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.ops.durable_execution_evidence import PhaseEvidenceStore
 from src.ops.operation_fingerprint_drift import observe_completed_walkback
 
-DEFAULT_NAMES = ("Byzantine", "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER")
+DEFAULT_NAMES = ("Byzantine",)
 
 def _write(path: Path, payload: dict) -> None:
     temporary = path.with_suffix(path.suffix + ".tmp")
@@ -17,7 +17,7 @@ def main() -> None:
     output = Path(args.output); output.parent.mkdir(parents=True, exist_ok=True)
     run_id = f"fingerprint-bootstrap-{int(time.time())}"
     phases = PhaseEvidenceStore(output.parent / "runs", run_id)
-    terminal = {"run_id": run_id, "scope": "bounded existing d3de/Byzantine members", "status": "RUNNING", "pid": os.getpid(), "bootstrap_started_at": int(time.time()), "heartbeat_at": int(time.time()), "current_phase": "STARTING"}
+    terminal = {"run_id": run_id, "scope": "bounded existing Byzantine members", "status": "RUNNING", "pid": os.getpid(), "bootstrap_started_at": int(time.time()), "heartbeat_at": int(time.time()), "current_phase": "STARTING"}
     _write(output, terminal)
     phases.emit("STARTED", pid=os.getpid(), output=str(output))
     def interrupted(signum, _frame):

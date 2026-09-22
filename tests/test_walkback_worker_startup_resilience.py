@@ -20,6 +20,21 @@ import pytest
 
 import src.core.walkback_worker as walkback_worker
 from src.core.walkback_worker import _is_lock_error, run_loop
+from src.core.walkback_queue import validate_schema
+
+
+def _create_minimum_valid_walkback_queue(conn: sqlite3.Connection) -> None:
+    """Only the validator contract needed before the mocked startup paths."""
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS wt_walkback_queue ("
+        "mint TEXT PRIMARY KEY, status TEXT, walkback_class TEXT, enqueued_at INTEGER, "
+        "attempts INTEGER, intelligence_outcome TEXT, funder_wallet TEXT, funder_block_time INTEGER)"
+    )
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_wbq_status ON wt_walkback_queue(status)")
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_wbq_class ON wt_walkback_queue(walkback_class)")
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_wbq_outcome ON wt_walkback_queue(intelligence_outcome)")
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_wbq_funder ON wt_walkback_queue(funder_wallet)")
+    conn.commit()
 
 
 def test_is_lock_error_identifies_locked_database():
@@ -34,6 +49,14 @@ def test_is_lock_error_rejects_non_operational_exceptions():
     assert _is_lock_error(ValueError("database is locked")) is False
 
 
+def test_validate_schema_still_rejects_a_stale_partial_fixture():
+    conn = sqlite3.connect(":memory:")
+    conn.execute("CREATE TABLE wt_walkback_queue (mint TEXT, status TEXT, attempts INTEGER)")
+    with pytest.raises(RuntimeError, match="WALKBACK_SCHEMA_NOT_PROVISIONED"):
+        validate_schema(conn)
+    conn.close()
+
+
 @pytest.fixture
 def stub_run_loop_dependencies(monkeypatch, tmp_path):
     """Stub every run_loop() dependency except the two startup-maintenance calls
@@ -45,10 +68,7 @@ def stub_run_loop_dependencies(monkeypatch, tmp_path):
     def _fresh_conn():
         conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
-        conn.execute(
-            "CREATE TABLE IF NOT EXISTS wt_walkback_queue "
-            "(mint TEXT, status TEXT, attempts INTEGER)"
-        )
+        _create_minimum_valid_walkback_queue(conn)
         return conn
 
     monkeypatch.setattr(walkback_worker, "_ops_conn", _fresh_conn)

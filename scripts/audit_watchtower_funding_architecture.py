@@ -204,30 +204,12 @@ def main() -> None:
             "latest_occurrence": max(x["launch_timestamp"] for x in records if x["launch_timestamp"] is not None), "members": [x["mint"] for x in records]})
     totals = Counter(r["retained_mechanism"] for r in results)
     supplied_count = sum(r["creation_deposit_lamports"] == [2_122_039_280] and r["separate_transfer_count"] == 0 and r["close_account"] for r in results)
-    leviathan_exact = {
-        "create_method": "createAccountWithSeed", "creation_deposit_lamports": 2_039_280,
-        "separate_transfer_lamports": 99_997_955_720, "sync_native": True,
-        "close_account": True, "same_temporary_account_continuity": True,
-        "source_equals_owner": True, "close_destination": "DISTINCT_LAUNCH_ASSOCIATED",
-    }
-    collisions = sum(
-        r["create_methods"] == [leviathan_exact["create_method"]]
-        and r["creation_deposit_lamports"] == [leviathan_exact["creation_deposit_lamports"]]
-        and r["ordered_transfer_lamports"] == [leviathan_exact["separate_transfer_lamports"]]
-        and r["sync_native"] and r["close_account"] and r["same_temporary_account_continuity"]
-        and r["funding_source_role"] == "TEMP_OWNER"
-        and r["close_destination_role"] == leviathan_exact["close_destination"]
-        for r in results
-    )
     payload = {"schema_version": "WATCHTOWER_FUNDING_TRANSACTION_CENSUS_V1", "research_only": True,
         "scope": "current canonical confirmed WATCHTOWER membership; retained funding signatures only", "rpc_method": "getTransaction", "wallet_history_calls": 0,
         "denominators": {"WATCHTOWER_CONFIRMED_LAUNCHES": len(population), "WATCHTOWER_FUNDING_PATH_AVAILABLE": sum(bool(r.get("signature")) for r in population), "WATCHTOWER_FUNDING_SIGNATURE_AVAILABLE": len(signatures), "WATCHTOWER_LOCAL_DECODED": sum(r["decode_source"] == "LOCAL_CACHE" for r in results), "WATCHTOWER_RPC_DECODED": sum(r["decode_source"] == "RPC" for r in results), "WATCHTOWER_EVALUABLE": len(results), "WATCHTOWER_UNRESOLVED": len(unresolved)},
         "mechanism_counts": {"WATCHTOWER_WSOL_WRAP_CLOSE": totals["WSOL_WRAP_CLOSE"], "WATCHTOWER_PLAIN_XFER": totals["PLAIN_XFER"], "WATCHTOWER_OTHER": len(results) - totals["WSOL_WRAP_CLOSE"] - totals["PLAIN_XFER"]},
         "WATCHTOWER_FUNDING_ARCHITECTURE_FAMILIES": len(family_rows), "families": family_rows,
         "supplied_2_12203928_SOL_create_close_count": supplied_count, "records": results, "unresolved": unresolved,
-        "leviathan_comparison": {"established_lifecycle": leviathan_exact,
-            "LEVIATHAN_WATCHTOWER_EXACT_ARCHITECTURE_COLLISIONS": collisions,
-            "LEVIATHAN_WATCHTOWER_FUNDING_ARCHITECTURE_SEPARATION": "STRONG" if collisions == 0 else "WEAK"},
         "generated_at": int(time.time())}
     canonical = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
     payload["digest"] = hashlib.sha256(canonical).hexdigest()

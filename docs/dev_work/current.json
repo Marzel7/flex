@@ -1,0 +1,94 @@
+{
+  "rules": {
+    "dev_complete_implies_prod": false,
+    "git_push_implies_prod": false,
+    "prod_approval_required": true,
+    "selective_promotion_supported": true
+  },
+  "schema_version": 1,
+  "unmapped_existing_dev_work": {
+    "description": "Pre-registry working-tree changes are intentionally unmapped; no production intent is inferred.",
+    "recorded": true
+  },
+  "updated_at": "2026-09-22T19:37:19Z",
+  "work_items": [
+    {
+      "affected_production_services": [
+        "walkback_worker",
+        "watchtower_api"
+      ],
+      "base_commit": "a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43",
+      "branch": "classification-attribution-axis",
+      "created_at": "2026-09-22T19:24:46Z",
+      "current_commit": null,
+      "dependencies": [],
+      "description": "Address-independent Deep route detection, review-only persistence and separate operator UI. Existing completed DEV work registered retrospectively by explicit user request; no production eligibility inferred.",
+      "dev_ui_verified": true,
+      "files_changed": [
+        "src/ops/watchtower_deep_prospective.py",
+        "src/ops/watchtower_deep_review.py",
+        "src/ops/watchtower_deep_historical.py",
+        "src/core/walkback_worker.py",
+        "src/ops/operator_reader.py",
+        "src/ops/operator_routes.py",
+        "templates/operator_deep_review.html",
+        "templates/operator_intelligence.html",
+        "tests/test_watchtower_deep_historical.py",
+        "docs/architecture/watchtower_deep.md"
+      ],
+      "notes": "",
+      "prod_approval": "NOT_REQUESTED",
+      "prod_candidate_commit": null,
+      "prod_deployment_status": "NOT_CANDIDATE",
+      "prod_intent": "EVENTUAL_PROD",
+      "prod_persistent_path_impact_reviewed": false,
+      "prod_promotion_blocked": true,
+      "status": "DEV_COMPLETE",
+      "test_status": "PASS",
+      "test_summary": "29 focused Deep and DEV-boundary tests passed; retained cohort qualification covers 26 Deep positives, 349 canonical WATCHTOWER controls, Ar4C ambiguity, rotation and conflict cases.",
+      "title": "WATCHTOWER_DEEP Walkback detection and review UI",
+      "updated_at": "2026-09-22T19:24:47Z",
+      "work_id": "DEV-001"
+    },
+    {
+      "affected_production_services": [
+        "watchtower_api"
+      ],
+      "base_commit": "a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43",
+      "branch": "classification-attribution-axis",
+      "created_at": "2026-09-22T19:31:24Z",
+      "current_commit": null,
+      "dependencies": [],
+      "description": "DEV cleanup of active Operations surfaces and retirement of Leviathan, Sentinel and Harbinger. Historical audit provenance and isolated runtime mirrors are retained explicitly and cannot be used as active operation membership or configuration.",
+      "dev_ui_verified": true,
+      "files_changed": [
+        "src/core/walkback_worker.py",
+        "src/ops/operator_reader.py",
+        "src/ops/operator_routes.py",
+        "src/ops/operation_identity_metadata.py",
+        "src/ops/operation_fingerprint_drift.py",
+        "src/ops/operation_fingerprint_monitoring.py",
+        "src/ops/potential_operations.py",
+        "src/ops/potential_route_tiering.py",
+        "templates/operators_index.html",
+        "templates/operator_intelligence.html",
+        "templates/potential_operations.html",
+        "tests/test_dev002_retired_operations.py",
+        "docs/audits/retired_operations_dev002_20260922.md"
+      ],
+      "notes": "",
+      "prod_approval": "NOT_REQUESTED",
+      "prod_candidate_commit": null,
+      "prod_deployment_status": "NOT_CANDIDATE",
+      "prod_intent": "UNDECIDED",
+      "prod_persistent_path_impact_reviewed": false,
+      "prod_promotion_blocked": true,
+      "status": "DEV_COMPLETE",
+      "test_status": "PASS",
+      "test_summary": "37 focused DEV-002 retirement, potential-route snapshot, startup-resilience and evidence-framework tests passed. DEV /intelligence/operators, /intelligence/potential-operations and /api/ops/operators each returned HTTP 200 with no retired operation name in their response bodies.",
+      "title": "Simplify Operations Registry and retire three legacy operations",
+      "updated_at": "2026-09-22T20:00:00Z",
+      "work_id": "DEV-002"
+    }
+  ]
+}

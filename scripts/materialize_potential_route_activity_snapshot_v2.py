@@ -6,7 +6,7 @@ from collections import defaultdict
 from datetime import datetime,timezone
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from src.ops.p3r_v2_tiering import base_fingerprint,stable_candidate_id
+from src.ops.potential_route_tiering import base_fingerprint,stable_candidate_id
 from src.ops.potential_operations import rows
 
 ROOT=Path(__file__).resolve().parents[1]; DB=ROOT/'database/wt_ops_v2.db'; OUT=ROOT/'docs/audits/potential_route_activity_snapshot_v2'

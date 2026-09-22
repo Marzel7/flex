@@ -9,7 +9,7 @@ def test_confirmed_fingerprint_contracts_do_not_require_literal_addresses():
 
 
 def test_exact_uniqueness_is_transparent_and_near_matches_do_not_reduce_it():
-    health = build_fingerprint_health({"display_name": "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER", "qualification_contract": {}})
+    health = build_fingerprint_health({"display_name": "Byzantine", "qualification_contract": {}})
     assert health["qualified_uniqueness_percent"] == health["current_uniqueness_percent"] == 100.0
     assert health["near_match_count"] == 0 and "external_exact_matches" in health["formula"]
 
@@ -47,9 +47,8 @@ def test_summary_makes_current_uniqueness_prominent():
     assert "Related mechanism; distinct fingerprints and memberships." in template
 
 
-def test_identity_metadata_keeps_technical_identity_and_family_separate():
+def test_identity_metadata_keeps_infrastructure_metadata_separate():
     from src.ops.operation_identity_metadata import identity_metadata
-    assert identity_metadata(None, "P3R_13A04", 0)["human_name"] == "30 SOL 5K Ladder"
     metadata = identity_metadata(None, "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K", 0)
     assert metadata["infrastructure"] == "SHARED_NON_EXCLUSIVE_INFRASTRUCTURE"
     assert metadata["common_root"] == "NOT_PROVEN"

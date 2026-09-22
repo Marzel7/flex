@@ -705,8 +705,8 @@ def operation_playbooks_index_page():
 def operator_subtype_page(operator_id: str, subtype_id: str):
     """Non-owning subtype projection; never reads or writes primary membership."""
     from flask import render_template
-    db_path = Path(__file__).resolve().parents[2] / "database/wt_ops_v2.db"
-    conn = sqlite3.connect(db_path); conn.row_factory = sqlite3.Row
+    from src.core.db import OPS_DB_PATH
+    conn = sqlite3.connect(f"file:{OPS_DB_PATH}?mode=ro", uri=True); conn.row_factory = sqlite3.Row
     subtype = conn.execute("SELECT * FROM operator_subtypes WHERE subtype_id=? AND parent_operator_id=?", (subtype_id, operator_id)).fetchone()
     if not subtype:
         conn.close(); return render_template("operator_subtype_detail.html", subtype=None, error="Subtype not found"), 404

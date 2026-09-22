@@ -11,7 +11,7 @@
     <a class="list-group-item list-group-item-action" href="/operations/{{ item.operation_id }}/playbook">
       <strong>{{ item.display_name }}</strong>
       <span class="text-muted"> · {{ item.playbook_version }} · {{ item.qualification_status }} · {{ item.token_data_completion }}</span>
-      <div class="small mt-1">Sample: {{ item.sample_size }}{% if item.eligible_population %} · eligible population: {{ item.eligible_population }}{% endif %}{% if item.price_data_coverage is not none %} · price {{ '%.2f'|format(item.price_data_coverage) }}% · FX {{ '%.2f'|format(item.fx_coverage) }}% · trigger {% if item.trigger_status %}WIRED{% else %}NOT WIRED{% endif %}{% endif %}</div>
+      <div class="small mt-1">Sample: {{ item.sample_size }}{% if item.eligible_population %} · eligible population: {{ item.eligible_population }}{% endif %}{% if item.price_data_coverage is defined and item.price_data_coverage is not none and item.fx_coverage is defined and item.fx_coverage is not none %} · price {{ '%.2f'|format(item.price_data_coverage) }}% · FX {{ '%.2f'|format(item.fx_coverage) }}% · trigger {% if item.trigger_status %}WIRED{% else %}NOT WIRED{% endif %}{% endif %}</div>
       {% if item.lifecycle_research %}<div class="small mt-1"><span class="badge bg-info text-dark">Lifecycle research</span> {{ item.lifecycle_research.completed_count }} completed · {{ item.lifecycle_research.canonical_overlap_count }} canonical · {{ item.lifecycle_research.research_only_count }} research-only <span class="text-muted">— independently scoped; not operation membership</span></div>{% endif %}
     </a>
     {% endfor %}

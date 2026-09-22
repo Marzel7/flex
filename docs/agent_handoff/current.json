@@ -1,4 +1,14 @@
 {
+  "dev_prod_api_snapshot_path_census_20260922": {
+    "status": "OFFLINE_31_PATH_REHEARSAL_PASS_FULL_PRODUCTION_BASELINE_HOLD",
+    "engineering_revision": "Clean source candidate 9094d2116db4a805b670cbd6001c0cc4480b4005; isolated path-audit commit 0c8f62db; current main source a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43 remains dirty",
+    "audit": "docs/audits/api_snapshot_path_census_20260922.v1.json on codex/dev-prod-path-boundary",
+    "finding": "API static closure includes intelligence_snapshots.py, whose default state directory follows the source checkout. Existing main-root database/intelligence_snapshots is approximately 665 MB. The offline manifest now pins WT_INTELLIGENCE_SNAPSHOT_DIR to that existing directory; missing authority fails closed. This does not prove any particular snapshot key is active or needed.",
+    "tests": "25/25 focused path validator, shared-authority and source-override tests pass; 31 covered names pass offline rehearsal with deployment HOLD; JSON and diff checks pass.",
+    "production_flags": "PROD_CHECKOUT_CREATED=false; SUPERVISOR_CHANGED=false; SERVICES_RESTARTED_OR_SIGNALED=0; DATABASE_OR_QUEUE_MUTATIONS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "HOLD production baseline and API cutover; transitive active-path and loaded-source parity remain incomplete.",
+    "exact_next_action": "Distinguish active API state paths from optional/static-only imports, review hybrid candidate behavior, and prove loaded-source parity before rollback-tested API-only cutover."
+  },
   "dev_prod_api_state_path_gap_closure_20260922": {
     "status": "OFFLINE_30_PATH_REHEARSAL_PASS_FULL_PRODUCTION_BASELINE_HOLD",
     "engineering_revision": "Clean source candidate 9094d2116db4a805b670cbd6001c0cc4480b4005; isolated path-audit commit 5f3e7e9d; main production source a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43 remains dirty",

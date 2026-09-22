@@ -18439,6 +18439,15 @@
     "verdict": "PASS DEV. The table now answers the operator-registry question ('what are the 20 newest assigned launches?') independently of Monitor admission completeness.",
     "exact_next_action": "Refresh and visually verify the DEV registry page. Keep the Watchtower admission deployment separate; this view must continue to label unadmitted rows honestly until that deployment is qualified."
   },
+  "watchtower_deep_monitoring_dev_contract_20260922": {
+    "engineering_revision": "Uncommitted DEV working-tree delta in src/ops/operation_price_research_orchestrator.py, src/ops/operation_monitor_worker.py, src/ops/operation_monitor_service.py, src/ops/operator_routes.py, and tests/test_operation_monitor_worker.py.",
+    "status": "OFFLINE_QUALIFIED_DEV_ONLY_DEPLOYMENT_NOT_AUTHORIZED",
+    "scope": "Adds WATCHTOWER_DEEP as a separately named Monitor operation for already-assigned Deep memberships only. It uses its own WATCHTOWER_DEEP_PRICE_FACT_CONTRACT_V1 label and the same bounded first-full-post-migration-second entry evidence method as Watchtower. No review lead is promoted, no treasury is changed, and no candidate is automatically classified or admitted.",
+    "qualification": "Temporary DB/queue regression proves Deep admission is separate, assignment-identity idempotent, and has the migration-entry method. Five selected Monitor worker regressions passed; service and UI formatting checks passed; py_compile and diff-check passed. No provider call, queue/database mutation, service restart, or production change.",
+    "production_flags": "PRODUCTION_SOURCE_CHANGED=false; PRODUCTION_CONFIG_CHANGED=false; PRODUCTION_SERVICES_RESTARTED=0; PRODUCTION_DATABASE_MUTATIONS=0; QUEUE_MUTATIONS=0; PROVIDER_CALLS=0; DEV_ONLY=true",
+    "verdict": "PASS offline DEV contract. DEV source can represent Deep monitoring distinctly, but the running production Monitor remains unchanged and current Deep rows correctly remain NOT_MONITORED until a separately authorized deployment.",
+    "exact_next_action": "Commit and prepare a clean Monitor-only candidate containing the Watchtower and Deep admission changes. Before any cutover, verify the Deep lifecycle/retention policy and production path parity; then separately authorize a Monitor-only deployment and natural non-synthetic qualification."
+  },
   "rc1_cascade_only_cutover_rollback_20260922": {
     "engineering_revision": "Candidate 26da06daba23608bd64d5b86cde1f92b24d3a98d loaded from clean /Users/kevinkeaveney/Production/flex-cascade for PID 75002; rollback restored the prior /Users/kevinkeaveney/Dev/claude/flex/.runtime_recovery_c06d source for PID 79180",
     "status": "CASCADE_CUTOVER_LIVE_GATE_FAILED_ROLLED_BACK",

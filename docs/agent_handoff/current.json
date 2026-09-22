@@ -1,4 +1,14 @@
 {
+  "practical_running_production_baseline_20260922": {
+    "status": "RUNNING_STATE_RECORDED_NOT_ALL_SERVICE_CLEAN_SOURCE",
+    "engineering_revision": "API 77623cfe47b39c685cd251d1a85198b3a3572118, listener bf1bdfc59b4acfed0338a493189d91d212bda50f, main a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43 dirty, recovery c06d1f7d7097dfb8b8f0f3f9116995bc9cf020ca dirty; audit 08a673e5 on local codex/dev-prod-path-boundary",
+    "audit": "docs/audits/practical_running_production_baseline_20260922.v1.json on local codex/dev-prod-path-boundary",
+    "finding": "Read-only recovery manifest captured 10 RUNNING service PIDs and start times, actual source roots, checkout revisions, key entry-file SHA256 values, Supervisor config SHA256 2585ad8876c716825aa382577a7d949fcaf683b0ed25eb4271ac4e19bcd7598b, and sampled DB/log descriptors. API/listener use pinned checkouts; five application services use dirty main and Walkback/Cascade use modified recovery. Four other services remain STOPPED as configured. Disk hashes are not an in-memory loaded-module snapshot.",
+    "tests": "Supervisor status, ps process start times, source-root git revisions/status, shasum of key files and config, sampled lsof data authorities; audit JSON validated. No production mutation.",
+    "production_flags": "SOURCE_OR_CONFIG_CHANGES=0; SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS_BY_AGENT=0; PROVIDER_CALLS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "Practical live-state recovery reference PASS; all-service clean-source production baseline remains HOLD. The manifest records current disk state and cannot itself authorize a bulk restart or reconstruct changing dirty trees.",
+    "exact_next_action": "Leave healthy services running. On the next genuine restart/change for a dirty-main/recovery service, recheck hashes and paths, qualify its pinned candidate, and cut over only that service with rollback; prioritize scheduler, Monitor and Cascade as needed."
+  },
   "dev_prod_remaining_running_services_source_census_20260922": {
     "status": "PARTIAL_READ_ONLY_FULL_BASELINE_HOLD",
     "engineering_revision": "Live API clean 77623cfe, listener pinned bf1bdfc5, main a1f4d8e6 dirty with 2861 porcelain entries, recovery c06d1f7d dirty with ws_cascade.py and db_locking.py modifications; audit 483984ff on local codex/dev-prod-path-boundary",

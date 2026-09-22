@@ -1,4 +1,13 @@
 {
+  "dev005_live_monitor_metadata_backfill_20260922": {
+    "status": "PLANNED_DEV_ONLY",
+    "engineering_revision": "DEV registry entry DEV-005 created on dirty DEV branch classification-attribution-axis at base 870dcd71eb146532f27346e5bc8412abdf2a3b00; no implementation candidate exists.",
+    "finding": "Live Monitor now presents cached token symbols/names where available and preserves the mint as fallback. DEV-005 will audit the missing-label cohort, determine whether historical retained sources can safely supply metadata, and design a bounded backfill. It does not authorize provider calls, cache writes, monitoring changes, or production promotion.",
+    "tests": "DEV work registry creation/readback only. No source change, API call, provider call, database mutation, queue action or service restart.",
+    "production_flags": "PRODUCTION_SOURCE_CHANGED=false; PRODUCTION_CONFIG_CHANGED=false; PRODUCTION_SERVICES_RESTARTED=0; PRODUCTION_DATABASE_MUTATIONS=0; DEV005_STATUS=PLANNED; DEV005_PROD_INTENT=UNDECIDED; DEV005_PROD_APPROVAL=NOT_REQUESTED; DEV_COMPLETE_IMPLIES_PROD=false",
+    "verdict": "PLANNED. Keep the mint fallback truthful until metadata provenance and any backfill mechanism are separately qualified.",
+    "exact_next_action": "Run a read-only census of Live Monitor mints missing metadata_cache symbol/name, classify available local historical metadata sources, and return a bounded backfill proposal for separate approval."
+  },
   "dev004_unified_registry_monitor_ui_20260922": {
     "status": "PARTIAL_IMPLEMENTED_DEV_UI_VERIFICATION_PENDING",
     "engineering_revision": "Dirty DEV branch classification-attribution-axis; changed templates/operators_index.html and templates/partials/sidebar.html only. No candidate commit exists.",

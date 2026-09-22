@@ -1,4 +1,14 @@
 {
+  "dev_prod_listener_constructor_entrypoint_20260922": {
+    "status": "ISOLATED_CONSTRUCTOR_PASS_ENTRYPOINT_HOLD",
+    "engineering_revision": "Local-only candidate source 52285dd7, audit commit 6e5542b1 on codex/listener-source-candidate-20260922; no production deployment",
+    "audit": "docs/audits/listener_source_path_cutover_preflight_20260922.v2.json in local candidate",
+    "finding": "Wider path review identified a missing role-aware WATCHTOWER projection artifact in the isolated checkout. Candidate manual_registry now accepts an explicit read path; temporary two-row projection test passed. Current main artifact SHA256 93831bf2a3554b19fd93971fbeded96cd1ab59a60b148dc8efa48373b84d98cc is pinned, not copied. Revised in-memory listener-only Supervisor preview pins 25 environment names; parser, exact rollback and unrelated-program byte identity pass; preview hash c4b54654704c1d8da409bbbf2d9275aadbce2a96af75916643abdb101cc07575. Short-lived isolated constructor initialized only temporary live DB state with socket/DNS call count zero; no candidate-local live/ops DB was created. Full __main__ entrypoint remains untested because it may probe/spawn RPC metrics API and takes the global listener singleton lock while production PID 4299 is active.",
+    "tests": "10 focused listener tests PASS; isolated no-provider constructor PASS; projection override PASS; config preview/rollback PASS; JSON/diff checks PASS. No natural ingress or full supervised entrypoint test.",
+    "production_flags": "CANDIDATE_LOCAL_ONLY=true; SOURCE_CHANGED_IN_PRODUCTION=0; CONFIG_CHANGED=0; SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS=0; PROVIDER_CALLS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "DO_NOT_DEPLOY_OR_RESTART_LISTENER_YET. Constructor and path preflight pass, but entrypoint side-process/lock semantics and live natural ingress remain unqualified.",
+    "exact_next_action": "Offline-qualify the entrypoint RPC-metrics side-process and singleton-lock behavior without touching the live listener, then prepare an exact listener-only cutover manifest and request separate production authorization."
+  },
   "dev_prod_listener_path_preview_import_20260922": {
     "status": "OFFLINE_IMPORT_AND_CONFIG_PREVIEW_PASS_FULL_STARTUP_HOLD",
     "engineering_revision": "Local-only listener candidate source 0269f64c, audit commit 1eefa29d on codex/listener-source-candidate-20260922; production listener still uses main, API still uses 77623cfe",

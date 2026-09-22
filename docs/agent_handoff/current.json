@@ -1,4 +1,14 @@
 {
+  "dev_prod_api_candidate_paths_20260922": {
+    "status": "API_PATH_REPAIRS_OFFLINE_PASS_FULL_PRODUCTION_BASELINE_HOLD",
+    "engineering_revision": "Clean isolated full-source candidate 900f768139357b3649b9c78c1f57c3ce7f0d2d3d; path-boundary audit commit 60802933; dirty main live source a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43",
+    "audit": "docs/audits/api_subtype_source_path_repair_20260922.v1.json and docs/audits/source_candidate_authorities_rehearsal_20260922.v1.json on codex/dev-prod-path-boundary",
+    "finding": "Candidate-only subtype reader now uses configured OPS_DB_PATH with SQLite mode=ro so an isolated checkout cannot silently create a new operations DB. Five API health diagnostic reads now honor explicit listener-log, migration-audit, serializer-metrics and Gunicorn-log path authorities with legacy fallbacks. Candidate/live knowledge-rules GET and nonexistent-subtype GET were byte-identical; no live service changed. Generated zero-byte candidate lock guards from tests were moved recoverably to /private/tmp/flex-api-candidate-test-artifacts-20260922.",
+    "tests": "47/47 focused API/health/subtype tests pass. Selected 114 operator tests: 101 pass, 13 unchanged legacy template assertions fail; repeated 56-test file reproduces 13 failures. Candidate diff from prior 9094d211 changes only subtype route and API health paths, not failing templates/tests. Candidate clean checkout guard PASS at exact SHA with deployment_authorized=false; 32-name authority covered-path rehearsal PASS with deployment HOLD. Audit JSON and diff checks PASS.",
+    "production_flags": "PROD_CHECKOUT_CREATED=false; SUPERVISOR_CHANGED=false; SERVICES_RESTARTED_OR_SIGNALED=0; DATABASE_OR_QUEUE_MUTATIONS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "HOLD full production baseline/API cutover. The bounded path defects are repaired offline, but live loaded-source provenance and complete API state-path/cutover parity remain unproven. No production deployment is claimed.",
+    "exact_next_action": "Resolve the observational loaded-source provenance boundary and finish bounded API route/state-path parity, then prepare a rollback-tested API-only cutover manifest pinned to candidate 900f768139357b3649b9c78c1f57c3ce7f0d2d3d. Do not restart API or change Supervisor until all gates pass. Track the 13 inherited template assertions separately."
+  },
   "dev_prod_api_landscape_report_authority_20260922": {
     "status": "LANDSCAPE_READBACK_PARITY_PASS_FULL_PRODUCTION_BASELINE_HOLD",
     "engineering_revision": "Clean source candidate 9094d2116db4a805b670cbd6001c0cc4480b4005; isolated path-audit commit df1c34fa; live main source a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43 remains dirty",

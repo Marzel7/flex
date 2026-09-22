@@ -1,4 +1,13 @@
 {
+  "dev_monitor_compact_mirror_20260922": {
+    "status": "HOLD_OVERSIZED_SNAPSHOT_CANCELLED",
+    "engineering_revision": "Dirty DEV checkout; DEV-only monitor runtime changes remain uncommitted. No production revision changed.",
+    "finding": "The initial DEV monitor bootstrap attempted a full SQLite backup of the production operations database and grew to 7.5 GB. It was cancelled, verified to have no open file handles, and only the incomplete DEV mirror and journal were removed. Production was opened read-only; no production write or service change occurred. A full clone is rejected because it is not a bounded DEV runtime design.",
+    "tests": "Read-only file-handle check and disk-size inspection. Snapshot process cancellation and exact DEV-only partial-file removal; no production database, queue, configuration, source or service mutation.",
+    "production_flags": "PRODUCTION_SOURCE_CHANGED=false; PRODUCTION_CONFIG_CHANGED=false; PRODUCTION_SERVICES_RESTARTED=0; PRODUCTION_DATABASE_MUTATIONS=0; FULL_PRODUCTION_DB_SNAPSHOT_REJECTED=true; OVERSIZED_DEV_SNAPSHOT_REMOVED=true",
+    "verdict": "HOLD. Replace the full snapshot implementation with a compact monitor mirror containing only the active Watchtower/WATCHTOWER_DEEP membership, migration evidence, Monitor schema, queue and observations required for DEV price tracking. Source production data may be read only; DEV writes must remain exclusively below .dev_runtime/monitor.",
+    "exact_next_action": "Implement and offline-qualify bounded compact-mirror bootstrap and incremental read-only membership sync; prove its byte cap, DEV-only DB/queue/log paths and no production mutations before any provider-backed DEV monitor run."
+  },
   "live_monitor_byzantine_price_gap_audit_20260922": {
     "status": "PASS_READ_ONLY_CAUSE_IDENTIFIED",
     "engineering_revision": "Read-only runtime/database/queue audit; no source revision changed.",

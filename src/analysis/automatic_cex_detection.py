@@ -24,9 +24,6 @@ from datetime import datetime
 from dataclasses import dataclass
 from enum import Enum
 
-import sys
-sys.path.insert(0, '/Users/kevinkeaveney/Dev/claude/flex')
-
 from src.utils.infra_mapping import INFRASTRUCTURE_ACCOUNTS, CEX_ACCOUNTS, is_infrastructure_account, is_cex_account
 from src.utils.db_locking import managed_db_connect
 

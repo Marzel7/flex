@@ -12454,12 +12454,18 @@ def start_rpc_metrics_api():
         log_print(f"[INIT] ⚠️ Could not start RPC Metrics API: {e}", flush=True)
 
 
-if __name__ == "__main__":
-    # Start RPC Metrics API before listener
-    start_rpc_metrics_api()
+def run_listener_entrypoint() -> None:
+    # Preserve the historical default for existing launches. An isolated
+    # supervised source cutover can explicitly leave this side process alone.
+    if os.environ.get("LISTENER_RPC_METRICS_API_START_ENABLED", "1") != "0":
+        start_rpc_metrics_api()
 
     # Start WAL checkpoint daemon (every 5 min)
     _start_wal_checkpoint_worker(DB_PATH, interval_seconds=300)
 
     # Start listener
     asyncio.run(main())
+
+
+if __name__ == "__main__":
+    run_listener_entrypoint()

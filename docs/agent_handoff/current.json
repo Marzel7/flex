@@ -1,4 +1,13 @@
 {
+  "dev_prod_alert_offline_qualification_listener_delta_20260922": {
+    "status": "ALERT_OFFLINE_PASS_LISTENER_SOURCE_HOLD",
+    "engineering_revision": "Clean production checkout 77623cfe47b39c685cd251d1a85198b3a3572118; no live source or configuration change",
+    "finding": "Alert evaluator clean checkout: exact static source closure 2/2 matches main; subprocess import resolves to clean src/core/alert_evaluator.py. Temp-DB test covered empty evaluation, NO_TELEMETRY raise and recovery. In-memory Supervisor preview changes only alert script absolute command, directory and PYTHONPATH; absolute shared ops/alerts DB and logs stay on main data root. Active config SHA256 de903ec9d5ca70934f98c03cf2aba58f0c366d9c37712c1f5f7d5616ee502ce3; preview SHA256 6248ecdfdfa430ef5c6d9ef0744602e71086cd5f243f3317ba3bde71164b6664; exact rollback and other-program byte identity pass. Listener 11 differing imported files include schema/queue/cascade-store/attribution/ledger/lineage/registry/candidate/writer logic, not merely comments; runtime-path parity remains unqualified.",
+    "tests": "Alert subprocess temporary-DB evaluation/persistence transition PASS; in-memory 3-path config preview and exact rollback PASS; listener changed-hunk inventory PASS. No production DB test, dynamic-import proof or service restart.",
+    "production_flags": "SOURCE_CHANGED=0; CONFIG_CHANGED=0; SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "Alert evaluator is offline-qualified as the next narrow source-path cutover candidate, subject to explicit deployment authorization and live preflight. Listener remains HOLD; do not switch it based on entrypoint parity alone.",
+    "exact_next_action": "If separately authorized, recheck live alert PID/config/source hashes, apply only the three alert source-path edits, restart only alert_evaluator, verify natural cycles and rollback on abort. Independently reconcile the 11 listener deltas before its own cutover."
+  },
   "dev_prod_listener_alert_source_parity_20260922": {
     "status": "PARTIAL_ALERT_STATIC_PARITY_LISTENER_HOLD",
     "engineering_revision": "Production clean checkout 77623cfe47b39c685cd251d1a85198b3a3572118; live listener and alert evaluator still use dirty main source a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43",

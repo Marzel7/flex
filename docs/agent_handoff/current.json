@@ -1,4 +1,13 @@
 {
+  "dev_prod_listener_alert_source_parity_20260922": {
+    "status": "PARTIAL_ALERT_STATIC_PARITY_LISTENER_HOLD",
+    "engineering_revision": "Production clean checkout 77623cfe47b39c685cd251d1a85198b3a3572118; live listener and alert evaluator still use dirty main source a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43",
+    "finding": "Read-only current AST import-closure comparison: alert evaluator 2/2 matching files (scripts/run_alert_evaluator.py and src/core/alert_evaluator.py), zero missing; listener 147/158 matching, 11 differing and zero missing. Listener entry run_listener.sh and pumpfun_curve_listener.py match, but shared db_locking, db, walkback_queue, ws_cascade_store, create_event_ledger and other imported modules differ. Supervisor currently invokes the listener script by absolute main-checkout path, so directory-only switching would not change source. Alert has absolute shared DB paths in Supervisor; an eventual source switch must retain them. At final check listener PID 4299, alert PID 4283, API PID 49313 all RUNNING and unchanged.",
+    "tests": "Read-only AST closure/SHA-256 comparison, entrypoint byte comparison, Supervisor command/environment inspection and status. No offline behavior test and no loaded-process-byte proof; dynamic imports are not covered.",
+    "production_flags": "SOURCE_CHANGED=0; CONFIG_CHANGED=0; SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "Alert evaluator is a plausible next isolated source-switch candidate, not yet approved or fully qualified. Listener clean-source switch remains HOLD because 11 imported files differ. Existing running functional behavior is not declared broken by disk-source divergence.",
+    "exact_next_action": "For alert evaluator, qualify a config-only path preview, temp-DB behavior test, effective import path and rollback; seek separate approval before restart. For listener, classify the 11 differing files against live path/qualified runtime state before any switch."
+  },
   "dev_prod_remaining_services_readonly_reconciliation_20260922": {
     "status": "PARTIAL_READ_ONLY_SOURCE_PARITY_HOLD",
     "engineering_revision": "API live clean source 77623cfe47b39c685cd251d1a85198b3a3572118; main a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43 dirty; recovery c06d1f7d7097dfb8b8f0f3f9116995bc9cf020ca dirty",

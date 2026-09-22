@@ -1,4 +1,14 @@
 {
+  "dev_prod_scheduler_pinned_candidate_offline_20260922": {
+    "status": "PARTIAL_OFFLINE_CANDIDATE_HOLD_TRANSITIVE_PARITY",
+    "engineering_revision": "Live scheduler remains PID 4366 from dirty main a1f4d8e6; clean detached offline candidate c2acc31c from API source 77623cfe; audit 61488e8b on local codex/dev-prod-path-boundary",
+    "audit": "docs/audits/scheduler_pinned_candidate_offline_20260922.v1.json on local codex/dev-prod-path-boundary",
+    "finding": "The current main scheduler entry differs from clean API source by five lines restoring db_connect(OPS_DB_PATH, timeout=30) and autocommit for the sub-provider discovery writer. Reconstructed candidate entry is byte-identical to current main disk source. Future isolated launch must pin OPS_V2_DB_PATH, FLEX_DB_PATH and OPS_SCHEDULER_LOCK to existing shared authorities. Static candidate import closure spans 58 files; 13 differ from current main, including db_locking.py, so entrypoint parity alone does not authorize a restart.",
+    "tests": "19 focused offline pytest PASS; no-provider import probe with isolated temp state paths PASS and created no files; entrypoint cmp PASS; git diff --check PASS. Live scheduler PID unchanged.",
+    "production_flags": "SCHEDULER_NEW_SOURCE_ACTIVE=false; SUPERVISOR_CHANGED=0; SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS_BY_AGENT=0; PROVIDER_CALLS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "Offline candidate is pinned but not scheduler-restart-ready; transitive writer/state-path parity remains HOLD. Existing live scheduler stays in service.",
+    "exact_next_action": "Reconcile the 13 differing scheduler-reachable dependencies, especially db_locking.py, into a bounded source closure and rerun focused offline writer/path tests. Then stage a durable checkout and seek separate scheduler-only cutover authorization; do not restart from the current candidate."
+  },
   "practical_running_production_baseline_20260922": {
     "status": "RUNNING_STATE_RECORDED_NOT_ALL_SERVICE_CLEAN_SOURCE",
     "engineering_revision": "API 77623cfe47b39c685cd251d1a85198b3a3572118, listener bf1bdfc59b4acfed0338a493189d91d212bda50f, main a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43 dirty, recovery c06d1f7d7097dfb8b8f0f3f9116995bc9cf020ca dirty; audit 08a673e5 on local codex/dev-prod-path-boundary",

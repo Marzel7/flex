@@ -1,4 +1,13 @@
 {
+  "dev002_operators_index_cleanup_20260922": {
+    "status": "PASS_DEV_COMPLETE_NOT_PROD_APPROVED",
+    "engineering_revision": "Dirty DEV checkout at base a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43; DEV-002 has no isolated commit or production candidate.",
+    "finding": "Removed the Provisional Operations KPI/list from the DEV /intelligence/operators presentation and removed its Walkback Review Queue section, renderer and periodic API fetch. The page now filters the existing operator API response to confirmed operations only. Underlying provisional/review APIs and stored data were deliberately preserved; WATCHTOWER_DEEP retains its separate direct review page. DEV-002 is DEV_COMPLETE with PROD_INTENT=UNDECIDED and PROD_APPROVAL=NOT_REQUESTED.",
+    "tests": "50 focused tests passed across the new DEV-002 assertions, WATCHTOWER_DEEP, system-health polling, DEV work registry and DEV runtime boundaries. Live DEV page HTTP 200 with read-only banner and Confirmed Operations present; Provisional Operations, Walkback Review Queue and review-queue fetch absent.",
+    "production_flags": "PRODUCTION_SOURCE_CHANGED=false; PRODUCTION_CONFIG_CHANGED=false; PRODUCTION_SERVICES_RESTARTED=0; PRODUCTION_DATABASE_MUTATIONS=0; DEV002_PROD_INTENT=UNDECIDED; DEV002_PROD_APPROVAL=NOT_REQUESTED; DEV002_PROD_CANDIDATE_COMMIT=null",
+    "verdict": "PASS for requested DEV-only UI cleanup. No review data or API capability was deleted and no production eligibility was inferred.",
+    "exact_next_action": "Review the confirmed-only operators page in DEV. Independently set DEV-002 to DEV_ONLY, EVENTUAL_PROD or DO_NOT_DEPLOY. Any eventual production candidate must isolate the template/test diff and receive explicit approval."
+  },
   "watchtower_deep_documentation_registry_20260922": {
     "status": "PASS_DOCUMENTED_AND_REGISTERED_DEV_NOT_PROD_APPROVED",
     "engineering_revision": "Dirty DEV checkout at base a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43; no isolated WATCHTOWER_DEEP candidate commit exists.",

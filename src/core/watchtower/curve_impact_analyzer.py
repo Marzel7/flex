@@ -34,8 +34,18 @@ from typing import List, Optional, Dict, Tuple
 
 import requests
 
-_API_KEY  = os.getenv("HELIUS_API_KEY", "16f1a5fc-2592-466c-a5d4-b5799ae8da96")
-_RPC_HTTP = f"https://mainnet.helius-rpc.com/?api-key={_API_KEY}"
+# Curve-impact / first-block buy reconstruction runs against Alchemy (ALCHEMY in .env).
+# getSignaturesForAddress can only see a bounded recent window, so for a hot launch the
+# first-block buys scroll out of reach within seconds — we page by SLOT via getBlock instead.
+_RPC_HTTP = (
+    os.getenv("ALCHEMY")
+    or os.getenv("ALCHEMY_RPC_URL")
+    or f"https://mainnet.helius-rpc.com/?api-key={os.getenv('HELIUS_API_KEY', '16f1a5fc-2592-466c-a5d4-b5799ae8da96')}"
+)
+
+# how many slots past CREATE to scan for the opening buys (first block ≈ create_slot..+2)
+FIRST_BLOCK_SLOT_SPAN = 6
+PUMPFUN_PROGRAM_ID = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
 
 _DB_PATH = os.getenv("DB_PATH", "")
 if not _DB_PATH:

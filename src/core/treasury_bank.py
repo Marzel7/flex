@@ -104,7 +104,32 @@ def _align_confirmed_treasury(conn, treasury: str) -> None:
 
 
 
-def ensure_schema(conn) -> None:
+SCHEMA_PREREQUISITES = ()
+SCHEMA_VALID = "VALID"
+SCHEMA_MIGRATION_REQUIRED = "SCHEMA_MIGRATION_REQUIRED"
+INCOMPATIBLE_SCHEMA = "INCOMPATIBLE_SCHEMA"
+_FROZEN_SCHEMA_MANIFEST_DIGEST = "642a5e77b742ea3ab579926294bd4fed785be5077920f49f03f02175b93867bd"
+_SCHEMA_TABLES = frozenset("wt_confirmed_treasuries wt_treasury_fingerprint_decisions wt_confirmed_treasury_webhooks wt_treasury_review".split())
+
+
+class TreasurySchemaError(RuntimeError):
+    def __init__(self, state: str, detail: str):
+        self.state, self.detail = state, detail
+        super().__init__(f"{state}:{detail}")
+
+
+def validate_schema(conn) -> str:
+    """Read only validation of the frozen complete Treasury contract."""
+    from src.ops.schema_manifest_validator import validate_frozen_manifest
+    valid, observed = validate_frozen_manifest(
+        conn, expected_digest=_FROZEN_SCHEMA_MANIFEST_DIGEST, include_tables=_SCHEMA_TABLES
+    )
+    if not valid:
+        raise TreasurySchemaError(SCHEMA_MIGRATION_REQUIRED, f"manifest={observed}")
+    return SCHEMA_VALID
+
+
+def migrate_schema_step(conn) -> dict:
     conn.execute("""CREATE TABLE IF NOT EXISTS wt_confirmed_treasuries (
         treasury TEXT PRIMARY KEY, transfer_pct INTEGER, out_sol REAL, recipients INTEGER,
         micro_pings INTEGER, method TEXT, confidence TEXT, confirmed_at INTEGER)""")
@@ -154,10 +179,15 @@ def ensure_schema(conn) -> None:
         ("first_walkback_at",   "INTEGER"),
         ("last_walkback_at",    "INTEGER"),
     ])
-    conn.commit()
+    return {"changed": True}
 
 
 # ── review pipeline ──────────────────────────────────────────────────────────
+def ensure_schema(conn) -> None:
+    migrate_schema_step(conn)
+    conn.commit()
+
+
 def add_review_candidate(conn, treasury, *, transfer_pct=None, out_sol=None,
                          recipients=None, micro_pings=None, detected_via="micro_ping") -> bool:
     """Add an RPC-confirmed candidate to the review queue. Skips ones already confirmed, and

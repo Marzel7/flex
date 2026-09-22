@@ -148,7 +148,7 @@ class ValuationJobQueue:
 
 def enqueue_after_assignment_commit(*, assignment_committed: bool, mint: str, operation_id: str,
                                     operation_assignment: dict[str, Any], canonical_birth: dict[str, Any] | None,
-                                    queue: ValuationJobQueue, now: int | None = None) -> dict[str, Any]:
+                                    queue: ValuationJobQueue, now: int | None = None, monitor_queue: Any | None = None) -> dict[str, Any]:
     """Post-commit bridge.  It intentionally cannot perform RPC or decoding."""
     if not assignment_committed:
         return {"status": "NOT_ENQUEUED_PRECOMMIT"}
@@ -160,7 +160,13 @@ def enqueue_after_assignment_commit(*, assignment_committed: bool, mint: str, op
                                   canonical_birth=canonical_birth, now=now)
     except ValueError:
         return {"status": "NOT_ENQUEUED_INVALID_CANONICAL_BIRTH"}
-    return queue.enqueue_non_blocking(job)
+    result = queue.enqueue_non_blocking(job)
+    # This seam is post-commit by contract.  Monitor enqueue is compact and
+    # provider-free; queue failure cannot roll back authoritative assignment.
+    if result["status"] == "ENQUEUED" and monitor_queue is not None:
+        result["monitor"] = monitor_queue.enqueue_after_assignment(mint=mint, operation_id=operation_id,
+            assignment=operation_assignment, canonical_birth=canonical_birth)
+    return result
 
 
 class ValuationWorker:

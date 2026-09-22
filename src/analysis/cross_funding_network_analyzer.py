@@ -7,15 +7,14 @@ What's new vs v2.1:
    - Every funder that funded >=2 creators becomes a network record (even if it doesn't join any cluster)
 ✅ Excludes **CEX/infra funders from clustering topology** (so Coinbase won't "belong" to FUNDERS_1),
    but still records them for investigation.
-✅ Keeps your existing outputs:
-   - clustered funder networks (FUNDERS_1..N) in funder_networks
+✅ Keeps current outputs:
+   - in-memory clustered funder groups (FUNDERS_1..N)
    - recipient hubs in network_coordinators (+ cross refs)
    - creator networks (if creator_sol_transfers exists)
    - unified per-creator cluster scoring
 
 Tables:
 - atomic_funder_networks  (NEW): one row per multi-target funder (creator_count>=2), regardless of clustering
-- funder_networks         (existing): one row per funder that belongs to a non-CEX cluster, with cluster_id
 - infra_funders_observed   (NEW): CEX/infra multi-target funders excluded from clustering but recorded
 
 This module is DB-only (no RPC calls).
@@ -30,14 +29,6 @@ from typing import Dict, List, Optional, Set, Tuple
 from collections import defaultdict, deque
 
 DB_PATH = os.getenv("DB_PATH", "flex_complete_database.db")
-
-# funder_networks lives in the investigation archive DB (moved out of the hot
-# DB). The analyzer writes cluster membership there, not to the hot DB, so the
-# offline build never refills the hot table after the archive move.
-_ANALYZER_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-INVESTIGATION_ARCHIVE_DB = os.path.abspath(os.getenv(
-    "INVESTIGATION_ARCHIVE_DB",
-    os.path.join(_ANALYZER_REPO_ROOT, "database", "flex_investigation_archive.db")))
 
 # -----------------------------
 # Tuning knobs
@@ -218,13 +209,10 @@ class UnionFind:
 # =========================================================================
 
 class CrossFundingClusterAnalyzer:
-    def __init__(self, db_path: str = DB_PATH, archive_db_path: str = INVESTIGATION_ARCHIVE_DB):
+    def __init__(self, db_path: str = DB_PATH):
         self.db_path = db_path
-        # funder_networks writes target the archive DB, not the hot DB.
-        self.archive_db_path = archive_db_path
         self.creators_set: Set[str] = set()
         self._ensure_db()
-        self._ensure_archive_db()
         self._load_creators()
 
     # -----------------------------
@@ -351,37 +339,8 @@ class CrossFundingClusterAnalyzer:
         cur.execute("CREATE INDEX IF NOT EXISTS idx_recipient_address ON creator_recipients_unified(recipient_address)")
         cur.execute("CREATE INDEX IF NOT EXISTS idx_coordinator ON network_coordinators(coordinator_address)")
         cur.execute("CREATE INDEX IF NOT EXISTS idx_atomic_funder ON atomic_funder_networks(funder_address)")
-        # idx_funder_cluster_id is created in the archive DB (see _ensure_archive_db)
-
         conn.commit()
         conn.close()
-
-    def _ensure_archive_db(self) -> None:
-        """Create funder_networks (+ index) in the investigation archive DB.
-
-        funder_networks was moved out of the hot DB; the analyzer now writes
-        cluster membership here so the hot DB is never refilled."""
-        os.makedirs(os.path.dirname(self.archive_db_path), exist_ok=True)
-        conn = _connect(self.archive_db_path, timeout=30)
-        try:
-            cur = conn.cursor()
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS funder_networks (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    primary_funder TEXT NOT NULL UNIQUE,
-                    connected_funders TEXT,
-                    transfer_chain TEXT,
-                    creators_served TEXT,
-                    network_size INTEGER,
-                    total_volume_sol REAL,
-                    cluster_id TEXT,
-                    detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            """)
-            cur.execute("CREATE INDEX IF NOT EXISTS idx_funder_cluster_id ON funder_networks(cluster_id)")
-            conn.commit()
-        finally:
-            conn.close()
 
     def _load_creators(self) -> None:
         conn = _connect(self.db_path, timeout=60)
@@ -639,7 +598,7 @@ class CrossFundingClusterAnalyzer:
         IMPORTANT:
           - CEX/infra funders are excluded from the clustering graph (if enabled)
           - But they are still stored in atomic_funder_networks / infra_funders_observed
-        Persists cluster membership in funder_networks with cluster_id.
+        Returns derived clusters only. Legacy cluster snapshots are retired.
         """
         # Ensure atomic networks are up-to-date
         atomic = self.build_atomic_funder_networks()
@@ -709,39 +668,8 @@ class CrossFundingClusterAnalyzer:
                 edges=cluster_edges,
             ))
 
-        # Persist cluster membership (only clustered funders) to the ARCHIVE DB.
-        # funder_networks no longer lives in the hot DB; we ATTACH the archive
-        # and write to arch.funder_networks so the hot DB is never refilled.
-        conn = _connect(self.archive_db_path, timeout=60)
-        try:
-            cur = conn.cursor()
-
-            # Optional: clear previous cluster_id assignments for safety (keeps rows, but resets cluster_id)
-            cur.execute("UPDATE funder_networks SET cluster_id = NULL WHERE cluster_id IS NOT NULL")
-
-            for cl in clusters:
-                for primary in cl.funders:
-                    connected = sorted([f for f in cl.funders if f != primary])
-                    cur.execute("""
-                        INSERT OR REPLACE INTO funder_networks
-                        (primary_funder, connected_funders, transfer_chain, creators_served,
-                         network_size, total_volume_sol, cluster_id, detected_at)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-                    """, (
-                        primary,
-                        _safe_json(connected),
-                        _safe_json([]),
-                        _safe_json(sorted(list(cl.creators_served))),
-                        len(cl.funders),
-                        cl.total_volume_sol,
-                        cl.cluster_id,
-                    ))
-
-            conn.commit()
-            print(f"[ANALYZER] Funder clusters built: {len(clusters)} (non-CEX topology)")
-            return clusters
-        finally:
-            conn.close()
+        print(f"[ANALYZER] Funder clusters derived: {len(clusters)} (non-CEX topology)")
+        return clusters
 
     # =========================================================================
     # METHOD 3: CREATOR CLUSTERS (shared destinations)

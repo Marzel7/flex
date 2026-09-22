@@ -574,7 +574,11 @@ def _db_snapshot_cleanup(db_path: str) -> dict:
 
 
 def _db_health_signals(db_path: str, window_secs: int = 60) -> dict:
-    """Query DB for cross-process activity signals. All metrics are DB-backed."""
+    """Query compact/current-state activity signals only.
+
+    Stage 3 retires generic snapshot history, so health deliberately does not
+    use a historical market-data table as a liveness proxy.
+    """
     signals = {
         'last_snapshot_at': 0,
         'snapshots_in_window': 0,

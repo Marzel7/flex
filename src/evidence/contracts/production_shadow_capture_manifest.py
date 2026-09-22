@@ -100,12 +100,10 @@ def build_canonical_capture_input_manifest(
         ),
         RequiredRelation(
             "main", "token_price_snapshots", "TABLE",
-            (
-                ("snapshot_id", "INTEGER"), ("mint", "TEXT"),
-                ("price_usd", "REAL"), ("market_cap", "REAL"),
-                ("source", "TEXT"), ("captured_at", "INTEGER"),
-                ("created_at", "INTEGER"),
-            ),
+            (("snapshot_id", "INTEGER"), ("mint", "TEXT"),
+             ("price_usd", "REAL"), ("market_cap", "REAL"),
+             ("source", "TEXT"), ("captured_at", "INTEGER"),
+             ("created_at", "INTEGER")),
             (("mint", "captured_at"),),
         ),
         RequiredRelation(

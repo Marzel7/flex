@@ -55,7 +55,8 @@ def funding_queue_stats():
     ))
 
     stats = {"pending": 0, "running": 0, "complete": 0, "failed": 0, "retry": 0,
-             "complete_24h": 0, "last_worker_run": None, "last_worker_completed": 0,
+             "total_active": 0, "complete_24h": 0, "failed_24h": 0,
+             "failed_historical_total": 0, "last_worker_run": None, "last_worker_completed": 0,
              "worker_mode": "external_cron_5m"}
     try:
         conn = sqlite3.connect(db_path, timeout=3)
@@ -67,10 +68,21 @@ def funding_queue_stats():
             stats[status] = count
 
         cutoff_24h = int(time.time()) - 86400
+        stats["total_active"] = stats["pending"] + stats["retry"]
         stats["complete_24h"] = conn.execute(
             "SELECT COUNT(*) FROM creator_funding_queue WHERE status='complete' AND funding_extracted_at >= ?",
             (cutoff_24h,)
         ).fetchone()[0]
+        failed_historical_total, failed_24h = conn.execute(
+            """SELECT
+                   COUNT(*),
+                   SUM(CASE WHEN updated_at >= ? THEN 1 ELSE 0 END)
+                 FROM creator_funding_queue
+                 WHERE status='failed'""",
+            (cutoff_24h,)
+        ).fetchone()
+        stats["failed_historical_total"] = failed_historical_total or 0
+        stats["failed_24h"] = failed_24h or 0
         conn.close()
     except Exception as e:
         stats["db_error"] = str(e)

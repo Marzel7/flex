@@ -66,7 +66,8 @@ def _action_identity(action: Mapping[str, Any]) -> tuple[int, int, int, str | No
 
 def execute_birth_anchored_opening_analysis(
     *, operation_id: str, mint: str, rich_birth: Mapping[str, Any], helius: Any,
-    alchemy: Any | None, artifact_store: Any,
+    alchemy: Any | None, artifact_store: Any, fetch_create_transaction=None,
+    fetch_block=None, retain_provider_payloads: bool = True,
 ) -> dict[str, Any]:
     """Run the frozen bounded acquisition contract using injected clients.
 
@@ -83,6 +84,8 @@ def execute_birth_anchored_opening_analysis(
                 "calls": calls, "artifacts": artifacts}
 
     def retain(provider: str, method: str, request: dict[str, Any], response: Any) -> str:
+        if not retain_provider_payloads:
+            return ""
         raw_digest = _put(
             artifact_store, response,
             {"kind": "provider_raw_response", "provider": provider, "method": method,
@@ -109,7 +112,7 @@ def execute_birth_anchored_opening_analysis(
                 "calls": calls, "artifacts": artifacts}
 
     calls["helius_get_transaction"] += 1
-    transaction = helius.get_transaction(signature)
+    transaction = fetch_create_transaction(signature) if fetch_create_transaction else helius.get_transaction(signature)
     retain("helius", "getTransaction", {"signature": signature}, transaction)
     context = creation_context(transaction.get("result", transaction), mint=mint)
     if not context:
@@ -137,7 +140,7 @@ def execute_birth_anchored_opening_analysis(
     independent: Mapping[str, Any] | None = None
     for slot in range(creation_slot, creation_slot + MAX_BLOCKS):
         calls["helius_get_block"] += 1
-        block = helius.get_block(slot)
+        block = fetch_block(slot) if fetch_block else helius.get_block(slot)
         # Retention completes before decoding this block or requesting N+1.
         retain("helius", "getBlock", {"slot": slot}, block)
         decoded = actions_from_block(block, mint=mint, slot=slot)
@@ -240,5 +243,6 @@ def execute_birth_anchored_opening_analysis(
         {key: value for key, value in result.items() if key not in {"artifacts", "calls"}}
     )).hexdigest()
     # A qualified result is never returned before its immutable result artifact.
-    result["result_artifact"] = _put(artifact_store, result, {"kind": "opening_result"})
+    if retain_provider_payloads:
+        result["result_artifact"] = _put(artifact_store, result, {"kind": "opening_result"})
     return result

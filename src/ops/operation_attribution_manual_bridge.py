@@ -71,6 +71,10 @@ def promote_validated_operation(workflow_conn: sqlite3.Connection, canonical_con
     if not outcome["idempotent"]:
         workflow_conn.execute("UPDATE operation_attribution_manual_proposals SET promotion_state='PROMOTED',promoted_operation_id=? WHERE proposal_id=?", (resolved["proposed_operation_id"], proposal_id_value))
         workflow_conn.commit()
+        # Canonical commit has completed; create only the bounded durable
+        # token-data orchestration record, never inline provider work.
+        from src.ops.operation_token_data_workflow import post_commit_ensure
+        post_commit_ensure(canonical_conn.execute("PRAGMA database_list").fetchone()[2], resolved["proposed_operation_id"])
     return outcome
 
 

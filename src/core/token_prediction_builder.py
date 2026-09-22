@@ -1063,11 +1063,7 @@ class TokenPredictionBuilder:
                        prediction_confidence, reason_codes, explanation_json, creator_score,
                        network_score, funding_score, outcome_history_score, liquidation_score,
                        predicted_at, creator_was_fresh,
-                       COALESCE((
-                           SELECT tlh.health_band
-                           FROM token_liquidity_health tlh
-                           WHERE tlh.mint=tps.mint AND tlh.assessed_at <= tps.predicted_at
-                       ), 'UNKNOWN') AS liquidity_health_at_prediction
+                       'UNKNOWN' AS liquidity_health_at_prediction
                 FROM token_prediction_scores tps
                 WHERE tps.mint IN ({placeholders})
             """, mints).fetchall()

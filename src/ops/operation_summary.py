@@ -105,4 +105,6 @@ def _launch_presentation(row: dict[str, Any]) -> dict[str, Any]:
         "session_chain": row.get("session_chain"),
         "mechanism": row.get("mechanism") or row.get("funding_mechanism"),
         "match": row.get("activity_observation_type", "BASELINE"),
+        "canonical_membership": bool(row.get("canonical_membership")),
+        "membership_status": row.get("membership_status"),
     }

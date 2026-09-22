@@ -124,6 +124,16 @@ _log = logging.getLogger(__name__)
 _STOP = False
 
 
+def _managed_snapshot_pairs():
+    """Persisted keys only; operational intelligence is entirely on-demand."""
+    for window_param in WINDOW_ORDER:
+        window_seconds = window_seconds_for(window_param)
+        for function in _FUNCTIONS:
+            if function == "operational_intelligence":
+                continue
+            yield window_param, window_seconds, function
+
+
 def _handle_signal(signum, _frame) -> None:
     global _STOP
     _STOP = True
@@ -328,10 +338,8 @@ def run_once() -> list[dict]:
     existing _OPERATIONAL_INTELLIGENCE_BUILD_LOCK's own single-flight
     intent from the gunicorn side)."""
     results = []
-    for window_param in WINDOW_ORDER:
-        window_seconds = window_seconds_for(window_param)
-        for function in _FUNCTIONS:
-            results.append(refresh_one(function, window_seconds, reason="manual_once"))
+    for _window_param, window_seconds, function in _managed_snapshot_pairs():
+        results.append(refresh_one(function, window_seconds, reason="manual_once"))
     results.append(_refresh_emerging_operators(reason="manual_once"))
     return results
 
@@ -403,6 +411,8 @@ def run_loop(poll_interval_sec: int = 30) -> None:
             for function in _FUNCTIONS:
                 if _STOP:
                     break
+                if function == "operational_intelligence":
+                    continue
                 if _due_for_refresh(function, window_param, window_seconds):
                     refresh_one(function, window_seconds, reason="scheduled")
         for _ in range(poll_interval_sec):
@@ -426,6 +436,8 @@ def status() -> dict:
         window_seconds = window_seconds_for(window_param)
         out[window_param] = {}
         for function in _FUNCTIONS:
+            if function == "operational_intelligence":
+                continue
             out[window_param][function] = classify_snapshot_health(function, window_seconds)
     out["emerging_operators"] = classify_snapshot_health(
         EMERGING_OPERATORS_FUNCTION, EMERGING_OPERATORS_WINDOW_SECONDS,

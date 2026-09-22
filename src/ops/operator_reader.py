@@ -34,6 +34,9 @@ _BYZANTINE_BASELINE_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/b
 _BYZANTINE_ENRICHMENT_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/byzantine_182_dual_leg_enrichment_replay.v1.json"
 _BYZANTINE_PAIRING_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/byzantine_46_missing_upstream_rpc/per_mint_pairing_results.v1.json"
 _BYZANTINE_AMBIGUITY_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/byzantine_12_ambiguous_upstream_disambiguation_read_only_audit.v1.json"
+_BYZC_BYZANTINE_POPULATION_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/byzc_byzantine_119_179_population_comparison.v1.json"
+_BYZC_NONCANONICAL_TAXONOMY_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/byzc_noncanonical_179_taxonomy.v1.json"
+_BYZANTINE_CREATOR_RECURRENCE_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/byzantine_canonical_120_creator_recurrence.v1.json"
 _NEXUS_OPERATOR_ID = "bd7d7479-1454-5d41-9f68-115550348f3e"
 _NEXUS_DETECTOR_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/direct_10k_creator_provisioning_detector_results.v3.json"
 _LEVIATHAN_OPERATOR_ID = "777211c3-211e-551b-9310-ff9301570627"
@@ -201,6 +204,33 @@ def _byzantine_infrastructure_activity(conn: sqlite3.Connection, *, now: int | N
         "activity_source": "LIVE_BYZANTINE_INFRASTRUCTURE",
         "timestamp_semantics": "Completed launches sharing Byzantine sub-provider infrastructure; strict Byzantine membership is unchanged.",
     }
+
+
+def _byzc_population_presentation() -> dict | None:
+    """Read the frozen ByZc comparison; never use it for membership or admission."""
+    try:
+        payload = json.loads(_BYZC_BYZANTINE_POPULATION_AUDIT.read_text())
+        sets = payload["set_arithmetic"]
+        if payload.get("identity", {}).get("byzantine_operation_id") != _BYZANTINE_OPERATOR_ID:
+            return None
+        if [sets.get(k) for k in ("canonical_byzantine", "byzc_associated", "intersection", "canonical_not_byzc", "byzc_noncanonical", "byzc_wsol", "canonical_wsol", "noncanonical_wsol")] != [120, 298, 119, 1, 179, 90, 37, 53]:
+            return None
+        taxonomy = json.loads(_BYZC_NONCANONICAL_TAXONOMY_AUDIT.read_text())
+        taxonomy_counts = taxonomy.get("set_arithmetic", {})
+        if [taxonomy_counts.get(key) for key in ("b179", "near47", "incomplete6", "other126")] != [179, 47, 6, 126]:
+            return None
+        creator_metrics = json.loads(_BYZANTINE_CREATOR_RECURRENCE_AUDIT.read_text()).get("metrics", {})
+        if [creator_metrics.get(key) for key in ("distinct_creators", "repeat_creators", "launches_from_repeat_creators", "max_launches_per_creator")] != [36, 34, 118, 6]:
+            return None
+        return {"canonical_members": 120, "associated": 298, "overlap": 119,
+                "noncanonical": 179, "canonical_coverage": "119 / 120",
+                "wsol_total": 90, "wsol_canonical": 37, "wsol_noncanonical": 53,
+                "near47": 47, "incomplete6": 6, "other126": 126,
+                "distinct_creators": 36, "repeat_creators": 34, "repeat_launches": 118, "top_creator_launches": 6,
+                "wording": "ByZc is strongly associated infrastructure: 119/120 canonical Byzantine members touch the retained ByZc topology, while 179 additional ByZc-associated launches are not canonical members. It corroborates evidence; it is not a membership requirement.",
+                "provenance_digest": payload.get("provenance_digest")}
+    except (OSError, ValueError, TypeError, KeyError, json.JSONDecodeError):
+        return None
 
 
 def activity_read_model(timestamps: list[int], snapshot_metrics: dict, snapshot_as_of: int | None, *, now: int | None = None) -> dict:
@@ -425,6 +455,9 @@ class OperatorReader:
                         }
                 if operator_id == _BYZANTINE_OPERATOR_ID:
                     infrastructure = _byzantine_infrastructure_activity(conn)
+                    byzc_population = _byzc_population_presentation()
+                    if byzc_population:
+                        op["byzc_population"] = byzc_population
                     if infrastructure:
                         op["infrastructure_activity"] = infrastructure
                         strict_total = conn.execute(
@@ -459,7 +492,7 @@ class OperatorReader:
                     "SELECT 1 FROM sqlite_master WHERE type='table' AND name='operator_launch_membership'"
                 ).fetchone():
                     op["recent_launches"] = [dict(r) for r in conn.execute(
-                        "SELECT m.mint,COALESCE(q.creator,'') AS creator_wallet,COALESCE(q.create_anchor_block_time,q.funder_block_time,q.completed_at,m.assigned_at) AS create_time,q.treasury AS treasury_wallet,q.subprov AS subprov_wallet,q.funder_sig AS wrap_close_signature,q.funding_mechanism FROM operator_launch_membership m LEFT JOIN wt_walkback_queue q ON q.mint=m.mint WHERE m.operator_id=? ORDER BY create_time DESC LIMIT 250",
+                        "SELECT m.mint,COALESCE(q.creator,'') AS creator_wallet,COALESCE(q.create_anchor_block_time,q.funder_block_time,q.completed_at,m.assigned_at) AS create_time,q.treasury AS treasury_wallet,q.subprov AS subprov_wallet,q.funder_sig AS wrap_close_signature,q.funding_mechanism,1 AS canonical_membership,'CANONICAL_MEMBER' AS membership_status FROM operator_launch_membership m LEFT JOIN wt_walkback_queue q ON q.mint=m.mint WHERE m.operator_id=? ORDER BY create_time DESC LIMIT 250",
                         (operator_id,),
                     ).fetchall()]
                 if operator_id == _BYZANTINE_OPERATOR_ID:
@@ -477,9 +510,14 @@ class OperatorReader:
                         row["activity_observation_type"] = "CURRENT_BYZANTINE_INFRASTRUCTURE"
                         row["provisional_state"] = "CURRENT_BYZANTINE_INFRASTRUCTURE"
                         row["selected_hop"] = 1
+                        row["canonical_membership"] = 0
+                        row["membership_status"] = "INFRASTRUCTURE_OBSERVATION"
                     historical = op.get("recent_launches", [])
-                    by_mint = {row.get("mint"): row for row in historical}
-                    by_mint.update({row.get("mint"): row for row in infrastructure_rows})
+                    # Canonical membership is authoritative when a mint is
+                    # present in both projections. Infrastructure telemetry is
+                    # additive evidence, never a substitute for membership.
+                    by_mint = {row.get("mint"): row for row in infrastructure_rows}
+                    by_mint.update({row.get("mint"): row for row in historical})
                     op["recent_launches"] = sorted(
                         by_mint.values(), key=lambda row: row.get("create_time") or 0, reverse=True
                     )
@@ -807,6 +845,14 @@ class OperatorReader:
 
     def fetch_operator_review_candidates(self, operator_id: str, *, limit: int = 500) -> list[dict]:
         """Return pending token evidence for one proposed operation, never membership."""
+        from src.ops.watchtower_deep_prospective import DEEP_OPERATOR_ID
+        if operator_id == DEEP_OPERATOR_ID:
+            try:
+                from src.ops.watchtower_deep_review import fetch_review_leads, validate_review_schema
+                with self._connect() as conn:
+                    return fetch_review_leads(conn, limit=limit) if validate_review_schema(conn) else []
+            except (sqlite3.Error, OSError, ValueError):
+                return []
         if operator_id != "04265d9f-6eb2-568c-a49e-9253091a4dbb":
             return []
         try:

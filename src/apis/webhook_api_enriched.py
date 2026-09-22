@@ -93,13 +93,6 @@ def get_creator_recent_checks_enriched(limit: int = 15):
                 except:
                     last_scanned = str(latest_scan)
 
-            # Get funding chain count
-            cursor.execute("""
-                SELECT COUNT(*) as chain_count FROM funding_chains
-                WHERE source_creator = ? OR dest_creator = ?
-            """, (creator, creator))
-            chain_count = cursor.fetchone()['chain_count'] or 0
-
             # Build findings (traditional)
             findings = []
 
@@ -273,17 +266,15 @@ def get_creator_risk_details(creator_address: str):
         # Get network stats
         cursor.execute("""
             SELECT
-                COUNT(DISTINCT network_id) as funding_networks,
+                0 as funding_networks,
                 COUNT(DISTINCT network_name) as c2c_networks,
                 COUNT(*) as coordinated_edges
             FROM (
-                SELECT DISTINCT network_id, NULL as network_name FROM funding_network_members WHERE funder_address = ?
-                UNION
                 SELECT NULL, DISTINCT network_name FROM creator_to_creator_networks WHERE creator_address = ?
                 UNION
                 SELECT NULL, NULL FROM coordinated_creator_edges WHERE creator_a = ? OR creator_b = ?
             )
-        """, (creator_address, creator_address, creator_address, creator_address))
+        """, (creator_address, creator_address, creator_address))
 
         networks = cursor.fetchone()
         network_stats = {

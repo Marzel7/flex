@@ -66,7 +66,39 @@ EXTRACTION_METHOD = "CLOSE_ACCOUNT_DESTINATION"
 
 
 # ─────────────────────────────── schema ─────────────────────────────────────
-def ensure_cascade_schema(conn) -> None:
+SCHEMA_PREREQUISITES = ()
+SCHEMA_VALID = "VALID"
+SCHEMA_MIGRATION_REQUIRED = "SCHEMA_MIGRATION_REQUIRED"
+INCOMPATIBLE_SCHEMA = "INCOMPATIBLE_SCHEMA"
+# Frozen generated manifest: 24 tables, 52 indexes/constraints, one view.
+_FROZEN_SCHEMA_MANIFEST_DIGEST = "cdb0ae9a8af2f79518b48edbbcaf15cd2515209bcea5d62226f16ead04c0de15"
+_SCHEMA_TABLES = frozenset("watchtower_events wt_active_subprov_sessions wt_candidate_websocket_watches wt_capital_distributor_candidates wt_capital_reloads wt_cdc_outbound_events wt_lineage_quarantine wt_lineage_root_policies wt_lineage_verified_session_edges wt_pending_cascade_events wt_pending_session_writes wt_subprov_account_ws_usage wt_subprov_evidence wt_subprov_sig_cursor wt_subprov_sig_dedupe_stats wt_subprov_sig_dedupe_summary wt_subprov_sig_retry wt_subprov_topups wt_swarm_buys wt_temp_provision_candidates wt_token_lifecycle wt_treasury_ws_usage wt_watchtower_launches wt_webhook_hits".split())
+
+
+class CascadeSchemaError(RuntimeError):
+    def __init__(self, state: str, detail: str):
+        self.state, self.detail = state, detail
+        super().__init__(f"{state}:{detail}")
+
+
+def validate_schema(conn) -> str:
+    """Read-only complete Cascade/lineage schema validation.
+
+    The digest is produced from SQLite metadata for the canonical committed
+    migration, including every column definition, PK/UNIQUE constraint, index
+    shape/order and the lineage view.  No connection/lease/transaction is
+    acquired here; the supplied connection is inspected only with SELECT/PRAGMA.
+    """
+    from src.ops.schema_manifest_validator import validate_frozen_manifest
+    valid, observed = validate_frozen_manifest(
+        conn, expected_digest=_FROZEN_SCHEMA_MANIFEST_DIGEST, include_tables=_SCHEMA_TABLES
+    )
+    if not valid:
+        raise CascadeSchemaError(SCHEMA_MIGRATION_REQUIRED, f"manifest={observed}")
+    return SCHEMA_VALID
+
+
+def migrate_schema_step(conn) -> dict:
     """Idempotent. Creates the three cascade tables + indexes in wt_ops_v2.db."""
     conn.execute(
         """CREATE TABLE IF NOT EXISTS wt_active_subprov_sessions (
@@ -182,8 +214,8 @@ def ensure_cascade_schema(conn) -> None:
     conn.execute("CREATE INDEX IF NOT EXISTS ix_subprov_sessions_funding_signature ON wt_active_subprov_sessions(funding_signature)")
     # X78.14: forensic session rows proven unsafe as direct ancestry remain in
     # place, but Tier-1 lineage readers consume an exclusion view.
-    from src.ops.lineage_quarantine import ensure_lineage_quarantine_schema
-    ensure_lineage_quarantine_schema(conn)
+    from src.ops.lineage_quarantine import migrate_schema_step as migrate_lineage_quarantine_schema
+    migrate_lineage_quarantine_schema(conn)
     conn.execute("CREATE INDEX IF NOT EXISTS ix_cand_watch_state ON wt_candidate_websocket_watches(state)")
     conn.execute("CREATE INDEX IF NOT EXISTS ix_cand_watch_subprov ON wt_candidate_websocket_watches(subprov_wallet)")
     conn.execute("CREATE INDEX IF NOT EXISTS ix_launches_creator ON wt_watchtower_launches(creator_wallet)")
@@ -258,6 +290,21 @@ def ensure_cascade_schema(conn) -> None:
                 "ALTER TABLE wt_active_subprov_sessions ADD COLUMN "
                 "session_tag TEXT DEFAULT NULL"
             )
+        # These columns are consumed by the operation-state backfill and live
+        # session writers below.  They were present in the deployed schema but
+        # absent from the former canonical step, making a fresh migration log
+        # a failed backfill and breaking caller-owned parity.
+        if "monitoring_state" not in _scols2:
+            conn.execute(
+                "ALTER TABLE wt_active_subprov_sessions ADD COLUMN "
+                "monitoring_state TEXT DEFAULT 'LIVE_ARMED'"
+            )
+        if "funding_sequence_number" not in _scols2:
+            conn.execute("ALTER TABLE wt_active_subprov_sessions ADD COLUMN funding_sequence_number INTEGER")
+        if "treasury_rotated" not in _scols2:
+            conn.execute("ALTER TABLE wt_active_subprov_sessions ADD COLUMN treasury_rotated INTEGER DEFAULT 0")
+        if "last_activity_at" not in _scols2:
+            conn.execute("ALTER TABLE wt_active_subprov_sessions ADD COLUMN last_activity_at INTEGER")
     except Exception:
         pass
     # wt_capital_reloads: add enrolment_reason + block_time for plain-transfer enrolments
@@ -299,8 +346,7 @@ def ensure_cascade_schema(conn) -> None:
     # Source of truth for CREATE: wt_watchtower_launches (immutable detection record).
     # Backfills to POST_CREATE (not CREATE) — we know CREATE happened, not exactly when.
     # Re-runnable: only touches rows where operation_state IS NULL.
-    try:
-        _bf_cur = conn.execute("""
+    _bf_cur = conn.execute("""
             UPDATE wt_active_subprov_sessions
             SET operation_state = (
                 SELECT CASE
@@ -321,10 +367,7 @@ def ensure_cascade_schema(conn) -> None:
             WHERE open_reason = 'PROVISION_CANDIDATE'
               AND operation_state IS NULL
         """)
-        conn.commit()
-        _opstate_logger.info("[op_state] Backfill complete — %d rows updated", _bf_cur.rowcount)
-    except Exception as _e:
-        _opstate_logger.error("[op_state] Backfill failed: %s", _e)
+    _opstate_logger.info("[op_state] Backfill complete — %d rows updated", _bf_cur.rowcount)
     # Self-audit: verify no NULL rows remain after backfill.
     try:
         _audit = {r[0]: r[1] for r in conn.execute(
@@ -707,10 +750,15 @@ def ensure_cascade_schema(conn) -> None:
             updated_at            INTEGER NOT NULL
         )"""
     )
-    conn.commit()
+    return {"changed": True}
 
 
 # ─────────────────────────────── events ─────────────────────────────────────
+def ensure_cascade_schema(conn) -> None:
+    migrate_schema_step(conn)
+    conn.commit()
+
+
 # CRITICAL: emit_event is called INLINE from the cascade's async processor task. It MUST NOT
 # block the event loop — a blocking live-DB write under the lock storm (time.sleep retry +
 # 30s busy_timeout) was stalling the processor for seconds per event, which timed out WS
@@ -1922,7 +1970,7 @@ def reject_unproven_sessions(conn) -> list:
     return rows
 
 
-def tag_operational_spend_proxies(conn) -> int:
+def find_operational_spend_proxy_tags(conn) -> list[tuple[int, str]]:
     """Retrospectively tag expired, zero-fanout sessions as OPERATIONAL_SPEND_PROXY.
 
     Requires dict-style row access; ensures row_factory is set if caller omitted it.
@@ -1947,13 +1995,15 @@ def tag_operational_spend_proxies(conn) -> int:
     Excludes tagged sessions from ARMED strip and Mission 3 provisioning views.
     Idempotent — skips already-tagged rows.
 
-    Returns count of newly tagged sessions.
+    Returns the deterministic ``(session_id, tag)`` mutation plan.  This is
+    deliberately read-only so Cascade cleanup can perform the potentially
+    expensive classification scan before it owns the cross-process writer.
     """
     import sqlite3 as _sqlite3
     if conn.row_factory is None:
         conn.row_factory = _sqlite3.Row
     now = int(time.time())
-    count = 0
+    tags: list[tuple[int, str]] = []
 
     # PATH A — two sub-paths:
     #
@@ -1985,10 +2035,7 @@ def tag_operational_spend_proxies(conn) -> int:
               )"""
     ).fetchall()
     for row in path_a1:
-        conn.execute(
-            "UPDATE wt_active_subprov_sessions "
-            "SET session_tag = 'OPERATIONAL_SPEND_PROXY' WHERE id = ?", (row[0],))
-        count += 1
+        tags.append((row[0], "OPERATIONAL_SPEND_PROXY"))
 
     # A2: confirmed Hello proxy wallets identified via Solscan forensic investigation.
     #     These wallets were directly observed making singleSolPayment calls to 21wG4F3Z.
@@ -2010,10 +2057,7 @@ def tag_operational_spend_proxies(conn) -> int:
             list(_CONFIRMED_HELLO_PROXIES)
         ).fetchall()
         for row in path_a2:
-            conn.execute(
-                "UPDATE wt_active_subprov_sessions "
-                "SET session_tag = 'OPERATIONAL_SPEND_PROXY' WHERE id = ?", (row[0],))
-            count += 1
+            tags.append((row[0], "OPERATIONAL_SPEND_PROXY"))
 
     # PATH B: structural — same treasury, same round PLAIN_TRANSFER amount, ≥3 peers
     # Targets the repeating spend-proxy pattern: treasury sends an identical round SOL
@@ -2052,10 +2096,7 @@ def tag_operational_spend_proxies(conn) -> int:
             (row["treasury_wallet"], row["subprov_wallet"], row["funding_amount"])
         ).fetchone()[0]
         if peers >= 3:
-            conn.execute(
-                "UPDATE wt_active_subprov_sessions "
-                "SET session_tag = 'OPERATIONAL_SPEND_PROXY' WHERE id = ?", (row["id"],))
-            count += 1
+            tags.append((row["id"], "OPERATIONAL_SPEND_PROXY"))
 
     # PATH C: fast post-expiry single-wallet classifier.
     # Fires on any expired zero-fanout session that looks like a one-shot operational
@@ -2105,12 +2146,37 @@ def tag_operational_spend_proxies(conn) -> int:
 
         # Exactly 1 inbound treasury transfer = one-shot operational budget (not seed+capital)
         if inbound_count == 1:
-            conn.execute(
-                "UPDATE wt_active_subprov_sessions "
-                "SET session_tag = 'POSSIBLE_OPERATIONAL_SPEND_PROXY' WHERE id = ?",
-                (row["id"],))
-            count += 1
+            tags.append((row["id"], "POSSIBLE_OPERATIONAL_SPEND_PROXY"))
 
+    # A row may qualify via multiple paths.  Strong OPERATIONAL tagging wins
+    # deterministically over POSSIBLE without relying on write ordering.
+    resolved: dict[int, str] = {}
+    for session_id, tag in tags:
+        if tag == "OPERATIONAL_SPEND_PROXY" or session_id not in resolved:
+            resolved[session_id] = tag
+    return sorted(resolved.items())
+
+
+def apply_operational_spend_proxy_tags(conn, tags: list[tuple[int, str]]) -> int:
+    """Apply a plan produced by ``find_operational_spend_proxy_tags``.
+
+    The state guard preserves idempotence if another bounded mutation wins
+    between planning and commit.
+    """
+    count = 0
+    for session_id, tag in tags:
+        cur = conn.execute(
+            "UPDATE wt_active_subprov_sessions SET session_tag=? "
+            "WHERE id=? AND session_tag IS NULL",
+            (tag, session_id),
+        )
+        count += max(cur.rowcount, 0)
+    return count
+
+
+def tag_operational_spend_proxies(conn) -> int:
+    """Compatibility wrapper for existing short-lived writer callers."""
+    count = apply_operational_spend_proxy_tags(conn, find_operational_spend_proxy_tags(conn))
     if count:
         conn.commit()
     return count
@@ -2588,6 +2654,92 @@ def expire_stale_candidates(conn) -> list:
             "closed_at=? WHERE candidate_wallet=? AND state='WATCHING'", (now, r[0]))
     conn.commit()
     return rows
+
+
+def prepare_cleanup_mutations(conn, *, cutoff_ts: int, now: Optional[int] = None) -> dict:
+    """Read-only snapshot for ``Cascade.cleanup_pass``.
+
+    All potentially large scans live here, before a writer connection's first
+    mutation.  The returned identifiers are re-guarded on apply, so a
+    concurrent state change cannot overwrite a newer lifecycle outcome.
+    """
+    now = int(time.time()) if now is None else int(now)
+    candidates = [r[0] for r in conn.execute(
+        "SELECT candidate_wallet FROM wt_candidate_websocket_watches "
+        "WHERE state='WATCHING' AND expires_at IS NOT NULL AND expires_at < ?", (now,)
+    ).fetchall()]
+    sessions = [(r[0], r[1]) for r in conn.execute(
+        "SELECT id, subprov_wallet FROM wt_active_subprov_sessions "
+        "WHERE state='ACTIVE' AND expires_at IS NOT NULL AND expires_at < ?", (now,)
+    ).fetchall()]
+    reject_cutoff = now - _CANDIDATE_REJECT_WINDOW_S
+    reject_cutoff_hv = now - _CANDIDATE_REJECT_WINDOW_HV_S
+    rejected = [(r[0], r[1]) for r in conn.execute(
+        """SELECT s.id, s.subprov_wallet FROM wt_active_subprov_sessions s
+           WHERE s.state='ACTIVE' AND s.open_reason='PROVISION_CANDIDATE'
+             AND (CASE WHEN COALESCE(s.initial_funding_amount,s.funding_amount,0)>=?
+                       THEN s.detected_at < ? ELSE s.detected_at < ? END)
+             AND NOT EXISTS (SELECT 1 FROM wt_subprov_evidence e WHERE e.subprov=s.subprov_wallet)
+             AND NOT EXISTS (SELECT 1 FROM wt_candidate_websocket_watches w
+                             WHERE w.subprov_wallet=s.subprov_wallet
+                               AND w.state IN ('WATCHING','FIRED_CREATE','BUY_SWARM'))""",
+        (_CANDIDATE_REJECT_HV_FLOOR, reject_cutoff_hv, reject_cutoff),
+    ).fetchall()]
+    cdcs = [r[0] for r in conn.execute(
+        "SELECT wallet FROM wt_capital_distributor_candidates "
+        "WHERE observation_state='SUBSCRIBED' AND (last_activity IS NULL OR last_activity < ?)",
+        (cutoff_ts,),
+    ).fetchall()]
+    return {
+        "now": now,
+        "cutoff_ts": int(cutoff_ts),
+        "candidates": candidates,
+        "sessions": sessions,
+        "rejected": rejected,
+        "proxy_tags": find_operational_spend_proxy_tags(conn),
+        "cdcs": cdcs,
+    }
+
+
+def apply_cleanup_mutations(conn, plan: dict) -> dict:
+    """Apply a prepared cleanup plan as one small, local transaction."""
+    now = int(plan["now"])
+    applied = {"candidates": [], "sessions": [], "rejected": [], "cdcs": [], "proxy_tags": 0}
+    for wallet in plan["candidates"]:
+        cur = conn.execute(
+            "UPDATE wt_candidate_websocket_watches SET state='EXPIRED', close_reason='ttl', closed_at=? "
+            "WHERE candidate_wallet=? AND state='WATCHING' AND expires_at IS NOT NULL AND expires_at < ?",
+            (now, wallet, now),
+        )
+        if cur.rowcount:
+            applied["candidates"].append(wallet)
+    for session_id, subprov in plan["sessions"]:
+        cur = conn.execute(
+            "UPDATE wt_active_subprov_sessions SET state='EXPIRED', closed_at=? "
+            "WHERE id=? AND state='ACTIVE' AND expires_at IS NOT NULL AND expires_at < ?",
+            (now, session_id, now),
+        )
+        if cur.rowcount:
+            applied["sessions"].append((session_id, subprov))
+    for session_id, subprov in plan["rejected"]:
+        cur = conn.execute(
+            "UPDATE wt_active_subprov_sessions SET state='EXPIRED', closed_at=?, open_reason='PROVISION_CANDIDATE_REJECTED' "
+            "WHERE id=? AND state='ACTIVE' AND open_reason='PROVISION_CANDIDATE'",
+            (now, session_id),
+        )
+        if cur.rowcount:
+            applied["rejected"].append((session_id, subprov))
+    applied["proxy_tags"] = apply_operational_spend_proxy_tags(conn, plan["proxy_tags"])
+    for wallet in plan["cdcs"]:
+        cur = conn.execute(
+            "UPDATE wt_capital_distributor_candidates SET observation_state='INACTIVE', subscription_ended=? "
+            "WHERE wallet=? AND observation_state='SUBSCRIBED' AND (last_activity IS NULL OR last_activity < ?)",
+            (now, wallet, plan["cutoff_ts"]),
+        )
+        if cur.rowcount:
+            applied["cdcs"].append(wallet)
+    conn.commit()
+    return applied
 
 
 def subprov_has_live_candidates(conn, subprov: str) -> bool:

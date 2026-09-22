@@ -63,7 +63,7 @@ _UPSTREAM_OF = {
     "watchtower": "operational_intelligence",
 }
 
-_SEVERITY_RANK = {"HEALTHY": 0, "UNKNOWN": 1, "WARNING": 2, "CRITICAL": 3}
+_SEVERITY_RANK = {"HEALTHY": 0, "UNKNOWN": 1, "BACKLOG": 2, "WARNING": 3, "CRITICAL": 4}
 
 
 def _rank(status: str) -> int:
@@ -700,7 +700,10 @@ def _compute_live_ingestion(subsystems: Dict[str, Any]) -> Dict[str, Any]:
         birth_rate["status"],
         migration_rate["status"],
         "CRITICAL" if listener_log_age is not None and listener_log_age > 600 else "HEALTHY",
-        "CRITICAL" if pp_disconnected or ps_disconnected else ("WARNING" if pp_status == "RETRYING" or ps_status == "RETRYING" else "HEALTHY"),
+        # A socket status transition is supporting evidence.  Cap it at
+        # WARNING when flow remains healthy; a real outage is still CRITICAL
+        # through the independent birth/migration flow signal above.
+        "WARNING" if pp_disconnected or ps_disconnected or pp_status == "RETRYING" or ps_status == "RETRYING" else "HEALTHY",
         "WARNING" if (birth_queue > 5 or mig_queue > 5) else "HEALTHY",
     )
     result = _capability_result(status, signals)
@@ -786,7 +789,9 @@ def _compute_creator_funding(subsystems: Dict[str, Any]) -> Dict[str, Any]:
     if worker_status not in ("RUNNING",) and pending > 0:
         status = "CRITICAL" if worker_status == "STOPPED" else "WARNING"
     elif oldest_age is not None and oldest_age > 3600:
-        status = "WARNING"
+        # The worker is alive; this is accumulated work, not loss of the
+        # capability. Keep it visible without presenting it as an outage.
+        status = "BACKLOG"
 
     return _capability_result(status, signals)
 
@@ -1066,7 +1071,7 @@ def compute_incidents(capabilities: Dict[str, Dict[str, Any]]) -> List[Dict[str,
         signals = cap.get("signals") or []
         abnormal_signals = [s for s in signals if s.get("abnormal")]
 
-        is_active = _rank(status) >= _rank("WARNING") and (
+        is_active = status in ("BACKLOG", "WARNING", "CRITICAL") and (
             cap.get("degraded_by") is None or len(abnormal_signals) > 0
         )
 
@@ -1082,7 +1087,11 @@ def compute_incidents(capabilities: Dict[str, Dict[str, Any]]) -> List[Dict[str,
             "id": f"{name}:{first_detected_at}",
             "capability": name,
             "severity": status,
-            "title": _TITLE_LABELS.get(name, name),
+            "title": (
+                "Creator funding backlog"
+                if name == "creator_funding" and status == "BACKLOG"
+                else _TITLE_LABELS.get(name, name)
+            ),
             "impact": impact,
             "contributing_signals": contributing,
             "first_detected_at": first_detected_at,

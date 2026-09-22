@@ -61,7 +61,35 @@ WEAK_THRESHOLD   = 0.15   # some graph evidence, below strong
 ATA_RENT_LAMPORTS = 2_039_280
 
 
-def ensure_schema(conn) -> None:
+SCHEMA_PREREQUISITES = ()
+SCHEMA_VALID = "VALID"
+SCHEMA_MIGRATION_REQUIRED = "SCHEMA_MIGRATION_REQUIRED"
+INCOMPATIBLE_SCHEMA = "INCOMPATIBLE_SCHEMA"
+# Frozen generated manifest: five tables and nine indexes/constraints.
+_FROZEN_SCHEMA_MANIFEST_DIGEST = ("a09891e03a439fffbc8112f40fc3ed9a30fc80187a6b3b9cf88eede1456e420b", "dcc98da4341b413f54f8aac75cc45851010784030fcd6cd88000be7f0c381cfe")
+_SCHEMA_TABLES = frozenset("migrated_tokens watchtower_token_attribution wt_unconfirmed_watchtower_like wt_walkback_enqueue_failures wt_migration_ledger_coverage".split())
+
+
+class WatchtowerAttributionSchemaError(RuntimeError):
+    def __init__(self, state: str, detail: str):
+        self.state, self.detail = state, detail
+        super().__init__(f"{state}:{detail}")
+
+
+def validate_schema(conn) -> str:
+    """Read-only complete Watchtower-attribution schema validation."""
+    from src.ops.schema_manifest_validator import validate_frozen_manifest
+    valid, observed = validate_frozen_manifest(
+        conn, expected_digest=_FROZEN_SCHEMA_MANIFEST_DIGEST, include_tables=_SCHEMA_TABLES
+    )
+    if not valid:
+        raise WatchtowerAttributionSchemaError(
+            SCHEMA_MIGRATION_REQUIRED, f"manifest={observed}"
+        )
+    return SCHEMA_VALID
+
+
+def migrate_schema_step(conn) -> dict:
     # Layer 1 — neutral migration store. Name does NOT imply WATCHTOWER.
     conn.execute("""
         CREATE TABLE IF NOT EXISTS migrated_tokens (
@@ -115,6 +143,26 @@ def ensure_schema(conn) -> None:
     conn.execute("""
         CREATE INDEX IF NOT EXISTS ix_uwl_root
         ON wt_unconfirmed_watchtower_like(unknown_root_wallet)""")
+    # Runtime recovery tables are schema-owned here as well.  Their writes
+    # remain ordinary operational DML; only their DDL belongs to migration.
+    conn.execute("""CREATE TABLE IF NOT EXISTS wt_walkback_enqueue_failures (
+        mint TEXT PRIMARY KEY, migration_signature TEXT, source TEXT NOT NULL,
+        error_type TEXT NOT NULL, error_message TEXT NOT NULL, observed_at INTEGER NOT NULL
+    )""")
+    conn.execute("""CREATE TABLE IF NOT EXISTS wt_migration_ledger_coverage (
+        mint TEXT PRIMARY KEY, creator TEXT, migration_time TEXT, migration_source TEXT,
+        ledger_result TEXT NOT NULL, ledger_signature TEXT, checked_at INTEGER NOT NULL,
+        alert_emitted_at INTEGER
+    )""")
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS ix_migration_ledger_coverage_result "
+        "ON wt_migration_ledger_coverage(ledger_result)"
+    )
+    return {"changed": True}
+
+
+def ensure_schema(conn) -> None:
+    migrate_schema_step(conn)
     conn.commit()
 
 
@@ -148,9 +196,7 @@ def store_migration(conn, mint, creator, migration_tx=None, migration_time=None,
     except Exception as exc:
         # Migration is already durable.  Retain a bounded, queryable recovery
         # record rather than silently losing the independent enqueue failure.
-        conn.execute("""CREATE TABLE IF NOT EXISTS wt_walkback_enqueue_failures (
-            mint TEXT PRIMARY KEY, migration_signature TEXT, source TEXT NOT NULL,
-            error_type TEXT NOT NULL, error_message TEXT NOT NULL, observed_at INTEGER NOT NULL)""")
+        migrate_schema_step(conn)
         conn.execute("""INSERT INTO wt_walkback_enqueue_failures
             (mint,migration_signature,source,error_type,error_message,observed_at)
             VALUES (?,?,?,?,?,?) ON CONFLICT(mint) DO UPDATE SET
@@ -180,25 +226,7 @@ def _ensure_migration_coverage_schema(conn) -> None:
     # in-memory connection) would incorrectly skip schema creation for a
     # later connection that genuinely needs it. CREATE TABLE IF NOT
     # EXISTS is cheap enough to run unconditionally on every call.
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS wt_migration_ledger_coverage (
-            mint               TEXT PRIMARY KEY,
-            creator            TEXT,
-            migration_time     TEXT,
-            migration_source   TEXT,
-            ledger_result      TEXT NOT NULL,
-            ledger_signature   TEXT,
-            checked_at         INTEGER NOT NULL,
-            alert_emitted_at   INTEGER
-        )
-        """
-    )
-    conn.execute(
-        "CREATE INDEX IF NOT EXISTS ix_migration_ledger_coverage_result "
-        "ON wt_migration_ledger_coverage(ledger_result)"
-    )
-    conn.commit()
+    migrate_schema_step(conn)
 
 
 def _record_migration_coverage(conn, *, mint, creator, migration_time, source) -> None:

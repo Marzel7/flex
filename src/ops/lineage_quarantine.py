@@ -14,7 +14,8 @@ QUARANTINE_TABLE = "wt_lineage_quarantine"
 ELIGIBLE_VIEW = "wt_lineage_eligible_sessions"
 
 
-def ensure_lineage_quarantine_schema(conn: sqlite3.Connection) -> None:
+def migrate_schema_step(conn: sqlite3.Connection) -> dict:
+    """Supplied-connection lineage schema step; caller owns transaction."""
     conn.execute(f"""
         CREATE TABLE IF NOT EXISTS {QUARANTINE_TABLE} (
             quarantine_id TEXT PRIMARY KEY,
@@ -75,6 +76,13 @@ def ensure_lineage_quarantine_schema(conn: sqlite3.Connection) -> None:
                   AND verified.signature=sessions.funding_signature
          )
     """)
+    return {"changed": True}
+
+
+def ensure_lineage_quarantine_schema(conn: sqlite3.Connection) -> None:
+    """Legacy compatibility wrapper; ordinary callers retain commit behaviour."""
+    migrate_schema_step(conn)
+    conn.commit()
 
 
 def record_verified_session_edge(

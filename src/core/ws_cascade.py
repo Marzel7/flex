@@ -29,6 +29,7 @@ import asyncio
 import threading
 import traceback
 import concurrent.futures
+import inspect
 from collections import deque
 from typing import Optional
 
@@ -1046,7 +1047,7 @@ class ProgramCreateWatcher:
         if self._pending_fetch_task is None or self._pending_fetch_task.done():
             self._pending_fetch_task = asyncio.ensure_future(self._pending_create_fetch_loop())
 
-    def _ops(self):
+    def _ops(self, *, purpose: str | None = None):
         return db_connect(OPS_DB_PATH, timeout=5)
 
     # ── Pending-CREATE-fetch retry ────────────────────────────────────────────
@@ -2533,11 +2534,26 @@ class Cascade:
                 _log(f"⚠ subprov sig failed {subprov[:12]}… sig={sig[:12]}… source={source}: {exc}")
             raise
 
-    def _ops(self):
+    def _ops(self, *, purpose: str | None = None):
         # HOT PATH — pure connection, NO schema write. Schema is ensured once in __init__.
         # (Running ensure_cascade_schema here blocked the async WS loop under contention and
         # killed subscription confirmation — see __init__.)
-        c = db_connect(OPS_DB_PATH, timeout=60)
+        frame = next(
+            (candidate for candidate in inspect.stack()[1:]
+             if candidate.function != "_ops"),
+            None,
+        )
+        upstream = (
+            f"{os.path.basename(frame.filename)}:{frame.lineno} in {frame.function}"
+            if frame is not None else "ws_cascade.py:unknown upstream"
+        )
+        purpose = purpose or f"ws_cascade:{frame.function if frame is not None else 'unknown'}"
+        c = db_connect(OPS_DB_PATH, timeout=60, _caller=upstream)
+        # Diagnostic-only attributes consumed by TrackedConnection when its
+        # first write obtains the flock. They do not alter connection or lock
+        # behavior and contain no transaction payload.
+        c._ws_ops_upstream_caller = upstream
+        c._ws_ops_purpose = purpose
         c.execute("PRAGMA busy_timeout=60000")
         return c
 
@@ -3039,98 +3055,104 @@ class Cascade:
         Runs off the event loop on a thread. Budget-capped. Any wallet that shows a wrap-close
         in its recent signatures is promoted to CONFIRMED_SUBPROV (opens a real session).
         Wallets with no evidence keep their PENDING state until TTL expires."""
+        # Read the bounded candidate snapshot without writing.  In particular, do
+        # not call a provider while a TrackedConnection can own the writer lane.
         conn = self._ops()
         try:
-            # Expire stale candidates first (free DB op)
+            candidates = store.get_temp_candidates_due(conn, limit=TEMP_SWEEP_RPC_BUDGET)
+            _known_treasuries = getattr(self, "_treasuries", None) or _confirmed_treasuries(conn)
+        finally:
+            conn.close()
+
+        # Expiry is a bounded local mutation even when no candidates are due.
+        if not candidates:
+            conn = self._ops()
+            try:
+                expired_n = store.expire_temp_candidates(conn)
+                if expired_n:
+                    _log(f"🅿 temp sweep: expired {expired_n} stale candidate(s)")
+            finally:
+                conn.close()
+            return
+
+        _log(f"🅿 temp sweep: scanning {len(candidates)} TEMP candidate(s) for wrap-close evidence")
+        prepared = []
+        # Network-only phase.  Its output is immutable input to the short write phase.
+        for row in candidates:
+            wallet, treasury_addr = row[0], row[1]
+            try:
+                # A later wrap-close proves that the candidate behaves like a
+                # provisioner; it does not retroactively prove the stored root.
+                # Re-verify the original treasury -> candidate transaction before
+                # promotion can open a session.
+                original_tx = _get_tx(row[2]) if row[2] else None
+                original_edges = (
+                    _explicit_native_funding_transfers(original_tx, treasury_addr)
+                    if original_tx and treasury_addr else [])
+                if not any(e.get("destination") == wallet for e in original_edges):
+                    prepared.append(("unverified", row, None))
+                    continue
+                # getSignaturesForAddress — 1cr, no enhanced endpoint
+                sigs = _rpc("getSignaturesForAddress", [
+                    wallet, {"limit": 20, "commitment": "confirmed"}
+                ]) or []
+                found_wrap_close = False
+                for s in sigs:
+                    sig_str = s.get("signature") if isinstance(s, dict) else s
+                    if not sig_str:
+                        continue
+                    tx = _get_tx(sig_str)
+                    if not tx:
+                        continue
+                    dests = extract_close_destinations(tx)
+                    # Valid wrap-close: destination is not self, not a treasury
+                    real_dests = [d for d in dests
+                                  if d.get("candidate") != wallet
+                                  and d.get("candidate") not in _known_treasuries]
+                    if real_dests:
+                        found_wrap_close = True
+                        _mech_temp = real_dests[0].get("funding_mechanism", "WSOL_WRAP_CLOSE")
+                        prepared.append(("promote", row, (sig_str, real_dests[0], _mech_temp)))
+                        break
+
+                if not found_wrap_close:
+                    prepared.append(("no_evidence", row, None))
+            except Exception as _e:
+                _log(f"🅿 temp sweep err {wallet[:14]}… {_e}")
+
+        # Write-only phase.  No provider or retry path is reachable below.
+        conn = self._ops()
+        try:
             expired_n = store.expire_temp_candidates(conn)
             if expired_n:
                 _log(f"🅿 temp sweep: expired {expired_n} stale candidate(s)")
-
-            candidates = store.get_temp_candidates_due(conn, limit=TEMP_SWEEP_RPC_BUDGET)
-            if not candidates:
-                return
-
-            _log(f"🅿 temp sweep: scanning {len(candidates)} TEMP candidate(s) for wrap-close evidence")
             promoted = 0
-            scanned = 0
-            _known_treasuries = getattr(self, "_treasuries", None) or _confirmed_treasuries(conn)
-
-            for row in candidates:
+            for outcome, row, detail in prepared:
                 wallet, treasury_addr = row[0], row[1]
-                scanned += 1
-                try:
-                    # A later wrap-close proves that the candidate behaves like a
-                    # provisioner; it does not retroactively prove the stored root.
-                    # Re-verify the original treasury -> candidate transaction before
-                    # promotion can open a session.
-                    original_tx = _get_tx(row[2]) if row[2] else None
-                    original_edges = (
-                        _explicit_native_funding_transfers(original_tx, treasury_addr)
-                        if original_tx and treasury_addr else [])
-                    if not any(e.get("destination") == wallet for e in original_edges):
-                        store.mark_temp_candidate_scanned(
-                            conn, wallet, "unverified_directional_edge")
-                        emit_event("POSITIVE_DELTA_DESCENDANTS_REJECTED", wallet=wallet,
-                                   related=treasury_addr,
-                                   payload={"source": "TEMP_CANDIDATE_SWEEP",
-                                            "funding_sig": row[2]})
-                        continue
-                    # getSignaturesForAddress — 1cr, no enhanced endpoint
-                    sigs = _rpc("getSignaturesForAddress", [
-                        wallet, {"limit": 20, "commitment": "confirmed"}
-                    ]) or []
-                    found_wrap_close = False
-                    for s in sigs:
-                        sig_str = s.get("signature") if isinstance(s, dict) else s
-                        if not sig_str:
-                            continue
-                        tx = _get_tx(sig_str)
-                        if not tx:
-                            continue
-                        dests = extract_close_destinations(tx)
-                        # Valid wrap-close: destination is not self, not a treasury
-                        real_dests = [d for d in dests
-                                      if d.get("candidate") != wallet
-                                      and d.get("candidate") not in _known_treasuries]
-                        if real_dests:
-                            found_wrap_close = True
-                            _mech_temp = real_dests[0].get("funding_mechanism", "WSOL_WRAP_CLOSE")
-                            # Promote: write evidence + open a real session
-                            try:
-                                store.promote_to_subprov(
-                                    conn, subprov=wallet, treasury=treasury_addr or "",
-                                    wrap_close_sig=sig_str,
-                                    creator=real_dests[0]["candidate"],
-                                    amount_sol=real_dests[0].get("base_amount_sol"),
-                                    funding_mechanism=_mech_temp)
-                            except Exception:
-                                pass
-                            store.promote_temp_candidate(conn, wallet)
-                            # pass funding_amount=0 — the session was already opened (or will be)
-                            # by the NEW_SUBPROV path with the correct amount; passing the original
-                            # amount here would double-count it in topup_amount_total
-                            store.start_session(
-                                conn, subprov=wallet, treasury=treasury_addr,
-                                funding_sig=row[2],  # original funding_sig
-                                funding_amount=0.0, funding_time=row[4],
-                                ttl_seconds=SESSION_TTL_SEC, subprov_known=0,
-                                open_reason="TEMP_PROMOTED")
-                            emit_event("TEMP_CANDIDATE_PROMOTED", wallet=wallet,
-                                       related=treasury_addr,
-                                       payload={"wrap_close_sig": sig_str,
-                                                "creator": real_dests[0]["candidate"],
-                                                "funding_mechanism": _mech_temp})
-                            _log(f"✅ TEMP_PROMOTED {wallet[:14]}… wrap-close confirmed → session opened")
-                            promoted += 1
-                            break
-
-                    if not found_wrap_close:
-                        store.mark_temp_candidate_scanned(conn, wallet, "no_evidence")
-
-                except Exception as _e:
-                    _log(f"🅿 temp sweep err {wallet[:14]}… {_e}")
-
-            _log(f"🅿 temp sweep done: {scanned} scanned, {promoted} promoted")
+                if outcome == "unverified":
+                    store.mark_temp_candidate_scanned(conn, wallet, "unverified_directional_edge")
+                    emit_event("POSITIVE_DELTA_DESCENDANTS_REJECTED", wallet=wallet, related=treasury_addr,
+                               payload={"source": "TEMP_CANDIDATE_SWEEP", "funding_sig": row[2]})
+                elif outcome == "no_evidence":
+                    store.mark_temp_candidate_scanned(conn, wallet, "no_evidence")
+                else:
+                    sig_str, dest, mechanism = detail
+                    try:
+                        store.promote_to_subprov(conn, subprov=wallet, treasury=treasury_addr or "",
+                                                 wrap_close_sig=sig_str, creator=dest["candidate"],
+                                                 amount_sol=dest.get("base_amount_sol"), funding_mechanism=mechanism)
+                    except Exception:
+                        pass
+                    store.promote_temp_candidate(conn, wallet)
+                    store.start_session(conn, subprov=wallet, treasury=treasury_addr, funding_sig=row[2],
+                                        funding_amount=0.0, funding_time=row[4], ttl_seconds=SESSION_TTL_SEC,
+                                        subprov_known=0, open_reason="TEMP_PROMOTED")
+                    emit_event("TEMP_CANDIDATE_PROMOTED", wallet=wallet, related=treasury_addr,
+                               payload={"wrap_close_sig": sig_str, "creator": dest["candidate"],
+                                        "funding_mechanism": mechanism})
+                    _log(f"✅ TEMP_PROMOTED {wallet[:14]}… wrap-close confirmed → session opened")
+                    promoted += 1
+            _log(f"🅿 temp sweep done: {len(prepared)} scanned, {promoted} promoted")
 
             # Mark recycled recipients — only valid when subprov watching is live.
             # With SUBPROV_WATCH_ENABLED=0, wrap-close output is invisible so every
@@ -3148,10 +3170,12 @@ class Cascade:
         another wallet, open a SUB_PROV session in real-time (the WS-first trigger). Always
         meter the notification so the UI can spot a treasury turning into a swarm hub.
         Returns the list of newly-opened subprov wallets (to subscribe on the loop)."""
-        conn = self._ops()
         opened = []
+        # Provider acquisition precedes any operations connection.  The following
+        # connection is used only for local classification and bounded mutations.
+        tx = _get_tx(sig)
+        conn = self._ops()
         try:
-            tx = _get_tx(sig)
             if not tx:
                 store.treasury_ws_record_notif(conn, treasury, sig, opened_session=False)
                 return []
@@ -3738,21 +3762,31 @@ class Cascade:
             if not sess:
                 return []                              # session gone/expired
             treasury, funding_time = sess[1], sess[2]
-            _rpc_t0 = time.time()
-            if prefetched is not None:
-                tx, tx_retry_info = prefetched
-            else:
-                tx, tx_retry_info = self._get_subprov_tx_fast_retry(subprov, sig, seen_at=seen_at)
-            _rpc_fetch_ms = round((time.time() - _rpc_t0) * 1000, 1)
-            if not tx:
-                raise RuntimeError("getTransaction returned None")
-            wrap_close_time = (tx or {}).get("blockTime")   # on-chain creator BIRTH time
             _treasuries_t0 = time.time()
             _known_treasuries = getattr(self, "_treasuries", None)
             if _known_treasuries is None:
                 _known_treasuries = _confirmed_treasuries(conn)
                 self._treasuries = _known_treasuries
             _treasuries_lookup_ms = round((time.time() - _treasuries_t0) * 1000, 1)
+        finally:
+            # The transaction/read connection must be gone before RPC.  A
+            # write acquired later in this handler must never span provider
+            # retries, network waits, or transaction decoding.
+            conn.close()
+
+        _rpc_t0 = time.time()
+        if prefetched is not None:
+            tx, tx_retry_info = prefetched
+        else:
+            tx, tx_retry_info = self._get_subprov_tx_fast_retry(subprov, sig, seen_at=seen_at)
+        _rpc_fetch_ms = round((time.time() - _rpc_t0) * 1000, 1)
+        if not tx:
+            raise RuntimeError("getTransaction returned None")
+        wrap_close_time = (tx or {}).get("blockTime")   # on-chain creator BIRTH time
+
+        # All remaining database work is local reduction/persistence only.
+        conn = self._ops()
+        try:
             _decode_t0 = time.time()
             raw_dests = extract_close_destinations(tx)
             _decode_ms = round((time.time() - _decode_t0) * 1000, 1)
@@ -4798,56 +4832,58 @@ class Cascade:
             # (Helius may have dropped it silently; the burst fallback is already running)
             _log(f"🔥 HOT subscribe stale {w[:14]}… — resubscribing")
             await self.mgr.subscribe(w, "hot_subprov")
-        conn = self._ops()
+        # Scan and prepare outside the writer phase.  The old implementation
+        # mutated the first candidate then awaited websocket unsubscription
+        # inside this connection, allowing the writer flock to span provider
+        # latency.  The plan is re-guarded by primary key/state on apply.
+        now = int(time.time())
+        conn = self._ops(purpose="ws_cascade:cleanup_pass_prepare")
         try:
-            for (cand,) in store.expire_stale_candidates(conn):
-                await self.mgr.unsubscribe(cand)
-                emit_event("CANDIDATE_WATCH_EXPIRED", wallet=cand)
-            _pw = getattr(self, "_prog_watcher", None)
-            for sid, subprov in store.expire_stale_sessions(conn):
-                await self.mgr.unsubscribe(subprov)
-                _log(f"🗑 session expired/dismissed {subprov[:12]}…")
-                emit_event("SUBPROV_SESSION_EXPIRED", wallet=subprov)
-                # X28.0 Phase 1/2 — do NOT evict_by_subprov() here. Session TTL expiry means
-                # only the PARENT's own WS subscription is dropped (mgr.unsubscribe above);
-                # any candidates already armed in ProgramCreateWatcher.active_candidates must
-                # survive — their CREATE-detection lifecycle is independent of the parent
-                # session (X27.11 Phase 2: matching is purely `creator in active_candidates`
-                # against the single global pump.fun stream, with no reference to subprov
-                # state). Deleting them here was the confirmed defect: a subprov hitting its
-                # 30-min TTL silently destroyed already-armed CREATE coverage. Candidates now
-                # expire only via their own TTL (expire_stale_candidates, above) or an
-                # explicit CREATE_DETECTED/invalidation outcome.
-                if _pw:
-                    _preserved = sum(1 for m in _pw.active_candidates.values() if m.get("subprov") == subprov)
-                    if _preserved:
-                        self._metric("parent_cleanup_candidates_preserved", _preserved)
-                        _log(f"🛡 PARENT_CLEANUP_PRESERVED subprov={subprov[:12]}… candidates_kept={_preserved}")
-            # ── Phase D: reject unproven PROVISION_CANDIDATEs after 2h ──────
-            # NOTE (X28.0 Phase 1 audit): reject_unproven_sessions()'s own query already
-            # NOT EXISTS-guards on wt_subprov_evidence and any WATCHING/FIRED_CREATE/BUY_SWARM
-            # row in wt_candidate_websocket_watches — a session only reaches this branch with
-            # ZERO legitimate candidates, so evict_by_subprov() here is a defensive no-op, not
-            # a load-bearing eviction. Left in place; do not remove the underlying query's
-            # NOT EXISTS guards without re-auditing this call.
-            for sid, subprov in store.reject_unproven_sessions(conn):
-                await self.mgr.unsubscribe(subprov)
-                _log(f"🚫 REJECTED {subprov[:12]}… — PROVISION_CANDIDATE, no wrap-close in 2h")
-                emit_event("SUBPROV_CANDIDATE_REJECTED", wallet=subprov)
-                if _pw:
-                    _pw.evict_by_subprov(subprov)
-            # ── Soft-tag operational spend proxies (retrospective, zero pipeline impact) ─
-            _tagged = store.tag_operational_spend_proxies(conn)
-            if _tagged:
-                _log(f"🏷 OPERATIONAL_SPEND_PROXY tagged {_tagged} expired zero-fanout session(s)")
-            # ── CDC inactivity TTL ─────────────────────────────────────────────
-            cutoff = int(time.time()) - CDC_INACTIVITY_TTL_SEC
-            for cdc_w in store.expire_inactive_cdcs(conn, cutoff):
-                await self.mgr.unsubscribe(cdc_w)
-                _log(f"🔵 CDC inactivity unsubscribe {cdc_w[:12]}…")
-                emit_event("CDC_INACTIVITY_EXPIRED", wallet=cdc_w)
+            plan = store.prepare_cleanup_mutations(
+                conn, cutoff_ts=now - CDC_INACTIVITY_TTL_SEC, now=now,
+            )
         finally:
             conn.close()
+
+        conn = self._ops(purpose="ws_cascade:cleanup_pass_apply")
+        try:
+            applied = store.apply_cleanup_mutations(conn, plan)
+        finally:
+            conn.close()
+
+        # No await, RPC, or in-memory scan is permitted above the close.
+        # Side effects intentionally happen after the writer lease is gone.
+        for cand in applied["candidates"]:
+            await self.mgr.unsubscribe(cand)
+            emit_event("CANDIDATE_WATCH_EXPIRED", wallet=cand)
+        _pw = getattr(self, "_prog_watcher", None)
+        for sid, subprov in applied["sessions"]:
+            await self.mgr.unsubscribe(subprov)
+            _log(f"🗑 session expired/dismissed {subprov[:12]}…")
+            emit_event("SUBPROV_SESSION_EXPIRED", wallet=subprov)
+            # Do NOT evict ProgramWatcher candidates on parent TTL expiry;
+            # their create-detection lifecycle is independently durable.
+            if _pw:
+                _preserved = sum(1 for m in _pw.active_candidates.values() if m.get("subprov") == subprov)
+                if _preserved:
+                    self._metric("parent_cleanup_candidates_preserved", _preserved)
+                    _log(f"🛡 PARENT_CLEANUP_PRESERVED subprov={subprov[:12]}… candidates_kept={_preserved}")
+        # ── Phase D: reject unproven PROVISION_CANDIDATEs after 2h ──────
+        # The prepared predicate includes evidence/watch exclusions.  Keep the
+        # post-commit evict call as a defensive in-memory cleanup only.
+        reject_unproven_sessions = applied["rejected"]
+        for sid, subprov in reject_unproven_sessions:
+            await self.mgr.unsubscribe(subprov)
+            _log(f"🚫 REJECTED {subprov[:12]}… — PROVISION_CANDIDATE, no wrap-close in 2h")
+            emit_event("SUBPROV_CANDIDATE_REJECTED", wallet=subprov)
+            if _pw:
+                _pw.evict_by_subprov(subprov)
+        if applied["proxy_tags"]:
+            _log(f"🏷 OPERATIONAL_SPEND_PROXY tagged {applied['proxy_tags']} expired zero-fanout session(s)")
+        for cdc_w in applied["cdcs"]:
+            await self.mgr.unsubscribe(cdc_w)
+            _log(f"🔵 CDC inactivity unsubscribe {cdc_w[:12]}…")
+            emit_event("CDC_INACTIVITY_EXPIRED", wallet=cdc_w)
 
     # ---- subprov sweep: catch-up every ACTIVE subprov (reliability backstop) ----
     async def subprov_sweep_pass(self):

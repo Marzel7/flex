@@ -24,3 +24,14 @@ LIVE_DB_PATH = DB_PATH
 OPS_DB_PATH = os.path.abspath(
     os.environ.get("WT_OPS_DB_PATH", os.path.join(_DB_DIR, "wt_ops_v2.db"))
 )
+
+
+def resolve_ops_db_path() -> str:
+    """Resolve OPS beside the configured LIVE authority, never beside a checkout."""
+    explicit = os.environ.get("WT_OPS_DB_PATH")
+    if explicit:
+        return os.path.realpath(explicit)
+    live = os.environ.get("DB_PATH") or os.environ.get("FLEX_DB_PATH")
+    if not live:
+        raise RuntimeError("OPS authority requires DB_PATH, FLEX_DB_PATH, or WT_OPS_DB_PATH")
+    return os.path.join(os.path.dirname(os.path.realpath(live)), "wt_ops_v2.db")

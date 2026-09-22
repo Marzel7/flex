@@ -165,7 +165,6 @@ def _collect_token_funding_profile(path: str, *, maximum_rows_per_source: int) -
         migration_rows = _count_rows(conn, "migrated_tokens")
         verify_rows = _count_rows(conn, "pumpfun_migration_verification")
         tx_rows = _count_rows(conn, "creator_tx_ledger")
-        chain_rows = _count_rows(conn, "funding_chains")
 
         metrics["row_counts"] = {
             "creator_funders": creator_funder_rows,
@@ -175,7 +174,7 @@ def _collect_token_funding_profile(path: str, *, maximum_rows_per_source: int) -
             "migrated_tokens": migration_rows,
             "pumpfun_migration_verification": verify_rows,
             "creator_tx_ledger": tx_rows,
-            "funding_chains": chain_rows,
+            "retired_funding_chains": 0,
         }
 
         # Source/topology signals.

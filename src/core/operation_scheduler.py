@@ -449,8 +449,11 @@ def run_subprov_discovery_job(quiet=False) -> dict:
         # snapshot is held across the RPC-heavy loop. A held snapshot pinned the ops-db WAL for the
         # whole cycle, blocking ALL other ops-db writers — it FROZE the ws_cascade heartbeat loop
         # (2.5h hang) and starved the farm scan. (lock-storm remaining cause #1.)
-        import sqlite3 as _sq_sched
-        conn = _sq_sched.connect(OPS_DB_PATH, timeout=30, isolation_level=None)
+        # This is intentionally autocommit so a read snapshot is never retained
+        # across the RPC-heavy discovery loop.  It must nevertheless use the
+        # shared operations writer boundary for every individual mutation.
+        conn = db_connect(OPS_DB_PATH, timeout=30)
+        conn.isolation_level = None
         conn.execute("PRAGMA busy_timeout=30000")
         live = db_connect(os.path.join(os.path.dirname(OPS_DB_PATH), "flex_complete_database.db"), timeout=20)
         conn.execute("""CREATE TABLE IF NOT EXISTS wt_subprov_discovery_checked (

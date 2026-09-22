@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "release_id": "flex-prod-2026-09-22-rc1",
+  "release_state": "STAGED_HOLD_NOT_FULLY_ACTIVE",
+  "created_at_utc": "2026-09-22T12:08:18Z",
+  "purpose": "Faithful multi-commit snapshot of current production source variants; no db_locking convergence or bulk service restart.",
+  "supervisor_config_sha256_at_staging": "2585ad8876c716825aa382577a7d949fcaf683b0ed25eb4271ac4e19bcd7598b",
+  "rollback_config_sha256": "2585ad8876c716825aa382577a7d949fcaf683b0ed25eb4271ac4e19bcd7598b",
+  "rollback_directories_for_pending_cutovers": {
+    "alert_evaluator": "/Users/kevinkeaveney/Dev/claude/flex",
+    "operation_scheduler": "/Users/kevinkeaveney/Dev/claude/flex",
+    "creator_resolution_worker": "/Users/kevinkeaveney/Dev/claude/flex",
+    "creator_funding_worker": "/Users/kevinkeaveney/Dev/claude/flex",
+    "operation_monitor_worker": "/Users/kevinkeaveney/Dev/claude/flex",
+    "walkback_worker": "/Users/kevinkeaveney/Dev/claude/flex/.runtime_recovery_c06d",
+    "ws_cascade": "/Users/kevinkeaveney/Dev/claude/flex/.runtime_recovery_c06d"
+  },
+  "persistent_state": {
+    "database_root": "/Users/kevinkeaveney/Dev/claude/flex/database",
+    "log_root": "/Users/kevinkeaveney/Dev/claude/flex/logs",
+    "rule": "No database, lock, queue, log, credential, provider, WAL, timeout, or persistent-state authority is relocated by source staging. Each service's path parity must pass before its cutover."
+  },
+  "source_pins": {
+    "api": {
+      "commit": "77623cfe47b39c685cd251d1a85198b3a3572118",
+      "remote_ref": "codex/prod-api-snapshot-20260922",
+      "checkout": "/Users/kevinkeaveney/Production/flex",
+      "checkout_state": "CLEAN_DETACHED_ACTIVE",
+      "db_locking_sha256": "f4ccad54740578e66cc4a0d749a50f8c3d049777faa94c2edb7b01331a2efc81"
+    },
+    "listener": {
+      "commit": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+      "remote_ref": "codex/prod-listener-snapshot-20260922",
+      "checkout": "/Users/kevinkeaveney/Production/flex-listener",
+      "checkout_state": "DETACHED_ACTIVE_WITH_PREEXISTING_UNTRACKED_RUNTIME_GUARD",
+      "db_locking_sha256": "cf60acfa7306b771c3c3bf0e88d3eee0e680a09ee3f5ef1cc64bad2d22332390"
+    },
+    "main_workers": {
+      "commit": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215",
+      "remote_ref": "codex/prod-main-workers-snapshot-20260922",
+      "checkout": "/Users/kevinkeaveney/Production/flex-main-workers",
+      "checkout_state": "CLEAN_DETACHED_STAGED_NOT_ACTIVE",
+      "python_source_tree_digest_sha256": "526a257d448b9df772d8794309d90eaa75891dc4eebd9ca1941d9edab5e4a8a3",
+      "db_locking_sha256": "cf60acfa7306b771c3c3bf0e88d3eee0e680a09ee3f5ef1cc64bad2d22332390",
+      "source_snapshot_method": "Current main src/**/*.py tree copied byte-for-byte into a clean commit; databases, logs, docs and dirty development checkout were not moved."
+    },
+    "recovery_workers": {
+      "commit": "48b8964d892aa77ab7f548b68e0be3cd06040f84",
+      "remote_ref": "codex/prod-recovery-workers-snapshot-20260922",
+      "checkout": "/Users/kevinkeaveney/Production/flex-recovery-workers",
+      "checkout_state": "CLEAN_DETACHED_STAGED_NOT_ACTIVE",
+      "python_source_tree_digest_sha256": "92d7839975a6db16827cc78de21f81145395ddb8dbfadcf9cd33d23efc541627",
+      "db_locking_sha256": "ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89",
+      "source_snapshot_method": "Current recovery src/**/*.py tree copied byte-for-byte into a clean commit; two modified tracked modules are now committed."
+    }
+  },
+  "services": {
+    "watchtower_api": {"pid_at_staging": 49313, "source_pin": "api", "state": "ACTIVE_QUALIFIED"},
+    "watchtower_listener": {"pid_at_staging": 97448, "source_pin": "listener", "state": "ACTIVE_QUALIFIED"},
+    "alert_evaluator": {"pid_at_staging": 4283, "source_pin": "main_workers", "rollback_source_sha": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215", "state": "PENDING_SOURCE_CUTOVER"},
+    "operation_scheduler": {"pid_at_staging": 4366, "source_pin": "main_workers", "rollback_source_sha": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215", "state": "PENDING_PATH_PARITY_AND_SOURCE_CUTOVER"},
+    "creator_resolution_worker": {"pid_at_staging": 57710, "source_pin": "main_workers", "rollback_source_sha": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215", "state": "PENDING_SOURCE_CUTOVER"},
+    "creator_funding_worker": {"pid_at_staging": 58812, "source_pin": "main_workers", "rollback_source_sha": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215", "state": "PENDING_SOURCE_CUTOVER"},
+    "operation_monitor_worker": {"pid_at_staging": 61224, "source_pin": "main_workers", "rollback_source_sha": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215", "state": "PENDING_SOURCE_CUTOVER"},
+    "walkback_worker": {"pid_at_staging": 18296, "source_pin": "recovery_workers", "rollback_source_sha": "48b8964d892aa77ab7f548b68e0be3cd06040f84", "state": "PENDING_SOURCE_CUTOVER"},
+    "ws_cascade": {"pid_at_staging": 18297, "source_pin": "recovery_workers", "rollback_source_sha": "48b8964d892aa77ab7f548b68e0be3cd06040f84", "state": "PENDING_LOG_PATH_PARITY_AND_SOURCE_CUTOVER"},
+    "watchtower_ngrok": {"pid_at_staging": 4301, "binary_path": "/opt/homebrew/bin/ngrok", "binary_sha256": "80725ef39b6f03ef269c0eacd5a0197e37fbfb952d06ecb043e92eb6fd6f5cdf", "state": "ACTIVE_EXTERNAL_BINARY_UNCHANGED"}
+  },
+  "stopped_programs_unchanged": ["evidence_writer", "infra_sync_scheduler", "intelligence_snapshot_scheduler", "webhook_worker"],
+  "qualification_so_far": {
+    "source_tree_exactness": "PASS for staged main and recovery Python source trees; API and listener remain on their previously qualified source commits.",
+    "main_worker_offline_tests": "19 relevant focused tests passed; one stale trigger-assumption test failed and one live-DB fixture test failed in isolated checkout. Both are explicitly excluded from a deployment verdict pending review.",
+    "recovery_worker_offline_tests": "16 relevant focused tests passed; one stale checkpoint-location assertion failed and is explicitly excluded from a deployment verdict pending review.",
+    "source_and_checkout_remote_reachability": "PASS for all four source commits at their pinned remote refs.",
+    "full_state_path_parity": "HOLD: scheduler needs explicit OPS_V2_DB_PATH, FLEX_DB_PATH and OPS_SCHEDULER_LOCK; Cascade's two trace/snapshot log modules still derive source-local paths. Other pending services require independent path checks.",
+    "functional_live_cutovers": "NOT_STARTED for seven pending application services."
+  },
+  "hard_gates": [
+    "Do not promote rc1 to active v1 until every running application PID uses its pinned SHA and its loaded source identity is verified after restart.",
+    "No service follows a mutable branch or HEAD; production source checkouts are detached at explicit commit SHAs.",
+    "No db_locking variant is reconciled or replaced in this release.",
+    "Before each service-only change: verify exact source/config preimages, persistent-state paths, rollback source SHA and current unrelated PIDs.",
+    "After each service-only change: verify natural useful work, source identity, persistent-state parity, error-free operation and unrelated PID stability; rollback only that service on a bounded abort criterion.",
+    "Keep dirty development checkout untouched and never bulk-restart its services."
+  ],
+  "next_action": "Qualify state-path and loaded-source gates for one pending service at a time. Do not treat this staged rc1 manifest as an active production release."
+}

@@ -1,4 +1,14 @@
 {
+  "dev_prod_api_source_origin_reconciliation_20260922": {
+    "status": "PARTIAL_RECONCILIATION_FULL_PRODUCTION_BASELINE_HOLD",
+    "engineering_revision": "Main a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43; clean candidate 9094d2116db4a805b670cbd6001c0cc4480b4005; isolated audit 7257903c",
+    "audit": "docs/audits/api_source_closure_reconciliation_20260922.v1.json on codex/dev-prod-path-boundary",
+    "finding": "Of 26 differing API static-closure files, 9 candidate files exactly equal tracked main HEAD while current disk is dirty; 17 candidate files are neither main HEAD nor current disk. Candidate includes path overrides and repairs the tracked main syntax error, but selected hybrid behavior and loaded-process provenance remain unqualified.",
+    "tests": "24/24 offline path-authority, source-override, and source-census tests pass; audit JSON validated.",
+    "production_flags": "PROD_CHECKOUT_CREATED=false; SUPERVISOR_CHANGED=false; SERVICES_RESTARTED_OR_SIGNALED=0; DATABASE_OR_QUEUE_MUTATIONS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "HOLD full baseline and API restart/cutover; source-origin classification alone is not behavior parity.",
+    "exact_next_action": "Review behavior and test coverage for 17 hybrid candidate files, qualify lazy imports and effective API state-path injection, then prove loaded-source parity before rollback-tested API-only cutover."
+  },
   "dev_prod_api_source_closure_preflight_20260922": {
     "status": "PARTIAL_STATIC_CLOSURE_AUDIT_FULL_PRODUCTION_BASELINE_HOLD",
     "engineering_revision": "Main a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43; clean candidate 9094d2116db4a805b670cbd6001c0cc4480b4005; isolated audit commit 3a145495",

@@ -1,4 +1,14 @@
 {
+  "dev_prod_listener_price_worker_data_path_boundary_20260922": {
+    "status": "OFFLINE_QUALIFIED_NOT_DEPLOYED",
+    "engineering_revision": "718e9d92 on local codex/dev-prod-path-boundary; active production listener remains pinned at 8d3a0a3731798129348a8d9cf19fcac4d58e29b9, PID 80575 at investigation start",
+    "audit": "docs/audits/listener_price_worker_data_path_boundary_20260922.v1.json on local codex/dev-prod-path-boundary",
+    "finding": "The listener checkout-local zero-byte flex_complete_database.db and lock sidecars were created 18 seconds after listener start. The lock owner command identifies price_worker.py:70 in _ensure_token_analysis_migration_columns. Three listener get_price_worker() calls omitted the DB argument; the singleton default is relative database/flex_complete_database.db, resolving under the pinned source checkout rather than shared DB_PATH.",
+    "tests": "Six focused tests PASS: two new listener source-boundary checks and four existing singleton tests; git diff --check PASS. No production test or restart performed.",
+    "production_flags": "SOURCE_REPAIR_DEPLOYED=false; LISTENER_RESTARTS=0; OTHER_SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS_BY_AGENT=0; SUPERVISOR_CHANGES=0; PROVIDER_CALLS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "Two-call-site runtime path bypass plus disabled startup call repaired offline by passing configured DB_PATH explicitly at all three listener call sites. Production source/data boundary remains incomplete until the repair is deployed and observed.",
+    "exact_next_action": "Prepare parity-gated listener-module-only deployment and listener-only restart/soak under separate authorization. Do not delete checkout-local zero-byte database or lock sidecars without verifying lease/descriptor state and an authorized cleanup manifest."
+  },
   "dev_prod_listener_durable_source_stage_20260922": {
     "status": "LISTENER_ONLY_CUTOVER_QUALIFIED",
     "engineering_revision": "Listener-only durable source checkout /Users/kevinkeaveney/Production/flex-listener clean at 8d3a0a3731798129348a8d9cf19fcac4d58e29b9; API checkout /Users/kevinkeaveney/Production/flex clean and unchanged at 77623cfe47b39c685cd251d1a85198b3a3572118; staging audit ae25f77d on codex/dev-prod-path-boundary",

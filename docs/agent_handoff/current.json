@@ -1,4 +1,13 @@
 {
+  "dev_prod_listener_disk_source_candidate_20260922": {
+    "status": "PARTIAL_LOCAL_CANDIDATE_DATA_AUTHORITY_HOLD",
+    "engineering_revision": "Local-only listener candidate cf9365d8 on codex/listener-source-candidate-20260922 at /private/tmp/flex-listener-source-candidate-20260922, based on clean API commit 77623cfe47b39c685cd251d1a85198b3a3572118; no production deployment",
+    "finding": "Copied only 11 differing tracked source files from live main disk into isolated worktree and committed exact snapshot. Current AST listener import closure is 157/157 byte-identical to live disk and all 157 Python files compile; entry run_listener.sh already matched. Candidate import provenance for db/walkback_queue/db_locking resolves inside candidate. This is disk-source parity only, not proof of bytes loaded by running PID. Data-authority hold: run_listener.sh sets relative DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_PATH; listener derives migration/premigration/curve-watch/serializer/birth metrics and loop-lag outputs from __file__; optional Byzantine birth signal reads wt_ops_v2.db beside checkout. Repointing now could redirect runtime output/state into candidate source tree. Runtime PID 4299 unchanged; API 49313 and alert 4283 unchanged.",
+    "tests": "157/157 AST closure SHA-256 match; 157/157 compile PASS; 4 listener ops-path/writer registration tests PASS; 4 startup ensure-DB retry and 2 enqueue connection ownership tests PASS; git diff --check PASS. No full listener startup, provider call, synthetic traffic or production database mutation.",
+    "production_flags": "SOURCE_CHANGED_IN_PRODUCTION=0; CONFIG_CHANGED=0; SERVICE_RESTARTS=0; DATABASE_OR_QUEUE_MUTATIONS=0; CANDIDATE_LOCAL_ONLY=true; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "Local source snapshot is reproducible but listener production cutover remains HOLD on explicit data/log/state authority and runtime-path qualification. Alert evaluator remains a separate offline-qualified candidate.",
+    "exact_next_action": "Enumerate all listener source-relative and cwd-relative read/write paths, pin each to the current data authority or prove dormant, qualify a fail-closed Supervisor path preview and isolated listener startup/behavior tests, then seek separate authorization before any listener restart. Do not deploy cf9365d8 as-is."
+  },
   "dev_prod_listener_candidate_reconciliation_20260922": {
     "status": "LISTENER_SOURCE_SWITCH_HOLD_CANDIDATES_DIVERGE",
     "engineering_revision": "Live listener main checkout a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43 dirty; deployed clean API checkout 77623cfe47b39c685cd251d1a85198b3a3572118; local development candidate afc57febb3b470c1c7ba6fb39ce636ec68c4f173",

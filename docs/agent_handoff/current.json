@@ -1,4 +1,13 @@
 {
+  "dev002_legacy_operations_retirement_scope_20260922": {
+    "status": "HOLD_SCOPE_DECISION_REQUIRED",
+    "engineering_revision": "Dirty DEV checkout at base a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43; no legacy-operation removal applied in this turn.",
+    "finding": "The requested Leviathan/Sentinel/Harbinger removal expands DEV-002 beyond the completed operators-index presentation cleanup. A read-only exact-name census found 72 operation-specific files after excluding the production database/log trees and the recovery checkout: 7 active source files, 4 templates, 13 maintenance/research scripts, 16 tests, 21 historical audit artifacts and 11 files in the isolated .runtime_api_deep_a1f4 mirror. Generic programming uses of the word sentinel are unrelated and must remain. Deleting active product definitions is separable from deleting provenance and mutating a retained runtime mirror.",
+    "tests": "Read-only repository census only; no legacy-operation source deletion was attempted. DEV-002 was returned to IN_PROGRESS. Its earlier confirmed-only registry cleanup remains live and its 50-test result remains recorded.",
+    "production_flags": "PRODUCTION_SOURCE_CHANGED=false; PRODUCTION_CONFIG_CHANGED=false; PRODUCTION_SERVICES_RESTARTED=0; PRODUCTION_DATABASE_MUTATIONS=0; DEV002_STATUS=IN_PROGRESS; PROD_APPROVAL=NOT_REQUESTED",
+    "verdict": "HOLD pending explicit scope choice. Active source/UI retirement is safe DEV work; historical audit deletion would erase evidence, and editing the runtime mirror would violate the established isolation boundary.",
+    "exact_next_action": "User chooses either active product removal with historical audits/runtime mirrors retained (recommended), or complete deletion of historical operation-specific scripts/tests/audits as well. Never remove generic sentinel terminology or modify the isolated runtime mirror implicitly."
+  },
   "dev002_operators_index_cleanup_20260922": {
     "status": "PASS_DEV_COMPLETE_NOT_PROD_APPROVED",
     "engineering_revision": "Dirty DEV checkout at base a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43; DEV-002 has no isolated commit or production candidate.",

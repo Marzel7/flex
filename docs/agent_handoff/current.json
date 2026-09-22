@@ -1,4 +1,14 @@
 {
+  "dev_prod_api_state_path_gap_closure_20260922": {
+    "status": "OFFLINE_30_PATH_REHEARSAL_PASS_FULL_PRODUCTION_BASELINE_HOLD",
+    "engineering_revision": "Clean source candidate 9094d2116db4a805b670cbd6001c0cc4480b4005; isolated path-audit commit 5f3e7e9d; main production source a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43 remains dirty",
+    "audit": "docs/audits/api_state_path_gap_closure_20260922.v1.json and corrected source_candidate_authorities_rehearsal_20260922.v1.json on codex/dev-prod-path-boundary",
+    "finding": "Two omitted API state authorities were added to the offline manifest: WS_STATS_PATH points to the existing log file, and PUMPSWAP_TOKENS_DB_PATH equals CREATOR_DB_PATH for launcher-observatory/knowledge consumers. Validator now fails closed on either missing stats path or split creator DB authority. Thirty covered names pass offline rehearsal; transitive and loaded-source parity remain unknown.",
+    "tests": "24/24 focused path and override tests pass; JSON and diff checks pass.",
+    "production_flags": "PROD_CHECKOUT_CREATED=false; SUPERVISOR_CHANGED=false; SERVICES_RESTARTED_OR_SIGNALED=0; DATABASE_OR_QUEUE_MUTATIONS=0; DEEP_AUTOMATIC_ASSIGNMENT=false",
+    "verdict": "HOLD production cutover; this improves the offline manifest only and does not authorize API restart.",
+    "exact_next_action": "Continue transitive API path census and candidate-specific behavior review, then qualify lazy imports and loaded-source parity before rollback-tested API-only cutover."
+  },
   "dev_prod_api_source_origin_reconciliation_20260922": {
     "status": "PARTIAL_RECONCILIATION_FULL_PRODUCTION_BASELINE_HOLD",
     "engineering_revision": "Main a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43; clean candidate 9094d2116db4a805b670cbd6001c0cc4480b4005; isolated audit 7257903c",

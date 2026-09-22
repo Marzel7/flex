@@ -1,4 +1,13 @@
 {
+  "dev007_non_watchtower_plain_xfer_candidates_20260923": {
+    "status": "PLANNED_DEV_ONLY",
+    "engineering_revision": "DEV work registry entry DEV-007 on dirty DEV branch classification-attribution-axis; no implementation candidate exists.",
+    "finding": "DEV-007 records a bounded read-only audit of three non-WATCHTOWER PLAIN_XFER candidate subjects: 8zxkmeqHrpmqyzCSGxLNWZ4W7ZgjwHuo4HV11ALceNAg, 3LGHT17i4Vp6BjcC5yrZpnchQStRFpkny1G7Tjkkh8ca, and existing candidate p3r-v2-dc4953db7adb853337c4. The supplied evidence distinguishes them from the WSOL_WRAP_CLOSE mechanism; no candidate is treated as canonical WATCHTOWER or WATCHTOWER_DEEP membership.",
+    "tests": "Registry JSON validation/readback only. No source, provider, service, database, queue or production mutation.",
+    "production_flags": "PRODUCTION_SOURCE_CHANGED=false; PRODUCTION_CONFIG_CHANGED=false; PRODUCTION_SERVICES_RESTARTED=0; PRODUCTION_DATABASE_MUTATIONS=0; DEV007_STATUS=PLANNED; DEV007_PROD_INTENT=UNDECIDED; DEV007_PROD_APPROVAL=NOT_REQUESTED; DEV_COMPLETE_IMPLIES_PROD=false",
+    "verdict": "PLANNED. The next work is evidence qualification only: creator reuse, migration outcomes, upstream convergence and address-rotation-safe fingerprint strength. Automatic attribution, registry admission and deployment remain out of scope.",
+    "exact_next_action": "Run the separately authorized DEV-007 read-only data audit. Classify each candidate as insufficient evidence, distinct potential operation, or promotion candidate; do not change active operation membership."
+  },
   "dev_monitor_compact_mirror_20260922": {
     "status": "PARTIAL_INCREMENTAL_SYNC_AND_UI_SOURCE_SEPARATION_PASS",
     "engineering_revision": "Dirty DEV checkout; DEV-only src/dev_monitor_runtime.py and related Monitor/UI changes remain uncommitted and are now tracked as DEV-005. No production revision changed.",

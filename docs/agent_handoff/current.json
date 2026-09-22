@@ -1,4 +1,13 @@
 {
+  "dev_work_promotion_tracking_20260922": {
+    "status": "PASS_DEV_WORK_PROMOTION_TRACKING_READY",
+    "engineering_revision": "Dirty DEV checkout /Users/kevinkeaveney/Dev/claude/flex at base a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43; new DEV-only registry/tooling remains uncommitted and has no production candidate status.",
+    "finding": "Added repository-local docs/dev_work/current.json plus history, a local ./scripts/dev_work.sh workflow, fail-closed prod-check, Git change mapping, dependency blocking, concise documentation and a DEV-wrapper-only read page at http://127.0.0.1:8100/dev/work. DEV status, PROD intent and PROD approval are independent. Approval is necessary but insufficient: exact files, dependencies, focused tests, persistent-path review and affected services must also be explicit. Existing dirty work remains UNMAPPED_EXISTING_DEV_WORK and no history was reconstructed.",
+    "tests": "7 focused tests passed. Isolated required scenario: DEV-001 DEV_COMPLETE/DEV_ONLY blocked; DEV-002 DEV_COMPLETE/EVENTUAL_PROD/APPROVED with all gates ready; DEV-003 IN_PROGRESS/UNDECIDED blocked. Unapproved dependency blocks without silent inclusion. Live DEV page HTTP 200 with the unchanged read-only production-data banner. Audit docs/audits/dev_work_promotion_tracking_20260922.json SHA-256 62760dc95775f567a97fda807ef2e118ea6a1ccf2e57cde33c116253b6de54fc.",
+    "production_flags": "PRODUCTION_SOURCE_CHANGED=false; PRODUCTION_CONFIG_CHANGED=false; PRODUCTION_SERVICES_RESTARTED_BY_TASK=0; PRODUCTION_DATABASE_MUTATIONS=0; PRODUCTION_RELEASE_MANIFEST_CHANGED=false; DEV_RUNTIME_REMAINS_READ_ONLY_TO_PRODUCTION=true; PROD_APPROVAL_REQUIRED=true; DEV_COMPLETE_IMPLIES_PROD=false; GIT_PUSH_IMPLIES_PROD=false; SELECTIVE_PROMOTION_SUPPORTED=true",
+    "verdict": "PASS. Lightweight DEV work and selective production-promotion tracking is ready. It cannot push, deploy, restart services or mutate production.",
+    "exact_next_action": "Create only new work going forward with ./scripts/dev_work.sh create, map its files and tests, and use http://127.0.0.1:8100/dev/work for readback. Leave existing edits unmapped unless deliberately assigned. Production candidate preparation and every push/deployment remain separately authorized tasks."
+  },
   "dev_walkback_deep_ui_20260922": {
     "status": "PASS_DEV_ONLY_WALKBACK_DEEP_VISIBLE",
     "engineering_revision": "Dirty DEV checkout /Users/kevinkeaveney/Dev/claude/flex at base a1f4d8e64180d18d82432eaba8cd0a7aac0f7c43; Walkback Deep detector/review modules are retained tracked DEV work, while templates/operator_deep_review.html and related route/worker integration remain part of the existing uncommitted DEV feature set.",

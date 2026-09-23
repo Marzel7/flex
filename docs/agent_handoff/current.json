@@ -17462,6 +17462,17 @@
     "backoff_audit": "docs/audits/dev_005_birdeye_429_backoff_contract_20260923.json: both real 429s used the two-second first-envelope fallback. The normal Monitor path discards ProviderTransportOutcome response headers before queue deferral, so Retry-After/reset guidance was not retained or honoured. Repeated 429s on distinct envelopes do not share an escalation counter. This is a backoff-contract finding, not a DEV-005 architecture verdict.",
     "next_action": "Do not force a provider retry or synthesize active state. Hold DEV-005 unchanged. Separately decide whether to qualify a narrow header-preservation/shared-escalation repair before another sustained soak; otherwise wait for the existing provider gate naturally and resume under unchanged 20/4 limits."
   },
+  "dev_009_provider_aware_shared_429_backoff_20260923": {
+    "engineering_revision": "DEV work registry and handoff registration only; no source, queue, provider, runtime, or production change",
+    "status": "PLANNED_DEV_ONLY",
+    "scope": "Qualify a narrow provider-aware shared HTTP 429 backoff contract for the existing DEV Monitor: preserve retained provider guidance, enforce bounded shared escalation/recovery across Monitor acquisitions, and retain only compact gate state.",
+    "dependency": "DEV-006 shared opening qualification = PASS -> DEV-005 genuine two-operation soak = BLOCKED_PROVIDER_CAPACITY -> DEV-009 qualification -> existing DEV-005 population resumes only via its natural provider gate.",
+    "separation": "DEV-007 remains the separate non-WATCHTOWER PLAIN_XFER candidate-operations audit. It must not be modified, renamed, overwritten, or conflated with DEV-009.",
+    "non_goals": "No provider calls during offline qualification, backoff clearing, admission recreation, forced retry, budget increase, opening/lifecycle semantic change, production source/config/runtime change, or production promotion.",
+    "requirements": "Offline tests must cover header preservation, provider guidance precedence where present, bounded global escalation for repeated 429s, recovery eligibility, fair resumption, and compact-state bounds. Existing 20 calls/min global and 4 calls/min per-token limits remain unchanged.",
+    "verdict": "DEV-005 remains BLOCKED_PROVIDER_CAPACITY pending DEV-009; this registration neither clears nor advances the existing provider gate.",
+    "next_action": "Inspect and implement only the DEV-009 shared 429 contract, qualify it offline without provider traffic, then seek a separate bounded authorization to let the existing DEV-005 population recover naturally."
+  },
   "dev_continuous_monitor_two_layer_20260923": {
     "engineering_revision": "working tree DEV-005; DEV-only code and tests, no production source/runtime change",
     "status": "PARTIAL_IMPLEMENTED_REAL_TERMINAL_PROOF_SOAK_REMAINS",

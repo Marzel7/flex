@@ -17493,6 +17493,16 @@
     "real_f1_blocker": "F1 has 19 retained 15m candles, but clone qualification measured entry=1790135459, first=1790136000, last=1790183700, terminal=1790188729, first gap=541s, tail gap=4129s, and max internal gap=18000s. Its terminal finalizer therefore cannot reuse retained coverage and correctly would need a provider request. The requested F1_PROVIDER_CALLS=0 proof cannot be true for this legitimate finalizer job without changing finalization semantics.",
     "next_action": "Keep DEV-005 paused. Decide separately whether the legitimate F1 terminal-ATH finalization should await natural provider capacity (current behavior) or whether a bounded finalization-coverage policy should be designed. Do not acknowledge it as stale, and do not resume repeated DEV-005 cycles until this disposition is explicit."
   },
+  "dev_011_live_activation_durable_15m_decoupling_20260923": {
+    "engineering_revision": "DEV work registry and handoff registration only; no source, queue, provider, runtime, or production change",
+    "status": "PLANNED_DEV_ONLY",
+    "scope": "Remove only the completed-15m-candle prerequisite from DEV live Monitor activation. Strict membership -> normalized migration boundary -> strict first-post-migration-second opening remains mandatory. Qualified opening should activate/restore bounded live state while durable 15m evidence is scheduled and persisted independently.",
+    "dependencies": "DEV-005 paused; DEV-009 shared provider gate qualified; DEV-010 terminal normal-work guard/empty-OHLCV semantics qualified but its legitimate F1 finalizer disposition remains separately held.",
+    "terminal_separation": "Terminal live monitoring remains suppressed. F1kzi8 stays terminal and outside active registry; its one valid terminal-ATH finalizer job must remain unique and may use bounded provider acquisition when retained coverage is incomplete.",
+    "non_goals": "No production action, provider calls, DEV-005 resumption, new cohort/admission, forced monitoring, budget/cadence change, opening semantic weakening, raw-response retention, per-tick durable writes/jobs, or finalizer suppression.",
+    "required_proofs": "Strict opening activates Watchtower and Deep live state before a completed 15m candle; empty durable evidence does not deactivate live state; restart restores a qualified nonterminal live fact without candle; terminal facts do not restore; completed candles deduplicate; live ticks remain memory-only; provider budget/gate remains shared across live, evidence, and permitted finalization work.",
+    "next_action": "Implement and zero-network qualify DEV-011 only. Do not automatically resume DEV-005 after qualification; return for lifecycle-state review."
+  },
   "dev_continuous_monitor_two_layer_20260923": {
     "engineering_revision": "working tree DEV-005; DEV-only code and tests, no production source/runtime change",
     "status": "PARTIAL_IMPLEMENTED_REAL_TERMINAL_PROOF_SOAK_REMAINS",

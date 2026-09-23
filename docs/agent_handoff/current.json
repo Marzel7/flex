@@ -16650,6 +16650,16 @@
     "result": "ACTIVE_MONITOR_DEPENDS_ON_15M_CANDLE=false; LIVE_TICK_DB_WRITES=0 before completed evidence; LIVE_TICK_QUEUE_WRITES=0; ACTIVE_REGISTRY_MAX=64; DEFAULT_LIVE_CADENCE=15s; GLOBAL_PROVIDER_BUDGET=20/min; PER_TOKEN_BUDGET=4/min; REAL_PROVIDER_CALLS_BY_DEV011=0; DEV005_POPULATION_CHANGED=false; PRODUCTION_STATE_CHANGED=false.",
     "next_action": "Return control for the user's explicit decision on resuming the existing DEV-005 population. Do not automatically resume, reset its queue, create admissions, change provider budgets, or promote any DEV code."
   },
+  "dev_012_unified_provider_budget_boundary_20260923": {
+    "engineering_revision": "DEV work registry and handoff registration only; no source, queue, provider, runtime, or production change",
+    "status": "PLANNED_DEV_ONLY",
+    "scope": "Introduce and offline-qualify one compact DEV-only provider acquisition boundary for strict opening, live 1m observation, durable 15m evidence, and bounded terminal-ATH finalization. Every class must pass both one shared local 20/min global plus 4/min per-token budget and the unchanged DEV-009 shared provider-aware 429 gate before actual dispatch.",
+    "dependencies": "DEV-005 is paused on the detected durable-budget bypass. DEV-009, DEV-010 and DEV-011 are the authority for provider-gate, terminal/empty-OHLCV and immediate-activation behavior respectively.",
+    "preserved_state": "DEV-005 retained population remains six unique messages: five nonterminal admissions (WATCHTOWER=1, WATCHTOWER_DEEP=4) and F1's one legitimate terminal finalizer. DUPLICATES=0; QUEUE_RESETS=0; REENROLMENTS=0; PROVIDER_CALLS_SINCE_HOLD=0; PRODUCTION_CHANGES=0.",
+    "non_goals": "No real provider requests, DEV-005 resume, queue claim/reorder/reset/delete, lifecycle mutation, new admission, active-monitor injection, provider-budget increase, production source/config/service/database change, or operation membership change.",
+    "qualification": "Required zero-network proof includes 20/21 global and 4/5 same-token limits; cross-class accounting with 429 consuming a dispatch slot; both gate-denial orders; no double count; fair constrained admission; F1 finalizer budget compliance without live polling; immediate strict-opening activation; memory-only live ticks/no durable live jobs; bounded restart-safe diagnostics/state under the existing 64MiB cap.",
+    "next_action": "Implement DEV-012 only, then run its deterministic offline suite plus DEV-009/010/011, shared Watchtower/Deep opening and relevant worker regressions. Do not resume DEV-005 automatically even if DEV-012 passes; return the qualification result first."
+  },
   "dev_continuous_monitor_two_layer_20260923": {
     "engineering_revision": "working tree DEV-005; DEV-only code and tests, no production source/runtime change",
     "status": "PARTIAL_IMPLEMENTED_REAL_TERMINAL_PROOF_SOAK_REMAINS",

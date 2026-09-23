@@ -17437,8 +17437,8 @@
     "next_action": "Prepare a minimal module-only deployment manifest for repair 52f06b57 and request explicit deployment/restart authorization before changing the running Cascade checkout or restarting ws_cascade."
   },
   "dev_006_deep_migration_opening_evidence_qualification": {
-    "engineering_revision": "DEV-006 audit artifact only; no source/runtime change",
-    "status": "DEV_COMPLETE_READ_ONLY_EVIDENCE_QUALIFIED",
+    "engineering_revision": "Dirty DEV checkout; shared read-only migration-boundary resolver added in src/ops/operation_monitor_worker.py and DEV binding in src/dev_monitor_runtime.py; no production source/runtime change",
+    "status": "DEV_COMPLETE_SHARED_OPENING_PATH_PASS",
     "scope": "Audit the authoritative retained migration/opening evidence for the existing 26 WATCHTOWER_DEEP memberships, trace why Watchtower's migration collector did not populate equivalent Deep facts, and define a compact bounded recovery only if retained evidence is insufficient.",
     "non_goals": "No Monitor redesign, membership re-attribution, fabricated Deep participant, entry semantic weakening, production deployment, production operational mutation, broad history crawling, raw corpus acquisition, or DEV evidence ownership.",
     "qualification_gate": "DEV-005 may resume only if at least one real Deep member has membership -> authoritative migration boundary -> strict first-post-migration-second entry evidence. Full cohort qualification is not required.",
@@ -17446,16 +17446,18 @@
     "strict_entry": "One bounded Birdeye 1s mcap query qualified genuine Deep BmkJ2GHnYz1tk3tKKq12yx62KxRPCxnqb3GUoaPipump: migration tx 4eDRYytW...PdrWM2, canonical migration time 1789849315, slot 448514047, strict first post-migration second 1789849316, entry MC USD 141176.40414124556. Request was [1789849315,1789849317].",
     "root_cause": "src/ops/operation_monitor_worker.py _watchtower_entry_inventory and src/dev_monitor_runtime.py consult/copy only migrated_tokens and wt_launch_audit. They do not resolve the canonical token_analysis migration evidence retained for the historically admitted Deep cohort.",
     "audit": "docs/audits/dev_006_watchtower_deep_opening_evidence_20260923.json",
-    "next_action": "Under a separate DEV-only implementation authorization, add and test a compact explicitly-provenanced read-only canonical migration-evidence resolver/projection for the DEV Monitor. Then resume the genuine Watchtower + Deep DEV-005 soak; do not make DEV an evidence authority or alter the opening contract."
+    "shared_path": "resolve_operation_migration_boundary prefers legacy migrated_tokens/wt_launch_audit and otherwise normalizes read-only token_analysis migration facts into migration_signature/migration_timestamp/expected_pool/migration_slot. Both operations then use MonitorBirdeyeTransport.acquire_watchtower_entry unchanged. The Deep test proves supplied boundary -> first post-migration second 1789849316 -> MC 141176.40414124556; no Deep-specific opening logic exists.",
+    "tests": "New shared-path unit test and legacy plan test pass (2 passed); temporary DEV mirror integration proves the canonical source is not the DEV DB (466944 bytes). Broad focused execution: 22 passed, one pre-existing Byzantine reconciliation assertion failed; it is unrelated to this resolver and was not changed.",
+    "next_action": "Resume the genuine Watchtower + Deep DEV-005 soak under the existing 20/4 budget using the now-shared opening path. Do not add operation-specific entry semantics or make DEV an evidence authority."
   },
   "dev_005_real_deep_soak_gate_20260923": {
     "engineering_revision": "working tree DEV-005; read-only retained-data qualification gate",
-    "status": "UNBLOCKED_PENDING_READ_ONLY_EVIDENCE_RESOLVER",
+    "status": "UNBLOCKED_SHARED_DEEP_OPENING_PATH_PASS",
     "requirement": "The authorized DEV-005 completion soak requires both WATCHTOWER and WATCHTOWER_DEEP using genuine already-qualified DEV tokens, without fabricating membership or an entry boundary.",
     "finding": "DEV-006 established that all 26 Deep memberships already have canonical retained migration facts in flex_complete_database.db.token_analysis; only the compact mirror inventory misses them. One bounded Birdeye 1s query qualified strict first-post-migration-second entry evidence for BmkJ2GHn...Pipump at 1789849316 ($141176.404141).",
-    "decision": "Do not substitute assigned_at, a later candle, current price, or synthetic data. Implement only a labelled read-only canonical-evidence resolver/projection before using that retained fact in the DEV Monitor; do not run a misleading one-operation real soak or mark DEV-005 PASS.",
+    "decision": "Do not substitute assigned_at, a later candle, current price, or synthetic data. The shared read-only canonical-evidence resolver is now qualified; do not add any Deep-specific opening method. Resume the genuine two-operation soak, but do not mark DEV-005 PASS until its separate bounded/fairness/storage gates pass.",
     "safe_progress": "The deterministic two-operation soak remains valid only as scheduler/resource behavior coverage. The prior real MO Watchtower terminal proof remains intact. Production was read-only and unchanged by this gate.",
-    "next_action": "Separately implement and test a compact, read-only canonical Deep migration-evidence resolver/projection in the DEV monitor path. Then resume the requested genuine two-operation real soak under the unchanged 20/4 budget."
+    "next_action": "Run the requested genuine two-operation real soak under the unchanged 20/4 budget using the shared opening path, then decide DEV-005 only from the stated fairness, boundedness, recovery and storage gates."
   },
   "dev_continuous_monitor_two_layer_20260923": {
     "engineering_revision": "working tree DEV-005; DEV-only code and tests, no production source/runtime change",

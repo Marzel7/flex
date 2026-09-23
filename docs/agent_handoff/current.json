@@ -17452,12 +17452,14 @@
   },
   "dev_005_real_deep_soak_gate_20260923": {
     "engineering_revision": "working tree DEV-005; read-only retained-data qualification gate",
-    "status": "UNBLOCKED_SHARED_DEEP_OPENING_PATH_PASS",
+    "status": "BLOCKED_PROVIDER_BACKOFF_BEFORE_GENUINE_SOAK",
     "requirement": "The authorized DEV-005 completion soak requires both WATCHTOWER and WATCHTOWER_DEEP using genuine already-qualified DEV tokens, without fabricating membership or an entry boundary.",
     "finding": "DEV-006 established that all 26 Deep memberships already have canonical retained migration facts in flex_complete_database.db.token_analysis; only the compact mirror inventory misses them. One bounded Birdeye 1s query qualified strict first-post-migration-second entry evidence for BmkJ2GHn...Pipump at 1789849316 ($141176.404141).",
     "decision": "Do not substitute assigned_at, a later candle, current price, or synthetic data. The shared read-only canonical-evidence resolver is now qualified; do not add any Deep-specific opening method. Resume the genuine two-operation soak, but do not mark DEV-005 PASS until its separate bounded/fairness/storage gates pass.",
-    "safe_progress": "The deterministic two-operation soak remains valid only as scheduler/resource behavior coverage. The prior real MO Watchtower terminal proof remains intact. Production was read-only and unchanged by this gate.",
-    "next_action": "Run the requested genuine two-operation real soak under the unchanged 20/4 budget using the shared opening path, then decide DEV-005 only from the stated fairness, boundedness, recovery and storage gates."
+    "attempt": "Six genuine memberships (three Watchtower, three Deep) were admitted through the existing DEV Monitor queue/worker, never via an injected active object. F1kzi8...upump qualified through the shared Watchtower path at timestamp 1790135459 / MC 150589.29795192616. Its normal follow-on provider observation returned HTTP 429. Shared backoff held six bounded messages, with no duplicate/per-tick jobs. No Deep item was forced while backoff was active; active registry=0, continuous calls=0 and duration=0.",
+    "safe_progress": "The deterministic two-operation soak remains valid only as scheduler/resource behavior coverage. The prior real MO Watchtower terminal proof remains intact. Production path/inode/size/mtime snapshots were unchanged across the DEV attempt.",
+    "audit": "docs/audits/dev_005_genuine_soak_attempt_20260923.json",
+    "next_action": "Do not force a provider retry or synthesize active state. Once the shared provider gate naturally clears, resume the genuine Watchtower + Deep soak under unchanged 20/4 limits and require all fairness/storage gates before any DEV-005 PASS verdict."
   },
   "dev_continuous_monitor_two_layer_20260923": {
     "engineering_revision": "working tree DEV-005; DEV-only code and tests, no production source/runtime change",

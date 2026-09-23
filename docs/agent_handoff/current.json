@@ -17436,6 +17436,15 @@
     "audit": "/private/tmp/cascade_writer_lock_fail_closed_qualification_20260919.json sha256 4d7d82ebae82901c83b4a430834ad9378163c71dd70940271b25ec68951d3582",
     "next_action": "Prepare a minimal module-only deployment manifest for repair 52f06b57 and request explicit deployment/restart authorization before changing the running Cascade checkout or restarting ws_cascade."
   },
+  "dev_005_real_deep_soak_gate_20260923": {
+    "engineering_revision": "working tree DEV-005; read-only retained-data qualification gate",
+    "status": "BLOCKED_NO_GENUINE_DEEP_STRICT_ENTRY_SOURCE",
+    "requirement": "The authorized DEV-005 completion soak requires both WATCHTOWER and WATCHTOWER_DEEP using genuine already-qualified DEV tokens, without fabricating membership or an entry boundary.",
+    "finding": "Production source was queried read-only and matches the DEV mirror: WATCHTOWER_DEEP has 26 memberships and 0 retained migration_time/migration_tx sources in migrated_tokens or wt_launch_audit. WATCHTOWER has 355 memberships and 350 retained entry sources. Therefore no Deep membership can satisfy the unchanged FIRST_FULL_POST_MIGRATION_SECOND_MC opening contract.",
+    "decision": "Do not substitute assigned_at, a later candle, current price, or synthetic data as Deep entry evidence. Do not run a misleading one-operation real soak or mark DEV-005 PASS.",
+    "safe_progress": "The deterministic two-operation soak remains valid only as scheduler/resource behavior coverage. The prior real MO Watchtower terminal proof remains intact. Production was read-only and unchanged by this gate.",
+    "next_action": "Separately qualify a retained, authoritative Deep migration/entry-evidence source and copy it read-only into the compact DEV mirror. Then resume the requested genuine two-operation real soak under the unchanged 20/4 budget."
+  },
   "dev_continuous_monitor_two_layer_20260923": {
     "engineering_revision": "working tree DEV-005; DEV-only code and tests, no production source/runtime change",
     "status": "PARTIAL_IMPLEMENTED_REAL_TERMINAL_PROOF_SOAK_REMAINS",

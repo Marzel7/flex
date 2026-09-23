@@ -17436,6 +17436,16 @@
     "audit": "/private/tmp/cascade_writer_lock_fail_closed_qualification_20260919.json sha256 4d7d82ebae82901c83b4a430834ad9378163c71dd70940271b25ec68951d3582",
     "next_action": "Prepare a minimal module-only deployment manifest for repair 52f06b57 and request explicit deployment/restart authorization before changing the running Cascade checkout or restarting ws_cascade."
   },
+  "dev_monitor_candle_lifecycle_audit_20260923": {
+    "engineering_revision": "working tree DEV-005; audit only after fresh MO price-fact proof",
+    "status": "AUTOMATION_GAP_PROVEN",
+    "existing_contract": "WATCHTOWER and WATCHTOWER_DEEP already use FIRST_FULL_POST_MIGRATION_SECOND_MC for the opening boundary and 15m OHLCV for subsequent market evidence. MonitorWorker persists close/open/high/low per returned candle, keeps peak using candle high, and completes the lifecycle at drawdown >=85% from the retained running peak.",
+    "existing_runtime": "The production Monitor service loop runs every 5 seconds, reconciles assignments, recovers provider backoff and reduces retained observations. The first successful queue job writes MONITORING_ACTIVE and next_observation_at=latest_timestamp+60, then ACKs the job.",
+    "gap": "No existing dispatcher scans due MONITORING_ACTIVE facts and creates a new durable observation job. Consequently next_observation_at is only a stored marker: fresh MO is due since 2026-09-23T17:31:00Z yet has provider_call_count=1 and no pending monitoring job. The loop alone therefore cannot continuously refresh it.",
+    "recommended_design": "Add a bounded due-fact dispatcher that runs inside the existing service loop: select only MONITORING_ACTIVE Watchtower/Deep facts with next_observation_at <= now; enqueue one idempotent observation identity per mint and completed 15-minute bucket; retain the same MonitorWorker, Birdeye transport, queue backoff, shared writer and ACK-after-commit semantics. Set next_observation_at to the next completed 15-minute boundary, not 60 seconds. On each write retain the returned OHLCV and recompute peak/drawdown; terminal at the existing 85% threshold, stop scheduling, then retain existing terminal-ATH finalisation behavior.",
+    "safety": "Do not change the opening evidence contract, use UI polling as a provider trigger, create a new provider client, duplicate jobs, or alter production queue ordering. First qualify the dispatcher against a DEV-only database/queue using MO and controlled clock tests before any production consideration.",
+    "next_action": "If authorized, implement and DEV-qualify only the durable 15-minute due-observation dispatcher and DEV runner loop, including idempotency, provider-429 backoff, terminal-drawdown stop, and compact-state-cap tests."
+  },
   "dev_005_current_launch_price_pipeline": {
     "engineering_revision": "working tree DEV-005; no production source or runtime change",
     "status": "PASS_FRESH_WATCHTOWER_PRICE_FACT_IN_ISOLATED_DEV",

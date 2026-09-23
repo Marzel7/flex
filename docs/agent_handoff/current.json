@@ -17436,6 +17436,15 @@
     "audit": "/private/tmp/cascade_writer_lock_fail_closed_qualification_20260919.json sha256 4d7d82ebae82901c83b4a430834ad9378163c71dd70940271b25ec68951d3582",
     "next_action": "Prepare a minimal module-only deployment manifest for repair 52f06b57 and request explicit deployment/restart authorization before changing the running Cascade checkout or restarting ws_cascade."
   },
+  "dev_006_deep_migration_opening_evidence_qualification": {
+    "engineering_revision": "DEV work registry only; no source/runtime change",
+    "status": "PLANNED_SEPARATE_FROM_DEV_005",
+    "scope": "Audit the authoritative retained migration/opening evidence for the existing 26 WATCHTOWER_DEEP memberships, trace why Watchtower's migration collector did not populate equivalent Deep facts, and define a compact bounded recovery only if retained evidence is insufficient.",
+    "non_goals": "No Monitor redesign, membership re-attribution, fabricated Deep participant, entry semantic weakening, production deployment, production operational mutation, broad history crawling, raw corpus acquisition, or DEV evidence ownership.",
+    "qualification_gate": "DEV-005 may resume only if at least one real Deep member has membership -> authoritative migration boundary -> strict first-post-migration-second entry evidence. Full cohort qualification is not required.",
+    "current_fact": "Deep=26 memberships and zero retained migration sources in migrated_tokens/wt_launch_audit; provider calls=0.",
+    "next_action": "Perform retained/offline evidence inventory for all 26 before proposing any provider recovery budget."
+  },
   "dev_005_real_deep_soak_gate_20260923": {
     "engineering_revision": "working tree DEV-005; read-only retained-data qualification gate",
     "status": "BLOCKED_NO_GENUINE_DEEP_STRICT_ENTRY_SOURCE",

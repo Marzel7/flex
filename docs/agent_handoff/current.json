@@ -17436,6 +17436,16 @@
     "audit": "/private/tmp/cascade_writer_lock_fail_closed_qualification_20260919.json sha256 4d7d82ebae82901c83b4a430834ad9378163c71dd70940271b25ec68951d3582",
     "next_action": "Prepare a minimal module-only deployment manifest for repair 52f06b57 and request explicit deployment/restart authorization before changing the running Cascade checkout or restarting ws_cascade."
   },
+  "dev_continuous_monitor_two_layer_20260923": {
+    "engineering_revision": "working tree DEV-005; DEV-only code and tests, no production source/runtime change",
+    "status": "PARTIAL_IMPLEMENTED_REAL_TERMINAL_PROOF_SOAK_REMAINS",
+    "architecture": "The former durable-per-candle dispatcher is not implemented. src/dev_continuous_monitor.py provides a bounded in-memory registry, configurable cadence, global/per-token call budgets, shared 429 suppression, and no durable tick or queue job. Only completed deduplicated 15m OHLC evidence and terminal transitions/finalization are durable.",
+    "bounds": "MAX_ACTIVE_TOKENS=64; default cadence=15s (independently configurable); global=20 calls/min; per-token=4 calls/min; DEV monitor storage cap=64MiB. The prior DEV historical admission backlog of 377 Watchtower/Deep jobs was removed by a DEV-only stale-job cleanup; terminal jobs are preserved. Queue ended depth=0.",
+    "tests": "6 deterministic tests pass: live ticks do not write SQLite; completed candle deduplicates; terminal token releases/not restored; provider budget coalesces; 429 creates one shared backoff/no jobs; two-operation soak retains only completed 15m evidence. Python compile and diff check pass. A pre-existing focused Byzantine reconciliation assertion fails separately due to an existing for-else accounting path and was not changed under DEV-005 scope.",
+    "real_dev_proof": "MO ALuAQm...opump was restored as the sole active fact. One real DEV provider observation measured current MC 2296.0106 from retained peak 246810.2877 (99.0697% drawdown); it immediately terminalized, removed active state, made one terminal DB transition, enqueued exactly one terminal ATH job, and existing DEV-only finalization completed with final_proven_ath_mc=246810.2877. Before/after DB=675840 bytes, WAL=0, logs=0; final monitor storage=676829 bytes and queue=0.",
+    "production": "Production DB, queues, logs, services and configuration unchanged; the source cohort was only read via the prior compact DEV mirror process.",
+    "next_action": "Run a bounded real DEV multi-token Watchtower/Deep soak through successive live observations with process-memory before/after measurement, then decide whether DEV-005 can be marked complete. Do not deploy or start a permanent production monitor."
+  },
   "dev_monitor_candle_lifecycle_audit_20260923": {
     "engineering_revision": "working tree DEV-005; audit only after fresh MO price-fact proof",
     "status": "AUTOMATION_GAP_PROVEN",

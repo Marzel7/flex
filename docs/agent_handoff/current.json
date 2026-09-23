@@ -17478,6 +17478,16 @@
     "verdict": "DEV-009 PASS_OFFLINE plus one real HTTP-200 shared-gate-path validation. The response contained no usable candles, so DEV-005 did not start active monitoring and no sustainable-capacity conclusion follows. DEV_005_POPULATION_CHANGED=false except the existing retry's normal attempts counter; PRODUCTION_STATE_CHANGED=false.",
     "next_action": "Do not change DEV-009. Hold repeated DEV-005 cycles until the already-observed stale terminal queue residue and empty-OHLCV retry classification are narrowly qualified; then resume only the existing population under normal scheduler eligibility."
   },
+  "dev_010_terminal_queue_exclusion_empty_ohlcv_20260923": {
+    "engineering_revision": "DEV work registry and handoff registration only; no source, queue, provider, runtime, or production change",
+    "status": "PLANNED_DEV_ONLY",
+    "scope": "Trace F1kzi8 terminal queue provenance and qualify two narrow Monitor lifecycle contracts: authoritative terminal state prevents all pre-provider acquisition, and HTTP-200/no-usable-OHLCV is explicit, bounded, coalesced, and distinct from a usable observation or HTTP 429.",
+    "dependency": "DEV-005 is RECOVERING_PROVIDER_CAPACITY after DEV-009 HTTP-200 gate validation. DEV-010 must pass offline before any repeated DEV-005 cycle or soak continuation.",
+    "separation": "DEV-008 remains the separate BeqTt4qq Deep-route audit. DEV-010 neither modifies nor supersedes it.",
+    "non_goals": "No provider calls, queue reset, admission recreation, manual active monitor, Deep forcing, cadence/budget change, opening/evidence semantic change, production mutation, or Monitor redesign.",
+    "required_proofs": "F1kzi8 terminal fact and 19 retained candles are preserved; stale terminal opening/OHLCV envelopes make zero provider calls, zero re-enrollment, zero observations, and zero finalization jobs; genuine nonterminal existing admissions retain their state. Empty OHLCV must have a bounded next eligibility/no-duplicate/no-storm policy, preserve 429 semantics, and prove live monitoring does not depend on a completed 15m candle.",
+    "next_action": "Perform DEV-010 retained-local provenance audit and deterministic zero-network qualification only. Do not acknowledge the real F1kzi8 queue row or resume DEV-005 until the offline lifecycle contract passes."
+  },
   "dev_continuous_monitor_two_layer_20260923": {
     "engineering_revision": "working tree DEV-005; DEV-only code and tests, no production source/runtime change",
     "status": "PARTIAL_IMPLEMENTED_REAL_TERMINAL_PROOF_SOAK_REMAINS",

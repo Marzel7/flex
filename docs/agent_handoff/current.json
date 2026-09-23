@@ -17436,6 +17436,15 @@
     "audit": "/private/tmp/cascade_writer_lock_fail_closed_qualification_20260919.json sha256 4d7d82ebae82901c83b4a430834ad9378163c71dd70940271b25ec68951d3582",
     "next_action": "Prepare a minimal module-only deployment manifest for repair 52f06b57 and request explicit deployment/restart authorization before changing the running Cascade checkout or restarting ws_cascade."
   },
+  "dev_005_current_launch_price_pipeline": {
+    "engineering_revision": "working tree DEV-005; no production source or runtime change",
+    "status": "PASS_FRESH_WATCHTOWER_PRICE_FACT_IN_ISOLATED_DEV",
+    "finding": "Fresh WATCHTOWER membership MO (ALuAQm3PqLK2G2oGewwdPC1yYadRuiQ6C5jg5GZopump) assigned 2026-09-23T16:34:05Z was present in the production-read-only cohort and DEV mirror but initially remained NOT_MONITORED because 379 historical backfill jobs were claimed by opaque filename order. DEV-only newest-real-assignment claim ordering was added; production ordering is unchanged.",
+    "qualification": "The first real Birdeye request reached the frozen first-full-post-migration-second entry contract and safely moved to retry on HTTP 429. After the explicit provider backoff expired, the same retained job completed: entry=$145760.6165, current=$172476.7808, state=MONITORING_ACTIVE, provider_call_count=1, four retained candles. DEV API /api/operations/live-monitor readback contains the MO row with token name Mo Astronaut and symbol MO.",
+    "isolation": "DEV database=675840 bytes; total DEV monitor state approximately 1MB, cap=64MB. Production operations DB is opened query-only; production queues, services, configuration and databases were not changed.",
+    "tests": "Newest-assignment MonitorQueue priority regression PASS; DEV preflight PASS; API readback HTTP 200. Historical tokens that lack contract-required first-second evidence remain intentionally unpriced/fail-closed.",
+    "next_action": "Add bounded DEV-only recurring sync/worker orchestration if automatic, rather than manually invoked, fresh-launch pricing is required; do not alter production Monitor queue semantics as part of DEV-005."
+  },
   "cascade_writer_lock_fail_closed_deployment_20260919": {
     "deployed_revision": "c6c12ab48a41e8df427d96fd071ddac18dd412ce",
     "status": "TARGETED_REPAIR_QUALIFIED_RESIDUAL_SQLITE_CONTENTION_REMAINS",

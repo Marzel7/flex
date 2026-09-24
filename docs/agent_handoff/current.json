@@ -12,13 +12,13 @@
   },
   "byzantine_alternate_known_answer_diagnostic_20260924": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
-    "status": "BYZANTINE_ALTERNATE_KNOWN_ANSWER_DIAGNOSTIC_READY",
-    "classification": "NO_TRANSPORT_PREFLIGHT_QUALIFIED",
+    "status": "BYZANTINE_ALTERNATE_KNOWN_ANSWER_DIAGNOSTIC_BLOCKED",
+    "classification": "ABORTED_SAFETY",
     "authorization": "Authorized immutable v2 contract sha256 ba99f3eff25b9128f1d1cded6046a346cd0256087a78def79d1ed80649df69ab; semantic scope drift from v1=0.",
-    "blocker": "None. The DEV-only operation_monitor_worker was restarted from PID 80357 to PID 15996 with MONITOR_RUNTIME=dev; direct Monitor dispatch now applies DEV-012 and ENTRY_REFERENCE_OPENING retains the same ledger through the qualified generic scheduler.",
-    "safety": "2GAd job admission=0; provider/Helius calls=0; PHOSPHOR=0; non-control provider calls=0; raw retention=0; membership changes=0; production mutations=0; DEV-005 start=false.",
-    "audit": "docs/audits/dev_monitor_runtime_dev_binding_2gad_preflight.v1.json sha256 8eaf50700c2144d61a1e6bb0c12affbdf6be1a92f16e146c76e76dc1d5e97053",
-    "next_action": "The immutable 2GAd V2 six-attempt diagnostic is ready, but it still requires separate explicit execution authorization. No provider call or 2GAd admission occurred in the binding/preflight task."
+    "blocker": "The live runtime made one Create plus eight opening-block requests (nine physical attempts) although V2 authorizes one Create plus at most five blocks (six attempts). ENTRY_REFERENCE_OPENING has no contract-aware block ceiling; DEV-012 rate limits but does not enforce per-diagnostic logical bounds. The 2GAd job then terminalized INSUFFICIENT_EVIDENCE with zero retained actions, so Scenario-D/native entry was not reached.",
+    "safety": "Stopped only DEV operation_monitor_worker after detecting the overrun; all other service PIDs remained unchanged. 2GAd provider/Helius calls=9; PHOSPHOR=0; non-control provider calls=0; raw retention=0; membership changes=0; production mutations=0; DEV-005 start=false.",
+    "audit": "docs/audits/byzantine_alternate_bounded_live_scenario_d_diagnostic_result.v3.json sha256 6f50b04fe0c62c55ca6f17e9e404299ca3b03cdfaa74bd8791d882000ac7e54a",
+    "next_action": "Separate DEV-only repair: make the durable opening-job bound contract-aware, test that it terminalizes before a sixth opening block, and do not resume the terminal 2GAd job or restart the DEV Monitor until separately authorized."
   },
   "byzantine_live_gate_post_phosphor_20260924": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",

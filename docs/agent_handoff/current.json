@@ -16982,5 +16982,15 @@
     "audit": "docs/audits/phosphor_bounded_live_scenario_d_diagnostic_result.v1.json sha256 ecfecc207e74f852060cbbba90b80f98c2e6d36e14823494ca2086b59c378939",
     "safety": "PROVIDER_CALLS=0; RAW_BYTES_RETAINED=0; OPERATION_MEMBERSHIP_CHANGES=0; PRODUCTION_MUTATIONS=0; HISTORICAL_ACQUISITION_REQUESTS=0; DEV_005_SOAK_STARTED=false.",
     "next_action": "Resolve the explicit contradiction by publishing a new immutable execution contract with authorized=true, or explicitly direct that the frozen authorized=false flag may be overridden. Do not dispatch under the current contract."
+  },
+  "phosphor_bounded_live_scenario_d_diagnostic_v2_20260924": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty DEV working tree; no provider, runtime, or production mutation",
+    "status": "PHOSPHOR_BOUNDED_LIVE_SCENARIO_D_DIAGNOSTIC_BLOCKED",
+    "contract": "v2 was created without modifying v1. v1 sha256 2d5965cccce40b91066000ecb72b0e788de1a2e661dfe02cbac6f4fcc8bf25b2; v2 sha256 fd4d7240bba6ffc2d84938449c2b2b1feda412096de6d7d0d2d36f75cfe205e1; execution semantic scope diff excluding authorization metadata=0; v2 authorized=true.",
+    "verdict": "FAIL_RUNTIME before dispatch: current DEV-017 provides durable opening job creation and generic work scheduling only. No process consumes ENTRY_REFERENCE_OPENING work, performs transport, compacts the response, and consumes the result into the live opening job/policy path. A direct Helius or legacy executor would violate the authorized required path.",
+    "tests": "37 focused DEV-009/011/012/017 tests passed.",
+    "audit": "docs/audits/phosphor_bounded_live_scenario_d_diagnostic_result.v2.json",
+    "safety": "PROVIDER_CALLS=0; RAW_BYTES_RETAINED=0; OPERATION_MEMBERSHIP_CHANGES=0; PRODUCTION_MUTATIONS=0; HISTORICAL_ACQUISITION_REQUESTS=0; DEV_005_SOAK_STARTED=false.",
+    "next_action": "DEV_017_RUNTIME_REPAIR: implement and offline-qualify the generic ENTRY_REFERENCE_OPENING work consumer and its compact persistence-to-job feedback path. Do not run PHOSPHOR again until that path is real and separately authorized."
   }
 }

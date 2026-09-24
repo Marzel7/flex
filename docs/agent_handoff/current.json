@@ -17086,6 +17086,14 @@
     "audit": "docs/audits/phosphor_bounded_live_scenario_d_diagnostic_result.v3.json sha256 8cebfd7b555e50a1cac54016ee020d7cd5b220c2a7a88cb23238087c166a9118",
     "next_action": "Require separate authorization to correct/restart only the DEV Monitor source binding, prove the qualified DEV run_once loop is loaded, then retry the preserved PHOSPHOR logical identity under the unchanged V2 bound."
   },
+  "dev_005_isolated_all_operation_real_live_soak_20260924": {
+    "engineering_revision": "working tree; execution preflight only",
+    "status": "DEV_005_ALL_OPERATION_REAL_LIVE_SOAK_BLOCKED",
+    "finding": "The exact, immutable three-token 1800-second DEV-only soak contract is valid and the durable selection exists, but the configured operation_monitor_worker environment omits DEV_005_SOAK_SELECTION_PATH. Starting it would therefore use normal shared queue eligibility and could claim unrelated work.",
+    "safety": "Provider/Helius/Birdeye calls=0; monitor restarts=0; soak started=false; unrelated messages claimed/dispatched/completed/deleted/rewritten=0; membership changes=0; production provider work/DB writes/mutations=0.",
+    "audit": "docs/audits/dev_005_isolated_all_operation_real_live_soak.v1.json",
+    "next_action": "Under the existing DEV-005 authorization, bind only DEV_005_SOAK_SELECTION_PATH to the DEV operation_monitor_worker Supervisor stanza, restart only that worker once, and rerun execution preflight before any provider request."
+  },
   "dev_005_population_activation_and_queue_isolation_20260924": {
     "engineering_revision": "working tree; provider-free DEV-only bridge and queue-isolation preflight",
     "status": "DEV_005_POPULATION_ACTIVATION_QUALIFIED",

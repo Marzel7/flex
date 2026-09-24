@@ -17086,6 +17086,16 @@
     "audit": "docs/audits/phosphor_bounded_live_scenario_d_diagnostic_result.v3.json sha256 8cebfd7b555e50a1cac54016ee020d7cd5b220c2a7a88cb23238087c166a9118",
     "next_action": "Require separate authorization to correct/restart only the DEV Monitor source binding, prove the qualified DEV run_once loop is loaded, then retry the preserved PHOSPHOR logical identity under the unchanged V2 bound."
   },
+  "dev_005_deep_entry_control_qualification_20260924": {
+    "engineering_revision": "working tree; one bounded DEV Deep-entry diagnostic",
+    "status": "DEV_005_DEEP_ENTRY_CONTROL_QUALIFIED",
+    "finding": "3677Aqo8U5HEbAWL7B8gNQoDtRdjQCY2QU6nCD13pump was selected deterministically from the 25 nonterminal Deep members, all of which have equivalent retained Create/migration/pool/slot coverage. Its sole missing existing-policy fact was the strict first post-migration 1-second MC. One authorized Birdeye request returned HTTP 200 and qualified timestamp 1789632454 at $127322.34924867298.",
+    "activation": "The generic bridge persisted one Monitor fact and deterministic activation envelope; no continuous live work was started. The new 3-mint DEV selection explicitly replaces terminal BmkJ with 3677.",
+    "qualification": "35 focused tests passed; a real no-transport Supervisor start/stop with the replacement selection made zero provider requests. DEV-009 and DEV-012 remained in force.",
+    "audit": "docs/audits/dev_005_deep_entry_control_qualification.v1.json",
+    "safety": "Provider calls=1 (selected Deep strict entry only); Helius=0; non-selected provider calls=0; membership changes=0; production mutations=0; DEV-005 soak=false; raw bytes retained=0.",
+    "next_action": "A new deep-3677 three-operation soak contract was deliberately created unauthorized because the frozen mint population changed. Require explicit authorization: AUTHORIZE_UPDATED_DEV_005_THREE_OPERATION_SOAK_CONTRACT."
+  },
   "dev_005_no_transport_preflight_and_deep_replacement_20260924": {
     "engineering_revision": "working tree; generic no-transport preflight mode",
     "status": "DEV_005_NO_TRANSPORT_DEEP_REPLACEMENT_BLOCKED",

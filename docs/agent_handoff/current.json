@@ -12,16 +12,16 @@
   },
   "byzantine_alternate_known_answer_diagnostic_20260924": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
-    "status": "2GAD_EXACT_WINDOW_LIVE_DIAGNOSTIC_INCONCLUSIVE",
-    "classification": "SAFE_KNOWN_ANSWER_MISMATCH",
+    "status": "2GAD_PRE_ACTION_DIGEST_SEMANTIC_RECONCILIATION_QUALIFIED",
+    "classification": "PASS_KNOWN_ANSWER",
     "authorization": "Authorized immutable v2 contract sha256 f227d7d770b3653911bed41830bee760f172428ce09194b4e27beae24b7c92c8; semantic scope drift from v1=0.",
     "repair": "A generic durable OPENING_ACQUISITION_SCOPE_V1 limits opening identities independently of DEV-012 capacity. The scope was checked before successor scheduling and transport in the live V2 execution; block six was neither created nor dispatched.",
-    "qualification": "Five authorized live Helius blocks completed through the DEV Monitor worker after a narrow generic provisional-projection repair. All blocks compact-persisted; no Create, block six, FX, live-price, non-2GAd provider work, membership change, or production mutation occurred. 113 focused tests pass. Signature, transaction/action indexes, Scenario-D state, native entry, and retained pre-action reserve values match.",
+    "qualification": "Five authorized live Helius blocks completed through the DEV Monitor worker after a narrow generic provisional-projection repair. All blocks compact-persisted; no Create, block six, FX, live-price, non-2GAd provider work, membership change, or production mutation occurred. The semantic reconciliation added a generic exact pre-action-state comparator: all four integer reserve fields match and their like-for-like digest is 3e6d...; 114 focused tests pass, including 23/23 retained Scenario-D cases.",
     "v3_reconciliation": "The old unscoped V3 job remains terminal/audit-only: one Create plus eight blocks, of which three are over V2 authority. Its over-bound evidence remains excluded. The scoped V2 job completed terminally with five consumed blocks and no duplicate identity.",
     "offline_v2": "Frozen Create plus five blocks still replays provider-free through the actual opening job with 25 actions and 22 distinct non-creator buyers. The new bounded compact envelope localized the prior V4 discrepancy: the repaired live Helius pipeline retained the same action evidence for the four executed matching slots; no parser/normalizer loss was observed.",
     "safety": "The bounded runner excluded the normal Monitor queue because it contained 43 unrelated pending items. Exactly five authorized 2GAd Helius block calls occurred. Create/FX/live-price/non-2GAd calls=0; DEV-005=false; membership changes=0; production mutations=0.",
-    "audit": "docs/audits/2gad_exact_window_live_diagnostic_result.v2.json sha256 e2af0cd571c001f94be054c20bf76721e169bfb6a016ac5a0797434835802564. The contract's pre_action_state_digest is a historical full reconstruction digest (8c58...), while the live runtime correctly emits a pre-action-state digest (3e6d...); their semantics differ although all retained reserve values and boundary identities match.",
-    "next_action": "Separately reconcile the frozen pre-action digest semantic contract before retrying or promoting the 2GAd diagnostic. Do not start DEV-005."
+    "audit": "docs/audits/2gad_exact_window_live_diagnostic_result.v2.json sha256 e2af0cd571c001f94be054c20bf76721e169bfb6a016ac5a0797434835802564; docs/audits/2gad_pre_action_digest_semantic_reconciliation.v1.json sha256 cbdf33a6ca3ec3f51764b35d4bc872079a0a35e2a56b8f7ce8510caa1739d588. The frozen 8c58... remains a FULL_RECONSTRUCTION_DIGEST_V1; live 3e6d... is PRE_ACTION_STATE_DIGEST_V1. Their strings are intentionally not compared, while canonical state is compared exactly.",
+    "next_action": "DEV_005_ALL_OPERATION_REAL_LIVE_SOAK is ready for separate explicit authorization. Do not start it as part of this reconciliation."
   },
   "byzantine_live_gate_post_phosphor_20260924": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",

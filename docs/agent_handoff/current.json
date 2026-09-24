@@ -16905,15 +16905,15 @@
     "next_action": "DEV-004 is closed. Do not automatically resume DEV-005; it remains a separate, explicitly authorized live-soak workstream."
   },
   "dev_013_operations_live_registry_consistency_audit_20260924": {
-    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty DEV working tree; read-only audit",
-    "status": "AUDIT_QUALIFIED_REPAIR_REQUIRED",
-    "finding": "Correction: PHOSPHOR (AcZx2dcryYz5b8xhn9xhWc2ue4RTHro26ve8vbiDpump) is canonical Byzantine membership, committed at 1790237496 and present in Monitor/detail. Its authoritative token creation and confirmed-match launch time are 1790237305, while the Byzantine Registry overlay instead takes old queue funder_block_time 1790101314.",
-    "reconciliation": "All 20 current Live Monitor rows reconcile to canonical membership and detail inclusion. Nexus, WATCHTOWER and WATCHTOWER_DEEP Registry activity/Last Launch reconcile. Byzantine does not: PHOSPHOR should produce 24h=1 and Last Launch=1790237305, but current overlay reports 24h=0 and Last Launch=1790101314.",
-    "semantics": "Monitor operation labels are canonical assignments. This is TIMESTAMP_SEMANTIC_DEFECT, not a membership or DEV-004 capability-projection defect. The generic required repair is a canonical-launch timestamp resolver that prefers token creation evidence over an earlier funding timestamp, then falls back only if canonical launch evidence is absent.",
-    "safety": "Provider calls=0; live provider calls=0; membership/registry/detail repair writes=0; production mutations=0; DEV-005 soak starts=0.",
-    "tests": "17 existing DEV-004 projection/UI formatting tests passed.",
-    "audit": "docs/audits/dev_013_operations_live_registry_consistency_audit.v1.json sha256 49615421288860d6d8e454e0b71d761958d9e8a5ee3e26faf72e0c0c598f12b9",
-    "next_action": "DEV-013 remains IN_PROGRESS and needs separate authorization for the narrow generic read-side timestamp-source repair; DEV-005 remains separate and paused."
+    "engineering_revision": "working tree; narrow DEV-only read-side repair, no production deployment",
+    "status": "DEV_COMPLETE",
+    "finding": "PHOSPHOR (AcZx2dcryYz5b8xhn9xhWc2ue4RTHro26ve8vbiDpump) is a canonical Byzantine member present in Monitor/detail. Its canonical creation is 1790237305, while the old infrastructure overlay used legacy funding 1790101314. A generic resolver now selects canonical creation before canonical launch and retained create-anchor/funding/completion fallbacks.",
+    "qualification": "The same fail-closed resolver feeds both Registry 24h/7d/30d activity and Last Launch. PHOSPHOR now produces Byzantine 24h=1 and Last Launch=1790237305. Read-only projection after repair: Byzantine=1/17/202, Nexus=1/8/80, WATCHTOWER=2/38/297, WATCHTOWER_DEEP=0/20/26. All 20 Monitor rows still reconcile.",
+    "semantics": "Assignment, membership commit, monitor admission and migration timestamps remain excluded from launch-time selection. Monitor Age semantics, canonical membership, operation detail and DEV-004 capability projection are unchanged.",
+    "safety": "Provider calls=0; live provider calls=0; membership/registry/detail repair writes=0; production mutations=0; DEV-005 changes=0; DEV-004 reopened=false.",
+    "tests": "24 focused tests passed: DEV-013 resolver cases plus activity reader, DEV-004 projection, Monitor formatting and Registry UX regressions.",
+    "audits": "docs/audits/dev_013_operations_live_registry_consistency_audit.v1.json; docs/audits/dev_013_operations_registry_launch_timestamp_repair_qualification.v1.json sha256 1ec0238c88624cb7f4a12c580ebee6848afa3c594bcfd279c562799b36895df5",
+    "next_action": "DEV-013 is closed. No production promotion is implied; any production deployment needs its own authorization and clean-source parity gate."
   },
   "historical_15m_dev_task_closure_20260924": {
     "engineering_revision": "working tree; closure/contract-freeze only",

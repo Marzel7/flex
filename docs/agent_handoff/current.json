@@ -17086,6 +17086,16 @@
     "audit": "docs/audits/phosphor_bounded_live_scenario_d_diagnostic_result.v3.json sha256 8cebfd7b555e50a1cac54016ee020d7cd5b220c2a7a88cb23238087c166a9118",
     "next_action": "Require separate authorization to correct/restart only the DEV Monitor source binding, prove the qualified DEV run_once loop is loaded, then retry the preserved PHOSPHOR logical identity under the unchanged V2 bound."
   },
+  "dev_005_population_activation_and_queue_isolation_20260924": {
+    "engineering_revision": "working tree; provider-free DEV-only bridge and queue-isolation preflight",
+    "status": "DEV_005_POPULATION_ACTIVATION_QUALIFIED",
+    "finding": "A generic durable-qualified-entry bridge now commits the established Monitor fact before it emits a deterministic activation envelope. It projected the retained NATIVE_QUALIFIED 2GAd Byzantine entry and DEV-006's retained BmkJ shared Watchtower/Deep strict entry without provider calls. The pre-existing Watchtower retry remains the third control.",
+    "queue_isolation": "The frozen shared queue had 43 pending identities (digest 429e15bccdcd8305cf1c6ec84228e73cbced35d7d77e9b3b6d58edfc8a0b58ff). The opt-in durable DEV-005 selection restricts selection and transport to exactly the three controls. Offline restart and normal-mode regression pass; unrelated work was not deleted, completed, rewritten, or dispatched.",
+    "qualification": "32 focused tests passed, including generic bridge idempotency/restart/fail-closed behavior and selection-before-claim/transport defense. DEV-012's budget boundary and the 3-live-plus-1-durable reservation are not bypassed.",
+    "audit": "docs/audits/dev_005_population_activation_and_queue_isolation.v1.json sha256 665fd8a78772a034cff39dcda6439ccfbe119712b7887f0ee085417affe7d6ce",
+    "safety": "Provider/Helius/Birdeye calls=0; DEV-005 soak started=false; membership changes=0; production mutations=0; raw bytes retained=0.",
+    "next_action": "Separate authorization required: EXECUTE_DEV_005_ISOLATED_ALL_OPERATION_REAL_LIVE_SOAK."
+  },
   "phosphor_v2_source_binding_resume_20260924": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty DEV working tree; bounded live execution",
     "status": "PHOSPHOR_V2_SAFE_INSUFFICIENT_EVIDENCE",

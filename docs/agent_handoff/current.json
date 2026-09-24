@@ -1,4 +1,15 @@
 {
+  "dev_monitor_native_entry_schema_parity_20260924": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
+    "status": "DEV_MONITOR_NATIVE_ENTRY_SCHEMA_PARITY_QUALIFIED",
+    "root_cause": "DEV wt_ops_v2.db predated entry_native_mc_sol. The normal projection initializer already defines and idempotently upgrades that nullable TEXT column, while the supervised Monitor correctly validates rather than runs DDL at startup.",
+    "repair": "Ran the existing ensure_schema migration against the configured DEV Monitor database only. Exactly one missing schema column was added; second invocation was schema-version and row-count idempotent.",
+    "qualification": "121 focused provider-free tests pass. Native Scenario-D persistence, commit-before-live release, failed-write containment, restart durability, NULL/FX separation, WT/Deep and F1 regressions all pass. 14 DEV facts/identities/states were preserved; no synthetic backfill; PHOSPHOR native value remains NULL.",
+    "two_gad_preflight": "PASS: v2 remains authorized, scope drift=0, native writer/schema/order is qualified, DEV-009/DEV-012/Helius opening binding are qualified, maximum physical attempts remains 6. No transport was executed.",
+    "safety": "Provider/Helius calls=0; 2GAd acquisition=false; DEV-005=false; production mutations=0.",
+    "audit": "docs/audits/dev_monitor_native_entry_schema_parity_qualification.v1.json sha256 563221b2449c4767a15320546020ab082691441bacedbb5deee140ca5fb6af65",
+    "next_action": "The same authorized 2GAd v2 six-attempt diagnostic is ready for a separately authorized execution. Do not start DEV-005 in the schema-parity task."
+  },
   "byzantine_alternate_known_answer_diagnostic_20260924": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
     "status": "BYZANTINE_ALTERNATE_KNOWN_ANSWER_DIAGNOSTIC_BLOCKED",

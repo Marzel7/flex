@@ -16885,6 +16885,15 @@
     "audits": "docs/audits/historical_15m_bmkj_deep_completion.v1.json sha256 edf7e18750dd15b5d8c7cf7610b6866342005ce4305c36be652e5eb39e5123af; docs/audits/historical_15m_four_control_pilot_completion.v1.json sha256 da4fa191cb5aff8f4f4c4826e23d3a8b085b83a227da870c56af31f8998f13d5",
     "next_action": "Stop. The next bounded historical stage is now eligible but must not start without separate authorization."
   },
+  "dev_004_unified_operations_registry_live_monitor_audit_20260924": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty DEV working tree; audit-only",
+    "status": "IN_PROGRESS",
+    "scope": "DEV-004 architecture/UI audit only. No provider call, live monitor start, DEV-005 soak, historical acquisition, production mutation, or membership change.",
+    "finding": "The manual-admission registry and embedded read-only Live Monitor are implemented. DEV-009/010/011/012 integration is present. DEV-005 owns real soak qualification and does not block DEV-004. However, the monitor projection remains literal-ID coupled to Watchtower, Watchtower Deep and Byzantine rather than registry-capability driven; Deep is not a first-class summary operation. Four old registry-UX assertions are stale against the current unified template.",
+    "tests": "Focused command: 39 passed, 4 failed. DEV-009/010/011/012 and monitor-formatting tests pass; four legacy x73 registry-UX assertions require reconciliation.",
+    "audit": "docs/audits/dev_004_unified_operations_registry_live_monitor_audit.v1.json",
+    "next_action": "Separately authorize the narrow DEV-004 read-side generic-monitor projection and focused test reconciliation. Do not start DEV-005 or provider work in that task."
+  },
   "historical_15m_dev_task_closure_20260924": {
     "engineering_revision": "working tree; closure/contract-freeze only",
     "status": "HISTORICAL_15M_DEV_TASK_CLOSED",

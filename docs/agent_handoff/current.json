@@ -17150,6 +17150,16 @@
     "audit": "docs/audits/dev_005a_watchtower_monitor_projection_repair.v1.json sha256 7c60270f4c04f7579569264a93cddee646c1fb168a7815f2798c7ea300c584ad",
     "next_action": "Do not start provider-enabled DEV-005A. Separately repair and qualify the Supervisor DEV Monitor's source/storage binding to the isolated DEV mirror, then decide explicitly how to reconcile the one canonical fact created in this task."
   },
+  "dev_005a_dev_monitor_storage_isolation_20260924": {
+    "engineering_revision": "working tree; DEV operation_monitor_worker configuration now uses a clean explicit DEV-only environment and DEV-005A isolated storage",
+    "status": "DEV_005A_DEV_MONITOR_STORAGE_ISOLATION_QUALIFIED",
+    "storage": "Supervisor binds Monitor facts/observations, queues, budget/backoff state, job stores, diagnostics and logs below .dev_runtime/monitor/dev_005a. Explicit DB_PATH/FLEX_DB_PATH/RPC_METRICS_DB fallbacks are also DEV-only. The canonical migration DB is an explicitly read-only resolver only. The parent Supervisor's duplicate canonical DB_PATH was removed by env -i launch isolation.",
+    "canonical_fact": "3uaw canonical Monitor fact exists with created_at=updated_at=1790286671 and is NEW_IDEMPOTENT_PROJECTION_OF_AUTHORITATIVE_STATE: it was absent before the prior bridge task and was correctly derived from retained strict entry evidence, but landed in canonical storage due that prior binding defect. It was not modified or deleted here; recommendation=LEAVE_AS_IDEMPOTENT_AUTHORITATIVE_PROJECTION.",
+    "qualification": "Normal isolated schema initialization plus generic bridge projection produced exactly three active facts and activation envelopes (2GAd, 3uaw, 3677); BmkJ excluded. The no-transport Supervisor restart retained them. Provider-free DevContinuousMonitor reconstructed all three at LIVE_PRICE boundary. 58 focused tests passed.",
+    "safety": "Provider/Helius/Birdeye calls=0; soak=false; membership changes=0; canonical DB mutations this task=0; production mutations=0; worker stopped. Canonical wt_ops read-only freeze sha256 a0c9efb6fa54dffeb1af9601c49eb934097fb1d4d82761dc9c7794950d72142f.",
+    "audit": "docs/audits/dev_005a_dev_monitor_storage_isolation.v1.json sha256 dcd72f5fba34fd4d0b234f248eaf7f83e16d9dbb3ce5879e90b341e8ef6ce21f",
+    "next_action": "Separate authorization required: EXECUTE_DEV_005A_WITH_ISOLATED_DEV_STORAGE. Do not enable provider traffic before that authorization."
+  },
   "phosphor_v2_source_binding_resume_20260924": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty DEV working tree; bounded live execution",
     "status": "PHOSPHOR_V2_SAFE_INSUFFICIENT_EVIDENCE",

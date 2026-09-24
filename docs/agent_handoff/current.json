@@ -16872,5 +16872,17 @@
     "safety": "PROVIDER_CALLS=3; HTTP200=3; HTTP429=0; PROBE_RESULTS_APPLIED_TO_HISTORICAL_DATA=false; KNOWN_REPAIRED_ROW_REACQUISITION_COUNT=0; PRODUCTION_WRITES=0; OPENING_CHANGES=0; DEV_005_CHANGES=0; DEV_WAL_BYTES=0; RAW_BYTES_RETAINED=0.",
     "audit": "docs/audits/historical_15m_provider_capacity_probe.v1.json sha256 f5edddbaadac807835dd45c4e7a0f3cef47c6ef217d61208bf02859c88d1e3ca",
     "next_action": "Stop. A separately authorized historical pilot resume may acquire only the remaining Deep workload using the frozen method, shared DEV-009/DEV-012 guards, provider floor 10 seconds, and effective 15-second per-token budget pacing."
+  },
+  "historical_15m_bmkj_deep_completion_20260924": {
+    "engineering_revision": "working tree; authorized DEV-only BmkJ historical 15m continuation",
+    "status": "HISTORICAL_15M_BMKJ_DEEP_COMPLETION_QUALIFIED",
+    "resume_gate": "PASS: DEV-009/DEV-012 active, budget ledger active, serialized execution, one concurrent request, provider capacity proven, 15-second effective operational floor.",
+    "bmkj": "394 requested buckets in 24 bounded logical/physical requests. All 24 HTTP200 at exactly 15-second observed inter-request spacing; no 429/retry/other failure. Retained 13 qualified full 15m candles and 381 neutral NO_PROVIDER_CANDLE gaps. Rows inserted=13, updated=0, duplicate identity=0, unresolved=0.",
+    "four_control_pilot": "427 requested, 34 qualified candles, 14 rows inserted, 16 rows repaired, 393 neutral provider gaps, zero terminal gaps/unresolved. 7gu/HXp/7x state was unchanged and no repaired rows were reacquired.",
+    "policy": "HISTORICAL_15M_POLICY_STATUS=PILOT_QUALIFIED_WITH_LEGITIMATE_PROVIDER_GAPS; HISTORICAL_15M_NEXT_STAGE_READY=true. Opening remains locked; provider payloads were not retained; no synthesis occurred.",
+    "pacing": "PROVIDER_CAPACITY_PROVEN_AT_SECONDS=10; DEV_012_EFFECTIVE_MIN_REQUEST_GAP_SECONDS=15; HISTORICAL_15M_OPERATIONAL_MIN_REQUEST_GAP_SECONDS=15.",
+    "safety": "PRODUCTION_WRITES=0; OPENING_CHANGES=0; DEV_005_CHANGES=0; DEV_WAL_BYTES_BEFORE=0; DEV_WAL_BYTES_AFTER=0; RAW_BYTES_RETAINED=0.",
+    "audits": "docs/audits/historical_15m_bmkj_deep_completion.v1.json sha256 edf7e18750dd15b5d8c7cf7610b6866342005ce4305c36be652e5eb39e5123af; docs/audits/historical_15m_four_control_pilot_completion.v1.json sha256 da4fa191cb5aff8f4f4c4826e23d3a8b085b83a227da870c56af31f8998f13d5",
+    "next_action": "Stop. The next bounded historical stage is now eligible but must not start without separate authorization."
   }
 }

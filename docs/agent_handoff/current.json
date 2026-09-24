@@ -16928,6 +16928,17 @@
     "production_flags": "production source/config/services/databases unchanged",
     "next_action": "Seek separate authorization for the narrow DEV014-F1 through F4 repair task; do not resume DEV-005 first."
   },
+  "dev_015_all_operation_live_pre_soak_repairs_20260924": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with DEV-only working-tree changes",
+    "status": "PARTIAL_PROVIDER_FREE_HOLD",
+    "verdict": "Fixes 2-4 are qualified offline: capability-driven restore now includes Byzantine, a due 15m bucket reserves one of the token's four rolling-minute slots, and Byzantine reconciliation accounting is repaired. Fix 1 cannot close honestly: the reusable Scenario-D bridge has no authoritative committed live producer bound to it.",
+    "implemented": "operation-monitor capabilities now declare entry_reference_producer; worker dispatches resolver by capability; DEV bootstrap/restore reads enabled capabilities; boundary tick dispatches 15m evidence instead of a fourth live tick; reconciliation no longer counts a restored waiting job as already present.",
+    "tests": "66 focused zero-network tests passed, including new capability selection, three-operation restore/F1 terminal exclusion, single-token boundary reservation, and multi-operation boundary fairness fixtures.",
+    "phosphor": "Canonical/admitted PHOSPHOR selects SCENARIO_D_COMMITTED but remains WAITING_FOR_ENTRY_REFERENCE/BYZANTINE_ENTRY_EVIDENCE_DUE because no committed Scenario-D 12/13 envelope exists. No entry value was invented.",
+    "safety": "Provider/live-soak/historical/membership/production mutations=0; DEV-005 retained population unchanged.",
+    "audit": "docs/audits/dev_015_all_operation_live_pre_soak_repairs_qualification.v1.json sha256 7d0007bd2d1d8bac9448ddd220638111c81ac3a687c044a69be54c18ea45cfd4",
+    "next_action": "Do not resume DEV-005. A separately authorized causal-evidence source task is required to establish the missing committed Scenario-D producer before Byzantine can validly enter the live Monitor."
+  },
   "historical_15m_dev_task_closure_20260924": {
     "engineering_revision": "working tree; closure/contract-freeze only",
     "status": "HISTORICAL_15M_DEV_TASK_CLOSED",

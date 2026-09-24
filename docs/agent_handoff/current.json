@@ -16949,5 +16949,17 @@
     "safety": "PROVIDER_CALLS=0; HISTORICAL_ACQUISITION_REQUESTS=0; PRODUCTION_WRITES=0; OPENING_CHANGES=0; DEV_005_CHANGES=0; PILOT_ROWS_CHANGED=0.",
     "audit": "docs/audits/historical_15m_dev_task_closure.v1.json sha256 fdec7f22fb87f59dc17667c05a1ca6226d863bc64af2b1c7f53d32e64041aca2",
     "next_action": "Stop. Do not begin BOUNDED_HISTORICAL_15M_ACQUISITION without separate authorization."
+  },
+  "dev_016_byzantine_live_scenario_d_causal_source_20260924": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty DEV working tree; provider-free audit only",
+    "status": "DEV_016_BYZANTINE_SCENARIO_D_CAUSAL_SOURCE_BLOCKED",
+    "verdict": "The generic passive raw-action store, retained block-order worker, boundary-state contract, frozen Byzantine classifier, projection, trigger and Monitor bridge are individually reusable, but no committed live source joins them. No entry value was invented.",
+    "phosphor": "AcZx2dcryYz5b8xhn9xhWc2ue4RTHro26ve8vbiDpump has canonical create signature and creator but no canonical create slot, retained opening block/actions, recurrent-classifier projection, action-boundary state reference, or qualified Scenario-D USD entry valuation. Its waiting Monitor fact remains correct.",
+    "historical_known_answer": "Retained 2MmEYtGfRFLd5L6d9Veg1WLcH23NSxQKVhR7y1Bhpump proves position-13 semantic/inverse-state replay, but lacks a complete per-mint live-envelope trace. The prospective preflight also records a missing raw fixture; it cannot qualify the missing source.",
+    "budget": "A future source would require 1 create transaction + 1..8 ordered blocks + 1 FX conversion (3..10 logical requests). Existing DEV-012 only admits Monitor/Birdeye work; no Scenario-D generic job class, priority reservation, durable continuation or shared Helius budget integration exists. It is therefore not currently starvation-safe or schedulable under 4/min.",
+    "tests": "21 focused provider-free component tests passed: bridge, projection, trigger, generic action evidence/worker, recurrence adapter and request DAG. No truthful end-to-end restart or mocked-live-source test can run while the durable source is absent.",
+    "safety": "provider/Helius/Birdeye calls=0; raw bytes retained=0; DEV-005 started=false; membership/historical acquisition/production mutations=0.",
+    "audit": "docs/audits/dev_016_byzantine_live_scenario_d_causal_evidence_source.v1.json sha256 27de9e6fafe514aa8e4ef4582b6871f7630ea2c6962dadcc349ccb5372d62283",
+    "next_action": "Separate authorization is required to implement a generic committed opening-action evidence job, its durable budget/priority continuation, exact action-boundary state source and policy-adapter integration; then qualify it offline before any bounded PHOSPHOR acquisition. Do not resume DEV-005."
   }
 }

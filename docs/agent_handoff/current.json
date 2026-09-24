@@ -16894,6 +16894,16 @@
     "audit": "docs/audits/dev_004_unified_operations_registry_live_monitor_audit.v1.json",
     "next_action": "Separately authorize the narrow DEV-004 read-side generic-monitor projection and focused test reconciliation. Do not start DEV-005 or provider work in that task."
   },
+  "dev_004_unified_operations_registry_live_monitor_qualification_20260924": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty DEV working tree; DEV-004 read-side implementation only",
+    "status": "DEV_COMPLETE",
+    "implementation": "The Live Monitor read projection now joins canonical active/manual registry rows to docs/operations/operation_monitor_capabilities.v1.json. The manifest is a versioned read-side declaration, not a new operation or monitor-state authority; canonical database schema, promotion writes, memberships, monitor persistence and provider controls are unchanged.",
+    "coverage": "Nexus, Byzantine, WATCHTOWER and WATCHTOWER_DEEP remain the four audit-qualified active manual operations. Byzantine, WATCHTOWER and WATCHTOWER_DEEP have explicit monitor declarations. Nexus has none and is REGISTRY_ONLY_NOT_PROJECTED. The summary-card renderer is generic, so Deep appears with no Deep-specific UI branch.",
+    "qualification": "46 focused tests passed, 0 failed: generic synthetic capable/noncapable selection, generic Deep card rendering, read-only/provider-free projection, current Monitor formatting, four reconciled unified-registry UI tests, and DEV-009/010/011/012 regressions. The projection now restricts recent membership rows to declared monitor-capable operations, preventing registry-only operations from appearing as Monitor targets.",
+    "boundary": "DEV-005 was not started or altered; real provider capacity, freshness, fairness and resource soak evidence remain DEV-005-only. Provider calls=0; live monitor starts=0; historical acquisition=0; production/membership mutations=0.",
+    "audit": "docs/audits/dev_004_unified_operations_registry_live_monitor_qualification.v1.json sha256 f40a8cd9078e0cd5d20b900448b97995a759cd4a2adfe713797b3df21dd38104",
+    "next_action": "DEV-004 is closed. Do not automatically resume DEV-005; it remains a separate, explicitly authorized live-soak workstream."
+  },
   "historical_15m_dev_task_closure_20260924": {
     "engineering_revision": "working tree; closure/contract-freeze only",
     "status": "HISTORICAL_15M_DEV_TASK_CLOSED",

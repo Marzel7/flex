@@ -17086,6 +17086,15 @@
     "audit": "docs/audits/phosphor_bounded_live_scenario_d_diagnostic_result.v3.json sha256 8cebfd7b555e50a1cac54016ee020d7cd5b220c2a7a88cb23238087c166a9118",
     "next_action": "Require separate authorization to correct/restart only the DEV Monitor source binding, prove the qualified DEV run_once loop is loaded, then retry the preserved PHOSPHOR logical identity under the unchanged V2 bound."
   },
+  "dev_005_no_transport_preflight_and_deep_replacement_20260924": {
+    "engineering_revision": "working tree; generic no-transport preflight mode",
+    "status": "DEV_005_NO_TRANSPORT_DEEP_REPLACEMENT_BLOCKED",
+    "finding": "MONITOR_PREFLIGHT_NO_TRANSPORT now loads the normal DEV source, configuration, stores, queue selection, capability state and eligible facts without constructing provider bindings or invoking any provider-capable worker path. Actual Supervisor start/8-second run/clean stop produced zero provider work or queue mutation.",
+    "deep_control": "BmkJ remains terminal and was not reactivated. The canonical Deep population has 26 members, 25 nonterminal members, and zero nonterminal members with a retained qualified entry/reference fact. BmkJ was the sole retained qualified Deep entry.",
+    "qualification": "35 focused tests passed across Monitor service, bridge, activation, and worker paths. No provider call occurred in this task.",
+    "audit": "docs/audits/dev_005_no_transport_preflight_and_deep_replacement.v1.json",
+    "next_action": "Separate authorization required: QUALIFY_ONE_DEEP_ENTRY_WITH_SEPARATE_AUTHORIZATION. Do not resume DEV-005 or substitute a Deep control."
+  },
   "dev_005_soak_selection_binding_preflight_20260924": {
     "engineering_revision": "working tree; DEV Supervisor selection binding attempt",
     "status": "DEV_005_SOAK_SELECTION_BINDING_PREFLIGHT_BLOCKED",

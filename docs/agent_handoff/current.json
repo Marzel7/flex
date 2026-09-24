@@ -16915,6 +16915,15 @@
     "audits": "docs/audits/dev_013_operations_live_registry_consistency_audit.v1.json; docs/audits/dev_013_operations_registry_launch_timestamp_repair_qualification.v1.json sha256 1ec0238c88624cb7f4a12c580ebee6848afa3c594bcfd279c562799b36895df5; docs/audits/dev_013_operations_registry_detail_timestamp_projection_qualification.v1.json",
     "next_action": "DEV-013 is closed. No production promotion is implied; any production deployment needs its own authorization and clean-source parity gate."
   },
+  "dev_014_all_operation_live_token_data_readiness_20260924": {
+    "engineering_revision": "working tree; registration only",
+    "status": "PLANNED",
+    "scope": "Provider-free DEV readiness audit for Byzantine, WATCHTOWER and WATCHTOWER_DEEP: reconcile DEV-010 status, trace PHOSPHOR and every current Monitor token, recover actual live-data/runtime contracts, budget/freshness/fairness/resource/restart/UI readiness, and define the smallest future DEV-005 soak population and success criteria.",
+    "frozen_boundaries": "Provider calls=0; live Monitor/DEV-005 soak starts=0; historical acquisition=0; membership/data changes=0; production mutations=0; completed DEV tasks remain closed unless concrete evidence requires a separate correction.",
+    "dependencies": "DEV-004, DEV-005, DEV-009, DEV-010, DEV-011, DEV-012, DEV-013. DEV-003/007/008 are not presumed dependencies.",
+    "audit_artifact": "docs/audits/dev_014_all_operation_live_token_data_readiness.v1.json (not created until the audit is run)",
+    "next_action": "Under the existing DEV-014 authorization, run the provider-free readiness audit only; do not start the soak."
+  },
   "historical_15m_dev_task_closure_20260924": {
     "engineering_revision": "working tree; closure/contract-freeze only",
     "status": "HISTORICAL_15M_DEV_TASK_CLOSED",

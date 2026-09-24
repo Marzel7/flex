@@ -16884,5 +16884,16 @@
     "safety": "PRODUCTION_WRITES=0; OPENING_CHANGES=0; DEV_005_CHANGES=0; DEV_WAL_BYTES_BEFORE=0; DEV_WAL_BYTES_AFTER=0; RAW_BYTES_RETAINED=0.",
     "audits": "docs/audits/historical_15m_bmkj_deep_completion.v1.json sha256 edf7e18750dd15b5d8c7cf7610b6866342005ce4305c36be652e5eb39e5123af; docs/audits/historical_15m_four_control_pilot_completion.v1.json sha256 da4fa191cb5aff8f4f4c4826e23d3a8b085b83a227da870c56af31f8998f13d5",
     "next_action": "Stop. The next bounded historical stage is now eligible but must not start without separate authorization."
+  },
+  "historical_15m_dev_task_closure_20260924": {
+    "engineering_revision": "working tree; closure/contract-freeze only",
+    "status": "HISTORICAL_15M_DEV_TASK_CLOSED",
+    "verification": "Completion totals independently verified from the four-control artifact: requested=427, qualified=34, neutral gaps=393, unresolved=0. DEV-009 and DEV-012 are QUALIFIED. Provider response capacity was proven at 10 seconds, but the frozen DEV-012 four-per-minute guard makes 15 seconds the operating minimum.",
+    "policy": "HISTORICAL_15M_ACQUISITION_POLICY_V1 is frozen: serialized one-request execution, 15-second spacing, DEV-009/DEV-012 unchanged, valid provider 15m OHLC only, NO_PROVIDER_CANDLE neutral, and no interpolation/synthetic or zero repair.",
+    "acceptance": "Documented qualification acceptance matrix: PASS=5, PENDING=0, BLOCKED=0, NOT_REQUIRED=1 (larger acquisition is a downstream execution stage, not a pilot requirement). DEV_TASK_STATUS=COMPLETE; DEV_TASK_CLOSE_READY=true.",
+    "next_stage": "NEXT_HISTORICAL_STAGE=BOUNDED_HISTORICAL_15M_ACQUISITION; NEW_EXECUTION=true; PILOT_CONTINUATION=false; AUTHORIZED=false; PROVIDER_CALLS_ALLOWED=false; DB_WRITES_ALLOWED=false.",
+    "safety": "PROVIDER_CALLS=0; HISTORICAL_ACQUISITION_REQUESTS=0; PRODUCTION_WRITES=0; OPENING_CHANGES=0; DEV_005_CHANGES=0; PILOT_ROWS_CHANGED=0.",
+    "audit": "docs/audits/historical_15m_dev_task_closure.v1.json sha256 fdec7f22fb87f59dc17667c05a1ca6226d863bc64af2b1c7f53d32e64041aca2",
+    "next_action": "Stop. Do not begin BOUNDED_HISTORICAL_15M_ACQUISITION without separate authorization."
   }
 }

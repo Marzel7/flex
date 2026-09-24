@@ -17001,5 +17001,14 @@
     "tests": "python compilation plus 37 focused DEV-017/DEV-011/MonitorWorker tests passed.",
     "blocker": "The service-loop bridge is wired, but the required real-loop mocked dispatch, failure/idempotency/crash/cross-family/23-replay/PHOSPHOR-mocked qualification fixtures are not complete.",
     "next_action": "Continue DEV_017_RUNTIME_REPAIR: add and run the required offline fixtures before any PHOSPHOR retry."
+  },
+  "dev_017_helius_real_loop_qualification_20260924": {
+    "engineering_revision": "dirty DEV working tree; provider-free fixture expansion",
+    "status": "PARTIAL",
+    "implemented": "Added dedicated Monitor run_once fixtures with HeliusProductionBinding and a mocked transport below that binding. The retained JSON-RPC getTransaction fixture passes through the real binding, consumer normalization, compact opening-job persistence, and next-block scheduling. Malformed response handling fails closed; HTTP 429 defers the same work identity through the durable shared gate; HTTP 400 terminalizes and cannot be redispatched.",
+    "tests": "tests/test_dev_017_helius_monitor_runtime.py = 4 passed; combined DEV-017 opening and provider-binding suite = 19 passed; py_compile passed.",
+    "safety": "REAL_PROVIDER_CALLS=0; PHOSPHOR_LIVE_ACQUISITION_STARTED=false; DEV_005_SOAK_STARTED=false; PRODUCTION_MUTATIONS=0; RAW_PAYLOADS_RETAINED=false.",
+    "verdict": "HELIUS_OPENING_RUNTIME_QUALIFIED=false; PHOSPHOR_LIVE_DIAGNOSTIC_READY=false. The new Create, malformed, 429/restart, and terminal gates pass, but retained getBlock real-loop, compact-persistence failure ordering, idempotency/crash convergence, full Scenario-D integration, and PHOSPHOR offline retained-evidence applicability remain unexecuted.",
+    "next_action": "Add the retained getBlock real-loop and crash/order/idempotency fixtures using the same isolated harness; do not dispatch PHOSPHOR until all applicable gates pass."
   }
 }

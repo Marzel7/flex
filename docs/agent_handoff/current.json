@@ -17020,5 +17020,16 @@
     "safety": "REAL_PROVIDER_CALLS=0; PHOSPHOR_LIVE_ACQUISITION_STARTED=false; DEV_005_SOAK_STARTED=false; PRODUCTION_MUTATIONS=0; RAW_PAYLOADS_RETAINED=false.",
     "verdict": "HELIUS_OPENING_RUNTIME_QUALIFIED=false; PHOSPHOR_LIVE_DIAGNOSTIC_READY=false.",
     "next_action": "Do not dispatch PHOSPHOR. Resolve the specific Scenario-D runtime classifier/12-13 policy inconsistency in a separately scoped semantic task."
+  },
+  "dev_017_scenario_d_12_13_semantic_resolved_20260924": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty DEV working tree; provider-free semantic repair",
+    "status": "DEV_017_SCENARIO_D_12_13_SEMANTIC_RESOLVED",
+    "finding": "The retained authoritative counterfactual source selects the one-based 13th distinct non-creator BUY in slot/transaction/action order, not the 13th frozen-cluster member. The 12-wallet classifier remains unchanged and is a separate recurrence projection. In the 23-case retained corpus all boundaries are position 13 and non-creator; 22 are external to the seed while one is a seed wallet, proving membership cannot be the boundary predicate.",
+    "repair": "entry_reference_policy_adapters now selects distinct_buys[12], deduplicating actors and excluding creator BUYs. The trigger evaluator no longer requires is_cluster_member. No frozen classifier, provider budget, Helius normalization, Monitor runtime configuration, PHOSPHOR state, or production state was changed.",
+    "qualification": "43 focused tests passed. This includes 23 retained boundary identities replayed through the corrected adapter and a retained real Create plus four retained opening blocks through HeliusProductionBinding and Monitor run_once, ending QUALIFIED_NATIVE on the Scenario-D path.",
+    "audit": "docs/audits/dev_017_helius_monitor_binding_qualification.v1.json sha256 7c241fcd209d54d5eb8db16c93ca826c30eadcc6887e6abea71858a1721f8213",
+    "safety": "REAL_PROVIDER_CALLS=0; HELIUS_CALLS=0; PHOSPHOR_LIVE_ACQUISITION_STARTED=false; DEV_005_SOAK_STARTED=false; PRODUCTION_MUTATIONS=0; RAW_PAYLOADS_RETAINED=false.",
+    "verdict": "HELIUS_OPENING_RUNTIME_QUALIFIED=true; PHOSPHOR_LIVE_DIAGNOSTIC_READY=true.",
+    "next_action": "EXECUTE_EXISTING_PHOSPHOR_V2_DIAGNOSTIC only under its separate authorization; production remains out of scope."
   }
 }

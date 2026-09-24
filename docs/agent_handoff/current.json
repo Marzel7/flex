@@ -17010,5 +17010,15 @@
     "safety": "REAL_PROVIDER_CALLS=0; PHOSPHOR_LIVE_ACQUISITION_STARTED=false; DEV_005_SOAK_STARTED=false; PRODUCTION_MUTATIONS=0; RAW_PAYLOADS_RETAINED=false.",
     "verdict": "HELIUS_OPENING_RUNTIME_QUALIFIED=false; PHOSPHOR_LIVE_DIAGNOSTIC_READY=false. The new Create, malformed, 429/restart, and terminal gates pass, but retained getBlock real-loop, compact-persistence failure ordering, idempotency/crash convergence, full Scenario-D integration, and PHOSPHOR offline retained-evidence applicability remain unexecuted.",
     "next_action": "Add the retained getBlock real-loop and crash/order/idempotency fixtures using the same isolated harness; do not dispatch PHOSPHOR until all applicable gates pass."
+  },
+  "dev_017_scenario_d_runtime_semantic_hold_20260924": {
+    "engineering_revision": "dirty DEV working tree; provider-free runtime continuation",
+    "status": "HOLD_SCENARIO_D_RUNTIME_CLASSIFIER_CONTRACT",
+    "qualified": "Retained real-shape getBlock now traverses HeliusProductionBinding and operation_monitor_service.run_once, preserving ordered action indices, creator relation, reserve vectors and integer transition deltas. A post-consume crash recovery defect was repaired: a stale recovered generic work identity is reconciled from the durable opening job without a duplicate provider dispatch. Focused runtime/opening/Monitor tests: 36 passed.",
+    "blocker": "The declared frozen runtime cluster classifier can qualify only its 12 retained seed wallets, while the present Scenario-D adapter requires 13 classifier-qualified actions before it evaluates position 13. Thus an authoritative real-shape runtime Scenario-D qualification cannot be produced without changing the locked 12/13 semantics.",
+    "audit": "docs/audits/dev_017_helius_monitor_binding_qualification.v1.json",
+    "safety": "REAL_PROVIDER_CALLS=0; PHOSPHOR_LIVE_ACQUISITION_STARTED=false; DEV_005_SOAK_STARTED=false; PRODUCTION_MUTATIONS=0; RAW_PAYLOADS_RETAINED=false.",
+    "verdict": "HELIUS_OPENING_RUNTIME_QUALIFIED=false; PHOSPHOR_LIVE_DIAGNOSTIC_READY=false.",
+    "next_action": "Do not dispatch PHOSPHOR. Resolve the specific Scenario-D runtime classifier/12-13 policy inconsistency in a separately scoped semantic task."
   }
 }

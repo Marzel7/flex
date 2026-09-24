@@ -16906,14 +16906,14 @@
   },
   "dev_013_operations_live_registry_consistency_audit_20260924": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty DEV working tree; read-only audit",
-    "status": "AUDIT_QUALIFIED",
-    "finding": "PHOSPHOR (AcZx2dcryYz5b8xhn9xhWc2ue4RTHro26ve8vbiDpump) is a canonical Byzantine member, committed at 1790237496 and present in its Monitor and detail projections. Its underlying retained funding/launch timestamp is 1790101314. Monitor Age uses the former assignment timestamp; Registry activity and Last Launch intentionally use the latter launch-time timestamp.",
-    "reconciliation": "All 20 current Live Monitor rows reconcile to canonical membership and detail inclusion. The four confirmed active operations' activity windows and Last Launch values recompute from their declared retained sources. No canonical-membership write failure, Registry cache staleness, detail omission for PHOSPHOR or DEV-004 capability-contract violation is proven.",
-    "semantics": "Current Monitor operation labels are canonical operation assignments, not route-only/uncommitted labels. The apparent inconsistency is EXPECTED_LIVE_VS_CANONICAL_SEMANTICS: recent assignment must not be substituted for token launch time. An optional future UI clarity improvement may label Monitor Age as Assigned age; no repair is required by this audit.",
+    "status": "AUDIT_QUALIFIED_REPAIR_REQUIRED",
+    "finding": "Correction: PHOSPHOR (AcZx2dcryYz5b8xhn9xhWc2ue4RTHro26ve8vbiDpump) is canonical Byzantine membership, committed at 1790237496 and present in Monitor/detail. Its authoritative token creation and confirmed-match launch time are 1790237305, while the Byzantine Registry overlay instead takes old queue funder_block_time 1790101314.",
+    "reconciliation": "All 20 current Live Monitor rows reconcile to canonical membership and detail inclusion. Nexus, WATCHTOWER and WATCHTOWER_DEEP Registry activity/Last Launch reconcile. Byzantine does not: PHOSPHOR should produce 24h=1 and Last Launch=1790237305, but current overlay reports 24h=0 and Last Launch=1790101314.",
+    "semantics": "Monitor operation labels are canonical assignments. This is TIMESTAMP_SEMANTIC_DEFECT, not a membership or DEV-004 capability-projection defect. The generic required repair is a canonical-launch timestamp resolver that prefers token creation evidence over an earlier funding timestamp, then falls back only if canonical launch evidence is absent.",
     "safety": "Provider calls=0; live provider calls=0; membership/registry/detail repair writes=0; production mutations=0; DEV-005 soak starts=0.",
     "tests": "17 existing DEV-004 projection/UI formatting tests passed.",
-    "audit": "docs/audits/dev_013_operations_live_registry_consistency_audit.v1.json sha256 60506cd14fa9fc9aaca113730cb9a635b68938428f36bf3b35afb059c49b8290",
-    "next_action": "DEV-013 remains IN_PROGRESS after its audit phase. Do not repair or change UI unless separately authorized; DEV-005 remains separate and paused."
+    "audit": "docs/audits/dev_013_operations_live_registry_consistency_audit.v1.json sha256 49615421288860d6d8e454e0b71d761958d9e8a5ee3e26faf72e0c0c598f12b9",
+    "next_action": "DEV-013 remains IN_PROGRESS and needs separate authorization for the narrow generic read-side timestamp-source repair; DEV-005 remains separate and paused."
   },
   "historical_15m_dev_task_closure_20260924": {
     "engineering_revision": "working tree; closure/contract-freeze only",

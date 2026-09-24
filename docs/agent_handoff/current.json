@@ -17086,6 +17086,14 @@
     "audit": "docs/audits/phosphor_bounded_live_scenario_d_diagnostic_result.v3.json sha256 8cebfd7b555e50a1cac54016ee020d7cd5b220c2a7a88cb23238087c166a9118",
     "next_action": "Require separate authorization to correct/restart only the DEV Monitor source binding, prove the qualified DEV run_once loop is loaded, then retry the preserved PHOSPHOR logical identity under the unchanged V2 bound."
   },
+  "dev_005_soak_selection_binding_preflight_20260924": {
+    "engineering_revision": "working tree; DEV Supervisor selection binding attempt",
+    "status": "DEV_005_SOAK_SELECTION_BINDING_PREFLIGHT_BLOCKED",
+    "finding": "The DEV-only selection binding parses and has exactly three expected mints. However, starting the ordinary operation_monitor_service to inspect its live environment invoked its provider-capable loop and made one authorized BmkJ 15M request before containment. It succeeded and BmkJ terminalized, so the required three-operation population is no longer eligible.",
+    "safety": "The worker was stopped immediately. Soak=false; unrelated queue work was untouched; Helius=0; production provider work/DB writes/mutations=0; membership changes=0. Birdeye=1 for BmkJ only.",
+    "audit": "docs/audits/dev_005_soak_selection_binding_preflight.v1.json",
+    "next_action": "Do not resume DEV-005. Separately add and qualify a no-transport Monitor preflight mode, then qualify a nonterminal Deep control without substituting one silently."
+  },
   "dev_005_isolated_all_operation_real_live_soak_20260924": {
     "engineering_revision": "working tree; execution preflight only",
     "status": "DEV_005_ALL_OPERATION_REAL_LIVE_SOAK_BLOCKED",

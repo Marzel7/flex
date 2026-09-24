@@ -1,4 +1,14 @@
 {
+  "byzantine_alternate_known_answer_diagnostic_20260924": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
+    "status": "BYZANTINE_ALTERNATE_KNOWN_ANSWER_DIAGNOSTIC_BLOCKED",
+    "classification": "FAIL_RUNTIME",
+    "authorization": "Authorized v2 contract created at docs/audits/byzantine_alternate_bounded_live_scenario_d_diagnostic_contract.v2.json sha256 ba99f3eff25b9128f1d1cded6046a346cd0256087a78def79d1ed80649df69ab; semantic scope drift from v1=0.",
+    "blocker": "Preflight found the DEV operation_monitor_facts table lacks entry_native_mc_sol. The qualified Scenario-D native-entry activation requires that column before live-price eligibility, so executing the six-request 2GAd run would risk provider acquisition that cannot durably commit its required outcome.",
+    "safety": "2GAd job admission=0; provider/Helius calls=0; PHOSPHOR=0; non-control provider calls=0; raw retention=0; membership changes=0; production mutations=0; DEV-005 start=false.",
+    "audit": "docs/audits/byzantine_alternate_bounded_live_scenario_d_diagnostic_result.v1.json sha256 7a510b53dec45a09b097e1856ce48fdd82550447e324d43f128d576616daeb8c",
+    "next_action": "Separately authorize a DEV-only Monitor native-entry schema-parity repair and migration qualification. Re-run the same immutable six-request 2GAd contract only after that preflight passes; do not start DEV-005."
+  },
   "byzantine_live_gate_post_phosphor_20260924": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
     "status": "BYZANTINE_LIVE_GATE_POST_PHOSPHOR_QUALIFIED",

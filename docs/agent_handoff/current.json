@@ -16916,13 +16916,17 @@
     "next_action": "DEV-013 is closed. No production promotion is implied; any production deployment needs its own authorization and clean-source parity gate."
   },
   "dev_014_all_operation_live_token_data_readiness_20260924": {
-    "engineering_revision": "working tree; registration only",
-    "status": "PLANNED",
-    "scope": "Provider-free DEV readiness audit for Byzantine, WATCHTOWER and WATCHTOWER_DEEP: reconcile DEV-010 status, trace PHOSPHOR and every current Monitor token, recover actual live-data/runtime contracts, budget/freshness/fairness/resource/restart/UI readiness, and define the smallest future DEV-005 soak population and success criteria.",
-    "frozen_boundaries": "Provider calls=0; live Monitor/DEV-005 soak starts=0; historical acquisition=0; membership/data changes=0; production mutations=0; completed DEV tasks remain closed unless concrete evidence requires a separate correction.",
-    "dependencies": "DEV-004, DEV-005, DEV-009, DEV-010, DEV-011, DEV-012, DEV-013. DEV-003/007/008 are not presumed dependencies.",
-    "audit_artifact": "docs/audits/dev_014_all_operation_live_token_data_readiness.v1.json (not created until the audit is run)",
-    "next_action": "Under the existing DEV-014 authorization, run the provider-free readiness audit only; do not start the soak."
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty development working tree; provider-free audit only",
+    "status": "AUDIT_COMPLETE_PRE_SOAK_FIX_REQUIRED",
+    "verdict": "DEV-005 is not ready. Four narrow DEV-only pre-soak fixes are required: Byzantine committed Scenario-D entry evidence, capability-driven Byzantine DEV restore, 15-minute boundary reservation under the 4/min token limit, and Byzantine reconciliation accounting repair.",
+    "scope": "Provider-free DEV readiness audit for Byzantine, WATCHTOWER and WATCHTOWER_DEEP completed. DEV-010 status record reconciled to DEV_COMPLETE using the later DEV-011 retained qualification; no runtime behavior was changed.",
+    "evidence": "Production facts: 11 Byzantine rows are WAITING_FOR_ENTRY_REFERENCE with no entry/current/peak/drawdown/candle values; PHOSPHOR is canonical/admitted but lacks committed Scenario-D 12/13 evidence. DEV continuous bootstrap/restore is currently WATCHTOWER/DEEP-only. At 15s, four LIVE requests/token/min consume the full 4/min token budget; the same token's 15m boundary request would be fifth, so the schedule cannot guarantee both data classes. Focused regression: 61 passed, one concrete reconciliation accounting test failed.",
+    "frozen_boundaries": "Provider calls=0; live Monitor/DEV-005 soak starts=0; historical acquisition=0; membership/data changes=0; production mutations=0; DEV-005 retained population unchanged.",
+    "dependencies": "DEV-004, DEV-005, DEV-009, DEV-010, DEV-011, DEV-012, DEV-013. DEV-003/007/008 remain unchanged and are not presumed dependencies.",
+    "audit_artifact": "docs/audits/dev_014_all_operation_live_token_data_readiness.v1.json sha256 8ad9a04059460cc10cfaded6bfc13c677f5991f9abd3f1d2c2f03d92d555586f",
+    "tests": "pytest focused Monitor/DEV suite: 61 passed, 1 failed (test_post_activation_byzantine_reconciliation_restores_same_waiting_identity).",
+    "production_flags": "production source/config/services/databases unchanged",
+    "next_action": "Seek separate authorization for the narrow DEV014-F1 through F4 repair task; do not resume DEV-005 first."
   },
   "historical_15m_dev_task_closure_20260924": {
     "engineering_revision": "working tree; closure/contract-freeze only",

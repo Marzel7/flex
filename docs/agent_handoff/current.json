@@ -17131,6 +17131,15 @@
     "safety": "Provider/Helius/Birdeye calls=0; DEV-005 soak started=false; membership changes=0; production mutations=0; raw bytes retained=0.",
     "next_action": "Separate authorization required: EXECUTE_DEV_005_ISOLATED_ALL_OPERATION_REAL_LIVE_SOAK."
   },
+  "dev_005a_three_operation_infrastructure_soak_20260924": {
+    "engineering_revision": "working tree; DEV-005A preflight only, no provider-enabled soak started",
+    "status": "DEV_005A_ALL_OPERATION_LIVE_MONITOR_INFRASTRUCTURE_BLOCKED",
+    "failing_gate": "DEV_005A_NO_TRANSPORT_PREFLIGHT",
+    "finding": "The new authorized contract and post-BmkJ three-mint selection validate with scope drift=0. A real DEV Monitor no-transport Supervisor instance started and stopped cleanly, but the selected Watchtower mint 3uawxC4Ci2VhFpcRw5eD1KKsK3EG317WzxcWsYEjpump has no operation_monitor_facts row. Byzantine 2GAd and Deep 3677 are QUALIFIED/MONITORING_ACTIVE.",
+    "safety": "No provider binding/transport was constructed in preflight mode; real provider calls=0; live soak=false; membership changes=0; production mutations=0.",
+    "audit": "docs/audits/dev_005a_all_operation_live_monitor_infrastructure_soak.v1.json sha256 869b12fe032711680fb253eb6794ffd60756fc133bac81a778e01c99ca58bb98; authorized contract sha256 42b6b3e18802545cdbb37171b9eb3bfaab20c05f165fc82ebb64dd4e5bc39967",
+    "next_action": "Separately inspect and repair only the existing qualified Watchtower-to-Monitor projection for 3uaw, then rerun DEV-005A no-transport preflight. Do not enable the provider soak until it passes."
+  },
   "phosphor_v2_source_binding_resume_20260924": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty DEV working tree; bounded live execution",
     "status": "PHOSPHOR_V2_SAFE_INSUFFICIENT_EVIDENCE",

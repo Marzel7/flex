@@ -1,4 +1,14 @@
 {
+  "byzantine_live_gate_post_phosphor_20260924": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
+    "status": "BYZANTINE_LIVE_GATE_POST_PHOSPHOR_QUALIFIED",
+    "result": "The DEV Monitor boundary now distinguishes temporary DEV-012 budget deferral from frozen bounded-opening exhaustion. A caught BudgetDenied preserves the same pending identity; durable EVIDENCE_COMPLETE is policy-reduced on restart before admission, so it cannot redispatch provider work. 112 focused provider-free tests pass.",
+    "phosphor": "V4 remains terminal SAFE_INSUFFICIENT_EVIDENCE; its eight-block authorized window produced zero distinct non-creator BUYs. It is not eligible as the alternate control and must not be widened or reacquired.",
+    "alternate_control": "2GAd4qECH8cN4oQWwhiaBMADNupKCv8h9m9x3a4mpump selected from the retained 23/23 Scenario-D known-answer cohort. It has exact Create/boundary/pre-action/native-entry evidence and retained Create plus five opening-block fixtures. Future contract is unauthorized: docs/audits/byzantine_alternate_bounded_live_scenario_d_diagnostic_contract.v1.json sha256 37ed8f6aa2c3833b9ad58eaa6161c681cb1408f9bdfda36974f8c7626c6142b0.",
+    "audit": "docs/audits/byzantine_live_gate_post_phosphor_repair_and_control_selection.v1.json sha256 027fe895eede68425fc52a0584d6747d5e3ef5844bf2e8f81f167444106114d3",
+    "safety": "Provider/Helius calls=0; PHOSPHOR and alternate provider calls=0; DEV-005 start=false; membership changes=0; production mutations=0; raw bytes retained=0.",
+    "next_action": "Require separate explicit authorization before executing the six-request 2GAd bounded known-answer diagnostic. DEV-005 remains blocked until that real runtime gate passes."
+  },
   "operations_db_sqlite_lifecycle_provenance_preflight": {
     "engineering_revision": "77492d22497e31a5984a234e2bb1f5cd2fc10613 with material dirty working tree; deployment parity not established",
     "status": "OPERATIONS_DB_SQLITE_BLOCKER_PROVENANCE_HOLD",

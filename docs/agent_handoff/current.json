@@ -16973,5 +16973,14 @@
     "safety": "provider/Helius/Birdeye calls=0; PHOSPHOR live acquisition=false; DEV-005=false; membership/production mutations=0; raw bytes retained=0.",
     "audit": "docs/audits/dev_017_generic_live_opening_action_evidence_job_qualification.v3.json sha256 eaa0b0ce1907aa7363526add2187bee1a683071cb64c7d91ca316abeca13a6fb; future contract docs/audits/phosphor_bounded_live_scenario_d_diagnostic_contract.v1.json sha256 2d5965cccce40b91066000ecb72b0e788de1a2e661dfe02cbac6f4fcc8bf25b2",
     "next_action": "Do not resume DEV-005. The next gate is separately authorized PHOSPHOR_BOUNDED_LIVE_SCENARIO_D_DIAGNOSTIC; production remains out of scope."
+  },
+  "phosphor_bounded_live_scenario_d_diagnostic_20260924": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty DEV working tree; no source or runtime mutation",
+    "status": "PHOSPHOR_BOUNDED_LIVE_SCENARIO_D_DIAGNOSTIC_BLOCKED",
+    "contract": "docs/audits/phosphor_bounded_live_scenario_d_diagnostic_contract.v1.json sha256 2d5965cccce40b91066000ecb72b0e788de1a2e661dfe02cbac6f4fcc8bf25b2 is structurally valid but has authorized=false.",
+    "verdict": "The new execution request said the frozen contract is execution authority. Its false authorization flag is therefore a pre-dispatch safety gate. No provider request, durable PHOSPHOR job, scheduler admission, budget debit, membership mutation, historical request, DEV-005 action, production mutation, or raw retention occurred.",
+    "audit": "docs/audits/phosphor_bounded_live_scenario_d_diagnostic_result.v1.json sha256 ecfecc207e74f852060cbbba90b80f98c2e6d36e14823494ca2086b59c378939",
+    "safety": "PROVIDER_CALLS=0; RAW_BYTES_RETAINED=0; OPERATION_MEMBERSHIP_CHANGES=0; PRODUCTION_MUTATIONS=0; HISTORICAL_ACQUISITION_REQUESTS=0; DEV_005_SOAK_STARTED=false.",
+    "next_action": "Resolve the explicit contradiction by publishing a new immutable execution contract with authorized=true, or explicitly direct that the frozen authorized=false flag may be overridden. Do not dispatch under the current contract."
   }
 }

@@ -17140,6 +17140,16 @@
     "audit": "docs/audits/dev_005a_all_operation_live_monitor_infrastructure_soak.v1.json sha256 869b12fe032711680fb253eb6794ffd60756fc133bac81a778e01c99ca58bb98; authorized contract sha256 42b6b3e18802545cdbb37171b9eb3bfaab20c05f165fc82ebb64dd4e5bc39967",
     "next_action": "Separately inspect and repair only the existing qualified Watchtower-to-Monitor projection for 3uaw, then rerun DEV-005A no-transport preflight. Do not enable the provider soak until it passes."
   },
+  "dev_005a_watchtower_monitor_projection_repair_20260924": {
+    "engineering_revision": "working tree; provider-free 3uaw bridge repair, followed by a DEV Monitor storage-isolation stop",
+    "status": "DEV_005A_REAL_SOAK_NOT_READY_STORAGE_ISOLATION_BLOCKED",
+    "projection": "The retained 3uaw Watchtower retry contains a complete strict entry: timestamp 1789940210, entry MC 110847.48489945482, provenance 9ba818... . Its prior MONITOR_ACTIVATION_UNCOMMITTED error explains the missing fact. The existing generic bridge committed one fact and one deterministic activation identity c181af..., then idempotency/restart/fail-closed tests passed; the stale failed retry was retained non-dispatchably in dead_letter.",
+    "critical_safety_finding": "The actual Supervisor operation_monitor_worker configured as MONITOR_RUNTIME=dev writes WT_OPS_DB_PATH=/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db. src/dev_monitor_runtime.py explicitly designates that path PRODUCTION_DB and requires an isolated writable DEV mirror at .dev_runtime/monitor/wt_ops_v2.dev.db. Therefore the bridge fact was written to canonical wt_ops before the path contradiction was identified.",
+    "safety": "Provider/Helius/Birdeye calls=0; live soak=false; operation_monitor_worker stopped; unrelated queue identities and counts unchanged across the no-transport run. Production mutation claim is not valid: one canonical Monitor fact insert occurred.",
+    "tests": "35 passed: DEV-005 population bridge, Monitor service, DEV-011 live activation and Monitor worker provider-free suites.",
+    "audit": "docs/audits/dev_005a_watchtower_monitor_projection_repair.v1.json sha256 7c60270f4c04f7579569264a93cddee646c1fb168a7815f2798c7ea300c584ad",
+    "next_action": "Do not start provider-enabled DEV-005A. Separately repair and qualify the Supervisor DEV Monitor's source/storage binding to the isolated DEV mirror, then decide explicitly how to reconcile the one canonical fact created in this task."
+  },
   "phosphor_v2_source_binding_resume_20260924": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty DEV working tree; bounded live execution",
     "status": "PHOSPHOR_V2_SAFE_INSUFFICIENT_EVIDENCE",

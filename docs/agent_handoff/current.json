@@ -12,16 +12,16 @@
   },
   "byzantine_alternate_known_answer_diagnostic_20260924": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
-    "status": "DEV_OPENING_SCOPE_CEILING_2GAD_REPAIR_QUALIFIED",
-    "classification": "REPAIR_QUALIFIED_V2_RETRY_READY",
+    "status": "BYZANTINE_ALTERNATE_KNOWN_ANSWER_DIAGNOSTIC_INCONCLUSIVE",
+    "classification": "SAFE_INSUFFICIENT_EVIDENCE",
     "authorization": "Authorized immutable v2 contract sha256 ba99f3eff25b9128f1d1cded6046a346cd0256087a78def79d1ed80649df69ab; semantic scope drift from v1=0.",
-    "repair": "A generic durable OPENING_ACQUISITION_SCOPE_V1 now limits opening identities independently of DEV-012 capacity. The scope is checked before a successor block is scheduled and again before transport; an existing retry identity remains permitted without expanding scope.",
-    "qualification": "104 focused provider-free tests passed. Generic bounds 0/1/2/5, five-block ceiling, early completion, DEV-012 deferral, 429 retry, failure, restart, crash recovery, legacy unscoped migration, and actual offline V2 replay all pass.",
-    "v3_reconciliation": "The old unscoped V3 job is retained terminal/audit-only: one Create plus eight blocks, of which three blocks are over V2 authority. Over-bound evidence is preserved but excluded from V2. A new scoped job 919e359a... is PENDING_CREATE with one PENDING generic work item; no duplicate-identity risk is retained.",
-    "offline_v2": "Frozen Create plus five blocks replayed provider-free through the actual opening job: 25 actions and 22 distinct non-creator buyers; Scenario-D native known answer reproduces within the unchanged V2 scope. No sixth identity was created.",
-    "safety": "DEV operation_monitor_worker remains intentionally STOPPED. Repair activity made provider/Helius/2GAd/PHOSPHOR calls=0, DEV-005 start=false, production mutations=0, raw retention=0. The historical V3 execution remains nine calls and is not reused.",
-    "audit": "docs/audits/dev_opening_scope_ceiling_2gad_repair_qualification.v1.json sha256 03c316dd34aa4cef4ac4e3bc6e60394263236e95d70b044f49e87bc62fd5a5c2; blocked V3 audit remains docs/audits/byzantine_alternate_bounded_live_scenario_d_diagnostic_result.v3.json sha256 6f50b04fe0c62c55ca6f17e9e404299ca3b03cdfaa74bd8791d882000ac7e54a",
-    "next_action": "Separate explicit authorization is required to restart only the DEV Monitor and execute the existing scoped 2GAd V2 diagnostic. Do not resume the old V3 job, make provider calls, or start DEV-005 before that authorization."
+    "repair": "A generic durable OPENING_ACQUISITION_SCOPE_V1 limits opening identities independently of DEV-012 capacity. The scope was checked before successor scheduling and transport in the live V2 execution; block six was neither created nor dispatched.",
+    "qualification": "The prior 104 provider-free focused tests remain qualified. Live V2 made exactly six compact-retained requests: one Create plus five blocks. The DEV-012 ledger deferred after four requests, later allowed the final two, and no bypass occurred. The service emitted repeated BudgetDenied tracebacks while deferred; no additional transport resulted.",
+    "v3_reconciliation": "The old unscoped V3 job remains terminal/audit-only: one Create plus eight blocks, of which three are over V2 authority. Its over-bound evidence remains excluded. The scoped V2 job completed terminally with five consumed blocks and no duplicate identity.",
+    "offline_v2": "Frozen Create plus five blocks still replays provider-free through the actual opening job with 25 actions and 22 distinct non-creator buyers; the known answer is reproducible offline within V2 scope. The live V2 response set instead compact-retained zero opening actions.",
+    "safety": "Only DEV operation_monitor_worker was restarted and then stopped. All other managed service PIDs remained unchanged. V2 made six authorized 2GAd provider requests, PHOSPHOR/non-control provider calls=0, DEV-005 start=false, membership changes=0, production mutations=0, raw retention=0.",
+    "audit": "docs/audits/byzantine_alternate_bounded_live_scenario_d_diagnostic_result.v4.json sha256 214fe57f08f0c08cbf77375bf287952b348f5a1cef5bb1cc0b2c2c92627d954d; scope repair docs/audits/dev_opening_scope_ceiling_2gad_repair_qualification.v1.json sha256 03c316dd34aa4cef4ac4e3bc6e60394263236e95d70b044f49e87bc62fd5a5c2; blocked V3 evidence remains retained.",
+    "next_action": "Do not retry 2GAd or start DEV-005. First reconcile why the bounded live Helius opening responses normalize to zero actions while the retained frozen V2 fixtures reproduce the known answer; separately repair noisy BudgetDenied deferral handling before another Monitor execution."
   },
   "byzantine_live_gate_post_phosphor_20260924": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",

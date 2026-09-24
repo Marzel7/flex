@@ -12,16 +12,16 @@
   },
   "byzantine_alternate_known_answer_diagnostic_20260924": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
-    "status": "2GAD_EXACT_WINDOW_LIVE_DIAGNOSTIC_BLOCKED",
-    "classification": "FAIL_RUNTIME_CREATE_REUSE_RUNTIME_UNIMPLEMENTED",
+    "status": "GENERIC_RETAINED_CREATE_REUSE_QUALIFIED",
+    "classification": "2GAD_EXACT_WINDOW_LIVE_DIAGNOSTIC_READY_FOR_SEPARATE_EXECUTION",
     "authorization": "Authorized immutable v2 contract sha256 f227d7d770b3653911bed41830bee760f172428ce09194b4e27beae24b7c92c8; semantic scope drift from v1=0.",
     "repair": "A generic durable OPENING_ACQUISITION_SCOPE_V1 limits opening identities independently of DEV-012 capacity. The scope was checked before successor scheduling and transport in the live V2 execution; block six was neither created nor dispatched.",
     "qualification": "Exact-window recovery fixtures now prove block-five identity, provisional state, and the five-block ceiling survive restart, temporary DEV-012 denial, and DEV-009 429 deferral without FX/live side effects or a sixth block. 109 focused provider-free tests pass; normal early-stop, PHOSPHOR, 23/23 Scenario-D, and real-shape Helius regressions remain clean.",
     "v3_reconciliation": "The old unscoped V3 job remains terminal/audit-only: one Create plus eight blocks, of which three are over V2 authority. Its over-bound evidence remains excluded. The scoped V2 job completed terminally with five consumed blocks and no duplicate identity.",
     "offline_v2": "Frozen Create plus five blocks still replays provider-free through the actual opening job with 25 actions and 22 distinct non-creator buyers. The new bounded compact envelope localized the prior V4 discrepancy: the repaired live Helius pipeline retained the same action evidence for the four executed matching slots; no parser/normalizer loss was observed.",
-    "safety": "The DEV Monitor was confirmed STOPPED and not restarted. Provider/Helius calls=0; no 2GAd job identity, FX/live-price work, DEV-005 start, membership change, or production mutation occurred.",
-    "audit": "docs/audits/2gad_exact_window_live_diagnostic_result.v1.json sha256 9ca6f2e0e9518908141ca9ab364dabdea45eebebb6059db72d6f28daccb03f5e. The runtime begins every new opening job as PENDING_CREATE and plan_next() schedules CHAIN_CREATE_TRANSACTION; no retained-Create fact reuse initializer exists, conflicting with the v2 block-only allowlist and create_reuse=true.",
-    "next_action": "Require separate authorization for a narrow generic retained-Create fact reuse implementation and qualification. Do not start the Monitor or DEV-005 under the current block-only contract."
+    "safety": "This retained-Create qualification was provider-free: Provider/Helius calls=0; the DEV Monitor remained stopped; no 2GAd job identity, FX/live-price work, DEV-005 start, membership change, or production mutation occurred.",
+    "audit": "docs/audits/generic_retained_create_reuse_qualification.v1.json sha256 26794d9702634efee1fa3f87ab55edacbd627c5247162e505c7bc96bed2f5ce8. Generic retained-Create initialization now validates compact facts, shares the ordinary PENDING_OPENING_BLOCK state, creates no CHAIN_CREATE_TRANSACTION identity, and fails closed when required retained fields or provenance are absent.",
+    "next_action": "A separately authorized execution may retry the existing authorized 2GAd exact-window V2 diagnostic. Do not start DEV-005 as part of that execution."
   },
   "byzantine_live_gate_post_phosphor_20260924": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",

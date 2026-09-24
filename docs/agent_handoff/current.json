@@ -16996,10 +16996,10 @@
   "dev_017_runtime_repair_20260924": {
     "engineering_revision": "dirty DEV working tree; partial implementation only",
     "status": "PARTIAL",
-    "implemented": "MonitorWorker now accepts an injected existing generic provider-binding registry and has a bounded process_entry_reference_opening_once bridge. It uses generic scheduler admission restricted to ENTRY_REFERENCE_OPENING, routes through the existing registry, consumes compact Create/block results before marking generic work complete, and projects one next dependency.",
+    "implemented": "MonitorWorker now accepts an injected existing generic provider-binding registry and has a bounded process_entry_reference_opening_once bridge. It uses generic scheduler admission restricted to ENTRY_REFERENCE_OPENING, routes through the existing registry, consumes compact Create/block results before marking generic work complete, and projects one next dependency. operation_monitor_service.run_loop now constructs the existing production_provider_bindings registry and invokes the bridge in its existing loop before the legacy Monitor queue processing.",
     "safety": "PROVIDER_CALLS=0; PHOSPHOR_LIVE_ACQUISITION_STARTED=false; DEV_005_SOAK_STARTED=false; PRODUCTION_MUTATIONS=0; RAW_BYTES_RETAINED=0.",
-    "tests": "python compilation plus 20 focused DEV-017/DEV-011 tests passed.",
-    "blocker": "The Monitor service loop does not yet invoke the bridge, and the required failure/idempotency/crash/cross-family/23-replay/PHOSPHOR-mocked qualification fixtures are not complete.",
-    "next_action": "Continue DEV_017_RUNTIME_REPAIR: wire the bounded consumer into the service loop and add the required offline fixtures before any PHOSPHOR retry."
+    "tests": "python compilation plus 37 focused DEV-017/DEV-011/MonitorWorker tests passed.",
+    "blocker": "The service-loop bridge is wired, but the required real-loop mocked dispatch, failure/idempotency/crash/cross-family/23-replay/PHOSPHOR-mocked qualification fixtures are not complete.",
+    "next_action": "Continue DEV_017_RUNTIME_REPAIR: add and run the required offline fixtures before any PHOSPHOR retry."
   }
 }

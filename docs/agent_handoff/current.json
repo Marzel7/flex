@@ -16992,5 +16992,14 @@
     "audit": "docs/audits/phosphor_bounded_live_scenario_d_diagnostic_result.v2.json",
     "safety": "PROVIDER_CALLS=0; RAW_BYTES_RETAINED=0; OPERATION_MEMBERSHIP_CHANGES=0; PRODUCTION_MUTATIONS=0; HISTORICAL_ACQUISITION_REQUESTS=0; DEV_005_SOAK_STARTED=false.",
     "next_action": "DEV_017_RUNTIME_REPAIR: implement and offline-qualify the generic ENTRY_REFERENCE_OPENING work consumer and its compact persistence-to-job feedback path. Do not run PHOSPHOR again until that path is real and separately authorized."
+  },
+  "dev_017_runtime_repair_20260924": {
+    "engineering_revision": "dirty DEV working tree; partial implementation only",
+    "status": "PARTIAL",
+    "implemented": "MonitorWorker now accepts an injected existing generic provider-binding registry and has a bounded process_entry_reference_opening_once bridge. It uses generic scheduler admission restricted to ENTRY_REFERENCE_OPENING, routes through the existing registry, consumes compact Create/block results before marking generic work complete, and projects one next dependency.",
+    "safety": "PROVIDER_CALLS=0; PHOSPHOR_LIVE_ACQUISITION_STARTED=false; DEV_005_SOAK_STARTED=false; PRODUCTION_MUTATIONS=0; RAW_BYTES_RETAINED=0.",
+    "tests": "python compilation plus 20 focused DEV-017/DEV-011 tests passed.",
+    "blocker": "The Monitor service loop does not yet invoke the bridge, and the required failure/idempotency/crash/cross-family/23-replay/PHOSPHOR-mocked qualification fixtures are not complete.",
+    "next_action": "Continue DEV_017_RUNTIME_REPAIR: wire the bounded consumer into the service loop and add the required offline fixtures before any PHOSPHOR retry."
   }
 }

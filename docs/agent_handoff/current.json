@@ -16862,5 +16862,15 @@
     "audit": "docs/audits/historical_15m_provider_capacity_and_pacing_audit.v1.json sha256 ad27f9ed67eee281bb0aa61cd38fcf97dc24a0e57aadf174148c93c6b6f9e32a",
     "safety": "PROVIDER_CALLS=0; PRODUCTION_WRITES=0; OPENING_CHANGES=0; DEV_005_CHANGES=0; DEV_WAL_BYTES=0.",
     "next_action": "Stop. Do not run the capacity probe or historical pilot unless separately authorized."
+  },
+  "historical_15m_provider_capacity_probe_20260924": {
+    "engineering_revision": "working tree; DEV-only bounded provider capacity diagnostic",
+    "status": "HISTORICAL_15M_PROVIDER_CAPACITY_PROBE_QUALIFIED",
+    "result": "BmkJ capacity probe used three deterministic 17-bucket chunks at 10-second serialized spacing. All three returned HTTP200, no 429 occurred, and the DEV-012 budget ledger was active. Provider payloads were discarded and no historical candle/coverage row was written.",
+    "decision": "SUSTAINABLE_PACING_PROVEN=true. QUALIFIED_MIN_PROVIDER_REQUEST_GAP_SECONDS=10 for Birdeye response capacity. The frozen four-per-token-per-minute DEV-012 budget means an actual sustained single-token historical run has 15-second effective spacing; 24 remaining requests estimate to 6 minutes before response latency/backoff.",
+    "gates": "HISTORICAL_PROVIDER_CAPACITY_DECISION=EXISTING_PROVIDER_SUSTAINABLE_WITH_SLOWER_PACING; HISTORICAL_PILOT_RESUME_READY=true; DEV_009_WIRING_PASS=true; DEV_012_WIRING_PASS=true; SERIALIZED_EXECUTION=true; RAW_RETENTION_POLICY_UNCHANGED=true.",
+    "safety": "PROVIDER_CALLS=3; HTTP200=3; HTTP429=0; PROBE_RESULTS_APPLIED_TO_HISTORICAL_DATA=false; KNOWN_REPAIRED_ROW_REACQUISITION_COUNT=0; PRODUCTION_WRITES=0; OPENING_CHANGES=0; DEV_005_CHANGES=0; DEV_WAL_BYTES=0; RAW_BYTES_RETAINED=0.",
+    "audit": "docs/audits/historical_15m_provider_capacity_probe.v1.json sha256 f5edddbaadac807835dd45c4e7a0f3cef47c6ef217d61208bf02859c88d1e3ca",
+    "next_action": "Stop. A separately authorized historical pilot resume may acquire only the remaining Deep workload using the frozen method, shared DEV-009/DEV-012 guards, provider floor 10 seconds, and effective 15-second per-token budget pacing."
   }
 }

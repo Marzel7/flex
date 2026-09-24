@@ -16851,5 +16851,16 @@
     "safety": "OPENING_STATE_CHANGED=false; DEV_005_STATE_CHANGED=false; PRODUCTION_STATE_CHANGED=false; PRODUCTION_DB_WRITTEN=false.",
     "audit": "docs/audits/historical_15m_four_control_pilot_rerun_20260924.json",
     "next_action": "STOP. Do not retry, scale Watchtower/Deep cohorts, alter budgets/backoff, resume DEV-005, or touch production without a new explicit direction."
+  },
+  "historical_15m_provider_capacity_and_pacing_audit_20260924": {
+    "engineering_revision": "working tree; offline audit only after DEV-only historical pilot",
+    "status": "QUALIFIED_ADDITIONAL_BOUNDED_CAPACITY_PROBE_REQUIRED",
+    "result": "DEV-009/012 wiring and historical policy remain unchanged. Retained evidence proves 19 consecutive BmkJ HTTP429s and fallback escalation to 60s, but the full attempt timeline was not durably retained, so sustainable cadence cannot be inferred. The behavior is classified SUSTAINED_RATE_LIMIT, not an asserted account, endpoint, or provider-internal cause.",
+    "workload": "Only BmkJ Deep remains: 394 15m buckets in 24 bounded logical requests. Fixed 60s pacing would take 24 minutes plus provider latency/backoff; this is arithmetic, not a viability claim.",
+    "probe": "A future separately authorized capacity diagnostic is four BmkJ historical chunks at 10/30/60s serialized candidate gaps, six physical attempts maximum, stopping immediately after two consecutive 429s at any candidate. No repaired Watchtower rows may be reacquired.",
+    "decision": "HISTORICAL_PROVIDER_CAPACITY_DECISION=ADDITIONAL_BOUNDED_CAPACITY_PROBE_REQUIRED; HISTORICAL_PILOT_RESUME_READY=false.",
+    "audit": "docs/audits/historical_15m_provider_capacity_and_pacing_audit.v1.json sha256 ad27f9ed67eee281bb0aa61cd38fcf97dc24a0e57aadf174148c93c6b6f9e32a",
+    "safety": "PROVIDER_CALLS=0; PRODUCTION_WRITES=0; OPENING_CHANGES=0; DEV_005_CHANGES=0; DEV_WAL_BYTES=0.",
+    "next_action": "Stop. Do not run the capacity probe or historical pilot unless separately authorized."
   }
 }

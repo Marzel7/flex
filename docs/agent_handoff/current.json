@@ -17031,5 +17031,15 @@
     "safety": "REAL_PROVIDER_CALLS=0; HELIUS_CALLS=0; PHOSPHOR_LIVE_ACQUISITION_STARTED=false; DEV_005_SOAK_STARTED=false; PRODUCTION_MUTATIONS=0; RAW_PAYLOADS_RETAINED=false.",
     "verdict": "HELIUS_OPENING_RUNTIME_QUALIFIED=true; PHOSPHOR_LIVE_DIAGNOSTIC_READY=true.",
     "next_action": "EXECUTE_EXISTING_PHOSPHOR_V2_DIAGNOSTIC only under its separate authorization; production remains out of scope."
+  },
+  "phosphor_v2_bounded_live_execution_20260924": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty DEV working tree; bounded DEV diagnostic attempt",
+    "status": "FAIL_RUNTIME_PRE_DISPATCH",
+    "contract": "docs/audits/phosphor_bounded_live_scenario_d_diagnostic_contract.v2.json sha256 fd4d7240bba6ffc2d84938449c2b2b1feda412096de6d7d0d2d36f75cfe205e1; authorized=true; scope drift=0.",
+    "finding": "A canonical PHOSPHOR Monitor admission created one idempotent opening job and one PENDING CHAIN_CREATE_TRANSACTION work identity. The active Supervisor process starts operation_monitor_service from /Users/kevinkeaveney/Production/flex-main-workers; that retained loop does not call the qualified process_entry_reference_opening_once bridge. The required DEV source/runtime preflight therefore failed before any provider transport.",
+    "durability": "The PHOSPHOR opening job and generic work remain PENDING/PLANNED, not duplicated or dispatched. They preserve the authorized identity for a later correctly bound runtime.",
+    "safety": "Provider/Helius/Birdeye calls=0; raw bytes retained=0; DEV-009/DEV-012 bypasses=0; membership changes=0; production mutations=0; DEV-005 started=false.",
+    "audit": "docs/audits/phosphor_bounded_live_scenario_d_diagnostic_result.v3.json sha256 8cebfd7b555e50a1cac54016ee020d7cd5b220c2a7a88cb23238087c166a9118",
+    "next_action": "Require separate authorization to correct/restart only the DEV Monitor source binding, prove the qualified DEV run_once loop is loaded, then retry the preserved PHOSPHOR logical identity under the unchanged V2 bound."
   }
 }

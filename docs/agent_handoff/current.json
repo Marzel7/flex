@@ -16971,7 +16971,7 @@
     "phosphor": "Integrated dry plan is ready; no PHOSPHOR acquisition occurred. The bounded future diagnostic permits CREATE, one-at-a-time opening blocks, and FX only after native qualification; no live price request is permitted in the dry plan.",
     "dev_015_consequence": "FIX_1_BYZANTINE_ENTRY_PRODUCER_IMPLEMENTATION=PASS; DEV_015_IMPLEMENTATION_COMPLETE=true. DEV-005 remains paused pending the separately authorized PHOSPHOR bounded live diagnostic.",
     "safety": "provider/Helius/Birdeye calls=0; PHOSPHOR live acquisition=false; DEV-005=false; membership/production mutations=0; raw bytes retained=0.",
-    "audit": "docs/audits/dev_017_generic_live_opening_action_evidence_job_qualification.v3.json sha256 01e59adfa900ee06b222fc94f4a96f94604394b9ce4427dba6dc14c8c7f833cc",
+    "audit": "docs/audits/dev_017_generic_live_opening_action_evidence_job_qualification.v3.json sha256 e07c490bc1bbb877cdca27cc34158e58c783133f62733db928b9727821c47fb2",
     "next_action": "Do not resume DEV-005. The next gate is separately authorized PHOSPHOR_BOUNDED_LIVE_SCENARIO_D_DIAGNOSTIC; production remains out of scope."
   }
 }

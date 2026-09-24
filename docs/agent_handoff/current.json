@@ -17041,5 +17041,15 @@
     "safety": "Provider/Helius/Birdeye calls=0; raw bytes retained=0; DEV-009/DEV-012 bypasses=0; membership changes=0; production mutations=0; DEV-005 started=false.",
     "audit": "docs/audits/phosphor_bounded_live_scenario_d_diagnostic_result.v3.json sha256 8cebfd7b555e50a1cac54016ee020d7cd5b220c2a7a88cb23238087c166a9118",
     "next_action": "Require separate authorization to correct/restart only the DEV Monitor source binding, prove the qualified DEV run_once loop is loaded, then retry the preserved PHOSPHOR logical identity under the unchanged V2 bound."
+  },
+  "phosphor_v2_source_binding_resume_20260924": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty DEV working tree; bounded live execution",
+    "status": "PHOSPHOR_V2_SAFE_INSUFFICIENT_EVIDENCE",
+    "source_binding": "The Supervisor directory precedence defect was confirmed and the qualified DEV run_once path dispatched PHOSPHOR through HeliusProductionBinding. The DEV-bound worker exposes an unhandled BudgetDenied restart-loop defect, so its previous stable directory binding was restored after containment; only operation_monitor_worker restarted and is RUNNING PID 80357.",
+    "result": "The existing one PHOSPHOR job and its original CHAIN_CREATE_TRANSACTION identity were reused without duplication. It made 9 bounded compact-retained Helius attempts: Create plus eight consecutive opening blocks, all under the V2 ceiling of 10. No 429 or FX request occurred. The frozen Scenario-D reducer exhausted the eight-block bound with zero distinct non-creator BUY actions and terminalized as INSUFFICIENT_EVIDENCE / SCENARIO_D_DISTINCT_NON_CREATOR_POSITION_NOT_REACHED.",
+    "safety": "NON_PHOSPHOR_PROVIDER_CALLS=0; membership changes=0; production mutations=0; historical acquisition=0; DEV-005 started=false; raw bytes retained=0; live price provider calls=0.",
+    "runtime_debt": "BudgetDenied from the DEV-012 per-token limit escapes the service loop rather than deferring durable work. DEV Monitor activation also references missing operation_monitor_facts.entry_native_mc_sol. Both require separate repair/qualification before a future bounded live entry-evidence run.",
+    "audit": "docs/audits/phosphor_bounded_live_scenario_d_diagnostic_result.v4.json sha256 b0fcaae50ffcdd1d8ffe2a4e56308d927b53d96010866be4ee4cc2fd3eb025f6",
+    "next_action": "Do not widen or rerun PHOSPHOR and do not resume DEV-005. Separately repair and offline-qualify budget-denial defer handling and the Monitor facts schema contract."
   }
 }

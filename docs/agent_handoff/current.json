@@ -17778,6 +17778,13 @@
     "result": "After the host reboot, the isolated DEV UI and its DEV-only Monitor were absent. At explicit user request they were restarted independently from production: DEV UI health at 127.0.0.1:8100/dev-runtime/health returned 200; operation_monitor_worker reached RUNNING; the UI source root is the DEV checkout. Production service configuration and PIDs were not changed by this DEV restart. The new scripts/start_flex_all.sh accepts --check or --execute. It validates the production multi-commit runtime preflight, restores the defined production-required services only when missing, then starts the separate DEV UI and DEV Monitor. It explicitly excludes intentionally stopped services. Syntax, check mode, and idempotent execute mode passed while all existing processes retained their PIDs.",
     "next_action": "Use scripts/start_flex_all.sh --execute after a host reboot. Keep DEV and production lifecycle commands separate otherwise. Stop DEV through scripts/stop_dev_runtime.sh and Supervisor operation_monitor_worker only when explicitly requested."
   },
+  "dev_021_reboot_safe_dual_runtime_recovery_20260925": {
+    "status": "DEV_COMPLETE",
+    "scope": "Future-reference recovery tooling for host reboot: validate the actual per-service pinned production runtimes, restore only defined production services, then restore isolated DEV UI and Monitor.",
+    "artifact": "scripts/start_flex_all.sh",
+    "tests": "3/3 Supervisor preflight tests passed; production preflight passed; launcher syntax, check mode, and idempotent execute mode passed without restarting healthy PIDs.",
+    "production_intent": "UNDECIDED; this records recovery tooling and does not authorize a separate feature promotion."
+  },
   "dev_020_listener_dns_connectivity_20260925": {
     "status": "RECOVERED_SUPERVISOR_STARTUP",
     "verdict": "PRODUCTION_LISTENER_LIVE_BIRTHS_RESTORED",

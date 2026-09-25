@@ -17753,12 +17753,12 @@
     "next_action": "INCREASE_OPERATION_LAUNCH_COVERAGE_OR_PLAN_DEV_005B; neither begins automatically."
   },
   "dev_018_watchtower_registry_coverage_recovery_20260925": {
-    "status": "PHASE2A_BLOCKED",
-    "verdict": "ORIGINAL_COHORT_PROVENANCE_CONTRADICTION",
-    "artifact": "docs/audits/dev_018_watchtower_original_cohort_provenance_recovery.v1.json (sha256 59a4a16a975536477d3db226b7913f3c7260e020d2ef62929209ef4a12f34d06); prior Phase 2A audit docs/audits/dev_018_watchtower_registry_coverage_phase2a.v1.json (sha256 c1e444330f76e7f90dd71ffefd1e84536facd6f61d08e557a944623ef71508b8)",
+    "status": "PHASE2A_QUALIFIED",
+    "verdict": "REPRODUCIBLE_PHASE1_REGRESSION_BASELINE_QUALIFIED",
+    "artifact": "docs/audits/dev_018_watchtower_phase2a_final_qualification.v1.json (sha256 7f62803d5a7a82fb8ae0b051c51a137541fce2c79e2f4ca216652c524f130386); baseline docs/audits/dev_018_watchtower_phase2a_regression_baseline.v1.json (sha256 b1b174fd61cb7d6be80cef44c885c3dcb908bf6cc4af639437a864cfad7a4340)",
     "phase2_contract": "docs/audits/dev_018_watchtower_registry_coverage_phase2_contract.v1.json (authorized=false)",
-    "result": "Generic role-normalized queue/session validator and compact durable promotion-outcome model remain unchanged; 42 focused tests pass. Retained local migration evidence resolves all 13 reported prefixes to exact mints, but no immutable local artifact binds any exact identity to the original reported 13-member raw-treasury-mismatch cohort. Eight current rows structurally match that class; five resolve to PLAIN_XFER/missing-session negatives, contradicting the reported cohort description. The frozen Phase-1 166 cohort remains reproducible, but the requested provenance-preserving substitution cannot be accepted from this evidence. No Phase 2A replay or backfill manifest was created.",
+    "result": "The original-13 gate is permanently retired for insufficient immutable provenance; no identities were invented. Corrected deterministic cohorts balance 2036 confirmed rows: 342 registered, 1400 with no provisioning-session row, 128 wrong-mechanism, and 166 treasury-role repair. The full repair replay yields 137 simulated promotable and 29 route-incomplete; latest frozen 24h is 9 promotable/3 rejected. Validator remains unchanged, special cases=0, and 42 focused provider-free tests pass. A 137-row proposed manifest and unauthorized revalidation-required contract are frozen; no actual membership/backfill operation occurred.",
     "production_flags": "Provider/Helius/Birdeye calls=0; Monitor restarts=0; registry backfill=false; membership changes=0; historical fact rewrites=0; Deep source/membership changes=0; production mutations=0; raw payload retention=0. DEV-005A remains frozen.",
-    "next_action": "REVIEW_DEV_018_ORIGINAL_COHORT_PROVENANCE_GAP: provide or recover an immutable historical artifact that binds full mint identities to the original 13-member cohort and resolves the five PLAIN_XFER contradictions. No backfill, membership mutation, Deep repair, provider work, or production deployment is authorized."
+    "next_action": "AUTHORIZE_DEV_018_WATCHTOWER_REGISTRY_BACKFILL if the user wants the separately bounded DEV-only canonical-registry reconciliation. Deep remains blocked on temporal-rule evidence; no production deployment is authorized."
   }
 }

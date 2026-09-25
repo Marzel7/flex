@@ -17751,5 +17751,13 @@
     "artifact": "docs/audits/dev_005a_qualified_baseline_freeze.v1.json (sha256 6e28241f73af1d716909f8ef426a3dc8f4144e14cf8c289afc758f743073fc04)",
     "result": "The qualified DEV-005A claim, scope boundary, real file-backed Monitor queue authority, provider accounting, terminal semantics, supersession map, regression/reopen policy, and DEV-005B boundary are frozen. No provider, Monitor, membership, canonical DB, or production operation occurred in the freeze.",
     "next_action": "INCREASE_OPERATION_LAUNCH_COVERAGE_OR_PLAN_DEV_005B; neither begins automatically."
+  },
+  "dev_018_watchtower_registry_coverage_recovery_20260925": {
+    "status": "PLANNED",
+    "verdict": "DEV_018_REGISTERED",
+    "artifact": "docs/audits/dev_018_watchtower_registry_coverage_recovery_registration.v1.json (sha256 4dd958e5ee0ecdb414dce78843edb7e8227d24abe40a2a1473ef2e102087f9e3)",
+    "result": "DEV-018 is a DEV-only downstream registry-coverage audit/repair workstream. It preserves the frozen DEV-005A baseline, established WATCHTOWER status, current Deep evidence contract, and evidence-gated membership. Registration authorizes neither provider work nor registry/membership backfill.",
+    "production_flags": "Production provider work=0; production DB writes=0; production mutations=0; operation membership changes=0; raw provider retention=0.",
+    "next_action": "AUTHORIZE_AND_EXECUTE_READ_ONLY_DEV_018_COVERAGE_AND_PROVENANCE_AUDIT."
   }
 }

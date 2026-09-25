@@ -17786,6 +17786,15 @@
     "tests": "3/3 Supervisor preflight tests passed; production preflight passed; launcher syntax, check mode, and idempotent execute mode passed without restarting healthy PIDs.",
     "production_intent": "UNDECIDED; this records recovery tooling and does not authorize a separate feature promotion."
   },
+  "dev_022_birdeye_credit_consumption_audit_20260925": {
+    "status": "PHASE1_AUDIT_COMPLETE",
+    "verdict": "LOCAL_CREDIT_ATTRIBUTION_INSUFFICIENT_ACCOUNT_WIDE_BUDGET_GAP_PROVEN",
+    "engineering_revision": "working tree; DEV-only audit",
+    "artifact": "docs/audits/dev_022_birdeye_credit_consumption_phase1.v1.json (sha256 0590562112c718869556bee505167ac681b748d73b327f971c5d676594f8ea32)",
+    "result": "Five requests are locally provable only from surviving rolling Monitor budget ledgers: four DEV-005A 15M_EVIDENCE admissions and one separate shared-state OPENING admission. The current DEV Monitor has a durable per-queue 20/min global and 4/min per-token gate which fails closed before transport; it currently records four 15M admissions for one mint. Exact Birdeye account credits, endpoint cost weighting, historical rotated request records, and total account consumption are not locally retained. 71 source call sites include historical/direct scripts outside an account-wide durable gate, so a global account budget invariant is not yet true.",
+    "safety": "Birdeye/Helius/PumpPortal/other provider calls=0; process stops/restarts=0; Supervisor changes=0; DB/queue/membership/production mutations=0.",
+    "next_action": "Do not change budgets or stop processes automatically. A separately authorized DEV-022 Phase 2 may scope only shared durable account-wide dispatch accounting and budget-gate coverage for proven bypass-capable paths."
+  },
   "dev_020_listener_dns_connectivity_20260925": {
     "status": "RECOVERED_SUPERVISOR_STARTUP",
     "verdict": "PRODUCTION_LISTENER_LIVE_BIRTHS_RESTORED",

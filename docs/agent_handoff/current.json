@@ -1,4 +1,15 @@
 {
+  "dev_005a_replacement_watchtower_deep_control_qualification_20260925": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
+    "status": "DEV_005A_REPLACEMENT_CONTROL_QUALIFICATION_HOLD",
+    "verdict": "The retained Byzantine 2GAd control remains ready through the generic NATIVE_QUALIFIED bridge. Neither a nonterminal WATCHTOWER nor WATCHTOWER_DEEP replacement has the required retained FIRST_FULL_POST_MIGRATION_SECOND_MC fact. Terminal 3uaw, 3677 and BmkJ remain explicitly excluded and were not reactivated.",
+    "selection": "WATCHTOWER candidate=6bt4RkPnDYDD3C8CdsGKMP4PZWzVed7yBq4jkXcipump; WATCHTOWER_DEEP candidate=4ffcz9n3Cao8jVEnb3CxHQUKqCqU5cPrJBtaYryRpump. Both have complete canonical migration boundary evidence but no retained strict entry.",
+    "qualification": "29 focused provider-free tests passed: native entry gate, DEV-005 population activation, and Monitor worker. JSON artifacts validate.",
+    "safety": "Provider/Helius calls=0; DEV-005A soak=false; Monitor preflight/start=false; membership changes=0; production mutations=0; raw provider retention=0.",
+    "audit": "docs/audits/dev_005a_replacement_watchtower_deep_control_qualification.v1.json sha256 6eeea7026649ad246b297463463c5672a4c3c043783b294256a08ca38fef2700",
+    "unauthorized_contracts": "WATCHTOWER sha256 3f7327e94ebec24d6c4370c55fe911c2addbcce964deff50344a6ca113c4e2ab; WATCHTOWER_DEEP sha256 7f7a3d6fd184015107d24ae34e827bdb9d6a9a9c328ad20703b190398ad503c4. Each permits nothing until separately authorized; any later scope is one strict 1-second migration-window attempt for its named mint.",
+    "next_action": "Separately authorize, execute, and qualify each explicitly bounded strict-entry acquisition; only if both yield a qualified nonterminal opening fact may a three-operation DEV-005A preflight be assembled."
+  },
   "dev_monitor_native_entry_schema_parity_20260924": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
     "status": "DEV_MONITOR_NATIVE_ENTRY_SCHEMA_PARITY_QUALIFIED",

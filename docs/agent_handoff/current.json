@@ -17754,11 +17754,11 @@
   },
   "dev_018_watchtower_registry_coverage_recovery_20260925": {
     "status": "PHASE2A_BLOCKED",
-    "verdict": "ROLE_NORMALIZED_VALIDATOR_IMPLEMENTED_REGRESSION_MANIFEST_ABSENT",
-    "artifact": "docs/audits/dev_018_watchtower_registry_coverage_phase2a.v1.json (sha256 c1e444330f76e7f90dd71ffefd1e84536facd6f61d08e557a944623ef71508b8)",
+    "verdict": "ORIGINAL_COHORT_PROVENANCE_CONTRADICTION",
+    "artifact": "docs/audits/dev_018_watchtower_original_cohort_provenance_recovery.v1.json (sha256 59a4a16a975536477d3db226b7913f3c7260e020d2ef62929209ef4a12f34d06); prior Phase 2A audit docs/audits/dev_018_watchtower_registry_coverage_phase2a.v1.json (sha256 c1e444330f76e7f90dd71ffefd1e84536facd6f61d08e557a944623ef71508b8)",
     "phase2_contract": "docs/audits/dev_018_watchtower_registry_coverage_phase2_contract.v1.json (authorized=false)",
-    "result": "Generic role-normalized queue/session validator and compact durable promotion-outcome model are implemented in DEV source. 42 focused tests pass. Provider-free historical simulation balances 2036 rows: 342 already registered, 137 simulated promotable, 1400 missing session, 128 wrong mechanism, 29 other/incomplete. The 166 Phase-1 raw-role mismatch cohort balances 137 promotable plus 29 incomplete. Phase 2A cannot qualify or create a backfill manifest because the required original 13-mint cohort was not retained as an immutable manifest; current corresponding retained slice has 11 rows.",
+    "result": "Generic role-normalized queue/session validator and compact durable promotion-outcome model remain unchanged; 42 focused tests pass. Retained local migration evidence resolves all 13 reported prefixes to exact mints, but no immutable local artifact binds any exact identity to the original reported 13-member raw-treasury-mismatch cohort. Eight current rows structurally match that class; five resolve to PLAIN_XFER/missing-session negatives, contradicting the reported cohort description. The frozen Phase-1 166 cohort remains reproducible, but the requested provenance-preserving substitution cannot be accepted from this evidence. No Phase 2A replay or backfill manifest was created.",
     "production_flags": "Provider/Helius/Birdeye calls=0; Monitor restarts=0; registry backfill=false; membership changes=0; historical fact rewrites=0; Deep source/membership changes=0; production mutations=0; raw payload retention=0. DEV-005A remains frozen.",
-    "next_action": "RECOVER_OR_AUTHORITATIVELY_DEFINE_THE_ORIGINAL_13_MINT_REGRESSION_MANIFEST_THEN_RERUN_PHASE2A. No backfill, membership mutation, Deep repair, provider work, or production deployment is authorized."
+    "next_action": "REVIEW_DEV_018_ORIGINAL_COHORT_PROVENANCE_GAP: provide or recover an immutable historical artifact that binds full mint identities to the original 13-member cohort and resolves the five PLAIN_XFER contradictions. No backfill, membership mutation, Deep repair, provider work, or production deployment is authorized."
   }
 }

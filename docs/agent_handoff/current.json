@@ -17770,5 +17770,13 @@
     "result": "Corrected Phase 1 excludes PumpPortal/Helius DNS and listener work entirely. Current design is MIXED: unknown roots are retained as candidates/lineage gaps but canonical attribution requires wt_confirmed_treasuries. BeqT reproduced a 280,662-second stale selected upstream edge; 36 retained WATCHTOWER members are known now but have an event earlier than current confirmed_at. The defects and Phase 2 safety boundaries are sufficiently defined, but no causal-edge implementation or promotion is authorized.",
     "production_flags": "Provider/Helius/Birdeye/PumpPortal calls=0; listener restarts=0; Monitor restarts=0; treasury registry changes=0; membership changes=0; historical fact rewrites=0; production mutations=0.",
     "next_action": "AUTHORIZE_DEV_019_TREASURY_ROTATION_PHASE2 if desired. Phase 2 would qualify causal-edge fixtures and an append-only NEW_TREASURY_CANDIDATE state only; it must not auto-confirm a treasury, mutate membership, or touch production."
+  },
+  "dev_020_listener_dns_connectivity_20260925": {
+    "status": "PLANNED",
+    "verdict": "PHASE1_NOT_STARTED",
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty working tree",
+    "scope": "Separate DEV-only provider-free listener DNS/connectivity evidence audit and recovery qualification. DEV-018, DEV-019, and frozen DEV-005A are excluded.",
+    "safety": "Provider/Helius/PumpPortal calls=0; listener restarts=0; Monitor restarts=0; database mutations=0; membership changes=0; production mutations=0.",
+    "next_action": "Run DEV-020 Phase 1 retained-evidence/source/configuration audit only. Do not probe externally, restart the listener, or implement a repair without separate authorization."
   }
 }

@@ -17762,11 +17762,14 @@
     "next_action": "Verify DEV registry/API readback if desired. Deep remains blocked on temporal-rule evidence; no production deployment is authorized."
   },
   "dev_019_treasury_rotation_discovery_20260925": {
-    "status": "PLANNED",
-    "verdict": "DEV_ONLY_PHASE1_NOT_STARTED",
+    "status": "BLOCKED_CAUSAL_EDGE_RULE_UNRESOLVED",
+    "verdict": "DEV_ONLY_PHASE1_COMPLETE_NO_SAFE_IMPLEMENTATION_AUTHORIZED",
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty working tree",
     "scope": "Provider-free/read-only audit of Watchtower and WATCHTOWER_DEEP rotated-treasury discovery, causal walkback, and unknown-versus-contradictory semantics.",
-    "safety": "Provider/Helius/Birdeye calls=0; treasury registry changes=0; membership changes=0; Monitor restarts=0; Deep changes=0; production mutations=0.",
-    "next_action": "Execute DEV-019 Phase 1 retained-evidence/design audit only; no implementation or persistence is authorized."
+    "artifact": "docs/audits/dev_019_watchtower_deep_treasury_rotation_phase1.v1.json (sha256 ab54554e706e40eb6ae7c7d485a33f71befb27b23b8e3d686d846cbc74b74330)",
+    "result": "Current design is MIXED: unknown roots are retained as candidates/lineage gaps but canonical attribution requires wt_confirmed_treasuries. BeqT reproduced a 280,662-second stale selected upstream edge; no generic causal parent-edge rule is currently qualified. 36 retained WATCHTOWER members are known now but have an event earlier than current confirmed_at, proving time-aware classification is required. Existing historical Deep membership remains unchanged.",
+    "tests": "98 passed; 5 legacy X21B fixture-drift failures (missing wt_watchtower_launches fixture and rpc_transport monkeypatch mismatch) are out of DEV-019 scope.",
+    "production_flags": "Provider/Helius/Birdeye calls=0; treasury registry changes=0; membership changes=0; historical fact rewrites=0; Monitor restarts=0; production mutations=0; raw payload retention=0.",
+    "next_action": "Independently qualify a provider-free generic causal parent-edge validity rule and fixtures before drafting any unauthorized Phase 2 candidate-discovery contract; do not change attribution, membership, treasury registry, Deep, services, or production."
   }
 }

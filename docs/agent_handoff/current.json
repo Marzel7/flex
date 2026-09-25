@@ -17772,11 +17772,13 @@
     "next_action": "AUTHORIZE_DEV_019_TREASURY_ROTATION_PHASE2 if desired. Phase 2 would qualify causal-edge fixtures and an append-only NEW_TREASURY_CANDIDATE state only; it must not auto-confirm a treasury, mutate membership, or touch production."
   },
   "dev_020_listener_dns_connectivity_20260925": {
-    "status": "PLANNED",
-    "verdict": "PHASE1_NOT_STARTED",
+    "status": "DEV_COMPLETE",
+    "verdict": "DEV_020_LISTENER_DNS_CONNECTIVITY_PHASE1_QUALIFIED",
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty working tree",
     "scope": "Separate DEV-only provider-free listener DNS/connectivity evidence audit and recovery qualification. DEV-018, DEV-019, and frozen DEV-005A are excluded.",
     "safety": "Provider/Helius/PumpPortal calls=0; listener restarts=0; Monitor restarts=0; database mutations=0; membership changes=0; production mutations=0.",
-    "next_action": "Run DEV-020 Phase 1 retained-evidence/source/configuration audit only. Do not probe externally, restart the listener, or implement a repair without separate authorization."
+    "artifact": "docs/audits/dev_020_listener_dns_connectivity_phase1.v1.json",
+    "result": "Retained concurrent PumpPortal and Helius gaierror records support a shared transient resolver/connectivity episode. PumpPortal failures occurred at reconnect attempts 22-24, so a startup-only resolver race is not supported. The upstream/OS resolver cause is not retained. Dedicated local gaierror fixtures plus existing reconnect isolation tests pass 8/8: both real loops retry through a fresh websocket context; PumpPortal becomes BIRTH AVAILABLE and PumpSwap becomes MIGRATION AVAILABLE only after a renewed subscription confirmation. Existing bounded retry/Supervisor escalation already provides automatic recovery without a routine manual restart.",
+    "next_action": "No runtime repair, listener restart, provider probe, or Phase 2 contract is required. If a future sustained resolver outage occurs, retain its evidence and authorize a separate observability or retry-policy investigation rather than changing this qualified path."
   }
 }

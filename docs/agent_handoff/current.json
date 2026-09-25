@@ -2364,6 +2364,16 @@
     "status": "DEV_005A_FINAL_RERUN_CONTROLS_BLOCKED",
     "verdict": "The first permitted fresh Watchtower strict-entry request for F1kzi8tQaQdXhaJSyAX23gXGTRJqee4bfT8YEP3upump made one DEV Birdeye 1s attempt. It returned HTTP 200 with two normalized items, but the exact required target second 1790135458 was absent. Strict entry therefore remained unqualified. The bounded policy prohibits retry, fallback, or automatic alternate selection."
   },
+  "dev_005a_final_population_20260925": {
+    "audit": "docs/audits/dev_005a_final_population_qualification.v1.json sha256 c6a271be47f60d99b2178c15d4b8a0931a0d04b0a3283c4a3b159bfe9cacc567",
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
+    "entries": "Watchtower 1790025916 MC USD 245331.35972777184; Deep 1789831354 MC USD 140402.7467180915. F1kzi remains excluded after its HTTP-200 exact-target-absent outcome.",
+    "next_action": "AUTHORIZE_DEV_005A_FINAL_POPULATION_SOAK. Soak contract is frozen unauthorized.",
+    "preflight": "Final selection has exactly three mints; each active fact has exactly one current queue identity; no-transport preflight would dispatch all three and made zero transport calls. 76 focused provider-free tests pass.",
+    "safety": "Provider calls=2 selected only; nonselected=0; Monitor remains stopped; soak=false; membership/canonical DB/production mutations=0; raw retention=false.",
+    "status": "DEV_005A_FINAL_POPULATION_QUALIFIED",
+    "verdict": "Fresh Watchtower 5tYcEEKvN63RrzpomgF2jWMxJMHmr4Zo19RX1mXipump and Deep 5Tn3ofbzsHU15LxTxc6dWdCFo1NQ9TediyrTTnM6pump each passed exactly one authorized strict-first-post-migration-second Birdeye request and activated idempotently in isolated DEV state. Byzantine 2GAd remains native-qualified."
+  },
   "dev_005a_final_three_operation_execution_preflight_20260925": {
     "audit": "docs/audits/dev_005a_final_three_operation_live_soak_blocked_preflight.v1.json sha256 2bf8de1971373722f4d34bc4f5abdd72186a73d91c4c7674139dc407b90e8b8b",
     "configuration": "The DEV-only launcher and its DEV Supervisor environment now bind the final three-control selection file. This establishes the correct selection for a later authorized retry but did not start the stopped Monitor service.",

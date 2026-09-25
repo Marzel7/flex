@@ -1,4 +1,17 @@
 {
+  "dev_005a_shared_deep_entry_qualification_20260925": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
+    "status": "DEV_005A_POPULATION_READY",
+    "verdict": "WATCHTOWER_DEEP 517rxvXe7boSjeTYvHY34r33EoHeL4paDyNuqdwDpump qualified through the same migration-boundary-to-first-full-post-migration-second MC primitive as WATCHTOWER. Its retained migration boundary is timestamp 1789836697 / slot 448466844, the strict target is 1789836698, and the qualified entry MC is USD 142375.18573016368. The durable fact and one activation envelope are present; provider-free idempotency and restart durability pass.",
+    "provider_scope": "Exactly one logical and physical DEV Birdeye 1-second strict-window attempt was used for 517rx: HTTP 200, one exact target item, strict normalizer V2 COMPLETE, no 429 and no fallback/retry/alternate provider. No raw provider payload was retained.",
+    "final_selection": "Exactly three qualified controls: Byzantine 2GAd4qECH8cN4oQWwhiaBMADNupKCv8h9m9x3a4mpump, Watchtower 6bt4RkPnDYDD3C8CdsGKMP4PZWzVed7yBq4jkXcipump, and Deep 517rxvXe7boSjeTYvHY34r33EoHeL4paDyNuqdwDpump. No-transport preflight projects exactly those three, calls transport zero times, and leaves the isolated queue unchanged.",
+    "exclusions": "BmkJ and 3677 terminal controls were not reactivated. 4ffcz was not retried. Nonselected Deep provider attempts=0.",
+    "qualification": "42 focused provider-free tests passed: operation Monitor worker, DEV-005 population activation, DEV-005A native live-entry gate, and DEV-009 shared backoff.",
+    "artifacts": "Shared Deep contract sha256 284e661a50fc363fc53b08b54e4ca571b268008a673cc677a56c24ea2530d61b; final three-control selection sha256 1238c4106eb653f13a4922758e7e9841406fccd6f1e5f85a5fa37f4c21cc651d; qualification audit docs/audits/dev_005a_shared_deep_entry_qualification.v1.json; final soak contract docs/audits/dev_005a_final_three_operation_soak_contract.v1.json sha256 7b916aba8833f3b123f91f3bf6ad29ae1cdbc3117295772497e73094f08f3759.",
+    "safety": "DEV-005A soak=false; continuous Monitor=false; membership/canonical DB/production mutations=0; production provider calls=0; production service restarts=0; raw provider retention=false.",
+    "blocker": "The final 1800-second three-operation soak is intentionally unauthorized, not failed.",
+    "next_action": "AUTHORIZE_FINAL_DEV_005A_THREE_OPERATION_SOAK"
+  },
   "dev_005a_4ffcz_deep_normalization_failure_audit_20260925": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
     "status": "DEV_005A_4FFCZ_DEEP_NORMALIZATION_AUDIT_QUALIFIED",

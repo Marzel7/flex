@@ -1,4 +1,15 @@
 {
+  "dev_005a_replacement_watchtower_entry_20260925": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
+    "status": "DEV_005A_REPLACEMENT_WATCHTOWER_ENTRY_QUALIFIED",
+    "control": "6bt4RkPnDYDD3C8CdsGKMP4PZWzVed7yBq4jkXcipump",
+    "contract": "V1 sha256 3f7327e94ebec24d6c4370c55fe911c2addbcce964deff50344a6ca113c4e2ab; authorized V2 sha256 aad8123f3fca5fdce43b4a4ad6186ef2bf8de279c34bdb5c7ef730f4cec1e0bf; execution-scope drift=0.",
+    "result": "One logical/physical Birdeye 1s opening-window request returned HTTP 200. The strict first post-migration second is 1790190566 with MC USD 145581.10887996844. The value was compact-persisted through the DEV Monitor activation path; the fact and one deterministic activation envelope exist. Provider-free activation rerun is idempotent.",
+    "qualification": "29 focused provider-free tests passed: DEV-005 population activation, Monitor worker, and native live-entry gate.",
+    "safety": "Live-price calls=0; durable-15m calls=0; Deep provider calls/mutations=0; Monitor loop not started; membership changes=0; canonical DB writes=0; production mutations=0; raw provider bytes retained=0.",
+    "audit": "docs/audits/dev_005a_replacement_watchtower_entry_result.v1.json sha256 340a03ee102d4572b550d345475cd7643668f4146e0f0124086ab69117255f18",
+    "next_action": "AUTHORIZE_REPLACEMENT_DEEP_ENTRY_QUALIFICATION. Do not start DEV-005A or continuous Monitor work in this task."
+  },
   "dev_005a_replacement_watchtower_deep_control_qualification_20260925": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
     "status": "DEV_005A_REPLACEMENT_CONTROL_QUALIFICATION_HOLD",

@@ -17753,12 +17753,12 @@
     "next_action": "INCREASE_OPERATION_LAUNCH_COVERAGE_OR_PLAN_DEV_005B; neither begins automatically."
   },
   "dev_018_watchtower_registry_coverage_recovery_20260925": {
-    "status": "PHASE2A_QUALIFIED",
-    "verdict": "REPRODUCIBLE_PHASE1_REGRESSION_BASELINE_QUALIFIED",
-    "artifact": "docs/audits/dev_018_watchtower_phase2a_final_qualification.v1.json (sha256 7f62803d5a7a82fb8ae0b051c51a137541fce2c79e2f4ca216652c524f130386); baseline docs/audits/dev_018_watchtower_phase2a_regression_baseline.v1.json (sha256 b1b174fd61cb7d6be80cef44c885c3dcb908bf6cc4af639437a864cfad7a4340)",
+    "status": "WATCHTOWER_BACKFILL_EXECUTED_DEV_ONLY",
+    "verdict": "137_REVALIDATED_ROWS_PROJECTED",
+    "artifact": "docs/audits/dev_018_watchtower_registry_backfill_execution.v1.json (sha256 7d40db113fef4c29a378da2f3d84f085dc16093fde4017f1e62f5354c88a4789); qualification docs/audits/dev_018_watchtower_phase2a_final_qualification.v1.json",
     "phase2_contract": "docs/audits/dev_018_watchtower_registry_coverage_phase2_contract.v1.json (authorized=false)",
-    "result": "The original-13 gate is permanently retired for insufficient immutable provenance; no identities were invented. Corrected deterministic cohorts balance 2036 confirmed rows: 342 registered, 1400 with no provisioning-session row, 128 wrong-mechanism, and 166 treasury-role repair. The full repair replay yields 137 simulated promotable and 29 route-incomplete; latest frozen 24h is 9 promotable/3 rejected. Validator remains unchanged, special cases=0, and 42 focused provider-free tests pass. A 137-row proposed manifest and unauthorized revalidation-required contract are frozen; no actual membership/backfill operation occurred.",
-    "production_flags": "Provider/Helius/Birdeye calls=0; Monitor restarts=0; registry backfill=false; membership changes=0; historical fact rewrites=0; Deep source/membership changes=0; production mutations=0; raw payload retention=0. DEV-005A remains frozen.",
-    "next_action": "AUTHORIZE_DEV_018_WATCHTOWER_REGISTRY_BACKFILL if the user wants the separately bounded DEV-only canonical-registry reconciliation. Deep remains blocked on temporal-rule evidence; no production deployment is authorized."
+    "result": "After Phase 2A qualification and explicit user authorization, all 137 frozen manifest rows passed fresh WATCHTOWER_CONFIRMED/registry-absent/role-validator preflight and were projected into DEV canonical membership in bounded batches of 25. Projector-sourced membership count is 479; total Watchtower memberships now read 493. The 1400 missing-session and 128 wrong-mechanism rows remain excluded. No provider call, Deep change, historical fact rewrite, Monitor restart, or production mutation occurred.",
+    "production_flags": "Provider/Helius/Birdeye calls=0; Monitor restarts=0; DEV membership changes=137; historical fact rewrites=0; Deep source/membership changes=0; production mutations=0; raw payload retention=0. DEV-005A remains frozen.",
+    "next_action": "Verify DEV registry/API readback if desired. Deep remains blocked on temporal-rule evidence; no production deployment is authorized."
   }
 }

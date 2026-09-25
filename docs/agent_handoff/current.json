@@ -17797,10 +17797,10 @@
   },
   "dev_playbooks_index_optional_coverage_repair_20260925": {
     "status": "DEV_REPAIR_QUALIFIED_PENDING_RUNTIME_RELOAD",
-    "verdict": "OPTIONAL_ARTIFACT_PLAYBOOK_COVERAGE_FIELDS_NORMALIZED",
+    "verdict": "OPTIONAL_ARTIFACT_COVERAGE_AND_PENDING_PROSPECTIVE_FIELDS_NORMALIZED",
     "engineering_revision": "working tree; DEV UI-only repair",
-    "scope": "The /operations/playbooks index returned HTTP 500 when an artifact-backed Watchtower Playbook omitted optional price_data_coverage fields that a common template formatted unconditionally. The registry now supplies explicit null/default values for optional coverage fields; no Playbook facts or data were changed.",
-    "tests": "19 focused Playbook/operator tests passed; isolated Flask readback of /operations/playbooks returned 200.",
+    "scope": "The /operations/playbooks index returned HTTP 500 when an artifact-backed Watchtower Playbook omitted optional price_data_coverage fields that a common template formatted unconditionally. Separately, /operations/watchtower/playbook assumed every prospective token had terminal price facts. The registry now supplies explicit null/default values for optional coverage fields, and the Watchtower display represents pending values as unavailable and uses the actual lifecycle state; no Playbook facts or data were changed.",
+    "tests": "21 focused Playbook/operator tests passed; isolated Flask readback of /operations/playbooks and /operations/watchtower/playbook returned 200.",
     "safety": "Provider/RPC calls=0; production database/config/service mutations=0; no runtime restart performed.",
     "next_action": "Reload only the DEV API/UI process when authorized, then verify the live local route returns HTTP 200."
   },

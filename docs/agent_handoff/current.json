@@ -1,4 +1,16 @@
 {
+  "dev_005a_successor_repair_replacement_controls_20260925": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
+    "status": "DEV_005A_SUCCESSOR_REPAIR_REPLACEMENT_CONTROLS_QUALIFIED",
+    "verdict": "The retained Byzantine 2GAd control remains NATIVE_QUALIFIED/MONITORING_ACTIVE and successor-capable. Fresh canonical replacements ALuAQm3PqLK2G2oGewwdPC1yYadRuiQ6C5jg5GZopump (WATCHTOWER) and 5Q6MaQLUVHzQvT9xfcm7zHL6Ak1N9bK8dnp8N91npump (WATCHTOWER_DEEP) each passed one separately bounded strict first-post-migration-second Birdeye request, then activated idempotently into the isolated DEV Monitor state.",
+    "provider_scope": "Exactly two physical/logical provider attempts: one selected Watchtower entry and one selected Deep entry. Both HTTP 200 compact normalizations had exactly one target item. No 429, retry, alternate window/provider, nonselected request, live-price, durable-15m, or raw payload retention occurred.",
+    "qualification": "68 focused tests pass. Provider-free successor fixtures prove each replacement operation produces one future successor after a nonterminal observation. The authorized three-mint no-transport preflight found exactly three eligible facts/would-dispatch controls and zero transport calls. One unrelated pending legacy message remained untouched.",
+    "selection": "docs/audits/dev_005a_successor_repair_rerun_selection.v1.json sha256 3e7cac796bad1435e8168694f8cb4c1a093042ba66c9d26e0ed70f0aeefa2633",
+    "contract": "docs/audits/dev_005a_successor_repair_rerun_soak_contract.v1.json sha256 98a61e67cc6b3d0eefbddd53b24c19450eb4ada72daf42c76d471674c5a2e261; authorized=false",
+    "audit": "docs/audits/dev_005a_successor_repair_replacement_controls.v1.json sha256 663836c5960573dfb8e889855847b5617407b9310cb03488d380c338b18f9f7e",
+    "safety": "Monitor stopped after no-transport preflight; DEV-005A soak=false; membership/canonical DB/production mutations=0; production provider work=0; raw provider retention=false.",
+    "next_action": "AUTHORIZE_DEV_005A_SUCCESSOR_REPAIR_RERUN_SOAK. The new 1800-second infrastructure-only contract is deliberately unauthorized."
+  },
   "dev_005a_durable_active_monitor_successor_scheduling_20260925": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
     "status": "DURABLE_SUCCESSOR_SCHEDULING_QUALIFIED",

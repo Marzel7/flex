@@ -1,4 +1,15 @@
 {
+  "dev_005a_final_three_operation_execution_preflight_20260925": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
+    "status": "DEV_005A_ALL_OPERATION_LIVE_MONITOR_INFRASTRUCTURE_BLOCKED",
+    "phase": "FAST_EXECUTION_PREFLIGHT",
+    "verdict": "The explicitly authorized final 1800-second soak did not start. Contract v2 is authorized and has scope drift=0 from v1. Read-only fact projection found all three selected controls active, but the retained Byzantine 2GAd queue envelope is stale: WAITING_FOR_ENTRY_REFERENCE without entry_native_mc_sol/NATIVE_QUALIFIED, while its durable DEV fact is QUALIFIED/MONITORING_ACTIVE with native entry 158.4979216170911186613621635. The real worker would re-enter entry-evidence evaluation rather than dispatch native-qualified live work, so the required three-operation gate fails before transport.",
+    "containment": "Provider calls=0; unrelated provider calls=0; DEV-012 bypass=0; Monitor start=false; controlled restarts=0; canonical/prod DB writes=0; membership changes=0; raw provider retention=0; production mutations=0.",
+    "configuration": "The DEV-only launcher and its DEV Supervisor environment now bind the final three-control selection file. This establishes the correct selection for a later authorized retry but did not start the stopped Monitor service.",
+    "contract": "V1 sha256 7b916aba8833f3b123f91f3bf6ad29ae1cdbc3117295772497e73094f08f3759; authorized V2 sha256 f3367585b8e17a2168914c4e57776efec58b223cc9f126f04fa4cf55755a0635; scope drift=0.",
+    "audit": "docs/audits/dev_005a_final_three_operation_live_soak_blocked_preflight.v1.json sha256 2bf8de1971373722f4d34bc4f5abdd72186a73d91c4c7674139dc407b90e8b8b",
+    "next_action": "AUTHORIZE_PROVIDER_FREE_BYZANTINE_NATIVE_QUEUE_PROJECTION_REPAIR"
+  },
   "dev_005a_shared_deep_entry_qualification_20260925": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
     "status": "DEV_005A_POPULATION_READY",

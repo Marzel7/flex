@@ -1,4 +1,15 @@
 {
+  "dev_005a_byzantine_queue_projection_reconciliation_20260925": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
+    "status": "DEV_005A_BYZANTINE_QUEUE_PROJECTION_RECONCILIATION_QUALIFIED",
+    "verdict": "The existing Byzantine 2GAd assignment-derived queue identity c2e7bb8e52c4d44f51d34b85aaa85a7fda2de336ad05a51fa4271baf439244dd was reconciled from its already durable QUALIFIED/MONITORING_ACTIVE native fact. It now retains NATIVE_QUALIFIED and native entry 158.4979216170911186613621635 with null USD, and passes the actual generic live queue predicate. No identity was created, changed, or duplicated.",
+    "generic_rule": "A qualified nonterminal active Monitor fact is authoritative over an existing same-operation/mint queue projection. The generic reconciler supports native and USD entry forms without an operation/mint/Scenario-D branch; terminal, invalid, missing-identity, and duplicate-identity cases fail closed.",
+    "qualification": "69 focused provider-free tests pass. A fresh queue/process readback finds exactly the three selected mints live-eligible; no-transport fact preflight projects exactly three would-dispatch mints. The real DEV Supervisor Monitor ran in no-transport mode for 70 seconds as PID 61102, then stopped cleanly: Birdeye/Helius/provider calls=0, no queue claim, and no unrelated process restart.",
+    "contract": "Final soak v2 remains the authorized immutable scope: sha256 f3367585b8e17a2168914c4e57776efec58b223cc9f126f04fa4cf55755a0635; v1/v2 scope drift=0. The on-disk stopped-worker configuration is restored to provider-enabled mode for the separately authorized v2 execution.",
+    "safety": "DEV-005A soak=false; membership/canonical DB/production mutations=0; raw payload retention=false; the one terminal unallowlisted queue message remained unclaimed/unmodified.",
+    "audit": "docs/audits/dev_005a_byzantine_queue_projection_reconciliation.v1.json sha256 3b3a25e964a99bd7f57a196ad96d8e9ad0ed6d3d10e42e405d5d4448002cc66e",
+    "next_action": "EXECUTE_EXISTING_AUTHORIZED_DEV_005A_SOAK_V2"
+  },
   "dev_005a_final_three_operation_execution_preflight_20260925": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
     "status": "DEV_005A_ALL_OPERATION_LIVE_MONITOR_INFRASTRUCTURE_BLOCKED",

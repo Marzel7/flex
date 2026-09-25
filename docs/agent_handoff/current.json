@@ -17161,13 +17161,14 @@
     "next_action": "Separate authorization required: EXECUTE_DEV_005A_WITH_ISOLATED_DEV_STORAGE. Do not enable provider traffic before that authorization."
   },
   "dev_005a_isolated_live_execution_20260925": {
-    "engineering_revision": "working tree; DEV credential launcher repaired and no-transport validated after contained execution",
-    "status": "DEV_005A_PROVIDER_SOAK_BLOCKED_PENDING_NEW_AUTHORIZATION",
-    "contained_execution": "The prior run remains invalid and contained: the old env -i command had an empty Birdeye value. Two isolated terminal-finalizer calls occurred before stop (3uaw and 3677); Byzantine made zero calls. It must not be resumed.",
-    "binding_repair": "New DEV-only launcher sources BIRDEYE_KK privately and maps it to BIRDEYE_API_KEY before rebuilding the same explicit clean environment. A no-transport process validation proves the bound value is non-empty and all writable paths remain below .dev_runtime/monitor/dev_005a.",
-    "safety": "No provider transport during repair; no production mutation; operation_monitor_worker remains STOPPED; no automatic restart/resume; DEV-005B unstarted.",
-    "audits": "docs/audits/dev_005a_isolated_real_live_infrastructure_soak.v1.json sha256 c618f80cc853549f6e7dab525ce57643f40885d47dec324c1f22892aed4e42f0; docs/audits/dev_005a_dev_birdeye_kk_binding_preflight.v1.json sha256 3653a9524c193087978bcd230b0fd61d690c0123868962efb6465f9a4e2d1c9e",
-    "next_action": "A new explicit authorization is required to prepare a clean bounded DEV-005A provider soak. Do not resume the contained prior run."
+    "engineering_revision": "working tree; clean DEV-005A rerun stopped at native-qualified queue gate",
+    "status": "DEV_005A_ALL_OPERATION_LIVE_MONITOR_INFRASTRUCTURE_BLOCKED",
+    "credential_binding": "BIRDEYE_KK was privately mapped into BIRDEYE_API_KEY and verified non-empty in the clean isolated Supervisor process.",
+    "clean_rerun": "A fresh isolated root was reconstructed from the three qualified retained entries. Watchtower 3uaw and Deep 3677 each made one allowlisted 15m attempt then legitimately terminalized. Byzantine 2GAd remained MONITORING_ACTIVE but made zero attempts and had no next observation time; the one controlled restart restored all isolated runtime bindings.",
+    "root_cause": "MonitorWorker.process_once only accepts entry_mc_usd when deciding whether a queue envelope can enter live price acquisition. It requeues a NATIVE_QUALIFIED Byzantine entry with entry_native_mc_sol, although the bridge/schema activation path supports it. This is eligible-token starvation.",
+    "safety": "operation_monitor_worker STOPPED; unallowlisted calls=0; raw bytes=0; membership/prod mutations=0; no automatic repair/restart/resume; DEV-005B unstarted.",
+    "audits": "docs/audits/dev_005a_isolated_real_live_infrastructure_soak.v1.json sha256 c618f80cc853549f6e7dab525ce57643f40885d47dec324c1f22892aed4e42f0; docs/audits/dev_005a_dev_birdeye_kk_binding_preflight.v1.json sha256 3653a9524c193087978bcd230b0fd61d690c0123868962efb6465f9a4e2d1c9e; docs/audits/dev_005a_clean_rerun_native_entry_gate_failure.v1.json sha256 2c26593d954ff81f98d60bb5ce5e0f325f220b684052b36e13808201e6f5814f",
+    "next_action": "Under separate authorization, implement and offline-qualify the narrow NATIVE_QUALIFIED queue-gate repair. Do not resume the stopped soak."
   },
   "phosphor_v2_source_binding_resume_20260924": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty DEV working tree; bounded live execution",

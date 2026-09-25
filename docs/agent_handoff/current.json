@@ -17762,16 +17762,17 @@
   "next_action": "DEV-018 is closed. Keep DEV-019 treasury-rotation/Deep work independent; no production deployment is authorized."
   },
   "dev_019_treasury_rotation_discovery_20260925": {
-    "status": "PHASE2_PARTIAL_IMPLEMENTATION",
-    "verdict": "CORRECTED_SCOPE_READ_ONLY_DEFECT_DEFINITION_COMPLETE",
+  "status": "PHASE2_PARTIAL_RETAINED_REPLAY_QUALIFIED",
+  "verdict": "CAUSAL_ORDERING_EVIDENCE_MISSING_FOR_REAL_UNKNOWN_ROOTS",
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty working tree",
     "scope": "Provider-free/read-only audit of Watchtower and WATCHTOWER_DEEP rotated-treasury discovery, causal walkback, and unknown-versus-contradictory semantics.",
     "artifact": "docs/audits/dev_019_watchtower_deep_treasury_rotation_phase1.v2.json (sha256 4ce4b6b8ed2916469583453573f31ed1f516e762660f42d8d3055424d61dcb64); supersedes V1; Phase 2 contract docs/audits/dev_019_watchtower_deep_treasury_rotation_phase2_contract.v1.json (sha256 abe277302445202ac7140186e5f392f73371d18b91b7a23103de4435429f6cf2; authorized=false)",
     "result": "Corrected Phase 1 excludes PumpPortal/Helius DNS and listener work entirely. Current design is MIXED: unknown roots are retained as candidates/lineage gaps but canonical attribution requires wt_confirmed_treasuries. BeqT reproduced a 280,662-second stale selected upstream edge; 36 retained WATCHTOWER members are known now but have an event earlier than current confirmed_at. The defects and Phase 2 safety boundaries are sufficiently defined, but no causal-edge implementation or promotion is authorized.",
     "production_flags": "Provider/Helius/Birdeye/PumpPortal calls=0; listener restarts=0; Monitor restarts=0; treasury registry changes=0; membership changes=0; historical fact rewrites=0; production mutations=0.",
     "phase2_contract": "docs/audits/dev_019_watchtower_deep_treasury_rotation_phase2_contract.v2.json authorized=true; scope drift=0",
-    "phase2_partial_result": "Provider-free treasury_rotation_discovery primitives now classify known-at-event-time roots, unseen complete Watchtower/Deep routes, affirmative contradictions and insufficient routes; causal selection rejects future/unordered same-slot edges and candidate identity is operation family + root + semantic version. Seven focused tests pass. No live route replay or production activation occurred.",
-    "next_action": "Continue DEV-019 Phase 2 only: bind the generic primitive to the selected-edge projection seam, then run BeqT and full Watchtower/Deep retained replay, candidate lifecycle, accounting, and promotion-contract audit. Do not auto-confirm a treasury, mutate membership, call providers, or touch production."
+  "phase2_partial_result": "The generic primitive is now bound to a provider-free selected-edge replay seam. It classifies known-at-event-time roots, unseen complete Watchtower/Deep routes, affirmative contradictions and insufficient routes; candidate identity is operation family + root + semantic version. BeqT's 280,662-second selected edge fails closed as INSUFFICIENT_EVIDENCE because the persisted parent rows have no slot/instruction ordering; no age threshold was added. All 26 Deep rows remain existing assignments. Eleven focused tests pass. No candidate was persisted to canonical DEV state and no live/prod activation occurred.",
+  "artifact": "docs/audits/dev_019_watchtower_deep_treasury_rotation_phase2_replay.v1.json",
+  "next_action": "Preserve DEV-019 as PARTIAL. A separate retained source capable of proving parent slot/transaction ordering is needed before any real unknown-root route can qualify as NEW_TREASURY_CANDIDATE; do not infer order from timestamps, auto-confirm a treasury, mutate membership, call providers, or touch production."
   },
   "dev_runtime_restart_20260925": {
     "status": "RUNNING_ISOLATED",

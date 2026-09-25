@@ -2375,12 +2375,13 @@
     "verdict": "Fresh Watchtower 5tYcEEKvN63RrzpomgF2jWMxJMHmr4Zo19RX1mXipump and Deep 5Tn3ofbzsHU15LxTxc6dWdCFo1NQ9TediyrTTnM6pump each passed exactly one authorized strict-first-post-migration-second Birdeye request and activated idempotently in isolated DEV state. Byzantine 2GAd remains native-qualified."
   },
   "dev_005a_final_soak_20260925": {
-    "contract": "v1 sha256 f052af60b43b3987f457c77b19ac77a2ac2e5ec6b45c5414df163814ca55306a; v2 sha256 7884ad66acda796afc14685a26b125223555fe30e67abea1bd23c55357ab3c93; authorized=true; scope drift=0.",
-    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
-    "next_action": "OBSERVE_FROZEN_DEV_005A_SOAK_TO_COMPLETION; do not alter population or architecture.",
-    "safety": "DEV-only Monitor runtime and final allowlist bound. No production action authorized or performed. Soak must continue to 1800 seconds unless a hard safety invariant fails.",
-    "status": "DEV_005A_FINAL_SOAK_ACTIVE_OBSERVATION_IN_PROGRESS",
-    "verdict": "Frozen v2 contract authorized with scope drift 0. Isolated DEV Monitor started as PID 5249 using final three-mint selection. Deep completed a valid first observation and terminalized; this is contract-valid. Byzantine remains active. Watchtower has not yet completed its first normal processing turn."
+    "audit": "docs/audits/dev_005a_final_population_soak_blocked.v1.json",
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes",
+    "failing_gate": "WATCHTOWER_INITIAL_PROVIDER_PATH",
+    "next_action": "AUDIT_WATCHTOWER_ACTIVE_QUEUE_TO_PROVIDER_DISPATCH_GAP_PROVIDER_FREE",
+    "safety": "Only DEV Monitor stopped after the bound; production unchanged.",
+    "status": "DEV_005A_FINAL_POPULATION_SOAK_BLOCKED",
+    "verdict": "The authorized three-control DEV soak ran beyond its 1800-second bound and was contained. Deep made one observation then terminalized validly. Byzantine remained active and recorded 138 calls. Watchtower stayed MONITORING_ACTIVE but recorded zero provider calls and no observation, so it failed the required initial real provider/Monitor path gate."
   },
   "dev_005a_final_three_operation_execution_preflight_20260925": {
     "audit": "docs/audits/dev_005a_final_three_operation_live_soak_blocked_preflight.v1.json sha256 2bf8de1971373722f4d34bc4f5abdd72186a73d91c4c7674139dc407b90e8b8b",

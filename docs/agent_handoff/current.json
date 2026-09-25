@@ -1,4 +1,15 @@
 {
+  "dev_005a_replacement_deep_entry_20260925": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
+    "status": "DEV_005A_REPLACEMENT_DEEP_ENTRY_BLOCKED",
+    "control": "4ffcz9n3Cao8jVEnb3CxHQUKqCqU5cPrJBtaYryRpump",
+    "contract": "V1 sha256 7f7a3d6fd184015107d24ae34e827bdb9d6a9a9c328ad20703b190398ad503c4; authorized V2 sha256 6f8bfab551eca318b0708e2c13197017c72eb93dc94a1a9e71e52fc3f881614e; execution-scope drift=0.",
+    "result": "No-transport preflight passed: exact canonical Deep membership/nonterminal state, retained migration boundary, DEV-only paths, credential, DEV-009 and DEV-012 gates. The sole admitted logical/physical Birdeye 1s window attempt produced a non-normalizable ValueError; no strict entry was accepted and no retry/window expansion is authorized.",
+    "safety": "Deep fact/envelope writes=0; live-price and durable-15m calls=0; Watchtower 6bt4 fact/envelope remains one qualified ready identity; Byzantine 2GAd fact remains qualified; old terminal controls were not reactivated; membership/canonical DB/production mutations=0; raw provider bytes retained=0.",
+    "qualification": "29 focused provider-free tests passed: DEV-005 population activation, Monitor worker, and native live-entry gate.",
+    "audit": "docs/audits/dev_005a_replacement_deep_entry_result.v1.json sha256 28aabfc0cdd16798534830a363db54c99a2a401423f5123328c09ff4ef13dcc7",
+    "next_action": "DEEP_REPLACEMENT_NOT_READY. A new separately authorized contract is required before any retry, alternate provider, or alternate Deep control. Do not build a three-operation selection or start DEV-005A."
+  },
   "dev_005a_replacement_watchtower_entry_20260925": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
     "status": "DEV_005A_REPLACEMENT_WATCHTOWER_ENTRY_QUALIFIED",

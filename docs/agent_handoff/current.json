@@ -1,4 +1,14 @@
 {
+  "dev_005a_4ffcz_deep_normalization_failure_audit_20260925": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
+    "status": "DEV_005A_4FFCZ_DEEP_NORMALIZATION_AUDIT_QUALIFIED",
+    "verdict": "The failed 4ffcz request reached the HTTP-200-only normalization branch, but its compact result deliberately retained neither provider items nor the sanitized ValueError message/line. The exact malformed field and first raising expression cannot be reconstructed honestly. This is insufficient retained evidence, not a proven generic parser, strict-second resolver, request-window, or provider-no-data defect.",
+    "request": "Frozen two-second 1s MCAP request identity 059d6f2c55aa7650d9f9d27201d0fd1f9294798d6ded91e6ee5884d8b21b4c9e targeted migration 1789582684 and strict second 1789582685. The sole physical attempt is already consumed; no retry was executed.",
+    "qualification": "41 focused provider-free tests passed, including new empty/missing/invalid/malformed strict-entry fail-closed cases and shared 429 regressions. No generic repair was made because it cannot recover authoritative missing evidence.",
+    "safety": "Provider/Helius calls=0; DEV-005A soak=false; Deep state unchanged; Watchtower 6bt4 and Byzantine 2GAd remain QUALIFIED/MONITORING_ACTIVE; terminal reactivations=0; membership/canonical DB/production mutations=0; raw provider retention=0.",
+    "audit": "docs/audits/dev_005a_4ffcz_deep_entry_normalization_failure.v1.json sha256 96790e987204a89b487140e5b66d412c7e7685823deebe811358c6ba5a3c1b73",
+    "next_action": "NO_SAFE_DEEP_PATH. Do not authorize a speculative retry or alternative Deep control from this evidence. A future authorization needs an explicit observability/retention contract sufficient to diagnose the next bounded response without retaining raw payloads."
+  },
   "dev_005a_replacement_deep_entry_20260925": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
     "status": "DEV_005A_REPLACEMENT_DEEP_ENTRY_BLOCKED",

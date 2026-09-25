@@ -1,4 +1,14 @@
 {
+  "dev_005a_final_three_operation_soak_starvation_20260925": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
+    "status": "DEV_005A_ALL_OPERATION_LIVE_MONITOR_INFRASTRUCTURE_BLOCKED",
+    "failing_gate": "ELIGIBLE_TOKEN_STARVATION",
+    "verdict": "The authorized provider-enabled soak was contained after about 170 seconds. All three selected controls made one successful, attributable DEV 15m request. Watchtower and Deep terminalized legitimately from observed drawdown. Byzantine remained MONITORING_ACTIVE, but its successful envelope was ACKed and no durable successor schedule/envelope existed; its assignment predates the current activation boundary so reconciliation did not recreate it. An eligible active token therefore could not receive another observation.",
+    "safety": "Logical/physical/successful requests=3/3/3; 429=0; other failure=0; unatttributed/unrelated provider attempts=0; DEV-012 bypass=0; queue unrelated terminal identity preserved; duplicate observation groups=0; synthetic candles=0; raw payload retention=0; membership/canonical/prod DB writes and production provider work/mutations=0. Monitor PID 65843 stopped cleanly; controlled restart was not attempted after the hard gate.",
+    "resources": "DEV isolated storage grew 9,835 bytes (127,923 -> 137,758); WAL growth=0. Worker RSS was not retained before hard containment.",
+    "audit": "docs/audits/dev_005a_final_three_operation_live_soak_blocked_starvation.v1.json sha256 2e910f0fe9272722fa929d5650d43aef361f5ef7f65c7baba1d9c66809528be6",
+    "next_action": "AUTHORIZE_DEV_ONLY_ACTIVE_FACT_SUCCESSOR_SCHEDULING_REPAIR"
+  },
   "dev_005a_byzantine_queue_projection_reconciliation_20260925": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
     "status": "DEV_005A_BYZANTINE_QUEUE_PROJECTION_RECONCILIATION_QUALIFIED",

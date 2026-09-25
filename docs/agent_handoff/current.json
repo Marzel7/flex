@@ -2355,6 +2355,15 @@
     "status": "DURABLE_SUCCESSOR_SCHEDULING_QUALIFIED",
     "verdict": "The generic Monitor queue now persists one idempotent future successor after an authoritative nonterminal active observation and before ACK. Native and USD entries preserve their qualified forms; terminal facts are excluded. A future due time is enforced at claim, preventing hot-loop dispatch."
   },
+  "dev_005a_final_fresh_controls_20260925": {
+    "audit": "docs/audits/dev_005a_final_rerun_control_qualification_blocked.v1.json sha256 79f2e4da1583d1b9b1c0886f1810557f5a11f86da8632e2460a6d6d736ceb0f0",
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
+    "next_action": "SEPARATE_AUTHORIZATION_REQUIRED_FOR_ANY_WATCHTOWER_RETRY_OR_ALTERNATE_CONTROL. Do not issue the Deep attempt, build final selection, or start a soak.",
+    "provider_accounting": "Watchtower logical/physical/HTTP-200=1/1/1; 429=0. Deep=0 because the required stop-on-Watchtower-failure boundary applied. Nonselected=0. No raw provider bytes retained.",
+    "safety": "Monitor remains stopped; soak=false; membership/canonical DB/production mutations=0; terminal controls were not reactivated.",
+    "status": "DEV_005A_FINAL_RERUN_CONTROLS_BLOCKED",
+    "verdict": "The first permitted fresh Watchtower strict-entry request for F1kzi8tQaQdXhaJSyAX23gXGTRJqee4bfT8YEP3upump made one DEV Birdeye 1s attempt. It returned HTTP 200 with two normalized items, but the exact required target second 1790135458 was absent. Strict entry therefore remained unqualified. The bounded policy prohibits retry, fallback, or automatic alternate selection."
+  },
   "dev_005a_final_three_operation_execution_preflight_20260925": {
     "audit": "docs/audits/dev_005a_final_three_operation_live_soak_blocked_preflight.v1.json sha256 2bf8de1971373722f4d34bc4f5abdd72186a73d91c4c7674139dc407b90e8b8b",
     "configuration": "The DEV-only launcher and its DEV Supervisor environment now bind the final three-control selection file. This establishes the correct selection for a later authorized retry but did not start the stopped Monitor service.",

@@ -17714,5 +17714,15 @@
     "result": "The fixed Byzantine control 2GAd remains canonically qualified, NATIVE_QUALIFIED, nonterminal, and MONITORING_ACTIVE with the required native entry MC. Its isolated DEV queue has zero current durable identities, where exactly one is required. Per the final-population authorization, work stopped before selecting replacements, issuing provider attempts, running preflight, or creating a soak contract.",
     "tests": "Artifact JSON validation and required-section check passed. Runtime SQLite readback: operation_monitor_facts contains the active 2GAd fact; generic_provider_work current identity count=0.",
     "verdict": "DEV_005A_POST_DISPATCH_FINAL_POPULATION_BLOCKED"
+  },
+  "dev_005a_reconciliation_runtime_wiring_20260925": {
+    "artifact": "docs/audits/dev_005a_reconciliation_runtime_wiring_and_final_population.v1.json",
+    "artifact_sha256": "9efe4a36a94eb8a11aefad08349966cd7727684d6960c997e3e0b5297161892b",
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 working tree",
+    "next_action": "SEPARATE_AUTHORIZATION_REQUIRED_FOR_ANY_WATCHTOWER_RETRY_OR_ALTERNATE_CONTROL",
+    "production_flags": "Production provider work=0; production DB writes=0; production mutations=0; canonical DB writes=0; raw provider retention=0.",
+    "result": "The real Monitor durable queue already contained exactly one valid 2GAd identity. The earlier blocked qualification queried the auxiliary generic_provider_work database rather than the file-backed EvidenceIntakeQueue used by Monitor. No runtime reconciliation defect or source wiring change was required. The no-transport preflight passed with one identity and zero transport.",
+    "tests": "33 focused provider-free tests passed; JSON validation passed.",
+    "verdict": "DEV_005A_RECONCILIATION_RUNTIME_WIRING_QUALIFIED"
   }
 }

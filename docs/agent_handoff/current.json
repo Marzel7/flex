@@ -17733,5 +17733,15 @@
     "result": "The authorized persistent DEV Monitor was stopped early. The contract and selection retained their exact SHA256 identities and scope drift was zero, but BmkJ was already PRICE_MONITOR_COMPLETE_COLLAPSED and 5tYc remained retry-deferred, so the frozen population was no longer a qualifying three-active-control soak. Two attributable DEV observations occurred only for active Byzantine 2GAd; a stale unallowlisted 3uaw envelope predated execution and did not reach transport. See docs/audits/dev_005a_real_queue_final_soak_result.v1.json (sha256 c217337f6102856d422fa990deddef2bdc15766d5915b5c6aaf32f7b534d6284).",
     "tests": "65 focused provider-free tests passed; actual three-control no-transport preflight passed with transport=0; JSON validation passed.",
     "verdict": "DEV_005A_REAL_QUEUE_FINAL_SOAK_BLOCKED"
+  },
+  "dev_005a_cumulative_real_evidence_closure_20260925": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 working tree",
+    "status": "DEV_COMPLETE",
+    "verdict": "ALL_OPERATION_LIVE_MONITOR_INFRASTRUCTURE_QUALIFIED",
+    "result": "Cumulative retained evidence closes DEV-005A without another simultaneous 1800-second historical-control soak. Byzantine proves active repeated live monitoring; Watchtower and WATCHTOWER_DEEP each prove shared Monitor provider execution and valid terminal lifecycle. Current retry, fairness, crash, restart, 429, and budget safety branches are provider-free qualified after their superseding repairs. No current FAILED or required UNPROVEN capability remains.",
+    "artifact": "docs/audits/dev_005a_cumulative_real_evidence_closure.v1.json (sha256 b12f79165eb5f4fad66851e123a6cbb4a29a2fe3cc2d60a75f2064245f88649f)",
+    "tests": "Read-only retained-artifact audit; no new test/provider/Helius/Birdeye execution.",
+    "production_flags": "Production provider work=0; production DB writes=0; production mutations=0; operation membership changes=0; raw provider retention=0.",
+    "next_action": "DEV_005B remains PLANNED and separately requires a genuinely fresh launch lifecycle qualification."
   }
 }

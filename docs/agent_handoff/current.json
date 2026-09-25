@@ -17160,6 +17160,16 @@
     "audit": "docs/audits/dev_005a_dev_monitor_storage_isolation.v1.json sha256 dcd72f5fba34fd4d0b234f248eaf7f83e16d9dbb3ce5879e90b341e8ef6ce21f",
     "next_action": "Separate authorization required: EXECUTE_DEV_005A_WITH_ISOLATED_DEV_STORAGE. Do not enable provider traffic before that authorization."
   },
+  "dev_005a_isolated_live_execution_20260925": {
+    "engineering_revision": "working tree; bounded DEV-005A execution was contained before qualification",
+    "status": "DEV_005A_ALL_OPERATION_LIVE_MONITOR_INFRASTRUCTURE_BLOCKED",
+    "failing_gate": "DEV_005A_EXECUTION_PREFLIGHT_PROVIDER_CREDENTIAL_BINDING",
+    "finding": "The isolated worker correctly loaded DEV source, DEV storage and the exact three-token selection, but its clean env -i command received an empty Birdeye credential from the Supervisor parent environment. It was stopped immediately and must not be resumed under this authorization.",
+    "contained_effect": "Two isolated facts recorded one provider-attributed terminal-finalization call each before containment: Watchtower 3uaw and WATCHTOWER_DEEP 3677. Byzantine 2GAd recorded zero calls and remains active. No unallowlisted work, raw-payload retention, membership change or production mutation was observed.",
+    "safety": "operation_monitor_worker STOPPED; no automatic repair/restart/resume; canonical/prod write target is absent from the worker configuration; DEV-005B remains unstarted.",
+    "audit": "docs/audits/dev_005a_isolated_real_live_infrastructure_soak.v1.json sha256 c618f80cc853549f6e7dab525ce57643f40885d47dec324c1f22892aed4e42f0",
+    "next_action": "Under separate authorization, qualify a secret-safe non-empty DEV Birdeye credential binding with the same isolated writable paths; then decide whether to prepare a new clean DEV-005A population. Do not resume the contained run."
+  },
   "phosphor_v2_source_binding_resume_20260924": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty DEV working tree; bounded live execution",
     "status": "PHOSPHOR_V2_SAFE_INSUFFICIENT_EVIDENCE",

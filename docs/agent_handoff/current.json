@@ -2404,6 +2404,16 @@
     "status": "DEV_005A_WATCHTOWER_SCHEDULER_STARVATION_QUALIFIED",
     "verdict": "Scheduler fairness is qualified, but it was not the direct cause of the failed Watchtower observation: the actual blocker was the post-dispatch blank generic retry. Do not rerun the soak until that provider-response/retry path is separately qualified."
   },
+  "dev_005a_post_dispatch_retry_state_machine_20260925": {
+    "audit": "docs/audits/dev_005a_post_dispatch_retry_state_machine.v1.json sha256 40fb2bcf5ada20cf798136d98a5645338872a1a41d58ce594f37be618808ce11",
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with narrow DEV-only working-tree changes; production source parity is not claimed",
+    "finding": "5tYc reached provider dispatch once. Its retained blank retry has insufficient retained response evidence for a historical semantic label, but the cause is precise: the old generic exception fallback created a retry identity without a deadline, and recover_due did not recognize it.",
+    "repair": "Every completed provider attempt now resolves to OBSERVATION_COMMITTED, RETRYABLE_DEFERRED with explicit durable deadline, DEV_009_BACKOFF, or TERMINAL_FAILURE. Legacy blank retries normalize fail-closed before recovery; preflight rejects any active selected blank retry. Compact response overflow is a classified retryable outcome, not an assertion. Provider counters distinguish physical attempts, HTTP successes, normalized observations, and committed observations.",
+    "next_action": "QUALIFY_FINAL_DEV_005A_RERUN_POPULATION_AFTER_POST_DISPATCH_REPAIR. Do not start a soak automatically.",
+    "qualification": "65 focused provider-free tests pass, including retry deadline, blank legacy normalization, terminal failure, response-capacity failure, scheduler/restart/successor composition, DEV-009, DEV-012, and preflight guards.",
+    "safety": "Provider/Helius/Birdeye calls=0; Monitor remains stopped; soak start=false; control selection/membership/canonical DB/production mutations=0; raw provider retention=0.",
+    "status": "DEV_005A_POST_DISPATCH_RETRY_STATE_MACHINE_QUALIFIED"
+  },
   "dev_005a_final_three_operation_soak_starvation_20260925": {
     "audit": "docs/audits/dev_005a_final_three_operation_live_soak_blocked_starvation.v1.json sha256 2e910f0fe9272722fa929d5650d43aef361f5ef7f65c7baba1d9c66809528be6",
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",

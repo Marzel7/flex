@@ -17728,10 +17728,10 @@
   "dev_005a_real_queue_final_population_20260925": {
     "artifacts": "selection=docs/audits/dev_005a_real_queue_final_selection.v1.json (sha256 1deac8bb44d022bca2ac4752e0513a410c15f8f64eddb06f3fa0f894dda5e9ac); contract=docs/audits/dev_005a_real_queue_final_soak_contract.v1.json (sha256 6513f91995cfa1fc831d069aa67bd479636e2845121cd5c88fc345ef44ba1738); qualification=docs/audits/dev_005a_real_queue_final_population_qualification.v1.json (sha256 fdbb6d098e395ec99481b40937d464628c750cf144281d68d7bcda93e0ea5f26)",
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 working tree",
-    "next_action": "AUTHORIZE_DEV_005A_REAL_QUEUE_FINAL_SOAK",
+    "next_action": "OBSERVE_BOUND_1800_SECOND_DEV_005A_REAL_QUEUE_FINAL_SOAK_AND_RECORD_CONTRACT_VALIDATED_RESULT",
     "production_flags": "Production provider work=0; production DB writes=0; production mutations=0; canonical DB writes=0; raw provider retention=0.",
-    "result": "The frozen three-control isolated DEV population is Byzantine 2GAd, Watchtower 5tYc, and WATCHTOWER_DEEP BmkJ. 5tYc reused retained qualified strict-entry evidence after legacy retry normalization; BmkJ reused DEV-006 shared-path qualified evidence and was activated idempotently through the generic bridge. Real file-backed Monitor queue cardinality is exactly one for each control. Provider-free real scheduler turns covered all three; no Monitor process was running after preflight.",
+    "result": "The frozen three-control isolated DEV population is Byzantine 2GAd, Watchtower 5tYc, and WATCHTOWER_DEEP BmkJ. The user explicitly authorized the unchanged 1800-second DEV-only contract (SHA256 6513f91995cfa1fc831d069aa67bd479636e2845121cd5c88fc345ef44ba1738) with scope drift zero. The persistent isolated Monitor process is active under the exact final selection; observation is in progress.",
     "tests": "65 focused provider-free tests passed; actual three-control no-transport preflight passed with transport=0; JSON validation passed.",
-    "verdict": "DEV_005A_REAL_QUEUE_FINAL_POPULATION_QUALIFIED"
+    "verdict": "DEV_005A_REAL_QUEUE_FINAL_SOAK_ACTIVE_OBSERVATION"
   }
 }

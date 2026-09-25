@@ -17787,13 +17787,13 @@
     "production_intent": "UNDECIDED; this records recovery tooling and does not authorize a separate feature promotion."
   },
   "dev_022_birdeye_credit_consumption_audit_20260925": {
-    "status": "PHASE2_COMPONENT_QUALIFIED_LIVE_WIRING_PENDING",
-    "verdict": "ACCOUNT_GATE_COMPONENT_QUALIFIED_EXPLICIT_LIVE_POLICY_REQUIRED",
+    "status": "PHASE2B_PARTIAL_CEILING_AND_WIRING_BLOCKED",
+    "verdict": "ACCOUNT_GATE_COMPONENT_QUALIFIED_BUT_NO_AUTHORITATIVE_CEILING_OR_COMPLETE_WIRING",
     "engineering_revision": "working tree; DEV-only audit",
-    "artifact": "phase1=docs/audits/dev_022_birdeye_credit_consumption_phase1.v1.json (sha256 0590562112c718869556bee505167ac681b748d73b327f971c5d676594f8ea32); phase2 contract=docs/audits/dev_022_birdeye_account_budget_phase2_contract.v1.json (sha256 d97d4080589f859ac343f034f30a567c3eb44693c9574b1d3b66f55ed2b9c5f5); qualification=docs/audits/dev_022_birdeye_account_budget_phase2_qualification.v1.json (sha256 e9748f072655aa1247a961884d6f0c27c92db02246e34d4887a9bbe569262a6b)",
-    "result": "A provider-free generic account gate is qualified: dedicated compact SQLite storage, atomic durable request admission, 30-day retention, duplicate suppression, restart/multi-worker final-slot proof, and compact post-transport outcome accounting. Binding injection proves a denied account gate prevents transport. Existing Monitor 20/min global, 4/min mint, DEV-009, and DEV-012 controls remain unchanged. Live account-wide wiring is intentionally absent because no explicit account request ceiling or shared store path is authorized; enabling with no policy would fail-close active DEV Monitor. 71 source sites therefore remain not yet globally wired.",
+    "artifact": "phase1=docs/audits/dev_022_birdeye_credit_consumption_phase1.v1.json (sha256 0590562112c718869556bee505167ac681b748d73b327f971c5d676594f8ea32); phase2 contract=docs/audits/dev_022_birdeye_account_budget_phase2_contract.v1.json (sha256 d97d4080589f859ac343f034f30a567c3eb44693c9574b1d3b66f55ed2b9c5f5); qualification=docs/audits/dev_022_birdeye_account_budget_phase2_qualification.v1.json (sha256 e9748f072655aa1247a961884d6f0c27c92db02246e34d4887a9bbe569262a6b); phase2b=docs/audits/dev_022_birdeye_account_budget_phase2b_wiring_qualification.v1.json (sha256 f18d1d716bdbb3e38fc2ee3d3dffe24ceb00cb1cb5b7d34502c3201944ad9bee)",
+    "result": "Phase 2B local discovery found no authoritative Birdeye account-wide request ceiling, no usable credit-to-request cost model, and therefore no activation authority. The generic DEV Monitor queue is the selected future ledger convention, but no ledger was created or activated. The 71 Birdeye-capable paths remain outside mandatory account-gate wiring (70 direct historical/research paths plus the optional binding seam); reporting 100% coverage would be false. Existing Monitor 20/min global, 4/min mint, DEV-009, and DEV-012 controls remain unchanged and are not treated as account policy.",
     "safety": "Birdeye/Helius/PumpPortal/other provider calls=0; process stops/restarts=0; Supervisor changes=0; DB/queue/membership/production mutations=0.",
-    "next_action": "Separately authorize one explicit DEV account-wide request ceiling and dedicated shared store path, then bind the active DEV Monitor and remaining real Birdeye transport choke points. Do not deploy to production."
+    "next_action": "PROVIDE_DEV_BIRDEYE_ACCOUNT_CEILING: provide a direct request ceiling, window, policy version, and authority/source for the DEV credential. Then separately scope the mandatory-client migration for all active Birdeye transport paths before any live activation. Do not deploy to production."
   },
   "dev_020_listener_dns_connectivity_20260925": {
     "status": "RECOVERED_SUPERVISOR_STARTUP",

@@ -1,4 +1,15 @@
 {
+  "dev_005a_successor_repair_rerun_soak_20260925": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
+    "status": "DEV_005A_ALL_OPERATION_LIVE_MONITOR_INFRASTRUCTURE_BLOCKED",
+    "failing_gate": "ELIGIBLE_TOKEN_STARVATION",
+    "verdict": "The authorized v2 isolated DEV soak was immediately contained. New Watchtower ALuAQm and Deep 5Q6Ma each made one valid DEV 15m observation then terminalized legitimately. Byzantine 2GAd remained NATIVE_QUALIFIED/MONITORING_ACTIVE but had no current queue identity from the pre-repair generation, so it could not receive a new observation or successor.",
+    "root_cause": "Successor scheduling now protects future active observations, but it does not reconstruct a missing current queue identity for a fact whose predecessor had already been ACKed before the repair. The preflight checked fact eligibility but did not require a durable queue identity.",
+    "provider_scope": "Two live 15m selected-control attempts and one naturally arising terminal finalizer attempt occurred; 429=0, unrelated provider attempts=0, budget bypass=0. No retries, substitutions, or restart were performed after the hard gate.",
+    "safety": "Monitor stopped cleanly; canonical DB writes=0; production mutations/provider work=0; membership mutations=0; raw retention=false; unrelated queue messages claimed/dispatched=0.",
+    "audit": "docs/audits/dev_005a_successor_repair_rerun_soak_blocked.v1.json sha256 6061bca86b4067f28c28b929a437275652343cb9fc3c171b4c266eafff923765",
+    "next_action": "AUTHORIZE_PROVIDER_FREE_ACTIVE_FACT_QUEUE_IDENTITY_RECOVERY. Do not resume or retry this soak automatically."
+  },
   "dev_005a_successor_repair_replacement_controls_20260925": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
     "status": "DEV_005A_SUCCESSOR_REPAIR_REPLACEMENT_CONTROLS_QUALIFIED",

@@ -17787,13 +17787,13 @@
     "production_intent": "UNDECIDED; this records recovery tooling and does not authorize a separate feature promotion."
   },
   "dev_022_birdeye_credit_consumption_audit_20260925": {
-    "status": "PHASE1_AUDIT_COMPLETE",
-    "verdict": "LOCAL_CREDIT_ATTRIBUTION_INSUFFICIENT_ACCOUNT_WIDE_BUDGET_GAP_PROVEN",
+    "status": "PHASE2_COMPONENT_QUALIFIED_LIVE_WIRING_PENDING",
+    "verdict": "ACCOUNT_GATE_COMPONENT_QUALIFIED_EXPLICIT_LIVE_POLICY_REQUIRED",
     "engineering_revision": "working tree; DEV-only audit",
-    "artifact": "docs/audits/dev_022_birdeye_credit_consumption_phase1.v1.json (sha256 0590562112c718869556bee505167ac681b748d73b327f971c5d676594f8ea32)",
-    "result": "Five requests are locally provable only from surviving rolling Monitor budget ledgers: four DEV-005A 15M_EVIDENCE admissions and one separate shared-state OPENING admission. The current DEV Monitor has a durable per-queue 20/min global and 4/min per-token gate which fails closed before transport; it currently records four 15M admissions for one mint. Exact Birdeye account credits, endpoint cost weighting, historical rotated request records, and total account consumption are not locally retained. 71 source call sites include historical/direct scripts outside an account-wide durable gate, so a global account budget invariant is not yet true.",
+    "artifact": "phase1=docs/audits/dev_022_birdeye_credit_consumption_phase1.v1.json (sha256 0590562112c718869556bee505167ac681b748d73b327f971c5d676594f8ea32); phase2 contract=docs/audits/dev_022_birdeye_account_budget_phase2_contract.v1.json (sha256 d97d4080589f859ac343f034f30a567c3eb44693c9574b1d3b66f55ed2b9c5f5); qualification=docs/audits/dev_022_birdeye_account_budget_phase2_qualification.v1.json (sha256 e9748f072655aa1247a961884d6f0c27c92db02246e34d4887a9bbe569262a6b)",
+    "result": "A provider-free generic account gate is qualified: dedicated compact SQLite storage, atomic durable request admission, 30-day retention, duplicate suppression, restart/multi-worker final-slot proof, and compact post-transport outcome accounting. Binding injection proves a denied account gate prevents transport. Existing Monitor 20/min global, 4/min mint, DEV-009, and DEV-012 controls remain unchanged. Live account-wide wiring is intentionally absent because no explicit account request ceiling or shared store path is authorized; enabling with no policy would fail-close active DEV Monitor. 71 source sites therefore remain not yet globally wired.",
     "safety": "Birdeye/Helius/PumpPortal/other provider calls=0; process stops/restarts=0; Supervisor changes=0; DB/queue/membership/production mutations=0.",
-    "next_action": "Do not change budgets or stop processes automatically. A separately authorized DEV-022 Phase 2 may scope only shared durable account-wide dispatch accounting and budget-gate coverage for proven bypass-capable paths."
+    "next_action": "Separately authorize one explicit DEV account-wide request ceiling and dedicated shared store path, then bind the active DEV Monitor and remaining real Birdeye transport choke points. Do not deploy to production."
   },
   "dev_020_listener_dns_connectivity_20260925": {
     "status": "RECOVERED_SUPERVISOR_STARTUP",

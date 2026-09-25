@@ -17170,6 +17170,16 @@
     "audits": "docs/audits/dev_005a_isolated_real_live_infrastructure_soak.v1.json sha256 c618f80cc853549f6e7dab525ce57643f40885d47dec324c1f22892aed4e42f0; docs/audits/dev_005a_dev_birdeye_kk_binding_preflight.v1.json sha256 3653a9524c193087978bcd230b0fd61d690c0123868962efb6465f9a4e2d1c9e; docs/audits/dev_005a_clean_rerun_native_entry_gate_failure.v1.json sha256 2c26593d954ff81f98d60bb5ce5e0f325f220b684052b36e13808201e6f5814f",
     "next_action": "Under separate authorization, implement and offline-qualify the narrow NATIVE_QUALIFIED queue-gate repair. Do not resume the stopped soak."
   },
+  "dev_005a_native_entry_live_queue_gate_20260925": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with narrow DEV working-tree changes; production source parity is not claimed",
+    "status": "DEV_005A_NATIVE_ENTRY_LIVE_QUEUE_GATE_QUALIFIED",
+    "repair": "The generic Monitor queue predicate now accepts a qualified USD reference or NATIVE_QUALIFIED plus entry_native_mc_sol. It rejects insufficient and terminal stale envelopes before transport, does not branch on operation or mint, and never derives USD from native value.",
+    "qualification": "55 focused provider-free tests passed. The retained 2GAd native value is accepted by the actual queue handler, preserves NULL USD, receives a schedulable next observation, survives fact roundtrip/restore, and appears in the real Monitor no-transport eligibility projection. USD Watchtower/Deep behavior, PHOSPHOR insufficiency, terminal exclusion, and mixed native/USD scheduler fairness pass.",
+    "safety": "Birdeye/Helius/real provider calls=0; DEV-005A soak restart=false; membership changes=0; production source/config/service/database changes=0; worker remains stopped.",
+    "audit": "docs/audits/dev_005a_native_entry_live_queue_gate_qualification.v1.json sha256 483af7eeed03e3cabc5fb516a4e88b5d791ff51f1650a91aed373ad69b9bc7b7",
+    "population_policy": "The former three-token population is not reusable: its Watchtower and Deep controls terminalized legitimately. Do not silently substitute controls.",
+    "next_action": "Separately qualify fresh nonterminal WATCHTOWER and WATCHTOWER_DEEP live controls, then seek a new bounded DEV-005A soak authorization."
+  },
   "phosphor_v2_source_binding_resume_20260924": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty DEV working tree; bounded live execution",
     "status": "PHOSPHOR_V2_SAFE_INSUFFICIENT_EVIDENCE",

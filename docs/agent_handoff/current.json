@@ -17795,6 +17795,15 @@
     "safety": "Birdeye/Helius/PumpPortal/other provider calls=0; process stops/restarts=0; Supervisor changes=0; DB/queue/membership/production mutations=0.",
     "next_action": "Do not use 3xfs… as a Watchtower lifecycle control. Separately authorize either canonical membership establishment from qualifying evidence, or a generic discovery-history policy with its own launch-anchor contract. Separately choose a durable manifest policy before any population transport. Live trading remains off and production is excluded."
   },
+  "dev_playbooks_index_optional_coverage_repair_20260925": {
+    "status": "DEV_REPAIR_QUALIFIED_PENDING_RUNTIME_RELOAD",
+    "verdict": "OPTIONAL_ARTIFACT_PLAYBOOK_COVERAGE_FIELDS_NORMALIZED",
+    "engineering_revision": "working tree; DEV UI-only repair",
+    "scope": "The /operations/playbooks index returned HTTP 500 when an artifact-backed Watchtower Playbook omitted optional price_data_coverage fields that a common template formatted unconditionally. The registry now supplies explicit null/default values for optional coverage fields; no Playbook facts or data were changed.",
+    "tests": "19 focused Playbook/operator tests passed; isolated Flask readback of /operations/playbooks returned 200.",
+    "safety": "Provider/RPC calls=0; production database/config/service mutations=0; no runtime restart performed.",
+    "next_action": "Reload only the DEV API/UI process when authorized, then verify the live local route returns HTTP 200."
+  },
   "dev_020_listener_dns_connectivity_20260925": {
     "status": "RECOVERED_SUPERVISOR_STARTUP",
     "verdict": "PRODUCTION_LISTENER_LIVE_BIRTHS_RESTORED",

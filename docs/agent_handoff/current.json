@@ -17753,11 +17753,12 @@
     "next_action": "INCREASE_OPERATION_LAUNCH_COVERAGE_OR_PLAN_DEV_005B; neither begins automatically."
   },
   "dev_018_watchtower_registry_coverage_recovery_20260925": {
-    "status": "PLANNED",
-    "verdict": "DEV_018_REGISTERED",
-    "artifact": "docs/audits/dev_018_watchtower_registry_coverage_recovery_registration.v1.json (sha256 4dd958e5ee0ecdb414dce78843edb7e8227d24abe40a2a1473ef2e102087f9e3)",
-    "result": "DEV-018 is a DEV-only downstream registry-coverage audit/repair workstream. It preserves the frozen DEV-005A baseline, established WATCHTOWER status, current Deep evidence contract, and evidence-gated membership. Registration authorizes neither provider work nor registry/membership backfill.",
-    "production_flags": "Production provider work=0; production DB writes=0; production mutations=0; operation membership changes=0; raw provider retention=0.",
-    "next_action": "AUTHORIZE_AND_EXECUTE_READ_ONLY_DEV_018_COVERAGE_AND_PROVENANCE_AUDIT."
+    "status": "PHASE1_QUALIFIED",
+    "verdict": "QUALIFIED_READ_ONLY_ROOT_CAUSE_BOUNDARY",
+    "artifact": "docs/audits/dev_018_watchtower_registry_coverage_phase1.v1.json (sha256 8dedb71ad63e48e653aa79f83595edcbcd13b6c199245fae3b83bfd4c53d1d95)",
+    "phase2_contract": "docs/audits/dev_018_watchtower_registry_coverage_phase2_contract.v1.json (sha256 2e0ca8dda96e3d211baf840750d23faed6816c2e08cd4e554105e2192faef157; authorized=false)",
+    "result": "Frozen 24h retained window contains 12 WATCHTOWER_CONFIRMED and 0 canonical memberships. Confirmed-but-unregistered rows total 1694: 1400 missing provisioning session, 128 wrong mechanism, 166 raw treasury mismatch. Raw treasury equality conflates queue attribution-level and session direct-provisioner roles; promotion failure is not durable. BeqTt proves a selected Deep upstream stale by 280662 seconds but no approved numerical causal-window bound exists.",
+    "production_flags": "Provider/Helius/Birdeye calls=0; Monitor restarts=0; registry backfill=false; membership changes=0; historical fact rewrites=0; production mutations=0; raw payload retention=0. DEV-005A remains frozen.",
+    "next_action": "SEPARATELY_AUTHORIZE_DEV_018_PHASE2_ONLY: generic role-normalized validator and durable promotion outcomes in fixtures; first qualify Deep causal-time bound. No backfill or membership mutation."
   }
 }

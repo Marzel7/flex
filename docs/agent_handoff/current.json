@@ -17743,5 +17743,13 @@
     "tests": "Read-only retained-artifact audit; no new test/provider/Helius/Birdeye execution.",
     "production_flags": "Production provider work=0; production DB writes=0; production mutations=0; operation membership changes=0; raw provider retention=0.",
     "next_action": "DEV_005B remains PLANNED and separately requires a genuinely fresh launch lifecycle qualification."
+  },
+  "dev_005a_qualified_baseline_freeze_20260925": {
+    "status": "DEV_COMPLETE",
+    "verdict": "DEV_005A_QUALIFIED_BASELINE_FROZEN",
+    "baseline_id": "DEV_005A_QUALIFIED_BASELINE_V1",
+    "artifact": "docs/audits/dev_005a_qualified_baseline_freeze.v1.json (sha256 6e28241f73af1d716909f8ef426a3dc8f4144e14cf8c289afc758f743073fc04)",
+    "result": "The qualified DEV-005A claim, scope boundary, real file-backed Monitor queue authority, provider accounting, terminal semantics, supersession map, regression/reopen policy, and DEV-005B boundary are frozen. No provider, Monitor, membership, canonical DB, or production operation occurred in the freeze.",
+    "next_action": "INCREASE_OPERATION_LAUNCH_COVERAGE_OR_PLAN_DEV_005B; neither begins automatically."
   }
 }

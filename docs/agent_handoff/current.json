@@ -1,4 +1,14 @@
 {
+  "dev_005a_durable_active_monitor_successor_scheduling_20260925": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
+    "status": "DURABLE_SUCCESSOR_SCHEDULING_QUALIFIED",
+    "verdict": "The generic Monitor queue now persists one idempotent future successor after an authoritative nonterminal active observation and before ACK. Native and USD entries preserve their qualified forms; terminal facts are excluded. A future due time is enforced at claim, preventing hot-loop dispatch.",
+    "crash_recovery": "The predecessor records its durable successor identity before ACK. A restart/recovery seeing that successor ACKs the predecessor without redispatching provider work. The provider-free fixture injected a crash precisely after successor persistence and confirmed one original workflow dispatch, zero restart redispatches, and one retained successor.",
+    "qualification": "66 focused provider-free tests pass. The repeated native active-monitor fixture completed three successive generations with one future successor each, no duplicate identity, and bounded queue depth. DEV-009 shared-gate and DEV-012 budget suites remain green.",
+    "safety": "Provider calls=0; raw provider retention=false; Monitor remains stopped; DEV-005A soak=false; fresh controls=0; membership/canonical DB/production mutations=0.",
+    "audit": "docs/audits/dev_005a_durable_active_monitor_successor_scheduling.v1.json sha256 7f4a4bd8b03b9aa8437aae31c3b576367e9400d16d23b7184c0bbcb8afb2de3d",
+    "next_action": "QUALIFY_FRESH_WATCHTOWER_AND_DEEP_CONTROLS_FOR_DEV_005A_RERUN; do not start the soak automatically."
+  },
   "dev_005a_final_three_operation_soak_starvation_20260925": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with material DEV working-tree changes; production source parity is not claimed",
     "status": "DEV_005A_ALL_OPERATION_LIVE_MONITOR_INFRASTRUCTURE_BLOCKED",

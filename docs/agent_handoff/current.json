@@ -17774,13 +17774,13 @@
     "next_action": "Continue DEV-019 Phase 2 only: bind the generic primitive to the selected-edge projection seam, then run BeqT and full Watchtower/Deep retained replay, candidate lifecycle, accounting, and promotion-contract audit. Do not auto-confirm a treasury, mutate membership, call providers, or touch production."
   },
   "dev_020_listener_dns_connectivity_20260925": {
-    "status": "DEV_COMPLETE",
-    "verdict": "DEV_020_LISTENER_DNS_CONNECTIVITY_PHASE1_QUALIFIED",
+    "status": "DEV_QUALIFIED_PRODUCTION_PRECONDITION_BLOCKED",
+    "verdict": "DEV_020_INSTRUMENTATION_PACKAGE_BLOCKED",
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with dirty working tree",
     "scope": "Separate DEV-only provider-free listener DNS/connectivity evidence audit and recovery qualification. DEV-018, DEV-019, and frozen DEV-005A are excluded.",
-    "safety": "Provider/Helius/PumpPortal calls=0; listener restarts=0; Monitor restarts=0; database mutations=0; membership changes=0; production mutations=0.",
-    "artifact": "docs/audits/dev_020_listener_dns_connectivity_phase1.v1.json",
-    "result": "Retained concurrent PumpPortal and Helius gaierror records support a shared transient resolver/connectivity episode. PumpPortal failures occurred at reconnect attempts 22-24, so a startup-only resolver race is not supported. The upstream/OS resolver cause is not retained. Dedicated local gaierror fixtures plus existing reconnect isolation tests pass 8/8: both real loops retry through a fresh websocket context; PumpPortal becomes BIRTH AVAILABLE and PumpSwap becomes MIGRATION AVAILABLE only after a renewed subscription confirmation. Existing bounded retry/Supervisor escalation already provides automatic recovery without a routine manual restart.",
-    "next_action": "No runtime repair, listener restart, provider probe, or Phase 2 contract is required. If a future sustained resolver outage occurs, retain its evidence and authorize a separate observability or retry-policy investigation rather than changing this qualified path."
+    "safety": "Provider/Helius/PumpPortal calls=0; listener restarts=0; Monitor restarts=0; database mutations=0; membership changes=0; production source/config mutations=0; DNS/provider URL/IP-pinning/retry/backoff/fatal/Supervisor changes=0.",
+    "artifact": "docs/audits/dev_020_instrumentation_dev_qualification.v1.json sha256 226fa2d1f4926344fc1fbdb493f493f298850f77930e6f5f50dd63ef3b03a9a6; contract V2 docs/audits/dev_020_failure_boundary_instrumentation_deployment_contract.v2.json sha256 d49cd0c8d24831609f51a3e2f5aa0dee7f785fbfc79a43c9f1dcc5866abfcdbe; production precheck docs/audits/dev_020_production_instrumentation_diff_manifest.v1.json sha256 f6a5608df08b651473eebf3bc055cddd4e9fb6ce73091a5f05ef1b346bd16752.",
+    "result": "DEV-only resolver-boundary instrumentation is implemented in one existing listener source file and is bounded to 256KiB JSONL. It records only generation start, first equivalent gaierror per provider/generation, post-failure success, and resolver fatal exhaustion; no secret, route/interface, raw provider payload, database, operation, birth-path, retry/backoff or Supervisor data is introduced. Fifteen provider-free instrumentation/reconnect/lifecycle/isolation tests pass. Production runtime path was read from Supervisor configuration and target is clean, but the target digest differs from the materially dirty DEV listener, so exact patch compatibility and dry-run postdigest cannot honestly be claimed.",
+    "next_action": "FIX_DEV_020_INSTRUMENTATION_QUALIFICATION: establish a clean identical DEV/Production listener source baseline, then separately create and dry-run an exact one-file instrumentation patch. Do not adapt or deploy the patch in Production under this blocked package."
   }
 }

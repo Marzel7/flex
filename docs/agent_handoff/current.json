@@ -1,4 +1,15 @@
 {
+  "dev019_phase2e_member_witness_linkage_20260926": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
+    "status": "HOLD",
+    "verdict": "QUALIFY_MEMBER_WITNESS_EVIDENCE_RECOVERY",
+    "finding": "Historical Deep registration persists accepted_count, accepted_digest, and aggregate evidence_digest only. Neither the operation identity event, qualification contract, identity state, nor audited historical artifacts retains per-member upper-witness identities or a directional bridge. Phase 2B also records no retained parent/child transaction ordinal for same-slot ordering.",
+    "coverage": "0 proven / 26 insufficient / 0 contradictory / 0 unaccounted. Canonical membership was not used as circular proof; no synthetic relation was created.",
+    "artifact": "docs/audits/dev_019_member_causal_witness_linkage_phase2e.v1.json",
+    "next_action": "Qualify recovery/acquisition of a per-member immutable causal witness bridge; do not build Phase 2D anchors from lower routes or global association search.",
+    "safety": "No provider, membership, treasury, DEV018, DEV022, process, or production mutation.",
+    "updated_at": "2026-09-26T00:00:00Z"
+  },
   "dev019_phase2d_anchor_projection_20260926": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
     "status": "PARTIAL",

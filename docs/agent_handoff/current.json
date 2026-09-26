@@ -35,6 +35,18 @@
     "safety": "No provider, membership, treasury, DEV018, DEV022, process, supervisor, or production mutation.",
     "updated_at": "2026-09-26T00:00:00Z"
   },
+  "dev019_phase2g2_known_signature_slot_20260926": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
+    "status": "PARTIAL",
+    "verdict": "AUTHORIZE_SINGLE_KNOWN_SIGNATURE_SLOT_PILOT",
+    "finding": "Exact local evidence search found no authoritative slot for known child signature 5JJL…FgnY8b. The retained parent slot is 450415455; no time, nearby transaction, mint, or parent-slot heuristic was used to fill the missing child slot.",
+    "implementation": "Added operation-agnostic KNOWN_SIGNATURE_SLOT_V1 compact evidence and two-stage slot comparison primitives with provider-free controls. Existing Solana getTransaction(signature) is the smallest bounded fallback. The frozen Phase 2G semantics remain unchanged; 40 focused tests passed, 0 failed.",
+    "artifact": "docs/audits/dev_019_known_signature_slot_resolution_phase2g2.v1.json",
+    "contract": "docs/audits/dev_019_known_signature_slot_acquisition_contract.v1.json (authorized=false; one known signature; one request; zero retries; no raw retention)",
+    "next_action": "Explicitly authorize one getTransaction request for only the known child signature to establish its slot. Compare slots afterward; do not bundle a getBlock request in that authorization.",
+    "safety": "Provider calls=0; no historical recovery, membership, treasury, DEV018, DEV022, process, supervisor, or production mutation.",
+    "updated_at": "2026-09-26T00:00:00Z"
+  },
   "dev019_phase2e_member_witness_linkage_20260926": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
     "status": "HOLD",

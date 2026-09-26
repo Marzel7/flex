@@ -1,0 +1,12 @@
+{
+  "version": "DEV019_NATURAL_PROSPECTIVE_OBSERVATION_V1",
+  "observation_start_utc": "2026-09-26T19:20:00Z",
+  "observation_as_of_utc": "2026-09-26T19:55:50Z",
+  "runtime": {"pid": 87523, "working_directory": "/Users/kevinkeaveney/Production/flex-walkback-dev002", "health": "PASS", "review_schema_ready": true},
+  "watchtower": {"raw_since_start": 0, "confirmed_since_start": 0, "canonical_since_start": 0, "rejected_since_start": 0, "silent_since_start": 0, "canonical_ui_backing": {"24h": 16, "7d": 215, "30d": 413, "last_timestamp": 1790442705}, "status": "NO_NATURAL_ACTIVITY_YET"},
+  "deep": {"review_leads": ["GSdjYaqG2TBLX9kAZxKrTpeaZwRZXr15vp1fxAHnpump", "7XomEJBtb1EiF4Z8ZVzspCKFW2UuaRkaiq3AJJCFpump"], "candidate_matrix": [{"mint": "GSdjYaqG2TBLX9kAZxKrTpeaZwRZXr15vp1fxAHnpump", "timestamp": 1790452550, "candidate_id": "5b94284eaa4631a85017bb2cffdf277df50e86d2beeb099b78d613ab28ff2e6b", "assessment": "QUALIFIED_PROSPECTIVE_MEMBER", "automatic_membership_allowed": false, "admission": "REVIEW", "reason": "frozen_policy_positive", "candidate_durable": true, "outcome_durable": true, "canonical_membership": false, "member_event": false}, {"mint": "7XomEJBtb1EiF4Z8ZVzspCKFW2UuaRkaiq3AJJCFpump", "timestamp": 1790452550, "candidate_id": "63d4f651668e5174d912c37df5c09b2ab13e4334289eddb12b286bb61f7adb1d", "assessment": "QUALIFIED_PROSPECTIVE_MEMBER", "automatic_membership_allowed": false, "admission": "REVIEW", "reason": "frozen_policy_positive", "candidate_durable": true, "outcome_durable": true, "canonical_membership": false, "member_event": false}], "nomination_count": 2, "candidate_count": 2, "explicit_outcome_count": 2, "silent_count": 0, "admit_count": 0, "membership_count": 0, "member_event_count": 0, "acceptance": "PASS"},
+  "ui": {"deep_confirmed_is_canonical_only": true, "deep_confirmed_24h": 0, "deep_confirmed_7d": 26, "review_included_in_confirmed": false, "deep_review_api_exists": false, "deep_review_ui_exists": false, "status": "CONFIRMED_CORRECT_REVIEW_VISIBILITY_MISSING"},
+  "storage": {"candidate_total": 2, "outcome_total": 2, "event_total": 0, "review_lead_total": 2, "feature_storage_estimate_bytes": 12288, "state": "NORMAL", "large_file_prohibition_v1": "PASS", "raw_retention": false},
+  "safety": {"audit_db_writes": 0, "provider_calls": 0, "process_actions": 0, "source_changes": 0, "schema_changes": 0, "policy_changes": 0, "historical_backfill": 0, "frozen_seven_mutation": 0},
+  "next_gate": "DEFINE_DEV019_DEEP_REVIEW_UI_READ_MODEL"
+}

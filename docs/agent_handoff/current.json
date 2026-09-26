@@ -83,6 +83,19 @@
     "safety": "No provider, membership, treasury, queue, DEV018, DEV022, process, supervisor, or production mutation.",
     "updated_at": "2026-09-26T00:00:00Z"
   },
+  "dev019_phase2g5_rpc_client_reuse_20260926": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
+    "status": "PARTIAL",
+    "verdict": "AUTHORIZE_V3_WORKING_CLIENT_SINGLE_SLOT_PILOT",
+    "finding": "The strongest retained known-working route is src/core/walkback_worker.py:_rpc/_get_tx: repository JSON serialization through urllib to the configured Helius Solana RPC endpoint, with getTransaction result.slot consumed by the operational Watchtower walkback path. It requires no parallel DEV-019 raw RPC implementation.",
+    "qualification": "Prepared V3 for exactly the same known child signature, 1 request/0 retry/1 total, jsonParsed/confirmed/version=0, 1 MiB transient bound, compact slot evidence only, and secret-safe request/error diagnostics. This is working-client reuse, not a proven explanation of Phase 2G.3's -32602.",
+    "artifact": "docs/audits/dev_019_rpc_client_contract_phase2g5.v1.json",
+    "contract": "docs/audits/dev_019_known_signature_slot_acquisition_contract.v3.json (authorized=false; sha256 f3c63a44e694258e8a0b3db4d0b712bfbbb82915999f8905ad3d2b04aeefa71c)",
+    "tests": "48 provider-free comparative tests passed, 0 failed.",
+    "next_action": "Explicitly authorize V3 only if a single known-signature slot pilot is desired; retain safe compact error diagnostics and do not bundle getBlock.",
+    "safety": "No provider, membership, treasury, queue, DEV018, DEV022, process, supervisor, or production mutation.",
+    "updated_at": "2026-09-26T00:00:00Z"
+  },
   "dev019_phase2e_member_witness_linkage_20260926": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
     "status": "HOLD",

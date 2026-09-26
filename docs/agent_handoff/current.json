@@ -17833,5 +17833,15 @@
     "result": "The only qualified DEV activation control is DEV_HISTORICAL_LIFECYCLE_MODE=1 in scripts/run_dev_005a_monitor.sh; ambient runtime remains OFF until that launcher starts. Its isolated DEV queue currently retains one pending and two retry Monitor work items, including Birdeye dispatch work. Starting the normal worker would violate the requested zero-provider activation invariant. No second control, queue mutation, runtime start, provider call, or production action was performed.",
     "production_flags": "Birdeye/Helius/PumpPortal/other provider calls=0; process restarts/stops/Supervisor changes=0; production source/config/DB/restart changes=0; Watchtower/Deep membership and attribution changes=0.",
     "next_action": "REPAIR_DEV_022_AUTO_HISTORY_ACTIVATION: provide a clean empty isolated DEV Monitor queue/runtime for activation, or explicitly authorize processing its existing queued provider work. Do not alter Historical Mode, Live Trading, or Watchtower/Deep attribution as a workaround."
+  },
+  "dev_022_phase3f1_isolated_auto_history_20260926": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with a pre-existing dirty shared worktree",
+    "status": "BLOCKED_MISSING_AUTHORITATIVE_PROSPECTIVE_ASSIGNMENT_SOURCE",
+    "verdict": "DEV_022_ISOLATED_AUTO_HISTORY_NOT_QUALIFIED",
+    "artifact": "docs/audits/dev_022_phase3f1_isolated_auto_history_activation.v1.json (sha256 7053fcd1085622f736a3b0c3528b28fa33c73af02d46c670e2c8390ef12684f7)",
+    "tests": "66 focused provider-free tests passed, 0 failed.",
+    "result": "The three dormant DEV Monitor queue records were hashed before and after and remain semantically identical; no Monitor/provider/process/production action occurred. A minimal prospective-only isolated runner was evaluated then removed before activation because neither available local flex_complete DB nor the checked production-pinned wt_ops DB contains operator_launch_membership. Without that committed WT/Deep assignment projection, a standalone runner would be nonfunctional, backfill old members, or guess attribution, each prohibited by Phase 3F.1. The Phase 3E History Mode coupling was removed from the Monitor launcher as directed.",
+    "production_flags": "Birdeye/Helius/PumpPortal/other provider calls=0; Monitor starts=0; process changes=0; production source/config/process changes=0; membership/attribution/registry changes=0.",
+    "next_action": "REVIEW_DEV_022_RUNTIME_ISOLATION_BLOCKER: identify or provide a DEV-safe read-only committed WT/Deep assignment projection with canonical migration anchors. Do not process, drain, delete, terminalize, or reschedule the Monitor backlog."
   }
 }

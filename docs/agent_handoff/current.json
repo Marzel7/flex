@@ -1,13 +1,13 @@
 {
   "dev019_isolated_admission_adapter_20260926": {
-    "engineering_revision": "ce8485397eeffe755308d5ec5ef0b454bb5f96c8 on dev/019-prospective-deep; pinned runtime closure active",
-    "status": "DEEP_REVIEW_RUNTIME_DEPLOYED_ACTIVE",
+    "engineering_revision": "709fd2b163069bfe8d0525821e4d1387b9554e77 on dev/019-prospective-deep; pinned runtime closure active with review-schema gap",
+    "status": "DEV019_NATURAL_PIPELINE_HOLD_REVIEW_SCHEMA_NOT_READY",
     "baseline": "Clean Git anchor afbe9e58b11eb2e4d616246da123ce31ab45700c preserves DEV-018 worker semantics. Migrated only provenance-backed DEV-019 Deep source, causal witness, capital continuity, known-signature slot, transaction ordering, policy contract, and provider-free tests; no DEV-022 source migrated and no ambiguous source copied.",
-    "qualification": "24 provider-free tests PASS. Storage guard limits compact identities/fields, fails closed before writing at a 48 MiB feature budget (24,576 records × 2,048 bytes), and uses 128-row bounded noncanonical cleanup. REVIEW is never pruned by this cleanup; canonical membership/event-linked provenance is excluded. Existing Deep REVIEW/noncanonical and synthetic ADMIT semantics remain green.",
+    "qualification": "Post-deployment read-only audit: worker PID 87523 is active; zero natural Watchtower and Deep rows since deployment. Generic feature tables are empty and canonical Deep membership/event changes=0. Material gap found: wt_deep_route_review_leads and required review indexes are absent, so the deployed review sweep returns SCHEMA_NOT_READY before generic candidate/outcome persistence. Natural pipeline cannot be accepted until an additive review-projection schema repair is separately authorized.",
     "safety": "RUNTIME_DEPLOYMENT_GATE=PASS. Exact authorized additive schema created three empty generic tables; exact four-file closure deployed hash-verified; one authorized Walkback restart only (65829 -> 87523), no unrelated restarts or provider calls. Deep startup rows/memberships/events=0; no historical/frozen-seven mutation. Active target=/Users/kevinkeaveney/Production/flex-walkback-dev002.",
     "audit": "docs/audits/dev_019_operation_admission_policy_v1_qualification.json sha256 2260d1e36fe5ceba56fa7cb485f9767dbbefa15fdf1d16321529fc71eaf603e1",
     "deployment_contract": "docs/audits/dev_019_pinned_runtime_deployment_contract.v1.json sha256 610e8e59a31535d80c5d5c1625805d6b6ff7212854f59fcce37459f2ce93e353 executed under explicit authorization; execution audit docs/audits/dev_019_pinned_runtime_deployment_execution.v1.json sha256 cf5d0d3b0b6cc4f427ac57a6431c6feebf42488236b481ca87bda4ca64b39b4e.",
-    "next_action": "VERIFY_DEV019_NATURAL_PROSPECTIVE_REVIEW_ACTIVITY observationally; keep Deep V1 REVIEW-only and do not change admission policy."
+    "next_action": "AUTHORIZE_ADDITIVE_DEEP_REVIEW_PROJECTION_SCHEMA_REPAIR_AND_REQUALIFY_NATURAL_PIPELINE. Preserve Deep V1 REVIEW-only policy; do not add automatic membership."
   },
   "dev018_pinned_closure_20260926": {
     "engineering_revision": "isolated afbe9e58b11eb2e4d616246da123ce31ab45700c + two-module uncommitted closure patch; actual pinned runtime unchanged at afbe9e58b11eb2e4d616246da123ce31ab45700c",

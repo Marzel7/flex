@@ -10,6 +10,19 @@
     "safety": "No provider, membership, treasury, DEV018, DEV022, process, or production mutation.",
     "updated_at": "2026-09-26T00:00:00Z"
   },
+  "dev019_phase2g_transaction_ordering_20260926": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
+    "status": "PARTIAL",
+    "verdict": "AUTHORIZE_SINGLE_CANDIDATE_TRANSACTION_ORDERING_PILOT",
+    "finding": "Deep prospective ingestion retains signatures, slot/block time, and instruction indexes but no cross-transaction ordinal. The existing getBlock helper derives a transaction-array ordinal, but that data is not acquired by the Deep path; a single getTransaction cannot supply it.",
+    "implementation": "Added the operation-agnostic TRANSACTION_ORDER_SLOT_ORDINAL_V1 comparator and provider-free bridge fixtures. Phase 2F semantics are unchanged (semantic change count 0); the frozen Phase 2F baseline remains 32 tests and the combined focused suite is 36 passed, 0 failed.",
+    "artifact": "docs/audits/dev_019_future_transaction_ordering_phase2g.v1.json",
+    "contract": "docs/audits/dev_019_transaction_ordering_acquisition_contract.v1.json (authorized=false; known signatures in one known slot; at most one getBlock request; no raw retention)",
+    "live_readiness": "false: a provider-free contract is qualified, but bounded acquisition and future retention have not yet been piloted.",
+    "next_action": "Explicitly authorize one known-slot, known-signature getBlock ordering pilot. Do not recover historical 26 members.",
+    "safety": "Provider calls=0; no historical reconstruction, membership, treasury, DEV018, DEV022, process, supervisor, or production mutation.",
+    "updated_at": "2026-09-26T00:00:00Z"
+  },
   "dev019_phase2e_member_witness_linkage_20260926": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
     "status": "HOLD",

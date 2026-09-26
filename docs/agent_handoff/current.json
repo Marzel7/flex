@@ -47,6 +47,18 @@
     "safety": "Provider calls=0; no historical recovery, membership, treasury, DEV018, DEV022, process, supervisor, or production mutation.",
     "updated_at": "2026-09-26T00:00:00Z"
   },
+  "dev019_phase2g_wt_shared_evidence_reuse_20260926": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
+    "status": "PARTIAL",
+    "verdict": "AUTHORIZE_SINGLE_KNOWN_SIGNATURE_SLOT_PILOT",
+    "finding": "Classic WATCHTOWER has a qualified direct, same-mint provisioning bridge (treasury→subprovider→creator) validated by role agreement and WSOL mechanism. It does not provide Deep's missing cross-mint association from a selected lower route to an upper pool/coordinator witness. Reusing the session for that claim would lie about topology.",
+    "reusable": "Deep may reuse the generic transaction-derived edge discipline, explicit durable outcome/zero-silence model, canonical membership commit after qualification, and post-commit generic event. It may not reuse the WT provisioning session or role-normalized validator as Deep bridge proof.",
+    "artifact": "docs/audits/dev_019_watchtower_deep_shared_evidence_reuse.v1.json",
+    "tests": "48 provider-free comparative tests passed, 0 failed.",
+    "next_action": "Authorize only the already-bounded known-child-signature getTransaction slot pilot. Do not bundle getBlock; it remains conditional on a proven same slot.",
+    "safety": "No source/runtime, provider, membership, treasury, queue, DEV018, DEV022, process, supervisor, or production mutation.",
+    "updated_at": "2026-09-26T00:00:00Z"
+  },
   "dev019_phase2e_member_witness_linkage_20260926": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
     "status": "HOLD",

@@ -1,0 +1,79 @@
+{
+  "schema_version": "dev_019_deep_review_ui_deployment_execution.v1",
+  "executed_at": "2026-09-26T22:08:40Z",
+  "authorization": {
+    "explicit_user_authorization": true,
+    "contract_path": "docs/audits/dev_019_deep_review_ui_deployment_contract.v2.json",
+    "contract_sha256": "0d28e73907a90f8de2f0e21a2cd6c8c965a6cbc0495ae3869ef9c54035f3c94e",
+    "qualification_handoff": "0626a2577707369ba3b83e1af26d0cb389587612"
+  },
+  "target": {
+    "path": "/Users/kevinkeaveney/Production/flex-api-dev002",
+    "head": "fc6c58fc4512f781897266f03c966ace1f7cb365",
+    "old_api_pid": 4159,
+    "new_api_pid": 49342,
+    "new_api_cwd": "/Users/kevinkeaveney/Production/flex-api-dev002",
+    "reloads": 1,
+    "other_process_restarts": 0,
+    "walkback_restarts": 0
+  },
+  "file_closure": {
+    "deployed_files": ["src/ops/operator_reader.py", "src/ops/operator_routes.py", "templates/operator_intelligence.html", "templates/operator_deep_review.html"],
+    "preimage_hash_matches": 4,
+    "postimage_hash_matches": 4,
+    "unexpected_target_file_changes": 0,
+    "active_hashes": {
+      "src/ops/operator_reader.py": "2ec4058b952d81c7619373d3dfae706a38255f609ab407685e54b8a88d98cfdf",
+      "src/ops/operator_routes.py": "b43266f642b06cc2b35ed90bf4594616fc543d9276b720773e04cf984a5fcf9b",
+      "templates/operator_intelligence.html": "e8a6cf9031586c2ad6a7900df00c5b695b58c80a93ee7e0ed90fdf375a3a3de1",
+      "templates/operator_deep_review.html": "127bbe5d88a614a64c6700571f33f83a38df821d15e305519701d8cb8ff7c7b9"
+    },
+    "rollback_copies": 4,
+    "rollback_used": false
+  },
+  "qualification": {
+    "compile": "PASS",
+    "deep_focused_tests": "27 passed, 0 failed",
+    "broader_api_ui_tests": "63 passed, 5 failed on target; exact frozen baseline failures unchanged; patch-induced=0",
+    "preexisting_failures": [
+      "test_population_section_splits_confirmed_from_candidates",
+      "test_candidate_section_has_its_own_heading_and_explanation",
+      "test_candidate_section_omitted_when_zero_candidates",
+      "test_topology_and_funding_unchanged_still_use_full_watchtower_population",
+      "test_walkback_deep_hook_records_only_review_lead"
+    ]
+  },
+  "live_acceptance": {
+    "api_process_health": "PASS",
+    "existing_route_health": "PASS",
+    "deep_review_api_active": true,
+    "deep_review_page_active": true,
+    "deep_review_navigation_active": true,
+    "storage_review_mints": ["7tPks6AbTE2Kz4KkxxVYN9sBETMtzSL5Kqj2jbrXpump", "GSdjYaqG2TBLX9kAZxKrTpeaZwRZXr15vp1fxAHnpump", "7XomEJBtb1EiF4Z8ZVzspCKFW2UuaRkaiq3AJJCFpump"],
+    "live_api_review_mints": ["7tPks6AbTE2Kz4KkxxVYN9sBETMtzSL5Kqj2jbrXpump", "GSdjYaqG2TBLX9kAZxKrTpeaZwRZXr15vp1fxAHnpump", "7XomEJBtb1EiF4Z8ZVzspCKFW2UuaRkaiq3AJJCFpump"],
+    "set_difference": {"storage_not_in_api": [], "api_not_in_storage": []},
+    "canonical_deep_memberships": 26,
+    "review_rows_in_confirmed": 0,
+    "canonical_rows_in_review": 0,
+    "page_review_only_semantics": "PASS",
+    "last_review_matches_storage": true
+  },
+  "safety": {
+    "schema_changes": 0,
+    "live_db_writes": 0,
+    "deep_membership_writes": 0,
+    "operation_member_committed_events": 0,
+    "deep_admission_policy_changes": 0,
+    "walkback_files_changed": 0,
+    "dev018_changes": 0,
+    "dev022_changes": 0,
+    "provider_calls": {"solana_rpc": 0, "helius": 0, "birdeye": 0, "pumpportal": 0, "other": 0},
+    "large_file_prohibition_v1": "PASS"
+  },
+  "verdict": {
+    "runtime_deployment_gate_v1": "PASS",
+    "dev019_deep_review_ui_status": "DEPLOYED_ACTIVE",
+    "dev019_status": "PROSPECTIVE_DEEP_REVIEW_OPERATIONAL",
+    "policy": "Deep remains REVIEW-only; this deployment does not authorize automatic membership."
+  }
+}

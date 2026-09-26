@@ -71,6 +71,18 @@
     "next_action": "Review the existing RPC getTransaction request-shape/provider failure before any separately authorized retry. Do not infer the child slot or bundle a getBlock request.",
     "updated_at": "2026-09-26T00:00:00Z"
   },
+  "dev019_phase2g4_gettransaction_32602_diagnosis_20260926": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
+    "status": "HOLD",
+    "verdict": "INVESTIGATE_RPC_CLIENT_CONTRACT_OFFLINE",
+    "finding": "The full child signature is locally valid Base58/64-byte and matches retained/V2 identity. The V2 two-element params shape and numeric maxSupportedTransactionVersion=0 match 33 repository getTransaction call sites. Phase 2G.3 intentionally retained only error code -32602, not error message/data or transmitted-body capture.",
+    "diagnosis": "No provider-free evidence proves that json versus jsonParsed, finalized versus confirmed, direct curl versus a repository wrapper, or another endpoint condition caused rejection. Any altered request would be speculative; no V3 contract was created.",
+    "artifact": "docs/audits/dev_019_known_signature_slot_32602_diagnosis_phase2g4.v1.json",
+    "tests": "48 provider-free comparative tests passed, 0 failed.",
+    "next_action": "Offline-inspect/recover the exact RPC client or provider request-contract evidence sufficient to prove one minimal correction before another separately authorized request.",
+    "safety": "No provider, membership, treasury, queue, DEV018, DEV022, process, supervisor, or production mutation.",
+    "updated_at": "2026-09-26T00:00:00Z"
+  },
   "dev019_phase2e_member_witness_linkage_20260926": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
     "status": "HOLD",

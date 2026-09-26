@@ -1,4 +1,14 @@
 {
+  "dev019_phase2c_capital_continuity_20260926": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
+    "status": "PARTIAL",
+    "verdict": "DEV019_CAPITAL_CONTINUITY_QUALIFICATION_BOUNDED_READ_BLOCKED",
+    "implementation": "Added read-only operation-agnostic capital_continuity primitive plus three provider-free controls: matching canonical causal anchor qualifies, unknown anchor is insufficient, and selected-upstream conflict remains conflict. Focused suite: 29 passed.",
+    "blocker": "The live operation-anchor derivation re-assesses all 26 historical Deep members against unindexed global transaction-role/edge tables and exceeded the bounded 30-second read budget. The current schema has no retained generic operation-to-causal-route anchor projection/index, so the seven-control live qualification cannot be completed safely or operation-agnostically under the required bounded provider-free read contract.",
+    "next_action": "Qualify a read-only bounded generic canonical-route-anchor projection/index contract, then replay the primitive against historical and frozen seven controls; do not add Deep membership or treasury writes.",
+    "safety": "No provider calls, membership/treasury writes, process actions, DEV018/DEV022 changes, or production actions.",
+    "updated_at": "2026-09-26T00:00:00Z"
+  },
   "dev018_live_six_membership_ten_outcome_20260926": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
     "status": "PASS",

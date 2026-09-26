@@ -1,4 +1,16 @@
 {
+  "dev018_compact_replay_20260926": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
+    "status": "PARTIAL",
+    "verdict": "DEV_018_POST_REPAIR_REPLAY_BLOCKED",
+    "blocker": "Second compact-fixture replay creates a second durable outcome for each newly projected mint because registry_state_before is part of the evidence digest and changes ABSENT to PRESENT. This violates the required single-current-outcome idempotency acceptance.",
+    "exact_repair_present": "walkback_worker now invokes project_watchtower_confirmed_membership unconditionally after the legacy promotion call.",
+    "fixture": "/private/tmp/dev018-replay/dev018_frozen10_fixture.db (90112 bytes; integrity ok; input equivalence pass)",
+    "first_replay": "10 confirmed: 1 already present, 6 promotable, 3 rejected (all FUNDING_MECHANISM_MISMATCH), 0 silent; 10 durable outcomes.",
+    "safety": "live DB writes=0; provider calls=0; process restarts=0; monitor queue changes=0; production changes=0; full DB clones prohibited after cleanup.",
+    "next_action": "Obtain explicit authorization to repair durable-outcome idempotency semantics, then re-run the compact fixture and only then generate the promotable manifest and enumerate DEV-019.",
+    "updated_at": "2026-09-26T00:00:00Z"
+  },
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {

@@ -1,0 +1,18 @@
+{
+  "version": "OPERATION_ADMISSION_POLICY_V1",
+  "status": "QUALIFIED_POLICY_CONTRACT_NO_RUNTIME_ENABLEMENT",
+  "layers": {"nomination_is_not_assessment": true, "assessment_is_not_admission": true},
+  "interface": "evaluate_operation_admission(candidate, assessment, operation_policy) -> admission_decision",
+  "policy_identity_schema": ["policy_id", "policy_version", "semantic_digest", "operation_id", "effective_from"],
+  "input_schema": ["candidate_id", "operation_id", "mint", "nomination_evidence_identity", "assessment_identity", "assessment_semantic_version", "assessment_outcome", "causal_witness_identity", "capital_continuity_identity", "transaction_order_identity", "conflict_state", "evidence_completeness", "policy_identity"],
+  "output_states": {"ADMIT": "explicit frozen policy authorizes canonical membership", "REJECT": "retained evidence positively contradicts a requirement", "REVIEW": "valid evidence remains nonautomatic by policy", "INSUFFICIENT_EVIDENCE": "a required fact is missing or unqualified"},
+  "generic_predicates": ["required_assessment_outcome", "required_causal_continuity", "required_complete_evidence", "forbidden_conflict", "required_ordering", "required_anchor", "review_required"],
+  "generic_evaluator_constraints": {"operation_name_branch_count": 0, "hardcoded_wallet_count": 0, "hardcoded_amount_count": 0, "mutable_registry_state_in_evidence": false, "unknown_policy_can_admit": false, "missing_evidence_can_admit": false, "conflict_can_admit": false, "default_positive_assessment_admits": false},
+  "watchtower_deep_policy": {"policy_id": "WATCHTOWER_DEEP_ADMISSION_POLICY_V1", "operation_id": "WATCHTOWER_DEEP", "required": ["valid_nomination", "QUALIFIED_PROSPECTIVE_MEMBER", "qualified_lower_route", "qualified_upper_witness", "PARENT_BEFORE_CHILD_or_qualified_ordinal", "capital_continuity_QUALIFIED", "matching_anchor", "complete_evidence", "no_selected_upstream_conflict"], "positive_action": "REVIEW", "rationale": "qualified DEV-019 semantics explicitly retain automatic_membership_allowed=false and authorize membership only separately; no additional generic evidence-backed rule authorizes ADMIT", "conflict_action": "REJECT", "missing_or_same_slot_without_ordinal_action": "INSUFFICIENT_EVIDENCE", "unknown_root_action": "INSUFFICIENT_EVIDENCE", "historical_backfill": false},
+  "identities": {"candidate": "sha256(operation_id,mint,nomination_evidence_identity,candidate_semantic_version)", "decision": "sha256(candidate_id,assessment_identity,policy_id,policy_version,decision,reason,evidence_identities)", "event": "sha256(operation_id,mint,membership_id,candidate_id,admission_decision_id,qualification_semantic_version)"},
+  "future_adapter_contract": {"membership_precondition": "durable admission decision=ADMIT under identified frozen policy", "order": ["candidate committed", "assessment/admission outcome committed", "membership committed if ADMIT", "post-commit event"], "automatic_membership_allowed_future_role": "unchanged evidence-layer safety metadata; admission policy is authoritative"},
+  "fixtures": {"positive_deep": "REVIEW", "7tPks_parent_after_child": "REJECT", "five_frozen_conflicts": "REJECT", "7Xom_review": "REVIEW", "insufficient": "INSUFFICIENT_EVIDENCE", "unknown_root": "INSUFFICIENT_EVIDENCE", "future_operation_generic_evaluator": "PASS", "watchtower_interface_compatibility": "PASS"},
+  "safety": {"runtime_source_changes": 0, "db_schema_changes": 0, "live_db_writes": 0, "provider_calls": 0, "process_actions": 0, "dev018_changes": 0, "dev022_changes": 0},
+  "next_gate": "AUTHORIZE_GENERIC_ADMISSION_ADAPTER_IMPLEMENTATION"
+}
+

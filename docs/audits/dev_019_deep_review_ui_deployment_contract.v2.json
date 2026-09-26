@@ -1,0 +1,63 @@
+{
+  "schema_version": "dev_019_deep_review_ui_deployment_contract.v2",
+  "recorded_at": "2026-09-26T20:48:28Z",
+  "authorized": false,
+  "status": "QUALIFIED_NOT_DEPLOYED",
+  "qualified_source": {
+    "worktree": "/Users/kevinkeaveney/Dev/claude/flex-dev019",
+    "branch": "dev/019-prospective-deep",
+    "commit": "53f4aea8260ee281b90aa3b7bb91e750e3208158",
+    "original_v1_contract_sha256": "2462a0951c0b34712dadc43bdc27478340e928e9447ef471a1d80fd04c76fc50"
+  },
+  "api_target_baseline": {
+    "path": "/Users/kevinkeaveney/Production/flex-api-dev002",
+    "head": "fc6c58fc4512f781897266f03c966ace1f7cb365",
+    "working_tree": "clean",
+    "service": "watchtower_api",
+    "pid_at_qualification": 4159,
+    "started": "2026-09-25T17:58:42Z",
+    "reload_required": true,
+    "walkback_restart_required": false
+  },
+  "exact_four_file_closure": {
+    "candidate_path": "/private/tmp/dev019-api-closure-candidate",
+    "closure_sha256": "5065008ec01732fa0c8c36e4bc7fa5cc54464eaa93658b9edb7224d5063da9e7",
+    "whole_operator_reader_replaced": false,
+    "whole_operator_routes_replaced": false,
+    "unexpected_files": [],
+    "files": {
+      "src/ops/operator_reader.py": {"target_pre_sha256": "d563fa7a046eebe29dbe9f7cd6f10253c5ff8c4a903496b51ea78f95583f6b12", "candidate_post_sha256": "2ec4058b952d81c7619373d3dfae706a38255f609ab407685e54b8a88d98cfdf", "symbols": ["_WATCHTOWER_DEEP_OPERATOR_ID", "OperatorReader.fetch_deep_review_read_model"]},
+      "src/ops/operator_routes.py": {"target_pre_sha256": "663206a3ed4ff860d7610096a3f3a39432eaad92ceb25729dbacd7937a2ce3e1", "candidate_post_sha256": "b43266f642b06cc2b35ed90bf4594616fc543d9276b720773e04cf984a5fcf9b", "symbols": ["deep_review_read_model", "deep_review_page"]},
+      "templates/operator_intelligence.html": {"target_pre_sha256": "5d62afe4922e2510eefbb6bcef5ec0aa748ee01072796e345f02c3fc5c8a8955", "candidate_post_sha256": "e8a6cf9031586c2ad6a7900df00c5b695b58c80a93ee7e0ed90fdf375a3a3de1", "symbols": ["Deep-only command navigation hunk"]},
+      "templates/operator_deep_review.html": {"target_pre_sha256": "1b8fe40405bda0fe5c5f0bd2d237d10b1a9f20029e2a0e6434f3daf5b5d28686", "candidate_post_sha256": "127bbe5d88a614a64c6700571f33f83a38df821d15e305519701d8cb8ff7c7b9", "symbols": ["Dedicated prospective-review page and bounded API fetch"]}
+    }
+  },
+  "static_dependency_graph": {
+    "reader": ["sqlite3", "time", "operation_admission_candidates", "operation_admission_outcomes", "wt_deep_route_review_leads", "operator_launch_membership"],
+    "routes": ["Flask Blueprint", "OperatorReader", "operator_deep_review.html"],
+    "ui": ["base_shell.html", "same-origin Deep review API"],
+    "walkback_files_required": 0,
+    "schema_changes_required": false,
+    "provider_calls": 0,
+    "api_db_writes": 0
+  },
+  "qualification": {
+    "focused_suite": "27 passed, 0 failed against candidate closure",
+    "candidate_integration": "API 200 with count=3 and max limit=100; dedicated page rendered 200; non-Deep API returned 404.",
+    "live_read_only_set": ["7tPks6AbTE2Kz4KkxxVYN9sBETMtzSL5Kqj2jbrXpump", "GSdjYaqG2TBLX9kAZxKrTpeaZwRZXr15vp1fxAHnpump", "7XomEJBtb1EiF4Z8ZVzspCKFW2UuaRkaiq3AJJCFpump"],
+    "set_difference": {"storage_not_in_candidate": [], "candidate_not_in_storage": []},
+    "semantic_separation": {"deep_canonical_memberships": 26, "review_rows_in_confirmed": 0, "canonical_rows_in_review": 0, "reject_rows_in_review": 0, "insufficient_rows_in_review": 0, "future_review_to_admit_fixture": "PASS"},
+    "query_plan": "Operation-id candidate index plus candidate-id outcome index, mint membership index, and bounded LIMIT 100; final order uses a temporary B-tree.",
+    "storage": {"new_durable_store": false, "raw_provider_retention": false, "raw_block_retention": false, "raw_transaction_retention": false, "max_single_file_design_bound_bytes": 0, "max_transient_file_design_bound_bytes": 0, "unbounded_file_growth_path_count": 0, "large_file_prohibition_v1": "PASS"},
+    "baseline_regression_batch": "63 passed, 5 failed on both target and candidate; candidate-induced regression count=0. The five failures are four pre-existing Watchtower static expectations and one absent pre-existing Walkback cursor fixture."
+  },
+  "future_deployment_method": [
+    "Re-read all four target pre-image hashes and stop on any mismatch.",
+    "Back up exactly those four files using the frozen rollback identities.",
+    "Stage only the symbol-level closure into the target; do not copy whole divergent modules.",
+    "Verify the four candidate-post hashes and closure SHA before reloading watchtower_api only.",
+    "After reload, prove new PID/cwd/code identity, API health, retained REVIEW set equality, known controls, unchanged canonical Deep and Watchtower behavior, zero writes/provider calls, and storage-rule PASS.",
+    "On any acceptance failure, restore only the four pre-image files and reload watchtower_api; never restart Walkback."
+  ],
+  "runtime_deployment_gate_v1": "QUALIFIED_NOT_DEPLOYED: source, target, rollback, reload, and bounded acceptance are frozen; authorization remains false."
+}

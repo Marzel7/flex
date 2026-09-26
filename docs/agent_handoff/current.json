@@ -130,6 +130,18 @@
     "next_action": "RERUN_DEV019_PHASE2G7_PROVIDER_FREE_READINESS_GATE. Do not repeat RPC or live-wire in this phase.",
     "updated_at": "2026-09-26T00:00:00Z"
   },
+  "dev019_phase2g7b_prospective_readiness_rerun_20260926": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with a pre-existing dirty shared worktree",
+    "status": "PARTIAL",
+    "verdict": "DEV_019_PROSPECTIVE_DEEP_READY_FOR_LIVE_WIRING",
+    "result": "The Phase 2G.7A reconciliation and published handoff are accepted as the authority for the provider-free readiness rerun; neither the missing original audit nor unresolved 913550 digest is required. Retained parent 450415455 after child 450414177 produces terminal CONFLICT for 7tPks, with explicit durable outcome, no membership, no treasury candidate, idempotency/restart PASS, and frozen seven 1 review / 6 conflict / 0 unaccounted. Same-slot candidates fail closed as INSUFFICIENT_EVIDENCE until ordinal acquisition is live-qualified. Framework=READY; runtime=NOT_WIRED and NOT_ENABLED.",
+    "artifact": "docs/audits/dev_019_prospective_deep_readiness_phase2g7b.v1.json (canonical JSON sha256 ac4138011e8c4cc2bb3249cdde236203254fff27c981cd317ac03e4525e9ddf8)",
+    "runtime_boundary": "The hook is src/core/walkback_worker.py:_review_deep_routes_after_commit. Existing runtime has a review-only durable lead, not a generic candidate/evidence/outcome pipeline. The separately authorized future changeset is limited to generic candidate/evidence/outcome persistence, bounded outside-transaction acquisition, assessment, existing canonical commit, and post-commit generic event.",
+    "tests": "49 focused provider-free tests passed, 0 failed.",
+    "safety": "Provider calls=0; Deep membership/treasury/queue/DEV018/DEV022/process/Supervisor/production changes=0; historical 26 and 7Xom were not recovered or queried.",
+    "next_action": "AUTHORIZE_DEV019_PROSPECTIVE_DEEP_LIVE_WIRING. Do not enable runtime until that separate changeset passes its own tests and review.",
+    "updated_at": "2026-09-26T00:00:00Z"
+  },
   "dev019_phase2e_member_witness_linkage_20260926": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
     "status": "HOLD",

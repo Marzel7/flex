@@ -96,6 +96,17 @@
     "safety": "No provider, membership, treasury, queue, DEV018, DEV022, process, supervisor, or production mutation.",
     "updated_at": "2026-09-26T00:00:00Z"
   },
+  "dev019_phase2g6_working_client_slot_pilot_20260926": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
+    "status": "PARTIAL",
+    "verdict": "QUALIFY_DEV019_PROSPECTIVE_DEEP_FROM_RESOLVED_SLOT_ORDER",
+    "execution": "V3 used src/core/walkback_worker.py:_rpc exactly once for the preexisting child signature with jsonParsed/confirmed/version=0. It returned authenticated result.slot=450414177 and the response signature matched exactly. Parent slot=450415455, therefore PARENT_AFTER_CHILD; getBlock requests=0.",
+    "result": "Compact KNOWN_SIGNATURE_SLOT_V1 evidence identity 1b39966eafb59d56330ef2a1cf04dc6c1457beb0e3f45aae1dc8ee802dd88473 (396 bytes) yields directional CONFLICT. No membership, treasury, historical recovery, process, or production action occurred.",
+    "artifact": "docs/audits/dev_019_known_signature_slot_working_client_pilot_phase2g6.v1.json",
+    "tests": "48 provider-free comparative tests passed, 0 failed.",
+    "next_action": "Qualify the prospective Deep assessment from the resolved parent-after-child slot order; do not acquire getBlock because same slot was disproven.",
+    "updated_at": "2026-09-26T00:00:00Z"
+  },
   "dev019_phase2e_member_witness_linkage_20260926": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
     "status": "HOLD",

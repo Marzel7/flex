@@ -1,4 +1,14 @@
 {
+  "dev018_pinned_closure_20260926": {
+    "engineering_revision": "isolated afbe9e58b11eb2e4d616246da123ce31ab45700c + two-module uncommitted closure patch; actual pinned runtime unchanged at afbe9e58b11eb2e4d616246da123ce31ab45700c",
+    "status": "DEV018_PINNED_CLOSURE_HOLD",
+    "implementation": "Only src/core/watchtower_registry_promotion.py and src/core/walkback_worker.py changed in /private/tmp/dev018-pinned-closure. The role-normalized validator, durable promotion outcome identity/writer, explicit projector outcomes, and unconditional post-legacy projector call were transplanted. Patch SHA256=038d711b4ab95f2df08de57392e170b17ab55c461f262b89b1c90f75cdb1e235.",
+    "qualification": "Import/compile PASS. 35 focused provider-free tests PASS: test_watchtower_confirmed_membership_projection, test_x65_44_watchtower_registry_promotion, test_x65_44_walkback_worker_promotion_hook. DB contract read-only check PASS. Broader batch had 31 pass and one failure: test_dev_018_post_backfill_closure reports UNEXPLAINED_CONFIRMED_WITHOUT_CANONICAL_COUNT=6, required 0.",
+    "verdict": "HOLD. The failing retained-audit control is current DEV state drift rather than a demonstrated isolated patch regression, but it blocks the requested qualification. No deployment contract was created.",
+    "safety": "Actual pinned files changed=0; process restarts=0; live DB writes=0; provider calls=0; current9 reconciliation executed=false; RUNTIME_DEPLOYMENT_GATE=QUALIFIED_NOT_DEPLOYED.",
+    "audit": "docs/audits/dev_018_pinned_runtime_minimum_closure_qualification.v1.json in /private/tmp/dev018-pinned-closure",
+    "next_action": "Resolve or explicitly re-baseline the six-row retained-audit drift, then rerun the blocked closure regression and the frozen10/current9 isolated replays before any deployment authorization."
+  },
   "dev019_phase2f_prospective_future_retention_20260926": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
     "status": "PARTIAL",

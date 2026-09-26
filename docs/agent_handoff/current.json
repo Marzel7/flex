@@ -1,12 +1,12 @@
 {
   "dev019_isolated_admission_adapter_20260926": {
-    "engineering_revision": "ca77e4ff0a429cea95a5e2ffba6bc3bd2eb4bb12 on dev/019-prospective-deep; clean isolated worktree /Users/kevinkeaveney/Dev/claude/flex-dev019",
-    "status": "ADMISSION_ADAPTER_QUALIFIED_NOT_WIRED",
+    "engineering_revision": "d9f36188e1464a150f375f9b4bc38e7a3ee4f423 on dev/019-prospective-deep; clean isolated worktree /Users/kevinkeaveney/Dev/claude/flex-dev019",
+    "status": "DEEP_REVIEW_WIRING_PROVIDER_FREE_QUALIFIED_NOT_DEPLOYED",
     "baseline": "Clean Git anchor afbe9e58b11eb2e4d616246da123ce31ab45700c preserves DEV-018 worker semantics. Migrated only provenance-backed DEV-019 Deep source, causal witness, capital continuity, known-signature slot, transaction ordering, policy contract, and provider-free tests; no DEV-022 source migrated and no ambiguous source copied.",
-    "qualification": "20 provider-free tests PASS: causal witness, known-signature compact slot, two-stage ordering, same-slot fail-closed, parent-after-child conflict, capital continuity, nonautomatic prospective Deep assessment, durable candidate/outcome history, REVIEW/REJECT/INSUFFICIENT no-commit behavior, synthetic ADMIT membership/outbox, idempotent replay, and canonical conflict fail-closed. Deep policy contract is REVIEW-first. DEV018 shared walkback_worker diff from afbe9e58 is empty.",
-    "safety": "RUNTIME_DEPLOYMENT_REQUIRED=false: isolated provider-free test schema only; live schema/database/membership/event writes=0; provider calls=0; process actions=0; runtime deployment=0; Deep live adapter hook remains false.",
+    "qualification": "21 provider-free tests PASS. The restored bounded post-commit Deep review hook preserves the review lead, records an idempotent generic candidate and frozen WATCHTOWER_DEEP REVIEW outcome, and never invokes ADMIT resume. Deep positive fixture: durable REVIEW, memberships=0, events=0. Existing adapter regressions, ordering, same-slot fail-closed, causal continuity, and synthetic ADMIT regressions pass.",
+    "safety": "RUNTIME_DEPLOYMENT_REQUIRED=true: source now changes executable worker behavior but is not deployed. Generic schema was exercised only in an isolated in-memory test DB; live schema/database/membership/event writes=0; provider calls=0; process actions=0; runtime deployment=0; Deep path cannot ADMIT.",
     "audit": "docs/audits/dev_019_operation_admission_policy_v1_qualification.json sha256 2260d1e36fe5ceba56fa7cb485f9767dbbefa15fdf1d16321529fc71eaf603e1",
-    "next_action": "AUTHORIZE_WIRE_DEV019_DEEP_REVIEW_RUNTIME_TO_GENERIC_ADAPTER; retain WATCHTOWER_DEEP positive outcome as REVIEW and pass the runtime deployment gate before any DEV_COMPLETE claim."
+    "next_action": "Qualify the exact pinned runtime target/schema deployment plan and obtain explicit deployment authorization. Do not restart or deploy before RUNTIME_DEPLOYMENT_GATE evidence is complete."
   },
   "dev018_pinned_closure_20260926": {
     "engineering_revision": "isolated afbe9e58b11eb2e4d616246da123ce31ab45700c + two-module uncommitted closure patch; actual pinned runtime unchanged at afbe9e58b11eb2e4d616246da123ce31ab45700c",

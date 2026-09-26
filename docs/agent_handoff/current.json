@@ -59,6 +59,18 @@
     "safety": "No source/runtime, provider, membership, treasury, queue, DEV018, DEV022, process, supervisor, or production mutation.",
     "updated_at": "2026-09-26T00:00:00Z"
   },
+  "dev019_phase2g3_known_signature_slot_live_pilot_20260926": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
+    "status": "HOLD",
+    "verdict": "REVIEW_KNOWN_SIGNATURE_SLOT_PROVIDER_FAILURE",
+    "execution": "Created the frozen authorized V2 contract and issued exactly one getTransaction request for only the preexisting child signature. The provider returned JSON-RPC error -32602. Per the 0-retry/1-transport contract, no retry, fallback, or getBlock request was made.",
+    "artifact": "docs/audits/dev_019_known_signature_slot_live_pilot_phase2g3.v1.json",
+    "contracts": "V1 sha256 0da575d5c8bb53a35f5f9485ac2690753267edb912f81305b42d298abbc4e3da; V2 sha256 f99b7d4d2d17d37135c381b17e71d8c1817a06be3ce9719d4374b114ea4dbcb6.",
+    "result": "No authoritative child slot, compact slot evidence, causal-witness assessment, capital-continuity assessment, or prospective outcome was produced. Raw response retention=0; membership/treasury/process/production mutation=0.",
+    "tests": "48 provider-free comparative tests passed, 0 failed.",
+    "next_action": "Review the existing RPC getTransaction request-shape/provider failure before any separately authorized retry. Do not infer the child slot or bundle a getBlock request.",
+    "updated_at": "2026-09-26T00:00:00Z"
+  },
   "dev019_phase2e_member_witness_linkage_20260926": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
     "status": "HOLD",

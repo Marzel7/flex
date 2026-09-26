@@ -1,0 +1,61 @@
+{
+  "schema_version": "MANUAL_REVIEW_ADMISSION_CONTRACT_V1",
+  "status": "QUALIFIED_NOT_DEPLOYED",
+  "scope": "provider-free contract and fixtures only; no live approval API, schema, approval, ADMIT, membership, or event",
+  "authority": {
+    "review": "durable candidate + qualified assessment + current REVIEW outcome + no canonical membership",
+    "canonical": "operator_launch_membership only",
+    "event": "existing generic operation_event_outbox OPERATION_MEMBER_COMMITTED_V1",
+    "commit_adapter": "src.ops.operation_admission_adapter.resume_admission; ADMIT-only"
+  },
+  "eligibility": {
+    "required": ["operation matches", "durable candidate", "qualified required assessment", "current REVIEW", "no membership", "exact current state token"],
+    "deep_v1": "QUALIFIED_PROSPECTIVE_MEMBER + REVIEW",
+    "reject_approvable": false,
+    "insufficient_approvable": false,
+    "pending_approvable": false,
+    "cross_operation_allowed": false,
+    "original_review_mutated": false
+  },
+  "approval_record": {
+    "version": "MANUAL_REVIEW_APPROVAL_V1",
+    "fields": ["approval_id", "operation_id", "mint", "candidate_id", "review_outcome_id", "assessment_id", "assessment_semantic_version", "policy_id", "policy_version", "approver_id", "action", "reason_comment", "approved_at", "state_token"],
+    "actions": ["APPROVE", "DECLINE"],
+    "identity": "sha256(version,state_token,approver_id,action)",
+    "secret_retention": false,
+    "idempotency": "same immutable approval identity is one logical approval"
+  },
+  "concurrency_and_transition": {
+    "state_token": "sha256(operation,mint,candidate,review_outcome,assessment/version,policy/version,current REVIEW)",
+    "precommit_recheck": true,
+    "stale_approval_allowed": false,
+    "canonical_race": "return ALREADY_CANONICAL; no duplicate ADMIT/membership/event",
+    "approve": "approval durable -> new manual-policy ADMIT durable -> existing ADMIT-only resume_admission -> membership -> event",
+    "review_and_admit_history_preserved": true,
+    "event_before_membership_allowed": false,
+    "decline": "durable distinct manual decision only; never evidence conflict, membership, or member event"
+  },
+  "future_api_ui": {
+    "location": "Deep Review surface only",
+    "single_candidate_only": true,
+    "explicit_confirmation": true,
+    "confirmation_fields": ["mint", "operation", "assessment", "current REVIEW", "concise reason"],
+    "input": ["candidate_id", "review_outcome_id", "state_token", "action", "optional comment"],
+    "identity_source": "authenticated server-side principal; client name/email is insufficient",
+    "required_permission": "operations.deep.review.approve",
+    "csrf_request_integrity": "must reuse the application authenticated mutation/CSRF boundary; no such reusable operator approval boundary was found in current routes",
+    "live_endpoint_qualified": false
+  },
+  "fixtures": {
+    "tests": "15 passed: manual contract + generic admission adapter + Deep read model + storage",
+    "approved_review": "PASS: REVIEW -> explicit approval identity -> ADMIT intent only",
+    "unauthorized": "PASS: no approval/ADMIT/membership/event intent",
+    "stale": "PASS: fail closed",
+    "already_canonical": "PASS: no new transition",
+    "replay": "PASS: deterministic same approval identity",
+    "decline": "PASS: distinct and no ADMIT",
+    "restart_fixed_point": "design delegated to existing durable outcome/membership/event identities; live schema and authenticated writer are not qualified in this task"
+  },
+  "blockers_to_live_implementation": ["Add a bounded approval-record schema with explicit approval_id provenance on the new ADMIT decision.", "Bind a real authenticated server principal and specific authorization capability.", "Implement transactionally rechecked durable writer and explicit race audit semantics.", "Qualify full crash/restart, concurrent approver, approve/decline race, and deployed API/UI tests."],
+  "safety": {"live_db_writes": 0, "provider_calls": 0, "process_actions": 0, "runtime_deployment_required": true, "large_file_prohibition_v1": "PASS", "raw_provider_retention": false}
+}

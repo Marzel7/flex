@@ -142,6 +142,17 @@
     "next_action": "AUTHORIZE_DEV019_PROSPECTIVE_DEEP_LIVE_WIRING. Do not enable runtime until that separate changeset passes its own tests and review.",
     "updated_at": "2026-09-26T00:00:00Z"
   },
+  "dev018_current_watchtower_postrepair_verification_20260926": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with a pre-existing dirty shared worktree",
+    "status": "HOLD",
+    "verdict": "STALE_RUNNING_WORKER",
+    "result": "The exact 2026-09-26 UTC raw cohort is 13 (6/5/2 across the stated treasuries; newest 9p1m at 14:27:13 UTC). All 13 are complete WATCHTOWER_CONFIRMED queue rows, but only the first four have durable PROMOTED outcomes and canonical memberships. Nine later confirmed rows, including 9p1m, have neither canonical membership nor explicit durable outcome: confirmed silent loss=9. Current source contains the unconditional qualified projector and idempotent durable-outcome repair. The active Walkback process PID 4158 started 2026-09-25 17:58:42 UTC, before source repair mtimes 2026-09-26 09:09:07/09:32:18 UTC; it is stale.",
+    "ui": "The canonical activity backing read is consistent: rolling 24h/7d/30d=7/62/292 and its seven mints are canonical; UTC-day canonical is four because the UI is rolling-window semantics. Latest canonical is Avj4 at 03:39:21 UTC; 9p1m correctly does not replace it. Established-launch display is snapshot-derived 750 while current membership rows are 500, an independent read-model staleness observation, not the cause of the promotion gap.",
+    "artifact": "docs/audits/dev_018_watchtower_current_13_postrepair_verification.v1.json (canonical JSON sha256 7b129139ad887de3231716558b9c2edf100772432835ac0c46d95cfefed106c9)",
+    "safety": "Provider calls=0; Watchtower membership/outcome writes=0; DEV019/Deep/DEV022 changes=0; process starts/stops/restarts=0; production changes=0.",
+    "next_action": "AUTHORIZE_BOUNDED_WALKBACK_WORKER_RESTART. Do not reconcile the nine rows or resume DEV-019 live wiring until the post-restart runtime verification is complete.",
+    "updated_at": "2026-09-26T00:00:00Z"
+  },
   "dev019_phase2e_member_witness_linkage_20260926": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
     "status": "HOLD",

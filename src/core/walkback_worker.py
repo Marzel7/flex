@@ -847,6 +847,35 @@ def _notify_living_after_walkback_commit(ops: sqlite3.Connection, mint: str, tes
                 "error_stage": "PUBLISHER" if test_failure_injector is not None else "LIVING_HANDLER", "error": str(exc)[:500]}
 
 
+_DEEP_REVIEW_CURSOR: tuple[int, str] | None = None
+
+
+def _review_deep_routes_after_commit(ops: sqlite3.Connection) -> None:
+    """Bounded prospective Deep REVIEW persistence; no DDL, provider I/O or admission."""
+    global _DEEP_REVIEW_CURSOR
+    if getattr(ops, "in_transaction", False):
+        return
+    try:
+        from src.ops.operation_admission_adapter import record_review_only_candidate
+        from src.ops.watchtower_deep_prospective import DEEP_OPERATOR_ID
+        from src.ops.watchtower_deep_review import persist_review_lead, run_review_sweep_page
+        def _publish(mint: str, route_assessment: dict) -> None:
+            review = persist_review_lead(ops, mint, route_assessment)
+            if review.get("action") != "review_lead_recorded": return
+            digest = review["route_digest"]
+            nomination = {"operation_id": DEEP_OPERATOR_ID, "mint": mint, "nomination_type": "RETAINED_DEEP_REVIEW", "nomination_semantic_version": "WATCHTOWER_DEEP_NOMINATION_V1", "nomination_evidence_id": digest}
+            assessment = {"state": "QUALIFIED_PROSPECTIVE_MEMBER", "assessment_id": digest, "semantic_version": "WATCHTOWER_DEEP_ASSESSMENT_V1", "causal_witness_id": digest, "capital_continuity_id": digest, "transaction_order_id": digest, "evidence_complete": True}
+            policy = {"policy_id": "WATCHTOWER_DEEP_ADMISSION_POLICY_V1", "policy_version": "v1", "required_assessment_outcome": "QUALIFIED_PROSPECTIVE_MEMBER", "positive_action": "REVIEW"}
+            record_review_only_candidate(ops, nomination, assessment, policy, int(time.time()))
+            ops.commit()
+        result = run_review_sweep_page(OPS_DB_PATH, _publish, cursor=_DEEP_REVIEW_CURSOR, limit=8)
+        _DEEP_REVIEW_CURSOR = result["cursor"]
+    except Exception as exc:
+        try: ops.rollback()
+        except Exception: pass
+        print(f"[WALKBACK_DEEP_REVIEW] deferred error={type(exc).__name__}", flush=True)
+
+
 def _mark_complete(ops: sqlite3.Connection, mint: str, outcome: str,
                    subprov: Optional[str], treasury: Optional[str], rpc_used: int,
                    confirmed_subprov: bool = False) -> None:
@@ -1978,6 +2007,7 @@ def run_loop() -> None:
                     _write_heartbeat(ops)
                 else:
                     print(f"[WALKBACK] queue empty (pending=0), sleeping {INTERVAL_SEC}s", flush=True)
+                _review_deep_routes_after_commit(ops)
             finally:
                 ops.close()
             trace_boundary("cycle_completed")

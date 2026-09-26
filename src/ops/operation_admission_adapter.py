@@ -89,3 +89,9 @@ def resume_admission(conn: sqlite3.Connection, outcome_id: str, now: int) -> dic
     eid = event_identity(value["operation_id"], value["mint"], membership_id, outcome_id)
     conn.execute("INSERT OR IGNORE INTO operation_event_outbox(event_id,event_type,event_version,operation_id,mint,membership_id,candidate_id,admission_outcome_id,qualification_semantic_version,committed_at) VALUES(?,?,?,?,?,?,?,?,?,?)", (eid, EVENT_TYPE, EVENT_VERSION, value["operation_id"], value["mint"], membership_id, value["candidate_id"], outcome_id, value["assessment_semantic_version"], now))
     return {"membership_id": membership_id, "event_id": eid}
+
+
+def record_review_only_candidate(conn: sqlite3.Connection, nomination: Mapping[str, Any], assessment: Mapping[str, Any], policy: Mapping[str, Any], now: int) -> tuple[str, str]:
+    """Persist a review-facing nomination and immutable policy result only."""
+    candidate_id = persist_candidate(conn, nomination, now)
+    return candidate_id, persist_outcome(conn, candidate_id, nomination, assessment, policy, now)

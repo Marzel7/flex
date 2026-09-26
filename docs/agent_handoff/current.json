@@ -107,6 +107,18 @@
     "next_action": "Qualify the prospective Deep assessment from the resolved parent-after-child slot order; do not acquire getBlock because same slot was disproven.",
     "updated_at": "2026-09-26T00:00:00Z"
   },
+  "dev019_phase2g7_resolved_slot_replay_20260926": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with a pre-existing dirty shared worktree",
+    "status": "PARTIAL",
+    "verdict": "DEV_019_PROSPECTIVE_DEEP_READY_FOR_LIVE_WIRING",
+    "result": "Provider-free replay of retained 7tPks evidence applies TRANSACTION_ORDER_SLOT_ORDINAL_V1: parent slot 450415455 is after child slot 450414177. The generic prospective assessor produces the explicit terminal CONFLICT selected_upstream_disagrees; simulated durable outcome is idempotent and restart-safe, with membership and treasury-candidate actions both NONE. Frozen seven is now 1 REVIEW_CANDIDATE (7Xom untouched) and 6 CONFLICT, unaccounted=0.",
+    "artifact": "docs/audits/dev_019_resolved_slot_prospective_replay_phase2g7.v1.json (canonical JSON sha256 b246dd8a52908a9ee3fcaf762097881700561dcf4e212ee39eab559164d97dde)",
+    "runtime_readiness": "Generic framework is qualified but not runtime-wired or enabled. The exact current candidate seam is src/core/walkback_worker.py:_review_deep_routes_after_commit -> run_review_sweep_page -> assess_review_readonly -> persist_review_lead. It persists a review-only lead, not generic candidate/evidence/outcome. Minimum new work is to wire immutable generic retention, bounded outside-transaction slot acquisition, assessment/outcome persistence, then existing membership commit and OPERATION_MEMBER_COMMITTED only after a qualified commit.",
+    "tests": "49 focused provider-free tests passed, 0 failed.",
+    "safety": "Solana/Helius/Birdeye/PumpPortal/other provider calls=0; membership/treasury/queue/DEV018/DEV022/process/production changes=0; historical Deep recovery=0.",
+    "next_action": "A separately authorized bounded DEV-019 prospective Deep live-wiring changeset may begin. Same-slot candidates must fail closed as INSUFFICIENT_EVIDENCE without qualified ordinal acquisition; no historical 26 recovery is authorized.",
+    "updated_at": "2026-09-26T00:00:00Z"
+  },
   "dev019_phase2e_member_witness_linkage_20260926": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
     "status": "HOLD",

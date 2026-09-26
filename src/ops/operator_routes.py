@@ -281,6 +281,14 @@ def operator_review_candidates(operator_id: str):
     })
 
 
+@operator_bp.route("/api/ops/operators/<operator_id>/deep-review")
+def deep_review_read_model(operator_id: str):
+    if operator_id != "bb255638-a493-551f-938c-8be7c9ea4f1e":
+        return jsonify({"ok": False, "error": "Deep review is unavailable for this operation"}), 404
+    result = _get_store().fetch_deep_review_read_model(limit=request.args.get("limit", 25))
+    return jsonify({"ok": True, "operator_id": operator_id, "generated_at": int(time.time()), **result})
+
+
 # ── Single operator ────────────────────────────────────────────────────────────
 
 @operator_bp.route("/api/ops/operators/<operator_id>")
@@ -535,6 +543,17 @@ def operator_review_page(operator_id: str):
                                operator_name="Unknown operation", error="Operator not found"), 404
     return render_template("operator_walkback_review.html", operator_id=operator_id,
                            operator_name=op.get("display_name") or operator_id, error=None)
+
+
+@operator_bp.route("/intelligence/operator/<operator_id>/deep-review")
+def deep_review_page(operator_id: str):
+    from flask import render_template
+    if operator_id != "bb255638-a493-551f-938c-8be7c9ea4f1e":
+        return render_template("operator_deep_review.html", operator_id=operator_id,
+                               operator_name="Unknown operation", error="Deep review is unavailable"), 404
+    op = _get_store().fetch_operator(operator_id)
+    return render_template("operator_deep_review.html", operator_id=operator_id,
+                           operator_name=(op or {}).get("display_name", "WATCHTOWER_DEEP"), error=None)
 
 
 # ── Operator index page ─────────────────────────────────────────────────────────

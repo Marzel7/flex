@@ -37,6 +37,7 @@ _BYZANTINE_AMBIGUITY_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/
 _NEXUS_OPERATOR_ID = "bd7d7479-1454-5d41-9f68-115550348f3e"
 _NEXUS_DETECTOR_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/direct_10k_creator_provisioning_detector_results.v3.json"
 _LEVIATHAN_OPERATOR_ID = "777211c3-211e-551b-9310-ff9301570627"
+_WATCHTOWER_DEEP_OPERATOR_ID = "bb255638-a493-551f-938c-8be7c9ea4f1e"
 _LEVIATHAN_DETECTOR_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/leviathan_detector_match_ui.v1.json"
 
 
@@ -821,6 +822,55 @@ class OperatorReader:
                 return [dict(row) for row in rows]
         except (sqlite3.Error, OSError):
             return []
+
+    def fetch_deep_review_read_model(self, *, limit: int = 25) -> dict:
+        """Bounded current Deep REVIEW projection; never canonical membership."""
+        try:
+            bounded = max(1, min(int(limit), 100))
+        except (TypeError, ValueError):
+            bounded = 25
+        try:
+            with self._connect() as conn:
+                projection = (
+                    "FROM operation_admission_candidates c "
+                    "JOIN operation_admission_outcomes o USING(candidate_id) "
+                    "JOIN wt_deep_route_review_leads l ON l.mint=c.mint "
+                    "WHERE c.operation_id=? AND l.operator_id=? AND o.admission_result='REVIEW' "
+                    "AND NOT EXISTS(SELECT 1 FROM operation_admission_outcomes newer "
+                    "WHERE newer.candidate_id=o.candidate_id AND newer.created_at>o.created_at) "
+                    "AND NOT EXISTS(SELECT 1 FROM operator_launch_membership m "
+                    "WHERE m.mint=c.mint AND m.operator_id=c.operation_id) "
+                )
+                now = int(time.time())
+                summary = conn.execute(
+                    "SELECT COUNT(*) AS count,"
+                    "SUM(MAX(c.created_at,l.last_observed_at)>=?) AS count_24h,"
+                    "SUM(MAX(c.created_at,l.last_observed_at)>=?) AS count_7d,"
+                    "SUM(MAX(c.created_at,l.last_observed_at)>=?) AS count_30d "
+                    + projection,
+                    (now - 86400, now - 604800, now - 2592000,
+                     _WATCHTOWER_DEEP_OPERATOR_ID, _WATCHTOWER_DEEP_OPERATOR_ID),
+                ).fetchone()
+                rows = [dict(row) for row in conn.execute(
+                    "SELECT c.mint,c.candidate_id,c.created_at AS candidate_at,"
+                    "l.last_observed_at,o.assessment_result,o.assessment_semantic_version,"
+                    "o.admission_result,o.reason,o.causal_witness_id "
+                    + projection +
+                    "ORDER BY l.last_observed_at DESC,c.mint DESC LIMIT ?",
+                    (_WATCHTOWER_DEEP_OPERATOR_ID, _WATCHTOWER_DEEP_OPERATOR_ID, bounded),
+                ).fetchall()]
+                for row in rows:
+                    row["observed_at"] = max(int(row["candidate_at"]), int(row["last_observed_at"]))
+                    row["canonical_membership"] = False
+                counts = {"24h": int(summary["count_24h"] or 0),
+                          "7d": int(summary["count_7d"] or 0),
+                          "30d": int(summary["count_30d"] or 0)}
+                return {"count": int(summary["count"] or 0), "windows": counts,
+                        "last_review": rows[0] if rows else None,
+                        "candidates": rows, "limit": bounded}
+        except (sqlite3.Error, OSError):
+            return {"count": 0, "windows": {"24h": 0, "7d": 0, "30d": 0},
+                    "last_review": None, "candidates": [], "limit": bounded}
 
     def fetch_by_entity(self, entity_address: str) -> list[dict]:
         try:

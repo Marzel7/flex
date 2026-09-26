@@ -1,4 +1,14 @@
 {
+  "dev018_six_row_execution_preflight_20260926": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
+    "status": "HOLD",
+    "verdict": "DEV_018_SIX_ROW_RECONCILIATION_BLOCKED",
+    "preflight": "Manifest and contract canonical SHA-256 values match; six rows have unchanged frozen evidence, are WATCHTOWER_CONFIRMED, are noncanonical, and pass the immutable role-normalized validator. The three excluded controls remain FUNDING_MECHANISM_MISMATCH.",
+    "blocker": "Live frozen cohort has zero durable promotion-outcome rows. The requested six-row write ceiling authorizes six projector executions, but the required 10/10 durable-outcome coverage needs four additional outcome-only projector executions for the original canonical plus the three rejected controls.",
+    "next_action": "Clarify whether the hard six-row ceiling applies only to membership reconciliation, thereby authorizing four bounded outcome-only projector writes, or waive the 10/10 durable-outcome gate for this execution.",
+    "safety": "No live DB write, provider call, process action, monitor queue change, Deep change, DEV022 change, or production action was performed.",
+    "updated_at": "2026-09-26T00:00:00Z"
+  },
   "dev018_idempotency_dev019_20260926": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
     "status": "PASS",

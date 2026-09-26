@@ -1,0 +1,49 @@
+{
+  "schema_version": "dev_019_manual_review_admission_infrastructure.v1",
+  "status": "PROVIDER_FREE_QUALIFIED_NOT_DEPLOYED",
+  "scope": "isolated fixture schema and generic infrastructure only; live approval endpoint/button/schema are absent",
+  "authentication_audit": {
+    "existing_api_authentication_model": "No reusable authenticated interactive operator-principal model was found in the active API routes. The observed Authorization comparison is webhook-secret validation, not user authentication.",
+    "existing_authorization_model": "No reusable roles/permissions/groups capability model was found for operator mutations.",
+    "existing_request_integrity_model": "No reusable application CSRF boundary was found for an interactive operator approval mutation.",
+    "parallel_dev019_auth_system_created": false,
+    "live_auth_integration_qualified": false,
+    "blocker": "A future deployment must integrate an authoritative server principal, permission operations.deep.review.approve, and existing/new application-wide request integrity before exposing mutation."
+  },
+  "fixture_storage": {
+    "table": "operation_manual_approvals",
+    "additive_only": true,
+    "live_schema_changes": 0,
+    "fields": ["approval_id", "approval_version", "operation_id", "mint", "candidate_id", "review_outcome_id", "assessment_id", "assessment_semantic_version", "policy_id", "policy_version", "approved_state_digest", "approver_id", "action", "comment", "created_at"],
+    "comment_max_bytes": 512,
+    "unique": "(candidate_id,review_outcome_id,approved_state_digest,approver_id,action,approval_version)",
+    "budget": "Shares existing compact DEV-019 MAX_LOGICAL_RECORDS / 48 MiB hard-stop guard; writer checks before approval+ADMIT write.",
+    "raw_provider_or_http_retention": false
+  },
+  "writer": {
+    "function": "src.ops.manual_review_admission.write_manual_review_decision",
+    "input": "trusted principal, candidate_id, review_outcome_id, exact state token, action, bounded comment",
+    "pretransaction": "principal authentication/permission, token/action/comment validation",
+    "transaction_recheck": "candidate and requested REVIEW outcome re-read under BEGIN IMMEDIATE; membership checked; stale state fails closed",
+    "write_set": ["operation_manual_approvals", "new operation_admission_outcomes ADMIT only for APPROVE"],
+    "direct_membership_writer": false,
+    "direct_member_event_writer": false,
+    "commit_before_resume": true,
+    "manual_policy": "MANUAL_REVIEW_ADMISSION_POLICY v1",
+    "provenance": "approval_id is embedded in the deterministic approval record; future production schema must add an explicit approval_id column/reference on the manual ADMIT outcome before deployment."
+  },
+  "resumer": {"reused": "src.ops.operation_admission_adapter.resume_admission", "admit_precondition": true, "new_membership_writer": false, "new_event_writer": false},
+  "fixtures": {
+    "command": "python -m pytest -q -p no:cacheprovider tests/test_manual_review_admission_contract.py tests/test_manual_review_admission_writer.py tests/test_operation_admission_adapter.py tests/test_deep_review_read_model.py tests/test_operation_admission_storage.py",
+    "result": "17 passed",
+    "authorized_approval": "PASS: approval + ADMIT durable, then existing resumer produces one membership/event",
+    "unauthorized": "PASS: no mutation",
+    "stale": "PASS: no mutation",
+    "oversized_comment": "PASS: no mutation",
+    "decline": "PASS: provenance only; no ADMIT/membership/event",
+    "fixed_point": "PASS: existing resumer replay returns one membership/event"
+  },
+  "live_controls": {"review_candidates_approved": 0, "approval_records_created": 0, "admit_decisions_created": 0, "membership_writes": 0, "member_events": 0, "provider_calls": 0, "process_actions": 0},
+  "next_gate": "QUALIFY_DEV019_MANUAL_REVIEW_AUTHORIZATION_AND_DURABLE_SCHEMA_DEPLOYMENT_CONTRACT",
+  "safety": {"runtime_deployment_required": true, "large_file_prohibition_v1": "PASS", "max_single_file_design_bound_bytes": 0, "max_transient_file_design_bound_bytes": 0, "unbounded_file_growth_path_count": 0}
+}

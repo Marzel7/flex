@@ -1,4 +1,14 @@
 {
+  "dev019_phase2d_anchor_projection_20260926": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
+    "status": "PARTIAL",
+    "verdict": "REVIEW_CANONICAL_ROUTE_PROJECTION_STORAGE_OR_INDEX",
+    "source_audit": "Mint-scoped canonical-member evidence is bounded by ix_wwec_mint_hop and ix_wwtr_mint, but it contains only the member's lower creator/subprovider route. The historical upper pool/coordinator witness is retained under other mint identities; no member-to-upper-witness identity is retained.",
+    "blocker": "A new index would accelerate the prohibited global search but cannot establish a bounded member-driven causal association. Projecting an anchor from only member-local data would fabricate the upper causal proof; deriving it through global evidence would violate Phase 2D's bounded build contract.",
+    "next_action": "Review/qualify a retained member-to-causal-route witness linkage (or an independently proven bounded source relation) before any canonical anchor projection. Do not create an index-only projection that asserts absent linkage.",
+    "safety": "No projection storage, index, DB, membership, treasury, provider, process, DEV018, DEV022, or production mutation was performed.",
+    "updated_at": "2026-09-26T00:00:00Z"
+  },
   "dev019_phase2c_capital_continuity_20260926": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
     "status": "PARTIAL",

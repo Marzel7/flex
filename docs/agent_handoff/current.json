@@ -119,6 +119,17 @@
     "next_action": "Restore or provide the immutable Phase 2G.6 audit matching required SHA256 9135504354c191fe914e879ab7f5a6f46af7646bc161b551eb8b3ff2e2df9e1d, then rerun the provider-free Phase 2G.7 integrity gate. No live wiring, historical recovery, or provider action is authorized.",
     "updated_at": "2026-09-26T00:00:00Z"
   },
+  "dev019_phase2g7a_phase2g6_provenance_recovery_20260926": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00 with a pre-existing dirty shared worktree",
+    "status": "PARTIAL",
+    "verdict": "DEV_019_PHASE2G6_PROVENANCE_RESTORED",
+    "result": "Handoff commit 8fc10829 exists and immutably records the replay-critical Phase 2G.6 facts: one historical RPC transport, child slot 450414177, parent slot 450415455, PARENT_AFTER_CHILD, getBlock=0, compact evidence id 1b39966eafb59d56330ef2a1cf04dc6c1457beb0e3f45aae1dc8ee802dd88473, and zero membership/treasury writes. Its tree contains only the handoff JSON, not the audit file. The current audit is untracked and its raw/canonical digest do not match the reported required digest; no historical audit blob was recovered, and the digest semantics remain unresolved. A new explicit provenance reconciliation (not a replacement original audit) restores provider-free replay authority from the immutable handoff and retained source contracts.",
+    "artifact": "docs/audits/dev_019_phase2g6_provenance_recovery_phase2g7a.v1.json (canonical JSON sha256 7d9228f1bebd380aae2c1cd924a81aec2a5d0bd3b69447d8767b4a88fa4dbcbd)",
+    "checks": "15 focused provider-free ordering, slot-evidence, prospective-retention, and continuity tests passed, 0 failed; repository/tree/index/reflog path checks found no original audit blob.",
+    "safety": "Provider calls=0; source/runtime/membership/treasury/queue/DEV018/DEV022/process/production changes=0; current untracked Phase 2G.6 audit preserved and not overwritten.",
+    "next_action": "RERUN_DEV019_PHASE2G7_PROVIDER_FREE_READINESS_GATE. Do not repeat RPC or live-wire in this phase.",
+    "updated_at": "2026-09-26T00:00:00Z"
+  },
   "dev019_phase2e_member_witness_linkage_20260926": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
     "status": "HOLD",

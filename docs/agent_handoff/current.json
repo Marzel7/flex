@@ -1,13 +1,13 @@
 {
   "dev018_pinned_closure_20260926": {
     "engineering_revision": "isolated afbe9e58b11eb2e4d616246da123ce31ab45700c + two-module uncommitted closure patch; actual pinned runtime unchanged at afbe9e58b11eb2e4d616246da123ce31ab45700c",
-    "status": "DEV018_PINNED_DEPENDENCY_COMPLETE_PATCH_QUALIFIED",
+    "status": "DEV018_RUNTIME_DEPLOYED_REPAIRED_RUNTIME_ACTIVE",
     "implementation": "Only src/core/watchtower_registry_promotion.py and src/core/walkback_worker.py changed in /private/tmp/dev018-pinned-closure. The role-normalized validator, durable promotion outcome identity/writer, explicit projector outcomes, and unconditional post-legacy projector call were transplanted. Patch SHA256=038d711b4ab95f2df08de57392e170b17ab55c461f262b89b1c90f75cdb1e235.",
     "qualification": "Import/compile PASS. 35 focused provider-free tests PASS. DB contract read-only check PASS. Original broader result was 31 pass/1 fail: test_dev_018_post_backfill_closure reported UNEXPLAINED_CONFIRMED_WITHOUT_CANONICAL_COUNT=6. Exact set reconciliation proved those six are precisely the six Current9 PROMOTE controls; no set differences. Offline isolated replay produced 6 durable PROMOTED outcomes/6 memberships and 3 durable explicit rejections/0 memberships, with zero silent rows and zero new logical outcomes on replay. The qualified and isolated five-function ASTs are identical after docstrings; decision/outcome-identity/membership drift=0.",
-    "verdict": "DEPENDENCY_COMPLETE_PATCH_QUALIFIED. The original broader failure is a KNOWN_PREDEPLOYMENT_STALE_RUNTIME_BACKLOG, not patch-induced; PATCH_INDUCED_REGRESSION_COUNT=0. An unauthorized deployment contract was created; deployment remains prohibited.",
-    "safety": "Actual pinned files changed=0; process restarts=0; live DB writes=0; provider calls=0; current9 reconciliation executed=false; RUNTIME_DEPLOYMENT_GATE=QUALIFIED_NOT_DEPLOYED.",
+    "verdict": "DEPLOYED_REPAIRED_RUNTIME_ACTIVE. Exact two-file closure deployed with staged hash verification and rollback copies; one walkback_worker restart replaced PID 39782 with PID 65829. New PID cwd is /Users/kevinkeaveney/Production/flex-walkback-dev002, both deployed hashes match contract, fresh worker startup/batch log observed, and focused target tests passed 35/35. RUNTIME_DEPLOYMENT_GATE=PASS.",
+    "safety": "Exactly one walkback_worker restart; no unrelated restarts; source deployment DB writes=0; Current9 reconciliation authorized=false/executed=false; DEV019/DEV022 changes=0; RUNTIME_DEPLOYMENT_GATE=PASS.",
     "audit": "docs/audits/dev_018_pinned_runtime_minimum_closure_qualification.v1.json sha256 d16d96c1db841c7e5215783f14a3a36b168efe72e35376c8b07418558a706d97; unauthorized contract docs/audits/dev_018_pinned_runtime_dependency_complete_deployment_contract.v1.json sha256 a788264c103ddfa29a3fad9e03a03d709b623f35f133f890f3dfae19275b21e9, both in /private/tmp/dev018-pinned-closure",
-    "next_action": "AUTHORIZE_DEV018_DEPENDENCY_COMPLETE_PINNED_DEPLOYMENT"
+    "next_action": "AUTHORIZE_DEV018_CURRENT9_RECONCILIATION"
   },
   "dev019_phase2f_prospective_future_retention_20260926": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",

@@ -1,0 +1,51 @@
+{
+  "schema_version": "dev_019_deep_review_ui_qualification.v1",
+  "recorded_at": "2026-09-26T20:35:29Z",
+  "verdict": "QUALIFIED_NOT_DEPLOYED",
+  "runtime_deployment_required": true,
+  "source": {
+    "worktree": "/Users/kevinkeaveney/Dev/claude/flex-dev019",
+    "commit": "a452eb94006e3aba37c9adc2d1962ee537603900",
+    "branch": "dev/019-prospective-deep"
+  },
+  "contract": {
+    "deep_operator_id": "bb255638-a493-551f-938c-8be7c9ea4f1e",
+    "projection": "current durable Deep admission outcomes with admission_result=REVIEW and no canonical membership",
+    "api": "/api/ops/operators/bb255638-a493-551f-938c-8be7c9ea4f1e/deep-review",
+    "page": "/intelligence/operator/bb255638-a493-551f-938c-8be7c9ea4f1e/deep-review",
+    "non_promotion_invariant": "This read model has no write path and never derives canonical membership, ADMIT, or OPERATION_MEMBER_COMMITTED."
+  },
+  "provider_free_qualification": {
+    "test_command": "python -m pytest -q -p no:cacheprovider tests/test_deep_review_read_model.py tests/test_operation_admission_storage.py tests/test_operation_admission_adapter.py tests/test_dev019_deep_wiring.py tests/test_prospective_causal_retention.py tests/test_known_signature_slot.py tests/test_transaction_order.py tests/test_capital_continuity.py",
+    "result": "27 passed",
+    "controls": [
+      "Review candidates are selected only from durable current REVIEW outcomes.",
+      "Canonical memberships, REJECT, and INSUFFICIENT_EVIDENCE outcomes are excluded.",
+      "The API is Deep-only and clamps invalid or excessive limits.",
+      "The summary count is exact while the exposed candidate list is capped at 100."
+    ]
+  },
+  "live_read_only_control": {
+    "database": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+    "count": 3,
+    "windows": {"24h": 3, "7d": 3, "30d": 3},
+    "mints": [
+      "7tPks6AbTE2Kz4KkxxVYN9sBETMtzSL5Kqj2jbrXpump",
+      "GSdjYaqG2TBLX9kAZxKrTpeaZwRZXr15vp1fxAHnpump",
+      "7XomEJBtb1EiF4Z8ZVzspCKFW2UuaRkaiq3AJJCFpump"
+    ],
+    "all_current_outcomes": "QUALIFIED_PROSPECTIVE_MEMBER -> REVIEW",
+    "canonical_memberships": 0
+  },
+  "query_shape": {
+    "tables": ["operation_admission_candidates", "operation_admission_outcomes", "wt_deep_route_review_leads", "operator_launch_membership"],
+    "bounded_candidate_limit": 100,
+    "available_indexes": [
+      "operation_admission_candidates UNIQUE(operation_id,mint,nomination_semantic_version,nomination_evidence_id)",
+      "operation_admission_outcomes UNIQUE(candidate_id,assessment_id,policy_id,policy_version,admission_result,reason)",
+      "wt_deep_route_review_leads ix_wdrrl_operator_observed(operator_id,last_observed_at DESC)",
+      "operator_launch_membership ix_operator_launch_membership_operator(operator_id)"
+    ],
+    "storage_control": "The admission feature storage measured 12,288 bytes NORMAL in the preceding accepted natural observation; this read projection stores no new data."
+  }
+}

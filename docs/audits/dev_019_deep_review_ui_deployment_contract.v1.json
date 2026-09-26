@@ -1,0 +1,52 @@
+{
+  "schema_version": "dev_019_deep_review_ui_deployment_contract.v1",
+  "recorded_at": "2026-09-26T20:35:29Z",
+  "authorization": "NOT_AUTHORIZED",
+  "status": "QUALIFIED_NOT_DEPLOYED",
+  "source_commit": "a452eb94006e3aba37c9adc2d1962ee537603900",
+  "target": {
+    "service": "watchtower_api",
+    "pid": 4159,
+    "working_directory": "/Users/kevinkeaveney/Production/flex-api-dev002",
+    "head": "fc6c58fc4512f781897266f03c966ace1f7cb365",
+    "reload_required": true,
+    "restart_performed": false
+  },
+  "closure": {
+    "staged_runtime_files": {
+      "src/ops/operator_reader.py": {
+        "target_pre_sha256": "d563fa7a046eebe29dbe9f7cd6f10253c5ff8c4a903496b51ea78f95583f6b12",
+        "qualified_source_sha256": "55263e636ef8290aa52387a7c15c0678a140be15669fc352b57962e66a1ee372"
+      },
+      "src/ops/operator_routes.py": {
+        "target_pre_sha256": "663206a3ed4ff860d7610096a3f3a39432eaad92ceb25729dbacd7937a2ce3e1",
+        "qualified_source_sha256": "12d2c253b6b878f341e74b2ae00e8c88e1d909c0890e3c058e70efe63c3c4069"
+      },
+      "templates/operator_intelligence.html": {
+        "target_pre_sha256": "5d62afe4922e2510eefbb6bcef5ec0aa748ee01072796e345f02c3fc5c8a8955",
+        "qualified_source_sha256": "112a85535e49894235e6dd743e21cb7963e2d0c8c4bb476b04db78bc07850971"
+      },
+      "templates/operator_deep_review.html": {
+        "target_pre_sha256": "1b8fe40405bda0fe5c5f0bd2d237d10b1a9f20029e2a0e6434f3daf5b5d28686",
+        "qualified_source_sha256": "4e43e7fc374eb2e8fc60b271eefe3a1b89e1e84a073c7a3990ea6a787f46074e"
+      }
+    },
+    "non_runtime_test_file": "tests/test_deep_review_read_model.py",
+    "target_divergence": "The API target is at fc6c58fc while the qualified source is based on a different engineering line. Its relevant modules contain unrelated semantic differences, so deployment must be a reviewed, exact four-file closure; copying a commit or restarting alone is prohibited."
+  },
+  "required_future_acceptance": [
+    "Re-read all four target pre-image hashes immediately before staging; stop on any mismatch.",
+    "Stage only the four declared runtime files from the qualified source identities; do not stage the test or unrelated target changes.",
+    "Re-hash staged target files and require each to equal its qualified source SHA-256.",
+    "Syntax/import check the staged API source, then reload watchtower_api.",
+    "Record the new API PID, its cwd, and its code identity after reload.",
+    "Read GET /api/ops/operators/bb255638-a493-551f-938c-8be7c9ea4f1e/deep-review and verify current REVIEW rows only, zero canonical memberships, and no write side effect.",
+    "Read the dedicated page and verify it labels rows as prospective review rather than canonical launches.",
+    "Run bounded post-reload observation; stop and roll back the four files if a new membership, ADMIT, or OPERATION_MEMBER_COMMITTED is observed."
+  ],
+  "prohibited_without_new_authorization": [
+    "Staging or copying files to the API target",
+    "Reloading or restarting watchtower_api",
+    "Changing admission policy, Deep canonical membership, schema, or worker runtime"
+  ]
+}

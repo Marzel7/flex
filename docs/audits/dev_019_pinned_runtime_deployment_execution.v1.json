@@ -1,0 +1,13 @@
+{
+  "version": "DEV019_PINNED_RUNTIME_DEPLOYMENT_EXECUTION_V1",
+  "authorization": {"contract_sha256": "610e8e59a31535d80c5d5c1625805d6b6ff7212854f59fcce37459f2ce93e353", "contract_commit": "7f563d8c1a3d6bcc954dba49b28917acada1e040", "handoff": "b5990ac50909c0547b3040d158eba2265ddd013c", "authorized_target": "/Users/kevinkeaveney/Production/flex-walkback-dev002", "restart_ceiling": 1},
+  "preflight": {"old_pid": 65829, "target_baseline": "afbe9e58 + known DEV-018 deployed worker/promotion hashes", "unexpected_drift": 0, "full_db_clone_created": false},
+  "schema": {"objects_created": ["operation_admission_candidates", "operation_admission_outcomes", "operation_event_outbox"], "application_rows_written": 0, "second_application_changes": 0, "additive_only": true},
+  "deployment": {"stage": "/private/tmp/dev019-runtime-stage.V0JGPb", "rollback": "/private/tmp/dev019-runtime-rollback.6kMtVc", "files": ["src/core/walkback_worker.py", "src/ops/operation_admission_adapter.py", "src/ops/watchtower_deep_review.py", "src/ops/watchtower_deep_prospective.py"], "method": "staged hash verification, sibling temporary copy, atomic per-file rename, post-copy hash verification", "hash_matches": 4},
+  "activation": {"restart_count": 1, "new_pid": 87523, "working_directory": "/Users/kevinkeaveney/Production/flex-walkback-dev002", "active_hash_matches": 4, "startup_health": "PASS"},
+  "acceptance": {"dev019_tests": {"passed": 24, "failed": 0}, "dev018_tests": {"passed": 3, "failed": 0}, "deep_candidate_count": 0, "deep_outcome_count": 0, "deep_membership_writes": 0, "deep_member_events": 0, "historical_backfill": 0, "frozen_seven_live_mutation": 0, "generic_tables_empty_after_startup": true},
+  "storage": {"large_file_prohibition_v1": "PASS", "hard_stop_bytes": 50331648, "max_compact_record_bytes": 2048, "max_logical_records": 24576, "retention_batch_rows": 128, "raw_retention": false, "unbounded_growth_paths": 0},
+  "safety": {"provider_calls": 0, "unrelated_process_restarts": 0, "runtime_deployment_gate_v1": "PASS"},
+  "status": "DEEP_REVIEW_RUNTIME_DEPLOYED_ACTIVE",
+  "next_gate": "VERIFY_DEV019_NATURAL_PROSPECTIVE_REVIEW_ACTIVITY"
+}

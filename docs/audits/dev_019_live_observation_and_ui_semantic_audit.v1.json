@@ -1,0 +1,12 @@
+{
+  "version": "DEV019_LIVE_OBSERVATION_UI_SEMANTIC_AUDIT_V1",
+  "deployment_boundary_utc": "2026-09-26T19:18:58Z",
+  "observation_as_of_utc": "2026-09-26T19:31:44Z",
+  "runtime": {"pid": 87523, "working_directory": "/Users/kevinkeaveney/Production/flex-walkback-dev002", "active_code_identity": "verified from prior deployment closure", "runtime_deployment_gate_v1": "PASS", "large_file_prohibition_v1": "PASS"},
+  "watchtower": {"post_deployment_raw": 0, "post_deployment_confirmed": 0, "post_deployment_durable_outcomes": 0, "post_deployment_silent": 0, "canonical_24h": 16, "canonical_7d": 215, "canonical_30d": 413, "last_canonical_timestamp": 1790442705, "verdict": "NO_NATURAL_ACTIVITY"},
+  "deep": {"post_deployment_nominations": 0, "generic_candidates": 0, "assessments": 0, "review": 0, "reject": 0, "insufficient": 0, "admit": 0, "silent": 0, "new_memberships": 0, "member_events": 0, "feature_logical_records": 0, "feature_storage_estimate_bytes": 0, "natural_status": "BLOCKED_SCHEMA_NOT_READY"},
+  "blocking_finding": {"state": "DEPLOYMENT_SCHEMA_GAP", "detail": "operation_admission_candidates/outcomes/outbox exist, but wt_deep_route_review_leads and required review indexes are absent. watchtower_deep_review.run_review_sweep_page therefore returns SCHEMA_NOT_READY before the deployed hook publishes a generic candidate/outcome.", "policy_or_membership_change": false, "repair_authorized": false},
+  "ui_semantics": {"deep_confirmed_source": "operator_launch_membership", "deep_historical_canonical_members_24h": 0, "deep_historical_canonical_members_7d": 26, "deep_review_rows_in_confirmed_count": 0, "confirmed_review_semantic_separation": true, "review_api_exists": false, "review_ui_exists": false, "deep_ui_status": "CONFIRMED_CORRECT_REVIEW_VISIBILITY_MISSING", "proposed_read_model": "WATCHTOWER_DEEP: Confirmed = canonical operator_launch_membership only; Review = generic durable admission_result=REVIEW; show distinct last-confirmed and last-review timestamps. REJECT/INSUFFICIENT are diagnostic-only and never members."},
+  "safety": {"audit_membership_writes": 0, "policy_changes": 0, "provider_calls": 0, "process_actions": 0, "source_changes": 0, "runtime_changes": 0},
+  "next_action": "AUTHORIZE_ADDITIVE_DEEP_REVIEW_PROJECTION_SCHEMA_REPAIR_AND_REQUALIFY_NATURAL_PIPELINE; do not alter Deep REVIEW-first policy."
+}

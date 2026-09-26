@@ -1,0 +1,71 @@
+{
+  "schema_version": "dev_019_review_to_canonical_admission_boundary.v1",
+  "recorded_at": "2026-09-26T22:12:00Z",
+  "mode": "READ_ONLY_PROVIDER_FREE",
+  "deep_operator_id": "bb255638-a493-551f-938c-8be7c9ea4f1e",
+  "current_populations": {
+    "canonical_count": 26,
+    "canonical_mints": ["3677Aqo8U5HEbAWL7B8gNQoDtRdjQCY2QU6nCD13pump", "4ffcz9n3Cao8jVEnb3CxHQUKqCqU5cPrJBtaYryRpump", "517rxvXe7boSjeTYvHY34r33EoHeL4paDyNuqdwDpump", "5Q6MaQLUVHzQvT9xfcm7zHL6Ak1N9bK8dnp8N91npump", "5Tn3ofbzsHU15LxTxc6dWdCFo1NQ9TediyrTTnM6pump", "6vn3Jpg4f2oY21ZmKYnYFfvZh1mTKuyhQBNTbfw8pump", "6yoxC1xf1sdQCWdpQTPDgbEQmdAeSj4AM1QPh1WCpump", "73nBoTeEAJAWaNP8ayTDUZbx6ag3JcHm4CPxGi8Tpump", "7D7rXxvG7cifp4FJXKx9jMqhUzQXoTPr6C4ygyFHpump", "7ecXbJWyEoieJtGiGuq5yDmkrWogo6wAzZHVteg2pump", "8qWryFQqAdisFQMdHcMUdK5ipfdZkb36k2vTkrAkpump", "99wkUqrEX5jQsoidGPzeinXctDwMvJiLrei596bNpump", "9LLgjKxF9vmzthfbFLUZtXpdxaXPaV684GEeSM4Kpump", "AZ3rVyLvWFAF9tYVY9n6LeSuvAhfCGKr1tcGux3spump", "BLQM2YfYn86p8n8yFViAZj11QJ5qFRpSbk91XqVopump", "BmkJ2GHnYz1tk3tKKq12yx62KxRPCxnqb3GUoaPipump", "C6xE1BHycRdhEzAtgGGSj7Pof6sdaP4QiUsdZt3hpump", "DYhWaSmpX46eeUMvkTRvQD3C6UH6ipjy4ELrppqkpump", "DjDWoEdEPeaRS4RQm73TK8Q6HvNM6miFwRuUX2H3pump", "DnHypA2k5WoWS5rVWhPmYubdC63VnoDk9A68bno8pump", "Dv23QJNxDgJvmeqzD8P2bHNLoGgTCmv6Y8dK5FJ2pump", "EgJzfXEGnuP5w2h2GVMBAU9oG8T7suSaMQthQtyGpump", "GUUWV2sTCJzJqvDNuBF7H5WYFZLFubfKHNVE69SYpump", "GXfzoeFSYsrYtfeoCbAfs5kfmzTZc11vAHgXV96opump", "Heik5FodUg5dXm5hmpspPzpSNKV69WQJbagisnwVpump", "JAprY5wmpGsmef5tKu8VkGGvMFuKQvfSYVuGrJV6pump"],
+    "canonical_origin": "WATCHTOWER_DEEP_HISTORICAL_ROUTE_V1; all assigned_at=1790006685; membership labels were not used as evidence inputs.",
+    "review_count": 3,
+    "review": [
+      {"mint": "7XomEJBtb1EiF4Z8ZVzspCKFW2UuaRkaiq3AJJCFpump", "observed_at": 1790452550, "candidate_id": "63d4f651668e5174d912c37df5c09b2ab13e4334289eddb12b286bb61f7adb1d"},
+      {"mint": "GSdjYaqG2TBLX9kAZxKrTpeaZwRZXr15vp1fxAHnpump", "observed_at": 1790452550, "candidate_id": "5b94284eaa4631a85017bb2cffdf277df50e86d2beeb099b78d613ab28ff2e6b"},
+      {"mint": "7tPks6AbTE2Kz4KkxxVYN9sBETMtzSL5Kqj2jbrXpump", "observed_at": 1790454588, "candidate_id": "53b04eab7b3c6ae398c4e160e8ef2bc667024ca1e6766ecde22ee1d7bab5face"}
+    ],
+    "canonical_review_overlap": [],
+    "current_reject_count": 0,
+    "current_insufficient_count": 0
+  },
+  "evidence_families": {
+    "nomination_fingerprint": "AVAILABLE_PROSPECTIVELY: WATCHTOWER_DEEP_NOMINATION_V1; compact nomination evidence ID retained for three reviews.",
+    "causal_witness_capital_continuity_transaction_order": "AVAILABLE_PROSPECTIVELY: three compact IDs are retained with WATCHTOWER_DEEP_ASSESSMENT_V1; they establish QUALIFIED_PROSPECTIVE_MEMBER only.",
+    "selected_upstream_conflict": "AVAILABLE_PROSPECTIVELY in the generic assessor; no current review has a conflict outcome.",
+    "operation_anchor": "DERIVABLE_ONLY from canonical route controls by the read-only generic continuity primitive; not a durable per-member witness record.",
+    "canonical_member_upper_witness": "MISSING_FOR_CANONICAL_CONTROLS: historical membership records retain origin and timestamp, not a per-member durable prospective candidate/assessment/outcome/witness linkage.",
+    "historical_global_recovery_scan": false,
+    "synthetic_canonical_witness_link_count": 0
+  },
+  "admission_evidence_matrix": {
+    "review_population": "3/3 nomination+assessment+compact witness/continuity/ordering identity present; assessment=QUALIFIED_PROSPECTIVE_MEMBER; admission=REVIEW; reason=frozen_policy_positive; evidence completeness=true by V1 assessment.",
+    "canonical_population": "0/26 independently comparable prospective V1 records retained. All are historical-route registrations; absence is UNKNOWN/INSUFFICIENT, not negative or contradictory.",
+    "canonical_evidence_complete_count": 0,
+    "canonical_evidence_insufficient_count": 26,
+    "review_evidence_complete_count": 3,
+    "review_evidence_insufficient_count": 0,
+    "comparability": "INSUFFICIENT: canonical labels cannot be evidence and there is no independent retained per-member V1 witness/outcome matrix against which to test a prospective automatic-admit predicate."
+  },
+  "policy": {
+    "v1_semantic_changes": 0,
+    "positive": "QUALIFIED_PROSPECTIVE_MEMBER -> REVIEW",
+    "conflict": "CONFLICT -> REJECT",
+    "missing_evidence": "non-required or incomplete evidence -> INSUFFICIENT_EVIDENCE",
+    "nomination_directly_admits": false
+  },
+  "candidate_v2_analysis": {
+    "strictest_qualified_predicates": ["qualified prospective assessment", "causal witness", "capital continuity", "transaction ordering", "no selected-upstream conflict", "complete retained evidence", "operation-anchor match"],
+    "hardcoded_wallet_count": 0,
+    "hardcoded_amount_count": 0,
+    "hardcoded_mint_count": 0,
+    "operation_name_branches_in_generic_evaluator": 0,
+    "data_fitted_unqualified_threshold_count": 0,
+    "review_simulation": "All current reviews already satisfy the V1 positive qualification; no qualified evidence demonstrates that this sufficient-for-review condition is sufficient-for-canonical membership.",
+    "canonical_control_simulation": "NOT_EVALUABLE without circularly using membership or fabricating historical witness linkage.",
+    "negative_control_false_admit_count": 0,
+    "automatic_admit_evidence_status": "INSUFFICIENT_COMPARABLE_EVIDENCE",
+    "proposed_deep_v2_automatic_admit": false,
+    "blockers": ["Historical canonical controls lack independent, comparable retained prospective witness/outcome evidence.", "The V1 positive result deliberately proves review qualification, not membership exclusivity.", "Current retained outcome population has no reject or insufficient controls, so zero false-admit cannot establish discrimination.", "No causal evidence supports treating the historical registration label as a future automatic-admission threshold."]
+  },
+  "manual_boundary": {
+    "recommended": "REVIEW -> explicit approval identity -> new durable ADMIT outcome with provenance -> generic commit adapter -> canonical membership -> OPERATION_MEMBER_COMMITTED",
+    "review_to_admit_requires_new_durable_decision": true,
+    "future_ui_transition": "A durable ADMIT removes the candidate from current Review through the existing current-outcome/noncanonical filters and exposes it only through canonical Confirmed membership while preserving historical outcome provenance.",
+    "current_ui_semantics_unchanged": true
+  },
+  "decision": {
+    "canonical_label_used_as_admission_evidence": false,
+    "historical_membership_implies_v2_evidence": false,
+    "next_gate": "QUALIFY_DEV019_MANUAL_REVIEW_ADMISSION_CONTRACT"
+  },
+  "safety": {"live_db_writes": 0, "provider_calls": 0, "process_actions": 0, "runtime_source_changes": 0, "live_policy_changes": 0, "deep_membership_writes": 0, "member_events": 0, "new_raw_data_retention": false, "full_db_clone_created": false, "large_file_prohibition_v1": "PASS"}
+}

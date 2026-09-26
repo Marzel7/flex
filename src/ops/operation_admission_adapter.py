@@ -13,10 +13,33 @@ from typing import Any, Mapping
 
 EVENT_TYPE = "OPERATION_MEMBER_COMMITTED"
 EVENT_VERSION = "OPERATION_MEMBER_COMMITTED_V1"
+NORMAL_STORAGE_BUDGET_BYTES = 32 * 1024 * 1024
+HARD_STORAGE_STOP_BYTES = 48 * 1024 * 1024
+MAX_COMPACT_RECORD_BYTES = 2048
+MAX_LOGICAL_RECORDS = HARD_STORAGE_STOP_BYTES // MAX_COMPACT_RECORD_BYTES
+RETENTION_MAX_ROWS_PER_BATCH = 128
 
 
 def _identity(*parts: object) -> str:
     return hashlib.sha256(json.dumps(parts, separators=(",", ":"), sort_keys=True).encode()).hexdigest()
+
+
+def _compact(value: object, limit: int = 256) -> str:
+    value = str(value)
+    if not value or len(value.encode()) > limit:
+        raise ValueError("admission compact-storage limit exceeded")
+    return value
+
+
+def _logical_record_count(conn: sqlite3.Connection) -> int:
+    return sum(conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0] for table in (
+        "operation_admission_candidates", "operation_admission_outcomes", "operation_event_outbox"))
+
+
+def enforce_storage_guard(conn: sqlite3.Connection, incoming_records: int = 1) -> None:
+    """Fail closed before this feature's compact budget could be exceeded."""
+    if incoming_records < 0 or _logical_record_count(conn) + incoming_records > MAX_LOGICAL_RECORDS:
+        raise RuntimeError("OPERATION_ADMISSION_STORAGE_LIMIT_REACHED")
 
 
 def candidate_identity(operation_id: str, mint: str, nomination_version: str, nomination_evidence_id: str) -> str:
@@ -53,6 +76,9 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
 
 
 def persist_candidate(conn: sqlite3.Connection, nomination: Mapping[str, Any], now: int) -> str:
+    for key in ("operation_id", "mint", "nomination_type", "nomination_semantic_version", "nomination_evidence_id"):
+        _compact(nomination.get(key, ""))
+    enforce_storage_guard(conn)
     cid = candidate_identity(nomination["operation_id"], nomination["mint"], nomination["nomination_semantic_version"], nomination["nomination_evidence_id"])
     conn.execute("INSERT OR IGNORE INTO operation_admission_candidates VALUES(?,?,?,?,?,?,?,?)", (cid, nomination["operation_id"], nomination["mint"], nomination.get("nomination_type", "RETAINED"), nomination["nomination_semantic_version"], nomination["nomination_evidence_id"], "CANDIDATE_DURABLE", now))
     return cid
@@ -70,10 +96,29 @@ def evaluate_policy(assessment: Mapping[str, Any], policy: Mapping[str, Any]) ->
 
 
 def persist_outcome(conn: sqlite3.Connection, candidate_id: str, nomination: Mapping[str, Any], assessment: Mapping[str, Any], policy: Mapping[str, Any], now: int) -> str:
+    for value in (candidate_id, assessment["assessment_id"], assessment["semantic_version"], policy["policy_id"], policy["policy_version"]): _compact(value)
+    enforce_storage_guard(conn)
     decision, reason = evaluate_policy(assessment, policy)
     oid = outcome_identity(candidate_id, assessment["assessment_id"], policy["policy_id"], policy["policy_version"], decision, reason)
     conn.execute("INSERT OR IGNORE INTO operation_admission_outcomes VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (oid, candidate_id, nomination["operation_id"], assessment["assessment_id"], assessment["semantic_version"], assessment["state"], policy["policy_id"], policy["policy_version"], decision, reason, assessment.get("causal_witness_id"), assessment.get("capital_continuity_id"), assessment.get("transaction_order_id"), now))
     return oid
+
+
+def prune_terminal_noncanonical(conn: sqlite3.Connection, *, older_than: int, limit: int = RETENTION_MAX_ROWS_PER_BATCH) -> int:
+    """Delete one bounded batch only when no canonical or event provenance exists."""
+    bounded = max(1, min(int(limit), RETENTION_MAX_ROWS_PER_BATCH))
+    rows = conn.execute(
+        "SELECT c.candidate_id FROM operation_admission_candidates c "
+        "JOIN operation_admission_outcomes o USING(candidate_id) "
+        "WHERE o.admission_result IN ('REJECT','INSUFFICIENT_EVIDENCE') AND o.created_at<? "
+        "AND NOT EXISTS(SELECT 1 FROM operator_launch_membership m WHERE m.mint=c.mint) "
+        "AND NOT EXISTS(SELECT 1 FROM operation_event_outbox e WHERE e.candidate_id=c.candidate_id) "
+        "ORDER BY o.created_at,c.candidate_id LIMIT ?", (int(older_than), bounded),
+    ).fetchall()
+    for (candidate_id,) in rows:
+        conn.execute("DELETE FROM operation_admission_outcomes WHERE candidate_id=?", (candidate_id,))
+        conn.execute("DELETE FROM operation_admission_candidates WHERE candidate_id=?", (candidate_id,))
+    return len(rows)
 
 
 def resume_admission(conn: sqlite3.Connection, outcome_id: str, now: int) -> dict[str, str | None]:

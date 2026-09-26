@@ -1,4 +1,17 @@
 {
+  "dev018_idempotency_dev019_20260926": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
+    "status": "PASS",
+    "verdict": "DEV_018_IDEMPOTENCY_QUALIFIED_MANIFEST_READY_DEV_019_SEVEN_ENUMERATED",
+    "repair": "Durable outcome identity excludes mutable registry_state_before and includes immutable validator result plus outcome class.",
+    "tests": "39 focused provider-free tests passed; compact fixture first/second/third replay reached fixed point.",
+    "dev018": "10 confirmed: 1 already present, 6 promotable, 3 FUNDING_MECHANISM_MISMATCH rejected, 0 silent. Second replay: 0 new logical outcomes and 0 memberships.",
+    "manifest": "docs/audits/dev_018_frozen10_missed_promotion_reconciliation_manifest.v1.json; six rows; not authorized and not executed.",
+    "dev019": "Seven candidates assessed read-only: two REVIEW_CANDIDATE/REVIEW_ONLY with unqualified capital continuity; five CONFLICT/selected_upstream_disagrees. No candidate is commit-eligible.",
+    "next_action": "Require an operation-agnostic, separately authorized prospective capital-continuity/admission qualification before any Deep write or commit consideration.",
+    "safety": "live DB writes=0; provider calls=0; full DB clones=0; process starts/stops/restarts=0; monitor queue changes=0; Deep source changes=0; DEV022 changes=0; production changes=0.",
+    "updated_at": "2026-09-26T00:00:00Z"
+  },
   "dev018_compact_replay_20260926": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
     "status": "PARTIAL",

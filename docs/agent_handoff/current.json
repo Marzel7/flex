@@ -1,4 +1,16 @@
 {
+  "dev018_live_six_membership_ten_outcome_20260926": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
+    "status": "PASS",
+    "verdict": "DEV_018_SIX_ROW_MEMBERSHIP_AND_TEN_OUTCOME_RECONCILIATION_COMPLETE",
+    "execution": "Class B wrote exactly four outcome-only records using the durable writer directly, with structurally no membership INSERT. Class A invoked the qualified projector for exactly six immutable manifest mints, producing six memberships and six PROMOTED outcomes.",
+    "post_state": "Frozen ten: 7 canonical (1 original + 6 reconciled), 3 FUNDING_MECHANISM_MISMATCH rejected/noncanonical, 10 durable outcomes, 0 silent loss. Read-only recheck: 0 due, 0 new memberships/outcomes, 0 duplicates.",
+    "readback": "Canonical API reader and UI backing reader each show all six reconciled mints. UI 24h activity=7 and canonical 24h=7; activity counts timestamp-qualified established members, not raw detections.",
+    "artifact": "docs/audits/dev_018_frozen10_reconciliation_execution.v1.json sha256=53cd7e3c5b1c162dc74e46c96c46b9ebd0288b53fe0173a5a59cb9227b2ed360",
+    "next_action": "DEV_019_CAPITAL_CONTINUITY_PROSPECTIVE_ADMISSION: use the two review candidates and five conflict controls to qualify an operation-agnostic capital-continuity/admission rule; no Deep change is authorized by this completion.",
+    "safety": "Provider calls=0; no Deep/DEV022/process/production changes. Only ten bounded DEV durable-outcome/projector executions wrote the DEV database.",
+    "updated_at": "2026-09-26T00:00:00Z"
+  },
   "dev018_six_row_execution_preflight_20260926": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
     "status": "HOLD",

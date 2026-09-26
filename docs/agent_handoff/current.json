@@ -23,6 +23,18 @@
     "safety": "Provider calls=0; no historical reconstruction, membership, treasury, DEV018, DEV022, process, supervisor, or production mutation.",
     "updated_at": "2026-09-26T00:00:00Z"
   },
+  "dev019_phase2g1_live_pilot_preflight_20260926": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
+    "status": "HOLD",
+    "verdict": "REVIEW_PROSPECTIVE_ORDERING_EVIDENCE_GAP",
+    "finding": "The authorized pilot cannot safely dispatch because no locally retained candidate has a proven shared slot for both known parent and child signatures. For retained review control 7tPks, the queue retains parent/funder slot 450415455, while the selected child signature has no retained slot. Edge/role records retain block time and instruction indexes only.",
+    "execution": "Stopped during local preflight. No V2 authorized contract was created because its required frozen shared slot cannot be truthfully populated. Solana RPC transports=0, retries=0, discovery requests=0, and no compact ordering record was written.",
+    "artifact": "docs/audits/dev_019_transaction_ordering_live_pilot_phase2g1.v1.json",
+    "tests": "36 provider-free focused tests passed, 0 failed.",
+    "next_action": "Review whether a separately authorized bounded source may establish the child slot before retrying a single-candidate ordering pilot; do not use the pilot request itself for discovery or recover historical 26.",
+    "safety": "No provider, membership, treasury, DEV018, DEV022, process, supervisor, or production mutation.",
+    "updated_at": "2026-09-26T00:00:00Z"
+  },
   "dev019_phase2e_member_witness_linkage_20260926": {
     "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
     "status": "HOLD",

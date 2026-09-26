@@ -1,0 +1,16 @@
+{
+  "version": "DEV019_DEEP_REVIEW_SCHEMA_REPAIR_EXECUTION_V1",
+  "contract": "docs/audits/dev_019_deep_review_schema_repair_execution_contract.v1.json",
+  "target_db": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+  "objects_created": ["wt_deep_route_review_leads", "ix_wdrrl_operator_observed", "ix_wbq_deep_review_page", "ix_wwtr_destination_amount"],
+  "additive_only": true,
+  "application_rows_written": 0,
+  "second_application_changes": 0,
+  "live_schema_ready": true,
+  "generic_counts_after": {"candidates": 0, "outcomes": 0, "events": 0, "review_leads": 0},
+  "runtime": {"pid": 87523, "restart_required": false, "restarts": 0, "health": "PASS"},
+  "deep_semantics": {"policy_changed": false, "membership_writes": 0, "member_events": 0, "manufactured_rows": 0},
+  "storage": {"large_file_prohibition_v1": "PASS", "hard_stop_bytes": 50331648, "raw_retention": false, "unbounded_growth_paths": 0},
+  "next_gate": "VERIFY_DEV019_NATURAL_PROSPECTIVE_REVIEW_ACTIVITY",
+  "safety": {"provider_calls": 0, "source_changes": 0, "dev018_changes": 0, "dev022_changes": 0}
+}

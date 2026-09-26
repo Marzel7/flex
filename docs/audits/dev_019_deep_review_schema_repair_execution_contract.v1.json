@@ -1,0 +1,16 @@
+{
+  "version": "DEV019_DEEP_REVIEW_SCHEMA_REPAIR_CONTRACT_V1",
+  "authorized": true,
+  "target_db": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+  "deployed_review_module_sha256": "58e15a57b4cd288a2a2b586b22ad403eb0081d9d8234df33dd9852c066623159",
+  "migration_owner": "src.ops.watchtower_deep_review:migrate_review_schema",
+  "objects": ["wt_deep_route_review_leads", "ix_wdrrl_operator_observed", "ix_wbq_deep_review_page", "ix_wwtr_destination_amount"],
+  "before": {"review_table": false, "review_index": false, "sweep_index": false, "destination_index": false, "generic_admission_tables_present": true},
+  "additive_only": true,
+  "backfill_rows": 0,
+  "storage": {"review_record_max_bytes": 2048, "existing_normal_budget_bytes": 33554432, "hard_stop_bytes": 50331648, "raw_retention": false, "unbounded_growth_paths": 0, "retention": "Review projection is REVIEW-only, inspectable, and must be bounded by the existing feature record guard/retention policy before volume approaches the hard stop."},
+  "rollback": "Leave additive table and indexes in place; no source change, table drop, rebuild, or restart is authorized.",
+  "post_apply": ["validate_review_schema=true", "generic tables unchanged", "all application counts remain zero", "current PID remains healthy", "no restart"],
+  "restart_required": false,
+  "safety": {"provider_calls": 0, "membership_writes": 0, "manual_admit": false, "source_changes": 0}
+}

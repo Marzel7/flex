@@ -1,14 +1,15 @@
 {
   "dev019_isolated_admission_adapter_20260926": {
-    "engineering_revision": "5f27f36d6388aa1ad1cf39212e3d7d132dd8c16f on dev/019-prospective-deep; pinned runtime schema repaired",
-    "status": "DEEP_REVIEW_RUNTIME_SCHEMA_READY_WAITING_FOR_NATURAL_ACTIVITY",
+    "engineering_revision": "bcd6ea4e1464990f501468e5e6ece05c98073f7a on dev/019-prospective-deep; natural Deep pipeline accepted",
+    "status": "DEV019_NATURAL_PROSPECTIVE_ACCEPTED_REVIEW_VISIBILITY_PENDING",
     "baseline": "Clean Git anchor afbe9e58b11eb2e4d616246da123ce31ab45700c preserves DEV-018 worker semantics. Migrated only provenance-backed DEV-019 Deep source, causal witness, capital continuity, known-signature slot, transaction ordering, policy contract, and provider-free tests; no DEV-022 source migrated and no ambiguous source copied.",
-    "qualification": "Exact authorized additive schema repair completed: wt_deep_route_review_leads, ix_wdrrl_operator_observed, ix_wbq_deep_review_page, and ix_wwtr_destination_amount created. Deployed validate_review_schema=true; second application changes=0; generic/review application rows remain zero. Worker PID 87523 remained healthy; readiness is dynamically checked so restart not required. Deep policy/membership/event semantics unchanged.",
+    "qualification": "Natural read-only observation PASS after schema repair: two natural Deep review leads (GSdjY... and 7Xom...) each became exactly one durable generic candidate and QUALIFIED_PROSPECTIVE_MEMBER -> REVIEW outcome. Candidates=2, explicit outcomes=2, silent=0, ADMIT=0, canonical memberships=0, member events=0. Worker PID 87523 healthy; feature storage estimate=12,288 bytes/NORMAL. Watchtower had no natural rows in the same window.",
     "safety": "RUNTIME_DEPLOYMENT_GATE=PASS. Exact authorized additive schema created three empty generic tables; exact four-file closure deployed hash-verified; one authorized Walkback restart only (65829 -> 87523), no unrelated restarts or provider calls. Deep startup rows/memberships/events=0; no historical/frozen-seven mutation. Active target=/Users/kevinkeaveney/Production/flex-walkback-dev002.",
     "audit": "docs/audits/dev_019_operation_admission_policy_v1_qualification.json sha256 2260d1e36fe5ceba56fa7cb485f9767dbbefa15fdf1d16321529fc71eaf603e1",
     "deployment_contract": "docs/audits/dev_019_pinned_runtime_deployment_contract.v1.json sha256 610e8e59a31535d80c5d5c1625805d6b6ff7212854f59fcce37459f2ce93e353 executed under explicit authorization; execution audit docs/audits/dev_019_pinned_runtime_deployment_execution.v1.json sha256 cf5d0d3b0b6cc4f427ac57a6431c6feebf42488236b481ca87bda4ca64b39b4e.",
     "schema_repair": "docs/audits/dev_019_deep_review_schema_repair_execution.v1.json sha256 b5c5dfd0302b47107588120a7fcf9060a1f1de7e4a892667bcb10eb02dd8d6db; application rows=0; restarts=0.",
-    "next_action": "VERIFY_DEV019_NATURAL_PROSPECTIVE_REVIEW_ACTIVITY observationally. Preserve Deep V1 REVIEW-only policy; do not manufacture candidates or add automatic membership."
+    "natural_observation": "docs/audits/dev_019_natural_prospective_observation.v1.json sha256 8c9d9ad001ade65dbb806916147336c76512305bb392d44181eeee8f9b288781; acceptance=PASS.",
+    "next_action": "DEFINE_DEV019_DEEP_REVIEW_UI_READ_MODEL. Confirmed UI is canonical-only and correct; dedicated durable Deep REVIEW visibility is missing. Preserve REVIEW-only policy."
   },
   "dev018_pinned_closure_20260926": {
     "engineering_revision": "isolated afbe9e58b11eb2e4d616246da123ce31ab45700c + two-module uncommitted closure patch; actual pinned runtime unchanged at afbe9e58b11eb2e4d616246da123ce31ab45700c",

@@ -1,0 +1,89 @@
+{
+  "audit": "DEV-019 five fresh natural Deep candidate audit",
+  "version": 1,
+  "audit_as_of_utc": "2026-09-27T08:12:30Z",
+  "engineering": {
+    "branch": "dev/019-prospective-deep",
+    "worktree": "/Users/kevinkeaveney/Dev/claude/flex-dev019",
+    "revision": "9f785bfe38e932b18a42e8f37a70a86ead33b428",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "This is a retained-state, local-API, and source-contract audit only; no executable behavior was changed."
+  },
+  "frozen_runtime": {
+    "walkback": {"pid": 87523, "working_directory": "/Users/kevinkeaveney/Production/flex-walkback-dev002", "health": "RUNNING", "command": "python -m src.core.walkback_worker --loop"},
+    "api": {"pid": 49342, "working_directory": "/Users/kevinkeaveney/Production/flex-api-dev002", "health": "RUNNING", "listener": "127.0.0.1:5002", "local_deep_review_get": "200 OK"},
+    "schema": {"deep_review_schema_ready": true, "validator": "validate_review_schema", "database": "database/wt_ops_v2.db"}
+  },
+  "storage": {
+    "dev019_storage_state": "NORMAL",
+    "dev019_feature_storage_bytes": 12288,
+    "qualified_limits": "below approved bounded feature-storage limit",
+    "large_file_prohibition_v1": "PASS",
+    "full_db_clone_created": false,
+    "unbounded_growth_paths_introduced": 0
+  },
+  "population": [
+    {"mint": "BJDfhK6xJhj9Ln7PXCFZL6ZofEXfuDAo9cAmKCFvpump", "observed_at_claimed": "2026-09-27T02:39:03Z"},
+    {"mint": "9zriPbmELWGzEqEJH29qQY4TZ4xVMQLVLXV3RtSDpump", "observed_at_claimed": "2026-09-27T01:26:21Z"},
+    {"mint": "J9PVhNvGA1hXhHwmUUYQgHpPRxZch3cmCRzTnD6Dpump", "observed_at_claimed": "2026-09-27T01:17:49Z"},
+    {"mint": "CMPksXm4H1otRyLEe8EZa7aL8iMKg4wsyFXxnLBopump", "observed_at_claimed": "2026-09-26T23:19:04Z"},
+    {"mint": "FErgMUvV6XeBJNm3v9DnqzxE4aqcMS3KRvXmps3epump", "observed_at_claimed": "2026-09-26T23:16:46Z"}
+  ],
+  "existence_accounting": {
+    "five_nominations": 5,
+    "five_review_lead_count": 2,
+    "five_review_lead_missing_mints": ["BJDfhK6xJhj9Ln7PXCFZL6ZofEXfuDAo9cAmKCFvpump", "9zriPbmELWGzEqEJH29qQY4TZ4xVMQLVLXV3RtSDpump", "FErgMUvV6XeBJNm3v9DnqzxE4aqcMS3KRvXmps3epump"],
+    "five_generic_candidate_count": 2,
+    "five_generic_candidate_missing_mints": ["BJDfhK6xJhj9Ln7PXCFZL6ZofEXfuDAo9cAmKCFvpump", "9zriPbmELWGzEqEJH29qQY4TZ4xVMQLVLXV3RtSDpump", "FErgMUvV6XeBJNm3v9DnqzxE4aqcMS3KRvXmps3epump"],
+    "five_durable_outcome_count": 2,
+    "five_durable_outcome_missing_mints": ["BJDfhK6xJhj9Ln7PXCFZL6ZofEXfuDAo9cAmKCFvpump", "9zriPbmELWGzEqEJH29qQY4TZ4xVMQLVLXV3RtSDpump", "FErgMUvV6XeBJNm3v9DnqzxE4aqcMS3KRvXmps3epump"],
+    "five_canonical_membership_count": 0,
+    "five_canonical_mints": [],
+    "five_member_committed_event_count": 0,
+    "five_member_committed_event_mints": [],
+    "five_candidates": 2,
+    "five_explicit_outcomes": 5,
+    "five_silent_count": 0,
+    "explicit_non_deep_outcomes": {"LINEAGE_GAP": 3},
+    "interpretation": "All five have an explicit completed walkback result. Only the two satisfying the Deep route predicate proceed to the generic candidate/outcome pipeline."
+  },
+  "trace_matrix": [
+    {"mint":"BJDfhK6xJhj9Ln7PXCFZL6ZofEXfuDAo9cAmKCFvpump","review_lead_present":false,"generic_candidate_present":false,"assessment_present":false,"admission_outcome_present":false,"current_state":"LINEAGE_GAP","walkback_path_state":"TREASURY_CANDIDATE_SURFACED","walkback_terminal":"JC13HUEFkuKi9rijKQmrrTinRqmbKuNSPf81sVPB3Y2D","canonical_membership":false,"member_committed_event":false,"review_api_visible":false,"review_ui_eligible":false,"evidence_completeness":"insufficient_for_deep_route","reason":"completed walkback returned LINEAGE_GAP; no prospective candidate was warranted"},
+    {"mint":"9zriPbmELWGzEqEJH29qQY4TZ4xVMQLVLXV3RtSDpump","review_lead_present":false,"generic_candidate_present":false,"assessment_present":false,"admission_outcome_present":false,"current_state":"LINEAGE_GAP","walkback_path_state":"FAILED_TERMINAL","walkback_terminal":"DxP51LkAXzVnrxMEwdN5vLfQfbTYMMLQRyxabqVFsWQG","canonical_membership":false,"member_committed_event":false,"review_api_visible":false,"review_ui_eligible":false,"evidence_completeness":"insufficient_for_deep_route","reason":"completed walkback returned LINEAGE_GAP; no prospective candidate was warranted"},
+    {"mint":"J9PVhNvGA1hXhHwmUUYQgHpPRxZch3cmCRzTnD6Dpump","review_lead_present":true,"generic_candidate_present":true,"candidate_id":"0b3e5315944cb78ee92351ff30ffd22abf32230d8239a81236bcb3360c13c9da","nomination_type":"RETAINED_DEEP_REVIEW","nomination_evidence_id":"ea22bc494360353bdc933b8509385db5b6756bae062ae9463496da96a5b0708d","assessment_present":true,"assessment_result":"QUALIFIED_PROSPECTIVE_MEMBER","assessment_id":"ea22bc494360353bdc933b8509385db5b6756bae062ae9463496da96a5b0708d","automatic_membership_allowed":false,"capital_continuity_result":"UNQUALIFIED","causal_witness_identity":"ea22bc494360353bdc933b8509385db5b6756bae062ae9463496da96a5b0708d","transaction_order_result":"retained block-time ordering","selected_upstream_state":"single selected route","admission_outcome_present":true,"admission_result":"REVIEW","admission_reason":"frozen_policy_positive","canonical_membership":false,"member_committed_event":false,"review_api_visible":true,"review_ui_eligible":true},
+    {"mint":"CMPksXm4H1otRyLEe8EZa7aL8iMKg4wsyFXxnLBopump","review_lead_present":true,"generic_candidate_present":true,"candidate_id":"58a89310bd68926cfa8c8253274424696b22ec583ebba7aba664f0c161936e1f","nomination_type":"RETAINED_DEEP_REVIEW","nomination_evidence_id":"ea22bc494360353bdc933b8509385db5b6756bae062ae9463496da96a5b0708d","assessment_present":true,"assessment_result":"QUALIFIED_PROSPECTIVE_MEMBER","assessment_id":"ea22bc494360353bdc933b8509385db5b6756bae062ae9463496da96a5b0708d","automatic_membership_allowed":false,"capital_continuity_result":"UNQUALIFIED","causal_witness_identity":"ea22bc494360353bdc933b8509385db5b6756bae062ae9463496da96a5b0708d","transaction_order_result":"retained block-time ordering","selected_upstream_state":"single selected route","admission_outcome_present":true,"admission_result":"REVIEW","admission_reason":"frozen_policy_positive","canonical_membership":false,"member_committed_event":false,"review_api_visible":true,"review_ui_eligible":true},
+    {"mint":"FErgMUvV6XeBJNm3v9DnqzxE4aqcMS3KRvXmps3epump","review_lead_present":false,"generic_candidate_present":false,"assessment_present":false,"admission_outcome_present":false,"current_state":"LINEAGE_GAP","walkback_path_state":"FAILED_TERMINAL","walkback_terminal":"FMsCqic72ySvMB3i8qAB6yzutRGYT2vfSwTmcN4NgXRN","canonical_membership":false,"member_committed_event":false,"review_api_visible":false,"review_ui_eligible":false,"evidence_completeness":"insufficient_for_deep_route","reason":"completed walkback returned LINEAGE_GAP; no prospective candidate was warranted"}
+  ],
+  "assessment_counts": {"qualified_prospective_member":2,"conflict":0,"insufficient_evidence":3,"other":0},
+  "admission_counts": {"review":2,"reject":0,"insufficient":3,"admit":0,"other":0},
+  "treasury_trace": {
+    "deep_ui_treasury_field_source": "None. The live /deep-review API projects only mint, candidate/assessment/admission fields, reason, causal witness, and observed time; operator_deep_review.html renders the same fields and contains no Treasury cell.",
+    "deep_ui_treasury_semantics": "Not defined for the Deep review read model. A legacy or canonical-operation Treasury display must not be treated as a Deep review field.",
+    "retained_route_semantics": "route_json.pool is a selected upstream pool, not a verified canonical Watchtower treasury. route_json.coordinator and route_json.distribution are intermediate route roles.",
+    "per_mint": [
+      {"mint":"BJDfhK6xJhj9Ln7PXCFZL6ZofEXfuDAo9cAmKCFvpump","ui_treasury_value":null,"retained_treasury_value":null,"selected_upstream_value":null,"upper_witness_value":null,"capital_continuity_anchor":null,"source":"wt_walkback_queue/attribution_outcomes: LINEAGE_GAP"},
+      {"mint":"9zriPbmELWGzEqEJH29qQY4TZ4xVMQLVLXV3RtSDpump","ui_treasury_value":null,"retained_treasury_value":null,"selected_upstream_value":null,"upper_witness_value":null,"capital_continuity_anchor":null,"source":"wt_walkback_queue/attribution_outcomes: LINEAGE_GAP"},
+      {"mint":"J9PVhNvGA1hXhHwmUUYQgHpPRxZch3cmCRzTnD6Dpump","ui_treasury_value":null,"retained_treasury_value":null,"selected_upstream_value":"6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ","upper_witness_value":"HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY","capital_continuity_anchor":"ea22bc494360353bdc933b8509385db5b6756bae062ae9463496da96a5b0708d","source":"wt_deep_route_review_leads.route_json"},
+      {"mint":"CMPksXm4H1otRyLEe8EZa7aL8iMKg4wsyFXxnLBopump","ui_treasury_value":null,"retained_treasury_value":null,"selected_upstream_value":"6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ","upper_witness_value":"HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY","capital_continuity_anchor":"ea22bc494360353bdc933b8509385db5b6756bae062ae9463496da96a5b0708d","source":"wt_deep_route_review_leads.route_json"},
+      {"mint":"FErgMUvV6XeBJNm3v9DnqzxE4aqcMS3KRvXmps3epump","ui_treasury_value":null,"retained_treasury_value":null,"selected_upstream_value":null,"upper_witness_value":null,"capital_continuity_anchor":null,"source":"wt_walkback_queue/attribution_outcomes: LINEAGE_GAP"}
+    ],
+    "retained_treasury_but_ui_blank_count":0,
+    "genuinely_unresolved_count":3,
+    "genuinely_unresolved_mints":["BJDfhK6xJhj9Ln7PXCFZL6ZofEXfuDAo9cAmKCFvpump","9zriPbmELWGzEqEJH29qQY4TZ4xVMQLVLXV3RtSDpump","FErgMUvV6XeBJNm3v9DnqzxE4aqcMS3KRvXmps3epump"],
+    "ui_projection_gap_count":0,
+    "evidence_gap_count":3,
+    "verdicts": {"BJDfhK6xJhj9Ln7PXCFZL6ZofEXfuDAo9cAmKCFvpump":"GENUINELY_UNRESOLVED","9zriPbmELWGzEqEJH29qQY4TZ4xVMQLVLXV3RtSDpump":"GENUINELY_UNRESOLVED","J9PVhNvGA1hXhHwmUUYQgHpPRxZch3cmCRzTnD6Dpump":"ROLE_SEMANTICS_DO_NOT_REQUIRE_TREASURY","CMPksXm4H1otRyLEe8EZa7aL8iMKg4wsyFXxnLBopump":"ROLE_SEMANTICS_DO_NOT_REQUIRE_TREASURY","FErgMUvV6XeBJNm3v9DnqzxE4aqcMS3KRvXmps3epump":"GENUINELY_UNRESOLVED"},
+    "root_cause":"No blank Treasury field exists in the dedicated Deep review API/UI. Three controls have retained LINEAGE_GAP evidence and no Deep route. Two qualified controls have a retained route but deliberately no claimed canonical treasury; their review qualification is route-shape-only and capital continuity remains UNQUALIFIED.",
+    "blank_treasury_blocks_review_qualification": false,
+    "displayed_treasury_required_for_capital_continuity": false,
+    "qualified_with_blank_treasury_count":2,
+    "qualified_blank_treasury_explanation":"Both qualified records retain a single selected pool/coordinator/distribution route and ordered signatures, which is sufficient only for QUALIFIED_PROSPECTIVE_MEMBER → REVIEW. It does not establish capital continuity or canonical treasury identity.",
+    "manual_approval_impact":"A blank legacy Treasury presentation is not a Deep-review UI defect. The two REVIEW records still carry UNQUALIFIED capital continuity; a future manual approval must apply its separate evidence contract and cannot infer a treasury from the Deep route."
+  },
+  "ordering": {"result":"The two Deep reviews retain selected transaction block times and signatures in route_json; no slots or getBlock ordinal evidence is retained for this audit.","historical_slot_lookup_count":0,"historical_getblock_count":0,"provider_calls_made":0},
+  "review_api": {"authoritative_storage_review_count":5,"authoritative_storage_review_mints":["J9PVhNvGA1hXhHwmUUYQgHpPRxZch3cmCRzTnD6Dpump","CMPksXm4H1otRyLEe8EZa7aL8iMKg4wsyFXxnLBopump","7tPks6AbTE2Kz4KkxxVYN9sBETMtzSL5Kqj2jbrXpump","GSdjYaqG2TBLX9kAZxKrTpeaZwRZXr15vp1fxAHnpump","7XomEJBtb1EiF4Z8ZVzspCKFW2UuaRkaiq3AJJCFpump"],"five_current_review_count":2,"five_current_review_mints":["J9PVhNvGA1hXhHwmUUYQgHpPRxZch3cmCRzTnD6Dpump","CMPksXm4H1otRyLEe8EZa7aL8iMKg4wsyFXxnLBopump"],"live_api_review_count":5,"storage_review_not_in_api":[],"api_review_not_in_storage":[]},
+  "comparison_with_prior3": {"prior_mints":["GSdjYaqG2TBLX9kAZxKrTpeaZwRZXr15vp1fxAHnpump","7XomEJBtb1EiF4Z8ZVzspCKFW2UuaRkaiq3AJJCFpump","7tPks6AbTE2Kz4KkxxVYN9sBETMtzSL5Kqj2jbrXpump"],"common_with_fresh_qualified_pair":"All five review rows share the same retained Deep route digest, REVIEW_ONLY authority, QUALIFIED_PROSPECTIVE_MEMBER assessment, REVIEW result, and zero canonical membership.","material_difference":"Fresh population also includes three completed LINEAGE_GAP controls. This is an explicit rejected/insufficient upstream walkback result, not a silent Deep candidate."},
+  "watchtower_health": {"current_canonical_membership_count":26,"current_wt_24h":0,"current_wt_7d":0,"current_wt_30d":0,"current_wt_last_launch":"not recomputed in this bounded Deep audit","watchtower_zero_silence_status":"PASS for the five controls: each completed with a durable terminal result; no canonical membership was expected or created.","dev018_runtime_regression":"PASS: no source, runtime, policy, or process mutation occurred."},
+  "decision": {"fresh5_deep_pipeline_status":"PARTIAL","fresh5_prospective_acceptance":"NOT_APPLICABLE: only 2 of 5 controls qualified for Deep REVIEW; the other 3 have explicit LINEAGE_GAP outcomes.","next_gate":"REVIEW_DEV019_DEEP_TREASURY_SEMANTICS","next_action":"Keep Deep REVIEW-only. If a Treasury label is desired outside the dedicated Deep page, define its role explicitly; do not project pool as canonical treasury and do not reopen capital continuity from this evidence alone."},
+  "safety_accounting": {"live_db_writes":0,"solana_rpc_calls":0,"helius_calls":0,"birdeye_calls":0,"pumpportal_calls":0,"other_provider_calls":0,"process_starts":0,"process_stops":0,"process_restarts":0,"source_changes":0,"schema_changes":0,"deep_admission_policy_changes":0,"manual_approval_records_created":0,"manual_admit_decisions_created":0,"deep_membership_writes":0,"deep_member_committed_events":0,"historical_26_global_recovery_scan":false}
+}

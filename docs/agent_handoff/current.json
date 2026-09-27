@@ -1,4 +1,15 @@
 {
+  "dev019_retention_pinned_deployment_contract_v2_20260927": {
+    "engineering_revision": "145af177528bba8c34844846cd3e54b8656edd6b on dev/019-prospective-deep",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "verdict": "RUNTIME_DEPLOYMENT_GATE=QUALIFIED_NOT_DEPLOYED",
+    "result": "Current pinned Walkback baseline reverified: PID 87523, expected flex-walkback-dev002 cwd, HEAD afbe9e58, expected DEV-018/DEV-019 changes only, zero unknown drift, and all five retention schema tables absent. Exact closure remains worker preflight seam plus prospective_anchor_order_retention module; no API, DEV022, manual-approval, or governance files are included.",
+    "qualification": "25 provider-free tests pass. Runtime preflight is read-only; missing schema yields SCHEMA_NOT_READY with zero retention writes while V1 REVIEW persists. V2 automatic admission remains off; no retention membership/event/provider writes exist. The additive schema is old-runtime compatible and queue staging is bounded/fail-closed.",
+    "artifact": "docs/audits/dev_019_prospective_retention_pinned_runtime_deployment_contract.v2.json sha256 d8d773bd4b2d4240cbb4d7e8a5711a90c0446de5e9574f672b3a2f40e13bd201",
+    "next_action": "AUTHORIZE_DEV019_PROSPECTIVE_RETENTION_DEPLOYMENT only if desired: additive schema/verification first, exact hash-verified two-file closure preserving deployed DEV-018/DEV-019 hunks, target tests, one restart, identity verification, and bounded V1-only observation. Do not enable V2 or a provider consumer.",
+    "safety": "live DB writes=0; provider calls=0; process starts/stops/restarts=0; API changes=0; V2=false; pinned runtime untouched.",
+    "updated_at": "2026-09-27T09:15:00Z"
+  },
   "dev019_retention_schema_preflight_repair_20260927": {
     "engineering_revision": "ff272fdac5e56aba90e260faf11032cbd874d671 on dev/019-prospective-deep",
     "status": "QUALIFIED_NOT_DEPLOYED",

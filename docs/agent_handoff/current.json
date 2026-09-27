@@ -1,4 +1,14 @@
 {
+  "dev019_source_only_contract_v2_harness_amendment_20260927": {
+    "engineering_revision":"4892edf79ed01e575555f91ca8310e047817454e on dev/019-prospective-deep",
+    "status":"QUALIFIED_NOT_DEPLOYED",
+    "verdict":"AMENDED_SOURCE_ONLY_CONTRACT_V2_COMPLETE_HARNESS_CLOSURE",
+    "result":"Fresh isolated harness reproduced the exact frozen 25 tests successfully after adding only two proven missing harness support modules: transaction_order.py (045ead...b10) and watchtower_deep_historical.py (416f2e...6d4). Result 25 passed, 0 failed; candidate postimages remain worker a45ccc...5b9 and retention module 50cd80...6b6. Runtime deployment closure remains exactly two files; harness-only support additions do not expand it.",
+    "artifact":"docs/audits/dev_019_prospective_retention_source_only_deployment_contract.v2.json sha256 0542fff2e9a99cafa8ee18afe59a9e5c868866497abd69d87320aa098de8daa6",
+    "next_action":"Request fresh explicit authorization for this exact V2 contract before any source-only deployment. Verify source preimages/schema READY, run fresh amended harness, then atomic two-file deployment and at most one Walkback restart.",
+    "safety":"live runtime/schema/provider/process/membership/event/API changes=0; V2=false; authorized=false.",
+    "updated_at":"2026-09-27T10:30:00Z"
+  },
   "dev019_source_only_execution_predeploy_hold_20260927": {
     "engineering_revision":"56b803d0f9829133c54637881ccc61de9c55b99b on dev/019-prospective-deep",
     "status":"HOLD",

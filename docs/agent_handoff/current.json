@@ -1,4 +1,14 @@
 {
+  "dev019_natural_retention_observation_20260927": {
+    "engineering_revision":"5a72971dbb4bc3cf3ef811a064024dcef2909e69 on dev/019-prospective-deep",
+    "status":"HOLD",
+    "verdict":"NATURAL_RETENTION_ACCEPTANCE_BOUNDARY_UNVERIFIABLE",
+    "result":"Read-only snapshot: deployed worker PID 70327 healthy with exact V4 hashes and schema READY. All five retention tables remain empty; no consumer exists. Deep retains five explicit QUALIFIED_PROSPECTIVE_MEMBER -> REVIEW outcomes, ADMIT=0, member events=0. The V4 execution audit failed to record an exact activation timestamp, so post-activation-only accounting cannot classify natural rows without prohibited approximation from process start.",
+    "artifact":"docs/audits/dev_019_natural_prospective_retention_observation.v1.json",
+    "next_action":"RECORD_AN_EXACT_ACTIVATION_BOUNDARY_OR_AUTHORIZE_A_NEW_FUTURE_ONLY_OBSERVATION_WINDOW_THEN_REOBSERVE. Do not consume intents, enable V2, or change runtime.",
+    "safety":"audit DB writes/provider calls/process actions=0; V2=false; retention tables empty; memberships/events=0.",
+    "updated_at":"2026-09-27T10:28:04Z"
+  },
   "dev019_source_only_v4_deployment_execution_20260927": {
     "engineering_revision":"1fa6ef865c7e1e8fcab1f512636de0a1a29ba89d on dev/019-prospective-deep",
     "status":"PASS",

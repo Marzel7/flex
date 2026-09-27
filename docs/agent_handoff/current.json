@@ -1,4 +1,14 @@
 {
+  "monitor_membership_outbox_bounded_consumer_20260927": {
+    "engineering_revision":"d64809b9ac5c550f396213aabc221d5135813632 on dev/monitor-live-admission",
+    "status":"QUALIFIED_NOT_DEPLOYED",
+    "verdict":"ATOMIC_SOURCE_SEAM_AND_BOUNDED_CONSUMER_PROVIDER_FREE_QUALIFIED",
+    "result":"Watchtower's live-reachable canonical writer now has an isolated same-source-DB seam: membership plus compact outbox commit atomically, with 100% identified Watchtower writer coverage. A bounded consumer claims one source event, commits/releases source ownership, writes the real MonitorQueue, then separately acknowledges source. Deep remains REVIEW-only with zero outbox; the generic seam supports a future separately authorized canonical Deep path. Provider-free suite: 11 passed, 0 failed.",
+    "artifact":"monitor_live_admission_multi_domain_deployment_contract.v1.json sha256 0b46130e1e86c86fa7ff2f85d684d478d5f7b2c84c8e7ed17a3b17956ab3a0db; authorized=false",
+    "next_action":"QUALIFY_EXACT_BRIDGE_LAUNCHER_AND_FREEZE_HASHED_MULTI_DOMAIN_EXECUTION_CONTRACT_THEN_REQUEST_EXPLICIT_DEPLOYMENT_AUTHORIZATION. Do not deploy, start a process, apply schema, or backfill under this qualification.",
+    "safety":"live source/schema/DB/provider/process/backfill actions=0; cross-domain transaction=false; Deep REVIEW outbox=0; existing monitor facts/candles unchanged.",
+    "updated_at":"2026-09-27T15:45:00Z"
+  },
   "monitor_live_membership_producer_seam_20260927": {
     "engineering_revision":"2fc7daa330f955e199854ab863c5d024967470d8 on dev/monitor-live-admission",
     "status":"HOLD",

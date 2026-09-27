@@ -1,4 +1,14 @@
 {
+  "dev019_postcopy_harness_import_layout_20260927": {
+    "engineering_revision":"6ff48b575e24d7291dab71bc8c5e8c2ffae980b5 on dev/019-prospective-deep",
+    "status":"QUALIFIED_NOT_DEPLOYED",
+    "verdict":"POSTCOPY_MIXED_IMPORT_LAYOUT_QUALIFIED_V3_CONTRACT_UNAUTHORIZED",
+    "result":"The V2 postcopy failure was package-root shadowing: src is a regular package, so running from pinned cwd wins over later PYTHONPATH and hides external src.ops support. A fresh test-only combined simulation (pinned source base + exact two postimages + byte-verified frozen support modules) ran 25/25. Modified modules and support modules resolved from the simulation only; runtime deployment closure remains exactly two files.",
+    "artifact":"docs/audits/dev_019_postcopy_external_harness_import_layout_qualification.v1.json; V3 contract docs/audits/dev_019_prospective_retention_source_only_deployment_contract.v3.json",
+    "next_action":"Request fresh explicit authorization for V3. Postcopy harness must execute from external cwd against a fresh combined simulation, never from the pinned cwd; then source-only deployment may restart Walkback at most once if every gate passes.",
+    "safety":"live source/schema/process/provider/membership/event changes=0; V2=false; V3 authorized=false.",
+    "updated_at":"2026-09-27T10:45:00Z"
+  },
   "dev019_source_only_contract_v2_harness_amendment_20260927": {
     "engineering_revision":"4892edf79ed01e575555f91ca8310e047817454e on dev/019-prospective-deep",
     "status":"QUALIFIED_NOT_DEPLOYED",

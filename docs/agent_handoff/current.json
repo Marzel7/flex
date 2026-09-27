@@ -1,4 +1,14 @@
 {
+  "runtime_dataflow_liveness_governance_20260927": {
+    "engineering_revision":"5de319641057ec99a7f35fc7e17b2086a8bcc357 on codex/runtime-dataflow-liveness",
+    "status":"PASS",
+    "verdict":"RUNTIME_DATAFLOW_LIVENESS_GATE_V1_ADDED_AND_CURRENT_PIPELINE_PASS",
+    "result":"Governance-only isolated worktree /private/tmp/flex-runtime-dataflow-governance clean at start. Added permanent gate: process/restart/code identity alone cannot establish a valid zero-activity conclusion; bounded internal upstream, handoff, worker consumption, environment and silent-failure evidence is required. Current evidence PASS: Walkback PID 70327 HEALTHY, heartbeat current with 29 completions last hour/zero queue/write failures; ws_cascade LIVE with 643 confirmed subscriptions, 2072 processed signatures and zero runtime validation failures.",
+    "artifact":"docs/audits/runtime_dataflow_liveness_gate_audit.v1.json on codex/runtime-dataflow-liveness",
+    "next_action":"Merge or otherwise adopt governance branch before treating this gate as repository default. DEV-019 future-only Deep retention observation remains active after T0 and is WAITING_FOR_NATURAL_ACTIVITY, but generic pipeline liveness is proven.",
+    "safety":"read-only runtime audit; provider calls/DB writes/process actions=0; no DEV-019 source/schema change.",
+    "updated_at":"2026-09-27T10:31:00Z"
+  },
   "dev019_future_only_retention_boundary_20260927": {
     "engineering_revision":"858b3887be79f9a907328bd0ce8ee53a75d790c5 on dev/019-prospective-deep",
     "status":"ACTIVE_OBSERVATION",

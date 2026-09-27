@@ -1,4 +1,14 @@
 {
+  "monitor_bridge_pressure_storage_audit_20260927": {
+    "engineering_revision":"0a6548931e3732649eb41417c8dd77dfce1bb556 on dev/monitor-live-admission",
+    "status":"HOLD",
+    "verdict":"BRIDGE_IDLE_WRITE_PRESSURE_AND_HISTORICAL_STORAGE_BOUNDARY_UNQUALIFIED",
+    "result":"Read-only audit confirms active bridge is idle, low CPU, and makes no monitor-domain access when empty; however every five-second empty poll executes the stale-CLAIMED recovery UPDATE and commits in the source DB before the empty SELECT. Source WAL mtime advanced during a 60-second empty observation. The source DB is already 9,877,041,152 bytes, above the 500MB project ceiling, and no verified absolute historical-price database/WAL cap exists.",
+    "artifact":"monitor_bridge_db_pressure_and_price_storage_audit.v1.json sha256 491d68871408d1b07fba96ee2f531ccff40b5cb44f5abda1f9ff576c0ce27114",
+    "next_action":"REVIEW_BRIDGE_CADENCE_DB_PRESSURE_AND_REPAIR_HISTORICAL_PRICE_STORAGE_BOUNDARY. Do not change cadence, schema, storage, providers, or processes under this audit.",
+    "safety":"read-only; source/schema/DB/provider/process/Supervisor/backfill mutations=0.",
+    "updated_at":"2026-09-27T16:30:00Z"
+  },
   "monitor_live_admission_v3_execution_20260927": {
     "engineering_revision":"9af2f21ad719260e0b77e27630b20bebd4fb4ebe on dev/monitor-live-admission",
     "status":"ACTIVE_OBSERVATION",

@@ -1,4 +1,14 @@
 {
+  "historical_price_runtime_audit_watchtower_deep_20260927": {
+    "engineering_revision":"7d48290b4e0a319a55a02d616977d51ec5e4540c on dev/019-prospective-deep",
+    "status":"HOLD",
+    "verdict":"PRICE_RUNTIME_DEPLOYED_RUNNING_CURRENT_DATAFLOW_UNPROVEN",
+    "result":"operation_monitor_worker is RUNNING (PID 7851); code retains completed 15m OHLC in operation_monitor_observations and facts in operation_monitor_facts. Historical retained coverage exists but is sparse/stale: WATCHTOWER 516 canonical, 3 with candles/20 total (0.58%); DEEP 26 canonical, 1 with candles/13 total (3.85%). No candles in 1h/24h/7d; latest WATCHTOWER candle 1789677900 and DEEP 1790167500. Active facts exist but current price input-to-completion liveness is not proven.",
+    "artifact":"docs/audits/dev_historical_price_runtime_audit_watchtower_deep.v1.json",
+    "next_action":"QUALIFY_PRICE_MONITOR_INPUT_TO_COMPLETION_LIVENESS_WITH_BOUNDED_INTERNAL_QUEUE/METRIC_EVIDENCE. Do not fetch/backfill, restart, or mutate runtime under this audit result.",
+    "safety":"provider calls/DB writes/source/schema/process actions/manual backfill=0; raw provider/transaction/block retention=false.",
+    "updated_at":"2026-09-27T10:32:00Z"
+  },
   "runtime_dataflow_liveness_governance_20260927": {
     "engineering_revision":"5de319641057ec99a7f35fc7e17b2086a8bcc357 on codex/runtime-dataflow-liveness",
     "status":"PASS",

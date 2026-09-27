@@ -1,4 +1,14 @@
 {
+  "monitor_live_admission_execution_contract_v3_20260927": {
+    "engineering_revision":"41f66ebe75b1e29ef83768b85b4614094889548f on dev/monitor-live-admission",
+    "status":"QUALIFIED_NOT_DEPLOYED",
+    "verdict":"V3_COMPLETE_MULTI_DOMAIN_PREIMAGE_POSTIMAGE_CLOSURE_UNAUTHORIZED",
+    "result":"V3 literally binds V2/hold/qualification lineage, five exact source/config targets, every existing preimage, every new-file absence, every postimage, additive source schema identity, frozen process actions, rollback, and natural T0 boundary. The producer postimage was assembled from the current pinned baseline to retain deployed DEV-018/DEV-019 behavior. Isolated candidate suite passed 12/12 with zero provider calls; no live mutation occurred.",
+    "artifact":"monitor_live_admission_multi_domain_execution_contract.v3.json sha256 968a63de8187f797e987014f40be4e20e1d79c4bb05528b59765eb8ddf822c4d; authorized=false",
+    "next_action":"REQUEST_FRESH_EXPLICIT_DEPLOYMENT_AUTHORIZATION_REFERENCING_EXACT_V3_SHA, then reverify all target preimages/absences and execute only V3's staged sequence. Do not deploy, apply schema, or alter processes without that authorization.",
+    "safety":"live source/schema/DB/provider/process/Supervisor/backfill mutations=0; deployment_authorized=false.",
+    "updated_at":"2026-09-27T16:45:00Z"
+  },
   "monitor_live_admission_v2_execution_preflight_20260927": {
     "engineering_revision":"060a530f05084673aa4eeefa981c901872cafa01 on dev/monitor-live-admission",
     "status":"HOLD",

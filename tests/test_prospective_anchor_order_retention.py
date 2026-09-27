@@ -24,3 +24,7 @@ def test_same_slot_ordinal_and_missing_fail_closed():
     c=db(); slot(c,'p',1); slot(c,'c',1); assert assess_order(c,'p','c')['state']=='INSUFFICIENT_EVIDENCE'
     ordinal(c,'p',1,1); ordinal(c,'c',1,2); assert assess_order(c,'p','c')['state']=='PARENT_BEFORE_CHILD'
     c=db(); slot(c,'p',1); slot(c,'c',1); ordinal(c,'p',1,2); ordinal(c,'c',1,1); assert assess_order(c,'p','c')['state']=='PARENT_AFTER_CHILD'
+def test_missing_slot_intents_are_idempotent_and_local_first():
+    c=db(); ids=stage_missing_slot_intents(c,operation_id='op',mint='m',parent_signature='p',child_signature='c',source_evidence_id='route',now=1)
+    assert len(ids)==2 and len(stage_missing_slot_intents(c,operation_id='op',mint='m',parent_signature='p',child_signature='c',source_evidence_id='route',now=2))==2
+    slot(c,'p',1); assert len(stage_missing_slot_intents(c,operation_id='op',mint='next',parent_signature='p',child_signature='c',source_evidence_id='route',now=3))==1

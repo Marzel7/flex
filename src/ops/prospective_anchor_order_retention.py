@@ -60,11 +60,17 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
       semantic_version TEXT NOT NULL, established_at INTEGER NOT NULL,
       UNIQUE(parent_signature,child_signature,parent_slot_evidence_id,child_slot_evidence_id,parent_ordinal_evidence_id,child_ordinal_evidence_id,semantic_version)
     );
+    CREATE TABLE IF NOT EXISTS prospective_slot_acquisition_intents (
+      intent_id TEXT PRIMARY KEY, operation_id TEXT NOT NULL, mint TEXT NOT NULL,
+      signature TEXT NOT NULL, source_evidence_id TEXT NOT NULL,
+      semantic_version TEXT NOT NULL, status TEXT NOT NULL, created_at INTEGER NOT NULL,
+      UNIQUE(operation_id,mint,signature,source_evidence_id,semantic_version)
+    );
     """)
 
 
 def _guard(conn: sqlite3.Connection, incoming: int = 1) -> None:
-    tables = ("immutable_operation_causal_anchors", "prospective_signature_slots", "prospective_transaction_ordinals", "prospective_order_links")
+    tables = ("immutable_operation_causal_anchors", "prospective_signature_slots", "prospective_transaction_ordinals", "prospective_order_links", "prospective_slot_acquisition_intents")
     rows = sum(conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0] for t in tables)
     if rows + incoming > HARD_STORAGE_BYTES // MAX_COMPACT_RECORD_BYTES:
         raise RuntimeError("PROSPECTIVE_EVIDENCE_STORAGE_LIMIT_REACHED")
@@ -126,3 +132,25 @@ def assess_anchor_continuity(conn: sqlite3.Connection, candidate: Mapping) -> di
     rows = conn.execute("SELECT anchor_id FROM immutable_operation_causal_anchors WHERE operation_id=? AND route_type=? AND route_semantic_version=? AND role_left=? AND role_right=? AND causal_direction=? AND source_evidence_id=? AND ordering_evidence_id=?", tuple(candidate[k] for k in required)).fetchall()
     if not rows: return {"state": "INSUFFICIENT_EVIDENCE", "reason": "no_matching_immutable_anchor"}
     return {"state": "QUALIFIED", "anchor_id": rows[0][0]}
+
+
+def stage_missing_slot_intents(conn: sqlite3.Connection, *, operation_id: str, mint: str,
+                               parent_signature: str, child_signature: str,
+                               source_evidence_id: str, now: int) -> list[str]:
+    """Durably stage at most one future getTransaction intent per known signature.
+
+    This is provider-free: an authorized runner must consume the compact intent
+    later, with one request and zero retries.  Existing local slot records are
+    never re-requested.
+    """
+    ensure_schema(conn)
+    _guard(conn, 2)
+    ids=[]
+    for signature in (parent_signature, child_signature):
+        _compact(signature); _compact(source_evidence_id)
+        if conn.execute("SELECT 1 FROM prospective_signature_slots WHERE signature=?", (signature,)).fetchone():
+            continue
+        iid=_id("KNOWN_SIGNATURE_SLOT_INTENT_V1", operation_id, mint, signature, source_evidence_id)
+        conn.execute("INSERT OR IGNORE INTO prospective_slot_acquisition_intents VALUES(?,?,?,?,?,?,?,?)", (iid, operation_id, mint, signature, source_evidence_id, SLOT_VERSION, "PENDING_AUTHORIZED_ACQUISITION", int(now)))
+        ids.append(iid)
+    return ids

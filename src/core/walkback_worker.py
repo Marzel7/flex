@@ -857,12 +857,20 @@ def _review_deep_routes_after_commit(ops: sqlite3.Connection) -> None:
         return
     try:
         from src.ops.operation_admission_adapter import record_review_only_candidate
+        from src.ops.prospective_anchor_order_retention import stage_missing_slot_intents
         from src.ops.watchtower_deep_prospective import DEEP_OPERATOR_ID
         from src.ops.watchtower_deep_review import persist_review_lead, run_review_sweep_page
         def _publish(mint: str, route_assessment: dict) -> None:
             review = persist_review_lead(ops, mint, route_assessment)
             if review.get("action") != "review_lead_recorded": return
             digest = review["route_digest"]
+            route = route_assessment["route"]
+            # Future-only retention seam: known signatures become bounded,
+            # provider-free acquisition intents. No RPC is performed here and
+            # V1 remains REVIEW-only until authoritative evidence is retained.
+            stage_missing_slot_intents(ops, operation_id=DEEP_OPERATOR_ID, mint=mint,
+                parent_signature=route["pool_signature"], child_signature=route["upper_signature"],
+                source_evidence_id=digest, now=int(time.time()))
             nomination = {"operation_id": DEEP_OPERATOR_ID, "mint": mint, "nomination_type": "RETAINED_DEEP_REVIEW", "nomination_semantic_version": "WATCHTOWER_DEEP_NOMINATION_V1", "nomination_evidence_id": digest}
             assessment = {"state": "QUALIFIED_PROSPECTIVE_MEMBER", "assessment_id": digest, "semantic_version": "WATCHTOWER_DEEP_ASSESSMENT_V1", "causal_witness_id": digest, "capital_continuity_id": digest, "transaction_order_id": digest, "evidence_complete": True}
             policy = {"policy_id": "WATCHTOWER_DEEP_ADMISSION_POLICY_V1", "policy_version": "v1", "required_assessment_outcome": "QUALIFIED_PROSPECTIVE_MEMBER", "positive_action": "REVIEW"}

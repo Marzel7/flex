@@ -1,4 +1,14 @@
 {
+  "dev019_source_only_contract_v4_provenance_repair_20260927": {
+    "engineering_revision":"b30263d712bec1723b2d4e2b9193fe76973ec738 on dev/019-prospective-deep",
+    "status":"QUALIFIED_NOT_DEPLOYED",
+    "verdict":"V4_LITERAL_POSTCOPY_PROVENANCE_BOUND_SEMANTICS_IDENTICAL_TO_V3",
+    "result":"V4 preserves V3 deployment semantics byte-for-canonical-payload (excluding version and new provenance metadata) and explicitly binds postcopy engineering commit 6ff48b575e24d7291dab71bc8c5e8c2ffae980b5, handoff 05428248, qualification audit, and V3 parent SHA. authorized=false; runtime closure/schema/harness/rollback/policy are unchanged.",
+    "artifact":"docs/audits/dev_019_prospective_retention_source_only_deployment_contract.v4.json sha256 0c1625e716c33af9950a288ab5d9fdd93ca7a91c27884afcad3bf04a8c29984c",
+    "next_action":"Request fresh explicit authorization referencing exact V4 SHA before any source-only deployment. Verify preimages and schema READY, use external-cwd combined postcopy harness, then deploy two files and restart Walkback at most once.",
+    "safety":"live source/schema/process/provider/membership/event/API changes=0; V2=false; authorized=false.",
+    "updated_at":"2026-09-27T11:00:00Z"
+  },
   "dev019_postcopy_harness_import_layout_20260927": {
     "engineering_revision":"6ff48b575e24d7291dab71bc8c5e8c2ffae980b5 on dev/019-prospective-deep",
     "status":"QUALIFIED_NOT_DEPLOYED",

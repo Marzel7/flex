@@ -1,0 +1,96 @@
+{
+  "schema_version": "dev_019_automatic_prospective_deep_admission_v2_qualification.v1",
+  "recorded_at": "2026-09-27T08:29:44Z",
+  "mode": "READ_ONLY_PROVIDER_FREE_POLICY_QUALIFICATION",
+  "engineering_revision": "3c65b3cd5d8f2b642141855542a957c8ba67a9cb",
+  "verdict": "HOLD_V2_AUTOMATIC_ADMIT_NOT_QUALIFIED",
+  "direction": "Automatic prospective admission remains a valid desired architecture, but no V2 automatic policy may be implemented or deployed from the current evidence contract.",
+  "frozen_population": {
+    "current_review_count": 5,
+    "current_review_mints": ["J9PVhNvGA1hXhHwmUUYQgHpPRxZch3cmCRzTnD6Dpump","CMPksXm4H1otRyLEe8EZa7aL8iMKg4wsyFXxnLBopump","7tPks6AbTE2Kz4KkxxVYN9sBETMtzSL5Kqj2jbrXpump","GSdjYaqG2TBLX9kAZxKrTpeaZwRZXr15vp1fxAHnpump","7XomEJBtb1EiF4Z8ZVzspCKFW2UuaRkaiq3AJJCFpump"],
+    "current_canonical_count": 26,
+    "current_reject_count": 0,
+    "current_insufficient_count": 0,
+    "review_canonical_overlap": []
+  },
+  "operation_semantics": {
+    "definition": "WATCHTOWER_DEEP is a prospective, noncanonical operation candidate whose membership claim must be grounded in independently qualified causal structure: lower lineage, an unambiguous selected upstream route, a directional bridge, required ordering, no conflict, and a noncircular operation anchor. It has no qualified Treasury role.",
+    "required_facts_for_automatic_membership": ["qualified Deep lineage and lower route","unambiguous selected upstream route with immutable route evidence","qualified directional causal bridge","qualified required ordering","no selected-upstream conflict","complete evidence","immutable, independently qualified operation causal-route anchor","CAPITAL_CONTINUITY_CAUSAL_ROUTE_V1 qualified against that immutable anchor"],
+    "supporting_or_diagnostic_only": ["WSOL_WRAP_CLOSE as creator-side mechanism/endpoint","display labels","historic membership counts"],
+    "deep_treasury_required_for_membership": false,
+    "canonical_label_used_as_v2_evidence": false,
+    "historical_label_fitting": false,
+    "hardcoded_wallet_count": 0,
+    "hardcoded_amount_count": 0,
+    "hardcoded_mint_count": 0
+  },
+  "candidate_v2_input_contract": {
+    "name": "WATCHTOWER_DEEP_ADMISSION_POLICY_V2_INPUT",
+    "required_immutable_fields": ["candidate_id","operation_id","mint","nomination_semantic_version","nomination_evidence_id","assessment_id","assessment_semantic_version","selected_route_identity","lower_signature_identity","upper_signature_identity","causal_bridge_identity","transaction_order_identity","conflict_state","evidence_completeness","policy_id","policy_version"],
+    "required_qualified_results": ["lineage=QUALIFIED","selected_upstream=QUALIFIED","causal_bridge=QUALIFIED","capital_continuity=QUALIFIED","transaction_order=QUALIFIED","conflict_state=NONE","evidence_completeness=COMPLETE","anchor=IMMUTABLE_AND_INDEPENDENT"],
+    "prohibited_fields": ["operator_launch_membership membership state","mutable registry lookup as evidence","historical canonical label","Treasury label or inferred Treasury","wallet/amount/mint allow-list"],
+    "mutable_registry_state_in_v2_evidence": false,
+    "canonical_membership_state_in_v2_evidence": false
+  },
+  "gate_analysis": {
+    "lineage": {"required": true,"lineage_alone_can_admit": false,"lineage_gap_result": "INSUFFICIENT_EVIDENCE or REJECT by positive contradiction; never ADMIT"},
+    "selected_upstream": {"definition": "immutable route {pool, coordinator, distribution, pool_signature, upper_signature, times, amounts} identified by a digest", "required": true,"conflict_result": "REJECT; never ADMIT"},
+    "capital_continuity": {"primitive": "CAPITAL_CONTINUITY_CAUSAL_ROUTE_V1", "qualified_definition": "assessor-proven candidate (pool, coordinator) exactly equals an independently retained, immutable canonical causal-route anchor", "required": true,"unqualified_can_auto_admit": false,"conflict_can_auto_admit": false,"current_problem": "operation_route_anchors currently enumerates operator_launch_membership and recomputes anchors from those mutable canonical rows. That is useful read-only context but cannot satisfy this V2 input contract's noncircular immutable-anchor requirement."},
+    "ordering": {"required_semantics": "Parent causal event must precede child: authoritative different-slot comparison is sufficient; equal slots require a qualified transaction ordinal; block time and signature order are not substitutes.", "block_time_ordering_sufficient_for_v2": false,"same_slot_without_ordinal_result": "INSUFFICIENT_EVIDENCE; never ADMIT","different_slot_rule": "QUALIFIED only where compact authoritative parent and child slots prove parent before child","unknown_required_order_can_auto_admit": false,"current_problem": "Current Deep review routes retain block times and signatures but not compact parent/child slot records or transaction ordinals."}
+  },
+  "current_review_v2_simulation": {
+    "method": "Read-only conceptual application of the proposed strict conjunction; no V2 code or outcomes were written.",
+    "lineage_selected_route_bridge": "5/5 route predicate positive",
+    "continuity_readonly_context": "5/5 currently return QUALIFIED from CAPITAL_CONTINUITY_CAUSAL_ROUTE_V1, but its anchor source is mutable membership enumeration and is therefore ineligible as V2 automatic-admit evidence.",
+    "ordering": "5/5 INSUFFICIENT for V2: only block-time route ordering is retained; no authoritative compact slot/ordinal pair.",
+    "full_v2_evidence_count": 0,
+    "full_v2_evidence_mints": [],
+    "simulated_admit_count": 0,
+    "simulated_review_count": 0,
+    "simulated_reject_count": 0,
+    "simulated_insufficient_count": 5,
+    "simulated_reason": "missing_immutable_anchor_and_required_ordinal_order",
+    "live_admit_count": 0
+  },
+  "negative_controls": {
+    "fresh3_lineage_gap": {"mints":["BJDfhK6xJhj9Ln7PXCFZL6ZofEXfuDAo9cAmKCFvpump","9zriPbmELWGzEqEJH29qQY4TZ4xVMQLVLXV3RtSDpump","FErgMUvV6XeBJNm3v9DnqzxE4aqcMS3KRvXmps3epump"],"durable_state":"LINEAGE_GAP; no Deep candidate/outcome","v2_result":"not ADMIT"},
+    "current_7tPks": {"state":"current Deep REVIEW_CANDIDATE; completed legacy walkback remains LINEAGE_GAP/FAILED_TERMINAL","v2_result":"INSUFFICIENT_EVIDENCE because required immutable anchor and ordinal ordering are absent; stale parent-after-child fixture labels were not substituted for current state"},
+    "retained_conflict_fixture_controls": {"count":5,"source":"DEV-019 V1 qualification fixture controls","v2_result":"REJECT under required selected-upstream conflict gate; zero ADMIT"},
+    "missing_evidence_control":"Any missing required immutable identity, anchor, slot, or ordinal returns INSUFFICIENT_EVIDENCE; never ADMIT.",
+    "unknown_root_control":"Unknown root is INSUFFICIENT_EVIDENCE, not automatically a conflict; it still cannot ADMIT without the positive immutable-anchor requirement.",
+    "negative_false_admit_count":0
+  },
+  "candidate_policy_v2": {
+    "candidate_only_not_qualified_for_implementation": "ADMIT iff every required immutable input/result in candidate_v2_input_contract is present and qualified. REJECT only for a positive contradiction/conflict. INSUFFICIENT_EVIDENCE for missing/unknown/unqualified required evidence. REVIEW is retained for strong nonconflicting evidence that falls short of the automatic conjunction.",
+    "fail_closed": true,
+    "review_state_preserved": true,
+    "correlation_only_required_predicate_count":0,
+    "generic_evaluator_operation_branch_count":0,
+    "future_operation_compatibility":"PASS in principle: the existing generic adapter accepts versioned policy configuration; a different operation may select different generic predicates. A V2 evaluator implementation is not authorized by this audit."
+  },
+  "prospective_availability": {
+    "lineage_and_route":"already retained prospectively",
+    "causal_bridge":"already retained prospectively for route predicate",
+    "ordering":"not currently retained at V2 strength; known-signature getTransaction -> KNOWN_SIGNATURE_SLOT_V1 and conditional same-slot getBlock ordinal are already-qualified bounded acquisition primitives, but are not wired to a V2 candidate contract",
+    "immutable_anchor":"not currently retained independently of canonical membership labels; requires a new evidence contract and prospective retention design, not a membership-table read",
+    "zero_provider_fully_qualifiable_count":0,
+    "provider_acquisition_requirement":"No provider call was made. Future ordering acquisition can use known-signature getTransaction and conditional same-slot getBlock only, bounded per candidate. That cannot cure the immutable-anchor defect.",
+    "unbounded_acquisition_path_count":0
+  },
+  "versioning_and_commit": {
+    "v1_review_history_rewritten":false,
+    "effective_version_rule":"A future V2 must apply only to nominations first created after an explicit effective timestamp/version and immutable-anchor/ordering contract deployment; no implicit re-evaluation or backfill.",
+    "existing_review_v2_reevaluation_rule":"Prohibited until a separately authorized, explicit migration/reassessment contract exists; current REVIEW rows remain V1 history.",
+    "historical_26_v2_replay":false,
+    "generic_commit_path_if_future_v2_admit":"durable ADMIT outcome -> existing resume_admission -> operator_launch_membership -> existing OPERATION_MEMBER_COMMITTED outbox event",
+    "new_membership_writer_count":0,
+    "new_event_writer_count":0,
+    "fixture_idempotency":"PASS: existing generic adapter tests prove an ADMIT replay produces one membership and one event.",
+    "ui_source_changes":0,
+    "future_ui_transition":"PASS in existing generic fixture semantics: canonical membership removes current REVIEW projection and preserves outcome history; no UI change was made.",
+    "depends_on_evidence_ui":false
+  },
+  "tests": {"command":"python -m pytest -q -p no:cacheprovider tests/test_operation_admission_adapter.py tests/test_prospective_causal_retention.py tests/test_known_signature_slot.py tests/test_transaction_order.py tests/test_capital_continuity.py tests/test_dev019_deep_wiring.py","result":"21 passed"},
+  "decision": {"next_gate":"DEFINE_DEV019_IMMUTABLE_PROSPECTIVE_ANCHOR_AND_ORDERING_RETENTION_CONTRACT","implementation_authorized":false,"deployment_authorized":false,"manual_approval_work":"fallback only; not advanced"},
+  "safety": {"runtime_deployment_required":false,"live_db_writes":0,"provider_calls":0,"process_actions":0,"runtime_source_changes":0,"schema_changes":0,"policy_changes":0,"live_memberships":0,"member_events":0,"full_db_clone_created":false,"large_file_prohibition_v1":"PASS"}
+}

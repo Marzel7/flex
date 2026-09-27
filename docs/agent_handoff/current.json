@@ -1,6 +1,6 @@
 {
   "historical_price_dataflow_liveness_trace_watchtower_deep_20260927": {
-    "engineering_revision":"800f9c11d6f29b8d05e2f31c9444d1b8f2ab49b4 on dev/019-prospective-deep (local audit commit; remote publication blocked)",
+    "engineering_revision":"800f9c1164c6c0ad2cd133620e49da38d2860ec5 on dev/019-prospective-deep (local audit commit; remote publication blocked)",
     "status":"HOLD",
     "verdict":"RUNTIME_DATAFLOW_LIVENESS_GATE_V1=HOLD; HISTORICAL_PRICE_FIRST_BROKEN_TRANSITION=LIVE_CANONICAL_MEMBER_TO_MONITOR_ADMISSION_INPUT_DOMAIN",
     "result":"Read-only trace reverified operation_monitor_worker RUNNING PID 7851 but configured for the isolated DEV database/queue .dev_runtime/monitor/dev_005a, not live database/wt_ops_v2.db. Live canonical population is WATCHTOWER=517 (17 added in 24h) and DEEP=26, while the worker can only reconcile the isolated mirror. Hence no live canonical member enters current monitor admission, scheduler selection, budget dispatch, provider acquisition, or current 15m durable observation. Budget/backoff are not the first blocker: isolated ledger has 0 current-window calls, 429 count=0, and no all-acquisition block. No provider or process action occurred.",

@@ -1,4 +1,14 @@
 {
+  "monitor_bridge_launcher_execution_contract_20260927": {
+    "engineering_revision":"b679fb578fd976ca8d513e78ac6a0dc5a6839490 on dev/monitor-live-admission",
+    "status":"QUALIFIED_NOT_DEPLOYED",
+    "verdict":"BRIDGE_LAUNCHER_AND_HASHED_MULTI_DOMAIN_EXECUTION_CONTRACT_QUALIFIED_UNAUTHORIZED",
+    "result":"New isolated Supervisor-program model is provider-free and validates distinct source/monitor domains before processing. It claims at most one source event, releases source ownership before real MonitorQueue delivery, then separately acknowledges source. Cadence is 5 seconds with 60-second claim recovery and compact latest-state health. Expanded real-destination suite passed 12/12, 0 failed.",
+    "artifact":"monitor_live_admission_multi_domain_execution_contract.v1.json sha256 db576a1b8bb02e7886c41e595e466fe5b3f7181f71415e941a27c012017aae09; authorized=false",
+    "next_action":"REQUEST_EXPLICIT_DEPLOYMENT_AUTHORIZATION_REFERENCING_EXACT_EXECUTION_CONTRACT_SHA. Reverify target preimages, apply additive source schema, deploy only frozen closures, add/reload only bridge Supervisor program, then observe natural Watchtower handoff.",
+    "safety":"live source/schema/DB/provider/process/backfill actions=0; global Supervisor restart=false; Deep REVIEW outbox=0; bridge inactive.",
+    "updated_at":"2026-09-27T16:00:00Z"
+  },
   "monitor_membership_outbox_bounded_consumer_20260927": {
     "engineering_revision":"d64809b9ac5c550f396213aabc221d5135813632 on dev/monitor-live-admission",
     "status":"QUALIFIED_NOT_DEPLOYED",

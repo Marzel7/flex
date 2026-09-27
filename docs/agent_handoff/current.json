@@ -18114,5 +18114,15 @@
     "artifact": "docs/audits/dev_022_phase3f2_post_commit_trigger_handoff.v1.json (sha256 40e0adb12cd163d6ee8ab9581ed1a948667e018a8343780f1f06a3c0c239504d)",
     "result": "The Watchtower commit point is Walkback's committed membership projection. The available Deep registration is explicitly historical-only/no prospective admission. The existing durable strategy-trigger outbox is Byzantine-specific. A WT-only trigger would violate WT/Deep parity; adapting historical Deep registration would create prohibited backfill and change Deep semantics. No code, provider, Monitor queue, canonical membership, attribution, or production state changed.",
     "next_action": "DEFINE_PROSPECTIVE_WATCHTOWER_DEEP_COMMIT_SEAM: authorize/specify a real prospective Deep qualification commit point, or explicitly narrow the feature to Watchtower only."
+  },
+  "dev_019_fresh5_deep_candidate_audit_20260927": {
+    "engineering_revision": "983bcf504a4153829685e27578b3c00c30400128",
+    "status": "PARTIAL_RETAINED_LIVE_TRACE_COMPLETE",
+    "verdict": "FRESH5_DEEP_PIPELINE_PARTIAL_NO_SILENT_CONTROLS",
+    "artifact": "docs/audits/dev_019_fresh5_deep_candidate_audit.v1.json (sha256 a4933a47290b906117e7fba19e647cd1a4674acebaa53548fe56de5291f2d4a5)",
+    "result": "All five natural controls completed in the live Walkback path. Two meet the narrow Deep route predicate and are durable QUALIFIED_PROSPECTIVE_MEMBER -> REVIEW rows; three are explicit LINEAGE_GAP outcomes and correctly have no Deep candidate. All five have zero canonical memberships and zero member-committed events. Live Deep Review API equals the authoritative five-row storage set. The dedicated Deep API/UI has no Treasury field; the two review rows retain a selected pool/coordinator/distribution route but do not claim a canonical treasury and retain UNQUALIFIED capital continuity.",
+    "production_flags": "RUNTIME_DEPLOYMENT_REQUIRED=false (audit-only); live DB writes=0; provider calls=0; process starts/stops/restarts=0; source/schema/policy changes=0; manual approvals/admissions/membership/event writes=0; full DB clone=false.",
+    "runtime": "Walkback PID 87523 RUNNING from Production/flex-walkback-dev002; API PID 49342 RUNNING from Production/flex-api-dev002; validate_review_schema=true; local Deep API GET=200.",
+    "next_action": "REVIEW_DEV019_DEEP_TREASURY_SEMANTICS. Keep Deep REVIEW-only; if a Treasury label is desired outside the dedicated Deep page, define the role explicitly and never project selected pool as canonical treasury. Do not reopen capital-continuity evidence or resume manual approval solely from this audit."
   }
 }

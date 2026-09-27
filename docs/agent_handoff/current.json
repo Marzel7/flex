@@ -1,4 +1,15 @@
 {
+  "monitor_live_admission_wiring_qualification_20260927": {
+    "engineering_revision":"6e77e9bb219e25237d67a72fd46c53aa086286e3 on dev/monitor-live-admission",
+    "status":"HOLD",
+    "verdict":"NEW_COMPACT_BRIDGE_REQUIRED; SOURCE_CLOSURE_NOT_QUALIFIED",
+    "result":"Canonical membership authority has Watchtower=517 and Deep=26. No active reusable event bridge covers both: the generic member-event outbox is ADMIT-resumer-only, while current Watchtower membership projection has no matching event and Deep remains REVIEW-only. Minimum design is a post-commit, compact, operation-agnostic source outbox with deterministic identity, an idempotent handoff to the existing MonitorQueue, and source acknowledgement only after destination persistence. No cross-domain transaction, raw payload, provider call, backfill, or existing monitor/candle rewrite is permitted.",
+    "blocker":"Frozen monitor baseline cannot import its required DB-writer receipt API and its operation mapping omits Deep; mock-only tests would not qualify the actual destination, so positive/replay/crash fixtures are intentionally NOT_RUN_TO_PASS.",
+    "artifact":"monitor_live_admission_wiring_qualification.v1.json sha256 1b70e2043067eeacce75293ef134d1fc2ff37a10880876f781513b4d24f0a5aa",
+    "next_action":"QUALIFY_COHERENT_MONITOR_SOURCE_CLOSURE_THEN_IMPLEMENT_AND_RUN_PROVIDER_FREE_GENERIC_BRIDGE_FIXTURES_BEFORE_ANY_SCHEMA_OR_RUNTIME_AUTHORIZATION.",
+    "safety":"live source/schema/DB/provider/process/backfill actions=0; deployment gate=QUALIFIED_NOT_DEPLOYED; dataflow gate=HOLD.",
+    "updated_at":"2026-09-27T14:35:00Z"
+  },
   "historical_price_dataflow_liveness_trace_watchtower_deep_20260927": {
     "engineering_revision":"800f9c1164c6c0ad2cd133620e49da38d2860ec5 on dev/019-prospective-deep (local audit commit; remote publication blocked)",
     "status":"HOLD",

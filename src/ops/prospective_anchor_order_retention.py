@@ -21,6 +21,22 @@ HARD_STORAGE_BYTES = 48 * 1024 * 1024
 MAX_TRANSIENT_GETTRANSACTION_BYTES = 1 * 1024 * 1024
 MAX_TRANSIENT_GETBLOCK_BYTES = 32 * 1024 * 1024
 
+RETENTION_TABLE_COLUMNS = {
+    "immutable_operation_causal_anchors": ("anchor_id", "operation_id", "route_type", "route_semantic_version", "role_left", "role_right", "causal_direction", "source_evidence_id", "ordering_evidence_id", "establishment_source", "established_at"),
+    "prospective_signature_slots": ("slot_evidence_id", "signature", "slot", "source_identity", "acquisition_identity", "semantic_version", "acquired_at"),
+    "prospective_transaction_ordinals": ("ordinal_evidence_id", "signature", "slot", "transaction_ordinal", "block_evidence_id", "semantic_version", "acquired_at"),
+    "prospective_order_links": ("order_evidence_id", "parent_signature", "child_signature", "parent_slot_evidence_id", "child_slot_evidence_id", "parent_ordinal_evidence_id", "child_ordinal_evidence_id", "semantic_version", "established_at"),
+    "prospective_slot_acquisition_intents": ("intent_id", "operation_id", "mint", "signature", "source_evidence_id", "semantic_version", "status", "created_at"),
+}
+# Every table needs its primary-key index plus the listed uniqueness identity.
+RETENTION_UNIQUE_INDEX_COLUMNS = {
+    "immutable_operation_causal_anchors": ("operation_id", "route_type", "route_semantic_version", "role_left", "role_right", "causal_direction", "source_evidence_id", "ordering_evidence_id"),
+    "prospective_signature_slots": ("signature",),
+    "prospective_transaction_ordinals": ("signature",),
+    "prospective_order_links": ("parent_signature", "child_signature", "parent_slot_evidence_id", "child_slot_evidence_id", "parent_ordinal_evidence_id", "child_ordinal_evidence_id", "semantic_version"),
+    "prospective_slot_acquisition_intents": ("operation_id", "mint", "signature", "source_evidence_id", "semantic_version"),
+}
+
 
 def _id(*parts: object) -> str:
     return hashlib.sha256(json.dumps(parts, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
@@ -34,6 +50,7 @@ def _compact(value: object) -> str:
 
 
 def ensure_schema(conn: sqlite3.Connection) -> None:
+    """Deployment/fixture migration only; never call from runtime processing."""
     conn.executescript("""
     CREATE TABLE IF NOT EXISTS immutable_operation_causal_anchors (
       anchor_id TEXT PRIMARY KEY, operation_id TEXT NOT NULL, route_type TEXT NOT NULL,
@@ -67,6 +84,30 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
       UNIQUE(operation_id,mint,signature,source_evidence_id,semantic_version)
     );
     """)
+
+
+def validate_retention_schema(conn: sqlite3.Connection) -> dict:
+    """Read-only exact schema preflight for the runtime retention seam."""
+    for table, required_columns in RETENTION_TABLE_COLUMNS.items():
+        row = conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table,)).fetchone()
+        if row is None:
+            return {"state": "SCHEMA_NOT_READY", "reason": "missing_table", "table": table}
+        columns = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
+        missing = sorted(set(required_columns) - columns)
+        if missing:
+            return {"state": "SCHEMA_NOT_READY", "reason": "missing_column", "table": table, "columns": missing}
+        required_unique = RETENTION_UNIQUE_INDEX_COLUMNS[table]
+        found = False
+        for index in conn.execute(f"PRAGMA index_list({table})"):
+            if not index[2]:
+                continue
+            index_columns = tuple(row[2] for row in conn.execute(f"PRAGMA index_info({index[1]})"))
+            if index_columns == required_unique:
+                found = True
+                break
+        if not found:
+            return {"state": "SCHEMA_NOT_READY", "reason": "missing_unique_index", "table": table}
+    return {"state": "READY"}
 
 
 def _guard(conn: sqlite3.Connection, incoming: int = 1) -> None:
@@ -143,7 +184,9 @@ def stage_missing_slot_intents(conn: sqlite3.Connection, *, operation_id: str, m
     later, with one request and zero retries.  Existing local slot records are
     never re-requested.
     """
-    ensure_schema(conn)
+    readiness = validate_retention_schema(conn)
+    if readiness["state"] != "READY":
+        return []
     _guard(conn, 2)
     ids=[]
     for signature in (parent_signature, child_signature):

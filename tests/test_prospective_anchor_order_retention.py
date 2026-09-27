@@ -28,3 +28,29 @@ def test_missing_slot_intents_are_idempotent_and_local_first():
     c=db(); ids=stage_missing_slot_intents(c,operation_id='op',mint='m',parent_signature='p',child_signature='c',source_evidence_id='route',now=1)
     assert len(ids)==2 and len(stage_missing_slot_intents(c,operation_id='op',mint='m',parent_signature='p',child_signature='c',source_evidence_id='route',now=2))==2
     slot(c,'p',1); assert len(stage_missing_slot_intents(c,operation_id='op',mint='next',parent_signature='p',child_signature='c',source_evidence_id='route',now=3))==1
+
+def test_preflight_is_read_only_and_requires_complete_schema():
+    c=sqlite3.connect(':memory:'); c.row_factory=sqlite3.Row
+    before=c.total_changes
+    assert validate_retention_schema(c)=={'state':'SCHEMA_NOT_READY','reason':'missing_table','table':'immutable_operation_causal_anchors'}
+    assert c.total_changes==before
+    ensure_schema(c)
+    assert validate_retention_schema(c)=={'state':'READY'}
+    assert c.total_changes==before
+
+def test_preflight_rejects_missing_column_and_unique_index_without_writes():
+    c=db(); c.execute('DROP TABLE prospective_slot_acquisition_intents')
+    c.execute('CREATE TABLE prospective_slot_acquisition_intents (intent_id TEXT PRIMARY KEY, operation_id TEXT NOT NULL, mint TEXT NOT NULL, signature TEXT NOT NULL, source_evidence_id TEXT NOT NULL, semantic_version TEXT NOT NULL, status TEXT NOT NULL)')
+    before=c.total_changes; result=validate_retention_schema(c)
+    assert result['state']=='SCHEMA_NOT_READY' and result['reason']=='missing_column' and c.total_changes==before
+    c.execute('DROP TABLE prospective_slot_acquisition_intents')
+    c.execute('CREATE TABLE prospective_slot_acquisition_intents (intent_id TEXT PRIMARY KEY, operation_id TEXT NOT NULL, mint TEXT NOT NULL, signature TEXT NOT NULL, source_evidence_id TEXT NOT NULL, semantic_version TEXT NOT NULL, status TEXT NOT NULL, created_at INTEGER NOT NULL)')
+    before=c.total_changes; result=validate_retention_schema(c)
+    assert result['state']=='SCHEMA_NOT_READY' and result['reason']=='missing_unique_index' and c.total_changes==before
+
+def test_not_ready_stages_no_intents_and_ready_stages_them():
+    c=sqlite3.connect(':memory:'); c.row_factory=sqlite3.Row
+    assert stage_missing_slot_intents(c,operation_id='op',mint='m',parent_signature='p',child_signature='c',source_evidence_id='route',now=1)==[]
+    assert c.execute("SELECT count(*) FROM sqlite_master WHERE type='table'").fetchone()[0]==0
+    ensure_schema(c)
+    assert len(stage_missing_slot_intents(c,operation_id='op',mint='m',parent_signature='p',child_signature='c',source_evidence_id='route',now=1))==2

@@ -1,0 +1,13 @@
+{
+  "schema_version":"dev_019_retention_schema_preflight_repair.v1",
+  "mode":"SOURCE_REPAIR_AND_DEPLOYMENT_REQUALIFICATION_NO_LIVE_MUTATION",
+  "required_tables":["immutable_operation_causal_anchors","prospective_signature_slots","prospective_transaction_ordinals","prospective_order_links","prospective_slot_acquisition_intents"],
+  "required_table_count":5,
+  "schema_mutation_authority":"deployment migration and fixtures only",
+  "repair":{"files":["src/ops/prospective_anchor_order_retention.py","src/core/walkback_worker.py","tests/test_prospective_anchor_order_retention.py"],"functions":["validate_retention_schema","stage_missing_slot_intents","_review_deep_routes_after_commit._publish"],"runtime_ensure_schema_call_count":0,"runtime_ddl_path_count":0,"preflight":"read-only sqlite_master, PRAGMA table_info, PRAGMA index_list/index_info; exact five tables, required columns, and uniqueness identities","not_ready":"SCHEMA_NOT_READY; no retention writes; review/candidate/outcome continues REVIEW-only","ready":"local slots suppress intents; missing known signatures stage compact idempotent intents; provider calls=0; V2=false"},
+  "migration":{"function":"ensure_schema","idempotent":true,"old_runtime_compatible":true,"schema_only_state_safe":true},
+  "tests":{"command":"python -m pytest -q -p no:cacheprovider tests/test_prospective_anchor_order_retention.py tests/test_dev019_deep_wiring.py tests/test_operation_admission_adapter.py tests/test_known_signature_slot.py tests/test_transaction_order.py tests/test_capital_continuity.py","passed":25,"failed":0,"new_preflight_cases":["missing table read-only","missing column","missing unique index","complete schema READY","not-ready no intent write","ready intent path"]},
+  "candidate":{"path":"/private/tmp/dev019-retention-candidate.uKvDv3","baseline_worker_sha256":"1e0776687acf3ace2382b474729faa4a721741eaceb55f851c864e946e5e001d","worker_sha256":"a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9","module_sha256":"50cd80da26c89becec4a72e3a0f62838dccc60e80b002e30e567b05181a3e6b6","closure_files":["src/core/walkback_worker.py","src/ops/prospective_anchor_order_retention.py"],"runtime_ddl_path_count":0},
+  "safety":{"live_db_writes":0,"provider_calls":0,"process_restarts":0,"v2_enabled":false,"membership_writes":0,"member_event_writes":0,"api_changes":0,"dev022_changes":0},
+  "decision":{"runtime_deployment_gate":"QUALIFIED_NOT_DEPLOYED","deployment_authorized":false,"next_gate":"AUTHORIZE_DEV019_RETENTION_DEPLOYMENT"}
+}

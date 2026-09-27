@@ -1,4 +1,14 @@
 {
+  "monitor_live_admission_v2_execution_preflight_20260927": {
+    "engineering_revision":"060a530f05084673aa4eeefa981c901872cafa01 on dev/monitor-live-admission",
+    "status":"HOLD",
+    "verdict":"EXECUTION_CONTRACT_IDENTITY_AND_PREIMAGE_CLOSURE_INCOMPLETE_STOPPED_BEFORE_MUTATION",
+    "result":"V2 exact SHA, authorized=false, qualification provenance, and V1-to-V2 semantic drift=0 all verify. However V2 literally lacks its own contract commit/handoff lineage and has no frozen source/config preimage matrix or concrete target closure. The mandatory drift hard-stop therefore cannot compare every target file without inference.",
+    "artifact":"monitor_live_admission_v2_execution_preflight_hold.v1.json",
+    "next_action":"CREATE_NEW_HASHED_EXECUTION_CONTRACT_LITERALY_BINDING_V2_LINEAGE_AND_COMPLETE_PREIMAGE_POSTIMAGE_TARGET_MATRIX_THEN_REQUEST_FRESH_EXPLICIT_AUTHORIZATION. Do not infer preimages or mutate targets under V2.",
+    "safety":"source/schema/DB/provider/process/backfill mutations=0; deployment_authorized=false.",
+    "updated_at":"2026-09-27T16:30:00Z"
+  },
   "monitor_bridge_execution_contract_v2_provenance_20260927": {
     "engineering_revision":"ec72ed67ae350e0d596b027227d4d983e10a2c92 on dev/monitor-live-admission",
     "status":"QUALIFIED_NOT_DEPLOYED",

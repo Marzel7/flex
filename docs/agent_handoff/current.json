@@ -1,4 +1,14 @@
 {
+  "dev019_future_only_retention_boundary_20260927": {
+    "engineering_revision":"858b3887be79f9a907328bd0ce8ee53a75d790c5 on dev/019-prospective-deep",
+    "status":"ACTIVE_OBSERVATION",
+    "verdict":"FUTURE_ONLY_NATURAL_RETENTION_BOUNDARY_ESTABLISHED",
+    "result":"Immutable system-clock boundary T0=2026-09-27T10:30:44.634055000Z (epoch 1790505044.634055000) recorded. Pre-T0 and immediate T0 snapshots match: retention tables all zero, five Deep REVIEW baseline mints, canonical Deep=26. All baseline rows are excluded from natural acceptance; equal timestamp is ambiguous fail-safe.",
+    "artifact":"docs/audits/dev_019_future_only_retention_observation_boundary.v1.json",
+    "next_action":"OBSERVE_NATURAL_ACTIVITY_AFTER_T0_ONLY. If natural rows appear, account retention/V1/no-ADMIT/no-membership/provider/storage and freeze up to 10 intents; otherwise report WAITING_FOR_NATURAL_ACTIVITY.",
+    "safety":"source/schema/audit DB/process/provider changes=0; V2=false; no backfill/consumer/manual approval.",
+    "updated_at":"2026-09-27T10:30:44.634055000Z"
+  },
   "dev019_natural_retention_observation_20260927": {
     "engineering_revision":"5a72971dbb4bc3cf3ef811a064024dcef2909e69 on dev/019-prospective-deep",
     "status":"HOLD",

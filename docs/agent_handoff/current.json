@@ -18124,5 +18124,14 @@
     "production_flags": "RUNTIME_DEPLOYMENT_REQUIRED=false (audit-only); live DB writes=0; provider calls=0; process starts/stops/restarts=0; source/schema/policy changes=0; manual approvals/admissions/membership/event writes=0; full DB clone=false.",
     "runtime": "Walkback PID 87523 RUNNING from Production/flex-walkback-dev002; API PID 49342 RUNNING from Production/flex-api-dev002; validate_review_schema=true; local Deep API GET=200.",
     "next_action": "REVIEW_DEV019_DEEP_TREASURY_SEMANTICS. Keep Deep REVIEW-only; if a Treasury label is desired outside the dedicated Deep page, define the role explicitly and never project selected pool as canonical treasury. Do not reopen capital-continuity evidence or resume manual approval solely from this audit."
+  },
+  "dev_019_deep_treasury_semantics_review_20260927": {
+    "engineering_revision": "3c65b3cd5d8f2b642141855542a957c8ba67a9cb",
+    "status": "SEMANTICS_REVIEW_COMPLETE",
+    "verdict": "NO_QUALIFIED_DEEP_TREASURY_ROLE; CURRENT_REVIEW_CONTINUITY_LOCALLY_QUALIFIED",
+    "artifact": "docs/audits/dev_019_deep_treasury_semantics_review.v1.json (sha256 26909b39e580db9f6d6289e7090d2380c3404956ee59df6dc7c0014a674c1a0b)",
+    "result": "Watchtower Treasury is a confirmed economic source with a verified treasury-to-subprovider relationship; Deep pool/coordinator/distribution evidence is a distinct selected-upstream route and must never be labelled Treasury. The stored Deep route assessor marks REVIEW rows capital_continuity=UNQUALIFIED as a non-admission marker, not as a call to CAPITAL_CONTINUITY_CAUSAL_ROUTE_V1. Read-only reassessment of all five current REVIEW rows finds an exact retained (pool, coordinator) canonical-route anchor match, hence QUALIFIED continuity without provider acquisition. Slot/transaction ordinal remains NOT_RETAINED and must be displayed distinctly from block-time route ordering.",
+    "production_flags": "RUNTIME_DEPLOYMENT_REQUIRED=false (audit-only); live DB writes=0; provider calls=0; process starts/stops/restarts=0; runtime source/schema/policy changes=0; manual approvals/admissions/membership/event writes=0; full DB clone=false.",
+    "next_action": "QUALIFY_DEV019_DEEP_REVIEW_EVIDENCE_UI: retain REVIEW-only policy, add only semantically qualified Selected upstream route and read-time Capital continuity status, and never add a Treasury column. Then return to the existing manual-approval authorization boundary."
   }
 }

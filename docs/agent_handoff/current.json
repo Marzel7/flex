@@ -1,4 +1,14 @@
 {
+  "monitor_live_admission_v3_execution_20260927": {
+    "engineering_revision":"9af2f21ad719260e0b77e27630b20bebd4fb4ebe on dev/monitor-live-admission",
+    "status":"ACTIVE_OBSERVATION",
+    "verdict":"RUNTIME_DEPLOYMENT_GATE=PASS; RUNTIME_DATAFLOW_LIVENESS_GATE=WAITING_FOR_NATURAL_MEMBERSHIP",
+    "result":"Authorized exact V3 deployment completed: five preimages matched, source schema applied additively with zero application rows, five postimages matched, and 12/12 provider-free tests passed. Walkback restarted once to PID 69746; isolated bridge started once at PID 69794; MonitorWorker PID 7851 was not restarted. Deep remains REVIEW-only with outbox=0.",
+    "artifact":"monitor_live_admission_v3_execution.v1.json sha256 152446efae81c47485d24450ec24689ef5bbe6abaf26777123b9ab66d0afe270; contract sha256 968a63de8187f797e987014f40be4e20e1d79c4bb05528b59765eb8ddf822c4d",
+    "next_action":"OBSERVE_NATURAL_POST_T0_WATCHTOWER_MEMBERSHIP_ONLY. T0=2026-09-27T16:18:11.442542000Z; capture one bounded source-outbox to MonitorQueue handoff when naturally produced. Do not backfill, manually acquire price, or create a Deep admission path.",
+    "safety":"provider calls=0; historical backfill=0; monitor fact/candle rewrites=0; global/API/listener restarts=0; Deep REVIEW outbox=0.",
+    "updated_at":"2026-09-27T16:18:11.442542000Z"
+  },
   "monitor_live_admission_execution_contract_v3_20260927": {
     "engineering_revision":"41f66ebe75b1e29ef83768b85b4614094889548f on dev/monitor-live-admission",
     "status":"QUALIFIED_NOT_DEPLOYED",

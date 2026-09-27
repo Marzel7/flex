@@ -1,0 +1,101 @@
+{
+  "schema_version": "dev_019_deep_treasury_semantics_review.v1",
+  "recorded_at": "2026-09-27T08:29:44Z",
+  "mode": "READ_ONLY_PROVIDER_FREE",
+  "engineering_revision": "983bcf504a4153829685e27578b3c00c30400128",
+  "prior_audit": "docs/audits/dev_019_fresh5_deep_candidate_audit.v1.json",
+  "scope": "Semantic/evidence review only. No runtime source, schema, policy, deployment, approval, provider, or process action occurred.",
+  "watchtower": {
+    "treasury_role_definition": "A Watchtower Treasury is a confirmed, address-valued economic source in the canonical provisioning topology. It is not merely an upstream wallet or a transaction witness.",
+    "qualified_topology": "confirmed treasury -> subprovider -> creator -> WSOL_WRAP_CLOSE launch",
+    "treasury_evidence_requirements": ["A selected eligible session names treasury_wallet and subprov_wallet.", "treasury_wallet is present in wt_confirmed_treasuries.", "A retained treasury_to_subprov funding signature exists and its decoded balance deltas prove treasury decreases while subprovider increases.", "The session precedes the wrap-close within the bounded lineage interval.", "Roles treasury, subprovider, and creator are separated.", "The canonical funding mechanism and retained walkback lineage do not conflict."],
+    "wsol_wrap_close_relevance": "It is the creator-side canonical launch mechanism and temporal endpoint; it does not by itself prove a treasury.",
+    "display_authority": "The conjunction of confirmed-treasury registry membership and a verified economic treasury-to-subprovider transaction/session relationship."
+  },
+  "deep": {
+    "qualified_topology": "pool -> coordinator -> distribution -> subprovider -> creator; the selected subprovider-to-creator funding relation terminates in the creator's WSOL_WRAP_CLOSE event. One unambiguous upper route is retained as pool/coordinator/distribution plus signatures, times, and amounts.",
+    "has_qualified_treasury_role": false,
+    "watchtower_treasury_semantic_equivalence": "DIFFERENT_ROLE",
+    "role_semantic_matrix": [
+      {"role":"creator","source":"wt_walkback_queue.creator and selected hop-1 edge.wallet","meaning":"launching wallet","address_valued":true,"prospective":true,"qualified":"route predicate input","watchtower_treasury_equivalent":false},
+      {"role":"subprovider","source":"wt_walkback_queue.subprov and selected hop-1 parent/hop-2 wallet","meaning":"immediate funding intermediary","address_valued":true,"prospective":true,"qualified":"route predicate input","watchtower_treasury_equivalent":false},
+      {"role":"distribution","source":"selected hop-2 candidate_parent; wt_deep_route_review_leads.route_json.distribution","meaning":"recipient/bridge in the selected lower route","address_valued":true,"prospective":true,"qualified":"single route component","watchtower_treasury_equivalent":false},
+      {"role":"coordinator","source":"retained route_json.coordinator and upper-signature witness","meaning":"upper route intermediary","address_valued":true,"prospective":true,"qualified":"single route component","watchtower_treasury_equivalent":false},
+      {"role":"pool","source":"retained route_json.pool and pool_signature","meaning":"selected upstream pool/root witness","address_valued":true,"prospective":true,"qualified":"single route component","watchtower_treasury_equivalent":false},
+      {"role":"selected upstream route","source":"route_json {pool, coordinator, distribution, pool_signature, upper_signature, times, amounts}","meaning":"the unambiguous retained Deep causal route","address_valued":true,"prospective":true,"qualified":"REVIEW-only route shape","watchtower_treasury_equivalent":false},
+      {"role":"capital-continuity anchor","source":"read-only operation_route_anchors: matching (pool, coordinator) from canonical member routes","meaning":"comparison key, not an asserted treasury","address_valued":true,"prospective":true,"qualified":"only through assess_capital_continuity","watchtower_treasury_equivalent":false}
+    ],
+    "not_proven": ["canonical treasury identity", "economic treasury-to-subprovider balance-delta relationship", "a Deep role equivalent to a Watchtower confirmed treasury"]
+  },
+  "current_review": {
+    "count": 5,
+    "mints": ["J9PVhNvGA1hXhHwmUUYQgHpPRxZch3cmCRzTnD6Dpump", "CMPksXm4H1otRyLEe8EZa7aL8iMKg4wsyFXxnLBopump", "7tPks6AbTE2Kz4KkxxVYN9sBETMtzSL5Kqj2jbrXpump", "GSdjYaqG2TBLX9kAZxKrTpeaZwRZXr15vp1fxAHnpump", "7XomEJBtb1EiF4Z8ZVzspCKFW2UuaRkaiq3AJJCFpump"],
+    "common_route": {"pool":"6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ","coordinator":"HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY","distribution":"G473ibMhTgjmFbPFhWzDjHiDXsAE25pDun8e5xfroFeW","route_digest":"ea22bc494360353bdc933b8509385db5b6756bae062ae9463496da96a5b0708d"},
+    "common_assessment": "WATCHTOWER_DEEP_ASSESSMENT_V1: QUALIFIED_PROSPECTIVE_MEMBER -> REVIEW, REVIEW_ONLY, automatic_membership_allowed=false",
+    "continuity_readonly_reassessment": {"version":"CAPITAL_CONTINUITY_CAUSAL_ROUTE_V1","qualified_count":5,"unqualified_count":0,"conflict_count":0,"result":"Each current route key exactly matches the sole read-only canonical (pool, coordinator) anchor."},
+    "stored_unqualified_explanation": "watchtower_deep_prospective.assess_prospective_route always emits capital_continuity=UNQUALIFIED for a REVIEW_CANDIDATE. This is the route assessor's non-admission marker; it is not a call to assess_capital_continuity and must not be presented as that evaluator's result.",
+    "per_review_role_matrix": [
+      {"mint":"J9PVhNvGA1hXhHwmUUYQgHpPRxZch3cmCRzTnD6Dpump","creator":"G922SGjvwpEx3gHmyD8iX5k1yRVTD4Q37pMZbHEGcEK6","subprovider":"Gu2t3pqtqSEzgcrxvVaRsH8QY8SXfQP8q3RV3m4bAhNf","lower_route":"subprovider -> creator funding terminating in WSOL_WRAP_CLOSE; distribution -> subprovider PLAIN_XFER","selected_upstream":"pool/coordinator common_route","operation_anchor":"(pool,coordinator) common_route","capital_continuity":"QUALIFIED by read-only reassessment","transaction_order":"block-time ordered route predicate; slot ordinal NOT_RETAINED","evidence_id":"ea22bc494360353bdc933b8509385db5b6756bae062ae9463496da96a5b0708d"},
+      {"mint":"CMPksXm4H1otRyLEe8EZa7aL8iMKg4wsyFXxnLBopump","creator":"EcV5S5xGeiQq6cJu8FujzhnKxe1hU5ruLhhyasuac3qQ","subprovider":"8cmbGdNabJ5kzGjoLqTpfWCafg5ADR16kaestYa6aFot","lower_route":"subprovider -> creator funding terminating in WSOL_WRAP_CLOSE; distribution -> subprovider PLAIN_XFER","selected_upstream":"pool/coordinator common_route","operation_anchor":"(pool,coordinator) common_route","capital_continuity":"QUALIFIED by read-only reassessment","transaction_order":"block-time ordered route predicate; slot ordinal NOT_RETAINED","evidence_id":"ea22bc494360353bdc933b8509385db5b6756bae062ae9463496da96a5b0708d"},
+      {"mint":"7tPks6AbTE2Kz4KkxxVYN9sBETMtzSL5Kqj2jbrXpump","creator":"56EA2vtHKHnogM1yYtWLVL7upkv3HDbtAkewQfojjoSC","subprovider":"E1YciuyZLG6KLrPJEHdaASZJELf19ghdVtzn7hE8RisP","lower_route":"same qualified lower topology","selected_upstream":"pool/coordinator common_route","capital_continuity":"QUALIFIED by read-only reassessment","transaction_order":"block-time ordered route predicate; slot ordinal NOT_RETAINED","evidence_id":"ea22bc494360353bdc933b8509385db5b6756bae062ae9463496da96a5b0708d"},
+      {"mint":"GSdjYaqG2TBLX9kAZxKrTpeaZwRZXr15vp1fxAHnpump","creator":"7rypG72hVqEyYh4XLjdJ5jEPsr5TUCw9EzC6ZAmTw8gU","subprovider":"AwDZvuCJUHDHAt9FBQugjcsTubGJjR3xYUJrjZTH1ZNF","lower_route":"same qualified lower topology","selected_upstream":"pool/coordinator common_route","capital_continuity":"QUALIFIED by read-only reassessment","transaction_order":"block-time ordered route predicate; slot ordinal NOT_RETAINED","evidence_id":"ea22bc494360353bdc933b8509385db5b6756bae062ae9463496da96a5b0708d"},
+      {"mint":"7XomEJBtb1EiF4Z8ZVzspCKFW2UuaRkaiq3AJJCFpump","creator":"2wpqtEcKpfa573NeymAfwK2rvEiPeZSAJwKnPHfNs4hj","subprovider":"9MJfbYKVrJoDq4skTe1beMWHC9ynHtFEMqXJwchV6A3U","lower_route":"same qualified lower topology","selected_upstream":"pool/coordinator common_route","capital_continuity":"QUALIFIED by read-only reassessment","transaction_order":"block-time ordered route predicate; slot ordinal NOT_RETAINED","evidence_id":"ea22bc494360353bdc933b8509385db5b6756bae062ae9463496da96a5b0708d"}
+    ]
+  },
+  "capital_continuity": {
+    "definition":"CAPITAL_CONTINUITY_CAUSAL_ROUTE_V1 compares an assessor-proven candidate (pool, coordinator) route key with route keys recomputed from existing canonical member mints. It never writes treasury, membership, event, or review lead.",
+    "qualified_inputs":"candidate must be REVIEW_CANDIDATE with a route key; at least one canonical route anchor must be recomputable; candidate key must exactly equal an anchor.",
+    "conflict_inputs":"assess_prospective_route returns CONFLICT, such as selected_upstream_disagrees.",
+    "insufficient_inputs":"candidate is not a review route, no canonical anchor is recomputable, or no anchor matches. Unknown/absent evidence is INSUFFICIENT, never contradictory.",
+    "unqualified_semantics":"The stored Deep assessor string means only that the route-shape result has not authorized continuity/membership. It is not evidence of a continuity contradiction or a failed continuity evaluation.",
+    "required_for_review":false,
+    "required_by_current_manual_approval_contract":false,
+    "review_with_unqualified_explanation":"The frozen Deep policy intentionally maps a positive route assessment to REVIEW. The separate continuity evaluator is optional to that route decision and, when run now, qualifies all five.",
+    "approval_information_gap":"The current manual contract validates immutable REVIEW state, authentication, permission, staleness, and non-membership only. It neither consumes a continuity result nor exposes its derivation. A future approver needs a bounded evidence panel before treating the review as a comprehensible approval decision."
+  },
+  "acquisition": {
+    "current_review_gap_matrix":"No provider acquisition is required for the current five: route evidence and a matching canonical anchor are locally retained and assess_capital_continuity returns QUALIFIED.",
+    "zero_provider_recovery_count":5,
+    "zero_provider_recovery_mints":"all current review mints",
+    "provider_acquisition_required_count":0,
+    "minimum_provider_data_class":"NOT_APPLICABLE for current review. The already-qualified future-only path is known-signature getTransaction -> compact KNOWN_SIGNATURE_SLOT_V1 record; getBlock is conditional only for same-slot transaction ordinal, with compact evidence retention and no raw response retention.",
+    "qualified_capabilities":["KNOWN_SIGNATURE_SLOT_V1 compact known-signature slot evidence","slot comparison and conditional same-slot getBlock ordinal evidence","generic transaction-order primitive","compact causal-witness identity","read-only canonical route-anchor comparison"],
+    "provider_calls_this_phase":0
+  },
+  "lineage_gap_controls": {
+    "included_in_review":false,
+    "mints": ["BJDfhK6xJhj9Ln7PXCFZL6ZofEXfuDAo9cAmKCFvpump","9zriPbmELWGzEqEJH29qQY4TZ4xVMQLVLXV3RtSDpump","FErgMUvV6XeBJNm3v9DnqzxE4aqcMS3KRvXmps3epump"],
+    "durable_state":"Each has completed walkback LINEAGE_GAP and no Deep lead/candidate/outcome. A current read-only route reassessment returns CONFLICT:selected_upstream_disagrees; this diagnostic result does not mutate or reclassify its durable terminal outcome.",
+    "treasury_field_validity":false,
+    "recommended_role_label":"Walkback terminal / selected-upstream conflict"
+  },
+  "ui_recommendation": {
+    "current_fields":["mint","assessment result","admission result","reason","observed time"],
+    "add_treasury_field_now":false,
+    "recommended_upstream_label":"Selected upstream route",
+    "source":"wt_deep_route_review_leads.route_json; present pool/coordinator/distribution as named route roles, with route_digest as the evidence identity. Do not display pool as Treasury.",
+    "null_state_model":{"NOT_APPLICABLE":"not a Deep REVIEW row","NOT_RETAINED":"no retained route component","NOT_QUALIFIED":"route exists but does not satisfy the review predicate","UNKNOWN":"continuity comparison cannot derive an anchor","CONFLICT":"selected upstream disagreement"},
+    "recommended_continuity_field":"Capital continuity (read-only): QUALIFIED, INSUFFICIENT, or CONTRADICTORY, labelled with CAPITAL_CONTINUITY_CAUSAL_ROUTE_V1 and evaluated-at-read-time.",
+    "recommended_ordering_field":"Route ordering: retained block-time predicate satisfied; slot/transaction ordinal NOT_RETAINED. This prevents a human from mistaking time ordering for the stronger ordinal contract.",
+    "manual_approval_evidence_panel_fields":["mint","immutable REVIEW state token and semantic versions","assessment and admission result","nomination/route digest","creator and subprovider","selected upstream route roles and both retained signatures","route-ordering status","read-only capital-continuity status and anchor key","conflict state","explicit statement that no canonical Treasury is established"]
+  },
+  "manual_approval": {
+    "current_contract_permits_unqualified_continuity":true,
+    "contract_change_options":[{"option":"require QUALIFIED continuity before approval","consequence":"makes the dynamic canonical-route comparison an explicit authorization prerequisite; needs a contract revision and durable/read-time semantics decision."},{"option":"permit approval to resolve continuity uncertainty","consequence":"the evidence panel must make INSUFFICIENT/CONTRADICTORY status explicit; approval provenance must not describe a Treasury that evidence does not establish."}],
+    "contract_changes_this_phase":0,
+    "deep_policy_changes_this_phase":0
+  },
+  "comparison": {
+    "reusable_concepts":["candidate lifecycle","evidence identity","durable outcome","manual admission boundary","canonical membership commit","member event","role-normalized evidence where separately qualified"],
+    "nonreusable_role_semantics":["Watchtower confirmed Treasury","Deep pool","Deep coordinator","Deep selected upstream route","Deep capital-continuity anchor"],
+    "watchtower_treasury_label_reused_for_deep_without_equivalence":false
+  },
+  "decision": {
+    "deep_treasury_semantic_status":"NO_QUALIFIED_TREASURY_ROLE",
+    "deep_capital_continuity_status":"SUFFICIENT_FOR_CURRENT_REVIEW; current five are additionally QUALIFIED by the separate read-only continuity evaluator without acquisition",
+    "deep_review_ui_role_action":"ADD_UPSTREAM_AND_CONTINUITY",
+    "manual_approval_next_status":"RETURN_TO_AUTH_BOUNDARY after the evidence UI qualification; no continuity acquisition is needed for the current review set",
+    "next_gate":"QUALIFY_DEV019_DEEP_REVIEW_EVIDENCE_UI"
+  },
+  "safety": {"live_db_writes":0,"solana_rpc_calls":0,"helius_calls":0,"birdeye_calls":0,"pumpportal_calls":0,"other_provider_calls":0,"process_starts":0,"process_stops":0,"process_restarts":0,"runtime_source_changes":0,"schema_changes":0,"manual_approval_records_created":0,"manual_admit_decisions_created":0,"deep_membership_writes":0,"deep_member_committed_events":0,"historical_26_global_recovery_scan":false,"full_db_clone_created":false,"large_file_prohibition_v1":"PASS","runtime_deployment_required":false}
+}

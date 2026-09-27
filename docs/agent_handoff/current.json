@@ -1,4 +1,15 @@
 {
+  "dev019_retention_schema_preflight_repair_20260927": {
+    "engineering_revision": "ff272fdac5e56aba90e260faf11032cbd874d671 on dev/019-prospective-deep",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "verdict": "RUNTIME_DEPLOYMENT_GATE=QUALIFIED_NOT_DEPLOYED",
+    "result": "Replaced retention runtime migration behavior with exact read-only five-table/column/unique-index preflight. The Deep seam preflights before its review write; absent schema emits SCHEMA_NOT_READY, stages no retention intent, and continues the existing V1 REVIEW-only candidate/outcome lifecycle. ensure_schema remains fixture/deployment-migration only.",
+    "qualification": "25 provider-free focused tests passed, 0 failed (the original 22 plus missing-table, missing-column, missing-index, complete-schema, no-write/defer, and ready-intent preflight controls). Fresh temporary candidate from the current pinned worker baseline contains only the worker seam and generic retention module; its hashes are worker a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9 and module 50cd80da26c89becec4a72e3a0f62838dccc60e80b002e30e567b05181a3e6b6.",
+    "artifact": "docs/audits/dev_019_retention_schema_preflight_repair.v1.json",
+    "next_action": "AUTHORIZE_DEV019_RETENTION_DEPLOYMENT if deployment is desired: apply/verify the additive schema first, preserve target DEV-018/DEV-019 hunks, atomically stage the exact two-file closure, run target tests, restart Walkback once, then observe bounded V1 REVIEW-only behavior. Do not enable V2 or provider intent consumption.",
+    "safety": "live DB writes=0; provider calls=0; process starts/stops/restarts=0; V2=false; membership/event writes=0; API/manual-approval/DEV022 changes=0; pinned target untouched.",
+    "updated_at": "2026-09-27T09:05:00Z"
+  },
   "dev019_prospective_anchor_order_runtime_deployment_qualification_20260927": {
     "engineering_revision": "32ea65535c1951a7a119ad412c94d748a52e6638 on dev/019-prospective-deep; qualified source baseline 5100b4eeea7e17b85e90ceb03f13ab1f3344d847",
     "status": "HOLD",

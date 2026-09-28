@@ -1,4 +1,14 @@
 {
+  "large_file_feature_growth_clarification_20260928": {
+    "engineering_revision":"53ed137034a68f83b5527988106ccd1ebd8c360c on dev/monitor-live-admission",
+    "status":"PARTIAL",
+    "verdict":"CADENCE_STORAGE_GATE=PASS; HISTORICAL_PRICE_STORAGE_GATE=HOLD",
+    "result":"Governance now distinguishes pre-existing large-file baseline from feature-owned growth. The existing 10.14GB shared source DB does not solely block the config-only 5s-to-60s bridge cadence change: cadence adds no storage path or persistent bytes and reduces polling. Outbox, health and rotated bridge logs are bounded. Separately, MonitorQueue/facts/candle/WAL absolute bounds remain unverified; candle retention is unbounded without an enforceable file/WAL cap.",
+    "artifact":"large_file_prohibition_v1_feature_growth_clarification.v1.json sha256 7104d461ca0b0893cb6bdb5330bc2ae67965fb5f3e495bb795311e08dcd98702",
+    "next_action":"REQUALIFY_AND_DEPLOY_THE_ONE_TARGET_BRIDGE_60S_CADENCE_CHANGE_IF_DESIRED; separately REPAIR_HISTORICAL_PRICE_STORAGE_BOUNDARY before scaling that feature.",
+    "safety":"read-only audit/governance-only source changes; live source/schema/DB/provider/process/Supervisor/cadence mutations=0.",
+    "updated_at":"2026-09-28T05:25:00Z"
+  },
   "monitor_bridge_cadence_60s_predeploy_20260928": {
     "engineering_revision":"df8f1eccbe79a768b122e0b6291438c1bf4eb598 on dev/monitor-live-admission",
     "status":"HOLD",

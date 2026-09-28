@@ -18103,6 +18103,17 @@
     "safety": "Read-only; live DB/schema/source/process writes/actions=0; provider/RPC/address-history=0; backfill=false; manual promotion=0.",
     "status": "SUPPORTING_NOT_ESSENTIAL"
   },
+  "watchtower_narrow_no_session_promotion_path_qualification": {
+    "audit": "docs/audits/watchtower_narrow_no_session_promotion_path_qualification.v1.json sha256 fb8e41e96c419bf0572221eb990c0b0364b9b174c34480cb5e95bfd46cfe95cd",
+    "candidate_rule": "A future narrow rule would require confirmed completed FULL_WALKBACK, creator/treasury/subprov, funder signature, WSOL_WRAP_CLOSE, confirmed treasury recognition, and a prospective-only boundary; it would delegate all session-present rows unchanged. It was not implemented because no qualifying recent session-absent WSOL fixture exists.",
+    "counterfactual": "newly eligible=0; session-present decision diff=0 including 109 conflicts; PLAIN_XFER change=0; no-session/negative false eligible=0.",
+    "engineering_revision": "e062ebae13fe0a999dc3c2f075b5fc63404df403 audit-only commit; deployed projector unchanged",
+    "next_action": "OBSERVE_ROLE_NORMALIZED_WATCHTOWER_PROMOTION",
+    "premise_reconciliation": "The cited RECENT_WSOL_ONLY_MISSING_SESSION_COUNT=1 premise is contradicted by the frozen source matrix. The only 30-day missing-session row is 82S2iLtd5faW6f6mR7jjFfor6PqF5MqU3iUhf8DxzE58, PLAIN_XFER with subprov NULL. It remains rejected and is not a WSOL control.",
+    "pressure_test": "29/1466 historical rows meet queue-side candidate fields, but all are excluded by prospective scope; historical promotions=0.",
+    "safety": "No source/database/schema/process/runtime change; provider/RPC/address-history=0; deployment contract not created; authorized=false.",
+    "status": "NO_CHANGE_RECOMMENDED"
+  },
   "watchtower_opening_state_recovery": {
     "artifact": "docs/audits/watchtower_opening_state_recovery.v1.json (sha256 a9294a4907bb4c42ce58a71e773d9afb4b45dc9dcb33f89ca8b9cede614605b1)",
     "engineering_revision": "e21867c1 plus retained-only Watchtower opening-state audit",

@@ -1,0 +1,114 @@
+{
+  "audit": "WATCHTOWER_15M_PROVIDER_EVIDENCE_LIVENESS_V1",
+  "status": "COMPLETE_READ_ONLY",
+  "snapshot_utc": "2026-09-28T21:57:13Z",
+  "deployment_boundary_utc": "2026-09-28T20:36:48Z",
+  "safety": {
+    "additional_provider_call_count": 0,
+    "additional_rpc_call_count": 0,
+    "live_db_writes": 0,
+    "source_changes": 0,
+    "config_changes": 0,
+    "process_actions": 0,
+    "budget_changes": 0,
+    "manual_retry_count": 0,
+    "runtime_deployment_required": false,
+    "reason": "Read-only audit of retained local queue, fact, observation, budget, backoff, source, and Supervisor configuration evidence."
+  },
+  "source_identity": {
+    "engineering_revision": "870dcd71eb146532f27346e5bc8412abdf2a3b00",
+    "operation_monitor_worker_sha256": "2103a3a2d06d3db98c4b5c8abc045bf978713c93bdaa35660c906e95c610e42e",
+    "provider_binding_sha256": "ce9028c24abd7ead2d1886bea7af788ba248acea0f7b964a651398720be7b8c8",
+    "monitor_launcher_sha256": "a1c48d075aabc2ea586cc51b35c4ffd83c747808d560b425397d4268e3dc04cd"
+  },
+  "prominent_outputs": {
+    "CURRENT_WT_15M_ELIGIBLE_COUNT": 7,
+    "CURRENT_WT_MONITOR_ACTIVE_COUNT": 7,
+    "WT_15M_TOTAL_CALLS": 370,
+    "HTTP_200_COUNT": 364,
+    "HTTP_400_COUNT": 4,
+    "HTTP_429_COUNT": "AT_LEAST_1_RETAINED",
+    "CU_LIMIT_ERROR_COUNT": 4,
+    "WT_15M_USEFUL_CALLS": 7,
+    "WT_15M_USEFUL_CALL_PERCENT": 1.8919,
+    "15M_REQUEST_WINDOW_BEHAVIOR": "REPEATED_LARGE_RANGE",
+    "HTTP400_CONSUMES_LOCAL_BUDGET": true,
+    "UI_CALLS_ZERO_CLASSIFICATION": "UI_READS_DIFFERENT_COUNTER",
+    "UI_NOT_MONITORED_CLASSIFICATION": "UI_READS_DIFFERENT_MONITOR_DATABASE",
+    "WATCHTOWER_15M_EVIDENCE_LIVENESS_STATUS": "MIXED"
+  },
+  "population": {
+    "CURRENT_WT_15M_MONITOR_MATRIX": [
+      {"mint": "9DPUFzAMZfbh4ie5RLJ1C7Zhes5eEayPsTU91tSzpump", "display_name": "NOT_RETAINED_IN_MONITOR_DB", "canonical_time": 1790629222, "queue_state": "pending", "claim_time": 1790632628, "history_15m_eligible": true, "monitor_active": true, "terminal": false, "next_check": "ACTIVE_SUCCESSOR_PENDING"},
+      {"mint": "8n1Qyjo7LrQMFaZsTJ3K1qPkNRMxDmS6R4eDjkvjpump", "display_name": "NOT_RETAINED_IN_MONITOR_DB", "canonical_time": 1790629146, "queue_state": "pending", "claim_time": 1790632617, "history_15m_eligible": true, "monitor_active": true, "terminal": false, "next_check": "ACTIVE_SUCCESSOR_PENDING"},
+      {"mint": "FCoXFnRQsHtb2rPReJUrtkPD8qBm8UVbXNdHx49spump", "display_name": "NOT_RETAINED_IN_MONITOR_DB", "canonical_time": 1790623249, "queue_state": "retry", "claim_time": 1790627809, "history_15m_eligible": true, "monitor_active": true, "terminal": false, "next_check": "RETRYABLE_HTTP_400"},
+      {"mint": "7mqDrCDrw7zxqQs3KiRWmx3bns7uy3mMSiAKgDotpump", "display_name": "NOT_RETAINED_IN_MONITOR_DB", "canonical_time": 1790611562, "queue_state": "retry", "claim_time": 1790627825, "history_15m_eligible": true, "monitor_active": true, "terminal": false, "next_check": "RETRYABLE_HTTP_400"},
+      {"mint": "5PmsmHC6aqCuBzECBLX5Mv9FA8Pgd9rfrX9bT4kzpump", "display_name": "NOT_RETAINED_IN_MONITOR_DB", "canonical_time": 1790558234, "queue_state": "retry", "claim_time": 1790627814, "history_15m_eligible": true, "monitor_active": true, "terminal": false, "next_check": "RETRYABLE_HTTP_400"},
+      {"mint": "4Z9eH1BCuq2Y6FFRXkZft9LoxwMqQWo7bJsEbcd7pump", "display_name": "NOT_RETAINED_IN_MONITOR_DB", "canonical_time": 1790548933, "queue_state": "retry", "claim_time": 1790627820, "history_15m_eligible": true, "monitor_active": true, "terminal": false, "next_check": "RETRYABLE_HTTP_400"},
+      {"mint": "5tYcEEKvN63RrzpomgF2jWMxJMHmr4Zo19RX1mXipump", "display_name": "NOT_RETAINED_IN_MONITOR_DB", "canonical_time": 1790025949, "queue_state": "retry", "claim_time": 1790325793, "history_15m_eligible": true, "monitor_active": true, "terminal": false, "next_check": "RETRYABLE_COMPACT_RESPONSE_CAPACITY"}
+    ]
+  },
+  "attribution": {
+    "POSTDEPLOY_PROVIDER_CALL_COUNT_TOTAL": "NOT_FULLY_RETAINED_ACROSS_ALL_PROVIDER_CONSUMERS",
+    "POSTDEPLOY_WT_MONITOR_PROVIDER_CALL_COUNT": 370,
+    "POSTDEPLOY_OTHER_PROVIDER_CALL_COUNT": "NOT_RETAINED",
+    "UNATTRIBUTED_PROVIDER_CALL_COUNT": "NOT_RETAINED",
+    "method": "Sum durable physical-attempt counters for the six post-boundary Watchtower envelopes: 211 + 155 + 1 + 1 + 1 + 1. The pre-boundary 5tYc envelope is excluded. Dashboard CU consumption was not used for attribution."
+  },
+  "call_results": {
+    "WT_15M_CALL_RESULT_MATRIX": [
+      {"mint": "8n1Qyjo7LrQMFaZsTJ3K1qPkNRMxDmS6R4eDjkvjpump", "attempts": 211, "http_200": 210, "last_endpoint": "/defi/v3/ohlcv", "last_window_seconds": 3548, "last_http_status": 200, "last_error": null, "normalization": "OBSERVATION_COMMITTED", "unique_completed_candles": 4, "latest_completed_candle_time": 1790631900, "first_broken_transition": "NO_FAILURE"},
+      {"mint": "9DPUFzAMZfbh4ie5RLJ1C7Zhes5eEayPsTU91tSzpump", "attempts": 155, "http_200": 154, "last_endpoint": "/defi/v3/ohlcv", "last_window_seconds": 3420, "last_http_status": 200, "last_error": null, "normalization": "OBSERVATION_COMMITTED", "unique_completed_candles": 3, "latest_completed_candle_time": 1790631900, "first_broken_transition": "NO_FAILURE"},
+      {"mint": "FCoXFnRQsHtb2rPReJUrtkPD8qBm8UVbXNdHx49spump", "attempts": 1, "http_200": 0, "last_endpoint": "/defi/v3/ohlcv", "last_window_seconds": 1, "last_http_status": 400, "last_error": "Compute units usage limit exceeded", "normalization": "NOT_REACHED", "unique_completed_candles": 0, "latest_completed_candle_time": null, "first_broken_transition": "PROVIDER_HTTP_400_CU_LIMIT"},
+      {"mint": "7mqDrCDrw7zxqQs3KiRWmx3bns7uy3mMSiAKgDotpump", "attempts": 1, "http_200": 0, "last_endpoint": "/defi/v3/ohlcv", "last_window_seconds": 1, "last_http_status": 400, "last_error": "Compute units usage limit exceeded", "normalization": "NOT_REACHED", "unique_completed_candles": 0, "latest_completed_candle_time": null, "first_broken_transition": "PROVIDER_HTTP_400_CU_LIMIT"},
+      {"mint": "5PmsmHC6aqCuBzECBLX5Mv9FA8Pgd9rfrX9bT4kzpump", "attempts": 1, "http_200": 0, "last_endpoint": "/defi/v3/ohlcv", "last_window_seconds": 1, "last_http_status": 400, "last_error": "Compute units usage limit exceeded", "normalization": "NOT_REACHED", "unique_completed_candles": 0, "latest_completed_candle_time": null, "first_broken_transition": "PROVIDER_HTTP_400_CU_LIMIT"},
+      {"mint": "4Z9eH1BCuq2Y6FFRXkZft9LoxwMqQWo7bJsEbcd7pump", "attempts": 1, "http_200": 0, "last_endpoint": "/defi/v3/ohlcv", "last_window_seconds": 1, "last_http_status": 400, "last_error": "Compute units usage limit exceeded", "normalization": "NOT_REACHED", "unique_completed_candles": 0, "latest_completed_candle_time": null, "first_broken_transition": "PROVIDER_HTTP_400_CU_LIMIT"},
+      {"mint": "5tYcEEKvN63RrzpomgF2jWMxJMHmr4Zo19RX1mXipump", "attempts": "PRE_BOUNDARY_EXCLUDED", "last_endpoint": "/defi/v3/ohlcv", "last_window_seconds": 307348, "last_http_status": 200, "last_error": "COMPACT_RESPONSE_CAPACITY_EXCEEDED", "normalization": "NOT_REACHED", "unique_completed_candles": 0, "latest_completed_candle_time": null, "first_broken_transition": "PROVIDER_OTHER_ERROR"}
+    ],
+    "http_distribution": {"HTTP_200_COUNT": 364, "HTTP_400_COUNT": 4, "HTTP_401_COUNT": 0, "HTTP_429_COUNT": "AT_LEAST_1_RETAINED", "HTTP_5XX_COUNT": 0, "TRANSPORT_ERROR_COUNT": 0, "OTHER_STATUS_COUNT": "AT_LEAST_1_NOT_STATUS_RETAINED"},
+    "HTTP_400_REASON_COUNTS": {"Compute units usage limit exceeded": 4},
+    "CU_LIMIT_AFFECTED_MINTS": ["FCoXFnRQsHtb2rPReJUrtkPD8qBm8UVbXNdHx49spump", "7mqDrCDrw7zxqQs3KiRWmx3bns7uy3mMSiAKgDotpump", "5PmsmHC6aqCuBzECBLX5Mv9FA8Pgd9rfrX9bT4kzpump", "4Z9eH1BCuq2Y6FFRXkZft9LoxwMqQWo7bJsEbcd7pump"],
+    "CU_LIMIT_ERROR_COUNT": 4,
+    "CU_LIMIT_AFFECTED_MINT_COUNT": 4,
+    "CU_LIMIT_PATTERN": "ON_EVERY_RETAINED_ATTEMPT_FOR_THE_AFFECTED_FOUR; no second attempt was made by this audit."
+  },
+  "usefulness": {
+    "WT_HTTP200_USEFULNESS_MATRIX": [
+      {"mints": ["8n1Qyjo7LrQMFaZsTJ3K1qPkNRMxDmS6R4eDjkvjpump", "9DPUFzAMZfbh4ie5RLJ1C7Zhes5eEayPsTU91tSzpump"], "http_200": 364, "USEFUL_CANDLE_RETAINED": 7, "DUPLICATE_ALREADY_RETAINED": 356, "NO_COMPLETED_CANDLE_OR_OTHER": 1, "response_rows_and_exact_empty_classification": "Not retained per attempt; inferred only from durable success/normalization/persistence counters and seven unique observation rows."}
+    ],
+    "WT_15M_TOTAL_CALLS": 370,
+    "WT_15M_USEFUL_CALLS": 7,
+    "WT_15M_WASTED_OR_DEFERRED_CALLS": 363,
+    "WT_15M_USEFUL_CALL_PERCENT": 1.8919,
+    "WT_15M_ESTIMATED_CU_CONSUMED": "NOT_RETAINED",
+    "WT_15M_ESTIMATED_CU_PER_USEFUL_CANDLE": "NOT_RETAINED"
+  },
+  "request_and_budget": {
+    "CURRENT_15M_PROVIDER_REQUEST_CONTRACT": {"endpoint": "/defi/v3/ohlcv", "address_parameter": "mint", "chart_type": "mcap", "currency": "usd", "mode": "range", "padding": false, "type": "15m", "time_from": "envelope.last_observation_at OR entry_timestamp OR history_start_timestamp", "time_to": "dispatch epoch", "limit": "ABSENT", "sort_order": "ABSENT"},
+    "15M_REQUEST_CONTRACT_PARITY": "FAIL",
+    "parity_reason": "The endpoint and 15m type match, but active successor envelopes retain no last_observation_at; requests fall back to entry_timestamp, repeatedly re-requesting a widening historical range instead of an incremental bounded window ending at a completed 15m boundary.",
+    "15M_REQUEST_WINDOW_DURATION": {"8n1": 3548, "9DPU": 3420, "four_cu_rejections": 1, "pre_boundary_5tYc": 307348},
+    "EXPECTED_NEW_CANDLE_WINDOW": "From the last retained 15m watermark (1790631900 for 8n1/9DPU) through the next completed 15m boundary, approximately one 15m interval plus a bounded overlap.",
+    "15M_REQUEST_WINDOW_BEHAVIOR": "REPEATED_LARGE_RANGE",
+    "ZERO_CANDLE_RETRY_WINDOW_BEHAVIOR": "The four active unresolved rows preserve history_start_timestamp and have no watermark; a retry would again begin from that activation-time start. Their recorded window is one second, not a large range, but it is not advanced without retained evidence.",
+    "GLOBAL_BUDGET_USED": 8,
+    "GLOBAL_BUDGET_AVAILABLE": 12,
+    "PER_TOKEN_BUDGET_STATE": {"8n1": "4_OF_4", "9DPU": "4_OF_4", "others": "0_IN_CURRENT_60_SECOND_ROLLING_WINDOW"},
+    "BACKOFF_STATE": {"state": "READY", "last_429_at": 1790629269, "retry_after_seconds": 1, "last_success_at": 1790632633},
+    "HTTP400_CONSUMES_LOCAL_BUDGET": true,
+    "budget_reason": "The queue calls admit_provider_dispatch before transport; the durable attempt counter and budget admission occur before a non-200 is raised."
+  },
+  "ui_trace": {
+    "UI_CALLS_COLUMN_AUTHORITY": "operation_monitor_facts.provider_call_count from the database selected by operator_routes._monitor_live_projection.",
+    "UI_CALLS_ZERO_CLASSIFICATION": "UI_READS_DIFFERENT_COUNTER",
+    "UI_MONITOR_STATE_AUTHORITY": "A fact row from the API's selected monitor database; absent fact rows are synthesized as monitor_state=NOT_MONITORED by the recent membership projection.",
+    "UI_NOT_MONITORED_CLASSIFICATION": "UI_READS_DIFFERENT_MONITOR_DATABASE",
+    "proof": "The running DEV MonitorWorker has seven active facts in .dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db. The supervised watchtower_api configuration instead supplies WT_OPS_DB_PATH=database/wt_ops_v2.db and does not set MONITOR_RUNTIME=dev or DEV_MONITOR_DB_PATH. That production database contains none of the six post-boundary active mint facts. Therefore the page synthesizes NOT_MONITORED and Calls=0 for those canonical memberships; this is independent of provider activity."
+  },
+  "verdict": {
+    "WATCHTOWER_15M_EVIDENCE_LIVENESS_STATUS": "MIXED",
+    "finding": "There is a real provider-side CU failure for four active source-authorized history rows, plus a source-proven repeated-range/duplicate-call inefficiency for the two successful active rows. Separately, the UI cannot display the DEV runtime facts because it reads another monitor database. The dashboard cannot be attributed from local evidence beyond the 370 retained Watchtower attempts.",
+    "next_gate": "QUALIFY_MINIMUM_15M_PROVIDER_REQUEST_REPAIR",
+    "ui_follow_on": "Only after the provider evidence path is qualified should UI projection alignment be separately qualified."
+  }
+}

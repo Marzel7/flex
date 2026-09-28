@@ -1,4 +1,15 @@
 {
+  "watchtower_minimum_upstream_historical_predeploy_validation_20260928": {
+    "engineering_revision":"52e77fd173c7e9fe260da4a723a9fc943c3551d1 on dev/monitor-live-admission",
+    "status":"PASS_WITH_CONTRACT_DRIFT",
+    "verdict":"ALL_19_DIRECT_HISTORICAL_CONTROLS_EXTRACT_EXACTLY_BUT_OLD_DEPLOYMENT_CONTRACT_IS_SUPERSEDED",
+    "result":"Read-only validation over all frozen direct controls passes: 19/19 exact source, destination, and signature matches; zero unexpected relations; zero label-derived relations. The 217-SubProvider dry run yields 19 relations and 198 expected absences. Objective 14- and 4-SubProvider groups reconstruct without Treasury labels. Provider/RPC/address-history calls=0; original 28 regressions remain 28/0; adversarial conflict/direction/session/signature/replay/failure/capacity checks pass.",
+    "artifact":"watchtower_minimum_upstream_historical_predeploy_validation.v1.json sha256 26f4f84fe4ebf434adf36d8a993ef4752b3d09a24af000cd5b917baa1ea2faa3",
+    "contract_status":"The contract sha c1c79a7f39341e80abc67fca9ce7e57082a9f0dad17c5c11fd8da640cda65c9e is not usable: source drift=1 because minimum code was intentionally tightened to fail closed on immutable endpoint conflict and reduced to 10000 rows/10MB.",
+    "production_flags":"read-only validation; live source/schema/DB/process/provider/backfill mutations=0. Deployment remains paused and unauthorized.",
+    "next_action":"REFREEZE_WATCHTOWER_MINIMUM_UPSTREAM_RETENTION_CONTRACT with the current source postimages and then request fresh explicit authorization. Do not deploy under the superseded SHA.",
+    "updated_at":"2026-09-28T13:00:00Z"
+  },
   "watchtower_minimum_subprovider_upstream_retention_v1_20260928": {
     "engineering_revision":"4b454f3997af701fc333a17b87eaeba2d265ba1e on dev/monitor-live-admission",
     "status":"QUALIFIED_NOT_DEPLOYED",

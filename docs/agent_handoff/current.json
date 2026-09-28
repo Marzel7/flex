@@ -1,4 +1,14 @@
 {
+  "monitor_bridge_cadence_60s_predeploy_20260928": {
+    "engineering_revision":"df8f1eccbe79a768b122e0b6291438c1bf4eb598 on dev/monitor-live-admission",
+    "status":"HOLD",
+    "verdict":"CADENCE_CHANGE_BLOCKED_BY_MANDATORY_LARGE_FILE_PROHIBITION_GATE",
+    "result":"Read-only preflight verified the one-target authority (bridge Supervisor environment), current 5s cadence/batch=1/recovery=60, and healthy isolated bridge. 60s polling with 60s recovery is safe for the current serial single-process model, but deployment cannot proceed: source DB is 10,143,535,104 bytes and no verified historical-price DB/WAL absolute cap exists, so the explicitly required 500MB storage gate is false.",
+    "artifact":"monitor_bridge_cadence_60s_predeploy_hold.v1.json sha256 2980dc45e09734445694462e5a55ce413ffe4c6b014a860b412e2fc638c8b6a2",
+    "next_action":"REPAIR_HISTORICAL_PRICE_STORAGE_BOUNDARY then requalify exact one-target cadence postimage before changing config or restarting bridge.",
+    "safety":"config/source/schema/DB/provider/process/Supervisor/backfill mutations=0; cadence remains 5 seconds.",
+    "updated_at":"2026-09-28T05:15:00Z"
+  },
   "monitor_bridge_pressure_storage_audit_20260927": {
     "engineering_revision":"0a6548931e3732649eb41417c8dd77dfce1bb556 on dev/monitor-live-admission",
     "status":"HOLD",

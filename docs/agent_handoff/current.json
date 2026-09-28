@@ -1,4 +1,14 @@
 {
+  "watchtower_registry_promotion_gap_4vvm_20260928": {
+    "engineering_revision":"31d6d12b9e0d257ad424aaacedf3c21b8e33221d on dev/monitor-live-admission",
+    "status":"HOLD",
+    "verdict":"WATCHTOWER_CONFIRMED_TO_CANONICAL_PROMOTION_GAP_PROVEN",
+    "result":"Natural control 4vvmFPzh… is WATCHTOWER_CONFIRMED but has no canonical membership/outbox. Its provisioning session exists with treasury=NULL; deployed role-normalized validation rejects ROUTE_EVIDENCE_INCOMPLETE before membership projection. Exact retained 24h window: 13 confirmed, 4 promoted, 9 missing (69.23%); all-time confirmed-not-canonical count=1639. CXM6 lineage miss remains separate.",
+    "artifact":"watchtower_registry_promotion_gap_4vvm.v1.json sha256 d64e2d56319f9c4532fab9ff16cbf63adb5d402a07b2bdddc27869764a5691e5",
+    "next_action":"QUALIFY_WATCHTOWER_REGISTRY_PROMOTION_REPAIR. Do not backfill, manually promote, or alter bridge/Deep policy.",
+    "safety":"read-only; source/schema/DB/provider/process/backfill/manual-membership mutations=0.",
+    "updated_at":"2026-09-28T06:45:00Z"
+  },
   "monitor_bridge_idle_readonly_cadence60_execution_20260928": {
     "engineering_revision":"667b2e5ff1a88f5e14c34f8cd17ef8feb165f496 on dev/monitor-live-admission",
     "status":"ACTIVE_OBSERVATION",

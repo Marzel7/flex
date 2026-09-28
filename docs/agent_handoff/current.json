@@ -1,4 +1,14 @@
 {
+  "monitor_bridge_idle_readonly_cadence60_execution_20260928": {
+    "engineering_revision":"667b2e5ff1a88f5e14c34f8cd17ef8feb165f496 on dev/monitor-live-admission",
+    "status":"ACTIVE_OBSERVATION",
+    "verdict":"RUNTIME_DEPLOYMENT_GATE=PASS; BRIDGE_IDLE_READONLY_CADENCE60_ACTIVE",
+    "result":"Authorized exact two-target deployment completed. Source/config postimages match; bridge restarted once (51599 to 53373) and runs poll=60, recovery=60, batch=1 with healthy EMPTY state. Walkback PID 69746 and MonitorWorker PID 7851 were untouched. No schema/provider/backfill/Deep policy change occurred.",
+    "artifact":"monitor_bridge_idle_readonly_cadence60_execution.v1.json sha256 b00713bf99cd0485e4b7c65c9689ea4d40c1421383a878e0ed32290ead47e090",
+    "next_action":"CONTINUE_NATURAL_WATCHTOWER_MEMBERSHIP_OBSERVATION. Preserve original membership T0; historical-price storage boundary remains separately HOLD.",
+    "safety":"source/config deployment only; bridge restart=1; all unrelated process actions=0; provider calls=0.",
+    "updated_at":"2026-09-28T06:37:08.604950000Z"
+  },
   "monitor_bridge_idle_readonly_cadence60_qualification_20260928": {
     "engineering_revision":"5abf1bf11b135004506d17c9263939c02062e228 on dev/monitor-live-admission",
     "status":"QUALIFIED_NOT_DEPLOYED",

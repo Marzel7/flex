@@ -18912,6 +18912,18 @@
     "updated_at": "2026-09-28T16:30:00Z",
     "verdict": "POPULATION_A_UPSTREAM_RELATION_COHORT_V1_IS_A_REPRODUCIBLE_21_MEMBER_RESEARCH_AUTHORITY_AND_DOES_NOT_REWRITE_FROZEN19"
   },
+  "watchtower_wsol_projector_validation": {
+    "audit": "docs/audits/watchtower_wsol_projector_validation.v1.json sha256 d9c826b85c64345972796af11f7cb7c8dbbd8ea5498c40379a95a6b297ec24f2",
+    "engineering_revision": "2ff72705d2e144ab9414cb1ddce8444d7bf67134 audit-only commit; deployed projector unchanged",
+    "next_action": "REVIEW_ONLY_PROVEN_WSOL_REJECTION_FAMILY",
+    "plain_policy": "SEPARATE_UNRESOLVED_MECHANISM_GATE; it is not a WSOL-projector failure.",
+    "primary_wsol": "Frozen WSOL confirmed=575, evaluable=575, eligible=437, rejected=138, eligibility=76.0000%. Session-present WSOL=546, eligible=437, rejected=109, eligibility=80.0366%. PLAIN_XFER excluded from primary score.",
+    "safety": "No source/schema/runtime/process/DB/provider/RPC changes.",
+    "status": "SYSTEMATIC_WSOL_GAP_REMAINS",
+    "temporal": "WSOL 24h=11/11 eligible; 7d=64/64; 30d=290/292 with two conflicts; 60d=364/467 with 103 conflicts.",
+    "today": "WSOL Dfg, 7H5, 4vvm, C5zy, 5Pms, 7rn all eligible. PLAIN_XFER Dtik and 633 separately remain mechanism mismatches.",
+    "wsol_rejections": "MISSING_PROVISIONING_SESSION=29; TREASURY_EVIDENCE_CONFLICT=109. All 109 lack both a required forward role-distinguishing edge and a reverse edge: genuine same-role=0, proven different-role=0, ambiguous=0, insufficient retained evidence=109."
+  },
   "wave_5a_investigation_archive_retirement": {
     "current_consumers": "No current main UI/API/archive attach reference remains. archive_funder_networks.py and reclaim_funder_networks_space.py are retained historical/manual tools, not production callers or enabled recreation paths.",
     "deletion": "Archive DB was retired under explicit user authorization; stale 0-byte WAL and 32KiB SHM sidecars were subsequently removed after no open handle was found. No other database was targeted.",

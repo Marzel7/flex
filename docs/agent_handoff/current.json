@@ -1,6 +1,17 @@
 {
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
+  "watchtower_monitor_claim_liveness_v2_deployment_20260928": {
+    "engineering_revision": "fdcc1c997978609531798a23f6bfb4e97e358806 on dev/monitor-live-admission",
+    "audit": "docs/audits/watchtower_monitor_claim_liveness_repair_v2_execution.v1.json sha256 21b21d12befa932ead5e0fa27a8cc41232556b7eb0d8153686f710ecb5a55baa",
+    "contract_sha256": "38d1c81095d9b6c41ab9dc0795d7b18cd9397e8f21be6470f1a32172f63fc49d",
+    "status": "DEPLOYED_PASS_DOWNSTREAM_WAIT",
+    "target_verification": "All three preimages and postimages match exactly; rollback copies for all three targets verified. MonitorWorker only restarted 20905 -> 28622. Walkback/bridge/API/listener/global Supervisor restarts=0.",
+    "launcher": "env -i preserved; actual child has MONITOR_CLAIM_AUTHORITY_DB_PATH=/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db; unrelated parent environment remains excluded; authority DB readable with delivered Watchtower authority evidence.",
+    "natural_7mq": "7mqDrCDrw7zxqQs3KiRWmx3bns7uy3mMSiAKgDotpump naturally claimed at 2026-09-28T17:41:52Z without manual mutation/requeue/backfill. Claim acceptance PASS. Existing downstream entry lookup/strict opening ran and remains WAITING_FOR_ENTRY_REFERENCE / RETRYABLE_DEFERRED because TARGET_SECOND_ABSENT; monitor facts=0; observations=0.",
+    "safety": "Deep/forged/wrong-operation newly claimable=0. Deployment-triggered provider calls=0. Compact active budget window retains four natural 7mq OPENING calls; no manual provider/RPC acquisition occurred.",
+    "next_action": "REVIEW_ONLY_POSTCLAIM_OPENING_RESULT"
+  },
   "watchtower_monitor_launcher_environment_closure_20260928": {
     "engineering_revision": "8817772a7143719794f2371d46e3ce60b99bfebd on dev/monitor-live-admission",
     "qualification_audit": "docs/audits/watchtower_monitor_launcher_environment_closure_qualification.v1.json sha256 05c439b0cdb797767e159d4e7fe9bb23f572fe64b2dd0209e3150f40a04c6d7e",

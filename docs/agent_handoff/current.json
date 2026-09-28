@@ -1,6 +1,16 @@
 {
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
+  "birdeye_riley_runtime_deployment_20260928": {
+    "engineering_revision": "234ce1d84cccc50c3fbb9fa79c8fcac104ea0b55 on dev/monitor-live-admission",
+    "execution_audit": "docs/audits/birdeye_riley_runtime_deployment_execution.v1.json sha256 3517c9576321b0c6f662e5e8df174a0fc2c7ed92a28c241eb78813bec8d3a80b",
+    "contract_sha256": "7262c0df42cbe3291f6b47f1cb02bbb74fa53f32355640f7c9084f8f3dad7345",
+    "status": "DEPLOYED_PASS",
+    "target_verification": "Binding changed exactly 9d4b3e... -> ce9028... and launcher exactly 304ca4... -> a1c48d.... Deployed Watchtower 15m worker source and Supervisor config invariant hashes match; schema targets=0; rollback preimages verified.",
+    "activation": "operation_monitor_worker only restarted 29155 -> 37733. Walkback/bridge/API/listener/global restarts=0. Worker RUNNING; process has BIRDEYE_API_KEY and claim authority path, no BIRDEYE_KK. Under env -i, BIRDEYE_RILEY is intentionally exported only as BIRDEYE_API_KEY; values were never logged.",
+    "verification": "Credential contract tests=2 passed; Watchtower activation harness=7 passed; feature-caused net-new regressions=0; deployment-triggered Birdeye/RPC calls=0.",
+    "next_action": "OBSERVE_WATCHTOWER_15M_HISTORY"
+  },
   "birdeye_riley_runtime_deployment_contract_20260928": {
     "engineering_revision": "9f7019a770edc1057fcf182c76e426485fda4dc8 on dev/monitor-live-admission",
     "contract": "docs/audits/birdeye_riley_runtime_deployment_contract.v1.json sha256 7262c0df42cbe3291f6b47f1cb02bbb74fa53f32355640f7c9084f8f3dad7345",

@@ -18681,6 +18681,18 @@
     "updated_at": "2026-09-28T15:50:58Z",
     "verdict": "ROLE_NORMALIZED_WATCHTOWER_PROMOTION_REPAIR_DEPLOYED"
   },
+  "watchtower_role_normalized_promotion_natural_acceptance": {
+    "audit": "docs/audits/watchtower_role_normalized_promotion_natural_acceptance.v1.json sha256 6589c2e0e4020d02ad575ce726ade6d561a7a39e67dbfa4a5463d3ab6711f42e",
+    "bridge_monitor": "bridge claim/delivery acknowledged 16:06:41Z; durable MonitorQueue pending WAITING_FOR_ENTRY_REFERENCE. Monitor facts=0 and observations=0.",
+    "confirmation": "WATCHTOWER_CONFIRMED complete at 2026-09-28T16:06:02Z, after T0; queue treasury=2ghj; mechanism=WSOL_WRAP_CLOSE. Projector result=PROMOTED via role normalization.",
+    "engineering_revision": "d0429321aaffb0c4bf00a208e566db883f66a21d audit-only; deployed repair unchanged",
+    "membership_outbox": "canonical membership and source outbox each exactly one at 16:06:02Z with shared membership identity; outbox DELIVERED.",
+    "mint": "7mqDrCDrw7zxqQs3KiRWmx3bns7uy3mMSiAKgDotpump",
+    "next_action": "TRACE_WATCHTOWER_MONITOR_FACT_LIVENESS",
+    "route": "Retained: 2ghj->Gozg verified LIVE_DIRECTIONAL_TRANSACTION; Gozg->Dbrn and Dbrn->8Nb session edges; 8Nb->mint. No direct 2ghj->Dbrn edge was inferred.",
+    "safety": "Read-only; no code/schema/runtime/process/DB/provider/RPC mutation; manual/backfill=0.",
+    "status": "PASS_LIVE_ACCEPTED"
+  },
   "watchtower_role_normalized_promotion_repair_20260928": {
     "artifacts": "docs/audits/watchtower_active_projector_runtime_provenance.v1.json; docs/audits/watchtower_role_normalized_promotion_repair_qualification.v1.json sha256 60fac54b350e5936ff323aa9eabb5678ba81673b1a357d1a3dd9bbaa50906b3f; unauthorized contract docs/audits/watchtower_role_normalized_promotion_repair_deployment_contract.v1.json sha256 e7c107a1ca5883ba503f4ecf901dade8ad04cbdb88f0dd7ebd5c33b3fcebd3fa",
     "engineering_revision": "bc26d205 on dev/monitor-live-admission",

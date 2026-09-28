@@ -18103,6 +18103,17 @@
     "safety": "Read-only; live DB/schema/source/process writes/actions=0; provider/RPC/address-history=0; backfill=false; manual promotion=0.",
     "status": "SUPPORTING_NOT_ESSENTIAL"
   },
+  "watchtower_monitor_entry_reference_liveness": {
+    "audit": "docs/audits/watchtower_monitor_entry_reference_liveness.v1.json sha256 8a33b17ae80ef93106f79f2902e09b4a2c92629a3f28e507a0532cd930acaca3",
+    "budget": "provider budget READY; 429 READY, zero opening attempt for 7mq.",
+    "contract": "Watchtower and Deep share MIGRATION_BOUNDARY -> FIRST_FULL_POST_MIGRATION_SECOND_MC. Qualified entry timestamp plus MC is required before Monitor fact activation.",
+    "engineering_revision": "240965afe06e24c4f4be17c517ef1433ee8fd5f5 audit-only; no repair deployed",
+    "next_action": "QUALIFY_WATCHTOWER_ENTRY_REFERENCE_LIVENESS_REPAIR",
+    "root_cause": "operation_monitor_worker PID 7851 and bridge PID 53373 are running, but DEV_005_ISOLATED_SOAK allowlist excludes 7mq. It is never claimed, so migration resolver/provider opening acquisition is not triggered. The selection separately authorizes no provider dispatch.",
+    "safety": "Read-only; provider/RPC/source/schema/runtime/process/DB changes=0.",
+    "seven_mq": "7mq queue job is durable pending WAITING_FOR_ENTRY_REFERENCE. Local migration signature/slot/timestamp exist, strict opening is absent, and entry lookup was never invoked; facts=0 observations=0 are expected downstream effects.",
+    "status": "ENTRY_REFERENCE_PIPELINE_DEFECT"
+  },
   "watchtower_narrow_no_session_promotion_path_qualification": {
     "audit": "docs/audits/watchtower_narrow_no_session_promotion_path_qualification.v1.json sha256 fb8e41e96c419bf0572221eb990c0b0364b9b174c34480cb5e95bfd46cfe95cd",
     "candidate_rule": "A future narrow rule would require confirmed completed FULL_WALKBACK, creator/treasury/subprov, funder signature, WSOL_WRAP_CLOSE, confirmed treasury recognition, and a prospective-only boundary; it would delegate all session-present rows unchanged. It was not implemented because no qualifying recent session-absent WSOL fixture exists.",

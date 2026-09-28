@@ -1,6 +1,14 @@
 {
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
+  "birdeye_riley_runtime_deployment_contract_20260928": {
+    "engineering_revision": "9f7019a770edc1057fcf182c76e426485fda4dc8 on dev/monitor-live-admission",
+    "contract": "docs/audits/birdeye_riley_runtime_deployment_contract.v1.json sha256 7262c0df42cbe3291f6b47f1cb02bbb74fa53f32355640f7c9084f8f3dad7345",
+    "status": "QUALIFIED_CONTRACT_READY_FOR_AUTHORIZATION",
+    "result": "No exact BIRDEYE_RILEY runtime deployment contract existed. The new contract freezes two live source targets: token_data_provider_bindings.py 9d4b3e... -> ce9028... and run_dev_005a_monitor.sh 304ca4... -> a1c48d.... operation_monitor_worker.py and Supervisor config are invariant hashes; schema/config targets=0.",
+    "production_flags": "authorized=false; deployment not executed; provider/RPC/live DB/schema/process changes=0. The contract allows at most one operation_monitor_worker restart after fresh authorization.",
+    "next_action": "AUTHORIZE_BIRDEYE_RILEY_RUNTIME_CONTRACT"
+  },
   "watchtower_15m_history_activation_deployment_20260928": {
     "engineering_revision": "fad1a4abb16cf63e8612a7228a0f1cddcc8132b8 on dev/monitor-live-admission",
     "execution_audit": "docs/audits/watchtower_15m_history_activation_execution.v1.json sha256 c9db4e4cb442e523910487ea19de2402d8684813be27f00cacf4bd74dec831ab",

@@ -1,6 +1,14 @@
 {
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
+  "watchtower_7mq_bounded_opening_diagnostic_20260928": {
+    "engineering_revision": "60c378db2080c183d541cd5d4367bdfc8d731469 on dev/monitor-live-admission",
+    "audit": "docs/audits/watchtower_7mq_bounded_opening_diagnostic.v1.json sha256 9cd1ccdfa1e2f3bf75f2aad80275fe5fa8db212b61f3e22991bd6e06413ff553",
+    "status": "PROVIDER_ERROR",
+    "result": "The single authorized Birdeye 1s OHLCV request for 7mq over [1790611484,1790611486] received HTTP 401. No retry occurred and no response items were available for normalizer replay. Target-second availability remains unevaluated; this is not evidence that the target is absent or malformed.",
+    "safety": "Birdeye requests=1; RPC=0; retries=0; production DB writes=0; Monitor state changes=0; process actions=0; no entry reference was persisted or applied.",
+    "next_action": "REVIEW_BIRDEYE_DIAGNOSTIC_AUTHORIZATION_CONTEXT"
+  },
   "watchtower_7mq_postclaim_strict_opening_review_20260928": {
     "engineering_revision": "fcda2d3258b1293414481349241ca802ee72a179 on dev/monitor-live-admission",
     "audit": "docs/audits/watchtower_7mq_postclaim_strict_opening_review.v1.json sha256 fc8ffd3d7bcfa78e78f77a16e2adf352409344f511b3c59d728b3bd758da1fd6",

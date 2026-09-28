@@ -1,4 +1,15 @@
 {
+  "watchtower_minimum_subprovider_upstream_retention_v1_20260928": {
+    "engineering_revision":"4b454f3997af701fc333a17b87eaeba2d265ba1e on dev/monitor-live-admission",
+    "status":"QUALIFIED_NOT_DEPLOYED",
+    "verdict":"MINIMUM_DIRECT_IMMUTABLE_UPSTREAM_ENDPOINT_RETENTION_QUALIFIED_UNAUTHORIZED",
+    "result":"The delta retains only what the local audit proved missing: immutable DIRECT source→established-SubProvider endpoint, signature, locally available time/slot, and explicit CEX/router/service states. Existing SubProvider/session/transaction-role/downstream context remains authoritative in place and is not copied. Identity binds version+SubProvider+signature+ordinal; a conflicting source/destination fails closed without overwrite. The candidate is post-commit, zero-RPC, future-only, detector-free, and bounded at 10000 rows/10MB with explicit defer.",
+    "artifact":"minimum qualification sha256 1b6153cdf5aa9f01559b7875071e9c58097f801107fc12d780eb8233c10c11b7; unauthorized contract sha256 c1c79a7f39341e80abc67fca9ce7e57082a9f0dad17c5c11fd8da640cda65c9e",
+    "tests":"28 focused provider-free and promotion-regression tests passed; 0 failed.",
+    "production_flags":"RUNTIME_DEPLOYMENT_REQUIRED=true; RUNTIME_DEPLOYMENT_GATE=QUALIFIED_NOT_DEPLOYED. Live source/schema/DB/process/provider/backfill/classification/registry/membership/monitor mutations=0. Broader observers remain paused.",
+    "next_action":"AUTHORIZE_WATCHTOWER_MINIMUM_UPSTREAM_RETENTION_V1 only with the exact contract SHA. Reverify pinned preimage, deploy the two source targets plus one additive table, restart Walkback at most once, then observe future natural evidence only. Do not backfill or implement a detector.",
+    "updated_at":"2026-09-28T12:30:00Z"
+  },
   "watchtower_existing_local_subprovider_upstream_evidence_20260928": {
     "engineering_revision":"084ed0fc1014da9bb15f8e6733a9743f3a6b77bb on dev/monitor-live-admission",
     "status":"PARTIAL",

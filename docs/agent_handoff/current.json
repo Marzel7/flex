@@ -1,4 +1,14 @@
 {
+  "watchtower_target_upstream_route_ambiguity_review_20260928": {
+    "engineering_revision": "fa12c98b720ad60136f2e9edfb17336809ced5e2 on dev/monitor-live-admission",
+    "status": "UNRESOLVED",
+    "verdict": "FROZEN19_TO_CURRENT21_DRIFT_CANNOT_BE_SET_DIFFERENCED_BECAUSE_THE_ORIGINAL_FROZEN_AUDIT_RETAINED_AGGREGATES_BUT_NOT_ITS_IMMUTABLE_MEMBER_MANIFEST_OR_SELECTION_PROVENANCE",
+    "result": "Frozen19 remains historically authoritative only at aggregate level: 19 direct, 14 source-equals-Treasury, 5 differs. Current read-only reconstruction returns 21/20 distinct Creator Direct Funders and 14/7 comparison counts, but cannot identify two extras or missing frozen members without silently replacing the frozen cohort. No database snapshot, immutable selection manifest, exact query digest, selection watermark, or session-selection rule was retained. Mixed Population-A route existence remains proven: direct Treasury->Creator Direct Funder and Gzaa Treasury->UNKNOWN_INTERMEDIATE->Creator Direct Funder; 69SN remains UPSTREAM_SOURCE_ONLY.",
+    "artifact": "docs/audits/watchtower_target_upstream_route_ambiguity_review.v1.json sha256 978d8ca28f11109db8897880a1cccc22037409484280ac4891f01f5d19b0cad4",
+    "production_flags": "RUNTIME_DEPLOYMENT_REQUIRED=false (read-only audit). provider/RPC/address-history calls=0; live DB/schema/source/process/backfill/registry/classification mutations=0. All retention/detector candidates remain held.",
+    "next_action": "FREEZE_WATCHTOWER_UPSTREAM_IMMUTABLE_EVIDENCE_CONTRACT: define a versioned append-only cohort identity/provenance authority before any route-count, retention, or detector qualification. Do not replace Frozen19 with Current21.",
+    "updated_at": "2026-09-28T16:00:00Z"
+  },
   "watchtower_target_treasury_upstream_relation_v1_20260928": {
     "engineering_revision": "97f67285919e17491ebe61b7e59b929ffc649229 on dev/monitor-live-admission",
     "status": "PARTIAL",

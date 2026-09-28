@@ -1,4 +1,14 @@
 {
+  "watchtower_upstream_immutable_evidence_contract_v1_20260928": {
+    "engineering_revision": "4c14ec8cb6090dcf97ab748d553f325ed6302add on dev/monitor-live-admission",
+    "status": "FROZEN",
+    "verdict": "POPULATION_A_UPSTREAM_RELATION_COHORT_V1_IS_A_REPRODUCIBLE_21_MEMBER_RESEARCH_AUTHORITY_AND_DOES_NOT_REWRITE_FROZEN19",
+    "result": "At 2026-09-28T10:03:51Z, V1 froze 21 objective launch-associated source->Creator Direct Funder relation IDs, collision-free, from the canonical Population-A-only queue/session/DIRECT-transaction-role selector. It records compact table/schema watermarks, canonical SQL/query digest, identity rule, membership-set digest, provenance rule, diagnostic-only Treasury comparison, and immediate repeat selection 21/0 missing/0 extra. Frozen19 remains aggregate-only partial authority and is not replaced. V1 artifact is 7,947 bytes; no raw transaction payload/database snapshot was retained.",
+    "artifact": "contract docs/audits/watchtower_upstream_immutable_evidence_contract.v1.json sha256 3b707bb55845025a27eae30752b8e8762af433803321b62df73a5bf67742184f; freeze docs/audits/watchtower_upstream_relation_cohort_v1_freeze.v1.json sha256 c57902da8e79918190f8ce507bca091d7c3007f52a18f399b157c0d77060176c; membership set sha256 f296e3abd5e1dd99ab3f8f479b39aa9f009d7d9f3e6dcb81a0ebf1a363b5d529",
+    "production_flags": "RUNTIME_DEPLOYMENT_REQUIRED=false (research/audit contract only). provider/RPC/address-history calls=0; live DB/schema/source/process/backfill/registry mutations=0. No retention or detector work was authorized or performed.",
+    "next_action": "REANALYZE_WATCHTOWER_TARGET_UPSTREAM_ROUTES_ON_FROZEN_COHORT_V1. Do not proceed directly to runtime retention or detector qualification.",
+    "updated_at": "2026-09-28T16:30:00Z"
+  },
   "watchtower_target_upstream_route_ambiguity_review_20260928": {
     "engineering_revision": "fa12c98b720ad60136f2e9edfb17336809ced5e2 on dev/monitor-live-admission",
     "status": "UNRESOLVED",

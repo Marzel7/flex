@@ -1,6 +1,16 @@
 {
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
+  "watchtower_monitor_claim_liveness_deployment_20260928": {
+    "engineering_revision": "c734fcbca991ddd9eb970a0c2e1f0a871b58d640 on dev/monitor-live-admission",
+    "audit": "docs/audits/watchtower_monitor_claim_liveness_repair_execution.v1.json sha256 4bdb799fe10972406e40fbb347467a2b1e34ea8a14a5455e448fdcb63630733c",
+    "contract_sha256": "42867f1ac300a44eea23791b7bfc031caee9a09e9bbf6e10a1a691e5eb5e976e",
+    "status": "ROLLED_BACK",
+    "result": "The exact source/config postimages were installed and MonitorWorker alone was activated (7851 -> 19887), but scripts/run_dev_005a_monitor.sh uses env -i and reconstructs an older environment, discarding MONITOR_CLAIM_AUTHORITY_DB_PATH and retaining the final-population rather than contract soak selection. This failed the required actual-process authority binding, so exact preimages were restored and MonitorWorker alone restarted (20905).",
+    "natural_control": "7mqDrCDrw7zxqQs3KiRWmx3bns7uy3mMSiAKgDotpump was never manually mutated/requeued, remains pending WAITING_FOR_ENTRY_REFERENCE, was not claimed, and has zero facts/observations.",
+    "safety": "Walkback/bridge/API/listener/global-Supervisor restarts=0; Deep/forged newly claimable=0; deployment-triggered and natural-postclaim provider/RPC calls=0; source/config rollback hashes verified exactly.",
+    "next_action": "REVIEW_ONLY_MONITOR_LAUNCHER_ENVIRONMENT_CLOSURE"
+  },
   "watchtower_monitor_claim_liveness_predeploy_gate_20260928": {
     "engineering_revision": "fcf0921efc0a23846faba1d642bc5498b7dd35ce on dev/monitor-live-admission",
     "audit": "docs/audits/watchtower_monitor_claim_liveness_predeploy_gate.v1.json sha256 e2a4b8109204ddd7022bb3f9ffcd0c56460bbc389e9dbc34b096aa78ff1a3cd4",

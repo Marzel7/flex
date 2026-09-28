@@ -1,4 +1,14 @@
 {
+  "monitor_bridge_idle_readonly_cadence60_qualification_20260928": {
+    "engineering_revision":"5abf1bf11b135004506d17c9263939c02062e228 on dev/monitor-live-admission",
+    "status":"QUALIFIED_NOT_DEPLOYED",
+    "verdict":"IDLE_READ_ONLY_REPAIR_AND_60S_CADENCE_CLOSURE_QUALIFIED_UNAUTHORIZED",
+    "result":"Minimal bridge repair probes one stale claim read-only and updates only that event when stale; idle and non-stale claimed paths have zero DML/write commits, while stale recovery/delivery/ACK remains bounded. Existing real-destination suite passed 12/12; poll=60, recovery=60, batch=1 is SAFE. Exact source+config closure frozen; no live mutation occurred.",
+    "artifact":"monitor_bridge_idle_readonly_cadence60_deployment_contract.v1.json sha256 0516d9a427fa2f78ec6bcc706ee4b0a9a811e39757f34507eef49daff4c4c2fa; authorized=false",
+    "next_action":"REQUEST_EXPLICIT_AUTHORIZATION_REFERENCING_EXACT_CONTRACT_SHA, then verify both preimages and deploy only source repair plus cadence config with bridge-only restart.",
+    "safety":"live source/config/schema/DB/provider/process/Supervisor/backfill mutations=0; original T0 preserved.",
+    "updated_at":"2026-09-28T05:55:00Z"
+  },
   "monitor_bridge_cadence_config_only_empty_poll_hold_20260928": {
     "engineering_revision":"2208c9331f1460e0557a11335c2088f8d638d6f9 on dev/monitor-live-admission",
     "status":"HOLD",

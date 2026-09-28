@@ -1,4 +1,15 @@
 {
+  "watchtower_treasury_discovery_target_population_v1_20260928": {
+    "engineering_revision": "1811e514bcef825eab1712c08714d86f7663dfbe on dev/monitor-live-admission",
+    "status": "DEFINED",
+    "verdict": "CURRENT_WATCHTOWER_TREASURY_ROTATION_TARGET_IS_THE_POPULATION_A_TREASURY_CONTROL_WALKBACK_LINEAGE_ONLY",
+    "result": "Population A is the present detection lineage: detected launch -> Walkback -> terminal WATCHTOWER_CONFIRMED -> verified role-normalized queue route -> canonical operator_launch_membership plus source outbox -> bridge -> MonitorQueue. q.subprov is frozen as CREATOR_DIRECT_FUNDER, not SubProvider. Population B/X65 provisioning-wallet cascade corpus is a separate generation and has zero frozen creator/direct-funder/launch overlap; current read-only reconciliation finds zero Watchtower canonical memberships and zero source outbox rows from its source mints. 4vvm is a confirmed Population-A control left unbackfilled; CXM6 is Population-A pipeline LINEAGE_GAP, not a positive Treasury control.",
+    "artifact": "docs/audits/watchtower_treasury_discovery_target_population_v1.json sha256 b901242e2cbab86c83670ff641a56af07a6351e77e646c8fe6135a96db6ca910",
+    "metrics": "frozen Population A=9 controls, 217 Creator Direct Funders, 478 launches; direct immutable upstream endpoint/signature coverage=19/217; remaining 198/217 indirect-only. Zero-RPC discovery evidence=partial.",
+    "production_flags": "RUNTIME_DEPLOYMENT_REQUIRED=false (read-only governance/audit). provider/RPC/address-history calls=0; live DB/schema/process/backfill/registry mutations=0. All prior behavioral/topology/subprovider/five-stage/V2 deployment candidates remain explicitly held.",
+    "next_action": "AUDIT_WATCHTOWER_TARGET_TREASURY_UPSTREAM_RELATION: determine, without Population-B inference, whether each objective source relation is Treasury -> Creator Direct Funder or Treasury -> UNKNOWN_INTERMEDIATE -> Creator Direct Funder. Do not deploy retention or a detector.",
+    "updated_at": "2026-09-28T15:00:00Z"
+  },
   "watchtower_operational_model_discrepancy_review_20260928": {
     "engineering_revision":"c8aeeb1102704c602679083819a63bcda7502527 on dev/monitor-live-admission",
     "status":"PROVEN_DIFFERENT_OPERATION_POPULATION",

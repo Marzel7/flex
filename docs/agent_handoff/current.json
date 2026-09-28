@@ -1,6 +1,15 @@
 {
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
+  "birdeye_riley_credential_qualification_20260928": {
+    "engineering_revision": "579cbd386f7036f6cb26905d9a558cfabe34ea6c on dev/monitor-live-admission",
+    "audit": "docs/audits/birdeye_riley_credential_qualification.v1.json sha256 b90201f53ab40b092e9e3101590991f0f2b119477dc9eead4b7f5311c94b5720",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "result": "BirdeyeProductionBinding now resolves only BIRDEYE_RILEY; the Monitor launcher requires BIRDEYE_RILEY and passes it as BIRDEYE_API_KEY. Legacy BIRDEYE_KK runtime references are zero. Credential values were never logged.",
+    "verification": "Credential-selection test=PASS; launcher-contract test=PASS; Watchtower activation harness=7 passed. Provider/RPC calls=0.",
+    "production_flags": "RUNTIME_DEPLOYMENT_REQUIRED=true; deployment not authorized or executed; live DB/schema/process changes=0.",
+    "next_action": "AUTHORIZE_BIRDEYE_RILEY_RUNTIME_DEPLOYMENT"
+  },
   "watchtower_15m_history_activation_20260928": {
     "engineering_revision": "1805d4560d9ce1a4a2996a47622171fcfdac42ba on dev/monitor-live-admission",
     "audit": "docs/audits/watchtower_15m_history_activation_qualification.v1.json sha256 618d505811fbc8072ab4791f163eba9cd862800200768d2df1684e61a6d296ce",

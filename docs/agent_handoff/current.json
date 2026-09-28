@@ -1,4 +1,14 @@
 {
+  "watchtower_treasury_blueprint_v1_20260928": {
+    "engineering_revision":"0af5106a524a2145bfe0ba3b7af4245168f51986 on dev/monitor-live-admission",
+    "status":"HOLD",
+    "verdict":"RECENT_WINDOW_BEHAVIORAL_BLUEPRINT_INSUFFICIENT_FOR_ADDRESS_INDEPENDENT_AUTO_QUALIFICATION",
+    "result":"V1 used only recent two-month retained evidence: 9 active proven treasuries of 80 total, with 71 pre-window-only excluded and zero outside-window behavioral evidence. WSOL route behavior is prevalent but not exclusive; active plain-transfer behavior and variable amounts mean neither mechanism, amount, or recurrence can qualify alone. Blind address-hidden qualification is 0/9; no false positives were manufactured because unknown/insufficient controls remain unclassified.",
+    "artifact":"watchtower_treasury_behavioral_blueprint_v1.v1.json sha256 a24e5e8d7931e291cff63555a7c232c9319fe672140e5a4d25466da31e3ff433",
+    "next_action":"QUALIFY_WATCHTOWER_TREASURY_BLUEPRINT_RETENTION. Do not implement detector, register treasuries, or make provider/runtime changes.",
+    "safety":"read-only; provider/source/schema/DB/process/registration/backfill mutations=0.",
+    "updated_at":"2026-09-28T07:41:23Z"
+  },
   "watchtower_registry_promotion_repair_execution_20260928": {
     "engineering_revision":"7c2940c4cba6ed5b7f30d73e26bf73c716a59f9a on dev/monitor-live-admission",
     "status":"ACTIVE_OBSERVATION",

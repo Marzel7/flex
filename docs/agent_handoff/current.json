@@ -1,4 +1,15 @@
 {
+  "watchtower_treasury_topology_discovery_v1_20260928": {
+    "engineering_revision":"8c34d5b943f5e43889c5994334031c680555a101 on dev/monitor-live-admission",
+    "status":"NOT_SUPPORTED",
+    "verdict":"RETAINED_UPSTREAM_TOPOLOGY_IS_INCOMPLETE_AND_ROLE_LABEL_BEARING_FOR_BLIND_TREASURY_DISCOVERY",
+    "result":"The fixed two-month study used the original 9 positive controls only. Creator-to-launch facts cover 9/9, but complete in-window Treasury→Subprovider→Creator edges exist for only 2/9; no positive contains a Subprovider→multiple-creators fan-out. More importantly, the only upstream edge family is materialized as TREASURY_TO_SUBPROV after Walkback has resolved treasury, so it leaks the label that a blind detector must infer. A relaxed, invalid two-branch shape produces 1895 nodes, confirming non-discrimination. No valid blind recovery, LINEAGE_GAP nomination, rotation point, or automatic qualification can be frozen.",
+    "artifact":"watchtower_treasury_topology_discovery_v1.json sha256 b36607940d237e3a9c6cd8f85d09449a3117adfcbbb367e025255b821d3ad4f5",
+    "metrics":"recent9 recovery=0; not recovered=9; fan-out visible=0; known-negative potential count=0 (unknowns not forced negative); unlabeled nonpositive relaxed candidates=1893; LINEAGE_GAP candidates=0; zero-extra-RPC feasibility=partial; automatic qualification=INSUFFICIENT.",
+    "production_flags":"provider/address-history calls=0; live source/schema/DB/process/backfill/registry/membership mutations=0. The behavioral-retention runtime deployment remains paused and no deployment was attempted.",
+    "next_action":"QUALIFY_WATCHTOWER_TOPOLOGY_EDGE_RETENTION: future-only, immutable source-transaction-anchored directed funding edges with role-agnostic endpoint semantics, captured before treasury resolution. Do not deploy the behavioral accumulator, register candidates, or implement a topology detector.",
+    "updated_at":"2026-09-28T09:30:00Z"
+  },
   "watchtower_treasury_blueprint_retention_runtime_v1_20260928": {
     "engineering_revision":"662d5e5919f520afe39a74fb955b5a9243eb2f40 on dev/monitor-live-admission",
     "status":"QUALIFIED_NOT_DEPLOYED",

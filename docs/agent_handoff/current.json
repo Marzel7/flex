@@ -1,4 +1,15 @@
 {
+  "watchtower_subprovider_upstream_funding_retention_runtime_v1_20260928": {
+    "engineering_revision":"ec48868b3b2c66ea1e5d2790248549cf530d8eaf on dev/monitor-live-admission",
+    "status":"QUALIFIED_NOT_DEPLOYED",
+    "verdict":"POSTCOMMIT_NARROW_SUBPROVIDER_UPSTREAM_OBSERVER_RUNTIME_QUALIFIED_UNAUTHORIZED",
+    "result":"Candidate wiring is built from the current pinned Walkback source. After the existing promotion/comparison commit it joins only durable local facts: queue SubProvider, active session funding signature, and DIRECT transaction-role source/destination match. It calls no provider, reads no address history, and writes no treasury/registry/SubProvider/membership/monitor state. Failure rolls back only unfinished observer work. The additive table is bounded at 25000 rows/50MB and defers at capacity.",
+    "artifact":"runtime qualification sha256 9f77ac745ba2c75072427b7fdb9e67da4e2eb0ac141944d324c0baa1c9686c3d; unauthorized deployment contract sha256 6d839ad1c9b965cdcc2e813cb6d063c02bd4086b3a8d9cf2b59a3b49997df41c",
+    "tests":"27 focused provider-free runtime and promotion-regression tests passed; 0 failed.",
+    "production_flags":"RUNTIME_DEPLOYMENT_REQUIRED=true; RUNTIME_DEPLOYMENT_GATE=QUALIFIED_NOT_DEPLOYED. Live source/schema/DB/process/provider/backfill mutations=0. Bridge remains poll=60/recovery=60/batch=1 and was not changed. Broader observers remain paused.",
+    "next_action":"AUTHORIZE_WATCHTOWER_SUBPROVIDER_UPSTREAM_FUNDING_RETENTION_RUNTIME_V1 only with the exact contract SHA; reverify pinned preimage, apply two source targets plus additive schema, restart Walkback at most once, then observe the first natural future-only relation after T0. Do not implement a detector or backfill.",
+    "updated_at":"2026-09-28T11:30:00Z"
+  },
   "watchtower_subprovider_upstream_funding_retention_v1_20260928": {
     "engineering_revision":"cb5528f8c495b33408f80efe2022f0f176c36925 on dev/monitor-live-admission",
     "status":"QUALIFIED_NOT_DEPLOYED",

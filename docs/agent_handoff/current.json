@@ -1,4 +1,14 @@
 {
+  "monitor_bridge_cadence_config_only_empty_poll_hold_20260928": {
+    "engineering_revision":"2208c9331f1460e0557a11335c2088f8d638d6f9 on dev/monitor-live-admission",
+    "status":"HOLD",
+    "verdict":"CONFIG_ONLY_CADENCE_DEPLOYMENT_CANNOT_MEET_EMPTY_POLL_NO_WRITE_ACCEPTANCE",
+    "result":"The refreshed cadence authorization is otherwise ready: config preimage matches, bridge/Walkback/Monitor are healthy, outbox has 4 delivered and no pending/claimed/conflict rows, 12 provider-free tests pass, poll60/recovery60 is safe, and cadence storage gate passes. But deployed consume_once unconditionally issues the stale-claim UPDATE and commit before an empty SELECT, so a 60-second empty poll still writes. Removing it requires a separately authorized source-semantics change.",
+    "artifact":"monitor_bridge_cadence_60s_config_only_predeploy_hold.v1.json sha256 55394f23384e8de341c169cbc9608e53f2a49877951a79fe83c03871887a425e",
+    "next_action":"QUALIFY_A_SEPARATE_BRIDGE_EMPTY_POLL_WRITE_ELIMINATION_CHANGE then reauthorize cadence deployment.",
+    "safety":"config/source/schema/DB/provider/process/Supervisor/backfill mutations=0; cadence remains 5 seconds.",
+    "updated_at":"2026-09-28T05:40:00Z"
+  },
   "large_file_feature_growth_clarification_20260928": {
     "engineering_revision":"53ed137034a68f83b5527988106ccd1ebd8c360c on dev/monitor-live-admission",
     "status":"PARTIAL",

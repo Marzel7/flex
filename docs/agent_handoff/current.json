@@ -19137,6 +19137,14 @@
     "safety": "Read-only inspection; no service restart, code/configuration/database/queue mutation, provider call, or Other126 work.",
     "status": "PARTIAL_HOLD_NEW_POST_WATERMARK_TIMEOUT"
   },
+  "monitorworker_15m_optional_opening_isolation_predeploy_20260928": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa with shared dirty working tree",
+    "contract": "docs/audits/monitorworker_15m_optional_opening_isolation_deployment_contract.v1.json sha256 b999c0a9d5e8f7e12d134d5ba745a329f50b9490a904d7782ef973f829411bdf",
+    "status": "HOLD_UNRELATED_RUNTIME_CONFIG_DRIFT",
+    "qualification": "50 exact provider-free tests passed, 0 failed; candidate worker sha256 65dd4cad4ac5626013adfd1639a86ff8d55ea3f62309ab8ee0edce2cf0af339b. The contract binds the preserved rollback preimage 2103a3a2d06d3db98c4b5c8abc045bf978713c93bdaa35660c906e95c610e42e.",
+    "blocker": "The shared Supervisor configuration has 144 added and 48 deleted working-tree lines, including 45 runtime-path/environment edits. This violates the required no-unrelated-runtime/config-drift precondition. No source deployment, Supervisor action, restart, provider/RPC call, schema change, or database mutation occurred.",
+    "next_action": "Reconcile the Supervisor configuration drift to the actually loaded MonitorWorker configuration, then re-run this contract's predeploy parity check before authorizing its single worker restart."
+  },
   "wt_lifecycle_operator_id_migration_plan": {
     "artifact": "docs/audits/wt_token_lifecycle_operator_id_migration_plan.v1.json",
     "digest": "d05097c2f3d06e6ac2eeb16df0b435a3698db8a3e828b4416b3cfd270b2d849d",

@@ -1,4 +1,14 @@
 {
+  "watchtower_registry_promotion_repair_qualification_20260928": {
+    "engineering_revision":"7fb29c0dda3bfb76e14a4349dcf7b9faa5bd1d28 on dev/monitor-live-admission",
+    "status":"QUALIFIED_NOT_DEPLOYED",
+    "verdict":"CONFIRMED_QUEUE_TREASURY_PRECEDENCE_REPAIR_QUALIFIED",
+    "result":"Minimal current-pinned projector repair makes immutable confirmed queue treasury authoritative and provisioning treasury supporting: NULL promotes, matching promotes, non-null contradiction fails TREASURY_EVIDENCE_CONFLICT, and no session remains fail-closed. Source membership/outbox remains same transaction; bridge regression 12/12 passes; Deep/bridge/60s cadence unchanged.",
+    "artifact":"watchtower_registry_promotion_repair_deployment_contract.v1.json sha256 0ab2a6a6c32ca4c818a7f1b1646c880e1e7bee2a52f1e53ead7bad9b62004584; authorized=false",
+    "next_action":"AUTHORIZE_WATCHTOWER_REGISTRY_PROMOTION_REPAIR_V1 if deployment is desired. Verify pinned preimage, deploy one source file preserving current runtime, restart Walkback at most once, then natural future-only observation; no backfill.",
+    "safety":"live source/schema/DB/provider/process/backfill/manual-membership mutations=0.",
+    "updated_at":"2026-09-28T07:00:00Z"
+  },
   "watchtower_registry_promotion_gap_4vvm_20260928": {
     "engineering_revision":"31d6d12b9e0d257ad424aaacedf3c21b8e33221d on dev/monitor-live-admission",
     "status":"HOLD",

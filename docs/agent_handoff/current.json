@@ -1,4 +1,15 @@
 {
+  "watchtower_existing_local_subprovider_upstream_evidence_20260928": {
+    "engineering_revision":"084ed0fc1014da9bb15f8e6733a9743f3a6b77bb on dev/monitor-live-admission",
+    "status":"PARTIAL",
+    "verdict":"LOCAL_CORPUS_CONFIRMS_19_DIRECT_ENDPOINT_RELATIONS_AND_DOES_NOT_ELIMINATE_THE_PROSPECTIVE_RETENTION_GAP",
+    "result":"The exact frozen population remains 217 established SubProviders. Full local schema inventory found 19 independently DIRECT_PROVEN source→SubProvider relations through active session funding signatures joined to transaction-role endpoints. The other local tables add session/route/downstream context but either contain resolved Treasury labels or lack source endpoints; they recover zero additional independent upstream relations. Two objective shared-upstream groups exist (14 and 4 established SubProviders), but source exclusion context is absent, so neither is a treasury conclusion.",
+    "artifact":"watchtower_existing_local_subprovider_upstream_evidence.v1.json sha256 b178a4571d8833b7f5ac6aa76c1aa01fafdea59dbef9347f6563ff1c8953628d",
+    "metrics":"any local context=217/217; direct proven=19/217 (8.756%); additional independent recovery=0; blind endpoint matches=14; mismatches=5; recent9 recovered safely=0; multi-SubProvider objective groups=2.",
+    "production_flags":"read-only: provider/RPC/address-history calls=0; live DB/schema/source/process/backfill mutations=0; no large DB copy. The runtime deployment remains paused and unauthorized.",
+    "next_action":"QUALIFY_ONLY_MISSING_SUBPROVIDER_UPSTREAM_RETENTION: retain only the prospective immutable direct endpoint/signature relation for the missing 198/217-type coverage, plus compact source exclusion states. Do not deploy the paused runtime or a detector yet.",
+    "updated_at":"2026-09-28T12:00:00Z"
+  },
   "watchtower_subprovider_upstream_funding_retention_runtime_v1_20260928": {
     "engineering_revision":"ec48868b3b2c66ea1e5d2790248549cf530d8eaf on dev/monitor-live-admission",
     "status":"QUALIFIED_NOT_DEPLOYED",

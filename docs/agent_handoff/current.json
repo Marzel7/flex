@@ -1,6 +1,18 @@
 {
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
+  "watchtower_15m_history_activation_deployment_20260928": {
+    "engineering_revision": "fad1a4abb16cf63e8612a7228a0f1cddcc8132b8 on dev/monitor-live-admission",
+    "execution_audit": "docs/audits/watchtower_15m_history_activation_execution.v1.json sha256 c9db4e4cb442e523910487ea19de2402d8684813be27f00cacf4bd74dec831ab",
+    "contract_sha256": "aa917bf3adabd6f2f2a8ca7e6f4f2b3093ba7543d11cf6825824205eb8355b4d",
+    "status": "DEPLOYED_WAITING_FOR_COMPLETED_CANDLE",
+    "target_verification": "One live source target changed exactly 6b06ed... -> 2103a3.... Launcher and Supervisor config invariant hashes match; schema/config targets=0; pre/post mismatch=0; rollback bytes verified.",
+    "activation": "operation_monitor_worker only restarted 28622 -> 29155. Walkback/bridge/API/listener/global restarts=0. Worker RUNNING; claim-liveness V2 authority path visible, env -i launcher intact, and 7mq canonical DELIVERED authority=PASS.",
+    "seven_mq": "7mq is MONITORING_ACTIVE with entry_status=WAITING_FOR_ENTRY_REFERENCE, no entry value, facts=1 and observations=0. It is 15m-history eligible. One natural 15M_EVIDENCE dispatch occurred under the existing budget and received HTTP 400 compute-units-limit; no candle was fabricated and queue is RETRYABLE_DEFERRED. Latest natural strict-opening state is unresolved HTTP_NON_200 after prior TARGET_SECOND_ABSENT.",
+    "provider_accounting": "Deployment-triggered calls=0; natural 15m calls=1; compact 7mq budget window OPENING=3, 15M_EVIDENCE=1.",
+    "invariance": "Strict opening/entry contract/fabricated entry/provider budget/429/Deep/backfill/manual candles changes=0.",
+    "next_action": "OBSERVE_WATCHTOWER_15M_HISTORY"
+  },
   "watchtower_15m_history_deployment_contract_20260928": {
     "engineering_revision": "20fa3a210f778e6a552818fd1a8160e44deb8635 on dev/monitor-live-admission",
     "contract": "docs/audits/watchtower_15m_history_activation_deployment_contract.v1.json sha256 aa917bf3adabd6f2f2a8ca7e6f4f2b3093ba7543d11cf6825824205eb8355b4d",

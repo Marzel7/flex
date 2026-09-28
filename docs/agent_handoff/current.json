@@ -1,4 +1,14 @@
 {
+  "watchtower_registry_promotion_repair_execution_20260928": {
+    "engineering_revision":"7c2940c4cba6ed5b7f30d73e26bf73c716a59f9a on dev/monitor-live-admission",
+    "status":"ACTIVE_OBSERVATION",
+    "verdict":"RUNTIME_DEPLOYMENT_GATE=PASS; PROSPECTIVE_PROMOTION_REPAIR_ACTIVE",
+    "result":"Authorized exact one-file pinned projector repair deployed with pre/post hash match. Walkback restarted once (69746 to 80971); bridge PID 53373 and MonitorWorker PID 7851 were untouched. Repair is prospective only: no historical/backfill/manual 4vvm promotion, provider call, Deep change, or bridge change occurred.",
+    "artifact":"watchtower_registry_promotion_repair_execution.v1.json sha256 4e79d8795861532b437d40444352550fe66c368fef3a94aa3eeca7c520c5fda9",
+    "next_action":"OBSERVE_FUTURE_NATURAL_WATCHTOWER_CONFIRMED_PROMOTION_TO_MEMBERSHIP_OUTBOX_BRIDGE_ONLY. Preserve original T0; no historical promotion.",
+    "safety":"schema/backfill/manual-membership/provider/bridge/monitor mutations=0; Walkback restart=1 only.",
+    "updated_at":"2026-09-28T07:15:00Z"
+  },
   "watchtower_registry_promotion_repair_qualification_20260928": {
     "engineering_revision":"7fb29c0dda3bfb76e14a4349dcf7b9faa5bd1d28 on dev/monitor-live-admission",
     "status":"QUALIFIED_NOT_DEPLOYED",

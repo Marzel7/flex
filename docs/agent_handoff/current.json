@@ -18090,6 +18090,19 @@
     "updated_at": "2026-09-28T13:30:00Z",
     "verdict": "HISTORICALLY_VALIDATED_MINIMUM_UPSTREAM_RETENTION_V2_EXACT_CLOSURE_FROZEN"
   },
+  "watchtower_missing_provisioning_session_systematic_rejection_review": {
+    "audit": "docs/audits/watchtower_missing_provisioning_session_systematic_rejection_review.v1.json sha256 2b77ab7047de41bb2c6c5d9ce1193fbf31904caf316e05a0bc7422fd964903e2",
+    "confirmation_authority": "WATCHTOWER_CONFIRMED is produced by known-treasury/known-subprovider or LINK_ONLY Walkback authority, not wt_provisioning_sessions. Frozen family=1431 LINK_ONLY-derived rows; 29 have complete queue-side WSOL prerequisites.",
+    "controls": "canonical without session=0. Session-present confirmed total=546; canonical/currently eligible=399. Session-present nonconfirmed or missing-queue=22772, proving session existence alone is not membership authority. No retained confirmed-without-session false-positive family is proven.",
+    "counterfactual": "Without an unconditional session-existence gate but retaining every other current predicate: otherwise eligible=0; PLAIN_XFER mechanism reject=5; treasury reject=0; insufficient=1461. The 29 queue-ready WSOL rows remain insufficient because session-side equality/mechanism predicates have no retained input.",
+    "engineering_revision": "7a2cb0526a8dad8ab2f835b32eaada209e8b49e8 audit-only commit; deployed projector unchanged",
+    "frozen_cohort": "Frozen cited cohort=1466. Current live DB observed 1467 missing-session confirmed rows; one post-freeze arrival excluded rather than silently altering the reference population.",
+    "next_action": "QUALIFY_WATCHTOWER_PROMOTION_WITHOUT_UNCONDITIONAL_SESSION_GATE",
+    "projector_purpose": "The current validator inner-joins provisioning session and uses session treasury for contradiction/role normalization plus session creator, subprov, and WSOL mechanism equality. Session is supporting/corroborating evidence, not confirmation authority.",
+    "recent": "Frozen recent missing-session: 24h=0/15; 7d=1/90; 30d=1/416; 60d=3/611. Recent 30-day WSOL-only-missing count=1; percent of confirmed WSOL=0.3448%.",
+    "safety": "Read-only; live DB/schema/source/process writes/actions=0; provider/RPC/address-history=0; backfill=false; manual promotion=0.",
+    "status": "SUPPORTING_NOT_ESSENTIAL"
+  },
   "watchtower_opening_state_recovery": {
     "artifact": "docs/audits/watchtower_opening_state_recovery.v1.json (sha256 a9294a4907bb4c42ce58a71e773d9afb4b45dc9dcb33f89ca8b9cede614605b1)",
     "engineering_revision": "e21867c1 plus retained-only Watchtower opening-state audit",

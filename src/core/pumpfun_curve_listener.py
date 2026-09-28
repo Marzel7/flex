@@ -21,10 +21,13 @@ from src.core.database_write_service import (
 import sys
 import time
 import threading
+from pathlib import Path
 import websockets
 import aiohttp
 import requests
 from src.core.pumpportal_birth_audit import configured_birth_audit
+from src.core.pumpfun_delivery_latency import configured_pumpfun_delivery_latency_capture
+from src.ops.byzantine_birth_signal import ByzantineBirthSignalEmitter, load_proven_creators
 from src.core.pumpportal_migration_census import configured_migration_census
 from datetime import datetime
 from src.core import runtime_budget as _budget
@@ -1339,6 +1342,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
         # work and records receive timing immediately after ws.recv(), before
         # JSON parsing or ingestion work.
         self._eb_birth_audit = configured_birth_audit()
+        self._pumpfun_delivery_latency = configured_pumpfun_delivery_latency_capture()
+        self._byzantine_birth_signal = None
+        if os.environ.get("BYZANTINE_BIRTH_SIGNAL_ENABLED", "0").lower() in {"1", "true", "yes"}:
+            try:
+                creators = load_proven_creators(Path(__file__).resolve().parents[2] / "database" / "wt_ops_v2.db")
+                self._byzantine_birth_signal = ByzantineBirthSignalEmitter(creators, enabled=True)
+            except Exception as _byz_signal_error:
+                log_print(f"[BYZANTINE_SIGNAL] disabled: {_byz_signal_error}", flush=True)
         self._migration_census = configured_migration_census()
         # MC1.4 -- explicit window anchor for birth_persistence_telemetry()'s
         # in-memory counters, so a consumer of the snapshot file always knows
@@ -11036,6 +11047,99 @@ class PumpFunCurveListener(FastLaneDiscovery):
         except Exception as _e:
             log_print(f"[PUMPPORTAL] ⚠ Seed subscription failed (deferred, non-fatal): {_e}", flush=True)
 
+    async def _handle_pumpportal_create_frame(
+        self,
+        data,
+        *,
+        signature,
+        mint,
+        receive_utc_ns,
+        receive_monotonic_ns,
+        tracked_trade_mints,
+        migration_sol_threshold,
+        ws,
+    ):
+        """Handle one PumpPortal create frame without changing its hot-path order."""
+        creator = data.get("traderPublicKey")
+        bonding_curve_pda = data.get("bondingCurveKey")
+        symbol = data.get("symbol")
+        name = data.get("name")
+        v_sol = float(data.get("vSolInBondingCurve") or 0)
+        mc_sol = float(data.get("marketCapSol") or 0)
+        self._eb_birth_audit.record(
+            receive_utc_ns=receive_utc_ns,
+            receive_monotonic_ns=receive_monotonic_ns,
+            parser_utc_ns=time.time_ns(), signature=signature,
+            mint=mint, creator=creator, market_cap_sol=mc_sol,
+            virtual_sol_reserves=v_sol, bonding_curve=bonding_curve_pda,
+            raw_payload=data,
+        )
+        self._pumpfun_delivery_latency.observe_pumpportal(
+            signature=signature, mint=mint,
+            receive_monotonic_ns=receive_monotonic_ns,
+            receive_utc_ns=receive_utc_ns,
+        )
+        # Non-canonical O(1) creator-continuity signal.  It is deliberately
+        # before the awaited SQLite persistence below and cannot affect it.
+        if self._byzantine_birth_signal is not None:
+            self._byzantine_birth_signal.observe(
+                mint=mint, creator=creator, signature=signature,
+                receive_utc_ns=receive_utc_ns,
+                monotonic_ns=time.monotonic_ns(),
+            )
+
+        if mint:
+            self._portal_vsol[mint] = {
+                "v_sol": v_sol,
+                "mc_sol": mc_sol,
+                "symbol": symbol or "",
+                "name": name or "",
+                "creator": creator or "",
+                "ts": int(time.time()),
+            }
+
+        if mint and signature and mint not in self.completed_launches:
+            self.completed_launches.add(signature)
+            self.seen_mints.add(mint)
+            if bonding_curve_pda:
+                self._remember_bonding_curve_token(mint, bonding_curve_pda)
+            try:
+                await self._insert_bonding_curve_token(
+                    mint, creator, str(int(time.time())),
+                    bonding_curve_pda=bonding_curve_pda,
+                    create_tx_signature=signature,
+                    symbol=symbol,
+                    name=name,
+                )
+                log_print(
+                    f"[PUMPPORTAL] 🟢 Birth: {mint[:16]}... symbol={symbol} creator={creator[:8] if creator else '?'}",
+                    flush=True,
+                )
+                # Trigger creator pipeline
+                asyncio.create_task(
+                    self._ensure_pf_ws_creator(mint, reason="birth")
+                )
+            except Exception as e:
+                log_print(f"[PUMPPORTAL] ⚠ Birth insert error {mint[:16]}: {e} — queuing for retry", flush=True)
+                try:
+                    import sqlite3 as _sq, json as _json
+                    _qconn = _sq.connect(DB_PATH, timeout=5)
+                    with _qconn:
+                        _qconn.execute(
+                            """INSERT OR IGNORE INTO webhook_birth_queue
+                               (signature, payload, source, consumed)
+                               VALUES (?, ?, 'pumpportal_retry', 0)""",
+                            (signature, _json.dumps(data)),
+                        )
+                    _qconn.close()
+                except Exception as _qe:
+                    log_print(f"[PUMPPORTAL] ⚠ Failed to queue birth retry for {mint[:16]}: {_qe}", flush=True)
+
+            # Subscribe to trades if already near migration threshold
+            if v_sol >= migration_sol_threshold and mint not in tracked_trade_mints:
+                tracked_trade_mints.add(mint)
+                await ws.send(json.dumps({"method": "subscribeTokenTrade", "keys": [mint]}))
+
     async def listen_pumpportal_websocket(self):
         """
         Single PumpPortal WSS connection replacing all Helius pump.fun subscriptions:
@@ -11129,72 +11233,16 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         mint = data.get("mint", "")
 
                         if tx_type == "create":
-                            creator = data.get("traderPublicKey")
-                            bonding_curve_pda = data.get("bondingCurveKey")
-                            symbol = data.get("symbol")
-                            name = data.get("name")
-                            v_sol = float(data.get("vSolInBondingCurve") or 0)
-                            mc_sol = float(data.get("marketCapSol") or 0)
-                            self._eb_birth_audit.record(
+                            await self._handle_pumpportal_create_frame(
+                                data,
+                                signature=sig,
+                                mint=mint,
                                 receive_utc_ns=receive_utc_ns,
                                 receive_monotonic_ns=receive_monotonic_ns,
-                                parser_utc_ns=time.time_ns(), signature=sig,
-                                mint=mint, creator=creator, market_cap_sol=mc_sol,
-                                virtual_sol_reserves=v_sol, bonding_curve=bonding_curve_pda,
-                                raw_payload=data,
+                                tracked_trade_mints=tracked_trade_mints,
+                                migration_sol_threshold=MIGRATION_SOL_THRESHOLD,
+                                ws=ws,
                             )
-
-                            if mint:
-                                self._portal_vsol[mint] = {
-                                    "v_sol": v_sol,
-                                    "mc_sol": mc_sol,
-                                    "symbol": symbol or "",
-                                    "name": name or "",
-                                    "creator": creator or "",
-                                    "ts": int(time.time()),
-                                }
-
-                            if mint and sig and mint not in self.completed_launches:
-                                self.completed_launches.add(sig)
-                                self.seen_mints.add(mint)
-                                if bonding_curve_pda:
-                                    self._remember_bonding_curve_token(mint, bonding_curve_pda)
-                                try:
-                                    await self._insert_bonding_curve_token(
-                                        mint, creator, str(int(time.time())),
-                                        bonding_curve_pda=bonding_curve_pda,
-                                        create_tx_signature=sig,
-                                        symbol=symbol,
-                                        name=name,
-                                    )
-                                    log_print(
-                                        f"[PUMPPORTAL] 🟢 Birth: {mint[:16]}... symbol={symbol} creator={creator[:8] if creator else '?'}",
-                                        flush=True,
-                                    )
-                                    # Trigger creator pipeline
-                                    asyncio.create_task(
-                                        self._ensure_pf_ws_creator(mint, reason="birth")
-                                    )
-                                except Exception as e:
-                                    log_print(f"[PUMPPORTAL] ⚠ Birth insert error {mint[:16]}: {e} — queuing for retry", flush=True)
-                                    try:
-                                        import sqlite3 as _sq, json as _json
-                                        _qconn = _sq.connect(DB_PATH, timeout=5)
-                                        with _qconn:
-                                            _qconn.execute(
-                                                """INSERT OR IGNORE INTO webhook_birth_queue
-                                                   (signature, payload, source, consumed)
-                                                   VALUES (?, ?, 'pumpportal_retry', 0)""",
-                                                (sig, _json.dumps(data)),
-                                            )
-                                        _qconn.close()
-                                    except Exception as _qe:
-                                        log_print(f"[PUMPPORTAL] ⚠ Failed to queue birth retry for {mint[:16]}: {_qe}", flush=True)
-
-                                # Subscribe to trades if already near migration threshold
-                                if v_sol >= MIGRATION_SOL_THRESHOLD and mint not in tracked_trade_mints:
-                                    tracked_trade_mints.add(mint)
-                                    await ws.send(json.dumps({"method": "subscribeTokenTrade", "keys": [mint]}))
 
                         elif tx_type in ("buy", "sell") and mint:
                             v_sol = float(data.get("vSolInBondingCurve") or 0)
@@ -11598,6 +11646,8 @@ class PumpFunCurveListener(PumpFunCurveListener):  # type: ignore[no-redef]
                     while True:
                         try:
                             msg = await asyncio.wait_for(ws.recv(), timeout=60)
+                            chain_receive_utc_ns = time.time_ns()
+                            chain_receive_monotonic_ns = time.monotonic_ns()
                             data = json.loads(msg)
 
                             if 'params' not in data or 'result' not in data['params']:
@@ -11636,6 +11686,12 @@ class PumpFunCurveListener(PumpFunCurveListener):  # type: ignore[no-redef]
                                 continue
 
                             if self._is_pumpfun_create_candidate(logs):
+                                self._pumpfun_delivery_latency.observe_chain(
+                                    signature=signature,
+                                    slot=(result.get("context") or {}).get("slot"),
+                                    receive_monotonic_ns=chain_receive_monotonic_ns,
+                                    receive_utc_ns=chain_receive_utc_ns,
+                                )
                                 premig_log(f"[WS_MESSAGE_ROUTED] sig={signature[:16]} route=handle_birth")
                                 asyncio.create_task(self.handle_birth(signature, logs))
                                 continue

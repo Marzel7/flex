@@ -42,8 +42,20 @@ def test_db_health_omits_unused_expired_rpc_cache_scan() -> None:
     end = source.index("@app.route('/api/debug/db-connections')", start)
     block = source[start:end]
     assert "rpc_cache_expired" not in block
-    assert "rpc_cache_rows" in block
+    assert "queue_depths" in block
     assert "cached_at + ttl_seconds <=" not in block
+
+
+def test_db_health_keeps_current_diagnostics_without_unused_cache_scans() -> None:
+    source = (ROOT / "src/core/main.py").read_text()
+    start = source.index("def api_db_health():")
+    end = source.index("@app.route('/api/debug/db-connections')", start)
+    block = source[start:end]
+    for removed in ("rpc_cache_rows", "rpc_metrics_rows", "helius_snapshots_rows", "last_maintenance"):
+        assert removed not in block
+    assert "queue_depths" in block
+    assert "write_reliability" in block
+    assert "wal_mb" in block
 
 
 def test_current_health_block_has_no_retired_watch_pipeline_probe() -> None:

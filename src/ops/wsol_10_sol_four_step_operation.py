@@ -109,11 +109,11 @@ def _continuity_evidence(conn: sqlite3.Connection, mint: str, core_db_path: str 
     try:
         core = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
         core.row_factory = sqlite3.Row
-        row = core.execute("SELECT pf_ws_creator,created_at,create_tx_signature FROM token_analysis WHERE mint=?", (mint,)).fetchone()
+        row = core.execute("SELECT pf_ws_creator,created_at,create_tx_signature,migration_tx FROM token_analysis WHERE mint=?", (mint,)).fetchone()
         core.close()
     except sqlite3.Error:
         return None
-    if not row or not row["pf_ws_creator"] or not row["create_tx_signature"]:
+    if not row or not row["pf_ws_creator"] or not row["create_tx_signature"] or not str(row["migration_tx"] or "").strip():
         return None
     proof = _creator_continuity_proof(conn, row["pf_ws_creator"])
     launch_time = _epoch(row["created_at"])
@@ -132,7 +132,32 @@ def _continuity_evidence(conn: sqlite3.Connection, mint: str, core_db_path: str 
     except sqlite3.Error:
         pass
     return {"creator": row["pf_ws_creator"], "launch_time": launch_time,
-            "create_tx_signature": row["create_tx_signature"], **proof}
+            "create_tx_signature": row["create_tx_signature"],
+            "migration_tx": row["migration_tx"], **proof}
+
+
+def reconcile_invalid_creator_continuity_memberships(conn: sqlite3.Connection, *, core_db_path: str, now: int | None = None) -> dict:
+    """Withdraw only non-migrated Byzantine continuity membership projections.
+
+    Confirmed-match evidence is deliberately retained as creator-birth
+    intelligence; only the canonical membership projection is reconciled.
+    """
+    rows = conn.execute(
+        "SELECT mint FROM operator_launch_membership WHERE operator_id=? AND source_population_id=? ORDER BY mint",
+        (OPERATOR_ID, "BYZANTINE_PROVEN_CREATOR_CONTINUITY"),
+    ).fetchall()
+    retained, removed = [], []
+    for row in rows:
+        mint = row[0]
+        if _continuity_evidence(conn, mint, core_db_path):
+            retained.append(mint)
+            continue
+        conn.execute("DELETE FROM operator_launch_membership WHERE mint=? AND operator_id=? AND source_population_id=?", (mint, OPERATOR_ID, "BYZANTINE_PROVEN_CREATOR_CONTINUITY"))
+        removed.append(mint)
+    if removed:
+        from src.ops.manual_registry import refresh_operator_activity_snapshot
+        refresh_operator_activity_snapshot(conn, OPERATOR_ID, core_db_path=core_db_path, now=int(now or time.time()))
+    return {"examined": len(rows), "retained": retained, "removed": removed}
 
 
 def project_completed_walkback(conn: sqlite3.Connection, mint: str, *, core_db_path: str | None = None, now: int | None = None) -> str:

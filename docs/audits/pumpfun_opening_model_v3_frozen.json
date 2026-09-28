@@ -1,0 +1,16 @@
+{
+  "identifier": "PUMPFUN_OPENING_MODEL_V3_FROZEN",
+  "opening_state_model": "creation-slot-block.v3",
+  "valuation_semantics": "v2_fdv_vs_mcap",
+  "creation_anchor": "exact retained Pump.fun create signature",
+  "acquisition": "getTransaction(create) then getBlock(creation_slot) plus at most seven successor slots; pre-create actions excluded; actions ordered slot, transaction index, action index",
+  "formulas": {
+    "token_price_sol": "virtual_sol_reserves / virtual_token_reserves",
+    "fdv_sol": "token_price_sol * 1000000000 UI total supply",
+    "usd": "SOL metric * timestamp-qualified SOL/USD only"
+  },
+  "entry": "FIRST_INDEPENDENT_ENTRY_EXECUTED_PRICE is distinct from post-trade curve spot",
+  "first_second": "SLOT_BOUNDED_FIRST_1S_APPROXIMATION; exact 1000ms is not claimed",
+  "mcap": "circulating supply and market cap are NOT_AVAILABLE without independent evidence; Birdeye/GMGN are external enrichment only",
+  "safety": "raw provider response and observation retained before decode; fail closed; max 1 getTransaction, 8 getBlock, 1 conditional archive request, 10 total"
+}

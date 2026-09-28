@@ -18594,6 +18594,17 @@
     "tests": "17 passed: tests/test_token_data_orchestration.py and tests/test_birdeye_rate_limit.py",
     "verdict": "WATCHTOWER_RECENT_TOKEN_DATA_PLAYBOOK_QUALIFIED"
   },
+  "watchtower_recent_wsol_conflict_review": {
+    "audit": "docs/audits/watchtower_recent_wsol_conflict_review.v1.json sha256 fc5a0402e6a9cfc41c10a846237a1f32d65ef1afd8f95dadd48047af22909c55",
+    "classifications": "both HISTORICAL_RETENTION_LIMITATION",
+    "engineering_revision": "914087ed9b1004d80ec891dd58fc6f53aa98044e audit-only commit; deployed projector unchanged",
+    "evidence_difference": "Both predate the observed current LIVE_DIRECTIONAL_TRANSACTION route edge (2ghj -> Gozg, verified 2026-09-14). The 7-day 64/64 successful cohort includes session-mismatch routes with a retained directed edge. This supports historical retention limitation, not a current projector gap; it does not infer old route truth.",
+    "next_action": "OBSERVE_ROLE_NORMALIZED_WATCHTOWER_PROMOTION",
+    "prospective": "24h=11/11, 7d=64/64, today=6/6 WSOL eligible.",
+    "safety": "Read-only; no source/schema/runtime/process/DB/provider/RPC changes; no repair.",
+    "status": "ROBUST_CURRENT_PIPELINE",
+    "two_rows": "8naF92YSqymuuF5YcZfD4Zb1gTBwRUnfCs1s66KDpump (2026-08-29) and 77LJr4ZDJJn7PpKxKG1TBEX83LzjCsXPv1EgYJQYpump (2026-08-31): both FULL_WALKBACK, session-present WSOL, canonical, rejected correctly due Fkcc queue treasury mismatch with respectively A8XX and 4kw session treasury and no directed or reverse verified edge."
+  },
   "watchtower_registry_promotion_gap_4vvm_20260928": {
     "artifact": "watchtower_registry_promotion_gap_4vvm.v1.json sha256 d64e2d56319f9c4532fab9ff16cbf63adb5d402a07b2bdddc27869764a5691e5",
     "engineering_revision": "31d6d12b9e0d257ad424aaacedf3c21b8e33221d on dev/monitor-live-admission",

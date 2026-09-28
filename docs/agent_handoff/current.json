@@ -19145,6 +19145,15 @@
     "blocker": "The shared Supervisor configuration has 144 added and 48 deleted working-tree lines, including 45 runtime-path/environment edits. This violates the required no-unrelated-runtime/config-drift precondition. No source deployment, Supervisor action, restart, provider/RPC call, schema change, or database mutation occurred.",
     "next_action": "Reconcile the Supervisor configuration drift to the actually loaded MonitorWorker configuration, then re-run this contract's predeploy parity check before authorizing its single worker restart."
   },
+  "monitorworker_15m_supervisor_reconciliation_20260928": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa with shared dirty working tree",
+    "audit": "docs/audits/monitorworker_15m_supervisor_drift_reconciliation.v1.json sha256 5dfc821d26b79f7f1a8d6d20573d1f3046f69ca98ddc101a154ef565c77d5c2e",
+    "contract": "docs/audits/monitorworker_15m_optional_opening_isolation_deployment_contract.v2.json sha256 b34e9f3eb057c7553eb27ea39d3abedc6cb817eef47de4ffa57b6c43d0e12115",
+    "status": "RECONCILED_V2_READY",
+    "result": "Current Supervisor sha256 f2890bdc6ac28a63f63ad84d5fb54370c64410722884b9080c4c7bd58ed31c7d and MonitorWorker stanza sha256 ec13cbf3c11dd5e29041dc488d98a8d91b89720d4c93d7b8a80c622c70fa95e4 are observed prerequisites, not deployment mutation targets. Effective running MonitorWorker PID 79903 has the isolated DEV env -i closure, claim-authority path, required DB/queue paths, MONITOR/dev mode, and provider credentials without values retained. Candidate compatibility=PASS.",
+    "safety": "Read-only reconciliation: source/config/schema changes=0; process actions=0; provider/RPC calls=0. No Supervisor restore, reload, or restart occurred.",
+    "next_action": "AUTHORIZE_MONITORWORKER_15M_OPTIONAL_OPENING_V2"
+  },
   "wt_lifecycle_operator_id_migration_plan": {
     "artifact": "docs/audits/wt_token_lifecycle_operator_id_migration_plan.v1.json",
     "digest": "d05097c2f3d06e6ac2eeb16df0b435a3698db8a3e828b4416b3cfd270b2d849d",

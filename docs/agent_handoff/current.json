@@ -1,4 +1,14 @@
 {
+  "watchtower_treasury_blueprint_retention_v1_20260928": {
+    "engineering_revision":"5b1fcba9a9af26b7d662f1b2df36c9e5e77a6f17 on dev/monitor-live-admission",
+    "status":"PARTIAL",
+    "verdict":"COMPACT_ZERO_RPC_RETENTION_SEAM_SUPPORTED_BUT_BEHAVIORAL_THRESHOLD_NOT_YET_QUALIFIED",
+    "result":"Existing Walkback queue/launch evidence can derive compact idempotent candidate facts without extra RPC: route identity, creator/subprov relation, mechanism, amount bucket, timestamps and counters. Preferred seam is post-commit Walkback derivation outside promotion transaction. First-launch auto-qualification remains unsupported; accumulated multi-launch evidence and temporally matched negatives are required. No raw transaction retention or provider calls are needed.",
+    "artifact":"watchtower_treasury_blueprint_retention_v1.json sha256 0d4c637820a96a8f8897203dfaeabd3db69cf5576d8421b888438d06b7c6d6b8",
+    "next_action":"QUALIFY_WATCHTOWER_TREASURY_BLUEPRINT_RETENTION_RUNTIME. Do not activate a detector or register treasuries yet.",
+    "safety":"read-only; provider/source/schema/DB/process/backfill/registry mutations=0.",
+    "updated_at":"2026-09-28T08:00:00Z"
+  },
   "watchtower_treasury_blueprint_v1_20260928": {
     "engineering_revision":"0af5106a524a2145bfe0ba3b7af4245168f51986 on dev/monitor-live-admission",
     "status":"HOLD",

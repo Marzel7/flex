@@ -1,4 +1,15 @@
 {
+  "watchtower_role_normalized_promotion_deployment_20260928": {
+    "engineering_revision": "c381e76d on dev/monitor-live-admission",
+    "status": "DEPLOYED_WAITING_NATURAL_ACCEPTANCE",
+    "verdict": "ROLE_NORMALIZED_WATCHTOWER_PROMOTION_REPAIR_DEPLOYED",
+    "result": "Authorized contract e7c107a1ca5883ba503f4ecf901dade8ad04cbdb88f0dd7ebd5c33b3fcebd3fa was rehashed and verified. Frozen active preimage hashes matched with zero drift. The single contract-bound projector postimage cd5508da was copied into flex-walkback-dev002, compiled/imported, and verified. One Walkback-only restart replaced PID 80971 with PID 64008; bridge PID 53373 remained running and unchanged. No DB/schema/config/outbox/bridge/API/listener mutation, provider/RPC call, manual promotion, or backfill occurred. Startup health is PASS; no historical controls were promoted.",
+    "artifact": "docs/audits/watchtower_role_normalized_promotion_repair_execution.v1.json sha256 d1a785f9bf80c30fbd62aadc0e81c8f74511bce9211ac0319f710f7d3920446f",
+    "activation": {"t0_utc": "2026-09-28T15:50:58Z", "t0_epoch": 1790610658, "walkback_pid": 64008, "restart_count": 1},
+    "production_flags": "RUNTIME_DEPLOYMENT_GATE=PASS for the exact contract target. Bridge/monitor/API/listener restarts=0; PLAIN_XFER_RUNTIME_POLICY_CHANGED=false; historical_backfill_count=0; manual_promotion_count=0; provider/RPC=0.",
+    "next_action": "OBSERVE_ROLE_NORMALIZED_WATCHTOWER_PROMOTION. Wait for a natural post-T0 eligible WSOL confirmation; do not manufacture a control or resume treasury/executed-hop work.",
+    "updated_at": "2026-09-28T15:50:58Z"
+  },
   "watchtower_role_normalized_promotion_repair_20260928": {
     "engineering_revision": "bc26d205 on dev/monitor-live-admission",
     "status": "QUALIFIED_NOT_DEPLOYED",

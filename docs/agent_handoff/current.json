@@ -1,6 +1,17 @@
 {
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
+  "watchtower_monitor_launcher_environment_closure_20260928": {
+    "engineering_revision": "8817772a7143719794f2371d46e3ce60b99bfebd on dev/monitor-live-admission",
+    "qualification_audit": "docs/audits/watchtower_monitor_launcher_environment_closure_qualification.v1.json sha256 05c439b0cdb797767e159d4e7fe9bb23f572fe64b2dd0209e3150f40a04c6d7e",
+    "v2_contract": "docs/audits/watchtower_monitor_claim_liveness_repair_deployment_contract.v2.json sha256 38d1c81095d9b6c41ab9dc0795d7b18cd9397e8f21be6470f1a32172f63fc49d",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "root_cause": "The actual launcher uses env -i, so V1's Supervisor authority-path addition was discarded. V2 captures the optional parent path before .env and explicitly passes only it through the existing sanitized environment; env -i remains intact.",
+    "verification": "Current launcher loss=PASS; candidate exact path propagation=PASS; unrelated parent variable leak=none; pre-existing explicit environment variable diff count=0; empty absent path fails closed; synthetic canonical 7mq membership plus DELIVERED outbox claims=PASS; forged/wrong-operation/Deep blocked and existing allowlist unchanged; provider/RPC=0; candidate net-new regressions=0.",
+    "target_count": 3,
+    "production_flags": "LIVE_SOURCE/CONFIG/DB/SCHEMA/PROCESS changes=0; RUNTIME_DEPLOYMENT_REQUIRED=true; authorized=false; prior rollback remains in effect.",
+    "next_action": "AUTHORIZE_WATCHTOWER_MONITOR_CLAIM_LIVENESS_REPAIR_V2"
+  },
   "watchtower_monitor_claim_liveness_deployment_20260928": {
     "engineering_revision": "c734fcbca991ddd9eb970a0c2e1f0a871b58d640 on dev/monitor-live-admission",
     "audit": "docs/audits/watchtower_monitor_claim_liveness_repair_execution.v1.json sha256 4bdb799fe10972406e40fbb347467a2b1e34ea8a14a5455e448fdcb63630733c",

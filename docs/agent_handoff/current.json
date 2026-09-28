@@ -1,4 +1,15 @@
 {
+  "watchtower_target_treasury_upstream_relation_v1_20260928": {
+    "engineering_revision": "97f67285919e17491ebe61b7e59b929ffc649229 on dev/monitor-live-admission",
+    "status": "PARTIAL",
+    "verdict": "POPULATION_A_HAS_A_PROVEN_MIXED_DIRECT_AND_ONE_UNKNOWN_INTERMEDIATE_UPSTREAM_ROUTE_MODEL_BUT_THE_FROZEN_ROW_LEVEL_DISTRIBUTION_IS_NOT_RECONSTRUCTIBLE",
+    "result": "The frozen direct evidence remains 19 relations: 14 immutable endpoint sources equal the independently known Treasury and 5 differ. Population-A-only retained transaction roles additionally prove Gzaa Treasury -> UNKNOWN_INTERMEDIATE -> multiple Creator Direct Funders, while a 69SN differing source remains upstream-source-only. q.subprov remains CREATOR_DIRECT_FUNDER. Current mutable projections now produce 21 relations (14 equal/7 differ), so they cannot replace the frozen 19-row cohort. The 198 indirect-only Creator Direct Funders retain only downstream or label-bearing contextual evidence; their endpoint acquisition/discard state is not determinable.",
+    "artifact": "docs/audits/watchtower_target_treasury_upstream_relation_v1.json sha256 8019af4a3defd7117ce8edff5a9102f15b6e6114605bfbc3428b587f9b2294e9",
+    "metrics": "frozen direct=19; source=treasury=14; source differs=5; recent9 direct endpoint evidence=2; direct Treasury edge=1; visible intermediate route=1; no direct endpoint=7. Unknown-Treasury counterfactual: direct endpoint=2, visible intermediate=1, expected LINEAGE_GAP=9.",
+    "production_flags": "RUNTIME_DEPLOYMENT_REQUIRED=false (read-only audit). provider/RPC/address-history calls=0; live DB/schema/source/process/backfill/registry/classification mutations=0. All candidate deployments remain held.",
+    "next_action": "REVIEW_WATCHTOWER_TARGET_UPSTREAM_ROUTE_AMBIGUITY. Decide whether a future immutable frozen per-row route manifest is required before any minimum-retention contract. Do not deploy retention or a detector.",
+    "updated_at": "2026-09-28T15:30:00Z"
+  },
   "watchtower_treasury_discovery_target_population_v1_20260928": {
     "engineering_revision": "1811e514bcef825eab1712c08714d86f7663dfbe on dev/monitor-live-admission",
     "status": "DEFINED",

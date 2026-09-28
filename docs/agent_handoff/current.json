@@ -1,4 +1,14 @@
 {
+  "watchtower_population_a_bounded_route_retention_v1_20260928": {
+    "engineering_revision": "cd5e5ca640d63d5daa526b0678e427c63c0c5c5c on dev/monitor-live-admission",
+    "status": "PARTIAL",
+    "verdict": "FROZEN_V1_PROVES_BOUNDED_CONSECUTIVE_ROUTE_EVIDENCE_IS_NEEDED_BUT_PARENT_EDGE_ZERO_RPC_AVAILABILITY_AND_IMPLEMENTATION_CLOSURE_ARE_NOT_YET_QUALIFIED",
+    "result": "Role-neutral fact semantics are frozen: retain immediate source->Creator Direct Funder and, only when normal bounded Walkback already acquires it, parent->source; direct routes retain no synthetic parent. Frozen21 representation is 6 full routes, 15 immediate-only, 0 unrepresentable; Gzaa and 69SN fixtures are semantically representable. Immediate zero-RPC availability is FULL for already-resolved hop1; parent is PARTIAL because only existing hop2 paths acquire it and Walkback must not be broadened. No source/schema/runtime changes, candidate implementation, tests, rate measurement, storage cap, target pre/postimages, or process plan was fabricated.",
+    "artifact": "qualification docs/audits/watchtower_population_a_bounded_route_retention_qualification.v1.json sha256 be640415c8d0e58ef1926d26489f329f1db41780c9fe0892d58e1bdcdf7ed5fc; unauthorized/non-frozen contract docs/audits/watchtower_population_a_bounded_route_retention_deployment_contract.v1.json sha256 c21dcad508f1e361e702fe51cfecb313d23eda153a57b8c20f731fcd287ccc24",
+    "production_flags": "RUNTIME_DEPLOYMENT_REQUIRED=false for this audit-only partial result. provider/RPC/address-history calls=0; live source/schema/DB/process/backfill/registry/classification/membership/monitor mutations=0.",
+    "next_action": "REVIEW_POPULATION_A_PARENT_EDGE_ACQUISITION. Decide whether a future observer may retain only already-acquired hop1/hop2 facts post-commit without broadening Walkback; then implement and provider-free qualify a new bounded contract. Do not deploy or reuse earlier contracts.",
+    "updated_at": "2026-09-28T17:30:00Z"
+  },
   "watchtower_frozen_cohort_v1_upstream_route_analysis_20260928": {
     "engineering_revision": "a89f4553a8dea668d19bc4d6323b5ace26c99392 on dev/monitor-live-admission",
     "status": "COMPLETE",

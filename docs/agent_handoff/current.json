@@ -1,4 +1,15 @@
 {
+  "watchtower_five_stage_funding_topology_v1_20260928": {
+    "engineering_revision":"4b33fb702e154775b2cc8341434880d4118e0e58 on dev/monitor-live-admission",
+    "status":"INSUFFICIENT_RETAINED_EVIDENCE",
+    "verdict":"FIVE_STAGE_PROVISIONING_CORPUS_EXISTS_BUT_HAS_NO_LABEL_FREE_LINK_TO_THE_FROZEN_RECENT_TREASURY_CONTROL_COHORT",
+    "result":"The local corpus explicitly models the proposed intermediate Funding Account: 2002 in-window provisioning-wallet rows and 4004 paired SUBPROV_TO_PROVISIONING/PROVISIONING_TO_CREATOR edges. However, zero of the 217 frozen recent Treasury-control SubProviders overlap the fan-out sources in that corpus. Thus the supplied five-stage model is plausible for a distinct retained lineage, but cannot be used to derive/recover the recent-nine Treasury controls without prohibited label inference, new acquisition, or outside-window leakage. Amount/transaction identity is also absent from the edge table.",
+    "artifact":"watchtower_five_stage_funding_topology_v1.json sha256 3e17180c5763afb7b18eb7865ca99bc61e02374314859514cd055be8318883e8",
+    "metrics":"recent9 complete five-stage routes=0; blind SubProvider recovery=0/217; blind Treasury recovery=0; in-window separate paired edges=4004 across 2002 launches; cohort overlap=0.",
+    "production_flags":"read-only: provider/RPC/address-history calls=0; live source/schema/DB/process/backfill/registry/classification mutations=0. All pending Treasury-discovery retention deployments, including V2, are held.",
+    "next_action":"REVIEW_WATCHTOWER_OPERATIONAL_MODEL_DISCREPANCY: establish the authoritative, role-neutral linkage (and exact transaction/amount facts) between the frozen Treasury-control lineage and the provisioning-wallet corpus before designing or authorizing further retention/detection.",
+    "updated_at":"2026-09-28T14:00:00Z"
+  },
   "watchtower_minimum_upstream_retention_contract_v2_20260928": {
     "engineering_revision":"17a29ee40d26114f034dfbb342f8fa5a72d40d79 on dev/monitor-live-admission",
     "status":"FROZEN_QUALIFIED_UNAUTHORIZED",

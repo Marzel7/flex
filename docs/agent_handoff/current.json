@@ -1,4 +1,15 @@
 {
+  "watchtower_topology_edge_retention_v1_20260928": {
+    "engineering_revision":"9de2151667db35a6e179bff4901f3691a50d98cd on dev/monitor-live-admission",
+    "status":"QUALIFIED_NOT_DEPLOYED",
+    "verdict":"ROLE_NEUTRAL_ZERO_RPC_FUNDING_EDGE_RETENTION_CONTRACT_QUALIFIED",
+    "result":"The isolated contract retains compact directed funding facts seen by Walkback before role resolution: source/destination wallets, immutable source signature identity, mint/time, optional slot/ordinal, amount, mechanism, and objective creator association. It contains no Treasury/Subprovider/classification fields. Six provider-free fixtures prove idempotent replay, as-of ordering, fan-out, multi-subprovider convergence, router preservation, no classification state, and explicit capacity defer. Runtime wiring is intentionally absent and the earlier behavioral accumulator remains paused.",
+    "artifact":"watchtower_topology_edge_retention_v1.json sha256 6293b4ce5d02e5ef116dcad8a8b1be89615261a1d4c1f209f69c93f32c05d828",
+    "counterfactual":"2/9 recent controls have complete chains proven by retained acquisition trace; the other 7 and their fan-out remain UNKNOWN, not reconstructed or assumed.",
+    "production_flags":"RUNTIME_DEPLOYMENT_REQUIRED=true; RUNTIME_DEPLOYMENT_GATE=QUALIFIED_NOT_DEPLOYED. Provider/address-history calls=0; live source/schema/DB/process/backfill/registry/classification/membership mutations=0.",
+    "next_action":"QUALIFY_WATCHTOWER_TOPOLOGY_EDGE_RETENTION_RUNTIME: freeze exact current-pinned source/schema closure and bind an in-memory preclassification fact buffer to a post-commit, failure-isolated observer. Do not deploy, enable a detector, or register a treasury without separate authorization.",
+    "updated_at":"2026-09-28T10:00:00Z"
+  },
   "watchtower_treasury_topology_discovery_v1_20260928": {
     "engineering_revision":"8c34d5b943f5e43889c5994334031c680555a101 on dev/monitor-live-admission",
     "status":"NOT_SUPPORTED",

@@ -1,4 +1,14 @@
 {
+  "watchtower_role_normalized_promotion_repair_20260928": {
+    "engineering_revision": "bc26d205 on dev/monitor-live-admission",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "verdict": "WATCHTOWER_ROLE_NORMALIZED_PROMOTION_REPAIR_QUALIFIED_NOT_DEPLOYED",
+    "result": "Exact PID 80971 active bytes were frozen from flex-walkback-dev002 before any live mutation: projector acacda9e, worker a45ccc0d, outbox helper 7fe1c339. Detached baseline hashes matched. The sole candidate source delta admits a non-null queue/session treasury mismatch only when retained wt_lineage_verified_session_edges proves directed DIRECT_SOL_TRANSFER queue->session evidence; NULL supporting treasury remains non-rejecting, all unproven/ambiguous mismatch remains fail-closed. WSOL4 baseline rejected=2 and candidate eligible=4; two current successes preserved; PLAIN_XFER result changes=0. Focused tests 6 passed; membership/outbox atomicity and replay pass. A DurableWriteReceipt import error reproduces in both baseline and candidate monitor-worker compatibility tests, so net-new regressions=0.",
+    "artifacts": "docs/audits/watchtower_active_projector_runtime_provenance.v1.json; docs/audits/watchtower_role_normalized_promotion_repair_qualification.v1.json sha256 60fac54b350e5936ff323aa9eabb5678ba81673b1a357d1a3dd9bbaa50906b3f; unauthorized contract docs/audits/watchtower_role_normalized_promotion_repair_deployment_contract.v1.json sha256 e7c107a1ca5883ba503f4ecf901dade8ad04cbdb88f0dd7ebd5c33b3fcebd3fa",
+    "production_flags": "RUNTIME_DEPLOYMENT_REQUIRED=true for future executable deployment; RUNTIME_DEPLOYMENT_GATE=QUALIFIED_NOT_DEPLOYED. Live DB/schema/source/process/provider/RPC/backfill/manual-promotion mutations=0.",
+    "next_action": "AUTHORIZE_ROLE_NORMALIZED_WATCHTOWER_PROMOTION_REPAIR. Exact target is captured active working-tree projector preimage; Walkback restart only, no bridge/monitor/API/listener restart.",
+    "updated_at": "2026-09-28T15:45:00Z"
+  },
   "watchtower_projector_outbox_runtime_reconciliation_20260928": {
     "engineering_revision": "d90444ba2540b84f5218b9a10b464d14446bb15d on dev/monitor-live-admission",
     "status": "HOLD",

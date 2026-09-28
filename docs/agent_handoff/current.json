@@ -1,6 +1,16 @@
 {
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
+  "watchtower_monitor_claim_liveness_repair_20260928": {
+    "engineering_revision": "d9ec77f43710005916ed2727ef5a7e03f205cda8 on dev/monitor-live-admission",
+    "audit": "docs/audits/watchtower_monitor_claim_liveness_repair_qualification.v1.json sha256 f83dd7f8ecab6df65b9c41adc8731be91fa2fb7fdc7db78350f24451040f1da5",
+    "deployment_contract": "docs/audits/watchtower_monitor_claim_liveness_repair_deployment_contract.v1.json sha256 42867f1ac300a44eea23791b7bfc031caee9a09e9bbf6e10a1a691e5eb5e976e",
+    "result": "The obsolete DEV_005 allowlist blocks the bridge-delivered Watchtower control 7mqDrCDrw7zxqQs3KiRWmx3bns7uy3mMSiAKgDotpump before entry-reference processing. Candidate proof is narrow: only Watchtower envelopes whose mint, membership event, delivered source-outbox event, and canonical Watchtower UUID match the read-only source authority may claim. Queue payload alone, forged rows, wrong operation, and Deep fail closed; existing allowlisted controls are unchanged.",
+    "tests": "targeted provider-free test 1 passed; direct provider-free claim/restart/forgery/Deep/wrong-operation harness passed; candidate suite has 3 inherited non-feature failures when its missing lifecycle-projection module is supplied read-only.",
+    "production_flags": "RUNTIME_DEPLOYMENT_REQUIRED=true; DEPLOYMENT=NOT_EXECUTED; authorized=false; provider/RPC=0; no source runtime/config/schema/DB/process/bridge/opening/Deep-policy change.",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "AUTHORIZE_WATCHTOWER_MONITOR_CLAIM_LIVENESS_REPAIR_DEPLOYMENT"
+  },
   "active_observation": {
     "authorization_consumed_at_utc": "2026-08-12T20:55:26Z",
     "census_output": "logs/oip_migration_census.jsonl",

@@ -1,4 +1,15 @@
 {
+  "watchtower_treasury_blueprint_retention_runtime_v1_20260928": {
+    "engineering_revision":"662d5e5919f520afe39a74fb955b5a9243eb2f40 on dev/monitor-live-admission",
+    "status":"QUALIFIED_NOT_DEPLOYED",
+    "verdict":"WATCHTOWER_TREASURY_BLUEPRINT_RETENTION_RUNTIME_QUALIFIED_NOT_DEPLOYED",
+    "result":"An isolated, future-only Walkback observer is qualified. It reads one already durable queue row only after the existing promotion/comparison commit, stores idempotent compact route evidence and a rebuildable bounded accumulator, and makes no provider or address-history calls. It never classifies/registers treasuries or changes queue, confirmation, membership, monitor, or Deep state. The 100000-row capacity ceiling explicitly defers rather than evicts or expands. Current queue data has no durable program identities, so absence stays NOT_OBSERVED; a compact existing-fact adapter can record affirmative contradiction facts when present.",
+    "artifact":"watchtower_treasury_blueprint_retention_runtime_qualification.v1.json sha256 c3b82c999fb6b6db17b62b0f532656000c2ca3a27761c2e3bdf0bf74d46e2341; deployment contract sha256 44aab021e30cef8780d983a27a8f9dd785598dafdf42092c9fb66c24aa13aac6; authorized=false",
+    "tests":"28 focused provider-free fixture and existing promotion tests passed; 0 failed.",
+    "production_flags":"RUNTIME_DEPLOYMENT_REQUIRED=true; RUNTIME_DEPLOYMENT_GATE=QUALIFIED_NOT_DEPLOYED. Live source/schema/DB/process/provider/address-history/backfill mutations=0; registry/membership/monitor/Deep writes=0.",
+    "next_action":"AUTHORIZE_WATCHTOWER_TREASURY_BLUEPRINT_RETENTION_RUNTIME_V1 only with the exact contract SHA. Reverify pinned preimage, apply the two source targets and additive schema only, restart Walkback at most once, then perform bounded future-only observation. Do not activate a detector or backfill.",
+    "updated_at":"2026-09-28T09:00:00Z"
+  },
   "watchtower_treasury_blueprint_retention_v1_20260928": {
     "engineering_revision":"5b1fcba9a9af26b7d662f1b2df36c9e5e77a6f17 on dev/monitor-live-admission",
     "status":"PARTIAL",

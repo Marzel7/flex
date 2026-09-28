@@ -19154,6 +19154,16 @@
     "safety": "Read-only reconciliation: source/config/schema changes=0; process actions=0; provider/RPC calls=0. No Supervisor restore, reload, or restart occurred.",
     "next_action": "AUTHORIZE_MONITORWORKER_15M_OPTIONAL_OPENING_V2"
   },
+  "monitorworker_15m_optional_opening_v2_deployment_20260928": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa with qualified current source postimage",
+    "contract_sha256": "b34e9f3eb057c7553eb27ea39d3abedc6cb817eef47de4ffa57b6c43d0e12115",
+    "execution_audit": "docs/audits/monitorworker_15m_optional_opening_isolation_v2_execution.v1.json sha256 219fa608e58bbd843dd337f4fdf689a7760b99452ed0635f08e8efd3c0ed053e",
+    "status": "DEPLOYED_OBSERVING",
+    "activation": "One authorized operation_monitor_worker restart only: PID 79903 -> 82774. Walkback/bridge/API/listener/global supervisor restarts=0. Source/config/schema mutations=0; provider/RPC validation calls=0.",
+    "acceptance": "Worker RUNNING and startup health PASS. The known optional strict-opening diagnostic ImportError cannot prevent MonitorWorker startup; strict-opening stays fail-closed/unresolved. Claim-liveness V2, 15m activation, watermark request repair, DEV-012, and Deep parity PASS. Exact suite=50 passed, 0 failed.",
+    "natural_observation": "Bounded natural post-restart observation recorded zero 15m calls, zero useful/duplicate candles, zero HTTP 200/400/429, and zero widening requests. One caught-up token had no provider call; no zero-watermark natural request occurred, so its duration is not claimed. 7mq remains active with no retained 15m watermark/candles during the window.",
+    "next_action": "OBSERVE_WATCHTOWER_15M_PROVIDER_EFFICIENCY"
+  },
   "wt_lifecycle_operator_id_migration_plan": {
     "artifact": "docs/audits/wt_token_lifecycle_operator_id_migration_plan.v1.json",
     "digest": "d05097c2f3d06e6ac2eeb16df0b435a3698db8a3e828b4416b3cfd270b2d849d",

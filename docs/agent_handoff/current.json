@@ -1,6 +1,16 @@
 {
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
+  "watchtower_monitor_claim_liveness_predeploy_gate_20260928": {
+    "engineering_revision": "fcf0921efc0a23846faba1d642bc5498b7dd35ce on dev/monitor-live-admission",
+    "audit": "docs/audits/watchtower_monitor_claim_liveness_predeploy_gate.v1.json sha256 e2a4b8109204ddd7022bb3f9ffcd0c56460bbc389e9dbc34b096aa78ff1a3cd4",
+    "status": "READY_FOR_AUTHORIZATION",
+    "result": "The exact three inherited MonitorWorker suite failures reproduce identically on frozen baseline and qualified candidate under the same read-only lifecycle-projection fixture: stale callback count, waiting-row ACK expectation, and stale PROVIDER_BACKOFF label. FEATURE_CAUSED_NET_NEW_REGRESSION=0.",
+    "preimage": "Live MonitorWorker source sha256 9500e2dba7a262fe003b988752ab43cd97a30b37d773404669bb4722f0e24559 and supervisor config sha256 4dd0d5555d1c4999523a43447729f457401c3f663c927e9629aa27586c66bf54 exactly match the unauthorized deployment contract; PREIMAGE_MISMATCH_COUNT=0; UNEXPECTED_RUNTIME_DRIFT_COUNT=0.",
+    "runtime": "operation_monitor_worker RUNNING pid 7851; no reload/deploy/action taken.",
+    "production_flags": "RUNTIME_DEPLOYMENT_REQUIRED=true; deployment not executed; authorized=false; provider/RPC/source/schema/DB/process changes=0.",
+    "next_action": "AUTHORIZE_WATCHTOWER_MONITOR_CLAIM_LIVENESS_REPAIR"
+  },
   "watchtower_monitor_claim_liveness_repair_20260928": {
     "engineering_revision": "d9ec77f43710005916ed2727ef5a7e03f205cda8 on dev/monitor-live-admission",
     "audit": "docs/audits/watchtower_monitor_claim_liveness_repair_qualification.v1.json sha256 f83dd7f8ecab6df65b9c41adc8731be91fa2fb7fdc7db78350f24451040f1da5",

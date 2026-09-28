@@ -1,4 +1,14 @@
 {
+  "watchtower_minimum_upstream_retention_contract_v2_20260928": {
+    "engineering_revision":"17a29ee40d26114f034dfbb342f8fa5a72d40d79 on dev/monitor-live-admission",
+    "status":"FROZEN_QUALIFIED_UNAUTHORIZED",
+    "verdict":"HISTORICALLY_VALIDATED_MINIMUM_UPSTREAM_RETENTION_V2_EXACT_CLOSURE_FROZEN",
+    "result":"V2 literally binds the 19/19 historical validation, 217 dry run, superseded V1 identity, current compatible pinned Walkback preimage, conflict/replay semantics, zero-RPC boundary, and no-detector assertions. The only execution targets are current pinned Walkback source, one new observer module, and one additive table. No unmapped mutation remains; bounds are 10000 rows/10MB, no eviction/raw payloads, and Walkback is the sole restart candidate.",
+    "artifact":"watchtower_minimum_subprovider_upstream_retention_deployment_contract.v2.json sha256 12f805721a960d991636cb67a883db1a444a5c4ea9c962ee0f77570accfdc1c6; freeze audit sha256 65348911e9af9953e041f149e74c458a54d8ff7d381cef10c9ea0b18a6649eef; authorized=false",
+    "production_flags":"contract freeze only: live source/schema/DB/process/provider/backfill mutations=0. V1 remains superseded and may not be deployed; broader observers remain paused.",
+    "next_action":"AUTHORIZE_WATCHTOWER_MINIMUM_UPSTREAM_RETENTION_V2 explicitly referencing SHA 12f805721a960d991636cb67a883db1a444a5c4ea9c962ee0f77570accfdc1c6. Reverify every preimage/absence before any execution; then apply only the V2 closure and observe future natural evidence after T0.",
+    "updated_at":"2026-09-28T13:30:00Z"
+  },
   "watchtower_minimum_upstream_historical_predeploy_validation_20260928": {
     "engineering_revision":"52e77fd173c7e9fe260da4a723a9fc943c3551d1 on dev/monitor-live-admission",
     "status":"PASS_WITH_CONTRACT_DRIFT",

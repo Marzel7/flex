@@ -1,4 +1,15 @@
 {
+  "watchtower_treasury_from_subprovider_funding_v1_20260928": {
+    "engineering_revision":"d1b10af67b4a58c5d3eabc79216f8f649f6454ca on dev/monitor-live-admission",
+    "status":"PARTIAL",
+    "verdict":"DIRECT_SUBPROVIDER_SESSION_SOURCE_RELATION_EXISTS_BUT_IS_INSUFFICIENT_FOR_TREASURY_QUALIFICATION",
+    "result":"A narrow retained relation exists: active SubProvider session funding_signature can join transaction-role DIRECT transfer endpoints. In the frozen two-month population there are 217 route SubProviders across 8/9 controls, but only 19 have this independent direct source join. Those cover two treasury controls: one control has a matching source and one has competing/mismatching sources. CEX/router/service source exclusions are not retained in the relation, so no upstream wallet is qualified, nominated, or registered.",
+    "artifact":"watchtower_treasury_from_subprovider_funding_v1.json sha256 bdddbfb335aef9a02d03a316dc32e2feade6cab9bf2ad4f0abee9eded6fec771",
+    "metrics":"qualified upstream=0; recent9 recovered=0; direct-source coverage=19/217 SubProviders; controls with direct source=2; matching controls=1; false treasury count=0 only because no detector/negative forcing exists.",
+    "production_flags":"provider/address-history calls=0; live source/schema/DB/process/backfill/registry/subprovider/membership mutations=0. Both proposed behavioral and topology-edge runtimes remain paused.",
+    "next_action":"QUALIFY_WATCHTOWER_SUBPROVIDER_UPSTREAM_FUNDING_RETENTION: prospectively retain the exact immutable session-funding source→known-SubProvider relation with direct-route, time/slot, mechanism/amount, and compact CEX/router/service exclusion state. Do not deploy existing paused runtimes or implement a detector yet.",
+    "updated_at":"2026-09-28T10:30:00Z"
+  },
   "watchtower_topology_edge_retention_v1_20260928": {
     "engineering_revision":"9de2151667db35a6e179bff4901f3691a50d98cd on dev/monitor-live-admission",
     "status":"QUALIFIED_NOT_DEPLOYED",

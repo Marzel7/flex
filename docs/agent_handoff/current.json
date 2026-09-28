@@ -1,6 +1,14 @@
 {
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
+  "watchtower_15m_history_deployment_contract_20260928": {
+    "engineering_revision": "20fa3a210f778e6a552818fd1a8160e44deb8635 on dev/monitor-live-admission",
+    "contract": "docs/audits/watchtower_15m_history_activation_deployment_contract.v1.json sha256 aa917bf3adabd6f2f2a8ca7e6f4f2b3093ba7543d11cf6825824205eb8355b4d",
+    "status": "QUALIFIED_CONTRACT_READY_FOR_AUTHORIZATION",
+    "result": "No contract existed before the received deployment authorization. The new exact contract freezes one source target: live operation_monitor_worker.py preimage 6b06ed... to qualified 1805d456 postimage 2103a3.... Launcher and Supervisor config are invariant hashes; schema/config targets=0. MonitorWorker predeploy status was RUNNING pid 28622.",
+    "production_flags": "authorized=false; deployment not executed; provider/RPC/live DB/schema/process changes=0. The contract allows at most one operation_monitor_worker restart after fresh authorization.",
+    "next_action": "AUTHORIZE_WATCHTOWER_15M_HISTORY_CONTRACT"
+  },
   "birdeye_riley_credential_qualification_20260928": {
     "engineering_revision": "579cbd386f7036f6cb26905d9a558cfabe34ea6c on dev/monitor-live-admission",
     "audit": "docs/audits/birdeye_riley_credential_qualification.v1.json sha256 b90201f53ab40b092e9e3101590991f0f2b119477dc9eead4b7f5311c94b5720",

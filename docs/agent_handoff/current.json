@@ -1,4 +1,15 @@
 {
+  "watchtower_frozen_cohort_v1_upstream_route_analysis_20260928": {
+    "engineering_revision": "a89f4553a8dea668d19bc4d6323b5ace26c99392 on dev/monitor-live-admission",
+    "status": "COMPLETE",
+    "verdict": "FROZEN_V1_PROVES_A_DIRECT_DOMINANT_MIXED_POPULATION_A_ROUTE_MODEL_AND_REQUIRES_BOUNDED_CONSECUTIVE_ROUTE_EVIDENCE_FOR_FUTURE_ANALYSIS",
+    "result": "Using only the 21 frozen V1 IDs: 14 sources equal the known Treasury (direct routes), 7 differ. Six differing Gzaa relations prove Treasury->UNKNOWN_INTERMEDIATE->Creator Direct Funder topology across five distinct Creator Direct Funders; one 69SN relation remains UPSTREAM_SOURCE_ONLY. Direct=P L A I N_TRANSFER 600-700 SOL; differing is also PLAIN_TRANSFER but varies 5/600/800/1000 SOL, so local amount/mechanism is not discriminating. Source convergence is objectively visible but insufficient for potential-Treasury nomination because prospective ordering and source-class exclusions are absent.",
+    "artifact": "docs/audits/watchtower_frozen_cohort_v1_upstream_route_analysis.v1.json sha256 971e72e28fb9fbe472f733ea7fe13e03953d29a167c6cae24256a8b202e1e227",
+    "metrics": "direct=14; one-intermediate=6; multi=0; source-only=1; represented controls=2; unknown-label objective visibility direct=14/intermediate=6/partial=1.",
+    "production_flags": "RUNTIME_DEPLOYMENT_REQUIRED=false (read-only analysis). provider/RPC/address-history calls=0; live DB/schema/source/process/backfill/registry/classification mutations=0. No retention or detector was designed, deployed, or enabled.",
+    "next_action": "QUALIFY_POPULATION_A_BOUNDED_ROUTE_RETENTION. A future-only contract must capture role-neutral immediate source->Creator Direct Funder and, when naturally observed, parent->source consecutive facts with immutable provenance and compact source-class exclusions. Do not automatically reuse earlier contracts.",
+    "updated_at": "2026-09-28T17:00:00Z"
+  },
   "watchtower_upstream_immutable_evidence_contract_v1_20260928": {
     "engineering_revision": "4c14ec8cb6090dcf97ab748d553f325ed6302add on dev/monitor-live-admission",
     "status": "FROZEN",

@@ -1,6 +1,15 @@
 {
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
+  "watchtower_15m_history_activation_20260928": {
+    "engineering_revision": "1805d4560d9ce1a4a2996a47622171fcfdac42ba on dev/monitor-live-admission",
+    "audit": "docs/audits/watchtower_15m_history_activation_qualification.v1.json sha256 618d505811fbc8072ab4791f163eba9cd862800200768d2df1684e61a6d296ce",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "result": "The prior activation predicate required a qualified strict entry and therefore blocked 15m history for WAITING_FOR_ENTRY_REFERENCE. The candidate permits only an existing source-authorized canonical Watchtower admission to retain prospective 15m history while strict opening remains unresolved. TARGET_SECOND_ABSENT stays explicit; no entry is fabricated. Deep, forged rows, terminal exclusion, dedupe, shared budget and 429 behavior remain closed/unchanged.",
+    "qualification": "New provider-free harness=7 passed; coherent monitor closure=12 passed; launcher environment=2 passed. One unrelated unchanged fingerprint-label expectation fails; the inherited MonitorWorker suite cannot collect because its lifecycle-projection fixture module is absent from both base and candidate. FEATURE_CAUSED_NET_NEW_REGRESSION_COUNT=0.",
+    "production_flags": "Provider/RPC/live DB/schema/process/manual-candle/backfill changes=0. RUNTIME_DEPLOYMENT_REQUIRED=true; deployment not authorized or executed.",
+    "next_action": "AUTHORIZE_WATCHTOWER_15M_HISTORY_ACTIVATION_DEPLOYMENT"
+  },
   "watchtower_7mq_bounded_opening_diagnostic_20260928": {
     "engineering_revision": "60c378db2080c183d541cd5d4367bdfc8d731469 on dev/monitor-live-admission",
     "audit": "docs/audits/watchtower_7mq_bounded_opening_diagnostic.v1.json sha256 9cd1ccdfa1e2f3bf75f2aad80275fe5fa8db212b61f3e22991bd6e06413ff553",

@@ -1,4 +1,15 @@
 {
+  "watchtower_subprovider_upstream_funding_retention_v1_20260928": {
+    "engineering_revision":"cb5528f8c495b33408f80efe2022f0f176c36925 on dev/monitor-live-admission",
+    "status":"QUALIFIED_NOT_DEPLOYED",
+    "verdict":"NARROW_POSTCOMMIT_KNOWN_SUBPROVIDER_UPSTREAM_FUNDING_RETENTION_CONTRACT_QUALIFIED",
+    "result":"The future-only observer retains only an exact, already-acquired active-session funding transaction relation: established SubProvider, upstream source, destination-bound immutable signature, event time/slot, amount, mechanism, and explicit CEX/router/service evidence states. It has no Treasury/classification field and does not infer new SubProviders. Five provider-free tests pass for replay, multiple sources, explicit exclusions, convergence, first unknown source, and capacity deferral. Current acquisition remains partial, so the runtime needs a safe buffer/seam but no broader graph or behavior retention.",
+    "artifact":"watchtower_subprovider_upstream_funding_retention_v1.json sha256 c504db73acd2937f32958882b91524f3fae6ec4ac8daa9aa78ccfed09646b175",
+    "metrics":"expected incremental RPC per funding=0; estimated rows/day=5; max rows=25000; feature hard bound=50000000 bytes; source-exclusion evidence currently partial/not-available unless already acquired transaction facts prove it.",
+    "production_flags":"RUNTIME_DEPLOYMENT_REQUIRED=true; RUNTIME_DEPLOYMENT_GATE=QUALIFIED_NOT_DEPLOYED. Provider/address-history calls=0; live source/schema/DB/process/backfill/registry/classification/membership mutations=0. Both broader proposed runtimes remain paused.",
+    "next_action":"QUALIFY_WATCHTOWER_SUBPROVIDER_UPSTREAM_FUNDING_RETENTION_RUNTIME: bind a preclassification in-memory fact buffer to a post-commit, failure-isolated observer against exact current pinned source/schema closure. Do not deploy or implement a treasury detector without separate authorization.",
+    "updated_at":"2026-09-28T11:00:00Z"
+  },
   "watchtower_treasury_from_subprovider_funding_v1_20260928": {
     "engineering_revision":"d1b10af67b4a58c5d3eabc79216f8f649f6454ca on dev/monitor-live-admission",
     "status":"PARTIAL",

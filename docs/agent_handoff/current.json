@@ -9,12 +9,13 @@
   },
   "watchtower_deep_shared_upstream_capital": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; retained-state research only",
-    "status": "PARTIAL_EVIDENCE_RETAINED_PREACQUISITION",
+    "status": "NOT_FOUND_WITHIN_BOUND",
     "finding": "Deep-side retained evidence qualifies the historical 6Muxk6cE pool and HHJRGmus coordinator route. No transaction-derived exact upstream intersection, direct cross-graph capital link, or common capital source with established Watchtower controls is retained. Rotation sequence evidence is behavioral/partial only; it does not prove capital succession.",
     "lineage_gap": "Supported interpretation: LINEAGE_GAP can mean no confirmed Treasury within current Walkback reach, not NOT_WATCHTOWER. It is not identity proof.",
-    "audit": "docs/audits/watchtower_deep_shared_upstream_capital.v1.json sha256 ed39fb352a67df242856bb2be8a4a4f742817daac0a1c7976b9733848ff96e9f",
-    "safety": "Production/config/schema/process/classification/feature flag changes=0; provider/RPC calls=0; Deep deployment unauthorized.",
-    "next_action": "AUTHORIZE_BOUNDED_40_CALL_UPSTREAM_CAPITAL_TRACE"
+    "audit": "docs/audits/watchtower_deep_shared_upstream_capital.v1.json sha256 f3e1d4874d8f43f226421527c9821e6c9154978d60c4d4a759e32d352d2fd72f",
+    "rpc": "6/40 authorized calls: bounded signature pages plus four selected transaction reads. Two direct 6Mux->HHJRGmus transfers were independently confirmed; no established-Watchtower upstream intersection or cross-graph link appeared. Further progress requires unrelated/paginated counterparties and was stopped.",
+    "safety": "Production/config/schema/process/classification/feature flag changes=0; Deep deployment unauthorized.",
+    "next_action": "REVIEW_ONLY_UNRESOLVED_ESTABLISHED_WATCHTOWER_UPSTREAM_BOUNDARY"
   },
   "watchtower_standard_deep_missing_discriminator": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa with a materially dirty workspace; retained-state audit only",

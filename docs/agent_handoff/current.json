@@ -19172,6 +19172,15 @@
     "blocker": "Current operation_monitor_worker is BACKOFF because reconcile_retained_watchtower_facts converts a null entry_mc_usd to float. This is separate from provider efficiency and optional-import isolation. No source/config/schema/process/provider/RPC action was taken in this read-only audit.",
     "next_action": "QUALIFY_WATCHTOWER_MONITOR_UI_PROJECTION_REPAIR; separately authorize MonitorWorker BACKOFF diagnosis/repair before further natural observation."
   },
+  "monitorworker_null_entry_reconciliation_review_20260929": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa frozen MonitorWorker source",
+    "audit": "docs/audits/monitorworker_null_entry_reconciliation_review.v1.json sha256 be5155c61ca74f9fce56d3dcb2b81add3a5599dc28e1abe03c04918a896ff509",
+    "status": "HOLD",
+    "root_cause": "reconcile_retained_watchtower_facts selects all active Watchtower rows and unconditionally converts entry_mc_usd to float before calculating entry-relative peak/multiple/drawdown. The legitimate unresolved 2n3 Watchtower 15m row has one retained candle and null entry_mc_usd, causing TypeError and MonitorWorker BACKOFF.",
+    "semantics": "Entry MC is conditional: required only for entry-relative metrics and terminal drawdown, not retained absolute candle history, watermarking, provider dispatch, dedupe, budget, or backoff. Expected repair skips/refrains from only entry-relative reduction until entry is qualified; it must never invent entry MC.",
+    "safety": "Read-only diagnosis: source/config/schema/process/provider/RPC/manual DB writes=0. No direct null-entry reconciliation regression exists yet; no candidate implementation or deployment contract was created.",
+    "next_action": "AUTHORIZE_MONITORWORKER_NULL_ENTRY_RECONCILIATION_REPAIR"
+  },
   "wt_lifecycle_operator_id_migration_plan": {
     "artifact": "docs/audits/wt_token_lifecycle_operator_id_migration_plan.v1.json",
     "digest": "d05097c2f3d06e6ac2eeb16df0b435a3698db8a3e828b4416b3cfd270b2d849d",

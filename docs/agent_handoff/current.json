@@ -17,7 +17,7 @@
     "safety": "Read-only retained-state/process/source audit; production DB/runtime/config/process/provider/RPC/DEV020 changes=0.",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "No executable behavior was changed.",
-    "next_action": "QUALIFY_BOUNDED_WORKER_BUDGET_DENIAL_DEFER_AND_RESTART_RECOVERY_WITHOUT_INCREASING_PROVIDER_BUDGET"
+    "next_action": "IMPLEMENT_AND_QUALIFY_BOUNDED_WORKER_BUDGET_DENIAL_DEFER_IN_/Users/kevinkeaveney/.codex/worktrees/dev005-budget-denial-defer/flex"
   },
   "dev020_tiny_live_treasury_recipient_accumulation": {
     "engineering_revision": "83fc8efaac32130069f0f544f83474f1ba5836e0 on codex/watchtower-treasury-recipient-retention",

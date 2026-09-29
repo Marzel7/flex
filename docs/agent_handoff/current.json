@@ -1,4 +1,14 @@
 {
+  "watchtower_standard_deep_missing_discriminator": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa with a materially dirty workspace; retained-state audit only",
+    "status": "INSUFFICIENT_RETAINED_EVIDENCE",
+    "finding": "No local retained store has a formal Standard or Deep membership joined to a complete five-stage Treasury -> SubProvider -> Funding Account -> Creator -> Launch route. The source operations DB has 2,238 five-stage rows (1,321 with transaction-role records), but zero join either formal membership population. The missing fact is membership-aligned five-stage topology for both comparator cohorts, plus comparable lifecycle and upper-continuity completeness.",
+    "recovery": "NO_RETAINED_RECOVERY_AVAILABLE: reconstructing the absent membership linkage would require an impermissible inference, replay, or separately authorized acquisition; no alternate retained SQLite/artifact source supplies it.",
+    "audit": "docs/audits/watchtower_standard_deep_missing_discriminator.v1.json sha256 9010e0ce168fae292b22c20be7dac4477688c34fcfc70cd72f2c66ea13561f30",
+    "safety": "Offline/read-only: source/config/schema/production-DB/process/provider/RPC/network/reclassification/replay/approval changes=0; feature flags OFF; RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "deployment": "Deep deployment remains halted and unauthorized.",
+    "next_action": "QUALIFY_COMPACT_PROSPECTIVE_STANDARD_DEEP_FIVE_STAGE_EVIDENCE_RETENTION"
+  },
   "watchtower_standard_deep_behavior_definition": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa with a materially dirty workspace; no runtime target was changed",
     "status": "INSUFFICIENT_RETAINED_EVIDENCE",

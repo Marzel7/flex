@@ -10,6 +10,15 @@
     "safety": "Read-only trace; source/config/schema/database/process/provider/RPC/backfill changes=0.",
     "next_action": "QUALIFY_ONLY_THE_PROVEN_MISSION_CONTROL_UI_SEAM"
   },
+  "watchtower_mission_control_monitor_authority_qualification": {
+    "status": "HOLD",
+    "finding": "Direct explicit SQLite read-only selection of the authoritative dev_005a store is technically feasible and does not require a port-5002 proxy or a template change. However, the target port-8100 server live-reloads the shared workspace, so a brief candidate source write automatically rolled its listener from PID 38896 to PID 66447 before immediate reversion.",
+    "safety": "No candidate source persists; post-revert workspace hashes are restored. Configuration/schema/database/data-copy/backfill/provider/RPC changes=0. The automatic reload means this is not a clean no-process-action qualification.",
+    "post_revert": "Port 8100 responds 200 with the original stale zero projection (active=0, calls_today=0, total=20, first row NOT_MONITORED).",
+    "audit": "docs/audits/watchtower_mission_control_monitor_authority_qualification.v1.json sha256 9a61a4eac4d3038ff61528fdb84e610767ed65eb9c857b76165cf0539a4a232c",
+    "deployment_contract_created": false,
+    "next_action": "Create an isolated non-watched candidate checkout/runtime, then rerun direct read-only authority qualification without touching the live workspace server."
+  },
   "watchtower_monitor_ui_projection": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa with material dirty working tree; deployed API source separately frozen by SHA-256",
     "status": "LIVE_UI_VERIFICATION_PASS",

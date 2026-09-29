@@ -17011,5 +17011,19 @@
     "audit": "docs/audits/watchtower_dwmf2xcu_treasury_candidate_verification.v1.json sha256 29931060c6d1380ce792379398de92f30326567819dcf12188d6b56469412418",
     "safety": "READ_ONLY: source/config/schema/database/process/provider/RPC/webhook/promotion/backfill changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "next_action": "MANUAL_DECISION_DWMF_TREASURY_APPROVAL"
+  },
+  "watchtower_dwmf2xcu_treasury_approval_20260929": {
+    "engineering_revision": "Existing production approval function used; no source/runtime deployment.",
+    "status": "APPROVED",
+    "candidate": "DWmF2xCu739paiMCxEUtczYADQuUxvLFnpHKnaSAH1mG",
+    "registry": "PRESENT: REVIEW_PROMOTED / CONFIRMED_REVIEW at 2026-09-29T14:52:28Z.",
+    "review": "CONFIRMED by human_authorized_dwmf at 2026-09-29T14:52:59Z.",
+    "audit": "Immutable APPROVE_TREASURY action 65b391cc-f178-43a0-bd3f-7cd79e6addeb at 2026-09-29T14:52:59Z. Execution audit docs/audits/watchtower_dwmf2xcu_treasury_approval_execution.v1.json sha256 dd79ad63dec3b4c5a246ff3257178a072e1150c87ade10c0d0cc241fafe863c1.",
+    "authority": "VISIBLE: current Walkback _is_known_treasury queries wt_confirmed_treasuries directly; DWmF has canonical operator-entity projection.",
+    "webhook": "OPTIONAL for recognition; no enrollment attempted. Helius provider calls=0; webhook updates=0.",
+    "historical_safety": "All 11 original outcomes remain LINEAGE_GAP; replay/reclassification/manual launch promotion/membership changes=0. AENy and G473 remain PENDING_REVIEW and absent from registry.",
+    "important_execution_note": "Initial direct call lacked sqlite3.Row row_factory. Existing alignment ensure_schema committed registry/review before raising, leaving audit absent. Retrying the same authorized production function with the required row factory completed alignment and immutable audit. This exposed an existing transaction-boundary defect; no code change was made.",
+    "runtime_deployment_required": false,
+    "next_action": "OBSERVE_FUTURE_NATURAL_DWMF_TREASURY_RECOGNITION"
   }
 }

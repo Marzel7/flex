@@ -32,6 +32,20 @@
     "contract": "docs/audits/watchtower_mission_control_monitor_authority_deployment_contract.v1.json sha256 fc49456bc3d2f91e02f52847e418186da2a5600ca28dfa66a9fff7065eb5a13f; authorized=false; deployment expects one automatic src.dev_runtime reload only.",
     "next_action": "AUTHORIZE_MISSION_CONTROL_MONITOR_AUTHORITY_DEPLOYMENT"
   },
+  "watchtower_mission_control_monitor_authority_deployment": {
+    "status": "DEPLOYED_PASS",
+    "contract_sha256": "fc49456bc3d2f91e02f52847e418186da2a5600ca28dfa66a9fff7065eb5a13f",
+    "targets": "src/ops/operator_routes.py=5a196a8a0250f1c17820f6498072ff9fe842f7c11cee8f81c8ff35ee7b873072; src/dev_runtime.py=0cc3568263ffad5bd7b8f40256366745c71c7d2b7f2c567925c814221ff96c11",
+    "reload": "Expected automatic port-8100 src.dev_runtime listener rollover exactly once: PID 66447 -> 79005. No manual Supervisor restart.",
+    "authority": "Port-8100 /api/operations/live-monitor reads .dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db via absolute path -> Path.as_uri -> fixed mode=ro; stale fallback=false.",
+    "browser_controls": "8n1 ACTIVE / $691.0K / 336; 9DPU COLLAPSED / $4298 / 273; 2n3 COLLAPSED / Entry — / $2575 / 2. Browser table to authoritative-fact mismatch count=0; 8n1 observations route returns timestamp/mc_usd/resolution=15m.",
+    "summary": "WATCHTOWER active=5 waiting=0 completed=6; active monitors=5; waiting=0; Birdeye calls today=617.",
+    "safety": "Bounded endpoint reads: DB writes=0, authority DB/WAL/SHM/journal mutation count=0. MonitorWorker/watchtower_api/Walkback/bridge restarts=0; provider calls/data copy/backfill=0.",
+    "execution_audit": "docs/audits/watchtower_mission_control_monitor_authority_execution.v1.json sha256 c5b129c2b17ae654701b64c9b0422380e18428fced1a5ac546444b64b877b9f3",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "next_action": "WATCHTOWER_15M_MONITORING_UI_COMPLETE"
+  },
   "watchtower_monitor_ui_projection": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa with material dirty working tree; deployed API source separately frozen by SHA-256",
     "status": "LIVE_UI_VERIFICATION_PASS",

@@ -1,4 +1,13 @@
 {
+  "watchtower_two_transaction_upstream_boundary": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; bounded evidence read only",
+    "status": "PARTIAL_BOUNDARY_RESOLVED",
+    "finding": "The exact 2gh candidate is a 556.936495127 SOL WSOL-close from Nuon into 2gh, but Nuon is already a proven downstream 2gh SubProvider: material recycling, not upstream capital. The exact Gzaa candidate is a direct 1,505 SOL u5fu -> Gzaa transfer; source address and edge are proven, source role remains unknown. No Deep-node intersection was found.",
+    "audit": "docs/audits/watchtower_two_transaction_upstream_boundary.v1.json sha256 ca1f9e3ab05c4c742087a1277033076cec18e8b8a4d9d5214fdff9bfd9dc98b8",
+    "rpc": "2/2 authorized exact getTransaction calls; no signature history, pagination, counterparty discovery, or follow-on RPC.",
+    "safety": "Production/config/schema/process/classification/feature-flag changes=0; Deep deployment unauthorized.",
+    "next_action": "WATCHTOWER_HISTORICAL_TREASURY_SUCCESSION_AUDIT"
+  },
   "watchtower_established_upstream_boundary": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; retained-state research only",
     "status": "PARTIAL_RETAINED_WATCHTOWER_UPSTREAM_RECOVERY_AVAILABLE",

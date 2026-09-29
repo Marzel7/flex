@@ -17055,5 +17055,15 @@
     "audit": "docs/audits/watchtower_treasury_standard_deep_role_model.v1.json sha256 6d9a93291c42beab6f6be81e41e3c39d0d9f7e515f27d511cca41b31bdd5d45c",
     "safety": "READ_ONLY: DB/source/config/schema/process/provider/RPC/approval/reclassification/replay changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "next_action": "REPORT_EXACT_MISSING_RETAINED_MIXED_TREASURY_EVIDENCE"
+  },
+  "watchtower_deep_relationship_contract_audit_20260929": {
+    "engineering_revision": "Read-only executable/retained-contract audit; no source/runtime change.",
+    "status": "LEGACY_MIXED_MODEL",
+    "finding": "operator_launch_membership is mint-primary-keyed: one mint has exactly one operation membership and cannot hold WATCHTOWER plus WATCHTOWER_DEEP. There is no parent/subtype mint storage. Deep is a separate historical operation (26 memberships) plus a prospective unowned REVIEW_ONLY lead surface, not a formal Watchtower subtype.",
+    "runtime": "Confirmed Treasury recognition yields WATCHTOWER_CONFIRMED. Deep route assessment rejects existing membership or Watchtower ledger, therefore a confirmed-Treasury route matching Deep behavior would become WATCHTOWER then have Deep rejected. The zero mixed-Treasury observation is runtime-blocked, not behavioral evidence.",
+    "shared_infrastructure": "Watchtower and Deep retain separate operation IDs/reconciliations but share migration boundary, opening, 15m evidence, provider budget/backoff, and terminal mechanics.",
+    "audit": "docs/audits/watchtower_deep_relationship_contract_audit.v1.json sha256 7794c2bec829237027dcb0ddfb11c9c85150b5ff4f9f88a28d1aadc500396c93",
+    "safety": "READ_ONLY: DB/source/config/schema/process/provider/RPC/reclassification/replay/approval changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "next_action": "QUALIFY_ONLY_WATCHTOWER_DEEP_CLASSIFICATION_COUPLING_REPAIR"
   }
 }

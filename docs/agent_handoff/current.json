@@ -1,13 +1,13 @@
 {
   "dev020_production_preimage_shadow_qualification": {
-    "engineering_revision": "a1e6835ab59683300f1cd7dc71599c80b87b435a deployed exactly to /Users/kevinkeaveney/Production/flex; deployment audit committed separately as 7cad356f3fcc6cd2eca3d95355b21673f4f137d1",
-    "status": "DEPLOYED_DORMANT_READY_FOR_TINY_LIVE_SHADOW",
-    "finding": "The clean production checkout was advanced from verified preimage 77623cfe47b39c685cd251d1a85198b3a3572118 to exact qualified revision a1e6835ab59683300f1cd7dc71599c80b87b435a using normal git checkout and existing supervisor restart. watchtower_api is RUNNING from /Users/kevinkeaveney/Production/flex and HTTP /api/health/full returned 200. DEV020_MODE is absent and defaults OFF; frozen scope remains exactly 2vBd5o7ppBLVXo2TyTfSXhWgK9LMKxEszuNFLU7ZKnUz. No shadow admission, DEV020 RPC, webhook mutation, classification, or Treasury promotion occurred.",
-    "audit": "docs/audits/dev020_runtime_deployment_a1e6835a.v1.json; allowed runtime files=4, unexpected runtime changes=0; rollback 77623cfe verified; post-deploy API health PASS.",
-    "safety": "Deployment was dormant only: DEV020_MODE=OFF, scope count=1, shadow admissions/RPC/new webhooks/webhook mutations/recipient classifications/Treasury promotions=0; existing listener outcome unchanged; Deep unauthorized.",
+    "engineering_revision": "Required deployment checkout a1e6835ab59683300f1cd7dc71599c80b87b435a remains at /Users/kevinkeaveney/Production/flex; observed running Gunicorn runtime is instead 6c58fc4512f781897266f03c966ace1f7cb365 from /Users/kevinkeaveney/Production/flex-api-dev002",
+    "status": "HOLD_PREACTIVATION_RUNTIME_IDENTITY_MISMATCH",
+    "finding": "The event-driven live-shadow pre-activation check found that Supervisor's watchtower_api process has cwd and PYTHONPATH /Users/kevinkeaveney/Production/flex-api-dev002, commit 6c58fc45, rather than the required production checkout at a1e6835a. Although local /api/health/full returned HTTP 200 with API and ingestion HEALTHY, the required runtime-identity precondition failed. DEV020_MODE was not set to SHADOW; no live collection was started.",
+    "audit": "docs/audits/dev020_event_driven_live_shadow_2vbd.v1.json; isolated audit commit 72a8d70ea9e2c4da2fed47c1180aab412eacd284; activation duration=0, live events=0, polling/RPC/webhook mutations/classifications/promotions=0.",
+    "safety": "DEV020_MODE stayed OFF. Frozen scope was not broadened. No shadow admission, Treasury polling, provider/RPC activity, webhook change, recipient classification, Treasury promotion, or production state change occurred; Deep unauthorized.",
     "runtime_deployment_required": true,
-    "runtime_deployment_gate": "PASS",
-    "next_action": "DEV020_TINY_LIVE_SHADOW_ON_FROZEN_2VBD_SCOPE"
+    "runtime_deployment_gate": "HOLD_RUNTIME_SOURCE_IDENTITY",
+    "next_action": "REPAIR_AND_REQUALIFY_PRODUCTION_SUPERVISOR_RUNTIME_SOURCE_IDENTITY"
   },
   "dev020_tiny_live_treasury_recipient_accumulation": {
     "engineering_revision": "83fc8efaac32130069f0f544f83474f1ba5836e0 on codex/watchtower-treasury-recipient-retention",

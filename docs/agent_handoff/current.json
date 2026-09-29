@@ -10,14 +10,15 @@
     "next_action": "DEV020_EVENT_DRIVEN_LIVE_SHADOW_ON_FROZEN_2VBD_SCOPE"
   },
   "dev005_watchtower_current_price_runtime": {
-    "engineering_revision": "Production API 96b7add12844ba3eccbe7d9c9076aa3e99becf78; read-only audit commit a7d7175934df441552f91fc54f18ba857844fc9d",
-    "status": "PASS_READONLY_RUNTIME_AUDIT_WORKER_RUNTIME_FAILURE",
-    "finding": "The monitor bridge is RUNNING but operation_monitor_worker is BACKOFF after unhandled TOKEN_PROVIDER_BUDGET_EXHAUSTED from DEV-012 per-token admission. Retained queue has 45 pending, 9 retry, 1 dead-letter. Watchtower has 6 active monitor facts, only 1 with current price; five blank active rows lack retained observations. The dashboard projects the retained state accurately; this is not primarily a UI defect.",
-    "audit": "docs/audits/dev005_watchtower_current_price_runtime_audit.v1.json",
-    "safety": "Read-only retained-state/process/source audit; production DB/runtime/config/process/provider/RPC/DEV020 changes=0.",
+    "engineering_revision": "d3b2136ba526ab624fbe56e19b7440df7be2a99d on codex/dev005-monitor-runtime-reconciliation, based on clean 96b7add12844ba3eccbe7d9c9076aa3e99becf78",
+    "status": "HOLD_SOURCE_IDENTITY_MISMATCH",
+    "finding": "The actual DEV-only Supervisor worker remains BACKOFF and the bridge remains RUNNING. A 29-file effective source closure was frozen from /Users/kevinkeaveney/Dev/claude/flex and ported byte-identically into an isolated branch. Offline DEV-012 admission reproduces TOKEN_PROVIDER_BUDGET_EXHAUSTED, but the frozen worker already catches BudgetDenied and returns BUDGET_DEFERRED. The current retained worker log instead ends in an unrelated null entry_timestamp TypeError. The requested pre-fix budget-denial crash therefore cannot be reproduced from current effective source.",
+    "audit": "docs/audits/dev005_effective_monitor_runtime_reconciliation.v1.json sha256 15f56d4a4fadd4636cf096815d00fe539140ba880e3df384771886b716efd6e5",
+    "tests": "29-file byte parity PASS; 28-module in-memory syntax compile PASS; deterministic 4/5 same-token offline budget denial PASS; no provider/RPC calls.",
+    "safety": "Isolated source reconciliation only; effective DEV source, Supervisor config, worker/bridge process state, queues, budget files, production runtime, and DEV020 remain unchanged. RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "runtime_deployment_required": false,
-    "runtime_deployment_reason": "No executable behavior was changed.",
-    "next_action": "IMPLEMENT_AND_QUALIFY_BOUNDED_WORKER_BUDGET_DENIAL_DEFER_IN_/Users/kevinkeaveney/.codex/worktrees/dev005-budget-denial-defer/flex"
+    "runtime_deployment_reason": "No runtime target was changed; the candidate is not eligible for deployment while source identity is unresolved.",
+    "next_action": "AUTHORIZE_OR_SUPPLY_THE_INTENDED_PRE_FIX_EFFECTIVE_MONITOR_SOURCE_IDENTITY_BEFORE_IMPLEMENT_BUDGET_DENIAL_DEFER_ON_RECONCILED_DEV005_MONITOR_BASELINE"
   },
   "dev020_tiny_live_treasury_recipient_accumulation": {
     "engineering_revision": "83fc8efaac32130069f0f544f83474f1ba5836e0 on codex/watchtower-treasury-recipient-retention",

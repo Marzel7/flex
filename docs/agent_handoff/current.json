@@ -17046,5 +17046,14 @@
     "audit": "docs/audits/watchtower_deep_aeny_g473_treasury_candidate_verification.v1.json sha256 05706f2421c71894e5d453809acd4b3c2dcca0ea0b115171cb2d49406b517812",
     "safety": "READ_ONLY: source/config/schema/database/process/provider/RPC/webhook/approval/backfill changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "next_action": "MANUAL_DECISION_AENY_G473_TREASURY_APPROVAL"
+  },
+  "watchtower_treasury_standard_deep_role_model_20260929": {
+    "engineering_revision": "Read-only retained-evidence audit; no source/runtime change.",
+    "status": "INSUFFICIENT_EVIDENCE",
+    "finding": "Formal WATCHTOWER and WATCHTOWER_DEEP classifications are mint memberships, not Treasury labels. 95 supported Standard and 24 Deep launch memberships across the 83-Treasury/control audit population have zero Treasury overlap: seven Standard-only Treasuries, AENy Deep-only (24 Deep + 73 unclassified), and no proven mixed Treasury.",
+    "runtime": "Confirmed Treasury lookup establishes WATCHTOWER_CONFIRMED. Deep is address-independent REVIEW_ONLY and vetoes already assigned/Watchtower launches. No Treasury-to-Deep classification coupling defect was found, but the current runtime does not prospectively exercise mixed classification.",
+    "audit": "docs/audits/watchtower_treasury_standard_deep_role_model.v1.json sha256 6d9a93291c42beab6f6be81e41e3c39d0d9f7e515f27d511cca41b31bdd5d45c",
+    "safety": "READ_ONLY: DB/source/config/schema/process/provider/RPC/approval/reclassification/replay changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "next_action": "REPORT_EXACT_MISSING_RETAINED_MIXED_TREASURY_EVIDENCE"
   }
 }

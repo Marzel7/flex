@@ -1,4 +1,12 @@
 {
+  "watchtower_prospective_five_stage_retention": {
+    "engineering_revision": "ef6cd9ffeceb4305511bd8d941140e7977c53696 on codex/watchtower-five-stage-retention",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/watchtower-five-stage-retention/flex",
+    "audit": "docs/audits/watchtower_prospective_five_stage_retention_qualification.v1.json sha256 fa1b7c7b9216ab028c69891566a5aab5f0891dcf24133e5fb4b2a33ca4182b53",
+    "safety": "Primary workspace and production state unchanged; provider/RPC/network calls=0; feature flags OFF; Deep deployment unauthorized.",
+    "next_action": "QUALIFY_SMALL_CONTROLLED_PROSPECTIVE_FIVE_STAGE_EVIDENCE_PILOT"
+  },
   "watchtower_deep_shared_upstream_capital": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; retained-state research only",
     "status": "PARTIAL_EVIDENCE_RETAINED_PREACQUISITION",

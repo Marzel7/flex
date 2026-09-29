@@ -19164,6 +19164,14 @@
     "natural_observation": "Bounded natural post-restart observation recorded zero 15m calls, zero useful/duplicate candles, zero HTTP 200/400/429, and zero widening requests. One caught-up token had no provider call; no zero-watermark natural request occurred, so its duration is not claimed. 7mq remains active with no retained 15m watermark/candles during the window.",
     "next_action": "OBSERVE_WATCHTOWER_15M_PROVIDER_EFFICIENCY"
   },
+  "watchtower_15m_overnight_observation_20260929": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa with frozen MonitorWorker candidate",
+    "audit": "docs/audits/watchtower_15m_overnight_observation.v1.json sha256 f008ab2688ef4a6abc27a1fb551f1f001588093a569d35168fbff41bfc0875d8",
+    "status": "HEALTHY_AND_PRODUCING_WITH_SEPARATE_WORKER_BACKOFF",
+    "result": "Since V2 activation, 12 retained successful 15m request identities produced 20 distinct completed candles, no duplicates, and 0 retained HTTP400s. One retained HTTP429 occurred. The bounded request-inclusive rate is 13/20=0.65 calls per useful candle, versus 52.86 pre-repair. Natural zero-watermark 2n request was exactly 900 seconds; caught-up unexpected calls=0. 7mq had zero postdeploy 15m calls/candles.",
+    "blocker": "Current operation_monitor_worker is BACKOFF because reconcile_retained_watchtower_facts converts a null entry_mc_usd to float. This is separate from provider efficiency and optional-import isolation. No source/config/schema/process/provider/RPC action was taken in this read-only audit.",
+    "next_action": "QUALIFY_WATCHTOWER_MONITOR_UI_PROJECTION_REPAIR; separately authorize MonitorWorker BACKOFF diagnosis/repair before further natural observation."
+  },
   "wt_lifecycle_operator_id_migration_plan": {
     "artifact": "docs/audits/wt_token_lifecycle_operator_id_migration_plan.v1.json",
     "digest": "d05097c2f3d06e6ac2eeb16df0b435a3698db8a3e828b4416b3cfd270b2d849d",

@@ -1,4 +1,14 @@
 {
+  "dev020_tiny_live_treasury_recipient_accumulation": {
+    "engineering_revision": "83fc8efaac32130069f0f544f83474f1ba5836e0 on codex/watchtower-treasury-recipient-retention",
+    "status": "HOLD_PREIMAGE_PARITY",
+    "finding": "The expressly authorized 60-minute LIVE_SHADOW was not activated. Actual production webhook runtime is the clean /Users/kevinkeaveney/Production/flex checkout at 77623cfe, whereas the qualified isolated accumulator is on unrelated commit 92b558f7. Neither commit is ancestral to the other; their main.py hashes differ; production lacks both qualified DEV-020 modules. An unqualified cross-revision transplant could alter existing webhook outcomes.",
+    "audit": "docs/audits/dev020_tiny_live_treasury_recipient_accumulation.v1.json sha256 99d5e53d602fff516d188fbaee755b4031ceea2937c37cb5fac19d8de8512a85",
+    "safety": "DEV020_MODE remained OFF. Live events/edges/DB writes/provider or RPC calls/new webhooks/classifications/promotions/process actions=0. Existing runtime outcome unchanged; Deep unauthorized.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "REBASE_AND_QUALIFY_DEV020_SHADOW_HOOK_ON_EXACT_PRODUCTION_WEBHOOK_PREIMAGE"
+  },
   "watchtower_bounded_treasury_recipient_accumulation": {
     "engineering_revision": "92b558f78f970c99a5ab0cc1437053fa88701b70 on codex/watchtower-treasury-recipient-retention; audit commit 10d6e894a5d560742bcae19ae66f07ea4b6697c3",
     "status": "QUALIFIED_NOT_DEPLOYED",

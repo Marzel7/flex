@@ -1,15 +1,17 @@
 {
   "watchtower_monitor_ui_projection": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa with material dirty working tree; deployed API source separately frozen by SHA-256",
-    "status": "ROLLED_BACK_READONLY_ACCESS_MODE_HOLD",
-    "finding": "The live watchtower_api PID 49342 read database/wt_ops_v2.db while MonitorWorker evidence is in .dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db. The frozen postimage was applied only long enough to validate its access-mode safety, then rolled back: sqlite3.connect(path) is SELECT-only in the route but default read/write-capable, violating the explicit READ-ONLY DB ACCESS ONLY requirement.",
-    "qualification": "10 Watchtower mints have retained completed 15m history (137 candles). Contract preimages and postimages matched; provider-free fixture suite 7/7 and existing projection/formatter regressions 5/5 passed. Live control acceptance was intentionally not claimed after access-mode failure.",
+    "status": "QUALIFIED_NOT_DEPLOYED_V2_READONLY",
+    "finding": "V1 was correctly rolled back because sqlite3.connect(path) was read/write-capable. V2 uses a mandatory WATCHTOWER_MONITOR_UI_DB_PATH resolved strictly to an absolute Path.as_uri(), with fixed ?mode=ro and uri=True. Missing, unreadable, open-failure, schema-incompatible, and URI-query-injection paths fail explicitly without fallback.",
+    "qualification": "SQLite-enforced fixture checks pass: SELECT works; INSERT/UPDATE/DELETE/DDL are rejected; DB/WAL/SHM/journal mutation count is zero; special-character path and injection controls pass. Existing 12 projection regressions plus 8 strict-read-only fixtures and 3 authoritative retained-data controls pass (23/23). No deployment occurred.",
     "audit": "docs/audits/watchtower_monitor_ui_projection_qualification.v1.json sha256 4170de772851b7da42161ecec24c0dda7345941e8ec6e623c7f91777a88444a9",
     "contract": "docs/audits/watchtower_monitor_ui_projection_deployment_contract.v1.json sha256 7a91f5cc64176748dd8bacb0bc14c9545766af2dd4daa9e89aada1e1a4731f0b; authorized exact deployment attempted then rolled back",
     "execution_audit": "docs/audits/watchtower_monitor_ui_projection_execution.v1.json sha256 0b72e72d0ab97b9786eca7c3ef8372ca45dfacfe676ce49279887d67d3e6f60b",
-    "runtime_deployment_required": true,
-    "runtime_deployment_gate": "FAIL_ROLLED_BACK",
-    "next_action": "QUALIFY_WATCHTOWER_MONITOR_UI_READONLY_ACCESS_MODE"
+    "readonly_qualification": "docs/audits/watchtower_monitor_ui_readonly_access_qualification.v1.json sha256 a0e53726b89edec3741d157075bcdca0556e1e12ef07e9d00ce1f76542aa40fc",
+    "v2_contract": "docs/audits/watchtower_monitor_ui_projection_deployment_contract.v2.json sha256 c30abd545eb71ceff768bc6fa64cad6dbbcf72d84cb6c35c6e7f9727659b205f; authorized=false",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "AUTHORIZE_WATCHTOWER_MONITOR_UI_PROJECTION_V2"
   },
   "operations_db_sqlite_lifecycle_provenance_preflight": {
     "engineering_revision": "77492d22497e31a5984a234e2bb1f5cd2fc10613 with material dirty working tree; deployment parity not established",

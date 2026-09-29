@@ -1,13 +1,13 @@
 {
   "dev020_production_preimage_shadow_qualification": {
-    "engineering_revision": "ea52f79d534fa838c8a0f8ad9cb4825c456ac970 on codex/dev020-production-preimage-shadow, based exactly on production 77623cfe",
-    "status": "PARTIAL_HANDLER_CALL_THROUGH_IMPLEMENTED_PARITY_NOT_YET_EXECUTED",
-    "finding": "The exact production queue-worker function is now exposed as process_watchtower_webhook_event, and the prior _process_wt_infra_payload entry point delegates to it. Source-structural tests avoid importing main.py and confirm the actual persistence, webhook-hit, and walkback path resides in the callable handler. 20 provider-free tests pass. No recording-boundary harness, frozen A/B/C corpus, or ten-case failure-isolation run exists yet, so live activation remains unauthorized.",
-    "audit": "docs/audits/dev020_production_handler_test_seam_parity.v1.json",
+    "engineering_revision": "c0bba5a71c137b69d1282db7876b758abadc0964 on codex/dev020-production-preimage-shadow, based exactly on production 77623cfe",
+    "status": "PARTIAL_FROZEN_ACTIVE_WEBHOOK_SCOPE_QUALIFIED_HANDLER_PARITY_PENDING",
+    "finding": "Read-only production retained-state qualification found 81 historical confirmed Treasuries, five with direct evidenced Treasury activity in the existing 48-hour window, and two in the active-and-existing-webhook intersection. DEV-020's frozen future SHADOW scope is 69SNcRC8NqjHBSXEcugCN5oFKRQoKmddmWzZYc3tqtxk and 2vBd5o7ppBLVXo2TyTfSXhWgK9LMKxEszuNFLU7ZKnUz; three currently active Treasuries (including DWmF2xCu) lack webhook rows and are excluded. No RPC or webhook mutation occurred. Offline handler parity remains incomplete, so live activation remains unauthorized.",
+    "audit": "docs/audits/dev020_active_treasury_webhook_scope.v1.json",
     "safety": "Production checkout remains clean and unchanged; production state/live events/provider-RPC/new webhooks/classifications/promotions=0; Deep unauthorized.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
-    "next_action": "BUILD_RECORDING_BOUNDARY_HARNESS_AND_EXECUTE_A_B_C_FAILURE_KILL_SWITCH_CONTROLS"
+    "next_action": "RETURN_TO_OFFLINE_PRODUCTION_HANDLER_PARITY_QUALIFICATION_WITH_FROZEN_SCOPE"
   },
   "dev020_tiny_live_treasury_recipient_accumulation": {
     "engineering_revision": "83fc8efaac32130069f0f544f83474f1ba5836e0 on codex/watchtower-treasury-recipient-retention",

@@ -17043,7 +17043,7 @@
     "candidates": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq (97 complete, distinct retained branches; 86233 SOL) and G473ibMhTgjmFbPFhWzDjHiDXsAE25pDun8e5xfroFeW (5 complete, distinct retained branches; 2550 SOL).",
     "authority": "Both remain PENDING_REVIEW and absent from wt_confirmed_treasuries. Retained PLAIN_XFER -> WSOL_WRAP_CLOSE / LINEAGE_GAP is descriptive Deep workflow evidence only, not a formal Deep identity or admission.",
     "independence": "Both topology_cohort_qualified candidates have no retained confirmed-membership, label, identity, webhook, manual-seed, or source identity dependence; label leakage and local exclusion conflicts are zero.",
-    "audit": "docs/audits/watchtower_deep_aeny_g473_treasury_candidate_verification.v1.json sha256 b42b972c7cda437913b2a6e3d579a1b07e1319720b7a33d276a3f709aef1cce7",
+    "audit": "docs/audits/watchtower_deep_aeny_g473_treasury_candidate_verification.v1.json sha256 05706f2421c71894e5d453809acd4b3c2dcca0ea0b115171cb2d49406b517812",
     "safety": "READ_ONLY: source/config/schema/database/process/provider/RPC/webhook/approval/backfill changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "next_action": "MANUAL_DECISION_AENY_G473_TREASURY_APPROVAL"
   }

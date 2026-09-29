@@ -16999,5 +16999,17 @@
     "deployment_contract": "docs/audits/watchtower_peak_ui_deployment_contract.v1.json sha256 170efd5c838d585f428c0ed0ae07f5c3e803e82cd454bb304da575740fbc6e4b; authorized=false",
     "safety": "Provider/RPC calls=0; live source/config/schema/DB/process/backfill changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false for qualification.",
     "next_action": "AUTHORIZE_WATCHTOWER_PEAK_UI_REPAIR; separately QUALIFY_WATCHTOWER_TERMINAL_ATH_FINALIZER_LIVENESS"
+  },
+  "watchtower_dwmf2xcu_treasury_candidate_verification_20260929": {
+    "engineering_revision": "Read-only local retained-evidence audit; no source/runtime changes.",
+    "status": "READY_FOR_MANUAL_APPROVAL",
+    "candidate": "DWmF2xCu739paiMCxEUtczYADQuUxvLFnpHKnaSAH1mG",
+    "finding": "Eleven independent LINEAGE_GAP branches, each with no retained treasury identity, converge through selected TRANSACTION_DERIVED candidate-to-subprovider PLAIN_XFER evidence to this unregistered wallet. Each then has a distinct subprovider-to-creator WSOL_WRAP_CLOSE and launch anchor.",
+    "counts": "11 subproviders; 11 creators; 11 launches; 8439 SOL outbound; 0 local candidate labels, CEX/service/router/shared-infrastructure matches, canonical treasury membership, identity assets, manual webhook seeds, or contradictory retained role facts.",
+    "approval_semantics": "Confirmed registry/review transition and immutable APPROVE_TREASURY action are transactional. Helius INFRA enrollment follows that commit and may fail independently; one newly active address entails one full-list INFRA webhook PUT, with provider credit cost not determinable locally.",
+    "prospective": "Approval does not rewrite the eleven existing LINEAGE_GAP outcomes or create historical memberships.",
+    "audit": "docs/audits/watchtower_dwmf2xcu_treasury_candidate_verification.v1.json sha256 29931060c6d1380ce792379398de92f30326567819dcf12188d6b56469412418",
+    "safety": "READ_ONLY: source/config/schema/database/process/provider/RPC/webhook/promotion/backfill changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "next_action": "MANUAL_DECISION_DWMF_TREASURY_APPROVAL"
   }
 }

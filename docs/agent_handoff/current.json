@@ -1,4 +1,14 @@
 {
+  "dev020_production_preimage_shadow_qualification": {
+    "engineering_revision": "4cb510f8ec2b3e5157474e7578ce8a7a61832d04 on codex/dev020-production-preimage-shadow, based exactly on production 77623cfe",
+    "status": "PARTIAL_PORTABLE_COMPONENTS_REBASED_HOOK_NOT_QUALIFIED",
+    "finding": "A new clean integration worktree was created directly from the exact clean production webhook commit. Only portable parser/identity/directionality/confirmation/durable-ledger components and their tests were ported; 16 provider-free tests pass. No production main.py hook, runtime wiring, parity corpus, or failure-injection harness has yet been introduced, so live activation remains unauthorized.",
+    "audit": "docs/audits/dev020_production_preimage_shadow_qualification.v1.json sha256 78ba562deeb5a6e1e11a1cb21f8810eb3485eb4b64ed79a58d9aa94e15cbfe40",
+    "safety": "Production checkout remains clean and unchanged; production state/live events/provider-RPC/new webhooks/classifications/promotions=0; Deep unauthorized.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "COMPLETE_PRODUCTION_PREIMAGE_SHADOW_HOOK_AND_A_B_C_PARITY_QUALIFICATION"
+  },
   "dev020_tiny_live_treasury_recipient_accumulation": {
     "engineering_revision": "83fc8efaac32130069f0f544f83474f1ba5836e0 on codex/watchtower-treasury-recipient-retention",
     "status": "HOLD_PREIMAGE_PARITY",

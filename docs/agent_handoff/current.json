@@ -1,4 +1,15 @@
 {
+  "watchtower_mission_control_actual_ui_trace": {
+    "engineering_revision": "workspace DEV Mission Control source is materially dirty; deployed watchtower_api V2 is separately frozen by SHA-256",
+    "status": "WRONG_BACKEND_DB",
+    "finding": "The actual user-facing Mission Control page is http://127.0.0.1:8100/intelligence/operators, served by src.dev_runtime PID 38896. Its relative monitor requests remain on port 8100 and do not reach watchtower_api on port 5002.",
+    "root_cause": "The port-8100 DEV runtime selects .dev_runtime/monitor/wt_ops_v2.dev.db through DEV_MONITOR_DB_PATH. That stale store has 9 facts/59 observations and no facts for 8n1, 9DPU, or 2n3; its projection therefore creates NOT_MONITORED/empty-MC/zero-call fallback rows. The deployed 5002 V2 authority is .dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db with 21 facts/179 observations and all three control facts.",
+    "cache": "NOT_CAUSAL: fresh port-8100 browser-facing reads reproduce the zero display; no proxy or cache layer is between the relative request and the DEV runtime.",
+    "audit": "docs/audits/watchtower_mission_control_actual_ui_trace.v1.json sha256 1e0bf82810b1833ef6212d52709bfde5bc61d1aa35c53aa88164f018e833a033",
+    "runtime_deployment_required": false,
+    "safety": "Read-only trace; source/config/schema/database/process/provider/RPC/backfill changes=0.",
+    "next_action": "QUALIFY_ONLY_THE_PROVEN_MISSION_CONTROL_UI_SEAM"
+  },
   "watchtower_monitor_ui_projection": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa with material dirty working tree; deployed API source separately frozen by SHA-256",
     "status": "LIVE_UI_VERIFICATION_PASS",

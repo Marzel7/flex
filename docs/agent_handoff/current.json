@@ -19181,6 +19181,17 @@
     "safety": "Read-only diagnosis: source/config/schema/process/provider/RPC/manual DB writes=0. No direct null-entry reconciliation regression exists yet; no candidate implementation or deployment contract was created.",
     "next_action": "AUTHORIZE_MONITORWORKER_NULL_ENTRY_RECONCILIATION_REPAIR"
   },
+  "monitorworker_null_entry_reconciliation_repair_qualification_20260929": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa with qualified uncommitted MonitorWorker candidate",
+    "qualification_audit": "docs/audits/monitorworker_null_entry_reconciliation_repair_qualification.v1.json sha256 cbd8fac4558fd012f51846328a634f19cb20741b97d033a03553dd220f296738",
+    "deployment_contract": "docs/audits/monitorworker_null_entry_reconciliation_repair_deployment_contract.v1.json sha256 47a9924c22126b10284e74e9fb5ce24570f6b121dfb663c5266892cc183cb284",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "repair": "The reducer now preserves absolute latest/peak candle evidence for active Watchtower rows with null entry fields, but leaves current/running-peak multiples, drawdown, and terminal collapse unavailable until a genuine USD entry exists. No entry is fabricated. Qualified entry behavior is unchanged.",
+    "tests": "54 passed, 0 failed; provider/RPC calls=0; feature-caused net-new regressions=0. Direct fixtures cover null zero/one/multiple candle rows, restart safety, real later entry transition, qualified terminal behavior, and Deep control.",
+    "invariance": "15m request window, watermark, dedupe, cadence, DEV-012, 429, strict opening, entry reference, optional isolation, claim liveness, promotion, and Deep change counts=0.",
+    "safety": "No config/schema/process mutation; MonitorWorker remains BACKOFF. Contract authorized=false and allows only one worker restart after fresh authorization.",
+    "next_action": "AUTHORIZE_MONITORWORKER_NULL_ENTRY_RECONCILIATION_REPAIR"
+  },
   "wt_lifecycle_operator_id_migration_plan": {
     "artifact": "docs/audits/wt_token_lifecycle_operator_id_migration_plan.v1.json",
     "digest": "d05097c2f3d06e6ac2eeb16df0b435a3698db8a3e828b4416b3cfd270b2d849d",

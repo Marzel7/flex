@@ -16988,5 +16988,16 @@
     "audit": "docs/audits/watchtower_ath_peak_liveness.v1.json sha256 417ac9dc0e04dceff499e3dfbd8fb3254200c6cf381b58110ce992b99df48893",
     "safety": "READ_ONLY: source/config/schema/database/process/provider/RPC/backfill changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "next_action": "QUALIFY_ONLY_THE_PROVEN_WATCHTOWER_ATH_GAP"
+  },
+  "watchtower_ath_peak_gap_qualification_20260929": {
+    "engineering_revision": "Live source/config/runtime untouched; one-template UI candidate was changed and tested only in an isolated /private/tmp checkout.",
+    "status": "UI_QUALIFIED_NOT_DEPLOYED__FINALIZER_LIVENESS_GAP",
+    "ui_contract": "Display FINAL_PROVEN_ATH when present; otherwise display OBSERVED_RUNNING_PEAK, with explicit FINAL ATH / RUNNING PEAK / OBSERVED PEAK FINALIZATION PENDING state labels. A final ATH lower than the retained running peak is an explicit conflict. The existing ATH / Peak heading remains, clarified per cell.",
+    "ui_candidate": "templates/operators_index.html only; preimage eb97f7bac33fe28d3115909e7a67ebc6bb165ef967ce0ddc8e67ca709cd7001b; postimage ac32172ff5a0246ba4a8ffbf5f29fe697a468d190befff827671be761f336ab4. Provider-free UI cases=6/6; candidate JS parse PASS; 41 existing focused finalizer/monitor/UI tests passed; net-new regressions=0.",
+    "finalizer_liveness": "LIVENESS_GAP proven at claim: six entry-qualified terminal jobs are durable pending with attempts=0 because the active DEV_005_ISOLATED_SOAK allowlist excludes every terminal mint and their finalizer envelopes lack the assignment/birth proof needed by the alternate authorization route. The jobs are skipped before claim; provider budget, acquisition, and persistence are not reached. INKCHAN has no entry and remains outside the present entry-relative finalizer contract, though its absolute running peak is valid.",
+    "audit": "docs/audits/watchtower_ath_peak_gap_qualification.v1.json sha256 5b7d79eab1063c6b8620e617d7c792c045a180b9478552f604b159bf8dee503e",
+    "deployment_contract": "docs/audits/watchtower_peak_ui_deployment_contract.v1.json sha256 170efd5c838d585f428c0ed0ae07f5c3e803e82cd454bb304da575740fbc6e4b; authorized=false",
+    "safety": "Provider/RPC calls=0; live source/config/schema/DB/process/backfill changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false for qualification.",
+    "next_action": "AUTHORIZE_WATCHTOWER_PEAK_UI_REPAIR; separately QUALIFY_WATCHTOWER_TERMINAL_ATH_FINALIZER_LIVENESS"
   }
 }

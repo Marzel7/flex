@@ -1,4 +1,13 @@
 {
+  "watchtower_standard_deep_behavior_definition": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa with a materially dirty workspace; no runtime target was changed",
+    "status": "INSUFFICIENT_RETAINED_EVIDENCE",
+    "finding": "The fixed Standard five-stage evidence plane (Treasury -> SubProvider -> Funding Account -> Creator -> Launch) has 2,238 retained rows, but it intersects neither the 530 formal WATCHTOWER memberships nor the 26 formal WATCHTOWER_DEEP memberships. The legacy Deep historical detector instead used a direct lower SubProvider -> Creator route, exact 1.112039 SOL close, and a time-ordered upper capital-continuity witness. Five-stage topology and SubProvider fan-out are not Deep-specific retained predicates.",
+    "deployment_halt": "The qualified Deep classification deployment contract remains authorized=false and must not be deployed. Its prospective direct-route subtype premise is not validated against the required five-stage Standard control model.",
+    "audit": "docs/audits/watchtower_standard_vs_deep_behavior_definition.v1.json sha256 26a30db9a025a437d2058f844affd8e62d860278bfc1eb8d82541464034fb5e7",
+    "safety": "Read-only: source/config/schema/DB/process/provider/RPC/address-history/reclassification/replay/approval changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "next_action": "REPORT_EXACT_MISSING_RETAINED_STANDARD_DEEP_DISCRIMINATOR"
+  },
   "watchtower_mission_control_actual_ui_trace": {
     "engineering_revision": "workspace DEV Mission Control source is materially dirty; deployed watchtower_api V2 is separately frozen by SHA-256",
     "status": "WRONG_BACKEND_DB",

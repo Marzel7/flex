@@ -17025,5 +17025,16 @@
     "important_execution_note": "Initial direct call lacked sqlite3.Row row_factory. Existing alignment ensure_schema committed registry/review before raising, leaving audit absent. Retrying the same authorized production function with the required row factory completed alignment and immutable audit. This exposed an existing transaction-boundary defect; no code change was made.",
     "runtime_deployment_required": false,
     "next_action": "OBSERVE_FUTURE_NATURAL_DWMF_TREASURY_RECOGNITION"
+  },
+  "watchtower_actual_treasury_review_queue_20260929": {
+    "engineering_revision": "Read-only current-authority audit; no source/runtime changes.",
+    "status": "STALE_ROWS_PRESENT",
+    "authority": "wt_confirmed_treasuries overrides stale review status.",
+    "counts": "review rows=11162; genuine pending=11029; stale PENDING_REVIEW already confirmed=15; effective confirmed review rows=22; rejected=111; other/inconsistent=0; confirmed registry total=81 (59 lack review rows).",
+    "controls": "DWmF is confirmed. Contrary to the supplied control claim, current authority has neither AENy nor G473 in wt_confirmed_treasuries; both remain genuine PENDING_REVIEW rows.",
+    "matrix": "Complete deterministic 11,162-row projection SHA-256=908aaa77f5543865c0d9f18d014b0efab738323f21ecd15abfe41d337f25b54f, 4,119,283 serialized bytes; exact query and stale-wallet list are retained in audit.",
+    "audit": "docs/audits/watchtower_actual_treasury_review_queue.v1.json sha256 fd5b21e090f5dc147877a84771302e33149f9b4c436db3eae0cc06a1136e92a7",
+    "safety": "READ_ONLY: DB writes/provider/RPC/approval/rejection actions=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "next_action": "REVIEW_GENUINE_PENDING_TREASURY_CANDIDATES_BY_RETAINED_EVIDENCE"
   }
 }

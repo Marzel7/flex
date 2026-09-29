@@ -9,6 +9,16 @@
     "runtime_deployment_gate": "PASS",
     "next_action": "DEV020_EVENT_DRIVEN_LIVE_SHADOW_ON_FROZEN_2VBD_SCOPE"
   },
+  "dev005_watchtower_current_price_runtime": {
+    "engineering_revision": "Production API 96b7add12844ba3eccbe7d9c9076aa3e99becf78; read-only audit commit a7d7175934df441552f91fc54f18ba857844fc9d",
+    "status": "PASS_READONLY_RUNTIME_AUDIT_WORKER_RUNTIME_FAILURE",
+    "finding": "The monitor bridge is RUNNING but operation_monitor_worker is BACKOFF after unhandled TOKEN_PROVIDER_BUDGET_EXHAUSTED from DEV-012 per-token admission. Retained queue has 45 pending, 9 retry, 1 dead-letter. Watchtower has 6 active monitor facts, only 1 with current price; five blank active rows lack retained observations. The dashboard projects the retained state accurately; this is not primarily a UI defect.",
+    "audit": "docs/audits/dev005_watchtower_current_price_runtime_audit.v1.json",
+    "safety": "Read-only retained-state/process/source audit; production DB/runtime/config/process/provider/RPC/DEV020 changes=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "No executable behavior was changed.",
+    "next_action": "QUALIFY_BOUNDED_WORKER_BUDGET_DENIAL_DEFER_AND_RESTART_RECOVERY_WITHOUT_INCREASING_PROVIDER_BUDGET"
+  },
   "dev020_tiny_live_treasury_recipient_accumulation": {
     "engineering_revision": "83fc8efaac32130069f0f544f83474f1ba5836e0 on codex/watchtower-treasury-recipient-retention",
     "status": "HOLD_PREIMAGE_PARITY",

@@ -17065,5 +17065,15 @@
     "audit": "docs/audits/watchtower_deep_relationship_contract_audit.v1.json sha256 7794c2bec829237027dcb0ddfb11c9c85150b5ff4f9f88a28d1aadc500396c93",
     "safety": "READ_ONLY: DB/source/config/schema/process/provider/RPC/reclassification/replay/approval changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "next_action": "QUALIFY_ONLY_WATCHTOWER_DEEP_CLASSIFICATION_COUPLING_REPAIR"
+  },
+  "watchtower_deep_classification_coupling_qualification_20260929": {
+    "engineering_revision": "Read-only design qualification; implementation intentionally not built.",
+    "status": "DESIGN_PROVEN_IMPLEMENTATION_NOT_BUILT",
+    "finding": "Preserve the single WATCHTOWER membership and represent DEEP through the existing non-owning operator_subtypes/operator_subtype_projection pair. STANDARD is implicit when the canonical Watchtower mint has no Deep projection. No schema migration or historical rewrite is required.",
+    "policy": "Current Deep behavior remains REVIEW_ONLY; a future repair must not auto-authoritize annotation without separate policy qualification. It must decouple behavior evaluation from already-owned suppression while retaining duplicate ownership guards.",
+    "invariants": "canonical owner=1; Monitor admission=1; incremental provider acquisition=0; Treasury-to-subtype coupling=0; legacy Deep membership rewrite=0.",
+    "audit": "docs/audits/watchtower_deep_classification_coupling_qualification.v1.json sha256 942c77845e148f09d09f68e48a010f54558221f9ea316161f8c6b84be2f7a0d7",
+    "safety": "READ_ONLY: DB/source/schema/runtime/provider/RPC/reclassification/approval changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "next_action": "IMPLEMENT_PROVIDER_FREE_WATCHTOWER_DEEP_CLASSIFICATION_REPAIR"
   }
 }

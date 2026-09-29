@@ -1,13 +1,13 @@
 {
   "dev020_production_preimage_shadow_qualification": {
-    "engineering_revision": "a156ed09de076fb95ad78f854a075db2fabe260e on codex/dev020-production-preimage-shadow, based exactly on production 77623cfe",
-    "status": "PARTIAL_FINAL_FROZEN_SCOPE_QUALIFIED_HANDLER_PARITY_PENDING",
+    "engineering_revision": "a1e6835ab59683300f1cd7dc71599c80b87b435a on codex/dev020-production-preimage-shadow, based exactly on production 77623cfe",
+    "status": "QUALIFIED_PRODUCTION_PREIMAGE_SHADOW_HOOK_NOT_LIVE",
     "finding": "The two active-and-webhooked candidates were evaluated from retained operation evidence. 69SN is excluded only from DEV-020 source eligibility as WATCHTOWER_OPERATION_MEMBERSHIP_DISPUTED: its current dominant 140-launch F7p3 plain-transfer population is materially mixed with Relay.link Solver infrastructure, despite five older wrap-close records. 2vBd is WATCHTOWER_OPERATION_QUALIFIED through a retained Treasury-to-SubProvider-to-Creator-to-Launch WSOL_WRAP_CLOSE chain. The final frozen future SHADOW scope is exactly 2vBd5o7ppBLVXo2TyTfSXhWgK9LMKxEszuNFLU7ZKnUz. No production classification, RPC, or webhook state changed; handler parity remains incomplete and live activation unauthorized.",
-    "audit": "docs/audits/dev020_frozen_treasury_operation_membership.v1.json",
+    "audit": "docs/audits/dev020_production_handler_test_seam_parity.v1.json; 42 offline tests passed, 0 failed; frozen scope=2vBd only; A/B/C parity and ten failure isolations passed with RPC=0.",
     "safety": "Production checkout remains clean and unchanged; production state/live events/provider-RPC/new webhooks/classifications/promotions=0; Deep unauthorized.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
-    "next_action": "RETURN_TO_OFFLINE_PRODUCTION_HANDLER_PARITY_QUALIFICATION_WITH_FINAL_FROZEN_SCOPE"
+    "next_action": "DEV020_TINY_LIVE_SHADOW_ON_FROZEN_2VBD_SCOPE"
   },
   "dev020_tiny_live_treasury_recipient_accumulation": {
     "engineering_revision": "83fc8efaac32130069f0f544f83474f1ba5836e0 on codex/watchtower-treasury-recipient-retention",

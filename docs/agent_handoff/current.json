@@ -1,4 +1,12 @@
 {
+  "watchtower_small_treasury_recipient_observation_pilot": {
+    "engineering_revision": "ec5c8fd1a432e400a2e21242bf93446ce9889a81 on codex/watchtower-treasury-recipient-retention",
+    "status": "PASS_IN_MEMORY_SHADOW_REPLAY",
+    "finding": "A capped offline replay of 20 genuine retained confirmed-Treasury webhook projections produced 20 qualified outbound SOL compact facts. Each parent was confirmed before retained block time; duplicate replay returned DUPLICATE. The pilot used no RPC, retained no raw payload, and made no runtime/database/classification/webhook changes.",
+    "audit": "docs/audits/watchtower_small_treasury_recipient_observation_pilot.v1.json sha256 abd0cd33117ada198452bd71451c659e1585100425c9a5f9fdfd6c435fed1952",
+    "safety": "Offline in-memory shadow only; primary workspace/runtime/schema/config/DB/webhooks/operation attribution/feature flags unchanged; provider/RPC/network calls=0; Deep deployment unauthorized.",
+    "next_action": "QUALIFY_BOUNDED_DORMANT_TREASURY_RECIPIENT_EVIDENCE_ACCUMULATION"
+  },
   "watchtower_prospective_treasury_recipient_retention": {
     "engineering_revision": "56cac4154ffaa581cbe66c0188a3dd2ce3b3a76b on codex/watchtower-treasury-recipient-retention",
     "status": "QUALIFIED_NOT_DEPLOYED",

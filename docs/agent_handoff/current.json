@@ -1,13 +1,13 @@
 {
   "dev020_production_preimage_shadow_qualification": {
-    "engineering_revision": "c0bba5a71c137b69d1282db7876b758abadc0964 on codex/dev020-production-preimage-shadow, based exactly on production 77623cfe",
-    "status": "PARTIAL_FROZEN_ACTIVE_WEBHOOK_SCOPE_QUALIFIED_HANDLER_PARITY_PENDING",
-    "finding": "Read-only production retained-state qualification found 81 historical confirmed Treasuries, five with direct evidenced Treasury activity in the existing 48-hour window, and two in the active-and-existing-webhook intersection. DEV-020's frozen future SHADOW scope is 69SNcRC8NqjHBSXEcugCN5oFKRQoKmddmWzZYc3tqtxk and 2vBd5o7ppBLVXo2TyTfSXhWgK9LMKxEszuNFLU7ZKnUz; three currently active Treasuries (including DWmF2xCu) lack webhook rows and are excluded. No RPC or webhook mutation occurred. Offline handler parity remains incomplete, so live activation remains unauthorized.",
-    "audit": "docs/audits/dev020_active_treasury_webhook_scope.v1.json",
+    "engineering_revision": "a156ed09de076fb95ad78f854a075db2fabe260e on codex/dev020-production-preimage-shadow, based exactly on production 77623cfe",
+    "status": "PARTIAL_FINAL_FROZEN_SCOPE_QUALIFIED_HANDLER_PARITY_PENDING",
+    "finding": "The two active-and-webhooked candidates were evaluated from retained operation evidence. 69SN is excluded only from DEV-020 source eligibility as WATCHTOWER_OPERATION_MEMBERSHIP_DISPUTED: its current dominant 140-launch F7p3 plain-transfer population is materially mixed with Relay.link Solver infrastructure, despite five older wrap-close records. 2vBd is WATCHTOWER_OPERATION_QUALIFIED through a retained Treasury-to-SubProvider-to-Creator-to-Launch WSOL_WRAP_CLOSE chain. The final frozen future SHADOW scope is exactly 2vBd5o7ppBLVXo2TyTfSXhWgK9LMKxEszuNFLU7ZKnUz. No production classification, RPC, or webhook state changed; handler parity remains incomplete and live activation unauthorized.",
+    "audit": "docs/audits/dev020_frozen_treasury_operation_membership.v1.json",
     "safety": "Production checkout remains clean and unchanged; production state/live events/provider-RPC/new webhooks/classifications/promotions=0; Deep unauthorized.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
-    "next_action": "RETURN_TO_OFFLINE_PRODUCTION_HANDLER_PARITY_QUALIFICATION_WITH_FROZEN_SCOPE"
+    "next_action": "RETURN_TO_OFFLINE_PRODUCTION_HANDLER_PARITY_QUALIFICATION_WITH_FINAL_FROZEN_SCOPE"
   },
   "dev020_tiny_live_treasury_recipient_accumulation": {
     "engineering_revision": "83fc8efaac32130069f0f544f83474f1ba5836e0 on codex/watchtower-treasury-recipient-retention",

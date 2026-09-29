@@ -1,4 +1,14 @@
 {
+  "watchtower_prospective_treasury_recipient_retention": {
+    "engineering_revision": "56cac4154ffaa581cbe66c0188a3dd2ce3b3a76b on codex/watchtower-treasury-recipient-retention",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/watchtower-treasury-recipient-retention/flex",
+    "finding": "A dormant generic immutable funding-edge primitive qualifies confirmed-parent outbound SOL/WSOL evidence only when sender direction and confirmation time are explicit. Nuon -> 2gh rejects as downstream recycling; Dtwi -> Fkcc rejects when confirmation follows the historic transfer. Existing webhook transaction input is sufficient and basic edge retention requires no RPC.",
+    "audit": "docs/audits/watchtower_prospective_treasury_recipient_retention.v1.json sha256 b6c840fc61c024fd165761ef6879a85734016590dc724864e5112eae7f1b992c",
+    "tests": "7 provider-free tests passed; 0 failed; pytest cache permission warning only.",
+    "safety": "Primary workspace/runtime/schema/config/DB/webhooks/operation attribution/feature flags unchanged; provider/RPC/network calls=0; Deep deployment unauthorized.",
+    "next_action": "QUALIFY_SMALL_DORMANT_TREASURY_RECIPIENT_EDGE_OBSERVATION_PILOT"
+  },
   "watchtower_historical_treasury_succession": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; retained historical audit only",
     "status": "INSUFFICIENT_POSITIVE_CONTROLS",

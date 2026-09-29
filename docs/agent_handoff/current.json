@@ -1,13 +1,13 @@
 {
   "dev020_production_preimage_shadow_qualification": {
     "engineering_revision": "a1e6835ab59683300f1cd7dc71599c80b87b435a on codex/dev020-production-preimage-shadow, based exactly on production 77623cfe",
-    "status": "QUALIFIED_PRODUCTION_PREIMAGE_SHADOW_HOOK_NOT_LIVE",
-    "finding": "The two active-and-webhooked candidates were evaluated from retained operation evidence. 69SN is excluded only from DEV-020 source eligibility as WATCHTOWER_OPERATION_MEMBERSHIP_DISPUTED: its current dominant 140-launch F7p3 plain-transfer population is materially mixed with Relay.link Solver infrastructure, despite five older wrap-close records. 2vBd is WATCHTOWER_OPERATION_QUALIFIED through a retained Treasury-to-SubProvider-to-Creator-to-Launch WSOL_WRAP_CLOSE chain. The final frozen future SHADOW scope is exactly 2vBd5o7ppBLVXo2TyTfSXhWgK9LMKxEszuNFLU7ZKnUz. No production classification, RPC, or webhook state changed; handler parity remains incomplete and live activation unauthorized.",
+    "status": "HOLD_QUALIFIED_NOT_DEPLOYED_LIVE_GATE_NOT_STARTED",
+    "finding": "Offline qualification and final frozen 2vBd scope remain valid, but the tiny-live gate was not started. Observable runtime verification found watchtower_api running gunicorn from /Users/kevinkeaveney/Production/flex at clean preimage 77623cfe, where no DEV020 hook symbols exist; the qualified hook is only in isolated worktree revision a1e6835a. Setting DEV020_MODE on the current runtime would have no effect. No deployment, restart, live event, webhook mutation, or RPC occurred.",
     "audit": "docs/audits/dev020_production_handler_test_seam_parity.v1.json; 42 offline tests passed, 0 failed; frozen scope=2vBd only; A/B/C parity and ten failure isolations passed with RPC=0.",
     "safety": "Production checkout remains clean and unchanged; production state/live events/provider-RPC/new webhooks/classifications/promotions=0; Deep unauthorized.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
-    "next_action": "DEV020_TINY_LIVE_SHADOW_ON_FROZEN_2VBD_SCOPE"
+    "next_action": "AUTHORIZE_AND_EXECUTE_RUNTIME_DEPLOYMENT_GATE_FOR_A1E6835A_BEFORE_TINY_LIVE_SHADOW"
   },
   "dev020_tiny_live_treasury_recipient_accumulation": {
     "engineering_revision": "83fc8efaac32130069f0f544f83474f1ba5836e0 on codex/watchtower-treasury-recipient-retention",

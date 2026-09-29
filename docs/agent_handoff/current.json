@@ -1,13 +1,13 @@
 {
   "dev020_production_preimage_shadow_qualification": {
     "engineering_revision": "Required target a1e6835ab59683300f1cd7dc71599c80b87b435a at /Users/kevinkeaveney/Production/flex; actual Supervisor API source fc6c58fc4512f781897266f03c966ace1f7cb365 at /Users/kevinkeaveney/Production/flex-api-dev002; runtime-identity audit commit a0ed3c207110c76a3884c8bc68ae6e315115ee2d",
-    "status": "PARTIAL_DEV002_PREIMAGE_FROZEN_SEMANTIC_PORT_PENDING",
+    "status": "PARTIAL_SEMANTIC_PORT_STAGED_HANDLER_PARITY_PENDING",
     "finding": "Supervisor PID 4153 explicitly starts watchtower_api with cwd and PYTHONPATH /Users/kevinkeaveney/Production/flex-api-dev002. That detached worktree is codex/dev002-api-retirement at fc6c58fc and has one committed API-retirement divergence plus four dirty runtime/UI files. Against a1e6835a, the target has seven commits and dev002 one; the source diff includes DEV-020 removal on dev002 and unreconciled operator-reader/API retirement changes. Required status of dev002-only changes is UNKNOWN, so switching sources would be unsafe.",
-    "audit": "docs/audits/production_supervisor_runtime_source_identity.v1.json; docs/audits/dev002_runtime_reconciliation_onto_dev020.v1.json (isolated reconciliation branch codex/reconcile-dev002-runtime-onto-dev020, commit e6bea893b85fa5abb0ccee6767a36b6f5c4021e8). Effective dev002 dirty-diff digest and all four file hashes frozen; semantic port and parity still pending.",
+    "audit": "docs/audits/production_supervisor_runtime_source_identity.v1.json; docs/audits/dev002_runtime_reconciliation_onto_dev020.v1.json in isolated codex/reconcile-dev002-runtime-onto-dev020. All resolved DEV002 semantics are staged but deliberately uncommitted pending complete parity. 29 focused offline tests passed, 0 failed; full DEV020 handler-parity and production-handler-seam modules require a runner that can exceed the current 30-second command window.",
     "safety": "DEV020_MODE stayed OFF. No Supervisor edit/reload/restart, Treasury polling, provider/RPC activity, webhook change, recipient classification, Treasury promotion, or production state change occurred; Deep unauthorized.",
     "runtime_deployment_required": true,
-    "runtime_deployment_gate": "PARTIAL_PREIMAGE_FROZEN",
-    "next_action": "SEMANTICALLY_PORT_AND_OFFLINE_QUALIFY_API_RETIREMENT_AND_FOUR_FROZEN_DIRTY_DELTAS"
+    "runtime_deployment_gate": "PARTIAL_HANDLER_PARITY_PENDING",
+    "next_action": "RUN_COMPLETE_DEV020_HANDLER_PARITY_AND_PRODUCTION_HANDLER_SEAM_IN_BOUNDED_RUNNER_THEN_COMMIT_RECONCILIATION_CANDIDATE"
   },
   "dev020_tiny_live_treasury_recipient_accumulation": {
     "engineering_revision": "83fc8efaac32130069f0f544f83474f1ba5836e0 on codex/watchtower-treasury-recipient-retention",

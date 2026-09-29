@@ -1,4 +1,12 @@
 {
+  "watchtower_historical_treasury_succession": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; retained historical audit only",
+    "status": "INSUFFICIENT_POSITIVE_CONTROLS",
+    "finding": "The retained CDC ledger contains 529 confirmed-parent recipient edges from 14 parents. Only Dtwi -> Fkcc has both endpoints currently confirmed, but the July 15 funding predates both registry confirmations on July 21; it fails the required prospective-known-parent criterion. Strict historical succession controls=0. Nuon -> 2gh is retained as a material downstream-capital return negative control, not ancestry.",
+    "audit": "docs/audits/watchtower_historical_treasury_succession.v1.json sha256 80c0771def93025ea247edd59976e11d64efd08d5fe6def0aeeae733c795907a",
+    "safety": "Retained-state/source review only; provider/RPC/network/source/config/schema/DB/process/classification/feature-flag changes=0; Deep deployment unauthorized.",
+    "next_action": "RETURN_TO_UNRESOLVED_WATCHTOWER_DEEP_EVIDENCE_QUESTION"
+  },
   "watchtower_two_transaction_upstream_boundary": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; bounded evidence read only",
     "status": "PARTIAL_BOUNDARY_RESOLVED",

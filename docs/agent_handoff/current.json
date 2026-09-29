@@ -16977,5 +16977,16 @@
     "safety": "PROVIDER_CALLS=0; HISTORICAL_ACQUISITION_REQUESTS=0; PRODUCTION_WRITES=0; OPENING_CHANGES=0; DEV_005_CHANGES=0; PILOT_ROWS_CHANGED=0.",
     "audit": "docs/audits/historical_15m_dev_task_closure.v1.json sha256 fdec7f22fb87f59dc17667c05a1ca6226d863bc64af2b1c7f53d32e64041aca2",
     "next_action": "Stop. Do not begin BOUNDED_HISTORICAL_15M_ACQUISITION without separate authorization."
+  },
+  "watchtower_ath_peak_liveness_20260929": {
+    "engineering_revision": "Source was read only; Mission Control authority is the deployed dev_005a monitor store and the current port-8100 template/projection source.",
+    "status": "MIXED",
+    "finding": "All 10 Watchtower monitors with retained 15m observations have a derivable retained high/close peak and a stored running_peak_mc_usd. Two collapsed rows have final_proven_ath_mc. Six entry-anchored collapsed rows have durable terminal-ATH finalization work pending at attempts=0; INKCHAN has no entry reference and cannot use the current entry-relative terminal finalizer. The Mission Control table intentionally renders a collapsed ATH only from final_proven_ath_mc, hiding the seven non-final terminal running peaks even while their drawdowns are displayed.",
+    "hookedcat": "HOOKEDCAT's visible approximately $2.07M peak is running_peak_mc_usd from the maximum retained 15m OHLC high/close, not an opening, historical, or terminal-finalizer artifact.",
+    "coverage": "15m history=10; derivable retained peak=10; stored running peak=10; stored final peak=2; UI ATH=3; drawdown with no UI ATH=7.",
+    "null_entry": "NULL_ENTRY_BLOCKS_ABSOLUTE_PEAK=false. It blocks the current entry-relative terminal finalizer and ratio, not absolute running-peak retention.",
+    "audit": "docs/audits/watchtower_ath_peak_liveness.v1.json sha256 c7daeba2ce82c9c25c36c5e6f7d5ecb2e990cd8f9f0c31535535f43e6932a491",
+    "safety": "READ_ONLY: source/config/schema/database/process/provider/RPC/backfill changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "next_action": "QUALIFY_ONLY_THE_PROVEN_WATCHTOWER_ATH_GAP"
   }
 }

@@ -1,13 +1,13 @@
 {
   "dev020_production_preimage_shadow_qualification": {
-    "engineering_revision": "Required target a1e6835ab59683300f1cd7dc71599c80b87b435a at /Users/kevinkeaveney/Production/flex; actual Supervisor API source fc6c58fc4512f781897266f03c966ace1f7cb365 at /Users/kevinkeaveney/Production/flex-api-dev002; runtime-identity audit commit a0ed3c207110c76a3884c8bc68ae6e315115ee2d",
-    "status": "QUALIFIED_CLEAN_RUNTIME_CANDIDATE_NOT_DEPLOYED",
-    "finding": "A clean isolated reconciliation candidate now preserves the DEV002 API retirement plus all four frozen dirty runtime/UI semantics on a1e6835a without conflict with DEV-020. Complete bounded offline suite: 53 passed, 0 failed in 45.28s, including A/B/C handler parity, production-handler seam, 10-mode failure isolation, frozen scope/exclusions, zero-RPC, Nuon/Dtwi, future join, storage bounds, and required DEV002 reader/route/UI semantics. Production and Supervisor remain unchanged.",
-    "audit": "docs/audits/dev002_runtime_reconciliation_onto_dev020.v1.json; reconciled source commit 96b7add12844ba3eccbe7d9c9076aa3e99becf78 and audit commit 20475666b45c71116e5abcc723cf61deb7859779 on codex/reconcile-dev002-runtime-onto-dev020. Pre/post qualification source digest acd092ae8531bd87fec3a746f68a300e5d7d94370242746be68cac3c18c72415 matches.",
-    "safety": "DEV020_MODE stayed OFF. No Supervisor edit/reload/restart, Treasury polling, provider/RPC activity, webhook change, recipient classification, Treasury promotion, or production state change occurred; Deep unauthorized.",
+    "engineering_revision": "Production API now serves clean reconciled source 96b7add12844ba3eccbe7d9c9076aa3e99becf78 from /Users/kevinkeaveney/Production/flex; switch audit commit c34c41d880fc0c8cd5539b57157f4c48fc72ec6a",
+    "status": "PASS_CLEAN_RECONCILED_RUNTIME_SERVING_DEV020_DORMANT",
+    "finding": "Supervisor was changed only for watchtower_api directory and PYTHONPATH from the frozen dirty DEV002 worktree to /Users/kevinkeaveney/Production/flex, then reread/updated/restarted. Actual master cwd and PYTHONPATH prove the new production source; production HEAD is 96b7add1. Exactly one API master/worker pair is present, listener is unchanged, /api/health/full returned 200 with API/ingestion HEALTHY, and reconciled monitor/deep-review routes returned 200. DEV020 remains default-OFF with exact frozen 2vBd scope.",
+    "audit": "docs/audits/production_supervisor_switch_to_reconciled_runtime.v1.json; switch audit c34c41d880fc0c8cd5539b57157f4c48fc72ec6a. Reconciliation qualification remains docs/audits/dev002_runtime_reconciliation_onto_dev020.v1.json.",
+    "safety": "DEV020_MODE remains OFF. DEV020 shadow admissions/RPC/new webhooks/webhook mutations/recipient classifications/Treasury promotions=0. No Treasury polling or provider/RPC calls were made; frozen DEV002 worktree remains untouched for immediate rollback; Deep unauthorized.",
     "runtime_deployment_required": true,
-    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
-    "next_action": "SWITCH_PRODUCTION_SUPERVISOR_TO_RECONCILED_RUNTIME_CANDIDATE"
+    "runtime_deployment_gate": "PASS",
+    "next_action": "DEV020_EVENT_DRIVEN_LIVE_SHADOW_ON_FROZEN_2VBD_SCOPE"
   },
   "dev020_tiny_live_treasury_recipient_accumulation": {
     "engineering_revision": "83fc8efaac32130069f0f544f83474f1ba5836e0 on codex/watchtower-treasury-recipient-retention",

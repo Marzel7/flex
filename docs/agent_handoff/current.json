@@ -1,14 +1,12 @@
 {
-  "watchtower_prospective_five_stage_retention": {
-    "engineering_revision": "ef6cd9ffeceb4305511bd8d941140e7977c53696 on codex/watchtower-five-stage-retention",
-    "status": "QUALIFIED_NOT_DEPLOYED",
-    "worktree": "/Users/kevinkeaveney/.codex/worktrees/watchtower-five-stage-retention/flex",
-    "finding": "A dormant generic immutable route-evidence component preserves Treasury -> SubProvider -> Funding Account -> Creator -> Launch with a deterministic mint/membership-event provenance join. It is not wired to a listener, Walkback, feature flag, classification, provider path, or deployed schema.",
-    "tests": "5 provider-free synthetic tests passed: route identity, idempotency, membership metadata, distinct Funding Account, missing/ambiguous topology rejection, conflict failure.",
-    "storage": "2 KiB conservative per route; fixed 50,000 logical row cap, DEFER at capacity, 102.4 MB maximum modeled storage; no raw payload storage.",
-    "audit": "docs/audits/watchtower_prospective_five_stage_retention_qualification.v1.json sha256 fa1b7c7b9216ab028c69891566a5aab5f0891dcf24133e5fb4b2a33ca4182b53",
-    "safety": "Primary workspace and production state unchanged; provider/RPC/network calls=0; feature flags OFF; Deep deployment unauthorized; RUNTIME_DEPLOYMENT_REQUIRED=false.",
-    "next_action": "QUALIFY_SMALL_CONTROLLED_PROSPECTIVE_FIVE_STAGE_EVIDENCE_PILOT"
+  "watchtower_deep_shared_upstream_capital": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; retained-state research only",
+    "status": "PARTIAL_EVIDENCE_RETAINED_PREACQUISITION",
+    "finding": "Deep-side retained evidence qualifies the historical 6Muxk6cE pool and HHJRGmus coordinator route. No transaction-derived exact upstream intersection, direct cross-graph capital link, or common capital source with established Watchtower controls is retained. Rotation sequence evidence is behavioral/partial only; it does not prove capital succession.",
+    "lineage_gap": "Supported interpretation: LINEAGE_GAP can mean no confirmed Treasury within current Walkback reach, not NOT_WATCHTOWER. It is not identity proof.",
+    "audit": "docs/audits/watchtower_deep_shared_upstream_capital.v1.json sha256 ed39fb352a67df242856bb2be8a4a4f742817daac0a1c7976b9733848ff96e9f",
+    "safety": "Production/config/schema/process/classification/feature flag changes=0; provider/RPC calls=0; Deep deployment unauthorized.",
+    "next_action": "AUTHORIZE_BOUNDED_40_CALL_UPSTREAM_CAPITAL_TRACE"
   },
   "watchtower_standard_deep_missing_discriminator": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa with a materially dirty workspace; retained-state audit only",

@@ -1,4 +1,13 @@
 {
+  "watchtower_established_upstream_boundary": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; retained-state research only",
+    "status": "PARTIAL_RETAINED_WATCHTOWER_UPSTREAM_RECOVERY_AVAILABLE",
+    "finding": "The primary established WSOL control 2gh has 31 retained WSOL_WRAP_CLOSE Treasury->SubProvider->Funding Account->Creator->Launch sessions, but no qualified material source->Treasury capital edge. Candidate signatures identify two precise material Treasury-boundary transactions; their retained role projections are absent/ambiguous. Gzaa corroborates the same boundary but remains PLAIN_XFER-only.",
+    "comparison": "Established evidence stops at confirmed Treasury. The Deep reference is qualified through COORDINATOR HHJRGmus to POOL 6Mux; graph depths are not conceptually equivalent, so NOT_FOUND_WITHIN_BOUND remains non-identity-dispositive.",
+    "audit": "docs/audits/watchtower_established_upstream_boundary.v1.json sha256 d62bc792efae497cadec08425ed3d58f2202f0d7d3b6cc7db5313a95ade63322",
+    "safety": "Read-only retained-state/code/artifact review; provider/RPC/network/source/config/schema/DB/process/classification/feature-flag changes=0; Deep deployment unauthorized.",
+    "next_action": "PROPOSE_TWO_TRANSACTION_WATCHTOWER_UPSTREAM_BOUNDARY_ACQUISITION"
+  },
   "watchtower_prospective_five_stage_retention": {
     "engineering_revision": "ef6cd9ffeceb4305511bd8d941140e7977c53696 on codex/watchtower-five-stage-retention",
     "status": "QUALIFIED_NOT_DEPLOYED",

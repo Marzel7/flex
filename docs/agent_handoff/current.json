@@ -1,18 +1,19 @@
 {
   "watchtower_monitor_ui_projection": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa with material dirty working tree; deployed API source separately frozen by SHA-256",
-    "status": "DEPLOYED_PASS",
-    "finding": "V2 is live in watchtower_api PID 56648 at the configured listener 127.0.0.1:5002. Its explicit WATCHTOWER_MONITOR_UI_DB_PATH opens the isolated MonitorWorker DB through Path.as_uri() + fixed ?mode=ro with uri=True; missing/unreadable/schema-invalid/injected paths fail without fallback.",
-    "qualification": "The preactivation suite passed 23/23. Live table and observations endpoints now return the authoritative values for 8n1, 9DPU, and 2n3. A bounded before/after pair of live API reads left the DB and all SQLite sidecars unchanged.",
+    "status": "LIVE_UI_VERIFICATION_PASS",
+    "finding": "The actual browser page at 127.0.0.1:5002/operations/live-monitor consumes /api/operations/live-monitor from the deployed watchtower_api, not the unrelated process on port 8100. Browser-visible states, rounded Current MC, calls, and null Entry MC agree with the live authoritative API for 8n1, 9DPU, and 2n3.",
+    "qualification": "Browser renders 25 Watchtower rows, equal to the API prospective Watchtower projection. The authority currently has 10 Watchtower mints with 137 completed 15m candles; 8n1 observations endpoint returns 39 retained 15m observations. No UI/API mismatch is retained.",
     "audit": "docs/audits/watchtower_monitor_ui_projection_qualification.v1.json sha256 4170de772851b7da42161ecec24c0dda7345941e8ec6e623c7f91777a88444a9",
     "contract": "docs/audits/watchtower_monitor_ui_projection_deployment_contract.v1.json sha256 7a91f5cc64176748dd8bacb0bc14c9545766af2dd4daa9e89aada1e1a4731f0b; authorized exact deployment attempted then rolled back",
     "execution_audit": "docs/audits/watchtower_monitor_ui_projection_execution.v1.json sha256 0b72e72d0ab97b9786eca7c3ef8372ca45dfacfe676ce49279887d67d3e6f60b",
     "readonly_qualification": "docs/audits/watchtower_monitor_ui_readonly_access_qualification.v1.json sha256 a0e53726b89edec3741d157075bcdca0556e1e12ef07e9d00ce1f76542aa40fc",
     "v2_contract": "docs/audits/watchtower_monitor_ui_projection_deployment_contract.v2.json sha256 c30abd545eb71ceff768bc6fa64cad6dbbcf72d84cb6c35c6e7f9727659b205f; authorized=false",
     "v2_execution_audit": "docs/audits/watchtower_monitor_ui_projection_v2_execution.v1.json sha256 7342951b89f07668104478c8f0f89032643db0db0418135cb6fff1460974a3d6",
+    "live_ui_audit": "docs/audits/watchtower_monitor_ui_live_verification.v1.json sha256 f357bc961d1ff4d706aaa90ff9e9ee9505e60a6a01616263194609a4e95765bc",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS",
-    "next_action": "VERIFY_WATCHTOWER_MONITOR_UI_LIVE"
+    "next_action": "WATCHTOWER_15M_MONITORING_LIVE_COMPLETE"
   },
   "operations_db_sqlite_lifecycle_provenance_preflight": {
     "engineering_revision": "77492d22497e31a5984a234e2bb1f5cd2fc10613 with material dirty working tree; deployment parity not established",

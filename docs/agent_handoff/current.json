@@ -1,4 +1,16 @@
 {
+  "watchtower_bounded_treasury_recipient_accumulation": {
+    "engineering_revision": "92b558f78f970c99a5ab0cc1437053fa88701b70 on codex/watchtower-treasury-recipient-retention; audit commit 10d6e894a5d560742bcae19ae66f07ea4b6697c3",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/watchtower-treasury-recipient-retention/flex",
+    "finding": "A dormant, provider-free DurableFundingAccumulator now qualifies only CONFIRMED_TREASURY_FUNDED_RECIPIENT compact facts. It has a 100-job atomic spool, retry limit 2, dead-letter cap 20, 64 KiB job cap, 100,000-row cap, and a 64 MiB SQLite max-page cap. It does not import into webhook/worker runtime code and cannot classify recipients, create webhooks, promote Treasuries, or invoke Walkback.",
+    "audit": "docs/audits/watchtower_bounded_treasury_recipient_accumulation.v1.json sha256 2ab702df04eec784504cbf1f6adbd4f6a56598371bf19a5c2b5fe19ade4ee35d",
+    "tests": "16 provider-free tests passed, 0 failed: durable/restart/replay/idempotency/conflict/capacity/retry/dead-letter/directionality/confirmation-time/future-join controls. Pytest cache permission warning only.",
+    "safety": "Primary workspace/runtime/schema/config/DB/webhooks/operation attribution/feature flags unchanged; provider/RPC/network calls=0; recipient classifications/webhooks/Treasury promotions=0; no raw payloads; Deep deployment unauthorized.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Qualification is isolated and dormant; no live producer, target runtime, configuration, database, or process changed.",
+    "next_action": "QUALIFY_TINY_LIVE_SHADOW_TREASURY_RECIPIENT_ACCUMULATION"
+  },
   "watchtower_small_treasury_recipient_observation_pilot": {
     "engineering_revision": "ec5c8fd1a432e400a2e21242bf93446ce9889a81 on codex/watchtower-treasury-recipient-retention",
     "status": "PASS_IN_MEMORY_SHADOW_REPLAY",

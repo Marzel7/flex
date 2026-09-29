@@ -1,13 +1,13 @@
 {
   "dev020_production_preimage_shadow_qualification": {
-    "engineering_revision": "Required deployment checkout a1e6835ab59683300f1cd7dc71599c80b87b435a remains at /Users/kevinkeaveney/Production/flex; observed running Gunicorn runtime is instead 6c58fc4512f781897266f03c966ace1f7cb365 from /Users/kevinkeaveney/Production/flex-api-dev002",
-    "status": "HOLD_PREACTIVATION_RUNTIME_IDENTITY_MISMATCH",
-    "finding": "The event-driven live-shadow pre-activation check found that Supervisor's watchtower_api process has cwd and PYTHONPATH /Users/kevinkeaveney/Production/flex-api-dev002, commit 6c58fc45, rather than the required production checkout at a1e6835a. Although local /api/health/full returned HTTP 200 with API and ingestion HEALTHY, the required runtime-identity precondition failed. DEV020_MODE was not set to SHADOW; no live collection was started.",
-    "audit": "docs/audits/dev020_event_driven_live_shadow_2vbd.v1.json; isolated audit commit 72a8d70ea9e2c4da2fed47c1180aab412eacd284; activation duration=0, live events=0, polling/RPC/webhook mutations/classifications/promotions=0.",
-    "safety": "DEV020_MODE stayed OFF. Frozen scope was not broadened. No shadow admission, Treasury polling, provider/RPC activity, webhook change, recipient classification, Treasury promotion, or production state change occurred; Deep unauthorized.",
+    "engineering_revision": "Required target a1e6835ab59683300f1cd7dc71599c80b87b435a at /Users/kevinkeaveney/Production/flex; actual Supervisor API source fc6c58fc4512f781897266f03c966ace1f7cb365 at /Users/kevinkeaveney/Production/flex-api-dev002; runtime-identity audit commit a0ed3c207110c76a3884c8bc68ae6e315115ee2d",
+    "status": "HOLD_UNRECONCILED_RUNTIME_SOURCE_DIVERGENCE",
+    "finding": "Supervisor PID 4153 explicitly starts watchtower_api with cwd and PYTHONPATH /Users/kevinkeaveney/Production/flex-api-dev002. That detached worktree is codex/dev002-api-retirement at fc6c58fc and has one committed API-retirement divergence plus four dirty runtime/UI files. Against a1e6835a, the target has seven commits and dev002 one; the source diff includes DEV-020 removal on dev002 and unreconciled operator-reader/API retirement changes. Required status of dev002-only changes is UNKNOWN, so switching sources would be unsafe.",
+    "audit": "docs/audits/production_supervisor_runtime_source_identity.v1.json; current source, supervisor provenance, rollback state, and diff inventory recorded; no configuration or process change executed.",
+    "safety": "DEV020_MODE stayed OFF. No Supervisor edit/reload/restart, Treasury polling, provider/RPC activity, webhook change, recipient classification, Treasury promotion, or production state change occurred; Deep unauthorized.",
     "runtime_deployment_required": true,
-    "runtime_deployment_gate": "HOLD_RUNTIME_SOURCE_IDENTITY",
-    "next_action": "REPAIR_AND_REQUALIFY_PRODUCTION_SUPERVISOR_RUNTIME_SOURCE_IDENTITY"
+    "runtime_deployment_gate": "HOLD_UNRECONCILED_RUNTIME_SOURCE_DIVERGENCE",
+    "next_action": "RECONCILE_AND_QUALIFY_DEV002_API_RETIREMENT_AND_DIRTY_RUNTIME_DELTA_ONTO_A1E6835A_BEFORE_SUPERVISOR_SOURCE_SWITCH"
   },
   "dev020_tiny_live_treasury_recipient_accumulation": {
     "engineering_revision": "83fc8efaac32130069f0f544f83474f1ba5836e0 on codex/watchtower-treasury-recipient-retention",

@@ -17075,5 +17075,15 @@
     "audit": "docs/audits/watchtower_deep_classification_coupling_qualification.v1.json sha256 942c77845e148f09d09f68e48a010f54558221f9ea316161f8c6b84be2f7a0d7",
     "safety": "READ_ONLY: DB/source/schema/runtime/provider/RPC/reclassification/approval changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "next_action": "IMPLEMENT_PROVIDER_FREE_WATCHTOWER_DEEP_CLASSIFICATION_REPAIR"
+  },
+  "watchtower_deep_classification_implementation_qualification_20260929": {
+    "engineering_revision": "Workspace candidate; no runtime deployment.",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "implementation": "Adds provider-free src/ops/watchtower_deep_classification.py and invokes it after canonical WATCHTOWER membership projection. It retains only a deterministic non-owning REVIEW_ONLY operator_subtype_projection, never a second membership or Monitor job.",
+    "invariants": "canonical membership/mint=1; WATCHTOWER_DEEP membership created=0; legacy Deep rewrite=0; Monitor admission/mint=1; incremental provider/RPC=0; schema/config/MonitorWorker/15m/opening/DEV012 changes=0; Treasury coupling=0.",
+    "tests": "70 passed, 0 failed: new Deep classification, Deep historical, MonitorWorker, and DEV-019 Treasury rotation suites. Immutable projection conflict fails closed; repeated identical evidence is idempotent.",
+    "audit": "docs/audits/watchtower_deep_classification_implementation_qualification.v1.json sha256 333554220d226422569f9114fd37991a8fb6f0a00bbba6fbf5169d10b8a43766",
+    "deployment_contract": "docs/audits/watchtower_deep_classification_deployment_contract.v1.json sha256 182c952f380d7e25e3f5c2523398f1f22765355f4ef596b0edbcbd2170763636; authorized=false.",
+    "next_action": "REVIEW_WATCHTOWER_DEEP_CLASSIFICATION_IMPLEMENTATION"
   }
 }

@@ -11,14 +11,14 @@
   },
   "dev005_watchtower_current_price_runtime": {
     "engineering_revision": "93e1c28005b76daf29803ae03855d758a1f520db on codex/dev005-generic-strict-migration-adapter, based on policy lineage 35feceb0 plus historical retry fix 7b5c40c",
-    "status": "PARTIAL_NOT_DEPLOYED",
-    "finding": "A bounded 61-minute, provider-free six-token fixture now covers assignment-originated MonitorQueue admission, generic strict migration openings, normal/staggered progression, a C retry to 1805, DEV-012 denial/recovery, DEV-009 Retry-After deadline/recovery, and F terminal exclusion; 50 focused tests pass. It is not yet the actual durable MonitorWorker persistence/reducer/finalizer pipeline and does not invoke the dashboard projection, so backend end-to-end and dashboard ATH qualification remain unproven.",
+    "status": "HOLD_DURABLE_GENERIC_OPENING_INTEGRATION_MISSING",
+    "finding": "A bounded 61-minute, provider-free six-token fixture covers assignment-originated MonitorQueue admission, generic strict migration openings, normal/staggered progression, a C retry to 1805, DEV-012 denial/recovery, DEV-009 Retry-After deadline/recovery, and F terminal exclusion; 50 focused tests pass. The requested actual durable generic path cannot be fixture-qualified yet: live_opening_action_job.plan_next recognizes only CHAIN_CREATE_TRANSACTION, OPENING_SEQUENCE_BLOCK, and SOL_USD_FX, while MonitorWorker.process_once invokes STRICT_MIGRATION_WINDOW_1S directly. process_entry_reference_opening_once likewise rejects it. No durable generic work item can currently dispatch the strict family into the worker/reducer/finalizer path.",
     "audit": "docs/audits/dev005_generic_strict_migration_transport.v1.json (candidate commit 93e1c28005b76daf29803ae03855d758a1f520db)",
     "tests": "50 provider-free tests passed, 0 failed: six-token fixture plus strict adapter, historical retry/cadence, canonical birth, DEV-009/010/011/012, and null-entry regressions.",
     "safety": "No running DEV worker, supervisor configuration, queue, database, provider/RPC, production classification, or DEV020 state changed. Candidate is isolated and not deployed. RUNTIME_DEPLOYMENT_GATE=HOLD.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD",
-    "next_action": "DRIVE_SIX_TOKEN_FIXTURE_THROUGH_DURABLE_MONITORWORKER_REDUCER_FINALIZER_AND_DASHBOARD_PROJECTION"
+    "next_action": "IMPLEMENT_DURABLE_GENERIC_STRICT_MIGRATION_WINDOW_WORK_ITEM_DISPATCH_THEN_RERUN_SIX_TOKEN_WORKER_REDUCER_FINALIZER_DASHBOARD_FIXTURE"
   },
   "dev020_tiny_live_treasury_recipient_accumulation": {
     "engineering_revision": "83fc8efaac32130069f0f544f83474f1ba5836e0 on codex/watchtower-treasury-recipient-retention",

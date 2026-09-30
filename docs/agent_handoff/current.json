@@ -10,15 +10,15 @@
     "next_action": "DEV020_EVENT_DRIVEN_LIVE_SHADOW_ON_FROZEN_2VBD_SCOPE"
   },
   "dev005_watchtower_current_price_runtime": {
-    "engineering_revision": "8fd24957f4bf26ed66dc000b798f2fdef258d77d on codex/dev005-generic-strict-migration-adapter, based on policy lineage 35feceb0 plus historical retry fix 7b5c40c",
+    "engineering_revision": "93e1c28005b76daf29803ae03855d758a1f520db on codex/dev005-generic-strict-migration-adapter, based on policy lineage 35feceb0 plus historical retry fix 7b5c40c",
     "status": "PARTIAL_NOT_DEPLOYED",
-    "finding": "The isolated candidate adds STRICT_MIGRATION_WINDOW_1S as a bounded migration+1 request identity and delegates it directly to MonitorBirdeyeTransport.acquire_watchtower_entry, preserving the one Birdeye parser/normalizer and DEV-012 gate. Direct/generic fixture parity, malformed/empty/wrong-second controls, and structured 429 behavior pass. The DEV-011 non-return was a test-only recursive /private/tmp storage scan, now bounded to the fixture DB/WAL/queue; all nine DEV-011 tests pass. The complete six-token automatic historical lifecycle fixture remains unimplemented.",
-    "audit": "docs/audits/dev005_generic_strict_migration_transport.v1.json (candidate commit 8fd24957f4bf26ed66dc000b798f2fdef258d77d)",
-    "tests": "49 provider-free tests passed, 0 failed: DEV-011 now completes 9/9; complete six-token lifecycle coverage remains required.",
+    "finding": "A bounded 61-minute, provider-free six-token fixture now covers assignment-originated MonitorQueue admission, generic strict migration openings, normal/staggered progression, a C retry to 1805, DEV-012 denial/recovery, DEV-009 Retry-After deadline/recovery, and F terminal exclusion; 50 focused tests pass. It is not yet the actual durable MonitorWorker persistence/reducer/finalizer pipeline and does not invoke the dashboard projection, so backend end-to-end and dashboard ATH qualification remain unproven.",
+    "audit": "docs/audits/dev005_generic_strict_migration_transport.v1.json (candidate commit 93e1c28005b76daf29803ae03855d758a1f520db)",
+    "tests": "50 provider-free tests passed, 0 failed: six-token fixture plus strict adapter, historical retry/cadence, canonical birth, DEV-009/010/011/012, and null-entry regressions.",
     "safety": "No running DEV worker, supervisor configuration, queue, database, provider/RPC, production classification, or DEV020 state changed. Candidate is isolated and not deployed. RUNTIME_DEPLOYMENT_GATE=HOLD.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD",
-    "next_action": "ADD_COMPLETE_PROVIDER_FREE_AUTOMATIC_HISTORICAL_LIFECYCLE_AND_MULTI_TOKEN_FIXTURE"
+    "next_action": "DRIVE_SIX_TOKEN_FIXTURE_THROUGH_DURABLE_MONITORWORKER_REDUCER_FINALIZER_AND_DASHBOARD_PROJECTION"
   },
   "dev020_tiny_live_treasury_recipient_accumulation": {
     "engineering_revision": "83fc8efaac32130069f0f544f83474f1ba5836e0 on codex/watchtower-treasury-recipient-retention",

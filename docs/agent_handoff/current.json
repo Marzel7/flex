@@ -17280,6 +17280,17 @@
     "live_verification": "Not performed because startup never reached the worker loop.",
     "exact_next_action": "REPAIR_OR_REPLACE_THE_USER_MANAGED_MONITOR_ENV_FILE_WITH_A_SYNTAX_VALID_SOURCE_THAT_PROVIDES_BIRDEYE_KKHOT_AND_REQUIRED_EXISTING_KEYS_THEN_AUTHORIZE_RESTART_OF_OPERATION_MONITOR_WORKER"
   },
+  "dev005_monitor_env_syntax_repair_20260930": {
+    "status": "HOLD_COHERENT_LAUNCHER_CWD_ISOLATION_REQUIRED",
+    "monitor_env_file": "/Users/kevinkeaveney/Dev/claude/flex/.env",
+    "backup_path": "/private/tmp/dev005-monitor-env-before-validation.env",
+    "environment_validation": "syntax valid; required BIRDEYE_KKHOT, BIRDEYE_RILEY, HELIUS_RPC_URL, and HELIUS_API_KEY are present/nonempty; before/after validation SHA-256 identical; no agent edit and no secret output.",
+    "launcher_validation": "Both launcher shells parse. Coherent identity is pinned when executed from intended Supervisor directory, but imports caller-current-directory code when invoked from an unrelated directory.",
+    "worker": "STOPPED; no restart performed.",
+    "safety": "provider calls 0; Supervisor, database, queue, membership, budgets, DEV-020, source code, and production unchanged.",
+    "artifact": "docs/audits/dev005_monitor_env_syntax_repair.v1.json",
+    "exact_next_action": "AUTHORIZE_MINIMAL_CWD_ISOLATION_FIX_FOR_THE_COHERENT_LAUNCHER_THEN_RERUN_CLOSURE_TESTS_AND_AUTHORIZE_WORKER_RESTART"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

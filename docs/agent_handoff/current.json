@@ -10,15 +10,15 @@
     "next_action": "DEV020_EVENT_DRIVEN_LIVE_SHADOW_ON_FROZEN_2VBD_SCOPE"
   },
   "dev005_watchtower_current_price_runtime": {
-    "engineering_revision": "0d820931 on codex/dev005-null-entry-timestamp, runtime delta remains 21a972ed against reconciled d3b2136b",
-    "status": "PASS_FIX_LIVE_WORKER_HEALTHY",
-    "finding": "The exact qualified worker source was deployed to the DEV-only runtime after a frozen rollback snapshot. Supervisor restarted only operation_monitor_worker; PID 71090 remained RUNNING for 112+ seconds with one process, zero exit-status-1 events, and no new error-log content. All five original null-entry Watchtower rows, including 2n3b, are WAITING_FOR_ENTRY_REFERENCE/MONITORING_ACTIVE with null timestamps and no fabricated entry. Normal existing work progressed within the preserved ledger.",
-    "audit": "docs/audits/dev005_null_entry_fix_deployment.v1.json",
-    "tests": "36 provider-free tests PASS, 0 failed: restored original DEV009 (11), DEV010 (6), DEV011 (9), DEV012 (6), and null-entry (4). DEV011 scheduler and nullable native-entry migration use test-only compatibility adapters; runtime diff is 16 guard/repair lines, UNEXPECTED=0.",
-    "safety": "DEV monitor source deployment and operation_monitor_worker-only restart expressly authorized and executed. Rollback source/config snapshot is at /private/tmp/dev005-null-entry-deploy-rollback. Supervisor config, budgets, queues (except normal worker activity), production classification, and DEV020 unchanged. RUNTIME_DEPLOYMENT_GATE=PASS.",
+    "engineering_revision": "44522c76b2828b7b25aaf7c637620fa07615f05d on codex/dev005-recurring-price-orchestration; based exactly on deployed healthy lineage 0d820931",
+    "status": "PARTIAL_COMPONENT_QUALIFIED_EARLIEST_TRANSITION_BLOCKED",
+    "finding": "Candidate adds a DEV-only 15-second bounded current-price scheduler to the service, sharing the existing persistent DEV-009 gate and DEV-012 20/min global, 4/min per-token limits. 39 provider-free tests pass, covering compact current/multiple/peak/drawdown updates, 85% terminal stop/finalizer queueing, gap/no-zero semantics, restart, budget defer and fairness. The complete new-launch lifecycle is not qualified: Watchtower membership reconciliation supplies only mint/provenance, while strict-opening admission requires canonical creator and create-signature fields; therefore reconciliation cannot automatically create an exact opening job.",
+    "audit": "docs/audits/dev005_recurring_price_orchestration.v1.json (candidate commit 44522c76)",
+    "tests": "39 provider-free tests PASS, 0 failed: DEV005 recurring (3), DEV009 (11), DEV010 (6), DEV011 (9), DEV012 (6), null-entry (4).",
+    "safety": "No deployed runtime, supervisor config, queue, database, provider/RPC, production classification, or DEV020 state changed. The new scheduler is only an isolated candidate. RUNTIME_DEPLOYMENT_GATE=HOLD pending complete automatic-opening admission qualification.",
     "runtime_deployment_required": true,
-    "runtime_deployment_reason": "The qualified runtime delta was byte-verified at the DEV target and bounded post-deployment acceptance passed.",
-    "next_action": "QUALIFY_DEV005_RECURRING_OPENING_AND_CURRENT_PRICE_ORCHESTRATION_ON_HEALTHY_WORKER"
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "QUALIFY_CANONICAL_BIRTH_PROJECTION_FOR_AUTOMATIC_WATCHTOWER_STRICT_OPENING_ADMISSION"
   },
   "dev020_tiny_live_treasury_recipient_accumulation": {
     "engineering_revision": "83fc8efaac32130069f0f544f83474f1ba5836e0 on codex/watchtower-treasury-recipient-retention",

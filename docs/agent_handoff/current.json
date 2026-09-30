@@ -11,11 +11,11 @@
   },
   "dev005_watchtower_current_price_runtime": {
     "engineering_revision": "21a972ed on codex/dev005-null-entry-timestamp, derived from reconciled d3b2136b",
-    "status": "QUALIFIED_NOT_DEPLOYED",
+    "status": "PARTIAL_FIX_PROVEN_REGRESSION_CORPUS_UNAVAILABLE",
     "finding": "Retained DEV log and DB prove a WAITING_FOR_ENTRY_REFERENCE/null-entry Watchtower history fact was incorrectly PRICE_MONITOR_COMPLETE_COLLAPSED. Startup terminal-ATH reconciliation passed it to logical_job_identity, which called int(None), exiting the worker repeatedly. The isolated fix defers entryless terminal finalization and repairs only this impossible terminal projection to MONITORING_ACTIVE without fabricating a timestamp.",
     "audit": "docs/audits/dev005_null_entry_timestamp_failure.v1.json",
     "tests": "2 deterministic provider-free null-entry/restart tests PASS. Historical DEV009/010/011/012 corpus is absent from reconciled source closure and was not represented as rerun.",
-    "safety": "Retained-log/read-only DB analysis and isolated source-only change; running DEV worker, Supervisor state, queues, provider budget, provider/RPC calls, production runtime, and DEV020 unchanged. RUNTIME_DEPLOYMENT_REQUIRED=true; RUNTIME_DEPLOYMENT_GATE=QUALIFIED_NOT_DEPLOYED.",
+    "safety": "Retained-log/read-only DB analysis and isolated source-only change; running DEV worker, Supervisor state, queues, provider budget, provider/RPC calls, production runtime, and DEV020 unchanged. RUNTIME_DEPLOYMENT_REQUIRED=true; RUNTIME_DEPLOYMENT_GATE=HOLD_PENDING_REQUIRED_REGRESSIONS.",
     "runtime_deployment_required": true,
     "runtime_deployment_reason": "The change alters effective worker terminal-reconciliation behavior but has not been deployed to the DEV target.",
     "next_action": "RESTORE_AND_RUN_REQUIRED_DEV009_DEV010_DEV011_DEV012_REGRESSION_CORPUS_THEN_REQUEST_EXPLICIT_DEV_DEPLOYMENT_ACTIVATION_AGAINST_RECONCILED_LINEAGE"

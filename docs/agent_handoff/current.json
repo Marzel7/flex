@@ -17466,6 +17466,16 @@
     "runtime_deployment_gate": "HOLD_AUTHORIZATION",
     "exact_next_action": "AUTHORIZE_REPAIRED_RUNTIME_DEPLOYMENT_AND_RESUME_DYNAMIC_KKHOT_OPENING_SCOPE"
   },
+  "dev005_repaired_runtime_kkhot_live_20260930": {
+    "engineering_revision": "30de61246d7561f3f69bde90b3e959a805abab56 on codex/dev005-birdeye-kkhot; live runtime rolled back to stopped",
+    "status": "HOLD_LIVE_OPENING_NON200_DIAGNOSTICS_NOT_DURABLE",
+    "finding": "Final identity, pinned CWD isolation, qualified env digest, state-root continuity, dynamic confirmed-Watchtower scope, and DEV012 limits were verified. One worker ran for 130 seconds. It made eight natural STRICT_MIGRATION_WINDOW_1S opening admissions at 15-16 second intervals, maximum four in an observed rolling 60 seconds, plus one ordinary 15m evidence call. All eight persisted HTTP_NON_200 and no Entry qualified. The active strict-error path retained neither exact status nor provider code/message, so the required HTTP200-versus-compute-400 comparison cannot be made without cycling the queue. The worker was stopped under the authorized rollback condition.",
+    "artifact": "docs/audits/dev005_repaired_runtime_kkhot_live.v1.json",
+    "safety": "No null-entry crash, env parse error, fatal exit, historical-before-Entry call, retry storm, queue clear, manual row change, credential/budget/DEV020/production change. Pending null-Entry population changed 20 to 21 only through natural dynamic admission. Provider activity was natural queue work only.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "exact_next_action": "QUALIFY_DURABLE_REDACTED_STRICT_OPENING_FAILURE_DIAGNOSTICS_THEN_TRACE_LIVE_VS_ISOLATED_KKHOT_REQUEST_CONTEXT_DIFFERENCE"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

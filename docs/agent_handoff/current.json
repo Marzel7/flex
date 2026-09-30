@@ -17237,6 +17237,22 @@
     "safety": "No Supervisor restart, runtime source mutation, provider call, queue mutation, or production change was performed. Supervisor status could not be read inside the filesystem sandbox.",
     "exact_next_action": "PREPARE_A_CLEAN_RUNTIME_WORKTREE_OR_PINNED_CHECKOUT_AT_D7665F72_THEN_REPEAT_PREDEPLOY_IDENTITY_AND_ROLLBACK_CAPTURE"
   },
+  "dev005_clean_runtime_predeployment_20260930": {
+    "engineering_revision": "d7665f725b03ef5f2d6e891c6bdb8828f5e01ea1",
+    "status": "HOLD_CANDIDATE_CONTAINS_INCOHERENT_OPENING_MODULE",
+    "clean_runtime_path": "/Users/kevinkeaveney/.codex/worktrees/dev005-runtime-d7665f72/flex",
+    "clean_runtime_commit": "d7665f725b03ef5f2d6e891c6bdb8828f5e01ea1",
+    "clean_tree": true,
+    "qualified_monitor_file_parity": true,
+    "regression": "41 passed, 0 failed, provider calls 0",
+    "blocker": "Tracked src/ops/live_opening_action_job.py imports absent src/ops/opening_sequence_aggregator.py and absent birth_anchored_opening_acquisition.py. The runtime launcher also hard-codes ROOT=/Users/kevinkeaveney/Dev/claude/flex, so starting it would execute the dirty runtime rather than the pinned checkout.",
+    "current_runtime_unchanged": true,
+    "supervisor_changed": false,
+    "worker_restarted": false,
+    "runtime_config_compatible": false,
+    "rollback_qualified": false,
+    "exact_next_action": "BUILD_AND_QUALIFY_A_COHERENT_CLEAN_RUNTIME_SNAPSHOT_THAT_EXCLUDES_OR_RESOLVES_THE_TRACKED_INCOHERENT_OPENING_MODULE_AND_HAS_A_PINNED_ROOT_LAUNCHER"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

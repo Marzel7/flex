@@ -17307,6 +17307,16 @@
     "safety": "No Supervisor, database, queue, provider, runtime, production, DEV-020, or dirty-runtime change.",
     "exact_next_action": "AUTHORIZE_SINGLE_OPERATION_MONITOR_WORKER_START_ON_CWD_ISOLATED_COHERENT_RUNTIME_AND_RESUME_LIVE_VERIFICATION"
   },
+  "dev005_final_live_start_precheck_20260930": {
+    "engineering_revision": "34d1ed95329d5025d73a722a66396788d4693388",
+    "status": "HOLD_AFFECTED_POPULATION_CHANGED",
+    "verdict": "START_NOT_EXECUTED_FINAL_PRESTART_PRECONDITION_MISMATCH",
+    "prestart_identity": "coherent runtime clean at 34d1ed95; self-rooting identity resolved coherent sources and existing external state root; .env syntax valid.",
+    "mismatch": "The documented retained affected population was 14. Current read-only DEV monitor authority query finds 18 Watchtower rows with entry_timestamp NULL, entry_mc_usd NULL, entry_status WAITING_FOR_ENTRY_REFERENCE, evidence_status HISTORY_ACTIVE_OPENING_UNRESOLVED, and monitor_state MONITORING_ACTIVE.",
+    "safety": "No Supervisor switch, worker start, queue/database edit, provider/RPC call, membership change, budget change, DEV-020 change, or production change occurred.",
+    "worker": "STOPPED",
+    "exact_next_action": "AUTHORIZE_OR_RECONCILE_THE_EXPANDED_18_ROW_AFFECTED_POPULATION_BEFORE_STARTING_OPERATION_MONITOR_WORKER"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

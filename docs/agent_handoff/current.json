@@ -17317,6 +17317,20 @@
     "worker": "STOPPED",
     "exact_next_action": "AUTHORIZE_OR_RECONCILE_THE_EXPANDED_18_ROW_AFFECTED_POPULATION_BEFORE_STARTING_OPERATION_MONITOR_WORKER"
   },
+  "dev005_expanded_pending_opening_live_observation_20260930": {
+    "engineering_revision": "34d1ed95329d5025d73a722a66396788d4693388",
+    "status": "PARTIAL_LIVE_HEALTHY_PENDING_OPENING_RECONCILIATION_STALLED",
+    "verdict": "DEV005_EXPANDED_POPULATION_LIVE_STATUS=PARTIAL_LIVE_HEALTHY_PENDING_OPENING_RECONCILIATION_STALLED",
+    "population": "Prior affected=14; four additional rows were read-only verified against the same confirmed Watchtower assignment and null-entry/history-active predicate; current affected=18; semantic equivalence=true; new defect class=false.",
+    "deployment": "Only operation_monitor_worker is RUNNING (PID 21344) from the self-rooted coherent runtime at 34d1ed95. Its external DEV state root and environment file were preserved; no duplicate worker was observed.",
+    "bounded_observation": "651 seconds. No fatal exit, opening worker-tick hot loop, historical failure call storm, historical call before Entry, fabricated Entry, or new Watchtower assignment was observed. The null-entry provider-call counter had zero observed delta. Provider budgets were not changed.",
+    "projection": "The read-only dashboard projection exposes all 18 null-entry Watchtower rows: 16 MONITORING_ACTIVE/HISTORY_ACTIVE_OPENING_UNRESOLVED and 2 WAITING_FOR_ENTRY_REFERENCE. The worker is healthy, but the 16 retained history-active rows did not reconcile into explicit waiting state during this window.",
+    "artifact": "docs/audits/dev005_expanded_pending_opening_live_observation.v1.json",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PARTIAL",
+    "safety": "Intentional provider/RPC calls=0; membership/manual-row edits/Entry fabrication/price-or-ATH backfill/trading enablement/budget change/unrelated restarts/DEV-020 changes=0. No rollback condition occurred, so operation_monitor_worker remains running.",
+    "exact_next_action": "DIAGNOSE_AND_QUALIFY_RECOVERY_OF_THE_16_HISTORY_ACTIVE_OPENING_UNRESOLVED_WATCHTOWER_ROWS_WITHOUT_PROVIDER_CALLS_OR_LIVE_ROW_EDITS"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

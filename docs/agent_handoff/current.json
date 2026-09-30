@@ -17405,6 +17405,16 @@
     "runtime_deployment_gate": "HOLD",
     "exact_next_action": "HOLD_OPENING_RETRIES_AND_RESOLVE_BIRDEYE_1S_ENTITLEMENT"
   },
+  "dev005_preexisting_watchtower_opening_provenance_20260930": {
+    "engineering_revision": "Read-only provenance trace; historical implementation snapshot eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215; current worker source unchanged at 003f93e4",
+    "status": "PASS_SAME_1S_PATH_HISTORICALLY_WORKED_PROVENANCE_PAYLOADS_COMPACTED",
+    "finding": "The current DEV monitor authority contains 22 qualified Watchtower Entry facts. The pre-DEV005 monitor authority also retained successful Entry facts. The 2026-09-22 implementation snapshot already resolved migration_time, requested Birdeye V3 OHLCV type=1s over [migration,migration+2), and selected the first positive timestamp after migration before persisting operation_monitor_facts. The Sept 30 strict adapter tightened selection to exactly migration+1 and added diagnostics/admission controls; it did not introduce a different provider/source. Later 15m observations are follow-on evidence, not the Entry source. Raw 1s response bodies were compacted, so no individual response can be replay-verified from retained state.",
+    "artifact": "docs/audits/dev005_preexisting_watchtower_opening_provenance.v1.json",
+    "safety": "Provider/RPC calls=0; live worker/config/queue/rows/budgets/DEV020 unchanged. The prior 18 affected cohort has zero retained qualified Entry evidence; no restoration/reacquisition action was taken.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only provenance investigation; no executable or runtime state changed.",
+    "exact_next_action": "IDENTIFY_WHAT_CHANGED_IN_BIRDEYE_1S_ACCOUNT_CAPACITY_OR_ENTITLEMENT_SINCE_LAST_SUCCESSFUL_OPENING"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

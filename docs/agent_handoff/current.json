@@ -17487,6 +17487,17 @@
     "runtime_deployment_gate": "HOLD_AUTHORIZATION",
     "exact_next_action": "DEPLOY_REDACTED_DIAGNOSTICS_AND_CAPTURE_MINIMUM_LIVE_KKHOT_FAILURE_SAMPLE"
   },
+  "dev005_kkhot_auth_context_divergence_20260930": {
+    "engineering_revision": "bf6c59cd92ec842017eefe2ed859b559646adbcf on codex/dev005-birdeye-kkhot",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "finding": "Live HTTP401 was not a request-profile issue: MonitorWorker ignored the KKHOT-bound provider registry and constructed a default Birdeye transport, whose resolver selected BIRDEYE_RILEY. Secret-safe loaded-byte fingerprints differ. The minimal fix injects the service's bound Birdeye transport into MonitorWorker, making MONITOR_ENV_FILE -> BIRDEYE_KKHOT -> BIRDEYE_API_KEY the effective live path.",
+    "artifact": "docs/audits/dev005_kkhot_auth_context_divergence.v1.json",
+    "tests": "42 provider-free passed, 0 failed; provider calls=0.",
+    "safety": "Worker remains STOPPED; no deployment/provider/RPC/queue/row/budget/credential/DEV020/production change; secret values never emitted.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_AUTHORIZATION",
+    "exact_next_action": "AUTHORIZE_SINGLE_LIVE_KKHOT_1S_AUTH_CONFIRMATION_AND_ENTRY_ATTEMPT"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

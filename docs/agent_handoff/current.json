@@ -17268,6 +17268,18 @@
     "artifact": "docs/audits/dev005_coherent_runtime_snapshot.v1.json",
     "exact_next_action": "REVIEW_COHERENT_RUNTIME_COMMIT_THEN_AUTHORIZE_A_SINGLE_SUPERVISOR_SOURCE_SWITCH_AND_BOUNDED_LIVE_VERIFICATION"
   },
+  "dev005_coherent_runtime_live_switch_20260930": {
+    "engineering_revision": "60c6ca37aba8c1ea2fc7f00c84d08980e09db9fd",
+    "status": "ROLLED_BACK_BLOCKED_SHARED_ENV_SYNTAX",
+    "verdict": "COHERENT_RUNTIME_SOURCE_SWITCH_ABORTED_BEFORE_LIVE_OBSERVATION",
+    "pre_switch": "Pinned runtime identity harness verified source imports from the coherent checkout and state root from the existing dirty runtime.",
+    "switch": "Supervisor command/directory were changed only for operation_monitor_worker, then restored to the exact frozen original command/directory after startup failed.",
+    "root_cause": "The shared user-managed /Users/kevinkeaveney/Dev/claude/flex/.env has syntactically invalid BIRDEYE_KKHOT line 14 (three double-quotes). Both the coherent and original launchers source this same file, so the rollback worker also could not start.",
+    "rollback": "Original Supervisor command and directory restored; worker explicitly stopped to prevent a crash loop. No worker process remains running.",
+    "safety": "No provider/RPC call, queue/database edit, membership edit, fabricated Entry, price/ATH backfill, budget change, DEV-020 change, unrelated restart, or production change.",
+    "live_verification": "Not performed because startup never reached the worker loop.",
+    "exact_next_action": "REPAIR_OR_REPLACE_THE_USER_MANAGED_MONITOR_ENV_FILE_WITH_A_SYNTAX_VALID_SOURCE_THAT_PROVIDES_BIRDEYE_KKHOT_AND_REQUIRED_EXISTING_KEYS_THEN_AUTHORIZE_RESTART_OF_OPERATION_MONITOR_WORKER"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

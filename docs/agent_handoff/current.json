@@ -10,12 +10,12 @@
     "next_action": "DEV020_EVENT_DRIVEN_LIVE_SHADOW_ON_FROZEN_2VBD_SCOPE"
   },
   "dev005_watchtower_current_price_runtime": {
-    "engineering_revision": "35feceb082feefbb6ffc28a4119e2c12f63788bd on codex/dev005-migration-policy-adapter, based on 2bcb287b",
-    "status": "HOLD_GENERIC_STRICT_MIGRATION_REQUEST_FAMILY_UNIMPLEMENTED",
-    "finding": "A provider-free, deterministic CanonicalLaunchBirthProjection now reads retained immutable CREATE evidence when present and the retained launch authority otherwise. Current Watchtower coverage is 540 assigned, 534 complete creator/signature pairs, zero conflicts, and six insufficient rows, all fail-closed. Reconciliation admits the existing strict-opening path only after assignment plus complete retained birth evidence. However, the inherited candidate's DEV-only 15-second live-current scheduler conflicts with this gate's explicit historical completed-15-minute cadence, so complete lifecycle/deployment remains unqualified.",
-    "audit": "docs/audits/dev005_migration_boundary_policy_adapter.v1.json (candidate commit 35feceb0)",
-    "tests": "No runtime tests run: strict transport request-family implementation and parity coverage remain required.",
-    "safety": "No deployed runtime, supervisor config, queue, database, provider/RPC, production classification, or DEV020 state changed. RUNTIME_DEPLOYMENT_GATE=HOLD.",
+    "engineering_revision": "7b5c40cdfbc42bbe582aac6b5bd611624e05cf82 on codex/dev005-historical-retry-cadence, based exactly on deployed DEV runtime lineage 0d820931",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "finding": "Live DEV evidence identified the 15M_EVIDENCE hot loop: an overdue WATCHTOWER 15m message experiencing an ordinary retryable provider failure was rescheduled at now+2 seconds, so the five-second worker loop repeatedly reclaimed it. The isolated repair gives WATCHTOWER and WATCHTOWER_DEEP 15m retryable failures the next completed 15-minute boundary plus five seconds. Existing empty-result boundary scheduling, DEV-009 rate-limit deadlines, DEV-012 budget deferral, durable recovery, and the null-entry fix remain covered.",
+    "audit": "docs/audits/dev005_historical_retry_cadence.v1.json (candidate commit 7b5c40cdfbc42bbe582aac6b5bd611624e05cf82)",
+    "tests": "37 provider-free tests passed, 0 failed: new durable historical retry cadence plus DEV-009, DEV-010, DEV-011, DEV-012, and null-entry regressions.",
+    "safety": "No running DEV worker, supervisor configuration, queue, database, provider/RPC, production classification, or DEV020 state changed. Candidate is isolated and not deployed. RUNTIME_DEPLOYMENT_GATE=HOLD.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD",
     "next_action": "IMPLEMENT_AND_QUALIFY_GENERIC_BIRDEYE_STRICT_MIGRATION_WINDOW_REQUEST_FAMILY_ADAPTER"

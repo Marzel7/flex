@@ -17425,6 +17425,16 @@
     "runtime_deployment_reason": "Read-only audit only.",
     "exact_next_action": "RECONCILE_HISTORICAL_AND_CURRENT_BIRDEYE_CREDENTIAL_ENTITLEMENT_WITHOUT_EXPOSING_SECRETS"
   },
+  "dev005_kkhot_single_1s_qualification_20260930": {
+    "engineering_revision": "003f93e4384f66b0d6f811e314bb5b145fc04797; no source/runtime mutation",
+    "status": "PASS_KKHOT_STRICT_1S_QUALIFIED",
+    "finding": "Exactly one standalone KKHOT request reused the historical Birdeye V3 OHLCV strict profile for retained successful Watchtower control 8nh9…pump: solana, mcap/usd/range/padding=false, type=1s, [1790770074,1790770076). It returned HTTP 200 with two timestamps including migration+1=1790770075. No raw provider payload was retained. Existing strict normalizer passed offline against a minimal two-item compact fixture using that target timestamp and the retained qualified Entry value; no Entry was persisted.",
+    "artifact": "docs/audits/dev005_kkhot_single_1s_qualification.v1.json",
+    "safety": "Provider calls=1 exactly; opening queue/worker/config/database/rows/provider-budget state/DEV020 unchanged; no retry, fallback, or second mint.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "exact_next_action": "RECONCILE_LIVE_OPENING_WORKER_TO_QUALIFIED_KKHOT_MAPPING_AND_RESUME_BOUNDED_OPENING_QUEUE"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

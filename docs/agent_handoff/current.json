@@ -17331,6 +17331,19 @@
     "safety": "Intentional provider/RPC calls=0; membership/manual-row edits/Entry fabrication/price-or-ATH backfill/trading enablement/budget change/unrelated restarts/DEV-020 changes=0. No rollback condition occurred, so operation_monitor_worker remains running.",
     "exact_next_action": "DIAGNOSE_AND_QUALIFY_RECOVERY_OF_THE_16_HISTORY_ACTIVE_OPENING_UNRESOLVED_WATCHTOWER_ROWS_WITHOUT_PROVIDER_CALLS_OR_LIVE_ROW_EDITS"
   },
+  "dev005_stale_pending_opening_self_heal_20260930": {
+    "engineering_revision": "d54076890d31ddca08f68996ee9d55f2973cbc08 on codex/dev005-stale-opening-self-heal, based exactly on running runtime 34d1ed95",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "verdict": "DEV005_STALE_OPENING_SELF_HEAL_STATUS=QUALIFIED_NOT_DEPLOYED",
+    "root_cause": "All 18 rows retain one normalized WAITING queue envelope. The 16 stale facts remain active because their pre-fix ConnectionError HTTP_400 jobs are in retry; recover_due intentionally does not recover that error class, so they never reach process_once to persist their waiting fact state. The two reconciled rows are already pending and had reached the waiting persistence path.",
+    "fix": "The existing run_once reconciliation phase now invokes a narrowly scoped self-heal before recovery/provider processing. It targets only exact nonterminal null-entry Watchtower prospective facts with one non-processing identity, persists WAITING_FOR_ENTRY_REFERENCE, and moves the same retry identity to pending without creating work or calling a provider.",
+    "qualification": "Provider-free retained-state fixture: 16 stale retry plus 2 pending shapes -> all 18 pending openings; qualified entries and DEV-010 terminal facts unchanged; repeated and restart reconciliation idempotent; reconciled work is opening-eligible. 46 focused regressions passed, 0 failed, including pending guard, strict migration opening, historical cadence, DEV-009/010/011/012, and CWD-isolated launcher.",
+    "artifact": "docs/audits/dev005_stale_pending_opening_self_heal.v1.json",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "safety": "Running operation_monitor_worker remains PID 21344 from the separate coherent 34d1ed95 runtime. Supervisor/live rows/live queues/budgets/DEV-020 were not manually changed; intentional provider/RPC calls=0. The repair introduces no queue identities, file types, polling loops, raw retention, or unbounded growth path; existing queue/replacement cap=10,000,000 bytes.",
+    "exact_next_action": "AUTHORIZE_MINIMAL_STALE_OPENING_SELF_HEAL_DEPLOYMENT_AND_VERIFY_18_ROW_LIVE_RECONCILIATION"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

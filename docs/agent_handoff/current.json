@@ -17394,6 +17394,17 @@
     "safety": "No investigation-specific provider/RPC call, queue/row manual edit, budget/DEV-020/production change, or unrelated restart.",
     "exact_next_action": "RECONCILE_BIRDEYE_KKHOT_ACCOUNT_COMPUTE_UNITS_ENTITLEMENT_OR_PROVIDER_CAPACITY_BEFORE_FURTHER_OPENING_RETRY"
   },
+  "dev005_birdeye_strict_1s_profile_qualification_20260930": {
+    "engineering_revision": "003f93e4384f66b0d6f811e314bb5b145fc04797 on codex/dev005-birdeye-kkhot; no source/runtime mutation in this gate",
+    "status": "HOLD_ACCOUNT_COMPUTE_CAPACITY_PREVENTS_EXACT_ENTRY_ACQUISITION",
+    "finding": "Official Birdeye OHLCV V3 documentation explicitly supports type=1s, range mode with time_from/time_to, and padding=false. The retained Watchtower strict request for E2uj…pump was endpoint /defi/v3/ohlcv, solana, mcap/usd/range/padding=false, migration 1790783914, [1790783914,1790783916), type=1s; it returned HTTP 400 Compute units usage limit exceeded before normalization. A prior bounded BIRDEYE_KKHOT V3 1m control returned HTTP 200, proving authentication/general V3 access but not exact-second evidence.",
+    "artifact": "docs/audits/dev005_birdeye_strict_1s_profile_qualification.v1.json",
+    "provider_calls": "0 new in this gate; 2 previously authorized KKHOT verification calls are recorded separately. No duplicate request was sent because documentation establishes the retained exact request is structurally valid while account compute is exhausted.",
+    "safety": "Worker PID 63098 remained running from the KKHOT mapped pinned source. No Supervisor/worker/config/queue/row/budget/DEV-020/production mutation; provider/RPC calls in this gate=0. Entry semantics unchanged; 1m is not an exact Entry substitute.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "exact_next_action": "HOLD_OPENING_RETRIES_AND_RESOLVE_BIRDEYE_1S_ENTITLEMENT"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

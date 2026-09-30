@@ -10,15 +10,15 @@
     "next_action": "DEV020_EVENT_DRIVEN_LIVE_SHADOW_ON_FROZEN_2VBD_SCOPE"
   },
   "dev005_watchtower_current_price_runtime": {
-    "engineering_revision": "2bcb287ba17dca3c45391b37db596f7e1da42cbf on codex/dev005-e2e-historical, based on f9c4e2b6",
-    "status": "BLOCKED_OPENING_POLICY_CONTRACT_MISSING",
+    "engineering_revision": "35feceb082feefbb6ffc28a4119e2c12f63788bd on codex/dev005-migration-policy-adapter, based on 2bcb287b",
+    "status": "BLOCKED_GENERIC_TRANSPORT_FAMILY_MISMATCH",
     "finding": "A provider-free, deterministic CanonicalLaunchBirthProjection now reads retained immutable CREATE evidence when present and the retained launch authority otherwise. Current Watchtower coverage is 540 assigned, 534 complete creator/signature pairs, zero conflicts, and six insufficient rows, all fail-closed. Reconciliation admits the existing strict-opening path only after assignment plus complete retained birth evidence. However, the inherited candidate's DEV-only 15-second live-current scheduler conflicts with this gate's explicit historical completed-15-minute cadence, so complete lifecycle/deployment remains unqualified.",
-    "audit": "docs/audits/dev005_end_to_end_historical_lifecycle.v1.json (candidate commit 2bcb287b)",
-    "tests": "No new lifecycle fixture run: integrated source trace proves the opening policy prerequisite is absent.",
+    "audit": "docs/audits/dev005_migration_boundary_policy_adapter.v1.json (candidate commit 35feceb0)",
+    "tests": "No runtime tests run: direct and generic request-family contracts were traced before any implementation.",
     "safety": "No deployed runtime, supervisor config, queue, database, provider/RPC, production classification, or DEV020 state changed. RUNTIME_DEPLOYMENT_GATE=HOLD.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD",
-    "next_action": "QUALIFY_WATCHTOWER_MIGRATION_BOUNDARY_STRICT_OPENING_POLICY_AND_ADMISSION_CONTRACT"
+    "next_action": "QUALIFY_GENERIC_BIRDEYE_STRICT_MIGRATION_WINDOW_REQUEST_FAMILY_ADAPTER"
   },
   "dev020_tiny_live_treasury_recipient_accumulation": {
     "engineering_revision": "83fc8efaac32130069f0f544f83474f1ba5836e0 on codex/watchtower-treasury-recipient-retention",

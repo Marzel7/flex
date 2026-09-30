@@ -17356,6 +17356,19 @@
     "runtime_deployment_gate": "FAIL_ROLLED_BACK",
     "exact_next_action": "QUALIFY_A_GLOBAL_FAIR_OPENING_ADMISSION_CADENCE_FOR_THE_18_PENDING_ROWS_BEFORE_RESTARTING_OPERATION_MONITOR_WORKER"
   },
+  "dev005_global_opening_admission_cadence_20260930": {
+    "engineering_revision": "9414b6d542c1eedb821ba13c3aa63bf06fc7bf1f on codex/dev005-global-opening-cadence, based on d5407689",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "verdict": "DEV005_GLOBAL_OPENING_ADMISSION_STATUS=QUALIFIED_NOT_DEPLOYED",
+    "finding": "The 18-token fixture reproduces the pre-fix aggregate 5-second worker-tick pattern at 12 opening admissions/minute. The candidate persists one global 15-second opening-admission slot before strict dispatch and before DEV-012. That bounds openings to four/minute, reserving at least sixteen of the fixed 20/minute DEV-012 capacity for active historical and other work. A denied tick restores the last-admitted fair cursor, preventing every-third-token starvation.",
+    "qualification": "29 provider-free focused tests passed, 0 failed: ten simulated minutes, all 18 deterministic identities rotate before repeat, min admission spacing 15s, restart has no burst, queue identity preserved, DEV-009/010, self-heal, historical retry cadence, DEV-012, and CWD runtime controls preserved. Provider calls=0.",
+    "storage": "One compact current-state admission file and atomic temporary, each <1 KiB; raw retention=false; replacement jobs=0; new unbounded growth paths=0.",
+    "artifact": "docs/audits/dev005_global_opening_admission_cadence.v1.json",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "safety": "operation_monitor_worker remains STOPPED; live queue/rows/budgets/membership/trading/DEV-020/production unchanged.",
+    "exact_next_action": "AUTHORIZE_GLOBAL_OPENING_CADENCE_DEPLOYMENT_AND_RESTART_WORKER_ON_EXISTING_18_JOB_QUEUE"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

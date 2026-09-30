@@ -17387,6 +17387,13 @@
     "safety": "Read-only; investigation provider/RPC calls=0; worker configuration, queue, rows, budget, DEV-020, and production unchanged.",
     "exact_next_action": "RECONCILE_PROVIDER_COMPUTE_UNITS_CAPACITY_OR_CREDENTIAL_ENTITLEMENT_BEFORE_ANY_FURTHER_OPENING_RETRY"
   },
+  "dev005_birdeye_kkhot_mapping_20260930": {
+    "engineering_revision": "003f93e4384f66b0d6f811e314bb5b145fc04797 on codex/dev005-birdeye-kkhot",
+    "status": "LIVE_MAPPING_VERIFIED_PROVIDER_CAPACITY_BLOCKER_REMAINS",
+    "finding": "Only operation_monitor_worker was restarted from the KKHOT-mapped pinned launcher; PID 63098 cwd verifies that source root. Launcher syntax and KKHOT presence were verified without secret output. Four natural OPENING admissions retained the qualified 15+ second cadence, but the first retained result remains HTTP_400 Compute units usage limit exceeded. Therefore correcting the variable mapping did not by itself restore provider capacity.",
+    "safety": "No investigation-specific provider/RPC call, queue/row manual edit, budget/DEV-020/production change, or unrelated restart.",
+    "exact_next_action": "RECONCILE_BIRDEYE_KKHOT_ACCOUNT_COMPUTE_UNITS_ENTITLEMENT_OR_PROVIDER_CAPACITY_BEFORE_FURTHER_OPENING_RETRY"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

@@ -10,15 +10,15 @@
     "next_action": "DEV020_EVENT_DRIVEN_LIVE_SHADOW_ON_FROZEN_2VBD_SCOPE"
   },
   "dev005_watchtower_current_price_runtime": {
-    "engineering_revision": "7b5c40cdfbc42bbe582aac6b5bd611624e05cf82 on codex/dev005-historical-retry-cadence, based exactly on deployed DEV runtime lineage 0d820931",
-    "status": "QUALIFIED_NOT_DEPLOYED",
-    "finding": "Live DEV evidence identified the 15M_EVIDENCE hot loop: an overdue WATCHTOWER 15m message experiencing an ordinary retryable provider failure was rescheduled at now+2 seconds, so the five-second worker loop repeatedly reclaimed it. The isolated repair gives WATCHTOWER and WATCHTOWER_DEEP 15m retryable failures the next completed 15-minute boundary plus five seconds. Existing empty-result boundary scheduling, DEV-009 rate-limit deadlines, DEV-012 budget deferral, durable recovery, and the null-entry fix remain covered.",
-    "audit": "docs/audits/dev005_historical_retry_cadence.v1.json (candidate commit 7b5c40cdfbc42bbe582aac6b5bd611624e05cf82)",
-    "tests": "37 provider-free tests passed, 0 failed: new durable historical retry cadence plus DEV-009, DEV-010, DEV-011, DEV-012, and null-entry regressions.",
+    "engineering_revision": "893daab3358a6f0aa69a2e3ab2b62a84a28f432a on codex/dev005-generic-strict-migration-adapter, based on policy lineage 35feceb0 plus historical retry fix 7b5c40c",
+    "status": "PARTIAL_NOT_DEPLOYED",
+    "finding": "The isolated candidate adds STRICT_MIGRATION_WINDOW_1S as a bounded migration+1 request identity and delegates it directly to MonitorBirdeyeTransport.acquire_watchtower_entry, preserving the one Birdeye parser/normalizer and DEV-012 gate. Direct/generic fixture parity, malformed/empty/wrong-second controls, and structured 429 behavior pass. The full requested automatic multi-token lifecycle has not been qualified: the inherited final DEV-011 fairness fixture does not return in this candidate environment and no complete six-token lifecycle fixture exists.",
+    "audit": "docs/audits/dev005_generic_strict_migration_transport.v1.json (candidate commit 893daab3358a6f0aa69a2e3ab2b62a84a28f432a)",
+    "tests": "48 provider-free tests passed, 0 failed; one inherited DEV-011 scheduler fairness test deselected after its final fixture case failed to return.",
     "safety": "No running DEV worker, supervisor configuration, queue, database, provider/RPC, production classification, or DEV020 state changed. Candidate is isolated and not deployed. RUNTIME_DEPLOYMENT_GATE=HOLD.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD",
-    "next_action": "IMPLEMENT_AND_QUALIFY_GENERIC_BIRDEYE_STRICT_MIGRATION_WINDOW_REQUEST_FAMILY_ADAPTER"
+    "next_action": "ADD_COMPLETE_PROVIDER_FREE_AUTOMATIC_HISTORICAL_LIFECYCLE_AND_MULTI_TOKEN_FIXTURE_THEN_RERUN_FULL_DEV011"
   },
   "dev020_tiny_live_treasury_recipient_accumulation": {
     "engineering_revision": "83fc8efaac32130069f0f544f83474f1ba5836e0 on codex/watchtower-treasury-recipient-retention",

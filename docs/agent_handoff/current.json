@@ -10,15 +10,15 @@
     "next_action": "DEV020_EVENT_DRIVEN_LIVE_SHADOW_ON_FROZEN_2VBD_SCOPE"
   },
   "dev005_watchtower_current_price_runtime": {
-    "engineering_revision": "ff93eb05d19a8322e256c01e9e588bde81541ee0 on codex/dev005-canonical-birth-projection, based on 44522c76 / deployed healthy lineage 0d820931",
-    "status": "PARTIAL_BIRTH_PROJECTION_QUALIFIED_HISTORICAL_CADENCE_CONFLICT",
+    "engineering_revision": "f9c4e2b6c48878452410fec77d7c7c73a81b246c on codex/dev005-historical-15m, based on ff93eb05",
+    "status": "PARTIAL_SCHEDULER_SEPARATION_QUALIFIED",
     "finding": "A provider-free, deterministic CanonicalLaunchBirthProjection now reads retained immutable CREATE evidence when present and the retained launch authority otherwise. Current Watchtower coverage is 540 assigned, 534 complete creator/signature pairs, zero conflicts, and six insufficient rows, all fail-closed. Reconciliation admits the existing strict-opening path only after assignment plus complete retained birth evidence. However, the inherited candidate's DEV-only 15-second live-current scheduler conflicts with this gate's explicit historical completed-15-minute cadence, so complete lifecycle/deployment remains unqualified.",
-    "audit": "docs/audits/dev005_canonical_birth_projection.v1.json (candidate commit ff93eb05)",
-    "tests": "41 provider-free tests PASS, 0 failed: canonical birth (2), DEV005 recurring (3), DEV009 (11), DEV010 (6), DEV011 (9), DEV012 (6), null-entry (4).",
+    "audit": "docs/audits/dev005_historical_15m_orchestration.v1.json (candidate commit f9c4e2b6)",
+    "tests": "43 provider-free tests PASS, 0 failed.",
     "safety": "No deployed runtime, supervisor config, queue, database, provider/RPC, production classification, or DEV020 state changed. RUNTIME_DEPLOYMENT_GATE=HOLD.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD",
-    "next_action": "RECONCILE_DEV005_CURRENT_PRICE_ORCHESTRATION_WITH_HISTORICAL_15M_CADENCE_BEFORE_DEPLOYMENT"
+    "next_action": "QUALIFY_END_TO_END_WATCHTOWER_HISTORICAL_15M_LIFECYCLE_FIXTURE"
   },
   "dev020_tiny_live_treasury_recipient_accumulation": {
     "engineering_revision": "83fc8efaac32130069f0f544f83474f1ba5836e0 on codex/watchtower-treasury-recipient-retention",

@@ -17344,6 +17344,18 @@
     "safety": "Running operation_monitor_worker remains PID 21344 from the separate coherent 34d1ed95 runtime. Supervisor/live rows/live queues/budgets/DEV-020 were not manually changed; intentional provider/RPC calls=0. The repair introduces no queue identities, file types, polling loops, raw retention, or unbounded growth path; existing queue/replacement cap=10,000,000 bytes.",
     "exact_next_action": "AUTHORIZE_MINIMAL_STALE_OPENING_SELF_HEAL_DEPLOYMENT_AND_VERIFY_18_ROW_LIVE_RECONCILIATION"
   },
+  "dev005_stale_opening_self_heal_live_deployment_20260930": {
+    "engineering_revision": "d54076890d31ddca08f68996ee9d55f2973cbc08 deployed from isolated codex/dev005-stale-opening-self-heal then rolled back to 34d1ed95329d5025d73a722a66396788d4693388",
+    "status": "ROLLED_BACK_OPENING_WORKER_TICK_CADENCE",
+    "verdict": "DEV005_STALE_OPENING_SELF_HEAL_LIVE_STATUS=ROLLED_BACK_OPENING_WORKER_TICK_CADENCE",
+    "predeploy": "PASS: d5407689 cleanly descended from 34d1ed95; one healthy worker; state root/env/DB/queue/budget configuration preserved; exact population remained 16 stale plus 2 pending.",
+    "self_heal_result": "Normal run_once reconciliation converged all 18 entry-null Watchtower facts to WAITING_FOR_ENTRY_REFERENCE, stale active/unresolved=0, fabricated Entry=0, queue identity preserved, duplicate jobs=0, self-heal provider calls=0. Dashboard read-only projection shows all 18 waiting rows. Qualified count remained 22 and terminal count remained 19.",
+    "rollback": "A prohibited natural OPENING cadence appeared at approximately 5-11 second intervals once all rows became opening eligible; at least 18 natural opening admissions were observed across candidate and restored runtime. Source rollback alone did not stop it because pending queue state is shared, so only operation_monitor_worker was stopped after restoration to 34d1ed95. Fatal exits=0; no historical call before Entry, historical failure storm, manual row edit, queue clear, Entry fabrication, price/ATH backfill, membership/budget/DEV-020 change, trading enablement, or unrelated restart.",
+    "artifact": "docs/audits/dev005_stale_opening_self_heal_live_deployment.v1.json",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "FAIL_ROLLED_BACK",
+    "exact_next_action": "QUALIFY_A_GLOBAL_FAIR_OPENING_ADMISSION_CADENCE_FOR_THE_18_PENDING_ROWS_BEFORE_RESTARTING_OPERATION_MONITOR_WORKER"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

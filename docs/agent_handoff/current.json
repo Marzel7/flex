@@ -17210,6 +17210,18 @@
     "deployment_contract": "docs/audits/watchtower_deep_classification_deployment_contract.v1.json sha256 182c952f380d7e25e3f5c2523398f1f22765355f4ef596b0edbcbd2170763636; authorized=false.",
     "next_action": "REVIEW_WATCHTOWER_DEEP_CLASSIFICATION_IMPLEMENTATION"
   },
+  "dev005_pending_opening_clean_qualification_20260930": {
+    "engineering_revision": "d7665f725b03ef5f2d6e891c6bdb8828f5e01ea1",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "verdict": "DEV005_DURABLE_MIGRATION_OPENING_STATUS=QUALIFIED_NOT_DEPLOYED",
+    "tests": "41 passed: pending opening lifecycle/recovery, DEV-009/010/011/012, historical cadence, null-entry",
+    "provider_calls": 0,
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "NOT_RUN",
+    "production_state_changed": false,
+    "artifact": "docs/audits/dev005_confirmed_watchtower_opening_gap.v1.json",
+    "exact_next_action": "REVIEW_AND_AUTHORIZE_RUNTIME_DEPLOYMENT_GATE_FOR_THE_QUALIFIED_CLEAN_COMMIT"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

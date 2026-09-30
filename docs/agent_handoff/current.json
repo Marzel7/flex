@@ -17435,6 +17435,16 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "exact_next_action": "RECONCILE_LIVE_OPENING_WORKER_TO_QUALIFIED_KKHOT_MAPPING_AND_RESUME_BOUNDED_OPENING_QUEUE"
   },
+  "dev005_live_kkhot_opening_reconciliation_20260930": {
+    "engineering_revision": "Live runtime already at 003f93e4384f66b0d6f811e314bb5b145fc04797; no mutation in this gate",
+    "status": "HOLD_PREIMAGE_SCOPE_MISMATCH_NO_LIVE_RESUME",
+    "finding": "Read-only final preimage proves operation_monitor_worker PID 63098 already runs the pinned KKHOT launcher and that launcher maps BIRDEYE_API_KEY solely from BIRDEYE_KKHOT. The earlier retained RILEY HTTP400 failures predate this mapping. However, the shared live opening queue now has 21 distinct unresolved Watchtower pending mints (42 messages total), not the explicitly authorized 18-mint scope. Continuing/resuming live opening work would include three extra mints, so no restart, resume action, provider call, or observation was performed.",
+    "artifact": "docs/audits/dev005_live_kkhot_opening_reconciliation.v1.json",
+    "safety": "Queue preserved; state root/DB/ledger unchanged; worker remains exactly one; DEV012 budgets unchanged; no provider/RPC/DEV020 change.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "exact_next_action": "RECONCILE_AND_AUTHORIZE_THE_EXPANDED_21_MINT_PENDING_OPENING_SCOPE_BEFORE_ANY_LIVE_QUEUE_RESUME_OR_OBSERVATION"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

@@ -17291,6 +17291,22 @@
     "artifact": "docs/audits/dev005_monitor_env_syntax_repair.v1.json",
     "exact_next_action": "AUTHORIZE_MINIMAL_CWD_ISOLATION_FIX_FOR_THE_COHERENT_LAUNCHER_THEN_RERUN_CLOSURE_TESTS_AND_AUTHORIZE_WORKER_RESTART"
   },
+  "dev005_cwd_isolated_runtime_20260930": {
+    "base_qualified_commit": "d7665f725b03ef5f2d6e891c6bdb8828f5e01ea1",
+    "prior_coherent_commit": "60c6ca37aba8c1ea2fc7f00c84d08980e09db9fd",
+    "engineering_revision": "34d1ed95329d5025d73a722a66396788d4693388",
+    "status": "QUALIFIED_CWD_ISOLATED_RUNTIME_NOT_STARTED",
+    "pre_fix": "Foreign caller CWD loaded dirty runtime modules.",
+    "fix": "Self-rooted launcher changes to ROOT before every Python invocation.",
+    "post_fix": "Identity from coherent root, dirty runtime root, and neutral temporary directory all loaded the coherent service/worker source paths while preserving external runtime state root.",
+    "tests": "44 passed, 0 failed, provider calls 0",
+    "env": "syntax valid; BIRDEYE_KKHOT, BIRDEYE_RILEY, HELIUS_RPC_URL, HELIUS_API_KEY present/nonempty; no secret output.",
+    "rollback_qualified": true,
+    "supervisor_switch_config_qualified": true,
+    "worker": "STOPPED; no restart performed.",
+    "safety": "No Supervisor, database, queue, provider, runtime, production, DEV-020, or dirty-runtime change.",
+    "exact_next_action": "AUTHORIZE_SINGLE_OPERATION_MONITOR_WORKER_START_ON_CWD_ISOLATED_COHERENT_RUNTIME_AND_RESUME_LIVE_VERIFICATION"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

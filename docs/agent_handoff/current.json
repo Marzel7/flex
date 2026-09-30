@@ -17222,6 +17222,21 @@
     "artifact": "docs/audits/dev005_confirmed_watchtower_opening_gap.v1.json",
     "exact_next_action": "REVIEW_AND_AUTHORIZE_RUNTIME_DEPLOYMENT_GATE_FOR_THE_QUALIFIED_CLEAN_COMMIT"
   },
+  "dev005_pending_opening_deployment_preflight_20260930": {
+    "engineering_revision": "d7665f725b03ef5f2d6e891c6bdb8828f5e01ea1",
+    "status": "HOLD_RUNTIME_PREIMAGE_DIVERGED",
+    "verdict": "DEPLOYMENT_NOT_EXECUTED_RUNTIME_LINEAGE_INCOMPATIBLE",
+    "candidate": "d7665f725b03ef5f2d6e891c6bdb8828f5e01ea1",
+    "runtime_checkout_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "observed_runtime_workspace": "materially dirty; includes live_opening_action_job.py and opening_sequence_aggregator.py experiment files",
+    "predeploy_runtime_identity_verified": false,
+    "qualified_commit_verified": true,
+    "rollback_qualified": false,
+    "deployment_executed": false,
+    "runtime_deployment_required": true,
+    "safety": "No Supervisor restart, runtime source mutation, provider call, queue mutation, or production change was performed. Supervisor status could not be read inside the filesystem sandbox.",
+    "exact_next_action": "PREPARE_A_CLEAN_RUNTIME_WORKTREE_OR_PINNED_CHECKOUT_AT_D7665F72_THEN_REPEAT_PREDEPLOY_IDENTITY_AND_ROLLBACK_CAPTURE"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

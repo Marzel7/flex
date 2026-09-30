@@ -17415,6 +17415,16 @@
     "runtime_deployment_reason": "Read-only provenance investigation; no executable or runtime state changed.",
     "exact_next_action": "IDENTIFY_WHAT_CHANGED_IN_BIRDEYE_1S_ACCOUNT_CAPACITY_OR_ENTITLEMENT_SINCE_LAST_SUCCESSFUL_OPENING"
   },
+  "dev005_birdeye_1s_capacity_change_20260930": {
+    "engineering_revision": "Read-only configuration/capacity trace; current launcher revision 003f93e4",
+    "status": "PARTIAL_CREDENTIAL_TRANSITION_PROVEN_ACCOUNT_CAPACITY_METADATA_UNAVAILABLE",
+    "finding": "The latest retained successful 1s opening is mint 8nh9…pump, acquired 2026-09-30T12:09:46Z under the historical BIRDEYE_RILEY launcher lineage. The first retained compute-limit failure after it is CbVT…pump at 14:11:00Z, also under BIRDEYE_RILEY, with the same documented V3 1s two-second migration window. The 7,274-second transition contains no relevant source/config change. Current launcher uses BIRDEYE_KKHOT; a secret-safe comparison proves KKHOT and RILEY are different configured credentials. KKHOT 1m access proves general authentication only. No account plan/balance/reset/usage metadata is retained, so RILEY exhaustion is supported but not quantified and current KKHOT 1s capacity is unproven.",
+    "artifact": "docs/audits/dev005_birdeye_1s_capacity_change.v1.json",
+    "safety": "OHLCV/RPC calls=0; worker/config/queues/rows/budgets/DEV020 unchanged. No retained failure in last ten minutes, which is not recovery evidence. Hold is recommended; reset time unknown.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only audit only.",
+    "exact_next_action": "RECONCILE_HISTORICAL_AND_CURRENT_BIRDEYE_CREDENTIAL_ENTITLEMENT_WITHOUT_EXPOSING_SECRETS"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

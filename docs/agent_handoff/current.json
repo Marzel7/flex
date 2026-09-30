@@ -17445,6 +17445,16 @@
     "runtime_deployment_gate": "HOLD",
     "exact_next_action": "RECONCILE_AND_AUTHORIZE_THE_EXPANDED_21_MINT_PENDING_OPENING_SCOPE_BEFORE_ANY_LIVE_QUEUE_RESUME_OR_OBSERVATION"
   },
+  "dev005_dynamic_watchtower_opening_scope_20260930": {
+    "engineering_revision": "Read-only scope reconciliation; controlled rollback stop only",
+    "status": "ROLLBACK_WORKER_CRASH_LOOP_BEFORE_LIVE_OPENING_OBSERVATION",
+    "finding": "The 18->21 delta is exactly GQo6…pump, 94iE…pump, and GVeQ…pump. Each is a CONFIRMED WATCHTOWER assignment with canonical migrated state, null Entry, and nonterminal pending-opening semantics, so dynamic confirmed-Watchtower scope is qualified and count changes alone are no longer a hold. Before any natural KKHOT opening after this authorization, the worker crash-looped in reconcile_terminal_ath_jobs: a null entry_timestamp was passed to WatchtowerTerminalAthFinalizer.logical_job_identity. Its launcher also repeatedly logged a shared .env unmatched-quote parse failure. Under the explicit rollback condition, only operation_monitor_worker was stopped."
+    ,"artifact": "docs/audits/dev005_dynamic_watchtower_opening_scope.v1.json",
+    "safety": "No post-authorization opening provider attempt, entry, queue/row mutation, budget/credential/DEV020 change, restart, or unrelated service action. Queue is preserved; global 15s/4-per-minute controls unchanged.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "FAIL_ROLLED_BACK",
+    "exact_next_action": "REPAIR_AND_QUALIFY_OPERATION_MONITOR_WORKER_NULL_ENTRY_TERMINAL_FINALIZER_GUARD_AND_MONITOR_ENV_PARSE_BEFORE_RESTARTING_THE_DYNAMIC_KKHOT_OPENING_SCOPE"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

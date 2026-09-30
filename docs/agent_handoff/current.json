@@ -17476,6 +17476,17 @@
     "runtime_deployment_gate": "HOLD",
     "exact_next_action": "QUALIFY_DURABLE_REDACTED_STRICT_OPENING_FAILURE_DIAGNOSTICS_THEN_TRACE_LIVE_VS_ISOLATED_KKHOT_REQUEST_CONTEXT_DIFFERENCE"
   },
+  "dev005_strict_opening_failure_diagnostics_20260930": {
+    "engineering_revision": "fa1c585543df60d80258795409ecf8d92942f362 on codex/dev005-birdeye-kkhot",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "finding": "A 1024-byte allowlist projection now persists strict-opening HTTP status, sanitized code/category, credential alias, job identity, timestamp, and structural request fingerprint at the precise prior information-loss boundary. It excludes secrets, headers, raw bodies/payloads, mint and unbounded text; provider-error decisions, cadence, retry, Entry and historical semantics are unchanged.",
+    "artifact": "docs/audits/dev005_strict_opening_failure_diagnostics.v1.json",
+    "tests": "41 provider-free passed, 0 failed; response/redaction/fingerprint controls included; provider calls=0.",
+    "safety": "Worker remains STOPPED; no deployment, provider/RPC calls, queue/row/budget/credential/DEV020/production change.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_AUTHORIZATION",
+    "exact_next_action": "DEPLOY_REDACTED_DIAGNOSTICS_AND_CAPTURE_MINIMUM_LIVE_KKHOT_FAILURE_SAMPLE"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

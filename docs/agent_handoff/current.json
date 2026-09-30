@@ -17455,6 +17455,17 @@
     "runtime_deployment_gate": "FAIL_ROLLED_BACK",
     "exact_next_action": "REPAIR_AND_QUALIFY_OPERATION_MONITOR_WORKER_NULL_ENTRY_TERMINAL_FINALIZER_GUARD_AND_MONITOR_ENV_PARSE_BEFORE_RESTARTING_THE_DYNAMIC_KKHOT_OPENING_SCOPE"
   },
+  "dev005_runtime_restart_blockers_20260930": {
+    "engineering_revision": "30de61246d7561f3f69bde90b3e959a805abab56 on codex/dev005-birdeye-kkhot",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "finding": "The crash loop was a lineage divergence: the stopped process used shared operation_monitor_worker.py sha256 d2792eb1, whereas the pinned candidate is sha256 f0a1415c and preserves both null-entry admission and reconciliation guards. A 21-token null-entry/restart fixture and the full provider-free DEV005 suite pass. The retained .env line-14 unmatched-quote error predates this gate; the selected file now has the same previously qualified digest, parses under /bin/sh, and provides the required monitor keys without an environment edit. Launcher identity mode proves imports remain in the pinned checkout from both pinned and unrelated caller CWDs while keeping the existing state root.",
+    "artifact": "docs/audits/dev005_runtime_restart_blockers.v1.json",
+    "tests": "34 provider-free passed, 0 failed; provider/RPC calls=0.",
+    "safety": "operation_monitor_worker remains STOPPED; no restart/deployment, queue/row/budget/credential/DEV020/production change. No secret values were emitted; BIRDEYE_KKHOT and unrelated environment values changed=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_AUTHORIZATION",
+    "exact_next_action": "AUTHORIZE_REPAIRED_RUNTIME_DEPLOYMENT_AND_RESUME_DYNAMIC_KKHOT_OPENING_SCOPE"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

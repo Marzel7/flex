@@ -17379,6 +17379,14 @@
     "completion": "593-second bounded observation: worker PID 48635 stayed RUNNING from 9414b6d5; opening spacing remained >=15 seconds and rolling maximum <=4/minute; 18 pending rows, stale=0, fabricated Entry=0, pre-entry historical calls=0, natural 15m evidence observed, no hot loop/storm/crash/duplicate/budget change. No Entry or new launch observed.",
     "exact_next_action": "CONTINUE_EVENT_DRIVEN_WATCHTOWER_OPENING_OBSERVATION"
   },
+  "dev005_live_opening_outcome_trace_20260930": {
+    "engineering_revision": "9414b6d542c1eedb821ba13c3aa63bf06fc7bf1f; read-only trace",
+    "status": "HOLD_PROVIDER_COMPUTE_UNITS_CAPACITY",
+    "finding": "All 18 qualified-cadence opening admissions passed retained prerequisite/migration/policy and DEV-012 admission, invoked the opening transport, and retained fresh HTTP_400 Compute units usage limit exceeded responses. No response reached strict migration+1 normalization, so required-second evidence, Entry creation, and Entry persistence are all zero. This is one common provider-response blocker, not a token-specific entry-policy failure.",
+    "artifact": "docs/audits/dev005_live_opening_outcome_trace.v1.json",
+    "safety": "Read-only; investigation provider/RPC calls=0; worker configuration, queue, rows, budget, DEV-020, and production unchanged.",
+    "exact_next_action": "RECONCILE_PROVIDER_COMPUTE_UNITS_CAPACITY_OR_CREDENTIAL_ENTITLEMENT_BEFORE_ANY_FURTHER_OPENING_RETRY"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

@@ -1,4 +1,15 @@
 {
+  "flex_database_growth_incident_20261001": {
+    "engineering_revision": "fe1b4a733f40765fe33150a56d8b5b8522708967 in the engineering workspace; no source, database, schema, configuration, or process change",
+    "status": "PARTIAL_READONLY_ATTRIBUTION_NO_DOMINANT_PRIMARY_DB_GROWTH",
+    "finding": "Read-only T0 2026-10-01T17:02:29Z to T+1524s 2026-10-01T17:27:53Z: flex_complete_database.db grew 286720 bytes (0.273 MiB) and wt_ops_v2.db grew 3665920 bytes (3.496 MiB), while filesystem used space grew 64444 KiB (62.93 MiB). The two primary databases therefore account for only 3.769 MiB (6.0%) of observed capacity consumption in this window; historical capacity loss cannot be attributed from this bounded observation. Available space remains 9763580 KiB (9.31 GiB), above the 3 GiB emergency containment threshold.",
+    "writers": "Confirmed live handles: ws_cascade PID 4163 is the wt_ops_v2 writer; walkback_worker PID 64008 also has wt_ops_v2 update/read handles; current flex writer PID 70215 was observed. operation_scheduler PID 14698 cwd is /Users/kevinkeaveney/Production/flex-scheduler but had no current handle to either primary DB. Process cwd/source parity is not established.",
+    "sqlite": "flex: page_size=4096, page_count=8519761, freelist=24, journal_mode=delete. wt_ops: page_size=4096, page_count=2930352, freelist=151, journal_mode=wal. sqlite_stat1 is absent in both; dbstat was unavailable/unsafe for a multi-GB live scan, so object-allocation and exact-table-growth attribution were deliberately not claimed.",
+    "safety": "Read-only commands only; no DELETE, VACUUM, checkpoint, REINDEX, schema change, process stop/restart, provider/RPC, trading, or database mutation. lsof +L1 found no deleted flex production database/log handle. No new storage-producing feature or artifact created.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Diagnostic-only read-only incident assessment.",
+    "next_action": "OBSERVE a longer bounded, read-only filesystem-and-file-size series and inspect non-database consumers before selecting containment. If free space falls below 3 GiB, stop nonessential writers only with explicit operator authorization and fresh process-to-handle evidence; do not target PID 14698 on this evidence."
+  },
   "dev013_haaw_unchanged_byzantine_compatibility": {
     "engineering_revision": "fe1b4a733f40765fe33150a56d8b5b8522708967 on codex/dev013-watchtower-helius-entry",
     "status": "INSUFFICIENT_INPUT_CONTRACT",

@@ -1,4 +1,14 @@
 {
+  "flex_filesystem_capacity_loss_attribution_v2_20261001": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; read-only host attribution, no source/runtime/database change",
+    "status": "FLEX_FILESYSTEM_CAPACITY_CAUSE_PARTIAL",
+    "finding": "At 2026-10-01T17:55:28Z available space was 10649484 KiB (10.16 GiB); at 18:02:24Z it was 9529832 KiB (9.09 GiB), a 1.07 GiB free-space decrease across a short, non-uniform sample. flex primary grew 4940272 bytes and wt_ops grew 11550720 bytes in the same broad window, so they do not explain the movement. No large deleted-open file was found. APFS snapshot enumeration was unavailable through DiskManagement, so snapshot attribution is unresolved.",
+    "ranked_capacity_consumers": "Existing non-FLEX consumers include /private/tmp=6520652 KiB, chiefly /private/tmp/mission-control-authority-isolated-20260929=3943772 KiB; ~/.codex=6840960 KiB (worktrees=2371952 KiB, sessions=2194264 KiB, archived_sessions=616788 KiB); workspace .git/objects=2171732 KiB. Open Codex files include a 860276760-byte session JSONL, 566972416-byte thread_history SQLite, and 335687680-byte logs SQLite. User Library branches are also material: Containers=7266272 KiB, Caches=7000700 KiB, Application Support=6346956 KiB. These are capacity consumers, not proven active causes.",
+    "safety": "Read-only df/stat/du/find/lsof/APFS inspection only. No deletion, cache purge, snapshot action, git maintenance, VACUUM, checkpoint, process action, or database mutation. No new storage-producing artifact.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Host filesystem diagnosis only.",
+    "next_action": "Obtain a genuinely continuous 10-minute read-only free-space/file-size series from an external scheduler or terminal that can survive command time limits; pair it with APFS snapshot visibility. Do not select cleanup or process containment from static-size evidence alone."
+  },
   "flex_database_growth_incident_20261001": {
     "engineering_revision": "fe1b4a733f40765fe33150a56d8b5b8522708967 in the engineering workspace; no source, database, schema, configuration, or process change",
     "status": "PARTIAL_READONLY_ATTRIBUTION_NO_DOMINANT_PRIMARY_DB_GROWTH",

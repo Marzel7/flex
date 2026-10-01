@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import sqlite3
 import sys
@@ -142,7 +143,8 @@ def request_once(control, key):
 
 def percentile(values, point):
     if not values: return None
-    ordered = sorted(values); return ordered[max(0, min(len(ordered)-1, int((len(ordered)-1)*point)))]
+    # Frozen nearest-rank percentile: P95 is conservative for a small cohort.
+    ordered = sorted(values); return ordered[max(0, min(len(ordered)-1, math.ceil(len(ordered)*point)-1))]
 
 
 def metrics(records):

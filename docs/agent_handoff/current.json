@@ -1,6 +1,6 @@
 {
   "dev013_watchtower_helius_5_control": {
-    "engineering_revision": "0a8d646ad6e01ed357e6ce9b130ddab60766a514 on codex/dev013-watchtower-helius-entry",
+    "engineering_revision": "6d8f8874647e65769cc413b7c735f2cad1b19da3 on codex/dev013-watchtower-helius-entry",
     "status": "FAIL_ONCHAIN_RECONSTRUCTION_CONTROL_TEST",
     "finding": "After the preflight handoff was remote-verified, the frozen five-control experiment made 7/20 bounded Helius RPC calls with no retries, pagination, waiting-token calls, or raw retention. Three known migration getTransaction calls were provider failures; two controls reached the migration getBlock and had no successful post-migration PumpSwap transaction in that frozen same-slot block. Qualified on-chain MC controls=0/5 (0%); no error statistic applies. The experiment fails closed and cannot be used as a Watchtower fallback.",
     "audit": "docs/audits/dev013_watchtower_helius_5_control.v1.json",

@@ -1,4 +1,15 @@
 {
+  "dev005_production_ath_live_deployment": {
+    "engineering_revision": "qualified candidate 1de6fc1dc9b911a7205219568e2d038cfbf2be55 deployed as production source 2c9beaf70a840c0c1da0da27361614e8faa05db8",
+    "status": "PASS_ATH_PEAK_UI_RESTORED",
+    "finding": "Only the production standalone Live Tokens template mapper changed. It now preserves final ATH precedence and shows the retained high-watermark for terminal pending CANDLE_HIGH rows. GVeQ projects $486.9K, haAw $166.7K, and three additional terminal controls project retained peaks. All 32 qualified retained-ATH rows now render a numeric ATH; two WAITING rows with retained history remain dash by their no-qualified-Entry contract.",
+    "audit": "docs/audits/dev005_production_ath_live_deployment.v1.json",
+    "deployment": "watchtower_api only restarted and is RUNNING pid 12362. operation_monitor_worker remained RUNNING as the same PID 67245; no supervisor source change.",
+    "safety": "Facts rows/retained peaks/provider-call total/drawdown rows stayed 48/34/647/33; queue stayed 51 files; provider calls=0; no budget, credential, DEV020, monitor, queue, or backend change.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "next_action": "CONTINUE_NORMAL_DEV005_HISTORICAL_OPERATION"
+  },
   "dev005_production_ath_projection": {
     "engineering_revision": "production preimage 96b7add12844ba3eccbe7d9c9076aa3e99becf78; isolated candidate 1de6fc1dc9b911a7205219568e2d038cfbf2be55",
     "status": "QUALIFIED_PRODUCTION_DASHBOARD_FIX_NOT_DEPLOYED",

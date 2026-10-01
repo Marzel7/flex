@@ -21,6 +21,16 @@
     "runtime_deployment_required": false,
     "next_action": "If space pressure requires a future retirement pass, first obtain an explicit completed migration/cutover and rollback-closure contract, prove a compact replacement for every required canonical fact, and migrate or retire current qualification/replay readers. Re-audit before any destructive action."
   },
+  "dev014_host_wide_git_storage_forensic_audit_20261001": {
+    "engineering_revision": "699930c2c6dfabdf832b25c8cd7c5e0eb7b134bc on codex/dev014-global-storage-safety; host-wide read-only Git metadata audit",
+    "status": "GIT_STORAGE_NOT_MATERIAL_TO_RECENT_CAPACITY_LOSS",
+    "finding": "All discovered Flex, Production, /private/tmp, Claude, and Codex Flex checkouts resolve to one shared common directory, /Users/kevinkeaveney/Dev/claude/flex/.git; they do not duplicate full object stores. That common directory is 2,291,535,872 allocated bytes, with 2,229,735,424 bytes under objects and 178,388,992 bytes under pack. Two unrelated Codex repositories add 20,926,464 bytes, for 2,312,462,336 total unique Git bytes. No alternates or LFS storage were found. Only one pack exceeds 50 MiB (75,109,874 bytes); a 93,795,904-byte loose JSONL object and that pack are the only recent >=50 MiB object files, far below the apparent 14+ GiB loss. count-objects reports 1.90 GiB loose objects, 170.11 MiB packed, 24 garbage objects / 4.70 MiB. No temp packs were found.",
+    "index_lock": "Root .git/index.lock existed at inspection but was zero-byte, created 2026-10-01T21:26:59+01:00, and had no open handle. No Git fetch/gc/repack/maintenance process was observed; retained evidence cannot attribute the lock creator.",
+    "safety": "Read-only inspection only; no Git maintenance, cleanup, object/worktree/branch/repository deletion, database/process/config/runtime mutation, provider/RPC call, or network action. RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "reclaim": "No deletion is authorized. DUPLICATE_CLONE_CANDIDATE=0 bytes because Flex checkouts share the sole common object store; TEMP_PACK_CANDIDATE=0; LFS_CANDIDATE=0; at most 4.70 MiB of Git-reported garbage requires a separate safe-reclamation qualification.",
+    "runtime_deployment_required": false,
+    "next_action": "Investigate non-Git host storage for the unexplained capacity loss. If Git cleanup is later requested, qualify a narrow, lock-safe maintenance procedure against the shared root common directory and separately preserve all active worktree state."
+  },
   "retained_acquisition_v2_final_storage_safety_gate_20261001": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa plus local uncommitted V2 guard diff: src/acquisition/retained_observations.py sha256 3c36389bd66b82fa43574091f9aebb69d7e348d6cbf85624e1ed5a1647dc0d90; tests/test_retained_acquisition_v2_artifact_limit.py sha256 f141d424564b77764a1e2889512312571a55a3c358675ede642c1af1d28ec663. Engineering commit blocked because the root worktree .git/index.lock is repeatedly recreated.",
     "status": "STORAGE_GUARD_QUALIFIED_RUNTIME_IDENTITY_PENDING",

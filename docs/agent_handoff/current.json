@@ -1,4 +1,16 @@
 {
+  "dev013_watchtower_helius_reuse_preflight": {
+    "engineering_revision": "5244c5f25b8b11434e49aa5b7ee6bbe1f5fa4b9a on codex/dev013-watchtower-helius-entry, based on e21867c1591931720bf85d17beaccf0e226097ee",
+    "status": "PASS_READY_FOR_BOUNDED_5_CONTROL_EXPERIMENT",
+    "finding": "DEV-013's isolated no-RPC audit found the qualified bounded Byzantine Pump.fun opening executor reusable for injected one-attempt Helius transport, block-based same-slot ordering, compact identity, fixed ceilings, and fail-closed evidence handling. Byzantine Scenario-D and Pump.fun TradeEvent/reserve semantics are excluded. A future PumpSwap-specific parser/reserve/FX policy adapter is required but does not require a new RPC framework. Retained Watchtower authority has migration signature, timestamp, slot, pool and creator, so address-history discovery is not required.",
+    "audit": "docs/audits/dev013_watchtower_helius_reuse_preflight.v1.json",
+    "tests": "28 passed: tests/test_birth_anchored_opening_acquisition.py, tests/test_pumpfun_opening_executor.py, tests/test_pumpfun_opening_impulse.py. Pytest cache permission warning only.",
+    "safety": "Helius/RPC/provider calls=0; DEV005 worker/runtime/state/entry/Birdeye/queue changes=0; DEV020 changes=0; trading=false; no executable reconstruction added; isolated state root only.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Architecture and provenance preflight only; no executable runtime behavior changed.",
+    "transport": "HANDOFF_TRANSPORT_DEGRADED: local handoff commit prepared; remote push was rejected by the environment's sensitive-egress policy.",
+    "next_action": "AUTHORIZE_DEV013_BOUNDED_5_CONTROL_HELIUS_RECONSTRUCTION"
+  },
   "dev005_t15_reacquisition": {
     "engineering_revision": "4c99791ec20a57f782f7c6fc387b3624427f4e66 on codex/watchtower-dev005-t15",
     "status": "HOLD_INSUFFICIENT_REPRODUCIBLE_CONTROL_SAMPLE",

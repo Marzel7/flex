@@ -1,4 +1,14 @@
 {
+  "dev005_single_worker_watchtower_recovery_live": {
+    "engineering_revision": "b4a6468917ded2fa5aac99fdb4efff87a680cfa3 pinned runtime",
+    "status": "ROLLBACK_EXECUTED_NULL_ENTRY_FINALIZER_AND_ENV_PARSE_FAILURE",
+    "finding": "The exact pinned b4 KKHOT worker started once and immediately repaired both legacy qualified waiting controls: GVeQ and haAw are QUALIFIED+MONITORING_ACTIVE with their original Entry timestamp/MC and provider_call_count=0; 68T remained qualified terminal. Before any opening or historical dispatch, terminal-ATH reconciliation raised TypeError int(None) for a null entry and Supervisor restart attempts logged repeated .env unexpected-EOF parse failures. Worker was stopped immediately.",
+    "audit": "docs/audits/dev005_single_worker_watchtower_recovery_live.v1.json sha256 e6ba3bbc7efff91f51d906aae35122f40bedf12c65d79b2897e63329074a551f",
+    "safety": "Observation lasted 20 seconds and ended by authorized rollback. Worker STOPPED; duplicate workers=0; observed provider calls/openings/new entries/historical-before-entry=0; credentials/budgets/trading/DEV020/config changes during observation=0; queue not cleared.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "ROLLBACK_EXECUTED",
+    "next_action": "DIAGNOSE_AND_REPAIR_NULL_ENTRY_TERMINAL_FINALIZER_AND_ENV_PARSE_FAILURE_THEN_REQUALIFY_BEFORE_RESTART"
+  },
   "dev005_supervisor_kkhot_launcher_freeze": {
     "engineering_revision": "runtime pinned exactly at b4a6468917ded2fa5aac99fdb4efff87a680cfa3 in /Users/kevinkeaveney/.codex/worktrees/dev005-runtime-b4/flex",
     "status": "QUALIFIED_READY_TO_START",

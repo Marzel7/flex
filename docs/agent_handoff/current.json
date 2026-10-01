@@ -1,4 +1,18 @@
 {
+  "retained_acquisition_v2_final_storage_safety_gate_20261001": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa plus local uncommitted V2 guard diff: src/acquisition/retained_observations.py sha256 3c36389bd66b82fa43574091f9aebb69d7e348d6cbf85624e1ed5a1647dc0d90; tests/test_retained_acquisition_v2_artifact_limit.py sha256 f141d424564b77764a1e2889512312571a55a3c358675ede642c1af1d28ec663. Engineering commit blocked because the root worktree .git/index.lock is repeatedly recreated.",
+    "status": "STORAGE_GUARD_QUALIFIED_RUNTIME_IDENTITY_PENDING",
+    "finding": "The V2 path now rejects raw artifacts above 503316480 bytes (480 MiB) before digest/base64/tentative payload construction, durable-budget accounting, ArtifactStore, or SQLite. Rejection is deterministic ARTIFACT_SIZE_LIMIT_EXCEEDED, writes no partial raw artifact, consumes no allowance, and does not retry automatically. The preserved V2 controls are the 1 GiB cumulative durable payload cap, 10 GiB free-space floor, 128-entry bounded degraded journal, and startup reconciliation.",
+    "audit": "docs/audits/storage/retained_acquisition_v2_final_storage_safety_gate.v1.json sha256 6d197549298261805ee7470dc9958cc24da431782da6c064a0f4b841e56dab50",
+    "tests": "36 focused provider-free tests passed, 0 failed: artifact boundary/rejection/no durable side effect/no allowance consumption plus existing V2 budget, disk, shadow activation, legacy-retirement, and bounded-writer controls.",
+    "runtime": "PID 20506 cwd is /Users/kevinkeaveney/Production/flex-funding while inspected Supervisor static configuration names the development workspace and has legacy retained acquisition=0 and V2=1. Direct PID environment parity could not be read, so effective legacy/V2 flags and target paths remain UNPROVEN.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "runtime_deployment_reason": "Executable V2 source changed locally only. No runtime path/source parity, reload, running PID code identity, or bounded post-deployment acceptance was authorized or performed.",
+    "safety": "Provider/RPC/network calls=0; worker restart/process action/configuration or feature-flag mutation=0; no production database, artifact, journal, or cleanup mutation. New audit artifact is 2,137 bytes; the source design has a 480 MiB maximum single raw artifact, no raw partial on rejection, and no newly introduced unbounded growth path.",
+    "blocker": "Effective PID 20506 configuration/runtime target identity is unavailable, and the engineering worktree Git index lock is repeatedly recreated before the scoped source commit can complete. The local guard is not deployed and must not be treated as a production control.",
+    "next_action": "Resolve the external Git lock ownership non-destructively and commit the exact scoped source/test/audit diff; then separately authorize verification of effective PID flags and runtime target path, followed by a qualified deployment gate and bounded acceptance before any retained-acquisition resumption or reclamation decision."
+  },
   "retained_acquisition_recurrence_safety_audit_20261001": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa with a new compact audit artifact only; no runtime target changed",
     "status": "RETAINED_ACQUISITION_RECURRENCE_UNRESOLVED",

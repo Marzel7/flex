@@ -1,4 +1,14 @@
 {
+  "flex_safe_disk_reclamation_preflight_20261001": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; storage preflight only, no source/runtime/database/process change",
+    "status": "PARTIAL_NO_UNCONDITIONALLY_SAFE_10_GIB_RECLAIM_SET",
+    "finding": "No deletion was performed. /private/tmp/mission-control-authority-isolated-20260929 is 3943772 KiB, user-owned, not a Git worktree, has no observed open handle, and is 3678692 KiB audit material; it is LIKELY_SAFE_BUT_CONFIRM because its retained evidence may be unique. Codex state is ACTIVE/KEEP: thread_history_1.sqlite (567058432 bytes) and logs_2.sqlite (335687680 bytes) are open by Codex, while the 860294550-byte session JSONL grew 17790 bytes and thread history grew 86016 bytes across the available multi-minute snapshots. Current DEV013 worktree is KEEP. Two Codex worktrees are dirty/untracked and KEEP; remaining clean/no-open Codex worktrees total only about 1.8 GiB and require owner confirmation because they are recent branches. Caches are large but active: com.openai.codex 3232576 KiB, Google 1874684 KiB, VSCode ShipIt 1452216 KiB; they are not SAFE while respective applications/processes are active.",
+    "reclaim_estimate": "SAFE_TO_REMOVE=0 GiB; LIKELY_SAFE_BUT_CONFIRM=at least 3.76 GiB isolated temporary audit workspace, plus approximately 1.8 GiB clean Codex worktrees if their branch owners confirm; KEEP includes active Codex state, dirty worktrees, production/runtime stores, and Git objects. The 10-15 GiB target is not safely reachable from evidence gathered without confirmation or application shutdown.",
+    "safety": "Read-only stat/du/find/lsof/git status inspection only. No removal, cache clear, git gc/prune/worktree removal, process action, database action, or runtime change.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Storage inventory/preflight only.",
+    "next_action": "Obtain explicit owner confirmation for the isolated temporary audit workspace, then separately confirm each clean worktree branch is superseded before authorizing any removal. Close relevant applications before considering cache reclamation; reassess open handles immediately before any action."
+  },
   "flex_filesystem_capacity_loss_attribution_v2_20261001": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; read-only host attribution, no source/runtime/database change",
     "status": "FLEX_FILESYSTEM_CAPACITY_CAUSE_PARTIAL",

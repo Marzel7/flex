@@ -1,4 +1,14 @@
 {
+  "dev005_hours_opening_trace": {
+    "engineering_revision": "b4a6468917ded2fa5aac99fdb4efff87a680cfa3 pinned running monitor",
+    "status": "PASS_READ_ONLY_TRACE_HTTP200_ITEMS_NO_MIGRATION_PLUS_1",
+    "finding": "HOURS (EteLE6…Dpump) is confirmed with canonical migration 1790857966. Its strict opening was globally and DEV-012 admitted, dispatched under BIRDEYE_KKHOT, and returned HTTP 200 with nonzero provider items, but no migration+1 item. The strict normalizer therefore correctly rejects TARGET_SECOND_ABSENT; no Entry or historical 15m work is created. Dashboard due-now is stale because it reads next_observation_at rather than durable next_entry_evaluation_at.",
+    "audit": "docs/audits/dev005_hours_opening_trace.v1.json",
+    "safety": "Read-only trace; provider calls for investigation=0; no worker/Supervisor/fact/queue/budget/credential/DEV020 changes. Worker stayed single RUNNING PID 67245.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "No executable runtime behavior was changed; this is an observational trace only.",
+    "next_action": "KEEP_HOURS_PENDING_UNDER_CURRENT_STRICT_ENTRY_CONTRACT"
+  },
   "dev005_production_ath_live_deployment": {
     "engineering_revision": "qualified candidate 1de6fc1dc9b911a7205219568e2d038cfbf2be55 deployed as production source 2c9beaf70a840c0c1da0da27361614e8faa05db8",
     "status": "PASS_ATH_PEAK_UI_RESTORED",

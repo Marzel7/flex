@@ -1,4 +1,17 @@
 {
+  "retained_acquisition_recurrence_safety_audit_20261001": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa with a new compact audit artifact only; no runtime target changed",
+    "status": "RETAINED_ACQUISITION_RECURRENCE_UNRESOLVED",
+    "finding": "Historical legacy RetainedAcquisitionStore remains in source and is unbounded if enabled: it writes full response data/text/headers/raw-body-base64 into payload_json and an ArtifactStore artifact. The production-funding Supervisor file sets legacy=0 and V2=1, and static V2 uses a durable cumulative 1-GiB payload admission cap, 10-GiB disk floor before ArtifactStore.put, and bounded degraded queue=128. This prevents the historic tens-of-GiB path if those are the live flags. However PID 20506 cwd/source/config parity is not provable read-only: its cwd is Production/flex-funding while its service config points directory/PYTHONPATH to the development workspace; it has no current retained-path handle. Current runtime activation is therefore not proven.",
+    "critical_gap": "V2 has no per-artifact byte ceiling. Its cumulative admission bounds total retained raw content, but a single admitted ArtifactStore object can exceed the project 500-MB file limit. The rule is NOT_ENFORCED for this path.",
+    "artifact": "docs/audits/storage/retained_acquisition_recurrence_safety_audit_20261001.v1.json sha256 64764a0661c628f516ba3695b205669370a0afe22cb17a9c9eb5c30260655fa3 bytes 3437",
+    "safety": "Static/read-only source/config/lsof/stat audit; provider/RPC calls=0; runtime/config/database/process/cleanup mutations=0; artifact is compact and has no raw payload.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Audit-only artifact; no executable behavior changed.",
+    "cleanup_decision": "RECLAIM_ONLY_AFTER_GUARD_FIX",
+    "resumption_decision": "DO_NOT_RESUME_UNTIL_FIXED",
+    "next_action": "Separately authorize effective PID-20506 retention-env/path verification without secret disclosure; then add, test, and deploy a <=500-MB per-artifact cap before high-volume acquisition resumes."
+  },
   "flex_30gib_baseline_loss_forensic_audit_20261001": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; read-only historical capacity accounting",
     "status": "FLEX_30GIB_BASELINE_LOSS_PARTIAL",

@@ -1,4 +1,14 @@
 {
+  "dev005_recurring_runtime_failure_root_cause": {
+    "engineering_revision":"b4a6468917ded2fa5aac99fdb4efff87a680cfa3 remains qualified",
+    "status":"ROOT_CAUSE_IDENTIFIED_STALE_SUPERVISOR_PROGRAM_CONFIG_NOT_UPDATED",
+    "finding":"Retained live traceback imports operation_monitor_service, worker, and finalizer from the shared workspace, proving the failed process was not the pinned b4 runtime. b4 has the null-entry guard before logical identity; the stale program path reached int(fact.entry_timestamp). The current env passes the exact POSIX shell syntax check; failed EOF records are from the prior shared launcher. Supervisor reread alone marked the program changed but did not apply update before start.",
+    "audit":"docs/audits/dev005_recurring_runtime_failure_root_cause.v1.json sha256 f028fcafc760df9151e3e09d4f86c4fccdc8d12986ce737ab03782cc10e9ff2e",
+    "safety":"Worker STOPPED; provider calls=0; live state unchanged; no credentials or DEV020 changes.",
+    "runtime_deployment_required":true,
+    "runtime_deployment_gate":"HOLD",
+    "next_action":"APPLY_STOPPED_PROGRAM_SUPERVISOR_UPDATE_TO_PINNED_B4_THEN_RUN_PROVIDER_DISABLED_STARTUP_FIXTURE"
+  },
   "dev005_single_worker_watchtower_recovery_live": {
     "engineering_revision": "b4a6468917ded2fa5aac99fdb4efff87a680cfa3 pinned runtime",
     "status": "ROLLBACK_EXECUTED_NULL_ENTRY_FINALIZER_AND_ENV_PARSE_FAILURE",

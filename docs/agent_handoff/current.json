@@ -73,6 +73,13 @@
     "runtime_deployment_required": false,
     "next_action": "Before any HOT/COLD mutation, separately qualify backlog recovery and DEV-014 admission: a cumulative cold budget, segment-count/total-byte caps, bounded staging bytes, authoritative duplicate-residency accounting, and an explicit deployment gate. Do not run or modify the scheduled rollover from this audit."
   },
+  "dev013_first_available_mc_reconstruction_20261001": {
+    "engineering_revision": "f797dd4231bc5d5eacc1e29ed10d16b5a4b7ec4e is the user-specified isolated DEV-013 implementation target; not opened or modified in this gate",
+    "status": "HOLD_STORAGE_EMERGENCY_PRE_PHASE_A",
+    "finding": "The requested DEV-013 Phase A would copy roughly 1.9 MiB of recovered provider evidence and then run offline replays/tests and create Git artifacts. The immediately preceding live-capacity incident is at 2.26 GiB free / 99% full and is marked EMERGENCY_CONTAINMENT_REQUIRED. Per the incident safety rule, nonessential diagnostics and work stop below 5 GiB; no original evidence, cache, source, production state, WAITING rows, runtime, provider/RPC, or DEV-005 target was touched.",
+    "runtime_deployment_required": false,
+    "next_action": "Restore capacity through a separately authorized emergency containment/reclamation action, then rerun DEV-013 from Phase A against the specified original bundle and isolated commit."
+  },
   "dev014_burst_disk_loss_trigger_watch_20261001": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa shared workspace; diagnostic script and ignored local state only",
     "status": "EMERGENCY_CONTAINMENT_REQUIRED",

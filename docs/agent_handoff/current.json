@@ -41,6 +41,13 @@
     "runtime_deployment_required": false,
     "next_action": "Before any HOT/COLD mutation, separately qualify backlog recovery and DEV-014 admission: a cumulative cold budget, segment-count/total-byte caps, bounded staging bytes, authoritative duplicate-residency accounting, and an explicit deployment gate. Do not run or modify the scheduled rollover from this audit."
   },
+  "flex_live_disk_writer_capture_20261001": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa shared workspace; observational host capture only",
+    "status": "LIVE_DISK_WRITER_PARTIAL_NO_MATERIAL_GROWTH_WINDOW",
+    "finding": "Five-minute capacity window 2026-10-01T21:40:54Z through approximately 21:45:54Z: available space moved from 14,393,749,504 to 14,410,412,032 bytes (-15.9 MiB consumed; transiently recovered above baseline). flex_complete_database.db allocated size stayed 34,969,591,808 bytes and wt_ops_v2.db stayed 12,180,725,760 bytes. WALs fluctuated normally: FLEX 13,643,776 to 23,121,920 allocated bytes and WT 22,024,192 to 24,121,344. Final free was 14,364,688,384 bytes / 13.38 GiB. No user-visible writable regular open handle >=50 MiB was observed in the final lsof snapshot. Initial bounded totals: Codex sessions 2,265,337,856; Codex Library cache 3,310,157,824; Google cache 1,238,654,976; current var/folders user subtree 2,419,015,680 allocated bytes. Several broad roots exceeded strict diagnostic time limits, so exact end-of-window file metadata diff is intentionally not claimed.",
+    "safety": "Observational only: deletion/VACUUM/rollover/restart/kill/provider/RPC/git maintenance/cache clearing=0. An initial overly slow audit subprocess was interrupted before it produced a baseline; no files were created or retained. RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "next_action": "Keep historical HOT/COLD work paused. If another multi-GiB capacity fall begins, immediately run a lighter targeted capture against the already material Codex Library cache, Codex sessions, var/folders, and private tmp roots with per-root deadlines; do not infer a current dominant writer from this quiet window."
+  },
   "dev014_hot_90d_retirement_eligibility_20261001": {
     "engineering_revision": "699930c2c6dfabdf832b25c8cd7c5e0eb7b134bc on codex/dev014-global-storage-safety; read-only live HOT/COLD and pin-source audit",
     "status": "DEV014_HOT_ROLLOVER_BACKLOG_QUALIFIED",

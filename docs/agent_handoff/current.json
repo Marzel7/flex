@@ -1,4 +1,14 @@
 {
+  "dev013_first_available_ten_control_preflight_20261001": {
+    "engineering_revision": "4565cd137a29461ade41d9845f236614e8a2a99b on codex/dev013-watchtower-helius-entry; implementation preimage f797dd4231bc5d5eacc1e29ed10d16b5a4b7ec4e",
+    "status": "HOLD_CONTROL_COHORT_NOT_FULLY_RESOLVED",
+    "finding": "The ten-control provider qualification did not start. The authorization forbids calls unless all ten original controls and canonical Create/CreateV2 signatures are independently resolved. Retained DEV-013 evidence resolves BT5, DNs, EKt2, haAw and a non-listed GVeQ control, but not FYRT, EteL, AqY, GQo6, Fauj, or HPH. Substitution would violate the frozen-cohort contract.",
+    "audit": "docs/audits/dev013_first_available_10_control_preflight_hold.v1.json",
+    "safety": "Helius calls=0; Birdeye calls=0; retries=0; raw provider retention=0; DEV005/WAITING/runtime/DEV020/production/trading changes=0. Isolated DEV-013 worktree only.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Preflight evidence audit only; the dormant collector was not invoked.",
+    "next_action": "PROVIDE_OR_RECOVER_AN_IMMUTABLE_TEN_MINT_AND_CANONICAL_CREATE_SIGNATURE_MANIFEST_THEN_RERUN_THE_EXISTING_20_CALL_BOUNDED_QUALIFICATION"
+  },
   "dev013_watchtower_first_available_mc_20261001": {
     "engineering_revision": "f797dd4231bc5d5eacc1e29ed10d16b5a4b7ec4e on codex/dev013-watchtower-helius-entry",
     "status": "PARTIAL_PROVIDER_FREE_CONTRACT_QUALIFIED_CONTROL_REACQUISITION_REQUIRED",

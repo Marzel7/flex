@@ -1,9 +1,9 @@
 {
   "dev005_t15_reacquisition": {
-    "engineering_revision": "301fb9b46850c41f9c122ebb8618f72f7967027c on codex/watchtower-dev005-t15",
+    "engineering_revision": "4c99791ec20a57f782f7c6fc387b3624427f4e66 on codex/watchtower-dev005-t15",
     "status": "HOLD_INSUFFICIENT_REPRODUCIBLE_CONTROL_SAMPLE",
     "finding": "A frozen 16-control research cohort was acquired in its dedicated isolated worktree with precisely one Birdeye V3 1s request per control, no retries or replacements, and no waiting-token calls. Compact evidence and an append-only ledger were atomically written after each response; 12 responses were HTTP 429 and retained. Only discovery=2 and held-out=1 controls passed the frozen exact-or-close T+1 parity filter, below minima 8 and 3. T+15 statistical qualification was stopped; no implementation was added.",
-    "artifacts": "docs/audits/dev005_t15_reacquisition_manifest.v1.json sha256 83ddb0ae8d77f6555826a6e55518a729c698ca5cd3e9002635698da73f9ec8ce; docs/audits/dev005_t15_compact_control_evidence.v1.jsonl sha256 fb2130b71aad2fbd32ae32b2659ee2fcd8fe5c1062e07923b01191f28f299890; docs/audits/dev005_t15_acquisition_ledger.v1.jsonl sha256 73e3f9b50ba5325add313f4f5380fa091695b2b2419d655d4c7cc6e0b9289344; docs/audits/dev005_t15_reproducible_analysis.v1.json sha256 a7667defe374124efbf90cc72c621f9d49943ec44f26dd06922af4bc52364e76",
+    "artifacts": "docs/audits/dev005_t15_reacquisition_manifest.v1.json sha256 83ddb0ae8d77f6555826a6e55518a729c698ca5cd3e9002635698da73f9ec8ce; docs/audits/dev005_t15_compact_control_evidence.v1.jsonl sha256 fb2130b71aad2fbd32ae32b2659ee2fcd8fe5c1062e07923b01191f28f299890; docs/audits/dev005_t15_acquisition_ledger.v1.jsonl sha256 73e3f9b50ba5325add313f4f5380fa091695b2b2419d655d4c7cc6e0b9289344; docs/audits/dev005_t15_reproducible_analysis.v1.json sha256 0de6f2b7dc1c7b9f18395636d9906d77da3b09b4b8b3b54c9b95c07e24a54a9d",
     "tests": "py_compile passed; second provider-free analysis process read only the durable JSONL evidence and produced matching metrics.",
     "safety": "Research-only isolated state; live state writes=0, live monitor DB/queue/provider-ledger/fact writes=0, worker restarts=0, raw provider payload/header/credential retention=false, artifact files all below 500 MB.",
     "runtime_deployment_required": false,

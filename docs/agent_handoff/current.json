@@ -1,4 +1,14 @@
 {
+  "dev013_watchtower_entry_fallback_discriminator_audit": {
+    "engineering_revision": "270ce9109dfde55b7f68f0df6af148dcccdfdc99 on codex/dev013-watchtower-helius-entry",
+    "status": "DEV013_WATCHTOWER_ENTRY_DISCRIMINATOR_IDENTIFIED",
+    "finding": "Offline retained-evidence audit explains 0/5 as multiple blockers: 3 known-signature getTransaction provider failures left migration transaction ordering unavailable; 2 recovered migration blocks were deterministically ordered but had no successful post-migration PumpSwap transaction in that one frozen slot. Pool/migration identity is retained for all 5. All 5 independently lack retained post-swap PumpSwap reserve orientation, supply/decimals, and timestamped SOL/USD evidence, so no on-chain USD MC is reconstructable. Any such value would still not be Birdeye exact T+1 Entry.",
+    "audit": "docs/audits/dev013_watchtower_entry_fallback_discriminator_audit.v1.json",
+    "safety": "Offline only; provider/RPC/network calls=0; raw retention=0; DEV005/DEV020/trading/fallback implementation changes=0; artifact=8,430 bytes.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only diagnosis with no executable runtime change.",
+    "next_action": "DO_NOT_AUTHORIZE_FALLBACK_IMPLEMENTATION. Any new bounded acquisition needs separate authorization and must first freeze the complete first-swap coordinate plus reserve/supply/FX compact fact bundle."
+  },
   "dev013_watchtower_helius_5_control": {
     "engineering_revision": "6d8f8874647e65769cc413b7c735f2cad1b19da3 on codex/dev013-watchtower-helius-entry",
     "status": "FAIL_ONCHAIN_RECONSTRUCTION_CONTROL_TEST",

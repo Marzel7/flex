@@ -41,6 +41,14 @@
     "runtime_deployment_required": false,
     "next_action": "Before any HOT/COLD mutation, separately qualify backlog recovery and DEV-014 admission: a cumulative cold budget, segment-count/total-byte caps, bounded staging bytes, authoritative duplicate-residency accounting, and an explicit deployment gate. Do not run or modify the scheduled rollover from this audit."
   },
+  "dev014_hot_90d_retirement_eligibility_20261001": {
+    "engineering_revision": "699930c2c6dfabdf832b25c8cd7c5e0eb7b134bc on codex/dev014-global-storage-safety; read-only live HOT/COLD and pin-source audit",
+    "status": "DEV014_HOT_ROLLOVER_BACKLOG_QUALIFIED",
+    "finding": "At frozen cutoff 2026-07-03T21:00:47Z, all 925,182 HOT transfer_index rows older than 90 days were deterministically classified using repository pin precedence and the exact five-field COLD identity. 681,107 are uniquely pinned (661,845 creator-funder; 136 operator; 19,126 discovery). Of 244,075 unpinned rows, 435 have an exact COLD copy and are RETIREMENT_ELIGIBLE_NOW; 243,640 are COLD_MISSING and remain ROLLOVER_COPY_REQUIRED; mismatches, unresolved, invalid timestamps, and other-protected rows are zero. The historical 500-row checkpoint prefix (IDs 4..5262) is exactly 462 creator pins plus 38 discovery pins, proving low-ID ordering bias and non-representativeness. Code/checkpoint semantics prove starvation when cron creates a fresh run id: it revisits the same protected prefix. Current free space is 13.43 GiB, below the existing 20-GiB hard stop, so no rollover is authorized.",
+    "audit": "docs/audits/dev014/dev014_hot_90d_retirement_eligibility.v1.json; compact only; source digest fd4fbedad36396b1171f7f0c81c14606267107102e85eec186409ecf80e7ca6f",
+    "safety": "Read-only: HOT retirements=0, COLD writes=0, DB mutations=0, provider/RPC calls=0, process actions=0. Artifact has no raw signatures or addresses. RUNTIME_DEPLOYMENT_REQUIRED=false because no executable runtime target changed.",
+    "next_action": "Do not run rollover below its 20-GiB hard stop. Under separately authorized work, correct stable checkpoint/run-id and full pin-source cron wiring, then qualify a bounded copy-verify-retire pilot using the 243,640-row backlog; no retirement before exact COLD verification."
+  },
   "dev014_hot_database_purgeability_audit_20261001": {
     "engineering_revision": "699930c2c6dfabdf832b25c8cd7c5e0eb7b134bc on codex/dev014-global-storage-safety; read-only live-HOT audit",
     "status": "PARTIAL_NO_PURGE_SET_AUTHORIZED",

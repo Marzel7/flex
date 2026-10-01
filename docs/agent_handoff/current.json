@@ -1,4 +1,14 @@
 {
+  "dev005_ath_peak_dashboard_deployment": {
+    "engineering_revision": "qualified candidate in shared workspace; live watchtower_api runtime is production 96b7add12844ba3eccbe7d9c9076aa3e99becf78",
+    "status": "HOLD_PREDEPLOY_TARGET_PREIMAGE_MISMATCH",
+    "finding": "The qualified candidate changes the embedded Live Tokens renderer in templates/operators_index.html. The actual watchtower_api target is /Users/kevinkeaveney/Production/flex, whose operators_index.html has no embedded Live Tokens renderer or dashboardPeak mapping. Its standalone operations_live_monitor.html has a distinct terminal pending presentation. Deploying the candidate would not deliver the qualified behavior.",
+    "audit": "docs/audits/dev005_ath_peak_dashboard_live_deployment.v1.json",
+    "safety": "No deployment, restart, source switch, DB/queue/fact/budget/credential/DEV020 change, or provider call occurred. operation_monitor_worker was not touched.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_PREDEPLOY_TARGET_PREIMAGE_MISMATCH",
+    "next_action": "TRACE_AND_QUALIFY_THE_ACTUAL_PRODUCTION_OPERATIONS_LIVE_MONITOR_TEMPLATE_AGAINST_ITS_CURRENT_BACKEND_PROJECTION_BEFORE_AUTHORIZING_ANY_DEPLOYMENT"
+  },
   "dev005_ath_peak_projection_gap": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa plus uncommitted isolated dashboard-template candidate",
     "status": "PASS_OFFLINE_PROJECTION_FIX_NOT_DEPLOYED",

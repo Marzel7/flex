@@ -1,4 +1,14 @@
 {
+  "dev005_waiting_entry_data_correctness": {
+    "engineering_revision": "b4a6468917ded2fa5aac99fdb4efff87a680cfa3 pinned running monitor",
+    "status": "PASS_MIGRATION_REFERENCES_CORRECT_NON_TIMESTAMP_WAITING_GAPS_IDENTIFIED",
+    "finding": "All 17 waiting Watchtower rows have independently verified canonical migration seconds; HOURS matches 1790857966 exactly. Dispatched waiting requests use [migration,migration+2) with zero timestamp delta, as do five successful +1 Entry controls. There is no systematic seconds/milliseconds, rounding, or event-selection bias. Eleven rows have HTTP-200/nonempty items but retained TARGET_SECOND_ABSENT; exact returned timestamps were deliberately not retained. Four non-timestamp gaps exist: two missing canonical pool identities and two stale legacy queue projections.",
+    "audit": "docs/audits/dev005_waiting_entry_data_correctness.v1.json",
+    "safety": "Read-only; provider calls=0; worker stayed single RUNNING PID 67245; no runtime/fact/queue/budget/credential/DEV020 changes.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Audit-only; no executable runtime behavior changed.",
+    "next_action": "QUALIFY_WAITING_NEXT_CHECK_PROJECTION_SEPARATELY_AND_KEEP_STRICT_ENTRY_SEMANTICS_UNCHANGED"
+  },
   "dev005_hours_opening_trace": {
     "engineering_revision": "b4a6468917ded2fa5aac99fdb4efff87a680cfa3 pinned running monitor",
     "status": "PASS_READ_ONLY_TRACE_HTTP200_ITEMS_NO_MIGRATION_PLUS_1",

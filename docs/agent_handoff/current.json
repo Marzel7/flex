@@ -1,4 +1,15 @@
 {
+  "dev005_complete_activation_live_recovery": {
+    "engineering_revision": "6a9def5316d0f7cdcbf1f7744a53897e04e5a552 on codex/dev005-birdeye-kkhot; qualified behavior remains b4a6468917ded2fa5aac99fdb4efff87a680cfa3",
+    "status": "HOLD_PREDEPLOY_CREDENTIAL_LAUNCHER_AMBIGUITY",
+    "finding": "Pinned-launcher identity preflight loaded operation_monitor_service and operation_monitor_worker from the KKHOT candidate and retained the shared DEV state root; environment syntax passed. However, the Supervisor start authorization was rejected before execution because an inspected Supervisor-visible launcher was assessed as requiring/exporting BIRDEYE_RILEY. Starting through that ambiguity could make provider calls under the wrong credential.",
+    "audit": "docs/audits/dev005_complete_activation_live_recovery.v1.json sha256 a1205990bb69b5977975c81422fbb4a73c689c68f94ed7a5c9072a2f0bb5df6d",
+    "controls": "Read-only live check: GVeQ and haAw remain qualified waiting with unchanged Entry timestamp/MC; 68T remains qualified terminal. 44 confirmed Watchtower memberships have DELIVERED admission outbox state.",
+    "safety": "Supervisor start/restart=0; worker remains stopped; provider/RPC calls=0; live DB/queue/config/budgets/DEV020/production changes=0. RUNTIME_DEPLOYMENT_REQUIRED=true; RUNTIME_DEPLOYMENT_GATE=HOLD.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "RECONCILE_AND_FREEZE_THE_EFFECTIVE_SUPERVISOR_LAUNCHER_TO_THE_PINNED_BIRDEYE_KKHOT_CANDIDATE_THEN_REAUTHORIZE_SINGLE_WORKER_START"
+  },
   "dev005_qualified_waiting_activation_reconciliation": {
     "engineering_revision": "b4a6468917ded2fa5aac99fdb4efff87a680cfa3 on codex/dev005-birdeye-kkhot; implementation commit a8b43e2a6ec7f9f55f1dea88ebccc1786e61f056",
     "status": "QUALIFIED_NOT_DEPLOYED",

@@ -17664,11 +17664,11 @@
     "exact_next_action": "AUTHORIZE_SINGLE_LIVE_KKHOT_1S_AUTH_CONFIRMATION_AND_ENTRY_ATTEMPT"
   },
   "dev005_waiting_non_evidence_reconciliation_20261001": {
-    "engineering_revision": "Queue candidate based on b4a6468917ded2fa5aac99fdb4efff87a680cfa3; UI candidate based on production 2c9beaf70a840c0c1da0da27361614e8faa05db8; both isolated and not deployed.",
+    "engineering_revision": "Queue candidate 250fd64f9c0a448b93a78733c429d47057ef4c7e based on b4a6468917ded2fa5aac99fdb4efff87a680cfa3; UI candidate f46fda953c57359be80d422c8e3740925ad59bd3 based on production 2c9beaf70a840c0c1da0da27361614e8faa05db8; both isolated and not deployed.",
     "status": "QUALIFIED_NOT_DEPLOYED_POOL_GAP_FAIL_CLOSED",
     "finding": "The requested frozen 17-row cohort classifies as 11 TARGET_SECOND_ABSENT, 1 NO_PROVIDER_ITEMS, 1 stale-prefix HTTP_NON200, 2 canonical-pool-identity gaps, and 2 stale legacy queue envelopes. A natural new confirmed launch made the live count 18 during the read-only audit and is explicitly excluded. The two pool identities are absent from every retained canonical pool-bearing source and cannot be synthesized. The two legacy envelopes have retained canonical boundaries and a candidate idempotently restores only their durable queue projection, preserving their original message IDs and null Entries. The separate UI candidate projects waiting Next check from next_entry_evaluation_at via a read-only queue/fact join.",
     "audits": "docs/audits/dev005_waiting_population_classification.v1.json; docs/audits/dev005_waiting_non_evidence_self_heal.v1.json",
-    "tests": "Queue candidate: 4 provider-free passed, 0 failed, including restart/idempotency and missing-pool fail-closed control. UI candidate: 2 passed, 0 failed; Python compile passed.",
+    "tests": "Queue candidate: 5 provider-free passed, 0 failed, including restart/idempotency, missing-pool fail-closed, qualified-entry and terminal protection. UI candidate: 3 passed, 0 failed; Python compile passed.",
     "safety": "Worker/source/config/database/queue/provider budget/credential/production state unchanged. Provider/RPC/network calls=0. No Entry was fabricated; HOURS remains TARGET_SECOND_ABSENT with no manual queue or Entry change.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",

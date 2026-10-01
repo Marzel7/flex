@@ -1,4 +1,14 @@
 {
+  "dev013_original_ten_manifest_recovery_20261001": {
+    "engineering_revision": "a73a318e003cf57ebde089bd272073d7a31d89e9 on codex/dev013-watchtower-helius-entry; collector implementation remains f797dd4231bc5d5eacc1e29ed10d16b5a4b7ec4e",
+    "status": "HOLD_CREATE_INSTRUCTION_VARIANT_NOT_RETAINED",
+    "finding": "All ten original full mints are now frozen, including HPHkPvCdGjBV5kaYT4ZeV1Rc27fHMN4Qr4YuG2vzpump. Each has one unique signature corroborated between token_analysis.create_tx_signature and wt_detected_creates.signature, verified Watchtower attribution, and treasury cross-check with zero positive contradictions. Retained state does not distinguish Create from CreateV2 or preserve canonical slot/block time, so the manifest explicitly records that variant as unresolved rather than inventing it.",
+    "audit": "docs/audits/dev013_first_available_original_10_manifest.v1.json canonical content sha256 1a6f22ab4e5166d67411a5431543e82086bf4d07798bf675ff6c6b8184c876d1",
+    "safety": "Helius/Birdeye/RPC calls=0; raw provider retention=0; DEV013 implementation=unchanged; DEV005 worker/runtime/state, live state, DEV020 and trading changes=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only local-evidence manifest recovery only.",
+    "next_action": "AUTHORIZE_THE_ALREADY_FROZEN_ONE_HELIUS_CALL_PER_CONTROL_TO_VERIFY_CREATE_VERSUS_CREATEV2_AS_PART_OF_THE_EXISTING_TWENTY_CALL_QUALIFICATION"
+  },
   "dev013_first_available_ten_control_preflight_20261001": {
     "engineering_revision": "4565cd137a29461ade41d9845f236614e8a2a99b on codex/dev013-watchtower-helius-entry; implementation preimage f797dd4231bc5d5eacc1e29ed10d16b5a4b7ec4e",
     "status": "HOLD_CONTROL_COHORT_NOT_FULLY_RESOLVED",

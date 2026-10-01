@@ -1,4 +1,15 @@
 {
+  "dev005_post_entry_activation_handoff": {
+    "engineering_revision": "9598547b547065ecb41686b2829049c1de63eddf on codex/dev005-birdeye-kkhot",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "finding": "The strict activation UPSERT conflict clause persisted Entry fields but omitted MONITORING_ACTIVE and initial lifecycle fields when replacing an existing WAITING fact. Queue-envelope qualification could then admit completed-15m work while the authoritative fact remained waiting. The fix persists active state, start/cadence, and initial peak atomically with Entry. A DEV-only fixture flag suppresses downstream 15m transport after activation so bounded opening tests retain their exact provider-call cap; normal post-entry historical automation is unchanged.",
+    "audit": "docs/audits/dev005_post_entry_activation_handoff.v1.json",
+    "tests": "74 passed, 0 failed: focused DEV005 plus DEV009/010/011/012. Provider-free activation, restart, UI projection, first 15m lifecycle, terminal, pending-opening, Byzantine, and Deep controls pass.",
+    "safety": "Worker remains STOPPED; provider/RPC calls=0; no live DB/queue/config/runtime/production/DEV020 change. Isolated candidate only. RUNTIME_DEPLOYMENT_REQUIRED=true; RUNTIME_DEPLOYMENT_GATE=QUALIFIED_NOT_DEPLOYED.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "AUTHORIZE_POST_ENTRY_ACTIVATION_FIX_AND_RESUME_BOUNDED_WATCHTOWER_OPENING_RECOVERY"
+  },
   "dev005_five_token_true_kkhot_opening_sample": {
     "engineering_revision": "bf6c59cd92ec842017eefe2ed859b559646adbcf pinned direct Monitor runtime; temporary Supervisor selection override restored before completion",
     "status": "ROLLBACK_REQUIRED_OPENING_RECOVERED_BUT_TOTAL_PROVIDER_BOUND_EXCEEDED",

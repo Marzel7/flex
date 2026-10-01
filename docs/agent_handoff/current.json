@@ -1,4 +1,14 @@
 {
+  "dev005_post_entry_activation_live_deployment": {
+    "engineering_revision": "9598547b547065ecb41686b2829049c1de63eddf on codex/dev005-birdeye-kkhot",
+    "status": "HOLD_PREDEPLOY_RECONCILIATION_GAP",
+    "finding": "Predeployment proof found that GVeQ and haAw remain QUALIFIED with Entry facts but WAITING_FOR_ENTRY_REFERENCE and null monitor_started_at. The 9598547b future strict-activation UPSERT is correct, but reconcile_qualified_monitor_fact_queue_projection refuses any qualified fact not already MONITORING_ACTIVE. Starting it cannot satisfy the required zero-call reconciliation of these existing controls and would violate the authorized rollback condition.",
+    "audit": "docs/audits/dev005_post_entry_activation_live_deployment.v1.json",
+    "safety": "Candidate clean/identity matched; worker observed absent; provider/RPC calls=0; worker start/restart=0; DB/queue/runtime/config/production/DEV020 changes=0. RUNTIME_DEPLOYMENT_GATE=HOLD.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "IMPLEMENT_AND_QUALIFY_IDEMPOTENT_QUALIFIED_WAITING_FACT_ACTIVATION_RECONCILIATION_THEN_REAUTHORIZE_DEPLOYMENT"
+  },
   "dev005_post_entry_activation_handoff": {
     "engineering_revision": "9598547b547065ecb41686b2829049c1de63eddf on codex/dev005-birdeye-kkhot",
     "status": "QUALIFIED_NOT_DEPLOYED",

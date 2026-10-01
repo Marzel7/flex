@@ -1,4 +1,14 @@
 {
+  "dev013_haaw_unchanged_byzantine_compatibility": {
+    "engineering_revision": "fe1b4a733f40765fe33150a56d8b5b8522708967 on codex/dev013-watchtower-helius-entry",
+    "status": "INSUFFICIENT_INPUT_CONTRACT",
+    "finding": "The authoritative Byzantine runner is scripts/run_pumpfun_opening_analysis.py:run_mints -> pumpfun_opening_executor.execute_birth_anchored_opening_analysis, with all four module digests frozen. haAw's retained Watchtower migration signature can fill a shallow signature field but is not a retained mint-bound Pump.fun Create/CreateV2 required by the unchanged native birth contract. The native mechanism cannot reach ordering, reserve, or MC computation. Retained evidence establishes this first blocker, so no RPC call was needed or justified.",
+    "audit": "docs/audits/dev013_haaw_unchanged_byzantine_compatibility.v1.json",
+    "safety": "Provider/RPC calls=0; raw retention=0; Byzantine code/ordering/evidence/state/MC semantics changes=0; DEV005/DEV020/fallback/trading changes=0; isolated state only.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Compatibility diagnosis only; no runtime behavior changed.",
+    "next_action": "REVIEW_WHETHER_BYZANTINE_REUSE_IS_STILL_THE_SHORTEST_WATCHTOWER_FALLBACK_PATH"
+  },
   "dev013_watchtower_entry_fallback_discriminator_audit": {
     "engineering_revision": "270ce9109dfde55b7f68f0df6af148dcccdfdc99 on codex/dev013-watchtower-helius-entry",
     "status": "DEV013_WATCHTOWER_ENTRY_DISCRIMINATOR_IDENTIFIED",

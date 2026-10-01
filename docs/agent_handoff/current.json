@@ -17674,6 +17674,17 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "exact_next_action": "AUTHORIZE_DEPLOYMENT_OF_THE_STALE_LEGACY_WAITING_ENVELOPE_RECONCILIATION_TO_THE_PINNED_MONITOR_RUNTIME; AUTHORIZE_WAITING_NEXT_CHECK_UI_DEPLOYMENT_SEPARATELY; RETAIN_MISSING_POOL_ROWS_FAIL_CLOSED_PENDING_NEW_AUTHORITATIVE_POOL_EVIDENCE"
   },
+  "dev005_isolated_waiting_repair_qualification_20261001": {
+    "engineering_revision": "7cc8d9119556bf6121e21eb5d05d17a7f98255c2 on codex/dev005-isolated-waiting-repair; isolated state root under pytest tmp_path only.",
+    "status": "PASS_ISOLATED_PROVIDER_FREE_NOT_DEPLOYED",
+    "finding": "Faithful two-row stale legacy shapes reproduce the missing assignment/birth/strict-request divergence. Reconciliation restores only those projections from retained fixture authority, preserves each message identity, converges on restart, and produces zero duplicate jobs. One fake strict migration+1 response reaches the durable activation write; the second fake HTTP200 target-absent response remains waiting. Current strict evidence misses, missing-pool fail-closed controls, qualified/active/terminal controls, and null-entry finalizer guard remain protected. The UI candidate was separately fixture-tested and not deployed.",
+    "audit": "docs/audits/dev005_isolated_waiting_repair_qualification.v1.json",
+    "tests": "7 repair/service provider-free passed, 3 separate UI tests passed, 0 failed; external provider/RPC calls=0.",
+    "safety": "Live state root was never opened for writes; live worker/restarts/config/database/queue/provider binding/budget/dashboard changes=0. No raw provider payload was retained.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "exact_next_action": "AUTHORIZE_DEPLOYMENT_OF_STALE_LEGACY_WAITING_ENVELOPE_RECONCILIATION_TO_PINNED_MONITOR_RUNTIME; AUTHORIZE_WAITING_NEXT_CHECK_UI_DEPLOYMENT_SEPARATELY; KEEP_MISSING_POOL_ROWS_FAIL_CLOSED_PENDING_NEW_AUTHORITATIVE_EVIDENCE"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

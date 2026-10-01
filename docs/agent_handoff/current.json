@@ -1,4 +1,16 @@
 {
+  "dev013_watchtower_first_available_mc_20261001": {
+    "engineering_revision": "f797dd4231bc5d5eacc1e29ed10d16b5a4b7ec4e on codex/dev013-watchtower-helius-entry",
+    "status": "PARTIAL_PROVIDER_FREE_CONTRACT_QUALIFIED_CONTROL_REACQUISITION_REQUIRED",
+    "finding": "FIRST_AVAILABLE_MC is frozen as the market cap of the first deterministically ordered Birdeye trade with slot strictly greater than the canonical Pump.fun create slot. The isolated collector takes one injected Helius getTransaction and one injected bounded Birdeye /defi/v3/token/txs request, has no database/network IO or retries, and fails closed on create, trade, supply, and missing-open-slot evidence.",
+    "audit": "docs/audits/dev013_watchtower_first_available_mc_qualification.v1.json; contract docs/contracts/watchtower_first_available_mc.v1.json",
+    "tests": "32 focused provider-free tests passed, 0 failed (nine DEV-013 fixture cases plus canonical create-ledger compatibility); pytest cache warning only.",
+    "safety": "DEV-013 dedicated worktree only; provider/RPC/network calls=0; DEV005 worker/runtime/state/Entry semantics and WAITING rows unchanged; DEV020 unchanged; no deployment/trading. Compact-only evidence contract has a 64 MiB single/transient file bound and 0 unbounded growth paths.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "The collector is dormant and has no production wiring, database write path, process, or runtime target.",
+    "blocker": "The surviving research audit names abbreviated controls but lacks the exact ten full mint/canonical-create-signature pairs and compact observations, so exact control reproduction would be fabricated.",
+    "next_action": "AUTHORIZE_BOUNDED_TEN_CONTROL_COMPACT_TWO_PROVIDER_CALL_REACQUISITION"
+  },
   "dev014_global_storage_safety_retention_admission_20261001": {
     "engineering_revision": "33c9b706, 7ce8f0e7, and 699930c2c6dfabdf832b25c8cd7c5e0eb7b134bc on codex/dev014-global-storage-safety; isolated from base 580508a70c80e7fc944e0069f85e67b851a117fa at /private/tmp/flex-dev014-global-storage-safety",
     "status": "DEV014_GLOBAL_STORAGE_CONTRACT_PARTIAL",

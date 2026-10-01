@@ -1,4 +1,14 @@
 {
+  "dev005_five_token_true_kkhot_opening_sample": {
+    "engineering_revision": "bf6c59cd92ec842017eefe2ed859b559646adbcf pinned direct Monitor runtime; temporary Supervisor selection override restored before completion",
+    "status": "PARTIAL_DIRECT_OPENING_RECOVERED_POST_ENTRY_ACTIVATION_BLOCKED",
+    "finding": "All five frozen recent Watchtower tokens received exactly one strict V3 1s KKHOT request at >=15-second spacing; non-sample opening dispatches=0. Three returned migration+1 evidence and persisted normal Entries (GVeQ=150708.10, haAw=138204.43, 68T=149444.76); two returned HTTP 200 with items but no migration+1. The direct opening path therefore recovered. However, GVeQ and haAw remain ENTRY_REFERENCE_QUALIFIED/WAITING after their persisted Entries rather than ACTIVE_HISTORICAL, while 68T moved to PRICE_MONITOR_COMPLETE_COLLAPSED. Do not resume dynamic openings until this post-entry activation/projection transition is traced.",
+    "audit": "docs/audits/dev005_five_token_true_kkhot_opening_sample.v1.json",
+    "safety": "Worker stopped; temporary allowlist and claim-authority override restored; null-entry finalizer crashes=0; env errors=0; DEV012 budgets unchanged; historical calls before Entry=0; no raw provider payload retained. This authorized sample made 5 provider calls, all sample-scoped; RUNTIME_DEPLOYMENT_REQUIRED=true and RUNTIME_DEPLOYMENT_GATE=PARTIAL.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PARTIAL",
+    "next_action": "TRACE_POST_ENTRY_ACTIVATION_RECONCILIATION_BEFORE_RESUMING_DYNAMIC_OPENING_RECOVERY"
+  },
   "dev005_watchtower_birdeye_call_reconciliation": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa retained-state audit; no runtime source changed",
     "status": "PARTIAL_RETAINED_EVIDENCE_RECONCILIATION",

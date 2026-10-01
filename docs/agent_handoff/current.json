@@ -1,4 +1,16 @@
 {
+  "mission_control_temp_workspace_reclamation_audit_20261001": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; read-only temporary-workspace audit",
+    "status": "MISSION_CONTROL_TEMP_RECLAMATION_UNRESOLVED",
+    "finding": "/private/tmp/mission-control-authority-isolated-20260929 is 3943772 KiB; docs/audits is 3503240 KiB. It is user-owned, not a Git worktree, has no non-diagnostic open handle or project/handoff path reference, and is not tied to current DEV013. The dominant payload is legacy raw/derived research: ops_discovery_p3r_s2b_runs=993272 KiB (including SQLite captures), byzantine_lifecycle_103=644608 KiB (live raw JSON), operation_all_birth_research=405704 KiB (raw acquisition), and psi0g_runs=355012 KiB (discovery DB/derivations). This does not meet the current compact-storage intent, but provenance/retention requirements for all unique captures are not established.",
+    "durable_duplicates": "Two major artifacts are exactly duplicated in the durable workspace: canonical_birth_signature_pages.v1.jsonl (274988404 bytes, SHA-256 c3312268fcae9f14dd87223678a58eff26977a7c2d45c72569a438ab83a8ada9) and potential_operations_6437_funder_infrastructure_cache.v1.json (205346700 bytes, SHA-256 36789bbbcd81d57c118311922ca0219cf66387482063d5dfae148a350acaec9c). At least 480335104 bytes are durably duplicated. Other same-relative-path/same-size candidates need content proof before being counted.",
+    "classification": "DURABLY_DUPLICATED=at least 480335104 bytes; UNIQUE_REQUIRED=0 proven; UNIQUE_BUT_OBSOLETE=not proven; UNKNOWN=the remaining multi-GiB raw JSON/JSONL and SQLite snapshot payload. Minimum preservation is unresolved: preserve only final manifests/summaries/digests after an owner review, but do not create a copy yet.",
+    "reclamation": "DELETE_ENTIRE_WORKSPACE=NOT_SAFE; DELETE_ONLY_PROVEN_REDUNDANT_SUBTREES=not yet authorized despite 480335104 verified duplicate bytes because action scope was audit-only; PRESERVE_COMPACT_SET_THEN_DELETE=requires a separately authorized retention decision and explicit compact manifest.",
+    "safety": "Read-only stat/du/find/lsof/rg and hashes below 500 MiB only. No copy, deletion, database action, source/runtime/process change.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Storage audit only.",
+    "next_action": "Obtain owner decision on whether historical raw research evidence must be retained. If not, authorize an explicit manifest-backed deletion of the verified duplicate files first or authorize compact-manifest preservation followed by removal; recheck handles immediately before any action."
+  },
   "flex_safe_disk_reclamation_preflight_20261001": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; storage preflight only, no source/runtime/database/process change",
     "status": "PARTIAL_NO_UNCONDITIONALLY_SAFE_10_GIB_RECLAIM_SET",

@@ -1,4 +1,13 @@
 {
+  "dev005_pinned_b4_live_startup_health": {
+    "engineering_revision":"b4a6468917ded2fa5aac99fdb4efff87a680cfa3 pinned Supervisor runtime",
+    "status":"PASS_STARTUP_HEALTH_WORKER_RUNNING",
+    "finding":"One operation_monitor_worker has run continuously for over three hours from the pinned b4 process group. GVeQ and haAw retained qualified Entry values, completed one historical observation each, and terminalized correctly on drawdown. No restart loop or duplicate worker was observed.",
+    "safety":"Worker intentionally remains RUNNING. No manual backfill, Entry mutation, budget/trading/DEV020 change occurred.",
+    "runtime_deployment_required":true,
+    "runtime_deployment_gate":"PASS",
+    "next_action":"CONTINUE_NORMAL_DEV005_HISTORICAL_OPERATION_AND_OBSERVE_NEW_WATCHTOWER_LAUNCH_END_TO_END"
+  },
   "dev005_recurring_runtime_failure_root_cause": {
     "engineering_revision":"b4a6468917ded2fa5aac99fdb4efff87a680cfa3 remains qualified",
     "status":"ROOT_CAUSE_IDENTIFIED_STALE_SUPERVISOR_PROGRAM_CONFIG_NOT_UPDATED",

@@ -1,4 +1,16 @@
 {
+  "flex_30gib_baseline_loss_forensic_audit_20261001": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; read-only historical capacity accounting",
+    "status": "FLEX_30GIB_BASELINE_LOSS_PARTIAL",
+    "finding": "Retained RA4 checkpoints identify the dominant historical capacity mechanism: database/evidence_platform/production/retained_acquisition.db reached 66155503616 bytes (61.61 GiB) on 2026-08-18T21:41Z after unbounded full provider-response retention by the sole creator_funding_worker legacy writer. The earlier 2026-08-18T19:22:17Z to 19:23:23Z sample recorded 3305472 bytes/66s, projected 4.03 GiB/day; earlier retained diagnosis observed 9.6-25.0 GiB/day. It had no daily cap or disk-reserve floor. This is materially stronger evidence than the static Codex/cache/tmp candidates and is capable of explaining a 20-27 GiB loss.",
+    "time_window": "INCIDENT_START/END cannot be frozen: retained host evidence supplies an August-18 15-GiB-free checkpoint and an August-29 shell-history timestamp, but no retained df output identifies the exact last >=30-GiB, first <=20-GiB, or first <=10-GiB moment. Therefore no historical byte is falsely assigned to the requested interval. Current retained_acquisition.db pathname is a 0-byte placeholder, but this audit does not infer when or by whom the historical 61.61-GiB object was removed.",
+    "secondary_capacity": "Current primary DBs are 34907787264 bytes (flex) and 12036866048 bytes (wt_ops); retained historical notes cite substantially smaller prior sizes, so their historical growth may be material but is not time-bounded here. Current VM allocation is a 2-GiB sleepimage last modified 2026-09-21; snapshot/APFS container enumeration is unavailable because DiskManagement is unavailable. Static Codex/tmp/cache footprints remain excluded from incident attribution absent time-series evidence.",
+    "recovery": "The 5->9-GiB recovery remains unexplained from observable retained evidence. It could be related to a historical retained-acquisition retirement or APFS/purgeable movement, but neither is proven by this audit.",
+    "safety": "Read-only df/diskutil/tmutil/stat/rg and retained-artifact inspection only; no cleanup, snapshot action, git maintenance, process action, or DB action.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Forensic accounting only.",
+    "next_action": "Recover timestamped df/monitor logs for the stated 30-GiB baseline or record a new bounded capacity ledger. Do not use current directory sizes as historical attribution; separately reconcile the 0-byte retained_acquisition pathname with the authorized RA4 retirement record before claiming a recovery cause."
+  },
   "mission_control_temp_workspace_reclamation_audit_20261001": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; read-only temporary-workspace audit",
     "status": "MISSION_CONTROL_TEMP_RECLAMATION_UNRESOLVED",

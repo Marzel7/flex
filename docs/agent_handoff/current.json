@@ -1,4 +1,15 @@
 {
+  "dev005_production_ath_projection": {
+    "engineering_revision": "production preimage 96b7add12844ba3eccbe7d9c9076aa3e99becf78; isolated candidate 1de6fc1dc9b911a7205219568e2d038cfbf2be55",
+    "status": "QUALIFIED_PRODUCTION_DASHBOARD_FIX_NOT_DEPLOYED",
+    "finding": "Production /operations/live-monitor uses templates/operations_live_monitor.html, not operators_index. The API returns running_peak_mc_usd for GVeQ, haAw, and other CANDLE_HIGH terminal rows, but peakPresentation maps terminal PENDING_RECONSTRUCTION to PENDING without inspecting that field because the close-only lower-bound alias is correctly absent. The candidate preserves final ATH precedence and displays the retained high-watermark for terminal pending rows.",
+    "audit": "docs/audits/dev005_production_ath_projection.v1.json",
+    "tests": "1 focused production-renderer contract passed, 0 failed; GVeQ=$486.9K, haAw=$166.7K, finalized precedence, active high-watermark, and pending dash are covered provider-free.",
+    "safety": "Production checkout, watchtower_api, operation_monitor_worker, monitor facts, queues, budgets, credentials, and DEV020 remain unchanged; provider calls=0. Candidate is isolated under /private/tmp.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "AUTHORIZE_MINIMAL_PRODUCTION_ATH_PROJECTION_DEPLOYMENT_AND_READ_ONLY_UI_VERIFICATION"
+  },
   "dev005_ath_peak_dashboard_deployment": {
     "engineering_revision": "qualified candidate in shared workspace; live watchtower_api runtime is production 96b7add12844ba3eccbe7d9c9076aa3e99becf78",
     "status": "HOLD_PREDEPLOY_TARGET_PREIMAGE_MISMATCH",

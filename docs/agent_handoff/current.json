@@ -1,4 +1,14 @@
 {
+  "dev013_watchtower_helius_5_control": {
+    "engineering_revision": "0a8d646ad6e01ed357e6ce9b130ddab60766a514 on codex/dev013-watchtower-helius-entry",
+    "status": "FAIL_ONCHAIN_RECONSTRUCTION_CONTROL_TEST",
+    "finding": "After the preflight handoff was remote-verified, the frozen five-control experiment made 7/20 bounded Helius RPC calls with no retries, pagination, waiting-token calls, or raw retention. Three known migration getTransaction calls were provider failures; two controls reached the migration getBlock and had no successful post-migration PumpSwap transaction in that frozen same-slot block. Qualified on-chain MC controls=0/5 (0%); no error statistic applies. The experiment fails closed and cannot be used as a Watchtower fallback.",
+    "audit": "docs/audits/dev013_watchtower_helius_5_control.v1.json",
+    "safety": "DEV005 worker/runtime/state/entry semantics/queue/Birdeye changes=0; DEV020 changes=0; trading=false; production fallback=false; raw blocks/responses=false; single artifact 7,115 bytes; global cap respected.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Isolated control research only; no runtime behavior changed.",
+    "next_action": "DO_NOT_USE_FIRST_POST_MIGRATION_ONCHAIN_MC_AS_WATCHTOWER_FALLBACK; any further research needs separate authorization and must not repair this frozen sample."
+  },
   "dev013_watchtower_helius_reuse_preflight": {
     "engineering_revision": "5244c5f25b8b11434e49aa5b7ee6bbe1f5fa4b9a on codex/dev013-watchtower-helius-entry, based on e21867c1591931720bf85d17beaccf0e226097ee",
     "status": "PASS_READY_FOR_BOUNDED_5_CONTROL_EXPERIMENT",

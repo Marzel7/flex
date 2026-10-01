@@ -75,10 +75,10 @@
   },
   "dev013_first_available_mc_reconstruction_20261001": {
     "engineering_revision": "f797dd4231bc5d5eacc1e29ed10d16b5a4b7ec4e is the user-specified isolated DEV-013 implementation target; not opened or modified in this gate",
-    "status": "HOLD_STORAGE_EMERGENCY_PRE_PHASE_A",
-    "finding": "The requested DEV-013 Phase A would copy roughly 1.9 MiB of recovered provider evidence and then run offline replays/tests and create Git artifacts. The immediately preceding live-capacity incident is at 2.26 GiB free / 99% full and is marked EMERGENCY_CONTAINMENT_REQUIRED. Per the incident safety rule, nonessential diagnostics and work stop below 5 GiB; no original evidence, cache, source, production state, WAITING rows, runtime, provider/RPC, or DEV-005 target was touched.",
+    "status": "PARTIAL_PHASE_A_PRESERVED_REPLAY_PENDING",
+    "finding": "After the user reported recovery to about 12 GiB free, Phase A preserved the requested original evidence in the clean DEV-013 checkout: wt_opening_slots.py and wt_opening_slots.json plus 12 Birdeye and 40 RPC cache files, 54 files / 1,929,978 bytes. Source/copy SHA-256 manifests match exactly, including supplied script digest 8bbcfc6633ae2fe992bd6c1de81eb703299470859470fb5a49acfb506895fe1 and JSON digest 5f8decb1abb91ef649f4156ceeb9e28723cfeb2984b404ae539ba1f6553b595b. The original Python script contains credential/header-reference patterns, so nothing has been staged or committed pending an explicit non-secret/cache-only execution qualification. No replay, provider/RPC call, DEV-005 change, WAITING-row mutation, or runtime action has occurred.",
     "runtime_deployment_required": false,
-    "next_action": "Restore capacity through a separately authorized emergency containment/reclamation action, then rerun DEV-013 from Phase A against the specified original bundle and isolated commit."
+    "next_action": "Prove a fail-closed cache-only launcher for the preserved original script, then replay and compare the original ten controls before staging any evidence or preparing DEV-005 integration."
   },
   "dev014_burst_disk_loss_trigger_watch_20261001": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa shared workspace; diagnostic script and ignored local state only",

@@ -1,4 +1,15 @@
 {
+  "dev005_ath_peak_projection_gap": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa plus uncommitted isolated dashboard-template candidate",
+    "status": "PASS_OFFLINE_PROJECTION_FIX_NOT_DEPLOYED",
+    "finding": "The historical reducer persists the authoritative running_peak_mc_usd and drawdown together. Terminalization preserves it; optional finalization alone populates final_proven_ath_mc. The embedded Operators dashboard hid all terminal retained peaks pending that optional finalization. The isolated renderer now falls back to the retained high-watermark, giving the retained GVeQ and haAw controls $486.9K and $166.7K without reacquisition.",
+    "audit": "docs/audits/dev005_ath_peak_projection_gap.v1.json",
+    "tests": "58 passed, 0 failed across focused renderer, reducer, finalizer, monitor projection, registry, and lifecycle suites.",
+    "safety": "Provider calls=0; live facts/queue/budgets/credentials/DEV020 unchanged; worker was not restarted or reconfigured. Runtime deployment is intentionally not attempted.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "REVIEW_AND_AUTHORIZE_A_SEPARATE_DASHBOARD_TEMPLATE_DEPLOYMENT_WITH_BOUNDED_UI_VERIFICATION"
+  },
   "dev005_pinned_b4_live_startup_health": {
     "engineering_revision":"b4a6468917ded2fa5aac99fdb4efff87a680cfa3 pinned Supervisor runtime",
     "status":"PASS_STARTUP_HEALTH_WORKER_RUNNING",

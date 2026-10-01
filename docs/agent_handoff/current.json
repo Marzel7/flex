@@ -1,4 +1,15 @@
 {
+  "dev005_supervisor_kkhot_launcher_freeze": {
+    "engineering_revision": "runtime pinned exactly at b4a6468917ded2fa5aac99fdb4efff87a680cfa3 in /Users/kevinkeaveney/.codex/worktrees/dev005-runtime-b4/flex",
+    "status": "QUALIFIED_READY_TO_START",
+    "finding": "Supervisor has one operation_monitor_worker definition and now targets the clean exact-b4 checkout. The legacy shared-workspace launcher that could require BIRDEYE_RILEY was replaced with a compatibility forwarder to that same pinned KKHOT launcher. Supervisor reread succeeded; worker remains STOPPED.",
+    "audit": "docs/audits/dev005_supervisor_kkhot_launcher_freeze.v1.json sha256 f99aa5410033676e450b2b4ec444e21d7d4776ff807c7b9bb4ea16cf4a26beaa",
+    "preflight": "Exact Supervisor launch identity from both candidate and /private/tmp: source/service/worker root=dev005-runtime-b4, state root remains shared DEV root; git HEAD=b4a64689. Candidate and compatibility wrappers have zero BIRDEYE_RILEY references. Redacted KKHOT auth-header fingerprint matches; env syntax/required keys/db quick_check pass; HISTORICAL mode, 15-second opening gate, and activation reconciliation are present.",
+    "safety": "Provider/RPC calls=0; worker start/restart=0; live facts/queue/budgets/DEV020 changes=0. RUNTIME_DEPLOYMENT_REQUIRED=true; RUNTIME_DEPLOYMENT_GATE=QUALIFIED_READY_TO_START.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_READY_TO_START",
+    "next_action": "START_SINGLE_QUALIFIED_WORKER_AND_RESUME_BOUNDED_WATCHTOWER_RECOVERY"
+  },
   "dev005_complete_activation_live_recovery": {
     "engineering_revision": "6a9def5316d0f7cdcbf1f7744a53897e04e5a552 on codex/dev005-birdeye-kkhot; qualified behavior remains b4a6468917ded2fa5aac99fdb4efff87a680cfa3",
     "status": "HOLD_PREDEPLOY_CREDENTIAL_LAUNCHER_AMBIGUITY",

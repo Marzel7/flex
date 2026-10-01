@@ -1,7 +1,7 @@
 {
   "dev014_global_storage_safety_retention_admission_20261001": {
-    "engineering_revision": "33c9b7063638a0eae13c673d4ff50082faca5c80 on codex/dev014-global-storage-safety; isolated from base 580508a70c80e7fc944e0069f85e67b851a117fa at /private/tmp/flex-dev014-global-storage-safety",
-    "status": "DEV014_GLOBAL_STORAGE_CONTRACT_QUALIFIED",
+    "engineering_revision": "7ce8f0e7e42eff052cab4fef9eaee2885d50558a on codex/dev014-global-storage-safety; isolated from base 580508a70c80e7fc944e0069f85e67b851a117fa at /private/tmp/flex-dev014-global-storage-safety",
+    "status": "DEV014_GLOBAL_STORAGE_CONTRACT_PARTIAL",
     "finding": "GLOBAL_STORAGE_ADMISSION_CONTRACT_V1 is a reusable fail-closed pre-write contract: a 503316480-byte (480 MiB) maximum artifact, required finite/reconciled budget, default 10-GiB reserve, queue entry/byte checks, deterministic rejection reasons, reservation/release/finalize semantics, compact metrics, and restart reconciliation. Raw provider/RPC/block/transaction retention defaults false. RetainedAcquisitionStoreV2 is its first adopter and preserves the 1-GiB budget, 10-GiB reserve, 128-entry degraded handoff, and durable reconciliation.",
     "audit": "docs/audits/dev014/dev014_qualification.v1.json; supporting contract docs/contracts/global_storage_admission_contract_v1.md and adoption ledger docs/audits/dev014/dev014_storage_adoption_plan.v1.json",
     "tests": "39 focused provider-free tests passed, 0 failed; synthetic byte accounting only, no large fixtures.",
@@ -9,7 +9,7 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "runtime_deployment_reason": "The branch changes executable persistence admission behavior but was not deployed, reloaded, or accepted by a target PID. DEV-014 explicitly prohibits incidental retained-acquisition deployment.",
-    "blocker": "Repository-wide adoption is intentionally staged: provider/RPC acquisition, ArtifactStore, SQLite/WAL/sidecars, durable queues/spools, research exports, diagnostics/JSONL, and operation enrichment still require isolated per-family qualification according to the ranked ledger.",
+    "blocker": "Promotion-runtime enforcement is not yet wired, and repository-wide adoption is intentionally staged: provider/RPC acquisition, ArtifactStore, SQLite/WAL/sidecars, durable queues/spools, research exports, diagnostics/JSONL, and operation enrichment still require isolated per-family qualification according to the ranked ledger.",
     "next_action": "Authorize one CRITICAL adopter family at a time, prove its durable reconciliation/stream/crash/queue behavior provider-free, then establish runtime target parity and execute the separate deployment gate."
   },
   "retained_acquisition_v2_final_storage_safety_gate_20261001": {

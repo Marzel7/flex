@@ -1,4 +1,13 @@
 {
+  "dev005_watchtower_birdeye_call_reconciliation": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa retained-state audit; no runtime source changed",
+    "status": "PARTIAL_RETAINED_EVIDENCE_RECONCILIATION",
+    "finding": "The CbVT-to-last-diagnostic window contains 12 retained Watchtower launches and one qualified opening (CbVT). The dashboard Calls field derives from persisted 15m provider_call_count, not strict-opening calls. One post-bf6c59cd strict request is independently proven true KKHOT: HTTP 200 with no provider items; 17 of 21 current null-entry facts have no proven post-fix KKHOT attempt. The queue is latest-state storage, not an append-only dispatch ledger, so exact historical stage and credential totals—and reconciliation to the provider dashboard's 5–6 overnight calls—are unprovable from retained state.",
+    "audit": "docs/audits/dev005_watchtower_birdeye_call_reconciliation.v1.json",
+    "safety": "Provider/RPC calls=0; worker restart=0; worker observed absent; queue/DB/config/source/runtime/production changes=0; compact audit only (64 KiB bound, no raw payload retention). RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "runtime_deployment_required": false,
+    "next_action": "RUN_BOUNDED_TRUE_KKHOT_DIRECT_PATH_RECOVERY_SAMPLE_ON_RECENT_WITHIN_7_DAY_WATCHTOWER_TOKENS"
+  },
   "dev020_production_preimage_shadow_qualification": {
     "engineering_revision": "Production API now serves clean reconciled source 96b7add12844ba3eccbe7d9c9076aa3e99becf78 from /Users/kevinkeaveney/Production/flex; switch audit commit c34c41d880fc0c8cd5539b57157f4c48fc72ec6a",
     "status": "PASS_CLEAN_RECONCILED_RUNTIME_SERVING_DEV020_DORMANT",

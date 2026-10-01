@@ -1,4 +1,15 @@
 {
+  "dev005_qualified_waiting_activation_reconciliation": {
+    "engineering_revision": "b4a6468917ded2fa5aac99fdb4efff87a680cfa3 on codex/dev005-birdeye-kkhot; implementation commit a8b43e2a6ec7f9f55f1dea88ebccc1786e61f056",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "finding": "The existing startup/run_once projection reconciler now has a narrow, shared-writer repair for confirmed Watchtower facts with retained qualified entry evidence that were left WAITING_FOR_ENTRY_REFERENCE before atomic activation. It writes lifecycle fields only, then reuses the existing one-current-projection logic. Entry timestamp, MC, exactness, and provenance are never reacquired or written by the repair.",
+    "audit": "docs/audits/dev005_qualified_waiting_activation_reconciliation.v1.json sha256 a4e79b7ec6b30fd385165cd370922047cef254958309e89365f5c6c9238b4bcd",
+    "tests": "76 passed, 0 failed: complete DEV005 plus DEV009/010/011/012. New provider-free controls cover GVeQ/haAw shape, idempotent second reconciliation, restart, unqualified/terminal/ambiguous negatives, active preservation, 15m lifecycle, and dashboard projection.",
+    "safety": "Read-only live control check found GVeQ and haAw still QUALIFIED+WAITING with their original Entry timestamps/MCs; no live mutation. Worker remains absent; provider/RPC calls=0; queues/config/budgets/DEV020/production changes=0. Candidate isolated. RUNTIME_DEPLOYMENT_REQUIRED=true; RUNTIME_DEPLOYMENT_GATE=QUALIFIED_NOT_DEPLOYED.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "DEPLOY_COMPLETE_ACTIVATION_LINEAGE_AND_RESUME_BOUNDED_WATCHTOWER_RECOVERY"
+  },
   "dev005_post_entry_activation_live_deployment": {
     "engineering_revision": "9598547b547065ecb41686b2829049c1de63eddf on codex/dev005-birdeye-kkhot",
     "status": "HOLD_PREDEPLOY_RECONCILIATION_GAP",

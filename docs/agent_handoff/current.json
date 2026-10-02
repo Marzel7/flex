@@ -1,4 +1,14 @@
 {
+  "watchtower_backfill_first_available_exact7_20261002": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; data-only DEV provenance append",
+    "status": "PASS_BACKFILL_API_RENDERED_BROWSER_VISUAL_INCOMPLETE",
+    "finding": "The frozen seven-mint Watchtower set each received exactly one Helius canonical create lookup and one Birdeye opening acquisition through watchtower_first_available_mc.collect_first_available. All seven qualified and appended immutable WATCHTOWER_FIRST_AVAILABLE_MC_V1 facts. Port-8100's live-monitor API exposes six currently populated rows with retained Entry MC/quality/policy; legacy SI is not currently in the 20-row population.",
+    "audit": "docs/audits/watchtower_backfill_first_available_exact7.v1.json sha256 e4eb35055249aaf224ee61ac811445c31c7ead59c6911b4b2fc6c49e13a1db1c",
+    "safety": "HELIUS=7; BIRDEYE=7; lifecycle calls=0; retries=0; raw provider payload retention=false; provenance append-only=true; authoritative/legacy entry overwrite=false; source/template/renderer/API/supervisor/production/trading changes=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "No executable runtime behavior changed; the existing DEV read path dynamically projects committed provenance.",
+    "next_action": "OPTIONAL_BROWSER_VISUAL_RETRY_FOR_THE_SIX_CURRENTLY_POPULATED_ROWS_WITHOUT_PROVIDER_CALLS"
+  },
   "dev017_watchtower_live_monitor_price_display": {
     "engineering_revision": "f4373955142e0aa3f4a2f156c0bffd486f424845 on codex/dev017-watchtower-price-display; deployed renderer equivalent in port-8100 DEV template",
     "status": "PASS_DEV_UI_UPDATED_AND_VERIFIED",

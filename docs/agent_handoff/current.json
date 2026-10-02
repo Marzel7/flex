@@ -1,4 +1,16 @@
 {
+  "dev015_watchtower_recent50_ui": {
+    "engineering_revision": "e49b8b977a44a1a5fd85249c4a4d512af2ef1359 on codex/dev015-watchtower-recent50-ui",
+    "status": "PASS_QUALIFIED_NOT_DEPLOYED",
+    "result": "Added the explicit WATCHTOWER Recent-50 historical panel to the existing /ops/tokens Token Performance surface. It fetches only /api/ops-v2/intel/watchtower-recent50, renders the 50 frozen members with First Available Entry precedence, filters, null-safe sorting, copyable mints, and expandable API-provenance detail. Right-censored rows say Awaiting terminal evidence and the opening-insufficient row has no legacy substitution.",
+    "contract": "docs/contracts/watchtower_recent50_ui.v1.json",
+    "audit": "docs/audits/dev015_watchtower_recent50_ui_qualification.v1.json",
+    "tests": "6 focused provider-free tests passed (3 DEV-014 projection plus 3 DEV-015 UI checks); template JavaScript parses; git diff --check passed.",
+    "safety": "Provider calls=0; FIRST_AVAILABLE/lifecycle provenance and Entry facts unchanged; no monitor/runtime/worker/activation/trading changes; no raw retention. Presentation code only. Maximum-file rule preserved and no unbounded growth path added.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "AUTHORIZE_DEV015_WATCHTOWER_RECENT50_UI_DEPLOYMENT"
+  },
   "dev014_watchtower_ui_deployment": {
     "engineering_revision": "c1286acdfd1e834455fc1f4bf074f386ab6e2931 runtime source; 56847adade8e612972d7f8c65b4830c22f9f4c42 deployment audit on codex/dev014-watchtower-ui",
     "status": "PASS_DEPLOYED_AND_VERIFIED",

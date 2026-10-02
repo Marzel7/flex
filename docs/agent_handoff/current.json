@@ -1,15 +1,15 @@
 {
   "dev013_adaptive_lifecycle_pilot_20261002": {
-    "engineering_revision": "7783fd38ab961b220332e2e7b8a3b7b14ff51037 on codex/dev013-dev005-first-available-integration",
-    "status": "PASS_CORRECTED_RANGE_ACQUISITION_CONTRACT",
-    "finding": "Provider-free Watchtower-only review found the prior three short responses used documented padding=false, which allows sparse omissions. Their retained timestamps cannot distinguish sparse inactivity from truncation, so all three classifications are INSUFFICIENT_EVIDENCE rather than truncation. The current documented low-cost correction is one mode=range, 1m, Entry-to-2h request with padding=true; it fills missing buckets, preserves exact time bounds, requires no pagination or invented range parameter, and is below the 5000-record maximum.",
+    "engineering_revision": "3c72ff3211ea47a78aced5d8bf5631136ca1d071 on codex/dev013-dev005-first-available-integration",
+    "status": "PASS_CREDIT_EFFICIENT_ADAPTIVE_LIFECYCLE_PILOT",
+    "finding": "The same three frozen Watchtower First Available controls were rerun with the corrected documented mode=range padding=true 1m Entry-to-2h request. All returned complete time coverage (120 buckets) and each reached the frozen 85% drawdown terminal within Stage 1. Stage 2 was therefore correctly forbidden for all controls: 3 Birdeye calls, 75 CU, 0 Helius, 0 retries, and no raw provider retention.",
     "contract": "docs/contracts/watchtower_recent50_adaptive_lifecycle.v1.json",
-    "audit": "docs/audits/dev013_watchtower_stage1_range_completeness.v1.json",
-    "tests": "Contract and Stage-1 completeness audit JSON validate; git diff --check passed; provider-free review only.",
-    "flags": "This gate made 0 provider calls. Earlier pilot totals remain 3 Birdeye/0 Helius/0 Stage2; FIRST_AVAILABLE/Entry/monitor facts/queue/runtime/trading unchanged; raw payload retention=0.",
+    "audit": "docs/audits/dev013_watchtower_recent50_adaptive_lifecycle_pilot.v1.json",
+    "tests": "Contract and compact pilot audit JSON validate; git diff --check passed. Pilot runner executed once under its six-call maximum.",
+    "flags": "BIRDEYE lifecycle calls=3; Helius=0; Stage2=0; FIRST_AVAILABLE/Entry/monitor facts/queue/runtime/trading unchanged; raw payload retention=0.",
     "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Provider-free contract and audit only; no production runtime path was changed.",
-    "next_action": "RERUN_3_TOKEN_ADAPTIVE_LIFECYCLE_PILOT_USING_TIME_COVERAGE_NOT_ROW_COUNT"
+    "runtime_deployment_reason": "Bounded pilot runner, contract, and compact audit only; no production runtime path was changed.",
+    "next_action": "BACKFILL_ADAPTIVE_LIFECYCLE_FOR_REMAINING_46_QUALIFIED_WATCHTOWER_LAUNCHES"
   },
   "dev013_existing_birdeye_lifecycle_path_recovery_20261002": {
     "engineering_revision": "e1fb2cf94477d52114374949c97f4a5f52b3837f on codex/dev013-dev005-first-available-integration",

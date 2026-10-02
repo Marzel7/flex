@@ -1,4 +1,15 @@
 {
+  "dev014_watchtower_lifecycle_field_projection": {
+    "engineering_revision": "dc58fff97148ebd741e35f7b454d9da381037c54 on codex/dev014-lifecycle-fields; based on deployed DEV-014 source c1286acdfd1e834455fc1f4bf074f386ab6e2931",
+    "status": "PASS_LIFECYCLE_FIELDS_QUALIFIED_NOT_DEPLOYED",
+    "result": "Projection-only repair exposes the unified retained lifecycle schema for every frozen Recent-50 row. The 47 qualified terminals reconcile across 40 main adaptive records, 3 compact pilot records, and 4 qualified rolling-final records. ATH MC and maximum multiple are available for all 47; retained evidence genuinely lacks ATH timestamp for five rows and time-to-ATH for two rolling-final rows, so those fields remain null without derivation. The two right-censored records retain null terminal facts.",
+    "artifacts": "docs/contracts/watchtower_dev013_ui_projection.v1.json; docs/audits/dev014_watchtower_lifecycle_field_projection_qualification.v1.json; tests/fixtures/dev014_watchtower_recent50_api_fixture.v1.json",
+    "tests": "5 focused provider-free regression tests passed, 0 failed; JSON validation, diff check, and read-only live projection assertions passed.",
+    "safety": "Provider calls=0; FIRST_AVAILABLE and lifecycle provenance unchanged; Entry/monitor/queue/runtime/UI/trading changes=0; no raw provider retention. Compact fixture=40,202 bytes and audit=24,253 bytes; maximum single-file bound remains below 500 MB with no unbounded growth path.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "DEPLOY_REQUALIFIED_DEV014_THEN_REDEPLOY_DEV015_UI"
+  },
   "dev015_watchtower_recent50_ui": {
     "engineering_revision": "e49b8b977a44a1a5fd85249c4a4d512af2ef1359 qualified UI; bb7dc31aa841f9dbfd21cabce6dc4f99df84a07b rollback audit on codex/dev015-watchtower-recent50-ui",
     "status": "ROLLED_BACK_VISUAL_LIFECYCLE_FIELD_PARITY_FAILED",

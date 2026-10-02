@@ -18014,5 +18014,14 @@
     "safety": "Monitor facts/authoritative Entry/queue/activation/historical-job writes=0; raw responses=0; worker/runtime/state/DEV012/Byzantine/Deep/trading/DEV020 changes=0. Live dual-evidence was not tested because selected controls have no monitor facts.",
     "audit": "docs/audits/dev013_entry_provenance_schema_and_three_control_pilot.v1.json",
     "exact_next_action": "INVESTIGATE_EKT_LIVE_VS_FROZEN_BIRDEYE_EVIDENCE_DIVERGENCE_READ_ONLY; DO_NOT_ENABLE_CONTINUOUS_FIRST_AVAILABLE"
+  },
+  "dev013_original_methodology_reconciliation_20261002": {
+    "engineering_revision": "27945242f7d5ea2994c73077693f7ee0862eaefa on codex/dev013-dev005-first-available-integration",
+    "status": "PASS_ORIGINAL_METHOD_RESTORED",
+    "finding": "The EKt pilot drift was proven before any further provider call: original wt_opening_slots.py requests offset 0 and, when full, offset 100, concatenating both pages before local sorting. The pilot only consumed offset 0. FYRT/BT5 did not expose this because their pages were below 100; EKt has 159 cached rows and its +1 trade is in the omitted older page. The runner now follows original pagination exactly; evaluator normalization/order/selection already matched.",
+    "audit": "docs/audits/dev013_original_methodology_reconciliation.v1.json",
+    "tests": "10 focused provider-free evaluator tests passed; cached original replay 10/10 for create slot, first open slot, offset, and MC.",
+    "safety": "Helius/Birdeye calls=0; existing pilot provenance retained; EKt live evidence not promoted; no authoritative Entry/monitor fact/queue/runtime/worker/continuous-feature change.",
+    "exact_next_action": "RERUN_BOUNDED_BACKFILL_USING_EXACT_ORIGINAL_WT_OPENING_SLOTS_METHODOLOGY_WITH_AN_ADJUSTED_PAGINATION-AWARE_PROVIDER_CAP"
   }
 }

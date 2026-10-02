@@ -1,5 +1,6 @@
 {
   "watchtower_backfill_first_available_exact7_20261002": {
+    "current_ui_backfill": "PARTIAL: one current-population Entry was appended; WWWCAT, ccc, and MICRODOG gained retained terminal lifecycle facts through four Stage-1 and one conditional Stage-2 Birdeye calls. ROACH failed closed on insufficient Stage-2 coverage. Current snapshots yielded no qualified replacement values for remaining blank rows; no fabrication, retries, UI/renderer/production/DEV018 changes.",
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; data-only DEV provenance append",
     "status": "PASS_BACKFILL_API_RENDERED_VERIFIED",
     "runtime": "Port-8100 DEV runtime became unresponsive during the read-only continuation check and was restarted only as python -u -m src.dev_runtime. Post-restart /api/operations/live-monitor returned 20 rows; all six currently populated targets matched retained First Available provenance.",

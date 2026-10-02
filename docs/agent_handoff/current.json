@@ -17974,5 +17974,12 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "exact_next_action": "AUTHORIZE_A_SEPARATE_PINNED_RUNTIME_DEPLOYMENT_QUALIFICATION_AFTER_PROVIDER_ADMISSION_WIRING_AND_TARGET_PATH_PARITY"
+  },
+  "dev013_fyrt_live_shadow_20261002": {
+    "engineering_revision": "0a0b5d6756c30e40591fa19180d5355a22474894 on codex/dev013-dev005-first-available-integration",
+    "status": "HOLD_CREDENTIAL_BINDING_UNAVAILABLE",
+    "finding": "The authorized FYRT live-shadow runner resolved frozen manifest identity and created only a compact failure audit, then stopped before any provider request because HELIUS_API_KEY is absent from the normal isolated/primary environment lookup. A supervisor-configuration fallback was safety-blocked as broadened credential discovery.",
+    "safety": "Helius=0, Birdeye=0, other network=0; no raw response retained; no Entry/monitor fact/queue/provider-ledger writes; no activation, runtime, state, worker, Byzantine, Deep, or trading change.",
+    "exact_next_action": "USER_MUST_EXPLICITLY_AUTHORIZE_USE_OF_THE_EXISTING_SUPERVISOR_PROVIDER_BINDING_FOR_THIS_SINGLE_TWO_CALL_SHADOW_OR_PROVIDE_A_SCOPED_EPHEMERAL_HELIUS_BINDING"
   }
 }

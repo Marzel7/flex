@@ -1,4 +1,16 @@
 {
+  "dev014_watchtower_ui_deployment": {
+    "engineering_revision": "0aecebabe4d56224ff4cc94b3621bd3c95127cb6 on codex/dev014-watchtower-ui",
+    "status": "HOLD_RUNTIME_TARGET_DIRTY_EXACT_SOURCE_NOT_DEPLOYED",
+    "qualified_commit": "58765481ff3ea840c541071264a0e254ddf6d55f",
+    "result": "Supervisor's watchtower_api target is /Users/kevinkeaveney/Dev/claude/flex, currently revision 580508a with unrelated dirty changes including operation_dashboard_routes.py. Exact cherry-pick properly refused. A scoped reconstruction was removed before restart because it could not prove byte-identical qualified source. Production UI/runtime remains unchanged.",
+    "preimage": "watchtower_api RUNNING PID 12362; all unrelated Watchtower workers remained running and unrestarted.",
+    "safety": "Provider calls=0; provenance/Entry/monitor/queue writes=0; activations/jobs=0; worker/API restart=0; raw retention=0; no production deployment occurred.",
+    "audit": "docs/audits/dev014_watchtower_ui_deployment.v1.json",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_RUNTIME_TARGET_DIRTY_EXACT_SOURCE_NOT_DEPLOYED",
+    "next_action": "CLEAN_OR_ISOLATE_THE_ACTUAL_SUPERVISOR_RUNTIME_TARGET_THEN_APPLY_THE_EXACT_58765481_QUALIFIED_COMMIT"
+  },
   "dev014_watchtower_dev013_ui_integration": {
     "engineering_revision": "58765481ff3ea840c541071264a0e254ddf6d55f on codex/dev014-watchtower-ui",
     "status": "PASS_QUALIFIED_NOT_DEPLOYED",

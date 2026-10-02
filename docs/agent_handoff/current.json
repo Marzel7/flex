@@ -1,4 +1,23 @@
 {
+  "dev014_watchtower_lifecycle_field_deployment": {
+    "engineering_revision": "dc58fff97148ebd741e35f7b454d9da381037c54 qualified API revision; runtime audit commit da15ba89c123328ea10be3d3aed691f8897253e4",
+    "status": "PASS_DEPLOYED_AND_VERIFIED",
+    "result": "watchtower_api runs the corrected DEV-014 projection from the isolated deployment worktree. Local endpoint acceptance reconciled 50 rows, 49 qualified FIRST_AVAILABLE Entries, one opening-insufficient row, 47 qualified terminal lifecycles, and two RIGHT_CENSORED rows. Exact fixture parity passed for all required Entry, ATH, multiple, drawdown, and terminal values. Null retained timestamp/time-to-ATH values were not derived.",
+    "audit": "docs/audits/dev014_watchtower_lifecycle_field_deployment.v1.json",
+    "tests": "5 focused DEV-014 regression tests passed, 0 failed before and after deployment; local endpoint and fixture parity checks passed.",
+    "safety": "Provider calls=0; provenance/Entry/monitor/queue writes=0; only watchtower_api restarted; listener and creator worker untouched; raw retention=0; compact audit below 500 MB.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "next_action": "REQUALIFY_DEV015_VISIBLE_DRAWDOWN_AND_TIME_TO_ATH_FIELDS_BEFORE_ANOTHER_UI_DEPLOYMENT"
+  },
+  "dev015_watchtower_recent50_ui": {
+    "engineering_revision": "e49b8b977a44a1a5fd85249c4a4d512af2ef1359 qualified template; attempted deployment 9bc00461720aa0a7f2da9af7af59b5a4891fe413; rollback 3e3d4006623ad0016f9638bd506630ddc7334109",
+    "status": "ROLLED_BACK_VISUAL_LIFECYCLE_FIELD_PARITY_FAILED",
+    "result": "The live Recent-50 section rendered the 50/49/47/2/1 summary, ATH MC, max multiple, terminal values, lifecycle filters (47/2/1/50), and row details. It did not visibly render max drawdown or time-to-ATH/unavailable states required for all 47 terminal rows. Stage B was rolled back only; the successful DEV-014 API deployment remains active.",
+    "audit": "docs/audits/dev015_watchtower_recent50_ui_deployment.v1.json",
+    "tests": "6 qualified DEV-015 predeployment tests passed, 0 failed; visual interaction check found the required field-completeness failure.",
+    "safety": "Provider calls=0; provenance/Entry/monitor/queue writes=0; only watchtower_api restarted for deployment and rollback; raw retention=0."
+  },
   "dev014_watchtower_lifecycle_field_projection": {
     "engineering_revision": "dc58fff97148ebd741e35f7b454d9da381037c54 on codex/dev014-lifecycle-fields; based on deployed DEV-014 source c1286acdfd1e834455fc1f4bf074f386ab6e2931",
     "status": "PASS_LIFECYCLE_FIELDS_QUALIFIED_NOT_DEPLOYED",
@@ -9,18 +28,6 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "DEPLOY_REQUALIFIED_DEV014_THEN_REDEPLOY_DEV015_UI"
-  },
-  "dev015_watchtower_recent50_ui": {
-    "engineering_revision": "e49b8b977a44a1a5fd85249c4a4d512af2ef1359 qualified UI; bb7dc31aa841f9dbfd21cabce6dc4f99df84a07b rollback audit on codex/dev015-watchtower-recent50-ui",
-    "status": "ROLLED_BACK_VISUAL_LIFECYCLE_FIELD_PARITY_FAILED",
-    "result": "DEV-015 was briefly directed to the clean worktree for authorized visual acceptance. /ops/tokens visibly loaded the Recent-50 section, correctly reconciled its 50/49/47/2/1 summary and Entry/censored states, but most completed rows displayed blank ATH MC and Max Multiple values. The API does not project those retained lifecycle fields for every terminal row. The exact DEV-014 runtime preimage was restored immediately; no production hotfix was made.",
-    "contract": "docs/contracts/watchtower_recent50_ui.v1.json",
-    "audit": "docs/audits/dev015_watchtower_recent50_ui_deployment.v1.json",
-    "tests": "6 focused provider-free tests passed (3 DEV-014 projection plus 3 DEV-015 UI checks); live visual acceptance passed route, visible section, summary, Entry, and censored checks but failed full terminal lifecycle-field parity.",
-    "safety": "Provider calls=0; FIRST_AVAILABLE/lifecycle provenance and Entry facts unchanged; no monitor/activation/trading changes; only watchtower_api was restarted for deployment and rollback; no raw retention. Maximum-file rule preserved.",
-    "runtime_deployment_required": true,
-    "runtime_deployment_gate": "HOLD_VISUAL_LIFECYCLE_FIELD_PARITY_FAILED",
-    "next_action": "FIX_AND_REQUALIFY_DEV014_LIFECYCLE_FIELD_PROJECTION_THEN_REAUTHORIZE_DEV015_UI_DEPLOYMENT"
   },
   "dev014_watchtower_ui_deployment": {
     "engineering_revision": "c1286acdfd1e834455fc1f4bf074f386ab6e2931 runtime source; 56847adade8e612972d7f8c65b4830c22f9f4c42 deployment audit on codex/dev014-watchtower-ui",

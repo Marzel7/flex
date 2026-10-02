@@ -18249,6 +18249,13 @@
     "runtime_deployment_required": true,
     "exact_next_action": "COMPLETE_FINAL_TWO_WATCHTOWER_LIFECYCLES_WHEN_OBSERVABLE_THEN_REFRESH_RECENT50_UI"
   },
+  "dev016_live_monitor_composition": {
+    "engineering_revision": "codex/dev016-recent50-operators at 993b8b5bd4f3f26e8bb8d7667bb89643c25f38e6; composition not committed",
+    "status": "PARTIAL_EXACT_LIVE_MONITOR_DELTA_IDENTIFIED_COMPOSITION_PENDING",
+    "result": "The intended Live Monitor is an uncommitted shared-checkout delta, not a recoverable commit: templates/operators_index.html adds the host, styles, and embedded /operations/live-monitor plus /api/operations/live-monitor renderer; tests/test_x73_5_single_operations_registry.py updates the matching Registry contract. The two-file delta is isolated. Applying it mechanically to DEV016 produced only common insertion-point conflicts with the separate Recent-50 delta, so the merge was stopped and no combined runtime/UI change was committed or deployed.",
+    "safety": "Provider calls=0; production/source/runtime changes=0; DEV014/API/ops-tokens/DEV005 unchanged; no raw retention.",
+    "exact_next_action": "Resolve the template composition explicitly by retaining both complete namespaced sections and both scripts, then run the combined Registry/Live Monitor/Recent-50 qualification before any commit or deployment."
+  },
   "dev016_operators_baseline_reconciliation": {
     "engineering_revision": "993b8b5bd4f3f26e8bb8d7667bb89643c25f38e6 on codex/dev016-recent50-operators",
     "status": "REGISTRY_TESTS_STALE",

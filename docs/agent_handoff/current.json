@@ -1,15 +1,15 @@
 {
   "dev013_adaptive_lifecycle_pilot_20261002": {
-    "engineering_revision": "9ff513770fc5167fc33fc2bfd259b43e9fab577b on codex/dev013-dev005-first-available-integration",
-    "status": "PASS_CENSORED_MATURITY_SCHEDULE_FROZEN",
-    "finding": "The exact six censored rows are now explicitly RIGHT_CENSORED_HORIZON_NOT_MATURE. Their individual Entry+7d timestamps are frozen. Once each is mature, one full non-retry Stage-2 reacquisition from Entry+2h to Entry+7d is authorized, superseding the prior overlap prohibition only for these six. This restores a deterministic running-peak reconstruction by combining retained Stage 1 with the fresh full Stage 2. The future ceiling is 6 calls / 240 CU. This gate made 0 provider calls.",
+    "engineering_revision": "0679e8c652f7d58da48452c0e2883f7c0f322a7f on codex/dev013-dev005-first-available-integration",
+    "status": "HOLD_FIRST_WINDOW_END_DEVIATION",
+    "finding": "A rolling pass made four bounded 15m calls: four targets reached DRAWDOWN_85 and two remain right-censored before their first window is observable. However, the runner set the first window end at Entry+26h rather than the required Entry+24h. All four terminal coordinates happened within Entry+24h, but the two-hour suffix was unnecessarily acquired. The runner is corrected for future windows and no further calls were made after detecting the deviation. Two retained Stage-1 peak timestamps remain unretained and are explicitly not fabricated.",
     "contract": "docs/contracts/watchtower_recent50_adaptive_lifecycle.v1.json",
-    "audit": "docs/audits/dev013_watchtower_six_censored_maturity_schedule.v1.json",
-    "tests": "Maturity schedule audit JSON validates; git diff --check passed; provider-free maturity calculation only.",
-    "flags": "BIRDEYE/Helius/other calls=0; FIRST_AVAILABLE/Entry/monitor facts/queue/runtime/trading unchanged; raw payload retention=0.",
+    "audit": "docs/audits/dev013_watchtower_recent50_final_six_rolling_lifecycle.v1.json",
+    "tests": "Rolling audit JSON validates; runner syntax compiles; git diff --check passed; durable rolling state has four window and four final rows.",
+    "flags": "Additional BIRDEYE calls=4; Helius=0; FIRST_AVAILABLE/Entry/monitor facts/queue/runtime/trading unchanged; raw payload retention=0.",
     "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Maturity schedule and future authorization only; no production runtime path was changed.",
-    "next_action": "WHEN_EACH_CENSORED_TOKEN_REACHES_ENTRY_PLUS_7D_REACQUIRE_ITS_SINGLE_STAGE2_WINDOW_AND_FINALIZE_LIFECYCLE"
+    "runtime_deployment_reason": "Bounded historical rolling acquisition and compact state only; no production runtime path was changed.",
+    "next_action": "REVIEW_FIRST_WINDOW_END_DEVIATION_BEFORE_RESUMING_THE_TWO_RIGHT_CENSORED_TARGETS"
   },
   "dev013_existing_birdeye_lifecycle_path_recovery_20261002": {
     "engineering_revision": "e1fb2cf94477d52114374949c97f4a5f52b3837f on codex/dev013-dev005-first-available-integration",

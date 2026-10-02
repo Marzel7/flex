@@ -18104,6 +18104,17 @@
     "runtime_deployment_reason": "The qualified checkpoint is isolated and dormant; no production target runtime or executable service was changed.",
     "exact_next_action": "OBTAIN_SEPARATE_AUTHORIZATION_BEFORE_ANY_RECENT_50_PROVIDER_ACQUISITION; dispatch only safely PENDING controls in frozen manifest rank order with a maximum chunk of 10."
   },
+  "dev013_recent50_chunk001_sqlite_busy_recovery_20261002": {
+    "engineering_revision": "c0a595b84fabf30e0b675bde0c3a875e698a9dee on codex/dev013-dev005-first-available-integration",
+    "status": "HOLD_EVIDENCE_NOT_RECONSTRUCTABLE",
+    "finding": "Rank-1 mint 6Rufs has durable Helius and Birdeye-page0 completion checkpoints, but the checkpoint retained only sanitized completion metadata. No compact create slot/time, normalized selection, FIRST_AVAILABLE result, or prewrite evidence identity exists, and provenance remains absent. Reconstructing it without a provider call is impossible; the authorized recovery write therefore did not run.",
+    "lock_observation": "The provenance target is /Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db, journal_mode=wal and busy_timeout=0. A Python process with cwd /Users/kevinkeaveney/Production/flex-cascade held DB/WAL/SHM file descriptors. Read-only evidence cannot establish active write-lock ownership or a long-lived transaction, so root cause is INSUFFICIENT_EVIDENCE.",
+    "safety": "Provider/network calls=0; live provenance/Entry/monitor/activation/job writes=0; restart/runtime/force-unlock/WAL deletion/change=0; raw retention=0.",
+    "audit": "docs/audits/dev013_recent50_chunk001_sqlite_busy_recovery.v1.json",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only diagnosis and audit only; no runtime behavior changed.",
+    "exact_next_action": "AUTHORIZE_A_NEW_COMPACT_PREWRITE_EVIDENCE_AND_PROVENANCE_RECOVERY_DESIGN_OR_ANOTHER_EVIDENCE_SOURCE; do not reacquire rank-1 under the current checkpoint contract."
+  },
   "dev013_recent50_chunk_001_20261002": {
     "engineering_revision": "d2e23de52526dcaffa1da30beb1fd854eb114a4e on codex/dev013-dev005-first-available-integration",
     "status": "PARTIAL_PROVENANCE_DB_LOCK",

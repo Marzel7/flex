@@ -1,15 +1,15 @@
 {
   "dev014_watchtower_ui_deployment": {
-    "engineering_revision": "1cd4710e7efe3747043bcc9643c33daa710f99e2 on codex/dev014-watchtower-ui",
-    "status": "HOLD_ISOLATED_RUNTIME_REDIRECT_REQUIRES_PROTECTED_CONFIG_MUTATION",
+    "engineering_revision": "d2705a97ffdbe0529af768c7dcdbfd5249a8f06e on codex/dev014-watchtower-ui",
+    "status": "ROLLED_BACK_RECENT50_SCOPE_RECONCILIATION_FAILED",
     "qualified_commit": "58765481ff3ea840c541071264a0e254ddf6d55f",
-    "result": "Active supervisord itself loads the protected dirty checkout's config and has no external include/per-program override. Its watchtower_api program directory, PYTHONPATH, gunicorn config, logs, and port are all configured there. Redirecting the service would mutate that protected config, prohibited by this gate. The clean DEV-014 worktree retains the exact qualified delta and its focused tests pass, but no restart/deployment was attempted.",
+    "result": "Under the user-authorized protected-config exception, only watchtower_api directory and PYTHONPATH were redirected to the exact clean DEV-014 worktree and only watchtower_api restarted. The process loaded from the clean worktree, but live read-only projection verification found 60 FIRST_AVAILABLE rows and 44 terminal rows, not the frozen 49/47. The implementation lacks a frozen Recent-50 manifest scope. Frozen path bindings were restored immediately; watchtower_api is healthy again from /Users/kevinkeaveney/Production/flex.",
     "preimage": "watchtower_api RUNNING PID 12362; all unrelated Watchtower workers remained running and unrestarted.",
-    "safety": "Provider calls=0; provenance/Entry/monitor/queue writes=0; activations/jobs=0; worker/API restart=0; raw retention=0; no production deployment occurred.",
+    "safety": "Provider calls=0; provenance/Entry/monitor/queue writes=0; activations/jobs=0; no unrelated worker restart; raw retention=0. The attempted API-only redirect was rolled back after bounded read-only validation.",
     "audit": "docs/audits/dev014_watchtower_ui_deployment.v1.json",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_RUNTIME_TARGET_DIRTY_EXACT_SOURCE_NOT_DEPLOYED",
-    "next_action": "AUTHORIZE_A_SEPARATE_SUPERVISOR_CONFIGURATION_TARGET_OR_AN_EXPLICIT_EXCEPTION_TO_MODIFY_THE_PROTECTED_CONFIG"
+    "next_action": "FIX_AND_REQUALIFY_DEV014_WITH_FROZEN_RECENT50_MANIFEST_SCOPE_THEN_REAUTHORIZE_DEPLOYMENT"
   },
   "dev014_watchtower_dev013_ui_integration": {
     "engineering_revision": "58765481ff3ea840c541071264a0e254ddf6d55f on codex/dev014-watchtower-ui",

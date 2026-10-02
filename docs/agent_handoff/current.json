@@ -18249,6 +18249,17 @@
     "runtime_deployment_required": true,
     "exact_next_action": "COMPLETE_FINAL_TWO_WATCHTOWER_LIFECYCLES_WHEN_OBSERVABLE_THEN_REFRESH_RECENT50_UI"
   },
+  "dev016_operators_baseline_reconciliation": {
+    "engineering_revision": "993b8b5bd4f3f26e8bb8d7667bb89643c25f38e6 on codex/dev016-recent50-operators",
+    "status": "REGISTRY_TESTS_STALE",
+    "result": "Supervisor confirms watchtower_api runs from /Users/kevinkeaveney/.codex/worktrees/dev014-watchtower-ui/flex at source commit 9ad08f4e0a3b0bdf7e962b3ff4b4387eab5babe4. Its operators_index.html exactly matches the DEV-016 pre-delta baseline (SHA-256 1d7c3d2b885ae062dd4faaf4e6e808ab1379c3dde62d484c801e11d7c30501fe). Both have registry-row and registry-search; neither has live-monitor-host. The shared checkout's newer template has live-monitor-host and a different SHA. Current registry tests require that newer live-monitor markup, so they are stale as a regression gate for the deployed baseline rather than evidence of a DEV-016 change.",
+    "classification": "REGISTRY_TESTS_STALE",
+    "safety": "Provider calls=0; production/source/runtime changes=0; DEV014 and /ops/tokens unchanged; no worker restart; no raw retention.",
+    "audit": "docs/audits/dev016_watchtower_recent50_intelligence_operators_ui_qualification.v1.json",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Provider-free baseline diagnosis and audit only; no runtime change was made.",
+    "exact_next_action": "SELECT_THE_INTENDED_OPERATOR_TEMPLATE_BASELINE_FOR_DEV016: either qualify the Recent-50 delta against the deployed baseline with its matching regression contract, or separately authorize deployment/reconciliation of the newer shared Live Monitor template before continuing DEV016."
+  },
   "dev016_watchtower_recent50_operators_ui": {
     "engineering_revision": "e2ed8226b2ffde06887190461b518d55121a9201 on codex/dev016-recent50-operators",
     "status": "HOLD_OPERATOR_UI_BASELINE_REGRESSION_MISMATCH",

@@ -1,15 +1,15 @@
 {
   "dev013_adaptive_lifecycle_pilot_20261002": {
-    "engineering_revision": "073b552fc5b2fe1194f5fafa843ca3f79a265662 on codex/dev013-dev005-first-available-integration",
-    "status": "HOLD_OHLCV_RANGE_DEPTH_CONTRACT_UNVERIFIED",
-    "finding": "The three immutable First Available controls were selected before provider work: 59F95… low ($73,990), FCoX… median ($158,290), and 7mqD… high ($203,628). The terminal and continuation policies are frozen. Current Birdeye documentation identifies count_limit only for mode=count; the authorized historical calls require mode=range. No range-mode depth parameter or documented CU tier was recovered, so all six provider calls were withheld rather than guessing or changing mode.",
+    "engineering_revision": "da4a4fa9290a1fd9817f42e01925a352418e76e8 on codex/dev013-dev005-first-available-integration",
+    "status": "HOLD_STAGE1_RANGE_COVERAGE_INSUFFICIENT",
+    "finding": "The corrected recovered mode=range contract ran one authenticated 1m Entry-to-2h request for each frozen First Available control. All three returned HTTP 200 but ended before the two-hour boundary (28, 81, and 37 candles), so all three are failed closed as STAGE1_INSUFFICIENT. Stage 2 was forbidden and no request was sent. Accounting: 3 Birdeye calls, 0 Helius, conservative 120 CU, no raw response retention.",
     "contract": "docs/contracts/watchtower_recent50_adaptive_lifecycle.v1.json",
     "audit": "docs/audits/dev013_watchtower_recent50_adaptive_lifecycle_pilot.v1.json",
-    "tests": "Both JSON artifacts validate; git diff --check passed.",
-    "flags": "BIRDEYE/Helius/other lifecycle calls=0; raw payload retention=0; FIRST_AVAILABLE/Entry/monitor facts/queue/runtime/trading unchanged.",
+    "tests": "Contract and audit JSON validate; git diff --check passed. The pilot runner was executed once under its six-call maximum.",
+    "flags": "BIRDEYE lifecycle calls=3; Helius/other lifecycle calls=0; Stage2 calls=0; raw payload retention=0; FIRST_AVAILABLE/Entry/monitor facts/queue/runtime/trading unchanged.",
     "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Contract and audit hold only; no runtime behavior changed.",
-    "next_action": "AUTHORIZE_A_CONTRACT_CORRECTION_OR_SUPPLY_AUTHORITATIVE_RANGE_DEPTH_AND_CU_EVIDENCE"
+    "runtime_deployment_reason": "Bounded pilot runner plus contract/audit only; no production runtime path was changed.",
+    "next_action": "QUALIFY_A_RANGE_RESPONSE_CONTRACT_THAT_REACHES_THE_REQUIRED_STAGE1_BOUNDARY_BEFORE_ANY_ADAPTIVE_BACKFILL"
   },
   "dev013_existing_birdeye_lifecycle_path_recovery_20261002": {
     "engineering_revision": "e1fb2cf94477d52114374949c97f4a5f52b3837f on codex/dev013-dev005-first-available-integration",

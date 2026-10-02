@@ -1,4 +1,14 @@
 {
+  "dev013_watchtower_final_two_lifecycle_completion": {
+    "engineering_revision": "1e8bcfe3a7ef75bed1ca0a1c810b8cf033c34c1d",
+    "status": "HOLD_FINAL_TWO_FIRST_WINDOWS_NOT_YET_OBSERVABLE",
+    "result": "The 43 original outcomes and four previously non-material deviation outcomes were preserved provider-free. The two only incomplete controls are frozen as 4uTHA7hUfZD1PKWQBVtuCEWnBjgB6xaL7GfJrPRDpump (Entry+24h=1790981448) and 6RufsEXSv9Nd4YUmUGah8MeMXZT2rxn3kriGiBcSpump (Entry+24h=1790999761). At observed time 1790942475 neither corrected first window was complete, so no request was admitted because it would knowingly yield incomplete evidence.",
+    "verification": "All four prior terminal timestamps are before their respective Entry+24h boundaries; compact retained state proves no post-24h observation influenced metrics. Original-43 reacquired=0; affected-four reacquired=0; affected-four provider calls=0; new Stage2 calls=0; Helius=0.",
+    "population": "49 total; 47 qualified terminal outcomes; 2 right-censored awaiting corrected first windows; 0 failed closed; 0 pending.",
+    "safety": "No opening provenance, Entry, monitor, queue, runtime, worker, activation, or trading change. Raw provider payloads=0. RUNTIME_DEPLOYMENT_REQUIRED=false; audit-only compact artifact, maximum single file below 500 MB and no unbounded growth path.",
+    "audit": "docs/audits/dev013_watchtower_recent50_final_lifecycle_completion.v1.json",
+    "next_action": "When current time reaches 1790981448, request only 4uTH's corrected Entry+2h to Entry+24h window, evaluate it immediately, and do not admit any next window unless non-terminal."
+  },
   "dev013_adaptive_lifecycle_pilot_20261002": {
     "engineering_revision": "0679e8c652f7d58da48452c0e2883f7c0f322a7f on codex/dev013-dev005-first-available-integration",
     "status": "HOLD_FIRST_WINDOW_END_DEVIATION",

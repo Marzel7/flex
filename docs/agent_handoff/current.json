@@ -18250,15 +18250,14 @@
     "exact_next_action": "COMPLETE_FINAL_TWO_WATCHTOWER_LIFECYCLES_WHEN_OBSERVABLE_THEN_REFRESH_RECENT50_UI"
   },
   "dev016_live_monitor_composition": {
-    "engineering_revision": "427d2721ff36cb3410d6fa5ce1b6c76f19701372 on codex/dev016-recent50-operators",
-    "status": "PASS_COMBINED_BASELINE_QUALIFIED_NOT_DEPLOYED",
-    "result": "The committed /intelligence/operators composition has three independent siblings in order: Operators Registry, Operations Live Monitor, and WATCHTOWER Recent 50. Live Monitor retains its complete monitor rendering, state labels, provider-backoff presentation, detail lifecycle readback, and /api/operations/live-monitor path; Recent-50 retains its independent wt50 renderer and /api/ops-v2/intel/watchtower-recent50 path. Scoped Live Monitor identifiers and CSS avoid collisions.",
-    "verification": "34 focused provider-free tests passed, 0 failed; JavaScript syntax check passed; a local isolated render visibly showed all three sibling sections. With no local DB configured, Live Monitor reported its own unavailable state while Recent-50 remained independently present.",
-    "audit": "docs/audits/dev016_watchtower_recent50_intelligence_operators_ui_qualification.v1.json",
-    "safety": "Helius/Birdeye calls=0; provenance/lifecycle changes=0; production UI/runtime changes=0; worker restarts=0; trading disabled; no raw retention.",
+    "engineering_revision": "427d2721ff36cb3410d6fa5ce1b6c76f19701372 qualified composition; 42db3088 audit-only deployment-hold record on codex/dev016-recent50-operators",
+    "status": "HOLD_REQUIRED_RECENT50_DEPENDENCY_UNHEALTHY",
+    "result": "The qualified composition was not activated. Before deployment, /api/operations/live-monitor returned HTTP 200 from the active UI host http://127.0.0.1:8100, but /api/ops-v2/intel/watchtower-recent50 returned HTTP 404. The explicit deployment gate requires stopping when either dependency is unhealthy.",
+    "audit": "docs/audits/dev016_watchtower_intelligence_operators_ui_deployment.v1.json",
+    "safety": "Helius/Birdeye/other provider calls=0; provenance/lifecycle changes=0; production UI/runtime changes=0; worker restarts=0; trading disabled; no raw retention.",
     "runtime_deployment_required": true,
-    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
-    "exact_next_action": "AUTHORIZE_DEV016_COMBINED_INTELLIGENCE_OPERATORS_UI_DEPLOYMENT"
+    "runtime_deployment_gate": "HOLD",
+    "exact_next_action": "RESTORE_OR_QUALIFY_THE_REQUIRED_RECENT50_API_ROUTE_ON_THE_ACTIVE_UI_HOST_THEN_RESTART_DEV016_DEPLOYMENT_FROM_PREDEPLOYMENT_DEPENDENCY_CHECKS"
   },
   "dev016_operators_baseline_reconciliation": {
     "engineering_revision": "993b8b5bd4f3f26e8bb8d7667bb89643c25f38e6 on codex/dev016-recent50-operators",

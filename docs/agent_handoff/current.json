@@ -8,6 +8,7 @@
     "safety": "HELIUS=7; BIRDEYE=7; lifecycle calls=0; retries=0; raw provider payload retention=false; provenance append-only=true; authoritative/legacy entry overwrite=false; source/template/renderer/API/supervisor/production/trading changes=0.",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "No executable runtime behavior changed; the existing DEV read path dynamically projects committed provenance.",
+    "diagnostic": "Read-only port-8100/API review after restart confirms Entry is projected for all six current rows. Their Current MC remains null because no live observation is retained; the five newly backfilled rows plus other non-terminal rows have null ATH/Peak because no qualified lifecycle result is retained. This is evidence absence, not renderer state gating.",
     "next_action": "OPTIONAL_BROWSER_VISUAL_RETRY_FOR_THE_SIX_CURRENTLY_POPULATED_ROWS_WITHOUT_PROVIDER_CALLS"
   },
   "dev017_watchtower_live_monitor_price_display": {

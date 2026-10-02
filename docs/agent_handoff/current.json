@@ -1,15 +1,15 @@
 {
   "dev014_watchtower_ui_deployment": {
-    "engineering_revision": "0aecebabe4d56224ff4cc94b3621bd3c95127cb6 on codex/dev014-watchtower-ui",
-    "status": "HOLD_RUNTIME_TARGET_DIRTY_EXACT_SOURCE_NOT_DEPLOYED",
+    "engineering_revision": "1cd4710e7efe3747043bcc9643c33daa710f99e2 on codex/dev014-watchtower-ui",
+    "status": "HOLD_ISOLATED_RUNTIME_REDIRECT_REQUIRES_PROTECTED_CONFIG_MUTATION",
     "qualified_commit": "58765481ff3ea840c541071264a0e254ddf6d55f",
-    "result": "Supervisor's watchtower_api target is /Users/kevinkeaveney/Dev/claude/flex, currently revision 580508a with unrelated dirty changes including operation_dashboard_routes.py. Exact cherry-pick properly refused. A scoped reconstruction was removed before restart because it could not prove byte-identical qualified source. Production UI/runtime remains unchanged.",
+    "result": "Active supervisord itself loads the protected dirty checkout's config and has no external include/per-program override. Its watchtower_api program directory, PYTHONPATH, gunicorn config, logs, and port are all configured there. Redirecting the service would mutate that protected config, prohibited by this gate. The clean DEV-014 worktree retains the exact qualified delta and its focused tests pass, but no restart/deployment was attempted.",
     "preimage": "watchtower_api RUNNING PID 12362; all unrelated Watchtower workers remained running and unrestarted.",
     "safety": "Provider calls=0; provenance/Entry/monitor/queue writes=0; activations/jobs=0; worker/API restart=0; raw retention=0; no production deployment occurred.",
     "audit": "docs/audits/dev014_watchtower_ui_deployment.v1.json",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_RUNTIME_TARGET_DIRTY_EXACT_SOURCE_NOT_DEPLOYED",
-    "next_action": "CLEAN_OR_ISOLATE_THE_ACTUAL_SUPERVISOR_RUNTIME_TARGET_THEN_APPLY_THE_EXACT_58765481_QUALIFIED_COMMIT"
+    "next_action": "AUTHORIZE_A_SEPARATE_SUPERVISOR_CONFIGURATION_TARGET_OR_AN_EXPLICIT_EXCEPTION_TO_MODIFY_THE_PROTECTED_CONFIG"
   },
   "dev014_watchtower_dev013_ui_integration": {
     "engineering_revision": "58765481ff3ea840c541071264a0e254ddf6d55f on codex/dev014-watchtower-ui",

@@ -1,4 +1,16 @@
 {
+  "dev016_port8100_watchtower_live_monitor_enrichment": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa plus exact DEV runtime delta",
+    "status": "PASS_DEV_RUNTIME_UPDATED_AND_VISUALLY_VERIFIED",
+    "finding": "The actual port-8100 read-only DEV runtime now overlays retained DEV-013 facts only onto existing operation_id=watchtower monitor rows. The Registry, the 20-row multi-operation monitor population/order/state, and non-Watchtower rows were preserved. The hosted row detail visibly exposes First Available entry authority/quality and retained terminal or right-censored lifecycle facts without acquisition or writes.",
+    "audit": "docs/audits/dev016_port8100_watchtower_live_monitor_enrichment.v1.json sha256 171c5e4013dc938ea072ef6561262188bab8ccafc19c7ad41f230528d7971a40",
+    "tests": "8 passed, 0 failed: DEV-016 projection/UI contract plus existing live-monitor formatting and registry projection tests.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS_DEV_RUNTIME_ONLY",
+    "runtime": "Reloaded python -m src.dev_runtime serving 127.0.0.1:8100; health confirms DEVELOPMENT/read-only, outbound network blocked, production databases read-only.",
+    "safety": "Production source/runtime/UI and Supervisor unchanged. Provider calls, monitor fact writes, queue writes, and trading enablement=0.",
+    "next_action": "NONE_FOR_PORT8100_UI"
+  },
   "dev015_watchtower_lifecycle_field_qualification": {
     "engineering_revision": "60c5a0356c8f704fa00c189db499282f971f5909 on codex/dev015-lifecycle-fields; based on the previously qualified DEV-015 presentation revision e49b8b977a44a1a5fd85249c4a4d512af2ef1359",
     "status": "PASS_LIFECYCLE_FIELDS_QUALIFIED_NOT_DEPLOYED",

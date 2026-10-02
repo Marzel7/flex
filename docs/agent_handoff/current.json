@@ -18104,6 +18104,18 @@
     "runtime_deployment_reason": "The qualified checkpoint is isolated and dormant; no production target runtime or executable service was changed.",
     "exact_next_action": "OBTAIN_SEPARATE_AUTHORIZATION_BEFORE_ANY_RECENT_50_PROVIDER_ACQUISITION; dispatch only safely PENDING controls in frozen manifest rank order with a maximum chunk of 10."
   },
+  "dev013_recent50_chunk001_complete_20261002": {
+    "engineering_revision": "740e2171021e948d1aa07fa3c3db70955485bf37 on codex/dev013-dev005-first-available-integration",
+    "status": "PASS_RECENT50_CHUNK_001",
+    "finding": "Under explicit superseding authorization, qualified provenance was used as completion authority and the rank-1 control was reacquired because provenance was absent. All ten frozen Chunk-001 controls qualified with the original Helius plus Birdeye offset-0/conditional-offset-100 methodology. Compact append-only provenance rows inserted=10.",
+    "provider_accounting": "Helius=10; Birdeye page0=10; page1=2; total=22; no automatic retries. Page-1 windows=2; no offset-200 request.",
+    "result": "Recent-50 durable checkpoint progress: TOTAL=50, QUALIFIED=13, FAILED_CLOSED=0, AMBIGUOUS=0, PENDING=37.",
+    "safety": "Short-lived provenance connections used PRAGMA busy_timeout=5000 and immediate short transactions. Entry/monitor/activation/job/queue/runtime/worker changes=0; raw payload retention=0.",
+    "audit": "docs/audits/dev013_watchtower_recent50_chunk_001.v1.json",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Bounded historical research/provenance append only; no executable runtime changed.",
+    "exact_next_action": "PROCESS_NEXT_RECENT50_ACQUISITION_CHUNK only with separate authorization."
+  },
   "dev013_recent50_chunk001_sqlite_busy_recovery_20261002": {
     "engineering_revision": "c0a595b84fabf30e0b675bde0c3a875e698a9dee on codex/dev013-dev005-first-available-integration",
     "status": "HOLD_EVIDENCE_NOT_RECONSTRUCTABLE",

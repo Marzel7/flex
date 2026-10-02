@@ -1,15 +1,15 @@
 {
   "dev013_adaptive_lifecycle_pilot_20261002": {
-    "engineering_revision": "3c72ff3211ea47a78aced5d8bf5631136ca1d071 on codex/dev013-dev005-first-available-integration",
-    "status": "PASS_CREDIT_EFFICIENT_ADAPTIVE_LIFECYCLE_PILOT",
-    "finding": "The same three frozen Watchtower First Available controls were rerun with the corrected documented mode=range padding=true 1m Entry-to-2h request. All returned complete time coverage (120 buckets) and each reached the frozen 85% drawdown terminal within Stage 1. Stage 2 was therefore correctly forbidden for all controls: 3 Birdeye calls, 75 CU, 0 Helius, 0 retries, and no raw provider retention.",
+    "engineering_revision": "a85adcfed6c5d2da0247693339427f85f760bcac on codex/dev013-dev005-first-available-integration",
+    "status": "PASS_RECENT50_ADAPTIVE_LIFECYCLE_COMPLETE",
+    "finding": "The remaining 46 immutable Recent-50 qualified entries were processed in resumable 10/10/10/10/6 chunks using padding=true 1m Stage 1 and immediate idempotent compact SQLite persistence. Across all 49 qualified openings: 43 qualified lifecycles reached DRAWDOWN_85 within 2h; 6 correctly passed the continuation gate, each made one 15m Stage-2 request, and each safely FAILED_CLOSED because it did not reach Entry+7d. Final calls: 49 Stage1 + 6 Stage2 = 55 Birdeye; 0 Helius; 1465 CU; no raw payload retention.",
     "contract": "docs/contracts/watchtower_recent50_adaptive_lifecycle.v1.json",
-    "audit": "docs/audits/dev013_watchtower_recent50_adaptive_lifecycle_pilot.v1.json",
-    "tests": "Contract and compact pilot audit JSON validate; git diff --check passed. Pilot runner executed once under its six-call maximum.",
-    "flags": "BIRDEYE lifecycle calls=3; Helius=0; Stage2=0; FIRST_AVAILABLE/Entry/monitor facts/queue/runtime/trading unchanged; raw payload retention=0.",
+    "audit": "docs/audits/dev013_watchtower_recent50_adaptive_lifecycle_final.v1.json",
+    "tests": "All five chunk audits and final audit JSON validate; runner syntax compiles; git diff --check passed; 46 durable compact rows verified.",
+    "flags": "BIRDEYE lifecycle calls=55 total; Helius=0; FIRST_AVAILABLE/Entry/monitor facts/queue/runtime/trading unchanged; raw payload retention=0; compact lifecycle provenance table has 46 non-pilot rows.",
     "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Bounded pilot runner, contract, and compact audit only; no production runtime path was changed.",
-    "next_action": "BACKFILL_ADAPTIVE_LIFECYCLE_FOR_REMAINING_46_QUALIFIED_WATCHTOWER_LAUNCHES"
+    "runtime_deployment_reason": "Bounded historical backfill runner, compact SQLite provenance, and audits only; no production runtime path was changed.",
+    "next_action": "ANALYZE_WATCHTOWER_RECENT50_ENTRY_TO_TERMINAL_STRATEGY_HISTORY"
   },
   "dev013_existing_birdeye_lifecycle_path_recovery_20261002": {
     "engineering_revision": "e1fb2cf94477d52114374949c97f4a5f52b3837f on codex/dev013-dev005-first-available-integration",

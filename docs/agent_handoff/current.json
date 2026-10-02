@@ -18015,6 +18015,7 @@
     "audit": "docs/audits/dev013_entry_provenance_schema_and_three_control_pilot.v1.json",
     "exact_next_action": "INVESTIGATE_EKT_LIVE_VS_FROZEN_BIRDEYE_EVIDENCE_DIVERGENCE_READ_ONLY; DO_NOT_ENABLE_CONTINUOUS_FIRST_AVAILABLE"
   },
+  "dev013_provider_transport_classification_20261002": {"engineering_revision":"d18065c05d43f9fd1d6f378a104310e5e91dc966","status":"PASS","finding":"Provider-free compact Birdeye result taxonomy now distinguishes HTTP, DNS/TCP/TLS/timeout/reset, invalid JSON, and invalid collection without storing URLs, exception text, headers, or response bodies. 21 focused tests passed; provider calls=0.","audit":"docs/audits/dev013_provider_transport_classification_fix.v1.json","exact_next_action":"AUTHORIZE_ONE_DIAGNOSTIC_REPLAY_OF_THE_FROZEN_BATCH002_FIRST_CONTROL_USING_THE_QUALIFIED_SANITIZED_TRANSPORT"},
   "dev013_batch002_birdeye_failure_forensic_20261002": {
     "engineering_revision":"27da24d74e968edf4ffde32df33e54b5fb586299 on codex/dev013-dev005-first-available-integration",
     "status":"PASS_FORENSIC_INSUFFICIENT_EVIDENCE",

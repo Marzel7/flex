@@ -1,4 +1,16 @@
 {
+  "dev015_watchtower_lifecycle_field_qualification": {
+    "engineering_revision": "60c5a0356c8f704fa00c189db499282f971f5909 on codex/dev015-lifecycle-fields; based on the previously qualified DEV-015 presentation revision e49b8b977a44a1a5fd85249c4a4d512af2ef1359",
+    "status": "PASS_LIFECYCLE_FIELDS_QUALIFIED_NOT_DEPLOYED",
+    "result": "The Recent-50 presentation now directly renders deployed API fields max_drawdown_percent and time_to_ath_seconds. Drawdown is format-only; time-to-ATH is format-only with null rendered as —. The compact regression fixture distinguishes 47 terminal rows, 45 duration values, two terminal duration nulls, and two separate right-censored rows.",
+    "contract": "docs/contracts/watchtower_recent50_ui.v1.json",
+    "audit": "docs/audits/dev015_watchtower_recent50_ui_qualification.v2.json",
+    "tests": "7 focused provider-free tests passed, 0 failed. One read-only localhost API check confirmed exact deployed field names and 47/45/2 availability.",
+    "safety": "DEV014/API/global semantics and evidence unchanged; provider calls=0; production UI/runtime changes=0; worker restarts=0; raw retention=0; compact audit only and maximum-file rule preserved.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "DEPLOY_REQUALIFIED_DEV015_WATCHTOWER_RECENT50_UI"
+  },
   "dev014_watchtower_lifecycle_field_deployment": {
     "engineering_revision": "dc58fff97148ebd741e35f7b454d9da381037c54 qualified API revision; runtime audit commit da15ba89c123328ea10be3d3aed691f8897253e4",
     "status": "PASS_DEPLOYED_AND_VERIFIED",

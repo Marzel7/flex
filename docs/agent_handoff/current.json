@@ -18015,6 +18015,20 @@
     "audit": "docs/audits/dev013_entry_provenance_schema_and_three_control_pilot.v1.json",
     "exact_next_action": "INVESTIGATE_EKT_LIVE_VS_FROZEN_BIRDEYE_EVIDENCE_DIVERGENCE_READ_ONLY; DO_NOT_ENABLE_CONTINUOUS_FIRST_AVAILABLE"
   },
+  "dev013_three_control_backfill_v2_20261002": {
+    "engineering_revision": "1b025d6e43adcd681a86e2b8a8f14d79234b8bcd on codex/dev013-dev005-first-available-integration",
+    "status": "PASS_THREE_CONTROL_PAGINATION_AWARE_BACKFILL",
+    "finding": "The exact restored original wt_opening_slots pagination reproduced all fixed controls: FYRT, BT5, and EKt each match frozen create slot, first available slot, slot offset, and USD MC. EKt used page 0=100 plus page 1=59, combined before normalization, ordering, and selection; its original +1/$141309 result is restored.",
+    "methodology": "27945242f7d5ea2994c73077693f7ee0862eaefa; offset 0 then offset 100 only when page 0 has 100 records; no offset 200.",
+    "provider_accounting": "Helius getTransaction=3; Birdeye token/txs=4; total=7/9; automatic retries=0. Bindings resolved through authorized Supervisor Helius and .env BIRDEYE without exposing credential values.",
+    "provenance": "Existing append-only table retained unchanged. Previous v1 rows rewritten=0; corrected original-pagination-v2 rows inserted=3; replay without provider calls inserted=0. EKt prior and corrected generations remain distinguishable.",
+    "audit": "docs/audits/dev013_first_available_three_control_backfill_pilot_v2.v1.json",
+    "tests": "pytest -q tests/test_watchtower_first_available_mc.py: 10 passed; audit JSON validation passed.",
+    "safety": "Compact evidence only; raw Helius/Birdeye responses retained=0. Authoritative Entry, monitor-fact, queue, activation, historical-job, worker, runtime, state, continuous operation, Byzantine, Deep, trading, and DEV020 changes=0. Schema changed this run=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Bounded historical acquisition and append-only compact provenance only; no executable runtime behavior was deployed or changed.",
+    "exact_next_action": "AUTHORIZE_BOUNDED_WATCHTOWER_HISTORY_BACKFILL_USING_THE_RESTORED_ORIGINAL_METHODOLOGY"
+  },
   "dev013_original_methodology_reconciliation_20261002": {
     "engineering_revision": "27945242f7d5ea2994c73077693f7ee0862eaefa on codex/dev013-dev005-first-available-integration",
     "status": "PASS_ORIGINAL_METHOD_RESTORED",

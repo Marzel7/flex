@@ -18015,6 +18015,19 @@
     "audit": "docs/audits/dev013_entry_provenance_schema_and_three_control_pilot.v1.json",
     "exact_next_action": "INVESTIGATE_EKT_LIVE_VS_FROZEN_BIRDEYE_EVIDENCE_DIVERGENCE_READ_ONLY; DO_NOT_ENABLE_CONTINUOUS_FIRST_AVAILABLE"
   },
+  "dev013_watchtower_history_backfill_batch_002_20261002": {
+    "engineering_revision": "f33ebd3258dd4b94ec261b0cdea01470f934efb0 on codex/dev013-dev005-first-available-integration",
+    "status": "HOLD_HISTORY_BACKFILL_SYSTEMATIC_FAILURE",
+    "finding": "Batch 002 froze the next deterministic 25-control selection from the authoritative 568-mint WATCHTOWER population, excluding all 13 existing qualified mints. Helius DNS resolution failed before any provider response. A subsequent accidental second attempt repeated the same pre-response DNS failure; no further call was made, no Birdeye request occurred, and no batch result was qualified.",
+    "provider_accounting": "Helius request attempts=2, successful responses=0; Birdeye attempts=0; automatic retries=0. The authorized no-retry batch must not resume without fresh authorization after connectivity is verified.",
+    "security_incident": "The second local diagnostic invocation allowed the HTTP client exception to include a credential-bearing request URL in tool output. No credential was written to repository, audit, handoff, database, or application log by this task, but the exposed binding should be rotated and access reviewed before another live-provider authorization.",
+    "safety": "Provenance rows=0; monitor facts remained 18; provenance remained 16; Entry/activation/jobs/terminal/runtime/worker/queue changes=0; raw provider response retention=0; Batch 003 not started.",
+    "audit": "docs/audits/dev013_watchtower_history_backfill_batch_002.v1.json",
+    "tests": "Python compilation passed; hold audit JSON validation and git diff --check passed.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "No runtime behavior was deployed; the batch stopped before a provider response or state write.",
+    "exact_next_action": "ROTATE_THE_EXPOSED_HELIUS_BINDING_AND_VERIFY_PROVIDER_DNS_CONNECTIVITY_THEN_OBTAIN_NEW_EXPLICIT_BATCH_002_ATTEMPT_AUTHORIZATION"
+  },
   "dev013_watchtower_history_backfill_batch_001_20261002": {
     "engineering_revision": "3ce6178a723bb996aba999138ec9920f26261b58 on codex/dev013-dev005-first-available-integration",
     "status": "PASS_BOUNDED_HISTORY_BACKFILL_BATCH_001",

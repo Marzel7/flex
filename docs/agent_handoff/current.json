@@ -1,15 +1,15 @@
 {
   "dev013_adaptive_lifecycle_pilot_20261002": {
-    "engineering_revision": "a85adcfed6c5d2da0247693339427f85f760bcac on codex/dev013-dev005-first-available-integration",
-    "status": "PASS_RECENT50_ADAPTIVE_LIFECYCLE_COMPLETE",
-    "finding": "The remaining 46 immutable Recent-50 qualified entries were processed in resumable 10/10/10/10/6 chunks using padding=true 1m Stage 1 and immediate idempotent compact SQLite persistence. Across all 49 qualified openings: 43 qualified lifecycles reached DRAWDOWN_85 within 2h; 6 correctly passed the continuation gate, each made one 15m Stage-2 request, and each safely FAILED_CLOSED because it did not reach Entry+7d. Final calls: 49 Stage1 + 6 Stage2 = 55 Birdeye; 0 Helius; 1465 CU; no raw payload retention.",
+    "engineering_revision": "977170d8ff9432ec671126802d812c6aa14014b3 on codex/dev013-dev005-first-available-integration",
+    "status": "HOLD_CENSORED_CONTINUATION_EVIDENCE_UNAVAILABLE",
+    "finding": "Read-only censored-token recovery confirms the six exact STAGE2_INSUFFICIENT rows. Their compact results retain Stage-2 boundary/count metadata only, not normalized Stage-2 candles or a final running peak/drawdown state. All retained Stage-2 windows reach the current provider observable boundary while every Entry+7d horizon is still later. No non-overlapping continuation is presently observable; prohibited Stage-2 reacquisition would be required to reconstruct peak continuity, so 0 additional provider calls were made.",
     "contract": "docs/contracts/watchtower_recent50_adaptive_lifecycle.v1.json",
-    "audit": "docs/audits/dev013_watchtower_recent50_adaptive_lifecycle_final.v1.json",
-    "tests": "All five chunk audits and final audit JSON validate; runner syntax compiles; git diff --check passed; 46 durable compact rows verified.",
-    "flags": "BIRDEYE lifecycle calls=55 total; Helius=0; FIRST_AVAILABLE/Entry/monitor facts/queue/runtime/trading unchanged; raw payload retention=0; compact lifecycle provenance table has 46 non-pilot rows.",
+    "audit": "docs/audits/dev013_watchtower_recent50_censored_lifecycle_completion.v1.json",
+    "tests": "Censored completion audit JSON validates; git diff --check passed; current provider-boundary and retained-key inspection completed without provider calls.",
+    "flags": "Additional BIRDEYE lifecycle calls=0; Helius=0; FIRST_AVAILABLE/Entry/monitor facts/queue/runtime/trading unchanged; raw payload retention=0.",
     "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Bounded historical backfill runner, compact SQLite provenance, and audits only; no production runtime path was changed.",
-    "next_action": "ANALYZE_WATCHTOWER_RECENT50_ENTRY_TO_TERMINAL_STRATEGY_HISTORY"
+    "runtime_deployment_reason": "Read-only evidence and time-boundary diagnosis plus compact audit only; no production runtime path was changed.",
+    "next_action": "WAIT_UNTIL_A_NON_OVERLAPPING_15M_CONTINUATION_WINDOW_IS_OBSERVABLE_AND_AUTHORIZE_A_PEAK-CONTINUITY_RECOVERY_POLICY"
   },
   "dev013_existing_birdeye_lifecycle_path_recovery_20261002": {
     "engineering_revision": "e1fb2cf94477d52114374949c97f4a5f52b3837f on codex/dev013-dev005-first-available-integration",

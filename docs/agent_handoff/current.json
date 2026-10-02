@@ -1,4 +1,15 @@
 {
+  "dev013_existing_birdeye_lifecycle_path_recovery_20261002": {
+    "engineering_revision": "e1fb2cf94477d52114374949c97f4a5f52b3837f on codex/dev013-dev005-first-available-integration",
+    "status": "PASS_EXISTING_BIRDEYE_LIFECYCLE_PATH_RECOVERED",
+    "finding": "Recovered the retained successful Byzantine 64-token lifecycle precedent: seven days were acquired in two explicit windows per token, 1m for the first two hours and 15m for the remaining 6d22h, yielding 784 observations per reconstructed token. The retained result proves the two-stage lifecycle, not a one-request seven-day 15m capacity. Its intentionally retired raw request envelopes cannot establish a causal explanation for the later 10-item probe, so no undocumented limit or pagination parameter was inferred.",
+    "audit": "docs/audits/dev013_existing_birdeye_lifecycle_path_recovery.v1.json",
+    "tests": "JSON validation and git diff --check passed; no provider calls.",
+    "flags": "BIRDEYE/Helius/other network calls=0; FIRST_AVAILABLE provenance/Entry/monitor facts/runtime=unchanged; raw payload retention=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Audit-only repository recovery; no executable runtime behavior changed.",
+    "next_action": "REUSE_EXISTING_LIFECYCLE_PATH_ON_3_RECENT50_CONTROLS"
+  },
   "dev013_original_ten_manifest_recovery_20261001": {
     "engineering_revision": "a73a318e003cf57ebde089bd272073d7a31d89e9 on codex/dev013-watchtower-helius-entry; collector implementation remains f797dd4231bc5d5eacc1e29ed10d16b5a4b7ec4e",
     "status": "HOLD_CREATE_INSTRUCTION_VARIANT_NOT_RETAINED",

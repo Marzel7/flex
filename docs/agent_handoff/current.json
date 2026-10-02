@@ -1,4 +1,15 @@
 {
+  "dev017_watchtower_live_monitor_price_display": {
+    "engineering_revision": "f4373955142e0aa3f4a2f156c0bffd486f424845 on codex/dev017-watchtower-price-display; deployed renderer equivalent in port-8100 DEV template",
+    "status": "PASS_DEV_UI_UPDATED_AND_VERIFIED",
+    "finding": "The Live Monitor API already had retained Watchtower values. The renderer now displays retained ATH, max multiple, and max drawdown independently of prospective monitor state; Current MC remains latest live observation only. Port 8100 remains DEVELOPMENT/read-only.",
+    "audit": "docs/audits/dev017_watchtower_live_monitor_price_display.v1.json",
+    "tests": "7 passed, 0 failed.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS_DEV_RUNTIME_ONLY",
+    "safety": "Production source/runtime, Supervisor, provider calls, monitor writes, queue writes, and trading changes=0.",
+    "next_action": "AUDIT_ONLY_WATCHTOWER_ROWS_STILL_SHOWING_MISSING_PRICE_DATA"
+  },
   "dev016_port8100_watchtower_live_monitor_enrichment": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa plus exact DEV runtime delta",
     "status": "PASS_DEV_RUNTIME_UPDATED_AND_VISUALLY_VERIFIED",

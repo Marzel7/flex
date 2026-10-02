@@ -18237,6 +18237,18 @@
     "runtime_deployment_reason": "Bounded historical acquisition only; no executable runtime was deployed or altered.",
     "exact_next_action": "SEPARATELY_AUTHORIZE_PROVENANCE_SQLITE_LOCK_DIAGNOSIS_AND_A_QUALIFIED_COMPLETION_RECOVERY_PATH; do not reacquire the completed first-control Helius or Birdeye page-0 request."
   },
+  "dev015_watchtower_requalified_ui_deployment": {
+    "engineering_revision": "60c5a0356c8f704fa00c189db499282f971f5909 qualified template; deployed as 4e07ee05b49918bc29aff4da5c7d2e270c95e17e and audited as 9ad08f4e0a3b0bdf7e962b3ff4b4387eab5babe4 in the isolated runtime worktree",
+    "status": "PASS_DEPLOYED_AND_VISUALLY_VERIFIED",
+    "result": "Only templates/ops_tokens.html was deployed onto the already-active DEV014 API projection. Post-restart API and live UI reconcile: 50 rows, 49 First Available entries, 47 qualified terminals, 2 right-censored, and 1 opening-insufficient. The UI visibly renders ATH/max multiple/max drawdown/terminal MC/terminal multiple for 47; it renders time-to-ATH for 45 and a dash for the two retained terminal nulls.",
+    "runtime_deployment_gate": "PASS; target /Users/kevinkeaveney/.codex/worktrees/dev014-watchtower-ui/flex; only watchtower_api restarted (post-reload PID 10498). DEV014 projection source and supervisor configuration were unchanged; watchtower_listener and creator_funding_worker were not restarted.",
+    "verification": "7 focused tests passed before deploy. Live rendered UI filter counts were complete=47, lifecycle-incomplete=2, opening-insufficient=1, all=50. Entry, ATH, max-multiple, drawdown, and time sorting; retained time-null sorting; mint-copy; and row-detail interaction smoke checks passed. No client-side lifecycle or entry recomputation was introduced.",
+    "audit": "docs/audits/dev015_watchtower_recent50_ui_deployment.v1.json",
+    "safety": "Provider calls=0; provenance/Entry/monitor fact writes=0; raw provider payload retention=0; trading remains disabled. The only modified runtime source file was the qualified UI template. Maximum artifact file bound remains below 500 MB; unbounded-growth paths=0.",
+    "rollback": "Verified and not required. Restore only templates/ops_tokens.html from da15ba89c123328ea10be3d3aed691f8897253e4 and restart only watchtower_api; preserve DEV014 API projection.",
+    "runtime_deployment_required": true,
+    "exact_next_action": "COMPLETE_FINAL_TWO_WATCHTOWER_LIFECYCLES_WHEN_OBSERVABLE_THEN_REFRESH_RECENT50_UI"
+  },
   "dev013_original_methodology_reconciliation_20261002": {
     "engineering_revision": "27945242f7d5ea2994c73077693f7ee0862eaefa on codex/dev013-dev005-first-available-integration",
     "status": "PASS_ORIGINAL_METHOD_RESTORED",

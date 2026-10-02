@@ -18015,6 +18015,17 @@
     "audit": "docs/audits/dev013_entry_provenance_schema_and_three_control_pilot.v1.json",
     "exact_next_action": "INVESTIGATE_EKT_LIVE_VS_FROZEN_BIRDEYE_EVIDENCE_DIVERGENCE_READ_ONLY; DO_NOT_ENABLE_CONTINUOUS_FIRST_AVAILABLE"
   },
+  "dev013_watchtower_history_backfill_batch_002_retry_20261002": {
+    "engineering_revision": "3f05a229f7606bdddd12b8531a3c97d27c119a32 on codex/dev013-dev005-first-available-integration",
+    "status": "HOLD_PROVIDER_INFRASTRUCTURE_FAILURE",
+    "finding": "The expressly authorized credential-safe preflight passed: credential-free Helius DNS resolution succeeded and exactly one sanitized Helius connectivity getTransaction succeeded without secret output or raw retention. The frozen Batch 002 retry then stopped on its first Birdeye infrastructure failure; no secondary diagnostic or retry was made.",
+    "provider_accounting": "Connectivity Helius=1. Batch Helius=1, Birdeye=1, total=2; qualified=0; provenance writes=0. The original aborted Batch 002 audit remains preserved.",
+    "safety": "Monitor facts remained 18; Entry, activation, jobs, terminal, runtime, worker, queue, and raw-response changes=0. Existing Helius credential was used only under the explicit new authorization; secret values exposed this attempt=false.",
+    "audit": "docs/audits/dev013_watchtower_history_backfill_batch_002_retry.v1.json",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Fail-closed bounded acquisition stopped before any provenance result or runtime change.",
+    "exact_next_action": "RESTORE_AND_VERIFY_BIRDEYE_PROVIDER_CONNECTIVITY_WITH_A_SEPARATE_SECRET_SAFE_AUTHORIZATION_BEFORE_ANY_NEW_BATCH_002_ATTEMPT"
+  },
   "dev013_watchtower_history_backfill_batch_002_20261002": {
     "engineering_revision": "f33ebd3258dd4b94ec261b0cdea01470f934efb0 on codex/dev013-dev005-first-available-integration",
     "status": "HOLD_HISTORY_BACKFILL_SYSTEMATIC_FAILURE",

@@ -17952,5 +17952,16 @@
     "contract": "docs/audits/watchtower_deep_classification_deployment_contract.v1.json sha256 182c952f380d7e25e3f5c2523398f1f22765355f4ef596b0edbcbd2170763636; authorized=false; one bounded pinned-runtime reload/restart only after exact hash verification.",
     "audit": "docs/audits/watchtower_deep_classification_implementation_review.v1.json sha256 d2026949842813b509841f4fe37577d1f3a6a529d8e2b83376cc232a1b226a19",
     "next_action": "AUTHORIZE_WATCHTOWER_DEEP_CLASSIFICATION_V1"
+  },
+  "dev013_clean_first_available_mc_20261002": {
+    "engineering_revision": "bdd98d1c5313a3939541e495bc335a32dbfa61b7 on codex/dev013-watchtower-helius-entry",
+    "status": "PASS_CLEAN_IMPLEMENTATION_REPRODUCES_ORIGINAL_10_NOT_INTEGRATED",
+    "finding": "A clean provider-free evaluator was reconstructed directly from preserved wt_opening_slots.py and cache evidence. Frozen original controls match 10/10 for create slot, first open slot, offset, and rounded MC; FYRT is included. Synthetic plus1/plus2/plus3, same-slot ordering, unsorted, no later trade, missing create/supply, malformed ordering, and sell-price controls pass.",
+    "artifacts": "docs/contracts/watchtower_first_available_mc.v1.json; docs/audits/dev013_first_available_clean_reconstruction.v1.json; docs/audits/dev013_first_available_10_expected.v1.json; docs/audits/dev013_first_available_10_regression.v1.json",
+    "tests": "python -m pytest -q -p no:cacheprovider tests/test_watchtower_first_available_mc.py: 10 passed",
+    "safety": "Original script/JSON/caches unchanged; cache-only replay provider calls Helius=0 Birdeye=0 other=0; cache miss fails closed; no DEV-005 integration, worker restart, runtime, state, or WAITING-row changes; no raw provider retention added.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Dormant provider-free core and offline compact audit only; no executable runtime path changed.",
+    "exact_next_action": "QUALIFY_MINIMUM_DEV005_FIRST_AVAILABLE_MC_INTEGRATION_PROVIDER_FREE"
   }
 }

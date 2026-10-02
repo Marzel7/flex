@@ -18104,6 +18104,17 @@
     "runtime_deployment_reason": "The qualified checkpoint is isolated and dormant; no production target runtime or executable service was changed.",
     "exact_next_action": "OBTAIN_SEPARATE_AUTHORIZATION_BEFORE_ANY_RECENT_50_PROVIDER_ACQUISITION; dispatch only safely PENDING controls in frozen manifest rank order with a maximum chunk of 10."
   },
+  "dev013_recent50_chunk_001_20261002": {
+    "engineering_revision": "d2e23de52526dcaffa1da30beb1fd854eb114a4e on codex/dev013-dev005-first-available-integration",
+    "status": "PARTIAL_PROVENANCE_DB_LOCK",
+    "finding": "Chunk 001 froze the first ten safely pending Recent-50 mints in manifest rank order. The first mint completed one admitted Helius getTransaction and one admitted Birdeye page-0 call with durable completion checkpoints. Appending compact provenance then failed with SQLITE_BUSY. The checkpoint is BIRDEYE_PAGE0_COMPLETED and live provenance for that mint remains absent, so reacquisition is not authorized or safe.",
+    "provider_accounting": "Helius admitted/completed=1/1; Birdeye page0 admitted/completed=1/1; page1=0/0; total completed=2. Connectivity diagnostics=0; automatic retries=0; remaining selected controls started=0.",
+    "safety": "No raw response retention; no authoritative Entry, monitor fact, queue, activation, runtime, worker, or continuous-feature change. No offset-200 request. The attempt stopped immediately on the live SQLite lock.",
+    "audit": "docs/audits/dev013_watchtower_recent50_chunk_001.v1.json",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Bounded historical acquisition only; no executable runtime was deployed or altered.",
+    "exact_next_action": "SEPARATELY_AUTHORIZE_PROVENANCE_SQLITE_LOCK_DIAGNOSIS_AND_A_QUALIFIED_COMPLETION_RECOVERY_PATH; do not reacquire the completed first-control Helius or Birdeye page-0 request."
+  },
   "dev013_original_methodology_reconciliation_20261002": {
     "engineering_revision": "27945242f7d5ea2994c73077693f7ee0862eaefa on codex/dev013-dev005-first-available-integration",
     "status": "PASS_ORIGINAL_METHOD_RESTORED",

@@ -18015,6 +18015,16 @@
     "audit": "docs/audits/dev013_entry_provenance_schema_and_three_control_pilot.v1.json",
     "exact_next_action": "INVESTIGATE_EKT_LIVE_VS_FROZEN_BIRDEYE_EVIDENCE_DIVERGENCE_READ_ONLY; DO_NOT_ENABLE_CONTINUOUS_FIRST_AVAILABLE"
   },
+  "dev013_birdeye_connectivity_preflight_20261002": {
+    "engineering_revision": "f293680c5d25fa4d3ea301ef0bceff38a739af2b on codex/dev013-dev005-first-available-integration",
+    "status": "PASS_BIRDEYE_CONNECTIVITY_QUALIFIED",
+    "finding": "Credential-free DNS for public-api.birdeye.so resolved. Exactly one secret-safe FYRT offset-0 opening-window request returned HTTP 200 with a structurally valid 14-item collection. No page 1, Helius request, Batch 002 token processing, or application write occurred.",
+    "safety": "BIRDEYE binding only; credentials not exposed this attempt; raw response retained=0; existing Batch 002 attempts preserved; provenance/Entry/monitor/queue/runtime/worker/state/continuous-operation changes=0.",
+    "audit": "docs/audits/dev013_birdeye_connectivity_preflight.v1.json",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "One read-only provider connectivity control only; no runtime behavior changed.",
+    "exact_next_action": "AUTHORIZE_A_NEW_ATTEMPT_OF_THE_SAME_FROZEN_BATCH_002_WITHOUT_REPEATING_PROVIDER_CONNECTIVITY_DIAGNOSTICS"
+  },
   "dev013_watchtower_history_backfill_batch_002_retry_20261002": {
     "engineering_revision": "3f05a229f7606bdddd12b8531a3c97d27c119a32 on codex/dev013-dev005-first-available-integration",
     "status": "HOLD_PROVIDER_INFRASTRUCTURE_FAILURE",

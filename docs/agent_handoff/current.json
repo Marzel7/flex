@@ -1,4 +1,16 @@
 {
+  "dev014_watchtower_dev013_ui_integration": {
+    "engineering_revision": "58765481ff3ea840c541071264a0e254ddf6d55f on codex/dev014-watchtower-ui",
+    "status": "PASS_QUALIFIED_NOT_DEPLOYED",
+    "result": "Added a read-only DEV-013 UI projection to /api/ops-v2/intel/launch-audit and compatibility /api/ops/launch-intelligence. Qualified FIRST_AVAILABLE_SLOT provenance now supplies explicit entry_mc_usd, entry_timestamp, entry policy/slot/offset/venue and First Available label. Legacy mc_at_first_external_buy remains serialized as legacy_mc_at_first_external_buy and cannot override it. The projection reads retained lifecycle facts unchanged: 47 qualified terminal rows and two named RIGHT_CENSORED rows with no fabricated terminal facts.",
+    "sources": "operation_monitor_entry_provenance (WATCHTOWER_FIRST_AVAILABLE_MC_V1); dev013_watchtower_recent50_lifecycle_provenance; dev013_watchtower_censored_rolling_final.",
+    "tests": "5 focused provider-free tests passed: DEV-014 50-row deterministic projection matrix plus existing DEV-013/DEV-005 bridge tests. JSON contracts/audit validate and git diff --check passed.",
+    "safety": "Provider calls=0; provenance/Entry/monitor/queue writes=0; no worker restart, activation, trading, deployment, or production change. No raw retention; compact source/test/audit only; maximum-file rule preserved.",
+    "artifacts": "docs/contracts/watchtower_dev013_ui_projection.v1.json; docs/audits/dev014_watchtower_dev013_ui_integration_qualification.v1.json",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "AUTHORIZE_DEV014_WATCHTOWER_UI_DEPLOYMENT"
+  },
   "dev013_watchtower_final_two_lifecycle_completion": {
     "engineering_revision": "1e8bcfe3a7ef75bed1ca0a1c810b8cf033c34c1d",
     "status": "HOLD_FINAL_TWO_FIRST_WINDOWS_NOT_YET_OBSERVABLE",

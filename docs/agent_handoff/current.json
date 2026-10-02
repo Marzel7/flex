@@ -18015,6 +18015,20 @@
     "audit": "docs/audits/dev013_entry_provenance_schema_and_three_control_pilot.v1.json",
     "exact_next_action": "INVESTIGATE_EKT_LIVE_VS_FROZEN_BIRDEYE_EVIDENCE_DIVERGENCE_READ_ONLY; DO_NOT_ENABLE_CONTINUOUS_FIRST_AVAILABLE"
   },
+  "dev013_watchtower_history_backfill_batch_001_20261002": {
+    "engineering_revision": "3ce6178a723bb996aba999138ec9920f26261b58 on codex/dev013-dev005-first-available-integration",
+    "status": "PASS_BOUNDED_HISTORY_BACKFILL_BATCH_001",
+    "finding": "The confirmed 568-mint WATCHTOWER population was fully classified before network use: 3 already qualified, 554 eligible, and 11 insufficient launch identity. The deterministic first ten eligible canonical launches (ascending canonical create time, mint tie-break) all qualified through the exact restored original methodology.",
+    "provider_accounting": "Helius getTransaction=10; Birdeye token/txs=10; total=20/30; retries=0; no page-1 calls. BIRDEYE and Supervisor Helius bindings resolved without credential exposure. Pacing was 3 seconds between controls.",
+    "result": "Qualified=10; failed-closed=0; offsets +1=7, +2=3, +3=0, >3=0; MC USD min=58619, median=135405.5, max=157014. Canonical create-time mismatches=0. Existing original evidence was excluded from reacquisition.",
+    "provenance": "Schema unchanged. Ten compact append-only history-batch-001 rows inserted; retained compact-evidence replay made zero provider calls and inserted zero rows. Existing committed Entries, monitor facts, activations, jobs, queues, and terminal states were unchanged.",
+    "audit": "docs/audits/dev013_watchtower_history_backfill_batch_001.v1.json",
+    "tests": "pytest -q -p no:cacheprovider tests/test_watchtower_first_available_mc.py: 10 passed; audit JSON validation passed.",
+    "safety": "No raw Helius/Birdeye response retention; no runtime/worker/continuous-feature/Byzantine/Deep/trading/DEV020 change; no automatic next batch.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Bounded historical compact-provenance acquisition only; no executable runtime behavior changed or deployed.",
+    "exact_next_action": "REVIEW_BATCH_001_AND_AUTHORIZE_NEXT_BOUNDED_WATCHTOWER_HISTORY_BATCH"
+  },
   "dev013_three_control_backfill_v2_20261002": {
     "engineering_revision": "1b025d6e43adcd681a86e2b8a8f14d79234b8bcd on codex/dev013-dev005-first-available-integration",
     "status": "PASS_THREE_CONTROL_PAGINATION_AWARE_BACKFILL",

@@ -18015,6 +18015,13 @@
     "audit": "docs/audits/dev013_entry_provenance_schema_and_three_control_pilot.v1.json",
     "exact_next_action": "INVESTIGATE_EKT_LIVE_VS_FROZEN_BIRDEYE_EVIDENCE_DIVERGENCE_READ_ONLY; DO_NOT_ENABLE_CONTINUOUS_FIRST_AVAILABLE"
   },
+  "dev013_batch002_birdeye_failure_forensic_20261002": {
+    "engineering_revision":"27da24d74e968edf4ffde32df33e54b5fb586299 on codex/dev013-dev005-first-available-integration",
+    "status":"PASS_FORENSIC_INSUFFICIENT_EVIDENCE",
+    "finding":"Zero-network forensic shows all Batch 002 failures retained the same first control. Sanitized batch transport collapsed local exception, non-200, invalid JSON, and malformed collection into one outcome and retained neither exception classification nor Helius response. Therefore an HTTP/provider outage is unproven; 48 successful HTTP 200s contradict a provider-wide outage claim.",
+    "audit":"docs/audits/dev013_batch002_birdeye_failure_forensic.v1.json",
+    "exact_next_action":"FIX_LOCAL_TRANSPORT_BEFORE_PROVIDER_CALL"
+  },
   "dev013_watchtower_history_backfill_batch_002_attempt_003_20261002": {
     "engineering_revision":"54309ef6ec6fda55a8a710ef121eae4681120260 on codex/dev013-dev005-first-available-integration",
     "status":"HOLD_PROVIDER_INFRASTRUCTURE_FAILURE",

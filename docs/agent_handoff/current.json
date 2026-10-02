@@ -18005,5 +18005,14 @@
     "finding": "The deterministic frozen set FYRT (+1, 2gh), BT5 (+2, DWmF), and EKt (+1, Gzaa) was selected before provider work. Read-only production preflight found no operation_monitor_entry_provenance table and no operation_monitor_facts rows for any selected mint. The requested append-only separate provenance write therefore has no deployed namespace.",
     "safety": "Provider calls=0/6; production writes/schema changes=0; no Entry/activation/queue/ledger/runtime/worker/state/Byzantine/Deep/trading change; raw response retention=0.",
     "exact_next_action": "EXPLICITLY_AUTHORIZE_A_BOUNDED_LIVE_SCHEMA_MIGRATION_FOR_OPERATION_MONITOR_ENTRY_PROVENANCE_OR_AUTHORIZE_A_NAMED_EXISTING_PROVENANCE_TABLE; DO_NOT_MAKE_PROVIDER_CALLS_BEFORE_THEN"
+  },
+  "dev013_entry_provenance_three_control_pilot_20261002": {
+    "engineering_revision": "bcd397b5159c3240039adb1826d6ac97a917539f on codex/dev013-dev005-first-available-integration",
+    "status": "HOLD_LIVE_PROVIDER_PARITY_FAILURE",
+    "finding": "The authorized additive migration created operation_monitor_entry_provenance with append-only update/delete guards and inserted three compact FIRST_AVAILABLE_SLOT provenance rows. FYRT and BT5 live paths exactly matched frozen truth. EKt did not: frozen slot +1 / MC 141309; live slot +57 / MC 138353. The control was retained, not replaced, and all six calls were consumed with no retry.",
+    "migration": "Preimage tables=195 facts=18 qualified entries=7 active=3 terminal=4, db=12470501376 bytes WAL=4152 bytes; post tables=196 and all existing monitor counts unchanged. Existing table alters/drops=0.",
+    "safety": "Monitor facts/authoritative Entry/queue/activation/historical-job writes=0; raw responses=0; worker/runtime/state/DEV012/Byzantine/Deep/trading/DEV020 changes=0. Live dual-evidence was not tested because selected controls have no monitor facts.",
+    "audit": "docs/audits/dev013_entry_provenance_schema_and_three_control_pilot.v1.json",
+    "exact_next_action": "INVESTIGATE_EKT_LIVE_VS_FROZEN_BIRDEYE_EVIDENCE_DIVERGENCE_READ_ONLY; DO_NOT_ENABLE_CONTINUOUS_FIRST_AVAILABLE"
   }
 }

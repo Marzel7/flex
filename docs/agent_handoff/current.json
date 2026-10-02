@@ -17988,5 +17988,15 @@
     "finding": "Under the user's single-control authorization, a secret-safe Supervisor-only preflight counted two HELIUS_API_KEY assignments and zero BIRDEYE_KKHOT assignments. No alternative location was inspected. The mandatory two-binding preflight therefore failed and no provider request was made.",
     "safety": "Helius=0, Birdeye=0, other network=0; credential values neither displayed, copied, persisted, logged, nor hashed; Supervisor unchanged; no Entry/monitor fact/queue/ledger writes; no runtime/worker/state/activation/trading/Byzantine/Deep change.",
     "exact_next_action": "USER_MUST_IDENTIFY_OR_EXPLICITLY_AUTHORIZE_THE_SINGLE_EXISTING_BIRDEYE_KKHOT_BINDING_LOCATION_FOR_THIS_TWO_CALL_SHADOW; OTHERWISE_STOP"
+  },
+  "dev013_fyrt_live_shadow_success_20261002": {
+    "engineering_revision": "e7047bd2d2a3ca61de2f4fc7a684efa1f2e3d239 on codex/dev013-dev005-first-available-integration",
+    "status": "PASS_LIVE_PROVIDER_PATH_REPRODUCES_FROZEN_CONTROL",
+    "finding": "The expressly authorized FYRT shadow used exactly one live Helius getTransaction and one live bounded Birdeye token-transactions request with no retries. The qualified evaluator reproduced frozen create slot 452309125, first available slot 452309126, offset +1, and rounded MC USD 164477 exactly.",
+    "audit": "docs/audits/dev013_first_available_fyrt_live_shadow.v1.json",
+    "safety": "BIRDEYE binding resolved from the expressly authorized existing .env BIRDEYE variable and Helius from the authorized Supervisor binding; no credential value was exposed, logged, persisted, or hashed. Raw provider responses retained=0. Entry/monitor fact/queue/DEV005 provider-ledger writes=0; activation/runtime/worker/state/dashboard/trading/Byzantine/Deep changes=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "exact_next_action": "AUTHORIZE_FIRST_AVAILABLE_MC_INTEGRATION_FOR_LIVE_WATCHTOWER_OPERATION"
   }
 }

@@ -17998,5 +17998,12 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "exact_next_action": "AUTHORIZE_FIRST_AVAILABLE_MC_INTEGRATION_FOR_LIVE_WATCHTOWER_OPERATION"
+  },
+  "dev013_three_control_backfill_preflight_20261002": {
+    "engineering_revision": "e7047bd2d2a3ca61de2f4fc7a684efa1f2e3d239 on codex/dev013-dev005-first-available-integration",
+    "status": "HOLD_PROVENANCE_NAMESPACE_NOT_DEPLOYED",
+    "finding": "The deterministic frozen set FYRT (+1, 2gh), BT5 (+2, DWmF), and EKt (+1, Gzaa) was selected before provider work. Read-only production preflight found no operation_monitor_entry_provenance table and no operation_monitor_facts rows for any selected mint. The requested append-only separate provenance write therefore has no deployed namespace.",
+    "safety": "Provider calls=0/6; production writes/schema changes=0; no Entry/activation/queue/ledger/runtime/worker/state/Byzantine/Deep/trading change; raw response retention=0.",
+    "exact_next_action": "EXPLICITLY_AUTHORIZE_A_BOUNDED_LIVE_SCHEMA_MIGRATION_FOR_OPERATION_MONITOR_ENTRY_PROVENANCE_OR_AUTHORIZE_A_NAMED_EXISTING_PROVENANCE_TABLE; DO_NOT_MAKE_PROVIDER_CALLS_BEFORE_THEN"
   }
 }

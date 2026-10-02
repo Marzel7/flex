@@ -1,15 +1,15 @@
 {
   "dev014_watchtower_ui_deployment": {
-    "engineering_revision": "c1286acdfd1e834455fc1f4bf074f386ab6e2931 on codex/dev014-watchtower-ui",
-    "status": "PASS_RECENT50_SCOPE_FIXED_QUALIFIED_NOT_DEPLOYED",
+    "engineering_revision": "c1286acdfd1e834455fc1f4bf074f386ab6e2931 runtime source; 56847adade8e612972d7f8c65b4830c22f9f4c42 deployment audit on codex/dev014-watchtower-ui",
+    "status": "PASS_DEPLOYED_AND_VERIFIED",
     "qualified_commit": "c1286acdfd1e834455fc1f4bf074f386ab6e2931",
-    "result": "The prior rollback remains in place and production is unchanged. Provider-free requalification recovered the immutable pre-acquisition 50-member manifest (sha256 ec69c5db047bacb8501aca61d4260e8f6fa7d694d00fbee34ab85e5c3bc8662a), makes it the sole population authority, and moves the cohort projection to /api/ops-v2/intel/watchtower-recent50. Global endpoints remain global. Retained evidence reconciles 49 qualified Entries, one opening-insufficient member, 47 terminal outcomes, and two right-censored members.",
-    "preimage": "watchtower_api RUNNING PID 12362; all unrelated Watchtower workers remained running and unrestarted.",
-    "safety": "Provider calls=0; provenance/Entry/monitor/queue writes=0; activations/jobs=0; no unrelated worker restart; raw retention=0. The attempted API-only redirect was rolled back after bounded read-only validation.",
-    "audit": "docs/audits/dev014_watchtower_dev013_ui_integration_qualification.v2.json",
+    "result": "watchtower_api now runs from the clean qualified DEV-014 worktree. Local read-only acceptance verified the frozen manifest digest, 50 rows, 49 qualified FIRST_AVAILABLE Entries, one opening-insufficient row, 47 terminal lifecycles including the three compact pilot facts, and two non-terminal RIGHT_CENSORED rows. Global endpoints remained available and were not restricted to the cohort.",
+    "preimage": "watchtower_api RUNNING PID 93529 from /Users/kevinkeaveney/Production/flex; listener PID 19811 and creator_funding_worker PID 95137 were preserved.",
+    "safety": "Provider calls=0; provenance/Entry/monitor/queue writes=0; activations/jobs=0; only watchtower_api restarted; raw retention=0. Only its three source-path bindings changed in the protected Supervisor stanza.",
+    "audit": "docs/audits/dev014_watchtower_ui_deployment.v1.json",
     "runtime_deployment_required": true,
-    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
-    "next_action": "REAUTHORIZE_DEV014_ISOLATED_WATCHTOWER_API_DEPLOYMENT"
+    "runtime_deployment_gate": "PASS",
+    "next_action": "VERIFY_RECENT50_UI_RENDERING_THEN_CONTINUE_FINAL_TWO_LIFECYCLES_WHEN_OBSERVABLE"
   },
   "dev014_watchtower_dev013_ui_integration": {
     "engineering_revision": "c1286acdfd1e834455fc1f4bf074f386ab6e2931 on codex/dev014-watchtower-ui",
@@ -20,8 +20,8 @@
     "safety": "Provider calls=0; provenance/Entry/monitor/queue writes=0; no worker restart, activation, trading, deployment, or production change. No raw retention; compact source/test/audit only; maximum-file rule preserved.",
     "artifacts": "docs/contracts/watchtower_dev013_ui_projection.v1.json; docs/audits/dev014_watchtower_dev013_ui_integration_qualification.v2.json",
     "runtime_deployment_required": true,
-    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
-    "next_action": "REAUTHORIZE_DEV014_ISOLATED_WATCHTOWER_API_DEPLOYMENT"
+    "runtime_deployment_gate": "PASS",
+    "next_action": "VERIFY_RECENT50_UI_RENDERING_THEN_CONTINUE_FINAL_TWO_LIFECYCLES_WHEN_OBSERVABLE"
   },
   "dev013_watchtower_final_two_lifecycle_completion": {
     "engineering_revision": "1e8bcfe3a7ef75bed1ca0a1c810b8cf033c34c1d",

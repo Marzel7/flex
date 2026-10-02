@@ -17963,5 +17963,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Dormant provider-free core and offline compact audit only; no executable runtime path changed.",
     "exact_next_action": "QUALIFY_MINIMUM_DEV005_FIRST_AVAILABLE_MC_INTEGRATION_PROVIDER_FREE"
+  },
+  "dev013_dev005_first_available_integration_20261002": {
+    "engineering_revision": "0a0b5d6756c30e40591fa19180d5355a22474894 on codex/dev013-dev005-first-available-integration, baseline b4a6468917ded2fa5aac99fdb4efff87a680cfa3",
+    "status": "PASS_PROVIDER_FREE_NOT_DEPLOYED",
+    "finding": "A compact FIRST_AVAILABLE_SLOT Entry bridge imports only DEV-013's qualified evaluator/policy and persists compact provenance atomically with the existing DEV-005 qualified activation. EXACT_TPLUS1 and FIRST_AVAILABLE_SLOT remain distinct; committed qualified Entry authority is immutable while evidence classes coexist in provenance.",
+    "tests": "32 passed, 0 failed: DEV-013 evaluator, 10 frozen integration mappings, compact provenance/atomic activation/idempotency/failure controls, DEV-011 activation, qualified-waiting reconciliation, and DEV-010 terminal controls.",
+    "eligibility_audit": "Read-only aggregate against current wt_ops_v2.db: Watchtower WAITING_FOR_ENTRY_REFERENCE=0; future first-available eligible=0; database writes=0.",
+    "safety": "Helius/Birdeye/other network calls=0; no raw provider retention; DEV-012 limits unchanged; DEV-005 worker/runtime/state/dashboard/trading changes=0; Byzantine unchanged; Deep FIRST_AVAILABLE disabled; no deployment.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "exact_next_action": "AUTHORIZE_A_SEPARATE_PINNED_RUNTIME_DEPLOYMENT_QUALIFICATION_AFTER_PROVIDER_ADMISSION_WIRING_AND_TARGET_PATH_PARITY"
   }
 }

@@ -1,15 +1,15 @@
 {
   "dev013_adaptive_lifecycle_pilot_20261002": {
-    "engineering_revision": "977170d8ff9432ec671126802d812c6aa14014b3 on codex/dev013-dev005-first-available-integration",
-    "status": "HOLD_CENSORED_CONTINUATION_EVIDENCE_UNAVAILABLE",
-    "finding": "Read-only censored-token recovery confirms the six exact STAGE2_INSUFFICIENT rows. Their compact results retain Stage-2 boundary/count metadata only, not normalized Stage-2 candles or a final running peak/drawdown state. All retained Stage-2 windows reach the current provider observable boundary while every Entry+7d horizon is still later. No non-overlapping continuation is presently observable; prohibited Stage-2 reacquisition would be required to reconstruct peak continuity, so 0 additional provider calls were made.",
+    "engineering_revision": "9ff513770fc5167fc33fc2bfd259b43e9fab577b on codex/dev013-dev005-first-available-integration",
+    "status": "PASS_CENSORED_MATURITY_SCHEDULE_FROZEN",
+    "finding": "The exact six censored rows are now explicitly RIGHT_CENSORED_HORIZON_NOT_MATURE. Their individual Entry+7d timestamps are frozen. Once each is mature, one full non-retry Stage-2 reacquisition from Entry+2h to Entry+7d is authorized, superseding the prior overlap prohibition only for these six. This restores a deterministic running-peak reconstruction by combining retained Stage 1 with the fresh full Stage 2. The future ceiling is 6 calls / 240 CU. This gate made 0 provider calls.",
     "contract": "docs/contracts/watchtower_recent50_adaptive_lifecycle.v1.json",
-    "audit": "docs/audits/dev013_watchtower_recent50_censored_lifecycle_completion.v1.json",
-    "tests": "Censored completion audit JSON validates; git diff --check passed; current provider-boundary and retained-key inspection completed without provider calls.",
-    "flags": "Additional BIRDEYE lifecycle calls=0; Helius=0; FIRST_AVAILABLE/Entry/monitor facts/queue/runtime/trading unchanged; raw payload retention=0.",
+    "audit": "docs/audits/dev013_watchtower_six_censored_maturity_schedule.v1.json",
+    "tests": "Maturity schedule audit JSON validates; git diff --check passed; provider-free maturity calculation only.",
+    "flags": "BIRDEYE/Helius/other calls=0; FIRST_AVAILABLE/Entry/monitor facts/queue/runtime/trading unchanged; raw payload retention=0.",
     "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Read-only evidence and time-boundary diagnosis plus compact audit only; no production runtime path was changed.",
-    "next_action": "WAIT_UNTIL_A_NON_OVERLAPPING_15M_CONTINUATION_WINDOW_IS_OBSERVABLE_AND_AUTHORIZE_A_PEAK-CONTINUITY_RECOVERY_POLICY"
+    "runtime_deployment_reason": "Maturity schedule and future authorization only; no production runtime path was changed.",
+    "next_action": "WHEN_EACH_CENSORED_TOKEN_REACHES_ENTRY_PLUS_7D_REACQUIRE_ITS_SINGLE_STAGE2_WINDOW_AND_FINALIZE_LIFECYCLE"
   },
   "dev013_existing_birdeye_lifecycle_path_recovery_20261002": {
     "engineering_revision": "e1fb2cf94477d52114374949c97f4a5f52b3837f on codex/dev013-dev005-first-available-integration",

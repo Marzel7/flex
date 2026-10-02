@@ -18093,6 +18093,17 @@
     "runtime_deployment_reason": "Bounded historical acquisition and append-only compact provenance only; no executable runtime behavior was deployed or changed.",
     "exact_next_action": "AUTHORIZE_BOUNDED_WATCHTOWER_HISTORY_BACKFILL_USING_THE_RESTORED_ORIGINAL_METHODOLOGY"
   },
+  "dev013_recent50_checkpoint_qualification_20261002": {
+    "engineering_revision": "6cc1973255ca6fbb0ae6d4dc90acc9caaf6351ad on codex/dev013-dev005-first-available-integration",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "finding": "An isolated provider-free 50-control checkpoint fixture qualifies explicit legal transitions, write-ahead provider admission, completion accounting, manifest-rank-only chunk selection, crash/restart reconciliation, and provenance-first recovery. An ADMITTED checkpoint without COMPLETED always becomes AMBIGUOUS_PROVIDER_CALL_STATE and cannot automatically retry.",
+    "tests": "30 focused provider-free tests passed; 0 failed. Includes checkpoint/crash/resume/chunk selection plus FIRST_AVAILABLE and sanitized transport regressions.",
+    "safety": "Helius/Birdeye/other network calls=0; live provenance/authoritative-entry/monitor-fact/queue writes=0; worker restart/runtime/continuous activation=0. The isolated fixture SQLite is temporary and bounded; raw payload retention=0; unbounded growth paths=0.",
+    "artifacts": "docs/contracts/dev013_recent50_checkpoint.v1.json; docs/audits/dev013_recent50_checkpoint_qualification.v1.json",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "The qualified checkpoint is isolated and dormant; no production target runtime or executable service was changed.",
+    "exact_next_action": "OBTAIN_SEPARATE_AUTHORIZATION_BEFORE_ANY_RECENT_50_PROVIDER_ACQUISITION; dispatch only safely PENDING controls in frozen manifest rank order with a maximum chunk of 10."
+  },
   "dev013_original_methodology_reconciliation_20261002": {
     "engineering_revision": "27945242f7d5ea2994c73077693f7ee0862eaefa on codex/dev013-dev005-first-available-integration",
     "status": "PASS_ORIGINAL_METHOD_RESTORED",

@@ -18260,13 +18260,14 @@
     "exact_next_action": "RESTORE_OR_QUALIFY_THE_REQUIRED_RECENT50_API_ROUTE_ON_THE_ACTIVE_UI_HOST_THEN_RESTART_DEV016_DEPLOYMENT_FROM_PREDEPLOYMENT_DEPENDENCY_CHECKS"
   },
   "dev016_watchtower_live_monitor_enrichment": {
-    "engineering_revision": "a7d9f90f base plus uncommitted isolated backend overlay in src/ops/operator_routes.py",
-    "status": "PARTIAL_RENDERER_AND_SECTION_RECONCILIATION_PENDING",
+    "engineering_revision": "0e2817d577371987c0815d35735f460efa2c5d1a on codex/dev016-recent50-operators",
+    "status": "PASS_QUALIFIED_NOT_DEPLOYED",
     "finding": "The clarified target is the existing multi-operation Live Monitor, not a separate Recent-50 browser surface. A read-only overlay was started: it identifies Watchtower only from existing operation_id assignment, reads qualified DEV-013 facts through dev013_watchtower_ui_projection from the operations DB, and overlays only qualified FIRST_AVAILABLE_SLOT fields without changing monitor population/order/state. Existing DEV-014 projection and DEV-016 qualification tests passed (9 total). The renderer still needs to visibly present the enriched fields, and the inherited standalone Recent-50 section must be removed before this gate can qualify.",
     "safety": "Provider calls=0; no provenance/lifecycle/monitor/queue writes; no production UI/runtime change; no worker restart; trading disabled.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD",
-    "exact_next_action": "COMPLETE_LIVE_MONITOR_RENDERER_ENRICHMENT_AND_REMOVE_STANDALONE_RECENT50_SECTION_THEN_RUN_DETERMINISTIC_PARITY_AND_VISUAL_QUALIFICATION"
+    "audit": "docs/audits/dev016_watchtower_live_monitor_enrichment_qualification.v1.json",
+    "exact_next_action": "AUTHORIZE_DEV016_WATCHTOWER_LIVE_MONITOR_ENRICHMENT_DEPLOYMENT"
   },
   "dev016_operators_baseline_reconciliation": {
     "engineering_revision": "993b8b5bd4f3f26e8bb8d7667bb89643c25f38e6 on codex/dev016-recent50-operators",

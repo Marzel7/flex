@@ -18015,6 +18015,14 @@
     "audit": "docs/audits/dev013_entry_provenance_schema_and_three_control_pilot.v1.json",
     "exact_next_action": "INVESTIGATE_EKT_LIVE_VS_FROZEN_BIRDEYE_EVIDENCE_DIVERGENCE_READ_ONLY; DO_NOT_ENABLE_CONTINUOUS_FIRST_AVAILABLE"
   },
+  "dev013_watchtower_history_backfill_batch_002_attempt_003_20261002": {
+    "engineering_revision":"54309ef6ec6fda55a8a710ef121eae4681120260 on codex/dev013-dev005-first-available-integration",
+    "status":"HOLD_PROVIDER_INFRASTRUCTURE_FAILURE",
+    "finding":"Third attempt used no pre-batch diagnostics and retained the exact frozen 25-control Batch 002 cohort. It stopped on the first Birdeye infrastructure failure after one Helius and one Birdeye batch request; no retry or secondary diagnostic occurred.",
+    "audit":"docs/audits/dev013_watchtower_history_backfill_batch_002_attempt_003.v1.json",
+    "safety":"Provenance/Entry/monitor facts/activation/jobs/terminal/runtime/worker/queue changes=0; raw responses retained=0; previous Batch 002 attempts preserved.",
+    "exact_next_action":"HOLD_AND_OBTAIN_SEPARATE_AUTHORIZATION_BEFORE_ANY_FURTHER_PROVIDER_ATTEMPT"
+  },
   "dev013_birdeye_connectivity_preflight_20261002": {
     "engineering_revision": "f293680c5d25fa4d3ea301ef0bceff38a739af2b on codex/dev013-dev005-first-available-integration",
     "status": "PASS_BIRDEYE_CONNECTIVITY_QUALIFIED",

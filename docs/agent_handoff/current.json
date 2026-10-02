@@ -18250,9 +18250,9 @@
     "exact_next_action": "COMPLETE_FINAL_TWO_WATCHTOWER_LIFECYCLES_WHEN_OBSERVABLE_THEN_REFRESH_RECENT50_UI"
   },
   "dev016_live_monitor_composition": {
-    "engineering_revision": "427d2721ff36cb3410d6fa5ce1b6c76f19701372 qualified composition; 42db3088 audit-only deployment-hold record on codex/dev016-recent50-operators",
+    "engineering_revision": "427d2721ff36cb3410d6fa5ce1b6c76f19701372 qualified composition; 42db3088 and a7d9f90f audit-only deployment-hold records on codex/dev016-recent50-operators",
     "status": "HOLD_REQUIRED_RECENT50_DEPENDENCY_UNHEALTHY",
-    "result": "The qualified composition was not activated. Before deployment, /api/operations/live-monitor returned HTTP 200 from the active UI host http://127.0.0.1:8100, but /api/ops-v2/intel/watchtower-recent50 returned HTTP 404. The explicit deployment gate requires stopping when either dependency is unhealthy.",
+    "result": "The qualified composition was not activated. Before deployment, /api/operations/live-monitor returned HTTP 200 from the active UI host http://127.0.0.1:8100, but /api/ops-v2/intel/watchtower-recent50 returned HTTP 404. Direct visual inspection of that actual page confirms it renders the Registry and Live Monitor but no WATCHTOWER Recent 50 section. The explicit deployment gate requires stopping when either dependency is unhealthy.",
     "audit": "docs/audits/dev016_watchtower_intelligence_operators_ui_deployment.v1.json",
     "safety": "Helius/Birdeye/other provider calls=0; provenance/lifecycle changes=0; production UI/runtime changes=0; worker restarts=0; trading disabled; no raw retention.",
     "runtime_deployment_required": true,

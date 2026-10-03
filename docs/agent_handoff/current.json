@@ -18433,6 +18433,16 @@
     "blocker": "Correct authentication does not establish complete historical coverage. All nine 24h MCAP responses have substantial trailing gaps and sparse samples, so ATH/multiple/time-to-ATH and UI changes fail closed.",
     "next_action": "AUTHORIZE_A_CORRECT_KEY_TEMPORAL_COVERAGE_POLICY_OR_AN_INDEPENDENT_DENSE_HISTORICAL_SOURCE_BEFORE_PROMOTING_BYZANTINE_ATH_FACTS"
   },
+  "byzantine_four_token_success_path_replay_20261003": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV-local Byzantine evidence provenance update",
+    "status": "PASS_PROVEN_ATH_ROUTE_REPLAYED_UI_VISUAL_QA_UNAVAILABLE",
+    "finding": "The actual four-reference route was recovered from 8761f514: two serialized V3 OHLCV requests per token (price comparison, then direct mcap authority), 15s/USD/range/padding=false, retained coordinate through +7200 seconds, max candle.h, and no chunking/pagination/continuation/retry. Nika then all eight remaining actual-Entry rows replayed exactly with BIRDEYE: 18 HTTP-200 calls, Helius=0. All nine direct-MCAP ATH/multiple/time-to-ATH values match the existing DEV values exactly; DEV-local fact provenance was updated to BYZANTINE_FOUR_TOKEN_SUCCESS_PATH_2H_V1. ORANGE/GIFT remain failed closed and Drawdown/ENDED were untouched.",
+    "audit": "docs/audits/byzantine_four_token_success_path_replay.v1.json; contract=docs/contracts/byzantine_ath_acquisition.v1.json",
+    "safety": "Raw payload/key retention=0; price×1B remains comparison-only; production/Supervisor/trading=0. Port 8100 is held by existing PIDs 36592/44543 but refuses HTTP; a fresh DEV runtime correctly declined to start because the port is in use. No process was killed or altered, so browser visual QA is unavailable.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "The DEV evidence-store update changes only provenance for identical values; the existing port holder was not modified and no target runtime was deployed.",
+    "next_action": "RESTORE_OR_RELEASE_THE_EXISTING_PORT_8100_DEV_LISTENER_THEN_VISUALLY_VERIFY_THE_NINE_BYZANTINE_ROWS"
+  },
   "dev013_original_methodology_reconciliation_20261002": {
     "engineering_revision": "27945242f7d5ea2994c73077693f7ee0862eaefa on codex/dev013-dev005-first-available-integration",
     "status": "PASS_ORIGINAL_METHOD_RESTORED",

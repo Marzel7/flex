@@ -18117,6 +18117,14 @@
     "safety": "UI-only; provider calls=0; evidence/provenance unchanged; production/Supervisor untouched. DEV runtime health=200.",
     "next_action": "NONE_FOR_CURRENT_OPERATIONS_INTELLIGENCE_UI"
   },
+  "byzantine_low_ath_audit_20261003": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; read-only audit",
+    "status": "HOLD_SPARSE_OR_TRUNCATED_15S_RESPONSE_COVERAGE",
+    "finding": "Nine retained low ATHs are not primarily an adaptive stop defect: seven requested through 24h. Compact returned counts are only 1-27 candles per requested 15s window, leaving material internal gaps. Fixed 24h without a coverage policy would not correct them.",
+    "audit": "docs/audits/byzantine_low_ath_backfill_audit.v1.json",
+    "safety": "Provider=0; UI/evidence/runtime/production/Supervisor unchanged; invalid low field unused.",
+    "next_action": "QUALIFY_COVERAGE_POLICY_OR_PROVIDER_RESPONSE_SEMANTICS_BEFORE_CORRECTIVE_15S_REQUESTS"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

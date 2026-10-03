@@ -1,4 +1,5 @@
 {
+  "universal_monitor_existing_live_adoption_writer": {"engineering_revision":"580508a70c80e7fc944e0069f85e67b851a117fa; dormant provider-free implementation","status":"PARTIAL_CORE_WRITER_QUALIFIED_CRASH_RECOVERY_PENDING","finding":"An operation-agnostic adoption planner/writer now persists deterministic snapshots and one idempotent next-work identity without provider calls. It preserves qualified Entry, detects gaps, retains RIGHT_CENSORED, and blocks terminal work. Two focused tests pass across Watchtower, Byzantine, and a future id. Crash-boundary and full 12-row fixture tests remain required before activation.","audit":"docs/audits/universal_monitor_adoption_writer_qualification.v1.json","runtime_deployment_required":false,"next_action":"ADD_CRASH_RECOVERY_AND_CURRENT_12_FIXTURE_TESTS_THEN_QUALIFY_GLOBAL_BUDGET_HANDOFF"},
   "watchtower_existing_live_token_adoption": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; provider-free qualification only",
     "status": "QUALIFIED_ADOPTION_PLAN_IMPLEMENTATION_PENDING",

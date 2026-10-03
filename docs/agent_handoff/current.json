@@ -17371,6 +17371,14 @@
     "runtime_deployment_gate": "PASS",
     "next_action": "NONE_FOR_BYZANTINE_2H_PEAK_UI"
   },
+  "universal_provider_adapter_requalification_20261003": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; read-only dirty-source inventory",
+    "status": "HOLD_CURRENT_PROVIDER_IMPLEMENTATION_INVENTORIED_ADAPTERS_NOT_REQUALIFIED",
+    "finding": "Historical recovery is abandoned as authorized. Current dirty sources were inspected and frozen as explicitly unqualified input: token_data_provider_bindings.py provides Helius/Birdeye transport/request primitives; birdeye_price_lifecycle.py provides compact OHLC parsing/reduction; operation_monitor_worker.py contains Watchtower-specific transport. The prior First Available candidate source is absent. No isolated current Helius economic-trade decoder/candidate normalizer was found to port without inventing semantics, so no dirty implementation was imported. Three retained Byzantine selected coordinates were frozen as regression targets only; no raw transactions were invented or providers called.",
+    "audit": "docs/audits/universal_provider_adapter_source_manifest.v1.json; docs/audits/universal_provider_adapter_requalification.v1.json",
+    "safety": "Helius/Birdeye/other=0; dispatch=false; Watchtower-12=0; dirty source prequalified=false; unrelated dirty imports=0; production/Supervisor/trading=0.",
+    "next_action": "AUTHORIZE_OR_SUPPLY_A_MINIMUM_CURRENT_HELIUS_ECONOMIC_TRADE_DECODER_IMPLEMENTATION_FOR_PROVIDER_FREE_REQUALIFICATION"
+  },
   "universal_provider_source_recovery_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; read-only committed-history recovery",
     "status": "HOLD_QUALIFIED_PROVIDER_SOURCE_NOT_RECOVERABLE",

@@ -17371,6 +17371,14 @@
     "runtime_deployment_gate": "PASS",
     "next_action": "NONE_FOR_BYZANTINE_2H_PEAK_UI"
   },
+  "universal_monitor_persistent_dev_runtime_acceptance_20261003": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV-only universal bridge source",
+    "status": "PASS_UNIVERSAL_RUNTIME_BRIDGE_DEPLOYED_PERSISTENT_DISPATCH_DISABLED",
+    "finding": "The existing scripts/dev_runtime_control.py mechanism was recovered and used: it starts src.dev_runtime from the workspace through subprocess.Popen(start_new_session=True), records PID/PGID, and waits for health. The earlier manual nohup loss is classified as execution-harness session reaping, not an application crash. Initial PID 79893 ran under parent PID 1 / dedicated PGID and survived 87 seconds of repeated health/operators/live-monitor 200 probes. One controlled controller restart replaced it with PID 80899; health/operators/live-monitor returned 200 (live monitor required bounded warmup retry). The seven universal tables, Policy C, global budget, ownership guard, and dispatch=false persisted; adoption/next-work/global-work/ownership/checkpoint counts remain all zero.",
+    "audit": "docs/audits/universal_monitor_persistent_dev_runtime_acceptance.v1.json; docs/audits/universal_monitor_runtime_bridge_qualification.v1.json",
+    "safety": "Watchtower-12 activation=0; Helius/Birdeye/other provider calls=0; dispatch=false; UI changed=false; production source/runtime/Supervisor/trading=0; raw payloads=0; RUNTIME_DEPLOYMENT_GATE=PASS.",
+    "next_action": "RERUN_CONTROLLED_WATCHTOWER12_FIRST_CYCLE_WITH_UNIVERSAL_PROVIDER_DISPATCH"
+  },
   "universal_monitor_runtime_bridge_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; uncommitted DEV-only bridge source",
     "status": "QUALIFIED_NOT_DEPLOYED_PORT8100_LISTENER_NOT_PERSISTENT",

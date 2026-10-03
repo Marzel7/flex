@@ -18399,6 +18399,15 @@
     "safety": "Birdeye=1; Helius=0; retries/pagination=0; raw=0; ATH/Entry/UI/runtime/production/Supervisor/trading=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "next_action": "STOP_15S_PROVIDER_DIAGNOSTICS_AND_USE_THE_PREVIOUSLY_VALIDATED_HISTORICAL_SOURCE_OR_COARSER_INTERVAL"
   },
+  "byzantine_historical_price_supply_ath_qualification_20261003": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; provider-free audit only",
+    "status": "HOLD_HISTORICAL_SOURCE_NOT_QUALIFIED",
+    "finding": "The exact retained historical implementation is Birdeye /defi/v3/ohlcv price/USD/15s candles, candle.h maximum, fixed 1B UI-token multiplication, and an entry-to-min(migration+60s, entry+10m) bounded horizon. However, the only 1B evidence is a different Pump.fun control. The repository's later per-mint supply policy explicitly forbids promoting a generic Pump.fun supply convention when mint-specific supply and constancy evidence is absent. No such evidence was retained for FNC, Pumpkinu, Cassie, or INU, so the required stop gate prevented derived ATH comparison or any provider request.",
+    "audit": "docs/audits/byzantine_historical_price_supply_ath_qualification.v1.json sha256 ef2327daa82854478d6054ba74b167bbb7e3d87afb582d37b91e7a69224e24f9",
+    "safety": "Birdeye 15s MCAP=0; Birdeye price=0; Helius=0; raw=0; Entry/ATH/drawdown/UI/population/runtime/production/Supervisor/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "blocker": "FIXED_SUPPLY_SEMANTICS_VERIFIED=false for the four validation mints; historical price × 1B is not eligible for current Byzantine ATH correction.",
+    "next_action": "STOP_PROVIDER_WORK_AND_SELECT_ANOTHER_HISTORICAL_SOURCE"
+  },
   "dev013_original_methodology_reconciliation_20261002": {
     "engineering_revision": "27945242f7d5ea2994c73077693f7ee0862eaefa on codex/dev013-dev005-first-available-integration",
     "status": "PASS_ORIGINAL_METHOD_RESTORED",

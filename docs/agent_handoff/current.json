@@ -17430,6 +17430,17 @@
     "blocker": "Harness permission for the batched DELETE (user must grant the Bash permission or run the reviewed script).",
     "next_action": "USER_GRANTS_DELETE_PERMISSION_OR_RUNS_REVIEWED_PURGE_SCRIPT"
   },
+  "hot_db_retention_dev023_phase2_purge_20261003": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa (classification-attribution-axis); local uncommitted: docs/dev_work/current.json, docs/audits/hot_db_retention_20261002/dev023_phase2_* (script, batch log, result)",
+    "status": "DEV023_PHASE2_HOLD_PURGE_STOPPED_SAFELY",
+    "finding": "Reviewed script ran after user granted harness permission (accounting fix only; delete semantics unchanged). Frozen cutoff 1791052281 (2026-10-03T18:31:21Z). Pre: 590,894 rows, 583,605 expired candidates (9,931,492,813 bytes), 7,289 non-expired. Deleted 547,000 rows in 2,735 batches of 200 via P3 write lane with secure_delete=OFF on the purge connection; 0 busy retries; stopped by the WAL guard at 210,037,632 bytes (>200 MB). Remaining expired at frozen cutoff 36,605; reconciliation exact (583,605 = 547,000 + 36,605); non-expired deleted 0. Logical bytes purged 9,221,332,506. Freelist 2,383,372 pages = 9,762,291,712 bytes reusable (~27 days of growth headroom). DB file 35,652,194,304 bytes (no shrink); filesystem free 5,113,794,560 (net -357,793,792, WAL growth). Possible concurrent lock messages: 1 walkback, 4 creator_resolution (untimestamped, attribution unconfirmed); no SQLITE_FULL/I/O/corruption.",
+    "artifacts": "docs/audits/hot_db_retention_20261002/dev023_phase2_rpc_cache_purge.v1.json; dev023_phase2_batches.jsonl; dev023_phase2_result_raw.json; dev023_phase2_purge.py",
+    "tests": "None; controlled maintenance with per-batch audit log.",
+    "production_flags": "VACUUM_EXECUTED=false; VACUUM_INTO_EXECUTED=false; RUNTIME_CHANGED=false; SERVICE_RESTARTED=false; PRODUCTION_CHECKOUT_CHANGED=false; LONG_EXCLUSIVE_LOCK_HELD=false.",
+    "safety": "HELIUS=0; BIRDEYE=0. Host free space ~5.1 GB; WAL ~216 MB after stop.",
+    "blocker": "WAL guard stop; 36,605 expired rows remain; any resumption needs explicit authorization.",
+    "next_action": "REVIEW_WAL_STOP_AND_EXPLICITLY_DECIDE_REMAINING_36605_EXPIRED_ROWS"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

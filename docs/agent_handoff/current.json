@@ -18108,6 +18108,15 @@
     "blocker": "Two mints failed within the authorized eight candidate-decode cap; no expansion was attempted.",
     "next_action": "NONE_FOR_QUALIFIED_BYZANTINE_ENTRY_ATH_UI; retain ORANGE and GIFT as failed closed unless separately authorized."
   },
+  "operations_intelligence_ui_completion_20261003": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV-only template/read-projection update",
+    "status": "PASS_DEV_UI_COMPLETE_AND_VISUALLY_VERIFIED",
+    "finding": "Port-8100 now renders separate LIVE/ENDED Watchtower and Byzantine sections. Live Watchtower uses operational fields; Ended Watchtower omits current/freshness/next/calls. Live Byzantine omits drawdown and shows nine retained actual Entry/ATH/multiple/time-to-ATH facts, with ORANGE/GIFT retained as visible — failures. Ended Byzantine has zero rows.",
+    "tests": "10 passed, 0 failed: operations UI completion plus existing live/ended and formatting suites.",
+    "audit": "docs/audits/operations_intelligence_ui_completion.v1.json",
+    "safety": "UI-only; provider calls=0; evidence/provenance unchanged; production/Supervisor untouched. DEV runtime health=200.",
+    "next_action": "NONE_FOR_CURRENT_OPERATIONS_INTELLIGENCE_UI"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

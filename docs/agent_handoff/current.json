@@ -18391,6 +18391,14 @@
     "blocker": "HTTP_400_ROOT_CAUSE=NOT_IDENTIFIED because error payload retention is forbidden and the retained request dimensions have no material mismatch. The validation-call ceiling was reached.",
     "next_action": "NONE_UNTIL_SANITIZED_PROVIDER_ERROR_IS_RECONCILED"
   },
+  "byzantine_15s_timestamp_boundary_probe_20261003": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; diagnostic-only script and compact audit remain uncommitted",
+    "status": "PROVIDER_15S_BEHAVIOR_CHANGED_OR_CURRENTLY_UNAVAILABLE",
+    "finding": "The fixed probe mint is retained Byzantine control 2J7PmgeseQtUfKr1i5BU4k1UDn5Yaf4FYGwAJ6Eupump. Three 7200-second windows were frozen with all request fields identical except timestamps. The first known-good-age window, dispatched through the retained successful ohlcv builder, returned HTTP 400. The required fail-fast rule stopped the run before intermediate/old windows, so a historical timestamp boundary is inconclusive and cannot be inferred.",
+    "audit": "docs/audits/byzantine_15s_timestamp_boundary_probe.v1.json sha256 888ca20fc2440dbd2765e16f1ff69161a8d8af55e3c173f80266584b5a76d57c",
+    "safety": "Birdeye=1; Helius=0; retries/pagination=0; raw=0; ATH/Entry/UI/runtime/production/Supervisor/trading=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "next_action": "STOP_15S_PROVIDER_DIAGNOSTICS_AND_USE_THE_PREVIOUSLY_VALIDATED_HISTORICAL_SOURCE_OR_COARSER_INTERVAL"
+  },
   "dev013_original_methodology_reconciliation_20261002": {
     "engineering_revision": "27945242f7d5ea2994c73077693f7ee0862eaefa on codex/dev013-dev005-first-available-integration",
     "status": "PASS_ORIGINAL_METHOD_RESTORED",

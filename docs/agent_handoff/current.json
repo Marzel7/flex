@@ -18445,14 +18445,14 @@
   },
   "byzantine_2h_peak_ui_semantics_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; bounded DEV template semantic correction",
-    "status": "PASS_DEV_RUNTIME_RECOVERED_SEMANTICS_UPDATED_VISUAL_CLIENT_BLOCKED",
+    "status": "PASS_DEV_RUNTIME_RECOVERED_SEMANTICS_UPDATED_AND_VISUALLY_VERIFIED",
     "finding": "The port-8100 holder was the expected stale src.dev_runtime reloader pair (36592/44543) in the DEV checkout. Its socket remained held while connections were refused. Only that pair was gracefully terminated and a fresh local DEV runtime launched (47519/47532); host-local /api/operations/live-monitor is healthy with 27 rows and nine enriched Byzantine rows. Nika readback is Entry=$2580, 2H Peak=$2580, 1.00x, 163s, Current=null, Drawdown=null, LIVE. ORANGE/GIFT remain failed closed. Byzantine live-table/detail labels now accurately scope this evidence as 2H PEAK / 2H MAX MULTIPLE / TIME TO PEAK, while Watchtower and other operations are unchanged.",
     "audit": "docs/audits/byzantine_2h_peak_ui_semantics.v1.json",
     "tests": "13 focused tests passed, 0 failed.",
-    "safety": "Provider calls=0; Entry/peak/Scenario-D facts=0; production/Supervisor/DEV005/unrelated worker changes=0. The in-app browser renders the page shell but blocks local API requests with ERR_BLOCKED_BY_CLIENT, so table visual QA is not claimed.",
+    "safety": "Provider calls=0; Entry/peak/Scenario-D facts=0; production/Supervisor/DEV005/unrelated worker changes=0. A user-provided DEV screenshot supplies rendered-table verification: all 12 LIVE Byzantine rows, nine qualified 2H peaks, ORANGE/GIFT blank, ENDed=0, and scoped labels are visible.",
     "runtime_deployment_required": true,
-    "runtime_deployment_gate": "PARTIAL_HOST_API_PASS_BROWSER_CLIENT_BLOCKED",
-    "next_action": "RESOLVE_IN_APP_BROWSER_LOCAL_API_BLOCKING_THEN_COMPLETE_RENDERED_TABLE_VISUAL_QA"
+    "runtime_deployment_gate": "PASS",
+    "next_action": "NONE_FOR_BYZANTINE_2H_PEAK_UI"
   },
   "dev013_original_methodology_reconciliation_20261002": {
     "engineering_revision": "27945242f7d5ea2994c73077693f7ee0862eaefa on codex/dev013-dev005-first-available-integration",

@@ -18416,6 +18416,14 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "next_action": "MAKE_ONE_CORRECTED_V3_OHLCV_VALIDATION_CALL"
   },
+  "birdeye_v3_15s_alignment_validation_20261003": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; one-call validation audit only",
+    "status": "HOLD_ALIGNED_REQUEST_STILL_REJECTED",
+    "finding": "The expressly authorized single Nika V3 request used the exact historic 7200-second aligned boundaries: semantic start=1789574012, provider start=1789574025 (+13s), provider end=1789581225; both provider boundaries mod 15=0. It used the existing requests-based builder, standard credential helper, mcap/USD/range/padding=false contract, and returned HTTP 400. No retry, second control, coarser interval, Helius call, raw response retention, evidence mutation, UI/runtime, production, Supervisor, or trading action occurred. Alignment cannot be frozen as a sufficient correction rule.",
+    "audit": "docs/audits/birdeye_v3_15s_alignment_validation.v1.json sha256 3cfc75dca5b7e8c1cd821a1a33faba42bc88640d12cb71bc8a604158b4bccd75",
+    "safety": "Birdeye=1; Helius=0; retries=0; raw=0; ATH/Entry/drawdown/UI/runtime/production/Supervisor/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "next_action": "CAPTURE_SANITIZED_REQUEST_URL_AND_BIRDEYE_400_RESPONSE_BODY_FROM_ONE_VALIDATION_CALL"
+  },
   "dev013_original_methodology_reconciliation_20261002": {
     "engineering_revision": "27945242f7d5ea2994c73077693f7ee0862eaefa on codex/dev013-dev005-first-available-integration",
     "status": "PASS_ORIGINAL_METHOD_RESTORED",

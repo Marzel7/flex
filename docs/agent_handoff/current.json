@@ -1,4 +1,15 @@
 {
+  "watchtower_live_ended_retained_evidence_reconciliation": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV-only UI sort projection",
+    "status": "PASS_DEV_WATCHTOWER_LIFECYCLE_RECONCILED_AND_VISUALLY_VERIFIED",
+    "finding": "The frozen port-8100 Watchtower surface has 15 rows: 12 non-terminal LIVE and three retained-qualified DRAWDOWN_85 terminals already correctly in ENDED. No qualified terminal remained in LIVE. The concrete correction was deterministic sorting: LIVE by retained assignment/create timestamp descending and ENDED by retained terminal timestamp descending. Four Entry-only rows are honest: three lifecycle-not-yet-acquired and MIX6900 right-censored; none hides retained lifecycle evidence.",
+    "audit": "docs/audits/watchtower_live_ended_retained_evidence_reconciliation.v1.json",
+    "tests": "13 focused tests passed, 0 failed; browser visual QA passed.",
+    "safety": "HELIUS=0; BIRDEYE=0; other providers=0; no evidence recomputation; Byzantine/production/Supervisor unchanged.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "next_action": "ACQUIRE_LIFECYCLE_ONLY_FOR_WATCHTOWER_ROWS_WITH_CONFIRMED_EVIDENCE_GAPS"
+  },
   "byzantine_ui_order_and_true_ath": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV-only working-tree projection",
     "status": "PASS_DEV_UI_UPDATED_AND_VISUALLY_VERIFIED",

@@ -17371,6 +17371,14 @@
     "runtime_deployment_gate": "PASS",
     "next_action": "NONE_FOR_BYZANTINE_2H_PEAK_UI"
   },
+  "universal_provider_source_recovery_20261003": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; read-only committed-history recovery",
+    "status": "HOLD_QUALIFIED_PROVIDER_SOURCE_NOT_RECOVERABLE",
+    "finding": "Committed-history searches for PASS_ACTUAL_ENTRY_COORDINATES_RECOVERED and actual-entry identifiers found no committed source/fixture linkage for the successful Byzantine pilot’s bounded getSignaturesForAddress -> getTransaction -> earliest-economic-trade decoder. Current Birdeye/Watchtower primitive files exist only in the materially dirty shared checkout, which the source-recovery contract expressly forbids using as provenance. No substitute decoder, unverified transplant, provider call, activation, or dispatch change was made.",
+    "audit": "docs/audits/universal_provider_source_recovery.v1.json",
+    "safety": "Helius/Birdeye/other=0; dirty shared checkout source used=false; dispatch=false; Watchtower-12=0; production/Supervisor/trading=0.",
+    "next_action": "SUPPLY_OR_IDENTIFY_THE_COMMITTED_BYZANTINE_ACTUAL_ENTRY_PILOT_SOURCE_AND_ORIGINAL_FIXTURES"
+  },
   "universal_provider_execution_foundation_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; uncommitted DEV-only foundation",
     "status": "PARTIAL_DURABLE_LEDGER_IMPLEMENTED",

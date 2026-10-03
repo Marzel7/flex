@@ -1,4 +1,14 @@
 {
+  "watchtower_existing_live_token_adoption": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; provider-free qualification only",
+    "status": "QUALIFIED_ADOPTION_PLAN_IMPLEMENTATION_PENDING",
+    "finding": "The existing Monitor persistence contains assignment, Entry provenance, monitor facts, observations, and lifecycle provenance, but it has no explicit existing-live adoption writer. The frozen current LIVE Watchtower population is 12: eight lack a qualified Entry/lifecycle, three retain qualified Entry but no later lifecycle coverage, and MIX6900 retains Entry with a right-censored Stage-2 gap. Adoption must preserve qualified Entry/checkpoints and resume only after a retained successful coverage boundary; it must not reacquire them.",
+    "audit": "docs/audits/watchtower_existing_live_token_adoption.v1.json",
+    "safety": "HELIUS=0; BIRDEYE=0; other providers=0; no enrollment, queue, database, runtime, production, or Supervisor change.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Provider-free adoption-plan qualification only; the universal adoption writer has not been implemented or deployed.",
+    "next_action": "IMPLEMENT_AND_TEST_UNIVERSAL_MONITOR_ADOPTION_WRITER_WITH_RETAINED_BOUNDARY_GUARDS"
+  },
   "watchtower_live_ended_retained_evidence_reconciliation": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV-only UI sort projection",
     "status": "PASS_DEV_WATCHTOWER_LIFECYCLE_RECONCILED_AND_VISUALLY_VERIFIED",

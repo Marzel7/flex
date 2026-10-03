@@ -17381,6 +17381,17 @@
     "safety": "HELIUS=0; BIRDEYE=0; other provider=0; raw payloads=0; runtime enabled=false; current Watchtower-12 activated=false; no worker binding, database, provider, process, Supervisor, production, or terminal-policy change. RUNTIME_DEPLOYMENT_REQUIRED=false because this is dormant provider-free qualification only.",
     "next_action": "ACTIVATE_UNIVERSAL_MONITOR_IN_DEV_WITH_CURRENT_WATCHTOWER_12_AS_FIRST_COHORT"
   },
+  "hot_db_retention_dev023_20261003": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa (classification-attribution-axis); local uncommitted: docs/dev_work/current.json (DEV-023 added), docs/audits/hot_db_retention_20261002/ and docs/audits/watchtower_opening_slots_20261001/ (read-only evidence)",
+    "status": "DEV_023_CREATED_PLANNED",
+    "finding": "Hot DB database/flex_complete_database.db is 35.18 GB (0.3-1.2 GB/day) and wt_ops_v2.db 12.47 GB (~0.5 GB/day); data volume ~12-13 GB free. dbstat space map (268 tables, 35.17 GB): rpc_response_cache 10.50 GB (577,574 rows, all past TTL, oldest 2026-06-24), rpc_metrics 8.93 GB (13.4M rows since 2026-06-18, 6.64 GB indexes, no retention), transfer_index 8.38 GB (6.72 GB indexes), token_analysis 2.85 GB (core, keep). Root cause: realtime_creator_funding_extractor.py:455 and funder_incoming_extractor.py:119 write rpc_response_cache into the hot DB via RPCCache(DB_PATH) while cache_metrics_retention_runner.py purges only wt_ops_v2.db (line 209); its RPC batches end status=timeout. Retention on the three tables frees ~18.5 GB inside the file. Production runs from pinned checkouts under ~/Production/flex-*; phase 3 deployment must target those.",
+    "artifacts": "docs/dev_work/current.json (DEV-023); docs/audits/hot_db_retention_20261002/ (space_map_flex_complete_database.json, hot_table_inventory.json, growth_sample_output.txt, scripts); plan document https://claude.ai/code/artifact/a976aead-21f1-42dd-84a4-b16dbfbf9927",
+    "tests": "None run; registry and read-only audit only.",
+    "production_flags": "RUNTIME_DEPLOYMENT_REQUIRED=false for this turn (registry/documentation only); DEV-023 phase 3 will require RUNTIME_DEPLOYMENT_GATE=PASS. No database row, schema, service, Supervisor, config or provider change. destructive_steps_authorized=false.",
+    "safety": "Read-only mode=ro queries only; no deletes, no VACUUM, no restarts. User constraint recorded: no operational code (listener, walkback, ws_cascade, scheduler, workers, API) or data they still read may be removed. HELIUS calls this turn=0; BIRDEYE=0.",
+    "blocker": "Each destructive step (expired-cache purge, rpc_metrics retention, transfer_index archive-delete, VACUUM) needs its own explicit go-ahead; wt_ops_v2.db growth source unidentified.",
+    "next_action": "DEV_023_PHASE1_DRY_RUN_EXPIRED_HOT_RPC_CACHE_PURGE (count/bytes, no writes) then await go-ahead for the batched purge"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

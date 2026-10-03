@@ -17536,15 +17536,15 @@
   },
   "operations_intelligence_live_history_reconciliation_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV read-projection/template only",
-    "status": "PASS_DEV_UI_ORDER_VERIFIED",
-    "finding": "The authoritative primary placement now uses retained MONITORING_ACTIVE state only, not a missing-terminal presentation fallback. Deployed API returned live=3, history=20, overlap=0, and canonical-mint duplicates=0. History is selected from non-live assignments before the limit. Across final rows retained opening=13, peak=7, multiple=7, and time-to-peak=6; null peaks carry no qualified badge.",
+    "status": "PARTIAL_POST_REPAIR_ACCEPTANCE_PENDING",
+    "finding": "The authoritative primary placement now uses retained MONITORING_ACTIVE state only, not a missing-terminal presentation fallback. Deployed API returned live=3, history=20, overlap=0, and canonical-mint duplicates=0. History is selected from non-live assignments before the limit. Across final rows retained opening=13, peak=7, multiple=7, and time-to-peak=6; null peaks carry no qualified badge. A follow-up precedence repair ensures an empty Watchtower historical lifecycle field cannot mask a retained running monitor peak.",
     "audit": "docs/audits/operations_intelligence_live_history_reconciliation.v1.json; docs/audits/operations_intelligence_retained_value_reconciliation.v1.json",
-    "tests": "12 focused tests passed, 0 failed.",
+    "tests": "11 focused tests passed, 0 failed after retained-peak precedence repair.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS",
-    "runtime": "Managed port-8100 reload PID 52990 -> 56938; focused tests passed and settled browser headings verified Operations -> Policy C -> Live Tokens -> History — Last 20 Tokens -> system status.",
+    "runtime": "Managed port-8100 reload/restart successor PID 73418 after retained-peak precedence repair; focused tests passed. Endpoint/browser acceptance remains to be repeated for that exact PID.",
     "safety": "Read projection/template only; provider/monitor/entry/peak/terminal/budget/dispatcher semantics unchanged; Helius=0; Birdeye=0; production/Supervisor/trading unchanged.",
-    "next_action": "WAIT_FOR_GENUINE_FORWARD_TOKEN_OR_REQUESTED_UI_REFINEMENT"
+    "next_action": "REPEAT_PORT8100_ENDPOINT_AND_BROWSER_ACCEPTANCE_FOR_PID_73418"
   },
   "universal_forward_first_token_observation_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; verification-only observation",

@@ -18424,6 +18424,15 @@
     "safety": "Birdeye=1; Helius=0; retries=0; raw=0; ATH/Entry/drawdown/UI/runtime/production/Supervisor/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "next_action": "CAPTURE_SANITIZED_REQUEST_URL_AND_BIRDEYE_400_RESPONSE_BODY_FROM_ONE_VALIDATION_CALL"
   },
+  "byzantine_correct_key_ath_recovery_20261003": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV credential-binding correction plus bounded acquisition",
+    "status": "HOLD_CORRECT_KEY_VALIDATED_BUT_24H_COVERAGE_INSUFFICIENT",
+    "finding": "The DEV binding had selected BIRDEYE_RILEY instead of the user-designated BIRDEYE key. It now prefers BIRDEYE without exposing a secret; five focused binding tests pass. One Nika 15s MCAP validation returned HTTP 200, then one correct-key post-Entry 24h request for each of nine retained actual-Entry rows returned HTTP 200. Each response contains only 13-36 candles and ends materially before its requested 24h boundary. Observed $2K-$9K peaks therefore remain sparse observations, not qualified ATH facts, and were not promoted.",
+    "audit": "docs/audits/byzantine_correct_key_ath_recovery.v1.json",
+    "safety": "Birdeye=10 total (1 validation + 9 bounded ATH); Helius=0; Entry/canonical-create/signature work=0; raw payload/key retention=0; invalid low/drawdown/terminal/UI/ORANGE-GIFT/production/Supervisor actions=0. Port-8100 was unavailable; no restart was performed. RUNTIME_DEPLOYMENT_REQUIRED=false because no target runtime was deployed or reloaded.",
+    "blocker": "Correct authentication does not establish complete historical coverage. All nine 24h MCAP responses have substantial trailing gaps and sparse samples, so ATH/multiple/time-to-ATH and UI changes fail closed.",
+    "next_action": "AUTHORIZE_A_CORRECT_KEY_TEMPORAL_COVERAGE_POLICY_OR_AN_INDEPENDENT_DENSE_HISTORICAL_SOURCE_BEFORE_PROMOTING_BYZANTINE_ATH_FACTS"
+  },
   "dev013_original_methodology_reconciliation_20261002": {
     "engineering_revision": "27945242f7d5ea2994c73077693f7ee0862eaefa on codex/dev013-dev005-first-available-integration",
     "status": "PASS_ORIGINAL_METHOD_RESTORED",

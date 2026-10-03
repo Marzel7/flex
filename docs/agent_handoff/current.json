@@ -18373,6 +18373,15 @@
     "runtime_deployment_reason": "Template UI change, but this qualification gate did not deploy it.",
     "exact_next_action": "RECONCILE_THE_OPERATOR_TEMPLATE_BASELINE_WITH_ITS_EXISTING_REGISTRY_REGRESSION_CONTRACT_THEN_RERUN_DEV016_VISUAL_QUALIFICATION; do not deploy before that passes."
   },
+  "byzantine_15s_historical_coverage_by_age_20261003": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; diagnostic script and compact metadata-only audit are uncommitted",
+    "status": "HOLD_PROVIDER_AUTHORIZATION_FAILURE_COVERAGE_UNOBSERVABLE",
+    "finding": "The controls were frozen before acquisition: older Nika (8BCR...pump, retained Entry 1789574012) and recent PHOSPHOR (AcZx...pump, retained Entry 1790237643). Exactly four fixed V3 15s MCAP range requests were made (Entry→+2h and +6h→+8h per control), without Helius, retries, pagination, range changes, or payload retention. Every request returned HTTP 401, so no temporal coverage, token-age relationship, or request-range diagnosis is established. Empty responses are explicitly marked MIXED missing coverage with coverage_location_observable=false rather than treated as complete.",
+    "audit": "docs/audits/byzantine_15s_historical_coverage_by_age.v1.json sha256 cad0869e99963b087828dec3d9e6ad42771443e41bd8f2d838379a5cc5ec9181",
+    "safety": "Birdeye=4; Helius=0; raw payload=0; Entry/ATH facts=0; UI/runtime/production/Supervisor/trading=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "blocker": "The existing Birdeye credential/request authorization failed for all four frozen requests. The no-retry ceiling has been consumed; do not infer historical retention from the result.",
+    "next_action": "AUTHORIZE_A_SEPARATE_PROVIDER_AUTHORIZATION_PREFLIGHT_OR_CREDENTIAL_RECONCILIATION_BEFORE_REPEATING_ANY_COVERAGE_COMPARISON"
+  },
   "dev013_original_methodology_reconciliation_20261002": {
     "engineering_revision": "27945242f7d5ea2994c73077693f7ee0862eaefa on codex/dev013-dev005-first-available-integration",
     "status": "PASS_ORIGINAL_METHOD_RESTORED",

@@ -18100,13 +18100,13 @@
   },
   "byzantine_actual_entry_24h_ath_backfill_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; uncommitted bounded acquisition runner and compact DEV-only artifacts",
-    "status": "HOLD_COMPACT_SIGNATURE_PAGE_ITEMS_NOT_RETAINED",
-    "finding": "The authoritative Byzantine DEV inventory was frozen from operation_monitor_facts: 12 rows (11 WAITING_FOR_ENTRY_REFERENCE plus 1 existing Scenario-D active). Each waiting mint had a retained canonical create signature and timestamp, but its one authorized getSignaturesForAddress page (100 rows) did not include that create signature. A post-create candidate ordering cannot be proved without a create-slot lookup or pagination, so the runner stopped before transaction decodes, Entry pricing, lifecycle requests, provenance persistence, or UI projection.",
-    "accounting": "Previous Helius signature pages=11. New authorized known-create getTransaction calls=11; all 11 qualified signature/mint/slot/timestamp. New candidate getTransaction=0; Birdeye Entry/2H/6H/12H/24H=0; total new Birdeye=0. Pilot evidence reacquired=0.",
+    "status": "PARTIAL_9_QUALIFIED_2_FAILED_CLOSED_WITHIN_BOUND",
+    "finding": "The frozen DEV Byzantine authority is 12 rows (11 waiting plus one active Scenario-D). All 11 create slots were recovered once, then one replacement signature page per waiting mint and at most eight chronological decodes selected nine actual Pump.fun/PumpSwap economic trades. Nine received actual-trade Entry MC and adaptive 15s MCAP ATH facts. ORANGE (9o4u...) and GIFT (4LMq...) have no qualifying actual entry within eight decodes and remain explicit failed-closed rows.",
+    "accounting": "Previous Helius signature pages=11; previous known-create getTransaction=11. New replacement pages=11; new candidate getTransaction=36; new Helius=47. New Birdeye Entry=9, 2H=9, 6H=8, 12H=7, 24H=7, total=40. Pilot evidence reacquired=0.",
     "artifacts": "docs/contracts/byzantine_actual_entry_24h_ath.v1.json; docs/audits/byzantine_actual_entry_24h_ath_backfill.v1.json sha256 036181e540107e59fd38fc55b237877de10ca74c6e67c5be217b78352508d45d",
-    "safety": "No raw provider or block payload retained; candle.l/drawdown/85/terminal/ENDED semantics unused; Scenario-D provenance and primary facts unchanged; DEV runtime/UI/database, production, Supervisor, and trading unchanged. RUNTIME_DEPLOYMENT_REQUIRED=false because no executable runtime was deployed.",
-    "blocker": "Canonical create slots are now durably retained in the compact audit, but the earlier compact signature-page artifact intentionally retained only boundaries/counts rather than candidate signature items. Candidate ordering cannot be resumed from it without a new signature-page request.",
-    "next_action": "AUTHORIZE_ONE_REPLACEMENT_GETSIGNATURESFORADDRESS_PAGE_PER_FROZEN_WAITING_MINT_WITH_NO_PAGINATION, then decode at most eight post-create candidates per mint using the recovered create slots; do not repeat create lookups."
+    "safety": "No raw provider/block/signature-page payload retained; compact candidate items and coverage only. candle.l/drawdown/85/terminal/ENDED semantics unused; Scenario-D provenance unchanged. DEV-only db/projection/UI was updated and visually verified. Production, Supervisor and trading unchanged. RUNTIME_DEPLOYMENT_GATE=PASS for port-8100 source/runtime: API health 200, 12 Byzantine rows, nine values reconcile, drawdown null/—.",
+    "blocker": "Two mints failed within the authorized eight candidate-decode cap; no expansion was attempted.",
+    "next_action": "NONE_FOR_QUALIFIED_BYZANTINE_ENTRY_ATH_UI; retain ORANGE and GIFT as failed closed unless separately authorized."
   },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",

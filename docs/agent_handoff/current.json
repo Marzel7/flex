@@ -18408,6 +18408,14 @@
     "blocker": "FIXED_SUPPLY_SEMANTICS_VERIFIED=false for the four validation mints; historical price × 1B is not eligible for current Byzantine ATH correction.",
     "next_action": "STOP_PROVIDER_WORK_AND_SELECT_ANOTHER_HISTORICAL_SOURCE"
   },
+  "birdeye_v3_ohlcv_400_diagnostic_20261003": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; provider-free local diagnostic",
+    "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED",
+    "finding": "Recovered V3 evidence contains 40 HTTP-200 15s MCAP requests and six relevant HTTP-400 requests. All nine successful 7200-second windows have both boundaries divisible by 15; all six 400 7200-second windows have non-zero equal boundary remainders (2, 2, 2, 3, 3, 8). Nika succeeds and fails with the same V3 endpoint, mint, headers, 7200 duration, requests transport, query ordering and keys; the difference is aligned versus unaligned boundaries. Short 30-second requests can be unaligned, so the evidence supports a long 15s range-boundary correction, not a universal alignment claim.",
+    "audit": "docs/audits/birdeye_v3_ohlcv_400_diagnostic.v1.json sha256 2c9617070587da518de6e28223a33ca70ba3d67006f97593e3aedd5bb5566d3b",
+    "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "next_action": "MAKE_ONE_CORRECTED_V3_OHLCV_VALIDATION_CALL"
+  },
   "dev013_original_methodology_reconciliation_20261002": {
     "engineering_revision": "27945242f7d5ea2994c73077693f7ee0862eaefa on codex/dev013-dev005-first-available-integration",
     "status": "PASS_ORIGINAL_METHOD_RESTORED",

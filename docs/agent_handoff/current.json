@@ -17536,15 +17536,15 @@
   },
   "operations_intelligence_live_history_reconciliation_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV read-projection/template only",
-    "status": "PARTIAL_VISUAL_QA_PENDING",
+    "status": "PASS_DEV_UI_ORDER_VERIFIED",
     "finding": "The authoritative primary placement now uses retained MONITORING_ACTIVE state only, not a missing-terminal presentation fallback. Deployed API returned live=3, history=20, overlap=0, and canonical-mint duplicates=0. History is selected from non-live assignments before the limit. Across final rows retained opening=13, peak=7, multiple=7, and time-to-peak=6; null peaks carry no qualified badge.",
     "audit": "docs/audits/operations_intelligence_live_history_reconciliation.v1.json; docs/audits/operations_intelligence_retained_value_reconciliation.v1.json",
     "tests": "12 focused tests passed, 0 failed.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS",
-    "runtime": "Managed port-8100 reload PID 52310 -> 52990; /api/operations/live-monitor HTTP 200.",
+    "runtime": "Managed port-8100 reload PID 52990 -> 56938; focused tests passed and settled browser headings verified Operations -> Policy C -> Live Tokens -> History — Last 20 Tokens -> system status.",
     "safety": "Read projection/template only; provider/monitor/entry/peak/terminal/budget/dispatcher semantics unchanged; Helius=0; Birdeye=0; production/Supervisor/trading unchanged.",
-    "next_action": "COMPLETE_SETTLED_BROWSER_VISUAL_QA_FOR_LIVE_HISTORY_EXCLUSIVITY"
+    "next_action": "WAIT_FOR_GENUINE_FORWARD_TOKEN_OR_REQUESTED_UI_REFINEMENT"
   },
   "universal_forward_first_token_observation_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; verification-only observation",

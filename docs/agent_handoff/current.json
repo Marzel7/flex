@@ -18382,6 +18382,15 @@
     "blocker": "The frozen request contract was rejected by the provider with HTTP 400. The no-retry ceiling has been consumed; do not infer market-data absence, request density, or historical retention.",
     "next_action": "AUTHORIZE_A_BOUNDED_PROVIDER_REQUEST_CONTRACT_CORRECTION_BEFORE_ANY_FURTHER_HISTORICAL_COVERAGE_DIAGNOSIS"
   },
+  "byzantine_15s_request_contract_correction_20261003": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; diagnostic-only scripts and compact audit remain uncommitted",
+    "status": "HOLD_REQUEST_CONTRACT_STILL_INVALID",
+    "finding": "The exact successful Nika 2h MCAP 15s request was recovered from the retained actual-entry ATH backfill and compared to the failed coverage request. Endpoint, GET method, address, type=15s, chart_type=mcap, currency=usd, mode=range, padding=false, canonical headers, seconds timestamps, and 7200-second range match. Only Entry-based time boundaries differ. The one permitted Nika Entry→+2h validation was dispatched through the exact successful ohlcv builder with the resolved project credential and returned HTTP 400 again. No sanitized retained error identifies the cause.",
+    "audit": "docs/audits/byzantine_15s_request_contract_correction.v1.json sha256 6ff8b88d6940f2a04deb931aea577160a8e48619b03b855aad47b7096f05c2a3",
+    "safety": "Birdeye=1; Helius=0; retries/pagination/1m=0; raw response retained=0; Entry/ATH/UI/runtime/production/Supervisor/trading=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "blocker": "HTTP_400_ROOT_CAUSE=NOT_IDENTIFIED because error payload retention is forbidden and the retained request dimensions have no material mismatch. The validation-call ceiling was reached.",
+    "next_action": "NONE_UNTIL_SANITIZED_PROVIDER_ERROR_IS_RECONCILED"
+  },
   "dev013_original_methodology_reconciliation_20261002": {
     "engineering_revision": "27945242f7d5ea2994c73077693f7ee0862eaefa on codex/dev013-dev005-first-available-integration",
     "status": "PASS_ORIGINAL_METHOD_RESTORED",

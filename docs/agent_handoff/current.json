@@ -17511,13 +17511,13 @@
   },
   "universal_price_monitor_recent_tokens_ui_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV read-projection/template only",
-    "status": "PASS_DEV_UI_READ_PROJECTION",
-    "finding": "The port-8100 universal dashboard now adds RECENT OPERATION TOKENS immediately after Policy-C cadence and before Active Monitoring. It returns the latest 20 current retained operation-assigned rows, newest assignment/create coordinate first, operation-agnostically. Retained Entry, peak scope, multiple, and time-to-peak values are server projected; Current MC remains blank unless an active retained live observation exists. Recent historical rows do not alter universal work or active counts.",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "finding": "The port-8100 universal dashboard now adds RECENT OPERATION TOKENS immediately after Policy-C cadence and before Active Monitoring. Every rendered token label is a new-tab GMGN link using that row's retained mint address. It returns the latest 20 current retained operation-assigned rows, newest assignment/create coordinate first, operation-agnostically. Retained Entry, peak scope, multiple, and time-to-peak values are server projected; Current MC remains blank unless an active retained live observation exists. Recent historical rows do not alter universal work or active counts.",
     "audit": "docs/audits/universal_price_monitor_recent_tokens_ui.v1.json",
-    "tests": "15 focused tests passed, 0 failed; browser rendered 20 rows with the required panel order.",
+    "tests": "8 focused projection/UI tests passed, 0 failed; the GMGN href is rendered from encodeURIComponent(retained mint).",
     "runtime_deployment_required": true,
-    "runtime_deployment_gate": "PASS",
-    "runtime": "Managed port-8100 runtime reload PID 26949 -> 34222; API 200 returned recent=20 and universal work=0; browser visual QA passed.",
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "runtime": "Managed port-8100 runtime reload PID 34222 -> 37441. A local response check timed out after reload, so post-reload endpoint acceptance remains pending; no provider or monitoring behavior was changed.",
     "storage": "No persistent runtime files, raw payload retention=false, single/transient file maximum=0 bytes, unbounded growth paths=0.",
     "safety": "UI/read projection only; provider/monitor/entry/peak/terminal/budget/dispatcher semantics unchanged; Helius=0; Birdeye=0; production/Supervisor/trading unchanged.",
     "next_action": "WAIT_FOR_GENUINE_FORWARD_TOKEN_OR_REQUESTED_UI_REFINEMENT"

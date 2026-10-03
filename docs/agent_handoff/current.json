@@ -17497,6 +17497,18 @@
     "blocker": "WAL guard stop; 36,605 expired rows remain; any resumption needs explicit authorization.",
     "next_action": "REVIEW_WAL_STOP_AND_EXPLICITLY_DECIDE_REMAINING_36605_EXPIRED_ROWS"
   },
+  "universal_forward_operation_monitor_activation_20261003": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; dirty DEV workspace forward enrolment seam",
+    "status": "PARTIAL_FORWARD_ENROLMENT_ENABLED_PROVIDER_DISPATCH_NOT_WIRED",
+    "finding": "The operation-agnostic post-Entry seam now admits only assignments at or after a persistent DEV activation epoch; Watchtower, Byzantine, and a synthetic future operation pass provider-free enrolment fixtures, while historical and unqualified entries fail closed. Port 8100 enables the forward state and global budget flag, but deliberately blocks outbound networking and no separate provider-capable universal dispatcher is wired. Therefore continuous due-work execution is not claimed.",
+    "audit": "docs/audits/universal_forward_assignment_enrolment.v1.json; docs/audits/universal_forward_operation_monitor_activation.v1.json",
+    "tests": "31 focused tests passed, 0 failed.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PARTIAL",
+    "runtime": "Managed DEV port 8100 reload PID 6788 -> 9575; health PASS; forward state enabled; outbound network blocked.",
+    "safety": "New real tokens=0; Helius=0; Birdeye=0; existing expired Watchtower4 work=0; historical Watchtower8 untouched; production/Supervisor/trading unchanged.",
+    "next_action": "AUTHORIZE_AND_IMPLEMENT_A_SEPARATE_PROVIDER_CAPABLE_DEV_UNIVERSAL_DISPATCHER_WITH_DURABLE_FACT_COMMIT"
+  },
   "universal_watchtower4_first_price_cycle_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; dirty DEV workspace with bounded universal adapter additions",
     "status": "PASS_NO_DUE_POLICY_C_WORK",

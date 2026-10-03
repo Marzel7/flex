@@ -17505,7 +17505,7 @@
     "tests":"16 focused UI/read-projection tests passed, 0 failed; browser visual QA passed.",
     "runtime_deployment_required":true,
     "runtime_deployment_gate":"PASS",
-    "runtime":"Managed port-8100 reload PID 9575 -> 23240; UI and API verified.",
+    "runtime":"Approved mock-up visual hierarchy refined: legacy registry surface hidden in favor of full-page universal dashboard; managed port-8100 reload PID 23240 -> 26949; focused UI regressions 13/13 pass.",
     "safety":"UI/read projection only; provider/monitor/entry/terminal/budget/dispatcher semantics unchanged; Helius=0; Birdeye=0; production/Supervisor/trading unchanged.",
     "next_action":"NONE_FOR_UI_WAIT_FOR_FIRST_FORWARD_TOKEN"
   },

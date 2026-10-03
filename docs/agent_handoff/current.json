@@ -17371,6 +17371,14 @@
     "runtime_deployment_gate": "PASS",
     "next_action": "NONE_FOR_BYZANTINE_2H_PEAK_UI"
   },
+  "universal_provider_execution_foundation_20261003": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; uncommitted DEV-only foundation",
+    "status": "PARTIAL_DURABLE_LEDGER_IMPLEMENTED",
+    "finding": "A compact universal_provider_calls/results ledger now implements deterministic identities and the frozen PLANNED/BUDGET_ADMITTED/PROVIDER_CALL_STARTED/PROVIDER_CALL_COMPLETED/RESULT_COMMITTED/AMBIGUOUS_PROVIDER_CALL/FAILED_CLOSED states. It rejects invalid transitions, persists compact normalized results before fact commit, retains them across recovery, and converts started-without-result calls to AMBIGUOUS_PROVIDER_CALL without auto-retry. Five focused provider-free ledger/executor tests pass. Bounded Helius signature/transaction and Birdeye adapters are still not integrated with the executor, so the full requested matrix and cohort activation remain blocked.",
+    "audit": "docs/audits/universal_provider_execution_foundation.v1.json",
+    "safety": "Helius/Birdeye/other=0; dispatch=false; Watchtower-12=0; production/Supervisor/trading=0; raw=0; RUNTIME_DEPLOYMENT_GATE=HOLD.",
+    "next_action": "INTEGRATE_BOUNDED_HELIUS_AND_BIRDEYE_ADAPTERS_WITH_THE_EXECUTOR_THEN_RUN_THE_FULL_PROVIDER_FREE_MATRIX"
+  },
   "universal_provider_executor_completion_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; partial DEV-only executor",
     "status": "HOLD_EXECUTOR_FIXTURE_AND_DURABLE_STATE_MATRIX_NOT_IMPLEMENTED",

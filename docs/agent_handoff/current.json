@@ -17502,10 +17502,10 @@
     "status": "PASS_FORWARD_PRICE_DISPATCHER_ACTIVE_WAITING_FOR_NEW_TOKEN",
     "finding": "A managed, non-HTTP DEV dispatcher now consumes the same universal authority as port 8100. It supports only qualified-entry ACQUIRE/RESUME price windows, uses atomic leases, shared 120/hour, 2400/day and 1-RPS buckets, and persists Birdeye results through the durable ledger before compact price/checkpoint facts. It excludes Entry/Helius/history. After a bounded observation it has zero eligible forward work, leases, or provider calls; no token was manufactured.",
     "audit": "docs/contracts/universal_provider_dispatcher.v1.json; docs/audits/universal_provider_dispatcher_qualification.v1.json; docs/audits/universal_forward_price_dispatch_activation.v1.json",
-    "tests": "30 focused provider-free tests passed, 0 failed.",
+    "tests": "31 focused provider-free tests passed, 0 failed, including injected operation-terminal policy routing.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS",
-    "runtime": "Dispatcher managed PID 12577; port-8100 remains PID 9575 with outbound network blocked; local UI API 200.",
+    "runtime": "Dispatcher managed PID 13212; port-8100 remains PID 9575 with outbound network blocked; local UI API 200.",
     "safety": "New real tokens=0; Birdeye=0; Helius=0; historical Watchtower4/8 work=0; raw payloads=false; production/Supervisor/trading unchanged.",
     "next_action": "OBSERVE_FIRST_NEW_OPERATION_TOKEN_END_TO_END"
   },

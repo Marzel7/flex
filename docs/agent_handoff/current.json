@@ -17524,15 +17524,15 @@
   },
   "operations_intelligence_simplified_live_history_ui_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV read-projection/template only",
-    "status": "QUALIFIED_NOT_DEPLOYED",
+    "status": "PASS_DEV_RUNTIME_DEPLOYED",
     "finding": "The universal surface is simplified to compact system status, Operations, Live Tokens, and History — Last 20 Tokens. Operations restores retained status, member/token count, 24h/7d/30d activity, latest launch, and monitor counters. Live and history show retained Opening/Entry, Peak scope, multiple, and time-to-peak without browser financial recomputation; empty lifecycle sections are removed and historical Entry Missing is collapsed.",
     "audit": "docs/audits/operations_intelligence_simplified_live_history_ui.v1.json",
-    "tests": "15 focused tests passed, 0 failed.",
+    "tests": "11 focused tests passed, 0 failed.",
     "runtime_deployment_required": true,
-    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
-    "runtime": "Managed port-8100 reload PID 37441 -> 40198. Bounded endpoint acceptance did not complete; no PASS claim.",
+    "runtime_deployment_gate": "PASS",
+    "runtime": "Managed port-8100 reload PID 40198 -> 44259. /health, /intelligence/operators, and /api/operations/live-monitor each returned HTTP 200; settled browser DOM rendered Operations, Live Tokens, and History — Last 20 Tokens with 20 GMGN-linked rows, removed empty lifecycle panels, and collapsed Historical Entry Missing.",
     "safety": "Read projection/template only; provider/monitor/entry/peak/terminal/budget/dispatcher semantics unchanged; Helius=0; Birdeye=0; production/Supervisor/trading unchanged.",
-    "next_action": "OBSERVE_PORT_8100_ENDPOINT_RESPONSE_THEN_COMPLETE_BROWSER_VISUAL_QA"
+    "next_action": "WAIT_FOR_GENUINE_FORWARD_TOKEN_OR_REQUESTED_UI_REFINEMENT"
   },
   "universal_forward_first_token_observation_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; verification-only observation",

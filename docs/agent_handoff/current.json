@@ -17403,6 +17403,17 @@
     "blocker": "Phase 2 purge requires explicit authorization. Host disk nearly full (independent of DEV-023 reads).",
     "next_action": "REVIEW_PHASE1_RESULTS_AND_EXPLICITLY_AUTHORIZE_OR_REJECT_PHASE2_PURGE"
   },
+  "hot_db_retention_dev023_phase2_20261003": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa (classification-attribution-axis); local uncommitted: docs/dev_work/current.json, docs/audits/hot_db_retention_20261002/dev023_phase2_*",
+    "status": "DEV023_PHASE2_HOLD_HARNESS_PERMISSION_REQUIRED_FOR_DELETE",
+    "finding": "User authorized RPC_RESPONSE_CACHE_EXPIRED_ROWS_ONLY. Pre-checks passed: free 6,580,588,544 bytes (>4 GiB contract floor); schema and keep-rule code path unchanged; write-lane code identical across dev and production checkouts. SQLite 3.41.2 defaults secure_delete=1 (purge connection would set OFF to avoid zero-filling ~10 GB through the WAL). Plan docs corrected: growth 356,687,921 bytes/day; 83% attribution withdrawn. Execution blocked: Claude Code auto-mode classifier denied the purge step as a mass delete; agent did not work around it.",
+    "artifacts": "docs/audits/hot_db_retention_20261002/dev023_phase2_rpc_cache_purge.v1.json; dev023_phase2_purge.py (prepared, not executed; logical-bytes line needs a fix before use)",
+    "tests": "None; no execution.",
+    "production_flags": "DATABASE_ROWS_DELETED=0; VACUUM_EXECUTED=false; RUNTIME_CHANGED=false; SERVICE_RESTARTED=false; PRODUCTION_CHECKOUT_CHANGED=false.",
+    "safety": "HELIUS=0; BIRDEYE=0. Host disk 97% used (6.1 GB free), swap ~25 GB.",
+    "blocker": "Harness permission for the batched DELETE (user must grant the Bash permission or run the reviewed script).",
+    "next_action": "USER_GRANTS_DELETE_PERMISSION_OR_RUNS_REVIEWED_PURGE_SCRIPT"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

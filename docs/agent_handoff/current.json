@@ -17683,6 +17683,18 @@
     "safety": "Helius=0; Birdeye=0; retained facts recomputed=false; raw provider payloads=false; no new storage writer; max audit file=500000 bytes; unbounded growth paths=0; production source/runtime and Supervisor unchanged.",
     "next_action": "CONTINUE_UNIVERSAL_FORWARD_PRICE_MONITORING"
   },
+  "operations_navigation_history_cleanup_20261004": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV UI/read-projection only",
+    "status": "PASS_OPERATION_NAVIGATION_AND_HISTORY_UI_CLEANED",
+    "finding": "The current Operations presentation now selects established Byzantine, Watchtower, and Nexus directly from the active registry, rather than treating monitor capability as registry membership. WATCHTOWER_DEEP is excluded from presentation only; its evidence was not deleted. Names link to existing UUID detail pages and all three routes return 200 with the correct operation. History removes the redundant OUTCOME / STATE column while preserving retained Entry/Peak/provenance fields.",
+    "audit": "docs/audits/operations_navigation_history_cleanup.v1.json",
+    "tests": "tests/test_universal_recent_tokens_projection.py: 8 passed; browser visual QA and three route checks passed.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "runtime": "Target=/Users/kevinkeaveney/Dev/claude/flex; controlled port-8100 restart PID 26462 -> 44687; rendered Operations table has exactly three linked rows; History header has eight required columns.",
+    "safety": "UI provider calls=0; Helius=0; Birdeye=0; membership/monitor/dispatcher/scheduling unchanged; raw provider payloads=false; max audit file=500000 bytes; unbounded growth paths=0; production source/runtime and Supervisor unchanged.",
+    "next_action": "CONTINUE_UNIVERSAL_FORWARD_PRICE_MONITORING"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

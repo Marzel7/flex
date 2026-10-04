@@ -17567,6 +17567,13 @@
     "safety": "Read projection only; Birdeye=0; Helius=0; no DB/provider/terminal/dispatcher/production change. Existing database 64MiB fail-closed cap and no new storage path preserved.",
     "next_action": "KEEP_TRUE_RETAINED_ENTRY_OR_PEAK_GAPS_VISIBLE_UNTIL_SEPARATELY_AUTHORIZED_EVIDENCE_ACQUISITION"
   },
+  "operations_intelligence_missing_entry_readback_20261004": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; read-only retained-state diagnosis",
+    "status": "PASS_TRUE_EVIDENCE_GAPS_DISTINGUISHED",
+    "finding": "HVTyr/CLAWDIA and F94bb/CHAD received paid BIRDEYE HTTP 200 responses but lack the exact required migration-second candle (TARGET_SECOND_ABSENT). Dkt6/CLAWDIA and 9S2ux/catius received paid BIRDEYE HTTP 200 responses with NO_PROVIDER_ITEMS. All four durable diagnostics name BIRDEYE, not a legacy alias. 5GWVz/PENIS has a pending queue envelope but no retained opening-attempt fact yet. No Entry, peak, multiple, or time-to-peak may be inferred from these records.",
+    "safety": "Read-only; provider calls=0; no data/UI/runtime/production mutation; historical scope unchanged.",
+    "next_action": "CONTINUE_ONLY_EXISTING_BOUNDED_OPENING_CADENCE_FOR_5GWVz_AND_DO_NOT_REACQUIRE_THE_FOUR_PAID-KEY_EXACT-EVIDENCE_FAILURES_WITHOUT_NEW_AUTHORIZATION"
+  },
   "universal_forward_first_token_observation_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; verification-only observation",
     "status": "WAITING_FOR_GENUINE_TOKEN",

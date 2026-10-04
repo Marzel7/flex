@@ -17769,6 +17769,17 @@
     "safety": "Helius=0; Birdeye=0; unledgered=0; duplicate=0; provider calls inside DB transaction=0; ambiguous auto-retry=false; historical backfill=false; raw payloads=false; audit cap=500000 bytes; unbounded growth paths=0; production/Supervisor unchanged.",
     "next_action": "WAIT_FOR_NEXT_CANONICAL_ASSIGNMENT_AND_VERIFY_OPENING_TO_LIVE"
   },
+  "nexus_current48_v1_promotion_qualification_20261004": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; provider-free diagnostic generator and compact audit only",
+    "status": "HOLD_CURRENT_NEXUS_V1_RUNTIME_PATH_INCOMPLETE",
+    "finding": "The exact current 48 noncanonical Nexus UNIQUE_MATCH rows were frozen from operation_detector_results. Every row retains the detector fact (DIRECT route, defining transaction, creator, direct funder, and exactly 10,000 lamports), and none is a canonical member. The recovered V1 validator was run provider-free per row using only retained input. It returns ADDITIONAL_EVIDENCE_REQUIRED for all 48 because the detector fact cannot be reclassified as an independent V1 family and no trusted per-token resolver/evidence-family builder persists a PROVEN_STRONG plus independent PROVEN_STRONG/MODERATE identity proof. Thus proven=0, eligible=0, precommit-pass=0, and no membership commit was attempted. The historical 84 and six static unresolved rows were controlled out. Current V1's cohort resolver is intentionally empty-family only and cannot promote a new detector-exact Nexus row without the missing runtime evidence component. Nexus also has no declared operation-specific Opening/universal-monitor adapter.",
+    "audit": "docs/audits/nexus_current48_v1_promotion_qualification.v1.json sha256 68320569123af1b400d7552adf39530126e7cff7a59fba7f2dba4f50d42fdc52",
+    "tests": "5 focused existing attribution/manual-bridge/shadow tests passed, 0 failed; audit generator called the existing V1 validation function against in-memory workflow stores only.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Diagnostic-only generator and compact artifact; no runtime, database, membership, UI, provider, or monitor path changed.",
+    "safety": "Helius=0; Birdeye=0; other provider=0; new memberships=0; historical 84 unchanged; static unresolved evaluated=0; raw provider payloads=false; max audit=500000 bytes; unbounded growth paths=0; production/Supervisor unchanged.",
+    "next_action": "IMPLEMENT_ONLY_THE_MISSING_V1_RUNTIME_COMPONENT"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

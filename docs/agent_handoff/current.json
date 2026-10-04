@@ -17536,15 +17536,15 @@
   },
   "operations_intelligence_live_history_reconciliation_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV read-projection/template only",
-    "status": "PARTIAL_POST_REPAIR_ACCEPTANCE_PENDING",
-    "finding": "The authoritative primary placement now uses retained MONITORING_ACTIVE state only, not a missing-terminal presentation fallback. Deployed API returned live=3, history=20, overlap=0, and canonical-mint duplicates=0. History is selected from non-live assignments before the limit. Across final rows retained opening=13, peak=7, multiple=7, and time-to-peak=6; null peaks carry no qualified badge. A follow-up precedence repair ensures an empty Watchtower historical lifecycle field cannot mask a retained running monitor peak.",
-    "audit": "docs/audits/operations_intelligence_live_history_reconciliation.v1.json; docs/audits/operations_intelligence_retained_value_reconciliation.v1.json",
-    "tests": "11 focused tests passed, 0 failed after retained-peak precedence repair.",
+    "status": "PARTIAL_EVIDENCE_CENSUS_CONTINUATION",
+    "finding": "The authoritative primary placement now uses retained MONITORING_ACTIVE state only, not a missing-terminal presentation fallback. A provider-free retained-evidence census found 624 eligible operation rows: 88 with qualified opening, 536 currently entry-missing, and 68 with retained peak/running-peak evidence. The concrete false-negative was corrected: Watchtower lifecycle/peak records now merge independently of First Available Entry, so ATH display does not require Entry.",
+    "audit": "docs/audits/operations_intelligence_live_history_reconciliation.v1.json; docs/audits/operations_intelligence_retained_value_reconciliation.v1.json; docs/audits/operations_intelligence_retained_evidence_census.v1.json",
+    "tests": "12 focused tests passed, 0 failed after independent Entry/Peak regression coverage.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS",
-    "runtime": "Managed port-8100 reload/restart successor PID 73418 after retained-peak precedence repair; focused tests passed. Endpoint/browser acceptance remains to be repeated for that exact PID.",
+    "runtime": "Managed port-8100 reload PID 73418 -> 93804; /api/operations/live-monitor HTTP 200 returned 624 rows after independent Entry/Peak repair.",
     "safety": "Read projection/template only; provider/monitor/entry/peak/terminal/budget/dispatcher semantics unchanged; Helius=0; Birdeye=0; production/Supervisor/trading unchanged.",
-    "next_action": "REPEAT_PORT8100_ENDPOINT_AND_BROWSER_ACCEPTANCE_FOR_PID_73418"
+    "next_action": "COMPLETE_TOKEN_LEVEL_CENSUS_ARTIFACT_AND_SETTLED_BROWSER_VISUAL_QA"
   },
   "universal_forward_first_token_observation_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; verification-only observation",

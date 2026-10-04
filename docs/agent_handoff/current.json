@@ -17877,6 +17877,16 @@
     "safety":"Dedicated DEV branch/worktree retained; Nexus paused; legacy monitoring remains OFF; legacy Scenario-D and provider loop not invoked; validation Helius=3; paid Birdeye=1; raw payloads/blocks=0; PEPEINU lifecycle backfill=0; production/Supervisor unchanged.",
     "next_action":"DO_NOT_ENABLE_BYZANTINE_FORWARD_OPENING"
   },
+  "canonical_operation_assignment_authority_reconciliation_20261004": {
+    "engineering_revision": "2e5a1302f12b3e084dd1a61ed70111e0e2ff7f5b on codex/canonical-assignment-opening-bridge; audit only",
+    "status": "PASS_TRUE_FORWARD_ASSIGNMENT_AUTHORITY_RECOVERED",
+    "finding": "The prior mismatch was caused by querying the wrong table. database/wt_ops_v2.db::operator_launch_membership contains PEPEINU mint Ah7xh8F2auwkZWh1KHDEjwuabdhKKJt2sCxqBH8mpump with Byzantine operator_id d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334, source_population_id BYZANTINE_PROVEN_CREATOR_CONTINUITY, assigned_at 1791112464, and event_id 264b63c1-6b6f-56d5-a0e7-36e331167fd5. confirmed_operation_matches contains the same UUID as match_id, durable UUID5(detector_version:mint), with detector BYZANTINE_PROVEN_CREATOR_CONTINUITY.v1 and detected_at 1791112464. operators maps that ID to confirmed display_name Byzantine. The producer is verified in source as wsol_10_sol_four_step_operation.project_completed_walkback, which writes match then membership.",
+    "artifact": "docs/audits/canonical_operation_assignment_authority_reconciliation.v1.json",
+    "classification": "B_WT_OPS_V2_HAS_REQUIRED_MEMBERSHIP_BUT_WRONG_TABLE_WAS_QUERIED",
+    "important_semantic_limit": "operator_launch_membership is current mint-primary-key membership, not an append-only assignment event stream. A subsequent reader contract must explicitly reconcile this with forward-event semantics; do not treat assignment history as its authority.",
+    "safety": "Read-only canonical inspection; consumer implementation unchanged; canonical/dev schemas unchanged; providers=0; runtime not started; PEPEINU not mutated; production/Supervisor/shared checkout unchanged.",
+    "next_action": "Authorize provider-free reader-contract qualification binding existing consumer to operator_launch_membership plus confirmed_operation_matches/operators, with explicit current-state versus forward-event behavior."
+  },
   "universal_assignment_runtime_composition_20261004": {
     "engineering_revision": "0fefddef877a2e2654a88f36f37fdcfc66321e7e inspected only; no implementation change",
     "status": "HOLD_CANONICAL_EVENT_AUTHORITY_MISMATCH",

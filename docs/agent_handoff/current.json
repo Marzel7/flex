@@ -17780,6 +17780,18 @@
     "safety": "Helius=0; Birdeye=0; other provider=0; new memberships=0; historical 84 unchanged; static unresolved evaluated=0; raw provider payloads=false; max audit=500000 bytes; unbounded growth paths=0; production/Supervisor unchanged.",
     "next_action": "IMPLEMENT_ONLY_THE_MISSING_V1_RUNTIME_COMPONENT"
   },
+  "nexus_v1_evidence_family_builder_20261004": {
+    "engineering_revision": "2baad51d6542ae2f43e9597425e7294ad57efb4a on codex/nexus-v1-evidence-builder in /private/tmp/flex-nexus-v1-evidence-builder",
+    "status": "PASS_BUILDER_RETAINED_EVIDENCE_INSUFFICIENT",
+    "finding": "A dedicated isolated DEV branch implements NEXUS_V1_RETAINED_EVIDENCE_FAMILY_BUILDER_V1. It maps only explicit, VERIFIED generic normalized facts with an explicit V1 family/state, PASS independence flags, and a retained dependency group into the unchanged V1 evaluator. Detector route/10k evidence is categorically excluded from independent-family conversion. The bridge preserves duplicate identity handling, dependency groups, explicit contradictions, and common-infrastructure exclusions; it fabricates neither identity proof nor new Nexus facts. The provider-free fixture matrix passes. Exact frozen-current48 replay finds no normalized generic evidence tables in the actual Nexus authority, so all 48 correctly remain ADDITIONAL_EVIDENCE_REQUIRED; proven=0, eligible=0, precommit=0. The builder is callable but not wired into a running Nexus detector consumer because no such forward integration seam is present in the isolated baseline; canonical commit remains disabled. Nexus Opening/universal-monitor adapter remains untouched.",
+    "contract": "docs/contracts/nexus_v1_evidence_family_builder.v1.json",
+    "audits": ["docs/audits/nexus_v1_evidence_family_builder_qualification.v1.json", "docs/audits/nexus_current48_v1_builder_replay.v1.json"],
+    "tests": "7 focused builder/V1 attribution/manual-bridge tests passed, 0 failed.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Isolated DEV implementation qualification only; no active runtime integration or deployment, database write, provider call, canonical commit, UI, Supervisor, or production change.",
+    "safety": "Helius=0; Birdeye=0; other provider=0; new canonical members=0; historical 84 unchanged; static six untouched; raw provider/block payloads=false; all generated artifact files <500000 bytes; unbounded growth paths=0; production/Supervisor unchanged.",
+    "next_action": "DEFINE_MINIMUM_FORWARD_EVIDENCE_ACQUISITION_FOR_MISSING_V1_FAMILIES"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

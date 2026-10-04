@@ -17479,6 +17479,17 @@
     "runtime_deployment_gate": "HOLD",
     "next_action": "AUTHORIZE_OR_PROVIDE_A_SINGLE_QUALIFIED_LINE_CONTAINING_THE_EXISTING_WATCHTOWER_EVALUATOR_BYZANTINE_HISTORICAL_PRODUCER_AND_MONITOR_WORKER_BEFORE_MANAGED_RUNTIME_BINDING"
   },
+  "qualified_price_source_line_assembly_20261004": {
+    "engineering_revision": "ba793b29374c4224a5a697f19e1d618f81545a95 on isolated codex/universal-assignment-managed-runtime",
+    "status": "PASS_EXISTING_PRICE_COMPONENTS_ASSEMBLED_IN_ONE_QUALIFIED_SOURCE_LINE",
+    "finding": "Exact existing Watchtower FIRST_AVAILABLE evaluator (f797dd4231bc5d5eacc1e29ed10d16b5a4b7ec4e, SHA256 52231ff4403eb1eaa6ebe0e89480059f6e26d4eab979ef75c7ff2ece89584af2), the expressly authorized historical Byzantine producer baseline (SHA256 5645ab3e23968deb7a0e8006263c413a21bbc09001bf3dcadf2a3df3141bd0c3), and exact Monitor worker (9561568ef7718d1676ea9d7edeaec8ae82529ff6, SHA256 9500e2dba7a262fe003b988752ab43cd97a30b37d773404669bb4722f0e24559) now coexist with the frozen bridge (SHA256 b7a1608e4e1ed3c7a7419035c72cc506a4bf8f4f001be78c4a85fa28d1dc685c). Direct missing provider-free import dependencies were ported from the worker provenance only. No runtime binding was added.",
+    "tests": "31 passed, 0 failed. Four Watchtower controls retain 172234, 167954, 108285, and 166730. Retained PEPEINU selected signature 1M8iBZQLkfCJr5GgZY9K33QHuXhr7gvqutg6KxknBAzKj7gkRbrnxWyVAdrFFMBrjvkGMfBG9EjtSaFz7zTfNNa, timestamp 1791112830, and Entry MC 3925.9516827750313 were asserted without providers or recalculation. The separate mint guard only accepted the retained selected event; it was not added to the historical producer. The real activation chain bridge -> worker _activate_from_qualified_opening -> queue was executed with temporary queue and injected offline writer acknowledgement.",
+    "audit": "docs/audits/qualified_price_source_line_assembly.v1.json",
+    "production_flags": "HELIUS=0; BIRDEYE=0; canonical DB=false; universal DEV DB=false; PEPEINU=false; runtime started=false; deployment=false; raw provider payloads=false.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "This gate assembles and tests source only; user explicitly prohibited managed-runtime binding and deployment.",
+    "next_action": "BIND_QUALIFIED_SOURCE_LINE_IN_MANAGED_RUNTIME"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

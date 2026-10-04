@@ -1,9 +1,10 @@
 {
   "schema_version": "UNIVERSAL_ASSIGNMENT_OPENING_HANDOFF_QUALIFICATION_V1",
-  "status": "HOLD_BYZANTINE_ADAPTER_UNQUALIFIED",
+  "status": "PASS_PROVIDER_FREE_GENERIC_BRIDGE_QUALIFIED_NOT_DEPLOYED",
   "interface": "canonical assignment -> operation adapter lookup -> deterministic Opening work -> QualifiedOpening -> frozen global universal handoff",
-  "registry": {"watchtower": "FIRST_AVAILABLE retained and unchanged", "byzantine": "BYZANTINE_ACTUAL_ENTRY_V2 unavailable pending event-level target mint identity", "nexus": "ADAPTER_UNAVAILABLE visible fail-closed"},
-  "bridge_operation_agnostic": false,
-  "reason": "A generic bridge cannot be qualified while the Byzantine adapter lacks its V2 positive proof. No adapter registry or bridge was fabricated.",
+  "registry": {"watchtower": "FIRST_AVAILABLE retained and unchanged", "byzantine": "BYZANTINE_ACTUAL_ENTRY_V2 qualified", "nexus": "ADAPTER_UNAVAILABLE visible fail-closed"},
+  "bridge_operation_agnostic": true,
+  "tests": "tests/test_universal_assignment_opening_bridge.py plus tests/test_byzantine_event_mint_resolver.py: 10 passed",
+  "reason": "Generic durable work identity derives from assignment identity plus adapter version; duplicate events are idempotent, unavailable adapters remain visible, and injected universal handoff executes only after durable qualified Opening commit.",
   "safety": {"provider_calls": 0, "universal_monitor_changed": false, "opening_adapters_changed": false, "production_changed": false}
 }

@@ -1,8 +1,8 @@
 {
   "canonical_membership_outbox_20261004": {
-    "engineering_revision": "1c073d487bd1e1a563213dce8515f15bd36fc81d on existing isolated codex/canonical-assignment-opening-bridge",
+    "engineering_revision": "e6e268a713963efcb88f17f24333f18a8a71d4b6 on existing isolated codex/canonical-assignment-opening-bridge",
     "status": "HOLD_FINAL_OUTBOX_QUALIFICATION_INCOMPLETE",
-    "finding": "The immutable AUTOINCREMENT canonical outbox foundation remains intact. The real composition is now provider-free bound: canonical_outbox_reader, canonical Watchtower/Byzantine UUID routing, existing Opening registry/work ledger, durable QualifiedOpening, and injected existing universal handoff. 24 focused tests pass. The complete explicit injected rollback matrix for all four membership writers still has not been implemented/proven, so the final qualification remains held.",
+    "finding": "The immutable AUTOINCREMENT canonical outbox foundation remains intact. Monitor admission now has four executable temporary-DB cases: success, failure after membership, forced append failure, and failure after outbox; each has the required commit/rollback result and preserves the legacy outbox. Focused suite is 28 passed. WSOL, identity-governance, and Watchtower-registry injected matrices remain unimplemented, so final qualification remains held.",
     "audit": "docs/audits/canonical_membership_outbox_qualification.v1.json",
     "safety": "HELIUS=0; BIRDEYE=0; other providers=0; canonical DB=0; universal dev DB=0; runtime/Supervisor=0; shared dirty checkout untouched; no deployment. Storage cap=64 MiB, raw payloads=0, unbounded growth paths=0.",
     "runtime_deployment_required": true,

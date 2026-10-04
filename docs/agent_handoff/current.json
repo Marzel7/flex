@@ -17877,6 +17877,16 @@
     "safety":"Dedicated DEV branch/worktree retained; Nexus paused; legacy monitoring remains OFF; legacy Scenario-D and provider loop not invoked; validation Helius=3; paid Birdeye=1; raw payloads/blocks=0; PEPEINU lifecycle backfill=0; production/Supervisor unchanged.",
     "next_action":"DO_NOT_ENABLE_BYZANTINE_FORWARD_OPENING"
   },
+  "canonical_membership_outbox_qualification_20261004": {
+    "engineering_revision": "55ffcd64bb75835ecfa6c370d89372851c8cc29a on codex/canonical-assignment-opening-bridge; audit only",
+    "status": "HOLD_MEMBERSHIP_WRITER_OUTBOX_ATOMICITY_INCOMPLETE",
+    "finding": "Read-only inventory confirms authoritative membership mutations span monitor_live_admission::commit_membership_and_outbox (insert), wsol_10_sol_four_step_operation::project_completed_walkback (insert/delete), operator_identity_governance (update/upsert), and watchtower_registry_promotion (insert/delete). The required existing isolated checkout at b5c7f8b6 does not contain src/ops/monitor_live_admission.py, so it cannot be proven to cover every authoritative writer in the same transaction. Implementing only the visible writers would create an unsafe partial outbox; importing a different runtime revision would violate the frozen pinned continuation constraint.",
+    "artifact": "docs/audits/canonical_membership_outbox_qualification.v1.json",
+    "outbox_implemented": false,
+    "blocker": "No source revision has been authorized that contains all audited membership writers. Same-transaction, lossless outbox qualification cannot proceed on a partial source snapshot.",
+    "safety": "No canonical/DEV database mutation, provider call, runtime start, PEPEINU mutation, Supervisor/production/shared checkout change.",
+    "next_action": "Authorize source-revision reconciliation to an existing pinned checkout containing every audited membership writer, then implement and qualify the explicit same-transaction outbox across all writers."
+  },
   "universal_canonical_membership_reader_qualification_20261004": {
     "engineering_revision": "b5c7f8b657c00ebe840e7cf72c1e19e508f7c164 on codex/canonical-assignment-opening-bridge; contracts/audits only",
     "status": "HOLD_CURRENT_STATE_MEMBERSHIP_READER_NOT_LOSSLESS",

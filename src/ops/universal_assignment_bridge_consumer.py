@@ -6,7 +6,12 @@ from typing import Callable, Iterable, Mapping
 
 ROLE="universal-assignment-bridge-consumer-v1"; VERSION="UNIVERSAL_ASSIGNMENT_BRIDGE_CONSUMER_V1"
 TARGETED_PEPEINU="264b63c1-6b6f-56d5-a0e7-36e331167fd5"
-REGISTRY={"watchtower":"FIRST_AVAILABLE","byzantine":"BYZANTINE_ACTUAL_ENTRY_V2"}
+from src.ops.universal_assignment_opening_bridge import REGISTRY as OPENING_REGISTRY
+REGISTRY={operation: adapter[0] for operation,adapter in OPENING_REGISTRY.items()}
+from src.ops.wsol_10_sol_four_step_operation import OPERATOR_ID as BYZANTINE_OPERATOR_ID
+from src.ops.watchtower_alignment import WATCHTOWER_OPERATOR_ID
+CANONICAL_OPERATOR_REGISTRY={WATCHTOWER_OPERATOR_ID:'watchtower',BYZANTINE_OPERATOR_ID:'byzantine'}
+def normalized_operation_id(value): return CANONICAL_OPERATOR_REGISTRY.get(str(value),str(value).lower())
 def _id(kind,event): return hashlib.sha256((kind+":"+event).encode()).hexdigest()
 def projection_id(event): return _id("universal-assignment-projection-v1",event)
 def handoff_id(event): return _id("universal-assignment-handoff-v1",event)
@@ -17,6 +22,14 @@ def ensure_schema(db):
  cols={r[1] for r in db.execute('PRAGMA table_info(universal_assignment_cursor)')}
  if 'last_consumed_outbox_id' not in cols: db.execute('ALTER TABLE universal_assignment_cursor ADD COLUMN last_consumed_outbox_id INTEGER')
  db.commit()
+
+def canonical_outbox_reader(canonical_db, *, source_authority, batch_size=64):
+ """Return the real forward-only reader; it never queries membership state/history."""
+ from src.ops.canonical_membership_outbox import read_after
+ def read(last_consumed_outbox_id):
+  columns=('outbox_id','event_type','mint','operator_id','canonical_event_id','assigned_at','previous_operator_id','writer_identity','created_at','schema_version')
+  return [dict(zip(columns,row),operation_id=row[3],source_authority=source_authority) for row in read_after(canonical_db,last_consumed_outbox_id,batch_size) if row[1] != 'MEMBERSHIP_REMOVED']
+ return read
 
 @dataclass(frozen=True)
 class Authorities:
@@ -47,7 +60,7 @@ class Consumer:
  def _project(self,e,now):
   p=projection_id(str(e['outbox_id']));row=self.db.execute("select * from universal_assignment_projection where projection_id=?",(p,)).fetchone()
   if row:return row
-  op=str(e['operation_id']).lower()
+  op=normalized_operation_id(e['operation_id'])
   with self.db:self.db.execute("insert into universal_assignment_projection values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",(p,str(e['outbox_id']),op,e['mint'],int(e.get('assigned_at') or e['created_at']),self.authorities.source,self.authorities.destination,REGISTRY.get(op),'PROJECTED',None,None,self.instance_id,VERSION,now,now,None))
   return self.db.execute("select * from universal_assignment_projection where projection_id=?",(p,)).fetchone()
  def _set(self,eid,state,now,opening=None,held=None,handoff=None):

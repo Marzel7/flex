@@ -17490,6 +17490,16 @@
     "runtime_deployment_reason": "This gate assembles and tests source only; user explicitly prohibited managed-runtime binding and deployment.",
     "next_action": "BIND_QUALIFIED_SOURCE_LINE_IN_MANAGED_RUNTIME"
   },
+  "universal_managed_price_pipeline_binding_20261004": {
+    "engineering_revision": "ba793b29374c4224a5a697f19e1d618f81545a95 on isolated codex/universal-assignment-managed-runtime; inspection-only continuation",
+    "status": "HOLD_IMMUTABLE_QUALIFIED_PRICE_BEHAVIOUR",
+    "finding": "All four qualified component hashes match the required base. The recovered untracked executable shell is not a concrete deployable composition: its Supervisor definition contains /ABSOLUTE paths, SET_EXACT_QUALIFIED_COMMIT, SET_EXPLICIT_FORWARD_BOUNDARY, and MODULE:CALLABLE placeholders. Its runtime invokes two injected callables, and durable_opening_then_handoff still invokes an injected universal_handoff rather than QualifiedEntryMonitorBridge or OperationMonitorWorker. The exact historical Byzantine producer exposes only whole-population execute()/provider acquisition behavior, not a per-canonical-assignment retained-Opening callable. Supplying that missing callable would require a new adapter to choose/reuse/revalue Entry evidence or to alter the frozen producer's interface. Either route would exceed this gate's allowed runtime composition and risks changing immutable historical selection/valuation semantics. No source, fixture, DB, runtime, or deployment change was made.",
+    "evidence": "src/ops/universal_assignment_bridge_consumer_cli.py REQUIRED_ENV requires UNIVERSAL_ASSIGNMENT_ADAPTER_EXECUTOR and UNIVERSAL_ASSIGNMENT_HANDOFF; config/supervisor/universal_assignment_bridge_consumer.dev.conf contains the unresolved placeholder values; src/ops/universal_outbox_runtime_composition.py retains injected universal_handoff; scripts/run_byzantine_actual_entry_24h_backfill.py has frozen_population(), recover_create_slots(), and execute(), but no assignment-scoped retained-opening interface.",
+    "production_flags": "HELIUS=0; BIRDEYE=0; canonical DB=false; universal DEV DB=false; PEPEINU=false; runtime started=false; deployment=false; raw provider payloads=false.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "No executable source was changed and the requested managed runtime was not bound or started.",
+    "next_action": "AUTHORIZE_A_SEPARATE_FORWARD_ONLY_BYZANTINE_RETAINED_OPENING_ADAPTER_CONTRACT_THAT_ACCEPTS_ONLY_ALREADY_QUALIFIED_RETAINED_OPENINGS_AND_NEVER_SELECTS_OR_REVALUES_A_TRADE; THEN_DEFINE_CONCRETE_PINNED_DEV_AUTHORITIES_AND_EXISTING_BRIDGE_WORKER_HANDOFF"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

@@ -1,0 +1,1 @@
+{"version":"UNIVERSAL_ASSIGNMENT_RUNTIME_COMPOSITION_V1","status":"HOLD_PENDING_POST_COMMIT_MEMBERSHIP_OUTBOX","consumer_binding":false,"reason":"canonical membership is current state and has no lossless total forward order","frozen_downstream":["projection ledger","Opening adapters","QualifiedOpening persistence","universal handoff"],"provider_calls":0,"runtime_started":false}

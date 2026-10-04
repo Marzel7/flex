@@ -1,0 +1,1 @@
+{"status":"NOT_RUN_UNSAFE_SOURCE_READER","reason":"Executing a consumer matrix against a known-lossy current-state scan would falsely qualify missed membership transitions.","downstream_components_changed":false,"provider_calls":0}

@@ -1,0 +1,28 @@
+{
+  "schema_version": "UNIVERSAL_OPERATION_OPENING_ADAPTERS_V1",
+  "status": "HOLD_BYZANTINE_OPENING_ADAPTER_PROVENANCE_NOT_RECOVERED",
+  "interface": "canonical assignment -> operation adapter lookup -> bounded opening acquisition -> qualified or fail-closed result",
+  "watchtower": {
+    "status": "RECOVERED_NOT_WIRED",
+    "policy": "FIRST_AVAILABLE",
+    "source": {"path": "src/ops/watchtower_first_available_mc.py", "commit": "f797dd4231bc5d5eacc1e29ed10d16b5a4b7ec4e", "sha256": "52231ff4403eb1eaa6ebe0e89480059f6e26d4eab979ef75c7ff2ece89584af2"},
+    "coordinate": "canonical create signature, create slot, create time, qualified supply",
+    "transport": "one injected Helius getTransaction and one injected paid Birdeye /defi/v3/token/txs request; no retries",
+    "selection": "first normalized trade with slot strictly greater than canonical create slot",
+    "failure": ["INSUFFICIENT_CREATE_EVIDENCE", "INSUFFICIENT_SUPPLY_EVIDENCE", "INSUFFICIENT_TRADE_EVIDENCE", "NO_FIRST_AVAILABLE_TRADE_IN_WINDOW"]
+  },
+  "byzantine": {
+    "status": "NOT_FROZEN",
+    "recovered_source": {"path": "src/ops/pumpfun_opening_executor.py", "commit": "580508a70c80e7fc944e0069f85e67b851a117fa", "sha256": "78da92761fd2c85f14e8a99371c485fb2abd364f9b29c770c31566361caee13f"},
+    "recovered_semantic": "creation-slot block replay; first independent Pump.fun buyer",
+    "rejection": "The recovered implementation persists raw provider responses and does not use the required paid Birdeye opening binding. Porting it as a Birdeye/no-raw adapter would invent semantics.",
+    "scenario_d_rejected": true
+  },
+  "nexus": {"present": false},
+  "registry_present": false,
+  "bridge_wired": false,
+  "legacy_scenario_d_used": false,
+  "legacy_provider_loop_reenabled": false,
+  "legacy_birdeye_binding_used": false,
+  "raw_provider_payloads_retained_by_this_recovery": false
+}

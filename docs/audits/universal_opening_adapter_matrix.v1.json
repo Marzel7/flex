@@ -1,0 +1,28 @@
+{
+  "schema_version": "UNIVERSAL_OPENING_ADAPTER_MATRIX_V1",
+  "status": "HOLD_BYZANTINE_OPENING_ADAPTER_PROVENANCE_NOT_RECOVERED",
+  "matrix": [
+    {"operation": "Watchtower", "case": "qualified First Available", "provider_free": true, "result": "PASS"},
+    {"operation": "Watchtower", "case": "missing create slot/evidence", "provider_free": true, "result": "PASS_FAIL_CLOSED"},
+    {"operation": "Watchtower", "case": "no qualifying post-create trade", "provider_free": true, "result": "PASS_FAIL_CLOSED"},
+    {"operation": "Byzantine", "case": "qualified Opening", "provider_free": false, "result": "HOLD: current retained authority has incompatible raw-payload contract"},
+    {"operation": "Byzantine", "case": "missing evidence", "provider_free": false, "result": "HOLD"},
+    {"operation": "Byzantine", "case": "provider failure/incomplete evidence", "provider_free": false, "result": "HOLD"}
+  ],
+  "opening_adapter_provider_free_matrix_pass": false,
+  "adapter_registry_present": false,
+  "assignment_bridge_operation_agnostic": false,
+  "pepeinu_assignment_recreated": false,
+  "pepeinu_opening_work_created": false,
+  "helius_calls_made": 0,
+  "birdeye_calls_made": 0,
+  "legacy_scenario_d_used": false,
+  "legacy_provider_loop_reenabled": false,
+  "legacy_birdeye_binding_used": false,
+  "historical_backfill_started": false,
+  "raw_provider_payloads_retained": false,
+  "project_500mb_rule_preserved": true,
+  "production_source_changed": false,
+  "production_runtime_changed": false,
+  "supervisor_changed": false
+}

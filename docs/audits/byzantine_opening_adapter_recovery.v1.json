@@ -1,0 +1,18 @@
+{
+  "schema_version": "BYZANTINE_OPENING_ADAPTER_RECOVERY_V1",
+  "status": "HOLD_NOT_SAFE_TO_FREEZE_WITHOUT_SEMANTIC_CHANGE",
+  "qualified_controls_inventoried": true,
+  "controls": [
+    {"mint": "2J7PmgeseQtUfKr1i5BU4k1UDn5Yaf4FYGwAJ6Eupump", "status": "QUALIFIED", "semantic": "FIRST_BOUNDED_SLOT_WITH_QUALIFYING_TARGET_TRADE"},
+    {"mint": "2Br5iZyB5w7W2LhXhKVo6NFUFmoyjWmuDyQR1Edspump", "status": "QUALIFIED_ACTUAL_ENTRY_CONTROL", "semantic": "post-create PumpSwap SELL"},
+    {"mint": "2GwJo5TgJFzim7dxRot2enEutP16CMNi2hystB5Wpump", "status": "QUALIFIED", "semantic": "FIRST_BOUNDED_SLOT_WITH_QUALIFYING_TARGET_TRADE"}
+  ],
+  "authority": {"path": "src/ops/pumpfun_opening_executor.py", "commit": "580508a70c80e7fc944e0069f85e67b851a117fa", "git_status": "committed", "sha256": "78da92761fd2c85f14e8a99371c485fb2abd364f9b29c770c31566361caee13f"},
+  "implementation_recovered": true,
+  "request_contract": "one Helius getTransaction plus up to eight Helius getBlock calls; optional one archived-account call",
+  "qualification": "canonical create transaction in creation block, post-create opening trade, first independent buyer, bounded first-second window",
+  "failure": "INSUFFICIENT_EVIDENCE_BOUND_EXHAUSTED or specific missing create/opening/buyer evidence",
+  "rejection": {"reason": "The committed authority writes provider_raw_response artifacts and contains no paid Birdeye opening request/reducer. A no-raw-payload Birdeye adapter would be a newly invented method.", "scenario_d_used": false, "adapter_frozen_without_provenance": false},
+  "provider_calls_by_this_recovery": {"helius": 0, "birdeye": 0},
+  "raw_payloads_retained_by_this_recovery": false
+}

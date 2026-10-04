@@ -1,0 +1,27 @@
+{
+  "schema_version": "operation-monitor-capabilities.v1",
+  "description": "Read-side monitor eligibility declarations. This manifest neither admits operation membership nor activates a monitor; it only tells the Operations Registry projection which canonical active operations have an existing monitor contract.",
+  "operations": {
+    "04265d9f-6eb2-568c-a49e-9253091a4dbb": {
+      "enabled": true,
+      "monitor_operation_id": "watchtower",
+      "profile": "STRICT_OPENING_AND_TERMINAL_ATH",
+      "entry_reference_producer": "MIGRATION_BOUNDARY"
+    },
+    "bb255638-a493-551f-938c-8be7c9ea4f1e": {
+      "enabled": true,
+      "monitor_operation_id": "watchtower_deep",
+      "profile": "STRICT_OPENING_AND_TERMINAL_ATH",
+      "entry_reference_producer": "MIGRATION_BOUNDARY"
+    },
+    "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334": {
+      "enabled": true,
+      "monitor_operation_id": "byzantine",
+      "profile": "WAITING_ENTRY_REFERENCE",
+      "entry_reference_producer": "SCENARIO_D_COMMITTED",
+      "entry_reference_policy": "SCENARIO_D",
+      "scenario_d_cluster_seed_path": "docs/audits/byzantine_lifecycle_103/byzantine_103_opening_cluster_full_replay.json",
+      "persist_waiting_entry_fact": true
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": "QUALIFIED_ENTRY_MONITOR_BRIDGE_BASELINE_QUALIFICATION_V1",
+  "status": "PASS_AUTHORIZED_UNTRACKED_SOURCE_NEW_BASELINE",
+  "source": {
+    "path": "src/ops/qualified_entry_monitor_bridge.py",
+    "sha256": "b7a1608e4e1ed3c7a7419035c72cc506a4bf8f4f001be78c4a85fa28d1dc685c",
+    "historical_git_provenance": "unavailable; explicitly accepted as an input to this qualification gate",
+    "copy_verified_byte_identical": true
+  },
+  "contract": {
+    "order": ["validate_qualified_opening", "worker._activate_from_qualified_opening", "queue.enqueue_qualified_activation"],
+    "price_calculation_logic_count": 0,
+    "provider_transport_count": 0,
+    "price_or_lifecycle_semantics_changed": false
+  },
+  "provider_free_tests": "tests/test_qualified_entry_monitor_bridge.py plus focused bridge/guard/consumer suite: 31 passed, 0 failed",
+  "safety": {"helius_calls": 0, "birdeye_calls": 0, "retained_facts_changed": false, "runtime_started": false, "deployment_attempted": false}
+}

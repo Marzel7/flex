@@ -17671,6 +17671,18 @@
     "safety": "Final capped pass: Helius signature pages=9; Helius transaction checks=72; Birdeye=0; pagination=false; raw provider payload retention=false; max audit file=500000 bytes; unbounded growth paths=0; historical-536 expansion=false; universal dispatcher remains stopped.",
     "next_action": "KEEP_THE_THREE_ROWS_FAIL_CLOSED_UNLESS_A_NEW_AUTHORIZATION_PERMITS_A_DIFFERENT_CANONICAL_CREATE_EVIDENCE_SOURCE_OR_A_LARGER_SEARCH_SCOPE"
   },
+  "operations_live_history_lifecycle_reconciliation_20261004": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV read-projection/UI change",
+    "status": "PASS_LIVE_HISTORY_LIFECYCLE_CLASSIFICATION_CORRECTED",
+    "finding": "The old live criterion was monitor_state=MONITORING_ACTIVE alone. The replacement requires a qualified USD Entry, an Entry timestamp inside Entry+24h, non-terminal retained state, and MONITORING_ACTIVE. Frozen old-LIVE population=3: HOOKEDCAT (terminal and expired), LOOONGCAT (expired), and LOCKEDINU (historical Entry-missing). All three moved to HISTORY; live=0, history=20, and overlap=0. Retained Entry/Peak fields remain read-only and visible where present.",
+    "audit": "docs/audits/operations_live_history_lifecycle_reconciliation.v1.json",
+    "tests": "tests/test_universal_recent_tokens_projection.py: 8 passed",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "runtime": "Target=/Users/kevinkeaveney/Dev/claude/flex; controlled port-8100 restart PID 93804 -> 26462; /dev-runtime/health=200; /api/operations/live-monitor verified live=0/history=20/overlap=0; browser visual QA passed.",
+    "safety": "Helius=0; Birdeye=0; retained facts recomputed=false; raw provider payloads=false; no new storage writer; max audit file=500000 bytes; unbounded growth paths=0; production source/runtime and Supervisor unchanged.",
+    "next_action": "CONTINUE_UNIVERSAL_FORWARD_PRICE_MONITORING"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

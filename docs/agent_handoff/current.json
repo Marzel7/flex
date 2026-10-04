@@ -17372,15 +17372,15 @@
     "next_action": "NONE_FOR_BYZANTINE_2H_PEAK_UI"
   },
   "canonical_membership_outbox_failure_matrix_20261004": {
-    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa plus uncommitted writer/outbox atomicity candidate",
-    "status": "PARTIAL_REGRESSION_FAILURE",
-    "finding": "All 12 required temporary-SQLite, test-only writer failure-injection cases executed and passed: WSOL=4/4, operator_identity_governance=4/4, watchtower_registry_promotion=4/4. SUCCESS persisted membership plus one canonical monitor_admission_outbox row; each of FAIL_AFTER_MEMBERSHIP, OUTBOX_APPEND_FAILURE, and FAIL_AFTER_OUTBOX rolled back both rows. No production crash switches were introduced.",
-    "tests": "Matrix: 12 passed. One complete focused regression run collected 55: 54 passed, 1 failed. Failing writer=WSOL_10_SOL_FOUR_STEP_OPERATION; case=existing idempotent replay test_proven_creator_later_birth_is_admitted; expected=already_present with no duplicate membership/outbox; actual=sqlite3.IntegrityError UNIQUE constraint failed operator_launch_membership.mint on second projection; root cause=the new canonical helper performs a strict INSERT before the writer's existing-idempotency result is returned.",
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa plus uncommitted canonical membership/outbox qualification candidate",
+    "status": "PASS_LOSSLESS_CANONICAL_MEMBERSHIP_OUTBOX_PROVIDER_FREE_QUALIFIED",
+    "finding": "WSOL now returns already_present before any strict membership insertion when the canonical mint is already owned by the same operator; a conflicting owner still returns existing_other_operator. The exact replay leaves membership and canonical outbox at one row each. No constraint was weakened, no IntegrityError is used for idempotency control flow, and no production crash switches were introduced.",
+    "tests": "Combined temporary-SQLite failure matrix: 16/16 passed (monitor_live_admission=4/4, WSOL=4/4, operator_identity_governance=4/4, watchtower_registry_promotion=4/4). Exact former WSOL replay test passed. Complete focused suite: 60 passed, 0 failed.",
     "production_flags": "HELIUS_CALLS_MADE=0; BIRDEYE_CALLS_MADE=0; CANONICAL_DB_CHANGED=false; UNIVERSAL_DEV_DB_CHANGED=false; MANAGED_RUNTIME_STARTED=false; PEPEINU_MUTATED=false.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
-    "blocker": "Repair the WSOL existing-membership/idempotent path, then re-execute the entire 12-case matrix and the focused regression suite once. Do not deploy before that pass.",
-    "next_action": "FIX_WSOL_IDEMPOTENT_REPLAY_BEFORE_REQUALIFYING_CANONICAL_MEMBERSHIP_OUTBOX"
+    "qualification": "WSOL_IDEMPOTENCY_SEMANTICS_FROZEN=true; MEMBERSHIP_UNIQUE_CONSTRAINT_WEAKENED=false; INTEGRITY_ERROR_USED_AS_IDEMPOTENCY_CONTROL_FLOW=false; WSOL_EXISTING_MEMBERSHIP_CHECK_PRECEDES_STRICT_INSERT=true; WSOL_IDEMPOTENT_REPLAY_PASS=true; WSOL_IDEMPOTENT_REPLAY_DUPLICATE_OUTBOX_COUNT=0; WSOL_NEW_MEMBERSHIP_COMMIT_PASS=true; WSOL_FOUR_STEP_ATOMICITY_PASS=true; WSOL_FOUR_STEP_SAME_TRANSACTION=true; FAILURE_MATRIX_CASE_COUNT=16; FAILURE_MATRIX_EXECUTED_COUNT=16; MONITOR_LIVE_ADMISSION_ATOMICITY_PASS=true; OPERATOR_IDENTITY_GOVERNANCE_ATOMICITY_PASS=true; WATCHTOWER_REGISTRY_PROMOTION_ATOMICITY_PASS=true; ALL_WRITER_COMMIT_ATOMICITY_PASS=true; ALL_WRITER_ROLLBACK_ATOMICITY_PASS=true; ORPHAN_MEMBERSHIP_WITHOUT_OUTBOX_COUNT=0; ORPHAN_OUTBOX_WITHOUT_MEMBERSHIP_COUNT=0; OTHER_MEMBERSHIP_WRITER_SEMANTICS_CHANGED=false; CONSUMER_CHANGED=false; WATCHTOWER_OPENING_CHANGED=false; BYZANTINE_V2_CHANGED=false; UNIVERSAL_MONITOR_CHANGED=false; HELIUS_CALLS_MADE=0; BIRDEYE_CALLS_MADE=0; FULL_CANONICAL_OUTBOX_QUALIFICATION_PASS=true.",
+    "next_action": "COMPLETE_EXECUTABLE_RUNTIME_COMPOSITION_AGAINST_OUTBOX_THEN_DEPLOY"
   },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",

@@ -17877,6 +17877,18 @@
     "safety":"Dedicated DEV branch/worktree retained; Nexus paused; legacy monitoring remains OFF; legacy Scenario-D and provider loop not invoked; validation Helius=3; paid Birdeye=1; raw payloads/blocks=0; PEPEINU lifecycle backfill=0; production/Supervisor unchanged.",
     "next_action":"DO_NOT_ENABLE_BYZANTINE_FORWARD_OPENING"
   },
+  "universal_assignment_consumer_pinned_dev_deployment_20261004": {
+    "engineering_revision": "0fefddef877a2e2654a88f36f37fdcfc66321e7e verified in /private/tmp/flex-canonical-assignment-opening-bridge",
+    "status": "HOLD_DEPLOYMENT_PREFLIGHT_INCOMPLETE",
+    "finding": "The pinned commit exists and is exactly the authorized revision, but it is not a deployable managed service. Its Consumer.run_forever requires injected read_events, adapter_executor, universal_handoff and stop callables. It contains no __main__/CLI/configuration binding; Supervisor has no universal_assignment_bridge_consumer program; and the designated universal DEV DB currently contains zero universal_assignment_* tables. The canonical authority does contain operator_launch_assignment_history, but no qualified read mapping from that schema to the required event fields was implemented. Starting any process would require inventing the forbidden runtime wiring and would not satisfy the authorized pinned source constraint.",
+    "observable_preflight": "pinned checkout exists and HEAD=0fefddef; canonical database/wt_ops_v2.db exists; universal DEV .dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db exists; no consumer runtime configuration or managed program resolves; no consumer schema is present in destination authority.",
+    "safety": "No process started/restarted; no schema or data changes to either authority; no PEPEINU reconciliation/projection/opening/handoff; provider calls=0; production/Supervisor/shared checkout unchanged.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "verdict": "DEPLOYMENT_PREFLIGHT_PASS=false",
+    "blocker": "A separately qualified pinned runtime integration is required: exact read-only canonical assignment mapping, retained V2 Opening adapter binding, existing global-handoff binding, process manager definition, bounded log/status endpoint, and an integration test against compact fixture authorities. This is material implementation work and cannot be fabricated during a deployment-only authorization.",
+    "next_action": "Authorize a narrowly scoped managed runtime integration qualification on a new pinned candidate; do not start the current injectable core or mutate actual DEV authorities."
+  },
   "universal_assignment_bridge_consumer_runtime_20261004": {
     "engineering_revision": "0fefddef877a2e2654a88f36f37fdcfc66321e7e on codex/canonical-assignment-opening-bridge",
     "status": "PASS_PROVIDER_FREE_NO_DEPLOYMENT",

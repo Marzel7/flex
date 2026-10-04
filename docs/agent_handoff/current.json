@@ -17877,6 +17877,17 @@
     "safety":"Dedicated DEV branch/worktree retained; Nexus paused; legacy monitoring remains OFF; legacy Scenario-D and provider loop not invoked; validation Helius=3; paid Birdeye=1; raw payloads/blocks=0; PEPEINU lifecycle backfill=0; production/Supervisor unchanged.",
     "next_action":"DO_NOT_ENABLE_BYZANTINE_FORWARD_OPENING"
   },
+  "universal_canonical_membership_reader_qualification_20261004": {
+    "engineering_revision": "b5c7f8b657c00ebe840e7cf72c1e19e508f7c164 on codex/canonical-assignment-opening-bridge; contracts/audits only",
+    "status": "HOLD_CURRENT_STATE_MEMBERSHIP_READER_NOT_LOSSLESS",
+    "finding": "The true authority is database/wt_ops_v2.db:operator_launch_membership, never assignment history. However it cannot be used as a lossless forward stream: it has 1,110 current rows, 762 null event_id values, and only 667 distinct (assigned_at,event_id) coordinates; mint is its sole primary key and there are no membership triggers. Writers can delete, update/reassign, and UPSERT membership rows. A membership can occur and be deleted/replaced between scans, and null/equal coordinates preclude a total cursor order. PEPEINU mapping itself passes directly: its membership has Byzantine operator d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334, timestamp 1791112464 and event/match UUID 264b63c1-6b6f-56d5-a0e7-36e331167fd5.",
+    "artifacts": ["docs/contracts/universal_canonical_membership_reader.v1.json", "docs/contracts/universal_assignment_runtime_composition.v1.json", "docs/audits/universal_canonical_membership_reader_qualification.v1.json", "docs/audits/universal_membership_to_monitor_provider_free_matrix.v1.json"],
+    "reader_model": "C_CURRENT_STATE_SCAN_CAN_MISS_MEMBERSHIP_TRANSITIONS_NEEDS_OUTBOX",
+    "consumer_bound": false,
+    "blocker": "A minimum same-transaction post-commit membership outbox with monotonic outbox_id, membership identity, operator/source, assigned/event coordinates, mutation kind, and commit coordinate must be qualified before binding the consumer. Do not infer events by polling current state.",
+    "safety": "Provider-free/read-only authority inspection; no consumer/downstream implementation change; canonical/dev DBs unchanged; providers=0; runtime not started; PEPEINU not mutated; production/Supervisor/shared checkout unchanged.",
+    "next_action": "Authorize qualification of the minimum durable post-commit membership outbox at existing membership writers."
+  },
   "canonical_operation_assignment_authority_reconciliation_20261004": {
     "engineering_revision": "2e5a1302f12b3e084dd1a61ed70111e0e2ff7f5b on codex/canonical-assignment-opening-bridge; audit only",
     "status": "PASS_TRUE_FORWARD_ASSIGNMENT_AUTHORITY_RECOVERED",

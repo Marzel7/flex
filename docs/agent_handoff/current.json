@@ -17877,6 +17877,20 @@
     "safety":"Dedicated DEV branch/worktree retained; Nexus paused; legacy monitoring remains OFF; legacy Scenario-D and provider loop not invoked; validation Helius=3; paid Birdeye=1; raw payloads/blocks=0; PEPEINU lifecycle backfill=0; production/Supervisor unchanged.",
     "next_action":"DO_NOT_ENABLE_BYZANTINE_FORWARD_OPENING"
   },
+  "universal_assignment_bridge_consumer_runtime_20261004": {
+    "engineering_revision": "0fefddef877a2e2654a88f36f37fdcfc66321e7e on codex/canonical-assignment-opening-bridge",
+    "status": "PASS_PROVIDER_FREE_NO_DEPLOYMENT",
+    "finding": "Extended the existing isolated assignment bridge with an injected executable loop, explicit install-time forward boundary, durable projection/opening/handoff provenance, held-state cursor progress, isolated PEPEINU reconciliation, singleton lease, authority and pinned-head guards, health projection, and bounded 64 MiB ledger. Eleven focused provider-free tests pass. No existing Watchtower, Byzantine V2, or universal-monitor implementation was changed.",
+    "artifacts": ["docs/contracts/universal_assignment_bridge_consumer.v1.json", "docs/contracts/universal_assignment_projection_ledger.v1.json", "docs/audits/universal_assignment_bridge_consumer_qualification.v1.json", "docs/audits/universal_assignment_consumer_crash_matrix.v1.json", "docs/audits/universal_assignment_consumer_provider_free_matrix.v1.json", "docs/audits/universal_assignment_consumer_managed_runtime.v1.json"],
+    "tests": "11 passed, 0 failed: tests/test_universal_assignment_opening_bridge.py tests/test_universal_assignment_bridge_consumer.py",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "runtime_deployment_reason": "The user explicitly prohibited starting the managed runtime, applying schema to actual DEV authorities, or deployment. The defined managed runtime still needs a separately authorised authority-bound launcher and bounded acceptance.",
+    "production_flags": "CANONICAL_DB_CHANGED=false; UNIVERSAL_DEV_DB_CHANGED=false; MANAGED_RUNTIME_STARTED=false; PEPEINU_MUTATED=false; HELIUS=0; BIRDEYE=0; other providers=0; production/Supervisor unchanged.",
+    "verdict": "PASS_PROVIDER_FREE_NO_DEPLOYMENT",
+    "blocker": "No deployment authorised.",
+    "next_action": "Obtain separate authorization for a managed pinned-runtime launcher and bounded DEV-only deployment gate; do not start or wire it under this milestone."
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

@@ -1,0 +1,31 @@
+{
+  "schema_version": "BYZANTINE_ACTUAL_ENTRY_MINT_IDENTITY_INVARIANT_V1",
+  "status": "HOLD_V1_TARGET_MINT_IDENTITY_VALIDATION_GAP",
+  "v1_implementation_changed": false,
+  "candidate_provenance_fully_traced": true,
+  "provenance": {
+    "target": "PEPEINU / Ah7xh8F2auwkZWh1KHDEjwuabdhKKJt2sCxqBH8mpump",
+    "canonical_create": "4H9yFyK3aAAeJmMGCMdma3tmP8zNoKdYbvnNyevuiXbGr5WDBFQg3c6FKYqp6sGdY6nvvdfuEAu97sLXnF2v3Xep / slot 453237523",
+    "candidate_request": "Helius getSignaturesForAddress(target mint, limit=100)",
+    "candidate_filter": "successful signatures with slot > canonical create slot, sorted by (slot, signature), first 8 only",
+    "decoder_input": "getTransaction(candidate signature)",
+    "decoder": "classify_trade(tx, mint) checks Buy/Sell log and Pump.fun/PumpSwap program identity; it neither consumes mint nor emits an event mint/bonding-curve identity",
+    "selection": "first decoder-qualified candidate"
+  },
+  "upstream_target_mint_scope_identified": true,
+  "upstream_target_mint_scope": "Helius address-history request scoped to target mint address",
+  "target_mint_identity_proof_explicit": false,
+  "why_scope_is_insufficient": "Address-history scope proves the transaction references the target mint address, but does not prove that the Buy/Sell program event selected from a potentially multi-event transaction is the target-mint economic trade. The decoder's mint argument is unused.",
+  "historical_v1_mint_identity_assumption_recovered": true,
+  "historical_assumption": "The nine-control historical runner uses the identical getSignaturesForAddress(target mint) then classify_trade(tx, target mint) flow; it makes the same upstream-scope assumption.",
+  "pepeinu_fixture_identity_fields": {"target_mint":"Ah7xh8F2auwkZWh1KHDEjwuabdhKKJt2sCxqBH8mpump","candidate_signature":"1M8iBZQLkfCJr5GgZY9K33QHuXhr7gvqutg6KxknBAzKj7gkRbrnxWyVAdrFFMBrjvkGMfBG9EjtSaFz7zTfNNa","program":"PUMPSWAP","creator":"HfBJnWC6AEDeqyK8Jp5DNmuD5jsM6cjeKQzEY3ajMifn","candidate_mint":null,"bonding_curve":null,"decoded_event_mint":null},
+  "mint_identity_validation_boundary_identified": true,
+  "mint_identity_validation_boundary": "missing between candidate acquisition and decoder normalization; the current V1 provider-acquisition address scope is not a sufficient trusted identity boundary",
+  "wrong_mint_negative_test_with_existing_v1": false,
+  "new_runtime_check_added": false,
+  "recovered_v1_mint_identity_gap": true,
+  "v1_semantics_silently_changed": false,
+  "minimum_v2_contract": "BYZANTINE_ACTUAL_ENTRY_V2 may require the candidate normalizer to retain a target-mint-specific decoded account/bonding-curve identity and reject a candidate unless it deterministically maps to the requested mint. It is not implemented or enabled by this audit.",
+  "historical_byzantine_facts_changed": false,
+  "safety": {"helius_calls_made":0,"birdeye_calls_made":0,"byzantine_adapter_enabled":false,"pepeinu_universal_enrolled":false,"legacy_monitoring_enabled":false,"raw_provider_payloads_retained":false,"raw_blocks_retained":false,"project_500mb_rule_preserved":true}
+}

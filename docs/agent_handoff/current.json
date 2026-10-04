@@ -1,4 +1,17 @@
 {
+  "byzantine_v2_event_mint_identity_20261004": {
+    "engineering_revision": "2dee0d8e869859abe8b3047630183e8c7ee3c9f9 on isolated codex/canonical-assignment-opening-bridge; shared runtime unchanged",
+    "status": "HOLD_EVENT_MINT_IDENTITY_REQUIRES_ADDITIONAL_BOUNDED_EVIDENCE",
+    "finding": "PEPEINU's retained V1 fixture preserves only venue/type/signature/slot/time and normalized MCAP candle. It lacks event mint, base/quote mint, token-side account mapping, token balance, bonding curve, and account indices. The recovered Pump.fun/PumpSwap classify_trade decoder is also mint-blind: it only reads Buy/Sell logs and venue program identity. Transaction-level getSignaturesForAddress(target mint) reference remains explicitly insufficient. No resolver, adapter registry, generic bridge, persistence, universal enrolment, or lifecycle action was fabricated.",
+    "audit": "docs/audits/byzantine_actual_entry_v2_mint_resolver_qualification.v1.json",
+    "handoff_audit": "docs/audits/universal_assignment_opening_handoff_qualification.v1.json",
+    "pepeinu_audit": "docs/audits/pepeinu_assignment_monitor_recovery.v1.json",
+    "exact_next_acquisition": "If separately authorized: exactly one Helius getTransaction for already-selected PEPEINU signature 1M8iBZQLkfCJr5GgZY9K33QHuXhr7gvqutg6KxknBAzKj7gkRbrnxWyVAdrFFMBrjvkGMfBG9EjtSaFz7zTfNNa, retaining only compact decoded event account-index/token-side mint mapping and discarding the raw response.",
+    "safety": "HELIUS=0; BIRDEYE=0; raw payloads/blocks=0; universal monitor/non-mint opening semantics/Watchtower adapter/Byzantine V2/runtime/production/Supervisor changes=0; PEPEINU not promoted or enrolled.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Retained-evidence audit only; no executable source, database, runtime, or configuration change.",
+    "next_action": "REVIEW_EXACT_ADDITIONAL_IDENTITY_ACQUISITION_ONLY"
+  },
   "universal_live_history_projection_20261004": {
     "engineering_revision": "4748d1a8d44f8de1169b0bd08a69a5d9d36afb56 on isolated codex/canonical-assignment-opening-bridge; shared runtime HEAD remains 580508a70c80e7fc944e0069f85e67b851a117fa",
     "status": "PASS_DURABLE_OPERATION_AGNOSTIC_LIVE_HISTORY_PROJECTION_QUALIFIED",

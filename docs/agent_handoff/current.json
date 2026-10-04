@@ -17746,6 +17746,17 @@
     "safety": "Helius=0; Birdeye=0; other providers=0; membership/assignment/detector/Opening/universal monitor/dispatcher/scheduling/UI/production/Supervisor unchanged; raw payloads=false.",
     "next_action": "REVIEW_WHETHER_TO_AUTHORIZE_A_SEPARATE_HISTORICAL_PROMOTION_PROVENANCE_RECOVERY_OR_DEFINE_A_NEW_NEXUS_PROMOTION_POLICY"
   },
+  "universal_zero_live_birdeye_call_reconciliation_20261004": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV-only uncommitted live-eligibility guard",
+    "status": "HOLD_CALLER_PROVENANCE_UNAVAILABLE",
+    "finding": "At frozen UTC 2026-10-04T10:34:10Z the strict preceding two-hour universal provider ledger contains zero Birdeye calls and authoritative LIVE is zero. The latest five ledgered calls, 07:52:40Z-08:14:54Z, are all Watchtower universal MARKET_WINDOW calls to /defi/v3/ohlcv, all AMBIGUOUS_PROVIDER_CALL after CALL_STARTED, and each token's retained monitor fact was already PRICE_MONITOR_COMPLETE_COLLAPSED before its call. The standalone dispatcher that can make these calls is stopped. Its PID metadata is absent, current log is empty, and no Supervisor program owns it, so a historical caller PID cannot be proved. The source guard now requires a qualified, unexpired, MONITORING_ACTIVE, non-completed fact before a lifecycle price work lease; non-live candidates fail closed. Opening acquisition is outside that guarded dispatcher path.",
+    "audit": "docs/audits/universal_zero_live_birdeye_call_reconciliation.v1.json",
+    "tests": "15 focused dispatcher/executor/live-projection tests passed.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "The only executable consumer is a stopped standalone DEV dispatcher with no PID; source is prepared for the next explicitly authorized start, but no runtime was restarted or activated.",
+    "safety": "Helius=0; Birdeye=0; other provider=0; strict-window ledger calls=0; unledgered=0; opening suppression=false; raw payloads=false; audit cap=500000 bytes; unbounded growth paths=0; production/Supervisor unchanged.",
+    "next_action": "PRESERVE_THE_FIVE_AMBIGUOUS_RECORDS_AND_REQUIRE_DURABLE_CALLER_PROVENANCE_BEFORE_ANY_DISPATCHER_RESTART"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

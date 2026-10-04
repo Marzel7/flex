@@ -17450,6 +17450,15 @@
     "runtime_deployment_gate": "HOLD",
     "next_action": "COMMIT_OR_RECOVER_EXACT_QUALIFIED_ENTRY_MONITOR_BRIDGE_SOURCE_WITH_PROVENANCE, THEN PORT_THE_EXISTING_PATH_AND_RUN_PROVIDER_FREE_PARITY"
   },
+  "qualified_entry_monitor_bridge_recovery_20261004": {
+    "engineering_revision": "isolated codex/universal-assignment-managed-runtime at 70a22614f69a932d9d341e2eb4d41685b9950cf0; read-only recovery only",
+    "status": "HOLD_QUALIFIED_ENTRY_MONITOR_BRIDGE_PROVENANCE_UNRECOVERED",
+    "finding": "The only accessible QualifiedEntryMonitorBridge source copy is untracked shared /Users/kevinkeaveney/Dev/claude/flex/src/ops/qualified_entry_monitor_bridge.py, SHA256 b7a1608e4e1ed3c7a7419035c72cc506a4bf8f4f001be78c4a85fa28d1dc685c. Bounded committed-history searches for the class and distinctive activate/enqueue strings find no source path or object. The source contract is readable: it checks qualified entry state, identity, timestamp/value, monitor capability and non-terminal status; invokes worker._activate_from_qualified_opening before queue.enqueue_qualified_activation; optional universal hook is after those operations. It has zero price-calculation and provider-transport logic. Downstream worker methods are recoverable from committed 9561568ef7718d1676ea9d7edeaec8ae82529ff6. But the bridge itself has provenance class D (untracked source provenance not recoverable), so no port, test binding, or replacement was made.",
+    "safety": "No price/lifecycle/history source changed; Helius=0; Birdeye=0; DB/runtime/deployment/retained-fact mutation=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "DO_NOT_REIMPLEMENT_EXISTING_ENROLMENT_WITHOUT_AUTHORIZATION; RECOVER_A_COMMITTED_OR_AUDITABLY_PROVENANCED_BRIDGE_SOURCE_COPY"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

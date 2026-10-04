@@ -17440,6 +17440,16 @@
     "safety": "No source, database, provider, runtime, Supervisor, deployment, or retained-fact mutation.",
     "next_action": "APPLY_ONLY_FORWARD_ACCEPT_OR_FAIL_CLOSED_GUARDS_AFTER_COMMITTED_SOURCE_OUTPUT_PROVENANCE_IS_ESTABLISHED"
   },
+  "byzantine_forward_price_binding_provenance_20261004": {
+    "engineering_revision": "isolated codex/universal-assignment-managed-runtime at 70a22614f69a932d9d341e2eb4d41685b9950cf0; read-only provenance recovery",
+    "status": "HOLD_EXISTING_UNIVERSAL_ENROLMENT_PATH_NOT_RECOVERED",
+    "finding": "event_mint_identity provenance is fully recovered: committed 923d5beac61a7c828bb843b8a43147908a17f44f ('Qualify Byzantine V2 event mint guard') amended docs/fixtures/byzantine_actual_entry_v1/pepeinu.json after historical V1 fixture commit 21860974691a9caec4c9985cf7c68f01f2c92179. Its audit docs/audits/byzantine_pepeinu_event_mint_identity_validation.v1.json records exactly one Helius getTransaction(jsonParsed), zero discovery/retry/Birdeye calls, and a compact MATCH proof for the already selected signature. The committed resolver src.ops.byzantine_event_mint_resolver.resolve_event_mint is a proof checker, but its select_earliest_target_event helper must not be used in a forward wrapper because selection is immutable. The correct forward model is target mint + already-selected event identity + normalized proof -> ACCEPT or FAIL_CLOSED only, with max additional identity calls=1 and no valuation/lifecycle operation. Historical producer and Entry value remain frozen. The requested universal bridge remains blocked: QualifiedEntryMonitorBridge.activate is only observable as untracked shared source; git history has no committed path/object for src/ops/qualified_entry_monitor_bridge.py. OperationMonitorWorker methods are recoverable from historical commit 9561568e, but the complete existing bridge cannot be ported exactly without the uncommitted bridge source provenance. No source was copied or changed.",
+    "classification": "Byzantine forward guard itself is safe as a separate non-selecting validator; overall binding remains blocked on exact universal enrolment source recovery.",
+    "safety": "HELIUS=0; BIRDEYE=0; no DB/runtime/deployment/retained-fact mutation; no price selection, valuation, lifecycle, peak, or History code changed.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "COMMIT_OR_RECOVER_EXACT_QUALIFIED_ENTRY_MONITOR_BRIDGE_SOURCE_WITH_PROVENANCE, THEN PORT_THE_EXISTING_PATH_AND_RUN_PROVIDER_FREE_PARITY"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

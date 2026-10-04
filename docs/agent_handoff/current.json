@@ -17695,6 +17695,16 @@
     "safety": "UI provider calls=0; Helius=0; Birdeye=0; membership/monitor/dispatcher/scheduling unchanged; raw provider payloads=false; max audit file=500000 bytes; unbounded growth paths=0; production source/runtime and Supervisor unchanged.",
     "next_action": "CONTINUE_UNIVERSAL_FORWARD_PRICE_MONITORING"
   },
+  "universal_first_genuine_forward_token_acceptance_20261004": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; observation only",
+    "status": "HOLD_UNIVERSAL_DISPATCHER_AMBIGUOUS_CALL_RECONCILIATION_REQUIRED",
+    "finding": "Acceptance boundary=1791105691. The opening worker is healthy (PID 8992) and port-8100 is healthy (PID 44687), but the universal dispatcher is STOPPED. Durable universal work contains five AMBIGUOUS_PROVIDER_CALL records, including the three prior recovered Watchtower lifecycle calls; restarting or retrying it would violate the existing ambiguity guard. No operation assignment occurred after the boundary. The latest earlier established-operation assignment is Byzantine Gy5bj...Mpump at 1791101386, with no retained opening fact. No provider, data, worker, or runtime action occurred.",
+    "audit": "docs/audits/universal_first_genuine_forward_token_acceptance.v1.json",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Observation-only safety hold; no executable/runtime change.",
+    "safety": "Opening Birdeye=0; Opening Helius=0; lifecycle Birdeye=0; unledgered=0; duplicate=0; budget violations=0; provider calls inside DB transactions=0; ambiguous auto-retry=false; raw payloads=false; historical backfill=false; production/Supervisor unchanged.",
+    "next_action": "RECONCILE_THE_FIVE_AMBIGUOUS_PROVIDER_CALLS_BEFORE_RESTARTING_DISPATCHER_OR_ACCEPTING_A_FORWARD_LIFECYCLE"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

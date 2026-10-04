@@ -17433,6 +17433,13 @@
     "runtime_deployment_gate": "HOLD",
     "next_action": "ESTABLISH_COMMITTED_SOURCE_OUTPUT_PROVENANCE_FOR_THE_HISTORICAL_BYZANTINE_PRODUCER_AND_COMMIT_THE_EXISTING_UNIVERSAL_ENROLMENT_PATH_BEFORE_ANY_FORWARD_RUNTIME_BINDING"
   },
+  "immutable_qualified_price_behaviour_20261004": {
+    "engineering_revision": "no source or runtime change; policy clarification applied to all subsequent gates",
+    "status": "ACTIVE_CONSTRAINT",
+    "finding": "Watchtower FIRST_AVAILABLE, Byzantine historical actual-entry selection and containing-candle valuation, retained qualified facts, universal Policy C lifecycle pricing, Current MC, running/between-poll peak, multiple, time-to-peak, LIVE eligibility, LIVE-to-HISTORY, and retained History facts are immutable. Any newer Byzantine target-mint requirement is forward-only validation around the existing selected result: accept it or fail closed; it must not select another trade, change timestamp/candle/value, recompute history, or alter lifecycle behaviour. Historical facts are not invalidated by later forward-only invariants.",
+    "safety": "No source, database, provider, runtime, Supervisor, deployment, or retained-fact mutation.",
+    "next_action": "APPLY_ONLY_FORWARD_ACCEPT_OR_FAIL_CLOSED_GUARDS_AFTER_COMMITTED_SOURCE_OUTPUT_PROVENANCE_IS_ESTABLISHED"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

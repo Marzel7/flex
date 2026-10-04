@@ -17802,6 +17802,16 @@
     "safety":"UI provider calls=0; Helius=0; Birdeye=0; membership/attribution/monitoring/production unchanged; only DEV watchtower_api was restarted to load the template.",
     "next_action":"WAIT_FOR_NEXT_UI_OR_READ_PROJECTION_REQUEST"
   },
+  "byzantine_missing_token_continuous_birdeye_incident_20261004": {
+    "engineering_revision":"580508a70c80e7fc944e0069f85e67b851a117fa; DEV containment only",
+    "status":"PARTIAL_CONTAINED_MISSING_ASSIGNMENT_TO_MONITOR_BRIDGE",
+    "finding":"PEPEINU (Ah7xh8F2auwkZWh1KHDEjwuabdhKKJt2sCxqBH8mpump) is a genuine canonical Byzantine assignment at 2026-10-04T11:14:24Z (event 264b63c1-6b6f-56d5-a0e7-36e331167fd5), but no DEV monitor fact, opening trigger/work, universal enrolment, LIVE transition, or terminal evidence exists. Its first broken boundary is B_OPENING_TRIGGER_MISSING; the history view consumes monitor facts only, so it is absent. Continuous Birdeye traffic was legacy unledgered 60-second opening reevaluation from two concurrent src.dev_runtime processes (PIDs 44687 and 80864), not the universal dispatcher. The ledgered dispatcher (PID 81238) recorded zero calls in the frozen incident window. Both legacy runtimes were stopped; one managed DEV runtime restarted PID 14001 with legacy monitoring OFF. Four dispatcher scans then had zero eligible/call activity.",
+    "audit":"docs/audits/byzantine_missing_token_continuous_birdeye_incident.v1.json",
+    "runtime_deployment_required":true,
+    "runtime_deployment":"DEV-only process containment: duplicate runtime PIDs 44687/80864 terminated; managed runtime PID 14001 started with FLEX_DEV_OPERATIONS_MODE=OFF; universal dispatcher PID 81238 retained.",
+    "safety":"Nexus paused; historical backfill=0; universal ledgered calls in incident=0; raw provider payloads=0; production/Supervisor unchanged.",
+    "next_action":"IMPLEMENT_AND_QUALIFY_CANONICAL_ASSIGNMENT_TO_DEV_MONITOR_HISTORY_PROJECTION_WITHOUT_REENABLING_LEGACY_PROVIDER_DISPATCH"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

@@ -1,0 +1,12 @@
+{
+  "schema_version": "BYZANTINE_PEPEINU_EVENT_MINT_IDENTITY_VALIDATION_V1",
+  "status": "PASS_PEPEINU_EVENT_MINT_PROVEN_V2_QUALIFIED",
+  "target": {"mint":"Ah7xh8F2auwkZWh1KHDEjwuabdhKKJt2sCxqBH8mpump","signature":"1M8iBZQLkfCJr5GgZY9K33QHuXhr7gvqutg6KxknBAzKj7gkRbrnxWyVAdrFFMBrjvkGMfBG9EjtSaFz7zTfNNa","slot":453241280,"timestamp":1791112830,"entry_mc_usd":3925.9516827750313},
+  "one_call": {"method":"Helius getTransaction(jsonParsed)","calls":1,"discovery_calls":0,"retries":0,"birdeye_calls":0},
+  "normalized_event_identity": {"program_id":"pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA","event_type":"BUY","outer_instruction_index":2,"inner_instruction_index":10,"mint_account_index":14,"token_side_account_indices":[7,8],"event_mint":"Ah7xh8F2auwkZWh1KHDEjwuabdhKKJt2sCxqBH8mpump","token_side_mints":["Ah7xh8F2auwkZWh1KHDEjwuabdhKKJt2sCxqBH8mpump"],"result":"MATCH"},
+  "proof":"The selected PumpSwap instruction's mint-position account is the target and both linked token-side accounts independently map to the target in transaction token-balance metadata. Transaction-level reference alone was not used.",
+  "provider_free_matrix":"tests/test_byzantine_event_mint_resolver.py: 6 passed; includes wrong mint, multi-event, no target, non-economic, and deterministic positive selection.",
+  "v2_adapter":"QUALIFIED_PROVIDER_FREE_NOT_WIRED", "integration":"No shared runtime/database registry/assignment bridge/PEPEINU universal enrolment write was performed in this isolated task.",
+  "safety":{"raw_helius_payloads_retained":false,"raw_birdeye_payloads_retained":false,"raw_blocks_retained":false,"universal_monitor_changed":false,"scenario_d_used":false,"legacy_monitoring_enabled":false,"project_500mb_rule_preserved":true},
+  "next_gate":"QUALIFY_AND_AUTHORIZE_ISOLATED_GENERIC_ASSIGNMENT_BRIDGE_INTEGRATION"
+}

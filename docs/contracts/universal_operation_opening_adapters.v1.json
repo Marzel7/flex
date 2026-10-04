@@ -1,6 +1,6 @@
 {
   "schema_version": "UNIVERSAL_OPERATION_OPENING_ADAPTERS_V1",
-  "status": "HOLD_BYZANTINE_V2_EVENT_LEVEL_TARGET_MINT_IDENTITY_NOT_AVAILABLE",
+  "status": "BYZANTINE_V2_QUALIFIED_NOT_WIRED",
   "interface": "canonical assignment -> operation adapter lookup -> bounded opening acquisition -> qualified or fail-closed result",
   "watchtower": {
     "status": "RECOVERED_NOT_WIRED",
@@ -12,11 +12,11 @@
     "failure": ["INSUFFICIENT_CREATE_EVIDENCE", "INSUFFICIENT_SUPPLY_EVIDENCE", "INSUFFICIENT_TRADE_EVIDENCE", "NO_FIRST_AVAILABLE_TRADE_IN_WINDOW"]
   },
   "byzantine": {
-    "status": "V2_NOT_QUALIFIED_EVENT_LEVEL_TARGET_MINT_IDENTITY_UNAVAILABLE",
+    "status": "V2_QUALIFIED_PROVIDER_FREE_NOT_WIRED",
     "recovered_source": {"path": "scripts/run_byzantine_actual_entry_24h_backfill.py", "git_status": "untracked discovery evidence", "sha256": "5645ab3e23968deb7a0e8006263c413a21bbc09001bf3dcadf2a3df3141bd0c3"},
     "recovered_semantic": "earliest bounded decoder-qualified post-create Pump.fun/PumpSwap trade, valued by one paid Birdeye containing 15-second MCAP candle close",
     "contract": "docs/contracts/byzantine_actual_entry_opening.v2.json",
-    "rejection": "V2's explicit event-level mint guard is defined but cannot be evaluated from the retained PEPEINU V1 fixture, which contains no decoded event mint or deterministic event-account-to-mint mapping. No inference or provider recall was used.",
+    "rejection": "V2 requires a PumpSwap event mint plus token-side mapping. PEPEINU now has one normalized MATCH control, but no shared-runtime adapter registry or bridge is wired by this isolated qualification.",
     "scenario_d_rejected": true
   },
   "nexus": {"present": false},

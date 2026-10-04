@@ -1,4 +1,17 @@
 {
+  "byzantine_v2_event_mint_identity_execution_20261004": {
+    "engineering_revision": "923d5beac61a7c828bb843b8a43147908a17f44f on isolated codex/canonical-assignment-opening-bridge; shared runtime unchanged",
+    "status": "PASS_PEPEINU_EVENT_MINT_PROVEN_V2_QUALIFIED_NOT_WIRED",
+    "finding": "Exactly one authorized Helius getTransaction(jsonParsed) for fixed PEPEINU signature 1M8i...TfNNa was made. The selected PumpSwap inner instruction (outer=2, inner=10) carries target mint at mint account index 14; linked token-side account indices 7 and 8 independently map to the target in pre/post token balance metadata. The compact resolver returns MATCH and provider-free matrix passes 6/6, including transaction-reference-only UNPROVEN, wrong-mint NON_MATCH, multi-event target selection, no-target fail-close, and non-economic fail-close. Entry parity remains signature/slot 453241280/timestamp 1791112830/MC 3925.9516827750313.",
+    "audit": "docs/audits/byzantine_pepeinu_event_mint_identity_validation.v1.json",
+    "contract": "docs/contracts/byzantine_actual_entry_opening.v2.json",
+    "adapter_registry": "docs/contracts/universal_operation_opening_adapters.v1.json",
+    "tests": "pytest -q tests/test_byzantine_event_mint_resolver.py: 6 passed, 0 failed",
+    "safety": "HELIUS getTransaction=1; discovery=0; retries=0; BIRDEYE=0; raw provider payloads/blocks=0; universal monitor/Opening non-mint semantics/shared runtime/database/production/Supervisor changes=0; PEPEINU was not persisted or universally enrolled because the generic registry/assignment bridge is not wired in the shared target.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "QUALIFY_AND_AUTHORIZE_ISOLATED_GENERIC_ASSIGNMENT_BRIDGE_INTEGRATION"
+  },
   "byzantine_v2_event_mint_identity_20261004": {
     "engineering_revision": "2dee0d8e869859abe8b3047630183e8c7ee3c9f9 on isolated codex/canonical-assignment-opening-bridge; shared runtime unchanged",
     "status": "HOLD_EVENT_MINT_IDENTITY_REQUIRES_ADDITIONAL_BOUNDED_EVIDENCE",

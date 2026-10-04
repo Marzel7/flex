@@ -11,7 +11,9 @@
   "v2_event_mint_proof":null,
   "universal_enrolled":false,
   "visible_after_repair":false,
-  "reason":"The retained V1 fixture lacks independent event-level mint identity required by V2. No provider recall, bridge, enrolment, or lifecycle work is authorized.",
+  "reason":"The retained V1 fixture and the recovered Pump.fun/PumpSwap classifier lack an event mint, token-side account mapping, token balance, and bonding-curve identity. Local retained-evidence search is complete. Transaction-level target-mint reference is insufficient; no provider recall, bridge, enrolment, or lifecycle work is authorized.",
+  "retained_identity_evidence_search_complete":true,
+  "exact_missing_acquisition":"One authorized-only Helius getTransaction for the already-selected signature, normalized to event account indices and token-side mint mapping; raw response discarded.",
   "provider_calls":{"opening_birdeye":0,"lifecycle_birdeye":0,"invalid_historical":0},
   "raw_provider_payloads_retained":false,
   "project_500mb_rule_preserved":true

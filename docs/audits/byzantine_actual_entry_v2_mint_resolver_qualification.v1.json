@@ -1,0 +1,13 @@
+{
+  "schema_version": "BYZANTINE_ACTUAL_ENTRY_V2_MINT_RESOLVER_QUALIFICATION_V1",
+  "status": "HOLD_EVENT_MINT_IDENTITY_REQUIRES_ADDITIONAL_BOUNDED_EVIDENCE",
+  "control": {"token": "PEPEINU", "mint": "Ah7xh8F2auwkZWh1KHDEjwuabdhKKJt2sCxqBH8mpump", "signature": "1M8iBZQLkfCJr5GgZY9K33QHuXhr7gvqutg6KxknBAzKj7gkRbrnxWyVAdrFFMBrjvkGMfBG9EjtSaFz7zTfNNa", "slot": 453241280, "timestamp": 1791112830, "entry_mc_usd": 3925.9516827750313},
+  "decoder_inventory": {"pumpfun": "scripts/run_byzantine_actual_entry_24h_backfill.py::classify_trade; logs plus program identity only, no event mint", "pumpswap": "same decoder; program identity only, no token-side/event account mapping", "inventory_complete": true},
+  "retained_fixture": {"path": "docs/fixtures/byzantine_actual_entry_v1/pepeinu.json", "event_mint": null, "base_mint": null, "quote_mint": null, "bonding_curve": null, "token_account": null, "account_indices": null, "mint_match_state": "UNPROVEN", "sufficient": false},
+  "invariant": "getSignaturesForAddress(target mint) proves transaction reference only and is never accepted as event-level mint proof.",
+  "missing_minimum_evidence": "The already-selected signature's decoded outer/inner PumpSwap instruction account order plus token-balance mint/account-index association, retained only as compact normalized target-side fields.",
+  "required_additional_acquisition_if_authorized": {"provider": "Helius", "method": "getTransaction", "signature": "1M8iBZQLkfCJr5GgZY9K33QHuXhr7gvqutg6KxknBAzKj7gkRbrnxWyVAdrFFMBrjvkGMfBG9EjtSaFz7zTfNNa", "maximum_calls": 1, "purpose": "derive compact event program/type, token-side account indices, event_mint/base_mint/quote_mint, and MATCH/NON_MATCH/UNPROVEN; discard raw response", "not_authorized_or_executed": true},
+  "results": {"pumpfun_event_mint_identity_recoverable": false, "pumpswap_event_mint_identity_recoverable": false, "event_mint_resolver_implemented": false, "additional_provider_calls_required": true, "pepeinu_v2_positive_parity": false, "wrong_mint_negative": false, "multi_event_target_selection": false, "no_target_event_fail_closed": false, "complete_v2_negative_matrix": false, "deterministic": false},
+  "safety": {"helius_calls_made": 0, "birdeye_calls_made": 0, "raw_provider_payloads_retained": false, "raw_blocks_retained": false, "universal_monitor_changed": false, "non_mint_opening_semantics_changed": false, "project_500mb_rule_preserved": true},
+  "next_gate": "REVIEW_EXACT_ADDITIONAL_IDENTITY_ACQUISITION_ONLY"
+}

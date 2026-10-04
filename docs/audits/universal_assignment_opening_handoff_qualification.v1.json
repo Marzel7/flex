@@ -1,0 +1,9 @@
+{
+  "schema_version": "UNIVERSAL_ASSIGNMENT_OPENING_HANDOFF_QUALIFICATION_V1",
+  "status": "HOLD_BYZANTINE_ADAPTER_UNQUALIFIED",
+  "interface": "canonical assignment -> operation adapter lookup -> deterministic Opening work -> QualifiedOpening -> frozen global universal handoff",
+  "registry": {"watchtower": "FIRST_AVAILABLE retained and unchanged", "byzantine": "BYZANTINE_ACTUAL_ENTRY_V2 unavailable pending event-level target mint identity", "nexus": "ADAPTER_UNAVAILABLE visible fail-closed"},
+  "bridge_operation_agnostic": false,
+  "reason": "A generic bridge cannot be qualified while the Byzantine adapter lacks its V2 positive proof. No adapter registry or bridge was fabricated.",
+  "safety": {"provider_calls": 0, "universal_monitor_changed": false, "opening_adapters_changed": false, "production_changed": false}
+}

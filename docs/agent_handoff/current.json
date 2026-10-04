@@ -17717,7 +17717,7 @@
   },
   "operation_telemetry_assignment_reconciliation_20261004": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; provider-free retained census",
-    "status": "PASS_ZERO_ASSIGNMENTS_CORRECTLY_EXPLAINED",
+    "status": "PASS_TELEMETRY_TO_CANONICAL_ASSIGNMENT_RECONCILED",
     "finding": "Frozen at the established acceptance boundary, 24h telemetry is exactly 25: Byzantine=5, Watchtower=6, Nexus=14. Byzantine is shared-subprovider infrastructure telemetry; Watchtower is canonical-member activity; Nexus is the qualified current route matcher and explicitly does not admit membership. All 5 Byzantine and 6 Watchtower records have canonical membership rows, assignment timestamps, and nonempty assignment event IDs. All 14 Nexus rows correctly lack membership because the current matcher is telemetry-only. Counts: assigned=11, correctly rejected=14, pending=0, confirmed-member missing=0, duplicate=0, qualified assignment without event=0; no pipeline break.",
     "audit": "docs/audits/operation_telemetry_assignment_reconciliation.v1.json",
     "runtime_deployment_required": false,

@@ -12,11 +12,11 @@
     "failure": ["INSUFFICIENT_CREATE_EVIDENCE", "INSUFFICIENT_SUPPLY_EVIDENCE", "INSUFFICIENT_TRADE_EVIDENCE", "NO_FIRST_AVAILABLE_TRADE_IN_WINDOW"]
   },
   "byzantine": {
-    "status": "NOT_FROZEN_GENUINE_FIXTURES_INSUFFICIENT",
+    "status": "NOT_FROZEN_PEPEINU_NEGATIVE_MINT_GUARD_UNPROVEN",
     "recovered_source": {"path": "scripts/run_byzantine_actual_entry_24h_backfill.py", "git_status": "untracked discovery evidence", "sha256": "5645ab3e23968deb7a0e8006263c413a21bbc09001bf3dcadf2a3df3141bd0c3"},
     "recovered_semantic": "earliest bounded decoder-qualified post-create Pump.fun/PumpSwap trade, valued by one paid Birdeye containing 15-second MCAP candle close",
     "contract": "docs/contracts/byzantine_actual_entry_opening.v1.json",
-    "rejection": "The compact control records retain outputs and request metadata but lack independently retained normalized candidate and candle inputs. Fabricating them from Entry MC would invent evidence.",
+    "rejection": "PEPEINU now supplies one genuine compact fixture and exact replay, but the frozen decoder does not expose or independently reject a wrong-mint candidate. Changing that behavior after provider results would invent/adapt semantics.",
     "scenario_d_rejected": true
   },
   "nexus": {"present": false},

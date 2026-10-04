@@ -8,5 +8,6 @@
   "compact_persistence_only": ["create coordinate", "selected trade signature/slot/time", "entry timestamp", "entry MC", "request metadata", "qualification/provenance"],
   "forbidden": ["Scenario-D", "Helius raw-block replay", "legacy provider loop", "raw provider payload retention", "raw block retention"],
   "freeze_precondition": "independently retained normalized candidate-transaction and containing-candle fixture inputs replay exact controls provider-free",
+  "pepeinu_validation": {"status":"QUALIFIED_OPENING_NOT_ADAPTER_QUALIFICATION","helius_calls":3,"birdeye_entry_calls":1,"provider_free_replay_pass":true,"negative_matrix_pass":false,"reason":"wrong-mint candidate behavior is not independently represented by the frozen decoder interface"},
   "precondition_met": false
 }

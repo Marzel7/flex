@@ -1,0 +1,108 @@
+{
+  "assignment": {
+    "assignment_timestamp": 1791112464,
+    "create_signature": "4H9yFyK3aAAeJmMGCMdma3tmP8zNoKdYbvnNyevuiXbGr5WDBFQg3c6FKYqp6sGdY6nvvdfuEAu97sLXnF2v3Xep",
+    "creator": "HfBJnWC6AEDeqyK8Jp5DNmuD5jsM6cjeKQzEY3ajMifn",
+    "event_id": "264b63c1-6b6f-56d5-a0e7-36e331167fd5",
+    "mint": "Ah7xh8F2auwkZWh1KHDEjwuabdhKKJt2sCxqBH8mpump",
+    "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334",
+    "retained_create_timestamp": "2026-10-04T11:14:21Z"
+  },
+  "calls": {
+    "birdeye": 1,
+    "helius": 3
+  },
+  "canonical_create": {
+    "slot": 453237523,
+    "timestamp": 1791111828
+  },
+  "implementation_sha256": "5645ab3e23968deb7a0e8006263c413a21bbc09001bf3dcadf2a3df3141bd0c3",
+  "outcome": {
+    "birdeye_request": {
+      "http_status": 200,
+      "parameters": {
+        "address": "Ah7xh8F2auwkZWh1KHDEjwuabdhKKJt2sCxqBH8mpump",
+        "chart_type": "mcap",
+        "currency": "usd",
+        "mode": "range",
+        "padding": "false",
+        "time_from": 1791112815,
+        "time_to": 1791112845,
+        "type": "15s"
+      },
+      "returned_count": 3,
+      "returned_first_timestamp": 1791112815,
+      "returned_last_timestamp": 1791112845
+    },
+    "candidates": [
+      {
+        "block_time": 1791112830,
+        "decoder_qualified": true,
+        "event_type": "BUY",
+        "post_create": true,
+        "selection_rank": 1,
+        "signature": "1M8iBZQLkfCJr5GgZY9K33QHuXhr7gvqutg6KxknBAzKj7gkRbrnxWyVAdrFFMBrjvkGMfBG9EjtSaFz7zTfNNa",
+        "slot": 453241280,
+        "timestamp": 1791112830,
+        "venue": "PUMPSWAP"
+      }
+    ],
+    "candles": [
+      {
+        "c": 3931.7616706201907,
+        "h": 4497.492436691218,
+        "timestamp": 1791112815
+      },
+      {
+        "c": 3925.9516827750313,
+        "h": 3976.9085389909133,
+        "timestamp": 1791112830
+      },
+      {
+        "c": 3929.0056295203403,
+        "h": 3983.024540892255,
+        "timestamp": 1791112845
+      }
+    ],
+    "entry_mc_usd": 3925.9516827750313,
+    "selected": {
+      "block_time": 1791112830,
+      "decoder_qualified": true,
+      "event_type": "BUY",
+      "post_create": true,
+      "selection_rank": 1,
+      "signature": "1M8iBZQLkfCJr5GgZY9K33QHuXhr7gvqutg6KxknBAzKj7gkRbrnxWyVAdrFFMBrjvkGMfBG9EjtSaFz7zTfNNa",
+      "slot": 453241280,
+      "timestamp": 1791112830,
+      "venue": "PUMPSWAP"
+    },
+    "selected_candle": {
+      "c": 3925.9516827750313,
+      "h": 3976.9085389909133,
+      "timestamp": 1791112830
+    },
+    "status": "QUALIFIED"
+  },
+  "raw_blocks_retained": false,
+  "raw_provider_payloads_retained": false,
+  "replay": {
+    "candle": {
+      "c": 3925.9516827750313,
+      "h": 3976.9085389909133,
+      "timestamp": 1791112830
+    },
+    "selected": {
+      "block_time": 1791112830,
+      "decoder_qualified": true,
+      "event_type": "BUY",
+      "post_create": true,
+      "selection_rank": 1,
+      "signature": "1M8iBZQLkfCJr5GgZY9K33QHuXhr7gvqutg6KxknBAzKj7gkRbrnxWyVAdrFFMBrjvkGMfBG9EjtSaFz7zTfNNa",
+      "slot": 453241280,
+      "timestamp": 1791112830,
+      "venue": "PUMPSWAP"
+    }
+  },
+  "replay_pass": true,
+  "schema_version": "BYZANTINE_ACTUAL_ENTRY_V1_PEPEINU_FIXTURE_V1"
+}

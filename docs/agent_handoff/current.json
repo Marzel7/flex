@@ -17574,6 +17574,14 @@
     "safety": "Read-only; provider calls=0; no data/UI/runtime/production mutation; historical scope unchanged.",
     "next_action": "CONTINUE_ONLY_EXISTING_BOUNDED_OPENING_CADENCE_FOR_5GWVz_AND_DO_NOT_REACQUIRE_THE_FOUR_PAID-KEY_EXACT-EVIDENCE_FAILURES_WITHOUT_NEW_AUTHORIZATION"
   },
+  "watchtower_missing_opening_semantic_decision_20261004": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; read-only policy review",
+    "status": "HOLD_USER_SEMANTIC_AUTHORIZATION_REQUIRED",
+    "finding": "The normal Watchtower assignments do have an existing alternative FIRST_AVAILABLE policy surface, but the current five missing Entries are governed by the strict FIRST_FULL_POST_MIGRATION_SECOND_MC contract. A switch would change Entry semantics and require new paid BIRDEYE acquisitions; it cannot be inferred from a request to fill blanks. No provider, source, runtime, database, or UI mutation was made in this review.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only policy review.",
+    "next_action": "OBTAIN_EXPLICIT_AUTHORIZATION_TO_USE_FIRST_AVAILABLE_WATCHTOWER_OPENING_SEMANTICS_FOR_THE_LISTED_GENUINE_ASSIGNMENTS"
+  },
   "universal_forward_first_token_observation_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; verification-only observation",
     "status": "WAITING_FOR_GENUINE_TOKEN",

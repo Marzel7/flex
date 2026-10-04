@@ -17382,6 +17382,17 @@
     "qualification": "WSOL_IDEMPOTENCY_SEMANTICS_FROZEN=true; MEMBERSHIP_UNIQUE_CONSTRAINT_WEAKENED=false; INTEGRITY_ERROR_USED_AS_IDEMPOTENCY_CONTROL_FLOW=false; WSOL_EXISTING_MEMBERSHIP_CHECK_PRECEDES_STRICT_INSERT=true; WSOL_IDEMPOTENT_REPLAY_PASS=true; WSOL_IDEMPOTENT_REPLAY_DUPLICATE_OUTBOX_COUNT=0; WSOL_NEW_MEMBERSHIP_COMMIT_PASS=true; WSOL_FOUR_STEP_ATOMICITY_PASS=true; WSOL_FOUR_STEP_SAME_TRANSACTION=true; FAILURE_MATRIX_CASE_COUNT=16; FAILURE_MATRIX_EXECUTED_COUNT=16; MONITOR_LIVE_ADMISSION_ATOMICITY_PASS=true; OPERATOR_IDENTITY_GOVERNANCE_ATOMICITY_PASS=true; WATCHTOWER_REGISTRY_PROMOTION_ATOMICITY_PASS=true; ALL_WRITER_COMMIT_ATOMICITY_PASS=true; ALL_WRITER_ROLLBACK_ATOMICITY_PASS=true; ORPHAN_MEMBERSHIP_WITHOUT_OUTBOX_COUNT=0; ORPHAN_OUTBOX_WITHOUT_MEMBERSHIP_COUNT=0; OTHER_MEMBERSHIP_WRITER_SEMANTICS_CHANGED=false; CONSUMER_CHANGED=false; WATCHTOWER_OPENING_CHANGED=false; BYZANTINE_V2_CHANGED=false; UNIVERSAL_MONITOR_CHANGED=false; HELIUS_CALLS_MADE=0; BIRDEYE_CALLS_MADE=0; FULL_CANONICAL_OUTBOX_QUALIFICATION_PASS=true.",
     "next_action": "COMPLETE_EXECUTABLE_RUNTIME_COMPOSITION_AGAINST_OUTBOX_THEN_DEPLOY"
   },
+  "universal_assignment_runtime_composition_20261004": {
+    "engineering_revision": "isolated codex/canonical-assignment-opening-bridge at e6e268a713963efcb88f17f24333f18a8a71d4b6; shared qualification source remains uncommitted",
+    "status": "HOLD_AUTHORITY_AND_REVISION_IDENTITY_MISMATCH",
+    "finding": "The existing isolated checkout is clean and its 16 provider-free composition tests pass. It reads canonical_membership_outbox using forward outbox_id ordering and contains the durable bridge consumer/composition. However the latest handoff records the writer/outbox qualification as an uncommitted shared-checkout candidate, while the isolated runtime is pinned to a different committed revision. The required exact qualified source/revision identity cannot be established. The two checkout lines also expose different writer integration surfaces: isolated bridge writers append canonical_membership_outbox, whereas the latest shared writer qualification used monitor_admission_outbox helper integration.",
+    "tests": "pytest -q tests/test_universal_assignment_bridge_consumer.py tests/test_universal_assignment_opening_bridge.py tests/test_universal_outbox_runtime_composition.py: 16 passed, 0 failed.",
+    "failed_boundary": "PHASE_A_REVISION_GUARD_AND_CANONICAL_AUTHORITY_BINDING",
+    "safety": "Provider calls=0; canonical DB activation/writes=0; universal DEV DB writes=0; managed runtime starts=0; PEPEINU reconciliation=0; Supervisor/production/shared dirty checkout changes=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "CREATE_ONE_COMMITTED_QUALIFIED_REVISION_THAT_CONTAINS_THE_VERIFIED_CANONICAL_OUTBOX_WRITERS_AND_RUNTIME_COMPOSITION_THEN_RESTART_PHASE_A"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

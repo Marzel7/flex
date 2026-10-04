@@ -28,6 +28,8 @@ def record_member(conn:sqlite3.Connection,*,operation_id:str,mint:str,membership
 def commit_membership_and_outbox(conn:sqlite3.Connection,*,operation_id:str,mint:str,source_population_id:str,membership_id:str,committed_at:int,semantic_version:str=VERSION,opening_id:str|None=None)->str:
  """Same-source-transaction seam. Caller owns BEGIN/COMMIT; no destination access."""
  conn.execute("INSERT INTO operator_launch_membership(mint,operator_id,source_population_id,assigned_at,event_id) VALUES(?,?,?,?,?)",(mint,operation_id,source_population_id,int(committed_at),membership_id))
+ from src.ops.canonical_membership_outbox import append_transition
+ append_transition(conn,event_type='MEMBERSHIP_ASSIGNED',mint=mint,operator_id=operation_id,canonical_event_id=membership_id,assigned_at=int(committed_at),previous_operator_id=None,writer_identity='monitor_live_admission.commit_membership_and_outbox',created_at=int(committed_at))
  return record_member(conn,operation_id=operation_id,mint=mint,membership_id=membership_id,committed_at=committed_at,semantic_version=semantic_version,opening_id=opening_id)
 def deliver_one(conn:sqlite3.Connection,queue:Any,*,now:int)->dict|None:
  row=conn.execute("SELECT event_id,operation_id,mint,membership_id,committed_at FROM monitor_admission_outbox WHERE state='PENDING' ORDER BY committed_at,event_id LIMIT 1").fetchone()

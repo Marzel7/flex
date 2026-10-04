@@ -153,6 +153,8 @@ def reconcile_invalid_creator_continuity_memberships(conn: sqlite3.Connection, *
             retained.append(mint)
             continue
         conn.execute("DELETE FROM operator_launch_membership WHERE mint=? AND operator_id=? AND source_population_id=?", (mint, OPERATOR_ID, "BYZANTINE_PROVEN_CREATOR_CONTINUITY"))
+        from src.ops.canonical_membership_outbox import append_transition
+        append_transition(conn,event_type='MEMBERSHIP_REMOVED',mint=mint,operator_id=None,canonical_event_id=None,assigned_at=None,previous_operator_id=OPERATOR_ID,writer_identity='wsol_10_sol_four_step_operation.reconcile_invalid_creator_continuity_memberships',created_at=int(now or time.time()))
         removed.append(mint)
     if removed:
         from src.ops.manual_registry import refresh_operator_activity_snapshot
@@ -180,7 +182,10 @@ def project_completed_walkback(conn: sqlite3.Connection, mint: str, *, core_db_p
         version, source = CREATOR_CONTINUITY_VERSION, "BYZANTINE_PROVEN_CREATOR_CONTINUITY"
     match_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"{version}:{mint}"))
     conn.execute("INSERT OR IGNORE INTO confirmed_operation_matches(match_id,operator_id,mint,detector_version,state,evidence_json,detected_at) VALUES(?,?,?,?,?,?,?)", (match_id, OPERATOR_ID, mint, version, "CONFIRMED_MATCH", json.dumps(evidence, sort_keys=True), now))
-    conn.execute("INSERT OR IGNORE INTO operator_launch_membership(mint,operator_id,source_population_id,assigned_at,event_id) VALUES(?,?,?,?,?)", (mint, OPERATOR_ID, source, now, match_id))
+    inserted=conn.execute("INSERT OR IGNORE INTO operator_launch_membership(mint,operator_id,source_population_id,assigned_at,event_id) VALUES(?,?,?,?,?)", (mint, OPERATOR_ID, source, now, match_id)).rowcount
+    if inserted:
+        from src.ops.canonical_membership_outbox import append_transition
+        append_transition(conn,event_type='MEMBERSHIP_ASSIGNED',mint=mint,operator_id=OPERATOR_ID,canonical_event_id=match_id,assigned_at=now,previous_operator_id=None,writer_identity='wsol_10_sol_four_step_operation.project_completed_walkback',created_at=now)
     from src.ops.manual_registry import refresh_operator_activity_snapshot
     refresh_operator_activity_snapshot(conn, OPERATOR_ID, core_db_path=core_db_path, now=now)
     return "admitted" if not existing else "already_present"

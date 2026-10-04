@@ -647,6 +647,8 @@ class OperatorIdentityGovernanceService:
                 for membership in memberships:
                     mint = membership[0]
                     conn.execute("UPDATE operator_launch_membership SET operator_id=?,assigned_at=?,event_id=? WHERE mint=?", (destination_operator_id, now, event_id, mint))
+                    from src.ops.canonical_membership_outbox import append_transition
+                    append_transition(conn,event_type="MEMBERSHIP_REASSIGNED",mint=mint,operator_id=destination_operator_id,canonical_event_id=event_id,assigned_at=now,previous_operator_id=source,writer_identity="operator_identity_governance.merge",created_at=now)
                     conn.execute("INSERT INTO operator_launch_assignment_history VALUES(?,?,?,?,?,?,?,?,?)", (str(uuid.uuid4()), mint, source, destination_operator_id, now, analyst, revision, reason, event_id))
             conn.execute("UPDATE operators SET updated_at=? WHERE operator_id=?", (now, destination_operator_id))
             return {"destination_operator_id": destination_operator_id, "source_operator_ids": sources, "event_id": event_id}
@@ -693,6 +695,12 @@ class OperatorIdentityGovernanceService:
                     previous = conn.execute("SELECT operator_id FROM operator_launch_membership WHERE mint=?", (mint,)).fetchone()
                     from_id = previous[0] if previous else parent_operator_id
                     conn.execute("INSERT INTO operator_launch_membership(mint,operator_id,source_population_id,assigned_at,event_id) VALUES(?,?,?,?,?) ON CONFLICT(mint) DO UPDATE SET operator_id=excluded.operator_id,assigned_at=excluded.assigned_at,event_id=excluded.event_id", (mint, child_id, parent_operator_id, now, event_id))
+                    if not previous:
+                        from src.ops.canonical_membership_outbox import append_transition
+                        append_transition(conn,event_type="MEMBERSHIP_ASSIGNED",mint=mint,operator_id=child_id,canonical_event_id=event_id,assigned_at=now,previous_operator_id=None,writer_identity="operator_identity_governance.split",created_at=now)
+                    elif previous[0] != child_id:
+                        from src.ops.canonical_membership_outbox import append_transition
+                        append_transition(conn,event_type="MEMBERSHIP_REASSIGNED",mint=mint,operator_id=child_id,canonical_event_id=event_id,assigned_at=now,previous_operator_id=previous[0],writer_identity="operator_identity_governance.split",created_at=now)
                     conn.execute("INSERT INTO operator_launch_assignment_history VALUES(?,?,?,?,?,?,?,?,?)", (str(uuid.uuid4()), mint, from_id, child_id, now, analyst, revision, reason, event_id))
             conn.execute("UPDATE operator_identity_state SET identity_status='SPLIT',updated_at=? WHERE operator_id=?", (now, parent_operator_id))
             conn.execute("UPDATE operators SET status='SPLIT',updated_at=? WHERE operator_id=?", (now, parent_operator_id))

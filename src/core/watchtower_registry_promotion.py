@@ -304,6 +304,8 @@ def project_watchtower_confirmed_membership(
         "(mint,operator_id,source_population_id,assigned_at,event_id) VALUES(?,?,?,?,NULL)",
         (mint, operator_id, MEMBERSHIP_SOURCE, assigned_at),
     )
+    from src.ops.canonical_membership_outbox import append_transition
+    append_transition(ops_conn,event_type='MEMBERSHIP_ASSIGNED',mint=mint,operator_id=operator_id,canonical_event_id=None,assigned_at=assigned_at,previous_operator_id=None,writer_identity='watchtower_registry_promotion.project_watchtower_confirmed_membership',created_at=assigned_at)
     if refresh_activity:
         from src.ops.manual_registry import refresh_operator_activity_snapshot
         refresh_operator_activity_snapshot(
@@ -381,6 +383,8 @@ def remove_invalid_confirmed_membership_projection(
             "DELETE FROM operator_launch_membership WHERE mint=? AND source_population_id=?",
             (mint, MEMBERSHIP_SOURCE),
         )
+        from src.ops.canonical_membership_outbox import append_transition
+        append_transition(ops_conn,event_type='MEMBERSHIP_REMOVED',mint=mint,operator_id=None,canonical_event_id=None,assigned_at=None,previous_operator_id=None,writer_identity='watchtower_registry_promotion.remove_invalid_confirmed_membership_projection',created_at=int(time.time()) if now is None else int(now))
         removed.append(mint)
     if removed:
         operator = ops_conn.execute(

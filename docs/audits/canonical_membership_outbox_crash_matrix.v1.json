@@ -1,0 +1,1 @@
+{"status":"PARTIAL","covered":["monitor admission transaction rollback","consumer before projection","consumer after projection","consumer after opening","consumer after handoff","consumer restart replay"],"not_covered":["all four writer injected append failures","qualified opening commit integration","universal handoff destination integration"],"providers":0}

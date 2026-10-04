@@ -17582,6 +17582,14 @@
     "runtime_deployment_reason": "Read-only policy review.",
     "next_action": "OBTAIN_EXPLICIT_AUTHORIZATION_TO_USE_FIRST_AVAILABLE_WATCHTOWER_OPENING_SEMANTICS_FOR_THE_LISTED_GENUINE_ASSIGNMENTS"
   },
+  "watchtower_first_available_recovery_input_gate_20261004": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; retained-contract and bounded-store review",
+    "status": "HOLD_CANONICAL_CREATE_SLOT_UNAVAILABLE_UNDER_HELIUS_ZERO",
+    "finding": "The authorized WATCHTOWER_FIRST_AVAILABLE_MC_V1 contract requires canonical create signature, create slot, and create time, then selects the first Birdeye /defi/v3/token/txs trade in a later slot from the fixed create_time-1 through create_time+30 window. Retained wt_watchtower_launches supplies signature/time but null create_slot for HVTyr, Dkt6, 9S2ux, and F94bb; 5GWVz is absent from that retained launch table. A bounded canonical-store lookup did not produce usable slots. The established recovery source uses Helius getTransaction to supply slot/block time on cache miss, but the user's authorization explicitly requires HELIUS_CALLS_MADE=0. No provider call or state change was made.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Input-gate diagnosis only.",
+    "next_action": "AUTHORIZE_AT_MOST_FIVE_HELIUS_GETTRANSACTION_CREATE_SLOT_LOOKUPS_OR_SUPPLY_RETAINED_CANONICAL_CREATE_SLOTS; OTHERWISE_FIRST_AVAILABLE_MUST_FAIL_CLOSED"
+  },
   "universal_forward_first_token_observation_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; verification-only observation",
     "status": "WAITING_FOR_GENUINE_TOKEN",

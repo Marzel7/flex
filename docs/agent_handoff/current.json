@@ -17470,6 +17470,15 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "BIND_THE_COMMITTED_BRIDGE_TO_THE_EXISTING_MANAGED_RUNTIME_ONLY_AFTER_THE_FORWARD_NONSELECTING_EVENT_MINT_GUARD_IS_WIRED"
   },
+  "universal_managed_price_pipeline_final_binding_20261004": {
+    "engineering_revision": "isolated codex/universal-assignment-managed-runtime at 4ae07006af381e34685ef57adf9b58ec8f1653e8; no source changes in this gate",
+    "status": "HOLD_MANAGED_RUNTIME_COMPONENTS_NOT_PRESENT_IN_QUALIFIED_LINE",
+    "finding": "The committed bridge baseline is present and hash verified, but exact inspection of the isolated commit proves the requested managed binding cannot be self-contained: src/ops/watchtower_first_available_mc.py is absent, scripts/run_byzantine_actual_entry_24h_backfill.py is absent, and src/ops/operation_monitor_worker.py is absent. The uncommitted CLI shell still requires injected adapter/handoff callables and the DEV definition has placeholders. Binding it now would require importing missing source or inventing an adapter/handoff, neither of which is authorized by this final binding gate. No qualified price behavior needs or will be changed; this is a component-availability hold, not an immutable-price hold.",
+    "safety": "HELIUS=0; BIRDEYE=0; canonical DB=false; universal DEV DB=false; PEPEINU=false; runtime/deployment=false; all price/lifecycle/history behavior unchanged.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "AUTHORIZE_OR_PROVIDE_A_SINGLE_QUALIFIED_LINE_CONTAINING_THE_EXISTING_WATCHTOWER_EVALUATOR_BYZANTINE_HISTORICAL_PRODUCER_AND_MONITOR_WORKER_BEFORE_MANAGED_RUNTIME_BINDING"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

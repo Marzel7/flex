@@ -1,0 +1,39 @@
+{
+  "schema_version": "QUALIFIED_PRICE_SOURCE_LINE_ASSEMBLY_V1",
+  "status": "PASS_EXISTING_PRICE_COMPONENTS_ASSEMBLED_IN_ONE_QUALIFIED_SOURCE_LINE",
+  "scope": "isolated source-line assembly only; no managed-runtime binding or deployment",
+  "source_provenance": {
+    "watchtower": {"commit": "f797dd4231bc5d5eacc1e29ed10d16b5a4b7ec4e", "path": "src/ops/watchtower_first_available_mc.py", "sha256": "52231ff4403eb1eaa6ebe0e89480059f6e26d4eab979ef75c7ff2ece89584af2"},
+    "byzantine_historical_producer": {"historical_provenance_available": false, "authorized_new_baseline": true, "path": "scripts/run_byzantine_actual_entry_24h_backfill.py", "sha256_before": "5645ab3e23968deb7a0e8006263c413a21bbc09001bf3dcadf2a3df3141bd0c3", "sha256_after": "5645ab3e23968deb7a0e8006263c413a21bbc09001bf3dcadf2a3df3141bd0c3"},
+    "operation_monitor_worker": {"commit": "9561568ef7718d1676ea9d7edeaec8ae82529ff6", "path": "src/ops/operation_monitor_worker.py", "sha256": "9500e2dba7a262fe003b988752ab43cd97a30b37d773404669bb4722f0e24559"},
+    "qualified_entry_monitor_bridge": {"commit": "4ae07006af381e34685ef57adf9b58ec8f1653e8", "sha256": "b7a1608e4e1ed3c7a7419035c72cc506a4bf8f4f001be78c4a85fa28d1dc685c"}
+  },
+  "minimum_imported_dependencies": [
+    "src/core/database_write_service.py", "src/core/db_writer.py", "src/ops/birdeye_rate_limit.py", "src/ops/byzantine_monitor_entry.py", "src/ops/dev_provider_budget.py", "src/ops/operation_price_research_orchestrator.py", "src/ops/operation_strategy_trigger_producer.py", "src/ops/provider_rate_limit_gate.py", "src/ops/token_data_provider_bindings.py", "src/ops/watchtower_price_fact_contract.py", "src/ops/watchtower_terminal_ath_finalizer.py"
+  ],
+  "dependency_inventory_complete": true,
+  "unrelated_source_imported": 0,
+  "provider_free_checks": {
+    "command": "pytest -q tests/test_watchtower_first_available_mc.py tests/test_qualified_entry_monitor_bridge.py tests/test_byzantine_event_mint_resolver.py tests/test_qualified_price_source_line.py",
+    "passed": 31,
+    "failed": 0,
+    "watchtower_controls": [172234, 167954, 108285, 166730],
+    "pepeinu": {"signature": "1M8iBZQLkfCJr5GgZY9K33QHuXhr7gvqutg6KxknBAzKj7gkRbrnxWyVAdrFFMBrjvkGMfBG9EjtSaFz7zTfNNa", "timestamp": 1791112830, "entry_mc_usd": 3925.9516827750313, "recalculated": false},
+    "enrolment_chain": "QualifiedEntryMonitorBridge.activate -> OperationMonitorWorker._activate_from_qualified_opening -> MonitorQueue.enqueue_qualified_activation",
+    "forward_guard": "resolve_event_mint accepted retained selected event; no selection or valuation function was invoked"
+  },
+  "immutable_price_behavior": {
+    "watchtower_opening_changed": false,
+    "byzantine_historical_selection_changed": false,
+    "byzantine_historical_valuation_changed": false,
+    "policy_c_changed": false,
+    "current_mc_changed": false,
+    "running_peak_changed": false,
+    "multiple_changed": false,
+    "time_to_peak_changed": false,
+    "live_eligibility_changed": false,
+    "live_to_history_changed": false,
+    "historical_price_facts_changed": false
+  },
+  "safety": {"helius_calls": 0, "birdeye_calls": 0, "canonical_db_changed": false, "universal_dev_db_changed": false, "pepeinu_mutated": false, "managed_runtime_started": false, "deployment_attempted": false, "raw_provider_payloads_retained": false, "project_500mb_rule_preserved": true, "unbounded_growth_paths": 0, "max_single_file_bytes": 500000}
+}

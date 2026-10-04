@@ -19,6 +19,7 @@ import logging
 import os
 from collections import defaultdict
 from typing import Optional
+from dataclasses import dataclass
 
 from src.core.db_write_queue import drain_batch, WriteItem, queue_depths, migration_signal
 from src.core.database_write_service import database_write_service
@@ -119,6 +120,29 @@ def _commit_batch(db_path: str, items: list[WriteItem]) -> tuple[int, int]:
             if "locked" in str(exc).lower():
                 _stats["lock_errors"] += 1
         return 0, len(items)
+
+
+@dataclass(frozen=True)
+class DurableWriteReceipt:
+    """Success is returned only after DatabaseWriteService has committed."""
+    committed: bool
+    commit_timestamp: float | None
+    statements_written: int
+    error: str | None = None
+
+
+def commit_write_and_wait(db_path: str, item: WriteItem) -> DurableWriteReceipt:
+    """Use the existing shared writer transaction lane for a bounded critical write.
+
+    This deliberately does not enqueue to the best-effort in-memory batch: callers
+    that need an external ACK must observe the transaction result first.
+    """
+    if not db_path or not os.path.exists(db_path):
+        return DurableWriteReceipt(False, None, 0, "WRITER_DATABASE_UNAVAILABLE")
+    written, dead_letters = _commit_batch(db_path, [item])
+    if dead_letters or written != len(item.statements):
+        return DurableWriteReceipt(False, None, written, "SHARED_WRITER_COMMIT_FAILED")
+    return DurableWriteReceipt(True, time.time(), written)
 
 
 def _writer_loop(db_path: str) -> None:

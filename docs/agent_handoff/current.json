@@ -17735,6 +17735,17 @@
     "safety": "Helius=0; Birdeye=0; other providers=0; database/membership/Nexus status/Opening/universal monitor/dispatcher/scheduling/UI/production/Supervisor unchanged; raw payloads=false.",
     "next_action": "AUTHORIZE_A_SEPARATE_UI_AUTHORITY_LABEL_CORRECTION_OR_A_SEPARATE_NEXUS_PROMOTION_AND_MONITOR_CAPABILITY_DESIGN"
   },
+  "nexus_canonical_membership_promotion_gate_20261004": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; provider-free retained gate diagnostic",
+    "status": "HOLD_HISTORICAL_NEXUS_84_PROMOTION_GATE_NOT_RETAINED",
+    "finding": "The current V1 gate is fully recoverable: independent strong-plus-moderate attribution proof, no contradictions, distinct dependency groups, an identity-family proof, then promotion_eligible (identical to ATTRIBUTION_PROVEN), current snapshot equality, and canonical commit. It is not the retained explanation of the historical Nexus 84. Those rows share one 1788123425 PROMOTION event, source population p3r-v2-6437..., and reason 'Promoted strict 84 only'; there is no canonical V1 commit intent, assignment history, or individual V1 decision. Current resolver input for that candidate has only 53 members and empty independent evidence, returning ADDITIONAL_EVIDENCE_REQUIRED for a different manual-v1 operation id. The 54 noncanonical detector matches therefore are not rejected: all are UNRESOLVED_NO_PER_TOKEN_PROMOTION_DECISION_RETAINED (six static and 48 current). No token is proven promotion-eligible but missing membership. The requested 84/54 per-token current-V1 gate proof cannot be made from retained evidence without fabricating historical decision facts.",
+    "audit": "docs/audits/nexus_canonical_membership_promotion_gate.v1.json",
+    "tests": "8 focused attribution/promotion tests passed.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Provider-free read-only diagnostic; no source/runtime change.",
+    "safety": "Helius=0; Birdeye=0; other providers=0; membership/assignment/detector/Opening/universal monitor/dispatcher/scheduling/UI/production/Supervisor unchanged; raw payloads=false.",
+    "next_action": "REVIEW_WHETHER_TO_AUTHORIZE_A_SEPARATE_HISTORICAL_PROMOTION_PROVENANCE_RECOVERY_OR_DEFINE_A_NEW_NEXUS_PROMOTION_POLICY"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

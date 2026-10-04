@@ -1,0 +1,25 @@
+{
+  "version": "UNIVERSAL_LIVE_HISTORY_PROJECTION_V1",
+  "scope": "Operation-neutral durable projection after a qualified Opening; no Opening acquisition or provider call.",
+  "states": ["OPENING_PENDING", "MONITORING_ACTIVE", "TERMINAL", "24H_COMPLETE", "RIGHT_CENSORED", "HISTORY"],
+  "transition": {
+    "input": "qualified Opening with stable operation_id, mint, opening timestamp, and universal adoption identity",
+    "history_when": ["universal lifecycle work is TERMINAL", "now >= opening_timestamp + 86400"],
+    "missing_financial_facts_block": false,
+    "completion_identity": "sha256(operation_id,mint,opening_timestamp,adoption_id)",
+    "idempotence": "completion_id primary key and unique stable coordinates"
+  },
+  "durable_fact": {
+    "table": "universal_monitor_lifecycle_completion",
+    "fields": ["completion_id", "operation_id", "mint", "adoption_id", "opening_timestamp", "completion_state", "completed_at", "opening_mc_usd", "peak_mc_usd", "peak_timestamp", "max_multiple", "time_to_peak_seconds", "peak_scope", "source_work_state"],
+    "financial_semantics": "Copy already-qualified retained price facts only; do not recompute. Missing values remain null. A retained running peak is scoped peak, not lifetime ATH."
+  },
+  "projection": {
+    "live": "qualified MONITORING_ACTIVE universal token with no completion fact",
+    "history": "completion fact exists; it wins exclusively over LIVE",
+    "failed_or_missing_opening": "durable universal_monitor_nonlive_projection OPENING_PENDING or RIGHT_CENSORED row; never LIVE",
+    "current_mc": "LIVE-only and excluded from completion fact",
+    "scheduler": "all future lifecycle work is terminal/ineligible; evidence is retained"
+  },
+  "storage": {"single_file_max_bytes": 67108864, "transient_file_max_bytes": 0, "raw_provider_payloads": false, "unbounded_growth_paths": 0}
+}

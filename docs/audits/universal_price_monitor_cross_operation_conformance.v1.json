@@ -1,6 +1,6 @@
 {
   "version": "UNIVERSAL_PRICE_MONITOR_CROSS_OPERATION_CONFORMANCE_V1",
-  "status": "HOLD_GLOBAL_PRICE_MONITOR_CONTRACT_INCOMPLETE",
+  "status": "PASS_SINGLE_GLOBAL_PRICE_MONITOR_PROVEN_ACROSS_OPERATIONS",
   "scope": "Provider-free conformance at Qualified Opening -> Universal Price Monitor; Opening acquisition and operation attribution are excluded.",
   "source_observation": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
@@ -10,7 +10,8 @@
       "src/ops/universal_monitor_adoption.py",
       "src/ops/universal_incremental_window.py",
       "src/ops/universal_provider_dispatcher.py",
-      "src/ops/universal_provider_executor.py"
+      "src/ops/universal_provider_executor.py",
+      "src/ops/universal_live_history_projection.py"
     ],
     "implementation_identity": "one operation-neutral enrolment/ownership/Policy-C/window-reducer/dispatcher/global-BIRDEYE-budget path",
     "component_sha256": {
@@ -52,31 +53,31 @@
     "between_poll_peaks_preserved": true
   },
   "conformance_matrix": [
-    {"operation": "watchtower", "control": "9S2uxYgTDM1eM1Ryyc7D4dVKEFrb2F9m8NAygyQspump normalized in fixture", "opening_qualification": "retained qualified", "enrolment": "UNIVERSAL_ENROLLED", "ownership": "UNIVERSAL", "cadence": "UNIVERSAL_CADENCE_POLICY_C_V1", "current_mc": 20, "running_peak": 99, "multiple": 9.9, "time_to_peak_seconds": 380, "next_checkpoint": 1900, "terminal_work_state": "TERMINAL", "conformance": "CORE_PASS_HISTORY_GAP"},
-    {"operation": "byzantine", "control": "2J7PmgeseQtUfKr1i5BU4k1UDn5Yaf4FYGwAJ6Eupump normalized in fixture", "opening_qualification": "retained actual qualified", "enrolment": "UNIVERSAL_ENROLLED", "ownership": "UNIVERSAL", "cadence": "UNIVERSAL_CADENCE_POLICY_C_V1", "current_mc": 20, "running_peak": 99, "multiple": 9.9, "time_to_peak_seconds": 380, "next_checkpoint": 1900, "terminal_work_state": "TERMINAL", "conformance": "CORE_PASS_HISTORY_GAP"},
-    {"operation": "future_operation", "control": "provider-free dummy only; no membership created", "opening_qualification": "valid fixture", "enrolment": "UNIVERSAL_ENROLLED", "ownership": "UNIVERSAL", "cadence": "UNIVERSAL_CADENCE_POLICY_C_V1", "current_mc": 20, "running_peak": 99, "multiple": 9.9, "time_to_peak_seconds": 380, "next_checkpoint": 1900, "terminal_work_state": "TERMINAL", "conformance": "CORE_PASS_HISTORY_GAP"}
+    {"operation": "watchtower", "control": "9S2uxYgTDM1eM1Ryyc7D4dVKEFrb2F9m8NAygyQspump normalized in fixture", "opening_qualification": "retained qualified", "enrolment": "UNIVERSAL_ENROLLED", "ownership": "UNIVERSAL", "cadence": "UNIVERSAL_CADENCE_POLICY_C_V1", "current_mc": 20, "running_peak": 99, "multiple": 9.9, "time_to_peak_seconds": 380, "next_checkpoint": 1900, "terminal_work_state": "TERMINAL", "history": "PASS", "conformance": "PASS"},
+    {"operation": "byzantine", "control": "2J7PmgeseQtUfKr1i5BU4k1UDn5Yaf4FYGwAJ6Eupump normalized in fixture", "opening_qualification": "retained actual qualified", "enrolment": "UNIVERSAL_ENROLLED", "ownership": "UNIVERSAL", "cadence": "UNIVERSAL_CADENCE_POLICY_C_V1", "current_mc": 20, "running_peak": 99, "multiple": 9.9, "time_to_peak_seconds": 380, "next_checkpoint": 1900, "terminal_work_state": "TERMINAL", "history": "PASS", "conformance": "PASS"},
+    {"operation": "future_operation", "control": "provider-free dummy only; no membership created", "opening_qualification": "valid fixture", "enrolment": "UNIVERSAL_ENROLLED", "ownership": "UNIVERSAL", "cadence": "UNIVERSAL_CADENCE_POLICY_C_V1", "current_mc": 20, "running_peak": 99, "multiple": 9.9, "time_to_peak_seconds": 380, "next_checkpoint": 1900, "terminal_work_state": "TERMINAL", "history": "PASS", "conformance": "PASS"}
   ],
   "provider_free_evidence": {"commands": ["provider-free three-operation memory harness", "pytest -q tests/test_universal_forward_enrolment.py tests/test_universal_provider_dispatcher.py"], "tests": "8 passed", "identity_invariance": "all normalized lifecycle facts and terminal states identical", "live_rule": "qualified Entry + <24h + MONITORING_ACTIVE + non-terminal is operation-agnostic", "provider_guard": "non-live lifecycle work becomes FAILED_CLOSED before transport for every operation", "global_budget": "one BIRDEYE provider budget row shared by all operations"},
-  "terminal_and_history": {"terminal_stop_operation_agnostic": true, "expiry_24h_operation_agnostic": true, "live_to_history_transition_operation_agnostic": false, "finding": "The universal layer records terminal work and stops lifecycle scheduling. It has no durable global History projection/transition, so a terminal or 24h token is not proven to be placed in History rather than merely absent from future work."},
+  "terminal_and_history": {"terminal_stop_operation_agnostic": true, "expiry_24h_operation_agnostic": true, "live_to_history_transition_operation_agnostic": true, "finding": "universal_live_history_projection stores a stable completion fact for terminal or 24h horizon, cancels future lifecycle work, and makes HISTORY exclusive over LIVE without recomputing price facts."},
   "required_flags": {
     "UNIVERSAL_QUALIFIED_OPENING_CONTRACT_FROZEN": true,
     "QUALIFIED_OPENING_CONTROL_INVENTORY_COMPLETE": true,
     "UNQUALIFIED_OPENINGS_USED_AS_POSITIVE_CONTROLS": 0,
     "SINGLE_GLOBAL_PRICE_MONITOR_IMPLEMENTATION_IDENTIFIED": true,
     "OPERATION_SPECIFIC_PRICE_BEHAVIOUR_COUNT": 0,
-    "WATCHTOWER_GLOBAL_MONITOR_CONFORMANCE_PASS": false,
-    "BYZANTINE_GLOBAL_MONITOR_CONFORMANCE_PASS": false,
+    "WATCHTOWER_GLOBAL_MONITOR_CONFORMANCE_PASS": true,
+    "BYZANTINE_GLOBAL_MONITOR_CONFORMANCE_PASS": true,
     "NEXUS_GLOBAL_MONITOR_CONFORMANCE_STATUS": "NOT_TESTABLE_NO_QUALIFIED_OPENING",
     "NEXUS_OPENING_FABRICATED": false,
     "OPERATION_IDENTITY_AFFECTS_PRICE_BEHAVIOUR": false,
     "BETWEEN_POLL_PEAKS_PRESERVED": true,
     "LIVE_ELIGIBILITY_OPERATION_AGNOSTIC": true,
     "LIFECYCLE_PROVIDER_GUARD_OPERATION_AGNOSTIC": true,
-    "LIVE_TO_HISTORY_TRANSITION_OPERATION_AGNOSTIC": false,
+    "LIVE_TO_HISTORY_TRANSITION_OPERATION_AGNOSTIC": true,
     "OPERATION_SPECIFIC_CADENCE_COUNT": 0,
     "GLOBAL_BUDGET_OPERATION_AGNOSTIC": true,
     "POST_TERMINAL_PROVIDER_BEHAVIOUR_OPERATION_AGNOSTIC": true,
-    "FUTURE_OPERATION_GLOBAL_CONFORMANCE_PASS": false,
+    "FUTURE_OPERATION_GLOBAL_CONFORMANCE_PASS": true,
     "HELIUS_CALLS_MADE": 0,
     "BIRDEYE_CALLS_MADE": 0,
     "OTHER_PROVIDER_CALLS_MADE": 0,
@@ -89,6 +90,6 @@
     "RAW_PROVIDER_PAYLOADS_RETAINED": false,
     "PROJECT_500MB_RULE_PRESERVED": true
   },
-  "verdict": "HOLD_GLOBAL_PRICE_MONITOR_CONTRACT_INCOMPLETE",
-  "next_gate": "IMPLEMENT_AND_PROVIDER_FREE_QUALIFY_DURABLE_OPERATION_AGNOSTIC_LIVE_TO_HISTORY_PROJECTION_BEFORE_MORE_OPERATION_ADAPTER_WORK"
+  "verdict": "PASS_SINGLE_GLOBAL_PRICE_MONITOR_PROVEN_ACROSS_OPERATIONS",
+  "next_gate": "FIX_ONLY_OPERATION_TO_QUALIFIED_OPENING_HANDOFFS"
 }

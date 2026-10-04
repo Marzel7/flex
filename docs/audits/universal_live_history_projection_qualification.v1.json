@@ -1,0 +1,28 @@
+{
+  "version": "UNIVERSAL_LIVE_HISTORY_PROJECTION_QUALIFICATION_V1",
+  "status": "PASS_DURABLE_OPERATION_AGNOSTIC_LIVE_HISTORY_PROJECTION_QUALIFIED",
+  "implementation": "src/ops/universal_live_history_projection.py",
+  "tests": "pytest -q tests/test_universal_live_history_projection.py: 9 passed",
+  "matrix": {
+    "operations": ["watchtower", "byzantine", "future_operation"],
+    "terminal_to_history": "PASS for each; durable completion exists, LIVE is excluded, work becomes TERMINAL",
+    "horizon_24h_to_history": "PASS for each",
+    "fast_terminal_before_checkpoint": "PASS; null peak/multiple are retained honestly",
+    "restart": "PASS; completed replay creates no second History row",
+    "failed_opening": "PASS; durable OPENING_PENDING non-live projection, never LIVE"
+  },
+  "invariants": {
+    "operation_identity_affects_history_transition": false,
+    "operation_specific_history_behaviour_count": 0,
+    "live_history_overlap_count": 0,
+    "canonical_monitored_token_can_disappear": false,
+    "financial_facts_recomputed": false,
+    "incomplete_peak_promoted_to_lifetime_ath": false,
+    "history_current_mc_visible": false,
+    "post_history_lifecycle_provider_call_possible": false,
+    "completed_token_due_work_executable": false
+  },
+  "safety": {"helius_calls": 0, "birdeye_calls": 0, "other_provider_calls": 0, "runtime_changed": false, "opening_changes": 0, "byzantine_v2_changed": false, "pepeinu_promoted": false, "raw_payloads_retained": false, "project_500mb_rule_preserved": true},
+  "deployment": "QUALIFIED_NOT_DEPLOYED; isolated worktree only, no production source/runtime/Supervisor change.",
+  "next_gate": "RETURN_TO_OPERATION_TO_QUALIFIED_OPENING_HANDOFFS"
+}

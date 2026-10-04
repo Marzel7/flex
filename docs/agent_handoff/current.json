@@ -17715,6 +17715,16 @@
     "safety": "Helius=0; Birdeye=0; facts recomputed=false; raw payloads=false; production/Supervisor unchanged.",
     "next_action": "RECONCILE_THE_FIVE_AMBIGUOUS_PROVIDER_CALLS_BEFORE_RESTARTING_DISPATCHER_OR_ACCEPTING_A_FORWARD_LIFECYCLE"
   },
+  "operation_telemetry_assignment_reconciliation_20261004": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; provider-free retained census",
+    "status": "PASS_ZERO_ASSIGNMENTS_CORRECTLY_EXPLAINED",
+    "finding": "Frozen at the established acceptance boundary, 24h telemetry is exactly 25: Byzantine=5, Watchtower=6, Nexus=14. Byzantine is shared-subprovider infrastructure telemetry; Watchtower is canonical-member activity; Nexus is the qualified current route matcher and explicitly does not admit membership. All 5 Byzantine and 6 Watchtower records have canonical membership rows, assignment timestamps, and nonempty assignment event IDs. All 14 Nexus rows correctly lack membership because the current matcher is telemetry-only. Counts: assigned=11, correctly rejected=14, pending=0, confirmed-member missing=0, duplicate=0, qualified assignment without event=0; no pipeline break.",
+    "audit": "docs/audits/operation_telemetry_assignment_reconciliation.v1.json",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Provider-free read-only census; no source/runtime change.",
+    "safety": "Helius=0; Birdeye=0; other providers=0; universal monitor/opening/dispatch/scheduling unchanged; raw payloads=false; production/Supervisor unchanged.",
+    "next_action": "WAIT_FOR_NEXT_CANONICAL_OPERATION_ASSIGNMENT"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

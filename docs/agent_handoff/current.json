@@ -17500,6 +17500,16 @@
     "runtime_deployment_reason": "No executable source was changed and the requested managed runtime was not bound or started.",
     "next_action": "AUTHORIZE_A_SEPARATE_FORWARD_ONLY_BYZANTINE_RETAINED_OPENING_ADAPTER_CONTRACT_THAT_ACCEPTS_ONLY_ALREADY_QUALIFIED_RETAINED_OPENINGS_AND_NEVER_SELECTS_OR_REVALUES_A_TRADE; THEN_DEFINE_CONCRETE_PINNED_DEV_AUTHORITIES_AND_EXISTING_BRIDGE_WORKER_HANDOFF"
   },
+  "universal_forward_retained_opening_pinned_dev_20261004": {
+    "engineering_revision": "ba793b29374c4224a5a697f19e1d618f81545a95 on isolated codex/universal-assignment-managed-runtime; read-only authority and contract preflight",
+    "status": "HOLD_PINNED_DEV_AUTHORITIES_AND_RETAINED_OPENING_SCHEMA_UNAVAILABLE",
+    "finding": "The expressly expected pinned authority paths are absent from the exact isolated qualified source line: database/wt_ops_v2.db and .dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db do not exist, so their actual table/schema compatibility cannot be verified and no concrete Supervisor authority values can be frozen. The existing durable opening schema stores opening_json as generic JSON and does not declare or validate selected signature, selected slot, event proof, or evidence identity fields required by the new retained-opening contract. Adding an inferred schema or populating a synthetic authority as if it were the pinned DEV authority would fabricate the required authority/evidence contract. No source, database, fixture, runtime, provider, or deployment change was made.",
+    "evidence": "Exact isolated-worktree checks returned MISSING for both required DB paths. src/ops/universal_assignment_opening_bridge.py defines universal_opening_work(... opening_json TEXT ...) only; it has no retained event/signature/slot/proof columns or contract validator.",
+    "production_flags": "HELIUS=0; BIRDEYE=0; canonical DB=false; universal DEV DB=false; PEPEINU=false; runtime started=false; deployment=false; raw provider payloads=false.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only preflight found no actual pinned authority or sufficiently declared retained-opening contract to bind.",
+    "next_action": "PROVIDE_OR_AUTHORIZE_A_CONCRETE_PINNED_DEV_SOURCE_AND_DESTINATION_AUTHORITY_SNAPSHOT_OR_SCHEMA-ONLY_FIXTURE_WITH_THEIR_IDENTITIES, AND_AUTHORIZE_A_FORWARD_ONLY_RETAINED_OPENING_CONTRACT_SCHEMA_THAT_PRESERVES_EXISTING_QUALIFIED_FIELDS_WITHOUT_REINTERPRETATION"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

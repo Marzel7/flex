@@ -17393,6 +17393,16 @@
     "runtime_deployment_gate": "HOLD",
     "next_action": "CREATE_ONE_COMMITTED_QUALIFIED_REVISION_THAT_CONTAINS_THE_VERIFIED_CANONICAL_OUTBOX_WRITERS_AND_RUNTIME_COMPOSITION_THEN_RESTART_PHASE_A"
   },
+  "universal_forward_revision_reconciliation_20261004": {
+    "engineering_revision": "isolated codex/canonical-assignment-opening-bridge e6e268a713963efcb88f17f24333f18a8a71d4b6 plus uncommitted WSOL canonical-stream idempotency repair",
+    "status": "HOLD_SINGLE_REVISION_QUALIFICATION_INCOMPLETE",
+    "finding": "The clean isolated line already preserves canonical_membership_outbox as the universal stream and monitor_admission_outbox as legacy MonitorQueue infrastructure. All four isolated writers call src.ops.canonical_membership_outbox.append_transition; the universal consumer reads only that table using outbox_id and last_consumed_outbox_id. WSOL now returns already_present before strict membership insert for a same-owner replay. The relevant existing isolated suite passed 28/28 provider-free tests.",
+    "failed_boundary": "PHASE_B_COMPLETE_16_CASE_FOUR_WRITER_FAILURE_MATRIX_NOT_YET_PRESENT_IN_ISOLATED_LINE",
+    "safety": "HELIUS=0; BIRDEYE=0; canonical DB changes=0; universal DEV DB changes=0; managed runtime starts=0; PEPEINU mutations=0; deployment attempted=false; no shared source files changed.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "ADD_AND_EXECUTE_THE_REMAINING_12_CANONICAL_STREAM_WRITER_FAILURE_INJECTION_CASES_IN_THE_ISOLATED_LINE_THEN_RUN_FULL_RECONCILED_SUITE_AND_COMMIT"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

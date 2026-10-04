@@ -17725,6 +17725,16 @@
     "safety": "Helius=0; Birdeye=0; other providers=0; universal monitor/opening/dispatch/scheduling unchanged; raw payloads=false; production/Supervisor unchanged.",
     "next_action": "WAIT_FOR_NEXT_CANONICAL_OPERATION_ASSIGNMENT"
   },
+  "nexus_verified_assignment_reconciliation_20261004": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; provider-free retained authority diagnostic",
+    "status": "PASS_AUTHORITY_MISMATCH_PROVEN_UI_DETECTOR_LABEL_IS_NOT_CANONICAL_MEMBERSHIP",
+    "finding": "The apparent 14→0 mismatch is not an assignment-pipeline failure. Canonical Nexus membership is operator_launch_membership plus its immutable PROMOTION event: 84 rows, all event-backed. The Nexus UI's 138 'Verified/Exact' count is a detector projection: 90 static UNIQUE_MATCH rows plus 48 disjoint current UNIQUE_MATCH rows. It contains the 84 canonical rows and 54 detector-only candidates. The 14 frozen current-route observations contain eight detector-exact candidates, six non-exact/insufficient candidates, and zero authoritative verified members or canonical assignments. The previous telemetry audit correctly found no membership rows, but its Nexus 'correctly rejected' wording is superseded: absent assignment must not be called membership rejection. Current detail 13 versus frozen telemetry 14 is a 321-second rolling-window shift that excludes BARRON, not an authority change. A detector-only candidate also cannot enter Opening/Universal Monitor: that requires canonical assignment and a declared operation-specific monitor adapter; Nexus remains audit-only with none.",
+    "audit": "docs/audits/nexus_verified_assignment_reconciliation.v1.json",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Provider-free read-only diagnostic; no source/runtime change.",
+    "safety": "Helius=0; Birdeye=0; other providers=0; database/membership/Nexus status/Opening/universal monitor/dispatcher/scheduling/UI/production/Supervisor unchanged; raw payloads=false.",
+    "next_action": "AUTHORIZE_A_SEPARATE_UI_AUTHORITY_LABEL_CORRECTION_OR_A_SEPARATE_NEXUS_PROMOTION_AND_MONITOR_CAPABILITY_DESIGN"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

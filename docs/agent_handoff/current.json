@@ -1,4 +1,18 @@
 {
+  "universal_live_history_projection_20261004": {
+    "engineering_revision": "4748d1a8d44f8de1169b0bd08a69a5d9d36afb56 on isolated codex/canonical-assignment-opening-bridge; shared runtime HEAD remains 580508a70c80e7fc944e0069f85e67b851a117fa",
+    "status": "PASS_DURABLE_OPERATION_AGNOSTIC_LIVE_HISTORY_PROJECTION_QUALIFIED",
+    "finding": "The isolated provider-free universal lifecycle projector persists one stable completion fact keyed by operation_id, mint, Opening timestamp, and adoption identity. It projects terminal or 24h completion into exclusive HISTORY, terminalizes future lifecycle work, retains already-qualified Opening/Peak/Multiple/Time-to-Peak facts without recomputation, keeps Current MC out of History, and represents failed Opening as durable non-live state. Watchtower, Byzantine, and future identities pass terminal and 24h paths with identical results; fast terminal and crash/restart idempotence pass.",
+    "contract": "docs/contracts/universal_live_history_projection.v1.json",
+    "audit": "docs/audits/universal_live_history_projection_qualification.v1.json",
+    "cross_operation_audit": "docs/audits/universal_price_monitor_cross_operation_conformance.v1.json",
+    "tests": "pytest -q tests/test_universal_live_history_projection.py: 9 passed, 0 failed",
+    "safety": "HELIUS=0; BIRDEYE=0; other providers=0; shared runtime/database/provider dispatcher/Opening policy/operation membership/Byzantine V2/PEPEINU/production/Supervisor changes=0; raw payloads=0; 64 MiB per SQLite file cap, transient files=0, unbounded growth paths=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "runtime_deployment_reason": "The isolated component is not merged or wired into the shared auto-reloading DEV runtime. Deployment needs a separately authorized integration and deployment gate.",
+    "next_action": "RETURN_TO_OPERATION_TO_QUALIFIED_OPENING_HANDOFFS"
+  },
   "universal_price_monitor_cross_operation_conformance_20261004": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; provider-free audit used uncommitted universal implementation as discovery evidence only",
     "engineering_audit_commit": "2661934056a55153f38f8368a26b96b29118f387",

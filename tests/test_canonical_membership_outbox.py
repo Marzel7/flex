@@ -1,5 +1,6 @@
 import sqlite3
 import pytest
+from unittest.mock import patch
 
 from src.ops.canonical_membership_outbox import append_transition, ensure_schema, read_after
 from src.ops.monitor_live_admission import commit_membership_and_outbox, ensure_schema as ensure_admission
@@ -33,3 +34,24 @@ def test_monitor_admission_legacy_and_canonical_outboxes_share_rollback_and_comm
     assert conn.execute('SELECT count(*) FROM operator_launch_membership').fetchone()[0]==1
     assert conn.execute('SELECT count(*) FROM canonical_membership_outbox').fetchone()[0]==1
     assert conn.execute('SELECT count(*) FROM monitor_admission_outbox').fetchone()[0]==1
+
+@pytest.mark.parametrize('case',('success','after_membership','append_failure','after_outbox'))
+def test_monitor_live_admission_executable_failure_matrix(case):
+    conn=db(); ensure_admission(conn); conn.commit()
+    try:
+        conn.execute('BEGIN')
+        if case=='after_membership':
+            conn.execute("INSERT INTO operator_launch_membership VALUES('m','watchtower','s',1,'e')")
+            raise RuntimeError('INJECTED_AFTER_MEMBERSHIP')
+        if case=='append_failure':
+            with patch('src.ops.canonical_membership_outbox.append_transition',side_effect=RuntimeError('INJECTED_APPEND_FAILURE')):
+                commit_membership_and_outbox(conn,operation_id='watchtower',mint='m',source_population_id='s',membership_id='e',committed_at=1)
+        else:
+            commit_membership_and_outbox(conn,operation_id='watchtower',mint='m',source_population_id='s',membership_id='e',committed_at=1)
+            if case=='after_outbox': raise RuntimeError('INJECTED_AFTER_OUTBOX')
+        conn.commit()
+    except RuntimeError: conn.rollback()
+    count=conn.execute("SELECT count(*) FROM operator_launch_membership").fetchone()[0]
+    outbox=conn.execute("SELECT count(*) FROM canonical_membership_outbox").fetchone()[0]
+    legacy=conn.execute("SELECT count(*) FROM monitor_admission_outbox").fetchone()[0]
+    assert (count,outbox,legacy)==((1,1,1) if case=='success' else (0,0,0))

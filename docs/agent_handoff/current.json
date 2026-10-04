@@ -17877,6 +17877,14 @@
     "safety":"Dedicated DEV branch/worktree retained; Nexus paused; legacy monitoring remains OFF; legacy Scenario-D and provider loop not invoked; validation Helius=3; paid Birdeye=1; raw payloads/blocks=0; PEPEINU lifecycle backfill=0; production/Supervisor unchanged.",
     "next_action":"DO_NOT_ENABLE_BYZANTINE_FORWARD_OPENING"
   },
+  "monitor_live_admission_source_port_20261004": {
+    "engineering_revision": "e93767aff9f8a38f4b6605db7e7f212d83ce9325 on codex/canonical-assignment-opening-bridge",
+    "status": "PARTIAL_EXACT_WRITER_PORTED_OUTBOX_IMPLEMENTATION_PENDING",
+    "finding": "Ported the exact committed src/ops/monitor_live_admission.py from d3b2136ba526ab624fbe56e19b7440df7be2a99d. Git blob parity is exact (0f3759d7375e952354f7e226fe8072e6897caaa4). No unrelated source was imported. Existing legacy monitor_admission_outbox semantics remain unchanged.",
+    "outbox_status": "Not implemented in this source-port step. All four writer integration, canonical monotonic outbox schema, and provider-free atomicity/E2E matrices remain required.",
+    "safety": "No canonical/DEV DB mutation, provider call, runtime start, PEPEINU mutation, Supervisor/production/shared checkout change.",
+    "next_action": "Continue the authorized all-four-writer canonical membership outbox implementation and qualification in this isolated checkout."
+  },
   "monitor_live_admission_source_recovery_20261004": {
     "engineering_revision": "fc3b974448527173770dea4a185b372c872c97ed; audit only",
     "status": "PASS_COMMITTED_WRITER_RECOVERED_OUTBOX_STILL_HOLD",

@@ -1,0 +1,22 @@
+{
+  "schema_version": "BYZANTINE_ACTUAL_ENTRY_V1_FIXTURE_MANIFEST_V1",
+  "status": "HOLD_GENUINE_PROVIDER_FREE_FIXTURE_INPUTS_INSUFFICIENT",
+  "source_sha256": "5645ab3e23968deb7a0e8006263c413a21bbc09001bf3dcadf2a3df3141bd0c3",
+  "controls": [
+    {"ticker":"Nika","mint":"8BCRMBPDPpimvwszDxw74AMueAgyrpiMTuWHpVK7pump","fixture_status":"OUTPUT_ONLY_CONTROL","expected_entry_timestamp":1789574012,"expected_entry_mc_usd":2580.000580426237},
+    {"ticker":"KING","mint":"2pNKkrgWhxSy9gA7AH767aAAiYpP4FkoQ37YpAewpump","fixture_status":"OUTPUT_ONLY_CONTROL","expected_entry_timestamp":1789806225,"expected_entry_mc_usd":7584.309859459663},
+    {"ticker":"PYRAMID","mint":"DwJ5cdKdBeBjHNhjFjFAeb7DqYmWK7Jj4LzzbFUdpump","fixture_status":"OUTPUT_ONLY_CONTROL","expected_entry_timestamp":1789844798,"expected_entry_mc_usd":2283.959497810048},
+    {"ticker":"MeiMei","mint":"4cFAGsZ1x7cHMgGvMAq9xfUFLCro5m1MjHcWCGPHpump","fixture_status":"OUTPUT_ONLY_CONTROL","expected_entry_timestamp":1789891001,"expected_entry_mc_usd":2535.392262010755},
+    {"ticker":"Takopi","mint":"DQEpFPwvj7RrLt1SUWWCnyzce62S3P1WJZFj4aKFpump","fixture_status":"OUTPUT_ONLY_CONTROL","expected_entry_timestamp":1790019203,"expected_entry_mc_usd":3055.4435951305622},
+    {"ticker":"Tempura","mint":"4epQ7U9qHpiaUbojDz5UPKdWx5Req74QsuvBjfFxpump","fixture_status":"OUTPUT_ONLY_CONTROL","expected_entry_timestamp":1790059367,"expected_entry_mc_usd":2831.5934632466497},
+    {"ticker":"BRIM","mint":"8qycqFhWKkFeFzK5TLmsvwa19yFu9c4f7acPFe3Xpump","fixture_status":"OUTPUT_ONLY_CONTROL","expected_entry_timestamp":1790077977,"expected_entry_mc_usd":2758.9143151055264},
+    {"ticker":"SOL","mint":"8EJ1qnTyiEVXkMgXhBdfKLktJc7BcaSHfDti3gBDpump","fixture_status":"OUTPUT_ONLY_CONTROL","expected_entry_timestamp":1790101319,"expected_entry_mc_usd":2856.600755040328},
+    {"ticker":"PHOSPHOR","mint":"AcZx2dcryYz5b8xhn9xhWc2ue4RTHro26ve8vbiDpump","fixture_status":"OUTPUT_ONLY_CONTROL","expected_entry_timestamp":1790237643,"expected_entry_mc_usd":7770.818948724881}
+  ],
+  "missing_normalized_inputs": ["candidate signature-page items with deterministic order", "decoder-normalized economic trade fields and program identity", "selected getTransaction-derived trade facts", "normalized Birdeye containing candle timestamp and c"],
+  "synthetic_fixture_inputs_created": false,
+  "raw_provider_payloads_retained": false,
+  "raw_blocks_retained": false,
+  "max_single_file_bytes": 500000,
+  "unbounded_growth_paths": 0
+}

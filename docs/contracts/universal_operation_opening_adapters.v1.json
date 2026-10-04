@@ -1,6 +1,6 @@
 {
   "schema_version": "UNIVERSAL_OPERATION_OPENING_ADAPTERS_V1",
-  "status": "HOLD_BYZANTINE_OPENING_ADAPTER_PROVENANCE_NOT_RECOVERED",
+  "status": "HOLD_BYZANTINE_ACTUAL_ENTRY_FIXTURE_INPUTS_INSUFFICIENT",
   "interface": "canonical assignment -> operation adapter lookup -> bounded opening acquisition -> qualified or fail-closed result",
   "watchtower": {
     "status": "RECOVERED_NOT_WIRED",
@@ -12,10 +12,11 @@
     "failure": ["INSUFFICIENT_CREATE_EVIDENCE", "INSUFFICIENT_SUPPLY_EVIDENCE", "INSUFFICIENT_TRADE_EVIDENCE", "NO_FIRST_AVAILABLE_TRADE_IN_WINDOW"]
   },
   "byzantine": {
-    "status": "NOT_FROZEN",
-    "recovered_source": {"path": "src/ops/pumpfun_opening_executor.py", "commit": "580508a70c80e7fc944e0069f85e67b851a117fa", "sha256": "78da92761fd2c85f14e8a99371c485fb2abd364f9b29c770c31566361caee13f"},
-    "recovered_semantic": "creation-slot block replay; first independent Pump.fun buyer",
-    "rejection": "The recovered implementation persists raw provider responses and does not use the required paid Birdeye opening binding. Porting it as a Birdeye/no-raw adapter would invent semantics.",
+    "status": "NOT_FROZEN_GENUINE_FIXTURES_INSUFFICIENT",
+    "recovered_source": {"path": "scripts/run_byzantine_actual_entry_24h_backfill.py", "git_status": "untracked discovery evidence", "sha256": "5645ab3e23968deb7a0e8006263c413a21bbc09001bf3dcadf2a3df3141bd0c3"},
+    "recovered_semantic": "earliest bounded decoder-qualified post-create Pump.fun/PumpSwap trade, valued by one paid Birdeye containing 15-second MCAP candle close",
+    "contract": "docs/contracts/byzantine_actual_entry_opening.v1.json",
+    "rejection": "The compact control records retain outputs and request metadata but lack independently retained normalized candidate and candle inputs. Fabricating them from Entry MC would invent evidence.",
     "scenario_d_rejected": true
   },
   "nexus": {"present": false},

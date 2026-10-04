@@ -1,0 +1,20 @@
+{
+  "schema_version": "BYZANTINE_ACTUAL_ENTRY_FIXTURE_QUALIFICATION_V1",
+  "status": "HOLD_GENUINE_PROVIDER_FREE_FIXTURE_INPUTS_INSUFFICIENT",
+  "recovered_implementation_hash_verified": true,
+  "recovered_implementation_sha256": "5645ab3e23968deb7a0e8006263c413a21bbc09001bf3dcadf2a3df3141bd0c3",
+  "control_count": 9,
+  "control_set_changed": false,
+  "helius_fixture_input_recovery_attempted": true,
+  "birdeye_fixture_input_recovery_attempted": true,
+  "compact_fixture_source_search_complete": true,
+  "sources_searched": ["retained runtime byzantine_actual_entry_24h_ath_facts", "backfill and four-token compact audits", "tests and fixtures", "all reachable Git history", "accessible worktrees", "compact diagnostics"],
+  "synthetic_fixture_inputs_created": false,
+  "fixture_counts": {"full":0,"partial":0,"output_only":9},
+  "minimum_fixture_coverage_defined": true,
+  "minimum_coverage": ["post-create guard and ordered candidates", "Pump.fun and PumpSwap economic-trade decoder cases", "wrong-mint/pre-create/non-economic negatives", "containing candle selection", "no-candle, HTTP failure, and malformed candle fail-closed cases"],
+  "replay": {"executed":false,"control_parity_count":0,"control_mismatch_count":0,"reason":"No genuine normalized inputs are retained; output-derived candles or transactions are prohibited."},
+  "adapter": {"frozen":false,"name":"BYZANTINE_ACTUAL_ENTRY_V1","helius_bound_frozen":false,"max_helius_calls_per_token_documented":10,"max_birdeye_entry_calls_per_token":1,"legacy_birdeye_binding_used":false},
+  "registry": {"watchtower_adapter_preserved":true,"opening_adapter_registry_present":false,"provider_free_matrix_pass":false},
+  "safety": {"pepeinu_provider_calls":0,"helius_calls_made":0,"birdeye_calls_made":0,"other_provider_calls_made":0,"scenario_d_used":false,"helius_raw_block_path_selected":false,"legacy_provider_loop_reenabled":false,"legacy_monitoring_enabled":false,"raw_provider_payloads_retained":false,"raw_blocks_retained":false,"project_500mb_rule_preserved":true,"max_single_file_bytes":500000,"unbounded_growth_paths":0}
+}

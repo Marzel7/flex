@@ -1,0 +1,12 @@
+{
+  "schema_version": "BYZANTINE_ACTUAL_ENTRY_OPENING_V1",
+  "status": "NOT_FROZEN_FIXTURE_INPUTS_INSUFFICIENT",
+  "recovered_method": "BYZANTINE_ACTUAL_ENTRY_V1",
+  "coordinate_acquisition": "one known canonical create getTransaction, then one getSignaturesForAddress page(limit=100) and at most eight ascending post-create getTransaction decodes",
+  "max_helius_calls_per_token": 10,
+  "entry_valuation": {"provider":"BIRDEYE","endpoint":"/defi/v3/ohlcv","method":"GET","chain":"solana","type":"15s","chart_type":"mcap","currency":"usd","mode":"range","padding":"false","time_bounds":"actual entry timestamp -15 to +15","selection":"containing candle close c","max_birdeye_entry_calls_per_token":1},
+  "compact_persistence_only": ["create coordinate", "selected trade signature/slot/time", "entry timestamp", "entry MC", "request metadata", "qualification/provenance"],
+  "forbidden": ["Scenario-D", "Helius raw-block replay", "legacy provider loop", "raw provider payload retention", "raw block retention"],
+  "freeze_precondition": "independently retained normalized candidate-transaction and containing-candle fixture inputs replay exact controls provider-free",
+  "precondition_met": false
+}

@@ -17413,6 +17413,16 @@
     "runtime_deployment_gate": "HOLD",
     "next_action": "PROVIDE_OR_COMMIT_THE_EXISTING_CONCRETE_MANAGED_ADAPTER_EXECUTOR_AND_UNIVERSAL_HANDOFF_BINDINGS, THEN COMPLETE_MANAGED_RUNTIME_SIMULATION_AND_QUALIFY_A_SINGLE_DEPLOYABLE_SHA"
   },
+  "universal_managed_runtime_callable_recovery_20261004": {
+    "engineering_revision": "isolated codex/universal-assignment-managed-runtime at 70a22614f69a932d9d341e2eb4d41685b9950cf0; no new source changes in this recovery turn",
+    "status": "HOLD_CONCRETE_RUNTIME_CALLABLE_PROVENANCE_NOT_RECOVERED",
+    "finding": "History recovers the committed Watchtower evaluator src.ops.watchtower_first_available_mc.py at f797dd4231bc5d5eacc1e29ed10d16b5a4b7ec4e, but it is not in the 70a22614 isolated line. The requested Byzantine V2 callable cannot be recovered: the retained V2 qualification audit explicitly says byzantine_actual_entry_v2_qualified=false, pumpfun/pumpswap target guards unimplemented, positive replay=false, and V2 negative matrix=false. The only observable actual-entry runner is untracked in the shared checkout, depends on live Helius/Birdeye transport, and its classify_trade lacks event-level target-mint guarding. It is not trustworthy qualified V2 source. Universal monitor/QualifiedEntry bridge modules are likewise untracked in the shared checkout and not present in 70a22614. No callable was copied, recreated, or bound.",
+    "inventory": "Watchtower candidate: src.ops.watchtower_first_available_mc.py, provenance f797dd4231bc5d5eacc1e29ed10d16b5a4b7ec4e. Byzantine candidate: none qualified; shared scripts/run_byzantine_actual_entry_24h_backfill.py is untracked and provider-backed. Universal handoff candidate: shared src.ops/universal_monitor_runtime.py::enrol_qualified_forward_entry, untracked and unavailable in isolated provenance.",
+    "production_flags": "HELIUS_CALLS_MADE=0; BIRDEYE_CALLS_MADE=0; CANONICAL_DB_CHANGED=false; UNIVERSAL_DEV_DB_CHANGED=false; PEPEINU_MUTATED=false; MANAGED_RUNTIME_STARTED=false; DEPLOYMENT_ATTEMPTED=false; shared dirty checkout unchanged.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "RECOVER_OR_COMMIT_A_TRUSTWORTHY_QUALIFIED_BYZANTINE_ACTUAL_ENTRY_V2_CALLABLE_WITH_EVENT_MINT_GUARD_AND_A_PROVENANCED_UNIVERSAL_HANDOFF_CALLABLE; DO_NOT_REIMPLEMENT_FROM_CONTRACT"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

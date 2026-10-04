@@ -1,0 +1,21 @@
+{
+  "schema_version": "BYZANTINE_ACTUAL_ENTRY_V2_QUALIFICATION_V1",
+  "status": "HOLD_EVENT_LEVEL_TARGET_MINT_IDENTITY_NOT_AVAILABLE",
+  "v1_target_mint_gap_acknowledged": true,
+  "v1_semantics_rewritten": false,
+  "v2_version_created": true,
+  "non_mint_semantics_changed": false,
+  "event_level_target_mint_proof_defined": true,
+  "proof_definition": "A decoded economic event retains event_mint equal to target_mint, or records a deterministic event account uniquely mapped to target_mint.",
+  "pumpfun_target_mint_guard_implemented": false,
+  "pumpswap_target_mint_guard_implemented": false,
+  "unproven_event_mint_accepted": false,
+  "pepeinu_v2_provider_free_replay_executed": false,
+  "pepeinu_v2_positive_parity": false,
+  "reason": "The PEPEINU V1 fixture records only normalized candidate signature/slot/time/venue/event_type and normalized candles. It has no event_mint, token balance, bonding curve, or decoded event-account identity. Inferring event_mint from its target request or Entry MC would violate the V2 contract.",
+  "tests": {"wrong_mint_negative":false,"multi_event_target_selection":false,"no_target_event_fail_closed":false,"v2_negative_matrix":false,"determinism":false},
+  "bounds": {"v2_helius_bound_increased":false,"max_helius_calls_per_token":10,"v2_birdeye_bound_increased":false,"max_birdeye_entry_calls_per_token":1},
+  "byzantine_actual_entry_v2_qualified": false,
+  "historical_v1_facts_rewritten": false,
+  "safety": {"helius_calls_made":0,"birdeye_calls_made":0,"pepeinu_provider_recalled":false,"pepeinu_opening_qualified_v2":false,"pepeinu_universal_enrolled":false,"pepeinu_lifecycle_backfill_calls":0,"scenario_d_used":false,"legacy_provider_loop_reenabled":false,"legacy_monitoring_enabled":false,"raw_provider_payloads_retained":false,"raw_blocks_retained":false,"project_500mb_rule_preserved":true}
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": "BYZANTINE_ACTUAL_ENTRY_OPENING_V2",
+  "status": "NOT_IMPLEMENTED_EVENT_LEVEL_TARGET_MINT_IDENTITY_UNAVAILABLE",
+  "v1_reference": "docs/contracts/byzantine_actual_entry_opening.v1.json",
+  "version_delta_only": "A candidate economic event must carry an explicit event_mint equal to target_mint, or a deterministic event-account-to-mint mapping. Transaction-level target-mint address inclusion is insufficient.",
+  "pumpfun_guard": "decoded Pump.fun trade event mint == target_mint",
+  "pumpswap_guard": "decoded PumpSwap token-side/event account resolves uniquely to target_mint",
+  "fail_closed": "unproven event identity is not eligible",
+  "preserved_v1_semantics": ["bounded Helius acquisition", "post-create guard", "Pump.fun/PumpSwap economic-event requirement", "earliest qualifying selection", "one paid Birdeye 15s MCAP USD valuation request", "containing-candle close", "no raw payload retention"],
+  "provider_bounds": {"max_helius_calls_per_token":10,"max_birdeye_entry_calls_per_token":1},
+  "pepeinu_v2_evidence": "unavailable: compact V1 fixture has venue/event type but no decoded event mint, token balance, bonding curve, or event-account mapping",
+  "runtime_enabled": false
+}

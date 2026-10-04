@@ -17812,6 +17812,15 @@
     "safety":"Nexus paused; historical backfill=0; universal ledgered calls in incident=0; raw provider payloads=0; production/Supervisor unchanged.",
     "next_action":"IMPLEMENT_AND_QUALIFY_CANONICAL_ASSIGNMENT_TO_DEV_MONITOR_HISTORY_PROJECTION_WITHOUT_REENABLING_LEGACY_PROVIDER_DISPATCH"
   },
+  "universal_assignment_opening_bridge_20261004": {
+    "engineering_revision":"580508a70c80e7fc944e0069f85e67b851a117fa; isolated branch codex/canonical-assignment-opening-bridge",
+    "status":"HOLD_COMMITTED_BYZANTINE_OPENING_ADAPTER_NOT_RECOVERED",
+    "finding":"The canonical contract is recovered: project_completed_walkback writes confirmed_operation_matches then operator_launch_membership(event_id, operator_id, mint, assigned_at) inside the walkback transaction; walkback_worker's subsequent post-commit code only attempts a feature-gated legacy enqueue. The requested isolated baseline lacks committed operation_monitor_worker, monitor_live_admission, universal runtime, and declared Byzantine/Watchtower Opening adapters. The dirty shared MonitorWorker's Byzantine path requires Scenario-D evidence and is a legacy waiting path, not a committed, qualified bounded Birdeye Opening adapter. Creating PEPEINU opening work/acquisition would therefore invent policy and risk re-enabling the prohibited loop. No source/runtime/DB/provider change was made.",
+    "artifacts":["docs/contracts/universal_assignment_to_opening_bridge.v1.json","docs/audits/universal_assignment_to_opening_bridge_qualification.v1.json","docs/audits/pepeinu_assignment_monitor_recovery.v1.json"],
+    "runtime_deployment_required":false,
+    "safety":"Dedicated DEV branch/worktree created; Nexus paused; legacy monitoring remains OFF; Helius=0; Birdeye=0; raw payloads=0; production/Supervisor unchanged.",
+    "next_action":"SUPPLY_OR_COMMIT_THE_QUALIFIED_OPERATION_OPENING_ADAPTERS_AND_PROVIDER_FREE_FIXTURES"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

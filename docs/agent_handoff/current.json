@@ -17590,6 +17590,16 @@
     "runtime_deployment_reason": "Input-gate diagnosis only.",
     "next_action": "AUTHORIZE_AT_MOST_FIVE_HELIUS_GETTRANSACTION_CREATE_SLOT_LOOKUPS_OR_SUPPLY_RETAINED_CANONICAL_CREATE_SLOTS; OTHERWISE_FIRST_AVAILABLE_MUST_FAIL_CLOSED"
   },
+  "watchtower_first_available_bounded_recovery_20261004": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV data-only bounded recovery",
+    "status": "PARTIAL_FOUR_OPENINGS_QUALIFIED_PENIS_FAILED_CLOSED",
+    "finding": "Exactly four retained-create-signature Helius getTransaction calls recovered canonical slots, followed by exactly four fixed 30-second paid-BIRDEYE /defi/v3/token/txs First Available requests. HVTyr, Dkt6, 9S2ux, and F94bb qualified FIRST_AVAILABLE_SLOT entries. 5GWVz/PENIS failed closed without a provider call because no retained canonical create signature exists. No signature discovery, candidate-trade Helius lookup, block call, raw payload retention, historical-536 expansion, or legacy Birdeye binding occurred. Retained Monitor facts show HVTyr and 9S2ux live; Dkt6 and F94bb already PRICE_MONITOR_COMPLETE_COLLAPSED under existing Watchtower processing. The bounded port-8100 API check timed out, so UI parity is not yet claimed.",
+    "audit": "docs/audits/watchtower_first_available_recovery.v1.json",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Data-only bounded recovery; no executable runtime source or Supervisor configuration changed.",
+    "safety": "Helius=4 (getTransaction retained create signatures only); Birdeye=4; no raw payloads; no production/runtime/Supervisor change; no new storage path.",
+    "next_action": "VERIFY_PORT_8100_UI_PARITY_AND_RECONCILE_UNIVERSAL_ENROLMENT/LIFECYCLE_ONLY_WITHOUT_RETRYING_AMBIGUOUS_PROVIDER_CALLS"
+  },
   "universal_forward_first_token_observation_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; verification-only observation",
     "status": "WAITING_FOR_GENUINE_TOKEN",

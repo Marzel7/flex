@@ -17877,6 +17877,17 @@
     "safety":"Dedicated DEV branch/worktree retained; Nexus paused; legacy monitoring remains OFF; legacy Scenario-D and provider loop not invoked; validation Helius=3; paid Birdeye=1; raw payloads/blocks=0; PEPEINU lifecycle backfill=0; production/Supervisor unchanged.",
     "next_action":"DO_NOT_ENABLE_BYZANTINE_FORWARD_OPENING"
   },
+  "monitor_live_admission_source_recovery_20261004": {
+    "engineering_revision": "fc3b974448527173770dea4a185b372c872c97ed; audit only",
+    "status": "PASS_COMMITTED_WRITER_RECOVERED_OUTBOX_STILL_HOLD",
+    "finding": "Recovered exact committed monitor_live_admission.py from d3b2136ba526ab624fbe56e19b7440df7be2a99d on codex/dev005-monitor-runtime-reconciliation, SHA-256 7a4d9a309598d8af163c6f147a268a6046771524ea7677f55404199536a87d55. commit_membership_and_outbox is caller-transaction-owned and inserts canonical membership then monitor_admission_outbox. Existing monitor_admission_outbox is a legacy downstream MonitorQueue bridge ordered by committed_at,event_id, not the requested monotonic canonical membership outbox; it covers only that writer and cannot be reused as the new forward authority.",
+    "artifact": "docs/audits/monitor_live_admission_source_recovery.v1.json",
+    "source_recreated_from_memory": false,
+    "dirty_source_treated_as_prequalified": false,
+    "port_status": "NOT_PORTED_YET",
+    "blocker": "The full same-transaction canonical outbox must still cover all four writers. Porting only this old bridge before its replacement/integration plan is qualified would be a misleading partial implementation.",
+    "next_action": "Authorize a precise all-writer source reconciliation and canonical outbox implementation using the recovered committed writer as the monitor-live-admission baseline."
+  },
   "canonical_membership_outbox_qualification_20261004": {
     "engineering_revision": "55ffcd64bb75835ecfa6c370d89372851c8cc29a on codex/canonical-assignment-opening-bridge; audit only",
     "status": "HOLD_MEMBERSHIP_WRITER_OUTBOX_ATOMICITY_INCOMPLETE",

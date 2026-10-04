@@ -30,6 +30,31 @@ def seed_operator(path, operator_id, name, status="CONFIRMED"):
 def lifecycle(tmp_path):
     path = tmp_path / "operators.db"
     OperatorWriter(str(path)).initialize_schema()
+    # OperatorReader's current detail projection reads this optional profile
+    # ledger before evaluating lifecycle state.  These lifecycle fixtures do
+    # not exercise profile facts, so an empty read-schema table is sufficient.
+    with sqlite3.connect(path) as conn:
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS operation_qualification_contracts ("
+            "operator_id TEXT, qualification_category TEXT, automation_eligibility TEXT, "
+            "detector_version TEXT, parent_mechanism TEXT, source_candidate_id TEXT, "
+            "benchmark_json TEXT, created_at INTEGER)"
+        )
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS wt_walkback_queue ("
+            "mint TEXT PRIMARY KEY, creator TEXT, create_anchor_block_time INTEGER, "
+            "funder_block_time INTEGER, completed_at INTEGER, treasury TEXT, subprov TEXT, "
+            "funder_sig TEXT, funding_mechanism TEXT, status TEXT, funder_wallet TEXT)"
+        )
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(operation_behavioural_profiles)")}
+        for name, definition in (
+            ("source_candidate_id", "TEXT"), ("profile_version", "INTEGER"),
+            ("status", "TEXT"), ("provenance_json", "TEXT"),
+            ("member_mints_json", "TEXT"), ("reviewed_at", "INTEGER"),
+            ("reviewer", "TEXT"),
+        ):
+            if name not in columns:
+                conn.execute(f"ALTER TABLE operation_behavioural_profiles ADD COLUMN {name} {definition}")
     seed_operator(path, "watchtower", "WATCHTOWER")
     seed_operator(path, "three-sw2", "3SW2")
     service = OperatorIdentityGovernanceService(str(path))

@@ -17661,6 +17661,16 @@
     "safety": "HELIUS=0; BIRDEYE=0; global work=0; durable ledger calls=0; raw payload retention=false; production/Supervisor/trading unchanged; continuous scheduling disabled.",
     "next_action": "ENABLE_CONTINUOUS_POLICY_C_PRICE_MONITORING_AND_WIRE_NEW_OPERATION_ASSIGNMENTS_TO_EXISTING_OPENING_PATH"
   },
+  "watchtower_named_missing_entry_recovery_20261004": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV data-only bounded recovery script",
+    "status": "HOLD_NO_CANONICAL_CREATE_IN_FIRST_BOUNDED_DISCOVERY_DEPTH",
+    "finding": "User approved named recovery for PENIS/5GWVz and CATFLIX/95WF7,FhTz. Two bounded, non-paginated Helius discovery passes were executed. Each pass made exactly one getSignaturesForAddress page (limit 100) per mint. The first decoded the oldest transaction; the second decoded the five oldest transactions per mint. No decoded transaction verified both mint identity and a Create instruction, so all three entries correctly remain unqualified. Birdeye opening calls=0 and no monitor facts were altered.",
+    "audit": "docs/audits/watchtower_named_first_available_recovery.v1.json",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Data-only recovery script; no runtime executable, Supervisor, or UI source change.",
+    "safety": "Helius signature pages=6 total; Helius transaction checks=18 total; Birdeye=0; pagination=false; raw provider payload retention=false; max audit file=500000 bytes; unbounded growth paths=0; historical-536 expansion=false; universal dispatcher remains stopped.",
+    "next_action": "REQUEST_EXPLICIT_AUTHORIZATION_FOR_A_DEEPER_BUT_STILL_CAPPED_CANONICAL_CREATE_SIGNATURE_SEARCH_OR_KEEP_THE_THREE_ROWS_FAIL_CLOSED"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

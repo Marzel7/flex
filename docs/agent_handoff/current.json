@@ -17546,6 +17546,16 @@
     "safety": "Read projection/template only; provider/monitor/entry/peak/terminal/budget/dispatcher semantics unchanged; Helius=0; Birdeye=0; production/Supervisor/trading unchanged.",
     "next_action": "DO_NOT_BACKFILL_HISTORICAL_GAPS_UNLESS_SEPARATELY_AUTHORIZED"
   },
+  "universal_forward_monitor_zero_birdeye_incident_20261004": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; diagnosis only",
+    "status": "FAIL_FORWARD_PRICE_PIPELINE_BROKEN_BOUNDARY_IDENTIFIED",
+    "finding": "Incident window 2026-10-03T15:00:00Z through 2026-10-04T08:19:40Z contains nine genuine operation assignments. Five Watchtower assignments reached the opening authority but all remain WAITING_FOR_ENTRY_REFERENCE with retained HTTP_NON_200 evidence status; qualified openings=0. Four others did not reach opening. Consequently enrolment/work/budget/claim/price facts/ledger calls are all zero and no Policy-C Birdeye price call was expected. The managed dispatcher is STOPPED with a zero-byte log, which is a separate health defect, but C_OPENING_NOT_QUALIFYING is the first broken boundary for genuine assignments.",
+    "audit": "docs/audits/universal_forward_monitor_zero_birdeye_incident.v1.json",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Diagnosis only; no runtime component was restarted or modified.",
+    "safety": "Provider calls=0; no network probe; historical work paused; blind restarts=0; production/Supervisor/trading unchanged.",
+    "next_action": "AUTHORIZE_MINIMUM_DEV_ONLY_FIX_FOR_PROVEN_OPENING_HTTP_NON_200_BOUNDARY_THEN_RECHECK_DISPATCHER_HEALTH"
+  },
   "universal_forward_first_token_observation_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; verification-only observation",
     "status": "WAITING_FOR_GENUINE_TOKEN",

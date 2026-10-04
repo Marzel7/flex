@@ -17813,13 +17813,14 @@
     "next_action":"IMPLEMENT_AND_QUALIFY_CANONICAL_ASSIGNMENT_TO_DEV_MONITOR_HISTORY_PROJECTION_WITHOUT_REENABLING_LEGACY_PROVIDER_DISPATCH"
   },
   "universal_assignment_opening_bridge_20261004": {
-    "engineering_revision":"580508a70c80e7fc944e0069f85e67b851a117fa; isolated branch codex/canonical-assignment-opening-bridge",
-    "status":"HOLD_COMMITTED_BYZANTINE_OPENING_ADAPTER_NOT_RECOVERED",
-    "finding":"The canonical contract is recovered: project_completed_walkback writes confirmed_operation_matches then operator_launch_membership(event_id, operator_id, mint, assigned_at) inside the walkback transaction; walkback_worker's subsequent post-commit code only attempts a feature-gated legacy enqueue. The requested isolated baseline lacks committed operation_monitor_worker, monitor_live_admission, universal runtime, and declared Byzantine/Watchtower Opening adapters. The dirty shared MonitorWorker's Byzantine path requires Scenario-D evidence and is a legacy waiting path, not a committed, qualified bounded Birdeye Opening adapter. Creating PEPEINU opening work/acquisition would therefore invent policy and risk re-enabling the prohibited loop. No source/runtime/DB/provider change was made.",
-    "artifacts":["docs/contracts/universal_assignment_to_opening_bridge.v1.json","docs/audits/universal_assignment_to_opening_bridge_qualification.v1.json","docs/audits/pepeinu_assignment_monitor_recovery.v1.json"],
+    "engineering_revision":"580508a70c80e7fc944e0069f85e67b851a117fa; isolated recovery evidence commit 663371213cee8191f58e4075687ef89d92eb1f86 on codex/canonical-assignment-opening-bridge",
+    "status":"HOLD_BYZANTINE_OPENING_ADAPTER_PROVENANCE_NOT_RECOVERED",
+    "finding":"Recovery found a committed Watchtower FIRST_AVAILABLE reducer at f797dd4231bc5d5eacc1e29ed10d16b5a4b7ec4e and four authoritative DEV controls ($172234, $167954, $108285, $166730); its nine injected provider-free tests pass. It also found a committed Byzantine creation-slot block replay authority, but that implementation persists raw provider responses and uses Helius getTransaction/getBlock rather than the required paid Birdeye opening binding. The current dirty Byzantine Monitor entry source is Scenario-D-only and is rejected. Freezing either as a no-raw paid-Birdeye adapter would change/invent semantics. No registry, bridge, PEPEINU work, provider call, database, runtime, production, or Supervisor change was made.",
+    "artifacts":["docs/contracts/universal_assignment_to_opening_bridge.v1.json","docs/audits/universal_assignment_to_opening_bridge_qualification.v1.json","docs/audits/pepeinu_assignment_monitor_recovery.v1.json","docs/contracts/universal_operation_opening_adapters.v1.json","docs/audits/watchtower_opening_adapter_recovery.v1.json","docs/audits/byzantine_opening_adapter_recovery.v1.json","docs/audits/universal_opening_adapter_matrix.v1.json"],
     "runtime_deployment_required":false,
-    "safety":"Dedicated DEV branch/worktree created; Nexus paused; legacy monitoring remains OFF; Helius=0; Birdeye=0; raw payloads=0; production/Supervisor unchanged.",
-    "next_action":"SUPPLY_OR_COMMIT_THE_QUALIFIED_OPERATION_OPENING_ADAPTERS_AND_PROVIDER_FREE_FIXTURES"
+    "runtime_deployment_reason":"Recovery/audit-only; an adapter registry and executable bridge were deliberately not created because the Byzantine provenance threshold failed.",
+    "safety":"Dedicated DEV branch/worktree retained; Nexus paused; legacy monitoring remains OFF; legacy Scenario-D and provider loop not invoked; Helius=0; Birdeye=0; raw payloads retained by this recovery=0; production/Supervisor unchanged.",
+    "next_action":"RECOVER_SPECIFIC_BYZANTINE_SUCCESS_CONTROL_SOURCE_WITHOUT_USING_LEGACY_SCENARIO_D"
   },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",

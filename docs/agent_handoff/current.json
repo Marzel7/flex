@@ -17536,15 +17536,15 @@
   },
   "operations_intelligence_live_history_reconciliation_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV read-projection/template only",
-    "status": "PARTIAL_EVIDENCE_CENSUS_CONTINUATION",
-    "finding": "The authoritative primary placement now uses retained MONITORING_ACTIVE state only, not a missing-terminal presentation fallback. A provider-free retained-evidence census found 624 eligible operation rows: 88 with qualified opening, 536 currently entry-missing, and 68 with retained peak/running-peak evidence. The concrete false-negative was corrected: Watchtower lifecycle/peak records now merge independently of First Available Entry, so ATH display does not require Entry.",
-    "audit": "docs/audits/operations_intelligence_live_history_reconciliation.v1.json; docs/audits/operations_intelligence_retained_value_reconciliation.v1.json; docs/audits/operations_intelligence_retained_evidence_census.v1.json",
+    "status": "PASS_GENUINE_HISTORICAL_OPENING_GAPS_QUANTIFIED",
+    "finding": "The complete provider-free census frozen at 624 eligible rows classifies openings as A=88 already connected, B=0 stranded qualified source, C=0 unqualified retained source, D=536 no retained opening evidence, E=0 ambiguous. The 536 Entry-missing KPI therefore represents genuine gaps in the currently runtime-accessible retained opening sources. Evidence arithmetic: opening+peak=68, opening-only=20, peak-only=0, neither=536. Watchtower lifecycle/peak remains independently displayable from Entry.",
+    "audit": "docs/audits/operations_intelligence_live_history_reconciliation.v1.json; docs/audits/operations_intelligence_retained_value_reconciliation.v1.json; docs/audits/operations_intelligence_retained_evidence_census.v1.json; docs/audits/operations_intelligence_full_retained_evidence_census.v1.json",
     "tests": "12 focused tests passed, 0 failed after independent Entry/Peak regression coverage.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS",
     "runtime": "Managed port-8100 reload PID 73418 -> 93804; /api/operations/live-monitor HTTP 200 returned 624 rows after independent Entry/Peak repair.",
     "safety": "Read projection/template only; provider/monitor/entry/peak/terminal/budget/dispatcher semantics unchanged; Helius=0; Birdeye=0; production/Supervisor/trading unchanged.",
-    "next_action": "COMPLETE_TOKEN_LEVEL_CENSUS_ARTIFACT_AND_SETTLED_BROWSER_VISUAL_QA"
+    "next_action": "DO_NOT_BACKFILL_HISTORICAL_GAPS_UNLESS_SEPARATELY_AUTHORIZED"
   },
   "universal_forward_first_token_observation_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; verification-only observation",

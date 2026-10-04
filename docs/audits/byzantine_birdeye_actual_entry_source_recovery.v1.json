@@ -1,0 +1,61 @@
+{
+  "schema_version": "BYZANTINE_BIRDEYE_ACTUAL_ENTRY_SOURCE_RECOVERY_V1",
+  "status": "PARTIAL_IMPLEMENTATION_RECOVERED_FIXTURES_MISSING",
+  "search": {
+    "committed_history_search_complete": true,
+    "worktree_search_complete": true,
+    "byzantine_success_audits_searched": true,
+    "handoff_history_search_complete": true,
+    "scope": "all reachable refs, accessible Flex worktrees/checkouts, docs/audits, docs/contracts, and agent-handoff history"
+  },
+  "recovered_implementation": {
+    "path": "scripts/run_byzantine_actual_entry_24h_backfill.py",
+    "git_status": "untracked working-tree discovery evidence",
+    "sha256": "5645ab3e23968deb7a0e8006263c413a21bbc09001bf3dcadf2a3df3141bd0c3",
+    "accepted_as_prequalified": false,
+    "role": "actual-entry coordinate discovery plus compact Entry-MCAP and later ATH acquisition",
+    "related_persistence_path": "scripts/persist_byzantine_actual_entry_dev.py",
+    "control_audits": ["docs/audits/byzantine_actual_entry_24h_ath_backfill.v1.json", "docs/audits/byzantine_four_token_success_path_replay.v1.json"],
+    "handoff_commits": ["8b766a365693671ec6fe1e46875d0e01e51b7fe3", "4746ba443874698b31dd91b24d4b6315f0c0b0b7", "4746ba443874698b31dd91b24d4b6315f0c0b0b7"]
+  },
+  "entry_and_ath_are_separate": true,
+  "actual_entry_coordinate": {
+    "provider": "HELIUS_JSON_RPC",
+    "method": "getSignaturesForAddress limit=100 followed by ascending post-create candidates and at most eight getTransaction decodes",
+    "selection": "earliest decoder-qualified post-create Pump.fun/PumpSwap economic BUY or SELL",
+    "not_selected": "raw block replay",
+    "scenario_d_used": false
+  },
+  "entry_mc": {
+    "provider": "BIRDEYE_PAID",
+    "endpoint": "/defi/v3/ohlcv",
+    "method": "GET",
+    "headers": {"x-chain": "solana", "accept": "application/json", "X-API-KEY": "BIRDEYE paid binding; secret excluded"},
+    "parameters": {"type": "15s", "chart_type": "mcap", "currency": "usd", "mode": "range", "padding": "false", "time_from": "actual_entry_timestamp - 15", "time_to": "actual_entry_timestamp + 15"},
+    "selection": "containing 15-second candle where timestamp <= actual entry < timestamp + 15; nearest point only if no containing point",
+    "reduction": "candle.c as Entry MC USD",
+    "qualification": "decoder-qualified actual trade plus at least one normalized candle",
+    "failure": "ACTUAL_ENTRY_NOT_FOUND_WITHIN_BOUND or ENTRY_MCAP_NOT_AVAILABLE"
+  },
+  "ath": {
+    "provider": "BIRDEYE_PAID",
+    "separate_from_entry": true,
+    "method": "post-containing-candle 15-second MCAP requests through 2h/6h/12h/24h; candle.h maximum",
+    "not_used_to_infer_entry": true
+  },
+  "controls": [
+    {"ticker": "Nika", "mint": "8BCRMBPDPpimvwszDxw74AMueAgyrpiMTuWHpVK7pump", "entry_mc_usd": 2580.000580426237, "entry_timestamp": 1789574012},
+    {"ticker": "KING", "mint": "2pNKkrgWhxSy9gA7AH767aAAiYpP4FkoQ37YpAewpump", "entry_mc_usd": 7584.309859459663, "entry_timestamp": 1789806225},
+    {"ticker": "PYRAMID", "mint": "DwJ5cdKdBeBjHNhjFjFAeb7DqYmWK7Jj4LzzbFUdpump", "entry_mc_usd": 2283.959497810048, "entry_timestamp": 1789844798},
+    {"ticker": "MeiMei", "mint": "4cFAGsZ1x7cHMgGvMAq9xfUFLCro5m1MjHcWCGPHpump", "entry_mc_usd": 2535.392262010755, "entry_timestamp": 1789891001},
+    {"ticker": "Takopi", "mint": "DQEpFPwvj7RrLt1SUWWCnyzce62S3P1WJZFj4aKFpump", "entry_mc_usd": 3055.4435951305622, "entry_timestamp": 1790019203},
+    {"ticker": "Tempura", "mint": "4epQ7U9qHpiaUbojDz5UPKdWx5Req74QsuvBjfFxpump", "entry_mc_usd": 2831.5934632466497, "entry_timestamp": 1790059367},
+    {"ticker": "BRIM", "mint": "8qycqFhWKkFeFzK5TLmsvwa19yFu9c4f7acPFe3Xpump", "entry_mc_usd": 2758.9143151055264, "entry_timestamp": 1790077977},
+    {"ticker": "SOL", "mint": "8EJ1qnTyiEVXkMgXhBdfKLktJc7BcaSHfDti3gBDpump", "entry_mc_usd": 2856.600755040328, "entry_timestamp": 1790101319},
+    {"ticker": "PHOSPHOR", "mint": "AcZx2dcryYz5b8xhn9xhWc2ue4RTHro26ve8vbiDpump", "entry_mc_usd": 7770.818948724881, "entry_timestamp": 1790237643}
+  ],
+  "retained_fact_producer_metadata_inspected": true,
+  "fixtures": {"recovered": false, "reason": "retained coverage_json preserves request identity/count/boundaries and the reduced Entry MC, but no normalized entry-candle c input or bounded candidate transaction fixture sufficient to execute the source provider-free"},
+  "parity": {"control_count": 9, "control_parity_count": 0, "control_mismatch_count": 0, "not_executed_reason": "no deterministic input fixtures; no implementation change was made to force parity"},
+  "safety": {"helius_calls_made": 0, "birdeye_calls_made": 0, "other_provider_calls_made": 0, "runtime_changed": false, "legacy_monitoring_enabled": false, "universal_monitor_changed": false, "raw_blocks_copied": false, "raw_provider_payloads_retained": false, "project_500mb_rule_preserved": true, "max_single_file_bytes": 500000, "unbounded_growth_paths": 0}
+}

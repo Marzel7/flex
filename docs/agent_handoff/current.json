@@ -17600,6 +17600,15 @@
     "safety": "Helius=4 (getTransaction retained create signatures only); Birdeye=4; no raw payloads; no production/runtime/Supervisor change; no new storage path.",
     "next_action": "VERIFY_PORT_8100_UI_PARITY_AND_RECONCILE_UNIVERSAL_ENROLMENT/LIFECYCLE_ONLY_WITHOUT_RETRYING_AMBIGUOUS_PROVIDER_CALLS"
   },
+  "universal_recovered_watchtower_lifecycle_20261004": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV universal enrolment and bounded dispatcher observation",
+    "status": "HOLD_THREE_NEW_AMBIGUOUS_LIFECYCLE_CALLS",
+    "finding": "All four qualified Watchtower entries are now UNIVERSAL-owned. HVTyr, Dkt6, and 9S2ux were in horizon and received one new leased durable lifecycle item each; F94bb is beyond Entry+24h and was right-censored without a post-horizon provider call. The dispatcher issued no committed price facts: each of the three new work items stopped at durable CRASH_AFTER_CALL_START / AMBIGUOUS_PROVIDER_CALL. Dispatcher was stopped immediately; no ambiguous ID was retried. Ownership=4, work=3, price facts=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "safety": "Opening reacquisition=0; Helius=0; lifecycle ledger records=3; unledgered calls=0; historical-536/PENIS/production/Supervisor unchanged; raw payloads=false.",
+    "next_action": "RECONCILE_THE_THREE_NEW_AMBIGUOUS_PROVIDER_CALLS_BEFORE_RESTARTING_PERSISTENT_DISPATCHER_OR_ACQUIRING_ANY_LIFECYCLE_RETRY"
+  },
   "universal_forward_first_token_observation_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; verification-only observation",
     "status": "WAITING_FOR_GENUINE_TOKEN",

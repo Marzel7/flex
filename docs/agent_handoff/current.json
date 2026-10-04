@@ -17663,13 +17663,13 @@
   },
   "watchtower_named_missing_entry_recovery_20261004": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV data-only bounded recovery script",
-    "status": "HOLD_NO_CANONICAL_CREATE_IN_FIRST_BOUNDED_DISCOVERY_DEPTH",
-    "finding": "User approved named recovery for PENIS/5GWVz and CATFLIX/95WF7,FhTz. Two bounded, non-paginated Helius discovery passes were executed. Each pass made exactly one getSignaturesForAddress page (limit 100) per mint. The first decoded the oldest transaction; the second decoded the five oldest transactions per mint. No decoded transaction verified both mint identity and a Create instruction, so all three entries correctly remain unqualified. Birdeye opening calls=0 and no monitor facts were altered.",
+    "status": "HOLD_NO_CANONICAL_CREATE_IN_APPROVED_CAPPED_DISCOVERY",
+    "finding": "User approved named recovery for PENIS/5GWVz and CATFLIX/95WF7,FhTz, including a deeper capped signature search. The final pass used exactly three non-paginated getSignaturesForAddress pages (limit 100) and eight oldest getTransaction checks per page for each mint: 9 signature pages and 72 transaction checks. No decoded transaction verified both mint identity and a Create instruction, so all three entries correctly remain unqualified. Birdeye opening calls=0 and no monitor facts were altered.",
     "audit": "docs/audits/watchtower_named_first_available_recovery.v1.json",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Data-only recovery script; no runtime executable, Supervisor, or UI source change.",
-    "safety": "Helius signature pages=6 total; Helius transaction checks=18 total; Birdeye=0; pagination=false; raw provider payload retention=false; max audit file=500000 bytes; unbounded growth paths=0; historical-536 expansion=false; universal dispatcher remains stopped.",
-    "next_action": "REQUEST_EXPLICIT_AUTHORIZATION_FOR_A_DEEPER_BUT_STILL_CAPPED_CANONICAL_CREATE_SIGNATURE_SEARCH_OR_KEEP_THE_THREE_ROWS_FAIL_CLOSED"
+    "safety": "Final capped pass: Helius signature pages=9; Helius transaction checks=72; Birdeye=0; pagination=false; raw provider payload retention=false; max audit file=500000 bytes; unbounded growth paths=0; historical-536 expansion=false; universal dispatcher remains stopped.",
+    "next_action": "KEEP_THE_THREE_ROWS_FAIL_CLOSED_UNLESS_A_NEW_AUTHORIZATION_PERMITS_A_DIFFERENT_CANONICAL_CREATE_EVIDENCE_SOURCE_OR_A_LARGER_SEARCH_SCOPE"
   },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",

@@ -17609,6 +17609,14 @@
     "safety": "Opening reacquisition=0; Helius=0; lifecycle ledger records=3; unledgered calls=0; historical-536/PENIS/production/Supervisor unchanged; raw payloads=false.",
     "next_action": "RECONCILE_THE_THREE_NEW_AMBIGUOUS_PROVIDER_CALLS_BEFORE_RESTARTING_PERSISTENT_DISPATCHER_OR_ACQUIRING_ANY_LIFECYCLE_RETRY"
   },
+  "watchtower_additional_missing_entry_scope_20261004": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; read-only scope classification",
+    "status": "HOLD_OUTSIDE_AUTHORIZED_TARGET_SET",
+    "finding": "PENIS/5GWVz remains inside the recent period but lacks a retained canonical create signature and was explicitly fail-closed under the five-target First Available authorization. CATFLIX/95WF7 and CATFLIX/FhTz are approximately 39 hours old and outside both the five named targets and the earlier 24-hour incident scope. No provider call, signature discovery, data, UI, runtime, or production change was made.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only scope classification.",
+    "next_action": "AUTHORIZE_A_NEW_NAMED_WATCHTOWER_RECOVERY_SCOPE_AND_STATE_Whether_RETAINED_CREATE_SIGNATURE_DISCOVERY_IS_PERMITTED_FOR_PENIS"
+  },
   "universal_forward_first_token_observation_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; verification-only observation",
     "status": "WAITING_FOR_GENUINE_TOKEN",

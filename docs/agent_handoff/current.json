@@ -17793,14 +17793,14 @@
     "next_action": "DEFINE_MINIMUM_FORWARD_EVIDENCE_ACQUISITION_FOR_MISSING_V1_FAMILIES"
   },
   "operations_walkback_coverage_cards_restore_20261004": {
-    "engineering_revision":"580508a70c80e7fc944e0069f85e67b851a117fa; read-only historical UI recovery",
-    "status":"HOLD_PREVIOUS_CARD_SEMANTICS_CONFLICT_WITH_REQUESTED_TOTAL_LABELS",
-    "finding":"Recovered commit ec9def96 shows the prior Operations cards were a 24-hour completed-Walkback mint partition: distinct q.mint where status=complete and completed_at>=cutoff; confirmed coverage is canonical membership plus deduplicated Byzantine/Nexus qualified telemetry, potential excludes that covered union, and CEX/unknown are sequential remainder buckets. The prior UI has no all-time TOTAL WALKBACK TOKENS card or established/potential/remainder trio. Replacing its 24h denominator with all-time values would create a new semantic, contrary to the instruction not to invent counts. No UI or runtime change was made.",
+    "engineering_revision":"580508a70c80e7fc944e0069f85e67b851a117fa; UI template working-tree deployment",
+    "status":"PASS",
+    "finding":"Restored the recovered 24-hour completed-Walkback mint partition without changing its authority: 1,368 distinct completed mints; confirmed coverage 24 (1.8%), potential 43 (3.1%), CEX/infrastructure 203 (14.8%), and unknown/unattributed 1,098 (80.3%); duplicate canonical mints=0. Port 8100 browser acceptance confirmed the five cards before a simplified three-row Operations table (Byzantine, Watchtower, Nexus), with Status/Monitor omitted and the Nexus metric clarification retained.",
     "audit":"docs/audits/operations_walkback_coverage_cards_restore.v1.json",
-    "runtime_deployment_required":false,
-    "runtime_deployment_reason":"Historical recovery only; semantic choice required before UI modification.",
-    "safety":"UI provider calls=0; Helius=0; Birdeye=0; membership/attribution/monitoring/runtime/production/Supervisor unchanged.",
-    "next_action":"CHOOSE_24H_RECOVERED_COVERAGE_OR_AUTHORIZE_AN_ALL_TIME_WALKBACK_COVERAGE_SEMANTIC"
+    "runtime_deployment_required":true,
+    "runtime_deployment":"watchtower_api restarted; post-restart PID=98709; browser-verified at http://127.0.0.1:8100/intelligence/operators.",
+    "safety":"UI provider calls=0; Helius=0; Birdeye=0; membership/attribution/monitoring/production unchanged; only DEV watchtower_api was restarted to load the template.",
+    "next_action":"WAIT_FOR_NEXT_UI_OR_READ_PROJECTION_REQUEST"
   },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",

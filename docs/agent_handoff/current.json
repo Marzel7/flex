@@ -17757,6 +17757,18 @@
     "safety": "Helius=0; Birdeye=0; other provider=0; strict-window ledger calls=0; unledgered=0; opening suppression=false; raw payloads=false; audit cap=500000 bytes; unbounded growth paths=0; production/Supervisor unchanged.",
     "next_action": "PRESERVE_THE_FIVE_AMBIGUOUS_RECORDS_AND_REQUIRE_DURABLE_CALLER_PROVENANCE_BEFORE_ANY_DISPATCHER_RESTART"
   },
+  "universal_dispatcher_caller_provenance_restart_acceptance_20261004": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV-only uncommitted caller-provenance and live-guard enforcement",
+    "status": "PASS_ZERO_LIVE_ZERO_LIFECYCLE_CALLS_WITH_DURABLE_PROVENANCE",
+    "finding": "The managed standalone DEV universal dispatcher was started through scripts/universal_provider_dispatcher_control.py after a 26-test provider-free qualification. PID=81238, instance=8fa5c16e874b63594ad6a9592bfe7f8b60c83a3209c59055c828cce5d1bc5f2a, start=1791110438, source HEAD=580508a70c80e7fc944e0069f85e67b851a117fa, and authority=/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db. Startup commits the instance record. Every future universal Birdeye ledger plan requires and stores instance, role, PID, start time, HEAD, authority database, work ID, and call ID before PROVIDER_CALL_STARTED/transport. The five historical ambiguous calls were not rewritten or retried and retain unknown historical caller provenance. Port 8100 and dispatcher use the same DEV authority. Four five-second scans froze LIVE=0 and ledgered lifecycle calls=0; opening calls=0. The guard still requires qualified, unexpired MONITORING_ACTIVE noncompleted facts for lifecycle work, while non-lifecycle Opening remains independent.",
+    "audit": "docs/audits/universal_dispatcher_caller_provenance_restart_acceptance.v1.json",
+    "tests": "26 focused tests passed, 0 failed.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "runtime": "Target=/Users/kevinkeaveney/Dev/claude/flex; managed DEV dispatcher STOPPED -> RUNNING PID 81238; code head and shared authority verified; four bounded scans accepted with zero lifecycle calls.",
+    "safety": "Helius=0; Birdeye=0; unledgered=0; duplicate=0; provider calls inside DB transaction=0; ambiguous auto-retry=false; historical backfill=false; raw payloads=false; audit cap=500000 bytes; unbounded growth paths=0; production/Supervisor unchanged.",
+    "next_action": "WAIT_FOR_NEXT_CANONICAL_ASSIGNMENT_AND_VERIFY_OPENING_TO_LIVE"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

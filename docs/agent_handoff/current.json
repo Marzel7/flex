@@ -17548,14 +17548,14 @@
   },
   "universal_forward_monitor_zero_birdeye_incident_20261004": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; pinned DEV runtime closure patched in place",
-    "status": "PARTIAL_BIRDEYE_BINDING_RECOVERED",
+    "status": "HOLD_LAST24H_PRICE_RECOVERY_AMBIGUOUS_CALLS",
     "finding": "The legacy pinned Supervisor launcher required BIRDEYE_KKHOT and exported it as BIRDEYE_API_KEY; its worker also recorded that alias. The actual runtime closure now resolves and exports only BIRDEYE, with legacy alias paths removed. Focused workspace binding/worker tests passed 29/29 and the exact target passed compile and non-secret BIRDEYE identity checks. Controlled worker restart PID 3807 produced a genuine HRkvXs qualified opening, while HVTyr returned HTTP 200 then failed closed only because the exact migration-second candle is absent. Three retained assignments await their normal bounded cadence. The dispatcher was then started as PID 4856; immediate work/price/budget readback is zero.",
     "audit": "docs/audits/universal_forward_monitor_zero_birdeye_incident.v1.json; docs/audits/universal_forward_opening_http_failure.v1.json; docs/audits/universal_forward_pipeline_recovery.v1.json; docs/audits/universal_provider_dispatcher_recovery.v1.json",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS",
     "runtime": "Actual target /Users/kevinkeaveney/.codex/worktrees/dev005-runtime-b4/flex; worker closure SHA-256 token_data_provider_bindings=1d1be18f8d2f402dc1b4c690d2fc5bb9f7dc5cf2dea37e00636022361be5d4ed, operation_monitor_service=f5a470966ed51a299b07e2dc67450a66ddc2a7956669f9a29da4f40055859fba, operation_monitor_worker=cc3f56955c3c94a7bd0d5c30c08259bc6c0a8818931436d777ef008110a4050c, launcher=fc0894f7a36b7ec68ed7447a7f989beaf029fa95c4b17af48ef17a24b15b600d; Supervisor restart completed; PID 3807 RUNNING; dispatcher PID 4856 RUNNING.",
     "safety": "No synthetic token, historical backfill, raw provider payload, production, or trading change. Existing five genuine assignments only; dispatcher started only after one genuine qualified opening. Runtime emits bounded queue records; no new unbounded storage path.",
-    "next_action": "OBSERVE_THE_REMAINING_THREE_RETAINED_PENDING_ASSIGNMENTS_ON_THEIR_EXISTING_BOUNDED_RETRY_CADENCE"
+    "next_action": "RECONCILE_THE_TWO_DURABLE_AMBIGUOUS_MARKET_WINDOW_CALLS_WITHOUT_RETRYING_OR_EXPANDING_THE_24H_SCOPE"
   },
   "universal_forward_first_token_observation_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; verification-only observation",

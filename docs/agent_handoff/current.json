@@ -17877,6 +17877,17 @@
     "safety":"Dedicated DEV branch/worktree retained; Nexus paused; legacy monitoring remains OFF; legacy Scenario-D and provider loop not invoked; validation Helius=3; paid Birdeye=1; raw payloads/blocks=0; PEPEINU lifecycle backfill=0; production/Supervisor unchanged.",
     "next_action":"DO_NOT_ENABLE_BYZANTINE_FORWARD_OPENING"
   },
+  "universal_assignment_runtime_composition_20261004": {
+    "engineering_revision": "0fefddef877a2e2654a88f36f37fdcfc66321e7e inspected only; no implementation change",
+    "status": "HOLD_CANONICAL_EVENT_AUTHORITY_MISMATCH",
+    "finding": "The user-specified canonical authority database/wt_ops_v2.db opens read-only and its operator_launch_assignment_history schema is authoritative/immutable, but it contains 27 rows and zero rows for PEPEINU mint Ah7xh8F2auwkZWh1KHDEjwuabdhKKJt2sCxqBH8mpump or event 264b63c1-6b6f-56d5-a0e7-36e331167fd5. The table columns are assignment_id, mint, from_operator_id, to_operator_id, timestamp, analyst, evidence_revision, reason, event_id; it has no operation identity. The designated destination DEV DB has no operator_launch_assignment_history table. Therefore the exact required reader mapping and PEPEINU mapping control cannot be implemented without inferring absent data or selecting a different canonical authority, both prohibited by the task.",
+    "read_only_evidence": "canonical query_only inspection only; no provider calls; destination schema/data unchanged.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "HOLD",
+    "verdict": "CANONICAL_ASSIGNMENT_READER_IMPLEMENTED=false; PEPEINU_CANONICAL_EVENT_MAPPING_PASS=false",
+    "blocker": "Supply the authoritative database/table/view containing the specified PEPEINU assignment plus a stable operation-identity mapping, or explicitly authorize a different canonical-source contract. Do not infer Byzantine from unavailable fields.",
+    "next_action": "Resolve canonical assignment authority and operation-identity source; then resume the provider-free runtime-composition gate in the existing isolated worktree."
+  },
   "universal_assignment_consumer_pinned_dev_deployment_20261004": {
     "engineering_revision": "0fefddef877a2e2654a88f36f37fdcfc66321e7e verified in /private/tmp/flex-canonical-assignment-opening-bridge",
     "status": "HOLD_DEPLOYMENT_PREFLIGHT_INCOMPLETE",

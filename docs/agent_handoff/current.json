@@ -17705,6 +17705,16 @@
     "safety": "Opening Birdeye=0; Opening Helius=0; lifecycle Birdeye=0; unledgered=0; duplicate=0; budget violations=0; provider calls inside DB transactions=0; ambiguous auto-retry=false; raw payloads=false; historical backfill=false; production/Supervisor unchanged.",
     "next_action": "RECONCILE_THE_FIVE_AMBIGUOUS_PROVIDER_CALLS_BEFORE_RESTARTING_DISPATCHER_OR_ACCEPTING_A_FORWARD_LIFECYCLE"
   },
+  "operation_activity_reconciliation_20261004": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; observation only",
+    "status": "PASS_RECENT_OPERATION_ACTIVITY_RECONCILED",
+    "finding": "At acceptance boundary 1791105691, registry telemetry shows Byzantine 5/24h (latest 1791101351), Watchtower 6/24h (1791087462), and Nexus 14/24h (1791101952). Canonical operator_launch_membership has zero assignments after that boundary. Thus telemetry has not silently disappeared between assignment, Opening, universal enrolment, and LIVE: there is no post-boundary assigned token to advance. Registry activity remains non-authoritative for monitor admission.",
+    "audit": "docs/audits/operation_activity_reconciliation.v1.json",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only reconciliation; no source or runtime change.",
+    "safety": "Helius=0; Birdeye=0; facts recomputed=false; raw payloads=false; production/Supervisor unchanged.",
+    "next_action": "RECONCILE_THE_FIVE_AMBIGUOUS_PROVIDER_CALLS_BEFORE_RESTARTING_DISPATCHER_OR_ACCEPTING_A_FORWARD_LIFECYCLE"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

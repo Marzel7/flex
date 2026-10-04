@@ -17557,6 +17557,16 @@
     "safety": "No synthetic token, historical backfill, raw provider payload, production, or trading change. Existing five genuine assignments only; dispatcher started only after one genuine qualified opening. Runtime emits bounded queue records; no new unbounded storage path.",
     "next_action": "RECONCILE_THE_TWO_DURABLE_AMBIGUOUS_MARKET_WINDOW_CALLS_WITHOUT_RETRYING_OR_EXPANDING_THE_24H_SCOPE"
   },
+  "operations_intelligence_running_peak_time_projection_20261004": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV read projection working tree",
+    "status": "PASS_DEV_READ_PROJECTION_REPAIRED",
+    "finding": "History rows with retained Entry timestamps and running-peak timestamps previously displayed a blank Time to Peak because the projection hard-coded null. The read-only projection now reports max(0, running_peak_timestamp - entry_timestamp). Live API readback returned 200 and concrete rows meat=1635s, AGENCY=891s, MOON=10790s, BTC=3627s, ccc=475s, pumpcat=2076s, COOK=1381s, MIX6900=2939s. Rows without retained Entry or peak timestamps remain visibly unavailable; no evidence was invented.",
+    "tests": "6 focused projection tests passed, 0 failed.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "safety": "Read projection only; Birdeye=0; Helius=0; no DB/provider/terminal/dispatcher/production change. Existing database 64MiB fail-closed cap and no new storage path preserved.",
+    "next_action": "KEEP_TRUE_RETAINED_ENTRY_OR_PEAK_GAPS_VISIBLE_UNTIL_SEPARATELY_AUTHORIZED_EVIDENCE_ACQUISITION"
+  },
   "universal_forward_first_token_observation_20261003": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; verification-only observation",
     "status": "WAITING_FOR_GENUINE_TOKEN",

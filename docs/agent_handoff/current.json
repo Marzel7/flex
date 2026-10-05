@@ -1,4 +1,15 @@
 {
+  "shared_watchtower_byzantine_canonical_birth_contract_20261005": {
+    "engineering_revision": "9363f57835dc8bee42680c228448d91569d87b83 candidate unchanged; source/provenance trace only",
+    "status": "PASS_REUSE_EXISTING_WATCHTOWER_CANONICAL_BIRTH_CONTRACT",
+    "finding": "The recovered generic Watchtower birth/opening contract accepts a known create signature and either reuses a fully qualified retained Create fact or performs exactly one getTransaction for that supplied signature. tx_summary validates signature and mint identity, successful transaction, non-null slot, and non-null blockTime, then emits signature, slot, timestamp. The retained path requires exact mint/signature/creator plus slot/timestamp and explicit provenance; incomplete retained data fails closed. It does not select a transaction, walk history, or depend on Watchtower topology/classification. The target and PEPEINU each retain a known signature and creator in wt_walkback_queue, so the existing exact-signature contract can supply the missing slot/block time without choosing another signature, subject to the existing transaction validation.",
+    "provenance": "Original birth parser commit 830fc0e1 (birth_anchored_opening_acquisition.py; test_birth_anchored_opening_acquisition.py); durable multiblock/opening integration b7f31853; retained-or-exact Create orchestration in live_opening_action_job.py, operation_token_data_runner.py, token_data_chain_facts.py, and token_data_fact_adapters.py. Qualification artifacts include tests/test_dev_017_live_opening_action_job.py, tests/test_token_data_fact_adapters.py, tests/test_token_data_request_dag.py, opening-history 3-row fixtures, and docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_tier_b1_create_slot_12_qualification.v1.json.",
+    "bounds": "Retained qualified Create fact: zero provider calls. Missing/incomplete fact with known signature: one exact Helius JSON-RPC getTransaction(signature, jsonParsed, maxSupportedTransactionVersion=0); no signature search or alternate CREATE selection. Later opening-block work is separate and not needed for coordinate recovery.",
+    "safety": "Source files changed=0; locked listener changed/restarted=false; Helius=0; Birdeye=0; canonical/universal DEV DB changed=false; no consumer or target reconciliation.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Contract recovery and compatibility analysis only; no runtime binding or executable behavior changed.",
+    "next_action": "BIND_ONE_SHARED_CANONICAL_BIRTH_CONTRACT_TO_WATCHTOWER_AND_BYZANTINE"
+  },
   "existing_db_create_coordinate_trace_20261005": {
     "engineering_revision": "9363f57835dc8bee42680c228448d91569d87b83 candidate unchanged; retained DB trace only",
     "status": "HOLD_EXISTING_DB_CREATE_COORDINATE_ABSENT",

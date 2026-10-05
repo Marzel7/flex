@@ -17794,6 +17794,16 @@
     "runtime_deployment_reason": "Read-only launch-preflight discovered a missing required binding factory; no executable source or runtime target changed.",
     "exact_next_action": "FIX_ONLY_THE_MISSING_EXISTING_QUALIFIED_BYZANTINE_CAPABILITY_AND_ACK_AWARE_BRIDGE_RUNTIME_BINDING_BEFORE_RETRYING_REAL_E2E"
   },
+  "universal_runtime_binding_qualification_20261005": {
+    "engineering_revision": "b2f468d0464ebd8f7602467e3ed3540516be70bf on codex/dev-current-worker-consumer-assembly; no source change",
+    "status": "HOLD_NEW_BEHAVIOUR_REQUIRED",
+    "finding": "The ACK-aware enqueue bridge is already concretely constructible by ManagedConsumer.concrete_bridge and does not instantiate MonitorWorker. The Byzantine adapter remains deliberately injection-only: execute requires select, identity, and valuation callables. No implementation of those callables, nor a registered BYZANTINE_ACTUAL_ENTRY_V2 capability factory, exists in the consolidated source line. The authority manifest independently records byzantine_opening as an injection-only provider-free adapter. Constructing it would require defining provider acquisition/selection and containing-candle valuation behavior, which is outside the requested wiring-only scope.",
+    "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff.",
+    "safety": "Source changes=0; Helius=0; Birdeye=0; canonical DB changed=false; universal DEV DB changed=false; managed consumer not started; target reconciliation=0; current monitor unchanged.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Qualification stopped before any executable runtime change because the only missing binding is not an existing component.",
+    "exact_next_action": "REVIEW_AND_AUTHORIZE_THE_EXACT_BYZANTINE_SELECT_IDENTITY_VALUATION_CAPABILITY_BEHAVIOUR_BEFORE_IMPLEMENTATION"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

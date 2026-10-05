@@ -17749,6 +17749,16 @@
     "runtime_deployment_reason": "Proof-only crash-window analysis; no executable runtime changed.",
     "exact_next_action": "REPORT_ONLY_POST_ENQUEUE_RECEIPT_ACK_RACE_AND_REVIEW_QUEUE_OR_WORKER_COORDINATION_AUTHORIZATION"
   },
+  "lossless_monitor_handoff_authority_preflight_20261005": {
+    "engineering_revision": "preflight only",
+    "status": "HOLD_SCOPE_EXPANSION_REQUIRED",
+    "finding": "The requested current-authoritative worker and existing universal consumer do not coexist on a qualified DEV source line. Current authoritative running worker is /Users/kevinkeaveney/Production/flex-listener/src/ops/operation_monitor_worker.py at bf1bdfc59b4acfed0338a493189d91d212bda50f, sha256 c1e90f9ba54c4d6c8f86feb1b8060cff5143a6d8ec5f682bdf89a7e8809e7f7f. The only existing managed universal consumer checkout is /private/tmp/universal-assignment-schema-deploy at 3b123ca2b2b6612717854b3a09be94d085a3a0af, whose worker sha256 is c0b5c48a502f13644babdbdcbcb1c485d3877ec1fb2a1f713ce792b7b1c126b7. The extracted-producer worktree has no managed consumer source. The shared DEV checkout has a third worker sha256 d2792eb14f4ce232203e117663306b04e15b9d1af3d7aad2a6f707804a8a871c.",
+    "blocker": "Adding an acknowledgement to the candidate c0b5 worker would not satisfy the instruction to change the current authoritative worker. Adding the consumer to the c1e90 current-worker source line, or rebasing it there, is a cross-source integration and requalification beyond the authorized minimal ACK/consumer retry change. Production-pinned source is read-only for this DEV-only gate.",
+    "safety": "Source changes=0; provider calls=0; production DB/runtime access=0; canonical DB changed=false; universal DEV DB changed=false; consumer start=0; target reconciliation=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Authority preflight only; no executable runtime changed.",
+    "exact_next_action": "AUTHORIZE_A_SINGLE_QUALIFIED_DEV_SOURCE_LINE_CONTAINING_BOTH_CURRENT_WORKER_AND_MANAGED_CONSUMER_BEFORE_IMPLEMENTING_ACK"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

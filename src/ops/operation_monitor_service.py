@@ -21,7 +21,10 @@ from src.ops.operation_monitor_worker import (
     reconcile_watchtower_assignment_admissions,
     reconcile_watchtower_deep_assignment_admissions,
 )
-from src.ops.token_data_provider_bindings import production_provider_bindings
+from src.ops.token_data_provider_bindings import (
+    AUTHORITATIVE_BIRDEYE_CREDENTIAL_LABEL,
+    production_provider_bindings,
+)
 from src.ops.operation_monitor_worker import MonitorBirdeyeTransport
 
 _STOP = False
@@ -157,7 +160,9 @@ def run_loop(*, idle_seconds: float | None = None) -> None:
     # It is used only when durable ENTRY_REFERENCE_OPENING work is present.
     bindings = production_provider_bindings(
         helius_endpoint=os.environ.get('HELIUS_RPC_URL'),
-        birdeye_api_key=os.environ.get('BIRDEYE_API_KEY'),
+        birdeye_credential_label=os.environ.get(
+            'BIRDEYE_CREDENTIAL_LABEL', AUTHORITATIVE_BIRDEYE_CREDENTIAL_LABEL,
+        ),
     )
     worker = MonitorWorker(queue, db_path=db_path, provider_bindings=bindings)
     current_price_scheduler = None

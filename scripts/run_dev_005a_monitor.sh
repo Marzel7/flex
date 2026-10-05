@@ -39,7 +39,7 @@ set -a
 . "$ENV_FILE"
 set +a
 
-: "${BIRDEYE_KKHOT:?BIRDEYE_KKHOT_REQUIRED}"
+: "${BIRDEYE:?BIRDEYE_REQUIRED}"
 : "${HELIUS_RPC_URL:?HELIUS_RPC_URL_REQUIRED}"
 
 exec /usr/bin/env -i \
@@ -64,7 +64,8 @@ exec /usr/bin/env -i \
   DB_CONNECTION_LIFECYCLE_LOG="$STATE_ROOT/.dev_runtime/monitor/dev_005a/logs/connections.jsonl" \
   DB_WRITE_DIAGNOSTICS_PATH="$STATE_ROOT/.dev_runtime/monitor/dev_005a/logs/writes.jsonl" \
   OPERATION_MONITOR_IDLE_SECONDS="5" \
-  BIRDEYE_API_KEY="$BIRDEYE_KKHOT" \
+  BIRDEYE="$BIRDEYE" \
+  BIRDEYE_CREDENTIAL_LABEL="BIRDEYE" \
   HELIUS_RPC_URL="$HELIUS_RPC_URL" \
   HELIUS_API_KEY="${HELIUS_API_KEY:-}" \
   /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -m src.ops.operation_monitor_service

@@ -906,7 +906,7 @@ def _optional_opening_capability_unavailable(exc: ImportError) -> bool:
 class MonitorWorker:
  def __init__(self,q,transport=None,persist=None,*,db_path=None,before_ack=None,terminal_finalizer_factory=None,provider_bindings=None,opening_jobs_path=None,provider_work_path=None):
   self.q=q
-  # The service has already bound BIRDEYE_API_KEY from the pinned launcher.
+  # The service has already validated and bound the BIRDEYE credential label.
   # Reusing that binding prevents the default transport from silently falling
   # back to the legacy BIRDEYE_RILEY resolver.
   bound_birdeye=(provider_bindings or {}).get(('Birdeye','/defi/v3/ohlcv'))
@@ -1268,7 +1268,7 @@ class MonitorWorker:
         # per-tick acquisition stream.
         request=strict_migration_plan(mint=p['mint'],migration_timestamp=int(evaluation['entry_acquisition']['migration_timestamp']))
         p.update({'entry_evaluation_result':'WAITING_FOR_ENTRY_REFERENCE','monitor_state':'WAITING_FOR_ENTRY_REFERENCE','opening_failure_reason':error.category,
-                  'strict_opening_failure_diagnostic':strict_opening_failure_diagnostic(request=request,provider_diagnostic=error.diagnostic,credential_alias='BIRDEYE_KKHOT',job_identity=c.message_id,attempt_timestamp=int(time.time())),
+                  'strict_opening_failure_diagnostic':strict_opening_failure_diagnostic(request=request,provider_diagnostic=error.diagnostic,credential_alias='BIRDEYE',job_identity=c.message_id,attempt_timestamp=int(time.time())),
                   'next_entry_evaluation_at':int(time.time())+60})
         capability=monitor_capability_for_operation(str(p.get('operation_id') or '')) or {}
         if capability.get('persist_waiting_entry_fact') is True:

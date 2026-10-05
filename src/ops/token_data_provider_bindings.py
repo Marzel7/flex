@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import json
 import os
-from pathlib import Path
 from dataclasses import dataclass
 from typing import Any, Callable, Mapping
 from urllib.error import HTTPError, URLError
@@ -12,6 +11,7 @@ from urllib.request import Request, urlopen
 
 PROVIDER_BINDING_CONTRACT_VERSION = "TOKEN_DATA_PROVIDER_BINDING_CONTRACT_V1"
 PROVIDER_TIMEOUT_SECONDS = 45
+AUTHORITATIVE_BIRDEYE_CREDENTIAL_LABEL = "BIRDEYE"
 
 
 def build_birdeye_ohlcv_request(*, address: str, interval: str, time_from: int, time_to: int) -> dict[str, Any]:
@@ -23,24 +23,20 @@ def build_birdeye_ohlcv_request(*, address: str, interval: str, time_from: int, 
     return {"endpoint":"/defi/v3/ohlcv","request_parameters":params,"encoded_query":query,"header_names":["accept","X-API-KEY","x-chain"],"url":"https://public-api.birdeye.so/defi/v3/ohlcv?"+query}
 
 
-def birdeye_credential() -> str:
-    """Repository-standard local configuration resolution; never logs a value."""
-    configured = os.environ.get("BIRDEYE_KK") or os.environ.get("BIRDEYE")
-    if configured:
-        return configured.strip().strip("'\"")
-    env_file = Path(__file__).resolve().parents[2] / ".env"
-    values: dict[str, str] = {}
-    try:
-        for line in env_file.read_text(encoding="utf-8").splitlines():
-            line = line.strip()
-            if line.startswith("export "):
-                line = line[7:].lstrip()
-            if line.startswith("BIRDEYE_KK=") or line.startswith("BIRDEYE="):
-                name, value = line.split("=", 1)
-                values[name] = value.split("#", 1)[0].strip().strip("'\"")
-    except OSError:
-        pass
-    return values.get("BIRDEYE_KK") or values.get("BIRDEYE", "")
+def validate_birdeye_credential_label(label: str) -> None:
+    """Reject any runtime composition that selects a legacy Birdeye alias."""
+    if label != AUTHORITATIVE_BIRDEYE_CREDENTIAL_LABEL:
+        raise ValueError("UNAUTHORIZED_BIRDEYE_CREDENTIAL_LABEL")
+
+
+def birdeye_credential(environ: Mapping[str, str] | None = None) -> str:
+    """Resolve only the authority-approved Birdeye credential, or fail closed."""
+    values = os.environ if environ is None else environ
+    configured = values.get(AUTHORITATIVE_BIRDEYE_CREDENTIAL_LABEL, "")
+    credential = configured.strip().strip("'\"")
+    if not credential:
+        raise RuntimeError("MISSING_AUTHORITATIVE_BIRDEYE_CREDENTIAL")
+    return credential
 
 
 @dataclass(frozen=True)
@@ -98,7 +94,8 @@ class HeliusProductionBinding:
 
 class BirdeyeProductionBinding:
     """Single Birdeye attempt; it deliberately contains no retry loop."""
-    def __init__(self, api_key: str | None = None, endpoint: str = "https://public-api.birdeye.so/defi/v3/ohlcv", transport: Callable = _urlopen_transport, account_gate: Any | None = None, account_context: Mapping[str, Any] | None = None):
+    def __init__(self, api_key: str | None = None, endpoint: str = "https://public-api.birdeye.so/defi/v3/ohlcv", transport: Callable = _urlopen_transport, account_gate: Any | None = None, account_context: Mapping[str, Any] | None = None, credential_label: str = AUTHORITATIVE_BIRDEYE_CREDENTIAL_LABEL):
+        validate_birdeye_credential_label(credential_label)
         self.api_key = api_key or birdeye_credential()
         self.endpoint = endpoint
         self.transport = transport
@@ -130,8 +127,7 @@ class BirdeyeProductionBinding:
         return outcome
 
 
-def production_provider_bindings(*, helius_endpoint: str | None = None, birdeye_api_key: str | None = None, helius_transport: Callable = _urlopen_transport, birdeye_transport: Callable = _urlopen_transport) -> dict[tuple[str, str], Callable]:
+def production_provider_bindings(*, helius_endpoint: str | None = None, birdeye_api_key: str | None = None, helius_transport: Callable = _urlopen_transport, birdeye_transport: Callable = _urlopen_transport, birdeye_credential_label: str = AUTHORITATIVE_BIRDEYE_CREDENTIAL_LABEL) -> dict[tuple[str, str], Callable]:
     helius = HeliusProductionBinding(helius_endpoint, helius_transport)
     return {("Helius JSON-RPC", "getTransaction"): helius, ("Helius JSON-RPC", "getBlock"): helius,
-            ("Birdeye", "/defi/v3/ohlcv"): BirdeyeProductionBinding(birdeye_api_key, transport=birdeye_transport)}
-
+            ("Birdeye", "/defi/v3/ohlcv"): BirdeyeProductionBinding(birdeye_api_key, transport=birdeye_transport, credential_label=birdeye_credential_label)}

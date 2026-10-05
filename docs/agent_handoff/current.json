@@ -17659,6 +17659,22 @@
     "runtime_deployment_gate": "HOLD",
     "exact_next_action": "QUALIFY the named concrete provider acquisition bindings independently (including their exact bounds and no-alternate-event behavior), then bind them with the existing bridge and a pinned process definition; do not start or reconcile real authorities before that qualification."
   },
+  "universal_assignment_existing_acquisition_recovery_20261005": {
+    "engineering_revision": "3b123ca2b2b6612717854b3a09be94d085a3a0af",
+    "status": "HOLD",
+    "verdict": "HOLD_REQUIRED_RUNTIME_BINDING_UNQUALIFIED",
+    "existing_acquisition_source_search_complete": true,
+    "recovered_sources": {
+      "watchtower": "src/ops/watchtower_first_available_mc.py sha256 52231ff4403eb1eaa6ebe0e89480059f6e26d4eab979ef75c7ff2ece89584af2: retained FIRST_AVAILABLE reducer, injection-only; requires canonical create signature, qualified supply, and injected Helius/Birdeye callables.",
+      "byzantine": "scripts/run_byzantine_actual_entry_24h_backfill.py sha256 5645ab3e23968deb7a0e8006263c413a21bbc09001bf3dcadf2a3df3141bd0c3: retained DEV batch runner, not a per-assignment callable; it performs frozen-population traversal, candidate selection, provider acquisition, and audit persistence."
+    },
+    "interface_gap": "managed_universal_assignment_consumer requires adapter(event)->QualifiedOpening. The recovered Watchtower reducer has no existing event-to-create/supply/transport binding. The recovered Byzantine runner has no existing one-event V2 identity normalizer or bounded per-assignment selection callable. Translating either missing part would introduce selection, normalization, or acquisition behavior rather than a thin wrapper, which is prohibited.",
+    "immutable_source_parity": "pytest -q tests/test_watchtower_first_available_mc.py tests/test_byzantine_forward_opening_adapter.py tests/test_byzantine_event_mint_resolver.py tests/test_qualified_price_source_line.py tests/test_managed_universal_assignment_consumer.py: 30 passed, 1 failed. The failed frozen-source assertion pins operation_monitor_worker.py to sha256 9500e2dba7a262fe003b988752ab43cd97a30b37d773404669bb4722f0e24559, while the current exact commit contains sha256 c0b5c48a502f13644babdbdcbcb1c485d3877ec1fb2a1f713ce792b7b1c126b7. The retained audit/test pin therefore cannot prove immutable runtime parity for this commit.",
+    "safety": "Watchtower acquisition reimplemented=false; Byzantine acquisition reimplemented=false; new provider framework=false; capability wrapper created=false; provider calls=0; canonical DB changed=false; destination DB changed=false; consumer start=0; real target reconciliation=0; monitor stop/restart=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "exact_next_action": "RECOVER AND QUALIFY ONLY existing-provenance per-assignment bindings: an existing Watchtower canonical-event input plus transport binding and an existing Byzantine one-event V2 identity/selection binding. Repair or requalify the immutable worker-source digest separately. Do not reimplement acquisition, start a consumer, or reconcile event 72741232-dcbe-5871-8ebe-ce9d294aeb50."
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

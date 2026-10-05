@@ -17716,6 +17716,17 @@
     "runtime_deployment_reason": "Diagnostic proof only; no executable runtime was changed.",
     "exact_next_action": "REPORT_ONLY_THE_EXISTING_OPENING_COMMIT_RETRY_INTERFACE_MISMATCH_AND_REVIEW_A_RECOVERY_SEMANTICS_CHANGE_BEFORE_BINDING"
   },
+  "qualified_opening_enqueue_retry_model_20261005": {
+    "engineering_revision": "Existing candidate consumer 3b123ca2b2b6612717854b3a09be94d085a3a0af; extracted producer 0833a616099e33bdbde67d500a69a6fad470bc8e",
+    "status": "HOLD_NEW_DURABLE_HANDOFF_STATE_REQUIRED",
+    "proof": "Provider-free temporary SQLite consumer-path replay: injected enqueue failure left universal_opening_work=QUALIFIED with durable opening_json, universal_assignment_projection=OPENING_QUALIFIED with durable opening_json, universal_opening_visible=LIVE, no queue message, and no cursor. On restart, commit_qualified returned ALREADY_QUALIFIED without invoking the handoff; the consumer then marked projection UNIVERSAL_HANDED_OFF and advanced cursor to 1. Retry enqueue attempts=0.",
+    "inventory": "Existing opening work records only PENDING/QUALIFIED and opening_json; projection records state/opening_json/handoff_identity; cursor records last consumed outbox id. handoff_identity is persisted only after universal_handoff returns. No existing durable receipt distinguishes qualified-not-enqueued from qualified-and-enqueued. EvidenceIntakeQueue deduplicates only while a message remains in one of its state directories; ACK unlinks it, so queue state cannot prove a prior successfully consumed handoff.",
+    "classification": "Simple ALREADY_QUALIFIED re-enqueue would repair crash-before-enqueue but cannot safely cover crash-after-enqueue-before-cursor if MonitorWorker ACKs first: queue receipt is removed and replay would create new semantic queue work. Filesystem queue enqueue and SQLite opening state cannot be atomically coupled by the existing transaction boundary. A new durable handoff state/receipt is required for both crash windows.",
+    "safety": "Temporary SQLite DB only; source changes=0; provider calls=0; production DB/runtime access=0; canonical DB changed=false; universal DEV DB changed=false; consumer start=0; target reconciliation=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Proof-only retry-state analysis; no executable runtime changed.",
+    "exact_next_action": "REVIEW_AND_AUTHORIZE_A_NEW_DURABLE_HANDOFF_RECEIPT_OR_EQUIVALENT_STATE_MODEL_BEFORE_IMPLEMENTATION"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

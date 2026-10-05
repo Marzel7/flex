@@ -1,4 +1,14 @@
 {
+  "real_dev_byzantine_e2e_20261005": {
+    "engineering_revision": "a300ddf1ac6ec8c5dda9375b275ab1b839465eb4",
+    "status": "HOLD_REAL_E2E_AT_MANAGED_RUNTIME_FACTORY_SIGNATURE",
+    "result": "The exact candidate worktree matches the authorized SHA and Watchtower listener was healthy and unchanged. The managed CLI aborts before constructing a consumer because its zero-argument loader invokes src.ops.byzantine_forward_capability:managed_runtime_capabilities_with_canonical_birth() without the required keyword-only birth_inputs argument. No consumer process started and no provider, queue, ACK, or reconciliation action occurred.",
+    "target_prestate": "Canonical assignment is present for 72741232-dcbe-5871-8ebe-ce9d294aeb50 (mint 6LQtSttiDkpLvLQRfefqoNqmj4fdAoNFXAhW7UBppump; Byzantine operator UUID); canonical outbox, assignment ACK, and universal projection are absent.",
+    "safety": "Read-only CLI preflight and targeted SQLite queries only after startup failure; Watchtower source/runtime/listener changed=false; managed consumer active count=0; target reconciliation count=0; Helius/Birdeye calls=0; canonical/universal DEV DB changed=false; no historical or price backfill.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_REAL_E2E_AT_MANAGED_RUNTIME_FACTORY_SIGNATURE",
+    "next_action": "FIX_ONLY_THE_MANAGED_ZERO_ARGUMENT_CAPABILITY_FACTORY_BINDING"
+  },
   "byzantine_canonical_birth_binding_20261005": {
     "engineering_revision": "a300ddf1ac6ec8c5dda9375b275ab1b839465eb4",
     "status": "PASS_EXISTING_BIRTH_PRIMITIVE_BOUND_READY_FOR_REAL_BYZANTINE_E2E",

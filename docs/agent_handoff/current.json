@@ -17537,6 +17537,16 @@
     "runtime_deployment_gate": "HOLD",
     "next_action": "COMPLETE_CLI_LIFECYCLE_HEALTH_AND_EXACT_BRIDGE_WORKER_QUEUE_CONSTRUCTION_THEN_RERUN_FULL_MANAGED_E2E"
   },
+  "canonical_long_running_integrity_check_20261005": {
+    "engineering_revision": "209da409e41e2211b355d86f08dd053f0e810b02 plus uncommitted qualified candidate",
+    "status": "HOLD",
+    "verdict": "HOLD_CANONICAL_INTEGRITY_CHECK_EXECUTION_WINDOW",
+    "result": "Two single, read-only PRAGMA integrity_check attempts against /Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db were started without any database copy, provider work, or concurrent scan. The bounded foreground check was terminated by the execution window before output; detached attempts exited when their command session ended and emitted no result. Therefore no integrity result is asserted.",
+    "identity": "Canonical authority remains 14,471,401,472 bytes at last observation; full-copy-created=false; temporary result logs remained zero bytes.",
+    "safety": "canonical/destination mutations=0; target untouched; consumer not started; price monitor not stopped/restarted; provider calls=0.",
+    "blocker": "The available execution environment cannot retain a long-running detached child or await the full 14.5GB scan to completion.",
+    "exact_next_action": "Run exactly one read-only PRAGMA integrity_check to completion in an approved persistent maintenance executor, record literal output, then resume the existing additive schema deployment preflight."
+  },
   "universal_assignment_atomic_destination_schema_repair_20261005": {
     "engineering_revision": "209da409e41e2211b355d86f08dd053f0e810b02 plus uncommitted narrow atomic-schema candidate",
     "status": "PARTIAL",

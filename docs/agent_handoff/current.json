@@ -18223,5 +18223,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Diagnostic attribution only; no executable behavior changed.",
     "exact_next_action": "STOP_ONLY_THE_UNBOUNDED_WAITING_OPENING_RETRY_BEHAVIOUR_WHILE_PRESERVING_FORWARD_OPENING_ACQUISITION"
+  },
+  "watchtower_bounded_waiting_opening_retry_20261006": {
+    "engineering_revision": "16d98ce16385ecd521b0840ef31cf15a2e7008b2 on codex/universal-price-monitor-import-recovery",
+    "status": "PASS_BOUNDED_FORWARD_OPENING_ACQUISITION_RESTORED",
+    "implementation": "Only immutable Watchtower strict evidence misses TARGET_SECOND_ABSENT and NO_PROVIDER_ITEMS are bounded. The durable per-envelope strict provider budget is one request. A legacy retained strict diagnostic is treated as that one completed request, sealed without a replacement call, and retained in dead_letter with count/budget/reason. A fresh qualifying strict request remains unchanged and activates the existing LIVE monitor path. Other operations, strict-window plan, 15m lifecycle dispatch, provider binding, and retry semantics are unchanged.",
+    "qualification": "31 focused provider-free tests passed, 0 failed: 22 monitor opening/service tests plus 9 qualified-entry monitor-bridge controls. Added controls cover both legacy miss categories, no extra provider call, fresh first miss exactly once, restart durability, deterministic duplicate identity, fresh unattempted preservation, and qualified Opening to LIVE admission.",
+    "deployment": "RUNTIME_DEPLOYMENT_GATE=PASS. Target runtime root=/private/tmp/flex-universal-price-monitor-import-recovery. Supervisor operation_monitor_worker restarted exactly once: PID 57416 -> 77502. Target HEAD equals 16d98ce16385ecd521b0840ef31cf15a2e7008b2. Existing unrelated dirty files in the source line were not staged or modified by this milestone.",
+    "acceptance": "Watchtower MONITORING_ACTIVE=0. Startup reconciliation sealed 26 retained permanent strict misses (the original 25 plus one newly admitted first attempt) with strict_opening_provider_attempt_count=1, budget=1, retry_state=BUDGET_EXHAUSTED, and no entry deadline. There are zero such messages in pending, processing, or retry. During more than one minute after sealing, latest strict-attempt timestamp did not advance. Existing 25 retry calls after deployment=0; the one permitted fresh first attempt does not reintroduce continuous work.",
+    "safety": "No manual Helius/Birdeye call, no strict-window change, no Opening/Policy-C/current-MC/peak/multiple/time-to-peak/live-history change, no historical cohort repair, no Byzantine/consumer/listener action. Runtime queue state changed only through the deployed durable policy; no manual database row change.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "exact_next_action": "OBSERVE_NEXT_NATURAL_WATCHTOWER_ASSIGNMENT_END_TO_END"
   }
 }

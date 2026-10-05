@@ -17425,6 +17425,17 @@
     "deployment_audit": "docs/audits/universal_price_runtime_recovery_deployment.v1.json",
     "next_action": "FIX_ONLY_RUNTIME_AUTHORITY_OR_PROCESS_BINDING"
   },
+  "universal_price_monitor_post_port_closure_20261005": {
+    "engineering_revision": "bafb3f7cacd5d13bf59bfacb615b17e15619ac2b on codex/universal-price-monitor-import-recovery",
+    "status": "HOLD_OPTIONAL_OPENING_IMPORT_SHAPE_UNHANDLED",
+    "finding": "The isolated candidate is exact and clean. During the first real service plus compatible-worker temporary-SQLite scan, the genuinely absent optional live_opening_action_job import raised ImportError: cannot import name 'live_opening_action_job' from 'src.ops'. process_entry_reference_opening_once handles only ModuleNotFoundError whose name is src.ops.birth_anchored_opening_acquisition, so the optional Opening branch aborts run_once before lifecycle process_once. The real-service four-scan gate is not satisfied; DEV monitor remains stopped.",
+    "tests": "Temporary provider-free real-service scan: failed on scan 1 at optional Opening import; no network or production authority used. Prior focused suite remains 4 passed, 0 failed.",
+    "safety": "HELIUS=0; BIRDEYE=0; other providers=0; canonical DB changed=false; universal DEV DB changed=false; price/history changed=false; monitor restart=false; immutable price behavior changed=false.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "blocker": "The optional-import recovery recognizes only one exception shape and does not handle the actual absent-submodule ImportError emitted by the candidate package.",
+    "next_action": "REPAIR_ONLY_THE_TESTED_OPTIONAL_OPENING_IMPORT_CLASSIFICATION_THEN_RERUN_THE_POST_PORT_CLOSURE_GATE_FROM_SCAN_1"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

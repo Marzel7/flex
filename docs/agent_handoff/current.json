@@ -17759,6 +17759,18 @@
     "runtime_deployment_reason": "Authority preflight only; no executable runtime changed.",
     "exact_next_action": "AUTHORIZE_A_SINGLE_QUALIFIED_DEV_SOURCE_LINE_CONTAINING_BOTH_CURRENT_WORKER_AND_MANAGED_CONSUMER_BEFORE_IMPLEMENTING_ACK"
   },
+  "dev_source_consolidation_current_worker_consumer_20261005": {
+    "engineering_revision": "d0274e4b9270174aa799a03da8057aff08e34f77 on codex/dev-current-worker-consumer-assembly",
+    "status": "PASS_SINGLE_DEV_SOURCE_LINE_QUALIFIED",
+    "worktree": "/private/tmp/flex-current-worker-consumer-assembly",
+    "finding": "One isolated DEV source line now combines the byte-identical current worker from bf1bdfc59b4acfed0338a493189d91d212bda50f (operation_monitor_worker.py SHA-256 c1e90f9ba54c4d6c8f86feb1b8060cff5143a6d8ec5f682bdf89a7e8809e7f7f), the byte-identical managed consumer from 3b123ca2b2b6612717854b3a09be94d085a3a0af, and the byte-identical extracted producer from 0833a616099e33bdbde67d500a69a6fad470bc8e. The authority manifest designates this worktree as a non-running integration candidate; the running production worker authority remains unchanged.",
+    "tests": "60 selected provider-free tests passed, 0 failed: monitor-service/runtime, Watchtower alignment/contract, opening acquisition/persistence bridge, managed consumer, canonical outbox, Byzantine adapter/guard, producer, and authority validator. One unrelated Mission Control template-label assertion was deselected after confirming it fails on the unmodified bf1 baseline and does not exercise this source closure.",
+    "safety": "HELIUS=0; BIRDEYE=0; canonical DB changed=false; universal DEV DB changed=false; production reference source read-only; running worker/price monitor/Supervisor unchanged; managed consumer not started; target event not reconciled; assignment-scoped ACK implementation=false; consumer retry semantics changed=false.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "runtime_deployment_reason": "The assembled line contains executable integration candidates, but no runtime target was reloaded or started in this source-consolidation gate.",
+    "exact_next_action": "IMPLEMENT_ONLY_ASSIGNMENT_SCOPED_ACK_AND_ALREADY_QUALIFIED_RETRY_FIX_ON_THIS_SOURCE_LINE"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

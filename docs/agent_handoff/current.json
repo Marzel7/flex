@@ -17785,6 +17785,15 @@
     "runtime_deployment_reason": "Candidate source and DEV ACK schema are qualified, but no monitor or managed-consumer runtime target was reloaded or started in this gate.",
     "exact_next_action": "START_DEV_CONSUMER_AND_RECONCILE_ONLY_EVENT_72741232"
   },
+  "real_dev_e2e_launch_preflight_20261005": {
+    "engineering_revision": "b2f468d0464ebd8f7602467e3ed3540516be70bf on codex/dev-current-worker-consumer-assembly; no source change",
+    "status": "HOLD_REAL_E2E_AT_RUNTIME_BINDING_FACTORY_UNAVAILABLE",
+    "finding": "Exact qualified worktree HEAD and manifest validate. Target 72741232-dcbe-5871-8ebe-ce9d294aeb50 has canonical Byzantine membership mint 6LQtSttiDkpLvLQRfefqoNqmj4fdAoNFXAhW7UBppump, while target outbox/projection/assignment ACK are absent. However the existing managed-consumer CLI requires explicit --capabilities and --bridge module factories. The qualified worktree contains neither a BYZANTINE_ACTUAL_ENTRY_V2 runtime capability factory nor an ACK-aware managed-consumer bridge factory; its default bridge is a lambda and would fail closed at MANAGED_ASSIGNMENT_ACK_AUTHORITY_UNAVAILABLE. No safe existing launch command exists in this source line.",
+    "safety": "Consumer start=0; target reconciliation=0; non-target reconciliation=0; Helius=0; Birdeye=0; canonical/DEV DB mutation=0; no runtime restart/stop; current monitor unchanged.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only launch-preflight discovered a missing required binding factory; no executable source or runtime target changed.",
+    "exact_next_action": "FIX_ONLY_THE_MISSING_EXISTING_QUALIFIED_BYZANTINE_CAPABILITY_AND_ACK_AWARE_BRIDGE_RUNTIME_BINDING_BEFORE_RETRYING_REAL_E2E"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

@@ -18040,6 +18040,18 @@
     "runtime_deployment_reason": "The executable DEV monitor credential binding changed. It was restarted into source revision 9fac51e7c0a83848f27305f05f785ef8c67032e0, PID 4832, and remained RUNNING through a bounded acceptance observation.",
     "exact_next_action": "TRACE_THE_PROVIDER_REQUEST_SHAPE"
   },
+  "watchtower_birdeye_compute_request_trace_20261005": {
+    "engineering_revision": "9fac51e7c0a83848f27305f05f785ef8c67032e0; read-only source and retained-request trace",
+    "status": "HOLD_PAID_ACCOUNT_COMPUTE_LIMIT_INCOMPATIBLE",
+    "finding": "Routine lifecycle uses one GET to Birdeye /defi/v3/ohlcv with chart_type=mcap, currency=usd, mode=range, padding=false, type=15m, and the retained mint/time range. MEGA retained 84 completed buckets, AGENCY 75, 5tY one, and 8n1 622. The reducer consumes the latest close plus all returned highs for current MC, peak, crossings, time-to-peak, and terminal drawdown, so the rows are not semantic overfetch. Crucially, the one-bucket 5tY request has the same HTTP 400 compute-units result, proving wide catch-up ranges are not the sole failure cause.",
+    "physical_attempts": "Each queue claim executes exactly one binding call; BirdeyeProductionBinding itself has no retry loop. defer_retryable moves the same durable message to retry without incrementing EvidenceIntakeQueue attempts; recover_due requeues it at the next completed 15-minute boundary. Thus one physical call occurs per dispatch but total physical calls per durable message are unbounded. 8n1 currently retains provider_physical_attempt_count=3906 and queue attempts=0.",
+    "retention_limit": "Successful BIRDEYE_OHLCV observations exist, but their completed request manifests are not retained; only their request identities remain. An exact successful-versus-failing parameter comparison is therefore unavailable without making a new call, which was not authorized.",
+    "equivalent_bounded_implementation": "No active-lifecycle equivalent exists. WatchtowerTerminalAthFinalizer has optional bounded chunking but is terminal-only and does not implement active current/peak/lifecycle progression.",
+    "safety": "Read/trace only: source changes=0; database rows changed=0; manual provider calls=0; no retry/backoff/budget/scheduler/opening/lifecycle change.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only source and retained-state trace; no executable behavior changed.",
+    "exact_next_action": "REVIEW_BIRDEYE_ACCOUNT_OR_ENDPOINT_LIMIT_BEFORE_CODE_CHANGE"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

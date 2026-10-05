@@ -1,4 +1,15 @@
 {
+  "byzantine_canonical_birth_binding_20261005": {
+    "engineering_revision": "a300ddf1ac6ec8c5dda9375b275ab1b839465eb4",
+    "status": "PASS_EXISTING_BIRTH_PRIMITIVE_BOUND_READY_FOR_REAL_BYZANTINE_E2E",
+    "result": "Bound retained canonical Create coordinates to the existing Byzantine runtime only. Complete identity-consistent retained facts require zero provider calls; absent or incomplete retained facts permit exactly one getTransaction for the known retained signature and otherwise fail closed. The managed consumer now presents canonical_event_id under the existing Byzantine adapter's event_id field at the adapter boundary; no selection, identity, valuation, event-mint, queue, ACK, opening, lifecycle, or Watchtower behavior changed.",
+    "verification": "Focused suite: 32 passed, 0 failed: birth primitive, Pump.fun impulse, Byzantine canonical birth, Byzantine capability and adapter, managed consumer, and enqueue producer. Provider-free managed E2E exercised canonical outbox -> event-id binding -> retained Create -> Byzantine actual-entry -> enqueue-only bridge with temporary authorities. Real DEV authority preflight reported READY with required source tables; it performed no writes or provider calls.",
+    "source": "src/ops/byzantine_canonical_birth.py; src/ops/token_data_chain_facts.py and token_data_lifecycle_facts.py recovered with exact eed84eaa source parity; src/ops/byzantine_forward_capability.py; src/ops/managed_universal_assignment_consumer.py; tests/test_byzantine_canonical_birth.py.",
+    "safety": "Watchtower source changed=false; MonitorWorker/queue/ACK/lifecycle semantics changed=false; real consumer started=false; target reconciled=false; Helius/Birdeye real calls=0; canonical and universal DEV DB changed=false; compact temporary test stores only; deployment required=true and state=QUALIFIED_NOT_DEPLOYED.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_state": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "START_DEV_CONSUMER_AND_RECONCILE_ONLY_EVENT_72741232"
+  },
   "universal_pumpfun_opening_semantic_check_20261005": {
     "engineering_revision": "9363f57835dc8bee42680c228448d91569d87b83 candidate unchanged; source/UI/retained-fact proof only",
     "status": "PASS_OPERATION_SPECIFIC_OPENINGS_REQUIRED",

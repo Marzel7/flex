@@ -17855,6 +17855,17 @@
     "runtime_deployment_reason": "Read-only retained-authority trace only; no executable behavior or authority binding changed.",
     "exact_next_action": "REVIEW_AND_AUTHORIZE_THE_MISSING_CANONICAL_CREATE_COORDINATE_RETENTION_OR_FORWARD_CONTRACT_BEFORE_RETRYING_MANAGED_BYZANTINE_RUNTIME"
   },
+  "forward_canonical_create_retention_20261005": {
+    "engineering_revision": "9363f57835dc8bee42680c228448d91569d87b83 on codex/dev-current-worker-consumer-assembly",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "finding": "The existing PumpPortal path recorded a signature in completed_launches before the existing program-log handle_birth validator ran, suppressing the only current ledger writer. The repair gives canonical-ledger qualification a separate per-signature marker, preserving the existing validator and writer while allowing an already Portal-completed signature through exactly once. The existing tx slot and blockTime now flow into record_create_event and lookup_create_anchor returns signature, slot, and block_time. No schema, discovery, selection, identity, valuation, opening, monitor, or lifecycle semantics changed.",
+    "tests": "54 focused provider-free tests passed, 0 failed; 1 unrelated PumpPortal websocket mock test deselected because its object lacks the current acquisition-availability collaborator. Passing coverage includes Portal-completed CREATE -> validated ledger -> exact coordinate, duplicate suppression, unqualified rejection, missing/ambiguous lookup failure, persistence hardening, and the Byzantine capability coordinate boundary.",
+    "safety": "HELIUS=0; BIRDEYE=0; canonical DB historical rows changed=false; universal DEV DB changed=false; no large database copy; no raw CREATE payload retention; max added retained fact remains one compact existing ledger row per qualified CREATE; consumer not started; target not reconciled; production/current monitor unchanged.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "runtime_deployment_reason": "The only running listener remains the separately governed Production source root. No configured non-production listener target exists for this candidate, and starting a second ingress process would create unauthorized provider activity. No deployment or natural-event observation was attempted.",
+    "exact_next_action": "AUTHORIZE_AND_IDENTIFY_AN_ISOLATED_DEV_LISTENER_DEPLOYMENT_TARGET_FOR_9363F578_THEN_OBSERVE_A_NATURAL_FORWARD_CREATE_ONLY"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

@@ -17627,6 +17627,17 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "START_EXACT_MANAGED_CONSUMER_THEN_RECONCILE_ONLY_EVENT_72741232"
   },
+  "universal_assignment_forward_activation_preflight_20261005": {
+    "engineering_revision": "3b123ca2b2b6612717854b3a09be94d085a3a0af",
+    "status": "HOLD",
+    "verdict": "HOLD_EXACT_MANAGED_RUNTIME_DEFINITION_INCOMPLETE",
+    "finding": "The requested exact commit is clean and contains the schema deployment, consumer, and provider-free tests, but it does not contain a deployable exact managed runtime definition. Its runtime audit is explicitly DEFINED_NOT_STARTED, points at the older /private/tmp/flex-canonical-assignment-opening-bridge checkout and commit b37db6f, and states manager wiring required. The managed CLI requires externally supplied --capabilities and --bridge factories; no qualified production binding or Supervisor definition is present in the exact commit.",
+    "safety": "No consumer started; no target reconciliation; canonical outbox remains unchanged; destination opening/activation state unchanged; provider calls=0; monitor stop/restart=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "blocker": "Starting the CLI without those bindings would be a materially different runtime (empty/no-op bindings) or require unqualified new wiring, neither of which is authorized by the controlled-forward-activation request.",
+    "exact_next_action": "Create and qualify an exact pinned runtime definition in the 3b123ca2 line: source root, Supervisor/process command, concrete provider capability factory, concrete QualifiedEntryMonitorBridge factory, authority paths, bounded log path, and singleton lifecycle; then rerun this activation preflight before reconciling event 72741232-dcbe-5871-8ebe-ce9d294aeb50."
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

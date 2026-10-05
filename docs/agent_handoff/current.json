@@ -1,4 +1,14 @@
 {
+  "watchtower_8k_guard_lineage_20261005": {
+    "engineering_revision": "9fac51e7c0a83848f27305f05f785ef8c67032e0 active monitor checkout; read-only lineage trace",
+    "status": "HOLD_PRE_GUARD_PRICE_PATH_PARITY_UNQUALIFIED",
+    "finding": "The active worker's exact 8,192-byte normalized-candle guard is blame-attributed to ba793b29374c4224a5a697f19e1d618f81545a95, Assemble qualified price source line. That commit added operation_monitor_worker.py as an assembled source file, so its predecessor does not provide a line-for-line guard implementation or a focused behavior-parity qualification. The guard runs after transport HTTP success and before empty-candle handling, usable-count advancement, observation persistence, and lifecycle completion.",
+    "classification": "The pre-assembly known-good source line has no proven equivalent 8 KiB guard. Consequently request-contract, response-normalization, and catch-up behavior parity are unproven from available artifacts. Price retry behavior diverges at the guard: an HTTP-200 normalized response over 8 KiB becomes the generic retryable ResponseCapacityExceeded path rather than continuing through normal lifecycle processing.",
+    "safety": "Read-only Git provenance and active-source inspection only. No source, runtime, database, provider, listener, queue, or retry-policy change; no raw provider data retained.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Lineage report only; no executable behavior changed.",
+    "next_action": "QUALIFY_OR_RESTORE_THE_PRE_GUARD_PRICE_PATH_ONLY_AFTER_EXPLICIT_SCOPE_AUTHORIZATION"
+  },
   "watchtower_5ty_minimal_response_capacity_trace_20261005": {
     "engineering_revision": "9fac51e7c0a83848f27305f05f785ef8c67032e0 running monitor source; provider-free diagnostic only",
     "status": "HOLD_5TY_MINIMAL_RESPONSE_SHAPE_UNPROVEN",

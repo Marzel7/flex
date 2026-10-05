@@ -17537,6 +17537,16 @@
     "runtime_deployment_gate": "HOLD",
     "next_action": "COMPLETE_CLI_LIFECYCLE_HEALTH_AND_EXACT_BRIDGE_WORKER_QUEUE_CONSTRUCTION_THEN_RERUN_FULL_MANAGED_E2E"
   },
+  "universal_assignment_managed_consumer_20261005": {
+    "engineering_revision": "209da409e41e2211b355d86f08dd053f0e810b02 plus uncommitted managed-consumer candidate",
+    "status": "HOLD",
+    "verdict": "MANAGED_CONSUMER_PROVIDER_FREE_QUALIFIED_REAL_DESTINATION_AUTHORITY_ABSENT",
+    "result": "Implemented the durable QualifiedOpening-before-monitor-bridge handoff, exact operation-label normalization, CLI preflight/health/run/reconcile-event surface, graceful SIGTERM stop, and read-only authority preflight. 55 focused provider-free tests passed. The real preflight opened no databases for writing and stopped because the declared isolated DEV destination /private/tmp/flex-universal-price-monitor-import-recovery/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db does not exist.",
+    "tests": "pytest -q managed consumer, consumer, opening bridge, QualifiedEntry bridge, Byzantine adapter, canonical outbox/reconciler/writer matrix, universal composition: 55 passed",
+    "production_flags": "HELIUS=0; BIRDEYE=0; canonical DB changed=false; universal DEV DB changed=false; managed runtime started=false; deployment=false; reconciliation=false",
+    "blocker": "Exact qualified universal-monitor destination authority is unavailable at the declared isolated path; do not substitute or create one.",
+    "exact_next_action": "Provide or restore the exact pinned qualified destination path, then rerun only read-only managed preflight before any separately authorized deployment."
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

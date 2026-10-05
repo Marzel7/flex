@@ -17675,6 +17675,19 @@
     "runtime_deployment_gate": "HOLD",
     "exact_next_action": "RECOVER AND QUALIFY ONLY existing-provenance per-assignment bindings: an existing Watchtower canonical-event input plus transport binding and an existing Byzantine one-event V2 identity/selection binding. Repair or requalify the immutable worker-source digest separately. Do not reimplement acquisition, start a consumer, or reconcile event 72741232-dcbe-5871-8ebe-ce9d294aeb50."
   },
+  "universal_forward_worker_digest_diagnostic_20261005": {
+    "engineering_revision": "Supervisor-pinned listener checkout /Users/kevinkeaveney/Production/flex-listener at bf1bdfc59b4acfed0338a493189d91d212bda50f; diagnostic worktree 3b123ca2b2b6612717854b3a09be94d085a3a0af",
+    "status": "HOLD",
+    "verdict": "HOLD_RUNNING_WORKER_BEHAVIOUR_CHANGED_SINCE_FROZEN_DIGEST",
+    "running_provenance": "Supervisor watchtower_listener RUNNING pid 77852 executes /bin/bash /Users/kevinkeaveney/Production/flex-listener/run_listener.sh with PYTHONPATH and directory pinned to that checkout. The checkout is at bf1bdfc59b4acfed0338a493189d91d212bda50f; the checked worker sha256 is c1e90f9ba54c4d6c8f86feb1b8060cff5143a6d8ec5f682bdf89a7e8809e7f7f.",
+    "stale_digest": "9500e2dba7a262fe003b988752ab43cd97a30b37d773404669bb4722f0e24559, proven from src/ops/operation_monitor_worker.py at commit 9561568ef7718d1676ea9d7edeaec8ae82529ff6 in each available local checkout.",
+    "behaviour_change": "true: frozen commit 9561568 to running checkout HEAD changes this file by +54/-772. Removed behavior includes claimed-message based queue claim/scheduling and durable activation/successor handling, rate-limit and DEV budget gates, terminal/strict-entry classifications, Watchtower Deep operation identity/admission/reconciliation, migration-boundary and Scenario-D entry helpers, and qualified-monitor queue-projection reconciliation. The running file retains a smaller queue and existing entry-inventory path. This is a material semantic delta, not a stale expectation-only change.",
+    "qualification_stop": "Per gate, worker source and parity expectation were not modified; failed parity was not rerun to green and the full provider-free suite was not rerun after the material divergence was proven. No missing Watchtower/Byzantine binding contract was frozen in this stop turn.",
+    "safety": "HELIUS=0; BIRDEYE=0; canonical DB changed=false; universal DEV DB changed=false; managed consumer started=false; target event reconciled=false; price monitor stopped=false; price monitor restarted=false; new acquisition/binding/provider framework=false.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "exact_next_action": "Review and explicitly qualify the running listener worker source line against the intended universal managed-runtime source line. Do not replace the frozen digest, implement either acquisition binding, start the consumer, or reconcile the target until the semantic divergence is resolved."
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

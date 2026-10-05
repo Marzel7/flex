@@ -1,4 +1,15 @@
 {
+  "forward_canonical_create_retention_deployment_20261005": {
+    "engineering_revision": "9363f57835dc8bee42680c228448d91569d87b83 on codex/dev-current-worker-consumer-assembly; deployment inventory only",
+    "status": "HOLD_NO_SAFE_EXISTING_DEV_LISTENER_TARGET",
+    "finding": "Exactly one PumpPortal ingress listener is active: Supervisor watchtower_listener PID 77852, cwd /Users/kevinkeaveney/Production/flex-listener. It is the separately governed listener, with PumpPortal births enabled and the shared canonical authority. No existing isolated DEV PumpPortal listener process definition, provider subscription, or independent DEV canonical database authority was found. The candidate source is clean at 9363f57835dc8bee42680c228448d91569d87b83. Starting another listener would introduce unproven duplicate provider-subscription and canonical-write risk, so no deployment was attempted.",
+    "inventory": "watchtower_listener runs /Users/kevinkeaveney/Dev/claude/flex/run_listener.sh under Supervisor; configured PumpPortal endpoint is wss://pumpportal.fun/api/data and LISTENER_PUMPPORTAL_BIRTHS_ENABLED=1. Helius birth websocket is disabled. Candidate worktree is /private/tmp/flex-current-worker-consumer-assembly.",
+    "safety": "Source files changed=0; current governed listener stopped/restarted/source-changed=false; manual Helius=0; manual Birdeye=0; canonical DB changed=false; universal DEV DB changed=false; no consumer, reconciliation, historical recovery, or large database copy.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_NO_SAFE_EXISTING_DEV_LISTENER_TARGET",
+    "runtime_deployment_reason": "The requested executable listener deployment has no separately governed, pre-existing isolated DEV target. The only observed ingress process must not be touched.",
+    "next_action": "REPORT_ONLY_THE_MISSING_DEV_RUNTIME_TARGET"
+  },
   "universal_monitor_existing_live_adoption_writer": {"engineering_revision":"580508a70c80e7fc944e0069f85e67b851a117fa; dormant provider-free implementation","status":"PARTIAL_REAL_FIXTURE_PENDING","finding":"The global scheduler handoff is now a single operation-neutral record with deterministic identity and NOT_ADMITTED state; five focused provider-free tests pass. Real current Watchtower-12 simulation and full storage qualification remain required before activation.","audit":"docs/audits/universal_monitor_adoption_writer_qualification.v1.json","runtime_deployment_required":false,"next_action":"QUALIFY_REAL_WATCHTOWER12_FIXTURE_AND_STORAGE_MODEL"},
   "watchtower_existing_live_token_adoption": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; provider-free qualification only",

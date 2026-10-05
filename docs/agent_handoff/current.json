@@ -17486,6 +17486,15 @@
     "runtime_deployment_gate": "HOLD",
     "next_action": "COMPLETE_MANAGED_CONSUMER_AUTHORITY_COMPOSITION_AND_EXECUTABLE_PROVIDER_FREE_E2E_BEFORE_COMMIT_OR_DEPLOYMENT"
   },
+  "managed_consumer_composition_inventory_20261005": {
+    "engineering_revision": "367d97d543fbc702d1082a369cadd77e6ca4834b plus uncommitted generic-component candidate",
+    "status": "HOLD_EXISTING_BYZANTINE_FORWARD_ADAPTER_UNAVAILABLE",
+    "finding": "The existing universal registry is metadata only: universal_assignment_opening_bridge.REGISTRY maps watchtower to FIRST_AVAILABLE and byzantine to BYZANTINE_ACTUAL_ENTRY_V2, but no non-test runtime binds either label to acquisition capability. Watchtower has a standalone retained/provider-bounded collect_first_available reducer. No existing Byzantine forward adapter/executor accepts canonical assignment input and returns a QualifiedOpening; no executable event-mint guard binding exists. Completing the requested managed consumer would require inventing/reimplementing that absent Byzantine Opening contract, which is prohibited by the gate.",
+    "safety": "No new source beyond the already-uncommitted generic components; no runtime/config/DB/provider/price-monitor mutation.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "AUTHORIZE_AND_QUALIFY_A_SEPARATE_BYZANTINE_FORWARD_OPENING_ADAPTER_CONTRACT_BEFORE_MANAGED_CONSUMER_COMPOSITION"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

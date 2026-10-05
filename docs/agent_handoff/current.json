@@ -17468,6 +17468,24 @@
     "blocker": "No executable canonical-outbox consumer authority exists to deploy; only injected/provider-free composition is present.",
     "next_action": "QUALIFY_AND_BIND_ONE_MANAGED_CANONICAL_OUTBOX_CONSUMER_TO_EXACT_CANONICAL_AND_UNIVERSAL_AUTHORITIES_THEN_RERUN_FORWARD_DEPLOYMENT_PREFLIGHT"
   },
+  "generic_outbox_reconciler_executor_20261005": {
+    "engineering_revision": "367d97d543fbc702d1082a369cadd77e6ca4834b plus uncommitted narrow candidate",
+    "status": "PARTIAL_GENERIC_COMPONENTS_PROVIDER_FREE_PASS",
+    "finding": "Implemented an event-id-only canonical outbox reconciler that reads one existing operator_launch_membership row by event_id, creates only a missing deterministic MEMBERSHIP_ASSIGNED outbox projection, and returns ALREADY_PRESENT on replay. Implemented a registry-only adapter executor whose acquisition capability is injected by adapter name; it contains no Watchtower/Byzantine price, provider, or lifecycle algorithm and fails unavailable/unbound adapters closed. Relevant provider-free suite: 37 passed, 0 failed. No source commit was created because the managed executable consumer binding, CLI/health/stop, exact bridge-worker composition, and executable E2E tests remain unfinished.",
+    "safety": "HELIUS=0; BIRDEYE=0; no runtime/config/DB/provider mutation; healthy price monitor untouched.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "COMPLETE_MANAGED_CONSUMER_AUTHORITY_COMPOSITION_AND_EXECUTABLE_PROVIDER_FREE_E2E_BEFORE_COMMIT_OR_DEPLOYMENT"
+  },
+  "generic_outbox_reconciler_executor_20261005": {
+    "engineering_revision": "367d97d543fbc702d1082a369cadd77e6ca4834b plus uncommitted narrow candidate",
+    "status": "PARTIAL_GENERIC_COMPONENTS_PROVIDER_FREE_PASS",
+    "finding": "Implemented event-id-only missing-outbox projection and registry-only injected-capability execution. Provider-free relevant suite: 37 passed, 0 failed. Managed executable consumer binding, CLI/health/stop, bridge-worker composition, and executable E2E remain unfinished; no commit or deployment occurred.",
+    "safety": "HELIUS=0; BIRDEYE=0; no runtime/config/DB/provider mutation; healthy price monitor untouched.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "COMPLETE_MANAGED_CONSUMER_AUTHORITY_COMPOSITION_AND_EXECUTABLE_PROVIDER_FREE_E2E_BEFORE_COMMIT_OR_DEPLOYMENT"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

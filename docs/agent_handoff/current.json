@@ -17495,6 +17495,30 @@
     "runtime_deployment_gate": "HOLD",
     "next_action": "AUTHORIZE_AND_QUALIFY_A_SEPARATE_BYZANTINE_FORWARD_OPENING_ADAPTER_CONTRACT_BEFORE_MANAGED_CONSUMER_COMPOSITION"
   },
+  "byzantine_forward_opening_adapter_20261005": {
+    "engineering_revision": "209da409e41e2211b355d86f08dd053f0e810b02 on codex/universal-price-monitor-import-recovery",
+    "status": "PASS_PROVIDER_FREE_QUALIFIED_NOT_DEPLOYED",
+    "finding": "The Byzantine forward adapter packages only injected established stages: selection, selected-event identity proof, then containing-candle valuation. The event-mint guard is after selection, MATCH-only, non-selecting, and blocks valuation on non-match/unproven/ambiguous proof. PEPEINU retained fixture parity is exact: signature 1M8i...TfNNa, slot 453241280, timestamp 1791112830, MC 3925.9516827750313. The registry label BYZANTINE_ACTUAL_ENTRY_V2 now exposes the adapter callable. Generic exact-event reconciler and registry executor are included in the same clean commit.",
+    "tests": "47 passed, 0 failed across Byzantine adapter/guard, generic reconciler/executor, writer atomicity, consumer, bridge, and composition tests.",
+    "audit": "docs/audits/byzantine_forward_opening_adapter_qualification.v1.json",
+    "contract": "docs/contracts/byzantine_forward_opening_adapter.v1.json",
+    "safety": "HELIUS=0; BIRDEYE=0; no canonical/universal DB mutation; no historical facts/backfill; no deployment; price monitor untouched.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "COMPLETE_MANAGED_CONSUMER_COMPOSITION_USING_THE_NOW_EXECUTABLE_BYZANTINE_REGISTRY_BINDING"
+  },
+  "byzantine_forward_opening_adapter_20261005": {
+    "engineering_revision": "209da409e41e2211b355d86f08dd053f0e810b02 on codex/universal-price-monitor-import-recovery",
+    "status": "PASS_PROVIDER_FREE_QUALIFIED_NOT_DEPLOYED",
+    "finding": "The Byzantine forward adapter packages only injected established stages: selection, selected-event identity proof, then containing-candle valuation. The event-mint guard is after selection, MATCH-only, non-selecting, and blocks valuation on non-match/unproven/ambiguous proof. PEPEINU retained fixture parity is exact: signature 1M8i...TfNNa, slot 453241280, timestamp 1791112830, MC 3925.9516827750313. The registry label BYZANTINE_ACTUAL_ENTRY_V2 now exposes the adapter callable. Generic exact-event reconciler and registry executor are included in the same clean commit.",
+    "tests": "47 passed, 0 failed across Byzantine adapter/guard, generic reconciler/executor, writer atomicity, consumer, bridge, and composition tests.",
+    "audit": "docs/audits/byzantine_forward_opening_adapter_qualification.v1.json",
+    "contract": "docs/contracts/byzantine_forward_opening_adapter.v1.json",
+    "safety": "HELIUS=0; BIRDEYE=0; no canonical/universal DB mutation; no historical facts/backfill; no deployment; price monitor untouched.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "COMPLETE_MANAGED_CONSUMER_COMPOSITION_USING_THE_NOW_EXECUTABLE_BYZANTINE_REGISTRY_BINDING"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

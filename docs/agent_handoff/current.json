@@ -1,4 +1,15 @@
 {
+  "watchtower_price_system_current_census_20261005": {
+    "engineering_revision": "current DEV monitor authority observed read-only; no source revision changed",
+    "status": "HOLD_WATCHTOWER_MONITOR_DISPATCH_FAILURE",
+    "authority": "Supervisor operation_monitor_worker PID 72399 is configured from /private/tmp/flex-universal-price-monitor-import-recovery with monitor DB .dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db; bridge PID 77652 and scheduler PID 77695 are RUNNING. The worker service loop repeatedly raises AttributeError because it invokes reconcile_stale_watchtower_pending_openings on a MonitorWorker instance that lacks that method, so RUNNING does not establish healthy dispatch.",
+    "census": "Monitor DB retains 83 Watchtower-family rows: 55 qualified openings (50 watchtower, 5 watchtower_deep), 28 watchtower rows waiting for entry reference, and no explicit failed opening state. Fifty-one qualified rows are terminal PRICE_MONITOR_COMPLETE_COLLAPSED with complete retained entry/final/peak/multiple/time fields. Four qualified watchtower rows remain MONITORING_ACTIVE; all lack a dispatched successor and are stale. EFGK and J4t6 are overdue by roughly 20 hours, 8n1 by roughly 6.5 days, and 5tY has no current observation or due timestamp. One current LIVE row lacks Current MC (5tY); all four retain a running peak.",
+    "scheduler": "Five retained universal_monitor_global_work rows are overdue and stuck AMBIGUOUS_PROVIDER_CALL. The first observed broken boundary is the worker loop AttributeError before normal queue/dispatch work. AGENCY control Bisax is terminal collapsed but has stale AMBIGUOUS_PROVIDER_CALL work; MEGA EFGK is still active and overdue.",
+    "safety": "Read-only census only; source files=0; no provider, database, consumer, reconciliation, runtime, or Watchtower action.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Diagnostic census only.",
+    "next_action": "AUTHORIZE_A_NARROW_MONITOR_SERVICE_METHOD_COMPATIBILITY_REPAIR_AND_REQUALIFY_SCHEDULER_DISPATCH"
+  },
   "real_dev_e2e_opening_failure_trace_20261005": {
     "engineering_revision": "bb8f3fa1b5854813a04d28f55c8b93f8b046f2ea (diagnostic trace only; no source changes)",
     "status": "HOLD_RUNTIME_OPENING_FAILURE_OBSERVABILITY_INSUFFICIENT",

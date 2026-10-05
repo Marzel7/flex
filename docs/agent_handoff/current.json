@@ -17804,6 +17804,16 @@
     "runtime_deployment_reason": "Qualification stopped before any executable runtime change because the only missing binding is not an existing component.",
     "exact_next_action": "REVIEW_AND_AUTHORIZE_THE_EXACT_BYZANTINE_SELECT_IDENTITY_VALUATION_CAPABILITY_BEHAVIOUR_BEFORE_IMPLEMENTATION"
   },
+  "byzantine_pepeinu_existing_capability_trace_20261005": {
+    "engineering_revision": "b2f468d0464ebd8f7602467e3ed3540516be70bf on codex/dev-current-worker-consumer-assembly; forensic-only, source unchanged",
+    "status": "HOLD_GENUINELY_MISSING_BYZANTINE_BEHAVIOUR",
+    "finding": "The retained PEPEINU fixture (sha256 b7ec8fa1305733db15c4d323c7b6f0f3ff60c9f4d9662e84150762f185ed35e9) records the exact successful coordinate. Direct provenance is script commit 3b123ca2b2b6612717854b3a09be94d085a3a0af, scripts/run_byzantine_actual_entry_24h_backfill.py, sha256 5645ab3e23968deb7a0e8006263c413a21bbc09001bf3dcadf2a3df3141bd0c3. That script contains inline bounded earliest-trade selection and 15-second containing-candle close valuation, but was deleted when the consolidated line was assembled. The current line retains the event-mint predicate src/ops/byzantine_event_mint_resolver.py resolve_event_mint (sha256 ae8560a2703e169ddd3f8aa2c1b64120ec62b85c3c50708a49c53b4f30c96035), but not the selected-signature getTransaction(jsonParsed) acquisition plus PumpSwap event/token-balance normalization needed to supply that predicate. No direct retained source identifies that normalization implementation.",
+    "tests": "14 focused provider-free fixture/guard/bridge tests passed, 0 failed.",
+    "safety": "Source files changed=0; Helius=0; Birdeye=0; canonical DB changed=false; universal DEV DB changed=false; managed consumer not started; target reconciliation=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Forensic source/provenance trace only; no executable runtime was changed.",
+    "exact_next_action": "RECOVER_OR_EXPLICITLY_AUTHORIZE_THE_MISSING_SELECTED_TRANSACTION_TO_NORMALIZED_PUMPSWAP_EVENT_IDENTITY_BEHAVIOUR_BEFORE_PACKAGING"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

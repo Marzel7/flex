@@ -17537,6 +17537,16 @@
     "runtime_deployment_gate": "HOLD",
     "next_action": "COMPLETE_CLI_LIFECYCLE_HEALTH_AND_EXACT_BRIDGE_WORKER_QUEUE_CONSTRUCTION_THEN_RERUN_FULL_MANAGED_E2E"
   },
+  "universal_assignment_schema_deployment_qualification_20261005": {
+    "engineering_revision": "209da409e41e2211b355d86f08dd053f0e810b02 plus uncommitted candidate",
+    "status": "HOLD",
+    "verdict": "HOLD_SCHEMA_QUALIFICATION_FAILURE_DESTINATION_MIGRATION_NOT_ATOMIC",
+    "result": "Schema-only temporary authority fixtures passed normal/idempotent creation: canonical outbox remains empty; destination gains the required projection/cursor/opening tables. Failure injection then exposed that src.ops.universal_assignment_bridge_consumer.ensure_schema commits its consumer ledger before src.ops.universal_assignment_opening_bridge.ensure_schema is invoked. An injected failure at that boundary leaves universal_assignment_projection/cursor/lease/status present while QualifiedOpening tables are absent.",
+    "safety": "No real schema deployment; canonical/destination data and schema unchanged; target untouched; consumer not started; price monitor not stopped or restarted; provider calls=0.",
+    "rollback_protection": "Bounded schema-only rollback plan added at docs/audits/universal_assignment_schema_rollback.v1.sql; no full 14.5GB canonical backup was created, preserving the 500MB rule.",
+    "blocker": "The exact existing destination schema initializers do not provide the required all-or-nothing combined rollback behavior.",
+    "exact_next_action": "Fix only the destination schema deployment transaction boundary, re-run injected rollback qualification, then return to this deployment gate."
+  },
   "universal_assignment_destination_authority_recovery_20261005": {
     "engineering_revision": "209da409e41e2211b355d86f08dd053f0e810b02 plus the uncommitted qualified managed-consumer candidate",
     "status": "HOLD",

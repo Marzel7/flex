@@ -1,4 +1,14 @@
 {
+  "real_dev_e2e_opening_failure_trace_20261005": {
+    "engineering_revision": "bb8f3fa1b5854813a04d28f55c8b93f8b046f2ea (diagnostic trace only; no source changes)",
+    "status": "HOLD_RUNTIME_OPENING_FAILURE_OBSERVABILITY_INSUFFICIENT",
+    "result": "Retained target-run evidence proves the managed consumer returned FAILED_CLOSED. A contemporaneous post-run observation recorded a projection held as OPENING_NOT_QUALIFIED; the current retained projection/opening rows are absent while the forward cursor remains 1. No target provider-call ledger row or stage-specific diagnostic survived, so retained evidence cannot identify an internal canonical-birth, selection, identity, or valuation stage beneath the consumer-level collapse.",
+    "cursor": "Consumer.process explicitly calls _advance for an ordinary FAILED_CLOSED event. The target's cursor advanced to 1 with no target assignment-scoped monitor ACK. This violates the ACK-before-cursor invariant. Normal forward replay begins after cursor 1 and no retry ownership is retained, so cursor consumption of an unproven/retryable opening result is confirmed.",
+    "safety": "Read-only trace only: no source, provider, reconciliation, consumer, database, Watchtower, queue, or lifecycle action.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Diagnostic-only retained-evidence and source-control-flow trace.",
+    "next_action": "ADD_ONLY_BOUNDED_STAGE_LEVEL_FAILURE_OBSERVABILITY_BEFORE_ANY_RETRY"
+  },
   "real_dev_byzantine_e2e_execution_20261005": {
     "engineering_revision": "bb8f3fa1b5854813a04d28f55c8b93f8b046f2ea",
     "status": "HOLD_REAL_E2E_AT_MANAGED_OPENING_NOT_QUALIFIED",

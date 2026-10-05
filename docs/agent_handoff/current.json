@@ -1,4 +1,17 @@
 {
+  "watchtower_overdue_lifecycle_eligibility_trace_20261005": {
+    "engineering_revision": "d7009c9107f4f27b38be742fc1c601e1cab5158b deployed monitor source; diagnostic only",
+    "status": "HOLD_EXISTING_SCHEDULER_ELIGIBILITY_DEFECT",
+    "finding": "The active MonitorWorker is healthy, but run_once calls reconcile_qualified_monitor_fact_queue_projection before recover_due. For each active qualified fact, that projection rewrites an existing retry envelope's monitor_state to ENTRY_REFERENCE_QUALIFIED while preserving its retry deadline and last_error. recover_due only recognizes NO_USABLE_CANDLE, RETRYABLE_DEFERRED, legacy blank, or HTTP_429 envelopes. It therefore skips all three retained envelopes despite their due timestamps.",
+    "boundaries": "At trace time 1791222964, latest completed 15-minute boundary was 1791222300 and next was 1791223200. EFGK last observation=1791147600: the original no-window attempt at 1791148651 correctly had request_from=completed_boundary=1791148500 and scheduled 1791149405, but that deadline is now elapsed. J4t6 last observation=1791155700: its original attempt at 1791156219 correctly had request_from=1791156600 greater than completed_boundary=1791155700 and scheduled 1791156605, also elapsed. Each now has multiple completed unseen boundaries, so both are stale scheduler state, not temporary boundary waits.",
+    "retry": "8n1 retains its durable retry message, physical-attempt count 3904, and compute-unit HTTP 400 failure with stored next retry 1791223205. The same projection has changed its envelope monitor_state from its generic retry state to ENTRY_REFERENCE_QUALIFIED, so current recover_due cannot automatically requeue it when that timestamp arrives. Ownership is retained but automatic retry is not currently proven.",
+    "fairness": "Held retry files are not in pending and cannot be claimed. The fair queue rotates eligible pending files after a durable cursor; it does not let one retry block another eligible pending token. The defect is classification/recovery of each individual retry envelope, not head-of-line blocking.",
+    "agency_and_mega": "AGENCY's terminal completed fact is outside the active-fact projection and its older AMBIGUOUS_PROVIDER_CALL work is not represented in the active monitor authority's queue/database tables; it is stale orphaned work, not retryable work owned by PID 90911. MEGA EFGK remains LIVE but its hold is the same stale eligibility-projection overwrite, a scheduler defect rather than a valid temporary wait.",
+    "safety": "Read-only source, queue, and SQLite URI mode=ro inspection only. No source changes, no agent-initiated database writes, provider calls, manual claims, queue acknowledgements, restarts, consumer actions, Byzantine work, opening work, or historical backfill. 5tY and WAITING_FOR_ENTRY_REFERENCE rows were not repaired.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Proof-only eligibility trace; no executable behavior changed.",
+    "next_action": "FIX_ONLY_THE_EXACT_BOUNDARY_ELIGIBILITY_DEFECT"
+  },
   "watchtower_monitor_dispatch_compatibility_recovery_20261005": {
     "engineering_revision": "d7009c9107f4f27b38be742fc1c601e1cab5158b; deployed monitor source /private/tmp/flex-universal-price-monitor-import-recovery",
     "status": "PARTIAL_MONITOR_ABORT_FIXED_OVERDUE_DISPATCH_NOT_YET_OBSERVED",

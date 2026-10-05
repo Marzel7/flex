@@ -17413,6 +17413,17 @@
     "runtime_deployment_reason": "Read-only retained-evidence diagnosis only; implementation and recovery require a separate authorization.",
     "next_action": "AUTHORIZE_MINIMUM_NON_SEMANTIC_MONITOR_IMPORT_RECOVERY_THEN_QUALIFY_DURABLE_REPLAY_WITHOUT_RECALCULATING_PRICE_FACTS"
   },
+  "universal_price_monitor_import_recovery_20261005": {
+    "engineering_revision": "49ba1ae43be06e7b9549b2a2b1849d8bc07fe390 on codex/universal-price-monitor-import-recovery",
+    "status": "HOLD_DEV_MONITOR_RESTART_PREFLIGHT",
+    "finding": "The minimal isolated repair catches only ModuleNotFoundError for src.ops.birth_anchored_opening_acquisition, writes one bounded replace-in-place opening_capability_unavailable.json diagnostic, and returns control so qualified lifecycle queue work can dispatch. Three provider-free tests pass: durable optional-capability visibility, qualified lifecycle dispatch after that failure, and non-live no-transport guard. No opening module was recreated and no price semantics changed.",
+    "tests": "pytest -q tests/test_monitor_optional_opening_capability.py: 3 passed, 0 failed.",
+    "safety": "HELIUS=0; BIRDEYE=0; canonical DB changed=false; universal DEV DB changed=false; price/history changed=false; runtime restarted=false.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "blocker": "Supervisor runs /Users/kevinkeaveney/.codex/worktrees/dev005-runtime-b4/flex at b4a6468917ded2fa5aac99fdb4efff87a680cfa3 with PYTHONPATH bound to the dirty shared checkout (monitor modules untracked). It is not bound to repair commit 49ba1ae4, so exact source identity and singleton deployment preflight fail.",
+    "next_action": "FIX_ONLY_RUNTIME_AUTHORITY_OR_PROCESS_BINDING"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

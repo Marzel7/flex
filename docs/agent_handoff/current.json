@@ -18159,6 +18159,16 @@
     "runtime_deployment_reason": "Read-only source and retained-state trace; no executable behavior changed.",
     "exact_next_action": "REVIEW_BIRDEYE_ACCOUNT_OR_ENDPOINT_LIMIT_BEFORE_CODE_CHANGE"
   },
+  "watchtower_historical_entry_ui_gap_20261005": {
+    "engineering_revision": "read-only deployed UI/source trace; no engineering source modified",
+    "status": "PASS_UI_GAP_CLASSIFIED_SEPARATELY_FROM_CURRENT_MONITOR_RECOVERY",
+    "finding": "The displayed 'HISTORICAL ENTRY MISSING: 533' is a broad historical read projection, not the current Watchtower strict-opening recovery cohort. The projection selects operation-assigned rows whose retained entry_mc_usd is NULL and which have no active universal-monitor work for the same mint. The History table deliberately renders those rows as 'Entry unavailable' and does not synthesize Entry MC, multiple, or ATH from later observations. The active recovery population remains separately bounded: 23 strict opening misses (plus the separate 28 waiting-reference cohort), not 533 current provider/runtime failures.",
+    "evidence": "templates/operators_index.html derives legacy rows from read-projection rows with NULL entry_mc_usd; src/ops/operator_routes.py labels a NULL Entry as 'Entry unavailable'; src/core/historical_performance.py documents that no reliable historical initial/entry MC is retained and deliberately leaves multiple fields NULL rather than reconstructing lossy values.",
+    "safety": "Read-only source/UI trace: source changes=0; database changes=0; provider calls=0; listener/monitor/consumer process changes=0; no historical backfill started.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Diagnostic classification only; no executable behavior changed.",
+    "exact_next_action": "AUTHORIZE_A_SEPARATE_BOUNDED_HISTORICAL_ENTRY_EVIDENCE_CENSUS_AND_RECOVERY_POLICY_IF_COVERAGE_OF_THE_533_LEGACY_ROWS_IS_DESIRED"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

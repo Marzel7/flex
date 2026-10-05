@@ -18212,5 +18212,16 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS",
     "next_action": "OBSERVE_NEXT_NATURAL_WATCHTOWER_ASSIGNMENT_FOR_FORWARD_WAITING_FACT_COVERAGE; KEEP_TARGET_SECOND_ABSENT_AND_MISSING_POOL_REPAIRS_SEPARATE"
+  },
+  "watchtower_zero_live_birdeye_usage_attribution_20261006": {
+    "engineering_revision": "8fa461e4dc32e4fde15639eb14a2c44a01fda43b active DEV monitor source; read-only retained-state attribution",
+    "status": "PASS_WAITING_OPENING_RETRY_LOOP_ATTRIBUTED",
+    "authority": "Supervisor operation_monitor_worker PID 57416 runs /private/tmp/flex-universal-price-monitor-import-recovery against DEV monitor DB /Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db and compact queue /Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue.",
+    "finding": "Watchtower MONITORING_ACTIVE facts=0. The active MonitorWorker is nevertheless producing Birdeye strict-opening calls from 25 durable Watchtower waiting messages: 23 latest retained HTTP-200 TARGET_SECOND_ABSENT outcomes and two HTTP-200 NO_PROVIDER_ITEMS outcomes. Their retained attempt timestamps advance one at a time at approximately 15-second intervals (four per observed minute, about 240 calls/hour) against BIRDEYE_V3_OHLCV with the STRICT_MIGRATION_WINDOW_1S request family. The source reschedules an unqualified strict result at now+60 seconds and retains no terminal attempt/budget condition, so the same durable messages continue to consume capacity while no Watchtower token is LIVE.",
+    "scope": "The queue also contains 48 pending WATCHTOWER_TERMINAL_ATH_FINALIZATION messages and one non-Watchtower Byzantine normal message, but no retained evidence attributed a recent Birdeye call to either during this read-only snapshot. watchtower_api has Flask background workers disabled and retained API logs contain no recent price/OHLCV route evidence. Scheduler, bridge, creator workers, listener, walkback, and cascade are not evidenced as current Birdeye callers.",
+    "safety": "Read-only source/config/Supervisor/SQLite/compact-queue/log attribution; source changes=0; database changes=0; process changes=0; manual Birdeye/Helius calls=0; no provider probe.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Diagnostic attribution only; no executable behavior changed.",
+    "exact_next_action": "STOP_ONLY_THE_UNBOUNDED_WAITING_OPENING_RETRY_BEHAVIOUR_WHILE_PRESERVING_FORWARD_OPENING_ACQUISITION"
   }
 }

@@ -125,3 +125,33 @@ def test_non_live_entry_never_reaches_transport(tmp_path):
     worker = MonitorWorker(queue, transport=lambda _: calls.append('called'), db_path=str(tmp_path / 'unused.db'))
     assert worker.process_once() == 1
     assert calls == []
+
+
+def test_service_continues_to_lifecycle_dispatch_after_optional_opening_unavailable(monkeypatch):
+    from src.ops import operation_monitor_service as service
+
+    class Queue:
+        def recover_due(self):
+            return None
+
+    class Worker:
+        def __init__(self):
+            self.dispatched = 0
+        def reconcile_retained_watchtower_facts(self):
+            return None
+        def reconcile_terminal_ath_jobs(self):
+            return None
+        def reconcile_stale_watchtower_pending_openings(self):
+            return None
+        def process_entry_reference_opening_once(self):
+            return {'state': 'STRICT_OPENING_OPTIONAL_CAPABILITY_UNAVAILABLE'}
+        def process_once(self):
+            self.dispatched += 1
+            return 1
+
+    for name in ('reconcile_byzantine_assignment_admissions', 'reconcile_watchtower_assignment_admissions',
+                 'reconcile_watchtower_deep_assignment_admissions', 'reconcile_qualified_monitor_fact_queue_projection'):
+        monkeypatch.setattr(service, name, lambda *_: None)
+    worker = Worker()
+    service.run_once(worker=worker, queue=Queue(), db_path='unused')
+    assert worker.dispatched == 1

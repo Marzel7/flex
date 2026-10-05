@@ -1,4 +1,14 @@
 {
+  "existing_db_create_coordinate_trace_20261005": {
+    "engineering_revision": "9363f57835dc8bee42680c228448d91569d87b83 candidate unchanged; retained DB trace only",
+    "status": "HOLD_EXISTING_DB_CREATE_COORDINATE_ABSENT",
+    "finding": "The canonical wt_create_event_ledger table exists in database/wt_ops_v2.db but has zero rows. The target 6LQt...ppump and PEPEINU both retain one legacy wt_walkback_queue create_anchor_signature keyed by mint, with create_anchor_source=token_analysis and audit state VALID, but create_anchor_slot and create_anchor_block_time are NULL. Exact signature joins found no retained slot/time in prospective signature/ordinal evidence, the canonical CREATE ledger, wt_launch_audit, wt_detected_creates, birth_persist_queue, or launch tables. No timestamp was synthesized from token_analysis created_at or receipt/detection timestamps. Therefore no deterministic complete canonical CREATE coordinate can be reconstructed for either assignment from retained DB data.",
+    "controls": "A separate historical control EeujXJZkoyGvBmwxT4HMwVw7ZuCoNwqiWBgFWVcJpump retains one FINALIZED LIVE_WS_CASCADE wt_launch_audit row with signature hMftv2ePaKma2SVfByXbA3oqhH6aKtzDiPEnBVrGhhKFWUNUCsYvqiLW3eVUevXFJdu3uuEgRVTFXtQPxeHcRnR, slot 431809841, and create_time 1783603984; the legacy listener wt_detected_creates row independently agrees on mint/signature/slot. This validates only the historical table shape, not coverage for target or PEPEINU.",
+    "safety": "Read-only SQLite inspections only; source files changed=0; schemas/tables/databases unchanged; locked listener changed/restarted=false; second ingress=false; Helius=0; Birdeye=0; managed consumer/reconciliation=false.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Forensic retained-data trace only; no executable runtime behavior changed.",
+    "next_action": "AUTHORIZE_ONLY_BOUNDED_POST_ASSIGNMENT_CREATE_COORDINATE_RECOVERY"
+  },
   "forward_canonical_create_retention_deployment_20261005": {
     "engineering_revision": "9363f57835dc8bee42680c228448d91569d87b83 on codex/dev-current-worker-consumer-assembly; deployment inventory only",
     "status": "HOLD_NO_SAFE_EXISTING_DEV_LISTENER_TARGET",

@@ -17706,6 +17706,16 @@
     "runtime_deployment_reason": "Extraction and provider-free tests only; no running runtime target was modified or activated.",
     "exact_next_action": "BIND_ALREADY_QUALIFIED_CONSUMER_TO_EXTRACTED_PRODUCER"
   },
+  "universal_consumer_enqueue_binding_20261005": {
+    "engineering_revision": "0833a616099e33bdbde67d500a69a6fad470bc8e extracted producer; existing candidate consumer at /private/tmp/universal-assignment-schema-deploy commit 3b123ca2b2b6612717854b3a09be94d085a3a0af",
+    "status": "HOLD_OBSERVED_EXISTING_INTERFACE_MISMATCH",
+    "verdict": "The existing universal_assignment_opening_bridge.commit_qualified interface cannot meet durable-enqueue-before-success recovery semantics. It writes universal_opening_work.state=QUALIFIED before calling the injected handoff. A provider-free temporary-DB proof injected enqueue failure: first handoff raised injected_enqueue_failure, persisted state was QUALIFIED, and retry returned ALREADY_QUALIFIED with retry enqueue calls=0.",
+    "impact": "This violates the requested crash-after-opening-before-enqueue recovery gate: the durable QualifiedOpening survives but enqueue ownership is not replayed. Binding the extracted producer without changing this existing interface would create a false-success/retry-loss path; no binding was implemented.",
+    "safety": "Temporary SQLite DB only; source changes=0; reference worker import=0; provider calls=0; production DB/runtime access=0; canonical DB changed=false; universal DEV DB changed=false; consumer start=0; target reconciliation=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Diagnostic proof only; no executable runtime was changed.",
+    "exact_next_action": "REPORT_ONLY_THE_EXISTING_OPENING_COMMIT_RETRY_INTERFACE_MISMATCH_AND_REVIEW_A_RECOVERY_SEMANTICS_CHANGE_BEFORE_BINDING"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

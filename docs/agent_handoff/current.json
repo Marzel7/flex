@@ -1,4 +1,14 @@
 {
+  "shared_canonical_birth_managed_binding_20261005": {
+    "engineering_revision": "9363f57835dc8bee42680c228448d91569d87b83 candidate inspected; no source change",
+    "status": "HOLD_SHARED_BIRTH_EXISTING_INTERFACE_MISMATCH",
+    "finding": "The managed universal registry declares Watchtower as FIRST_AVAILABLE but supplies no executable capability: universal_assignment_opening_bridge.EXECUTABLE_ADAPTERS is exactly a copy of BYZANTINE_EXECUTABLE_ADAPTERS. AdapterRegistryExecutor therefore raises ADAPTER_CAPABILITY_UNBOUND for Watchtower. The only current Watchtower entry acquisition is MonitorBirdeyeTransport.acquire_watchtower_entry in operation_monitor_worker.py; it is monitor-side migration-window pricing (first nonzero 1s candle after migration), not a managed Opening callable and does not accept/return the established canonical-birth contract. Additionally, the candidate source contains only the parser-level birth_anchored_opening_acquisition.py contract; the prior retained-or-exact Create orchestration named in the handoff (live_opening_action_job.py, operation_token_data_runner.py, token_data_chain_facts.py, token_data_fact_adapters.py) is absent from this source line. Binding either missing interface would require introducing new runtime behavior, prohibited by this gate.",
+    "evidence": "src/ops/universal_assignment_opening_bridge.py: REGISTRY={'watchtower':('FIRST_AVAILABLE','WATCHTOWER_FIRST_AVAILABLE_V1'),...}; EXECUTABLE_ADAPTERS=dict(BYZANTINE_EXECUTABLE_ADAPTERS). src/ops/universal_adapter_registry_executor.py fails unbound capabilities with ADAPTER_CAPABILITY_UNBOUND. src/ops/operation_monitor_worker.py acquire_watchtower_entry requires migration_timestamp and calls Birdeye; it cannot be reused as a canonical-birth/managed Opening capability.",
+    "safety": "Source files changed=0; tests not run because the required executable Watchtower/shared-birth interfaces are absent; listener changed/restarted=false; second ingress=false; MonitorWorker/queue/ACK/lifecycle/price behavior unchanged; Helius=0; Birdeye=0; canonical/universal DEV DB changed=false; managed consumer/reconciliation=false.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "No executable behavior was changed; this gate stopped at the required existing-interface check.",
+    "next_action": "AUTHORIZE_AND_QUALIFY_A_CONCRETE_EXISTING_WATCHTOWER_OPENING_CAPABILITY_AND_RETAINED_OR_EXACT_CREATE_ORCHESTRATION_ON_THE_SINGLE_DEV_SOURCE_LINE"
+  },
   "shared_watchtower_byzantine_canonical_birth_contract_20261005": {
     "engineering_revision": "9363f57835dc8bee42680c228448d91569d87b83 candidate unchanged; source/provenance trace only",
     "status": "PASS_REUSE_EXISTING_WATCHTOWER_CANONICAL_BIRTH_CONTRACT",

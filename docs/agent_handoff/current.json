@@ -17739,6 +17739,16 @@
     "runtime_deployment_reason": "Proof-only source/schema/temporary-state review; no executable runtime changed.",
     "exact_next_action": "REPORT_ONLY_CRASH_C_ASSIGNMENT_IDENTITY_AMBIGUITY_AND_REVIEW_A_DURABLE_ASSIGNMENT_SCOPED_HANDOFF_PROOF"
   },
+  "minimal_assignment_receipt_atomicity_20261005": {
+    "engineering_revision": "Extracted producer 0833a616099e33bdbde67d500a69a6fad470bc8e; proof-only",
+    "status": "HOLD_POST_ENQUEUE_RECEIPT_CANNOT_CLOSE_ACK_RACE",
+    "proof": "Temporary provider-free interleaving: deterministic enqueue succeeded, the existing EvidenceIntakeQueue claimed and ACKed the message before any SQLite receipt was written, leaving zero queue files and zero receipt rows. Recovery used the same deterministic id and created a new pending message. Thus the current queue's idempotency record disappears on ACK, and a receipt recorded only after enqueue cannot distinguish this case from never-enqueued after a crash.",
+    "blocker": "A pre-enqueue receipt records only intent and cannot prove delivery; a post-enqueue receipt has an unavoidable concurrent claim/ACK crash window. Current MonitorWorker/EvidenceIntakeQueue provide no assignment-scoped durable completion acknowledgement to the consumer. Meeting the requested Crash B/C guarantees would require changing the queue/worker acknowledgement boundary or a shared atomic durable transport, both prohibited by this gate.",
+    "safety": "Temporary queue/SQLite only; source changes=0; provider calls=0; production DB/runtime access=0; canonical DB changed=false; universal DEV DB changed=false; consumer start=0; target reconciliation=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Proof-only crash-window analysis; no executable runtime changed.",
+    "exact_next_action": "REPORT_ONLY_POST_ENQUEUE_RECEIPT_ACK_RACE_AND_REVIEW_QUEUE_OR_WORKER_COORDINATION_AUTHORIZATION"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

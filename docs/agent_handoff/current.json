@@ -1,4 +1,15 @@
 {
+  "watchtower_bound_opening_recovery_20261005": {
+    "engineering_revision": "8fa461e4dc32e4fde15639eb14a2c44a01fda43b; isolated branch codex/watchtower-opening-recovery; no source changes",
+    "status": "HOLD_EXISTING_STRICT_RECOVERY_AT_SOAK_ADMISSION_AUTHORIZATION",
+    "qualification": "Dedicated isolated worktree was created at the exact verified base and a dedicated branch created. Existing provider-free strict-entry controls passed for qualified, target-second-absent, no-provider-items, entry-event-not-occurred, and temporary-waiting outcomes. Retained cohort remains 25 complete canonical migration boundaries and 3 missing PumpSwap-pool boundaries.",
+    "observed_execution": "The existing active DEV MonitorWorker (PID 41344, observational) owns the durable pending envelopes. Its scheduler observed bounded strict 2-second BIRDEYE dispatch outcomes for 23 complete-boundary rows: TARGET_SECOND_ABSENT=21 and NO_PROVIDER_ITEMS=2. No qualified opening was observed. The compact retained strict diagnostic records HTTP status and result category but does not retain provider item count. No manual request, entry value, candle, queue message, LIVE admission, or DB edit was made by this gate.",
+    "blocker": "Two complete-boundary rows, 2n3bPZcfbcUNgaP6Ktw8E1wYoycAhuR1sSHa7uB6pump and 7hGwu7u8X6Bb88B1eGYKWbTsUiWtpmBLQ9YQ1nxFpump, are existing reconstructed waiting envelopes without assignment.event_id and birth.monitor_admission_event_id. The active DEV soak gate rejects them in MonitorQueue.soak_allows before claim, so MonitorWorker.process_once never reaches _entry_inventory or strict_migration_window.dispatch. This is an exact existing-path compatibility boundary; no repair was attempted.",
+    "scope_controls": "Missing-pool rows 2YB13v6vJ1HTmuzbwujYsahAng1XPbjfT6kMNrFYpump, 9qGAEd7CDCEoKA1YLxgHqu7dyVrJB9tnnoBzaQpApump, and A3dtfF75L6Aj9QZ4EEz8LpxZpSZHHcactYtv571Gpump received zero recovery/provider actions. No Byzantine, consumer, listener, runtime, pricing, lifecycle, policy, credential, historical-backfill, or raw-payload change occurred. Project storage rule unchanged.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "No executable source or runtime configuration changed; this gate observed the existing active scheduler and stopped at its proven compatibility boundary.",
+    "next_action": "AUTHORIZE_A_NARROW_REPAIR_OR_EXISTING_IDENTITY_REHYDRATION_FOR_THE_TWO_RECONSTRUCTED_WAITING_ENVELOPES_BEFORE_ANOTHER_STRICT_RECOVERY_PASS"
+  },
   "watchtower_verified_runtime_opening_trace_20261005": {
     "engineering_revision": "8fa461e4dc32e4fde15639eb14a2c44a01fda43b active DEV authority; read-only opening audit",
     "status": "PASS_RUNTIME_FROZEN_OPENING_COHORT_TRACE_COMPLETE",

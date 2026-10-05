@@ -17448,6 +17448,15 @@
     "runtime": "operation_monitor_worker RUNNING pid 72399; single source root verified; shared workspace imports=false; observed scheduler uptime exceeds four five-second intervals.",
     "next_action": "TRACE_MISSING_RECENT_BYZANTINE_ASSIGNMENT_END_TO_END"
   },
+  "recent_byzantine_missing_universal_enrolment_20261005": {
+    "engineering_revision": "367d97d543fbc702d1082a369cadd77e6ca4834b; retained-authority trace only",
+    "status": "HOLD_FORWARD_ASSIGNMENT_OUTBOX_FAILURE",
+    "finding": "Newest retained Byzantine membership is 6LQtSttiDkpLvLQRfefqoNqmj4fdAoNFXAhW7UBppump, event 72741232-dcbe-5871-8ebe-ce9d294aeb50, assigned_at 1791185188 by operator d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334. A second recent Byzantine assignment, 2X13Mai445HkFzHVYfDCvmnbGRk1KL2JdBVzGqbLpump, is likewise absent downstream. Both canonical memberships exist, but database/wt_ops_v2.db has no canonical_membership_outbox table and neither has a legacy monitor-admission event. Neither has universal ownership or a DEV monitor fact. The first broken boundary is canonical assignment to canonical outbox, before Opening, guard, QualifiedOpening, bridge, worker activation, or UI. This is unrelated to the repaired lifecycle dispatcher, which only processes already-enrolled work.",
+    "audit": "docs/audits/recent_byzantine_missing_universal_enrolment.v1.json",
+    "safety": "Retained read-only trace; HELIUS=0; BIRDEYE=0; other providers=0; no DB/token/price/history mutation; monitor restart=false; monitor stop=false; healthy monitor unchanged.",
+    "minimum_repair": "After separate forward canonical-outbox runtime deployment authorization, run targeted reconciliation for only the proven event; do not perform a historical Byzantine or membership backfill.",
+    "next_action": "FIX_CANONICAL_ASSIGNMENT_TO_OUTBOX_ONLY"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

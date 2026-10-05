@@ -1,4 +1,16 @@
 {
+  "watchtower_monitor_dispatch_compatibility_recovery_20261005": {
+    "engineering_revision": "d7009c9107f4f27b38be742fc1c601e1cab5158b; deployed monitor source /private/tmp/flex-universal-price-monitor-import-recovery",
+    "status": "PARTIAL_MONITOR_ABORT_FIXED_OVERDUE_DISPATCH_NOT_YET_OBSERVED",
+    "authority": "Supervisor operation_monitor_worker was restarted from stale PID 72399 to PID 90911. The new running process has CWD and PYTHONPATH rooted at /private/tmp/flex-universal-price-monitor-import-recovery and remains RUNNING after bounded acceptance. Identity-only launcher preflight resolved worker and service from that same root, with state retained under /Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a.",
+    "implementation": "No MonitorWorker or service behavior was rewritten. The exact reconcile_stale_watchtower_pending_openings method was already present in the deployed source with provenance a16a6c09; the failing process had stale in-memory code. Commit d7009c adds only focused provider-free compatibility coverage for four complete service scans.",
+    "verification": "8 focused tests passed, 0 failed. Four provider-free full service scans completed with zero aborts and reached the scheduler path. After restart, the worker error log retained its old mtime/size and produced no fresh AttributeError; retained active Watchtower facts updated through reconciliation during the bounded real acceptance window.",
+    "poststate": "No new lifecycle observation or target provider_call_count was observed for 8n1, EFGK, or J4t6 during acceptance, so dispatch is not claimed restored. Their retry envelopes retain existing errors: 8n1 has an HTTP 400 compute-unit failure and a future next retry; EFGK and J4t6 retain NO_COMPLETED_15M_BOUNDARY. The real scheduler made unrelated existing OPENING calls during acceptance. 5tY remains MONITORING_ACTIVE without a current observation or next due timestamp; no due state was invented. Current database census shows 39 WAITING_FOR_ENTRY_REFERENCE facts; none was repaired or altered by this work.",
+    "safety": "Only operation_monitor_worker was restarted. Watchtower listener/source/restart=false; Byzantine target/consumer=false; no historical or price backfill; no manual queue claim/ack or reconciliation. Price/opening/lifecycle semantics were not modified.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PARTIAL: compatible deployed source and bounded no-abort acceptance are proven, but overdue lifecycle dispatch was not observed.",
+    "next_action": "TRACE_EXISTING_FAIR_SCHEDULER_ELIGIBILITY_FOR_EXISTING_OVERDUE_RETRY_ENVELOPES_ONLY"
+  },
   "watchtower_price_system_current_census_20261005": {
     "engineering_revision": "current DEV monitor authority observed read-only; no source revision changed",
     "status": "HOLD_WATCHTOWER_MONITOR_DISPATCH_FAILURE",

@@ -172,6 +172,70 @@ def test_qualified_live_dispatch_continues_after_optional_opening_failure(tmp_pa
     assert queue.current_fact_identities(operation_id='watchtower', mint='agency')
 
 
+@pytest.mark.parametrize(('mint', 'candle_count'), [('5TY-provider-free', 112), ('8N1-provider-free', 112), ('sixty-candle-control', 60)])
+def test_valid_lifecycle_candles_are_not_rejected_by_normalized_response_size(tmp_path, mint, candle_count):
+    """Valid normalized lifecycle evidence is governed by durable storage, not a local 8 KiB JSON gate."""
+    db = tmp_path / 'monitor.db'
+    connection = sqlite3.connect(db); _ensure_schema(connection); connection.commit(); connection.close()
+    queue = MonitorQueue(tmp_path / 'queue', enabled=True)
+    queue.queue.enqueue({
+        'operation_id': 'watchtower', 'mint': mint, 'cohort': 'PROSPECTIVE_MONITOR_COHORT',
+        'entry_method': 'frozen', 'entry_timestamp': 1, 'entry_mc_usd': 10.0,
+        'entry_reference_state': 'ENTRY_REFERENCE_QUALIFIED', 'monitor_state': 'ENTRY_REFERENCE_QUALIFIED',
+        'candle_resolution': '15m', 'assignment': {'assigned_at': 1},
+    })
+    candles = [
+        {'timestamp': 900 * (index + 1), 'mc': 10.0, 'open': 10.0, 'high': 12.0, 'low': 9.0}
+        for index in range(candle_count)
+    ]
+    assert (len(json.dumps(candles)) > 8192) is (candle_count > 60)
+    worker = MonitorWorker(
+        queue, transport=lambda _envelope: {'candles': candles, 'resolution': '15m', 'request': {}},
+        persist=_committing_writer(db), db_path=str(db),
+        opening_jobs_path=tmp_path / 'opening.db', provider_work_path=tmp_path / 'provider.db',
+    )
+    assert worker.process_once() == 1
+    with sqlite3.connect(db) as connection:
+        fact = connection.execute(
+            'SELECT provider_call_count, candles_retained FROM operation_monitor_facts WHERE operation_id=? AND mint=?',
+            ('watchtower', mint),
+        ).fetchone()
+        observations = connection.execute(
+            'SELECT COUNT(*) FROM operation_monitor_observations WHERE operation_id=? AND mint=?',
+            ('watchtower', mint),
+        ).fetchone()[0]
+    assert fact == (1, candle_count)
+    assert observations == candle_count
+
+
+def test_terminal_transition_semantics_remain_entry_and_peak_based(tmp_path):
+    db = tmp_path / 'monitor.db'
+    connection = sqlite3.connect(db); _ensure_schema(connection); connection.commit(); connection.close()
+    queue = MonitorQueue(tmp_path / 'queue', enabled=True)
+    queue.queue.enqueue({
+        'operation_id': 'watchtower', 'mint': 'terminal-control', 'cohort': 'PROSPECTIVE_MONITOR_COHORT',
+        'entry_method': 'frozen', 'entry_timestamp': 1, 'entry_mc_usd': 10.0,
+        'entry_reference_state': 'ENTRY_REFERENCE_QUALIFIED', 'monitor_state': 'ENTRY_REFERENCE_QUALIFIED',
+        'candle_resolution': '15m', 'assignment': {'assigned_at': 1},
+    })
+    worker = MonitorWorker(
+        queue,
+        transport=lambda _envelope: {'candles': [
+            {'timestamp': 900, 'mc': 100.0, 'open': 10.0, 'high': 100.0, 'low': 10.0},
+            {'timestamp': 1800, 'mc': 10.0, 'open': 100.0, 'high': 100.0, 'low': 10.0},
+        ], 'resolution': '15m', 'request': {}},
+        persist=_committing_writer(db), db_path=str(db),
+        opening_jobs_path=tmp_path / 'opening.db', provider_work_path=tmp_path / 'provider.db',
+    )
+    assert worker.process_once() == 1
+    with sqlite3.connect(db) as connection:
+        fact = connection.execute(
+            'SELECT monitor_state, running_peak_mc_usd, latest_mc_usd FROM operation_monitor_facts WHERE mint=?',
+            ('terminal-control',),
+        ).fetchone()
+    assert fact == ('PRICE_MONITOR_COMPLETE_COLLAPSED', 100.0, 10.0)
+
+
 def test_non_live_entry_never_reaches_transport(tmp_path):
     queue = MonitorQueue(tmp_path / 'queue', enabled=True)
     queue.queue.enqueue({

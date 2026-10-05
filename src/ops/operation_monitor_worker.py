@@ -53,9 +53,6 @@ class TerminalProviderFailure(RuntimeError):
  """A classified non-retryable provider outcome; never re-enters polling."""
  def __init__(self, classification='TERMINAL_PROVIDER_FAILURE'):
   self.classification=str(classification); super().__init__(self.classification)
-class ResponseCapacityExceeded(RuntimeError):
- """Compact response guard failure; retryable under the generic policy."""
- pass
 class StrictEntryNormalizationError(ValueError):
  def __init__(self, category, diagnostic):
   self.category=category;self.diagnostic=diagnostic
@@ -1339,7 +1336,6 @@ class MonitorWorker:
     c.payload['envelope']=p;self.q.queue._replace_payload(c.path,c.payload)
     self.q.record_provider_success()
     candles=response.get('candles',[])
-    if len(json.dumps(candles))>8192: raise ResponseCapacityExceeded('COMPACT_RESPONSE_CAPACITY_EXCEEDED')
     if not candles:
      raise NoUsableOhlcvEvidence(now=dispatch,classification=str(response.get('empty_ohlcv_classification') or 'NO_USABLE_CANDLE'))
     p['provider_normalized_usable_count']=int(p.get('provider_normalized_usable_count') or 0)+1

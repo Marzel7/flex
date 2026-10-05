@@ -41,7 +41,7 @@ def test_watchtower_frozen_controls_keep_first_available_values(expected):
 
 def _bridge_with_real_worker(tmp_path):
     queue = MonitorQueue(tmp_path / "queue", enabled=True)
-    return QualifiedEntryMonitorBridge(MonitorWorker(queue, persist=_receipt), queue), queue
+    return QualifiedEntryMonitorBridge(MonitorWorker(queue, transport=lambda _: {}, persist=_receipt), queue), queue
 
 
 def test_watchtower_opening_flows_through_exact_bridge_and_worker(tmp_path, monkeypatch):
@@ -80,7 +80,7 @@ def test_retained_pepeinu_opening_guard_then_bridge_preserves_selected_value(tmp
 def test_frozen_source_hashes_and_historical_producer_guard_separation():
     expected = {
         "src/ops/watchtower_first_available_mc.py": "52231ff4403eb1eaa6ebe0e89480059f6e26d4eab979ef75c7ff2ece89584af2",
-        "src/ops/operation_monitor_worker.py": "9500e2dba7a262fe003b988752ab43cd97a30b37d773404669bb4722f0e24559",
+        "src/ops/operation_monitor_worker.py": "f8360c939b69a7ff5e8c11d297e50ad44761934febed925d3ab097aa8e2050a2",
         "src/ops/qualified_entry_monitor_bridge.py": "b7a1608e4e1ed3c7a7419035c72cc506a4bf8f4f001be78c4a85fa28d1dc685c",
         "scripts/run_byzantine_actual_entry_24h_backfill.py": "5645ab3e23968deb7a0e8006263c413a21bbc09001bf3dcadf2a3df3141bd0c3",
     }

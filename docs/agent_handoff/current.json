@@ -17537,6 +17537,20 @@
     "runtime_deployment_gate": "HOLD",
     "next_action": "COMPLETE_CLI_LIFECYCLE_HEALTH_AND_EXACT_BRIDGE_WORKER_QUEUE_CONSTRUCTION_THEN_RERUN_FULL_MANAGED_E2E"
   },
+  "universal_assignment_destination_authority_recovery_20261005": {
+    "engineering_revision": "209da409e41e2211b355d86f08dd053f0e810b02 plus the uncommitted qualified managed-consumer candidate",
+    "status": "HOLD",
+    "verdict": "REAL_DESTINATION_RECOVERED_BUT_SOURCE_AND_DESTINATION_SCHEMAS_NOT_DEPLOYED",
+    "destination_authority": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db",
+    "process_evidence": "PID 72399 is running src.ops.operation_monitor_service from the isolated checkout and explicitly binds WT_OPS_DB_PATH and DATABASE_PATH to the recovered absolute destination; its cwd and environment provide independent path evidence.",
+    "destination_identity": "606208 bytes; mtime_ns=1791194340096503662 at read-only inspection; operation_monitor_facts=95; operation_monitor_observations=634.",
+    "preflight": "CLI read-only preflight executed against recovered destination and /Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db. It returned SOURCE_SCHEMA_INCOMPATIBLE: canonical_membership_outbox absent.",
+    "source_target": "operator_launch_membership retains event 72741232-dcbe-5871-8ebe-ce9d294aeb50 for mint 6LQtSttiDkpLvLQRfefqoNqmj4fdAoNFXAhW7UBppump; no canonical outbox table exists, so no target outbox was created or reconciled.",
+    "schema_gap": "Destination owns active monitor state and universal monitor ownership but lacks universal_assignment_projection, universal_assignment_cursor, universal_opening_work, and universal_opening_visible. No schema was initialized.",
+    "safety": "provider calls=0; source changes=0; destination changes=0; process stop/restart=0; deployment=0; managed consumer start=0; reconciliation=0.",
+    "blocker": "The real canonical source lacks canonical_membership_outbox and the live destination lacks the consumer/opening ledgers. This authority-recovery-only gate forbids their creation.",
+    "exact_next_action": "Authorize and qualify a separate deployment/schema-installation gate before rerunning preflight; do not substitute an authority or create tables in recovery."
+  },
   "universal_assignment_managed_consumer_20261005": {
     "engineering_revision": "209da409e41e2211b355d86f08dd053f0e810b02 plus uncommitted managed-consumer candidate",
     "status": "HOLD",

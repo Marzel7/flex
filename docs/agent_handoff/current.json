@@ -18188,5 +18188,17 @@
     "contract": "docs/audits/watchtower_deep_classification_deployment_contract.v1.json sha256 182c952f380d7e25e3f5c2523398f1f22765355f4ef596b0edbcbd2170763636; authorized=false; one bounded pinned-runtime reload/restart only after exact hash verification.",
     "audit": "docs/audits/watchtower_deep_classification_implementation_review.v1.json sha256 d2026949842813b509841f4fe37577d1f3a6a529d8e2b83376cc232a1b226a19",
     "next_action": "AUTHORIZE_WATCHTOWER_DEEP_CLASSIFICATION_V1"
+  },
+  "watchtower_recent_pending_queue_waiting_fact_fix_20261005": {
+    "engineering_revision": "b375707d72002d0ad594fb63aa0a493acebc1af2 qualified candidate; active DEV base 8fa461e4dc32e4fde15639eb14a2c44a01fda43b with the same manifest hash",
+    "status": "PASS_PENDING_QUEUE_TO_MONITOR_WAITING_FACT_BOUNDARY_REPAIRED",
+    "implementation": "Added only persist_waiting_entry_fact=true to the existing Watchtower monitor capability declaration. MonitorWorker already had the durable waiting-fact branch and uses it after a strict Opening miss; no worker, strict window, policy, lifecycle, queue, or identity-generation logic changed.",
+    "qualification": "20 focused provider-free tests passed: existing optional-opening/monitor tests plus canonical membership/outbox controls. New controls prove the existing waiting-fact path persists exactly one WAITING_FOR_ENTRY_REFERENCE fact after a strict TARGET_SECOND_ABSENT fixture, duplicate enqueue identity does not duplicate work, and DEV soak authorization accepts only exact delivered assignment plus birth identities while rejecting wrong or missing identities. A separate broader capability-layer file has two unrelated baseline dashboard import failures for MIN_LIVE_MARKET_CAP and was not changed.",
+    "deployment": "RUNTIME_DEPLOYMENT_GATE=PASS: candidate commit b375707d was qualified in isolated worktree /private/tmp/recent-watchtower-waiting-fact. The active DEV manifest at /private/tmp/flex-universal-price-monitor-import-recovery has matching SHA-256 9c71bc945472064b2eab48da0fb323c95c17e9951fa296e2387b34d9de3ea3d1. Only Supervisor operation_monitor_worker was restarted (pre PID 41344; post PID 57416) and remained RUNNING.",
+    "acceptance": "Natural post-restart scheduler retries (no manual dispatch) processed AGENCY mint 4nn2hUuWxReUxBRAuXzhG3A556U6pjbecHBgwRt2pump and HIGCAT mint GszmgSqbt9huNYJfQtG1wbcqszKnmNkd6dxEJWrYpump. Both retained HTTP 200 strict diagnostics with TARGET_SECOND_ABSENT and each now has one authoritative Watchtower WAITING_FOR_ENTRY_REFERENCE monitor fact. This proves queue-to-fact durability, not a synthetic Opening or repair of absent strict target-second evidence.",
+    "safety": "No synthetic assignment or birth identity, no manual fact or queue change, no Helius call, no manual Birdeye call, no Byzantine/consumer/listener action, no historical-533 audit, and no strict evidence or missing-pool repair. Test stores were compact temporary files; no unbounded storage path was introduced.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "next_action": "OBSERVE_NEXT_NATURAL_WATCHTOWER_ASSIGNMENT_FOR_FORWARD_WAITING_FACT_COVERAGE; KEEP_TARGET_SECOND_ABSENT_AND_MISSING_POOL_REPAIRS_SEPARATE"
   }
 }

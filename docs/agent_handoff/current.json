@@ -18030,6 +18030,16 @@
     "runtime_deployment_reason": "Read-only runtime/retained-state acceptance observation; no executable behavior was changed.",
     "exact_next_action": "FIX_ONLY_THE_HTTP_400_COMPUTE_UNITS_RETRY_BOUNDARY"
   },
+  "watchtower_birdeye_credential_authority_20261005": {
+    "engineering_revision": "9fac51e7c0a83848f27305f05f785ef8c67032e0 on codex/universal-price-monitor-import-recovery",
+    "status": "PASS_CREDENTIAL_CORRECT_COMPUTE_LIMIT_FAILURE_IS_REQUEST_LEVEL",
+    "finding": "The DEV monitor now accepts only the non-secret BIRDEYE credential label, rejects legacy selector labels, and fails closed if that label is absent. Its scrubbed running environment contains BIRDEYE and BIRDEYE_CREDENTIAL_LABEL only. Focused provider-free authority and monitor compatibility tests passed 12/12. After restart, the naturally retried MEGA, AGENCY, 5tY, and 8n1 queue messages all retained the same HTTP 400 compute-units usage-limit result.",
+    "safety": "No credential value, hash, length, or raw request was recorded. Only operation_monitor_worker was restarted; no listener, scheduler semantics, opening, lifecycle behavior, manual dispatch, or consumer work changed.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "runtime_deployment_reason": "The executable DEV monitor credential binding changed. It was restarted into source revision 9fac51e7c0a83848f27305f05f785ef8c67032e0, PID 4832, and remained RUNNING through a bounded acceptance observation.",
+    "exact_next_action": "TRACE_THE_PROVIDER_REQUEST_SHAPE"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

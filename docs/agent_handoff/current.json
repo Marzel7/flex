@@ -17815,7 +17815,7 @@
     "exact_next_action": "RECOVER_OR_EXPLICITLY_AUTHORIZE_THE_MISSING_SELECTED_TRANSACTION_TO_NORMALIZED_PUMPSWAP_EVENT_IDENTITY_BEHAVIOUR_BEFORE_PACKAGING"
   },
   "byzantine_forward_capability_20261005": {
-    "engineering_revision": "58bfad7852ea349a278917d0bf625f0191178b75 on codex/dev-current-worker-consumer-assembly",
+    "engineering_revision": "4ab9c00854090803d35b4e381931037273ea6894 on codex/dev-current-worker-consumer-assembly",
     "status": "PASS_COMPLETE_BYZANTINE_FORWARD_CAPABILITY_READY_FOR_REAL_DEV_E2E",
     "worktree": "/private/tmp/flex-current-worker-consumer-assembly",
     "finding": "The qualified source line now packages the retained one-page/earliest-slot/eight-candidate Byzantine selector and retained 15-second containing-candle close unchanged. It adds only a fail-closed normalizer for one already-selected getTransaction(jsonParsed) response, then invokes the existing resolve_event_mint guard. A factory builds the managed capability registry from injected existing Helius/Birdeye bindings without I/O during construction. Retained PEPEINU provider-free E2E preserved signature 1M8i...TfNNa, slot 453241280, timestamp 1791112830, and Entry MC 3925.9516827750313. Wrong-mint and unproven controls did not invoke valuation.",

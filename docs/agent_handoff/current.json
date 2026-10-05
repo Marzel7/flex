@@ -17638,6 +17638,27 @@
     "blocker": "Starting the CLI without those bindings would be a materially different runtime (empty/no-op bindings) or require unqualified new wiring, neither of which is authorized by the controlled-forward-activation request.",
     "exact_next_action": "Create and qualify an exact pinned runtime definition in the 3b123ca2 line: source root, Supervisor/process command, concrete provider capability factory, concrete QualifiedEntryMonitorBridge factory, authority paths, bounded log path, and singleton lifecycle; then rerun this activation preflight before reconciling event 72741232-dcbe-5871-8ebe-ce9d294aeb50."
   },
+  "universal_assignment_final_runtime_binding_inventory_20261005": {
+    "engineering_revision": "3b123ca2b2b6612717854b3a09be94d085a3a0af",
+    "status": "HOLD",
+    "verdict": "HOLD_REQUIRED_RUNTIME_BINDING_UNQUALIFIED",
+    "unresolved_managed_runtime_bindings_inventoried": true,
+    "unresolved_managed_runtime_binding_count": 7,
+    "inventory": [
+      "runtime audit pins obsolete checkout and commit",
+      "runtime audit declares manager wiring required",
+      "managed CLI requires external capabilities factory",
+      "managed CLI requires external bridge factory",
+      "no concrete provider capability binding exists",
+      "no concrete MonitorQueue to MonitorWorker to QualifiedEntryMonitorBridge factory exists",
+      "no exact Supervisor/process definition pins source root, revision, authorities, logs, and singleton lifecycle"
+    ],
+    "finding": "The Byzantine adapter is intentionally injection-only and directly requires select, identity, and valuation callables. No already-qualified concrete implementations of those provider-facing callables were found in the exact commit. Implementing them would introduce new selection/valuation/provider behavior, prohibited by this gate. The Watchtower source has the same absence of a concrete managed acquisition binding.",
+    "safety": "provider calls=0; canonical DB changed=false; universal DEV DB changed=false; target untouched; consumer start=0; monitor stop/restart=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "exact_next_action": "QUALIFY the named concrete provider acquisition bindings independently (including their exact bounds and no-alternate-event behavior), then bind them with the existing bridge and a pinned process definition; do not start or reconcile real authorities before that qualification."
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

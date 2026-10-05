@@ -18018,6 +18018,18 @@
     "runtime_deployment_reason": "The only running listener remains the separately governed Production source root. No configured non-production listener target exists for this candidate, and starting a second ingress process would create unauthorized provider activity. No deployment or natural-event observation was attempted.",
     "exact_next_action": "AUTHORIZE_AND_IDENTIFY_AN_ISOLATED_DEV_LISTENER_DEPLOYMENT_TARGET_FOR_9363F578_THEN_OBSERVE_A_NATURAL_FORWARD_CREATE_ONLY"
   },
+  "watchtower_post_retry_lifecycle_acceptance_20261005": {
+    "engineering_revision": "293d26123e282104da116004fd226474e5d770f3; read-only acceptance against the active DEV monitor PID 98105",
+    "status": "HOLD_AT_HTTP_400_COMPUTE_UNITS_RETRY",
+    "authority": "Supervisor operation_monitor_worker uses /private/tmp/flex-universal-price-monitor-import-recovery with DEV monitor DB /Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db and queue /Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue.",
+    "finding": "The repaired projection admitted EFGK/MEGA and J4t6/AGENCY from elapsed retry into normal queue work without manual dispatch. Each was naturally claimed once (queue physical attempts now 2) and returned to retry when the normal provider attempt failed at HTTP 400 compute-units usage; no new monitor observation was persisted. Current retained live rows are 5tY, 8n1, EFGK, and J4t6; all have retry work. 46 Watchtower rows are terminal PRICE_MONITOR_COMPLETE_COLLAPSED.",
+    "agency_discrepancy": "The active DEV fact for J4t6 is MONITORING_ACTIVE with monitor_completed_at NULL, current MC 62375.69527851699, and no terminal fields. The retained incident audit for the exact AGENCY/MEGA controls likewise says neither has terminal evidence. The earlier terminal interpretation is not supported by the authoritative current DB and appears to have conflated a separate historical control.",
+    "five_ty": "5tY has a qualified entry and MONITORING_ACTIVE fact, a retry queue message, and zero persisted observations/provider_call_count. Its exact queue error is the same HTTP 400 compute-units usage failure. First missing stage is E: provider attempt failed; no repair was attempted.",
+    "safety": "Read-only diagnostic: source changes=0; manual DB changes=0; manual lifecycle dispatch=0; no consumer/Byzantine work; no listener change/restart; no historical backfill. Natural monitor activity was observed only.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only runtime/retained-state acceptance observation; no executable behavior was changed.",
+    "exact_next_action": "FIX_ONLY_THE_HTTP_400_COMPUTE_UNITS_RETRY_BOUNDARY"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

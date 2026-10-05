@@ -17827,6 +17827,16 @@
     "runtime_deployment_reason": "The capability and factory are qualified in source only; no managed runtime target has been started or reloaded.",
     "exact_next_action": "START_DEV_CONSUMER_AND_RECONCILE_ONLY_EVENT_72741232"
   },
+  "real_dev_e2e_execution_20261005": {
+    "engineering_revision": "4ab9c00854090803d35b4e381931037273ea6894 on codex/dev-current-worker-consumer-assembly; no source change",
+    "status": "HOLD_REAL_E2E_AT_MANAGED_RUNTIME_FACTORY_SIGNATURE",
+    "worktree": "/private/tmp/flex-current-worker-consumer-assembly",
+    "finding": "Exact source HEAD, component hashes, manifest JSON, canonical DEV DB, universal-monitor DEV DB, and existing Supervisor monitor line verified. The target canonical membership exists and no target outbox/projection/ACK exists. The no-provider managed CLI preflight reports READY. However the exact CLI invokes a zero-argument capabilities factory and defaults bridge to a lambda; the only qualified Byzantine factory is managed_runtime_capabilities(*, create_coordinate, helius=None, birdeye=None), requiring a canonical-create coordinate and therefore cannot be invoked by the exact CLI. No compatible zero-argument capability/ACK-aware bridge factory exists in the qualified source tree. Starting the consumer or reconciling would not run the qualified capability/handoff and was not attempted.",
+    "safety": "HELIUS=0; BIRDEYE=0; canonical DB changed=false; universal DEV DB changed=false; consumer start=0; target reconciliation=0; non-target reconciliation=0; production/current monitor unchanged.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "This was a read-only launch attempt that stopped before a consumer process or target event action because the exact managed runtime binding is unavailable.",
+    "exact_next_action": "FIX_ONLY_THE_ZERO_ARGUMENT_MANAGED_CAPABILITY_AND_ACK_AWARE_BRIDGE_FACTORY_BINDING_ON_4ab9c008_BEFORE_RETRYING_TARGET_72741232"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

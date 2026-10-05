@@ -653,6 +653,19 @@ def reconcile_qualified_monitor_fact_queue_projection(db_path: str, q: MonitorQu
    result['duplicate_identity'] += 1
    continue
   _state, path, payload, envelope = matches[0]
+  # A retry file owns its recovery state until ``recover_due`` resolves it.
+  # The fact projection may refresh entry fields, but cannot turn an eligible
+  # retry into ordinary qualified work before that recovery pass.
+  retry_state = str(envelope.get('monitor_state') or '')
+  if _state == 'retry':
+   last_error = str(payload.get('last_error') or '')
+   if last_error == 'NO_COMPLETED_15M_BOUNDARY' or last_error.startswith('NO_USABLE_CANDLE'):
+    retry_state = 'NO_USABLE_CANDLE'
+   elif retry_state not in {'NO_USABLE_CANDLE', 'RETRYABLE_DEFERRED', 'PROVIDER_BACKOFF'}:
+    if str(envelope.get('provider_backoff_reason') or '') == 'HTTP_429' or 'HTTP_429' in last_error:
+     retry_state = 'PROVIDER_BACKOFF'
+    elif envelope.get('next_eligible_dispatch_at') is not None or envelope.get('recovery_deadline_at') is not None:
+     retry_state = 'RETRYABLE_DEFERRED'
   projected = {
    **envelope,
    'operation_id': fact['operation_id'],
@@ -665,7 +678,7 @@ def reconcile_qualified_monitor_fact_queue_projection(db_path: str, q: MonitorQu
    'entry_exactness': fact.get('entry_exactness'),
    'entry_provenance': fact.get('provenance_digest'),
    'entry_reference_state': entry_state,
-   'monitor_state': entry_state,
+   'monitor_state': retry_state if _state == 'retry' else entry_state,
    'history_start_timestamp': int(fact.get('monitor_started_at') or 0) or envelope.get('history_start_timestamp'),
    'candle_resolution': envelope.get('candle_resolution') or '15m',
   }

@@ -2,9 +2,17 @@
 from __future__ import annotations
 
 import sqlite3
+import json
+import os
+
+import pytest
 
 from src.ops import operation_monitor_service as service
-from src.ops.operation_monitor_worker import MonitorQueue, MonitorWorker
+from src.ops.operation_monitor_worker import (
+    MonitorQueue,
+    MonitorWorker,
+    reconcile_qualified_monitor_fact_queue_projection,
+)
 
 
 def _ensure_schema(connection):
@@ -97,3 +105,141 @@ def test_four_provider_free_service_scans_reach_existing_dispatch_path(tmp_path,
         service.run_once(worker=worker, queue=queue, db_path=str(database))
 
     assert calls == {key: 4 for key in calls}
+
+
+def _active_fact(database, mint, *, terminal=False):
+    state = "PRICE_MONITOR_COMPLETE_COLLAPSED" if terminal else "MONITORING_ACTIVE"
+    with sqlite3.connect(database) as connection:
+        connection.execute(
+            """INSERT INTO operation_monitor_facts(
+                 operation_id,mint,cohort_class,assignment_timestamp,assignment_provenance,
+                 entry_method,entry_timestamp,entry_mc_usd,entry_status,entry_exactness,
+                 monitor_state,monitor_started_at,last_observation_at,next_observation_at,
+                 monitor_completed_at,evidence_status,provenance_digest,created_at,updated_at
+               ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            ("watchtower", mint, "PROSPECTIVE_MONITOR_COHORT", 1, "assignment",
+             "FIRST_AVAILABLE", 100, 10.0, "QUALIFIED", "EXACT", state, 100,
+             900, None if terminal else 960, 1000 if terminal else None,
+             "QUALIFIED", "provenance", 1, 1),
+        )
+
+
+def _retry_envelope(mint, deadline):
+    return {
+        "operation_id": "watchtower", "mint": mint,
+        "cohort": "PROSPECTIVE_MONITOR_COHORT", "entry_method": "FIRST_AVAILABLE",
+        "entry_timestamp": 100, "entry_mc_usd": 10.0, "entry_exactness": "EXACT",
+        "entry_provenance": "provenance", "entry_reference_state": "ENTRY_REFERENCE_QUALIFIED",
+        # This is the historical overwrite shape: retry metadata is present,
+        # but the projection has replaced the recoverable monitor state.
+        "monitor_state": "ENTRY_REFERENCE_QUALIFIED", "candle_resolution": "15m",
+        "next_eligible_dispatch_at": deadline, "empty_ohlcv_retry_count": 1,
+    }
+
+
+def _seed_retry(queue, envelope, *, message_id, error):
+    queue.queue.enqueue(envelope, message_id=message_id)
+    pending = queue.queue.root / "pending" / f"{message_id}.json"
+    payload = json.loads(pending.read_text())
+    payload.update({"last_error": error, "last_attempt_at": 1})
+    queue.queue._replace_payload(pending, payload)
+    os.replace(pending, queue.queue.root / "retry" / pending.name)
+
+
+@pytest.mark.parametrize("mint,message_id", [("EFGK-test", "efgk"), ("J4t6-test", "j4t6")])
+def test_elapsed_completed_boundary_retry_survives_projection_and_recovers_once(tmp_path, mint, message_id):
+    database = tmp_path / "monitor.db"
+    with sqlite3.connect(database) as connection:
+        _ensure_schema(connection)
+    _active_fact(database, mint)
+    queue = MonitorQueue(tmp_path / "queue", enabled=True)
+    _seed_retry(queue, _retry_envelope(mint, 900), message_id=message_id,
+                error="NO_COMPLETED_15M_BOUNDARY")
+
+    reconcile_qualified_monitor_fact_queue_projection(str(database), queue, now=1000)
+    retry_path = queue.queue.root / "retry" / f"{message_id}.json"
+    assert json.loads(retry_path.read_text())["envelope"]["monitor_state"] == "NO_USABLE_CANDLE"
+    assert queue.recover_due(now=1000) == 1
+    assert not retry_path.exists()
+    assert (queue.queue.root / "pending" / f"{message_id}.json").exists()
+
+    # Repeated projection/recovery does not create another current identity.
+    reconcile_qualified_monitor_fact_queue_projection(str(database), queue, now=1001)
+    assert queue.recover_due(now=1001) == 0
+    assert len(queue.current_fact_identities(operation_id="watchtower", mint=mint)) == 1
+
+
+def test_future_retry_remains_deferred_after_projection(tmp_path):
+    database = tmp_path / "monitor.db"
+    with sqlite3.connect(database) as connection:
+        _ensure_schema(connection)
+    mint = "future-test"
+    _active_fact(database, mint)
+    queue = MonitorQueue(tmp_path / "queue", enabled=True)
+    _seed_retry(queue, _retry_envelope(mint, 1001), message_id="future",
+                error="NO_COMPLETED_15M_BOUNDARY")
+
+    reconcile_qualified_monitor_fact_queue_projection(str(database), queue, now=1000)
+    assert queue.recover_due(now=1000) == 0
+    assert (queue.queue.root / "retry" / "future.json").exists()
+    assert not (queue.queue.root / "pending" / "future.json").exists()
+
+
+def test_four_provider_free_service_scans_recover_elapsed_retry_once(tmp_path, monkeypatch):
+    """The real scan ordering projects, recovers, then leaves one pending job."""
+    database = tmp_path / "monitor.db"
+    with sqlite3.connect(database) as connection:
+        _ensure_schema(connection)
+    mint = "service-retry-test"
+    _active_fact(database, mint)
+    queue = MonitorQueue(tmp_path / "queue", enabled=True)
+    _seed_retry(queue, _retry_envelope(mint, 1), message_id="service-retry",
+                error="NO_COMPLETED_15M_BOUNDARY")
+    # The recovery timer may requeue empty-OHLCV work while a shared provider
+    # gate remains closed; this keeps all four scans transport-free.
+    (queue.queue.root / "provider_backoff.json").write_text(
+        json.dumps({"next_eligible_at": 9_999_999_999}), encoding="utf-8"
+    )
+    for name in (
+        "reconcile_byzantine_assignment_admissions",
+        "reconcile_watchtower_assignment_admissions",
+        "reconcile_watchtower_deep_assignment_admissions",
+    ):
+        monkeypatch.setattr(service, name, lambda *_args, **_kwargs: {})
+    worker = MonitorWorker(
+        queue, db_path=str(database), persist=_persist(database),
+        transport=lambda _request: (_ for _ in ()).throw(AssertionError("provider transport must not run")),
+        opening_jobs_path=tmp_path / "opening.db", provider_work_path=tmp_path / "provider.db",
+    )
+
+    for _ in range(4):
+        service.run_once(worker=worker, queue=queue, db_path=str(database))
+
+    assert not (queue.queue.root / "retry" / "service-retry.json").exists()
+    assert (queue.queue.root / "pending" / "service-retry.json").exists()
+    assert len(queue.current_fact_identities(operation_id="watchtower", mint=mint)) == 1
+
+
+def test_terminal_fact_retry_is_not_recovered_into_lifecycle_dispatch(tmp_path):
+    database = tmp_path / "monitor.db"
+    with sqlite3.connect(database) as connection:
+        _ensure_schema(connection)
+    mint = "terminal-test"
+    _active_fact(database, mint, terminal=True)
+    queue = MonitorQueue(tmp_path / "queue", enabled=True)
+    _seed_retry(queue, _retry_envelope(mint, 900), message_id="terminal",
+                error="NO_COMPLETED_15M_BOUNDARY")
+    transport_calls = []
+    worker = MonitorWorker(
+        queue, db_path=str(database), persist=_persist(database),
+        transport=lambda request: transport_calls.append(request),
+        opening_jobs_path=tmp_path / "opening.db", provider_work_path=tmp_path / "provider.db",
+    )
+
+    reconcile_qualified_monitor_fact_queue_projection(str(database), queue, now=1000)
+    # Terminal facts are outside the active projection, so their stale retry
+    # never becomes pending lifecycle work in the first place.
+    assert queue.recover_due(now=1000) == 0
+    assert worker.process_once() == 0
+    assert transport_calls == []
+    assert len(queue.current_fact_identities(operation_id="watchtower", mint=mint)) == 1

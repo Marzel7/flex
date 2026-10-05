@@ -1,4 +1,16 @@
 {
+  "watchtower_retry_eligibility_projection_fix_20261005": {
+    "engineering_revision": "293d26123e282104da116004fd226474e5d770f3 on /private/tmp/flex-universal-price-monitor-import-recovery",
+    "status": "PASS_RETRY_ELIGIBILITY_RESTORED",
+    "implementation": "The qualified-fact projection now preserves an existing retry file's recoverable state. Legacy overwritten NO_COMPLETED_15M_BOUNDARY envelopes normalize only their monitor_state to the existing NO_USABLE_CANDLE state; preserved HTTP-429 envelopes remain PROVIDER_BACKOFF and other deadline-bearing retries become the existing RETRYABLE_DEFERRED state. Retry deadlines, errors, attempts, and provider metadata are untouched. No new scheduler state or retry policy was added.",
+    "verification": "13 focused provider-free tests passed, 0 failed. Coverage includes EFGK/J4t6 elapsed retry recovery exactly once, future retry non-dispatch, duplicate prevention, terminal fact non-resurrection, and four complete provider-free service scans through the actual projection/recover ordering. The runtime source preflight passed. The worker source SHA-256 is b22c769a8487ea2e0056ac2edcb1e75bf04557b8a3f0f63ba93ff5c415eff5c6 and is identical in deployed code commit 738afa41 and final test-inclusive commit 293d2612.",
+    "deployment": "Only operation_monitor_worker was restarted to PID 98105. The bounded natural acceptance observed EFGK and J4t6 move automatically from retry to pending without manual claim or dispatch. They remained pending during the observation interval, so no new EFGK/J4t6 lifecycle observation is claimed. 8n1 naturally made its existing retry path visible with provider physical attempt 3905 and a retained PROVIDER_BACKOFF deadline; its retry policy was not changed.",
+    "lifecycle": "Current active monitor facts are EFGK, J4t6, 8n1, and 5tY; Watchtower counts are MONITORING_ACTIVE=4, PRICE_MONITOR_COMPLETE_COLLAPSED=46, WAITING_FOR_ENTRY_REFERENCE=28. The supplied AGENCY/J4 terminal premise does not match the current active DEV authority: J4t6 is MONITORING_ACTIVE with monitor_completed_at NULL. Provider-free terminal guard coverage confirms a terminal fact is not recovered into lifecycle work; no stale orphan work was manually touched.",
+    "safety": "No Watchtower listener/source/restart, Byzantine target retry, universal consumer, opening repair, WAITING repair, historical backfill, or manual lifecycle dispatch. No price/opening/lifecycle semantic change. Compact temporary SQLite/queue fixtures only; no large files or raw provider payload retention.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS: exact worker code loaded by PID 98105, bounded natural recovery observed, and no fresh monitor error-log writes.",
+    "next_action": "VERIFY_LIVE_TO_HISTORY_THEN_TRACE_5TY_MISSING_SCHEDULE"
+  },
   "watchtower_overdue_lifecycle_eligibility_trace_20261005": {
     "engineering_revision": "d7009c9107f4f27b38be742fc1c601e1cab5158b deployed monitor source; diagnostic only",
     "status": "HOLD_EXISTING_SCHEDULER_ELIGIBILITY_DEFECT",

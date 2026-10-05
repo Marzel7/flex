@@ -17403,112 +17403,15 @@
     "runtime_deployment_gate": "HOLD",
     "next_action": "ADD_AND_EXECUTE_THE_REMAINING_12_CANONICAL_STREAM_WRITER_FAILURE_INJECTION_CASES_IN_THE_ISOLATED_LINE_THEN_RUN_FULL_RECONCILED_SUITE_AND_COMMIT"
   },
-  "universal_assignment_managed_runtime_shell_20261004": {
-    "engineering_revision": "isolated codex/universal-assignment-managed-runtime rooted at 70a22614f69a932d9d341e2eb4d41685b9950cf0; uncommitted provider-free shell candidate",
-    "status": "HOLD_RUNTIME_COMPOSITION_BINDING_MISSING",
-    "finding": "A minimal CLI shell was added only in the isolated worktree: explicit fail-closed environment configuration, source/destination schema guards, revision guard, read-only preflight, health, targeted PEPEINU reconciliation, bounded rotating logs, SIGTERM/SIGINT lifecycle, and a DEV-only Supervisor definition with autostart=false. The closed consumer core and pipeline semantics were not modified. Observable baseline exposes only adapter names and injected test callbacks; it has no concrete registered managed adapter-executor or universal-handoff callable. The Supervisor definition consequently retains required callable placeholders and cannot be represented as a deployable exact managed command without inventing pipeline composition.",
-    "tests": "39 passed, 0 failed: universal consumer, runtime composition, opening bridge, canonical membership outbox, reconciled 16-case writer matrix, and new CLI guard/reconciliation/health tests.",
-    "production_flags": "HELIUS_CALLS_MADE=0; BIRDEYE_CALLS_MADE=0; CANONICAL_DB_CHANGED=false; UNIVERSAL_DEV_DB_CHANGED=false; PEPEINU_MUTATED=false; MANAGED_RUNTIME_STARTED=false; DEPLOYMENT_ATTEMPTED=false; shared dirty checkout unchanged.",
-    "runtime_deployment_required": true,
-    "runtime_deployment_gate": "HOLD",
-    "next_action": "PROVIDE_OR_COMMIT_THE_EXISTING_CONCRETE_MANAGED_ADAPTER_EXECUTOR_AND_UNIVERSAL_HANDOFF_BINDINGS, THEN COMPLETE_MANAGED_RUNTIME_SIMULATION_AND_QUALIFY_A_SINGLE_DEPLOYABLE_SHA"
-  },
-  "universal_managed_runtime_callable_recovery_20261004": {
-    "engineering_revision": "isolated codex/universal-assignment-managed-runtime at 70a22614f69a932d9d341e2eb4d41685b9950cf0; no new source changes in this recovery turn",
-    "status": "HOLD_CONCRETE_RUNTIME_CALLABLE_PROVENANCE_NOT_RECOVERED",
-    "finding": "History recovers the committed Watchtower evaluator src.ops.watchtower_first_available_mc.py at f797dd4231bc5d5eacc1e29ed10d16b5a4b7ec4e, but it is not in the 70a22614 isolated line. The requested Byzantine V2 callable cannot be recovered: the retained V2 qualification audit explicitly says byzantine_actual_entry_v2_qualified=false, pumpfun/pumpswap target guards unimplemented, positive replay=false, and V2 negative matrix=false. The only observable actual-entry runner is untracked in the shared checkout, depends on live Helius/Birdeye transport, and its classify_trade lacks event-level target-mint guarding. It is not trustworthy qualified V2 source. Universal monitor/QualifiedEntry bridge modules are likewise untracked in the shared checkout and not present in 70a22614. No callable was copied, recreated, or bound.",
-    "inventory": "Watchtower candidate: src.ops.watchtower_first_available_mc.py, provenance f797dd4231bc5d5eacc1e29ed10d16b5a4b7ec4e. Byzantine candidate: none qualified; shared scripts/run_byzantine_actual_entry_24h_backfill.py is untracked and provider-backed. Universal handoff candidate: shared src.ops/universal_monitor_runtime.py::enrol_qualified_forward_entry, untracked and unavailable in isolated provenance.",
-    "production_flags": "HELIUS_CALLS_MADE=0; BIRDEYE_CALLS_MADE=0; CANONICAL_DB_CHANGED=false; UNIVERSAL_DEV_DB_CHANGED=false; PEPEINU_MUTATED=false; MANAGED_RUNTIME_STARTED=false; DEPLOYMENT_ATTEMPTED=false; shared dirty checkout unchanged.",
-    "runtime_deployment_required": true,
-    "runtime_deployment_gate": "HOLD",
-    "next_action": "RECOVER_OR_COMMIT_A_TRUSTWORTHY_QUALIFIED_BYZANTINE_ACTUAL_ENTRY_V2_CALLABLE_WITH_EVENT_MINT_GUARD_AND_A_PROVENANCED_UNIVERSAL_HANDOFF_CALLABLE; DO_NOT_REIMPLEMENT_FROM_CONTRACT"
-  },
-  "existing_price_pipeline_runtime_trace_20261004": {
-    "engineering_revision": "isolated codex/universal-assignment-managed-runtime at 70a22614f69a932d9d341e2eb4d41685b9950cf0; read-only trace only",
-    "status": "HOLD_BYZANTINE_FORWARD_BINDING_SAFETY_GAP",
-    "finding": "PEPEINU retained fixture identifies historical producer SHA256 5645ab3e23968deb7a0e8006263c413a21bbc09001bf3dcadf2a3df3141bd0c3 for shared untracked scripts/run_byzantine_actual_entry_24h_backfill.py. The fixture retains the specified signature, slot 453241280, timestamp 1791112830 and containing-candle close 3925.9516827750313, with bounded historical calls Helius=3/Birdeye=1. It is V1 historical behaviour: earliest decoder-qualified post-create PumpSwap trade in one page plus 15s containing-candle close. Current source has no event-level target-mint guard. Further, the retained fixture contains event_mint_identity although the current validator/source at the matching SHA does not emit that field, so source/output parity cannot be established. The producer is untracked and must not be treated as prequalified or bound forward. Watchtower evaluator provenance remains committed f797dd4231bc5d5eacc1e29ed10d16b5a4b7ec4e. Existing universal live admission was traced in shared untracked src.ops.qualified_entry_monitor_bridge.QualifiedEntryMonitorBridge.activate -> operation_monitor_worker._activate_from_qualified_opening -> queue.enqueue_qualified_activation; monitor facts are operation_monitor_facts with entry_status=QUALIFIED and monitor_state=MONITORING_ACTIVE, with durable queue identity based on operation/mint/timestamp/provenance. This source is absent from the isolated revision, so the path is traced but cannot be safely bound there.",
-    "preservation": "No historical facts were recalculated, invalidated, rewritten, or mutated. V2 guard gap does not invalidate retained historical facts. No provider/network call, DB mutation, managed runtime start, or deployment occurred.",
-    "forward_classification": "C: EXISTING_PRODUCER_WORKS_HISTORICALLY_BUT_HAS_UNRESOLVED_FORWARD_SAFETY_GAP",
-    "runtime_deployment_required": true,
-    "runtime_deployment_gate": "HOLD",
-    "next_action": "ESTABLISH_COMMITTED_SOURCE_OUTPUT_PROVENANCE_FOR_THE_HISTORICAL_BYZANTINE_PRODUCER_AND_COMMIT_THE_EXISTING_UNIVERSAL_ENROLMENT_PATH_BEFORE_ANY_FORWARD_RUNTIME_BINDING"
-  },
-  "immutable_qualified_price_behaviour_20261004": {
-    "engineering_revision": "no source or runtime change; policy clarification applied to all subsequent gates",
-    "status": "ACTIVE_CONSTRAINT",
-    "finding": "Watchtower FIRST_AVAILABLE, Byzantine historical actual-entry selection and containing-candle valuation, retained qualified facts, universal Policy C lifecycle pricing, Current MC, running/between-poll peak, multiple, time-to-peak, LIVE eligibility, LIVE-to-HISTORY, and retained History facts are immutable. Any newer Byzantine target-mint requirement is forward-only validation around the existing selected result: accept it or fail closed; it must not select another trade, change timestamp/candle/value, recompute history, or alter lifecycle behaviour. Historical facts are not invalidated by later forward-only invariants.",
-    "safety": "No source, database, provider, runtime, Supervisor, deployment, or retained-fact mutation.",
-    "next_action": "APPLY_ONLY_FORWARD_ACCEPT_OR_FAIL_CLOSED_GUARDS_AFTER_COMMITTED_SOURCE_OUTPUT_PROVENANCE_IS_ESTABLISHED"
-  },
-  "byzantine_forward_price_binding_provenance_20261004": {
-    "engineering_revision": "isolated codex/universal-assignment-managed-runtime at 70a22614f69a932d9d341e2eb4d41685b9950cf0; read-only provenance recovery",
-    "status": "HOLD_EXISTING_UNIVERSAL_ENROLMENT_PATH_NOT_RECOVERED",
-    "finding": "event_mint_identity provenance is fully recovered: committed 923d5beac61a7c828bb843b8a43147908a17f44f ('Qualify Byzantine V2 event mint guard') amended docs/fixtures/byzantine_actual_entry_v1/pepeinu.json after historical V1 fixture commit 21860974691a9caec4c9985cf7c68f01f2c92179. Its audit docs/audits/byzantine_pepeinu_event_mint_identity_validation.v1.json records exactly one Helius getTransaction(jsonParsed), zero discovery/retry/Birdeye calls, and a compact MATCH proof for the already selected signature. The committed resolver src.ops.byzantine_event_mint_resolver.resolve_event_mint is a proof checker, but its select_earliest_target_event helper must not be used in a forward wrapper because selection is immutable. The correct forward model is target mint + already-selected event identity + normalized proof -> ACCEPT or FAIL_CLOSED only, with max additional identity calls=1 and no valuation/lifecycle operation. Historical producer and Entry value remain frozen. The requested universal bridge remains blocked: QualifiedEntryMonitorBridge.activate is only observable as untracked shared source; git history has no committed path/object for src/ops/qualified_entry_monitor_bridge.py. OperationMonitorWorker methods are recoverable from historical commit 9561568e, but the complete existing bridge cannot be ported exactly without the uncommitted bridge source provenance. No source was copied or changed.",
-    "classification": "Byzantine forward guard itself is safe as a separate non-selecting validator; overall binding remains blocked on exact universal enrolment source recovery.",
-    "safety": "HELIUS=0; BIRDEYE=0; no DB/runtime/deployment/retained-fact mutation; no price selection, valuation, lifecycle, peak, or History code changed.",
-    "runtime_deployment_required": true,
-    "runtime_deployment_gate": "HOLD",
-    "next_action": "COMMIT_OR_RECOVER_EXACT_QUALIFIED_ENTRY_MONITOR_BRIDGE_SOURCE_WITH_PROVENANCE, THEN PORT_THE_EXISTING_PATH_AND_RUN_PROVIDER_FREE_PARITY"
-  },
-  "qualified_entry_monitor_bridge_recovery_20261004": {
-    "engineering_revision": "isolated codex/universal-assignment-managed-runtime at 70a22614f69a932d9d341e2eb4d41685b9950cf0; read-only recovery only",
-    "status": "HOLD_QUALIFIED_ENTRY_MONITOR_BRIDGE_PROVENANCE_UNRECOVERED",
-    "finding": "The only accessible QualifiedEntryMonitorBridge source copy is untracked shared /Users/kevinkeaveney/Dev/claude/flex/src/ops/qualified_entry_monitor_bridge.py, SHA256 b7a1608e4e1ed3c7a7419035c72cc506a4bf8f4f001be78c4a85fa28d1dc685c. Bounded committed-history searches for the class and distinctive activate/enqueue strings find no source path or object. The source contract is readable: it checks qualified entry state, identity, timestamp/value, monitor capability and non-terminal status; invokes worker._activate_from_qualified_opening before queue.enqueue_qualified_activation; optional universal hook is after those operations. It has zero price-calculation and provider-transport logic. Downstream worker methods are recoverable from committed 9561568ef7718d1676ea9d7edeaec8ae82529ff6. But the bridge itself has provenance class D (untracked source provenance not recoverable), so no port, test binding, or replacement was made.",
-    "safety": "No price/lifecycle/history source changed; Helius=0; Birdeye=0; DB/runtime/deployment/retained-fact mutation=0.",
-    "runtime_deployment_required": true,
-    "runtime_deployment_gate": "HOLD",
-    "next_action": "DO_NOT_REIMPLEMENT_EXISTING_ENROLMENT_WITHOUT_AUTHORIZATION; RECOVER_A_COMMITTED_OR_AUDITABLY_PROVENANCED_BRIDGE_SOURCE_COPY"
-  },
-  "qualified_entry_monitor_bridge_authorized_baseline_20261004": {
-    "engineering_revision": "4ae07006af381e34685ef57adf9b58ec8f1653e8 on isolated codex/universal-assignment-managed-runtime",
-    "status": "PASS_EXACT_BRIDGE_BASELINE_QUALIFIED_NOT_INTEGRATED",
-    "finding": "Per explicit authorization, the formerly untracked bridge was accepted as a new baseline rather than rejected for unavailable historical provenance. src/ops/qualified_entry_monitor_bridge.py is byte-identical to the authorized shared source and retains SHA256 b7a1608e4e1ed3c7a7419035c72cc506a4bf8f4f001be78c4a85fa28d1dc685c. Its exact capability dependency and manifest were copied byte-identically. The audit records provenance unavailability honestly. The bridge validates a qualified opening, calls the existing worker activation, then enqueues the existing deterministic activation; it has no price calculation or provider transport. No worker, Policy C, lifecycle, Current MC, peak, multiple, time-to-peak, LIVE/HISTORY, or retained-fact source changed.",
-    "tests": "31 passed, 0 failed: bridge validation/order/precommit failure/replay identity fakes, committed event-mint resolver, universal consumer, opening bridge and outbox composition. The bridge tests exercise the exact copied code with injected worker/queue boundaries; full managed runtime integration remains a later gate.",
-    "audit": "docs/audits/qualified_entry_monitor_bridge_baseline_qualification.v1.json",
-    "production_flags": "HELIUS=0; BIRDEYE=0; canonical DB=false; universal DEV DB=false; PEPEINU=false; runtime started=false; deployment=false.",
-    "runtime_deployment_required": true,
-    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
-    "next_action": "BIND_THE_COMMITTED_BRIDGE_TO_THE_EXISTING_MANAGED_RUNTIME_ONLY_AFTER_THE_FORWARD_NONSELECTING_EVENT_MINT_GUARD_IS_WIRED"
-  },
-  "universal_managed_price_pipeline_final_binding_20261004": {
-    "engineering_revision": "isolated codex/universal-assignment-managed-runtime at 4ae07006af381e34685ef57adf9b58ec8f1653e8; no source changes in this gate",
-    "status": "HOLD_MANAGED_RUNTIME_COMPONENTS_NOT_PRESENT_IN_QUALIFIED_LINE",
-    "finding": "The committed bridge baseline is present and hash verified, but exact inspection of the isolated commit proves the requested managed binding cannot be self-contained: src/ops/watchtower_first_available_mc.py is absent, scripts/run_byzantine_actual_entry_24h_backfill.py is absent, and src/ops/operation_monitor_worker.py is absent. The uncommitted CLI shell still requires injected adapter/handoff callables and the DEV definition has placeholders. Binding it now would require importing missing source or inventing an adapter/handoff, neither of which is authorized by this final binding gate. No qualified price behavior needs or will be changed; this is a component-availability hold, not an immutable-price hold.",
-    "safety": "HELIUS=0; BIRDEYE=0; canonical DB=false; universal DEV DB=false; PEPEINU=false; runtime/deployment=false; all price/lifecycle/history behavior unchanged.",
-    "runtime_deployment_required": true,
-    "runtime_deployment_gate": "HOLD",
-    "next_action": "AUTHORIZE_OR_PROVIDE_A_SINGLE_QUALIFIED_LINE_CONTAINING_THE_EXISTING_WATCHTOWER_EVALUATOR_BYZANTINE_HISTORICAL_PRODUCER_AND_MONITOR_WORKER_BEFORE_MANAGED_RUNTIME_BINDING"
-  },
-  "qualified_price_source_line_assembly_20261004": {
-    "engineering_revision": "ba793b29374c4224a5a697f19e1d618f81545a95 on isolated codex/universal-assignment-managed-runtime",
-    "status": "PASS_EXISTING_PRICE_COMPONENTS_ASSEMBLED_IN_ONE_QUALIFIED_SOURCE_LINE",
-    "finding": "Exact existing Watchtower FIRST_AVAILABLE evaluator (f797dd4231bc5d5eacc1e29ed10d16b5a4b7ec4e, SHA256 52231ff4403eb1eaa6ebe0e89480059f6e26d4eab979ef75c7ff2ece89584af2), the expressly authorized historical Byzantine producer baseline (SHA256 5645ab3e23968deb7a0e8006263c413a21bbc09001bf3dcadf2a3df3141bd0c3), and exact Monitor worker (9561568ef7718d1676ea9d7edeaec8ae82529ff6, SHA256 9500e2dba7a262fe003b988752ab43cd97a30b37d773404669bb4722f0e24559) now coexist with the frozen bridge (SHA256 b7a1608e4e1ed3c7a7419035c72cc506a4bf8f4f001be78c4a85fa28d1dc685c). Direct missing provider-free import dependencies were ported from the worker provenance only. No runtime binding was added.",
-    "tests": "31 passed, 0 failed. Four Watchtower controls retain 172234, 167954, 108285, and 166730. Retained PEPEINU selected signature 1M8iBZQLkfCJr5GgZY9K33QHuXhr7gvqutg6KxknBAzKj7gkRbrnxWyVAdrFFMBrjvkGMfBG9EjtSaFz7zTfNNa, timestamp 1791112830, and Entry MC 3925.9516827750313 were asserted without providers or recalculation. The separate mint guard only accepted the retained selected event; it was not added to the historical producer. The real activation chain bridge -> worker _activate_from_qualified_opening -> queue was executed with temporary queue and injected offline writer acknowledgement.",
-    "audit": "docs/audits/qualified_price_source_line_assembly.v1.json",
-    "production_flags": "HELIUS=0; BIRDEYE=0; canonical DB=false; universal DEV DB=false; PEPEINU=false; runtime started=false; deployment=false; raw provider payloads=false.",
+  "universal_price_data_live_history_incident_20261005": {
+    "engineering_revision": "read-only incident audit against current isolated DEV monitor authority",
+    "status": "HOLD_RUNTIME_IMPORT_FAILURE",
+    "finding": "AGENCY and MEGA are qualified, activated Watchtower facts in the isolated DEV monitor DB, with retained observations/peaks but overdue next_observation_at values. The supervised monitor loop crashes before process_once because process_entry_reference_opening_once imports an absent src.ops.birth_anchored_opening_acquisition through live_opening_action_job. The same configured authority retains 28 opening-unavailable Watchtower facts; HUMAN, SIF, and HIGGS are retained failed-opening states, while HIGCAT has no resolvable retained identity in the current authority and was not guessed.",
+    "audit": "docs/audits/universal_price_data_live_history_incident.v1.json",
+    "safety": "HELIUS=0; BIRDEYE=0; other providers=0; canonical DB changed=false; universal DEV DB changed=false; price/history changed=false; runtime started/restarted=false; immutable price behavior changed=false.",
     "runtime_deployment_required": false,
-    "runtime_deployment_reason": "This gate assembles and tests source only; user explicitly prohibited managed-runtime binding and deployment.",
-    "next_action": "BIND_QUALIFIED_SOURCE_LINE_IN_MANAGED_RUNTIME"
-  },
-  "universal_managed_price_pipeline_binding_20261004": {
-    "engineering_revision": "ba793b29374c4224a5a697f19e1d618f81545a95 on isolated codex/universal-assignment-managed-runtime; inspection-only continuation",
-    "status": "HOLD_IMMUTABLE_QUALIFIED_PRICE_BEHAVIOUR",
-    "finding": "All four qualified component hashes match the required base. The recovered untracked executable shell is not a concrete deployable composition: its Supervisor definition contains /ABSOLUTE paths, SET_EXACT_QUALIFIED_COMMIT, SET_EXPLICIT_FORWARD_BOUNDARY, and MODULE:CALLABLE placeholders. Its runtime invokes two injected callables, and durable_opening_then_handoff still invokes an injected universal_handoff rather than QualifiedEntryMonitorBridge or OperationMonitorWorker. The exact historical Byzantine producer exposes only whole-population execute()/provider acquisition behavior, not a per-canonical-assignment retained-Opening callable. Supplying that missing callable would require a new adapter to choose/reuse/revalue Entry evidence or to alter the frozen producer's interface. Either route would exceed this gate's allowed runtime composition and risks changing immutable historical selection/valuation semantics. No source, fixture, DB, runtime, or deployment change was made.",
-    "evidence": "src/ops/universal_assignment_bridge_consumer_cli.py REQUIRED_ENV requires UNIVERSAL_ASSIGNMENT_ADAPTER_EXECUTOR and UNIVERSAL_ASSIGNMENT_HANDOFF; config/supervisor/universal_assignment_bridge_consumer.dev.conf contains the unresolved placeholder values; src/ops/universal_outbox_runtime_composition.py retains injected universal_handoff; scripts/run_byzantine_actual_entry_24h_backfill.py has frozen_population(), recover_create_slots(), and execute(), but no assignment-scoped retained-opening interface.",
-    "production_flags": "HELIUS=0; BIRDEYE=0; canonical DB=false; universal DEV DB=false; PEPEINU=false; runtime started=false; deployment=false; raw provider payloads=false.",
-    "runtime_deployment_required": false,
-    "runtime_deployment_reason": "No executable source was changed and the requested managed runtime was not bound or started.",
-    "next_action": "AUTHORIZE_A_SEPARATE_FORWARD_ONLY_BYZANTINE_RETAINED_OPENING_ADAPTER_CONTRACT_THAT_ACCEPTS_ONLY_ALREADY_QUALIFIED_RETAINED_OPENINGS_AND_NEVER_SELECTS_OR_REVALUES_A_TRADE; THEN_DEFINE_CONCRETE_PINNED_DEV_AUTHORITIES_AND_EXISTING_BRIDGE_WORKER_HANDOFF"
-  },
-  "universal_forward_retained_opening_pinned_dev_20261004": {
-    "engineering_revision": "ba793b29374c4224a5a697f19e1d618f81545a95 on isolated codex/universal-assignment-managed-runtime; read-only authority and contract preflight",
-    "status": "HOLD_PINNED_DEV_AUTHORITIES_AND_RETAINED_OPENING_SCHEMA_UNAVAILABLE",
-    "finding": "The expressly expected pinned authority paths are absent from the exact isolated qualified source line: database/wt_ops_v2.db and .dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db do not exist, so their actual table/schema compatibility cannot be verified and no concrete Supervisor authority values can be frozen. The existing durable opening schema stores opening_json as generic JSON and does not declare or validate selected signature, selected slot, event proof, or evidence identity fields required by the new retained-opening contract. Adding an inferred schema or populating a synthetic authority as if it were the pinned DEV authority would fabricate the required authority/evidence contract. No source, database, fixture, runtime, provider, or deployment change was made.",
-    "evidence": "Exact isolated-worktree checks returned MISSING for both required DB paths. src/ops/universal_assignment_opening_bridge.py defines universal_opening_work(... opening_json TEXT ...) only; it has no retained event/signature/slot/proof columns or contract validator.",
-    "production_flags": "HELIUS=0; BIRDEYE=0; canonical DB=false; universal DEV DB=false; PEPEINU=false; runtime started=false; deployment=false; raw provider payloads=false.",
-    "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Read-only preflight found no actual pinned authority or sufficiently declared retained-opening contract to bind.",
-    "next_action": "PROVIDE_OR_AUTHORIZE_A_CONCRETE_PINNED_DEV_SOURCE_AND_DESTINATION_AUTHORITY_SNAPSHOT_OR_SCHEMA-ONLY_FIXTURE_WITH_THEIR_IDENTITIES, AND_AUTHORIZE_A_FORWARD_ONLY_RETAINED_OPENING_CONTRACT_SCHEMA_THAT_PRESERVES_EXISTING_QUALIFIED_FIELDS_WITHOUT_REINTERPRETATION"
+    "runtime_deployment_reason": "Read-only retained-evidence diagnosis only; implementation and recovery require a separate authorization.",
+    "next_action": "AUTHORIZE_MINIMUM_NON_SEMANTIC_MONITOR_IMPORT_RECOVERY_THEN_QUALIFY_DURABLE_REPLAY_WITHOUT_RECALCULATING_PRICE_FACTS"
   },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",

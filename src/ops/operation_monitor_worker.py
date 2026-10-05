@@ -769,7 +769,22 @@ class MonitorWorker:
   """
   if not self.opening_jobs_path or not self.provider_work_path: return None
   from src.ops import generic_provider_work_scheduler as scheduler
-  from src.ops import live_opening_action_job as opening
+  try:
+   from src.ops import live_opening_action_job as opening
+  except ModuleNotFoundError as exc:
+   # Strict Opening is an independent, optional post-admission capability.
+   # Do not let an unavailable implementation abort existing qualified LIVE
+   # lifecycle dispatch.  Persist one compact, replace-in-place diagnostic so
+   # the absence is visible without claiming any Opening work succeeded.
+   if exc.name != 'src.ops.birth_anchored_opening_acquisition': raise
+   diagnostic=self.provider_work_path.parent/'opening_capability_unavailable.json'
+   payload={'state':'STRICT_OPENING_OPTIONAL_CAPABILITY_UNAVAILABLE',
+            'reason':'BIRTH_ANCHORED_OPENING_ACQUISITION_UNAVAILABLE',
+            'module':exc.name,'recorded_at':int(time.time() if now is None else now)}
+   temporary=diagnostic.with_name(f'.{diagnostic.name}.{os.getpid()}.tmp')
+   temporary.write_text(json.dumps(payload,sort_keys=True,separators=(',',':'))+'\n')
+   os.replace(temporary,diagnostic)
+   return payload
   # Complete evidence has no further provider dependency.  Reconcile it
   # before selecting ready work so a restart after the final compact block
   # converges to the policy terminal state without redispatching a block.

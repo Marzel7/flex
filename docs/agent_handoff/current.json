@@ -17421,7 +17421,8 @@
     "safety": "HELIUS=0; BIRDEYE=0; canonical DB changed=false; universal DEV DB changed=false; price/history changed=false; runtime restarted=false.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD",
-    "blocker": "Supervisor runs /Users/kevinkeaveney/.codex/worktrees/dev005-runtime-b4/flex at b4a6468917ded2fa5aac99fdb4efff87a680cfa3 with PYTHONPATH bound to the dirty shared checkout (monitor modules untracked). It is not bound to repair commit 49ba1ae4, so exact source identity and singleton deployment preflight fail.",
+    "blocker": "Supervisor runs /Users/kevinkeaveney/.codex/worktrees/dev005-runtime-b4/flex at b4a6468917ded2fa5aac99fdb4efff87a680cfa3 with PYTHONPATH bound to the dirty shared checkout (monitor modules untracked). The qualified repair checkout at 49ba1ae4 contains operation_monitor_worker but does not contain src.ops.operation_monitor_service; a pinned managed import fails ModuleNotFoundError. It therefore cannot become the single supervised source root without a separately qualified runtime-composition revision.",
+    "deployment_audit": "docs/audits/universal_price_runtime_recovery_deployment.v1.json",
     "next_action": "FIX_ONLY_RUNTIME_AUTHORITY_OR_PROCESS_BINDING"
   },
   "watchtower_deep_classification_implementation_review_20260929": {

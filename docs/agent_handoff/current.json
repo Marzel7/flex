@@ -1,4 +1,16 @@
 {
+  "fresh_watchtower_agency_forward_trace_20261005": {
+    "engineering_revision": "8fa461e4dc32e4fde15639eb14a2c44a01fda43b active DEV monitor authority; read-only target trace",
+    "status": "PASS_UI_HISTORY_PROJECTION_SEMANTICS_PROVEN",
+    "target": "4nn2hUuWxReUxBRAuXzhG3A556U6pjbecHBgwRt2pump (AGENCY)",
+    "finding": "AGENCY has a canonical Watchtower assignment at 1791233846 and a canonical PumpSwap migration at 1791233613 (slot 453692084). Its delivered monitor admission is durable at 1791233898. The first retained waiting fact was created at 1791239289; the current retained strict diagnostic is HTTP 200/TARGET_SECOND_ABSENT for the exact [migration, migration+2] 1-second window, so no Entry timestamp or MC exists. The authoritative monitor fact is WAITING_FOR_ENTRY_REFERENCE with no monitor_started_at, observation, or completion timestamp.",
+    "ui_semantics": "The port-8100 recent History list is a dynamic assigned-launch read projection, not the terminal Monitor-history ledger. It projects recent operator_launch_membership rows and excludes only authoritative-live rows; authoritative live requires a qualified Entry. AGENCY therefore appears as Entry unavailable because its Entry is unqualified, not because it completed a LIVE-to-HISTORY lifecycle. No persisted History transition or projection timestamp exists for this row.",
+    "control": "Recent SH control HVEyhCnbmSLWYmxmYC9gc2tvUDmWSm1ayeai4LVTpump has the same canonical assignment/migration family but a qualified migration+1 Entry ($175502.34351947263), then PRICE_MONITOR_COMPLETE_COLLAPSED at 1791226142. Its retained fact was created at 1791224945. AGENCY's first retained strict-fact time is 5676 seconds after migration; SH's retained qualified activation is 18767 seconds after migration, so timeliness alone does not explain the different strict outcome.",
+    "safety": "Read-only source, Supervisor/process, queue-envelope, and SQLite inspection only. No source/runtime/config/DB/queue/provider/consumer/Byzantine/listener changes; no provider calls or historical-cohort work.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Forensic trace only; no executable behavior changed.",
+    "next_action": "FIX_ONLY_THE_UI_HISTORY_SEMANTICS_OR_LABELING_IF_PRODUCT_REQUIRES_HISTORY_TO_MEAN_TERMINAL_MONITOR_LIFECYCLE"
+  },
   "watchtower_23_strict_opening_miss_investigation_20261005": {
     "engineering_revision": "8fa461e4dc32e4fde15639eb14a2c44a01fda43b; read-only cohort comparison",
     "status": "HOLD_HISTORICAL_STRICT_EVIDENCE_AVAILABILITY_UNPROVEN",

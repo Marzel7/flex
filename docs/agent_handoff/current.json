@@ -1,4 +1,14 @@
 {
+  "managed_zero_argument_birth_factory_20261005": {
+    "engineering_revision": "bb8f3fa1b5854813a04d28f55c8b93f8b046f2ea",
+    "status": "PASS_PER_ASSIGNMENT_BIRTH_FACTORY_READY_FOR_REAL_E2E",
+    "result": "The managed capabilities factory is now zero-argument. Per Byzantine assignment, the consumer resolves only that mint's retained canonical-ledger Create fact or its existing walkback known-signature fallback, then passes the resulting mint/creator/create_signature and optional fact into the unchanged canonical-birth primitive. No token input is captured by the process-level factory.",
+    "verification": "34 focused tests passed, including two distinct assignments through one factory with zero cross-assignment leakage, target per-assignment input control, and PEPEINU parity. A compact temporary-authority managed CLI ran for at least three empty one-second scans and stopped gracefully. Exact DEV read-only preflight reports READY; target resolves mint 6LQt...ppump, creator 46bF...VzvK, and known signature 5UAwi...Qmv7 without a provider call.",
+    "safety": "Watchtower source/opening/runtime/listener changed=false; Byzantine selection/identity/valuation/canonical-birth semantics changed=false; Helius/Birdeye=0; target reconciliation=false; canonical/universal DEV DB changed=false; test storage was a compact temporary SQLite/queue authority under /private/tmp.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_state": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "START_DEV_CONSUMER_AND_RECONCILE_ONLY_EVENT_72741232"
+  },
   "real_dev_byzantine_e2e_20261005": {
     "engineering_revision": "a300ddf1ac6ec8c5dda9375b275ab1b839465eb4",
     "status": "HOLD_REAL_E2E_AT_MANAGED_RUNTIME_FACTORY_SIGNATURE",

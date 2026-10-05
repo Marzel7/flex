@@ -17727,6 +17727,18 @@
     "runtime_deployment_reason": "Proof-only retry-state analysis; no executable runtime changed.",
     "exact_next_action": "REVIEW_AND_AUTHORIZE_A_NEW_DURABLE_HANDOFF_RECEIPT_OR_EQUIVALENT_STATE_MODEL_BEFORE_IMPLEMENTATION"
   },
+  "existing_state_handoff_recovery_proof_20261005": {
+    "engineering_revision": "Current authoritative worker bf1bdfc59b4acfed0338a493189d91d212bda50f; extracted producer 0833a616099e33bdbde67d500a69a6fad470bc8e",
+    "status": "HOLD_EXISTING_STATE_INSUFFICIENT",
+    "authority": "Focused runtime-authority validator tests: 10 passed, 0 failed. No historical worker was used as authority.",
+    "monitor_fact_semantics": "Current worker is the only current-source writer of operation_monitor_facts. It writes its fact through the durable writer after claiming/processing a queue message, and explicitly commits the durable fact before EvidenceIntakeQueue ACK; terminal reduction retains the fact. Thus a fact proves some current-monitor processing for its operation/mint and survives ACK, but not the identity of a particular later canonical assignment.",
+    "temporary_proof": "Crash A re-enqueue created one pending message. Crash B repeated deterministic enqueue returned the same message id and retained exactly one pending message. The operation_monitor_facts schema primary key is only (operation_id,mint); a temporary same-operation/same-mint fact with assignment A was selected by the proposed lookup while assignment B was distinct. The row has assignment_provenance but the proposed operation/mint lookup does not use it, and qualified conflict updates preserve the original assignment provenance/entry identity.",
+    "unresolved_window": "Crash C cannot safely mark a new canonical assignment handed off merely because an operation_monitor_facts row exists for the same operation/mint. That row can be stale/unrelated to the assignment under recovery; the proposed check produces a false positive. Therefore existing operation/mint state plus queue idempotency is insufficient for all required crash windows.",
+    "safety": "Temporary queue/SQLite only; source changes=0; provider calls=0; production DB/runtime access=0; canonical DB changed=false; universal DEV DB changed=false; consumer start=0; target reconciliation=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Proof-only source/schema/temporary-state review; no executable runtime changed.",
+    "exact_next_action": "REPORT_ONLY_CRASH_C_ASSIGNMENT_IDENTITY_AMBIGUITY_AND_REVIEW_A_DURABLE_ASSIGNMENT_SCOPED_HANDOFF_PROOF"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

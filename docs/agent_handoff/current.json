@@ -1,4 +1,14 @@
 {
+  "real_dev_byzantine_e2e_execution_20261005": {
+    "engineering_revision": "bb8f3fa1b5854813a04d28f55c8b93f8b046f2ea",
+    "status": "HOLD_REAL_E2E_AT_MANAGED_OPENING_NOT_QUALIFIED",
+    "result": "One exact reconciliation for 72741232-dcbe-5871-8ebe-ce9d294aeb50 returned PROJECTED with outbox_id 1. The single managed consumer completed 15 healthy empty scans before reconciliation, then observed the target and persisted a FAILED_CLOSED projection with held_reason OPENING_NOT_QUALIFIED. It was stopped immediately after the observed failure. The forward cursor advanced to outbox_id 1; no target assignment ACK, monitor queue message, monitor fact, or lifecycle record was present.",
+    "observed_boundary": "The consumer's persisted boundary was OPENING_NOT_QUALIFIED. The target-specific provider binding has no durable per-request ledger row, so retained state does not distinguish canonical-birth coordinate failure, selection failure, identity failure, or valuation failure beneath that existing fail-closed result. No additional provider probe was made after failure.",
+    "safety": "Exactly one target reconciliation; non-target reconciliation=0; managed consumer active count=0 after stop; Watchtower listener/source/runtime/restart changed=false; existing DEV MonitorWorker and bridge remained RUNNING; no manual queue processing, historical backfill, or price backfill. Canonical DB changed only by the authorized target outbox append; universal DEV DB persisted only the consumer cursor advancement. No source changes.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_REAL_E2E_AT_MANAGED_OPENING_NOT_QUALIFIED",
+    "next_action": "FIX_ONLY_THE_EXACT_RUNTIME_BOUNDARY"
+  },
   "managed_zero_argument_birth_factory_20261005": {
     "engineering_revision": "bb8f3fa1b5854813a04d28f55c8b93f8b046f2ea",
     "status": "PASS_PER_ASSIGNMENT_BIRTH_FACTORY_READY_FOR_REAL_E2E",

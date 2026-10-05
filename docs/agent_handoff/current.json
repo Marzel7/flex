@@ -1,4 +1,15 @@
 {
+  "universal_pumpfun_opening_semantic_check_20261005": {
+    "engineering_revision": "9363f57835dc8bee42680c228448d91569d87b83 candidate unchanged; source/UI/retained-fact proof only",
+    "status": "PASS_OPERATION_SPECIFIC_OPENINGS_REQUIRED",
+    "finding": "Watchtower FIRST_AVAILABLE is FIRST_FULL_POST_MIGRATION_SECOND_MC: the first nonzero 1-second Birdeye candle strictly after a retained migration timestamp. Byzantine ACTUAL_ENTRY_V2 is the earliest decoder-qualified post-create Pump.fun/PumpSwap BUY/SELL selected from a bounded signature page, then mint-validated and valued by its containing 15-second candle. They are different operation-specific entry references, not canonical Pump.fun birth/opening prices. The universal UI maps Opening / Entry MC directly to operation_monitor_facts.entry_mc_usd and calls it FROZEN STRATEGY ENTRY; Current MC, peak, multiple, time-to-peak, and lifecycle are retained per (operation_id,mint) from that entry boundary. Therefore a one-size-fits-all birth metric would alter present UI/lifecycle semantics.",
+    "controls": "PEPEINU retained Byzantine fixture proves ACTUAL_ENTRY_V2 slot 453241280, timestamp 1791112830, Entry MC 3925.9516827750313. It has no retained Watchtower migration/1-second first-full-post-migration evidence, so a Watchtower FIRST_AVAILABLE MC is NOT_AVAILABLE without provider work. Read-only canonical DB control 3uawx...jpump records Watchtower entry_method FIRST_FULL_POST_MIGRATION_SECOND_MC, timestamp 1789940210, MC 110847.484899455. No Byzantine-style entry is inferred for it.",
+    "evidence": "src/ops/operation_monitor_worker.py _watchtower_entry_inventory/acquire_watchtower_entry lines 176-173 and 264-270; src/ops/byzantine_forward_opening_adapter.py execute; src/ops/byzantine_forward_capability.py selector/valuation; src/ops/operator_lifecycle_projection.py schema; src/ops/operator_routes.py projection; templates/operators_index.html and templates/operations_live_monitor.html label the field Entry MC / FROZEN STRATEGY ENTRY.",
+    "safety": "Source files changed=0; Watchtower/Byzantine/Monitor changed=false; Helius=0; Birdeye=0; canonical/universal DEV DB changed=false; no consumer/reconciliation.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Proof-only source, UI contract, fixture, and read-only retained-fact inspection.",
+    "next_action": "CONTINUE_EXISTING_OPERATION_ADAPTER_PATH"
+  },
   "shared_canonical_birth_managed_binding_20261005": {
     "engineering_revision": "9363f57835dc8bee42680c228448d91569d87b83 candidate inspected; no source change",
     "status": "HOLD_SHARED_BIRTH_EXISTING_INTERFACE_MISMATCH",

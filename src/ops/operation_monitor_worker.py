@@ -876,6 +876,20 @@ def _entry_inventory(db_path: str,p:dict[str,Any])->dict[str,Any]:
  if resolver is None:
   return {'result':'INSUFFICIENT_EVIDENCE','reason':'ENTRY_REFERENCE_PRODUCER_UNDECLARED','missing_evidence':['declared operation Monitor entry-reference producer'],'next_entry_evaluation_at':None}
  return resolver(db_path,p)
+
+_OPTIONAL_OPENING_CAPABILITY_MODULE = 'src.ops.birth_anchored_opening_acquisition'
+_OPTIONAL_OPENING_WRAPPER_IMPORT = "cannot import name 'live_opening_action_job' from 'src.ops'"
+
+def _optional_opening_capability_unavailable(exc: ImportError) -> bool:
+ """Accept only the two proven absence forms of optional Opening support."""
+ if isinstance(exc, ModuleNotFoundError):
+  return getattr(exc, 'name', None) == _OPTIONAL_OPENING_CAPABILITY_MODULE
+ return (
+  type(exc) is ImportError
+  and getattr(exc, 'name', None) == 'src.ops'
+  and str(exc).startswith(_OPTIONAL_OPENING_WRAPPER_IMPORT)
+ )
+
 class MonitorWorker:
  def __init__(self,q,transport=None,persist=None,*,db_path=None,before_ack=None,terminal_finalizer_factory=None,provider_bindings=None,opening_jobs_path=None,provider_work_path=None):
   self.q=q
@@ -948,9 +962,9 @@ class MonitorWorker:
    # Diagnostic-only strict-opening support is optional to canonical 15m
    # history.  Preserve it fail-closed without preventing independent Monitor
    # work when its known optional diagnostic helper is unavailable.
-   if getattr(exc,'name',None)=='src.ops.birth_anchored_opening_acquisition':
+   if _optional_opening_capability_unavailable(exc):
     diagnostic=self.provider_work_path.parent/'opening_capability_unavailable.json'
-    payload={'state':'STRICT_OPENING_OPTIONAL_CAPABILITY_UNAVAILABLE','reason':'BIRTH_ANCHORED_OPENING_ACQUISITION_UNAVAILABLE','module':exc.name,'recorded_at':int(time.time() if now is None else now)}
+    payload={'state':'STRICT_OPENING_OPTIONAL_CAPABILITY_UNAVAILABLE','reason':'BIRTH_ANCHORED_OPENING_ACQUISITION_UNAVAILABLE','module':_OPTIONAL_OPENING_CAPABILITY_MODULE,'recorded_at':int(time.time() if now is None else now)}
     temporary=diagnostic.with_name(f'.{diagnostic.name}.{os.getpid()}.tmp')
     temporary.write_text(json.dumps(payload,sort_keys=True,separators=(',',':'))+'\n')
     os.replace(temporary,diagnostic)

@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "candidate_base": "bafb3f7cacd5d13bf59bfacb615b17e15619ac2b",
+  "scope": "narrow optional Opening import-shape recovery",
+  "optional_opening_import_expression": "from src.ops import live_opening_action_job as opening",
+  "accepted_absence_forms": [
+    "ModuleNotFoundError name=src.ops.birth_anchored_opening_acquisition",
+    "ImportError name=src.ops with exact live_opening_action_job-from-src.ops prefix"
+  ],
+  "rejected_import_forms": [
+    "unrelated symbol ImportError",
+    "inner dependency ImportError",
+    "generic ImportError"
+  ],
+  "service_worker_contract": {
+    "required_methods": [
+      "reconcile_stale_watchtower_pending_openings",
+      "reconcile_retained_watchtower_facts",
+      "reconcile_terminal_ath_jobs",
+      "process_entry_reference_opening_once",
+      "process_once"
+    ],
+    "missing_methods": 0,
+    "missing_attributes": 0,
+    "signature_mismatches": 0
+  },
+  "provider_free_execution": {
+    "focused_tests_passed": 7,
+    "focused_tests_failed": 0,
+    "real_service_worker_scans": 4,
+    "agency_and_mega_dispatched": true,
+    "provider_calls": 0,
+    "real_authority_mutations": false
+  },
+  "immutable_price_behavior_changed": false,
+  "historical_backfill_enabled": false,
+  "restart_authorized_by_this_audit": false
+}

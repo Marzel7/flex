@@ -4,6 +4,8 @@ import sqlite3
 import sys
 import types
 
+import pytest
+
 from src.ops.operation_monitor_worker import MonitorQueue, MonitorWorker
 
 
@@ -61,6 +63,63 @@ def test_missing_birth_anchored_opening_capability_is_durable_and_visible(tmp_pa
         'recorded_at': 7,
     }
     assert json.loads((tmp_path / 'opening_capability_unavailable.json').read_text()) == result
+
+
+def test_missing_optional_opening_wrapper_is_durable_and_visible(tmp_path):
+    worker = MonitorWorker(
+        type('Queue', (), {})(), lambda _: None,
+        opening_jobs_path=tmp_path / 'opening.db',
+        provider_work_path=tmp_path / 'provider.db',
+    )
+    result = worker.process_entry_reference_opening_once(now=8)
+    assert result == {
+        'state': 'STRICT_OPENING_OPTIONAL_CAPABILITY_UNAVAILABLE',
+        'reason': 'BIRTH_ANCHORED_OPENING_ACQUISITION_UNAVAILABLE',
+        'module': 'src.ops.birth_anchored_opening_acquisition',
+        'recorded_at': 8,
+    }
+    assert json.loads((tmp_path / 'opening_capability_unavailable.json').read_text()) == result
+
+
+def test_unrelated_optional_opening_import_errors_are_not_swallowed(tmp_path, monkeypatch):
+    worker = MonitorWorker(
+        type('Queue', (), {})(), lambda _: None,
+        opening_jobs_path=tmp_path / 'opening.db',
+        provider_work_path=tmp_path / 'provider.db',
+    )
+    original = builtins.__import__
+
+    def fail_unrelated(name, *args, **kwargs):
+        fromlist = kwargs.get('fromlist') or (args[2] if len(args) > 2 else ())
+        if name == 'src.ops' and 'live_opening_action_job' in fromlist:
+            raise ImportError("cannot import name 'unrelated_symbol' from 'src.ops'", name='src.ops')
+        return original(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, '__import__', fail_unrelated)
+    with pytest.raises(ImportError):
+        worker.process_entry_reference_opening_once(now=9)
+
+
+def test_inner_dependency_and_generic_import_errors_are_not_swallowed(tmp_path, monkeypatch):
+    worker = MonitorWorker(
+        type('Queue', (), {})(), lambda _: None,
+        opening_jobs_path=tmp_path / 'opening.db',
+        provider_work_path=tmp_path / 'provider.db',
+    )
+    original = builtins.__import__
+
+    def fail_inner(name, *args, **kwargs):
+        fromlist = kwargs.get('fromlist') or (args[2] if len(args) > 2 else ())
+        if name == 'src.ops' and 'live_opening_action_job' in fromlist:
+            raise ImportError("cannot import name 'birth_dependency' from 'src.ops'", name='src.ops')
+        return original(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, '__import__', fail_inner)
+    with pytest.raises(ImportError):
+        worker.process_entry_reference_opening_once(now=10)
+    monkeypatch.setattr(builtins, '__import__', lambda *args, **kwargs: (_ for _ in ()).throw(ImportError('generic import failure')))
+    with pytest.raises(ImportError):
+        worker.process_entry_reference_opening_once(now=11)
 
 
 def _committing_writer(path):

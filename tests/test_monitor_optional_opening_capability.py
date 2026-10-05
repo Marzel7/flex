@@ -6,7 +6,8 @@ import types
 
 import pytest
 
-from src.ops.operation_monitor_worker import MonitorQueue, MonitorWorker
+from src.ops import operation_monitor_worker as monitor_worker
+from src.ops.operation_monitor_worker import MonitorQueue, MonitorWorker, StrictEntryNormalizationError
 
 
 def _ensure_schema(connection):
@@ -250,6 +251,112 @@ def test_non_live_entry_never_reaches_transport(tmp_path):
     assert calls == []
 
 
+@pytest.mark.parametrize('category', ['TARGET_SECOND_ABSENT', 'NO_PROVIDER_ITEMS'])
+def test_legacy_watchtower_strict_miss_is_sealed_without_another_provider_call(tmp_path, category):
+    queue = MonitorQueue(tmp_path / 'queue', enabled=True)
+    message_id = f'legacy-{category.lower()}'
+    queue.queue.enqueue({
+        'operation_id': 'watchtower', 'mint': message_id,
+        'monitor_state': 'WAITING_FOR_ENTRY_REFERENCE',
+        'entry_reference_state': 'WAITING_FOR_ENTRY_REFERENCE',
+        'strict_opening_failure_diagnostic': {'failure_category': category, 'http_status': 200},
+        'opening_failure_reason': category,
+        'next_entry_evaluation_at': 1,
+    }, message_id=message_id)
+    calls = []
+    worker = MonitorWorker(queue, transport=lambda _: calls.append('provider'), db_path=str(tmp_path / 'unused.db'))
+
+    assert worker.reconcile_exhausted_watchtower_strict_openings()['sealed'] == 1
+    assert calls == []
+    payload = json.loads((tmp_path / 'queue' / 'dead_letter' / f'{message_id}.json').read_text())
+    envelope = payload['envelope']
+    assert envelope['strict_opening_provider_attempt_count'] == 1
+    assert envelope['strict_opening_provider_attempt_budget'] == 1
+    assert envelope['strict_opening_retry_state'] == 'BUDGET_EXHAUSTED'
+    assert envelope['next_entry_evaluation_at'] is None
+
+    # A restart and the idempotent assignment identity cannot reactivate or reset it.
+    restarted = MonitorWorker(queue, transport=lambda _: calls.append('provider'), db_path=str(tmp_path / 'unused.db'))
+    assert restarted.reconcile_exhausted_watchtower_strict_openings()['sealed'] == 0
+    assert queue.queue.enqueue({'operation_id': 'watchtower', 'mint': message_id}, message_id=message_id) == message_id
+    assert len(list((tmp_path / 'queue' / 'dead_letter').glob('*.json'))) == 1
+    restarted.process_once()
+    assert calls == []
+
+
+def test_fresh_watchtower_strict_miss_gets_one_durable_attempt_then_stops(tmp_path, monkeypatch):
+    db = tmp_path / 'monitor.db'
+    connection = sqlite3.connect(db); _ensure_schema(connection); connection.commit(); connection.close()
+    queue = MonitorQueue(tmp_path / 'queue', enabled=True)
+    queue.queue.enqueue({
+        'operation_id': 'watchtower', 'mint': 'fresh-miss', 'cohort': 'PROSPECTIVE_MONITOR_COHORT',
+        'entry_method': 'STRICT_MIGRATION_WINDOW', 'entry_reference_state': 'WAITING_FOR_ENTRY_REFERENCE',
+        'monitor_state': 'WAITING_FOR_ENTRY_REFERENCE', 'candle_resolution': '15m',
+        'assignment': {'assigned_at': 1}, 'history_start_timestamp': 1,
+    }, message_id='fresh-miss')
+    monkeypatch.setattr(monitor_worker, '_entry_inventory', lambda *_: {
+        'result': 'ENTRY_EVIDENCE_ACQUISITION_DUE', 'entry_acquisition': {'migration_timestamp': 10},
+    })
+    calls = []
+    def strict_miss(**_kwargs):
+        calls.append('strict')
+        raise StrictEntryNormalizationError('TARGET_SECOND_ABSENT', {'failure_category': 'TARGET_SECOND_ABSENT', 'http_status': 200})
+    monkeypatch.setattr(monitor_worker, 'dispatch_strict_migration_window', strict_miss)
+    worker = MonitorWorker(queue, transport=lambda _: (_ for _ in ()).throw(AssertionError('NO_LIFECYCLE_PROVIDER_CALL')),
+                           persist=_committing_writer(db), db_path=str(db))
+
+    worker.process_once()
+    assert calls == ['strict']
+    payload = json.loads((tmp_path / 'queue' / 'dead_letter' / 'fresh-miss.json').read_text())
+    assert payload['envelope']['strict_opening_provider_attempt_count'] == 1
+    worker.process_once()
+    assert calls == ['strict']
+
+
+def test_fresh_watchtower_without_prior_miss_is_not_sealed(tmp_path):
+    queue = MonitorQueue(tmp_path / 'queue', enabled=True)
+    queue.queue.enqueue({
+        'operation_id': 'watchtower', 'mint': 'fresh-opening',
+        'monitor_state': 'WAITING_FOR_ENTRY_REFERENCE',
+        'entry_reference_state': 'WAITING_FOR_ENTRY_REFERENCE',
+    }, message_id='fresh-opening')
+    worker = MonitorWorker(queue, transport=lambda _: None, db_path=str(tmp_path / 'unused.db'))
+    assert worker.reconcile_exhausted_watchtower_strict_openings()['sealed'] == 0
+    assert (tmp_path / 'queue' / 'pending' / 'fresh-opening.json').exists()
+
+
+def test_fresh_qualified_strict_opening_still_activates_live_monitor(tmp_path, monkeypatch):
+    db = tmp_path / 'monitor.db'
+    connection = sqlite3.connect(db); _ensure_schema(connection); connection.commit(); connection.close()
+    queue = MonitorQueue(tmp_path / 'queue', enabled=True)
+    queue.queue.enqueue({
+        'operation_id': 'watchtower', 'mint': 'fresh-qualified', 'cohort': 'PROSPECTIVE_MONITOR_COHORT',
+        'entry_method': 'STRICT_MIGRATION_WINDOW', 'entry_reference_state': 'WAITING_FOR_ENTRY_REFERENCE',
+        'monitor_state': 'WAITING_FOR_ENTRY_REFERENCE', 'candle_resolution': '15m',
+        'assignment': {'assigned_at': 1}, 'history_start_timestamp': 1,
+    }, message_id='fresh-qualified')
+    monkeypatch.setattr(monitor_worker, '_entry_inventory', lambda *_: {
+        'result': 'ENTRY_EVIDENCE_ACQUISITION_DUE', 'entry_acquisition': {'migration_timestamp': 10},
+    })
+    monkeypatch.setattr(monitor_worker, 'dispatch_strict_migration_window', lambda **_kwargs: {
+        'entry': {'timestamp': 11, 'mc': 42.0},
+        'manifest': {'request_parameters': {'type': '1s'}},
+        'request': {'request_id': 'fresh-qualified-request'},
+    })
+    monkeypatch.setenv('MONITOR_RUNTIME', 'dev')
+    monkeypatch.setenv('DEV005_OPENING_ONLY_FIXTURE', '1')
+    worker = MonitorWorker(queue, transport=lambda _: (_ for _ in ()).throw(AssertionError('NO_LIFECYCLE_PROVIDER_CALL')),
+                           persist=_committing_writer(db), db_path=str(db))
+
+    worker.process_once()
+    with sqlite3.connect(db) as connection:
+        fact = connection.execute(
+            'SELECT entry_status, entry_timestamp, entry_mc_usd, monitor_state FROM operation_monitor_facts WHERE mint=?',
+            ('fresh-qualified',),
+        ).fetchone()
+    assert fact == ('QUALIFIED', 11, 42.0, 'MONITORING_ACTIVE')
+
+
 def test_service_continues_to_lifecycle_dispatch_after_optional_opening_unavailable(monkeypatch):
     from src.ops import operation_monitor_service as service
 
@@ -265,6 +372,8 @@ def test_service_continues_to_lifecycle_dispatch_after_optional_opening_unavaila
         def reconcile_terminal_ath_jobs(self):
             return None
         def reconcile_stale_watchtower_pending_openings(self):
+            return None
+        def reconcile_exhausted_watchtower_strict_openings(self):
             return None
         def process_entry_reference_opening_once(self):
             return {'state': 'STRICT_OPENING_OPTIONAL_CAPABILITY_UNAVAILABLE'}

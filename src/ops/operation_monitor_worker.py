@@ -26,6 +26,43 @@ _OHLCV_BUCKET_SECONDS=15*60
 # monitors and unrelated eligible work.  This is an aggregate admission gate,
 # not a replacement for DEV-012 or a per-token retry policy.
 GLOBAL_OPENING_MIN_INTERVAL_SECONDS=15
+# A strict migration Opening is immutable: every request for one assignment
+# addresses the same two-second [migration, migration+2] interval.  A 200
+# response stating that migration+1 is absent (or that the response is empty)
+# cannot become different through polling.  One durable attempt is therefore
+# the complete bounded acquisition budget for those two evidence outcomes.
+STRICT_OPENING_PROVIDER_MAX_ATTEMPTS=1
+_STRICT_OPENING_FINAL_MISS_CATEGORIES=frozenset({'TARGET_SECOND_ABSENT','NO_PROVIDER_ITEMS'})
+
+def _strict_opening_attempt_count(envelope:dict[str,Any])->int:
+ """Return durable strict attempts, treating legacy diagnostics as one attempt.
+
+ Older envelopes predate the explicit counter but already retain a provider
+ diagnostic for the immutable request.  Replaying them must not buy another
+ identical request merely to initialize the new counter.
+ """
+ try: explicit=max(0,int(envelope.get('strict_opening_provider_attempt_count') or 0))
+ except (TypeError,ValueError): explicit=0
+ return max(explicit,1 if isinstance(envelope.get('strict_opening_failure_diagnostic'),dict) else 0)
+
+def _watchtower_strict_opening_budget_exhausted(envelope:dict[str,Any])->bool:
+ """Whether a proven permanent Watchtower strict miss may never call again."""
+ if canonical_operation_id(str(envelope.get('operation_id') or ''))!='watchtower': return False
+ diagnostic=envelope.get('strict_opening_failure_diagnostic') or {}
+ category=str(envelope.get('opening_failure_reason') or diagnostic.get('failure_category') or '')
+ return category in _STRICT_OPENING_FINAL_MISS_CATEGORIES and _strict_opening_attempt_count(envelope)>=STRICT_OPENING_PROVIDER_MAX_ATTEMPTS
+
+def _seal_watchtower_strict_opening_budget(envelope:dict[str,Any])->dict[str,Any]:
+ """Persist a non-retryable strict-miss envelope without changing Opening semantics."""
+ count=_strict_opening_attempt_count(envelope)
+ return {**envelope,
+         'strict_opening_provider_attempt_count':count,
+         'strict_opening_provider_attempt_budget':STRICT_OPENING_PROVIDER_MAX_ATTEMPTS,
+         'strict_opening_retry_state':'BUDGET_EXHAUSTED',
+         'entry_evaluation_result':'WAITING_FOR_ENTRY_REFERENCE',
+         'monitor_state':'WAITING_FOR_ENTRY_REFERENCE',
+         'next_entry_evaluation_at':None,
+         'provider_ineligible_reason':'STRICT_OPENING_IMMUTABLE_MISS_BUDGET_EXHAUSTED'}
 def _dev005_opening_only_fixture_mode() -> bool:
  """Suppress only downstream 15m dispatch in an explicitly isolated DEV fixture.
 
@@ -1202,6 +1239,28 @@ class MonitorWorker:
    receipt=self.persist(WriteItem('enrichment','operation-monitor-defer-opening-not-ready',[(sql,(now,now,fact['operation_id'],fact['mint'])) for fact in unresolved],_h({'deferred_opening_not_ready':[(fact['operation_id'],fact['mint']) for fact in unresolved]})))
    if not receipt or not receipt.committed: raise RuntimeError('OPENING_NOT_READY_REPAIR_UNCOMMITTED')
   return sum(self.q.enqueue_terminal_ath_finalization(fact,provenance='LEGACY_PROSPECTIVE_WATCHTOWER_ATH_REPAIR')['status']=='ENQUEUED_TERMINAL_ATH' for fact in facts)
+ def reconcile_exhausted_watchtower_strict_openings(self):
+  """Seal pre-budget immutable strict misses without a replacement request.
+
+  This startup/iteration reconciliation is intentionally queue-only.  It
+  migrates an already durable strict diagnostic into an explicit one-attempt
+  budget and retains the message as a dead letter.  The retained waiting fact
+  remains the authority for the unresolved Opening; no database fact is
+  synthesized or changed and no provider is constructed or called here.
+  """
+  result={'examined':0,'sealed':0,'processing_deferred':0}
+  for state in ('pending','retry'):
+   for path in sorted((self.q.queue.root/state).glob('*.json')):
+    try: payload=json.loads(path.read_text(encoding='utf-8')); envelope=payload.get('envelope') or {}
+    except (OSError,ValueError,TypeError): continue
+    result['examined']+=1
+    if not _watchtower_strict_opening_budget_exhausted(envelope): continue
+    payload['envelope']=_seal_watchtower_strict_opening_budget(envelope)
+    self.q.queue._replace_payload(path,payload)
+    target=self.q.queue.root/'dead_letter'/path.name
+    os.replace(path,target);self.q.queue._fsync_directory(path.parent);self.q.queue._fsync_directory(target.parent)
+    result['sealed']+=1
+  return result
  def _process_terminal_ath(self,c):
   p=c.payload['envelope']
   try: finalizer=self.terminal_finalizer_factory(self.db_path,before_dispatch=self.q.admit_provider_dispatch)
@@ -1234,6 +1293,14 @@ class MonitorWorker:
     # acknowledging this predecessor, never acquiring price data twice.
     if p.get('active_successor_job_id') and self.q.has_durable_message(str(p['active_successor_job_id'])):
      self.q.queue.ack(c);self.last_ack_timestamp=time.time();continue
+    # Legacy and newly-written immutable strict misses are sealed before any
+    # entry inventory or admission can rebuild their identical paid request.
+    if _watchtower_strict_opening_budget_exhausted(p):
+     c.payload['envelope']=_seal_watchtower_strict_opening_budget(p)
+     self.q.queue._replace_payload(c.path,c.payload)
+     target=self.q.queue.root/'dead_letter'/c.path.name
+     os.replace(c.path,target);self.q.queue._fsync_directory(c.path.parent);self.q.queue._fsync_directory(target.parent)
+     continue
     # Assignment-first monitoring deliberately has no generic live window.
     # Retained evidence is evaluated first; only an operation-specific bounded plan may consume capacity.
     if not _qualified_live_entry(p) or not p.get('candle_resolution'):
@@ -1267,9 +1334,18 @@ class MonitorWorker:
         p.update({'entry_evaluation_result':'WAITING_FOR_ENTRY_REFERENCE','monitor_state':'WAITING_FOR_ENTRY_REFERENCE','opening_failure_reason':error.category,
                   'strict_opening_failure_diagnostic':strict_opening_failure_diagnostic(request=request,provider_diagnostic=error.diagnostic,credential_alias='BIRDEYE',job_identity=c.message_id,attempt_timestamp=int(time.time())),
                   'next_entry_evaluation_at':int(time.time())+60})
+        if canonical_operation_id(str(p.get('operation_id') or ''))=='watchtower' and error.category in _STRICT_OPENING_FINAL_MISS_CATEGORIES:
+         p['strict_opening_provider_attempt_count']=_strict_opening_attempt_count(p)
+         p['strict_opening_provider_attempt_budget']=STRICT_OPENING_PROVIDER_MAX_ATTEMPTS
+         p=_seal_watchtower_strict_opening_budget(p)
         capability=monitor_capability_for_operation(str(p.get('operation_id') or '')) or {}
         if capability.get('persist_waiting_entry_fact') is True:
          self._persist_waiting_entry_fact(p,{'result':'WAITING_FOR_ENTRY_REFERENCE','reason':error.category,'next_entry_evaluation_at':p['next_entry_evaluation_at']})
+        if _watchtower_strict_opening_budget_exhausted(p):
+         c.payload['envelope']=p;self.q.queue._replace_payload(c.path,c.payload)
+         target=self.q.queue.root/'dead_letter'/c.path.name
+         os.replace(c.path,target);self.q.queue._fsync_directory(c.path.parent);self.q.queue._fsync_directory(target.parent)
+         continue
        else:
         self.q.record_provider_success()
         policy_result=reduce_strict_migration_policy(migration_timestamp=int(evaluation['entry_acquisition']['migration_timestamp']),entry=first)

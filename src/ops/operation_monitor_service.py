@@ -64,6 +64,7 @@ def run_once(*, worker: MonitorWorker, queue, db_path: str) -> None:
     reconcile_watchtower_deep_assignment_admissions(db_path, queue)
     reconcile_qualified_monitor_fact_queue_projection(db_path, queue)
     worker.reconcile_stale_watchtower_pending_openings()
+    worker.reconcile_exhausted_watchtower_strict_openings()
     queue.recover_due()
     worker.reconcile_retained_watchtower_facts()
     worker.reconcile_terminal_ath_jobs()

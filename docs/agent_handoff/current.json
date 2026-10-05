@@ -17436,6 +17436,18 @@
     "blocker": "The optional-import recovery recognizes only one exception shape and does not handle the actual absent-submodule ImportError emitted by the candidate package.",
     "next_action": "REPAIR_ONLY_THE_TESTED_OPTIONAL_OPENING_IMPORT_CLASSIFICATION_THEN_RERUN_THE_POST_PORT_CLOSURE_GATE_FROM_SCAN_1"
   },
+  "universal_price_monitor_optional_import_shape_repair_20261005": {
+    "engineering_revision": "367d97d543fbc702d1082a369cadd77e6ca4834b on codex/universal-price-monitor-import-recovery",
+    "status": "PASS_LIFECYCLE_DISPATCH_RESTORED_SINGLE_SOURCE_RUNTIME",
+    "finding": "The exact optional expression from src.ops import live_opening_action_job as opening now accepts only the proven absent-wrapper ImportError (name src.ops plus exact wrapper-import prefix) and the existing named birth-anchored ModuleNotFoundError. It rejects unrelated symbol, inner dependency, and generic ImportError forms. Seven focused tests pass. A real service plus real compatible worker exercised four temporary-SQLite scans with the optional diagnostic then lifecycle dispatch for AGENCY- and MEGA-equivalent qualified facts; no provider transport was used. The authorized DEV worker is running as PID 72399 with CWD and PYTHONPATH /private/tmp/flex-universal-price-monitor-import-recovery; its source head is 367d97d5. Its previous error log was unchanged from the pre-repair failure.",
+    "audit": "docs/audits/universal_price_runtime_static_closure.v1.json",
+    "tests": "pytest -q tests/test_monitor_optional_opening_capability.py: 7 passed, 0 failed; real temporary-authority service/worker scans: 4 passed.",
+    "safety": "Provider-free qualification: HELIUS=0; BIRDEYE=0; other providers=0; canonical DB changed=false; universal DEV DB changed=false; price/history changed=false. Controlled DEV restart follows the qualified isolated binding; no manual provider call was made.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "runtime": "operation_monitor_worker RUNNING pid 72399; single source root verified; shared workspace imports=false; observed scheduler uptime exceeds four five-second intervals.",
+    "next_action": "TRACE_MISSING_RECENT_BYZANTINE_ASSIGNMENT_END_TO_END"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

@@ -1,8 +1,10 @@
 """Generic durable canonical-assignment -> QualifiedOpening bridge."""
 from __future__ import annotations
 import hashlib,json,sqlite3
+from src.ops.byzantine_forward_opening_adapter import EXECUTABLE_ADAPTERS as BYZANTINE_EXECUTABLE_ADAPTERS
 
 REGISTRY={'watchtower':('FIRST_AVAILABLE','WATCHTOWER_FIRST_AVAILABLE_V1'),'byzantine':('BYZANTINE_ACTUAL_ENTRY_V2','BYZANTINE_ACTUAL_ENTRY_V2')}
+EXECUTABLE_ADAPTERS = dict(BYZANTINE_EXECUTABLE_ADAPTERS)
 def ident(v): return hashlib.sha256(json.dumps(v,sort_keys=True,separators=(',',':')).encode()).hexdigest()
 def ensure_schema(db):
  db.execute('PRAGMA max_page_count=16384')

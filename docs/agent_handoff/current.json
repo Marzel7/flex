@@ -17846,6 +17846,15 @@
     "runtime_deployment_reason": "Read-only dataflow trace only; exact runtime factory cannot be safely adapted without a new create-coordinate source contract.",
     "exact_next_action": "REPORT_ONLY_THE_MISSING_PER_ASSIGNMENT_CANONICAL_CREATE_COORDINATE_OR_AUTHORIZE_ITS_EXISTING_AUTHORITY_BINDING"
   },
+  "canonical_create_coordinate_authority_trace_20261005": {
+    "engineering_revision": "4ab9c00854090803d35b4e381931037273ea6894 on codex/dev-current-worker-consumer-assembly; proof-only, no source change",
+    "status": "HOLD_NO_EXISTING_CANONICAL_CREATE_COORDINATE_AUTHORITY",
+    "finding": "The manifest-authoritative canonical DB is /Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db. Its canonical Pump.fun CREATE authority, wt_create_event_ledger, has schema for signature, mint, slot, and block_time but zero rows. The target assignment 72741232-dcbe-5871-8ebe-ce9d294aeb50 resolves canonically to mint 6LQtSttiDkpLvLQRfefqoNqmj4fdAoNFXAhW7UBppump; no ledger row or prospective_signature_slots row exists for its retained token_analysis signature. token_analysis retains only a non-manifest-authoritative signature and created_at, not a create slot. The same condition applies to the retained PEPEINU control, and no second retained canonical-birth control exists in the declared ledger. lookup_create_anchor(mint) fails closed for missing and multiple records, but cannot presently produce a retained complete coordinate for either control.",
+    "safety": "Source files changed=0; Helius=0; Birdeye=0; canonical DB changed=false; universal DEV DB changed=false; consumer started=0; target reconciliation=0; provider/network calls=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only retained-authority trace only; no executable behavior or authority binding changed.",
+    "exact_next_action": "REVIEW_AND_AUTHORIZE_THE_MISSING_CANONICAL_CREATE_COORDINATE_RETENTION_OR_FORWARD_CONTRACT_BEFORE_RETRYING_MANAGED_BYZANTINE_RUNTIME"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

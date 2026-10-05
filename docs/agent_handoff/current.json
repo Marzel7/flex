@@ -17537,6 +17537,17 @@
     "runtime_deployment_gate": "HOLD",
     "next_action": "COMPLETE_CLI_LIFECYCLE_HEALTH_AND_EXACT_BRIDGE_WORKER_QUEUE_CONSTRUCTION_THEN_RERUN_FULL_MANAGED_E2E"
   },
+  "universal_assignment_atomic_destination_schema_repair_20261005": {
+    "engineering_revision": "209da409e41e2211b355d86f08dd053f0e810b02 plus uncommitted narrow atomic-schema candidate",
+    "status": "PARTIAL",
+    "verdict": "ATOMIC_DESTINATION_SCHEMA_QUALIFIED_REAL_DEPLOYMENT_PREFLIGHT_INCOMPLETE",
+    "result": "Preserved standalone ensure_schema defaults while adding commit=False transaction-aware paths and a small deploy_atomic compositor. 49 focused provider-free tests pass: empty success, failure after consumer, failure during Opening, failure after both-before-commit, both partial-state recoveries, idempotency, existing monitor-row preservation, canonical caller-owned rollback, consumer/opening/runtime/writer regressions.",
+    "transaction_ownership": "Before repair consumer and Opening helpers committed independently; after repair default standalone callers still commit, while deployment composes the same definitions inside BEGIN IMMEDIATE and rolls back on BaseException.",
+    "real_preflight": "Destination read-only integrity_check=ok and new schema objects remain absent. Canonical database is 14,470,746,112 bytes; required full PRAGMA integrity_check did not complete in the bounded execution environment, so REAL_SCHEMA_DEPLOYMENT_PREFLIGHT_PASS=false and no real schema mutation occurred.",
+    "safety": "provider calls=0; canonical DB changed=false; destination DB changed=false; target untouched; monitor not stopped/restarted; consumer not started.",
+    "blocker": "Full canonical SQLite integrity result is required before real deployment but cannot complete within the available bounded command window.",
+    "exact_next_action": "Run the canonical integrity_check to completion in an approved long-running maintenance execution, then rerun the final read-only preflight before this already-qualified additive deployment."
+  },
   "universal_assignment_schema_deployment_qualification_20261005": {
     "engineering_revision": "209da409e41e2211b355d86f08dd053f0e810b02 plus uncommitted candidate",
     "status": "HOLD",

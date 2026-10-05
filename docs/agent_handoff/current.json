@@ -1,4 +1,16 @@
 {
+  "watchtower_compact_response_capacity_trace_20261005": {
+    "engineering_revision": "9fac51e7c0a83848f27305f05f785ef8c67032e0 running monitor source; read-only diagnostic",
+    "status": "HOLD_TWO_DISTINCT_COMPACT_RESPONSE_CAPACITY_BOUNDARIES",
+    "finding": "The exact guard is operation_monitor_worker.py: after an HTTP-200 Birdeye response is normalized into five-field candle records, it raises COMPACT_RESPONSE_CAPACITY_EXCEEDED when len(json.dumps(candles)) exceeds 8,192 bytes. This is decoded normalized-candle JSON byte size per physical response, not HTTP body bytes, disk size, queue size, cumulative accounting, or an in-memory rolling buffer. It runs before normalized-usable and observation-commit counters increment.",
+    "token_classification": "5tY has a one-bucket 900-second request with ten retained HTTP successes across twelve physical attempts, then the same per-response byte guard. Exact normalized row count and byte measure were deliberately not retained with raw provider payloads; the proven boundary is an unexpectedly oversized normalized response for a one-bucket request. 8n1 has 2,258 retained HTTP successes and 336 committed observations, then the same guard on a 567,900-second catch-up request. Its long-range request necessarily presents a large normalized-candle set to the fixed 8 KiB per-response limit. The immediate condition is shared, but the proven triggers differ: unexpected one-bucket response versus intentionally aggregated catch-up response.",
+    "controls": "Successful lifecycle facts use the same guard path; one retained control has 60 candles retained, proving a normalized response of at most 8,192 bytes passed. Exact success/failure byte measures and failed row counts are not retained. Git history shows the guard arrived with source-line assembly, but no source comment or historical design record establishes its original protected resource; no purpose is claimed.",
+    "safety": "Read-only source/history, queue, and SQLite inspection. No source/database/runtime/provider/queue/listener/consumer action; no raw provider payload retained. The 500 MB single-file prohibition remains unchanged.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Diagnostic-only trace; no executable behavior changed.",
+    "blocker": "A single capacity repair cannot be selected safely from retained evidence: 5tY needs bounded observability of an anomalously oversized one-bucket normalized response, while 8n1 needs a semantics-preserving response chunking or equivalent per-request treatment for catch-up windows.",
+    "next_action": "REVIEW_SEPARATE_5TY_AND_8N1_CAPACITY_REPAIR_SCOPES"
+  },
   "watchtower_current_live_failure_classification_20261005": {
     "engineering_revision": "9fac51e7c0a83848f27305f05f785ef8c67032e0 running monitor source; read-only diagnostic",
     "status": "HOLD_CURRENT_LIVE_SET_DIFFERS_FROM_FOUR_TOKEN_PREMISE",

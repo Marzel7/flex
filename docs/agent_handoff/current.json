@@ -17837,6 +17837,15 @@
     "runtime_deployment_reason": "This was a read-only launch attempt that stopped before a consumer process or target event action because the exact managed runtime binding is unavailable.",
     "exact_next_action": "FIX_ONLY_THE_ZERO_ARGUMENT_MANAGED_CAPABILITY_AND_ACK_AWARE_BRIDGE_FACTORY_BINDING_ON_4ab9c008_BEFORE_RETRYING_TARGET_72741232"
   },
+  "managed_factory_create_coordinate_trace_20261005": {
+    "engineering_revision": "4ab9c00854090803d35b4e381931037273ea6894 on codex/dev-current-worker-consumer-assembly; no source change",
+    "status": "HOLD_CREATE_COORDINATE_INPUT_CONTRACT_MISMATCH",
+    "finding": "The existing canonical_membership_outbox schema contains outbox_id, event_type, mint, operator_id, canonical_event_id, assigned_at, previous_operator_id, writer_identity, created_at, and schema_version only. canonical_outbox_reader emits only those values plus operation_id/source_authority. ManagedConsumer then constructs the Opening request as {id, operation_id, mint}; universal_opening_work retains assignment_id, operation_id, mint, adapter, state, opening_json. None carries canonical create slot/signature/time. Thus the required create_coordinate cannot be supplied from existing per-assignment/outbox/Opening state. Adding a lookup into a create ledger or another source would be new runtime acquisition/binding beyond this factory-shape-only gate.",
+    "safety": "Source changes=0; Helius=0; Birdeye=0; canonical DB changed=false; universal DEV DB changed=false; consumer started=0; target reconciliation=0; non-target reconciliation=0; monitor/queue/ACK/opening semantics unchanged.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only dataflow trace only; exact runtime factory cannot be safely adapted without a new create-coordinate source contract.",
+    "exact_next_action": "REPORT_ONLY_THE_MISSING_PER_ASSIGNMENT_CANONICAL_CREATE_COORDINATE_OR_AUTHORIZE_ITS_EXISTING_AUTHORITY_BINDING"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

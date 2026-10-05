@@ -17771,6 +17771,20 @@
     "runtime_deployment_reason": "The assembled line contains executable integration candidates, but no runtime target was reloaded or started in this source-consolidation gate.",
     "exact_next_action": "IMPLEMENT_ONLY_ASSIGNMENT_SCOPED_ACK_AND_ALREADY_QUALIFIED_RETRY_FIX_ON_THIS_SOURCE_LINE"
   },
+  "lossless_assignment_handoff_ack_retry_20261005": {
+    "engineering_revision": "b2f468d0464ebd8f7602467e3ed3540516be70bf on codex/dev-current-worker-consumer-assembly",
+    "status": "PASS_ASSIGNMENT_SCOPED_MONITOR_ACK_QUALIFIED_READY_FOR_REAL_DEV_E2E",
+    "worktree": "/private/tmp/flex-current-worker-consumer-assembly",
+    "finding": "The candidate MonitorWorker appends one assignment-scoped ACK insert to the same existing durable WriteItem as its fact/observation persistence, before the unchanged EvidenceIntakeQueue ACK/delete. The ACK key is the immutable canonical_event_id plus universal assignment handoff identity derived from outbox_id. The managed consumer treats ALREADY_QUALIFIED as pending unless that exact ACK exists; absent ACK reuses stored opening_json and retries only existing enqueue.",
+    "tests": "66 selected provider-free tests passed, 0 failed: prior 60-test consolidation regression plus six temporary-authority lossless crash controls (A, B, C, old-assignment same operation/mint, persistence failure, exact replay). One unrelated Mission Control template-label assertion remains deselected because it fails on the unchanged bf1 baseline and does not exercise this repair.",
+    "dev_schema": "The only DEV database mutation was CREATE TABLE/INDEX IF NOT EXISTS operation_monitor_assignment_ack on .dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db. Before/after monitor facts=95 and observations=634; ACK rows=0. No database copy was created. Canonical database is read-only preflighted and has no ACK table.",
+    "preflight": "Candidate SHA-256: worker c657ae52e61a38470b435e495488cf3a878181e505c4e8e50b283daf813df808; managed consumer 4868c15bad585aca9fab00c384c786be25984fcd06ec53cc1fa8a6b7d32faf33; ACK helper a5c4a8d78bb37b500a3358d59c506da2834091507bf737a34fc9cd6aea177972. Managed authority preflight=READY. Supervisor watchtower_listener PID 77852, creator_funding_worker PID 5312, creator_resolution_worker PID 16745 all RUNNING.",
+    "safety": "HELIUS=0; BIRDEYE=0; canonical DB changed=false; DEV monitor schema only changed=true; monitor facts/price facts/history facts unchanged; no provider/runtime start/restart; managed consumer not started; target event not reconciled; no large database copy; 64 MiB database ceiling and 500 MB project rule preserved.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "runtime_deployment_reason": "Candidate source and DEV ACK schema are qualified, but no monitor or managed-consumer runtime target was reloaded or started in this gate.",
+    "exact_next_action": "START_DEV_CONSUMER_AND_RECONCILE_ONLY_EVENT_72741232"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

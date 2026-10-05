@@ -18169,6 +18169,16 @@
     "runtime_deployment_reason": "Diagnostic classification only; no executable behavior changed.",
     "exact_next_action": "AUTHORIZE_A_SEPARATE_BOUNDED_HISTORICAL_ENTRY_EVIDENCE_CENSUS_AND_RECOVERY_POLICY_IF_COVERAGE_OF_THE_533_LEGACY_ROWS_IS_DESIRED"
   },
+  "watchtower_recent_ui_opening_trace_20261005": {
+    "engineering_revision": "8fa461e4dc32e4fde15639eb14a2c44a01fda43b active DEV monitor source; read-only trace",
+    "status": "PARTIAL_RECENT_FORWARD_OPENING_COVERAGE_HETEROGENEOUS",
+    "finding": "At the screenshot cutoff (the exact latest-20 Watchtower membership window ending with 4nn2...AGENCY), 11 rows have retained qualified Entry and 9 do not. The three requested controls are qualified First Full Post-Migration Second entries at migration+1 second: SH HVEy...LVT, Cat Agents AGENCY J4t...4DT, and MEGA EFGK...Qpu. Of the five named misses, HUMAN DCPH...jkW and SIF 2trQ...2kp have authoritative WAITING facts with retained TARGET_SECOND_ABSENT outcomes; HIGGS 2YB...rFY has a WAITING fact with ENTRY_EVENT_NOT_OCCURRED and no retained PumpSwap pool; current AGENCY 4nn...Rt2 and HIGCAT Gszm...WrY retain canonical migration signature/time/slot/pool plus pending enqueue messages but no authoritative monitor fact, strict attempt, provider status, or lifecycle state. Thus the UI is not omitting an existing Opening: every named missing row is genuinely absent at the configured monitor authority.",
+    "timeliness": "Entry timestamps for the three controls are migration+1s. Exact provider-attempt timestamps are not retained. Monitor-fact creation is +16m/+23m/+5.2h for MEGA/AGENCY/SH; waiting-fact creation is +3m/+7m/+52m for SIF/HUMAN/HIGGS. Latest strict-outcome state updates for SIF/HUMAN/HIGGS occurred +7.8h/+6.6h/+10.4h after migration. 4nn and HIGCAT have no fact despite pending messages, so no attempt time exists. This proves partial, not reliable, recent forward coverage.",
+    "safety": "Read-only source, SQLite, compact-queue, retained-log, and Supervisor-status trace: source changes=0; database changes=0; provider calls=0; no retry/dispatch/consumer/listener change; 533 historical cohort excluded.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Diagnostic trace only; no executable behavior changed.",
+    "exact_next_action": "TRACE_AND_FIX_ONLY_THE_PENDING_QUEUE_TO_OPENING_FACT_BOUNDARY_FOR_4NN_AND_GSZ_IF_AUTHORIZED; KEEP_TARGET_SECOND_ABSENT_AND_MISSING_POOL_CASES_SEPARATE"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

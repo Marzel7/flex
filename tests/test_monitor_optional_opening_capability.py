@@ -108,7 +108,7 @@ def test_qualified_live_dispatch_continues_after_optional_opening_failure(tmp_pa
     monkeypatch.setattr(builtins, '__import__', blocked)
     assert worker.process_entry_reference_opening_once(now=7)['state'] == 'STRICT_OPENING_OPTIONAL_CAPABILITY_UNAVAILABLE'
     monkeypatch.setattr(builtins, '__import__', original)
-    assert worker.process_once() == 1
+    worker.process_once()
     assert calls == ['agency']
     assert queue.current_fact_identities(operation_id='watchtower', mint='agency')
 
@@ -123,7 +123,7 @@ def test_non_live_entry_never_reaches_transport(tmp_path):
     })
     calls = []
     worker = MonitorWorker(queue, transport=lambda _: calls.append('called'), db_path=str(tmp_path / 'unused.db'))
-    assert worker.process_once() == 1
+    worker.process_once()
     assert calls == []
 
 

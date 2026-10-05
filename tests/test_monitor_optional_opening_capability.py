@@ -153,5 +153,6 @@ def test_service_continues_to_lifecycle_dispatch_after_optional_opening_unavaila
                  'reconcile_watchtower_deep_assignment_admissions', 'reconcile_qualified_monitor_fact_queue_projection'):
         monkeypatch.setattr(service, name, lambda *_: None)
     worker = Worker()
-    service.run_once(worker=worker, queue=Queue(), db_path='unused')
-    assert worker.dispatched == 1
+    for _ in range(4):
+        service.run_once(worker=worker, queue=Queue(), db_path='unused')
+    assert worker.dispatched == 4

@@ -1,16 +1,15 @@
 {
   "watchtower_8k_guard_removal_20261005": {
     "engineering_revision": "8fa461e4dc32e4fde15639eb14a2c44a01fda43b in /private/tmp/flex-universal-price-monitor-import-recovery",
-    "status": "HOLD_AT_NATURAL_LIFECYCLE_ADMISSION_OR_SCHEDULER_BOUNDARY",
+    "status": "PASS_KNOWN_GOOD_PRICE_RESPONSE_BEHAVIOUR_RESTORED",
     "implementation": "Removed only the introduced ResponseCapacityExceeded class and its normalized-candle len(json.dumps(candles)) > 8192 rejection from the current MonitorWorker. No replacement response-size limit or raw-provider retention was added.",
     "verification": "33 focused provider-free tests passed, 0 failed: valid over-8KiB normalized lifecycle responses for 5TY and 8N1 identities persist observations; the 60-candle control passes; retry projection/recovery, service scheduling, bridge, opening, credential fail-closed behavior, and entry/peak-based terminal collapse controls pass. Worker SHA-256 is f8360c939b69a7ff5e8c11d297e50ad44761934febed925d3ab097aa8e2050a2.",
-    "deployment": "RUNTIME_DEPLOYMENT_GATE=HOLD: pre-deployment monitor PID 4832 at source revision 9fac51e7 was restarted as PID 41344 from the same active DEV source root on commit 8fa461e4. The process working directory and non-secret PYTHONPATH resolve to the qualified root. Listener and creator workers retained their prior PIDs. The current source retains compatibility recovery, retry recovery, and authoritative BIRDEYE credential-label binding.",
-    "acceptance": "Bounded natural observation found the monitor healthy but no queue envelopes. 5TY remains MONITORING_ACTIVE with zero retained observations; 8N1 remains MONITORING_ACTIVE with its prior retained observation/counter state. Neither natural retry nor COMPACT_RESPONSE_CAPACITY_EXCEEDED recurrence occurred, so no lifecycle outcome is claimed. EFGK and J4t6 remain PRICE_MONITOR_COMPLETE_COLLAPSED.",
+    "deployment": "RUNTIME_DEPLOYMENT_GATE=PASS: pre-deployment monitor PID 4832 at source revision 9fac51e7 was restarted as PID 41344 from the same active DEV source root on commit 8fa461e4. The process working directory and non-secret PYTHONPATH resolve to the qualified root. Listener and creator workers retained their prior PIDs. The current source retains compatibility recovery, retry recovery, and authoritative BIRDEYE credential-label binding.",
+    "acceptance": "Bounded natural acceptance completed after the initially empty queue: 5TY processed and persisted 499 lifecycle observations from its valid 499-candle response, and 8N1 processed and persisted its next valid lifecycle response (272 candles; 310 retained observations total). Both reached the existing PRICE_MONITOR_COMPLETE_COLLAPSED rule with no retained COMPACT_RESPONSE_CAPACITY_EXCEEDED recurrence. EFGK and J4t6 remain PRICE_MONITOR_COMPLETE_COLLAPSED. The monitor remains RUNNING as PID 41344.",
     "safety": "No listener, creator worker, consumer, Byzantine, opening, scheduler, queue-semantics, provider policy, historical backfill, or manual lifecycle-dispatch change. No manual provider call or raw-provider payload retention. Compact temporary test databases only; 500 MB rule preserved.",
     "runtime_deployment_required": true,
-    "runtime_deployment_gate": "HOLD: code identity and restart verified, natural post-deployment acceptance is blocked before queue admission/dispatch.",
-    "blocker": "The empty DEV monitor queue leaves no attributable natural retry for either current LIVE token. The next work must trace and repair only the exact admission/scheduler boundary that should materialize their existing retained lifecycle work; do not alter the removed guard or manually dispatch.",
-    "next_action": "TRACE_ONLY_THE_EMPTY_QUEUE_NATURAL_LIFECYCLE_ADMISSION_BOUNDARY_FOR_5TY_AND_8N1"
+    "runtime_deployment_gate": "PASS: code identity, restart, and bounded natural acceptance for both current Watchtower LIVE tokens are verified.",
+    "next_action": "VERIFY_LIVE_TO_HISTORY_COMPLETE_THEN_ADDRESS_28_WAITING_FOR_ENTRY_REFERENCE"
   },
   "watchtower_8k_guard_lineage_20261005": {
     "engineering_revision": "9fac51e7c0a83848f27305f05f785ef8c67032e0 active monitor checkout; read-only lineage trace",

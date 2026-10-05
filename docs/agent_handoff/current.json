@@ -1,4 +1,16 @@
 {
+  "watchtower_5ty_minimal_response_capacity_trace_20261005": {
+    "engineering_revision": "9fac51e7c0a83848f27305f05f785ef8c67032e0 running monitor source; provider-free diagnostic only",
+    "status": "HOLD_5TY_MINIMAL_RESPONSE_SHAPE_UNPROVEN",
+    "finding": "5tY's retained lifecycle request is a 900-second range for one completed 15-minute bucket. The current worker normalizes the HTTP-200 response into five-field candle records and raises COMPACT_RESPONSE_CAPACITY_EXCEEDED only when JSON serialization of that normalized array exceeds 8,192 bytes. Retained evidence omits the failed response's row count, normalized byte count, and first/last timestamps, so the exact reason a one-bucket request crossed the guard cannot be established.",
+    "classification": "G: the request contract proves the requested completed-bucket count, but neither the provider contract nor retained evidence proves a maximum response-row bound. A provider-free structural fixture shows 107 normalized candles serialize to 8,132 bytes and 108 to 8,208 bytes, proving the guard boundary but not the actual 5tY response shape.",
+    "controls": "A retained successful 60-candle lifecycle control passed the same guard; its exact byte measure is not retained. No raw provider payloads, credentials, or provider fingerprints were retained.",
+    "safety": "Read-only source, retained-state, and provider-free structural inspection only. No source, database, runtime, queue, consumer, listener, lifecycle dispatch, or provider action occurred. The 500 MB single-file rule remains unchanged.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Diagnostic-only trace; no executable behavior changed.",
+    "blocker": "A 5tY-specific repair cannot be selected without proving the minimal response shape. The required bounded future diagnostic is non-secret only: endpoint, HTTP status, requested from/to, normalized row count, normalized serialized byte count, and first/last normalized candle timestamps.",
+    "next_action": "ADD_ONLY_COMPACT_NON_SECRET_RESPONSE_SHAPE_DIAGNOSTIC_AND_OBSERVE_ONE_NATURAL_RETRY"
+  },
   "watchtower_compact_response_capacity_trace_20261005": {
     "engineering_revision": "9fac51e7c0a83848f27305f05f785ef8c67032e0 running monitor source; read-only diagnostic",
     "status": "HOLD_TWO_DISTINCT_COMPACT_RESPONSE_CAPACITY_BOUNDARIES",

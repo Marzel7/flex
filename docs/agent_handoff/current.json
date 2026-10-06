@@ -18336,5 +18336,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Implementation was blocked before any executable behavior changed.",
     "exact_next_action": "COLLECT_ONLY_THE_MINIMUM_MIGRATION_SECOND_DIAGNOSTIC_ON_FUTURE_NATURAL_ASSIGNMENTS"
+  },
+  "watchtower_recent_missing_entry_migration_second_diagnostic_20261006": {
+    "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 active DEV monitor; bounded diagnostic-only provider reads",
+    "status": "PASS_COMPACT_COHORT_DIAGNOSTIC_CLASS_B",
+    "cohort": "Eleven recent UI-visible Watchtower rows with retained WAITING_FOR_ENTRY_REFERENCE facts: COOK, HUMAN, SIF, HIGCAT, HIGGS, PENIS, www, two CATFLIX rows, new AGENCY, and APE. Ten have a canonical assignment, migration timestamp/slot, and PumpSwap pool; HIGGS is ineligible because canonical pool evidence is absent.",
+    "result": "COOK was reused without a new request. Nine one-shot Birdeye V3 OHLCV MCAP/USD/range/padding=false/1s GETs over [t,t+4) were issued for the other eligible rows. Every eligible mint has a valid t close; none has a t+1 candle. Four have a t+2 candle (HUMAN, PENIS, www, newer CATFLIX); no t+3 candle was observed. All ten prior TARGET_SECOND_ABSENT outcomes remain t+1-absent. Current strict simulation qualifies 0/11; migration-second simulation would add 10/11, leaving only pool-ineligible HIGGS.",
+    "decision": "Class B: migration-second evidence is frequent, but there are zero same-token t-and-t+1 pairs, so economic comparability remains insufficiently understood. No fallback implementation is authorized.",
+    "safety": "BIRDEYE diagnostic calls=9, one per queried mint; COOK extra calls=0; missing-pool calls=0; raw payload retention=false; source/database/queue/fact/Opening/LIVE/runtime/process changes=0; no retry, no historical expansion.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Bounded diagnostic provider reads only; no executable behavior changed.",
+    "exact_next_action": "REVIEW_METRIC_BIAS_BEFORE_ANY_FALLBACK_IMPLEMENTATION"
   }
 }

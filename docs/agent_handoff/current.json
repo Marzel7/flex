@@ -19268,4 +19268,14 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "SHADOW_VALIDATE_PLUS2_ON_NEW_NATURAL_WATCHTOWER_TOKENS_BEFORE_LIVE_ACTIVATION"
   }
+  ,"watchtower_plus2_activation_preflight_hold_20261006": {
+    "engineering_revision": "165d576dc0e0c0a9fbca915667f36eb53b5a9bb6 inspected; no deployment action taken",
+    "status": "HOLD_INJECTOR_RETAINED_EVIDENCE_NOT_DURABLY_IMPORTABLE_AT_EXACT_SHA",
+    "evidence_boundary": "The authoritative compact audit ledger at /private/tmp/watchtower-offset-audit-v1.json has 93 records and intentionally excludes INJECTOR as a pre-existing complete control. The live DEV005A database retains INJECTOR as WAITING_FOR_ENTRY_REFERENCE with no Entry and has neither a watchtower_historical_openings record/table nor a historical-backfill job/table for it. The published handoff records the real +2 observation, but the exact runtime has no durable retained-evidence object carrying the required request/provenance identity that an existing import/promotion contract can consume.",
+    "runtime_boundary": "The exact launcher reconstructs an env -i process and does not forward WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH. The separate UI/API process is also not repointed by the authorized worker-only deployment. Thus deploying only operation_monitor_worker at the stated SHA could activate future +2 selection, but cannot make the current UI read the isolated audit ledger or persist Injector from retained evidence.",
+    "safety": "Preflight only: Birdeye=0; Helius=0; Injector Opening calls=0; source/database/queue writes=0; worker/Supervisor/listener changes=0; process restarts=0; other historical recovery=0. No exact-SHA runtime was started or stopped.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_RETAINED_EVIDENCE_IMPORT_AND_UI_CONFIGURATION_MISSING",
+    "next_action": "AUTHORIZE_A_SMALL_CLEAN_RETAINED_INJECTOR_EVIDENCE_IMPORT_CONTRACT_AND_EXACT_READ_ONLY_UI_LEDGER_CONFIGURATION_BEFORE_DEPLOYMENT"
+  }
 }

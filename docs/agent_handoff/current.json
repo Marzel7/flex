@@ -1,4 +1,17 @@
 {
+  "watchtower_two_token_lifecycle_recovery_20261006": {
+    "engineering_revision": "26004f994c157ddd0daa4df42276d05b477d6423 on codex/watchtower-forward-repair, pushed and remote verified",
+    "status": "PASS_BOTH_RECOVERED_TO_HISTORY",
+    "recovery_db": {"path":"/private/tmp/watchtower-two-token-recovery-26004f99.dev.db","count":1,"before_bytes":1073152,"after_bytes":1105920,"growth_bytes":32768,"integrity":"ok","project_500mb_rule":true,"per_job_checkpoint_cap":1048576},
+    "promotion": "The new provider-free constrained contract promotes only compatible WAITING_FOR_ENTRY_REFERENCE facts to QUALIFIED/HISTORICAL_RECOVERY_ACQUIRING. It cannot create MONITORING_ACTIVE or future work. It was qualified by 16 focused provider-free tests before execution.",
+    "B8S7": {"mint":"B8S7WGQYteNSBz4rU4Xs1hkr1seGpxYgUuV2wgtbpump","entry_timestamp":1791287674,"entry_mc":113847.0368040435,"entry_method":"MIGRATION_SECOND_MC_FALLBACK","historical_calls":6,"lifetime_calls":7,"range_attempts":[1,1,1,1,1,1],"range_statuses":[200,200,200,200,200,200],"normalized_candle_counts":[4,1,0,0,0,0],"job_state":"COMPLETED","observation_count":6,"peak":138474.6551459178,"peak_timestamp":1791288900,"multiple":1.216321996893639,"last_observed_mc":2253.0570373830164,"drawdown":98.37294627308596,"time_to_peak_seconds":1226,"coverage_class":"SPARSE","metric_exactness":"OBSERVED_ONLY","history_present":true},
+    "7iXZ": {"mint":"7iXZi55AyKbJv5e9XTQuVcywdT2ejHjGBf3NKuCLpump","entry_timestamp":1791294235,"entry_mc":166526.78513950607,"entry_method":"MIGRATION_SECOND_MC_FALLBACK","historical_calls":6,"lifetime_calls":7,"range_attempts":[1,1,1,1,1,1],"range_statuses":[200,200,200,200,200,200],"normalized_candle_counts":[5,0,0,0,0,0],"job_state":"COMPLETED","observation_count":7,"peak":207722.79840618395,"peak_timestamp":1791294300,"multiple":1.2473837060636603,"last_observed_mc":2324.783286587778,"drawdown":98.88082420204938,"time_to_peak_seconds":65,"coverage_class":"SPARSE","metric_exactness":"OBSERVED_ONLY","history_present":true},
+    "product": "The existing read-only Watchtower cohort projection against the same isolated DB exposes both Entries, MIGRATION_SECOND_MC_FALLBACK provenance, observed peak/multiple/drawdown, last observed MC, SPARSE, OBSERVED_ONLY, and finalized terminal state. No waiting row is presented as History.",
+    "safety": "Opening calls in this gate=0; historical calls=12 (six serial per token); retries=0; HTTP200 zero-candle ranges are successful bounded acquisition and not proof of no market activity; raw payload retention=false; synthetic observations=0; COOK=0; other historical tokens=0; live admission/future monitor work=0; source workspace/runtime/Supervisor/listener unchanged; Batch 2/full backfill=false.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "The bounded execution used one isolated recovery database and did not alter any active runtime target.",
+    "next_action": "REVIEW_COOK_B8S7_7IXZ_RESULTS_AND_DECIDE_WIDER_WATCHTOWER_BACKFILL"
+  },
   "watchtower_two_token_diagnostic_recollection_20261006": {
     "engineering_revision": "a433c67698778ce02be30a4eae90aa7e3f0f8e26 clean authority",
     "status": "PASS_BOTH_CURRENTLY_RECOVERABLE",

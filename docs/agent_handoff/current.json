@@ -19195,4 +19195,15 @@
     "runtime_deployment_reason": "Read-only provider-contract audit; no runtime behavior changed.",
     "next_action": "AUTHORIZE_PROVIDER_FREE_COMPACT_NON_TARGET_TIMESTAMP_DIAGNOSTIC_CHANGE_AND_QUALIFICATION"
   }
+  ,"watchtower_injector_bounded_late_candle_diagnostic_20261006": {
+    "engineering_revision": "71eb6751f65456420cb3c907fefb3e2b6f65458b; no source change",
+    "status": "PASS_INJECTOR_BOUNDED_LATE_CANDLE_CANDIDATE_OBSERVED_NOT_PERSISTED",
+    "request": "One authorized Birdeye V3 token OHLCV request only, with the existing mint-addressed MCAP/USD 1s range contract and [1791307928,1791307932). An initial local import-root failure occurred before request construction and made zero provider calls; the retry made the single authorized call.",
+    "result": "HTTP 200, provider item count=3, all normalized. Exact t/t+1 count=0. The compact normalized response was t+2=1791307930 MC=134293.7821862771, t+3=1791307931 MC=134690.51189096452, t+4=1791307932 MC=134806.71480907808. Under the proposed relaxed policy of earliest valid post-migration offset 2..4 only when exact t/t+1 are absent, deterministic candidate=t+2.",
+    "semantics": "This is diagnostic evidence only. Current immutable runtime Entry semantics remain unchanged; no candidate was written as Entry, no queue record was reactivated, and no LIVE state was created. Any future adoption must carry distinct BOUNDED_POST_MIGRATION_CANDLE provenance and explicit offset exactness rather than masquerading as exact t/t+1.",
+    "safety": "Birdeye calls=1; Helius=0; source changes=0; database/queue writes=0; process restarts=0; raw provider payload retention=false. Worker authority remains pinned clean 71eb6751f65456420cb3c907fefb3e2b6f65458b.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "One diagnostic acquisition only; no executable behavior changed or deployed.",
+    "next_action": "AUTHORIZE_OR_REJECT_A_SEPARATE_BOUNDED_POST_MIGRATION_ENTRY_POLICY_WITH_EXPLICIT_OFFSET_PROVENANCE"
+  }
 }

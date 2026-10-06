@@ -1,4 +1,15 @@
 {
+  "watchtower_final_terminal_safety_20261006": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; uncommitted workspace qualification",
+    "status": "PARTIAL_PARITY_AND_TERMINAL_IDEMPOTENCY_PASS_CLEAN_COMMIT_BLOCKED",
+    "finding": "A strict +1 terminal fixture now passes through the same historical adapter and existing WatchtowerTerminalAthFinalizer. It preserves entry timestamp/MC/method/exactness, final ATH/multiple/drawdown, and has zero provider calls. Reinvocation after terminal persistence returns the existing finalizer result without duplicate fact or observation rows. Existing terminal-finalizer focused regressions cover post-commit resume, write failure, process restart remaining-chunk recovery, and pre-commit failure boundaries.",
+    "tests": "pytest -q tests/test_watchtower_migration_second_fallback.py tests/test_watchtower_fallback_backfill_qualification.py tests/test_historical_15m_reconstruction.py tests/test_universal_incremental_window.py tests/test_watchtower_terminal_ath_finalizer.py tests/test_dev_011_live_activation.py: 52 passed, 0 failed.",
+    "blocker": "Clean engineering commit not created: src/ops/operator_routes.py has a pre-existing 436-addition working-tree diff, while required Monitor/history source files are pre-existing untracked paths in this checkout. Staging them would capture unrelated user-owned work and violate the requested one clean scoped commit. No provider/runtime/database production mutation occurred.",
+    "safety": "Birdeye=0; Helius=0; COOK/historical execution=0; runtime deployment/restart/listener/Byzantine work=0; raw provider retention=false; range/call bounds remain 6/2/13.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "ISOLATE_OR_COMMIT_THE_PREEXISTING_WORKSPACE_CHANGES_THEN_CREATE_A_CLEAN_SCOPED_ENGINEERING_COMMIT_BEFORE_COOK_EXECUTION"
+  },
   "watchtower_historical_terminal_integration_20261006": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; uncommitted workspace adapter",
     "status": "PARTIAL_EXISTING_TERMINAL_FINALIZER_ADAPTER_QUALIFIED",

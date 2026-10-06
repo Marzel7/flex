@@ -1,0 +1,1 @@
+{"version":1,"worker":{"module":"src.ops.operation_monitor_service","acceptance_selection":"docs/audits/injector_dev_soak_selection.v1.json"},"product":{"module":"src.dev_runtime","audit_ledger":"docs/audits/watchtower-opening-offset-audit.v2.json"},"secrets":"runtime-environment-only"}

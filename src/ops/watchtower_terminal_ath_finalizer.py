@@ -17,6 +17,7 @@ from src.core.db_write_queue import WriteItem
 from src.core.db_writer import commit_write_and_wait
 from src.ops.token_data_provider_bindings import BirdeyeProductionBinding, build_birdeye_ohlcv_request
 from src.ops.watchtower_price_fact_contract import reduce_watchtower_price_facts
+from src.ops.strict_migration_window import normalize_opening_ohlcv
 
 
 TERMINAL_STATE = "PRICE_MONITOR_COMPLETE_COLLAPSED"
@@ -35,23 +36,7 @@ def _digest(value: Any) -> str:
 
 
 def _candles(payload: dict[str, Any]) -> list[dict[str, float | int]]:
-    items = ((payload.get("data") or {}).get("items") or [])
-    result = []
-    for item in items:
-        try:
-            candle = {
-                "timestamp": int(item.get("unixTime", item.get("unix_time", item.get("timestamp")))),
-                "open": float(item.get("o", item.get("open"))),
-                "high": float(item.get("h", item.get("high"))),
-                "low": float(item.get("l", item.get("low"))),
-                "close": float(item.get("c", item.get("close"))),
-            }
-        except (TypeError, ValueError):
-            raise ValueError("MALFORMED_OHLC_CANDLE")
-        if candle["timestamp"] <= 0 or candle["low"] < 0 or candle["high"] < candle["low"] or candle["high"] < candle["open"] or candle["high"] < candle["close"] or candle["low"] > candle["open"] or candle["low"] > candle["close"]:
-            raise ValueError("INVALID_OHLC_INVARIANT")
-        result.append(candle)
-    return sorted(result, key=lambda row: int(row["timestamp"]))
+    return normalize_opening_ohlcv(payload)
 
 
 class WatchtowerTerminalAthFinalizer:
@@ -176,4 +161,3 @@ class WatchtowerTerminalAthFinalizer:
         if not receipt.committed:
             raise RuntimeError("ATH_FINALIZATION_WRITE_UNCOMMITTED")
         return {"state": "FINALIZED", "provider_calls": len(requests), "retained_ohlc_reused": bool(retained), "request_id": request_id, "requests": requests, "chunks_planned": len(windows), "candle_count": len(candles), "resolution": interval, "first_bucket": candles[0]["timestamp"], "last_bucket": candles[-1]["timestamp"], "final_proven_ath_mc": ath, "final_ath_multiple": ath / entry, "final_ath_evidence": evidence, "ath_bucket_start": bucket_start, "ath_bucket_end": bucket_start + seconds, "final_drawdown_percent": drawdown, "crossings": crossings, "provenance_digest": provenance, "bytes_added": len(json.dumps(candles, separators=(",", ":")))}
-

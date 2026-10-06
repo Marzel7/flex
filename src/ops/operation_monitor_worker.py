@@ -15,7 +15,7 @@ from src.ops.provider_rate_limit_gate import ProviderRateLimited,ProviderRateLim
 from src.ops.dev_provider_budget import DevProviderBudget,BudgetDenied
 from src.ops.byzantine_monitor_entry import derive_monitor_entry
 from src.ops.operation_monitor_capabilities import monitor_capability_for_operation
-from src.ops.strict_migration_window import dispatch as dispatch_strict_migration_window,reduce_policy as reduce_strict_migration_policy,plan as strict_migration_plan,failure_diagnostic as strict_opening_failure_diagnostic
+from src.ops.strict_migration_window import dispatch as dispatch_strict_migration_window,reduce_policy as reduce_strict_migration_policy,plan as strict_migration_plan,failure_diagnostic as strict_opening_failure_diagnostic,normalize_opening_ohlcv
 from src.ops.watchtower_terminal_ath_finalizer import ProviderCapacityBackoff, WatchtowerTerminalAthFinalizer
 CONTRACT='operation-monitor.v1'; CONCURRENCY=1; MAX_BYTES=10_000_000
 _TERMINAL_MONITOR_STATES={'PRICE_MONITOR_COMPLETE_COLLAPSED'}
@@ -879,16 +879,13 @@ class MonitorBirdeyeTransport:
    diagnostic.update({'normalization_state':'FAILED','failure_stage':'RESPONSE_CONTAINER','failure_category':'NORMALIZATION_FAILED'})
    raise StrictEntryNormalizationError(diagnostic['failure_category'],diagnostic)
   diagnostic['provider_item_count']=len(items)
+  try: candles=normalize_opening_ohlcv(payload or {})
+  except ValueError:
+   diagnostic.update({'normalization_state':'FAILED','failure_stage':'SHARED_OHLC_NORMALIZER','failure_category':'NORMALIZATION_FAILED'})
+   raise StrictEntryNormalizationError(diagnostic['failure_category'],diagnostic)
   target_items=[]; fallback_items=[]
-  for item in items:
-   if not isinstance(item,dict):
-    diagnostic.update({'normalization_state':'FAILED','failure_stage':'ITEM_SHAPE','failure_category':'NORMALIZATION_FAILED'})
-    raise StrictEntryNormalizationError(diagnostic['failure_category'],diagnostic)
-   raw_timestamp=item.get('unixTime',item.get('unix_time'))
-   try: timestamp=int(raw_timestamp)
-   except (TypeError,ValueError):
-    diagnostic.update({'normalization_state':'FAILED','failure_stage':'TIMESTAMP_PARSE','failure_category':'NORMALIZATION_FAILED'})
-    raise StrictEntryNormalizationError(diagnostic['failure_category'],diagnostic)
+  for item in candles:
+   timestamp=int(item['timestamp'])
    diagnostic['normalized_item_count']+=1
    if timestamp in {target, int(plan['migration_timestamp'])} and timestamp not in diagnostic['normalized_timestamps']:
     diagnostic['normalized_timestamps'].append(timestamp)
@@ -897,16 +894,7 @@ class MonitorBirdeyeTransport:
    is_target = timestamp == target
    if is_target:
     diagnostic['target_timestamp_present']=True;diagnostic['exact_target_item_count']+=1
-   raw_value=item.get('c',item.get('close'))
-   diagnostic['value_field_present']=raw_value is not None
-   if raw_value is None: continue
-   try: value=float(raw_value)
-   except (TypeError,ValueError):
-    diagnostic.update({'normalization_state':'FAILED','failure_stage':'VALUE_PARSE','value_parse_state':'INVALID','failure_category':'TARGET_VALUE_INVALID'})
-    raise StrictEntryNormalizationError(diagnostic['failure_category'],diagnostic)
-   if value<=0:
-    diagnostic.update({'normalization_state':'FAILED','failure_stage':'VALUE_VALIDATE','value_parse_state':'NON_POSITIVE','failure_category':'TARGET_VALUE_INVALID'})
-    raise StrictEntryNormalizationError(diagnostic['failure_category'],diagnostic)
+   value=float(item['close']); diagnostic['value_field_present']=True
    (target_items if is_target else fallback_items).append({'timestamp':timestamp,'mc':value})
   if not items:
    diagnostic.update({'normalization_state':'COMPLETE','failure_stage':'TARGET_RESOLUTION','failure_category':'NO_PROVIDER_ITEMS','value_parse_state':'NOT_PRESENT'})

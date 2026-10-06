@@ -1,6 +1,7 @@
 import sqlite3
+from types import SimpleNamespace
 
-from src.ops.operation_monitor_worker import MonitorQueue, MonitorWorker
+from src.ops.operation_monitor_worker import MonitorQueue, MonitorWorker, MonitorBirdeyeTransport
 from src.ops.strict_migration_window import failure_diagnostic, plan
 
 
@@ -36,3 +37,15 @@ def test_provider_backoff_allows_only_retained_terminal_work(tmp_path):
     assert worker.process_once() == 1
     assert called == ["finalized"]
     assert (tmp_path / "queue" / "pending" / "ordinary.json").exists()
+
+
+def test_forward_uses_shared_recovery_normalizer_for_timestamp_alias_and_order():
+    t = 100
+    payload = {"data": {"items": [
+        {"timestamp": t + 3, "o": 1, "h": 2, "l": 1, "c": 1.5},
+        {"timestamp": t, "o": 1, "h": 2, "l": 1, "c": 1.25},
+        {"timestamp": t + 2, "o": 1, "h": 2, "l": 1, "c": 1.4},
+    ]}}
+    transport = MonitorBirdeyeTransport(binding=lambda _request: SimpleNamespace(status_code=200, payload=payload, response_headers={}))
+    entry, _manifest = transport.acquire_watchtower_entry({"mint": "mint"}, {"migration_timestamp": t, "time_from": t, "time_to": t + 4})
+    assert entry == {"timestamp": t, "mc": 1.25, "plus_one_absent": True}

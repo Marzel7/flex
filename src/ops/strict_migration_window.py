@@ -22,6 +22,32 @@ STRICT_MIGRATION_WINDOW_BOUNDED = True
 FAILURE_DIAGNOSTIC_MAX_BYTES = 1024
 
 
+def normalize_opening_ohlcv(payload: Mapping[str, Any]) -> list[dict[str, float | int]]:
+    """Shared fail-closed OHLCV normalizer for forward and recovery openings."""
+    items = ((payload.get("data") or {}).get("items") or []
+    )
+    if not isinstance(items, list):
+        raise ValueError("MALFORMED_OHLC_CONTAINER")
+    candles = []
+    for item in items:
+        if not isinstance(item, Mapping):
+            raise ValueError("MALFORMED_OHLC_CANDLE")
+        try:
+            candle = {
+                "timestamp": int(item.get("unixTime", item.get("unix_time", item.get("timestamp")))),
+                "open": float(item.get("o", item.get("open"))),
+                "high": float(item.get("h", item.get("high"))),
+                "low": float(item.get("l", item.get("low"))),
+                "close": float(item.get("c", item.get("close"))),
+            }
+        except (TypeError, ValueError):
+            raise ValueError("MALFORMED_OHLC_CANDLE")
+        if candle["timestamp"] <= 0 or candle["low"] < 0 or candle["high"] < candle["low"] or candle["high"] < candle["open"] or candle["high"] < candle["close"] or candle["low"] > candle["open"] or candle["low"] > candle["close"]:
+            raise ValueError("INVALID_OHLC_INVARIANT")
+        candles.append(candle)
+    return sorted(candles, key=lambda row: int(row["timestamp"]))
+
+
 def request_fingerprint(request: Mapping[str, Any]) -> dict[str, Any]:
     """A stable structural record; it deliberately excludes mint, timestamps and credentials."""
     structural = {

@@ -1,4 +1,21 @@
 {
+  "watchtower_real_cook_batch1_credential_environment_hold_20261006": {
+    "engineering_sha": "80c924307583f8ead39419a8e247f9d048c885ee",
+    "status": "HOLD_MISSING_AUTHORITATIVE_BIRDEYE_CREDENTIAL",
+    "invocation": "The exact committed launcher was invoked once from the clean pinned worktree with the exact COOK mint and frozen DB path. Its committed clean-authority preflight passed before the executor constructor failed with MISSING_AUTHORITATIVE_BIRDEYE_CREDENTIAL.",
+    "frozen_db": {
+      "path": "/private/tmp/watchtower-cook-batch1-80c92430.dev.db",
+      "pre_execution_sha256": "95d4f84fc4b20f62c70f4d1e7fe4961578d627c3473813638d4cf46b916de20d",
+      "post_attempt_sha256": "95d4f84fc4b20f62c70f4d1e7fe4961578d627c3473813638d4cf46b916de20d",
+      "size_bytes": 1073152,
+      "integrity_check": "ok"
+    },
+    "result": "Failure occurred before acquire_opening, provider binding invocation, job admission, or database schema creation. The snapshot has no watchtower_historical_openings or historical-job table, and COOK retains its original WAITING_FOR_ENTRY_REFERENCE/TARGET_SECOND_ABSENT fact.",
+    "safety": "Launcher invocation count=1; Birdeye calls=0; Helius calls=0; historical calls=0; Cook job creation=0; source changes=0; original DEV005A writes=0; original workspace mutations=0; Supervisor changes=0; no retry or hotfix.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "No executable source changed and no runtime was deployed; an isolated one-shot launcher failed before provider work.",
+    "exact_next_action": "AUTHORIZE_ONLY_A_CREDENTIAL_ENVIRONMENT_BINDING_FOR_THE_PINNED_LAUNCHER_THEN_REVERIFY_THE_FROZEN_SNAPSHOT_BEFORE_ONE_NEW_RUN"
+  },
   "watchtower_dev005a_drift_snapshot_freeze_20261006": {
     "engineering_sha": "80c924307583f8ead39419a8e247f9d048c885ee",
     "status": "PASS_FRESH_COOK_SNAPSHOT_FROZEN",

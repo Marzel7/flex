@@ -1,0 +1,24 @@
+{% extends "base_shell.html" %}
+{% block title %}Watchtower Monitor — Operation Intelligence{% endblock %}
+{% block content %}
+<main class="container" style="max-width:1500px;padding:24px">
+  <h1>Watchtower Monitor</h1>
+  <p class="text-muted">Authoritative retained lifecycle and price facts. Missing evidence is shown as unavailable.</p>
+  <h2>Live / Waiting</h2>
+  <div class="table-responsive"><table class="table"><thead><tr><th>Token</th><th>State</th><th>Entry MC</th><th>Entry method</th><th>Latest MC</th><th>Running peak</th><th>Multiple</th><th>Observations</th></tr></thead><tbody id="wt-live"></tbody></table></div>
+  <h2>Completed History</h2>
+  <div class="table-responsive"><table class="table"><thead><tr><th>Token</th><th>Entry MC</th><th>Entry method</th><th>Peak / ATH</th><th>Multiple</th><th>Drawdown</th><th>Time to peak</th><th>Last / final MC</th><th>Coverage</th><th>Exactness</th></tr></thead><tbody id="wt-history"></tbody></table></div>
+</main>
+{% endblock %}
+{% block scripts %}
+<script>
+const dash=v=>v===null||v===undefined||v===''?'—':v;
+const usd=v=>v===null||v===undefined?'—':'$'+Number(v).toLocaleString(undefined,{maximumFractionDigits:2});
+const short=v=>v?`${v.slice(0,6)}…${v.slice(-4)}`:'—';
+const method=v=>v==='FIRST_FULL_POST_MIGRATION_SECOND_MC'?'+1 second':v==='MIGRATION_SECOND_MC_FALLBACK'?'Migration-second fallback':dash(v);
+const seconds=v=>v===null||v===undefined?'—':`${v}s`;
+const rowLive=r=>`<tr><td title="${r.mint}">${short(r.mint)}</td><td>${dash(r.lifecycle_class)}</td><td>${usd(r.entry_mc_usd)}</td><td>${method(r.entry_method)}</td><td>${usd(r.latest_mc_usd)}</td><td>${usd(r.running_peak_mc_usd)}</td><td>${r.current_multiple==null?'—':Number(r.current_multiple).toFixed(3)+'x'}</td><td>${dash(r.candles_retained)}</td></tr>`;
+const rowHistory=r=>{const observed=r.terminal_metric_exactness==='OBSERVED_ONLY';const peak=observed?'Observed Peak':'ATH';const multiple=observed?'Observed Multiple':'Multiple';const drawdown=observed?'Observed Drawdown':'Drawdown';const last=observed?'Last Observed MC':'Final MC';const t=(r.final_ath_bucket_start??r.running_peak_timestamp);return `<tr><td title="${r.mint}">${short(r.mint)}</td><td>${usd(r.entry_mc_usd)}</td><td>${method(r.entry_method)}</td><td>${peak}: ${usd(r.final_proven_ath_mc)}</td><td>${multiple}: ${r.final_ath_multiple==null?'—':Number(r.final_ath_multiple).toFixed(3)+'x'}</td><td>${drawdown}: ${r.drawdown_percent==null?'—':Number(r.drawdown_percent).toFixed(2)+'%'}</td><td>${seconds(t&&r.entry_timestamp?t-r.entry_timestamp:null)}</td><td>${last}: ${usd(r.latest_mc_usd)}</td><td>${dash(r.coverage_class)}</td><td>${dash(r.terminal_metric_exactness)}</td></tr>`};
+fetch('/api/operations/live-monitor').then(r=>r.json()).then(d=>{const wt=(d.rows||[]).filter(r=>r.operation_id==='watchtower');document.querySelector('#wt-live').innerHTML=wt.filter(r=>!r.history_visible).map(rowLive).join('')||'<tr><td colspan="8">No retained live or waiting rows.</td></tr>';document.querySelector('#wt-history').innerHTML=wt.filter(r=>r.history_visible).map(rowHistory).join('')||'<tr><td colspan="10">No authoritative completed history.</td></tr>';});
+</script>
+{% endblock %}

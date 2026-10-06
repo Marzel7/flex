@@ -29,6 +29,27 @@ from src.ops.operator_resolver import OperatorResolver
 operator_bp = Blueprint("operators", __name__)
 
 
+def _watchtower_display_fields(row: dict) -> dict:
+    """Derive display-only lifecycle semantics from persisted monitor facts."""
+    if str(row.get("operation_id")).lower() != "watchtower":
+        return row
+    terminal = row.get("monitor_state") == "PRICE_MONITOR_COMPLETE_COLLAPSED"
+    sparse = row.get("final_ath_resolution") == "15m:SPARSE:OBSERVED_ONLY"
+    finalized = terminal and row.get("final_proven_ath_mc") is not None
+    row["coverage_class"] = "SPARSE" if sparse else ("COMPLETE" if finalized else None)
+    row["terminal_metric_exactness"] = "OBSERVED_ONLY" if sparse else ("COMPLETE" if finalized else None)
+    row["history_visible"] = bool(finalized)
+    row["lifecycle_class"] = (
+        "TERMINAL_SPARSE_OBSERVED" if sparse else
+        "TERMINAL_COMPLETE" if finalized else
+        "TERMINAL_PENDING_RECONSTRUCTION" if terminal else
+        "LIVE" if row.get("monitor_state") == "MONITORING_ACTIVE" else
+        "WAITING_FOR_ENTRY_REFERENCE" if row.get("entry_status") == "WAITING_FOR_ENTRY_REFERENCE" else
+        str(row.get("monitor_state") or "UNKNOWN")
+    )
+    return row
+
+
 def _monitor_live_projection() -> dict:
     """Read-only projection; it never constructs a queue or provider client."""
     from src.core.db import OPS_DB_PATH
@@ -101,6 +122,7 @@ def _monitor_live_projection() -> dict:
             row['final_ath_status'] = 'RUNNING'
         else:
             row['final_ath_status'] = 'NOT_APPLICABLE'
+        _watchtower_display_fields(row)
     ops = {}
     for name in ('watchtower','byzantine'):
         subset=[r for r in rows if str(r['operation_id']).lower()==name]

@@ -18359,5 +18359,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Read-only simulation only; no executable behavior changed.",
     "exact_next_action": "COLLECT_ONLY_THE_MISSING_METRIC_EVIDENCE_BEFORE_IMPLEMENTATION"
+  },
+  "watchtower_final_migration_second_fallback_contract_audit_20261006": {
+    "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 active DEV monitor source; audit only",
+    "status": "PASS_INDIVIDUAL_FALLBACK_CONTRACT_CLASS_B_PROVENANCE_SEPARATION_REQUIRED",
+    "finding": "A valid migration-second 1s MCAP candle is a real canonical-market observation for the target mint/pool and can be an explicit fallback only after strict +1 is absent. Downstream monitoring uses the retained qualified entry MC and timestamp: Multiple=current or peak MC divided by entry MC; running peak includes the actual entry timestamp; current MC and the >=85% drawdown rule have no +1 assertion; admission requires a qualified, positive, provenance-bearing Entry rather than the preferred method name. No extra request is needed because t is already in the bounded strict response.",
+    "provenance_gap": "Durable monitor facts retain entry_method and entry_exactness, so MIGRATION_SECOND_MC_FALLBACK can be distinct. However universal history completion stores opening timestamp/MC but no opening method, and the operator API profile labels every Watchtower row FIRST_FULL_POST_MIGRATION_SECOND_MC. A fallback can therefore be misrepresented after projection. Aggregate comparisons must expose or filter on opening provenance before fallback implementation.",
+    "time_to_peak": "The Watchtower active reducer represents peak from the actual entry timestamp and later observations. The universal history projection carries time_to_peak_seconds from the qualified price-fact row; it does not recompute from migration+1. Any one-second difference under a t fallback is the valid interval from actual retained entry to peak, not a lifecycle semantic violation.",
+    "control": "COOK simulation only: entry timestamp=1791269958, entry MC=113464.45625213276, provenance=MIGRATION_SECOND_MC_FALLBACK; no Opening or LIVE state was written.",
+    "safety": "DEV_MODE=true; source/database/queue/runtime/process changes=0; Birdeye=0; Helius=0; raw provider retention=false; no Opening/LIVE creation; +1 remains preferred; +2/+3/nearest/synthetic fallbacks excluded; storage bound unchanged.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Audit only; no executable behavior changed.",
+    "exact_next_action": "IMPLEMENT_FALLBACK_WITH_MANDATORY_PROVENANCE_EXPOSURE_AND_AGGREGATE_SEPARATION"
   }
 }

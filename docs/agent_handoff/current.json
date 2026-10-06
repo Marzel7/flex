@@ -1,4 +1,15 @@
 {
+  "watchtower_final_provider_free_qualification_20261006": {
+    "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 plus uncommitted isolated reconstruction",
+    "status": "PARTIAL_CRASH_AND_COOK_PASS_OPERATOR_API_AGGREGATE_FIXTURE_PENDING",
+    "handoff_base": "e52b86bc",
+    "verification": "pytest -q tests/test_watchtower_policy_c.py tests/test_watchtower_migration_second_fallback.py tests/test_watchtower_terminal_adapter.py: 9 passed, 0 failed. Crash fixture proves durable TERMINAL_COMMIT_PENDING before terminal materialization, injected terminal failure leaves it pending with all ranges COMPLETED, direct existing-terminal persistence followed by restart completes without duplicate fact/observations, and completed replay is absorbing. COOK retained fixture uses mint HRinFbhZjrb2xoqSzxYCYKX7LqJ3H6pn42CURb2cpump, entry timestamp 1791269958, MC 113464.45625213276, MIGRATION_SECOND_MC_FALLBACK, 96 local 15m candles, 28 Policy-C checkpoints, zero provider calls, terminal ATH/multiple/drawdown, and durable COMPLETED job state.",
+    "remaining_gate": "The new fixtures prove terminal fact and retained provenance directly, but do not yet invoke the actual operator API/read projection or a two-row aggregate. Direct SQLite values must not be represented as API/aggregate qualification; therefore FALLBACK_API_PROVENANCE_PASS, PLUS1_API_PROVENANCE_PASS, and AGGREGATES_CAN_SEPARATE_ENTRY_METHOD remain unproven.",
+    "safety": "Original workspace remains unchanged at 3627 dirty entries; only isolated reconstruction worktree changed; provider calls=0; COOK/backfill execution=0; runtime/database/process changes=0; raw payload retention=false; no large database copy.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "ADD_A_PROVIDER_FREE_OPERATOR_API_READ_PROJECTION_AND_TWO_ROW_AGGREGATE_FIXTURE_BEFORE_THE_SINGLE_ENGINEERING_COMMIT"
+  },
   "watchtower_durable_job_completion_repair_20261006": {
     "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 plus uncommitted isolated reconstruction",
     "status": "PARTIAL_DURABLE_JOB_COMPLETION_PROVEN_FULL_FINAL_QUALIFICATION_PENDING",

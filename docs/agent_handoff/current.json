@@ -19228,4 +19228,16 @@
     "runtime_deployment_reason": "External diagnostic acquisition only; no executable runtime behavior changed.",
     "next_action": "AUTHORIZE_OR_REJECT_A_NEW_IDEMPOTENT_EVIDENCE_CAPTURE_MECHANISM_BEFORE_ANY_REPEAT_HISTORICAL_PROVIDER_ACQUISITION"
   }
+  ,"watchtower_bounded_offset_evidence_store_20261006": {
+    "engineering_revision": "5b342e521e2a811bebdea85eb5d531a43723ff21 on origin/codex/watchtower-offset-audit-evidence",
+    "status": "PASS_QUALIFIED_NOT_DEPLOYED",
+    "implementation": "src.ops.watchtower_offset_audit projects each response into one mint-idempotent compact record: HTTP status, normalization state/count, at most eight normalized timestamps, unique valid MC values only for offsets 0..4, duplicate-offset markers, and bounded failure state. It rejects raw payload, headers, URLs, credentials, and API-key fields.",
+    "storage_bounds": "A caller-selected JSON ledger accepts at most 128 records, 2,048 bytes per record, and 262,144 bytes final size. Atomic replacement has a maximum transient design bound of 524,288 bytes. Raw provider payload retention is false and no unbounded file/WAL/cache/log path is introduced.",
+    "qualification": "8 focused provider-free tests passed: bounded normalized offset projection, duplicate fail-closed representation, mint-idempotent restart-safe persistence, timestamp cap, raw-payload rejection, and existing migration-second fallback regressions. Pytest emitted only a sandbox cache-permission warning.",
+    "deployment": "No runtime target, Supervisor configuration, database, queue, or policy was changed. The existing worker remains on 71eb6751; this commit is qualified but not deployed.",
+    "safety": "Birdeye=0; Helius=0; source changes are confined to the isolated clean worktree/commit; live admission=0; historical recovery jobs=0; process restarts=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "AUTHORIZE_REVIEW_OR_DEPLOYMENT_OF_5B342E52_AND_A_NEW_EXPLICIT_BOUNDED_REPEAT_ACQUISITION_SCOPE"
+  }
 }

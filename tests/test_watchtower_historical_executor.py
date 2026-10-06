@@ -1,7 +1,8 @@
 import subprocess
 from pathlib import Path
 from types import SimpleNamespace
-from src.ops.watchtower_historical_backfill import admit, ranges
+import sqlite3
+from src.ops.watchtower_historical_backfill import MAX_BATCH1_CHECKPOINT_BYTES, admit, begin_next_range, complete_range, ranges
 from src.ops.watchtower_historical_executor import HistoricalExecutor
 
 MINT="HRinFbhZjrb2xoqSzxYCYKX7LqJ3H6pn42CURb2cpump"
@@ -30,3 +31,28 @@ def test_retry_isolated_and_third_attempt_fails_closed(tmp_path):
 def test_commit_pinned_launcher_refuses_sha_mismatch(tmp_path):
  root=Path(__file__).resolve().parents[1]; p=subprocess.run(["python",str(root/"scripts/run_watchtower_historical_executor.py"),"--sha","0"*40,"--mint",MINT,"--db",str(tmp_path/"x.db"),"--enable-batch1"],capture_output=True,text=True)
  assert p.returncode != 0
+
+def test_over_one_mib_base_db_with_small_job_is_admitted(tmp_path):
+ db=str(tmp_path/"large-base.db")
+ with sqlite3.connect(db) as conn:
+  conn.execute("CREATE TABLE unrelated_padding(value BLOB)")
+  conn.execute("INSERT INTO unrelated_padding VALUES(zeroblob(?))", (MAX_BATCH1_CHECKPOINT_BYTES + 4096,))
+ assert __import__("os").path.getsize(db) > MAX_BATCH1_CHECKPOINT_BYTES
+ result=admit(db,boundary(),now=1)
+ assert result["status"] == "PREFLIGHTED" and result["job_id"]
+
+def test_job_storage_budget_is_durable_and_duplicate_admission_does_not_reset(tmp_path):
+ db=str(tmp_path/"budget.db"); job=admit(db,boundary(),now=1)["job_id"]
+ with sqlite3.connect(db) as conn:
+  conn.execute("UPDATE watchtower_historical_backfill_jobs SET retained_checkpoint_bytes=? WHERE job_id=?",(MAX_BATCH1_CHECKPOINT_BYTES,job))
+ assert admit(db,boundary(),now=2) == {"status":"REFUSED_STORAGE_BOUND","provider_calls":0}
+ with sqlite3.connect(db) as conn:
+  assert conn.execute("SELECT retained_checkpoint_bytes FROM watchtower_historical_backfill_jobs WHERE job_id=?",(job,)).fetchone()[0] == MAX_BATCH1_CHECKPOINT_BYTES
+
+def test_range_refuses_before_per_job_budget_exceeds(tmp_path):
+ db=str(tmp_path/"range-budget.db"); job=admit(db,boundary(),now=1)["job_id"]
+ row=begin_next_range(db,job,now=2)
+ with sqlite3.connect(db) as conn:
+  conn.execute("UPDATE watchtower_historical_backfill_jobs SET retained_checkpoint_bytes=? WHERE job_id=?",(MAX_BATCH1_CHECKPOINT_BYTES-1,job))
+ assert complete_range(db,row["range_id"],{"small":"evidence"},now=3) == "REFUSED_STORAGE_BOUND"
+ assert {r["state"] for r in ranges(db,job) if r["range_id"]==row["range_id"]} == {"FAILED_CLOSED"}

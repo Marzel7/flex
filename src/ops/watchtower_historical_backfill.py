@@ -4,7 +4,6 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-import os
 import sqlite3
 import time
 from typing import Any
@@ -18,6 +17,8 @@ from src.ops.watchtower_price_fact_contract import reduce_watchtower_price_facts
 HORIZON_SECONDS = 24 * 3600
 MAX_OPENING_PROVIDER_CALLS = 1
 MAX_BATCH1_JOBS = 1
+# This is a per-job retained-checkpoint budget, not a ceiling on unrelated
+# SQLite base pages.  The project-wide file ceiling remains independently 500MB.
 MAX_BATCH1_CHECKPOINT_BYTES = 1024 * 1024
 
 
@@ -59,28 +60,36 @@ def policy_c_observations(candles: list[dict[str, Any]], *, entry_timestamp: int
 
 
 def ensure_schema(conn: sqlite3.Connection) -> None:
-    conn.execute("CREATE TABLE IF NOT EXISTS watchtower_historical_backfill_jobs (job_id TEXT PRIMARY KEY, boundary_digest TEXT NOT NULL, checkpoint_json TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'ACQUIRING', terminal_result_json TEXT, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)")
+    conn.execute("CREATE TABLE IF NOT EXISTS watchtower_historical_backfill_jobs (job_id TEXT PRIMARY KEY, boundary_digest TEXT NOT NULL, checkpoint_json TEXT NOT NULL, retained_checkpoint_bytes INTEGER NOT NULL DEFAULT 0, state TEXT NOT NULL DEFAULT 'ACQUIRING', terminal_result_json TEXT, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)")
     columns = {row[1] for row in conn.execute("PRAGMA table_info(watchtower_historical_backfill_jobs)")}
     if "state" not in columns: conn.execute("ALTER TABLE watchtower_historical_backfill_jobs ADD COLUMN state TEXT NOT NULL DEFAULT 'ACQUIRING'")
     if "terminal_result_json" not in columns: conn.execute("ALTER TABLE watchtower_historical_backfill_jobs ADD COLUMN terminal_result_json TEXT")
     if "updated_at" not in columns: conn.execute("ALTER TABLE watchtower_historical_backfill_jobs ADD COLUMN updated_at INTEGER NOT NULL DEFAULT 0")
+    added_retained_bytes = "retained_checkpoint_bytes" not in columns
+    if added_retained_bytes: conn.execute("ALTER TABLE watchtower_historical_backfill_jobs ADD COLUMN retained_checkpoint_bytes INTEGER NOT NULL DEFAULT 0")
     conn.execute("CREATE TABLE IF NOT EXISTS watchtower_historical_backfill_ranges (range_id TEXT PRIMARY KEY, job_id TEXT NOT NULL, ordinal INTEGER NOT NULL, range_start INTEGER NOT NULL, range_end INTEGER NOT NULL, state TEXT NOT NULL, attempt_count INTEGER NOT NULL DEFAULT 0, checkpoint_json TEXT, updated_at INTEGER NOT NULL, UNIQUE(job_id,ordinal))")
+    if added_retained_bytes:
+        conn.execute("UPDATE watchtower_historical_backfill_jobs SET retained_checkpoint_bytes=COALESCE(LENGTH(checkpoint_json),0)+COALESCE(LENGTH(terminal_result_json),0)+COALESCE((SELECT SUM(LENGTH(checkpoint_json)) FROM watchtower_historical_backfill_ranges r WHERE r.job_id=watchtower_historical_backfill_jobs.job_id),0)")
 
 
 def admit(db_path: str, boundary: dict[str, Any], *, now: int | None = None) -> dict[str, Any]:
     plan = preflight(boundary)
     if plan["status"] != "ELIGIBLE": return plan
-    if os.path.exists(db_path) and os.path.getsize(db_path) >= MAX_BATCH1_CHECKPOINT_BYTES:
+    checkpoint_json = json.dumps({"plan": plan, "raw_provider_payload_retention": False}, sort_keys=True)
+    if len(checkpoint_json.encode()) > MAX_BATCH1_CHECKPOINT_BYTES:
         return {"status": "REFUSED_STORAGE_BOUND", "provider_calls": 0}
     stamp = int(time.time() if now is None else now)
     digest = _digest({key: boundary[key] for key in ("mint", "assignment_id", "migration_signature", "migration_slot", "migration_timestamp", "pumpswap_pool")})
     job_id = _digest({"kind": "WATCHTOWER_HISTORICAL_BACKFILL_V1", "boundary": digest})
     with sqlite3.connect(db_path) as conn:
         ensure_schema(conn)
-        existed = conn.execute("SELECT 1 FROM watchtower_historical_backfill_jobs WHERE job_id=?", (job_id,)).fetchone() is not None
+        existing = conn.execute("SELECT retained_checkpoint_bytes FROM watchtower_historical_backfill_jobs WHERE job_id=?", (job_id,)).fetchone()
+        existed = existing is not None
+        if existing and int(existing[0]) >= MAX_BATCH1_CHECKPOINT_BYTES:
+            return {"status": "REFUSED_STORAGE_BOUND", "provider_calls": 0}
         if not existed and conn.execute("SELECT count(*) FROM watchtower_historical_backfill_jobs").fetchone()[0] >= MAX_BATCH1_JOBS:
             return {"status": "REFUSED_BATCH1_CAPACITY", "provider_calls": 0}
-        conn.execute("INSERT OR IGNORE INTO watchtower_historical_backfill_jobs(job_id,boundary_digest,checkpoint_json,state,created_at,updated_at) VALUES(?,?,?,?,?,?)", (job_id, digest, json.dumps({"plan": plan, "raw_provider_payload_retention": False}, sort_keys=True), "ACQUIRING", stamp, stamp))
+        conn.execute("INSERT OR IGNORE INTO watchtower_historical_backfill_jobs(job_id,boundary_digest,checkpoint_json,retained_checkpoint_bytes,state,created_at,updated_at) VALUES(?,?,?,?,?,?,?)", (job_id, digest, checkpoint_json, len(checkpoint_json.encode()), "ACQUIRING", stamp, stamp))
         for ordinal, chunk in enumerate(plan["range_chunks"], 1):
             range_id = _digest({"job_id": job_id, "mint": boundary["mint"], "window_start": plan["window_start"], "window_end": plan["window_end"], "range_start": chunk["start"], "range_end": chunk["end"], "ordinal": ordinal, "resolution": "15m", "purpose": "WATCHTOWER_HISTORICAL_RANGE"})
             conn.execute("INSERT OR IGNORE INTO watchtower_historical_backfill_ranges(range_id,job_id,ordinal,range_start,range_end,state,updated_at) VALUES(?,?,?,?,?,?,?)", (range_id, job_id, ordinal, chunk["start"], chunk["end"], "PENDING", stamp))
@@ -110,14 +119,22 @@ def begin_next_range(db_path: str, job_id: str, *, now: int) -> dict[str, Any] |
         return dict(conn.execute("SELECT * FROM watchtower_historical_backfill_ranges WHERE range_id=?", (row["range_id"],)).fetchone())
 
 
-def complete_range(db_path: str, range_id: str, evidence: dict[str, Any], *, now: int) -> None:
+def complete_range(db_path: str, range_id: str, evidence: dict[str, Any], *, now: int) -> str:
     raw = json.dumps(evidence, sort_keys=True, separators=(",", ":")).encode()
     if len(raw) > 64 * 1024: raise ValueError("RANGE_CHECKPOINT_TOO_LARGE")
     with sqlite3.connect(db_path) as conn:
         ensure_schema(conn)
-        row = conn.execute("SELECT state FROM watchtower_historical_backfill_ranges WHERE range_id=?", (range_id,)).fetchone()
+        row = conn.execute("SELECT state,job_id,COALESCE(LENGTH(checkpoint_json),0) FROM watchtower_historical_backfill_ranges WHERE range_id=?", (range_id,)).fetchone()
         if not row or row[0] != "IN_PROGRESS": raise ValueError("RANGE_NOT_IN_PROGRESS")
+        retained = conn.execute("SELECT retained_checkpoint_bytes FROM watchtower_historical_backfill_jobs WHERE job_id=?", (row[1],)).fetchone()
+        if not retained: raise KeyError(row[1])
+        projected = int(retained[0]) - int(row[2]) + len(raw)
+        if projected > MAX_BATCH1_CHECKPOINT_BYTES:
+            conn.execute("UPDATE watchtower_historical_backfill_ranges SET state='FAILED_CLOSED',updated_at=? WHERE range_id=?", (now, range_id))
+            return "REFUSED_STORAGE_BOUND"
         conn.execute("UPDATE watchtower_historical_backfill_ranges SET state='COMPLETED',checkpoint_json=?,updated_at=? WHERE range_id=?", (raw.decode(), now, range_id))
+        conn.execute("UPDATE watchtower_historical_backfill_jobs SET retained_checkpoint_bytes=?,updated_at=? WHERE job_id=?", (projected, now, row[1]))
+    return "COMPLETED"
 
 
 def fail_range(db_path: str, range_id: str, *, now: int) -> None:
@@ -154,9 +171,14 @@ def complete_after_terminal_history(db_path: str, job_id: str, result: dict[str,
     state = mark_acquisition_complete(db_path, job_id, now=now)
     if state == "COMPLETED": return {"state": "COMPLETED", "provider_calls": 0}
     finalized = commit_to_existing_watchtower_terminal(db_path, result, now=now)
+    terminal_json = json.dumps({"entry_method": result["entry_method"], "entry_exactness": result["entry_exactness"], "finalized": finalized.get("state")}, sort_keys=True)
     with sqlite3.connect(db_path) as conn:
         ensure_schema(conn)
-        conn.execute("UPDATE watchtower_historical_backfill_jobs SET state='COMPLETED',terminal_result_json=?,updated_at=? WHERE job_id=? AND state='TERMINAL_COMMIT_PENDING'", (json.dumps({"entry_method": result["entry_method"], "entry_exactness": result["entry_exactness"], "finalized": finalized.get("state")}, sort_keys=True), now, job_id))
+        row = conn.execute("SELECT retained_checkpoint_bytes,COALESCE(LENGTH(terminal_result_json),0) FROM watchtower_historical_backfill_jobs WHERE job_id=?", (job_id,)).fetchone()
+        if not row: raise KeyError(job_id)
+        projected = int(row[0]) - int(row[1]) + len(terminal_json.encode())
+        if projected > MAX_BATCH1_CHECKPOINT_BYTES: raise ValueError("REFUSED_STORAGE_BOUND")
+        conn.execute("UPDATE watchtower_historical_backfill_jobs SET state='COMPLETED',terminal_result_json=?,retained_checkpoint_bytes=?,updated_at=? WHERE job_id=? AND state='TERMINAL_COMMIT_PENDING'", (terminal_json, projected, now, job_id))
     return {**finalized, "job_state": "COMPLETED"}
 
 

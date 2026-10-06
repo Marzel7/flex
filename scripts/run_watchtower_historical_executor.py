@@ -16,7 +16,10 @@ def launch_cook(*, db: str, boundary: dict[str,Any]=COOK_BOUNDARY, binding: Call
  from src.ops.watchtower_historical_backfill import admit
  from src.ops.watchtower_historical_executor import HistoricalExecutor
  executor=HistoricalExecutor(db,binding); opening=executor.acquire_opening(COOK_BOUNDARY)
- job=admit(db,COOK_BOUNDARY,now=0)["job_id"]
+ admission=admit(db,COOK_BOUNDARY,now=0)
+ if "job_id" not in admission:
+  return admission
+ job=admission["job_id"]
  return executor.run(job,COOK_BOUNDARY["mint"],terminal_result=opening)
 def main() -> int:
  p=argparse.ArgumentParser(); p.add_argument("--sha",required=True); p.add_argument("--mint",required=True); p.add_argument("--db",required=True); p.add_argument("--enable-batch1",action="store_true"); a=p.parse_args()

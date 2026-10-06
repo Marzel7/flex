@@ -53,7 +53,8 @@ class HistoricalExecutor:
                 fail_range(self.db_path,row["range_id"],now=0); continue
             try: candles=[c for c in _candles(outcome.payload or {}) if int(row["range_start"])<=int(c["timestamp"])<int(row["range_end"])]
             except ValueError: candles=[]
-            complete_range(self.db_path,row["range_id"],{"request":request["request_parameters"],"candles":candles},now=0)
+            if complete_range(self.db_path,row["range_id"],{"request":request["request_parameters"],"candles":candles},now=0) != "COMPLETED":
+                return {"state":"REFUSED_STORAGE_BOUND","provider_calls":self.calls,"completed_range_count":sum(item["state"]=="COMPLETED" for item in ranges(self.db_path,job_id)),"failed_closed":1,"replayed_completed_ranges":len(before)}
         final=ranges(self.db_path,job_id)
         if terminal_result is not None and len(final)==MAX_HISTORICAL_RANGES and all(r["state"]=="COMPLETED" for r in final):
             candles=[]

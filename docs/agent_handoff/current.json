@@ -1,4 +1,11 @@
 {
+  "watchtower_reconstruction_from_8897_20261006": {
+    "status": "HOLD_CLEAN_AUTHORITY_LINEAGE_MISSING_REQUIRED_PREEXISTING_MODULES",
+    "target": "Created /private/tmp/watchtower-fallback-reconstructed on branch codex/watchtower-fallback-reconstructed exactly at 8897a5a22ec3f079a5973ae7e99048090b455e41; target remains unmodified.",
+    "finding": "8897a5a2 contains the required Monitor worker and terminal finalizer, but its tree lacks pre-existing modules required by the authorized historical feature: src/ops/historical_15m_reconstruction.py, src/ops/universal_incremental_window.py, src/ops/watchtower_price_fact_contract.py, and src/ops/operator_lifecycle_projection.py. At least historical reconstruction, price-fact contract, and lifecycle projection exist as tracked clean source in d3b2136b, demonstrating a branch-lineage composition gap rather than a dirty-workspace dependency. Reconstructing by mixing those authorities is not authorized by the exact-base instruction and could change pre-existing runtime behavior.",
+    "safety": "Original dirty workspace read-only; clean targets unmodified; provider calls=0; COOK/historical execution=0; deployment/runtime/database/listener changes=0.",
+    "next_action": "AUTHORIZE_A_SINGLE_COMPOSITE_CLEAN_BASE_OR_EXPLICITLY_AUTHORIZE_CHERRY_PICKING_THE_NAMED_PREEXISTING_MODULE_COMMITS_ONTO_8897A5A2_BEFORE_FEATURE_RECONSTRUCTION"
+  },
   "watchtower_clean_authority_base_search_20261006": {
     "status": "PASS_CLEAN_WATCHTOWER_AUTHORITY_BASE_FOUND",
     "best_clean_base": "8897a5a22ec3f079a5973ae7e99048090b455e41",

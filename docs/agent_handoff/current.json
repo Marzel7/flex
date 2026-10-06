@@ -1,4 +1,16 @@
 {
+  "watchtower_migration_second_fallback_20261006": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; uncommitted workspace implementation",
+    "status": "PARTIAL_PROVIDER_FREE_FALLBACK_SELECTOR_QUALIFIED",
+    "finding": "The Watchtower strict-opening transport now selects a valid migration+1 close when present and otherwise selects a valid migration-second close from the same bounded response, retaining the distinct MIGRATION_SECOND_MC_FALLBACK method and exactness. A present-but-invalid +1 remains fail-closed; t+2/t+3 and nearest-candle substitutions are excluded. Focused provider-free tests passed 19/19.",
+    "tests": "pytest -q tests/test_watchtower_migration_second_fallback.py tests/test_dev_011_live_activation.py tests/test_dev_005a_native_live_entry_gate.py: 19 passed, 0 failed.",
+    "storage_bounds": "No new storage path. Existing compact monitor fact/provenance fields are used; raw provider payload retention remains disabled; single-file maximum introduced=0 bytes; unbounded-growth paths introduced=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "runtime_deployment_reason": "Executable strict-opening behavior changed in the workspace, but no target runtime identity/reload/PID acceptance evidence exists.",
+    "safety": "Birdeye=0; Helius=0; other providers=0; no database, queue, runtime, Supervisor, production, Byzantine, or historical-backfill mutation.",
+    "next_action": "ADD_PROVIDER_FREE_PROVENANCE_ROUND_TRIP_AND_BOUNDED_HISTORICAL_BACKFILL_JOB_QUALIFICATION_BEFORE_ANY_COOK_PROVIDER_REQUEST"
+  },
   "watchtower_last_9h_forward_pipeline_audit_20261006": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; read-only audit against canonical wt_ops_v2.db and DEV dev_005a monitor authority",
     "status": "PARTIAL_REAL_FORWARD_TRAFFIC",

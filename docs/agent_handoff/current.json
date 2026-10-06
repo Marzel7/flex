@@ -1,4 +1,15 @@
 {
+  "watchtower_real_cook_batch1_source_db_divergence_20261006": {
+    "engineering_sha": "80c924307583f8ead39419a8e247f9d048c885ee",
+    "status": "HOLD_SOURCE_DB_SNAPSHOT_AUTHORITY_DIVERGED",
+    "handoff_base": "8e838256",
+    "preflight": "Exact clean worktree HEAD is 80c924307583f8ead39419a8e247f9d048c885ee. Existing isolated target /private/tmp/watchtower-cook-batch1-7c298224.dev.db exists at 1,073,152 bytes. It was not reused or mutated in this turn.",
+    "failure": "The DEV005A source database SHA-256 is now 6a762c57b77982317935f62bdc72f4ca0920353ca30b10dceabe8f912363735b, differing from the snapshot authority SHA-256 1b4ebe0918cb0e2ea2d2b968adb822d2b951bde24814f9d48c480b242045724a recorded at snapshot creation. Therefore SOURCE_DB_WRITE_COUNT=0 by this agent cannot prove source immutability; an external writer changed the source lineage. The required source-unchanged preflight fails, so COOK execution did not begin.",
+    "safety": "No launcher start; Birdeye=0; Helius=0; COOK job=0; target DB writes=0; source DB writes by agent=0; source/original workspace/Supervisor/listener unchanged by agent; Batch2/Batch3/full backfill=false.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_SOURCE_DATABASE_IDENTITY_MISMATCH",
+    "next_action": "REAUTHORIZE_A_NEW_SAFE_SNAPSHOT_FROM_THE_CURRENT_DEV005A_DATABASE_OR_RECONCILE_THE_SOURCE_DB_WRITER_LINEAGE_BEFORE_COOK"
+  },
   "watchtower_launcher_import_root_bootstrap_20261006": {
     "base_sha": "7c298224dd9c159d7dfda56375e8e65169e19ec3",
     "engineering_revision": "80c924307583f8ead39419a8e247f9d048c885ee on codex/watchtower-executor-runtime",

@@ -1,4 +1,19 @@
 {
+  "watchtower_clean_product_composition_qualification_20261006": {
+    "engineering_revision": "87c5136df46f4bfa35173dd91ec6ddabe8767df6 on codex/watchtower-fallback-reconstructed",
+    "status": "PASS_CLEAN_COMMITTED_READY_FOR_COOK_BATCH1",
+    "handoff_base": "6e0da3b0",
+    "composition": "Exact clean imports: 4db74b28ae5f24c531e5d58ed91197811a032fb3 supplied src/ops/watchtower_research_cohorts.py and src/ops/operation_playbook_registry.py; d3b2136ba526ab624fbe56e19b7440df7be2a99d supplied docs/operations/playbooks/operation_playbook_registry.v1.json blob c22faf8bd4c42e609201f5ef67b7dd016fa1f5aa and docs/audits/watchtower_51_generic_price_fact_replay.v1.json blob c9f3ddbe5cfbf518a6d91cb42e31187fd5ab8bb8. Both artifact blobs match their authorities exactly in the committed tree. Unauthorized product imports=0.",
+    "product_delta": "Clean configurable OPERATION_RESEARCH_ROOT and WT_OPS_DB_PATH authorities are preserved. The sole provenance projection addition is entry_exactness alongside retained entry_method: clean cohort rows retain entry_exactness, and the registry carries the two retained fields into prospective Playbook tokens. No dirty hard-coded root or DB path was imported; unrelated dirty product hunks=0.",
+    "qualification": "pytest -q tests/test_watchtower_playbook_provenance.py tests/test_watchtower_policy_c.py tests/test_watchtower_migration_second_fallback.py tests/test_watchtower_terminal_adapter.py: 13 passed, 0 failed. The suite proves clean registry/artifact loading, actual cohort -> artifact_playbooks -> Watchtower Playbook projection, one +1 and one migration-second fallback row together with distinct method/exactness, no missing-method default to +1, row-level live-monitor retention, Policy-C 28 checkpoints, +1 preference/t-only-if-plus1-absent/+2 rejection, six-range job FSM ACQUIRING -> TERMINAL_COMMIT_PENDING -> COMPLETED, crash-before/during/after terminal recovery, completed replay/provider calls=0, and the retained COOK provider-free fallback history fixture (entry 1791269958; MC 113464.45625213276).",
+    "contracts": "Historical provider bounds remain 6 ranges, 2 attempts/range, 12 historical + 1 opening = 13 total. Raw provider payload retention=false; batch-job 1MiB cap preserved; no large database copy. POLICY_C checkpoint count=28 and unchanged. Clean dependency closure passes: dirty-only=0, untracked=0, unresolved=0. Feature parity passed for the authorized fallback/backfill and product provenance surface; missing qualified behaviour=0; extra unqualified behaviour=0.",
+    "commit": "Single scoped engineering commit 87c5136df46f4bfa35173dd91ec6ddabe8767df6 (15 files, unrelated edits=0) pushed to origin/codex/watchtower-fallback-reconstructed and verified by ls-remote.",
+    "source_authority_manifest": "primary runtime base=8897a5a22ec3f079a5973ae7e99048090b455e41; historical clean authority=d3b2136ba526ab624fbe56e19b7440df7be2a99d; product source authority=4db74b28ae5f24c531e5d58ed91197811a032fb3; playbook artifact authority=d3b2136ba526ab624fbe56e19b7440df7be2a99d; new clean feature authority=87c5136df46f4bfa35173dd91ec6ddabe8767df6.",
+    "safety": "Original workspace mutation=0 and observed dirty count remains 3628. Isolated engineering worktree is clean post-commit. Birdeye=0; Helius=0; COOK/historical execution=0; runtime deployment=0; process restarts=0; production/database rows=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "DEPLOY_EXACT_ENGINEERING_COMMIT_AND_EXECUTE_COOK_ONLY"
+  },
   "watchtower_playbook_registry_artifact_authority_audit_20261006": {
     "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 primary; d3b2136ba526ab624fbe56e19b7440df7be2a99d selected clean artifact authority; no engineering source or artifact imported",
     "status": "PASS_EXACT_CLEAN_TRACKED_PLAYBOOK_REGISTRY_ARTIFACT_AUTHORITY_FOUND",

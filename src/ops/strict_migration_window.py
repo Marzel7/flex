@@ -18,6 +18,9 @@ STRICT_MIGRATION_WINDOW_1S = "STRICT_MIGRATION_WINDOW_1S"
 REQUESTED_ENTRY_SECOND_OFFSET = 1
 PLUS1_ENTRY_METHOD = "FIRST_FULL_POST_MIGRATION_SECOND_MC"
 MIGRATION_SECOND_FALLBACK_METHOD = "MIGRATION_SECOND_MC_FALLBACK"
+BOUNDED_POST_MIGRATION_METHOD = "BOUNDED_POST_MIGRATION_MC_FALLBACK"
+BOUNDED_POST_MIGRATION_EXACTNESS = "POST_MIGRATION_OFFSET_2S_OBSERVED_MC"
+MAX_ENTRY_OFFSET_SECONDS = 2
 STRICT_MIGRATION_WINDOW_BOUNDED = True
 FAILURE_DIAGNOSTIC_MAX_BYTES = 1024
 
@@ -145,9 +148,12 @@ def reduce_policy(*, migration_timestamp: int, entry: Mapping[str, Any]) -> dict
     timestamp = entry.get("timestamp")
     plus_one = migration_timestamp + REQUESTED_ENTRY_SECOND_OFFSET
     fallback = migration_timestamp
-    if timestamp not in {plus_one, fallback}:
+    plus_two = migration_timestamp + MAX_ENTRY_OFFSET_SECONDS
+    if timestamp not in {plus_one, fallback, plus_two}:
         return {"state": "INSUFFICIENT_EVIDENCE", "reason": "STRICT_MIGRATION_TARGET_SECOND_REQUIRED"}
     if timestamp == fallback and not entry.get("plus_one_absent"):
+        return {"state": "INSUFFICIENT_EVIDENCE", "reason": "STRICT_MIGRATION_TARGET_SECOND_REQUIRED"}
+    if timestamp == plus_two and (not entry.get("plus_one_absent") or not entry.get("migration_absent")):
         return {"state": "INSUFFICIENT_EVIDENCE", "reason": "STRICT_MIGRATION_TARGET_SECOND_REQUIRED"}
     try:
         mc = float(entry.get("mc"))
@@ -155,6 +161,10 @@ def reduce_policy(*, migration_timestamp: int, entry: Mapping[str, Any]) -> dict
         return {"state": "INSUFFICIENT_EVIDENCE", "reason": "STRICT_MIGRATION_ENTRY_MC_REQUIRED"}
     if mc <= 0:
         return {"state": "INSUFFICIENT_EVIDENCE", "reason": "STRICT_MIGRATION_ENTRY_MC_REQUIRED"}
-    method = PLUS1_ENTRY_METHOD if timestamp == plus_one else MIGRATION_SECOND_FALLBACK_METHOD
-    return {"state": "QUALIFIED", "entry_method": method,
-            "entry_timestamp": int(timestamp), "entry_mc_usd": mc, "entry_exactness": method}
+    method = PLUS1_ENTRY_METHOD if timestamp == plus_one else MIGRATION_SECOND_FALLBACK_METHOD if timestamp == fallback else BOUNDED_POST_MIGRATION_METHOD
+    exactness = method if timestamp != plus_two else BOUNDED_POST_MIGRATION_EXACTNESS
+    result = {"state": "QUALIFIED", "entry_method": method,
+              "entry_timestamp": int(timestamp), "entry_mc_usd": mc, "entry_exactness": exactness}
+    if timestamp == plus_two:
+        result["entry_offset_seconds"] = MAX_ENTRY_OFFSET_SECONDS
+    return result

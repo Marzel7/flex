@@ -123,6 +123,18 @@ def _monitor_live_projection() -> dict:
         else:
             row['final_ath_status'] = 'NOT_APPLICABLE'
         _watchtower_display_fields(row)
+    # Optional immutable audit evidence is read only and deliberately remains
+    # nested under a distinct key; it never populates authoritative Entry fields.
+    audit_path = os.getenv('WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH', '').strip()
+    if audit_path:
+        try:
+            from src.ops.watchtower_offset_audit import product_projection
+            audit = product_projection(audit_path)
+        except (OSError, ValueError):
+            audit = {}
+        for row in rows:
+            if str(row.get('operation_id')).lower() == 'watchtower' and row.get('mint') in audit:
+                row['opening_offset_audit'] = audit[row['mint']]
     ops = {}
     for name in ('watchtower','byzantine'):
         subset=[r for r in rows if str(r['operation_id']).lower()==name]

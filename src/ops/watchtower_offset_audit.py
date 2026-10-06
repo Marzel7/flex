@@ -115,3 +115,29 @@ class OffsetAuditStore:
             os.fsync(handle.fileno())
         os.replace(temporary, self.path)
         return len(encoded)
+
+
+def product_projection(path: str | Path) -> dict[str, dict[str, Any]]:
+    """Read-only audit projection; it is never an Entry or lifecycle authority."""
+    projected: dict[str, dict[str, Any]] = {}
+    for record in OffsetAuditStore(path).records():
+        values = {int(key): value for key, value in (record.get("offsets") or {}).items()}
+        current = 1 if 1 in values else 0 if 0 in values else None
+        proposed = current if current is not None else 2 if 2 in values else None
+        label = ("Historical audit candidate: +2" if proposed == 2 else
+                 "NO_VALID_OPENING_CANDLE_THROUGH_PLUS4" if not values else "Historical audit evidence")
+        projected[record["mint"]] = {
+            "audit_version": f"watchtower-opening-offset-audit.v{SCHEMA_VERSION}",
+            "audit_status": record["normalization_state"],
+            "canonical_migration_timestamp": record["migration_timestamp"],
+            "t_present": 0 in values, "t_plus1_present": 1 in values,
+            "t_plus2_present": 2 in values, "t_plus3_present": 3 in values,
+            "t_plus4_present": 4 in values,
+            "current_policy_classification": "T_PLUS1" if current == 1 else "T" if current == 0 else "NONE_CURRENT",
+            "proposed_plus2_classification": "PLUS2" if proposed == 2 else "CURRENT" if proposed is not None else "NO_VALID_OPENING_CANDLE_THROUGH_PLUS4",
+            "simulated_selected_timestamp": int(record["migration_timestamp"]) + proposed if proposed is not None else None,
+            "simulated_selected_mc": values.get(proposed) if proposed is not None else None,
+            "simulated_offset_seconds": proposed,
+            "audit_label": label,
+        }
+    return projected

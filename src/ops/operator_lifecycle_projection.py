@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS operator_lifecycle_projection (
 CREATE INDEX IF NOT EXISTS ix_operator_lifecycle_due ON operator_lifecycle_projection(next_enrichment_due_at);
 CREATE TABLE IF NOT EXISTS operation_monitor_facts (
  operation_id TEXT NOT NULL,mint TEXT NOT NULL,cohort_class TEXT NOT NULL,assignment_timestamp INTEGER,assignment_provenance TEXT,
- entry_method TEXT NOT NULL,entry_timestamp INTEGER,entry_mc_usd REAL,entry_status TEXT,entry_exactness TEXT,
+ entry_method TEXT NOT NULL,entry_timestamp INTEGER,entry_mc_usd REAL,entry_status TEXT,entry_exactness TEXT,entry_offset_seconds INTEGER,
  latest_mc_usd REAL,latest_mc_timestamp INTEGER,current_multiple REAL,running_peak_mc_usd REAL,running_peak_timestamp INTEGER,running_peak_multiple REAL,drawdown_percent REAL,
  reached_2x INTEGER,reached_5x INTEGER,reached_10x INTEGER,first_2x_timestamp INTEGER,first_5x_timestamp INTEGER,first_10x_timestamp INTEGER,
  drawdown_25_timestamp INTEGER,drawdown_50_timestamp INTEGER,drawdown_75_timestamp INTEGER,drawdown_85_timestamp INTEGER,monitor_state TEXT NOT NULL,
@@ -52,6 +52,7 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
     conn.executescript(SCHEMA)
     fact_columns={r[1] for r in conn.execute('PRAGMA table_info(operation_monitor_facts)')}
     for name, typ in (
+        ('entry_offset_seconds', 'INTEGER'),
         ('retained_monitor_peak_mc_usd', 'REAL'), ('retained_monitor_peak_evidence', 'TEXT'),
         ('final_proven_ath_mc', 'REAL'), ('final_ath_multiple', 'REAL'),
         ('final_ath_evidence', 'TEXT'), ('final_ath_resolution', 'TEXT'),

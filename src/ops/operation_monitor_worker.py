@@ -904,7 +904,7 @@ class MonitorBirdeyeTransport:
    diagnostic={'normalizer_version':'STRICT_ENTRY_NORMALIZER_V2','provider':'Birdeye','request_family':'BIRDEYE_OHLCV_1S_STRICT_MIGRATION_WINDOW','http_status':0,'provider_error_code':'NONE','provider_error_classification':'TRANSPORT_EXCEPTION','failure_stage':'TRANSPORT','failure_category':'TRANSPORT_EXCEPTION'}
    self.last_entry_diagnostic=diagnostic
    raise StrictEntryNormalizationError('TRANSPORT_EXCEPTION',diagnostic)
-  target=int(plan['migration_timestamp'])+1
+  migration_timestamp=int(plan['migration_timestamp']); target=migration_timestamp+1; plus_two=migration_timestamp+2
   diagnostic={'normalizer_version':'STRICT_ENTRY_NORMALIZER_V2','provider':'Birdeye','request_family':'BIRDEYE_OHLCV_1S_STRICT_MIGRATION_WINDOW','http_status':int(result.status_code),'provider_item_count':0,'normalized_item_count':0,'normalized_timestamps':[],'exact_target_item_count':0,'migration_timestamp':int(plan['migration_timestamp']),'migration_timestamp_present':False,'target_timestamp':target,'target_timestamp_present':False,'value_field_present':False,'value_parse_state':'NOT_EVALUATED','normalization_state':'NOT_EVALUATED','failure_stage':None,'failure_category':None}
   self.last_entry_diagnostic=diagnostic
   if result.status_code != 200:
@@ -925,33 +925,33 @@ class MonitorBirdeyeTransport:
   except ValueError:
    diagnostic.update({'normalization_state':'FAILED','failure_stage':'SHARED_OHLC_NORMALIZER','failure_category':'NORMALIZATION_FAILED'})
    raise StrictEntryNormalizationError(diagnostic['failure_category'],diagnostic)
-  target_items=[]; fallback_items=[]
+  target_items=[]; fallback_items=[]; plus_two_items=[]
   for item in candles:
    timestamp=int(item['timestamp'])
    diagnostic['normalized_item_count']+=1
    if timestamp in {target, int(plan['migration_timestamp'])} and timestamp not in diagnostic['normalized_timestamps']:
     diagnostic['normalized_timestamps'].append(timestamp)
    if timestamp == int(plan['migration_timestamp']): diagnostic['migration_timestamp_present']=True
-   if timestamp not in {target, int(plan['migration_timestamp'])}: continue
+   if timestamp not in {target, migration_timestamp, plus_two}: continue
    is_target = timestamp == target
    if is_target:
     diagnostic['target_timestamp_present']=True;diagnostic['exact_target_item_count']+=1
    value=float(item['close']); diagnostic['value_field_present']=True
-   (target_items if is_target else fallback_items).append({'timestamp':timestamp,'mc':value})
+   (target_items if is_target else fallback_items if timestamp == migration_timestamp else plus_two_items).append({'timestamp':timestamp,'mc':value})
   if not items:
    diagnostic.update({'normalization_state':'COMPLETE','failure_stage':'TARGET_RESOLUTION','failure_category':'NO_PROVIDER_ITEMS','value_parse_state':'NOT_PRESENT'})
    raise StrictEntryNormalizationError(diagnostic['failure_category'],diagnostic)
-  if not diagnostic['target_timestamp_present'] and not fallback_items:
+  if not diagnostic['target_timestamp_present'] and not fallback_items and not plus_two_items:
    diagnostic.update({'normalization_state':'COMPLETE','failure_stage':'TARGET_RESOLUTION','failure_category':'TARGET_SECOND_ABSENT','value_parse_state':'NOT_PRESENT'})
    raise StrictEntryNormalizationError(diagnostic['failure_category'],diagnostic)
   if diagnostic['target_timestamp_present'] and not target_items:
    diagnostic.update({'normalization_state':'COMPLETE','failure_stage':'TARGET_VALUE','failure_category':'TARGET_VALUE_ABSENT','value_parse_state':'ABSENT'})
    raise StrictEntryNormalizationError(diagnostic['failure_category'],diagnostic)
-  if len(target_items)>1 or (not target_items and len(fallback_items)!=1):
+  if len(target_items)>1 or (not target_items and fallback_items and len(fallback_items)!=1) or (not target_items and not fallback_items and len(plus_two_items)>1):
    diagnostic.update({'normalization_state':'FAILED','failure_stage':'TARGET_RESOLUTION','failure_category':'NORMALIZATION_FAILED','value_parse_state':'AMBIGUOUS'})
    raise StrictEntryNormalizationError(diagnostic['failure_category'],diagnostic)
   diagnostic.update({'normalization_state':'COMPLETE','failure_stage':None,'failure_category':None,'value_parse_state':'VALID'})
-  entry = target_items[0] if target_items else {**fallback_items[0], 'plus_one_absent': True}
+  entry = target_items[0] if target_items else {**fallback_items[0], 'plus_one_absent': True} if fallback_items else {**plus_two_items[0], 'plus_one_absent': True, 'migration_absent': True}
   return entry,built
 
 def resolve_operation_migration_boundary(db_path: str, mint: str, *, canonical_migration_db_path: str | None = None) -> dict[str,Any] | None:
@@ -1196,8 +1196,8 @@ class MonitorWorker:
   if not p.get('entry_timestamp') or (usd is None and native is None): raise ValueError('QUALIFIED_ENTRY_REFERENCE_REQUIRED')
   # Native Scenario-D is a genuine entry reference.  It activates live price
   # eligibility without inventing USD metrics; USD fields remain NULL until FX.
-  values=(p['operation_id'],p['mint'],p.get('cohort','PROSPECTIVE_MONITOR_COHORT'),assignment.get('assigned_at',now),_h(assignment),p['entry_method'],int(p['entry_timestamp']),float(usd) if usd is not None else None,str(native) if native is not None else None,'QUALIFIED',p.get('entry_exactness','FIRST_FULL_POST_MIGRATION_SECOND_MC'),'MONITORING_ACTIVE',now,None,float(usd) if usd is not None else None,int(p['entry_timestamp']),1.0 if usd is not None else None,'WAITING_FOR_FX_ATTACHMENT' if usd is None else 'WAITING_FOR_COMPLETED_CANDLE',_h({'activation':'QUALIFIED_ENTRY_REFERENCE','entry_provenance':p.get('entry_provenance'),'mint':p['mint'],'native':native}),now,now)
-  sql='''INSERT INTO operation_monitor_facts(operation_id,mint,cohort_class,assignment_timestamp,assignment_provenance,entry_method,entry_timestamp,entry_mc_usd,entry_native_mc_sol,entry_status,entry_exactness,monitor_state,monitor_started_at,next_observation_at,running_peak_mc_usd,running_peak_timestamp,running_peak_multiple,evidence_status,provenance_digest,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(operation_id,mint) DO UPDATE SET entry_method=excluded.entry_method,entry_timestamp=excluded.entry_timestamp,entry_mc_usd=excluded.entry_mc_usd,entry_native_mc_sol=excluded.entry_native_mc_sol,entry_status=excluded.entry_status,entry_exactness=excluded.entry_exactness,monitor_state=excluded.monitor_state,monitor_started_at=excluded.monitor_started_at,next_observation_at=excluded.next_observation_at,running_peak_mc_usd=excluded.running_peak_mc_usd,running_peak_timestamp=excluded.running_peak_timestamp,running_peak_multiple=excluded.running_peak_multiple,evidence_status=excluded.evidence_status,provenance_digest=excluded.provenance_digest,updated_at=excluded.updated_at WHERE operation_monitor_facts.entry_status!='QUALIFIED' '''
+  values=(p['operation_id'],p['mint'],p.get('cohort','PROSPECTIVE_MONITOR_COHORT'),assignment.get('assigned_at',now),_h(assignment),p['entry_method'],int(p['entry_timestamp']),float(usd) if usd is not None else None,str(native) if native is not None else None,'QUALIFIED',p.get('entry_exactness','FIRST_FULL_POST_MIGRATION_SECOND_MC'),p.get('entry_offset_seconds'),'MONITORING_ACTIVE',now,None,float(usd) if usd is not None else None,int(p['entry_timestamp']),1.0 if usd is not None else None,'WAITING_FOR_FX_ATTACHMENT' if usd is None else 'WAITING_FOR_COMPLETED_CANDLE',_h({'activation':'QUALIFIED_ENTRY_REFERENCE','entry_provenance':p.get('entry_provenance'),'mint':p['mint'],'native':native,'entry_offset_seconds':p.get('entry_offset_seconds')}),now,now)
+  sql='''INSERT INTO operation_monitor_facts(operation_id,mint,cohort_class,assignment_timestamp,assignment_provenance,entry_method,entry_timestamp,entry_mc_usd,entry_native_mc_sol,entry_status,entry_exactness,entry_offset_seconds,monitor_state,monitor_started_at,next_observation_at,running_peak_mc_usd,running_peak_timestamp,running_peak_multiple,evidence_status,provenance_digest,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(operation_id,mint) DO UPDATE SET entry_method=excluded.entry_method,entry_timestamp=excluded.entry_timestamp,entry_mc_usd=excluded.entry_mc_usd,entry_native_mc_sol=excluded.entry_native_mc_sol,entry_status=excluded.entry_status,entry_exactness=excluded.entry_exactness,entry_offset_seconds=excluded.entry_offset_seconds,monitor_state=excluded.monitor_state,monitor_started_at=excluded.monitor_started_at,next_observation_at=excluded.next_observation_at,running_peak_mc_usd=excluded.running_peak_mc_usd,running_peak_timestamp=excluded.running_peak_timestamp,running_peak_multiple=excluded.running_peak_multiple,evidence_status=excluded.evidence_status,provenance_digest=excluded.provenance_digest,updated_at=excluded.updated_at WHERE operation_monitor_facts.entry_status!='QUALIFIED' '''
   receipt=self.persist(WriteItem('enrichment','operation-monitor-activate-from-strict-opening',[(sql,values)],_h({'activation':p['operation_id'],'mint':p['mint'],'entry':p['entry_timestamp']})))
   if not receipt or not receipt.committed: raise RuntimeError('MONITOR_ACTIVATION_UNCOMMITTED')
  def _activate_watchtower_history_without_entry(self,p:dict[str,Any])->None:
@@ -1474,7 +1474,8 @@ class MonitorWorker:
         self.q.record_provider_success()
         policy_result=reduce_strict_migration_policy(migration_timestamp=int(evaluation['entry_acquisition']['migration_timestamp']),entry=first)
         if policy_result['state'] != 'QUALIFIED': raise StrictEntryNormalizationError(policy_result['reason'],self.transport.last_entry_diagnostic or {})
-        p.update({'entry_timestamp':policy_result['entry_timestamp'],'entry_mc_usd':policy_result['entry_mc_usd'],'entry_method':policy_result['entry_method'],'entry_exactness':policy_result['entry_exactness'],'entry_provenance':_h({'entry_acquisition':evaluation['entry_acquisition'],'request':manifest['request_parameters'],'entry':first}),'entry_evaluation_result':'ENTRY_REFERENCE_QUALIFIED','monitor_state':'ENTRY_REFERENCE_QUALIFIED','entry_acquisition_request_identity':strict['request']['request_id']})
+        entry_offset_seconds=policy_result.get('entry_offset_seconds',int(policy_result['entry_timestamp'])-int(evaluation['entry_acquisition']['migration_timestamp']))
+        p.update({'entry_timestamp':policy_result['entry_timestamp'],'entry_mc_usd':policy_result['entry_mc_usd'],'entry_method':policy_result['entry_method'],'entry_exactness':policy_result['entry_exactness'],'entry_offset_seconds':entry_offset_seconds,'entry_provenance':_h({'entry_acquisition':evaluation['entry_acquisition'],'request':manifest['request_parameters'],'entry':first,'entry_offset_seconds':entry_offset_seconds}),'entry_evaluation_result':'ENTRY_REFERENCE_QUALIFIED','monitor_state':'ENTRY_REFERENCE_QUALIFIED','entry_acquisition_request_identity':strict['request']['request_id']})
       elif evaluation['result']=='ENTRY_REFERENCE_QUALIFIED':
        p.update({k:evaluation[k] for k in ('entry_timestamp','entry_mc_usd','entry_exactness','entry_provenance')})
        p.update({'entry_method':evaluation['entry_method'],'entry_evaluation_result':'ENTRY_REFERENCE_QUALIFIED','monitor_state':'ENTRY_REFERENCE_QUALIFIED'})

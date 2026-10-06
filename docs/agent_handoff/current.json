@@ -19158,5 +19158,17 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS_WORKER_AUTHORITY_DEPLOYED_TERMINAL_OPENING_RESULT_HOLD",
     "next_action": "REVIEW_ONLY_THE_TERMINAL_INJECTOR_TARGET_SECOND_ABSENT_EVIDENCE_BEFORE_ANY_NEW_POLICY_OR_ACQUISITION_AUTHORIZATION"
+  },
+  "watchtower_injector_attempt2_evidence_audit_20261006": {
+    "engineering_revision": "71eb6751f65456420cb3c907fefb3e2b6f65458b inspected read-only",
+    "status": "PASS_PROVIDER_DID_NOT_RETURN_TARGET_CANDLES",
+    "evidence_trace": "The sole durable attempt-2 identity is queue dead-letter 00dd245e202a93e1409c0892cca33d1e055d4d68a4fcd3c0e8528bd5800ddfcd. Its compact strict-opening diagnostic records HTTP 200, request fingerprint time_window_seconds=4, strict request window [1791307928,1791307932], attempt=2/budget=2, normalized_item_count=3, normalized_timestamps=[], migration_timestamp_present=false, target_timestamp_present=false, TARGET_SECOND_ABSENT, and BUDGET_EXHAUSTED. The database has only the unresolved Watchtower fact; no provider-result or opening-work record exists for this mint.",
+    "decision_trace": "At this SHA normalize_opening_ohlcv either returns every provider item as a valid normalized OHLC candle or fails the whole response before the counter is incremented. The count of 3 therefore proves all three returned items passed timestamp/numeric/OHLC validation. The worker retains target timestamps only when they equal t=1791307928 or t+1=1791307929; its empty retained list proves none of the three accepted candles was either target. The selector consequently received valid_t=0 and valid_t_plus1=0 and took the explicit TARGET_SECOND_ABSENT branch. This is no local normalizer, duplicate, or selector rejection defect.",
+    "retention_boundary": "Raw provider payload retention is disabled. The bounded diagnostic deliberately omits all non-target timestamps and all per-item OHLC/MC values. Thus exact identities/offsets of the three non-target candles cannot be enumerated retrospectively, but their accepted-normalization count and absence from the only eligible offsets are proven. No valid target candle was discarded.",
+    "comparison": "The prior B8S7 and 7iXZ diagnostic acquisitions each retained a valid t plus later t+2/t+3/t+4 candles. Injector differs at the decisive eligible evidence: it has no valid t and no valid t+1. Its non-target timestamp shape is intentionally unretained, so no further offset equivalence claim is made.",
+    "safety": "Read-only audit: Birdeye=0; Helius=0; source changes=0; database/queue writes=0; restarts=0. Worker remains PID 54058, CWD pinned clean worktree at 71eb6751f65456420cb3c907fefb3e2b6f65458b. No raw payload was exposed or reconstructed.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Evidence-only audit; the existing deployment was inspected but not changed.",
+    "next_action": "REVIEW_ALTERNATE_BOUNDED_OPENING_ACQUISITION_WITHOUT_WEAKENING_ENTRY_SEMANTICS"
   }
 }

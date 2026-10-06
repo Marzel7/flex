@@ -1,4 +1,16 @@
 {
+  "watchtower_clean_reconstruction_continuation_20261006": {
+    "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 plus uncommitted isolated reconstruction",
+    "status": "PARTIAL_SELECTOR_RECONSTRUCTED_TERMINAL_API_CRASH_QUALIFICATION_PENDING",
+    "handoff_base": "e556b279",
+    "selector": "In isolated worktree only, strict_migration_window now preserves valid migration+1 with FIRST_FULL_POST_MIGRATION_SECOND_MC and accepts migration t solely when plus_one_absent is explicitly retained, using MIGRATION_SECOND_MC_FALLBACK. t+2 and all other timestamps remain insufficient evidence. The existing transport normalizer selects a valid t fallback only when t+1 has no item; a present invalid t+1 remains fail closed.",
+    "verification": "python -m py_compile for strict_migration_window.py, operation_monitor_worker.py, and watchtower_historical_backfill.py passed. pytest -q tests/test_watchtower_policy_c.py tests/test_watchtower_migration_second_fallback.py: 4 passed, 0 failed. These prove Policy-C 28/8-8-6-6 and selector +1 preference/t-only-if-absent/t+2 rejection; no provider calls.",
+    "incomplete": "No provider-free clean tests yet prove retained fallback provenance through History/API aggregates, terminal-finalizer adapter idempotency, or before/during/after terminal crash recovery. watchtower_historical_backfill.py has not yet been wired to the existing terminal finalizer. Full qualified feature parity, source authority manifest, clean commit, push, and remote verification are therefore not claimed.",
+    "safety": "Original workspace remains unchanged at 3627 dirty entries; only isolated reconstruction worktree changed; provider calls=0; COOK/backfill execution=0; deployment/runtime/database/process changes=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "WIRE_EXISTING_WATCHTOWER_TERMINAL_FINALIZER_AND_ADD_PROVIDER_FREE_PROVENANCE_API_IDEMPOTENCY_AND_CRASH_MATRIX_QUALIFICATION_BEFORE_THE_SINGLE_ENGINEERING_COMMIT"
+  },
   "watchtower_policy_c_clean_extraction_20261006": {
     "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 plus uncommitted isolated reconstruction",
     "status": "PARTIAL_POLICY_C_EXTRACTED_FULL_DELTA_RECONSTRUCTION_PENDING",

@@ -1,4 +1,15 @@
 {
+  "watchtower_forward_opening_vs_historical_t_audit_20261006": {
+    "engineering_revision": "forward runtime 8897a5a22ec3f079a5973ae7e99048090b455e41; later historical executor e6da55a7b6d57d93a0e6de02c3d6c1140b39a1c6; future diagnostic a433c67698778ce02be30a4eae90aa7e3f0f8e26 not deployed",
+    "status": "HOLD_FORWARD_OPENING_CAUSE_UNPROVEN",
+    "finding": "The three sealed HTTP-200 forward records use Birdeye V3 OHLCV with the mint as address, MCAP/USD/range/padding=false/type=1s and [t,t+2]: COOK t=1791269958, B8S7 t=1791287674, and 7iXZ t=1791294235. No pool/pair argument is sent. The retained historical missing-entry control independently establishes 10 eligible mint-addressed MCAP/USD/range/padding=false/1s requests over [t,t+4): valid t close=10/10 and t+1=0/10. COOK's later bounded historical Opening used the same builder/window/mint and selected t=1791269958 at MC=113464.45625213276 under MIGRATION_SECOND_MC_FALLBACK. This rules out a universal claim that older t candles disappear, but does not prove why any forward response differed.",
+    "normalizer_comparison": "Forward 8897 accepts unixTime/unix_time only, validates positive c/close, and rejects duplicate t+1 or ambiguous t fallback; it emits TARGET_SECOND_ABSENT only when neither a valid parsed t+1 nor exactly one valid parsed t survived. The later executor accepts unixTime/unix_time/timestamp, validates full OHLC then sorts, and collapses duplicate timestamps in a map before choosing t+1 then t. Those are three material implementation differences, but retained old forward diagnostics omit item count, normalized timestamps, t/t+1 booleans, t MC, and raw payload, so none is shown causal.",
+    "retention": "For COOK, B8S7, and 7iXZ the compact sealed records prove one request, HTTP 200, request family/window, Birdeye label, and TARGET_SECOND_ABSENT only. T_PRESENT and T_PLUS1_PRESENT are individually UNPROVEN for each historical forward response; source semantics cannot substitute for execution evidence. The future a433c676 diagnostic retains bounded item count, normalized timestamps and t/t+1-presence booleans without raw payload, which is sufficient for a future natural miss.",
+    "safety": "Audit only: source changes=0; database writes=0; provider calls=0; runtime deployed=false; process restarts=0; raw payload retention=false.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "This is a read-only explanation audit. The separately qualified diagnostic remains not deployed.",
+    "next_action": "DEPLOY_a433c676_DIAGNOSTIC_AND_OBSERVE_NEXT_NATURAL_OPENING_MISS"
+  },
   "watchtower_forward_opening_terminal_repair_20261006": {
     "engineering_sha": "a433c67698778ce02be30a4eae90aa7e3f0f8e26",
     "status": "PASS_FORWARD_REPAIR_COMMITTED_READY_FOR_DEPLOYMENT",

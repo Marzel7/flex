@@ -1,4 +1,17 @@
 {
+  "watchtower_terminal_provenance_continuation_20261006": {
+    "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 plus uncommitted isolated reconstruction",
+    "status": "PARTIAL_EXISTING_TERMINAL_ADAPTER_PROVEN_CRASH_AND_API_QUALIFICATION_PENDING",
+    "handoff_base": "99b35b60",
+    "adapter": "watchtower_historical_backfill.commit_to_existing_watchtower_terminal materializes only existing operation_monitor_facts and retained 15m operation_monitor_observations, then invokes the existing WatchtowerTerminalAthFinalizer in watchtower_price_fact_contract retained-OHLC mode. It creates no terminal/history authority or schema. The binding passed to finalizer raises if called, making retained evidence mandatory and provider calls impossible in this adapter.",
+    "provenance": "Fallback and +1 fixtures retain entry_method and entry_exactness in the existing terminal fact. Fallback remains MIGRATION_SECOND_MC_FALLBACK; plus-one remains FIRST_FULL_POST_MIGRATION_SECOND_MC. Existing operator_routes row projection selects fact columns directly, including both retained fields.",
+    "verification": "pytest -q tests/test_watchtower_policy_c.py tests/test_watchtower_migration_second_fallback.py tests/test_watchtower_terminal_adapter.py: 6 passed, 0 failed. Terminal adapter fallback replay returns provider_calls=0, retains final ATH/multiple, and leaves only two retained observations. Plus-one fixture remains distinct. No provider credentials/calls were used.",
+    "incomplete": "Crash-before/during/after terminal commit tests, historical job completion-after-History marker, full API/aggregate fixture, COOK full-history fixture, and complete focused suite are not yet present. Therefore full feature parity, clean qualification, engineering commit/push, and runtime deployment are not claimed.",
+    "safety": "Original workspace remains unchanged at 3627 dirty entries; only isolated reconstruction worktree changed; provider calls=0; COOK/backfill execution=0; runtime/database/process changes=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "ADD_PROVIDER_FREE_CRASH_COMPLETION_ORDER_AND_API_AGGREGATE_QUALIFICATION_FOR_THE_EXISTING_TERMINAL_ADAPTER_BEFORE_THE_SINGLE_ENGINEERING_COMMIT"
+  },
   "watchtower_clean_reconstruction_continuation_20261006": {
     "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 plus uncommitted isolated reconstruction",
     "status": "PARTIAL_SELECTOR_RECONSTRUCTED_TERMINAL_API_CRASH_QUALIFICATION_PENDING",

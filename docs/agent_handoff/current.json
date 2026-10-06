@@ -1,4 +1,22 @@
 {
+  "watchtower_hunk_recovery_20261006": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "status": "HOLD_UNPROVEN_SOURCE_OWNERSHIP_AT_SRC_OPS_OPERATION_MONITOR_WORKER_PY",
+    "manifest": [
+      {"path":"src/ops/operation_monitor_worker.py","class":"C","responsibility":"migration-second selector plus existing Monitor queue/worker/runtime","evidence":"fallback selector tests and handoffs","reason":"absent from clean base; 1,231-line dirty file contains broad existing Monitor behavior, so entire-file ownership is not proven and hunk recovery has no base file target."},
+      {"path":"src/ops/watchtower_terminal_ath_finalizer.py","class":"C","responsibility":"existing Watchtower terminal/History authority","evidence":"terminal integration handoff","reason":"absent from clean base and is expressly pre-existing shared authority, not an entire feature-owned module."},
+      {"path":"src/ops/watchtower_historical_backfill.py","class":"B","responsibility":"new bounded range/checkpoint adapter","evidence":"range/resume and terminal-adapter handoffs plus focused tests","reason":"entire 203-line module is feature scoped, but depends on class-C terminal authority."},
+      {"path":"tests/test_watchtower_migration_second_fallback.py","class":"B","responsibility":"selector qualification","evidence":"focused selector suite","reason":"entire file feature scoped."},
+      {"path":"tests/test_watchtower_fallback_backfill_qualification.py","class":"B","responsibility":"range/resume/terminal qualification","evidence":"52-test suite","reason":"entire file feature scoped but imports class-C sources."},
+      {"path":"src/ops/operator_routes.py","class":"A/C","responsibility":"API provenance projection","evidence":"historical provenance handoff","reason":"tracked clean-base file but dirty diff has 436 additions including broad pre-existing user-owned projection work; required hunk cannot be proven independently without its omitted dependency context."},
+      {"path":"src/ops/watchtower_research_cohorts.py","class":"B","responsibility":"aggregate entry exactness projection","evidence":"provenance qualification","reason":"feature-adjacent but not required to unblock the class-C authority dependency."}
+    ],
+    "counts": "Class A=1 mixed; Class B=4; Class C=3/mixed authority dependencies. Entire-file import executed=0; tracked whole-file copy=0; unproven import=0.",
+    "dependency_provenance": "INCOMPLETE: backfill adapter requires WatchtowerTerminalAthFinalizer; terminal finalizer and Monitor worker are absent from clean base and their dirty copies are mixed/shared rather than feature-owned. No recursive import was attempted.",
+    "workspace_preservation": "Original classification-attribution-axis at 580508a70c80e7fc944e0069f85e67b851a117fa remained 3627 dirty entries; no mutation/reset/stash/clean/overwrite occurred.",
+    "safety": "Provider calls=0; COOK/historical execution=0; deployment/runtime/database/listener changes=0; clean target remains unmodified.",
+    "next_action": "PROVIDE_A_CLEAN_BASE_OR_COMMIT_CONTAINING_THE_EXISTING_MONITOR_WORKER_AND_TERMINAL_FINALIZER_AUTHORITIES, OR EXPLICITLY_AUTHORIZE_IMPORT_OF_THESE_NAMED_WHOLE_FILES"
+  },
   "watchtower_clean_reconstruction_20261006": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
     "status": "HOLD_CLEAN_BASE_MISSING_FEATURE_SOURCE_AUTHORITY",

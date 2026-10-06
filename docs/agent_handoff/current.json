@@ -1,4 +1,15 @@
 {
+  "watchtower_clean_reconstruction_20261006": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "status": "HOLD_CLEAN_BASE_MISSING_FEATURE_SOURCE_AUTHORITY",
+    "workspace_inventory": "Original workspace branch=classification-attribution-axis; HEAD=580508a70c80e7fc944e0069f85e67b851a117fa; dirty entry count before=3627 and after=3627. No reset, discard, overwrite, stash, or source import was performed.",
+    "clean_target": "Created /private/tmp/watchtower-fallback-clean on branch codex/watchtower-fallback-clean exactly at 580508a70c80e7fc944e0069f85e67b851a117fa; it is clean.",
+    "blocker": "The clean base does not track several required qualified candidate modules (including Watchtower terminal/backfill sources), while the only observable copies are user-owned untracked/dirty workspace files. Reconstructing from those copies would violate CROSS_WORKTREE_RUNTIME_IMPORT_COUNT=0 and could import unrelated user changes. Git history identifies an older worker source commit, but does not provide an authoritative complete terminal/backfill module set matching the qualified candidate.",
+    "safety": "Provider calls=0; COOK/historical execution=0; deployment/runtime/process/listener/Byzantine changes=0; original workspace preservation pass=true.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Release-hygiene reconstruction stopped before feature source mutation.",
+    "next_action": "PROVIDE_A_CLEAN_AUTHORITATIVE_FEATURE_SOURCE_COMMIT_OR_EXPLICITLY_AUTHORIZE_A_HUNK_SCOPED_IMPORT_FROM_THE_USER_WORKSPACE"
+  },
   "watchtower_final_terminal_safety_20261006": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; uncommitted workspace qualification",
     "status": "PARTIAL_PARITY_AND_TERMINAL_IDEMPOTENCY_PASS_CLEAN_COMMIT_BLOCKED",

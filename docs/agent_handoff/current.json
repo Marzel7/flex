@@ -19358,5 +19358,15 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_FIX_INCLUDE_SAFE_SUPERVISOR_LOG_PATH_RENDERING_AND_REPEAT_FROM_DRY_RUN",
     "next_action": "AUTHORIZE_INFRASTRUCTURE_ONLY_CORRECTION_FOR_ABSOLUTE_OR_INCLUDE_SAFE_SUPERVISOR_LOG_PATHS_THEN_REPEAT_LIVE_TWO_PROGRAM_MIGRATION"
+  },
+  "watchtower_live_migration_logpath_retry_20261006": {
+    "engineering_revision": "e7a0a140aa05e4116bfbe0e44d461ba8f5bd07ef on origin/codex/watchtower-supervisor-logpaths; remote verified",
+    "status": "HOLD_SUPERVISOR_REREAD_STILL_RESOLVES_GLOBAL_LOG_PATH_FROM_INCLUDE_CONTEXT",
+    "finding": "The corrected renderer's real-config dry-run produced absolute main logfile and childlogdir values at the existing destinations, and pre-reread effective identity/path gates passed. Supervisor reread nevertheless rejected before update with the same include-relative childlogdir path. This indicates parser/interpolation behavior not eliminated by text rendering; no service update occurred.",
+    "rollback": "Byte-backed rollback restored config SHA256 674bd410544bacb9265d2428cd7d79968e01acd6fa8e1600274d2a19b4943467. Listener/API/worker remained RUNNING with original PIDs 77852/45753/54058.",
+    "safety": "Provider calls=0; database/queue/injector writes=0; Supervisor update=0; service restarts=0; forward activation=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_REQUIRE_SUPERVISOR_INCLUDE_MECHANISM_DIAGNOSIS_OR_CONFIG_LAYOUT_CORRECTION",
+    "next_action": "AUTHORIZE_READ_ONLY_SUPERVISOR_CONFIG_PARSER_DIAGNOSIS_AND_INFRASTRUCTURE_ONLY_FIX_BEFORE_ANY_THIRD_LIVE_ATTEMPT"
   }
 }

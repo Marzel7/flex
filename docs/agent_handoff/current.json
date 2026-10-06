@@ -18224,6 +18224,17 @@
     "runtime_deployment_reason": "Diagnostic attribution only; no executable behavior changed.",
     "exact_next_action": "STOP_ONLY_THE_UNBOUNDED_WAITING_OPENING_RETRY_BEHAVIOUR_WHILE_PRESERVING_FORWARD_OPENING_ACQUISITION"
   },
+  "birdeye_credit_burn_attribution_20261006": {
+    "engineering_revision": "16d98ce16385ecd521b0840ef31cf15a2e7008b2 active DEV Monitor runtime; read-only runtime attribution",
+    "status": "HOLD_ACTIVE_BYZANTINE_15_SECOND_RESCHEDULE",
+    "finding": "The Birdeye dashboard's continuous approximately four /defi/v3/ohlcv calls per minute are not Watchtower strict-opening retries. The active operation_monitor_worker repeatedly dispatches the one Byzantine message for mint 2GAd4qECH8cN4oQWwhiaBMADNupKCv8h9m9x3a4mpump at 15-second intervals. Its durable provider budget records successive 15M_EVIDENCE calls at 1791245148, 1791245164, 1791245179, and 1791245194. The latest pending successor has next_eligible_dispatch_at=1791245210. The request is Birdeye V3 OHLCV, 15m MCAP, range from the last retained observation to dispatch time. It retains prior HTTP-400 Compute units usage limit exceeded outcomes while continuing to reschedule.",
+    "credential": "The active monitor launcher binds only the credential label BIRDEYE; no secret value was inspected or recorded.",
+    "watchtower_boundary": "The previously deployed Watchtower strict-opening budget remains effective: Watchtower MONITORING_ACTIVE=0 and sealed strict-miss retry messages are absent. Separately, 48 queued WATCHTOWER_TERMINAL_ATH_FINALIZATION messages exist but were not the observed four-per-minute sequence.",
+    "safety": "Read-only Supervisor/process/source/compact-queue/SQLite attribution; source, database, queue, runtime, and provider state were not changed; no manual provider call.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Attribution only; no executable behavior changed.",
+    "exact_next_action": "AUTHORIZE_A_BOUNDED_FIX_OR_STOP_FOR_THE_SINGLE_BYZANTINE_15_SECOND_RESCHEDULE_BEFORE_FURTHER_BIRDEYE_USAGE"
+  },
   "watchtower_bounded_waiting_opening_retry_20261006": {
     "engineering_revision": "16d98ce16385ecd521b0840ef31cf15a2e7008b2 on codex/universal-price-monitor-import-recovery",
     "status": "PASS_BOUNDED_FORWARD_OPENING_ACQUISITION_RESTORED",

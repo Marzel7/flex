@@ -1,4 +1,16 @@
 {
+  "watchtower_research_aggregate_release_audit_20261006": {
+    "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 plus uncommitted isolated reconstruction",
+    "status": "HOLD_RESEARCH_AGGREGATE_IS_REQUIRED_PRODUCT_DEPENDENCY",
+    "handoff_base": "3de0f8c8",
+    "callsite_inventory": "Complete: one direct importer, src/ops/operation_playbook_registry.py:62. artifact_playbooks() imports read_cohorts only for the watchtower artifact Playbook and adds its statistics/prospective token rows. It is reached by operator_routes artifact_playbook/all_playbook_views paths, including the Watchtower Playbook UI routes. Audit scripts/tests are secondary consumers.",
+    "responsibility": "watchtower_research_cohorts.py is read-only analysis/projection: it reads a retained historical audit JSON and operation_monitor_facts from a fixed DB URI, projects prospective row provenance including entry_method and entry_exactness, and calculates descriptive statistics. It does not mutate state, call providers, schedule work, or participate in monitor, listener, terminal finalizer, historical backfill, or COOK Batch-1 execution.",
+    "classification": "RESEARCH_AGGREGATE_RELEASE_CLASS=B. Runtime reachability for fallback/backfill=false; product/UI reachability=true through operation_playbook_registry.artifact_playbooks -> operator_routes Playbook views. COOK_BATCH1_DEPENDS_ON_RESEARCH_COHORT_MODULE=false; CORE_PRICE_METRICS_DEPEND_ON_RESEARCH_COHORT_MODULE=false; row-level provenance remains complete through terminal fact/history/live-monitor API without it. However the requested aggregate product surface cannot be qualified or silently deferred because it is an active UI dependency.",
+    "safety": "Read-only audit only; source files changed/imported=0; original workspace mutation=0 (current observed dirty count 3628, one higher than prior 3627 without any agent mutation); clean worktree mutation=0 during audit; provider calls=0; COOK/backfill execution=0; runtime deployment=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only reachability audit; no executable source changed.",
+    "next_action": "REVIEW_WATCHTOWER_RESEARCH_COHORTS_PY_FOR_EXPLICIT_CLEAN_SOURCE_RECOVERY"
+  },
   "watchtower_operator_api_aggregate_audit_20261006": {
     "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 plus uncommitted isolated reconstruction",
     "status": "HOLD_DIRTY_DEPENDENCY_SRC_OPS_WATCHTOWER_RESEARCH_COHORTS_PY",

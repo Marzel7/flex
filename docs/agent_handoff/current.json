@@ -1,4 +1,18 @@
 {
+  "watchtower_policy_c_clean_extraction_20261006": {
+    "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 plus uncommitted isolated reconstruction",
+    "status": "PARTIAL_POLICY_C_EXTRACTED_FULL_DELTA_RECONSTRUCTION_PENDING",
+    "handoff_base": "252248a7",
+    "target": "/private/tmp/watchtower-fallback-reconstructed on codex/watchtower-fallback-reconstructed",
+    "changes": "Created clean src/ops/watchtower_policy_c.py with only Policy-C cadence definitions and pure offset derivation; exact offsets have segment counts 8/8/6/6 and 28 total. Imported exactly authorized d3b2136b tracked sources historical_15m_reconstruction.py (09ba3d0dfa81451047615805b2a0a2695e5c7f25), watchtower_price_fact_contract.py (5a229385b4f6ede325272c144601d795e1150e07), and operator_lifecycle_projection.py (d21a65da80ff927d882fa7be82a66cd52863dbd0). Created a new disabled bounded watchtower_historical_backfill.py that imports Policy C from the new clean module, persists deterministic range state, caps job file admission at 1MiB, caps evidence at 64KiB, has one job/concurrency and two attempts per range, and plans six ranges / 13 maximum calls.",
+    "policy": "POLICY_C_SOURCE_SEMANTICS_PROVEN=true; POLICY_C_CHECKPOINT_PARITY_PASS=true; POLICY_C_CHANGED=false; WINDOW_STATE_IMPORTED=false; REDUCE_CHECKPOINT_IMPORTED=false; UNIVERSAL_RUNTIME_BEHAVIOUR_IMPORTED=false; WATCHTOWER_BACKFILL_IMPORTS_UNIVERSAL_INCREMENTAL_WINDOW=false.",
+    "verification": "pytest -q tests/test_watchtower_policy_c.py: 1 passed. Provider-free SQLite smoke verified a six-range plan, max_total_provider_calls=13, completed first-range skip, and next-range admission. No provider calls.",
+    "incomplete": "Today's fallback selector (+1 preferred/t fallback), provenance/API projection, full terminal finalizer adapter, crash matrix, and their focused qualification tests are not reconstructed in the isolated tree. No engineering commit was created, pushed, or deployed. Therefore clean qualification and complete dependency closure are not claimed.",
+    "safety": "Original dirty workspace remained at 3627 entries; original universal file and unrelated callers unchanged; clean target only has listed isolated source/test changes; provider calls=0; COOK/backfill execution=0; runtime/database/process changes=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "RECONSTRUCT_AND_PROVIDER_FREE_QUALIFY_THE_REMAINING_AUTHORIZED_FALLBACK_PROVENANCE_TERMINAL_HISTORY_DELTA_BEFORE_CREATING_THE_SINGLE_ENGINEERING_COMMIT"
+  },
   "universal_incremental_window_explicit_source_review_20261006": {
     "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 primary; d3b2136b secondary",
     "status": "HOLD_CLASS_B_SHARED_UNTRACKED_UNIVERSAL_SURFACE",

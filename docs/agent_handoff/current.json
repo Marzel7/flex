@@ -19218,4 +19218,14 @@
     "runtime_deployment_reason": "Read-only preflight only; the already-running pinned worker was not changed.",
     "next_action": "AUTHORIZE_A_SMALLEST_BOUNDED_REPRESENTATIVE_OFFSET_COHORT_OR_AN_EXPLICIT_93_CALL_SERIAL_HISTORICAL_AUDIT"
   }
+  ,"watchtower_historical_offset_full_execution_capture_hold_20261006": {
+    "engineering_revision": "71eb6751f65456420cb3c907fefb3e2b6f65458b; clean pinned worktree unchanged",
+    "status": "HOLD_COMPACT_PER_TOKEN_EVIDENCE_CAPTURE_TRUNCATED_AFTER_COMPLETED_ONE_CALL_BUDGET",
+    "execution": "The explicitly authorized 93-token audit ran serially with one Birdeye V3 1s MCAP request per preflight candidate and no retry loop. Progress checkpoints through 90/93 each reported matching HTTP-200 counts; completion emitted the final compact records after the 93rd call.",
+    "capture_failure": "The command transport truncated the final per-token compact JSON stream after the calls had completed. No durable compact result file had been authorized or written, so the full t..t+4 per-token classification, distributions, MC variation, and policy simulation cannot be reconstructed honestly from the retained transcript. Re-querying would violate the one-call-per-token budget.",
+    "safety": "Birdeye calls=93; Helius=0; source/database/queue writes=0; live admission=0; historical recovery jobs=0; process restarts=0; raw provider payload retention=false. The temporary audit runner was removed after use. The pinned worktree remains clean at the stated SHA.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "External diagnostic acquisition only; no executable runtime behavior changed.",
+    "next_action": "AUTHORIZE_OR_REJECT_A_NEW_IDEMPOTENT_EVIDENCE_CAPTURE_MECHANISM_BEFORE_ANY_REPEAT_HISTORICAL_PROVIDER_ACQUISITION"
+  }
 }

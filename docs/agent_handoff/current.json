@@ -18315,5 +18315,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Diagnostic request only; no executable behavior changed.",
     "exact_next_action": "KEEP_CURRENT_FAIL_CLOSED_RULE"
+  },
+  "watchtower_migration_second_fallback_audit_20261006": {
+    "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 active DEV source; read-only fallback simulation",
+    "status": "HOLD_MIGRATION_SECOND_COMPARABILITY_UNPROVEN",
+    "candidate": "Unambiguous conceptual order: retain strict +1 when valid; otherwise accept only a valid migration-second t MC under a distinct MIGRATION_SECOND_MC_FALLBACK provenance; otherwise fail closed. It excludes +2, +3, nearest candles, 15m candles, and synthesis.",
+    "parity": "All 53 qualified Watchtower facts have a proven migration timestamp. Forty-nine are strict +1 facts and the candidate selects the identical retained timestamp, MC, and FIRST_FULL_POST_MIGRATION_SECOND_MC provenance for each. The remaining four are legacy FIRST_AVAILABLE/FIRST_AVAILABLE_SLOT records and are not strict parity controls.",
+    "coverage": "Current strict-evaluated population is 76=49 qualified + 25 TARGET_SECOND_ABSENT + 2 NO_PROVIDER_ITEMS. Only COOK has retained valid t evidence from the separately authorized compact one-second response, so simulation qualifies 1 additional mint and leaves 26 strict misses unqualified: 49/76=64.47% becomes 50/76=65.79%. The post-fix three-assignment cohort becomes 3/3 only in simulation; its two existing +1 results are unchanged.",
+    "limits": "No strict +1 control retains both migration-second and +1 MC, so no empirical t-vs-+1 price-difference statistic is available. COOK is the only retained valid t candle in the strict-evaluated population; 73 others are unproven, not disproven. Downstream Monitor persistence is structurally timestamp-agnostic after entry qualification, but Entry MC/multiple comparability remains unproven. A t fallback would move the same peak's time-to-peak reference by exactly +1 second. Distinct provenance can be retained, and no extra provider call is conceptually required when t is already present in the same bounded strict response.",
+    "safety": "Read-only source/SQLite/compact-queue/retained-handoff audit; source changes=0; database changes=0; provider calls=0; no replay, queue action, process restart, Opening, LIVE admission, or semantic change.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Audit/simulation only; no executable behavior changed.",
+    "exact_next_action": "COLLECT_ONLY_THE_MINIMUM_MIGRATION_SECOND_DIAGNOSTIC_ON_FUTURE_NATURAL_ASSIGNMENTS"
   }
 }

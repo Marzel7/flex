@@ -1,4 +1,15 @@
 {
+  "watchtower_final_qualification_audit_20261006": {
+    "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 plus uncommitted isolated reconstruction",
+    "status": "HOLD_AT_DURABLE_HISTORICAL_JOB_COMPLETION_ORDER",
+    "handoff_base": "9cc27be1",
+    "failed_invariant": "JOB_COMPLETION_AFTER_HISTORY_COMMIT is unprovable because watchtower_historical_backfill_jobs currently has only job_id, boundary_digest, checkpoint_json, and created_at. It has no durable status/terminal-history completion marker, no link from completed range evidence to terminal commit, and no recovery transition for crash before/during/after terminal commit. The adapter can replay terminal materialization idempotently, but cannot prove or enforce historical job completion ordering.",
+    "evidence": "Provider-free suite pytest -q tests/test_watchtower_policy_c.py tests/test_watchtower_migration_second_fallback.py tests/test_watchtower_terminal_adapter.py: 6 passed, 0 failed. Static audit confirms ranges alone have COMPLETED state; no job-level COMPLETED or terminal_history marker exists. Therefore requested crash matrix, completion-order proof, full API/aggregate fixture, COOK full-history fixture, complete qualification, and engineering commit cannot truthfully be claimed.",
+    "safety": "Original workspace remains unchanged at 3627 dirty entries; isolated worktree contains only authorized reconstruction changes; provider calls=0; COOK/backfill execution=0; runtime/database/process changes=0; no large database copy.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "FIX_ONLY_THE_ALREADY_AUTHORIZED_DURABLE_HISTORICAL_JOB_COMPLETION_ORDER_BOUNDARY_THEN_ADD_PROVIDER_FREE_CRASH_AND_COMPLETION_ORDER_TESTS"
+  },
   "watchtower_terminal_provenance_continuation_20261006": {
     "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 plus uncommitted isolated reconstruction",
     "status": "PARTIAL_EXISTING_TERMINAL_ADAPTER_PROVEN_CRASH_AND_API_QUALIFICATION_PENDING",

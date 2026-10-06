@@ -19145,5 +19145,18 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "DEPLOY_EXACT_71EB6751_WORKER_ONLY_WITH_ITS_COMMITTED_INJECTOR_SELECTION_ARTIFACT_THEN_REVERIFY_RUNTIME_BEFORE_TARGETED_MIGRATION"
+  },
+  "watchtower_injector_worker_deployment_and_second_attempt_20261006": {
+    "engineering_revision": "71eb6751f65456420cb3c907fefb3e2b6f65458b on origin/codex/watchtower-two-attempt; clean deployment worktree",
+    "status": "HOLD_INJECTOR_SECOND_ATTEMPT_TARGET_SECOND_ABSENT",
+    "deployment": "Only the existing operation_monitor_worker Supervisor stanza was repointed: command and directory now reference /Users/kevinkeaveney/.codex/worktrees/watchtower-two-attempt/flex and pass its committed injector_dev_soak_selection.v1.json. The recorded worktree HEAD equals 71eb6751f65456420cb3c907fefb3e2b6f65458b and status is clean. Supervisor reread/update/start affected only operation_monitor_worker; worker PID 54058 runs with CWD in that exact worktree. The committed launcher reconstructs its environment with env -i and PYTHONPATH set to the pinned root, so the pre-existing stale Supervisor PYTHONPATH field is not inherited. watchtower_listener remained PID 77852.",
+    "selection": "Committed explicit selection contains exactly one mint: 3yvK6WWww1moF3qx3UvHngZCHy9kRCVd9Jva8tRrpump. No other mint was executable by this worker.",
+    "migration": "Targeted legacy reactivation moved only the exact pre-existing Injector dead-letter identity 00dd245e202a93e1409c0892cca33d1e055d4d68a4fcd3c0e8528bd5800ddfcd to delayed pending with attempt count preserved at 1. Migration provider calls=0; no other dead-letter identity was reactivated.",
+    "second_attempt": "One and only one new Birdeye Opening call was executed by the running worker after the committed 60-second delay, for canonical migration timestamp 1791307928 over [1791307928,1791307932). It returned HTTP 200 with normalized_item_count=3 but no normalized valid target timestamps. The shared strict selector did not select t+2, t+3, or t+4. It sealed the same identity at strict attempt 2/2 with TARGET_SECOND_ABSENT and BUDGET_EXHAUSTED.",
+    "result": "Injector has no Entry, no observations, no LIVE state, and remains operation_monitor_facts monitor_state=WAITING_FOR_ENTRY_REFERENCE / entry_evaluation_result=WAITING_FOR_ENTRY_REFERENCE. Queue has zero Injector pending/processing records and exactly one Injector dead-letter record. Raw provider payload retention=false.",
+    "safety": "Opening provider calls in this execution=1; migration provider calls=0; Helius=0; COOK/B8S7/7iXZ execution=0; source files changed=0; worker config hunk only; unrelated process restarts=0; listener restarted=false; Batch2/full backfill=false. Existing runtime storage bounds remain unchanged; no new file, database, WAL, spool, cache, or retention path was introduced.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS_WORKER_AUTHORITY_DEPLOYED_TERMINAL_OPENING_RESULT_HOLD",
+    "next_action": "REVIEW_ONLY_THE_TERMINAL_INJECTOR_TARGET_SECOND_ABSENT_EVIDENCE_BEFORE_ANY_NEW_POLICY_OR_ACQUISITION_AUTHORIZATION"
   }
 }

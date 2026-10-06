@@ -325,6 +325,73 @@ def test_fresh_watchtower_without_prior_miss_is_not_sealed(tmp_path):
     assert (tmp_path / 'queue' / 'pending' / 'fresh-opening.json').exists()
 
 
+def test_byzantine_provider_failure_is_durably_bounded_without_a_successor(tmp_path, monkeypatch):
+    monkeypatch.delenv('DEV005_OPENING_ONLY_FIXTURE', raising=False)
+    db = tmp_path / 'monitor.db'
+    connection = sqlite3.connect(db)
+    _ensure_schema(connection)
+    connection.commit()
+    connection.close()
+    queue = MonitorQueue(tmp_path / 'queue', enabled=True)
+    queue.soak_allows = lambda _envelope: True
+    queue.queue.enqueue({
+        'operation_id': 'byzantine', 'mint': 'byzantine-provider-failure',
+        'cohort': 'PROSPECTIVE_MONITOR_COHORT', 'entry_method': 'SCENARIO_D',
+        'entry_timestamp': 1, 'entry_native_mc_sol': '1.0',
+        'entry_reference_state': 'NATIVE_QUALIFIED', 'monitor_state': 'NATIVE_QUALIFIED',
+        'candle_resolution': '15m', 'assignment': {'assigned_at': 1},
+    }, message_id='byzantine-provider-failure')
+    calls = []
+
+    def provider(_envelope):
+        calls.append('provider')
+        raise ConnectionError('HTTP_400:Compute units usage limit exceeded')
+
+    worker = MonitorWorker(queue, transport=provider, persist=_committing_writer(db), db_path=str(db))
+    assert worker.process_once() == 1
+    assert calls == ['provider']
+    payload = json.loads((tmp_path / 'queue' / 'dead_letter' / 'byzantine-provider-failure.json').read_text())
+    envelope = payload['envelope']
+    assert envelope['byzantine_provider_failure_attempt_count'] == 1
+    assert envelope['byzantine_provider_failure_attempt_budget'] == 1
+    assert envelope['byzantine_provider_retry_state'] == 'BUDGET_EXHAUSTED'
+    assert envelope['next_eligible_dispatch_at'] is None
+
+    restarted = MonitorWorker(queue, transport=provider, persist=_committing_writer(db), db_path=str(db))
+    assert restarted.reconcile_exhausted_byzantine_provider_failures()['sealed'] == 0
+    assert queue.queue.enqueue({'operation_id': 'byzantine', 'mint': 'byzantine-provider-failure'}, message_id='byzantine-provider-failure') == 'byzantine-provider-failure'
+    restarted.process_once()
+    assert calls == ['provider']
+
+
+def test_byzantine_bounded_provider_failure_blocks_active_fact_reconstruction(tmp_path):
+    db = tmp_path / 'monitor.db'
+    connection = sqlite3.connect(db)
+    _ensure_schema(connection)
+    connection.execute(
+        "INSERT INTO operation_monitor_facts(operation_id,mint,cohort_class,entry_method,entry_timestamp,entry_native_mc_sol,entry_status,entry_exactness,monitor_state,provenance_digest,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+        ('byzantine', 'bounded-reconstruction', 'PROSPECTIVE_MONITOR_COHORT', 'SCENARIO_D', 1, '1.0', 'QUALIFIED', 'FIXTURE', 'MONITORING_ACTIVE', 'fixture', 1, 1),
+    )
+    connection.commit()
+    connection.close()
+    queue = MonitorQueue(tmp_path / 'queue', enabled=True)
+    queue.queue.enqueue({
+        'operation_id': 'byzantine', 'mint': 'bounded-reconstruction',
+        'byzantine_provider_failure_attempt_count': 1,
+        'byzantine_provider_failure_attempt_budget': 1,
+        'byzantine_provider_retry_state': 'BUDGET_EXHAUSTED',
+    }, message_id='bounded-reconstruction')
+    pending = tmp_path / 'queue' / 'pending' / 'bounded-reconstruction.json'
+    dead = tmp_path / 'queue' / 'dead_letter' / pending.name
+    pending.replace(dead)
+
+    result = monitor_worker.reconcile_qualified_monitor_fact_queue_projection(str(db), queue, now=10)
+    assert result['reconstructed'] == 0
+    assert result['refused'] == 1
+    assert dead.exists()
+    assert not list((tmp_path / 'queue' / 'pending').glob('*.json'))
+
+
 def test_fresh_qualified_strict_opening_still_activates_live_monitor(tmp_path, monkeypatch):
     db = tmp_path / 'monitor.db'
     connection = sqlite3.connect(db); _ensure_schema(connection); connection.commit(); connection.close()
@@ -374,6 +441,8 @@ def test_service_continues_to_lifecycle_dispatch_after_optional_opening_unavaila
         def reconcile_stale_watchtower_pending_openings(self):
             return None
         def reconcile_exhausted_watchtower_strict_openings(self):
+            return None
+        def reconcile_exhausted_byzantine_provider_failures(self):
             return None
         def process_entry_reference_opening_once(self):
             return {'state': 'STRICT_OPENING_OPTIONAL_CAPABILITY_UNAVAILABLE'}

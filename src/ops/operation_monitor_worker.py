@@ -33,6 +33,10 @@ GLOBAL_OPENING_MIN_INTERVAL_SECONDS=15
 # the complete bounded acquisition budget for those two evidence outcomes.
 STRICT_OPENING_PROVIDER_MAX_ATTEMPTS=1
 _STRICT_OPENING_FINAL_MISS_CATEGORIES=frozenset({'TARGET_SECOND_ABSENT','NO_PROVIDER_ITEMS'})
+# A repeated Byzantine lifecycle request has no changing input after a provider
+# failure. Keep the failure evidence, but never turn an unchanged outcome into
+# an unbounded paid polling loop.
+BYZANTINE_PROVIDER_FAILURE_MAX_ATTEMPTS=1
 
 def _strict_opening_attempt_count(envelope:dict[str,Any])->int:
  """Return durable strict attempts, treating legacy diagnostics as one attempt.
@@ -63,6 +67,30 @@ def _seal_watchtower_strict_opening_budget(envelope:dict[str,Any])->dict[str,Any
          'monitor_state':'WAITING_FOR_ENTRY_REFERENCE',
          'next_entry_evaluation_at':None,
          'provider_ineligible_reason':'STRICT_OPENING_IMMUTABLE_MISS_BUDGET_EXHAUSTED'}
+
+def _byzantine_provider_failure_attempt_count(envelope:dict[str,Any])->int:
+ """Return durable Byzantine provider failures, including retained legacy evidence."""
+ try: explicit=max(0,int(envelope.get('byzantine_provider_failure_attempt_count') or 0))
+ except (TypeError,ValueError): explicit=0
+ legacy=1 if str(envelope.get('provider_outcome_reason') or '') else 0
+ return max(explicit,legacy)
+
+def _byzantine_provider_failure_budget_exhausted(envelope:dict[str,Any])->bool:
+ return (canonical_operation_id(str(envelope.get('operation_id') or ''))=='byzantine'
+         and _byzantine_provider_failure_attempt_count(envelope)>=BYZANTINE_PROVIDER_FAILURE_MAX_ATTEMPTS)
+
+def _seal_byzantine_provider_failure_budget(envelope:dict[str,Any],*,classification:str|None=None)->dict[str,Any]:
+ """Persist provider failure exhaustion without fabricating a monitor result."""
+ return {**envelope,
+         'byzantine_provider_failure_attempt_count':_byzantine_provider_failure_attempt_count(envelope),
+         'byzantine_provider_failure_attempt_budget':BYZANTINE_PROVIDER_FAILURE_MAX_ATTEMPTS,
+         'byzantine_provider_retry_state':'BUDGET_EXHAUSTED',
+         'monitor_state':'TERMINAL_PROVIDER_FAILURE',
+         'provider_outcome':'TERMINAL_FAILURE',
+         'provider_outcome_reason':str(classification or envelope.get('provider_outcome_reason') or 'BYZANTINE_PROVIDER_FAILURE')[:160],
+         'next_eligible_dispatch_at':None,
+         'recovery_deadline_at':None,
+         'provider_ineligible_reason':'BYZANTINE_PROVIDER_FAILURE_BUDGET_EXHAUSTED'}
 def _dev005_opening_only_fixture_mode() -> bool:
  """Suppress only downstream 15m dispatch in an explicitly isolated DEV fixture.
 
@@ -317,6 +345,17 @@ class MonitorQueue:
     if canonical_operation_id(str(envelope.get('operation_id') or ''))==operation_id and envelope.get('mint')==mint:
      matches.append((state,path,payload,envelope))
   return matches
+ def has_exhausted_byzantine_provider_failure(self, *, operation_id: str, mint: str) -> bool:
+  """A retained terminal Byzantine provider failure is a durable no-requeue marker."""
+  if canonical_operation_id(operation_id)!='byzantine': return False
+  for path in (self.queue.root/'dead_letter').glob('*.json'):
+   try: envelope=json.loads(path.read_text(encoding='utf-8')).get('envelope') or {}
+   except (OSError,ValueError,TypeError): continue
+   if (canonical_operation_id(str(envelope.get('operation_id') or ''))=='byzantine'
+       and envelope.get('mint')==mint
+       and str(envelope.get('byzantine_provider_retry_state') or '')=='BUDGET_EXHAUSTED'):
+    return True
+  return False
  def enqueue_active_fact_reconstruction(self, *, fact: dict[str,Any], now: int | None = None):
   """Restore one missing current projection from an active fact, without transport."""
   usd,native=fact.get('entry_mc_usd'),fact.get('entry_native_mc_sol')
@@ -547,6 +586,15 @@ class MonitorQueue:
   self.queue._replace_payload(claimed.path,payload)
   target=self.queue.root/'dead_letter'/claimed.path.name;os.replace(claimed.path,target)
   self.queue._fsync_directory(claimed.path.parent);self.queue._fsync_directory(target.parent)
+ def defer_bounded_byzantine_provider_failure(self,claimed,*,classification='BYZANTINE_PROVIDER_FAILURE'):
+  """Seal one Byzantine provider failure; it never becomes a generic retry."""
+  payload=dict(claimed.payload); prior=dict(payload.get('envelope') or {})
+  prior['byzantine_provider_failure_attempt_count']=_byzantine_provider_failure_attempt_count(prior)+1
+  envelope=_seal_byzantine_provider_failure_budget(prior,classification=classification)
+  payload['envelope']=envelope;payload['last_error']=str(classification)[:500];payload['last_attempt_at']=int(time.time())
+  self.queue._replace_payload(claimed.path,payload)
+  target=self.queue.root/'dead_letter'/claimed.path.name;os.replace(claimed.path,target)
+  self.queue._fsync_directory(claimed.path.parent);self.queue._fsync_directory(target.parent)
  def record_provider_success(self, *, now=None):
   """Conservative recovery: each success reduces shared 429 pressure by one."""
   timestamp=int(time.time() if now is None else now); prior=self.provider_backoff() or {}
@@ -677,6 +725,11 @@ def reconcile_qualified_monitor_fact_queue_projection(db_path: str, q: MonitorQu
   entry_state = 'WAITING_FOR_ENTRY_REFERENCE' if unresolved else ('ENTRY_REFERENCE_QUALIFIED' if usd is not None else 'NATIVE_QUALIFIED')
   matches = q.current_fact_identities(operation_id=fact['operation_id'], mint=fact['mint'])
   if not matches:
+   if q.has_exhausted_byzantine_provider_failure(operation_id=str(fact['operation_id']),mint=str(fact['mint'])):
+    # Reconstructing this durable terminal failure would reset the budget on
+    # every worker scan/restart and recreate paid work.
+    result['refused'] += 1
+    continue
    result['missing_identity'] += 1
    created=q.enqueue_active_fact_reconstruction(fact=fact,now=now)
    if created.get('status')!='ENQUEUED_ACTIVE_FACT_RECONSTRUCTION':
@@ -1261,6 +1314,22 @@ class MonitorWorker:
     os.replace(path,target);self.q.queue._fsync_directory(path.parent);self.q.queue._fsync_directory(target.parent)
     result['sealed']+=1
   return result
+ def reconcile_exhausted_byzantine_provider_failures(self):
+  """Seal legacy Byzantine provider failures before they can make another call."""
+  result={'examined':0,'sealed':0,'processing_deferred':0}
+  for state in ('pending','retry'):
+   for path in sorted((self.q.queue.root/state).glob('*.json')):
+    try: payload=json.loads(path.read_text(encoding='utf-8')); envelope=payload.get('envelope') or {}
+    except (OSError,ValueError,TypeError): continue
+    result['examined']+=1
+    if not _byzantine_provider_failure_budget_exhausted(envelope): continue
+    payload['envelope']=_seal_byzantine_provider_failure_budget(envelope)
+    payload['last_error']=str(payload['envelope']['provider_outcome_reason'])[:500]
+    self.q.queue._replace_payload(path,payload)
+    target=self.q.queue.root/'dead_letter'/path.name
+    os.replace(path,target);self.q.queue._fsync_directory(path.parent);self.q.queue._fsync_directory(target.parent)
+    result['sealed']+=1
+  return result
  def _process_terminal_ath(self,c):
   p=c.payload['envelope']
   try: finalizer=self.terminal_finalizer_factory(self.db_path,before_dispatch=self.q.admit_provider_dispatch)
@@ -1297,6 +1366,12 @@ class MonitorWorker:
     # entry inventory or admission can rebuild their identical paid request.
     if _watchtower_strict_opening_budget_exhausted(p):
      c.payload['envelope']=_seal_watchtower_strict_opening_budget(p)
+     self.q.queue._replace_payload(c.path,c.payload)
+     target=self.q.queue.root/'dead_letter'/c.path.name
+     os.replace(c.path,target);self.q.queue._fsync_directory(c.path.parent);self.q.queue._fsync_directory(target.parent)
+     continue
+    if _byzantine_provider_failure_budget_exhausted(p):
+     c.payload['envelope']=_seal_byzantine_provider_failure_budget(p)
      self.q.queue._replace_payload(c.path,c.payload)
      target=self.q.queue.root/'dead_letter'/c.path.name
      os.replace(c.path,target);self.q.queue._fsync_directory(c.path.parent);self.q.queue._fsync_directory(target.parent)
@@ -1473,6 +1548,9 @@ class MonitorWorker:
      continue
     if 'HTTP_429' in str(e) or 'Too many requests' in str(e):
      self.q.defer_rate_limited(c,error='HTTP_429')
+     continue
+    if canonical_operation_id(str(p.get('operation_id') or ''))=='byzantine':
+     self.q.defer_bounded_byzantine_provider_failure(c,classification=type(e).__name__+(':'+str(e) if str(e) else ''))
      continue
     # A completed provider write with a durable successor only needs an ACK
     # recovery. It is immediately eligible for that non-provider convergence.

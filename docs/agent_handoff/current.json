@@ -19278,4 +19278,16 @@
     "runtime_deployment_gate": "HOLD_RETAINED_EVIDENCE_IMPORT_AND_UI_CONFIGURATION_MISSING",
     "next_action": "AUTHORIZE_A_SMALL_CLEAN_RETAINED_INJECTOR_EVIDENCE_IMPORT_CONTRACT_AND_EXACT_READ_ONLY_UI_LEDGER_CONFIGURATION_BEFORE_DEPLOYMENT"
   }
+  ,"watchtower_retained_import_ui_config_20261006": {
+    "engineering_revision": "82a02acf92c1a709b93c34f4cf7237525148dc0a on origin/codex/watchtower-offset-audit-evidence",
+    "status": "PASS_RETAINED_IMPORT_AND_UI_CONFIG_CLEAN_COMMITTED",
+    "retained_source": "Immutable handoff commit bb9644bbd39c8f2f8d240b348acca72ce661289e, blob 96d87bbfdd7dc2c35adfb371b72ad8590f094969, records the single authorized Birdeye diagnostic: HTTP 200, strict [1791307928,1791307932] window, t/t+1 absent, t+2=1791307930 MC=134293.7821862771. The singleton contract hashes the compact evidence and pins operation/mint/canonical boundary/slot/signature/pool/provider/window/normalizer/method/exactness/offset.",
+    "import_contract": "src.ops.retained_injector_opening accepts only byte-identical pinned INJECTOR evidence, rejects altered identity or existing Entries, writes no provider state, and promotes only a pre-existing waiting fact to QUALIFIED/HISTORICAL_RECOVERY_ACQUIRING with BOUNDED_POST_MIGRATION_MC_FALLBACK, POST_MIGRATION_OFFSET_2S_OBSERVED_MC, and entry_offset_seconds=2. It never creates MONITORING_ACTIVE or arbitrary-price imports.",
+    "ui_config": "The actual product owner is src.ops.operator_routes, registered as the Operations blueprint. It reads WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH only in the read projection and nests opening_offset_audit separately. Missing/malformed ledger fails closed for audit evidence only and cannot write Entries/lifecycle/History.",
+    "qualification": "13 focused provider-free tests passed, 0 failed: immutable retained import, altered-evidence rejection, no duplicate import, bounded audit projection, and migration-second regression. No provider/runtime work occurred.",
+    "safety": "Birdeye=0; Helius=0; live database rows=0; runtime deployment=false; process restarts=0; audit ledger writes=0; raw provider payload retention=false.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "DEPLOY_EXACT_82A02ACF_IMPORT_INJECTOR_RUN_BOUNDED_LIFECYCLE_AND_ENABLE_AUDIT_UI"
+  }
 }

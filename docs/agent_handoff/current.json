@@ -1,4 +1,22 @@
 {
+  "watchtower_clean_authority_base_search_20261006": {
+    "status": "PASS_CLEAN_WATCHTOWER_AUTHORITY_BASE_FOUND",
+    "best_clean_base": "8897a5a22ec3f079a5973ae7e99048090b455e41",
+    "subject_date": "2026-10-06 Bound Byzantine provider failure retries",
+    "reachability": "codex/universal-price-monitor-import-recovery",
+    "candidates": [
+      {"sha":"8fa461e4dc32e4fde15639eb14a2c44a01fda43b","subject":"Remove lifecycle response capacity guard","worker":true,"finalizer":true,"assessment":"coherent older authority"},
+      {"sha":"b375707d72002d0ad594fb63aa0a493acebc1af2","subject":"Persist Watchtower waiting opening facts","worker":true,"finalizer":true,"assessment":"coherent older authority"},
+      {"sha":"16d98ce16385ecd521b0840ef31cf15a2e7008b2","subject":"Bound Watchtower strict opening retries","worker":true,"finalizer":true,"assessment":"coherent authority with bounded opening retry"},
+      {"sha":"8897a5a22ec3f079a5973ae7e99048090b455e41","subject":"Bound Byzantine provider failure retries","worker":true,"finalizer":true,"assessment":"newest discovered clean authority; retains the Watchtower repair lineage"}
+    ],
+    "authority_content": "MonitorWorker lifecycle/strict opening, Birdeye binding, 15m monitoring, waiting-fact repair, bounded strict opening retry, and WatchtowerTerminalAthFinalizer retained-OHLC terminal History authority are present. Worker MAX_BYTES=10,000,000 and no 8KiB response-capacity guard is present.",
+    "repair_inventory": "monitor compatibility=true; retry eligibility=true; authoritative Birdeye binding=true; 8K regression removed=true; waiting-fact repair=true; bounded opening retry=true.",
+    "missing_qualified_repairs": [],
+    "reconstruction_feasible": true,
+    "safety": "History/ref/tree inspection only. Original workspace mutation=0; existing clean worktree mutation=0; provider/deployment/runtime/COOK activity=0.",
+    "next_action": "CREATE_A_NEW_ISOLATED_FEATURE_WORKTREE_FROM_8897A5A2_AND_RECONSTRUCT_ONLY_THE_QUALIFIED_FEATURE_DELTA"
+  },
   "watchtower_hunk_recovery_20261006": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
     "status": "HOLD_UNPROVEN_SOURCE_OWNERSHIP_AT_SRC_OPS_OPERATION_MONITOR_WORKER_PY",

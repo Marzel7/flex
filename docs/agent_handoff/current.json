@@ -1,4 +1,17 @@
 {
+  "watchtower_clean_opening_acquisition_20261006": {
+    "base_sha": "c64eacb7148c9c2b0b1e22e601874847216a0658",
+    "engineering_revision": "7c298224dd9c159d7dfda56375e8e65169e19ec3 on codex/watchtower-executor-runtime",
+    "status": "PASS_CLEAN_COMMITTED_OPENING_BOUNDARY_READY",
+    "handoff_base": "277f6686",
+    "implementation": "Only existing HistoricalExecutor and commit-pinned launcher/test changed. Launcher no longer carries a real entry MC/timestamp/method; it supplies canonical COOK boundary only. HistoricalExecutor.acquire_opening creates one durable ownership record, uses existing BirdeyeProductionBinding/build_birdeye_ohlcv_request for exactly 1s [migration,migration+2), normalizes compact candles, invokes existing reduce_policy (+1 preferred, t only when +1 absent), persists only compact selected fields, and refuses replay/second attempt. Launcher then passes the selected entry to existing executor/range/FSM/terminal path.",
+    "verification": "18 focused provider-free tests passed, 0 failed (pytest cache permission warning only). Launcher E2E exercised one Opening plus six historical fake calls through COMPLETED; canonical boundary mismatch fails before executor. Existing selector/Policy-C/range/FSM/terminal/Playbook suite remains green.",
+    "contracts": "Opening max=1/no retry; historical max=12; total=13; no raw Opening payload; no new client/legacy fallback/range or FSM logic/terminal authority. Runtime entry authority is provider-derived rather than the prior test-only value.",
+    "safety": "Birdeye=0; Helius=0; real COOK/runtime/database writes=0; original workspace/Supervisor changes=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "AUTHORIZE_ISOLATED_DEV005A_COPY_AND_EXECUTE_COOK_WITH_ONE_OPENING_CALL_PLUS_BOUNDED_HISTORY"
+  },
   "watchtower_cook_fallback_entry_evidence_audit_20261006": {
     "engineering_sha": "c64eacb7148c9c2b0b1e22e601874847216a0658",
     "status": "HOLD_DIAGNOSTIC_NOT_AUTHORITATIVE_AND_NO_CLEAN_OPENING_REACQUISITION_PATH",

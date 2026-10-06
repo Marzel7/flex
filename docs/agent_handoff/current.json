@@ -18294,5 +18294,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Audit only; no executable behavior changed.",
     "exact_next_action": "KEEP_PLUS_ONE_UNCHANGED_AND_OBSERVE_MORE_POST_FIX_ASSIGNMENTS"
+  },
+  "watchtower_cook_controlled_fallback_experiment_20261006": {
+    "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 active DEV monitor credential binding; one authorized diagnostic GET",
+    "status": "PASS_NO_EARLY_SECOND_FALLBACK_AVAILABLE",
+    "request": "Exactly one Birdeye GET /defi/v3/ohlcv, MCAP/USD/range/padding=false/type=1s, address=COOK, time_from=1791269958 and time_to=1791269962. This is the minimum end-exclusive-style range that can inspect t through t+3 without a second request.",
+    "result": "HTTP 200. The compact normalized result contains exactly one item, timestamp 1791269958 (migration itself); no normalized +1=1791269959, +2=1791269960, or +3=1791269961 candle was returned. Therefore current strict selection remains TARGET_SECOND_ABSENT and the hypothetical +1/+2/+3 fallback is NO_ENTRY. There is no valid 1s candle after migration in the returned ordered set.",
+    "retention": "Raw provider response was not retained. Only HTTP status, normalized count, normalized timestamp list, and target-range rows (empty) were emitted. No secret, raw payload, price fact, Opening, LIVE state, queue state, or database row was written.",
+    "safety": "One COOK-only provider call; no retries and non-COOK provider calls=0. Source/database/runtime/queue/semantic changes=0; no process restart.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Diagnostic request only; no executable behavior changed.",
+    "exact_next_action": "KEEP_CURRENT_FAIL_CLOSED_RULE"
   }
 }

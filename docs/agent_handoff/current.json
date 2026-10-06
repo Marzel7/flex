@@ -1,4 +1,16 @@
 {
+  "watchtower_range_backfill_preflight_20261006": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; uncommitted workspace preflight revision",
+    "status": "PARTIAL_RANGE_POLICY_QUALIFIED_RUNTIME_RESTART_PENDING",
+    "finding": "Policy C is proven in src/ops/universal_incremental_window.py: POLICY_C_CHECKPOINTS is 0-2h/15m, 2-6h/30m, 6-12h/1h, and 12-24h/2h; policy_c_lifecycle_calls_through returns 28 at 24h. Watchtower lifecycle resolution is 15m in src/ops/watchtower_price_fact_contract.py. Existing historical_15m_reconstruction.py caps each range at 17 15m buckets and uses an exclusive [start,end) window, so exactly 96 15m positions over 24h require six deterministic ranges: five 17-bucket ranges and one 11-bucket range. This replaces the earlier seven-day/80-attempt assumption.",
+    "bounds": "Opening=1 request. Successful historical ranges=6. Existing per-range retry ceiling=1, thus maximum historical physical attempts=12 and maximum total=13. No pagination, adaptive expansion, or range past 24h. Raw provider retention=false; one-job/1MiB checkpoint cap remains.",
+    "cook_plan": "Window [1791270000,1791356400) with chunks [1791270000,1791285300), [1791285300,1791300600), [1791300600,1791315900), [1791315900,1791331200), [1791331200,1791346500), [1791346500,1791356400). COOK is not enqueued/executed. Entry remains timestamp 1791269958, MC 113464.45625213276, method MIGRATION_SECOND_MC_FALLBACK.",
+    "tests": "pytest -q tests/test_watchtower_migration_second_fallback.py tests/test_watchtower_fallback_backfill_qualification.py tests/test_historical_15m_reconstruction.py tests/test_universal_incremental_window.py: 23 passed, 0 failed. The fixture proves one 15m range series derives all 28 Policy-C checkpoints plus peak/final/multiple/drawdown/time-to-peak and DRAWDOWN_85 terminal evaluation without per-checkpoint HTTP.",
+    "safety": "New Birdeye=0; Helius=0; COOK/historical execution=0; runtime deployment=0; process restart=0; listener change=0; persistent database rows changed=0 outside temporary test databases.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "IMPLEMENT_AND_PROVIDER_FREE_QUALIFY_PER_RANGE_DURABLE_RESTART_RESUME_BEFORE_ANY_COOK_EXECUTION"
+  },
   "watchtower_fallback_provenance_and_backfill_preflight_20261006": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; uncommitted workspace qualification implementation",
     "status": "PARTIAL_PROVIDER_FREE_PROJECTION_AND_PREFLIGHT_QUALIFIED",

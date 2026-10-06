@@ -1,4 +1,26 @@
 {
+  "universal_incremental_window_explicit_source_review_20261006": {
+    "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 primary; d3b2136b secondary",
+    "status": "HOLD_CLASS_B_SHARED_UNTRACKED_UNIVERSAL_SURFACE",
+    "handoff_base": "5d37a63b",
+    "identity": {
+      "path": "src/ops/universal_incremental_window.py",
+      "sha1": "abe3abca8c9b039206f2c5a8d2b4b7f4b5ead404",
+      "sha256": "aa42e7f353865df15a7249e52ba8523cc3f585540bf691a67312f369b7364125",
+      "matches_prior_sha1_prefix": true,
+      "proven": true
+    },
+    "inventory": "Complete 78-line read-only audit. Constants: CADENCE_VERSION and POLICY_C_CHECKPOINTS. State model: frozen WindowState(last_successful_coverage_boundary, running peak/current MC/timestamps, cadence version, terminal). Public callables: policy_c_lifecycle_calls_through, next_checkpoint_at, reduce_checkpoint. Imports are dataclasses and typing only. No network client, provider binding, database, filesystem, serializer, queue, History, or runtime-configuration operation exists. reduce_checkpoint returns a provider_call advisory flag but does not perform a call.",
+    "ownership": "Physical-line attribution: directly-required Policy-C generic support=28 lines (module contract/constants and policy cadence helpers); separable unrelated universal state/reducer surface=50 lines (WindowState and reduce_checkpoint, plus associated spacing). Feature-owned lines=0; unproven lines=0. Watchtower historical backfill imports only POLICY_C_CHECKPOINTS, whereas universal_monitor_runtime.py, universal_provider_executor.py, and universal_provider_dispatcher.py each import the shared state/reducer API. All four consuming source modules are untracked in the dirty workspace.",
+    "dependency_closure": "Imports complete: __future__, dataclasses.dataclass, and typing.Any are standard library. dirty-only dependencies=0; unresolved dependencies=0. No other clean authority is required by this file itself.",
+    "contract": "Provider/network calls=false; unbounded provider/range/retry paths=0. Persistent or serialized objects created=none; raw-provider retention=false; single-job size above 1MiB=false; project 500MB rule compatible=true; unexpected mutation surfaces=0. The file does not implement durable range identities, PENDING/IN_PROGRESS/RETRYABLE/COMPLETED/FAILED_CLOSED, attempt persistence, completed-range skipping, or restart recovery; those are owned by watchtower_historical_backfill.py. It is non-conflicting with the 6-range, 17-bucket, two-attempt, 13-call, concurrency-one, priority, and size invariants, but cannot establish them.",
+    "tests_and_callsites": "Direct test file tests/test_universal_incremental_window.py is untracked and has four test definitions/six parametrized executions: qualified peak/current reduction, incomplete no-advance, budget/terminal no-call, and Policy-C 8/16/22/28 cadence. The qualified Watchtower backfill test maps range identity, retry/attempt bound, restart, completed-range skipping, failure isolation, idempotency, and size caps to watchtower_historical_backfill.py rather than this module. Static callsite inventory complete: historical backfill=1; direct test=1; unrelated universal runtime/executor/dispatcher=3. Unrelated callsite count=3.",
+    "decision": "UNIVERSAL_WINDOW_ADOPTION_CLASS=B. The exact file is locally safe but cannot be adopted wholesale as a Watchtower initial authority because 50 separable lines form a shared untracked universal-runtime API with three unrelated callers. Initial authority record is incomplete by design; source import/change=0.",
+    "safety": "Original workspace mutation=0; clean reconstruction worktree mutation=0; provider calls=0; COOK/historical execution=0; runtime deployment=0. Only this required handoff record is changed in the dedicated handoff worktree.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only explicit-source audit; no executable source changed.",
+    "next_action": "EXTRACT_ONLY_PROVEN_FEATURE_OWNED_PORTION_INTO_A_NEW_CLEAN_MODULE"
+  },
   "universal_incremental_window_provenance_audit_20261006": {
     "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 primary; d3b2136b secondary",
     "status": "HOLD_NO_CLEAN_TRACKED_AUTHORITY_EXISTS",

@@ -19056,5 +19056,21 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Audit only; no executable behavior changed.",
     "exact_next_action": "IMPLEMENT_FALLBACK_WITH_MANDATORY_PROVENANCE_EXPOSURE_AND_AGGREGATE_SEPARATION"
+  },
+  "watchtower_forward_recovery_opening_parity_20261006": {
+    "engineering_revision": "9deb475333459a39781659f75208bcddf41cee37 plus 7972e82e47f2ea8be4023c3f30c887780eacf229 on codex/watchtower-forward-repair; both pushed and remote verified",
+    "status": "PASS_LOCAL_FORWARD_OPENING_DEFECT_FIXED",
+    "trace": "Forward: operation_monitor_worker.MonitorBirdeyeTransport.acquire_watchtower_entry -> build_birdeye_ohlcv_request -> normalize_opening_ohlcv -> exact +1 then exactly-one t selection -> caller's existing fact boundary. Recovery: watchtower_historical_executor.HistoricalExecutor.acquire_opening -> same builder -> terminal_ath_finalizer._candles -> same normalize_opening_ohlcv -> exact +1 then exactly-one t selection -> compact qualified opening boundary.",
+    "request_comparison": "Endpoint/address/chart type/currency/resolution/mode/padding are identical Birdeye V3 mint-addressed MCAP/USD 1s range with padding=false. The only difference is time_to: forward [t,t+2] versus the diagnostic/recovery comparison [t,t+4).",
+    "normalizer_and_selector": "The shared normalizer accepts data.items and unixTime, unix_time, or timestamp; requires parseable full OHLC with invariants; sorts ascending; preserves duplicates for caller fail-closed selection. Both callers now prefer exactly one t+1, else allow exactly one t only when t+1 is absent, else fail closed. No +2/+3/nearest selection exists.",
+    "provider_free_matrix": "t-only=fallback; t+t+1=+1; B8S7/7iXZ shape t,t+2,t+3,t+4=fallback; all three timestamp aliases accepted; duplicate identical/conflicting t or t+1 fails closed; complete valid OHLC accepted, partial/malformed/zero/null invalid inputs rejected, and chronological/reverse/arbitrary item order has identical semantic result. COOK compact retained shape was sufficient for t-only replay and yields fallback in both paths.",
+    "defect_and_fix": "Old forward rejected a valid complete candle using the generic timestamp alias while recovery accepted it; old forward also accepted close-only partial OHLC. The shared normalizer fixes both by using recovery-grade aliases and strict complete-OHLC validation. Recovery duplicate-map collapse was replaced with cardinality-preserving fail-closed selection. No unproven provider/window fix was made.",
+    "window": "Changing t+2 to t+4 cannot change permitted entry timestamps locally: only t+1 or t are selectable. No local normalizer behavior depends on response length/window. Any availability difference is provider-side and unproven; recommendation=C (do not change the forward request window yet).",
+    "qualification": "20 focused provider-free tests passed: forward terminal gate, historical executor, migration-second fallback, and terminal adapter. Tests include shared timestamp alias/order and recovery duplicate-target fail-closed coverage. Raw payload retention remains disabled.",
+    "future_diagnostic": "On one next eligible natural migration, request the current/proposed forward contract and at most one immediate same-mint/same-t/same-credential comparison [t,t+4) request if necessary; retain only compact normalized count/timestamps/t and t+1 presence/HTTP/selection outcome. Never select +2/+3.",
+    "safety": "Birdeye=0; Helius=0; database rows=0; runtime deployment=false; process restarts=0; Batch2=false; full backfill=false; original workspace untouched. No new retention/growth path; the existing compact diagnostic remains bounded at 1KiB.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "DEPLOY_EXACT_CLEAN_SHA_AND_OBSERVE_NEXT_NATURAL_WATCHTOWER_OPENING"
   }
 }

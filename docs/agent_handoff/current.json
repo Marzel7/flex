@@ -18271,5 +18271,16 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS",
     "exact_next_action": "OBSERVE_NEXT_NATURAL_WATCHTOWER_ASSIGNMENT_END_TO_END"
+  },
+  "watchtower_cook_target_second_absent_forensic_20261006": {
+    "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 active DEV monitor source; read-only retained-evidence forensic",
+    "status": "HOLD_EXACT_RESPONSE_TIMESTAMPS_NOT_RETAINED",
+    "finding": "COOK HRinFbhZjrb2xoqSzxYCYKX7LqJ3H6pn42CURb2cpump has canonical migration time 1791269958 (2026-10-06T06:59:18Z), slot 453827661, PumpSwap pool 2AixyEkGyaAUdETArBCFSZ1Y8entwd99ptYxjbJL6NkD, and one strict Birdeye V3 OHLCV 1s request over [1791269958,1791269960]. The retained diagnostic proves HTTP 200, a parseable non-empty items array, and no normalized item timestamp equal to target 1791269959. The normalizer uses int(unixTime/unix_time) and exact equality; it does not round, floor, ceil, or select a neighbor. Compact failure retention intentionally omits the item count, normalized timestamp set, and candle values, so the exact provider-shape cause cannot be distinguished without a future authorized observation.",
+    "controls": "Post-fix controls CQP3cfwbUCfBJ6UUY6GS2pozcn6uNJv6WYYVAW2fpump and CNWXKgcbotCfhjSNgKPmqEcpCKZA19mvpmk5PHjRpump both retain qualified migration+1 entry timestamps. Their successful raw request manifests and returned timestamp sets were compacted, so the smallest retained difference is outcome only: controls have persisted exact target entries; COOK has target_timestamp_present=false.",
+    "retention_inventory": "Only opening_admission.json, the one COOK dead-letter envelope, provider_budget.json, and the migration census reference this mint. No later request/result with the target second exists. Raw provider payload retention remains disabled.",
+    "safety": "Read-only source/SQLite/compact-queue/log trace; source changes=0; database changes=0; provider calls=0; no retry, synthesized Opening, LIVE admission, consumer, Byzantine, or process action.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Forensic trace only; no executable behavior changed.",
+    "exact_next_action": "ADD_ONLY_MINIMAL_NORMALIZED_TIMESTAMP_DIAGNOSTIC_FOR_NEXT_FRESH_WATCHTOWER_ASSIGNMENT"
   }
 }

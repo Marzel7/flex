@@ -1,0 +1,26 @@
+{
+  "artifact": "watchtower-opening-offset-audit.v2",
+  "base_sha": "98d72e374002bcda0cbbc537a615e03f44a96e00",
+  "exception_count": 1,
+  "exception_test": "tests/test_watchtower_deep_historical.py::test_deep_review_ui_is_explicitly_noncanonical",
+  "base_reproduction": {
+    "result": "FAIL",
+    "reason": "MISSING_templates/operator_deep_review.html",
+    "exception_type": "PREEXISTING_BASELINE_FAILURE"
+  },
+  "feature_diff": {
+    "changed_failing_test": false,
+    "changed_missing_template_path": false,
+    "caused_regression": false
+  },
+  "template_authority": {
+    "classification": "B",
+    "first_tracked_template_commit": "a452eb94006e3aba37c9adc2d1962ee537603900",
+    "latest_clean_template_commit": "96b7add12844ba3eccbe7d9c9076aa3e99becf78",
+    "clean_authority_exists": true,
+    "interface_compatibility_proven": false,
+    "dependency_closure_proven": false,
+    "reason": "Tracked templates are later divergent product-lineage work and request /deep-review, which the base route contract does not provide."
+  },
+  "baseline_rule": "Exclude only this test from the Watchtower feature regression gate; no new regression is waived."
+}

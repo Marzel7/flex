@@ -19135,5 +19135,15 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_SINGLE_MINT_SOAK_BINDING_UNAVAILABLE_IN_EXACT_SHA",
     "next_action": "AUTHORIZE_A_MINIMAL_CLEAN_LAUNCHER_CHANGE_ALLOWING_AN_EXPLICIT_SINGLE-MINT_DEV_SOAK_SELECTION_PATH_THEN_REQUALIFY_AND_DEPLOY_A_NEW_EXACT_SHA"
+  },
+  "watchtower_injector_launcher_override_20261006": {
+    "engineering_revision": "71eb6751f65456420cb3c907fefb3e2b6f65458b on origin/codex/watchtower-two-attempt",
+    "status": "PASS_LAUNCHER_OVERRIDE_QUALIFIED_NOT_DEPLOYED",
+    "implementation": "The clean launcher now accepts only --dev-soak-selection PATH, validates the explicit JSON selection before credentials/runtime construction, and passes that path through its existing env -i boundary. Without the argument it retains the previous default selection path. Invalid explicit paths fail closed with no fallback. The committed artifact permits exactly INJECTOR and contains no secrets.",
+    "qualification": "Identity-only launcher run proved imports resolve solely under the clean worktree with the INJECTOR selection. Missing-path invocation failed closed. Twenty-two focused launcher/Watchtower tests passed; remote branch was pushed.",
+    "safety": "Provider calls=0; database rows=0; deployment/restarts=0; listener unchanged; INJECTOR migration/call=0; other Watchtower calls=0; full backfill=false.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "DEPLOY_EXACT_71EB6751_WORKER_ONLY_WITH_ITS_COMMITTED_INJECTOR_SELECTION_ARTIFACT_THEN_REVERIFY_RUNTIME_BEFORE_TARGETED_MIGRATION"
   }
 }

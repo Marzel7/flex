@@ -19328,5 +19328,15 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Read-only audit fixture and qualification only; no executable runtime target changed.",
     "next_action": "DEPLOY_FINAL_SHA_IMPORT_INJECTOR_RUN_HISTORY_ENABLE_96_ROW_UI_AND_RESUME_FORWARD_PLUS2"
+  },
+  "watchtower_isolated_supervisor_validation_20261006": {
+    "engineering_revision": "288be3388642e28ad487e8c353769a64916f9ed2 candidate worktree; live runtime revision 580508a70c80e7fc944e0069f85e67b851a117fa",
+    "status": "HOLD_POST_LOAD_STRUCTURAL_GATE_FAILED",
+    "finding": "A temporary-only Supervisor copy loaded successfully with 15 programs, all STOPPED/Not started and zero spawn markers. Before invocation, autostart=true count=0, autorestart=true count=0, live socket/PID/log reference counts=0, and live API bind risk=false. The temporary PID, socket, and logs were distinct and its daemon was shut down through its own socket. Live config SHA256 remained 674bd410544bacb9265d2428cd7d79968e01acd6fa8e1600274d2a19b4943467 and listener/API/monitor PIDs remained unchanged.",
+    "static_gate": "FAIL: candidate has operation_monitor_worker=0 and watchtower_api=0; it instead defines watchtower_final_monitor=1 and watchtower_final_ui=1. Candidate listener stanza also differs because inherited listener runtime log environment paths were intentionally redirected for isolation. The fragment uses environment-variable root indirection, so no literal exact deployment-root reference was present.",
+    "safety": "Provider calls=0; database/queue/injector writes=0; live Supervisor file writes=0; live Supervisor reread/update=0; live service state changes=0; isolated program starts=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_CANDIDATE_DOES_NOT_MEET_REQUIRED_PROGRAM_IDENTITY_AND_LITERAL_ROOT_STATIC_GATES",
+    "next_action": "AUTHORIZE_A_CLEAN_SOURCE_CHANGE_TO_DEFINE_EXACTLY_OPERATION_MONITOR_WORKER_AND_WATCHTOWER_API_WITH_THE_REQUIRED_DEPLOYMENT_ROOT_CONTRACT, THEN REPEAT_ISOLATED_VALIDATION_BEFORE_ANY_LIVE_REREAD"
   }
 }

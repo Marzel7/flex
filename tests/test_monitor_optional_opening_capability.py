@@ -252,7 +252,7 @@ def test_non_live_entry_never_reaches_transport(tmp_path):
 
 
 @pytest.mark.parametrize('category', ['TARGET_SECOND_ABSENT', 'NO_PROVIDER_ITEMS'])
-def test_legacy_watchtower_strict_miss_is_sealed_without_another_provider_call(tmp_path, category):
+def test_legacy_watchtower_strict_miss_is_not_sealed_before_second_chance(tmp_path, category):
     queue = MonitorQueue(tmp_path / 'queue', enabled=True)
     message_id = f'legacy-{category.lower()}'
     queue.queue.enqueue({
@@ -266,28 +266,16 @@ def test_legacy_watchtower_strict_miss_is_sealed_without_another_provider_call(t
     calls = []
     worker = MonitorWorker(queue, transport=lambda _: calls.append('provider'), db_path=str(tmp_path / 'unused.db'))
 
-    assert worker.reconcile_exhausted_watchtower_strict_openings()['sealed'] == 1
+    assert worker.reconcile_exhausted_watchtower_strict_openings()['sealed'] == 0
     assert calls == []
-    payload = json.loads((tmp_path / 'queue' / 'dead_letter' / f'{message_id}.json').read_text())
-    envelope = payload['envelope']
-    assert envelope['strict_opening_provider_attempt_count'] == 1
-    assert envelope['strict_opening_provider_attempt_budget'] == 1
-    assert envelope['strict_opening_retry_state'] == 'BUDGET_EXHAUSTED'
-    assert envelope['next_entry_evaluation_at'] is None
-
-    # A restart and the idempotent assignment identity cannot reactivate or reset it.
-    restarted = MonitorWorker(queue, transport=lambda _: calls.append('provider'), db_path=str(tmp_path / 'unused.db'))
-    assert restarted.reconcile_exhausted_watchtower_strict_openings()['sealed'] == 0
-    assert queue.queue.enqueue({'operation_id': 'watchtower', 'mint': message_id}, message_id=message_id) == message_id
-    assert len(list((tmp_path / 'queue' / 'dead_letter').glob('*.json'))) == 1
-    restarted.process_once()
-    assert calls == []
+    assert (tmp_path / 'queue' / 'pending' / f'{message_id}.json').exists()
 
 
-def test_fresh_watchtower_strict_miss_gets_one_durable_attempt_then_stops(tmp_path, monkeypatch):
+def test_fresh_watchtower_strict_miss_gets_exactly_two_durable_attempts_then_stops(tmp_path, monkeypatch):
     db = tmp_path / 'monitor.db'
     connection = sqlite3.connect(db); _ensure_schema(connection); connection.commit(); connection.close()
     queue = MonitorQueue(tmp_path / 'queue', enabled=True)
+    queue.admit_global_opening = lambda *_args, **_kwargs: {'admitted': True}
     queue.queue.enqueue({
         'operation_id': 'watchtower', 'mint': 'fresh-miss', 'cohort': 'PROSPECTIVE_MONITOR_COHORT',
         'entry_method': 'STRICT_MIGRATION_WINDOW', 'entry_reference_state': 'WAITING_FOR_ENTRY_REFERENCE',
@@ -298,19 +286,27 @@ def test_fresh_watchtower_strict_miss_gets_one_durable_attempt_then_stops(tmp_pa
         'result': 'ENTRY_EVIDENCE_ACQUISITION_DUE', 'entry_acquisition': {'migration_timestamp': 10},
     })
     calls = []
-    def strict_miss(**_kwargs):
-        calls.append('strict')
+    def strict_miss(**kwargs):
+        calls.append(kwargs['time_to_offset'])
         raise StrictEntryNormalizationError('TARGET_SECOND_ABSENT', {'failure_category': 'TARGET_SECOND_ABSENT', 'http_status': 200})
     monkeypatch.setattr(monitor_worker, 'dispatch_strict_migration_window', strict_miss)
     worker = MonitorWorker(queue, transport=lambda _: (_ for _ in ()).throw(AssertionError('NO_LIFECYCLE_PROVIDER_CALL')),
                            persist=_committing_writer(db), db_path=str(db))
 
     worker.process_once()
-    assert calls == ['strict']
-    payload = json.loads((tmp_path / 'queue' / 'dead_letter' / 'fresh-miss.json').read_text())
+    assert calls == [2]
+    pending = tmp_path / 'queue' / 'pending' / 'fresh-miss.json'
+    payload = json.loads(pending.read_text())
     assert payload['envelope']['strict_opening_provider_attempt_count'] == 1
+    assert payload['envelope']['strict_opening_retry_state'] == 'SECOND_CHANCE_PENDING'
+    payload['envelope']['next_entry_evaluation_at'] = 0
+    pending.write_text(json.dumps(payload))
     worker.process_once()
-    assert calls == ['strict']
+    assert calls == [2, 4]
+    payload = json.loads((tmp_path / 'queue' / 'dead_letter' / 'fresh-miss.json').read_text())
+    assert payload['envelope']['strict_opening_provider_attempt_count'] == 2
+    worker.process_once()
+    assert calls == [2, 4]
 
 
 def test_fresh_watchtower_without_prior_miss_is_not_sealed(tmp_path):

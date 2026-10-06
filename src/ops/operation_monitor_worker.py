@@ -26,12 +26,10 @@ _OHLCV_BUCKET_SECONDS=15*60
 # monitors and unrelated eligible work.  This is an aggregate admission gate,
 # not a replacement for DEV-012 or a per-token retry policy.
 GLOBAL_OPENING_MIN_INTERVAL_SECONDS=15
-# A strict migration Opening is immutable: every request for one assignment
-# addresses the same two-second [migration, migration+2] interval.  A 200
-# response stating that migration+1 is absent (or that the response is empty)
-# cannot become different through polling.  One durable attempt is therefore
-# the complete bounded acquisition budget for those two evidence outcomes.
-STRICT_OPENING_PROVIDER_MAX_ATTEMPTS=1
+# One normal Opening plus one delayed recovery Opening.  The second request is
+# wider for acquisition visibility only; the selector remains +1 then t.
+STRICT_OPENING_PROVIDER_MAX_ATTEMPTS=2
+STRICT_OPENING_SECOND_CHANCE_DELAY_SECONDS=60
 _STRICT_OPENING_FINAL_MISS_CATEGORIES=frozenset({'TARGET_SECOND_ABSENT','NO_PROVIDER_ITEMS'})
 # A repeated Byzantine lifecycle request has no changing input after a provider
 # failure. Keep the failure evidence, but never turn an unchanged outcome into
@@ -67,6 +65,17 @@ def _seal_watchtower_strict_opening_budget(envelope:dict[str,Any])->dict[str,Any
          'monitor_state':'WAITING_FOR_ENTRY_REFERENCE',
          'next_entry_evaluation_at':None,
          'provider_ineligible_reason':'STRICT_OPENING_IMMUTABLE_MISS_BUDGET_EXHAUSTED'}
+
+def _schedule_watchtower_strict_opening_recovery(envelope:dict[str,Any], *, now:int)->dict[str,Any]:
+ """Persist the sole eligible second attempt without sleeping or duplicating work."""
+ return {**envelope,
+         'strict_opening_provider_attempt_count':_strict_opening_attempt_count(envelope),
+         'strict_opening_provider_attempt_budget':STRICT_OPENING_PROVIDER_MAX_ATTEMPTS,
+         'strict_opening_retry_state':'SECOND_CHANCE_PENDING',
+         'entry_evaluation_result':'WAITING_FOR_ENTRY_REFERENCE',
+         'monitor_state':'WAITING_FOR_ENTRY_REFERENCE',
+         'next_entry_evaluation_at':int(now)+STRICT_OPENING_SECOND_CHANCE_DELAY_SECONDS,
+         'provider_ineligible_reason':'STRICT_OPENING_SECOND_CHANCE_PENDING'}
 
 def _byzantine_provider_failure_attempt_count(envelope:dict[str,Any])->int:
  """Return durable Byzantine provider failures, including retained legacy evidence."""
@@ -1394,22 +1403,32 @@ class MonitorWorker:
         c.payload['envelope']=p;self.q.queue._replace_payload(c.path,c.payload)
         target=self.q.queue.root/'pending'/c.path.name;os.replace(c.path,target);self.q.queue._fsync_directory(c.path.parent);self.q.queue._fsync_directory(target.parent)
         continue
+       prior_attempts=_strict_opening_attempt_count(p)
+       attempt_number=prior_attempts+1
+       window_offset=4 if attempt_number == 2 else 2
+       if attempt_number > STRICT_OPENING_PROVIDER_MAX_ATTEMPTS:
+        p=_seal_watchtower_strict_opening_budget(p)
+        c.payload['envelope']=p;self.q.queue._replace_payload(c.path,c.payload)
+        target=self.q.queue.root/'dead_letter'/c.path.name;os.replace(c.path,target);self.q.queue._fsync_directory(c.path.parent);self.q.queue._fsync_directory(target.parent)
+        continue
        try:
-        strict=dispatch_strict_migration_window(queue=self.q,transport=self.transport,mint=p['mint'],migration_timestamp=int(evaluation['entry_acquisition']['migration_timestamp']))
+        strict=dispatch_strict_migration_window(queue=self.q,transport=self.transport,mint=p['mint'],migration_timestamp=int(evaluation['entry_acquisition']['migration_timestamp']),time_to_offset=window_offset)
         first,manifest=strict['entry'],strict['manifest']
        except StrictEntryNormalizationError as error:
         # A strict opening miss is pending evidence, not a generic provider
         # retry.  Keeping it on the explicit entry deadline prevents the
         # worker loop from turning one missing migration+1 candle into a
         # per-tick acquisition stream.
-        request=strict_migration_plan(mint=p['mint'],migration_timestamp=int(evaluation['entry_acquisition']['migration_timestamp']))
+        request=strict_migration_plan(mint=p['mint'],migration_timestamp=int(evaluation['entry_acquisition']['migration_timestamp']),time_to_offset=window_offset)
         p.update({'entry_evaluation_result':'WAITING_FOR_ENTRY_REFERENCE','monitor_state':'WAITING_FOR_ENTRY_REFERENCE','opening_failure_reason':error.category,
                   'strict_opening_failure_diagnostic':strict_opening_failure_diagnostic(request=request,provider_diagnostic=error.diagnostic,credential_alias='BIRDEYE',job_identity=c.message_id,attempt_timestamp=int(time.time())),
-                  'next_entry_evaluation_at':int(time.time())+60})
+                  'strict_opening_provider_attempt_count':attempt_number,
+                  'strict_opening_provider_attempt_budget':STRICT_OPENING_PROVIDER_MAX_ATTEMPTS,
+                  'strict_opening_attempt_number':attempt_number,
+                  'strict_opening_request_window':[int(request['time_from']),int(request['time_to'])],
+                  'next_entry_evaluation_at':int(time.time())+STRICT_OPENING_SECOND_CHANCE_DELAY_SECONDS})
         if canonical_operation_id(str(p.get('operation_id') or ''))=='watchtower' and error.category in _STRICT_OPENING_FINAL_MISS_CATEGORIES:
-         p['strict_opening_provider_attempt_count']=_strict_opening_attempt_count(p)
-         p['strict_opening_provider_attempt_budget']=STRICT_OPENING_PROVIDER_MAX_ATTEMPTS
-         p=_seal_watchtower_strict_opening_budget(p)
+         p=_seal_watchtower_strict_opening_budget(p) if attempt_number >= STRICT_OPENING_PROVIDER_MAX_ATTEMPTS else _schedule_watchtower_strict_opening_recovery(p,now=int(time.time()))
         capability=monitor_capability_for_operation(str(p.get('operation_id') or '')) or {}
         if capability.get('persist_waiting_entry_fact') is True:
          self._persist_waiting_entry_fact(p,{'result':'WAITING_FOR_ENTRY_REFERENCE','reason':error.category,'next_entry_evaluation_at':p['next_entry_evaluation_at']})

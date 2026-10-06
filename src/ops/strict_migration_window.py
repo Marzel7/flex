@@ -105,30 +105,32 @@ def _identity(value: Mapping[str, Any]) -> str:
     return hashlib.sha256(json.dumps(dict(value), sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
-def plan(*, mint: str, migration_timestamp: int) -> dict[str, Any]:
-    """Return the sole permitted two-second request window and its identity."""
+def plan(*, mint: str, migration_timestamp: int, time_to_offset: int = 2) -> dict[str, Any]:
+    """Return a bounded acquisition window; selection remains t+1 then t only."""
     if not isinstance(mint, str) or not mint:
         raise ValueError("STRICT_MIGRATION_MINT_REQUIRED")
     if not isinstance(migration_timestamp, int) or migration_timestamp <= 0:
         raise ValueError("STRICT_MIGRATION_TIMESTAMP_REQUIRED")
+    if time_to_offset not in {2, 4}:
+        raise ValueError("STRICT_MIGRATION_WINDOW_OFFSET_REQUIRED")
     request = {
         "request_family": STRICT_MIGRATION_WINDOW_1S,
         "mint": mint,
         "migration_timestamp": migration_timestamp,
         "requested_entry_second": migration_timestamp + REQUESTED_ENTRY_SECOND_OFFSET,
         "time_from": migration_timestamp,
-        "time_to": migration_timestamp + 2,
+        "time_to": migration_timestamp + time_to_offset,
     }
     return {**request, "request_id": _identity(request)}
 
 
-def dispatch(*, queue: Any, transport: Any, mint: str, migration_timestamp: int) -> dict[str, Any]:
+def dispatch(*, queue: Any, transport: Any, mint: str, migration_timestamp: int, time_to_offset: int = 2) -> dict[str, Any]:
     """Use the existing Monitor transport after the existing DEV-012 gate.
 
     ``acquire_watchtower_entry`` remains the one implementation of request
     construction, 1-second parsing, strict selection and 429 mapping.
     """
-    request = plan(mint=mint, migration_timestamp=migration_timestamp)
+    request = plan(mint=mint, migration_timestamp=migration_timestamp, time_to_offset=time_to_offset)
     queue.admit_provider_dispatch(mint, "OPENING")
     entry, manifest = transport.acquire_watchtower_entry(
         {"mint": mint},

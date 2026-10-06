@@ -19072,5 +19072,15 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "DEPLOY_EXACT_CLEAN_SHA_AND_OBSERVE_NEXT_NATURAL_WATCHTOWER_OPENING"
+  },
+  "watchtower_two_attempt_forward_deployment_preflight_20261006": {
+    "engineering_revision": "7972e82e47f2ea8be4023c3f30c887780eacf229 inspected exactly; no deployment performed",
+    "status": "HOLD_DEPLOY_SHA_DOES_NOT_CONTAIN_AUTHORIZED_TWO_ATTEMPT_POLICY",
+    "finding": "The exact deployment SHA has STRICT_OPENING_PROVIDER_MAX_ATTEMPTS=1. Its final-miss categories TARGET_SECOND_ABSENT and NO_PROVIDER_ITEMS are sealed with strict_opening_retry_state=BUDGET_EXHAUSTED and no next evaluation. Therefore it cannot deliver MAX_FORWARD_OPENING_PROVIDER_CALLS_PER_TOKEN=2, a durable delayed second attempt, restart-safe two-attempt accounting, or the authorized second [t,t+4) request.",
+    "runtime_preflight": "Clean worktree HEAD exactly matches 7972e82e47f2ea8be4023c3f30c887780eacf229 and is clean. Existing Watchtower services remain running: watchtower_listener PID 77852 and watchtower_api PID 45753. Neither was restarted. operation_monitor_service is not a supervisor process.",
+    "safety": "Birdeye=0; Helius=0; database rows=0; source changes=0; service restarts=0; runtime deployment=false; raw provider payload retention=false; Batch2/full backfill=false; original workspace untouched.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_EXACT_DEPLOYMENT_AUTHORITY_POLICY_MISMATCH",
+    "next_action": "AUTHORIZE_A_NEW_CLEAN_COMMIT_IMPLEMENTING_AND_PROVIDER_FREE_QUALIFYING_THE_DURABLE_TWO_ATTEMPT_FORWARD_OPENING_POLICY_THEN_DEPLOY_THAT_EXACT_NEW_SHA"
   }
 }

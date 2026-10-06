@@ -19348,5 +19348,15 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "LIVE_TWO_PROGRAM_SUPERVISOR_MIGRATION_AND_FINAL_PRICE_LIVE_ACCEPTANCE_USING_6D1BBB2578258BD99E6A4C82E1C9EC0ADD5FEDF8"
+  },
+  "watchtower_live_two_program_migration_20261006": {
+    "engineering_revision": "6d1bbb2578258bd99e6a4c82e1c9ec0add5fedf8",
+    "status": "HOLD_SUPERVISOR_REREAD_CHILDLOGDIR_INCLUDE_PATH_MISSING",
+    "finding": "Dry-run and effective candidate passed exactly-one worker/API and no-alias gates. The installer applied a byte-backed config, but supervisorctl reread rejected it before update: childlogdir resolves relative to the newly introduced include directory and /Users/kevinkeaveney/.codex/supervisor-watchtower/../../logs/supervisor does not exist. No update occurred.",
+    "rollback": "Installer rollback restored the live config SHA256 to 674bd410544bacb9265d2428cd7d79968e01acd6fa8e1600274d2a19b4943467, matching pre-apply. Rollback removes its one-time backup by design. Listener/API/worker remained RUNNING with original PIDs 77852/45753/54058.",
+    "safety": "No provider calls; database/queue/injector writes=0; Supervisor update=0; service restarts=0; forward activation=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_FIX_INCLUDE_SAFE_SUPERVISOR_LOG_PATH_RENDERING_AND_REPEAT_FROM_DRY_RUN",
+    "next_action": "AUTHORIZE_INFRASTRUCTURE_ONLY_CORRECTION_FOR_ABSOLUTE_OR_INCLUDE_SAFE_SUPERVISOR_LOG_PATHS_THEN_REPEAT_LIVE_TWO_PROGRAM_MIGRATION"
   }
 }

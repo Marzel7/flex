@@ -19255,4 +19255,17 @@
     "runtime_deployment_gate": "PASS_ISOLATED_ONE_SHOT_AUDIT_RUNTIME",
     "next_action": "REVIEW_THE_TWELVE_NO_EARLY_CANDLE_TOKENS_SEPARATELY_BEFORE_ANY_LIVE_POLICY_CHANGE"
   }
+  ,"watchtower_plus2_policy_read_only_audit_ui_20261006": {
+    "engineering_revision": "165d576dc0e0c0a9fbca915667f36eb53b5a9bb6 on origin/codex/watchtower-offset-audit-evidence",
+    "status": "PASS_PLUS2_POLICY_AND_READ_ONLY_AUDIT_UI_QUALIFIED",
+    "policy": "The shared strict reducer now allows only t+1, then t when t+1 is absent, then t+2 when both earlier offsets are absent. +3/+4/nearest/unbounded values fail closed. +2 uses entry_method=BOUNDED_POST_MIGRATION_MC_FALLBACK, entry_exactness=POST_MIGRATION_OFFSET_2S_OBSERVED_MC, and a durable entry_offset_seconds=2 field. Ambiguous target duplicates fail closed in the existing normalizer path.",
+    "historical_replay": "Provider-free replay of the retained audit result remains 84 qualified / 12 unqualified (87.50%). Exact simulated +2 cohort is INJECTOR, 4Z9eH1BCuq2Y6FFRXkZft9LoxwMqQWo7bJsEbcd7pump, and 59F95Wkn5LRpiKmG2FE3g87Lzkz4redvNJNKSi1Npump. +3 incremental=0; +4 incremental=0. Controls preserve 42iY=+1 and COOK/B8S7/7iXZ=t, with INJECTOR simulated +2.",
+    "product": "The optional WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH is read only. Its nested opening_offset_audit projection carries audit version, canonical migration timestamp, t..t+4 presence, current/proposed classification, simulated timestamp/MC/offset, and clear audit labels. It never populates or overwrites Entry fields, facts, lifecycle, or History. The UI labels +2 only as Historical audit candidate: +2 and renders no-candle evidence without synthetic price data.",
+    "qualification": "35 focused provider-free Watchtower tests passed, 0 failed: historical executor, terminal adapter, Policy C, Cook launcher, existing UI, migration-second fallback, and offset-audit projection/policy tests. Pytest emitted only sandbox cache-permission warnings.",
+    "storage": "Audit integration reads the existing capped ledger only; no new DB table, raw payload retention, or unbounded file path. Ledger bounds remain 128 records, 2,048 bytes/record, 262,144 bytes final, and 524,288 bytes transient.",
+    "safety": "Birdeye=0; Helius=0; historical recovery jobs=0; Injector reactivation=0; source workspace/runtime database/queue writes=0; Supervisor/listener changes=0; process restarts=0. The active worker remains on 71eb6751 and was not deployed with this commit.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "SHADOW_VALIDATE_PLUS2_ON_NEW_NATURAL_WATCHTOWER_TOKENS_BEFORE_LIVE_ACTIVATION"
+  }
 }

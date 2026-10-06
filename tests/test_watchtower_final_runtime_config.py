@@ -8,4 +8,4 @@ def test_ledger_identity_and_runtime_modules():
 def test_supervisor_definitions_use_only_runtime_root_and_authority_guards():
     text=(ROOT/'config/supervisor/watchtower_final_runtime.conf').read_text(); wrapper=(ROOT/'scripts/launch_watchtower_final.sh').read_text()
     assert 'WATCHTOWER_FINAL_ROOT' in text and 'watchtower_listener' not in text
-    assert 'verify_watchtower_final_runtime.py' in wrapper and 'watchtower-two-attempt' not in wrapper
+    assert 'verify_watchtower_final_runtime.py' in wrapper and 'gunicorn' in wrapper and 'watchtower-two-attempt' not in wrapper

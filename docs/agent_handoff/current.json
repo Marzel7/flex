@@ -1,4 +1,16 @@
 {
+  "watchtower_durable_job_completion_repair_20261006": {
+    "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 plus uncommitted isolated reconstruction",
+    "status": "PARTIAL_DURABLE_JOB_COMPLETION_PROVEN_FULL_FINAL_QUALIFICATION_PENDING",
+    "handoff_base": "cbc32d6e",
+    "implementation": "watchtower_historical_backfill_jobs now has compact durable state and terminal_result_json fields. The finite transition is ACQUIRING -> TERMINAL_COMMIT_PENDING -> COMPLETED. mark_acquisition_complete permits the provider-ownership closure only after every persisted required range is COMPLETED. complete_after_terminal_history invokes only retained-OHLC terminal materialization after that closure, then persists COMPLETED. Replays of COMPLETED return without terminal or provider work.",
+    "verification": "pytest -q tests/test_watchtower_policy_c.py tests/test_watchtower_migration_second_fallback.py tests/test_watchtower_terminal_adapter.py: 7 passed, 0 failed. The added job test proves six durable ranges, zero-provider terminal completion, durable COMPLETED state, and zero-provider completed replay.",
+    "incomplete": "No injected crash-before/during/after terminal persistence tests, no API aggregate fixture, no COOK full-history fixture, and no full focused suite have been added. Consequently terminal crash duplication counters, full feature parity, engineering commit/push, and deployment are not claimed.",
+    "safety": "Original workspace remains unchanged at 3627 dirty entries; only isolated reconstruction worktree changed; provider calls=0; COOK/backfill execution=0; runtime/database/process changes=0; raw payload retention=false; 1MiB admission cap remains.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "ADD_PROVIDER_FREE_CRASH_INJECTION_API_AGGREGATE_AND_COOK_FULL_HISTORY_QUALIFICATION_BEFORE_THE_SINGLE_ENGINEERING_COMMIT"
+  },
   "watchtower_final_qualification_audit_20261006": {
     "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 plus uncommitted isolated reconstruction",
     "status": "HOLD_AT_DURABLE_HISTORICAL_JOB_COMPLETION_ORDER",

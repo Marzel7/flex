@@ -19116,5 +19116,15 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_TARGETED_LEGACY_SECOND_CHANCE_PATH_REQUIRED",
     "next_action": "IMPLEMENT_AND_PROVIDER_FREE_QUALIFY_A_TARGETED_IDEMPOTENT_LEGACY_FIRST_ATTEMPT_REACTIVATION_FOR_EXACTLY_AUTHORIZED_INJECTOR_THEN_REVERIFY_CLEAN_COMMIT_BEFORE_DEPLOYMENT"
+  },
+  "watchtower_injector_targeted_legacy_migration_20261006": {
+    "engineering_revision": "3ede52b9fb6f3520bdd68235c1cb902efc43cbdb on origin/codex/watchtower-two-attempt; based on 3cff72e06054786aa4aa072fdecbbddf87593371",
+    "status": "PASS_TARGETED_LEGACY_MIGRATION_QUALIFIED_NOT_DEPLOYED",
+    "implementation": "reactivate_legacy_watchtower_second_chance permits only the singleton INJECTOR mint, verifies the retained Watchtower waiting/no-entry/no-LIVE fact, exact canonical migration timestamp, one retained eligible first failure, and the exact dead-letter envelope. It preserves attempt_count=1, moves the same identity to delayed second-chance pending, makes no provider call, and returns idempotently if already pending. All other mints and incompatible state fail closed.",
+    "qualification": "39 focused Watchtower tests passed, including wrong-mint rejection, exact migration, retained count preservation, pending idempotency, and no duplicate queue identity. Remote branch SHA was verified.",
+    "safety": "Provider calls=0; database rows=0; runtime deployment=false; restarts=0; listener unchanged; COOK/B8S7/7iXZ untouched; raw payload retention=false; full backfill=false.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "AUTHORIZE_AND_APPLY_THE_EXACT_WORKER_ONLY_DEPLOYMENT_TARGET_AND_SINGLE-MINT_DEV_SOAK_ALLOWLIST_THEN_REVERIFY_RUNTIME_BEFORE_THE_ONE_AUTHORIZED_INJECTOR_ATTEMPT"
   }
 }

@@ -1,4 +1,13 @@
 {
+  "watchtower_three_token_opening_recovery_preflight_20261006": {
+    "engineering_revision": "a433c67698778ce02be30a4eae90aa7e3f0f8e26 clean authority inspected; no execution started",
+    "status": "HOLD_RECOVERY_COHORT_COUNT_MISMATCH",
+    "finding": "The authoritative DEV005A post-window facts contain exactly four natural assignments: three WAITING_FOR_ENTRY_REFERENCE strict misses (COOK HRinF... at t=1791269958, B8S7... at t=1791287674, and 7iXZ... at t=1791294235) and one already-qualified +1 entry (42iY... at t=1791298716). The requested authorization excludes COOK while requiring three missing tokens. That leaves only B8S7 and 7iXZ; 42iY is not eligible for recollection because it is PRICE_MONITOR_COMPLETE_COLLAPSED with a qualified Entry. No authoritative third non-COOK missing Opening exists in the specified completed four-token audit.",
+    "safety": "CLEAN_GIT_AUTHORITY_PREFLIGHT_PASS=true; BIRDEYE calls=0; Helius calls=0; database writes=0; source changes=0; runtime deployment=false; process restarts=0; no COOK action; no Batch 2/backfill.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "The bounded execution gate stopped at its required cohort-count precondition before any request.",
+    "next_action": "AUTHORIZE_AN_EXACT_THIRD_MINT_OR_AMEND_THE_RECOVERY_COHORT_TO_THE_TWO_PROVEN_NON_COOK_MISSES"
+  },
   "watchtower_forward_opening_vs_historical_t_audit_20261006": {
     "engineering_revision": "forward runtime 8897a5a22ec3f079a5973ae7e99048090b455e41; later historical executor e6da55a7b6d57d93a0e6de02c3d6c1140b39a1c6; future diagnostic a433c67698778ce02be30a4eae90aa7e3f0f8e26 not deployed",
     "status": "HOLD_FORWARD_OPENING_CAUSE_UNPROVEN",

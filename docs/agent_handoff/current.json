@@ -1,4 +1,16 @@
 {
+  "watchtower_real_cook_batch1_import_failure_20261006": {
+    "engineering_sha": "7c298224dd9c159d7dfda56375e8e65169e19ec3",
+    "status": "HOLD_RUNTIME_AUTHORITY_FAILURE_COMMITTED_LAUNCHER_IMPORT_ROOT",
+    "handoff_base": "215f923e",
+    "database": "Safe SQLite backup created at /private/tmp/watchtower-cook-batch1-7c298224.dev.db from DEV005A source /Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db. Source SHA-256 before and after is 1b4ebe0918cb0e2ea2d2b968adb822d2b951bde24814f9d48c480b242045724a; source writes=0. Target size=1,073,152 bytes (<500MB).",
+    "preflight": "Exact source worktree was clean at 7c298224dd9c159d7dfda56375e8e65169e19ec3 and committed authority preflight passed. The committed launcher was invoked from that worktree with explicit COOK enablement, COOK mint, and isolated target DB.",
+    "failure": "Before job admission or provider binding, scripts/run_watchtower_historical_executor.py raised ModuleNotFoundError: No module named 'src' in launch_cook. The launcher sets os.environ['PYTHONPATH'] only after the interpreter initializes sys.path, so it cannot import its own clean source when invoked as a script. No source hotfix was made during execution.",
+    "safety": "Birdeye=0; Helius=0; COOK job=0; isolated target DB contains only snapshot data; source DB/original workspace/supervisor/listener unchanged; Batch2/Batch3/full backfill=false; executor process exited.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_COMMITTED_LAUNCHER_IMPORT_ROOT_FAILURE",
+    "next_action": "FIX_ONLY_THE_COMMIT_PINNED_LAUNCHER_IMPORT_ROOT_BOOTSTRAP_THEN_PROVIDER_FREE_REQUALIFY_COMMIT_AND_REMOTE_VERIFY"
+  },
   "watchtower_clean_opening_acquisition_20261006": {
     "base_sha": "c64eacb7148c9c2b0b1e22e601874847216a0658",
     "engineering_revision": "7c298224dd9c159d7dfda56375e8e65169e19ec3 on codex/watchtower-executor-runtime",

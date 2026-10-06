@@ -19319,4 +19319,14 @@
     "runtime_deployment_reason": "Read-only fixture composition only; no executable runtime target was changed.",
     "next_action": "RESTORE_OR_EXCLUDE_THE_BASE_MISSING_DEEP_REVIEW_TEMPLATE_TEST_THEN_RERUN_FULL_WATCHTOWER_REGRESSION_BEFORE_CLEAN_AUDIT_COMMIT"
   }
+  ,"watchtower_96_record_offset_ledger_baseline_resolution_20261006": {
+    "engineering_revision": "b362e3be3739737171e25600807536287caa2895 on origin/codex/watchtower-96-ledger; remote verified",
+    "status": "PASS_PREEXISTING_BASELINE_EXCEPTION_AND_96_LEDGER_COMMITTED",
+    "finding": "An untouched 98d72e37 checkout reproduces exactly one failure: test_deep_review_ui_is_explicitly_noncanonical raises TemplateNotFound for templates/operator_deep_review.html. The ledger feature changes neither that test nor the missing path. Clean template history exists, but first tracked a452eb94 through latest 96b7add1 is a later divergent product line whose template calls /deep-review, unavailable from the base route contract; it was correctly not imported. The committed baseline-exception record excludes exactly that test. Focused suite passed 23/23; raw full suite was 92 passed, one known failure; exception-qualified full Watchtower suite passed 92 with one deselection.",
+    "audit": "docs/audits/watchtower-opening-offset-audit.v2.json sha256 ad75e5e910662d0259ca095df9e7ae20501136dc0a8d09ccfec62d1e9273b5b8; docs/audits/watchtower_96_ledger_baseline_exception.v1.json",
+    "safety": "Provider calls=0; Entry/history/lifecycle/queue writes=0; live database rows=0; process restarts=0; runtime deployment=false; raw provider payload retention=false.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only audit fixture and qualification only; no executable runtime target changed.",
+    "next_action": "DEPLOY_FINAL_SHA_IMPORT_INJECTOR_RUN_HISTORY_ENABLE_96_ROW_UI_AND_RESUME_FORWARD_PLUS2"
+  }
 }

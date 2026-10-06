@@ -271,6 +271,24 @@ def test_legacy_watchtower_strict_miss_is_not_sealed_before_second_chance(tmp_pa
     assert (tmp_path / 'queue' / 'pending' / f'{message_id}.json').exists()
 
 
+def test_only_injector_legacy_dead_letter_can_be_reactivated_once(tmp_path):
+    db = tmp_path / 'monitor.db'
+    connection = sqlite3.connect(db); _ensure_schema(connection)
+    mint = '3yvK6WWww1moF3qx3UvHngZCHy9kRCVd9Jva8tRrpump'
+    connection.execute("INSERT INTO operation_monitor_facts(operation_id,mint,cohort_class,entry_method,entry_status,entry_exactness,monitor_state,provenance_digest,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)", ('watchtower', mint, 'PROSPECTIVE_MONITOR_COHORT', 'FIRST_FULL_POST_MIGRATION_SECOND_MC', 'WAITING_FOR_ENTRY_REFERENCE', 'UNQUALIFIED', 'WAITING_FOR_ENTRY_REFERENCE', 'fixture', 1, 1))
+    connection.commit(); connection.close()
+    queue = MonitorQueue(tmp_path / 'queue', enabled=True)
+    envelope = {'operation_id':'watchtower','mint':mint,'monitor_state':'WAITING_FOR_ENTRY_REFERENCE','opening_failure_reason':'TARGET_SECOND_ABSENT','strict_opening_failure_diagnostic':{'failure_category':'TARGET_SECOND_ABSENT'},'strict_opening_provider_attempt_count':1,'entry_acquisition_request':{'migration_timestamp':1791307928}}
+    queue.queue.enqueue(envelope, message_id='injector'); (tmp_path / 'queue' / 'pending' / 'injector.json').replace(tmp_path / 'queue' / 'dead_letter' / 'injector.json')
+    result = monitor_worker.reactivate_legacy_watchtower_second_chance(queue, str(db), mint=mint, migration_timestamp=1791307928, now=10)
+    assert result['state'] == 'SECOND_CHANCE_PENDING'
+    payload = json.loads((tmp_path / 'queue' / 'pending' / 'injector.json').read_text())['envelope']
+    assert payload['strict_opening_provider_attempt_count'] == 1 and payload['next_entry_evaluation_at'] == 70
+    assert monitor_worker.reactivate_legacy_watchtower_second_chance(queue, str(db), mint=mint, migration_timestamp=1791307928, now=20)['state'] == 'ALREADY_SECOND_CHANCE_PENDING'
+    with pytest.raises(ValueError, match='MINT_NOT_AUTHORIZED'):
+        monitor_worker.reactivate_legacy_watchtower_second_chance(queue, str(db), mint='other', migration_timestamp=1, now=20)
+
+
 def test_fresh_watchtower_strict_miss_gets_exactly_two_durable_attempts_then_stops(tmp_path, monkeypatch):
     db = tmp_path / 'monitor.db'
     connection = sqlite3.connect(db); _ensure_schema(connection); connection.commit(); connection.close()

@@ -30,6 +30,7 @@ GLOBAL_OPENING_MIN_INTERVAL_SECONDS=15
 # wider for acquisition visibility only; the selector remains +1 then t.
 STRICT_OPENING_PROVIDER_MAX_ATTEMPTS=2
 STRICT_OPENING_SECOND_CHANCE_DELAY_SECONDS=60
+LEGACY_SECOND_CHANCE_MINTS=frozenset({'3yvK6WWww1moF3qx3UvHngZCHy9kRCVd9Jva8tRrpump'})
 _STRICT_OPENING_FINAL_MISS_CATEGORIES=frozenset({'TARGET_SECOND_ABSENT','NO_PROVIDER_ITEMS'})
 # A repeated Byzantine lifecycle request has no changing input after a provider
 # failure. Keep the failure evidence, but never turn an unchanged outcome into
@@ -76,6 +77,38 @@ def _schedule_watchtower_strict_opening_recovery(envelope:dict[str,Any], *, now:
          'monitor_state':'WAITING_FOR_ENTRY_REFERENCE',
          'next_entry_evaluation_at':int(now)+STRICT_OPENING_SECOND_CHANCE_DELAY_SECONDS,
          'provider_ineligible_reason':'STRICT_OPENING_SECOND_CHANCE_PENDING'}
+
+def reactivate_legacy_watchtower_second_chance(queue, db_path:str, *, mint:str, migration_timestamp:int, now:int|None=None)->dict[str,Any]:
+ """Move the one explicitly authorized legacy first miss to its second chance.
+
+ The dead-letter identity remains the sole queue identity; this never creates
+ a new job and rejects every mint except the declared singleton allowlist.
+ """
+ if mint not in LEGACY_SECOND_CHANCE_MINTS: raise ValueError('LEGACY_SECOND_CHANCE_MINT_NOT_AUTHORIZED')
+ stamp=int(time.time() if now is None else now)
+ with _read_only_connection(db_path) as con:
+  row=con.execute("SELECT entry_status,monitor_state,entry_timestamp,entry_mc_usd FROM operation_monitor_facts WHERE operation_id='watchtower' AND mint=?",(mint,)).fetchone()
+ if not row or row[0]!='WAITING_FOR_ENTRY_REFERENCE' or row[1]!='WAITING_FOR_ENTRY_REFERENCE' or row[2] is not None or row[3] is not None:
+  raise ValueError('LEGACY_SECOND_CHANCE_FACT_PRECONDITION_FAILED')
+ for path in sorted((queue.queue.root/'pending').glob('*.json')):
+  try: payload=json.loads(path.read_text(encoding='utf-8')); envelope=payload.get('envelope') or {}
+  except (OSError,ValueError,TypeError): continue
+  if envelope.get('mint')==mint and _strict_opening_attempt_count(envelope)==1:
+   return {'state':'ALREADY_SECOND_CHANCE_PENDING','message_id':str(payload.get('message_id') or path.stem),'provider_calls':0}
+ for path in sorted((queue.queue.root/'dead_letter').glob('*.json')):
+  try: payload=json.loads(path.read_text(encoding='utf-8')); envelope=payload.get('envelope') or {}
+  except (OSError,ValueError,TypeError): continue
+  diagnostic=envelope.get('strict_opening_failure_diagnostic') or {}
+  request=envelope.get('entry_acquisition_request') or {}
+  if envelope.get('mint')!=mint: continue
+  if canonical_operation_id(str(envelope.get('operation_id') or ''))!='watchtower' or _strict_opening_attempt_count(envelope)!=1 or str(envelope.get('opening_failure_reason') or diagnostic.get('failure_category') or '') not in _STRICT_OPENING_FINAL_MISS_CATEGORIES or int(request.get('migration_timestamp') or -1)!=int(migration_timestamp):
+   raise ValueError('LEGACY_SECOND_CHANCE_ENVELOPE_PRECONDITION_FAILED')
+  payload['envelope']=_schedule_watchtower_strict_opening_recovery(envelope,now=stamp)
+  queue.queue._replace_payload(path,payload)
+  target=queue.queue.root/'pending'/path.name
+  os.replace(path,target);queue.queue._fsync_directory(path.parent);queue.queue._fsync_directory(target.parent)
+  return {'state':'SECOND_CHANCE_PENDING','message_id':str(payload.get('message_id') or path.stem),'provider_calls':0,'eligible_at':stamp+STRICT_OPENING_SECOND_CHANCE_DELAY_SECONDS}
+ raise ValueError('LEGACY_SECOND_CHANCE_DEAD_LETTER_NOT_FOUND')
 
 def _byzantine_provider_failure_attempt_count(envelope:dict[str,Any])->int:
  """Return durable Byzantine provider failures, including retained legacy evidence."""

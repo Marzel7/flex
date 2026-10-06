@@ -19240,4 +19240,19 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "AUTHORIZE_REVIEW_OR_DEPLOYMENT_OF_5B342E52_AND_A_NEW_EXPLICIT_BOUNDED_REPEAT_ACQUISITION_SCOPE"
   }
+  ,"watchtower_historical_offset_full_results_20261006": {
+    "engineering_revision": "bff94db35aea3b3d9b65df46da70ca15c751324e on origin/codex/watchtower-offset-audit-evidence",
+    "status": "HOLD_PLUS4_DOES_NOT_SOLVE_OPENING_COVERAGE",
+    "execution": "The exact clean one-shot runner at /Users/kevinkeaveney/.codex/worktrees/watchtower-offset-evidence/flex processed the 93 insufficient-evidence tokens serially, one Birdeye V3 1s MCAP request per token, no retries. All 93 responses were HTTP 200 and normalized COMPLETE; the ledger committed each record before the next request.",
+    "cohort": "96 Watchtower tokens including the three pre-existing complete controls. Early-candle presence: t=74, t+1=52, t+2=40, t+3=25, t+4=20. Current selector outcome: t+1=52, t=29, none=15. Earliest chronological availability: t=74, t+1=7, t+2=3, none=12.",
+    "simulation": "Policy A t+1=52/96 (54.17%); B t+1 then t=81/96 (84.38%); C through +2=84/96 (87.50%); D through +3=84/96 (87.50%); E through +4=84/96 (87.50%). Incremental recoveries: +2=3, +3=0, +4=0. Smallest observed maximum-coverage bound=2. Twelve tokens have no valid early candle through +4.",
+    "cross_references": "Current missing Entry=35: t+1=1, t=27, +2=3, none=4. Current no-observation cohort=33: t+1=1, t=25, +2=3, none=4. Existing Entry parity is 51/61 against this later requery; ten mismatches are expected retention/time-of-query differences or legacy FIRST_AVAILABLE rows and are not relabeled.",
+    "controls": "COOK=t only; B8S7=t,+2,+3,+4; 7iXZ=t,+2,+3,+4; 42iY=t,t+1; INJECTOR=+2,+3,+4. Control parity passes. MC variation across 121 comparable retained early-candle pairs: median absolute 0.5806%, p90 1.5887%, maximum 2.4748%.",
+    "storage": "The durable compact ledger is /private/tmp/watchtower-offset-audit-v1.json, 93 records and 30,088 bytes; raw provider payload retention=false. It remains below the 262,144-byte final and 524,288-byte transient design bounds. No database/WAL/cache/log growth path was introduced.",
+    "deployment": "One-shot runtime target was the clean bff94db3 worktree; post-run HEAD matched and worktree was clean. No Supervisor, active worker, listener, source workspace, or database target changed; no process restart occurred.",
+    "safety": "Birdeye=93; Helius=0; source/database/queue writes=0; live admission=0; historical recovery jobs=0; raw payload retention=false; no selector or fallback bound was changed.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS_ISOLATED_ONE_SHOT_AUDIT_RUNTIME",
+    "next_action": "REVIEW_THE_TWELVE_NO_EARLY_CANDLE_TOKENS_SEPARATELY_BEFORE_ANY_LIVE_POLICY_CHANGE"
+  }
 }

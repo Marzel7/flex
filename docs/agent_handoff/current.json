@@ -1,4 +1,17 @@
 {
+  "watchtower_sparse_terminal_coverage_audit_20261006": {
+    "engineering_sha": "757d79ae75d58fe33a452838e955c1aeaf6e6c63",
+    "status": "PASS_SPARSE_HISTORICAL_TERMINAL_SEMANTICS_VALID_WITH_EXPLICIT_COVERAGE",
+    "continuity": "watchtower_terminal_ath_finalizer.py WatchtowerTerminalAthFinalizer._retained_15m_ohlc requires first candle no later than start+900, last candle reaching end within 900 seconds, and no internal gap over 900 seconds. If this returns empty, finalize constructs provider requests; generic coverage validation otherwise raises WINDOW_COVERAGE_INCOMPLETE. This is an evidence-completeness/provider-gap-fill guard, not a mathematical prerequisite for max/min arithmetic.",
+    "cook": "The three retained 15m rows are at 1791270000, 1791277200, and 1791281700. Using only entry=113464.45625213276 and those rows gives observed peak=115379.256102627 at 1791270000, observed multiple=1.01687576809287, last observed MC=2186.75765258587, observed drawdown=98.104722004239%, and observed time-to-peak=42 seconds. These are observed-only values, not complete lifecycle ATH/final claims.",
+    "range_semantics": "The executor intentionally marks an HTTP-200 parsed response as COMPLETED even when normalized candle count is zero; it stores the successful bounded attempt and no usable observations. Existing live code classifies empty HTTP-200 items as PROVIDER_EMPTY_RESPONSE, so zero candles do not prove no market activity.",
+    "precedent": "Read-only audit found 53 natural Watchtower collapsed terminal facts, 45 with fewer than 28 retained 15m observations. This proves sparse completed terminal precedent exists, but does not independently prove the semantic labeling of each gap.",
+    "decision": "Safe class B: a historical terminal may be represented only with explicit SPARSE/OBSERVED_ONLY coverage and metric provenance. No existing production schema was changed or assumed to provide that representation.",
+    "safety": "Provider calls=0; source changes=0; database rows changed=0; terminal finalizer, Policy C, and acquisition unchanged; real COOK state untouched.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only audit only.",
+    "exact_next_action": "AUTHORIZE_ONLY_HISTORICAL_SPARSE_TERMINAL_CLASSIFICATION_AND_PROVENANCE"
+  },
   "watchtower_terminal_waiting_fact_scope_hold_20261006": {
     "engineering_sha": "757d79ae75d58fe33a452838e955c1aeaf6e6c63",
     "status": "HOLD_RETAINED_OHLC_CONTINUITY_REQUIRED",

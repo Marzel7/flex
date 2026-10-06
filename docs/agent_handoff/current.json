@@ -1,4 +1,35 @@
 {
+  "watchtower_sparse_terminal_completion_20261006": {
+    "engineering_sha": "e6da55a7b6d57d93a0e6de02c3d6c1140b39a1c6",
+    "status": "PASS_ISOLATED_COOK_BATCH1_COMPLETED_SPARSE_OBSERVED_ONLY",
+    "implementation": "Historical-only terminal materialization now accepts only a compatible assignment-bearing WAITING_FOR_ENTRY_REFERENCE fact after the exact job is TERMINAL_COMMIT_PENDING with all six required ranges COMPLETED. It preserves assignment provenance, uses retained evidence only, and writes final_ath_evidence=HISTORICAL_SPARSE_OBSERVED_15M_HIGH, final_ath_resolution=15m:SPARSE:OBSERVED_ONLY, and evidence_status=HISTORICAL_SPARSE_OBSERVED_ONLY. The live Watchtower terminal finalizer and Policy C remain unchanged. The launcher discovers terminal-pending COOK state before constructing a credential-bound executor.",
+    "qualification": "24 focused provider-free tests passed. Coverage includes compatible waiting-fact promotion, persisted assignment provenance, explicit sparse labels, idempotent observations, historical FSM completion, launcher, product provenance, Policy C, and migration-second fallback behavior. Commit pushed to origin/codex/watchtower-executor-runtime.",
+    "isolated_cook": {
+      "path": "/private/tmp/watchtower-cook-batch1-80c92430.dev.db",
+      "pre_terminal_sha256": "17cf733b8ebd30cc298df00ad6e3acce1aad0563890b9c2db14adb9eca75a4ae",
+      "post_terminal_sha256": "bb24c1e91a6532c2494bccdccbe5ad5b8c2aaf4e40879f47a5ef57d02ddf797c",
+      "size_bytes": 1101824,
+      "integrity_check": "ok",
+      "job_state": "COMPLETED",
+      "range_states": "6 COMPLETED",
+      "opening_state": "QUALIFIED retained compact result",
+      "provider_calls_this_terminal_run": 0,
+      "lifetime_cook_provider_calls": 7,
+      "entry_method": "MIGRATION_SECOND_MC_FALLBACK",
+      "entry_exactness": "MIGRATION_SECOND_MC_FALLBACK",
+      "observations_retained": 3,
+      "observed_peak_mc_usd": 115379.256102627,
+      "observed_multiple": 1.01687576809287,
+      "observed_drawdown_percent": 98.104722004239,
+      "final_ath_resolution": "15m:SPARSE:OBSERVED_ONLY"
+    },
+    "product": "Cohort and Playbook projection expose terminal_coverage_class=SPARSE and terminal_metric_exactness=OBSERVED_ONLY; the existing operator fact API exposes the persisted final resolution directly.",
+    "storage": "Raw provider payload retention=false. Job retained checkpoint bytes=2675. Isolated DB remains 1,101,824 bytes, below the project 500MB maximum. No unbounded growth path was introduced; one bounded job and six bounded checkpoint rows only.",
+    "safety": "No provider credential was required or bound for terminal recovery; no Birdeye/Helius calls; no Batch 2, full backfill, Supervisor, live DEV005A, or original workspace mutation.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "One-shot isolated terminal-only recovery from an exact clean worktree; no active service deployment changed.",
+    "exact_next_action": "HOLD_NO_FURTHER_BATCHES; REVIEW_COMPLETED_ISOLATED_COOK_BATCH1_RESULTS_ONLY"
+  },
   "watchtower_sparse_terminal_coverage_audit_20261006": {
     "engineering_sha": "757d79ae75d58fe33a452838e955c1aeaf6e6c63",
     "status": "PASS_SPARSE_HISTORICAL_TERMINAL_SEMANTICS_VALID_WITH_EXPLICIT_COVERAGE",

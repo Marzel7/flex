@@ -1,4 +1,18 @@
 {
+  "watchtower_executor_runtime_qualification_20261006": {
+    "base_sha": "87c5136df46f4bfa35173dd91ec6ddabe8767df6",
+    "engineering_revision": "664d677cc0ba7d801af0428c3d133f9c44bbb604 on codex/watchtower-executor-runtime",
+    "status": "PASS_CLEAN_COMMITTED_EXECUTOR_READY_FOR_COOK_BATCH1",
+    "handoff_base": "be24284b",
+    "authority_policy": "Tracked docs/CLEAN_DEV_AUTHORITY_POLICY.md establishes remote-verified commit authority, dedicated worktrees for substantial DEV, immediate commit/push after PASS, explicit cross-lineage provenance, exact deployment SHA/source matching, and HOLD for qualified-but-uncommitted work. PASS_WITHOUT_ENGINEERING_SHA_ALLOWED=false; read-only handoffs use ENGINEERING_SHA=NOT_APPLICABLE_READ_ONLY. scripts/check_clean_dev_authority.py fail-closes on SHA mismatch, non-commit SHA, dirty pinned worktree, untracked required source, outside-root paths, and remote-ref reachability failure.",
+    "executor": "New src/ops/watchtower_historical_executor.py is a single-job, exact-range executor. It reuses existing src.ops.token_data_provider_bindings.BirdeyeProductionBinding and build_birdeye_ohlcv_request; no new client or legacy credential fallback exists. It executes only the six persisted range rows, limits attempts through the durable FSM to two/range and 12 historical physical attempts, persists normalized compact candles only, never retains raw payload, forbids provider calls outside ACQUIRING, and invokes the existing terminal completion path only after all six ranges are COMPLETED. Constants retain total 13-call ceiling including the existing one-call opening allowance, concurrency=1, and forward priority.",
+    "runtime": "New scripts/run_watchtower_historical_executor.py is disabled unless --enable-batch1, accepts only the explicitly authorized COOK mint, requires current directory equal the pinned clean worktree, and invokes the authority preflight before import/runtime use. It does not edit or use the original Supervisor configuration. SHA mismatch and cross-worktree source use fail closed; auto-next-token behavior is absent.",
+    "verification": "pytest -q tests/test_watchtower_historical_executor.py tests/test_watchtower_playbook_provenance.py tests/test_watchtower_policy_c.py tests/test_watchtower_migration_second_fallback.py tests/test_watchtower_terminal_adapter.py: 16 passed, 0 failed (pytest cache permission warning only). Provider-free coverage includes six first-try calls, no seventh call/replay, isolated retry/exhaustion with no third attempt, SHA mismatch refusal, existing terminal/FSM crash boundaries, +1/fallback selection and Playbook provenance, Policy-C 28 checkpoints, and COOK retained fixture. Post-commit check_clean_dev_authority passed with required executor source tracked and worktree clean. Remote ref verified at 664d677cc0ba7d801af0428c3d133f9c44bbb604.",
+    "safety": "No real Birdeye/Helius calls; COOK/historical execution=0; real runtime=0; restarts=0; database rows=0; original Supervisor configuration unchanged. Original workspace was not modified; observed dirty count is 3629 (external change from prior observed 3628). No large database copy; 1MiB job cap and project 500MB rule preserved.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "START_EXACT_COMMIT_PINNED_DEV_RUNTIME_AND_EXECUTE_COOK_ONLY"
+  },
   "watchtower_cook_batch1_deployment_preflight_20261006": {
     "engineering_revision": "87c5136df46f4bfa35173dd91ec6ddabe8767df6 on codex/watchtower-fallback-reconstructed",
     "status": "HOLD_COOK_RUNTIME_EXECUTOR_AND_EXACT_DEPLOYMENT_TARGET_ABSENT",

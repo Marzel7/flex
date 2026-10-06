@@ -19106,5 +19106,15 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Read-only boundary and topology audit only.",
     "next_action": "AUTHORIZE_AN_EXACT_CLEAN_OPERATION_MONITOR_WORKER_DEPLOYMENT_TARGET_AND_THEN_DECIDE_THE_SEPARATE_DURABLE_TWO_ATTEMPT_POLICY"
+  },
+  "watchtower_two_attempt_implementation_predeploy_hold_20261006": {
+    "engineering_revision": "3cff72e06054786aa4aa072fdecbbddf87593371 on origin/codex/watchtower-two-attempt, based on 7972e82e47f2ea8be4023c3f30c887780eacf229",
+    "status": "HOLD_LEGACY_INJECTOR_SECOND_CHANCE_MIGRATION_AND_ALLOWLIST_MISSING",
+    "implementation": "The clean commit changes the Watchtower Opening ceiling to two, stores attempt count/budget/state durably in the existing queue envelope, schedules first TARGET_SECOND_ABSENT/NO_PROVIDER_ITEMS failures after 60 seconds, uses [t,t+4) only for attempt two, and permanently seals a second failure. It preserves the shared normalizer and t+1 then t-only selector. Thirty-eight focused Watchtower tests passed; remote branch was verified.",
+    "predeploy_failure": "INJECTOR's already-consumed first attempt is in a dead-letter envelope. The generic policy deliberately does not reactivate dead letters, so it cannot give INJECTOR attempt two. Separately, the configured DEV soak allowlist excludes INJECTOR. Starting the worker would not execute the authorized recovery; broad legacy reactivation would risk provider work for other historical misses. The temporary worker-target Supervisor hunk was reverted before reread/start, so no active configuration or runtime changed.",
+    "safety": "Birdeye=0; Helius=0; INJECTOR new calls=0; database rows=0; service starts/restarts=0; listener mutations/restarts=0; COOK/B8S7/7iXZ calls=0; full backfill=false; raw payload retention=false.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_TARGETED_LEGACY_SECOND_CHANCE_PATH_REQUIRED",
+    "next_action": "IMPLEMENT_AND_PROVIDER_FREE_QUALIFY_A_TARGETED_IDEMPOTENT_LEGACY_FIRST_ATTEMPT_REACTIVATION_FOR_EXACTLY_AUTHORIZED_INJECTOR_THEN_REVERIFY_CLEAN_COMMIT_BEFORE_DEPLOYMENT"
   }
 }

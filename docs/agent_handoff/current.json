@@ -18235,6 +18235,19 @@
     "runtime_deployment_reason": "Attribution only; no executable behavior changed.",
     "exact_next_action": "AUTHORIZE_A_BOUNDED_FIX_OR_STOP_FOR_THE_SINGLE_BYZANTINE_15_SECOND_RESCHEDULE_BEFORE_FURTHER_BIRDEYE_USAGE"
   },
+  "byzantine_credit_burn_containment_20261006": {
+    "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 on codex/universal-price-monitor-import-recovery",
+    "status": "PASS_BYZANTINE_PROVIDER_RETRY_BURN_STOPPED",
+    "finding": "The exact 15-second rule was the generic non-Watchtower branch of MonitorQueue.defer_retryable: it uses wait_seconds(None, 1), then queue recovery re-pends the same Byzantine 15m OHLCV job. A provider failure is now sealed after one durable Byzantine-specific failure attempt. The legacy target was recognized from its retained provider failure and sealed before another provider call.",
+    "implementation": "Only operation_monitor_worker/service changed. The dead-letter envelope stores byzantine_provider_failure_attempt_count=1, budget=1, retry_state=BUDGET_EXHAUSTED, TERMINAL_PROVIDER_FAILURE, original failure classification, and no dispatch/recovery deadline. Projection reconciliation recognizes that exact durable dead letter and does not reconstruct it after a scan or restart. No completion, Opening, valuation, price fact, or Watchtower logic was fabricated or changed.",
+    "qualification": "31 focused provider-free tests passed, 0 failed. New controls prove one failing Byzantine request becomes a durable dead letter with no successor, duplicate identity and restart do not reset it, and active-fact projection does not reconstruct the exhausted job. Existing Watchtower/monitor-service/source-line controls remain passing.",
+    "deployment": "RUNTIME_DEPLOYMENT_GATE=PASS. Active DEV root=/private/tmp/flex-universal-price-monitor-import-recovery; Supervisor operation_monitor_worker was restarted for deployment then once for restart-survival: final PID=83848. The exact target 2GAd4qECH8cN4oQWwhiaBMADNupKCv8h9m9x3a4mpump is only in dead_letter. Its provider-budget updated_at remains 1791245752 and target work count in pending/retry/processing remains 0 through the bounded post-deployment observation.",
+    "credential": "Credential label remains BIRDEYE; secret not inspected or changed.",
+    "safety": "Watchtower source/opening/retry/lifecycle/listener and its 48 terminal-ATH jobs were untouched. No Byzantine reconciliation, Opening repair, E2E, historical backfill, raw payload retention, manual provider call, or database row edit. Compact queue storage only; project 500MB rule preserved.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "exact_next_action": "RETURN_TO_WATCHTOWER_FORWARD_ACCEPTANCE_AND_WAIT_FOR_NEXT_CLEAN_NATURAL_ASSIGNMENT"
+  },
   "watchtower_bounded_waiting_opening_retry_20261006": {
     "engineering_revision": "16d98ce16385ecd521b0840ef31cf15a2e7008b2 on codex/universal-price-monitor-import-recovery",
     "status": "PASS_BOUNDED_FORWARD_OPENING_ACQUISITION_RESTORED",

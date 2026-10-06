@@ -1,4 +1,15 @@
 {
+  "watchtower_playbook_registry_clean_authority_audit_20261006": {
+    "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 primary; d3b2136b secondary",
+    "status": "HOLD_REGISTRY_DEPENDENCY_DOCS_OPERATIONS_PLAYBOOKS_OPERATION_PLAYBOOK_REGISTRY_V1_JSON",
+    "handoff_base": "5acbeb88",
+    "authority": "REGISTRY_CLEAN_AUTHORITY_PROVEN=true. 4db74b28ae5f24c531e5d58ed91197811a032fb3 cleanly tracks src/ops/operation_playbook_registry.py and src/ops/watchtower_research_cohorts.py. The registry is a read-only artifact-backed product view-model: artifact_playbooks reads the registry JSON/artifacts, imports read_cohorts for Watchtower prospective rows, and is consumed by operator route Playbook views.",
+    "dependency_audit": "Direct Python imports are standard library only: json, os, decimal.Decimal, pathlib.Path. The registry requires runtime product inputs ROOT/docs/operations/playbooks/operation_playbook_registry.v1.json plus artifact paths named by it. git cat-file confirms that the registry JSON, operation_token_data_playbook.v1.json, and the historical audit JSON are absent at 4db74b28; the registry JSON is also absent from 8897/d3 reconstruction base. Thus registry dirty-only dependency count=0, untracked dependency count=0, unresolved clean dependency count=1 at exact path docs/operations/playbooks/operation_playbook_registry.v1.json. The absent artifact registry prevents safe same-lineage product composition and fixture execution.",
+    "scope": "No cohort/registry import occurred. Clean configurable root/DB authority remains unmodified. No monitor, backfill, finalizer, or Policy-C change; no provider calls, COOK, deployment, or source mutation occurred.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only clean-authority dependency audit; no executable source changed.",
+    "next_action": "REVIEW_ONLY_DOCS_OPERATIONS_PLAYBOOKS_OPERATION_PLAYBOOK_REGISTRY_V1_JSON_FOR_EXPLICIT_CLEAN_PRODUCT_ARTIFACT_AUTHORITY"
+  },
   "watchtower_research_cohort_clean_recovery_audit_20261006": {
     "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 primary; d3b2136b secondary",
     "status": "HOLD_PRODUCT_SUBSET_CLEAN_DEPENDENCY_CLOSURE_REQUIRES_OPERATION_PLAYBOOK_REGISTRY",

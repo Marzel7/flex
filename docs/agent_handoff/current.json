@@ -1,4 +1,17 @@
 {
+  "watchtower_two_token_diagnostic_recollection_20261006": {
+    "engineering_revision": "a433c67698778ce02be30a4eae90aa7e3f0f8e26 clean authority",
+    "status": "PASS_BOTH_CURRENTLY_RECOVERABLE",
+    "normalizer": "src.ops.watchtower_terminal_ath_finalizer._candles followed by src.ops.strict_migration_window.reduce_policy",
+    "credential": "BIRDEYE only; no legacy alias or secret retained",
+    "results": [{"token":"B8S7","mint":"B8S7WGQYteNSBz4rU4Xs1hkr1seGpxYgUuV2wgtbpump","migration_timestamp":1791287674,"window":[1791287674,1791287678],"http_status":200,"normalized_item_count":4,"normalized_timestamps":[1791287674,1791287676,1791287677,1791287678],"t_mc":113847.0368040435,"t_plus1_present":false,"t_plus2_present":true,"t_plus3_present":true,"simulated_entry_timestamp":1791287674,"simulated_entry_mc":113847.0368040435,"simulated_method":"MIGRATION_SECOND_MC_FALLBACK"},{"token":"7iXZ","mint":"7iXZi55AyKbJv5e9XTQuVcywdT2ejHjGBf3NKuCLpump","migration_timestamp":1791294235,"window":[1791294235,1791294239],"http_status":200,"normalized_item_count":4,"normalized_timestamps":[1791294235,1791294237,1791294238,1791294239],"t_mc":166526.78513950607,"t_plus1_present":false,"t_plus2_present":true,"t_plus3_present":true,"simulated_entry_timestamp":1791294235,"simulated_entry_mc":166526.78513950607,"simulated_method":"MIGRATION_SECOND_MC_FALLBACK"}],
+    "interpretation": "Both requests now expose usable migration-second t and no t+1, matching the earlier 10/10 t-present/t+1-absent diagnostic pattern. This establishes current availability only; it makes no claim about either original forward response.",
+    "storage": "Raw provider payload retention=false; compact normalized diagnostic evidence=633 bytes; no database rows, files, schema, queue, or source were written.",
+    "safety": "Birdeye calls=2 exactly, one per authorized mint, retries=0; Helius=0; COOK=0; live admission=0; historical job/backfill/terminal=0; runtime deployment=false; process restarts=0; clean worktree unchanged.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Diagnostic-only external acquisition; no executable runtime behavior changed.",
+    "next_action": "AUTHORIZE_OPENING_ONLY_PERSISTENCE_FOR_THE_TWO_PROVEN_REAL_ENTRIES"
+  },
   "watchtower_two_token_opening_recovery_execution_preflight_20261006": {
     "engineering_revision": "a433c67698778ce02be30a4eae90aa7e3f0f8e26 clean and unchanged",
     "status": "HOLD_OPENING_ONLY_PERSISTENCE_TARGET_UNSPECIFIED",

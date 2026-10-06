@@ -1,0 +1,16 @@
+{
+  "schema_version": "GENERIC_OPERATION_PLAYBOOK_REGISTRY_V1",
+  "playbook_version": "WATCHTOWER_PRICE_FACT_CONTRACT_V1",
+  "artifact_playbooks": [{
+    "operation_id": "watchtower",
+    "display_name": "Watchtower",
+    "artifacts": {"price_facts": "docs/audits/watchtower_51_generic_price_fact_replay.v1.json"},
+    "fields": {
+      "tokens": ["price_facts", "rows"],
+      "statistics": ["price_facts", "statistics"],
+      "entry_replay": ["price_facts", "entry_replay"],
+      "contract_version": ["price_facts", "schema_version"]
+    },
+    "constants": {"eligible_population": 285, "sample_size": 51, "token_data_completion": "RETAINED_GENERIC_PRICE_FACTS_COMPLETE", "workflow_state": "WATCHTOWER_PRICE_FACT_CONTRACT_V1", "price_fact_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC → Birdeye 15m OHLC; peak=max(entry, high); current=close; thresholds=high; terminal>=85% close drawdown; durable finalization", "historical_cohort": "51 retained research rows", "prospective_cohort": "operation-assigned Monitor tokens using the same price semantics", "executable_fill_proven": false}
+  }]
+}

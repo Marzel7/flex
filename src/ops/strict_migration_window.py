@@ -16,6 +16,8 @@ from typing import Any, Mapping
 
 STRICT_MIGRATION_WINDOW_1S = "STRICT_MIGRATION_WINDOW_1S"
 REQUESTED_ENTRY_SECOND_OFFSET = 1
+PLUS1_ENTRY_METHOD = "FIRST_FULL_POST_MIGRATION_SECOND_MC"
+MIGRATION_SECOND_FALLBACK_METHOD = "MIGRATION_SECOND_MC_FALLBACK"
 STRICT_MIGRATION_WINDOW_BOUNDED = True
 FAILURE_DIAGNOSTIC_MAX_BYTES = 1024
 
@@ -108,7 +110,12 @@ def dispatch(*, queue: Any, transport: Any, mint: str, migration_timestamp: int)
 
 def reduce_policy(*, migration_timestamp: int, entry: Mapping[str, Any]) -> dict[str, Any]:
     """Consume only evidence already accepted by the shared strict normalizer."""
-    if entry.get("timestamp") != migration_timestamp + REQUESTED_ENTRY_SECOND_OFFSET:
+    timestamp = entry.get("timestamp")
+    plus_one = migration_timestamp + REQUESTED_ENTRY_SECOND_OFFSET
+    fallback = migration_timestamp
+    if timestamp not in {plus_one, fallback}:
+        return {"state": "INSUFFICIENT_EVIDENCE", "reason": "STRICT_MIGRATION_TARGET_SECOND_REQUIRED"}
+    if timestamp == fallback and not entry.get("plus_one_absent"):
         return {"state": "INSUFFICIENT_EVIDENCE", "reason": "STRICT_MIGRATION_TARGET_SECOND_REQUIRED"}
     try:
         mc = float(entry.get("mc"))
@@ -116,6 +123,6 @@ def reduce_policy(*, migration_timestamp: int, entry: Mapping[str, Any]) -> dict
         return {"state": "INSUFFICIENT_EVIDENCE", "reason": "STRICT_MIGRATION_ENTRY_MC_REQUIRED"}
     if mc <= 0:
         return {"state": "INSUFFICIENT_EVIDENCE", "reason": "STRICT_MIGRATION_ENTRY_MC_REQUIRED"}
-    return {"state": "QUALIFIED", "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
-            "entry_timestamp": int(entry["timestamp"]), "entry_mc_usd": mc,
-            "entry_exactness": "FIRST_FULL_POST_MIGRATION_SECOND_MC"}
+    method = PLUS1_ENTRY_METHOD if timestamp == plus_one else MIGRATION_SECOND_FALLBACK_METHOD
+    return {"state": "QUALIFIED", "entry_method": method,
+            "entry_timestamp": int(timestamp), "entry_mc_usd": mc, "entry_exactness": method}

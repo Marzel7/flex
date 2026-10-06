@@ -19,4 +19,3 @@ def reduce_watchtower_price_facts(entry_mc, entry_timestamp: int, candles: list[
     return {"peak": peak, "crossings": crossings, "current_close": close,
             "peak_multiple": peak["value"] / entry_mc,
             "drawdown_percent": (peak["value"] - close) * 100 / peak["value"] if peak["value"] else 0}
-

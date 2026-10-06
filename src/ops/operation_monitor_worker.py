@@ -878,7 +878,7 @@ class MonitorBirdeyeTransport:
    diagnostic.update({'normalization_state':'FAILED','failure_stage':'RESPONSE_CONTAINER','failure_category':'NORMALIZATION_FAILED'})
    raise StrictEntryNormalizationError(diagnostic['failure_category'],diagnostic)
   diagnostic['provider_item_count']=len(items)
-  target_items=[]
+  target_items=[]; fallback_items=[]
   for item in items:
    if not isinstance(item,dict):
     diagnostic.update({'normalization_state':'FAILED','failure_stage':'ITEM_SHAPE','failure_category':'NORMALIZATION_FAILED'})
@@ -889,8 +889,10 @@ class MonitorBirdeyeTransport:
     diagnostic.update({'normalization_state':'FAILED','failure_stage':'TIMESTAMP_PARSE','failure_category':'NORMALIZATION_FAILED'})
     raise StrictEntryNormalizationError(diagnostic['failure_category'],diagnostic)
    diagnostic['normalized_item_count']+=1
-   if timestamp!=target: continue
-   diagnostic['target_timestamp_present']=True;diagnostic['exact_target_item_count']+=1
+   if timestamp not in {target, int(plan['migration_timestamp'])}: continue
+   is_target = timestamp == target
+   if is_target:
+    diagnostic['target_timestamp_present']=True;diagnostic['exact_target_item_count']+=1
    raw_value=item.get('c',item.get('close'))
    diagnostic['value_field_present']=raw_value is not None
    if raw_value is None: continue
@@ -901,21 +903,22 @@ class MonitorBirdeyeTransport:
    if value<=0:
     diagnostic.update({'normalization_state':'FAILED','failure_stage':'VALUE_VALIDATE','value_parse_state':'NON_POSITIVE','failure_category':'TARGET_VALUE_INVALID'})
     raise StrictEntryNormalizationError(diagnostic['failure_category'],diagnostic)
-   target_items.append({'timestamp':timestamp,'mc':value})
+   (target_items if is_target else fallback_items).append({'timestamp':timestamp,'mc':value})
   if not items:
    diagnostic.update({'normalization_state':'COMPLETE','failure_stage':'TARGET_RESOLUTION','failure_category':'NO_PROVIDER_ITEMS','value_parse_state':'NOT_PRESENT'})
    raise StrictEntryNormalizationError(diagnostic['failure_category'],diagnostic)
-  if not diagnostic['target_timestamp_present']:
+  if not diagnostic['target_timestamp_present'] and not fallback_items:
    diagnostic.update({'normalization_state':'COMPLETE','failure_stage':'TARGET_RESOLUTION','failure_category':'TARGET_SECOND_ABSENT','value_parse_state':'NOT_PRESENT'})
    raise StrictEntryNormalizationError(diagnostic['failure_category'],diagnostic)
-  if not target_items:
+  if diagnostic['target_timestamp_present'] and not target_items:
    diagnostic.update({'normalization_state':'COMPLETE','failure_stage':'TARGET_VALUE','failure_category':'TARGET_VALUE_ABSENT','value_parse_state':'ABSENT'})
    raise StrictEntryNormalizationError(diagnostic['failure_category'],diagnostic)
-  if len(target_items)!=1:
+  if len(target_items)>1 or (not target_items and len(fallback_items)!=1):
    diagnostic.update({'normalization_state':'FAILED','failure_stage':'TARGET_RESOLUTION','failure_category':'NORMALIZATION_FAILED','value_parse_state':'AMBIGUOUS'})
    raise StrictEntryNormalizationError(diagnostic['failure_category'],diagnostic)
   diagnostic.update({'normalization_state':'COMPLETE','failure_stage':None,'failure_category':None,'value_parse_state':'VALID'})
-  return target_items[0],built
+  entry = target_items[0] if target_items else {**fallback_items[0], 'plus_one_absent': True}
+  return entry,built
 
 def resolve_operation_migration_boundary(db_path: str, mint: str, *, canonical_migration_db_path: str | None = None) -> dict[str,Any] | None:
  """Return one normalized, read-only migration boundary for the shared entry path.

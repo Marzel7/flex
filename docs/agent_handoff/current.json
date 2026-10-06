@@ -1,4 +1,19 @@
 {
+  "universal_incremental_window_provenance_audit_20261006": {
+    "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 primary; d3b2136b secondary",
+    "status": "HOLD_NO_CLEAN_TRACKED_AUTHORITY_EXISTS",
+    "handoff_base": "a5f1db4455a411a89ff4e29ad4d88fc1f2d941f4",
+    "history_search_complete": true,
+    "search_scope": "all local and remote refs (150 refs), all reachable commits/objects, all local reflog commit entries, and named DEV/release refs; each candidate was checked with git cat-file -e COMMIT:src/ops/universal_incremental_window.py and git rev-list --objects --all path lookup.",
+    "result": "No tracked blob or commit exists for src/ops/universal_incremental_window.py in the searched Git authorities. git log --all --full-history for the path is empty. d3b2136b, 8897a5a22ec3f079a5973ae7e99048090b455e41, and 580508a70c80e7fc944e0069f85e67b851a117fa each fail git cat-file existence for the path.",
+    "dirty_candidate": "Original dirty workspace alone contains an untracked src/ops/universal_incremental_window.py, SHA-1 abe3abca8c9b039206f2c5a8d2b4b7f4b5ead404. It was read-only inspected; no clean baseline exists for a legitimate class A/B/C comparison.",
+    "classification": "C_UNRESOLVED: QUALIFIED_DIRTY_VS_CLEAN_DIFF_CLASSIFIED=false because there is no clean tracked candidate blob. REQUIRED_BASE_INTERFACE_IDENTIFIED=false and UNIVERSAL_WINDOW_DEPENDENCY_CLOSURE_PROVEN=false; selecting an authority or revised manifest would silently authorize dirty-source recovery.",
+    "manifest": "INCOMPLETE: primary 8897a5a2; d3b2136b supplies historical_15m_reconstruction.py, watchtower_price_fact_contract.py, and operator_lifecycle_projection.py; no additional clean authority exists for universal_incremental_window.py.",
+    "safety": "SOURCE_FILES_IMPORTED=0; original workspace mutation=0; clean reconstruction worktree mutation=0; provider calls=0; COOK/historical execution=0; runtime deployment=0. Only this required handoff record is changed in the dedicated handoff worktree.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only Git provenance audit; no executable source changed.",
+    "next_action": "STOP_AND_REVIEW_ONLY_UNIVERSAL_INCREMENTAL_WINDOW_PY_FOR_EXPLICIT_SOURCE_RECOVERY"
+  },
   "watchtower_controlled_clean_lineage_composition_20261006": {
     "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41",
     "status": "HOLD_SECONDARY_AUTHORITY_MISSING_EXACTLY_AUTHORIZED_MODULE",

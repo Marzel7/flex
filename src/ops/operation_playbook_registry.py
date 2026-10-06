@@ -64,7 +64,7 @@ def artifact_playbooks() -> list[dict]:
                 "reached_2x": row["reached_2x"], "reached_5x": row["reached_5x"], "reached_10x": row["reached_10x"],
                 "horizons": {name: {"multiple": None} for name in ("24h", "72h", "7d")},
                 "collapse_gte_85_percent": row.get("terminal_state") == "PRICE_MONITOR_COMPLETE_COLLAPSED",
-                "lifecycle_status": row.get("ath_finalization_status"), "provenance": {"digest": row.get("provenance_digest"), "evidence": row.get("final_ath_evidence")},
+                "lifecycle_status": row.get("ath_finalization_status"), "terminal_coverage_class": row.get("terminal_coverage_class"), "terminal_metric_exactness": row.get("terminal_metric_exactness"), "provenance": {"digest": row.get("provenance_digest"), "evidence": row.get("final_ath_evidence"), "resolution": row.get("final_ath_resolution")},
             } for row in cohorts["prospective_rows"]]
         model.update({"operation_id": spec["operation_id"], "display_name": spec["display_name"],
                       "playbook_version": registry["playbook_version"], "qualification_status": "QUALIFIED",

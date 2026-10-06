@@ -170,7 +170,7 @@ def complete_after_terminal_history(db_path: str, job_id: str, result: dict[str,
     """Run only provider-free terminal materialization after acquisition is closed."""
     state = mark_acquisition_complete(db_path, job_id, now=now)
     if state == "COMPLETED": return {"state": "COMPLETED", "provider_calls": 0}
-    finalized = commit_to_existing_watchtower_terminal(db_path, result, now=now)
+    finalized = commit_to_existing_watchtower_terminal(db_path, result, now=now, historical_job_id=job_id)
     terminal_json = json.dumps({"entry_method": result["entry_method"], "entry_exactness": result["entry_exactness"], "finalized": finalized.get("state")}, sort_keys=True)
     with sqlite3.connect(db_path) as conn:
         ensure_schema(conn)
@@ -182,7 +182,36 @@ def complete_after_terminal_history(db_path: str, job_id: str, result: dict[str,
     return {**finalized, "job_state": "COMPLETED"}
 
 
-def commit_to_existing_watchtower_terminal(db_path: str, result: dict[str, Any], *, now: int) -> dict[str, Any]:
+def _sparse_terminal_eligible(conn: sqlite3.Connection, job_id: str) -> bool:
+    job = conn.execute("SELECT state FROM watchtower_historical_backfill_jobs WHERE job_id=?", (job_id,)).fetchone()
+    states = [row[0] for row in conn.execute("SELECT state FROM watchtower_historical_backfill_ranges WHERE job_id=?", (job_id,))]
+    return bool(job and job[0] == "TERMINAL_COMMIT_PENDING" and len(states) == 6 and all(state == "COMPLETED" for state in states))
+
+
+def _historical_sparse_terminal(conn: sqlite3.Connection, result: dict[str, Any], candles: list[dict[str, Any]], reduced: dict[str, Any], *, now: int, job_id: str) -> dict[str, Any]:
+    """Promote only the compatible waiting fact using retained sparse evidence.
+
+    This is deliberately separate from the live finalizer: a completed historical
+    acquisition owns no provider calls and reports observed-only rather than
+    continuous 15m coverage.
+    """
+    if not _sparse_terminal_eligible(conn, job_id):
+        raise ValueError("HISTORICAL_SPARSE_TERMINAL_INELIGIBLE")
+    mint, entry_timestamp, entry_mc = result["mint"], int(result["entry_timestamp"]), float(result["entry_mc_usd"])
+    current = conn.execute("SELECT entry_status,monitor_state,assignment_timestamp,assignment_provenance,entry_timestamp,entry_mc_usd,entry_method,entry_exactness FROM operation_monitor_facts WHERE operation_id='watchtower' AND mint=?", (mint,)).fetchone()
+    if not current:
+        raise ValueError("WAITING_MONITOR_FACT_REQUIRED")
+    waiting = current[0] == "WAITING_FOR_ENTRY_REFERENCE" and current[1] == "WAITING_FOR_ENTRY_REFERENCE" and current[2] is not None and bool(current[3])
+    qualified_same = current[0] == "QUALIFIED" and current[4] == entry_timestamp and current[5] == entry_mc and current[6] == result["entry_method"] and current[7] == result["entry_exactness"]
+    if not waiting and not qualified_same:
+        raise ValueError("INCOMPATIBLE_EXISTING_MONITOR_FACT")
+    terminal_at = int(candles[-1]["timestamp"])
+    provenance = _digest({"kind": "HISTORICAL_SPARSE_TERMINAL_V1", "job_id": job_id, "mint": mint, "entry_method": result["entry_method"], "candles": candles})
+    conn.execute("""UPDATE operation_monitor_facts SET entry_method=?,entry_timestamp=?,entry_mc_usd=?,entry_status='QUALIFIED',entry_exactness=?,latest_mc_usd=?,latest_mc_timestamp=?,current_multiple=?,running_peak_mc_usd=?,running_peak_timestamp=?,running_peak_multiple=?,drawdown_percent=?,reached_2x=?,reached_5x=?,reached_10x=?,monitor_state='PRICE_MONITOR_COMPLETE_COLLAPSED',monitor_started_at=?,last_observation_at=?,next_observation_at=NULL,monitor_completed_at=?,provider_call_count=0,candles_retained=?,candle_resolution='15m',evidence_status='HISTORICAL_SPARSE_OBSERVED_ONLY',provenance_digest=?,final_proven_ath_mc=?,final_ath_multiple=?,final_ath_evidence='HISTORICAL_SPARSE_OBSERVED_15M_HIGH',final_ath_resolution='15m:SPARSE:OBSERVED_ONLY',final_ath_bucket_start=?,final_ath_bucket_end=?,ath_finalized_at=?,ath_finalization_request_id='HISTORICAL_RETAINED_ONLY',ath_finalization_provenance_digest=?,updated_at=? WHERE operation_id='watchtower' AND mint=?""", (result["entry_method"], entry_timestamp, entry_mc, result["entry_exactness"], float(candles[-1]["close"]), terminal_at, float(candles[-1]["close"])/entry_mc, float(reduced["peak"]["value"]), int(reduced["peak"]["timestamp"]), float(reduced["peak_multiple"]), float(reduced["drawdown_percent"]), int(reduced["peak_multiple"] >= 2), int(reduced["peak_multiple"] >= 5), int(reduced["peak_multiple"] >= 10), entry_timestamp, terminal_at, terminal_at, len(candles), provenance, float(reduced["peak"]["value"]), float(reduced["peak_multiple"]), int(reduced["peak"]["timestamp"]), int(reduced["peak"]["timestamp"]) + 900, now, provenance, now, mint))
+    return {"state": "FINALIZED", "provider_calls": 0, "coverage_class": "SPARSE", "terminal_metric_exactness": "OBSERVED_ONLY"}
+
+
+def commit_to_existing_watchtower_terminal(db_path: str, result: dict[str, Any], *, now: int, historical_job_id: str | None = None) -> dict[str, Any]:
     """Materialize completed retained 15m evidence, then use the existing finalizer."""
     required = ("mint", "entry_timestamp", "entry_mc_usd", "entry_method", "entry_exactness", "candles")
     if any(result.get(key) in (None, "") for key in required):
@@ -198,6 +227,12 @@ def commit_to_existing_watchtower_terminal(db_path: str, result: dict[str, Any],
     provenance = _digest({"kind": "HISTORICAL_TERMINAL_ADAPTER_V1", "mint": result["mint"], "entry_method": result["entry_method"], "candles": candles})
     with sqlite3.connect(db_path) as conn:
         ensure_history_schema(conn)
+        if historical_job_id is not None:
+            existing = conn.execute("SELECT entry_status,monitor_state FROM operation_monitor_facts WHERE operation_id='watchtower' AND mint=?", (result["mint"],)).fetchone()
+            if existing and existing[0] == "WAITING_FOR_ENTRY_REFERENCE" and existing[1] == "WAITING_FOR_ENTRY_REFERENCE":
+                for candle in candles:
+                    conn.execute("""INSERT OR IGNORE INTO operation_monitor_observations(operation_id,mint,observation_timestamp,mc_usd,resolution,source,request_identity,provenance_digest,created_at,open_mc_usd,high_mc_usd,low_mc_usd,close_mc_usd) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)""", ("watchtower", result["mint"], int(candle["timestamp"]), float(candle["close"]), "15m", "HISTORICAL_BACKFILL", provenance, _digest(candle), now, float(candle["open"]), float(candle["high"]), float(candle["low"]), float(candle["close"])))
+                return _historical_sparse_terminal(conn, result, candles, reduced, now=now, job_id=historical_job_id) | {"entry_method": result["entry_method"], "entry_exactness": result["entry_exactness"]}
         conn.execute("""INSERT OR IGNORE INTO operation_monitor_facts(operation_id,mint,cohort_class,entry_method,entry_timestamp,entry_mc_usd,entry_status,entry_exactness,latest_mc_usd,latest_mc_timestamp,current_multiple,running_peak_mc_usd,running_peak_timestamp,running_peak_multiple,drawdown_percent,monitor_state,monitor_started_at,last_observation_at,next_observation_at,monitor_completed_at,provider_call_count,candles_retained,candle_resolution,evidence_status,provenance_digest,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", ("watchtower", result["mint"], "PROSPECTIVE_MONITOR_COHORT", result["entry_method"], entry_timestamp, entry_mc, "QUALIFIED", result["entry_exactness"], float(candles[-1]["close"]), terminal_at, float(candles[-1]["close"])/entry_mc, float(reduced["peak"]["value"]), int(reduced["peak"]["timestamp"]), float(reduced["peak_multiple"]), float(reduced["drawdown_percent"]), "PRICE_MONITOR_COMPLETE_COLLAPSED", entry_timestamp, terminal_at, None, terminal_at, 0, len(candles), "15m", "QUALIFIED_HISTORICAL_BACKFILL", provenance, now, now))
         for candle in candles:
             conn.execute("""INSERT OR IGNORE INTO operation_monitor_observations(operation_id,mint,observation_timestamp,mc_usd,resolution,source,request_identity,provenance_digest,created_at,open_mc_usd,high_mc_usd,low_mc_usd,close_mc_usd) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)""", ("watchtower", result["mint"], int(candle["timestamp"]), float(candle["close"]), "15m", "HISTORICAL_BACKFILL", provenance, _digest(candle), now, float(candle["open"]), float(candle["high"]), float(candle["low"]), float(candle["close"])))
@@ -205,3 +240,15 @@ def commit_to_existing_watchtower_terminal(db_path: str, result: dict[str, Any],
         raise RuntimeError("HISTORICAL_TERMINAL_RETAINED_OHLC_REQUIRED")
     finalized = WatchtowerTerminalAthFinalizer(db_path, binding=retained_only_binding, now=lambda: now).finalize(result["mint"], interval="15m", watchtower_price_fact_contract=True)
     return {**finalized, "entry_method": result["entry_method"], "entry_exactness": result["entry_exactness"]}
+
+
+def resume_terminal_from_retained(db_path: str, job_id: str, mint: str, *, now: int = 0) -> dict[str, Any]:
+    """Materialize a terminal-pending job from durable compact state only."""
+    with sqlite3.connect(db_path) as conn:
+        opening = conn.execute("SELECT result_json FROM watchtower_historical_openings WHERE mint=? AND state='QUALIFIED'", (mint,)).fetchone()
+        checkpoints = conn.execute("SELECT checkpoint_json FROM watchtower_historical_backfill_ranges WHERE job_id=? AND state='COMPLETED' ORDER BY ordinal", (job_id,)).fetchall()
+    if not opening or len(checkpoints) != 6:
+        raise ValueError("HISTORICAL_TERMINAL_RETAINED_EVIDENCE_REQUIRED")
+    result = json.loads(opening[0])
+    candles = [candle for row in checkpoints for candle in json.loads(row[0]).get("candles", [])]
+    return complete_after_terminal_history(db_path, job_id, {**result, "mint": mint, "candles": candles}, now=now)

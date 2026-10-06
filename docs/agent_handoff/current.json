@@ -1,4 +1,14 @@
 {
+  "watchtower_durable_range_resume_20261006": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; uncommitted workspace implementation",
+    "status": "PARTIAL_DURABLE_RANGE_RESUME_QUALIFIED_TERMINAL_INTEGRATION_PENDING",
+    "finding": "The disabled Batch-1 preflight now persists six deterministic range records keyed by immutable job/mint/window/range/ordinal/resolution/purpose inputs. PENDING/IN_PROGRESS/RETRYABLE/COMPLETED/FAILED_CLOSED are durable. begin_next_range selects the earliest incomplete range and atomically increments a durable attempt count; recovery changes only IN_PROGRESS to RETRYABLE. completion requires a compact <=64KiB evidence checkpoint first. Completed ranges are skipped on restart; attempts cannot reset through restart or duplicate admission; attempt three fails closed. The fixed 6-range/13-call ceiling is unchanged.",
+    "tests": "pytest -q tests/test_watchtower_migration_second_fallback.py tests/test_watchtower_fallback_backfill_qualification.py tests/test_historical_15m_reconstruction.py tests/test_universal_incremental_window.py tests/test_dev_011_live_activation.py: 34 passed, 0 failed. Covers six stable range identities, completed-range skip after restart, interrupted range recovery, first-attempt completion, mixed retry count=8, and exhausted-range failure at two attempts.",
+    "safety": "Provider calls=0; COOK/historical execution=0; deployment/runtime/process/listener/database mutation=0 outside temporary test SQLite stores; raw provider retention=false; Batch-1 job cap=1 and file cap=1MiB.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "WIRE_THE_DISABLED_RANGE_EXECUTOR_TO_EXISTING_TERMINAL_HISTORY_AND_API_COMMIT_SEAM_AND_PROVIDER_FREE_QUALIFY_EARLY_STOP_AND_FULL_PROVENANCE_ROUND_TRIP"
+  },
   "watchtower_range_backfill_preflight_20261006": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; uncommitted workspace preflight revision",
     "status": "PARTIAL_RANGE_POLICY_QUALIFIED_RUNTIME_RESTART_PENDING",

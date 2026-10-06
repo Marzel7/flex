@@ -19184,4 +19184,15 @@
     "runtime_deployment_reason": "Audit and provider-free test execution only; no executable runtime behavior changed.",
     "next_action": "REVIEW_PROVIDER_COVERAGE_POLICY_BEFORE_ANY_FURTHER_CALL"
   }
+  ,"watchtower_birdeye_v3_request_semantics_audit_20261006": {
+    "engineering_revision": "71eb6751f65456420cb3c907fefb3e2b6f65458b inspected read-only",
+    "status": "PASS_SPARSE_UNPADDED_SEMANTICS_CONFIRMED_BOUNDARY_SEMANTICS_UNDOCUMENTED",
+    "official_contract": "Current Birdeye official material identifies GET /defi/v3/ohlcv as supporting Solana 1s intervals, required Unix-second time_from/time_to, range/count modes, and padding=false by default. It explicitly states that V3 includes only intervals with real trade activity and does not pad missing candles; 1s retention is two weeks. Therefore HTTP 200 may omit t and t+1 despite the requested window. The inspected material does not define time-boundary inclusivity, bucket alignment, or whether returned timestamps can fall outside a requested range.",
+    "builder_comparison": "The pinned builder uses /defi/v3/ohlcv, token mint address, type=1s, currency=usd, mode=range, padding=false, and Unix-second bounds. It also sends chart_type=mcap; that accepted operational parameter is absent from the public parameter table inspected. The selector remains t+1 first and t-only fallback, with no later/nearest selection.",
+    "diagnostic_gap": "The failure diagnostic retains target timestamps only and truncates to two values. A future implementation should add a separately named normalized_non_target_timestamps list capped at eight integer timestamps, well within the existing 1KiB record cap and approximately 160 bytes including JSON structure. Raw payload retention remains false. No implementation, call, or state change was made here.",
+    "safety": "Documentation/source audit only: Birdeye=0; Helius=0; source/database/queue writes=0; restarts=0. Worker remains PID 54058 in the clean pinned 71eb6751f65456420cb3c907fefb3e2b6f65458b worktree.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only provider-contract audit; no runtime behavior changed.",
+    "next_action": "AUTHORIZE_PROVIDER_FREE_COMPACT_NON_TARGET_TIMESTAMP_DIAGNOSTIC_CHANGE_AND_QUALIFICATION"
+  }
 }

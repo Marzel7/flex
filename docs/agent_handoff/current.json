@@ -1,4 +1,15 @@
 {
+  "watchtower_real_cook_batch1_db_target_hold_20261006": {
+    "engineering_sha": "c64eacb7148c9c2b0b1e22e601874847216a0658",
+    "status": "HOLD_RUNTIME_AUTHORITY_FAILURE_DATABASE_TARGET_UNSPECIFIED",
+    "handoff_base": "f1474230",
+    "preflight": "Exact executor worktree HEAD matches c64eacb7148c9c2b0b1e22e601874847216a0658 and is clean. The committed authority preflight can pass. No source change is needed or made.",
+    "blocker": "The exact committed launcher requires an explicit --db target. This execution authorization does not name a commit-pinned DEV database/runtime data authority. Selecting the original shared workspace database would violate ORIGINAL_WORKSPACE_MUTATION_COUNT=0; selecting a new temporary database would not satisfy the requested actual live-monitor and Playbook product-surface provenance verification. This is a material data-authority choice, so execution stopped before provider access.",
+    "safety": "Committed launcher not started; executor PID=none; Birdeye=0; Helius=0; COOK job=0; database rows=0; source changes=0; restarts=0; listener/supervisor/original workspace changes=0; Batch2/Batch3/full backfill=false.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_EXPLICIT_COMMIT_PINNED_DEV_DATABASE_TARGET_REQUIRED",
+    "next_action": "AUTHORIZE_ONE_EXACT_COMMIT_PINNED_DEV_DATABASE_TARGET_FOR_COOK_AND_DEFINE_ITS_PRODUCT_SURFACE_READ_AUTHORITY"
+  },
   "watchtower_cook_launcher_fix_20261006": {
     "base_sha": "664d677cc0ba7d801af0428c3d133f9c44bbb604",
     "engineering_revision": "c64eacb7148c9c2b0b1e22e601874847216a0658 on codex/watchtower-executor-runtime",

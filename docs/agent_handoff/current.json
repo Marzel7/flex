@@ -1,4 +1,31 @@
 {
+  "watchtower_dev005a_drift_snapshot_freeze_20261006": {
+    "engineering_sha": "80c924307583f8ead39419a8e247f9d048c885ee",
+    "status": "PASS_FRESH_COOK_SNAPSHOT_FROZEN",
+    "source_audit": "Live DEV005A changed at the file level because the supervised operation_monitor_service PID 83848 held the database writer lock. Two src.dev_runtime processes held the file open but were not the lock owner. Source and old snapshot schemas are identical; the only full-row drift is three existing non-COOK Watchtower WAITING_FOR_ENTRY_REFERENCE facts whose next_observation_at and updated_at advanced under ordinary scheduler activity. COOK fact is field-identical; it remains unqualified with no entry, no observations, and no historical opening record.",
+    "logical_drift": {
+      "schema_change_count": 0,
+      "watchtower_relevant_row_change_count": 3,
+      "cook_relevant_row_change_count": 0,
+      "cook_canonical_authority_parity_pass": true,
+      "manual_fallback_entry_present": false,
+      "executor_schema_compatibility_pass": true,
+      "product_read_compatibility_pass": true
+    },
+    "frozen_cook_db": {
+      "path": "/private/tmp/watchtower-cook-batch1-80c92430.dev.db",
+      "sha256": "95d4f84fc4b20f62c70f4d1e7fe4961578d627c3473813638d4cf46b916de20d",
+      "size_bytes": 1073152,
+      "creation_method": "sqlite_online_backup",
+      "integrity_check": "ok",
+      "shared_executor_and_product_authority": true,
+      "live_source_sha_pin_required_during_cook": false
+    },
+    "safety": "No provider calls, Cook launcher, job creation, runtime start, source DB write, workspace mutation, or Supervisor configuration change. Snapshot is below the 500MB project limit and has no raw-retention or unbounded-growth path.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Audit and authorized isolated snapshot creation only; Cook remains unexecuted.",
+    "exact_next_action": "EXECUTE_REAL_COOK_FROM_80C92430_AGAINST_FROZEN_SNAPSHOT_ONLY"
+  },
   "watchtower_real_cook_batch1_source_db_divergence_20261006": {
     "engineering_sha": "80c924307583f8ead39419a8e247f9d048c885ee",
     "status": "HOLD_SOURCE_DB_SNAPSHOT_AUTHORITY_DIVERGED",

@@ -1,4 +1,23 @@
 {
+  "watchtower_real_cook_batch1_admission_storage_hold_20261006": {
+    "engineering_sha": "80c924307583f8ead39419a8e247f9d048c885ee",
+    "status": "HOLD_COOK_ADMISSION_STORAGE_BOUND",
+    "credential_binding": "Existing authoritative BIRDEYE was found only in the active qualified monitor process environment and supplied in memory only to one dedicated pinned launcher child. No legacy credential label was present or used, and no secret was printed, persisted, fingerprinted, or recorded.",
+    "invocation": "The exact committed launcher ran once as PID 63397 from the clean pinned worktree. Its internal CLEAN_DEV_AUTHORITY_PASS preflight succeeded. One Opening provider call completed and persisted the compact qualified result only: entry_timestamp=1791269958, entry_mc_usd=113464.45625213276, entry_method=MIGRATION_SECOND_MC_FALLBACK, entry_exactness=MIGRATION_SECOND_MC_FALLBACK.",
+    "failure_boundary": "After Opening, committed admit() refused the existing 1,073,152-byte frozen base DB because MAX_BATCH1_CHECKPOINT_BYTES=1,048,576, returning REFUSED_STORAGE_BOUND without job_id. The committed launcher then raised KeyError('job_id') while indexing that refusal result. No source patch, retry, second launcher invocation, or provider call followed.",
+    "frozen_db": {
+      "path": "/private/tmp/watchtower-cook-batch1-80c92430.dev.db",
+      "pre_execution_sha256": "95d4f84fc4b20f62c70f4d1e7fe4961578d627c3473813638d4cf46b916de20d",
+      "post_attempt_sha256": "3f2a57dce61a7afbf5b29712cfa1a45122a418d88acc92ebf95993a0622c4c31",
+      "size_before_bytes": 1073152,
+      "size_after_bytes": 1077248,
+      "integrity_check": "ok"
+    },
+    "safety": "Opening calls=1; historical calls=0; total provider calls=1; no historical-job or range table was created; no terminal/history/product projection was created; live DEV005A writes=0; source changes=0; original workspace mutations=0; Supervisor changes=0; executor terminated.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Isolated committed execution only; no executable source or deployed runtime changed.",
+    "exact_next_action": "STOP_AND_REVIEW_ONLY_THE_COMMITTED_ADMISSION_STORAGE_BOUND_AND_LAUNCHER_REFUSAL_HANDLING"
+  },
   "watchtower_real_cook_batch1_credential_environment_hold_20261006": {
     "engineering_sha": "80c924307583f8ead39419a8e247f9d048c885ee",
     "status": "HOLD_MISSING_AUTHORITATIVE_BIRDEYE_CREDENTIAL",

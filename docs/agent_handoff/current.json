@@ -1,4 +1,16 @@
 {
+  "watchtower_launcher_import_root_bootstrap_20261006": {
+    "base_sha": "7c298224dd9c159d7dfda56375e8e65169e19ec3",
+    "engineering_revision": "80c924307583f8ead39419a8e247f9d048c885ee on codex/watchtower-executor-runtime",
+    "status": "PASS_CLEAN_COMMITTED_IMPORT_ROOT_BOOTSTRAP_READY",
+    "handoff_base": "8cae6476",
+    "fix": "Only committed launcher bootstrap changed: REPOSITORY_ROOT derives from Path(__file__).resolve().parents[1] and is inserted into sys.path before any src import. No hard-coded repository/worktree/original paths, provider behavior, opening selector, ranges, FSM, terminal, or product behavior changed. Existing authority, clean-worktree, CWD cross-root, COOK-only and default-disabled gates remain.",
+    "verification": "18 focused provider-free tests passed, 0 failed (pytest cache permission warning only). Invocation from /private/tmp reached HISTORICAL_EXECUTOR_DISABLED_BY_DEFAULT rather than ModuleNotFoundError, proving bootstrap precedes project imports. Commit pushed to origin/codex/watchtower-executor-runtime; worktree clean.",
+    "safety": "No real provider call, COOK job, database write, runtime start, restart, original workspace, or Supervisor change.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "AUTHORIZE_EXACT_80C92430_ISOLATED_DB_RUNTIME_AND_EXECUTE_COOK_ONLY"
+  },
   "watchtower_real_cook_batch1_import_failure_20261006": {
     "engineering_sha": "7c298224dd9c159d7dfda56375e8e65169e19ec3",
     "status": "HOLD_RUNTIME_AUTHORITY_FAILURE_COMMITTED_LAUNCHER_IMPORT_ROOT",

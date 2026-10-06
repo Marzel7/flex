@@ -1,4 +1,16 @@
 {
+  "watchtower_real_cook_batch1_prestart_20261006": {
+    "base_sha": "87c5136df46f4bfa35173dd91ec6ddabe8767df6",
+    "engineering_sha": "664d677cc0ba7d801af0428c3d133f9c44bbb604",
+    "status": "HOLD_RUNTIME_AUTHORITY_FAILURE_LAUNCHER_DOES_NOT_EXECUTE_COOK",
+    "handoff_base": "62f49039",
+    "preflight": "Exact executor worktree HEAD matches engineering SHA, worktree is clean, and committed clean-Git authority preflight passes. Existing remote verification is recorded in the prior handoff; an additional ls-remote check could not resolve github.com during this turn, so no new remote claim is made.",
+    "blocking_evidence": "Committed scripts/run_watchtower_historical_executor.py validates --enable-batch1, exact COOK mint, source-root, and preflight, then returns 0. It contains no import/call of HistoricalExecutor, no canonical boundary admission, no DB job creation, no terminal result construction, and no execution loop. Therefore it cannot create or run the sole authorized COOK backfill job. Launching it would falsely represent a no-op process as a historical runtime; substituting an ad hoc invocation or modifying the commit during this real-run gate would violate the exact-SHA authority requirement.",
+    "safety": "Stopped before runtime start/provider authorization. HISTORICAL_EXECUTOR_PID=none; Birdeye=0; Helius=0; COOK/historical execution=0; database rows=0; process restarts=0; listener/supervisor/original workspace changes=0; Batch2/Batch3/full backfill=false.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_COMMITTED_LAUNCHER_MISSING_EXECUTION_WIRING",
+    "next_action": "FIX_ONLY_THE_COMMIT_PINNED_LAUNCHER_TO_ADMIT_THE_EXACT_CANONICAL_COOK_BOUNDARY_AND_INVOKE_HISTORICALEXECUTOR_THEN_REQUALIFY_COMMIT_AND_REMOTE_VERIFY"
+  },
   "watchtower_executor_runtime_qualification_20261006": {
     "base_sha": "87c5136df46f4bfa35173dd91ec6ddabe8767df6",
     "engineering_revision": "664d677cc0ba7d801af0428c3d133f9c44bbb604 on codex/watchtower-executor-runtime",

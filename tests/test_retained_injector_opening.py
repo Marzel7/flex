@@ -7,6 +7,7 @@ def db(path):
 def test_import_is_singleton_historical_and_idempotent_conflict(tmp_path):
  p=tmp_path/'x.db';db(p);r=import_retained_injector_opening(str(p),now=1);assert r['route']=='HISTORICAL_RECONSTRUCTION'
  c=sqlite3.connect(p);x=c.execute("select entry_timestamp,entry_mc_usd,entry_method,entry_exactness,entry_offset_seconds,monitor_state from operation_monitor_facts").fetchone();assert x==(1791307930,134293.7821862771,'BOUNDED_POST_MIGRATION_MC_FALLBACK','POST_MIGRATION_OFFSET_2S_OBSERVED_MC',2,'HISTORICAL_RECOVERY_ACQUIRING')
+ assert c.execute("select state from watchtower_historical_openings where mint=?",(MINT,)).fetchone()==('QUALIFIED',)
  with pytest.raises(ValueError): import_retained_injector_opening(str(p),now=2)
 def test_import_rejects_any_modified_evidence(tmp_path):
  p=tmp_path/'x.db';db(p);bad=dict(EVIDENCE);bad['selected_mc']=1

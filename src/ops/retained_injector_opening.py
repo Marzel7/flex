@@ -18,11 +18,16 @@ def import_retained_injector_opening(db_path:str, evidence:dict[str,Any]=EVIDENC
     if evidence != EVIDENCE or hashlib.sha256(json.dumps(evidence,sort_keys=True,separators=(',',':')).encode()).hexdigest()!=EVIDENCE_ID: raise ValueError("RETAINED_EVIDENCE_IDENTITY_MISMATCH")
     stamp=int(time.time() if now is None else now)
     with sqlite3.connect(db_path) as con:
+        con.execute("create table if not exists watchtower_historical_openings(mint text primary key,state text not null,result_json text,created_at integer not null)")
         columns={r[1] for r in con.execute("pragma table_info(operation_monitor_facts)")}
         if "entry_offset_seconds" not in columns: con.execute("alter table operation_monitor_facts add column entry_offset_seconds integer")
         row=con.execute("select entry_status,entry_timestamp,entry_mc_usd,monitor_state from operation_monitor_facts where operation_id='watchtower' and mint=?",(MINT,)).fetchone()
         if not row: raise ValueError("INJECTOR_FACT_REQUIRED")
         if row[1] is not None or row[2] is not None or row[0]=="QUALIFIED": raise ValueError("AUTHORITATIVE_ENTRY_ALREADY_EXISTS")
+        opening={"entry_timestamp":1791307930,"entry_mc_usd":134293.7821862771,"entry_method":EVIDENCE['entry_method'],"entry_exactness":EVIDENCE['entry_exactness'],"entry_offset_seconds":2,"retained_evidence_id":EVIDENCE_ID,"source":"RETAINED_BIRDEYE_DIAGNOSTIC"}
+        existing=con.execute("select state,result_json from watchtower_historical_openings where mint=?",(MINT,)).fetchone()
+        if existing: raise ValueError("HISTORICAL_OPENING_ALREADY_EXISTS")
+        con.execute("insert into watchtower_historical_openings values(?,?,?,?)",(MINT,"QUALIFIED",json.dumps(opening,sort_keys=True,separators=(',',':')),stamp))
         result=con.execute("update operation_monitor_facts set entry_status='QUALIFIED',entry_timestamp=?,entry_mc_usd=?,entry_method=?,entry_exactness=?,entry_offset_seconds=2,monitor_state='HISTORICAL_RECOVERY_ACQUIRING',next_observation_at=null,evidence_status='RETAINED_INJECTOR_PLUS2_IMPORTED',provenance_digest=?,updated_at=? where operation_id='watchtower' and mint=? and entry_timestamp is null and entry_mc_usd is null",(1791307930,134293.7821862771,EVIDENCE['entry_method'],EVIDENCE['entry_exactness'],EVIDENCE_ID,stamp,MINT))
         if result.rowcount != 1: raise ValueError("RETAINED_IMPORT_CONFLICT")
     return {**EVIDENCE,"evidence_id":EVIDENCE_ID,"route":"HISTORICAL_RECONSTRUCTION"}

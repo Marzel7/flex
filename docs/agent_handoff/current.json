@@ -19338,5 +19338,15 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_CANDIDATE_DOES_NOT_MEET_REQUIRED_PROGRAM_IDENTITY_AND_LITERAL_ROOT_STATIC_GATES",
     "next_action": "AUTHORIZE_A_CLEAN_SOURCE_CHANGE_TO_DEFINE_EXACTLY_OPERATION_MONITOR_WORKER_AND_WATCHTOWER_API_WITH_THE_REQUIRED_DEPLOYMENT_ROOT_CONTRACT, THEN REPEAT_ISOLATED_VALIDATION_BEFORE_ANY_LIVE_REREAD"
+  },
+  "watchtower_supervisor_deployable_authority_correction_20261006": {
+    "engineering_revision": "6d1bbb2578258bd99e6a4c82e1c9ec0add5fedf8 on origin/codex/watchtower-supervisor-correction; remote verified",
+    "status": "PASS_FINAL_SUPERVISOR_DEPLOYABLE_AUTHORITY_COMMITTED",
+    "finding": "The proposed-live renderer preserves exactly operation_monitor_worker and watchtower_api, renders literal clean deployment root and authorized SHA in both contracts, binds the 96-record ledger at its verified SHA256, and uses the existing guarded launcher. The listener is byte-identical in proposed-live output; unaffected program semantic changes are zero. The only intended effective program changes are the two managed definitions plus include boundary.",
+    "qualification": "Focused infrastructure tests=8 passed. Relevant Watchtower suite=100 passed with exactly one documented deselection, test_deep_review_ui_is_explicitly_noncanonical. Temporary fixture proves second install has zero diff and rollback restores original config byte-for-byte and removes managed/backup fragments. Isolated Supervisor loaded 15 programs all STOPPED/Not started; start markers=0; temporary daemon stopped.",
+    "safety": "Provider calls=0; database/queue/injector writes=0; live Supervisor file writes=0; live reread/update=0; live service restarts=0. Live config SHA256 remained 674bd410544bacb9265d2428cd7d79968e01acd6fa8e1600274d2a19b4943467; listener/API/monitor PIDs remained 77852/45753/54058.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "LIVE_TWO_PROGRAM_SUPERVISOR_MIGRATION_AND_FINAL_PRICE_LIVE_ACCEPTANCE_USING_6D1BBB2578258BD99E6A4C82E1C9EC0ADD5FEDF8"
   }
 }

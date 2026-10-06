@@ -19126,5 +19126,14 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "AUTHORIZE_AND_APPLY_THE_EXACT_WORKER_ONLY_DEPLOYMENT_TARGET_AND_SINGLE-MINT_DEV_SOAK_ALLOWLIST_THEN_REVERIFY_RUNTIME_BEFORE_THE_ONE_AUTHORIZED_INJECTOR_ATTEMPT"
+  },
+  "watchtower_injector_exact_deployment_preflight_20261006": {
+    "engineering_revision": "3ede52b9fb6f3520bdd68235c1cb902efc43cbdb remote-verified; no deployment action taken",
+    "status": "HOLD_EXACT_SHA_CANNOT_BIND_AUTHORIZED_SINGLE_MINT_SOAK_ALLOWLIST",
+    "finding": "The exact launcher's env -i invocation hard-codes DEV_005_SOAK_SELECTION_PATH to $STATE_ROOT/docs/audits/dev_005a_final_population_selection.v1.json, discarding any Supervisor-provided override. That retained selection excludes INJECTOR. Therefore the exact SHA cannot start a worker that both imports only the clean authority and is constrained to the required INJECTOR-only execution scope. Modifying the launcher requires a new source commit, forbidden by this deployment-only authorization; modifying the shared retained selection would violate SOURCE_FILES_CHANGED=0 and is not an exact-SHA deployment solution.",
+    "safety": "Birdeye=0; Helius=0; INJECTOR migration=0; INJECTOR provider calls=0; database rows=0; Supervisor reread/start/restart=0; listener changes=0; source changes=0; other Watchtower calls=0; full backfill=false.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_SINGLE_MINT_SOAK_BINDING_UNAVAILABLE_IN_EXACT_SHA",
+    "next_action": "AUTHORIZE_A_MINIMAL_CLEAN_LAUNCHER_CHANGE_ALLOWING_AN_EXPLICIT_SINGLE-MINT_DEV_SOAK_SELECTION_PATH_THEN_REQUALIFY_AND_DEPLOY_A_NEW_EXACT_SHA"
   }
 }

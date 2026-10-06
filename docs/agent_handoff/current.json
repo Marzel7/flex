@@ -19082,5 +19082,16 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_EXACT_DEPLOYMENT_AUTHORITY_POLICY_MISMATCH",
     "next_action": "AUTHORIZE_A_NEW_CLEAN_COMMIT_IMPLEMENTING_AND_PROVIDER_FREE_QUALIFYING_THE_DURABLE_TWO_ATTEMPT_FORWARD_OPENING_POLICY_THEN_DEPLOY_THAT_EXACT_NEW_SHA"
+  },
+  "watchtower_injector_two_attempt_preflight_20261006": {
+    "engineering_revision": "new clean worktree /Users/kevinkeaveney/.codex/worktrees/watchtower-two-attempt/flex created from exact base 7972e82e47f2ea8be4023c3f30c887780eacf229; no source changes",
+    "status": "HOLD_INJECTOR_CANONICAL_BOUNDARY_AND_RUNTIME_AUTHORITY_MISMATCH",
+    "injector": "Mint 3yvK6WWww1moF3qx3UvHngZCHy9kRCVd9Jva8tRrpump has a retained Watchtower fact WAITING_FOR_ENTRY_REFERENCE, no entry, no observations, and one retained HTTP-200 TARGET_SECOND_ABSENT attempt. The compact dead-letter envelope records attempt timestamp=1791308126, assignment=1791308056, old request [1791307928,1791307930], count=1/budget=1, but no normalized item count/timestamps or t/t+1 booleans. Existing evidence remains untouched and raw payload was not retained.",
+    "boundary_conflict": "The existing attempt envelope says migration_timestamp=1791307928. The canonical migration verification record says migrated_at=1791307931, migration_tx=mPr6Gv6Sjag8sU6bLC4m5uejoshcqVcBhs8r5uwXMrjZkXfdnffQukgs1c64LpFhvTJXN94zc2rujmQGoAp5M5X, PumpSwap pool=5sBp2gWc4bUyMzDg57YjPtDm1PBRY5jQG2LamGpxycBv. A recovery request cannot silently select either conflicting t.",
+    "runtime_conflict": "Supervisor watchtower_listener PID 77852 runs /Users/kevinkeaveney/Production/flex-listener at dirty SHA bf1bdfc59b4acfed0338a493189d91d212bda50f. That checkout does not track src/ops/operation_monitor_worker.py, so it cannot import or activate the 7972 shared normalizer/two-attempt forward contract. The configured operation_monitor_worker clean-runtime service is stopped. Restarting the listener would not deploy the requested policy.",
+    "safety": "Birdeye=0; Helius=0; INJECTOR new provider calls=0; database rows=0; source changes=0; restarts=0; COOK/B8S7/7iXZ calls=0; full backfill=false; original workspace untouched.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_ACTIVE_FORWARD_RUNTIME_DOES_NOT_MATCH_DEPLOYABLE_CLEAN_AUTHORITY",
+    "next_action": "RECONCILE_THE_SINGLE_CANONICAL_INJECTOR_MIGRATION_TIMESTAMP_AND_AUTHORIZE_AN_EXACT_CLEAN_RUNTIME_TARGET_FOR_OPERATION_MONITOR_WORKER_BEFORE_IMPLEMENTATION_DEPLOYMENT_OR_PROVIDER_RECOVERY"
   }
 }

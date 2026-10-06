@@ -32,9 +32,13 @@ class HistoricalExecutor:
         request=build_birdeye_ohlcv_request(address=mint,interval="1s",time_from=timestamp,time_to=timestamp+2)
         outcome=self.binding(request)
         if outcome.status_code!=200: raise RuntimeError(f"OPENING_HTTP_{outcome.status_code}")
-        candles=_candles(outcome.payload or {}); by={int(c["timestamp"]):c for c in candles}
-        entry=by.get(timestamp+1) or by.get(timestamp)
-        selected=reduce_policy(migration_timestamp=timestamp,entry={"timestamp":int(entry["timestamp"]),"mc":float(entry["close"]),"plus_one_absent":timestamp+1 not in by}) if entry else {"state":"INSUFFICIENT_EVIDENCE"}
+        candles=_candles(outcome.payload or {})
+        # Preserve timestamp cardinality through selection: duplicate evidence is
+        # ambiguous and must fail closed, matching the forward path.
+        plus_one=[c for c in candles if int(c["timestamp"]) == timestamp + 1]
+        fallback=[c for c in candles if int(c["timestamp"]) == timestamp]
+        entry = plus_one[0] if len(plus_one) == 1 else (fallback[0] if not plus_one and len(fallback) == 1 else None)
+        selected=reduce_policy(migration_timestamp=timestamp,entry={"timestamp":int(entry["timestamp"]),"mc":float(entry["close"]),"plus_one_absent":not plus_one}) if entry else {"state":"INSUFFICIENT_EVIDENCE"}
         if selected.get("state")!="QUALIFIED": raise RuntimeError("OPENING_INSUFFICIENT_EVIDENCE")
         import json
         compact={k:selected[k] for k in ("entry_timestamp","entry_mc_usd","entry_method","entry_exactness")}

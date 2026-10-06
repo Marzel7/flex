@@ -68,3 +68,16 @@ def test_recovered_opening_promotes_waiting_fact_without_live_admission(tmp_path
   row=conn.execute("SELECT entry_status,monitor_state,entry_timestamp,entry_mc_usd,entry_method,entry_exactness,monitor_started_at,next_observation_at FROM operation_monitor_facts").fetchone()
  assert result["state"]=="HISTORICAL_RECOVERY_OPENING_QUALIFIED"
  assert row==("QUALIFIED","HISTORICAL_RECOVERY_ACQUIRING",1,12.5,"MIGRATION_SECOND_MC_FALLBACK","MIGRATION_SECOND_MC_FALLBACK",None,None)
+
+def test_recovered_opening_rejects_duplicate_target_evidence(tmp_path):
+ db=str(tmp_path/"duplicate-opening.db")
+ def bind(_request):
+  return SimpleNamespace(status_code=200,payload={"data":{"items":[
+   {"timestamp":2,"o":1,"h":2,"l":1,"c":1.1},
+   {"timestamp":2,"o":1,"h":2,"l":1,"c":1.2},
+  ]}})
+ try:
+  HistoricalExecutor(db,bind).acquire_opening(boundary())
+  assert False, "duplicate evidence must fail closed"
+ except RuntimeError as error:
+  assert str(error)=="OPENING_INSUFFICIENT_EVIDENCE"

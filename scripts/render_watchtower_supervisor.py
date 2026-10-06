@@ -25,3 +25,17 @@ def render_proposed_live(source: str, root: Path, sha: str, include_dir: Path):
     if any(source.count(f"[program:{name}]") != 1 for name in ALLOWED): raise ValueError("EMBEDDED_SCOPE_INVALID")
     candidate = remove_stanza(remove_stanza(source, "operation_monitor_worker"), "watchtower_api").rstrip()
     return candidate + "\n\n[include]\nfiles = " + str(include_dir / "*.conf") + "\n", render_fragment(root, sha)
+
+def absolutize_supervisord_log_paths(candidate: str, config_path: Path) -> str:
+    """Keep global Supervisor logs anchored to the main config, never an include."""
+    main_dir = config_path.resolve().parent
+    replacements = {
+        "logfile=%(here)s/../../logs/supervisor/supervisord.log":
+            f"logfile={(main_dir / '../../logs/supervisor/supervisord.log').resolve()}",
+        "childlogdir=%(here)s/../../logs/supervisor":
+            f"childlogdir={(main_dir / '../../logs/supervisor').resolve()}",
+    }
+    for old, new in replacements.items():
+        if old not in candidate: raise ValueError("SUPERVISORD_LOG_PATH_UNRECOGNIZED")
+        candidate = candidate.replace(old, new, 1)
+    return candidate

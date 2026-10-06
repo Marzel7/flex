@@ -4,7 +4,7 @@ import subprocess
 import sys
 from pathlib import Path
 if __package__ in {None, ""}: sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from scripts.render_watchtower_supervisor import ALLOWED, remove_stanza, render_fragment, render_proposed_live
+from scripts.render_watchtower_supervisor import ALLOWED, absolutize_supervisord_log_paths, remove_stanza, render_fragment, render_proposed_live
 
 # Kept for the direct legacy installer unit test and callers.
 remove = remove_stanza
@@ -34,6 +34,7 @@ def main():
             raise SystemExit("MANAGED_INSTALL_STATE_INVALID")
     else:
         candidate, fragment = render_proposed_live(source, args.root, args.sha, args.include_dir)
+        candidate = absolutize_supervisord_log_paths(candidate, args.config)
     if args.apply:
         args.include_dir.mkdir(parents=True, exist_ok=True)
         if not backup.exists(): backup.write_bytes(args.config.read_bytes())

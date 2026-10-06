@@ -1,6 +1,6 @@
 import hashlib
 from pathlib import Path
-from scripts.render_watchtower_supervisor import render_proposed_live, render_fragment, ALLOWED, stanza
+from scripts.render_watchtower_supervisor import absolutize_supervisord_log_paths, render_proposed_live, render_fragment, ALLOWED, stanza
 from scripts.isolated_watchtower_supervisor_validation import isolate
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -45,3 +45,13 @@ def test_fail_closed_for_duplicate_or_missing_identity(tmp_path):
         try: render_proposed_live(broken, ROOT, SHA, tmp_path / "include")
         except ValueError as exc: assert str(exc) == "EMBEDDED_SCOPE_INVALID"
         else: raise AssertionError("must fail closed")
+
+def test_global_supervisor_logs_are_absolute_and_preserve_main_config_destination(tmp_path):
+    config = tmp_path / "config/supervisor/supervisord.conf"; config.parent.mkdir(parents=True)
+    config.write_text("x")
+    candidate = "[supervisord]\nlogfile=%(here)s/../../logs/supervisor/supervisord.log\nchildlogdir=%(here)s/../../logs/supervisor\n"
+    rendered = absolutize_supervisord_log_paths(candidate, config)
+    expected = str((config.parent / "../../logs/supervisor").resolve())
+    assert f"logfile={expected}/supervisord.log" in rendered
+    assert f"childlogdir={expected}" in rendered
+    assert "%(here)s" not in rendered

@@ -1,4 +1,17 @@
 {
+  "watchtower_cook_launcher_fix_20261006": {
+    "base_sha": "664d677cc0ba7d801af0428c3d133f9c44bbb604",
+    "engineering_revision": "c64eacb7148c9c2b0b1e22e601874847216a0658 on codex/watchtower-executor-runtime",
+    "status": "PASS_EXACT_COMMIT_PINNED_COOK_RUNTIME_READY",
+    "handoff_base": "8d4fcce6",
+    "fix": "Only scripts/run_watchtower_historical_executor.py and its direct provider-free test changed. The launcher preserves SHA/clean-worktree/cross-root/COOK-only/default-disabled checks, admits only the exact immutable COOK boundary through existing admit(), then invokes existing HistoricalExecutor once with the existing terminal result contract. It creates no executor, provider loop, range/FSM logic, terminal/history write, or schema.",
+    "verification": "pytest focused Watchtower suite plus launcher tests: 18 passed, 0 failed (pytest cache permission warning only). Provider-free E2E proves exact COOK admission -> six fake 15m ranges -> existing terminal finalization -> COMPLETED with executor invocation count one. Wrong boundary is rejected before executor invocation. Existing selector, Policy-C, range/FSM, terminal and Playbook tests remain passing.",
+    "authority": "Commit pushed and remote verified at origin/codex/watchtower-executor-runtime. Worktree clean post-commit. Clean Git authority policy remains tracked; QUALIFIED_BUT_UNCOMMITTED=STOP.",
+    "safety": "Birdeye=0; Helius=0; real COOK/runtime=0; database rows=0; process restarts=0; original Supervisor/original workspace mutation=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "START_EXACT_NEW_SHA_AND_EXECUTE_REAL_COOK_ONLY"
+  },
   "watchtower_real_cook_batch1_prestart_20261006": {
     "base_sha": "87c5136df46f4bfa35173dd91ec6ddabe8767df6",
     "engineering_sha": "664d677cc0ba7d801af0428c3d133f9c44bbb604",

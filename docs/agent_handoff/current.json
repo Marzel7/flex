@@ -1,4 +1,16 @@
 {
+  "watchtower_operator_api_aggregate_audit_20261006": {
+    "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 plus uncommitted isolated reconstruction",
+    "status": "HOLD_DIRTY_DEPENDENCY_SRC_OPS_WATCHTOWER_RESEARCH_COHORTS_PY",
+    "handoff_base": "ac800655",
+    "product_read_path": "Actual clean product route is GET /api/operations/live-monitor via src/ops/operator_routes.py live_monitor_api -> _monitor_live_projection. Its database row projection is SELECT f.* from operation_monitor_facts, so entry_method and entry_exactness are retained from each actual fact row; queue-only rows also source entry_method directly from their envelope. No global Watchtower +1 default was found in this projection.",
+    "aggregate_audit": "The clean _monitor_live_projection operations summary aggregates lifecycle counts/calls, not entry-method dimensions. The only identified Watchtower aggregate/read surface exposing entry_method and entry_exactness is original-workspace untracked src/ops/watchtower_research_cohorts.py. Its line 29 projects both fields, but it is dirty-only and no clean authority/import authorization exists. Recreating an aggregate in the clean tree would be new behavior, not qualification.",
+    "decision": "ACTUAL_OPERATOR_READ_PATH_PROVEN=true; ACTUAL_AGGREGATE_PATH_PROVEN=false; AGGREGATES_CAN_SEPARATE_ENTRY_METHOD=false/unproven. Stop required before product API aggregate fixture, full qualification, or engineering commit.",
+    "safety": "No source import from dirty workspace; original workspace mutation=0 and remains at 3627 dirty entries; isolated worktree mutation=0 during this audit; provider calls=0; COOK/backfill execution=0; runtime/database/process changes=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only aggregate authority audit; no executable source changed.",
+    "next_action": "STOP_AND_REVIEW_ONLY_SRC_OPS_WATCHTOWER_RESEARCH_COHORTS_PY_FOR_EXPLICIT_CLEAN_SOURCE_RECOVERY"
+  },
   "watchtower_final_provider_free_qualification_20261006": {
     "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 plus uncommitted isolated reconstruction",
     "status": "PARTIAL_CRASH_AND_COOK_PASS_OPERATOR_API_AGGREGATE_FIXTURE_PENDING",

@@ -19206,4 +19206,16 @@
     "runtime_deployment_reason": "One diagnostic acquisition only; no executable behavior changed or deployed.",
     "next_action": "AUTHORIZE_OR_REJECT_A_SEPARATE_BOUNDED_POST_MIGRATION_ENTRY_POLICY_WITH_EXPLICIT_OFFSET_PROVENANCE"
   }
+  ,"watchtower_historical_offset_coverage_preflight_20261006": {
+    "engineering_revision": "71eb6751f65456420cb3c907fefb3e2b6f65458b inspected; no source or runtime change",
+    "status": "HOLD_HISTORICAL_OFFSET_EVIDENCE_INSUFFICIENT_LARGE_QUERY_COHORT",
+    "authoritative_cohort": "96 operation_monitor_facts rows for operation_id watchtower/watchtower_deep have canonical migration signature, timestamp, and slot in database/flex_complete_database.db token_analysis. 93 also have a canonical PumpSwap pool; three named mints lack a recorded pool but retain the other canonical boundary fields.",
+    "current_state": "35 tokens lack an Entry; 34 have no retained observations. 57 entries are at canonical t+1, four entries lie outside the requested t..t+4 classification window, and two missing-entry facts retain only later 15m observations.",
+    "retained_offset_evidence": "Complete t..t+4 evidence exists only for B8S7, 7iXZ, and INJECTOR (3). Partial evidence exists for 57 t+1 Entries and COOK's proven t recovery (58). The remaining 35 have no retained evidence sufficient to independently classify all offsets. Existing 15m observations supply no 1-second offsets.",
+    "call_budget_preflight": "The required strict one-call-per-token classification would require 93 new serial Birdeye calls (96 total less the three complete retained controls), with zero retries. This is unexpectedly large for a diagnostic audit, so execution stopped before any provider request.",
+    "safety": "Birdeye=0; Helius=0; source/database/queue writes=0; live admission=0; historical recovery jobs=0; process restarts=0; raw provider payload retention=false; no compact audit artifact was written. The pinned deployment worktree remains at 71eb6751f65456420cb3c907fefb3e2b6f65458b and clean.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only preflight only; the already-running pinned worker was not changed.",
+    "next_action": "AUTHORIZE_A_SMALLEST_BOUNDED_REPRESENTATIVE_OFFSET_COHORT_OR_AN_EXPLICIT_93_CALL_SERIAL_HISTORICAL_AUDIT"
+  }
 }

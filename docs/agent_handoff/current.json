@@ -1,4 +1,16 @@
 {
+  "watchtower_cook_batch1_deployment_preflight_20261006": {
+    "engineering_revision": "87c5136df46f4bfa35173dd91ec6ddabe8767df6 on codex/watchtower-fallback-reconstructed",
+    "status": "HOLD_COOK_RUNTIME_EXECUTOR_AND_EXACT_DEPLOYMENT_TARGET_ABSENT",
+    "handoff_base": "6d061806",
+    "preflight": "DEPLOY_SOURCE_SHA=87c5136df46f4bfa35173dd91ec6ddabe8767df6 and remote branch origin/codex/watchtower-fallback-reconstructed verified. Clean worktree HEAD matches and remains clean. The 13-test provider-free qualification remains associated with this SHA.",
+    "runtime_observation": "Read-only Supervisor status shows watchtower_api, watchtower_listener, and operation_monitor_worker RUNNING, but their configured source directories are other worktrees/original workspace, not the exact qualified commit. No service was stopped, restarted, reconfigured, or deployed; listener changed/restarted=false. The existing Supervisor configuration is original-workspace state, so changing it would violate ORIGINAL_WORKSPACE_MUTATION_COUNT=0 and cannot establish RUNNING_RUNTIME_EXACT_SHA_MATCH.",
+    "executor_audit": "The qualified src/ops/watchtower_historical_backfill.py is intentionally a bounded admission/range/FSM/terminal adapter. It has no Birdeye client/binding, HTTP/provider acquisition implementation, executable CLI/main entrypoint, or orchestration that can acquire the six ranges. Its only provider-facing behavior is provider_calls=0 accounting and a retained-only terminal binding that raises if provider access is attempted. Therefore no authorized exact runtime path exists to create or execute the requested real COOK job without implementing new behavior or importing an unqualified executor.",
+    "decision": "Stopped before deployment and before any provider request. BATCH1_TOKEN_COUNT=0; NON_COOK_BACKFILL_JOB_COUNT=0; Birdeye=0; Helius=0; COOK/historical execution=0; runtime deployment=0; process restarts=0; database rows=0; Batch2/Batch3/full backfill=false. Original workspace mutation=0 (observed dirty count unchanged at 3628).",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_NO_EXACT_RUNTIME_TARGET_OR_ACQUISITION_EXECUTOR",
+    "next_action": "STOP_AND_REVIEW_ONLY_THE_EXACT_CLEAN_HISTORICAL_ACQUISITION_EXECUTOR_AND_AN_EXACT_COMMIT_PINNED_DEV_RUNTIME_TARGET"
+  },
   "watchtower_clean_product_composition_qualification_20261006": {
     "engineering_revision": "87c5136df46f4bfa35173dd91ec6ddabe8767df6 on codex/watchtower-fallback-reconstructed",
     "status": "PASS_CLEAN_COMMITTED_READY_FOR_COOK_BATCH1",

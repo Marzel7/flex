@@ -1,4 +1,16 @@
 {
+  "watchtower_last_9h_forward_pipeline_audit_20261006": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; read-only audit against canonical wt_ops_v2.db and DEV dev_005a monitor authority",
+    "status": "PARTIAL_REAL_FORWARD_TRAFFIC",
+    "audit_window_utc": "2026-10-05T23:01:09Z/2026-10-06T08:01:09Z",
+    "finding": "Three natural WATCHTOWER assignments occurred. CQP3…fpump (AGENCY) and CNWX…Rpump (AGENCY) both retained qualified strict openings, retained lifecycle observations, and authoritative PRICE_MONITOR_COMPLETE_COLLAPSED terminal facts. HRin…cpump (COOK) retained one strict 1s Birdeye opening attempt at migration+83s, HTTP 200/TARGET_SECOND_ABSENT, and durable retry-budget exhaustion, so it correctly remains WAITING_FOR_ENTRY_REFERENCE without a synthetic Entry. Current authoritative Watchtower live count is zero.",
+    "coverage": "migration=3/3; qualified opening=2/3; qualified-to-lifecycle-observation=2/2; terminal=2/2; strict provider requests=3 (one per assigned token); lifecycle provider calls=8; terminal finalization calls=0; unbounded strict retry=false.",
+    "limits": "Qualified-opening physical strict-attempt timestamps for the two successful rows were compacted; only COOK retains an exact diagnostic attempt timestamp. The UI API was unavailable on ports 5002 and 8100 during the audit, so live UI-row verification was not claimed; source confirms recent History is an assigned-launch projection, not terminal-state proof.",
+    "safety": "Read-only SQLite/queue/source/API-access audit; source/database/runtime/process/provider/RPC changes=0; no historical 533 audit, no Byzantine work, no queue action.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only audit only.",
+    "next_action": "TRACE_ONLY_THE_FRESH_POST_FIX_OPENING_FAILURES_IF_A_NEW_COHORT_SHOWS_SYSTEMATIC_UNQUALIFIED_OPENINGS"
+  },
   "fresh_watchtower_agency_forward_trace_20261005": {
     "engineering_revision": "8fa461e4dc32e4fde15639eb14a2c44a01fda43b active DEV monitor authority; read-only target trace",
     "status": "PASS_UI_HISTORY_PROJECTION_SEMANTICS_PROVEN",

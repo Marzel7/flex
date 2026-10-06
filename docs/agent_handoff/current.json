@@ -1,4 +1,16 @@
 {
+  "watchtower_cook_fallback_entry_evidence_audit_20261006": {
+    "engineering_sha": "c64eacb7148c9c2b0b1e22e601874847216a0658",
+    "status": "HOLD_DIAGNOSTIC_NOT_AUTHORITATIVE_AND_NO_CLEAN_OPENING_REACQUISITION_PATH",
+    "handoff_base": "a4f7df40",
+    "search": "Complete read-only search of audit/docs/src/tests/scripts/.codex-visible project evidence, tracked Git string history, DEV005A SQLite table inventory/strings, and current clean executor/launcher. Exact retained-evidence match count=0. The COOK mint appears in DEV005A only as an unqualified waiting fact; the exact timestamp/MC value appears only in user-owned test transcriptions and the committed launcher hard-coded terminal input, not a retained provider diagnostic artifact.",
+    "provenance": "No retained record establishes Birdeye /defi/v3/ohlcv, chart_type=mcap, currency=usd, 1s request bounds, HTTP status, normalized OHLC, canonical signature/slot/pool link, digest, or immutable/append-only identity. Therefore diagnostic provider provenance complete=false; canonical boundary link=false; stable identity=false; content digest=false; immutable=false; evidence class=D (handoff/test transcription only, original retained provider evidence absent).",
+    "executor_contract": "Clean HistoricalExecutor accepts a supplied terminal entry and executes only persisted 15m historical ranges. Neither it nor the commit-pinned launcher contains MonitorBirdeyeTransport/acquire_watchtower_entry or an Opening t/t+1 selector callable. CLEAN_EXECUTOR_CAN_REACQUIRE_OPENING=false. Consequently COOK_PREEXISTING_QUALIFIED_DB_FACT_REQUIRED=true and DEV005A copy plus clean opening acquisition is invalid under the current committed contract.",
+    "safety": "No opening promotion, DB write, provider call, COOK execution, runtime start, or source mutation occurred.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only retained-evidence authority audit.",
+    "next_action": "STOP_AND_REVIEW_THE_MISSING_ORIGINAL_BIRDEYE_DIAGNOSTIC_ARTIFACT_OR_EXPLICITLY_AUTHORIZE_A_NEW_CLEAN_OPENING_ACQUISITION_BOUNDARY"
+  },
   "watchtower_cook_isolated_db_authority_audit_20261006": {
     "engineering_sha": "c64eacb7148c9c2b0b1e22e601874847216a0658",
     "status": "HOLD_NO_COHERENT_EXISTING_COOK_DEV_DATABASE_AUTHORITY",

@@ -18282,5 +18282,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Forensic trace only; no executable behavior changed.",
     "exact_next_action": "ADD_ONLY_MINIMAL_NORMALIZED_TIMESTAMP_DIAGNOSTIC_FOR_NEXT_FRESH_WATCHTOWER_ASSIGNMENT"
+  },
+  "watchtower_plus_one_plus_two_plus_three_audit_20261006": {
+    "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 active DEV monitor source; read-only authoritative-fact audit",
+    "status": "PASS_KEEP_PLUS_ONE_UNCHANGED",
+    "contract": "The active strict plan names and enforces FIRST_FULL_POST_MIGRATION_SECOND_MC: requested_entry_second=migration_timestamp+1; request interval=1s; window=[migration,migration+2]; normalizer accepts only an exact parsed integer timestamp equal to target. The source documents this rule but does not retain an independent economic/API rationale preferring +1 over +2/+3 or first available.",
+    "controls": "All 53 qualified Watchtower facts have a proven canonical migration boundary. Offsets are +1=49, 0=0, +2=0, +3=0, >+3=1, negative=3, unproven=0. Each non-+1 record is older FIRST_AVAILABLE/FIRST_AVAILABLE_SLOT evidence from FIXTURE_BACKFILL, rather than current strict opening semantics. The two recent natural controls CQP3...fpump and CNWX...Rpump both retain exact +1 Entries.",
+    "cook_and_misses": "COOK retains migration/pool/transaction lifecycle evidence but no retained price, candle, trade, monitor observation, or normalized item timestamp at +1/+2/+3. Current strict-miss facts are 25 TARGET_SECOND_ABSENT and two NO_PROVIDER_ITEMS; none has a retained monitor observation or explicit +2/+3 price. The requested historical 23-token subset is therefore also zero for explicitly retained +2/+3 evidence; non-retention is not evidence of provider absence.",
+    "api_boundary": "The local request/normalizer contract can request and exactly recognize +1 but no retained Birdeye API specification proves that a [migration,migration+2] 1s request guarantees publication of that item. Query widening while preserving only +1 acceptance would not change Entry semantics; accepting +2 or +3 would.",
+    "safety": "Read-only source/SQLite/compact-queue/log audit; source changes=0; database changes=0; provider calls=0; no replay, opening, LIVE admission, queue action, restart, or policy change.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Audit only; no executable behavior changed.",
+    "exact_next_action": "KEEP_PLUS_ONE_UNCHANGED_AND_OBSERVE_MORE_POST_FIX_ASSIGNMENTS"
   }
 }

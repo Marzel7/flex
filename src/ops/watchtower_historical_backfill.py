@@ -16,7 +16,7 @@ from src.ops.watchtower_price_fact_contract import reduce_watchtower_price_facts
 
 HORIZON_SECONDS = 24 * 3600
 MAX_OPENING_PROVIDER_CALLS = 1
-MAX_BATCH1_JOBS = 1
+MAX_BATCH1_JOBS = 2
 # This is a per-job retained-checkpoint budget, not a ceiling on unrelated
 # SQLite base pages.  The project-wide file ceiling remains independently 500MB.
 MAX_BATCH1_CHECKPOINT_BYTES = 1024 * 1024
@@ -94,6 +94,37 @@ def admit(db_path: str, boundary: dict[str, Any], *, now: int | None = None) -> 
             range_id = _digest({"job_id": job_id, "mint": boundary["mint"], "window_start": plan["window_start"], "window_end": plan["window_end"], "range_start": chunk["start"], "range_end": chunk["end"], "ordinal": ordinal, "resolution": "15m", "purpose": "WATCHTOWER_HISTORICAL_RANGE"})
             conn.execute("INSERT OR IGNORE INTO watchtower_historical_backfill_ranges(range_id,job_id,ordinal,range_start,range_end,state,updated_at) VALUES(?,?,?,?,?,?,?)", (range_id, job_id, ordinal, chunk["start"], chunk["end"], "PENDING", stamp))
     return {**plan, "job_id": job_id, "status": "ALREADY_EXISTS" if existed else "PREFLIGHTED"}
+
+
+def promote_recovered_opening(db_path: str, boundary: dict[str, Any], opening: dict[str, Any], *, now: int) -> dict[str, Any]:
+    """Promote only a compatible waiting fact for bounded historical recovery.
+
+    This deliberately creates neither a live admission nor future monitor work.
+    The historical executor may consume the resulting fact only through its
+    bounded backfill job and terminal materialization.
+    """
+    required = ("mint", "assignment_id", "migration_signature", "migration_slot", "migration_timestamp", "pumpswap_pool")
+    if any(boundary.get(key) in (None, "") for key in required):
+        raise ValueError("INCOMPLETE_CANONICAL_BOUNDARY")
+    required_opening = ("entry_timestamp", "entry_mc_usd", "entry_method", "entry_exactness")
+    if any(opening.get(key) in (None, "") for key in required_opening):
+        raise ValueError("INCOMPLETE_RECOVERED_OPENING")
+    if int(opening["entry_timestamp"]) not in {int(boundary["migration_timestamp"]), int(boundary["migration_timestamp"]) + 1}:
+        raise ValueError("RECOVERED_OPENING_TIMESTAMP_INVALID")
+    if float(opening["entry_mc_usd"]) <= 0:
+        raise ValueError("RECOVERED_OPENING_MC_INVALID")
+    provenance = _digest({"kind": "WATCHTOWER_RECOVERED_OPENING_V1", "boundary": boundary, "opening": opening})
+    with sqlite3.connect(db_path) as conn:
+        row = conn.execute("SELECT entry_status,monitor_state,assignment_timestamp,assignment_provenance,entry_timestamp,entry_mc_usd,entry_method,entry_exactness FROM operation_monitor_facts WHERE operation_id='watchtower' AND mint=?", (boundary["mint"],)).fetchone()
+        if not row:
+            raise ValueError("WAITING_MONITOR_FACT_REQUIRED")
+        waiting = row[0] == "WAITING_FOR_ENTRY_REFERENCE" and row[1] == "WAITING_FOR_ENTRY_REFERENCE" and row[2] is not None and bool(row[3])
+        same = row[0] == "QUALIFIED" and row[1] == "HISTORICAL_RECOVERY_ACQUIRING" and row[4] == int(opening["entry_timestamp"]) and row[5] == float(opening["entry_mc_usd"]) and row[6] == opening["entry_method"] and row[7] == opening["entry_exactness"]
+        if not waiting and not same:
+            raise ValueError("INCOMPATIBLE_EXISTING_MONITOR_FACT")
+        if waiting:
+            conn.execute("UPDATE operation_monitor_facts SET entry_method=?,entry_timestamp=?,entry_mc_usd=?,entry_status='QUALIFIED',entry_exactness=?,monitor_state='HISTORICAL_RECOVERY_ACQUIRING',monitor_started_at=NULL,next_observation_at=NULL,monitor_completed_at=NULL,evidence_status='HISTORICAL_RECOVERY_OPENING_QUALIFIED',provenance_digest=?,updated_at=? WHERE operation_id='watchtower' AND mint=? AND entry_status='WAITING_FOR_ENTRY_REFERENCE' AND monitor_state='WAITING_FOR_ENTRY_REFERENCE'", (opening["entry_method"], int(opening["entry_timestamp"]), float(opening["entry_mc_usd"]), opening["entry_exactness"], provenance, now, boundary["mint"]))
+    return {**opening, "state": "HISTORICAL_RECOVERY_OPENING_QUALIFIED", "provenance_digest": provenance}
 
 
 def ranges(db_path: str, job_id: str) -> list[dict[str, Any]]:
@@ -229,7 +260,7 @@ def commit_to_existing_watchtower_terminal(db_path: str, result: dict[str, Any],
         ensure_history_schema(conn)
         if historical_job_id is not None:
             existing = conn.execute("SELECT entry_status,monitor_state FROM operation_monitor_facts WHERE operation_id='watchtower' AND mint=?", (result["mint"],)).fetchone()
-            if existing and existing[0] == "WAITING_FOR_ENTRY_REFERENCE" and existing[1] == "WAITING_FOR_ENTRY_REFERENCE":
+            if existing and ((existing[0] == "WAITING_FOR_ENTRY_REFERENCE" and existing[1] == "WAITING_FOR_ENTRY_REFERENCE") or (existing[0] == "QUALIFIED" and existing[1] == "HISTORICAL_RECOVERY_ACQUIRING")):
                 for candle in candles:
                     conn.execute("""INSERT OR IGNORE INTO operation_monitor_observations(operation_id,mint,observation_timestamp,mc_usd,resolution,source,request_identity,provenance_digest,created_at,open_mc_usd,high_mc_usd,low_mc_usd,close_mc_usd) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)""", ("watchtower", result["mint"], int(candle["timestamp"]), float(candle["close"]), "15m", "HISTORICAL_BACKFILL", provenance, _digest(candle), now, float(candle["open"]), float(candle["high"]), float(candle["low"]), float(candle["close"])))
                 return _historical_sparse_terminal(conn, result, candles, reduced, now=now, job_id=historical_job_id) | {"entry_method": result["entry_method"], "entry_exactness": result["entry_exactness"]}

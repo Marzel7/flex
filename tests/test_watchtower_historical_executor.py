@@ -2,7 +2,7 @@ import subprocess
 from pathlib import Path
 from types import SimpleNamespace
 import sqlite3
-from src.ops.watchtower_historical_backfill import MAX_BATCH1_CHECKPOINT_BYTES, admit, begin_next_range, complete_range, ranges
+from src.ops.watchtower_historical_backfill import MAX_BATCH1_CHECKPOINT_BYTES, admit, begin_next_range, complete_range, ranges, promote_recovered_opening
 from src.ops.watchtower_historical_executor import HistoricalExecutor
 
 MINT="HRinFbhZjrb2xoqSzxYCYKX7LqJ3H6pn42CURb2cpump"
@@ -56,3 +56,15 @@ def test_range_refuses_before_per_job_budget_exceeds(tmp_path):
   conn.execute("UPDATE watchtower_historical_backfill_jobs SET retained_checkpoint_bytes=? WHERE job_id=?",(MAX_BATCH1_CHECKPOINT_BYTES-1,job))
  assert complete_range(db,row["range_id"],{"small":"evidence"},now=3) == "REFUSED_STORAGE_BOUND"
  assert {r["state"] for r in ranges(db,job) if r["range_id"]==row["range_id"]} == {"FAILED_CLOSED"}
+
+def test_recovered_opening_promotes_waiting_fact_without_live_admission(tmp_path):
+ db=str(tmp_path/"recover.db")
+ with sqlite3.connect(db) as conn:
+  conn.execute("CREATE TABLE operation_monitor_facts(operation_id TEXT,mint TEXT,entry_status TEXT,monitor_state TEXT,assignment_timestamp INTEGER,assignment_provenance TEXT,entry_timestamp INTEGER,entry_mc_usd REAL,entry_method TEXT,entry_exactness TEXT,monitor_started_at INTEGER,next_observation_at INTEGER,monitor_completed_at INTEGER,evidence_status TEXT,provenance_digest TEXT,updated_at INTEGER,PRIMARY KEY(operation_id,mint))")
+  conn.execute("INSERT INTO operation_monitor_facts(operation_id,mint,entry_status,monitor_state,assignment_timestamp,assignment_provenance,entry_method) VALUES('watchtower',?,'WAITING_FOR_ENTRY_REFERENCE','WAITING_FOR_ENTRY_REFERENCE',1,'assignment','FIRST_FULL_POST_MIGRATION_SECOND_MC')",(MINT,))
+ opening={"entry_timestamp":1,"entry_mc_usd":12.5,"entry_method":"MIGRATION_SECOND_MC_FALLBACK","entry_exactness":"MIGRATION_SECOND_MC_FALLBACK"}
+ result=promote_recovered_opening(db,boundary(),opening,now=2)
+ with sqlite3.connect(db) as conn:
+  row=conn.execute("SELECT entry_status,monitor_state,entry_timestamp,entry_mc_usd,entry_method,entry_exactness,monitor_started_at,next_observation_at FROM operation_monitor_facts").fetchone()
+ assert result["state"]=="HISTORICAL_RECOVERY_OPENING_QUALIFIED"
+ assert row==("QUALIFIED","HISTORICAL_RECOVERY_ACQUIRING",1,12.5,"MIGRATION_SECOND_MC_FALLBACK","MIGRATION_SECOND_MC_FALLBACK",None,None)

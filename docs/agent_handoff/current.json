@@ -1,4 +1,14 @@
 {
+  "watchtower_terminal_waiting_fact_scope_hold_20261006": {
+    "engineering_sha": "757d79ae75d58fe33a452838e955c1aeaf6e6c63",
+    "status": "HOLD_RETAINED_OHLC_CONTINUITY_REQUIRED",
+    "identity_trace": "operation_monitor_facts is keyed by (operation_id,mint), so the attempted historical INSERT OR IGNORE collides with COOK's existing watchtower/COOK WAITING_FOR_ENTRY_REFERENCE projection. The monitor worker has an established constrained mutable-projection promotion contract for non-qualified rows, rather than an append-only fact version model.",
+    "qualification_result": "A provider-free online-backup clone of the exact TERMINAL_COMMIT_PENDING COOK state proved a compatible assignment-bearing waiting row can be promoted in memory, but the unchanged terminal finalizer then rejected the retained three 15m candles as non-contiguous and would require a provider request. The terminal-only authorization explicitly prohibits changing finalizer/Policy-C/acquisition semantics or making provider calls, so the requested end-to-end fixture cannot pass within scope.",
+    "safety": "No real COOK DB write during qualification; no provider/RPC call; no credential binding; no engineering commit; all exploratory source changes were reverted; pinned engineering worktree clean.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Provider-free scope audit only; no qualifying code change remains.",
+    "exact_next_action": "AUTHORIZE_OR_REJECT_A_SEPARATE_RETAINED_SPARSE_15M_TERMINAL_COVERAGE_SEMANTICS_REVIEW"
+  },
   "watchtower_real_cook_batch1_terminal_fact_hold_20261006": {
     "engineering_sha": "757d79ae75d58fe33a452838e955c1aeaf6e6c63",
     "status": "HOLD_COOK_TERMINAL_OR_PRODUCT_TERMINAL_FACT_REQUIRED",

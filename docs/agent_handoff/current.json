@@ -1,4 +1,20 @@
 {
+  "watchtower_post_cook_data_ui_20261006": {
+    "engineering_sha": "f4e78e91183685fc5dc253fe3ccfcfc32a6064bb",
+    "status": "HOLD_FORWARD_WATCHTOWER_GAPS_OPENING_AND_TERMINAL_FINALIZATION",
+    "base_authority": "e6da55a7b6d57d93a0e6de02c3d6c1140b39a1c6",
+    "audit_window": "Retained natural Watchtower assignments from 1791269958 through 1791298804 in DEV005A; read-only audit. COOK is retained separately in its completed isolated database and is a regression fixture, not reacquired.",
+    "natural_cohort": "4 assignments: 1 qualified +1-second Entry, 3 Opening-attempted but unqualified (TARGET_SECOND_ABSENT), 0 migration-second-fallback, 0 not-attempted. The qualified token entered monitoring, retained 5 observations and collapsed after 3 calls, but has no final_proven_ath_mc/final resolution. The three unqualified tokens each retain zero observations and explicit WAITING_FOR_ENTRY_REFERENCE state. Current natural Watchtower LIVE count=0.",
+    "lifecycle": "Post-COOK states: WAITING_FOR_ENTRY_REFERENCE=3; TERMINAL_PENDING_RECONSTRUCTION=1; TERMINAL_COMPLETE=0; TERMINAL_SPARSE_OBSERVED=0; LIVE=0. Price-observation tokens=1; without observations=3. No post-COOK natural complete terminal control exists, so NATURAL_COMPLETE_UI_REGRESSION_PASS cannot be claimed from retained data.",
+    "provider_leak_audit": "Retained facts show provider_call_count total=3, max=3 for the sole qualified token, and zero for each waiting token. No retained evidence indicates opening retries, unbounded polling, or duplicate post-COOK work; no diagnostic provider calls were made.",
+    "ui": "The existing registered /operations/live-monitor route referenced a missing template. The scoped commit supplies that exact template and derives display-only lifecycle_class, history_visible, coverage_class, and terminal_metric_exactness from operation_monitor_facts. History is restricted to finalized authoritative terminal rows; waiting rows cannot appear as History. Sparse rows visibly use Observed Peak, Observed Multiple, Observed Drawdown, Last Observed MC, SPARSE, and OBSERVED_ONLY. Entry method labels distinguish +1 second from migration-second fallback. Missing values render as an em dash, never zero/synthetic data.",
+    "qualification": "29 focused provider-free tests passed, 0 failed. Includes exact COOK sparse regression values/42-second time-to-peak, sparse and complete semantics, waiting exclusion, method labels, retained-history adapter/FSM, launcher, product projection, Policy C, and migration-second fallback. Commit pushed and remote verified on origin/codex/watchtower-post-cook-ui.",
+    "storage": "No new database/table/raw payload/per-token store. UI is a read-only projection of existing compact facts/observations. Raw provider payload retention=false; existing project 500MB rule unaffected.",
+    "safety": "Birdeye=0; Helius=0; Batch2=false; full backfill=false; DEV005A writes=0; original workspace writes=0; Supervisor/listener changes=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Committed UI/read-projection source was qualified in a new isolated worktree only; no active runtime target was changed.",
+    "exact_next_action": "FIX_FORWARD_WATCHTOWER_OPENING_AND_TERMINAL_FINALIZATION_GAPS_BEFORE_HISTORICAL_BATCH2"
+  },
   "watchtower_sparse_terminal_completion_20261006": {
     "engineering_sha": "e6da55a7b6d57d93a0e6de02c3d6c1140b39a1c6",
     "status": "PASS_ISOLATED_COOK_BATCH1_COMPLETED_SPARSE_OBSERVED_ONLY",

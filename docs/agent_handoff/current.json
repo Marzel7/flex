@@ -1,4 +1,25 @@
 {
+  "watchtower_real_cook_batch1_terminal_fact_hold_20261006": {
+    "engineering_sha": "757d79ae75d58fe33a452838e955c1aeaf6e6c63",
+    "status": "HOLD_COOK_TERMINAL_OR_PRODUCT_TERMINAL_FACT_REQUIRED",
+    "phase_a": "Per-job retained-checkpoint accounting replaced the erroneous whole-DB 1MiB admission gate. The clean commit is pushed and remote-matched. Twenty-three focused provider-free tests passed, including oversized base DB admission, durable budget refusal/no reset, clean generic refusal handling, and qualified-Opening reuse with six historical-only calls. No Phase A provider call or real COOK DB mutation occurred.",
+    "phase_b": "The new clean pinned runtime passed preflight against the real post-Opening snapshot. It reused the durable qualified Opening without an Opening provider call, admitted one job, and completed all six 15m ranges with one attempt each. Range normalized candle counts were [3,0,0,0,0,0].",
+    "failure_boundary": "After transition to TERMINAL_COMMIT_PENDING, commit_to_existing_watchtower_terminal inserted 3 retained 15m observations but could not replace the pre-existing COOK WAITING_FOR_ENTRY_REFERENCE fact because the committed adapter uses INSERT OR IGNORE. WatchtowerTerminalAthFinalizer then failed closed with TERMINAL_FACT_REQUIRED. No retry, patch, additional provider call, or Batch 2 action followed.",
+    "isolated_db": {
+      "path": "/private/tmp/watchtower-cook-batch1-80c92430.dev.db",
+      "pre_resume_sha256": "3f2a57dce61a7afbf5b29712cfa1a45122a418d88acc92ebf95993a0622c4c31",
+      "post_run_sha256": "17cf733b8ebd30cc298df00ad6e3acce1aad0563890b9c2db14adb9eca75a4ae",
+      "size_before_bytes": 1077248,
+      "size_after_bytes": 1097728,
+      "integrity_check": "ok",
+      "job_state": "TERMINAL_COMMIT_PENDING",
+      "retained_checkpoint_bytes": 2550
+    },
+    "safety": "Phase B Opening calls=0; historical calls=6; lifetime Cook calls=7; raw payload retention=false; no live DEV005A write; no source change after the engineering commit; no Supervisor change; executor exited; Batch 2/3 and full backfill remain false.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Isolated one-shot pinned execution only; no active runtime deployment changed.",
+    "exact_next_action": "STOP_AND_REVIEW_ONLY_THE_TERMINAL_FACT_MATERIALIZATION_BOUNDARY_FOR_AN_EXISTING_WAITING_COOK_FACT"
+  },
   "watchtower_real_cook_batch1_admission_storage_hold_20261006": {
     "engineering_sha": "80c924307583f8ead39419a8e247f9d048c885ee",
     "status": "HOLD_COOK_ADMISSION_STORAGE_BOUND",

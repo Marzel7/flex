@@ -1,4 +1,24 @@
 {
+  "watchtower_controlled_clean_lineage_composition_20261006": {
+    "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41",
+    "status": "HOLD_SECONDARY_AUTHORITY_MISSING_EXACTLY_AUTHORIZED_MODULE",
+    "target": "/private/tmp/watchtower-fallback-reconstructed on branch codex/watchtower-fallback-reconstructed; status clean and unmodified.",
+    "authority_manifest": {
+      "primary": "8897a5a22ec3f079a5973ae7e99048090b455e41",
+      "secondary": "d3b2136b",
+      "verified_secondary_paths": [
+        "src/ops/historical_15m_reconstruction.py (blob 09ba3d0dfa81451047615805b2a0a2695e5c7f25)",
+        "src/ops/watchtower_price_fact_contract.py (blob 5a229385b4f6ede325272c144601d795e1150e07)",
+        "src/ops/operator_lifecycle_projection.py (blob d21a65da80ff927d882fa7be82a66cd52863dbd0)"
+      ],
+      "missing_exact_secondary_path": "src/ops/universal_incremental_window.py"
+    },
+    "finding": "git ls-tree -r d3b2136b verifies the three paths above but returns no tree entry for src/ops/universal_incremental_window.py. The requested controlled composition permits importing exactly four named tracked d3 paths and requires stopping for a missing clean dependency; no blob exists at the named secondary authority, so importing any alternate revision would exceed authorization.",
+    "safety": "No modules imported; clean target remains unmodified; original dirty workspace untouched; provider calls=0; COOK/historical execution=0; deployment/runtime/database/listener changes=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Lineage verification stopped before executable source modification.",
+    "next_action": "AUTHORIZE_A_SPECIFIC_CLEAN_COMMIT_AND_BLOB_FOR_SRC_OPS_UNIVERSAL_INCREMENTAL_WINDOW_PY_OR_REVISE_THE_EXACT_FOUR_FILE_COMPOSITION_MANIFEST"
+  },
   "watchtower_reconstruction_from_8897_20261006": {
     "status": "HOLD_CLEAN_AUTHORITY_LINEAGE_MISSING_REQUIRED_PREEXISTING_MODULES",
     "target": "Created /private/tmp/watchtower-fallback-reconstructed on branch codex/watchtower-fallback-reconstructed exactly at 8897a5a22ec3f079a5973ae7e99048090b455e41; target remains unmodified.",

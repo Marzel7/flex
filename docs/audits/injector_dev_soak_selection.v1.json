@@ -1,0 +1,8 @@
+{
+  "mode": "DEV_005_ISOLATED_SOAK",
+  "environment": "DEV",
+  "allowlist": [
+    "3yvK6WWww1moF3qx3UvHngZCHy9kRCVd9Jva8tRrpump"
+  ],
+  "selection_contract": "INJECTOR_SINGLE_MINT_OPENING_RECOVERY_V1"
+}

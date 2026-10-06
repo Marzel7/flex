@@ -4,6 +4,14 @@
 # writable state.  It never forwards the parent Supervisor environment.
 set -eu
 
+SELECTION_PATH=""
+if [ "$#" -gt 0 ]; then
+  if [ "$#" -ne 2 ] || [ "$1" != "--dev-soak-selection" ]; then
+    echo "usage: $0 [--dev-soak-selection PATH]" >&2; exit 64
+  fi
+  SELECTION_PATH="$2"
+fi
+
 # Resolve from this script's checkout rather than a shared mutable workspace.
 # The Supervisor entrypoint may be switched to a pinned worktree without
 # allowing its imports or writable DEV state to drift back to another clone.
@@ -12,6 +20,20 @@ STATE_ROOT="${MONITOR_RUNTIME_STATE_ROOT:-$ROOT}"
 ENV_FILE="${MONITOR_ENV_FILE:-$ROOT/.env}"
 PREFLIGHT_NO_TRANSPORT="${MONITOR_PREFLIGHT_NO_TRANSPORT:-0}"
 CLAIM_AUTHORITY_DB_PATH="${MONITOR_CLAIM_AUTHORITY_DB_PATH:-}"
+DEFAULT_SELECTION_PATH="$STATE_ROOT/docs/audits/dev_005a_final_population_selection.v1.json"
+SELECTION_PATH="${SELECTION_PATH:-$DEFAULT_SELECTION_PATH}"
+
+# Explicit selection is an authority boundary: validate it before credentials
+# or the isolated runtime are constructed, and never fall back silently.
+/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python - "$SELECTION_PATH" <<'PY'
+import json, sys
+try:
+    with open(sys.argv[1], encoding="utf-8") as source: payload=json.load(source)
+    assert payload.get("mode") == "DEV_005_ISOLATED_SOAK"
+    assert isinstance(payload.get("allowlist"), list) and all(isinstance(x, str) and x for x in payload["allowlist"])
+except Exception:
+    raise SystemExit("INVALID_DEV_SOAK_SELECTION_PATH")
+PY
 
 # Python puts the current directory ahead of PYTHONPATH.  Normalize it before
 # any interpreter invocation so a Supervisor wrapper or manual caller cannot
@@ -57,7 +79,7 @@ exec /usr/bin/env -i \
   MONITOR_RUNTIME="dev" \
   OPERATION_MONITOR_PRICE_MODE="HISTORICAL" \
   OPERATION_MONITOR_FAIR_SCHEDULER="true" \
-  DEV_005_SOAK_SELECTION_PATH="$STATE_ROOT/docs/audits/dev_005a_final_population_selection.v1.json" \
+  DEV_005_SOAK_SELECTION_PATH="$SELECTION_PATH" \
   MONITOR_PREFLIGHT_NO_TRANSPORT="$PREFLIGHT_NO_TRANSPORT" \
   MONITOR_CLAIM_AUTHORITY_DB_PATH="$CLAIM_AUTHORITY_DB_PATH" \
   SQLITE_LIFECYCLE_LOG="$STATE_ROOT/.dev_runtime/monitor/dev_005a/logs/sqlite_lifecycle.jsonl" \

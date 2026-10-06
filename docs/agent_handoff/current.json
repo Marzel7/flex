@@ -19093,5 +19093,18 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_ACTIVE_FORWARD_RUNTIME_DOES_NOT_MATCH_DEPLOYABLE_CLEAN_AUTHORITY",
     "next_action": "RECONCILE_THE_SINGLE_CANONICAL_INJECTOR_MIGRATION_TIMESTAMP_AND_AUTHORIZE_AN_EXACT_CLEAN_RUNTIME_TARGET_FOR_OPERATION_MONITOR_WORKER_BEFORE_IMPLEMENTATION_DEPLOYMENT_OR_PROVIDER_RECOVERY"
+  },
+  "watchtower_canonical_boundary_audit_20261006": {
+    "engineering_revision": "read-only audit against retained DEV005A monitor evidence and canonical database; source/runtime unchanged",
+    "status": "PASS_BOUNDARY_NOT_PRIMARY_CAUSE",
+    "injector": "The forward envelope t=1791307928 is the same value as canonical token_analysis.migrated_at for the same PumpSwap transaction mPr6Gv6Sjag8sU6bLC4m5uejoshcqVcBhs8r5uwXMrjZkXfdnffQukgs1c64LpFhvTJXN94zc2rujmQGoAp5M5X, slot 453969437, pool 5sBp2gWc4bUyMzDg57YjPtDm1PBRY5jQG2LamGpxycBv, lifecycle=migrated. The original [1791307928,1791307930] request therefore covered canonical t and t+1. Its retained result remains HTTP 200/TARGET_SECOND_ABSENT, one attempt, no Entry or observations.",
+    "timestamp_divergence": "token_analysis.migrated_at is written by PumpfunCurveListener._process_migration_with_mint at event detection as migrated_at_ts=int(time.time()), with transaction slot. MonitorWorker.resolve_operation_migration_boundary explicitly selects that canonical token_analysis row. pumpfun_migration_verification.migrated_at=1791307931 is produced by _record_migration_verification_snapshot; its fast-pool path passes int(time.time()) later and its upsert overwrites migrated_at while retaining/coalescing the same transaction and pool. It is a later verification-snapshot/processing time, not the Watchtower boundary field.",
+    "controls": "Forward t equals canonical token_analysis t for every retained token: COOK 1791269958 offset 0; B8S7 1791287674 offset 0; 7iXZ 1791294235 offset 0; successful 42iY 1791298716 offset 0 and its +1 entry is 1791298717. Their verification snapshot values are later by 2,2,2,1 seconds respectively, proving that table is a different timestamp semantic rather than a failure-only canonical correction.",
+    "conclusion": "No failed forward request missed canonical t because of this mismatch. Boundary class=BOUNDARY_NOT_CAUSAL. The normalizer divergence remains a real independent local defect, but historical retained evidence cannot separate whether it or provider publication/timing caused the sealed failures. Recommendation: C, boundary is not causal; a bounded two-attempt policy remains an independent coverage decision, not a remedy for a wrong t.",
+    "runtime_topology": "watchtower_listener owns migration detection and Watchtower assignment; operation_monitor_worker owns Opening acquisition and qualified-entry/LIVE admission. The configured operation_monitor_worker service is stopped and points to /private/tmp/flex-universal-price-monitor-import-recovery, not the clean 7972 worktree. The dirty Production listener need not be mutated to deploy the worker authority, but the exact worker runtime target must be authorized and configured separately.",
+    "safety": "Birdeye=0; Helius=0; source changes=0; database rows=0; runtime deployment=false; restarts=0; INJECTOR recovery calls=0; raw payload retention=false; full backfill=false.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only boundary and topology audit only.",
+    "next_action": "AUTHORIZE_AN_EXACT_CLEAN_OPERATION_MONITOR_WORKER_DEPLOYMENT_TARGET_AND_THEN_DECIDE_THE_SEPARATE_DURABLE_TWO_ATTEMPT_POLICY"
   }
 }

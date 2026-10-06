@@ -1,4 +1,14 @@
 {
+  "watchtower_two_token_opening_recovery_execution_preflight_20261006": {
+    "engineering_revision": "a433c67698778ce02be30a4eae90aa7e3f0f8e26 clean and unchanged",
+    "status": "HOLD_OPENING_ONLY_PERSISTENCE_TARGET_UNSPECIFIED",
+    "cohort": "B8S7WGQYteNSBz4rU4Xs1hkr1seGpxYgUuV2wgtbpump: migration=1791287674, slot=453894061, pool=DEabz1ciRBJYZS2S8vM4uXY9FJXt1rMK8nfj8os9cuHZ; 7iXZi55AyKbJv5e9XTQuVcywdT2ejHjGBf3NKuCLpump: migration=1791294235, slot=453918609, pool=4Y4HFFEnmDkmUsVk1kLyzSiL21GoTV5EcyEobwYi5Cfg. Both retain WAITING_FOR_ENTRY_REFERENCE with no entry in DEV005A.",
+    "blocker": "The clean normalizer supports the authorized [t,t+4) acquisition, but its existing successful MonitorWorker path persists a qualified Entry by immediately activating MONITORING_ACTIVE. The only existing constrained WAITING-fact promotion in the clean authority is historical terminal materialization, which also writes observations/terminal state. Neither satisfies the explicitly required Opening-only/no-live-admission/no-lifecycle contract. The authorization also names no writable database target: writing the DEV005A database would mutate the original workspace, while creating an isolated copy is not specified as the authoritative persistence target.",
+    "safety": "Provider calls=0; Helius calls=0; database writes=0; source changes=0; engineering commits=0; runtime deployment=false; process restarts=0; COOK and 42iY untouched; Batch 2/backfill=false.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "The execution gate stopped before a request because it lacks both a compliant existing persistence contract and an authorized writable target.",
+    "next_action": "AUTHORIZE_AN_EXACT_DATABASE_TARGET_AND_AN_OPENING_ONLY_EXISTING_PROMOTION_CONTRACT_OR_AUTHORIZE_DIAGNOSTIC_ONLY_ACQUISITION"
+  },
   "watchtower_three_token_opening_recovery_preflight_20261006": {
     "engineering_revision": "a433c67698778ce02be30a4eae90aa7e3f0f8e26 clean authority inspected; no execution started",
     "status": "HOLD_RECOVERY_COHORT_COUNT_MISMATCH",

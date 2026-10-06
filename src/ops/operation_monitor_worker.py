@@ -246,7 +246,7 @@ class MonitorQueue:
   temporary=path.parent/(f'.{path.name}.{os.getpid()}.tmp')
   temporary.write_text(json.dumps({'last_message_id':str(message_id)},sort_keys=True,separators=(',',':'))+'\n')
   os.replace(temporary,path); self.queue._fsync_directory(path.parent)
- def claim(self, limit: int):
+ def claim(self, limit: int, *, eligible=None):
   """Claim normally in queue order, or by newest real assignment in DEV.
 
   The production queue deliberately retains its opaque, stable message-id
@@ -278,6 +278,7 @@ class MonitorQueue:
    try:
     candidate=(json.loads(source.read_text()).get('envelope') or {})
     if not self.soak_allows(candidate): continue
+    if eligible is not None and not eligible(candidate): continue
     if int(candidate.get('next_eligible_dispatch_at') or 0) > int(time.time()): continue
     # Pending strict-opening work has its own durable eligibility.  Do not
     # claim-and-requeue it before that deadline: doing so wastes a worker tick
@@ -862,7 +863,7 @@ class MonitorBirdeyeTransport:
    self.last_entry_diagnostic=diagnostic
    raise StrictEntryNormalizationError('TRANSPORT_EXCEPTION',diagnostic)
   target=int(plan['migration_timestamp'])+1
-  diagnostic={'normalizer_version':'STRICT_ENTRY_NORMALIZER_V2','provider':'Birdeye','request_family':'BIRDEYE_OHLCV_1S_STRICT_MIGRATION_WINDOW','http_status':int(result.status_code),'provider_item_count':0,'normalized_item_count':0,'exact_target_item_count':0,'target_timestamp':target,'target_timestamp_present':False,'value_field_present':False,'value_parse_state':'NOT_EVALUATED','normalization_state':'NOT_EVALUATED','failure_stage':None,'failure_category':None}
+  diagnostic={'normalizer_version':'STRICT_ENTRY_NORMALIZER_V2','provider':'Birdeye','request_family':'BIRDEYE_OHLCV_1S_STRICT_MIGRATION_WINDOW','http_status':int(result.status_code),'provider_item_count':0,'normalized_item_count':0,'normalized_timestamps':[],'exact_target_item_count':0,'migration_timestamp':int(plan['migration_timestamp']),'migration_timestamp_present':False,'target_timestamp':target,'target_timestamp_present':False,'value_field_present':False,'value_parse_state':'NOT_EVALUATED','normalization_state':'NOT_EVALUATED','failure_stage':None,'failure_category':None}
   self.last_entry_diagnostic=diagnostic
   if result.status_code != 200:
    payload=result.payload if isinstance(result.payload,dict) else {}
@@ -889,6 +890,9 @@ class MonitorBirdeyeTransport:
     diagnostic.update({'normalization_state':'FAILED','failure_stage':'TIMESTAMP_PARSE','failure_category':'NORMALIZATION_FAILED'})
     raise StrictEntryNormalizationError(diagnostic['failure_category'],diagnostic)
    diagnostic['normalized_item_count']+=1
+   if timestamp in {target, int(plan['migration_timestamp'])} and timestamp not in diagnostic['normalized_timestamps']:
+    diagnostic['normalized_timestamps'].append(timestamp)
+   if timestamp == int(plan['migration_timestamp']): diagnostic['migration_timestamp_present']=True
    if timestamp not in {target, int(plan['migration_timestamp'])}: continue
    is_target = timestamp == target
    if is_target:
@@ -1344,8 +1348,10 @@ class MonitorWorker:
   if result['state'] not in {'FINALIZED','ALREADY_FINALIZED'}: raise RuntimeError('TERMINAL_ATH_UNCOMMITTED')
   self.q.queue.ack(c); self.last_ack_timestamp=time.time(); return result
  def process_once(self):
-  if not self.q.provider_eligible(): return 0
-  claimed=self.q.claim(CONCURRENCY)
+  # Retained terminal OHLC may finish a collapsed fact without any provider
+  # request. Capacity backoff must not starve that provider-free work.
+  provider_ready=self.q.provider_eligible()
+  claimed=self.q.claim(CONCURRENCY, eligible=(None if provider_ready else lambda p: p.get('work_type')=='WATCHTOWER_TERMINAL_ATH_FINALIZATION'))
   for c in claimed:
    try:
     p=c.payload['envelope'];self.heartbeat=time.time()

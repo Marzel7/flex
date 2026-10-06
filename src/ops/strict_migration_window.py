@@ -55,6 +55,10 @@ def failure_diagnostic(*, request: Mapping[str, Any], provider_diagnostic: Mappi
         "attempt_timestamp": int(time.time() if attempt_timestamp is None else attempt_timestamp),
         "job_identity": str(job_identity)[:128],
         "request_fingerprint": request_fingerprint(request),
+        "normalized_item_count": int(source.get("normalized_item_count") or 0),
+        "normalized_timestamps": [int(value) for value in source.get("normalized_timestamps", [])[:2]],
+        "migration_timestamp_present": bool(source.get("migration_timestamp_present")),
+        "target_timestamp_present": bool(source.get("target_timestamp_present")),
     }
     encoded = json.dumps(record, sort_keys=True, separators=(",", ":")).encode()
     if len(encoded) > FAILURE_DIAGNOSTIC_MAX_BYTES:

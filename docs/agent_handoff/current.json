@@ -19299,4 +19299,14 @@
     "runtime_deployment_gate": "HOLD_OPENING_REUSE_RECORD_AND_COMPLETE_AUDIT_LEDGER_REQUIRED",
     "next_action": "AUTHORIZE_A_SMALL_CLEAN_CHANGE_TO_MATERIALIZE_THE_PINNED_RETAINED_OPENING_FOR_HISTORICAL_EXECUTOR_REUSE_AND_COMPOSE_A_READ_ONLY_96_RECORD_AUDIT_LEDGER"
   }
+  ,"watchtower_retained_opening_materialization_partial_20261006": {
+    "engineering_revision": "98d72e374002bcda0cbbc537a615e03f44a96e00 on origin/codex/watchtower-offset-audit-evidence",
+    "status": "PARTIAL_RETAINED_OPENING_REUSE_COMMITTED_96_LEDGER_COMPOSITION_REMAINS",
+    "opening_contract": "The existing HistoricalExecutor contract uses watchtower_historical_openings(mint PRIMARY KEY,state,result_json,created_at) and reuses state=QUALIFIED compact results. The singleton retained importer now creates that existing table only when absent and atomically inserts the same pinned compact retained result before promoting the fact. A conflicting existing opening fails closed; no new schema/table family was introduced.",
+    "qualification": "10 focused provider-free tests passed: retained import/materialized qualified opening plus historical executor regressions. Birdeye=0; Helius=0; no deployment/runtime/database mutation outside fixtures.",
+    "remaining": "The committed product ledger remains the existing 93-record artifact. Provider-free composition and qualification of a versioned 96-record read-only artifact with B8S7, 7iXZ, and INJECTOR controls is still required before deployment can satisfy the audit UI scope.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_96_RECORD_AUDIT_LEDGER_COMPOSITION_REMAINS",
+    "next_action": "COMPLETE_ONLY_THE_VERSIONED_96_RECORD_READ_ONLY_AUDIT_LEDGER_COMPOSITION_AND_PRODUCT_FIXTURE"
+  }
 }

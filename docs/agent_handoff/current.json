@@ -1,4 +1,15 @@
 {
+  "watchtower_historical_terminal_integration_20261006": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; uncommitted workspace adapter",
+    "status": "PARTIAL_EXISTING_TERMINAL_FINALIZER_ADAPTER_QUALIFIED",
+    "terminal_seam": "Normal Watchtower completion sets operation_monitor_facts.monitor_state=PRICE_MONITOR_COMPLETE_COLLAPSED and next_observation_at=NULL in src/ops/operation_monitor_worker.py, then enqueues WatchtowerTerminalAthFinalizer. The finalizer reads that same fact plus retained operation_monitor_observations, invokes reduce_watchtower_price_facts, and atomically persists final_proven_ath_mc/final_ath_multiple/provenance to the authoritative operation_monitor_facts History projection. operator_routes.py reads those fields for API/history projection.",
+    "finding": "The historical adapter creates only the existing Watchtower terminal fact and compact 15m observation representation, then invokes WatchtowerTerminalAthFinalizer with retained-OHLC reuse. It creates neither terminal schema nor History authority, does not enqueue live work or use the live scheduler, and adds no provider call. A fallback fixture preserves MIGRATION_SECOND_MC_FALLBACK in terminal fact entry_method/entry_exactness and finalizes ATH/multiple/drawdown through the existing finalizer.",
+    "tests": "pytest -q tests/test_watchtower_migration_second_fallback.py tests/test_watchtower_fallback_backfill_qualification.py tests/test_historical_15m_reconstruction.py tests/test_universal_incremental_window.py tests/test_watchtower_terminal_ath_finalizer.py tests/test_dev_011_live_activation.py: 51 passed, 0 failed.",
+    "safety": "Provider calls=0; COOK/historical execution=0; runtime deployment/restart/listener/Byzantine changes=0; only temporary test SQLite databases were written; raw provider retention=false; range/call bounds unchanged.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "ADD_PLUS1_PARITY_AND_CRASH_BEFORE_DURING_AFTER_TERMINAL_COMMIT_PROVIDER_FREE_TESTS_BEFORE_ANY_COOK_EXECUTION_OR_ENGINEERING_COMMIT"
+  },
   "watchtower_durable_range_resume_20261006": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; uncommitted workspace implementation",
     "status": "PARTIAL_DURABLE_RANGE_RESUME_QUALIFIED_TERMINAL_INTEGRATION_PENDING",

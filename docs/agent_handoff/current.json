@@ -18347,5 +18347,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Bounded diagnostic provider reads only; no executable behavior changed.",
     "exact_next_action": "REVIEW_METRIC_BIAS_BEFORE_ANY_FALLBACK_IMPLEMENTATION"
+  },
+  "watchtower_migration_second_fallback_metric_bias_audit_20261006": {
+    "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 active DEV source; retained-evidence simulation only",
+    "status": "HOLD_METRIC_EVIDENCE_INSUFFICIENT_CLASS_C",
+    "cohort": "The exact ten eligible recent misses are COOK, HUMAN, SIF, HIGCAT, PENIS, www, two CATFLIX mints, new AGENCY, and APE. Each has a retained compact migration-second MC from the prior diagnostic; all remain WAITING_FOR_ENTRY_REFERENCE with no retained observation, peak, final MC, terminal state, or lifecycle price fact.",
+    "simulation": "All ten could be given a simulated t entry under distinct MIGRATION_SECOND_MC_FALLBACK provenance, but simulated multiple count=0 and simulated time-to-peak count=0 because no retained peak evidence exists. Four t-to-t+2 pairs show +0.661856%, +0.937510%, +1.247374%, and +1.407316% changes (mean +1.063514%, median +1.092442%, max absolute +1.407316%); no t-to-t+1 pair exists.",
+    "compatibility": "Current monitor code accepts any positive qualified entry timestamp/MC and computes Current MC, peak, multiple, time-to-peak, terminal policy, and projections from those persisted values without a migration+1 assertion. Existing strict +1 controls are unchanged. This proves structural compatibility only; it does not prove metric comparability between t and +1.",
+    "decision": "Class C. The coverage benefit is substantial (0/10 to simulated 10/10), t+1 remains preferred, and no extra provider call would be required, but retained same-token t/+1 and lifecycle peak evidence is absent. Material bias is neither demonstrated nor ruled out; do not implement.",
+    "safety": "Provider calls=0; source/database/queue/fact/Opening/LIVE/runtime/process changes=0; HIGGS remains excluded from the ten-token cohort due to missing canonical PumpSwap pool.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only simulation only; no executable behavior changed.",
+    "exact_next_action": "COLLECT_ONLY_THE_MISSING_METRIC_EVIDENCE_BEFORE_IMPLEMENTATION"
   }
 }

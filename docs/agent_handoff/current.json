@@ -18327,5 +18327,14 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Audit/simulation only; no executable behavior changed.",
     "exact_next_action": "COLLECT_ONLY_THE_MINIMUM_MIGRATION_SECOND_DIAGNOSTIC_ON_FUTURE_NATURAL_ASSIGNMENTS"
+  },
+  "watchtower_migration_second_fallback_implementation_gate_20261006": {
+    "engineering_revision": "No engineering source selected; implementation deliberately not started",
+    "status": "HOLD_PRECONDITION_AUDIT_NOT_CLASS_A",
+    "blocker": "The immediately preceding required audit is MIGRATION_SECOND_FALLBACK_AUDIT_CLASS=C, not A. It proves strict +1 parity and structural compatibility but does not prove t-vs-+1 MC/multiple comparability: no strict +1 control retains both first-second MC observations. The implementation request expressly prohibits implementation unless the audit is Class A.",
+    "safety": "No source, test, database, queue, runtime, provider, process, Opening, LIVE, COOK, Byzantine, or historical action was performed.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Implementation was blocked before any executable behavior changed.",
+    "exact_next_action": "COLLECT_ONLY_THE_MINIMUM_MIGRATION_SECOND_DIAGNOSTIC_ON_FUTURE_NATURAL_ASSIGNMENTS"
   }
 }

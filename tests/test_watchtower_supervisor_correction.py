@@ -2,6 +2,7 @@ import hashlib
 from pathlib import Path
 from scripts.render_watchtower_supervisor import absolutize_supervisord_log_paths, render_proposed_live, render_fragment, ALLOWED, stanza
 from scripts.isolated_watchtower_supervisor_validation import isolate
+from scripts.render_watchtower_supervisor import _ranges, render_in_place
 
 ROOT = Path(__file__).resolve().parents[1]
 SHA = "288be3388642e28ad487e8c353769a64916f9ed2"
@@ -55,3 +56,22 @@ def test_global_supervisor_logs_are_absolute_and_preserve_main_config_destinatio
     assert f"logfile={expected}/supervisord.log" in rendered
     assert f"childlogdir={expected}" in rendered
     assert "%(here)s" not in rendered
+
+def test_in_place_replacement_preserves_every_non_target_byte_and_is_idempotent():
+    original = source()
+    first, _ = render_in_place(original, ROOT, SHA)
+    second, _ = render_in_place(first, ROOT, SHA)
+    def masked(text):
+        for start, end, _ in sorted(_ranges(text, ALLOWED), reverse=True): text = text[:start] + "<TARGET>" + text[end:]
+        return text
+    assert masked(original) == masked(first)
+    assert first == second
+    assert stanza(original, "watchtower_listener") == stanza(first, "watchtower_listener")
+    assert "[include]" not in first
+
+def test_in_place_rejects_include_and_each_missing_or_duplicate_target():
+    cases = [source()+"[include]\nfiles=x\n", source().replace("[program:watchtower_api]", "[program:no_api]"), source()+"[program:operation_monitor_worker]\ncommand=x\n"]
+    for broken in cases:
+        try: render_in_place(broken, ROOT, SHA)
+        except ValueError: pass
+        else: raise AssertionError("must fail closed")

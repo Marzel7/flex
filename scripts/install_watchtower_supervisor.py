@@ -4,7 +4,7 @@ import subprocess
 import sys
 from pathlib import Path
 if __package__ in {None, ""}: sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from scripts.render_watchtower_supervisor import ALLOWED, absolutize_supervisord_log_paths, remove_stanza, render_fragment, render_proposed_live
+from scripts.render_watchtower_supervisor import ALLOWED, remove_stanza, render_in_place
 
 # Kept for the direct legacy installer unit test and callers.
 remove = remove_stanza
@@ -17,28 +17,22 @@ def authority(root, sha):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, required=True); parser.add_argument("--root", type=Path, required=True)
-    parser.add_argument("--sha", required=True); parser.add_argument("--include-dir", type=Path, required=True)
+    parser.add_argument("--sha", required=True); parser.add_argument("--include-dir", type=Path, required=True, help="rejected legacy include mode")
     parser.add_argument("--apply", action="store_true"); parser.add_argument("--rollback", action="store_true")
     args = parser.parse_args(); authority(args.root, args.sha)
-    managed = args.include_dir / "watchtower_final.conf"; backup = args.include_dir / "watchtower_final.original.conf"
+    if args.include_dir.name != "in-place-backup": raise SystemExit("INCLUDE_DEPLOYMENT_REJECTED_ROOT_GLOBAL_HERE_INTERPOLATION_MUTATED_BY_SUPERVISOR_4_3_0_INCLUDE_PROCESSING")
+    managed = None; backup = args.include_dir / "supervisord.original.conf"
     if args.rollback:
         if not backup.exists(): raise SystemExit("ROLLBACK_BACKUP_MISSING")
         if args.apply:
-            args.config.write_bytes(backup.read_bytes()); managed.unlink(missing_ok=True); backup.unlink()
+            args.config.write_bytes(backup.read_bytes()); backup.unlink()
         else: print(backup.read_text())
         return
-    source = args.config.read_text()
-    if all(f"[program:{name}]" not in source for name in ALLOWED) and managed.exists():
-        candidate, fragment = source, render_fragment(args.root, args.sha)
-        if str(args.include_dir / "*.conf") not in source or managed.read_text() != fragment:
-            raise SystemExit("MANAGED_INSTALL_STATE_INVALID")
-    else:
-        candidate, fragment = render_proposed_live(source, args.root, args.sha, args.include_dir)
-        candidate = absolutize_supervisord_log_paths(candidate, args.config)
+    source = args.config.read_text(); candidate, _ = render_in_place(source, args.root, args.sha)
     if args.apply:
         args.include_dir.mkdir(parents=True, exist_ok=True)
         if not backup.exists(): backup.write_bytes(args.config.read_bytes())
-        managed.write_text(fragment); args.config.write_text(candidate)
+        args.config.write_text(candidate)
     else: print(candidate)
 
 if __name__ == "__main__": main()

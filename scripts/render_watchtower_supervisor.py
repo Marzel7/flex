@@ -26,6 +26,28 @@ def render_proposed_live(source: str, root: Path, sha: str, include_dir: Path):
     candidate = remove_stanza(remove_stanza(source, "operation_monitor_worker"), "watchtower_api").rstrip()
     return candidate + "\n\n[include]\nfiles = " + str(include_dir / "*.conf") + "\n", render_fragment(root, sha)
 
+def _ranges(text, names):
+    sections = [(i, line[9:-1]) for i, line in ((i, line) for i, line in enumerate(text.splitlines(True))) if line.startswith("[program:") and line.rstrip().endswith("]")]
+    positions = []
+    offset = 0
+    for line in text.splitlines(True):
+        if line.startswith("[program:") and line.rstrip()[9:-1] in names: positions.append((offset, line.rstrip()[9:-1]))
+        offset += len(line)
+    if len(positions) != len(names) or {n for _,n in positions} != set(names): raise ValueError("EMBEDDED_SCOPE_INVALID")
+    all_starts=[]; offset=0
+    for line in text.splitlines(True):
+        if line.startswith("["): all_starts.append(offset)
+        offset += len(line)
+    return [(start, next((x for x in all_starts if x>start),len(text)), name) for start,name in positions]
+
+def render_in_place(source: str, root: Path, sha: str):
+    if "[include]" in source: raise ValueError("INCLUDE_DEPLOYMENT_REJECTED")
+    rendered = render_fragment(root, sha)
+    replacements = {name: stanza(rendered, name) for name in ALLOWED}
+    ranges = _ranges(source, ALLOWED); candidate = source
+    for start, end, name in sorted(ranges, reverse=True): candidate = candidate[:start] + replacements[name] + candidate[end:]
+    return candidate, ranges
+
 def absolutize_supervisord_log_paths(candidate: str, config_path: Path) -> str:
     """Keep global Supervisor logs anchored to the main config, never an include."""
     main_dir = config_path.resolve().parent

@@ -18305,5 +18305,15 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Diagnostic request only; no executable behavior changed.",
     "exact_next_action": "KEEP_CURRENT_FAIL_CLOSED_RULE"
+  },
+  "watchtower_cook_migration_second_mcap_followup_20261006": {
+    "engineering_revision": "8897a5a22ec3f079a5973ae7e99048090b455e41 active DEV monitor credential binding; one separately authorized diagnostic GET",
+    "status": "PASS_MIGRATION_SECOND_MCAP_OBSERVED",
+    "request": "One COOK-only Birdeye GET /defi/v3/ohlcv, MCAP/USD/range/padding=false/type=1s, [1791269958,1791269959].",
+    "result": "HTTP 200; one normalized migration-second row: timestamp=1791269958, open=113366.37268891404, high=113464.45625213276, low=113366.37268891404, close=113464.45625213276. This is a diagnostic MC observation only and is not an Opening or fallback candidate.",
+    "safety": "Explicitly authorized one-call follow-up; raw response not retained; no source/database/queue/fact/Opening/LIVE/runtime/process changes and no retry.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Diagnostic request only; no executable behavior changed.",
+    "exact_next_action": "KEEP_CURRENT_FAIL_CLOSED_RULE"
   }
 }

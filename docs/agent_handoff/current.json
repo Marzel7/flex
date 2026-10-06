@@ -19290,4 +19290,13 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "DEPLOY_EXACT_82A02ACF_IMPORT_INJECTOR_RUN_BOUNDED_LIFECYCLE_AND_ENABLE_AUDIT_UI"
   }
+  ,"watchtower_plus2_real_activation_preflight_hold_20261006": {
+    "engineering_revision": "82a02acf92c1a709b93c34f4cf7237525148dc0a inspected; no deployment action taken",
+    "status": "HOLD_EXACT_SHA_HISTORICAL_EXECUTOR_WOULD_REACQUIRE_OPENING",
+    "finding": "The singleton importer promotes the INJECTOR fact to QUALIFIED/HISTORICAL_RECOVERY_ACQUIRING but does not create a qualified watchtower_historical_openings record. Existing HistoricalExecutor.acquire_opening creates that table when absent and issues a Birdeye Opening request before job admission. Therefore exact-SHA execution after import would make a prohibited new INJECTOR Opening call rather than reuse the retained +2 Entry. The exact compact audit ledger also remains a 93-record file excluding INJECTOR, so configuring it alone cannot satisfy the requested three-candidate audit UI visibility.",
+    "safety": "Preflight only: Birdeye=0; Helius=0; Injector Opening calls=0; database/queue/source/Supervisor changes=0; process restarts=0; listener unchanged; other recovery=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_OPENING_REUSE_RECORD_AND_COMPLETE_AUDIT_LEDGER_REQUIRED",
+    "next_action": "AUTHORIZE_A_SMALL_CLEAN_CHANGE_TO_MATERIALIZE_THE_PINNED_RETAINED_OPENING_FOR_HISTORICAL_EXECUTOR_REUSE_AND_COMPOSE_A_READ_ONLY_96_RECORD_AUDIT_LEDGER"
+  }
 }

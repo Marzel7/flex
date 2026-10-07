@@ -19651,5 +19651,18 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Historical gate recovery only; no runtime target changed.",
     "next_action": "AUTHORIZE_A_SEPARATE_LIVE_RUNTIME_PREPARATION_GATE_TO_VERIFY_EXACT_CONFIG_PATH_PROPAGATION_AND_BOUNDED_RETAINED_INJECTOR_HISTORY_ORDER_BEFORE_ANY_NATURAL_TOKEN_SHADOW_EXECUTION"
+  },
+  "watchtower_frozen_runtime_shadow_preparation_20261008": {
+    "engineering_revision": "read-only preparation against daca3e8d9d50a272b0e6ff56aee9a640aab0ebfe; no runtime mutation",
+    "status": "HOLD_CONFIG_PROPAGATION_AND_SHADOW_ISOLATION_UNPROVEN",
+    "runtime_authority": "NOT_READY: committed Supervisor config points to the older /Users/kevinkeaveney/Dev/claude/flex root and does not evidence WATCHTOWER_FINAL_SHA, WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH, an operation_monitor_worker program, or its monitor queue propagation for the frozen candidate. Current running listener/API identities were not altered or inferred as frozen authority.",
+    "ledger": "READY_AS_ARTIFACT: docs/audits/watchtower-opening-offset-audit.v2.json SHA256=ad75e5e910662d0259ca095df9e7ae20501136dc0a8d09ccfec62d1e9273b5b8; 96 records, t+1=52, t=29, t+2=3, unqualified=12. operator_routes reads WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH only for its nested read projection. Runtime propagation is unproven.",
+    "injector_history": "READY_AT_SOURCE_ONLY: retained_injector_opening validates singleton immutable evidence, creates/reuses QUALIFIED watchtower_historical_openings, then promotes only the waiting INJECTOR fact to QUALIFIED/HISTORICAL_RECOVERY_ACQUIRING with offset=2. Conflicting/existing records fail closed. watchtower_historical_backfill reads the QUALIFIED materialized opening, proving reuse path and zero new Injector Opening request requirement when run in the prescribed order. Actual DB/queue writes are required and remain unexecuted.",
+    "shadow_isolation": "NOT_VERIFIED: qualified_entry_monitor_bridge conditionally activates forward monitoring when FLEX_DEV_UNIVERSAL_FORWARD_MONITOR is truthy, and operation_monitor_worker writes MONITORING_ACTIVE/lifecycle facts. No separate no-write shadow mode/executor is evidenced. Therefore normal monitor cannot be assumed to shadow without changing authoritative decisions.",
+    "execution_order": "Verify frozen root/SHA and all env propagation; expose read-only ledger; execute retained Injector import; execute bounded history reuse with zero reacquisition; establish an explicit non-mutating natural-token shadow capability; only then observe natural tokens and seek separate activation authority.",
+    "safety": "No source/config/Supervisor/service/provider/database/queue/Injector/listener mutation. RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only runtime preparation audit only.",
+    "next_action": "AUTHORIZE_A_SEPARATE_MINIMAL_SHADOW_ISOLATION_CAPABILITY_AND_FROZEN_RUNTIME_CONFIG_PREPARATION_BEFORE_ANY_SHADOW_EXECUTION"
   }
 }

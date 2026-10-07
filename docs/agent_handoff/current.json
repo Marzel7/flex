@@ -19549,5 +19549,18 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Isolated candidate source correction and fail-closed qualification probe only; no active runtime target changed.",
     "next_action": "SEPARATELY_CLASSIFY_AND_AUTHORIZE_ISOLATION_OF_THE_IMPORT_TIME_DB_CONNECTION_REAPER_BEFORE_RESUMING_RUNTIME_CANDIDATE_QUALIFICATION"
+  },
+  "watchtower_independent_component_qualification_20261007": {
+    "engineering_revision": "cf2149cb3620b7e6e253cd701e89c098ac7a04d8; no source modification in this pass",
+    "status": "PARTIAL_INDEPENDENT_TRACKS_QUALIFIED_WITH_SEPARATE_BLOCKERS",
+    "passes": "Retained Injector isolated SQLite qualification: 2 passed. Opening offset policy and bounded-audit behavior: 8 passed. 96-record ledger composition, retained controls, selection distribution, and read-only product projection: 4 passed. Live-history isolated SQLite projections: 9 passed. Listener structural/isolated function checks: 15 passed. Read-only current-market and observational UI data contracts: 11 passed. All use temporary SQLite, AST/source inspection, or injected provider doubles; no provider request was made.",
+    "watchtower_regression_blocker": "One provider-free source-line regression failed: tests/test_qualified_price_source_line.py expects SHA256 1bf8ad55... for src/ops/operation_monitor_worker.py, but b362/cf2149 contains a93341be.... Git comparison proves a93341be is already the exact worker content at qualified policy commit 165d576dc0e0c0a9fbca915667f36eb53b5a9bb6. This is a stale asserted digest/evidence mismatch, not a new mutation in the runtime candidate. No test source was changed.",
+    "listener_track": "Full listener persistence fixture is BLOCKED separately at collection: importing src.core.pumpfun_curve_listener imports src.core.ws_price_tracer, which tries to open logs/ws_price_trace.log immediately. The isolated worktree sandbox blocked that write; preceding RPC-metrics initialization also reported an unavailable isolated DB path. No listener fixture body, live database, provider, or running listener was reached. The existing isolated listener checks remain passing but do not replace the full persistence fixture.",
+    "api_track": "Still BLOCKED independently by db_locking module-import startup of db-conn-reaper; no repeated API recovery investigation was performed.",
+    "reaper_patch_review": "cf75e082 is identifiable as the existing minimal lifecycle correction, but it is an intentional coordinated patch: src/utils/db_locking.py removes import-time starts and adds idempotent start/stop ownership; config/gunicorn.conf.py invokes start_connection_reaper in post_worker_init; src/core/main.py covers direct execution; tests cover lifecycle. It also contains separate DB-FD diagnostic-watchdog changes that are not required merely to move reaper ownership. Therefore a later candidate patch must selectively carry the reaper lifecycle/Gunicorn/direct-entry contract and tests, not blindly cherry-pick cf75e082.",
+    "safety": "No candidate source change, deployment, Supervisor action, live DB/queue action, provider call, running-listener change, or large artifact. RUNTIME_DEPLOYMENT_REQUIRED=false because only isolated/read-only qualification ran.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Independent isolated qualification only; no active runtime target changed.",
+    "next_action": "AUTHORIZE_SEPARATE_FIXTURE_ISOLATION_FOR_LISTENER_IMPORT_LOGGING_AND_RESOLVE_OR_SCOPE_THE_STALE_OPERATION_MONITOR_WORKER_DIGEST_ASSERTION; KEEP_API_REAPER_WORK_AS_A_SEPARATE_EXPLICIT_CANDIDATE_DECISION"
   }
 }

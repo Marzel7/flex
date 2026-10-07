@@ -19719,5 +19719,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Bounded read-only operational check only; no runtime target changed.",
     "next_action": "AUTHORIZE_A_SEPARATE_FROZEN_RUNTIME_CONFIGURATION_DEPLOYMENT_OR_AN_EXPLICIT_RETAINED-EVIDENCE_SHADOW_INPUT_PLAN; DO_NOT_ACQUIRE_DATA_OR_ACTIVATE_PLUS2"
+  },
+  "watchtower_shadow_evidence_gap_resolution_20261008": {
+    "engineering_revision": "1bfacfc8683b03c4c0ac1cf5276d3bedf47990b1 on origin/codex/watchtower-shadow-prep; parent de901e5bdb0cb26e3fff2a14498a9b9bb04f05ef",
+    "status": "PASS_DEFAULT_OFF_COMPACT_SHADOW_EVIDENCE_CAPTURE_QUALIFIED_NOT_DEPLOYED",
+    "evidence_source": "Read-only source/storage inspection proved canonical and operations stores retain migrations and launch metadata but not the normalized one-second offset-to-market-cap evidence required by evaluate_retained_record: mint, migration_timestamp, HTTP/normalization state, offsets 0..4 and duplicate offsets. The exact existing strict Opening provider response is therefore the minimum valid source. No new request is constructed or acquired.",
+    "implementation": "New src/ops/watchtower_shadow_capture.py projects only an already-acquired strict Opening response through existing compact_record and bounded OffsetAuditStore. It retains no raw payload, credential, URL or headers; the store has its existing 128-record/256KiB bound. operation_monitor_worker invokes this sidecar only when WATCHTOWER_SHADOW_CAPTURE_ENABLED is explicitly true; disabled is a no-op, and any capture failure is swallowed so it cannot affect authoritative Opening. The frozen Supervisor template supplies a separate WATCHTOWER_SHADOW_CAPTURE_LEDGER_PATH and both capture/evaluation flags default to 0. Capture is separate from DB/queue/authoritative price persistence.",
+    "qualification": "Focused capture/evaluator/config/strict/audit suite: 25 passed. It proves disabled mode creates no file; enabled capture maps a supplied response to compact offsets; evaluator selects +2 only after missing earlier offsets; missing ledger path refuses; and an integration fake proves exactly one already-required provider response with no second call. Existing provider-free Watchtower suite: 69 passed, one non-failing pre-existing deprecation warning. The qualified worker digest assertion was advanced only for the documented default-off capture hook.",
+    "deployment_requirements": "Not deployed. A later separately authorized runtime gate must install the exact clean candidate, set exact root/SHA and a dedicated bounded shadow-ledger path, and explicitly enable capture only for the shadow period. It must leave Opening/History/LIVE admission/attribution unchanged and must not activate +2. The active listener remains outside this candidate and untouched.",
+    "safety": "Qualification uses temp fixtures only: provider calls=0 outside fake bindings; live DB/queue writes=0; Supervisor/service/listener actions=0; source writes only in isolated worktree; no large artifact. RUNTIME_DEPLOYMENT_REQUIRED=true, RUNTIME_DEPLOYMENT_GATE=QUALIFIED_NOT_DEPLOYED.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "AUTHORIZE_A_SEPARATE_FROZEN_RUNTIME_CONFIGURATION_DEPLOYMENT_AND_CONTROLLED_DEFAULT-OFF-TO-CAPTURE-ENABLED_SHADOW_GATE; DO_NOT_ACTIVATE_PLUS2"
   }
 }

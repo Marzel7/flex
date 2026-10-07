@@ -53,3 +53,9 @@ def on_starting(server):
 
 def on_reload(server):
     server.log.info("[GUNICORN] WATCHTOWER API reloading")
+
+
+def post_worker_init(worker):
+    # Worker lifecycle, not module import, owns the DB cleanup loops.
+    from src.utils.db_locking import start_connection_reaper
+    start_connection_reaper()

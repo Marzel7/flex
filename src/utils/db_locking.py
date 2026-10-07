@@ -1241,11 +1241,13 @@ _MAX_CONNECTION_AGE_SECS = 20  # idle connections held longer than this are leak
 # and close them past this threshold. A legitimate write never holds a txn this long.
 _MAX_TXN_CONNECTION_AGE_SECS = 45   # was 120 — abandoned txns pin the WAL; reap sooner
 _reaper_db_path: Optional[str] = None  # set from first registered connection
+_reaper_lifecycle_lock = threading.Lock()
+_reaper_stop_event = threading.Event()
+_reaper_threads: tuple[threading.Thread, threading.Thread] | None = None
 
 
 def _reaper_loop() -> None:
-    while True:
-        time.sleep(_REAPER_INTERVAL_SECS)
+    while not _reaper_stop_event.wait(_REAPER_INTERVAL_SECS):
         try:
             reaped = _reap_stale_connections()
             if reaped and _reaper_db_path:
@@ -1271,8 +1273,7 @@ _WAL_SIZE_THRESHOLD    = 32 * 1024 * 1024   # 32 MB (was 200 MB — too loose; l
 
 def _wal_watchdog_loop() -> None:
     import os
-    while True:
-        time.sleep(_WAL_WATCHDOG_INTERVAL)
+    while not _reaper_stop_event.wait(_WAL_WATCHDOG_INTERVAL):
         if not _reaper_db_path:
             continue
         try:
@@ -1395,12 +1396,42 @@ def _reap_stale_connections() -> int:
     return reaped
 
 
-def _start_connection_reaper() -> None:
-    threading.Thread(target=_reaper_loop, daemon=True, name="db-conn-reaper").start()
-    threading.Thread(target=_wal_watchdog_loop, daemon=True, name="db-wal-watchdog").start()
+def start_connection_reaper() -> bool:
+    """Start this process's DB cleanup loops exactly once.
+
+    Importing this module deliberately has no process-lifecycle side effect.
+    A serving entry point must call this after its worker is initialized.
+    Returns ``True`` only for the call that creates the two owned threads.
+    """
+    global _reaper_threads
+    with _reaper_lifecycle_lock:
+        if _reaper_threads and any(thread.is_alive() for thread in _reaper_threads):
+            return False
+        _reaper_stop_event.clear()
+        _reaper_threads = (
+            threading.Thread(target=_reaper_loop, daemon=True, name="db-conn-reaper"),
+            threading.Thread(target=_wal_watchdog_loop, daemon=True, name="db-wal-watchdog"),
+        )
+        for thread in _reaper_threads:
+            thread.start()
+        return True
 
 
-_start_connection_reaper()
+def stop_connection_reaper(*, timeout: float = 1.0) -> bool:
+    """Request bounded shutdown of the process-owned DB cleanup loops."""
+    global _reaper_threads
+    with _reaper_lifecycle_lock:
+        threads = _reaper_threads
+        if not threads:
+            return True
+        _reaper_stop_event.set()
+    for thread in threads:
+        thread.join(timeout=timeout)
+    with _reaper_lifecycle_lock:
+        stopped = not any(thread.is_alive() for thread in threads)
+        if stopped and _reaper_threads is threads:
+            _reaper_threads = None
+        return stopped
 
 
 # ── sqlite3.connect monkey-patch ─────────────────────────────────────────────

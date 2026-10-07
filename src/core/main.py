@@ -41090,6 +41090,8 @@ def api_subprov_enriched(signature: str):
 # =========================================================================
 
 if __name__ == '__main__':
+    from src.utils.db_locking import start_connection_reaper
+    start_connection_reaper()
     import logging
     log = logging.getLogger('werkzeug')
     log.setLevel(logging.ERROR)

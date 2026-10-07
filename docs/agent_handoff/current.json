@@ -19422,5 +19422,14 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_NEXT_IMPORT_TIME_MUTATION_PATH_PROVEN",
     "next_action": "ISOLATE_ONLY_WEBHOOK_INITIALIZATION_IMPORT_TIME_DATABASE_WRITER_BEFORE_ANY_FURTHER_GUARDED_IMPORT"
+  },
+  "watchtower_price_live_regression_readonly_20261007": {
+    "engineering_revision": "read-only comparison: 508203fb to cf8ff1d; recovery branch HEAD fdb25728 remains clean",
+    "status": "PASS_REGRESSION_BOUNDARY_IDENTIFIED",
+    "finding": "The first incompatible source combination is 508203fb630af467a4d52e17e7980fbe6a71ff93 (2026-09-04): it removed MIN_LIVE_MARKET_CAP=5000 from flex_dashboard_routes.py while main.py retained its import. The import existed in the parent and remains through cf8ff1d; 508203 is therefore the first regression commit. The last retained confirmed working Watchtower API/listener runtime was the read-only preflight recorded at clean authority 7972e82e47f2ea8be4023c3f30c887780eacf229 with API PID 45753 and listener PID 77852 running; that observation did not prove the configured process code identity. Current Supervisor state has watchtower_api BACKOFF, operation_monitor_worker STOPPED as configured, and watchtower_listener RUNNING PID 98677. The listener owns current price persistence; the Monitor worker is not the price worker and is intentionally stopped. Listener, price_service, and price_api blobs differ between 508203 and cf8ff1d, but this read-only comparison establishes no causal price-pipeline regression. API BACKOFF prevents port-5002 Watchtower UI/API price display even if the listener continues persisting prices.",
+    "safety": "Read-only Git, Supervisor, process, and configuration inspection; no code/config/runtime/provider/database/queue/Injector mutation.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Regression investigation only.",
+    "next_action": "COMPLETE_THE_ALREADY-IDENTIFIED_WEBHOOK_IMPORT_TIME_WRITER_ISOLATION_BEFORE_ANY_API_STARTUP_REPAIR"
   }
 }

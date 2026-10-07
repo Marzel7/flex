@@ -19466,5 +19466,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "One bounded non-serving diagnostic only; no executable source or active runtime was changed.",
     "next_action": "DO_NOT_REPAIR_PRICE_API; AUTHORIZE_CONTROLLED_RUNTIME_VERIFICATION_ONLY_AFTER_DECIDING_WHETHER_A_DIAGNOSTIC_GUARD MUST_ALLOW_CONNECTION_LOCAL_READONLY_PRAGMAS AND AFTER_OBTAINING_A_TRACEABLE_PORT_BIND_PROVENANCE"
+  },
+  "watchtower_known_working_freeze_investigation_20261007": {
+    "engineering_revision": "read-only recovery investigation; API-recovery branch fdb25728399977153384463b25197a055662cff8 preserved and not promoted",
+    "status": "PARTIALLY_VERIFIED_NO_REPRODUCIBLE_KNOWN_WORKING_COMMIT_SET",
+    "historical_runtime": "The retained 2026-10-06 preflight observed watchtower_api PID 45753 and watchtower_listener PID 77852 RUNNING. PID 77852 has retained provenance: /Users/kevinkeaveney/Production/flex-listener/run_listener.sh, CWD/PYTHONPATH in that checkout, Git HEAD bf1bdfc59b4acfed0338a493189d91d212bda50f. PID 45753 has no retained command, CWD, environment digest, source-file digest, or Supervisor command snapshot, so no API Git identity can be recovered from the PID observation.",
+    "component_mapping": "API: UNPROVEN; 7972e82e47f2ea8be4023c3f30c887780eacf229 was a clean development/qualification marker, not process identity. Listener: bf1bdfc59b4acfed0338a493189d91d212bda50f is only the committed ancestor; the actual checkout had an uncommitted src/core/pumpfun_curve_listener.py modification plus untracked lock-owner guards, so its exact runnable bytes are not reproducible. Price/Live persistence: owned by that same dirty listener authority and therefore UNPROVEN. Operation monitoring: no retained PID/command/source identity for a historical operation_monitor_service; the later clean operation_monitor_worker is a separate stopped runtime. Shared dependencies/configuration: mixed and UNPROVEN because the API runtime config/environment snapshot was not retained.",
+    "compatibility": "Static parsing passes for 7972 price_api.py and operation_monitor_worker.py and for bf1b listener source. However 7972 main.py imports MIN_LIVE_MARKET_CAP while its own flex_dashboard_routes.py does not define it; it is not a self-contained importable API authority. This is the pre-existing 508203fb import mismatch, not grounds to substitute the newer recovery branch into a freeze candidate. No non-mutating full runtime verification is meaningful without a reproducible API source/config identity and a clean listener source identity.",
+    "freeze": "No immutable annotated tags were created, no existing tags were touched, and no freeze manifest is published because the required complete compatible revision set is not proven. No source/runtime/Supervisor/provider/database/queue/Injector change occurred.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Recovery and freeze investigation only; no executable target was changed.",
+    "next_action": "RECOVER_ARCHIVAL_PROCESS_PROVENANCE_FOR_API_PID_45753_AND_A_CLEAN_COMMIT_OR_FORENSIC_DIGEST_FOR_LISTENER_PID_77852_BEFORE_ANY_CANDIDATE_FREEZE_OR_API_RECOVERY_RESUMPTION"
   }
 }

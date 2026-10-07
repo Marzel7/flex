@@ -39,3 +39,21 @@ def test_db_locking_import_has_no_reaper_thread_side_effect():
     )
     assert "db-conn-reaper" not in result.stdout
     assert "db-wal-watchdog" not in result.stdout
+
+
+def test_main_does_not_depend_on_removed_dashboard_market_cap_export():
+    tree = ast.parse(MAIN.read_text())
+    imports = [
+        node for node in ast.walk(tree)
+        if isinstance(node, ast.ImportFrom)
+        and node.module == "src.core.flex_dashboard_routes"
+    ]
+    assert all(
+        alias.name != "MIN_LIVE_MARKET_CAP"
+        for node in imports for alias in node.names
+    )
+    executable_references = [
+        node for node in ast.walk(tree)
+        if isinstance(node, ast.Name) and node.id == "MIN_LIVE_MARKET_CAP"
+    ]
+    assert executable_references == []

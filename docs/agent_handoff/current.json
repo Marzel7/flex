@@ -19377,5 +19377,14 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_CAUSAL_EXCEPTION_NOT_RETAINED",
     "next_action": "AUTHORIZE_A_SEPARATE_BOUNDED_RUNTIME_DIAGNOSTIC_OR_LOGGING_GATE; DO_NOT_RETRY_OR_FIX_WITHOUT_CAUSAL_EVIDENCE"
+  },
+  "watchtower_api_bounded_diagnostic_20261007": {
+    "engineering_revision": "cf8ff1d9661982018b71be414f07151ecdd239f3 deployed authority; bounded diagnostic safety preflight",
+    "status": "HOLD_SAFE_DIAGNOSTIC_EXECUTION_UNAVAILABLE",
+    "finding": "Guard-only validation passed the exact SHA, clean worktree, deployment root, and 96-record ledger. Static inspection establishes that importing src.core.main unconditionally calls _start_db_fd_watchdog at main.py:179 before the existing FLEX_ENABLE_FLASK_BACKGROUND_WORKERS=0 startup suppression applies. No existing environment control suppressing that thread was found. Therefore neither app import nor isolated Gunicorn boot can be executed within the zero-background-worker/zero-DB-write bounded diagnostic authorization. The guard metadata also reports product src.dev_runtime while the Supervisor API target is src.core.main:app; this is a contract discrepancy but not a proven cause of exit status 3.",
+    "safety": "One guard-only subprocess; no app import, Gunicorn boot, port bind, Supervisor action, service action, provider call, DB/queue/Injector mutation, or engineering source change.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_SAFE_DIAGNOSTIC_EXECUTION_UNAVAILABLE",
+    "next_action": "AUTHORIZE_A_SEPARATE_NON-MUTATING_IMPORT_SUPPRESSION_OR_DIAGNOSTIC-LOGGING_MECHANISM_BEFORE_ANY_APP_BOOT"
   }
 }

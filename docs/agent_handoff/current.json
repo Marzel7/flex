@@ -19562,5 +19562,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Independent isolated qualification only; no active runtime target changed.",
     "next_action": "AUTHORIZE_SEPARATE_FIXTURE_ISOLATION_FOR_LISTENER_IMPORT_LOGGING_AND_RESOLVE_OR_SCOPE_THE_STALE_OPERATION_MONITOR_WORKER_DIGEST_ASSERTION; KEEP_API_REAPER_WORK_AS_A_SEPARATE_EXPLICIT_CANDIDATE_DECISION"
+  },
+  "watchtower_complete_independent_qualification_20261007": {
+    "engineering_revision": "77b0e4e12e6996af65da97aa7dcef1f9befbf8cf on origin/codex/watchtower-runtime-candidate; parent candidate cf2149cb3620b7e6e253cd701e89c098ac7a04d8",
+    "status": "PASS_INDEPENDENT_QUALIFICATION_API_TRACK_STILL_SEPARATELY_BLOCKED",
+    "listener": "The existing isolated listener birth-persistence fixture ran under a test-only sitecustomize handler that pre-attached only the ws_price_tracer logger to /private/tmp/watchtower-listener-qualification/ws_price_trace.log. It passed 12/12; the temporary handler/output directory was removed after the run. No application logging behavior changed and no production log path was opened. The fixture uses temporary SQLite and isolated doubles.",
+    "worker_digest": "Reconciled by proof, not implementation change. SHA256(src/ops/operation_monitor_worker.py)=a93341be4e32fc8eff2a291312ca9aa359eaadb3ad2a73eee7edf5e970a1e84b at both 165d576dc0e0c0a9fbca915667f36eb53b5a9bb6 and the candidate; 165d is an ancestor. Only tests/test_qualified_price_source_line.py expected digest was corrected in test-only commit 77b0e4e12e6996af65da97aa7dcef1f9befbf8cf; worker implementation was untouched.",
+    "regression": "Focused independent provider-free suite: 69 passed, 1 deprecation warning. Coverage includes static main import contract; retained Injector import; bounded offset/Opening policy; 96-record ledger/read-only projection; qualified source-line evidence; live-history projections; listener connection/price-path checks; listener birth persistence; current-market contract; and observational UI reader. No functional or evidence assertion failures remain in that suite.",
+    "api_track": "Not rerun. src.core.main import remains separately blocked by known import-time db-conn-reaper ownership in the frozen candidate; no reaper/API recovery source was modified or adopted.",
+    "safety": "No production deployment, Supervisor action, running-listener change, live DB/queue write, provider call, production-log write, or large artifact. Candidate branch is clean and remote-verified. RUNTIME_DEPLOYMENT_REQUIRED=false because only isolated qualification and test assertion reconciliation occurred.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Test-only correction and isolated qualification; no active runtime target changed.",
+    "next_action": "DECIDE_SEPARATELY_WHETHER_TO_SELECTIVELY_APPLY_THE_ALREADY_PROVEN_REAPER_LIFECYCLE_CONTRACT_TO_THE_RUNTIME_CANDIDATE_BEFORE_ANY_API_IMPORT_OR_RUNTIME_FREEZE_QUALIFICATION"
   }
 }

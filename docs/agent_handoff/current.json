@@ -19431,5 +19431,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Regression investigation only.",
     "next_action": "COMPLETE_THE_ALREADY-IDENTIFIED_WEBHOOK_IMPORT_TIME_WRITER_ISOLATION_BEFORE_ANY_API_STARTUP_REPAIR"
+  },
+  "watchtower_api_webhook_initialization_classification_20261007": {
+    "engineering_revision": "fdb25728399977153384463b25197a055662cff8 on origin/codex/watchtower-api-recovery; no source change this turn",
+    "status": "HOLD_NEXT_IMPORT_TIME_SIDE_EFFECT_PROVEN",
+    "finding": "Webhook initialization is established normal API startup behavior, not a regression: its source files and database-writer path are byte-identical between retained working authority 7972e82e47f2ea8be4023c3f30c887780eacf229 and the recovery branch. main.py calls init_webhook_system, which verifies/creates required webhook tables and registers webhook routes. The first guarded run correctly blocked db-writer-webhook-init before thread creation; this is an intended database-write service worker, not evidence of an API startup defect. Existing FLEX_UI_RECOVERY_MODE=1 skips webhook initialization only for the read-only diagnostic; normal Supervisor configuration remains recovery mode 0.",
+    "verification": "Focused tests: 16 passed (database_write_service, db_locking reaper lifecycle, diagnostic watchdog). One direct, 20-second bounded guarded src.core.main import used the existing recovery-mode suppression plus default-off db-fd-watchdog diagnostic suppression. It printed the webhook skip, then reached a distinct price API metadata-cache initialization and blocked db-writer-price-api in database_write_service.register_database before worker creation. Import returned IMPORT_OK because the application treats that initializer failure as non-fatal. No Supervisor/config/service/provider/network/port action occurred; guard output was 13,366 bytes and temporary guard files were removed.",
+    "fingerprint_boundary": "The harness blocked every diagnostic SQLite connect before it could write, and blocked every background-worker start before thread creation. The live flex and wt_ops DB stat fingerprints nevertheless advanced during the diagnostic window while the already-running listener remained active. Therefore diagnostic DB/queue mutation count is zero by guard evidence, but whole-file live fingerprint equality cannot be claimed for this concurrent-runtime interval.",
+    "safety": "Source changes=0; Supervisor actions=0; service actions=0; provider calls=0; diagnostic background starts=0; production port binds=0; temporary diagnostic artifacts removed; no file approached the 500MB limit.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "This was a read-only classification and fail-closed import diagnostic; no executable behavior was changed or deployed.",
+    "next_action": "STOP_AT_DB_WRITER_PRICE_API_IMPORT_TIME_SIDE_EFFECT; AUTHORIZE_A_SEPARATE_READ_ONLY_CLASSIFICATION_OF_PRICE_API_METADATA_CACHE_INITIALIZATION_BEFORE_ANY_FURTHER_IMPORT_REPAIR"
   }
 }

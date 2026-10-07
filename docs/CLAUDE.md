@@ -1,5 +1,10 @@
 # Flex - Token Funding Network Analyzer
 
+> Agent execution instructions are authoritative only in the repository-root
+> [`AGENTS.md`](../AGENTS.md), including **Development execution discipline
+> V1**. This document remains project reference material and does not override
+> those instructions.
+
 ## Project Overview
 Flex is a Solana token analysis dashboard that tracks funding networks, identifies coordinated funder relationships, and detects suspicious pump-and-dump schemes across Pump.Fun tokens.
 

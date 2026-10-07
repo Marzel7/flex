@@ -19685,5 +19685,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Documentation-only process protocol; no executable runtime changed.",
     "next_action": "APPLY_DEVELOPMENT_EXECUTION_DISCIPLINE_V1_TO_THE_NEXT_AUTHORIZED_ENGINEERING_OBJECTIVE; DO_NOT_RESUME_WATCHTOWER_WORK_WITHOUT_SEPARATE_AUTHORIZATION"
+  },
+  "watchtower_shadow_preparation_resumed_20261008": {
+    "engineering_revision": "de901e5bdb0cb26e3fff2a14498a9b9bb04f05ef on origin/codex/watchtower-shadow-prep; parent 34c653ab56a91affff083dc2ceea895972e65993, frozen baseline ancestry daca3e8d9d50a272b0e6ff56aee9a640aab0ebfe",
+    "status": "PASS_RUNTIME_CONFIGURATION_AND_NON_MUTATING_SHADOW_READY",
+    "discipline": "Development execution discipline V1 was selectively applied from verified commit 77e8a55537c98fe34f99a6949f87e8ecb2233ae4. Static discovery passed for AGENTS.md, root CLAUDE.md, and docs/CLAUDE.md. No Watchtower source semantics changed during the resume.",
+    "configuration": "The pre-existing uninstalled DEV-only frozen-runtime template remains the isolated configuration authority: it has exact source/SHA, ledger, canonical/operations DB, queue, API and worker substitutions; both services are autostart=false/autorestart=false and shadow evaluation remains explicitly disabled. It was validated by the direct config propagation test and was not applied to any Supervisor instance.",
+    "shadow": "The pre-existing pure retained-evidence evaluator remains uninvoked by the normal monitor and delegates strict selection to the shared t+1 -> t -> t+2 reducer. It provides bounded deterministic comparisons only and reports zero provider/database/queue/worker counts plus authoritative_mutation=false. No Opening/History/LIVE/attribution decision is reachable through it.",
+    "qualification": "Focused shadow/config/strict-policy/audit tests: 21 passed. Existing provider-free Watchtower suite: 69 passed, with one non-failing pre-existing deprecation warning. The isolated listener fixture uses its pre-existing test-only logging interception; no production log path or live resource was touched.",
+    "safety": "No deployment, Supervisor action, provider call, live DB/queue write, listener disruption, Injector/history execution, or large artifact. RUNTIME_DEPLOYMENT_REQUIRED=false because the candidate remains default-off and uninstalled.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Only an isolated DEV source/configuration candidate was qualified; no executable runtime target changed.",
+    "next_action": "AUTHORIZE_A_SEPARATE_NON_MUTATING_NATURAL_TOKEN_SHADOW_EXECUTION_GATE_WITH_EXACT_RETAINED_EVIDENCE_INPUTS; DO_NOT_DEPLOY_OR_ACTIVATE_PLUS2"
   }
 }

@@ -19731,5 +19731,15 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "AUTHORIZE_A_SEPARATE_FROZEN_RUNTIME_CONFIGURATION_DEPLOYMENT_AND_CONTROLLED_DEFAULT-OFF-TO-CAPTURE-ENABLED_SHADOW_GATE; DO_NOT_ACTIVATE_PLUS2"
+  },
+  "watchtower_controlled_runtime_transition_preflight_20261008": {
+    "engineering_revision": "1bfacfc8683b03c4c0ac1cf5276d3bedf47990b1 clean in /Users/kevinkeaveney/.codex/worktrees/watchtower-shadow-prep/flex; candidate template SHA256=58c6b36b63d58e0e0db2ea1fa9aa598590797a2f926f554a21b9f1552275ce4d",
+    "status": "HOLD_EXACT_LIVE_SUPERVISOR_COMPOSITION_REQUIRED_BEFORE_EXPLICIT_APPROVAL",
+    "runtime_snapshot": "Read-only Supervisor status: watchtower_listener RUNNING pid 98677; watchtower_api BACKOFF/Exited too quickly; operation_monitor_worker STOPPED/Not started. Candidate run_listener.sh is present. No service action occurred.",
+    "boundary": "The qualified uninstalled template defines exactly watchtower_api and operation_monitor_worker with default-off capture/evaluation, but it intentionally does not define the live watchtower_listener program or a complete merged Supervisor configuration. The active listener stanza instead points to /Users/kevinkeaveney/Production/flex-listener with the existing canonical/ops DB paths. Consequently the required pre-replacement artifact—an exact byte-reviewed combined configuration change that preserves every unrelated live program and provides rollback—does not yet exist. It would be unsafe to request approval for an unspecified composition or infer a listener rewrite.",
+    "safety": "Candidate/source inspection and Supervisor status only. No config write, reread/update, start/stop/restart, provider call, DB/queue write, Injector/history action, or deployment. RUNTIME_DEPLOYMENT_REQUIRED=true; RUNTIME_DEPLOYMENT_GATE=HOLD_EXACT_LIVE_SUPERVISOR_COMPOSITION_REQUIRED.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_EXACT_LIVE_SUPERVISOR_COMPOSITION_REQUIRED",
+    "next_action": "AUTHORIZE_PREPARATION_AND_ISOLATED_QUALIFICATION_OF_AN_EXACT_IN_PLACE_LISTENER_PLUS_API_PLUS_WORKER_SUPERVISOR_COMPOSITION_THEN_PRESENT_ITS_BYTE_DIFF_BACKUP_ROLLBACK_AND_SERVICE ACTIONS_FOR_EXPLICIT_APPROVAL"
   }
 }

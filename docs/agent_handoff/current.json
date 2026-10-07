@@ -19538,5 +19538,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Read-only isolated source preflight only; no executable target changed.",
     "next_action": "SEPARATELY_DECIDE_WHETHER_TO_DEFINE_A_NEW_RUNTIME_CANDIDATE_WITH_AN_EXPLICIT_MINIMAL_IMPORT_CONTRACT_CORRECTION; DO_NOT_ALTER_THE_B362_SOURCE_AUDIT_TAG_OR_AUTOMATICALLY_RESUME_API_RECOVERY"
+  },
+  "watchtower_minimal_runtime_candidate_20261007": {
+    "engineering_revision": "cf2149cb3620b7e6e253cd701e89c098ac7a04d8 on origin/codex/watchtower-runtime-candidate; parent b362e3be3739737171e25600807536287caa2895",
+    "status": "HOLD_IMPORT_TIME_CONNECTION_REAPER_THREAD_START",
+    "candidate": "Dedicated isolated worktree and branch created from the frozen tag. The candidate removes only the stale MIN_LIVE_MARKET_CAP import from src/core/main.py and adds tests/test_watchtower_main_import_contract.py. The frozen annotated tag and its source were not modified; no API-recovery commit was cherry-picked.",
+    "verification": "Static AST regression test passed: 1 passed. MIN_LIVE_MARKET_CAP has no runtime use in main.py. A one-shot fail-closed import probe used a temporary empty DB_PATH and blocked threading.Thread.start before creation. It reached src/utils/db_locking.py line 1403, where module import calls _start_connection_reaper; the first blocked action was db-conn-reaper at line 1399. No database connection, write, provider/network call, subprocess, port bind, Supervisor action, or service action occurred before that blocker.",
+    "qualification_status": "API import/routes, listener Opening/Price/Live fixture, Injector/audit-UI readback, provider-free Watchtower regression, and shadow-validation prerequisites were not run after the first new blocker. Dependency authority remains UNPROVEN because b362 contains no identified dependency lock/manifest. Source configuration remains supervisor blob 0ffd564fa543b18fca7c34010a07ca1e3acbda0e and Gunicorn blob 59047dd8f4b82401df4f58b210d7b3255a044162, but it is not runtime-qualified.",
+    "safety": "No production deployment, running-listener change, Supervisor action, live DB/queue action, provider call, or large artifact. Candidate is committed and remote-verified but is not tagged or described as runtime-qualified.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Isolated candidate source correction and fail-closed qualification probe only; no active runtime target changed.",
+    "next_action": "SEPARATELY_CLASSIFY_AND_AUTHORIZE_ISOLATION_OF_THE_IMPORT_TIME_DB_CONNECTION_REAPER_BEFORE_RESUMING_RUNTIME_CANDIDATE_QUALIFICATION"
   }
 }

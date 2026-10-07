@@ -19741,5 +19741,16 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_EXACT_LIVE_SUPERVISOR_COMPOSITION_REQUIRED",
     "next_action": "AUTHORIZE_PREPARATION_AND_ISOLATED_QUALIFICATION_OF_AN_EXACT_IN_PLACE_LISTENER_PLUS_API_PLUS_WORKER_SUPERVISOR_COMPOSITION_THEN_PRESENT_ITS_BYTE_DIFF_BACKUP_ROLLBACK_AND_SERVICE ACTIONS_FOR_EXPLICIT_APPROVAL"
+  },
+  "watchtower_in_place_supervisor_composition_20261008": {
+    "engineering_revision": "1bfacfc8683b03c4c0ac1cf5276d3bedf47990b1 plus uncommitted offline-composition files in /Users/kevinkeaveney/.codex/worktrees/watchtower-shadow-prep/flex",
+    "status": "HOLD_ISOLATION_FAILURE_LIVE_SUPERVISOR_CONTROL_ENDPOINT_REACHED",
+    "qualified_offline_artifact": "The live root config SHA256 was de358f18394f56651b6a8493d137287fdbec0dd21b84c46dbf576246ab4e154d. An offline candidate SHA256 was 71da127250923b94a6b98df59371a45b29e87eba775f7f6e1240972d767b0412, with a byte-identical rollback copy of the source. Static checks passed: 15 total programs; exactly one listener/API/worker; no include section; listener bytes identical; all non-target bytes identical; API/worker capture/evaluation flags explicitly 0; worker autostart/autorestart false.",
+    "failure": "The isolated validation copy rewrote its unix_http_server socket/PID/log paths and disabled all program autostart/autorestart, but it did not rewrite the inherited [supervisorctl] serverurl. A subsequent supervisorctl status/shutdown invoked with that copy therefore addressed the same control endpoint as the live config. The isolated validation must be treated as invalid, and the no-live-action invariant is breached.",
+    "observable_runtime_state": "Afterward, the live-config supervisorctl status request returned SHUTDOWN_STATE and a read-only process-table query no longer found listener PID 98677. No restart, reread, update, config write, provider call, database/queue action, or further service action was attempted after discovery.",
+    "safety": "No live Supervisor configuration file was written. The prepared source changes remain uncommitted and must not be promoted. RUNTIME_DEPLOYMENT_REQUIRED=true; RUNTIME_DEPLOYMENT_GATE=HOLD_ISOLATION_FAILURE_LIVE_SUPERVISOR_CONTROL_ENDPOINT_REACHED.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_ISOLATION_FAILURE_LIVE_SUPERVISOR_CONTROL_ENDPOINT_REACHED",
+    "next_action": "STOP. OBTAIN EXPLICIT AUTHORIZATION FOR A LIVE RUNTIME INCIDENT ASSESSMENT/RECOVERY; DO NOT RETRY COMPOSITION OR ISSUE ANY SUPERVISOR COMMAND UNTIL THE LIVE CONTROL-PLANE STATE IS ADDRESSED."
   }
 }

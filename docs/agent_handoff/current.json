@@ -19501,5 +19501,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Chronology and evidence audit only; no source/runtime behavior changed.",
     "next_action": "REVIEW_B362E3_PRE_GAP_SCOPE_AND_AUTHORIZE_A_SEPARATE_REPRODUCIBLE_RUNTIME_BASELINE_FOR_THAT_COMMIT_LINE_IF_RESUMPTION_IS_DESIRED"
+  },
+  "watchtower_plus2_freeze_checkpoint_reconciliation_20261007": {
+    "engineering_revision": "read-only reconciliation of retained handoffs and committed b362e3be3739737171e25600807536287caa2895 artifacts; no acquisition, runtime, or source change",
+    "status": "PASS_POLICY_RECOVERY_WITH_RETAINED_AVAILABILITY_COUNT_DISCREPANCY",
+    "finding": "The apparent conflict is availability versus eligible recovery. A t+2 candle is merely present when offset 2 exists. It is an Opening recovery only when offsets 1 and 0 are both absent. The committed 96-record ledger has policy distribution t+1=52, t=29, t+2-only=3, none=12, hence 84/96 (87.50%) eligible under t+1 then t then t+2. The three exact +2-only mints are INJECTOR, 4Z9eH1BCuq2Y6FFRXkZft9LoxwMqQWo7bJsEbcd7pump, and 59F95Wkn5LRpiKmG2FE3g87Lzkz4redvNJNKSi1Npump.",
+    "availability_reconciliation": "Historical handoff 0f0ddc7d5456369185c6b57e4e8f33c23efdb04a reports t+2 presence=40 for the 96-token audit. The committed b362 ledger (SHA256 ad75e5e910662d0259ca095df9e7ae20501136dc0a8d09ccfec62d1e9273b5b8) contains offset-2 presence=38, of which 35 coexist with t or t+1 and three are +2-only. Its provenance declares 93-record base ledger SHA256 1caec532debc8f0855bc41af6e32210b9c5edfe0d77e45be21e0b488f2303123 plus B8S7, 7iXZ, and INJECTOR retained controls, with provider_calls=0 during composition. Therefore the final artifact proves a complete 96-record retained population and the decisive +2-only count=3, but does not reproduce the handoff's raw t+2-presence count=40. The two-record availability difference is UNRESOLVED_FROM_RETAINED_EVIDENCE; it does not change the recorded 84/96 policy result.",
+    "final_qualified_commit_set": "bff94db35aea3b3d9b65df46da70ca15c751324e audit runner; 165d576dc0e0c0a9fbca915667f36eb53b5a9bb6 successful bounded policy/read-only UI; 82a02acf92c1a709b93c34f4cf7237525148dc0a retained Injector import; 98d72e374002bcda0cbbc537a615e03f44a96e00 retained opening materialization; b362e3be3739737171e25600807536287caa2895 final 96-record ledger. Git ancestry proves each is an ancestor of b362, so b362 is the single source/audit checkpoint; it is remote-present on origin/codex/watchtower-96-ledger.",
+    "freeze_candidate": "SOURCE_AUDIT_CANDIDATE_ONLY=b362e3be3739737171e25600807536287caa2895. It is not a full runtime freeze candidate because its runtime/config/dependency identity and controlled runtime acceptance remain unproven, and the feature regression carries exactly one documented baseline deselection for the missing deep-review template.",
+    "remaining_blockers": "Resolve or explicitly scope the 40-versus-38 raw availability discrepancy; establish a reproducible runtime/config/dependency authority for b362; and separately authorize any movement from its qualified-not-deployed +2 policy gate. No provider requery or API recovery is authorized by this audit.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Artifact and Git-history reconciliation only.",
+    "next_action": "REVIEW_B362_SOURCE_AUDIT_CANDIDATE_AND_DECIDE_WHETHER_THE_RETAINED_RAW_AVAILABILITY_DISCREPANCY_MUST_BE_RESOLVED_BEFORE_A_RUNTIME_BASELINE_QUALIFICATION"
   }
 }

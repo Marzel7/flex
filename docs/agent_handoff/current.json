@@ -19395,5 +19395,14 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_SHARED_STATE_IMPORT_DIAGNOSTIC_SAFETY_UNPROVEN",
     "next_action": "OBTAIN_EXPLICIT_APPROVAL_FOR_A_HARD-TIMEOUT_FULL-APP_IMPORT_AGAINST_LIVE_BINDINGS_DESPITE_UNPROVEN_IMPORT_SIDE_EFFECTS, OR AUTHORIZE_A_SEPARATE_SAFE DIAGNOSTIC ENVIRONMENT"
+  },
+  "watchtower_api_fail_closed_import_diagnostic_20261007": {
+    "engineering_revision": "cf8ff1d9661982018b71be414f07151ecdd239f3 base; uncommitted explicit db_fd_watchdog diagnostic gate and direct tests on codex/watchtower-api-recovery",
+    "status": "HOLD_IMPORT_TIME_MUTATION_PATH_PROVEN",
+    "finding": "Exactly one 20-second, non-serving full src.core.main import was run with production-equivalent root and environment names plus a temporary in-process fail-closed guard. The guard blocked the first attempted background-thread start: src/utils/db_locking.py _start_connection_reaper at line 1399 attempted threading.Thread(... name=db-conn-reaper).start() while main imported db_locking at line 19. No app initialization, Gunicorn boot, port bind, network/provider call, subprocess, SQLite connection, filesystem write, queue mutation, or Supervisor action occurred. Diagnostic output was 2,478 bytes and the four DB/queue stat fingerprints were byte-identical before/after. Temporary harness and output were removed; no diagnostic process remains.",
+    "safety": "DB writes=0; queue writes=0; provider calls=0; background thread starts=0 (first attempt blocked); production port binds=0; source/config/Supervisor/service/Injector mutations=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_IMPORT_TIME_MUTATION_PATH_PROVEN",
+    "next_action": "ISOLATE_ONLY_DB_LOCKING_IMPORT_TIME_CONNECTION_REAPER_BEFORE_RETRYING_ANY_APP_IMPORT"
   }
 }

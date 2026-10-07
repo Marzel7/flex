@@ -27,18 +27,24 @@ def render_proposed_live(source: str, root: Path, sha: str, include_dir: Path):
     return candidate + "\n\n[include]\nfiles = " + str(include_dir / "*.conf") + "\n", render_fragment(root, sha)
 
 def _ranges(text, names):
-    sections = [(i, line[9:-1]) for i, line in ((i, line) for i, line in enumerate(text.splitlines(True))) if line.startswith("[program:") and line.rstrip().endswith("]")]
     positions = []
     offset = 0
     for line in text.splitlines(True):
         if line.startswith("[program:") and line.rstrip()[9:-1] in names: positions.append((offset, line.rstrip()[9:-1]))
         offset += len(line)
     if len(positions) != len(names) or {n for _,n in positions} != set(names): raise ValueError("EMBEDDED_SCOPE_INVALID")
-    all_starts=[]; offset=0
-    for line in text.splitlines(True):
-        if line.startswith("["): all_starts.append(offset)
-        offset += len(line)
-    return [(start, next((x for x in all_starts if x>start),len(text)), name) for start,name in positions]
+    # A program's owned byte range ends at its first blank separator.  Comments
+    # and whitespace after that separator belong to the following root-config
+    # region and must survive verbatim for the non-target byte-parity contract.
+    ranges = []
+    for start, name in positions:
+        separator = text.find("\n\n", start)
+        if separator < 0:
+            next_section = text.find("\n[", start + 1)
+            ranges.append((start, len(text) if next_section < 0 else next_section + 1, name))
+        else:
+            ranges.append((start, separator + 1, name))
+    return ranges
 
 def render_in_place(source: str, root: Path, sha: str):
     if "[include]" in source: raise ValueError("INCLUDE_DEPLOYMENT_REJECTED")

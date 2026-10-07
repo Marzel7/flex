@@ -19454,5 +19454,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Read-only classification only; no executable behavior changed or deployed.",
     "next_action": "AUTHORIZE_ONE_REFINED_FAIL_CLOSED_FULL_IMPORT_GUARD_ALLOWING_ONLY_READ_ONLY_SQLITE_INSPECTION, OR USE_AN_ISOLATED_RUNTIME_FIXTURE; DO_NOT_CHANGE_PRICE_API_SOURCE"
+  },
+  "watchtower_api_final_readonly_import_20261007": {
+    "engineering_revision": "fdb25728399977153384463b25197a055662cff8 recovery branch; deployed source workspace observed separately at 580508a70c80e7fc944e0069f85e67b851a117fa; no source change",
+    "status": "HOLD_GUARD_LIMITATION",
+    "guard_validation": "One temporary child guard self-tested PASS for rejecting write-capable SQLite connect, DDL, DML, ATTACH, queue put, thread start, subprocess/Supervisor action, network connect, port bind, and filesystem write. It allowed only explicit SQLite URI mode=ro and recorded requested_mode=ro/effective_mode=ro without rewriting any request. The child had a hard 20-second timeout, exited 0 in 2.3 seconds, emitted 5,340 bytes, and temporary guard files were removed.",
+    "import_result": "src.core.main imported successfully and produced IMPORT_OK with 600 Flask routes and 18 /api/price routes. Existing FLEX_UI_RECOVERY_MODE=1 correctly skipped only the established interceptor and webhook initialization; db_fd_watchdog suppression was explicit. No Python exception caused import failure and route registration completed under the guard.",
+    "limitations_and_classification": "The guard blocked legitimate best-effort operational-intelligence-prewarm before thread creation. It also over-blocked connection-local PRAGMA busy_timeout on explicit mode=ro connections; this is not DDL/DML and made operator read-only schema checks fail non-fatally. price_api then attempted its pre-existing relative database/flex_complete_database.db path, which is absent in the clean recovery worktree, so its read-only check failed and its fallback db-writer-price-api thread was blocked before creation. price_api still registered its routes. The relative-path behavior is byte-identical to retained working authority and no causal API-exit defect is proven. A further blocked IPv6 ephemeral bind was observed before module diagnostics but is un-attributed by this compact guard and did not bind a port.",
+    "mutation_evidence": "Diagnostic threads=0, write-capable SQLite connects=0, DDL/DML/ATTACH=0, queue mutations=0, filesystem mutations=0, subprocess/Supervisor actions=0, provider/network calls=0, and production-port binds=0. DB stat fingerprints advanced during the interval only on paths concurrently used by the running listener; guard evidence proves the diagnostic could not have written them, so this is not attributed to the diagnostic.",
+    "safety": "No source/config/listener/Supervisor/service/provider/DB/queue/Injector mutation; no file approached 500MB; normal paid credential configuration was not read, printed, or changed.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "One bounded non-serving diagnostic only; no executable source or active runtime was changed.",
+    "next_action": "DO_NOT_REPAIR_PRICE_API; AUTHORIZE_CONTROLLED_RUNTIME_VERIFICATION_ONLY_AFTER_DECIDING_WHETHER_A_DIAGNOSTIC_GUARD MUST_ALLOW_CONNECTION_LOCAL_READONLY_PRAGMAS AND AFTER_OBTAINING_A_TRACEABLE_PORT_BIND_PROVENANCE"
   }
 }

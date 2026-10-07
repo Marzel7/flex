@@ -19752,5 +19752,20 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_ISOLATION_FAILURE_LIVE_SUPERVISOR_CONTROL_ENDPOINT_REACHED",
     "next_action": "STOP. OBTAIN EXPLICIT AUTHORIZATION FOR A LIVE RUNTIME INCIDENT ASSESSMENT/RECOVERY; DO NOT RETRY COMPOSITION OR ISSUE ANY SUPERVISOR COMMAND UNTIL THE LIVE CONTROL-PLANE STATE IS ADDRESSED."
+  },
+  "watchtower_live_supervisor_incident_assessment_20261008": {
+    "engineering_revision": "No engineering change. Assessment follows incident handoff 476fe761; original root config SHA256 de358f18394f56651b6a8493d137287fdbec0dd21b84c46dbf576246ab4e154d remains unmodified.",
+    "status": "HOLD_LIVE_SUPERVISOR_AND_LISTENER_STOPPED_RECOVERY_AUTHORIZATION_REQUIRED",
+    "supervisor": "Read-only filesystem/process assessment found no supervisord process, no live configured PID file, and no live configured UNIX socket. No supervisorctl command was issued during this assessment.",
+    "listener": "No process for historical listener PID 98677 or a replacement pumpfun/watchtower listener process was found. The Supervisor log records its stop at 2026-10-08 00:55:28.882 local time; it has not resumed as of the bounded assessment at approximately 00:58:48 local time.",
+    "other_services": "The same log window records coordinated stops of operation_monitor_bridge, ws_cascade, watchtower_ngrok, walkback_worker, operation_scheduler, creator_resolution_worker, creator_funding_worker, and alert_evaluator. watchtower_api was already repeatedly failing/restarting before the incident and no API runtime is now observed. The configured operation_monitor_worker was already disabled/stopped.",
+    "data": "Canonical DB (35,652,194,304 bytes) and operations DB (16,012,341,248 bytes) retain valid SQLite headers and read-only schema access (268 and 200 tables respectively). The monitor queue exists with 9 entries and maximum entry size 305 bytes. No pre-incident fingerprint exists for attribution of normal concurrent writes; the canonical DB mtime is 00:55:46 UTC and operations DB mtime is 00:55:23 UTC. No database or queue write was issued by the assessment.",
+    "launch_impact": "The latest retained wt_watchtower_launches create_time/recorded_at is 1791416076 (2026-10-07T23:34:36Z), before the stop sequence. There is no retained launch after incident start within this bounded assessment; this does not establish that no external launch was missed after the listener stopped.",
+    "root_cause": "The validation copy replaced unix_http_server file/PID/log paths but inherited the production [supervisorctl] serverurl. supervisorctl commands passed that copy therefore controlled the live endpoint. Any future isolated validation must create an endpoint-only config without a production supervisorctl section, reject endpoint equivalence before execution, and avoid control commands for offline parse checks.",
+    "minimum_recovery": "A live service action is required. The smallest supported recovery is to start the original supervisord using the unchanged original config, after an explicit authorization and preflight proving the original config SHA, absent/stale PID/socket ownership, no duplicate listener, and original listener command effect. That action will start every original autostart=true program, not just the listener; no substitute candidate runtime or manual listener launch is authorized.",
+    "safety": "Assessment only: source/config writes=0; Supervisor control actions=0; service actions=0; provider calls=0; DB/queue writes=0; no large artifact. RUNTIME_DEPLOYMENT_REQUIRED=true; RUNTIME_DEPLOYMENT_GATE=HOLD_LIVE_SUPERVISOR_AND_LISTENER_STOPPED_RECOVERY_AUTHORIZATION_REQUIRED.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_LIVE_SUPERVISOR_AND_LISTENER_STOPPED_RECOVERY_AUTHORIZATION_REQUIRED",
+    "next_action": "OBTAIN EXPLICIT AUTHORIZATION TO RECOVER THE ORIGINAL SUPERVISOR RUNTIME ONLY, THEN PERFORM THE DOCUMENTED ORIGINAL-CONFIG/PID/SOCKET/DUPLICATE-LISTENER PREFLIGHT BEFORE ONE ORIGINAL-DAEMON START."
   }
 }

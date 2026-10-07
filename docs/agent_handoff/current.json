@@ -19386,5 +19386,14 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_SAFE_DIAGNOSTIC_EXECUTION_UNAVAILABLE",
     "next_action": "AUTHORIZE_A_SEPARATE_NON-MUTATING_IMPORT_SUPPRESSION_OR_DIAGNOSTIC-LOGGING_MECHANISM_BEFORE_ANY_APP_BOOT"
+  },
+  "watchtower_api_expedited_recovery_20261007": {
+    "engineering_revision": "cf8ff1d9661982018b71be414f07151ecdd239f3 base; uncommitted minimal diagnostic gate in /Users/kevinkeaveney/.codex/worktrees/watchtower-final-qual/flex on codex/watchtower-api-recovery",
+    "status": "PARTIAL_IMPORT_DIAGNOSTIC_BLOCKED_BY_SHARED_STATE_SAFETY",
+    "finding": "Added only FLEX_DIAGNOSTIC_SUPPRESS_DB_FD_WATCHDOG, default false, around the unconditional import-time db_fd_watchdog start; direct static tests pass 12/12 and default service behavior remains the guarded else path. The approved full-app import against live DB/queue bindings was rejected by the execution safety reviewer because import-time state mutation was not proven absent and the proposed command lacked a hard timeout. No import, Gunicorn boot, port bind, Supervisor action, or runtime acceptance followed.",
+    "safety": "Source change is limited to the explicit diagnostic suppression and its direct static tests; no provider, DB, queue, Injector, Supervisor, service, or port mutation; no diagnostic process started.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_SHARED_STATE_IMPORT_DIAGNOSTIC_SAFETY_UNPROVEN",
+    "next_action": "OBTAIN_EXPLICIT_APPROVAL_FOR_A_HARD-TIMEOUT_FULL-APP_IMPORT_AGAINST_LIVE_BINDINGS_DESPITE_UNPROVEN_IMPORT_SIDE_EFFECTS, OR AUTHORIZE_A_SEPARATE_SAFE DIAGNOSTIC ENVIRONMENT"
   }
 }

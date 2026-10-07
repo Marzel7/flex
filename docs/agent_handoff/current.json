@@ -19639,5 +19639,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Immutable source tag only; no active runtime target changed.",
     "next_action": "USE_THE_LIMITED_ENVIRONMENT_SPECIFIC_BASELINE_AS_THE_OPENING_PRICE_LIVE_PROGRAM_CHECKPOINT; SEPARATELY_AUTHORIZE_ANY_LIVE_DEPLOYMENT_OR_FULL_SYSTEM_QUALIFICATION"
+  },
+  "watchtower_original_shadow_gate_recovery_20261008": {
+    "engineering_revision": "read-only recovery from retained 2026-10-06 agent-handoff history and committed source; limited baseline tag watchtower-opening-price-live-env-qualified-20261008-daca3e8d",
+    "status": "PASS_ORIGINAL_SHADOW_GATE_RECOVERED_NOT_EXECUTED",
+    "original_gate": "The qualified +2 policy handoff 165d576dc0e0c0a9fbca915667f36eb53b5a9bb6 explicitly requires SHADOW_VALIDATE_PLUS2_ON_NEW_NATURAL_WATCHTOWER_TOKENS_BEFORE_LIVE_ACTIVATION. Policy is strict t+1 then t then t+2 only; +3/+4/nearest/unbounded fail closed. Shadow must not change an Opening decision or promote audit candidates into Entry/History/LIVE state.",
+    "implementation": "The implementation is the shared strict reducer and normal monitor flow in the frozen ancestry, with read-only audit projection via WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH. There is no separate shadow executor/feature flag evidenced for the +2 policy: shadowing is operationally the normal live monitor path constrained to observation/comparison, with activation withheld. The audit UI projection is explicitly non-mutating.",
+    "execution_order": "(1) deploy/verify exact runtime authority and clean config; (2) make the read-only 96-record ledger path available to the UI/API; (3) run the singleton retained INJECTOR import, which materializes the qualified historical opening before promoting the waiting fact; (4) run only bounded retained lifecycle/history recovery which reuses that qualified record and must make zero new INJECTOR Opening calls; (5) observe new natural Watchtower tokens under t+1→t→t+2 in shadow with no activation; (6) accept only after explicit shadow criteria are met; (7) separately authorize controlled activation/normal forward +2 processing.",
+    "blockers": "The limited baseline is source-qualified but not a live runtime deployment authority. Required runtime configuration must provide the exact candidate root/PYTHONPATH, WATCHTOWER_FINAL_SHA, WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH to the read-only 96 ledger, the canonical DB/ops DB/queue paths, and normal monitor mode while activation remains disabled. The retained records do not prove that the current launcher/UI service forwards the ledger path or that an exact live runtime exists. Injector import and retained materialization/history recovery precede any shadow run; otherwise the historical executor can reacquire an Opening, which is prohibited.",
+    "safety": "Read-only investigation only: no source/config/Supervisor/service/provider/database/queue/Injector mutation. RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Historical gate recovery only; no runtime target changed.",
+    "next_action": "AUTHORIZE_A_SEPARATE_LIVE_RUNTIME_PREPARATION_GATE_TO_VERIFY_EXACT_CONFIG_PATH_PROPAGATION_AND_BOUNDED_RETAINED_INJECTOR_HISTORY_ORDER_BEFORE_ANY_NATURAL_TOKEN_SHADOW_EXECUTION"
   }
 }

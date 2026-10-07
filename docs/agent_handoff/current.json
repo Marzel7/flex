@@ -19489,5 +19489,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Historical recovery and candidate definition only; no executable runtime behavior changed.",
     "next_action": "AUTHORIZE_ISOLATED_QUALIFICATION_OF_EXPLICIT_FDB25728_CANDIDATE_OR_SELECT_A_DIFFERENT_CLEAN_CANDIDATE; DO_NOT_DEPLOY_OR_RESUME_API_REPAIR"
+  },
+  "watchtower_pre_gap_development_position_audit_20261007": {
+    "engineering_revision": "read-only Git and historical agent-handoff audit; no API recovery or freeze qualification resumed",
+    "status": "PASS_CHRONOLOGY_RECONSTRUCTED",
+    "last_pre_gap_handoff": "watchtower_96_record_offset_ledger_baseline_resolution_20261006, published by agent-handoff commit ae26b7cfae6fc203a083a422d0944685738a3344 at 2026-10-06T21:43:01+01:00. It records b362e3be3739737171e25600807536287caa2895 as remote-verified and a qualified 96-record read-only ledger.",
+    "pre_gap_commit_set": "bff94db35aea3b3d9b65df46da70ca15c751324e bounded offset-audit runner; 165d576dc0e0c0a9fbca915667f36eb53b5a9bb6 bounded +2 policy/read-only audit UI; 82a02acf92c1a709b93c34f4cf7237525148dc0a retained Injector import; 98d72e374002bcda0cbbc537a615e03f44a96e00 retained opening materialization; b362e3be3739737171e25600807536287caa2895 96-record ledger. They are retained on origin/codex/watchtower-96-ledger; antecedents are also present on origin/codex/watchtower-offset-audit-evidence.",
+    "plus2_evidence": "Historical audit handoff 0f0ddc7d5456369185c6b57e4e8f33c23efdb04a records exact bff94db3 execution: 96 tokens total, 93 new serial one-call Birdeye V3 1s MCAP requests plus 3 controls; all 93 HTTP 200/normalized COMPLETE. Strict t+1 then t coverage=81/96 (84.38%); adding t+2=84/96 (87.50%), exactly 3 incremental recoveries; +3 and +4 add zero. Twelve tokens have no valid early candle through +4. The 165d576 policy/UI handoff replayed 84 qualified/12 unqualified provider-free, passed 35 focused tests, and remained QUALIFIED_NOT_DEPLOYED rather than live activated.",
+    "diversion": "The original next action after the ledger was to deploy the final SHA, import Injector, run bounded history, enable the 96-row audit UI, and resume forward +2. The development line was displaced at 2026-10-06T22:03:05+01:00 by b7a1815303d85240085b1315309b6c9d4caeb545 (clean final runtime configuration). The first explicit Supervisor-recovery handoff was bb5612af6d06b606c88656f780b5eaed039c9a4e at 22:46:58. After the overnight gap, the first API-recovery handoff was eb37f1fdca8cb7f91c3ed06d77bc43c835e7d808 at 2026-10-07T22:20:30+01:00; its associated deployed-config commit was cf8ff1d9661982018b71be414f07151ecdd239f3 at 21:33:25.",
+    "recommended_resume": "Resume from b362e3be3739737171e25600807536287caa2895 and its explicit QUALIFIED_NOT_DEPLOYED scope, not from a historical running-process claim and not from fdb257 API-recovery work. First re-establish a reproducible runtime/config authority for that commit set, then decide whether the separately qualified +2 policy should proceed to its already-recorded shadow-validation gate.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Chronology and evidence audit only; no source/runtime behavior changed.",
+    "next_action": "REVIEW_B362E3_PRE_GAP_SCOPE_AND_AUTHORIZE_A_SEPARATE_REPRODUCIBLE_RUNTIME_BASELINE_FOR_THAT_COMMIT_LINE_IF_RESUMPTION_IS_DESIRED"
   }
 }

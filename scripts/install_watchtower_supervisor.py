@@ -33,6 +33,6 @@ def main():
         args.include_dir.mkdir(parents=True, exist_ok=True)
         if not backup.exists(): backup.write_bytes(args.config.read_bytes())
         args.config.write_text(candidate)
-    else: print(candidate)
+    else: sys.stdout.write(candidate)
 
 if __name__ == "__main__": main()

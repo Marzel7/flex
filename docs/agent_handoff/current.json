@@ -19664,5 +19664,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Read-only runtime preparation audit only.",
     "next_action": "AUTHORIZE_A_SEPARATE_MINIMAL_SHADOW_ISOLATION_CAPABILITY_AND_FROZEN_RUNTIME_CONFIG_PREPARATION_BEFORE_ANY_SHADOW_EXECUTION"
+  },
+  "watchtower_minimal_shadow_preparation_20261008": {
+    "engineering_revision": "34c653ab56a91affff083dc2ceea895972e65993 on origin/codex/watchtower-shadow-prep; parent frozen baseline daca3e8d9d50a272b0e6ff56aee9a640aab0ebfe",
+    "status": "PASS_DEV_CONFIGURATION_AND_NON_MUTATING_SHADOW_CAPABILITY_PREPARED",
+    "runtime_configuration": "New uninstalled DEV-only config/supervisor/watchtower_frozen_shadow.template.conf declares exactly one watchtower_api and one operation_monitor_worker program. Its named substitutions cover frozen source root/SHA, audit-ledger path, canonical DB, operations DB, monitor queue, Python executable and log root. Both programs are autostart=false and autorestart=false; WATCHTOWER_SHADOW_EVALUATION_ENABLED=0. It contains no credential values and retains only the approved BIRDEYE credential-label resolution. No live Supervisor file was readied, written, reread, or applied.",
+    "shadow_isolation": "src/ops/watchtower_shadow_evaluation.py is a pure supplied-retained-evidence evaluator. It imports neither the Monitor worker nor provider/DB/queue/lifecycle facilities, reads no file, starts no worker, and cannot alter Opening/History/LIVE/admission/attribution. It delegates t+1 -> t -> t+2 selection to new strict_migration_window.reduce_retained_offsets, which immediately delegates final validation to existing reduce_policy; +3/+4 and ambiguous early offsets fail closed as INSUFFICIENT_EVIDENCE. Output is capped at 128 compact records and carries zero provider/database/queue/worker counts and authoritative_mutation=false. The evaluator is uninvoked by normal monitor code and therefore default-off.",
+    "qualification": "Direct config/shadow/strict-policy/audit tests: 21 passed. Existing provider-free Opening/Price/Live suite: 69 passed, one non-failing pre-existing deprecation warning. A test-only pre-import NullHandler prevented the listener persistence test from opening the ordinary ws_price trace path; it did not alter application logging and was not committed. Test coverage proves +1 priority, t only after +1 absence, +2 only after both absences, rejection of +3/+4/empty/ambiguous evidence, deterministic bounded evaluation, and zero evaluator mutation/provider/thread counters.",
+    "safety": "No deployment, Supervisor action, running-listener change, live DB/queue write, provider call, Injector/history execution, production port bind, or large artifact. The only source changes are the strict retained-offset adapter, pure evaluator, uninstalled template, and direct tests. RUNTIME_DEPLOYMENT_REQUIRED=false because this is a DEV-only uninstalled capability and has no active runtime target.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Prepared source/configuration is explicitly default-off and uninstalled; no runtime target changed.",
+    "next_action": "AUTHORIZE_A_SEPARATE_NON_MUTATING_NATURAL_TOKEN_SHADOW_EXECUTION_GATE_WITH_EXACT_RETAINED_EVIDENCE_INPUTS; DO_NOT_DEPLOY_OR_ACTIVATE_PLUS2"
   }
 }

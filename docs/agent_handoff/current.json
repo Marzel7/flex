@@ -19707,5 +19707,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Retained-evidence-only read and pure in-memory evaluation; no runtime target changed.",
     "next_action": "WAIT_FOR_A_SEPARATELY_AUTHORIZED_NATURAL_WATCHTOWER_TOKEN_WITH_COMPACT_RETAINED_EVIDENCE_THEN_RERUN_THIS_BOUNDED_SHADOW_GATE; DO_NOT_ACQUIRE_PROVIDER_DATA_OR_ACTIVATE_PLUS2"
+  },
+  "watchtower_natural_evidence_arrival_check_20261008": {
+    "engineering_revision": "read-only check against candidate de901e5bdb0cb26e3fff2a14498a9b9bb04f05ef and retained runtime state; no source modification",
+    "status": "PARTIAL_LAUNCHES_ARRIVING_RUNTIME_SHADOW_INPUT_NOT_MATERIALIZED",
+    "listener": "Supervisor reports watchtower_listener RUNNING, pid 98677, uptime 2:33:03 at the check. Its active configured stanza runs /Users/kevinkeaveney/Production/flex-listener/run_listener.sh with PYTHONPATH rooted at /Users/kevinkeaveney/Production/flex-listener, not the frozen candidate. The listener stanza contains no WATCHTOWER_FINAL_SHA, WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH, or WATCHTOWER_SHADOW_EVALUATION_ENABLED propagation.",
+    "arrival": "Read-only operations-ledger query found seven wt_watchtower_launches rows recorded after retained-ledger checkpoint timestamp 1791314127, while the canonical DB has 1604 migrations after that checkpoint. operation_monitor_facts has zero Watchtower facts with assignment_timestamp after the checkpoint. Therefore launches are arriving, but current runtime does not materialize them into the monitor-fact/compact-evidence shadow path.",
+    "retained_evidence": "The only approved shadow input source is docs/audits/watchtower-opening-offset-audit.v2.json (96 compact normalized records, checksum ad75e5e910662d0259ca095df9e7ae20501136dc0a8d09ccfec62d1e9273b5b8). One of the seven launch mints, CsCPttDSDsKxhCiVrYvCpFHtT9A3Uni8tbSfqpDXpump, intersects that ledger at migration timestamp 1791314127 with complete unambiguous offsets 0/1/2/3; it is retained qualification evidence at the checkpoint, not evidence of new runtime materialization. The other six observed launches have no ledger record and are insufficient evidence without acquisition, which remains prohibited.",
+    "classification": "The prior empty shadow result correctly found zero post-checkpoint monitor facts, but was not a complete launch-arrival census. Current absence of shadow-compatible natural evidence is attributable in part to the verified runtime/configuration mismatch: the active listener is not the frozen candidate and lacks frozen ledger/SHA propagation. This does not prove that deployment would produce compact evidence for the six remaining launches; that causal claim remains unproven.",
+    "safety": "Supervisor read-only status=1; SQLite mode=ro/query_only reads only; provider calls=0; DB/queue writes=0; source/config writes=0; service actions=0; background workers=0; no large artifact. RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Bounded read-only operational check only; no runtime target changed.",
+    "next_action": "AUTHORIZE_A_SEPARATE_FROZEN_RUNTIME_CONFIGURATION_DEPLOYMENT_OR_AN_EXPLICIT_RETAINED-EVIDENCE_SHADOW_INPUT_PLAN; DO_NOT_ACQUIRE_DATA_OR_ACTIVATE_PLUS2"
   }
 }

@@ -175,7 +175,21 @@ def _start_db_fd_watchdog():
     t = threading.Thread(target=_loop, daemon=True, name="db_fd_watchdog")
     t.start()
 
-_start_db_fd_watchdog()
+def _db_fd_watchdog_diagnostic_suppressed() -> bool:
+    """Allow an explicitly opted-in, non-serving import diagnostic.
+
+    This is intentionally narrow: normal service startup retains the watchdog
+    unless this exact diagnostic-only flag is set to a truthy value.
+    """
+    return os.environ.get("FLEX_DIAGNOSTIC_SUPPRESS_DB_FD_WATCHDOG", "0").lower() in {
+        "1", "true", "yes"
+    }
+
+
+if _db_fd_watchdog_diagnostic_suppressed():
+    print("[DIAGNOSTIC] db_fd_watchdog suppressed", flush=True)
+else:
+    _start_db_fd_watchdog()
 
 try:
     from src.core.internal_api import internal_bp

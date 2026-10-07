@@ -908,6 +908,7 @@ class MonitorBirdeyeTransport:
   diagnostic={'normalizer_version':'STRICT_ENTRY_NORMALIZER_V2','provider':'Birdeye','request_family':'BIRDEYE_OHLCV_1S_STRICT_MIGRATION_WINDOW','http_status':int(result.status_code),'provider_item_count':0,'normalized_item_count':0,'normalized_timestamps':[],'exact_target_item_count':0,'migration_timestamp':int(plan['migration_timestamp']),'migration_timestamp_present':False,'target_timestamp':target,'target_timestamp_present':False,'value_field_present':False,'value_parse_state':'NOT_EVALUATED','normalization_state':'NOT_EVALUATED','failure_stage':None,'failure_category':None}
   self.last_entry_diagnostic=diagnostic
   if result.status_code != 200:
+   self._capture_shadow_opening_response(p['mint'], plan, result, None)
    payload=result.payload if isinstance(result.payload,dict) else {}
    raw_code=payload.get('code',((payload.get('data') or {}) if isinstance(payload.get('data'),dict) else {}).get('code',''))
    raw_message=payload.get('message',payload.get('msg',''))
@@ -916,6 +917,7 @@ class MonitorBirdeyeTransport:
    if result.status_code==429: raise self._rate_limited(result,'OPENING')
    raise StrictEntryNormalizationError(diagnostic['failure_category'],diagnostic)
   payload=result.payload if isinstance(result.payload,dict) else None
+  self._capture_shadow_opening_response(p['mint'], plan, result, payload)
   items=((payload or {}).get('data') or {}).get('items') if payload else None
   if not isinstance(items,list):
    diagnostic.update({'normalization_state':'FAILED','failure_stage':'RESPONSE_CONTAINER','failure_category':'NORMALIZATION_FAILED'})
@@ -953,6 +955,21 @@ class MonitorBirdeyeTransport:
   diagnostic.update({'normalization_state':'COMPLETE','failure_stage':None,'failure_category':None,'value_parse_state':'VALID'})
   entry = target_items[0] if target_items else {**fallback_items[0], 'plus_one_absent': True} if fallback_items else {**plus_two_items[0], 'plus_one_absent': True, 'migration_absent': True}
   return entry,built
+
+ def _capture_shadow_opening_response(self, mint, plan, result, payload):
+  """Default-off shadow sidecar; failures never change authoritative Opening."""
+  if os.getenv('WATCHTOWER_SHADOW_CAPTURE_ENABLED','').strip().lower() not in {'1','true','yes','on'}:
+   return
+  try:
+   from src.ops.watchtower_shadow_capture import capture_already_acquired_opening
+   capture_already_acquired_opening(
+    mint=str(mint), migration_timestamp=int(plan['migration_timestamp']),
+    http_status=int(result.status_code), payload=payload,
+    failure_state=str(getattr(result,'error_state',None) or 'NONE'),
+   )
+  except Exception:
+   # Shadow capture is never permitted to change authoritative Opening.
+   return
 
 def resolve_operation_migration_boundary(db_path: str, mint: str, *, canonical_migration_db_path: str | None = None) -> dict[str,Any] | None:
  """Return one normalized, read-only migration boundary for the shared entry path.

@@ -80,7 +80,11 @@ def test_retained_pepeinu_opening_guard_then_bridge_preserves_selected_value(tmp
 def test_frozen_source_hashes_and_historical_producer_guard_separation():
     expected = {
         "src/ops/watchtower_first_available_mc.py": "52231ff4403eb1eaa6ebe0e89480059f6e26d4eab979ef75c7ff2ece89584af2",
-        "src/ops/operation_monitor_worker.py": "a93341be4e32fc8eff2a291312ca9aa359eaadb3ad2a73eee7edf5e970a1e84b",
+        # The only post-frozen worker delta is the default-off compact shadow
+        # capture hook qualified by test_watchtower_shadow_capture.py.  It
+        # observes an already-acquired strict response and cannot alter the
+        # authoritative selection path when its flag is absent.
+        "src/ops/operation_monitor_worker.py": "2090802b6f718f39a63fc2d0bca5ad8f40676cdc528999a55fcd2cb8c828bb2b",
         "src/ops/qualified_entry_monitor_bridge.py": "b7a1608e4e1ed3c7a7419035c72cc506a4bf8f4f001be78c4a85fa28d1dc685c",
         "scripts/run_byzantine_actual_entry_24h_backfill.py": "5645ab3e23968deb7a0e8006263c413a21bbc09001bf3dcadf2a3df3141bd0c3",
     }

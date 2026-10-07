@@ -19368,5 +19368,14 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_REQUIRE_SUPERVISOR_INCLUDE_MECHANISM_DIAGNOSIS_OR_CONFIG_LAYOUT_CORRECTION",
     "next_action": "AUTHORIZE_READ_ONLY_SUPERVISOR_CONFIG_PARSER_DIAGNOSIS_AND_INFRASTRUCTURE_ONLY_FIX_BEFORE_ANY_THIRD_LIVE_ATTEMPT"
+  },
+  "watchtower_api_startup_diagnosis_20261007": {
+    "engineering_revision": "cf8ff1d9661982018b71be414f07151ecdd239f3 deployed authority; read-only audit",
+    "status": "HOLD_CAUSAL_EXCEPTION_NOT_RETAINED",
+    "finding": "After the two-program in-place update, Supervisor recorded repeated watchtower_api spawns and exit status 3 from 2026-10-07T21:39:01 through at least 22:18. The configured stderr and Gunicorn error logs contain no records from those PIDs, so an exact Python/Gunicorn exception cannot be proved. The clean deployed worktree is at cf8ff1d, its 96-record ledger hash/count pass, and no process owns 0.0.0.0:5002. Some attempts passed Supervisor startsecs before exit, which rules out an immediate launcher-guard rejection but does not identify the later worker failure.",
+    "safety": "Read-only audit: source/config/Supervisor control/service/provider/database/queue/Injector mutations=0; worker remains STOPPED as configured by autostart=false.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_CAUSAL_EXCEPTION_NOT_RETAINED",
+    "next_action": "AUTHORIZE_A_SEPARATE_BOUNDED_RUNTIME_DIAGNOSTIC_OR_LOGGING_GATE; DO_NOT_RETRY_OR_FIX_WITHOUT_CAUSAL_EVIDENCE"
   }
 }

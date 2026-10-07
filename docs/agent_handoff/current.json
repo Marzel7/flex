@@ -19586,5 +19586,18 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Isolated candidate correction and qualification only; no deployment or active runtime mutation.",
     "next_action": "DECIDE_WHETHER_TO_AUTHORIZE_THE_EXISTING_NARROW_DB_FD_WATCHDOG_DIAGNOSTIC_SUPPRESSION_FOR_A_FULL_FAIL_CLOSED_API_IMPORT_OR_ACCEPT_API_ROUTE_QUALIFICATION_AS_UNPROVEN"
+  },
+  "watchtower_final_guarded_api_import_20261008": {
+    "engineering_revision": "daca3e8d9d50a272b0e6ff56aee9a640aab0ebfe on origin/codex/watchtower-runtime-candidate; parent f184fa7ff6586182c1c5ab6480ce3e41c4ff6e86",
+    "status": "HOLD_GUARD_LIMITATION_ROUTE_REGISTRATION_COMPLETE",
+    "diagnostic_switch": "The already-established FLEX_DIAGNOSTIC_SUPPRESS_DB_FD_WATCHDOG mechanism was selectively adopted unchanged from the prior recovery authority. It is explicit and default-off; normal startup still starts the DB-FD watchdog. Its focused contract tests plus reaper lifecycle and stale-import tests passed 6/6. This is the only source addition in this pass, with tests/test_watchtower_api_diagnostic_watchdog.py.",
+    "import": "Exactly one bounded 20-second fail-closed import ran from a temporary isolated working directory with FLEX_UI_RECOVERY_MODE=1, FLEX_DIAGNOSTIC_SUPPRESS_DB_FD_WATCHDOG=1, an isolated SQLite fixture containing metadata_cache, and no production port. src.core.main completed IMPORT_OK with 604 registered routes, including 19 /api/price routes. No causal exception occurred.",
+    "guard_counts": "Actual mutations: DB writes=0, queue writes=0, provider/network calls=0, subprocess/Supervisor actions=0, production port binds=0, filesystem writes=0, background workers started=0. Blocked attempts recorded: readonly SQLite connects=2 (allowed mode=ro), write-capable SQLite connects=1, thread starts=1, port binds=1. The first blocked action was thread name operational-intelligence-prewarm, statically traced to src/core/main.py:39319 calling prewarm_operational_intelligence_cache, which starts its best-effort non-fatal thread at src/core/operation_dashboard_routes.py:9322. The later blocked write was canonical operator-schema startup against its wt_ops path; its failure was caught and routes still registered. The blocked bind has no retained stack provenance in this one-shot compact guard. No source fix was attempted.",
+    "regression": "Independent provider-free suite rerun after the diagnostic-switch addition: 69 passed, one non-failing deprecation warning. Frozen source-audit tag remains unchanged and the running listener was not touched.",
+    "classification": "No genuine API import/startup defect is proven. Route registration is proven, but this strict guard cannot demonstrate normal best-effort prewarm/operator schema behavior because it correctly blocks their startup side effects. The candidate is not runtime-freeze-ready until those legitimate actions are qualified in an isolated runtime fixture or explicitly scoped out of API route readiness.",
+    "safety": "No deployment, Supervisor action, running-listener change, live DB/queue action, provider call, paid-credential change, production log write, or large artifact. Temporary fixtures and guard files were removed. RUNTIME_DEPLOYMENT_REQUIRED=false because no active runtime target changed.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Bounded isolated diagnostic and default-off diagnostic switch only; no deployment or active runtime mutation.",
+    "next_action": "AUTHORIZE_AN_ISOLATED_RUNTIME_FIXTURE_FOR_LEGITIMATE_OPERATOR_SCHEMA_AND_PREWARM_BEHAVIOR_OR_ACCEPT_THE_ROUTE_REGISTRATION_PROOF_WITH_THOSE_INITIALIZERS_UNPROVEN; DO_NOT_DEPLOY"
   }
 }

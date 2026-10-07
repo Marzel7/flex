@@ -29,7 +29,6 @@ import logging
 import re
 import hashlib
 from src.utils.infra_mapping import highlight_infra_in_funding
-from src.core.flex_dashboard_routes import MIN_LIVE_MARKET_CAP
 
 # Webhook system - M5 webhook-first low-RPC architecture
 try:

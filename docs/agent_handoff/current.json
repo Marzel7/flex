@@ -19675,5 +19675,15 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Prepared source/configuration is explicitly default-off and uninstalled; no runtime target changed.",
     "next_action": "AUTHORIZE_A_SEPARATE_NON_MUTATING_NATURAL_TOKEN_SHADOW_EXECUTION_GATE_WITH_EXACT_RETAINED_EVIDENCE_INPUTS; DO_NOT_DEPLOY_OR_ACTIVATE_PLUS2"
+  },
+  "development_execution_discipline_20261008": {
+    "engineering_revision": "77e8a55537c98fe34f99a6949f87e8ecb2233ae4 on origin/codex/development-execution-discipline; documentation-only branch based on 580508a70c80e7fc944e0069f85e67b851a117fa",
+    "status": "PASS_SHARED_DEVELOPMENT_PROTOCOL_INSTALLED",
+    "authority": "Repository-root AGENTS.md is the single authoritative Development execution discipline V1. It preserves and supplements the existing shared handoff and production-safety rules. Root CLAUDE.md and docs/CLAUDE.md only point to AGENTS.md and do not duplicate or override the protocol.",
+    "verification": "Static discovery validation passed: CODEX_ROOT_INSTRUCTION_DISCOVERY=PASS; CLAUDE_ROOT_INSTRUCTION_DISCOVERY=PASS; CLAUDE_DOCS_INSTRUCTION_DISCOVERY=PASS; AUTHORITATIVE_PROTOCOL_COUNT=1. The committed diff contains only AGENTS.md, CLAUDE.md, and docs/CLAUDE.md. No application or runtime source changed.",
+    "safety": "No deployment, Supervisor action, service/listener action, DB/queue/provider action, or large artifact. RUNTIME_DEPLOYMENT_REQUIRED=false because the change is instruction documentation only.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Documentation-only process protocol; no executable runtime changed.",
+    "next_action": "APPLY_DEVELOPMENT_EXECUTION_DISCIPLINE_V1_TO_THE_NEXT_AUTHORIZED_ENGINEERING_OBJECTIVE; DO_NOT_RESUME_WATCHTOWER_WORK_WITHOUT_SEPARATE_AUTHORIZATION"
   }
 }

@@ -19624,5 +19624,20 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Read-only contract testing and temporary-fixture analysis only.",
     "next_action": "AUTHORIZE_OR_SUPPLY_A_COMPACT_SANCTIONED_SYNTHETIC_FIXTURE_FOR_THE_FULL_OPERATIONAL_INTELLIGENCE_PERSISTED_DATA_CONTRACT; DO_NOT_DEPLOY_OR_TAG"
+  },
+  "watchtower_limited_environment_baseline_freeze_20261008": {
+    "engineering_revision": "daca3e8d9d50a272b0e6ff56aee9a640aab0ebfe on origin/codex/watchtower-runtime-candidate; clean and remote-identical",
+    "status": "PASS_LIMITED_ENVIRONMENT_SPECIFIC_BASELINE_TAGGED",
+    "tag": "watchtower-opening-price-live-env-qualified-20261008-daca3e8d",
+    "tag_object": "f8fe5487ae9bf68f81545fd012d2a308923173d7",
+    "peeled_target": "daca3e8d9d50a272b0e6ff56aee9a640aab0ebfe",
+    "qualified_functionality": "96-record Opening ledger and policy (t+1=52, t=29, t+2-only=3, unqualified=12); 69 provider-free regressions; listener persistence 12/12; retained Injector; Price/Live projections; audit UI/read-only contracts; guarded API import and 604 route registration including 19 Price routes; isolated operator schema initialization; and bounded operational-intelligence prewarm lifecycle.",
+    "excluded_unverified_functionality": "Complete operational-intelligence persisted-data endpoint smoke, portable dependency reproducibility, live deployment verification, and full-system runtime qualification. The incomplete endpoint fixture is not a proven application defect.",
+    "environment_identity": "Sorted current pip-freeze inventory digest=14e1fd313913c5c7a0b46b4c92e865afc0d20b5a87e89e8b46ad1efb45e4685e (248 distributions); environment-specific evidence only, not a lock file. Supervisor config blob=0ffd564fa543b18fca7c34010a07ca1e3acbda0e; Gunicorn config blob=63995f711273caf01c4edbbf79789c579706e903.",
+    "remote_verification": "origin tag object f8fe5487ae9bf68f81545fd012d2a308923173d7 and peeled target daca3e8d9d50a272b0e6ff56aee9a640aab0ebfe verified. Existing source-audit tag watchtower-source-audit-20261006-b362e3be was not modified.",
+    "safety": "No source change, deployment, Supervisor action, live DB/queue/provider/listener action, or large artifact. The only external mutation was the authorized immutable annotated tag publication. RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Immutable source tag only; no active runtime target changed.",
+    "next_action": "USE_THE_LIMITED_ENVIRONMENT_SPECIFIC_BASELINE_AS_THE_OPENING_PRICE_LIVE_PROGRAM_CHECKPOINT; SEPARATELY_AUTHORIZE_ANY_LIVE_DEPLOYMENT_OR_FULL_SYSTEM_QUALIFICATION"
   }
 }

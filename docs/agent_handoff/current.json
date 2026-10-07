@@ -19574,5 +19574,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Test-only correction and isolated qualification; no active runtime target changed.",
     "next_action": "DECIDE_SEPARATELY_WHETHER_TO_SELECTIVELY_APPLY_THE_ALREADY_PROVEN_REAPER_LIFECYCLE_CONTRACT_TO_THE_RUNTIME_CANDIDATE_BEFORE_ANY_API_IMPORT_OR_RUNTIME_FREEZE_QUALIFICATION"
+  },
+  "watchtower_runtime_candidate_reaper_lifecycle_20261008": {
+    "engineering_revision": "f184fa7ff6586182c1c5ab6480ce3e41c4ff6e86 on origin/codex/watchtower-runtime-candidate; ancestry includes frozen source b362e3be3739737171e25600807536287caa2895",
+    "status": "PARTIAL_REAPER_CORRECTION_PASS_API_IMPORT_GUARD_LIMITATION",
+    "correction": "Selective proven lifecycle contract only: src/utils/db_locking.py has no module-import reaper start and exposes synchronized idempotent start_connection_reaper plus bounded stop_connection_reaper; config/gunicorn.conf.py calls it in post_worker_init; src/core/main.py calls it only in the direct-entry path; tests/test_db_locking_reaper_lifecycle.py covers import neutrality, one-time start, and bounded/idempotent shutdown. No DB-FD watchdog suppression, UI recovery diagnostic, provider, or other API-recovery hunk was adopted.",
+    "verification": "Focused lifecycle/import-contract tests: 4 passed. Existing independent provider-free qualification rerun: 69 passed, one non-failing deprecation warning. Temporary listener tracer interception was used only for the isolated listener fixture and removed afterwards. No test output or temporary artifact approached 500MB.",
+    "api_import": "One fail-closed isolated import was run with FLEX_UI_RECOVERY_MODE=1, a temporary DB_PATH, and a thread-start guard. It did not start db-conn-reaper; the first attempted thread is the unchanged src/core/main.py db_fd_watchdog at line 178, blocked before creation. No database connection/write, queue action, provider/network call, production-port bind, subprocess, Supervisor action, or service action occurred. This is a GUARD_LIMITATION caused by the explicitly excluded watchdog diagnostic suppression, not a new proven application defect and not a reason to alter watchdog behavior in this candidate.",
+    "readiness": "Runtime freeze is not ready: full API route registration was not reached under the guarded import. Independently qualified Opening/Price/Live and audit tracks remain passing. Candidate commit was remote-verified but is not tagged runtime-qualified.",
+    "safety": "No production deployment, Supervisor action, running-listener change, live DB/queue mutation, provider call, production log write, or large artifact. RUNTIME_DEPLOYMENT_REQUIRED=false because no active runtime target changed.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Isolated candidate correction and qualification only; no deployment or active runtime mutation.",
+    "next_action": "DECIDE_WHETHER_TO_AUTHORIZE_THE_EXISTING_NARROW_DB_FD_WATCHDOG_DIAGNOSTIC_SUPPRESSION_FOR_A_FULL_FAIL_CLOSED_API_IMPORT_OR_ACCEPT_API_ROUTE_QUALIFICATION_AS_UNPROVEN"
   }
 }

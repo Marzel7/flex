@@ -19404,5 +19404,14 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_IMPORT_TIME_MUTATION_PATH_PROVEN",
     "next_action": "ISOLATE_ONLY_DB_LOCKING_IMPORT_TIME_CONNECTION_REAPER_BEFORE_RETRYING_ANY_APP_IMPORT"
+  },
+  "watchtower_api_connection_reaper_isolation_20261007": {
+    "engineering_revision": "cf75e0821814289188cbdde4cafd72f805ada439 on origin/codex/watchtower-api-recovery; remote verified",
+    "status": "HOLD_IMPORT_MODULE_FAILURE_PROVEN",
+    "finding": "db_locking no longer starts db-conn-reaper or db-wal-watchdog at import. It exposes locked, idempotent start_connection_reaper and bounded stop_connection_reaper lifecycle APIs; Gunicorn calls the start API from post_worker_init and direct main execution calls it from __main__. The existing db_fd watchdog diagnostic flag remains default-off. Focused tests 22/22 pass, including import silence, explicit one-time startup, bounded shutdown, and existing cleanup regressions. One repeated 20-second fail-closed import reached the original API failure with no blocked mutation: ImportError at src/core/main.py:32, cannot import MIN_LIVE_MARKET_CAP from src.core.flex_dashboard_routes. Output=447 bytes; four live DB/queue fingerprints were identical; temporary diagnostics removed; no process remained.",
+    "safety": "No Supervisor/config/service/provider/DB/queue/Injector mutation and no port bind. The next import blocker was a Python module symbol failure, not a side effect.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_IMPORT_MODULE_FAILURE_PROVEN",
+    "next_action": "FIX_ONLY_THE_PROVEN_MIN_LIVE_MARKET_CAP_IMPORT_CONTRACT_AFTER_EXPLICIT_AUTHORIZATION"
   }
 }

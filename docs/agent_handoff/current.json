@@ -19612,5 +19612,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Isolated runtime qualification only; no active runtime target changed.",
     "next_action": "PROVIDE_OR_AUTHORIZE_A_COMPACT_REPRESENTATIVE_PERSISTED_OPERATIONAL_DATASET_FIXTURE_FOR_THE_ESSENTIAL_OPERATIONAL_INTELLIGENCE_ENDPOINT_BEFORE_RUNTIME_FREEZE; DO_NOT_DEPLOY"
+  },
+  "watchtower_final_fixture_gap_20261008": {
+    "engineering_revision": "daca3e8d9d50a272b0e6ff56aee9a640aab0ebfe; no source modification",
+    "status": "HOLD_FIXTURE_INCOMPLETE",
+    "endpoint_contract": "The operational-intelligence route delegates to build_operational_intelligence(OPS_DB_PATH, LIVE_DB_PATH). Its existing representative contract suites passed 15/15: route warming/default response behavior and hierarchy/filter response shape. The real builder composes topology, behavior, mechanism, registry, enrichment, creator identity, and campaign persisted relations; the earlier minimal DB lacks that complete data contract and returns unable to open database file.",
+    "fixture": "No invented partial schema was accepted as representative. The compact temporary core/ops DBs were removed. A complete synthetic persisted fixture must cover every real builder relation or be generated from an existing sanctioned fixture; neither is currently identified in retained qualification evidence.",
+    "dependency_environment": "Exact current environment inventory digest (sorted pip freeze, 248 distributions)=14e1fd313913c5c7a0b46b4c92e865afc0d20b5a87e89e8b46ad1efb45e4685e. This is environment-specific evidence only, not a portable dependency lock or reconstruction guarantee.",
+    "freeze_decision": "HOLD_REPRODUCIBILITY_GAP: runtime candidate functionality and route contracts are qualified as recorded, but a full persisted operational-intelligence endpoint smoke and portable dependency identity are incomplete. No genuine endpoint/source defect is proven.",
+    "safety": "No source/deployment/Supervisor/live DB/queue/provider/listener/production-port action; no large artifact. RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only contract testing and temporary-fixture analysis only.",
+    "next_action": "AUTHORIZE_OR_SUPPLY_A_COMPACT_SANCTIONED_SYNTHETIC_FIXTURE_FOR_THE_FULL_OPERATIONAL_INTELLIGENCE_PERSISTED_DATA_CONTRACT; DO_NOT_DEPLOY_OR_TAG"
   }
 }

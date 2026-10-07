@@ -19526,5 +19526,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Immutable source/audit tag only; no runtime target changed.",
     "next_action": "IF_REQUESTED_SEPARATELY_ESTABLISH_A_REPRODUCIBLE_RUNTIME_BASELINE_FOR_THE_TAGGED_SOURCE_AUDIT_CHECKPOINT"
+  },
+  "watchtower_source_audit_runtime_baseline_preflight_20261007": {
+    "engineering_revision": "b362e3be3739737171e25600807536287caa2895 (watchtower-source-audit-20261006-b362e3be); isolated clean worktree at /Users/kevinkeaveney/.codex/worktrees/watchtower-source-audit-baseline/flex",
+    "status": "HOLD_FROZEN_SOURCE_API_IMPORT_CONTRACT_BROKEN",
+    "finding": "Static preflight proves the exact frozen source cannot complete API import: src/core/main.py line 32 imports MIN_LIVE_MARKET_CAP from src.core.flex_dashboard_routes, but that module defines no such symbol at the same SHA. This is the retained pre-existing import mismatch; no API-recovery commit was imported into the candidate and the frozen tag was not changed.",
+    "configuration_authority": "Source-held configuration only: config/supervisor/supervisord.conf blob 0ffd564fa543b18fca7c34010a07ca1e3acbda0e and config/gunicorn.conf.py blob 59047dd8f4b82401df4f58b210d7b3255a044162. No isolated runtime configuration has been qualified because the source API contract fails before runtime qualification.",
+    "dependency_authority": "UNPROVEN: the exact tag contains no requirements.txt, pyproject.toml, poetry.lock, Pipfile.lock, or other dependency-lock manifest identified by the bounded preflight.",
+    "qualification": "Exact annotated-tag target verified and isolated worktree clean. The static main/module contract check is the first proven blocker. No src.core.main import, Gunicorn launch, listener fixture, Injector import, audit-UI readback, shadow validation, provider call, live DB/queue action, Supervisor action, service action, or running-listener modification was performed after the blocker.",
+    "safety": "No source change, deployment, restart, Supervisor action, provider call, live database/queue action, or large artifact. RUNTIME_DEPLOYMENT_REQUIRED=false because this was a read-only qualification preflight.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only isolated source preflight only; no executable target changed.",
+    "next_action": "SEPARATELY_DECIDE_WHETHER_TO_DEFINE_A_NEW_RUNTIME_CANDIDATE_WITH_AN_EXPLICIT_MINIMAL_IMPORT_CONTRACT_CORRECTION; DO_NOT_ALTER_THE_B362_SOURCE_AUDIT_TAG_OR_AUTOMATICALLY_RESUME_API_RECOVERY"
   }
 }

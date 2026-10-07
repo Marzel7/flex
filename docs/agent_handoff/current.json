@@ -19413,5 +19413,14 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_IMPORT_MODULE_FAILURE_PROVEN",
     "next_action": "FIX_ONLY_THE_PROVEN_MIN_LIVE_MARKET_CAP_IMPORT_CONTRACT_AFTER_EXPLICIT_AUTHORIZATION"
+  },
+  "watchtower_api_market_cap_import_contract_20261007": {
+    "engineering_revision": "fdb25728399977153384463b25197a055662cff8 on origin/codex/watchtower-api-recovery; remote verified",
+    "status": "HOLD_NEXT_IMPORT_TIME_MUTATION_PATH_PROVEN",
+    "finding": "Git history shows flex_dashboard_routes once owned MIN_LIVE_MARKET_CAP=5000, but the deployed authority no longer defines it. main.py retained an unused stale import while its live-launch feed explicitly excludes the shared $5k floor. The authoritative profitability constant remains 5000.0 in profitability_intelligence.py, but main has no executable consumer. The correction removes only the stale import and adds an AST regression test. Focused recovery tests=23 passed. One guarded import reached IMPORT_OK but first blocked webhook initialization's attempt to start database_write_service worker db-writer-webhook-init: main.py:686 -> webhook_integration.init_webhook_system -> webhook_handler.ensure_webhook_tables -> database_write_service.submit/register_database -> worker.start. No mutation occurred; output=17,550 bytes; live fingerprints identical; temporary diagnostics removed; no process remained.",
+    "safety": "DB/queue/provider/network/port/Supervisor actions=0; background starts=0 because all attempts were blocked; no deployment.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_NEXT_IMPORT_TIME_MUTATION_PATH_PROVEN",
+    "next_action": "ISOLATE_ONLY_WEBHOOK_INITIALIZATION_IMPORT_TIME_DATABASE_WRITER_BEFORE_ANY_FURTHER_GUARDED_IMPORT"
   }
 }

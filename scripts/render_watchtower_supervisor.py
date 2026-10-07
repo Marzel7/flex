@@ -43,14 +43,24 @@ def _ranges(text, names):
             next_section = text.find("\n[", start + 1)
             ranges.append((start, len(text) if next_section < 0 else next_section + 1, name))
         else:
-            ranges.append((start, separator + 1, name))
+            ranges.append((start, separator, name))
     return ranges
 
 def render_in_place(source: str, root: Path, sha: str):
     if "[include]" in source: raise ValueError("INCLUDE_DEPLOYMENT_REJECTED")
     rendered = render_fragment(root, sha)
-    replacements = {name: stanza(rendered, name) for name in ALLOWED}
-    ranges = _ranges(source, ALLOWED); candidate = source
+    # The root file owns its inter-section separator bytes.  The replacement
+    # therefore ends at the final option byte, never adding another newline.
+    ranges = _ranges(source, ALLOWED)
+    replacements = {}
+    for start, end, name in ranges:
+        owned = stanza(rendered, name).rstrip("\n")
+        # At EOF there is no root-owned inter-section separator.  Preserve the
+        # source file's final-newline convention exactly.
+        if end == len(source) and source.endswith("\n"):
+            owned += "\n"
+        replacements[name] = owned
+    candidate = source
     for start, end, name in sorted(ranges, reverse=True): candidate = candidate[:start] + replacements[name] + candidate[end:]
     return candidate, ranges
 

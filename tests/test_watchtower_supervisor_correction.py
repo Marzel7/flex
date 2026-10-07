@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SHA = "288be3388642e28ad487e8c353769a64916f9ed2"
 
 def source():
-    return """[unix_http_server]\nfile=/tmp/live.sock\n[supervisord]\npidfile=/tmp/live.pid\nlogfile=/live.log\nchildlogdir=/live-logs\n[supervisorctl]\nserverurl=unix:///tmp/live.sock\n[program:watchtower_api]\ncommand=old-api\ndirectory=/old\nautostart=true\nautorestart=true\n[program:watchtower_listener]\ncommand=listener\ndirectory=/listener\nautostart=true\nautorestart=true\n[program:unrelated]\ncommand=other\nautostart=true\nautorestart=true\n[program:operation_monitor_worker]\ncommand=old-worker\nautostart=false\nautorestart=true\n"""
+    return """[unix_http_server]\nfile=/tmp/live.sock\n[supervisord]\npidfile=/tmp/live.pid\nlogfile=/live.log\nchildlogdir=/live-logs\n[supervisorctl]\nserverurl=unix:///tmp/live.sock\n[program:watchtower_api]\ncommand=old-api\ndirectory=/old\nautostart=true\nautorestart=true\n\n[program:watchtower_listener]\ncommand=listener\ndirectory=/listener\nautostart=true\nautorestart=true\n\n[program:unrelated]\ncommand=other\nautostart=true\nautorestart=true\n\n[program:operation_monitor_worker]\ncommand=old-worker\nautostart=false\nautorestart=true\n"""
 
 def programs(text): return [line for line in text.splitlines() if line.startswith("[program:")]
 

@@ -168,3 +168,33 @@ def reduce_policy(*, migration_timestamp: int, entry: Mapping[str, Any]) -> dict
     if timestamp == plus_two:
         result["entry_offset_seconds"] = MAX_ENTRY_OFFSET_SECONDS
     return result
+
+
+def reduce_retained_offsets(*, migration_timestamp: int, offsets: Mapping[str, Any],
+                            duplicate_offsets: tuple[int, ...] | list[int] = ()) -> dict[str, Any]:
+    """Apply the one strict reducer to compact, already-retained candle evidence.
+
+    This is deliberately an adapter, not an acquisition path: callers provide
+    normalized offset-to-market-cap evidence and no provider, database, queue,
+    or lifecycle object is accepted.  Ambiguous early offsets fail closed and
+    later (``+3``/``+4``) offsets are never candidates.
+    """
+    try:
+        values = {int(key): value for key, value in dict(offsets).items()}
+        duplicates = {int(value) for value in duplicate_offsets}
+    except (TypeError, ValueError):
+        return {"state": "INSUFFICIENT_EVIDENCE", "reason": "STRICT_MIGRATION_RETAINED_OFFSETS_INVALID"}
+    if any(offset not in {0, 1, 2, 3, 4} for offset in values) or any(offset not in {0, 1, 2, 3, 4} for offset in duplicates):
+        return {"state": "INSUFFICIENT_EVIDENCE", "reason": "STRICT_MIGRATION_RETAINED_OFFSETS_INVALID"}
+    if 1 in duplicates or 0 in duplicates or 2 in duplicates:
+        return {"state": "INSUFFICIENT_EVIDENCE", "reason": "STRICT_MIGRATION_AMBIGUOUS_EARLY_OFFSET"}
+    if 1 in values:
+        entry = {"timestamp": migration_timestamp + 1, "mc": values[1]}
+    elif 0 in values:
+        entry = {"timestamp": migration_timestamp, "mc": values[0], "plus_one_absent": True}
+    elif 2 in values:
+        entry = {"timestamp": migration_timestamp + 2, "mc": values[2],
+                 "plus_one_absent": True, "migration_absent": True}
+    else:
+        return {"state": "INSUFFICIENT_EVIDENCE", "reason": "STRICT_MIGRATION_TARGET_SECOND_REQUIRED"}
+    return reduce_policy(migration_timestamp=migration_timestamp, entry=entry)

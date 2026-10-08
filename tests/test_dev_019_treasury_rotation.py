@@ -206,3 +206,30 @@ def test_wsol_close_is_context_not_direct_funding_even_when_balances_move():
 def test_net_balance_without_transfer_instruction_creates_no_mesh_fact():
     tx = {"slot": 1, "transaction": {"message": {"accountKeys": ["a", "b"], "instructions": []}}, "meta": {"preBalances": [10, 0], "postBalances": [0, 10]}}
     assert extract_compact_native_facts(tx, signature="net-only") == []
+
+
+def test_transaction_request_contract_supports_legacy_v0_and_v1_reads():
+    assert transaction_request_config()["maxSupportedTransactionVersion"] == 1
+    assert transaction_version_status({"version": "legacy"}) == "SUPPORTED"
+    assert transaction_version_status({"version": 0}) == "SUPPORTED"
+    assert transaction_version_status({"version": 1}) == "SUPPORTED"
+
+
+def test_unsupported_version_fails_closed_without_creating_transfer_facts():
+    tx = {
+        "version": 2,
+        "transaction": {"message": {"accountKeys": ["a", "b"], "instructions": [
+            {"program": "system", "parsed": {"type": "transfer", "info": {"source": "a", "destination": "b", "lamports": 1}}}
+        ]}},
+        "meta": {"preBalances": [1, 0], "postBalances": [0, 1]},
+    }
+    assert transaction_version_status(tx) == "UNSUPPORTED_TRANSACTION_VERSION"
+    assert extract_compact_native_facts(tx, signature="unsupported") == []
+
+
+def test_page_boundary_is_available_even_when_first_decode_would_fail():
+    boundary = signature_page_boundary(page_number=1, before_cursor=None, signatures=["sig-a", "sig-b"])
+    assert boundary == {"page": 1, "before_cursor": None, "returned_signature_count": 2, "first_signature": "sig-a", "last_signature": "sig-b"}
+    coverage = signature_window_coverage(page_signatures=["sig-a", "sig-b"], decoded_signatures=[])
+    assert coverage["status"] == COVERAGE_INCOMPLETE
+    assert coverage["missing_signature_count"] == 2

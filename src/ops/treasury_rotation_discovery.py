@@ -26,6 +26,8 @@ PARTIAL_LINEAGE = "PARTIAL_LINEAGE"
 CONFIRMED_TREASURY_MATCH = "CONFIRMED_TREASURY_MATCH"
 KNOWN_SUBPROVIDER_MATCH = "KNOWN_SUBPROVIDER_MATCH"
 FUNDING_ACCOUNT_MATCH = "FUNDING_ACCOUNT_MATCH"
+SUPPORTED_TRANSACTION_VERSIONS = frozenset({"legacy", 0, 1})
+MAX_SUPPORTED_TRANSACTION_VERSION = 1
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS wt_treasury_rotation_candidates (
@@ -103,6 +105,36 @@ def signature_window_coverage(*, page_signatures: Iterable[str], decoded_signatu
     }
 
 
+def signature_page_boundary(*, page_number: int, before_cursor: str | None,
+                            signatures: Iterable[str]) -> dict:
+    """Return compact page provenance before any transaction is decoded."""
+    page = tuple(dict.fromkeys(str(signature) for signature in signatures))
+    return {
+        "page": int(page_number),
+        "before_cursor": before_cursor,
+        "returned_signature_count": len(page),
+        "first_signature": page[0] if page else None,
+        "last_signature": page[-1] if page else None,
+    }
+
+
+def transaction_request_config() -> dict:
+    """JSON-RPC config compatible with legacy, v0, and currently active v1."""
+    return {
+        "encoding": "jsonParsed",
+        "maxSupportedTransactionVersion": MAX_SUPPORTED_TRANSACTION_VERSION,
+        "commitment": "confirmed",
+    }
+
+
+def transaction_version_status(transaction: Mapping | None) -> str:
+    """Classify a returned RPC transaction without treating unknown versions as usable."""
+    if transaction is None:
+        return "TRANSACTION_UNAVAILABLE"
+    version = transaction.get("version", "legacy")
+    return "SUPPORTED" if version in SUPPORTED_TRANSACTION_VERSIONS else "UNSUPPORTED_TRANSACTION_VERSION"
+
+
 def _account_keys(transaction: Mapping) -> list[str]:
     message = transaction.get("transaction", {}).get("message", {})
     return [str(item.get("pubkey")) if isinstance(item, Mapping) else str(item)
@@ -126,6 +158,8 @@ def extract_compact_native_facts(transaction: Mapping, *, signature: str) -> lis
     balance movement is real, but it is not promoted to a direct wallet
     funding edge.  Transaction-level net deltas alone never create a fact.
     """
+    if transaction_version_status(transaction) != "SUPPORTED":
+        return []
     meta = transaction.get("meta") or {}
     keys = _account_keys(transaction)
     pre, post = list(meta.get("preBalances") or []), list(meta.get("postBalances") or [])

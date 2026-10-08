@@ -1,6 +1,8 @@
 {
   "schema_version": "dev023.hot-rpc-cache-retention.runtime.v1",
   "enabled": false,
+  "entrypoint": "scripts/run_dev023_hot_rpc_cache_retention.py",
+  "canonical_database_path_argument": "--canonical-db-path",
   "scheduler": "external_existing_maintenance_infrastructure",
   "cadence_seconds": 86400,
   "maximum_rows_per_tick": 200,

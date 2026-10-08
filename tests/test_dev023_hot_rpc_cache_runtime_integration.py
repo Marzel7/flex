@@ -1,5 +1,7 @@
 import json
 import sqlite3
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -151,3 +153,20 @@ def test_checked_in_schedule_is_explicitly_disabled_without_a_live_installer():
     assert payload["enabled"] is False
     assert payload["maximum_rows_per_tick"] == 200
     assert payload["activation"] == "EXPLICIT_SEPARATE_AUTHORIZATION_REQUIRED"
+
+
+def test_entrypoint_is_disabled_before_it_can_open_or_register_a_database(tmp_path):
+    root = Path(__file__).resolve().parents[1]
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(root / "scripts/run_dev023_hot_rpc_cache_retention.py"),
+            "--canonical-db-path", str(tmp_path / "does-not-exist.db"),
+        ],
+        cwd=root,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode == 0
+    assert json.loads(result.stdout) == {"status": "DISABLED", "deleted": 0}

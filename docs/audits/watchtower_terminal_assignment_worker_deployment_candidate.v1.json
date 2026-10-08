@@ -1,0 +1,50 @@
+{
+  "contract": "WATCHTOWER_TERMINAL_ASSIGNMENT_PROVENANCE_DEPLOYMENT_CANDIDATE_V1",
+  "status": "QUALIFIED_NOT_DEPLOYED_EXPLICIT_APPROVAL_REQUIRED",
+  "qualified_source_sha": "1c8022b53d10db168f90afabbed08cc646007912",
+  "pinned_runtime_root": "/private/tmp/flex-watchtower-terminal-assignment-worker-1c8022b5",
+  "active_worker_baseline_sha": "7e9c2db073a73edab349c078fa2759ef1ec879c1",
+  "active_config_sha256": "3d1e347d370741c23ef6517e2da2196dba5a473462072ab810a1f6cfc78a06d7",
+  "candidate_config_path": "/private/tmp/watchtower-terminal-assignment-worker-candidate-1c8022b5.conf",
+  "candidate_config_sha256": "22721ba7526cadddb443f52add1add76f8df6c1cbb305154155f98e47fc837a8",
+  "rollback_config_path": "/private/tmp/watchtower-terminal-assignment-worker-rollback-3d1e347d.conf",
+  "rollback_config_sha256": "3d1e347d370741c23ef6517e2da2196dba5a473462072ab810a1f6cfc78a06d7",
+  "service_scope": ["operation_monitor_worker"],
+  "candidate_diff": {
+    "changed_stanza": "program:operation_monitor_worker",
+    "changed_keys": ["command", "directory", "environment"],
+    "unchanged_contracts": [
+      "MONITOR_PROVIDER_GLOBAL_LIMIT=20",
+      "MONITOR_PROVIDER_TOKEN_LIMIT=4",
+      "minimum_assignment_timestamp=1791446333",
+      "monitor database and queue paths",
+      "strict frozen terminal finalizer",
+      "all other Supervisor stanzas"
+    ]
+  },
+  "queue_safety": {
+    "existing_timestamp_less_terminal_envelopes": 61,
+    "action": "preserved unchanged; no replay, rewrite, acknowledgement, or deletion",
+    "new_terminal_admission": "only original assignment metadata whose event_id, assigned_at, and immutable fact provenance digest exactly agree is propagated"
+  },
+  "qualification": {
+    "provider_free_tests": "29 passed",
+    "included": [
+      "terminal assignment propagation/idempotence",
+      "missing or mismatched provenance fail-closed",
+      "pre-watermark exclusion",
+      "strict finalizer incomplete-coverage rejection",
+      "Supervisor isolation"
+    ],
+    "parser_only_supervisor_validation": "only operation_monitor_worker command, directory, and environment differ",
+    "provider_calls": 0,
+    "live_database_queue_writes": 0,
+    "Supervisor_or_service_actions": 0,
+    "schema_migrations": 0,
+    "raw_provider_retention": false,
+    "new_feature_max_single_file_design_bound_bytes": 5242880,
+    "new_feature_unbounded_growth_paths": 0
+  },
+  "runtime_deployment_gate": "HOLD_FRESH_PREFLIGHT_AND_EXPLICIT_WORKER_ONLY_APPROVAL_REQUIRED",
+  "next_action": "Do not install the candidate or update the worker. A separate authorization must freshly verify active source/configuration identity, one worker, queue state, database/WAL/disk health, provider authority, and unrelated-service continuity before a targeted worker-only transition."
+}

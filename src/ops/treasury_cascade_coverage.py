@@ -24,6 +24,8 @@ FAILED = "FAILED"
 UNSUPPORTED = "UNSUPPORTED"
 HANDOFF_EMITTED = "HANDOFF_EMITTED"
 HANDOFF_DEFERRED = "HANDOFF_DEFERRED"
+DEFAULT_SUBSCRIPTION_SLOTS = 8
+DEFAULT_MIN_DWELL_SECONDS = 60 * 60
 
 
 @dataclass(frozen=True)
@@ -180,3 +182,72 @@ def emit_nonblocking_handoff(*, fact: CompactFundingFact,
                 "provider_calls": 0, "cascade_blocked": False}
     return {"status": HANDOFF_EMITTED, "idempotency_key": fact.idempotency_key,
             "provider_calls": 0, "cascade_blocked": False}
+
+
+@dataclass(frozen=True)
+class TreasurySubscriptionCandidate:
+    treasury: str
+    activity: str
+    last_verified_material_funding_at: int | None
+    reactivated_at: int | None = None
+    subscribed_at: int | None = None
+
+    def eligible(self) -> bool:
+        """Transaction-only activity never qualifies a continuous WS slot."""
+        return self.last_verified_material_funding_at is not None or self.reactivated_at is not None
+
+
+def _priority(candidate: TreasurySubscriptionCandidate) -> tuple:
+    # Lower wins. Timestamps are negated to make newer independently verified
+    # funding deterministic within the same category.
+    material = candidate.last_verified_material_funding_at
+    if candidate.activity == "HOT" and material is not None:
+        return (0, -material, candidate.treasury)
+    if candidate.activity == "ACTIVE" and material is not None:
+        return (1, -material, candidate.treasury)
+    if candidate.reactivated_at is not None:
+        return (2, -candidate.reactivated_at, candidate.treasury)
+    if material is not None:
+        return (3, -material, candidate.treasury)
+    return (9, 0, candidate.treasury)
+
+
+def select_subscription_pool(*, candidates: Iterable[TreasurySubscriptionCandidate], now: int,
+                             slot_count: int = DEFAULT_SUBSCRIPTION_SLOTS,
+                             min_dwell_seconds: int = DEFAULT_MIN_DWELL_SECONDS) -> dict:
+    """Choose a small pool without churn or changing any treasury identity."""
+    items = list(candidates)
+    if slot_count <= 0 or min_dwell_seconds < 0 or len({item.treasury for item in items}) != len(items):
+        raise ValueError("INVALID_SUBSCRIPTION_POOL_INPUT")
+    eligible = [item for item in items if item.eligible()]
+    protected = [item for item in eligible if item.subscribed_at is not None
+                 and now - item.subscribed_at < min_dwell_seconds]
+    chosen = sorted(protected, key=_priority)[:slot_count]
+    chosen_ids = {item.treasury for item in chosen}
+    for item in sorted(eligible, key=_priority):
+        if len(chosen) >= slot_count:
+            break
+        if item.treasury not in chosen_ids:
+            chosen.append(item)
+            chosen_ids.add(item.treasury)
+    return {
+        "slot_count": slot_count,
+        "selected": [item.treasury for item in chosen],
+        "reconciliation_only": sorted(item.treasury for item in items if item.treasury not in chosen_ids),
+        "selection_reasons": {item.treasury: (
+            "HOT_VERIFIED_MATERIAL_FUNDING" if item.activity == "HOT" and item.last_verified_material_funding_at is not None
+            else "ACTIVE_VERIFIED_MATERIAL_FUNDING" if item.activity == "ACTIVE" and item.last_verified_material_funding_at is not None
+            else "REACTIVATED_CONFIRMED_TREASURY" if item.reactivated_at is not None
+            else "OTHER_VERIFIED_MATERIAL_FUNDING"
+        ) for item in chosen},
+        "identity_mutations": 0,
+    }
+
+
+def reconciliation_priority(candidate: TreasurySubscriptionCandidate, *, launch_backward_evidence: bool) -> str:
+    """Every confirmed treasury remains eligible outside the WS pool."""
+    if launch_backward_evidence:
+        return "TARGETED_RECONCILIATION"
+    if candidate.activity in {"HOT", "ACTIVE"}:
+        return "HIGH_PRIORITY_RECONCILIATION"
+    return "DAILY_RECONCILIATION"

@@ -1,0 +1,45 @@
+{
+  "schema_version": "DEV019_EIGHT_SLOT_TREASURY_SUBSCRIPTION_QUALIFICATION_V1",
+  "status": "QUALIFIED_PROVIDER_FREE_NOT_DEPLOYED",
+  "current_runtime_observation": {
+    "confirmed_treasuries": 83,
+    "current_heartbeat_treasury_subscriptions": 29,
+    "current_subscribed_identities": "UNOBSERVABLE_NOT_DURABLY_EXPOSED",
+    "historical_open_event_identities": 83,
+    "interpretation": "Historical TREASURY_WEBSOCKET_OPENED events prove attempted/opened event history, not the process's current in-memory subscription map. The existing heartbeat exposes only aggregate count."
+  },
+  "provider_capacity": {
+    "observed": "The current managed process has sustained 29 current treasury subscriptions with 1,972 sent/confirmed subscription acknowledgements and zero pending treasury subscriptions.",
+    "eight_slot_decision": "Eight is within observed concurrent capacity. No provider plan, quota, or live subscription change was queried or performed."
+  },
+  "selection_policy": {
+    "target_slots": 8,
+    "minimum_dwell_seconds": 3600,
+    "priority": ["HOT with verified recent material funding", "ACTIVE ranked by verified material-funding recency", "reactivated confirmed treasury", "other verified material funding"],
+    "transaction_only_activity": "NOT_ELIGIBLE_FOR_CONTINUOUS_SLOT",
+    "insufficient_evidence": "select fewer than eight",
+    "identity_effect": "none"
+  },
+  "reconciliation": {
+    "all_confirmed_treasuries_remain_eligible": true,
+    "hot_active_non_subscribed": "HIGH_PRIORITY_RECONCILIATION",
+    "dormant_retired": "DAILY_RECONCILIATION",
+    "launch_backward": "TARGETED_RECONCILIATION",
+    "cursor_rule": "Only a complete selected signature page may advance; incomplete pages replay prior cursor."
+  },
+  "limitations": [
+    "Current 29 subscription identities cannot be derived from retained aggregates without instrumenting the actual cascade runtime.",
+    "The 29/83 divergence remains unexplained; no_subscribe numerically matches the gap but is not applied by the inspected root-tier selection code.",
+    "This policy is not yet wired into ws_cascade and must not be treated as active runtime behavior."
+  ],
+  "qualification": {
+    "tests": "77 provider-free DEV-019/V2 tests passed",
+    "provider_calls": 0,
+    "live_db_or_queue_writes": 0,
+    "websocket_or_supervisor_actions": 0,
+    "raw_payload_retention": false,
+    "max_single_file_bytes": 10000000,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED"
+  },
+  "next_gate": "Authorize a separate review of per-address runtime telemetry and a deployment candidate that wires this policy and the existing completeness-gated cursor contract into the active cascade, without introducing a second acquisition owner."
+}

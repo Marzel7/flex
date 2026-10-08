@@ -4,6 +4,7 @@ from src.ops.treasury_cascade_coverage import (
     COMPLETE, DECODED, FAILED, HANDOFF_DEFERRED, HANDOFF_EMITTED, INCOMPLETE,
     CompactFundingFact, SelectedPage, emit_nonblocking_handoff, report_address_coverage,
     load_selected_page, open_isolated_coverage_store, persist_selected_page,
+    TreasurySubscriptionCandidate, reconciliation_priority, select_subscription_pool,
 )
 
 
@@ -85,3 +86,36 @@ def test_consumer_failure_isolated_and_introduces_no_provider_call():
     assert result["status"] == HANDOFF_DEFERRED
     assert result["cascade_blocked"] is False
     assert result["provider_calls"] == 0
+
+
+def test_exactly_eight_prioritizes_hot_and_active_verified_material_funding():
+    candidates = [TreasurySubscriptionCandidate(f"hot-{i}", "HOT", 200 - i) for i in range(2)]
+    candidates += [TreasurySubscriptionCandidate(f"active-{i}", "ACTIVE", 100 - i) for i in range(10)]
+    result = select_subscription_pool(candidates=candidates, now=1_000)
+    assert len(result["selected"]) == 8
+    assert result["selected"][:2] == ["hot-0", "hot-1"]
+    assert result["identity_mutations"] == 0
+
+
+def test_fewer_than_eight_when_evidence_is_insufficient_and_transaction_only_is_not_eligible():
+    candidates = [TreasurySubscriptionCandidate("material", "DORMANT", 5)]
+    candidates += [TreasurySubscriptionCandidate(f"tx-only-{i}", "HOT", None) for i in range(82)]
+    result = select_subscription_pool(candidates=candidates, now=1_000)
+    assert result["selected"] == ["material"]
+    assert len(result["reconciliation_only"]) == 82
+
+
+def test_reactivation_can_displace_expired_lower_priority_slot_but_not_protected_dwell_slot():
+    old = TreasurySubscriptionCandidate("old", "DORMANT", 1, subscribed_at=0)
+    reactivated = TreasurySubscriptionCandidate("new", "DORMANT", None, reactivated_at=100)
+    assert select_subscription_pool(candidates=[old, reactivated], now=10_000, slot_count=1)["selected"] == ["new"]
+    protected_old = TreasurySubscriptionCandidate("old", "DORMANT", 1, subscribed_at=9_500)
+    assert select_subscription_pool(candidates=[protected_old, reactivated], now=10_000, slot_count=1)["selected"] == ["old"]
+
+
+def test_all_confirmed_remain_reconciliation_eligible_and_launch_backward_overrides_activity():
+    dormant = TreasurySubscriptionCandidate("d", "RETIRED_CANDIDATE", None)
+    active = TreasurySubscriptionCandidate("a", "ACTIVE", 1)
+    assert reconciliation_priority(dormant, launch_backward_evidence=False) == "DAILY_RECONCILIATION"
+    assert reconciliation_priority(active, launch_backward_evidence=False) == "HIGH_PRIORITY_RECONCILIATION"
+    assert reconciliation_priority(dormant, launch_backward_evidence=True) == "TARGETED_RECONCILIATION"

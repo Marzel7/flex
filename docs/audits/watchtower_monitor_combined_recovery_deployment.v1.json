@@ -1,0 +1,14 @@
+{
+  "active_config_sha256": "5f21916b3029f0e8cce2e91b92fa8f58631f4591baffa749ca40ecfccf5569f9",
+  "candidate_config_sha256": "2d5a1c395217f975c68d78463cc03f0e6c74b3acdea7c36b5d53baccbcf7c366",
+  "contract": "watchtower-monitor-combined-recovery.v1",
+  "fixed_assignment_watermark": 1791446333,
+  "pinned_runtime_root": "/private/tmp/flex-watchtower-monitor-runtime-ac00b1e7",
+  "pinned_runtime_sha": "ac00b1e77c3bd030d711143efa73dd609dfe48ee",
+  "rollback_config_sha256": "5f21916b3029f0e8cce2e91b92fa8f58631f4591baffa749ca40ecfccf5569f9",
+  "target_program": "operation_monitor_worker",
+  "worker_environment": {
+    "MONITOR_PROVIDER_GLOBAL_LIMIT": "20",
+    "MONITOR_PROVIDER_TOKEN_LIMIT": "4"
+  }
+}

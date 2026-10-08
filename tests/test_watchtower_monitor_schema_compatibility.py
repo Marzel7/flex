@@ -6,6 +6,7 @@ import sqlite3
 import pytest
 
 from src.ops.operation_monitor_worker import MonitorQueue, MonitorWorker, _h
+from src.ops.dev_provider_budget import BudgetDenied
 
 
 def _create_facts(path, *, with_offset: bool) -> None:
@@ -81,3 +82,20 @@ def test_missing_monitor_fact_table_fails_closed(tmp_path):
 
     with pytest.raises(RuntimeError, match="MONITOR_FACT_SCHEMA_UNAVAILABLE"):
         worker._activate_from_qualified_opening(_opening())
+
+
+def test_explicit_combined_worker_budget_remains_20_global_and_4_per_mint(tmp_path, monkeypatch):
+    monkeypatch.setenv("MONITOR_RUNTIME", "dev")
+    monkeypatch.setenv("MONITOR_PROVIDER_GLOBAL_LIMIT", "20")
+    monkeypatch.setenv("MONITOR_PROVIDER_TOKEN_LIMIT", "4")
+    queue = MonitorQueue(tmp_path / "queue", enabled=True)
+
+    for index in range(4):
+        assert queue.admit_provider_dispatch("mint", "15M_EVIDENCE", now=100 + index)
+    with pytest.raises(BudgetDenied, match="TOKEN_PROVIDER_BUDGET_EXHAUSTED"):
+        queue.admit_provider_dispatch("mint", "15M_EVIDENCE", now=104)
+
+    for index in range(16):
+        assert queue.admit_provider_dispatch(f"other-{index}", "15M_EVIDENCE", now=105 + index)
+    with pytest.raises(BudgetDenied, match="GLOBAL_PROVIDER_BUDGET_EXHAUSTED"):
+        queue.admit_provider_dispatch("other-20", "15M_EVIDENCE", now=121)

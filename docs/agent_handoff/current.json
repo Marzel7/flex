@@ -20071,5 +20071,17 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_MIGRATION_GROUP_AGGREGATE_REQUIRES_SEMANTIC_REVIEW",
     "next_action": "STOP. REQUIRE EXPLICIT AUTHORIZATION TO DEFINE A SEMANTICALLY CANONICAL MIGRATION-ROW SELECTION CONTRACT OR TO ADD A REVIEWED INDEX; WITHOUT ONE, DO NOT CHANGE OR RETRY THE FULL PRICE/LIVE ROUTE."
+  },
+  "watchtower_first_bounded_monitor_soak_20261008": {
+    "engineering_revision": "Runtime candidate 9d291215885dd88ee6b594a09dbcdab0f8881b16; reviewed bounded-soak configuration 1706a094e1f947bb8ec844960080f74af110bdfd611a9214d456b4e61a2a642f. No source change in this execution.",
+    "status": "HOLD_SUPERVISOR_STARTSECS_CONFLICT_WITH_SINGLE_ITERATION_ROLLED_BACK",
+    "preflight": "Active Supervisor root and rollback SHA256 both matched 3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19. The candidate checkout was clean at 9d291215 and launcher preflight passed. Exactly one listener was running as PID 73415. API was running, bridge and worker were stopped, provider limits were configured to zero, the paid credential was present without exposure, and no duplicate bridge/worker process existed.",
+    "authorized_transition": "A byte-identical backup was created and the reviewed configuration was atomically installed. Supervisor reread/update targeted only watchtower_api, operation_monitor_bridge, and operation_monitor_worker. The listener was never targeted and remained PID 73415. The candidate API reached RUNNING and /healthz reported healthy=true, db=ok, and wal_warn=false.",
+    "bridge_result": "The bridge was started once. It spawned, performed exactly one bounded selection iteration, and wrote the compact health result EMPTY with no claim, handoff, or acknowledgement. It exited status 0 after about 0.34 seconds. Because the reviewed program stanza requires startsecs=5, Supervisor classified this deliberate finite run as not expected and entered FATAL. The worker was not started.",
+    "rollback": "The verified original backup was atomically restored and SHA256 reverified as 3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19. Supervisor reread/update again targeted only watchtower_api, operation_monitor_bridge, and operation_monitor_worker. Post-rollback: listener PID 73415 RUNNING; API RUNNING PID 73547; bridge STOPPED; worker STOPPED. API /healthz remained healthy=true with db=ok and wal_warn=false.",
+    "safety": "Provider calls=0 by zero-call configuration and bridge-only execution; worker starts=0; no historical backlog was consumed; no queue acknowledgement or admission occurred; no shadow/+2/Injector/history action occurred; listener restart=0; no broad Supervisor restart; no source change; no large artifact. The only live mutations were the explicitly authorized temporary configuration install and the byte-exact rollback plus targeted API/bridge/worker updates.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_SUPERVISOR_STARTSECS_CONFLICT_WITH_SINGLE_ITERATION_ROLLED_BACK",
+    "next_action": "QUALIFY_AND_REVIEW_A_MINIMAL_SUPERVISOR_PROGRAM_LIFECYCLE_CONTRACT_FOR_A_FINITE_ONE_ITERATION_SOAK (for example, an explicitly accepted startsecs/exit-status policy) BEFORE REQUESTING ANOTHER LIVE SOAK AUTHORIZATION. Do not start the worker under the current reviewed configuration."
   }
 }

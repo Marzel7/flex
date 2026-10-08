@@ -20513,5 +20513,18 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_SCHEMA_CHANGE_UNSAFE",
     "next_action": "DO_NOT_CREATE_THE_INDEX_OR_ENABLE_AUTOMATIC_RETENTION. OBTAIN_SEPARATE_AUTHORIZATION_FOR_DISK_HEADROOM_RECOVERY_AND_A_DEDICATED_LIVE_SCHEMA_CHANGE_PLAN_ONLY_AFTER_BOUNDED_CANONICAL_SIZE_AND_DDL_RISK_EVIDENCE_EXISTS."
+  },
+  "dev023_final_retention_feasibility_20261008": {
+    "engineering_revision": "Read-only feasibility decision using qualified source 0c5f290c3d020a3f11a7170df24e7c97793394df and the prior canonical safety handoff 4521ff40e41ec40f03ac03c23b96b0ca88390966; no source change.",
+    "status": "HOLD_CONTROLLED_EXPRESSION_INDEX_IS_THE_ONLY_SUSTAINABLE_PATH",
+    "recommendation": "RECOMMENDED_RETENTION_STRATEGY=controlled expression-index migration, followed only after separate qualification by the existing capped, P3-priority, progress-bounded retention tick. The index is a prerequisite, not authorized work now; automatic scheduling remains disabled.",
+    "comparison": "The qualified expression index makes the existing expiry predicate and ordering share an access path, proving sparse expired-tail selection within 1000 VM steps on the isolated fixture. The existing non-index selector is fail-closed at 100000 VM steps but still has no access path for cached_at + ttl_seconds. A hypothetical persistent rowid cursor could bound an individual rowid slice, but expiry is not ordered by rowid: it would need a new persistent cursor contract, must eventually sweep every row, can defer old rows arbitrarily, and cannot establish that sweep throughput exceeds expiry growth. It therefore cannot meet the required sustainable-throughput evidence without replacing the proven index strategy or introducing unsupported assumptions.",
+    "safety_and_storage": "The proposed index has fixture-only overhead of approximately 16.6 bytes/row and fixture WAL delta of 832240 bytes/50000 rows; canonical storage and WAL requirements remain unproven because canonical row count is unavailable. Current free space remains below the fixed 4GiB runtime floor, and CREATE INDEX requires a schema-writing lock for its full duration. DatabaseWriteService can serialize access but does not bound live DDL lock duration; normal application writes retain priority. No long-lived reader, retention scan, or WAL-pinning operation was introduced by this analysis.",
+    "sustainability": "SUSTAINABILITY_EVIDENCE=INDEXED_SELECTION_QUALIFIED_ONLY. The index is the sole evaluated approach that preserves expiry order, enables bounded sparse-tail selection, and permits future bounded backlog/rate measurement. Live build feasibility and steady-state deletion capacity are not yet proven; a 200-row capped tick alone is not evidence of sustainable throughput.",
+    "minimum_next_action": "Keep retention disabled. Separately recover disk headroom above the fixed floor plus a reviewed DDL reserve, then prepare a single explicit schema-change approval package with bounded current-cardinality evidence, writer-quiescence/priority plan, lock and WAL abort thresholds, and post-build validation. If those cannot be qualified, continue manual fail-closed capped ticks only; do not enable recurring retention.",
+    "safety": "Live DB/queue writes=0; index creation=0; scheduler enablement=0; Supervisor actions=0; provider calls=0; listener changes=0; no new files or artifacts.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_SCHEMA_CHANGE_PREREQUISITES",
+    "next_action": "OBTAIN_SEPARATE_AUTHORIZATION_FOR_THE_PREREQUISITE_DISK_HEADROOM_AND_CONTROLLED_SCHEMA_CHANGE_PLAN; DO_NOT_IMPLEMENT_ROWCURSOR_RETENTION_OR_ENABLE_AUTOMATIC_RETENTION."
   }
 }

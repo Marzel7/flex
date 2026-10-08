@@ -20095,5 +20095,18 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_AWAITING_EXPLICIT_LIVE_CONFIGURATION_APPROVAL",
     "next_action": "OBTAIN_EXPLICIT_APPROVAL_FOR_THE_NEW 5eb15f75058ddeef3153f53bcb7925a0dd47a80d3dc795e295794f7eacc23aa0 CONFIGURATION BEFORE ONE BRIDGE ITERATION AND ONE WORKER ITERATION. The earlier approval did not cover this new configuration."
+  },
+  "watchtower_corrected_bounded_monitor_soak_20261008": {
+    "engineering_revision": "Correction candidate 0fe9c84b8a8528e0fd0662cc420238039e9e467e and reviewed finite-soak config 5eb15f75058ddeef3153f53bcb7925a0dd47a80d3dc795e295794f7eacc23aa0. No source modification during live execution.",
+    "status": "HOLD_CANDIDATE_API_SHA_MISMATCH_ROLLED_BACK_BEFORE_MONITOR_SOAK",
+    "preflight": "Passed: active root matched rollback SHA256 3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19; candidate and proposed SHA identities matched; candidate checkout was clean and launcher preflight passed; exactly one listener PID 73415; bridge and worker stopped; selection watermark was 1791446333; all 91 retained outbox rows were DELIVERED; queue contained 97 compact JSON files; zero provider limits and paid credential presence were verified without exposing credentials; source WAL was 8.982 MB.",
+    "transition": "A byte-exact backup was created, candidate config was atomically installed, and Supervisor reread/update targeted only watchtower_api, operation_monitor_bridge, and operation_monitor_worker. Listener was never targeted and remained PID 73415.",
+    "failure": "Before either monitor component was started, watchtower_api moved from STARTING to BACKOFF. The bounded current API error filter reports SHA_MISMATCH. Therefore the finite bridge/worker lifecycle correction was not exercised in this live attempt. No bridge iteration, worker iteration, queue claim/ack, admission, monitoring fact, provider call, shadow/+2, Injector, or history action occurred.",
+    "rollback": "The fresh verified backup was atomically restored and its active root SHA256 reverified as 3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19. Targeted reread/update was again limited to API, bridge, and worker. Listener remained PID 73415; bridge and worker are STOPPED. Supervisor reports API BACKOFF after rollback, while the local health endpoint continues to report healthy=true/db=ok/wal_warn=false; this discrepancy is recorded, not interpreted as acceptance.",
+    "post_state": "Outbox remains DELIVERED=91; no historical backlog consumed. Source WAL was 9.619 MB and health reported wal_warn=false. Listener continuity holds. Provider calls=0 and monitor starts=0.",
+    "safety": "No broad Supervisor restart, listener restart, provider acquisition, DB/queue mutation by monitoring, source change, +2/shadow activation, Injector/history backfill, or large artifact occurred. Live mutations were only the expressly authorized candidate install and byte-exact rollback plus target-only Supervisor updates.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_CANDIDATE_API_SHA_MISMATCH_ROLLED_BACK_BEFORE_MONITOR_SOAK",
+    "next_action": "STOP. DIAGNOSE THE CANDIDATE API SHA_MISMATCH AGAINST THE EXACT SUPERVISOR LAUNCHER/ROOT CONTRACT BEFORE SEEKING ANOTHER DEPLOYMENT OR MONITOR-SOAK AUTHORIZATION."
   }
 }

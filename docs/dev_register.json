@@ -46,8 +46,8 @@
       "worktree": "/private/tmp/flex-dev-019-mesh-discovery",
       "starting_sha": "afa282fa0139265deeb2a3f21b1d072290cb62ed",
       "current_sha": "6163d43a4119f53279b4a08af8c2fb8a0daf740b",
-      "status": "RESEARCH_BATCH_COMPLETE_PARTIAL_ROUTE_NOT_PROMOTED",
-      "next_action": "STOP. Preserve the coverage-complete AMQ Batch 2 evidence without treasury, membership, or attribution promotion. A separate authorization is required for any further account, history, or route acquisition.",
+      "status": "RESEARCH_8CUB_BATCH_COMPLETE_PARTIAL_LINEAGE_NOT_PROMOTED",
+      "next_action": "STOP. Preserve the coverage-complete AMQ and 8CUb evidence without treasury, membership, or attribution promotion. A separate authorization is required for any further account, history, or route acquisition.",
       "dependencies": [
         "Development Execution Discipline V2",
         "Legacy DEV-019 Phase 1/2/2B contracts",
@@ -82,6 +82,7 @@
         ,"AMQ Batch 1 was attempted under the authorized no-retry cap and aborted on first getTransaction with Helius RPC -32015 (unsupported transaction version). It established no transfer fact and does not support a negative result. Compact failure artifact retained; no raw payload."
         ,"Transaction-version correction: maxSupportedTransactionVersion=1 supports legacy, v0, and v1 reads; unrecognized returned versions fail closed. Compact page-boundary provenance is created before decoding. 35 focused DEV-019/V2 tests passed; no provider call during qualification."
         ,"Fresh AMQ Batch 2: three cursor-bounded 20-signature pages and every one of 60 unique signatures decoded (63/66 Helius calls; legacy/v1 only). It verified one direct AMQ -> 8CUb transfer of 770 SOL with balance deltas and returned slot/transaction/instruction coordinates. Compact artifact docs/audits/dev_019_amq_coverage_batch2.v1.json SHA256=14491099ce80047e5cc2dccf4f7ddd9cf87f1cb6f1b1911e0b7f352e4fbfc4fa, 24,752 bytes; no raw payload, no promotion. 35 focused DEV-019/V2 tests passed."
+        ,"Fresh 8CUb downstream Batch 1: three cursor-bounded 20-signature pages and every one of 60 unique signatures decoded (63/66 Helius calls; legacy only). No direct 8CUb outbound System transfer, including no 8CUb -> creator transfer, occurred in the complete covered pages. Retained creator/2BVf records remain five contextual co-locations, not verified creation events. Compact artifact docs/audits/dev_019_8cub_downstream_coverage_batch1.v1.json SHA256=003be28e8dce011760ad438a2e990eedbbd9d0e5ee887632a2dcd21cc8292b18, 14,174 bytes; no raw payload, no promotion. 35 focused DEV-019/V2 tests passed."
       ],
       "integration_promotion_status": "SOURCE_RECOVERY_ONLY_NOT_RUNTIME_PROMOTED",
       "touched_services": [],

@@ -45,9 +45,9 @@
       "branch": "codex/dev-019-mesh-discovery",
       "worktree": "/private/tmp/flex-dev-019-mesh-discovery",
       "starting_sha": "afa282fa0139265deeb2a3f21b1d072290cb62ed",
-      "current_sha": "afa282fa0139265deeb2a3f21b1d072290cb62ed",
+      "current_sha": "2de57d4154d11cb478e622b3b268742cad5f6f31",
       "status": "IMPLEMENTING",
-      "next_action": "QUALIFY_COVERAGE-AWARE_COMPACT_MESH_DECODING_AND_REGRESSIONS, THEN PRESENT_AN_EXPLICIT_PAGINATED_HELIUS_BATCH_BUDGET_BEFORE_ACQUISITION.",
+      "next_action": "PRESENT_AN_EXPLICIT_COVERING_PAGINATED_HELIUS_BATCH_BUDGET_BEFORE_ACQUISITION; THE_PRIOR_7_7_6_DECODE_PREFIX_IS_NOT_NEGATIVE_COVERAGE.",
       "dependencies": [
         "Development Execution Discipline V2",
         "Legacy DEV-019 Phase 1/2/2B contracts",
@@ -77,6 +77,7 @@
         "Final bounded retained-evidence recovery: 88WR has 46 retained selected edges with signature and amount but all lack slot, transaction index, and instruction index; 2B6F has zero retained selected edges and lacks signature, ordering, and amount evidence. No route qualifies."
         ,"Bounded Helius-only outbound batch: 57 requests, 11 unique compact facts, 9 verified material transfers, 2 dust/subthreshold transfers, 0 complete creator-launch routes, and no promotion.",
         "Targeted AMQ route batch: 3 non-paginated signature pages plus 20 getTransaction reads (23/23 total); AMQ -> 8CUb and 8CUb -> creator are absent in the bounded pages. Five creator/mint co-location transactions are contextual only, not funding or attribution proof. Compact artifact: docs/audits/dev_019_amq_to_launch_rpc_batch.v1.json."
+        ,"Coverage-aware mesh qualification: a bounded signature window is COMPLETE only when every returned signature was decoded; incomplete pages cannot report negative transfer evidence. Ordered direct transfer and verified creator-launch contracts remain provider-free/review-only. 29 focused DEV-019/V2 tests passed."
       ],
       "integration_promotion_status": "SOURCE_RECOVERY_ONLY_NOT_RUNTIME_PROMOTED",
       "touched_services": [],

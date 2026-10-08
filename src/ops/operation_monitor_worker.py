@@ -1103,6 +1103,26 @@ class MonitorWorker:
   self.provider_bindings=provider_bindings or {}
   self.opening_jobs_path=opening_jobs_path or getattr(q,'opening_jobs_path',None)
   self.provider_work_path=provider_work_path or getattr(q,'provider_work_path',None)
+  self._monitor_fact_entry_offset_supported=None
+
+ def _monitor_fact_supports_entry_offset_seconds(self):
+  """Return the persisted schema capability without mutating the database.
+
+  Entry offset remains part of the immutable provenance digest on every
+  schema.  Older monitor databases did not materialize it as a separate
+  column, so an activation must not lose a qualified Entry merely because an
+  additive schema migration has not yet run.
+  """
+  if self._monitor_fact_entry_offset_supported is None:
+   try:
+    with _read_only_connection(self.db_path) as con:
+     columns={str(row[1]) for row in con.execute('PRAGMA table_info(operation_monitor_facts)')}
+   except sqlite3.Error as exc:
+    raise RuntimeError('MONITOR_FACT_SCHEMA_UNAVAILABLE') from exc
+   if not columns:
+    raise RuntimeError('MONITOR_FACT_SCHEMA_UNAVAILABLE')
+   self._monitor_fact_entry_offset_supported=('entry_offset_seconds' in columns)
+  return bool(self._monitor_fact_entry_offset_supported)
 
  def _evaluate_completed_opening_policy(self, opening, job_id, *, provisional=False):
   """Evaluate the declared policy only after compact opening evidence commits."""
@@ -1249,9 +1269,17 @@ class MonitorWorker:
   if not p.get('entry_timestamp') or (usd is None and native is None): raise ValueError('QUALIFIED_ENTRY_REFERENCE_REQUIRED')
   # Native Scenario-D is a genuine entry reference.  It activates live price
   # eligibility without inventing USD metrics; USD fields remain NULL until FX.
-  values=(p['operation_id'],p['mint'],p.get('cohort','PROSPECTIVE_MONITOR_COHORT'),assignment.get('assigned_at',now),_h(assignment),p['entry_method'],int(p['entry_timestamp']),float(usd) if usd is not None else None,str(native) if native is not None else None,'QUALIFIED',p.get('entry_exactness','FIRST_FULL_POST_MIGRATION_SECOND_MC'),p.get('entry_offset_seconds'),'MONITORING_ACTIVE',now,None,float(usd) if usd is not None else None,int(p['entry_timestamp']),1.0 if usd is not None else None,'WAITING_FOR_FX_ATTACHMENT' if usd is None else 'WAITING_FOR_COMPLETED_CANDLE',_h({'activation':'QUALIFIED_ENTRY_REFERENCE','entry_provenance':p.get('entry_provenance'),'mint':p['mint'],'native':native,'entry_offset_seconds':p.get('entry_offset_seconds')}),now,now)
-  sql='''INSERT INTO operation_monitor_facts(operation_id,mint,cohort_class,assignment_timestamp,assignment_provenance,entry_method,entry_timestamp,entry_mc_usd,entry_native_mc_sol,entry_status,entry_exactness,entry_offset_seconds,monitor_state,monitor_started_at,next_observation_at,running_peak_mc_usd,running_peak_timestamp,running_peak_multiple,evidence_status,provenance_digest,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(operation_id,mint) DO UPDATE SET entry_method=excluded.entry_method,entry_timestamp=excluded.entry_timestamp,entry_mc_usd=excluded.entry_mc_usd,entry_native_mc_sol=excluded.entry_native_mc_sol,entry_status=excluded.entry_status,entry_exactness=excluded.entry_exactness,entry_offset_seconds=excluded.entry_offset_seconds,monitor_state=excluded.monitor_state,monitor_started_at=excluded.monitor_started_at,next_observation_at=excluded.next_observation_at,running_peak_mc_usd=excluded.running_peak_mc_usd,running_peak_timestamp=excluded.running_peak_timestamp,running_peak_multiple=excluded.running_peak_multiple,evidence_status=excluded.evidence_status,provenance_digest=excluded.provenance_digest,updated_at=excluded.updated_at WHERE operation_monitor_facts.entry_status!='QUALIFIED' '''
-  receipt=self.persist(WriteItem('enrichment','operation-monitor-activate-from-strict-opening',[(sql,values)],_h({'activation':p['operation_id'],'mint':p['mint'],'entry':p['entry_timestamp']})))
+  columns=['operation_id','mint','cohort_class','assignment_timestamp','assignment_provenance','entry_method','entry_timestamp','entry_mc_usd','entry_native_mc_sol','entry_status','entry_exactness']
+  values=[p['operation_id'],p['mint'],p.get('cohort','PROSPECTIVE_MONITOR_COHORT'),assignment.get('assigned_at',now),_h(assignment),p['entry_method'],int(p['entry_timestamp']),float(usd) if usd is not None else None,str(native) if native is not None else None,'QUALIFIED',p.get('entry_exactness','FIRST_FULL_POST_MIGRATION_SECOND_MC')]
+  if self._monitor_fact_supports_entry_offset_seconds():
+   columns.append('entry_offset_seconds'); values.append(p.get('entry_offset_seconds'))
+  columns += ['monitor_state','monitor_started_at','next_observation_at','running_peak_mc_usd','running_peak_timestamp','running_peak_multiple','evidence_status','provenance_digest','created_at','updated_at']
+  values += ['MONITORING_ACTIVE',now,None,float(usd) if usd is not None else None,int(p['entry_timestamp']),1.0 if usd is not None else None,'WAITING_FOR_FX_ATTACHMENT' if usd is None else 'WAITING_FOR_COMPLETED_CANDLE',_h({'activation':'QUALIFIED_ENTRY_REFERENCE','entry_provenance':p.get('entry_provenance'),'mint':p['mint'],'native':native,'entry_offset_seconds':p.get('entry_offset_seconds')}),now,now]
+  updates=['entry_method=excluded.entry_method','entry_timestamp=excluded.entry_timestamp','entry_mc_usd=excluded.entry_mc_usd','entry_native_mc_sol=excluded.entry_native_mc_sol','entry_status=excluded.entry_status','entry_exactness=excluded.entry_exactness']
+  if 'entry_offset_seconds' in columns: updates.append('entry_offset_seconds=excluded.entry_offset_seconds')
+  updates += ['monitor_state=excluded.monitor_state','monitor_started_at=excluded.monitor_started_at','next_observation_at=excluded.next_observation_at','running_peak_mc_usd=excluded.running_peak_mc_usd','running_peak_timestamp=excluded.running_peak_timestamp','running_peak_multiple=excluded.running_peak_multiple','evidence_status=excluded.evidence_status','provenance_digest=excluded.provenance_digest','updated_at=excluded.updated_at']
+  sql=f'''INSERT INTO operation_monitor_facts({','.join(columns)}) VALUES({','.join('?' for _ in columns)}) ON CONFLICT(operation_id,mint) DO UPDATE SET {','.join(updates)} WHERE operation_monitor_facts.entry_status!='QUALIFIED' '''
+  receipt=self.persist(WriteItem('enrichment','operation-monitor-activate-from-strict-opening',[(sql,tuple(values))],_h({'activation':p['operation_id'],'mint':p['mint'],'entry':p['entry_timestamp']})))
   if not receipt or not receipt.committed: raise RuntimeError('MONITOR_ACTIVATION_UNCOMMITTED')
  def _activate_watchtower_history_without_entry(self,p:dict[str,Any])->None:
   """Make a verified Watchtower admission eligible for prospective 15m facts.

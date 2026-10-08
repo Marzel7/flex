@@ -20639,5 +20639,18 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Provider-free evidence qualification and register status only; no deployed behavior changed.",
     "next_action": "HOLD_AUTOMATED_DEV019_DISCOVERY. OBTAIN_SEPARATE_AUTHORITY_FOR_COMPACT_ORDERED_PER-HOP_EVIDENCE_IF_A_FUTURE_REVIEW-ONLY_POSITIVE-CONTROL_RERUN_IS_DESIRED; DO_NOT_REACQUIRE_OR_PROMOTE_AUTOMATICALLY."
+  },
+  "dev019_final_retained_causal_evidence_recovery_20261008": {
+    "engineering_revision": "Recovered DEV-019 source remains a9fa1b2738d1a35bf084c66a7963fc1ead7b4467. Final V2 evidence-state commit is 8f5fd79a163aaa83653a46f83896363b5cd0d5d5 on origin/codex/dev-019-source-recovery; no discovery implementation changed.",
+    "status": "EVIDENCE_BLOCKED_FINAL_BOUNDED_RECOVERY_COMPLETE",
+    "artifact": "Manual mesh artifact docs/audits/dev_019_watchtower_treasury_mesh_manual_rpc_findings.v1.json was reverified at SHA256=c214598cbda39b374127399310dfb259e0f8af8d6d049bc62b63f7ba962229a3. It remains a manual RPC audit and explicitly says its human trace bypassed, rather than resolved, the 81416/81416 retained causal-order gap.",
+    "retained_signature_evidence": "Bounded inspection of existing DEV-019 research and p3r_20f7_full_64_watchtower_lineage_audit.v1.json found 46 retained selected edges whose candidate_parent is 88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe. They retain signature, amount_lamports, block_time, wallet, candidate_parent, mechanism, and hop depth, but every edge lacks slot, transaction_index, and instruction_index. No matching retained selected edge was found for 2b6FSoRWU2TwR8gH86ZTipf1LayqXfvdxGtBuiFAJhaN. The manual artifact explicitly exposes two signatures for 88WR narrative evidence and no signature for 2B6F narrative evidence. Neither candidate has retained structured verified balance-delta facts for every proposed hop.",
+    "causal_result": "Complete causal paths=0. 88WR status=EVIDENCE_BLOCKED: missing per-hop slot, transaction index, instruction index, and structured verified balance deltas. 2B6F status=EVIDENCE_BLOCKED: no retained selected edge plus missing signature, ordering coordinates, amount, and structured verified balance deltas. Block time, amount, wallet relationship, and manual interpretation were not substituted for ordering. The Treasury -> SubProvider -> Funding Account -> Creator -> Launch topology remains manual-review context only.",
+    "qualification": "Positive-control qualification=NOT_POSSIBLE_FROM_RETAINED_EVIDENCE. The recovered contract's previous isolated check correctly returned NO_CAUSAL_PARENT / INSUFFICIENT_EVIDENCE for both incomplete shapes. No NEW_TREASURY_CANDIDATE was emitted, no candidate/review table was written, no treasury was confirmed, and no operation membership or attribution changed.",
+    "register": "docs/dev_register.json status is now EVIDENCE_BLOCKED, with the exact field-level result and an instruction not to reopen evidence recovery automatically. V2 register guard PASS after commit.",
+    "safety": "Provider calls=0; live DB/queue writes=0; Supervisor/service/listener actions=0; treasury confirmations=0; membership promotions=0; raw transaction/block retention=0; frozen Watchtower and DEV-023 checkpoints unchanged; no large file.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only retained-evidence recovery and register state only; no executable runtime behavior changed.",
+    "next_action": "STOP_DEV019. PRESERVE_MANUAL_FINDINGS_WITHOUT_PROMOTION. DO_NOT_START_ANOTHER_RECOVERY_OR_INVESTIGATION_CYCLE; A_FUTURE_REVIEW-ONLY_GATE_REQUIRES_A_SEPARATELY_AUTHORIZED_RETAINED_COMPACT_ORDERED_EVIDENCE_SOURCE."
   }
 }

@@ -1,4 +1,17 @@
 {
+  "watchtower_birdeye_disk_headroom_assessment_20261008": {
+    "engineering_revision": "Read-only operational storage assessment; no source, runtime, configuration, database, queue, provider, or service mutation.",
+    "status": "HOLD_INSUFFICIENT_HEADROOM_NO_INDEPENDENTLY_VERIFIED_CLEANUP_TARGET",
+    "free_space": "Current free space is 3,503,200 KiB (3,587,276,800 bytes; approximately 3.34 GiB). The prior post-uv-recovery handoff recorded 6,794,972 KiB, so available space is lower by 3,291,772 KiB (approximately 3.14 GiB). The 4 GiB floor is short by 691,104 KiB; the preferred 6 GiB target is short by 2,788,256 KiB.",
+    "cache_and_memory": "~/.cache/uv is 508,240 KiB, exactly the post-recovery baseline, so no uv-cache regrowth was observed. Current swap reports 13,312.00 MiB total, 11,934.75 MiB used, and 1,377.25 MiB free; the prior total differed and reported higher used swap, so a precise comparable growth delta is unavailable and swap growth is not evidenced. Memory pressure reports 30 percent free and zero throttled pages.",
+    "database": "Canonical DB remains 35,652,194,304 bytes and operations DB remains 16,014,397,440 bytes, equal to the retained post-uv baseline. Current canonical WAL is 17,868,472 bytes and operations WAL is 24,163,832 bytes; compared with later retained small-WAL observations this is approximately 14.9 MiB and 18.8 MiB growth respectively, materially insufficient to explain the 3.14 GiB loss. Both databases and WALs have active runtime references and are protected.",
+    "artifacts": "Current Flex logs total about 513,264 KiB and the runtime-recovery directory about 160,656 KiB, but they are live operational paths. Recent temporary worktrees are generally about 155-166 MiB each; the monitor runtime is an active process cwd, the current worktree is in use, and pinned DEV runtimes/other worktrees cannot be independently classified as disposable from this assessment. ~/.cache/codex-runtimes totals 2,325,836 KiB, including codex-primary-runtime 1,638,060 KiB and a 687,776 KiB installer-cache directory. No direct open-file reference was observed at snapshot, but rebuildability and desktop-app ownership were not independently proven, so it is not an authorized or verified deletion candidate.",
+    "cleanup": "Verified disposable candidates: none. Projected free space after only independently safe cleanup remains 3,503,200 KiB. No deletion occurred. A separate cleanup authorization must identify an exact cache/worktree target and prove it is rebuildable, unreferenced by active tooling/runtimes, and not required for rollback or freeze evidence.",
+    "safety": "Provider calls=0; live DB/queue writes=0; Supervisor/service/listener actions=0; file deletions=0; database maintenance=0; raw provider retention=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only prerequisite assessment only; no executable behavior changed.",
+    "next_action": "STOP. BIRDEYE_DISK_GATE_READY=NO. Do not start Birdeye recovery. Obtain separate, target-specific cleanup authority that positively verifies enough disposable space to exceed 4 GiB, then repeat the complete Birdeye preflight before any provider request."
+  },
   "watchtower_four_launch_birdeye_gap_recovery_preflight_20261008": {
     "engineering_revision": "Clean isolated source /private/tmp/flex-watchtower-monitor-schema-compat at d3c5b7be61a5705477880829e5c8e724d1ff5765; no source/runtime/configuration change.",
     "status": "HOLD_DISK_RESOURCE_GUARD_BEFORE_PROVIDER_ACQUISITION",

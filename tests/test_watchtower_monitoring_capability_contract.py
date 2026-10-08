@@ -32,8 +32,9 @@ def _worker_contract(program: dict[str, str] | None) -> str:
         return "MISSING_OR_DISCONNECTED"
     command = program.get("command", "")
     environment = program.get("environment", "")
+    launcher = "scripts/launch_watchtower_final.sh worker" in command
     required = (
-        "src.ops.operation_monitor_service" in command,
+        "src.ops.operation_monitor_service" in command or launcher,
         'OPERATIONS_MODE="MONITOR"' in environment,
         "WT_OPS_DB_PATH=" in environment,
         "OPERATION_MONITOR_QUEUE_PATH=" in environment,
@@ -98,6 +99,7 @@ def test_qualified_source_contract_connects_admission_to_lifecycle_and_terminal_
         "worker.process_once()",
     ):
         assert call in service
+    launcher = (ROOT / "scripts/launch_watchtower_final.sh").read_text()
     assert "def _activate_from_qualified_opening" in worker
     assert "def reconcile_terminal_ath_jobs" in worker
     assert "def consume_once(" in admission
@@ -105,6 +107,8 @@ def test_qualified_source_contract_connects_admission_to_lifecycle_and_terminal_
     assert "Helius CLI-based Account Monitor" in helius
     assert "operation_monitor_facts" not in helius
     assert "MonitorQueue" not in helius
+    assert "run_dev_005a_monitor.sh" in launcher
+    assert "--dev-soak-selection" in launcher
 
 
 def test_complete_enabled_monitor_topology_is_the_only_proved_operational_path():

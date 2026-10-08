@@ -38,6 +38,7 @@ class RuntimePaths:
     bridge_health_path: str = ""
     bridge_stdout_log: str = ""
     bridge_stderr_log: str = ""
+    monitor_selection: str = ""
 
 
 def compose(source: bytes, paths: RuntimePaths) -> bytes:
@@ -165,7 +166,7 @@ stderr_logfile_backups=2
 
 def _worker_stanza(p: RuntimePaths) -> str:
     return f'''[program:operation_monitor_worker]
-command={p.python} -m src.ops.operation_monitor_service
+command={p.root}/scripts/launch_watchtower_final.sh worker {p.sha} {p.monitor_selection}
 directory={p.root}
 environment=PYTHONPATH="{p.root}",WATCHTOWER_FINAL_ROOT="{p.root}",WATCHTOWER_FINAL_SHA="{p.sha}",WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH="{p.audit_ledger}",MONITOR_RUNTIME_STATE_ROOT="{p.monitor_state_root}",MONITOR_ENV_FILE="{p.monitor_env_file}",DB_PATH="{p.canonical_db}",FLEX_DB_PATH="{p.canonical_db}",WT_OPS_DB_PATH="{p.worker_operations_db}",DATABASE_PATH="{p.worker_operations_db}",OPS_V2_DB_PATH="{p.worker_operations_db}",OPERATION_MONITOR_QUEUE_PATH="{p.worker_queue}",OPERATIONS_MODE="MONITOR",MONITOR_RUNTIME="dev",WATCHTOWER_SHADOW_EVALUATION_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_LEDGER_PATH="{p.shadow_ledger}"
 autostart=false

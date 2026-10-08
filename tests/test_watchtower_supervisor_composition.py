@@ -24,6 +24,7 @@ def _paths(tmp_path):
         worker_stderr_log="/logs/worker.err",
         bridge_source_db="/source-ops.db", bridge_health_path="/state/bridge.json",
         bridge_stdout_log="/logs/bridge.log", bridge_stderr_log="/logs/bridge.err",
+        monitor_selection="/qualified-selection.json",
     )
 
 
@@ -86,7 +87,7 @@ def test_monitoring_topology_adds_only_disabled_worker_and_bridge(tmp_path):
     assert candidate.count(b"[program:watchtower_listener]") == 1
     assert candidate.count(b"[program:operation_monitor_worker]") == 1
     assert candidate.count(b"[program:operation_monitor_bridge]") == 1
-    assert b"src.ops.operation_monitor_service" in candidate
+    assert b"scripts/launch_watchtower_final.sh worker" in candidate
     assert b"src.ops.operation_monitor_bridge_service" in candidate
     assert b'OPERATIONS_MODE="MONITOR"' in candidate
     assert b'MONITOR_BRIDGE_QUEUE_PATH="/worker-queue"' in candidate

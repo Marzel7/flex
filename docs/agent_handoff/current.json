@@ -1,4 +1,15 @@
 {
+  "watchtower_frozen_lifecycle_deployment_preparation_20261008": {
+    "engineering_revision": "9616a627f3d2cd9fd860de2f7ba933c4f7550cbe on origin/codex/watchtower-frozen-lifecycle-api-binding; qualified runtime correction is 7e9c2db073a73edab349c078fa2759ef1ec879c1 and compact candidate manifest is docs/audits/watchtower_frozen_lifecycle_deployment_candidate.v1.json.",
+    "status": "PREPARED_NOT_DEPLOYED_EXPLICIT_APPROVAL_REQUIRED",
+    "source_authority": "Active worker ac00b1e77c3bd030d711143efa73dd609dfe48ee and active API a32ebba3732d3f68cf5fd387bf05444a744610dc were observed clean. Two detached clean candidates are /private/tmp/flex-watchtower-frozen-lifecycle-worker-7e9c2db0 and /private/tmp/flex-watchtower-frozen-lifecycle-api-7e9c2db0, both at 7e9c2db073a73edab349c078fa2759ef1ec879c1.",
+    "configuration": "Candidate /private/tmp/watchtower-frozen-lifecycle-api-worker-candidate-7e9c2db0.conf SHA256=3d1e347d370741c23ef6517e2da2196dba5a473462072ab810a1f6cfc78a06d7. Active and byte-exact rollback /private/tmp/watchtower-frozen-lifecycle-api-worker-rollback-2d5a1c39.conf SHA256=2d5a1c395217f975c68d78463cc03f0e6c74b3acdea7c36b5d53baccbcf7c366. RawConfigParser proves only program:watchtower_api and program:operation_monitor_worker differ, and only their command, directory, and environment keys differ. No supervisord command was invoked.",
+    "preserved_contract": "No schema migration or terminal coverage columns. Existing Entry/running/retained/final fields and nullable final ATH remain authoritative. Normal terminal endpoint/internal-gap checks are enabled. Monitor-only API reads WATCHTOWER_MONITOR_UI_DB_PATH using SQLite read-only mode; generic OPS_DB_PATH routes remain unchanged. Provider limits 20/4, watermark 1791446333, all queue bindings, and 59 historical exclusions are unchanged.",
+    "qualification": "Launcher dependencies exist in both candidates. Provider-free regressions passed 12/12; parser target-only validation passed. Provider calls=0; live DB/queue writes=0; Supervisor/service/listener actions=0; raw payload retention=0. No file path introduced capable of reaching 500,000,000 bytes.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_FRESH_PREFLIGHT_AND_EXPLICIT_TARGETED_APPROVAL_REQUIRED",
+    "next_action": "STOP. Before any live change, obtain explicit approval and freshly verify active config/runtime identities, exactly one worker, API/listener/bridge/cascade continuity, disk, DB/WAL/lock health, queue state and 59 exclusions. Then transition only watchtower_api and operation_monitor_worker, with the listed byte-exact rollback. Do not process terminal envelopes or finalize History automatically."
+  },
   "watchtower_frozen_lifecycle_compatibility_20261008": {
     "engineering_revision": "7e9c2db073a73edab349c078fa2759ef1ec879c1 on origin/codex/watchtower-frozen-lifecycle-api-binding, isolated clean worktree /private/tmp/flex-watchtower-frozen-lifecycle-api-binding from active monitor authority ac00b1e77c3bd030d711143efa73dd609dfe48ee.",
     "status": "QUALIFIED_NOT_DEPLOYED_NO_SCHEMA_MIGRATION",

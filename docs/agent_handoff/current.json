@@ -19840,5 +19840,18 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_BLOCKING_TARGET_TRANSITION_SHARED_STORAGE_EXHAUSTION",
     "next_action": "OBTAIN_EXPLICIT_STORAGE_CAPACITY_REMEDIATION_AUTHORIZATION_THEN_RECHECK_CREATOR_WORKER_STABILITY_AND_RERUN_TARGET_TRANSITION_PREFLIGHT"
+  },
+  "watchtower_bounded_disk_capacity_recovery_20261008": {
+    "engineering_revision": "Bounded storage cleanup and read-only health verification only; no source, Supervisor, service, database, queue, provider, or listener mutation.",
+    "status": "HOLD_INSUFFICIENT_SAFE_DISPOSABLE_CAPACITY_AND_WORKER_UNSTABLE",
+    "measurement": "Filesystem free space was 9,120,960 KiB before cleanup and 8,232,680 KiB at the final snapshot. The net change was -888,280 KiB because concurrent growth exceeded the reclaimed temporary checkout space.",
+    "established_retention_context": "The known major consumer remains the protected canonical database RPC-response-cache retention area. It is expressly outside this authorization: no database rows, SQLite rebuild/VACUUM, retained provider data, or logs were removed.",
+    "cleanup": "Removed exactly one independently verified disposable artifact: clean inactive temporary Git worktree /private/tmp/universal-assignment-schema-deploy, last modified 2026-10-05, 5,396 files and 148,429,217 file bytes. The worktree had no open files and removal did not delete Git objects, live runtime files, databases, queues, evidence, or logs.",
+    "health": "Canonical database mode=ro SELECT 1 passed. This is readability only, not write-path proof. Existing creator-worker stderr and listener stderr showed no newer recorded ENOSPC entry at the bounded snapshot, but creator_resolution_worker nevertheless exited status 1 again at 01:20:03 local and Supervisor respawned PID 84340 at 01:20:04. Therefore database-write health is UNPROVEN and creator-worker stability is FAIL.",
+    "decision": "The safe disposable set is exhausted and did not restore capacity. The Watchtower target transition remains blocked; no further cleanup may touch the protected large database/cache/log/evidence populations without separate specific authorization.",
+    "safety": "Supervisor control commands=0; service actions=0; source/config writes=0; database/queue writes=0; provider calls=0; listener changes=0; no new large artifact.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_INSUFFICIENT_SAFE_DISPOSABLE_CAPACITY_AND_WORKER_UNSTABLE",
+    "next_action": "OBTAIN_SPECIFIC_AUTHORIZATION_FOR_PROTECTED_STORAGE_REMEDIATION_OR_OTHER_CAPACITY_SOURCE_THEN_VERIFY_DATABASE_WRITES_AND_CREATOR_WORKER_STABILITY_BEFORE_RERUNNING_TARGET_TRANSITION_PREFLIGHT"
   }
 }

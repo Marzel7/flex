@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "kind": "watchtower_operational_baseline_postfreeze",
+  "classification": "environment_specific_immutable_provenance_baseline",
+  "created_utc": "2026-10-08T22:23:25Z",
+  "admission": {
+    "source_worktree": "/private/tmp/flex-postfreeze-operational-baseline-20261008",
+    "source_branch": "codex/postfreeze-operational-baseline-20261008",
+    "source_commit": "4c1549718d3b711912dacdfb8c990dc5767267c5",
+    "source_clean": true,
+    "dev_019_clean_and_isolated": true,
+    "dev_024_clean_and_isolated": true,
+    "shared_checkout_excluded": true
+  },
+  "original_baseline": {
+    "tag": "watchtower-operational-baseline-20261008-d3c0d4ed",
+    "peeled_commit": "4c1549718d3b711912dacdfb8c990dc5767267c5",
+    "remote_annotated_tag_object": "6e2d7f7cd49fd6b7efa73d62c926e430f0c97e89",
+    "recoverable": true
+  },
+  "runtime_observation": {
+    "observed_utc": "2026-10-08T22:23:25Z",
+    "supervisor_owner_pid": 73409,
+    "components": [
+      {
+        "name": "watchtower_api",
+        "pid": 59680,
+        "runtime_root": "/private/tmp/flex-watchtower-frozen-lifecycle-api-7e9c2db0",
+        "source_sha": "7e9c2db073a73edab349c078fa2759ef1ec879c1",
+        "remote_ref": "origin/codex/watchtower-frozen-lifecycle-api-binding",
+        "clean": true
+      },
+      {
+        "name": "watchtower_listener",
+        "pid": 48504,
+        "runtime_root": "/Users/kevinkeaveney/Production/flex-listener",
+        "committed_source_sha": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+        "frozen_reproduction_sha": "4c1549718d3b711912dacdfb8c990dc5767267c5",
+        "remote_ref": "origin/codex/listener-runtime-reproduction",
+        "clean": false,
+        "dirty_entry_count": 3,
+        "on_disk_listener_source_sha256": "3aa1ecb12699cd43831902179d8945eb12597b11ec3950321df3217be9ad95cc"
+      },
+      {
+        "name": "ws_cascade",
+        "pid": 73417,
+        "runtime_root": "/Users/kevinkeaveney/Production/flex-cascade",
+        "source_sha": "26da06daba23608bd64d5b86cde1f92b24d3a98d",
+        "remote_ref": "origin/codex/cascade-path-bindings-20260922",
+        "clean": true
+      },
+      {
+        "name": "operation_monitor_bridge",
+        "pid": 21106,
+        "runtime_root": "/Users/kevinkeaveney/.codex/worktrees/watchtower-monitor-bounded-soak/flex",
+        "source_sha": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+        "remote_ref": "origin/codex/watchtower-monitor-bounded-soak",
+        "clean": true
+      },
+      {
+        "name": "operation_monitor_worker",
+        "pid": 66087,
+        "runtime_root": "/private/tmp/flex-watchtower-terminal-assignment-worker-1c8022b5",
+        "source_sha": "1c8022b53d10db168f90afabbed08cc646007912",
+        "remote_ref": "origin/codex/watchtower-frozen-lifecycle-api-binding",
+        "clean": true
+      },
+      {
+        "name": "creator_funding_worker",
+        "pid": 54815,
+        "runtime_root": "/private/tmp/flex-dev024-creator-funding-runtime-6806d2b2",
+        "source_sha": "6806d2b2268bd5240f52be184bfbde1642070f76",
+        "remote_ref": "origin/codex/dev-024-creator-funding-aux-timeout",
+        "clean": true
+      }
+    ]
+  },
+  "supervisor_configuration": {
+    "active_sha256": "22721ba7526cadddb443f52add1add76f8df6c1cbb305154155f98e47fc837a8",
+    "observed_path": "/Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf",
+    "byte_exact_local_artifact": "/private/tmp/watchtower-terminal-assignment-worker-candidate-1c8022b5.conf",
+    "byte_exact_match_verified": true,
+    "contents_included": false,
+    "portability_note": "The active file is in the intentionally dirty shared checkout and may contain environment-specific secret references. This baseline preserves its exact digest and separately retained byte-exact local artifact, not secret-bearing contents."
+  },
+  "listener_provenance_limitation": {
+    "checkout_dirty_entries": 3,
+    "on_disk_source_matches_frozen_reproduction": true,
+    "guard_files_match_frozen_reproduction": true,
+    "in_memory_source_identity_independently_proven": false,
+    "authorized_action": "No listener restart, replacement, or source modification is authorized by this baseline."
+  },
+  "handoff_and_qualification_references": {
+    "latest_reconciliation_handoff": "0028ec74a6cb88beffe756b6298f3e1898656e8f",
+    "terminal_assignment_worker_deployment_handoff": "2e0798069772db5ba5a52b157b4df17247eb8d58",
+    "terminal_assignment_worker_preparation_manifest_commit": "367011ba73d9a1c1a6023d7014b26d0def14e1a0",
+    "dev_024_runtime_source": "6806d2b2268bd5240f52be184bfbde1642070f76",
+    "dev_019_engineering_source": "e8f6f01652d090a5a0a582f382b88c6fd6b3058e"
+  },
+  "qualification": {
+    "all_clean_runtime_shas_remote_reachable": true,
+    "runtime_roots_match_recorded_source_shas": true,
+    "original_baseline_recoverable": true,
+    "dev_019_isolated": true,
+    "dev_024_remote_backed": true,
+    "dirty_shared_checkout_incorporated": false,
+    "untracked_implementation_adopted": false
+  },
+  "safety_state": {
+    "runtime_changes": 0,
+    "supervisor_actions": 0,
+    "provider_calls": 0,
+    "live_database_or_queue_writes": 0,
+    "listener_changes": 0,
+    "branch_merges": 0,
+    "max_new_single_file_bytes": 20000,
+    "raw_retention": "none",
+    "unbounded_growth_paths": 0
+  },
+  "limitations": [
+    "This is an observation baseline, not an authorization to deploy, restart, replay, promote, or alter any runtime component.",
+    "PIDs are observations at the stated timestamp, not durable component identities.",
+    "The listener checkout is deliberately recorded as dirty; only its on-disk byte equivalence to the frozen reproduction is proven."
+  ]
+}

@@ -20815,5 +20815,16 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "STOP. A separate explicit authorization is required before any provider acquisition using activity priority, persistent runtime integration, review-table write, or discovery activation."
+  },
+  "dev019_confirmed_treasury_activity_measurement_20261008": {
+    "engineering_revision": "One-signature coverage contract d79ceec257668be6f263cf79fbd652e2c5857aa8, compact measurement c9925cb038ebe0bf8677d76331700eadf535cf6b, and register commit 81090e8eb03690fefa421436b83e6daef8333dc5 on origin/codex/dev-019-mesh-discovery.",
+    "status": "PASS_BOUNDED_CONFIRMED_TREASURY_ACTIVITY_MEASURED_NOT_DEPLOYED",
+    "authority_and_coverage": "The source authority was read-only /Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db::wt_confirmed_treasuries: exactly 83 distinct confirmed identities. Each identity received one non-paginated newest-signature lookup with limit=1 and, when returned, one version-aware transaction decode. All 83 selected windows are COMPLETE_SIGNATURE_WINDOW; no page was advanced with partial decoding. The one-signature contract is bounded at 83 signature lookups, 100 transaction details, 200 total calls, concurrency=1, retries=0, fallbacks=0, max hops=2, and a 10MB isolated-store cap.",
+    "measurement": "The batch completed in 30,134ms with 166/200 Helius requests: HOT=2, ACTIVE=17, DORMANT=14, RETIRED_CANDIDATE=50, ACTIVITY_UNKNOWN=0. It retained last transaction and last balance-verified material-funding timestamps separately. One ACTIVE treasury (DWmF2xCu739paiMCxEUtczYADQuUxvLFnpHKnaSAH1mG) is DEEP_DISCOVERY because it has recent material funding. The remaining 18 HOT/ACTIVE identities are VERIFY_FUNDING only; 64 DORMANT/RETIRED_CANDIDATE identities suppress routine deep scans. These priorities do not change any confirmed identity.",
+    "artifact": "docs/audits/dev_019_confirmed_treasury_activity.v1.json SHA256=17ae875c3ede269761e92f198ea5c53ea09119cb1721e6c89c4f211a55acb31f, 33,759 bytes. The temporary isolated SQLite store was 245,760 bytes. Raw provider/block payload retention=false; no file approaches the 500MB prohibition.",
+    "qualification": "55 provider-free DEV-019 activity/adapter/engine/treasury-rotation/V2 regressions passed, and V2 register validation passed. Canonical DB/queue writes=0; Supervisor/service/listener actions=0; production deployment=0; identity changes=0; treasury confirmation/membership/attribution promotion=0. Provider requests were solely the explicitly authorized bounded DEV batch.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "STOP. Any deeper discovery of the one DEEP_DISCOVERY treasury, verification scans of the 18 HOT/ACTIVE accounts, persistent runtime integration, review-table persistence, or live activation requires separate explicit authorization."
   }
 }

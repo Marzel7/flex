@@ -20980,5 +20980,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Read-only diagnosis only; no executable runtime behavior changed.",
     "next_action": "STOP. If exact identities or per-address acknowledgement state are required, separately authorize deployment of the already-qualified read-only telemetry candidate and perform its bounded post-deployment observation; do not change subscription limits."
+  },
+  "dev019_treasury_subscription_activity_reconciliation_20261008": {
+    "engineering_revision": "Live cascade 26da06daba23608bd64d5b86cde1f92b24d3a98d; retained activity corpus c9925cb038ebe0bf8677d76331700eadf535cf6b; qualified selector 23b09948a70ccea9f08cf560e9684325e9287623.",
+    "status": "PASS_READ_ONLY_SELECTION_RECONCILED_NOT_DEPLOYED",
+    "population": "Current registry join is exact: 83 confirmed entries, 29 no_subscribe=0 and 54 no_subscribe=1. Current-29 activity is HOT=1, ACTIVE=17, DORMANT=8, RETIRED_CANDIDATE=3, UNKNOWN=0. Excluded-54 activity is HOT=1, ACTIVE=0, DORMANT=6, RETIRED_CANDIDATE=47, UNKNOWN=0.",
+    "selection": "The retained corpus supplies only six verified material-funding timestamps and no verified reactivation or runtime dwell timestamps. The qualified selector therefore supports a six-address pre-dwell pool, not an invented eight: DWmF2xCu739paiMCxEUtczYADQuUxvLFnpHKnaSAH1mG; 9gv9vLtP1WxM7hgMbg4XsV6XLBNniKt8eFbbDqNcPDN1; 43PKjr22AFXtCMmLtQ1wxYojnjqEB86iFKK5qUYo3y3D; 41ivupbW3qgz4BhbBaDPvQXUbiVsnW7kuivSriupQs2T; N3TKf3wMBNu8XmZsTSnk2xWQ2LjiGvUJh1ae9Lc3dW7; Dw7xNxxwuBnTfpwSrZMhcAQqFp4XNe9XNaVhhsvyx6Da. Three are currently eligible and three are presently no_subscribe=1.",
+    "exclusion_and_limits": "The exact source deliberately enforces no_subscribe=1 in its treasury query, and its companion helper documents INTEL_ONLY/no-WebSocket semantics. The table lacks a per-row exclusion reason or change audit, so individual historical rationale is unproven. The sole HOT excluded row is 69SNcRC8NqjHBSXEcugCN5oFKRQoKmddmWzZYc3tqtxk; it has no verified material-funding timestamp and its operation-association limitation remains unchanged. Existing per-address subscription times are not observable, so the required 3600-second dwell constraint prevents treating this pre-dwell result as an executable transition.",
+    "coverage": "The qualified design keeps all 83 confirmed identities reconciliation-eligible, prioritizes HOT/ACTIVE non-selected identities and uses daily reconciliation for dormant/retired identities. However, adequate live detection coverage is NOT proven: the eight-slot selector and completeness-gated reconciliation are not deployed in cascade. Selection calculation generated zero provider calls; any prospective reconciliation usage remains a qualified estimate, not current runtime measurement.",
+    "safety": "Provider calls=0; live DB/queue writes=0; subscription/Supervisor/service/listener actions=0; source/config changes=0 except this handoff; no identity, membership, attribution, or promotion change; raw retention=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only assessment only; no runtime behavior changed.",
+    "next_action": "STOP. Before any live selection change, separately authorize a telemetry deployment/observation to obtain per-address state and dwell timestamps, then prepare a fresh bounded selector transition and reconciliation acceptance gate."
   }
 }

@@ -20453,5 +20453,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Storage recovery only; it changes no executable runtime behavior or configuration.",
     "next_action": "OBTAIN_FRESH_EXPLICIT_AUTHORIZATION_FOR_ONE_CORRECTED_200_ROW_LIVE_RETENTION_TICK, THEN REPEAT_FULL_RUNTIME_DATABASE_WRITE_LANE_WAL_DISK_AND_HEALTH_PREFLIGHT; DO_NOT_ENABLE_RECURRING_MAINTENANCE."
+  },
+  "dev023_first_corrected_live_tick_execution_20261008": {
+    "engineering_revision": "Installed clean runtime /private/tmp/flex-dev023-retention-runtime-75600f8e at 75600f8e087df0a849176d8d495eba95af3e3759; disabled configuration remains SHA256 d66dfa64bb27702162accde2de73f6fc02b1691b09f27a55f46306f6db96463c.",
+    "status": "PASS_ONE_CAPPED_LIVE_RETENTION_TICK_COMPLETED",
+    "preflight": "Exact clean SHA verified. Runtime tick limits were batch_rows=200 and max_rows_per_run=200; static adapter contract confirms DatabaseWriteService P3 housekeeping priority, expiry recheck, WAL ceiling, and stop-file handling. Fresh cutoff 1791459059 found at least 201 eligible rows against the exact canonical rpc_response_cache schema. WAL=0 bytes, free space=4,831,150,080 bytes (above fixed 4 GiB floor), no retention process, and no configured stop file. API was healthy=true; legitimate supervisord/listener/bridge processes remained present; scheduler digest was 9bfdc6645e8a486430e0dc6eb4b3203e58324e7ab7807fd3ddc20f89a567a803.",
+    "execution": "Exactly one enabled CLI invocation used the frozen cutoff and returned {status: STOP_ROW_CAP, deleted: 200}. The CLI exits 2 for non-DISABLED results by its existing contract; here the JSON result is the expected successful capped transaction result. No second invocation occurred. The retention DELETE rechecks cached_at + ttl_seconds <= cutoff in its transaction predicate, so non-expired rows are excluded; no other table is reachable by the contract.",
+    "postcheck": "Compact read-only checks found canonical WAL=2,937,592 bytes and free space=4,825,079,808 bytes, still above the fixed 4 GiB floor. API health remained healthy=true; supervisord PID 73409, listener PID 73415, and bridge PID 21106 remained unchanged; scheduler digest was unchanged. A separate read-only aggregate SQLite post-check became stuck in a native state and exited before any result was used; it made no mutation and was not retried. No retention process remains.",
+    "safety": "Expired rpc_response_cache rows deleted=200; non-expired rows deleted=0 by the in-transaction expiry predicate; other-table deletion=0; provider calls=0; Supervisor/service/listener/API/bridge/worker actions=0; scheduler enablement=0; VACUUM/checkpoint=0; no files approach 500MB. The enabled environment variable applied only to the exited one-shot child; checked-in configuration remains disabled.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS_ONE_CONTROLLED_TICK_ONLY",
+    "next_action": "STOP_AT_SINGLE_TICK_BOUNDARY. DO_NOT_ENABLE_RECURRING_RETENTION. A SEPARATE AUTHORIZATION AND NEW PREFLIGHT ARE REQUIRED FOR ANY FUTURE RETENTION TICK OR SCHEDULER CHANGE."
   }
 }

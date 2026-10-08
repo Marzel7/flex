@@ -19767,5 +19767,19 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_LIVE_SUPERVISOR_AND_LISTENER_STOPPED_RECOVERY_AUTHORIZATION_REQUIRED",
     "next_action": "OBTAIN EXPLICIT AUTHORIZATION TO RECOVER THE ORIGINAL SUPERVISOR RUNTIME ONLY, THEN PERFORM THE DOCUMENTED ORIGINAL-CONFIG/PID/SOCKET/DUPLICATE-LISTENER PREFLIGHT BEFORE ONE ORIGINAL-DAEMON START."
+  },
+  "watchtower_original_supervisor_runtime_recovery_20261008": {
+    "engineering_revision": "Original config only; SHA256 de358f18394f56651b6a8493d137287fdbec0dd21b84c46dbf576246ab4e154d. No candidate config or source change was installed.",
+    "status": "PASS_ORIGINAL_RUNTIME_RESTORED_API_SEPARATELY_BACKOFF",
+    "preflight": "The original config exactly matched the incident digest. No supervisord process, configured socket/PID artifact, duplicate listener, operation-monitor service, or Gunicorn main process existed. Original autostart=true set reconciled to watchtower_api, watchtower_listener, watchtower_ngrok, ws_cascade, creator_resolution_worker, creator_funding_worker, walkback_worker, and alert_evaluator. Original autostart=false set remained operation_scheduler, intelligence_snapshot_scheduler, infra_sync_scheduler, evidence_writer, operation_monitor_worker, operation_monitor_bridge, and webhook_worker.",
+    "recovery": "One authorized start used /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/supervisord with unchanged /Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf. No reread, update, restart, candidate install, or manual program start occurred.",
+    "verification": "Supervisor PID 73409 is responsive. Original enabled programs restored RUNNING: alert_evaluator 73410, creator_funding_worker 73411, creator_resolution_worker 73412, walkback_worker 73413, watchtower_listener 73415, watchtower_ngrok 73416, ws_cascade 73417. Listener process count is exactly one. The disabled set remains STOPPED. watchtower_api is BACKOFF/Exited too quickly and was not repaired or restarted beyond its original autostart behavior.",
+    "listener_liveness": "The listener and Supervisor logs received post-recovery writes; bounded log classification found listener-start and WebSocket-connected evidence. No natural launch was detected within the short verification window, so continued launch detection is operationally plausible but no new launch event is claimed.",
+    "downtime": "Listener stop recorded at 2026-10-08 00:55:28.882 local; replacement process start observed at 01:00:57 local and RUNNING state by the verification at approximately 01:01:13. Estimated listener downtime is approximately 5 minutes 38 seconds.",
+    "data": "Canonical and operations SQLite databases are read-only accessible after recovery. No DB/queue/provider/backfill action was performed. No pre-incident fingerprint permits attribution of ordinary database writes during the shutdown window.",
+    "safety": "Original-runtime recovery only. No new config deployment, source change, shadow/+2 activation, historical recovery, provider call, or large artifact. RUNTIME_DEPLOYMENT_REQUIRED=false because the authorized action restored the pre-existing runtime rather than deploying changed executable behavior.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Original configuration and original program definitions were restored unchanged after incident shutdown.",
+    "next_action": "STOP. MAINTAIN ORIGINAL RUNTIME; ANY WATCHTOWER DEVELOPMENT, API REPAIR, OR DEPLOYMENT REQUIRES A NEW EXPLICIT AUTHORIZATION."
   }
 }

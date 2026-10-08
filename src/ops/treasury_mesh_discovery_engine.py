@@ -110,6 +110,13 @@ CREATE TABLE IF NOT EXISTS wt_mesh_launch_seeds (
  canonical_creator_launch INTEGER NOT NULL,
  state TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS wt_mesh_activity (
+ address TEXT PRIMARY KEY,
+ last_transaction_at INTEGER,
+ last_meaningful_funding_at INTEGER,
+ coverage_complete INTEGER NOT NULL DEFAULT 0,
+ updated_at INTEGER NOT NULL
+);
 """
 
 
@@ -251,6 +258,45 @@ def _job(conn: sqlite3.Connection, job_id: int) -> sqlite3.Row:
     return row
 
 
+def record_activity_transaction(conn: sqlite3.Connection, *, address: str, observed_at: int | None,
+                                now: int | None = None) -> None:
+    """Persist compact bounded signature activity, never a raw signature page."""
+    if not address or not isinstance(observed_at, int) or observed_at < 0:
+        return
+    timestamp = _now() if now is None else int(now)
+    conn.execute(
+        "INSERT INTO wt_mesh_activity(address,last_transaction_at,last_meaningful_funding_at,coverage_complete,updated_at) VALUES(?,?,NULL,0,?) "
+        "ON CONFLICT(address) DO UPDATE SET last_transaction_at=MAX(COALESCE(last_transaction_at,0),excluded.last_transaction_at),updated_at=excluded.updated_at",
+        (address, observed_at, timestamp),
+    )
+
+
+def record_activity_meaningful_funding(conn: sqlite3.Connection, *, address: str, observed_at: int | None,
+                                        now: int | None = None) -> None:
+    if not address or not isinstance(observed_at, int) or observed_at < 0:
+        return
+    timestamp = _now() if now is None else int(now)
+    conn.execute(
+        "INSERT INTO wt_mesh_activity(address,last_transaction_at,last_meaningful_funding_at,coverage_complete,updated_at) VALUES(?,NULL,?,0,?) "
+        "ON CONFLICT(address) DO UPDATE SET last_meaningful_funding_at=MAX(COALESCE(last_meaningful_funding_at,0),excluded.last_meaningful_funding_at),updated_at=excluded.updated_at",
+        (address, observed_at, timestamp),
+    )
+
+
+def activity_snapshot(conn: sqlite3.Connection, *, address: str) -> dict:
+    row = conn.execute("SELECT address,last_transaction_at,last_meaningful_funding_at,coverage_complete FROM wt_mesh_activity WHERE address=?", (address,)).fetchone()
+    return dict(row) if row else {"address": address, "last_transaction_at": None, "last_meaningful_funding_at": None, "coverage_complete": 0}
+
+
+def _mark_activity_coverage_complete(conn: sqlite3.Connection, *, address: str, now: int | None = None) -> None:
+    timestamp = _now() if now is None else int(now)
+    conn.execute(
+        "INSERT INTO wt_mesh_activity(address,last_transaction_at,last_meaningful_funding_at,coverage_complete,updated_at) VALUES(?,NULL,NULL,1,?) "
+        "ON CONFLICT(address) DO UPDATE SET coverage_complete=1,updated_at=excluded.updated_at",
+        (address, timestamp),
+    )
+
+
 def record_signature_page(conn: sqlite3.Connection, *, job_id: int, signatures: Iterable[str], now: int | None = None) -> dict:
     """Durably record a bounded page before decoding any selected signature."""
     job = _job(conn, job_id)
@@ -305,6 +351,23 @@ def record_transaction_result(conn: sqlite3.Connection, *, job_id: int, signatur
     return "DECODED"
 
 
+def record_verified_activity_from_transaction(conn: sqlite3.Connection, *, job_id: int, signature: str,
+                                              transaction: Mapping[str, Any] | None,
+                                              now: int | None = None) -> None:
+    """Record a timestamp only when a job has material direct funding evidence."""
+    if transaction is None:
+        return
+    job = _job(conn, job_id)
+    observed_at = transaction.get("blockTime")
+    facts = extract_compact_native_facts(transaction, signature=signature)
+    for fact in facts:
+        if (fact.get("route_semantics") == DIRECT and fact.get("balance_delta_verified")
+                and fact.get("lamports") is not None and int(fact["lamports"]) >= MATERIAL_SCREENING_LAMPORTS
+                and job["address"] in {fact.get("sender"), fact.get("receiver")}):
+            record_activity_meaningful_funding(conn, address=str(job["address"]), observed_at=observed_at, now=now)
+            return
+
+
 def page_coverage(conn: sqlite3.Connection, *, job_id: int) -> dict:
     job = _job(conn, job_id)
     row = conn.execute("SELECT signatures_json FROM wt_mesh_pages WHERE job_id=? AND page_number=?", (job_id, job["next_page"])).fetchone()
@@ -327,6 +390,7 @@ def finalize_page(conn: sqlite3.Connection, *, job_id: int, now: int | None = No
     boundary = json.loads(conn.execute("SELECT boundary_json FROM wt_mesh_pages WHERE job_id=? AND page_number=?", (job_id, job["next_page"])).fetchone()[0])
     conn.execute("UPDATE wt_mesh_pages SET coverage_state=? WHERE job_id=? AND page_number=?", ("COMPLETE_SIGNATURE_WINDOW", job_id, job["next_page"]))
     conn.execute("UPDATE wt_mesh_jobs SET state=?,next_cursor=?,next_page=next_page+1,updated_at=? WHERE job_id=?", (WAITING_PAGE, boundary["last_signature"], timestamp, job_id))
+    _mark_activity_coverage_complete(conn, address=str(job["address"]), now=timestamp)
     return coverage
 
 
@@ -404,6 +468,9 @@ def run_one_page(conn: sqlite3.Connection, *, job_id: int, client: DiscoveryClie
             records = list(client.get_signatures(job["address"], job["direction"], job["next_cursor"], MAX_SIGNATURES_PER_PAGE))
             signatures = [str(record.get("signature")) for record in records if record.get("signature")]
             boundary = record_signature_page(conn, job_id=job_id, signatures=signatures, now=now)
+            for record in records:
+                if record.get("err") is None:
+                    record_activity_transaction(conn, address=str(job["address"]), observed_at=record.get("blockTime"), now=now)
         elif job["state"] == PAGE_INCOMPLETE:
             boundary = json.loads(conn.execute("SELECT boundary_json FROM wt_mesh_pages WHERE job_id=? AND page_number=?", (job_id, job["next_page"])).fetchone()[0])
         else:
@@ -417,7 +484,9 @@ def run_one_page(conn: sqlite3.Connection, *, job_id: int, client: DiscoveryClie
             except ProviderLimited:
                 conn.execute("UPDATE wt_mesh_jobs SET state=?,updated_at=? WHERE job_id=?", (PROVIDER_LIMIT_STOP, _now() if now is None else int(now), job_id))
                 return {"status": PROVIDER_LIMIT_STOP, "boundary": boundary, "coverage": page_coverage(conn, job_id=job_id)}
-            record_transaction_result(conn, job_id=job_id, signature=signature, transaction=transaction, now=now)
+            status = record_transaction_result(conn, job_id=job_id, signature=signature, transaction=transaction, now=now)
+            if status == "DECODED":
+                record_verified_activity_from_transaction(conn, job_id=job_id, signature=signature, transaction=transaction, now=now)
         coverage = finalize_page(conn, job_id=job_id, now=now)
         return {"status": coverage["status"], "boundary": boundary, "coverage": coverage, "rpc_calls": budget.rpc_calls}
     except BudgetExceeded:

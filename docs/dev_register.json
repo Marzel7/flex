@@ -45,9 +45,9 @@
       "branch": "codex/dev-019-source-recovery",
       "worktree": "/private/tmp/flex-dev-019-source-recovery",
       "starting_sha": "8be99ed28aa2228dc9cec7d63103eab27376086d",
-      "current_sha": "a9fa1b2738d1a35bf084c66a7963fc1ead7b4467",
-      "status": "PARTIAL_ROUTE_RESEARCH_COMPLETE_NOT_PROMOTED",
-      "next_action": "Preserve the bounded outbound batch. Do not extend acquisition, deploy discovery, or promote candidates. Any later work requires separate authorization and must start from the compact batch artifact.",
+      "current_sha": "fe5359c80e190a9ec8acce59432d8799ed0f3e37",
+      "status": "EVIDENCE_BLOCKED_TARGETED_AMQ_BATCH_COMPLETE_NOT_PROMOTED",
+      "next_action": "Preserve the targeted AMQ batch. It exhausted its 23-call cap without proving AMQ -> 8CUb or 8CUb -> creator; do not extend acquisition, deploy discovery, or promote candidates without separate authorization.",
       "dependencies": [
         "Development Execution Discipline V2",
         "Legacy DEV-019 Phase 1/2/2B contracts",
@@ -75,7 +75,8 @@
         "Remote branch origin/codex/dev-019-source-recovery resolves to d0be636a5bd05bd51560cae9370e092311c63f80, whose parent a9fa1b2738d1a35bf084c66a7963fc1ead7b4467 is the recovered source commit",
         "Manual artifact SHA256 verified; its stated 81416/81416 retained causal-order gap means both candidate shapes fail closed as NO_CAUSAL_PARENT / INSUFFICIENT_EVIDENCE in an isolated provider-free contract check",
         "Final bounded retained-evidence recovery: 88WR has 46 retained selected edges with signature and amount but all lack slot, transaction index, and instruction index; 2B6F has zero retained selected edges and lacks signature, ordering, and amount evidence. No route qualifies."
-        ,"Bounded Helius-only outbound batch: 57 requests, 11 unique compact facts, 9 verified material transfers, 2 dust/subthreshold transfers, 0 complete creator-launch routes, and no promotion."
+        ,"Bounded Helius-only outbound batch: 57 requests, 11 unique compact facts, 9 verified material transfers, 2 dust/subthreshold transfers, 0 complete creator-launch routes, and no promotion.",
+        "Targeted AMQ route batch: 3 non-paginated signature pages plus 20 getTransaction reads (23/23 total); AMQ -> 8CUb and 8CUb -> creator are absent in the bounded pages. Five creator/mint co-location transactions are contextual only, not funding or attribution proof. Compact artifact: docs/audits/dev_019_amq_to_launch_rpc_batch.v1.json."
       ],
       "integration_promotion_status": "SOURCE_RECOVERY_ONLY_NOT_RUNTIME_PROMOTED",
       "touched_services": [],

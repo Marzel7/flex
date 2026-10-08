@@ -45,16 +45,16 @@
       "branch": "codex/dev-019-mesh-discovery",
       "worktree": "/private/tmp/flex-dev-019-mesh-discovery",
       "starting_sha": "afa282fa0139265deeb2a3f21b1d072290cb62ed",
-      "current_sha": "6163d43a4119f53279b4a08af8c2fb8a0daf740b",
-      "status": "QUALIFIED_TEMPORAL_COUNTEREXAMPLE_NOT_DEPLOYED",
-      "next_action": "STOP. Preserve the provider-free temporal counterexample regression without treasury, membership, or attribution promotion. Any further acquisition or runtime integration requires separate authorization.",
+      "current_sha": "9470e499037229d16c132c1e3591fea5b46e773e",
+      "status": "QUALIFIED_AUTOMATED_DISCOVERY_NOT_DEPLOYED",
+      "next_action": "STOP. Preserve the isolated resumable treasury-mesh engine and compact evidence contracts. Any provider binding, persistent runtime integration, wt_treasury_review write, or deployment requires separate authorization.",
       "dependencies": [
         "Development Execution Discipline V2",
         "Legacy DEV-019 Phase 1/2/2B contracts",
         "Manual evidence artifact SHA256 c214598cbda39b374127399310dfb259e0f8af8d6d049bc62b63f7ba962229a3"
       ],
-      "source_authority": "Clean remote-backed DEV-019 authority afa282fa0139265deeb2a3f21b1d072290cb62ed, including previously uncommitted recovered discovery source with explicit provenance and the two compact bounded RPC artifacts. The recovered files are not asserted to have belonged to the frozen baseline.",
-      "configuration_authority": "No runtime configuration; provider-free isolated tests only.",
+      "source_authority": "Clean remote-backed DEV-019 authority beginning at afa282fa0139265deeb2a3f21b1d072290cb62ed and extended by resumable-engine commit 9470e499037229d16c132c1e3591fea5b46e773e. It includes previously uncommitted recovered discovery source with explicit provenance and compact bounded artifacts; none are asserted to have belonged to the frozen baseline.",
+      "configuration_authority": "No runtime configuration or provider client. The new engine accepts only an injected bounded client seam and opens only /private/tmp isolated SQLite evidence stores.",
       "definition_of_done": [
         "Coverage boundaries and missing history are explicit for every acquisition window",
         "Compact decoded facts distinguish verified transfers, contextual linkage, and review-only candidates",
@@ -85,8 +85,9 @@
         ,"Fresh 8CUb downstream Batch 1: three cursor-bounded 20-signature pages and every one of 60 unique signatures decoded (63/66 Helius calls; legacy only). No direct 8CUb outbound System transfer, including no 8CUb -> creator transfer, occurred in the complete covered pages. Retained creator/2BVf records remain five contextual co-locations, not verified creation events. Compact artifact docs/audits/dev_019_8cub_downstream_coverage_batch1.v1.json SHA256=003be28e8dce011760ad438a2e990eedbbd9d0e5ee887632a2dcd21cc8292b18, 14,174 bytes; no raw payload, no promotion. 35 focused DEV-019/V2 tests passed."
         ,"Exact-signature verification: 2/2 version-aware getTransaction decodes (2/4 call cap) found no direct 8CUb -> creator funding fact. Signature 5xnb proves a direct, balance-verified creator -> 2BVf transfer of 939800 lamports at slot 453983182, transaction index 1190, outer instruction 2 / inner instruction 9; its canonical creation semantics remain unproven. Signature tffs at slot 453983180 has only an unverified wrapped-SOL account-close context to the creator. AMQ -> 8CUb is later at slot 454516004, so it cannot causally precede the observed creator -> 2BVf transfer. Compact artifact docs/audits/dev_019_exact_8cub_creator_signatures.v1.json SHA256=ad86e1350bedcc80306b48ecccacc34c93e61d694f1183bf139a79719163c1db, 5,744 bytes; no raw payload, no promotion. 35 focused DEV-019/V2 tests passed."
         ,"Temporal counterexample regression: compact fixture binds the verified later AMQ -> 8CUb and earlier creator -> 2BVf facts, absent 8CUb -> creator edge, and tffs wrapped-SOL close context. It proves individual edges remain facts while causal_order rejects the invalid combined route as PARENT_AFTER_CHILD_SLOT; creator-to-mint transfer remains non-canonical and incomplete coverage remains non-negative. 37 focused DEV-019/V2 tests passed; provider calls=0."
+        ,"Automated discovery engine: separate isolated SQLite store tracks dual-direction treasury and canonical launch seeds, page boundaries, cursor, signature coverage, decode/failure state, compact direct/WSOL facts, bounded next-hop jobs, and a review-only walkback seam. It has no HTTP client, scheduler, canonical table write, or runtime registration. Provider-free replay proves AMQ -> 8CUb 770 SOL discovery from a treasury seed without pre-seeding its transaction signature; cursor resume, dedupe, v1 decoding, limits, dust/cycle handling, role separation, and non-canonical launch refusal. 46 focused DEV-019/V2 tests passed; provider calls=0."
       ],
-      "integration_promotion_status": "SOURCE_RECOVERY_ONLY_NOT_RUNTIME_PROMOTED",
+      "integration_promotion_status": "QUALIFIED_ISOLATED_ENGINE_NOT_RUNTIME_PROMOTED",
       "touched_services": [],
       "shared_mutable_state": []
     }

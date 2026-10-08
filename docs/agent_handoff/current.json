@@ -19945,5 +19945,17 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "READY_FOR_APPROVED_TARGET_TRANSITION_PREFLIGHT",
     "next_action": "RERUN_THE_ALREADY_APPROVED_COMPLETE_WATCHTOWER_TARGET_ONLY_TRANSITION_PREFLIGHT_THEN_EXECUTE_ONLY_IF_ALL_CURRENT_INVARIANTS_PASS"
+  },
+  "watchtower_target_only_live_transition_20261008": {
+    "engineering_revision": "Runtime candidate 1bfacfc8683b03c4c0ac1cf5276d3bedf47990b1; reviewed composition 251a1eb9fa95f8bbcc98e132a4b8467020eb3c05. No source changes in this transition.",
+    "status": "HOLD_API_RUNTIME_ACCEPTANCE_FAILED_ROLLED_BACK",
+    "preflight": "Immediately before installation, live root SHA256 was de358f18394f56651b6a8493d137287fdbec0dd21b84c46dbf576246ab4e154d, reviewed candidate SHA256 was 78ea76d78e3af17b8b4da9d19973fb0ab793a729c71bec2df96967de62ecd243, and the fresh backup was byte-identical to the original. The config retained exactly 15 programs, exactly one listener/API/worker definition, listener and all non-target bytes unchanged, worker autostart/autorestart false, and shadow capture/evaluation disabled. The listener was one healthy PID 73415; the post-WAL-recovery watchdog showed WAL 0 and no renewed pin event.",
+    "authorized_actions": "The candidate was atomically installed, then Supervisor reread and update targeted only operation_monitor_worker and watchtower_api. No listener or broad service action was issued. The API reached RUNNING as Gunicorn master PID 93681 with worker PID 93684 from the exact candidate commit. The operation-monitor worker remained STOPPED as configured.",
+    "acceptance_failure": "API acceptance did not pass. GET /healthz returned HTTP 503 while canonical DB access was ok and WAL was 3.1 MB, reporting stale worker heartbeats. The bounded local-only GET /api/pumpfun/live timed out after 10 seconds with no response body. Existing API stderr also recorded unable-to-open-database-file from price_api metadata-cache initialization and runtime identity diagnostics. The required API HTTP and Price/Live readback conditions therefore failed; no forward action was taken.",
+    "rollback": "The verified backup was atomically restored and its live SHA256 reverified as de358f18394f56651b6a8493d137287fdbec0dd21b84c46dbf576246ab4e154d. Supervisor reread and update again targeted only operation_monitor_worker and watchtower_api. The listener remained PID 73415 throughout, exactly one listener process exists, all unrelated program states retained their pre-transition state, and operation_monitor_worker remains STOPPED. The restored original watchtower_api is BACKOFF, matching its pre-transition state.",
+    "safety": "No shadow capture, +2 activation, Injector/history recovery, provider backfill, source modification, listener restart, or broad Supervisor restart occurred. The only live changes were the authorized atomic candidate install and its byte-exact rollback plus target-only reread/update. No raw provider payload or large artifact was created.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_API_RUNTIME_ACCEPTANCE_FAILED_ROLLED_BACK",
+    "next_action": "STOP. DO NOT RETRY DEPLOYMENT. SEPARATELY DIAGNOSE THE PROVEN API RUNTIME ACCEPTANCE FAILURES AGAINST THE CANDIDATE CONFIGURATION BEFORE SEEKING A NEW TRANSITION AUTHORIZATION."
   }
 }

@@ -13,6 +13,7 @@ import json
 import os
 import re
 import sqlite3
+import socket
 from src.utils.db_locking import db_connect, managed_db_connect, db_write_lock, AsyncDbWriteLock
 from src.utils.db_write_retry import async_write_batch_with_retry, async_write_with_retry, get_health_metrics as _db_write_health_metrics
 from src.core.database_write_service import (
@@ -22,6 +23,7 @@ import sys
 import time
 import threading
 from pathlib import Path
+from urllib.parse import urlparse
 import websockets
 import aiohttp
 import requests
@@ -341,6 +343,112 @@ def log_print(*args, **kwargs):
         clean = _re.sub(r"\033\[[0-9;]*m", "", line)
         if any(clean.lstrip().startswith(p) for p in _MIGRATION_LOG_PREFIXES):
             _write_migration_log(clean)
+
+
+# DEV-020: compact resolver-boundary diagnostics.  These helpers are deliberately
+# fail-open and are called only at the existing websocket failure/success boundary;
+# they neither resolve names nor alter connection/retry behaviour.
+DEV_020_RESOLVER_FAILURE_SNAPSHOT_V1 = "DEV_020_RESOLVER_FAILURE_SNAPSHOT_V1"
+_RESOLVER_DIAGNOSTIC_GENERATION_STARTED_AT = time.time()
+_RESOLVER_DIAGNOSTIC_MAX_BYTES = 256 * 1024
+_RESOLVER_DIAGNOSTIC_SEEN: set[tuple] = set()
+_RESOLVER_DIAGNOSTIC_LAST_EMITTED: dict[tuple, float] = {}
+_RESOLVER_DIAGNOSTIC_LOCK = threading.Lock()
+
+
+def _resolver_diagnostic_path() -> Path:
+    """Return the opt-in-safe bounded diagnostic location without reading secrets."""
+    configured = os.environ.get("LISTENER_RESOLVER_DIAGNOSTIC_PATH")
+    if configured:
+        return Path(configured)
+    return Path(__file__).resolve().parents[2] / "logs" / "diagnostics" / "resolver_failure.jsonl"
+
+
+def _resolver_snapshot_fingerprints() -> tuple[dict, dict, dict]:
+    """Metadata-only fingerprints; never perform DNS, route, or interface discovery."""
+    runtime = {
+        "python_major_minor": f"{sys.version_info.major}.{sys.version_info.minor}",
+        "platform": sys.platform,
+        "pid": os.getpid(),
+    }
+    resolver = {
+        "socket_has_ipv6": bool(socket.has_ipv6),
+        "default_timeout": socket.getdefaulttimeout(),
+        "active_resolution": "not_performed",
+    }
+    network = {"interface": "not_collected", "route": "not_collected"}
+    return runtime, resolver, network
+
+
+def _resolver_generation_identity() -> str:
+    return f"pid:{os.getpid()}:started:{int(_RESOLVER_DIAGNOSTIC_GENERATION_STARTED_AT)}"
+
+
+def _resolver_endpoint_details(endpoint: str) -> tuple[str, int]:
+    parsed = urlparse(endpoint)
+    return (parsed.hostname or "unknown", parsed.port or (443 if parsed.scheme == "wss" else 0))
+
+
+def _record_resolver_snapshot(
+    *, provider: str, endpoint: str, event: str, exc: BaseException | None = None,
+    attempt_number: int = 0, backoff_seconds: float = 0.0,
+) -> bool:
+    """Append one bounded, secret-safe resolver snapshot.  Never raises to the loop."""
+    try:
+        hostname, port = _resolver_endpoint_details(endpoint)
+        errno = getattr(exc, "errno", None) if exc else None
+        exc_type = type(exc).__name__ if exc else None
+        key = (_resolver_generation_identity(), provider, event, hostname, errno, exc_type)
+        now_mono = time.monotonic()
+        with _RESOLVER_DIAGNOSTIC_LOCK:
+            if event == "resolver_failure" and key in _RESOLVER_DIAGNOSTIC_SEEN:
+                return False
+            last = _RESOLVER_DIAGNOSTIC_LAST_EMITTED.get(key)
+            if last is not None and now_mono - last < 60.0:
+                return False
+            runtime, resolver, network = _resolver_snapshot_fingerprints()
+            try:
+                loop = asyncio.get_running_loop()
+                loop_identity = f"{type(loop).__name__}:{id(loop)}"
+            except RuntimeError:
+                loop_identity = "none"
+            snapshot = {
+                "schema_version": DEV_020_RESOLVER_FAILURE_SNAPSHOT_V1,
+                "event": event,
+                "timestamp": datetime.utcnow().isoformat(timespec="milliseconds") + "Z",
+                "monotonic_timestamp": now_mono,
+                "pid": os.getpid(),
+                "generation_identity": _resolver_generation_identity(),
+                "provider": provider,
+                "hostname": hostname,
+                "port": port,
+                "family": "AF_UNSPEC",
+                "socket_type": "SOCK_STREAM",
+                "protocol": "IPPROTO_TCP",
+                "flags": 0,
+                "exception_type": exc_type,
+                "errno": errno,
+                "exception_message": str(exc)[:160] if exc else None,
+                "event_loop_identity": loop_identity,
+                "execution_context": f"thread:{threading.current_thread().name}",
+                "attempt_number": attempt_number,
+                "backoff_seconds": backoff_seconds,
+                "runtime_fingerprint": runtime,
+                "resolver_fingerprint": resolver,
+                "network_fingerprint": network,
+            }
+            encoded = (json.dumps(snapshot, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
+            path = _resolver_diagnostic_path()
+            path.parent.mkdir(parents=True, exist_ok=True)
+            if path.exists() and path.stat().st_size + len(encoded) > _RESOLVER_DIAGNOSTIC_MAX_BYTES:
+                return False
+            with path.open("ab") as handle:
+                handle.write(encoded)
+            _RESOLVER_DIAGNOSTIC_SEEN.add(key)
+            _RESOLVER_DIAGNOSTIC_LAST_EMITTED[key] = now_mono
+        return True
+    except Exception:
+        return False
 
 # === Global Database Write Lock ===
 try:
@@ -10482,6 +10590,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
         current_endpoint_idx = 0
         reconnect_delay = 5
         _consecutive_failures = 0
+        _resolver_failure_seen = False
+        _record_resolver_snapshot(
+            provider="PUMPSWAP_HELIUS", endpoint=endpoints[current_endpoint_idx][0],
+            event="generation_start",
+        )
 
         # Track last activity times for dead-subscription detection
         _last_any_msg_at = time.time()
@@ -10507,6 +10620,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     max_size=10 * 1024 * 1024,
                 ) as ws:
                     self.websocket_connected = True
+                    if _resolver_failure_seen:
+                        _record_resolver_snapshot(
+                            provider="PUMPSWAP_HELIUS", endpoint=endpoint,
+                            event="resolver_success_after_failure",
+                            attempt_number=_consecutive_failures + 1,
+                        )
+                        _resolver_failure_seen = False
                     # Only reset reconnect_delay after subscription confirmed, not just connection
                     log_print(f"[WEBSOCKET][PUMPSWAP] ✓ Connected via {name}", flush=True)
 
@@ -10715,6 +10835,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
             except Exception as e:
                 self.websocket_connected = False
                 self._acquisition_availability.transition("MIGRATION", "DOWN", f"websocket failure: {type(e).__name__}")
+                if isinstance(e, socket.gaierror):
+                    _resolver_failure_seen = True
+                    _record_resolver_snapshot(
+                        provider="PUMPSWAP_HELIUS", endpoint=endpoint,
+                        event="resolver_failure", exc=e,
+                        attempt_number=_consecutive_failures + 1,
+                        backoff_seconds=reconnect_delay,
+                    )
                 error_str = str(e).lower()
                 if "401" in str(e) or "unauthorized" in error_str:
                     log_print(f"[WEBSOCKET][PUMPSWAP] ⚠ Auth error (401) - falling back to public RPC", flush=True)
@@ -10728,6 +10856,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
                 _consecutive_failures += 1
                 if _consecutive_failures >= 10:
+                    if isinstance(e, socket.gaierror):
+                        _record_resolver_snapshot(
+                            provider="PUMPSWAP_HELIUS", endpoint=endpoint,
+                            event="fatal_exhaustion", exc=e,
+                            attempt_number=_consecutive_failures,
+                        )
                     msg = (
                         f"[WEBSOCKET][PUMPSWAP] FATAL: {_consecutive_failures} consecutive failures "
                         f"— exiting for supervisord restart"
@@ -10910,6 +11044,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
         _consecutive_failures = 0
         _last_connected_at: float = 0.0
         _outage_started_at: float = 0.0
+        _resolver_failure_seen = False
+        _record_resolver_snapshot(
+            provider="PUMPPORTAL", endpoint=PUMPPORTAL_WS, event="generation_start",
+        )
 
         while True:
             _attempt += 1
@@ -10933,6 +11071,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     _last_connected_at = time.time()
                     _outage_started_at = 0.0
                     self._pumpportal_connected = True
+                    if _resolver_failure_seen:
+                        _record_resolver_snapshot(
+                            provider="PUMPPORTAL", endpoint=PUMPPORTAL_WS,
+                            event="resolver_success_after_failure", attempt_number=_attempt,
+                        )
+                        _resolver_failure_seen = False
                     log_print("[PUMPPORTAL] ✓ Connected", flush=True)
 
                     await ws.send(json.dumps({"method": "subscribeNewToken"}))
@@ -11030,6 +11174,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
             except Exception as e:
                 self._acquisition_availability.transition("BIRTH", "DOWN", f"websocket failure: {type(e).__name__}")
+                if isinstance(e, socket.gaierror):
+                    _resolver_failure_seen = True
+                    _record_resolver_snapshot(
+                        provider="PUMPPORTAL", endpoint=PUMPPORTAL_WS,
+                        event="resolver_failure", exc=e, attempt_number=_attempt,
+                        backoff_seconds=reconnect_delay,
+                    )
                 _consecutive_failures += 1
                 _subs_desc = f"newToken,migration,trades={len(tracked_trade_mints)}"
                 log_print(
@@ -11050,6 +11201,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     _outage_started_at,
                     now=_now,
                 ):
+                    if isinstance(e, socket.gaierror):
+                        _record_resolver_snapshot(
+                            provider="PUMPPORTAL", endpoint=PUMPPORTAL_WS,
+                            event="fatal_exhaustion", exc=e,
+                            attempt_number=_attempt,
+                        )
                     _mins_in_outage = (_now - _outage_started_at) / 60
                     msg = (
                         f"[PUMPPORTAL] FATAL: {_consecutive_failures} consecutive failures, "

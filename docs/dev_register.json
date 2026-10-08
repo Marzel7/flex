@@ -45,9 +45,9 @@
       "branch": "codex/dev-019-mesh-discovery",
       "worktree": "/private/tmp/flex-dev-019-mesh-discovery",
       "starting_sha": "afa282fa0139265deeb2a3f21b1d072290cb62ed",
-      "current_sha": "2de57d4154d11cb478e622b3b268742cad5f6f31",
+      "current_sha": "61bd442780d2b57e1d80f715979f071483087e8b",
       "status": "IMPLEMENTING",
-      "next_action": "PRESENT_AN_EXPLICIT_COVERING_PAGINATED_HELIUS_BATCH_BUDGET_BEFORE_ACQUISITION; THE_PRIOR_7_7_6_DECODE_PREFIX_IS_NOT_NEGATIVE_COVERAGE.",
+      "next_action": "REQUEST_APPROVAL_FOR_BATCH_1: fully decode one 20-signature page each for AMQ, 8CUb, and the 2BVf creator (3 signature pages + 60 getTransaction + <=3 selective getBlock = <=66 Helius calls; no pagination, retries, or fallback). The prior 7/7/6 decode prefix is not negative coverage.",
       "dependencies": [
         "Development Execution Discipline V2",
         "Legacy DEV-019 Phase 1/2/2B contracts",
@@ -78,6 +78,7 @@
         ,"Bounded Helius-only outbound batch: 57 requests, 11 unique compact facts, 9 verified material transfers, 2 dust/subthreshold transfers, 0 complete creator-launch routes, and no promotion.",
         "Targeted AMQ route batch: 3 non-paginated signature pages plus 20 getTransaction reads (23/23 total); AMQ -> 8CUb and 8CUb -> creator are absent in the bounded pages. Five creator/mint co-location transactions are contextual only, not funding or attribution proof. Compact artifact: docs/audits/dev_019_amq_to_launch_rpc_batch.v1.json."
         ,"Coverage-aware mesh qualification: a bounded signature window is COMPLETE only when every returned signature was decoded; incomplete pages cannot report negative transfer evidence. Ordered direct transfer and verified creator-launch contracts remain provider-free/review-only. 29 focused DEV-019/V2 tests passed."
+        ,"Compact native evidence decoder: outer/inner System transfers retain instruction coordinates; WSOL account closes are context rather than direct funding; net balance movement without a transfer instruction is not an edge. 32 focused DEV-019/V2 tests passed."
       ],
       "integration_promotion_status": "SOURCE_RECOVERY_ONLY_NOT_RUNTIME_PROMOTED",
       "touched_services": [],

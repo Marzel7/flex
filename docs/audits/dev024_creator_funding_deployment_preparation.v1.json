@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "dev_id": "DEV-024",
+  "purpose": "Target-only deployment preparation for bounded auxiliary creator-funding observation.",
+  "prepared_at_utc": "2026-10-08T00:00:00Z",
+  "live_mutations_performed": 0,
+  "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+  "active_authority": {
+    "supervisor_config_path": "/Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf",
+    "supervisor_config_sha256": "824655dde4283e79102ebd1282a4de783ebeebef942c01cf39bb0e2dea500c4f",
+    "program": "creator_funding_worker",
+    "runtime_root": "/Users/kevinkeaveney/Production/flex-funding",
+    "runtime_sha": "c3565a9d5c2e5199c5362ac96573246a8d5a42dc"
+  },
+  "candidate_authority": {
+    "qualified_correction_sha": "6806d2b2268bd5240f52be184bfbde1642070f76",
+    "qualification_branch_sha": "d363f2f3768da89bdf407f404479df8216a6c25b",
+    "pinned_runtime_root": "/private/tmp/flex-dev024-creator-funding-runtime-6806d2b2",
+    "pinned_runtime_sha": "6806d2b2268bd5240f52be184bfbde1642070f76",
+    "clean": true
+  },
+  "targeted_configuration_render": {
+    "proposed_config_sha256": "5f21916b3029f0e8cce2e91b92fa8f58631f4591baffa749ca40ecfccf5569f9",
+    "program_count": 15,
+    "only_program_changed": "creator_funding_worker",
+    "directory_replacement": {
+      "from": "/Users/kevinkeaveney/Production/flex-funding",
+      "to": "/private/tmp/flex-dev024-creator-funding-runtime-6806d2b2"
+    },
+    "pythonpath_replacement": {
+      "from": "/Users/kevinkeaveney/Production/flex-funding",
+      "to": "/private/tmp/flex-dev024-creator-funding-runtime-6806d2b2"
+    },
+    "added_environment": {
+      "CFQ_AUXILIARY_OUTGOING_TIMEOUT_SECONDS": "15"
+    },
+    "preserved_bindings": {
+      "canonical_db": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "operations_db": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+      "queue": "creator_funding_queue",
+      "core_timeout_seconds": "90",
+      "batch_size": "5",
+      "idle_batch_size": "1",
+      "extraction_slots": "2",
+      "retry_max_attempts": "5"
+    }
+  },
+  "rollback": {
+    "runtime_sha": "c3565a9d5c2e5199c5362ac96573246a8d5a42dc",
+    "supervisor_config_sha256": "824655dde4283e79102ebd1282a4de783ebeebef942c01cf39bb0e2dea500c4f",
+    "procedure": "At the separately approved live gate, create a byte-exact backup immediately before mutation, restore the original creator_funding_worker directory and PYTHONPATH, remove the auxiliary-timeout environment entry, then perform only a targeted worker update."
+  },
+  "post_approval_plan": {
+    "service_actions": [
+      "Verify live worker identity, queue/in-flight state, database/WAL health, and candidate/configuration digests.",
+      "Stop only creator_funding_worker at a safe boundary.",
+      "Install the reviewed target-only configuration and start exactly one creator_funding_worker from the pinned runtime.",
+      "Observe bounded core processing, auxiliary 15-second timeout classification, RPC/retry counts, DB/WAL health, and unrelated-service continuity.",
+      "Roll back only the creator-funding worker configuration on retry amplification, worker failure, or DB/WAL pressure."
+    ],
+    "expected_interruption": "One targeted creator-funding-worker restart; API, listener, cascade, bridge, monitor worker, and other Supervisor programs are not restarted.",
+    "backlog_policy": "No automatic historical replay or scan expansion is introduced. Existing durable queue semantics, batch limits, and retry behavior remain authoritative."
+  },
+  "limitations": [
+    "No live queue/backlog or in-flight-job inspection was performed during preparation.",
+    "No live Supervisor command, configuration write, provider call, database write, or service action was performed.",
+    "The candidate is qualified but not deployed; runtime deployment acceptance remains separately required."
+  ]
+}

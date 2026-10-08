@@ -1,4 +1,14 @@
 {
+  "watchtower_terminal_assignment_worker_deployment_attempt_20261008": {
+    "engineering_revision": "Candidate source 1c8022b53d10db168f90afabbed08cc646007912, preparation manifest 367011ba73d9a1c1a6023d7014b26d0def14e1a0, and candidate configuration SHA256=22721ba7526cadddb443f52add1add76f8df6c1cbb305154155f98e47fc837a8. No source or runtime installation occurred.",
+    "status": "HOLD_PREFLIGHT_DATABASE_LOCK_HEALTH_UNVERIFIED_NO_DEPLOYMENT",
+    "passed_preflight": "Active config SHA256=3d1e347d370741c23ef6517e2da2196dba5a473462072ab810a1f6cfc78a06d7 and rollback SHA256 matched authority; candidate pinned root was clean at 1c8022b53d10db168f90afabbed08cc646007912; parser comparison proved only program:operation_monitor_worker command/directory/environment differ; current worker was exactly one Supervisor-owned PID=59709 at clean baseline 7e9c2db073a73edab349c078fa2759ef1ec879c1; queue was pending=67/retry=0/processing=0/dead_letter=31 with exactly 61 legacy timestamp-less terminal records; candidate retains 20/4 limits and watermark 1791446333; BIRDEYE presence check passed; API, listener, bridge, and creator-funding were RUNNING.",
+    "blocking_preflight": "A bounded SQLite read-only metadata probe against the canonical database returned sqlite3.OperationalError: database is locked before the health/disk continuation could complete. This fails the required absence-of-lock-pressure gate. The probe did not write or alter database state; however, lock health is unverified and deployment was stopped before copying configuration, rereading Supervisor, or updating any program.",
+    "runtime_mutations": "Supervisor reread/update=0; worker stop/start=0; configuration installation=0; queue/database writes=0; provider calls=0; terminal replay/rewrite/acknowledgement=0; History finalization=0. The active config and worker remain at their preflight identities.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_DATABASE_LOCK_HEALTH_MUST_PASS_FRESH_PREFLIGHT",
+    "next_action": "STOP. Do not retry deployment automatically. A separately authorized bounded read-only lock-health investigation must establish safe canonical and monitor database accessibility without changing services or database state; then repeat the entire fresh preflight before any worker-only transition."
+  },
   "watchtower_terminal_assignment_worker_deployment_preparation_20261008": {
     "engineering_revision": "Deployment preparation manifest commit 367011ba73d9a1c1a6023d7014b26d0def14e1a0 on origin/codex/watchtower-frozen-lifecycle-api-binding. Qualified executable correction is 1c8022b53d10db168f90afabbed08cc646007912; no source behavior beyond that correction is in the detached candidate.",
     "status": "QUALIFIED_NOT_DEPLOYED_EXPLICIT_WORKER_ONLY_APPROVAL_REQUIRED",

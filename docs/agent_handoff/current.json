@@ -20169,5 +20169,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "This is a DEV validation safeguard and test-only change; no executable live runtime was deployed.",
     "next_action": "OBTAIN_EXPLICIT_SCOPED_AUTHORIZATION_TO_SIGTERM_ONLY_PID_85253_AFTER_REVERIFYING_ITS_IDENTITY_AND_DESCENDANTS_THEN_VERIFY_PORT_5002_RELEASE_AND_LIVE_PID_73409_AND_LISTENER_PID_73415_PRESERVATION. DO_NOT_RESUME_THE_MONITOR_SOAK."
+  },
+  "watchtower_second_orphaned_dev_supervisor_recovery_20261008": {
+    "engineering_revision": "No engineering source change in this targeted recovery; existing DEV isolation guard remains f66c14693ce695b12877f055926bf588a84263ad.",
+    "status": "HOLD_SECOND_ORPHAN_PID_85253_REMAINS_AFTER_AUTHORIZED_SIGTERM_NO_SIGKILL_AUTHORIZED",
+    "preflight": "Immediately before signalling, PID 85253 was verified as a PID-1-parented temporary supervisord started 2026-10-08 09:26:28 with -t -c /private/tmp/watchtower-sha-diag-7d6/isolated/supervisord.conf. Its direct tree was distinct from live supervisord PID 73409 and listener PID 73415, and included alert evaluator 85261, creator funding 85262, creator resolution 85263, walkback 85264, ws cascade 85268, Gunicorn master 91402 and worker 91443. Gunicorn master 91402 owned TCP 5002.",
+    "action": "SIGTERM was sent only to the explicitly authorized PID 85253. No broad process match, Supervisor control command, restart, SIGKILL, database/queue action, provider call, deployment, or listener action occurred.",
+    "postcheck": "After a bounded 10-second graceful wait, PID 85253 remained with children 85261, 85262, 85263, 85264, 91402, and 91443; ws cascade 85268 had exited. Port 5002 remained owned by 91402/91443. Live supervisord PID 73409 and listener PID 73415 remained running and unchanged.",
+    "decision": "The authorized graceful action did not release the orphan tree or port 5002. Further escalation is outside scope because automatic SIGKILL was expressly prohibited. No claim is made about unintended prior child side effects beyond the observed process/port state.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Targeted incident recovery only; no runtime source or configuration deployment occurred.",
+    "next_action": "OBTAIN_EXPLICIT_AUTHORIZATION_FOR_THE_NEXT_SAFE_RECOVERY_ACTION_FOR_STILL-ALIVE_PID_85253_ONLY, OR MANUALLY_RESOLVE_ITS_GRACEFUL_SHUTDOWN. DO_NOT_RESUME_WATCHTOWER_SOAK."
   }
 }

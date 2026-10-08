@@ -20827,6 +20827,17 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "STOP. Any deeper discovery of the one DEEP_DISCOVERY treasury, verification scans of the 18 HOT/ACTIVE accounts, persistent runtime integration, review-table persistence, or live activation requires separate explicit authorization."
   },
+  "dev019_eight_slot_treasury_subscription_qualification_20261008": {
+    "engineering_revision": "Eight-slot policy commit 23b09948a70ccea9f08cf560e9684325e9287623 and register commit a962f9c929c918ae12250f1b48bdfaebb22c4f44 on origin/codex/dev-019-mesh-discovery.",
+    "status": "PASS_ISOLATED_EIGHT_SLOT_POLICY_QUALIFIED_NOT_DEPLOYED",
+    "current_subscription_observation": "Current heartbeat reports 29 treasury subscriptions while 83 confirmed treasury cursor rows exist. Exact current in-memory subscription identities are not durably exposed. Historical TREASURY_WEBSOCKET_OPENED events contain 83 distinct addresses but cannot establish the current 29. Running cascade checkout/config/registry still do not explain the divergence; no_subscribe remains numerically suggestive but unproven because root-tier source does not apply it.",
+    "capacity": "29 concurrent treasury subscriptions are observed with 1,972/1,972 sent/confirmed acknowledgements and no pending treasury subscription; eight is therefore inside observed concurrent capacity. No provider capacity or plan query was made.",
+    "qualified_policy": "Default target=8, minimum dwell=3600 seconds. Selection priority is HOT with verified material funding, ACTIVE by verified material-funding recency, reactivated confirmed treasury, then other verified material funding. Transaction-only activity cannot occupy a slot; insufficient evidence yields fewer than eight. Protected dwell slots prevent churn; reactivation can displace an expired lower-priority slot. Every confirmed treasury remains reconciliation-eligible: HOT/ACTIVE high priority, dormant/retired daily, launch-backward targeted. Identity mutation/promotion=0.",
+    "verification": "77 provider-free DEV-019/V2 tests passed. Tests cover exact-eight and fewer-than-eight selection, hot priority, reactivation/dwell behavior, no duplicate subscriptions, reconciliation eligibility, no identity mutation, existing cursor completeness contract, compact handoff, and consumer isolation. V2 admission/test-path guards passed. Provider calls=0; live DB/queue writes=0; WS/Supervisor/listener actions=0; raw payload retention=0; maximum design file=10MB.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "STOP. Authorize read-only runtime telemetry to expose the actual 29 identity map and resolve the divergence, then separately review a targeted ws_cascade integration/deployment candidate. No live subscription changes, activation, or historical backfill are authorized."
+  },
   "dev019_cascade_coverage_cursor_qualification_20261008": {
     "engineering_revision": "Coverage/cursor/handoff contract commit 63c64f03f697cad2025866e25ce05a4727656a59 and register commit d6bc722ea11cd643d9db57fe49059f0dd9e42614 on origin/codex/dev-019-mesh-discovery.",
     "status": "PASS_ISOLATED_CONTRACT_QUALIFIED_NOT_DEPLOYED",

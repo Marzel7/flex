@@ -1,4 +1,16 @@
 {
+  "dev024_nonproject_disk_recovery_assessment_20261008": {
+    "engineering_revision": "Read-only operational assessment; qualified DEV-024 runtime remains 6806d2b2268bd5240f52be184bfbde1642070f76 and is not deployed.",
+    "status": "HOLD_SEPARATE_CLEANUP_AUTHORIZATION_REQUIRED",
+    "finding": "Current free space was 2,309,588 KiB (about 2.20 GiB). macOS swap was 14,899 MiB used of 15,360 MiB, and memory_pressure reported 30% system-wide free memory with no throttled pages; swap is an active VM resource, not a cleanup target. APFS reports 99.5% capacity in use and the only observed snapshot is the sealed System snapshot; tmutil reported no local snapshots. No evidence supports reclaiming snapshot or purgeable space.",
+    "nonproject_storage": "Largest nonproject roots are ~/.cache=9,162,228 KiB, ~/Library/Caches=5,512,116 KiB, ~/.codex=9,667,556 KiB, and /Library/Updates=1,841,536 KiB. ~/.cache/uv is 6,806,016 KiB, mostly archive-v0. Four archive entries totaling 385,756 KiB are actively used by local Serena/Pyright processes and uv holds its cache lock. The other 216 archive entries total 5,988,952 KiB, are not open at observation, and are rebuildable dependency-cache content, but are not safe to remove while those local development tools remain active. The two stale Command Line Tools package directories under /Library/Updates total approximately 1.76 GiB and had no observed open handles; they remain a separate system-update confirmation item, not part of the minimum plan.",
+    "worktrees": "No temporary Git worktree is independently approved for deletion. 35 registered temporary worktrees total 3,468,452 KiB; clean unprotected candidates total at most 2,051,920 KiB, but active-task, rollback, and freeze ownership cannot be proven solely from filesystem state. No active open files were found in inspected flex/watchtower temporary worktrees. They remain protected pending explicit owner confirmation.",
+    "recommended_cleanup_set": "Under a separate explicit non-Flex cleanup authorization: first stop/close only the local Serena/Pyright development tooling that holds ~/.cache/uv, verify that the uv lock and archive references are absent, then use uv's cache-pruning mechanism against only the inactive rebuildable cache. Expected reclaimable space is up to 5,988,952 KiB, projecting free space to about 8.0 GiB from the observed 2.20 GiB baseline. This alone exceeds the preferred 6 GiB target; do not remove active cache entries, Codex data, project logs, databases, worktrees, swap, or update packages in the same operation.",
+    "safety": "No deletion, swap manipulation, reboot, DB/queue write, checkpoint, VACUUM, provider call, Supervisor/service action, listener change, or source modification occurred.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "OBTAIN_EXPLICIT_AUTHORIZATION_FOR_THE_SEPARATE_UV_CACHE_RECOVERY_SEQUENCE_THEN_VERIFY_FREE_SPACE_AND_REPEAT_DEV024_DEPLOYMENT_PREFLIGHT; DO_NOT_DELETE_WORKTREES_OR_SYSTEM_UPDATE_DOWNLOADS_AUTOMATICALLY"
+  },
   "dev024_disk_space_diagnosis_20261008": {
     "engineering_revision": "Read-only operational diagnosis supporting qualified DEV-024 runtime 6806d2b2268bd5240f52be184bfbde1642070f76; no engineering source changed.",
     "status": "HOLD_INSUFFICIENT_DISK_HEADROOM_SOURCE_NOT_FULLY_ATTRIBUTED",

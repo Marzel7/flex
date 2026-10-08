@@ -20358,5 +20358,18 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_AWAITING_EXPLICIT_LIVE_APPROVAL",
     "next_action": "OBTAIN_EXPLICIT_APPROVAL_FOR_EXACT_CONFIG_295AF03E_AND_ROLLBACK_3EB960C7. THEN FRESH-SNAPSHOT THE GUARD, ATOMICALLY INSTALL CONFIG, REREAD/UPDATE ONLY BRIDGE_AND_WORKER, START BRIDGE ONCE, EVALUATE FRESH WINDOW, START WORKER ONCE ONLY IF ACCEPTED, EVALUATE AGAIN, AND LEAVE BOTH STOPPED. DO_NOT_RESTART_API_OR_LISTENER."
+  },
+  "watchtower_operational_baseline_freeze_20261008": {
+    "engineering_revision": "listener reproduction d3c0d4ed5fa6d8b824a04001983bcf8bef7bcb87; operational manifest 4c1549718d3b711912dacdfb8c990dc5767267c5",
+    "status": "PASS_ENVIRONMENT_SPECIFIC_OPERATIONAL_BASELINE_TAGGED",
+    "finding": "Live listener source matches published reproduction SHA-256 3aa1ecb12699cd43831902179d8945eb12597b11ec3950321df3217be9ad95cc. API, listener, bridge, and worker are RUNNING under the legitimate Supervisor; active config SHA-256=824655dde4283e79102ebd1282a4de783ebeebef942c01cf39bb0e2dea500c4f. Remote tag watchtower-operational-baseline-20261008-d3c0d4ed resolves to manifest commit 4c1549718d3b711912dacdfb8c990dc5767267c5.",
+    "manifest": "docs/audits/watchtower_operational_baseline_20261008.v1.json",
+    "component_authority": "API=a32ebba3732d3f68cf5fd387bf05444a744610dc; bridge/worker=a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d; listener=d3c0d4ed5fa6d8b824a04001983bcf8bef7bcb87.",
+    "runtime_contract": "watermark=1791446333; budgets=20 global calls/60s and 4 per mint/60s; rollback config=eac5c123f39bf0aad5ea8e2449e532fbdc8c89013b4998393a8a03bc7ec8c6e1.",
+    "limitations": "Listener in-memory source was not independently hashed; natural-token Price/Live persistence and terminal/History progression have not been observed after watermark; configuration is environment-specific because secret-bearing contents are excluded.",
+    "safety": "Read-only runtime refresh plus Git publication only; Supervisor/config/service/DB/queue/provider/Injector/+2 mutations=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "The tag records existing runtime authority and changes no executable behavior.",
+    "next_action": "OBSERVE_ELIGIBLE_POST_WATERMARK_NATURAL_WORK_BEFORE_SEPARATE_PRICE_LIVE_AND_TERMINAL_HISTORY_ACCEPTANCE"
   }
 }

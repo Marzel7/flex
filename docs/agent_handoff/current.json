@@ -20408,5 +20408,17 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD",
     "next_action": "DO_NOT_RETRY_LIVE_TICK. QUALIFY_AND_PUBLISH_THE_SMALLEST_RUNTIME_LIMITS_CONTRACT_CORRECTION_IN_ISOLATED_DEV_SO_THAT_THE_ENABLED_ADAPTER_ENFORCES_THE_SAME_200_ROW_CAP_AS_THE_RETENTION_CONTRACT; THEN OBTAIN_FRESH_EXPLICIT_AUTHORIZATION_FOR_ONE_LIVE_TICK."
+  },
+  "dev023_retention_limits_contract_correction_20261008": {
+    "engineering_revision": "75600f8e087df0a849176d8d495eba95af3e3759 on origin/codex/dev-023-limits-contract; clean isolated worktree /private/tmp/flex-dev023-limits-contract; parent e7103c03c07a4e01e15f0bdeb4c680a664c40520.",
+    "status": "PASS_QUALIFIED_NOT_INSTALLED",
+    "root_cause": "RetentionLimits defaults max_rows_per_run to 2000 for the standalone multi-batch retention contract. RuntimeRetentionConfig inherited that default even though run_retention_tick is intentionally one transaction and independently rejects any run limit above 200. The first enabled live invocation therefore returned REJECTED_INVALID_LIMITS before database access.",
+    "correction": "The runtime adapter now uses an explicit immutable DEFAULT_TICK_LIMITS of batch_rows=200 and max_rows_per_run=200. The standalone RetentionLimits default remains 2000, preserving the reviewed per-batch versus multi-batch distinction outside the runtime tick. Explicit batch_rows or max_rows_per_run above 200 remains REJECTED_INVALID_LIMITS; no silent clamping was introduced.",
+    "qualification": "DEV-023 provider-free suite passed 20/20: retention contract, runtime integration, and expiry-index regressions. Added coverage proves a default enabled tick deletes exactly one 200-row maximum transaction and preserves a live row; explicit 201 batch and 201 per-run limits fail closed. Disabled entrypoint coverage remains passing. Independent Development Execution Discipline V2 suite passed 8/8 in clean authority 8be99ed28aa2228dc9cec7d63103eab27376086d.",
+    "replacement_plan": "Do not modify or execute the installed e7103c03 runtime. A future separately authorized installation must create a new clean pinned runtime from 75600f8e, verify source SHA and launcher dependencies, install only the disabled configuration, confirm no scheduler or Supervisor reference, and retain the existing e7103c03 disabled installation as rollback authority. No live retention tick is authorized by this source correction.",
+    "safety": "Live database/queue writes=0 for this DEV correction; the earlier live tick remained REJECTED_INVALID_LIMITS with deleted=0. Supervisor/service/scheduler/provider/listener actions=0; no VACUUM, no retention execution, and no files approach 500MB.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_INSTALLED",
+    "next_action": "OBTAIN_SEPARATE_EXPLICIT_AUTHORIZATION_TO_INSTALL_A_NEW_PINNED_DISABLED_75600F8E_RUNTIME; THEN, ONLY AFTER_INSTALLATION_PREFLIGHT, OBTAIN_FRESH_EXPLICIT_AUTHORIZATION_FOR_ONE_CAPPED_LIVE_RETENTION_TICK."
   }
 }

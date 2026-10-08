@@ -20191,5 +20191,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Read-only conditional recovery revalidation; no runtime source/configuration deployment occurred.",
     "next_action": "RETURN_TO_THE_SEPARATE_WATCHTOWER_MONITOR_SOAK_PREFLIGHT_ONLY_WITH_EXPLICIT_AUTHORIZATION; DO_NOT_AUTOMATICALLY_ACTIVATE_OR_DEPLOY_ANYTHING."
+  },
+  "watchtower_monitor_soak_resume_preflight_20261008": {
+    "engineering_revision": "Active API runtime is clean a32ebba3732d3f68cf5fd387bf05444a744610dc at /Users/kevinkeaveney/Dev/claude/watchtower-final-runtime-a32ebba3. The later DEV safety worktree is clean at f66c14693ce695b12877f055926bf588a84263ad and contains finite-soak candidate 7d6adef9b91277e08c677e58fbf06c7386bb094b as an ancestor.",
+    "status": "HOLD_CURRENT_HEALTHY_API_CONFIG_LACKS_REVIEWED_BOUNDED_SOAK_CONTROLS_FRESH_LIVE_APPROVAL_REQUIRED",
+    "active_authority": "Active root /Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf hashes to 3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19. PID 73409 runs that root; listener PID 73415 is unchanged. Legitimate API Gunicorn master PID 95506 and worker PID 95531 are parented by 73409, run a32ebba3, and own TCP 5002. No temporary-supervisor or candidate-worktree Gunicorn process was observed.",
+    "api_health": "Bounded read-only local checks returned HTTP 200 from /healthz with healthy=true, db=ok, wal_warn=false and reported WAL 14.2 MB. GET /api/watchtower/evidence-summary also returned HTTP 200 with valid JSON. The direct API is healthy, so preflight does not authorize an unnecessary API restart.",
+    "bounded_soak_gap": "The active worker and bridge stanzas are disabled but are a32ebba3 continuous definitions: startsecs=5, no MONITOR_MAX_ITERATIONS=1, no MONITOR_BRIDGE_MAX_ITERATIONS=1, no fixed minimum-assignment watermark, and no explicit zero provider limits. The active bridge cadence is 60 seconds. Therefore one manual start could not be proven to execute exactly one bounded zero-provider iteration or preserve historical backlog. Queue observation is 5 files / 396 KiB; source operations WAL observed 17,975,592 bytes. No database/queue mutation was made.",
+    "decision": "The reviewed 89a1fb84961c565c3441c41b3794c47938aa0cd1a559bd336024e1303287ec5f configuration would change API/bridge/worker authority from the currently healthy a32ebba3 setup. Prior approval cannot be reused for that changed live composition. Do not start bridge or worker under the current configuration.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_FRESH_EXPLICIT_APPROVAL_OF_EXACT_BOUNDED_CONFIG_REQUIRED",
+    "next_action": "PRESENT_THE_EXACT_RECONCILED_BOUNDED_BRIDGE_WORKER_CONFIGURATION_AND_ROLLBACK_AGAINST_CURRENT_3EB960C7_AUTHORITY_FOR_FRESH_EXPLICIT_APPROVAL, PREFERABLY_PRESERVING_THE_HEALTHY_A32EBBA3_API_STANZA. DO_NOT_RESUME_SOAK_AUTOMATICALLY."
   }
 }

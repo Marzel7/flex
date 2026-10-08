@@ -1,4 +1,16 @@
 {
+  "watchtower_monitor_provider_budget_correction_20261008": {
+    "engineering_revision": "Isolated clean worktree /private/tmp/flex-watchtower-monitor-provider-budget from a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d; provider-free regression commit ecad24c59002eded409e711d724d2d62d2cd8fba on origin/codex/watchtower-monitor-provider-budget-config.",
+    "status": "PASS_QUALIFIED_NOT_DEPLOYED",
+    "root_cause": "Confirmed: run_dev_005a_monitor.sh carries the two provider-limit variables through env -i, but the active operation_monitor_worker stanza supplies neither. Blank variables reach MonitorQueue.admit_provider_dispatch and fail closed with BudgetDenied:INVALID_PROVIDER_BUDGET_LIMIT before a provider request.",
+    "candidate": "Rendered from the actual active config only: SHA256=67c419a3f2dfcb92c5c82a94bfef24c9a4c7c8c9f2f68553ae4e4eae848bc321 at /private/tmp/watchtower-monitor-provider-budget-candidate.conf. It preserves 15 programs and changes only program:operation_monitor_worker by adding MONITOR_PROVIDER_GLOBAL_LIMIT=20 and MONITOR_PROVIDER_TOKEN_LIMIT=4. The active worker runtime/root, selection/watermark, queue/DB paths, bridge stanza, API, listener, cascade, creator-funding worker, and every other stanza are byte-identical.",
+    "qualification": "RawConfigParser parser-only validation passed with 15 programs and exactly one changed section. A supervisord -t attempt was blocked by sandbox socket permission before any listener/daemon/program could start; no temporary Supervisor daemon was launched. Focused provider-free tests passed 23/23: explicit 20 global/60s and 4 per-mint/60s limits allow finite budget, reject fifth same-mint and 21st global dispatch, and blank/malformed/negative limits fail closed. Existing isolation tests passed. Provider calls=0; DB/queue writes=0; service/Supervisor actions=0.",
+    "preservation": "The four affected retry envelopes remain present and untouched; SHA256 values are 8fceba07f826582a3f28c632eb93c6d2ea1f50c3c34918c3fcec932961d6e083, 56a1b0abf392ce4f89ad2e2c0cdc70ee3d955631dac33af6a6009aeb179f9724, b93988f875e78e5f47e6341586c4e4da76e1db55be348366de604af2a0af6d0d, and 983c44a872d59abfba822516e5047ae14510fa56ee4527d6058c19c71d361a58. No replay was initiated.",
+    "rollback": "Byte-exact active rollback at /private/tmp/watchtower-monitor-budget-rollback-5f21916b.conf SHA256=5f21916b3029f0e8cce2e91b92fa8f58631f4591baffa749ca40ecfccf5569f9.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED_EXPLICIT_LIVE_APPROVAL_REQUIRED",
+    "next_action": "STOP. Before any live configuration change, obtain explicit approval for one targeted operation_monitor_worker configuration update/restart, then observe natural retry-envelope eligibility without manual replay or additional provider acquisition."
+  },
   "watchtower_live_price_incident_20261008": {
     "engineering_revision": "Read-only incident diagnosis against active Supervisor config 5f21916b3029f0e8cce2e91b92fa8f58631f4591baffa749ca40ecfccf5569f9. Monitor bridge/worker runtime authority is clean a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d at /Users/kevinkeaveney/.codex/worktrees/watchtower-monitor-bounded-soak/flex.",
     "status": "ROOT_CAUSE_IDENTIFIED_NO_REPAIR_AUTHORIZED",

@@ -71,6 +71,25 @@ def test_monitor_projection_reads_configured_store_and_labels_observed_peaks(mon
         routes._monitor_live_projection()
 
 
+def test_monitor_projection_prefers_current_durable_queue_deadline(monkeypatch, tmp_path):
+    database = tmp_path / "monitor.sqlite"
+    _monitor_store(database)
+    monkeypatch.setenv("WATCHTOWER_MONITOR_UI_DB_PATH", str(database))
+    import src.ops.operation_monitor_worker as worker
+    import src.ops.operator_routes as routes
+    queue = MonitorQueue(tmp_path / "queue", enabled=True)
+    mint = next(iter(TARGETS))
+    queue.queue.enqueue({
+        "operation_id": "watchtower", "mint": mint,
+        "monitor_state": "ENTRY_REFERENCE_QUALIFIED",
+        "next_eligible_dispatch_at": 2_000_000_000,
+    }, message_id="cattok-policy-c")
+    monkeypatch.setattr(worker, "production_queue", lambda: queue)
+    row = {item["mint"]: item for item in routes._monitor_live_projection()["rows"]}[mint]
+    assert row["next_check_at"] == 2_000_000_000
+    assert row["next_check_state"] == "SCHEDULED"
+
+
 def test_strict_finalizer_rejects_incomplete_ohlcv_before_final_persistence(tmp_path):
     database = tmp_path / "terminal.sqlite"
     with sqlite3.connect(database) as conn:

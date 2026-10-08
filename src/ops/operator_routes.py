@@ -112,6 +112,7 @@ def _monitor_live_projection() -> dict:
     # or create placeholder fact rows.
     from src.ops.operation_monitor_worker import production_queue
     q = production_queue().queue
+    queue_deadlines = {}
     if q.enabled:
         fact_keys = {(str(r['operation_id']).lower(), str(r['mint'])) for r in rows}
         for state in ('pending', 'retry', 'processing', 'dead_letter'):
@@ -121,7 +122,13 @@ def _monitor_live_projection() -> dict:
                     envelope = payload.get('envelope') or {}
                     operation_id = str(envelope.get('operation_id') or '').lower()
                     mint = str(envelope.get('mint') or '')
-                    if operation_id not in {'watchtower', 'byzantine'} or not mint or (operation_id, mint) in fact_keys:
+                    key = (operation_id, mint)
+                    if operation_id not in {'watchtower', 'byzantine'} or not mint:
+                        continue
+                    deadline = envelope.get('next_eligible_dispatch_at') or envelope.get('recovery_deadline_at') or envelope.get('backoff_until')
+                    if key in fact_keys:
+                        if state in {'pending', 'processing', 'retry'} and deadline is not None:
+                            queue_deadlines[key] = {'next_check_at': int(deadline), 'next_check_state': 'DUE_NOW' if int(deadline) <= now else 'SCHEDULED'}
                         continue
                     assignment = envelope.get('assignment') or {}
                     rows.append({
@@ -146,6 +153,16 @@ def _monitor_live_projection() -> dict:
                 except (OSError, ValueError, TypeError):
                     continue
     for row in rows:
+        scheduled = queue_deadlines.get((str(row.get('operation_id') or '').lower(), str(row.get('mint') or '')))
+        if scheduled:
+            row.update(scheduled)
+        elif row.get('monitor_state') == 'PRICE_MONITOR_COMPLETE_COLLAPSED':
+            row['next_check_at'] = None
+            row['next_check_state'] = 'NO_FURTHER_CHECK'
+        else:
+            due = row.get('next_observation_at')
+            row['next_check_at'] = due
+            row['next_check_state'] = 'DUE_NOW' if due is not None and int(due) <= now else 'SCHEDULED'
         row['age_seconds'] = now - int(row['entry_timestamp'] or row['assignment_timestamp'] or now)
         row['freshness_seconds'] = now - int(row['last_observation_at'] or now)
         terminal = row.get('monitor_state') == 'PRICE_MONITOR_COMPLETE_COLLAPSED'

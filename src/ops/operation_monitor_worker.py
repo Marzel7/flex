@@ -17,6 +17,7 @@ from src.ops.byzantine_monitor_entry import derive_monitor_entry
 from src.ops.operation_monitor_capabilities import monitor_capability_for_operation
 from src.ops.strict_migration_window import dispatch as dispatch_strict_migration_window,reduce_policy as reduce_strict_migration_policy,plan as strict_migration_plan,failure_diagnostic as strict_opening_failure_diagnostic,normalize_opening_ohlcv
 from src.ops.watchtower_terminal_ath_finalizer import ProviderCapacityBackoff, WatchtowerTerminalAthFinalizer
+from src.ops.watchtower_policy_c import policy_c_schedule
 CONTRACT='operation-monitor.v1'; CONCURRENCY=1; MAX_BYTES=10_000_000
 _TERMINAL_MONITOR_STATES={'PRICE_MONITOR_COMPLETE_COLLAPSED'}
 _EMPTY_OHLCV_SAFETY_SECONDS=5
@@ -384,7 +385,12 @@ class MonitorQueue:
   native=fact.get('entry_native_mc_sol'); usd=fact.get('entry_mc_usd')
   unresolved=(canonical_operation_id(str(fact.get('operation_id') or ''))=='watchtower' and str(fact.get('entry_status') or '')!='QUALIFIED')
   state='WAITING_FOR_ENTRY_REFERENCE' if unresolved else ('ENTRY_REFERENCE_QUALIFIED' if usd is not None else 'NATIVE_QUALIFIED')
-  next_eligible=max(int(fact['next_observation_at']),int(time.time() if now is None else now)+15)
+  timestamp=int(time.time() if now is None else now)
+  birth=(envelope.get('birth') or {}) if isinstance(envelope.get('birth'),dict) else {}
+  schedule=policy_c_schedule(birth_timestamp=birth.get('create_time'),now=timestamp)
+  if schedule['state'] != 'SCHEDULED':
+   return {'status':f"NOT_ENQUEUED_{schedule['state']}"}
+  next_eligible=int(schedule['next_check_at'])
   successor={**envelope,'operation_id':fact['operation_id'],'mint':fact['mint'],
              'entry_timestamp':int(fact['entry_timestamp']) if fact.get('entry_timestamp') is not None else None,'entry_mc_usd':float(usd) if usd is not None else None,
              'entry_native_mc_sol':str(native) if native is not None else None,
@@ -392,7 +398,7 @@ class MonitorQueue:
              'entry_exactness':fact.get('entry_exactness'),'entry_provenance':fact.get('provenance_digest'),
              'entry_reference_state':state,'monitor_state':state,
              'last_observation_at':int(fact['last_observation_at']) if fact.get('last_observation_at') is not None else None,
-             'next_eligible_dispatch_at':next_eligible,'successor_of':predecessor_id,
+             'next_eligible_dispatch_at':next_eligible,'next_check_state':'SCHEDULED','successor_of':predecessor_id,
              'candle_resolution':envelope.get('candle_resolution') or '15m'}
   if not (_qualified_live_entry(successor) or _watchtower_history_without_entry(successor)):
    return {'status':'NOT_ENQUEUED_INVALID_FACT'}

@@ -172,3 +172,37 @@ def test_cycle_or_reversed_edge_cannot_complete_mesh_route():
     result = qualify_mesh_route(treasury=treasury, transfers=[reversed_edge], creator_launch=None)
     assert result["route_complete"] is False
     assert result["reason"] == "PARENT_AFTER_CHILD_SLOT"
+
+
+def test_compact_decoder_records_outer_and_inner_system_transfers_with_coordinates():
+    tx = {
+        "slot": 10, "transactionIndex": 4,
+        "transaction": {"message": {"accountKeys": ["sender", "receiver", "other"], "instructions": [
+            {"program": "system", "parsed": {"type": "transfer", "info": {"source": "sender", "destination": "receiver", "lamports": 10}}}
+        ]}},
+        "meta": {"preBalances": [100, 0, 50], "postBalances": [80, 15, 55], "innerInstructions": [
+            {"index": 0, "instructions": [{"program": "system", "parsed": {"type": "transfer", "info": {"source": "sender", "destination": "receiver", "lamports": 5}}}]}
+        ]},
+    }
+    facts = extract_compact_native_facts(tx, signature="sig")
+    assert [(x["instruction_index"], x["inner_instruction_index"], x["kind"]) for x in facts] == [(0, None, "SYSTEM_TRANSFER"), (0, 0, "SYSTEM_TRANSFER")]
+    assert all(x["balance_delta_verified"] for x in facts)
+
+
+def test_wsol_close_is_context_not_direct_funding_even_when_balances_move():
+    tx = {
+        "slot": 12, "transactionIndex": 2,
+        "transaction": {"message": {"accountKeys": ["wsol_account", "creator"], "instructions": [
+            {"program": "spl-token", "parsed": {"type": "closeAccount", "info": {"account": "wsol_account", "destination": "creator"}}}
+        ]}},
+        "meta": {"preBalances": [1112039, 0], "postBalances": [0, 1112039]},
+    }
+    fact = extract_compact_native_facts(tx, signature="close")[0]
+    assert fact["kind"] == "WRAPPED_SOL_ACCOUNT_CLOSE_CONTEXT"
+    assert fact["route_semantics"] == "ACCOUNT_CLOSE"
+    assert fact["balance_delta_verified"] is True
+
+
+def test_net_balance_without_transfer_instruction_creates_no_mesh_fact():
+    tx = {"slot": 1, "transaction": {"message": {"accountKeys": ["a", "b"], "instructions": []}}, "meta": {"preBalances": [10, 0], "postBalances": [0, 10]}}
+    assert extract_compact_native_facts(tx, signature="net-only") == []

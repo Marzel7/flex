@@ -103,6 +103,71 @@ def signature_window_coverage(*, page_signatures: Iterable[str], decoded_signatu
     }
 
 
+def _account_keys(transaction: Mapping) -> list[str]:
+    message = transaction.get("transaction", {}).get("message", {})
+    return [str(item.get("pubkey")) if isinstance(item, Mapping) else str(item)
+            for item in message.get("accountKeys", [])]
+
+
+def _balance_delta(keys: list[str], pre: list, post: list, wallet: str) -> int | None:
+    if wallet not in keys:
+        return None
+    index = keys.index(wallet)
+    if index >= len(pre) or index >= len(post):
+        return None
+    return int(post[index]) - int(pre[index])
+
+
+def extract_compact_native_facts(transaction: Mapping, *, signature: str) -> list[dict]:
+    """Extract compact native-SOL facts without retaining the transaction.
+
+    System transfers can be outer or inner instructions.  SPL-token account
+    closes are retained separately as WSOL-close context: their lamport
+    balance movement is real, but it is not promoted to a direct wallet
+    funding edge.  Transaction-level net deltas alone never create a fact.
+    """
+    meta = transaction.get("meta") or {}
+    keys = _account_keys(transaction)
+    pre, post = list(meta.get("preBalances") or []), list(meta.get("postBalances") or [])
+    outer = list(transaction.get("transaction", {}).get("message", {}).get("instructions", []) or [])
+    indexed: list[tuple[int, int | None, Mapping]] = [(i, None, item) for i, item in enumerate(outer)]
+    for inner_group in meta.get("innerInstructions", []) or []:
+        outer_index = int(inner_group.get("index", -1))
+        for inner_index, item in enumerate(inner_group.get("instructions", []) or []):
+            indexed.append((outer_index, inner_index, item))
+    facts: list[dict] = []
+    for outer_index, inner_index, item in indexed:
+        parsed = item.get("parsed") if isinstance(item, Mapping) else None
+        if not isinstance(parsed, Mapping):
+            continue
+        kind, info = parsed.get("type"), parsed.get("info") or {}
+        program = item.get("program")
+        if program == "system" and kind == "transfer" and info.get("source") and info.get("destination") and info.get("lamports") is not None:
+            sender, receiver, lamports = str(info["source"]), str(info["destination"]), int(info["lamports"])
+            source_delta, receiver_delta = _balance_delta(keys, pre, post, sender), _balance_delta(keys, pre, post, receiver)
+            facts.append({
+                "kind": "SYSTEM_TRANSFER", "route_semantics": "DIRECT", "sender": sender, "receiver": receiver,
+                "lamports": lamports, "signature": signature, "slot": transaction.get("slot"),
+                "transaction_index": transaction.get("transactionIndex"), "instruction_index": outer_index,
+                "inner_instruction_index": inner_index, "source_balance_delta": source_delta,
+                "receiver_balance_delta": receiver_delta,
+                "balance_delta_verified": source_delta is not None and receiver_delta is not None and source_delta <= -lamports and receiver_delta >= lamports,
+            })
+        elif program in {"spl-token", "spl-token-2022"} and kind == "closeAccount" and info.get("account") and info.get("destination"):
+            account, destination = str(info["account"]), str(info["destination"])
+            source_delta, receiver_delta = _balance_delta(keys, pre, post, account), _balance_delta(keys, pre, post, destination)
+            lamports = -source_delta if source_delta is not None and source_delta < 0 else None
+            facts.append({
+                "kind": "WRAPPED_SOL_ACCOUNT_CLOSE_CONTEXT", "route_semantics": "ACCOUNT_CLOSE", "sender": account,
+                "receiver": destination, "lamports": lamports, "signature": signature, "slot": transaction.get("slot"),
+                "transaction_index": transaction.get("transactionIndex"), "instruction_index": outer_index,
+                "inner_instruction_index": inner_index, "source_balance_delta": source_delta,
+                "receiver_balance_delta": receiver_delta,
+                "balance_delta_verified": lamports is not None and receiver_delta is not None and receiver_delta >= lamports,
+            })
+    return facts
+
+
 def classify_mesh_role(*, wallet: str, confirmed_treasuries: Iterable[str],
                        known_subproviders: Iterable[str], funding_accounts: Iterable[str]) -> str:
     """Classify known mesh roles without promoting any unknown wallet."""

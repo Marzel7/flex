@@ -39,7 +39,7 @@ def deliver_one(conn:sqlite3.Connection,queue:Any,*,now:int)->dict|None:
  if result.get('status')!='ENQUEUED':return {'state':'DEFERRED','result':result}
  conn.execute("UPDATE monitor_admission_outbox SET state='DELIVERED',delivered_at=? WHERE event_id=? AND state='PENDING'",(int(now),event_id))
  return {'state':'DELIVERED','event_id':event_id,'job_id':result['job_id']}
-def consume_once(source_db_path:str,queue:Any,*,now:int,claim_timeout:int=60)->dict|None:
+def consume_once(source_db_path:str,queue:Any,*,now:int,claim_timeout:int=60,eligible=None)->dict|None:
  """Bounded consumer: source claim/commit, destination enqueue, source ack are separate transactions."""
  source=sqlite3.connect(source_db_path)
  try:
@@ -48,7 +48,8 @@ def consume_once(source_db_path:str,queue:Any,*,now:int,claim_timeout:int=60)->d
   stale=source.execute("SELECT event_id FROM monitor_admission_outbox WHERE state='CLAIMED' AND claimed_at<? ORDER BY claimed_at,event_id LIMIT 1",(int(now)-int(claim_timeout),)).fetchone()
   if stale:
    source.execute("UPDATE monitor_admission_outbox SET state='PENDING',claimed_at=NULL WHERE event_id=? AND state='CLAIMED'",(stale[0],));source.commit()
-  row=source.execute("SELECT event_id,operation_id,mint,membership_id,committed_at FROM monitor_admission_outbox WHERE state='PENDING' ORDER BY committed_at,event_id LIMIT 1").fetchone()
+  rows=source.execute("SELECT event_id,operation_id,mint,membership_id,committed_at FROM monitor_admission_outbox WHERE state='PENDING' ORDER BY committed_at,event_id LIMIT 128").fetchall()
+  row=next((candidate for candidate in rows if eligible is None or eligible(candidate)),None)
   if not row:return None
   source.execute("UPDATE monitor_admission_outbox SET state='CLAIMED',claimed_at=? WHERE event_id=? AND state='PENDING'",(int(now),row[0]));source.commit()
  finally: source.close()

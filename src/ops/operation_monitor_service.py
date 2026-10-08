@@ -59,6 +59,13 @@ def validate_monitor_schema(path: str) -> None:
 
 def run_once(*, worker: MonitorWorker, queue, db_path: str) -> None:
     """One production Monitor iteration, shared verbatim by the loop and tests."""
+    if queue.selection_only_mode():
+        # A fixed-watermark DEV soak must not reconcile retained source facts
+        # into fresh queue work.  Existing messages are still claimed through
+        # MonitorQueue.soak_allows(), so only the explicit post-watermark batch
+        # can reach the normal worker dispatch path.
+        queue.recover_due()
+        return worker.process_once()
     reconcile_byzantine_assignment_admissions(db_path, queue)
     reconcile_watchtower_assignment_admissions(db_path, queue)
     reconcile_watchtower_deep_assignment_admissions(db_path, queue)

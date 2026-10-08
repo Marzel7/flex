@@ -251,6 +251,27 @@ class MonitorQueue:
   except (OSError,ValueError,TypeError):
    # A present-but-invalid diagnostic selection fails closed.
    return frozenset()
+ def _soak_minimum_assignment_timestamp(self):
+  """Optional fixed watermark for an isolated DEV soak selection.
+
+  A watermark is intentionally opt-in and applies only when the same
+  DEV_005_ISOLATED_SOAK selection document is present.  It prevents an
+  activation from claiming retained historical queue messages while allowing
+  a later, explicitly selected natural assignment through the existing queue.
+  """
+  path=self.soak_selection_path or (Path(os.environ['DEV_005_SOAK_SELECTION_PATH']) if os.getenv('DEV_005_SOAK_SELECTION_PATH') else None)
+  if path is None:return None
+  try:
+   payload=json.loads(path.read_text(encoding='utf-8'))
+   if payload.get('mode')!='DEV_005_ISOLATED_SOAK':return None
+   value=payload.get('minimum_assignment_timestamp')
+   if value is None:return None
+   value=int(value)
+   return value if value>=0 else None
+  except (OSError,ValueError,TypeError):return -1
+ def selection_only_mode(self):
+  """True only for a valid fixed-watermark DEV selection."""
+  return self._soak_minimum_assignment_timestamp() is not None
  def _authorized_watchtower_admission(self,envelope):
   """Fail closed unless the source membership and delivered bridge event agree.
 
@@ -271,7 +292,17 @@ class MonitorQueue:
   except (OSError,sqlite3.Error): return False
  def soak_allows(self,envelope):
   allowlist=self._soak_allowlist()
-  return allowlist is None or str((envelope or {}).get('mint') or '') in allowlist or self._authorized_watchtower_admission(envelope)
+  watermark=self._soak_minimum_assignment_timestamp()
+  if allowlist is None:return True
+  if watermark is not None:
+   if watermark < 0:return False
+   assignment=(envelope or {}).get('assignment') or {}
+   try: assigned_at=int(assignment.get('assigned_at') or 0)
+   except (TypeError,ValueError):return False
+   # A non-empty allowlist is an additional narrowing condition; an empty
+   # list deliberately means all *post-watermark* natural assignments.
+   return assigned_at>=watermark and (not allowlist or str((envelope or {}).get('mint') or '') in allowlist)
+  return str((envelope or {}).get('mint') or '') in allowlist or self._authorized_watchtower_admission(envelope)
  def _scheduler_cursor_path(self): return self.queue.root/'scheduler_cursor.json'
  def _scheduler_cursor(self):
   """Return the last durable fair-scheduler selection, if any.
@@ -527,6 +558,11 @@ class MonitorQueue:
   """DEV-only, one-debit admission immediately before a real dispatch."""
   if os.getenv('MONITOR_RUNTIME')!='dev' and not force_dev: return True
   if not self.provider_eligible(now=now): raise BudgetDenied('PROVIDER_GATE_CLOSED')
+  try:
+   global_limit=int(os.getenv('MONITOR_PROVIDER_GLOBAL_LIMIT',str(global_limit)))
+   token_limit=int(os.getenv('MONITOR_PROVIDER_TOKEN_LIMIT',str(token_limit)))
+  except ValueError: raise BudgetDenied('INVALID_PROVIDER_BUDGET_LIMIT')
+  if global_limit<0 or token_limit<0: raise BudgetDenied('INVALID_PROVIDER_BUDGET_LIMIT')
   DevProviderBudget(self.queue.root,now=time.time).admit(mint,request_class,now=now,global_limit=global_limit,token_limit=token_limit)
   return True
  def provider_gate_state(self, *, now=None):

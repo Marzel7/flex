@@ -1,0 +1,33 @@
+{
+  "canonical_writes": 0,
+  "confirmed_treasury_count": 83,
+  "indexed_outbound_count": 1,
+  "known_treasury_recipient_count": 1,
+  "missing_retained_outbound_evidence_count": 82,
+  "outbounds": [
+    {
+      "instruction_index": 2,
+      "lamports": 550000000000,
+      "operation_association": "WATCHTOWER",
+      "provenance": "RETAINED_COMPACT_FACT",
+      "recipient": "AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX",
+      "signature": "43JBywZNm35Um92B4mtZFMVevxrSxfpTo6V2xuLPZbuLjH1Mo8D92SrGvY3x33K5aDGwjKQQ7F7YuvFqdFTJCG2i",
+      "slot": 454210546,
+      "transaction_index": 304,
+      "treasury": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac"
+    }
+  ],
+  "provider_calls": 0,
+  "raw_payload_retained": false,
+  "recipients": [
+    {
+      "recipient": "AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX",
+      "transfer_count": 1,
+      "treasury_count": 1
+    }
+  ],
+  "retained_fact_count": 15,
+  "schema": "dev019-known-treasury-outbound-index-v1",
+  "source": "existing_compact_dev019_helius_provider_soak",
+  "store_bytes": 24576
+}

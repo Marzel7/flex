@@ -108,6 +108,35 @@ def test_zero_provider_budget_fails_closed_before_dispatch(tmp_path, monkeypatch
     assert not (queue.queue.root / "provider_budget.json").exists()
 
 
+def test_continuous_provider_limits_are_explicit_and_bounded(tmp_path, monkeypatch):
+    """The continuous contract must use an explicit finite 20/4 budget."""
+    monkeypatch.setenv("MONITOR_RUNTIME", "dev")
+    monkeypatch.setenv("MONITOR_PROVIDER_GLOBAL_LIMIT", "20")
+    monkeypatch.setenv("MONITOR_PROVIDER_TOKEN_LIMIT", "4")
+    queue = MonitorQueue(tmp_path / "queue", enabled=True)
+
+    for index in range(4):
+        assert queue.admit_provider_dispatch("mint", "15M_EVIDENCE", now=100 + index)
+    with pytest.raises(BudgetDenied, match="TOKEN_PROVIDER_BUDGET_EXHAUSTED"):
+        queue.admit_provider_dispatch("mint", "15M_EVIDENCE", now=104)
+
+    for index in range(16):
+        assert queue.admit_provider_dispatch(f"other-{index}", "15M_EVIDENCE", now=105 + index)
+    with pytest.raises(BudgetDenied, match="GLOBAL_PROVIDER_BUDGET_EXHAUSTED"):
+        queue.admit_provider_dispatch("other-20", "15M_EVIDENCE", now=121)
+
+
+@pytest.mark.parametrize("value", ("", "bad", "-1"))
+def test_invalid_provider_limits_fail_closed(tmp_path, monkeypatch, value):
+    monkeypatch.setenv("MONITOR_RUNTIME", "dev")
+    monkeypatch.setenv("MONITOR_PROVIDER_GLOBAL_LIMIT", value)
+    monkeypatch.setenv("MONITOR_PROVIDER_TOKEN_LIMIT", "4")
+    queue = MonitorQueue(tmp_path / "queue", enabled=True)
+
+    with pytest.raises(BudgetDenied, match="INVALID_PROVIDER_BUDGET_LIMIT"):
+        queue.admit_provider_dispatch("mint", "15M_EVIDENCE", now=100)
+
+
 def test_iteration_caps_are_explicit_positive_opt_in(monkeypatch):
     monkeypatch.setenv("MONITOR_MAX_ITERATIONS", "1")
     assert service._bounded_iteration_limit() == 1

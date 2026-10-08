@@ -1993,6 +1993,115 @@ class SubscriptionManager:
         # each entry: {wallet, requested_at, sent_at, ack_at, send_delay_ms, ack_latency_ms, gen}
         self._p0_events: list = []
         self._p0_ring_size = 50
+        # DEV-019: process-local only.  This is not persisted or fed into the
+        # heartbeat; an optional loopback diagnostic may read it after resync.
+        self._treasury_selection: dict[str, dict] = {}
+        self._treasury_selection_ready = False
+        self._treasury_snapshot_max_records = 83
+        self._treasury_snapshot_max_bytes = 32 * 1024
+
+    def set_treasury_selection(self, entries: list[dict]) -> None:
+        """Record a reconnect selection without changing that selection."""
+        if len(entries) > self._treasury_snapshot_max_records:
+            raise ValueError("TREASURY_SNAPSHOT_RECORD_LIMIT")
+        records: dict[str, dict] = {}
+        for entry in entries:
+            wallet = entry["address"]
+            if wallet in records:
+                raise ValueError("TREASURY_SNAPSHOT_DUPLICATE_ADDRESS")
+            selected = bool(entry["selected"])
+            registry_member = bool(entry.get("registry_member", True))
+            selection_eligible = bool(entry.get("selection_eligible", registry_member))
+            if selected and (not registry_member or not selection_eligible):
+                raise ValueError("INVALID_TREASURY_SELECTION_STATE")
+            records[wallet] = {
+                "address": wallet, "registry_member": registry_member,
+                "selection_eligible": selection_eligible, "selected": selected,
+                "requested": False, "acknowledged": False, "active": False,
+                "selection_priority": entry["selection_priority"],
+                "selection_reason": entry["selection_reason"],
+                "skip_failure_reason": None if selected else entry.get(
+                    "skip_failure_reason", "NOT_SELECTED"),
+                "reconnect_generation": self._reconnect_gen,
+            }
+        self._treasury_selection = records
+        self._treasury_selection_ready = True
+
+    def _record_treasury_state(self, wallet: str, **changes) -> None:
+        record = self._treasury_selection.get(wallet)
+        if record is not None:
+            record.update(changes)
+
+    def treasury_subscription_snapshot(self) -> dict:
+        """Return a bounded in-memory state snapshot; no I/O or mutation."""
+        if not self._treasury_selection_ready:
+            raise RuntimeError("TREASURY_SNAPSHOT_NOT_READY")
+        records = []
+        for wallet in sorted(self._treasury_selection):
+            record = dict(self._treasury_selection[wallet])
+            pending = any(ent[0] == wallet and ent[1] == "treasury"
+                          for ent in self.pending_req.values())
+            active = (self.wallet_sub.get(wallet) is not None
+                      and self.wallet_kind.get(wallet) == "treasury")
+            record["requested"] = pending or active or bool(record["requested"])
+            record["acknowledged"] = active
+            record["active"] = active
+            record["provider_subscription_id"] = self.wallet_sub.get(wallet) if active else None
+            if record["selected"] and not pending and not active and record["skip_failure_reason"] is None:
+                record["skip_failure_reason"] = "NO_RUNTIME_SUBSCRIPTION_STATE"
+            reason = record["skip_failure_reason"]
+            if active:
+                record["subscription_state"] = "ACKNOWLEDGED_ACTIVE"
+            elif pending:
+                record["subscription_state"] = "REQUEST_SENT_UNACKNOWLEDGED"
+            elif not record["selected"]:
+                record["subscription_state"] = "EXPLICITLY_SUPPRESSED" if reason else "REGISTRY_MEMBER_NOT_SELECTED"
+            elif reason == "NO_WEBSOCKET_CONNECTION":
+                record["subscription_state"] = "DISCONNECTED"
+            elif reason in {"SEND_FAILED", "PROVIDER_ACK_FAILED", "INVALID_TARGET"}:
+                record["subscription_state"] = "FAILED_SUBSCRIPTION"
+            elif self._reconnect_gen > 0:
+                record["subscription_state"] = "RECONNECTING"
+            else:
+                record["subscription_state"] = "SELECTED_NOT_REQUESTED"
+            records.append(record)
+        fields = ("address", "registry_member", "selection_eligible", "selected",
+                  "selection_priority", "selection_reason", "requested", "acknowledged",
+                  "active", "provider_subscription_id", "reconnect_generation",
+                  "skip_failure_reason", "subscription_state")
+        snapshot = {
+            "schema": "treasury_subscription_snapshot.v1",
+            "reconnect_generation": self._reconnect_gen,
+            "record_count": len(records),
+            "registry_count": sum(1 for record in records if record["registry_member"]),
+            "selected_count": sum(1 for record in records if record["selected"]),
+            "requested_count": sum(1 for record in records if record["requested"]),
+            "acknowledged_count": sum(1 for record in records if record["acknowledged"]),
+            "active_count": sum(1 for record in records if record["active"]),
+            "skipped_count": sum(1 for record in records if not record["selected"]),
+            "failed_count": sum(1 for record in records if record["subscription_state"] == "FAILED_SUBSCRIPTION"),
+            "record_fields": list(fields),
+            "records": [[record[field] for field in fields] for record in records],
+        }
+        if len(records) > self._treasury_snapshot_max_records:
+            raise ValueError("TREASURY_SNAPSHOT_RECORD_LIMIT")
+        encoded = json.dumps(snapshot, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        snapshot["serialized_bytes"] = len(encoded)
+        if len(json.dumps(snapshot, sort_keys=True, separators=(",", ":")).encode("utf-8")) > self._treasury_snapshot_max_bytes:
+            raise ValueError("TREASURY_SNAPSHOT_BYTE_LIMIT")
+        return snapshot
+
+    def on_subscribe_failed(self, rid, reason: str = "PROVIDER_ACK_FAILED") -> str | None:
+        """Record an explicit RPC rejection; caller controls any retry policy."""
+        ent = self.pending_req.pop(rid, None)
+        if ent is None:
+            return None
+        wallet, kind = ent[0], ent[1]
+        self.wallet_kind.pop(wallet, None)
+        if kind == "treasury":
+            self._record_treasury_state(wallet, requested=True, acknowledged=False,
+                                        active=False, skip_failure_reason=reason)
+        return wallet
 
     async def subscribe(self, wallet, kind, priority: int = SUB_PRIORITY_OTHER,
                         requested_at: float | None = None):
@@ -2006,8 +2115,12 @@ class SubscriptionManager:
             self._invalid_rejected_by_kind[kind] = self._invalid_rejected_by_kind.get(kind, 0) + 1
             _log(f"⛔ REJECTED invalid subscription target kind={kind} "
                  f"reason={invalid_reason(wallet)} wallet={str(wallet)[:20]}…")
+            if kind == "treasury":
+                self._record_treasury_state(wallet, skip_failure_reason="INVALID_TARGET")
             return
         if wallet in self.wallet_sub or wallet in self.wallet_kind:
+            if kind == "treasury":
+                self._record_treasury_state(wallet, skip_failure_reason="ALREADY_MANAGED")
             return                      # already (being) subscribed
         rid = self.next_req; self.next_req += 1
         queued_at = requested_at or time.time()
@@ -2015,6 +2128,8 @@ class SubscriptionManager:
         self._subs_sent_total += 1
         self._sent_by_kind[kind] = self._sent_by_kind.get(kind, 0) + 1
         self.wallet_kind[wallet] = kind
+        if kind == "treasury":
+            self._record_treasury_state(wallet, requested=True, skip_failure_reason=None)
         # X24.1 — mechanism-aware primitive selection. Both "treasury" and
         # "subprov_account" (a PLAIN_TRANSFER-funded sub-provisioner) move SOL via
         # plain system::transfer, which emits no program logs that logsSubscribe's
@@ -2046,12 +2161,17 @@ class SubscriptionManager:
         if self.ws is None:
             # No WS connection yet; drop silently — resync_subscriptions will re-send on connect.
             self.wallet_kind.pop(wallet, None)
+            if kind == "treasury":
+                self._record_treasury_state(wallet, requested=False,
+                                            skip_failure_reason="NO_WEBSOCKET_CONNECTION")
             return
         try:
             await self.ws.send(json.dumps(msg))
         except Exception as _e:
             _log(f"⚠ subscribe send failed for {wallet[:12]}…: {_e}")
             self.wallet_kind.pop(wallet, None)
+            if kind == "treasury":
+                self._record_treasury_state(wallet, requested=False, skip_failure_reason="SEND_FAILED")
             return
         sent_at = time.time()
         send_delay_ms = round((sent_at - queued_at) * 1000, 1)
@@ -2173,6 +2293,9 @@ class SubscriptionManager:
         self.wallet_sub[wallet] = sub_id
         self.sub_wallet[sub_id] = (wallet, resolved_kind)
         self.wallet_kind[wallet] = resolved_kind
+        if kind == "treasury":
+            self._record_treasury_state(wallet, requested=True, acknowledged=True,
+                                        active=True, skip_failure_reason=None)
         if kind == "hot_subprov":
             _log(f"🔥 HOT subscribe confirmed {wallet[:12]}… sub_id={sub_id} ack={latency_ms}ms")
         elif priority == SUB_PRIORITY_LIVE_ARMED:
@@ -2652,6 +2775,22 @@ class Cascade:
 
         # P1: TREASURY TIER — confirmed-treasury set, permanent subscriptions
         _max_t = int(os.environ.get("WS_MAX_TREASURY_SUBSCRIBE", "0")) or len(treasuries)
+        _selected_treasuries = set(list(treasuries)[:_max_t])
+        self.mgr.set_treasury_selection([
+            {
+                "address": treasury,
+                "registry_member": True,
+                "selection_eligible": True,
+                "selected": treasury in _selected_treasuries,
+                "selection_priority": SUB_PRIORITY_TREASURY if treasury in _selected_treasuries else None,
+                "selection_reason": (
+                    "CONFIRMED_TREASURY_ROOT_TIER" if treasury in _selected_treasuries
+                    else "TREASURY_SUBSCRIPTION_CAP"
+                ),
+                "skip_failure_reason": None if treasury in _selected_treasuries else "TREASURY_SUBSCRIPTION_CAP",
+            }
+            for treasury in treasuries
+        ])
         for t in list(treasuries)[:_max_t]:
             await _rate_send(t, "treasury", SUB_PRIORITY_TREASURY)
             if t not in self.mgr.wallet_kind or _sent_this_resync == 1:
@@ -5269,11 +5408,61 @@ async def _deferred_audit_loop():
         await _a.sleep(60)
 
 
+def treasury_subscription_snapshot_http_response(manager: SubscriptionManager, request_line: bytes) -> tuple[int, bytes]:
+    """Render the optional loopback diagnostic response without side effects."""
+    if request_line != b"GET /internal/treasury-subscriptions HTTP/1.1\r\n":
+        return 404, b'{"error":"NOT_FOUND"}'
+    try:
+        body = json.dumps(manager.treasury_subscription_snapshot(),
+                          sort_keys=True, separators=(",", ":")).encode("utf-8")
+    except RuntimeError:
+        return 503, b'{"error":"TREASURY_SNAPSHOT_NOT_READY"}'
+    return 200, body
+
+
+async def _serve_treasury_subscription_snapshot(reader, writer, *, manager: SubscriptionManager):
+    """Loopback-only, one-request diagnostic; it never changes cascade state."""
+    try:
+        line = await reader.readline()
+        status, body = treasury_subscription_snapshot_http_response(manager, line)
+        reason = {200: b"OK", 404: b"Not Found", 503: b"Service Unavailable"}[status]
+        writer.write(b"HTTP/1.1 " + str(status).encode() + b" " + reason + b"\r\n"
+                     b"Content-Type: application/json\r\nConnection: close\r\nContent-Length: "
+                     + str(len(body)).encode() + b"\r\n\r\n" + body)
+        await writer.drain()
+    finally:
+        writer.close()
+        try:
+            await writer.wait_closed()
+        except Exception:
+            pass
+
+
+async def _start_treasury_subscription_snapshot_server(manager: SubscriptionManager):
+    """Disabled unless a valid loopback port is explicitly configured."""
+    raw_port = os.environ.get("WS_TREASURY_TELEMETRY_PORT", "0")
+    if raw_port in ("", "0"):
+        return None
+    try:
+        port = int(raw_port)
+    except ValueError as exc:
+        raise ValueError("INVALID_WS_TREASURY_TELEMETRY_PORT") from exc
+    if not 1024 <= port <= 65535:
+        raise ValueError("INVALID_WS_TREASURY_TELEMETRY_PORT")
+    return await asyncio.start_server(
+        lambda reader, writer: _serve_treasury_subscription_snapshot(reader, writer, manager=manager),
+        host="127.0.0.1", port=port, limit=1024,
+    )
+
+
 async def run_cascade():
     if websockets is None:
         _log("FATAL: `websockets` not installed"); return
     casc = Cascade()
     casc._loop = asyncio.get_event_loop()
+    # Off by default.  This is deliberately not a heartbeat/database/log field:
+    # the only access is a local, bounded read of this process's manager state.
+    telemetry_server = await _start_treasury_subscription_snapshot_server(casc.mgr)
 
     # Phase 1: program-CREATE watcher (shadow mode, gated by env flag)
     prog_watcher: ProgramCreateWatcher | None = None
@@ -5576,6 +5765,9 @@ async def run_cascade():
                     _log(f"WS loop error: {e}{_extra_detail} — reconnecting in {reconnect_delay}s")
                     await asyncio.sleep(reconnect_delay)
                     reconnect_delay = min(reconnect_delay * 2, 60)
+    if telemetry_server is not None:
+        telemetry_server.close()
+        await telemetry_server.wait_closed()
     # X24.3 design requirement 7 — explicit executor lifecycle: shut down the
     # RPC deadline guard's dedicated pool on the normal stop path. Since this is
     # a fresh Python process per daemon restart, the interpreter tearing down

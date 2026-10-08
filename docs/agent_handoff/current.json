@@ -19816,5 +19816,15 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_PREFLIGHT_UNEXPECTED_RUNTIME_PROCESS_CHANGE",
     "next_action": "STOP. REQUIRE A NEW EXPLICIT AUTHORIZATION AFTER THE creator_resolution_worker PID change is classified and the complete preflight is rerun; DO NOT INSTALL THE CANDIDATE OR ISSUE REREAD/UPDATE."
+  },
+  "watchtower_creator_resolution_worker_pid_classification_20261008": {
+    "engineering_revision": "Read-only classification only; no source/config/runtime change.",
+    "status": "HOLD_GENUINE_CREATOR_RESOLUTION_WORKER_RUNTIME_FAULT",
+    "classification": "Supervisor config has autostart=true, autorestart=true, startretries=999, and startsecs=5. The worker stopped during the incident shutdown, restarted normally with the restored original Supervisor, then exited status 1 at 01:11:01 and 01:15:02 local. Supervisor automatically respawned it each time, producing the observed PID change from 73412 to 81359. The restart mechanism is expected configuration behavior, but the exit-status-1 cause is not a benign PID rotation.",
+    "health": "Current status is RUNNING PID 81359 after the automatic restart. Its bounded stderr tail contains repeated tracebacks; the most recent terminating exception class is OSError. No SQLite/OOM classification was found in the compact classifier. This is sufficient evidence of a genuine runtime fault; no source diagnosis or repair was authorized.",
+    "transition": "The authorized target-only Watchtower config transition was not resumed. No candidate install, backup write, reread, update, service action, provider call, DB/queue write, or listener change occurred after the classification.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_GENUINE_CREATOR_RESOLUTION_WORKER_RUNTIME_FAULT",
+    "next_action": "STOP. REQUIRE A SEPARATE EXPLICIT CREATOR_RESOLUTION_WORKER FAULT DIAGNOSIS/RECOVERY AUTHORIZATION BEFORE RECONCILING THE LIVE-TRANSITION PREFLIGHT; DO NOT DEPLOY WATCHTOWER CANDIDATE."
   }
 }

@@ -94,6 +94,31 @@ def compose_api_only(source: bytes, paths: RuntimePaths) -> bytes:
     return (text[:start] + replacement + text[end:]).encode("utf-8")
 
 
+def compose_monitor_only(source: bytes, paths: RuntimePaths) -> bytes:
+    """Replace only the existing monitor worker and bridge program ranges.
+
+    This is the API-preserving finite-soak composition.  It intentionally
+    leaves the API, listener, and all unrelated program bytes untouched.
+    """
+    text = source.decode("utf-8")
+    if re.search(r"^\[include\]", text, re.MULTILINE):
+        raise ValueError("SUPERVISOR_INCLUDE_UNEXPECTED")
+    ranges = _program_ranges(text)
+    if any(len(ranges.get(name, ())) != 1 for name in (
+        "watchtower_api", "watchtower_listener", *MONITOR_TOPOLOGY_TARGETS,
+    )):
+        raise ValueError("SUPERVISOR_MONITOR_ONLY_TARGET_CARDINALITY_INVALID")
+    rendered = text
+    for name, stanza in reversed((
+        ("operation_monitor_worker", _worker_stanza(paths)),
+        ("operation_monitor_bridge", _bridge_stanza(paths)),
+    )):
+        start, end = ranges[name][0]
+        replacement = stanza.rstrip("\n") + ("\n" if text[start:end].endswith("\n") else "")
+        rendered = rendered[:start] + replacement + rendered[end:]
+    return rendered.encode("utf-8")
+
+
 def compose_monitoring_topology(source: bytes, paths: RuntimePaths) -> bytes:
     """Append the qualified disabled monitor topology to a current root config.
 

@@ -12,6 +12,7 @@ from src.ops.watchtower_supervisor_composition import (
     RuntimePaths,
     compose,
     compose_api_only,
+    compose_monitor_only,
     compose_monitoring_topology,
 )
 
@@ -51,17 +52,20 @@ def main() -> int:
                         help="replace only watchtower_api; never add or alter a worker stanza")
     parser.add_argument("--monitoring-topology", action="store_true",
                         help="append the qualified disabled worker/bridge topology when both are absent")
+    parser.add_argument("--monitor-only", action="store_true",
+                        help="replace only existing operation-monitor worker/bridge stanzas")
     args = parser.parse_args()
     source = args.source.read_bytes()
     args.backup.write_bytes(source)
     paths = RuntimePaths(**{
         key: value
         for key, value in vars(args).items()
-        if key not in {"source", "candidate", "backup", "api_only", "monitoring_topology"}
+        if key not in {"source", "candidate", "backup", "api_only", "monitoring_topology", "monitor_only"}
     })
-    if args.api_only and args.monitoring_topology:
-        parser.error("--api-only and --monitoring-topology are mutually exclusive")
-    renderer = compose_api_only if args.api_only else compose_monitoring_topology if args.monitoring_topology else compose
+    if sum((args.api_only, args.monitoring_topology, args.monitor_only)) > 1:
+        parser.error("--api-only, --monitoring-topology, and --monitor-only are mutually exclusive")
+    renderer = (compose_api_only if args.api_only else compose_monitoring_topology
+                if args.monitoring_topology else compose_monitor_only if args.monitor_only else compose)
     args.candidate.write_bytes(renderer(source, paths))
     return 0
 

@@ -5,6 +5,7 @@ from src.ops.watchtower_supervisor_composition import (
     RuntimePaths,
     compose,
     compose_api_only,
+    compose_monitor_only,
     compose_monitoring_topology,
     listener_bytes,
 )
@@ -65,6 +66,22 @@ def test_composition_renders_opt_in_bounded_soak_controls(tmp_path):
     assert b"[program:operation_monitor_worker]" in candidate
     assert b"[program:operation_monitor_bridge]" in candidate
     assert compose(candidate, paths) == candidate
+
+
+def test_monitor_only_composition_preserves_api_listener_and_unrelated_bytes(tmp_path):
+    paths = replace(_paths(tmp_path), monitor_max_iterations="1",
+                    monitor_provider_global_limit="0",
+                    monitor_provider_token_limit="0", bridge_max_iterations="1")
+    candidate = compose_monitor_only(SOURCE, paths)
+    assert listener_bytes(candidate) == listener_bytes(SOURCE)
+    api_start = SOURCE.index(b"[program:watchtower_api]")
+    api_end = SOURCE.index(b"[program:watchtower_listener]")
+    candidate_api_start = candidate.index(b"[program:watchtower_api]")
+    candidate_api_end = candidate.index(b"[program:watchtower_listener]")
+    assert candidate[candidate_api_start:candidate_api_end] == SOURCE[api_start:api_end]
+    assert b"[program:unrelated]\ncommand=keep-me\nautostart=true\n\n" in candidate
+    assert candidate.count(b"startsecs=0\nexitcodes=0\n") == 2
+    assert compose_monitor_only(candidate, paths) == candidate
 
 
 def test_continuous_monitor_programs_keep_startup_liveness_contract(tmp_path):

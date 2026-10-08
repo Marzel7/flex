@@ -177,6 +177,10 @@ stderr_logfile_backups=2
 
 
 def _worker_stanza(p: RuntimePaths) -> str:
+    # A finite soak deliberately exits after one or more bounded iterations.
+    # Supervisor must accept a clean immediate exit in that explicitly opted-in
+    # mode; the normal continuously-running worker keeps its startup contract.
+    lifecycle = _finite_iteration_lifecycle(p.monitor_max_iterations)
     bounded = "".join(
         f',{name}="{value}"' for name, value in (
             ('MONITOR_MAX_ITERATIONS', p.monitor_max_iterations),
@@ -191,8 +195,7 @@ environment=PYTHONPATH="{p.root}",WATCHTOWER_FINAL_ROOT="{p.root}",WATCHTOWER_FI
 autostart=false
 autorestart=false
 startretries=0
-startsecs=5
-stopwaitsecs=15
+{lifecycle}stopwaitsecs=15
 stopsignal=TERM
 stdout_logfile={p.worker_stdout_log}
 stdout_logfile_maxbytes=5MB
@@ -205,6 +208,7 @@ stderr_logfile_backups=1
 
 
 def _bridge_stanza(p: RuntimePaths) -> str:
+    lifecycle = _finite_iteration_lifecycle(p.bridge_max_iterations)
     bounded = "".join(
         f',{name}="{value}"' for name, value in (
             ('MONITOR_BRIDGE_SELECTION_PATH', p.monitor_selection),
@@ -218,8 +222,7 @@ environment=PYTHONPATH="{p.root}",WATCHTOWER_FINAL_ROOT="{p.root}",WATCHTOWER_FI
 autostart=false
 autorestart=false
 startretries=0
-startsecs=5
-stopwaitsecs=15
+{lifecycle}stopwaitsecs=15
 stopsignal=TERM
 stdout_logfile={p.bridge_stdout_log}
 stdout_logfile_maxbytes=5MB
@@ -229,3 +232,8 @@ stderr_logfile_maxbytes=2MB
 stderr_logfile_backups=1
 
 '''
+
+
+def _finite_iteration_lifecycle(iterations: str) -> str:
+    """Render a Supervisor lifecycle contract for explicit finite execution."""
+    return "startsecs=0\nexitcodes=0\n" if iterations else "startsecs=5\n"

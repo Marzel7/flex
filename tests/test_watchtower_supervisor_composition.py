@@ -61,7 +61,20 @@ def test_composition_renders_opt_in_bounded_soak_controls(tmp_path):
     assert b'MONITOR_PROVIDER_TOKEN_LIMIT="0"' in candidate
     assert b'MONITOR_BRIDGE_SELECTION_PATH="/qualified-selection.json"' in candidate
     assert b'MONITOR_BRIDGE_MAX_ITERATIONS="1"' in candidate
+    assert candidate.count(b"startsecs=0\nexitcodes=0\n") == 2
+    assert b"[program:operation_monitor_worker]" in candidate
+    assert b"[program:operation_monitor_bridge]" in candidate
     assert compose(candidate, paths) == candidate
+
+
+def test_continuous_monitor_programs_keep_startup_liveness_contract(tmp_path):
+    candidate = compose(SOURCE, _paths(tmp_path))
+    worker = candidate[candidate.index(b"[program:operation_monitor_worker]"):candidate.index(b"[program:operation_monitor_bridge]")]
+    bridge = candidate[candidate.index(b"[program:operation_monitor_bridge]"):]
+    assert b"startsecs=5\n" in worker
+    assert b"startsecs=5\n" in bridge
+    assert b"exitcodes=0" not in worker
+    assert b"exitcodes=0" not in bridge
 
 
 def test_composition_rejects_missing_duplicate_or_include_targets(tmp_path):

@@ -20741,5 +20741,18 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "One bounded research batch and compact audit artifact only; no discovery runtime behavior was installed or enabled.",
     "next_action": "STOP. Preserve the verified partial AMQ evidence without promotion. Any additional route, history, or account acquisition requires separate explicit authorization."
+  },
+  "dev019_8cub_downstream_coverage_batch1_20261008": {
+    "engineering_revision": "Compact findings commit df803a641bd3101002ac7bce103200ddfa994dc7 on origin/codex/dev-019-mesh-discovery; version-aware source correction 6163d43a4119f53279b4a08af8c2fb8a0daf740b remains the acquisition contract.",
+    "status": "PASS_COMPLETE_8CUB_SIGNATURE_COVERAGE_PARTIAL_LINEAGE_NOT_PROMOTED",
+    "authorization_and_coverage": "One separately authorized 8CUb-only Helius batch executed three cursor-bounded 20-signature pages. Requests=63/66 (3 getSignaturesForAddress, 60 getTransaction, 0 getBlock), retries=0, fallback=0. Compact page boundaries were saved before decoding. All three windows are COMPLETE_SIGNATURE_WINDOW (20/20); all 60 returned unique signatures decoded successfully as legacy transactions.",
+    "downstream_result": "No direct outbound System transfer from 8CUb appeared in the complete covered pages, including no direct 8CUb -> creator 6eKxDUjCHU9h2tHgRqDSuACf21zDu8WP9q2NJM6njzcr transfer. The previously verified AMQ -> 8CUb 770 SOL fact remains valid at slot 454516004, transaction_index 1118, instruction_index 2, but it cannot form a causal chain without a downstream directed, balance-verified hop.",
+    "creator_launch": "Existing compact retained evidence contains five creator/2BVf co-location records only: CONTEXTUAL_CREATOR_AND_MINT_COLOCATION_ONLY, not a verified creator launch event. Their slots span 454468296 through 454553004; no chronology or co-location was substituted for a required creation instruction or funding edge.",
+    "artifact": "docs/audits/dev_019_8cub_downstream_coverage_batch1.v1.json SHA256=003be28e8dce011760ad438a2e990eedbbd9d0e5ee887632a2dcd21cc8292b18, 14174 bytes. It retains compact page boundaries, per-signature decode status, and no raw RPC payload/block data.",
+    "decision": "COMPLETE_ROUTE_PROVEN=false; NEW_WATCHTOWER_CANDIDATES=0. The absence conclusion applies only to the three fully decoded current 8CUb pages and no broader account history. No treasury confirmation, membership promotion, canonical attribution change, live DB/queue write, Supervisor/service/listener action, or runtime deployment occurred.",
+    "qualification": "Provider-free DEV-019/V2 regressions passed 35/35 and V2 register validation PASS.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Bounded research artifact only; no discovery runtime behavior was installed or enabled.",
+    "next_action": "STOP. Preserve partial lineage evidence without promotion. Any further account/history acquisition or creator-launch verification needs new explicit authorization."
   }
 }

@@ -45,7 +45,7 @@
       "branch": "codex/dev-019-mesh-discovery",
       "worktree": "/private/tmp/flex-dev-019-mesh-discovery",
       "starting_sha": "afa282fa0139265deeb2a3f21b1d072290cb62ed",
-      "current_sha": "32bf3fa6ca8e9eeeb0d3dc3ec5d3ef1cf4f2025b",
+      "current_sha": "32bf3fa64cdefec323020e53d8ce4a9caf7f7fb6",
       "status": "QUALIFIED_TREASURY_SUBSCRIPTION_TELEMETRY_NOT_DEPLOYED",
       "next_action": "Separately review a read-only integration of the bounded snapshot into the exact clean live cascade authority, then observe and explain the live 29/83 map. Do not change subscription selection, ws_cascade, webhook, or provider acquisition.",
       "dependencies": [

@@ -127,6 +127,23 @@ def test_handoff_requires_commit_clean_tree_remote_and_limitations(tmp_path):
         guard.validate_handoff(contract, root)
 
 
+def test_promotion_requires_offline_contract_and_explicit_live_approval():
+    contract = {
+        "source_authority": "sha",
+        "dependency_authority": "sha",
+        "launcher_contract_verified": True,
+        "capability_contract_verified": True,
+        "active_supervisor_authority": "sha256",
+        "offline_supervisor_validation": "parser-only",
+        "rollback_sha": "sha256",
+        "live_action": True,
+    }
+    with pytest.raises(guard.GuardError, match="LIVE_MUTATION_NOT_EXPLICITLY_APPROVED"):
+        guard.validate_promotion(contract)
+    contract["explicit_live_approval"] = True
+    guard.validate_promotion(contract)
+
+
 def test_guard_is_offline_and_never_uses_supervisor_control():
     source = inspect.getsource(guard)
     assert "supervisorctl" not in source

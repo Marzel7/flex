@@ -20226,5 +20226,17 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_WAL_WRITE_LOCK_SAFETY_SIGNAL",
     "next_action": "READ_ONLY_CLASSIFY_THE_CURRENT_TRACKED_DATABASE_WAL_WRITE_LOCK_TIMEOUT_SIGNAL_AND_ESTABLISH_WHETHER_IT_IS_CURRENT_AND_SHARED_BEFORE_ANY_RETRY. DO_NOT_RERUN_BRIDGE_OR_START_WORKER_UNTIL_THAT_SAFETY_BLOCKER_IS_RESOLVED_OR_EXPLICITLY_REAUTHORIZED."
+  },
+  "watchtower_bounded_soak_wal_signal_classification_20261008": {
+    "engineering_revision": "Read-only classification only; active Supervisor configuration remains restored SHA256 3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19.",
+    "status": "PASS_STALE_HISTORICAL_SIGNAL_CLASSIFIED_NO_CURRENT_SHARED_WRITE_PATH_FAULT_PROVEN",
+    "triggering_records": "The stop matched operation_monitor_bridge_err.log WAL_WATCHDOG/CROSS_PROCESS_LOCK records such as Unix 1791397759.878965=2026-10-07T18:29:19.878965Z and 1791411610.412205=2026-10-07T22:20:10.412205Z. Their claimed tracked-db owner was historical PID 77695 (and occasional PID 4163), not the 2026-10-08 bridge. The error log mtime is 2026-10-07T23:20:20+0100; it did not advance during the bridge started at 2026-10-08 09:53:12+0100 and cleanly exited at 09:53:12.954+0100.",
+    "current_wal_state": "No forced checkpoint was run. Source operations WAL was 19,055,032 bytes at 09:54:49+0100 and remained exactly that size over a 10-second observation. Canonical WAL moved from 42,127,032 to 42,736,792 bytes over the same period, consistent with unrelated live activity; API health remained healthy=true/db=ok/wal_warn=false (40.8 MB). The monitor isolated WAL was absent from the observed listing.",
+    "current_lock_holder": "The current tracked lock file was freshly updated at 2026-10-08 09:55:42+0100 and reports PID 73413, a live-Supervisor-managed walkback_worker, for walkback_worker.py:506 in _ops_conn. Its operation lasted approximately 0.5 ms, sqlite_transaction_active=false, and state=RELEASE_PENDING; this is ordinary short-lived release metadata, not a stuck write lock. Historical holder PIDs 77652/77695/4163 are not active owners of the current record.",
+    "affected_database": "The stale records concern source operations DB /Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db, not the isolated monitor DB. They do not establish a canonical DB, API, listener, or bridge failure during the current soak window.",
+    "minimum_correction": "Use a fresh-observation predicate for a future soak: record bridge stderr byte offset, file mtime, source-WAL size, and lock-file generation immediately before start; evaluate only newly appended timeout records or a current lock generation whose owner remains active beyond the bounded threshold. Do not scan historical bridge logs as a failure condition. This is a narrow safety-predicate correction; no source change was made in this read-only task.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only evidence classification; no executable/runtime/configuration change occurred.",
+    "next_action": "OBTAIN_EXPLICIT_APPROVAL_FOR_A_FRESH_API-PRESERVING_BRIDGE_WORKER_SOAK RETRY WITH THE NEWLY DEFINED FRESH-OBSERVATION SAFETY PREDICATE, OR QUALIFY THAT PREDICATE IN DEV FIRST. DO_NOT_AUTOMATICALLY_RETRY."
   }
 }

@@ -20380,5 +20380,14 @@
     "tests": "tests/test_dev_execution_discipline_v2.py: 8 passed. Covers clean admission, dirty/missing SHA rejection, two independent DEV coexistence with shared-service rejection, isolated temporary paths, missing launcher dependency, missing monitoring capability, complete handoff, explicit live approval, and no Supervisor-control code path.",
     "safety": "No Watchtower/Supervisor/service/DB/queue/provider/listener/Injector/+2 action occurred. RUNTIME_DEPLOYMENT_REQUIRED=false because this is process-instruction and DEV tooling only.",
     "next_action": "USE_V2_ADMISSION_BEFORE_THE_NEXT_IMPLEMENTATION_DEV; NO_DEV_IS_STARTED_BY_THIS_PROTOCOL_CHANGE"
+  },
+  "flex_dev_backlog_reconciliation_20261008": {
+    "engineering_revision": "Read-only inventory against V2 authority 8be99ed28aa2228dc9cec7d63103eab27376086d, legacy docs/dev_work/current.json, retained handoff records, and local Git object identities.",
+    "status": "PASS_BACKLOG_INVENTORIED_NO_DEV_ADMITTED",
+    "finding": "The V2 register has one completed protocol DEV. The legacy project register has 23 identifiers: 13 completed/deployed, one audit complete, two active legacy observations, three blocked, four planned/partial/deferred, and no explicitly abandoned item. Legacy records are not V2-normalized and their current branches/worktrees are unknown unless explicitly recorded. DEV-023 remains PHASE2_HOLD_PURGE_STOPPED_SAFELY; its base 580508a70c80e7fc944e0069f85e67b851a117fa resolves but its current commit is absent. Watchtower +2 is a deferred operational gate, not a registered implementation DEV: default-off policy/shadow evidence is qualified, while post-watermark natural evidence and separate activation approval remain required.",
+    "priority": "1) DEV-023 Phase-3 provider-free retention-contract qualification from clean 580508a7 authority, before any destructive maintenance. 2) DEV-003 immutable original-13 regression-manifest recovery from clean 870dcd71eb146532f27346e5bc8412abdf2a3b00 authority. They have independent objectives; both must receive distinct temporary paths and isolated branches/worktrees. No admission was executed because this task forbade worktree creation.",
+    "admission": "No active V2 implementation DEV is registered. Candidate starting commits resolve, but V2 admission remains PENDING_CLEAN_WORKTREE_CREATION_AND_GUARD_EXECUTION; the dirty shared checkout is expressly rejected.",
+    "safety": "Read-only inventory only; no source/worktree/Supervisor/service/DB/queue/provider/listener/Injector/+2 mutation. RUNTIME_DEPLOYMENT_REQUIRED=false.",
+    "next_action": "AUTHORIZE_ONE_OR_BOTH_RECOMMENDED_DEVS_THEN_CREATE_CLEAN_ISOLATED_WORKTREES_AND_RUN_V2_ADMISSION_BEFORE_EDITING"
   }
 }

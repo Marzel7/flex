@@ -1,4 +1,14 @@
 {
+  "watchtower_monitor_provider_budget_deployment_attempt_20261008": {
+    "engineering_revision": "Qualified candidate config 67c419a3f2dfcb92c5c82a94bfef24c9a4c7c8c9f2f68553ae4e4eae848bc321 and regression commit ecad24c59002eded409e711d724d2d62d2cd8fba; no live change executed.",
+    "status": "HOLD_QUEUE_WATERMARK_ELIGIBILITY_UNPROVEN",
+    "preflight": "Identity, candidate, runtime, service continuity, DB WAL read probes, disk, credential-presence, and no-duplicate-worker checks passed. Four targeted retry envelopes are post-watermark and no job was in processing. However, queue inspection found pending=62: three pre-watermark, zero post-watermark, and 59 lacking assignment timestamps. The current worker skips those malformed/legacy envelopes in selection mode, but their safe behavior after enabling real provider acquisition was not sufficiently proven for a live transition.",
+    "execution": "The requested atomic install/reload/update was rejected before command execution due to the unresolved 59-envelope safety condition. Read-only postcheck confirms active config remains SHA256=5f21916b3029f0e8cce2e91b92fa8f58631f4591baffa749ca40ecfccf5569f9; worker PID 21138 and bridge/API/listener/cascade/creator-funding PIDs remain unchanged and RUNNING. Candidate remains intact at /private/tmp/watchtower-monitor-budget-install-67c419.conf. No queue/DB/provider/service/Supervisor mutation occurred.",
+    "rollback": "No rollback required; fresh rollback copy remains /private/tmp/watchtower-monitor-budget-live-rollback-5f21916b.conf SHA256=5f21916b3029f0e8cce2e91b92fa8f58631f4591baffa749ca40ecfccf5569f9.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_QUEUE_SAFETY_UNRESOLVED",
+    "next_action": "STOP. Obtain a bounded, read-only proof that every timestamp-missing pending envelope is fail-closed before provider dispatch (or explicit approval accepting their disposition). Do not install the candidate, restart the worker, replay queues, or acquire providers until that gate passes."
+  },
   "watchtower_monitor_provider_budget_correction_20261008": {
     "engineering_revision": "Isolated clean worktree /private/tmp/flex-watchtower-monitor-provider-budget from a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d; provider-free regression commit ecad24c59002eded409e711d724d2d62d2cd8fba on origin/codex/watchtower-monitor-provider-budget-config.",
     "status": "PASS_QUALIFIED_NOT_DEPLOYED",

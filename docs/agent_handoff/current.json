@@ -19981,5 +19981,17 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_TIMEOUT_CAUSE_NOT_PROVEN",
     "next_action": "STOP. REQUIRE A NEW, BOUNDED OBSERVABILITY AUTHORIZATION THAT CAN CAPTURE ONE FUTURE COLD PRICE/LIVE REQUEST'S ELAPSED QUERY STAGES AND SQLITE WAIT/LOCK STATE WITHOUT CHANGING ROUTE SEMANTICS, BEFORE ANOTHER DEPLOYMENT RETRY."
+  },
+  "watchtower_price_live_single_bounded_trace_20261008": {
+    "engineering_revision": "One temporary external diagnostic harness only; candidate source c664355f7b06ce875daab04edb43802a1640e18f unchanged.",
+    "status": "HOLD_COLD_CANONICAL_ROUTE_EXCEEDS_BOUND_STAGE_SPLIT_UNAVAILABLE",
+    "method": "Exactly one process compiled the actual candidate _fetch_pumpfun_live and api_pumpfun_live function bodies without importing the full application. It used canonical DB_PATH only through SQLite URI mode=ro, immediately enabled PRAGMA query_only=ON, requested the cold route once, and wrapped connection/execute/fetch calls for compact timing. It neither contacted the live API nor bound a port, and had no provider, queue, write, Supervisor, listener, or background-worker path.",
+    "result": "The single request did not return a response or timing JSON within the outer 31-second execution window, exceeding the previous 10-second acceptance threshold by more than threefold. The diagnostic process was absent immediately afterwards. No SQLite busy/locked exception, HTTP result, application row, or traceback was emitted before termination. The temporary 4,860-byte harness was removed after verification.",
+    "interpretation": "This reproduces an over-threshold cold Price/Live path against the canonical corpus independently of the live API, so it is not explained by the resolved WAL holder, Gunicorn scheduling, or the live service. It is consistent with the pre-existing complex migration aggregate/query plan. However, because SQLite remained in a native operation past the Python hard alarm and external termination occurred before the wrapper could print, the single authorized request cannot distinguish SQL execute from fetch/transform timing. No exact expensive statement is proven.",
+    "decision": "No query optimization is authorized or justified yet. REQUEST_TRACE_STATUS=TIMEOUT; TOTAL_REQUEST_MS=>31000; SQL_EXECUTION_MS/SQL_FETCH_MS/TRANSFORM_MS/SERIALIZATION_MS=UNAVAILABLE_FROM_THE_SINGLE_TRACE; SQLITE_LOCK_WAIT_EVIDENCE=NONE_EMITTED. DEPLOYMENT_RETRY_READY=false.",
+    "safety": "No live Supervisor command, service restart, DB/queue write, provider call, listener action, API port bind, source change, or large artifact occurred. The canonical DB connection was read-only and query_only; no rows were printed or retained.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_COLD_CANONICAL_ROUTE_EXCEEDS_BOUND_STAGE_SPLIT_UNAVAILABLE",
+    "next_action": "STOP. REQUIRE A NEW EXPLICIT AUTHORIZATION FOR A DIFFERENT BOUNDED, STAGE-INTERRUPTIBLE DIAGNOSTIC DESIGN OR A SEPARATELY REVIEWED QUERY-BOUNDARY CHANGE; DO NOT RETRY DEPLOYMENT ON THIS EVIDENCE ALONE."
   }
 }

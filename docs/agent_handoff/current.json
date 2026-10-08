@@ -21018,6 +21018,19 @@
     "runtime_deployment_gate": "NOT_STARTED",
     "next_action": "STOP. Before implementation, admit DEV-024 from clean deployed-source authority c3565a9d5c2e5199c5362ac96573246a8d5a42dc on an isolated codex/ worktree, register its exact objective/dependencies/acceptance criteria, and run the V2 admission guard."
   },
+  "dev024_creator_funding_auxiliary_timeout_qualification_20261008": {
+    "engineering_revision": "DEV-024 code commit 6806d2b2268bd5240f52be184bfbde1642070f76; qualification/register head d363f2f3768da89bdf407f404479df8216a6c25b on origin/codex/dev-024-creator-funding-aux-timeout; starting/deployed authority c3565a9d5c2e5199c5362ac96573246a8d5a42dc.",
+    "status": "PASS_QUALIFIED_NOT_DEPLOYED",
+    "admission": "DEV-024 registered on its own clean codex/ worktree. External V2 admission and isolated-temporary-path guards passed before implementation. DEV-019 does not own or modify the worker/extractor paths.",
+    "correction": "The post-core outgoing-transfer scan now has CFQ_AUXILIARY_OUTGOING_TIMEOUT_SECONDS (default 15) bounded by the remaining whole-job deadline. Its timeout returns compact auxiliary_observations.outgoing_transfer_scan={status: incomplete_timeout, reason: auxiliary_deadline}; it does not turn a successful core process_new_token result into a whole-job retry. The existing 90-second core timeout, cancellation handling, core error propagation, retry backoff, and queue semantics remain unchanged.",
+    "preservation": "The correction attaches compact in-memory result metadata only; it adds no database schema, raw retention, provider call, cache-transport redesign, checkpoint architecture, scoring/classification change, or live configuration change. asyncio.wait_for owns and awaits cancellation of the outgoing task. The qualified fixture verifies cancellation acknowledgement and durable creator_funders preservation for observation_required work.",
+    "verification": "20 focused provider-free tests passed: test_dev_024_auxiliary_outgoing_timeout.py plus required X78.4, X78.14, X78.29, X78.31, and X78.37 suites. V2 register and handoff guards passed; git diff --check and py_compile passed. Test-only zero-byte lock guard was removed from the isolated worktree before commit.",
+    "limits": "New persistent files=0; raw provider/block retention=0; unbounded-growth paths=0; maximum added artifact size is source/test text far below 500,000,000 bytes.",
+    "safety": "Provider calls=0; live DB/queue writes=0; Supervisor/service/listener actions=0; deployment=0; DEV-019 changes=0; DEV-023 changes=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "STOP. A separate explicit runtime-deployment approval must identify the target pinned creator-funding checkout, deployment/reload action, rollback identity, and bounded live acceptance before this correction is installed."
+  },
   "dev019_treasury_subscription_activity_reconciliation_20261008": {
     "engineering_revision": "Live cascade 26da06daba23608bd64d5b86cde1f92b24d3a98d; retained activity corpus c9925cb038ebe0bf8677d76331700eadf535cf6b; qualified selector 23b09948a70ccea9f08cf560e9684325e9287623.",
     "status": "PASS_READ_ONLY_SELECTION_RECONCILED_NOT_DEPLOYED",

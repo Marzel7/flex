@@ -41,31 +41,31 @@
     },
     {
       "dev_id": "DEV-019",
-      "objective": "Recover the previously untracked provider-free treasury-rotation discovery source and tests into a clean, reviewable, remote-backed authority; do not conduct discovery or promotion.",
-      "branch": "codex/dev-019-source-recovery",
-      "worktree": "/private/tmp/flex-dev-019-source-recovery",
-      "starting_sha": "8be99ed28aa2228dc9cec7d63103eab27376086d",
-      "current_sha": "fe5359c80e190a9ec8acce59432d8799ed0f3e37",
-      "status": "EVIDENCE_BLOCKED_TARGETED_AMQ_BATCH_COMPLETE_NOT_PROMOTED",
-      "next_action": "Preserve the targeted AMQ batch. It exhausted its 23-call cap without proving AMQ -> 8CUb or 8CUb -> creator; do not extend acquisition, deploy discovery, or promote candidates without separate authorization.",
+      "objective": "Develop and qualify bounded, coverage-aware Watchtower treasury-mesh discovery from confirmed treasuries through subproviders, funding accounts, creators, and retained unresolved launches; preserve review-only candidate treatment and do not deploy or promote.",
+      "branch": "codex/dev-019-mesh-discovery",
+      "worktree": "/private/tmp/flex-dev-019-mesh-discovery",
+      "starting_sha": "afa282fa0139265deeb2a3f21b1d072290cb62ed",
+      "current_sha": "afa282fa0139265deeb2a3f21b1d072290cb62ed",
+      "status": "IMPLEMENTING",
+      "next_action": "QUALIFY_COVERAGE-AWARE_COMPACT_MESH_DECODING_AND_REGRESSIONS, THEN PRESENT_AN_EXPLICIT_PAGINATED_HELIUS_BATCH_BUDGET_BEFORE_ACQUISITION.",
       "dependencies": [
         "Development Execution Discipline V2",
         "Legacy DEV-019 Phase 1/2/2B contracts",
         "Manual evidence artifact SHA256 c214598cbda39b374127399310dfb259e0f8af8d6d049bc62b63f7ba962229a3"
       ],
-      "source_authority": "Clean V2 baseline 8be99ed28aa2228dc9cec7d63103eab27376086d plus explicitly labelled byte-exact recovery of previously uncommitted source; the recovered files are not asserted to have belonged to the frozen baseline.",
+      "source_authority": "Clean remote-backed DEV-019 authority afa282fa0139265deeb2a3f21b1d072290cb62ed, including previously uncommitted recovered discovery source with explicit provenance and the two compact bounded RPC artifacts. The recovered files are not asserted to have belonged to the frozen baseline.",
       "configuration_authority": "No runtime configuration; provider-free isolated tests only.",
       "definition_of_done": [
-        "Recovered files match the observed originals byte-for-byte",
-        "Provenance labels the files previously uncommitted",
-        "Provider-free DEV-019 and V2 guards pass",
-        "The new source authority is committed and remote-verified"
+        "Coverage boundaries and missing history are explicit for every acquisition window",
+        "Compact decoded facts distinguish verified transfers, contextual linkage, and review-only candidates",
+        "Provider-free treasury-mesh and V2 guards pass",
+        "Any acquisition batch has explicit bounded request, timeout, concurrency, and compact-storage controls"
       ],
       "acceptance_criteria": [
-        "No live mutation or provider call",
+        "No live database, queue, service, or listener mutation",
         "No treasury or membership promotion",
-        "Dirty checkout unchanged",
-        "A clean remote-resolvable engineering commit"
+        "No raw provider/block retention or file >=500MB",
+        "A clean remote-resolvable engineering commit and explicit live-integration approval boundary"
       ],
       "qualification_evidence": [
         "V2 admission guard PASS",

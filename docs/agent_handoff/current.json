@@ -1,4 +1,15 @@
 {
+  "watchtower_bounded_monitor_activation_preparation_20261008": {
+    "engineering_revision": "9d291215885dd88ee6b594a09dbcdab0f8881b16 on origin/codex/watchtower-monitor-bounded-soak; clean pinned runtime /Users/kevinkeaveney/Dev/claude/watchtower-final-runtime-65e61f76",
+    "status": "PASS_APPROVAL_BOUNDARY_BOUNDED_MONITOR_SOAK_PREPARED_NOT_DEPLOYED",
+    "budget_and_cadence": "Existing qualified monitor cadence is one queue claim at a time, five-second idle ticks, 15-second global Opening admission spacing, strict Opening maximum two attempts, and durable locked Birdeye limits of 20 dispatches/60s globally and 4/60s per mint. The new first-soak candidate intentionally throttles only that soak: MONITOR_MAX_ITERATIONS=1, MONITOR_BRIDGE_MAX_ITERATIONS=1, MONITOR_PROVIDER_GLOBAL_LIMIT=0, and MONITOR_PROVIDER_TOKEN_LIMIT=0. Normal default behavior is unchanged when these opt-in variables are absent.",
+    "credential_authority": "The worker launcher continues to source only the established MONITOR_ENV_FILE and verifies non-empty BIRDEYE and HELIUS_RPC_URL before process execution. Verification was non-printing; no credential, digest, fallback key, or provider request was retained.",
+    "artifacts": "Current active root SHA256=3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19. Prepared candidate SHA256=1706a094e1f947bb8ec844960080f74af110bdfd611a9214d456b4e61a2a642f. Rollback SHA256=3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19 and is byte-identical to active. Candidate retains 15 programs and replaces only API/worker/bridge. Its fixed selection watermark is 1791446333; pre-watermark backlog remains ineligible. Shadow and authoritative +2 remain disabled; worker and bridge remain autostart=false.",
+    "verification": "Mandatory offline Supervisor isolation validator PASS using unique temporary PID/socket/log paths and no supervisorctl. Composition/soak/bridge tests passed 27/27. Relevant provider-free Watchtower suite passed 148 with only the documented deep-review template test deselected. No source/runtime live mutation, Supervisor action, provider call, DB/queue write, or listener impact occurred.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED_AWAITING_EXPLICIT_APPROVAL",
+    "next_action": "OBTAIN_EXPLICIT_APPROVAL_FOR_THE_EXACT_9D291215_RUNTIME_1706A094_CONFIG_AND_3EB960C7_ROLLBACK_THEN_INSTALL_ONLY_THE_REVIEWED_TARGET_STANZAS_AND_START_BRIDGE_THEN_WORKER_FOR_ONE_ZERO_PROVIDER_ITERATION"
+  },
   "watchtower_monitor_activation_blockers_20261008": {
     "engineering_revision": "af0eba3962ca22f8fb1f1028556c84d8ab18dcde on origin/codex/watchtower-monitor-bounded-soak; parent a32ebba3732d3f68cf5fd387bf05444a744610dc",
     "status": "PASS_DEV_BOUNDED_SOAK_GUARD_QUALIFIED_NOT_DEPLOYED",

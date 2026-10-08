@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS operation_monitor_facts (
  latest_mc_usd REAL,latest_mc_timestamp INTEGER,current_multiple REAL,running_peak_mc_usd REAL,running_peak_timestamp INTEGER,running_peak_multiple REAL,drawdown_percent REAL,
  reached_2x INTEGER,reached_5x INTEGER,reached_10x INTEGER,first_2x_timestamp INTEGER,first_5x_timestamp INTEGER,first_10x_timestamp INTEGER,
  drawdown_25_timestamp INTEGER,drawdown_50_timestamp INTEGER,drawdown_75_timestamp INTEGER,drawdown_85_timestamp INTEGER,monitor_state TEXT NOT NULL,
- monitor_started_at INTEGER,last_observation_at INTEGER,next_observation_at INTEGER,monitor_completed_at INTEGER,provider_call_count INTEGER NOT NULL DEFAULT 0,candles_retained INTEGER NOT NULL DEFAULT 0,candle_resolution TEXT,evidence_status TEXT,provenance_digest TEXT NOT NULL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,PRIMARY KEY(operation_id,mint));
+ monitor_started_at INTEGER,last_observation_at INTEGER,next_observation_at INTEGER,monitor_completed_at INTEGER,provider_call_count INTEGER NOT NULL DEFAULT 0,candles_retained INTEGER NOT NULL DEFAULT 0,candle_resolution TEXT,evidence_status TEXT,terminal_coverage_state TEXT NOT NULL DEFAULT 'UNKNOWN',terminal_coverage_provenance_digest TEXT,terminal_coverage_gap_digest TEXT,terminal_coverage_updated_at INTEGER,provenance_digest TEXT NOT NULL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,PRIMARY KEY(operation_id,mint));
 CREATE INDEX IF NOT EXISTS ix_operation_monitor_due ON operation_monitor_facts(operation_id,monitor_state,next_observation_at);
 CREATE INDEX IF NOT EXISTS ix_operation_monitor_updated ON operation_monitor_facts(operation_id,updated_at);
 CREATE TABLE IF NOT EXISTS operation_monitor_observations (
@@ -59,6 +59,10 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
         ('final_ath_bucket_start', 'INTEGER'), ('final_ath_bucket_end', 'INTEGER'),
         ('ath_finalized_at', 'INTEGER'), ('ath_finalization_request_id', 'TEXT'),
         ('ath_finalization_provenance_digest', 'TEXT'),
+        ('terminal_coverage_state', "TEXT NOT NULL DEFAULT 'UNKNOWN'"),
+        ('terminal_coverage_provenance_digest', 'TEXT'),
+        ('terminal_coverage_gap_digest', 'TEXT'),
+        ('terminal_coverage_updated_at', 'INTEGER'),
     ):
         if name not in fact_columns:
             conn.execute(f'ALTER TABLE operation_monitor_facts ADD COLUMN {name} {typ}')

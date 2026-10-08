@@ -25,11 +25,11 @@ def test_provider_backoff_allows_only_retained_terminal_work(tmp_path):
         conn.execute("INSERT INTO operation_monitor_facts VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", ("watchtower", "terminal", "PROSPECTIVE_MONITOR_COHORT", "FIRST_FULL_POST_MIGRATION_SECOND_MC", 1, 1.0, "PRICE_MONITOR_COMPLETE_COLLAPSED", None, 2, "p", 1, 1))
     queue = MonitorQueue(tmp_path / "queue", enabled=True)
     queue.queue.enqueue({"work_type": "ordinary", "mint": "ordinary"}, message_id="ordinary")
-    queue.queue.enqueue({"work_type": "WATCHTOWER_TERMINAL_ATH_FINALIZATION", "mint": "terminal", "logical_identity": "id"}, message_id="terminal")
+    queue.queue.enqueue({"work_type": "WATCHTOWER_TERMINAL_ATH_FINALIZATION", "mint": "terminal", "logical_identity": "id", "terminal_coverage_state": "COMPLETE"}, message_id="terminal")
     called = []
     class Finalizer:
         def __init__(self, *_a, **_k): pass
-        def freeze(self, _mint): return {"mint": "terminal"}
+        def freeze(self, _mint): return {"mint": "terminal", "terminal_coverage_state": "COMPLETE"}
         def logical_job_identity(self, _fact): return "id"
         def finalize(self, *_a, **_k): called.append("finalized"); return {"state": "FINALIZED", "provider_calls": 0}
     worker = MonitorWorker(queue, db_path=str(db), transport=lambda _request: (_ for _ in ()).throw(AssertionError("provider must not run")), terminal_finalizer_factory=Finalizer)

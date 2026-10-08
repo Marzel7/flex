@@ -521,11 +521,19 @@ class MonitorQueue:
   # Never manufacture one or let that pending state escape as an int(None).
   if fact.get('entry_timestamp') is None or fact.get('entry_mc_usd') is None:
    return {'status':'DEFER_OPENING_NOT_READY'}
+  coverage_state=str(fact.get('terminal_coverage_state') or 'UNKNOWN').upper()
+  if coverage_state not in {'COMPLETE','PARTIAL','UNKNOWN'}:
+   coverage_state='UNKNOWN'
+  if coverage_state!='COMPLETE':
+   return {'status':f'DEFER_TERMINAL_COVERAGE_{coverage_state}'}
   ident=WatchtowerTerminalAthFinalizer.logical_job_identity(fact)
   envelope={'work_type':'WATCHTOWER_TERMINAL_ATH_FINALIZATION','operation_id':'watchtower','mint':fact['mint'],
             'cohort':'PROSPECTIVE_MONITOR_COHORT','entry_method':fact['entry_method'],
             'entry_timestamp':int(fact['entry_timestamp']),'entry_mc_usd':float(fact['entry_mc_usd']),
             'terminal_timestamp':int(fact['monitor_completed_at']),'resolution':'15m',
+            'terminal_coverage_state':coverage_state,
+            'terminal_coverage_provenance_digest':fact.get('terminal_coverage_provenance_digest'),
+            'terminal_coverage_gap_digest':fact.get('terminal_coverage_gap_digest'),
             'finalizer_contract':'watchtower-terminal-ath.v1','logical_identity':ident,'provenance':provenance}
   return {'status':'ENQUEUED_TERMINAL_ATH','job_id':self.queue.enqueue(envelope,message_id=ident)}
  def _backoff_path(self): return self.queue.root/'provider_backoff.json'
@@ -662,6 +670,20 @@ class MonitorQueue:
   envelope.update({'monitor_state':'TERMINAL_PROVIDER_FAILURE','provider_outcome':'TERMINAL_FAILURE','provider_outcome_reason':str(classification)[:160],
                    'recovery_deadline_at':None,'next_eligible_dispatch_at':None})
   payload['envelope']=envelope;payload['last_error']=str(classification)[:500];payload['last_attempt_at']=int(time.time())
+  self.queue._replace_payload(claimed.path,payload)
+  target=self.queue.root/'dead_letter'/claimed.path.name;os.replace(claimed.path,target)
+  self.queue._fsync_directory(claimed.path.parent);self.queue._fsync_directory(target.parent)
+ def defer_terminal_coverage_incomplete(self,claimed,*,coverage_state,provenance_digest=None,gap_digest=None):
+  """Seal incomplete terminal evidence without a provider retry path."""
+  state=str(coverage_state or 'UNKNOWN').upper()
+  if state not in {'PARTIAL','UNKNOWN'}: state='UNKNOWN'
+  payload=dict(claimed.payload);envelope=dict(payload.get('envelope') or {})
+  envelope.update({'monitor_state':f'TERMINAL_COVERAGE_{state}','terminal_coverage_state':state,
+                   'terminal_coverage_provenance_digest':provenance_digest or envelope.get('terminal_coverage_provenance_digest'),
+                   'terminal_coverage_gap_digest':gap_digest or envelope.get('terminal_coverage_gap_digest'),
+                   'provider_outcome':'TERMINAL_COVERAGE_BLOCKED','provider_outcome_reason':f'TERMINAL_COVERAGE_{state}',
+                   'recovery_deadline_at':None,'next_eligible_dispatch_at':None})
+  payload['envelope']=envelope;payload['last_error']=f'TERMINAL_COVERAGE_{state}';payload['last_attempt_at']=int(time.time())
   self.queue._replace_payload(claimed.path,payload)
   target=self.queue.root/'dead_letter'/claimed.path.name;os.replace(claimed.path,target)
   self.queue._fsync_directory(claimed.path.parent);self.queue._fsync_directory(target.parent)
@@ -1450,12 +1472,22 @@ class MonitorWorker:
   return result
  def _process_terminal_ath(self,c):
   p=c.payload['envelope']
+  envelope_coverage=str(p.get('terminal_coverage_state') or 'UNKNOWN').upper()
+  if envelope_coverage!='COMPLETE':
+   self.q.defer_terminal_coverage_incomplete(c,coverage_state=envelope_coverage,
+     provenance_digest=p.get('terminal_coverage_provenance_digest'),gap_digest=p.get('terminal_coverage_gap_digest'))
+   return {'state':'TERMINAL_COVERAGE_BLOCKED','coverage_state':envelope_coverage}
   try: finalizer=self.terminal_finalizer_factory(self.db_path,before_dispatch=self.q.admit_provider_dispatch)
   except TypeError: finalizer=self.terminal_finalizer_factory(self.db_path)
   fact=finalizer.freeze(p['mint'])
   if finalizer.logical_job_identity(fact)!=p.get('logical_identity'):
    raise ValueError('TERMINAL_ATH_IDENTITY_MISMATCH')
-  result=finalizer.finalize(p['mint'],interval='15m',watchtower_price_fact_contract=True)
+  fact_coverage=str(fact.get('terminal_coverage_state') or 'UNKNOWN').upper()
+  if fact_coverage!='COMPLETE':
+   self.q.defer_terminal_coverage_incomplete(c,coverage_state=fact_coverage,
+     provenance_digest=fact.get('terminal_coverage_provenance_digest'),gap_digest=fact.get('terminal_coverage_gap_digest'))
+   return {'state':'TERMINAL_COVERAGE_BLOCKED','coverage_state':fact_coverage}
+  result=finalizer.finalize(p['mint'],interval='15m',watchtower_price_fact_contract=False)
   if result['state'] not in {'FINALIZED','ALREADY_FINALIZED'}: raise RuntimeError('TERMINAL_ATH_UNCOMMITTED')
   self.q.queue.ack(c); self.last_ack_timestamp=time.time(); return result
  def process_once(self):

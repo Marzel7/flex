@@ -34,6 +34,7 @@ def _clean_product(monkeypatch, tmp_path):
     _insert_fact(db, "fallback", FALLBACK, "MIGRATION_SECOND_FALLBACK_EXACT")
     monkeypatch.setenv("OPERATION_RESEARCH_ROOT", str(Path(__file__).resolve().parents[1]))
     monkeypatch.setenv("WT_OPS_DB_PATH", db)
+    monkeypatch.setenv("WATCHTOWER_MONITOR_UI_DB_PATH", db)
     import src.ops.watchtower_research_cohorts as cohorts
     import src.ops.operation_playbook_registry as registry
     importlib.reload(cohorts)

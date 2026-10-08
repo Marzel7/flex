@@ -20391,12 +20391,12 @@
     "next_action": "AUTHORIZE_ONE_OR_BOTH_RECOMMENDED_DEVS_THEN_CREATE_CLEAN_ISOLATED_WORKTREES_AND_RUN_V2_ADMISSION_BEFORE_EDITING"
   },
   "dev023_phase3_retention_contract_20261008": {
-    "engineering_revision": "4282191eaadf9d7e0ea8b0092027d4adb29d9db3 on local codex/dev-023-retention-phase3; clean dedicated worktree from approved 580508a70c80e7fc944e0069f85e67b851a117fa.",
-    "status": "QUALIFIED_LOCAL_HANDOFF_TRANSPORT_DEGRADED",
+    "engineering_revision": "4282191eaadf9d7e0ea8b0092027d4adb29d9db3 on origin/codex/dev-023-retention-phase3; clean dedicated worktree from approved 580508a70c80e7fc944e0069f85e67b851a117fa; remote ref verified exact.",
+    "status": "PASS_PHASE3_CONTRACT_QUALIFIED_REMOTE_VERIFIED",
     "finding": "V2 admission and unique temporary-path guards passed. The new opt-in canonical rpc_response_cache retention contract accepts only an explicit canonical path, deletes only expired rows with an in-delete expiry recheck, preserves non-expired rows, bounds rows/batches, has disk/WAL ceilings, returns fail-closed for a locked database, and is restart-idempotent. It is not scheduled, deployed, or run against a live database.",
     "tests": "tests/test_dev023_hot_rpc_cache_retention.py=5 passed; tests/test_rpc_cache_expiry_index.py=2 passed; tests/test_dev_execution_discipline_v2.py=8 passed; total=15 passed.",
-    "limitations": "Existing DEV-023 Phase 1/2 evidence is retained in the dirty shared checkout rather than the approved source base. Runtime scheduling/write-lane integration and live maintenance remain unqualified and require separate authority. Engineering branch push was rejected by environment egress policy; local work is preserved cleanly.",
+    "limitations": "Existing DEV-023 Phase 1/2 evidence is retained in the dirty shared checkout rather than the approved source base. Runtime scheduling/write-lane integration and live maintenance remain unqualified and require separate authority.",
     "safety": "Supervisor/service/provider/listener/live DB/queue/VACUUM/live purge mutations=0; no files approach 500MB. RUNTIME_DEPLOYMENT_REQUIRED=true for any future runtime integration, but this provider-free qualification itself is not deployed.",
-    "next_action": "OBTAIN_EXPLICIT_REMOTE_PUBLICATION_APPROVAL_OR_RECORD_LOCAL_ONLY_STATUS; THEN_REVIEW_RUNTIME_WRITE_LANE_AND_SCHEDULING_INTEGRATION_AS_A_SEPARATE_DEV023_GATE"
+    "next_action": "REVIEW_RUNTIME_WRITE_LANE_AND_SCHEDULING_INTEGRATION_AS_A_SEPARATE_DEV023_GATE; DO_NOT_RUN_LIVE_RETENTION_MAINTENANCE_WITHOUT_EXPLICIT_AUTHORITY"
   }
 }

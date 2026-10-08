@@ -20768,5 +20768,15 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Bounded exact-signature research artifact only; no discovery runtime behavior was installed or enabled.",
     "next_action": "STOP. Preserve the exact-signature chronology without promotion. Any further acquisition requires separate explicit authorization."
+  },
+  "dev019_temporal_counterexample_regression_20261008": {
+    "engineering_revision": "Provider-free regression commit 0e504bc5a2b38161f7dfde1cd4566a17dd202dc1 on origin/codex/dev-019-mesh-discovery.",
+    "status": "PASS_TEMPORAL_COUNTEREXAMPLE_QUALIFIED_NOT_DEPLOYED",
+    "fixture": "tests/fixtures/dev019_amq_8cub_temporal_counterexample.v1.json is compact and raw-payload-free. It preserves the verified AMQ -> 8CUb 770 SOL fact at slot 454516004/transaction_index 1118/instruction 2; the earlier direct creator -> 2BVf 939800-lamport fact at slot 453983182/transaction_index 1190/instruction 2/inner 9; the complete-window absence of a direct 8CUb -> creator fact; and tffs as an unverified wrapped-SOL close-account context only.",
+    "contract_result": "The exact facts remain individually represented, while causal_order(earlier creator event, later AMQ funding) returns PARENT_AFTER_CHILD_SLOT. The combined route fails closed without discarding either fact. The creator-to-mint transfer is explicitly non-canonical creation evidence; the WSOL close is not a direct funding edge; incomplete signature coverage remains INCOMPLETE rather than absence.",
+    "qualification": "Added two focused provider-free tests. DEV-019 plus V2 tests passed 37/37; V2 register validation PASS. No provider calls, live DB/queue writes, Supervisor/service/listener actions, confirmation, membership promotion, attribution change, deployment, raw provider/block retention, or large file occurred.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Provider-free discovery regression only; no runtime integration or service configuration changed.",
+    "next_action": "STOP. Preserve the qualified regression. Any further acquisition or runtime integration requires separate explicit authorization."
   }
 }

@@ -20108,5 +20108,17 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_CANDIDATE_API_SHA_MISMATCH_ROLLED_BACK_BEFORE_MONITOR_SOAK",
     "next_action": "STOP. DIAGNOSE THE CANDIDATE API SHA_MISMATCH AGAINST THE EXACT SUPERVISOR LAUNCHER/ROOT CONTRACT BEFORE SEEKING ANOTHER DEPLOYMENT OR MONITOR-SOAK AUTHORIZATION."
+  },
+  "watchtower_api_sha_mismatch_readonly_reconciliation_20261008": {
+    "engineering_revision": "Read-only reconciliation against candidate 0fe9c84b8a8528e0fd0662cc420238039e9e467e; no source/config/runtime action.",
+    "status": "HOLD_SHA_MISMATCH_CAUSAL_AUTHORITY_UNPROVEN",
+    "candidate_contract": "Reviewed candidate API command, worker command, bridge directory/environment contract, and candidate physical checkout all resolve to /Users/kevinkeaveney/.codex/worktrees/watchtower-monitor-bounded-soak/flex at clean HEAD 0fe9c84b8a8528e0fd0662cc420238039e9e467e. The candidate API command passes the same 0fe verifier directly. Worker and bridge reference the same root/SHA; finite lifecycle values remain startsecs=0 and exitcodes=0.",
+    "retained_error_limit": "The retained API stderr records only the literal SHA_MISMATCH, with no expected SHA, observed HEAD, root path, PID, or timestamp correlation. It cannot establish which launch attempt produced each line. The active rollback stanza instead targets clean legacy checkout a32ebba3732d3f68cf5fd387bf05444a744610dc, and that exact checkout also passes its direct verifier.",
+    "supervisor_context": "The running supervisord is PID 73409 using the documented active root. A read-only variable-name-only environment scan found no Git worktree/directory override; GIT_PAGER alone is present and does not select a repository. Supervisor event history shows repeated managed API exit status 1 after rollback, but does not contain the command arguments or verifier's actual HEAD.",
+    "decision": "No incorrect configured SHA, wrong candidate root, checkout change, or missing committed launcher/manifest authority is proven. The proposed config 5eb15f75058ddeef3153f53bcb7925a0dd47a80d3dc795e295794f7eacc23aa0 and rollback 3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19 remain unchanged. A correction would be speculative and is not applied.",
+    "safety": "Read-only logs/config/process/git inspection only; Supervisor actions=0, deployment=0, DB/queue writes=0, provider calls=0, listener changes=0, and no source changes or large artifact.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_SHA_MISMATCH_CAUSAL_AUTHORITY_UNPROVEN",
+    "next_action": "STOP. OBTAIN AUTHORIZATION FOR A NARROW LAUNCHER OBSERVABILITY CHANGE OR EQUIVALENT EVIDENCE THAT RECORDS NON-SECRET EXPECTED SHA, ACTUAL HEAD, ROOT, AND PID BEFORE ANOTHER LIVE DEPLOYMENT OR SOAK ATTEMPT."
   }
 }

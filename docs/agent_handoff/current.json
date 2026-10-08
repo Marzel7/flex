@@ -20250,6 +20250,18 @@
     "runtime_deployment_gate": "HOLD_BOUNDED_WORKER_COMPLETION_CONTRACT",
     "next_action": "READ_ONLY_ATTRIBUTE_PID_7442_AND_ITS_EXACT_CURRENT_RUNTIME_COMMAND_OR_LOG_STREAM, THEN QUALIFY_ONLY_THE_MINIMUM_WORKER_FINITE_ITERATION_CORRECTION. DO_NOT_RERUN_THE_SOAK_OR_ENABLE_CONTINUOUS_MONITORING_UNTIL_THAT_COMPLETION_BOUNDARY_IS_EXPLAINED."
   },
+  "watchtower_corrected_bridge_worker_soak_execution_20261008": {
+    "engineering_revision": "86eff76e5285857123143445a634a31d432194df on origin/codex/watchtower-monitor-bounded-soak; clean qualified runtime.",
+    "status": "PASS_ONE_BRIDGE_AND_ONE_WORKER_ZERO_PROVIDER_SOAK_COMPLETED",
+    "preflight": "Verified active=rollback SHA256 3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19, candidate=86eff76e clean, proposed SHA256=eac5c123f39bf0aad5ea8e2449e532fbdc8c89013b4998393a8a03bc7ec8c6e1, launcher identity preflight, finite zero-provider contract, queue=5 files, API healthy/db-ok/wal_warn=false, and listener PID 73415. Fresh guard snapshots were taken immediately before each authorized iteration.",
+    "transition": "A byte-exact preinstall backup was created. The reviewed configuration was atomically installed; reread reported only operation_monitor_bridge and operation_monitor_worker changed; update targeted only those two. API PID 95506 and listener PID 73415 were never targeted and remained continuous.",
+    "soak_results": "Bridge was started once and exited cleanly under startsecs=0/exitcodes=0. Its fresh guard accepted with fresh_error_count=0, no reasons, unchanged source operations WAL=19,055,032 bytes, and queue=5. Worker was then started once and also exited cleanly under the corrected finite launcher contract. Its independent fresh guard accepted with fresh_error_count=0, no reasons, unchanged source operations WAL=19,055,032 bytes, and queue=5. Both are EXITED (expected successful finite completion), not running or autorestarting.",
+    "provider_and_health": "Provider call count=0. Worker had explicit global/per-mint limits=0, and retained provider_budget.json metadata remained at 2026-10-07T06:00:09+0100, before this soak. API /healthz remained HTTP 200 healthy=true db=ok wal_warn=false. Listener remains exactly PID 73415 with its prior command. Post-soak canonical WAL was 333,752 bytes; source operations WAL remained 19,055,032 bytes; neither fresh guard detected new WAL/write-lock evidence.",
+    "rollback": "Not required: no genuine safety or acceptance failure occurred. The installed active configuration is SHA256=eac5c123f39bf0aad5ea8e2449e532fbdc8c89013b4998393a8a03bc7ec8c6e1; the byte-exact rollback artifact remains SHA256=3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS_BOUNDED_MONITOR_SOAK",
+    "next_action": "STOP_AT_THE_COMPLETED_BOUNDED_SOAK_BOUNDARY. A_SEPARATE_EXPLICIT_AUTHORIZATION_IS_REQUIRED_BEFORE_CONTINUOUS_MONITORING_SHADOW_CAPTURE_INJECTOR_HISTORY_OR_AUTHORITATIVE_PLUS2_ACTIVATION."
+  },
   "watchtower_worker_soak_preapproval_20261008": {
     "engineering_revision": "86eff76e5285857123143445a634a31d432194df on origin/codex/watchtower-monitor-bounded-soak; clean isolated candidate. No source change was required for this deterministic configuration preparation.",
     "status": "PASS_API_LISTENER_PRESERVING_WORKER_SOAK_PREPARED_AWAITING_EXPLICIT_LIVE_APPROVAL",

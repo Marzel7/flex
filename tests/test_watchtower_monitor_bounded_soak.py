@@ -8,7 +8,7 @@ import pytest
 
 from src.ops import operation_monitor_service as service
 from src.ops.monitor_live_admission import ensure_schema, record_member
-from src.ops.operation_monitor_bridge_service import run_once as bridge_once
+from src.ops.operation_monitor_bridge_service import config as bridge_config, run_once as bridge_once
 from src.ops.operation_monitor_worker import MonitorQueue
 from src.ops.dev_provider_budget import BudgetDenied
 
@@ -91,3 +91,12 @@ def test_zero_provider_budget_fails_closed_before_dispatch(tmp_path, monkeypatch
     with pytest.raises(BudgetDenied, match="GLOBAL_PROVIDER_BUDGET_EXHAUSTED"):
         queue.admit_provider_dispatch("mint", "15M_EVIDENCE", now=100)
     assert not (queue.queue.root / "provider_budget.json").exists()
+
+
+def test_iteration_caps_are_explicit_positive_opt_in(monkeypatch):
+    monkeypatch.setenv("MONITOR_MAX_ITERATIONS", "1")
+    assert service._bounded_iteration_limit() == 1
+    assert bridge_config({"MONITOR_BRIDGE_SOURCE_DB": "source", "MONITOR_BRIDGE_MONITOR_DB": "monitor", "MONITOR_BRIDGE_QUEUE_PATH": "queue", "MONITOR_BRIDGE_MAX_ITERATIONS": "1"})["max_iterations"] == 1
+    monkeypatch.setenv("MONITOR_MAX_ITERATIONS", "0")
+    with pytest.raises(RuntimeError, match="INVALID_MONITOR_MAX_ITERATIONS"):
+        service._bounded_iteration_limit()

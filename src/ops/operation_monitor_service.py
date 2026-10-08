@@ -31,6 +31,20 @@ _STOP = False
 NO_TRANSPORT_PREFLIGHT_MODE = 'MONITOR_PREFLIGHT_NO_TRANSPORT'
 
 
+def _bounded_iteration_limit() -> int | None:
+    """Optional explicit cap for an isolated DEV soak process lifetime."""
+    raw = os.getenv('MONITOR_MAX_ITERATIONS', '').strip()
+    if not raw:
+        return None
+    try:
+        value = int(raw)
+    except ValueError as exc:
+        raise RuntimeError('INVALID_MONITOR_MAX_ITERATIONS') from exc
+    if value < 1:
+        raise RuntimeError('INVALID_MONITOR_MAX_ITERATIONS')
+    return value
+
+
 def _sleep_until_next_idle_tick(deadline: float) -> bool:
     """Sleep at most one tick; return false when the deadline has passed."""
     remaining = deadline - time.monotonic()
@@ -156,11 +170,16 @@ def run_loop(*, idle_seconds: float | None = None) -> None:
         raise RuntimeError('MONITOR_QUEUE_DISABLED')
     interval = float(idle_seconds or os.getenv('OPERATION_MONITOR_IDLE_SECONDS', '5'))
     interval = max(1.0, min(interval, 60.0))
+    iteration_limit = _bounded_iteration_limit()
     no_transport = os.getenv(NO_TRANSPORT_PREFLIGHT_MODE, '').strip().lower() in {'1', 'true', 'yes', 'on'}
     if no_transport:
         # Deliberately do not construct provider bindings in this mode.
+        iterations = 0
         while not _STOP:
             preflight_once(queue=queue, db_path=db_path)
+            iterations += 1
+            if iteration_limit is not None and iterations >= iteration_limit:
+                return
             deadline = time.monotonic() + interval
             while not _STOP and _sleep_until_next_idle_tick(deadline):
                 pass
@@ -194,8 +213,12 @@ def run_loop(*, idle_seconds: float | None = None) -> None:
                     for row in response['candles']]
         current_price_scheduler = DevCurrentPriceScheduler(
             db_path=db_path, queue=queue, fetch=fetch_current)
+    iterations = 0
     while not _STOP:
         run_once(worker=worker, queue=queue, db_path=db_path)
+        iterations += 1
+        if iteration_limit is not None and iterations >= iteration_limit:
+            return
         if current_price_scheduler is not None:
             current_price_scheduler.tick()
         deadline = time.monotonic() + interval

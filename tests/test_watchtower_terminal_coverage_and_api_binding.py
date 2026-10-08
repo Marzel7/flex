@@ -106,24 +106,31 @@ def test_complete_terminal_coverage_reaches_finalizer(tmp_path):
 
 def test_live_projection_uses_only_configured_monitor_store(monkeypatch, tmp_path):
     database = tmp_path / "monitor.sqlite"
+    recovered_entries = {
+        "9JtPfLbN32CszHmstoXYdWaazFLaoxhfqf9mKgQMpump": 105600.45900012992,
+        "7JVDPbS8iYHoUD4yWYxQH9yHcop5oPeBnfBvXkiqpump": 128917.09988926353,
+        "6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump": 125378.29249620523,
+        "6LdjC13zbAxmruKrqsAQ4znUrjNe7gXXVeCHDBMYpump": 162775.9385584885,
+    }
     with sqlite3.connect(database) as conn:
         ensure_schema(conn)
-        conn.execute("""INSERT INTO operation_monitor_facts(
+        conn.executemany("""INSERT INTO operation_monitor_facts(
             operation_id,mint,cohort_class,entry_method,entry_status,entry_exactness,
             monitor_state,entry_timestamp,entry_mc_usd,provenance_digest,created_at,updated_at
-        ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)""", (
-            "watchtower", "persisted-entry", "PROSPECTIVE_MONITOR_COHORT",
+        ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)""", [(
+            "watchtower", mint, "PROSPECTIVE_MONITOR_COHORT",
             "FIRST_FULL_POST_MIGRATION_SECOND_MC", "QUALIFIED", "EXACT",
-            "PRICE_MONITOR_COMPLETE_COLLAPSED", 100, 12.5, "proof", 100, 100,
-        ))
+            "PRICE_MONITOR_COMPLETE_COLLAPSED", 100, entry_mc, f"proof-{mint}", 100, 100,
+        ) for mint, entry_mc in recovered_entries.items()])
     monkeypatch.setenv("WATCHTOWER_MONITOR_UI_DB_PATH", str(database))
     import src.ops.operator_routes as routes
     import src.ops.operation_monitor_worker as monitor_worker
     disabled_queue = SimpleNamespace(enabled=False, depth=lambda: {"pending": 0, "retry": 0, "processing": 0, "dead_letter": 0})
     monkeypatch.setattr(monitor_worker, "production_queue", lambda: SimpleNamespace(queue=disabled_queue))
     projection = routes._monitor_live_projection()
-    assert [row["mint"] for row in projection["rows"]] == ["persisted-entry"]
-    assert projection["rows"][0]["lifecycle_class"] == "TERMINAL_COVERAGE_UNKNOWN"
+    rows = {row["mint"]: row for row in projection["rows"]}
+    assert {mint: row["entry_mc_usd"] for mint, row in rows.items()} == recovered_entries
+    assert {row["lifecycle_class"] for row in rows.values()} == {"TERMINAL_COVERAGE_UNKNOWN"}
     monkeypatch.delenv("WATCHTOWER_MONITOR_UI_DB_PATH")
     with pytest.raises(routes.MonitorStoreUnavailable, match="WATCHTOWER_MONITOR_UI_DB_PATH_REQUIRED"):
         routes._monitor_live_projection()

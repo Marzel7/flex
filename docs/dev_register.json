@@ -45,9 +45,9 @@
       "branch": "codex/dev-019-mesh-discovery",
       "worktree": "/private/tmp/flex-dev-019-mesh-discovery",
       "starting_sha": "afa282fa0139265deeb2a3f21b1d072290cb62ed",
-      "current_sha": "09e50dcc76c65fb6afbd75bd10b00b287d4cd5a9",
-      "status": "QUALIFIED_WEBHOOK_HINT_CONTRACT_NOT_DEPLOYED",
-      "next_action": "Obtain separate approval for a read-only external Helius webhook configuration/delivery inspection, then separately review any feature-off runtime integration. Do not change the webhook, ngrok tunnel, API, or ws_cascade.",
+      "current_sha": "32bf3fa6ca8e9eeeb0d3dc3ec5d3ef1cf4f2025b",
+      "status": "QUALIFIED_TREASURY_SUBSCRIPTION_TELEMETRY_NOT_DEPLOYED",
+      "next_action": "Separately review a read-only integration of the bounded snapshot into the exact clean live cascade authority, then observe and explain the live 29/83 map. Do not change subscription selection, ws_cascade, webhook, or provider acquisition.",
       "dependencies": [
         "Development Execution Discipline V2",
         "Legacy DEV-019 Phase 1/2/2B contracts",
@@ -96,6 +96,7 @@
         ,"Eight-slot activity-aware subscription policy: provider-free selection defaults to eight slots with a one-hour minimum dwell. It prioritizes HOT verified material funding, then ACTIVE by material-funding recency, then reactivation, then other verified funding; transaction-only activity cannot take a slot. It selects fewer than eight without sufficient evidence, lets reactivation replace expired low-priority slots without churn, and keeps all 83 confirmed treasuries reconciliation-eligible (HOT/ACTIVE high priority, dormant/retired daily, launch-backward targeted). Existing live provider capacity is observed at 29 concurrent treasury subscriptions, so eight is inside observed capacity; exact current identities remain unobservable from aggregate telemetry. Artifact docs/audits/dev_019_eight_slot_treasury_subscription_qualification.v1.json; 77 DEV-019/V2 tests passed; provider/live/runtime mutations=0."
         ,"Bounded telemetry qualification: SubscriptionManager now captures a maximum 83-record in-memory treasury selection ledger and returns an on-demand <=32KiB snapshot containing public address, selected/requested/acknowledged/active state, selection priority/reason, explicit skip/failure reason, and reconnect generation. It performs no database, provider, WebSocket, file, or subscription mutation. The snapshot remains unexposed in the active runtime pending separate deployment review. 101 provider-free DEV-019/V2/lifecycle regressions passed; runtime mutations=0."
         ,"Webhook-hint qualification: a standalone, feature-off compact parser accepts only direct outbound native-SOL transfers from a supplied confirmed-treasury set. Idempotency is transfer-level (signature + transfer ordinal + sender + receiver + lamports), so multiple transfers in one signature remain distinct; signature-only dedupe is explicitly insufficient. Hints retain no raw payload and cannot become complete cascade facts, causal routes, or operation assignments. Queue/full-consumer failure is nonblocking and produces zero provider calls. 39 focused DEV-019/V2 tests passed; runtime/live mutations=0."
+        ,"Expanded subscription telemetry: the bounded 83-row / 32KiB fixed-field snapshot exposes registry membership, eligibility, selected/requested/acknowledged/active state, provider subscription ID when acknowledged, priority/reason, failure or suppression reason, reconnect generation, and deterministic aggregate counts. It distinguishes selected-not-requested, request-sent-unacknowledged, acknowledged-active, disconnected, failed, reconnecting, and explicitly suppressed. It has no dispatcher integration, database/provider/WebSocket/file write, or selection side effect. 65 focused provider-free DEV-019/cascade/V2 regressions passed."
       ],
       "integration_promotion_status": "QUALIFIED_ISOLATED_ENGINE_NOT_RUNTIME_PROMOTED",
       "touched_services": [],

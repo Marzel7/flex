@@ -20692,5 +20692,19 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Research artifact and V2 register state only; discovery remains undeployed and review-only.",
     "next_action": "STOP. PRESERVE_THE_NEGATIVE_BOUNDED_PAGE_RESULT_WITHOUT_PROMOTION. Any further AMQ-route acquisition requires new explicit authorization with a different bounded history/cursor contract."
+  },
+  "dev019_comprehensive_mesh_discovery_admission_20261008": {
+    "engineering_revision": "DEV-019 mesh-discovery branch origin/codex/dev-019-mesh-discovery at 44d7de684cf80de893a91ef79bcd432c9ae6e701. Clean isolated worktree: /private/tmp/flex-dev-019-mesh-discovery; approved start afa282fa0139265deeb2a3f21b1d072290cb62ed.",
+    "status": "QUALIFIED_COVERAGE_AND_DECODING_READY_AWAITING_BATCH1_ACQUISITION_AUTHORITY",
+    "admission": "V2 admission PASS and V2 register validation PASS. The DEV register now records this as the active isolated DEV-019 objective. Frozen Watchtower and DEV-023 authorities remain untouched.",
+    "authority_recovery": "Read-only operations-DB inspection found 83 current wt_confirmed_treasuries rows, including GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac. Candidate identities remain separate and unconfirmed. The manual artifact and earlier compact artifacts remain provenance inputs, not promotion authority.",
+    "critical_correction": "The prior AMQ batch fetched 20 signatures for each of AMQ, 8CUb, and the creator but decoded only a 7/7/6 prefix. It therefore could not establish a negative result for the full returned windows, which explains how a recent Solscan-visible 770 SOL AMQ -> 8CUb transfer could have been missed. The old artifact remains a bounded partial result, not full-page absence evidence.",
+    "qualified_capability": "New provider-free coverage contract marks a signature window COMPLETE only when every returned signature is decoded; otherwise it is explicitly INCOMPLETE. Compact decoding retains outer and inner System Program transfer coordinates and balance verification; WSOL account closes are retained as ACCOUNT_CLOSE context rather than direct funding; transaction-level net-balance movement without an instruction creates no edge. Route qualification requires ordered, direct, verified transfers plus an explicit VERIFIED_CREATOR_LAUNCH event; creator/mint co-location is contextual only. Cycles, dust, disconnected direction, and missing coordinates fail closed.",
+    "regression": "tests/test_dev_019_treasury_rotation.py plus tests/test_dev_execution_discipline_v2.py: 32 passed, 0 failed. No provider call occurred during this new capability qualification.",
+    "batch1_proposal": "Approval boundary: decode a full single current 20-signature page for each of AMQ, 8CUb, and the 2BVf creator. Cap: 3 getSignaturesForAddress + 60 getTransaction + at most 3 selective getBlock calls for actual same-slot ordering ambiguity = <=66 Helius requests, no pagination, retries, or fallback; sequential bounded execution, 20-second request timeout, compact output <=256 KiB, no raw response retention. It is a meaningful covering correction for the discovered selection flaw but remains only one explicit current-page window, not complete wallet history.",
+    "safety": "New phase provider calls=0; live DB/queue writes=0; Supervisor/service/listener actions=0; deployment=0; treasury confirmations=0; membership promotions=0; canonical attribution changes=0; no raw provider/block retention; no large file.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "DEV-only provider-free qualification; no executable runtime path is installed or enabled.",
+    "next_action": "REQUEST_EXPLICIT_APPROVAL_FOR_THE_<=66-CALL_BATCH1_COVERING_WINDOW_BEFORE_ANY_ADDITIONAL_HELIUS_ACQUISITION."
   }
 }

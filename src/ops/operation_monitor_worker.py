@@ -167,6 +167,49 @@ class StrictEntryNormalizationError(ValueError):
   super().__init__(category)
 def _h(x:Any)->str:return hashlib.sha256(json.dumps(x,sort_keys=True,separators=(',',':'),default=str).encode()).hexdigest()
 
+def canonical_birth_enrichment(envelope: dict[str, Any], *, db_path: str | None) -> dict[str, Any]:
+ """Read one immutable canonical birth record for a legacy monitor envelope.
+
+ The returned ``birth`` value is deliberately an in-memory compatibility
+ adapter: it never backfills or rewrites a pre-existing queue payload.  A
+ later, newly-created successor may carry the compact evidence identity.
+ """
+ p=envelope or {}; mint=str(p.get('mint') or '')
+ assignment=p.get('assignment') if isinstance(p.get('assignment'),dict) else {}
+ operation_id=canonical_operation_id(str(p.get('operation_id') or ''))
+ if operation_id != 'watchtower' or not mint or not db_path:
+  return {'state':'INSUFFICIENT_CANONICAL_BIRTH','reason':'CANONICAL_BIRTH_AUTHORITY_UNAVAILABLE'}
+ try:
+  from src.ops.canonical_launch_birth import project
+  result=project(db_path=str(db_path),mint=mint,operation_id=operation_id,assignment=assignment)
+ except (OSError,sqlite3.Error,ValueError):
+  return {'state':'INSUFFICIENT_CANONICAL_BIRTH','reason':'CANONICAL_BIRTH_READ_FAILED'}
+ if result.get('state') != 'CANONICAL_BIRTH_PROJECTED' or str(result.get('mint') or '') != mint:
+  return {'state':str(result.get('state') or 'INSUFFICIENT_CANONICAL_BIRTH'),'reason':str(result.get('reason') or 'CANONICAL_BIRTH_UNPROVEN')}
+ try: create_time=int(result.get('create_time'))
+ except (TypeError,ValueError): return {'state':'INSUFFICIENT_CANONICAL_BIRTH','reason':'CANONICAL_BIRTH_TIME_INVALID'}
+ if create_time <= 0 or not str(result.get('birth_evidence_id') or ''):
+  return {'state':'INSUFFICIENT_CANONICAL_BIRTH','reason':'CANONICAL_BIRTH_PROVENANCE_INVALID'}
+ if assignment.get('event_id') and result.get('assignment_event_id') != assignment.get('event_id'):
+  return {'state':'CONFLICTING_CANONICAL_BIRTH','reason':'ASSIGNMENT_PROVENANCE_MISMATCH'}
+ return {'state':'CANONICAL_BIRTH_ENRICHED','birth':{
+  'mint':mint,'create_time':create_time,'create_slot':result.get('create_slot'),
+  'source':result.get('source'),'birth_evidence_id':result['birth_evidence_id'],
+  'assignment_event_id':assignment.get('event_id'),
+ }}
+
+def policy_c_enrichment_decision(envelope: dict[str, Any], *, now: int, db_path: str | None) -> dict[str, Any]:
+ """Return an immutable-birth scheduling decision before any provider call."""
+ p=envelope or {}; birth=p.get('birth') if isinstance(p.get('birth'),dict) else {}
+ enriched=None
+ if birth.get('create_time') and birth.get('birth_evidence_id'):
+  enriched={'state':'CANONICAL_BIRTH_ENRICHED','birth':dict(birth)}
+ else:
+  enriched=canonical_birth_enrichment(p,db_path=db_path)
+ if enriched.get('state') != 'CANONICAL_BIRTH_ENRICHED': return enriched
+ schedule=policy_c_schedule(birth_timestamp=enriched['birth']['create_time'],now=int(now))
+ return {**enriched,**schedule}
+
 def _qualified_live_entry(envelope: dict[str, Any]) -> bool:
  """Whether an envelope has a qualified entry suitable for live monitoring.
 
@@ -398,7 +441,8 @@ class MonitorQueue:
              'entry_exactness':fact.get('entry_exactness'),'entry_provenance':fact.get('provenance_digest'),
              'entry_reference_state':state,'monitor_state':state,
              'last_observation_at':int(fact['last_observation_at']) if fact.get('last_observation_at') is not None else None,
-             'next_eligible_dispatch_at':next_eligible,'next_check_state':'SCHEDULED','successor_of':predecessor_id,
+             'next_eligible_dispatch_at':next_eligible,'policy_c_scheduled_at':next_eligible,
+             'next_check_state':'SCHEDULED','successor_of':predecessor_id,
              'candle_resolution':envelope.get('candle_resolution') or '15m'}
   if not (_qualified_live_entry(successor) or _watchtower_history_without_entry(successor)):
    return {'status':'NOT_ENQUEUED_INVALID_FACT'}
@@ -660,6 +704,23 @@ class MonitorQueue:
   payload['envelope']=envelope;payload['last_error']=classification;payload['last_attempt_at']=int(time.time())
   self.queue._replace_payload(claimed.path,payload)
   target=self.queue.root/'retry'/claimed.path.name;os.replace(claimed.path,target)
+  self.queue._fsync_directory(claimed.path.parent);self.queue._fsync_directory(target.parent)
+ def defer_policy_c_schedule(self, claimed, *, next_eligible_at: int, classification: str, birth_evidence_id: str | None = None):
+  """Return one claimed legacy job to pending at its canonical checkpoint.
+
+  This is a normal queue-state transition, not a historical payload rewrite:
+  it preserves the message id, assignment, birth payload, retry counters and
+  all observed evidence.  Only future dispatch metadata is advanced.
+  """
+  payload=dict(claimed.payload); envelope=dict(payload.get('envelope') or {})
+  envelope.update({'next_eligible_dispatch_at':int(next_eligible_at),
+                   'policy_c_scheduled_at':int(next_eligible_at),
+                   'next_check_state':'SCHEDULED',
+                   'policy_c_schedule_reason':str(classification)[:160]})
+  if birth_evidence_id: envelope['policy_c_birth_evidence_id']=str(birth_evidence_id)
+  payload['envelope']=envelope
+  self.queue._replace_payload(claimed.path,payload)
+  target=self.queue.root/'pending'/claimed.path.name;os.replace(claimed.path,target)
   self.queue._fsync_directory(claimed.path.parent);self.queue._fsync_directory(target.parent)
  def defer_retryable(self,claimed,*,classification='RETRYABLE_PROVIDER_FAILURE',now=None,ready_now=False):
   """Persist a generic retryable outcome with an explicit future deadline."""
@@ -1616,6 +1677,26 @@ class MonitorWorker:
      target=self.q.queue.root/'pending'/c.path.name
      os.replace(c.path,target); self.q.queue._fsync_directory(c.path.parent); self.q.queue._fsync_directory(target.parent)
      continue
+    # Existing active envelopes written before Policy C may have no canonical
+    # birth timestamp.  Resolve it from the immutable launch authority before
+    # any paid dispatch, without changing that historical envelope's birth
+    # payload.  A newly-created successor receives the compact evidence.
+    enriched_birth=None
+    if canonical_operation_id(str(p.get('operation_id') or '')) == 'watchtower' and p.get('candle_resolution') == '15m':
+     dispatch_now=int(time.time())
+     decision=policy_c_enrichment_decision(p,now=dispatch_now,db_path=os.getenv('OPERATION_MONITOR_CANONICAL_BIRTH_DB_PATH'))
+     if decision.get('state') == 'NO_FURTHER_CHECK':
+      self.q.queue.ack(c);self.last_ack_timestamp=time.time();continue
+     if decision.get('state') != 'SCHEDULED':
+      # The authority may become available later, but absent or conflicting
+      # provenance is never a reason to acquire price data.
+      self.q.defer_policy_c_schedule(c,next_eligible_at=dispatch_now+3600,classification=str(decision.get('reason') or decision.get('state') or 'INSUFFICIENT_CANONICAL_BIRTH'))
+      continue
+     due_marker=int(p.get('policy_c_scheduled_at') or 0)
+     if not due_marker or due_marker > dispatch_now:
+      self.q.defer_policy_c_schedule(c,next_eligible_at=int(decision['next_check_at']),classification='CANONICAL_POLICY_C_SCHEDULE',birth_evidence_id=decision['birth']['birth_evidence_id'])
+      continue
+     enriched_birth=decision['birth']
     # Freeze redacted request identity before provider activity; retained in retry/dead-letter.
     dispatch=int(time.time())
     if canonical_operation_id(str(p['operation_id'])) == 'watchtower' and p.get('candle_resolution') == '15m':
@@ -1679,7 +1760,7 @@ class MonitorWorker:
       committed.row_factory=sqlite3.Row
       row=committed.execute('SELECT * FROM operation_monitor_facts WHERE operation_id=? AND mint=?',(p['operation_id'],p['mint'])).fetchone()
      if row is None: raise RuntimeError('MONITOR_SUCCESSOR_FACT_MISSING')
-     successor=self.q.enqueue_active_successor(predecessor_id=c.message_id,fact=dict(row),envelope=p,now=now)
+     successor=self.q.enqueue_active_successor(predecessor_id=c.message_id,fact=dict(row),envelope=({**p,'birth':enriched_birth} if enriched_birth else p),now=now)
      if successor['status'] != 'ENQUEUED_ACTIVE_SUCCESSOR': raise RuntimeError(f"MONITOR_SUCCESSOR_NOT_ENQUEUED:{successor['status']}")
      # Checkpoint the completed predecessor only after its successor is
      # durable.  Retry/restart can now ACK without repeating provider work.

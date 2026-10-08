@@ -20754,5 +20754,19 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Bounded research artifact only; no discovery runtime behavior was installed or enabled.",
     "next_action": "STOP. Preserve partial lineage evidence without promotion. Any further account/history acquisition or creator-launch verification needs new explicit authorization."
+  },
+  "dev019_exact_8cub_creator_signature_verification_20261008": {
+    "engineering_revision": "Compact findings commit ce05ee94df6b5ac3d3cbdbc22a95d269f63d584d on origin/codex/dev-019-mesh-discovery; acquisition contract remains source correction 6163d43a4119f53279b4a08af8c2fb8a0daf740b.",
+    "status": "PASS_EXACT_SIGNATURES_COMPLETE_NO_CAUSAL_AMQ_TO_LAUNCH_ROUTE",
+    "authorization_and_coverage": "Only the two supplied getTransaction requests were made; requests=2/4, getBlock=0, pagination=0, retries=0, fallback=0. Both decoded through the v1-aware contract: 5xnb version 0 and tffs legacy.",
+    "signature_5xnb": "At slot 453983182, transaction_index 1190, this transaction contains a direct balance-verified System transfer from creator 6eKxDUjCHU9h2tHgRqDSuACf21zDu8WP9q2NJM6njzcr to 2BVfJ4AHMvHdKtEZNHaBr48dQzTfZvYkjaaxbM6bpump of 939800 lamports at outer instruction 2 / inner instruction 9. This proves the direct economic transfer only; it does not by itself prove a canonical launch-creation instruction or operation attribution.",
+    "signature_tffs": "At slot 453983180, transaction_index 186, no direct System transfer fact involving 8CUb and the creator was present. It contains only a wrapped-SOL account-close context from AzcCP7TCcngSfhMgYeh2jJHehk3qVAk1FrD2wSBPEbDA to the creator, with unverified economic amount; it is not a direct funding edge.",
+    "causal_order": "The verified AMQ -> 8CUb 770 SOL transfer is at later slot 454516004 (transaction_index 1118, instruction_index 2). It therefore cannot causally precede the observed creator -> 2BVf transfer at slot 453983182. No same-slot block lookup was required.",
+    "decision": "No direct 8CUb -> creator fact was established; complete route=false. Existing retained creator/2BVf evidence remains five contextual co-locations, and the direct creator->2BVf transfer is not promoted to a canonical creation assertion. New treasury candidates=0; no confirmation, membership promotion, attribution change, live DB/queue write, Supervisor/service/listener action, or runtime deployment occurred.",
+    "artifact": "docs/audits/dev_019_exact_8cub_creator_signatures.v1.json SHA256=ad86e1350bedcc80306b48ecccacc34c93e61d694f1183bf139a79719163c1db, 5744 bytes; compact facts only and raw RPC payload/block retention=false.",
+    "qualification": "Provider-free DEV-019/V2 regressions passed 35/35 and V2 register validation PASS.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Bounded exact-signature research artifact only; no discovery runtime behavior was installed or enabled.",
+    "next_action": "STOP. Preserve the exact-signature chronology without promotion. Any further acquisition requires separate explicit authorization."
   }
 }

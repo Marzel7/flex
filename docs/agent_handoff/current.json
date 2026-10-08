@@ -20250,6 +20250,17 @@
     "runtime_deployment_gate": "HOLD_BOUNDED_WORKER_COMPLETION_CONTRACT",
     "next_action": "READ_ONLY_ATTRIBUTE_PID_7442_AND_ITS_EXACT_CURRENT_RUNTIME_COMMAND_OR_LOG_STREAM, THEN QUALIFY_ONLY_THE_MINIMUM_WORKER_FINITE_ITERATION_CORRECTION. DO_NOT_RERUN_THE_SOAK_OR_ENABLE_CONTINUOUS_MONITORING_UNTIL_THAT_COMPLETION_BOUNDARY_IS_EXPLAINED."
   },
+  "watchtower_worker_finite_completion_correction_20261008": {
+    "engineering_revision": "86eff76e5285857123143445a634a31d432194df on origin/codex/watchtower-monitor-bounded-soak; clean isolated candidate; parent 597601d9ae935181230f3056e02bf82744cbbd6b.",
+    "status": "PASS_FINITE_WORKER_COMPLETION_CORRECTION_QUALIFIED_NOT_DEPLOYED",
+    "worker_pid_attribution": "The sole worker started in the bounded soak was Supervisor PID 7442. The installed reviewed stanza invoked the 597601d9 launcher from the pinned bounded-soak worktree and directed stdout/stderr to the existing DEV_005A worker streams. Those streams did not advance for the 2026-10-08 start; the retained AttributeError stream is timestamped 2026-10-05 and names /private/tmp/flex-universal-price-monitor-import-recovery, so it is proven historical and not attributable to PID 7442.",
+    "root_cause": "scripts/run_dev_005a_monitor.sh intentionally executes the service through env -i, but failed to re-inject MONITOR_MAX_ITERATIONS, MONITOR_PROVIDER_GLOBAL_LIMIT, and MONITOR_PROVIDER_TOKEN_LIMIT. The one-shot Supervisor environment therefore reached the normal continuous service loop with an empty iteration cap. The 30-second overrun was expected continuous-loop behavior, not queue, DB, WAL, provider, or application failure.",
+    "minimal_correction": "The launcher now snapshots and explicitly passes only those three existing bounded-soak controls through env -i. Empty values preserve continuous behavior. No monitor logic, queue/watermark semantics, provider behavior, credentials, API, listener, or Supervisor configuration was changed.",
+    "qualification": "Shell syntax passed. Focused bounded-monitor/isolation/topology/service tests passed 31/31. A direct isolated no-transport launcher run with MONITOR_MAX_ITERATIONS=1 completed cleanly using read-only monitor preflight behavior and zero provider/Supervisor actions. Relevant provider-free Watchtower regression passed 142/142 with exactly tests/test_watchtower_deep_historical.py::test_deep_review_ui_is_explicitly_noncanonical deselected. The candidate worktree is clean and remote branch identity was verified.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED_AWAITING_NEW_EXPLICIT_LIVE_APPROVAL",
+    "next_action": "RECOMPOSE_AND_OFFLINE_VALIDATE_A_NEW_BRIDGE_WORKER_ONLY BOUNDED-SOAK CONFIGURATION AGAINST_86EFF76E, PRESERVING_THE_HEALTHY_API_AND_LISTENER. THEN_OBTAIN_FRESH_EXPLICIT_APPROVAL_BEFORE_ANY_LIVE_SUPERVISOR_ACTION."
+  },
   "watchtower_fresh_window_bounded_soak_preparation_20261008": {
     "engineering_revision": "597601d9ae935181230f3056e02bf82744cbbd6b on origin/codex/watchtower-monitor-bounded-soak; clean candidate. It supersedes 3ac72274 only by adding the compact fresh-window soak safety predicate and CLI, with no monitor/provider business-logic change.",
     "status": "PASS_FRESH_WINDOW_GUARD_QUALIFIED_AWAITING_EXPLICIT_LIVE_APPROVAL",

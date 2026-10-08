@@ -39,6 +39,7 @@ class RuntimePaths:
     api_stderr_log: str
     worker_stdout_log: str
     worker_stderr_log: str
+    canonical_birth_db: str = ""
     bridge_source_db: str = ""
     bridge_health_path: str = ""
     bridge_stdout_log: str = ""
@@ -113,6 +114,29 @@ def compose_monitor_only(source: bytes, paths: RuntimePaths) -> bytes:
         ("operation_monitor_worker", _worker_stanza(paths)),
         ("operation_monitor_bridge", _bridge_stanza(paths)),
     )):
+        start, end = ranges[name][0]
+        replacement = stanza.rstrip("\n") + ("\n" if text[start:end].endswith("\n") else "")
+        rendered = rendered[:start] + replacement + rendered[end:]
+    return rendered.encode("utf-8")
+
+
+def compose_api_and_worker(source: bytes, paths: RuntimePaths) -> bytes:
+    """Replace only the API and monitor-worker ranges.
+
+    The bridge remains byte-identical: Policy C changes its downstream worker
+    contract and API projection, not the sole outbox/queue producer.
+    """
+    text = source.decode("utf-8")
+    if re.search(r"^\[include\]", text, re.MULTILINE):
+        raise ValueError("SUPERVISOR_INCLUDE_UNEXPECTED")
+    ranges = _program_ranges(text)
+    if any(len(ranges.get(name, ())) != 1 for name in (
+        "watchtower_api", "watchtower_listener", "operation_monitor_worker", "operation_monitor_bridge",
+    )):
+        raise ValueError("SUPERVISOR_API_AND_WORKER_TARGET_CARDINALITY_INVALID")
+    replacements = (("watchtower_api", _api_stanza(paths)), ("operation_monitor_worker", _worker_stanza(paths)))
+    rendered = text
+    for name, stanza in reversed(replacements):
         start, end = ranges[name][0]
         replacement = stanza.rstrip("\n") + ("\n" if text[start:end].endswith("\n") else "")
         rendered = rendered[:start] + replacement + rendered[end:]
@@ -213,10 +237,12 @@ def _worker_stanza(p: RuntimePaths) -> str:
             ('MONITOR_PROVIDER_TOKEN_LIMIT', p.monitor_provider_token_limit),
         ) if value
     )
+    canonical_birth = (f',OPERATION_MONITOR_CANONICAL_BIRTH_DB_PATH="{p.canonical_birth_db}"'
+                       if p.canonical_birth_db else "")
     return f'''[program:operation_monitor_worker]
 command={p.root}/scripts/launch_watchtower_final.sh worker {p.sha} {p.monitor_selection}
 directory={p.root}
-environment=PYTHONPATH="{p.root}",WATCHTOWER_FINAL_ROOT="{p.root}",WATCHTOWER_FINAL_SHA="{p.sha}",WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH="{p.audit_ledger}",MONITOR_RUNTIME_STATE_ROOT="{p.monitor_state_root}",MONITOR_ENV_FILE="{p.monitor_env_file}",DB_PATH="{p.canonical_db}",FLEX_DB_PATH="{p.canonical_db}",WT_OPS_DB_PATH="{p.worker_operations_db}",DATABASE_PATH="{p.worker_operations_db}",OPS_V2_DB_PATH="{p.worker_operations_db}",OPERATION_MONITOR_QUEUE_PATH="{p.worker_queue}",OPERATIONS_MODE="MONITOR",MONITOR_RUNTIME="dev",WATCHTOWER_SHADOW_EVALUATION_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_LEDGER_PATH="{p.shadow_ledger}"{bounded}
+environment=PYTHONPATH="{p.root}",WATCHTOWER_FINAL_ROOT="{p.root}",WATCHTOWER_FINAL_SHA="{p.sha}",WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH="{p.audit_ledger}",MONITOR_RUNTIME_STATE_ROOT="{p.monitor_state_root}",MONITOR_ENV_FILE="{p.monitor_env_file}",DB_PATH="{p.canonical_db}",FLEX_DB_PATH="{p.canonical_db}",WT_OPS_DB_PATH="{p.worker_operations_db}",DATABASE_PATH="{p.worker_operations_db}",OPS_V2_DB_PATH="{p.worker_operations_db}",OPERATION_MONITOR_QUEUE_PATH="{p.worker_queue}",OPERATIONS_MODE="MONITOR",MONITOR_RUNTIME="dev",WATCHTOWER_SHADOW_EVALUATION_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_LEDGER_PATH="{p.shadow_ledger}"{canonical_birth}{bounded}
 autostart=false
 autorestart=false
 startretries=0

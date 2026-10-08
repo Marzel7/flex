@@ -5,6 +5,7 @@ from src.ops.watchtower_supervisor_composition import (
     RuntimePaths,
     compose,
     compose_api_only,
+    compose_api_and_worker,
     compose_monitor_only,
     compose_monitoring_topology,
     listener_bytes,
@@ -23,7 +24,7 @@ def _paths(tmp_path):
         monitor_state_root="/state", monitor_env_file="/env", audit_ledger="/audit.json",
         shadow_ledger=str(tmp_path / "shadow.json"), api_stdout_log="/logs/api.log",
         api_stderr_log="/logs/api.err", worker_stdout_log="/logs/worker.log",
-        worker_stderr_log="/logs/worker.err",
+        worker_stderr_log="/logs/worker.err", canonical_birth_db="/canonical-birth.db",
         bridge_source_db="/source-ops.db", bridge_health_path="/state/bridge.json",
         bridge_stdout_log="/logs/bridge.log", bridge_stderr_log="/logs/bridge.err",
         monitor_selection="/qualified-selection.json",
@@ -82,6 +83,23 @@ def test_monitor_only_composition_preserves_api_listener_and_unrelated_bytes(tmp
     assert b"[program:unrelated]\ncommand=keep-me\nautostart=true\n\n" in candidate
     assert candidate.count(b"startsecs=0\nexitcodes=0\n") == 2
     assert compose_monitor_only(candidate, paths) == candidate
+
+
+def test_api_and_worker_composition_preserves_bridge_listener_and_unrelated_bytes(tmp_path):
+    candidate = compose_api_and_worker(SOURCE, _paths(tmp_path))
+    assert listener_bytes(candidate) == listener_bytes(SOURCE)
+    for name in (b"[program:unrelated]", b"[program:operation_monitor_bridge]"):
+        start = SOURCE.index(name)
+        end = SOURCE.find(b"\n[program:", start + 1)
+        if end < 0:
+            end = len(SOURCE)
+        candidate_start = candidate.index(name)
+        candidate_end = candidate.find(b"\n[program:", candidate_start + 1)
+        if candidate_end < 0:
+            candidate_end = len(candidate)
+        assert candidate[candidate_start:candidate_end] == SOURCE[start:end]
+    assert b'OPERATION_MONITOR_CANONICAL_BIRTH_DB_PATH="/canonical-birth.db"' in candidate
+    assert compose_api_and_worker(candidate, _paths(tmp_path)) == candidate
 
 
 def test_continuous_monitor_programs_keep_startup_liveness_contract(tmp_path):

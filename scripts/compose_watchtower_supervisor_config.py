@@ -12,6 +12,7 @@ from src.ops.watchtower_supervisor_composition import (
     RuntimePaths,
     compose,
     compose_api_only,
+    compose_api_and_worker,
     compose_monitor_only,
     compose_monitoring_topology,
 )
@@ -39,6 +40,7 @@ def main() -> int:
     parser.add_argument("--api-stderr-log", required=True)
     parser.add_argument("--worker-stdout-log", required=True)
     parser.add_argument("--worker-stderr-log", required=True)
+    parser.add_argument("--canonical-birth-db", default="")
     parser.add_argument("--bridge-source-db", default="")
     parser.add_argument("--bridge-health-path", default="")
     parser.add_argument("--bridge-stdout-log", default="")
@@ -54,18 +56,21 @@ def main() -> int:
                         help="append the qualified disabled worker/bridge topology when both are absent")
     parser.add_argument("--monitor-only", action="store_true",
                         help="replace only existing operation-monitor worker/bridge stanzas")
+    parser.add_argument("--api-and-worker", action="store_true",
+                        help="replace only existing API and operation-monitor worker stanzas")
     args = parser.parse_args()
     source = args.source.read_bytes()
     args.backup.write_bytes(source)
     paths = RuntimePaths(**{
         key: value
         for key, value in vars(args).items()
-        if key not in {"source", "candidate", "backup", "api_only", "monitoring_topology", "monitor_only"}
+        if key not in {"source", "candidate", "backup", "api_only", "monitoring_topology", "monitor_only", "api_and_worker"}
     })
-    if sum((args.api_only, args.monitoring_topology, args.monitor_only)) > 1:
-        parser.error("--api-only, --monitoring-topology, and --monitor-only are mutually exclusive")
+    if sum((args.api_only, args.monitoring_topology, args.monitor_only, args.api_and_worker)) > 1:
+        parser.error("--api-only, --monitoring-topology, --monitor-only, and --api-and-worker are mutually exclusive")
     renderer = (compose_api_only if args.api_only else compose_monitoring_topology
-                if args.monitoring_topology else compose_monitor_only if args.monitor_only else compose)
+                if args.monitoring_topology else compose_monitor_only if args.monitor_only
+                else compose_api_and_worker if args.api_and_worker else compose)
     args.candidate.write_bytes(renderer(source, paths))
     return 0
 

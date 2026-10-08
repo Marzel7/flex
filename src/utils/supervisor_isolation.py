@@ -124,6 +124,41 @@ def validate_offline_config(config_path: Path | None, *, temp_root: Path,
     return IsolatedSupervisorConfig(config, root, server_socket, pidfile, control_socket)
 
 
+def validate_safe_daemon_config(config_path: Path | None, *, temp_root: Path,
+                                protected_config_paths: tuple[Path, ...] = (),
+                                protected_endpoint_paths: tuple[Path, ...] = ()) -> IsolatedSupervisorConfig:
+    """Reject a copied production config before any isolated daemon is created.
+
+    Parser-only validation should use :func:`validate_offline_config`.  This
+    stricter entry point is mandatory when a test genuinely needs an isolated
+    ``supervisord`` process: every program must be a disabled ``/bin/true``
+    probe, so a copied config cannot autostart real services, bind a live port,
+    open a database, or receive provider credentials.
+    """
+    isolated = validate_offline_config(
+        config_path,
+        temp_root=temp_root,
+        protected_config_paths=protected_config_paths,
+        protected_endpoint_paths=protected_endpoint_paths,
+    )
+    parser = configparser.RawConfigParser(interpolation=None, strict=True)
+    parser.read_string(isolated.config_path.read_text(encoding="utf-8"))
+    for section in parser.sections():
+        if not section.startswith("program:"):
+            continue
+        autostart = parser.get(section, "autostart", fallback="").strip().lower()
+        autorestart = parser.get(section, "autorestart", fallback="").strip().lower()
+        command = parser.get(section, "command", fallback="").strip()
+        environment = parser.get(section, "environment", fallback="").upper()
+        if autostart != "false" or autorestart != "false":
+            raise SupervisorIsolationError("SUPERVISOR_ISOLATION_DAEMON_AUTOSTART_REJECTED")
+        if command != "/bin/true":
+            raise SupervisorIsolationError("SUPERVISOR_ISOLATION_DAEMON_COMMAND_REJECTED")
+        if any(name in environment for name in ("BIRDEYE", "HELIUS", "DB_PATH", "DATABASE")):
+            raise SupervisorIsolationError("SUPERVISOR_ISOLATION_DAEMON_ENVIRONMENT_REJECTED")
+    return isolated
+
+
 def require_verified_control_socket(config: IsolatedSupervisorConfig) -> None:
     """Verify a temporary UNIX socket before a caller constructs an argv."""
     socket_path = config.control_socket

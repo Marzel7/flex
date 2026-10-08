@@ -7,6 +7,7 @@ import pytest
 from src.utils.supervisor_isolation import (
     SupervisorIsolationError,
     isolated_supervisorctl_argv,
+    validate_safe_daemon_config,
     validate_offline_config,
 )
 
@@ -94,3 +95,33 @@ def test_verified_temporary_socket_only_constructs_isolated_argv(tmp_path, monke
     argv = isolated_supervisorctl_argv(config, "status")
     assert argv[0:3] == ("supervisorctl", "-c", str(config.config_path))
     assert argv[-1] == "status"
+
+
+def test_daemon_validation_rejects_the_incident_autostarted_copy(tmp_path):
+    live = tmp_path / "live"; live.mkdir()
+    config = _config(tmp_path)
+    config.write_text(config.read_text() + "\n[program:real_api]\ncommand=/real/api\nautostart=true\nautorestart=true\nenvironment=DB_PATH=\"/live.db\",BIRDEYE_API_KEY=\"secret\"\n")
+    with pytest.raises(SupervisorIsolationError, match="DAEMON_AUTOSTART"):
+        validate_safe_daemon_config(config, **_policy(tmp_path, live))
+
+
+def test_daemon_validation_allows_only_disabled_harmless_probe_program(tmp_path):
+    live = tmp_path / "live"; live.mkdir()
+    config = _config(tmp_path)
+    config.write_text(config.read_text() + "\n[program:probe]\ncommand=/bin/true\nautostart=false\nautorestart=false\n")
+    assert validate_safe_daemon_config(config, **_policy(tmp_path, live)).config_path == config.resolve()
+
+
+@pytest.mark.parametrize(
+    ("program", "error"),
+    [
+        ("command=/bin/echo unsafe\nautostart=false\nautorestart=false", "DAEMON_COMMAND"),
+        ("command=/bin/true\nautostart=false\nautorestart=false\nenvironment=HELIUS_API_KEY=secret", "DAEMON_ENVIRONMENT"),
+    ],
+)
+def test_daemon_validation_rejects_program_paths_with_live_side_effects(tmp_path, program, error):
+    live = tmp_path / "live"; live.mkdir()
+    config = _config(tmp_path)
+    config.write_text(config.read_text() + f"\n[program:unsafe]\n{program}\n")
+    with pytest.raises(SupervisorIsolationError, match=error):
+        validate_safe_daemon_config(config, **_policy(tmp_path, live))

@@ -1,4 +1,14 @@
 {
+  "watchtower_birdeye_authoritative_binding_20261008": {
+    "engineering_revision": "Credential-binding qualification only. Isolated research source /private/tmp/flex-watchtower-monitor-schema-compat is clean at d3c5b7be61a5705477880829e5c8e724d1ff5765; no source, runtime, configuration, database, queue, or provider mutation.",
+    "status": "PASS_AUTHORITATIVE_BIRDEYE_BINDING_RESTORED_FOR_ISOLATED_PROCESS_ONLY",
+    "secret_authority": "The existing authority is /Users/kevinkeaveney/Dev/claude/flex/.env, selected at runtime through the active worker's MONITOR_ENV_FILE. The active operation_monitor_worker stanza names MONITOR_ENV_FILE=/Users/kevinkeaveney/Dev/claude/flex/.env; run_dev_005a_monitor.sh sources that file, requires BIRDEYE, then reconstructs its environment and passes only BIRDEYE under the authoritative BIRDEYE_CREDENTIAL_LABEL. No live process environment was read.",
+    "binding_result": "The clean isolated source fails closed with MISSING_AUTHORITATIVE_BIRDEYE_CREDENTIAL under an empty environment. A one-shot, ephemeral process environment populated by the existing authority's BIRDEYE record passed the isolated binding presence check. The value was never printed, logged, hashed, serialized, stored, or copied into the isolated checkout/configuration. The binding implementation consults BIRDEYE only; historical aliases are not a fallback path.",
+    "qualification": "Provider-free credential-authority regression suite passed 6/6. The probe used no provider transport. Provider calls=0; live DB/queue writes=0; Supervisor/service/listener actions=0; credential exposure events=0; source/configuration changes=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "This is an isolated, non-secret binding qualification; it does not alter any runtime behavior.",
+    "next_action": "STOP. BIRDEYE_RECOVERY_READY=YES for the previously authorized four-token bounded batch only when invoked through the existing MONITOR_ENV_FILE authority with an ephemeral BIRDEYE environment binding. Before acquisition, repeat the full fresh recovery preflight, preserve the 40-request / 10-per-mint / concurrency-1 limits, and do not persist recovered results without separate authorization."
+  },
   "watchtower_birdeye_recovery_resume_preflight_20261008": {
     "engineering_revision": "Fresh read-only Birdeye recovery preflight from clean isolated source /private/tmp/flex-watchtower-monitor-schema-compat at d3c5b7be61a5705477880829e5c8e724d1ff5765; no provider acquisition or runtime mutation.",
     "status": "HOLD_AUTHORITATIVE_BIRDEYE_CREDENTIAL_PRESENCE_NOT_INDEPENDENTLY_VERIFIED",

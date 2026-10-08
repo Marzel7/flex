@@ -20132,5 +20132,18 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_AWAITING_EXPLICIT_LIVE_CONFIGURATION_APPROVAL",
     "next_action": "OBTAIN EXPLICIT APPROVAL FOR CONFIGURATION 89a1fb84961c565c3441c41b3794c47938aa0cd1a559bd336024e1303287ec5f BEFORE ANY TARGETED API/BRIDGE/WORKER TRANSITION OR BOUNDED SOAK."
+  },
+  "watchtower_final_bounded_monitor_soak_20261008": {
+    "engineering_revision": "Candidate 7d6adef9b91277e08c677e58fbf06c7386bb094b; reviewed config 89a1fb84961c565c3441c41b3794c47938aa0cd1a559bd336024e1303287ec5f. No source modification during execution.",
+    "status": "HOLD_API_BACKOFF_WITHOUT_SHA_VERIFIER_DIAGNOSTIC_ROLLED_BACK",
+    "preflight": "Passed: active config matched rollback SHA256 3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19; candidate/config/runtime contracts matched; candidate was clean; listener was exactly PID 73415; outbox DELIVERED=91; queue files=97; watermark=1791446333; zero-provider mode and paid credential presence were verified without exposure; source WAL=12.039 MB.",
+    "transition": "A byte-exact backup was made, config 89a1fb84961c565c3441c41b3794c47938aa0cd1a559bd336024e1303287ec5f was atomically installed, and Supervisor reread/update targeted only API, bridge, and worker. Listener was never targeted.",
+    "failure": "API moved from STARTING to BACKOFF before bridge or worker was started. The new structured SHA mismatch diagnostic was not emitted; the current compact API stderr tail contained only pre-existing unstructured SHA_MISMATCH lines and unrelated prior application output. Therefore this failure is not established as a SHA-verifier mismatch. No bridge/worker iteration, queue claim/ack, admission, monitor fact, provider call, Injector/history, shadow, or +2 action occurred.",
+    "rollback": "The fresh verified backup was atomically restored and SHA256 reverified as 3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19. Targeted reread/update again affected only API, bridge, and worker. Post-rollback: listener PID 73415 RUNNING; bridge STOPPED; worker STOPPED; Supervisor API BACKOFF while local health endpoint returns healthy=true/db=ok/wal_warn=false. This discrepancy is recorded and not accepted as API runtime health.",
+    "post_state": "Outbox remains DELIVERED=91; backlog preserved; provider calls=0; monitor starts=0; source WAL=12.267 MB and health wal_warn=false.",
+    "safety": "No broad Supervisor/listener restart, provider acquisition, monitoring DB/queue mutation, source change, +2/shadow activation, Injector/history backfill, or large artifact. Live mutations were strictly the authorized candidate installation and byte-exact rollback plus target-only updates.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_API_BACKOFF_WITHOUT_SHA_VERIFIER_DIAGNOSTIC_ROLLED_BACK",
+    "next_action": "STOP. CAPTURE THE FIRST ACTUAL API PROCESS EXIT CAUSE THROUGH A SEPARATELY AUTHORIZED NARROW, NON-SECRET SUPERVISOR/LAUNCH STDERR ATTRIBUTION PATH BEFORE ANOTHER DEPLOYMENT OR SOAK ATTEMPT. DO NOT ASSUME SHA MISMATCH."
   }
 }

@@ -84,6 +84,13 @@ MAX_PAGES = 8
 MAX_RETRIES = 5
 RPC_TIMEOUT = 30
 FAST_FIRST_TX_PAGE_CAP = 3
+# The outgoing-transfer scan is supplementary to the creator-funding result.
+# It must never spend the remaining whole-job budget and cause already-persisted
+# core funder facts to be acquired again by the queue retry path.
+AUXILIARY_OUTGOING_TIMEOUT_SECONDS = int(
+    os.environ.get("CFQ_AUXILIARY_OUTGOING_TIMEOUT_SECONDS", "15")
+)
+_AUXILIARY_DEADLINE_RESERVE_SECONDS = 1.0
 CREATOR_HISTORY_COVERAGE_ENABLED = os.getenv(
     "CREATOR_HISTORY_COVERAGE_ENABLED", "0"
 ).strip().lower() in {"1", "true", "yes", "on"}
@@ -2792,6 +2799,64 @@ async def get_extractor() -> RealTimeCreatorFundingExtractor:
     return _extractor
 
 
+async def _run_outgoing_transfer_observation(
+    extractor: RealTimeCreatorFundingExtractor,
+    creator: str,
+    migration_timestamp_str: str,
+    ledger: dict,
+    extraction_deadline: float,
+) -> dict:
+    """Run the post-core outgoing observation without retrying core funding.
+
+    The caller has already completed ``process_new_token`` by this point.  A
+    timeout here is incomplete supplementary evidence, not a failed creator
+    funding extraction.  ``wait_for`` cancels and awaits the owned task before
+    returning TimeoutError, so no asynchronous outgoing scan is left running.
+    """
+    observations = ledger.setdefault("auxiliary_observations", {})
+    remaining = extraction_deadline - time.monotonic() - _AUXILIARY_DEADLINE_RESERVE_SECONDS
+    timeout = min(float(AUXILIARY_OUTGOING_TIMEOUT_SECONDS), max(0.0, remaining))
+    if timeout <= 0:
+        result = {"status": "incomplete_timeout", "reason": "whole_job_budget_exhausted"}
+        observations["outgoing_transfer_scan"] = result
+        return result
+
+    try:
+        migration_dt = datetime.fromisoformat(migration_timestamp_str.replace("Z", "+00:00"))
+        migration_timestamp = int(migration_dt.timestamp())
+    except (TypeError, ValueError) as exc:
+        result = {"status": "incomplete_error", "reason": "invalid_migration_timestamp"}
+        observations["outgoing_transfer_scan"] = result
+        print(f"[REALTIME_FUNDING] ⚠ Error preparing outgoing transfers: {exc}", flush=True)
+        return result
+
+    task = asyncio.create_task(
+        _timed_phase(
+            ledger,
+            "outgoing_transfer_scan",
+            extractor.extract_outgoing_transfers(creator, migration_timestamp),
+        )
+    )
+    try:
+        await asyncio.wait_for(task, timeout=timeout)
+    except asyncio.TimeoutError:
+        # wait_for cancels and waits for ``task``; retain only compact state.
+        result = {"status": "incomplete_timeout", "reason": "auxiliary_deadline"}
+        observations["outgoing_transfer_scan"] = result
+        print(f"[REALTIME_FUNDING] ⚠ Outgoing transfer observation timed out for {creator[:16]}...", flush=True)
+        return result
+    except Exception as exc:
+        result = {"status": "incomplete_error", "reason": type(exc).__name__}
+        observations["outgoing_transfer_scan"] = result
+        print(f"[REALTIME_FUNDING] ⚠ Error extracting outgoing transfers: {exc}", flush=True)
+        return result
+
+    result = {"status": "complete"}
+    observations["outgoing_transfer_scan"] = result
+    print(f"[REALTIME_FUNDING] ✅ Extracted outgoing transfers for {creator[:16]}...", flush=True)
+    return result
+
+
 async def extract_funding_for_new_token(
     creator: str,
     migration_timestamp_str: str,
@@ -2910,26 +2975,21 @@ async def extract_funding_for_new_token(
                         extractor.check_create_tx_for_jitotip(creator, create_tx_signature, mint),
                     )
 
-            async def _outgoing():
-                try:
-                    from datetime import datetime
-                    migration_dt = datetime.fromisoformat(migration_timestamp_str.replace('Z', '+00:00'))
-                    migration_timestamp = int(migration_dt.timestamp())
-                    await _timed_phase(
-                        ledger, "outgoing_transfer_scan",
-                        extractor.extract_outgoing_transfers(creator, migration_timestamp),
-                    )
-                    print(f"[REALTIME_FUNDING] ✅ Extracted outgoing transfers for {creator[:16]}...", flush=True)
-                except Exception as e:
-                    print(f"[REALTIME_FUNDING] ⚠ Error extracting outgoing transfers: {e}", flush=True)
-
             await asyncio.gather(
                 _jitotip(),
                 _timed_phase(ledger, "debridge", extractor.check_transfers_for_debridge(creator)),
                 _timed_phase(ledger, "axiom", extractor.check_transfers_for_axiom(creator)),
-                _outgoing(),
+                _run_outgoing_transfer_observation(
+                    extractor, creator, migration_timestamp_str, ledger, extraction_deadline
+                ),
                 return_exceptions=True,
             )
+
+            if isinstance(result, dict):
+                result = dict(result)
+                result["auxiliary_observations"] = dict(
+                    ledger.get("auxiliary_observations", {})
+                )
 
             # Supervise only children owned by this job.  The former singleton-
             # wide wait could attach an unrelated extraction's task to this

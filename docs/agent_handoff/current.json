@@ -20729,5 +20729,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Research acquisition contract and provider-free tests only; no runtime integration or live deployment changed.",
     "next_action": "REQUEST_FRESH_EXPLICIT_AMQ_BATCH1_AUTHORIZATION. The prior batch authorization was exhausted and must not be retried implicitly; a new authorized batch may use the same bounded request caps with the revised v1-aware, page-persistent contract."
+  },
+  "dev019_amq_coverage_batch2_20261008": {
+    "engineering_revision": "Compact findings commit 8605755b5d2598ed3e1d6c07f6134426286ee078 on origin/codex/dev-019-mesh-discovery; version-aware source correction 6163d43a4119f53279b4a08af8c2fb8a0daf740b remains its committed parent.",
+    "status": "PASS_COMPLETE_AMQ_SIGNATURE_COVERAGE_PARTIAL_ROUTE_NOT_PROMOTED",
+    "authorization_and_coverage": "Fresh explicit authorization executed one AMQ-only Helius batch: three cursor-bounded pages of 20 signatures; every returned unique signature decoded exactly once. Requests=63/66 (3 getSignaturesForAddress, 60 getTransaction, 0 getBlock), retries=0, fallback=0. Each compact page boundary was persisted before decode. All three coverage windows are COMPLETE_SIGNATURE_WINDOW (20/20 each); decoded versions=59 legacy and 1 v1.",
+    "verified_result": "The reported direct AMQ -> 8CUb transfer is verified: 770000000000 lamports, signature 8qCeourrr6yvpQJ19vWq8g41MHXLhHhpPxfEJaqRbqMPcrYSGRfnvSTNdhD2KK3SWvAAD5paKox7oCJBPpsCNBY, slot 454516004, transaction_index 1118, instruction_index 2, source delta -770000079934, receiver delta 770000000000. It is a direct balance-verified funding fact, not treasury confirmation or launch attribution. The completed pages retained 25 direct AMQ outbound facts, including eight direct transfers to 8CUb; no block lookup was needed because the returned transaction supplied the recorded transaction index.",
+    "artifact": "docs/audits/dev_019_amq_coverage_batch2.v1.json SHA256=14491099ce80047e5cc2dccf4f7ddd9cf87f1cb6f1b1911e0b7f352e4fbfc4fa, 24752 bytes. It contains compact page boundaries, per-signature decode/version status, and compact direct facts only; raw RPC payload/block retention=false.",
+    "limitations": "This covered current bounded AMQ window proves no full Treasury -> SubProvider -> Funding Account -> Creator -> Launch route. It does not establish the downstream 8CUb -> creator edge or an explicit verified creator -> 2BVf launch event; COMPLETE_ROUTE_PROVEN=false. No negative conclusion applies outside the three covered pages.",
+    "qualification": "Provider-free DEV-019/V2 regressions passed 35/35 and V2 register validation PASS. No live DB/queue writes, Supervisor/service/listener actions, treasury confirmation, membership promotion, or canonical attribution change occurred.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "One bounded research batch and compact audit artifact only; no discovery runtime behavior was installed or enabled.",
+    "next_action": "STOP. Preserve the verified partial AMQ evidence without promotion. Any additional route, history, or account acquisition requires separate explicit authorization."
   }
 }

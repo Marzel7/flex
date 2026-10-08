@@ -1,4 +1,18 @@
 {
+  "watchtower_birdeye_codex_runtime_cache_reclaimability_20261008": {
+    "engineering_revision": "Read-only Codex runtime-cache assessment; no cache, source, runtime, database, queue, provider, or service mutation.",
+    "status": "HOLD_CONDITIONAL_INSTALLER_PAYLOAD_CANDIDATE_NO_SUPPORTED_PRUNE_OR_ACTIVE_SESSION_PROOF",
+    "cache_path_and_ownership": "The cache root is /Users/kevinkeaveney/.cache/codex-runtimes, owned by kevinkeaveney:staff. It contains active-looking codex-primary-runtime=1,638,060 KiB, codex-runtime-install-rMkyOJ=687,776 KiB, and zero-byte codex-runtime-install-9FkIWT.",
+    "purpose_and_rebuildability": "codex-primary-runtime has bundleVersion 26.909.12148, artifactToolVersion 2.8.59, and native/plugin/python/node dependencies; it is a current managed runtime bundle and is protected. rMkyOJ is a private installer payload directory dated 2026-10-01 whose embedded bundle is older (26.826.12353, artifactToolVersion 2.8.52, Python 3.12.13) than the installed primary runtime. Its layout is an installation payload rather than session, project, worktree, rollback, or frozen-baseline state. It is plausibly rebuildable, but that was not independently guaranteed by a supported cleanup contract.",
+    "active_references": "Active ChatGPT/Codex desktop and app-server processes are present. Sampled lsof for the active app-server processes found no open file under codex-runtimes, and repository/handoff reference search found no project, worktree, rollback, or freeze reference beyond the prior storage assessment. This is point-in-time evidence only; it does not prove a currently active Codex session will not request a runtime payload later.",
+    "supported_cleanup": "Official Codex documentation describes managed worktree cleanup, but no published supported command or desktop control was found for pruning codex-runtimes. Local 'codex doctor --help' exposes diagnosis only, not a cache-prune action. Therefore manual deletion is not qualified as an official supported mechanism.",
+    "capacity": "Current free space is 3,524,704 KiB (approximately 3.36 GiB). Reclaiming only rMkyOJ would project 4,212,480 KiB (approximately 4.02 GiB), just 18,176 KiB above the 4 GiB floor. Verified currently recoverable bytes=0; conditionally candidate bytes=687,776 KiB. The margin would be too small for a preferred 6 GiB target.",
+    "recommendation": "Do not delete while Codex sessions remain active under the present authority. The smallest conditional cleanup set is only /Users/kevinkeaveney/.cache/codex-runtimes/codex-runtime-install-rMkyOJ, never codex-primary-runtime. Separate cleanup authorization must explicitly accept absence of a supported prune command, require a final no-open-reference check, and allow removal of that exact stale installer payload; otherwise wait for headroom. No worktree cleanup is recommended.",
+    "safety": "Cache deletion=0; Codex session termination=0; provider calls=0; live DB/queue writes=0; Supervisor/service/listener actions=0; database maintenance=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only Codex storage assessment only.",
+    "next_action": "STOP. CLEANUP_SAFETY_VERDICT=NOT_YET_AUTHORIZED_FOR_ACTIVE_SESSION_DELETION. Do not start Birdeye recovery. If the user explicitly authorizes the exact rMkyOJ cleanup after a final reference check, perform only that cleanup and remeasure before repeating Birdeye preflight."
+  },
   "watchtower_birdeye_disk_headroom_assessment_20261008": {
     "engineering_revision": "Read-only operational storage assessment; no source, runtime, configuration, database, queue, provider, or service mutation.",
     "status": "HOLD_INSUFFICIENT_HEADROOM_NO_INDEPENDENTLY_VERIFIED_CLEANUP_TARGET",

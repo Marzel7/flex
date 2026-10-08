@@ -1,0 +1,112 @@
+{
+  "acquired_at_utc": "2026-10-08T13:43:36Z",
+  "artifact_sha256": "51fead77e84191aefb07540db9b1da2a3d2efaba2881ff41df0b387acc563c84",
+  "artifact_version": "DEV_019_AMQ_TO_LAUNCH_RPC_BATCH_V1",
+  "causal_result": "INCOMPLETE_UNLESS_ALL_DIRECTED_FACTS_WITH_ORDERING_COORDINATES_ARE_PRESENT",
+  "compact_transfer_facts": [],
+  "creator_launch_contexts": [
+    {
+      "creator": "6eKxDUjCHU9h2tHgRqDSuACf21zDu8WP9q2NJM6njzcr",
+      "instruction_index": null,
+      "launch_mint": "2BVfJ4AHMvHdKtEZNHaBr48dQzTfZvYkjaaxbM6bpump",
+      "signature": "2EPrUB1fDyVaUpA1LeQsFrHKmLiY31APT1tWzAeHpKzqXVhKYCpduuTU3zSTbaUBqYy6DRvY9BTEhLze65Nfb4ZJ",
+      "slot": 454553004,
+      "status": "CONTEXTUAL_CREATOR_AND_MINT_COLOCATION_ONLY",
+      "transaction_index": 746
+    },
+    {
+      "creator": "6eKxDUjCHU9h2tHgRqDSuACf21zDu8WP9q2NJM6njzcr",
+      "instruction_index": null,
+      "launch_mint": "2BVfJ4AHMvHdKtEZNHaBr48dQzTfZvYkjaaxbM6bpump",
+      "signature": "3Ydfp98r5rwaWTAittjuwu3qPY3wmjfybETbbpD8JmJHmHqjvmcpffnMrRshZPrzr94vV7ThN32HWY4nbtF3WoFx",
+      "slot": 454524232,
+      "status": "CONTEXTUAL_CREATOR_AND_MINT_COLOCATION_ONLY",
+      "transaction_index": 1033
+    },
+    {
+      "creator": "6eKxDUjCHU9h2tHgRqDSuACf21zDu8WP9q2NJM6njzcr",
+      "instruction_index": null,
+      "launch_mint": "2BVfJ4AHMvHdKtEZNHaBr48dQzTfZvYkjaaxbM6bpump",
+      "signature": "4SVcnWq2YEqT7wFg5wM6DCv6k6LKX51Y1RsiEXwqrnwPkPBmH3EYK3Z7YKwMMNuqXc4WRcMdG4PG77MmEJfUWHEb",
+      "slot": 454513056,
+      "status": "CONTEXTUAL_CREATOR_AND_MINT_COLOCATION_ONLY",
+      "transaction_index": 560
+    },
+    {
+      "creator": "6eKxDUjCHU9h2tHgRqDSuACf21zDu8WP9q2NJM6njzcr",
+      "instruction_index": null,
+      "launch_mint": "2BVfJ4AHMvHdKtEZNHaBr48dQzTfZvYkjaaxbM6bpump",
+      "signature": "2iBP2kmT6zBRx3oxaKiw3sofLBWjK7pyCU7SvUemYT6dVrGqpLvaq5VNVWxkh5h9Ukafu9kSEgQzucyUgyRJ2htc",
+      "slot": 454489016,
+      "status": "CONTEXTUAL_CREATOR_AND_MINT_COLOCATION_ONLY",
+      "transaction_index": 717
+    },
+    {
+      "creator": "6eKxDUjCHU9h2tHgRqDSuACf21zDu8WP9q2NJM6njzcr",
+      "instruction_index": null,
+      "launch_mint": "2BVfJ4AHMvHdKtEZNHaBr48dQzTfZvYkjaaxbM6bpump",
+      "signature": "qNUzW37YZPoGh2ZniEAASHDcSe6k8ams7A5pLnpPkjC99n3kxt5xrxsn6htYSyMRZYq3sRJ7NH3HMWU9uS4SCMw",
+      "slot": 454468296,
+      "status": "CONTEXTUAL_CREATOR_AND_MINT_COLOCATION_ONLY",
+      "transaction_index": 584
+    }
+  ],
+  "edge_results": {
+    "8cub_to_creator": null,
+    "amq_to_8cub": null,
+    "creator_to_launch": {
+      "creator": "6eKxDUjCHU9h2tHgRqDSuACf21zDu8WP9q2NJM6njzcr",
+      "instruction_index": null,
+      "launch_mint": "2BVfJ4AHMvHdKtEZNHaBr48dQzTfZvYkjaaxbM6bpump",
+      "signature": "2EPrUB1fDyVaUpA1LeQsFrHKmLiY31APT1tWzAeHpKzqXVhKYCpduuTU3zSTbaUBqYy6DRvY9BTEhLze65Nfb4ZJ",
+      "slot": 454553004,
+      "status": "CONTEXTUAL_CREATOR_AND_MINT_COLOCATION_ONLY",
+      "transaction_index": 746
+    }
+  },
+  "elapsed_seconds": 3.185,
+  "limits": {
+    "max_requests": 23,
+    "per_request_timeout_seconds": 20,
+    "requests_used": 23,
+    "signature_page_limit": 20,
+    "signature_pages": 3,
+    "transaction_allocation": {
+      "8CUb": 7,
+      "AMQ": 7,
+      "CREATOR": 6
+    }
+  },
+  "request_methods": {
+    "getSignaturesForAddress": 3,
+    "getTransaction": 20
+  },
+  "safety": {
+    "attribution_changes": 0,
+    "live_database_queue_writes": 0,
+    "membership_promotions": 0,
+    "single_file_maximum_bytes": 262144,
+    "supervisor_or_listener_actions": 0,
+    "treasury_confirmations": 0
+  },
+  "scope": {
+    "fallback_provider": false,
+    "raw_rpc_payload_retained": false,
+    "read_only": true,
+    "retries": 0
+  },
+  "signature_page_counts": {
+    "8CUb": 20,
+    "AMQ": 20,
+    "CREATOR": 20
+  },
+  "source_authority": "7ddff910eb7270c3d670a474ec062df99a4338a5",
+  "status": "COMPLETED_BOUNDED_TARGETED_ROUTE_RESEARCH",
+  "target_route": {
+    "amq": "AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX",
+    "creator": "6eKxDUjCHU9h2tHgRqDSuACf21zDu8WP9q2NJM6njzcr",
+    "downstream": "8CUbQw5zjzR1hvExdRQLcS6MpdCHprp6ohwPBYfoWTHM",
+    "launch": "2BVfJ4AHMvHdKtEZNHaBr48dQzTfZvYkjaaxbM6bpump",
+    "treasury": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac"
+  }
+}

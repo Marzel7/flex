@@ -20993,6 +20993,17 @@
     "runtime_deployment_reason": "Operational diagnosis only; no executable behavior changed.",
     "next_action": "STOP. Separately authorize a read-only Helius usage export or dashboard/API view with daily product and method attribution for 30 Sep-8 Oct, plus endpoint-aware request attribution if available. Then qualify the smallest correction: prevent immediate replay of timed-out outgoing scans via durable partial progress/backoff and repair local cache/fallback metric attribution. No change is authorized by this investigation."
   },
+  "development_execution_discipline_v2_scope_control_refinement_20261008": {
+    "engineering_revision": "306ad16798167f10bcad0595fa9cd5fe15aae6a3 on origin/codex/dev-discipline-v2-scope-refinement, from clean approved V2 authority 8be99ed28aa2228dc9cec7d63103eab27376086d.",
+    "status": "PASS_DOCUMENTATION_ONLY",
+    "change": "AGENTS.md V2 now classifies new findings as IN_SCOPE, SUPPORTING, or OUT_OF_SCOPE. In-scope work proceeds; Supporting work proceeds with a brief normal-handoff rationale; Out-of-Scope findings retain compact evidence, enter the existing backlog when appropriate, and return to the admitted objective without creating a new DEV, branch, worktree, approval gate, or implementation.",
+    "preserved_guards": "V2 admission, clean worktree/source ownership, two-implementation-DEV limit, isolated test paths, 500 MB prohibition, handoff/remote verification, integration admission, parser-only Supervisor isolation, and explicit live-mutation approval remain unchanged.",
+    "verification": "scripts/validate_dev_discipline.py register --register docs/dev_register.json --repo . --protected-root /Users/kevinkeaveney/Production: PASS. git diff --check: PASS. No executable behavior changed, so no runtime regression suite is required.",
+    "safety": "Provider calls=0; live DB/queue writes=0; Supervisor/service/listener actions=0; DEV-019 implementation changes=0; DEV-023 actions=0; raw retention=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Documentation-only V2 protocol refinement; no executable runtime behavior changed.",
+    "next_action": "STOP. Apply the clarified scope classification to the next admitted DEV finding; no new DEV is created by this refinement."
+  },
   "dev019_treasury_subscription_activity_reconciliation_20261008": {
     "engineering_revision": "Live cascade 26da06daba23608bd64d5b86cde1f92b24d3a98d; retained activity corpus c9925cb038ebe0bf8677d76331700eadf535cf6b; qualified selector 23b09948a70ccea9f08cf560e9684325e9287623.",
     "status": "PASS_READ_ONLY_SELECTION_RECONCILED_NOT_DEPLOYED",

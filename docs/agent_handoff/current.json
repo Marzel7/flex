@@ -20464,5 +20464,17 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS_ONE_CONTROLLED_TICK_ONLY",
     "next_action": "STOP_AT_SINGLE_TICK_BOUNDARY. DO_NOT_ENABLE_RECURRING_RETENTION. A SEPARATE AUTHORIZATION AND NEW PREFLIGHT ARE REQUIRED FOR ANY FUTURE RETENTION TICK OR SCHEDULER CHANGE."
+  },
+  "dev023_sustainable_retention_scheduler_20261008": {
+    "engineering_revision": "80c18458a45f0c6411bb575066a6d123c2793363 on origin/codex/dev-023-sustainable-retention; clean isolated worktree /private/tmp/flex-dev023-sustainable-retention; parent 75600f8e087df0a849176d8d495eba95af3e3759.",
+    "status": "PASS_QUALIFIED_DISABLED_SCHEDULER_NOT_DEPLOYED",
+    "backlog_and_rate": "The live cache has only its primary-key index; it has no expiry expression/index. The bounded pre-tick probe found at least 201 eligible rows, and the one capped tick deleted 200, but a full current backlog or daily expiry-rate measurement would require a prohibited broad live scan. CURRENT_EXPIRED_BACKLOG=UNPROVEN_BOUNDED; ESTIMATED_DAILY_EXPIRY_RATE=UNPROVEN. No additional live retention tick or broad scan was run.",
+    "scheduler_contract": "Adds a one-shot external-scheduler wrapper, not a daemon or Supervisor program. Checked-in schedule configuration is disabled, proposes cadence_seconds=3600, maximum_rows_per_tick=200, a storage_lock_safety nonblocking flock lease, 4 KiB bounded compact metrics state (8 KiB atomic transient bound), and alert state after three consecutive failed/over-capacity ticks. It reuses the existing RuntimeRetentionConfig P3 write lane, canonical identity, expiry recheck, WAL/disk/stop-file guards. Disabled scheduling exits before database access/state write. No scheduler installation or enablement occurred.",
+    "capacity": "Proposed initial disabled policy is hourly one-shot execution: 200 rows/tick x 24 ticks/day = 4,800 rows/day maximum. This is an operational proposal, not proof that it keeps pace; backlog-clearance estimate remains UNPROVEN_PENDING_SAFE_RATE_CALIBRATION. Repeated STOP_ROW_CAP reports CAPACITY_PRESSURE and triggers an alert at three consecutive capped ticks; repeated guard failures likewise alert at three.",
+    "qualification": "Provider-free DEV-023 suite passed 25/25: direct retention, runtime integration, expiry index, disabled schedule entrypoint, single-flight overlap skip, capped-pressure metrics, repeated failure alert/reset, and bounded state. Tests use temporary SQLite databases and prove no non-expired fixture deletion, P3 adapter reuse, and disabled mode non-mutation.",
+    "safety": "Live scheduler enablement=0; additional live retention ticks=0; live DB/queue writes=0; Supervisor/service/listener/API/bridge/worker actions=0; provider calls=0; VACUUM/checkpoint=0. New state design bounds are 4 KiB final/8 KiB transient; no path can create a 500MB file.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "OBTAIN_EXPLICIT_APPROVAL_FOR_A_PINNED_DISABLED_RUNTIME_INSTALL_AND_A_SEPARATE_REVIEWED_EXTERNAL_SCHEDULER_CONFIGURATION. BEFORE_ENABLING_RECURRING_EXECUTION, REQUIRE_A_FRESH_SINGLE_TICK_PREFLIGHT_AND_A_SAFE_RATE/CAPACITY_CALIBRATION PLAN; DO_NOT_INSTALL_CRONTAB_OR_ENABLE_AUTOMATIC_EXECUTION WITHOUT_APPROVAL."
   }
 }

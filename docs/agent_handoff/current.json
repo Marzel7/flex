@@ -19792,5 +19792,19 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "DEV-only guard, test, script, and agent instruction; no active executable/runtime target was changed.",
     "next_action": "STOP. USE b6814934 AS THE REQUIRED DEV SUPERVISOR ISOLATION GUARD IN ANY FUTURE SUPERVISOR-RELATED WORK; DO NOT RESUME WATCHTOWER DEPLOYMENT WITHOUT SEPARATE AUTHORIZATION."
+  },
+  "watchtower_guarded_supervisor_composition_20261008": {
+    "engineering_revision": "251a1eb9fa95f8bbcc98e132a4b8467020eb3c05 on origin/codex/watchtower-supervisor-composition; parent incorporates isolation guard 5d282633 (b6814934 logical authority) and authorized candidate 1bfacfc8683b03c4c0ac1cf5276d3bedf47990b1.",
+    "status": "PASS_OFFLINE_COMPOSITION_READY_LIVE_TRANSITION_APPROVAL_REQUIRED",
+    "source_and_rollback": "Unchanged original live root config SHA256=de358f18394f56651b6a8493d137287fdbec0dd21b84c46dbf576246ab4e154d. The generated candidate SHA256=78ea76d78e3af17b8b4da9d19973fb0ab793a729c71bec2df96967de62ecd243. The temporary rollback artifact hashes to the original SHA and is byte-identical. It is intentionally not committed because a complete Supervisor config can contain runtime-sensitive values.",
+    "composition": "Exactly 15 programs remain; exactly one watchtower_listener, watchtower_api, and operation_monitor_worker remain. Only API and worker ranges change; listener bytes and every non-target byte are identical. The listener retains the existing Production/flex-listener command/root/environment/logging/restart/credential handling. API/worker point to a separate clean exact-1bfacfc8 checkout. The 96-record ledger SHA256 is ad75e5e910662d0259ca095df9e7ae20501136dc0a8d09ccfec62d1e9273b5b8. API/worker render no BIRDEYE credential value or fallback credential label; existing listener credential propagation is byte-preserved.",
+    "defaults": "WATCHTOWER_SHADOW_EVALUATION_ENABLED=0 and WATCHTOWER_SHADOW_CAPTURE_ENABLED=0 in both changed programs. operation_monitor_worker has autostart=false, autorestart=false, startretries=0. No unrelated autostart byte changes occur.",
+    "offline_validation": "The b681 guard validated an offline flattened copy with matching unique temporary server/control socket and protected live config identity. Final Supervisor 4.3.0 load used only that isolated copy, with all 15 autostart=false and autorestart=false, separate temporary PID/socket/log paths, zero control commands, and zero program starts. Focused guard/composition tests: 11 passed.",
+    "proposed_live_actions": "Not executed. Upon separate approval: (1) recheck original live config SHA and runtime state; (2) write byte-identical backup; (3) atomically replace the original root config with the reviewed candidate; (4) supervisorctl reread using the explicitly verified live endpoint; (5) supervisorctl update watchtower_api operation_monitor_worker only; (6) verify target process identities and listener non-interruption. Rollback is the reverse atomic restoration of the backup followed by reread and update of those same two targets only.",
+    "expected_interruption": "Listener: none expected; it is not reread-changed or update-targeted. API: expected controlled restart/reload and transient availability interruption. Worker: remains STOPPED because autostart=false. Other 12 programs: no expected action or interruption.",
+    "safety": "No live config write, supervisorctl command, reread/update/restart, service action, provider call, DB/queue write, or listener disruption occurred. RUNTIME_DEPLOYMENT_REQUIRED=true; RUNTIME_DEPLOYMENT_GATE=QUALIFIED_NOT_DEPLOYED.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "OBTAIN EXPLICIT LIVE-TRANSITION APPROVAL FOR THE REVIEWED CANDIDATE SHA, BACKUP PATH, VERIFIED LIVE ENDPOINT, AND TARGET-ONLY API/WORKER REREAD/UPDATE SEQUENCE; DO NOT ACTIVATE SHADOW OR +2."
   }
 }

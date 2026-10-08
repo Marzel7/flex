@@ -12,7 +12,7 @@
       "branch": "codex/dev-execution-discipline-v2",
       "worktree": "/private/tmp/flex-dev-execution-discipline-v2",
       "starting_sha": "77e8a55537c98fe34f99a6949f87e8ecb2233ae4",
-      "current_sha": "b8d6ee15f3cdf366a7584105fea9f7e99ce7ac09",
+      "current_sha": "b8b46de96bf70aaf5685d232a266058121cb828e",
       "status": "COMPLETE",
       "next_action": "Use V2 admission before the next implementation DEV.",
       "dependencies": [
@@ -32,7 +32,7 @@
         "Guard has no Supervisor control path"
       ],
       "qualification_evidence": [
-        "tests/test_dev_execution_discipline_v2.py: 7 passed",
+        "tests/test_dev_execution_discipline_v2.py: 8 passed",
         "scripts/validate_dev_discipline.py register: PASS"
       ],
       "integration_promotion_status": "PROCESS_PROTOCOL_COMMITTED_NOT_RUNTIME_PROMOTED",

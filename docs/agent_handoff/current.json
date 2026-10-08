@@ -20250,6 +20250,16 @@
     "runtime_deployment_gate": "HOLD_BOUNDED_WORKER_COMPLETION_CONTRACT",
     "next_action": "READ_ONLY_ATTRIBUTE_PID_7442_AND_ITS_EXACT_CURRENT_RUNTIME_COMMAND_OR_LOG_STREAM, THEN QUALIFY_ONLY_THE_MINIMUM_WORKER_FINITE_ITERATION_CORRECTION. DO_NOT_RERUN_THE_SOAK_OR_ENABLE_CONTINUOUS_MONITORING_UNTIL_THAT_COMPLETION_BOUNDARY_IS_EXPLAINED."
   },
+  "watchtower_continuous_monitor_activation_preflight_20261008": {
+    "engineering_revision": "86eff76e5285857123143445a634a31d432194df; read-only activation preflight only.",
+    "status": "HOLD_FIXED_QUEUE_WATERMARK_NOT_PROVEN",
+    "preflight_passes": "Active=eac5c123f39bf0aad5ea8e2449e532fbdc8c89013b4998393a8a03bc7ec8c6e1; proposed=1f4c85e1e9ad134b293b179b35653ac9fcd65fc8edba5e53034f0c19f8714544; rollback=eac5c123f39bf0aad5ea8e2449e532fbdc8c89013b4998393a8a03bc7ec8c6e1; candidate clean at 86eff76e; launcher identity preflight passed; continuous lifecycle/provider-default config contract passed; no bridge/worker processes; queue=5 files; non-printing BIRDEYE/HELIUS credential-presence check passed.",
+    "failure_boundary": "The configured selection document docs/audits/injector_dev_soak_selection.v1.json has mode DEV_005_ISOLATED_SOAK, allowlist_count=1, and selection_contract=INJECTOR_SINGLE_MINT_OPENING_RECOVERY_V1, but no minimum_assignment_timestamp field or equivalent watermark field. Therefore the claimed fixed historical-backlog exclusion cannot be established for the requested continuous activation. Starting either component could violate the authorized no-historical-backlog condition.",
+    "safety": "No Supervisor configuration write, reread, update, start, stop, or restart occurred. No DB/queue write, provider call, API/listener action, shadow/+2 activation, or source change occurred.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_FIXED_QUEUE_WATERMARK_NOT_PROVEN",
+    "next_action": "QUALIFY_AND_REVIEW_A_SELECTION_AUTHORITY_WITH_AN_EXPLICIT_FIXED_MINIMUM_ASSIGNMENT_TIMESTAMP_OR_EQUIVALENT_PROVEN_BACKLOG_EXCLUSION_BEFORE_ANY_CONTINUOUS_BRIDGE_OR_WORKER_ACTIVATION."
+  },
   "watchtower_continuous_monitor_preapproval_20261008": {
     "engineering_revision": "86eff76e5285857123143445a634a31d432194df on origin/codex/watchtower-monitor-bounded-soak; clean and remote-verified. No source change was required for this deterministic configuration preparation.",
     "status": "PASS_CONTINUOUS_MONITOR_CONFIGURATION_PREPARED_AWAITING_EXPLICIT_LIVE_APPROVAL",

@@ -1,4 +1,16 @@
 {
+  "watchtower_birdeye_recovery_resume_preflight_20261008": {
+    "engineering_revision": "Fresh read-only Birdeye recovery preflight from clean isolated source /private/tmp/flex-watchtower-monitor-schema-compat at d3c5b7be61a5705477880829e5c8e724d1ff5765; no provider acquisition or runtime mutation.",
+    "status": "HOLD_AUTHORITATIVE_BIRDEYE_CREDENTIAL_PRESENCE_NOT_INDEPENDENTLY_VERIFIED",
+    "desktop_and_disk": "The normal desktop update has now applied: /Applications/ChatGPT.app is 26.1002.52244/build 13536 and contains Codex Framework 155.0.8059.27. The prior Sparkle Installation cache is empty (0 KiB; parent cache is 572 KiB), so the staged update was automatically reclaimed. Current free space is 5,569,960 KiB (about 5.31 GiB): above the 4 GiB operational floor and 5 GiB target, but below the preferred 6 GiB target.",
+    "source_and_credential": "The isolated research source is clean (dirty count=0) at d3c5b7be61a5705477880829e5c8e724d1ff5765. Its runtime contract requires the authoritative BIRDEYE label and fails closed when absent. The source and pinned runtime have no local .env/config/.env BIRDEYE binding to verify, and reading a live service environment could expose a secret. Therefore paid credential presence was not independently proven in this fresh preflight. The earlier root-.env probe was not an authoritative binding check and is not used as evidence.",
+    "runtime": "Supervisor status is healthy: watchtower_api PID 95506, ws_cascade PID 73417, operation_monitor_bridge PID 21106, operation_monitor_worker PID 5261, and creator_funding_worker PID 54815 are RUNNING. Listener is also RUNNING as new PID 48504 with supervisor parent 73409 and cwd /Users/kevinkeaveney/Production/flex-listener; this external restart was observed but not caused by this task. API health returned healthy=true, db=ok, wal_warn=false. Active Supervisor SHA256 remains 2d5a1c395217f975c68d78463cc03f0e6c74b3acdea7c36b5d53baccbcf7c366; canonical/operations main DB sizes remain 35,652,194,304 and 16,014,397,440 bytes.",
+    "acquisition": "Birdeye requests=0 of maximum 40. No candle query, pagination, retry, fallback, raw payload retention, compact evidence write, database/queue write, or persistence occurred. Provider budget, Entry-fact immutability, and exact previous batch authority were not exercised because the credential preflight gate did not pass.",
+    "safety": "Provider calls=0; live DB/queue writes=0; Supervisor/service/listener actions=0; cache deletion=0; application/session restart=0; source changes=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only recovery preflight only.",
+    "next_action": "STOP. BIRDEYE_RECOVERY_READY=NO despite disk readiness. Separately authorize a credential-safe, non-disclosing verification using the established secret authority or approved runner. If that proves the paid BIRDEYE binding, repeat the complete preflight before issuing the already-bounded four-token batch."
+  },
   "watchtower_birdeye_post_desktop_update_verification_20261008": {
     "engineering_revision": "Read-only post-update and Flex-integrity verification; no application, cache, source, runtime, configuration, database, queue, provider, or service mutation.",
     "status": "HOLD_DESKTOP_UPDATE_NOT_APPLIED_STAGED_CACHE_REMAINS",

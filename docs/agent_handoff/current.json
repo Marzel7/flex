@@ -20679,5 +20679,18 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Read-only evidence qualification only; no executable runtime behavior changed.",
     "next_action": "STOP. PRESERVE_THE_PARTIAL_ROUTE. ONLY_A_SEPARATELY_AUTHORIZED_CAPPED_SIGNATURE-DISCOVERY_BATCH_CAN_ATTEMPT_TO_RECOVER_MISSING_CAUSAL_COORDINATES; DO_NOT_PROMOTE_OR_ACQUIRE_AUTOMATICALLY."
+  },
+  "dev019_targeted_amq_funding_route_rpc_batch_20261008": {
+    "engineering_revision": "Compact evidence commit fe5359c80e190a9ec8acce59432d8799ed0f3e37 and V2 status commit afa282fa0139265deeb2a3f21b1d072290cb62ed on origin/codex/dev-019-source-recovery; recovered discovery source remains a9fa1b2738d1a35bf084c66a7963fc1ead7b4467.",
+    "status": "EVIDENCE_BLOCKED_TARGETED_BATCH_COMPLETE_NOT_PROMOTED",
+    "authority": "One explicitly authorized Helius-only batch against AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX, 8CUbQw5zjzR1hvExdRQLcS6MpdCHprp6ohwPBYfoWTHM, and creator 6eKxDUjCHU9h2tHgRqDSuACf21zDu8WP9q2NJM6njzcr. No retry, pagination, or fallback provider.",
+    "batch": "Completed 23/23 requests: 3 getSignaturesForAddress pages (limit=20 each) and 20 getTransaction reads allocated 7/7/6 across AMQ/8CUb/creator. No rate limit or unexpected cost occurred. Compact artifact docs/audits/dev_019_amq_to_launch_rpc_batch.v1.json is 4,195 bytes, SHA256=51fead77e84191aefb07540db9b1da2a3d2efaba2881ff41df0b387acc563c84; raw RPC payload retention=false.",
+    "result": "No direct AMQ -> 8CUb transfer and no direct 8CUb -> creator transfer appeared in the bounded decoded transactions. Five creator/mint co-location transactions involving 2BVfJ4AHMvHdKtEZNHaBr48dQzTfZvYkjaaxbM6bpump were retained as contextual only; they do not prove a funding edge, creator launch instruction, or operation attribution. The previously verified Gzaa -> AMQ fact remains partial mesh evidence. Required directed route facts and causal chain are absent, so COMPLETE_ROUTE_PROVEN=false.",
+    "contract": "The DEV-019 causal contract was not bypassed: no ordering coordinate was fabricated, no circular interpretation was accepted, and no NEW_TREASURY_CANDIDATE, wt_treasury_review write, treasury confirmation, membership promotion, or canonical attribution change occurred.",
+    "qualification": "Provider-free tests tests/test_dev_019_treasury_rotation.py plus tests/test_dev_execution_discipline_v2.py passed 24/24. Offline V2 register validation PASS after the register status update.",
+    "safety": "Live DB/queue writes=0; Supervisor/service/listener actions=0; runtime deployment=0; provider calls=23 (the exact authorized cap); fallback/retries=0; raw transaction/block retention=0; frozen Watchtower and DEV-023 baselines unchanged; no large file.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Research artifact and V2 register state only; discovery remains undeployed and review-only.",
+    "next_action": "STOP. PRESERVE_THE_NEGATIVE_BOUNDED_PAGE_RESULT_WITHOUT_PROMOTION. Any further AMQ-route acquisition requires new explicit authorization with a different bounded history/cursor contract."
   }
 }

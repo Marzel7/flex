@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from pathlib import Path
 
 import pytest
 
@@ -100,3 +101,16 @@ def test_iteration_caps_are_explicit_positive_opt_in(monkeypatch):
     monkeypatch.setenv("MONITOR_MAX_ITERATIONS", "0")
     with pytest.raises(RuntimeError, match="INVALID_MONITOR_MAX_ITERATIONS"):
         service._bounded_iteration_limit()
+
+
+def test_launcher_preserves_bounded_soak_controls_across_env_reset():
+    """The hardened env -i launcher must not discard explicit soak limits."""
+    launcher = (Path(__file__).resolve().parents[1] / "scripts" / "run_dev_005a_monitor.sh").read_text()
+
+    for name in (
+        "MONITOR_MAX_ITERATIONS",
+        "MONITOR_PROVIDER_GLOBAL_LIMIT",
+        "MONITOR_PROVIDER_TOKEN_LIMIT",
+    ):
+        assert f'{name}_VALUE="${{{name}:-}}"' in launcher
+        assert f'{name}="${name}_VALUE"' in launcher

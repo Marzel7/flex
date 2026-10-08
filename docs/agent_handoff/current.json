@@ -20827,6 +20827,17 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "STOP. Any deeper discovery of the one DEEP_DISCOVERY treasury, verification scans of the 18 HOT/ACTIVE accounts, persistent runtime integration, review-table persistence, or live activation requires separate explicit authorization."
   },
+  "dev019_treasury_outbound_monitoring_deployment_preparation_20261008": {
+    "engineering_revision": "Deployment gate commit bb8bd055080a260cf3c2edc578c063279de991fd and V2 register commit 29b26cfb457d4facc4b36a3dd7b9de9032f18ff8 on origin/codex/dev-019-mesh-discovery.",
+    "status": "HOLD_DUPLICATE_ACQUISITION_OWNER_NOT_DEPLOYED",
+    "activity_and_authority": "Read-only canonical operations inspection confirms 83 distinct confirmed treasuries. Existing retained activity evidence remains HOT=2, ACTIVE=17, DORMANT=14, RETIRED_CANDIDATE=50, UNKNOWN=0. The active operations cursor table wt_treasury_ws_usage has 85 rows, all with a last-notification signature. A managed ws_cascade loop was observed running. Existing code reads the confirmed treasury registry and interprets WS_MAX_TREASURY_SUBSCRIBE=0 as the full treasury set. Its cursor store is therefore owned by ws_cascade, not DEV-019.",
+    "provider_and_coverage": "An explicit Helius endpoint authority is configured and was checked only for non-empty authorized shape; no credential value, provider request, account-usage read, or plan detail was retained. Existing webhook configuration and hit table exist but address coverage and delivery health were not verified. The planning cadence remains HOT 15m, ACTIVE 1h, other confirmed treasuries 24h: 664 signature pages/day for the measured 83-account mix before changed-transaction decoding. Actual provider budget compatibility is UNVERIFIED without separately authorized provider/account evidence.",
+    "candidate": "config/watchtower/treasury_outbound_monitoring.disabled.v1.json is default-off, unregistered, has no cursor-store write authority, prohibits pagination/retries/full scans/raw payloads/promotions, and refuses activation when ws_cascade is an existing owner. New regression proves the fail-closed duplicate-owner result. No service configuration was installed or changed.",
+    "verification": "66 provider-free DEV-019/V2 tests passed. V2 continuation admission and isolated test-path guards passed. Provider calls=0; live DB/queue writes=0; service/Supervisor/listener actions=0; runtime registration=0; promotion/attribution changes=0. Compact storage design remains <=10MB per store/file, well below 500MB.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_EXCLUSIVE_ACQUISITION_OWNER_REQUIRED",
+    "next_action": "STOP. Select one exclusive acquisition owner. Prefer an approved compact-evidence handoff from ws_cascade to DEV-019 rather than a second poller; then separately qualify actual Helius capacity, WS/webhook address coverage, durable cursor ownership, recovery behavior, and runtime deployment acceptance before enabling monitoring."
+  },
   "dev019_treasury_outbound_monitoring_qualification_20261008": {
     "engineering_revision": "Monitoring contract commit ae174c8ae02bfe299ab4f84e1ddf635e7310bd62 and register commit 1fff267b65dde1e2cca8895274f57100567768e1 on origin/codex/dev-019-mesh-discovery.",
     "status": "PASS_PROVIDER_FREE_ACQUISITION_QUALIFICATION_NOT_DEPLOYED",

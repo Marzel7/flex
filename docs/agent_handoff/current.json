@@ -20145,5 +20145,18 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_API_BACKOFF_WITHOUT_SHA_VERIFIER_DIAGNOSTIC_ROLLED_BACK",
     "next_action": "STOP. CAPTURE THE FIRST ACTUAL API PROCESS EXIT CAUSE THROUGH A SEPARATELY AUTHORIZED NARROW, NON-SECRET SUPERVISOR/LAUNCH STDERR ATTRIBUTION PATH BEFORE ANOTHER DEPLOYMENT OR SOAK ATTEMPT. DO NOT ASSUME SHA MISMATCH."
+  },
+  "watchtower_actual_api_exit_readonly_diagnosis_20261008": {
+    "engineering_revision": "Read-only diagnosis only; no source/config/runtime action in this turn.",
+    "status": "HOLD_ORPHANED_TEMPORARY_SUPERVISOR_AUTOSTART_PORT_CONFLICT",
+    "health_endpoint_identity": "Port 5002 is owned by Gunicorn master PID 80591 and worker PID 80611, both started 2026-10-08 09:18:34 from candidate root /Users/kevinkeaveney/.codex/worktrees/watchtower-monitor-bounded-soak/flex. Their parent is PID 78199, not the live supervisord PID 73409. Gunicorn configuration binds 0.0.0.0:5002.",
+    "candidate_exit": "Live Supervisor records watchtower_api exit status 1 repeatedly. The candidate API process starts against the same fixed Gunicorn port, so the occupied port is the proven immediate conflict. The API stdout/stderr files did not advance during the repeated exits, so no separate candidate traceback is retained; the port ownership and fixed bind establish the causal condition.",
+    "orphaned_fixture": "PID 78199 is an orphaned temporary supervisord launched from /private/tmp/watchtower-finite-soak-0fe9/isolated/supervisord.conf during an earlier attempted syntax validation. It is parented by PID 1 and differs from live supervisord PID 73409. Its isolated config retained autostart=true programs; direct children currently include alert_evaluator, creator_funding_worker, creator_resolution_worker, walkback_worker, ws_cascade, and the candidate Gunicorn. This is not a safe isolated validation environment.",
+    "decision": "ROOT_CAUSE=ORPHANED_TEMPORARY_SUPERVISOR_AUTOSTARTED_CANDIDATE_GUNICORN_PORT_5002_CONFLICT. The healthy local endpoint is served by that orphaned candidate Gunicorn, not the managed API. The finite lifecycle contract is not causal. Bridge and worker were not started, backlog remains preserved, and provider activity by the unintended temporary-supervisor children has not been assessed or changed under this read-only authorization.",
+    "minimum_correction": "Do not run complete copied configs through supervisord syntax execution unless every program is first structurally forced to autostart=false and autorestart=false with harmless commands, or use a parser-only mechanism that cannot spawn programs. Before any further deployment, obtain explicit authorization for a narrowly scoped incident recovery plan that identifies and stops only PID 78199 and every child it owns, then verifies live-service/DB/provider impact and releases port 5002. Do not signal any process under the current authorization.",
+    "safety": "Supervisor control commands=0; process termination=0; DB/queue writes=0; provider calls=0; listener changes=0; source/config changes=0; no large artifact.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_ORPHANED_TEMPORARY_SUPERVISOR_AUTOSTART_PORT_CONFLICT",
+    "next_action": "STOP. SEEK EXPLICIT AUTHORIZATION FOR INCIDENT RECOVERY OF THE ORPHANED TEMPORARY SUPERVISOR PROCESS TREE BEFORE ANOTHER API DEPLOYMENT OR MONITOR SOAK."
   }
 }

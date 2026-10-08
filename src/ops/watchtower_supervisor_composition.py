@@ -12,6 +12,7 @@ from typing import Mapping
 
 
 TARGETS = ("watchtower_api", "watchtower_listener", "operation_monitor_worker")
+MONITOR_TOPOLOGY_TARGETS = ("operation_monitor_worker", "operation_monitor_bridge")
 
 
 @dataclass(frozen=True)
@@ -33,6 +34,10 @@ class RuntimePaths:
     api_stderr_log: str
     worker_stdout_log: str
     worker_stderr_log: str
+    bridge_source_db: str = ""
+    bridge_health_path: str = ""
+    bridge_stdout_log: str = ""
+    bridge_stderr_log: str = ""
 
 
 def compose(source: bytes, paths: RuntimePaths) -> bytes:
@@ -74,6 +79,36 @@ def compose_api_only(source: bytes, paths: RuntimePaths) -> bytes:
     start, end = ranges["watchtower_api"][0]
     replacement = _api_stanza(paths).rstrip("\n") + ("\n" if text[start:end].endswith("\n") else "")
     return (text[:start] + replacement + text[end:]).encode("utf-8")
+
+
+def compose_monitoring_topology(source: bytes, paths: RuntimePaths) -> bytes:
+    """Append the qualified disabled monitor topology to a current root config.
+
+    This is deliberately a preparation-only renderer: it replaces the API
+    stanza with the already-qualified candidate contract, preserves every
+    existing program, and adds the previously qualified worker and bridge only
+    when both are absent.  It never enables either process.
+    """
+    text = source.decode("utf-8")
+    if re.search(r"^\[include\]", text, re.MULTILINE):
+        raise ValueError("SUPERVISOR_INCLUDE_UNEXPECTED")
+    ranges = _program_ranges(text)
+    if any(len(ranges.get(name, ())) != 1 for name in ("watchtower_api", "watchtower_listener")):
+        raise ValueError("SUPERVISOR_MONITOR_TOPOLOGY_API_LISTENER_CARDINALITY_INVALID")
+    topology_counts = tuple(len(ranges.get(name, ())) for name in MONITOR_TOPOLOGY_TARGETS)
+    if topology_counts == (1, 1):
+        # A second render remains byte-stable: ``compose`` owns the API and
+        # worker contracts; the bridge already has its unique qualified range.
+        return compose(source, paths)
+    if topology_counts != (0, 0):
+        raise ValueError("SUPERVISOR_MONITOR_TOPOLOGY_ALREADY_PRESENT_OR_PARTIAL")
+    if not paths.bridge_source_db or not paths.bridge_health_path:
+        raise ValueError("SUPERVISOR_MONITOR_TOPOLOGY_BRIDGE_PATHS_REQUIRED")
+    start, end = ranges["watchtower_api"][0]
+    api = _api_stanza(paths).rstrip("\n") + ("\n" if text[start:end].endswith("\n") else "")
+    rendered = text[:start] + api + text[end:]
+    separator = "" if rendered.endswith("\n\n") else "\n"
+    return (rendered + separator + _worker_stanza(paths) + _bridge_stanza(paths)).encode("utf-8")
 
 
 def listener_bytes(source: bytes) -> bytes:
@@ -143,6 +178,27 @@ stdout_logfile={p.worker_stdout_log}
 stdout_logfile_maxbytes=5MB
 stdout_logfile_backups=2
 stderr_logfile={p.worker_stderr_log}
+stderr_logfile_maxbytes=2MB
+stderr_logfile_backups=1
+
+'''
+
+
+def _bridge_stanza(p: RuntimePaths) -> str:
+    return f'''[program:operation_monitor_bridge]
+command={p.python} -m src.ops.operation_monitor_bridge_service
+directory={p.root}
+environment=PYTHONPATH="{p.root}",WATCHTOWER_FINAL_ROOT="{p.root}",WATCHTOWER_FINAL_SHA="{p.sha}",MONITOR_BRIDGE_SOURCE_DB="{p.bridge_source_db}",MONITOR_BRIDGE_MONITOR_DB="{p.worker_operations_db}",MONITOR_BRIDGE_QUEUE_PATH="{p.worker_queue}",MONITOR_BRIDGE_CADENCE_SECONDS="60",MONITOR_BRIDGE_HEALTH_PATH="{p.bridge_health_path}",WATCHTOWER_SHADOW_EVALUATION_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_ENABLED="0"
+autostart=false
+autorestart=false
+startretries=0
+startsecs=5
+stopwaitsecs=15
+stopsignal=TERM
+stdout_logfile={p.bridge_stdout_log}
+stdout_logfile_maxbytes=5MB
+stdout_logfile_backups=2
+stderr_logfile={p.bridge_stderr_log}
 stderr_logfile_maxbytes=2MB
 stderr_logfile_backups=1
 

@@ -8,7 +8,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.ops.watchtower_supervisor_composition import RuntimePaths, compose, compose_api_only
+from src.ops.watchtower_supervisor_composition import (
+    RuntimePaths,
+    compose,
+    compose_api_only,
+    compose_monitoring_topology,
+)
 
 
 def main() -> int:
@@ -33,17 +38,25 @@ def main() -> int:
     parser.add_argument("--api-stderr-log", required=True)
     parser.add_argument("--worker-stdout-log", required=True)
     parser.add_argument("--worker-stderr-log", required=True)
+    parser.add_argument("--bridge-source-db", default="")
+    parser.add_argument("--bridge-health-path", default="")
+    parser.add_argument("--bridge-stdout-log", default="")
+    parser.add_argument("--bridge-stderr-log", default="")
     parser.add_argument("--api-only", action="store_true",
                         help="replace only watchtower_api; never add or alter a worker stanza")
+    parser.add_argument("--monitoring-topology", action="store_true",
+                        help="append the qualified disabled worker/bridge topology when both are absent")
     args = parser.parse_args()
     source = args.source.read_bytes()
     args.backup.write_bytes(source)
     paths = RuntimePaths(**{
         key: value
         for key, value in vars(args).items()
-        if key not in {"source", "candidate", "backup", "api_only"}
+        if key not in {"source", "candidate", "backup", "api_only", "monitoring_topology"}
     })
-    renderer = compose_api_only if args.api_only else compose
+    if args.api_only and args.monitoring_topology:
+        parser.error("--api-only and --monitoring-topology are mutually exclusive")
+    renderer = compose_api_only if args.api_only else compose_monitoring_topology if args.monitoring_topology else compose
     args.candidate.write_bytes(renderer(source, paths))
     return 0
 

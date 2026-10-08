@@ -20500,5 +20500,18 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED_SCHEMA_CHANGE_REQUIRED",
     "next_action": "PREPARE_A_SEPARATE_CANONICAL_SCHEMA_INDEX_CHANGE_PLAN_WITH_EXACT_PRECHECKS_WAL_HEADROOM_WRITE_LOCK_WINDOW_AND_ROLLBACK/DISABLE_BEFORE_REQUESTING_LIVE_APPROVAL. DO_NOT_ENABLE_AUTOMATIC_RETENTION UNTIL_THE_INDEX_PATH_AND_RATE/CAPACITY_ARE_LIVE_QUALIFIED."
+  },
+  "dev023_canonical_expiry_index_safety_20261008": {
+    "engineering_revision": "0c5f290c3d020a3f11a7170df24e7c97793394df on origin/codex/dev-023-sustainable-retention; this was a read-only canonical safety assessment and introduces no engineering revision.",
+    "status": "HOLD_UNSAFE_WITH_CURRENT_RESOURCES",
+    "canonical_metadata": "Read-only PRAGMA metadata: page_size=4096, page_count=8704149, freelist_count=1794438, journal_mode=wal, database_bytes=35652194304, WAL_bytes=1751032, free_bytes=4270362624. The cache table has only sqlite_autoindex_rpc_response_cache_1; sqlite_stat1 is unavailable. No COUNT or table scan was performed.",
+    "estimates": "CURRENT_CACHE_ROW_COUNT=UNPROVEN: no retained current count or bounded indexed metadata exists. The isolated 50000-row fixture measured approximately 16.6 index bytes/row, 832240 WAL bytes, and 25.6ms build time, but those measurements cannot safely extrapolate to this 35.65GB canonical database without a current row count, payload distribution, or live calibration. Therefore INDEX_SIZE, BUILD_DURATION, and WAL_GROWTH are UNPROVEN rather than estimated numerically.",
+    "lock_and_headroom": "CREATE INDEX is a schema-writing SQLite transaction requiring the canonical writer lock for the full build. DatabaseWriteService can serialize a callback through its cross-process lease and P3 priority lane, but it supplies no proven upper bound for DDL duration or WAL growth; normal P0-P2 application writes must retain priority. Current free space is 24604672 bytes below the fixed 4GiB floor (4294967296 bytes), before reserving any index/WAL headroom. The current 1751032-byte WAL is below the retention ceiling but does not bound DDL WAL growth.",
+    "decision": "LIVE_INDEX_BUILD_SAFETY=UNSAFE_WITH_CURRENT_RESOURCES. A live schema change cannot be approved while free space is below the existing hard floor and index build size, lock duration, and WAL growth remain unbounded on canonical data.",
+    "alternative": "Keep automatic retention disabled and retain only the existing manual, progress-bounded capped-tick contract. Before reconsideration, separately restore disk headroom above the fixed floor plus a reviewed DDL reserve, obtain a safe current cardinality/size measurement without a broad scan, and qualify a dedicated schema-change window with explicit writer-quiescence, abort thresholds, and a rollback/disable plan. No live schema rollback is assumed after a committed CREATE INDEX; rollback would itself be a separate DROP INDEX schema write.",
+    "safety": "Live index creation=0; database/queue writes=0; Supervisor actions=0; provider calls=0; listener changes=0; VACUUM/checkpoint=0; no new storage artifact was created.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_SCHEMA_CHANGE_UNSAFE",
+    "next_action": "DO_NOT_CREATE_THE_INDEX_OR_ENABLE_AUTOMATIC_RETENTION. OBTAIN_SEPARATE_AUTHORIZATION_FOR_DISK_HEADROOM_RECOVERY_AND_A_DEDICATED_LIVE_SCHEMA_CHANGE_PLAN_ONLY_AFTER_BOUNDED_CANONICAL_SIZE_AND_DDL_RISK_EVIDENCE_EXISTS."
   }
 }

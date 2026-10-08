@@ -20542,5 +20542,19 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_SCHEMA_MIGRATION_PREREQUISITES",
     "next_action": "DO_NOT_EXECUTE_SCHEMA_DDL. OBTAIN_SEPARATE_AUTHORIZATION_TO_RECOVER_THE_REMAINING_DISK_RESERVE_AND_TO_PREPARE_A_DEDICATED_QUIESCED_WRITER_WINDOW_WITH_A_QUALIFIED_LIVE_DDL_RUNNER; THEN SEEK_A_NEW_EXACT_MIGRATION_APPROVAL."
+  },
+  "dev023_engineering_checkpoint_20261008": {
+    "engineering_revision": "Immutable annotated tag dev023-engineering-qualified-20261008-0c5f290c (tag object f2d34284028588d15b485d7a047538fafa1c2235) resolves to qualified implementation commit 0c5f290c3d020a3f11a7170df24e7c97793394df. The V2 register-only follow-up is 44e54f7b9257ebefaa72ace88128eb6525bd636a on origin/codex/dev-023-sustainable-retention.",
+    "status": "PASS_ENGINEERING_CHECKPOINT_FROZEN_NOT_DEPLOYED",
+    "qualified_components": "Committed chain: Phase 3 contract 4282191eaadf9d7e0ea8b0092027d4adb29d9db3; 200-row runtime-limit correction 75600f8e087df0a849176d8d495eba95af3e3759; disabled scheduler 80c18458a45f0c6411bb575066a6d123c2793363; progress-bounded selection d8ac86d3d9a3bde17fb31a7fe13c3cdc8e395119; expression-index design 0c5f290c3d020a3f11a7170df24e7c97793394df. The qualified source worktree was clean before the register-only follow-up; the branch is clean after it.",
+    "evidence": "Provider-free DEV-023 regression rerun at the tagged source: 27 passed. The one authorized live capped tick retained in b84be294f0a18377415f17062d2e849dcc7b34ac deleted exactly 200 expired rpc_response_cache rows and zero non-expired rows. Isolated DDL interruption/rollback evidence is recorded in cb0e80175963b9add438bd78d6298afd74bdbc74.",
+    "deployment_state": "AUTOMATIC_RETENTION=NOT_DEPLOYED. The scheduler remains disabled; the pinned disabled 75600f8e runtime remains preserved. No live index has been created and no recurring maintenance authority exists.",
+    "blockers": "At assessment: 341278720-byte shortfall against the proposed 4GiB-plus-192MiB DDL reserve; no approved canonical-writer quiescence window; no qualified bounded live DDL runner with disk/WAL/time controls; and no proven sustainable recurring retention rate.",
+    "register": "docs/dev_register.json was updated only to record ENGINEERING_QUALIFIED_DEPLOYMENT_BLOCKED, the exact tag/source chain, evidence references, disabled configuration authority, and next action. No application behavior was changed.",
+    "remote_verification": "origin/codex/dev-023-sustainable-retention resolves to 44e54f7b9257ebefaa72ace88128eb6525bd636a. Remote annotated tag dev023-engineering-qualified-20261008-0c5f290c resolves to 0c5f290c3d020a3f11a7170df24e7c97793394df.",
+    "safety": "Live DB/queue writes=0; live index creation=0; retention ticks=0; scheduler enablement=0; Supervisor/service/listener actions=0; provider calls=0; VACUUM/checkpoint=0; no new large artifact.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED_SCHEMA_MIGRATION_BLOCKED",
+    "next_action": "PRESERVE_THIS_ENGINEERING_CHECKPOINT. A_SEPARATE_AUTHORIZED_SCHEMA_WINDOW_REQUIRES_DISK_RESERVE_WRITER_QUIESCENCE_A_QUALIFIED_DDL_RUNNER_AND_SUSTAINABILITY_EVIDENCE_BEFORE_ANY_LIVE_MIGRATION_OR_SCHEDULER_ENABLEMENT."
   }
 }

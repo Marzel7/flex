@@ -38,6 +38,17 @@ def test_max_rows_makes_restart_safe_progress(tmp_path):
     assert _keys(path) in (["expired-a", "live"], ["expired-b", "live"])
 
 
+def test_selection_budget_interrupts_full_scan_before_any_delete(tmp_path):
+    path = _db(tmp_path)
+    conn = sqlite3.connect(path)
+    conn.executemany("INSERT INTO rpc_response_cache VALUES (?, '{}', 'm', 100, 100, 0)", [(f"live-{i}",) for i in range(4000)])
+    conn.commit(); conn.close()
+    result = retain_expired_rpc_cache(database_path=str(path), canonical_database_path=str(path), cutoff=10,
+                                      limits=_limits(selection_progress_steps=10))
+    assert result == {"status": "STOP_SELECTION_BUDGET", "deleted": 0}
+    assert {"expired-a", "expired-b", "live"}.issubset(_keys(path))
+
+
 def test_rejects_noncanonical_and_stops_for_disk_or_wal(tmp_path):
     path = _db(tmp_path)
     assert retain_expired_rpc_cache(database_path=str(path), canonical_database_path=str(tmp_path / "other.db"), cutoff=10, limits=_limits())["status"] == "REJECTED_NONCANONICAL_DATABASE"

@@ -26,6 +26,7 @@ class RetentionLimits:
     busy_retries: int = 3
     min_free_bytes: int = 4 * 1024**3
     max_wal_bytes: int = 200 * 1024**2
+    selection_progress_steps: int = 100_000
 
 
 def _limits_valid(limits: RetentionLimits) -> bool:
@@ -34,6 +35,7 @@ def _limits_valid(limits: RetentionLimits) -> bool:
         0 < limits.batch_rows <= 200
         and limits.max_rows_per_run >= 0
         and limits.busy_retries >= 0
+        and limits.selection_progress_steps > 0
     )
 
 
@@ -49,15 +51,22 @@ def _schema_ok(conn: sqlite3.Connection) -> bool:
     return columns == ["cache_key", "response_json", "method", "cached_at", "ttl_seconds", "hit_count"]
 
 
-def _expired_rowids(conn: sqlite3.Connection, cutoff: float, limit: int) -> list[int]:
-    return [
-        row[0]
-        for row in conn.execute(
+def _expired_rowids(conn: sqlite3.Connection, cutoff: float, limit: int, *, progress_steps: int) -> list[int]:
+    """Select a capped batch without permitting an unbounded SQLite scan."""
+    remaining = progress_steps
+    def stop_after_budget() -> int:
+        nonlocal remaining
+        remaining -= 1
+        return int(remaining <= 0)
+    conn.set_progress_handler(stop_after_budget, 1)
+    try:
+        return [row[0] for row in conn.execute(
             f"SELECT rowid FROM {AUTHORIZED_TABLE} "
             "WHERE cached_at + ttl_seconds <= ? ORDER BY rowid LIMIT ?",
             (cutoff, limit),
-        )
-    ]
+        )]
+    finally:
+        conn.set_progress_handler(None, 0)
 
 
 def retain_expired_rpc_cache_batch_in_transaction(
@@ -76,7 +85,12 @@ def retain_expired_rpc_cache_batch_in_transaction(
         return {"status": "REJECTED_INVALID_LIMITS", "deleted": 0}
     if not _schema_ok(conn):
         return {"status": "REJECTED_SCHEMA", "deleted": 0}
-    rowids = _expired_rowids(conn, cutoff, min(limits.batch_rows, limits.max_rows_per_run))
+    try:
+        rowids = _expired_rowids(conn, cutoff, min(limits.batch_rows, limits.max_rows_per_run), progress_steps=limits.selection_progress_steps)
+    except sqlite3.OperationalError as exc:
+        if "interrupted" in str(exc).lower():
+            return {"status": "STOP_SELECTION_BUDGET", "deleted": 0}
+        raise
     if not rowids:
         return {"status": "COMPLETE", "deleted": 0}
     placeholders = ",".join("?" for _ in rowids)
@@ -145,9 +159,15 @@ def retain_expired_rpc_cache(
                         return {"status": "STOP_WAL_CEILING", "deleted": deleted}
                     if stop_file and Path(stop_file).exists():
                         return {"status": "STOP_FILE", "deleted": deleted}
-                    rowids = _expired_rowids(
-                        conn, cutoff, min(limits.batch_rows, limits.max_rows_per_run - deleted)
-                    )
+                    try:
+                        rowids = _expired_rowids(
+                            conn, cutoff, min(limits.batch_rows, limits.max_rows_per_run - deleted),
+                            progress_steps=limits.selection_progress_steps,
+                        )
+                    except sqlite3.OperationalError as exc:
+                        if "interrupted" in str(exc).lower():
+                            return {"status": "STOP_SELECTION_BUDGET", "deleted": deleted}
+                        raise
                     if not rowids:
                         return {"status": "COMPLETE", "deleted": deleted}
                     placeholders = ",".join("?" for _ in rowids)

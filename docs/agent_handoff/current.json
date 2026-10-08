@@ -20371,5 +20371,14 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "The tag records existing runtime authority and changes no executable behavior.",
     "next_action": "OBSERVE_ELIGIBLE_POST_WATERMARK_NATURAL_WORK_BEFORE_SEPARATE_PRICE_LIVE_AND_TERMINAL_HISTORY_ACCEPTANCE"
+  },
+  "development_execution_discipline_v2_20261008": {
+    "engineering_revision": "8be99ed28aa2228dc9cec7d63103eab27376086d on origin/codex/dev-execution-discipline-v2; clean remote-verified dedicated worktree.",
+    "status": "PASS_V2_IMPLEMENTED_TESTED_AND_AVAILABLE",
+    "finding": "V2 extends AGENTS.md V1 with mandatory clean isolated DEV admission, register/concurrency ownership, distinct temporary test-path checks, offline launcher/capability/promotion guards, and handoff closure. The guard invokes only Git metadata checks and never Supervisor control.",
+    "files": "AGENTS.md; docs/dev_register.json; scripts/validate_dev_discipline.py; tests/test_dev_execution_discipline_v2.py.",
+    "tests": "tests/test_dev_execution_discipline_v2.py: 8 passed. Covers clean admission, dirty/missing SHA rejection, two independent DEV coexistence with shared-service rejection, isolated temporary paths, missing launcher dependency, missing monitoring capability, complete handoff, explicit live approval, and no Supervisor-control code path.",
+    "safety": "No Watchtower/Supervisor/service/DB/queue/provider/listener/Injector/+2 action occurred. RUNTIME_DEPLOYMENT_REQUIRED=false because this is process-instruction and DEV tooling only.",
+    "next_action": "USE_V2_ADMISSION_BEFORE_THE_NEXT_IMPLEMENTATION_DEV; NO_DEV_IS_STARTED_BY_THIS_PROTOCOL_CHANGE"
   }
 }

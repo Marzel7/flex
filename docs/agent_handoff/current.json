@@ -1,4 +1,15 @@
 {
+  "watchtower_monitor_schema_compatibility_20261008": {
+    "engineering_revision": "ac00b1e77c3bd030d711143efa73dd609dfe48ee on origin/codex/watchtower-monitor-schema-compat, isolated from a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d.",
+    "status": "PASS_QUALIFIED_NOT_DEPLOYED",
+    "root_cause": "Runtime/schema version mismatch. The Monitor activation UPSERT unconditionally wrote operation_monitor_facts.entry_offset_seconds, while the actual monitor database was created before that additive column. The canonical ensure_schema contract defines the column, but the running worker neither ran that migration nor accepted the legacy schema.",
+    "correction": "The activation path now reads the Monitor table schema through a read-only connection. It materializes entry_offset_seconds when available; on the legacy schema it omits only that denormalized column while retaining the exact offset in the immutable provenance_digest together with entry timestamp, market cap, method, and exactness. Unavailable or missing Monitor table metadata fails closed. No schema migration, provenance loss, or silent default is introduced.",
+    "qualification": "36 provider-free tests passed: bounded soak, legacy/current schema compatibility, capability contract, terminal adapter, service compatibility, and qualified-entry bridge. Fixtures reproduce the exact legacy-column failure, persist a recovered opening entry without the column, preserve offset provenance, prove idempotent retry/no duplicate fact, prove current-schema materialization, and prove missing-table fail-closed behavior. Python compilation passed. Tests use temporary SQLite databases only; provider calls=0; live DB/queue/Supervisor/service actions=0.",
+    "migration": "Not required for this minimal runtime correction. The column remains an optional additive schema capability; a separate migration may materialize it later but is not needed to preserve qualified Entry evidence or Price/terminal read paths.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED_REQUIRES_NEW_PINNED_RUNTIME_CONFIG_AND_EXPLICIT_LIVE_APPROVAL",
+    "next_action": "Prepare a target-only worker configuration that combines the qualified 20/4 budget environment with pinned runtime ac00b1e77c3bd030d711143efa73dd609dfe48ee, preserve the fixed watermark and queue, then obtain separate approval before any worker restart or natural retry observation."
+  },
   "watchtower_monitor_budget_deployment_acceptance_20261008": {
     "engineering_revision": "Worker runtime a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d; qualified budget-config SHA256=67c419a3f2dfcb92c5c82a94bfef24c9a4c7c8c9f2f68553ae4e4eae848bc321; regression authority d44e561e63487ff813b48539bda659787294eeed.",
     "status": "ROLLBACK_SCHEMA_COMPATIBILITY_BLOCKER",

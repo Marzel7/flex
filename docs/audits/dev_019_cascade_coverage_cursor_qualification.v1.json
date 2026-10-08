@@ -1,0 +1,32 @@
+{
+  "schema_version": "DEV019_CASCADE_COVERAGE_CURSOR_QUALIFICATION_V1",
+  "status": "QUALIFIED_ISOLATED_NOT_DEPLOYED",
+  "subscription_gap": {
+    "confirmed_treasuries": 83,
+    "cursor_rows_for_confirmed": 83,
+    "current_heartbeat_treasury_subscriptions": 29,
+    "observed_unsubscribed_or_unobservable": 54,
+    "root_cause": "UNEXPLAINED_RUNTIME_SUBSCRIPTION_DIVERGENCE",
+    "evidence": "The observed running checkout is /Users/kevinkeaveney/Production/flex-cascade at 26da06daba23608bd64d5b86cde1f92b24d3a98d; its selection code and active Supervisor config point to the same 83-row ops registry and interpret configured WS_MAX_TREASURY_SUBSCRIBE=0 as all selected treasuries. The registry also has 54 no_subscribe rows, but inspected root-tier selection code does not apply that flag. It must not be presented as a proven explanation for 29 subscriptions."
+  },
+  "qualified_contract": {
+    "per_address_coverage": "Exactly one row per confirmed treasury: SUBSCRIBED or RECONCILIATION_ONLY, cursor identity, activity class, and reason. Unknown subscribed addresses reject.",
+    "cursor_completeness": "Persist selected signatures and per-signature outcomes before cursor advance. Only every-selected-signature DECODED permits advance; failed/unsupported/missing outcomes remain INCOMPLETE and retain the prior cursor for replay.",
+    "handoff": "Compact direct, balance-verified funding record with sender/receiver/signature/slot/transaction index if known/instruction index/lamports/deltas/provenance/coverage status. Consumer failure returns HANDOFF_DEFERRED and cannot block cascade or make a provider request.",
+    "storage": "Test-only isolated SQLite proof requires /private/tmp, max 10MB store, max 16KB compact record; no raw payload or unbounded file path. Runtime cursor-store integration remains separately unapproved."
+  },
+  "existing_architecture_limits": {
+    "websocket": "accountSubscribe is a balance-change hint and carries no signature; existing runtime fetches bounded signatures after a hint.",
+    "reconciliation": "Current source uses limits 5 after notification and 10 on reconnect (3 first boot), but has no selected-page/decode-completeness durable state.",
+    "promotion": "none; DEV-019 remains review-only."
+  },
+  "qualification": {
+    "tests": "73 provider-free DEV-019/V2 tests passed",
+    "provider_calls": 0,
+    "live_db_or_queue_writes": 0,
+    "supervisor_listener_or_websocket_actions": 0,
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED"
+  },
+  "next_gate": "Separately review and integrate this contract into the actual cascade runtime after read-only runtime instrumentation resolves the 29/83 subscription divergence. Do not deploy, change subscriptions, or run historical backfill under this qualification."
+}

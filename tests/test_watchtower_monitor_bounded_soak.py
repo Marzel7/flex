@@ -10,7 +10,7 @@ import pytest
 from src.ops import operation_monitor_service as service
 from src.ops.monitor_live_admission import ensure_schema, record_member
 from src.ops.operation_monitor_bridge_service import config as bridge_config, run_once as bridge_once
-from src.ops.operation_monitor_worker import MonitorQueue
+from src.ops.operation_monitor_worker import MonitorQueue, MonitorWorker
 from src.ops.dev_provider_budget import BudgetDenied
 
 
@@ -55,6 +55,45 @@ def test_committed_continuous_watermark_excludes_historical_and_allows_forward_w
 
     assert not queue.soak_allows(_envelope("historical", 1791446332))
     assert queue.soak_allows(_envelope("forward", 1791446333))
+
+
+@pytest.mark.parametrize(
+    "kind,assigned_at",
+    (pytest.param("missing", None, id="missing"), pytest.param("null", None, id="null"),
+     pytest.param("malformed", "not-a-timestamp", id="malformed"), pytest.param("pre", 99, id="pre-watermark")),
+)
+def test_unproven_assignment_time_never_reaches_provider_boundary(tmp_path, monkeypatch, kind, assigned_at):
+    """The installed claim loop rejects unproven assignments before dispatch.
+
+    This exercises the worker loop, not just the predicate: neither its
+    Birdeye transport nor its immediate provider-budget admission may run.
+    """
+    selection = _selection(tmp_path / "selection.json", watermark=100)
+    queue = MonitorQueue(tmp_path / "queue", enabled=True, soak_selection_path=selection)
+    envelope = _envelope("target", assigned_at)
+    if kind == "missing":
+        envelope["assignment"].pop("assigned_at")
+    envelope["work_type"] = "WATCHTOWER_TERMINAL_ATH_FINALIZATION"
+    queue.queue.enqueue(envelope, message_id="unproven")
+
+    provider_admissions = []
+    transport_calls = []
+
+    def provider_spy(*args, **kwargs):
+        provider_admissions.append((args, kwargs))
+        raise AssertionError("unproven assignment reached provider admission")
+
+    def transport_spy(*args, **kwargs):
+        transport_calls.append((args, kwargs))
+        raise AssertionError("unproven assignment reached provider transport")
+
+    monkeypatch.setattr(queue, "admit_provider_dispatch", provider_spy)
+    worker = MonitorWorker(queue, transport=transport_spy, persist=lambda _item: True)
+
+    assert worker.process_once() == 0
+    assert provider_admissions == []
+    assert transport_calls == []
+    assert (queue.queue.root / "pending" / "unproven.json").exists()
 
 
 def test_selection_only_service_skips_global_reconciliation(tmp_path, monkeypatch):

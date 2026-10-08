@@ -1,0 +1,32 @@
+{
+  "version": "WATCHTOWER_FROZEN_LIFECYCLE_DEPLOYMENT_CANDIDATE_V1",
+  "status": "PREPARED_NOT_DEPLOYED",
+  "qualified_source": "7e9c2db073a73edab349c078fa2759ef1ec879c1",
+  "active_supervisor_config_sha256": "2d5a1c395217f975c68d78463cc03f0e6c74b3acdea7c36b5d53baccbcf7c366",
+  "candidate_supervisor_config_sha256": "3d1e347d370741c23ef6517e2da2196dba5a473462072ab810a1f6cfc78a06d7",
+  "rollback_supervisor_config_sha256": "2d5a1c395217f975c68d78463cc03f0e6c74b3acdea7c36b5d53baccbcf7c366",
+  "pinned_runtimes": {
+    "operation_monitor_worker": "/private/tmp/flex-watchtower-frozen-lifecycle-worker-7e9c2db0",
+    "watchtower_api": "/private/tmp/flex-watchtower-frozen-lifecycle-api-7e9c2db0"
+  },
+  "targeted_sections": ["program:operation_monitor_worker", "program:watchtower_api"],
+  "changed_keys_per_targeted_section": ["command", "directory", "environment"],
+  "preserved_contract": {
+    "schema_migration": false,
+    "provider_limits": "20 global / 4 per mint / 60 seconds",
+    "assignment_watermark": 1791446333,
+    "historical_timestamp_deficient_envelopes": 59,
+    "monitor_store": "WATCHTOWER_MONITOR_UI_DB_PATH read-only; no OPS_DB fallback for monitor endpoints",
+    "terminal_finalizer": "normal endpoint/internal-gap validation enabled"
+  },
+  "offline_validation": {
+    "parser": "RawConfigParser only; no supervisord invocation or daemon",
+    "target_only_section_diff": "PASS",
+    "launcher_dependencies": "PASS",
+    "provider_free_regressions": "12 passed",
+    "live_mutations": 0,
+    "provider_calls": 0
+  },
+  "rollback": "Restore the byte-exact active configuration, then apply only watchtower_api and operation_monitor_worker under separate explicit deployment authorization.",
+  "next_gate": "Explicit approval for a targeted API and worker transition after fresh runtime, disk, DB/WAL, queue, and service-continuity preflight."
+}

@@ -1,7 +1,8 @@
 from src.ops.treasury_activity import ACTIVE, DORMANT, HOT, RETIRED_CANDIDATE
 from src.ops.treasury_outbound_monitoring import (
     FEATURE_FLAG_DEFAULT, MonitoringPlan, TreasuryMonitorState, classify_outbound_fact,
-    daily_request_estimate, next_reconciliation, scaled_activity_counts, storage_estimate, update_coverage,
+    daily_request_estimate, next_reconciliation, qualify_disabled_deployment, scaled_activity_counts,
+    storage_estimate, update_coverage,
 )
 
 
@@ -51,3 +52,13 @@ def test_population_scaling_is_deterministic_and_storage_is_bounded():
     storage = storage_estimate(compact_records_per_day=100)
     assert storage["estimated_logical_bytes_per_day"] == 102_400
     assert storage["max_single_file_bytes"] < 500_000_000
+
+
+def test_disabled_candidate_refuses_to_duplicate_existing_cascade_owner():
+    blocked = qualify_disabled_deployment(
+        configured_enabled=False, active_acquisition_owners=["ws_cascade"],
+        cursor_store="wt_treasury_ws_usage",
+    )
+    assert blocked["status"] == "DEPLOYMENT_BLOCKED_EXISTING_TREASURY_ACQUISITION_OWNER"
+    assert blocked["eligible"] is False
+    assert qualify_disabled_deployment(configured_enabled=True, active_acquisition_owners=[], cursor_store="isolated") ["status"] == "DEPLOYMENT_BLOCKED_FEATURE_MUST_BE_OFF"

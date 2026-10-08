@@ -1,0 +1,30 @@
+{
+  "schema_version": "DEV019_TREASURY_OUTBOUND_MONITORING_DISABLED_V1",
+  "enabled": false,
+  "runtime_registration": "NONE",
+  "acquisition_owner": "UNREGISTERED",
+  "known_active_owner_protection": "ws_cascade",
+  "cursor_store": {
+    "authority": "UNRESOLVED_REQUIRES_EXCLUSIVE_OWNER_APPROVAL",
+    "do_not_write": "wt_treasury_ws_usage is currently owned by ws_cascade"
+  },
+  "reconciliation": {
+    "hot_seconds": 900,
+    "active_seconds": 3600,
+    "inactive_seconds": 86400,
+    "max_signatures_per_page": 20,
+    "max_decodes_per_page": 20,
+    "pagination": "DISALLOWED",
+    "retry": "DISALLOWED"
+  },
+  "storage": {
+    "compact_record_max_bytes": 1024,
+    "store_max_bytes": 10000000,
+    "raw_payload_retention": false
+  },
+  "promotion": {
+    "treasury_confirmation": false,
+    "operation_membership": false,
+    "canonical_attribution": false
+  }
+}

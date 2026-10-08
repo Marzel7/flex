@@ -23,6 +23,8 @@ VALID_COVERAGE = {
     "LIVE_COVERED", "RECONCILIATION_DUE", "COVERAGE_INCOMPLETE",
     "PROVIDER_LIMIT_STOP", "ACTIVITY_UNKNOWN",
 }
+EXISTING_CASCADE_OWNER = "ws_cascade"
+DEPLOYMENT_BLOCKED_EXISTING_OWNER = "DEPLOYMENT_BLOCKED_EXISTING_TREASURY_ACQUISITION_OWNER"
 
 
 @dataclass(frozen=True)
@@ -171,3 +173,28 @@ def storage_estimate(*, compact_records_per_day: int) -> dict:
         "raw_transaction_retention": False,
         "unbounded_growth_paths": 0,
     }
+
+
+def qualify_disabled_deployment(*, configured_enabled: bool,
+                                active_acquisition_owners: Iterable[str],
+                                cursor_store: str | None) -> dict:
+    """Fail closed before registering another live treasury acquisition owner.
+
+    ``ws_cascade`` already owns treasury WebSocket/reconciliation cursors in
+    the active operations database.  The DEV-019 index may consume compact
+    evidence from an approved handoff in the future, but it must never start a
+    second poller against the same confirmed-treasury population.
+    """
+    owners = frozenset(str(owner) for owner in active_acquisition_owners if owner)
+    if configured_enabled:
+        return {"status": "DEPLOYMENT_BLOCKED_FEATURE_MUST_BE_OFF", "eligible": False}
+    if EXISTING_CASCADE_OWNER in owners:
+        return {
+            "status": DEPLOYMENT_BLOCKED_EXISTING_OWNER,
+            "eligible": False,
+            "existing_owner": EXISTING_CASCADE_OWNER,
+            "cursor_store": cursor_store,
+        }
+    if not cursor_store:
+        return {"status": "DEPLOYMENT_BLOCKED_CURSOR_STORE_REQUIRED", "eligible": False}
+    return {"status": "DISABLED_CANDIDATE_QUALIFIED", "eligible": True, "cursor_store": cursor_store}

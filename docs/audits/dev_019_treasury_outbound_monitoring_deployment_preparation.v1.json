@@ -1,0 +1,40 @@
+{
+  "schema_version": "DEV019_TREASURY_OUTBOUND_MONITORING_DEPLOYMENT_PREPARATION_V1",
+  "status": "HOLD_DUPLICATE_ACQUISITION_OWNER",
+  "retained_population": {
+    "confirmed_treasuries": 83,
+    "activity_counts": {"HOT": 2, "ACTIVE": 17, "DORMANT": 14, "RETIRED_CANDIDATE": 50, "ACTIVITY_UNKNOWN": 0},
+    "source": "docs/audits/dev_019_confirmed_treasury_activity.v1.json; no new provider acquisition"
+  },
+  "provider_budget": {
+    "credential_authority": "Existing Supervisor configuration contains an explicit Helius RPC authority; credential value was checked only for non-empty authoritative shape and is not retained here.",
+    "compatibility": "UNVERIFIED_LIVE_PLAN_CAPACITY: no provider request or account-usage read was authorized. Repository planning metric is 10 credits per getSignaturesForAddress/getTransaction request, not a provider quote.",
+    "planned_signature_pages_per_day": 664,
+    "planned_credit_estimate_before_transaction_decodes": 6640
+  },
+  "existing_acquisition": {
+    "ws_cascade_process": "Observed running as its managed loop through read-only process inspection.",
+    "treasury_subscription_logic": "ws_cascade reads the confirmed treasury registry and treats configured WS_MAX_TREASURY_SUBSCRIBE=0 as the full treasury set in its current code path.",
+    "cursor_store": "Active operations database wt_treasury_ws_usage has 85 rows, all with a last notification signature. It is written and owned by ws_cascade, not by DEV-019.",
+    "webhook": "Infrastructure configuration and webhook-hit table exist; address coverage and delivery health are unverified in this task.",
+    "result": "An independent DEV-019 live poller would duplicate existing acquisition."
+  },
+  "deployment_candidate": {
+    "path": "config/watchtower/treasury_outbound_monitoring.disabled.v1.json",
+    "enabled": false,
+    "runtime_registration": "NONE",
+    "cursor_authority": "UNRESOLVED_REQUIRES_EXCLUSIVE_OWNER_APPROVAL",
+    "full_wallet_rescan": false,
+    "pagination": "DISALLOWED",
+    "retries": "DISALLOWED",
+    "storage": "compact 1024-byte records; 10MB store/max-file bound; no raw payload retention"
+  },
+  "safety": {
+    "provider_calls": 0,
+    "live_database_or_queue_writes": 0,
+    "service_or_supervisor_actions": 0,
+    "treasury_or_membership_promotions": 0,
+    "running_watchtower_modifications": 0
+  },
+  "next_gate": "Select one exclusive acquisition owner. Prefer an approved compact-evidence handoff from ws_cascade to DEV-019 rather than a second poller. Then separately qualify cursor ownership, actual Helius plan capacity, webhook/WS coverage, runtime deployment, and recovery policy before enabling any monitoring."
+}

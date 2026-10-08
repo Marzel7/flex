@@ -1,4 +1,15 @@
 {
+  "watchtower_monitor_combined_recovery_deployment_preparation_20261008": {
+    "engineering_revision": "Pinned executable runtime ac00b1e77c3bd030d711143efa73dd609dfe48ee at /private/tmp/flex-watchtower-monitor-runtime-ac00b1e7; preparation manifest/regression commit d3c5b7be61a5705477880829e5c8e724d1ff5765 on origin/codex/watchtower-monitor-schema-compat.",
+    "status": "QUALIFIED_NOT_DEPLOYED_EXPLICIT_LIVE_APPROVAL_REQUIRED",
+    "candidate": "Rendered directly from active SHA256=5f21916b3029f0e8cce2e91b92fa8f58631f4591baffa749ca40ecfccf5569f9. Candidate /private/tmp/watchtower-monitor-combined-candidate.conf SHA256=2d5a1c395217f975c68d78463cc03f0e6c74b3acdea7c36b5d53baccbcf7c366. Its only changed section is program:operation_monitor_worker: command/directory/PYTHONPATH/WATCHTOWER_FINAL authority point to the clean pinned ac00b1e7 runtime and MONITOR_PROVIDER_GLOBAL_LIMIT=20 plus MONITOR_PROVIDER_TOKEN_LIMIT=4 are explicit. All queue, operations/canonical DB, fixed watermark selection, shadow-disable, bridge/API/listener/cascade/creator-funding and unrelated program bindings remain byte-identical. Program count=15.",
+    "rollback": "Byte-exact rollback copy /private/tmp/watchtower-monitor-combined-rollback-5f21916b.conf SHA256=5f21916b3029f0e8cce2e91b92fa8f58631f4591baffa749ca40ecfccf5569f9; active config remained the same during preparation.",
+    "qualification": "Parser-only RawConfigParser comparison passed; no temporary Supervisor daemon was launched. Runtime launcher SHA preflight passed. 49 provider-free tests passed across bounded soak/watermark, legacy/current schema persistence, explicit 20 global/60s and 4 per-mint/60s limits, monitor capability, terminal/read compatibility, idempotent entry retry/no duplicate facts, and Supervisor isolation. All fixtures use temporary SQLite paths. Provider calls=0; live DB/queue writes=0; service/Supervisor actions=0.",
+    "queue": "The four post-watermark retry envelopes and 59 timestamp-deficient historical pending envelopes remain untouched. The fixed watermark is 1791446333; historical records remain fail-closed before provider dispatch.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED_EXPLICIT_LIVE_APPROVAL_REQUIRED",
+    "next_action": "STOP. Obtain explicit approval for one targeted operation_monitor_worker transition using config SHA256=2d5a1c395217f975c68d78463cc03f0e6c74b3acdea7c36b5d53baccbcf7c366, then repeat fresh preflight and observe only natural retry processing."
+  },
   "watchtower_monitor_schema_compatibility_20261008": {
     "engineering_revision": "ac00b1e77c3bd030d711143efa73dd609dfe48ee on origin/codex/watchtower-monitor-schema-compat, isolated from a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d.",
     "status": "PASS_QUALIFIED_NOT_DEPLOYED",

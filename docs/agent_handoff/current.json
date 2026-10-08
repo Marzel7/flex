@@ -20718,5 +20718,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Research failure record and blocked V2 register state only; no runtime behavior is deployed.",
     "next_action": "STOP. A separately authorized revised version-negotiation acquisition contract must preserve compact page boundaries before any decode and support the observed transaction version; do not retry this exhausted Batch 1 authorization."
+  },
+  "dev019_transaction_version_and_boundary_qualification_20261008": {
+    "engineering_revision": "Source correction 6163d43a4119f53279b4a08af8c2fb8a0daf740b; V2 register status 5994f124e53054b8a995f6e2df9cb089a3805374 on origin/codex/dev-019-mesh-discovery.",
+    "status": "QUALIFIED_RETRY_CONTRACT_REQUIRES_FRESH_ACQUISITION_AUTHORIZATION",
+    "failure_identity": "The aborted one-shot runner retained neither the failed signature nor the full RPC error text: it reduced the error to RPC_ERROR_-32015 and persisted no page state before decoding. The exact failed signature is therefore UNKNOWN, not reconstructed.",
+    "version_contract": "The failed request used maxSupportedTransactionVersion=0. Official Solana versioned-transaction documentation defines RPC -32015 in this setting as the response for a v1 transaction; revised DEV-019 requests use maxSupportedTransactionVersion=1 and accept legacy, v0, and v1 only. The project uses direct Python urllib JSON-RPC, not an installed Helius SDK. Any other returned version is explicit incomplete coverage and produces no facts.",
+    "minimal_correction": "Added a compact pre-decode signature-page boundary record (page, cursor, count, first/last signature), a shared transaction request configuration, supported-version classification, and an extractor fail-closed guard. Coverage cannot report a negative result unless every selected signature has a supported successful decode.",
+    "qualification": "35 provider-free DEV-019/V2 tests passed, covering legacy/v0/v1 acceptance, unknown-version refusal, first-decode page-boundary survival, incomplete coverage, deduplication, and compact-only output. No provider calls, live DB/queue writes, Supervisor/service/listener actions, promotions, or raw payload retention occurred.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Research acquisition contract and provider-free tests only; no runtime integration or live deployment changed.",
+    "next_action": "REQUEST_FRESH_EXPLICIT_AMQ_BATCH1_AUTHORIZATION. The prior batch authorization was exhausted and must not be retried implicitly; a new authorized batch may use the same bounded request caps with the revised v1-aware, page-persistent contract."
   }
 }

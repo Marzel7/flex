@@ -1,5 +1,6 @@
 """Fail-closed, non-secret deployment authority verifier."""
-import hashlib,json,subprocess,sys
+import hashlib,json,os,subprocess,sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -9,7 +10,9 @@ def clean_head():
  if subprocess.call(["git","-C",str(ROOT),"diff","--quiet"]) or subprocess.check_output(["git","-C",str(ROOT),"status","--porcelain"],text=True): raise SystemExit("DIRTY_WORKTREE")
  return head
 def verify(expected_sha):
- if clean_head()!=expected_sha: raise SystemExit("SHA_MISMATCH")
+ actual_sha=clean_head()
+ if actual_sha!=expected_sha:
+  raise SystemExit(json.dumps({"actual_sha":actual_sha,"event":"SHA_MISMATCH","expected_sha":expected_sha,"pid":os.getpid(),"root":str(ROOT.resolve()),"timestamp_utc":datetime.now(timezone.utc).isoformat().replace("+00:00","Z")},sort_keys=True,separators=(",",":")))
  cfg=json.loads((ROOT/"config/watchtower_final_runtime.json").read_text())
  ledger=ROOT/cfg["product"]["audit_ledger"]
  data=json.loads(ledger.read_text())

@@ -53,3 +53,15 @@ def test_write_lane_is_bounded_and_nonexpired_rows_are_never_deleted(tmp_path):
         calls.append("entered"); yield object(); calls.append("exited")
     result = retain_expired_rpc_cache(database_path=str(path), canonical_database_path=str(path), cutoff=10, limits=_limits(), write_lane=lane)
     assert result["deleted"] == 2 and calls == ["entered", "exited"] and _keys(path) == ["live"]
+
+
+def test_busy_database_fails_closed_without_deleting(tmp_path):
+    path = _db(tmp_path)
+    lock = sqlite3.connect(path, timeout=0)
+    lock.execute("BEGIN EXCLUSIVE")
+    try:
+        result = retain_expired_rpc_cache(database_path=str(path), canonical_database_path=str(path), cutoff=10, limits=_limits())
+    finally:
+        lock.rollback(); lock.close()
+    assert result == {"status": "STOP_WRITE_LANE_ERROR", "deleted": 0}
+    assert set(_keys(path)) == {"expired-a", "expired-b", "live"}

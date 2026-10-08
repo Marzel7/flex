@@ -7,6 +7,38 @@
   },
   "devs": [
     {
+      "dev_id": "DEV-023",
+      "objective": "Qualify the Phase 3 canonical rpc_response_cache retention contract without live maintenance.",
+      "branch": "codex/dev-023-retention-phase3",
+      "worktree": "/private/tmp/flex-dev-023-retention-phase3",
+      "starting_sha": "580508a70c80e7fc944e0069f85e67b851a117fa",
+      "current_sha": "fc83508e578ba0aa8ccfca5b7380b99bb64da9df",
+      "status": "QUALIFIED_NOT_DEPLOYED",
+      "next_action": "Review exact runtime integration, scheduler, and live-maintenance authorization separately; do not execute a purge from this qualification.",
+      "dependencies": [
+        "docs/audits/hot_db_retention_20261002/ retained Phase 1/2 evidence",
+        "Development Execution Discipline V2"
+      ],
+      "source_authority": "580508a70c80e7fc944e0069f85e67b851a117fa plus committed V2 process controls",
+      "configuration_authority": "Synthetic temporary SQLite databases only; canonical target passed explicitly by caller",
+      "definition_of_done": [
+        "Canonical target and bounded expiry-only contract pass isolated fixtures",
+        "No production database or service action"
+      ],
+      "acceptance_criteria": [
+        "Expired-only preservation, batch cap, disk/WAL guards, write-lane boundary and restart idempotence pass",
+        "Existing RPC-cache expiry-index and V2 guard tests pass"
+      ],
+      "qualification_evidence": [
+        "tests/test_dev023_hot_rpc_cache_retention.py: 4 passed",
+        "tests/test_rpc_cache_expiry_index.py: 2 passed",
+        "tests/test_dev_execution_discipline_v2.py: 8 passed"
+      ],
+      "integration_promotion_status": "QUALIFIED_NOT_DEPLOYED_RUNTIME_INTEGRATION_REQUIRES_SEPARATE_APPROVAL",
+      "touched_services": [],
+      "shared_mutable_state": []
+    },
+    {
       "dev_id": "DEV-EXECUTION-DISCIPLINE-V2-20261008",
       "objective": "Implement deterministic multi-DEV admission, isolation, handoff, and integration controls without changing runtime behavior.",
       "branch": "codex/dev-execution-discipline-v2",

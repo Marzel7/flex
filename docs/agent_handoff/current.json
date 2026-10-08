@@ -20420,5 +20420,16 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_INSTALLED",
     "next_action": "OBTAIN_SEPARATE_EXPLICIT_AUTHORIZATION_TO_INSTALL_A_NEW_PINNED_DISABLED_75600F8E_RUNTIME; THEN, ONLY AFTER_INSTALLATION_PREFLIGHT, OBTAIN_FRESH_EXPLICIT_AUTHORIZATION_FOR_ONE_CAPPED_LIVE_RETENTION_TICK."
+  },
+  "dev023_corrected_disabled_runtime_install_20261008": {
+    "engineering_revision": "New detached clean pinned runtime /private/tmp/flex-dev023-retention-runtime-75600f8e at exact remote-verified 75600f8e087df0a849176d8d495eba95af3e3759; source branch origin/codex/dev-023-limits-contract.",
+    "status": "PASS_CORRECTED_DISABLED_RUNTIME_INSTALLED",
+    "installation": "The new runtime directory was created separately from all running checkouts. Its launcher, runtime adapter, retention contract, and disabled configuration are committed dependencies. Disabled configuration SHA256 remains d66dfa64bb27702162accde2de73f6fc02b1691b09f27a55f46306f6db96463c with enabled=false and maximum_rows_per_tick=200. The previous /private/tmp/flex-dev023-retention-runtime-e7103c03 installation remains present and unchanged as rollback authority.",
+    "verification": "The installed default enabled configuration reports batch_rows=200 and max_rows_per_run=200. An explicit max_rows_per_run=201 returns REJECTED_INVALID_LIMITS before registration. The installed CLI invoked with DEV023_HOT_RPC_RETENTION_ENABLED=0 and a nonexistent temporary database path returned DISABLED with deleted=0, proving disabled mode does not need to open or register a database. Installed-root DEV-023 tests passed 20/20.",
+    "operations": "Scheduler digest remains 9bfdc6645e8a486430e0dc6eb4b3203e58324e7ab7807fd3ddc20f89a567a803; no crontab, Supervisor configuration, or repository Supervisor/script reference names the new runtime. Read-only process inspection shows legitimate supervisord PID 73409, listener PID 73415, and existing operation monitor bridge PID 21106 unchanged. API health remained healthy=true. No Supervisor control command was issued.",
+    "safety": "Live database/queue writes=0; retention execution=0; scheduler enablement=0; provider calls=0; listener/API/bridge/worker action=0; VACUUM/checkpoint=0; no files approach 500MB.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS_PINNED_DISABLED_INSTALL_ONLY",
+    "next_action": "OBTAIN_FRESH_EXPLICIT_AUTHORIZATION_FOR_ONE_CAPPED_LIVE_RETENTION_TICK_ONLY_AFTER_REVALIDATING_THE_75600F8E_RUNTIME_CANONICAL_DATABASE_WRITE_LANE_DISK_WAL_AND_SERVICE_HEALTH; DO_NOT_ENABLE_A_SCHEDULE."
   }
 }

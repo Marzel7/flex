@@ -45,7 +45,7 @@
       "branch": "codex/dev-019-mesh-discovery",
       "worktree": "/private/tmp/flex-dev-019-mesh-discovery",
       "starting_sha": "afa282fa0139265deeb2a3f21b1d072290cb62ed",
-      "current_sha": "PENDING_COMMIT_DEV019_OUTBOUND_MONITORING_QUALIFICATION",
+      "current_sha": "ae174c8ae02bfe299ab4f84e1ddf635e7310bd62 (superseded by this register-amend commit)",
       "status": "QUALIFIED_INCREMENTAL_OUTBOUND_MONITORING_CONTRACT_NOT_DEPLOYED",
       "next_action": "STOP at the acquisition qualification gate. Any live Helius websocket/webhook or polling activation, durable cursor-store integration, persistent Walkback attribution/review write, further live acquisition, or deployment requires separate authorization.",
       "dependencies": [

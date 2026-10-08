@@ -19919,5 +19919,17 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_WAL_HOLDER_ACTIVE_TASK_OWNERSHIP_AMBIGUOUS",
     "next_action": "IDENTIFY_OR_CLOSE_THE_OWNING_CODEX_TASK_OR_OBTAIN_UNAMBIGUOUS_PROCESS_OWNERSHIP_AUTHORIZATION_BEFORE_ANY_TARGETED_PID_72810_TERMINATION_AND_WAL_RECOVERY_VERIFICATION"
+  },
+  "watchtower_codedx_wal_holder_owner_identification_20261008": {
+    "engineering_revision": "Read-only Codex session/process correlation only; no process termination, database, Supervisor, service, provider, listener, source, or configuration action.",
+    "status": "PASS_OWNER_IDENTIFIED_RELEASE_AUTHORIZATION_REQUIRED",
+    "owner": "PID 72810 belongs to the currently active local Codex session 01a112e3-ab55-7703-8af1-ede39a909842, titled 'Complete 96-record audit ledger', cwd /Users/kevinkeaveney/Dev/claude/flex. No other active local Codex task was reported by the app.",
+    "correlation": "The PID start time 2026-10-08 00:57:55 local falls inside completed session turn 01a118cd-2392-7be3-b515-cb68edd0a492 ('CRITICAL — WATCHTOWER LIVE SUPERVISOR INCIDENT'). Its exact completed command was a python -u stdin diagnostic that opened canonical and operations SQLite DBs with URI mode=ro, executed PRAGMA query_only=ON, performed schema reads, and called close. The command completed, so the continuing python-stdin child is an orphaned diagnostic process from that completed turn, not active user work.",
+    "connection_mode": "The launch command proves canonical SQLite opened mode=ro with query_only=ON. Current lsof confirms canonical DB fd 3 is read-only; WAL/SHM descriptors are SQLite support handles, not evidence of a write-capable connection.",
+    "safe_release": "Do not close the current active Codex session, because it owns the present user interaction. The narrow normal release is a separately authorized SIGTERM of only orphan PID 72810, followed by bounded WAL checkpoint/worker/listener verification; no SIGKILL or other task interruption is indicated.",
+    "safety": "Termination=0; Supervisor actions=0; DB/queue writes=0; provider calls=0; service restarts=0; listener changes=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_TARGETED_ORPHAN_PROCESS_RELEASE_AUTHORIZATION_REQUIRED",
+    "next_action": "OBTAIN_EXPLICIT_AUTHORIZATION_TO_SIGTERM_ONLY_ORPHAN_PID_72810_THEN_RUN_BOUNDED_WAL_RECOVERY_VERIFICATION_BEFORE_RETURNING_TO_WATCHTOWER_TARGET_TRANSITION_PREFLIGHT"
   }
 }

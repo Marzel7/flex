@@ -1,4 +1,14 @@
 {
+  "watchtower_four_launch_birdeye_gap_recovery_preflight_20261008": {
+    "engineering_revision": "Clean isolated source /private/tmp/flex-watchtower-monitor-schema-compat at d3c5b7be61a5705477880829e5c8e724d1ff5765; no source/runtime/configuration change.",
+    "status": "HOLD_DISK_RESOURCE_GUARD_BEFORE_PROVIDER_ACQUISITION",
+    "preflight": "Exact clean source authority passed; authoritative BIRDEYE credential label/presence passed without exposing its value; relevant provider-free lifecycle/schema/watermark/qualified-entry regression suite passed 26/26. The proposed bounded plan was four exact full 1m Entry-to-terminal requests followed only by discovered internal-gap and terminal-tail probes, with guards of <=40 total and <=10 per mint, concurrency=1, no retry/fallback, and compact in-memory derived evidence only.",
+    "blocker": "Filesystem free space at preflight was 3,581,259,776 bytes (3.34 GiB), below the established 4 GiB safety floor. This is a resource-guard failure under the requested stop conditions. Provider requests=0; no raw response, candle, database, queue, or runtime artifact was created.",
+    "preservation": "All four qualified Entry facts, existing partial Birdeye peaks, monitor facts, fixed watermark, historical exclusions, terminal envelopes, and running services remain untouched.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "No runtime behavior changed; acquisition did not start.",
+    "next_action": "STOP. Recover verified disk headroom under a separately authorized safe cleanup or wait for headroom, then repeat the complete preflight before any Birdeye gap-recovery request. Do not bypass the floor or issue partial probes."
+  },
   "watchtower_four_launch_coverage_recoverability_assessment_20261008": {
     "engineering_revision": "Read-only assessment of compact evidence published in 53c4a35f26360366f2cfb299d7c3eb09f2182d4a and monitor facts at ac00b1e77c3bd030d711143efa73dd609dfe48ee; no source, provider, database, queue, or service action occurred.",
     "status": "HOLD_TARGETED_RECOVERY_NOT_DEMONSTRABLY_SPECIFIABLE_FROM_RETAINED_COMPACT_EVIDENCE",

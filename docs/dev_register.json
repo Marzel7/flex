@@ -45,9 +45,9 @@
       "branch": "codex/dev-019-mesh-discovery",
       "worktree": "/private/tmp/flex-dev-019-mesh-discovery",
       "starting_sha": "afa282fa0139265deeb2a3f21b1d072290cb62ed",
-      "current_sha": "61bd442780d2b57e1d80f715979f071483087e8b",
-      "status": "BLOCKED_ACQUISITION_TRANSACTION_VERSION_CONTRACT",
-      "next_action": "STOP. Batch 1 aborted on Helius RPC -32015 because its fixed maxSupportedTransactionVersion=0 could not decode the first encountered transaction. A separately authorized revised version-negotiation contract must persist page boundaries before decode and must not retry this exhausted batch.",
+      "current_sha": "6163d43a4119f53279b4a08af8c2fb8a0daf740b",
+      "status": "QUALIFIED_RETRY_CONTRACT_REQUIRES_FRESH_ACQUISITION_AUTHORIZATION",
+      "next_action": "REQUEST_FRESH_BATCH1_AUTHORIZATION. The revised contract uses maxSupportedTransactionVersion=1 for legacy/v0/v1 reads, records each compact page boundary before decoding, and reports unknown versions as incomplete coverage. Do not retry the exhausted prior batch without explicit new authorization.",
       "dependencies": [
         "Development Execution Discipline V2",
         "Legacy DEV-019 Phase 1/2/2B contracts",
@@ -80,6 +80,7 @@
         ,"Coverage-aware mesh qualification: a bounded signature window is COMPLETE only when every returned signature was decoded; incomplete pages cannot report negative transfer evidence. Ordered direct transfer and verified creator-launch contracts remain provider-free/review-only. 29 focused DEV-019/V2 tests passed."
         ,"Compact native evidence decoder: outer/inner System transfers retain instruction coordinates; WSOL account closes are context rather than direct funding; net balance movement without a transfer instruction is not an edge. 32 focused DEV-019/V2 tests passed."
         ,"AMQ Batch 1 was attempted under the authorized no-retry cap and aborted on first getTransaction with Helius RPC -32015 (unsupported transaction version). It established no transfer fact and does not support a negative result. Compact failure artifact retained; no raw payload."
+        ,"Transaction-version correction: maxSupportedTransactionVersion=1 supports legacy, v0, and v1 reads; unrecognized returned versions fail closed. Compact page-boundary provenance is created before decoding. 35 focused DEV-019/V2 tests passed; no provider call during qualification."
       ],
       "integration_promotion_status": "SOURCE_RECOVERY_ONLY_NOT_RUNTIME_PROMOTED",
       "touched_services": [],

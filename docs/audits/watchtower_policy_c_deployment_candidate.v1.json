@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "kind": "watchtower_policy_c_offline_deployment_candidate",
+  "status": "PREPARED_NOT_DEPLOYED",
+  "qualified_source_sha": "4488453740400c169327b200371d417e984e4603",
+  "qualified_parent_sha": "498cafcde9a8f0b4e4eaa15ebb0afcf6b6177c8b",
+  "pinned_runtime_root": "/private/tmp/flex-watchtower-policy-c-runtime-44884537",
+  "targeted_programs": [
+    "watchtower_api",
+    "operation_monitor_worker"
+  ],
+  "active_config_sha256": "22721ba7526cadddb443f52add1add76f8df6c1cbb305154155f98e47fc837a8",
+  "candidate_config_sha256": "ee69b559970322e6d5ffcced2f0de32611c80ecab5415b2ede1488cd789e2dc9",
+  "candidate_config_path": "/private/tmp/watchtower-policy-c-api-worker-candidate-44884537.conf",
+  "rollback_config_path": "/private/tmp/watchtower-policy-c-api-worker-rollback-22721ba7.conf",
+  "rollback_config_sha256": "22721ba7526cadddb443f52add1add76f8df6c1cbb305154155f98e47fc837a8",
+  "canonical_birth_db_authority": {
+    "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+    "binding": "OPERATION_MONITOR_CANONICAL_BIRTH_DB_PATH",
+    "access": "read-only canonical_launch_birth.project",
+    "fallback": "wt_watchtower_launches only when the create ledger has no retained row"
+  },
+  "preserved_contracts": {
+    "provider_limits": "20 global / 4 per mint per 60 seconds",
+    "assignment_watermark": 1791446333,
+    "monitor_queue": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue",
+    "monitor_store": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db",
+    "terminal_finalizer": "existing strict incomplete-OHLC rejection",
+    "historical_exclusions": "preserved",
+    "schema_migration": false,
+    "new_scheduler_or_acquisition_service": false
+  },
+  "qualification": {
+    "tests": "45 passed: Supervisor composition, Policy C, frozen lifecycle API binding, monitor service compatibility",
+    "supervisor_parser": "PASS: 15 process groups; parser-only isolated fixture",
+    "candidate_diff": "PASS: only program:watchtower_api and program:operation_monitor_worker differ",
+    "provider_calls": 0,
+    "live_db_or_queue_writes": 0,
+    "service_actions": 0
+  },
+  "storage": {
+    "raw_provider_retention": false,
+    "maximum_single_or_transient_file_bytes": 500000000,
+    "unbounded_growth_paths": 0
+  },
+  "next_gate": "Fresh live preflight and explicit deployment authorization are required. Do not deploy, replay queue work, or acquire provider data."
+}

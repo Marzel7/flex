@@ -43,6 +43,20 @@ def test_fixed_watermark_preserves_retained_queue_messages(tmp_path):
     assert (queue.queue.root / "processing" / "new.json").exists()
 
 
+def test_committed_continuous_watermark_excludes_historical_and_allows_forward_work(tmp_path):
+    selection = Path(__file__).resolve().parents[1] / "docs" / "audits" / "watchtower_continuous_monitor_watermark.v1.json"
+    payload = json.loads(selection.read_text())
+    assert payload == {
+        "allowlist": [],
+        "minimum_assignment_timestamp": 1791446333,
+        "mode": "DEV_005_ISOLATED_SOAK",
+    }
+    queue = MonitorQueue(tmp_path / "queue", enabled=True, soak_selection_path=selection)
+
+    assert not queue.soak_allows(_envelope("historical", 1791446332))
+    assert queue.soak_allows(_envelope("forward", 1791446333))
+
+
 def test_selection_only_service_skips_global_reconciliation(tmp_path, monkeypatch):
     selection = _selection(tmp_path / "selection.json")
     queue = MonitorQueue(tmp_path / "queue", enabled=True, soak_selection_path=selection)

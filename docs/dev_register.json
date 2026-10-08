@@ -5,5 +5,39 @@
     "one_live_deployment_or_integration_transition": true,
     "concurrent_changes_to_same_service_or_shared_mutable_state": "prohibited"
   },
-  "devs": []
+  "devs": [
+    {
+      "dev_id": "DEV-EXECUTION-DISCIPLINE-V2-20261008",
+      "objective": "Implement deterministic multi-DEV admission, isolation, handoff, and integration controls without changing runtime behavior.",
+      "branch": "codex/dev-execution-discipline-v2",
+      "worktree": "/private/tmp/flex-dev-execution-discipline-v2",
+      "starting_sha": "77e8a55537c98fe34f99a6949f87e8ecb2233ae4",
+      "current_sha": "b8d6ee15f3cdf366a7584105fea9f7e99ce7ac09",
+      "status": "COMPLETE",
+      "next_action": "Use V2 admission before the next implementation DEV.",
+      "dependencies": [
+        "Development Execution Discipline V1 (77e8a55537c98fe34f99a6949f87e8ecb2233ae4)",
+        "Existing parser-only Supervisor isolation safeguard"
+      ],
+      "source_authority": "Committed V1 source at 77e8a55537c98fe34f99a6949f87e8ecb2233ae4",
+      "configuration_authority": "Process-only controls; no runtime configuration authority changed",
+      "definition_of_done": [
+        "V2 instructions, register, deterministic offline guard, and regression tests committed",
+        "No Watchtower runtime or live authority changed"
+      ],
+      "acceptance_criteria": [
+        "Clean admission accepts; dirty and missing SHA reject",
+        "Two isolated DEVs coexist; shared service ownership rejects",
+        "Launcher and capability omissions reject",
+        "Guard has no Supervisor control path"
+      ],
+      "qualification_evidence": [
+        "tests/test_dev_execution_discipline_v2.py: 7 passed",
+        "scripts/validate_dev_discipline.py register: PASS"
+      ],
+      "integration_promotion_status": "PROCESS_PROTOCOL_COMMITTED_NOT_RUNTIME_PROMOTED",
+      "touched_services": [],
+      "shared_mutable_state": []
+    }
+  ]
 }

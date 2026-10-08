@@ -1,4 +1,15 @@
 {
+  "watchtower_monitor_activation_blockers_20261008": {
+    "engineering_revision": "af0eba3962ca22f8fb1f1028556c84d8ab18dcde on origin/codex/watchtower-monitor-bounded-soak; parent a32ebba3732d3f68cf5fd387bf05444a744610dc",
+    "status": "PASS_DEV_BOUNDED_SOAK_GUARD_QUALIFIED_NOT_DEPLOYED",
+    "finding": "The existing DEV_005 soak allowlist and durable provider gate were insufficient alone: the worker loop reconciled global retained facts and the bridge could deliver any pending outbox row. The minimal DEV-only correction adds an opt-in fixed minimum_assignment_timestamp to the existing selection document, filters bridge delivery and worker claims by that watermark, and makes fixed-watermark service iterations skip global reconciliation. Retained pre-watermark outbox and queue records remain pending and unmodified. Existing durable queue identity/ack semantics are unchanged. Provider dispatch retains its persisted lock-protected budget and now accepts explicit MONITOR_PROVIDER_GLOBAL_LIMIT and MONITOR_PROVIDER_TOKEN_LIMIT values; zero fails closed before a provider request.",
+    "credential_authority": "The exact launcher source MONITOR_ENV_FILE=/Users/kevinkeaveney/Dev/claude/flex/.env was checked in a non-printing child shell. Its required BIRDEYE and HELIUS_RPC_URL variables are non-empty; no secret, credential digest, or provider request was retained. Default durable DEV provider limits are global=20 per 60 seconds and per-mint=4 per 60 seconds, overridable only by explicit non-negative environment limits.",
+    "verification": "Focused bounded-soak, Monitor compatibility, and bridge tests passed 19/19. Full relevant provider-free Watchtower regression passed 146 with exactly the pre-existing documented test_watchtower_deep_historical.py::test_deep_review_ui_is_explicitly_noncanonical deselected. Tests prove watermark filtering preserves historical queue files, selection-only iterations do not execute global reconciliation, only a post-watermark outbox row is delivered exactly once, and a zero provider budget fails closed before dispatch.",
+    "safety": "No live Supervisor actions, bridge/worker starts, live DB/queue writes, provider calls, listener changes, historical backfill, Injector import, or source changes to deployed runtime occurred. Temporary test queues/databases are compact and below the 500 MB prohibition.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "SEPARATELY_REVIEW_AND_DEPLOY_THE_EXACT_BOUNDED_SOAK_RUNTIME_AND_ACTIVE_CONFIG_WITH_A_FRESH_WATERMARK_SELECTION_AND_EXPLICIT_PROVIDER_LIMITS_THEN_AUTHORIZE_ONE_CONTROLLED_BRIDGE_WORKER_ACTIVATION"
+  },
   "watchtower_monitor_activation_preflight_20261008": {
     "engineering_revision": "deployed runtime a32ebba3732d3f68cf5fd387bf05444a744610dc; active Supervisor configuration SHA256 3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19",
     "status": "HOLD_UNBOUNDED_RETAINED_MONITOR_BACKLOG_AND_PROVIDER_AUTHORITY_UNVERIFIED",

@@ -7,6 +7,7 @@ from types import SimpleNamespace
 import pytest
 
 from src.ops.operator_lifecycle_projection import ensure_schema
+from src.ops.operation_monitor_worker import MonitorQueue, _h
 from src.ops.watchtower_terminal_ath_finalizer import WatchtowerTerminalAthFinalizer
 
 
@@ -97,3 +98,54 @@ def test_strict_finalizer_rejects_incomplete_ohlcv_before_final_persistence(tmp_
         )
     with sqlite3.connect(database) as conn:
         assert conn.execute("SELECT final_proven_ath_mc FROM operation_monitor_facts").fetchone()[0] is None
+
+
+def _terminal_fact_with_assignment(assignment):
+    return {
+        "operation_id": "watchtower", "mint": "terminal-mint",
+        "cohort_class": "PROSPECTIVE_MONITOR_COHORT",
+        "monitor_state": "PRICE_MONITOR_COMPLETE_COLLAPSED",
+        "next_observation_at": None, "final_proven_ath_mc": None,
+        "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+        "entry_timestamp": 1791446400, "entry_mc_usd": 10.0,
+        "monitor_completed_at": 1791447300,
+        "assignment_timestamp": assignment["assigned_at"],
+        "assignment_provenance": _h(assignment),
+    }
+
+
+def test_terminal_envelope_preserves_verified_post_watermark_assignment(tmp_path):
+    selection = tmp_path / "selection.json"
+    selection.write_text('{"mode":"DEV_005_ISOLATED_SOAK","allowlist":[],"minimum_assignment_timestamp":1791446333}')
+    queue = MonitorQueue(tmp_path / "queue", enabled=True, soak_selection_path=selection)
+    assignment = {"event_id": "membership-event", "assigned_at": 1791446334}
+    fact = _terminal_fact_with_assignment(assignment)
+    first = queue.enqueue_terminal_ath_finalization(fact, assignment=assignment)
+    second = queue.enqueue_terminal_ath_finalization(fact, assignment=assignment)
+    assert first["status"] == second["status"] == "ENQUEUED_TERMINAL_ATH"
+    assert queue.queue.depth()["pending"] == 1
+    payload = next((tmp_path / "queue" / "pending").glob("*.json")).read_text()
+    assert '"event_id":"membership-event"' in payload
+    assert queue.soak_allows({"assignment": assignment, "mint": "terminal-mint"}) is True
+
+
+@pytest.mark.parametrize("assignment", [None, {"event_id": "", "assigned_at": 1791446334}, {"event_id": "event", "assigned_at": 1791446332}])
+def test_terminal_envelope_missing_or_mismatched_assignment_fails_closed(tmp_path, assignment):
+    queue = MonitorQueue(tmp_path / "queue", enabled=True)
+    fact_assignment = {"event_id": "event", "assigned_at": 1791446334}
+    result = queue.enqueue_terminal_ath_finalization(
+        _terminal_fact_with_assignment(fact_assignment), assignment=assignment
+    )
+    assert result == {"status": "DEFER_ASSIGNMENT_PROVENANCE_UNQUALIFIED"}
+    assert queue.queue.depth()["pending"] == 0
+
+
+def test_pre_watermark_terminal_envelope_remains_selection_excluded(tmp_path):
+    selection = tmp_path / "selection.json"
+    selection.write_text('{"mode":"DEV_005_ISOLATED_SOAK","allowlist":[],"minimum_assignment_timestamp":1791446333}')
+    queue = MonitorQueue(tmp_path / "queue", enabled=True, soak_selection_path=selection)
+    assignment = {"event_id": "historical-membership", "assigned_at": 1791446332}
+    assert queue.enqueue_terminal_ath_finalization(
+        _terminal_fact_with_assignment(assignment), assignment=assignment
+    )["status"] == "ENQUEUED_TERMINAL_ATH"
+    assert queue.soak_allows({"assignment": assignment, "mint": "terminal-mint"}) is False

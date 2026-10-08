@@ -511,7 +511,7 @@ class MonitorQueue:
   payload={'mint':mint,'operation_id':operation_id,'assignment':assignment,'entry_method':a['method'],'entry_timestamp':entry_timestamp,'entry_mc_usd':entry_mc_usd,'candle_resolution':a['candle_resolution'],'cohort':'PROSPECTIVE_MONITOR_COHORT','contract':CONTRACT,'recovery_of':dead_letter_id}
   ident=_h({'recovery_of':dead_letter_id,'entry_timestamp':entry_timestamp,'contract':CONTRACT})
   return {'status':'ENQUEUED_RECOVERY','job_id':self.queue.enqueue(payload,message_id=ident)}
- def enqueue_terminal_ath_finalization(self, fact, *, provenance='POST_COMMIT_TERMINAL_COLLAPSE'):
+ def enqueue_terminal_ath_finalization(self, fact, *, assignment=None, provenance='POST_COMMIT_TERMINAL_COLLAPSE'):
   """Durable post-commit work for one collapsed prospective Watchtower lifecycle."""
   if (fact.get('operation_id')!='watchtower' or fact.get('cohort_class')!='PROSPECTIVE_MONITOR_COHORT' or
       fact.get('monitor_state')!='PRICE_MONITOR_COMPLETE_COLLAPSED' or fact.get('next_observation_at') is not None or
@@ -521,9 +521,24 @@ class MonitorQueue:
   # Never manufacture one or let that pending state escape as an int(None).
   if fact.get('entry_timestamp') is None or fact.get('entry_mc_usd') is None:
    return {'status':'DEFER_OPENING_NOT_READY'}
+  # The terminal job retains the original assignment only when the predecessor
+  # envelope and the immutable fact agree.  The fact stores the timestamp and
+  # digest, not a reversible event id, so a reconciliation with no original
+  # assignment must fail closed rather than inventing one.
+  raw_assignment=assignment if isinstance(assignment,dict) else {}
+  try:
+   assigned_at=int(raw_assignment.get('assigned_at'))
+   fact_assigned_at=int(fact.get('assignment_timestamp'))
+  except (TypeError,ValueError):
+   return {'status':'DEFER_ASSIGNMENT_PROVENANCE_UNQUALIFIED'}
+  event_id=str(raw_assignment.get('event_id') or '')
+  fact_provenance=str(fact.get('assignment_provenance') or '')
+  normalized_assignment={'event_id':event_id,'assigned_at':assigned_at}
+  if not event_id or assigned_at<=0 or assigned_at!=fact_assigned_at or not fact_provenance or _h(normalized_assignment)!=fact_provenance:
+   return {'status':'DEFER_ASSIGNMENT_PROVENANCE_UNQUALIFIED'}
   ident=WatchtowerTerminalAthFinalizer.logical_job_identity(fact)
   envelope={'work_type':'WATCHTOWER_TERMINAL_ATH_FINALIZATION','operation_id':'watchtower','mint':fact['mint'],
-            'cohort':'PROSPECTIVE_MONITOR_COHORT','entry_method':fact['entry_method'],
+            'assignment':normalized_assignment,'cohort':'PROSPECTIVE_MONITOR_COHORT','entry_method':fact['entry_method'],
             'entry_timestamp':int(fact['entry_timestamp']),'entry_mc_usd':float(fact['entry_mc_usd']),
             'terminal_timestamp':int(fact['monitor_completed_at']),'resolution':'15m',
             'finalizer_contract':'watchtower-terminal-ath.v1','logical_identity':ident,'provenance':provenance}
@@ -1652,7 +1667,7 @@ class MonitorWorker:
      # Unresolved-opening history can still preserve its terminal lifecycle,
      # but it must not manufacture an ATH/entry ratio without that reference.
      if entry is not None:
-      self.q.enqueue_terminal_ath_finalization(f,provenance='POST_COMMIT_TERMINAL_COLLAPSE')
+      self.q.enqueue_terminal_ath_finalization(f,assignment=p.get('assignment'),provenance='POST_COMMIT_TERMINAL_COLLAPSE')
     else:
      with _read_only_connection(self.db_path) as committed:
       committed.row_factory=sqlite3.Row

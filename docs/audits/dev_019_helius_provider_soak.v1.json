@@ -1,0 +1,292 @@
+{
+  "amq_to_8cub_770_sol": [
+    {
+      "balance_delta_verified": 1,
+      "inner_instruction_index": null,
+      "instruction_index": 2,
+      "lamports": 770000000000,
+      "receiver": "8CUbQw5zjzR1hvExdRQLcS6MpdCHprp6ohwPBYfoWTHM",
+      "route_semantics": "DIRECT",
+      "sender": "AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX",
+      "signature": "8qCeourrr6yvpQJ19vWq8g41MHXLhHhpPxfEJaqRbqMPcrYSGRfnvSTNdhD2KK3SWvAAD5paKox7oCJBPpsCNBY",
+      "slot": 454516004,
+      "transaction_index": 1118
+    }
+  ],
+  "automatic_promotion": false,
+  "canonical_writes": 0,
+  "coverage_complete": true,
+  "duplicate_fact_count": 0,
+  "elapsed_ms": 5835,
+  "funding_facts": [
+    {
+      "balance_delta_verified": 1,
+      "inner_instruction_index": null,
+      "instruction_index": 2,
+      "lamports": 7690000000,
+      "receiver": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+      "route_semantics": "DIRECT",
+      "sender": "E4zyBc1R5nLUEfeeucPJ8zWf7q7t6Zp353QC85XAQBX6",
+      "signature": "2qfuSwkMXjQfXtiuwLMjTW1DwV6LQbUnjrPZaKbE8w99YuXTmbGcXDevx3ER9wfPr5t2CTy7Q5BzEsAz9aQRqnma",
+      "slot": 454210382,
+      "transaction_index": 571
+    },
+    {
+      "balance_delta_verified": 1,
+      "inner_instruction_index": null,
+      "instruction_index": 2,
+      "lamports": 1000,
+      "receiver": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+      "route_semantics": "DIRECT",
+      "sender": "E4zy3xStGhGCzvN9vsEHrRWBCXWp5WnLruiuo4oHABX6",
+      "signature": "5MRYrBdGwJjLWiqhQnDzgQFDTFDPwn48zcvJyrb24wCzhb3ZDLYak66qHokBRfYwJrBBuAZ6ZzXmLMAtzTsngbvG",
+      "slot": 454210470,
+      "transaction_index": 9
+    },
+    {
+      "balance_delta_verified": 1,
+      "inner_instruction_index": null,
+      "instruction_index": 2,
+      "lamports": 550000000000,
+      "receiver": "AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX",
+      "route_semantics": "DIRECT",
+      "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+      "signature": "43JBywZNm35Um92B4mtZFMVevxrSxfpTo6V2xuLPZbuLjH1Mo8D92SrGvY3x33K5aDGwjKQQ7F7YuvFqdFTJCG2i",
+      "slot": 454210546,
+      "transaction_index": 304
+    },
+    {
+      "balance_delta_verified": 1,
+      "inner_instruction_index": null,
+      "instruction_index": 2,
+      "lamports": 10000,
+      "receiver": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+      "route_semantics": "DIRECT",
+      "sender": "E4zym4JyNYBhK3bT5PL1mC1wZZLXr3P2CMtD7ZxJcBX6",
+      "signature": "5NK2gtTYQAUsygrsmijeusNvMcLkA3G4D5n1Ge4n4sFjkQHwrPVN5vFzYyjsvmpRk167yYb1mZ8RmW5fWXKsWBbB",
+      "slot": 454210706,
+      "transaction_index": 714
+    },
+    {
+      "balance_delta_verified": 1,
+      "inner_instruction_index": null,
+      "instruction_index": 2,
+      "lamports": 110000000000,
+      "receiver": "6xqkHbBaAXNfndTJRa5huJkL2kv2BXx3Na6XMVwFwRes",
+      "route_semantics": "DIRECT",
+      "sender": "AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX",
+      "signature": "5dhH7rqorPUhMJJg5RBtQ2sPyXixkCMfoeMurhcqzwtJD4mydNLSocdHLJgJCYVfuab16cDnxuX8DKVrdKRP36Ph",
+      "slot": 454238976,
+      "transaction_index": 1271
+    },
+    {
+      "balance_delta_verified": 1,
+      "inner_instruction_index": null,
+      "instruction_index": 2,
+      "lamports": 600000000000,
+      "receiver": "AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX",
+      "route_semantics": "DIRECT",
+      "sender": "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe",
+      "signature": "4PnkedpuVcz3egkQM8icgZurcwX2nxrAUHTRrLYp2bAiegaxdb1jGY34DLy79frDJ6MiDtvSP7BzhPn3Zousjxf1",
+      "slot": 454239555,
+      "transaction_index": 929
+    },
+    {
+      "balance_delta_verified": 1,
+      "inner_instruction_index": null,
+      "instruction_index": 2,
+      "lamports": 600000000000,
+      "receiver": "6xqkHbBaAXNfndTJRa5huJkL2kv2BXx3Na6XMVwFwRes",
+      "route_semantics": "DIRECT",
+      "sender": "AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX",
+      "signature": "4QozDUjjwxv8Q5amNayttQ8EPkbQj2bZuScr4YxRs5rbu2nivUtf2Zvgq1vnJa6Cc4ncPjwxWEahQhsKVTScgoYU",
+      "slot": 454239644,
+      "transaction_index": 142
+    },
+    {
+      "balance_delta_verified": 1,
+      "inner_instruction_index": null,
+      "instruction_index": 2,
+      "lamports": 60000000000,
+      "receiver": "HFg9c6qPBZcdd3XpiodusR3hwUqJzy1DvyCgqvVa5Kcw",
+      "route_semantics": "DIRECT",
+      "sender": "AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX",
+      "signature": "2Gd226wVWRxq5KxxDEdorvjphweaR4AL7GjPb4UVttXejQZNbosz9TFxJdtMwaycXKqFZstFt9qVWmEAoTcTLYjk",
+      "slot": 454366503,
+      "transaction_index": 655
+    },
+    {
+      "balance_delta_verified": 1,
+      "inner_instruction_index": null,
+      "instruction_index": 2,
+      "lamports": 500000000000,
+      "receiver": "6xqkHbBaAXNfndTJRa5huJkL2kv2BXx3Na6XMVwFwRes",
+      "route_semantics": "DIRECT",
+      "sender": "AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX",
+      "signature": "TqJHcb5NqKy5xdDzd7J9PSWTTis9mNyQrgHZRswJLAibwAh4fC4VGF7hcedCDcauFkwEV71Xe9j5qPPRcyxpwbt",
+      "slot": 454507812,
+      "transaction_index": 254
+    },
+    {
+      "balance_delta_verified": 1,
+      "inner_instruction_index": null,
+      "instruction_index": 2,
+      "lamports": 770000000000,
+      "receiver": "8CUbQw5zjzR1hvExdRQLcS6MpdCHprp6ohwPBYfoWTHM",
+      "route_semantics": "DIRECT",
+      "sender": "AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX",
+      "signature": "8qCeourrr6yvpQJ19vWq8g41MHXLhHhpPxfEJaqRbqMPcrYSGRfnvSTNdhD2KK3SWvAAD5paKox7oCJBPpsCNBY",
+      "slot": 454516004,
+      "transaction_index": 1118
+    },
+    {
+      "balance_delta_verified": 1,
+      "inner_instruction_index": null,
+      "instruction_index": 2,
+      "lamports": 10000000000,
+      "receiver": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+      "route_semantics": "DIRECT",
+      "sender": "AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX",
+      "signature": "5Z5ZKCGGN5tQYjXgV2riEfCJhKX43Ff9ptGjtYH5BZ9j3wE5a6HTMWpabwLt3EtQRKZ73vbGfeCgK6zEcprFtu18",
+      "slot": 454555757,
+      "transaction_index": 23
+    },
+    {
+      "balance_delta_verified": 1,
+      "inner_instruction_index": null,
+      "instruction_index": 2,
+      "lamports": 1000,
+      "receiver": "AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX",
+      "route_semantics": "DIRECT",
+      "sender": "Gzaabu2Bk1s8qeQi2vZnyV4k2sfLfeV2mJPXhGWZ6zac",
+      "signature": "3JZ1Hf8jjph5184SBts2cJRS6AK7TrhykzkfeEJ6ne3SsbAgor8Fe9ExFU3gz8Cp93RycgqeUnJHBMPgnpH8D8GJ",
+      "slot": 454555929,
+      "transaction_index": 371
+    },
+    {
+      "balance_delta_verified": 1,
+      "inner_instruction_index": null,
+      "instruction_index": 2,
+      "lamports": 1000,
+      "receiver": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+      "route_semantics": "DIRECT",
+      "sender": "AMQpee4C2mRqSKDPjmGbcvUWbCtCe1dzQZZpDLpU1feX",
+      "signature": "4wCZHAWm9jxy2Si7qVg4zmhWAiK7hAsUXPixMaUBYdYozzLGR3zvJMAGnYJzcTGBPYXnY5BdBU8Wv8y3cipMbtve",
+      "slot": 454555999,
+      "transaction_index": 753
+    },
+    {
+      "balance_delta_verified": 1,
+      "inner_instruction_index": null,
+      "instruction_index": 2,
+      "lamports": 1000000000000,
+      "receiver": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+      "route_semantics": "DIRECT",
+      "sender": "AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX",
+      "signature": "5aRYo4WAsmqJB5TgPPf5MH99v6Ye2DUMqWCZ8V12VgUeqd8nomDuCJ81d72fVY68VRuDEHSiso1NLjoWHDTtSnwc",
+      "slot": 454556071,
+      "transaction_index": 85
+    },
+    {
+      "balance_delta_verified": 1,
+      "inner_instruction_index": null,
+      "instruction_index": 2,
+      "lamports": 40000000000,
+      "receiver": "HFg9c6qPBZcdd3XpiodusR3hwUqJzy1DvyCgqvVa5Kcw",
+      "route_semantics": "DIRECT",
+      "sender": "AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX",
+      "signature": "5kpw8dxfthU1czT5MdBstUg2c8RGMqgbSFXYbbzdho9V81usUKy8uBUaMesvjpw68x6u89h7AAXxrz7NxtEJLgr9",
+      "slot": 454566958,
+      "transaction_index": 622
+    }
+  ],
+  "limits": {
+    "concurrency": 1,
+    "fallbacks": 0,
+    "max_hops": 2,
+    "max_rpc_calls": 100,
+    "max_seconds": 600,
+    "max_signatures_per_page": 20,
+    "max_store_bytes": 10000000,
+    "retries": 0
+  },
+  "outcomes": [
+    {
+      "boundary": {
+        "before_cursor": null,
+        "first_signature": "iyXyrNQ8dj6AjcW8fZkWLvLGb9pniGPnM5h8kQmsgVUeHXrHh4ByWUVPnsiaweb4Ft8uPBN4tSXooHtcZxHv2th",
+        "last_signature": "4z9Ymq996f1YqXSyRtnKockuCoe1Fyy9CvPVW6gZKvzzK27QQXD6ZAZN3mQ9ymQn5yHZPQM4YwzrvhCWLFvZHNLj",
+        "page": 1,
+        "returned_signature_count": 20
+      },
+      "coverage": {
+        "decoded_signature_count": 20,
+        "missing_signature_count": 0,
+        "missing_signatures": [],
+        "page_signature_count": 20,
+        "status": "COMPLETE_SIGNATURE_WINDOW"
+      },
+      "job_id": 1,
+      "rpc_calls": 21,
+      "status": "COMPLETE_SIGNATURE_WINDOW"
+    },
+    {
+      "boundary": {
+        "before_cursor": null,
+        "first_signature": "iyXyrNQ8dj6AjcW8fZkWLvLGb9pniGPnM5h8kQmsgVUeHXrHh4ByWUVPnsiaweb4Ft8uPBN4tSXooHtcZxHv2th",
+        "last_signature": "4z9Ymq996f1YqXSyRtnKockuCoe1Fyy9CvPVW6gZKvzzK27QQXD6ZAZN3mQ9ymQn5yHZPQM4YwzrvhCWLFvZHNLj",
+        "page": 1,
+        "returned_signature_count": 20
+      },
+      "coverage": {
+        "decoded_signature_count": 20,
+        "missing_signature_count": 0,
+        "missing_signatures": [],
+        "page_signature_count": 20,
+        "status": "COMPLETE_SIGNATURE_WINDOW"
+      },
+      "job_id": 2,
+      "rpc_calls": 22,
+      "status": "COMPLETE_SIGNATURE_WINDOW"
+    },
+    {
+      "boundary": {
+        "before_cursor": null,
+        "first_signature": "5kpw8dxfthU1czT5MdBstUg2c8RGMqgbSFXYbbzdho9V81usUKy8uBUaMesvjpw68x6u89h7AAXxrz7NxtEJLgr9",
+        "last_signature": "2TKDWkPzPMYjy27wtan4o8om9rGCyJTnpzGUrc2rgoWJaQ1nPKjR1izfJgVowQsW78VCnTkCM8AdUNTQn7nvzs8H",
+        "page": 1,
+        "returned_signature_count": 20
+      },
+      "coverage": {
+        "decoded_signature_count": 20,
+        "missing_signature_count": 0,
+        "missing_signatures": [],
+        "page_signature_count": 20,
+        "status": "COMPLETE_SIGNATURE_WINDOW"
+      },
+      "job_id": 3,
+      "rpc_calls": 41,
+      "status": "COMPLETE_SIGNATURE_WINDOW"
+    }
+  ],
+  "raw_provider_payload_retained": false,
+  "review_only_candidate": {
+    "classification": "INSUFFICIENT_EVIDENCE",
+    "disposition": "NO_AUTOMATIC_PROMOTION",
+    "wallet": "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe",
+    "writes_canonical_state": false
+  },
+  "rpc_request_count": 41,
+  "schema": "dev019-helius-provider-soak-v1",
+  "seeds": {
+    "confirmed_treasuries": [
+      "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac"
+    ],
+    "known_intermediary": "AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX",
+    "review_only_candidate_roots": [
+      "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe"
+    ]
+  },
+  "source": "existing_helius_json_rpc_transport",
+  "store_bytes": 53248
+}

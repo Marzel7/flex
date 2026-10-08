@@ -1,4 +1,16 @@
 {
+  "watchtower_birdeye_post_desktop_update_verification_20261008": {
+    "engineering_revision": "Read-only post-update and Flex-integrity verification; no application, cache, source, runtime, configuration, database, queue, provider, or service mutation.",
+    "status": "HOLD_DESKTOP_UPDATE_NOT_APPLIED_STAGED_CACHE_REMAINS",
+    "desktop_update": "The normal desktop update has not completed. Installed /Applications/ChatGPT.app is still CFBundleShortVersionString 26.917.71314, build 10954; its bundled codex reports codex-cli 0.155.0-alpha.16.4 and running helper framework remains 153.0.8010.53. The exact newer staged update remains intact at /Users/kevinkeaveney/Library/Caches/com.openai.codex/org.sparkle-project.Sparkle/Installation/RIitcI2pT, including staged ChatGPT 26.930.51102/build 13100 and its package. The staging directory still consumes 2,326,160 KiB. No automatic reclamation occurred.",
+    "disk": "Current free space is 3,529,724 KiB (about 3.37 GiB), below the 4 GiB safety floor by 664,580 KiB and below the preferred 5-6 GiB operating range. No file was deleted and no cache was modified.",
+    "flex_integrity": "Supervisor config SHA256 remains 2d5a1c395217f975c68d78463cc03f0e6c74b3acdea7c36b5d53baccbcf7c366. Canonical DB remains 35,652,194,304 bytes and operations DB remains 16,014,397,440 bytes. Local API /healthz returned healthy=true, db=ok, wal_warn=false. Supervisor reports watchtower_api PID 95506, watchtower_listener PID 73415, ws_cascade PID 73417, operation_monitor_bridge PID 21106, operation_monitor_worker PID 5261, and creator_funding_worker PID 54815 all RUNNING. No statement is made that these PIDs are durable identities.",
+    "worktree_and_checkpoint_integrity": "Pinned worktrees are clean and exact: flex-watchtower-monitor-schema-compat=d3c5b7be61a5705477880829e5c8e724d1ff5765, flex-watchtower-monitor-runtime-ac00b1e7=ac00b1e77c3bd030d711143efa73dd609dfe48ee, flex-dev024-creator-funding-runtime-6806d2b2=6806d2b2268bd5240f52be184bfbde1642070f76. Remote tags remain resolvable: watchtower-operational-baseline-20261008-d3c0d4ed=6e2d7f7cd49fd6b7efa73d62c926e430f0c97e89 and dev023-engineering-qualified-20261008-0c5f290c=f2d34284028588d15b485d7a047538fafa1c2235.",
+    "safety": "File deletion=0; application/updater/session restart or termination=0; provider calls=0; live DB/queue writes=0; Supervisor/service/listener actions=0; database maintenance=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only post-update verification only.",
+    "next_action": "STOP. BIRDEYE_RECOVERY_READY=NO. Allow/complete the desktop app's normal supported update lifecycle in a separately authorized maintenance action, then recheck installed version, staged-cache reclamation, disk headroom, and full Birdeye preflight. Do not manually delete staging data or start provider acquisition."
+  },
   "watchtower_birdeye_chatgpt_staged_update_cleanup_safety_20261008": {
     "engineering_revision": "Read-only staged ChatGPT/Codex update qualification; no cache, updater, application, session, source, runtime, database, queue, provider, or service mutation.",
     "status": "HOLD_STAGED_COMPLETE_UPDATE_PENDING_APPLICATION_OF_NEWER_BUILD",

@@ -20158,5 +20158,16 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_ORPHANED_TEMPORARY_SUPERVISOR_AUTOSTART_PORT_CONFLICT",
     "next_action": "STOP. SEEK EXPLICIT AUTHORIZATION FOR INCIDENT RECOVERY OF THE ORPHANED TEMPORARY SUPERVISOR PROCESS TREE BEFORE ANOTHER API DEPLOYMENT OR MONITOR SOAK."
+  },
+  "watchtower_orphaned_dev_supervisor_recovery_20261008": {
+    "engineering_revision": "f66c14693ce695b12877f055926bf588a84263ad on origin/codex/watchtower-monitor-bounded-soak; DEV safety correction only.",
+    "status": "HOLD_SECOND_INDEPENDENT_ORPHANED_TEMPORARY_SUPERVISOR_REQUIRES_SCOPED_TERMINATION_AUTHORIZATION",
+    "authorized_recovery": "The confirmed orphan PID 78199, launched from /private/tmp/watchtower-finite-soak-0fe9/isolated/supervisord.conf and parented by PID 1, was reverified and sent SIGTERM only. It and its confirmed children subsequently exited without SIGKILL or any Supervisor control command. The legitimate supervisord PID 73409 and watchtower_listener PID 73415 remained distinct and running.",
+    "remaining_exposure": "Read-only final inspection found a second independent orphan PID 85253, parented by PID 1 and launched with -t -c /private/tmp/watchtower-sha-diag-7d6/isolated/supervisord.conf. It owns alert evaluator, creator funding/resolution, walkback, ws cascade, and Gunicorn master PID 91402 with worker PID 91443 on TCP 5002. It was not part of the expressly named PID 78199 authorization and was not signalled. Therefore TCP 5002 remains occupied by the second orphan and the requested port-release outcome is not yet achieved.",
+    "safety_guard": "The existing offline parser-only validator remains the default. New validate_safe_daemon_config rejects daemon creation unless each program explicitly has autostart=false, autorestart=false, command=/bin/true, and no Birdeye/Helius/database environment indicator. The CLI exposes this as --daemon-safe. This fails before any daemon creation and the regression includes the copied-autostart incident configuration plus command and provider-environment negative cases.",
+    "verification": "Focused Supervisor isolation/composition/bounded-soak tests passed 25/25. The working tree passed diff --check and the correction was committed/pushed; origin branch SHA matches f66c14693ce695b12877f055926bf588a84263ad. Read-only OS inspection verifies live supervisord PID 73409 and listener PID 73415 remain separate from PID 85253. No supervisorctl, reread, update, restart, deployment, provider call, or intentional DB/queue action occurred in this recovery turn. Because there was no valid pre/post database snapshot for the unintended temporary processes, no claim is made about their prior side effects.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "This is a DEV validation safeguard and test-only change; no executable live runtime was deployed.",
+    "next_action": "OBTAIN_EXPLICIT_SCOPED_AUTHORIZATION_TO_SIGTERM_ONLY_PID_85253_AFTER_REVERIFYING_ITS_IDENTITY_AND_DESCENDANTS_THEN_VERIFY_PORT_5002_RELEASE_AND_LIVE_PID_73409_AND_LISTENER_PID_73415_PRESERVATION. DO_NOT_RESUME_THE_MONITOR_SOAK."
   }
 }

@@ -1,4 +1,15 @@
 {
+  "watchtower_pumpfun_live_gate_scope_20261008": {
+    "engineering_revision": "c664355f7b06ce875daab04edb43802a1640e18f; read-only static deployment-gate review",
+    "status": "PASS_NON_BLOCKING_DEFERRED_ENDPOINT_CONFIRMED",
+    "finding": "The generic GET /api/pumpfun/live handler is self-contained in src/core/main.py: it reads recent Pump.fun births, migrations, and portal_vsol data into a generic dashboard cache. Static references show no consumer in the strict Watchtower Opening reducer, listener price persistence, operation-monitor/LIVE paths, Injector/history recovery, or Watchtower-specific API routes. Its cold migration query is therefore not an acceptance dependency for the qualified Watchtower Opening/Price/Live transition. The main-process prewarm invokes this generic cache, but that does not make a successful response a Watchtower functional requirement.",
+    "evidence": "src/core/main.py:_fetch_pumpfun_live and api_pumpfun_live (around lines 10101-10256); generic prewarm call around line 41380; Watchtower endpoints are separately registered under /api/watchtower/* beginning around line 26017. Static rg found no /api/pumpfun/live or pumpfun_live consumers in src/core/watchtower, src/ops, src/apis, src/analysis, or src/utils.",
+    "minimum_watchtower_acceptance": "Exact corrected API source/config identity; Gunicorn process healthy; GET /healthz=200 using the configured canonical DB; one bounded read-only Watchtower-specific endpoint such as /api/watchtower/evidence-summary with valid JSON; listener PID/command continuity and one-listener invariant; operation_monitor_worker remains STOPPED; shadow capture and +2 remain disabled; canonical DB/queue accessibility and an existing persisted Price/Live readback. Exclude GET /api/pumpfun/live timing from this gate.",
+    "safety": "Read-only source and handoff review only; Supervisor commands=0; service actions=0; DB/queue writes=0; provider calls=0; source/runtime changes=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "This is an acceptance-scope classification only; it does not alter executable behavior or deploy the corrected API.",
+    "next_action": "RECOMPOSE_THE_REVIEWED_TARGET_ONLY_CONFIGURATION_FOR_C664355F_AND_RUN_ONE_CONTROLLED_DEPLOYMENT_RETRY_WITH_THE_RESPECIFIED_WATCHTOWER_ACCEPTANCE_GATE"
+  },
   "watchtower_two_token_lifecycle_recovery_20261006": {
     "engineering_revision": "26004f994c157ddd0daa4df42276d05b477d6423 on codex/watchtower-forward-repair, pushed and remote verified",
     "status": "PASS_BOTH_RECOVERED_TO_HISTORY",

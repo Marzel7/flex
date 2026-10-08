@@ -39,3 +39,7 @@ It supplements, and never relaxes, the handoff and production-safety rules above
    production changes. Retain controlled DB/queue mutation, bounded provider
    use, the 500 MB per-file limit, compact evidence retention, authoritative
    paid BIRDEYE credential handling, and the rule that DEV is not production.
+
+## Supervisor DEV isolation V1
+
+Any DEV test, fixture, or validation that reads a Supervisor configuration or constructs a `supervisorctl` command must first use `src.utils.supervisor_isolation.validate_offline_config` (or `scripts/validate_supervisor_config_isolated.py`). The config, PID, server socket, and `[supervisorctl]` endpoint must resolve inside one unique temporary root and be checked against known live config/socket identities. Missing, inherited, relative, aliased, environment-derived, or unverifiable endpoints fail closed. Offline syntax/config validation must not invoke `supervisorctl`; any future isolated control harness must verify its temporary UNIX socket with the guard before constructing its argv. Never use a production config or endpoint in DEV validation.

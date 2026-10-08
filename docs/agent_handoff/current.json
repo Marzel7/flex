@@ -19968,5 +19968,18 @@
     "deployment": "DEPLOYMENT_READY=false. The restored live root config remains authoritative; no redeploy or Supervisor action was performed in this correction task. RUNTIME_DEPLOYMENT_REQUIRED=true; RUNTIME_DEPLOYMENT_GATE=HOLD_LIVE_PRICE_LIVE_TIMEOUT_CAUSE_UNPROVEN.",
     "safety": "No live Supervisor/config/service action, DB/queue write, provider call, listener change, production bind, or large artifact occurred. Paid BIRDEYE authority was not inspected or changed.",
     "next_action": "STOP. OBTAIN OR COLLECT BOUNDED REQUEST-LEVEL/SQLITE-LOCK EVIDENCE FOR THE FAILED LIVE PRICE/LIVE REQUEST BEFORE A NEW DEPLOYMENT AUTHORIZATION."
+  },
+  "watchtower_price_live_timeout_readonly_diagnosis_20261008": {
+    "engineering_revision": "Read-only analysis against candidate correction c664355f7b06ce875daab04edb43802a1640e18f; no source or runtime change.",
+    "status": "HOLD_TIMEOUT_CAUSE_NOT_PROVEN",
+    "request_path": "A cold GET /api/pumpfun/live synchronously calls _fetch_pumpfun_live before caching. It opens canonical DB_PATH using SQLite URI mode=ro with timeout=30 and PRAGMA busy_timeout=30000. It runs a recent-birth query and a migration query with five joins, GROUP BY/ORDER BY temporary B-trees, and two correlated membership-count subqueries, then returns a compact JSON response. No provider call, write, queue operation, or background worker is involved in the initial cold read.",
+    "wal_relationship": "The failed request followed the orphan WAL-holder release. The release evidence records WAL reset to 0.0 MB after 01:32; deployment reached API RUNNING at 01:36; /healthz immediately before the failed Price/Live attempt read canonical DB successfully and reported WAL=3.1 MB. Thus the prior 208-238.9 MB stalled WAL incident was already resolved and is not the direct cause of the 10-second timeout.",
+    "query_health": "Two read-only EXPLAIN QUERY PLAN calls against the canonical DB were completed without executing the route queries or returning rows. Births searches token_analysis via idx_ta_lifecycle but uses a temporary B-tree for ordering. Migrations searches the same lifecycle index, uses temporary B-trees for GROUP BY and ordering, joins metadata/funding/self-funding/network/refresh tables, and runs a correlated multi-index-OR count against coordinated_creator_edges. The plan establishes non-trivial cold-read work on the known large canonical corpus, but does not measure elapsed execution or prove it exceeded 10 seconds.",
+    "missing_evidence": "The failed request has no completed access-log entry, SQL timing, SQLite busy/lock exception, stack trace, or lock-holder sample. It cannot distinguish an in-flight expensive cold query from a transient contention/scheduling condition. The existing compact fixture route pass proves no intrinsic route failure but cannot reproduce the production corpus cost.",
+    "decision": "No new correction is justified. The resolved WAL incident must not be cited as the timeout cause, and the query-plan evidence alone is insufficient to claim an expensive-query root cause. DEPLOYMENT_RETRY_READY=false.",
+    "safety": "No Supervisor action, service restart, live DB/queue write, provider call, listener action, production port bind, query execution, or large artifact occurred. Only read-only source/log inspection and two EXPLAIN QUERY PLAN statements through a mode=ro connection were performed.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_TIMEOUT_CAUSE_NOT_PROVEN",
+    "next_action": "STOP. REQUIRE A NEW, BOUNDED OBSERVABILITY AUTHORIZATION THAT CAN CAPTURE ONE FUTURE COLD PRICE/LIVE REQUEST'S ELAPSED QUERY STAGES AND SQLITE WAIT/LOCK STATE WITHOUT CHANGING ROUTE SEMANTICS, BEFORE ANOTHER DEPLOYMENT RETRY."
   }
 }

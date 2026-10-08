@@ -20120,5 +20120,17 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_SHA_MISMATCH_CAUSAL_AUTHORITY_UNPROVEN",
     "next_action": "STOP. OBTAIN AUTHORIZATION FOR A NARROW LAUNCHER OBSERVABILITY CHANGE OR EQUIVALENT EVIDENCE THAT RECORDS NON-SECRET EXPECTED SHA, ACTUAL HEAD, ROOT, AND PID BEFORE ANOTHER LIVE DEPLOYMENT OR SOAK ATTEMPT."
+  },
+  "watchtower_sha_mismatch_diagnostic_preparation_20261008": {
+    "engineering_revision": "7d6adef9b91277e08c677e58fbf06c7386bb094b on origin/codex/watchtower-monitor-bounded-soak; minimal verifier/test correction only.",
+    "status": "PASS_QUALIFIED_AWAITING_EXPLICIT_LIVE_CONFIGURATION_APPROVAL",
+    "diagnostic_contract": "On and only on a clean-checkout SHA mismatch, scripts/verify_watchtower_final_runtime.py now exits fail-closed with compact JSON containing event=SHA_MISMATCH, expected_sha, actual_sha, resolved root, PID, and UTC timestamp. Dirty-worktree rejection, ledger validation, and all success behavior remain unchanged. It neither reads nor emits environment variables, credentials, or runtime data.",
+    "tests": "Focused launcher/configuration, Supervisor composition, finite-soak, and isolation tests: 25 passed. Normal launcher preflight passed for clean SHA 7d6adef9b91277e08c677e58fbf06c7386bb094b. The regression proves mismatch rejection remains SystemExit/fail-closed and the JSON has exactly the six approved non-secret fields.",
+    "configuration": "New proposed SHA256 is 89a1fb84961c565c3441c41b3794c47938aa0cd1a559bd336024e1303287ec5f; rollback SHA256 remains 3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19. It has 15 programs; non-target bytes and listener stanza are byte-identical. API, bridge, and worker each reference the same clean 7d6adef9 runtime root/SHA. Existing watermark and zero-provider finite controls are preserved.",
+    "offline_validation": "Mandatory offline isolation guard passed with separate temporary socket/PID/log paths. Supervisor 4.3.0 syntax-test passed. No configured program was started during validation.",
+    "safety": "No live Supervisor/config/service action, DB/queue write, provider call, listener change, Injector/history action, shadow/+2 activation, or large artifact occurred.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_AWAITING_EXPLICIT_LIVE_CONFIGURATION_APPROVAL",
+    "next_action": "OBTAIN EXPLICIT APPROVAL FOR CONFIGURATION 89a1fb84961c565c3441c41b3794c47938aa0cd1a559bd336024e1303287ec5f BEFORE ANY TARGETED API/BRIDGE/WORKER TRANSITION OR BOUNDED SOAK."
   }
 }

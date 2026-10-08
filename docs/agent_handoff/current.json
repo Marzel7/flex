@@ -1,4 +1,14 @@
 {
+  "watchtower_final_target_composition_preapproval_20261008": {
+    "engineering_revision": "2325a693f623c1cfbd99b984a72e069f52e7ad12 on origin/codex/watchtower-final-target-composition; parent chain includes c664355f API DB/health correction and 1bfacfc shadow baseline",
+    "status": "HOLD_CURRENT_LIVE_CONFIG_AUTHORITY_MISMATCH",
+    "finding": "The clean integration candidate contains only the previously qualified offline Supervisor isolation guard, byte-preserving composition tooling, and API acceptance correction. Focused API/isolation/composition tests passed 15/15; retained Watchtower/Opening/Injector provider-free suite passed 68/68. However the read-only live root configuration at /Users/kevinkeaveney/Production/flex-listener/config/supervisor/supervisord.conf hashes to 8e39eef8e969ad2896095702846103dc44038a71c4b5bcd3d6a473ab9e04b8ff, not the reviewed rollback SHA de358f18394f56651b6a8493d137287fdbec0dd21b84c46dbf576246ab4e154d. It has 14 program stanzas and zero operation_monitor_worker stanzas, whereas the approved target-only composition assumed 15 programs and exactly one worker stanza. Constructing or applying the old reviewed diff against this changed authority would be unsafe.",
+    "offline_isolation": "PASS: tests/test_supervisor_isolation.py 8/8 and the guard is present in the integration candidate; no supervisorctl invocation occurred.",
+    "safety": "Live Supervisor/config/service actions=0; provider calls=0; DB/queue writes=0; listener changes=0. The candidate branch was pushed and remote SHA matched.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "READ_ONLY_RECONCILE_THE_CURRENT_8E39_ROOT_CONFIG_WITH_THE_REVIEWED_15_PROGRAM_AUTHORITY_AND_OBTAIN_EXPLICIT_APPROVAL_OF_A_NEW_EXACT_CONFIG_DIFF_BEFORE_ANY_LIVE_TRANSITION"
+  },
   "watchtower_pumpfun_live_gate_scope_20261008": {
     "engineering_revision": "c664355f7b06ce875daab04edb43802a1640e18f; read-only static deployment-gate review",
     "status": "PASS_NON_BLOCKING_DEFERRED_ENDPOINT_CONFIRMED",

@@ -20250,6 +20250,17 @@
     "runtime_deployment_gate": "HOLD_BOUNDED_WORKER_COMPLETION_CONTRACT",
     "next_action": "READ_ONLY_ATTRIBUTE_PID_7442_AND_ITS_EXACT_CURRENT_RUNTIME_COMMAND_OR_LOG_STREAM, THEN QUALIFY_ONLY_THE_MINIMUM_WORKER_FINITE_ITERATION_CORRECTION. DO_NOT_RERUN_THE_SOAK_OR_ENABLE_CONTINUOUS_MONITORING_UNTIL_THAT_COMPLETION_BOUNDARY_IS_EXPLAINED."
   },
+  "watchtower_operational_baseline_freeze_20261008": {
+    "engineering_revision": "Read-only freeze assessment following continuous-monitor activation handoff 7a4f7d9e3a9835078412633550a20d6ed0fd7193.",
+    "status": "PARTIAL_HEALTHY_OPERATIONAL_BASELINE_NOT_TAGGED_LISTENER_SOURCE_DIRTY",
+    "healthy_reproducible_components": "API: clean a32ebba3732d3f68cf5fd387bf05444a744610dc from /Users/kevinkeaveney/Dev/claude/watchtower-final-runtime-a32ebba3, RUNNING PID 95506. Bridge/worker: clean a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d from /Users/kevinkeaveney/.codex/worktrees/watchtower-monitor-bounded-soak/flex, RUNNING PIDs 21106/21138. Active Supervisor config SHA256=824655dde4283e79102ebd1282a4de783ebeebef942c01cf39bb0e2dea500c4f; byte-exact rollback SHA256=eac5c123f39bf0aad5ea8e2449e532fbdc8c89013b4998393a8a03bc7ec8c6e1. Watermark selection SHA256=ae137f624fe921e2fca1e03b1df3d01447f51db3980ab38013be8db5541fa909.",
+    "listener_reproducibility_blocker": "Listener PID 73415 runs from /Users/kevinkeaveney/Production/flex-listener at Git HEAD bf1bdfc59b4acfed0338a493189d91d212bda50f, but that exact runtime worktree is dirty: modified src/core/pumpfun_curve_listener.py plus two untracked DB lock-owner guard files. The runtime source digest cannot therefore be reconstructed from a Git SHA alone. No listener source, process, or data was changed during this assessment.",
+    "health_and_evidence": "API /healthz remains HTTP 200 healthy=true db=ok wal_warn=false; listener/bridge/worker remained RUNNING at inspection. The fixed 1791446333 Unix-second watermark and 20 global/60s, 4 per-mint/60s provider budget contract remain active. Historical replay evidence reference 6861dee97f08d8e0209ee416ff1bd69ac316f7c6 exists as a Git commit. Continuous functional evidence remains bounded health only: no eligible post-watermark natural assignment arrived, so live Price/Live persistence and terminal/History remain explicitly unverified.",
+    "freeze_decision": "No immutable operational-baseline tag or manifest was created because a whole Watchtower runtime tag would falsely imply a reproducible listener source identity. The prior source-audit and environment-qualified tags remain untouched.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only operational-freeze assessment; continuous runtime was already deployed and unchanged.",
+    "next_action": "PRESERVE_OR_RECONCILE_THE_LISTENER_WORKTREE_IN_A_SEPARATE_EXPLICITLY_AUTHORIZED_SOURCE_PROVENANCE_TASK, THEN_REASSESS_WHOLE_RUNTIME_TAGGABILITY. DO_NOT_LABEL_THE_CURRENT_HEALTHY_RUNTIME_AS_AN_IMMUTABLE_REPRODUCIBLE_FREEZE_YET."
+  },
   "watchtower_continuous_monitor_activation_20261008": {
     "engineering_revision": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d on origin/codex/watchtower-monitor-bounded-soak; clean runtime. Active continuous configuration SHA256=824655dde4283e79102ebd1282a4de783ebeebef942c01cf39bb0e2dea500c4f.",
     "status": "PASS_CONTINUOUS_MONITORS_RUNNING_WAITING_FOR_NATURAL_EVIDENCE",

@@ -20476,5 +20476,17 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "OBTAIN_EXPLICIT_APPROVAL_FOR_A_PINNED_DISABLED_RUNTIME_INSTALL_AND_A_SEPARATE_REVIEWED_EXTERNAL_SCHEDULER_CONFIGURATION. BEFORE_ENABLING_RECURRING_EXECUTION, REQUIRE_A_FRESH_SINGLE_TICK_PREFLIGHT_AND_A_SAFE_RATE/CAPACITY_CALIBRATION PLAN; DO_NOT_INSTALL_CRONTAB_OR_ENABLE_AUTOMATIC_EXECUTION WITHOUT_APPROVAL."
+  },
+  "dev023_bounded_database_access_gate_20261008": {
+    "engineering_revision": "d8ac86d3d9a3bde17fb31a7fe13c3cdc8e395119 on origin/codex/dev-023-sustainable-retention; clean isolated worktree /private/tmp/flex-dev023-sustainable-retention; parent 80c18458a45f0c6411bb575066a6d123c2793363.",
+    "status": "PARTIAL_SCAN_BOUND_QUALIFIED_AUTOMATIC_RETENTION_HOLD",
+    "query_plan": "Expired selection is SELECT rowid FROM rpc_response_cache WHERE cached_at + ttl_seconds <= ? ORDER BY rowid LIMIT ?. The in-transaction DELETE targets those rowids and repeats cached_at + ttl_seconds <= ? as its expiry recheck. Scheduler metrics do not run a live remaining-backlog query; they report UNKNOWN_NO_EXPIRY_INDEX and bounded status/lag counters. Canonical schema evidence shows only the primary-key autoindex, so the expiry expression has FULL_SCAN_RISK; LIMIT 200 alone does not bound work.",
+    "correction": "Selection now installs a SQLite progress handler with a 100,000 virtual-machine-step budget and always clears it in finally. Exceeding the budget returns STOP_SELECTION_BUDGET with deleted=0 before deletion. No live index, schema change, VACUUM, or checkpoint was added. Existing DatabaseWriteService P3 lane acquisition/timeout/release and pre-/in-lease WAL, disk, and stop-file guards remain unchanged.",
+    "qualification": "26 provider-free tests passed. A 4,000-row temporary fixture with an intentionally tiny selection budget proves full-scan interruption preserves all expired and live rows. Existing fixtures cover P3 one-batch cap, lock-timeout skip, WAL/disk/stop guards, idempotence, disabled mode, scheduler overlap skip, bounded metrics state, and repeated-alert reset. Temporary fixtures remain far below 500MB.",
+    "decision": "SAFE_QUERY_EXECUTION=PARTIAL: selection is now instruction-bounded and handler cleanup is deterministic. READ_TRANSACTION_LIFETIME=PARTIAL: selection occurs inside the existing service-owned transaction but the 100,000-step production budget has not been calibrated against canonical-data latency. WAL_PINNING_RISK=PARTIAL: no additional long-lived reader is introduced; however an unattended schedule cannot yet claim canonical WAL-pinning proof. WRITE_LANE_SAFETY=QUALIFIED via the existing P3 service and timeout tests. SUSTAINABLE_DELETION_THROUGHPUT=UNPROVEN because expiry rate/backlog remain unmeasured without an index or separately approved bounded measurement.",
+    "safety": "Live DB/queue writes=0; live retention executions=0; scheduler enablement=0; Supervisor/service/listener/provider actions=0; no schema/index change; no VACUUM/checkpoint; no files approach 500MB.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_AUTOMATIC_SCHEDULER",
+    "next_action": "DO_NOT_INSTALL_OR_ENABLE_AUTOMATIC_RETENTION. SEPARATELY QUALIFY_CANONICAL_LATENCY_AND_WAL_READER_BEHAVIOR_FOR_THE_100000_STEP_SELECTION_BUDGET_OR_APPROVE_A_SCHEMA_INDEX_PATH; THEN REASSESS_RATE/CAPACITY_AND_OBTAIN_LIVE_SCHEDULER_APPROVAL."
   }
 }

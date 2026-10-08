@@ -20250,6 +20250,17 @@
     "runtime_deployment_gate": "HOLD_BOUNDED_WORKER_COMPLETION_CONTRACT",
     "next_action": "READ_ONLY_ATTRIBUTE_PID_7442_AND_ITS_EXACT_CURRENT_RUNTIME_COMMAND_OR_LOG_STREAM, THEN QUALIFY_ONLY_THE_MINIMUM_WORKER_FINITE_ITERATION_CORRECTION. DO_NOT_RERUN_THE_SOAK_OR_ENABLE_CONTINUOUS_MONITORING_UNTIL_THAT_COMPLETION_BOUNDARY_IS_EXPLAINED."
   },
+  "watchtower_continuous_monitor_activation_20261008": {
+    "engineering_revision": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d on origin/codex/watchtower-monitor-bounded-soak; clean runtime. Active continuous configuration SHA256=824655dde4283e79102ebd1282a4de783ebeebef942c01cf39bb0e2dea500c4f.",
+    "status": "PASS_CONTINUOUS_MONITORS_RUNNING_WAITING_FOR_NATURAL_EVIDENCE",
+    "transition": "Preflight verified active=eac5c123f39bf0aad5ea8e2449e532fbdc8c89013b4998393a8a03bc7ec8c6e1, proposed=824655dde4283e79102ebd1282a4de783ebeebef942c01cf39bb0e2dea500c4f, rollback=eac5c123f39bf0aad5ea8e2449e532fbdc8c89013b4998393a8a03bc7ec8c6e1, clean runtime/launcher, no duplicate monitors, credential presence, provider default contract 20 global/60s and 4 per mint/60s, watermark contract, healthy API/listener, and WAL. A byte-exact backup was created; the reviewed config was atomically installed; reread/update targeted only operation_monitor_bridge and operation_monitor_worker.",
+    "continuous_health": "Bridge PID 21106 and worker PID 21138 remained RUNNING beyond startsecs=5 and through a bounded 63/58-second observation. API PID 95506 remained RUNNING and /healthz was HTTP 200 healthy=true db=ok wal_warn=false. Listener PID 73415 and command remained unchanged. Fresh-window guard accepted before and after observation: fresh_error_count=0, no reasons, source operations WAL unchanged at 19,055,032 bytes. Canonical WAL was 3,790,432 bytes at final observation; no active WAL warning occurred.",
+    "watermark_and_provider": "The continuous selection authority uses minimum_assignment_timestamp=1791446333. Read-only observation showed all 91 outbox rows remain DELIVERED and pre-watermark, and all 97 retained queue envelopes remain pre-watermark; no historical work was consumed or duplicated. provider_budget.json remained timestamped 2026-10-07T06:00:09+0100, before activation; provider call count during this observation=0. No eligible post-watermark natural assignment arrived, so no Price/Live persistence, lifecycle progression, or terminal/History success is claimed.",
+    "safety": "No +2/shadow activation, Injector/history backfill, API/listener restart, broad Supervisor restart, or unrelated source change occurred. Rollback was not required; byte-exact rollback artifact remains eac5c123f39bf0aad5ea8e2449e532fbdc8c89013b4998393a8a03bc7ec8c6e1.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS_CONTINUOUS_MONITOR_RUNTIME_DEPLOYED_AND_HEALTHY",
+    "next_action": "STOP_AT_THE_COMPLETED_BOUNDED_CONTINUOUS_HEALTH_BOUNDARY. OBSERVE_ELIGIBLE_NATURAL_POST_WATERMARK_EVIDENCE_UNDER_A_SEPARATE_AUTHORIZATION_BEFORE_CLAIMING_PRICE_LIVE_OR_TERMINAL_HISTORY_PERSISTENCE_AND_BEFORE_CREATING_A_WORKING_RUNTIME_FREEZE."
+  },
   "watchtower_continuous_monitor_watermark_preapproval_20261008": {
     "engineering_revision": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d on origin/codex/watchtower-monitor-bounded-soak; clean and remote-verified.",
     "status": "PASS_FIXED_WATERMARK_CONTINUOUS_ACTIVATION_PREPARED_AWAITING_EXPLICIT_LIVE_APPROVAL",

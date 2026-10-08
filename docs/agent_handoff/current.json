@@ -1,4 +1,16 @@
 {
+  "dev024_targeted_creator_funding_deployment_preparation_20261008": {
+    "engineering_revision": "6806d2b2268bd5240f52be184bfbde1642070f76 qualified correction; deployment-preparation artifact 6dd0d575a5930941945ee68b9d4fcfcf8fa54154 on origin/codex/dev-024-creator-funding-aux-timeout",
+    "status": "QUALIFIED_NOT_DEPLOYED_APPROVAL_BOUNDARY",
+    "finding": "Read-only preflight identifies one running creator_funding_worker: PID 8326, child of legitimate supervisord PID 73409, launched from clean /Users/kevinkeaveney/Production/flex-funding at c3565a9d5c2e5199c5362ac96573246a8d5a42dc. Active Supervisor authority is /Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf SHA256 824655dde4283e79102ebd1282a4de783ebeebef942c01cf39bb0e2dea500c4f. A detached, unreferenced runtime is clean at /private/tmp/flex-dev024-creator-funding-runtime-6806d2b2 SHA 6806d2b2268bd5240f52be184bfbde1642070f76.",
+    "candidate": "The rendered 15-program target-only configuration has SHA256 5f21916b3029f0e8cce2e91b92fa8f58631f4591baffa749ca40ecfccf5569f9. Only creator_funding_worker would change: directory/PYTHONPATH point to the pinned runtime and CFQ_AUXILIARY_OUTGOING_TIMEOUT_SECONDS=15 is added. Canonical DB, operations DB, creator_funding_queue, worker batch/slot/timeouts, retry maximum, retained-acquisition flags, and all non-target programs remain unchanged.",
+    "verification": "20 provider-free DEV-024 and existing creator-funding regressions passed. Python compilation passed. V2 register, promotion (parser-only), and isolated test-path guards passed. Preparation artifact SHA256=993f8db89e59bcb21a0677be0464cbcbfc83dcb662ea69c292ea1c41c2bd1293. No file reached 500MB.",
+    "safety": "Live Supervisor/service actions=0; live configuration writes=0; live DB/queue writes=0; provider calls=0; listener/API/cascade/Watchtower monitor changes=0. No queue/backlog or in-flight inspection was performed during preparation.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "rollback": "Runtime=c3565a9d5c2e5199c5362ac96573246a8d5a42dc and active config SHA256=824655dde4283e79102ebd1282a4de783ebeebef942c01cf39bb0e2dea500c4f. Create a byte-exact live configuration backup immediately before any approved transition.",
+    "next_action": "OBTAIN_EXPLICIT_APPROVAL_FOR_THE_EXACT_6806D2B2_PINNED_RUNTIME_AND_5F21916B_TARGETED_CONFIG_THEN_PREFLIGHT_QUEUE_INFLIGHT_AND_WAL_STATE_STOP_ONLY_CREATOR_FUNDING_WORKER_AT_A_SAFE_BOUNDARY_START_EXACTLY_ONE_WORKER_AND_OBSERVE_BOUNDED_RETRY_AND_RPC_BEHAVIOR"
+  },
   "watchtower_bounded_monitor_activation_preparation_20261008": {
     "engineering_revision": "9d291215885dd88ee6b594a09dbcdab0f8881b16 on origin/codex/watchtower-monitor-bounded-soak; clean pinned runtime /Users/kevinkeaveney/Dev/claude/watchtower-final-runtime-65e61f76",
     "status": "PASS_APPROVAL_BOUNDARY_BOUNDED_MONITOR_SOAK_PREPARED_NOT_DEPLOYED",

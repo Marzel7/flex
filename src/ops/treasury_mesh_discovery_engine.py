@@ -452,20 +452,22 @@ def resume_provider_limited_job(conn: sqlite3.Connection, *, job_id: int, now: i
 
 
 def run_one_page(conn: sqlite3.Connection, *, job_id: int, client: DiscoveryClient, budget: DiscoveryBudget,
-                 now: int | None = None) -> dict:
+                 now: int | None = None, page_limit: int = MAX_SIGNATURES_PER_PAGE) -> dict:
     """Run exactly one bounded page through an injected client seam.
 
     Incomplete pages are resumed before a later cursor is fetched.  This
     method has no retry loop: provider limits and decode failures leave a
     durable resume point for a separately authorized caller.
     """
+    if not 1 <= page_limit <= MAX_SIGNATURES_PER_PAGE:
+        raise DiscoveryError("SIGNATURE_PAGE_LIMIT_INVALID")
     job = _job(conn, job_id)
     if job["hop"] > budget.max_hops:
         raise BudgetExceeded("HOP_BUDGET_EXCEEDED")
     try:
         if job["state"] == WAITING_PAGE:
             budget.charge()
-            records = list(client.get_signatures(job["address"], job["direction"], job["next_cursor"], MAX_SIGNATURES_PER_PAGE))
+            records = list(client.get_signatures(job["address"], job["direction"], job["next_cursor"], page_limit))
             signatures = [str(record.get("signature")) for record in records if record.get("signature")]
             boundary = record_signature_page(conn, job_id=job_id, signatures=signatures, now=now)
             for record in records:

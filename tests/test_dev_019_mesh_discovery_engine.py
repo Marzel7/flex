@@ -35,7 +35,7 @@ class ReplayClient:
 
     def get_signatures(self, address, direction, before, limit):
         self.calls += 1
-        assert limit == 20 and direction in {INBOUND, OUTBOUND}
+        assert 1 <= limit <= 20 and direction in {INBOUND, OUTBOUND}
         return self.pages.pop(0)
 
     def get_transaction(self, signature, config):
@@ -138,6 +138,14 @@ def test_confirmed_treasuries_seed_both_directions_without_role_collapse():
     jobs = seed_confirmed_treasuries(conn, ["Gzaa"])
     assert len(jobs) == 2
     assert {(row[0], row[1]) for row in conn.execute("SELECT address,direction FROM wt_mesh_jobs")} == {("Gzaa", INBOUND), ("Gzaa", OUTBOUND)}
+
+
+def test_one_signature_activity_page_preserves_complete_coverage_contract():
+    conn = _conn(); job = seed_confirmed_treasuries(conn, [AMQ], now=1)[0]
+    client = ReplayClient([[{"signature": "only", "blockTime": 10}]], {"only": _transaction()})
+    result = run_one_page(conn, job_id=job, client=client, budget=DiscoveryBudget(max_rpc_calls=2, max_seconds=30, max_hops=2), now=2, page_limit=1)
+    assert result["coverage"]["status"] == "COMPLETE_SIGNATURE_WINDOW"
+    assert client.calls == 2
 
 
 def test_known_intermediary_is_bounded_review_context_not_confirmed_identity():

@@ -45,6 +45,13 @@ def _selection(count: int, selected: int) -> list[dict]:
     ]
 
 
+def _by_address(snapshot: dict) -> dict[str, dict]:
+    return {
+        row[0]: dict(zip(snapshot["record_fields"], row))
+        for row in snapshot["records"]
+    }
+
+
 def test_snapshot_distinguishes_29_active_from_54_not_selected():
     manager = SubscriptionManager()
     manager.ws = _FakeWS()
@@ -57,18 +64,26 @@ def test_snapshot_distinguishes_29_active_from_54_not_selected():
 
     snapshot = manager.treasury_subscription_snapshot()
     assert snapshot["record_count"] == 83
+    assert snapshot["registry_count"] == 83
     assert snapshot["selected_count"] == 29
+    assert snapshot["requested_count"] == 29
+    assert snapshot["acknowledged_count"] == 29
     assert snapshot["active_count"] == 29
-    by_address = {record["address"]: record for record in snapshot["records"]}
+    assert snapshot["skipped_count"] == 54
+    assert snapshot["failed_count"] == 0
+    by_address = _by_address(snapshot)
     assert by_address[_wallet(0)] == {
-        "address": _wallet(0), "selected": True, "requested": True,
+        "address": _wallet(0), "registry_member": True, "selection_eligible": True,
+        "selected": True, "requested": True,
         "acknowledged": True, "active": True,
         "selection_priority": SUB_PRIORITY_TREASURY,
         "selection_reason": "CONFIRMED_TREASURY_ROOT_TIER",
         "skip_failure_reason": None, "reconnect_generation": 0,
+        "provider_subscription_id": 1, "subscription_state": "ACKNOWLEDGED_ACTIVE",
     }
     assert by_address[_wallet(82)]["selected"] is False
     assert by_address[_wallet(82)]["skip_failure_reason"] == "TREASURY_SUBSCRIPTION_CAP"
+    assert by_address[_wallet(82)]["subscription_state"] == "EXPLICITLY_SUPPRESSED"
     assert snapshot["serialized_bytes"] <= 32 * 1024
 
 
@@ -76,21 +91,40 @@ def test_selected_wallet_without_runtime_state_is_explicit_not_silently_absent()
     manager = SubscriptionManager()
     manager.set_treasury_selection(_selection(1, 1))
     snapshot = manager.treasury_subscription_snapshot()
-    record = snapshot["records"][0]
+    record = _by_address(snapshot)[_wallet(0)]
     assert record["selected"] is True
     assert record["requested"] is False
     assert record["acknowledged"] is False
     assert record["active"] is False
     assert record["skip_failure_reason"] == "NO_RUNTIME_SUBSCRIPTION_STATE"
+    assert record["subscription_state"] == "SELECTED_NOT_REQUESTED"
 
 
 def test_snapshot_records_send_failure_without_transport_retry():
     manager = SubscriptionManager()
     manager.set_treasury_selection(_selection(1, 1))
     _run(manager.subscribe(_wallet(0), "treasury", priority=SUB_PRIORITY_TREASURY))
-    record = manager.treasury_subscription_snapshot()["records"][0]
+    record = _by_address(manager.treasury_subscription_snapshot())[_wallet(0)]
     assert record["skip_failure_reason"] == "NO_WEBSOCKET_CONNECTION"
     assert record["requested"] is False
+    assert record["subscription_state"] == "DISCONNECTED"
+
+
+def test_snapshot_distinguishes_sent_unacknowledged_provider_failure_and_reconnect():
+    manager = SubscriptionManager()
+    manager.ws = _FakeWS()
+    manager.set_treasury_selection(_selection(3, 3))
+    _run(manager.subscribe(_wallet(0), "treasury", priority=SUB_PRIORITY_TREASURY))
+    _run(manager.subscribe(_wallet(1), "treasury", priority=SUB_PRIORITY_TREASURY))
+    first_id = next(key for key, value in manager.pending_req.items() if value[0] == _wallet(0))
+    manager.on_subscribe_failed(first_id)
+    manager._reconnect_gen = 1
+    snapshot = manager.treasury_subscription_snapshot()
+    by_address = _by_address(snapshot)
+    assert by_address[_wallet(0)]["subscription_state"] == "FAILED_SUBSCRIPTION"
+    assert by_address[_wallet(1)]["subscription_state"] == "REQUEST_SENT_UNACKNOWLEDGED"
+    assert by_address[_wallet(2)]["subscription_state"] == "RECONNECTING"
+    assert snapshot["failed_count"] == 1
 
 
 def test_snapshot_is_bounded_and_has_no_transport_side_effect():

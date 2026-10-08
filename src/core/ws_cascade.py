@@ -2005,8 +2005,14 @@ class SubscriptionManager:
             if wallet in records:
                 raise ValueError("TREASURY_SNAPSHOT_DUPLICATE_ADDRESS")
             selected = bool(entry["selected"])
+            registry_member = bool(entry.get("registry_member", True))
+            selection_eligible = bool(entry.get("selection_eligible", registry_member))
+            if selected and (not registry_member or not selection_eligible):
+                raise ValueError("INVALID_TREASURY_SELECTION_STATE")
             records[wallet] = {
                 "address": wallet,
+                "registry_member": registry_member,
+                "selection_eligible": selection_eligible,
                 "selected": selected,
                 "requested": False,
                 "acknowledged": False,
@@ -2039,16 +2045,50 @@ class SubscriptionManager:
             record["requested"] = pending or active or bool(record["requested"])
             record["acknowledged"] = active
             record["active"] = active
+            record["provider_subscription_id"] = self.wallet_sub.get(wallet) if active else None
             if record["selected"] and not pending and not active and record["skip_failure_reason"] is None:
                 record["skip_failure_reason"] = "NO_RUNTIME_SUBSCRIPTION_STATE"
+            reason = record["skip_failure_reason"]
+            if active:
+                record["subscription_state"] = "ACKNOWLEDGED_ACTIVE"
+            elif pending:
+                record["subscription_state"] = "REQUEST_SENT_UNACKNOWLEDGED"
+            elif not record["selected"]:
+                record["subscription_state"] = "EXPLICITLY_SUPPRESSED" if reason else "REGISTRY_MEMBER_NOT_SELECTED"
+            elif reason == "NO_WEBSOCKET_CONNECTION":
+                record["subscription_state"] = "DISCONNECTED"
+            elif reason in {"SEND_FAILED", "PROVIDER_ACK_FAILED", "INVALID_TARGET"}:
+                record["subscription_state"] = "FAILED_SUBSCRIPTION"
+            elif self._reconnect_gen > 0:
+                record["subscription_state"] = "RECONNECTING"
+            else:
+                record["subscription_state"] = "SELECTED_NOT_REQUESTED"
             records.append(record)
+        requested_count = sum(1 for record in records if record["requested"])
+        acknowledged_count = sum(1 for record in records if record["acknowledged"])
+        active_count = sum(1 for record in records if record["active"])
+        # Repeating thirteen descriptive JSON object keys for 83 public
+        # addresses breaches the hard 32KiB telemetry contract.  Field names
+        # are therefore declared once and every record is a fixed-order row.
+        record_fields = (
+            "address", "registry_member", "selection_eligible", "selected",
+            "selection_priority", "selection_reason", "requested", "acknowledged",
+            "active", "provider_subscription_id", "reconnect_generation",
+            "skip_failure_reason", "subscription_state",
+        )
         snapshot = {
             "schema": "treasury_subscription_snapshot.v1",
             "reconnect_generation": self._reconnect_gen,
             "record_count": len(records),
+            "registry_count": sum(1 for record in records if record["registry_member"]),
             "selected_count": sum(1 for record in records if record["selected"]),
-            "active_count": sum(1 for record in records if record["active"]),
-            "records": records,
+            "requested_count": requested_count,
+            "acknowledged_count": acknowledged_count,
+            "active_count": active_count,
+            "skipped_count": sum(1 for record in records if not record["selected"]),
+            "failed_count": sum(1 for record in records if record["subscription_state"] == "FAILED_SUBSCRIPTION"),
+            "record_fields": list(record_fields),
+            "records": [[record[field] for field in record_fields] for record in records],
         }
         if len(records) > self._treasury_snapshot_max_records:
             raise ValueError("TREASURY_SNAPSHOT_RECORD_LIMIT")
@@ -2058,6 +2098,26 @@ class SubscriptionManager:
         if final_bytes > self._treasury_snapshot_max_bytes:
             raise ValueError("TREASURY_SNAPSHOT_BYTE_LIMIT")
         return snapshot
+
+    def on_subscribe_failed(self, rid, reason: str = "PROVIDER_ACK_FAILED") -> str | None:
+        """Record a provider rejection without mistaking a send for an ACK.
+
+        The live message dispatcher is intentionally unchanged in this DEV-only
+        qualification.  A future read-only integration may call this method for
+        a JSON-RPC error response; it makes no transport, database, or retry
+        action itself.
+        """
+        ent = self.pending_req.pop(rid, None)
+        if ent is None:
+            return None
+        wallet, kind = ent[0], ent[1]
+        self.wallet_kind.pop(wallet, None)
+        if kind == "treasury":
+            self._record_treasury_state(
+                wallet, requested=True, acknowledged=False, active=False,
+                skip_failure_reason=reason,
+            )
+        return wallet
 
     async def subscribe(self, wallet, kind, priority: int = SUB_PRIORITY_OTHER,
                         requested_at: float | None = None):

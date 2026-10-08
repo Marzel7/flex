@@ -20442,5 +20442,16 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD",
     "next_action": "DO_NOT_RUN_OR_RETRY_RETENTION_WHILE_FREE_SPACE_IS_BELOW_THE_FIXED_4_GIB_GUARD. RESTORE_QUALIFIED_DISK_HEADROOM_THROUGH_SEPARATE_AUTHORIZED_STORAGE_WORK, THEN REPEAT_THE_FULL_PRELIGHT_AND_OBTAIN_FRESH_SINGLE_TICK_AUTHORIZATION."
+  },
+  "dev023_disk_headroom_recovery_20261008": {
+    "engineering_revision": "Storage-only bounded cleanup; installed retention runtime remains /private/tmp/flex-dev023-retention-runtime-75600f8e at 75600f8e087df0a849176d8d495eba95af3e3759, and prior e7103c03 runtime remains preserved.",
+    "status": "PASS_MINIMUM_DISK_HEADROOM_RESTORED",
+    "measurement": "Free space before cleanup was 4,191,731,712 bytes. Free space after cleanup was 4,837,421,056 bytes; recovered=645,689,344 bytes. This is 542,453,760 bytes above the fixed 4 GiB retention floor and exceeds the floor-plus-512-MiB target of 4,831,838,208 bytes.",
+    "removed": "Only verified disposable /private/tmp artifacts were removed: completed remote-backed clean worktrees /private/tmp/flex-v2-verification (155,484 KiB, detached V2 verification), /private/tmp/flex-dev-execution-discipline-v2 (155,488 KiB, remote commit 8be99ed2), /private/tmp/flex-dev-023-retention-phase3 (155,808 KiB, remote commit 99c60710), /private/tmp/flex-dev023-limits-contract (155,764 KiB, remote commit 75600f8e), plus closed unreferenced temporary diagnostic /private/tmp/nexus-page.html (3,800,704 bytes). Each worktree was clean, had no open file, and resolved to an existing remote branch/commit. No runtime root, database, WAL/SHM, queue, log, evidence, Git object, or running-process file was removed.",
+    "health": "Read-only checks after cleanup show legitimate supervisord PID 73409, listener PID 73415, and existing operation monitor bridge PID 21106 unchanged. API health remains healthy=true. No retention process was run or scheduled.",
+    "safety": "Retention execution=0; live database/queue writes=0; provider calls=0; Supervisor/service/listener/API/bridge/worker actions=0; scheduler changes=0; VACUUM/checkpoint=0; no files approach 500MB.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Storage recovery only; it changes no executable runtime behavior or configuration.",
+    "next_action": "OBTAIN_FRESH_EXPLICIT_AUTHORIZATION_FOR_ONE_CORRECTED_200_ROW_LIVE_RETENTION_TICK, THEN REPEAT_FULL_RUNTIME_DATABASE_WRITE_LANE_WAL_DISK_AND_HEALTH_PREFLIGHT; DO_NOT_ENABLE_RECURRING_MAINTENANCE."
   }
 }

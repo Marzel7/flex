@@ -20250,6 +20250,16 @@
     "runtime_deployment_gate": "HOLD_BOUNDED_WORKER_COMPLETION_CONTRACT",
     "next_action": "READ_ONLY_ATTRIBUTE_PID_7442_AND_ITS_EXACT_CURRENT_RUNTIME_COMMAND_OR_LOG_STREAM, THEN QUALIFY_ONLY_THE_MINIMUM_WORKER_FINITE_ITERATION_CORRECTION. DO_NOT_RERUN_THE_SOAK_OR_ENABLE_CONTINUOUS_MONITORING_UNTIL_THAT_COMPLETION_BOUNDARY_IS_EXPLAINED."
   },
+  "watchtower_worker_soak_preapproval_20261008": {
+    "engineering_revision": "86eff76e5285857123143445a634a31d432194df on origin/codex/watchtower-monitor-bounded-soak; clean isolated candidate. No source change was required for this deterministic configuration preparation.",
+    "status": "PASS_API_LISTENER_PRESERVING_WORKER_SOAK_PREPARED_AWAITING_EXPLICIT_LIVE_APPROVAL",
+    "configuration_authority": "Active root remains /Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf SHA256=3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19. Prepared temporary candidate SHA256=eac5c123f39bf0aad5ea8e2449e532fbdc8c89013b4998393a8a03bc7ec8c6e1; byte-exact rollback SHA256=3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19. Canonical range removal proves all bytes outside exactly operation_monitor_bridge and operation_monitor_worker are identical; program count remains 15. API, listener, and every unrelated stanza are unchanged.",
+    "bounded_contract": "Only worker/bridge reference the clean 86eff76e runtime. Both retain autostart=false, autorestart=false, startretries=0, startsecs=0, and exitcodes=0. Worker has MONITOR_MAX_ITERATIONS=1 and explicit global/per-mint provider limits=0; bridge has MONITOR_BRIDGE_MAX_ITERATIONS=1 and the fixed retained selection/watermark. Shadow capture and authoritative +2 remain disabled. The API stanza is not targeted.",
+    "qualification": "Mandatory parser-only isolation passed on an endpoint-rewritten temporary copy with unique temporary socket/PID paths; no Supervisor daemon or control command ran. The launcher identity preflight passed from the exact 86eff76e root. Earlier correction qualification remains: focused 31/31 and relevant Watchtower regression 142/142 with one documented deselection. No live configuration, service, database/queue, provider, API, or listener action occurred in this preparation.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_AWAITING_EXPLICIT_LIVE_APPROVAL",
+    "next_action": "OBTAIN_EXPLICIT_APPROVAL_FOR_EXACT_CONFIG_EAC5C123_AND_ROLLBACK_3EB960C7. AFTER_REVALIDATING_IDENTITIES, ATOMICALLY_INSTALL_ONLY_THAT_CONFIG, REREAD_AND_UPDATE_ONLY_OPERATION_MONITOR_BRIDGE_AND_OPERATION_MONITOR_WORKER, THEN_RUN_ONE_BRIDGE_AND_ONE_WORKER_ITERATION_WITH_FRESH_GUARDS_AND_LEAVE_BOTH_STOPPED."
+  },
   "watchtower_worker_finite_completion_correction_20261008": {
     "engineering_revision": "86eff76e5285857123143445a634a31d432194df on origin/codex/watchtower-monitor-bounded-soak; clean isolated candidate; parent 597601d9ae935181230f3056e02bf82744cbbd6b.",
     "status": "PASS_FINITE_WORKER_COMPLETION_CORRECTION_QUALIFIED_NOT_DEPLOYED",

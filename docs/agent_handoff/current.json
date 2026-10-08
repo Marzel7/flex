@@ -20827,6 +20827,18 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "STOP. Any deeper discovery of the one DEEP_DISCOVERY treasury, verification scans of the 18 HOT/ACTIVE accounts, persistent runtime integration, review-table persistence, or live activation requires separate explicit authorization."
   },
+  "dev019_runtime_subscription_visibility_diagnosis_20261008": {
+    "engineering_revision": "Read-only diagnosis from clean DEV-019 engineering worktree /private/tmp/flex-dev-019-mesh-discovery at a962f9c929c918ae12250f1b48bdfaebb22c4f44; no source change.",
+    "status": "HOLD_BLOCKED_RUNTIME_VISIBILITY",
+    "runtime_authority": "Live ws_cascade PID 73417, started 2026-10-08 01:00:57, is a child of live supervisord PID 73409. It executes /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -m src.core.ws_cascade --loop with cwd /Users/kevinkeaveney/Production/flex-cascade, clean HEAD 26da06daba23608bd64d5b86cde1f92b24d3a98d. The active Supervisor root is /Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf; non-secret effective settings confirm WS_MAX_TREASURY_SUBSCRIBE=0 and canonical WT_OPS_DB_PATH.",
+    "finding": "Canonical registry=83 confirmed treasuries; all 83 have cursor rows. Current heartbeat is OK and reports treasury_subs=29, pending_treasury=0, and 1,972/1,972 historical treasury subscription sends/confirms. The inspected running source interprets max=0 as all selected treasuries and its root-tier selector does not apply no_subscribe; manager reset precedes each resync. The 54 no_subscribe records numerically equal the gap but are not causal evidence. Historical TREASURY_WEBSOCKET_OPENED records cover all 83 addresses, not the current in-memory map. Therefore the exact current 29 identities and exclusion mechanism are not safely observable and the discrepancy is not explained.",
+    "minimum_safe_instrumentation": "Separately qualify and deploy a bounded read-only SubscriptionManager snapshot after resync: current address, kind, subscription state/id, reconnect generation, selected-input count, and explicit skip/send/confirm/failure reason, capped at 83 public-address records. It must expose current state only, make no provider request or subscription change, retain no raw payload, and distinguish current map from historical opened events.",
+    "selector": "The isolated 8-slot activity-aware policy remains qualified but NOT deployed or activated: target=8, dwell=3600 seconds, HOT/ACTIVE verified-material-funding priority, completeness-gated reconciliation for all 83, and no identity/promotion behavior.",
+    "verification": "V2 admission and two-path isolation guard PASS. Relevant provider-free DEV-019 suite PASS 69/69. Provider calls=0; DB/queue writes=0; Supervisor/service/listener/WS actions=0; source changes=0; raw retention=0; no artifact approaches 500MB.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "STOP. Do not integrate DEV-019 into ws_cascade or change subscriptions until separately authorized bounded read-only current-map instrumentation establishes the 29 identities and explicit per-address exclusion reason."
+  },
   "dev019_eight_slot_treasury_subscription_qualification_20261008": {
     "engineering_revision": "Eight-slot policy commit 23b09948a70ccea9f08cf560e9684325e9287623 and register commit a962f9c929c918ae12250f1b48bdfaebb22c4f44 on origin/codex/dev-019-mesh-discovery.",
     "status": "PASS_ISOLATED_EIGHT_SLOT_POLICY_QUALIFIED_NOT_DEPLOYED",

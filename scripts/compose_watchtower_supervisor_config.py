@@ -8,7 +8,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.ops.watchtower_supervisor_composition import RuntimePaths, compose
+from src.ops.watchtower_supervisor_composition import RuntimePaths, compose, compose_api_only
 
 
 def main() -> int:
@@ -33,15 +33,18 @@ def main() -> int:
     parser.add_argument("--api-stderr-log", required=True)
     parser.add_argument("--worker-stdout-log", required=True)
     parser.add_argument("--worker-stderr-log", required=True)
+    parser.add_argument("--api-only", action="store_true",
+                        help="replace only watchtower_api; never add or alter a worker stanza")
     args = parser.parse_args()
     source = args.source.read_bytes()
     args.backup.write_bytes(source)
     paths = RuntimePaths(**{
         key: value
         for key, value in vars(args).items()
-        if key not in {"source", "candidate", "backup"}
+        if key not in {"source", "candidate", "backup", "api_only"}
     })
-    args.candidate.write_bytes(compose(source, paths))
+    renderer = compose_api_only if args.api_only else compose
+    args.candidate.write_bytes(renderer(source, paths))
     return 0
 
 

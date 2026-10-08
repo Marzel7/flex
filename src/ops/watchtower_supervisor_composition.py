@@ -58,6 +58,24 @@ def compose(source: bytes, paths: RuntimePaths) -> bytes:
     return rendered.encode("utf-8")
 
 
+def compose_api_only(source: bytes, paths: RuntimePaths) -> bytes:
+    """Return a candidate replacing only the API stanza.
+
+    This narrower transition is for a root configuration with no
+    operation-monitor program. It requires exactly one API and listener
+    definition and never materializes a worker stanza.
+    """
+    text = source.decode("utf-8")
+    if re.search(r"^\[include\]", text, re.MULTILINE):
+        raise ValueError("SUPERVISOR_INCLUDE_UNEXPECTED")
+    ranges = _program_ranges(text)
+    if any(len(ranges.get(name, ())) != 1 for name in ("watchtower_api", "watchtower_listener")):
+        raise ValueError("SUPERVISOR_API_ONLY_TARGET_CARDINALITY_INVALID")
+    start, end = ranges["watchtower_api"][0]
+    replacement = _api_stanza(paths).rstrip("\n") + ("\n" if text[start:end].endswith("\n") else "")
+    return (text[:start] + replacement + text[end:]).encode("utf-8")
+
+
 def listener_bytes(source: bytes) -> bytes:
     """Return the exact listener section for parity/rollback checks."""
     text = source.decode("utf-8")

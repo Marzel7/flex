@@ -1,6 +1,11 @@
 import hashlib
 
-from src.ops.watchtower_supervisor_composition import RuntimePaths, compose, listener_bytes
+from src.ops.watchtower_supervisor_composition import (
+    RuntimePaths,
+    compose,
+    compose_api_only,
+    listener_bytes,
+)
 
 
 SOURCE = b'''[unix_http_server]\nfile=/tmp/live.sock\n\n[supervisord]\npidfile=/tmp/live.pid\n\n[program:watchtower_api]\ncommand=old-api\ndirectory=/old\nenvironment=LEGACY="1"\nautostart=true\n\n[program:watchtower_listener]\ncommand=listener\ndirectory=/listener\nenvironment=KEEP="yes"\nautostart=true\nautorestart=true\nstdout_logfile=/logs/listener.log\n\n[program:unrelated]\ncommand=keep-me\nautostart=true\n\n[program:operation_monitor_worker]\ncommand=old-worker\ndirectory=/old\nautostart=false\n\n'''
@@ -50,3 +55,20 @@ def test_composition_rejects_missing_duplicate_or_include_targets(tmp_path):
             assert reason in str(error)
         else:
             raise AssertionError("expected fail closed")
+
+
+def test_api_only_composition_preserves_every_non_api_byte_and_does_not_add_worker(tmp_path):
+    source = SOURCE.replace(
+        b"[program:operation_monitor_worker]\ncommand=old-worker\ndirectory=/old\nautostart=false\n\n",
+        b"",
+    )
+    candidate = compose_api_only(source, _paths(tmp_path))
+    assert candidate.count(b"[program:operation_monitor_worker]") == 0
+    assert listener_bytes(candidate) == listener_bytes(source)
+    assert compose_api_only(candidate, _paths(tmp_path)) == candidate
+
+    from src.ops.watchtower_supervisor_composition import _program_ranges
+    start, end = _program_ranges(source.decode())["watchtower_api"][0]
+    candidate_start, candidate_end = _program_ranges(candidate.decode())["watchtower_api"][0]
+    assert candidate[:start] == source[:start]
+    assert candidate[candidate_end:] == source[end:]

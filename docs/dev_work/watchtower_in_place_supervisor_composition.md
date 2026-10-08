@@ -14,3 +14,9 @@ offline validation never invokes `supervisorctl`. A later live-transition
 approval must review the generated candidate/backup hashes, then apply it
 atomically and update only API and worker. The listener is not restarted or
 re-sourced by this composition.
+
+When the live root has no operation_monitor_worker stanza, the explicit
+--api-only mode replaces only watchtower_api. It requires exactly one API and
+listener stanza, preserves every non-API byte, and never creates or changes a
+worker definition. Adding a worker requires a separately reviewed configuration
+authority.

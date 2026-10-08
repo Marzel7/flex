@@ -1,0 +1,48 @@
+{
+  "artifact_version": "DEV_019_AMQ_COVERAGE_BATCH1_V1",
+  "status": "ABORTED_TRANSACTION_VERSION_UNSUPPORTED",
+  "source_authority": "44d7de684cf80de893a91ef79bcd432c9ae6e701",
+  "target_wallet": "AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX",
+  "intended_limits": {
+    "signature_pages": 3,
+    "signature_page_size": 20,
+    "get_transaction_max": 60,
+    "get_block_max": 3,
+    "total_rpc_max": 66,
+    "retries": 0,
+    "fallback_provider": false,
+    "raw_rpc_payload_retained": false
+  },
+  "observed_failure": {
+    "phase": "getTransaction",
+    "rpc_error_code": -32015,
+    "request_parameters": {
+      "encoding": "jsonParsed",
+      "maxSupportedTransactionVersion": 0,
+      "commitment": "confirmed"
+    },
+    "interpretation": "The first transaction decode encountered a transaction version unsupported by the fixed v0 request parameter. This is an acquisition-protocol failure, not negative transfer evidence."
+  },
+  "coverage": {
+    "signature_page_boundaries_retained": false,
+    "decoded_transaction_count": 0,
+    "coverage_status": "INCOMPLETE",
+    "reason": "The one-shot runner aborted before it persisted page boundaries or decoded facts. Exact successful signature-page count is not asserted from the failed invocation."
+  },
+  "results": {
+    "amq_to_8cub_770_sol": "NOT_EVALUATED",
+    "verified_outbound_transfers": [],
+    "same_slot_block_requests": 0,
+    "complete_route_proven": false
+  },
+  "safety": {
+    "live_database_queue_writes": 0,
+    "supervisor_or_listener_actions": 0,
+    "treasury_confirmations": 0,
+    "membership_promotions": 0,
+    "canonical_attribution_changes": 0,
+    "raw_rpc_payload_retained": false,
+    "single_file_maximum_bytes": 262144
+  },
+  "next_action": "STOP. A separately authorized revised request contract must support the observed transaction version and persist compact page boundaries before the first decode; do not retry this batch under the exhausted no-retry authorization."
+}

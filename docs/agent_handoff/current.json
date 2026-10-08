@@ -19826,5 +19826,19 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_GENUINE_CREATOR_RESOLUTION_WORKER_RUNTIME_FAULT",
     "next_action": "STOP. REQUIRE A SEPARATE EXPLICIT CREATOR_RESOLUTION_WORKER FAULT DIAGNOSIS/RECOVERY AUTHORIZATION BEFORE RECONCILING THE LIVE-TRANSITION PREFLIGHT; DO NOT DEPLOY WATCHTOWER CANDIDATE."
+  },
+  "watchtower_creator_resolution_fault_triage_20261008": {
+    "engineering_revision": "Read-only diagnosis only; no source, configuration, Supervisor, service, database, queue, or provider mutation.",
+    "status": "HOLD_BLOCKING_TARGET_TRANSITION_SHARED_STORAGE_EXHAUSTION",
+    "root_cause": "The latest causal chain in the current creator-resolution worker stderr is CrossProcessDatabaseWriteTimeout after about 60 seconds waiting for the canonical database write lock with a null owner. Its diagnostic/error paths then raise OSError [Errno 28] No space left on device: acquire_write_lease at database_write_service.py:884 (flock) and _capture_null_owner_episode at :474 (append diagnostic record). The affected volume was 96% used with 9,125,272 KiB available during the assessment.",
+    "exit_correlation": "Supervisor recorded unexpected exit status 1 at 01:11:01 and 01:15:02 local, with automatic respawns because the unchanged original definition has autorestart=true. Both appear in the same repeated lock-timeout/ENOSPC failure family; un-timestamped application tracebacks do not prove a one-to-one traceback-to-exit mapping beyond that correlation.",
+    "current_health": "PID 81359 remains present under original supervisord PID 73409 since 01:15:02 local. This proves it has not immediately exited again, but does not prove successful workload processing; its current stdout last changed shortly after restart and contains no bounded post-restart success proof.",
+    "relationship_to_transition": "The fault predates any candidate installation: live config write, backup write, reread, update, and target service action all remain zero. It is independent of the proposed Watchtower source/config changes but involves the shared canonical database write path and filesystem capacity. A target API update can require log/database writes, so proceeding without capacity remediation could worsen or mask the fault and invalidate API/worker acceptance.",
+    "classification": "BLOCKING_TARGET_TRANSITION",
+    "minimum_next_action": "Obtain separate authorization for bounded storage-capacity remediation, then verify creator-resolution stability and rerun the complete target-transition preflight. No cleanup, service action, or deployment was performed in this triage.",
+    "safety": "Supervisor control commands=0; service actions=0; source/config writes=0; database/queue writes=0; provider calls=0; listener changes=0; no large artifact created.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_BLOCKING_TARGET_TRANSITION_SHARED_STORAGE_EXHAUSTION",
+    "next_action": "OBTAIN_EXPLICIT_STORAGE_CAPACITY_REMEDIATION_AUTHORIZATION_THEN_RECHECK_CREATOR_WORKER_STABILITY_AND_RERUN_TARGET_TRANSITION_PREFLIGHT"
   }
 }

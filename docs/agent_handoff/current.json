@@ -20250,6 +20250,18 @@
     "runtime_deployment_gate": "HOLD_BOUNDED_WORKER_COMPLETION_CONTRACT",
     "next_action": "READ_ONLY_ATTRIBUTE_PID_7442_AND_ITS_EXACT_CURRENT_RUNTIME_COMMAND_OR_LOG_STREAM, THEN QUALIFY_ONLY_THE_MINIMUM_WORKER_FINITE_ITERATION_CORRECTION. DO_NOT_RERUN_THE_SOAK_OR_ENABLE_CONTINUOUS_MONITORING_UNTIL_THAT_COMPLETION_BOUNDARY_IS_EXPLAINED."
   },
+  "watchtower_listener_source_reconciliation_20261008": {
+    "engineering_revision": "Local isolated listener reproduction commit d3c0d4ed5fa6d8b824a04001983bcf8bef7bcb87 on codex/listener-runtime-reproduction; parent bf1bdfc59b4acfed0338a493189d91d212bda50f.",
+    "status": "PARTIAL_LISTENER_SOURCE_REPRODUCED_LOCAL_REMOTE_TRANSPORT_BLOCKED",
+    "source_reconciliation": "The live listener worktree /Users/kevinkeaveney/Production/flex-listener contains exactly one modified source file, src/core/pumpfun_curve_listener.py, SHA256=3aa1ecb12699cd43831902179d8945eb12597b11ec3950321df3217be9ad95cc. Its retained diff adds DEV_020 resolver-boundary diagnostics only: metadata-only, fail-open, de-duplicated, 256 KiB maximum JSONL output, and no DNS/provider/retry/connection behavior change. No matching committed history/branch was found. The isolated reproduction applies that exact diff to bf1bdfc5 and has the identical SHA256.",
+    "guard_files": "The two untracked lock-owner guard files are both zero bytes, SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855. No source path references the .guard suffix. They were reproduced byte-for-byte but are not part of listener source execution semantics.",
+    "process_identity_limit": "Listener PID 73415 started 2026-10-08 01:00:57 local time; live modified source mtime is 2026-09-25 16:43:57+0100, so it predates process startup. This supports, but does not cryptographically prove, that the running Python process imported these on-disk bytes; no in-memory code-page hash was collected and no restart occurred.",
+    "tests": "Reproduction-focused resolver diagnostic, reconnect isolation, and listener entrypoint tests passed 11/11 provider-free. Two pre-existing tests test_pumpfun_premigration_resolver.py::{test_persist_flow_signal_creates_minimal_pumpfun_row_when_missing,test_record_migration_verification_snapshot_persists_pre_migration_state} fail identically on clean ancestor bf1bdfc5 and reproduction because their fixture lacks first_pre_migration_signal_at; they are not caused by the retained listener diff.",
+    "transport": "Local reproduction commit was created. Push/remote verification was blocked by the environment's source-egress policy before any push command executed. No running listener, Supervisor, database, queue, provider, or source checkout was changed.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Source-provenance reproduction only; no deployed component was restarted or replaced.",
+    "next_action": "OBTAIN_EXPLICIT_APPROVAL_FOR_PUBLISHING_LOCAL_LISTENER_REPRODUCTION_COMMIT_D3C0D4ED_TO_THE_REPOSITORY_REMOTE, THEN_REMOTE_VERIFY_AND_REASSESS_WHOLE_RUNTIME_FREEZE_TAGGABILITY."
+  },
   "watchtower_operational_baseline_freeze_20261008": {
     "engineering_revision": "Read-only freeze assessment following continuous-monitor activation handoff 7a4f7d9e3a9835078412633550a20d6ed0fd7193.",
     "status": "PARTIAL_HEALTHY_OPERATIONAL_BASELINE_NOT_TAGGED_LISTENER_SOURCE_DIRTY",

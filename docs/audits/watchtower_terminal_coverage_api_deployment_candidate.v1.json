@@ -1,0 +1,48 @@
+{
+  "contract": "watchtower-terminal-coverage-api-deployment-candidate.v1",
+  "status": "PREPARED_NOT_DEPLOYED",
+  "qualified_source_sha": "f5d2ad8d3d9f5aacad51c698f340c46c553df241",
+  "active_monitor_source_sha": "ac00b1e77c3bd030d711143efa73dd609dfe48ee",
+  "active_api_source_sha": "a32ebba3732d3f68cf5fd387bf05444a744610dc",
+  "active_supervisor_config_sha256": "2d5a1c395217f975c68d78463cc03f0e6c74b3acdea7c36b5d53baccbcf7c366",
+  "proposed_supervisor_config_sha256": "6ec854661aeaf544f4c1df271f5e4c7211024d5551fc45599336d7c895fea251",
+  "rollback_supervisor_config_sha256": "2d5a1c395217f975c68d78463cc03f0e6c74b3acdea7c36b5d53baccbcf7c366",
+  "pinned_runtime_candidates": {
+    "operation_monitor_worker": "/private/tmp/flex-watchtower-terminal-worker-runtime-f5d2ad8d",
+    "watchtower_api": "/private/tmp/flex-watchtower-terminal-api-runtime-f5d2ad8d"
+  },
+  "targeted_supervisor_sections": [
+    "program:watchtower_api",
+    "program:operation_monitor_worker"
+  ],
+  "unchanged_contracts": {
+    "provider_budget": "20 global calls / 60 seconds; 4 per mint / 60 seconds",
+    "assignment_watermark": 1791446333,
+    "monitor_store": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db",
+    "queue_path": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue",
+    "historical_timestamp_deficient_envelopes": 59,
+    "raw_provider_retention": false
+  },
+  "schema_migration": {
+    "required": true,
+    "artifact": "migrations/20261008_watchtower_terminal_coverage_state.sql",
+    "mode": "four additive ALTER TABLE columns under BEGIN IMMEDIATE",
+    "live_execution_authorized": false,
+    "rollback": "rollback is atomic before COMMIT; after COMMIT, retain columns and disable/revert runtime rather than attempting destructive DROP COLUMN",
+    "preconditions": [
+      "approved writer-quiescence window",
+      "verified byte-exact backup",
+      "qualified bounded live DDL runner",
+      "fresh disk, lock, and journal safety checks"
+    ]
+  },
+  "supervisor_validation": {
+    "raw_config_parser": "PASS",
+    "changed_sections": {
+      "program:watchtower_api": ["command", "directory", "environment"],
+      "program:operation_monitor_worker": ["command", "directory", "environment"]
+    },
+    "supervisord_test_mode": "NOT_RUN_TO_SUCCESS: it attempts to bind the existing Supervisor HTTP port even in test mode; no temporary daemon or service was launched"
+  },
+  "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED_EXPLICIT_APPROVAL_REQUIRED"
+}

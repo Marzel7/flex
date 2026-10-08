@@ -1,4 +1,13 @@
 {
+  "watchtower_monitor_activation_preflight_20261008": {
+    "engineering_revision": "deployed runtime a32ebba3732d3f68cf5fd387bf05444a744610dc; active Supervisor configuration SHA256 3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19",
+    "status": "HOLD_UNBOUNDED_RETAINED_MONITOR_BACKLOG_AND_PROVIDER_AUTHORITY_UNVERIFIED",
+    "finding": "Read-only preflight confirms watchtower_api RUNNING, watchtower_listener RUNNING PID 73415, and operation_monitor_bridge/operation_monitor_worker STOPPED. The bridge source database has 91 monitor_admission_outbox rows, all DELIVERED. The durable monitor queue has 98 files (396K) and its database contains 35 Watchtower WAITING_FOR_ENTRY_REFERENCE facts, 60 Watchtower PRICE_MONITOR_COMPLETE_COLLAPSED facts, and other retained operation facts. No bounded batch identity, queue watermark, or provider-call budget was supplied for consuming this pre-existing backlog. Starting the worker would therefore risk uncontrolled historical processing. The configured MONITOR_ENV_FILE was checked only for credential presence and does not contain a non-empty BIRDEYE_API_KEY, so paid Birdeye authority/budget is not verified for this activation.",
+    "safety": "Supervisor start/stop/update/reread actions=0; bridge starts=0; worker starts=0; listener changes=0; provider calls=0; DB/queue writes=0; source changes=0. Canonical and monitor database observations used read-only SQLite connections.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "AUTHORIZE_AND_QUALIFY_A_BOUNDED_QUEUE_WATERMARK_OR_EMPTY_NATURAL_TOKEN_BATCH_WITH_EXPLICIT_PROVIDER_BUDGET_AND_CREDENTIAL_AUTHORITY_BEFORE_STARTING_EITHER_OPERATION_MONITOR_COMPONENT"
+  },
   "watchtower_api_only_transition_preparation_20261008": {
     "engineering_revision": "a32ebba3732d3f68cf5fd387bf05444a744610dc is the unchanged executable runtime candidate; replay-only test commit 542e7d4c59ebd7a4503ef4a32f86c7b9c89d1f70 is remote-verified on origin/codex/watchtower-active-authority-composition",
     "status": "PASS_ACTIVE_ROOT_TARGET_ONLY_TRANSITION_AND_LIVE_SMOKE",

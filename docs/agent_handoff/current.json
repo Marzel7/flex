@@ -20827,6 +20827,17 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "STOP. Any deeper discovery of the one DEEP_DISCOVERY treasury, verification scans of the 18 HOT/ACTIVE accounts, persistent runtime integration, review-table persistence, or live activation requires separate explicit authorization."
   },
+  "dev019_cascade_coverage_cursor_qualification_20261008": {
+    "engineering_revision": "Coverage/cursor/handoff contract commit 63c64f03f697cad2025866e25ce05a4727656a59 and register commit d6bc722ea11cd643d9db57fe49059f0dd9e42614 on origin/codex/dev-019-mesh-discovery.",
+    "status": "PASS_ISOLATED_CONTRACT_QUALIFIED_NOT_DEPLOYED",
+    "subscription_gap_root_cause": "UNEXPLAINED_RUNTIME_SUBSCRIPTION_DIVERGENCE. Read-only process inspection shows live cascade checkout /Users/kevinkeaveney/Production/flex-cascade at 26da06daba23608bd64d5b86cde1f92b24d3a98d. It, the active Supervisor configuration, and the registry path select all 83 confirmed treasuries when WS_MAX_TREASURY_SUBSCRIBE=0. Heartbeat nevertheless reports 29 treasury subscriptions. The 54 no_subscribe registry rows equal the gap but are not used by the inspected root-tier selection loop, so no unsupported root-cause claim is made.",
+    "qualified_correction": "Provider-free module treasury_cascade_coverage supplies exactly one coverage record for every confirmed treasury (SUBSCRIBED or RECONCILIATION_ONLY plus cursor/activity/reason), rejects unknown subscriptions, persists a selected signature page/outcomes only in an isolated <=10MB test store, and allows cursor advance only after every selected signature is DECODED. Missing/failed/unsupported signatures stay INCOMPLETE with prior cursor for idempotent restart replay. Compact handoff facts require complete coverage, direct verified balance deltas, full identities, signature, slot, optional transaction index, instruction coordinate, lamports, and provenance. Consumer error returns HANDOFF_DEFERRED without blocking cascade or making provider calls.",
+    "limits": "The existing runtime still has notification limit=5 and reconnect limit=10 (first boot=3) without selected-page completeness state. This source contract is not wired into the running cascade; it is a separately reviewed deployment candidate. No second poller or cursor store is introduced.",
+    "verification": "73 provider-free DEV-019/V2 tests passed. Tests cover the observed 29/83 reporting shape, unknown subscriptions, incomplete/unsupported replay, restart persistence, duplicate prevention, compact emission, and consumer failure isolation. V2 admission and test-path guards passed. Provider calls=0; live DB/queue writes=0; Supervisor/listener/WS actions=0; deployment=0; promotion/attribution=0; raw payload retention=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "STOP. Before integration, separately authorize read-only runtime instrumentation to resolve actual 29/83 subscription identities and then a reviewed deployment of the contract into the actual cascade. No live subscription change, historical backfill, or DEV-019 activation is authorized."
+  },
   "dev019_treasury_websocket_webhook_rpc_coverage_audit_20261008": {
     "engineering_revision": "Read-only audit against qualified DEV-019 source bb8bd055080a260cf3c2edc578c063279de991fd; engineering branch remained clean at 29b26cfb457d4facc4b36a3dd7b9de9032f18ff8.",
     "status": "HOLD_EXISTING_HYBRID_NOT_COVERAGE_COMPLETE",

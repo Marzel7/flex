@@ -153,6 +153,25 @@ def validate_handoff(contract: dict, worktree: Path) -> None:
     require_clean_worktree(worktree)
 
 
+def validate_promotion(contract: dict) -> None:
+    required = (
+        "source_authority", "dependency_authority", "launcher_contract_verified",
+        "capability_contract_verified", "active_supervisor_authority",
+        "offline_supervisor_validation", "rollback_sha", "live_action",
+    )
+    for field in required:
+        if field not in contract or contract[field] in (None, ""):
+            raise GuardError("INCOMPLETE_PROMOTION_CONTRACT:" + field)
+    if contract["launcher_contract_verified"] is not True:
+        raise GuardError("LAUNCHER_CONTRACT_UNVERIFIED")
+    if contract["capability_contract_verified"] is not True:
+        raise GuardError("CAPABILITY_CONTRACT_UNVERIFIED")
+    if contract["offline_supervisor_validation"] != "parser-only":
+        raise GuardError("SUPERVISOR_VALIDATION_NOT_PARSER_ONLY")
+    if contract["live_action"] and contract.get("explicit_live_approval") is not True:
+        raise GuardError("LIVE_MUTATION_NOT_EXPLICITLY_APPROVED")
+
+
 def validate_test_paths(paths: list[str], protected_roots: list[str]) -> None:
     if len(paths) != 2 or len({str(Path(path).resolve()) for path in paths}) != 2:
         raise GuardError("TEST_PATHS_NOT_ISOLATED")
@@ -184,6 +203,8 @@ def main() -> int:
     hand = sub.add_parser("handoff")
     hand.add_argument("--contract", required=True)
     hand.add_argument("--worktree", required=True)
+    promote = sub.add_parser("promotion")
+    promote.add_argument("--contract", required=True)
     paths = sub.add_parser("test-paths")
     paths.add_argument("--path", action="append", required=True)
     paths.add_argument("--protected-root", action="append", default=[])
@@ -199,6 +220,8 @@ def main() -> int:
             validate_capabilities(load_json(args.requirements), load_json(args.actual))
         elif args.command == "handoff":
             validate_handoff(load_json(args.contract), Path(args.worktree))
+        elif args.command == "promotion":
+            validate_promotion(load_json(args.contract))
         else:
             validate_test_paths(args.path, args.protected_root)
     except GuardError as exc:

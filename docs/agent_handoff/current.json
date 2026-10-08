@@ -1,4 +1,15 @@
 {
+  "dev024_disk_space_diagnosis_20261008": {
+    "engineering_revision": "Read-only operational diagnosis supporting qualified DEV-024 runtime 6806d2b2268bd5240f52be184bfbde1642070f76; no engineering source changed.",
+    "status": "HOLD_INSUFFICIENT_DISK_HEADROOM_SOURCE_NOT_FULLY_ATTRIBUTED",
+    "finding": "Free space fell from the prior DEV-024 preflight observation of 2,896,696 KiB to 1,759,580 KiB during this assessment (about 1.08 GiB loss). Canonical DB remains 35,652,194,304 bytes and operations DB remains 16,014,397,440 bytes, so neither main database file explains the loss. Current WALs are canonical=22,734,192 bytes, operations=7,749,752 bytes, SHM=32,768 bytes each. A 15-second bounded sample showed canonical WAL +1,133,000 bytes, operations WAL +103,000 bytes, and free space -1,944 KiB: real active write activity, but insufficient to attribute the earlier GiB-scale loss. macOS reported encrypted swap use 14,093.19 MiB of 15,360 MiB; without an earlier swap sample its contribution is plausible but unproven.",
+    "writers": "Current WAL holders include API Gunicorn PID 34345, listener PID 73415, ws_cascade PID 73417, walkback PID 73413, creator_resolution_worker PID 71434, and dev_runtime PID 22967. The creator_funding_worker PID 8326 is running but was not an open WAL holder at the later snapshot. There is no evidence from this bounded inspection that creator-funding retry amplification caused the observed disk loss.",
+    "storage_candidates": "Known project logs use 541,804 KiB and are operational logs, not independently disposable. Git-registered temporary worktrees total 3,468,452 KiB. After excluding current DEV-024 source/runtime, DEV-019, and DEV-023/frozen authorities, clean unprotected worktrees total at most 2,051,920 KiB; no active process held a file in the inspected /private/tmp flex/watchtower worktrees. They remain conditional candidates pending task-owner, remote-publication, and rollback/freeze-reference confirmation. Even assuming every such candidate were safely removable, projected free space is only 3,811,500 KiB, below the 4,194,304 KiB floor by 382,804 KiB.",
+    "safety": "No deletion, database cleanup, checkpoint, VACUUM, DB/queue write, provider call, Supervisor action, listener change, or source change occurred. No raw acquisition payload was intentionally inspected or retained.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "OBTAIN_SEPARATE_AUTHORIZATION_FOR_A_VERIFIED_STORAGE_RECOVERY_PLAN_OR_IDENTIFY_ADDITIONAL_NONPROJECT_DISPOSABLE_SPACE; DO_NOT_RETRY_DEV024_DEPLOYMENT_UNTIL_FREE_SPACE_EXCEEDS_THE_4_GIB_FLOOR_AND_ALL_PRECHECKS_ARE_REPEATED"
+  },
   "dev024_controlled_creator_funding_deployment_20261008": {
     "engineering_revision": "Qualified runtime 6806d2b2268bd5240f52be184bfbde1642070f76; deployment-preparation commit 6dd0d575a5930941945ee68b9d4fcfcf8fa54154 on origin/codex/dev-024-creator-funding-aux-timeout.",
     "status": "HOLD_INSUFFICIENT_DISK_HEADROOM_PRE_DEPLOYMENT",

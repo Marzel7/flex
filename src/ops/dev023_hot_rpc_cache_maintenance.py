@@ -28,6 +28,10 @@ from src.ops.dev023_hot_rpc_cache_retention import (
 
 
 DEFAULT_CADENCE_SECONDS = 24 * 60 * 60
+# The runtime adapter is deliberately one transaction per invocation.  Keep
+# its effective run cap identical to its reviewed per-transaction ceiling;
+# the standalone retention contract retains its separate multi-batch default.
+DEFAULT_TICK_LIMITS = RetentionLimits(batch_rows=200, max_rows_per_run=200)
 
 
 @dataclass(frozen=True)
@@ -39,7 +43,7 @@ class RuntimeRetentionConfig:
     cutoff: float
     stop_file: str
     cadence_seconds: int = DEFAULT_CADENCE_SECONDS
-    limits: RetentionLimits = RetentionLimits()
+    limits: RetentionLimits = DEFAULT_TICK_LIMITS
 
 
 def config_from_environment(*, canonical_database_path: str, cutoff: float) -> RuntimeRetentionConfig:

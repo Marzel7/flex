@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+import src.ops.dev023_hot_rpc_cache_maintenance as maintenance
 from src.core.database_write_service import (
     CrossProcessDatabaseWriteTimeout,
     PRIORITY_P3_HOUSEKEEPING,
@@ -100,6 +101,18 @@ def test_success_is_one_p3_bounded_batch_and_preserves_live_rows(tmp_path):
     assert _keys(path) == ["expired-200", "live"]
 
 
+def test_enabled_tick_default_limits_are_one_200_row_transaction(tmp_path, monkeypatch):
+    path, service = _db(tmp_path, expired=201), _Service()
+    # Keep this default-contract test independent of the host filesystem.
+    monkeypatch.setattr(maintenance.shutil, "disk_usage", lambda _path: type("Usage", (), {"free": 10**12})())
+    config = RuntimeRetentionConfig(enabled=True, canonical_database_path=str(path), cutoff=10, stop_file="")
+
+    assert config.limits.batch_rows == 200
+    assert config.limits.max_rows_per_run == 200
+    assert run_retention_tick(config, write_service=service) == {"status": "STOP_ROW_CAP", "deleted": 200}
+    assert _keys(path) == ["expired-200", "live"]
+
+
 def test_timeout_skips_without_direct_sqlite_fallback(tmp_path):
     path, service = _db(tmp_path), _Service(timeout=True)
     assert run_retention_tick(_config(path), write_service=service) == {
@@ -140,9 +153,10 @@ def test_idempotent_rerun_and_unintended_target_rejection(tmp_path):
     assert _keys(path) == ["live"]
 
 
-def test_runtime_rejects_any_batch_larger_than_qualified_ceiling(tmp_path):
+@pytest.mark.parametrize("limits", [_limits(batch_rows=201), _limits(max_rows_per_run=201)])
+def test_runtime_rejects_any_limit_larger_than_qualified_ceiling(tmp_path, limits):
     path = _db(tmp_path)
-    assert run_retention_tick(_config(path, limits=_limits(batch_rows=201)), write_service=_Service()) == {
+    assert run_retention_tick(_config(path, limits=limits), write_service=_Service()) == {
         "status": "REJECTED_INVALID_LIMITS", "deleted": 0
     }
 

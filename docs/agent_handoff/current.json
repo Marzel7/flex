@@ -20239,6 +20239,17 @@
     "runtime_deployment_reason": "Read-only evidence classification; no executable/runtime/configuration change occurred.",
     "next_action": "OBTAIN_EXPLICIT_APPROVAL_FOR_A_FRESH_API-PRESERVING_BRIDGE_WORKER_SOAK RETRY WITH THE NEWLY DEFINED FRESH-OBSERVATION SAFETY PREDICATE, OR QUALIFY THAT PREDICATE IN DEV FIRST. DO_NOT_AUTOMATICALLY_RETRY."
   },
+  "watchtower_final_bridge_worker_soak_execution_20261008": {
+    "engineering_revision": "597601d9ae935181230f3056e02bf82744cbbd6b on origin/codex/watchtower-monitor-bounded-soak; clean candidate. No source change during execution.",
+    "status": "HOLD_WORKER_ONE_ITERATION_DID_NOT_COMPLETE_ROLLED_BACK",
+    "preflight_and_transition": "Passed: active rollback SHA256=3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19; reviewed proposed SHA256=295af03e016d27d3a373a14539742bee18d7a4c69142199f7845b2b3660f50fa; candidate clean at 597601d9; API PID 95506 and listener PID 73415 healthy and unchanged; zero provider limits and non-printing paid credential presence check passed; isolated queue had 5 files. A byte-exact live backup was created, the reviewed configuration was atomically installed, and reread/update reported only operation_monitor_bridge and operation_monitor_worker changed.",
+    "bridge": "The one authorized bridge iteration exited cleanly under the finite contract. Its fresh-window evaluation accepted: fresh_error_count=0, log_mode=appended, source-WAL unchanged at 19,055,032 bytes, and no reasons. The isolated queue remained 5 files.",
+    "worker_failure_boundary": "The authorized worker was started once (PID 7442) but remained RUNNING after 30 seconds instead of completing its one-iteration contract. Its fresh-window evaluation still accepted with fresh_error_count=0 and unchanged source WAL. The worker was stopped immediately; no second worker start, no continuous monitoring, no +2/shadow/Injector/history action, and no provider invocation followed. Retained stderr contains an AttributeError from a historical temporary runtime path, but its attribution to PID 7442 is unproven; no source repair was attempted.",
+    "rollback_and_health": "Exact rollback configuration was atomically restored and verified SHA256=3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19. Reread/update targeted only bridge and worker; both are STOPPED. API remains RUNNING PID 95506, listener remains RUNNING PID 73415, /healthz is HTTP 200 healthy=true db=ok wal_warn=false, and queue remains 5 files.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_BOUNDED_WORKER_COMPLETION_CONTRACT",
+    "next_action": "READ_ONLY_ATTRIBUTE_PID_7442_AND_ITS_EXACT_CURRENT_RUNTIME_COMMAND_OR_LOG_STREAM, THEN QUALIFY_ONLY_THE_MINIMUM_WORKER_FINITE_ITERATION_CORRECTION. DO_NOT_RERUN_THE_SOAK_OR_ENABLE_CONTINUOUS_MONITORING_UNTIL_THAT_COMPLETION_BOUNDARY_IS_EXPLAINED."
+  },
   "watchtower_fresh_window_bounded_soak_preparation_20261008": {
     "engineering_revision": "597601d9ae935181230f3056e02bf82744cbbd6b on origin/codex/watchtower-monitor-bounded-soak; clean candidate. It supersedes 3ac72274 only by adding the compact fresh-window soak safety predicate and CLI, with no monitor/provider business-logic change.",
     "status": "PASS_FRESH_WINDOW_GUARD_QUALIFIED_AWAITING_EXPLICIT_LIVE_APPROVAL",

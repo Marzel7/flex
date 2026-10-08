@@ -43,6 +43,10 @@ def main() -> int:
     parser.add_argument("--bridge-stdout-log", default="")
     parser.add_argument("--bridge-stderr-log", default="")
     parser.add_argument("--monitor-selection", default="")
+    parser.add_argument("--monitor-max-iterations", default="")
+    parser.add_argument("--monitor-provider-global-limit", default="")
+    parser.add_argument("--monitor-provider-token-limit", default="")
+    parser.add_argument("--bridge-max-iterations", default="")
     parser.add_argument("--api-only", action="store_true",
                         help="replace only watchtower_api; never add or alter a worker stanza")
     parser.add_argument("--monitoring-topology", action="store_true",

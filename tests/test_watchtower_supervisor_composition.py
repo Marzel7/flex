@@ -1,4 +1,5 @@
 import hashlib
+from dataclasses import replace
 
 from src.ops.watchtower_supervisor_composition import (
     RuntimePaths,
@@ -48,6 +49,19 @@ def test_composition_is_idempotent_and_source_is_exact_rollback_artifact(tmp_pat
     candidate = compose(SOURCE, paths)
     assert compose(candidate, paths) == candidate
     assert hashlib.sha256(SOURCE).hexdigest() == hashlib.sha256(bytes(SOURCE)).hexdigest()
+
+
+def test_composition_renders_opt_in_bounded_soak_controls(tmp_path):
+    paths = replace(_paths(tmp_path), monitor_max_iterations="1",
+                    monitor_provider_global_limit="0",
+                    monitor_provider_token_limit="0", bridge_max_iterations="1")
+    candidate = compose(SOURCE, paths)
+    assert b'MONITOR_MAX_ITERATIONS="1"' in candidate
+    assert b'MONITOR_PROVIDER_GLOBAL_LIMIT="0"' in candidate
+    assert b'MONITOR_PROVIDER_TOKEN_LIMIT="0"' in candidate
+    assert b'MONITOR_BRIDGE_SELECTION_PATH="/qualified-selection.json"' in candidate
+    assert b'MONITOR_BRIDGE_MAX_ITERATIONS="1"' in candidate
+    assert compose(candidate, paths) == candidate
 
 
 def test_composition_rejects_missing_duplicate_or_include_targets(tmp_path):

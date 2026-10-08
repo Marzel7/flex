@@ -44,6 +44,10 @@ class RuntimePaths:
     bridge_stdout_log: str = ""
     bridge_stderr_log: str = ""
     monitor_selection: str = ""
+    monitor_max_iterations: str = ""
+    monitor_provider_global_limit: str = ""
+    monitor_provider_token_limit: str = ""
+    bridge_max_iterations: str = ""
 
 
 def compose(source: bytes, paths: RuntimePaths) -> bytes:
@@ -173,10 +177,17 @@ stderr_logfile_backups=2
 
 
 def _worker_stanza(p: RuntimePaths) -> str:
+    bounded = "".join(
+        f',{name}="{value}"' for name, value in (
+            ('MONITOR_MAX_ITERATIONS', p.monitor_max_iterations),
+            ('MONITOR_PROVIDER_GLOBAL_LIMIT', p.monitor_provider_global_limit),
+            ('MONITOR_PROVIDER_TOKEN_LIMIT', p.monitor_provider_token_limit),
+        ) if value
+    )
     return f'''[program:operation_monitor_worker]
 command={p.root}/scripts/launch_watchtower_final.sh worker {p.sha} {p.monitor_selection}
 directory={p.root}
-environment=PYTHONPATH="{p.root}",WATCHTOWER_FINAL_ROOT="{p.root}",WATCHTOWER_FINAL_SHA="{p.sha}",WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH="{p.audit_ledger}",MONITOR_RUNTIME_STATE_ROOT="{p.monitor_state_root}",MONITOR_ENV_FILE="{p.monitor_env_file}",DB_PATH="{p.canonical_db}",FLEX_DB_PATH="{p.canonical_db}",WT_OPS_DB_PATH="{p.worker_operations_db}",DATABASE_PATH="{p.worker_operations_db}",OPS_V2_DB_PATH="{p.worker_operations_db}",OPERATION_MONITOR_QUEUE_PATH="{p.worker_queue}",OPERATIONS_MODE="MONITOR",MONITOR_RUNTIME="dev",WATCHTOWER_SHADOW_EVALUATION_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_LEDGER_PATH="{p.shadow_ledger}"
+environment=PYTHONPATH="{p.root}",WATCHTOWER_FINAL_ROOT="{p.root}",WATCHTOWER_FINAL_SHA="{p.sha}",WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH="{p.audit_ledger}",MONITOR_RUNTIME_STATE_ROOT="{p.monitor_state_root}",MONITOR_ENV_FILE="{p.monitor_env_file}",DB_PATH="{p.canonical_db}",FLEX_DB_PATH="{p.canonical_db}",WT_OPS_DB_PATH="{p.worker_operations_db}",DATABASE_PATH="{p.worker_operations_db}",OPS_V2_DB_PATH="{p.worker_operations_db}",OPERATION_MONITOR_QUEUE_PATH="{p.worker_queue}",OPERATIONS_MODE="MONITOR",MONITOR_RUNTIME="dev",WATCHTOWER_SHADOW_EVALUATION_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_LEDGER_PATH="{p.shadow_ledger}"{bounded}
 autostart=false
 autorestart=false
 startretries=0
@@ -194,10 +205,16 @@ stderr_logfile_backups=1
 
 
 def _bridge_stanza(p: RuntimePaths) -> str:
+    bounded = "".join(
+        f',{name}="{value}"' for name, value in (
+            ('MONITOR_BRIDGE_SELECTION_PATH', p.monitor_selection),
+            ('MONITOR_BRIDGE_MAX_ITERATIONS', p.bridge_max_iterations),
+        ) if value
+    )
     return f'''[program:operation_monitor_bridge]
 command={p.python} -m src.ops.operation_monitor_bridge_service
 directory={p.root}
-environment=PYTHONPATH="{p.root}",WATCHTOWER_FINAL_ROOT="{p.root}",WATCHTOWER_FINAL_SHA="{p.sha}",MONITOR_BRIDGE_SOURCE_DB="{p.bridge_source_db}",MONITOR_BRIDGE_MONITOR_DB="{p.worker_operations_db}",MONITOR_BRIDGE_QUEUE_PATH="{p.worker_queue}",MONITOR_BRIDGE_CADENCE_SECONDS="60",MONITOR_BRIDGE_HEALTH_PATH="{p.bridge_health_path}",WATCHTOWER_SHADOW_EVALUATION_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_ENABLED="0"
+environment=PYTHONPATH="{p.root}",WATCHTOWER_FINAL_ROOT="{p.root}",WATCHTOWER_FINAL_SHA="{p.sha}",MONITOR_BRIDGE_SOURCE_DB="{p.bridge_source_db}",MONITOR_BRIDGE_MONITOR_DB="{p.worker_operations_db}",MONITOR_BRIDGE_QUEUE_PATH="{p.worker_queue}",MONITOR_BRIDGE_CADENCE_SECONDS="60",MONITOR_BRIDGE_HEALTH_PATH="{p.bridge_health_path}",WATCHTOWER_SHADOW_EVALUATION_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_ENABLED="0"{bounded}
 autostart=false
 autorestart=false
 startretries=0

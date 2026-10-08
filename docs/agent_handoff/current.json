@@ -20804,5 +20804,16 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "STOP. Preserve the isolated Helius-bound discovery authority and compact soak artifact. Any persistent runtime integration, review-table write, or live discovery activation requires separately reviewed deployment authority."
+  },
+  "dev019_activity_aware_discovery_qualification_20261008": {
+    "engineering_revision": "Activity implementation commit ec6753059d265be7ccbac1d919e227c502972c7d and register commit 364611fa7383cd4be475a8a092922d258ac6e6a4 on origin/codex/dev-019-mesh-discovery.",
+    "status": "PASS_ACTIVITY_AWARE_ISOLATED_DISCOVERY_NOT_DEPLOYED",
+    "contract": "A compact isolated activity table retains only last bounded transaction time, last balance-verified material-funding time, complete-window state, and update time. Activity is priority-only and contains no treasury identity, confirmation, membership, or attribution field. Configurable windows are HOT <=7 days, ACTIVE <=30 days, DORMANT <=90 days, RETIRED_CANDIDATE >90 days, and fail-closed ACTIVITY_UNKNOWN when a window is incomplete, absent, or temporally invalid.",
+    "priority": "HOT/ACTIVE with a verified material direct funding fact may receive DEEP_DISCOVERY; transaction-only activity is VERIFY_FUNDING; DORMANT and RETIRED_CANDIDATE suppress routine deep scans. A canonical launch-backward signal can independently request one TARGETED_LAUNCH_BACKWARD route. Dust and unverified balance movement cannot mark meaningful funding. New material funding updates compact recency and reawakens priority without changing confirmed identity.",
+    "qualification": "54 provider-free DEV-019 adapter/engine/activity/treasury-rotation/V2 tests passed. Tests cover exact window boundaries, unknown fail-closed handling, dust versus material funding, dormant suppression, meaningful reactivation priority, launch-backward override, and absence of any identity-status field. V2 admission and isolated test-path guards passed. Provider calls=0; live DB/queue writes=0; Supervisor/service/listener actions=0; deployment=0; promotion/attribution changes=0; raw transaction/block retention=0.",
+    "storage": "The only new persistent design is an activity row inside the existing <=10,000,000-byte isolated DEV store. It has no raw payload field and no new unbounded growth path; the project 500MB prohibition remains enforced by the existing store guard.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "STOP. A separate explicit authorization is required before any provider acquisition using activity priority, persistent runtime integration, review-table write, or discovery activation."
   }
 }

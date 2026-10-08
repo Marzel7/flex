@@ -8,33 +8,34 @@
   "devs": [
     {
       "dev_id": "DEV-023",
-      "objective": "Qualify the Phase 3 canonical rpc_response_cache retention contract without live maintenance.",
+      "objective": "Qualify bounded canonical rpc_response_cache retention runtime integration without live maintenance or scheduling activation.",
       "branch": "codex/dev-023-retention-phase3",
       "worktree": "/private/tmp/flex-dev-023-retention-phase3",
       "starting_sha": "580508a70c80e7fc944e0069f85e67b851a117fa",
-      "current_sha": "fc83508e578ba0aa8ccfca5b7380b99bb64da9df",
+      "current_sha": "fc3cf093ca7520fd33feda483c547ed91e18c6a8",
       "status": "QUALIFIED_NOT_DEPLOYED",
-      "next_action": "Review exact runtime integration, scheduler, and live-maintenance authorization separately; do not execute a purge from this qualification.",
+      "next_action": "Obtain separate explicit authorization before enabling any schedule or executing live retention maintenance.",
       "dependencies": [
         "docs/audits/hot_db_retention_20261002/ retained Phase 1/2 evidence",
         "Development Execution Discipline V2"
       ],
       "source_authority": "580508a70c80e7fc944e0069f85e67b851a117fa plus committed V2 process controls",
-      "configuration_authority": "Synthetic temporary SQLite databases only; canonical target passed explicitly by caller",
+      "configuration_authority": "Synthetic temporary SQLite databases only; config/maintenance/dev023_hot_rpc_cache_retention.json is explicitly disabled",
       "definition_of_done": [
-        "Canonical target and bounded expiry-only contract pass isolated fixtures",
-        "No production database or service action"
+        "Canonical target, one P3 200-row transaction, stop guards, and idempotence pass isolated fixtures",
+        "Runtime schedule remains disabled and no production database or service action occurs"
       ],
       "acceptance_criteria": [
-        "Expired-only preservation, batch cap, disk/WAL guards, write-lane boundary and restart idempotence pass",
+        "Expired-only preservation, 200-row cap, stop-file/disk/WAL guards, P3 write-lane boundary and restart idempotence pass",
         "Existing RPC-cache expiry-index and V2 guard tests pass"
       ],
       "qualification_evidence": [
-        "tests/test_dev023_hot_rpc_cache_retention.py: 4 passed",
+        "tests/test_dev023_hot_rpc_cache_retention.py: 6 passed",
+        "tests/test_dev023_hot_rpc_cache_runtime_integration.py: 9 passed",
         "tests/test_rpc_cache_expiry_index.py: 2 passed",
         "tests/test_dev_execution_discipline_v2.py: 8 passed"
       ],
-      "integration_promotion_status": "QUALIFIED_NOT_DEPLOYED_RUNTIME_INTEGRATION_REQUIRES_SEPARATE_APPROVAL",
+      "integration_promotion_status": "QUALIFIED_NOT_DEPLOYED_SCHEDULING_AND_LIVE_MAINTENANCE_REQUIRE_SEPARATE_APPROVAL",
       "touched_services": [],
       "shared_mutable_state": []
     },

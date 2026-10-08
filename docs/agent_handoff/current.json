@@ -19908,5 +19908,16 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_SHARED_WAL_CHECKPOINT_BLOCKER",
     "next_action": "OBTAIN_EXPLICIT_AUTHORIZATION_FOR_TARGETED_STALE_PYTHON_PROCESS_TERMINATION_AND_BOUNDED_WAL_RECOVERY_VERIFICATION_BEFORE_RETURNING_TO_WATCHTOWER_TARGET_TRANSITION_PREFLIGHT"
+  },
+  "watchtower_wal_holder_termination_preflight_20261008": {
+    "engineering_revision": "Mandatory process-identity verification only; no termination, database, Supervisor, service, provider, listener, source, or configuration action.",
+    "status": "HOLD_WAL_HOLDER_ACTIVE_TASK_OWNERSHIP_AMBIGUOUS",
+    "identity": "PID 72810 still exists: executable Python 3.11, command 'python -', parent PID 50139 (Codex app-server), started 2026-10-08 00:57:55 local, no TTY, approximately 8.4% CPU at inspection. It is not supervisord, the listener, or a managed worker; supervisord is PID 73409 and listener is PID 73415.",
+    "wal_holds": "PID 72810 cwd is the Flex repository and it holds canonical flex_complete_database.db read-only fd 3 plus flex_complete_database.db-wal fd 4 and SHM fd 5. Its WAL was 238,568,632 bytes during inspection. This is consistent with the watchdog's WAL-holder evidence.",
+    "ownership_decision": "The process is an active shared Codex-app child, not a proven abandoned process. The active local collaboration tree contains only this root task, but process metadata cannot prove whether a separate Codex task owns the CPU-active python-stdin process. Under the explicit rule to stop if active-task ownership is ambiguous, PID 72810 was not signalled.",
+    "safety": "SIGTERM=0; SIGKILL=0; Supervisor actions=0; DB/queue writes=0; provider calls=0; service restarts=0; listener changes=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_WAL_HOLDER_ACTIVE_TASK_OWNERSHIP_AMBIGUOUS",
+    "next_action": "IDENTIFY_OR_CLOSE_THE_OWNING_CODEX_TASK_OR_OBTAIN_UNAMBIGUOUS_PROCESS_OWNERSHIP_AUTHORIZATION_BEFORE_ANY_TARGETED_PID_72810_TERMINATION_AND_WAL_RECOVERY_VERIFICATION"
   }
 }

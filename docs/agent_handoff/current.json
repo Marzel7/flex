@@ -20966,5 +20966,19 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "STOP. Separate explicit authorization is required before populating additional retained evidence, using provider acquisition, connecting this read-only seam to live Walkback, or performing any attribution/review write."
+  },
+  "dev019_cascade_29_treasury_subscription_metric_audit_20261008": {
+    "engineering_revision": "Live cascade source 26da06daba23608bd64d5b86cde1f92b24d3a98d; read-only diagnostic.",
+    "status": "PASS_METRIC_CLASSIFIED_READ_ONLY",
+    "metric": "src/core/ws_cascade.py:5328 computes treasury_subs from the local SubscriptionManager.wallet_kind map: the number of entries whose kind is treasury. It is neither physical WebSocket connections nor webhook enrollment.",
+    "runtime_observation": "Observed ws_cascade PID 73417 under supervisord PID 73409, one established TCP/TLS WebSocket connection, and latest heartbeat subs=29, treasury_subs=29, pending=0, pending_treasury=0, reconnect_gen=78, subs_sent_total=2262, subs_conf_total=2262.",
+    "causal_explanation": "wt_confirmed_treasuries has 83 rows; 54 are explicitly no_subscribe=1 and the exact source query at lines 488-495 selects only COALESCE(no_subscribe,0)=0, leaving 29 WebSocket-eligible treasuries. Reconnect logs repeatedly show sent=29 followed by pending=0.",
+    "ack_and_reconnect_limits": "wallet_sub is populated only after the JSON-RPC subscribe response reaches on_subscribe_confirmed (2153-2175); the current heartbeat therefore proves local acknowledgement bookkeeping for 29 addresses, not an independent provider-side liveness query. wallet_kind is set before send and cleared on reset; a transient pending entry could otherwise be counted. reset clears all maps and increments reconnect_gen, while sent/confirmed totals persist for the process lifetime across successful reconnect/resync generations.",
+    "webhook_separation": "The heartbeat producer does not read webhook enrollment or hit tables. The Helius webhook handler is a separate API route (src/core/main.py:33208) and dashboard address counts cannot be equated with the local WebSocket ledger without a separately authorized external configuration read.",
+    "telemetry": "Exact subscribed addresses and request/ack/active/failure state remain unavailable from the running process without the separately qualified bounded read-only telemetry integration; no runtime instrumentation was installed.",
+    "safety": "Provider calls=0; live DB/queue writes=0; source/configuration changes=0 except this handoff; Supervisor/service/listener/WebSocket/webhook actions=0; no promotion or attribution changes; raw payload retention=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only diagnosis only; no executable runtime behavior changed.",
+    "next_action": "STOP. If exact identities or per-address acknowledgement state are required, separately authorize deployment of the already-qualified read-only telemetry candidate and perform its bounded post-deployment observation; do not change subscription limits."
   }
 }

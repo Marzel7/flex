@@ -1,0 +1,43 @@
+{
+  "schema_version": "dev023.runtime-retention.deployment-preparation.v1",
+  "status": "QUALIFIED_AWAITING_EXPLICIT_DEPLOYMENT_APPROVAL",
+  "runtime_source_sha": "e7103c03c07a4e01e15f0bdeb4c680a664c40520",
+  "runtime_source_branch": "codex/dev-023-retention-phase3",
+  "runtime_installation_root": "UNSELECTED_REQUIRES_CLEAN_PINNED_WORKTREE",
+  "proposed_configuration": {
+    "path": "config/maintenance/dev023_hot_rpc_cache_retention.json",
+    "sha256": "d66dfa64bb27702162accde2de73f6fc02b1691b09f27a55f46306f6db96463c",
+    "enabled": false,
+    "scheduler_installation": "NONE",
+    "maximum_rows_per_tick": 200,
+    "priority": "P3_HOUSEKEEPING"
+  },
+  "active_authority_snapshot": {
+    "supervisor_config_sha256": "824655dde4283e79102ebd1282a4de783ebeebef942c01cf39bb0e2dea500c4f",
+    "scheduler_state_sha256": "9bfdc6645e8a486430e0dc6eb4b3203e58324e7ab7807fd3ddc20f89a567a803",
+    "canonical_writer": "watchtower_listener PID 73415 from /Users/kevinkeaveney/Production/flex-listener",
+    "listener_head": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "listener_dirty_path_count": 3
+  },
+  "integration_contract": {
+    "canonical_path": "explicit --canonical-db-path only",
+    "write_lane": "DatabaseWriteService cross-process canonical-db lease",
+    "priority": "P3_HOUSEKEEPING; lower than ingestion and operational writers",
+    "guards": ["disabled by default", "stop file", "4GiB disk floor", "200MiB WAL ceiling", "exact schema", "expiry recheck in DELETE"],
+    "automatic_execution_after_installation": false
+  },
+  "rollback": {
+    "required_live_restore": false,
+    "authority": "no live config or scheduler change has been proposed for installation",
+    "preserve_active_supervisor_sha256": "824655dde4283e79102ebd1282a4de783ebeebef942c01cf39bb0e2dea500c4f",
+    "preserve_scheduler_state_sha256": "9bfdc6645e8a486430e0dc6eb4b3203e58324e7ab7807fd3ddc20f89a567a803"
+  },
+  "installation_effect": {
+    "services_affected": [],
+    "expected_interruption": "NONE",
+    "database_write_possible_during_installation": false,
+    "provider_calls": 0,
+    "supervisor_actions": 0
+  },
+  "next_action": "OBTAIN_EXPLICIT_APPROVAL_OF_A_CLEAN_PINNED_RUNTIME_ROOT_AND_ANY_SCHEDULER_CHANGE_BEFORE_DEPLOYMENT; DO_NOT_ENABLE_OR_EXECUTE_RETENTION"
+}

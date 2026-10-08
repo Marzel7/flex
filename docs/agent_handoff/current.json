@@ -19931,5 +19931,19 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_TARGETED_ORPHAN_PROCESS_RELEASE_AUTHORIZATION_REQUIRED",
     "next_action": "OBTAIN_EXPLICIT_AUTHORIZATION_TO_SIGTERM_ONLY_ORPHAN_PID_72810_THEN_RUN_BOUNDED_WAL_RECOVERY_VERIFICATION_BEFORE_RETURNING_TO_WATCHTOWER_TARGET_TRANSITION_PREFLIGHT"
+  },
+  "watchtower_orphan_wal_holder_release_20261008": {
+    "engineering_revision": "Authorized single-process operational recovery only; no source/config/database/queue/Supervisor/provider/listener mutation.",
+    "status": "PASS_SHARED_WAL_RECOVERED_RETURN_TO_TARGET_TRANSITION_PREFLIGHT",
+    "target_identity": "Immediately before signalling, PID 72810 remained Python 3.11 command 'python -', parent Codex app-server PID 50139, started 2026-10-08 00:57:55 local. It held canonical DB read-only fd 3 plus WAL and SHM handles; its identity matched the confirmed orphaned completed-turn diagnostic exactly.",
+    "action": "One authorized SIGTERM was sent to PID 72810 only. It exited within the 8-second graceful window. No SIGKILL, Codex-app closure, Supervisor command, service restart, DB/queue write, provider call, or listener action occurred.",
+    "wal_recovery": "The existing creator-worker watchdog naturally recorded pre-release WAL=238.9 MB with 60,804 log frames and zero checkpointed frames, followed after release by WAL=0.0 MB, log_frames=0, checkpointed=0, uncheckpointed=0. No checkpoint was forced. PID 72810 was absent after SIGTERM and held no remaining DB/WAL/SHM descriptor.",
+    "worker_and_listener": "The existing worker completed one final expected watchdog self-restart at 01:32:07 from the pre-release pinned state, then Supervisor spawned PID 91107 at 01:32:08. PID 91107 remained present for more than one watchdog interval with no later exit event and WAL=0. Listener continuity is preserved: PID 73415 remained running throughout.",
+    "errors": "Bounded post-release log counters showed no increase in ENOSPC or CrossProcessDatabaseWriteTimeout records relative to the pre-release snapshot. No new critical WAL-pin event followed the natural WAL reset.",
+    "decision": "SHARED_WRITE_PATH_RECOVERED=true and WATCHTOWER_DEPLOYMENT_BLOCKER_CLEARED=true for the identified orphan-WAL-holder failure. This does not itself deploy Watchtower; the required next step is the already-approved complete target-only transition preflight.",
+    "safety": "Only PID 72810 received SIGTERM. SIGKILL=0; Supervisor actions=0; DB/queue writes=0; source/config changes=0; provider calls=0; listener restarts=0; no large artifact created.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "READY_FOR_APPROVED_TARGET_TRANSITION_PREFLIGHT",
+    "next_action": "RERUN_THE_ALREADY_APPROVED_COMPLETE_WATCHTOWER_TARGET_ONLY_TRANSITION_PREFLIGHT_THEN_EXECUTE_ONLY_IF_ALL_CURRENT_INVARIANTS_PASS"
   }
 }

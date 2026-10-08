@@ -20398,5 +20398,15 @@
     "limitations": "The pinned runtime is intentionally unused. No schedule is installed or enabled. A future activation requires separate explicit authority for scheduler configuration and a controlled retention execution gate.",
     "safety": "Supervisor/service/provider/listener/live DB/queue/VACUUM/live purge mutations=0; no files approach 500MB. RUNTIME_DEPLOYMENT_REQUIRED=true; RUNTIME_DEPLOYMENT_GATE=PASS_PINNED_DISABLED_INSTALL_ONLY.",
     "next_action": "STOP_AT_DISABLED_INSTALLATION_BOUNDARY. BEFORE_ANY_FUTURE_ACTIVATION_REVALIDATE_RUNTIME_AND_SCHEDULER_AUTHORITIES_THEN_OBTAIN_EXPLICIT_SCHEDULER_ENABLEMENT_AND_CONTROLLED_LIVE_RETENTION_EXECUTION_APPROVAL; DO_NOT_ACTIVATE_AUTOMATICALLY"
+  },
+  "dev023_first_controlled_live_tick_20261008": {
+    "engineering_revision": "Pinned clean installed runtime e7103c03c07a4e01e15f0bdeb4c680a664c40520 at /private/tmp/flex-dev023-retention-runtime-e7103c03; disabled configuration SHA256 d66dfa64bb27702162accde2de73f6fc02b1691b09f27a55f46306f6db96463c.",
+    "status": "HOLD_RUNTIME_LIMITS_CONTRACT_REJECTED_BEFORE_DATABASE_ACCESS",
+    "preflight": "Exact installed SHA and disabled configuration verified. Canonical database schema matched the reviewed rpc_response_cache contract; fresh cutoff 1791457678 had at least 201 eligible expired rows. Free space was 5,776,748,544 bytes, canonical WAL was 1,730,432 bytes, no retention process was present, scheduler digest remained 9bfdc6645e8a486430e0dc6eb4b3203e58324e7ab7807fd3ddc20f89a567a803, and API health reported healthy=true, database ok=true, wal_warn=false before invocation.",
+    "execution": "The one explicitly authorized enabled invocation used the frozen cutoff and returned {status: REJECTED_INVALID_LIMITS, deleted: 0} before DatabaseWriteService registration, P3 lane acquisition, SQLite connection, transaction, or deletion. The executable adapter rejects max_rows_per_run above 200, while its installed RetentionLimits default is 2000. This internal mismatch prevents the first live tick from reaching the database and is fail-closed.",
+    "safety": "Expired rows deleted=0; non-expired rows deleted=0; P3 write lane acquisition=0; transaction/commit/rollback=0; provider calls=0; Supervisor/service/scheduler/listener/API/bridge/worker actions=0; no VACUUM or checkpoint. A read-only post-check was bounded and its transient diagnostic exited; it is not used as write-path evidence. No new files approach 500MB.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "DO_NOT_RETRY_LIVE_TICK. QUALIFY_AND_PUBLISH_THE_SMALLEST_RUNTIME_LIMITS_CONTRACT_CORRECTION_IN_ISOLATED_DEV_SO_THAT_THE_ENABLED_ADAPTER_ENFORCES_THE_SAME_200_ROW_CAP_AS_THE_RETENTION_CONTRACT; THEN OBTAIN_FRESH_EXPLICIT_AUTHORIZATION_FOR_ONE_LIVE_TICK."
   }
 }

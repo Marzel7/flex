@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "policy": {
+    "max_active_implementation_devs": 2,
+    "one_live_deployment_or_integration_transition": true,
+    "concurrent_changes_to_same_service_or_shared_mutable_state": "prohibited"
+  },
+  "devs": [
+    {
+      "dev_id": "DEV-EXECUTION-DISCIPLINE-V2-20261008",
+      "objective": "Implement deterministic multi-DEV admission, isolation, handoff, and integration controls without changing runtime behavior.",
+      "branch": "codex/dev-execution-discipline-v2",
+      "worktree": "/private/tmp/flex-dev-execution-discipline-v2",
+      "starting_sha": "77e8a55537c98fe34f99a6949f87e8ecb2233ae4",
+      "current_sha": "b8b46de96bf70aaf5685d232a266058121cb828e",
+      "status": "COMPLETE",
+      "next_action": "Use V2 admission before the next implementation DEV.",
+      "dependencies": ["Development Execution Discipline V1 (77e8a55537c98fe34f99a6949f87e8ecb2233ae4)", "Existing parser-only Supervisor isolation safeguard"],
+      "source_authority": "Committed V1 source at 77e8a55537c98fe34f99a6949f87e8ecb2233ae4",
+      "configuration_authority": "Process-only controls; no runtime configuration authority changed",
+      "definition_of_done": ["V2 instructions, register, deterministic offline guard, and regression tests committed", "No Watchtower runtime or live authority changed"],
+      "acceptance_criteria": ["Clean admission accepts; dirty and missing SHA reject", "Two isolated DEVs coexist; shared service ownership rejects", "Launcher and capability omissions reject", "Guard has no Supervisor control path"],
+      "qualification_evidence": ["tests/test_dev_execution_discipline_v2.py: 8 passed", "scripts/validate_dev_discipline.py register: PASS"],
+      "integration_promotion_status": "PROCESS_PROTOCOL_COMMITTED_NOT_RUNTIME_PROMOTED",
+      "touched_services": [],
+      "shared_mutable_state": []
+    },
+    {
+      "dev_id": "DEV-024",
+      "objective": "Prevent auxiliary outgoing-transfer scan timeouts from retrying successful core creator-funding extraction.",
+      "branch": "codex/dev-024-creator-funding-aux-timeout",
+      "worktree": "/private/tmp/flex-dev-024-creator-funding-aux-timeout",
+      "starting_sha": "c3565a9d5c2e5199c5362ac96573246a8d5a42dc",
+      "current_sha": "c3565a9d5c2e5199c5362ac96573246a8d5a42dc",
+      "status": "IMPLEMENTING",
+      "next_action": "Implement and qualify a bounded best-effort auxiliary outgoing-transfer deadline without weakening core failure retries.",
+      "dependencies": ["Development Execution Discipline V2 guard authority 8be99ed28aa2228dc9cec7d63103eab27376086d", "Creator-funding timeout assessment handoff 99932e110efb37e2513316916de9904410c119eb"],
+      "source_authority": "Clean deployed creator-funding source c3565a9d5c2e5199c5362ac96573246a8d5a42dc",
+      "configuration_authority": "No configuration change; DEV-only isolated source qualification.",
+      "definition_of_done": ["Auxiliary outgoing timeout does not retry successful core funding work", "Core failures remain retryable and provider-free regressions pass", "Qualified source is committed, clean, and remote-verified"],
+      "acceptance_criteria": ["No orphaned auxiliary work after cancellation", "Observation-required rows retain incomplete auxiliary evidence without losing core facts", "No live action or provider call occurs during qualification"],
+      "qualification_evidence": ["V2 admission guard PASS", "V2 isolated temporary-path guard PASS"],
+      "integration_promotion_status": "QUALIFICATION_ONLY",
+      "touched_services": ["creator_funding_worker"],
+      "shared_mutable_state": []
+    }
+  ]
+}

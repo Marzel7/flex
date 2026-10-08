@@ -20180,5 +20180,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Targeted incident recovery only; no runtime source or configuration deployment occurred.",
     "next_action": "OBTAIN_EXPLICIT_AUTHORIZATION_FOR_THE_NEXT_SAFE_RECOVERY_ACTION_FOR_STILL-ALIVE_PID_85253_ONLY, OR MANUALLY_RESOLVE_ITS_GRACEFUL_SHUTDOWN. DO_NOT_RESUME_WATCHTOWER_SOAK."
+  },
+  "watchtower_final_orphaned_dev_supervisor_recovery_20261008": {
+    "engineering_revision": "No engineering source change; existing DEV isolation safeguard remains f66c14693ce695b12877f055926bf588a84263ad.",
+    "status": "PASS_ORPHANED_TEMPORARY_SUPERVISOR_ABSENT_ON_REVALIDATION_LIVE_API_NOW_OWNS_PORT_5002",
+    "revalidation": "Immediately before the conditionally authorized SIGKILL, PID 85253 and all previously listed children 85261, 85262, 85263, 85264, 91402, and 91443 were absent. Therefore no SIGKILL was sent: the target identity could not be revalidated as a still-running orphan and signalling a reused/nonexistent PID would be unsafe.",
+    "port_state": "TCP 5002 is not released as an unused port because it is now owned by Gunicorn master PID 95506 and worker PID 95531. Read-only inspection proves PID 95506 is parented by legitimate live supervisord PID 73409, was started at 2026-10-08 09:41:20, and runs from /Users/kevinkeaveney/Dev/claude/watchtower-final-runtime-a32ebba3. This is not an orphan descendant; it is the legitimate managed Watchtower API.",
+    "preservation": "Live supervisord PID 73409 and watchtower_listener PID 73415 remain present with their original command lines. No child process was signalled in this turn. No Supervisor control command, restart, database/queue action, provider call, deployment, monitor activation, or source change occurred.",
+    "decision": "The named orphan temporary Supervisor tree is no longer present. The former port conflict is cleared because port 5002 is held by the legitimate live Supervisor-managed API rather than an orphan. This does not itself authorize or resume the bounded monitor soak.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only conditional recovery revalidation; no runtime source/configuration deployment occurred.",
+    "next_action": "RETURN_TO_THE_SEPARATE_WATCHTOWER_MONITOR_SOAK_PREFLIGHT_ONLY_WITH_EXPLICIT_AUTHORIZATION; DO_NOT_AUTOMATICALLY_ACTIVATE_OR_DEPLOY_ANYTHING."
   }
 }

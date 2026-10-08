@@ -38,6 +38,42 @@
       "integration_promotion_status": "PROCESS_PROTOCOL_COMMITTED_NOT_RUNTIME_PROMOTED",
       "touched_services": [],
       "shared_mutable_state": []
+    },
+    {
+      "dev_id": "DEV-019",
+      "objective": "Recover the previously untracked provider-free treasury-rotation discovery source and tests into a clean, reviewable, remote-backed authority; do not conduct discovery or promotion.",
+      "branch": "codex/dev-019-source-recovery",
+      "worktree": "/private/tmp/flex-dev-019-source-recovery",
+      "starting_sha": "8be99ed28aa2228dc9cec7d63103eab27376086d",
+      "current_sha": "8be99ed28aa2228dc9cec7d63103eab27376086d",
+      "status": "QUALIFYING",
+      "next_action": "Run recovered DEV-019 provider-free regressions, commit the byte-equivalent source with provenance, and remote-verify.",
+      "dependencies": [
+        "Development Execution Discipline V2",
+        "Legacy DEV-019 Phase 1/2/2B contracts",
+        "Manual evidence artifact SHA256 c214598cbda39b374127399310dfb259e0f8af8d6d049bc62b63f7ba962229a3"
+      ],
+      "source_authority": "Clean V2 baseline 8be99ed28aa2228dc9cec7d63103eab27376086d plus explicitly labelled byte-exact recovery of previously uncommitted source; the recovered files are not asserted to have belonged to the frozen baseline.",
+      "configuration_authority": "No runtime configuration; provider-free isolated tests only.",
+      "definition_of_done": [
+        "Recovered files match the observed originals byte-for-byte",
+        "Provenance labels the files previously uncommitted",
+        "Provider-free DEV-019 and V2 guards pass",
+        "The new source authority is committed and remote-verified"
+      ],
+      "acceptance_criteria": [
+        "No live mutation or provider call",
+        "No treasury or membership promotion",
+        "Dirty checkout unchanged",
+        "A clean remote-resolvable engineering commit"
+      ],
+      "qualification_evidence": [
+        "V2 admission guard PASS",
+        "V2 isolated test-path guard PASS"
+      ],
+      "integration_promotion_status": "SOURCE_RECOVERY_ONLY_NOT_RUNTIME_PROMOTED",
+      "touched_services": [],
+      "shared_mutable_state": []
     }
   ]
 }

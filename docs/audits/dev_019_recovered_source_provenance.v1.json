@@ -1,0 +1,37 @@
+{
+  "artifact_version": "DEV_019_RECOVERED_SOURCE_PROVENANCE_V1",
+  "work_id": "DEV-019",
+  "status": "RECOVERED_PREVIOUSLY_UNCOMMITTED_SOURCE_PENDING_QUALIFICATION",
+  "starting_authority": "8be99ed28aa2228dc9cec7d63103eab27376086d",
+  "original_location": "/Users/kevinkeaveney/Dev/claude/flex",
+  "source_files": [
+    {
+      "path": "src/ops/treasury_rotation_discovery.py",
+      "original_sha256": "1cdc693331ddf83eaa84759829ad3bd1848be6aea09016b1a4b0703e93e12602",
+      "original_size_bytes": 15096,
+      "original_mtime_utc": "2026-09-25T20:13:23Z"
+    },
+    {
+      "path": "tests/test_dev_019_treasury_rotation.py",
+      "original_sha256": "4760f6705d19a084780881b7f2c16d4e42a685c0227558c5b2fbae8374114db3",
+      "original_size_bytes": 10367,
+      "original_mtime_utc": "2026-09-25T20:13:57Z"
+    }
+  ],
+  "manual_evidence_reference": {
+    "path": "docs/audits/dev_019_watchtower_treasury_mesh_manual_rpc_findings.v1.json",
+    "sha256": "c214598cbda39b374127399310dfb259e0f8af8d6d049bc62b63f7ba962229a3",
+    "copied_into_recovery_commit": false
+  },
+  "limitations": [
+    "The recovered files were not present in the starting authority or frozen Watchtower baseline.",
+    "Prior uncommitted provenance cannot establish a historical commit identity.",
+    "Recovery does not qualify live discovery, treasury confirmation, operation membership promotion, provider acquisition, or runtime deployment."
+  ],
+  "safety": {
+    "provider_calls": 0,
+    "live_database_queue_writes": 0,
+    "supervisor_service_actions": 0,
+    "raw_provider_or_block_retention": false
+  }
+}

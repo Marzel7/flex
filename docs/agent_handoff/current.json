@@ -19866,5 +19866,19 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_PROVEN_SHARED_WRITE_PATH_FAILURE",
     "next_action": "OBTAIN_EXPLICIT_AUTHORIZATION_TO_REMEDIATE_OR_ACCEPT_SHARED_STORAGE_WRITE_PATH_RISK_BEFORE_ANY_WATCHTOWER_TARGET_TRANSITION"
+  },
+  "watchtower_storage_retention_reuse_assessment_20261008": {
+    "engineering_revision": "Read-only reuse assessment only; no storage remediation or runtime action executed.",
+    "status": "HOLD_EXPLICIT_LIVE_CACHE_PURGE_AUTHORIZATION_REQUIRED",
+    "existing_storage_dev": "DEV-023 Hot database retention and storage growth control, documented on the classification-attribution-axis line with base 580508a70c80e7fc944e0069f85e67b851a117fa and planning handoff 0a7a2901cc9f066bee060f65d569d34b4b8f13c8. The qualified artifacts are docs/audits/hot_db_retention_20261002/dev023_phase1_dry_run.v1.json and dev023_phase2_rpc_cache_purge.v1.json.",
+    "reusable_fix": "DEV-023 Phase 2 is a bounded live canonical-db rpc_response_cache expiration purge. It uses a fresh cutoff, mode=ro candidate scan, BATCH=200 short priority-3 write-lane transactions, 0.25-second pauses, and stops before/at free-space floor, WAL over 200 MiB, SQLITE_FULL/I-O errors, persistent busy, schema mismatch, or a stop-file. It deletes only rows satisfying cached_at + ttl_seconds <= frozen cutoff; no VACUUM, other table, runtime source, or service action is part of the procedure.",
+    "qualification_and_limit": "The prior execution deleted 547,000 expired cache rows with no non-expired deletion and no long exclusive lock, then stopped safely at the WAL guard. It created about 9.76 GB of SQLite freelist pages for reuse but reclaimed zero filesystem bytes, as expected without VACUUM. Therefore it directly addresses the retention-target mismatch and future canonical-db growth, but cannot alone prove that the current null-owner CrossProcessDatabaseWriteTimeout is resolved.",
+    "current_blocker": "The current Watchtower gate remains blocked by repeated creator-resolution exit-status-1 events, canonical write-lock timeout/ENOSPC evidence, declining free space, and no post-remediation write-path stability proof.",
+    "minimum_remediation_and_evidence": "A newly authorized DEV-023 Phase-2 run must use its built-in fresh target/schema/keep-rule/free-space/WAL preflight and stop guards, with no VACUUM. Recovery evidence must then show no purge stop on FULL/I-O/persistent-busy, canonical DB readable, no new ENOSPC errors, and creator_resolution_worker remaining stable through a bounded observation window before the full Watchtower target-transition preflight is repeated.",
+    "authorization_required": "Yes. Although the cache rows are classified rebuildable and the historical DEV-023 run was separately authorized, executing the deletion now is a live database mutation and requires a new explicit authorization. This assessment did not invoke the script.",
+    "safety": "No database/queue mutation, cleanup, Supervisor action, provider call, source change, listener change, or large artifact occurred.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_EXPLICIT_LIVE_CACHE_PURGE_AUTHORIZATION_REQUIRED",
+    "next_action": "IF_AUTHORIZED_EXECUTE_ONLY_DEV023_PHASE2_FRESH_GUARDED_EXPIRED_RPC_CACHE_PURGE_THEN_VERIFY_WRITE_PATH_AND_CREATOR_WORKER_STABILITY_BEFORE_RETURNING_TO_WATCHTOWER_TARGET_TRANSITION_PREFLIGHT"
   }
 }

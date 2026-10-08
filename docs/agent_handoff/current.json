@@ -19781,5 +19781,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Original configuration and original program definitions were restored unchanged after incident shutdown.",
     "next_action": "STOP. MAINTAIN ORIGINAL RUNTIME; ANY WATCHTOWER DEVELOPMENT, API REPAIR, OR DEPLOYMENT REQUIRES A NEW EXPLICIT AUTHORIZATION."
+  },
+  "supervisor_dev_isolation_enforcement_20261008": {
+    "engineering_revision": "b6814934f78b9bab54815d1c0383f60ddc1709b5 on origin/codex/supervisor-isolation; dedicated clean DEV worktree based on 580508a70c80e7fc944e0069f85e67b851a117fa",
+    "status": "PASS_TECHNICAL_DEV_SUPERVISOR_ISOLATION_ENFORCED",
+    "implementation": "src/utils/supervisor_isolation.py is a reusable no-control-execution guard. It requires an explicit flattened temporary config, resolves %(here)s, rejects other interpolation/environment fallback, requires matching unix_http_server and supervisorctl UNIX-socket paths plus a distinct PID path inside the unique temporary root, resolves aliases/symlinks, and rejects protected live config/socket identities. It rejects include sections as uninspected inherited authority. It never imports subprocess or opens a socket. scripts/validate_supervisor_config_isolated.py exposes offline-only validation and never constructs a supervisorctl argv.",
+    "regression": "tests/test_supervisor_isolation.py: 8 passed. Synthetic cases cover the incident shape (isolated server socket plus inherited live control endpoint), valid fully isolated offline config, missing control endpoint, protected production config, relative endpoint, symlink alias, environment fallback, default-config fallback, uninspected include, unavailable/non-UNIX socket, and a mocked verified temporary UNIX socket. The guard returns only an argv and never executes it.",
+    "instructions": "AGENTS.md now mandates the technical guard for all DEV Supervisor config/control work, forbids production config/endpoint validation, and requires offline validation to avoid supervisorctl. Codex instruction discovery is verified by the repository-root AGENTS.md presence and direct post-change read in the dedicated worktree.",
+    "safety": "No live Supervisor command, reread/update/restart/shutdown, service action, DB/queue write, provider call, port bind, or runtime configuration change occurred during implementation/testing. Tests use temporary files/mocks only; no storage-producing feature or artifact was added. RUNTIME_DEPLOYMENT_REQUIRED=false because this is a DEV validation safeguard that is not installed into the active runtime.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "DEV-only guard, test, script, and agent instruction; no active executable/runtime target was changed.",
+    "next_action": "STOP. USE b6814934 AS THE REQUIRED DEV SUPERVISOR ISOLATION GUARD IN ANY FUTURE SUPERVISOR-RELATED WORK; DO NOT RESUME WATCHTOWER DEPLOYMENT WITHOUT SEPARATE AUTHORIZATION."
   }
 }

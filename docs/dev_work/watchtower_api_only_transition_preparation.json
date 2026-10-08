@@ -1,0 +1,25 @@
+{
+  "schema_version": "watchtower-api-only-transition-preparation.v1",
+  "status": "PREPARED_NOT_APPROVED_NOT_DEPLOYED",
+  "candidate_source_sha": "af13b8a87a0eb1131cd9c0f4baf997d268aa6886",
+  "candidate_source_root": "/private/tmp/watchtower-api-acceptance-fix",
+  "live_root_config_sha256": "8e39eef8e969ad2896095702846103dc44038a71c4b5bcd3d6a473ab9e04b8ff",
+  "prepared_config_sha256": "5c216c9a019c58d62a5fc91fdeedf178c10c47ca5e75b9559cf9cc5637fa2dbe",
+  "rollback_config_sha256": "8e39eef8e969ad2896095702846103dc44038a71c4b5bcd3d6a473ab9e04b8ff",
+  "program_count_before_after": [14, 14],
+  "changed_programs": ["watchtower_api"],
+  "worker_stanza_before_after": [0, 0],
+  "listener_stanza_byte_identical": true,
+  "all_non_api_program_stanzas_byte_identical": true,
+  "shadow_capture_enabled": false,
+  "plus_two_activation_enabled": false,
+  "offline_isolation_validation": "PASS",
+  "live_actions_if_separately_approved": [
+    "verify current root SHA still equals live_root_config_sha256",
+    "atomically install prepared config with rollback artifact retained",
+    "Supervisor reread",
+    "Supervisor update watchtower_api only"
+  ],
+  "worker_action": "none; no operation_monitor_worker stanza exists in the current authority",
+  "listener_action": "none"
+}

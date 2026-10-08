@@ -1,4 +1,15 @@
 {
+  "watchtower_monitor_missing_assignment_timestamp_gate_20261008": {
+    "engineering_revision": "Installed monitor runtime a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d; isolated provider-boundary regression d44e561e63487ff813b48539bda659787294eeed on origin/codex/watchtower-monitor-provider-budget-config.",
+    "status": "PASS_FAIL_CLOSED_QUEUE_SAFETY_PROVEN",
+    "finding": "Read-only inspection found 59 pending Watchtower envelopes with no assignment.assigned_at; all are WATCHTOWER_TERMINAL_ATH_FINALIZATION records. The actual worker is launched with watchtower_continuous_monitor_watermark.v1.json, mode DEV_005_ISOLATED_SOAK and minimum_assignment_timestamp=1791446333. MonitorQueue.claim evaluates soak_allows before moving a pending record to processing, and process_once repeats that guard before every provider-capable branch. Direct evaluation of all 59 installed envelopes returned blocked=59, allowed=0. The immediate provider admission and transport are therefore unreachable for every timestamp-missing record.",
+    "authority": "Each of the 59 mints has one retained canonical Watchtower membership with an assigned_at value; all 59 values are below watermark 1791446333. The envelopes contain neither assignment event_id nor assigned_at, so the worker does not use those mint-only source rows to reconstruct a timestamp. This is safely conservative: the current guard rejects the envelope before provider admission rather than deriving mutable queue state.",
+    "four_targets": "The four retry envelopes remain untouched and independently eligible: 9JtPfLbN32CszHmstoXYdWaazFLaoxhfqf9mKgQMpump=1791476569, 7JVDPbS8iYHoUD4yWYxQH9yHcop5oPeBnfBvXkiqpump=1791478464, 6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump=1791480358, and 6LdjC13zbAxmruKrqsAQ4znUrjNe7gXXVeCHDBMYpump=1791482713; each is post-watermark and soak_allows=true.",
+    "qualification": "Provider-free regression passed 27/27: test_watchtower_monitor_bounded_soak.py and test_supervisor_isolation.py. A worker-loop provider-boundary spy covers absent, null, malformed and pre-watermark assignment times; each remains pending with zero provider-admission and zero transport calls. No provider calls, live DB/queue writes, Supervisor actions, configuration changes, restarts, replay, or watermark changes occurred.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUEUE_SAFETY_PASS_BUDGET_ONLY_TARGETED_TRANSITION_MAY_PROCEED_WITH_FRESH_PREFLIGHT",
+    "next_action": "If the already-authorized budget-only worker transition is resumed, repeat its complete fresh preflight, keep the queue unchanged, install only config SHA256=67c419a3f2dfcb92c5c82a94bfef24c9a4c7c8c9f2f68553ae4e4eae848bc321, and update only operation_monitor_worker."
+  },
   "watchtower_monitor_provider_budget_deployment_attempt_20261008": {
     "engineering_revision": "Qualified candidate config 67c419a3f2dfcb92c5c82a94bfef24c9a4c7c8c9f2f68553ae4e4eae848bc321 and regression commit ecad24c59002eded409e711d724d2d62d2cd8fba; no live change executed.",
     "status": "HOLD_QUEUE_WATERMARK_ELIGIBILITY_UNPROVEN",

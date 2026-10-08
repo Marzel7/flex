@@ -1,0 +1,46 @@
+{
+  "fixture_version": "DEV019_AMQ_8CUB_TEMPORAL_COUNTEREXAMPLE_V1",
+  "purpose": "Provider-free regression fixture. Compact verified facts only; no raw RPC payload.",
+  "amq_to_8cub": {
+    "status": "VERIFIED_DIRECT_FUNDING",
+    "sender": "AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX",
+    "receiver": "8CUbQw5zjzR1hvExdRQLcS6MpdCHprp6ohwPBYfoWTHM",
+    "lamports": 770000000000,
+    "signature": "8qCeourrr6yvpQJ19vWq8g41MHXLhHhpPxfEJaqRbqMPcrYSGRfnvSTNdhD2KK3SWvAAD5paKox7oCJBPpsCNBY",
+    "slot": 454516004,
+    "transaction_index": 1118,
+    "instruction_index": 2,
+    "balance_delta_verified": true
+  },
+  "creator_to_2bvf": {
+    "status": "VERIFIED_DIRECT_ECONOMIC_TRANSFER_NOT_CANONICAL_CREATION",
+    "sender": "6eKxDUjCHU9h2tHgRqDSuACf21zDu8WP9q2NJM6njzcr",
+    "receiver": "2BVfJ4AHMvHdKtEZNHaBr48dQzTfZvYkjaaxbM6bpump",
+    "lamports": 939800,
+    "signature": "5xnbdnmH5fq87PirtKmR8wgPbikj3qRwr8Zw2cm3n6ezmxtTEtuRcLHFjsascL82tXKgpWA6VLLPbsKKCxx3nGYY",
+    "slot": 453983182,
+    "transaction_index": 1190,
+    "instruction_index": 2,
+    "inner_instruction_index": 9,
+    "balance_delta_verified": true,
+    "canonical_creator_launch": false
+  },
+  "8cub_to_creator": {
+    "status": "NOT_ESTABLISHED_COMPLETE_COVERAGE",
+    "coverage": "THREE_COMPLETE_20_SIGNATURE_WINDOWS"
+  },
+  "wsol_context": {
+    "status": "ACCOUNT_CLOSE_CONTEXT_NOT_DIRECT_FUNDING",
+    "signature": "tffsqukTUQRPAfZ3k1uPwW9QzCFkyjK7Q6LoZmjEHjYhD5XAeLVKVodFUvY7th6LQyfWzx7emLoN9GesS7pXucq",
+    "slot": 453983180,
+    "transaction_index": 186,
+    "sender": "AzcCP7TCcngSfhMgYeh2jJHehk3qVAk1FrD2wSBPEbDA",
+    "receiver": "6eKxDUjCHU9h2tHgRqDSuACf21zDu8WP9q2NJM6njzcr",
+    "balance_delta_verified": false
+  },
+  "expected": {
+    "later_amq_funding_cannot_explain_earlier_creator_to_launch_transfer": true,
+    "complete_route_proven": false,
+    "treasury_or_membership_promotion": false
+  }
+}

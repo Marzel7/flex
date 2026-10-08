@@ -1,4 +1,6 @@
+import json
 import sqlite3
+from pathlib import Path
 
 from src.ops.treasury_rotation_discovery import *
 
@@ -233,3 +235,30 @@ def test_page_boundary_is_available_even_when_first_decode_would_fail():
     coverage = signature_window_coverage(page_signatures=["sig-a", "sig-b"], decoded_signatures=[])
     assert coverage["status"] == COVERAGE_INCOMPLETE
     assert coverage["missing_signature_count"] == 2
+
+
+def test_amq_8cub_temporal_counterexample_preserves_edges_but_rejects_combined_route():
+    fixture = json.loads((Path(__file__).parent / "fixtures" / "dev019_amq_8cub_temporal_counterexample.v1.json").read_text())
+    later_funding = fixture["amq_to_8cub"]
+    earlier_economic_event = fixture["creator_to_2bvf"]
+    # Individual verified direct transfers remain usable compact facts, but
+    # their actual slot order forbids treating the later funding as cause.
+    assert later_funding["balance_delta_verified"] is True
+    assert earlier_economic_event["balance_delta_verified"] is True
+    assert causal_order(earlier_economic_event, later_funding) == (False, "PARENT_AFTER_CHILD_SLOT")
+    assert fixture["8cub_to_creator"]["status"] == "NOT_ESTABLISHED_COMPLETE_COVERAGE"
+    route = qualify_mesh_route(
+        treasury={"wallet": "treasury", "slot": 1, "transaction_index": 0, "instruction_index": 0, "signature": "t"},
+        transfers=[{"sender": "treasury", "receiver": "8CUbQw5zjzR1hvExdRQLcS6MpdCHprp6ohwPBYfoWTHM", "slot": 2, "transaction_index": 0, "instruction_index": 0, "signature": "f", "balance_delta_verified": True}],
+        creator_launch={"creator": earlier_economic_event["sender"], "slot": earlier_economic_event["slot"], "transaction_index": earlier_economic_event["transaction_index"], "instruction_index": earlier_economic_event["instruction_index"], "signature": earlier_economic_event["signature"], "status": "CONTEXTUAL_CREATOR_AND_MINT_COLOCATION"},
+    )
+    assert route["route_complete"] is False
+    assert route["reason"] == "CREATOR_LAUNCH_LINK_UNAVAILABLE"
+    assert fixture["wsol_context"]["status"] == "ACCOUNT_CLOSE_CONTEXT_NOT_DIRECT_FUNDING"
+    assert earlier_economic_event["canonical_creator_launch"] is False
+
+
+def test_incomplete_exact_signature_coverage_cannot_establish_8cub_creator_absence():
+    coverage = signature_window_coverage(page_signatures=["tffs", "missing"], decoded_signatures=["tffs"])
+    assert coverage["status"] == COVERAGE_INCOMPLETE
+    assert coverage["missing_signature_count"] == 1

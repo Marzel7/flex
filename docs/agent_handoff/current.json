@@ -19894,5 +19894,19 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_CREATOR_WORKER_WRITE_PATH_NOT_RECOVERED",
     "next_action": "OBTAIN_EXPLICIT_BOUNDED_CREATOR_RESOLUTION_WORKER_FAILURE_DIAGNOSIS_AUTHORIZATION_BEFORE_RETURNING_TO_WATCHTOWER_TARGET_TRANSITION_PREFLIGHT"
+  },
+  "watchtower_creator_resolution_wal_pin_diagnosis_20261008": {
+    "engineering_revision": "Read-only crash diagnosis only; no source, database, Supervisor, service, provider, or listener mutation.",
+    "status": "HOLD_SHARED_WAL_CHECKPOINT_BLOCKER",
+    "latest_crash": "The 01:28:06 local exit has no exception traceback because it is an explicit watchdog self-exit, not an unhandled OSError. Production creator_resolution_worker.py _wal_watchdog records CRITICAL_WAL_PINNED and invokes os._exit(1) at line 290 when WAL is at least 64 MB and stalled for 3 60-second cycles. The exact 01:28 record: WAL=208.0 MB, log_frames=52,930, checkpointed_frames=0, uncheckpointed_frames=52,930, stalled_cycles=3; it states the worker is exiting for clean restart.",
+    "comparison": "The 01:24:05 predecessor is the same failure class: WAL=155.9 MB, log_frames=39,686, checkpointed=0, stalled_cycles=3, then deliberate clean restart. These are not current ENOSPC crashes. The earlier ENOSPC/write-timeout evidence remains historical context, but the current recurring cause is a pinned WAL with no checkpoint progress.",
+    "failing_operation_and_resource": "The failing safety operation is _wal_watchdog checkpoint-progress monitoring against /Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db-wal. At the latest failure, process provenance lists a long-running 'python -' PID 72810 as a WAL holder; read-only process inspection shows it is a Codex-app child started at 00:57:55 local with canonical DB fd 3 read-only plus the WAL and SHM open. Its parent is the Codex app-server. The listener is also an observed holder in the prior 01:24 incident, but no listener self-exit is evidenced.",
+    "shared_infrastructure_impact": "This is shared canonical-DB infrastructure. The reviewed candidate watchtower_api and operation_monitor_worker both explicitly configure DB_PATH/FLEX_DB_PATH to the same canonical DB. Existing api_err.log also contains CrossProcessDatabaseWriteTimeout records. Therefore the fault materially threatens target API acceptance, even though the listener itself has not exited.",
+    "classification": "SHARED_WRITE_PATH_BLOCKER",
+    "minimum_next_action": "Obtain explicit authorization to terminate only the identified stale Codex-app python-stdin process PID 72810 after confirming it is not an active user task, then observe one bounded watchdog interval for WAL checkpoint advance, absence of CRITICAL_WAL_PINNED, and creator-worker stability. No source correction is indicated by the current evidence.",
+    "safety": "Read-only log, process, open-file, source, and candidate-config inspection only. No Supervisor action, database/queue write, service restart, provider call, listener change, or large artifact occurred.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_SHARED_WAL_CHECKPOINT_BLOCKER",
+    "next_action": "OBTAIN_EXPLICIT_AUTHORIZATION_FOR_TARGETED_STALE_PYTHON_PROCESS_TERMINATION_AND_BOUNDED_WAL_RECOVERY_VERIFICATION_BEFORE_RETURNING_TO_WATCHTOWER_TARGET_TRANSITION_PREFLIGHT"
   }
 }

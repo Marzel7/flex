@@ -74,3 +74,13 @@ runtime action or replaces the existing Supervisor isolation safeguard.
    authority, parser-only isolation, and byte-exact rollback. A missing or
    disabled component is never operational without documented proven-equivalent
    evidence. Live mutation still requires separate explicit approval.
+6. **Keep an admitted DEV on its objective.** Classify new work as `IN_SCOPE`
+   when it directly advances the admitted objective or acceptance criteria, or
+   `SUPPORTING` when it is reasonably necessary to do so; proceed within the
+   existing safety boundaries and record a brief Supporting rationale in the
+   normal handoff. Classify independently valuable, unnecessary work as
+   `OUT_OF_SCOPE`: preserve a compact finding and evidence reference, add it to
+   the existing backlog when appropriate, and return to the admitted objective.
+   Do not create another DEV, branch, worktree, approval gate, or implementation
+   solely for an Out-of-Scope finding. Ask only when that relationship is
+   genuinely ambiguous or a protected safety boundary would be crossed.

@@ -1,0 +1,952 @@
+{
+  "canonical_writes": 0,
+  "confirmed_treasury_count": 83,
+  "counts": {
+    "ACTIVE": 17,
+    "ACTIVITY_UNKNOWN": 0,
+    "DORMANT": 14,
+    "HOT": 2,
+    "RETIRED_CANDIDATE": 50
+  },
+  "elapsed_ms": 30134,
+  "entries": [
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782132886,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "2NjUHDwRgGuPuV1ySzxKSWiwshzxHmREgEDm1TpfMUSp"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1789386207,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782768280,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "2q5AhMTgi4TLqXM7ttPJ3Fbjdke1sSc6En83pE2NmfzW"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1790093939,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "2qZ3GCHZSsDJYoicsM6fsgiqTeWUc8j3VrpfTM4iFkSk"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1790583328,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "2vBd5o7ppBLVXo2TyTfSXhWgK9LMKxEszuNFLU7ZKnUz"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782444904,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "2xAjKEMrtnmSuiXaPnXLKwv5JBF5vGsFds5ZLGPtvpTG"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782455127,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "3G4if2m4SJYKfCDiA988h23Ai4ynmaSJ2XRzsD7mttUY"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1781795498,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "3gfET8K7KdGmkf18Q5HvkwijagdaKmDbZNZ5SWvzJDQJ"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1781053460,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "3sStXWrDYHSnHhY1cbjRNR23pF24W9jK6T8LnaP85TMm"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": 1782803285,
+      "last_transaction_at": 1782803285,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "41ivupbW3qgz4BhbBaDPvQXUbiVsnW7kuivSriupQs2T"
+    },
+    {
+      "activity_class": "DORMANT",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1785546738,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "4231KLYipwRTmFdQ6ZBa1H4Jf3EpfF62Gzg6DWHWvhPZ"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": 1783609268,
+      "last_transaction_at": 1783609268,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "43PKjr22AFXtCMmLtQ1wxYojnjqEB86iFKK5qUYo3y3D"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1781058800,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "44o1Hecb4QUhqcRNYJBC6XZoeHWzkWAvenR5YYHRGbFM"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1780787920,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "44orWS68MqXG198M3YXyZoNrYtsNhgnNhtUT5SavqJFM"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1790007100,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "48qG4qAfVJwMRXYaRT7cRhzqs2nA3tMEibwW6PvgtPbd"
+    },
+    {
+      "activity_class": "DORMANT",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1788253476,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "4GJ7ezwRbEYE124oaELb3522dfsy6ykQr5YLuv7i5Wot"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782184526,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "4pmLWgtgrUUShZsn1CMDBsDaBBF1v7MuAB1VqUobTkzi"
+    },
+    {
+      "activity_class": "DORMANT",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1784214955,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "53n3huLjhpAz2UXJumztFpDsoHSDVTFwRYv1qhn9R5VU"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782435375,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "5JWii73Qc9FzHy5jHqpt93JpJTQgSkvgmDvDTa5Qvezf"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782205507,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "5K21STbbJAQiCaxnbioTgCQi2ScAhVw9foRsUfVuCaug"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782730551,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "5Wtj8yjNA7stmBSoUd4X4AVSjCVpFGnRmHBn4gDsT1LZ"
+    },
+    {
+      "activity_class": "DORMANT",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1785545269,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "5nTJWTSozPMWR7im9aBCeDE7y22K7ePW3TDToTpP9bGo"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782042869,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "63yAfCYjS44c8J1JxDKzEL8VfkuKdxq7JRuWsYNGtH7H"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782459792,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "68E7sGHtjdLsurrCMCXHZunimkei3Nyc6paTAMHyUey3"
+    },
+    {
+      "activity_class": "HOT",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1791471334,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "69SNcRC8NqjHBSXEcugCN5oFKRQoKmddmWzZYc3tqtxk"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782926717,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "69dCfS33dfwir7d4ngtc4M77ZwAChd4FiKrUQJquHFPh"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782095953,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "6RKvNPeqSameSLLRbdxo4sCB6QRvcaePSF2kzoJXoeBR"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782566448,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "6c2caXQUACfMDQzWKFZG3nVkpa3v3Vug7bZn5FNQNB9z"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1779412563,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "6jeT3WyrfwLxox3yAmchDg7ZQvS8XK8XXbkviPUudUW1"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1790043142,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "6qFhFhzJpiLLwmnXz89PcXrwVKW5oWneAXgydZGjzL2T"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782217520,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "79gKAtJeD4vJUcyooDFeGHXLDFz4ZETvhpUxtBzURVUW"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1789902784,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "7DAKhbo2F732q6vowH41vsDccmJLBCxM1o42jTT2pbWj"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782378869,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "8APohcdPhfUr2jUwTzsXPzA5eagTJPJwh3pJxh7c1EkJ"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1789784404,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "8QYZXW9SZ2Jrig4Nz9rNs4Q7d4jZEXgvBmAWmfLB4Uqg"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782097878,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "8j9TWxhYwnuWbKoZBpgGrpk6eP6ycmcZ3fc6o9eRi6F9"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782849143,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "8nS9EPBkuSzvaRnGg6d4RFWZr3nhnATKm5rY5A2DxSyD"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1781748496,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "8vPZ6ds7KE2ZJTKkdqTkoRjnHQ6PysmxgYfnUb8oprZt"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1790052844,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "95CWSdMoxJDftXnvbRbNuZnfQm4K83MnYjVjB3teRYoj"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782459887,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "9FXhQ6XFvSmwyVVLLccXmYY6zHjMaqY3RNJbsLVsEDDM"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782574906,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "9YqnAddeEiavnnvckLXvNAWVXY8rDMU2GNMrSqkHhh7w"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1789886148,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "9Z1kCj47sDS8vSiuexEfwronpuB7HTnfZTCCgkjZJqdw"
+    },
+    {
+      "activity_class": "DORMANT",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": 1785046025,
+      "last_transaction_at": 1785046025,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "9gv9vLtP1WxM7hgMbg4XsV6XLBNniKt8eFbbDqNcPDN1"
+    },
+    {
+      "activity_class": "DORMANT",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1784202715,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "9hGcxVHFajR4xMZVUBQBwbxN2J3tt1aXE5KrUB87EZk4"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782212560,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "9ygpujyfV7QvgnFNRBJKt9aQuABUtWDtvQXDXQqTpVnA"
+    },
+    {
+      "activity_class": "DORMANT",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1787626195,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "AJy7tZtXA1xs8HAndEDGGiXyXiMV5ecFvWSLTvcyfBQu"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782162240,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "Aab9JeCns9ZZVGDkDmW6kHgkokmJDuUHPXSyBPjBkAXz"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1789584052,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "B8jd1AcN86Q7AEMsJTJZbrQr1z9svBCp5HN4Xq76jcVK"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1790058059,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "BSiGiKj2B9hase9odZkuYUyhY3HDVi2G58k16kV7J2Bi"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782217535,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "BgkFoKD34xU8Zgt2mvH8jcPRq7xDN4rcPAK8sB25Km7t"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1789705515,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "BpMXyWqCDoewwsh4YYzQdQqn7LVjb2rWXjEHXm1oQfqa"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782742943,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "BwyYPqjERr2QtoFWgvqPrM72Z58zUsKnrbVP1jz7FpsX"
+    },
+    {
+      "activity_class": "DORMANT",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1788452614,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "CfqL3KWt5UVruYTLihjU1jMM9CQySQnMpSPknK3KhpKY"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1781681443,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "Cgwr5FAa6d39tqJXKgDkxhopgJuuJA6s8bZfZGY9hkTe"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1790070279,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "Cwmb4pSPpMr9BC7SwW59qJnZtDzQX3GGkuHkuui542px"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782636838,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "DGvdQEPt6jchkXBb1CyLfK4NwdCckVXyBZotbGRSDdhd"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1789818450,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "DLckLF17wMNLTimQ6mfLLNVuxiUKwwWRNm7b4s8z4Wub"
+    },
+    {
+      "activity_class": "DORMANT",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1788440994,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "DWcwP6adanQuTD7SVHcqWXd9RS2F3macSUGFZhkBB8Tv"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": 1790841896,
+      "last_transaction_at": 1790841896,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "DEEP_DISCOVERY",
+      "treasury": "DWmF2xCu739paiMCxEUtczYADQuUxvLFnpHKnaSAH1mG"
+    },
+    {
+      "activity_class": "DORMANT",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1785594329,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "DchJquEZzM6VqBaxhA9i7r3qAUngPggQJHoTBhwdFEUK"
+    },
+    {
+      "activity_class": "DORMANT",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1784216905,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "Dtwi1eLMTLaUuCwbztpFEoepBdzhjhjmLoTyAdsR3p3u"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": 1780249177,
+      "last_transaction_at": 1780249177,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "Dw7xNxxwuBnTfpwSrZMhcAQqFp4XNe9XNaVhhsvyx6Da"
+    },
+    {
+      "activity_class": "DORMANT",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1784063580,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "EFKVdKPrxMpofZMkPBWNe9Jp3hREmtoMZmNo7yFAMUo5"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782225063,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "EiR6Xut2tQXAnApMhuUVJNvYiruqD8ZoqP4MUnEFggq3"
+    },
+    {
+      "activity_class": "DORMANT",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1788235656,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "En4ZBKdKnQ8CqaiPmtZkWGctkAgNN2y1QmMJQJkZ5rtK"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782473553,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "Fh1mPt2Dj2gB8qh4ZCSv6ksc1KruBNVPPUKE4ao6ZsFG"
+    },
+    {
+      "activity_class": "DORMANT",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1785546117,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "FkccGTEh6tJe7FGg3hk1dMsz67FDKr5aMh6CWYnTu1f8"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1789735116,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "FqtLm1HuKF6mkC8XVUaUHEVaN57BTu9NSQ32ycEnQ15U"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1781565373,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "G2CQewGxgMrriQ5dRq557neaCVFZzY3bDsvSCBnGewPZ"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782096141,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "G3Y56heQgF7AzEwymrcESF3H7R9awu1DsyvBqPBVUtia"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782695055,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "G5w3MqqMMdpFzZBi922C8694JPmPneAuLyxMA85Wiv6e"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782212396,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "G8en7Bm6SgzdRjDJsD1q6jy1Kc2LH77A47MnvAueXJAy"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1781977082,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "GU5BWBzPX6pVkc2kGc7KmtsyDt4QfbmHLCbB1gFcEn1V"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782566433,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "GX6cS9dqPPmGBVEFAxG9geCaiqqPmTDe2mDYCecsXD7w"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782051124,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "GbRtQ5Z2Jz39vP23wmGkSaCpdtJKorhhsKmtBTnFhSnQ"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782443189,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "Gx6Ceoj1T2EacbqEFYVH2pHeoE4jjiVwhiAK6Jn1DyfA"
+    },
+    {
+      "activity_class": "HOT",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1791465838,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1789963704,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "H1BHDg9X4twYRwUedV9szqoKzQrruat6FCK98Y7Vh5iT"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782188834,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "H3DySPxN2saEHdtdbu5xFg81oEycNDEeSAnE1G7t1JaL"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782111001,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "HFBQ5fY2A8LRMQSDTZg3EC9vr2RfLUQoAaN77ZTitzJ"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782827724,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "HyA4WskNmmpKALGNYeugTqwsvnyJhyLz4htXoyPtuwe8"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": 1780684080,
+      "last_transaction_at": 1780684080,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "N3TKf3wMBNu8XmZsTSnk2xWQ2LjiGvUJh1ae9Lc3dW7"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1782823554,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "RX5pVvhJtCc4fxjZEqP2wyefXduRsJY4fbrDWzob2xU"
+    },
+    {
+      "activity_class": "RETIRED_CANDIDATE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1783208897,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "SUPPRESS_ROUTINE_DEEP_SCAN",
+      "treasury": "yUpm7rKXPs7J2NXbBHARGBQ9ajyuYh9Pj1Zudu3f1iz"
+    }
+  ],
+  "identity_changes": 0,
+  "limits": {
+    "concurrency": 1,
+    "fallbacks": 0,
+    "max_rpc_calls": 200,
+    "max_signature_lookups": 83,
+    "max_store_bytes": 10000000,
+    "max_transaction_details": 100,
+    "page_limit": 1,
+    "retries": 0
+  },
+  "now": 1791471450,
+  "raw_provider_payload_retained": false,
+  "rpc_request_count": 166,
+  "schema": "dev019-confirmed-treasury-activity-v1",
+  "source_registry": "wt_ops_v2.db::wt_confirmed_treasuries read-only",
+  "stopped_reason": null,
+  "store_bytes": 245760,
+  "top_active_treasuries": [
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": 1790841896,
+      "last_transaction_at": 1790841896,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "DEEP_DISCOVERY",
+      "treasury": "DWmF2xCu739paiMCxEUtczYADQuUxvLFnpHKnaSAH1mG"
+    },
+    {
+      "activity_class": "HOT",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1791471334,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "69SNcRC8NqjHBSXEcugCN5oFKRQoKmddmWzZYc3tqtxk"
+    },
+    {
+      "activity_class": "HOT",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1791465838,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1790583328,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "2vBd5o7ppBLVXo2TyTfSXhWgK9LMKxEszuNFLU7ZKnUz"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1790093939,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "2qZ3GCHZSsDJYoicsM6fsgiqTeWUc8j3VrpfTM4iFkSk"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1790070279,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "Cwmb4pSPpMr9BC7SwW59qJnZtDzQX3GGkuHkuui542px"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1790058059,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "BSiGiKj2B9hase9odZkuYUyhY3HDVi2G58k16kV7J2Bi"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1790052844,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "95CWSdMoxJDftXnvbRbNuZnfQm4K83MnYjVjB3teRYoj"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1790043142,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "6qFhFhzJpiLLwmnXz89PcXrwVKW5oWneAXgydZGjzL2T"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1790007100,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "48qG4qAfVJwMRXYaRT7cRhzqs2nA3tMEibwW6PvgtPbd"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1789963704,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "H1BHDg9X4twYRwUedV9szqoKzQrruat6FCK98Y7Vh5iT"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1789902784,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "7DAKhbo2F732q6vowH41vsDccmJLBCxM1o42jTT2pbWj"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1789886148,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "9Z1kCj47sDS8vSiuexEfwronpuB7HTnfZTCCgkjZJqdw"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1789818450,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "DLckLF17wMNLTimQ6mfLLNVuxiUKwwWRNm7b4s8z4Wub"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1789784404,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "8QYZXW9SZ2Jrig4Nz9rNs4Q7d4jZEXgvBmAWmfLB4Uqg"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1789735116,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "FqtLm1HuKF6mkC8XVUaUHEVaN57BTu9NSQ32ycEnQ15U"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1789705515,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "BpMXyWqCDoewwsh4YYzQdQqn7LVjb2rWXjEHXm1oQfqa"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1789584052,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "B8jd1AcN86Q7AEMsJTJZbrQr1z9svBCp5HN4Xq76jcVK"
+    },
+    {
+      "activity_class": "ACTIVE",
+      "coverage_complete": true,
+      "last_meaningful_funding_at": null,
+      "last_transaction_at": 1789386207,
+      "outcome": "COMPLETE_SIGNATURE_WINDOW",
+      "priority": "VERIFY_FUNDING",
+      "treasury": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry"
+    }
+  ]
+}

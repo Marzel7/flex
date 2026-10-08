@@ -45,9 +45,9 @@
       "branch": "codex/dev-019-mesh-discovery",
       "worktree": "/private/tmp/flex-dev-019-mesh-discovery",
       "starting_sha": "afa282fa0139265deeb2a3f21b1d072290cb62ed",
-      "current_sha": "9470e499037229d16c132c1e3591fea5b46e773e",
-      "status": "QUALIFIED_AUTOMATED_DISCOVERY_NOT_DEPLOYED",
-      "next_action": "STOP. Preserve the isolated resumable treasury-mesh engine and compact evidence contracts. Any provider binding, persistent runtime integration, wt_treasury_review write, or deployment requires separate authorization.",
+      "current_sha": "a5db3c4003258e2928196b96a87271899fcd5865",
+      "status": "QUALIFIED_HELIUS_BOUND_DEV_SOAK_NOT_DEPLOYED",
+      "next_action": "STOP. Preserve the isolated Helius-bound discovery engine and compact DEV soak evidence. Any persistent runtime integration, wt_treasury_review write, or deployment requires separate authorization.",
       "dependencies": [
         "Development Execution Discipline V2",
         "Legacy DEV-019 Phase 1/2/2B contracts",
@@ -86,6 +86,7 @@
         ,"Exact-signature verification: 2/2 version-aware getTransaction decodes (2/4 call cap) found no direct 8CUb -> creator funding fact. Signature 5xnb proves a direct, balance-verified creator -> 2BVf transfer of 939800 lamports at slot 453983182, transaction index 1190, outer instruction 2 / inner instruction 9; its canonical creation semantics remain unproven. Signature tffs at slot 453983180 has only an unverified wrapped-SOL account-close context to the creator. AMQ -> 8CUb is later at slot 454516004, so it cannot causally precede the observed creator -> 2BVf transfer. Compact artifact docs/audits/dev_019_exact_8cub_creator_signatures.v1.json SHA256=ad86e1350bedcc80306b48ecccacc34c93e61d694f1183bf139a79719163c1db, 5,744 bytes; no raw payload, no promotion. 35 focused DEV-019/V2 tests passed."
         ,"Temporal counterexample regression: compact fixture binds the verified later AMQ -> 8CUb and earlier creator -> 2BVf facts, absent 8CUb -> creator edge, and tffs wrapped-SOL close context. It proves individual edges remain facts while causal_order rejects the invalid combined route as PARENT_AFTER_CHILD_SLOT; creator-to-mint transfer remains non-canonical and incomplete coverage remains non-negative. 37 focused DEV-019/V2 tests passed; provider calls=0."
         ,"Automated discovery engine: separate isolated SQLite store tracks dual-direction treasury and canonical launch seeds, page boundaries, cursor, signature coverage, decode/failure state, compact direct/WSOL facts, bounded next-hop jobs, and a review-only walkback seam. It has no HTTP client, scheduler, canonical table write, or runtime registration. Provider-free replay proves AMQ -> 8CUb 770 SOL discovery from a treasury seed without pre-seeding its transaction signature; cursor resume, dedupe, v1 decoding, limits, dust/cycle handling, role separation, and non-canonical launch refusal. 46 focused DEV-019/V2 tests passed; provider calls=0."
+        ,"Helius-bound DEV soak: the engine composes the existing single-attempt HeliusJsonRpcTransport with explicit authoritative endpoint resolution, max transaction version 1, no retry/fallback, physical-call ceiling, and compact-only retention. One isolated Gzaa inbound/outbound plus AMQ outbound run made 41 calls in 5.835 seconds, fully decoded three 20-signature windows, persisted 15 direct compact facts in a 53,248-byte temporary store, and rediscovered AMQ -> 8CUb 770 SOL at slot 454516004 / transaction index 1118 / instruction 2 without a supplied signature. 88WR remained INSUFFICIENT_EVIDENCE / NO_AUTOMATIC_PROMOTION; canonical writes=0, promotions=0, raw payload retention=false. Artifact docs/audits/dev_019_helius_provider_soak.v1.json SHA256=9c33a0419109c91b1184d4556dcb2b9930d957748b5c9b0198ecf99f921d2403 (10,805 bytes). 50 DEV-019/V2 tests passed."
       ],
       "integration_promotion_status": "QUALIFIED_ISOLATED_ENGINE_NOT_RUNTIME_PROMOTED",
       "touched_services": [],

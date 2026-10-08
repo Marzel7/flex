@@ -1,4 +1,17 @@
 {
+  "post_freeze_operational_baseline_20261008": {
+    "engineering_revision": "Immutable provenance manifest commit 064021bd7e3aef0dec2e55d067693d94b8cf1922 on origin/codex/postfreeze-operational-baseline-20261008; based on original frozen commit 4c1549718d3b711912dacdfb8c990dc5767267c5. No shared-checkout authority was used.",
+    "status": "PASS_REMOTE_BACKED_IMMUTABLE_POST_FREEZE_BASELINE",
+    "manifest": "docs/audits/watchtower_operational_baseline_postfreeze_20261008.v1.json; JSON-valid, 5,678 bytes, secret-free, max-new-single-file design bound 20,000 bytes, raw retention none, unbounded growth paths 0.",
+    "tag": "watchtower-operational-baseline-postfreeze-20261008; annotated remote tag object 9d3003077fc0d58077a21c2ea07a1d10fd57bff0; peeled commit 064021bd7e3aef0dec2e55d067693d94b8cf1922.",
+    "runtime_observation": "At 2026-10-08T22:23:25Z, Supervisor PID 73409 owned API PID 59680 at clean 7e9c2db073a73edab349c078fa2759ef1ec879c1, listener PID 48504 at dirty committed ancestor bf1bdfc59b4acfed0338a493189d91d212bda50f, cascade PID 73417 at clean 26da06daba23608bd64d5b86cde1f92b24d3a98d, bridge PID 21106 at clean a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d, monitor worker PID 66087 at clean 1c8022b53d10db168f90afabbed08cc646007912, and creator-funding PID 54815 at clean 6806d2b2268bd5240f52be184bfbde1642070f76. PIDs are observations, not durable identities.",
+    "configuration_authority": "Active Supervisor SHA256=22721ba7526cadddb443f52add1add76f8df6c1cbb305154155f98e47fc837a8. The observed active file byte-matched /private/tmp/watchtower-terminal-assignment-worker-candidate-1c8022b5.conf. Contents were intentionally excluded because the shared-checkout source is dirty and may contain secret references.",
+    "listener_limitation": "Listener has three dirty entries. Its on-disk pumpfun_curve_listener.py SHA256=3aa1ecb12699cd43831902179d8945eb12597b11ec3950321df3217be9ad95cc and both empty guard files match frozen remote reproduction 4c1549718d3b711912dacdfb8c990dc5767267c5; in-memory bytes remain independently unproven. No listener action is authorized.",
+    "qualification": "Clean deployed SHA remote reachability, exact runtime-root identities, original baseline recovery, DEV-019 isolation, DEV-024 remote backing, and exclusion of the 3,681-entry dirty shared checkout were all verified. No untracked implementation was adopted.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Provenance-only baseline; runtime changes=0, Supervisor actions=0, provider calls=0, live DB/queue writes=0, listener changes=0, and branch merges=0.",
+    "next_action": "STOP. The new post-freeze baseline is recorded. Any future runtime change requires its own explicit authorization and fresh V2 admission; do not treat this freeze as a deployment authorization."
+  },
   "post_freeze_workspace_runtime_reconciliation_20261008": {
     "engineering_revision": "Read-only reconciliation after terminal-worker deployment handoff 2e0798069772db5ba5a52b157b4df17247eb8d58. No source, database, queue, Supervisor, provider, listener, worktree, or runtime mutation occurred.",
     "status": "PASS_RUNTIME_COMPONENTS_REPRODUCIBLE_WITH_SHARED_CHECKOUT_CONTAMINATION",

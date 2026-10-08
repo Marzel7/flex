@@ -27,15 +27,20 @@ def test_provider_backoff_allows_only_retained_terminal_work(tmp_path):
     queue.queue.enqueue({"work_type": "ordinary", "mint": "ordinary"}, message_id="ordinary")
     queue.queue.enqueue({"work_type": "WATCHTOWER_TERMINAL_ATH_FINALIZATION", "mint": "terminal", "logical_identity": "id"}, message_id="terminal")
     called = []
+    finalizer_kwargs = []
     class Finalizer:
         def __init__(self, *_a, **_k): pass
         def freeze(self, _mint): return {"mint": "terminal"}
         def logical_job_identity(self, _fact): return "id"
-        def finalize(self, *_a, **_k): called.append("finalized"); return {"state": "FINALIZED", "provider_calls": 0}
+        def finalize(self, *_a, **kwargs):
+            finalizer_kwargs.append(kwargs)
+            called.append("finalized")
+            return {"state": "FINALIZED", "provider_calls": 0}
     worker = MonitorWorker(queue, db_path=str(db), transport=lambda _request: (_ for _ in ()).throw(AssertionError("provider must not run")), terminal_finalizer_factory=Finalizer)
     queue.provider_eligible = lambda: False
     assert worker.process_once() == 1
     assert called == ["finalized"]
+    assert finalizer_kwargs == [{"interval": "15m", "watchtower_price_fact_contract": False}]
     assert (tmp_path / "queue" / "pending" / "ordinary.json").exists()
 
 

@@ -17,6 +17,7 @@ import json
 import os
 import time
 import sqlite3
+from pathlib import Path
 from flask import Blueprint, current_app, jsonify, redirect, request
 
 from src.ops.operator_model import (
@@ -29,6 +30,45 @@ from src.ops.operator_resolver import OperatorResolver
 operator_bp = Blueprint("operators", __name__)
 
 
+class MonitorStoreUnavailable(RuntimeError):
+    """The explicitly configured monitor projection store is unsafe to read."""
+
+
+def _monitor_store_connection() -> sqlite3.Connection:
+    """Open the dedicated monitor store read-only; never fall back to OPS_DB_PATH."""
+    configured = os.getenv("WATCHTOWER_MONITOR_UI_DB_PATH", "").strip()
+    if not configured:
+        raise MonitorStoreUnavailable("WATCHTOWER_MONITOR_UI_DB_PATH_REQUIRED")
+    path = Path(configured).expanduser()
+    if not path.is_file():
+        raise MonitorStoreUnavailable("WATCHTOWER_MONITOR_UI_DB_PATH_UNAVAILABLE")
+    conn = None
+    try:
+        conn = sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True)
+        conn.row_factory = sqlite3.Row
+        tables = {str(row[0]) for row in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'"
+        )}
+        required = {"operation_monitor_facts", "operation_monitor_observations"}
+        if not required.issubset(tables):
+            raise MonitorStoreUnavailable("WATCHTOWER_MONITOR_UI_DB_SCHEMA_INVALID")
+        fact_columns = {str(row[1]) for row in conn.execute("PRAGMA table_info(operation_monitor_facts)")}
+        if not {"operation_id", "mint", "monitor_state", "next_observation_at", "assignment_timestamp", "provenance_digest"}.issubset(fact_columns):
+            raise MonitorStoreUnavailable("WATCHTOWER_MONITOR_UI_DB_SCHEMA_INVALID")
+        observation_columns = {str(row[1]) for row in conn.execute("PRAGMA table_info(operation_monitor_observations)")}
+        if not {"operation_id", "mint", "observation_timestamp", "mc_usd", "resolution", "high_mc_usd", "provenance_digest"}.issubset(observation_columns):
+            raise MonitorStoreUnavailable("WATCHTOWER_MONITOR_UI_DB_SCHEMA_INVALID")
+        return conn
+    except MonitorStoreUnavailable:
+        if conn is not None:
+            conn.close()
+        raise
+    except sqlite3.Error as exc:
+        if conn is not None:
+            conn.close()
+        raise MonitorStoreUnavailable("WATCHTOWER_MONITOR_UI_DB_UNREADABLE") from exc
+
+
 def _watchtower_display_fields(row: dict) -> dict:
     """Derive display-only lifecycle semantics from persisted monitor facts."""
     if str(row.get("operation_id")).lower() != "watchtower":
@@ -36,12 +76,14 @@ def _watchtower_display_fields(row: dict) -> dict:
     terminal = row.get("monitor_state") == "PRICE_MONITOR_COMPLETE_COLLAPSED"
     sparse = row.get("final_ath_resolution") == "15m:SPARSE:OBSERVED_ONLY"
     finalized = terminal and row.get("final_proven_ath_mc") is not None
-    row["coverage_class"] = "SPARSE" if sparse else ("COMPLETE" if finalized else None)
-    row["terminal_metric_exactness"] = "OBSERVED_ONLY" if sparse else ("COMPLETE" if finalized else None)
+    observed_peak = row.get("retained_monitor_peak_mc_usd") or row.get("running_peak_mc_usd")
+    row["coverage_class"] = "SPARSE" if sparse else ("COMPLETE" if finalized else ("OBSERVED_LOWER_BOUND" if terminal and observed_peak is not None else None))
+    row["terminal_metric_exactness"] = "OBSERVED_ONLY" if sparse else ("COMPLETE" if finalized else ("OBSERVED_LOWER_BOUND" if terminal and observed_peak is not None else None))
     row["history_visible"] = bool(finalized)
     row["lifecycle_class"] = (
         "TERMINAL_SPARSE_OBSERVED" if sparse else
         "TERMINAL_COMPLETE" if finalized else
+        "TERMINAL_OBSERVED_LOWER_BOUND" if terminal and observed_peak is not None else
         "TERMINAL_PENDING_RECONSTRUCTION" if terminal else
         "LIVE" if row.get("monitor_state") == "MONITORING_ACTIVE" else
         "WAITING_FOR_ENTRY_REFERENCE" if row.get("entry_status") == "WAITING_FOR_ENTRY_REFERENCE" else
@@ -52,19 +94,19 @@ def _watchtower_display_fields(row: dict) -> dict:
 
 def _monitor_live_projection() -> dict:
     """Read-only projection; it never constructs a queue or provider client."""
-    from src.core.db import OPS_DB_PATH
     now = int(time.time()); rows = []
     storage_bytes = 0
+    conn = _monitor_store_connection()
     try:
-        conn = sqlite3.connect(str(OPS_DB_PATH)); conn.row_factory = sqlite3.Row
         rows = [dict(r) for r in conn.execute("SELECT f.*,CASE WHEN EXISTS(SELECT 1 FROM operation_monitor_observations o WHERE o.operation_id=f.operation_id AND o.mint=f.mint AND o.high_mc_usd IS NOT NULL) THEN 'CANDLE_HIGH' WHEN EXISTS(SELECT 1 FROM operation_monitor_observations o WHERE o.operation_id=f.operation_id AND o.mint=f.mint) THEN 'CLOSE_ONLY_LOWER_BOUND' ELSE 'ENTRY_ONLY' END AS peak_exactness FROM operation_monitor_facts f WHERE lower(f.operation_id) IN ('watchtower','byzantine') ORDER BY CASE WHEN f.monitor_state LIKE 'MONITORING%' THEN 0 WHEN f.monitor_state LIKE 'WAITING%' THEN 1 ELSE 2 END,f.next_observation_at ASC,f.assignment_timestamp DESC")]
         # Compact logical accounting avoids reporting the whole shared DB file.
         storage_bytes = int(conn.execute("SELECT COALESCE(SUM(LENGTH(operation_id)+LENGTH(mint)+LENGTH(provenance_digest)+160),0) FROM operation_monitor_facts").fetchone()[0] or 0)
         try: storage_bytes += int(conn.execute("SELECT COALESCE(SUM(LENGTH(operation_id)+LENGTH(mint)+LENGTH(provenance_digest)+96),0) FROM operation_monitor_observations").fetchone()[0] or 0)
         except sqlite3.Error: pass
+    except sqlite3.Error as exc:
+        raise MonitorStoreUnavailable("WATCHTOWER_MONITOR_UI_DB_UNREADABLE") from exc
+    finally:
         conn.close()
-    except sqlite3.Error:
-        rows = []
     # Queue-only assignments are live prospective state too.  This projection is
     # deliberately file/DB read-only: it does not construct a client, claim work,
     # or create placeholder fact rows.
@@ -149,16 +191,22 @@ def _monitor_live_projection() -> dict:
 
 @operator_bp.route('/api/operations/live-monitor')
 def live_monitor_api():
-    return jsonify(_monitor_live_projection())
+    try:
+        return jsonify(_monitor_live_projection())
+    except MonitorStoreUnavailable as exc:
+        return jsonify({"error": str(exc), "rows": []}), 503
 
 
 @operator_bp.route('/api/operations/live-monitor/<operation_id>/<mint>/observations')
 def live_monitor_observations_api(operation_id: str, mint: str):
-    from src.core.db import OPS_DB_PATH
     try:
-        conn=sqlite3.connect(str(OPS_DB_PATH)); conn.row_factory=sqlite3.Row
-        rows=[dict(r) for r in conn.execute("SELECT observation_timestamp,mc_usd,resolution FROM operation_monitor_observations WHERE operation_id=? AND mint=? ORDER BY observation_timestamp",(operation_id,mint))]; conn.close()
-    except sqlite3.Error: rows=[]
+        conn=_monitor_store_connection()
+        try:
+            rows=[dict(r) for r in conn.execute("SELECT observation_timestamp,mc_usd,resolution FROM operation_monitor_observations WHERE operation_id=? AND mint=? ORDER BY observation_timestamp",(operation_id,mint))]
+        finally:
+            conn.close()
+    except MonitorStoreUnavailable as exc:
+        return jsonify({"error": str(exc), "operation_id":operation_id,"mint":mint,"observations":[]}), 503
     return jsonify({'operation_id':operation_id,'mint':mint,'observations':rows})
 
 

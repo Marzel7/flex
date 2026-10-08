@@ -1455,7 +1455,10 @@ class MonitorWorker:
   fact=finalizer.freeze(p['mint'])
   if finalizer.logical_job_identity(fact)!=p.get('logical_identity'):
    raise ValueError('TERMINAL_ATH_IDENTITY_MISMATCH')
-  result=finalizer.finalize(p['mint'],interval='15m',watchtower_price_fact_contract=True)
+  # Use the frozen finalizer's normal endpoint and gap checks.  The retained
+  # price-fact shortcut bypasses those checks and can turn sampled coverage
+  # into a terminal ATH claim.
+  result=finalizer.finalize(p['mint'],interval='15m',watchtower_price_fact_contract=False)
   if result['state'] not in {'FINALIZED','ALREADY_FINALIZED'}: raise RuntimeError('TERMINAL_ATH_UNCOMMITTED')
   self.q.queue.ack(c); self.last_ack_timestamp=time.time(); return result
  def process_once(self):

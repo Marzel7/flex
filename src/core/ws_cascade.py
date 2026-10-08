@@ -1989,6 +1989,75 @@ class SubscriptionManager:
         # each entry: {wallet, requested_at, sent_at, ack_at, send_delay_ms, ack_latency_ms, gen}
         self._p0_events: list = []
         self._p0_ring_size = 50
+        # DEV-019: bounded in-memory-only observation. This is intentionally
+        # separate from heartbeat persistence and transport operations.
+        self._treasury_selection: dict[str, dict] = {}
+        self._treasury_snapshot_max_records = 83
+        self._treasury_snapshot_max_bytes = 32 * 1024
+
+    def set_treasury_selection(self, entries: list[dict]) -> None:
+        """Record a reconnect's treasury selection without changing it."""
+        if len(entries) > self._treasury_snapshot_max_records:
+            raise ValueError("TREASURY_SNAPSHOT_RECORD_LIMIT")
+        records: dict[str, dict] = {}
+        for entry in entries:
+            wallet = entry["address"]
+            if wallet in records:
+                raise ValueError("TREASURY_SNAPSHOT_DUPLICATE_ADDRESS")
+            selected = bool(entry["selected"])
+            records[wallet] = {
+                "address": wallet,
+                "selected": selected,
+                "requested": False,
+                "acknowledged": False,
+                "active": False,
+                "selection_priority": entry["selection_priority"],
+                "selection_reason": entry["selection_reason"],
+                "skip_failure_reason": None if selected else entry.get(
+                    "skip_failure_reason", "NOT_SELECTED"
+                ),
+                "reconnect_generation": self._reconnect_gen,
+            }
+        self._treasury_selection = records
+
+    def _record_treasury_state(self, wallet: str, **changes) -> None:
+        record = self._treasury_selection.get(wallet)
+        if record is not None:
+            record.update(changes)
+
+    def treasury_subscription_snapshot(self) -> dict:
+        """Return bounded current subscription state with no I/O or mutation."""
+        records = []
+        for wallet in sorted(self._treasury_selection):
+            record = dict(self._treasury_selection[wallet])
+            pending = any(
+                entry[0] == wallet and entry[1] == "treasury"
+                for entry in self.pending_req.values()
+            )
+            active = (self.wallet_sub.get(wallet) is not None
+                      and self.wallet_kind.get(wallet) == "treasury")
+            record["requested"] = pending or active or bool(record["requested"])
+            record["acknowledged"] = active
+            record["active"] = active
+            if record["selected"] and not pending and not active and record["skip_failure_reason"] is None:
+                record["skip_failure_reason"] = "NO_RUNTIME_SUBSCRIPTION_STATE"
+            records.append(record)
+        snapshot = {
+            "schema": "treasury_subscription_snapshot.v1",
+            "reconnect_generation": self._reconnect_gen,
+            "record_count": len(records),
+            "selected_count": sum(1 for record in records if record["selected"]),
+            "active_count": sum(1 for record in records if record["active"]),
+            "records": records,
+        }
+        if len(records) > self._treasury_snapshot_max_records:
+            raise ValueError("TREASURY_SNAPSHOT_RECORD_LIMIT")
+        encoded = json.dumps(snapshot, separators=(",", ":"), sort_keys=True).encode("utf-8")
+        snapshot["serialized_bytes"] = len(encoded)
+        final_bytes = len(json.dumps(snapshot, separators=(",", ":"), sort_keys=True).encode("utf-8"))
+        if final_bytes > self._treasury_snapshot_max_bytes:
+            raise ValueError("TREASURY_SNAPSHOT_BYTE_LIMIT")
+        return snapshot
 
     async def subscribe(self, wallet, kind, priority: int = SUB_PRIORITY_OTHER,
                         requested_at: float | None = None):
@@ -2002,8 +2071,12 @@ class SubscriptionManager:
             self._invalid_rejected_by_kind[kind] = self._invalid_rejected_by_kind.get(kind, 0) + 1
             _log(f"⛔ REJECTED invalid subscription target kind={kind} "
                  f"reason={invalid_reason(wallet)} wallet={str(wallet)[:20]}…")
+            if kind == "treasury":
+                self._record_treasury_state(wallet, skip_failure_reason="INVALID_TARGET")
             return
         if wallet in self.wallet_sub or wallet in self.wallet_kind:
+            if kind == "treasury":
+                self._record_treasury_state(wallet, skip_failure_reason="ALREADY_MANAGED")
             return                      # already (being) subscribed
         rid = self.next_req; self.next_req += 1
         queued_at = requested_at or time.time()
@@ -2011,6 +2084,8 @@ class SubscriptionManager:
         self._subs_sent_total += 1
         self._sent_by_kind[kind] = self._sent_by_kind.get(kind, 0) + 1
         self.wallet_kind[wallet] = kind
+        if kind == "treasury":
+            self._record_treasury_state(wallet, requested=True, skip_failure_reason=None)
         # X24.1 — mechanism-aware primitive selection. Both "treasury" and
         # "subprov_account" (a PLAIN_TRANSFER-funded sub-provisioner) move SOL via
         # plain system::transfer, which emits no program logs that logsSubscribe's
@@ -2042,12 +2117,20 @@ class SubscriptionManager:
         if self.ws is None:
             # No WS connection yet; drop silently — resync_subscriptions will re-send on connect.
             self.wallet_kind.pop(wallet, None)
+            if kind == "treasury":
+                self._record_treasury_state(
+                    wallet, requested=False, skip_failure_reason="NO_WEBSOCKET_CONNECTION"
+                )
             return
         try:
             await self.ws.send(json.dumps(msg))
         except Exception as _e:
             _log(f"⚠ subscribe send failed for {wallet[:12]}…: {_e}")
             self.wallet_kind.pop(wallet, None)
+            if kind == "treasury":
+                self._record_treasury_state(
+                    wallet, requested=False, skip_failure_reason="SEND_FAILED"
+                )
             return
         sent_at = time.time()
         send_delay_ms = round((sent_at - queued_at) * 1000, 1)
@@ -2169,6 +2252,10 @@ class SubscriptionManager:
         self.wallet_sub[wallet] = sub_id
         self.sub_wallet[sub_id] = (wallet, resolved_kind)
         self.wallet_kind[wallet] = resolved_kind
+        if kind == "treasury":
+            self._record_treasury_state(
+                wallet, requested=True, acknowledged=True, active=True, skip_failure_reason=None
+            )
         if kind == "hot_subprov":
             _log(f"🔥 HOT subscribe confirmed {wallet[:12]}… sub_id={sub_id} ack={latency_ms}ms")
         elif priority == SUB_PRIORITY_LIVE_ARMED:
@@ -2648,6 +2735,22 @@ class Cascade:
 
         # P1: TREASURY TIER — confirmed-treasury set, permanent subscriptions
         _max_t = int(os.environ.get("WS_MAX_TREASURY_SUBSCRIBE", "0")) or len(treasuries)
+        _selected_treasuries = set(list(treasuries)[:_max_t])
+        self.mgr.set_treasury_selection([
+            {
+                "address": treasury,
+                "selected": treasury in _selected_treasuries,
+                "selection_priority": SUB_PRIORITY_TREASURY if treasury in _selected_treasuries else None,
+                "selection_reason": (
+                    "CONFIRMED_TREASURY_ROOT_TIER"
+                    if treasury in _selected_treasuries else "TREASURY_SUBSCRIPTION_CAP"
+                ),
+                "skip_failure_reason": (
+                    None if treasury in _selected_treasuries else "TREASURY_SUBSCRIPTION_CAP"
+                ),
+            }
+            for treasury in treasuries
+        ])
         for t in list(treasuries)[:_max_t]:
             await _rate_send(t, "treasury", SUB_PRIORITY_TREASURY)
             if t not in self.mgr.wallet_kind or _sent_this_resync == 1:

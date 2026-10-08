@@ -1,4 +1,14 @@
 {
+  "dev024_controlled_creator_funding_deployment_20261008": {
+    "engineering_revision": "Qualified runtime 6806d2b2268bd5240f52be184bfbde1642070f76; deployment-preparation commit 6dd0d575a5930941945ee68b9d4fcfcf8fa54154 on origin/codex/dev-024-creator-funding-aux-timeout.",
+    "status": "HOLD_INSUFFICIENT_DISK_HEADROOM_PRE_DEPLOYMENT",
+    "finding": "Fresh identity preflight passed: active config SHA256=824655dde4283e79102ebd1282a4de783ebeebef942c01cf39bb0e2dea500c4f; rendered target-only candidate SHA256=5f21916b3029f0e8cce2e91b92fa8f58631f4591baffa749ca40ecfccf5569f9; candidate root is clean at 6806d2b2268bd5240f52be184bfbde1642070f76; current sole worker is PID 8326 from clean c3565a9d5c2e5199c5362ac96573246a8d5a42dc. Queue read-only status is pending=26, retry=53, processing=0. However volume free space is 2,896,696 KiB (about 2.76 GiB), below the established 4 GiB operational safety floor. The mandatory disk-headroom preflight therefore fails.",
+    "safety": "No live configuration write, Supervisor reread/update/stop/start, DB/queue write, provider call, or service change occurred. API, listener, cascade, and Watchtower monitor were observed RUNNING before the stop. The preflight read-only queue query used the status index. Canonical DB WAL was approximately 3.5 MiB at observation; no conclusion about full post-restart DB/WAL health or provider credential propagation is claimed because deployment was halted at the disk guard.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "rollback": "No rollback needed: active runtime remains c3565a9d5c2e5199c5362ac96573246a8d5a42dc and active config remains SHA256 824655dde4283e79102ebd1282a4de783ebeebef942c01cf39bb0e2dea500c4f.",
+    "next_action": "RECOVER_SUFFICIENT_VERIFIED_DISK_HEADROOM_UNDER_A_SEPARATE_AUTHORIZATION_THEN_REPEAT_ALL_MANDATORY_PREDEPLOYMENT_CHECKS_BEFORE_ANY_CREATOR_FUNDING_WORKER_TRANSITION"
+  },
   "dev024_targeted_creator_funding_deployment_preparation_20261008": {
     "engineering_revision": "6806d2b2268bd5240f52be184bfbde1642070f76 qualified correction; deployment-preparation artifact 6dd0d575a5930941945ee68b9d4fcfcf8fa54154 on origin/codex/dev-024-creator-funding-aux-timeout",
     "status": "QUALIFIED_NOT_DEPLOYED_APPROVAL_BOUNDARY",

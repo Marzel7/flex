@@ -17,6 +17,16 @@ from pathlib import Path
 from typing import Callable, ContextManager
 
 AUTHORIZED_TABLE = "rpc_response_cache"
+# Proposed migration SQL only.  DEV-023 never executes this against a live DB.
+EXPIRY_INDEX_SQL = (
+    "CREATE INDEX IF NOT EXISTS idx_rpc_response_cache_expiry "
+    "ON rpc_response_cache((cached_at + ttl_seconds))"
+)
+EXPIRY_SELECTION_SQL = (
+    "SELECT rowid FROM rpc_response_cache "
+    "WHERE cached_at + ttl_seconds <= ? "
+    "ORDER BY cached_at + ttl_seconds, rowid LIMIT ?"
+)
 
 
 @dataclass(frozen=True)
@@ -60,11 +70,7 @@ def _expired_rowids(conn: sqlite3.Connection, cutoff: float, limit: int, *, prog
         return int(remaining <= 0)
     conn.set_progress_handler(stop_after_budget, 1)
     try:
-        return [row[0] for row in conn.execute(
-            f"SELECT rowid FROM {AUTHORIZED_TABLE} "
-            "WHERE cached_at + ttl_seconds <= ? ORDER BY rowid LIMIT ?",
-            (cutoff, limit),
-        )]
+        return [row[0] for row in conn.execute(EXPIRY_SELECTION_SQL, (cutoff, limit))]
     finally:
         conn.set_progress_handler(None, 0)
 

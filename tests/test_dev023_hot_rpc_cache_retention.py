@@ -1,7 +1,7 @@
 import sqlite3
 from contextlib import contextmanager
 
-from src.ops.dev023_hot_rpc_cache_retention import RetentionLimits, retain_expired_rpc_cache
+from src.ops.dev023_hot_rpc_cache_retention import EXPIRY_INDEX_SQL, EXPIRY_SELECTION_SQL, RetentionLimits, retain_expired_rpc_cache
 
 
 def _db(tmp_path):
@@ -47,6 +47,23 @@ def test_selection_budget_interrupts_full_scan_before_any_delete(tmp_path):
                                       limits=_limits(selection_progress_steps=10))
     assert result == {"status": "STOP_SELECTION_BUDGET", "deleted": 0}
     assert {"expired-a", "expired-b", "live"}.issubset(_keys(path))
+
+
+def test_expression_index_uses_bounded_expiry_selection_for_sparse_rows(tmp_path):
+    path = _db(tmp_path)
+    conn = sqlite3.connect(path)
+    conn.executemany("INSERT INTO rpc_response_cache VALUES (?, '{}', 'm', 100, 100, 0)", [(f"live-{i}",) for i in range(12000)])
+    conn.execute("INSERT INTO rpc_response_cache VALUES ('expired-tail', '{}', 'm', 1, 1, 0)")
+    before = [row[-1] for row in conn.execute("EXPLAIN QUERY PLAN " + EXPIRY_SELECTION_SQL, (10, 200))]
+    conn.execute(EXPIRY_INDEX_SQL)
+    after = [row[-1] for row in conn.execute("EXPLAIN QUERY PLAN " + EXPIRY_SELECTION_SQL, (10, 200))]
+    conn.commit(); conn.close()
+    assert any("SCAN" in step.upper() for step in before)
+    assert any("idx_rpc_response_cache_expiry" in step for step in after)
+    result = retain_expired_rpc_cache(database_path=str(path), canonical_database_path=str(path), cutoff=10,
+                                      limits=_limits(selection_progress_steps=1000))
+    assert result == {"status": "COMPLETE", "deleted": 3}
+    assert all(key.startswith("live") for key in _keys(path))
 
 
 def test_rejects_noncanonical_and_stops_for_disk_or_wal(tmp_path):

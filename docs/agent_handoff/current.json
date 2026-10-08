@@ -20827,6 +20827,17 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "STOP. Any deeper discovery of the one DEEP_DISCOVERY treasury, verification scans of the 18 HOT/ACTIVE accounts, persistent runtime integration, review-table persistence, or live activation requires separate explicit authorization."
   },
+  "dev019_exact_treasury_subscription_telemetry_qualification_20261008": {
+    "engineering_revision": "Executable telemetry commit 4552b8df893cafbefc7d0012450da82a5d64f199; V2 register commit ee7cbc154e5fb74a25efd31c16d56f708962eea2 on origin/codex/dev-019-mesh-discovery.",
+    "status": "PASS_ISOLATED_TELEMETRY_QUALIFIED_NOT_DEPLOYED",
+    "contract": "SubscriptionManager records at most 83 selected confirmed-treasury entries per reconnect and returns an on-demand <=32KiB in-memory snapshot. Each public-address record contains selected, requested, acknowledged, and active state; selection priority/reason; explicit skip/failure reason; and reconnect generation. Selected records missing from both pending and active maps become NO_RUNTIME_SUBSCRIPTION_STATE rather than a false negative. It has no database, provider, WebSocket, file, subscription, attribution, or promotion side effect and is intentionally not wired into the active heartbeat/runtime.",
+    "verification": "Provider-free DEV-019/V2/lifecycle regression suite PASS 101/101. Fixtures prove 29 active versus 54 capped records, selected-but-unobserved classification, no-connection/send-failure classification, duplicate/record/byte bounds, and existing subscription mechanism/lifecycle compatibility. V2 admission, register, and two-path temporary isolation guards PASS. Provider calls=0; DB/queue writes=0; Supervisor/listener/WS actions=0; raw payload retention=0; maximum snapshot=32KiB, below the 500MB prohibition.",
+    "live_authority": "Read-only runtime authority remains clean /Users/kevinkeaveney/Production/flex-cascade at 26da06daba23608bd64d5b86cde1f92b24d3a98d, supervised ws_cascade PID 73417 under PID 73409. It was not changed.",
+    "deployment_proposal": "A separate approval must first select a bounded read-only local exposure for the pure snapshot. Installing executable commit 4552 into the pinned cascade root would require exactly one targeted ws_cascade source transition and restart/reconnect; expected interruption is one cascade connection loss and existing subscription replay. No selector, subscription cap, provider budget, database schema, or other service changes are part of this proposal. Rollback is restore exact 26da06daba23608bd64d5b86cde1f92b24d3a98d source then one targeted ws_cascade restart. This proposal is not authorization for either action.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "STOP. Separately approve one exact read-only exposure and targeted cascade deployment package before obtaining the current 29-address map; do not alter subscriptions or activate the eight-slot selector."
+  },
   "dev019_runtime_subscription_visibility_diagnosis_20261008": {
     "engineering_revision": "Read-only diagnosis from clean DEV-019 engineering worktree /private/tmp/flex-dev-019-mesh-discovery at a962f9c929c918ae12250f1b48bdfaebb22c4f44; no source change.",
     "status": "HOLD_BLOCKED_RUNTIME_VISIBILITY",

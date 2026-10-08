@@ -19806,5 +19806,15 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "OBTAIN EXPLICIT LIVE-TRANSITION APPROVAL FOR THE REVIEWED CANDIDATE SHA, BACKUP PATH, VERIFIED LIVE ENDPOINT, AND TARGET-ONLY API/WORKER REREAD/UPDATE SEQUENCE; DO NOT ACTIVATE SHADOW OR +2."
+  },
+  "watchtower_live_transition_preflight_20261008": {
+    "engineering_revision": "No engineering/runtime configuration change; preflight against reviewed candidate 1bfacfc8683b03c4c0ac1cf5276d3bedf47990b1 and composition 251a1eb9fa95f8bbcc98e132a4b8467020eb3c05.",
+    "status": "HOLD_PREFLIGHT_UNEXPECTED_RUNTIME_PROCESS_CHANGE",
+    "finding": "The required read-only Supervisor status showed watchtower_listener RUNNING PID 73415, worker STOPPED, API BACKOFF, and the normal enabled services. However creator_resolution_worker was RUNNING PID 81359 with 34-second uptime, while the recovery baseline recorded PID 73412. The authorization requires stopping without install on any unexpected runtime process change, so the reviewed candidate was not installed.",
+    "preflight_attempt": "The auxiliary Python parity helper failed to import the uncommitted renderer module from its supplied PYTHONPATH; it made no write and did not reach any configuration action. The separately recorded qualified composition/rollback artifacts remain authoritative, but no new live hash assertion is claimed from this failed helper.",
+    "safety": "Live config write=0; backup write=0; reread=0; update=0; service action=0; provider/DB/queue action=0; listener disruption=0. One authorized read-only supervisorctl status command was issued before the stop condition was observed. RUNTIME_DEPLOYMENT_REQUIRED=true; RUNTIME_DEPLOYMENT_GATE=HOLD_PREFLIGHT_UNEXPECTED_RUNTIME_PROCESS_CHANGE.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_PREFLIGHT_UNEXPECTED_RUNTIME_PROCESS_CHANGE",
+    "next_action": "STOP. REQUIRE A NEW EXPLICIT AUTHORIZATION AFTER THE creator_resolution_worker PID change is classified and the complete preflight is rerun; DO NOT INSTALL THE CANDIDATE OR ISSUE REREAD/UPDATE."
   }
 }

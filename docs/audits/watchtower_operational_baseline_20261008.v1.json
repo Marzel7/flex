@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "kind": "watchtower_operational_baseline",
+  "classification": "environment_specific_operational_baseline",
+  "created_utc": "2026-10-08T10:07:41Z",
+  "source_authority": {
+    "api_sha": "a32ebba3732d3f68cf5fd387bf05444a744610dc",
+    "monitor_bridge_worker_sha": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+    "listener_reproduction_sha": "d3c0d4ed5fa6d8b824a04001983bcf8bef7bcb87",
+    "listener_committed_ancestor_sha": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "listener_source_sha256": "3aa1ecb12699cd43831902179d8945eb12597b11ec3950321df3217be9ad95cc",
+    "listener_guard_files": [
+      {
+        "path": "database/flex_complete_database.db.write.lock.owner.guard",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "flex_complete_database.db.write.lock.owner.guard",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ]
+  },
+  "runtime_configuration": {
+    "active_supervisor_config_sha256": "824655dde4283e79102ebd1282a4de783ebeebef942c01cf39bb0e2dea500c4f",
+    "rollback_supervisor_config_sha256": "eac5c123f39bf0aad5ea8e2449e532fbdc8c89013b4998393a8a03bc7ec8c6e1",
+    "fixed_assignment_watermark_unix_seconds": 1791446333,
+    "provider_budget": {
+      "global_calls_per_60_seconds": 20,
+      "per_mint_calls_per_60_seconds": 4
+    },
+    "configuration_portability": "Environment-specific. Exact configuration digests and non-secret contracts are recorded; secret-bearing configuration contents are intentionally excluded."
+  },
+  "qualification_evidence": {
+    "historical_replay_handoff": "6861dee97f08d8e0209ee416ff1bd69ac316f7c6",
+    "bounded_soak_handoff": "f741368f0c2629ab52ec5907072f13fe8dda9f2e",
+    "continuous_monitor_handoff": "7a4f7d9e3a9835078412633550a20d6ed0fd7193",
+    "listener_reconciliation_handoff": "b0f6bdfb89d8d86646e9e441f9aeac1da41601b7",
+    "listener_focused_regressions": "11 passed; provider-free",
+    "continuous_monitor_observation": "API, listener, bridge, and worker were RUNNING; WAL warning was false."
+  },
+  "limitations": [
+    "The running listener process's in-memory source bytes were not independently hashed; only its pre-start on-disk source equivalence was established.",
+    "Natural-token live Price/Live persistence has not yet been observed after the fixed watermark.",
+    "Terminal and History progression has not yet been observed for new eligible natural work.",
+    "This is not a portable dependency lock or a live +2 activation authorization."
+  ],
+  "safety_state": {
+    "plus_two_activation": "disabled",
+    "shadow_capture": "disabled",
+    "injector_history_recovery": "not executed"
+  }
+}

@@ -19853,5 +19853,18 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_INSUFFICIENT_SAFE_DISPOSABLE_CAPACITY_AND_WORKER_UNSTABLE",
     "next_action": "OBTAIN_SPECIFIC_AUTHORIZATION_FOR_PROTECTED_STORAGE_REMEDIATION_OR_OTHER_CAPACITY_SOURCE_THEN_VERIFY_DATABASE_WRITES_AND_CREATOR_WORKER_STABILITY_BEFORE_RERUNNING_TARGET_TRANSITION_PREFLIGHT"
+  },
+  "watchtower_target_transition_storage_preflight_20261008": {
+    "engineering_revision": "Read-only transition preflight only; no source/config/runtime deployment change.",
+    "status": "HOLD_PROVEN_SHARED_WRITE_PATH_FAILURE",
+    "artifacts": "Current live root SHA256=de358f18394f56651b6a8493d137287fdbec0dd21b84c46dbf576246ab4e154d; reviewed candidate SHA256=78ea76d78e3af17b8b4da9d19973fb0ab793a729c71bec2df96967de62ecd243; rollback SHA256=de358f18394f56651b6a8493d137287fdbec0dd21b84c46dbf576246ab4e154d. All three files exist and reconcile exactly.",
+    "storage_preflight": "The volume remains 96% used with 8,190,108 KiB free, decreasing from the prior bounded snapshot. A 19-byte temporary-file write plus fsync in /private/tmp passed and its artifact was removed. This proves minimal filesystem writability only, not safe shared database write capacity.",
+    "shared_write_evidence": "Existing Supervisor events show creator_resolution_worker unexpected exit status 1 at 01:11:01, 01:15:02, and 01:20:03 local, each followed by automatic respawn. The preceding causal diagnosis established canonical write-lock timeout and ENOSPC diagnostic failures. No evidence establishes restored shared write-path health.",
+    "decision": "Updating the API may require database/log writes and would add material risk while the shared write path is demonstrably unstable. Per the approved stop condition, the target-only transition was not attempted.",
+    "storage_dev": "Deferred as directed; no additional cleanup, retention, database, or filesystem remediation was performed.",
+    "safety": "Supervisor control commands=0; config/backup writes=0; reread/update=0; service actions=0; database/queue writes=0; provider calls=0; listener changes=0. The only write was the bounded temporary preflight file, removed immediately.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_PROVEN_SHARED_WRITE_PATH_FAILURE",
+    "next_action": "OBTAIN_EXPLICIT_AUTHORIZATION_TO_REMEDIATE_OR_ACCEPT_SHARED_STORAGE_WRITE_PATH_RISK_BEFORE_ANY_WATCHTOWER_TARGET_TRANSITION"
   }
 }

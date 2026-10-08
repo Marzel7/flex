@@ -143,6 +143,10 @@ from src.core.schema_init import ensure_schema as _ensure_schema
 # Flask app - set template folder to project root templates/
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 app = Flask(__name__, template_folder=os.path.join(PROJECT_ROOT, 'templates'), static_folder=os.path.join(PROJECT_ROOT, 'static'))
+# Route modules receive their database authority from the Flask application
+# configuration.  Keep that authority aligned with the explicit runtime DB_PATH
+# when this source tree is launched outside the canonical repository root.
+app.config['DATABASE'] = DB_PATH
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.jinja_env.auto_reload = True
 Compress(app)  # gzip all text/html and application/json responses automatically
@@ -9485,7 +9489,19 @@ def healthz():
     wal_mb = round(wal_bytes / 1024 / 1024, 1)
     wal_warn = wal_mb > 500
 
-    stale = [w for w, v in rows.items() if v.get("stale")]
+    # Historical heartbeat rows can outlive intentionally disabled services.
+    # Health reflects only the workers owned by the current topology; a missing
+    # required heartbeat still fails closed.
+    required_workers = {
+        w.strip() for w in os.environ.get(
+            "HEALTHZ_REQUIRED_WORKERS",
+            "creator-funding,creator-resolution",
+        ).split(",") if w.strip()
+    }
+    stale = [
+        worker for worker in sorted(required_workers)
+        if rows.get(worker, {"stale": True}).get("stale", True)
+    ]
     healthy = db_ok and not stale and not wal_warn
     return jsonify({
         "healthy": healthy,

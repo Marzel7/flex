@@ -9,7 +9,7 @@ from src.ops.treasury_mesh_discovery_engine import (
     DISCOVERY_SCHEMA_VERSION, INBOUND, OUTBOUND, PAGE_INCOMPLETE, PROVIDER_LIMIT_STOP,
     DiscoveryBudget, DiscoveryError, ProviderLimited, causal_graph, classify_wallet_role, ensure_schema,
     enqueue_adjacent_jobs, finalize_page, page_coverage, record_signature_page, record_transaction_result,
-    open_isolated_store, resume_provider_limited_job, review_only_candidate, run_one_page, seed_confirmed_treasuries, seed_unresolved_launch,
+    open_isolated_store, resume_provider_limited_job, review_only_candidate, run_one_page, seed_confirmed_treasuries, seed_known_intermediary, seed_unresolved_launch,
     walkback_read_interface,
 )
 from src.ops.treasury_rotation_discovery import (
@@ -138,6 +138,13 @@ def test_confirmed_treasuries_seed_both_directions_without_role_collapse():
     jobs = seed_confirmed_treasuries(conn, ["Gzaa"])
     assert len(jobs) == 2
     assert {(row[0], row[1]) for row in conn.execute("SELECT address,direction FROM wt_mesh_jobs")} == {("Gzaa", INBOUND), ("Gzaa", OUTBOUND)}
+
+
+def test_known_intermediary_is_bounded_review_context_not_confirmed_identity():
+    conn = _conn()
+    job_id = seed_known_intermediary(conn, treasury_seed="Gza", address="AMQ", hop=1)
+    row = conn.execute("SELECT seed_kind,seed_value,address,hop FROM wt_mesh_jobs WHERE job_id=?", (job_id,)).fetchone()
+    assert dict(row) == {"seed_kind": "TREASURY", "seed_value": "Gza", "address": "AMQ", "hop": 1}
 
 
 def test_dust_and_cycles_are_retained_but_never_expand_discovery_jobs():

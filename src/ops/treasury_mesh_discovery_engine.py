@@ -204,6 +204,22 @@ def seed_confirmed_treasuries(conn: sqlite3.Connection, treasuries: Iterable[str
     return ids
 
 
+def seed_known_intermediary(conn: sqlite3.Connection, *, treasury_seed: str, address: str,
+                            direction: str = OUTBOUND, hop: int = 1,
+                            now: int | None = None) -> int:
+    """Seed a review-context intermediary without confirming its identity."""
+    if not treasury_seed or not address or direction not in {INBOUND, OUTBOUND} or hop < 1:
+        raise DiscoveryError("INVALID_INTERMEDIARY_SEED")
+    timestamp = _now() if now is None else int(now)
+    conn.execute(
+        "INSERT OR IGNORE INTO wt_mesh_jobs(seed_kind,seed_value,address,direction,hop,state,next_cursor,next_page,parent_job_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+        ("TREASURY", treasury_seed, address, direction, hop, WAITING_PAGE, None, 1, None, timestamp, timestamp),
+    )
+    row = conn.execute("SELECT job_id FROM wt_mesh_jobs WHERE seed_kind='TREASURY' AND seed_value=? AND address=? AND direction=? AND hop=?", (treasury_seed, address, direction, hop)).fetchone()
+    _assert_store_bound(conn)
+    return int(row[0])
+
+
 def seed_unresolved_launch(conn: sqlite3.Connection, *, launch_mint: str, creator_event: Mapping[str, Any] | None,
                            now: int | None = None) -> int | None:
     """Seed launch-backward discovery only from explicit canonical creator evidence."""

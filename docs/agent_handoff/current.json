@@ -20083,5 +20083,17 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_SUPERVISOR_STARTSECS_CONFLICT_WITH_SINGLE_ITERATION_ROLLED_BACK",
     "next_action": "QUALIFY_AND_REVIEW_A_MINIMAL_SUPERVISOR_PROGRAM_LIFECYCLE_CONTRACT_FOR_A_FINITE_ONE_ITERATION_SOAK (for example, an explicitly accepted startsecs/exit-status policy) BEFORE REQUESTING ANOTHER LIVE SOAK AUTHORIZATION. Do not start the worker under the current reviewed configuration."
+  },
+  "watchtower_finite_iteration_supervisor_contract_20261008": {
+    "engineering_revision": "0fe9c84b8a8528e0fd0662cc420238039e9e467e on origin/codex/watchtower-monitor-bounded-soak; minimal renderer/test correction only.",
+    "status": "PASS_QUALIFIED_AWAITING_EXPLICIT_LIVE_CONFIGURATION_APPROVAL",
+    "contract": "When and only when MONITOR_MAX_ITERATIONS or MONITOR_BRIDGE_MAX_ITERATIONS is explicitly set, the respective disabled monitor stanza renders startsecs=0 and exitcodes=0. A one-shot exit 0 is therefore an expected Supervisor completion. Any nonzero exit remains unexpected. With no finite-iteration setting, the normal continuous contract remains startsecs=5 with its existing restart behavior unchanged.",
+    "supervisor_4_3_validation": "A synthetic Supervisor 4.3.0 process using only a unique /private/tmp socket, PID, and log path confirmed clean exit 0 is logged expected and exit 7 unexpected. The temporary daemon was shut down. No live endpoint was referenced. The complete candidate configuration separately passed the offline isolation guard and Supervisor 4.3.0 syntax test with unique isolated endpoint/PID/log paths and no program starts.",
+    "tests": "Focused composition/soak/isolation/topology tests: 41 passed. Relevant provider-free Watchtower suite: 149 passed, 1 documented deselection. Launcher preflight passed against the clean 0fe9c84b candidate.",
+    "configuration": "Current rollback SHA256 remains 3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19. New candidate SHA256 is 5eb15f75058ddeef3153f53bcb7925a0dd47a80d3dc795e295794f7eacc23aa0. It retains 15 programs; all non-target bytes and the listener stanza are byte-identical. Only watchtower_api, operation_monitor_worker, and operation_monitor_bridge target ranges differ; finite worker/bridge mode contains startsecs=0 and exitcodes=0.",
+    "safety": "No live Supervisor/config/service action, DB/queue write, provider call, listener action, Injector/history action, shadow activation, +2 activation, or large artifact occurred during qualification.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_AWAITING_EXPLICIT_LIVE_CONFIGURATION_APPROVAL",
+    "next_action": "OBTAIN_EXPLICIT_APPROVAL_FOR_THE_NEW 5eb15f75058ddeef3153f53bcb7925a0dd47a80d3dc795e295794f7eacc23aa0 CONFIGURATION BEFORE ONE BRIDGE ITERATION AND ONE WORKER ITERATION. The earlier approval did not cover this new configuration."
   }
 }

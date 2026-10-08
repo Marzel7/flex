@@ -16,6 +16,13 @@
             "engineering_checkpoint": "dev023-engineering-qualified-20261008-0c5f290c",
             "status": "ENGINEERING_QUALIFIED_DEPLOYMENT_BLOCKED",
             "next_action": "Do not create the live expiry index or enable a schedule. Resolve the separately recorded disk reserve, writer-quiescence, bounded-live-DDL-runner, and sustainable-rate gates before seeking a new live schema-change approval.",
+            "deployment_prerequisites": [
+                "Recover sufficient verified filesystem reserve, preferably 6-8 GiB free, without touching protected runtime data",
+                "Qualify a bounded live DDL runner with independent disk, WAL, elapsed-time, and rollback controls",
+                "Obtain explicit approval for a canonical-writer quiescence window",
+                "After index validation, separately qualify sustainable deletion rate before enabling any recurring schedule"
+            ],
+            "parked_handoff": "a85fdfa1e60243cdccb91295e029ed10f92f0caf",
       "dependencies": [
         "docs/audits/hot_db_retention_20261002/ retained Phase 1/2 evidence",
         "Development Execution Discipline V2"

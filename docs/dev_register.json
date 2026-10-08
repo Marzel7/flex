@@ -6,36 +6,37 @@
     "concurrent_changes_to_same_service_or_shared_mutable_state": "prohibited"
   },
   "devs": [
-    {
-      "dev_id": "DEV-023",
-      "objective": "Qualify bounded canonical rpc_response_cache retention runtime integration without live maintenance or scheduling activation.",
-      "branch": "codex/dev-023-retention-phase3",
-      "worktree": "/private/tmp/flex-dev-023-retention-phase3",
-      "starting_sha": "580508a70c80e7fc944e0069f85e67b851a117fa",
-      "current_sha": "fc3cf093ca7520fd33feda483c547ed91e18c6a8",
-      "status": "QUALIFIED_NOT_DEPLOYED",
-      "next_action": "Obtain separate explicit authorization before enabling any schedule or executing live retention maintenance.",
+        {
+            "dev_id": "DEV-023",
+            "objective": "Qualify bounded canonical rpc_response_cache retention, a disabled scheduler contract, and an expiry-index selection strategy without enabling automatic live maintenance.",
+            "branch": "codex/dev-023-sustainable-retention",
+            "worktree": "/private/tmp/flex-dev023-sustainable-retention",
+            "starting_sha": "580508a70c80e7fc944e0069f85e67b851a117fa",
+            "current_sha": "0c5f290c3d020a3f11a7170df24e7c97793394df",
+            "engineering_checkpoint": "dev023-engineering-qualified-20261008-0c5f290c",
+            "status": "ENGINEERING_QUALIFIED_DEPLOYMENT_BLOCKED",
+            "next_action": "Do not create the live expiry index or enable a schedule. Resolve the separately recorded disk reserve, writer-quiescence, bounded-live-DDL-runner, and sustainable-rate gates before seeking a new live schema-change approval.",
       "dependencies": [
         "docs/audits/hot_db_retention_20261002/ retained Phase 1/2 evidence",
         "Development Execution Discipline V2"
       ],
-      "source_authority": "580508a70c80e7fc944e0069f85e67b851a117fa plus committed V2 process controls",
-      "configuration_authority": "Synthetic temporary SQLite databases only; config/maintenance/dev023_hot_rpc_cache_retention.json is explicitly disabled",
+            "source_authority": "Qualified commit chain 4282191eaadf9d7e0ea8b0092027d4adb29d9db3 -> 75600f8e087df0a849176d8d495eba95af3e3759 -> 80c18458a45f0c6411bb575066a6d123c2793363 -> d8ac86d3d9a3bde17fb31a7fe13c3cdc8e395119 -> 0c5f290c3d020a3f11a7170df24e7c97793394df, plus committed V2 process controls",
+            "configuration_authority": "Qualified disabled scheduler config config/maintenance/dev023_hot_rpc_cache_retention.json (source SHA256 55a5ab6455e49e50a7b09fdb019dc926da2f09c7d122ae0ad27c2a1b072bd080); installed disabled runtime 75600f8e remains preserved",
       "definition_of_done": [
-        "Canonical target, one P3 200-row transaction, stop guards, and idempotence pass isolated fixtures",
-        "Runtime schedule remains disabled and no production database or service action occurs"
+                "Canonical target, one P3 200-row transaction, stop guards, idempotence, progress-bounded selection, and indexed sparse-tail selection pass isolated fixtures",
+                "Runtime schedule remains disabled; no live schema change occurs until disk, quiescence, DDL-runner, and rate gates pass"
       ],
       "acceptance_criteria": [
-        "Expired-only preservation, 200-row cap, stop-file/disk/WAL guards, P3 write-lane boundary and restart idempotence pass",
-        "Existing RPC-cache expiry-index and V2 guard tests pass"
+                "Expired-only preservation, 200-row cap, stop-file/disk/WAL guards, P3 write-lane boundary, restart idempotence, and index query-plan selection pass",
+                "Existing RPC-cache expiry-index and V2 guard tests pass; automatic retention is not deployed"
       ],
       "qualification_evidence": [
-        "tests/test_dev023_hot_rpc_cache_retention.py: 6 passed",
-        "tests/test_dev023_hot_rpc_cache_runtime_integration.py: 9 passed",
-        "tests/test_rpc_cache_expiry_index.py: 2 passed",
-        "tests/test_dev_execution_discipline_v2.py: 8 passed"
+                "0c5f290c provider-free DEV-023 suite: 27 passed",
+                "One authorized capped live tick: 200 expired rows, zero non-expired rows; handoff b84be294f0a18377415f17062d2e849dcc7b34ac",
+                "Isolated DDL interruption rollback: handoff cb0e80175963b9add438bd78d6298afd74bdbc74",
+                "Deployment blockers: handoff cb0e80175963b9add438bd78d6298afd74bdbc74"
       ],
-      "integration_promotion_status": "QUALIFIED_NOT_DEPLOYED_SCHEDULING_AND_LIVE_MAINTENANCE_REQUIRE_SEPARATE_APPROVAL",
+            "integration_promotion_status": "ENGINEERING_CHECKPOINT_QUALIFIED; AUTOMATIC_RETENTION_NOT_DEPLOYED; LIVE_SCHEMA_MIGRATION_BLOCKED_PENDING_SEPARATE_APPROVAL_AND_PREREQUISITES",
       "touched_services": [],
       "shared_mutable_state": []
     },

@@ -20792,5 +20792,17 @@
     "runtime_deployment_required": true,
     "runtime_deployment_reason": "The source changes executable future discovery behavior, but it is QUALIFIED_NOT_DEPLOYED: no target runtime, launcher, Supervisor configuration, PID identity, reload, or bounded post-deployment acceptance has been authorized or performed.",
     "next_action": "STOP. A separate authority must define bounded provider acquisition and an isolated or live integration target before any provider binding, runtime installation, review-table persistence, or deployment."
+  },
+  "dev019_helius_provider_binding_soak_20261008": {
+    "engineering_revision": "Provider-binding commit c488e4b456100132139c2191bce8b41bc79878ee, compact-soak commit a5db3c4003258e2928196b96a87271899fcd5865, and DEV register commit 4b187aa2662aa8c0085a5bf4e37dd76e5bfb1922 on origin/codex/dev-019-mesh-discovery.",
+    "status": "PASS_QUALIFIED_HELIUS_BOUND_ISOLATED_DEV_SOAK_NOT_DEPLOYED",
+    "provider_binding": "src/ops/treasury_mesh_helius_adapter.py composes the existing HeliusJsonRpcTransport only. It requires an explicit existing HELIUS_RPC_URL authority, permits no endpoint construction, fallback, retry, or parallelism, and enforces a physical-call ceiling. The version-aware getTransaction contract remains maxSupportedTransactionVersion=1 for legacy, v0, and v1. Credentials were resolved non-printingly and were neither persisted nor reported.",
+    "soak": "One isolated temporary SQLite run seeded confirmed Gzaa, review-only 88WR, and AMQ as a non-confirming positive-control intermediary. It executed exactly three direction-neutral 20-signature pages (Gzaa inbound, Gzaa outbound, AMQ outbound) and decoded every selected signature. It completed in 5.835 seconds using 41 physical Helius requests, 0 retries/fallbacks, maximum hop=2, concurrency=1, and a 100-call/600-second/10MB guard envelope. The temporary evidence store was 53,248 bytes; the compact committed artifact was 10,805 bytes; no raw provider/block payload was retained.",
+    "findings": "The soak rediscovered the direct, balance-verified AMQ -> 8CUb transfer of 770 SOL at slot 454516004, transaction index 1118, instruction 2, without receiving its signature as input. It retained 15 compact direct facts, had complete coverage for all three selected windows, and recorded duplicate facts=0. 88WR remained INSUFFICIENT_EVIDENCE with NO_AUTOMATIC_PROMOTION. The earlier temporal counterexample still prevents any complete AMQ-to-creator-to-2BVf causal route; no canonical launch creation, treasury confirmation, membership promotion, or attribution assertion was made.",
+    "walkback_boundary": "The compact read-only interface can expose isolated facts to a future walkback consumer with requires_review=true and canonical_writes=false. Live walkback integration remains unmodified and unapproved.",
+    "qualification": "DEV-019 adapter, engine, treasury-rotation, and V2 regressions passed 50/50. V2 admission and isolated test-path guards passed from clean source before the soak. Live DB/queue writes=0; Supervisor/service/listener actions=0; production deployment=0; canonical promotion=0; provider calls were limited to the explicitly authorized DEV batch.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "STOP. Preserve the isolated Helius-bound discovery authority and compact soak artifact. Any persistent runtime integration, review-table write, or live discovery activation requires separately reviewed deployment authority."
   }
 }

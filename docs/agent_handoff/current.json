@@ -19993,5 +19993,18 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_COLD_CANONICAL_ROUTE_EXCEEDS_BOUND_STAGE_SPLIT_UNAVAILABLE",
     "next_action": "STOP. REQUIRE A NEW EXPLICIT AUTHORIZATION FOR A DIFFERENT BOUNDED, STAGE-INTERRUPTIBLE DIAGNOSTIC DESIGN OR A SEPARATELY REVIEWED QUERY-BOUNDARY CHANGE; DO NOT RETRY DEPLOYMENT ON THIS EVIDENCE ALONE."
+  },
+  "watchtower_price_live_sql_progress_diagnosis_20261008": {
+    "engineering_revision": "Read-only SQL diagnosis against c664355f7b06ce875daab04edb43802a1640e18f; no source, schema, or runtime change.",
+    "status": "HOLD_MIGRATION_GROUP_AGGREGATE_REQUIRES_SEMANTIC_REVIEW",
+    "method": "Each original cold-route statement was executed once on canonical DB_PATH through SQLite URI mode=ro with PRAGMA query_only=ON and a strict set_progress_handler 5-second budget. No rows were printed or retained. A second, separate run tested only index-hinted candidate equivalents; the original statements were not repeated.",
+    "baseline_timing": "Births was interrupted at 5000.51 ms (13,808 progress ticks). Migrations was interrupted at 5001.41 ms (709 ticks). Neither emitted busy/locked errors. Thus both source statements independently exceed 5 seconds on a cold canonical read and prior WAL pinning is excluded.",
+    "candidate_timing": "The existing idx_ta_analyzed_at index is present. A semantics-preserving births index hint completed 60 rows in 33.79 ms: execute=12.85 ms, fetch=20.94 ms. A migrations query forced to the same index but retaining source platform/lifecycle filtering, GROUP BY mint, ORDER BY analyzed_at, and LIMIT 100 was still interrupted at 5001.30 ms. This isolates the migration grouping/sort aggregate, rather than births, as the dominant remaining cold-route operation.",
+    "root_cause": "The migration query must reconcile rows after several potentially non-unique joins; current source groups by mint then orders by analyzed_at. Canonical constraints prove token_analysis.mint is unique, but creator_funding_queue is unique on creator_address,mint rather than mint, and network_membership is unique on network_name,creator_address rather than creator_address. Removing GROUP BY or pushing LIMIT ahead of those joins can change the existing arbitrary grouped result. No existing composite index supports the exact filter/group/order, and new indexes/schema changes are out of scope.",
+    "decision": "DOMINANT_SQL_OPERATION=migrations GROUP BY mint plus ORDER BY analyzed_at aggregate. A safe, index-independent correction preserving current results is not proven. Births-only optimization cannot make the full route meet its 10-second acceptance threshold. No source commit was created; DEPLOYMENT_RETRY_READY=false.",
+    "safety": "No Supervisor/service action, DB/queue write, provider call, listener change, port bind, schema/index creation, ANALYZE, or large artifact occurred. Temporary diagnostic scripts were removed after the compact outputs were collected.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_MIGRATION_GROUP_AGGREGATE_REQUIRES_SEMANTIC_REVIEW",
+    "next_action": "STOP. REQUIRE EXPLICIT AUTHORIZATION TO DEFINE A SEMANTICALLY CANONICAL MIGRATION-ROW SELECTION CONTRACT OR TO ADD A REVIEWED INDEX; WITHOUT ONE, DO NOT CHANGE OR RETRY THE FULL PRICE/LIVE ROUTE."
   }
 }

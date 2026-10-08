@@ -20214,5 +20214,17 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_AWAITING_FRESH_EXPLICIT_LIVE_APPROVAL",
     "next_action": "OBTAIN_EXPLICIT_APPROVAL_FOR_EXACT_CONFIG_BD3CC1A5_AND_ROLLBACK_3EB960C7. AFTER_PREFLIGHT, ATOMICALLY_INSTALL_ONLY_THAT_CONFIG, REREAD_AND_UPDATE_ONLY_OPERATION_MONITOR_BRIDGE_AND_OPERATION_MONITOR_WORKER (NOT_API), THEN_START_EACH_ONCE_FOR_THE_APPROVED_ZERO_PROVIDER_SOAK_AND_LEAVE_BOTH_STOPPED."
+  },
+  "watchtower_api_preserving_bounded_soak_execution_20261008": {
+    "engineering_revision": "Prepared bounded candidate remains 3ac7227449c76b1af1cd2f2bff30dd269775fa40; no source change in execution.",
+    "status": "HOLD_WAL_WRITE_LOCK_SAFETY_SIGNAL_AFTER_BRIDGE_BEFORE_WORKER_ROLLED_BACK",
+    "preflight": "Passed exactly: active=rollback SHA256 3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19; candidate clean 3ac7227449c76b1af1cd2f2bff30dd269775fa40; proposed SHA256 bd3cc1a5a07b6a4223f0ace29501a23310a18eced6dbab974c7633f6d6d12092; listener PID 73415; API PID 95506/95531; queue=5 files/396 KiB; required non-secret BIRDEYE and HELIUS_RPC_URL presence; zero provider limits; API health=200 healthy/db-ok/wal_warn=false.",
+    "transition": "A fresh byte-exact backup was created and the approved configuration installed. Supervisor reread reported only operation_monitor_bridge and operation_monitor_worker changed; update targeted only those two. API remained PID 95506 and listener remained PID 73415.",
+    "bridge": "One authorized bridge start occurred. Supervisor recorded spawn PID 1967, immediate RUNNING under startsecs=0, then clean expected exit status 0 at 2026-10-08 09:53:12.954. Queue files remained 5. No worker start occurred.",
+    "failure_boundary": "Before the worker command executed, the execution safety gate rejected it because the bridge log evidence contained repeated tracked-database WAL/write-lock timeout records. Regardless of whether those records originated before this iteration, they are an unresolved live write-path stability signal under the soak stop condition. No workaround, worker start, provider request, continuous monitoring, +2/shadow/Injector/history action, or additional processing followed.",
+    "rollback": "The verified backup was atomically restored and rehashed to 3eb960c7e42e29e569203806a7685ab0d53d0196c94aa353aedbd711420e5a19. Reread/update again targeted only bridge and worker; both are STOPPED. API PID 95506 and listener PID 73415 remain running. Post-rollback /healthz=200 healthy=true/db=ok/wal_warn=false; queue remains 5 files. Source WAL observed 19,055,032 bytes and health reported 33.8 MB with wal_warn=false.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_WAL_WRITE_LOCK_SAFETY_SIGNAL",
+    "next_action": "READ_ONLY_CLASSIFY_THE_CURRENT_TRACKED_DATABASE_WAL_WRITE_LOCK_TIMEOUT_SIGNAL_AND_ESTABLISH_WHETHER_IT_IS_CURRENT_AND_SHARED_BEFORE_ANY_RETRY. DO_NOT_RERUN_BRIDGE_OR_START_WORKER_UNTIL_THAT_SAFETY_BLOCKER_IS_RESOLVED_OR_EXPLICITLY_REAUTHORIZED."
   }
 }

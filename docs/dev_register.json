@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "policy": {
+    "max_active_implementation_devs": 2,
+    "one_live_deployment_or_integration_transition": true,
+    "concurrent_changes_to_same_service_or_shared_mutable_state": "prohibited"
+  },
+  "devs": []
+}

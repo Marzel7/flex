@@ -39,3 +39,38 @@ It supplements, and never relaxes, the handoff and production-safety rules above
    production changes. Retain controlled DB/queue mutation, bounded provider
    use, the 500 MB per-file limit, compact evidence retention, authoritative
    paid BIRDEYE credential handling, and the rule that DEV is not production.
+
+## Development execution discipline V2
+
+V2 is mandatory for every new implementation DEV and supplements V1. The
+authoritative register is `docs/dev_register.json`; the deterministic offline
+guard is `scripts/validate_dev_discipline.py`. Neither command authorizes a
+runtime action or replaces the existing Supervisor isolation safeguard.
+
+1. **Admit before editing.** Assign a unique DEV ID, objective, clean isolated
+   `codex/` branch/worktree, approved starting SHA, named source/configuration
+   authority, definition of done, acceptance criteria, and dependencies. Run
+   the admission guard first. Missing, ambiguous, protected-runtime, or dirty
+   starting authority fails closed. Never develop inside a running service
+   checkout.
+2. **Maintain the register.** Add only observed current DEVs; mark unknown
+   history as unknown rather than reconstructing it. Record branch/worktree,
+   start/current SHA, status, next action, dependencies, qualification evidence,
+   and promotion state by reference to handoffs. At most two implementation
+   DEVs may be active. A second DEV may not touch the same production service or
+   shared mutable state. Only one live integration transition may be active.
+3. **Own isolation.** Each DEV owns its worktree and temporary test paths.
+   Tests must use distinct `/private/tmp` paths, retain the 500 MB per-file
+   prohibition, and fail before touching protected runtime paths, DB/queue
+   authorities, or live Supervisor endpoints. Reuse the established
+   Supervisor parser-only isolation guard; do not create a second mechanism.
+4. **Close handoffs deliberately.** Before reporting a DEV complete, require a
+   resolvable committed SHA, clean worktree, relevant regression result, remote
+   verification, limitations, and an exact next action. A failed handoff push
+   is `HANDOFF_TRANSPORT_DEGRADED`, not permission to discard local work.
+5. **Admit integration explicitly.** Before combining or promoting DEVs,
+   validate source/dependency authority, launcher-referenced tracked files,
+   required capabilities and producer/consumer wiring, actual active Supervisor
+   authority, parser-only isolation, and byte-exact rollback. A missing or
+   disabled component is never operational without documented proven-equivalent
+   evidence. Live mutation still requires separate explicit approval.

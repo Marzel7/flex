@@ -20250,6 +20250,17 @@
     "runtime_deployment_gate": "HOLD_BOUNDED_WORKER_COMPLETION_CONTRACT",
     "next_action": "READ_ONLY_ATTRIBUTE_PID_7442_AND_ITS_EXACT_CURRENT_RUNTIME_COMMAND_OR_LOG_STREAM, THEN QUALIFY_ONLY_THE_MINIMUM_WORKER_FINITE_ITERATION_CORRECTION. DO_NOT_RERUN_THE_SOAK_OR_ENABLE_CONTINUOUS_MONITORING_UNTIL_THAT_COMPLETION_BOUNDARY_IS_EXPLAINED."
   },
+  "watchtower_continuous_monitor_watermark_preapproval_20261008": {
+    "engineering_revision": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d on origin/codex/watchtower-monitor-bounded-soak; clean and remote-verified.",
+    "status": "PASS_FIXED_WATERMARK_CONTINUOUS_ACTIVATION_PREPARED_AWAITING_EXPLICIT_LIVE_APPROVAL",
+    "watermark_contract": "Committed docs/audits/watchtower_continuous_monitor_watermark.v1.json restores the exact prior contract: mode=DEV_005_ISOLATED_SOAK, allowlist=[], minimum_assignment_timestamp=1791446333. The value is Unix seconds, 2026-10-08T07:58:53Z. Empty allowlist means every forward natural assignment at or after the watermark is eligible; assignments before it are rejected. This replaces the incompatible one-mint Injector selection only for bridge/worker continuous monitoring; Injector materialization itself is unchanged.",
+    "enforcement_and_live_backlog": "Bridge constructs MonitorQueue with MONITOR_BRIDGE_SELECTION_PATH and applies queue.soak_allows to each source outbox committed_at before delivery. Worker constructs the same queue selection, selection_only_mode skips global reconciliation, and queue claims are filtered by soak_allows. Read-only live proof: all 91 monitor_admission_outbox rows and all 97 retained queue envelopes are below the watermark; post-watermark count=0 for both. No retained historical job is deleted, acknowledged, rewritten, or drained.",
+    "configuration_authority": "Active/rollback root SHA256=eac5c123f39bf0aad5ea8e2449e532fbdc8c89013b4998393a8a03bc7ec8c6e1. Prepared corrected continuous candidate SHA256=824655dde4283e79102ebd1282a4de783ebeebef942c01cf39bb0e2dea500c4f. Only bridge/worker stanzas differ; all other bytes and 15-program cardinality are preserved. Worker/bridge run continuous startsecs=5 mode; finite one-iteration and explicit zero provider overrides are absent. Existing provider defaults remain global=20/60s and per-mint=4/60s.",
+    "qualification": "Parser-only isolation passed on unique temporary endpoints; no daemon/control command ran. Launcher identity preflight passed. Exact watermark config binding, continuous contract, and non-target byte parity passed. Focused provider-free monitor/configuration suite passed 32/32, including committed-authority historical rejection and forward admission. Paid credential resolution is unchanged and no secret/provider request was used.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_AWAITING_EXPLICIT_LIVE_APPROVAL",
+    "next_action": "OBTAIN_EXPLICIT_APPROVAL_FOR_EXACT_CONFIG_824655DD_AND_ROLLBACK_EAC5C123. THEN_ATOMICALLY_INSTALL_ONLY_THAT_CONFIG, REREAD_UPDATE_ONLY_OPERATION_MONITOR_BRIDGE_AND_OPERATION_MONITOR_WORKER, START_ONLY_THOSE_TWO, OBSERVE_BOUNDED_CONTINUOUS_HEALTH_AND_POST_WATERMARK_WORK, AND_STOP_ON_THE_FIRST_SAFETY_OR_FUNCTIONAL_FAILURE."
+  },
   "watchtower_continuous_monitor_activation_preflight_20261008": {
     "engineering_revision": "86eff76e5285857123143445a634a31d432194df; read-only activation preflight only.",
     "status": "HOLD_FIXED_QUEUE_WATERMARK_NOT_PROVEN",

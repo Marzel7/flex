@@ -130,3 +130,45 @@ def test_compact_causal_order_evidence_is_append_only_and_not_canonical_state():
     assert conn.execute("SELECT count(*) FROM wt_treasury_rotation_causal_order_evidence").fetchone()[0] == 1
     assert {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")} >= {"wt_treasury_rotation_causal_order_evidence"}
     assert conn.execute("SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('wt_confirmed_treasuries','operator_launch_membership')").fetchone()[0] == 0
+
+
+def test_signature_window_requires_all_bounded_page_signatures_before_negative_result():
+    result = signature_window_coverage(page_signatures=["a", "b", "c"], decoded_signatures=["a", "c"])
+    assert result["status"] == COVERAGE_INCOMPLETE
+    assert result["missing_signatures"] == ["b"]
+    complete = signature_window_coverage(page_signatures=["a", "b"], decoded_signatures=["a", "b"])
+    assert complete["status"] == COVERAGE_COMPLETE
+
+
+def test_unknown_mesh_wallet_is_partial_not_a_confirmed_treasury():
+    assert classify_mesh_role(wallet="unknown", confirmed_treasuries={"treasury"}, known_subproviders={"sub"}, funding_accounts={"funding"}) == PARTIAL_LINEAGE
+    assert classify_mesh_role(wallet="sub", confirmed_treasuries={"treasury"}, known_subproviders={"sub"}, funding_accounts=set()) == KNOWN_SUBPROVIDER_MATCH
+
+
+def test_complete_verified_mesh_route_requires_direct_ordered_edges_and_verified_launch():
+    treasury = {"wallet": "T", "slot": 1, "transaction_index": 0, "instruction_index": 0, "signature": "t"}
+    edges = [
+        {"sender": "T", "receiver": "S", "slot": 2, "transaction_index": 0, "instruction_index": 0, "signature": "ts", "balance_delta_verified": True},
+        {"sender": "S", "receiver": "F", "slot": 3, "transaction_index": 0, "instruction_index": 0, "signature": "sf", "balance_delta_verified": True},
+        {"sender": "F", "receiver": "C", "slot": 4, "transaction_index": 0, "instruction_index": 0, "signature": "fc", "balance_delta_verified": True},
+    ]
+    launch = {"creator": "C", "slot": 5, "transaction_index": 0, "instruction_index": 0, "signature": "launch", "status": "VERIFIED_CREATOR_LAUNCH"}
+    result = qualify_mesh_route(treasury=treasury, transfers=edges, creator_launch=launch)
+    assert result["route_complete"] is True
+    assert result["classification"] == CONFIRMED_TREASURY_MATCH
+
+
+def test_contextual_creator_mint_colocation_never_completes_mesh_route():
+    treasury = {"wallet": "T", "slot": 1, "transaction_index": 0, "instruction_index": 0, "signature": "t"}
+    edge = {"sender": "T", "receiver": "C", "slot": 2, "transaction_index": 0, "instruction_index": 0, "signature": "tc", "balance_delta_verified": True}
+    result = qualify_mesh_route(treasury=treasury, transfers=[edge], creator_launch={"creator": "C", "slot": 3, "signature": "co", "status": "CONTEXTUAL_CREATOR_AND_MINT_COLOCATION"})
+    assert result["route_complete"] is False
+    assert result["reason"] == "CREATOR_LAUNCH_CONTEXTUAL_ONLY"
+
+
+def test_cycle_or_reversed_edge_cannot_complete_mesh_route():
+    treasury = {"wallet": "T", "slot": 10, "transaction_index": 0, "instruction_index": 0, "signature": "t"}
+    reversed_edge = {"sender": "T", "receiver": "C", "slot": 9, "transaction_index": 0, "instruction_index": 0, "signature": "old", "balance_delta_verified": True}
+    result = qualify_mesh_route(treasury=treasury, transfers=[reversed_edge], creator_launch=None)
+    assert result["route_complete"] is False
+    assert result["reason"] == "PARENT_AFTER_CHILD_SLOT"

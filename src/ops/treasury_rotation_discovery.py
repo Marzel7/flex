@@ -18,6 +18,15 @@ CONTRADICTORY_TREASURY = "CONTRADICTORY_TREASURY"
 INSUFFICIENT_EVIDENCE = "INSUFFICIENT_EVIDENCE"
 CANDIDATE_SEMANTIC_VERSION = "treasury-rotation-v1"
 
+# Acquisition code may use this provider-free contract to prevent a decoded
+# prefix of a signature page from being reported as a negative route result.
+COVERAGE_COMPLETE = "COMPLETE_SIGNATURE_WINDOW"
+COVERAGE_INCOMPLETE = "INCOMPLETE_SIGNATURE_WINDOW"
+PARTIAL_LINEAGE = "PARTIAL_LINEAGE"
+CONFIRMED_TREASURY_MATCH = "CONFIRMED_TREASURY_MATCH"
+KNOWN_SUBPROVIDER_MATCH = "KNOWN_SUBPROVIDER_MATCH"
+FUNDING_ACCOUNT_MATCH = "FUNDING_ACCOUNT_MATCH"
+
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS wt_treasury_rotation_candidates (
  operation_family TEXT NOT NULL, treasury TEXT NOT NULL,
@@ -73,6 +82,80 @@ def _event_key(edge: Mapping) -> tuple | None:
     if slot is None:
         return None
     return int(slot), _ordering_value(edge, "transaction_index"), _ordering_value(edge, "instruction_index")
+
+
+def signature_window_coverage(*, page_signatures: Iterable[str], decoded_signatures: Iterable[str]) -> dict:
+    """Describe exactly whether every signature in a bounded page was decoded.
+
+    A bounded page is a coverage window, not a representative sample.  Its
+    result must therefore be marked incomplete when a request cap, missing
+    transaction, or decode failure leaves even one signature unexamined.
+    """
+    page = tuple(dict.fromkeys(str(signature) for signature in page_signatures))
+    decoded = {str(signature) for signature in decoded_signatures}
+    missing = [signature for signature in page if signature not in decoded]
+    return {
+        "status": COVERAGE_COMPLETE if not missing else COVERAGE_INCOMPLETE,
+        "page_signature_count": len(page),
+        "decoded_signature_count": len(page) - len(missing),
+        "missing_signature_count": len(missing),
+        "missing_signatures": missing,
+    }
+
+
+def classify_mesh_role(*, wallet: str, confirmed_treasuries: Iterable[str],
+                       known_subproviders: Iterable[str], funding_accounts: Iterable[str]) -> str:
+    """Classify known mesh roles without promoting any unknown wallet."""
+    if wallet in set(confirmed_treasuries):
+        return CONFIRMED_TREASURY_MATCH
+    if wallet in set(known_subproviders):
+        return KNOWN_SUBPROVIDER_MATCH
+    if wallet in set(funding_accounts):
+        return FUNDING_ACCOUNT_MATCH
+    return PARTIAL_LINEAGE
+
+
+def qualify_mesh_route(*, treasury: Mapping, transfers: Iterable[Mapping],
+                       creator_launch: Mapping | None) -> dict:
+    """Qualify one Treasury -> Subprovider -> Funding -> Creator -> Launch path.
+
+    Each hop has to be a direct, balance-verified native transfer.  A creator
+    and mint sharing a transaction is contextual linkage only unless the
+    caller supplies an explicit creator-launch event coordinate.  This helper
+    has no provider or persistence dependency.
+    """
+    chain = [dict(treasury)]
+    current = str(treasury.get("wallet") or "")
+    for transfer in transfers:
+        edge = dict(transfer)
+        if edge.get("sender") != current or not edge.get("receiver"):
+            return {"route_complete": False, "classification": INSUFFICIENT_EVIDENCE,
+                    "reason": "DISCONNECTED_OR_DIRECTIONLESS_TRANSFER", "accepted_edges": chain}
+        if not edge.get("balance_delta_verified"):
+            return {"route_complete": False, "classification": INSUFFICIENT_EVIDENCE,
+                    "reason": "UNVERIFIED_ECONOMIC_MOVEMENT", "accepted_edges": chain}
+        if not edge.get("signature") or _event_key(edge) is None:
+            return {"route_complete": False, "classification": INSUFFICIENT_EVIDENCE,
+                    "reason": "TRANSFER_ORDER_COORDINATES_UNAVAILABLE", "accepted_edges": chain}
+        ordered, reason = causal_order(edge, chain[-1])
+        if not ordered:
+            return {"route_complete": False, "classification": INSUFFICIENT_EVIDENCE,
+                    "reason": reason, "accepted_edges": chain}
+        chain.append(edge)
+        current = str(edge["receiver"])
+    if creator_launch is None or creator_launch.get("creator") != current:
+        return {"route_complete": False, "classification": PARTIAL_LINEAGE,
+                "reason": "CREATOR_LAUNCH_LINK_UNAVAILABLE", "accepted_edges": chain}
+    launch = dict(creator_launch)
+    if launch.get("status") != "VERIFIED_CREATOR_LAUNCH" or not launch.get("signature") or _event_key(launch) is None:
+        return {"route_complete": False, "classification": PARTIAL_LINEAGE,
+                "reason": "CREATOR_LAUNCH_CONTEXTUAL_ONLY", "accepted_edges": chain}
+    ordered, reason = causal_order(launch, chain[-1])
+    if not ordered:
+        return {"route_complete": False, "classification": INSUFFICIENT_EVIDENCE,
+                "reason": reason, "accepted_edges": chain}
+    return {"route_complete": True, "classification": CONFIRMED_TREASURY_MATCH,
+            "reason": "QUALIFIED_TREASURY_TO_LAUNCH_ROUTE", "accepted_edges": chain + [launch]}
 
 
 def causal_order(child: Mapping, parent: Mapping) -> tuple[bool, str]:

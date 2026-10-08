@@ -20488,5 +20488,17 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_AUTOMATIC_SCHEDULER",
     "next_action": "DO_NOT_INSTALL_OR_ENABLE_AUTOMATIC_RETENTION. SEPARATELY QUALIFY_CANONICAL_LATENCY_AND_WAL_READER_BEHAVIOR_FOR_THE_100000_STEP_SELECTION_BUDGET_OR_APPROVE_A_SCHEMA_INDEX_PATH; THEN REASSESS_RATE/CAPACITY_AND_OBTAIN_LIVE_SCHEDULER_APPROVAL."
+  },
+  "dev023_indexed_expiry_selection_20261008": {
+    "engineering_revision": "0c5f290c3d020a3f11a7170df24e7c97793394df on origin/codex/dev-023-sustainable-retention; clean isolated worktree /private/tmp/flex-dev023-sustainable-retention; parent d8ac86d3d9a3bde17fb31a7fe13c3cdc8e395119.",
+    "status": "PASS_INDEX_STRATEGY_QUALIFIED_NOT_LIVE",
+    "strategy": "Proposed, non-executing migration SQL is CREATE INDEX IF NOT EXISTS idx_rpc_response_cache_expiry ON rpc_response_cache((cached_at + ttl_seconds)). The selector now orders by the same deterministic expression then rowid: WHERE cached_at + ttl_seconds <= ? ORDER BY cached_at + ttl_seconds, rowid LIMIT ?. SQLite 3.41.2 supports the deterministic numeric expression. The existing 200-row ceiling, expiry recheck at DELETE, and 100,000-step progress guard remain unchanged.",
+    "planner": "On an isolated 12,000-live-row plus expired-tail fixture, EXPLAIN QUERY PLAN before index reports SCAN. After the expression index, the planner reports use of idx_rpc_response_cache_expiry. The indexed sparse-tail selection completes under a 1,000-step progress budget and deletes only the three expired fixture rows; non-expired rows remain. This proves bounded selection on the qualified fixture, including few-expired-at-end behavior.",
+    "cost": "A compact 50,000-row WAL-mode fixture measured index build=25.6 ms and index WAL delta=832,240 bytes, approximately 16.6 bytes/row. This is an isolated representative measurement only; it is not a canonical runtime estimate. Fixture and WAL/SHM were removed after measurement and remain far below 500MB.",
+    "online_risk": "Live CREATE INDEX is a schema-writing transaction that can contend with canonical writers and grow WAL. No live index creation, schema change, scan, scheduler enablement, Supervisor action, provider call, or retention tick occurred. Safe online creation is therefore UNPROVEN and requires separate reviewed timing, WAL headroom, lock-window, rollback/disable, and explicit live authorization.",
+    "qualification": "27 provider-free DEV-023 tests passed: prior scan bound, 200-row cap, expiry recheck, idempotence, non-expired preservation, lock/WAL/disk guards, disabled scheduler, overlap and alert contracts, plus the new expression-index planner and sparse-tail bound test.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED_SCHEMA_CHANGE_REQUIRED",
+    "next_action": "PREPARE_A_SEPARATE_CANONICAL_SCHEMA_INDEX_CHANGE_PLAN_WITH_EXACT_PRECHECKS_WAL_HEADROOM_WRITE_LOCK_WINDOW_AND_ROLLBACK/DISABLE_BEFORE_REQUESTING_LIVE_APPROVAL. DO_NOT_ENABLE_AUTOMATIC_RETENTION UNTIL_THE_INDEX_PATH_AND_RATE/CAPACITY_ARE_LIVE_QUALIFIED."
   }
 }

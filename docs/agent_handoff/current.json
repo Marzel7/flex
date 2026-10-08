@@ -20666,5 +20666,18 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "One isolated research batch and compact audit retention only; no executable runtime behavior was changed.",
     "next_action": "STOP_AFTER_THIS_AUTHORIZED_BATCH. PRESERVE_PARTIAL_ROUTE_EVIDENCE; DO_NOT_EXTEND_RPC_BUDGET_DEPLOY_DISCOVERY_OR_PROMOTE_TREASURIES_OR_LAUNCHES WITHOUT_SEPARATE_EXPLICIT_AUTHORIZATION."
+  },
+  "dev019_targeted_amq_to_launch_route_qualification_20261008": {
+    "engineering_revision": "Read-only retained-evidence review against compact research commit 7ddff910eb7270c3d670a474ec062df99a4338a5 on origin/codex/dev-019-source-recovery; no implementation or runtime change.",
+    "status": "HOLD_RETAINED_ROUTE_INCOMPLETE_NO_PROMOTION",
+    "objective": "Determine whether retained evidence proves a causally ordered Gzaa -> AMQ -> unresolved 2BVf launch route, without RPC acquisition or attribution change.",
+    "amq_identity": "AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX.",
+    "retained_evidence": "The compact batch records Gzaa -> AMQ 550 SOL at slot 454210546, transaction_index 304, instruction_index 2, signature 43JBywZNm35Um92B4mtZFMVevxrSxfpTo6V2xuLPZbuLjH1Mo8D92SrGvY3x33K5aDGwjKQQ7F7YuvFqdFTJCG2i, with independently verified source/receiver deltas. It also records later AMQ -> Gzaa reciprocal 1,000 SOL and 10 SOL facts as cycle-review observations. The manual artifact contextually states 88WR -> AMQ -> 8CUbQw5zjzR1hvExdRQLcS6MpdCHprp6ohwPBYfoWTHM -> creator 6eKxDUjCHU9h2tHgRqDSuACf21zDu8WP9q2NJM6njzcr -> launch 2BVfJ4AHMvHdKtEZNHaBr48dQzTfZvYkjaaxbM6bpump, but does not retain per-hop signatures, slots, transaction indexes, instruction indexes, or structured verified balance deltas for the AMQ -> 8CUb, 8CUb -> creator, or creator -> launch steps.",
+    "causal_result": "COMPLETE_ROUTE_PROVEN=false. The documented Gzaa -> AMQ fact is not linked by retained causal coordinates to the manual target route, whose stated upstream account is 88WR. Amounts, timestamps, reciprocal transfers, and wallet adjacency were not substituted for the missing ordering evidence. Positive control remains INSUFFICIENT_EVIDENCE; no candidate, treasury, membership, or attribution was promoted.",
+    "targeted_rpc_proposal": "No exact missing-hop signatures or signature-history cursors are retained, so no exact transaction-only request set is currently addressable. If separately authorized, the smallest discovery proposal is one non-paginated getSignaturesForAddress page (limit <=20) each for AMQ, 8CUbQw5zjzR1hvExdRQLcS6MpdCHprp6ohwPBYfoWTHM, and creator 6eKxDUjCHU9h2tHgRqDSuACf21zDu8WP9q2NJM6njzcr, followed by at most 20 total getTransaction reads selected from those pages: <=23 Helius calls, no retries, no pagination, no fallback provider, compact facts only. This proposal may still be insufficient and requires separate authorization; it was not executed.",
+    "safety": "Provider calls=0; live DB/queue writes=0; Supervisor/service/listener actions=0; treasury confirmations=0; membership promotions=0; raw transaction/block retention=0; frozen Watchtower and DEV-023 baselines unchanged; no large file.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only evidence qualification only; no executable runtime behavior changed.",
+    "next_action": "STOP. PRESERVE_THE_PARTIAL_ROUTE. ONLY_A_SEPARATELY_AUTHORIZED_CAPPED_SIGNATURE-DISCOVERY_BATCH_CAN_ATTEMPT_TO_RECOVER_MISSING_CAUSAL_COORDINATES; DO_NOT_PROMOTE_OR_ACQUIRE_AUTOMATICALLY."
   }
 }

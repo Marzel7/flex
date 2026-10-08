@@ -20706,5 +20706,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "DEV-only provider-free qualification; no executable runtime path is installed or enabled.",
     "next_action": "REQUEST_EXPLICIT_APPROVAL_FOR_THE_<=66-CALL_BATCH1_COVERING_WINDOW_BEFORE_ANY_ADDITIONAL_HELIUS_ACQUISITION."
+  },
+  "dev019_amq_coverage_batch1_20261008": {
+    "engineering_revision": "Batch failure evidence commit 7b697a94e111bbbf175c5cb049936461f39fd90f on origin/codex/dev-019-mesh-discovery; coverage/decoder source remains 61bd442780d2b57e1d80f715979f071483087e8b.",
+    "status": "BLOCKED_ACQUISITION_TRANSACTION_VERSION_CONTRACT",
+    "authorization": "Executed only the authorized Batch 1 AMQ limits: up to three cursor-bounded 20-signature pages, up to 60 transaction reads, up to three selective blocks, <=66 total, no retries/fallback, no raw retention.",
+    "failure": "The one-shot process aborted at its first getTransaction decode with Helius RPC error -32015 because the fixed maxSupportedTransactionVersion=0 request parameter did not support the encountered transaction version. No retry, alternate version request, fallback provider, pagination expansion, or block request was made.",
+    "coverage": "INCOMPLETE. The process did not persist page boundaries before the first decode failure, so exact successful signature-page count is deliberately not asserted. Decoded transaction facts=0; AMQ -> 8CUb 770 SOL=NOT_EVALUATED; verified AMQ outbound transfers=0. The failure cannot be interpreted as absence evidence.",
+    "artifact": "docs/audits/dev_019_amq_coverage_batch1.v1.json, 1,966 bytes, compact failure metadata only; raw RPC payload=false.",
+    "safety": "Live DB/queue writes=0; Supervisor/service/listener actions=0; treasury confirmations=0; membership promotions=0; canonical attribution changes=0; no large file. The provider request occurred only within the authorized Batch 1 ceiling; no successful decoded provider fact was retained.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Research failure record and blocked V2 register state only; no runtime behavior is deployed.",
+    "next_action": "STOP. A separately authorized revised version-negotiation acquisition contract must preserve compact page boundaries before any decode and support the observed transaction version; do not retry this exhausted Batch 1 authorization."
   }
 }

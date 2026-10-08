@@ -1,0 +1,56 @@
+{
+  "schema_version": "DEV019_TREASURY_OUTBOUND_MONITORING_QUALIFICATION_V1",
+  "status": "QUALIFIED_PROVIDER_FREE_NOT_DEPLOYED",
+  "scope": "Known confirmed treasury outbound SOL monitoring contract only",
+  "measured_inputs": {
+    "confirmed_treasuries": 83,
+    "activity_population": {
+      "HOT": 2,
+      "ACTIVE": 17,
+      "DORMANT": 14,
+      "RETIRED_CANDIDATE": 50,
+      "ACTIVITY_UNKNOWN": 0
+    },
+    "retained_known_outbound_records": 1,
+    "retained_known_outbound_fact": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac -> AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX; 550 SOL; compact retained evidence only"
+  },
+  "provider_audit": {
+    "helius": "RECOMMENDED: existing explicit-authority JSON-RPC transport, version-aware compact decoder, and ws_cascade websocket capability. Existing deployed ws_cascade configuration has treasury subscription cap 0, so it is not an active treasury-monitoring authority.",
+    "helius_webhook": "POSSIBLE FUTURE EVENT ROUTE: existing webhook infrastructure exists, but current treasury-address coverage and delivery health are not qualified by this DEV.",
+    "solana_rpc_fallback": "NOT ELIGIBLE: existing legacy helpers may fall back, whereas DEV-019 requires explicit authority and no fallback/retry.",
+    "alchemy": "NOT SELECTED: retained integration is for historical account state, not an established bounded outbound-monitoring transport.",
+    "birdeye": "NOT SELECTED: authoritative paid price provider, not native-SOL transaction lineage acquisition."
+  },
+  "monitoring_model": {
+    "feature_flag_default": false,
+    "event_route": "Future Helius websocket/webhook delivery may mark a treasury RECONCILIATION_DUE; it cannot claim coverage until bounded reconciliation completes.",
+    "reconciliation": "Every confirmed treasury remains eligible. HOT every 15 minutes, ACTIVE hourly, DORMANT/RETIRED/UNKNOWN daily; one cursor-bounded getSignaturesForAddress page (<=20) per due treasury, decode all selected signatures before cursor advance.",
+    "failure_recovery": "Persist cursor and coverage status. On partial decode, provider limit, rotation, or failure retain the old cursor and mark COVERAGE_INCOMPLETE or PROVIDER_LIMIT_STOP. No negative conclusion and no full-wallet rescan.",
+    "direction_and_decode": "Use existing compact native decoder. Index only direct System transfers whose sender is a confirmed treasury and whose balance deltas verify. Decode outer and inner instructions; retain WSOL close events as context, never as direct funding.",
+    "forward_backward_contract": "A verified outbound compact record indexes recipient. A later Walkback chain intersects it only when direct verified edges are contiguous, strictly ordered, and amount-compatible. Shared recipients remain ambiguous. Connection exposes review-only funding provenance; operation assignment remains null."
+  },
+  "cost_model": {
+    "status": "ESTIMATE_NOT_PROVIDER_QUOTE",
+    "assumptions": "Measured 83-account activity mix scaled deterministically; one signature request per due reconciliation; zero transaction decodes shown below. Add one getTransaction request for every selected changed signature requiring classification. Existing repository metric schedule charges 10 credits per listed request; live plan pricing was not queried.",
+    "daily_signature_requests": {"83": 664, "200": 1618, "500": 4009, "1000": 7995},
+    "daily_request_credits_at_10_each": {"83": 6640, "200": 16180, "500": 40090, "1000": 79950},
+    "recovery_overhead": "A failed or partial selected page is retried only by an explicitly authorized future bounded recovery policy; this contract does not silently retry."
+  },
+  "storage_model": {
+    "status": "ESTIMATE_WITH_HARD_CONTRACT_BOUND",
+    "compact_record_bound_bytes": 1024,
+    "estimated_logical_bytes_per_day_at_one_record_per_treasury": {"83": 84992, "200": 204800, "500": 512000, "1000": 1024000},
+    "store_fail_closed_bytes": 10000000,
+    "maximum_single_file_bytes": 10000000,
+    "raw_transaction_payload_retention": false,
+    "unbounded_growth_paths": 0
+  },
+  "safety": {
+    "provider_calls": 0,
+    "live_database_or_queue_writes": 0,
+    "supervisor_or_listener_actions": 0,
+    "operation_membership_promotions": 0,
+    "feature_flags_enabled": 0
+  },
+  "next_gate": "A separate live-acquisition/deployment approval must validate actual Helius websocket or webhook capacity, current configured treasury coverage, durable cursor-store authority, provider budget, runtime deployment gate, and a bounded recovery policy before any monitoring starts."
+}

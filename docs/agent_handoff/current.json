@@ -20431,5 +20431,16 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS_PINNED_DISABLED_INSTALL_ONLY",
     "next_action": "OBTAIN_FRESH_EXPLICIT_AUTHORIZATION_FOR_ONE_CAPPED_LIVE_RETENTION_TICK_ONLY_AFTER_REVALIDATING_THE_75600F8E_RUNTIME_CANONICAL_DATABASE_WRITE_LANE_DISK_WAL_AND_SERVICE_HEALTH; DO_NOT_ENABLE_A_SCHEDULE."
+  },
+  "dev023_first_corrected_live_tick_preflight_20261008": {
+    "engineering_revision": "Installed clean corrected runtime /private/tmp/flex-dev023-retention-runtime-75600f8e at 75600f8e087df0a849176d8d495eba95af3e3759; prior disabled e7103c03 runtime preserved.",
+    "status": "HOLD_DISK_FLOOR_PREVENTED_LIVE_TICK",
+    "preflight": "Runtime SHA was exact and clean. Effective enabled limits are batch_rows=200 and max_rows_per_run=200; the adapter retains P3 housekeeping priority, expiry recheck, WAL ceiling, and stop-file guard. Canonical rpc_response_cache schema matched exactly; a fresh cutoff 1791458793 found at least 201 eligible expired rows. Canonical WAL was 638,632 bytes and no retention process or configured stop file was present.",
+    "blocker": "Canonical-volume free space was 4,201,443,328 bytes, below the fixed qualified runtime floor of 4,294,967,296 bytes (4 GiB). The approved stop condition applies. No write-lane acquisition, SQLite connection through the retention runtime, transaction, commit, rollback, or deletion was attempted.",
+    "operations": "Read-only checks found legitimate supervisord PID 73409, listener PID 73415, and existing operation monitor bridge PID 21106 unchanged. API health remained healthy=true. Scheduler digest remains 9bfdc6645e8a486430e0dc6eb4b3203e58324e7ab7807fd3ddc20f89a567a803. No Supervisor control command occurred.",
+    "safety": "Expired rows deleted=0; non-expired rows deleted=0; live DB/queue writes=0; provider calls=0; scheduler enablement=0; service/listener/API/bridge/worker actions=0; VACUUM/checkpoint=0; no files approach 500MB.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "DO_NOT_RUN_OR_RETRY_RETENTION_WHILE_FREE_SPACE_IS_BELOW_THE_FIXED_4_GIB_GUARD. RESTORE_QUALIFIED_DISK_HEADROOM_THROUGH_SEPARATE_AUTHORIZED_STORAGE_WORK, THEN REPEAT_THE_FULL_PRELIGHT_AND_OBTAIN_FRESH_SINGLE_TICK_AUTHORIZATION."
   }
 }

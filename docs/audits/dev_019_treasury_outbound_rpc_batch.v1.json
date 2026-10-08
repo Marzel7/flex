@@ -1,0 +1,67 @@
+{
+  "artifact_version": "DEV_019_TREASURY_OUTBOUND_RPC_BATCH_V1",
+  "status": "COMPLETED_BOUNDED_PARTIAL_ROUTE_RESEARCH",
+  "acquired_at_utc": "2026-10-08T13:32:54Z",
+  "source_authority": "a9fa1b2738d1a35bf084c66a7963fc1ead7b4467",
+  "operation_identity": "WATCHTOWER; historical WATCHTOWER_DEEP labels are provenance only",
+  "manual_artifact_sha256": "c214598cbda39b374127399310dfb259e0f8af8d6d049bc62b63f7ba962229a3",
+  "limits": {
+    "seed_count": 3,
+    "max_hops": 2,
+    "max_requests": 60,
+    "requests_used": 57,
+    "request_methods": {
+      "getSignaturesForAddress": 6,
+      "getTransaction": 51
+    },
+    "retries": 0,
+    "fallback_provider": false,
+    "per_request_timeout_seconds": 20,
+    "raw_rpc_payload_retained": false,
+    "output_limit_bytes": 262144
+  },
+  "seeds": {
+    "confirmed_treasury": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "candidate_roots": [
+      "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe",
+      "2b6FSoRWU2TwR8gH86ZTipf1LayqXfvdxGtBuiFAJhaN"
+    ]
+  },
+  "compact_transfer_facts": [
+    {"sender":"GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac","receiver":"AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX","signature":"43JBywZNm35Um92B4mtZFMVevxrSxfpTo6V2xuLPZbuLjH1Mo8D92SrGvY3x33K5aDGwjKQQ7F7YuvFqdFTJCG2i","slot":454210546,"transaction_index":304,"instruction_index":2,"lamports":550000000000,"source_balance_delta":-550000079934,"receiver_balance_delta":550000000000,"balance_delta_verified":true,"screening":"MATERIAL","confidence":"PARTIAL_ROUTE"},
+    {"sender":"88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe","receiver":"2b6FSoRWU2TwR8gH86ZTipf1LayqXfvdxGtBuiFAJhaN","signature":"2ecitt95DJRX5j8RQGS8Ch9GnbTQ5uZ2tboyDgRJhSi5cpG9LfiawcGgFSJvBS6XEMAWSxHsgRtEW2qUZqdtqiYE","slot":454460940,"transaction_index":490,"instruction_index":2,"lamports":300000000000,"source_balance_delta":-300000079934,"receiver_balance_delta":300000000000,"balance_delta_verified":true,"screening":"MATERIAL","confidence":"PARTIAL_ROUTE"},
+    {"sender":"88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe","receiver":"FZ6w91dTQwWHWA9kLSYQfpxm4LPNnyjiGPTBG1GvBZjS","signature":"3Uhjy63UjF1uwukQApgMxgSGZVieNhy42sKiFFooQm6gFEfNHF5MMA4aSH1qTWWuJ77fC9QNbBLz7DwYcCcvvfzB","slot":454452450,"transaction_index":146,"instruction_index":2,"lamports":1050000000,"source_balance_delta":-1050079934,"receiver_balance_delta":1050000000,"balance_delta_verified":true,"screening":"DUST_OR_SUBTHRESHOLD","confidence":"REJECTED_NOISE"},
+    {"sender":"2b6FSoRWU2TwR8gH86ZTipf1LayqXfvdxGtBuiFAJhaN","receiver":"9S979BF6BA7HjA7SuNLw8aPDEEowJUsMUrUkSQVzCAk4","signature":"NhGMVGHNVwuYMaQY7rEfyN5vWsa5biGcA6aUSTojCXTHepUUb1YsNXJoQKL4DGvRxyfvSpZwkLfdj6PRoCAFmCv","slot":454461468,"transaction_index":206,"instruction_index":2,"lamports":300000000000,"source_balance_delta":-300000079934,"receiver_balance_delta":300000000000,"balance_delta_verified":true,"screening":"MATERIAL","confidence":"PARTIAL_ROUTE"},
+    {"sender":"2b6FSoRWU2TwR8gH86ZTipf1LayqXfvdxGtBuiFAJhaN","receiver":"9S979BF6BA7HjA7SuNLw8aPDEEowJUsMUrUkSQVzCAk4","signature":"aQ2KTw2oMYg5h1euufQVmPXXJXb6bEbweP4AYxgmNtzGqvbJi32C27j9zgxVcFwkeCbuTWktVKF9rwqZa2DizJW","slot":454461363,"transaction_index":95,"instruction_index":2,"lamports":3000000000,"source_balance_delta":-3000079934,"receiver_balance_delta":3000000000,"balance_delta_verified":true,"screening":"DUST_OR_SUBTHRESHOLD","confidence":"REJECTED_NOISE"},
+    {"sender":"2b6FSoRWU2TwR8gH86ZTipf1LayqXfvdxGtBuiFAJhaN","receiver":"9S979BF6BA7HjA7SuNLw8aPDEEowJUsMUrUkSQVzCAk4","signature":"Kx9eg8T8kJUu4Hu7Xa8yKJCPZmtJJPLEaH1De9KXvMEdpXptZfh2AdqhWFyj3H8iqRo3ShJVGnaDWw4qYZZZaxv","slot":454378758,"transaction_index":1140,"instruction_index":2,"lamports":730000000000,"source_balance_delta":-730000079934,"receiver_balance_delta":730000000000,"balance_delta_verified":true,"screening":"MATERIAL","confidence":"PARTIAL_ROUTE"},
+    {"sender":"2b6FSoRWU2TwR8gH86ZTipf1LayqXfvdxGtBuiFAJhaN","receiver":"84fPmkjpseJkdyTyhKiGdKZZSXQR56DvcEZ7wKGm5x52","signature":"4eKt8ydznfziV7Sqajzrs5uujdJKaXwpSrSDKLAGFChi4HbpUUM6ExZoihE89iR5hTP7amPcsb2LiCmjri4scnBq","slot":454378638,"transaction_index":708,"instruction_index":2,"lamports":100000000000,"source_balance_delta":-100000079934,"receiver_balance_delta":100000000000,"balance_delta_verified":true,"screening":"MATERIAL","confidence":"PARTIAL_ROUTE"},
+    {"sender":"2b6FSoRWU2TwR8gH86ZTipf1LayqXfvdxGtBuiFAJhaN","receiver":"F1EJm8GjM35xTqsub6WY5t9aFhxXEvLwiyAkhZhgQ4vs","signature":"4iYsw9wv5q3zGQZWM4zmMT7vXLmU2V1Gvx3jzgfXjhD5PxmiVL3dMXcDetmefRfA9LTmphm3PK9yNdWgMFzran6x","slot":454378507,"transaction_index":369,"instruction_index":2,"lamports":200000000000,"source_balance_delta":-200000079934,"receiver_balance_delta":200000000000,"balance_delta_verified":true,"screening":"MATERIAL","confidence":"PARTIAL_ROUTE"},
+    {"sender":"2b6FSoRWU2TwR8gH86ZTipf1LayqXfvdxGtBuiFAJhaN","receiver":"kVCLVN1UnXURtxHSUDmxQFbXtPi8naArUSGSmR3A9uf","signature":"YRUXfvTNXZYL9GFyKa9SUAZCzTayZVqKZEFWcgnB7if86vdMGZKaz9rCjtAgqBh5Y5zsjvf74ApVt7jqepug6BH","slot":454378404,"transaction_index":1587,"instruction_index":2,"lamports":50000000000,"source_balance_delta":-50000079934,"receiver_balance_delta":50000000000,"balance_delta_verified":true,"screening":"MATERIAL","confidence":"PARTIAL_ROUTE"},
+    {"sender":"AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX","receiver":"GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac","signature":"5aRYo4WAsmqJB5TgPPf5MH99v6Ye2DUMqWCZ8V12VgUeqd8nomDuCJ81d72fVY68VRuDEHSiso1NLjoWHDTtSnwc","slot":454556071,"transaction_index":85,"instruction_index":2,"lamports":1000000000000,"source_balance_delta":-1000000079934,"receiver_balance_delta":1000000000000,"balance_delta_verified":true,"screening":"MATERIAL","confidence":"PARTIAL_ROUTE_CYCLE_REVIEW"},
+    {"sender":"AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX","receiver":"GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac","signature":"5Z5ZKCGGN5tQYjXgV2riEfCJhKX43Ff9ptGjtYH5BZ9j3wE5a6HTMWpabwLt3EtQRKZ73vbGfeCgK6zEcprFtu18","slot":454555757,"transaction_index":23,"instruction_index":2,"lamports":10000000000,"source_balance_delta":-10000079934,"receiver_balance_delta":10000000000,"balance_delta_verified":true,"screening":"MATERIAL","confidence":"PARTIAL_ROUTE_CYCLE_REVIEW"}
+  ],
+  "deduplication": {
+    "raw_observations": 15,
+    "unique_signature_instruction_facts": 11,
+    "duplicate_cross_seed_observations_not_counted_as_independent": 4
+  },
+  "match_result": {
+    "manual_contextual_unresolved_launch_match": "AMQpvZKhZ5fKRGg4pnCvWjmj2dGUJ5SrYNw9HvTCPfeX appears in the retained manual route for 2BVfJ4AHMvHdKtEZNHaBr48dQzTfZvYkjaaxbM6bpump.",
+    "complete_creator_launch_causal_path_count": 0,
+    "new_distributor_candidates_qualified": 0,
+    "new_treasury_candidates_emitted": 0,
+    "limitations": [
+      "The bounded batch did not acquire a complete Funding Account -> Creator -> Launch route.",
+      "The reciprocal Gzaa/AMQ transfer observations are mesh/cycle-review evidence, not independent route proof.",
+      "No getBlock request was made; transaction index is retained only where getTransaction supplied it."
+    ]
+  },
+  "safety": {
+    "live_database_queue_writes": 0,
+    "supervisor_or_listener_actions": 0,
+    "treasury_confirmations": 0,
+    "operation_membership_promotions": 0,
+    "canonical_attribution_changes": 0,
+    "single_file_maximum_bytes": 262144
+  }
+}

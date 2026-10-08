@@ -46,8 +46,8 @@
       "worktree": "/private/tmp/flex-dev-019-source-recovery",
       "starting_sha": "8be99ed28aa2228dc9cec7d63103eab27376086d",
       "current_sha": "a9fa1b2738d1a35bf084c66a7963fc1ead7b4467",
-      "status": "EVIDENCE_BLOCKED",
-      "next_action": "Do not reopen DEV-019 evidence recovery. Preserve the manual findings without promotion. Only a separately authorized retained-evidence source containing per-hop slot, transaction index, instruction index, and verified balance-delta facts could support future review-only qualification.",
+      "status": "PARTIAL_ROUTE_RESEARCH_COMPLETE_NOT_PROMOTED",
+      "next_action": "Preserve the bounded outbound batch. Do not extend acquisition, deploy discovery, or promote candidates. Any later work requires separate authorization and must start from the compact batch artifact.",
       "dependencies": [
         "Development Execution Discipline V2",
         "Legacy DEV-019 Phase 1/2/2B contracts",
@@ -75,6 +75,7 @@
         "Remote branch origin/codex/dev-019-source-recovery resolves to d0be636a5bd05bd51560cae9370e092311c63f80, whose parent a9fa1b2738d1a35bf084c66a7963fc1ead7b4467 is the recovered source commit",
         "Manual artifact SHA256 verified; its stated 81416/81416 retained causal-order gap means both candidate shapes fail closed as NO_CAUSAL_PARENT / INSUFFICIENT_EVIDENCE in an isolated provider-free contract check",
         "Final bounded retained-evidence recovery: 88WR has 46 retained selected edges with signature and amount but all lack slot, transaction index, and instruction index; 2B6F has zero retained selected edges and lacks signature, ordering, and amount evidence. No route qualifies."
+        ,"Bounded Helius-only outbound batch: 57 requests, 11 unique compact facts, 9 verified material transfers, 2 dust/subthreshold transfers, 0 complete creator-launch routes, and no promotion."
       ],
       "integration_promotion_status": "SOURCE_RECOVERY_ONLY_NOT_RUNTIME_PROMOTED",
       "touched_services": [],

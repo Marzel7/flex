@@ -9,7 +9,7 @@ from src.ops.watchtower_supervisor_composition import (
 )
 
 
-SOURCE = b'''[unix_http_server]\nfile=/tmp/live.sock\n\n[supervisord]\npidfile=/tmp/live.pid\n\n[program:watchtower_api]\ncommand=old-api\ndirectory=/old\nenvironment=LEGACY="1"\nautostart=true\n\n[program:watchtower_listener]\ncommand=listener\ndirectory=/listener\nenvironment=KEEP="yes"\nautostart=true\nautorestart=true\nstdout_logfile=/logs/listener.log\n\n[program:unrelated]\ncommand=keep-me\nautostart=true\n\n[program:operation_monitor_worker]\ncommand=old-worker\ndirectory=/old\nautostart=false\n\n'''
+SOURCE = b'''[unix_http_server]\nfile=/tmp/live.sock\n\n[supervisord]\npidfile=/tmp/live.pid\n\n[program:watchtower_api]\ncommand=old-api\ndirectory=/old\nenvironment=LEGACY="1"\nautostart=true\n\n[program:watchtower_listener]\ncommand=listener\ndirectory=/listener\nenvironment=KEEP="yes"\nautostart=true\nautorestart=true\nstdout_logfile=/logs/listener.log\n\n[program:unrelated]\ncommand=keep-me\nautostart=true\n\n[program:operation_monitor_worker]\ncommand=old-worker\ndirectory=/old\nautostart=false\n\n[program:operation_monitor_bridge]\ncommand=old-bridge\ndirectory=/old\nautostart=false\n\n'''
 
 
 def _paths(tmp_path):
@@ -35,7 +35,9 @@ def test_composition_preserves_listener_and_unrelated_bytes(tmp_path):
     assert candidate.count(b"[program:watchtower_listener]") == 1
     assert candidate.count(b"[program:watchtower_api]") == 1
     assert candidate.count(b"[program:operation_monitor_worker]") == 1
+    assert candidate.count(b"[program:operation_monitor_bridge]") == 1
     assert b"directory=/candidate" in candidate
+    assert b"scripts/launch_watchtower_final.sh api" in candidate
     assert b'WATCHTOWER_FINAL_SHA="1bfacfc8683b03c4c0ac1cf5276d3bedf47990b1"' in candidate
     assert b'WATCHTOWER_SHADOW_CAPTURE_ENABLED="0"' in candidate
     assert b"autostart=false\nautorestart=false\nstartretries=0" in candidate
@@ -63,7 +65,8 @@ def test_composition_rejects_missing_duplicate_or_include_targets(tmp_path):
 
 def test_api_only_composition_preserves_every_non_api_byte_and_does_not_add_worker(tmp_path):
     source = SOURCE.replace(
-        b"[program:operation_monitor_worker]\ncommand=old-worker\ndirectory=/old\nautostart=false\n\n",
+        b"[program:operation_monitor_worker]\ncommand=old-worker\ndirectory=/old\nautostart=false\n\n"
+        b"[program:operation_monitor_bridge]\ncommand=old-bridge\ndirectory=/old\nautostart=false\n\n",
         b"",
     )
     candidate = compose_api_only(source, _paths(tmp_path))
@@ -80,7 +83,8 @@ def test_api_only_composition_preserves_every_non_api_byte_and_does_not_add_work
 
 def test_monitoring_topology_adds_only_disabled_worker_and_bridge(tmp_path):
     source = SOURCE.replace(
-        b"[program:operation_monitor_worker]\ncommand=old-worker\ndirectory=/old\nautostart=false\n\n",
+        b"[program:operation_monitor_worker]\ncommand=old-worker\ndirectory=/old\nautostart=false\n\n"
+        b"[program:operation_monitor_bridge]\ncommand=old-bridge\ndirectory=/old\nautostart=false\n\n",
         b"",
     )
     candidate = compose_monitoring_topology(source, _paths(tmp_path))
@@ -97,7 +101,8 @@ def test_monitoring_topology_adds_only_disabled_worker_and_bridge(tmp_path):
 
 def test_monitoring_topology_rejects_partial_or_duplicate_existing_topology(tmp_path):
     source = SOURCE.replace(
-        b"[program:operation_monitor_worker]\ncommand=old-worker\ndirectory=/old\nautostart=false\n\n",
+        b"[program:operation_monitor_worker]\ncommand=old-worker\ndirectory=/old\nautostart=false\n\n"
+        b"[program:operation_monitor_bridge]\ncommand=old-bridge\ndirectory=/old\nautostart=false\n\n",
         b"",
     )
     partial = source + b"[program:operation_monitor_worker]\ncommand=old\n"

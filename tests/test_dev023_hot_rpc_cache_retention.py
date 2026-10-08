@@ -65,3 +65,14 @@ def test_busy_database_fails_closed_without_deleting(tmp_path):
         lock.rollback(); lock.close()
     assert result == {"status": "STOP_WRITE_LANE_ERROR", "deleted": 0}
     assert set(_keys(path)) == {"expired-a", "expired-b", "live"}
+
+
+def test_stop_file_blocks_contract_before_any_delete(tmp_path):
+    path = _db(tmp_path)
+    stop = tmp_path / "DEV023_STOP"
+    stop.write_text("stop")
+    assert retain_expired_rpc_cache(
+        database_path=str(path), canonical_database_path=str(path), cutoff=10,
+        limits=_limits(), stop_file=str(stop),
+    ) == {"status": "STOP_FILE", "deleted": 0}
+    assert set(_keys(path)) == {"expired-a", "expired-b", "live"}

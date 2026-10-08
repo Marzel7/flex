@@ -1,0 +1,11 @@
+{
+  "schema_version": "dev023.hot-rpc-cache-retention.runtime.v1",
+  "enabled": false,
+  "scheduler": "external_existing_maintenance_infrastructure",
+  "cadence_seconds": 86400,
+  "maximum_rows_per_tick": 200,
+  "priority": "P3_HOUSEKEEPING",
+  "stop_file_env": "DEV023_HOT_RPC_RETENTION_STOP_FILE",
+  "enable_env": "DEV023_HOT_RPC_RETENTION_ENABLED",
+  "activation": "EXPLICIT_SEPARATE_AUTHORIZATION_REQUIRED"
+}

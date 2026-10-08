@@ -1,4 +1,15 @@
 {
+  "dev024_uv_cache_recovery_20261008": {
+    "engineering_revision": "Operational storage recovery only; DEV-024 candidate 6806d2b2268bd5240f52be184bfbde1642070f76 remains qualified and not deployed.",
+    "status": "PASS_DISK_HEADROOM_RECOVERED_NO_DEPLOYMENT",
+    "finding": "Verified local Serena/Pyright development tooling, distinct from all Flex services, was gracefully terminated at its two uvx Serena roots and orphan dashboard. Their descendants exited; uv cache references and lock holders were absent before pruning. The resolved target was exactly /Users/kevinkeaveney/.cache/uv. Supported offline `uv cache prune --offline` was run without --force, so only unreachable cache objects were removed. No manual archive-directory deletion occurred.",
+    "storage": "Free space immediately before prune was 1,055,896 KiB. Final observed free space was 6,794,972 KiB (about 6.48 GiB), a recovery of 5,739,076 KiB (about 5.47 GiB). uv cache size fell from 6,806,016 KiB to 508,240 KiB. This exceeds both the 4 GiB required floor and 6 GiB preferred target at observation.",
+    "verification": "Canonical DB and operations DB retained the exact pre-recovery size and inode identities: canonical=35,652,194,304 bytes inode 549513179; operations=16,014,397,440 bytes inode 421043107. Active Supervisor config SHA256 remains 824655dde4283e79102ebd1282a4de783ebeebef942c01cf39bb0e2dea500c4f. creator_funding_worker, watchtower_listener, watchtower_api, ws_cascade, operation_monitor_bridge, and operation_monitor_worker all remained RUNNING; local /healthz returned healthy=True and db=ok. No registered temporary worktree had an active file reference at final observation.",
+    "safety": "No Flex service/Supervisor action, configuration change, DB/queue write, provider call, listener change, worktree deletion, swap manipulation, system-update deletion, checkpoint, VACUUM, or source change occurred. The only deletion was through uv's supported cache-pruning mechanism inside the authorized user-cache path.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "REPEAT_THE_COMPLETE_DEV024_DEPLOYMENT_PREFLIGHT_AGAINST_THE_CURRENT_RUNTIME_CONFIG_QUEUE_WAL_DISK_AND_CREDENTIAL_STATE_BEFORE_ANY_TARGETED_CREATOR_FUNDING_WORKER_TRANSITION"
+  },
   "dev024_nonproject_disk_recovery_assessment_20261008": {
     "engineering_revision": "Read-only operational assessment; qualified DEV-024 runtime remains 6806d2b2268bd5240f52be184bfbde1642070f76 and is not deployed.",
     "status": "HOLD_SEPARATE_CLEANUP_AUTHORIZATION_REQUIRED",

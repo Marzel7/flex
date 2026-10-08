@@ -46,8 +46,8 @@
       "worktree": "/private/tmp/flex-dev-019-source-recovery",
       "starting_sha": "8be99ed28aa2228dc9cec7d63103eab27376086d",
       "current_sha": "a9fa1b2738d1a35bf084c66a7963fc1ead7b4467",
-      "status": "BLOCKED_POSITIVE_CONTROL_EVIDENCE_UNSTRUCTURED",
-      "next_action": "Do not automate the manual findings. A future authorization must provide retained compact slot, transaction-index, instruction-index, and verified balance-delta facts for each hop before rerunning positive-control qualification.",
+      "status": "EVIDENCE_BLOCKED",
+      "next_action": "Do not reopen DEV-019 evidence recovery. Preserve the manual findings without promotion. Only a separately authorized retained-evidence source containing per-hop slot, transaction index, instruction index, and verified balance-delta facts could support future review-only qualification.",
       "dependencies": [
         "Development Execution Discipline V2",
         "Legacy DEV-019 Phase 1/2/2B contracts",
@@ -73,7 +73,8 @@
         "Byte-equivalence: treasury_rotation_discovery.py SHA256=1cdc693331ddf83eaa84759829ad3bd1848be6aea09016b1a4b0703e93e12602; test_dev_019_treasury_rotation.py SHA256=4760f6705d19a084780881b7f2c16d4e42a685c0227558c5b2fbae8374114db3",
         "Provider-free regressions: tests/test_dev_019_treasury_rotation.py and tests/test_dev_execution_discipline_v2.py: 24 passed",
         "Remote branch origin/codex/dev-019-source-recovery resolves to d0be636a5bd05bd51560cae9370e092311c63f80, whose parent a9fa1b2738d1a35bf084c66a7963fc1ead7b4467 is the recovered source commit",
-        "Manual artifact SHA256 verified; its stated 81416/81416 retained causal-order gap means both candidate shapes fail closed as NO_CAUSAL_PARENT / INSUFFICIENT_EVIDENCE in an isolated provider-free contract check"
+        "Manual artifact SHA256 verified; its stated 81416/81416 retained causal-order gap means both candidate shapes fail closed as NO_CAUSAL_PARENT / INSUFFICIENT_EVIDENCE in an isolated provider-free contract check",
+        "Final bounded retained-evidence recovery: 88WR has 46 retained selected edges with signature and amount but all lack slot, transaction index, and instruction index; 2B6F has zero retained selected edges and lacks signature, ordering, and amount evidence. No route qualifies."
       ],
       "integration_promotion_status": "SOURCE_RECOVERY_ONLY_NOT_RUNTIME_PROMOTED",
       "touched_services": [],

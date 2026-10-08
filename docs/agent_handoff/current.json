@@ -20981,6 +20981,18 @@
     "runtime_deployment_reason": "Read-only diagnosis only; no executable runtime behavior changed.",
     "next_action": "STOP. If exact identities or per-address acknowledgement state are required, separately authorize deployment of the already-qualified read-only telemetry candidate and perform its bounded post-deployment observation; do not change subscription limits."
   },
+  "helius_credit_usage_investigation_20261008": {
+    "engineering_revision": "Read-only operational inspection of deployed creator-funding runtime c3565a9d5c2e5199c5362ac96573246a8d5a42dc and canonical local metrics database; no source or configuration change.",
+    "status": "PARTIAL_LOCAL_AMPLIFICATION_PROVEN_BILLING_ATTRIBUTION_UNRESOLVED",
+    "billing_authority": "User-supplied Helius dashboard snapshot reports 5,980,605 credits used in the 2 Oct-2 Nov cycle, with 1,104,063 prepaid credits remaining. The latest locally retained Helius usage snapshot is 9 Aug 2026 and cannot provide current product or method allocation.",
+    "local_signal": "For the bounded 8 Oct UTC window, timestamp-indexed rpc_metrics records identify realtime_creator_funding_extractor as the dominant Helius-labelled source: getSignaturesForAddress=130,815 records and getTransaction=16,640 records. Local assigned credits total 1,475,720; preceding 2-7 Oct daily local assigned totals were 2,001,850-2,572,510. These are logical telemetry estimates, not verified Helius billable credits.",
+    "proven_amplification": "Creator-funding logs show repeated 88-90 second executions ending in outgoing_transfer_scan cancellation with 415-553 recorded RPC calls, followed by worker retry/reclaim. The deployed extractor bounds each outgoing scan at 100 signatures but requests up to two 50-signature pages and transaction details for post-migration signatures; repeated timeout/retry cycles can therefore multiply logical acquisition work.",
+    "attribution_limit": "The shared transport iterates Helius then public Solana fallback URLs but records every attempt as provider=helius_rpc. Cache-hit paths also call record_request without credits_override=0, so cache hits receive normal method cost despite credits_saved metadata. Accordingly local rows cannot prove actual endpoint use, billable Helius method cost, cache savings, product split, or retry charge behavior.",
+    "safety": "Provider calls=0; live DB/queue writes=0; Supervisor/service/listener actions=0; configuration/source changes=0; raw payload retention=0. Read-only metrics query used the existing source_file,timestamp index.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Operational diagnosis only; no executable behavior changed.",
+    "next_action": "STOP. Separately authorize a read-only Helius usage export or dashboard/API view with daily product and method attribution for 30 Sep-8 Oct, plus endpoint-aware request attribution if available. Then qualify the smallest correction: prevent immediate replay of timed-out outgoing scans via durable partial progress/backoff and repair local cache/fallback metric attribution. No change is authorized by this investigation."
+  },
   "dev019_treasury_subscription_activity_reconciliation_20261008": {
     "engineering_revision": "Live cascade 26da06daba23608bd64d5b86cde1f92b24d3a98d; retained activity corpus c9925cb038ebe0bf8677d76331700eadf535cf6b; qualified selector 23b09948a70ccea9f08cf560e9684325e9287623.",
     "status": "PASS_READ_ONLY_SELECTION_RECONCILED_NOT_DEPLOYED",

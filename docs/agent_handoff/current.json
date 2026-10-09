@@ -1,4 +1,17 @@
 {
+  "dev014_current_mc_overlay_live_only_integration_20261009": {
+    "engineering_revision": "Provider-free qualification commit b5b0991a58bd7865f29e7cbb2d90386d72f0ebc9 on clean isolated origin/codex/dev014-current-mc-freshness; parent overlay implementation 5e1e334a637ab4168df8440943b44f6e484f7b17.",
+    "status": "PASS_PROVIDER_FREE_LIVE_ONLY_INTEGRATION_QUALIFIED",
+    "scope": "Supporting DEV-014 component qualification. It adds provider-free integration fixtures only; it does not change the overlay's worker, scheduler, API, persistence contract, or terminal behavior.",
+    "end_to_end": "A temporary monitor store contained a synthetic MONITORING_ACTIVE Watchtower mint plus terminal-collapsed CatTok. The worker selected only the synthetic LIVE mint, passed once through the existing shared gate as CURRENT_MC_OVERLAY, normalized the retained CatTok-shaped token_overview contract fixture (marketCap=3265.40428003735; retained trade/fetch timestamps), and wrote one compact sidecar record. The configured read-only API monitor projection returned that separate quote while retaining latest_mc_usd=442327.04 and running_peak_mc_usd=594764.794662167.",
+    "terminal_guard": "CatTok remained PRICE_MONITOR_COMPLETE_COLLAPSED throughout. After the only LIVE fixture was transitioned terminal, process_current_mc_overlay_once returned NO_ELIGIBLE_LIVE_TOKEN; the shared budget gate recorded no second admission and no CatTok sidecar record was created. No terminal-token exception, alternate acquisition route, second scheduler, or duplicate owner exists.",
+    "bounds_and_fail_closed": "Fixture coverage proves MAX_RECORDS=64 rejects record 65, max sidecar size is 1,000,000 bytes, and missing, nonfinite, or stale marketCap/trade responses raise a compact fail-closed classification. Quote freshness/expiry is based on provider trade time; sidecar data remains distinct from historical monitor facts and Policy-C deadlines. Raw provider retention=false; unbounded growth paths=0; no single-file design reaches 500,000,000 bytes.",
+    "verification": "PASS 25 provider-free tests: tests/test_watchtower_current_mc_overlay.py (7), tests/test_birdeye_credential_authority.py (6), tests/test_watchtower_frozen_lifecycle_api_binding.py (12); py_compile and git diff --check passed. Provider calls=0; live DB/queue writes=0; Supervisor/service/listener actions=0; feature flag remains default-off.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "STOP. A refreshed pinned API/worker deployment candidate must be prepared from b5b0991a, then receive fresh preflight and separate explicit deployment/feature-activation authorization. Do not deploy or activate the overlay from this qualification.",
+    "project": {"git_head": "b5b0991a58bd7865f29e7cbb2d90386d72f0ebc9"}
+  },
   "dev014_watchtower_current_mc_freshness_assessment_20261009": {
     "engineering_revision": "Read-only/provider-free assessment in clean isolated worktree /private/tmp/flex-dev014-current-mc-freshness, branch codex/dev014-current-mc-freshness, from deployed source 48e5b8e249a545c045be1311369e310199985646. No source change was justified or made.",
     "status": "HOLD_CURRENT_MC_OVERLAY_PROVIDER_CONTRACT_UNQUALIFIED",

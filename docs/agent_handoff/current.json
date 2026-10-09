@@ -22012,6 +22012,15 @@
     "runtime_deployment_gate": "HOLD",
     "next_action": "Implement and provider-free qualify the actual MonitorWorker post-commit admission/dispatch and watchtower_api read-only projection on the clean composed source, then create a feature-off target-only config from active 7a90c5d4... with byte-exact rollback to that same authority."
   },
+  "dev014_watchtower_early_minimum_runtime_bindings_20261009": {
+    "engineering_revision": "ab5c6df581a732d58c124368e32267aedafcab48; no new engineering commit.",
+    "status": "PARTIAL_BINDINGS_NOT_IMPLEMENTED",
+    "finding": "The active authority remains reconciled, but the current feature source exposes only a dormant seam. Provider-free review confirms that the actual MonitorWorker requires an explicit post-commit call after its persisted Entry fact and a durable lower-priority job claim/dispatch branch; neither can be represented safely by a configuration-only candidate. An untested API-only projection experiment was reverted and no source change remains.",
+    "verification": "26 focused provider-free tests passed against the existing calculator, identity, store, and dormant tracking seam. No provider calls, live DB/queue writes, service/Supervisor actions, source commit, or runtime change occurred.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "Implement the MonitorWorker post-commit/dispatch integration and API route together with dedicated fixtures, then qualify feature-off behavior, shared budget admission, lower-priority deferral, and read-only projection before preparing a candidate."
+  },
   "dev014_watchtower_early_minimum_runtime_integration_preparation_20261009": {
     "engineering_revision": "ab5c6df581a732d58c124368e32267aedafcab48 is the qualified isolated feature source; no integration candidate source/configuration was created.",
     "status": "HOLD_ACTIVE_CONFIGURATION_AUTHORITY_RECONCILIATION_REQUIRED",

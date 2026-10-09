@@ -1,0 +1,673 @@
+{
+  "artifact_kind": "READ_ONLY_HISTORICAL_COHORT_MANIFEST",
+  "captured_at": 1791545982,
+  "cohort_identity": "e812d0097975c6f72cdf012306d8631d6051e0c2b5b6cd90644366a4293e7d84",
+  "cohort_version": "WATCHTOWER_HISTORICAL_BASELINE_20261009_V1",
+  "contract_version": "WATCHTOWER_CONTINUOUS_PRICE_FORENSICS_V1",
+  "immutable_use": "BASELINE_ONLY_NOT_ELIGIBLE_FOR_PROSPECTIVE_READMISSION_OR_AUTOMATIC_BACKFILL",
+  "records": [
+    {
+      "assignment_provenance": "884d60967dd0d261ecf79293dc84967585a0738679c8326293ffff33b7b89cea",
+      "assignment_timestamp": 1791328581,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 134153.90863255193,
+      "entry_method": "MIGRATION_SECOND_MC_FALLBACK",
+      "entry_provenance": "27219294e9a5eaa4970b90bfc30d08243215b32cabdfc8f414ba70117a711847",
+      "entry_timestamp": 1791328161,
+      "mint": "2GE5VekSBFzLBXfNYTJ58bnEyCepqSPLpzA9JZjJpump"
+    },
+    {
+      "assignment_provenance": "b1fa605e97fa4e2a951476b13c1acf5093109d87c5dca55d7437ccb4680c31a3",
+      "assignment_timestamp": 1790785985,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 148551.51981458117,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "7a622509e51f2c05135242aaa4c51dea0fbb7d5f3aefa6da2b1dd9b2ee7edc54",
+      "entry_timestamp": 1790785942,
+      "mint": "2VeZv5BTYDyf5ZzBynC5FfZgWWs3xDrkqLkAP3Crpump"
+    },
+    {
+      "assignment_provenance": "ec3799e822533c6c14f56245fd06315597dc64f6f7cbc4bd22815a1aba79a33d",
+      "assignment_timestamp": 1790696649,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 159332.38039506797,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "07869239a4c8b472be9c7e914de17492be356c05b84eff491d272fc93044683a",
+      "entry_timestamp": 1790696400,
+      "mint": "3KdoU8X1DJBvmmxYYttJWQ1KiMfarg3bFAdeCAmspump"
+    },
+    {
+      "assignment_provenance": "6e4d7da352209688699e56291515586b8e3d9ee558985f35012b5da39d96c714",
+      "assignment_timestamp": 1790729723,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 151090.92892815598,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "7d55f1c941fdf5750a19376144e91c9064873169472673134bf5dc0af3545f34",
+      "entry_timestamp": 1790729692,
+      "mint": "3fkKd57aZ9DTQ6jdGoGNua1BDHVBDX8TpgLPscWjpump"
+    },
+    {
+      "assignment_provenance": "77f35ec9b4208f477eccb9bfb15e63af0f50c681cc77105148ac6b95d171ee55",
+      "assignment_timestamp": 1789943322,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 110847.48489945482,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "40b1c79fb710892af8e924c1b39ff2c2558dc59925a34e0350cf91171c6a5cab",
+      "entry_timestamp": 1789940210,
+      "mint": "3uawxC4Ci2VhFpcRw5eD1KKsK3EG317WzxcWsYEjpump"
+    },
+    {
+      "assignment_provenance": "c91cbb5740ab3df4084a50e0b4020b6a959b40338522be8250a3ab8218e240f6",
+      "assignment_timestamp": 1791319540,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 167861.61930944648,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "881f57901dfe1926d410f1f48a9f7d0884759d41fceccb6fbfab892fae2ef31d",
+      "entry_timestamp": 1791319011,
+      "mint": "41MRCVm6R51b352bp7T8imzpJq1uFy3W1E22uLW4pump"
+    },
+    {
+      "assignment_provenance": "c4a59ebb264fd4e624ec5bafb3ba09c2fbc7472bfee323b622356ab4c9baa5a5",
+      "assignment_timestamp": 1791298804,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 180211.09417782674,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "46daa3a3c6dfba3b59cf021e3158a57d219503e799d9ec13f0ebc079179ae587",
+      "entry_timestamp": 1791298717,
+      "mint": "42iYbRaVhj4dy6WXTWFMZ45rWVUxW3UdBPndaNRdpump"
+    },
+    {
+      "assignment_provenance": "20e6d3781bcb31d37b19162c89ea2127d35bda07a912211a3f0451fe284e91ff",
+      "assignment_timestamp": 1790897735,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 162003.97596178917,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "e8f8e4acddabb482ed815c2d6cc50ae4ec92a828d028afde936625d1928bea91",
+      "entry_timestamp": 1790895051,
+      "mint": "4uTHA7hUfZD1PKWQBVtuCEWnBjgB6xaL7GfJrPRDpump"
+    },
+    {
+      "assignment_provenance": "a1bb6dbfe0b02f5130145d80fe90dc678cd8c1d9594053048abedba52960820e",
+      "assignment_timestamp": 1790956590,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 141949.39150333597,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "ade8372fea59612b7bd8a92165c4f0567759b7cc7ba17f33892cf55ef06a141c",
+      "entry_timestamp": 1790956512,
+      "mint": "5krNQZMsiM7qT9KhzettHKEamQDUxaPEP8jCpjdQpump"
+    },
+    {
+      "assignment_provenance": "053f9ec02db934f109f36e904583445641f9bfec6f6cdb68f296d1ccc6bb8aa8",
+      "assignment_timestamp": 1790025915,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 245331.35972777184,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "e6c45bf14d4e434ccb27ceb99bd1a5a1138db2889f2a415083dd3352e924600c",
+      "entry_timestamp": 1790025916,
+      "mint": "5tYcEEKvN63RrzpomgF2jWMxJMHmr4Zo19RX1mXipump"
+    },
+    {
+      "assignment_provenance": "27fe18150510d800eb447f5ea56fd91742f8d17a75932ba80d26560bf272cf5d",
+      "assignment_timestamp": 1790795571,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 149444.76060945328,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "3fe43a5d4fb370fb8e497a3c524582bc50b4737fb525d6586a21d588cea93b7b",
+      "entry_timestamp": 1790795509,
+      "mint": "68T1FYp5iTudTRue6dUxnxdrm98DmXe5AiCXM5jDpump"
+    },
+    {
+      "assignment_provenance": "fc71d43688bbeceaac62f00cff35c22241b20c6469857df36c042b4269c04f04",
+      "assignment_timestamp": 1791480358,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 125378.29249620523,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "9525dbe63ea0525ef9b7e1793cd53a6f65c314086b54bdc33e02104b49c6b481",
+      "entry_timestamp": 1791480205,
+      "mint": "6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump"
+    },
+    {
+      "assignment_provenance": "82ebd82fdd1592b60b34ea62a42023d8be452e48b8dfc30f61c22f9f370dfcc6",
+      "assignment_timestamp": 1791482713,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 162775.9385584885,
+      "entry_method": "MIGRATION_SECOND_MC_FALLBACK",
+      "entry_provenance": "cca1dd8a9765244b29906bbbe9dcf2bd6d45b3c61aada1d8e45d38167ed0d47b",
+      "entry_timestamp": 1791482636,
+      "mint": "6LdjC13zbAxmruKrqsAQ4znUrjNe7gXXVeCHDBMYpump"
+    },
+    {
+      "assignment_provenance": "3259405ad647502bf538eeb8a0b982ccbdc8efb1fe1a6c55a48c7830bd20bbd7",
+      "assignment_timestamp": 1790913398,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 166294.66233971776,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "91c1d81b2035d8b117245d8c271d053cf21e598bc5eb5b2b23507a45b15963a4",
+      "entry_timestamp": 1790913363,
+      "mint": "6RufsEXSv9Nd4YUmUGah8MeMXZT2rxn3kriGiBcSpump"
+    },
+    {
+      "assignment_provenance": "6bc8ac846997fabed8819e28939973209c674991ecdd68849c3b35430d31b527",
+      "assignment_timestamp": 1790190565,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 145581.10887996844,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "884276ccd19cd990e6b15bc8bf28347b48860a844ceefdd9c112963dba385dae",
+      "entry_timestamp": 1790190566,
+      "mint": "6bt4RkPnDYDD3C8CdsGKMP4PZWzVed7yBq4jkXcipump"
+    },
+    {
+      "assignment_provenance": "5d0aa7ecadba354a682e94bbeacdf66b9a4791b32a2836803fca747057b7b5c5",
+      "assignment_timestamp": 1790750914,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 0.0001439265774067215,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "43a8856f532c3f3865c799478552b653cd08f2f7d54467b953e7f88530422945",
+      "entry_timestamp": 1790750902,
+      "mint": "6osBBs9gQTCAYL1uxLAmrkXD5mSH8A8uUmQMSGjhpump"
+    },
+    {
+      "assignment_provenance": "d12555227a964ae12e3833498445cb1b75e06efc9547cb721670015004ddea0e",
+      "assignment_timestamp": 1790945195,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 166350.99988128972,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "793ef51ce50216c745b89d46f539484ff55e6162f25d28905c8e7d212a9b6499",
+      "entry_timestamp": 1790945121,
+      "mint": "77y75KuYp27zk59C4fwUGmo85Ui2RmmFouEQY4ynpump"
+    },
+    {
+      "assignment_provenance": "a73c4e785d07321fc227b3b868d3ce3a8988814b72d9d17fb89b608a433f2ba1",
+      "assignment_timestamp": 1791478464,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 128917.09988926353,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "9366b5526da0dbfd563e2ed7f6127fc1b901e9255c8b0e3e881d9410a7435943",
+      "entry_timestamp": 1791478460,
+      "mint": "7JVDPbS8iYHoUD4yWYxQH9yHcop5oPeBnfBvXkiqpump"
+    },
+    {
+      "assignment_provenance": "da712d52bffc66f595ef9abf272902aee3f7bd3cc961b948f0fdb83116760e31",
+      "assignment_timestamp": 1791318721,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 135206.4292489011,
+      "entry_method": "MIGRATION_SECOND_MC_FALLBACK",
+      "entry_provenance": "1211e98816f471a66a10bce46ddd71753269cd09d5f886981cc541a109e5b9cd",
+      "entry_timestamp": 1791318566,
+      "mint": "7mFXERtY2FJDVi2SbYHQw5ctt3kSLLrUgSANK78apump"
+    },
+    {
+      "assignment_provenance": "cef76a710521d23a48f5a475e374e0deb3d0a191755d48ca47aa39b94546c3ab",
+      "assignment_timestamp": 1790576051,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 167819.12322156163,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "5eef1e94e87e47502f95d74ced45811e3b1ab58fea78daf65453ddb327fcc4eb",
+      "entry_timestamp": 1790576002,
+      "mint": "7rnZdzwZMkrviU1S6r74e1gGfMnnDzmMSXTgrXKSpump"
+    },
+    {
+      "assignment_provenance": "985cbe165e5e1a9d4bc16905b14dcfd8ebed252d6cc56e10ff7530409cb395ff",
+      "assignment_timestamp": 1790958180,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 162546.2675615232,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "32fadb2f8d2befc6084d9a09e327dfec78df1fed530e1a2bd2ef016ddbe16920",
+      "entry_timestamp": 1790958125,
+      "mint": "7ymYkLjTxCg4PExwFXpWMYixmAgRdePjM5UpJA25pump"
+    },
+    {
+      "assignment_provenance": "5d9954bdf0c49e440f3f8b57f2ce7d8917ffcb4671a8b06f81f7bb2a04afa9e1",
+      "assignment_timestamp": 1790712329,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 149263.82210116216,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "d1726e8ff3411a039c33526f6945e26dfbc28f360084de7f2228cadd155da937",
+      "entry_timestamp": 1790712258,
+      "mint": "8mnDxKCJUS59RzvesoYEk2ivtVhn5mBS2tmKj32ppump"
+    },
+    {
+      "assignment_provenance": "ef0ea450f747319468f32d05cf97a13d2b98eff052f8798e9c8c49049e45e18b",
+      "assignment_timestamp": 1790629146,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 143041.49629433034,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "92b6d0f6115047856a70da0b11a08e44cc20d177b46ca247325cfa11a32ad7b0",
+      "entry_timestamp": 1790629085,
+      "mint": "8n1Qyjo7LrQMFaZsTJ3K1qPkNRMxDmS6R4eDjkvjpump"
+    },
+    {
+      "assignment_provenance": "c43d78e9f9f712574c7057891b1a996577248198fe35acba6910316578eb4758",
+      "assignment_timestamp": 1790770168,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 206186.87061160154,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "0ca37f918bef65c8229783c3dfd72ee775818825b3dbb3fcf10428eefe390040",
+      "entry_timestamp": 1790770075,
+      "mint": "8nh9t5MHFRyEWn5K9oUqx3LJayLMMHhE4BPdgno5pump"
+    },
+    {
+      "assignment_provenance": "6d6ff846f66f8a7604b9d148fdd751bd2fc3cb1b64190bc4e4fd1330228ea195",
+      "assignment_timestamp": 1790694879,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 164681.30772440395,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "7b260e82a385bfa7f21f8e2b38ac2759293bd16810ee766ef5307d1e91f234a5",
+      "entry_timestamp": 1790694772,
+      "mint": "8xySnQGLve5959cr4QiJxpNGW5wkBWPh4VxgJVycpump"
+    },
+    {
+      "assignment_provenance": "62568b057b9541e1ad986201c6d1318f0831428cecf89bcd850058f8a409563d",
+      "assignment_timestamp": 1790629222,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 0.00016719119566383314,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "34c9134f15f93b922ad3c9b5c46b7ae6573a6acc01240ade5c8b224d6469588d",
+      "entry_timestamp": 1790629207,
+      "mint": "9DPUFzAMZfbh4ie5RLJ1C7Zhes5eEayPsTU91tSzpump"
+    },
+    {
+      "assignment_provenance": "ea1aadcd1d4b7b9e3e24c0d9a6061ad98b8d9fc3ee6eb940dee7d5d10481a215",
+      "assignment_timestamp": 1791476569,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 105600.45900012992,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "577fb2ef592e9461128113b5a88a3653e12f86386393cd5d78f76a520124e2c5",
+      "entry_timestamp": 1791476543,
+      "mint": "9JtPfLbN32CszHmstoXYdWaazFLaoxhfqf9mKgQMpump"
+    },
+    {
+      "assignment_provenance": "f96cc1f7240ca99315d5ef65fd8fb662fee7610b376c4acaa33747c1e6f82ccc",
+      "assignment_timestamp": 1790708343,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 151822.0713488083,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "0a42ea9a5eddb11915fc69ae2382cfe577dd04a03eaa46e10459b69f52772b14",
+      "entry_timestamp": 1790708069,
+      "mint": "9Q2DMkmqkFPHAQHNgkRLUN7XYoSp87GqUAFVoV71pump"
+    },
+    {
+      "assignment_provenance": "737a1ae9c13f0b932f6e5aeafd132fa53e8cb713d8030fd2e66ae57cabdc59e5",
+      "assignment_timestamp": 1791046923,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 108285.0,
+      "entry_method": "FIRST_AVAILABLE",
+      "entry_provenance": "0409e89c1949359fd719a8cf02f06c5d31c46bd23f05012df0315e9ef0158377",
+      "entry_timestamp": 1791046846,
+      "mint": "9S2uxYgTDM1eM1Ryyc7D4dVKEFrb2F9m8NAygyQspump"
+    },
+    {
+      "assignment_provenance": "0903081259076994eb9ce22f39d88347e9b029eb48b68aede24c40c3638706e6",
+      "assignment_timestamp": 1790978449,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 53421.508586381075,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "4c4edbbe6e8de0b409cfcb2c027020181efd3c1fb06962d1570aa0235ca8ab5c",
+      "entry_timestamp": 1790978410,
+      "mint": "9zu66qTLKCEzsfifm7woEoVJzw82Recitu5S4i2Npump"
+    },
+    {
+      "assignment_provenance": "4bfe49e325b3fed8d88bd0a4ce9a3053745e2944ca4bc91d089ff306325167b1",
+      "assignment_timestamp": 1790640082,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 166381.21177152003,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "9ba4edccf18e3ab28405358845bd894cfecafbc1ef0111752603955b7d550fcc",
+      "entry_timestamp": 1790640005,
+      "mint": "A8MBwPZwR6msXrDBRzg8b1W7BpjjPch1WsTELQJzpump"
+    },
+    {
+      "assignment_provenance": "9ce71c19d853f868b1981cac0f07bba5c6db99517209a3cf6855bab3e1c16472",
+      "assignment_timestamp": 1790181199,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 145688.82289180337,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "1ee8b2a407b01c18e954a790e92e323709a8d9f1f9b100d1d93f3803656a0a24",
+      "entry_timestamp": 1790181200,
+      "mint": "ALuAQm3PqLK2G2oGewwdPC1yYadRuiQ6C5jg5GZopump"
+    },
+    {
+      "assignment_provenance": "70282eec4dba22b609f4c009a6d5746347684f066e0d2dc4add992e60f54cd1e",
+      "assignment_timestamp": 1790734680,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 142660.80028285354,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "a77f4589cf85e3e74a61b5594181f57e7e076363d4b2b70f166e7dfc68a4589c",
+      "entry_timestamp": 1790734508,
+      "mint": "AdFYwmgMEYfD3ut11oYjiFCyHSj5G7SK8X2kWqZ6pump"
+    },
+    {
+      "assignment_provenance": "1ea547dee75046496670bd2c83265db67be3cbc3b1b2026aadc2419114c7dfb3",
+      "assignment_timestamp": 1790954576,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 172294.83197704653,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "71ce7e42609afa8ed95d1d1d798bf0e75e165f12cddece79ea2ca20d7a1e162f",
+      "entry_timestamp": 1790954520,
+      "mint": "AvWsebmjNAYqqdzjsRd6uvzqjZJPmmsD9xmuNyaapump"
+    },
+    {
+      "assignment_provenance": "6375822aaa038ebac2ea091bbaa906f6239aa0af4b7f98780982d135f1ab4dae",
+      "assignment_timestamp": 1790553234,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 157743.2979797445,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "cbf57d99c117f8b72f423d7da41941e293df1034220a1725c27ac9b2c1148d57",
+      "entry_timestamp": 1790553156,
+      "mint": "B5yWXR3PZeRuEDs7P55SBgyZEiVu3Ak7k3uWmYLdpump"
+    },
+    {
+      "assignment_provenance": "eb53914885c597a79f8c9d7fcad0ea3957a56b41c295b568e3ee25e836026de6",
+      "assignment_timestamp": 1790886454,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 151053.11031468108,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "cad4a0f2cd27de0c9b3aa3612612bc493325ff1fad1e22d0b72d73dc5d105d12",
+      "entry_timestamp": 1790886277,
+      "mint": "BHyCgyour6WUPmxZLYZEpeeZLtjtnFkwK3vKdmrUpump"
+    },
+    {
+      "assignment_provenance": "18aae486d19659b0510c67d097d3a4718561a5e88d48de01eb323a192030f7d3",
+      "assignment_timestamp": 1790836397,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 153572.62646665625,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "e7f0b3ef6fccdafe5c10f3727b4d2833ea6c639be67bf9abb6f8a34c5bfa53c8",
+      "entry_timestamp": 1790836332,
+      "mint": "BT5AdtkbDChoEqCTKwfjprbbucFYsBjiz3g4humbpump"
+    },
+    {
+      "assignment_provenance": "015a332de80dd764758d5d7acbd3a6e32012e40a225b3c74ba877edb3e752d1a",
+      "assignment_timestamp": 1790725023,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 170473.3872968497,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "44fe5aaea76b07bb22c651d2134801d8514a93fd7a2c0e2480487ff2c791796f",
+      "entry_timestamp": 1790723653,
+      "mint": "BiFfzEETEN4wG1vCQLmKk7nBcAcDzVrTEgX3fDiLpump"
+    },
+    {
+      "assignment_provenance": "f471b522fdf509c47e091ee5f31539d0646322b63cf8291203ddb040dbd31dc6",
+      "assignment_timestamp": 1791087319,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 111275.1834529342,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "bea86386c67044606a67e932576e594393a19f9664eb8708cfc3cf977a522a05",
+      "entry_timestamp": 1791083709,
+      "mint": "Bisax95YjE3ykTH3JJL46P1GaLyUf7LDFfqRPCgqpump"
+    },
+    {
+      "assignment_provenance": "6463be47ceb45b15edd2ee9032d7c565786a82071277f662e1b3148c1c03c349",
+      "assignment_timestamp": 1790547765,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 124665.91388513995,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "2b4ce06d49d24c20a3e5eb7333ff84a636c0456fc789acd05c1c2a3d051c32ec",
+      "entry_timestamp": 1790547726,
+      "mint": "BvnqdYwuFrvi9ds63EtwQLYME89ikJkULnJPAd83pump"
+    },
+    {
+      "assignment_provenance": "bfb6519b1aa0a1254b80601f40b502b90c95fdad012e10463e2437c2eae28d21",
+      "assignment_timestamp": 1791256480,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 127911.18389002084,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "ff56d983c99353d294af0c58ef954d9359745ebac300ba3b832f6b57ff061bc3",
+      "entry_timestamp": 1791256437,
+      "mint": "CNWXKgcbotCfhjSNgKPmqEcpCKZA19mvpmk5PHjRpump"
+    },
+    {
+      "assignment_provenance": "317ad7d9f18c99869327a578c583b3de564fe1fd1c79b54f396f9a5c79f84001",
+      "assignment_timestamp": 1791254956,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 125418.9483693292,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "9d080e016b03ffd605295e497b4b734b280a2a688603d70900ef6c9318b0e592",
+      "entry_timestamp": 1791254923,
+      "mint": "CQP3cfwbUCfBJ6UUY6GS2pozcn6uNJv6WYYVAW2fpump"
+    },
+    {
+      "assignment_provenance": "01d12d40c9afa76d4e22a8f463230d8c64e73c69a6f2cc7f66000892bb43b95e",
+      "assignment_timestamp": 1790777436,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 165381.23159969383,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "8226dc68b4da7a30f83f8aee116e4005dceaaf2db9c99196e719654131c5bd74",
+      "entry_timestamp": 1790777377,
+      "mint": "CbVTvRQY7aRpXfUKVMW2BZ53mtaUtWgo3KqjU6oYpump"
+    },
+    {
+      "assignment_provenance": "a2967a955059bd3217c900cd5e539489b85f1d8e00b0e6c38ee56fb454da5515",
+      "assignment_timestamp": 1791314427,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 0.00016328278950938007,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "6c65930e8d978a6683fa5961e6ff1a4637443826163ac4e261d446f47298eb64",
+      "entry_timestamp": 1791314128,
+      "mint": "CsCPttDSDsKxhCiVrYvCpFHtT9A3Uni8tbSfqpDXpump"
+    },
+    {
+      "assignment_provenance": "27045b41ecbba78693b8c8d5f799fa8fd1d2b7287e09fdb88b083ad15d80bccf",
+      "assignment_timestamp": 1790727844,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 160995.71748580693,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "ebe46eeb06ecdba2094748b1b10581e6c70db4ef2ef85d3ff7e9834867d95602",
+      "entry_timestamp": 1790727785,
+      "mint": "DHtja2SZXbgLi3Xm35wtPZ6R6dyMoTRi7b8UcDhmpump"
+    },
+    {
+      "assignment_provenance": "a59b4602ac5fcb88ef1b9eac28fb725ef757e50c2c33193ddf22ade6b96db347",
+      "assignment_timestamp": 1790816638,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 151056.5995200477,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "a4e51c1b4f9d7e100070c3bf03dd3b0be6643705eb298b55e42b29790f631cbd",
+      "entry_timestamp": 1790816524,
+      "mint": "DNsBHDTtw69dKCoMmiuDFndocnRn9q7m2nJPTL4qpump"
+    },
+    {
+      "assignment_provenance": "a138651237d8828d057c01b9d311b3a470b331df8786cf179d9e349173f662ca",
+      "assignment_timestamp": 1791490876,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 144175.59776543334,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "c15ff32231ac9d56ab427a46ccdecda907136a3e5ef5239b44ed96a6c19d8272",
+      "entry_timestamp": 1791490842,
+      "mint": "DNtZMNDZ65hAJbJXRiP9NnV98ZTrwLTEJZ78fWKCpump"
+    },
+    {
+      "assignment_provenance": "1f91c41db9ca9c7c443ade80b1594da211c9109e941da1aa86ec9a973d6bf05a",
+      "assignment_timestamp": 1791061087,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 167954.0,
+      "entry_method": "FIRST_AVAILABLE",
+      "entry_provenance": "52992a5be203c67256a02fce852e70debcceba847772f8027ebc0594c08bd7a1",
+      "entry_timestamp": 1791058718,
+      "mint": "Dkt6WZ3aMEU2Az5zwg2UmZv9U1UAnUJkNQA5y5ppump"
+    },
+    {
+      "assignment_provenance": "922887750047344bef3a1efc1f7e314f5b00c94ec286d432f33a5a181245f1f5",
+      "assignment_timestamp": 1790783976,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 164676.4251294531,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "f360f3e7d602e16f946a2ea1c2b2e33c683ca1eddaec0653d1fa8db915d42762",
+      "entry_timestamp": 1790783915,
+      "mint": "E2ujjsdFjh5yiM8jbVc1HeXEeuaQ7q4prNM6RGVppump"
+    },
+    {
+      "assignment_provenance": "9a62c0fc20443dc152cc83261422d62bc61a3ef16fdd97d7307f90c49437dd29",
+      "assignment_timestamp": 1791147808,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 70420.4259707421,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "5de48ceb0be585d57857304a23c5147527dd57c94a2a8d7ddc68a443d636eec6",
+      "entry_timestamp": 1791147492,
+      "mint": "EFGKcRHyLbcUv9hfSDd1m3oEdJcs8DBu9wYA13Qpump"
+    },
+    {
+      "assignment_provenance": "17077f94bea45ff8804d27bf281806422be10cdc2f46cf467b9018c114773a92",
+      "assignment_timestamp": 1790814192,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 141034.86680889464,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "bb1dd3b9c301cdd88ca8500fe166d44121dcf1fdd51e1447b816b9325fa2c04e",
+      "entry_timestamp": 1790814092,
+      "mint": "EKt2EQsweb2zN3ie8iz6JrD6frKwpbCU4ja8P3Vgpump"
+    },
+    {
+      "assignment_provenance": "ecb9ec955a73ed73c043c535fb49f722095b7c09682146b9929d42263a85e709",
+      "assignment_timestamp": 1790749644,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 142292.76110638076,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "85e43535e878c902292e00811f4acd89b0cc478887fd1fb6bc66af499aa91b95",
+      "entry_timestamp": 1790749114,
+      "mint": "F2xEKTkpc7ACpzttugRRBJWCYSqdFvp7ioixXXzqpump"
+    },
+    {
+      "assignment_provenance": "411f3d28623ad451c9dc8b3beb0d4bee249a17f7bc847f22b6504447f914087a",
+      "assignment_timestamp": 1790997976,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 166730.0,
+      "entry_method": "FIRST_AVAILABLE",
+      "entry_provenance": "8dc37ca1b6e23b98186f6b348b3c239074ff8c42c5bf4e92dda144d05b3dc364",
+      "entry_timestamp": 1790997931,
+      "mint": "F94bbEHfPkHGBKNBAQqbGksvUrxXcCYdNF4BFTMupump"
+    },
+    {
+      "assignment_provenance": "3b05b5e0e2d1c225310cc828ebfe82eef17882385d914a15b0fe005585d001c5",
+      "assignment_timestamp": 1790623249,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 157330.79630360802,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "17ebd74759afad1246a082bdddf24aeff14358c50870fed96aea5c67756a4a35",
+      "entry_timestamp": 1790623082,
+      "mint": "FCoXFnRQsHtb2rPReJUrtkPD8qBm8UVbXNdHx49spump"
+    },
+    {
+      "assignment_provenance": "1c9ac163bd55f1c9d1e2e34cee4f3089212ac75ab202a82d8e6026e859bf798a",
+      "assignment_timestamp": 1790803976,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 150708.09933383417,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "6aabb958eeb9b9035b5587f5522b8a9abcc4cedf35340d0c1cc2a96f52c73dba",
+      "entry_timestamp": 1790803923,
+      "mint": "GVeQ82oyUZzHhULUWtE73wwGdiiypyDVpMspxBFVpump"
+    },
+    {
+      "assignment_provenance": "326eacd3c695037252f7bcc3b85dfc1cebc31cd2399d66696bb16acb0948cd57",
+      "assignment_timestamp": 1791321250,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 174783.4036803429,
+      "entry_method": "MIGRATION_SECOND_MC_FALLBACK",
+      "entry_provenance": "22112881b9f09adf10d6b9ce472512311bdf513fb8b20fc912cd98654cdf03d7",
+      "entry_timestamp": 1791320713,
+      "mint": "GfBwZAaRLdarL7mmUce8wkFc2xALuTSzyrREVKixpump"
+    },
+    {
+      "assignment_provenance": "2abb7ac02c0b24029cb2dcf99226a4c9dcdf368a174262b9f01f7fb32b22213c",
+      "assignment_timestamp": 1790717391,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 173495.2992622469,
+      "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "4a163cca26e4cc9358d4d18d73488d2e30f35568fddad1c7a6a5309d9e7d4480",
+      "entry_timestamp": 1790717311,
+      "mint": "H8biQnEVHDM1foz22p8jAyRh4CDpytq22DurHCHvpump"
+    },
+    {
+      "assignment_provenance": "685a9b242d2521ef56a273542c89aa90f7117b68aefb9f77b327afa2eb399122",
+      "assignment_timestamp": 1790794152,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 159788.0993432369,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "fb4c20c1cc86c9d7d2527fd2d014788fec867123a5a5f26f71625c8f8829d799",
+      "entry_timestamp": 1790794083,
+      "mint": "HPHkPvCdGjBV5kaYT4ZeV1Rc27fHMN4Qr4YuG2vzpump"
+    },
+    {
+      "assignment_provenance": "97f446bca8c1d70465d3237b5cce768d9355b3e8b328baefeb2947866908aee5",
+      "assignment_timestamp": 1791089313,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 112555.75788168915,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "6af58c31f1aab5913b372556d56073bec9f606de969d5b57c67984bb83348952",
+      "entry_timestamp": 1791087465,
+      "mint": "HRkvXsdfmYBJU2vFcHUPz5paZ7MNdzjvAwXeQJ8Gpump"
+    },
+    {
+      "assignment_provenance": "b655951fdb07e049f5d709241bcec0f16f4417cdacb0a4298b4831fbf4e78ac1",
+      "assignment_timestamp": 1791206188,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 175502.34351947263,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "35f2bc9e13edde82932be00ba9b8741932fbdb81c3aed458fca60e1dfb8e3c5c",
+      "entry_timestamp": 1791206179,
+      "mint": "HVEyhCnbmSLWYmxmYC9gc2tvUDmWSm1ayeai4LVTpump"
+    },
+    {
+      "assignment_provenance": "c22417a7c6d37393999796bf308a921ca11589f732fbe18a1f3929708dcd5c19",
+      "assignment_timestamp": 1791068335,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 172234.0,
+      "entry_method": "FIRST_AVAILABLE",
+      "entry_provenance": "64843042cab26a97e6647fbc74e3d007eeda4c4378af9162dc4ff7c338b88e86",
+      "entry_timestamp": 1791060454,
+      "mint": "HVTyrR8fgesuVUajoXjUgHK7tAeQqeN7hJepu8Vtpump"
+    },
+    {
+      "assignment_provenance": "5d909d59d5564887b708575d7c2179d611706615f87f1807f51cb9af7c40ac14",
+      "assignment_timestamp": 1791311520,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 166645.59086231983,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "eedcc6db1ffcdc2f5669e6fae5b4321be694b08239d495c72941a0a39c812c5a",
+      "entry_timestamp": 1791311294,
+      "mint": "HnDfqJQUZBuRJiv51kpp9fnWh2q9M3LR4mwEos9Npump"
+    },
+    {
+      "assignment_provenance": "3cc54cb77701e6e60c7d96701bf12661d6de30f895e9c96aa9af5ebb71f751d5",
+      "assignment_timestamp": 1791155879,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 112302.69215292932,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "cbcbd4f491a6ffcb6e2668b4f9abddbebdc126510b219a63cd22c21bf46ea1e0",
+      "entry_timestamp": 1791154629,
+      "mint": "J4t6XRyTSCxtGqfxq4tnVG3vdGzE9wgPcuQ1e4DTpump"
+    },
+    {
+      "assignment_provenance": "dab1b7a32890369a0ab9f78e6d0355db7369d2c34be439921ce2fba5674f1c8b",
+      "assignment_timestamp": 1790807994,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 138204.43153202432,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "fffa00d1aef96d835c1da0b2476817524405f3b212047434c4593ff83048285d",
+      "entry_timestamp": 1790807788,
+      "mint": "haAw3sfS3yQpetdh1ThkSPsCwtr4ggW3qRaphKFpump"
+    },
+    {
+      "assignment_provenance": "bfe105b6f2af473d3229ac9723c0ee1febe45ad721de206bad35f0e3af434cad",
+      "assignment_timestamp": 1790965787,
+      "birth_provenance": "UNAVAILABLE",
+      "entry_mc_usd": 151457.99442149373,
+      "entry_method": "MIGRATION_BOUNDARY_TO_FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "entry_provenance": "e25092675135ff8f3f96233f860a4af51c136ff0e8385808c92d5e366d85c553",
+      "entry_timestamp": 1790965773,
+      "mint": "yDp9dCy1UrRTuwv4urMgkSUHNpw76UvyZHXLmPrpump"
+    }
+  ],
+  "retention": {
+    "max_single_file_bytes": 1000000,
+    "raw_provider_payloads": false,
+    "unbounded_growth_paths": 0
+  },
+  "source_authority": {
+    "canonical_birth_reconciliation": "0/65 current mint joins in wt_creator_birth_launch; records preserve UNAVAILABLE rather than inventing provenance",
+    "monitor_states": {
+      "PRICE_MONITOR_COMPLETE_COLLAPSED": 65
+    },
+    "monitor_store": "operation_monitor_facts (SQLite read-only/query_only)",
+    "selection": "operation_id=watchtower; entry_status=QUALIFIED; entry_mc_usd>0"
+  }
+}

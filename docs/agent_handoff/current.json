@@ -3264,6 +3264,16 @@
     "storage": "One 287,751-byte immutable plan artifact; raw transaction/provider retention=false; maximum single file=1,000,000 bytes; unbounded growth paths=0.",
     "verification": "Pilot identity checks, deterministic --check, JSON/invariants, py_compile, diff --check, and 52 provider-free Watchtower tests passed. Additional RPC/Birdeye requests=0; live DB/queue writes=0; lifecycle mutations=0; Supervisor actions=0."
   },
+  "dev014_watchtower_creation_validation_pilot_preflight_20261009": {
+    "engineering_revision": "da95e917a9e3d572c7da20548d53f75afed6f0f0 on clean isolated codex/dev014-current-mc-freshness.",
+    "source_authority": "Remote engineering branch remains 7e760b8e1d9d21200bc0154603f05391ca57177e while local source is five commits ahead. The established outbound security gate continues to block engineering-source publication; it was not bypassed or retried.",
+    "payload_inspection": "Exact unpublished nine-path delta passed non-disclosing credential/private-key pattern scan, diff --check, and size inspection: credential-url matches=0, private-key matches=0, credential-assignment matches=0, files at or above 500,000,000 bytes=0. This does not override the transport gate.",
+    "pilot_status": "HOLD_BEFORE_ACQUISITION. The user instruction requires stopping before paid acquisition when source publication remains blocked. No creation allowlist was frozen and no Helius request budget was consumed.",
+    "next_action": "Obtain approved engineering-source publication authority or explicitly authorize a local-only pilot despite remote-source HOLD. Only then rerun full creation-pilot preflight and freeze a new ten-signature allowlist.",
+    "runtime_deployment_required": false,
+    "status": "HOLD_SOURCE_REMOTE_AUTHORITY_UNPUBLISHED_PAID_ACQUISITION_NOT_STARTED",
+    "verification": "Provider/RPC requests=0; Birdeye requests=0; live DB/queue writes=0; lifecycle mutations=0; deployment/Supervisor actions=0."
+  },
   "dev019_8cub_downstream_coverage_batch1_20261008": {
     "artifact": "docs/audits/dev_019_8cub_downstream_coverage_batch1.v1.json SHA256=003be28e8dce011760ad438a2e990eedbbd9d0e5ee887632a2dcd21cc8292b18, 14174 bytes. It retains compact page boundaries, per-signature decode status, and no raw RPC payload/block data.",
     "authorization_and_coverage": "One separately authorized 8CUb-only Helius batch executed three cursor-bounded 20-signature pages. Requests=63/66 (3 getSignaturesForAddress, 60 getTransaction, 0 getBlock), retries=0, fallback=0. Compact page boundaries were saved before decoding. All three windows are COMPLETE_SIGNATURE_WINDOW (20/20); all 60 returned unique signatures decoded successfully as legacy transactions.",

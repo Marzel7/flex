@@ -1,0 +1,25 @@
+{
+  "schema_version": "DEV014_WATCHTOWER_OBSERVED_MINIMUM_RETENTION_READINESS_V1",
+  "source_revision": "1b72dbeccc378ae43b5d0d18f21553d5ae06f8b2",
+  "prior_pilot": "docs/audits/dev014_watchtower_early_minimum_mcap_pilot_20261009.v1.json",
+  "contract": {"windows_seconds":[300,900,1800,3600],"record_version":"WATCHTOWER_OBSERVED_MINIMUM_EVIDENCE_V1","storage":"append_only_compact_records_only","raw_candles":false,"lifecycle_mutation":false},
+  "pilot_30m_recovery": {
+    "recoverable": [
+      {"mint":"6RufsEXSv9Nd4YUmUGah8MeMXZT2rxn3kriGiBcSpump","minimum_mc_usd":45694.575538,"timestamp":1790913960,"offset_seconds":597,"coverage":"COMPLETE_OBSERVED_WINDOW","gaps":[]},
+      {"mint":"FCoXFnRQsHtb2rPReJUrtkPD8qBm8UVbXNdHx49spump","minimum_mc_usd":54419.713337,"timestamp":1790624100,"offset_seconds":1018,"coverage":"COMPLETE_OBSERVED_WINDOW","gaps":[]},
+      {"mint":"BiFfzEETEN4wG1vCQLmKk7nBcAcDzVrTEgX3fDiLpump","minimum_mc_usd":106104.692970,"timestamp":1790724960,"offset_seconds":1307,"coverage":"COMPLETE_OBSERVED_WINDOW","gaps":[]},
+      {"mint":"BvnqdYwuFrvi9ds63EtwQLYME89ikJkULnJPAd83pump","minimum_mc_usd":60558.537223,"timestamp":1790548260,"offset_seconds":534,"coverage":"COMPLETE_OBSERVED_WINDOW","gaps":[]},
+      {"mint":"ALuAQm3PqLK2G2oGewwdPC1yYadRuiQ6C5jg5GZopump","minimum_mc_usd":86959.588677,"timestamp":1790181720,"offset_seconds":520,"coverage":"COMPLETE_OBSERVED_WINDOW","gaps":[]},
+      {"mint":"8n1Qyjo7LrQMFaZsTJ3K1qPkNRMxDmS6R4eDjkvjpump","minimum_mc_usd":91623.873998,"timestamp":1790629260,"offset_seconds":175,"coverage":"COMPLETE_OBSERVED_WINDOW","gaps":[]},
+      {"mint":"CQP3cfwbUCfBJ6UUY6GS2pozcn6uNJv6WYYVAW2fpump","minimum_mc_usd":2176.346767,"timestamp":1791255900,"offset_seconds":977,"coverage":"PARTIAL_OBSERVED_MINIMUM","gaps":[1791255960,1791256020,1791256080,1791256140,1791256200,1791256260,1791256320,1791256380,1791256440,1791256500,1791256560,1791256620,1791256680]}
+    ],
+    "not_reconstructable": [
+      {"mint":"EFGKcRHyLbcUv9hfSDd1m3oEdJcs8DBu9wYA13Qpump","reason":"60m retained extremum offset 2808 exceeds 30m; intermediate candle lows were intentionally discarded"},
+      {"mint":"9JtPfLbN32CszHmstoXYdWaazFLaoxhfqf9mKgQMpump","reason":"60m retained extremum offset 2377 exceeds 30m and 10 first-30m buckets are missing"},
+      {"mint":"AdFYwmgMEYfD3ut11oYjiFCyHSj5G7SK8X2kWqZ6pump","reason":"60m retained extremum offset 2812 exceeds 30m; intermediate candle lows were intentionally discarded"}
+    ]
+  },
+  "cohort_inventory": {"prior_qualified_entry_count":65,"current_qualified_entry_count":70,"delta":5,"entry_exactness":{"FIRST_FULL_POST_MIGRATION_SECOND_MC":62,"MIGRATION_SECOND_MC_FALLBACK":4,"FIRST_AVAILABLE_SLOT":4},"existing_1m_pilot_coverage":{"tokens":10,"complete_5m":10,"complete_15m":10,"recoverable_30m":7,"complete_60m":7,"partial_60m":3},"other_current_qualified_entries_requiring_acquisition":60},
+  "future_cohort": {"recommendation":"NOT_READY_FOR_FULL_70_MINT_BACKFILL","only_justified_next_step":"separately authorized representative cohort of at most ten previously unacquired qualified-entry mints, stratified by entry method, entry band, age/lifetime, and retained 15m early-sample quality","requests_max":10,"requests_per_mint":1,"concurrency":1,"retries":0,"pagination":0,"fallback":0,"compute_units":"UNVERIFIED"},
+  "limits": {"record_target_bytes":1024,"per_mint_cap_bytes":30720,"manifest_cap_bytes":102400,"single_file_cap_bytes":1000000,"raw_retention":false,"unbounded_growth_paths":0}
+}

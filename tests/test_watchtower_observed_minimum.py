@@ -16,7 +16,7 @@ def _series(seconds=3600):
     return [_candle(timestamp, 200_000 - timestamp) for timestamp in range(180, ENTRY + seconds, 60) if timestamp + 60 <= ENTRY + seconds]
 
 
-def _result(series, windows=(300, 900, 3600)):
+def _result(series, windows=(300, 900, 1800, 3600)):
     return observed_minima(entry_timestamp=ENTRY, entry_mc_usd=200_000, candles=series,
                             provider_provenance="BIRDEYE_V3_OHLCV_MCAP_USD_1M", windows=windows)["results"]
 
@@ -44,6 +44,15 @@ def test_missing_terminal_tail_is_truncation_suspected():
     assert result["minimum_status"] == "PARTIAL_OBSERVED_MINIMUM"
     assert result["coverage_status"] == "TRUNCATION_SUSPECTED"
     assert result["missing_bucket_timestamps"] == [720, 780, 840, 900, 960]
+
+
+def test_partial_sixty_minute_coverage_retains_the_trailing_gap():
+    series = [row for row in _series(3600) if row["timestamp"] < 1800]
+    result = _result(series, (3600,))["3600"]
+    assert result["minimum_status"] == "PARTIAL_OBSERVED_MINIMUM"
+    assert result["coverage_status"] == "TRUNCATION_SUSPECTED"
+    assert result["missing_bucket_timestamps"][0] == 1800
+    assert result["missing_bucket_timestamps"][-1] == 3660
 
 
 def test_entry_straddling_and_window_straddling_candles_are_excluded():
@@ -75,6 +84,7 @@ def test_windows_can_have_different_observed_minima():
     results = _result(series)
     assert results["300"]["observed_minimum_mc_usd"] == 90_000
     assert results["900"]["observed_minimum_mc_usd"] == 80_000
+    assert results["1800"]["observed_minimum_mc_usd"] == 80_000
     assert results["3600"]["observed_minimum_mc_usd"] == 70_000
 
 

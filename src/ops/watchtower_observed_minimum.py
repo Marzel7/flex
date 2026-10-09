@@ -14,7 +14,7 @@ from typing import Any, Iterable, Mapping
 
 
 ONE_MINUTE = 60
-WINDOW_SECONDS = (5 * 60, 15 * 60, 60 * 60)
+WINDOW_SECONDS = (5 * 60, 15 * 60, 30 * 60, 60 * 60)
 CONTRACT_VERSION = "WATCHTOWER_PARTIAL_OBSERVED_MINIMUM_V1"
 
 

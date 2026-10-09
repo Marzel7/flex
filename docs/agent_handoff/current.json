@@ -2,16 +2,16 @@
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "x78_minimal_transaction_lifecycle_instrumentation": {
-    "engineering_revision": "bd2fd6acebec96abce4a98297547646625c86d8d on codex/x78-minimal-transaction-instrumentation; base=71b6e338cfb54057ec4984d41bfbe02477c90dba",
-    "status": "PASS_PROVIDER_FREE_QUALIFIED_NOT_DEPLOYED",
-    "finding": "The qualified db_locking delta was +501/-58 (559 changed lines), but only 23 db_locking lines are required for the blocked transaction_active regression: emit sqlite_tx_begin on the false-to-true in_transaction edge and commit_end/rollback_end on the existing bounded connection lifecycle stream. A new 323-line parser consumes that bounded metadata without SQLite access and calls read transactions/WAL pins only candidates. Active creator-funding and creator-resolution expose handle/PID diagnostics but not equivalent lifecycle provenance; no worker restart-path composition was made.",
-    "tests": "15 passed: deferred-read activation/clear, rollback/close clear, open-handle non-pin, independent connections, unchanged write lane/no import threads, existing autocommit lane and executescript cleanup.",
+    "engineering_revision": "970443145286f63c7326dd819de2245e3899f3f6 on codex/x78-minimal-transaction-instrumentation; parent=bd2fd6acebec96abce4a98297547646625c86d8d; base=71b6e338cfb54057ec4984d41bfbe02477c90dba",
+    "status": "PASS_PROVIDER_FREE_COMPOSED_QUALIFIED_NOT_DEPLOYED",
+    "finding": "The qualified minimal lifecycle stream is now composed into both existing critical-WAL diagnostic branches only after their existing critical gates fire. Creator-funding supplies a full PASSIVE checkpoint sample plus existing lsof handle PIDs; creator-resolution supplies its existing checkpoint/stall sample plus lsof PIDs. The collector performs no SQLite access and emits candidate-only reader attribution. Existing thresholds, watchdog threads, scheduling, liveness/heartbeat behavior, and self-exit semantics are unchanged.",
+    "tests": "17 passed plus py_compile: deferred-read activation/clear, rollback/close clear, open-handle non-pin, independent connections, conservative checkpoint-gap classes, both watchdog compositions, unchanged threshold/write lane/no import threads, existing autocommit lane and executescript cleanup.",
     "storage": "JSONL existing 10 MiB + two backups = 30 MiB maximum per configured path; parser tail read <=4 MiB; raw retention=false; unbounded growth paths=0; no file may reach 500 MB.",
     "safety": "provider calls=0; live DB/queue writes=0; deployment/restart/SQLite maintenance/DEV-014 Batch 4=0; active pinned runtime roots unchanged.",
     "audit": "docs/audits/x78_minimal_transaction_lifecycle_qualification.v1.json",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
-    "next_action": "REVIEW_AND_SEPARATELY_AUTHORIZE_BOUNDED_COMPOSITION_OF_collect_wal_pin_provenance_INTO_EXISTING_X78_CRITICAL_WAL_DIAGNOSTICS; preserve candidate-only attribution and byte-exact rollback authority."
+    "next_action": "REVIEW_A_QUALIFIED_NOT_DEPLOYED_COMPOSITION_AND_SEPARATELY_AUTHORIZE_RUNTIME_DEPLOYMENT_GATE_EVIDENCE_FOR_THE_SMALLEST_CREATOR_FUNDING_AND_CREATOR_RESOLUTION_SERVICE_SCOPE; preserve byte-exact active configuration and rollback authority."
   },
   "active_observation": {
     "authorization_consumed_at_utc": "2026-08-12T20:55:26Z",

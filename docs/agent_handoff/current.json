@@ -3412,6 +3412,18 @@
     "runtime_deployment_required": false,
     "next_action": "HOLD pending separate authorization for Batch 4 or an anchor-recovery-only plan. Do not automatically execute Batch 4, request sharp-exit data, promote canonical facts, or deploy."
   },
+  "dev014_watchtower_historical_research_anchor_qualification_20261009": {
+    "status": "PASS_PROVIDER_FREE_RESEARCH_ANCHOR_QUALIFICATION",
+    "engineering_revision": "e1d4adb1bfa8ab6d4b5d58a85dd78bb119008c0f published and remote-verified on clean isolated codex/dev014-current-mc-freshness.",
+    "scope": "Read-only retained-evidence qualification. Birdeye/Helius requests=0; no queue/database write, Entry promotion, lifecycle mutation, runtime change, or deployment.",
+    "skipped_batch_3": "Ranks 22 DCPHk..., 23 2trQc..., 24 Gszmg..., and 26 2YB13... remain verified Watchtower members with qualified creation timestamps but no canonical Entry. Each has a mint-bound retained opening-offset audit row: HTTP200, COMPLETE normalization, exact provider timestamp and MCAP offset=0. They qualify only as OBSERVED_PRICE_ANCHOR, respectively timestamps 1791163567, 1791158742, 1791158483, 1791149699; the values are not Entry/opening MC. Their retained migration signatures/slots remain RPC-validation-required, so MIGRATION_BOUNDARY_ANCHOR count=0.",
+    "metric_contract": "QUALIFIED_ENTRY_ANCHOR may support Entry-relative research metrics. OBSERVED_PRICE_ANCHOR permits only observed extrema/minima relative to its own timestamp and prohibits Entry/opening/timing-since-migration claims. MIGRATION_BOUNDARY_ANCHOR permits only research window timing and no inferred MC. NO_QUALIFIED_ANCHOR remains blocked.",
+    "batch_4_plan": "Deterministic ranks 31-40: Entry anchors ranks 31 Dkt6...,32 9S2u...,33 F94b...,34 9zu6...,36 7ymY...,37 5krN...,38 AvWs...,40 77y7...; observed-price anchors rank35 7Jv7... at 1790967091 and rank39 J7f7... at 1790952604; no equivalent evidence or no-anchor entries. It is provider-free only, max ten sequential 3600s 1m-MCAP requests, retries/pagination/fallback=0, raw retention=false and requires a new explicit acquisition authorization.",
+    "artifact": "docs/audits/dev014_watchtower_historical_research_anchor_qualification_20261009.v1.json SHA-256 cb056c00366ff4ba74e19d9984880c243e3cc38304bfb28b3dad1167755855f9; 5819 bytes; aggregate bound=1000000; hard prohibition=500000000; raw retention=false; unbounded-growth paths=0.",
+    "regression": "16 provider-free tests passed: anchor qualification 2 plus observed-minimum contracts 14. Tests prove no fabricated Entry, no migration-boundary promotion, rank ordering 31-40, separate metric scope, and compact bounds.",
+    "runtime_deployment_required": false,
+    "next_action": "HOLD pending explicit Batch 4 acquisition authorization and fresh safety preflight. Do not acquire, promote historical Entry, or change runtime before that gate."
+  },
   "dev019_8cub_downstream_coverage_batch1_20261008": {
     "artifact": "docs/audits/dev_019_8cub_downstream_coverage_batch1.v1.json SHA256=003be28e8dce011760ad438a2e990eedbbd9d0e5ee887632a2dcd21cc8292b18, 14174 bytes. It retains compact page boundaries, per-signature decode status, and no raw RPC payload/block data.",
     "authorization_and_coverage": "One separately authorized 8CUb-only Helius batch executed three cursor-bounded 20-signature pages. Requests=63/66 (3 getSignaturesForAddress, 60 getTransaction, 0 getBlock), retries=0, fallback=0. Compact page boundaries were saved before decoding. All three windows are COMPLETE_SIGNATURE_WINDOW (20/20); all 60 returned unique signatures decoded successfully as legacy transactions.",

@@ -19650,6 +19650,16 @@
     "runtime_deployment_reason": "Provider-contract qualification only; overlay implementation and activation are not authorized.",
     "next_action": "AUTHORIZE_THE_EXACT_BOUNDED_BIRDEYE_CONTRACT_PROBE_OR_KEEP_CURRENT_MC_AS_A_LABELLED_SAMPLED_POLICY_C_OBSERVATION"
   },
+  "dev014_current_mc_overlay_cattok_deployment_gate_20261009": {
+    "engineering_revision": "Read-only deployment-gate review of qualified overlay source 5e1e334a637ab4168df8440943b44f6e484f7b17 and prepared candidate 217bee5ebbcf229c3a81f0976c4c38d3661133d7. Active Supervisor configuration remains SHA256=9bbe3058da9cc4d082eb58947deefed6ab2e13664af10243248f5e726f4008f6; no transition occurred.",
+    "status": "HOLD_TEST_ONLY_CATTOK_PATH_UNQUALIFIED",
+    "blocker": "The only worker-owned overlay entrypoint, MonitorWorker.process_current_mc_overlay_once, selects exactly one Watchtower operation_monitor_facts row with monitor_state=MONITORING_ACTIVE. CatTok is PRICE_MONITOR_COMPLETE_COLLAPSED. Calling CurrentMcOverlay.acquire_one directly would bypass the qualified LIVE-only worker eligibility guard, contrary to the requested one-shot validation contract. The source contains no separately qualified test-only invocation path that preserves the guard while allowing an explicitly terminal token.",
+    "safety": "No candidate configuration was installed; no API/worker restart, sidecar creation, provider request, live database/queue write, terminal finalization, replay, lifecycle change, or unrelated service action occurred. Active configuration hash was reverified unchanged.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "STOP. Separately qualify a narrowly bounded terminal-token test-only quote invocation contract, including independent authorization, shared-budget admission, exactly-one-attempt enforcement, sidecar-only persistence, and proof that it cannot reactivate lifecycle, create monitoring/terminal work, or bypass routine LIVE-only eligibility. Only after that qualification may the requested CatTok deployment/acceptance be reconsidered.",
+    "project": {"git_head": "5e1e334a637ab4168df8440943b44f6e484f7b17"}
+  },
   "dev014_current_mc_overlay_deployment_candidate_20261009": {
     "engineering_revision": "Deployment candidate manifest commit 217bee5ebbcf229c3a81f0976c4c38d3661133d7 on origin/codex/dev014-current-mc-overlay-deployment; executable candidate source 5e1e334a637ab4168df8440943b44f6e484f7b17 in clean pinned root /private/tmp/flex-watchtower-current-mc-overlay-5e1e334a.",
     "status": "PASS_PREPARED_DEFAULT_OFF_NOT_DEPLOYED",

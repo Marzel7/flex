@@ -23205,5 +23205,17 @@
     "remote_verification": "Qualified engineering branch origin/codex/x78-heartbeat-wal-attribution matched df5a56552394548f6647a2cc2edaca3e8e08cad0 before this preparation HOLD. This handoff publication is pending.",
     "runtime_deployment_gate": "HOLD_SOURCE_COMPOSITION_UNQUALIFIED",
     "runtime_deployment_required": true
+  },
+  "x78_active_runtime_source_composition_20261009": {
+    "active_runtime_reconciliation": "Primary Supervisor PID 73409 remained the sole manager. It owned creator_resolution_worker PID 42559, creator_funding_worker PID 39827, watchtower_listener PID 48504, watchtower_api PID 9045, operation_monitor_worker PID 9126, operation_monitor_bridge PID 21106, and ws_cascade PID 73417. API/monitor authority is clean 71b6e338cfb54057ec4984d41bfbe02477c90dba; creator-resolution root is eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215 with only one untracked database/wt_ops_v2.db.write.lock.owner.guard file. No tracked executable-file modification was present there.",
+    "composition_worktree": "Created clean isolated /Users/kevinkeaveney/.codex/worktrees/x78-active-runtime-compose/flex on codex/x78-active-runtime-compose from 71b6e338cfb54057ec4984d41bfbe02477c90dba. The uncommitted merge attempt was restored exactly to that SHA after the compatibility gate failed.",
+    "status": "HOLD_UNQUALIFIED_DB_LOCKING_PREREQUISITE",
+    "root_cause": "The qualified X78 WAL attribution tests require transaction-level lifecycle events from src/utils/db_locking.py, including sqlite_tx_begin and registered external connection attribution. Comparing the active 71b authority to qualified df5a5655 found a 559-line db_locking delta (501 added/58 removed). The active source has only partial lifecycle diagnostics and fails the qualified deferred-read regression: transaction_active=false after BEGIN plus SELECT. The qualified X78 commit itself does not contain this prerequisite, so porting it would be a new, unqualified source integration beyond the allowed five X78 component changes.",
+    "active_behaviour_preservation": "The active Watchtower launcher, Current MC overlay, early-minimum tracking, Policy C/terminal paths, monitor budgets, and creator-resolution loop were not modified. API health was not used as deployment acceptance; no service, configuration, database, queue, provider, or SQLite-maintenance action occurred.",
+    "regression_result": "Focused provider-free run after constrained merge attempt: 20 passed, 1 failed. Passing: liveness sidecar and write-service tests. Failing required WAL regression: test_tracked_deferred_read_transaction_is_visible, because active db_locking did not expose the deferred read transaction. The failure correctly blocks a claim of reliable WAL reader attribution.",
+    "source_authority": "Qualified source df5a56552394548f6647a2cc2edaca3e8e08cad0 remains remote-verified and unchanged. No composed source commit exists and no remote engineering publication was attempted.",
+    "next_action": "Require a separate X78 authorization to qualify the exact db_locking lifecycle-instrumentation prerequisite against active 71b behavior (including write-lane and no-new-writer regressions). Only then reapply the bounded X78 liveness/provenance delta and qualify a clean composed source. DEV-014 Batch 4 remains HOLD.",
+    "runtime_deployment_gate": "HOLD_UNQUALIFIED_DB_LOCKING_PREREQUISITE",
+    "runtime_deployment_required": true
   }
 }

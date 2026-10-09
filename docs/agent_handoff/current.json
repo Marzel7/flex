@@ -3274,6 +3274,18 @@
     "status": "PASS_ENGINEERING_SOURCE_PUBLICATION_REMOTE_VERIFIED",
     "verification": "Provider/RPC requests=0; Birdeye requests=0; live DB/queue writes=0; lifecycle mutations=0; deployment/Supervisor actions=0."
   },
+  "dev014_watchtower_creation_validation_pilot_execution_20261009": {
+    "status": "PASS_BOUNDED_HELIUS_CREATION_VALIDATION_PILOT",
+    "engineering_revision": "5e86d8c13578658915279568fd5c5a3e1afc836d on clean isolated codex/dev014-current-mc-freshness; based on remote-verified da95e917a9e3d572c7da20548d53f75afed6f0f0.",
+    "scope": "Ten-request capped, sequential Helius getTransaction research pilot only; no canonical promotion, Entry reconstruction, price backfill, deployment, queue write, database write, or lifecycle mutation.",
+    "preflight": "PASS: exact remote baseline match before execution; authoritative Helius binding present without disclosure; free disk 7.8 GiB; watchtower_api PID 9045 and operation_monitor_worker PID 9126 Supervisor-owned and healthy; API /healthz db=ok; query-only canonical DB passed; WAL 515032 bytes; monitor queue present; no overlapping creation/migration validation process; separate user-authorized Helius cap=10.",
+    "frozen_allowlist": "Deterministic recent-first order from the 533 retained creation-signature candidates (creation timestamp descending, mint ascending); ten unique CURRENT_CONFIRMED Watchtower mints/signatures; deterministic request identities. No substitutions.",
+    "artifact": "docs/audits/dev014_watchtower_creation_validation_pilot_20261009.v1.json SHA-256 dc343164b643d47e60dc7e5c0ef903018dc3a267b44ac9b56a5f20ee4e02c25c; 11404 bytes; raw transaction retention=false; success record max observed=591 bytes (limit 1024); aggregate limit=1000000 bytes.",
+    "result": "Requests=10/10, concurrency=1, retries=0, pagination=false, fallback=false. Finalized successful transactions=10; positive validated slots=10; mint binding verified=10; strict Pump.fun Create semantics verified=10; migration substitutions=0; event identity conflicts=0.",
+    "postcheck": "PASS: target services remained RUNNING at the same PIDs; /healthz db=ok with wal_mb=0.3; artifact contains none of logMessages/accountKeys/preTokenBalances/postTokenBalances raw payload markers.",
+    "runtime_deployment_required": false,
+    "next_action": "HOLD pending separately authorized review of compact pilot evidence and an explicitly scoped next provenance batch; do not expand acquisition or promote historical facts."
+  },
   "dev019_8cub_downstream_coverage_batch1_20261008": {
     "artifact": "docs/audits/dev_019_8cub_downstream_coverage_batch1.v1.json SHA256=003be28e8dce011760ad438a2e990eedbbd9d0e5ee887632a2dcd21cc8292b18, 14174 bytes. It retains compact page boundaries, per-signature decode status, and no raw RPC payload/block data.",
     "authorization_and_coverage": "One separately authorized 8CUb-only Helius batch executed three cursor-bounded 20-signature pages. Requests=63/66 (3 getSignaturesForAddress, 60 getTransaction, 0 getBlock), retries=0, fallback=0. Compact page boundaries were saved before decoding. All three windows are COMPLETE_SIGNATURE_WINDOW (20/20); all 60 returned unique signatures decoded successfully as legacy transactions.",

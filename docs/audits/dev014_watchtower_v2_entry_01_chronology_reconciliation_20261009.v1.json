@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "artifact_type": "DEV014_WATCHTOWER_V2_ENTRY_01_CHRONOLOGY_RECONCILIATION",
+  "generated_at": "2026-10-09T00:00:00Z",
+  "scope": {
+    "cohort": "WATCHTOWER_FORENSIC_POPULATION_V2_20261009",
+    "cohort_identity": "ba66589b1597652446fd76ed3ed01f49b8ab947971e8fc6c7d3aee3badc2cd38",
+    "batch": "V2-ENTRY-01",
+    "mint_count": 10,
+    "provider_requests": 0,
+    "database_writes": 0,
+    "canonical_fact_mutations": 0,
+    "raw_payload_retention": false,
+    "maximum_single_file_bytes": 500000000,
+    "unbounded_growth_paths": 0
+  },
+  "source_authority": {
+    "creation_registry": "wt_watchtower_launches",
+    "creation_registry_semantics": "canonical Watchtower membership registry; these ten rows are WALKBACK/WALKBACK_RECOVERED and retain no create_slot",
+    "audit_mirror": "wt_launch_audit",
+    "audit_mirror_semantics": "all ten rows are FIXTURE_BACKFILL; its copied event fields are not independent canonical birth evidence",
+    "migration_price_ledger": "docs/audits/watchtower-opening-offset-audit.v2.json",
+    "migration_price_ledger_semantics": "compact normalized MC offsets; it is price evidence, not a retained migration signature/slot authority",
+    "special_injector": "src/ops/retained_injector_opening.py",
+    "special_injector_semantics": "pinned compact retained boundary for 3yv only; it binds migration timestamp, signature and slot but is not a creation-event ledger"
+  },
+  "root_cause": {
+    "primary": "WRONG_SOURCE_AUTHORITY_AND_EVENT_IDENTITY_MIXING",
+    "detail": "The previous reconstruction treated the fixture-backed audit's create_time as canonical birth authority. The registry independently repeats that time/signature but labels the rows WALKBACK_RECOVERED and has no create slot. The audit migration boundary is earlier for every mint. For 3yv, audit.create_slot equals the independently retained migration slot, proving at least one audit field labelled create is attached to a migration event. The remaining nine cannot be resolved to an event identity from retained signatures/slots alone.",
+    "timestamp_units": "All asserted times are 10-digit Unix seconds. The conflict is not a seconds-versus-milliseconds conversion.",
+    "identical_second_resolution": "Not applicable: every asserted migration time precedes asserted creation time. No retained creation slot exists in the canonical registry, and migration slots are absent for nine mints."
+  },
+  "records": [
+    {"mint":"3yvK6WWww1moF3qx3UvHngZCHy9kRCVd9Jva8tRrpump","assignment":"WATCHTOWER","creation":{"time":1791308055,"signature":"69W5pUerQKRsRURAMEUS4H17f24PRiSB4RpnTjyETm1NH9nQBBaBRj6mknGQ5XQVi3g6m19EmrsYfKzjmTgZ8s7","slot":null,"source":"wt_watchtower_launches","confidence":"WALKBACK","parser":"WALKBACK_RECOVERED"},"audit":{"source":"FIXTURE_BACKFILL","create_slot":453969437},"migration":{"time":1791307928,"signature":"mPr6Gv6Sjag8sU6bLC4m5uejoshcqVcBhs8r5uwXMrjZkXfdnffQukgs1c64LpFhvTJXN94zc2rujmQGoAp5M5X","slot":453969437,"source":"retained_injector_opening"},"price_offsets":"injector:+2,+3,+4","classification":"EVENT_IDENTITY_MISMATCH","secondary":["FIXTURE_PROVENANCE_UNQUALIFIED"],"entry_readiness":"BLOCKED_BY_CHRONOLOGY"},
+    {"mint":"7iXZi55AyKbJv5e9XTQuVcywdT2ejHjGBf3NKuCLpump","assignment":"WATCHTOWER","creation":{"time":1791294345,"signature":"52QgBQzJjqaW1Kio3hwSjXc7F5DScwc8F4LKijMTBYnZLamy7XkoNQ2fsLCNSRMLjDqcJuuj3ezqRwjC65asp7of","slot":null,"source":"wt_watchtower_launches","confidence":"WALKBACK","parser":"WALKBACK_RECOVERED"},"audit":{"source":"FIXTURE_BACKFILL","create_slot":453918609},"migration":{"time":1791294235,"signature":"2raT1pjvVrTq4cNZHcXHSwU6FiUHSQVNoBu25N52BPBTWscX5ztqgBAFQMfhTQGz8kSMVWewJjmjPdXuNS9S9kwu","slot":null,"source":"opening_offset_audit"},"price_offsets":"0","classification":"TIMESTAMP_SEMANTICS_MISMATCH","secondary":["FIXTURE_PROVENANCE_UNQUALIFIED"],"entry_readiness":"BLOCKED_BY_CHRONOLOGY"},
+    {"mint":"B8S7WGQYteNSBz4rU4Xs1hkr1seGpxYgUuV2wgtbpump","assignment":"WATCHTOWER","creation":{"time":1791287747,"signature":"x17oQDEW7ZxpoxTz6XvHjEiM9C2sNdhz6Yyr8D2xJgXZYJGTpMzjoNH8aiK8f2Nx1wB5gJScHfULYRQtADkYHgd","slot":null,"source":"wt_watchtower_launches","confidence":"WALKBACK","parser":"WALKBACK_RECOVERED"},"audit":{"source":"FIXTURE_BACKFILL","create_slot":453894061},"migration":{"time":1791287674,"signature":"5Maqx3EVGUfT2VsgH19nTj8rx54vkSgD1oBNE2HeQDPToEcojZXuc2NKjjtHARpYXKC5GQostndDMp7PvSJrzeoM","slot":null,"source":"opening_offset_audit"},"price_offsets":"0","classification":"TIMESTAMP_SEMANTICS_MISMATCH","secondary":["FIXTURE_PROVENANCE_UNQUALIFIED"],"entry_readiness":"BLOCKED_BY_CHRONOLOGY"},
+    {"mint":"HRinFbhZjrb2xoqSzxYCYKX7LqJ3H6pn42CURb2cpump","assignment":"WATCHTOWER","creation":{"time":1791270007,"signature":"4jYxQE3KZhwykhqAt4WiCBGTnW8BmDftpop3ytjcBWg7y9Pmm1ndA25ifHeuuY9syKe9rYYCrGzVF1Y1KMeRdcyj","slot":null,"source":"wt_watchtower_launches","confidence":"WALKBACK","parser":"WALKBACK_RECOVERED"},"audit":{"source":"FIXTURE_BACKFILL","create_slot":453827661},"migration":{"time":1791269958,"signature":"34wTjQhZameyCbJaFHsUmhmWDC7hRKxLguBJxLQ4K3RjBfd6NvzCMmsYsjsBV82PCd3xXHTJqeoQ3H86qhdNXfUE","slot":null,"source":"opening_offset_audit"},"price_offsets":"0","classification":"TIMESTAMP_SEMANTICS_MISMATCH","secondary":["FIXTURE_PROVENANCE_UNQUALIFIED"],"entry_readiness":"BLOCKED_BY_CHRONOLOGY"},
+    {"mint":"41GZ77b5v1ak2jujpaU2AAQFWFj4wszunihUJG4epump","assignment":"WATCHTOWER","creation":{"time":1791238085,"signature":"JUoygCW7vBCFrmLGEVC4coSkqfoq3daCdnKnqenvanZDkDXZbTbMHZ2yK72C7biX27w6mGaUGSroCZf46qQakox","slot":null,"source":"wt_watchtower_launches","confidence":"WALKBACK","parser":"WALKBACK_RECOVERED"},"audit":{"source":"FIXTURE_BACKFILL","create_slot":453707973},"migration":{"time":1791237876,"signature":"4FWB14Vr83pzZhpojJtPPvdPLcvYMDRd9ChYtajfbyTG9JQ8HJhwSy1zLRWwo6F89JBy8aQbnnehXYd2qitB2hVd","slot":null,"source":"opening_offset_audit"},"price_offsets":"0","classification":"TIMESTAMP_SEMANTICS_MISMATCH","secondary":["FIXTURE_PROVENANCE_UNQUALIFIED"],"entry_readiness":"BLOCKED_BY_CHRONOLOGY"},
+    {"mint":"4nn2hUuWxReUxBRAuXzhG3A556U6pjbecHBgwRt2pump","assignment":"WATCHTOWER","creation":{"time":1791233845,"signature":"4HMWFRfUww1Pk7n6KsLkRprhEwiwAhiGrhysvakKux7x6uVnpR1Con7kgCsJLFqzLKDQDfSz2oiJfSpMNAuhvvRU","slot":null,"source":"wt_watchtower_launches","confidence":"WALKBACK","parser":"WALKBACK_RECOVERED"},"audit":{"source":"FIXTURE_BACKFILL","create_slot":453692084},"migration":{"time":1791233613,"signature":"HqpoNskyormDpXnJM1zDB48ZsgpnjAR7EJ83dPvfdJvrP5pMKeTcJvvwi1cKknkTPDjrefpcstMqo2JDwsr6VLq","slot":null,"source":"opening_offset_audit"},"price_offsets":"0","classification":"TIMESTAMP_SEMANTICS_MISMATCH","secondary":["FIXTURE_PROVENANCE_UNQUALIFIED"],"entry_readiness":"BLOCKED_BY_CHRONOLOGY"},
+    {"mint":"DCPHkFepQeetS5pytaDgkcktQ5M8XL4y2v3dojkWpump","assignment":"WATCHTOWER","creation":{"time":1791163699,"signature":"5jk2qFzCyxSHVxGQUx5LtxZnAdRXBLgJuSetdswVhPkPyM8Ezv5JoWPjLNqSrhd2td1nP8ehaDg2LRAw7X7c7Hwr","slot":null,"source":"wt_watchtower_launches","confidence":"WALKBACK","parser":"WALKBACK_RECOVERED"},"audit":{"source":"FIXTURE_BACKFILL","create_slot":453430449},"migration":{"time":1791163567,"signature":"5a7dH1u8K3ryUWJh9zowdHv4iv95CeM3Cx2RRao7Un83ATrnohZnYS8QJw6gvNGJrGE3oW8pGz3UdGZgLx7rXAY3","slot":null,"source":"opening_offset_audit"},"price_offsets":"0,+2,+4","classification":"TIMESTAMP_SEMANTICS_MISMATCH","secondary":["FIXTURE_PROVENANCE_UNQUALIFIED"],"entry_readiness":"BLOCKED_BY_CHRONOLOGY"},
+    {"mint":"2trQcQbEiSsNCGhjUKZ7cNtcREgjFdGeTHndet2kpump","assignment":"WATCHTOWER","creation":{"time":1791158849,"signature":"39z8wB3N7YkkCdfCqSrFaDLGa41tT3ESL6LqnLcSVQT23i4UzBJ8391bTyMhRwXX8EtBxSeL5xtor1ZUBpgX2Ezb","slot":null,"source":"wt_watchtower_launches","confidence":"WALKBACK","parser":"WALKBACK_RECOVERED"},"audit":{"source":"FIXTURE_BACKFILL","create_slot":453412481},"migration":{"time":1791158742,"signature":"64bW6YbEMrcjbe1vioViMWeWhrBvZFGiK8qSUBGSeym1XcqS5d1mxogh1NHM4DNEM1p6jckbaGNPmTKwRdLxy293","slot":null,"source":"opening_offset_audit"},"price_offsets":"0","classification":"TIMESTAMP_SEMANTICS_MISMATCH","secondary":["FIXTURE_PROVENANCE_UNQUALIFIED"],"entry_readiness":"BLOCKED_BY_CHRONOLOGY"},
+    {"mint":"GszmgSqbt9huNYJfQtG1wbcqszKnmNkd6dxEJWrYpump","assignment":"WATCHTOWER","creation":{"time":1791158529,"signature":"45QQutjQqurNT97obLG71N4DRwfzkwLrqBMkjE4yEYf8vtLYXRLVsYgSXkzfGvH5GyuYJauDuzy6zwNHW3q1fgok","slot":null,"source":"wt_watchtower_launches","confidence":"WALKBACK","parser":"WALKBACK_RECOVERED"},"audit":{"source":"FIXTURE_BACKFILL","create_slot":453411516},"migration":{"time":1791158483,"signature":"9579sMScA9c4L2tWCgwzd4XzLiBHfT7tAthNyCP2F1qgG2tZ9CQ3BT621WQHtz9d5WkAQhWru5sq7cXE3hG9tax","slot":null,"source":"opening_offset_audit"},"price_offsets":"0","classification":"TIMESTAMP_SEMANTICS_MISMATCH","secondary":["FIXTURE_PROVENANCE_UNQUALIFIED"],"entry_readiness":"BLOCKED_BY_CHRONOLOGY"},
+    {"mint":"2YB13v6vJ1HTmuzbwujYsahAng1XPbjfT6kMNrFYpump","assignment":"WATCHTOWER","creation":{"time":1791152588,"signature":"5yG7g62okqixy5Yh9EzV5rvmTyMAPqG4xq8nMyP3GWrpQn3SHHVKwYMuBYSufYJwTRZKLKAQmBg2gMvzQSLcErB4","slot":null,"source":"wt_watchtower_launches","confidence":"WALKBACK","parser":"WALKBACK_RECOVERED"},"audit":{"source":"FIXTURE_BACKFILL","create_slot":453378761},"migration":{"time":1791149699,"signature":"3yVSjp69r2fqvxDcvQkCTNZhQ9MsnA1aa7Tip3s5YLE1U2qTLuiYyzytBxX6AttseLURA4xhRVzVS7rm8MGDqiAM","slot":null,"source":"opening_offset_audit"},"price_offsets":"0,+1,+3","classification":"TIMESTAMP_SEMANTICS_MISMATCH","secondary":["FIXTURE_PROVENANCE_UNQUALIFIED"],"entry_readiness":"BLOCKED_BY_CHRONOLOGY"}
+  ],
+  "summary": {
+    "classification_counts": {"CHRONOLOGY_QUALIFIED":0,"EVENT_IDENTITY_MISMATCH":1,"TIMESTAMP_SEMANTICS_MISMATCH":9},
+    "creation_precedes_migration":0,
+    "migration_precedes_asserted_creation":10,
+    "retained_price_offset_evidence": {"nine_mints":"opening offset audit","one_mint":"pinned injector"},
+    "price_conclusion":"Retained offset evidence is present but cannot be promoted while its migration boundary and birth chronology remain unqualified.",
+    "minimum_safe_correction":"Add a read-only source-authority adapter that rejects FIXTURE_BACKFILL as birth authority and requires independently bound creation and migration signature+slot provenance before chronology or Entry reduction. Do not alter canonical facts or the frozen V2 manifest. No retained local source can supply the missing independent bindings for the nine unresolved mints.",
+    "next_gate":"Separately authorize recovery of independent retained/on-chain creation and migration event bindings, then rerun this reconciliation before any research Entry classification."
+  }
+}

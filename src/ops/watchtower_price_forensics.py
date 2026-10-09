@@ -21,6 +21,7 @@ RESEARCH_EVIDENCE_CLASS = "RESEARCH_PILOT_OBSERVATION"
 MAX_HISTORICAL_ALLOWLIST = 10
 MAX_COMPACT_FILE_BYTES = 1_000_000
 WATERMARK = 1791446333
+COHORT_V2_VERSION = "WATCHTOWER_FORENSIC_POPULATION_V2_20261009"
 
 
 def _canonical(value: object) -> str:
@@ -168,3 +169,77 @@ def _median(values: list[float]) -> float | None:
     values = sorted(values)
     middle = len(values) // 2
     return values[middle] if len(values) % 2 else (values[middle - 1] + values[middle]) / 2
+
+
+def v2_cohort_manifest(*, launches: Iterable[Mapping[str, Any]], baseline_mints: Iterable[str],
+                       as_of: int) -> dict[str, Any]:
+    """Build an additive, creation-time-first Watchtower cohort manifest.
+
+    ``launches`` is a read-only inventory supplied by an authority adapter.  A
+    missing creation timestamp is never replaced by assignment time: it stays
+    outside every ``most_recent_*`` result and carries an explicit chronology
+    status.  The function does not query a database or modify a cohort.
+    """
+    baseline = frozenset(str(mint) for mint in baseline_mints)
+    rows: list[dict[str, Any]] = []
+    for launch in launches:
+        mint = str(launch.get("mint") or "")
+        label = str(launch.get("original_classification") or "")
+        assignment = launch.get("assignment")
+        if not mint or label not in {"WATCHTOWER", "WATCHTOWER_DEEP"} or not isinstance(assignment, Mapping):
+            raise ValueError("INVALID_WATCHTOWER_LAUNCH")
+        try:
+            assignment_timestamp = int(assignment["timestamp"])
+        except (KeyError, TypeError, ValueError):
+            raise ValueError("INVALID_ASSIGNMENT_TIMESTAMP") from None
+        if assignment_timestamp <= 0 or not assignment.get("identity") or not assignment.get("provenance"):
+            raise ValueError("INCOMPLETE_ASSIGNMENT_PROVENANCE")
+        creation = dict(launch.get("creation") or {})
+        timestamp = creation.get("timestamp")
+        if timestamp is not None:
+            try:
+                timestamp = int(timestamp)
+            except (TypeError, ValueError):
+                raise ValueError("INVALID_CREATION_TIMESTAMP") from None
+            if timestamp <= 0:
+                raise ValueError("INVALID_CREATION_TIMESTAMP")
+            creation["timestamp"] = timestamp
+            creation["chronology_status"] = "QUALIFIED_CREATION_TIMESTAMP"
+        else:
+            creation = {"timestamp": None, "chronology_status": "CREATION_TIMESTAMP_UNAVAILABLE",
+                        "creator": creation.get("creator"), "signature": creation.get("signature")}
+        record = {"mint": mint, "original_classification": label,
+                  "assignment": {"identity": str(assignment["identity"]), "timestamp": assignment_timestamp,
+                                 "provenance": str(assignment["provenance"])},
+                  "creation": creation, "lifecycle_status": str(launch.get("lifecycle_status") or "UNAVAILABLE"),
+                  "evidence": dict(launch.get("evidence") or {}),
+                  "baseline_membership": mint in baseline}
+        rows.append(record)
+    if len({row["mint"] for row in rows}) != len(rows):
+        raise ValueError("DUPLICATE_WATCHTOWER_MINT")
+    rows.sort(key=lambda row: row["mint"])
+    chronological = sorted((row for row in rows if row["creation"]["timestamp"] is not None),
+                           key=lambda row: (-int(row["creation"]["timestamp"]), row["mint"]))
+    monitored = [row for row in rows if row["evidence"].get("opening", {}).get("status") == "QUALIFIED"]
+    monitor_mints = frozenset(row["mint"] for row in monitored)
+    most_recent = {str(count): [row["mint"] for row in chronological[:count]] for count in (10, 25, 50, 70)}
+    manifest = {
+        "contract_version": CONTRACT_VERSION,
+        "cohort_version": COHORT_V2_VERSION,
+        "as_of": int(as_of),
+        "launches": rows,
+        "summary": {
+            "total_verified_launches": len(rows),
+            "by_original_classification": dict(sorted(Counter(row["original_classification"] for row in rows).items())),
+            "qualified_creation_timestamps": len(chronological),
+            "creation_timestamp_unavailable": len(rows) - len(chronological),
+            "qualified_monitor_entries": len(monitored),
+            "verified_launches_missing_entry": len(rows) - len(monitored),
+            "baseline_membership": sum(row["baseline_membership"] for row in rows),
+            "most_recent": most_recent,
+            "most_recent_70_match": monitor_mints == frozenset(most_recent["70"]),
+            "most_recent_70_overlap": len(monitor_mints & frozenset(most_recent["70"])),
+        },
+    }
+    manifest["cohort_identity"] = _identity(manifest)
+    return manifest

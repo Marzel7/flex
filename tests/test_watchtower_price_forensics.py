@@ -4,6 +4,7 @@ from src.ops.watchtower_price_forensics import (
     AUTHORITATIVE_EVIDENCE_CLASS, RESEARCH_EVIDENCE_CLASS, WATERMARK,
     admit_prospective_capture, cohort_statistics, historical_backfill_plan,
     historical_baseline_manifest, lifecycle_projection, prospective_capture_contract,
+    v2_cohort_manifest,
 )
 
 
@@ -76,3 +77,28 @@ def test_statistics_are_evidence_class_local_and_coverage_stratified():
     ], evidence_class=AUTHORITATIVE_EVIDENCE_CLASS)
     assert stats["numerator_denominator"] == {"measured": 1, "cohort": 1}
     assert stats["population_inference"] == "PROHIBITED"
+
+
+def launch(mint, *, created_at=None, monitored=False, label="WATCHTOWER"):
+    return {"mint": mint, "original_classification": label,
+            "assignment": {"identity": "assignment-" + mint, "timestamp": 10, "provenance": "verified"},
+            "creation": {"timestamp": created_at, "creator": "creator", "signature": "signature"},
+            "lifecycle_status": "UNKNOWN", "evidence": {"opening": {"status": "QUALIFIED" if monitored else "MISSING"}}}
+
+
+def test_v2_manifest_orders_only_qualified_creation_timestamps():
+    manifest = v2_cohort_manifest(launches=[launch("old", created_at=1, monitored=True), launch("new", created_at=2), launch("unknown")], baseline_mints=["old"], as_of=9)
+    assert manifest["summary"]["most_recent"]["10"] == ["new", "old"]
+    assert manifest["summary"]["creation_timestamp_unavailable"] == 1
+    assert manifest["summary"]["most_recent_70_match"] is False
+    unknown = next(row for row in manifest["launches"] if row["mint"] == "unknown")
+    assert unknown["creation"]["chronology_status"] == "CREATION_TIMESTAMP_UNAVAILABLE"
+
+
+def test_v2_manifest_rejects_duplicate_or_incomplete_assignment():
+    with pytest.raises(ValueError, match="DUPLICATE"):
+        v2_cohort_manifest(launches=[launch("same"), launch("same")], baseline_mints=[], as_of=1)
+    bad = launch("bad")
+    bad["assignment"]["provenance"] = ""
+    with pytest.raises(ValueError, match="INCOMPLETE"):
+        v2_cohort_manifest(launches=[bad], baseline_mints=[], as_of=1)

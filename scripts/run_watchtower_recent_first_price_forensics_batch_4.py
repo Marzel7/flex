@@ -13,7 +13,6 @@ import json
 import math
 import os
 import sys
-import urllib.request
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -21,6 +20,7 @@ from src.ops.dev_provider_budget import BudgetDenied
 from src.ops.token_data_provider_bindings import BirdeyeProductionBinding, ProviderTransportOutcome
 from src.ops.watchtower_historical_budget import HistoricalForensicsBudgetAdmission
 from src.ops.watchtower_observed_minimum import observed_minima
+from src.ops.dev014_batch4_runtime_gate import Batch4RuntimeGate, RuntimeGateDenied, resolve_runtime_authority
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -82,17 +82,6 @@ def _normalize(outcome: ProviderTransportOutcome, *, start: int, end: int) -> tu
     return result, None
 
 
-def _health_gate() -> None:
-    url = os.environ.get("DEV014_HEALTH_URL", "http://127.0.0.1:8080/healthz")
-    try:
-        with urllib.request.urlopen(url, timeout=5) as response:
-            payload = json.loads(response.read())
-    except Exception as exc:  # A health read failure is a hard stop before debit.
-        raise SystemExit("HEALTH_GATE_UNAVAILABLE") from exc
-    if response.status != 200 or payload.get("healthy") is not True or payload.get("db") != "ok" or payload.get("wal_warn") is not False:
-        raise SystemExit("HEALTH_GATE_DENIED")
-
-
 def _write_artifact(output: Path, artifact: dict[str, Any]) -> None:
     raw = json.dumps(artifact, indent=2, sort_keys=True) + "\n"
     if len(raw.encode()) > MAX_ARTIFACT_BYTES:
@@ -119,6 +108,9 @@ def main() -> int:
         raise SystemExit("BATCH_4_OUTPUT_PATH_UNAVAILABLE")
     if not os.environ.get("BIRDEYE", "").strip():
         raise SystemExit("AUTHORITATIVE_BIRDEYE_CREDENTIAL_REQUIRED")
+    supervisor_config = os.environ.get("DEV014_SUPERVISOR_CONFIG")
+    if not supervisor_config:
+        raise SystemExit("SUPERVISOR_AUTHORITY_CONFIG_REQUIRED")
     queue_root = Path(os.environ.get("OPERATION_MONITOR_QUEUE_PATH", "database/evidence_platform/operation_monitor_jobs"))
     selected = _records()
     population = {item["mint"]: item for item in json.loads(POPULATION.read_text())["launches"]}
@@ -136,11 +128,21 @@ def main() -> int:
         "retention": {"aggregate_max_bytes": MAX_ARTIFACT_BYTES, "raw_provider_payload_retention": False, "unbounded_growth_paths": 0},
     }
     budget = HistoricalForensicsBudgetAdmission(queue_root)
+    try:
+        runtime_gate = Batch4RuntimeGate(resolve_runtime_authority(supervisor_config))
+    except RuntimeGateDenied as exc:
+        raise SystemExit(str(exc)) from exc
     transport = BirdeyeProductionBinding(credential_label="BIRDEYE")
     for anchor in selected:  # Deliberate serial, one-attempt execution.
         mint, start = anchor["mint"], int(anchor["anchor_timestamp"])
         params = {"address": mint, "chart_type": "mcap", "currency": "usd", "type": "1m", "mode": "range", "padding": "false", "time_from": start, "time_to": start + 3600}
         request_identity = _digest({"batch": "DEV014_BATCH_4", "mint": mint, "params": params})
+        # Every operational check precedes both compact intent persistence and
+        # the sole permitted live queue-root mutation (the budget debit).
+        try:
+            runtime_gate.check()
+        except RuntimeGateDenied as exc:
+            raise SystemExit(str(exc)) from exc
         # Persist an intent before debit.  If the operator process disappears,
         # the existing output blocks a rerun rather than risking a duplicate
         # paid request.  This is compact research evidence, not a second budget
@@ -148,7 +150,6 @@ def main() -> int:
         intent = {"mint": mint, "chronological_rank": anchor["rank"], "request_identity": request_identity, "admission_state": "INTENT_RECORDED"}
         artifact["records"].append(intent)
         _write_artifact(output, artifact)
-        _health_gate()
         try:
             budget.admit(mint=mint, request_identity=request_identity)
         except BudgetDenied as exc:

@@ -1,4 +1,16 @@
 {
+  "dev014_current_mc_overlay_live_activation_20261009": {
+    "engineering_revision": "Deployed remote-backed runtime b5b0991a58bd7865f29e7cbb2d90386d72f0ebc9; no source change. Prepared activation configuration SHA256=7a90c5d4b6c62896b71621a849a3b090598019c01a1cc820fba4a9e6019a2cc4.",
+    "status": "PASS_ACTIVATED_NO_ELIGIBLE_LIVE_TOKEN",
+    "activation": "Fresh preflight passed: active feature-off SHA256=28fcc77e2ad7592bcff24674fc0543528f8d8b6ceb7d7deb96a1cb9c25b5dc22, candidate differs only in program:watchtower_api and program:operation_monitor_worker, both flags are now 1. Rollback artifact /private/tmp/watchtower-current-mc-overlay-rollback-28fcc77e.conf is byte-exact SHA256=28fcc77e2ad7592bcff24674fc0543528f8d8b6ceb7d7deb96a1cb9c25b5dc22.",
+    "runtime": "Supervisor updated only watchtower_api PID 50348->52636 and operation_monitor_worker PID 50461->52694, both pinned clean b5b0991a roots and Supervisor-owned. Worker required its expected explicit start because its stanza is autostart=false. API health is healthy/db=ok/WAL warning=false. Listener 48504, bridge 21106, and creator-funding worker 25829 stayed RUNNING.",
+    "acceptance": "Current eligible Watchtower MONITORING_ACTIVE facts=0, so the independently bounded acceptance made zero overlay requests (well below four) and stopped without manufacturing work. Sidecar remains absent (0 bytes); provider budget ledger remains four existing terminal entries and zero CURRENT_MC_OVERLAY entries. CatTok remains PRICE_MONITOR_COMPLETE_COLLAPSED and is excluded. Historical Watchtower fact snapshot SHA256=8fbf80ce001ab2780575de431a364b9e13e5a685670e48da6258caa71055c92b is unchanged; 61 timestamp-less terminal envelopes remain pending/excluded and one provenance-qualified retry remains separate.",
+    "storage": "Sidecar contract is 64 records and 1,000,000 bytes; raw provider retention=false; unbounded growth paths=0; no single file design reaches 500,000,000 bytes.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "next_action": "Observe only a future natural MONITORING_ACTIVE Watchtower token under the existing shared 20-global/4-per-mint budget; do not replay terminal work or manufacture overlay acquisition.",
+    "project": {"git_head": "b5b0991a58bd7865f29e7cbb2d90386d72f0ebc9"}
+  },
   "dev014_current_mc_overlay_feature_off_deployment_20261009": {
     "engineering_revision": "Deployed qualified runtime b5b0991a58bd7865f29e7cbb2d90386d72f0ebc9 from remote-backed origin/codex/dev014-current-mc-freshness; preparation manifest 931fb82c9830cc242564a2db5b8a7da5a3490a39.",
     "status": "PASS_TARGETED_FEATURE_OFF_DEPLOYMENT_WITH_BOUNDED_ACCEPTANCE",

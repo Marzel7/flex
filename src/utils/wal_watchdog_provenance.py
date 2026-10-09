@@ -108,13 +108,13 @@ def _checkpoint_obstruction(checkpoint: dict, holders: list[dict], checkpoint_st
     if log_frames <= checkpointed:
         return "NO_CHECKPOINT_GAP"
     if busy > 0:
-        return "CHECKPOINT_BLOCKED_BY_WRITER_OR_CHECKPOINT"
+        return "WRITER_OR_CHECKPOINT_OBSTRUCTION"
     attributions = {row.get("attribution") for holder in holders for row in holder.get("connections", [])}
     if checkpoint_stalled and "LONG_LIVED_READER_PIN_CANDIDATE" in attributions:
         return "CHECKPOINT_GAP_STALLED_WITH_LONG_LIVED_READER_CANDIDATE"
     if checkpoint_stalled and "ACTIVE_READ_TRANSACTION_CANDIDATE" in attributions:
         return "CHECKPOINT_GAP_STALLED_WITH_ACTIVE_READER_CANDIDATE"
-    return "CHECKPOINT_GAP_STALLED_UNKNOWN" if checkpoint_stalled else "CHECKPOINT_GAP_OBSERVED"
+    return "UNKNOWN_OBSTRUCTION" if checkpoint_stalled else "CHECKPOINT_GAP_OBSERVED"
 
 
 def _process_commands(pids: set[int]) -> dict[int, str]:

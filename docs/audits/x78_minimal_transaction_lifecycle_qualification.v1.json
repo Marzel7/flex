@@ -37,13 +37,27 @@
     "single_file_under_500mb": true
   },
   "worker_compatibility": {
-    "creator_funding": "already has bounded same-process open-connection snapshot, but no lifecycle parser composition",
-    "creator_resolution": "has holder PID and same-process summary paths, but no lifecycle parser composition",
-    "decision": "do not change worker liveness/restart behavior in this prerequisite; a later bounded composition can pass current checkpoint and holder inputs to the parser"
+    "creator_funding": "existing critical gate now captures a full checkpoint sample, existing lsof handle PIDs, and bounded lifecycle provenance; the existing busy threshold and self-exit are unchanged",
+    "creator_resolution": "existing critical gate now supplies its existing checkpoint/stall sample plus bounded lsof PID provenance; the existing threshold, heartbeat, and self-exit are unchanged",
+    "watchdog_threads": "no new watchdog or worker instance; collector is invoked only within each existing critical diagnostic branch"
+  },
+  "composition": {
+    "checkpoint_obstruction_classes": [
+      "WRITER_OR_CHECKPOINT_OBSTRUCTION",
+      "UNKNOWN_OBSTRUCTION",
+      "CHECKPOINT_GAP_STALLED_WITH_ACTIVE_READER_CANDIDATE",
+      "CHECKPOINT_GAP_STALLED_WITH_LONG_LIVED_READER_CANDIDATE"
+    ],
+    "reader_classes": [
+      "OPEN_DATABASE_HANDLE",
+      "ACTIVE_READ_TRANSACTION_CANDIDATE",
+      "LONG_LIVED_READER_PIN_CANDIDATE"
+    ],
+    "claim_boundary": "Neither an open descriptor nor an active read transaction is represented as a proven WAL pin."
   },
   "qualification": {
-    "command": "pytest -q tests/test_x78_minimal_transaction_lifecycle.py tests/test_x78_13_autocommit_write_lane.py tests/test_x77_5_execute_script_commit_leak.py",
-    "result": "15 passed",
+    "command": "python -m py_compile src/utils/db_locking.py src/utils/wal_watchdog_provenance.py src/core/creator_funding_worker.py src/core/creator_resolution_worker.py && pytest -q tests/test_x78_minimal_transaction_lifecycle.py tests/test_x78_13_autocommit_write_lane.py tests/test_x77_5_execute_script_commit_leak.py",
+    "result": "17 passed",
     "provider_calls": 0,
     "live_database_or_queue_writes": 0,
     "runtime_deployment_required": true,

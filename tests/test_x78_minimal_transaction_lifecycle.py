@@ -4,6 +4,7 @@ import json
 import os
 import sqlite3
 import threading
+import inspect
 
 from src.utils import wal_watchdog_provenance as provenance
 
@@ -117,3 +118,47 @@ def test_transaction_lifecycle_does_not_change_write_lane_or_import_threads(tmp_
     events = _read_events(stream)
     assert any(event["event"] == "sqlite_tx_begin" for event in events)
     assert any(event["event"] == "rollback_end" for event in events)
+
+
+def test_checkpoint_gap_classification_is_conservative(tmp_path, monkeypatch):
+    db = str(tmp_path / "ops.db")
+    stream = tmp_path / "lifecycle.jsonl"
+    stream.write_text("\n".join([
+        json.dumps({"event": "open", "pid": 7, "connection_id": "read", "timestamp": 1,
+                    "path": db, "mode": "read_only"}),
+        json.dumps({"event": "sqlite_tx_begin", "pid": 7, "connection_id": "read", "timestamp": 2}),
+    ]) + "\n")
+    monkeypatch.setattr(provenance, "_process_commands", lambda _pids: {7: "reader"})
+    candidate = provenance.collect_wal_pin_provenance(
+        db_path=db, checkpoint={"busy": 0, "log_frames": 900, "checkpointed_frames": 10},
+        holder_pids=[7], lifecycle_path=str(stream), now=100, checkpoint_stalled=True,
+    )
+    assert candidate["holders"][0]["connections"][0]["attribution"] == "LONG_LIVED_READER_PIN_CANDIDATE"
+    assert candidate["checkpoint_obstruction"] == "CHECKPOINT_GAP_STALLED_WITH_LONG_LIVED_READER_CANDIDATE"
+    unknown = provenance.collect_wal_pin_provenance(
+        db_path=db, checkpoint={"busy": 0, "log_frames": 900, "checkpointed_frames": 10},
+        holder_pids=[], lifecycle_path=None, now=100, checkpoint_stalled=True,
+    )
+    assert unknown["checkpoint_obstruction"] == "UNKNOWN_OBSTRUCTION"
+    writer = provenance.collect_wal_pin_provenance(
+        db_path=db, checkpoint={"busy": 1, "log_frames": 900, "checkpointed_frames": 10},
+        holder_pids=[], lifecycle_path=None, now=100,
+    )
+    assert writer["checkpoint_obstruction"] == "WRITER_OR_CHECKPOINT_OBSTRUCTION"
+
+
+def test_both_existing_wal_watchdogs_compose_parser_without_new_threads():
+    from src.core import creator_funding_worker as funding
+    from src.core import creator_resolution_worker as resolution
+
+    for worker in (funding, resolution):
+        source = inspect.getsource(worker._wal_watchdog)
+        assert "collect_wal_pin_provenance" in source
+        assert "wal_pin_provenance=" in source
+        assert "threading.Thread" not in source
+    assert funding._wal_is_critically_pinned(63.9, 99) is False
+    assert funding._wal_is_critically_pinned(64.0, 2) is False
+    assert funding._wal_is_critically_pinned(64.0, 3) is True
+    assert resolution._wal_is_critically_pinned(63.9, 99) is False
+    assert resolution._wal_is_critically_pinned(64.0, 2) is False
+    assert resolution._wal_is_critically_pinned(64.0, 3) is True

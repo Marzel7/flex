@@ -47,7 +47,7 @@ def normalize_token_overview_quote(payload: Any,*,mint: str,fetched_at: int,max_
  except (TypeError,ValueError) as exc: raise CurrentMcQuoteError('TRADE_TIME_MISSING_OR_MALFORMED') from exc
  if trade<=0 or trade>fetched_at+60: raise CurrentMcQuoteError('TRADE_TIME_INVALID')
  if fetched_at-trade>max_trade_age_seconds: raise CurrentMcQuoteError('TRADE_TIME_STALE')
- return {'mint':str(mint),'current_mc_quote_usd':market_cap,'quote_fetched_at':int(fetched_at),'quote_last_trade_at':trade,'quote_source':QUOTE_SOURCE,'quote_freshness':'FRESH','quote_expires_at':int(fetched_at)+max_trade_age_seconds}
+ return {'mint':str(mint),'current_mc_quote_usd':market_cap,'quote_fetched_at':int(fetched_at),'quote_last_trade_at':trade,'quote_source':QUOTE_SOURCE,'quote_freshness':'FRESH','quote_expires_at':trade+max_trade_age_seconds}
 
 class CurrentMcQuoteStore:
  """One row per mint; physical store bound is 1MB and 64 records by default."""

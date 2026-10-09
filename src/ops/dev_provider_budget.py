@@ -14,8 +14,16 @@ class DevProviderBudget:
   with open(self.lock,'a+') as guard:
    fcntl.flock(guard,fcntl.LOCK_EX)
    try:
-    try: state=json.loads(self.path.read_text())
-    except (OSError,ValueError): state={}
+    # A missing ledger is the initial state.  A present but unreadable or
+    # malformed ledger must never reset the shared allowance: that would turn
+    # a storage failure into an unaccounted provider dispatch.
+    try: raw=self.path.read_text()
+    except FileNotFoundError: state={}
+    except OSError as exc: raise BudgetDenied('PROVIDER_BUDGET_LEDGER_UNAVAILABLE') from exc
+    else:
+     try: state=json.loads(raw)
+     except (TypeError,ValueError) as exc: raise BudgetDenied('PROVIDER_BUDGET_LEDGER_INVALID') from exc
+     if not isinstance(state,dict) or not isinstance(state.get('calls',[]),list): raise BudgetDenied('PROVIDER_BUDGET_LEDGER_INVALID')
     calls=[x for x in state.get('calls',[]) if int(x.get('at',0))>stamp-WINDOW]
     token=[x for x in calls if x.get('mint')==mint]
     if len(calls)>=global_limit: raise BudgetDenied('GLOBAL_PROVIDER_BUDGET_EXHAUSTED')
@@ -25,4 +33,3 @@ class DevProviderBudget:
     temp=self.path.with_name('.'+self.path.name+'.tmp');temp.write_text(json.dumps(payload,separators=(',',':'))+'\n');os.replace(temp,self.path)
     return {'global_calls':len(calls),'token_calls':len(token)+1,'remaining_global':global_limit-len(calls),'remaining_token':token_limit-len(token)-1}
    finally: fcntl.flock(guard,fcntl.LOCK_UN)
-

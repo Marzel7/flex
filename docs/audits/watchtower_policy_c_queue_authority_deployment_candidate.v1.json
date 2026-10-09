@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "kind": "watchtower_policy_c_queue_authority_offline_deployment_candidate",
+  "status": "PREPARED_NOT_DEPLOYED",
+  "qualified_source_sha": "48e5b8e249a545c045be1311369e310199985646",
+  "pinned_runtime_root": "/private/tmp/flex-watchtower-policy-c-api-queue-authority-worker-48e5b8e2",
+  "api_validation_runtime_root": "/private/tmp/flex-watchtower-policy-c-api-queue-authority-api-48e5b8e2",
+  "targeted_programs": [
+    "watchtower_api",
+    "operation_monitor_worker"
+  ],
+  "active_config_sha256": "22721ba7526cadddb443f52add1add76f8df6c1cbb305154155f98e47fc837a8",
+  "candidate_config_sha256": "9bbe3058da9cc4d082eb58947deefed6ab2e13664af10243248f5e726f4008f6",
+  "candidate_config_path": "/private/tmp/watchtower-policy-c-api-worker-candidate-48e5b8e2.conf",
+  "rollback_config_path": "/private/tmp/watchtower-policy-c-api-worker-rollback-22721ba7-48e5b8e2.conf",
+  "rollback_config_sha256": "22721ba7526cadddb443f52add1add76f8df6c1cbb305154155f98e47fc837a8",
+  "targeted_diff": "Parser-only validation: 19 sections; only program:watchtower_api and program:operation_monitor_worker differ from the active configuration.",
+  "queue_authority": {
+    "api_generic_operations_queue": "/Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/operation_monitor_jobs",
+    "api_monitor_queue_binding": "WATCHTOWER_MONITOR_QUEUE_PATH",
+    "monitor_worker_queue": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue",
+    "contract": "The API monitor projection reads only the explicitly bound worker queue and fails closed if its root or required state directories are unavailable."
+  },
+  "canonical_birth_db_authority": {
+    "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+    "binding": "OPERATION_MONITOR_CANONICAL_BIRTH_DB_PATH",
+    "access": "read-only canonical_launch_birth.project"
+  },
+  "preserved_contracts": {
+    "monitor_ui_database": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db",
+    "provider_limits": "20 global / 4 per mint per 60 seconds",
+    "assignment_watermark": 1791446333,
+    "historical_timestamp_less_terminal_envelopes": 61,
+    "terminal_finalizer": "existing strict incomplete-OHLC rejection",
+    "schema_migration": false,
+    "new_scheduler_or_acquisition_service": false
+  },
+  "qualification": {
+    "tests": "55 passed: Policy C, queue authority, monitor API binding, terminal adapter/finalizer, Supervisor composition, final runtime configuration",
+    "cattok_deadline": "At now=1791526560, durable retry deadline=1791527405 projects SCHEDULED, not DUE_NOW.",
+    "provider_calls": 0,
+    "live_db_or_queue_writes": 0,
+    "service_actions": 0
+  },
+  "storage": {
+    "raw_provider_retention": false,
+    "maximum_single_or_transient_file_bytes": 500000000,
+    "unbounded_growth_paths": 0
+  },
+  "next_gate": "Fresh read-only deployment preflight and explicit authorization are required. Do not install this candidate, restart targets, process queues, or acquire providers."
+}

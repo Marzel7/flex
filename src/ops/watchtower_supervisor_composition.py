@@ -49,6 +49,14 @@ class RuntimePaths:
     monitor_provider_global_limit: str = ""
     monitor_provider_token_limit: str = ""
     bridge_max_iterations: str = ""
+    current_mc_overlay_enabled: str = "1"
+    current_mc_quote_db: str = ""
+    early_minimum_tracking_enabled: str = "0"
+    early_minimum_evidence_db: str = ""
+    early_minimum_research_pilot_path: str = ""
+    early_minimum_research_pilot_sha256: str = ""
+    api_root: str = ""
+    worker_root: str = ""
 
 
 def compose(source: bytes, paths: RuntimePaths) -> bytes:
@@ -204,10 +212,11 @@ def _program_ranges(text: str) -> dict[str, list[tuple[int, int]]]:
 
 
 def _api_stanza(p: RuntimePaths) -> str:
+    root = p.api_root or p.root
     return f'''[program:watchtower_api]
-command={p.root}/scripts/launch_watchtower_final.sh api {p.sha}
-directory={p.root}
-environment=PYTHONPATH="{p.root}",WATCHTOWER_FINAL_ROOT="{p.root}",WATCHTOWER_FINAL_SHA="{p.sha}",WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH="{p.audit_ledger}",DB_PATH="{p.canonical_db}",FLEX_DB_PATH="{p.canonical_db}",WT_OPS_DB_PATH="{p.api_operations_db}",OPS_V2_DB_PATH="{p.api_operations_db}",WATCHTOWER_MONITOR_UI_DB_PATH="{p.api_monitor_ui_db}",OPERATION_MONITOR_QUEUE_PATH="{p.api_queue}",WATCHTOWER_MONITOR_QUEUE_PATH="{p.worker_queue}",FLEX_WS_DISABLED="1",FLEX_UI_RECOVERY_MODE="0",DB_WRITE_SERIALIZE="1",FLEX_ENABLE_FLASK_BACKGROUND_WORKERS="0",WATCHTOWER_SHADOW_EVALUATION_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_LEDGER_PATH="{p.shadow_ledger}"
+command={root}/scripts/launch_watchtower_final.sh api {p.sha}
+directory={root}
+environment=PYTHONPATH="{root}",WATCHTOWER_FINAL_ROOT="{root}",WATCHTOWER_FINAL_SHA="{p.sha}",WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH="{p.audit_ledger}",DB_PATH="{p.canonical_db}",FLEX_DB_PATH="{p.canonical_db}",WT_OPS_DB_PATH="{p.api_operations_db}",OPS_V2_DB_PATH="{p.api_operations_db}",WATCHTOWER_MONITOR_UI_DB_PATH="{p.api_monitor_ui_db}",OPERATION_MONITOR_QUEUE_PATH="{p.api_queue}",WATCHTOWER_MONITOR_QUEUE_PATH="{p.worker_queue}",FLEX_WS_DISABLED="1",FLEX_UI_RECOVERY_MODE="0",DB_WRITE_SERIALIZE="1",FLEX_ENABLE_FLASK_BACKGROUND_WORKERS="0",WATCHTOWER_SHADOW_EVALUATION_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_LEDGER_PATH="{p.shadow_ledger}",WATCHTOWER_CURRENT_MC_OVERLAY_ENABLED="{p.current_mc_overlay_enabled}",WATCHTOWER_CURRENT_MC_QUOTE_DB_PATH="{p.current_mc_quote_db}",WATCHTOWER_EARLY_MINIMUM_TRACKING_ENABLED="{p.early_minimum_tracking_enabled}",WATCHTOWER_EARLY_MINIMUM_EVIDENCE_DB_PATH="{p.early_minimum_evidence_db}",WATCHTOWER_EARLY_MINIMUM_RESEARCH_PILOT_PATH="{p.early_minimum_research_pilot_path}",WATCHTOWER_EARLY_MINIMUM_RESEARCH_PILOT_SHA256="{p.early_minimum_research_pilot_sha256}"
 autostart=true
 autorestart=true
 startretries=999
@@ -226,6 +235,7 @@ stderr_logfile_backups=2
 
 
 def _worker_stanza(p: RuntimePaths) -> str:
+    root = p.worker_root or p.root
     # A finite soak deliberately exits after one or more bounded iterations.
     # Supervisor must accept a clean immediate exit in that explicitly opted-in
     # mode; the normal continuously-running worker keeps its startup contract.
@@ -239,10 +249,11 @@ def _worker_stanza(p: RuntimePaths) -> str:
     )
     canonical_birth = (f',OPERATION_MONITOR_CANONICAL_BIRTH_DB_PATH="{p.canonical_birth_db}"'
                        if p.canonical_birth_db else "")
+    early_minimum = f',WATCHTOWER_EARLY_MINIMUM_TRACKING_ENABLED="{p.early_minimum_tracking_enabled}",WATCHTOWER_EARLY_MINIMUM_EVIDENCE_DB_PATH="{p.early_minimum_evidence_db}",WATCHTOWER_CURRENT_MC_OVERLAY_ENABLED="{p.current_mc_overlay_enabled}",WATCHTOWER_CURRENT_MC_QUOTE_DB_PATH="{p.current_mc_quote_db}"'
     return f'''[program:operation_monitor_worker]
-command={p.root}/scripts/launch_watchtower_final.sh worker {p.sha} {p.monitor_selection}
-directory={p.root}
-environment=PYTHONPATH="{p.root}",WATCHTOWER_FINAL_ROOT="{p.root}",WATCHTOWER_FINAL_SHA="{p.sha}",WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH="{p.audit_ledger}",MONITOR_RUNTIME_STATE_ROOT="{p.monitor_state_root}",MONITOR_ENV_FILE="{p.monitor_env_file}",DB_PATH="{p.canonical_db}",FLEX_DB_PATH="{p.canonical_db}",WT_OPS_DB_PATH="{p.worker_operations_db}",DATABASE_PATH="{p.worker_operations_db}",OPS_V2_DB_PATH="{p.worker_operations_db}",OPERATION_MONITOR_QUEUE_PATH="{p.worker_queue}",OPERATIONS_MODE="MONITOR",MONITOR_RUNTIME="dev",WATCHTOWER_SHADOW_EVALUATION_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_LEDGER_PATH="{p.shadow_ledger}"{canonical_birth}{bounded}
+command={root}/scripts/launch_watchtower_final.sh worker {p.sha} {p.monitor_selection}
+directory={root}
+environment=PYTHONPATH="{root}",WATCHTOWER_FINAL_ROOT="{root}",WATCHTOWER_FINAL_SHA="{p.sha}",WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH="{p.audit_ledger}",MONITOR_RUNTIME_STATE_ROOT="{p.monitor_state_root}",MONITOR_ENV_FILE="{p.monitor_env_file}",DB_PATH="{p.canonical_db}",FLEX_DB_PATH="{p.canonical_db}",WT_OPS_DB_PATH="{p.worker_operations_db}",DATABASE_PATH="{p.worker_operations_db}",OPS_V2_DB_PATH="{p.worker_operations_db}",OPERATION_MONITOR_QUEUE_PATH="{p.worker_queue}",OPERATIONS_MODE="MONITOR",MONITOR_RUNTIME="dev",WATCHTOWER_SHADOW_EVALUATION_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_LEDGER_PATH="{p.shadow_ledger}"{canonical_birth}{bounded}{early_minimum}
 autostart=false
 autorestart=false
 startretries=0

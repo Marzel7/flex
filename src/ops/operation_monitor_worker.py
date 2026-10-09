@@ -597,6 +597,8 @@ class MonitorQueue:
   return {'status':'ENQUEUED_TERMINAL_ATH','job_id':self.queue.enqueue(envelope,message_id=ident)}
  def enqueue_early_minimum_after_entry(self, *, fact, birth):
   """Durably admit the one sidecar-only early-minimum job after Entry commit."""
+  if os.getenv('WATCHTOWER_EARLY_MINIMUM_TRACKING_ENABLED','0').lower() not in {'1','true','yes','on'}:
+   return {'status':'NOT_ENQUEUED_FEATURE_DISABLED'}
   admission=admit_after_qualified_entry(fact={**fact, 'birth_provenance': (birth or {}).get('birth_evidence_id')})
   if admission.get('status') != 'ADMITTED': return admission
   return {**admission, 'queue_job_id': self.queue.enqueue(admission['envelope'], message_id=admission['job_id'])}
@@ -1408,6 +1410,8 @@ class MonitorWorker:
   return False
  def _process_early_minimum(self,c):
   p=c.payload['envelope']; decision=eligible_for_acquisition(p,now=int(time.time()),higher_priority_pending=self._higher_priority_pending())
+  if os.getenv('WATCHTOWER_EARLY_MINIMUM_TRACKING_ENABLED','0').lower() not in {'1','true','yes','on'}:
+   target=self.q.queue.root/'pending'/c.path.name; os.replace(c.path,target); self.q.queue._fsync_directory(c.path.parent); self.q.queue._fsync_directory(target.parent); return
   if decision in {'NOT_DUE','DEFERRED_HIGHER_PRIORITY'}:
    target=self.q.queue.root/'pending'/c.path.name; os.replace(c.path,target); self.q.queue._fsync_directory(c.path.parent); self.q.queue._fsync_directory(target.parent); return
   if decision != 'ELIGIBLE': raise TerminalProviderFailure(decision)

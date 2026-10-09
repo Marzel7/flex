@@ -51,13 +51,15 @@ def _observation(mint: str, entry: Mapping[str, Any], label: str, value: list[An
     }
 
 
-def read_pilot(path: str | Path = DEFAULT_ARTIFACT) -> dict[str, Any]:
+def read_pilot(path: str | Path = DEFAULT_ARTIFACT, *, expected_sha256: str | None = None) -> dict[str, Any]:
     """Parse the retained artifact without deriving missing evidence."""
     artifact = Path(path).resolve()
     payload = json.loads(artifact.read_text(encoding="utf-8"))
     if payload.get("schema_version") != "DEV014_WATCHTOWER_PARTIAL_OBSERVED_MINIMUM_PILOT_V1":
         raise ValueError("UNRECOGNIZED_PILOT_ARTIFACT")
     sha256 = _artifact_identity(artifact)
+    if expected_sha256 and sha256 != expected_sha256:
+        raise ValueError("PILOT_ARTIFACT_SHA256_MISMATCH")
     rows = []
     for record in payload.get("records") or ():
         mint = str(record.get("mint") or "")
@@ -95,7 +97,7 @@ def statistics(pilot: Mapping[str, Any]) -> dict[str, Any]:
     return result
 
 
-def projection(path: str | Path = DEFAULT_ARTIFACT) -> dict[str, Any]:
-    pilot = read_pilot(path)
+def projection(path: str | Path = DEFAULT_ARTIFACT, *, expected_sha256: str | None = None) -> dict[str, Any]:
+    pilot = read_pilot(path, expected_sha256=expected_sha256)
     return {**pilot, "statistics": statistics(pilot), "thirty_minute_availability": "UNAVAILABLE_NOT_RETAINED",
             "recovery_metric_availability": "UNAVAILABLE_NOT_RETAINED"}

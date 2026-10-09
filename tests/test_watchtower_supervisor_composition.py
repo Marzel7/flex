@@ -50,6 +50,14 @@ def test_composition_is_idempotent_and_source_is_exact_rollback_artifact(tmp_pat
     paths = _paths(tmp_path)
     candidate = compose(SOURCE, paths)
     assert compose(candidate, paths) == candidate
+
+
+def test_api_and_worker_can_use_distinct_pinned_roots(tmp_path):
+    paths = _paths(tmp_path)
+    paths = type(paths)(**{**paths.__dict__, "api_root": "/pinned-api", "worker_root": "/pinned-worker"})
+    candidate = compose_api_and_worker(SOURCE, paths)
+    assert b"command=/pinned-api/scripts/launch_watchtower_final.sh api" in candidate
+    assert b"command=/pinned-worker/scripts/launch_watchtower_final.sh worker" in candidate
     assert hashlib.sha256(SOURCE).hexdigest() == hashlib.sha256(bytes(SOURCE)).hexdigest()
 
 

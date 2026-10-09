@@ -50,6 +50,14 @@ def main() -> int:
     parser.add_argument("--monitor-provider-global-limit", default="")
     parser.add_argument("--monitor-provider-token-limit", default="")
     parser.add_argument("--bridge-max-iterations", default="")
+    parser.add_argument("--current-mc-overlay-enabled", default="1")
+    parser.add_argument("--current-mc-quote-db", default="")
+    parser.add_argument("--early-minimum-tracking-enabled", default="0")
+    parser.add_argument("--early-minimum-evidence-db", default="")
+    parser.add_argument("--early-minimum-research-pilot-path", default="")
+    parser.add_argument("--early-minimum-research-pilot-sha256", default="")
+    parser.add_argument("--api-root", default="")
+    parser.add_argument("--worker-root", default="")
     parser.add_argument("--api-only", action="store_true",
                         help="replace only watchtower_api; never add or alter a worker stanza")
     parser.add_argument("--monitoring-topology", action="store_true",

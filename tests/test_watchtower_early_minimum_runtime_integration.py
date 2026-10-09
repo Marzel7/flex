@@ -15,6 +15,7 @@ def _fact(entry):
 
 
 def test_early_minimum_durable_dispatch_persists_once_and_defers_priority(monkeypatch, tmp_path):
+    monkeypatch.setenv("WATCHTOWER_EARLY_MINIMUM_TRACKING_ENABLED", "1")
     entry = ((int(time.time()) - 3700) // 60) * 60
     admission = admit_after_qualified_entry(fact=_fact(entry), now=entry)
     assert admission["status"] == "ADMITTED"
@@ -48,3 +49,10 @@ def test_early_minimum_durable_dispatch_persists_once_and_defers_priority(monkey
     # Sidecar work cannot mutate an unrelated canonical fact database.
     monitor=tmp_path / "monitor.sqlite"; sqlite3.connect(monitor).close()
     assert monitor.stat().st_size == 0
+
+
+def test_feature_off_never_admits_or_acquires(monkeypatch, tmp_path):
+    monkeypatch.delenv("WATCHTOWER_EARLY_MINIMUM_TRACKING_ENABLED", raising=False)
+    entry = ((int(time.time()) - 3700) // 60) * 60
+    queue = MonitorQueue(tmp_path / "queue", enabled=True)
+    assert queue.enqueue_early_minimum_after_entry(fact=_fact(entry), birth={"birth_evidence_id":"birth-proof"})["status"] == "NOT_ENQUEUED_FEATURE_DISABLED"

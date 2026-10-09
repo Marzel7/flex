@@ -117,8 +117,9 @@ def _early_minimum_research_projection() -> dict:
     """The pilot is display-only research, never an evidence-store fallback."""
     from src.ops.watchtower_early_minimum_research import projection
     configured = os.getenv("WATCHTOWER_EARLY_MINIMUM_RESEARCH_PILOT_PATH", "").strip()
+    expected_sha256 = os.getenv("WATCHTOWER_EARLY_MINIMUM_RESEARCH_PILOT_SHA256", "").strip() or None
     try:
-        return projection(configured) if configured else projection()
+        return projection(configured, expected_sha256=expected_sha256) if configured else projection(expected_sha256=expected_sha256)
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         raise MonitorStoreUnavailable("WATCHTOWER_EARLY_MINIMUM_RESEARCH_UNREADABLE") from exc
 

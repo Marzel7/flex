@@ -1,0 +1,128 @@
+{
+  "artifact_type": "DEV014_WATCHTOWER_MCAP_RETENTION_PROBE",
+  "records": [
+    {
+      "age_band": "RECENT_0_7D",
+      "coverage_percent": 68.33333333333333,
+      "evidence_identity": "7b1e9b0536fa00146f4fe828c585e77cc5fc73f98061f22edfd97256fcacd09e",
+      "expected_bucket_count": 60,
+      "failure": null,
+      "first_returned_timestamp": 1791476580,
+      "http_status": 200,
+      "internal_missing_bucket_timestamps": [
+        1791477720,
+        1791477780,
+        1791477900,
+        1791477960,
+        1791478020,
+        1791478080,
+        1791478140,
+        1791478200,
+        1791478260,
+        1791478320,
+        1791478380,
+        1791478440,
+        1791478500,
+        1791478560,
+        1791478620,
+        1791478680,
+        1791478740,
+        1791478800,
+        1791478860
+      ],
+      "last_returned_timestamp": 1791480120,
+      "leading_missing_bucket_timestamps": [],
+      "mcap_ohlc_valid": true,
+      "mint": "9JtPfLbN32CszHmstoXYdWaazFLaoxhfqf9mKgQMpump",
+      "provider": "BIRDEYE",
+      "provider_success": true,
+      "request_identity": "410603929e69c8e47986f802d3b719a0ef49ee070f6eb0ad2ca104f8ea1e9a1b",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1791476568,
+        "time_to": 1791480168
+      },
+      "response_metadata": {
+        "x-ratelimit-limit": "300",
+        "x-ratelimit-remaining": "299",
+        "x-ratelimit-reset": "1791556830"
+      },
+      "returned_candle_count": 41,
+      "trailing_missing_bucket_timestamps": []
+    },
+    {
+      "age_band": "MID_30_60D",
+      "coverage_percent": 100.0,
+      "evidence_identity": "7266d1e1745494f338acf5a4e15e84913c7871bb9bc1b3268df81e37a63ff19e",
+      "expected_bucket_count": 60,
+      "failure": null,
+      "first_returned_timestamp": 1788884160,
+      "http_status": 200,
+      "internal_missing_bucket_timestamps": [],
+      "last_returned_timestamp": 1788887700,
+      "leading_missing_bucket_timestamps": [],
+      "mcap_ohlc_valid": true,
+      "mint": "8epBCVHVZHdiAYweM9vAF57ngKtGVLC9k7oRTh2pump",
+      "provider": "BIRDEYE",
+      "provider_success": true,
+      "request_identity": "c18787e63d77e3fa05274dc19a1f1d83c33e63f20b04641cd32853b8968b6199",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1788884142,
+        "time_to": 1788887742
+      },
+      "response_metadata": {
+        "x-ratelimit-limit": "300",
+        "x-ratelimit-remaining": "298",
+        "x-ratelimit-reset": "1791556830"
+      },
+      "returned_candle_count": 60,
+      "trailing_missing_bucket_timestamps": []
+    },
+    {
+      "age_band": "OLDER_61_90D",
+      "coverage_percent": 100.0,
+      "evidence_identity": "fa7c3bd01639e06c59ab103e75abd63bb7f70ec06e7df608ef9fc840cba6beca",
+      "expected_bucket_count": 60,
+      "failure": null,
+      "first_returned_timestamp": 1785132120,
+      "http_status": 200,
+      "internal_missing_bucket_timestamps": [],
+      "last_returned_timestamp": 1785135660,
+      "leading_missing_bucket_timestamps": [],
+      "mcap_ohlc_valid": true,
+      "mint": "EaHKRd62bxJBP6VMwoeWLy1uYKkwSX92ux2gQ7JBpump",
+      "provider": "BIRDEYE",
+      "provider_success": true,
+      "request_identity": "69ddcce04d2f9f172960916980c085d1eb1b51990a7f3c86208cda6c78f50d92",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1785132103,
+        "time_to": 1785135703
+      },
+      "response_metadata": {
+        "x-ratelimit-limit": "300",
+        "x-ratelimit-remaining": "297",
+        "x-ratelimit-reset": "1791556830"
+      },
+      "returned_candle_count": 60,
+      "trailing_missing_bucket_timestamps": []
+    }
+  ],
+  "request_contract": {
+    "concurrency": 1,
+    "endpoint": "/defi/v3/ohlcv",
+    "fallback": false,
+    "max_requests": 3,
+    "pagination": false,
+    "raw_provider_payload_retention": false,
+    "retries": 0
+  },
+  "research_class": "NON_CANONICAL_PROVIDER_RETENTION_QUALIFICATION",
+  "retention": {
+    "aggregate_max_bytes": 1000000,
+    "raw_candle_retention": false,
+    "unbounded_growth_paths": 0
+  },
+  "version": 1
+}

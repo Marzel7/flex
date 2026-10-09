@@ -3265,13 +3265,13 @@
     "verification": "Pilot identity checks, deterministic --check, JSON/invariants, py_compile, diff --check, and 52 provider-free Watchtower tests passed. Additional RPC/Birdeye requests=0; live DB/queue writes=0; lifecycle mutations=0; Supervisor actions=0."
   },
   "dev014_watchtower_creation_validation_pilot_preflight_20261009": {
-    "engineering_revision": "da95e917a9e3d572c7da20548d53f75afed6f0f0 on clean isolated codex/dev014-current-mc-freshness.",
-    "source_authority": "Remote engineering branch remains 7e760b8e1d9d21200bc0154603f05391ca57177e while local source is five commits ahead. The established outbound security gate continues to block engineering-source publication; it was not bypassed or retried.",
-    "payload_inspection": "Exact unpublished nine-path delta passed non-disclosing credential/private-key pattern scan, diff --check, and size inspection: credential-url matches=0, private-key matches=0, credential-assignment matches=0, files at or above 500,000,000 bytes=0. This does not override the transport gate.",
-    "pilot_status": "HOLD_BEFORE_ACQUISITION. The user instruction requires stopping before paid acquisition when source publication remains blocked. No creation allowlist was frozen and no Helius request budget was consumed.",
-    "next_action": "Obtain approved engineering-source publication authority or explicitly authorize a local-only pilot despite remote-source HOLD. Only then rerun full creation-pilot preflight and freeze a new ten-signature allowlist.",
+    "engineering_revision": "da95e917a9e3d572c7da20548d53f75afed6f0f0 on clean isolated codex/dev014-current-mc-freshness and origin/codex/dev014-current-mc-freshness.",
+    "source_authority": "Approved authenticated Git transport published the exact five-commit fast-forward from remote 7e760b8e1d9d21200bc0154603f05391ca57177e to da95e917a9e3d572c7da20548d53f75afed6f0f0. No force push, history rewrite, alternate transport, or security-control bypass occurred.",
+    "payload_inspection": "Exact nine-path delta passed non-disclosing credential/private-key/raw-transaction pattern scan, diff --check, and size inspection: credential-url=0, private-key=0, credential-assignment=0, raw-transaction-field=0, files at or above 500,000,000 bytes=0. Remote SHA-256 comparison passed for all nine published files.",
+    "pilot_status": "SOURCE_PUBLICATION_RESTORED_NO_ACQUISITION_STARTED. No creation allowlist was frozen and no Helius request budget was consumed in this publication milestone.",
+    "next_action": "A separately authorized creation-validation pilot may now rerun its full preflight and freeze a new ten-signature allowlist. This publication milestone does not itself authorize provider acquisition.",
     "runtime_deployment_required": false,
-    "status": "HOLD_SOURCE_REMOTE_AUTHORITY_UNPUBLISHED_PAID_ACQUISITION_NOT_STARTED",
+    "status": "PASS_ENGINEERING_SOURCE_PUBLICATION_REMOTE_VERIFIED",
     "verification": "Provider/RPC requests=0; Birdeye requests=0; live DB/queue writes=0; lifecycle mutations=0; deployment/Supervisor actions=0."
   },
   "dev019_8cub_downstream_coverage_batch1_20261008": {

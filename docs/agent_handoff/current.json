@@ -22001,6 +22001,17 @@
     "runtime_deployment_reason": "Provider-contract qualification only; no runtime behavior changed.",
     "next_action": "STOP. The direct Current-MC endpoint is qualified for a separate minimal overlay implementation proposal. Any overlay must remain owned by the existing monitor worker, share 20 global/4 per-mint budgets, retain only compact quote fields, use explicit freshness/expiry, and never mutate Entry, historical observations, running peak/ATH, multiples, drawdown, terminal state, or Policy-C queue scheduling."
   },
+  "dev014_watchtower_early_minimum_runtime_integration_reconciliation_20261009": {
+    "engineering_revision": "ab5c6df581a732d58c124368e32267aedafcab48; b5b0991a58bd7865f29e7cbb2d90386d72f0ebc9 is an ancestor (clean composition verified).",
+    "status": "PARTIAL_ACTIVE_AUTHORITY_RECONCILED_INTEGRATION_SOURCE_PENDING",
+    "active_authority": "PASS: active config SHA=7a90c5d4b6c62896b71621a849a3b090598019c01a1cc820fba4a9e6019a2cc4 exactly. Supervisor PID=73409 owns watchtower_api PID=52636 and operation_monitor_worker PID=52694. Both active target stanzas declare WATCHTOWER_FINAL_SHA=b5b0991a58bd7865f29e7cbb2d90386d72f0ebc9 and point to the corresponding pinned overlay API/worker roots.",
+    "current_mc": "PASS: current overlay remains enabled in both target stanzas, retains its quote sidecar binding, and worker limits remain MONITOR_PROVIDER_GLOBAL_LIMIT=20 and MONITOR_PROVIDER_TOKEN_LIMIT=4. Monitor queue, canonical-birth DB, Policy C, terminal provenance, watermark, and historical exclusions were not changed.",
+    "candidate_status": "NO_CANDIDATE_CREATED. The qualified source contains a provider-free automatic early-minimum seam and isolated store/projection helpers, but it does not yet bind post-commit admission, lower-priority worker dispatch, or API projection into MonitorWorker/watchtower_api. A configuration that points at it would falsely imply runtime integration.",
+    "safety": "Read-only reconciliation only: provider calls=0; DB/queue writes=0; Supervisor actions=0; configuration/runtime/pinned-root changes=0; no provider acquisition or historical backfill.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "Implement and provider-free qualify the actual MonitorWorker post-commit admission/dispatch and watchtower_api read-only projection on the clean composed source, then create a feature-off target-only config from active 7a90c5d4... with byte-exact rollback to that same authority."
+  },
   "dev014_watchtower_early_minimum_runtime_integration_preparation_20261009": {
     "engineering_revision": "ab5c6df581a732d58c124368e32267aedafcab48 is the qualified isolated feature source; no integration candidate source/configuration was created.",
     "status": "HOLD_ACTIVE_CONFIGURATION_AUTHORITY_RECONCILIATION_REQUIRED",

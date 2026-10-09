@@ -1,4 +1,18 @@
 {
+  "dev014_watchtower_partial_observed_minimum_20261009": {
+    "engineering_revision": "f546df7d13cd45ac57555552ae46a236d45859e8 on origin/codex/dev014-current-mc-freshness; isolated worktree /private/tmp/flex-dev014-current-mc-freshness was clean before and after commit.",
+    "status": "PASS_QUALIFIED_NOT_DEPLOYED",
+    "contract": "New pure src/ops/watchtower_observed_minimum.py defines WATCHTOWER_PARTIAL_OBSERVED_MINIMUM_V1. It accepts only positive, finite low_mc_usd values from strictly ordered, unique, aligned one-minute bucket starts; computes 5m/15m/60m minima only from complete post-Entry buckets fully contained in each window; and retains exact missing and invalid bucket timestamps plus provider provenance. It never fetches, persists, interpolates, forward-fills, or treats a missing bucket as no trade.",
+    "classifications": "A contiguous valid window is COMPLETE_OBSERVED_WINDOW. A window with valid returned lows and any gap/invalid bucket is PARTIAL_OBSERVED_MINIMUM, with coverage PROVIDER_MISSING_COVERAGE or TRUNCATION_SUSPECTED for a missing suffix. No valid returned bucket is NO_VALID_POST_ENTRY_CANDLE. Duplicate/out-of-order provider responses fail closed before any minimum is emitted.",
+    "boundary_and_immutability": "Entry-straddling and end-straddling candles are excluded. Observed drawdown is calculated only as returned_minimum / qualified_entry_mc - 1. The module has no imports or calls to provider, database, queue, monitor facts, peak/ATH, terminal state, or scheduler code; historical Entry, peak, ATH, drawdown, terminal facts, and Policy-C deadlines are therefore immutable by construction.",
+    "verification": "25 provider-free tests passed: tests/test_watchtower_observed_minimum.py (9), test_watchtower_current_mc_overlay.py (7), test_watchtower_forward_terminal_gate.py (3), and test_watchtower_terminal_adapter.py (6). py_compile and git diff --check passed. Fixtures cover complete windows, internal gaps, trailing gaps, entry/window boundary exclusion, invalid MC, duplicate/out-of-order rejection, distinct 5m/15m/60m minima, observed drawdown, exact gap retention, and input/fact immutability.",
+    "future_pilot": "A future pilot may use at most ten qualified-entry mints, one serialized 1m MCAP request per mint, no retry/pagination/fallback/raw retention, and compact returned extrema/coverage coordinates only. CU per request remains explicitly UNVERIFIED. It must not mutate lifecycle facts or promote partial minima. The full 65-mint backfill remains unqualified until separately authorized.",
+    "storage": "The implementation produces no persistent file and has no runtime integration. Future pilot design cap: compact evidence <=30,720 bytes/mint and <=100 KiB manifest; maximum single evidence file=1,000,000 bytes; raw retention=false; unbounded-growth paths=0; all below the 500,000,000-byte prohibition.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "STOP. Separate authorization is required to integrate/persist the contract or execute the bounded ten-mint provider pilot. Neither is authorized by this qualification.",
+    "project": {"git_head": "f546df7d13cd45ac57555552ae46a236d45859e8"}
+  },
   "dev014_watchtower_sparse_one_minute_mcap_coverage_20261009": {
     "engineering_revision": "Read-only retained-evidence assessment following the one-request contract probe e2a6b5fea94245c2fb7df7814fa0e3bfef185878; no source, runtime, provider, queue, database, or lifecycle mutation.",
     "status": "HOLD_SPARSE_CANDLE_SEMANTICS_UNQUALIFIED",

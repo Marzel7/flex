@@ -2,16 +2,16 @@
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "x78_minimal_transaction_lifecycle_instrumentation": {
-    "engineering_revision": "5e6d0bc561acec6411779a006fea05d2f5ef42d6 on codex/x78-minimal-transaction-instrumentation; composition=970443145286f63c7326dd819de2245e3899f3f6; parent=bd2fd6acebec96abce4a98297547646625c86d8d; base=71b6e338cfb54057ec4984d41bfbe02477c90dba",
-    "status": "PASS_PROVIDER_FREE_COMPOSED_ACTIVE_WORKER_REBASE_REQUIRED",
-    "finding": "The qualified minimal lifecycle stream is now composed into both existing critical-WAL diagnostic branches only after their existing critical gates fire. Creator-funding supplies a full PASSIVE checkpoint sample plus existing lsof handle PIDs; creator-resolution supplies its existing checkpoint/stall sample plus lsof PIDs. The collector performs no SQLite access and emits candidate-only reader attribution. Existing thresholds, watchdog threads, scheduling, liveness/heartbeat behavior, and self-exit semantics are unchanged.",
-    "tests": "17 passed plus py_compile: deferred-read activation/clear, rollback/close clear, open-handle non-pin, independent connections, conservative checkpoint-gap classes, both watchdog compositions, unchanged threshold/write lane/no import threads, existing autocommit lane and executescript cleanup.",
+    "engineering_revision": "ff77283f2d8547dbc1a4d8d2e58e4a39f7b8dd28 on codex/x78-active-creator-rebase; base=eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215",
+    "status": "PASS_ACTIVE_CREATOR_SOURCE_REBASE_PROVIDER_FREE_QUALIFIED_NOT_DEPLOYED",
+    "finding": "Fresh supervisor reconciliation matches supplied SHA256 5e7e8c3c719d396f1f39edda30620a74e160972e0cba03c773839e8e06636c6b: creator-resolution maps to eed84e main-workers; creator-funding maps to pinned 6806d2b runtime. Its creator_funding_worker.py and db_locking.py are identical to eed, so relevant active behavior is reconstructed. eed already contains lifecycle events and both existing critical-WAL call sites; the minimal delta adds candidate-only parser classifications and passes resolution's existing stalled-gap flag. No runtime root/config changed.",
+    "tests": "14 passed plus py_compile: exact-eed deferred-read transaction_active=true regression, commit/rollback/close cleanup, independent connections, open-handle non-pin, long reader candidate, conservative checkpoint-gap classes, watchdog composition, unchanged write lane/no import threads, existing autocommit lane and executescript cleanup.",
     "storage": "JSONL existing 10 MiB + two backups = 30 MiB maximum per configured path; parser tail read <=4 MiB; raw retention=false; unbounded growth paths=0; no file may reach 500 MB.",
-    "safety": "provider calls=0; live DB/queue writes=0; deployment/restart/SQLite maintenance/DEV-014 Batch 4=0; active pinned runtime roots unchanged. Active creator-worker authority eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215 diverges from the 71b6e API/monitor base in creator_funding_worker.py, creator_resolution_worker.py, and db_locking.py.",
-    "audit": "docs/audits/x78_minimal_transaction_lifecycle_qualification.v1.json",
+    "safety": "provider calls=0; live DB/queue writes=0; deployment/restart/SQLite maintenance/DEV-014 Batch 4=0; active pinned runtime roots/config unchanged; creator-resolution root has one pre-existing untracked owner-guard file that was not read or modified.",
+    "audit": "docs/audits/x78_active_creator_wal_rebase_qualification.v1.json",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
-    "next_action": "CREATE_A_CLEAN_REBASE_OF_THE_MINIMAL_COMPOSITION_AGAINST_eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215_AND_REPEAT_PROVIDER_FREE_COMPATIBILITY_QUALIFICATION_BEFORE_ANY_RUNTIME_DEPLOYMENT_GATE; preserve byte-exact active configuration and rollback authority."
+    "next_action": "REVIEW_QUALIFIED_NOT_DEPLOYED_ACTIVE_CREATOR_REBASE_THEN_SEPARATELY_AUTHORIZE_RUNTIME_DEPLOYMENT_GATE_EVIDENCE_FOR_ONLY_creator_resolution_worker_AND_creator_funding_worker; preserve config SHA 5e7e8c3c and pinned source rollback identities."
   },
   "active_observation": {
     "authorization_consumed_at_utc": "2026-08-12T20:55:26Z",

@@ -1,0 +1,577 @@
+{
+  "artifact_type": "DEV014_WATCHTOWER_RECENT_FIRST_PRICE_FORENSICS_BATCH_2",
+  "provider": "BIRDEYE",
+  "records": [
+    {
+      "creation_timestamp": 1791311520,
+      "evidence_identity": "e44a30d99956eb62aad9ee60d5550c6e6b6dbb8f25a6bb29485024e0c06be95c",
+      "failure": null,
+      "http_status": 200,
+      "mint": "HnDfqJQUZBuRJiv51kpp9fnWh2q9M3LR4mwEos9Npump",
+      "normalization_status": "NORMALIZED",
+      "observed_drawdown_scope": "QUALIFIED_ENTRY_REFERENCE",
+      "observed_minima": {
+        "1800": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "PROVIDER_MISSING_COVERAGE",
+          "expected_bucket_count": 29,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "PARTIAL_OBSERVED_MINIMUM",
+          "missing_bucket_timestamps": [
+            1791311340,
+            1791311400,
+            1791311460,
+            1791312120,
+            1791312180,
+            1791312240,
+            1791312300,
+            1791312360,
+            1791312420,
+            1791312480,
+            1791312540,
+            1791312600,
+            1791312660,
+            1791312720,
+            1791312780,
+            1791312840,
+            1791312900,
+            1791312960,
+            1791313020
+          ],
+          "observed_drawdown_percent": -98.6783567204097,
+          "observed_minimum_mc_usd": 2202.460252361167,
+          "observed_minimum_offset_seconds": 706,
+          "observed_minimum_timestamp": 1791312000,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 10,
+          "window_seconds": 1800
+        },
+        "300": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "PROVIDER_MISSING_COVERAGE",
+          "expected_bucket_count": 4,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "PARTIAL_OBSERVED_MINIMUM",
+          "missing_bucket_timestamps": [
+            1791311340,
+            1791311400,
+            1791311460
+          ],
+          "observed_drawdown_percent": -60.13956906912079,
+          "observed_minimum_mc_usd": 66425.65064490306,
+          "observed_minimum_offset_seconds": 226,
+          "observed_minimum_timestamp": 1791311520,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 1,
+          "window_seconds": 300
+        },
+        "3600": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "PROVIDER_MISSING_COVERAGE",
+          "expected_bucket_count": 59,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "PARTIAL_OBSERVED_MINIMUM",
+          "missing_bucket_timestamps": [
+            1791311340,
+            1791311400,
+            1791311460,
+            1791312120,
+            1791312180,
+            1791312240,
+            1791312300,
+            1791312360,
+            1791312420,
+            1791312480,
+            1791312540,
+            1791312600,
+            1791312660,
+            1791312720,
+            1791312780,
+            1791312840,
+            1791312900,
+            1791312960,
+            1791313020,
+            1791313080,
+            1791313140,
+            1791313200,
+            1791313260,
+            1791313320,
+            1791313380,
+            1791313440,
+            1791313500,
+            1791313560,
+            1791313620,
+            1791313680,
+            1791313740,
+            1791313800,
+            1791313860,
+            1791313920,
+            1791314040,
+            1791314100,
+            1791314160,
+            1791314220,
+            1791314280,
+            1791314340,
+            1791314400,
+            1791314460,
+            1791314520,
+            1791314580,
+            1791314640,
+            1791314700,
+            1791314760,
+            1791314820
+          ],
+          "observed_drawdown_percent": -98.6794595711627,
+          "observed_minimum_mc_usd": 2200.6224002075187,
+          "observed_minimum_offset_seconds": 2686,
+          "observed_minimum_timestamp": 1791313980,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 11,
+          "window_seconds": 3600
+        },
+        "900": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "PROVIDER_MISSING_COVERAGE",
+          "expected_bucket_count": 14,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "PARTIAL_OBSERVED_MINIMUM",
+          "missing_bucket_timestamps": [
+            1791311340,
+            1791311400,
+            1791311460,
+            1791312120
+          ],
+          "observed_drawdown_percent": -98.6783567204097,
+          "observed_minimum_mc_usd": 2202.460252361167,
+          "observed_minimum_offset_seconds": 706,
+          "observed_minimum_timestamp": 1791312000,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 10,
+          "window_seconds": 900
+        }
+      },
+      "original_classification": "WATCHTOWER",
+      "provider": "BIRDEYE",
+      "provider_metadata": {
+        "x-ratelimit-limit": "300",
+        "x-ratelimit-remaining": "299",
+        "x-ratelimit-reset": "1791557166"
+      },
+      "qualified_entry_identity": {
+        "mc_usd": 166645.590862,
+        "provenance": "eedcc6db1ffcdc2f5669e6fae5b4321be694b08239d495c72941a0a39c812c5a",
+        "timestamp": 1791311294
+      },
+      "request_identity": "f441fe527e6940d9da705820e9af45e6bb904c2ae16b327eaf864afb91c643db",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1791311520,
+        "time_to": 1791315120
+      },
+      "returned_candle_count": 11
+    },
+    {
+      "creation_timestamp": 1791308055,
+      "earliest_observed_mc": {
+        "label": "RESEARCH_EARLIEST_OBSERVED_MC",
+        "open_mc_usd": 144202.38070431043,
+        "timestamp": 1791308100
+      },
+      "evidence_identity": "aa4cf31ceb385cd44e5ad2e865cffe759e0cc0410aa87acdd872edee56d01522",
+      "failure": null,
+      "http_status": 200,
+      "mint": "3yvK6WWww1moF3qx3UvHngZCHy9kRCVd9Jva8tRrpump",
+      "normalization_status": "NORMALIZED",
+      "observed_drawdown_scope": "NO_QUALIFIED_ENTRY_REFERENCE",
+      "observed_minima": null,
+      "original_classification": "WATCHTOWER",
+      "provider": "BIRDEYE",
+      "provider_metadata": {
+        "x-ratelimit-limit": "300",
+        "x-ratelimit-remaining": "298",
+        "x-ratelimit-reset": "1791557166"
+      },
+      "qualified_entry_identity": null,
+      "request_identity": "0dec0fef510cf7653727f7bd429d16d04c134c3098a263113f00a7e2be6da4b2",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1791308055,
+        "time_to": 1791311655
+      },
+      "returned_candle_count": 60
+    },
+    {
+      "creation_timestamp": 1791298803,
+      "evidence_identity": "58f88357860c95a60812391715e475bbde22188e48e9dd981ab603065675ae1c",
+      "failure": null,
+      "http_status": 200,
+      "mint": "42iYbRaVhj4dy6WXTWFMZ45rWVUxW3UdBPndaNRdpump",
+      "normalization_status": "NORMALIZED",
+      "observed_drawdown_scope": "QUALIFIED_ENTRY_REFERENCE",
+      "observed_minima": {
+        "1800": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "PROVIDER_MISSING_COVERAGE",
+          "expected_bucket_count": 29,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "PARTIAL_OBSERVED_MINIMUM",
+          "missing_bucket_timestamps": [
+            1791298740,
+            1791298800
+          ],
+          "observed_drawdown_percent": -65.04122466650084,
+          "observed_minimum_mc_usd": 62999.591539727604,
+          "observed_minimum_offset_seconds": 143,
+          "observed_minimum_timestamp": 1791298860,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 27,
+          "window_seconds": 1800
+        },
+        "300": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "PROVIDER_MISSING_COVERAGE",
+          "expected_bucket_count": 4,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "PARTIAL_OBSERVED_MINIMUM",
+          "missing_bucket_timestamps": [
+            1791298740,
+            1791298800
+          ],
+          "observed_drawdown_percent": -65.04122466650084,
+          "observed_minimum_mc_usd": 62999.591539727604,
+          "observed_minimum_offset_seconds": 143,
+          "observed_minimum_timestamp": 1791298860,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 2,
+          "window_seconds": 300
+        },
+        "3600": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "PROVIDER_MISSING_COVERAGE",
+          "expected_bucket_count": 59,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "PARTIAL_OBSERVED_MINIMUM",
+          "missing_bucket_timestamps": [
+            1791298740,
+            1791298800
+          ],
+          "observed_drawdown_percent": -65.04122466650084,
+          "observed_minimum_mc_usd": 62999.591539727604,
+          "observed_minimum_offset_seconds": 143,
+          "observed_minimum_timestamp": 1791298860,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 57,
+          "window_seconds": 3600
+        },
+        "900": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "PROVIDER_MISSING_COVERAGE",
+          "expected_bucket_count": 14,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "PARTIAL_OBSERVED_MINIMUM",
+          "missing_bucket_timestamps": [
+            1791298740,
+            1791298800
+          ],
+          "observed_drawdown_percent": -65.04122466650084,
+          "observed_minimum_mc_usd": 62999.591539727604,
+          "observed_minimum_offset_seconds": 143,
+          "observed_minimum_timestamp": 1791298860,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 12,
+          "window_seconds": 900
+        }
+      },
+      "original_classification": "WATCHTOWER",
+      "provider": "BIRDEYE",
+      "provider_metadata": {
+        "x-ratelimit-limit": "300",
+        "x-ratelimit-remaining": "297",
+        "x-ratelimit-reset": "1791557166"
+      },
+      "qualified_entry_identity": {
+        "mc_usd": 180211.094178,
+        "provenance": "46daa3a3c6dfba3b59cf021e3158a57d219503e799d9ec13f0ebc079179ae587",
+        "timestamp": 1791298717
+      },
+      "request_identity": "7cf30c3935585a7aa6e67c28fe718e48357828351b71ca54bcb1ab6b13f901db",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1791298803,
+        "time_to": 1791302403
+      },
+      "returned_candle_count": 60
+    },
+    {
+      "creation_timestamp": 1791294345,
+      "earliest_observed_mc": {
+        "label": "RESEARCH_EARLIEST_OBSERVED_MC",
+        "open_mc_usd": 115324.2568717655,
+        "timestamp": 1791294360
+      },
+      "evidence_identity": "502ffeb1faf28f2c786bcb74a3c02000a5d24b20786046260ba5a13be53361db",
+      "failure": null,
+      "http_status": 200,
+      "mint": "7iXZi55AyKbJv5e9XTQuVcywdT2ejHjGBf3NKuCLpump",
+      "normalization_status": "NORMALIZED",
+      "observed_drawdown_scope": "NO_QUALIFIED_ENTRY_REFERENCE",
+      "observed_minima": null,
+      "original_classification": "WATCHTOWER",
+      "provider": "BIRDEYE",
+      "provider_metadata": {
+        "x-ratelimit-limit": "300",
+        "x-ratelimit-remaining": "296",
+        "x-ratelimit-reset": "1791557166"
+      },
+      "qualified_entry_identity": null,
+      "request_identity": "a77a0bff30a21bcbc3ea7e67266acc9c6898c2048e4b3d6b67ba2444d4903cd0",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1791294345,
+        "time_to": 1791297945
+      },
+      "returned_candle_count": 57
+    },
+    {
+      "creation_timestamp": 1791287747,
+      "earliest_observed_mc": {
+        "label": "RESEARCH_EARLIEST_OBSERVED_MC",
+        "open_mc_usd": 104830.8586106996,
+        "timestamp": 1791287760
+      },
+      "evidence_identity": "336db97e9a00c819383ae194f0e5222738cf8b83a1ded6b9256d5b0abc8df4b5",
+      "failure": null,
+      "http_status": 200,
+      "mint": "B8S7WGQYteNSBz4rU4Xs1hkr1seGpxYgUuV2wgtbpump",
+      "normalization_status": "NORMALIZED",
+      "observed_drawdown_scope": "NO_QUALIFIED_ENTRY_REFERENCE",
+      "observed_minima": null,
+      "original_classification": "WATCHTOWER",
+      "provider": "BIRDEYE",
+      "provider_metadata": {
+        "x-ratelimit-limit": "300",
+        "x-ratelimit-remaining": "299",
+        "x-ratelimit-reset": "1791557167"
+      },
+      "qualified_entry_identity": null,
+      "request_identity": "a6b198de6ea6129ab6b0a9bcdaf967f37bd3442f43e942de6b1da520906ce807",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1791287747,
+        "time_to": 1791291347
+      },
+      "returned_candle_count": 47
+    },
+    {
+      "creation_timestamp": 1791270007,
+      "earliest_observed_mc": {
+        "label": "RESEARCH_EARLIEST_OBSERVED_MC",
+        "open_mc_usd": 87992.20537555323,
+        "timestamp": 1791270060
+      },
+      "evidence_identity": "209bcad551ccc121f62390f519434644a499f41e8a8c1c794586e00cd43e3ac7",
+      "failure": null,
+      "http_status": 200,
+      "mint": "HRinFbhZjrb2xoqSzxYCYKX7LqJ3H6pn42CURb2cpump",
+      "normalization_status": "NORMALIZED",
+      "observed_drawdown_scope": "NO_QUALIFIED_ENTRY_REFERENCE",
+      "observed_minima": null,
+      "original_classification": "WATCHTOWER",
+      "provider": "BIRDEYE",
+      "provider_metadata": {
+        "x-ratelimit-limit": "300",
+        "x-ratelimit-remaining": "298",
+        "x-ratelimit-reset": "1791557167"
+      },
+      "qualified_entry_identity": null,
+      "request_identity": "e4b4cb65d4fa64840b15166d908847039e2287174df8e0af7c8e070c7e13132a",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1791270007,
+        "time_to": 1791273607
+      },
+      "returned_candle_count": 13
+    },
+    {
+      "creation_timestamp": 1791256479,
+      "evidence_identity": "23bc47ee9e0e9f8b83f5f9dc15ed8f500adea1b5ec55de7ab9ae4a3af3f0fd36",
+      "failure": null,
+      "http_status": 200,
+      "mint": "CNWXKgcbotCfhjSNgKPmqEcpCKZA19mvpmk5PHjRpump",
+      "normalization_status": "NORMALIZED",
+      "observed_drawdown_scope": "QUALIFIED_ENTRY_REFERENCE",
+      "observed_minima": {
+        "1800": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "PROVIDER_MISSING_COVERAGE",
+          "expected_bucket_count": 29,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "PARTIAL_OBSERVED_MINIMUM",
+          "missing_bucket_timestamps": [
+            1791256440
+          ],
+          "observed_drawdown_percent": -40.25583615825954,
+          "observed_minimum_mc_usd": 76419.46727515153,
+          "observed_minimum_offset_seconds": 123,
+          "observed_minimum_timestamp": 1791256560,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 28,
+          "window_seconds": 1800
+        },
+        "300": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "PROVIDER_MISSING_COVERAGE",
+          "expected_bucket_count": 4,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "PARTIAL_OBSERVED_MINIMUM",
+          "missing_bucket_timestamps": [
+            1791256440
+          ],
+          "observed_drawdown_percent": -40.25583615825954,
+          "observed_minimum_mc_usd": 76419.46727515153,
+          "observed_minimum_offset_seconds": 123,
+          "observed_minimum_timestamp": 1791256560,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 3,
+          "window_seconds": 300
+        },
+        "3600": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "PROVIDER_MISSING_COVERAGE",
+          "expected_bucket_count": 59,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "PARTIAL_OBSERVED_MINIMUM",
+          "missing_bucket_timestamps": [
+            1791256440
+          ],
+          "observed_drawdown_percent": -40.25583615825954,
+          "observed_minimum_mc_usd": 76419.46727515153,
+          "observed_minimum_offset_seconds": 123,
+          "observed_minimum_timestamp": 1791256560,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 58,
+          "window_seconds": 3600
+        },
+        "900": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "PROVIDER_MISSING_COVERAGE",
+          "expected_bucket_count": 14,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "PARTIAL_OBSERVED_MINIMUM",
+          "missing_bucket_timestamps": [
+            1791256440
+          ],
+          "observed_drawdown_percent": -40.25583615825954,
+          "observed_minimum_mc_usd": 76419.46727515153,
+          "observed_minimum_offset_seconds": 123,
+          "observed_minimum_timestamp": 1791256560,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 13,
+          "window_seconds": 900
+        }
+      },
+      "original_classification": "WATCHTOWER",
+      "provider": "BIRDEYE",
+      "provider_metadata": {
+        "x-ratelimit-limit": "300",
+        "x-ratelimit-remaining": "297",
+        "x-ratelimit-reset": "1791557167"
+      },
+      "qualified_entry_identity": {
+        "mc_usd": 127911.18389,
+        "provenance": "ff56d983c99353d294af0c58ef954d9359745ebac300ba3b832f6b57ff061bc3",
+        "timestamp": 1791256437
+      },
+      "request_identity": "0537f1d9639fdc21d9dddce31ddfc33dc7bd2086607a90ec40acb1d174d35566",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1791256479,
+        "time_to": 1791260079
+      },
+      "returned_candle_count": 60
+    },
+    {
+      "creation_timestamp": 1791238085,
+      "earliest_observed_mc": {
+        "label": "RESEARCH_EARLIEST_OBSERVED_MC",
+        "open_mc_usd": 105705.45486554697,
+        "timestamp": 1791238140
+      },
+      "evidence_identity": "c236d90ec538a20b162a7758bc56d77b605258f660ec6af02662df13a8c413bc",
+      "failure": null,
+      "http_status": 200,
+      "mint": "41GZ77b5v1ak2jujpaU2AAQFWFj4wszunihUJG4epump",
+      "normalization_status": "NORMALIZED",
+      "observed_drawdown_scope": "NO_QUALIFIED_ENTRY_REFERENCE",
+      "observed_minima": null,
+      "original_classification": "WATCHTOWER",
+      "provider": "BIRDEYE",
+      "provider_metadata": {
+        "x-ratelimit-limit": "300",
+        "x-ratelimit-remaining": "296",
+        "x-ratelimit-reset": "1791557167"
+      },
+      "qualified_entry_identity": null,
+      "request_identity": "a0bc49007744b72f3abaf65d4d54dc8b8151c94233fef00e69497c2db78a4c0d",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1791238085,
+        "time_to": 1791241685
+      },
+      "returned_candle_count": 60
+    },
+    {
+      "creation_timestamp": 1791233845,
+      "earliest_observed_mc": {
+        "label": "RESEARCH_EARLIEST_OBSERVED_MC",
+        "open_mc_usd": 111726.02874166038,
+        "timestamp": 1791233880
+      },
+      "evidence_identity": "e08ceeebd6a7eb3fb3bd366204c92be5418ca774b41a033e3ee62da79ba6bd09",
+      "failure": null,
+      "http_status": 200,
+      "mint": "4nn2hUuWxReUxBRAuXzhG3A556U6pjbecHBgwRt2pump",
+      "normalization_status": "NORMALIZED",
+      "observed_drawdown_scope": "NO_QUALIFIED_ENTRY_REFERENCE",
+      "observed_minima": null,
+      "original_classification": "WATCHTOWER",
+      "provider": "BIRDEYE",
+      "provider_metadata": {
+        "x-ratelimit-limit": "300",
+        "x-ratelimit-remaining": "299",
+        "x-ratelimit-reset": "1791557168"
+      },
+      "qualified_entry_identity": null,
+      "request_identity": "241ed89b199beb7b6bf6db43b88c457026f244e46ea0a3a0501d21db7987568c",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1791233845,
+        "time_to": 1791237445
+      },
+      "returned_candle_count": 47
+    }
+  ],
+  "request_contract": {
+    "concurrency": 1,
+    "endpoint": "/defi/v3/ohlcv",
+    "fallback": false,
+    "max_requests": 9,
+    "pagination": false,
+    "raw_provider_payload_retention": false,
+    "retries": 0
+  },
+  "research_class": "NON_CANONICAL_HISTORICAL_PRICE_FORENSICS",
+  "retention": {
+    "aggregate_max_bytes": 1000000,
+    "raw_candle_retention": false,
+    "unbounded_growth_paths": 0
+  },
+  "source_plan_sha256": "5c79e689cdacce6cbd5bb553670b88927e6ddc9a3e5433ec910b4625251c3dc3",
+  "summary": {
+    "missing_bucket_count": 86,
+    "normalized_count": 9,
+    "qualified_entry_count": 3,
+    "request_count": 9
+  },
+  "version": 1
+}

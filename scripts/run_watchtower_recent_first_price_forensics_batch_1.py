@@ -18,7 +18,8 @@ from src.ops.watchtower_observed_minimum import observed_minima
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / "docs/audits/dev014_watchtower_recent_first_price_forensics_plan_20261009.v1.json"
 POPULATION = ROOT / "docs/audits/dev014_watchtower_forensic_population_v2_20261009.v1.json"
-OUTPUT = ROOT / "docs/audits/dev014_watchtower_recent_first_price_forensics_batch_1_20261009.v1.json"
+DEFAULT_BATCH_NAME = "BATCH_1"
+DEFAULT_OUTPUT = ROOT / "docs/audits/dev014_watchtower_recent_first_price_forensics_batch_1_20261009.v1.json"
 MAX_REQUESTS = 9
 MAX_ARTIFACT_BYTES = 1_000_000
 HEADER_ALLOWLIST = {"x-ratelimit-limit", "x-ratelimit-remaining", "x-ratelimit-reset", "x-birdeye-cu", "x-compute-units"}
@@ -77,10 +78,13 @@ def header_metadata(outcome: ProviderTransportOutcome) -> dict[str, str]:
 
 
 def main() -> int:
-    if OUTPUT.exists(): raise SystemExit("BATCH_OUTPUT_ALREADY_EXISTS")
+    batch_name = os.environ.get("DEV014_BATCH_NAME", DEFAULT_BATCH_NAME)
+    output = Path(os.environ.get("DEV014_BATCH_OUTPUT", str(DEFAULT_OUTPUT)))
+    if output.parent != ROOT / "docs/audits": raise SystemExit("INVALID_BATCH_OUTPUT_PATH")
+    if output.exists(): raise SystemExit("BATCH_OUTPUT_ALREADY_EXISTS")
     if not os.environ.get("BIRDEYE", "").strip(): raise SystemExit("AUTHORITATIVE_BIRDEYE_CREDENTIAL_REQUIRED")
     plan = json.loads(PLAN.read_text())
-    batch = next(item for item in plan["batches"] if item["name"] == "BATCH_1")
+    batch = next(item for item in plan["batches"] if item["name"] == batch_name)
     selected = [item for item in batch["allowlist"] if item.get("proposed_birdeye_window")]
     if len(selected) != MAX_REQUESTS or batch["max_requests"] != MAX_REQUESTS:
         raise SystemExit("FROZEN_BATCH_1_ALLOWLIST_INVALID")
@@ -115,11 +119,11 @@ def main() -> int:
         record["evidence_identity"] = digest({key: value for key, value in record.items() if key != "evidence_identity"})
         if len(canonical(record)) > 120_000: raise ValueError("COMPACT_RECORD_BOUND_EXCEEDED")
         records.append(record)
-    artifact = {"artifact_type": "DEV014_WATCHTOWER_RECENT_FIRST_PRICE_FORENSICS_BATCH_1", "version": 1, "provider": "BIRDEYE", "research_class": "NON_CANONICAL_HISTORICAL_PRICE_FORENSICS", "source_plan_sha256": hashlib.sha256(PLAN.read_bytes()).hexdigest(), "request_contract": {"endpoint": "/defi/v3/ohlcv", "max_requests": MAX_REQUESTS, "concurrency": 1, "retries": 0, "pagination": False, "fallback": False, "raw_provider_payload_retention": False}, "records": records, "summary": {"request_count": len(records), "normalized_count": sum(record["normalization_status"] == "NORMALIZED" for record in records), "qualified_entry_count": sum(record["qualified_entry_identity"] is not None for record in records), "missing_bucket_count": sum(len(result.get("missing_bucket_timestamps") or []) for record in records for result in (record.get("observed_minima") or {}).values())}, "retention": {"aggregate_max_bytes": MAX_ARTIFACT_BYTES, "raw_candle_retention": False, "unbounded_growth_paths": 0}}
+    artifact = {"artifact_type": f"DEV014_WATCHTOWER_RECENT_FIRST_PRICE_FORENSICS_{batch_name}", "version": 1, "provider": "BIRDEYE", "research_class": "NON_CANONICAL_HISTORICAL_PRICE_FORENSICS", "source_plan_sha256": hashlib.sha256(PLAN.read_bytes()).hexdigest(), "request_contract": {"endpoint": "/defi/v3/ohlcv", "max_requests": MAX_REQUESTS, "concurrency": 1, "retries": 0, "pagination": False, "fallback": False, "raw_provider_payload_retention": False}, "records": records, "summary": {"request_count": len(records), "normalized_count": sum(record["normalization_status"] == "NORMALIZED" for record in records), "qualified_entry_count": sum(record["qualified_entry_identity"] is not None for record in records), "missing_bucket_count": sum(len(result.get("missing_bucket_timestamps") or []) for record in records for result in (record.get("observed_minima") or {}).values())}, "retention": {"aggregate_max_bytes": MAX_ARTIFACT_BYTES, "raw_candle_retention": False, "unbounded_growth_paths": 0}}
     raw = json.dumps(artifact, indent=2, sort_keys=True) + "\n"
     if len(raw.encode()) > MAX_ARTIFACT_BYTES: raise ValueError("ARTIFACT_BOUND_EXCEEDED")
-    OUTPUT.write_text(raw)
-    print(json.dumps({"output": str(OUTPUT), "bytes": len(raw.encode()), **artifact["summary"]}, sort_keys=True))
+    output.write_text(raw)
+    print(json.dumps({"output": str(output), "bytes": len(raw.encode()), **artifact["summary"]}, sort_keys=True))
     return 0
 
 

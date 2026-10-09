@@ -22001,6 +22001,19 @@
     "runtime_deployment_reason": "Provider-contract qualification only; no runtime behavior changed.",
     "next_action": "STOP. The direct Current-MC endpoint is qualified for a separate minimal overlay implementation proposal. Any overlay must remain owned by the existing monitor worker, share 20 global/4 per-mint budgets, retain only compact quote fields, use explicit freshness/expiry, and never mutate Entry, historical observations, running peak/ATH, multiples, drawdown, terminal state, or Policy-C queue scheduling."
   },
+  "dev014_watchtower_early_minimum_evidence_persistence_20261009": {
+    "engineering_revision": "55877e6eb857b362d096790cab295fcd82761d15 on origin/codex/dev014-current-mc-freshness; clean isolated provider-free qualification.",
+    "status": "PASS_COMPACT_APPEND_ONLY_STORE_QUALIFIED_NOT_INTEGRATED",
+    "adapter": "ObservedMinimumEvidenceStore accepts only digest-valid records from WATCHTOWER_OBSERVED_MINIMUM_EVIDENCE_V1, persists independent 5m/15m/30m/60m rows keyed by deterministic evidence_identity, and reads through SQLite URI mode=ro. It has no monitor-fact, queue, provider, Policy-C, lifecycle, or scheduler dependency.",
+    "append_only": "An equal identity with byte-equivalent compact content is a no-op. A pre-existing identity with differing stored bytes fails EVIDENCE_IDENTITY_COLLISION. record_version remains part of the deterministic identity, so versions coexist without rewriting prior evidence. Invalid identity digests and raw/candle/payload fields fail closed.",
+    "transactions": "Initialization enables WAL only for the isolated evidence DB. Each admission uses one bounded BEGIN IMMEDIATE transaction with busy_timeout=1000ms; no delete, update, overwrite, or repair path exists. Reopening after a rolled-back transaction exposes no partial record; retrieval is explicitly read-only.",
+    "storage": "Canonical records are deterministically zlib-compressed in the SQLite BLOB while returned records retain the exact JSON contract and hash. Enforced caps: stored record <=1,024 bytes; per mint <=30,720 bytes; all retained record payloads/manifest <=102,400 bytes; SQLite main+WAL+SHM aggregate <=1,000,000 bytes. Raw candle/provider payload retention=false; unbounded growth paths=0; no file can approach 500,000,000 bytes. Four fixture records occupied 106,936 bytes including SQLite sidecars.",
+    "verification": "21 provider-free tests passed: observed-minimum=10, pure evidence identity=4, store=7. Coverage includes four windows, idempotent duplicate, persisted conflict, version coexistence, raw/byte-limit rejection, per-mint/manifest fail-closed limits, rollback/restart visibility, and unrelated monitor-DB immutability. diff --check passed. Provider calls=0; live DB/queue writes=0; Supervisor/service actions=0; lifecycle/fact mutation=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "runtime_deployment_reason": "This is executable persistence code but remains isolated and unbound; no target runtime, live store, configuration, or process changed.",
+    "next_action": "STOP. A separate explicit deployment/integration authorization must select a new isolated evidence-store path, establish ownership and retention lifecycle, and prove that only separately authorized research/backfill writes can invoke this adapter. Do not bind it to live monitor facts, queues, Policy C, or a historical scheduler automatically."
+  },
   "dev019_treasury_subscription_activity_reconciliation_20261008": {
     "engineering_revision": "Live cascade 26da06daba23608bd64d5b86cde1f92b24d3a98d; retained activity corpus c9925cb038ebe0bf8677d76331700eadf535cf6b; qualified selector 23b09948a70ccea9f08cf560e9684325e9287623.",
     "status": "PASS_READ_ONLY_SELECTION_RECONCILED_NOT_DEPLOYED",

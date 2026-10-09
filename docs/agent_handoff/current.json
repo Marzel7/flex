@@ -19650,6 +19650,17 @@
     "runtime_deployment_reason": "Provider-contract qualification only; overlay implementation and activation are not authorized.",
     "next_action": "AUTHORIZE_THE_EXACT_BOUNDED_BIRDEYE_CONTRACT_PROBE_OR_KEEP_CURRENT_MC_AS_A_LABELLED_SAMPLED_POLICY_C_OBSERVATION"
   },
+  "dev014_birdeye_current_mc_contract_probe_20261009": {
+    "engineering_revision": "48e5b8e249a545c045be1311369e310199985646; clean isolated provider-probe preflight only",
+    "status": "HOLD_DISK_PREFLIGHT_FAILED",
+    "finding": "The clean isolated source matches 48e5b8e249a545c045be1311369e310199985646. Official Birdeye material identifies GET /defi/token_overview with address and x-chain=solana as the direct-current market-data candidate, exposing marketCap alongside fdv and circulatingSupply; retained Flex source has no binding for it. Before any credential use or network request, the data volume reported 3,224,012 KiB free (about 3.07 GiB), below the mandatory 4 GiB safety floor.",
+    "requests": "BIRDEYE requests attempted=0 of authorized maximum 2; retries=0; fallback providers=0; credential values exposed=0; raw provider responses retained=0.",
+    "endpoint_contract": "Unprobed and therefore unqualified: direct MC field semantics, CatTok support, provider timestamp, missing-token behavior, paid-account entitlement, and actual CU cost remain unproven. The endpoint must not be implemented or activated from documentation alone.",
+    "safety": "No source/config/runtime/DB/queue/Supervisor/listener change; no provider call; no overlay; no deployment.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Preflight stopped before provider-contract acquisition; no executable behavior changed.",
+    "next_action": "RESTORE_AND_REVERIFY_AT_LEAST_4_GIB_FREE_DISK_THEN_REQUEST_A_FRESH_EXPLICIT_TWO_REQUEST_BIRDEYE_PROBE_AUTHORIZATION"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

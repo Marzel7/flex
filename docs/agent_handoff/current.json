@@ -19637,6 +19637,19 @@
     "runtime_deployment_reason": "Diagnostic trace only; no executable behavior changed.",
     "exact_next_action": "TRACE_AND_FIX_ONLY_THE_PENDING_QUEUE_TO_OPENING_FACT_BOUNDARY_FOR_4NN_AND_GSZ_IF_AUTHORIZED; KEEP_TARGET_SECOND_ABSENT_AND_MISSING_POOL_CASES_SEPARATE"
   },
+  "dev014_birdeye_current_mc_provider_contract_20261009": {
+    "engineering_revision": "48e5b8e249a545c045be1311369e310199985646; provider-contract audit only; no source change",
+    "status": "HOLD_PROVIDER_CONTRACT_PROBE_REQUIRED",
+    "finding": "The deployed Watchtower Current MC is the latest persisted 15-minute OHLCV close, correctly projected by the API but not a real-time quote. Retained Flex authority qualifies only BIRDEYE /defi/v3/ohlcv for lifecycle evidence; its legacy token_price helper is price-only, and the DEV current scheduler mutates latest/peak/drawdown/lifecycle facts, so neither can serve an isolated Current-MC overlay. Official Birdeye pricing confirms plan-specific CU billing and plan-specific rate limits, but retained authority does not establish the paid account tier, direct-market-cap endpoint schema, freshness timestamp, Pump.fun response semantics, error contract, or endpoint CU weight.",
+    "provider_free_evidence": "No provider calls. 55 focused existing Watchtower Policy-C/frozen-lifecycle/terminal/supervisor tests passed. CatTok retained fact latest_mc_usd=442327.03900957113 at 1791526500; API projected the same fact, while its durable Policy-C deadline was later. This supports sampled-close freshness diagnosis only.",
+    "overlay_boundary": "Future overlay must be a default-OFF, separately bounded, one-record-per-mint sidecar: mint,current_mc_usd,fetched_at,source,freshness_status,expires_at,provider_provenance. It must not write monitor historical facts or alter Entry, running peak/ATH, multiples, drawdown, terminal state, Policy-C deadline, or queue identity. It must share the existing single acquisition owner and 20-global/4-per-mint gate.",
+    "minimum_probe": "Separate explicit authorization required for at most two BIRDEYE-only, concurrency-1, no-retry requests: direct-current-MC endpoint candidate for CatTok DNtZMNDZ65hAJbJXRiP9NnV98ZTrwLTEJZ78fWKCpump, then the same endpoint for Solana System Program 11111111111111111111111111111111 only if missing-token semantics are not unambiguously documented. Retain only compact normalized contract fields; retain no raw response.",
+    "budget": "Calls/hour (1m,5m,10m): 1 token=(60,12,6); 5=(300,60,30); 10=(600,120,60); 25=(1500,300,150); 64=(3840,768,384). Calls are not credits; endpoint CU weight/account entitlement remain unqualified. A 1-minute cadence for 25 or 64 tokens exceeds the 20-global application gate even before existing lifecycle work.",
+    "safety": "BIRDEYE=0; other provider calls=0; runtime/source/config/DB/queue/Supervisor/listener changes=0; no credentials exposed; no raw payload retained; no deployment.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Provider-contract qualification only; overlay implementation and activation are not authorized.",
+    "next_action": "AUTHORIZE_THE_EXACT_BOUNDED_BIRDEYE_CONTRACT_PROBE_OR_KEEP_CURRENT_MC_AS_A_LABELLED_SAMPLED_POLICY_C_OBSERVATION"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

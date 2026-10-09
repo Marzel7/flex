@@ -23329,5 +23329,14 @@
     "finding": "Batch4RuntimeGate has concrete complete health/storage/checkpoint/topology checks and the shared budget/transport interfaces are known. However, repository-wide inspection found no existing authoritative LIVE-work-pending predicate. The only LIVE priority references are injectable callback parameters in HistoricalBackfillController and HistoricalExecutionBinding; they do not inspect the MonitorQueue or define a queue-state contract. The operator cannot truthfully instantiate the required LIVE-priority binding from existing authority.",
     "safety": "No provider call, budget debit, queue/database write, runtime preflight, deployment, scheduler action, or source modification occurred.",
     "next_action": "Qualify a separate provider-free LIVE workload-priority authority against the actual MonitorQueue schema/state, including stale/ambiguous fail-closed behavior. Only then bind the operator to that existing-qualified predicate and run fake integration regressions."
+  },
+  "dev014_live_priority_atomic_admission_qualification_20261009": {
+    "status": "HOLD_SHARED_QUEUE_ADMISSION_CONTRACT_REQUIRED",
+    "engineering_revision": "bea6e551380b0617a29a5bc54827a1726525a7cd; read-only source inspection only.",
+    "monitor_queue_authority": "MonitorQueue wraps EvidenceIntakeQueue directories pending/retry/processing. MonitorWorker._higher_priority_pending scans those directories and returns true for any envelope whose work_type is not EARLY_MINIMUM_WORK_TYPE. It is worker-private, not a MonitorQueue API or a provider admission primitive.",
+    "classification_limit": "The scan does not distinguish provider-bound from provider-free work, does not apply due-time semantics, does not identify claimed ownership/priority class, and silently continues on malformed/OSError records rather than returning UNKNOWN. It therefore cannot implement LIVE_PENDING/LIVE_CLEAR/UNKNOWN as required.",
+    "race": "HistoricalForensicsBudgetAdmission reaches MonitorQueue.admit_provider_dispatch -> DevProviderBudget under provider_budget.lock. The worker-local directory scan is outside that lock. A LIVE job may arrive after LIVE_CLEAR and before the historical debit, so no atomic priority guarantee exists. A read-only snapshot must not be represented as priority protection.",
+    "ownership_boundary": "A priority-aware decision combined with the existing budget lock would change shared MonitorQueue admission behavior and priority semantics. It belongs to the shared MonitorQueue/live-worker owner, not DEV-014. No source change, provider request, budget debit, queue/database write, scheduler, deployment, or runtime action occurred.",
+    "next_action": "Under the owning shared-queue workstream, qualify a fail-closed provider-demand classification and priority-aware admission under the existing synchronization contract. DEV-014 may then consume that API; until then historical execution integration remains HOLD."
   }
 }

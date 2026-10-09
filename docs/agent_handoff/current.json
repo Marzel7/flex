@@ -3286,6 +3286,18 @@
     "runtime_deployment_required": false,
     "next_action": "HOLD pending separately authorized review of compact pilot evidence and an explicitly scoped next provenance batch; do not expand acquisition or promote historical facts."
   },
+  "dev014_watchtower_creation_migration_reconciliation_20261009": {
+    "status": "PASS_PROVIDER_FREE_RECONCILIATION",
+    "engineering_revision": "b16ad8101aee51e83a0ca810db097c7bf4c78aa3 on clean isolated codex/dev014-current-mc-freshness.",
+    "scope": "Read-only reconciliation of compact creation and migration pilot research evidence; no Helius/Birdeye request, canonical promotion, Entry reconstruction, database/queue write, lifecycle mutation, or deployment.",
+    "validated_evidence": "Creation=10 and migration=10, each with unique deterministic request/evidence identities and provider provenance. No duplicate/conflicting evidence identities. Research evidence remains separate from canonical lifecycle facts.",
+    "pairing": "19 distinct mints: both independently validated events=1, strict slot-order chronology qualified=0, one-sided validation=18. The sole two-event mint 2GE5... has distinct signatures but equal validated slot 454044241, recorded as SAME_SLOT_ORDER_UNRESOLVED rather than chronology-qualified.",
+    "next_batch": "Frozen provider-free proposal contains ten unique retained counterpart signatures: nine MIGRATION validations for creation-validated, Entry-ready mints and one CREATION validation for the most recent remaining migration-validated mint. Selection prioritizes one-sided completion, qualified Entry MC, strict opening-offset evidence, early-minimum evidence, sharp-exit evidence, then retained timestamp/mint. Expected RPC requests=10 only if separately authorized.",
+    "price_readiness": "Proposed batch: qualified Entry MC=9/10, strict opening-offset evidence=1/10, early-minimum research=1/10, sharp-exit research=6/10. Event identity does not by itself authorize historical Entry promotion.",
+    "artifact": "docs/audits/dev014_watchtower_creation_migration_reconciliation_20261009.v1.json SHA-256 ad14d78557d171a90049a0cea5463bb6ea10e474b87055dcdee18ada33365840; 20841 bytes. Creation+migration+reconciliation compact artifacts total 38873 bytes; raw retention=false; each artifact aggregate hard bound=1000000 bytes; unbounded-growth paths=0.",
+    "runtime_deployment_required": false,
+    "next_action": "HOLD pending an explicit authorization for the frozen ten-signature counterpart-validation batch; do not acquire, promote, reconstruct, backfill, or deploy before that gate."
+  },
   "dev019_8cub_downstream_coverage_batch1_20261008": {
     "artifact": "docs/audits/dev_019_8cub_downstream_coverage_batch1.v1.json SHA256=003be28e8dce011760ad438a2e990eedbbd9d0e5ee887632a2dcd21cc8292b18, 14174 bytes. It retains compact page boundaries, per-signature decode status, and no raw RPC payload/block data.",
     "authorization_and_coverage": "One separately authorized 8CUb-only Helius batch executed three cursor-bounded 20-signature pages. Requests=63/66 (3 getSignaturesForAddress, 60 getTransaction, 0 getBlock), retries=0, fallback=0. Compact page boundaries were saved before decoding. All three windows are COMPLETE_SIGNATURE_WINDOW (20/20); all 60 returned unique signatures decoded successfully as legacy transactions.",

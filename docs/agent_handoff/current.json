@@ -3424,6 +3424,15 @@
     "runtime_deployment_required": false,
     "next_action": "HOLD pending explicit Batch 4 acquisition authorization and fresh safety preflight. Do not acquire, promote historical Entry, or change runtime before that gate."
   },
+  "dev014_watchtower_recent_first_price_forensics_batch_4_20261009": {
+    "status": "HOLD_PREFLIGHT_HEALTH_GATE_FAILED",
+    "engineering_revision": "e1d4adb1bfa8ab6d4b5d58a85dd78bb119008c0f clean and remote-matched at preflight; no Batch 4 source/artifact was created.",
+    "scope": "No Birdeye/Helius request, queue/database write, canonical promotion, lifecycle mutation, runtime change, deployment, or Batch 5 activity occurred.",
+    "frozen_candidate": "Ranks 31-40 were verified from the anchor qualification artifact: eight QUALIFIED_ENTRY_ANCHOR and ranks 35/39 OBSERVED_PRICE_ANCHOR; all ten identities/windows remain frozen but unexecuted.",
+    "preflight": "Credential binding present without disclosure; free disk 5950696 KiB (>4GiB); Supervisor watchtower_api PID 9045 and operation_monitor_worker PID 9126 were RUNNING; Current MC/early-minimum flags were not reached because the API health command failed first. The configured http://127.0.0.1:5002/healthz returned HTTP 503, therefore the required health gate failed and acquisition stopped before budget consumption.",
+    "runtime_deployment_required": false,
+    "next_action": "Diagnose and restore API/DB health under separately authorized operational work, then rerun the entire Batch 4 fresh preflight. Do not issue provider requests or bypass the failed gate."
+  },
   "dev019_8cub_downstream_coverage_batch1_20261008": {
     "artifact": "docs/audits/dev_019_8cub_downstream_coverage_batch1.v1.json SHA256=003be28e8dce011760ad438a2e990eedbbd9d0e5ee887632a2dcd21cc8292b18, 14174 bytes. It retains compact page boundaries, per-signature decode status, and no raw RPC payload/block data.",
     "authorization_and_coverage": "One separately authorized 8CUb-only Helius batch executed three cursor-bounded 20-signature pages. Requests=63/66 (3 getSignaturesForAddress, 60 getTransaction, 0 getBlock), retries=0, fallback=0. Compact page boundaries were saved before decoding. All three windows are COMPLETE_SIGNATURE_WINDOW (20/20); all 60 returned unique signatures decoded successfully as legacy transactions.",

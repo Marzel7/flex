@@ -27,6 +27,7 @@ class ObservedMinimum:
     coverage_status: str
     observed_minimum_mc_usd: float | None
     observed_minimum_timestamp: int | None
+    observed_minimum_offset_seconds: int | None
     observed_drawdown_percent: float | None
     candle_interval_seconds: int
     expected_bucket_count: int
@@ -42,6 +43,7 @@ class ObservedMinimum:
             "coverage_status": self.coverage_status,
             "observed_minimum_mc_usd": self.observed_minimum_mc_usd,
             "observed_minimum_timestamp": self.observed_minimum_timestamp,
+            "observed_minimum_offset_seconds": self.observed_minimum_offset_seconds,
             "observed_drawdown_percent": self.observed_drawdown_percent,
             "candle_interval_seconds": self.candle_interval_seconds,
             "expected_bucket_count": self.expected_bucket_count,
@@ -125,12 +127,12 @@ def observed_minima(
             absent = tuple(timestamp for timestamp in expected if timestamp not in valid)
             coverage = "TRUNCATION_SUSPECTED" if absent and absent == expected[-len(absent):] else "PROVIDER_MISSING_COVERAGE"
         if not valid:
-            result = ObservedMinimum(window, "NO_VALID_POST_ENTRY_CANDLE", coverage, None, None, None,
+            result = ObservedMinimum(window, "NO_VALID_POST_ENTRY_CANDLE", coverage, None, None, None, None,
                                      ONE_MINUTE, len(expected), 0, missing, invalid, provider_provenance)
         else:
             timestamp, minimum = min(valid.items(), key=lambda item: (item[1], item[0]))
             status = "COMPLETE_OBSERVED_WINDOW" if coverage == "COMPLETE_OBSERVED_WINDOW" else "PARTIAL_OBSERVED_MINIMUM"
-            result = ObservedMinimum(window, status, coverage, minimum, timestamp,
+            result = ObservedMinimum(window, status, coverage, minimum, timestamp, timestamp - entry_timestamp,
                                      (minimum / entry - 1.0) * 100.0, ONE_MINUTE, len(expected), len(valid),
                                      missing, invalid, provider_provenance)
         results[str(window)] = result.as_dict()

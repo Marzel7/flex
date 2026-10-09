@@ -26,6 +26,7 @@ def test_complete_windows_are_observed_not_lifecycle_facts():
     assert results["300"]["minimum_status"] == "COMPLETE_OBSERVED_WINDOW"
     assert results["300"]["coverage_status"] == "COMPLETE_OBSERVED_WINDOW"
     assert results["300"]["missing_bucket_timestamps"] == []
+    assert results["300"]["observed_minimum_offset_seconds"] == 239
     assert results["300"]["observed_drawdown_percent"] < 0
 
 

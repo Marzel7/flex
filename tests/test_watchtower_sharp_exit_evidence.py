@@ -3,7 +3,7 @@ import copy
 import pytest
 
 from src.ops.token_data_provider_bindings import ProviderTransportOutcome
-from src.ops.watchtower_sharp_exit_evidence import normalize_30s_exit_evidence, request_identity
+from src.ops.watchtower_sharp_exit_evidence import ExitEvidenceValidationError, compact_failure_diagnostic, normalize_30s_exit_evidence, request_identity
 
 
 MINT = "TestMint111111111111111111111111111111111111"
@@ -48,11 +48,11 @@ def test_actual_transport_shape_normalizes_catastrophic_candle_without_raw_histo
 
 
 @pytest.mark.parametrize("transport,error", [
-    (ProviderTransportOutcome(200, None, {"X": "1"}), "MISSING_PROVIDER_PAYLOAD"),
-    (ProviderTransportOutcome(200, {"success": True, "data": {"items": []}}, {}), "MISSING_RESPONSE_HEADERS"),
-    (ProviderTransportOutcome(200, {"success": False, "data": {"items": []}}, {"X": "1"}), "INVALID_PROVIDER_SUCCESS_STATE"),
-    (ProviderTransportOutcome(200, {"success": True, "data": {"items": [None]}}, {"X": "1"}), "NON_MAPPING_PROVIDER_CANDLE_ITEM"),
-    (outcome([]), "EMPTY_PROVIDER_CANDLE_LIST"),
+    (ProviderTransportOutcome(200, None, {"X": "1"}), "UNSUPPORTED_RESPONSE_SHAPE"),
+    (ProviderTransportOutcome(200, {"success": True, "data": {"items": []}}, {}), "UNSUPPORTED_RESPONSE_SHAPE"),
+    (ProviderTransportOutcome(200, {"success": False, "data": {"items": []}}, {"X": "1"}), "UNSUPPORTED_RESPONSE_SHAPE"),
+    (ProviderTransportOutcome(200, {"success": True, "data": {"items": [None]}}, {"X": "1"}), "UNSUPPORTED_RESPONSE_SHAPE"),
+    (outcome([]), "UNSUPPORTED_RESPONSE_SHAPE"),
 ])
 def test_transport_shape_failures_fail_closed(transport, error):
     with pytest.raises(ValueError, match=error):
@@ -69,8 +69,8 @@ def test_sparse_internal_gap_and_tail_keep_exact_gap_coordinates():
 
 
 @pytest.mark.parametrize("mutate,error", [
-    (lambda rows: rows + [copy.deepcopy(rows[-1])], "DUPLICATE_OR_OUT_OF_ORDER_30S_CANDLES"),
-    (lambda rows: [dict(row, l=0) if row["unixTime"] == CANDIDATE else row for row in rows], "INVALID_30S_MCAP_CANDLE"),
+    (lambda rows: rows + [copy.deepcopy(rows[-1])], "DUPLICATE_TIMESTAMP"),
+    (lambda rows: [dict(row, l=0) if row["unixTime"] == CANDIDATE else row for row in rows], "INVALID_OHLC_VALUE"),
 ])
 def test_duplicate_and_invalid_ohlc_fail_closed(mutate, error):
     with pytest.raises(ValueError, match=error):
@@ -92,3 +92,34 @@ def test_response_fields_prevent_original_attribute_error_and_identity_is_determ
     assert first["evidence_identity"] == second["evidence_identity"]
     assert first["provider_response_metadata"] == {"x-ratelimit-limit": "300"}
     assert first["returned_candle_count"] == 160
+
+
+def test_established_open_high_low_close_aliases_are_supported():
+    rows = [{"timestamp": row["unixTime"], "open": row["o"], "high": row["h"], "low": row["l"], "close": row["c"]}
+            for row in valid_items()]
+    assert normalize(rows)["returned_candle_count"] == 160
+
+
+def test_one_bad_candle_has_bounded_precise_diagnostic_and_no_event():
+    rows = valid_items()
+    rows[7].pop("l")
+    with pytest.raises(ExitEvidenceValidationError) as caught:
+        normalize(rows)
+    diagnostic = compact_failure_diagnostic(caught.value, request_id="r" * 64)
+    assert diagnostic["failure_category"] == "MISSING_REQUIRED_FIELD"
+    assert diagnostic["field_path"] == "item.l"
+    assert diagnostic["candle_index"] == 7
+    assert len(str(diagnostic).encode()) < 1024
+
+
+@pytest.mark.parametrize("mutate,category", [
+    (lambda row: row.update({"unixTime": "bad"}), "INVALID_FIELD_TYPE"),
+    (lambda row: row.update({"unixTime": CANDIDATE + 1}), "INVALID_TIMESTAMP"),
+    (lambda row: row.update({"h": 1, "l": 2}), "OHLC_INCONSISTENCY"),
+])
+def test_diagnostic_categories_are_specific(mutate, category):
+    rows = valid_items()
+    mutate(rows[10])
+    with pytest.raises(ExitEvidenceValidationError) as caught:
+        normalize(rows)
+    assert caught.value.category == category

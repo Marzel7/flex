@@ -1,0 +1,174 @@
+{
+  "artifact_type": "DEV014_WATCHTOWER_SAME_SLOT_IDENTITY_ORDERING_AUDIT",
+  "event_validator_audit": {
+    "balance_change_to_specific_instruction_binding": false,
+    "conclusion": "EVENT_BINDING_UNQUALIFIED for chronology/canonical reconstruction; retained records remain candidate transaction associations, not disproven identities",
+    "creation": "requires Pump.fun program account, global 'Instruction: Create' log, no global migrate marker, and mint anywhere in transaction account keys or pre/post token balances",
+    "inner_instruction_to_mint_binding": false,
+    "instruction_to_mint_binding": false,
+    "migration": "requires global 'Instruction: Migrate' plus broad PumpSwap/initialize log patterns, no buy/sell markers, and mint anywhere in transaction account keys or pre/post token balances",
+    "retained_raw_transaction_available": false
+  },
+  "evidence_identity": "feae5bc8dec5dcffd4c6bb6a676611c368d749193a0b7a56a7fed562e99321fc",
+  "impact": {
+    "chronology_qualified_pairs": 0,
+    "historical_entry_reconstruction": "remains blocked: provenance is not independently chronology-qualified and price evidence remains separate.",
+    "prior_migration_claim_correction": "Prior migration PASS establishes only transaction-level candidate association until direct mint-event binding is qualified; no canonical fact was written.",
+    "research_price_lifecycle": "may remain explicitly research-only and must not fabricate canonical chronology.",
+    "wider_639_cohort": "Existing migration/creation provenance coverage uses the same retained identity class and cannot establish strict chronology without direct binding plus ordering evidence."
+  },
+  "inputs": {
+    "docs/audits/dev014_watchtower_counterpart_validation_batch_20261009.v1.json": "0209299c94a4990557234332e296f7c7772e2c30bddf8034f12a4f61903a7f0d",
+    "docs/audits/dev014_watchtower_creation_migration_reconciliation_20261009.v1.json": "ad14d78557d171a90049a0cea5463bb6ea10e474b87055dcdee18ada33365840"
+  },
+  "minimum_future_acquisition": {
+    "authorized_now": false,
+    "limits": {
+      "aggregate_artifact_max_bytes": 1000000,
+      "concurrency": 1,
+      "fallback": false,
+      "pagination": false,
+      "raw_block_retention": false,
+      "raw_transaction_retention": false,
+      "response_size_fail_closed_bytes": 16000000,
+      "retries": 0
+    },
+    "method": "getBlock",
+    "one_request_per_distinct_slot": true,
+    "request_count": 11,
+    "required_normalized_fields": [
+      "slot",
+      "creation_signature",
+      "migration_signature",
+      "creation_transaction_index",
+      "migration_transaction_index",
+      "ordering_verdict",
+      "provider_provenance"
+    ],
+    "validation": "both signatures must occur exactly once in the retrieved slot and direct mint-to-event instruction binding must pass before ordering is accepted"
+  },
+  "pair_count": 11,
+  "pairs": [
+    {
+      "creation_signature": "5JJPTBHGtwxFp6y2uzMrb2g6SjcXDypYmn1PtcLXpfKqQQJNrhwZs6TKg6e9hEKVQNctmY14GcLGvv4aRfFfnxoz",
+      "creation_slot": 454044241,
+      "migration_signature": "2NortjNSVd2irQAJHBrvH6RxRtGbXuLbqjPXiThk1L5c6eaD2oZiPv4NszKZEiyRzSYHr7oBdm7XNDDrVoQzr8c8",
+      "migration_slot": 454044241,
+      "mint": "2GE5VekSBFzLBXfNYTJ58bnEyCepqSPLpzA9JZjJpump",
+      "signature_distinct": true,
+      "source": "prior_pilots"
+    },
+    {
+      "creation_signature": "2C7sCCRAexvQfJqDmgWwTNDMkF5X1axUet2gfGb9aZkjyU88kZWxEEa5KmZHvqFpmEeqqR9k65egWY9C36kgqiUR",
+      "creation_slot": 453992359,
+      "migration_signature": "254GfyBwrqZhiYbW2fDYnkDUojHjcE1CKi77y3oJnRJ95hyHN2VYcXuuk3yBxzM4Z6prSDwN1nXWmMouy8hpWsNE",
+      "migration_slot": 453992359,
+      "mint": "CsCPttDSDsKxhCiVrYvCpFHtT9A3Uni8tbSfqpDXpump",
+      "signature_distinct": true,
+      "source": "counterpart_batch"
+    },
+    {
+      "creation_signature": "4vD5D7DqBsxKK4KhqrbujRXk2jNp1ZLYVCPU4KFvZfeFCr8icxANqozmu3RtHt2mZs1NdQ9W7nA63aMMkpxXghSa",
+      "creation_slot": 454596910,
+      "migration_signature": "5tp53ebkQMGJ2edDJBbheFY7GFGdpBGinWcMj1padMUuA9pSSf2yUvNFM6aj1i8nQzQqyD3QLxPUzHMxpF6DrSzN",
+      "migration_slot": 454596910,
+      "mint": "9JtPfLbN32CszHmstoXYdWaazFLaoxhfqf9mKgQMpump",
+      "signature_distinct": true,
+      "source": "counterpart_batch"
+    },
+    {
+      "creation_signature": "3hScpsXdrjPygu3qT7LVTnCGTsd9oq6EVn5sKT47D7M5bunjhxcY7uABz5Bhxq7UzuCxvuS37q4EJYsEH9fzxRpR",
+      "creation_slot": 454649859,
+      "migration_signature": "9KmGozZgYHm3vcLXQ27yZiPrFeC3Q1EZvsWfaxpwh2yzN8SudRR23ZFcqHGJRcKCPDQU4dPKMSbeqCJzz48DhRG",
+      "migration_slot": 454649859,
+      "mint": "DNtZMNDZ65hAJbJXRiP9NnV98ZTrwLTEJZ78fWKCpump",
+      "signature_distinct": true,
+      "source": "counterpart_batch"
+    },
+    {
+      "creation_signature": "2XDr3tyJ9CPYpQBXseT775quptqyZfxmF79ckZmeC7txGGUf8PtKppr9AodXt4gKQ8vzK1QAShgQnzFpaCU8tgJn",
+      "creation_slot": 454619490,
+      "migration_signature": "46Y9cxKB62b7Ayu2398nCoG4UgAxo6xaer42QmQfwN6PjVGSWPaUaXV93WKtQoL67hCc1TkKC3inTqzW5pTVS8e8",
+      "migration_slot": 454619490,
+      "mint": "6LdjC13zbAxmruKrqsAQ4znUrjNe7gXXVeCHDBMYpump",
+      "signature_distinct": true,
+      "source": "counterpart_batch"
+    },
+    {
+      "creation_signature": "3TMDX7hzvtZJfb6zBx7VdgyiadX18wFMGAeA4moMi9BBrAjYm52uErQN47Z66UJsGiNCPo8bsqKuXk5h8YHJwsYw",
+      "creation_slot": 454604037,
+      "migration_signature": "4UYkEyrbc61RBc9pvKKx7GRmpLSENoKU13qvNXtTab2Mec8LdhDwpEgvxQj7qiG429iQQPMjKam155YJ71isyp56",
+      "migration_slot": 454604037,
+      "mint": "7JVDPbS8iYHoUD4yWYxQH9yHcop5oPeBnfBvXkiqpump",
+      "signature_distinct": true,
+      "source": "counterpart_batch"
+    },
+    {
+      "creation_signature": "5GuWcirD75LQyZh7FDxu1p2QRYtSrp8LuyahiENSV1qmtz3RjCQFEExTLwdt3jRvRVLiyub93jRNNqxRNcUJdWKM",
+      "creation_slot": 454010385,
+      "migration_signature": "53coqVKitbM6ddK6kkDyUjLTD1HURenQVWAGH2uGPc54dMFsJhvxnF5wRh83NPFwhGB7Q3NTCtA4H8upV253in2j",
+      "migration_slot": 454010385,
+      "mint": "41MRCVm6R51b352bp7T8imzpJq1uFy3W1E22uLW4pump",
+      "signature_distinct": true,
+      "source": "counterpart_batch"
+    },
+    {
+      "creation_signature": "2EgzUN4YxSiTK6gixtbSET4pR4LBV8uo89Z9RCrrAPPZ8nWY8KGHWEzNTtZyE1UBUzeE8rAj4hYCPmKH2hTxCwoX",
+      "creation_slot": 454008768,
+      "migration_signature": "3hKytfyHNaQz4cDjFNXZRmVMZ464QJEYB2x6nf7snXEhu1mUgyxHnAvA3niUvz4VpimRupcmTVPwE5F8k54CQioj",
+      "migration_slot": 454008768,
+      "mint": "7mFXERtY2FJDVi2SbYHQw5ctt3kSLLrUgSANK78apump",
+      "signature_distinct": true,
+      "source": "counterpart_batch"
+    },
+    {
+      "creation_signature": "ZeQmFv68t683hz7zP2beq6GuxvMMzY89VaQzoobi4b5uSeFQG6z1TTzC6EdnkZVEAUJPJ1Lj1RzUmqNJkGPbeeU",
+      "creation_slot": 454610488,
+      "migration_signature": "3pAtJW1NDPyBE5bPg1WTNnUcP6xPwiS5DXs87kWibLdVjfMQikPNK29DN27Z1fUYARAjXU4iieStbCQKhvD2t1dS",
+      "migration_slot": 454610488,
+      "mint": "6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump",
+      "signature_distinct": true,
+      "source": "counterpart_batch"
+    },
+    {
+      "creation_signature": "3jbdw8BRhXoMRwchQdNh3PZcj9j9stZLfNwKK4vUwv4ELfnnQ3CPuCYWPRrB3NMrv1dw7dR1GyDpmENrHaRmnoRW",
+      "creation_slot": 454016700,
+      "migration_signature": "5yNyBGVoEUm6zkQRNSMgtA8mKZBEL3P7doN9EJWzmVuP9iiaYktbW6spFD2nYLqFmtk2KRRsgbGSMCs8BNS7AxRu",
+      "migration_slot": 454016700,
+      "mint": "GfBwZAaRLdarL7mmUce8wkFc2xALuTSzyrREVKixpump",
+      "signature_distinct": true,
+      "source": "counterpart_batch"
+    },
+    {
+      "creation_signature": "CFtT61HWNWzyHcpntHmpTkewTbG8x7jNn9JjjdtjGLEnoo7YHRkGWVAnU4V9EVWNbp9gLh9XUMetYSo7BPSzAmP",
+      "creation_slot": 450713547,
+      "migration_signature": "3J8Kp5RpU72R1TNbAU3ut8DLsskbxbeiAbZs47jkqpyenDMZ8niFx1pwEgKfChbCapjAzeTakKGbnJQ2bXWbhrvb",
+      "migration_slot": 450713547,
+      "mint": "2GMowfFBuhy6ZxHMdKiC8fTKZFQhnCnmC5x27bTSpump",
+      "signature_distinct": true,
+      "source": "counterpart_batch"
+    }
+  ],
+  "provider_free": true,
+  "retention": {
+    "aggregate_max_bytes": 1000000,
+    "raw_block_retained": false,
+    "raw_transaction_retained": false,
+    "unbounded_growth_paths": 0
+  },
+  "strict_ordering_contract": {
+    "ambiguous_event_binding": "EVENT_BINDING_UNQUALIFIED",
+    "different_slots": "creation_slot < migration_slot required",
+    "missing_evidence": "SAME_SLOT_ORDER_UNRESOLVED",
+    "same_signature": "explicitly qualified ordered creation and migration instructions bound to the mint required",
+    "same_slot_distinct_signatures": "independently retrieved transaction positions from the same block required; creation_position < migration_position"
+  },
+  "transaction_position_coverage": {
+    "block_order_retained": 0,
+    "coverage": "NONE",
+    "distinct_slots": 11,
+    "qualified_instruction_order_retained": 0,
+    "transaction_index_retained": 0
+  },
+  "version": 1
+}

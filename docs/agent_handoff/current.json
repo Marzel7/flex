@@ -19650,6 +19650,19 @@
     "runtime_deployment_reason": "Provider-contract qualification only; overlay implementation and activation are not authorized.",
     "next_action": "AUTHORIZE_THE_EXACT_BOUNDED_BIRDEYE_CONTRACT_PROBE_OR_KEEP_CURRENT_MC_AS_A_LABELLED_SAMPLED_POLICY_C_OBSERVATION"
   },
+  "dev014_current_mc_overlay_deployment_candidate_20261009": {
+    "engineering_revision": "Deployment candidate manifest commit 217bee5ebbcf229c3a81f0976c4c38d3661133d7 on origin/codex/dev014-current-mc-overlay-deployment; executable candidate source 5e1e334a637ab4168df8440943b44f6e484f7b17 in clean pinned root /private/tmp/flex-watchtower-current-mc-overlay-5e1e334a.",
+    "status": "PASS_PREPARED_DEFAULT_OFF_NOT_DEPLOYED",
+    "active_authority": "Fresh observation: active API and monitor-worker are Supervisor-owned PIDs 96133 and 96168, respectively, both from Policy-C root /private/tmp/flex-watchtower-policy-c-api-queue-authority-worker-48e5b8e2 at 48e5b8e249a545c045be1311369e310199985646. Active Supervisor SHA256=9bbe3058da9cc4d082eb58947deefed6ab2e13664af10243248f5e726f4008f6.",
+    "candidate_configuration": "Offline target-only config /private/tmp/watchtower-current-mc-overlay-5e1e334a.conf SHA256=55510e7e587a3b2bab69bdd9e8b64394c37b1694b89b783778e4adcd7c7cf73f. Exactly program:watchtower_api and program:operation_monitor_worker differ; all other Supervisor sections are byte-identical. Both targets point to source 5e1e334a and explicitly set WATCHTOWER_CURRENT_MC_OVERLAY_ENABLED=0 and WATCHTOWER_CURRENT_MC_QUOTE_DB_PATH=/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/current_mc_quotes.db.",
+    "preservation": "The sidecar path was absent at preparation, distinct from historical monitor tables, capped by implementation at 64 rows/1,000,000 bytes, raw retention=false, unbounded growth paths=0. BIRDEYE authority, 20-global/4-per-mint gate, queue, monitor DB, canonical birth DB, watermark 1791446333, Policy-C completed-candle scheduling, frozen 85-percent terminal collapse, strict finalizer, assignment provenance, and historical exclusions remain unchanged. Feature is default-off and no sidecar is created while off.",
+    "qualification": "PASS: 23 focused provider-free tests (overlay, credential authority, frozen-lifecycle API binding), JSON/diff validation, clean pinned root, target-only section comparison, and parser-only Supervisor test of an isolated config copy. The parser test's temporary socket artifact was confirmed inactive and removed; no daemon was started. Provider calls=0; live DB/queue writes=0; Supervisor/service/listener actions=0.",
+    "rollback": "Exact active config SHA256=9bbe3058da9cc4d082eb58947deefed6ab2e13664af10243248f5e726f4008f6 and runtime SHA=48e5b8e249a545c045be1311369e310199985646. Any future transition is restricted to API and worker only.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "STOP. A separate explicit deployment authorization must perform fresh runtime, disk, health, queue, budget, rollback, and sidecar-path preflight before installing the target-only configuration. Keep the overlay disabled unless that authorization explicitly enables it; do not acquire provider data or deploy automatically.",
+    "project": {"git_head": "5e1e334a637ab4168df8440943b44f6e484f7b17"}
+  },
   "dev014_cattok_terminal_collapse_diagnosis_20261009": {
     "engineering_revision": "Read-only diagnosis against deployed Policy-C runtime 48e5b8e249a545c045be1311369e310199985646 and authoritative monitor store /Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db. No source, queue, database, provider, Supervisor, or listener mutation occurred.",
     "status": "PASS_COLLAPSE_DETECTED_NO_CORRECTION_NEEDED",

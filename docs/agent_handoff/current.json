@@ -19674,6 +19674,17 @@
     "runtime_deployment_reason": "Read-only disk diagnosis only.",
     "next_action": "OBTAIN_SEPARATE_AUTHORIZATION_ONLY_AFTER_ACTIVE_VSCODE_SHIPIT_AND_LOCAL_UV_TOOLING_REFERENCE_STATE_CHANGES; THEN_REVERIFY_4_GIB_FLOOR_BEFORE_BIRDEYE_PROBE"
   },
+  "dev014_vscode_staged_update_reclamation_20261009": {
+    "engineering_revision": "read-only VS Code updater qualification supporting DEV-014; no source change",
+    "status": "HOLD_PENDING_ACTIVE_VSCODE_UPDATE",
+    "finding": "Installed Visual Studio Code is 1.138.0 (bundle 1.138.0); the 1,513,636-KiB staged bundle is 1.141.0. ShipItState.plist names the staged bundle as updateBundleURL and /Applications/Visual Studio Code.app as targetBundleURL. ShipIt PID 64850 is running and holds the cache logs, while VS Code is also running. The staged bundle is therefore a pending newer installation, not obsolete cache.",
+    "supported_cleanup": "Use VS Code's normal update/apply and restart path; official VS Code macOS guidance says to accept the update prompt. No supported manual cache deletion was identified, and direct deletion is unsafe while ShipIt references the state.",
+    "recovery": "No bytes are independently reclaimable now. If a future normal VS Code update completes, ShipIt exits, the installed version becomes 1.141.0, and fresh open-handle/state checks show no staged reference, expected reclaimed allocation is 1,513,636 KiB (about 1.44 GiB); based on 3,247,328 KiB currently free, theoretical free space would be about 4.54 GiB. This does not reach the preferred 6 GiB target.",
+    "safety": "No deletion, updater termination, VS Code restart, cache prune, provider call, Flex runtime action, or DB/queue write.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only updater-state qualification only.",
+    "next_action": "WAIT_FOR_OR_USER_INITIATE_NORMAL_VSCODE_UPDATE_COMPLETION_THEN_RERUN_READ_ONLY_RECLAMATION_PREFLIGHT_BEFORE_ANY_CLEANUP_OR_BIRDEYE_PROBE"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

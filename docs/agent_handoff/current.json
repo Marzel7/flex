@@ -3376,6 +3376,17 @@
     "runtime_deployment_required": false,
     "next_action": "Obtain explicit three-request probe authorization with fresh credential/budget/disk/runtime gates; do not execute Batch 2, acquire provider data, backfill, or deploy before then."
   },
+  "dev014_birdeye_historical_mcap_retention_probe_20261009": {
+    "status": "PASS_BOUNDED_THREE_REQUEST_PROBE",
+    "engineering_revision": "3eb4be0b4c8ca889fde9cfa28a79d425ef1a8de7 published and remote-verified on codex/dev014-current-mc-freshness; clean isolated source.",
+    "scope": "Exactly three sequential paid Birdeye V3 1m MCAP range requests; retries/pagination/fallback/expansion=0; no DB/queue write, lifecycle mutation, runtime change, backfill, or deployment.",
+    "preflight": "BIRDEYE binding present without disclosure; free disk 7119140 KiB; Supervisor API PID 9045 and worker PID 9126 running; configured API health=true, db=ok, WAL=1.2MB without warning; current provider ledger contained four terminal-finalizer calls and READY stale backoff, leaving distinct probe mints inside the 20-global/4-per-mint guard.",
+    "results": "Recent 9JtPf... [1791476568,1791480168): HTTP200, valid MCAP OHLC, 41/60 (68.33%), 19 internal gaps. Mid-age 8epBC... [1788884142,1788887742): HTTP200, valid, 60/60 (100%), zero internal gaps. Older EaHK... [1785132103,1785135703): HTTP200, valid, 60/60 (100%), zero internal gaps. All have no leading/trailing whole-bucket gaps under corrected ceiling-start coverage semantics. CU headers absent; rate-limit remaining 299,298,297 of 300.",
+    "verdict": "Older 30-60d and 61-90d 1m MCAP history was accessible and complete for this single bounded window; the recent sample was sparse. This contradicts a simple age-based retention cutoff but is not population-wide evidence and does not establish cause of missing recent candles.",
+    "artifact": "docs/audits/dev014_watchtower_mcap_retention_probe_20261009.v1.json SHA-256 954183750f5b33ca37d26673f1bd5aae6939141d543731e05e037b545e671440; 4155 bytes; raw retention=false; aggregate bound=1000000; unbounded-growth paths=0.",
+    "runtime_deployment_required": false,
+    "next_action": "HOLD pending separately authorized Batch 2 with identical bounded controls; do not acquire further data, backfill, promote canonical facts, or deploy automatically."
+  },
   "dev019_8cub_downstream_coverage_batch1_20261008": {
     "artifact": "docs/audits/dev_019_8cub_downstream_coverage_batch1.v1.json SHA256=003be28e8dce011760ad438a2e990eedbbd9d0e5ee887632a2dcd21cc8292b18, 14174 bytes. It retains compact page boundaries, per-signature decode status, and no raw RPC payload/block data.",
     "authorization_and_coverage": "One separately authorized 8CUb-only Helius batch executed three cursor-bounded 20-signature pages. Requests=63/66 (3 getSignaturesForAddress, 60 getTransaction, 0 getBlock), retries=0, fallback=0. Compact page boundaries were saved before decoding. All three windows are COMPLETE_SIGNATURE_WINDOW (20/20); all 60 returned unique signatures decoded successfully as legacy transactions.",

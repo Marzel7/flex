@@ -23189,5 +23189,21 @@
     "status": "HOLD",
     "verdict": "MIGRATION_REQUIRED",
     "writers": "src/core/ws_cascade_store.py lifecycle upsert/update functions; scripts/backfill_token_lifecycle.py historical backfill."
+  },
+  "x78_heartbeat_wal_deployment_candidate_preparation_20261009": {
+    "active_config_sha256": "5e7e8c3c719d396f1f39edda30620a74e160972e0cba03c773839e8e06636c6b",
+    "active_runtime": "Primary Supervisor PID 73409 owns creator_resolution_worker PID 42559, creator_funding_worker PID 39827, watchtower_listener PID 48504, watchtower_api PID 9045, operation_monitor_worker PID 9126, operation_monitor_bridge PID 21106, and ws_cascade PID 73417. API source root is clean 71b6e338cfb54057ec4984d41bfbe02477c90dba; creator-resolution source root is eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215 but has an unrelated untracked write-lock-owner guard artifact.",
+    "candidate_engineering": "Clean, remote-verified df5a56552394548f6647a2cc2edaca3e8e08cad0 on codex/x78-heartbeat-wal-attribution at /private/tmp/flex-x78-stability-acceptance.",
+    "candidate_preparation_status": "HOLD_SOURCE_COMPOSITION_UNQUALIFIED",
+    "health_observation": "Three bounded read-only API health snapshots over ten seconds were HTTP 200, healthy=true, db=ok, wal_warn=false. Canonical WAL was 364554112 bytes and free disk was 9069844 KiB. This is not a sustained operational-health claim.",
+    "preserved_runtime_contracts": "Active config explicitly retains Current MC overlay enabled, early-minimum tracking enabled, and monitor provider limits 20 global/4 per mint. No supervisor/configuration/database/queue/provider/runtime action occurred.",
+    "root_cause": "The qualified X78 commit is not ancestor-related to either active pinned DEV-014 runtime root (both are 71b6e338cfb54057ec4984d41bfbe02477c90dba) or the active creator-resolution root. Its checkout lacks the active watchtower API launcher. Directly repointing creator-resolution or watchtower_api would therefore replace production behavior from a divergent source history; the active creator-resolution root is additionally not clean. A candidate Supervisor configuration limited to safe target stanzas cannot be produced until an explicit, clean source integration/rebase onto the actual API and creator-resolution runtime authorities is qualified.",
+    "liveness_and_wal_authority": "The qualified source retains DB-backed progress heartbeat as the sole authoritative health decision, with a bounded 4096-byte atomic liveness sidecar for diagnostic process liveness and metadata-only WAL checkpoint-obstruction classification. It adds no SQLite writer thread, scheduler, schema change, checkpoint-policy change, provider call, or unbounded storage path.",
+    "qualification": "Prior isolated provider-free qualification remains valid for df5a5655: 71 focused tests passed; py_compile and git diff --check passed; provider calls/live DB or queue writes/runtime actions=0. No additional candidate integration tests were run because no safe composed runtime exists.",
+    "rollback_authority": "The byte-exact active configuration SHA above and existing pinned roots remain unchanged; no proposed config/runtime was created, installed, or activated, so no rollback action is required.",
+    "next_action": "Under a separately authorized X78 source-integration milestone, create a clean pinned runtime based on the actual active API and creator-resolution authorities, port the five qualified X78 component changes with provider-free regressions, then prepare a target-only Supervisor candidate and mirrored-path parser validation. Keep DEV-014 Batch 4 HOLD.",
+    "remote_verification": "Qualified engineering branch origin/codex/x78-heartbeat-wal-attribution matched df5a56552394548f6647a2cc2edaca3e8e08cad0 before this preparation HOLD. This handoff publication is pending.",
+    "runtime_deployment_gate": "HOLD_SOURCE_COMPOSITION_UNQUALIFIED",
+    "runtime_deployment_required": true
   }
 }

@@ -23286,5 +23286,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_REQUIRED_UNQUALIFIED_EXECUTION_BINDING_HOLD",
     "next_action": "Obtain separate provider-free implementation authority for the execution binding and crash-state contract; then remote-verify it and obtain a fresh explicit acquisition authorization. Do not acquire under the current generic controller."
+  },
+  "dev014_crash_safe_historical_execution_binding_20261009": {
+    "status": "PASS_PROVIDER_FREE_BINDING_QUALIFIED",
+    "engineering_revision": "f6832f08ee51fdf782235f2c194078515716ef16 clean and remote-verified on codex/dev014-current-mc-freshness.",
+    "binding": "src/ops/watchtower_historical_execution_binding.py SHA-256 1ad3ee16818a00037a727e75c43e67369b26b1db3bd3939c2ef6d8e136edbd52 reuses the qualified Batch 4 1m-MCAP normalizer/header allowlist and observed-minima builder; it introduces no transport, credential, scheduler, ledger, queue mutation, or canonical writer.",
+    "state_contract": "Durable PENDING, ADMITTED, ATTEMPTED, COMPLETED, OUTCOME_UNKNOWN and DEFERRED-compatible journal contract. Atomic fsync+replace persistence is bounded below 1MiB. Existing identity always blocks automatic repetition; interrupted ADMITTED/ATTEMPTED becomes OUTCOME_UNKNOWN unless compact evidence is already durable, in which case recovery marks COMPLETED. The debit-before-ADMITTED cross-store window is not claimed atomic; its durable PENDING identity remains non-retryable pending explicit reconciliation.",
+    "ordering": "LIVE priority and health gate occur before PENDING/admission. Shared admission is injected only after gate; no provider request occurs without it. Exact request identities are preserved from reconciliation anchors/windows.",
+    "tests": "pytest -q tests/test_dev014_historical_execution_binding.py tests/test_dev014_historical_backfill_controller.py tests/test_dev014_shared_birdeye_budget.py tests/test_dev014_batch4_runtime_gate.py: 26 passed; diff check passed. Isolated fixtures only; provider calls/live budget debits/live DB or queue writes=0.",
+    "storage": "No raw payload or candle-array persistence; compact journal limit <1MiB, no file >=500MB, unbounded growth paths=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_PROVIDER_FREE_LIBRARY_ONLY",
+    "next_action": "Obtain fresh explicit bounded acquisition authorization and independently validate a concrete operator invocation/state/evidence directory before any paid request; do not schedule automatically."
   }
 }

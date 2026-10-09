@@ -113,6 +113,16 @@ def _early_minimum_projection(mint: str) -> dict:
     return {"evidence_status": "OBSERVED_LOWER_BOUND" if rows else "NOT_OBSERVED", "windows": {str(key): value for key, value in rows.items()}}
 
 
+def _early_minimum_research_projection() -> dict:
+    """The pilot is display-only research, never an evidence-store fallback."""
+    from src.ops.watchtower_early_minimum_research import projection
+    configured = os.getenv("WATCHTOWER_EARLY_MINIMUM_RESEARCH_PILOT_PATH", "").strip()
+    try:
+        return projection(configured) if configured else projection()
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        raise MonitorStoreUnavailable("WATCHTOWER_EARLY_MINIMUM_RESEARCH_UNREADABLE") from exc
+
+
 def _watchtower_display_fields(row: dict) -> dict:
     """Derive display-only lifecycle semantics from persisted monitor facts."""
     if str(row.get("operation_id")).lower() != "watchtower":
@@ -255,7 +265,7 @@ def _monitor_live_projection() -> dict:
     oldest = min((now-int(p.stat().st_mtime) for p in pending_paths),default=None)
     last_success=max((r.get('last_observation_at') or 0 for r in rows),default=None)
     mode=os.getenv('OPERATIONS_MODE','OFF').upper()
-    return {'mode':mode,'now':now,'rows':rows,'operations':ops,'summary':{'active':sum(r['monitor_state']=='MONITORING_ACTIVE' for r in rows),'waiting':sum('WAITING' in r['monitor_state'] for r in rows),'backoff':sum('BACKOFF' in r['monitor_state'] for r in rows),'completed_today':sum('COMPLETE' in r['monitor_state'] and int(r.get('monitor_completed_at') or 0)>=now-86400 for r in rows),'failed':sum('FAIL' in r['monitor_state'] or 'INSUFFICIENT' in r['monitor_state'] for r in rows),'total':len(rows),'calls_today':sum(int(r.get('provider_call_count') or 0) for r in rows)},'storage':{'bytes':storage_bytes,'ceiling_bytes':10_000_000},'worker_health':{'status':'IDLE' if mode=='MONITOR' else 'STOPPED','last_heartbeat':None,'last_success':last_success,'last_error_class':None,'last_error_at':None},'queue_health':{'status':'BACKOFF' if depth.get('retry') else ('PENDING' if depth.get('pending') else 'IDLE'),'depth':sum(depth.values()),'pending':depth.get('pending',0),'claimed':depth.get('processing',0),'retry':depth.get('retry',0),'dead_letter':depth.get('dead_letter',0),'oldest_pending_age':oldest},'provider_health':{'status':'READY' if not depth.get('retry') else 'BACKOFF','last_success':last_success,'last_error_class':None,'backoff_until':None}}
+    return {'mode':mode,'now':now,'rows':rows,'operations':ops,'early_minimum_research':_early_minimum_research_projection(),'summary':{'active':sum(r['monitor_state']=='MONITORING_ACTIVE' for r in rows),'waiting':sum('WAITING' in r['monitor_state'] for r in rows),'backoff':sum('BACKOFF' in r['monitor_state'] for r in rows),'completed_today':sum('COMPLETE' in r['monitor_state'] and int(r.get('monitor_completed_at') or 0)>=now-86400 for r in rows),'failed':sum('FAIL' in r['monitor_state'] or 'INSUFFICIENT' in r['monitor_state'] for r in rows),'total':len(rows),'calls_today':sum(int(r.get('provider_call_count') or 0) for r in rows)},'storage':{'bytes':storage_bytes,'ceiling_bytes':10_000_000},'worker_health':{'status':'IDLE' if mode=='MONITOR' else 'STOPPED','last_heartbeat':None,'last_success':last_success,'last_error_class':None,'last_error_at':None},'queue_health':{'status':'BACKOFF' if depth.get('retry') else ('PENDING' if depth.get('pending') else 'IDLE'),'depth':sum(depth.values()),'pending':depth.get('pending',0),'claimed':depth.get('processing',0),'retry':depth.get('retry',0),'dead_letter':depth.get('dead_letter',0),'oldest_pending_age':oldest},'provider_health':{'status':'READY' if not depth.get('retry') else 'BACKOFF','last_success':last_success,'last_error_class':None,'backoff_until':None}}
 
 
 @operator_bp.route('/api/operations/live-monitor')

@@ -1,0 +1,42 @@
+{
+  "contract": "WATCHTOWER_CURRENT_MC_OVERLAY_DEPLOYMENT_CANDIDATE_V1",
+  "status": "PREPARED_DEFAULT_OFF_NOT_DEPLOYED",
+  "candidate_source_sha": "5e1e334a637ab4168df8440943b44f6e484f7b17",
+  "candidate_runtime_root": "/private/tmp/flex-watchtower-current-mc-overlay-5e1e334a",
+  "active_source_sha": "48e5b8e249a545c045be1311369e310199985646",
+  "active_config_sha256": "9bbe3058da9cc4d082eb58947deefed6ab2e13664af10243248f5e726f4008f6",
+  "candidate_config_path": "/private/tmp/watchtower-current-mc-overlay-5e1e334a.conf",
+  "candidate_config_sha256": "55510e7e587a3b2bab69bdd9e8b64394c37b1694b89b783778e4adcd7c7cf73f",
+  "target_services": ["watchtower_api", "operation_monitor_worker"],
+  "unchanged_supervisor_sections": "All sections except program:watchtower_api and program:operation_monitor_worker are byte-identical to the active configuration.",
+  "overlay": {
+    "enabled": false,
+    "sidecar_path": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/current_mc_quotes.db",
+    "sidecar_exists_at_preparation": false,
+    "max_records": 64,
+    "max_store_bytes": 1000000,
+    "raw_retention": false,
+    "unbounded_growth_paths": 0
+  },
+  "preserved_authorities": {
+    "credential": "BIRDEYE",
+    "provider_budget": "MONITOR_PROVIDER_GLOBAL_LIMIT=20; MONITOR_PROVIDER_TOKEN_LIMIT=4",
+    "monitor_queue": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue",
+    "monitor_db": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db",
+    "canonical_birth_db": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+    "watermark": 1791446333,
+    "terminal_contract": "frozen 85-percent completed-candle collapse and strict finalizer unchanged"
+  },
+  "rollback": {
+    "config_sha256": "9bbe3058da9cc4d082eb58947deefed6ab2e13664af10243248f5e726f4008f6",
+    "runtime_sha": "48e5b8e249a545c045be1311369e310199985646",
+    "action": "targeted watchtower_api and operation_monitor_worker transition only"
+  },
+  "qualification": {
+    "provider_calls": 0,
+    "live_db_queue_writes": 0,
+    "supervisor_actions": 0,
+    "parser_only_validation": "supervisord -t accepted an isolated-copy configuration; its temporary socket artifact was confirmed inactive and removed",
+    "regressions": "23 focused provider-free tests passed at source SHA 5e1e334a"
+  }
+}

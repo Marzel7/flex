@@ -23259,5 +23259,20 @@
     "runtime_deployment_gate": "NOT_REQUIRED_AUDIT_AND_PLAN_ONLY",
     "remote_verification": "Engineering commit fd5fd14297149fb1b20781351791b164ff0387ea was pushed and matched origin/codex/dev014-current-mc-freshness before handoff publication.",
     "next_action": "HOLD for separate explicit acquisition authorization. First choose and independently preflight either the four-request Batch 3 catch-up or the six eligible Batch 5 requests; do not combine or execute automatically."
+  },
+  "dev014_watchtower_historical_backfill_controller_20261009": {
+    "status": "PASS_PROVIDER_FREE_CONTROLLER_QUALIFIED",
+    "verdict": "RESUMABLE_RECENT_FIRST_CONTROLLER_IMPLEMENTED_NOT_SCHEDULED_NOT_AUTHORIZED_TO_ACQUIRE",
+    "engineering_revision": "262c7dbfafbd38cfae01e7784336f94897ff28e1 on clean isolated codex/dev014-current-mc-freshness; origin/codex/dev014-current-mc-freshness resolves identically.",
+    "scope": "Provider-free implementation and isolated temporary-state regression only. No Birdeye/Helius call, live budget debit, live DB/queue write, deployment, runtime configuration change, or automatic acquisition occurred.",
+    "controller": "src/ops/watchtower_historical_backfill_controller.py SHA-256 9947569bd817a50bda5cb78ffd94763f1ae464d46a6ced4bcdbc87cc91fd2dc6. It has no scheduler, transport, credentials, canonical database use, or independent provider ledger. It uses an exclusive fcntl ownership lock, atomic temp+fsync+replace compact state persistence, completed request-identity deduplication, pause/cancel/resume, deferred missing-anchor records, and finite session bounds.",
+    "coverage_and_order": "It consumes the verified reconciliation unchanged: 33 acquired, 3 retained-equivalent, outstanding ranks 22/23/24/26, 48 complete/56 partial/4 no-valid-candle windows, and 664 missing buckets. Ordering is catch-up ranks 22/23/24/26 first, then frozen recent-first historical ranks 41-70; ranks 42/44/45/49 remain explicit deferred no-anchor records. No 639-token automatic expansion exists; chronology-unqualified launches are outside this controller.",
+    "live_and_budget_contract": "Before any future request the caller must run the health gate, then use run_with_shared_budget which constructs only HistoricalForensicsBudgetAdmission and routes to MonitorQueue.admit_provider_dispatch -> DevProviderBudget.admit. LIVE pending work stops the session before admission. Limits remain 20-global/4-per-mint with existing rolling accounting, fcntl ledger locking, and backoff.",
+    "storage": "Controller state is hard-limited below 1000000 bytes; every caller must supply finite max requests, wall seconds, evidence bytes, consecutive failures, and health-gate failures. Evidence bounds reject >=500000000 bytes; raw provider retention=false; unbounded growth paths=0.",
+    "regressions": "pytest -q tests/test_dev014_historical_backfill_controller.py tests/test_dev014_batch5_reconciliation.py tests/test_dev014_shared_birdeye_budget.py tests/test_dev014_batch4_runtime_gate.py: 26 passed. py_compile and git diff --check passed. Tests cover ordering, deduplication, crash-safe state, ownership exclusion, pause/resume, LIVE priority, health/budget/evidence fail-closed paths, and retained shared-budget/runtime-gate contracts.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_PROVIDER_FREE_LIBRARY_ONLY",
+    "remote_verification": "Engineering commit 262c7dbfafbd38cfae01e7784336f94897ff28e1 was pushed and matched origin/codex/dev014-current-mc-freshness before handoff publication.",
+    "next_action": "HOLD. A separate explicit acquisition milestone must select a finite subset, construct an isolated state/evidence directory, complete the existing fresh runtime/provider preflight, and then invoke exactly one bounded controller session. Do not deploy, schedule, or acquire automatically."
   }
 }

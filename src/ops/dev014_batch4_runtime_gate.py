@@ -8,7 +8,9 @@ background worker.
 from __future__ import annotations
 
 import json
+import os
 import re
+import shlex
 import shutil
 import subprocess
 import urllib.request
@@ -28,12 +30,36 @@ class RuntimeGateDenied(RuntimeError):
 
 
 @dataclass(frozen=True)
+class ProcessIdentity:
+    pid: int
+    ppid: int
+    started_at: str
+    argv: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class RuntimeAuthority:
     supervisor_config: Path
     api_url: str
     canonical_db: Path
     listener_log: Path
     creator_logs: tuple[Path, ...]
+
+
+_PS_RECORD = re.compile(r"^\s*(\d+)\s+(\d+)\s+([A-Z][a-z]{2}\s+[A-Z][a-z]{2}\s+\d+\s+\d{2}:\d{2}:\d{2}\s+\d{4})\s+(.+)$")
+
+
+def _parse_process_line(line: str) -> ProcessIdentity:
+    match = _PS_RECORD.match(line)
+    if not match:
+        raise RuntimeGateDenied("PROCESS_IDENTITY_AMBIGUOUS")
+    try:
+        argv = tuple(shlex.split(match.group(4)))
+    except ValueError as exc:
+        raise RuntimeGateDenied("PROCESS_ARGUMENTS_AMBIGUOUS") from exc
+    if not argv:
+        raise RuntimeGateDenied("PROCESS_EXECUTABLE_UNPROVEN")
+    return ProcessIdentity(int(match.group(1)), int(match.group(2)), match.group(3), argv)
 
 
 def _section(config: str, name: str) -> str:
@@ -129,7 +155,7 @@ class Batch4RuntimeGate:
     @staticmethod
     def _read_process_lines() -> list[str]:
         try:
-            output = subprocess.run(["ps", "-axo", "pid=,ppid=,command="], check=True, text=True, capture_output=True).stdout
+            output = subprocess.run(["ps", "-axo", "pid=,ppid=,lstart=,command="], check=True, text=True, capture_output=True).stdout
         except (OSError, subprocess.SubprocessError) as exc:
             raise RuntimeGateDenied("PROCESS_TOPOLOGY_UNAVAILABLE") from exc
         return output.splitlines()
@@ -198,18 +224,50 @@ class Batch4RuntimeGate:
                 raise RuntimeGateDenied("NEW_CRITICAL_WAL_EVENT")
             self._critical_offsets[path] = current
 
+    @staticmethod
+    def _python_module(record: ProcessIdentity, module: str) -> bool:
+        return len(record.argv) >= 3 and Path(record.argv[0]).is_absolute() and Path(record.argv[0]).name.startswith("python") and record.argv[1:3] == ("-m", module)
+
+    @staticmethod
+    def _option_value(argv: tuple[str, ...], option: str) -> str | None:
+        try:
+            index = argv.index(option)
+        except ValueError:
+            return None
+        return argv[index + 1] if index + 1 < len(argv) else None
+
+    def _supervisor_daemon(self, record: ProcessIdentity) -> bool:
+        argv = record.argv
+        executable = Path(argv[0]).name
+        if not Path(argv[0]).is_absolute():
+            return False
+        is_script = len(argv) >= 2 and Path(argv[0]).name.startswith("python") and Path(argv[1]).name == "supervisord"
+        is_module = self._python_module(record, "supervisor.supervisord")
+        is_direct = executable == "supervisord"
+        if not (is_direct or is_script or is_module):
+            return False
+        # supervisorctl and parser-only `supervisord -t` are not daemons.
+        if executable == "supervisorctl" or "-t" in argv or "--test" in argv:
+            return False
+        config = self._option_value(argv, "-c") or self._option_value(argv, "--configuration")
+        if not config:
+            raise RuntimeGateDenied("SUPERVISOR_IDENTITY_AMBIGUOUS")
+        try:
+            if Path(config).resolve() != self.authority.supervisor_config.resolve():
+                raise RuntimeGateDenied("SUPERVISOR_CONFIG_AMBIGUOUS")
+        except OSError as exc:
+            raise RuntimeGateDenied("SUPERVISOR_CONFIG_AMBIGUOUS") from exc
+        return True
+
     def _topology(self) -> None:
-        lines = self._process_lines()
-        required = {
-            "supervisord": 1,
-            "-m src.core.creator_funding_worker": 1,
-            "-m src.core.creator_resolution_worker": 1,
-        }
-        for needle, count in required.items():
-            if sum(needle in line for line in lines) != count:
-                raise RuntimeGateDenied(f"DUPLICATE_OR_MISSING_RUNTIME:{needle}")
-        own_pid = str(__import__("os").getpid())
-        competing = [line for line in lines if "run_watchtower_recent_first_price_forensics_batch_4" in line and not line.lstrip().startswith(own_pid + " ")]
+        records = [_parse_process_line(line) for line in self._process_lines()]
+        supervisors = [record for record in records if self._supervisor_daemon(record)]
+        if len(supervisors) != 1:
+            raise RuntimeGateDenied("DUPLICATE_OR_MISSING_RUNTIME:supervisord")
+        for module in ("src.core.creator_funding_worker", "src.core.creator_resolution_worker"):
+            if sum(self._python_module(record, module) for record in records) != 1:
+                raise RuntimeGateDenied(f"DUPLICATE_OR_MISSING_RUNTIME:{module}")
+        competing = [record for record in records if "run_watchtower_recent_first_price_forensics_batch_4" in record.argv and record.pid != os.getpid()]
         if competing:
             raise RuntimeGateDenied("COMPETING_BATCH4_RESEARCH")
 

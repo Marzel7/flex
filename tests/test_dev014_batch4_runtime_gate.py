@@ -29,12 +29,21 @@ def _health(*, healthy=True, funding_age=1, resolution_age=2):
     return (200, {"healthy": healthy, "db": "ok", "wal_warn": False, "workers": {"creator-funding": {"stale": False, "age_s": funding_age}, "creator-resolution": {"stale": False, "age_s": resolution_age}}})
 
 
-def _processes(extra=()):
-    return ["1 0 supervisord -c config", "2 1 python -m src.core.creator_funding_worker", "3 1 python -m src.core.creator_resolution_worker", *extra]
+def _record(pid, ppid, command):
+    return f"{pid:5} {ppid:5} Fri Oct  9 12:00:00 2026     {command}"
+
+
+def _processes(authority, extra=()):
+    return [
+        _record(1, 0, f"/usr/bin/python /usr/bin/supervisord -c {authority.supervisor_config}"),
+        _record(2, 1, "/usr/bin/python -m src.core.creator_funding_worker"),
+        _record(3, 1, "/usr/bin/python -m src.core.creator_resolution_worker"),
+        *extra,
+    ]
 
 
 def _gate(authority, *, health=None, processes=None, free=8 * 1024**3, wal_size=None):
-    return Batch4RuntimeGate(authority, health_fetch=lambda _url: health or _health(), process_lines=lambda: processes or _processes(), disk_usage=lambda _path: SimpleNamespace(free=free), wal_size=wal_size)
+    return Batch4RuntimeGate(authority, health_fetch=lambda _url: health or _health(), process_lines=lambda: processes or _processes(authority), disk_usage=lambda _path: SimpleNamespace(free=free), wal_size=wal_size)
 
 
 def test_resolves_declared_api_binding_not_port_8080(tmp_path):
@@ -72,7 +81,30 @@ def test_rejects_disk_wal_checkpoint_and_duplicate_failures(tmp_path):
     with pytest.raises(RuntimeGateDenied, match="CHECKPOINT_OBSTRUCTION"): _gate(authority).check()
     authority.listener_log.write_text('[WAL_CHECKPOINT] {"status":"ok","busy":0,"checkpointed_frames":2,"remaining_frames":0}\n')
     with pytest.raises(RuntimeGateDenied, match="DUPLICATE_OR_MISSING_RUNTIME"):
-        _gate(authority, processes=_processes(["4 1 python -m src.core.creator_funding_worker"])).check()
+        _gate(authority, processes=_processes(authority, [_record(4, 1, "/usr/bin/python -m src.core.creator_funding_worker")])).check()
+
+
+def test_supervisor_shell_wrappers_and_tools_are_not_daemons(tmp_path):
+    authority, _, _ = _authority(tmp_path)
+    ignored = [
+        _record(4, 1, f"/bin/zsh -lc echo supervisord.conf {authority.supervisor_config}"),
+        _record(5, 1, "/bin/zsh -lc echo supervisord"),
+        _record(6, 1, "/usr/bin/grep supervisord /tmp/log"),
+        _record(7, 1, f"/usr/bin/supervisorctl -c {authority.supervisor_config} status"),
+        _record(8, 1, f"/usr/bin/python /usr/bin/supervisord -c {authority.supervisor_config} -t"),
+        _record(9, 1, f"/usr/bin/python /tmp/check_config.py {authority.supervisor_config}"),
+    ]
+    _gate(authority, processes=_processes(authority, ignored)).check()
+
+
+def test_two_daemons_and_ambiguous_daemon_identity_fail_closed(tmp_path):
+    authority, _, _ = _authority(tmp_path)
+    second = _record(4, 1, f"/usr/bin/python /usr/bin/supervisord -c {authority.supervisor_config}")
+    with pytest.raises(RuntimeGateDenied, match="DUPLICATE_OR_MISSING_RUNTIME:supervisord"):
+        _gate(authority, processes=_processes(authority, [second])).check()
+    ambiguous = _record(4, 1, "/usr/bin/python /usr/bin/supervisord")
+    with pytest.raises(RuntimeGateDenied, match="SUPERVISOR_IDENTITY_AMBIGUOUS"):
+        _gate(authority, processes=_processes(authority, [ambiguous])).check()
 
 
 def test_new_critical_event_fails_before_a_second_admission(tmp_path):

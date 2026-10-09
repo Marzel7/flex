@@ -1,0 +1,56 @@
+{
+  "contract": "WATCHTOWER_CURRENT_MC_OVERLAY_ACTIVATION_CANDIDATE_V1",
+  "status": "PREPARED_FEATURE_OFF_AND_SEPARATE_LIVE_ACTIVATION_NOT_DEPLOYED",
+  "candidate_source_sha": "b5b0991a58bd7865f29e7cbb2d90386d72f0ebc9",
+  "pinned_runtime_roots": {
+    "watchtower_api": "/private/tmp/flex-watchtower-current-mc-overlay-api-b5b0991a",
+    "operation_monitor_worker": "/private/tmp/flex-watchtower-current-mc-overlay-worker-b5b0991a"
+  },
+  "active_config_sha256": "9bbe3058da9cc4d082eb58947deefed6ab2e13664af10243248f5e726f4008f6",
+  "feature_off_config": {
+    "path": "/private/tmp/watchtower-current-mc-overlay-feature-off-b5b0991a.conf",
+    "sha256": "28fcc77e2ad7592bcff24674fc0543528f8d8b6ceb7d7deb96a1cb9c25b5dc22",
+    "overlay_enabled": false
+  },
+  "live_activation_config": {
+    "path": "/private/tmp/watchtower-current-mc-overlay-live-activation-b5b0991a.conf",
+    "sha256": "7a90c5d4b6c62896b71621a849a3b090598019c01a1cc820fba4a9e6019a2cc4",
+    "overlay_enabled": true,
+    "difference_from_feature_off": "Only WATCHTOWER_CURRENT_MC_OVERLAY_ENABLED changes from 0 to 1 in watchtower_api and operation_monitor_worker."
+  },
+  "targeted_scope": "Only program:watchtower_api and program:operation_monitor_worker differ from the active configuration. All other Supervisor sections are byte-identical under RawConfigParser comparison.",
+  "sidecar": {
+    "path": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/current_mc_quotes.db",
+    "authority": "worker-owned compact SQLite sidecar; API opens it read-only",
+    "max_records": 64,
+    "max_store_bytes": 1000000,
+    "raw_provider_retention": false,
+    "unbounded_growth_paths": 0
+  },
+  "preserved": {
+    "live_only_query": "monitor_state=MONITORING_ACTIVE only",
+    "terminal_exclusion": "PRICE_MONITOR_COMPLETE_COLLAPSED is not selected",
+    "refresh_seconds": 600,
+    "shared_budget": "MONITOR_PROVIDER_GLOBAL_LIMIT=20; MONITOR_PROVIDER_TOKEN_LIMIT=4",
+    "queue_authority": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue",
+    "policy_c_deadlines": "unchanged",
+    "historical_monitor_facts": "read-only to overlay",
+    "strict_finalizer_and_terminal_provenance": "unchanged",
+    "schema_migration": false,
+    "second_scheduler_or_owner": false
+  },
+  "rollback": {
+    "configuration_sha256": "9bbe3058da9cc4d082eb58947deefed6ab2e13664af10243248f5e726f4008f6",
+    "runtime_sha": "48e5b8e249a545c045be1311369e310199985646",
+    "scope": "targeted watchtower_api and operation_monitor_worker transition only"
+  },
+  "qualification": {
+    "parser_only": "PASS: two target stanzas only; activation differs from feature-off only by the explicit overlay flag.",
+    "tests": "PASS: 25 provider-free tests (overlay=7, credential authority=6, frozen lifecycle API=12); py_compile passed.",
+    "provider_calls": 0,
+    "live_db_queue_writes": 0,
+    "supervisor_actions": 0,
+    "sidecar_exists_before_deployment": false
+  },
+  "next_action": "STOP. A separately authorized fresh preflight must revalidate source/configuration hashes, target PIDs, disk and database health, and target-only Supervisor scope before a feature-off deployment. LIVE activation requires a separate explicit authorization."
+}

@@ -1,4 +1,17 @@
 {
+  "dev014_watchtower_one_minute_minimum_mc_pilot_20261009": {
+    "engineering_revision": "Provider-free contract review only against deployed remote-backed b5b0991a58bd7865f29e7cbb2d90386d72f0ebc9 and retained Birdeye audits; no source, runtime, database, queue, provider, or lifecycle change.",
+    "status": "HOLD_ONE_MINUTE_RANGE_AND_COMPUTE_CONTRACT_UNQUALIFIED",
+    "binding": "Flex's established request is Birdeye GET /defi/v3/ohlcv with x-chain=solana, chart_type=mcap, currency=usd, range time_from/time_to and type=1m. Provider-free normalization requires ordered positive contiguous candles; it treats timestamps as bucket starts and rejects leading/internal/trailing gaps. Entry-straddling buckets must be excluded from post-Entry minima unless their post-Entry portion is independently qualified.",
+    "proven": "The paid BIRDEYE secret authority is present by non-disclosing check and free disk is 12,972,364 KiB (>4 GiB). A retained 15m MCAP probe proves inclusive time_from/time_to bucket-start behavior only for small 15m ranges, ascending rows and no pagination fields on those responses. Existing code supports 1m interval syntax and compact no-raw normalization, but code support is not provider capacity evidence.",
+    "blockers": "No retained authoritative evidence establishes 1m inclusive/exclusive boundary behavior, maximum 1m row count, maximum 1m range, silent-truncation behavior, or pagination semantics. Birdeye documentation retained by Flex identifies OHLCV compute-unit cost as dynamic; account-specific CU cost/remaining/reset are unquantified. Prior 1s capacity audit also retains HTTP 400 compute-limit evidence and explicitly leaves capacity/cost unproven. Therefore a single Entry-to+60m request cannot be asserted to return all required candles, and the ten-request pilot is not authorized to proceed under its own Phase-1 gate.",
+    "acquisition": "BIRDEYE requests=0; Helius requests=0; no cohort selection performed because selection/acquisition is conditional on the failed contract gate. No raw payload, sidecar, queue, database, or historical-fact mutation.",
+    "minimum_contract_probe": "Separate explicit authorization is required for a serialized one-mint, one-request 1m MCAP/USD range probe over exactly the intended 60-minute window, retaining only endpoint/status, first/last returned bucket timestamps, count, ordering, pagination/truncation metadata, and billed-CU metadata if exposed. It must stop after that request; if coverage/cost remains unproven, do not select or run the ten-mint pilot.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Provider-free contract qualification only.",
+    "next_action": "Obtain separate authorization for the minimum one-request 1m contract probe, or retain the minimum-MC pilot on HOLD. Do not issue the ten cohort requests, infer provider bounds, or persist/recompute lifecycle facts.",
+    "project": {"git_head": "b5b0991a58bd7865f29e7cbb2d90386d72f0ebc9"}
+  },
   "dev014_watchtower_post_opening_minimum_mc_assessment_20261009": {
     "engineering_revision": "Read-only retained-evidence assessment against deployed monitor store for runtime b5b0991a58bd7865f29e7cbb2d90386d72f0ebc9; no source, runtime, queue, database, or provider change.",
     "status": "PARTIAL_SAMPLED_DRAWDOWN_SIGNAL_BACKFILL_QUALIFICATION_REQUIRED",

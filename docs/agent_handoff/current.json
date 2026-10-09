@@ -3504,6 +3504,17 @@
     "runtime_deployment_required": false,
     "next_action": "Obtain separate explicit operational authority for the orphan Supervisor containment procedure and its rollback boundary. Do not implement a source change or take any operational action under this acceptance."
   },
+  "x78_orphan_supervisor_containment_20261009": {
+    "status": "HOLD_GRACEFUL_CONTROL_SOCKET_UNAVAILABLE",
+    "scope": "Authorized containment preflight only. No stop/restart/signal/kill, source/configuration change, DB/WAL/queue action, provider call, deployment, or DEV-014 Batch 4 action occurred.",
+    "identity_preflight": "Orphan Supervisor PID41414 remains parentless (PPID1), pgid41414, started 2026-10-09 08:33:32, command supervisord -c /private/tmp/overlay-candidate-parser/config/supervisor/supervisord.conf -t. Candidate config SHA-256=b610fdedc5c811545d4fee2eaf9bf1cd0d58fefb9b196b3e3751509a86f2043f. Its current children are creator-resolution PID34493, creator-funding PID34549, alert PID41419, Walkback PID41422, and Cascade PID41427; all directly belong to PID41414.",
+    "primary_continuity_preflight": "Primary Supervisor PID73409 is separate. Target services were RUNNING: creator-funding PID35116, creator-resolution PID32965, listener PID48504, API PID9045, monitor-worker PID9126, bridge PID21106, Cascade PID73417. API /healthz was HTTP200 healthy=true/db=ok/wal_warn=false with fresh creator heartbeat ages 5s/1s. Disk free=7,728,776 KiB. No primary service action was taken.",
+    "bindings_and_live_state": "Duplicate orphan creator-funding PID34549 was observed ACTIVE on canonical write-lock metadata at rpc_metrics_recorder.py:475; orphan Cascade PID41427 holds wt_ops_v2 DB/WAL/SHM. Canonical WAL was 181,893,912 bytes. This confirms duplicate writer/service topology but does not establish an individual permanent lease holder or a WAL-reader cause.",
+    "blocker": "The orphan configured/observed supervisor control socket unix:///private/tmp/overlay-candidate-parser/supervisord.sock.41413 returned no such file. Therefore its own supported graceful shutdown mechanism is unavailable. The authorization explicitly prohibits forced termination after graceful shutdown failure, so containment stopped before action.",
+    "rollback": "NOT_APPLICABLE because no containment occurred. Primary state remains unchanged.",
+    "runtime_deployment_required": false,
+    "next_action": "Obtain separate explicit authorization for a forced, process-group-scoped orphan Supervisor termination procedure, including fresh PID/PGID verification, expected orphan child set, primary-continuity rollback boundary, and immediate/sustained acceptance. Do not stop individual orphan children while PID41414 remains active. DEV-014 Batch 4 stays HOLD."
+  },
   "dev019_8cub_downstream_coverage_batch1_20261008": {
     "artifact": "docs/audits/dev_019_8cub_downstream_coverage_batch1.v1.json SHA256=003be28e8dce011760ad438a2e990eedbbd9d0e5ee887632a2dcd21cc8292b18, 14174 bytes. It retains compact page boundaries, per-signature decode status, and no raw RPC payload/block data.",
     "authorization_and_coverage": "One separately authorized 8CUb-only Helius batch executed three cursor-bounded 20-signature pages. Requests=63/66 (3 getSignaturesForAddress, 60 getTransaction, 0 getBlock), retries=0, fallback=0. Compact page boundaries were saved before decoding. All three windows are COMPLETE_SIGNATURE_WINDOW (20/20); all 60 returned unique signatures decoded successfully as legacy transactions.",

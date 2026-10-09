@@ -1,0 +1,53 @@
+{
+  "schema": "x78.minimal_transaction_lifecycle_qualification.v1",
+  "base_authority": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+  "qualified_comparison": "df5a56552394548f6647a2cc2edaca3e8e08cad0",
+  "delta_analysis": {
+    "db_locking_diff": "+501/-58 lines (559 changed lines)",
+    "essential_subset": [
+      "emit sqlite_tx_begin only at false-to-true sqlite3.Connection.in_transaction edge",
+      "emit commit_end and rollback_end on the existing connection lifecycle stream",
+      "bounded payload-free lifecycle parser for WAL attribution candidates"
+    ],
+    "excluded_as_unrelated": [
+      "application write-lock ordering and timeout exception changes",
+      "cross-process lease recovery changes",
+      "SQL statement target/error diagnostics",
+      "external/native ops connection wrappers",
+      "connection reaper API changes",
+      "WAL watchdog checkpoint/restart changes"
+    ]
+  },
+  "contract": {
+    "identity_owner": "existing open event: UUID connection_id, PID, caller, purpose, thread/task ownership",
+    "transaction_state": "sqlite_tx_begin then commit_end, rollback_end, or close",
+    "classification": "read_only connection mode supports only READ_TRANSACTION_CANDIDATE; no active transaction proves a WAL pin",
+    "duration": "provenance parser derives transaction age from bounded event timestamps",
+    "no_sql_mutation": true,
+    "no_new_sqlite_writer": true,
+    "no_transaction_lifetime_extension": true,
+    "no_connection_leak": true,
+    "no_write_lock_semantic_change": true
+  },
+  "bounded_storage": {
+    "lifecycle_stream": "existing rotating JSONL, default 10 MiB current plus two 10 MiB backups = 30 MiB maximum per configured path",
+    "provenance_read": "tail-read maximum 4 MiB; no output file",
+    "raw_retention": false,
+    "unbounded_growth_paths": 0,
+    "single_file_under_500mb": true
+  },
+  "worker_compatibility": {
+    "creator_funding": "already has bounded same-process open-connection snapshot, but no lifecycle parser composition",
+    "creator_resolution": "has holder PID and same-process summary paths, but no lifecycle parser composition",
+    "decision": "do not change worker liveness/restart behavior in this prerequisite; a later bounded composition can pass current checkpoint and holder inputs to the parser"
+  },
+  "qualification": {
+    "command": "pytest -q tests/test_x78_minimal_transaction_lifecycle.py tests/test_x78_13_autocommit_write_lane.py tests/test_x77_5_execute_script_commit_leak.py",
+    "result": "15 passed",
+    "provider_calls": 0,
+    "live_database_or_queue_writes": 0,
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED"
+  },
+  "verdict": "PASS_PROVIDER_FREE_MINIMAL_INSTRUMENTATION_QUALIFIED_NOT_DEPLOYED"
+}

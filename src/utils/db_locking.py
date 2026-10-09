@@ -704,6 +704,12 @@ class TrackedConnection(sqlite3.Connection):
 
     def execute(self, sql, parameters=()):
         is_write = _DB_WRITE_SERIALIZE and _is_write_sql(sql)
+        # SQLite exposes only the connection-wide `in_transaction` bit.  Record
+        # its false -> true edge so the opt-in WAL provenance reader can
+        # distinguish an open handle from an active transaction.  In deferred
+        # mode this is deliberately not a claim that the transaction pins WAL:
+        # the collector labels it a candidate only.
+        tx_before = bool(self.in_transaction)
         if is_write:
             self._acquire_write_lane()
         diagnostic = _cf_statement_start(self, sql)
@@ -717,6 +723,13 @@ class TrackedConnection(sqlite3.Connection):
                 record_lock_error(getattr(self, "_db_caller", None))
             raise
         finally:
+            if not tx_before and bool(self.in_transaction):
+                _append_connection_lifecycle({
+                    "event": "sqlite_tx_begin", "timestamp": time.time(),
+                    "connection_id": getattr(self, "_db_connection_id", None),
+                    "pid": os.getpid(), "thread": threading.current_thread().name,
+                    "begin_mode": "WRITE_IMPLICIT" if is_write else "READ_OR_DEFERRED",
+                })
             _cf_statement_end(
                 self, diagnostic, success=success,
                 rowcount=None,
@@ -764,6 +777,11 @@ class TrackedConnection(sqlite3.Connection):
             committed = True
             return result
         finally:
+            _append_connection_lifecycle({
+                "event": "commit_end", "timestamp": time.time(),
+                "connection_id": getattr(self, "_db_connection_id", None),
+                "pid": os.getpid(), "thread": threading.current_thread().name,
+            })
             self._write_rolled_back = not committed
             dur_ms = (time.monotonic() - t0) * 1000.0
             caller = getattr(self, "_db_caller", None)
@@ -777,6 +795,11 @@ class TrackedConnection(sqlite3.Connection):
         try:
             return super().rollback()
         finally:
+            _append_connection_lifecycle({
+                "event": "rollback_end", "timestamp": time.time(),
+                "connection_id": getattr(self, "_db_connection_id", None),
+                "pid": os.getpid(), "thread": threading.current_thread().name,
+            })
             self._release_write_lane()
 
     def close(self):

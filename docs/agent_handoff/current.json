@@ -23338,5 +23338,11 @@
     "race": "HistoricalForensicsBudgetAdmission reaches MonitorQueue.admit_provider_dispatch -> DevProviderBudget under provider_budget.lock. The worker-local directory scan is outside that lock. A LIVE job may arrive after LIVE_CLEAR and before the historical debit, so no atomic priority guarantee exists. A read-only snapshot must not be represented as priority protection.",
     "ownership_boundary": "A priority-aware decision combined with the existing budget lock would change shared MonitorQueue admission behavior and priority semantics. It belongs to the shared MonitorQueue/live-worker owner, not DEV-014. No source change, provider request, budget debit, queue/database write, scheduler, deployment, or runtime action occurred.",
     "next_action": "Under the owning shared-queue workstream, qualify a fail-closed provider-demand classification and priority-aware admission under the existing synchronization contract. DEV-014 may then consume that API; until then historical execution integration remains HOLD."
+  },
+  "shared_monitorqueue_priority_admission_ownership_20261009": {
+    "status": "HOLD_QUEUE_OWNER_UNESTABLISHED",
+    "finding": "Read-only inventory locates the implementation at src/ops/operation_monitor_worker.py::MonitorQueue, its durable EvidenceIntakeQueue dependency, and DevProviderBudget/provider_budget.lock. It confirms queue publication is via EvidenceIntakeQueue and shared budget is separate. However, the current repository DEV documentation and handoff inventory do not identify a verified active DEV/workstream owner for the shared MonitorQueue provider-admission contract or an authorized worktree/branch for its modification.",
+    "safety": "No shared source change, queue/database mutation, provider debit/call, runtime observation, deployment, or scheduler action occurred.",
+    "next_action": "Establish the owning shared-queue DEV/workstream, its active source/branch/worktree, and its publication/admission ownership boundary. Only then perform the mandated queue schema and lock/race qualification; do not implement under DEV-014 or an inferred owner."
   }
 }

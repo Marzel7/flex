@@ -18,6 +18,8 @@ from src.ops.operation_monitor_capabilities import monitor_capability_for_operat
 from src.ops.strict_migration_window import dispatch as dispatch_strict_migration_window,reduce_policy as reduce_strict_migration_policy,plan as strict_migration_plan,failure_diagnostic as strict_opening_failure_diagnostic,normalize_opening_ohlcv
 from src.ops.watchtower_terminal_ath_finalizer import ProviderCapacityBackoff, WatchtowerTerminalAthFinalizer
 from src.ops.watchtower_policy_c import policy_c_schedule
+from src.ops.watchtower_early_minimum_tracking import WORK_TYPE as EARLY_MINIMUM_WORK_TYPE, admit_after_qualified_entry, eligible_for_acquisition, normalize_and_build_records, persist_records
+from src.ops.watchtower_observed_minimum_store import ObservedMinimumEvidenceStore
 CONTRACT='operation-monitor.v1'; CONCURRENCY=1; MAX_BYTES=10_000_000
 _TERMINAL_MONITOR_STATES={'PRICE_MONITOR_COMPLETE_COLLAPSED'}
 _EMPTY_OHLCV_SAFETY_SECONDS=5
@@ -593,6 +595,11 @@ class MonitorQueue:
             'terminal_timestamp':int(fact['monitor_completed_at']),'resolution':'15m',
             'finalizer_contract':'watchtower-terminal-ath.v1','logical_identity':ident,'provenance':provenance}
   return {'status':'ENQUEUED_TERMINAL_ATH','job_id':self.queue.enqueue(envelope,message_id=ident)}
+ def enqueue_early_minimum_after_entry(self, *, fact, birth):
+  """Durably admit the one sidecar-only early-minimum job after Entry commit."""
+  admission=admit_after_qualified_entry(fact={**fact, 'birth_provenance': (birth or {}).get('birth_evidence_id')})
+  if admission.get('status') != 'ADMITTED': return admission
+  return {**admission, 'queue_job_id': self.queue.enqueue(admission['envelope'], message_id=admission['job_id'])}
  def _backoff_path(self): return self.queue.root/'provider_backoff.json'
  def _opening_admission_path(self): return self.queue.root/'opening_admission.json'
  def admit_global_opening(self, mint, message_id, *, now=None):
@@ -998,7 +1005,9 @@ class MonitorBirdeyeTransport:
   if not start or not interval: raise ValueError('WAITING_FOR_ENTRY_REFERENCE')
   start=int(start)
   if start > now: raise ValueError('INSUFFICIENT_EVIDENCE:ENTRY_AFTER_NOW')
-  built=build_birdeye_ohlcv_request(address=p['mint'],interval=interval,time_from=start,time_to=now); params=built['request_parameters']
+  end=int(p.get('early_minimum_window_end') or now)
+  if end > now: raise ValueError('EARLY_MINIMUM_WINDOW_NOT_COMPLETE')
+  built=build_birdeye_ohlcv_request(address=p['mint'],interval=interval,time_from=start,time_to=end); params=built['request_parameters']
   result=self.binding(built)
   if result.status_code!=200:
    if result.status_code==429: raise self._rate_limited(result,'OHLCV')
@@ -1379,8 +1388,40 @@ class MonitorWorker:
   if 'entry_offset_seconds' in columns: updates.append('entry_offset_seconds=excluded.entry_offset_seconds')
   updates += ['monitor_state=excluded.monitor_state','monitor_started_at=excluded.monitor_started_at','next_observation_at=excluded.next_observation_at','running_peak_mc_usd=excluded.running_peak_mc_usd','running_peak_timestamp=excluded.running_peak_timestamp','running_peak_multiple=excluded.running_peak_multiple','evidence_status=excluded.evidence_status','provenance_digest=excluded.provenance_digest','updated_at=excluded.updated_at']
   sql=f'''INSERT INTO operation_monitor_facts({','.join(columns)}) VALUES({','.join('?' for _ in columns)}) ON CONFLICT(operation_id,mint) DO UPDATE SET {','.join(updates)} WHERE operation_monitor_facts.entry_status!='QUALIFIED' '''
+  # A previously-qualified Entry must never re-admit sidecar history.
+  with _read_only_connection(self.db_path) as existing:
+   prior=existing.execute('SELECT entry_status FROM operation_monitor_facts WHERE operation_id=? AND mint=?',(p['operation_id'],p['mint'])).fetchone()
+  newly_committed=not bool(prior and prior[0]=='QUALIFIED')
   receipt=self.persist(WriteItem('enrichment','operation-monitor-activate-from-strict-opening',[(sql,tuple(values))],_h({'activation':p['operation_id'],'mint':p['mint'],'entry':p['entry_timestamp']})))
   if not receipt or not receipt.committed: raise RuntimeError('MONITOR_ACTIVATION_UNCOMMITTED')
+  if p.get('operation_id') == 'watchtower' and newly_committed:
+   enriched=canonical_birth_enrichment(p,db_path=os.getenv('OPERATION_MONITOR_CANONICAL_BIRTH_DB_PATH'))
+   if enriched.get('state') == 'CANONICAL_BIRTH_ENRICHED':
+    self.q.enqueue_early_minimum_after_entry(fact={'operation_id':'watchtower','mint':p['mint'],'entry_status':'QUALIFIED','entry_timestamp':p['entry_timestamp'],'entry_mc_usd':usd,'entry_provenance':p.get('entry_provenance'),'assignment_provenance':_h(assignment),'durably_committed':True,'newly_committed':True},birth=enriched['birth'])
+ def _higher_priority_pending(self):
+  for state in ('pending','retry','processing'):
+   for path in (self.q.queue.root/state).glob('*.json'):
+    try:
+     envelope=(json.loads(path.read_text()).get('envelope') or {})
+     if str(envelope.get('work_type') or '') != EARLY_MINIMUM_WORK_TYPE: return True
+    except (OSError,ValueError,TypeError): continue
+  return False
+ def _process_early_minimum(self,c):
+  p=c.payload['envelope']; decision=eligible_for_acquisition(p,now=int(time.time()),higher_priority_pending=self._higher_priority_pending())
+  if decision in {'NOT_DUE','DEFERRED_HIGHER_PRIORITY'}:
+   target=self.q.queue.root/'pending'/c.path.name; os.replace(c.path,target); self.q.queue._fsync_directory(c.path.parent); self.q.queue._fsync_directory(target.parent); return
+  if decision != 'ELIGIBLE': raise TerminalProviderFailure(decision)
+  path=os.getenv('WATCHTOWER_EARLY_MINIMUM_EVIDENCE_DB_PATH','').strip()
+  if not path: raise TerminalProviderFailure('EARLY_MINIMUM_EVIDENCE_STORE_REQUIRED')
+  start=int(p['entry_timestamp']); end=start+3600
+  p.update({'candle_resolution':'1m','early_minimum_window_end':end,'last_observation_at':start,'request_manifest':build_birdeye_ohlcv_request(address=p['mint'],interval='1m',time_from=start,time_to=end)})
+  c.payload['envelope']=p; self.q.queue._replace_payload(c.path,c.payload)
+  self.q.admit_provider_dispatch(p['mint'],'WATCHTOWER_EARLY_MINIMUM_1M')
+  response=self.transport(p)
+  candles=[{'timestamp':int(x['timestamp']),'low_mc_usd':float(x.get('low',x['mc'])),'high_mc_usd':float(x.get('high',x['mc']))} for x in response.get('candles',())]
+  records=normalize_and_build_records(job=p,candles=candles,provenance='BIRDEYE_1M_MCAP')
+  persist_records(store=ObservedMinimumEvidenceStore(path),records=records)
+  self.q.record_provider_success(); self.q.queue.ack(c); self.last_ack_timestamp=time.time()
  def _activate_watchtower_history_without_entry(self,p:dict[str,Any])->None:
   """Make a verified Watchtower admission eligible for prospective 15m facts.
 
@@ -1576,6 +1617,8 @@ class MonitorWorker:
      target=self.q.queue.root/'pending'/c.path.name;os.replace(c.path,target);self.q.queue._fsync_directory(c.path.parent);self.q.queue._fsync_directory(target.parent);continue
     if p.get('work_type')=='WATCHTOWER_TERMINAL_ATH_FINALIZATION':
      self._process_terminal_ath(c); continue
+    if p.get('work_type')==EARLY_MINIMUM_WORK_TYPE:
+     self._process_early_minimum(c); continue
     # A stale polling or opening envelope never outranks durable terminal
     # state.  Terminal ATH finalization above is intentionally separate.
     if self._authoritative_terminal(p):

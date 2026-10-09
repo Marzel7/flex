@@ -40,7 +40,7 @@ def admit_after_qualified_entry(*, fact: Mapping[str, Any], now: int) -> dict[st
         entry_mc = float(fact["entry_mc_usd"])
     except (KeyError, TypeError, ValueError):
         return {"status": "NOT_ADMITTED_UNQUALIFIED"}
-    if entry_timestamp <= 0 or entry_mc <= 0 or not fact.get("assignment_provenance") or not fact.get("birth_provenance"):
+    if entry_timestamp <= 0 or entry_mc <= 0 or not fact.get("entry_provenance") or not fact.get("assignment_provenance") or not fact.get("birth_provenance"):
         return {"status": "NOT_ADMITTED_UNQUALIFIED"}
     # Existing entries must be deliberately marked newly_committed: there is
     # no reconciliation/backfill loop in this module.
@@ -81,13 +81,20 @@ def chronological_recovery(*, minimum_timestamp: int | None, candles: Iterable[M
 
 def normalize_and_build_records(*, job: Mapping[str, Any], candles: Iterable[Mapping[str, Any]], provenance: str) -> tuple[dict[str, Any], ...]:
     """One completed 60m response becomes four lower-bound records only."""
+    candles = tuple(candles)
     result = observed_minima(entry_timestamp=int(job["entry_timestamp"]), entry_mc_usd=float(job["entry_mc_usd"]),
                               candles=candles, provider_provenance=provenance)
+    recovery = {
+        int(window): chronological_recovery(
+            minimum_timestamp=value.get("observed_minimum_timestamp"), candles=candles
+        ) for window, value in (result.get("results") or {}).items()
+    }
     request = request_identity(mint=str(job["mint"]), entry_timestamp=int(job["entry_timestamp"]),
                                window_end=int(job["entry_timestamp"]) + WINDOW_SECONDS,
                                provider_provenance=provenance)
     return observed_minimum_records(mint=str(job["mint"]), entry_identity={"timestamp": int(job["entry_timestamp"]),
-        "mc_usd": float(job["entry_mc_usd"]), "provenance": str(job["entry_provenance"])}, request_id=request, contract_result=result)
+        "mc_usd": float(job["entry_mc_usd"]), "provenance": str(job["entry_provenance"])}, request_id=request, contract_result=result,
+        recovery_by_window=recovery)
 
 
 def persist_records(*, store: Any, records: Iterable[Mapping[str, Any]]) -> tuple[bool, ...]:

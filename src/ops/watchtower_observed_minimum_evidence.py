@@ -38,6 +38,7 @@ def observed_minimum_records(
     entry_identity: Mapping[str, Any],
     request_id: str,
     contract_result: Mapping[str, Any],
+    recovery_by_window: Mapping[int, Mapping[str, Any]] | None = None,
     record_version: str = EVIDENCE_VERSION,
 ) -> tuple[dict[str, Any], ...]:
     """Return one compact record/window; reject incomplete identity material."""
@@ -67,6 +68,10 @@ def observed_minimum_records(
             "invalid_bucket_timestamps": list(result["invalid_bucket_timestamps"]),
             "provider_provenance": result["provenance"],
         }
+        # Recovery is explicitly derived only from observed post-minimum highs.
+        # It remains sidecar evidence, never a lifecycle peak or fact mutation.
+        if recovery_by_window is not None:
+            body["chronological_recovery"] = dict(recovery_by_window.get(int(window_key), {"status": "INSUFFICIENT_EVIDENCE"}))
         body["evidence_identity"] = hashlib.sha256(_canonical(body).encode()).hexdigest()
         rows.append(body)
     return tuple(rows)

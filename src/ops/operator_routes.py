@@ -99,6 +99,20 @@ def _monitor_queue_depth(root: Path) -> dict[str, int]:
     }
 
 
+def _early_minimum_projection(mint: str) -> dict:
+    """Read only the explicit sidecar authority; canonical monitor DB is never a fallback."""
+    configured = os.getenv("WATCHTOWER_EARLY_MINIMUM_EVIDENCE_DB_PATH", "").strip()
+    if not configured:
+        return {"evidence_status": "UNAVAILABLE_NOT_CONFIGURED", "windows": {}}
+    from src.ops.watchtower_early_minimum_tracking import read_projection
+    from src.ops.watchtower_observed_minimum_store import ObservedMinimumEvidenceStore, EvidenceStoreLimitError
+    try:
+        rows = read_projection(store=ObservedMinimumEvidenceStore(configured), mint=mint)
+    except (OSError, ValueError, EvidenceStoreLimitError) as exc:
+        raise MonitorStoreUnavailable("WATCHTOWER_EARLY_MINIMUM_EVIDENCE_UNREADABLE") from exc
+    return {"evidence_status": "OBSERVED_LOWER_BOUND" if rows else "NOT_OBSERVED", "windows": {str(key): value for key, value in rows.items()}}
+
+
 def _watchtower_display_fields(row: dict) -> dict:
     """Derive display-only lifecycle semantics from persisted monitor facts."""
     if str(row.get("operation_id")).lower() != "watchtower":
@@ -199,6 +213,8 @@ def _monitor_live_projection() -> dict:
         except (OSError, ValueError):
             quote = None
         row.update(quote or {'current_mc_quote_usd':None,'quote_fetched_at':None,'quote_last_trade_at':None,'quote_source':None,'quote_freshness':'UNAVAILABLE','quote_expires_at':None})
+        if str(row.get('operation_id')).lower() == 'watchtower':
+            row['early_minimum_evidence'] = _early_minimum_projection(str(row.get('mint') or ''))
         row['age_seconds'] = now - int(row['entry_timestamp'] or row['assignment_timestamp'] or now)
         row['freshness_seconds'] = now - int(row['last_observation_at'] or now)
         terminal = row.get('monitor_state') == 'PRICE_MONITOR_COMPLETE_COLLAPSED'

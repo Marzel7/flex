@@ -1,4 +1,19 @@
 {
+  "dev014_watchtower_policy_c_deployment_preflight_20261009": {
+    "engineering_revision": "Candidate preparation authority is b36bd959058110c55943556200c1e0806bea26b9; the clean detached runtime used by both candidate target stanzas is /private/tmp/flex-watchtower-policy-c-runtime-44884537 at 4488453740400c169327b200371d417e984e4603. Both are remotely reachable on origin/codex/dev014-policy-c-cadence.",
+    "status": "PREFLIGHT_PASS_NOT_DEPLOYED",
+    "config_authority": "Active /Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf SHA256=22721ba7526cadddb443f52add1add76f8df6c1cbb305154155f98e47fc837a8. Candidate /private/tmp/watchtower-policy-c-api-worker-candidate-44884537.conf SHA256=ee69b559970322e6d5ffcced2f0de32611c80ecab5415b2ede1488cd789e2dc9. Parser-only validation passed for 15 groups; exactly watchtower_api and operation_monitor_worker differ. Rollback /private/tmp/watchtower-policy-c-api-worker-rollback-22721ba7.conf is byte-exact active SHA.",
+    "runtime_authority": "Supervisor PID 73409 owns API PID 59680 and monitor worker PID 66087. The active API is rooted at /private/tmp/flex-watchtower-frozen-lifecycle-api-7e9c2db0; the active worker remains pinned to 1c8022b53d10db168f90afabbed08cc646007912. No transition occurred.",
+    "resource_health": "Filesystem free=5908324 KiB (above 4 GiB floor). GET /healthz reports healthy=true, db=ok, wal_warn=false. One query-only sqlite_master metadata read succeeded for canonical and monitor stores; no PRAGMA journal_mode was issued. Canonical WAL=572712 bytes; monitor WAL absent/0 bytes.",
+    "birth_authority": "OPERATION_MONITOR_CANONICAL_BIRTH_DB_PATH is explicitly candidate-bound to /Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db. It is readable and CatTok DNtZMNDZ65hAJbJXRiP9NnV98ZTrwLTEJZ78fWKCpump has immutable WT_WATCHTOWER_LAUNCH_AUTHORITY create_time=1791490876, create signature and creator; state=FIRED_CREATE.",
+    "queue_and_budget": "Monitor store and queue candidate paths equal active paths. Current queue pending=66, retry=1, processing=0; exactly 61 timestamp-less WATCHTOWER_TERMINAL_ATH_FINALIZATION envelopes remain present and selection-excluded. Watermark=1791446333. Candidate preserves 20 global/4 per-mint provider limits. Authoritative BIRDEYE key-name presence check passed without disclosing a value.",
+    "continuity": "watchtower_listener PID 48504, ws_cascade PID 73417, operation_monitor_bridge PID 21106 and creator_funding_worker PID 25829 remained Supervisor-owned RUNNING. No service action occurred.",
+    "functional_qualification": "PASS 51/51 provider-free tests: Supervisor composition, Policy C, frozen lifecycle API binding, monitor service compatibility and terminal adapter. Includes in-memory CatTok enrichment, conflict fail-closed behavior, Policy-C boundaries, completed-candle guard, durable/deduplicated queue deadline, queue-authoritative Next Check, generic operations isolation, terminal provenance and strict finalizer safety. Provider calls=0; live DB/queue writes=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PREFLIGHT_PASS_EXPLICIT_DEPLOYMENT_AUTHORIZATION_STILL_REQUIRED",
+    "next_action": "STOP. Preflight only is complete. Do not install the candidate, restart either target, replay queues or acquire providers unless a separate targeted transition authorization is supplied.",
+    "project": {"git_head": "b36bd959058110c55943556200c1e0806bea26b9"}
+  },
   "dev014_watchtower_policy_c_deployment_preparation_20261009": {
     "engineering_revision": "Dedicated clean isolated worktree /Users/kevinkeaveney/.codex/worktrees/watchtower-policy-c/flex, branch codex/dev014-policy-c-cadence. Candidate manifest commit b36bd959058110c55943556200c1e0806bea26b9 and its parent composition runtime 4488453740400c169327b200371d417e984e4603 are remotely reachable on origin/codex/dev014-policy-c-cadence.",
     "status": "PREPARED_NOT_DEPLOYED",

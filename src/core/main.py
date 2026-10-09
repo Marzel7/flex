@@ -9461,6 +9461,29 @@ def healthz():
         except Exception:
             pass  # table not yet created — non-fatal at startup
 
+    # Creator-resolution writes database progress heartbeats at cycle
+    # boundaries.  Its watchdog-owned sidecar reports process liveness without
+    # opening SQLite, so a long cycle is observable without weakening the
+    # existing 120-second progress-health contract below.
+    if "creator-resolution" in rows:
+        try:
+            from src.core.worker_liveness import (
+                annotate_progress_health,
+                default_liveness_path,
+                read_liveness,
+            )
+            rows["creator-resolution"] = annotate_progress_health(
+                rows["creator-resolution"],
+                read_liveness(
+                    default_liveness_path(DB_PATH, "creator-resolution"),
+                    worker_name="creator-resolution",
+                    now=now,
+                ),
+            )
+        except Exception:
+            # A diagnostic sidecar must never alter /healthz availability.
+            pass
+
     # WAL size check
     wal_bytes = 0
     try:

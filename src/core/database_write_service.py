@@ -970,6 +970,40 @@ def release_write_lease(lease: WriteLease) -> None:
         raise release_errors[0]
 
 
+def update_write_lease_provenance(lease: WriteLease, **fields: Any) -> None:
+    """Best-effort diagnostic enrichment of an already-held lease.
+
+    This changes only the owner records used for attribution; it never
+    acquires, releases, waits on, or otherwise changes the physical flock.
+    """
+    allowed = {
+        "connection_id", "upstream_caller", "purpose", "first_write_at",
+        "last_db_progress_at", "commit_at", "rollback_at", "connection_close_at",
+        "sqlite_transaction_active", "lease_generation",
+    }
+    updates = {key: value for key, value in fields.items() if key in allowed and value is not None}
+    if not updates:
+        return
+    try:
+        lease.owner.update(updates)
+        _write_lock_bound_owner(lease.file, lease.owner)
+        guard = _owner_metadata_guard(lease.owner_path)
+        try:
+            current = _read_owner_metadata(lease.owner_path)
+            if current and current.get("transaction_id") == lease.owner.get("transaction_id"):
+                _write_owner_metadata(lease.owner_path, lease.owner)
+        finally:
+            fcntl.flock(guard.fileno(), fcntl.LOCK_UN)
+            guard.close()
+        with _active_lease_lock:
+            current = _active_lease_details_by_thread_ident.get(lease.owner_thread_ident)
+            if current and current.get("transaction_id") == lease.owner.get("transaction_id"):
+                current.update(updates)
+    except Exception:
+        # Observability must never affect the owner transaction.
+        pass
+
+
 def update_write_lease_diagnostics(lease: WriteLease | None, **fields: Any) -> bool:
     """Publish bounded diagnostics on an already-held physical lease.
 

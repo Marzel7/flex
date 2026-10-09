@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 
 from src.utils import wal_watchdog_provenance as provenance
 
@@ -94,10 +95,12 @@ def test_tracked_deferred_read_transaction_is_visible(tmp_path, monkeypatch):
     stream = str(tmp_path / "lifecycle.jsonl")
     monkeypatch.setenv("DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_PATH", stream)
     monkeypatch.setattr(provenance, "_process_commands", lambda pids: {pid: "test" for pid in pids})
-    conn = db_locking.db_connect(db)
+    setup = sqlite3.connect(db)
+    setup.execute("CREATE TABLE item (id INTEGER)")
+    setup.commit()
+    setup.close()
+    conn = db_locking.db_connect(db, read_only=True)
     try:
-        conn.execute("CREATE TABLE item (id INTEGER)")
-        conn.commit()
         conn.execute("BEGIN")
         conn.execute("SELECT * FROM item").fetchall()
         result = provenance.collect_wal_pin_provenance(
@@ -111,3 +114,37 @@ def test_tracked_deferred_read_transaction_is_visible(tmp_path, monkeypatch):
     finally:
         conn.rollback()
         conn.close()
+
+
+def test_stalled_checkpoint_identifies_long_lived_reader_candidate(tmp_path, monkeypatch):
+    stream = tmp_path / "lifecycle.jsonl"
+    db = str(tmp_path / "live.db")
+    stream.write_text("\n".join([
+        json.dumps({"event": "open", "pid": 88, "connection_id": "reader", "timestamp": 1,
+                    "path": db, "mode": "read_only"}),
+        json.dumps({"event": "sqlite_tx_begin", "pid": 88, "connection_id": "reader", "timestamp": 2}),
+    ]) + "\n")
+    monkeypatch.setattr(provenance, "_process_commands", lambda _pids: {88: "reader"})
+
+    result = provenance.collect_wal_pin_provenance(
+        db_path=db,
+        checkpoint={"busy": 0, "log_frames": 900, "checkpointed_frames": 10},
+        holder_pids=[88], lifecycle_path=str(stream), now=100,
+        checkpoint_stalled=True,
+    )
+
+    connection = result["holders"][0]["connections"][0]
+    assert connection["attribution"] == "LONG_LIVED_READER_PIN_CANDIDATE"
+    assert result["checkpoint_obstruction"] == "CHECKPOINT_GAP_STALLED_WITH_LONG_LIVED_READER"
+
+
+def test_open_handle_alone_remains_unknown_checkpoint_obstruction(tmp_path, monkeypatch):
+    monkeypatch.setattr(provenance, "_process_commands", lambda _pids: {99: "external-reader"})
+    result = provenance.collect_wal_pin_provenance(
+        db_path=str(tmp_path / "live.db"),
+        checkpoint={"busy": 0, "log_frames": 900, "checkpointed_frames": 10},
+        holder_pids=[99], lifecycle_path=None, now=100,
+        checkpoint_stalled=True,
+    )
+    assert result["holders"][0]["attribution"] == "OPEN_DATABASE_HANDLE_ONLY"
+    assert result["checkpoint_obstruction"] == "CHECKPOINT_GAP_STALLED_UNKNOWN"

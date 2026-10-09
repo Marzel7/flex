@@ -32,11 +32,17 @@ import time
 import traceback
 from typing import Any, Dict
 
+from src.core.worker_liveness import default_liveness_path, publish_liveness
+
 # ── config ────────────────────────────────────────────────────────────────────
 _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 DB_PATH = os.environ.get(
     "DB_PATH",
     os.path.join(_REPO_ROOT, "database", "flex_complete_database.db"),
+)
+LIVENESS_PATH = os.environ.get(
+    "CREATOR_RESOLUTION_LIVENESS_PATH",
+    default_liveness_path(DB_PATH, "creator-resolution"),
 )
 
 BATCH_SIZE_MAX     = int(os.environ.get("CRQ_BATCH_SIZE",           "25"))
@@ -63,6 +69,11 @@ _DB_SERIALIZER_METRICS_PATH = os.path.join(
 WORKER_NAME = "creator-resolution"
 _STOP = False
 _started_at = int(time.time())
+_liveness_lock = threading.Lock()
+_liveness_progress_at = float(_started_at)
+_liveness_progress_phase = "starting"
+_liveness_progress_cycle = 0
+_liveness_last_failure_log_at = 0.0
 
 
 def _log(msg: str) -> None:
@@ -73,6 +84,37 @@ def _handle_signal(signum, frame):
     global _STOP
     _log(f"Signal {signum} received — shutting down after current cycle")
     _STOP = True
+
+
+def _mark_progress(phase: str, cycle: int = 0) -> None:
+    """Record in-process progress for the watchdog-owned liveness sidecar."""
+    global _liveness_progress_at, _liveness_progress_phase, _liveness_progress_cycle
+    with _liveness_lock:
+        _liveness_progress_at = time.time()
+        _liveness_progress_phase = str(phase)[:120]
+        _liveness_progress_cycle = max(0, int(cycle))
+
+
+def _publish_liveness() -> None:
+    """Publish process liveness without opening SQLite or a second DB writer."""
+    global _liveness_last_failure_log_at
+    with _liveness_lock:
+        progress_at = _liveness_progress_at
+        progress_phase = _liveness_progress_phase
+        progress_cycle = _liveness_progress_cycle
+    if publish_liveness(
+        LIVENESS_PATH,
+        worker_name=WORKER_NAME,
+        pid=os.getpid(),
+        progress_at=progress_at,
+        progress_phase=progress_phase,
+        progress_cycle=progress_cycle,
+    ):
+        return
+    now = time.time()
+    if now - _liveness_last_failure_log_at >= 300:
+        _liveness_last_failure_log_at = now
+        _log("liveness sidecar publish failed; database progress heartbeat remains authoritative")
 
 
 signal.signal(signal.SIGTERM, _handle_signal)
@@ -248,6 +290,9 @@ def _wal_watchdog() -> None:
         if _STOP:
             break
         try:
+            # This uses the existing watchdog thread and a bounded sidecar,
+            # never SQLite.  It separates process liveness from DB progress.
+            _publish_liveness()
             mb = _wal_size_mb()
             sample = _wal_checkpoint_sample()
             stalled = _wal_sample_is_stalled(sample, previous)
@@ -275,6 +320,7 @@ def _wal_watchdog() -> None:
                         checkpoint=sample,
                         holder_pids=_identify_wal_holder_pids(),
                         lifecycle_path=os.environ.get("DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_PATH"),
+                        checkpoint_stalled=stalled,
                     )
                 except Exception as exc:
                     provenance = {"error": str(exc)[:160]}
@@ -379,6 +425,8 @@ def run_loop(once: bool = False) -> None:
 
     # Schema migration is a startup boundary, never steady-state queue work.
     initialize_schema(DB_PATH)
+    _mark_progress("startup_ready")
+    _publish_liveness()
     _write_heartbeat({
         "phase": "startup_ready",
         "cycles": 0,
@@ -396,6 +444,7 @@ def run_loop(once: bool = False) -> None:
     while not _STOP:
         cycle_start = time.time()
         cycles += 1
+        _mark_progress("cycle_start", cycles)
 
         _write_heartbeat({
             "phase": "cycle_start",
@@ -409,6 +458,7 @@ def run_loop(once: bool = False) -> None:
         _check_self_kill(pending)
 
         try:
+            _mark_progress("cycle_processing", cycles)
             new_enqueued = enqueue_missing_migrated_tokens(
                 DB_PATH, limit=ENQUEUE_LIMIT, source="crq_worker", schema_ready=True
             )
@@ -458,6 +508,7 @@ def run_loop(once: bool = False) -> None:
             for e in errs:
                 _log(f"  error mint={e.get('mint','?')[:16]} reason={e.get('error','?')}")
 
+            _mark_progress("cycle_complete", cycles)
             _write_heartbeat({
                 "cycles":             cycles,
                 "pending":            max(0, pending - proc),
@@ -478,6 +529,7 @@ def run_loop(once: bool = False) -> None:
         except Exception as exc:
             _log(f"cycle error: {exc}")
             traceback.print_exc()
+            _mark_progress("cycle_error", cycles)
             try:
                 _write_heartbeat({"status": "error", "error": str(exc)[:200], "cycles": cycles})
             except Exception:

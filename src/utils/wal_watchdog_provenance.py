@@ -16,6 +16,7 @@ from typing import Any, Iterable
 MAX_HOLDERS = 20
 MAX_FIELD = 240
 MAX_LIFECYCLE_BYTES = 4 * 1024 * 1024
+LONG_READER_SECONDS = 30.0
 
 
 def _bounded(value: Any) -> str:
@@ -89,6 +90,42 @@ def _lifecycle_state(path: str, db_path: str, live_pids: set[int], now: float) -
     return by_pid
 
 
+def _connection_attribution(row: dict) -> str:
+    """Classify only the transaction state retained by lifecycle telemetry."""
+    if not row.get("transaction_active"):
+        return "OPEN_DATABASE_HANDLE"
+    if row.get("mode") != "read_only":
+        return "ACTIVE_WRITE_TRANSACTION"
+    if (row.get("read_transaction_age_seconds") or 0.0) >= LONG_READER_SECONDS:
+        return "LONG_LIVED_READER_PIN_CANDIDATE"
+    return "ACTIVE_READ_TRANSACTION"
+
+
+def _checkpoint_obstruction(checkpoint: dict, holders: list[dict], checkpoint_stalled: bool) -> str:
+    """Return a fail-closed checkpoint classification, never a causal claim."""
+    busy = int(checkpoint.get("busy", -1))
+    log_frames = int(checkpoint.get("log_frames", -1))
+    checkpointed = int(checkpoint.get("checkpointed_frames", -1))
+    if min(busy, log_frames, checkpointed) < 0:
+        return "UNKNOWN_CHECKPOINT_OBSTRUCTION"
+    if log_frames <= checkpointed:
+        return "NO_CHECKPOINT_GAP"
+    if busy > 0:
+        return "CHECKPOINT_BLOCKED_BY_WRITER_OR_CHECKPOINT"
+    attributions = {
+        row.get("attribution")
+        for holder in holders
+        for row in holder.get("connections", [])
+    }
+    if checkpoint_stalled and "LONG_LIVED_READER_PIN_CANDIDATE" in attributions:
+        return "CHECKPOINT_GAP_STALLED_WITH_LONG_LIVED_READER"
+    if checkpoint_stalled and "ACTIVE_READ_TRANSACTION" in attributions:
+        return "CHECKPOINT_GAP_STALLED_WITH_ACTIVE_READER"
+    if checkpoint_stalled:
+        return "CHECKPOINT_GAP_STALLED_UNKNOWN"
+    return "CHECKPOINT_GAP_OBSERVED"
+
+
 def _process_commands(pids: set[int]) -> dict[int, str]:
     commands: dict[int, str] = {}
     for pid in sorted(pids):
@@ -106,6 +143,7 @@ def _process_commands(pids: set[int]) -> dict[int, str]:
 def collect_wal_pin_provenance(
     *, db_path: str, checkpoint: dict, holder_pids: Iterable[int],
     lifecycle_path: str | None = None, now: float | None = None,
+    checkpoint_stalled: bool = False,
 ) -> dict:
     """Return a bounded snapshot without touching SQLite or process state."""
     captured_at = float(now if now is not None else time.time())
@@ -115,22 +153,31 @@ def collect_wal_pin_provenance(
     commands = _process_commands(pids)
     holders = []
     for pid in sorted(pids):
-        rows = lifecycle.get(pid, [])[:10]
+        rows = []
+        for row in lifecycle.get(pid, [])[:10]:
+            annotated = dict(row)
+            annotated["attribution"] = _connection_attribution(annotated)
+            rows.append(annotated)
         holders.append({
             "pid": pid,
             "command": commands.get(pid, ""),
             "connections": rows,
             "connection_provenance_available": bool(rows),
+            "attribution": "CONNECTION_LIFECYCLE_AVAILABLE" if rows else "OPEN_DATABASE_HANDLE_ONLY",
         })
+    checkpoint_view = {
+        "busy": int(checkpoint.get("busy", -1)),
+        "log_frames": int(checkpoint.get("log_frames", -1)),
+        "checkpointed_frames": int(checkpoint.get("checkpointed_frames", -1)),
+    }
     return {
         "schema": "sqlite.wal_pin_provenance.v1",
         "captured_at": captured_at,
         "database_basename": os.path.basename(db_path),
-        "checkpoint": {
-            "busy": int(checkpoint.get("busy", -1)),
-            "log_frames": int(checkpoint.get("log_frames", -1)),
-            "checkpointed_frames": int(checkpoint.get("checkpointed_frames", -1)),
-        },
+        "checkpoint": checkpoint_view,
+        "checkpoint_obstruction": _checkpoint_obstruction(
+            checkpoint_view, holders, bool(checkpoint_stalled)
+        ),
         "holders": holders,
         "holder_count": len(holders),
         "lifecycle_path_configured": bool(lifecycle_path),

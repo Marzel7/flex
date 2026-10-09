@@ -3378,7 +3378,7 @@
   },
   "dev014_birdeye_historical_mcap_retention_probe_20261009": {
     "status": "PASS_BOUNDED_THREE_REQUEST_PROBE",
-    "engineering_revision": "3eb4be0b4c8ca889fde9cfa28a79d425ef1a8de7 published and remote-verified on codex/dev014-current-mc-freshness; clean isolated source.",
+    "engineering_revision": "3eb4be0b2e3ff74f1a1ad2dd05bfcf71f10cc8d2 published and remote-verified on codex/dev014-current-mc-freshness; clean isolated source.",
     "scope": "Exactly three sequential paid Birdeye V3 1m MCAP range requests; retries/pagination/fallback/expansion=0; no DB/queue write, lifecycle mutation, runtime change, backfill, or deployment.",
     "preflight": "BIRDEYE binding present without disclosure; free disk 7119140 KiB; Supervisor API PID 9045 and worker PID 9126 running; configured API health=true, db=ok, WAL=1.2MB without warning; current provider ledger contained four terminal-finalizer calls and READY stale backoff, leaving distinct probe mints inside the 20-global/4-per-mint guard.",
     "results": "Recent 9JtPf... [1791476568,1791480168): HTTP200, valid MCAP OHLC, 41/60 (68.33%), 19 internal gaps. Mid-age 8epBC... [1788884142,1788887742): HTTP200, valid, 60/60 (100%), zero internal gaps. Older EaHK... [1785132103,1785135703): HTTP200, valid, 60/60 (100%), zero internal gaps. All have no leading/trailing whole-bucket gaps under corrected ceiling-start coverage semantics. CU headers absent; rate-limit remaining 299,298,297 of 300.",

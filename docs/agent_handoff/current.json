@@ -3180,6 +3180,22 @@
     "status": "HOLD_SPARSE_CANDLE_SEMANTICS_UNQUALIFIED",
     "storage": "New persistent files=0; raw provider response retention=false; maximum new/transient artifact size=0 bytes; unbounded-growth paths=0."
   },
+  "dev014_watchtower_v2_entry_01_retained_reconstruction_20261009": {
+    "artifact": "docs/audits/dev014_watchtower_v2_entry_01_retained_reconstruction_20261009.v1.json; artifact identity=1821b8c4e25e0c1b7d12a2f486b360ba2d454d85615a0908a204e17b033fc78d; SHA-256=49e878d67f114d79747de0322d0b855186485eecec9e1e19bdaf09e0470c4fc7; bytes=18,559.",
+    "batch_authority": "Exact V2-ENTRY-01 allowlist recovered unchanged from remote-backed V2 manifest: 3yvK6WWww1moF3qx3UvHngZCHy9kRCVd9Jva8tRrpump; 7iXZi55AyKbJv5e9XTQuVcywdT2ejHjGBf3NKuCLpump; B8S7WGQYteNSBz4rU4Xs1hkr1seGpxYgUuV2wgtbpump; HRinFbhZjrb2xoqSzxYCYKX7LqJ3H6pn42CURb2cpump; 41GZ77b5v1ak2jujpaU2AAQFWFj4wszunihUJG4epump; 4nn2hUuWxReUxBRAuXzhG3A556U6pjbecHBgwRt2pump; DCPHkFepQeetS5pytaDgkcktQ5M8XL4y2v3dojkWpump; 2trQcQbEiSsNCGhjUKZ7cNtcREgjFdGeTHndet2kpump; GszmgSqbt9huNYJfQtG1wbcqszKnmNkd6dxEJWrYpump; 2YB13v6vJ1HTmuzbwujYsahAng1XPbjfT6kMNrFYpump. All are unified WATCHTOWER members, original classification WATCHTOWER, and retain WAITING_FOR_ENTRY_REFERENCE with no Entry MC.",
+    "engineering_revision": "7e760b8e1d9d21200bc0154603f05391ca57177e on origin/codex/dev014-current-mc-freshness; clean isolated provider-free/read-only V2-ENTRY-01 execution.",
+    "evidence": "All ten retain assignment provenance, creator, create and migration signatures/timestamps, and curve-replay snapshot source labels, but no operation_monitor_entry_provenance row, monitor observation, or strict normalized opening offsets. Migration time is <= asserted creation time in each row; this contradiction is retained rather than reconciled or converted to Entry MC.",
+    "next_action": "STOP. Do not promote these research results, rerun V2-ENTRY-01, acquire provider data, or start another batch. A separately authorized canonical creation/migration chronology reconciliation is required before any entry evidence decision.",
+    "project": {
+      "git_head": "7e760b8e1d9d21200bc0154603f05391ca57177e"
+    },
+    "result": "Qualified retained entries=0; primary PARTIAL_ENTRY_EVIDENCE=0; primary MISSING_PRICE_EVIDENCE=0; primary MISSING_BIRTH_PROVENANCE=0; primary CONFLICTING_EVIDENCE=10. Every record additionally carries MISSING_BIRTH_PROVENANCE (launch source=FIXTURE_BACKFILL, not canonical_create_ledger) and MISSING_PRICE_EVIDENCE (no retained strict migration offsets 0/1/2).",
+    "runtime_deployment_reason": "Pure retained-evidence classifier and research artifact only; no active executable path was changed.",
+    "runtime_deployment_required": false,
+    "status": "PASS_RETAINED_RECONSTRUCTION_FAIL_CLOSED_REMOTE_VERIFIED",
+    "storage": "Single research artifact=18,559 bytes; max single file=1,000,000 bytes; unbounded growth paths=0; no file approaches 500,000,000 bytes.",
+    "verification": "41 provider-free tests passed; py_compile, JSON validation, diff --check, source-secret scan, compact bound, and remote SHA/content hash verification passed. Provider requests=0; DB/queue writes=0; canonical promotion=0; deployment=0; raw retention=false."
+  },
   "dev019_8cub_downstream_coverage_batch1_20261008": {
     "artifact": "docs/audits/dev_019_8cub_downstream_coverage_batch1.v1.json SHA256=003be28e8dce011760ad438a2e990eedbbd9d0e5ee887632a2dcd21cc8292b18, 14174 bytes. It retains compact page boundaries, per-signature decode status, and no raw RPC payload/block data.",
     "authorization_and_coverage": "One separately authorized 8CUb-only Helius batch executed three cursor-bounded 20-signature pages. Requests=63/66 (3 getSignaturesForAddress, 60 getTransaction, 0 getBlock), retries=0, fallback=0. Compact page boundaries were saved before decoding. All three windows are COMPLETE_SIGNATURE_WINDOW (20/20); all 60 returned unique signatures decoded successfully as legacy transactions.",

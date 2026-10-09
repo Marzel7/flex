@@ -1,0 +1,30 @@
+{
+  "artifact_type": "DEV014_WATCHTOWER_HISTORICAL_RESEARCH_ANCHOR_QUALIFICATION",
+  "version": 1,
+  "scope": "READ_ONLY_PROVIDER_FREE_NO_CANONICAL_PROMOTION",
+  "anchor_contract": {
+    "QUALIFIED_ENTRY_ANCHOR": "Canonical qualified Entry MC/timestamp; permits Entry-relative research drawdown only.",
+    "OBSERVED_PRICE_ANCHOR": "Mint-bound independently timestamped provider MCAP observation; permits observed minima/extrema relative to that observation only, never opening or Entry claims.",
+    "MIGRATION_BOUNDARY_ANCHOR": "Requires independently qualified migration event identity; window timing only, never inferred MC or Entry performance.",
+    "NO_QUALIFIED_ANCHOR": "No retained evidence supports a provider request."
+  },
+  "skipped_batch_3": [
+    {"rank":22,"mint":"DCPHkFepQeetS5pytaDgkcktQ5M8XL4y2v3dojkWpump","membership":"WATCHTOWER_CONFIRMED","creation_timestamp":1791163699,"entry_status":"WAITING_FOR_ENTRY_REFERENCE","anchor_class":"OBSERVED_PRICE_ANCHOR","anchor_timestamp":1791163567,"anchor_mc_usd":109623.82251891451,"anchor_source":"watchtower-opening-offset-audit.v2.json: HTTP200 COMPLETE offset=0","migration_boundary":"UNQUALIFIED_RETAINED_SLOT_MINT_BOUND_RPC_VALIDATION_REQUIRED"},
+    {"rank":23,"mint":"2trQcQbEiSsNCGhjUKZ7cNtcREgjFdGeTHndet2kpump","membership":"WATCHTOWER_CONFIRMED","creation_timestamp":1791158849,"entry_status":"WAITING_FOR_ENTRY_REFERENCE","anchor_class":"OBSERVED_PRICE_ANCHOR","anchor_timestamp":1791158742,"anchor_mc_usd":112923.3735296238,"anchor_source":"watchtower-opening-offset-audit.v2.json: HTTP200 COMPLETE offset=0","migration_boundary":"UNQUALIFIED_RETAINED_SLOT_MINT_BOUND_RPC_VALIDATION_REQUIRED"},
+    {"rank":24,"mint":"GszmgSqbt9huNYJfQtG1wbcqszKnmNkd6dxEJWrYpump","membership":"WATCHTOWER_CONFIRMED","creation_timestamp":1791158529,"entry_status":"WAITING_FOR_ENTRY_REFERENCE","anchor_class":"OBSERVED_PRICE_ANCHOR","anchor_timestamp":1791158483,"anchor_mc_usd":105949.44485282963,"anchor_source":"watchtower-opening-offset-audit.v2.json: HTTP200 COMPLETE offset=0","migration_boundary":"UNQUALIFIED_RETAINED_SLOT_MINT_BOUND_RPC_VALIDATION_REQUIRED"},
+    {"rank":26,"mint":"2YB13v6vJ1HTmuzbwujYsahAng1XPbjfT6kMNrFYpump","membership":"WATCHTOWER_CONFIRMED","creation_timestamp":1791152588,"entry_status":"WAITING_FOR_ENTRY_REFERENCE","anchor_class":"OBSERVED_PRICE_ANCHOR","anchor_timestamp":1791149699,"anchor_mc_usd":102424.55288933651,"anchor_source":"watchtower-opening-offset-audit.v2.json: HTTP200 COMPLETE offset=0","migration_boundary":"UNQUALIFIED_RETAINED_SLOT_MINT_BOUND_RPC_VALIDATION_REQUIRED"}
+  ],
+  "batch_4_provider_free_plan": [
+    {"rank":31,"mint":"Dkt6WZ3aMEU2Az5zwg2UmZv9U1UAnUJkNQA5y5ppump","anchor_class":"QUALIFIED_ENTRY_ANCHOR","anchor_timestamp":1791058718},
+    {"rank":32,"mint":"9S2uxYgTDM1eM1Ryyc7D4dVKEFrb2F9m8NAygyQspump","anchor_class":"QUALIFIED_ENTRY_ANCHOR","anchor_timestamp":1791046846},
+    {"rank":33,"mint":"F94bbEHfPkHGBKNBAQqbGksvUrxXcCYdNF4BFTMupump","anchor_class":"QUALIFIED_ENTRY_ANCHOR","anchor_timestamp":1790997931},
+    {"rank":34,"mint":"9zu66qTLKCEzsfifm7woEoVJzw82Recitu5S4i2Npump","anchor_class":"QUALIFIED_ENTRY_ANCHOR","anchor_timestamp":1790978410},
+    {"rank":35,"mint":"7Jv7D7qpT8GpKUywkbQv9WgF5yDWr6Yf7SZXZj1Gpump","anchor_class":"OBSERVED_PRICE_ANCHOR","anchor_timestamp":1790967091,"anchor_source":"watchtower-opening-offset-audit.v2.json HTTP200 COMPLETE offset=0"},
+    {"rank":36,"mint":"7ymYkLjTxCg4PExwFXpWMYixmAgRdePjM5UpJA25pump","anchor_class":"QUALIFIED_ENTRY_ANCHOR","anchor_timestamp":1790958125},
+    {"rank":37,"mint":"5krNQZMsiM7qT9KhzettHKEamQDUxaPEP8jCpjdQpump","anchor_class":"QUALIFIED_ENTRY_ANCHOR","anchor_timestamp":1790956512},
+    {"rank":38,"mint":"AvWsebmjNAYqqdzjsRd6uvzqjZJPmmsD9xmuNyaapump","anchor_class":"QUALIFIED_ENTRY_ANCHOR","anchor_timestamp":1790954520},
+    {"rank":39,"mint":"J7f73YkRJQ6ntd8GbGA6uZBEShAmsACxPFqxX6wFpump","anchor_class":"OBSERVED_PRICE_ANCHOR","anchor_timestamp":1790952604,"anchor_source":"watchtower-opening-offset-audit.v2.json HTTP200 COMPLETE offset=0"},
+    {"rank":40,"mint":"77y75KuYp27zk59C4fwUGmo85Ui2RmmFouEQY4ynpump","anchor_class":"QUALIFIED_ENTRY_ANCHOR","anchor_timestamp":1790945121}
+  ],
+  "batch_4_contract": {"max_requests":10,"concurrency":1,"retries":0,"pagination":false,"fallback":false,"window_seconds":3600,"entry_anchor_metrics":"ENTRY_RELATIVE_RESEARCH_ONLY","observed_price_metrics":"OBSERVED_PRICE_RELATIVE_ONLY","raw_provider_payload_retention":false,"aggregate_max_bytes":1000000,"unbounded_growth_paths":0}
+}

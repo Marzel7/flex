@@ -1,0 +1,434 @@
+{
+  "artifact_type": "DEV014_WATCHTOWER_HISTORICAL_RECONCILIATION_AND_BATCH_5_PLAN",
+  "batch_5": {
+    "batch": "DEV014_BATCH_5",
+    "chronological_rank_range": [
+      41,
+      50
+    ],
+    "max_provider_requests": 10,
+    "records": [
+      {
+        "anchor": {
+          "class": "QUALIFIED_ENTRY_ANCHOR",
+          "provenance": "91c1d81b2035d8b117245d8c271d053cf21e598bc5eb5b2b23507a45b15963a4",
+          "timestamp": 1790913363
+        },
+        "creation_timestamp": 1790913397,
+        "creation_timestamp_status": "QUALIFIED_CREATION_TIMESTAMP",
+        "disposition": "ELIGIBLE_FROZEN_BATCH_5_REQUEST",
+        "existing_evidence": {
+          "lifecycle_status": "PRICE_MONITOR_COMPLETE_COLLAPSED",
+          "opening_status": "QUALIFIED"
+        },
+        "mint": "6RufsEXSv9Nd4YUmUGah8MeMXZT2rxn3kriGiBcSpump",
+        "proposed_request": {
+          "endpoint": "GET /defi/v3/ohlcv",
+          "params": {
+            "address": "6RufsEXSv9Nd4YUmUGah8MeMXZT2rxn3kriGiBcSpump",
+            "chart_type": "mcap",
+            "currency": "usd",
+            "mode": "range",
+            "padding": "false",
+            "time_from": 1790913363,
+            "time_to": 1790916963,
+            "type": "1m"
+          },
+          "request_identity": "ee80ca9aa955cd4963e04e5eeb70b21fa9dea2b09f935e1fd9908e96e11f7088"
+        },
+        "rank": 41,
+        "skip_reason": null
+      },
+      {
+        "anchor": {
+          "class": "NO_QUALIFIED_ENTRY_OR_OBSERVED_PRICE_ANCHOR",
+          "provenance": null,
+          "timestamp": null
+        },
+        "creation_timestamp": 1790908082,
+        "creation_timestamp_status": "QUALIFIED_CREATION_TIMESTAMP",
+        "disposition": "INELIGIBLE_NO_QUALIFIED_RESEARCH_ANCHOR",
+        "existing_evidence": {
+          "lifecycle_status": "WAITING_FOR_ENTRY_REFERENCE",
+          "opening_status": "UNAVAILABLE"
+        },
+        "mint": "AxrtKHZhxAvX3znTsi23ZxDc3HR4KyyVJGCze4pwpump",
+        "proposed_request": null,
+        "rank": 42,
+        "skip_reason": "No qualified Entry anchor or separately qualified observed-price anchor is retained."
+      },
+      {
+        "anchor": {
+          "class": "QUALIFIED_ENTRY_ANCHOR",
+          "provenance": "e8f8e4acddabb482ed815c2d6cc50ae4ec92a828d028afde936625d1928bea91",
+          "timestamp": 1790895051
+        },
+        "creation_timestamp": 1790897734,
+        "creation_timestamp_status": "QUALIFIED_CREATION_TIMESTAMP",
+        "disposition": "ELIGIBLE_FROZEN_BATCH_5_REQUEST",
+        "existing_evidence": {
+          "lifecycle_status": "PRICE_MONITOR_COMPLETE_COLLAPSED",
+          "opening_status": "QUALIFIED"
+        },
+        "mint": "4uTHA7hUfZD1PKWQBVtuCEWnBjgB6xaL7GfJrPRDpump",
+        "proposed_request": {
+          "endpoint": "GET /defi/v3/ohlcv",
+          "params": {
+            "address": "4uTHA7hUfZD1PKWQBVtuCEWnBjgB6xaL7GfJrPRDpump",
+            "chart_type": "mcap",
+            "currency": "usd",
+            "mode": "range",
+            "padding": "false",
+            "time_from": 1790895051,
+            "time_to": 1790898651,
+            "type": "1m"
+          },
+          "request_identity": "861da49775245341f3f3be9271c8dcb30cb49f4b37af920c25f3ab106d751ed1"
+        },
+        "rank": 43,
+        "skip_reason": null
+      },
+      {
+        "anchor": {
+          "class": "NO_QUALIFIED_ENTRY_OR_OBSERVED_PRICE_ANCHOR",
+          "provenance": null,
+          "timestamp": null
+        },
+        "creation_timestamp": 1790863500,
+        "creation_timestamp_status": "QUALIFIED_CREATION_TIMESTAMP",
+        "disposition": "INELIGIBLE_NO_QUALIFIED_RESEARCH_ANCHOR",
+        "existing_evidence": {
+          "lifecycle_status": "WAITING_FOR_ENTRY_REFERENCE",
+          "opening_status": "UNAVAILABLE"
+        },
+        "mint": "FYRTpigBfveFzFy3JsaX1fSuGHXXn3ddg9zSw9ZDpump",
+        "proposed_request": null,
+        "rank": 44,
+        "skip_reason": "No qualified Entry anchor or separately qualified observed-price anchor is retained."
+      },
+      {
+        "anchor": {
+          "class": "NO_QUALIFIED_ENTRY_OR_OBSERVED_PRICE_ANCHOR",
+          "provenance": null,
+          "timestamp": null
+        },
+        "creation_timestamp": 1790857980,
+        "creation_timestamp_status": "QUALIFIED_CREATION_TIMESTAMP",
+        "disposition": "INELIGIBLE_NO_QUALIFIED_RESEARCH_ANCHOR",
+        "existing_evidence": {
+          "lifecycle_status": "WAITING_FOR_ENTRY_REFERENCE",
+          "opening_status": "UNAVAILABLE"
+        },
+        "mint": "EteLE6zPKPPXtkU1NDqi5Hw2QePE3pWsYMaxnY9Dpump",
+        "proposed_request": null,
+        "rank": 45,
+        "skip_reason": "No qualified Entry anchor or separately qualified observed-price anchor is retained."
+      },
+      {
+        "anchor": {
+          "class": "QUALIFIED_ENTRY_ANCHOR",
+          "provenance": "e7f0b3ef6fccdafe5c10f3727b4d2833ea6c639be67bf9abb6f8a34c5bfa53c8",
+          "timestamp": 1790836332
+        },
+        "creation_timestamp": 1790836397,
+        "creation_timestamp_status": "QUALIFIED_CREATION_TIMESTAMP",
+        "disposition": "ELIGIBLE_FROZEN_BATCH_5_REQUEST",
+        "existing_evidence": {
+          "lifecycle_status": "PRICE_MONITOR_COMPLETE_COLLAPSED",
+          "opening_status": "QUALIFIED"
+        },
+        "mint": "BT5AdtkbDChoEqCTKwfjprbbucFYsBjiz3g4humbpump",
+        "proposed_request": {
+          "endpoint": "GET /defi/v3/ohlcv",
+          "params": {
+            "address": "BT5AdtkbDChoEqCTKwfjprbbucFYsBjiz3g4humbpump",
+            "chart_type": "mcap",
+            "currency": "usd",
+            "mode": "range",
+            "padding": "false",
+            "time_from": 1790836332,
+            "time_to": 1790839932,
+            "type": "1m"
+          },
+          "request_identity": "eec40bceb0b18b0892dc1714db72ea40edc20d4425714a9daa2f7fc4dc7d7e67"
+        },
+        "rank": 46,
+        "skip_reason": null
+      },
+      {
+        "anchor": {
+          "class": "QUALIFIED_ENTRY_ANCHOR",
+          "provenance": "a4e51c1b4f9d7e100070c3bf03dd3b0be6643705eb298b55e42b29790f631cbd",
+          "timestamp": 1790816524
+        },
+        "creation_timestamp": 1790816638,
+        "creation_timestamp_status": "QUALIFIED_CREATION_TIMESTAMP",
+        "disposition": "ELIGIBLE_FROZEN_BATCH_5_REQUEST",
+        "existing_evidence": {
+          "lifecycle_status": "PRICE_MONITOR_COMPLETE_COLLAPSED",
+          "opening_status": "QUALIFIED"
+        },
+        "mint": "DNsBHDTtw69dKCoMmiuDFndocnRn9q7m2nJPTL4qpump",
+        "proposed_request": {
+          "endpoint": "GET /defi/v3/ohlcv",
+          "params": {
+            "address": "DNsBHDTtw69dKCoMmiuDFndocnRn9q7m2nJPTL4qpump",
+            "chart_type": "mcap",
+            "currency": "usd",
+            "mode": "range",
+            "padding": "false",
+            "time_from": 1790816524,
+            "time_to": 1790820124,
+            "type": "1m"
+          },
+          "request_identity": "f8bb07e2a175dc570b4b0b3176937bf699e5efe0c392bec074b0eaadacd58138"
+        },
+        "rank": 47,
+        "skip_reason": null
+      },
+      {
+        "anchor": {
+          "class": "QUALIFIED_ENTRY_ANCHOR",
+          "provenance": "bb1dd3b9c301cdd88ca8500fe166d44121dcf1fdd51e1447b816b9325fa2c04e",
+          "timestamp": 1790814092
+        },
+        "creation_timestamp": 1790814192,
+        "creation_timestamp_status": "QUALIFIED_CREATION_TIMESTAMP",
+        "disposition": "ELIGIBLE_FROZEN_BATCH_5_REQUEST",
+        "existing_evidence": {
+          "lifecycle_status": "PRICE_MONITOR_COMPLETE_COLLAPSED",
+          "opening_status": "QUALIFIED"
+        },
+        "mint": "EKt2EQsweb2zN3ie8iz6JrD6frKwpbCU4ja8P3Vgpump",
+        "proposed_request": {
+          "endpoint": "GET /defi/v3/ohlcv",
+          "params": {
+            "address": "EKt2EQsweb2zN3ie8iz6JrD6frKwpbCU4ja8P3Vgpump",
+            "chart_type": "mcap",
+            "currency": "usd",
+            "mode": "range",
+            "padding": "false",
+            "time_from": 1790814092,
+            "time_to": 1790817692,
+            "type": "1m"
+          },
+          "request_identity": "3c527af01d814fa5dceeb7c1584c1e70e5f4e59cb650924cc51099b5bbddc9db"
+        },
+        "rank": 48,
+        "skip_reason": null
+      },
+      {
+        "anchor": {
+          "class": "NO_QUALIFIED_ENTRY_OR_OBSERVED_PRICE_ANCHOR",
+          "provenance": null,
+          "timestamp": null
+        },
+        "creation_timestamp": 1790811743,
+        "creation_timestamp_status": "QUALIFIED_CREATION_TIMESTAMP",
+        "disposition": "INELIGIBLE_NO_QUALIFIED_RESEARCH_ANCHOR",
+        "existing_evidence": {
+          "lifecycle_status": "WAITING_FOR_ENTRY_REFERENCE",
+          "opening_status": "UNAVAILABLE"
+        },
+        "mint": "AqYdSQ6oFq8HjLoFkvHW6kYcRM1p94Q1FcvGFxDfpump",
+        "proposed_request": null,
+        "rank": 49,
+        "skip_reason": "No qualified Entry anchor or separately qualified observed-price anchor is retained."
+      },
+      {
+        "anchor": {
+          "class": "QUALIFIED_ENTRY_ANCHOR",
+          "provenance": "fffa00d1aef96d835c1da0b2476817524405f3b212047434c4593ff83048285d",
+          "timestamp": 1790807788
+        },
+        "creation_timestamp": 1790807994,
+        "creation_timestamp_status": "QUALIFIED_CREATION_TIMESTAMP",
+        "disposition": "ELIGIBLE_FROZEN_BATCH_5_REQUEST",
+        "existing_evidence": {
+          "lifecycle_status": "PRICE_MONITOR_COMPLETE_COLLAPSED",
+          "opening_status": "QUALIFIED"
+        },
+        "mint": "haAw3sfS3yQpetdh1ThkSPsCwtr4ggW3qRaphKFpump",
+        "proposed_request": {
+          "endpoint": "GET /defi/v3/ohlcv",
+          "params": {
+            "address": "haAw3sfS3yQpetdh1ThkSPsCwtr4ggW3qRaphKFpump",
+            "chart_type": "mcap",
+            "currency": "usd",
+            "mode": "range",
+            "padding": "false",
+            "time_from": 1790807788,
+            "time_to": 1790811388,
+            "type": "1m"
+          },
+          "request_identity": "31d444ac7adef7619c1b06afa3d39bc961bb8ec66e43e10201e872e4385743a4"
+        },
+        "rank": 50,
+        "skip_reason": null
+      }
+    ]
+  },
+  "catchup_batch": {
+    "batch": "DEV014_BATCH_3_CATCHUP",
+    "max_provider_requests": 4,
+    "records": [
+      {
+        "anchor": {
+          "class": "OBSERVED_PRICE_ANCHOR",
+          "source": "watchtower-opening-offset-audit.v2.json: HTTP200 COMPLETE offset=0",
+          "timestamp": 1791163567
+        },
+        "creation_timestamp": 1791163699,
+        "disposition": "ELIGIBLE_FROZEN_CATCHUP_REQUEST",
+        "mint": "DCPHkFepQeetS5pytaDgkcktQ5M8XL4y2v3dojkWpump",
+        "proposed_request": {
+          "endpoint": "GET /defi/v3/ohlcv",
+          "params": {
+            "address": "DCPHkFepQeetS5pytaDgkcktQ5M8XL4y2v3dojkWpump",
+            "chart_type": "mcap",
+            "currency": "usd",
+            "mode": "range",
+            "padding": "false",
+            "time_from": 1791163567,
+            "time_to": 1791167167,
+            "type": "1m"
+          },
+          "request_identity": "994f995cd25971435b726935f43fab6cee8802dea5f63fa45ef4e3edc065ff86"
+        },
+        "rank": 22
+      },
+      {
+        "anchor": {
+          "class": "OBSERVED_PRICE_ANCHOR",
+          "source": "watchtower-opening-offset-audit.v2.json: HTTP200 COMPLETE offset=0",
+          "timestamp": 1791158742
+        },
+        "creation_timestamp": 1791158849,
+        "disposition": "ELIGIBLE_FROZEN_CATCHUP_REQUEST",
+        "mint": "2trQcQbEiSsNCGhjUKZ7cNtcREgjFdGeTHndet2kpump",
+        "proposed_request": {
+          "endpoint": "GET /defi/v3/ohlcv",
+          "params": {
+            "address": "2trQcQbEiSsNCGhjUKZ7cNtcREgjFdGeTHndet2kpump",
+            "chart_type": "mcap",
+            "currency": "usd",
+            "mode": "range",
+            "padding": "false",
+            "time_from": 1791158742,
+            "time_to": 1791162342,
+            "type": "1m"
+          },
+          "request_identity": "66d4a2960daddf4fb7bd18253155a57e6f753b24231ae3d676d7e46032c892b3"
+        },
+        "rank": 23
+      },
+      {
+        "anchor": {
+          "class": "OBSERVED_PRICE_ANCHOR",
+          "source": "watchtower-opening-offset-audit.v2.json: HTTP200 COMPLETE offset=0",
+          "timestamp": 1791158483
+        },
+        "creation_timestamp": 1791158529,
+        "disposition": "ELIGIBLE_FROZEN_CATCHUP_REQUEST",
+        "mint": "GszmgSqbt9huNYJfQtG1wbcqszKnmNkd6dxEJWrYpump",
+        "proposed_request": {
+          "endpoint": "GET /defi/v3/ohlcv",
+          "params": {
+            "address": "GszmgSqbt9huNYJfQtG1wbcqszKnmNkd6dxEJWrYpump",
+            "chart_type": "mcap",
+            "currency": "usd",
+            "mode": "range",
+            "padding": "false",
+            "time_from": 1791158483,
+            "time_to": 1791162083,
+            "type": "1m"
+          },
+          "request_identity": "92058401001b472fe7c296251413b0f64994c8e5922baa33924e41cb75451b99"
+        },
+        "rank": 24
+      },
+      {
+        "anchor": {
+          "class": "OBSERVED_PRICE_ANCHOR",
+          "source": "watchtower-opening-offset-audit.v2.json: HTTP200 COMPLETE offset=0",
+          "timestamp": 1791149699
+        },
+        "creation_timestamp": 1791152588,
+        "disposition": "ELIGIBLE_FROZEN_CATCHUP_REQUEST",
+        "mint": "2YB13v6vJ1HTmuzbwujYsahAng1XPbjfT6kMNrFYpump",
+        "proposed_request": {
+          "endpoint": "GET /defi/v3/ohlcv",
+          "params": {
+            "address": "2YB13v6vJ1HTmuzbwujYsahAng1XPbjfT6kMNrFYpump",
+            "chart_type": "mcap",
+            "currency": "usd",
+            "mode": "range",
+            "padding": "false",
+            "time_from": 1791149699,
+            "time_to": 1791153299,
+            "type": "1m"
+          },
+          "request_identity": "f41ade69208b96d2cbae18be155a2ab7aa5e7bc8248f80c11e09cecdbfa42123"
+        },
+        "rank": 26
+      }
+    ]
+  },
+  "frozen_population": "WATCHTOWER_FORENSIC_POPULATION_V2_20261009",
+  "inputs": {
+    "docs/audits/dev014_watchtower_forensic_population_v2_20261009.v1.json": "b9f36a855b77abef70844216422c5103ae64df3c7a15f2a9f54a20a3d0710a9d",
+    "docs/audits/dev014_watchtower_historical_research_anchor_qualification_20261009.v1.json": "cb056c00366ff4ba74e19d9984880c243e3cc38304bfb28b3dad1167755855f9",
+    "docs/audits/dev014_watchtower_recent_first_price_forensics_batch_1_20261009.v1.json": "599c286053d88fd6af26b0c966c4c41f67b8ee2bd346845c8caac91511886da5",
+    "docs/audits/dev014_watchtower_recent_first_price_forensics_batch_2_20261009.v1.json": "0e0cab74dde721e557e6f188e2b7038291d6bcc07fb1a948ae36cbd273e6ad5c",
+    "docs/audits/dev014_watchtower_recent_first_price_forensics_batch_3_20261009.v1.json": "d303198bf658defe21a44c341ce210ca4390df6da514f1043ca8323f569d38c4",
+    "docs/audits/dev014_watchtower_recent_first_price_forensics_batch_4_20261009.v1.json": "8f2a239502cb971708fa797543c9d06d00ab66311854e90af408daa0fc13b6d7"
+  },
+  "operational_contract": {
+    "concurrency": 1,
+    "fallback": false,
+    "forensic_semantics": "Entry-relative drawdown only for qualified Entry anchors; observed-price research remains separate; missing candles remain unresolved.",
+    "health_gate_before_each_request": true,
+    "max_compact_artifact_bytes": 1000000,
+    "pagination": false,
+    "provider_free_plan_only": true,
+    "raw_provider_payload_retention": false,
+    "retries": 0,
+    "shared_budget": "20-global / 4-per-mint via existing atomic admission",
+    "single_file_500mb_or_more_allowed": false,
+    "unbounded_growth_paths": 0
+  },
+  "reconciliation": {
+    "chronological_rank_range": [
+      1,
+      40
+    ],
+    "complete_windows": 48,
+    "coverage_by_status": {
+      "COMPLETE_OBSERVED_WINDOW": 48,
+      "NO_VALID_CANDLES": 0,
+      "PROVIDER_MISSING_COVERAGE": 52,
+      "TRUNCATION_SUSPECTED": 8
+    },
+    "duplicate_evidence_identities": 0,
+    "duplicate_request_identities": 0,
+    "equivalent_retained_research_mints": [
+      "9JtPfLbN32CszHmstoXYdWaazFLaoxhfqf9mKgQMpump",
+      "CQP3cfwbUCfBJ6UUY6GS2pozcn6uNJv6WYYVAW2fpump",
+      "EFGKcRHyLbcUv9hfSDd1m3oEdJcs8DBu9wYA13Qpump"
+    ],
+    "missing_bucket_count": 664,
+    "missing_one_minute_evidence_ranks": [
+      22,
+      23,
+      24,
+      26
+    ],
+    "newly_acquired_mints": 33,
+    "no_valid_candle_outcomes": 4,
+    "observed_price_anchor_records": 2,
+    "partial_windows": 56,
+    "qualified_entry_anchor_records": 25,
+    "total_mints": 40
+  },
+  "version": "v1"
+}

@@ -3,15 +3,15 @@
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "x78_minimal_transaction_lifecycle_instrumentation": {
     "engineering_revision": "ff77283f2d8547dbc1a4d8d2e58e4a39f7b8dd28 on codex/x78-active-creator-rebase; base=eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215",
-    "status": "HOLD_DEPLOYMENT_GATE_CONFIG_PROVENANCE_MISSING",
-    "finding": "Fresh deployment preflight confirms supplied active Supervisor SHA256 5e7e8c3c719d396f1f39edda30620a74e160972e0cba03c773839e8e06636c6b and one Supervisor PID 73409: creator-resolution PID 50348 from eed84e main-workers; creator-funding PID 50209 from pinned 6806d2b runtime. Relevant funding files match eed. However neither creator-worker stanza sets DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_PATH, so the candidate parser has no lifecycle stream and cannot attribute active readers. The active config differs from the eed-era config in 171 lines, so a candidate derived from that source cannot prove the required exact two-stanza-only configuration diff. No candidate config/source was installed or live root modified.",
-    "tests": "14 passed plus py_compile: exact-eed deferred-read transaction_active=true regression, commit/rollback/close cleanup, independent connections, open-handle non-pin, long reader candidate, conservative checkpoint-gap classes, watchdog composition, unchanged write lane/no import threads, existing autocommit lane and executescript cleanup.",
-    "storage": "JSONL existing 10 MiB + two backups = 30 MiB maximum per configured path; parser tail read <=4 MiB; raw retention=false; unbounded growth paths=0; no file may reach 500 MB.",
+    "status": "PASS_CONFIG_CANDIDATE_QUALIFIED_NOT_DEPLOYED",
+    "finding": "Fresh active authority check passes: config SHA=5e7e8c3c, one Supervisor PID 73409, creator-resolution PID 52633 and creator-funding PID 51676. An offline candidate was byte-copied from the installed config then changes only the two creator stanzas: each binds its clean pinned candidate root and an independent lifecycle JSONL path with MAX_BYTES=1048576 and BACKUP_COUNT=1. Candidate SHA=928ff73e5b4a81ebe4ff61d3878a48f9f574a6314d917a68eca4cdd48498a27e. Mirrored parser validation succeeds with 15 groups and creates no daemon/socket/PID/live diagnostic file.",
+    "tests": "23 provider-free tests in isolated processes: 9 rotating JSONL bounds/fail-open/no-SQL tests and 14 exact-eed lifecycle, conservative attribution, watchdog, write-lane, and import-thread tests. Combined-process import order exposes pre-existing global sqlite3.connect re-import recursion; isolated qualification passes.",
+    "storage": "Each worker lifecycle stream is 1 MiB current plus one backup = 2 MiB; aggregate maximum=4 MiB. Parser tail read <=4 MiB; raw retention=false; unbounded growth paths=0; no file may reach 500 MB.",
     "safety": "provider calls=0; live DB/queue writes=0; deployment/restart/SQLite maintenance/DEV-014 Batch 4=0; active pinned runtime roots/config unchanged; creator-resolution root has one pre-existing untracked owner-guard file that was not read or modified. Read-only healthz=200 healthy=true; creator heartbeats fresh; WAL=475.2 MiB then 477 MiB, below 500 MiB but close. Existing resolution watchdog log shows stalled gap 120416 frames and a prior critical self-exit; no checkpoint was issued.",
     "audit": "docs/audits/x78_active_creator_wal_rebase_qualification.v1.json",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
-    "next_action": "AUTHORIZE_A_SEPARATE_ACTIVE_CONFIG_CONTRACT_FOR_A_BOUNDED_LIFECYCLE_DIAGNOSTICS_PATH_AND_BUILD_A_CANDIDATE_BY_COPYING_THE_EXACT_ACTIVE_CONFIG_THEN_CHANGING_ONLY_THE_TWO_CREATOR_BINDINGS; do not deploy until that path, rotation bounds, parser validation, and exact config diff are qualified."
+    "next_action": "REVIEW_THE_OFFLINE_QUALIFIED_CANDIDATE_AND_SEPARATELY_AUTHORIZE_RUNTIME_DEPLOYMENT_GATE_EVIDENCE_FOR_THE_TWO_CREATOR_WORKERS_ONLY; retain active config/source byte-exact rollback authorities and do not deploy before authorization."
   },
   "active_observation": {
     "authorization_consumed_at_utc": "2026-08-12T20:55:26Z",

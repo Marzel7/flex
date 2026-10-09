@@ -4,6 +4,8 @@ import json
 import os
 import time
 import uuid
+import fcntl
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
@@ -25,7 +27,8 @@ class EvidenceIntakeQueue:
     def __init__(self, root: Path, *, enabled: bool = False, max_messages: int = 10_000,
                  max_bytes: int = 256 * 1024 * 1024, max_attempts: int = 5,
                  metrics: EvidenceMetrics | None = None,
-                 clock: Callable[[], float] = time.time) -> None:
+                 clock: Callable[[], float] = time.time,
+                 synchronization_lock_path: Path | None = None) -> None:
         self.root = Path(root)
         self.enabled = enabled
         self.max_messages = max_messages
@@ -33,6 +36,26 @@ class EvidenceIntakeQueue:
         self.max_attempts = max_attempts
         self.metrics = metrics or EvidenceMetrics()
         self.clock = clock
+        self.synchronization_lock_path = Path(synchronization_lock_path) if synchronization_lock_path else None
+
+    @contextmanager
+    def synchronization_guard(self):
+        """Serialize optional coupled publication/admission users.
+
+        Normal Evidence queues retain their prior behaviour.  MonitorQueue
+        binds this to its existing provider-budget lock so a LIVE publication
+        cannot arrive between a priority scan and historical budget debit.
+        """
+        if self.synchronization_lock_path is None:
+            yield
+            return
+        self.synchronization_lock_path.parent.mkdir(parents=True, exist_ok=True)
+        with self.synchronization_lock_path.open("a+") as guard:
+            fcntl.flock(guard.fileno(), fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(guard.fileno(), fcntl.LOCK_UN)
 
     def _require(self) -> None:
         if not self.enabled:
@@ -74,35 +97,36 @@ class EvidenceIntakeQueue:
     def enqueue(self, envelope: dict[str, Any], *, message_id: str | None = None) -> str:
         self._require()
         self.initialize()
-        message_id = message_id or uuid.uuid4().hex
-        if not message_id or any(ch not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_" for ch in message_id):
-            raise ValueError("message_id must contain only letters, numbers, '-' or '_'")
-        existing = [self.root / state / f"{message_id}.json" for state in self.STATES]
-        if any(path.exists() for path in existing):
-            self.metrics.increment("queue_duplicate")
+        with self.synchronization_guard():
+            message_id = message_id or uuid.uuid4().hex
+            if not message_id or any(ch not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_" for ch in message_id):
+                raise ValueError("message_id must contain only letters, numbers, '-' or '_'")
+            existing = [self.root / state / f"{message_id}.json" for state in self.STATES]
+            if any(path.exists() for path in existing):
+                self.metrics.increment("queue_duplicate")
+                return message_id
+            paths = self._all_message_paths()
+            current_bytes = sum(path.stat().st_size for path in paths)
+            payload = {"message_id": message_id, "attempts": 0,
+                       "enqueued_at": int(self.clock()), "envelope": envelope}
+            encoded = self._encode(payload)
+            if len(paths) >= self.max_messages or current_bytes + len(encoded) > self.max_bytes:
+                self.metrics.increment("queue_overflow")
+                raise QueueFull("Evidence intake queue capacity exceeded")
+            target = self.root / "pending" / f"{message_id}.json"
+            temporary = self.root / "pending" / f".{message_id}.{uuid.uuid4().hex}.tmp"
+            try:
+                with temporary.open("xb") as handle:
+                    handle.write(encoded)
+                    handle.flush()
+                    os.fsync(handle.fileno())
+                os.replace(temporary, target)
+                self._fsync_directory(target.parent)
+            finally:
+                try: temporary.unlink()
+                except FileNotFoundError: pass
+            self.metrics.increment("queue_enqueued")
             return message_id
-        paths = self._all_message_paths()
-        current_bytes = sum(path.stat().st_size for path in paths)
-        payload = {"message_id": message_id, "attempts": 0,
-                   "enqueued_at": int(self.clock()), "envelope": envelope}
-        encoded = self._encode(payload)
-        if len(paths) >= self.max_messages or current_bytes + len(encoded) > self.max_bytes:
-            self.metrics.increment("queue_overflow")
-            raise QueueFull("Evidence intake queue capacity exceeded")
-        target = self.root / "pending" / f"{message_id}.json"
-        temporary = self.root / "pending" / f".{message_id}.{uuid.uuid4().hex}.tmp"
-        try:
-            with temporary.open("xb") as handle:
-                handle.write(encoded)
-                handle.flush()
-                os.fsync(handle.fileno())
-            os.replace(temporary, target)
-            self._fsync_directory(target.parent)
-        finally:
-            try: temporary.unlink()
-            except FileNotFoundError: pass
-        self.metrics.increment("queue_enqueued")
-        return message_id
 
     def claim(self, limit: int) -> list[ClaimedMessage]:
         self._require()

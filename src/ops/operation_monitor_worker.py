@@ -278,7 +278,7 @@ def _watchtower_history_without_entry(envelope: dict[str, Any]) -> bool:
 @dataclass
 class MonitorQueue:
  root:Path; enabled:bool=False; newest_assignment_first:bool=False; fair_scheduling:bool=False; opening_jobs_path:Path|None=None; provider_work_path:Path|None=None; soak_selection_path:Path|None=None; claim_authority_db_path:Path|None=None
- def __post_init__(self):self.queue=EvidenceIntakeQueue(self.root,enabled=self.enabled,max_messages=500,max_bytes=MAX_BYTES,max_attempts=3)
+ def __post_init__(self):self.queue=EvidenceIntakeQueue(self.root,enabled=self.enabled,max_messages=500,max_bytes=MAX_BYTES,max_attempts=3,synchronization_lock_path=self.root/'provider_budget.lock')
  def _soak_allowlist(self):
   """Return the explicit DEV diagnostic allowlist, or ``None`` outside soak mode.
 
@@ -628,6 +628,39 @@ class MonitorQueue:
   except (OSError,ValueError): return None
  def provider_eligible(self, *, now=None):
   state=self.provider_backoff() or {}; return int(state.get('next_eligible_at',state.get('backoff_until',0)) or 0)<=int(time.time() if now is None else now)
+ def _live_demand_for_envelope(self, envelope, *, now):
+  """Classify one durable queue envelope without inventing provider demand."""
+  if not isinstance(envelope,dict): return 'UNKNOWN'
+  if envelope.get('provider_bound') is False: return 'LIVE_CLEAR'
+  work_type=str(envelope.get('work_type') or '')
+  if work_type and work_type not in {EARLY_MINIMUM_WORK_TYPE,'WATCHTOWER_TERMINAL_ATH_FINALIZATION'}:
+   return 'UNKNOWN'
+  try:
+   due=max(int(envelope.get('next_eligible_dispatch_at') or 0),int(envelope.get('next_entry_evaluation_at') or 0),int(envelope.get('next_eligible_at') or 0))
+  except (TypeError,ValueError): return 'UNKNOWN'
+  if due>int(now): return 'LIVE_CLEAR'
+  # Terminal finalization, early minima once due, and ordinary Monitor work
+  # are all provider-bound LIVE demand.  A blank work_type is valid only for
+  # an established Monitor envelope with an operation/mint identity.
+  if work_type or (envelope.get('operation_id') and envelope.get('mint')): return 'LIVE_PENDING'
+  return 'UNKNOWN'
+ def classify_live_provider_demand(self, *, now=None):
+  """Return LIVE_PENDING, LIVE_CLEAR, or UNKNOWN from durable queue state.
+
+  Call this only while DevProviderBudget.locked() is held.  Queue publication
+  uses that same lock; malformed or unreadable state is deliberately UNKNOWN.
+  """
+  stamp=int(time.time() if now is None else now)
+  for state in ('pending','retry','processing'):
+   try: paths=tuple((self.queue.root/state).glob('*.json'))
+   except OSError: return 'UNKNOWN'
+   for path in paths:
+    try:
+     payload=json.loads(path.read_text(encoding='utf-8')); verdict=self._live_demand_for_envelope(payload.get('envelope'),now=stamp)
+    except (OSError,ValueError,TypeError): return 'UNKNOWN'
+    if verdict=='UNKNOWN': return 'UNKNOWN'
+    if verdict=='LIVE_PENDING': return 'LIVE_PENDING'
+  return 'LIVE_CLEAR'
  def admit_provider_dispatch(self,mint,request_class,*,now=None,global_limit=20,token_limit=4,force_dev=False):
   """DEV-only, one-debit admission immediately before a real dispatch."""
   if os.getenv('MONITOR_RUNTIME')!='dev' and not force_dev: return True
@@ -639,6 +672,16 @@ class MonitorQueue:
   if global_limit<0 or token_limit<0: raise BudgetDenied('INVALID_PROVIDER_BUDGET_LIMIT')
   DevProviderBudget(self.queue.root,now=time.time).admit(mint,request_class,now=now,global_limit=global_limit,token_limit=token_limit)
   return True
+ def admit_historical_provider_dispatch(self, *, request_identity, mint, request_class, now=None, global_limit=20, token_limit=4):
+  """Atomic priority-aware historical admission; unknown queue state denies."""
+  if not str(request_identity) or not str(mint) or not str(request_class): raise BudgetDenied('INVALID_HISTORICAL_REQUEST_IDENTITY')
+  budget=DevProviderBudget(self.queue.root,now=time.time)
+  with budget.locked():
+   priority=self.classify_live_provider_demand(now=now)
+   if priority!='LIVE_CLEAR': raise BudgetDenied(f'HISTORICAL_DENIED_{priority}')
+   if not self.provider_eligible(now=now): raise BudgetDenied('PROVIDER_GATE_CLOSED')
+   result=budget.admit_locked(mint,request_class,now=now,global_limit=global_limit,token_limit=token_limit)
+   return {**result,'request_identity':str(request_identity),'priority_classification':priority,'admitted':True}
  def provider_gate_state(self, *, now=None):
   timestamp=int(time.time() if now is None else now); state=self.provider_backoff() or {}
   eligible=int(state.get('next_eligible_at',state.get('backoff_until',0)) or 0)

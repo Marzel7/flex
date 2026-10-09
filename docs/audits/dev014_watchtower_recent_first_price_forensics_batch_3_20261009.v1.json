@@ -1,0 +1,580 @@
+{
+  "allowlist_sha256": "29a04118a41fa2c43afc140247a1a2031d29c62151196b675c94b19aead4506d",
+  "artifact_type": "DEV014_WATCHTOWER_RECENT_FIRST_PRICE_FORENSICS_BATCH_3",
+  "provider": "BIRDEYE",
+  "records": [
+    {
+      "anchor": {
+        "provenance": "35f2bc9e13edde82932be00ba9b8741932fbdb81c3aed458fca60e1dfb8e3c5c",
+        "timestamp": 1791206179,
+        "type": "QUALIFIED_ENTRY"
+      },
+      "chronological_rank": 21,
+      "creation_timestamp": 1791206187,
+      "evidence_identity": "d5d90b41d2402bef67caa017a790b52e371a0a4ae6948e9fd4e530833d566e6b",
+      "failure": null,
+      "http_status": 200,
+      "mint": "HVEyhCnbmSLWYmxmYC9gc2tvUDmWSm1ayeai4LVTpump",
+      "normalization_status": "NORMALIZED",
+      "observed_minima": {
+        "1800": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "PROVIDER_MISSING_COVERAGE",
+          "expected_bucket_count": 29,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "PARTIAL_OBSERVED_MINIMUM",
+          "missing_bucket_timestamps": [
+            1791206340,
+            1791206520,
+            1791206580
+          ],
+          "observed_drawdown_percent": -61.09617313053,
+          "observed_minimum_mc_usd": 68277.12787449425,
+          "observed_minimum_offset_seconds": 1721,
+          "observed_minimum_timestamp": 1791207900,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 26,
+          "window_seconds": 1800
+        },
+        "300": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "PROVIDER_MISSING_COVERAGE",
+          "expected_bucket_count": 4,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "PARTIAL_OBSERVED_MINIMUM",
+          "missing_bucket_timestamps": [
+            1791206340
+          ],
+          "observed_drawdown_percent": 1.0495662304773834,
+          "observed_minimum_mc_usd": 177344.35685027184,
+          "observed_minimum_offset_seconds": 41,
+          "observed_minimum_timestamp": 1791206220,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 3,
+          "window_seconds": 300
+        },
+        "3600": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "PROVIDER_MISSING_COVERAGE",
+          "expected_bucket_count": 59,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "PARTIAL_OBSERVED_MINIMUM",
+          "missing_bucket_timestamps": [
+            1791206340,
+            1791206520,
+            1791206580
+          ],
+          "observed_drawdown_percent": -62.94887832168319,
+          "observed_minimum_mc_usd": 65025.58684552224,
+          "observed_minimum_offset_seconds": 2981,
+          "observed_minimum_timestamp": 1791209160,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 56,
+          "window_seconds": 3600
+        },
+        "900": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "PROVIDER_MISSING_COVERAGE",
+          "expected_bucket_count": 14,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "PARTIAL_OBSERVED_MINIMUM",
+          "missing_bucket_timestamps": [
+            1791206340,
+            1791206520,
+            1791206580
+          ],
+          "observed_drawdown_percent": -23.15159994875753,
+          "observed_minimum_mc_usd": 134870.74304678693,
+          "observed_minimum_offset_seconds": 821,
+          "observed_minimum_timestamp": 1791207000,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 11,
+          "window_seconds": 900
+        }
+      },
+      "provider": "BIRDEYE",
+      "provider_metadata": {
+        "x-ratelimit-limit": "300",
+        "x-ratelimit-remaining": "299",
+        "x-ratelimit-reset": "1791557448"
+      },
+      "qualified_entry_identity": {
+        "mc_usd": 175502.343519,
+        "provenance": "35f2bc9e13edde82932be00ba9b8741932fbdb81c3aed458fca60e1dfb8e3c5c",
+        "timestamp": 1791206179
+      },
+      "request_identity": "89922061b9743b486e9122b3a975eb2f9676b2c6c3a35e6fae09b06f9348f4cf",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1791206179,
+        "time_to": 1791209779
+      },
+      "returned_candle_count": 57
+    },
+    {
+      "anchor": {
+        "provenance": "cbcbd4f491a6ffcb6e2668b4f9abddbebdc126510b219a63cd22c21bf46ea1e0",
+        "timestamp": 1791154629,
+        "type": "QUALIFIED_ENTRY"
+      },
+      "chronological_rank": 25,
+      "creation_timestamp": 1791155878,
+      "evidence_identity": "f2a76472566e04a0bca3963e35c02e301d603f2f4041ce42204a5813c431e43c",
+      "failure": null,
+      "http_status": 200,
+      "mint": "J4t6XRyTSCxtGqfxq4tnVG3vdGzE9wgPcuQ1e4DTpump",
+      "normalization_status": "NORMALIZED",
+      "observed_minima": {
+        "1800": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "COMPLETE_OBSERVED_WINDOW",
+          "expected_bucket_count": 29,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "COMPLETE_OBSERVED_WINDOW",
+          "missing_bucket_timestamps": [],
+          "observed_drawdown_percent": -52.2338907878676,
+          "observed_minimum_mc_usd": 53642.62658196682,
+          "observed_minimum_offset_seconds": 1131,
+          "observed_minimum_timestamp": 1791155760,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 29,
+          "window_seconds": 1800
+        },
+        "300": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "COMPLETE_OBSERVED_WINDOW",
+          "expected_bucket_count": 4,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "COMPLETE_OBSERVED_WINDOW",
+          "missing_bucket_timestamps": [],
+          "observed_drawdown_percent": -41.25473742630225,
+          "observed_minimum_mc_usd": 65972.51138261131,
+          "observed_minimum_offset_seconds": 111,
+          "observed_minimum_timestamp": 1791154740,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 4,
+          "window_seconds": 300
+        },
+        "3600": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "PROVIDER_MISSING_COVERAGE",
+          "expected_bucket_count": 59,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "PARTIAL_OBSERVED_MINIMUM",
+          "missing_bucket_timestamps": [
+            1791157380,
+            1791157440,
+            1791157500,
+            1791157680,
+            1791157740,
+            1791157800,
+            1791157860,
+            1791157980,
+            1791158040,
+            1791158100,
+            1791158160
+          ],
+          "observed_drawdown_percent": -97.8838414261518,
+          "observed_minimum_mc_usd": 2376.503048658051,
+          "observed_minimum_offset_seconds": 3291,
+          "observed_minimum_timestamp": 1791157920,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 48,
+          "window_seconds": 3600
+        },
+        "900": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "COMPLETE_OBSERVED_WINDOW",
+          "expected_bucket_count": 14,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "COMPLETE_OBSERVED_WINDOW",
+          "missing_bucket_timestamps": [],
+          "observed_drawdown_percent": -41.25473742630225,
+          "observed_minimum_mc_usd": 65972.51138261131,
+          "observed_minimum_offset_seconds": 111,
+          "observed_minimum_timestamp": 1791154740,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 14,
+          "window_seconds": 900
+        }
+      },
+      "provider": "BIRDEYE",
+      "provider_metadata": {
+        "x-ratelimit-limit": "300",
+        "x-ratelimit-remaining": "298",
+        "x-ratelimit-reset": "1791557448"
+      },
+      "qualified_entry_identity": {
+        "mc_usd": 112302.692153,
+        "provenance": "cbcbd4f491a6ffcb6e2668b4f9abddbebdc126510b219a63cd22c21bf46ea1e0",
+        "timestamp": 1791154629
+      },
+      "request_identity": "5b371ff0657b8ffb1b03761612f707411db952de382819c6f1679159bf89fb47",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1791154629,
+        "time_to": 1791158229
+      },
+      "returned_candle_count": 48
+    },
+    {
+      "anchor": {
+        "provenance": "6af58c31f1aab5913b372556d56073bec9f606de969d5b57c67984bb83348952",
+        "timestamp": 1791087465,
+        "type": "QUALIFIED_ENTRY"
+      },
+      "chronological_rank": 28,
+      "creation_timestamp": 1791089312,
+      "evidence_identity": "62d125ff9202762d2c8652967da87e0b82adf0c3f867bdc68a2b94827ee978f2",
+      "failure": null,
+      "http_status": 200,
+      "mint": "HRkvXsdfmYBJU2vFcHUPz5paZ7MNdzjvAwXeQJ8Gpump",
+      "normalization_status": "NORMALIZED",
+      "observed_minima": {
+        "1800": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "COMPLETE_OBSERVED_WINDOW",
+          "expected_bucket_count": 29,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "COMPLETE_OBSERVED_WINDOW",
+          "missing_bucket_timestamps": [],
+          "observed_drawdown_percent": -48.96832115600323,
+          "observed_minimum_mc_usd": 57439.09288276883,
+          "observed_minimum_offset_seconds": 615,
+          "observed_minimum_timestamp": 1791088080,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 29,
+          "window_seconds": 1800
+        },
+        "300": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "COMPLETE_OBSERVED_WINDOW",
+          "expected_bucket_count": 4,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "COMPLETE_OBSERVED_WINDOW",
+          "missing_bucket_timestamps": [],
+          "observed_drawdown_percent": -11.248816111430383,
+          "observed_minimum_mc_usd": 99894.56765502701,
+          "observed_minimum_offset_seconds": 195,
+          "observed_minimum_timestamp": 1791087660,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 4,
+          "window_seconds": 300
+        },
+        "3600": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "PROVIDER_MISSING_COVERAGE",
+          "expected_bucket_count": 59,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "PARTIAL_OBSERVED_MINIMUM",
+          "missing_bucket_timestamps": [
+            1791090720,
+            1791090840
+          ],
+          "observed_drawdown_percent": -97.80625083019501,
+          "observed_minimum_mc_usd": 2469.19100410409,
+          "observed_minimum_offset_seconds": 3495,
+          "observed_minimum_timestamp": 1791090960,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 57,
+          "window_seconds": 3600
+        },
+        "900": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "COMPLETE_OBSERVED_WINDOW",
+          "expected_bucket_count": 14,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "COMPLETE_OBSERVED_WINDOW",
+          "missing_bucket_timestamps": [],
+          "observed_drawdown_percent": -48.96832115600323,
+          "observed_minimum_mc_usd": 57439.09288276883,
+          "observed_minimum_offset_seconds": 615,
+          "observed_minimum_timestamp": 1791088080,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 14,
+          "window_seconds": 900
+        }
+      },
+      "provider": "BIRDEYE",
+      "provider_metadata": {
+        "x-ratelimit-limit": "300",
+        "x-ratelimit-remaining": "297",
+        "x-ratelimit-reset": "1791557448"
+      },
+      "qualified_entry_identity": {
+        "mc_usd": 112555.757882,
+        "provenance": "6af58c31f1aab5913b372556d56073bec9f606de969d5b57c67984bb83348952",
+        "timestamp": 1791087465
+      },
+      "request_identity": "0bb5bc6e4a7e54c4ee5068d85025886c0632457a51e8884c1c54eb82e1fac24b",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1791087465,
+        "time_to": 1791091065
+      },
+      "returned_candle_count": 57
+    },
+    {
+      "anchor": {
+        "provenance": "bea86386c67044606a67e932576e594393a19f9664eb8708cfc3cf977a522a05",
+        "timestamp": 1791083709,
+        "type": "QUALIFIED_ENTRY"
+      },
+      "chronological_rank": 29,
+      "creation_timestamp": 1791087318,
+      "evidence_identity": "cdf888627d2bc5676321baef9d445a5693494fa205ca52c640fb848562fe4114",
+      "failure": null,
+      "http_status": 200,
+      "mint": "Bisax95YjE3ykTH3JJL46P1GaLyUf7LDFfqRPCgqpump",
+      "normalization_status": "NORMALIZED",
+      "observed_minima": {
+        "1800": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "COMPLETE_OBSERVED_WINDOW",
+          "expected_bucket_count": 29,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "COMPLETE_OBSERVED_WINDOW",
+          "missing_bucket_timestamps": [],
+          "observed_drawdown_percent": -46.61801190217789,
+          "observed_minimum_mc_usd": 59400.90518671017,
+          "observed_minimum_offset_seconds": 651,
+          "observed_minimum_timestamp": 1791084360,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 29,
+          "window_seconds": 1800
+        },
+        "300": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "COMPLETE_OBSERVED_WINDOW",
+          "expected_bucket_count": 4,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "COMPLETE_OBSERVED_WINDOW",
+          "missing_bucket_timestamps": [],
+          "observed_drawdown_percent": -10.255263798853164,
+          "observed_minimum_mc_usd": 99863.61984723705,
+          "observed_minimum_offset_seconds": 231,
+          "observed_minimum_timestamp": 1791083940,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 4,
+          "window_seconds": 300
+        },
+        "3600": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "PROVIDER_MISSING_COVERAGE",
+          "expected_bucket_count": 59,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "PARTIAL_OBSERVED_MINIMUM",
+          "missing_bucket_timestamps": [
+            1791086220,
+            1791086340,
+            1791086400,
+            1791086460,
+            1791086580,
+            1791086640,
+            1791086700,
+            1791086760,
+            1791086820,
+            1791086880,
+            1791086940,
+            1791087000,
+            1791087120,
+            1791087180,
+            1791087240
+          ],
+          "observed_drawdown_percent": -97.90224181380259,
+          "observed_minimum_mc_usd": 2334.284270091488,
+          "observed_minimum_offset_seconds": 3351,
+          "observed_minimum_timestamp": 1791087060,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 44,
+          "window_seconds": 3600
+        },
+        "900": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "COMPLETE_OBSERVED_WINDOW",
+          "expected_bucket_count": 14,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "COMPLETE_OBSERVED_WINDOW",
+          "missing_bucket_timestamps": [],
+          "observed_drawdown_percent": -46.61801190217789,
+          "observed_minimum_mc_usd": 59400.90518671017,
+          "observed_minimum_offset_seconds": 651,
+          "observed_minimum_timestamp": 1791084360,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 14,
+          "window_seconds": 900
+        }
+      },
+      "provider": "BIRDEYE",
+      "provider_metadata": {
+        "x-ratelimit-limit": "300",
+        "x-ratelimit-remaining": "296",
+        "x-ratelimit-reset": "1791557448"
+      },
+      "qualified_entry_identity": {
+        "mc_usd": 111275.183453,
+        "provenance": "bea86386c67044606a67e932576e594393a19f9664eb8708cfc3cf977a522a05",
+        "timestamp": 1791083709
+      },
+      "request_identity": "e89d98584c14dfd21e1fd91f723eb48b2861f91eefa0e810d97def398bb688b8",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1791083709,
+        "time_to": 1791087309
+      },
+      "returned_candle_count": 44
+    },
+    {
+      "anchor": {
+        "provenance": "64843042cab26a97e6647fbc74e3d007eeda4c4378af9162dc4ff7c338b88e86",
+        "timestamp": 1791060454,
+        "type": "QUALIFIED_ENTRY"
+      },
+      "chronological_rank": 30,
+      "creation_timestamp": 1791068334,
+      "evidence_identity": "0ac29dfabdf7902c925af5ee9fce31dd1534457c82ddde98c0e9256fc79eab1c",
+      "failure": null,
+      "http_status": 200,
+      "mint": "HVTyrR8fgesuVUajoXjUgHK7tAeQqeN7hJepu8Vtpump",
+      "normalization_status": "NORMALIZED",
+      "observed_minima": {
+        "1800": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "COMPLETE_OBSERVED_WINDOW",
+          "expected_bucket_count": 29,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "COMPLETE_OBSERVED_WINDOW",
+          "missing_bucket_timestamps": [],
+          "observed_drawdown_percent": -33.66389040367823,
+          "observed_minimum_mc_usd": 114253.33500212884,
+          "observed_minimum_offset_seconds": 1046,
+          "observed_minimum_timestamp": 1791061500,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 29,
+          "window_seconds": 1800
+        },
+        "300": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "COMPLETE_OBSERVED_WINDOW",
+          "expected_bucket_count": 4,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "COMPLETE_OBSERVED_WINDOW",
+          "missing_bucket_timestamps": [],
+          "observed_drawdown_percent": -6.351843428144144,
+          "observed_minimum_mc_usd": 161293.96598997022,
+          "observed_minimum_offset_seconds": 206,
+          "observed_minimum_timestamp": 1791060660,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 4,
+          "window_seconds": 300
+        },
+        "3600": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "COMPLETE_OBSERVED_WINDOW",
+          "expected_bucket_count": 59,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "COMPLETE_OBSERVED_WINDOW",
+          "missing_bucket_timestamps": [],
+          "observed_drawdown_percent": -33.66389040367823,
+          "observed_minimum_mc_usd": 114253.33500212884,
+          "observed_minimum_offset_seconds": 1046,
+          "observed_minimum_timestamp": 1791061500,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 59,
+          "window_seconds": 3600
+        },
+        "900": {
+          "candle_interval_seconds": 60,
+          "coverage_status": "COMPLETE_OBSERVED_WINDOW",
+          "expected_bucket_count": 14,
+          "invalid_bucket_timestamps": [],
+          "minimum_status": "COMPLETE_OBSERVED_WINDOW",
+          "missing_bucket_timestamps": [],
+          "observed_drawdown_percent": -29.466124575317288,
+          "observed_minimum_mc_usd": 121483.31499894802,
+          "observed_minimum_offset_seconds": 566,
+          "observed_minimum_timestamp": 1791061020,
+          "provenance": "BIRDEYE_1M_MCAP",
+          "valid_bucket_count": 14,
+          "window_seconds": 900
+        }
+      },
+      "provider": "BIRDEYE",
+      "provider_metadata": {
+        "x-ratelimit-limit": "300",
+        "x-ratelimit-remaining": "299",
+        "x-ratelimit-reset": "1791557449"
+      },
+      "qualified_entry_identity": {
+        "mc_usd": 172234.0,
+        "provenance": "64843042cab26a97e6647fbc74e3d007eeda4c4378af9162dc4ff7c338b88e86",
+        "timestamp": 1791060454
+      },
+      "request_identity": "0315483a1ba4c6201b01b38c6a7e5e677e4b3c9943e1670ceef01f2291034c18",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1791060454,
+        "time_to": 1791064054
+      },
+      "returned_candle_count": 60
+    }
+  ],
+  "request_contract": {
+    "chart_type": "mcap",
+    "concurrency": 1,
+    "currency": "usd",
+    "endpoint": "/defi/v3/ohlcv",
+    "fallback": false,
+    "mode": "range",
+    "padding": "false",
+    "pagination": false,
+    "retries": 0,
+    "type": "1m"
+  },
+  "research_class": "NON_CANONICAL_HISTORICAL_PRICE_FORENSICS",
+  "retention": {
+    "aggregate_max_bytes": 1000000,
+    "raw_provider_payload_retention": false,
+    "unbounded_growth_paths": 0
+  },
+  "skipped_or_blocked": [
+    {
+      "creation_timestamp": 1791163699,
+      "disposition": "BLOCKED_NO_QUALIFIED_RESEARCH_ANCHOR",
+      "mint": "DCPHkFepQeetS5pytaDgkcktQ5M8XL4y2v3dojkWpump",
+      "rank": 22
+    },
+    {
+      "creation_timestamp": 1791158849,
+      "disposition": "BLOCKED_NO_QUALIFIED_RESEARCH_ANCHOR",
+      "mint": "2trQcQbEiSsNCGhjUKZ7cNtcREgjFdGeTHndet2kpump",
+      "rank": 23
+    },
+    {
+      "creation_timestamp": 1791158529,
+      "disposition": "BLOCKED_NO_QUALIFIED_RESEARCH_ANCHOR",
+      "mint": "GszmgSqbt9huNYJfQtG1wbcqszKnmNkd6dxEJWrYpump",
+      "rank": 24
+    },
+    {
+      "creation_timestamp": 1791152588,
+      "disposition": "BLOCKED_NO_QUALIFIED_RESEARCH_ANCHOR",
+      "mint": "2YB13v6vJ1HTmuzbwujYsahAng1XPbjfT6kMNrFYpump",
+      "rank": 26
+    },
+    {
+      "creation_timestamp": 1791147808,
+      "disposition": "SKIPPED_EQUIVALENT_RETAINED_EARLY_MINIMUM",
+      "mint": "EFGKcRHyLbcUv9hfSDd1m3oEdJcs8DBu9wYA13Qpump",
+      "rank": 27
+    }
+  ],
+  "summary": {
+    "missing_bucket_count": 38,
+    "normalized_count": 5,
+    "qualified_entry_count": 5,
+    "request_count": 5,
+    "research_anchor_count": 5
+  },
+  "version": 1
+}

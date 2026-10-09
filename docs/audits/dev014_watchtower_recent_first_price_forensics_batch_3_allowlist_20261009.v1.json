@@ -1,0 +1,20 @@
+{
+  "artifact_type": "DEV014_WATCHTOWER_RECENT_FIRST_PRICE_FORENSICS_BATCH_3_ALLOWLIST",
+  "version": 1,
+  "selection_rule": "qualified creation timestamp descending, then mint ascending; ranks 21 through 30 of the frozen V2 cohort; do not replace a missing anchor with creation or migration time",
+  "max_provider_requests": 10,
+  "request_contract": {"endpoint": "/defi/v3/ohlcv", "chart_type": "mcap", "currency": "usd", "type": "1m", "mode": "range", "padding": "false", "concurrency": 1, "retries": 0, "pagination": false, "fallback": false},
+  "records": [
+    {"rank": 21, "mint": "HVEyhCnbmSLWYmxmYC9gc2tvUDmWSm1ayeai4LVTpump", "creation_timestamp": 1791206187, "disposition": "REQUEST", "anchor_type": "QUALIFIED_ENTRY", "anchor_timestamp": 1791206179, "anchor_provenance": "35f2bc9e13edde82932be00ba9b8741932fbdb81c3aed458fca60e1dfb8e3c5c"},
+    {"rank": 22, "mint": "DCPHkFepQeetS5pytaDgkcktQ5M8XL4y2v3dojkWpump", "creation_timestamp": 1791163699, "disposition": "BLOCKED_NO_QUALIFIED_RESEARCH_ANCHOR"},
+    {"rank": 23, "mint": "2trQcQbEiSsNCGhjUKZ7cNtcREgjFdGeTHndet2kpump", "creation_timestamp": 1791158849, "disposition": "BLOCKED_NO_QUALIFIED_RESEARCH_ANCHOR"},
+    {"rank": 24, "mint": "GszmgSqbt9huNYJfQtG1wbcqszKnmNkd6dxEJWrYpump", "creation_timestamp": 1791158529, "disposition": "BLOCKED_NO_QUALIFIED_RESEARCH_ANCHOR"},
+    {"rank": 25, "mint": "J4t6XRyTSCxtGqfxq4tnVG3vdGzE9wgPcuQ1e4DTpump", "creation_timestamp": 1791155878, "disposition": "REQUEST", "anchor_type": "QUALIFIED_ENTRY", "anchor_timestamp": 1791154629, "anchor_provenance": "cbcbd4f491a6ffcb6e2668b4f9abddbebdc126510b219a63cd22c21bf46ea1e0"},
+    {"rank": 26, "mint": "2YB13v6vJ1HTmuzbwujYsahAng1XPbjfT6kMNrFYpump", "creation_timestamp": 1791152588, "disposition": "BLOCKED_NO_QUALIFIED_RESEARCH_ANCHOR"},
+    {"rank": 27, "mint": "EFGKcRHyLbcUv9hfSDd1m3oEdJcs8DBu9wYA13Qpump", "creation_timestamp": 1791147808, "disposition": "SKIPPED_EQUIVALENT_RETAINED_EARLY_MINIMUM"},
+    {"rank": 28, "mint": "HRkvXsdfmYBJU2vFcHUPz5paZ7MNdzjvAwXeQJ8Gpump", "creation_timestamp": 1791089312, "disposition": "REQUEST", "anchor_type": "QUALIFIED_ENTRY", "anchor_timestamp": 1791087465, "anchor_provenance": "6af58c31f1aab5913b372556d56073bec9f606de969d5b57c67984bb83348952"},
+    {"rank": 29, "mint": "Bisax95YjE3ykTH3JJL46P1GaLyUf7LDFfqRPCgqpump", "creation_timestamp": 1791087318, "disposition": "REQUEST", "anchor_type": "QUALIFIED_ENTRY", "anchor_timestamp": 1791083709, "anchor_provenance": "bea86386c67044606a67e932576e594393a19f9664eb8708cfc3cf977a522a05"},
+    {"rank": 30, "mint": "HVTyrR8fgesuVUajoXjUgHK7tAeQqeN7hJepu8Vtpump", "creation_timestamp": 1791068334, "disposition": "REQUEST", "anchor_type": "QUALIFIED_ENTRY", "anchor_timestamp": 1791060454, "anchor_provenance": "64843042cab26a97e6647fbc74e3d007eeda4c4378af9162dc4ff7c338b88e86"}
+  ],
+  "retention": {"aggregate_max_bytes": 1000000, "raw_provider_payload_retention": false, "unbounded_growth_paths": 0}
+}

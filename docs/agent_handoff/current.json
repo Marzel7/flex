@@ -22001,6 +22001,15 @@
     "runtime_deployment_reason": "Provider-contract qualification only; no runtime behavior changed.",
     "next_action": "STOP. The direct Current-MC endpoint is qualified for a separate minimal overlay implementation proposal. Any overlay must remain owned by the existing monitor worker, share 20 global/4 per-mint budgets, retain only compact quote fields, use explicit freshness/expiry, and never mutate Entry, historical observations, running peak/ATH, multiples, drawdown, terminal state, or Policy-C queue scheduling."
   },
+  "dev014_watchtower_early_minimum_runtime_integration_preparation_20261009": {
+    "engineering_revision": "ab5c6df581a732d58c124368e32267aedafcab48 is the qualified isolated feature source; no integration candidate source/configuration was created.",
+    "status": "HOLD_ACTIVE_CONFIGURATION_AUTHORITY_RECONCILIATION_REQUIRED",
+    "observed_runtime": "Read-only process/Supervisor inspection found supervisord PID 73409, watchtower_api PID 52636, and operation_monitor_worker PID 52694 running. The active local config hashes exactly to 7a90c5d4b6c62896b71621a849a3b090598019c01a1cc820fba4a9e6019a2cc4 and supplies WATCHTOWER_FINAL_SHA=b5b0991a58bd7865f29e7cbb2d90386d72f0ebc9 for both targets; it also enables WATCHTOWER_CURRENT_MC_OVERLAY_ENABLED=1.",
+    "blocker": "The task authority requires a fresh candidate/rollback derived from the actual active configuration, but the supplied feature-off/current authority in prior handoffs differs from this observed activated overlay configuration. Creating a purported feature-off or byte-exact rollback candidate from the stale authority would be unsafe. No source, Supervisor config, pinned runtime, DB, queue, provider, or service was changed.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "next_action": "Reconcile and explicitly authorize the active overlay activation configuration 7a90c5d4... as the baseline (including its original activation handoff and rollback authority), then prepare an early-minimum candidate that preserves those exact API/worker stanzas except for explicit feature-off early-minimum bindings."
+  },
   "dev014_watchtower_automatic_early_minimum_tracking_20261009": {
     "engineering_revision": "ab5c6df581a732d58c124368e32267aedafcab48 on origin/codex/dev014-current-mc-freshness; clean isolated provider-free qualification.",
     "status": "PASS_DORMANT_AUTOMATIC_TRACKING_SEAM_QUALIFIED_NOT_INTEGRATED",

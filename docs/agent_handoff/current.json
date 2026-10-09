@@ -1,4 +1,18 @@
 {
+  "dev014_watchtower_one_minute_mcap_contract_probe_20261009": {
+    "engineering_revision": "Single bounded provider-contract execution from clean pinned b5b0991a58bd7865f29e7cbb2d90386d72f0ebc9; no source, queue, database, runtime, or lifecycle modification.",
+    "status": "PARTIAL_COVERAGE_SINGLE_REQUEST_WINDOW_UNQUALIFIED",
+    "preflight": "PASS: clean isolated source; non-disclosing authoritative BIRDEYE binding present; disk 12,972,764 KiB (>4 GiB); API health db=ok/WAL warning=false; shared queue provider ledger had four existing non-overlay calls and zero active overlay candidates. Deterministic target was lexicographically first of 65 exact-entry Watchtower facts: 2GE5VekSBFzLBXfNYTJ58bnEyCepqSPLpzA9JZjJpump, Entry 1791328161, Entry MC 134153.90863255193.",
+    "request": "Exactly one serialized GET /defi/v3/ohlcv, x-chain=solana, chart_type=mcap, currency=usd, type=1m, mode=range, padding=false, time_from=1791328161, time_to=1791331761. Request identity SHA256=f50154eb524f20c32f04c0e1c18f28138668c1b823d2805694ad1af184aed5d9. Retries=0; pagination=0; fallback=0.",
+    "response_contract": "HTTP 200, success=true, 36 returned candles with 36 valid positive OHLC rows. Timestamps were ascending, unique, and 60-second aligned; first=1791328200 (first complete bucket strictly after non-aligned Entry), last=1791330480. The exact unaligned request endpoints were not returned. Expected complete post-Entry bucket starts 1791328200..1791331740 total 60; 24 are missing, including 1791330300/0360/0420 and a trailing run 1791330540..1791331740. No pagination/truncation fields were present. This absence is not classified as no-trade and HTTP 200 is not treated as complete coverage.",
+    "provider_metadata": "Observed headers only: X-RateLimit-Limit=300, X-RateLimit-Remaining=299, X-RateLimit-Reset=1791533613. No compute-unit/cost header was exposed; per-request billed CU remains unqualified.",
+    "verdict": "PARTIAL_COVERAGE. The response demonstrates bucket alignment and a first complete post-Entry bucket for this mint, but cannot support exact 5m/15m/60m minimum reconstruction because of internal and trailing missing coordinates. One response cannot prove universal maximum range, row limit, or token-independent behavior.",
+    "post_state": "API PID 52636 and worker PID 52694 remain RUNNING; listener, bridge, and creator-funding continuity retained; health db=ok/WAL warning=false. Queue provider ledger remains four entries/zero overlay entries; sidecar absent; Watchtower fact snapshot SHA256=8fbf80ce001ab2780575de431a364b9e13e5a685670e48da6258caa71055c92b unchanged. Raw provider response retention=false.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "One authorized provider-contract probe made no executable/runtime change.",
+    "next_action": "Stop. Do not run the ten-mint pilot or persist minima. A separate decision is required on a no-trade versus sparse/truncated 1m coverage qualification strategy; no automatic pagination or repeat probe is authorized.",
+    "project": {"git_head": "b5b0991a58bd7865f29e7cbb2d90386d72f0ebc9"}
+  },
   "dev014_watchtower_one_minute_minimum_mc_pilot_20261009": {
     "engineering_revision": "Provider-free contract review only against deployed remote-backed b5b0991a58bd7865f29e7cbb2d90386d72f0ebc9 and retained Birdeye audits; no source, runtime, database, queue, provider, or lifecycle change.",
     "status": "HOLD_ONE_MINUTE_RANGE_AND_COMPUTE_CONTRACT_UNQUALIFIED",

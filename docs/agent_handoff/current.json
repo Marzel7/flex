@@ -22066,6 +22066,15 @@
     "safety": "Provider calls=0; live DB/queue writes=0; Supervisor/service/runtime/config actions=0; no deployment, activation, or historical backfill. RUNTIME_DEPLOYMENT_REQUIRED=true; RUNTIME_DEPLOYMENT_GATE=QUALIFIED_NOT_DEPLOYED.",
     "next_action": "Prepare a separately authorized feature-off deployment candidate from active runtime/config authority b5b0991a58bd7865f29e7cbb2d90386d72f0ebc9 / 7a90c5d4b6c62896b71621a849a3b090598019c01a1cc820fba4a9e6019a2cc4, then satisfy runtime deployment evidence before activation."
   },
+  "dev014_watchtower_early_minimum_ui_and_pilot_import_20261009": {
+    "engineering_revision": "310c1f115ca8b5be78f43d202ebf50e07b07e224 on origin/codex/dev014-current-mc-freshness; clean and remote-verified.",
+    "status": "HOLD_PILOT_IDENTITY_AND_RECOVERY_AUTHORITY_MISSING",
+    "source_and_ui_authority": "Clean DEV-014 source is at 310c1f11. The actual Watchtower UI remains /operations/live-monitor backed by /api/operations/live-monitor and templates/operations_live_monitor.html; this is not inferred from port 8100. The current qualified-entry cohort must be read from the explicitly configured monitor authority at a later authorized fixture/runtime gate; no live DB was read in this phase.",
+    "blocker": "docs/audits/dev014_watchtower_early_minimum_mcap_pilot_20261009.v1.json is source_revision f546df7d, before a9de70fe evidence identities and 55877e6 append-only storage. Its ten records retain mint, Entry timestamp/MC, 5m/15m/60m extrema and gaps only. It has no original request_identity, evidence_identity, record_version record bodies, provider provenance digest per result, or post-minimum candle highs. Therefore an adapter cannot preserve the required original request/evidence identities, cannot generate qualified chronological recovery multiples, and must not invent either.",
+    "recoverability": "The artifact itself contains no 30m result. Prior qualified retained analysis records only seven recoverable 30m minima (six complete and CQP partial); EFGK, 9Jt, and AdFY are unrecoverable because their 60m extrema occur after 30m. However, the artifact alone cannot reconstitute the original compact identities required for import.",
+    "safety": "Source changes=0; pilot import=0; provider calls=0; live DB/queue writes=0; Supervisor/service actions=0; no deployment, activation, or historical backfill. RUNTIME_DEPLOYMENT_REQUIRED=false because no executable path changed.",
+    "next_action": "Provide or explicitly authorize construction from an authoritative retained compact-record manifest containing the original request_identity/evidence_identity and post-minimum recovery evidence for the ten-mint pilot. Without that source, do not implement/import pilot data or display derived recovery statistics."
+  },
   "dev019_treasury_subscription_activity_reconciliation_20261008": {
     "engineering_revision": "Live cascade 26da06daba23608bd64d5b86cde1f92b24d3a98d; retained activity corpus c9925cb038ebe0bf8677d76331700eadf535cf6b; qualified selector 23b09948a70ccea9f08cf560e9684325e9287623.",
     "status": "PASS_READ_ONLY_SELECTION_RECONCILED_NOT_DEPLOYED",

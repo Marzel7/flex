@@ -1,0 +1,38 @@
+{
+  "schema": "x78.active_creator_wal_rebase_qualification.v1",
+  "base_creator_authority": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215",
+  "qualified_composition_reference": "5e6d0bc561acec6411779a006fea05d2f5ef42d6",
+  "active_supervisor_config_sha256": "5e7e8c3c719d396f1f39edda30620a74e160972e0cba03c773839e8e06636c6b",
+  "runtime_reconciliation": {
+    "creator_resolution": "Supervisor maps to /Users/kevinkeaveney/Production/flex-main-workers at eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215; one untracked owner-guard file exists and was not read or changed.",
+    "creator_funding": "Supervisor maps to /private/tmp/flex-dev024-creator-funding-runtime-6806d2b2268bd5240f52be184bfbde1642070f76. Its creator_funding_worker.py and db_locking.py are byte-identical to the eed base; source behavior relevant to this change is reconstructed.",
+    "active_roots_changed": false
+  },
+  "minimal_delta": {
+    "src/utils/wal_watchdog_provenance.py": "Add candidate-only connection attribution and conservative checkpoint obstruction classification to the existing bounded parser.",
+    "src/core/creator_resolution_worker.py": "Pass existing stalled-gap state into existing provenance call.",
+    "not_changed": ["creator_funding_worker.py", "db_locking.py", "supervisor configuration", "worker schedule", "heartbeat cadence", "watchdog thresholds", "checkpoint policy", "write lane"]
+  },
+  "classification_contract": {
+    "connection": ["OPEN_DATABASE_HANDLE", "ACTIVE_READ_TRANSACTION_CANDIDATE", "LONG_LIVED_READER_PIN_CANDIDATE"],
+    "obstruction": ["WRITER_OR_CHECKPOINT_OBSTRUCTION", "UNKNOWN_OBSTRUCTION"],
+    "claim_boundary": "Open handles and active reads are candidates only; neither is a proven WAL pin."
+  },
+  "storage": {
+    "lifecycle_stream": "existing rotation: 10 MiB current plus two backups, 30 MiB maximum per configured path",
+    "parser_input": "tail-read <=4 MiB",
+    "raw_retention": false,
+    "unbounded_growth_paths": 0,
+    "single_file_under_500mb": true
+  },
+  "qualification": {
+    "command": "python -m py_compile src/utils/wal_watchdog_provenance.py src/core/creator_funding_worker.py src/core/creator_resolution_worker.py src/utils/db_locking.py && pytest -q tests/test_x78_active_creator_wal_attribution.py tests/test_x78_13_autocommit_write_lane.py tests/test_x77_5_execute_script_commit_leak.py",
+    "result": "14 passed",
+    "provider_calls": 0,
+    "live_database_or_queue_writes": 0,
+    "wal_maintenance": 0,
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED"
+  },
+  "verdict": "PASS_ACTIVE_CREATOR_SOURCE_REBASE_PROVIDER_FREE_QUALIFIED_NOT_DEPLOYED"
+}

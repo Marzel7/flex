@@ -275,6 +275,7 @@ def _wal_watchdog() -> None:
                         checkpoint=sample,
                         holder_pids=_identify_wal_holder_pids(),
                         lifecycle_path=os.environ.get("DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_PATH"),
+                        checkpoint_stalled=stalled,
                     )
                 except Exception as exc:
                     provenance = {"error": str(exc)[:160]}

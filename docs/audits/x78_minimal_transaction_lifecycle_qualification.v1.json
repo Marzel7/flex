@@ -41,6 +41,12 @@
     "creator_resolution": "existing critical gate now supplies its existing checkpoint/stall sample plus bounded lsof PID provenance; the existing threshold, heartbeat, and self-exit are unchanged",
     "watchdog_threads": "no new watchdog or worker instance; collector is invoked only within each existing critical diagnostic branch"
   },
+  "active_runtime_reconciliation": {
+    "api_monitor_authority": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+    "creator_worker_authority": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215",
+    "result": "RELATED_SOURCE_DIVERGENCE",
+    "detail": "creator_funding_worker.py, creator_resolution_worker.py, and db_locking.py differ between the active authorities. This candidate was qualified against the API/monitor authority and must be rebased/requalified against the exact pinned creator-worker source before any runtime deployment gate can pass."
+  },
   "composition": {
     "checkpoint_obstruction_classes": [
       "WRITER_OR_CHECKPOINT_OBSTRUCTION",

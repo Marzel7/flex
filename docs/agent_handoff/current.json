@@ -3387,6 +3387,18 @@
     "runtime_deployment_required": false,
     "next_action": "HOLD pending separately authorized Batch 2 with identical bounded controls; do not acquire further data, backfill, promote canonical facts, or deploy automatically."
   },
+  "dev014_watchtower_recent_first_price_forensics_batch_2_20261009": {
+    "status": "PASS_BOUNDED_RESEARCH_BATCH_2",
+    "engineering_revision": "fc9adddf168f2d3f8bba7a7752f540635160fec9 published and remote-verified on clean isolated codex/dev014-current-mc-freshness.",
+    "scope": "Exactly nine frozen sequential paid Birdeye 1m MCAP requests. CQP3cfwbUCfBJ6UUY6GS2pozcn6uNJv6WYYVAW2fpump was excluded because retained early-minimum evidence already exists. Retries/pagination/fallback/window-expansion=0; queue/database write, canonical promotion, lifecycle mutation, runtime change, deployment, and Batch 3=0.",
+    "preflight": "BIRDEYE binding present without disclosure; free disk 7036480 KiB; Supervisor API PID 9045 and worker PID 9126 running; health=true/db=ok; pre-WAL=27.4MB without warning; Current MC overlay=ON and early-minimum tracking=ON. Shared active ledger had four terminal-finalizer calls and READY backoff, leaving this distinct-mint capped research batch within the 20-global/4-per-mint protection.",
+    "results": "HTTP200=9; normalized=9; qualified retained Entry identities=3; window metrics=12; all 12 are PARTIAL_OBSERVED_MINIMUM and PROVIDER_MISSING_COVERAGE; missing expected bucket coordinates=86. Returned candles by frozen order: 11,60,60,57,47,13,60,60,47. Drawdowns were calculated only for the three qualified retained Entry identities; all observations remain non-canonical research evidence.",
+    "provider_metadata": "No compute-unit metadata was exposed. Allow-listed rate-limit headers had x-ratelimit-limit=300 and remaining capacity 299 through 296 in each reset slice; no raw payload was retained.",
+    "artifact": "docs/audits/dev014_watchtower_recent_first_price_forensics_batch_2_20261009.v1.json SHA-256 0e0cab74dde721e557e6f188e2b7038291d6bcc07fb1a948ae36cbd273e6ad5c; 20398 bytes; aggregate bound=1000000; hard single-file prohibition=500000000; raw retention=false; unbounded-growth paths=0.",
+    "postflight": "API and worker remained running with health=true/db=ok and post-WAL=32.2MB without warning; no target service restart occurred.",
+    "runtime_deployment_required": false,
+    "next_action": "HOLD pending separately authorized Batch 3 or other scoped research. Do not execute Batch 3 automatically, acquire sharp-exit windows, promote canonical facts, or deploy."
+  },
   "dev019_8cub_downstream_coverage_batch1_20261008": {
     "artifact": "docs/audits/dev_019_8cub_downstream_coverage_batch1.v1.json SHA256=003be28e8dce011760ad438a2e990eedbbd9d0e5ee887632a2dcd21cc8292b18, 14174 bytes. It retains compact page boundaries, per-signature decode status, and no raw RPC payload/block data.",
     "authorization_and_coverage": "One separately authorized 8CUb-only Helius batch executed three cursor-bounded 20-signature pages. Requests=63/66 (3 getSignaturesForAddress, 60 getTransaction, 0 getBlock), retries=0, fallback=0. Compact page boundaries were saved before decoding. All three windows are COMPLETE_SIGNATURE_WINDOW (20/20); all 60 returned unique signatures decoded successfully as legacy transactions.",

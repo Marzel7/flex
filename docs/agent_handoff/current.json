@@ -3209,6 +3209,19 @@
     "storage": "One immutable 10,748-byte research artifact; raw retention=false; maximum single file=1,000,000 bytes; unbounded growth paths=0.",
     "verification": "Artifact JSON/invariants passed; 52 provider-free Watchtower tests passed. Provider requests=0; live DB/queue writes=0; canonical mutations=0; deployment/Supervisor actions=0."
   },
+  "dev014_watchtower_full_creation_migration_provenance_coverage_20261009": {
+    "artifact": "docs/audits/dev014_watchtower_provenance_coverage_20261009.v1.json; SHA-256=ba6aab4bca634c962a852ae6ee2927f97d03b14bfe99b49f851d1755725e8deb; bytes=493,453; 639 deterministic per-mint records.",
+    "engineering_revision": "654f9ee77a18419db52d0ed865be1ec6545a7dce on codex/dev014-current-mc-freshness; clean isolated source. Engineering remote publication was rejected by the outbound source-egress gate, so no remote source SHA is claimed.",
+    "membership": "Frozen V2 cohort=639 (WATCHTOWER=613, WATCHTOWER_DEEP=26). Current authoritative operator membership exactly matches all 639; new launches since snapshot=0; no Deep double-counting.",
+    "coverage": "CREATION_QUALIFIED=68; CREATION_CONFLICTING=1; FIXTURE_ONLY=532; CREATION_EVIDENCE_UNAVAILABLE=38. MIGRATION_QUALIFIED=1; MIGRATION_SLOT_MISSING=630; MIGRATION_EVIDENCE_UNAVAILABLE=8. BOTH_IDENTITIES_QUALIFIED=0; INDEPENDENT_CHRONOLOGY_QUALIFIED=0; EVENT_IDENTITY_MISMATCH=1; CHRONOLOGY_CONFLICT=0.",
+    "partitions": "Frozen qualified-Entry=70: creation-qualified=34, migration-qualified=0, both=0, fixture-only=29. Frozen missing-Entry=569: creation-qualified=34, migration-qualified=1, both=0, fixture-only=503. Retained strict opening-offset price evidence exists for 84 frozen mints, but potentially recoverable without new event provenance=0.",
+    "authority": "Only operation_monitor_entry_provenance canonical creation signature+slot pairs qualify creation. Only the pinned retained injector pair qualifies migration. wt_launch_audit FIXTURE_BACKFILL and wt_watchtower_launches WALKBACK_RECOVERED are retained and reported but never promoted. 3yv audit.create_slot equals its independently retained migration slot.",
+    "next_action": "STOP. Separately authorize recovery of independent creation and migration signature+slot bindings before any Entry reconstruction or historical promotion. No provider acquisition, canonical correction, DB/queue write, backfill, deployment, or Supervisor action is authorized.",
+    "runtime_deployment_required": false,
+    "status": "PASS_PROVIDER_FREE_COVERAGE_AUDIT_ENGINEERING_REMOTE_PUBLICATION_BLOCKED",
+    "storage": "One 493,453-byte immutable matrix; raw payload retention=false; maximum single file=1,000,000 bytes; unbounded growth paths=0.",
+    "verification": "Deterministic --check, JSON/invariants, py_compile, diff --check, and 52 provider-free Watchtower tests passed. Provider requests=0; live DB/queue writes=0; lifecycle mutations=0; Supervisor actions=0."
+  },
   "dev019_8cub_downstream_coverage_batch1_20261008": {
     "artifact": "docs/audits/dev_019_8cub_downstream_coverage_batch1.v1.json SHA256=003be28e8dce011760ad438a2e990eedbbd9d0e5ee887632a2dcd21cc8292b18, 14174 bytes. It retains compact page boundaries, per-signature decode status, and no raw RPC payload/block data.",
     "authorization_and_coverage": "One separately authorized 8CUb-only Helius batch executed three cursor-bounded 20-signature pages. Requests=63/66 (3 getSignaturesForAddress, 60 getTransaction, 0 getBlock), retries=0, fallback=0. Compact page boundaries were saved before decoding. All three windows are COMPLETE_SIGNATURE_WINDOW (20/20); all 60 returned unique signatures decoded successfully as legacy transactions.",

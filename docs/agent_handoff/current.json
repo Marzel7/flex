@@ -19661,6 +19661,19 @@
     "runtime_deployment_reason": "Preflight stopped before provider-contract acquisition; no executable behavior changed.",
     "next_action": "RESTORE_AND_REVERIFY_AT_LEAST_4_GIB_FREE_DISK_THEN_REQUEST_A_FRESH_EXPLICIT_TWO_REQUEST_BIRDEYE_PROBE_AUTHORIZATION"
   },
+  "dev014_recurring_disk_headroom_diagnosis_20261009": {
+    "engineering_revision": "read-only operational diagnosis supporting DEV-014; no source change",
+    "status": "HOLD_NO_INDEPENDENTLY_SAFE_RECOVERY_CANDIDATE",
+    "finding": "APFS Data volume has 3,257,128 KiB free (about 3.11 GiB): 2.52 GiB below the retained 5.63 GiB pass and 1.19 GiB below the 4.30 GiB measurement. The prominent non-Flex allocation is a 1,513,636 KiB VS Code staged update under Library/Caches/com.microsoft.VSCode.ShipIt, but it is not safe to remove: VS Code and ShipIt PID 64850 are running and ShipIt holds the cache logs. Chrome cache is 1,244,348 KiB and Chrome is active. ChatGPT/Codex application support is only 156,052 KiB and Codex browser cache 42,060 KiB; no material Sparkle staging regrowth was found.",
+    "protected_active_storage": "Active canonical flex_complete_database.db=35,652,194,304 bytes with 688,072-byte WAL, held by creator_resolution_worker; active wt_ops_v2.db=16,014,397,440 bytes with 8,787,992-byte WAL, held by ws_cascade, watchtower_api and operation_monitor_service. These are live protected authorities. Temporary pinned flex runtimes total 5,295,160 KiB; Codex worktrees=3,153,096 KiB and sessions=3,029,824 KiB; all are excluded pending worktree/session authority review.",
+    "cache_and_memory": "uv cache=994,824 KiB; active Serena/Pyright processes hold archive-v0 hApj18HDiX7TDh0ob06SW (119,644 KiB) and ZwqKCPTaLMLW-J2X (31,580 KiB). Inactive uv archives may be rebuildable only after those local tooling processes end and a future supported uv-prune preflight passes. vm.swapusage reports 15,145.81 MiB used while /private/var/vm currently measures 2,097,152 KiB, so swap pressure is material but its physical APFS allocation is not safely inferred from the logical used figure. No material deleted-but-open file was observed; no local snapshots were listed.",
+    "root_cause": "No historical path-by-path delta exists, so a single causal delta cannot be proved. Current headroom pressure is a combination of active long-term database growth, protected pinned/Codex workspace state, an active staged VS Code update, active browser caches, and high swap pressure; it is not a recurring ChatGPT/Codex Sparkle cache. Prior retained storage records also identify transfer_index growth in the canonical DB as a persistent active contributor.",
+    "recovery_plan": "Do not delete anything. The smallest future recovery candidate is normal completion/cleanup of the active VS Code updater after VS Code/ShipIt no longer own it; projected free space then is about 4.55 GiB, but this is not currently authorized or safe. Subsequent supported uv cache pruning after Serena/Pyright close could add at most approximately 0.33 GiB of inactive archive entries, subject to fresh reference checks.",
+    "safety": "No deletion, cache prune, service action, provider call, DB/queue write, checkpoint, VACUUM, worktree prune, or listener change.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only disk diagnosis only.",
+    "next_action": "OBTAIN_SEPARATE_AUTHORIZATION_ONLY_AFTER_ACTIVE_VSCODE_SHIPIT_AND_LOCAL_UV_TOOLING_REFERENCE_STATE_CHANGES; THEN_REVERIFY_4_GIB_FLOOR_BEFORE_BIRDEYE_PROBE"
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "engineering_revision": "Exact qualified candidate re-reviewed; no deployment or source change during review.",
     "status": "READY_FOR_AUTHORIZATION",

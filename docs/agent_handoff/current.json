@@ -23306,5 +23306,13 @@
     "finding": "Repository inventory found HistoricalBackfillController and HistoricalExecutionBinding only as libraries plus isolated tests. No concrete qualified operator command/script binds controller, durable journal, qualified Batch-4 1m MCAP transport/normalization, RuntimeGate, shared-budget adapter, finite ten-request/30-minute limits, isolated state/evidence paths, exclusive ownership, and LIVE-priority check. Existing historical scripts are Batch-specific or unrelated and cannot be improvised into this invocation.",
     "safety": "No live runtime preflight, API call, provider call, shared-budget debit, controller/evidence directory creation, database/queue write, deployment, or scheduler action occurred. All ten authorized requests remain unused.",
     "next_action": "Separate provider-free implementation and qualification is required for one explicit finite operator invocation, including argument/path validation, existing-runtime binding, all stop conditions, and no-repeat crash regressions. Then remote-verify and obtain a fresh execution authorization; do not execute from library APIs or manually compose an untested one-shot command."
+  },
+  "dev014_bounded_historical_backfill_operator_20261009": {
+    "status": "PASS_PROVIDER_FREE_OPERATOR_QUALIFIED",
+    "engineering_revision": "bea6e551380b0617a29a5bc54827a1726525a7cd remote-published on codex/dev014-current-mc-freshness.",
+    "entrypoint": "scripts/run_watchtower_historical_backfill_session.py defaults to dry-run and requires exact ranks, isolated state/evidence directories, finite request/runtime/evidence/failure limits, and explicit mode. It rejects protected database/queue paths, symlinks, path reuse, invalid subsets and >10 requests. Execute mode remains hard-stopped even with live opt-in.",
+    "qualification": "Dry run proved exact frozen ranks 22,23,24,26,41,43,46,47,48,50 with ten deterministic identities and 1800-second cap. pytest focused operator/controller/binding suite: 11 passed; no provider call, debit, queue/database write, scheduler or deployment.",
+    "runtime_deployment_required": false,
+    "next_action": "Obtain a fresh explicit live-acquisition authorization after concrete runtime-path/API/budget preflight; no automatic execution."
   }
 }

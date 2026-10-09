@@ -5,6 +5,7 @@ from src.ops.watchtower_price_forensics import (
     admit_prospective_capture, cohort_statistics, historical_backfill_plan,
     historical_baseline_manifest, lifecycle_projection, prospective_capture_contract,
     v2_cohort_manifest,
+    reconstruct_retained_entry,
 )
 
 
@@ -102,3 +103,27 @@ def test_v2_manifest_rejects_duplicate_or_incomplete_assignment():
     bad["assignment"]["provenance"] = ""
     with pytest.raises(ValueError, match="INCOMPLETE"):
         v2_cohort_manifest(launches=[bad], baseline_mints=[], as_of=1)
+
+
+def entry_inputs(**creation):
+    return {"mint": "mint", "assignment": {"identity": "assignment", "provenance": "verified"},
+            "creation": {"timestamp": 10, "signature": "create", "source": "canonical_create_ledger", **creation},
+            "migration": {"timestamp": 20, "signature": "migration", "source": "canonical_migration_ledger"}}
+
+
+def test_retained_entry_reconstruction_requires_canonical_birth_and_price_offsets():
+    values = entry_inputs(creation_source="ignored")
+    missing = reconstruct_retained_entry(**values)
+    assert missing["qualification_status"] == "MISSING_PRICE_EVIDENCE"
+    fixture = entry_inputs(); fixture["creation"]["source"] = "FIXTURE_BACKFILL"
+    assert reconstruct_retained_entry(**fixture)["qualification_status"] == "MISSING_BIRTH_PROVENANCE"
+
+
+def test_retained_entry_reconstruction_preserves_chronology_conflict_and_can_qualify_offsets():
+    conflict = entry_inputs(); conflict["migration"]["timestamp"] = 9
+    conflict_result = reconstruct_retained_entry(**conflict)
+    assert conflict_result["qualification_status"] == "CONFLICTING_EVIDENCE"
+    assert "MISSING_PRICE_EVIDENCE" in conflict_result["evidence_deficiencies"]
+    qualified = reconstruct_retained_entry(**entry_inputs(), retained_offsets={"1": 123.0})
+    assert qualified["qualification_status"] == "QUALIFIED_RETAINED_ENTRY"
+    assert qualified["entry_method"] == "FIRST_FULL_POST_MIGRATION_SECOND_MC"

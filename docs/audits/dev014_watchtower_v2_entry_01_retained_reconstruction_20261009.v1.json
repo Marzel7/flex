@@ -1,0 +1,402 @@
+{
+  "artifact_identity": "1821b8c4e25e0c1b7d12a2f486b360ba2d454d85615a0908a204e17b033fc78d",
+  "batch_id": "V2-ENTRY-01",
+  "constraints": {
+    "canonical_promotion": false,
+    "database_writes": 0,
+    "max_single_file_bytes": 1000000,
+    "provider_request_count": 0,
+    "queue_writes": 0,
+    "raw_payload_retention": false
+  },
+  "interpretation": "RESEARCH_ONLY_NOT_A_COMMITTED_MONITOR_ENTRY",
+  "records": [
+    {
+      "assignment_identity": "membership:04265d9f-6eb2-568c-a49e-9253091a4dbb:3yvK6WWww1moF3qx3UvHngZCHy9kRCVd9Jva8tRrpump:1791308056:walkback_watchtower_confirmed_projection_v1:WATCHTOWER_CONFIRMED:3yvK6WWww1moF3qx3UvHngZCHy9kRCVd9Jva8tRrpump:1791308056",
+      "assignment_provenance": "walkback_watchtower_confirmed_projection_v1",
+      "creation": {
+        "signature": "69W5pUerQKRsRURAMEUS4H17f24PRiSB4RpnTjyETm1NH9nQBBaBRj6mknGQ5XQVi3g6m19EmrsYfKzjmTgZ8s7",
+        "source": "FIXTURE_BACKFILL",
+        "timestamp": 1791308055
+      },
+      "creator": "8piXYTaDzcMpfyLi5eHiBkUfkAJPN8PiBddCY8RVb5tC",
+      "entry_mc_usd": null,
+      "entry_method": null,
+      "entry_timestamp": null,
+      "evidence_deficiencies": [
+        "MISSING_BIRTH_PROVENANCE",
+        "MISSING_PRICE_EVIDENCE"
+      ],
+      "migration": {
+        "signature": "mPr6Gv6Sjag8sU6bLC4m5uejoshcqVcBhs8r5uwXMrjZkXfdnffQukgs1c64LpFhvTJXN94zc2rujmQGoAp5M5X",
+        "source": "FIXTURE_BACKFILL",
+        "timestamp": 1791307928
+      },
+      "mint": "3yvK6WWww1moF3qx3UvHngZCHy9kRCVd9Jva8tRrpump",
+      "missing_requirements": [
+        "NONCONFLICTING_CREATION_MIGRATION_CHRONOLOGY",
+        "RETAINED_STRICT_MIGRATION_MCAP_OFFSETS"
+      ],
+      "monitor_entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "monitor_entry_status": "WAITING_FOR_ENTRY_REFERENCE",
+      "original_classification": "WATCHTOWER",
+      "qualification_status": "CONFLICTING_EVIDENCE",
+      "retained_price_snapshot_summary": {
+        "mc_at_create_source": "CURVE_REPLAY",
+        "mc_at_detection_source": "CURVE_REPLAY",
+        "mc_at_first_external_buy_source": "CURVE_REPLAY",
+        "strict_migration_offsets_retained": false
+      },
+      "source_evidence_identity": null
+    },
+    {
+      "assignment_identity": "membership:04265d9f-6eb2-568c-a49e-9253091a4dbb:7iXZi55AyKbJv5e9XTQuVcywdT2ejHjGBf3NKuCLpump:1791294346:walkback_watchtower_confirmed_projection_v1:WATCHTOWER_CONFIRMED:7iXZi55AyKbJv5e9XTQuVcywdT2ejHjGBf3NKuCLpump:1791294346",
+      "assignment_provenance": "walkback_watchtower_confirmed_projection_v1",
+      "creation": {
+        "signature": "52QgBQzJjqaW1Kio3hwSjXc7F5DScwc8F4LKijMTBYnZLamy7XkoNQ2fsLCNSRMLjDqcJuuj3ezqRwjC65asp7of",
+        "source": "FIXTURE_BACKFILL",
+        "timestamp": 1791294345
+      },
+      "creator": "FunVDq1uYc8MF27gpZvNUxQCUHn6NjgpXPGtQZVL8Xcb",
+      "entry_mc_usd": null,
+      "entry_method": null,
+      "entry_timestamp": null,
+      "evidence_deficiencies": [
+        "MISSING_BIRTH_PROVENANCE",
+        "MISSING_PRICE_EVIDENCE"
+      ],
+      "migration": {
+        "signature": "2raT1pjvVrTq4cNZHcXHSwU6FiUHSQVNoBu25N52BPBTWscX5ztqgBAFQMfhTQGz8kSMVWewJjmjPdXuNS9S9kwu",
+        "source": "FIXTURE_BACKFILL",
+        "timestamp": 1791294235
+      },
+      "mint": "7iXZi55AyKbJv5e9XTQuVcywdT2ejHjGBf3NKuCLpump",
+      "missing_requirements": [
+        "NONCONFLICTING_CREATION_MIGRATION_CHRONOLOGY",
+        "RETAINED_STRICT_MIGRATION_MCAP_OFFSETS"
+      ],
+      "monitor_entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "monitor_entry_status": "WAITING_FOR_ENTRY_REFERENCE",
+      "original_classification": "WATCHTOWER",
+      "qualification_status": "CONFLICTING_EVIDENCE",
+      "retained_price_snapshot_summary": {
+        "mc_at_create_source": "CURVE_REPLAY",
+        "mc_at_detection_source": "CURVE_REPLAY",
+        "mc_at_first_external_buy_source": "CURVE_REPLAY",
+        "strict_migration_offsets_retained": false
+      },
+      "source_evidence_identity": null
+    },
+    {
+      "assignment_identity": "membership:04265d9f-6eb2-568c-a49e-9253091a4dbb:B8S7WGQYteNSBz4rU4Xs1hkr1seGpxYgUuV2wgtbpump:1791287748:walkback_watchtower_confirmed_projection_v1:WATCHTOWER_CONFIRMED:B8S7WGQYteNSBz4rU4Xs1hkr1seGpxYgUuV2wgtbpump:1791287748",
+      "assignment_provenance": "walkback_watchtower_confirmed_projection_v1",
+      "creation": {
+        "signature": "x17oQDEW7ZxpoxTz6XvHjEiM9C2sNdhz6Yyr8D2xJgXZYJGTpMzjoNH8aiK8f2Nx1wB5gJScHfULYRQtADkYHgd",
+        "source": "FIXTURE_BACKFILL",
+        "timestamp": 1791287747
+      },
+      "creator": "CbEuwW1AWa4N8KmYRdVnvcyDXUpMkcyDMfqSbhbBUmVx",
+      "entry_mc_usd": null,
+      "entry_method": null,
+      "entry_timestamp": null,
+      "evidence_deficiencies": [
+        "MISSING_BIRTH_PROVENANCE",
+        "MISSING_PRICE_EVIDENCE"
+      ],
+      "migration": {
+        "signature": "5Maqx3EVGUfT2VsgH19nTj8rx54vkSgD1oBNE2HeQDPToEcojZXuc2NKjjtHARpYXKC5GQostndDMp7PvSJrzeoM",
+        "source": "FIXTURE_BACKFILL",
+        "timestamp": 1791287674
+      },
+      "mint": "B8S7WGQYteNSBz4rU4Xs1hkr1seGpxYgUuV2wgtbpump",
+      "missing_requirements": [
+        "NONCONFLICTING_CREATION_MIGRATION_CHRONOLOGY",
+        "RETAINED_STRICT_MIGRATION_MCAP_OFFSETS"
+      ],
+      "monitor_entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "monitor_entry_status": "WAITING_FOR_ENTRY_REFERENCE",
+      "original_classification": "WATCHTOWER",
+      "qualification_status": "CONFLICTING_EVIDENCE",
+      "retained_price_snapshot_summary": {
+        "mc_at_create_source": "CURVE_REPLAY",
+        "mc_at_detection_source": "CURVE_REPLAY",
+        "mc_at_first_external_buy_source": "CURVE_REPLAY",
+        "strict_migration_offsets_retained": false
+      },
+      "source_evidence_identity": null
+    },
+    {
+      "assignment_identity": "membership:04265d9f-6eb2-568c-a49e-9253091a4dbb:HRinFbhZjrb2xoqSzxYCYKX7LqJ3H6pn42CURb2cpump:1791270008:walkback_watchtower_confirmed_projection_v1:WATCHTOWER_CONFIRMED:HRinFbhZjrb2xoqSzxYCYKX7LqJ3H6pn42CURb2cpump:1791270008",
+      "assignment_provenance": "walkback_watchtower_confirmed_projection_v1",
+      "creation": {
+        "signature": "4jYxQE3KZhwykhqAt4WiCBGTnW8BmDftpop3ytjcBWg7y9Pmm1ndA25ifHeuuY9syKe9rYYCrGzVF1Y1KMeRdcyj",
+        "source": "FIXTURE_BACKFILL",
+        "timestamp": 1791270007
+      },
+      "creator": "DxBiqJa9ReZeTKsvAU58xYyr6KByHDYpUNoq3ymrCdBu",
+      "entry_mc_usd": null,
+      "entry_method": null,
+      "entry_timestamp": null,
+      "evidence_deficiencies": [
+        "MISSING_BIRTH_PROVENANCE",
+        "MISSING_PRICE_EVIDENCE"
+      ],
+      "migration": {
+        "signature": "34wTjQhZameyCbJaFHsUmhmWDC7hRKxLguBJxLQ4K3RjBfd6NvzCMmsYsjsBV82PCd3xXHTJqeoQ3H86qhdNXfUE",
+        "source": "FIXTURE_BACKFILL",
+        "timestamp": 1791269958
+      },
+      "mint": "HRinFbhZjrb2xoqSzxYCYKX7LqJ3H6pn42CURb2cpump",
+      "missing_requirements": [
+        "NONCONFLICTING_CREATION_MIGRATION_CHRONOLOGY",
+        "RETAINED_STRICT_MIGRATION_MCAP_OFFSETS"
+      ],
+      "monitor_entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "monitor_entry_status": "WAITING_FOR_ENTRY_REFERENCE",
+      "original_classification": "WATCHTOWER",
+      "qualification_status": "CONFLICTING_EVIDENCE",
+      "retained_price_snapshot_summary": {
+        "mc_at_create_source": "CURVE_REPLAY",
+        "mc_at_detection_source": "CURVE_REPLAY",
+        "mc_at_first_external_buy_source": "CURVE_REPLAY",
+        "strict_migration_offsets_retained": false
+      },
+      "source_evidence_identity": null
+    },
+    {
+      "assignment_identity": "membership:04265d9f-6eb2-568c-a49e-9253091a4dbb:41GZ77b5v1ak2jujpaU2AAQFWFj4wszunihUJG4epump:1791238085:walkback_watchtower_confirmed_projection_v1:WATCHTOWER_CONFIRMED:41GZ77b5v1ak2jujpaU2AAQFWFj4wszunihUJG4epump:1791238085",
+      "assignment_provenance": "walkback_watchtower_confirmed_projection_v1",
+      "creation": {
+        "signature": "JUoygCW7vBCFrmLGEVC4coSkqfoq3daCdnKnqenvanZDkDXZbTbMHZ2yK72C7biX27w6mGaUGSroCZf46qQakox",
+        "source": "FIXTURE_BACKFILL",
+        "timestamp": 1791238085
+      },
+      "creator": "4iqEeCXNgseVkxiHttjgFsXsSEqm3DqzatY2ApdDQrdG",
+      "entry_mc_usd": null,
+      "entry_method": null,
+      "entry_timestamp": null,
+      "evidence_deficiencies": [
+        "MISSING_BIRTH_PROVENANCE",
+        "MISSING_PRICE_EVIDENCE"
+      ],
+      "migration": {
+        "signature": "4FWB14Vr83pzZhpojJtPPvdPLcvYMDRd9ChYtajfbyTG9JQ8HJhwSy1zLRWwo6F89JBy8aQbnnehXYd2qitB2hVd",
+        "source": "FIXTURE_BACKFILL",
+        "timestamp": 1791237876
+      },
+      "mint": "41GZ77b5v1ak2jujpaU2AAQFWFj4wszunihUJG4epump",
+      "missing_requirements": [
+        "NONCONFLICTING_CREATION_MIGRATION_CHRONOLOGY",
+        "RETAINED_STRICT_MIGRATION_MCAP_OFFSETS"
+      ],
+      "monitor_entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "monitor_entry_status": "WAITING_FOR_ENTRY_REFERENCE",
+      "original_classification": "WATCHTOWER",
+      "qualification_status": "CONFLICTING_EVIDENCE",
+      "retained_price_snapshot_summary": {
+        "mc_at_create_source": "CURVE_REPLAY",
+        "mc_at_detection_source": "CURVE_REPLAY",
+        "mc_at_first_external_buy_source": "CURVE_REPLAY",
+        "strict_migration_offsets_retained": false
+      },
+      "source_evidence_identity": null
+    },
+    {
+      "assignment_identity": "membership:04265d9f-6eb2-568c-a49e-9253091a4dbb:4nn2hUuWxReUxBRAuXzhG3A556U6pjbecHBgwRt2pump:1791233846:walkback_watchtower_confirmed_projection_v1:WATCHTOWER_CONFIRMED:4nn2hUuWxReUxBRAuXzhG3A556U6pjbecHBgwRt2pump:1791233846",
+      "assignment_provenance": "walkback_watchtower_confirmed_projection_v1",
+      "creation": {
+        "signature": "4HMWFRfUww1Pk7n6KsLkRprhEwiwAhiGrhysvakKux7x6uVnpR1Con7kgCsJLFqzLKDQDfSz2oiJfSpMNAuhvvRU",
+        "source": "FIXTURE_BACKFILL",
+        "timestamp": 1791233845
+      },
+      "creator": "Cmz4bUMTbYqUzsRHm7swVPKEY5atXcc6bawa8knfWEQj",
+      "entry_mc_usd": null,
+      "entry_method": null,
+      "entry_timestamp": null,
+      "evidence_deficiencies": [
+        "MISSING_BIRTH_PROVENANCE",
+        "MISSING_PRICE_EVIDENCE"
+      ],
+      "migration": {
+        "signature": "HqpoNskyormDpXnJM1zDB48ZsgpnjAR7EJ83dPvfdJvrP5pMKeTcJvvwi1cKknkTPDjrefpcstMqo2JDwsr6VLq",
+        "source": "FIXTURE_BACKFILL",
+        "timestamp": 1791233613
+      },
+      "mint": "4nn2hUuWxReUxBRAuXzhG3A556U6pjbecHBgwRt2pump",
+      "missing_requirements": [
+        "NONCONFLICTING_CREATION_MIGRATION_CHRONOLOGY",
+        "RETAINED_STRICT_MIGRATION_MCAP_OFFSETS"
+      ],
+      "monitor_entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "monitor_entry_status": "WAITING_FOR_ENTRY_REFERENCE",
+      "original_classification": "WATCHTOWER",
+      "qualification_status": "CONFLICTING_EVIDENCE",
+      "retained_price_snapshot_summary": {
+        "mc_at_create_source": "CURVE_REPLAY",
+        "mc_at_detection_source": "CURVE_REPLAY",
+        "mc_at_first_external_buy_source": "CURVE_REPLAY",
+        "strict_migration_offsets_retained": false
+      },
+      "source_evidence_identity": null
+    },
+    {
+      "assignment_identity": "membership:04265d9f-6eb2-568c-a49e-9253091a4dbb:DCPHkFepQeetS5pytaDgkcktQ5M8XL4y2v3dojkWpump:1791163699:walkback_watchtower_confirmed_projection_v1:WATCHTOWER_CONFIRMED:DCPHkFepQeetS5pytaDgkcktQ5M8XL4y2v3dojkWpump:1791163699",
+      "assignment_provenance": "walkback_watchtower_confirmed_projection_v1",
+      "creation": {
+        "signature": "5jk2qFzCyxSHVxGQUx5LtxZnAdRXBLgJuSetdswVhPkPyM8Ezv5JoWPjLNqSrhd2td1nP8ehaDg2LRAw7X7c7Hwr",
+        "source": "FIXTURE_BACKFILL",
+        "timestamp": 1791163699
+      },
+      "creator": "3RYpMnbmemUuR6idoaDsN4LNH52KeMrNDKXGKHEL4mQs",
+      "entry_mc_usd": null,
+      "entry_method": null,
+      "entry_timestamp": null,
+      "evidence_deficiencies": [
+        "MISSING_BIRTH_PROVENANCE",
+        "MISSING_PRICE_EVIDENCE"
+      ],
+      "migration": {
+        "signature": "5a7dH1u8K3ryUWJh9zowdHv4iv95CeM3Cx2RRao7Un83ATrnohZnYS8QJw6gvNGJrGE3oW8pGz3UdGZgLx7rXAY3",
+        "source": "FIXTURE_BACKFILL",
+        "timestamp": 1791163567
+      },
+      "mint": "DCPHkFepQeetS5pytaDgkcktQ5M8XL4y2v3dojkWpump",
+      "missing_requirements": [
+        "NONCONFLICTING_CREATION_MIGRATION_CHRONOLOGY",
+        "RETAINED_STRICT_MIGRATION_MCAP_OFFSETS"
+      ],
+      "monitor_entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "monitor_entry_status": "WAITING_FOR_ENTRY_REFERENCE",
+      "original_classification": "WATCHTOWER",
+      "qualification_status": "CONFLICTING_EVIDENCE",
+      "retained_price_snapshot_summary": {
+        "mc_at_create_source": "CURVE_REPLAY",
+        "mc_at_detection_source": "CURVE_REPLAY",
+        "mc_at_first_external_buy_source": "CURVE_REPLAY",
+        "strict_migration_offsets_retained": false
+      },
+      "source_evidence_identity": null
+    },
+    {
+      "assignment_identity": "membership:04265d9f-6eb2-568c-a49e-9253091a4dbb:2trQcQbEiSsNCGhjUKZ7cNtcREgjFdGeTHndet2kpump:1791158850:walkback_watchtower_confirmed_projection_v1:WATCHTOWER_CONFIRMED:2trQcQbEiSsNCGhjUKZ7cNtcREgjFdGeTHndet2kpump:1791158850",
+      "assignment_provenance": "walkback_watchtower_confirmed_projection_v1",
+      "creation": {
+        "signature": "39z8wB3N7YkkCdfCqSrFaDLGa41tT3ESL6LqnLcSVQT23i4UzBJ8391bTyMhRwXX8EtBxSeL5xtor1ZUBpgX2Ezb",
+        "source": "FIXTURE_BACKFILL",
+        "timestamp": 1791158849
+      },
+      "creator": "58VSAZVhz2cWRK4KteTbpnMUUJLUmUswxZf6iG9NAMH4",
+      "entry_mc_usd": null,
+      "entry_method": null,
+      "entry_timestamp": null,
+      "evidence_deficiencies": [
+        "MISSING_BIRTH_PROVENANCE",
+        "MISSING_PRICE_EVIDENCE"
+      ],
+      "migration": {
+        "signature": "64bW6YbEMrcjbe1vioViMWeWhrBvZFGiK8qSUBGSeym1XcqS5d1mxogh1NHM4DNEM1p6jckbaGNPmTKwRdLxy293",
+        "source": "FIXTURE_BACKFILL",
+        "timestamp": 1791158742
+      },
+      "mint": "2trQcQbEiSsNCGhjUKZ7cNtcREgjFdGeTHndet2kpump",
+      "missing_requirements": [
+        "NONCONFLICTING_CREATION_MIGRATION_CHRONOLOGY",
+        "RETAINED_STRICT_MIGRATION_MCAP_OFFSETS"
+      ],
+      "monitor_entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "monitor_entry_status": "WAITING_FOR_ENTRY_REFERENCE",
+      "original_classification": "WATCHTOWER",
+      "qualification_status": "CONFLICTING_EVIDENCE",
+      "retained_price_snapshot_summary": {
+        "mc_at_create_source": "CURVE_REPLAY",
+        "mc_at_detection_source": "CURVE_REPLAY",
+        "mc_at_first_external_buy_source": "CURVE_REPLAY",
+        "strict_migration_offsets_retained": false
+      },
+      "source_evidence_identity": null
+    },
+    {
+      "assignment_identity": "membership:04265d9f-6eb2-568c-a49e-9253091a4dbb:GszmgSqbt9huNYJfQtG1wbcqszKnmNkd6dxEJWrYpump:1791158529:walkback_watchtower_confirmed_projection_v1:WATCHTOWER_CONFIRMED:GszmgSqbt9huNYJfQtG1wbcqszKnmNkd6dxEJWrYpump:1791158529",
+      "assignment_provenance": "walkback_watchtower_confirmed_projection_v1",
+      "creation": {
+        "signature": "45QQutjQqurNT97obLG71N4DRwfzkwLrqBMkjE4yEYf8vtLYXRLVsYgSXkzfGvH5GyuYJauDuzy6zwNHW3q1fgok",
+        "source": "FIXTURE_BACKFILL",
+        "timestamp": 1791158529
+      },
+      "creator": "93634tKHqHfioXmNfYk9P18gFmNNy8kwaYYJGTDQaR56",
+      "entry_mc_usd": null,
+      "entry_method": null,
+      "entry_timestamp": null,
+      "evidence_deficiencies": [
+        "MISSING_BIRTH_PROVENANCE",
+        "MISSING_PRICE_EVIDENCE"
+      ],
+      "migration": {
+        "signature": "9579sMScA9c4L2tWCgwzd4XzLiBHfT7tAthNyCP2F1qgG2tZ9CQ3BT621WQHtz9d5WkAQhWru5sq7cXE3hG9tax",
+        "source": "FIXTURE_BACKFILL",
+        "timestamp": 1791158483
+      },
+      "mint": "GszmgSqbt9huNYJfQtG1wbcqszKnmNkd6dxEJWrYpump",
+      "missing_requirements": [
+        "NONCONFLICTING_CREATION_MIGRATION_CHRONOLOGY",
+        "RETAINED_STRICT_MIGRATION_MCAP_OFFSETS"
+      ],
+      "monitor_entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "monitor_entry_status": "WAITING_FOR_ENTRY_REFERENCE",
+      "original_classification": "WATCHTOWER",
+      "qualification_status": "CONFLICTING_EVIDENCE",
+      "retained_price_snapshot_summary": {
+        "mc_at_create_source": "CURVE_REPLAY",
+        "mc_at_detection_source": "CURVE_REPLAY",
+        "mc_at_first_external_buy_source": "CURVE_REPLAY",
+        "strict_migration_offsets_retained": false
+      },
+      "source_evidence_identity": null
+    },
+    {
+      "assignment_identity": "membership:04265d9f-6eb2-568c-a49e-9253091a4dbb:2YB13v6vJ1HTmuzbwujYsahAng1XPbjfT6kMNrFYpump:1791152588:walkback_watchtower_confirmed_projection_v1:WATCHTOWER_CONFIRMED:2YB13v6vJ1HTmuzbwujYsahAng1XPbjfT6kMNrFYpump:1791152588",
+      "assignment_provenance": "walkback_watchtower_confirmed_projection_v1",
+      "creation": {
+        "signature": "5yG7g62okqixy5Yh9EzV5rvmTyMAPqG4xq8nMyP3GWrpQn3SHHVKwYMuBYSufYJwTRZKLKAQmBg2gMvzQSLcErB4",
+        "source": "FIXTURE_BACKFILL",
+        "timestamp": 1791152588
+      },
+      "creator": "5gD1m1D9iqDx7AJtBvotbEFogjndADC4Mn3nv7nGAEjA",
+      "entry_mc_usd": null,
+      "entry_method": null,
+      "entry_timestamp": null,
+      "evidence_deficiencies": [
+        "MISSING_BIRTH_PROVENANCE",
+        "MISSING_PRICE_EVIDENCE"
+      ],
+      "migration": {
+        "signature": "3yVSjp69r2fqvxDcvQkCTNZhQ9MsnA1aa7Tip3s5YLE1U2qTLuiYyzytBxX6AttseLURA4xhRVzVS7rm8MGDqiAM",
+        "source": "FIXTURE_BACKFILL",
+        "timestamp": 1791149699
+      },
+      "mint": "2YB13v6vJ1HTmuzbwujYsahAng1XPbjfT6kMNrFYpump",
+      "missing_requirements": [
+        "NONCONFLICTING_CREATION_MIGRATION_CHRONOLOGY",
+        "RETAINED_STRICT_MIGRATION_MCAP_OFFSETS"
+      ],
+      "monitor_entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+      "monitor_entry_status": "WAITING_FOR_ENTRY_REFERENCE",
+      "original_classification": "WATCHTOWER",
+      "qualification_status": "CONFLICTING_EVIDENCE",
+      "retained_price_snapshot_summary": {
+        "mc_at_create_source": "CURVE_REPLAY",
+        "mc_at_detection_source": "CURVE_REPLAY",
+        "mc_at_first_external_buy_source": null,
+        "strict_migration_offsets_retained": false
+      },
+      "source_evidence_identity": null
+    }
+  ],
+  "schema_version": "WATCHTOWER_V2_ENTRY_RECONSTRUCTION_RESEARCH_V1",
+  "source_manifest": {
+    "cohort_identity": "ba66589b1597652446fd76ed3ed01f49b8ab947971e8fc6c7d3aee3badc2cd38",
+    "cohort_version": "WATCHTOWER_FORENSIC_POPULATION_V2_20261009",
+    "path": "docs/audits/dev014_watchtower_forensic_population_v2_20261009.v1.json",
+    "sha256": "b9f36a855b77abef70844216422c5103ae64df3c7a15f2a9f54a20a3d0710a9d"
+  }
+}

@@ -243,3 +243,63 @@ def v2_cohort_manifest(*, launches: Iterable[Mapping[str, Any]], baseline_mints:
     }
     manifest["cohort_identity"] = _identity(manifest)
     return manifest
+
+
+def reconstruct_retained_entry(*, mint: str, assignment: Mapping[str, Any], creation: Mapping[str, Any],
+                               migration: Mapping[str, Any], retained_offsets: Mapping[str, Any] | None = None) -> dict[str, Any]:
+    """Classify one historical opening using compact retained evidence only.
+
+    The frozen strict migration reducer is used only if the caller supplies
+    already-normalized offsets.  Launch-audit snapshots, curve-replay values,
+    and unqualified creation metadata cannot substitute for those offsets.
+    """
+    if not mint or not assignment.get("identity") or not assignment.get("provenance"):
+        raise ValueError("INCOMPLETE_ASSIGNMENT_PROVENANCE")
+    creation_time = creation.get("timestamp")
+    migration_time = migration.get("timestamp")
+    record = {"mint": str(mint), "assignment_identity": str(assignment["identity"]),
+              "assignment_provenance": str(assignment["provenance"]),
+              "creation": {"timestamp": creation_time, "signature": creation.get("signature"), "source": creation.get("source")},
+              "migration": {"timestamp": migration_time, "signature": migration.get("signature"), "source": migration.get("source")},
+              "entry_mc_usd": None, "entry_timestamp": None, "entry_method": None,
+              "source_evidence_identity": None, "missing_requirements": [], "evidence_deficiencies": []}
+    try:
+        created = int(creation_time)
+        migrated = int(migration_time)
+    except (TypeError, ValueError):
+        record.update({"qualification_status": "MISSING_BIRTH_PROVENANCE",
+                       "missing_requirements": ["QUALIFIED_CANONICAL_CREATION_AND_MIGRATION_PROVENANCE"],
+                       "evidence_deficiencies": ["MISSING_BIRTH_PROVENANCE"]})
+        return record
+    if created <= 0 or migrated <= 0:
+        record.update({"qualification_status": "MISSING_BIRTH_PROVENANCE",
+                       "missing_requirements": ["QUALIFIED_CANONICAL_CREATION_PROVENANCE"],
+                       "evidence_deficiencies": ["MISSING_BIRTH_PROVENANCE"]})
+        return record
+    if migrated <= created:
+        record.update({"qualification_status": "CONFLICTING_EVIDENCE",
+                       "missing_requirements": ["NONCONFLICTING_CREATION_MIGRATION_CHRONOLOGY", "RETAINED_STRICT_MIGRATION_MCAP_OFFSETS"],
+                       "evidence_deficiencies": (["MISSING_BIRTH_PROVENANCE"] if str(creation.get("source")) != "canonical_create_ledger" else []) + ["MISSING_PRICE_EVIDENCE"]})
+        return record
+    if str(creation.get("source")) != "canonical_create_ledger":
+        record.update({"qualification_status": "MISSING_BIRTH_PROVENANCE",
+                       "missing_requirements": ["QUALIFIED_CANONICAL_CREATION_PROVENANCE"],
+                       "evidence_deficiencies": ["MISSING_BIRTH_PROVENANCE"]})
+        return record
+    if not retained_offsets:
+        record.update({"qualification_status": "MISSING_PRICE_EVIDENCE",
+                       "missing_requirements": ["RETAINED_STRICT_MIGRATION_MCAP_OFFSETS"],
+                       "evidence_deficiencies": ["MISSING_PRICE_EVIDENCE"]})
+        return record
+    from src.ops.strict_migration_window import reduce_retained_offsets
+    reduced = reduce_retained_offsets(migration_timestamp=migrated, offsets=retained_offsets)
+    if reduced.get("state") != "QUALIFIED":
+        record.update({"qualification_status": "PARTIAL_ENTRY_EVIDENCE",
+                       "missing_requirements": [str(reduced.get("reason") or "STRICT_ENTRY_QUALIFICATION_FAILED")],
+                       "evidence_deficiencies": ["PARTIAL_ENTRY_EVIDENCE"]})
+        return record
+    record.update({"qualification_status": "QUALIFIED_RETAINED_ENTRY", "entry_mc_usd": reduced["entry_mc_usd"],
+                   "entry_timestamp": reduced["entry_timestamp"], "entry_method": reduced["entry_method"],
+                   "source_evidence_identity": _identity({"mint": mint, "assignment": assignment,
+                       "creation": creation, "migration": migration, "offsets": dict(retained_offsets)})})
+    return record

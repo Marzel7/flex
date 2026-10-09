@@ -92,6 +92,7 @@ def run_once(*, worker: MonitorWorker, queue, db_path: str) -> None:
     worker.reconcile_terminal_ath_jobs()
     worker.process_entry_reference_opening_once()
     worker.process_once()
+    worker.process_current_mc_overlay_once()
 
 
 def preflight_once(*, queue, db_path: str) -> dict[str, object]:

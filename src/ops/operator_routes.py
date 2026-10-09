@@ -191,6 +191,14 @@ def _monitor_live_projection() -> dict:
             due = row.get('next_observation_at')
             row['next_check_at'] = due
             row['next_check_state'] = 'DUE_NOW' if due is not None and int(due) <= now else 'SCHEDULED'
+        # Optional sidecar values remain distinct from latest_mc_usd, which is
+        # the latest retained OHLCV close. This read path performs no provider work.
+        try:
+            from src.ops.watchtower_current_mc_overlay import read_current_mc_quote_projection
+            quote = read_current_mc_quote_projection(os.getenv('WATCHTOWER_CURRENT_MC_QUOTE_DB_PATH'), now=now).get(str(row.get('mint')))
+        except (OSError, ValueError):
+            quote = None
+        row.update(quote or {'current_mc_quote_usd':None,'quote_fetched_at':None,'quote_last_trade_at':None,'quote_source':None,'quote_freshness':'UNAVAILABLE','quote_expires_at':None})
         row['age_seconds'] = now - int(row['entry_timestamp'] or row['assignment_timestamp'] or now)
         row['freshness_seconds'] = now - int(row['last_observation_at'] or now)
         terminal = row.get('monitor_state') == 'PRICE_MONITOR_COMPLETE_COLLAPSED'

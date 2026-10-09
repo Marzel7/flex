@@ -23,6 +23,13 @@ def build_birdeye_ohlcv_request(*, address: str, interval: str, time_from: int, 
     return {"endpoint":"/defi/v3/ohlcv","request_parameters":params,"encoded_query":query,"header_names":["accept","X-API-KEY","x-chain"],"url":"https://public-api.birdeye.so/defi/v3/ohlcv?"+query}
 
 
+def build_birdeye_token_overview_request(*, address: str) -> dict[str, Any]:
+    """Qualified direct current-market-cap request; no price/supply derivation."""
+    if not address or len(address) > 64: raise ValueError("UNQUALIFIED_TOKEN_OVERVIEW_ADDRESS")
+    params={"address":address}; query=urlencode(params)
+    return {"endpoint":"/defi/token_overview","request_parameters":params,"encoded_query":query,"header_names":["accept","X-API-KEY","x-chain"],"url":"https://public-api.birdeye.so/defi/token_overview?"+query}
+
+
 def validate_birdeye_credential_label(label: str) -> None:
     """Reject any runtime composition that selects a legacy Birdeye alias."""
     if label != AUTHORITATIVE_BIRDEYE_CREDENTIAL_LABEL:
@@ -114,7 +121,7 @@ class BirdeyeProductionBinding:
             admission = self.account_gate.admit(
                 caller=self.account_context.get("caller"), task=self.account_context.get("task"),
                 operation=self.account_context.get("operation"), mint=values.get("address"),
-                endpoint="/defi/v3/ohlcv", request_class=self.account_context.get("request_class"),
+                endpoint=str(request.get("endpoint") or "/defi/v3/ohlcv"), request_class=self.account_context.get("request_class"),
                 query_window={k: values.get(k) for k in ("time_from", "time_to", "type")},
                 attempt=int(self.account_context.get("attempt", 1)),
             )

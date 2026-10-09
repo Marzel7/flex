@@ -1186,6 +1186,24 @@ class MonitorWorker:
   self.opening_jobs_path=opening_jobs_path or getattr(q,'opening_jobs_path',None)
   self.provider_work_path=provider_work_path or getattr(q,'provider_work_path',None)
   self._monitor_fact_entry_offset_supported=None
+  self._current_mc_overlay=None
+
+ def process_current_mc_overlay_once(self):
+  """Optional quote sidecar owned by this worker; monitor facts stay untouched."""
+  from src.ops.watchtower_current_mc_overlay import CurrentMcOverlay,CurrentMcOverlayConfig,CurrentMcQuoteStore
+  config=CurrentMcOverlayConfig.from_environ()
+  if not config.enabled:return {'status':'DISABLED'}
+  path=os.getenv('WATCHTOWER_CURRENT_MC_QUOTE_DB_PATH','').strip()
+  if not path:return {'status':'DISABLED_MISSING_STORE'}
+  if self._current_mc_overlay is None:
+   self._current_mc_overlay=CurrentMcOverlay(quote_store=CurrentMcQuoteStore(path,max_records=config.max_records,max_store_bytes=config.max_store_bytes),config=config)
+  try:
+   with _read_only_connection(self.db_path) as con:
+    row=con.execute("SELECT mint FROM operation_monitor_facts WHERE lower(operation_id)='watchtower' AND monitor_state='MONITORING_ACTIVE' ORDER BY COALESCE(last_observation_at,0),mint LIMIT 1").fetchone()
+  except sqlite3.Error:return {'status':'STORE_UNAVAILABLE'}
+  if row is None:return {'status':'NO_ELIGIBLE_LIVE_TOKEN'}
+  try:return self._current_mc_overlay.acquire_one(mint=str(row[0]),queue=self.q)
+  except Exception:return {'status':'OVERLAY_DEFERRED'}
 
  def _monitor_fact_supports_entry_offset_seconds(self):
   """Return the persisted schema capability without mutating the database.

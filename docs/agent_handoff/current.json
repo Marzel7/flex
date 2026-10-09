@@ -3,15 +3,15 @@
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "x78_minimal_transaction_lifecycle_instrumentation": {
     "engineering_revision": "ff77283f2d8547dbc1a4d8d2e58e4a39f7b8dd28 on codex/x78-active-creator-rebase; base=eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215",
-    "status": "PASS_CONFIG_CANDIDATE_QUALIFIED_NOT_DEPLOYED",
-    "finding": "Fresh active authority check passes: config SHA=5e7e8c3c, one Supervisor PID 73409, creator-resolution PID 52633 and creator-funding PID 51676. An offline candidate was byte-copied from the installed config then changes only the two creator stanzas: each binds its clean pinned candidate root and an independent lifecycle JSONL path with MAX_BYTES=1048576 and BACKUP_COUNT=1. Candidate SHA=928ff73e5b4a81ebe4ff61d3878a48f9f574a6314d917a68eca4cdd48498a27e. Mirrored parser validation succeeds with 15 groups and creates no daemon/socket/PID/live diagnostic file.",
+    "status": "HOLD_RUNTIME_DEPLOYMENT_GATE_WAL_UNHEALTHY",
+    "finding": "Offline candidate remains qualified (SHA=928ff73e5b4a81ebe4ff61d3878a48f9f574a6314d917a68eca4cdd48498a27e), but the authorized deployment gate failed before installation: active config still matches 5e7e8c3c and one Supervisor PID 73409, yet healthz is HTTP 200 with healthy=false, db=ok, wal_mb=562.5, wal_warn=true. Resolution logs show rising WAL/busy samples; funding hit two repeated CRITICAL_WAL_PINNED self-exits at 558.2 and 562.3 MiB. No config install, Supervisor action, service restart, SQLite maintenance, provider action, or DB/queue mutation was performed by this work.",
     "tests": "23 provider-free tests in isolated processes: 9 rotating JSONL bounds/fail-open/no-SQL tests and 14 exact-eed lifecycle, conservative attribution, watchdog, write-lane, and import-thread tests. Combined-process import order exposes pre-existing global sqlite3.connect re-import recursion; isolated qualification passes.",
     "storage": "Each worker lifecycle stream is 1 MiB current plus one backup = 2 MiB; aggregate maximum=4 MiB. Parser tail read <=4 MiB; raw retention=false; unbounded growth paths=0; no file may reach 500 MB.",
-    "safety": "provider calls=0; live DB/queue writes=0; deployment/restart/SQLite maintenance/DEV-014 Batch 4=0; active pinned runtime roots/config unchanged; creator-resolution root has one pre-existing untracked owner-guard file that was not read or modified. Read-only healthz=200 healthy=true; creator heartbeats fresh; WAL=475.2 MiB then 477 MiB, below 500 MiB but close. Existing resolution watchdog log shows stalled gap 120416 frames and a prior critical self-exit; no checkpoint was issued.",
+    "safety": "provider calls=0; live DB/queue writes=0; deployment/restart/SQLite maintenance/DEV-014 Batch 4=0; active pinned runtime roots/config unchanged; creator-resolution root has one pre-existing untracked owner-guard file that was not read or modified. Fresh read-only deployment preflight observed new natural funding PIDs/self-restarts; no Codex process action was taken.",
     "audit": "docs/audits/x78_active_creator_wal_rebase_qualification.v1.json",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
-    "next_action": "REVIEW_THE_OFFLINE_QUALIFIED_CANDIDATE_AND_SEPARATELY_AUTHORIZE_RUNTIME_DEPLOYMENT_GATE_EVIDENCE_FOR_THE_TWO_CREATOR_WORKERS_ONLY; retain active config/source byte-exact rollback authorities and do not deploy before authorization."
+    "next_action": "RESTORE_RUNTIME_HEALTH_UNDER_A_SEPARATELY_AUTHORIZED_WAL_OBSTRUCTION_INCIDENT_WORKSTREAM, THEN_REPEAT_FULL_FRESH_DEPLOYMENT_PREFLIGHT. Do not install X78 diagnostics while healthy=false, wal_warn=true, WAL exceeds 500 MiB, or critical checkpoint-obstruction exits recur."
   },
   "active_observation": {
     "authorization_consumed_at_utc": "2026-08-12T20:55:26Z",

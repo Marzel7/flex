@@ -1,4 +1,18 @@
 {
+  "dev014_watchtower_policy_c_deployment_attempt_20261009": {
+    "engineering_revision": "Attempt used prepared candidate runtime 4488453740400c169327b200371d417e984e4603 and candidate config ee69b559970322e6d5ffcced2f0de32611c80ecab5415b2ede1488cd789e2dc9 from remote-backed branch origin/codex/dev014-policy-c-cadence. No source revision was changed by the transition.",
+    "status": "ROLLED_BACK_API_QUEUE_AUTHORITY_MISMATCH",
+    "preflight": "PASS immediately before transition: active/candidate hashes, clean pinned runtime, Supervisor ownership, exactly two changed stanzas, disk=5901020 KiB free, healthy /healthz, bounded read-only canonical/monitor metadata, CatTok immutable birth, 61 timestamp-less terminal exclusions, 20/4 limits, watermark=1791446333, BIRDEYE presence without disclosure, rollback hash and unrelated-service continuity all passed.",
+    "transition": "Active config was atomically replaced with the exact candidate, Supervisor reread/update targeted only watchtower_api and operation_monitor_worker, and the worker was explicitly started because the qualified stanza uses autostart=false. Candidate API PID=90788 and worker PID=90826 became Supervisor-owned. No queue replay or manual enqueue occurred.",
+    "acceptance_failure": "CatTok retained retry envelope had future next_eligible_dispatch_at=1791527405, but candidate API returned next_check_at=1791526560 with DUE_NOW. Candidate configuration bound API OPERATION_MONITOR_QUEUE_PATH=/Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/operation_monitor_jobs while the monitor worker owns /Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue. Therefore the API could not satisfy the required queue-authoritative Next Check contract.",
+    "rollback": "Immediate targeted rollback succeeded. Active config restored SHA256=22721ba7526cadddb443f52add1add76f8df6c1cbb305154155f98e47fc837a8 from fresh byte-exact /private/tmp/watchtower-policy-c-api-worker-live-rollback-22721ba7-20261009.conf. New restored API PID=91149 and worker PID=91151 are RUNNING under Supervisor PID=73409. /healthz healthy=true, db=ok, wal_warn=false. Canonical WAL=2373152 bytes; no WAL warning/lock failure was observed.",
+    "continuity": "operation_monitor_bridge PID=21106, watchtower_listener PID=48504, ws_cascade PID=73417 and creator_funding_worker PID=25829 remained Supervisor-owned RUNNING. Historical 61-envelope exclusion was not modified. No provider request was task-initiated.",
+    "blocker": "Correct the offline candidate API OPERATION_MONITOR_QUEUE_PATH to the authoritative active monitor queue and requalify queue-deadline projection; do not alter the bridge, listener, provider budget, lifecycle schema, or historical envelopes.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "FAIL_ROLLED_BACK_QUEUE_AUTHORITATIVE_API_BINDING_REQUIRED",
+    "next_action": "STOP. Do not retry deployment. Separately qualify and prepare the smallest target-only candidate with the correct API monitor queue binding, then require a new fresh preflight and explicit transition authorization.",
+    "project": {"git_head": "b36bd959058110c55943556200c1e0806bea26b9"}
+  },
   "dev014_watchtower_policy_c_deployment_preflight_20261009": {
     "engineering_revision": "Candidate preparation authority is b36bd959058110c55943556200c1e0806bea26b9; the clean detached runtime used by both candidate target stanzas is /private/tmp/flex-watchtower-policy-c-runtime-44884537 at 4488453740400c169327b200371d417e984e4603. Both are remotely reachable on origin/codex/dev014-policy-c-cadence.",
     "status": "PREFLIGHT_PASS_NOT_DEPLOYED",

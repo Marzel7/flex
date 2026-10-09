@@ -69,6 +69,36 @@ def _monitor_store_connection() -> sqlite3.Connection:
         raise MonitorStoreUnavailable("WATCHTOWER_MONITOR_UI_DB_UNREADABLE") from exc
 
 
+_MONITOR_QUEUE_STATES = ("pending", "retry", "processing", "dead_letter")
+
+
+def _monitor_queue_root() -> Path:
+    """Return the explicitly bound monitor queue root without constructing it.
+
+    The Watchtower projection must use the same durable queue authority as the
+    monitor worker.  It must never substitute the generic operations queue or
+    call a queue constructor, either of which could mask a configuration
+    mismatch or create state during a read-only API request.
+    """
+    configured = os.getenv("WATCHTOWER_MONITOR_QUEUE_PATH", "").strip()
+    if not configured:
+        raise MonitorStoreUnavailable("WATCHTOWER_MONITOR_QUEUE_PATH_REQUIRED")
+    root = Path(configured).expanduser()
+    if not root.is_dir():
+        raise MonitorStoreUnavailable("WATCHTOWER_MONITOR_QUEUE_PATH_UNAVAILABLE")
+    if any(not (root / state).is_dir() for state in _MONITOR_QUEUE_STATES):
+        raise MonitorStoreUnavailable("WATCHTOWER_MONITOR_QUEUE_PATH_INVALID")
+    return root
+
+
+def _monitor_queue_depth(root: Path) -> dict[str, int]:
+    """Count only existing compact queue messages; no queue mutation occurs."""
+    return {
+        state: sum(1 for path in (root / state).glob("*.json") if path.is_file())
+        for state in _MONITOR_QUEUE_STATES
+    }
+
+
 def _watchtower_display_fields(row: dict) -> dict:
     """Derive display-only lifecycle semantics from persisted monitor facts."""
     if str(row.get("operation_id")).lower() != "watchtower":
@@ -110,28 +140,26 @@ def _monitor_live_projection() -> dict:
     # Queue-only assignments are live prospective state too.  This projection is
     # deliberately file/DB read-only: it does not construct a client, claim work,
     # or create placeholder fact rows.
-    from src.ops.operation_monitor_worker import production_queue
-    q = production_queue().queue
+    queue_root = _monitor_queue_root()
     queue_deadlines = {}
-    if q.enabled:
-        fact_keys = {(str(r['operation_id']).lower(), str(r['mint'])) for r in rows}
-        for state in ('pending', 'retry', 'processing', 'dead_letter'):
-            for path in sorted((q.root / state).glob('*.json')):
-                try:
-                    payload = json.loads(path.read_text(encoding='utf-8'))
-                    envelope = payload.get('envelope') or {}
-                    operation_id = str(envelope.get('operation_id') or '').lower()
-                    mint = str(envelope.get('mint') or '')
-                    key = (operation_id, mint)
-                    if operation_id not in {'watchtower', 'byzantine'} or not mint:
-                        continue
-                    deadline = envelope.get('next_eligible_dispatch_at') or envelope.get('recovery_deadline_at') or envelope.get('backoff_until')
-                    if key in fact_keys:
-                        if state in {'pending', 'processing', 'retry'} and deadline is not None:
-                            queue_deadlines[key] = {'next_check_at': int(deadline), 'next_check_state': 'DUE_NOW' if int(deadline) <= now else 'SCHEDULED'}
-                        continue
-                    assignment = envelope.get('assignment') or {}
-                    rows.append({
+    fact_keys = {(str(r['operation_id']).lower(), str(r['mint'])) for r in rows}
+    for state in _MONITOR_QUEUE_STATES:
+        for path in sorted((queue_root / state).glob('*.json')):
+            try:
+                payload = json.loads(path.read_text(encoding='utf-8'))
+                envelope = payload.get('envelope') or {}
+                operation_id = str(envelope.get('operation_id') or '').lower()
+                mint = str(envelope.get('mint') or '')
+                key = (operation_id, mint)
+                if operation_id not in {'watchtower', 'byzantine'} or not mint:
+                    continue
+                deadline = envelope.get('next_eligible_dispatch_at') or envelope.get('recovery_deadline_at') or envelope.get('backoff_until')
+                if key in fact_keys:
+                    if state in {'pending', 'processing', 'retry'} and deadline is not None:
+                        queue_deadlines[key] = {'next_check_at': int(deadline), 'next_check_state': 'DUE_NOW' if int(deadline) <= now else 'SCHEDULED'}
+                    continue
+                assignment = envelope.get('assignment') or {}
+                rows.append({
                         'operation_id': operation_id, 'mint': mint,
                         'cohort_class': envelope.get('cohort', 'PROSPECTIVE_MONITOR_COHORT'),
                         'assignment_timestamp': assignment.get('assigned_at'),
@@ -148,10 +176,10 @@ def _monitor_live_projection() -> dict:
                         'evidence_status': envelope.get('entry_evaluation_result', 'WAITING_FOR_ENTRY_REFERENCE'),
                         'provenance_digest': envelope.get('assignment_digest'),
                         'queue_state': state, 'queue_message_id': payload.get('message_id'),
-                    })
-                    fact_keys.add((operation_id, mint))
-                except (OSError, ValueError, TypeError):
-                    continue
+                })
+                fact_keys.add((operation_id, mint))
+            except (OSError, ValueError, TypeError):
+                continue
     for row in rows:
         scheduled = queue_deadlines.get((str(row.get('operation_id') or '').lower(), str(row.get('mint') or '')))
         if scheduled:
@@ -198,8 +226,8 @@ def _monitor_live_projection() -> dict:
     for name in ('watchtower','byzantine'):
         subset=[r for r in rows if str(r['operation_id']).lower()==name]
         ops[name]={'active':sum(r['monitor_state']=='MONITORING_ACTIVE' for r in subset),'waiting':sum('WAITING' in r['monitor_state'] for r in subset),'completed':sum('COMPLETE' in r['monitor_state'] for r in subset),'failed':sum('FAIL' in r['monitor_state'] or 'INSUFFICIENT' in r['monitor_state'] for r in subset),'calls_today':sum(int(r.get('provider_call_count') or 0) for r in subset),'last_success':max((r.get('last_observation_at') or 0 for r in subset),default=None),'profile':('FIRST_FULL_POST_MIGRATION_SECOND_MC · >=85% running-peak drawdown' if name=='watchtower' else 'Scenario-D 12/13 · terminal rule unqualified')}
-    depth = q.depth()
-    pending_paths = list((q.root / 'pending').glob('*.json')) if q.enabled else []
+    depth = _monitor_queue_depth(queue_root)
+    pending_paths = list((queue_root / 'pending').glob('*.json'))
     oldest = min((now-int(p.stat().st_mtime) for p in pending_paths),default=None)
     last_success=max((r.get('last_observation_at') or 0 for r in rows),default=None)
     mode=os.getenv('OPERATIONS_MODE','OFF').upper()

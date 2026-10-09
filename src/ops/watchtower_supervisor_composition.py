@@ -207,7 +207,7 @@ def _api_stanza(p: RuntimePaths) -> str:
     return f'''[program:watchtower_api]
 command={p.root}/scripts/launch_watchtower_final.sh api {p.sha}
 directory={p.root}
-environment=PYTHONPATH="{p.root}",WATCHTOWER_FINAL_ROOT="{p.root}",WATCHTOWER_FINAL_SHA="{p.sha}",WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH="{p.audit_ledger}",DB_PATH="{p.canonical_db}",FLEX_DB_PATH="{p.canonical_db}",WT_OPS_DB_PATH="{p.api_operations_db}",OPS_V2_DB_PATH="{p.api_operations_db}",WATCHTOWER_MONITOR_UI_DB_PATH="{p.api_monitor_ui_db}",OPERATION_MONITOR_QUEUE_PATH="{p.api_queue}",FLEX_WS_DISABLED="1",FLEX_UI_RECOVERY_MODE="0",DB_WRITE_SERIALIZE="1",FLEX_ENABLE_FLASK_BACKGROUND_WORKERS="0",WATCHTOWER_SHADOW_EVALUATION_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_LEDGER_PATH="{p.shadow_ledger}"
+environment=PYTHONPATH="{p.root}",WATCHTOWER_FINAL_ROOT="{p.root}",WATCHTOWER_FINAL_SHA="{p.sha}",WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH="{p.audit_ledger}",DB_PATH="{p.canonical_db}",FLEX_DB_PATH="{p.canonical_db}",WT_OPS_DB_PATH="{p.api_operations_db}",OPS_V2_DB_PATH="{p.api_operations_db}",WATCHTOWER_MONITOR_UI_DB_PATH="{p.api_monitor_ui_db}",OPERATION_MONITOR_QUEUE_PATH="{p.api_queue}",WATCHTOWER_MONITOR_QUEUE_PATH="{p.worker_queue}",FLEX_WS_DISABLED="1",FLEX_UI_RECOVERY_MODE="0",DB_WRITE_SERIALIZE="1",FLEX_ENABLE_FLASK_BACKGROUND_WORKERS="0",WATCHTOWER_SHADOW_EVALUATION_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_ENABLED="0",WATCHTOWER_SHADOW_CAPTURE_LEDGER_PATH="{p.shadow_ledger}"
 autostart=true
 autorestart=true
 startretries=999

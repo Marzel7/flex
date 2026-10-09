@@ -37,6 +37,12 @@ def _monitor_store(path):
         )
 
 
+def _queue_root(path):
+    for state in ("pending", "retry", "processing", "dead_letter"):
+        (path / state).mkdir(parents=True, exist_ok=True)
+    return path
+
+
 def test_frozen_schema_has_one_finalization_authority_and_no_coverage_columns(tmp_path):
     database = tmp_path / "monitor.sqlite"
     _monitor_store(database)
@@ -54,10 +60,8 @@ def test_monitor_projection_reads_configured_store_and_labels_observed_peaks(mon
     database = tmp_path / "monitor.sqlite"
     _monitor_store(database)
     monkeypatch.setenv("WATCHTOWER_MONITOR_UI_DB_PATH", str(database))
-    import src.ops.operation_monitor_worker as worker
     import src.ops.operator_routes as routes
-    disabled = SimpleNamespace(enabled=False, depth=lambda: {"pending": 0, "retry": 0, "processing": 0, "dead_letter": 0})
-    monkeypatch.setattr(worker, "production_queue", lambda: SimpleNamespace(queue=disabled))
+    monkeypatch.setenv("WATCHTOWER_MONITOR_QUEUE_PATH", str(_queue_root(tmp_path / "queue")))
     rows = {row["mint"]: row for row in routes._monitor_live_projection()["rows"]}
     assert set(rows) == set(TARGETS)
     for mint, (entry, peak) in TARGETS.items():
@@ -75,7 +79,6 @@ def test_monitor_projection_prefers_current_durable_queue_deadline(monkeypatch, 
     database = tmp_path / "monitor.sqlite"
     _monitor_store(database)
     monkeypatch.setenv("WATCHTOWER_MONITOR_UI_DB_PATH", str(database))
-    import src.ops.operation_monitor_worker as worker
     import src.ops.operator_routes as routes
     queue = MonitorQueue(tmp_path / "queue", enabled=True)
     mint = next(iter(TARGETS))
@@ -84,10 +87,59 @@ def test_monitor_projection_prefers_current_durable_queue_deadline(monkeypatch, 
         "monitor_state": "ENTRY_REFERENCE_QUALIFIED",
         "next_eligible_dispatch_at": 2_000_000_000,
     }, message_id="cattok-policy-c")
-    monkeypatch.setattr(worker, "production_queue", lambda: queue)
+    monkeypatch.setenv("WATCHTOWER_MONITOR_QUEUE_PATH", str(queue.queue.root))
     row = {item["mint"]: item for item in routes._monitor_live_projection()["rows"]}[mint]
     assert row["next_check_at"] == 2_000_000_000
     assert row["next_check_state"] == "SCHEDULED"
+
+
+def test_monitor_projection_uses_explicit_worker_queue_for_cattok_deadline(monkeypatch, tmp_path):
+    database = tmp_path / "monitor.sqlite"
+    _monitor_store(database)
+    mint = "DNtZMNDZ65hAJbJXRiP9NnV98ZTrwLTEJZ78fWKCpump"
+    with sqlite3.connect(database) as conn:
+        conn.execute(
+            """INSERT INTO operation_monitor_facts(
+                operation_id,mint,cohort_class,entry_method,entry_status,entry_exactness,
+                monitor_state,entry_timestamp,entry_mc_usd,next_observation_at,
+                provenance_digest,created_at,updated_at
+            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            ("watchtower", mint, "PROSPECTIVE_MONITOR_COHORT",
+             "FIRST_FULL_POST_MIGRATION_SECOND_MC", "QUALIFIED", "EXACT",
+             "MONITORING_ACTIVE", 1791517200, 144176.0, 1791526560,
+             "cattok-proof", 1791517200, 1791517200),
+        )
+    queue = MonitorQueue(tmp_path / "dev_005a_queue", enabled=True)
+    message = queue.queue.enqueue({
+        "operation_id": "watchtower", "mint": mint,
+        "monitor_state": "MONITORING_ACTIVE",
+        "next_eligible_dispatch_at": 1791527405,
+    }, message_id="cattok-authoritative-deadline")
+    pending = queue.queue.root / "pending" / f"{message}.json"
+    pending.replace(queue.queue.root / "retry" / f"{message}.json")
+    before = (queue.queue.root / "retry" / f"{message}.json").read_bytes()
+    monkeypatch.setenv("WATCHTOWER_MONITOR_UI_DB_PATH", str(database))
+    monkeypatch.setenv("WATCHTOWER_MONITOR_QUEUE_PATH", str(queue.queue.root))
+    import src.ops.operator_routes as routes
+    monkeypatch.setattr(routes.time, "time", lambda: 1791526560)
+    row = {item["mint"]: item for item in routes._monitor_live_projection()["rows"]}[mint]
+    assert row["next_check_at"] == 1791527405
+    assert row["next_check_state"] == "SCHEDULED"
+    assert (queue.queue.root / "retry" / f"{message}.json").read_bytes() == before
+
+
+@pytest.mark.parametrize("configured, reason", [(None, "WATCHTOWER_MONITOR_QUEUE_PATH_REQUIRED"), ("missing", "WATCHTOWER_MONITOR_QUEUE_PATH_UNAVAILABLE")])
+def test_monitor_projection_fails_closed_without_valid_explicit_queue(monkeypatch, tmp_path, configured, reason):
+    database = tmp_path / "monitor.sqlite"
+    _monitor_store(database)
+    monkeypatch.setenv("WATCHTOWER_MONITOR_UI_DB_PATH", str(database))
+    if configured is None:
+        monkeypatch.delenv("WATCHTOWER_MONITOR_QUEUE_PATH", raising=False)
+    else:
+        monkeypatch.setenv("WATCHTOWER_MONITOR_QUEUE_PATH", str(tmp_path / configured))
+    import src.ops.operator_routes as routes
+    with pytest.raises(routes.MonitorStoreUnavailable, match=reason):
+        routes._monitor_live_projection()
 
 
 def test_strict_finalizer_rejects_incomplete_ohlcv_before_final_persistence(tmp_path):

@@ -99,6 +99,8 @@ def test_api_and_worker_composition_preserves_bridge_listener_and_unrelated_byte
             candidate_end = len(candidate)
         assert candidate[candidate_start:candidate_end] == SOURCE[start:end]
     assert b'OPERATION_MONITOR_CANONICAL_BIRTH_DB_PATH="/canonical-birth.db"' in candidate
+    assert b'OPERATION_MONITOR_QUEUE_PATH="/api-queue"' in candidate
+    assert b'WATCHTOWER_MONITOR_QUEUE_PATH="/worker-queue"' in candidate
     assert compose_api_and_worker(candidate, _paths(tmp_path)) == candidate
 
 

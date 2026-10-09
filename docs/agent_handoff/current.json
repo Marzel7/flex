@@ -21763,6 +21763,19 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "STOP. A separate explicit runtime-deployment approval must identify the target pinned creator-funding checkout, deployment/reload action, rollback identity, and bounded live acceptance before this correction is installed."
   },
+  "dev014_birdeye_current_mc_contract_probe_20261009": {
+    "engineering_revision": "Read-only bounded provider-contract qualification from clean isolated worktree /private/tmp/flex-dev014-current-mc-freshness at 48e5b8e249a545c045be1311369e310199985646; no engineering source changed.",
+    "status": "PASS_DIRECT_CURRENT_MC_CONTRACT_QUALIFIED_NO_OVERLAY_IMPLEMENTED",
+    "preflight": "PASS: current APFS free space=12,841,556 KiB (>4 GiB floor); isolated worktree clean; API /healthz healthy=true, db=ok, wal_warn=false; existing non-disclosing BIRDEYE binding presence passed; monitored 60-second budget state had 0 recent entries against global=20/per-mint=4. No live database/queue, Supervisor, listener, or source mutation occurred.",
+    "probe": "Exactly 2 sequential paid-BIRDEYE GET /defi/token_overview requests with x-chain=solana and no retry/fallback were issued. CatTok DNtZMNDZ65hAJbJXRiP9NnV98ZTrwLTEJZ78fWKCpump returned HTTP 200 success=true, direct field marketCap=3265.40428003735, fdv=3265.40428003735, circulatingSupply=983117141.996797, and provider lastTradeUnixTime=1791530121 / lastTradeHumanTime=2026-10-09T07:15:21; client fetched_at=1791530136. This demonstrates Pump.fun direct-market-cap compatibility. The System Program missing-token control returned HTTP 200 success=true but no marketCap, fdv, supply, or provider timestamp, establishing that absence of marketCap is the fail-closed unavailable-quote condition even with HTTP 200.",
+    "semantics_and_freshness": "The response directly labels the valuation field marketCap; exact circulating-versus-total-supply semantics beyond provider naming remain documentation-dependent and must be carried as provider-reported marketCap rather than independently re-derived. Provider trade timestamp was available for CatTok and allows freshness = client_fetched_at minus lastTradeUnixTime; no provider timestamp implies UNQUALIFIED/UNAVAILABLE rather than a fresh quote.",
+    "cost": "Official Birdeye material cited in prior contract assessment states token_overview cost 25 CU per request at time of writing. This probe did not expose account-billing headers, so 25 CU is a documented expected cost, not a measured billed-credit result. Two-request expected total is 50 CU.",
+    "regression": "PASS: tests/test_birdeye_credential_authority.py = 6 passed. An initial attempted test path was absent from this clean source and ran zero tests; it made no provider call or mutation. No raw provider response, credential, payload, or durable evidence file was retained.",
+    "storage": "New persistent files=0; raw retention=false; maximum new single-file size=0 bytes; unbounded growth paths=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Provider-contract qualification only; no runtime behavior changed.",
+    "next_action": "STOP. The direct Current-MC endpoint is qualified for a separate minimal overlay implementation proposal. Any overlay must remain owned by the existing monitor worker, share 20 global/4 per-mint budgets, retain only compact quote fields, use explicit freshness/expiry, and never mutate Entry, historical observations, running peak/ATH, multiples, drawdown, terminal state, or Policy-C queue scheduling."
+  },
   "dev019_treasury_subscription_activity_reconciliation_20261008": {
     "engineering_revision": "Live cascade 26da06daba23608bd64d5b86cde1f92b24d3a98d; retained activity corpus c9925cb038ebe0bf8677d76331700eadf535cf6b; qualified selector 23b09948a70ccea9f08cf560e9684325e9287623.",
     "status": "PASS_READ_ONLY_SELECTION_RECONCILED_NOT_DEPLOYED",

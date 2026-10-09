@@ -23274,5 +23274,17 @@
     "runtime_deployment_gate": "NOT_REQUIRED_PROVIDER_FREE_LIBRARY_ONLY",
     "remote_verification": "Engineering commit 262c7dbfafbd38cfae01e7784336f94897ff28e1 was pushed and matched origin/codex/dev014-current-mc-freshness before handoff publication.",
     "next_action": "HOLD. A separate explicit acquisition milestone must select a finite subset, construct an isolated state/evidence directory, complete the existing fresh runtime/provider preflight, and then invoke exactly one bounded controller session. Do not deploy, schedule, or acquire automatically."
+  },
+  "dev014_first_automated_historical_backfill_session_20261009": {
+    "status": "HOLD_EXECUTION_BINDING_UNQUALIFIED",
+    "verdict": "NO_PROVIDER_ACQUISITION_OR_BUDGET_DEBIT_PERFORMED",
+    "engineering_revision": "262c7dbfafbd38cfae01e7784336f94897ff28e1 clean and remote-matched on isolated codex/dev014-current-mc-freshness.",
+    "readiness_check": "The controller source was inspected directly. It deliberately exposes only a generic caller-supplied transport callback and has no qualified Birdeye HTTP binding, no compact request-intent/evidence artifact writer, and no actual invocation of the qualified Batch 4 normalization runner. Repository search found no separate binding for HistoricalBackfillController/run_with_shared_budget.",
+    "crash_safety_gap": "Current compact state contains completed_request_ids/deferred/evidence_bytes plus pause/cancel. It does not durably distinguish PENDING, ADMITTED, ATTEMPTED, COMPLETED, OUTCOME_UNKNOWN, and DEFERRED. An interruption after shared-budget admission and before callback return could be repeated on a later session, violating the one-attempt authorization.",
+    "safety": "No API/runtime preflight, paid Birdeye call, provider-budget debit, ledger/queue/database write, controller state directory creation, artifact write, deployment, or scheduler action occurred. The authorized maximum remains entirely unused.",
+    "required_implementation": "Separate provider-free implementation qualification is required: bind exactly the qualified 1m MCAP request/normalization contract, atomically persist intent before admission and ADMITTED/ATTEMPTED before transport, resolve any interrupted identity only through retained compact evidence or mark OUTCOME_UNKNOWN, bound compact artifacts to <=1 MiB (aggregate <=2 MiB), and regression-test no repeat after every crash boundary. It must retain live preemption and existing runtime-gate-before-admission ordering.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_UNQUALIFIED_EXECUTION_BINDING_HOLD",
+    "next_action": "Obtain separate provider-free implementation authority for the execution binding and crash-state contract; then remote-verify it and obtain a fresh explicit acquisition authorization. Do not acquire under the current generic controller."
   }
 }

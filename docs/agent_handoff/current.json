@@ -3298,6 +3298,18 @@
     "runtime_deployment_required": false,
     "next_action": "HOLD pending an explicit authorization for the frozen ten-signature counterpart-validation batch; do not acquire, promote, reconstruct, backfill, or deploy before that gate."
   },
+  "dev014_watchtower_counterpart_validation_batch_20261009": {
+    "status": "PASS_COUNTERPART_EVENT_VALIDATION_CHRONOLOGY_HOLD",
+    "engineering_revision": "225d0d0530964b9118c13ba03e277c708369c989 on clean isolated codex/dev014-current-mc-freshness; remote engineering branch remains at the previously published da95e917a9e3d572c7da20548d53f75afed6f0f0 and this local qualified delta is identified here.",
+    "scope": "Exact frozen ten-signature Helius getTransaction batch only: concurrency=1, requests=10, retries=0, fallback=0, pagination=0, block requests=0. No canonical correction, Entry promotion, price backfill, deployment, database/queue write, or lifecycle mutation.",
+    "preflight": "PASS: frozen reconciliation allowlist exact (10 unique signatures/request identities; 9 migration + 1 creation); authoritative non-disclosed Helius binding present; isolated cap=10; disk=7354437632 bytes free; API PID 9045 and worker PID 9126 Supervisor-owned and healthy; /healthz db=ok; query-only DB passed; WAL=4556752 bytes; no competing acquisition process. Source remote status was observed and preserved, not silently treated as published.",
+    "same_slot_assessment": "Existing 2GE5... pair has distinct creation/migration signatures in slot 454044241. Retained compact evidence has no transaction index or independent block-order source; getBlock was prohibited and not called. Strict slot inequality is the qualified rule, therefore SAME_SLOT_ORDER_UNRESOLVED remains.",
+    "result": "New counterpart validations=10/10; both event identities distinct and verified=10/10; conflicts=0; positive slots=10/10. Every new pair shares its counterpart slot, yielding chronology-qualified=0 and same-slot unresolved=10. Including the existing 2GE5... pair, same-slot unresolved cases=11.",
+    "artifact": "docs/audits/dev014_watchtower_counterpart_validation_batch_20261009.v1.json SHA-256 0209299c94a4990557234332e296f7c7772e2c30bddf8034f12a4f61903a7f0d; 11705 bytes; raw transaction/block retention=false; max record=912 bytes; aggregate bound=1000000 bytes. Four compact pilot/reconciliation artifacts total 50578 bytes; unbounded-growth paths=0.",
+    "postcheck": "PASS: target services still RUNNING at PID 9045/9126; API health db=ok, WAL warning=false (wal_mb=14.3). No raw payload markers retained.",
+    "runtime_deployment_required": false,
+    "next_action": "HOLD. A separate provider-free contract must define and qualify independent same-slot transaction ordering before chronology can be promoted; do not issue further RPC calls, promote facts, reconstruct Entry, backfill, or deploy."
+  },
   "dev019_8cub_downstream_coverage_batch1_20261008": {
     "artifact": "docs/audits/dev_019_8cub_downstream_coverage_batch1.v1.json SHA256=003be28e8dce011760ad438a2e990eedbbd9d0e5ee887632a2dcd21cc8292b18, 14174 bytes. It retains compact page boundaries, per-signature decode status, and no raw RPC payload/block data.",
     "authorization_and_coverage": "One separately authorized 8CUb-only Helius batch executed three cursor-bounded 20-signature pages. Requests=63/66 (3 getSignaturesForAddress, 60 getTransaction, 0 getBlock), retries=0, fallback=0. Compact page boundaries were saved before decoding. All three windows are COMPLETE_SIGNATURE_WINDOW (20/20); all 60 returned unique signatures decoded successfully as legacy transactions.",

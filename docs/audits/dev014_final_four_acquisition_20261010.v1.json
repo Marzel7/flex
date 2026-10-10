@@ -1,0 +1,23 @@
+{
+  "schema": "dev014.final-four-acquisition.v1",
+  "status": "COMPLETED_EXACTLY_ONCE",
+  "engineering_revision": "e74528819c47a1d6468ee171e58477811f3d7232",
+  "authorization": {
+    "cohort_content_hash": "9b67850fe6fd2f215a0c4adcbaa13668df58a9cbcdaf8b330c954aa4df3cfe99",
+    "execution_manifest_content_hash": "030842828d9ac592b2094766c4a79b8744beb3fe8e8a1af70188a493b2eb0d9b",
+    "ranks": [120, 123, 129, 144],
+    "maximum_paid_requests": 4
+  },
+  "results": [
+    {"rank": 120, "request_identity": "6a55abbca69242875dfd8668368db0bbb4e4ba45d25f514ede9526a6be4d4435", "http_status": 200, "normalization_status": "NORMALIZED", "returned_candle_count": 60, "evidence_identity": "fb4c49c77ad8333a1988f261471542a9215e6261b89b3f923829bbbacaee6092", "missing_3600_buckets": 0},
+    {"rank": 123, "request_identity": "44103c86503114828ce667eae17e343d4db5d5c4bd1edce51ae1a413170d46ea", "http_status": 200, "normalization_status": "NORMALIZED", "returned_candle_count": 60, "evidence_identity": "ea273b4fa98583f1c5241564a2f55342eb0f7a2339833dbd364c2e421a3a097f", "missing_3600_buckets": 0},
+    {"rank": 129, "request_identity": "362eb7a9b84817cda0a6658675bf00d142b343518eea7e3a9c25d4ce793f161c", "http_status": 200, "normalization_status": "NORMALIZED", "returned_candle_count": 60, "evidence_identity": "8f2993efc2ae3e4c8bc9caaa08b81d92cfe23c1d5bd13cff4d0f29b65c0f45c6", "missing_3600_buckets": 0},
+    {"rank": 144, "request_identity": "16845848449d08e3148e43ac018271e2ecdc6de424b74059a7cd7389e7ca0552", "http_status": 200, "normalization_status": "NORMALIZED", "returned_candle_count": 17, "evidence_identity": "49f7872d65861c33ff652c8b3af17b10876a38bd14df4611db1daf7d8a4828dc", "missing_3600_buckets": 42, "coverage_status": "PROVIDER_MISSING_COVERAGE"}
+  ],
+  "shared_budget": {"admissions": 4, "global_limit": 20, "per_mint_limit": 4, "maximum_observed_per_mint": 1},
+  "storage": {"journal_bytes": 11222, "raw_provider_retention": false, "maximum_artifact_bytes": 1000000, "maximum_session_evidence_bytes": 5242880, "maximum_cohort_bytes": 104857600, "unbounded_growth_paths": 0},
+  "preserved": {"prior_completed": 31, "outcome_unknown_ranks": [41, 53], "rank74": "HTTP_200_NORMALIZATION_FAILED", "missing_anchor_deferrals": 524},
+  "runtime": {"manual_cli_target": "/private/tmp/flex-dev014-current-mc-freshness", "runtime_deployment": false, "runtime_deployment_gate": "PASS_MANUAL_CLI_TARGET", "api": "healthy/db=ok/wal_warn=false", "wal_bytes": 0, "checkpoint_remaining_frames": 20, "disk_free_bytes": 9498075136},
+  "stop_reason": "COHORT_EXHAUSTED",
+  "next_action": "Stop paid historical acquisition. A separately authorized provider-free audit may examine the 524 missing-anchor deferrals for retained or observed-price-relative research evidence."
+}

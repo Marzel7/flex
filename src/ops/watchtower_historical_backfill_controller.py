@@ -47,6 +47,33 @@ def _request(mint: str, timestamp: int, batch: str) -> dict[str, Any]:
     return {"endpoint": "GET /defi/v3/ohlcv", "params": params, "request_identity": _digest({"batch": batch, "mint": mint, "params": params})}
 
 
+# The rank assignments are frozen by the existing recent-first plan.  Entry
+# evidence is deliberately not copied here: it is projected only from the V2
+# population below, where creation and qualified-opening facts are retained.
+EXTENDED_RECENT_FIRST_RANKS: tuple[tuple[int, str], ...] = (
+    (71, "8mnDxKCJUS59RzvesoYEk2ivtVhn5mBS2tmKj32ppump"),
+    (72, "9Q2DMkmqkFPHAQHNgkRLUN7XYoSp87GqUAFVoV71pump"),
+    (73, "59F95Wkn5LRpiKmG2FE3g87Lzkz4redvNJNKSi1Npump"),
+    (74, "3KdoU8X1DJBvmmxYYttJWQ1KiMfarg3bFAdeCAmspump"),
+    (75, "8xySnQGLve5959cr4QiJxpNGW5wkBWPh4VxgJVycpump"),
+    (76, "2n3bPZcfbcUNgaP6Ktw8E1wYoycAhuR1sSHa7uB6pump"),
+    (77, "A8MBwPZwR6msXrDBRzg8b1W7BpjjPch1WsTELQJzpump"),
+    (78, "9DPUFzAMZfbh4ie5RLJ1C7Zhes5eEayPsTU91tSzpump"),
+    (79, "8n1Qyjo7LrQMFaZsTJ3K1qPkNRMxDmS6R4eDjkvjpump"),
+    (80, "FCoXFnRQsHtb2rPReJUrtkPD8qBm8UVbXNdHx49spump"),
+    (81, "7mqDrCDrw7zxqQs3KiRWmx3bns7uy3mMSiAKgDotpump"),
+    (82, "7rnZdzwZMkrviU1S6r74e1gGfMnnDzmMSXTgrXKSpump"),
+    (83, "5PmsmHC6aqCuBzECBLX5Mv9FA8Pgd9rfrX9bT4kzpump"),
+    (84, "B5yWXR3PZeRuEDs7P55SBgyZEiVu3Ak7k3uWmYLdpump"),
+    (85, "4Z9eH1BCuq2Y6FFRXkZft9LoxwMqQWo7bJsEbcd7pump"),
+    (86, "BvnqdYwuFrvi9ds63EtwQLYME89ikJkULnJPAd83pump"),
+    (87, "FvYjAkbhhzpp3Rk3BoSLVKjYpi2zJ4baAS26R9hupump"),
+    (88, "7KG3FFuwqs21v2CHL2UEZtrcZpH3tm676as6SEMdpump"),
+    (89, "BULbQ4j9WU6r63idgdQVsjt6i3nKSTXgyj7Qqcdpump"),
+    (90, "AoMGtae9dteY2XteudmTa9W4uZLfuDVHXxcduJE1pump"),
+)
+
+
 class HistoricalBackfillController:
     """Owns one compact state file and yields deterministic historical work."""
 
@@ -139,10 +166,25 @@ class HistoricalBackfillController:
                 opening = launches.get(item["mint"], {}).get("evidence", {}).get("opening", {})
                 planned_item["entry_mc_usd"] = self._qualified_entry_mc(opening=opening, anchor=item["anchor"])
             planned.append(planned_item)
-        # The frozen 70-mint recent-first population supplies later historical
-        # continuation only; it never expands into the 639-token cohort.
-        for rank, mint in enumerate(self.population["reconciliation"]["most_recent_70_mints"][50:], 51):
-            launch = launches[mint]
+        # The frozen 70-mint recent-first population supplies ranks 51-70. The
+        # rank 71-90 assignments remain fixed above and must resolve to the
+        # same V2-population creation facts in strictly descending order.
+        continuation = list(enumerate(self.population["reconciliation"]["most_recent_70_mints"][50:], 51))
+        continuation.extend(EXTENDED_RECENT_FIRST_RANKS)
+        previous_creation_timestamp: int | None = None
+        for rank, mint in continuation:
+            launch = launches.get(mint)
+            if launch is None:
+                raise ControllerDenied("FROZEN_CONTINUATION_MINT_UNAVAILABLE")
+            if rank >= 70:
+                creation = launch.get("creation", {})
+                creation_timestamp = creation.get("timestamp")
+                if rank >= 71 and (creation.get("chronology_status") != "QUALIFIED_CREATION_TIMESTAMP"
+                        or not isinstance(creation_timestamp, int)
+                        or creation_timestamp <= 0
+                        or (previous_creation_timestamp is not None and creation_timestamp >= previous_creation_timestamp)):
+                    raise ControllerDenied("FROZEN_CONTINUATION_ORDER_INVALID")
+                previous_creation_timestamp = creation_timestamp
             opening = launch.get("evidence", {}).get("opening", {})
             if opening.get("status") == "QUALIFIED":
                 anchor = {"class": "QUALIFIED_ENTRY_ANCHOR", "timestamp": opening["entry_timestamp"], "provenance": opening["provenance"]}

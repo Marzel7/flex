@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CLI = ROOT / "scripts" / "run_watchtower_historical_backfill_session.py"
 RANKS = "22,23,24,26,41,43,46,47,48,50"
 SCALED_RANKS = "53,56,57,58,59,60,62,64,65,66,67,70"
+EXTENDED_RANKS = "71,72,74,75,77,78,79,80,82,84,86"
 
 def _manifest(root: Path, ranks: str) -> Path:
     import importlib.util
@@ -118,5 +119,17 @@ def test_actual_production_operator_reconstruction_carries_rank_53_entry_mc(tmp_
     assert result["fixture_transport_calls"] == 1 and result["credential_reads"] == 0
     record = _journal(root)["records"][0]
     assert record["chronological_rank"] == 53
+    assert record["state"] == "COMPLETED"
+    assert record["entry_relative_observed_minima"]
+
+
+def test_actual_production_operator_fixture_reconstructs_rank_71_entry_mc_without_credentials(tmp_path: Path) -> None:
+    root = tmp_path / "rank-71"
+    run = _run(_command(root, ranks=EXTENDED_RANKS))
+    assert run.returncode == 0, run.stderr
+    result = json.loads(run.stdout)
+    assert result["fixture_transport_calls"] == 1 and result["credential_reads"] == 0
+    record = _journal(root)["records"][0]
+    assert record["chronological_rank"] == 71
     assert record["state"] == "COMPLETED"
     assert record["entry_relative_observed_minima"]

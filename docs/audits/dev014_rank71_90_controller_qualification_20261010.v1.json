@@ -1,0 +1,39 @@
+{
+  "schema": "dev014.rank71-90-controller-qualification.v1",
+  "status": "QUALIFIED_NOT_DEPLOYED",
+  "population_identity": "WATCHTOWER_FORENSIC_POPULATION_V2_20261009",
+  "controller_coverage": {"unchanged_ranks": [1, 70], "extended_rank_range": [71, 90], "ordering": "creation-timestamp-descending"},
+  "qualified_entry_ranks": [71, 72, 74, 75, 77, 78, 79, 80, 82, 84, 86],
+  "missing_anchor_ranks": [73, 76, 81, 83, 85, 87, 88, 89, 90],
+  "manifest": {
+    "path": "docs/audits/dev014_rank71_90_continuation_11_manifest_20261010.v1.json",
+    "authorization": "MANIFEST_PREPARATION_ONLY",
+    "ranks": [71, 72, 74, 75, 77, 78, 79, 80, 82, 84, 86],
+    "content_hash": "460c2851b0b8bafb2c30bf7b0234be5ba3150236c40cc4a2e53d0be4d9c08148",
+    "file_sha256": "375168fd27504ecd8adc224357e5318297f658a39b23373d834cf14cbb8c49ec",
+    "request_count": 11,
+    "window_seconds": 3600
+  },
+  "durable_history": {
+    "completed_automated_records": 20,
+    "outcome_unknown_ranks": [41, 53],
+    "duplicate_completed_request_identities": 0,
+    "journal_sha256": {
+      "/private/tmp/dev014-evidence/journal.json": "3cf280b7f118ac037023087c57653716add2474dc8443ca938a852bf978e3dba",
+      "/private/tmp/dev014-r51-70-evidence/journal.json": "1d67e265cab010bae20aa271d1d1650f1b4c89b5f9c0f42c2545e5ccdd3372b8"
+    }
+  },
+  "regressions": {
+    "command": "pytest -q tests/test_dev014_historical_backfill_controller.py tests/test_dev014_cli_acceptance.py tests/test_dev014_birdeye_preflight.py",
+    "result": "23 passed",
+    "production_cli_dry_run": "PASS: exact eleven-rank preparation manifest selected with scheduler=false",
+    "production_cli_fixture": "PASS: rank 71 reconstructed and completed in isolated fixture; credential_reads=0; fixture transport calls=1",
+    "provider_calls": 0,
+    "live_budget_debits": 0,
+    "live_database_queue_writes": 0
+  },
+  "storage": {"maximum_single_file_bytes": 1000000, "maximum_session_evidence_bytes": 2000000, "raw_provider_retention": false, "unbounded_growth_paths": 0},
+  "runtime_deployment_required": true,
+  "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+  "next_gate": "A separate explicit activation/preflight authorization is required before any paid acquisition; no manifest activation is granted here."
+}

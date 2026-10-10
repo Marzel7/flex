@@ -118,13 +118,21 @@ class HistoricalBackfillController:
         Missing anchors are returned as explicit deferred records, never omitted.
         """
         planned = []
+        launches = {launch["mint"]: launch for launch in self.population["launches"]}
         for item in self.reconciliation["catchup_batch"]["records"]:
             planned.append({"priority": 2, "rank": item["rank"], "mint": item["mint"], "request": item["proposed_request"], "anchor": item["anchor"], "kind": "CATCHUP"})
         for item in self.reconciliation["batch_5"]["records"]:
-            planned.append({"priority": 3, "rank": item["rank"], "mint": item["mint"], "request": item["proposed_request"], "anchor": item["anchor"], "kind": "HISTORICAL", "deferred_reason": item["skip_reason"]})
+            planned_item = {"priority": 3, "rank": item["rank"], "mint": item["mint"], "request": item["proposed_request"], "anchor": item["anchor"], "kind": "HISTORICAL", "deferred_reason": item["skip_reason"]}
+            if item["anchor"]["class"] == "QUALIFIED_ENTRY_ANCHOR":
+                opening = launches.get(item["mint"], {}).get("evidence", {}).get("opening", {})
+                entry_mc = opening.get("entry_mc_usd")
+                if (opening.get("status") != "QUALIFIED" or opening.get("entry_timestamp") != item["anchor"]["timestamp"]
+                        or opening.get("provenance") != item["anchor"]["provenance"] or not isinstance(entry_mc, (int, float)) or entry_mc <= 0):
+                    raise ControllerDenied("QUALIFIED_ENTRY_MC_UNAVAILABLE")
+                planned_item["entry_mc_usd"] = float(entry_mc)
+            planned.append(planned_item)
         # The frozen 70-mint recent-first population supplies later historical
         # continuation only; it never expands into the 639-token cohort.
-        launches = {launch["mint"]: launch for launch in self.population["launches"]}
         for rank, mint in enumerate(self.population["reconciliation"]["most_recent_70_mints"][50:], 51):
             launch = launches[mint]
             opening = launch.get("evidence", {}).get("opening", {})

@@ -131,7 +131,7 @@ def _execute_production(args: argparse.Namespace, manifest: dict[str, Any], *,
         if provider is None: provider = transport_factory()
         return provider(request)
     selected = synthetic_selected if synthetic_selected is not None else _manifest_records(controller, _load(args.manifest))
-    started, completed = clock(), []
+    started, completed, historical_admissions = clock(), [], []
     with controller:
         recovered = binding.recover()
         completed = [str(record["request_identity"]) for record in recovered["records"]
@@ -147,6 +147,12 @@ def _execute_production(args: argparse.Namespace, manifest: dict[str, Any], *,
                     return {'status':'SESSION_DEADLINE_REACHED','request_count':len(completed),'completed_identities':completed}
                 if (cancelled and cancelled()) or controller._state().get('cancelled'):
                     return {'status':'CANCELLED','request_count':len(completed),'completed_identities':completed}
+                # This is an additional historical ceiling, not another budget
+                # ledger.  It runs before admission and shares the existing
+                # bounded sleeper/clock seam used by the provider-budget wait.
+                if len([at for at in historical_admissions if at > clock()-60]) >= 10:
+                    sleeper(min(1.0, max(0.0, args.max_runtime_seconds-(clock()-started))))
+                    continue
                 try:
                     result = binding.execute(item, health_gate=gate.check,
                                              admit=lambda **kwargs: admission.admit(**kwargs, now=int(epoch_clock())),
@@ -160,6 +166,7 @@ def _execute_production(args: argparse.Namespace, manifest: dict[str, Any], *,
                     sleeper(min(1.0, max(0.0, args.max_runtime_seconds-(clock()-started))))
                     continue
                 completed.append(result['request_identity'])
+                historical_admissions.append(clock())
                 break
     return {'status':'COMPLETED','request_count':len(completed),'completed_identities':completed,
             'live_contention_limitation':'shared budget compliance does not guarantee zero contention with direct LIVE callers'}

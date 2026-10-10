@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 import pytest
 from src.ops.watchtower_historical_cohort import (manifests,run_finite,cohort_authorization,cli_executor,
-    validate_cohort_authorization,reconcile_journals,authorized_manifests)
+    validate_cohort_authorization,reconcile_journals,authorized_manifests,execute_authorized_sessions)
 from src.ops.watchtower_historical_backfill_controller import HistoricalBackfillController
 ROOT=Path(__file__).resolve().parents[1]
 def test_cohort_manifests_are_bounded_and_explicit(tmp_path):
@@ -51,7 +51,7 @@ def test_authorized_manifests_require_exact_membership_and_four_journals(tmp_pat
  paths[3].write_text(json.dumps({'version':1,'records':[{'state':'ADMISSION_INTENT','mint':'mint-b','request_identity':'b'}]}))
  history=reconcile_journals(paths)
  assert history['outcomes']['b']=='ADMISSION_INTENT'
- with pytest.raises(ValueError,match='AUTHORIZED_IDENTITY_NOT_SELECTABLE'):
+ with pytest.raises(ValueError,match='COHORT_UNRESOLVED_OUTCOME'):
   authorized_manifests(Controller(),auth,paths)
 
 def test_authorization_rejects_tampering_and_journal_count(tmp_path):
@@ -59,3 +59,35 @@ def test_authorization_rejects_tampering_and_journal_count(tmp_path):
  auth['max_total_paid_requests']=2
  with pytest.raises(ValueError,match='COHORT_AUTHORIZATION_INVALID'): validate_cohort_authorization(auth)
  with pytest.raises(ValueError,match='FOUR_AUTHORITATIVE_JOURNALS_REQUIRED'): reconcile_journals([])
+
+def test_session_executor_advances_only_after_durable_journal_and_cooldown(tmp_path):
+ class Controller:
+  def work(self):
+   return [{'rank':n,'mint':f'mint-{n}','anchor':{'timestamp':100+n,'class':'CREATION_TIME_ANCHORED_OBSERVATION'},
+            'request':{'request_identity':f'id-{n}','params':{'time_from':100+n,'time_to':3700+n}}} for n in range(100)]
+ journals=[]
+ for number in range(4):
+  path=tmp_path/f'paid-{number}.json'; path.write_text('{"version":1,"records":[]}'); journals.append(path)
+ session=tmp_path/'session-journal.json'; session.write_text('{"version":1,"records":[]}')
+ auth=cohort_authorization(chronology_hash='frozen',identities=[f'id-{n}' for n in range(100)],authority_id='operator')
+ clock=[0]
+ def tick(seconds): clock[0]+=seconds
+ def execute(path):
+  manifest=json.loads(path.read_text()); old=json.loads(session.read_text())['records']
+  old.extend({'state':'COMPLETED','mint':record['mint'],'request_identity':record['request_identity']} for record in manifest['records'])
+  session.write_text(json.dumps({'version':1,'records':old}))
+ result=execute_authorized_sessions(Controller(),auth,authoritative_journals=journals,session_journal=session,
+  manifest_root=tmp_path,execute_session=execute,health=lambda:None,clock=lambda:clock[0],sleep=tick)
+ assert result['status']=='EXHAUSTED' and len(result['completed'])==100 and len(result['sessions'])==2 and clock[0]>=120
+
+def test_session_executor_holds_when_subprocess_lacks_terminal_journal(tmp_path):
+ class Controller:
+  def work(self): return [{'rank':1,'mint':'mint','anchor':{'timestamp':1,'class':'CREATION_TIME_ANCHORED_OBSERVATION'},'request':{'request_identity':'id','params':{'time_from':1,'time_to':3601}}}]
+ journals=[]
+ for number in range(4):
+  path=tmp_path/f'paid-{number}.json'; path.write_text('{"version":1,"records":[]}'); journals.append(path)
+ session=tmp_path/'session.json'; session.write_text('{"version":1,"records":[]}')
+ auth=cohort_authorization(chronology_hash='frozen',identities=['id'],authority_id='operator')
+ result=execute_authorized_sessions(Controller(),auth,authoritative_journals=journals,session_journal=session,
+  manifest_root=tmp_path,execute_session=lambda _:None,health=lambda:None)
+ assert result['status']=='JOURNAL_HOLD' and result['unresolved']==['id']

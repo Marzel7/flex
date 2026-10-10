@@ -80,9 +80,16 @@ def manifests(controller: Any,journal: str|Path,authorization: str)->list[dict[s
         value={'schema':'dev014.frozen-historical-acquisition-manifest.v1','version':1,'population_identity':'WATCHTOWER_FORENSIC_POPULATION_V2_20261009','authorization':{'kind':'EXPLICIT_FROZEN_MANIFEST','authority_id':authorization,'max_requests':len(records)},'max_authorized_requests':len(records),'records':records}; value['content_hash']=digest(value); out.append(value)
     return out
 
-def authorized_manifests(controller: Any, authorization: dict[str, Any], journals: list[str|Path]) -> list[dict[str, Any]]:
+def authorized_manifests(controller: Any, authorization: dict[str, Any], journals: list[str|Path],
+                         session_journal: str|Path|None=None) -> list[dict[str, Any]]:
     """Freeze only authorized, unrepeated work in chronological batches of at most 50."""
     authorization=validate_cohort_authorization(authorization); history=reconcile_journals(journals)
+    if session_journal is not None:
+        for record in HistoricalExecutionBinding(session_journal).read()['records']:
+            identity,mint,state=record.get('request_identity'),record.get('mint'),record.get('state')
+            if state in {'ADMISSION_INTENT','ADMITTED','ATTEMPTED','COMPLETED','OUTCOME_UNKNOWN'}:
+                if not isinstance(identity,str) or not isinstance(mint,str): raise ValueError('SESSION_JOURNAL_RECORD_INVALID')
+                history['outcomes'][identity]=state; history['blocked_request_identities'].add(identity); history['blocked_mints'].add(mint)
     allowed=set(authorization['request_identities']); selected=[]; found=set()
     for item in sorted(controller.work(), key=lambda x:x['rank']):
         request=item.get('request')
@@ -94,9 +101,13 @@ def authorized_manifests(controller: Any, authorization: dict[str, Any], journal
         if (identity in found or not isinstance(anchor,int) or request['params'].get('time_to')!=anchor+3600):
             raise ValueError('COHORT_MEMBERSHIP_INVALID')
         found.add(identity); selected.append(item)
-    # An absent authorized identity is dangerous: never substitute or silently expand.
+    # A terminal record is a permitted omission; an intent/attempt is an ambiguity
+    # and must stop rather than let a later creation-time identity replay it.
     missing=allowed-found
-    if missing: raise ValueError('AUTHORIZED_IDENTITY_NOT_SELECTABLE')
+    unresolved={identity for identity in missing if history['outcomes'].get(identity) in {'ADMISSION_INTENT','ADMITTED','ATTEMPTED'}}
+    if unresolved: raise ValueError('COHORT_UNRESOLVED_OUTCOME')
+    selectable={item['request']['request_identity'] for item in controller.work() if item.get('request')}
+    if missing-selectable: raise ValueError('AUTHORIZED_IDENTITY_NOT_SELECTABLE')
     result=[]
     for number,offset in enumerate(range(0,len(selected),MAX_SESSION),start=1):
         records=[]
@@ -109,6 +120,53 @@ def authorized_manifests(controller: Any, authorization: dict[str, Any], journal
                'max_authorized_requests':len(records),'session_number':number,'records':records}
         value['content_hash']=digest(value); result.append(value)
     return result
+
+def _write_manifest(root: str|Path, number: int, manifest: dict[str, Any]) -> Path:
+    """Persist one compact frozen manifest; caller supplies an isolated/cohort root."""
+    directory=Path(root)
+    if not directory.is_dir() or directory.is_symlink(): raise RuntimeError('COHORT_MANIFEST_ROOT_UNAVAILABLE')
+    path=directory/f'dev014_session_{number:03d}.manifest.json'
+    if path.exists() or path.is_symlink(): raise RuntimeError('COHORT_MANIFEST_PATH_CONFLICT')
+    raw=json.dumps(manifest,sort_keys=True,separators=(',',':')).encode()
+    if len(raw)>=1_000_000: raise RuntimeError('COHORT_MANIFEST_BOUND_EXCEEDED')
+    temporary=path.with_suffix('.json.tmp')
+    if temporary.exists(): raise RuntimeError('COHORT_MANIFEST_PATH_CONFLICT')
+    temporary.write_bytes(raw); temporary.replace(path)
+    return path
+
+def execute_authorized_sessions(controller: Any, authorization: dict[str, Any], *, authoritative_journals: list[str|Path],
+                                session_journal: str|Path, manifest_root: str|Path, execute_session: Any,
+                                health: Any, clock: Any=time.monotonic, sleep: Any=time.sleep,
+                                cancelled: Any=lambda:False, storage_ok: Any=lambda:True) -> dict[str, Any]:
+    """Finite subprocess-session binding; only a durable terminal journal advances work."""
+    validate_cohort_authorization(authorization)
+    completed=[]; sessions=[]
+    while True:
+        if cancelled(): return {'status':'CANCELLED','completed':completed,'sessions':sessions}
+        health()
+        if not storage_ok(): return {'status':'STORAGE_HOLD','completed':completed,'sessions':sessions}
+        # The session journal is reconciled separately; these four are immutable paid authority.
+        frozen=authorized_manifests(controller,authorization,authoritative_journals,session_journal)
+        if not frozen: return {'status':'EXHAUSTED','completed':completed,'sessions':sessions}
+        manifest=frozen[0]
+        path=_write_manifest(manifest_root,len(sessions)+1,manifest)
+        if cancelled(): return {'status':'CANCELLED','completed':completed,'sessions':sessions}
+        health(); execute_session(path)  # adapter waits for subprocess completion
+        paid=reconcile_journals(authoritative_journals)
+        outcome={**paid['outcomes']}
+        for record in HistoricalExecutionBinding(session_journal).read()['records']:
+            identity,state=record.get('request_identity'),record.get('state')
+            if isinstance(identity,str) and state in {'COMPLETED','OUTCOME_UNKNOWN','ADMISSION_INTENT','ADMITTED','ATTEMPTED'}:
+                outcome[identity]=state
+        expected=[record['request_identity'] for record in manifest['records']]
+        unresolved=[identity for identity in expected if outcome.get(identity) not in {'COMPLETED','OUTCOME_UNKNOWN'}]
+        if unresolved: return {'status':'JOURNAL_HOLD','completed':completed,'sessions':sessions,'unresolved':unresolved}
+        completed.extend(expected); sessions.append(expected)
+        # Do not mutate/advance a manifest or invoke a provider during cooldown.
+        deadline=clock()+SESSION_COOLDOWN
+        while clock()<deadline:
+            if cancelled(): return {'status':'CANCELLED','completed':completed,'sessions':sessions}
+            health(); sleep(min(1,deadline-clock()))
 
 def run_finite(manifest_list: list[dict[str,Any]], *, execute: Any, health: Any,
                clock: Any=time.monotonic, sleep: Any=time.sleep, cancelled: Any=lambda:False,

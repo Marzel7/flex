@@ -199,7 +199,9 @@ def test_actual_cli_synthetic_capacity_fixture_completes_fifty_with_two_rollover
     result = json.loads(run.stdout)
     assert result["synthetic_fixture_only"] is True
     assert result["request_count"] == result["fixture_transport_calls"] == 50
-    assert result["synthetic_waits"] == 2 and result["synthetic_time"] >= 1122
+    # The 10-per-rolling-minute historical ceiling is stricter than the
+    # shared 20-call provider gate, so fifty calls need four synthetic rolls.
+    assert result["synthetic_waits"] == 4 and result["synthetic_time"] >= 1244
     records = _journal(root)["records"]
     assert len(records) == 50 and {r["state"] for r in records} == {"COMPLETED"}
     assert {r["fixture_only"] for r in records} == {True}
@@ -227,10 +229,10 @@ def test_actual_cli_wait_interruptions_are_provider_free(tmp_path: Path, scenari
     else:
         assert run.returncode == 1 and expected in run.stderr
     journal = _journal(tmp_path / scenario)
-    # Request 21 has a durable PENDING identity, but its denied admission
-    # never debits capacity or reaches transport.
-    assert len(journal["records"]) == 21
-    assert len(_budget_calls(tmp_path / scenario)) == 20
+    # Request 11 is held by the additional historical cadence before any
+    # provider admission, debit, or transport.
+    assert len(journal["records"]) == 10
+    assert len(_budget_calls(tmp_path / scenario)) == 10
 
 
 def test_actual_cli_wait_crash_recovers_without_duplicate_transport(tmp_path: Path) -> None:
@@ -238,11 +240,11 @@ def test_actual_cli_wait_crash_recovers_without_duplicate_transport(tmp_path: Pa
     crashed = _run(_command(root, scenario="wait-crash", max_requests=50,
                             synthetic_clock=True, synthetic_capacity=True, max_runtime_seconds=3600))
     assert crashed.returncode == 1 and "SIMULATED_WAIT_CRASH" in crashed.stderr
-    assert len(_journal(root)["records"]) == 21
+    assert len(_journal(root)["records"]) == 10
     restarted = _run(_command(root, max_requests=50, synthetic_clock=True,
                               synthetic_capacity=True, max_runtime_seconds=3600))
     assert restarted.returncode == 0, restarted.stderr
-    assert json.loads(restarted.stdout)["fixture_transport_calls"] == 30
+    assert json.loads(restarted.stdout)["fixture_transport_calls"] == 40
     assert len(_journal(root)["records"]) == 50
 
 
@@ -253,5 +255,5 @@ def test_actual_cli_synthetic_wait_respects_session_deadline(tmp_path: Path) -> 
     assert run.returncode == 0, run.stderr
     result = json.loads(run.stdout)
     assert result["status"] == "SESSION_DEADLINE_REACHED"
-    assert result["fixture_transport_calls"] == 20
-    assert len(_budget_calls(root)) == 20 and len(_journal(root)["records"]) == 21
+    assert result["fixture_transport_calls"] == 10
+    assert len(_budget_calls(root)) == 10 and len(_journal(root)["records"]) == 10

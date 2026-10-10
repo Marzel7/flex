@@ -1,7 +1,7 @@
 {
   "dev014_bounded_historical_operator_scope_restore_20261010": {
-    "engineering_revision": "597072e0b68ef9ea2e5bdb38aad3b0728311409c on codex/dev014-current-mc-freshness; remote origin/codex/dev014-current-mc-freshness verified identical",
-    "status": "HOLD_LIVE_SESSION_PARTIAL_OUTCOME_UNKNOWN",
+    "engineering_revision": "7cb21023914522bbc146e27d2348eb9a3fc976d0 on codex/dev014-current-mc-freshness; remote origin/codex/dev014-current-mc-freshness verified identical",
+    "status": "QUALIFIED_NOT_DEPLOYED_CONTINUATION_REQUIRES_AUTHORIZATION",
     "finding": "Authorized live DEV-014 session ran under the qualified Batch4RuntimeGate. Ranks 22, 23, 24, and 26 completed compact normalized one-minute MCAP evidence. Rank 41 was durably ADMITTED/ATTEMPTED, then hit KeyError: entry_mc_usd when an Entry-anchor response entered observed_minima; recovery marked it OUTCOME_UNKNOWN. It was not retried. The remaining ranks 43, 46, 47, 48, and 50 were not started, preserving frozen order and no-retry semantics.",
     "tests": "pytest -q tests/test_dev014_historical_backfill_controller.py tests/test_dev014_historical_backfill_operator.py tests/test_dev014_historical_execution_binding.py tests/test_dev014_shared_birdeye_budget.py tests/test_dev014_batch4_runtime_gate.py tests/test_dev014_batch5_reconciliation.py tests/test_dev014_cli_acceptance.py: 39 passed, 0 failed. The subprocess matrix asserts frozen ten-rank selection, one shared-ledger debit for every crash selector, PENDING one-time recovered completion, OUTCOME_UNKNOWN for AFTER_BUDGET/ADMITTED/ATTEMPTED/RESPONSE, recovered COMPLETED for EVIDENCE, and one controller owner/one fake request/one journal record during held transport overlap. The subsequent invocation proves OS lock release.",
     "storage": "Journal and compact evidence maximum single file=1,000,000 bytes; test hold marker is a tiny single file; no raw provider retention; unbounded growth paths=0.",
@@ -10,7 +10,9 @@
     "safety": "Post-stop Batch4RuntimeGate PASS: API HTTP 200 healthy=true db=ok wal_warn=false; heartbeats funding=2s/resolution=28s; WAL=3,427,872 bytes; disk_free=6,293,786,624 bytes; checkpoint remaining_frames=26. No live service, configuration, canonical database, or monitor-job mutation was made. The only live effects were the five explicitly authorized provider admissions and their shared-budget ledger writes.",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Provider-free test-only fixture and crash-boundary correction only; no executable runtime was deployed.",
-    "next_action": "Do not resume this frozen session or retry rank 41. Fix and provider-free qualify the Entry-anchor item construction defect, then obtain new explicit authorization for any new bounded acquisition plan."
+    "entry_anchor_correction": "Controller now attaches only population opening.entry_mc_usd when status=QUALIFIED and timestamp/provenance exactly equal the frozen QUALIFIED_ENTRY_ANCHOR; absent/mismatched/nonpositive values fail closed as QUALIFIED_ENTRY_MC_UNAVAILABLE. Observed-price anchors are unchanged. 22 provider-free regressions passed, including rank-41 retained baseline and missing-entry failure.",
+    "continuation_allowlist": "43,46,47,48,50 only; exact frozen identities/windows/order preserved; max future requests=5; rank 41 remains OUTCOME_UNKNOWN and excluded.",
+    "next_action": "Obtain separate explicit paid-acquisition authorization for the five-rank continuation. Do not retry rank 41 or alter completed evidence."
   },
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,

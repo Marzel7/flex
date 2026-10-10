@@ -23498,5 +23498,21 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_REQUIRED_PROVIDER_FREE_HOLD",
     "next_action": "Qualify and remotely publish a rank 71-90 population extension with exact ordering and controller-owned Entry-anchor/Entry-MCAP projection. Then generate deterministic request identities and run the existing production CLI dry-run. A separately authorized acquisition gate remains required."
+  },
+  "dev014_rank71_90_controller_extension_20261010": {
+    "status": "PASS_PREPARATION_ONLY_QUALIFIED_NOT_DEPLOYED",
+    "engineering_revision": "d2e22b3c5d9b5ef1a0dfdd8e37566b4f6150c4fe on codex/dev014-current-mc-freshness; remote published.",
+    "population_extension": "PASS: the existing HistoricalBackfillController retains ranks 1-70 and extends the fixed existing chronological assignment through rank 90, projecting creation/opening facts only from WATCHTOWER_FORENSIC_POPULATION_V2_20261009.",
+    "qualified_entry_ranks": [71, 72, 74, 75, 77, 78, 79, 80, 82, 84, 86],
+    "missing_anchor_ranks": [73, 76, 81, 83, 85, 87, 88, 89, 90],
+    "entry_binding": "PASS: exact V2 Entry timestamp, positive finite Entry MC, provenance, 3600-second window, and deterministic identity are reconstructed by the controller; invalid Entry MC defers before admission.",
+    "preparation_manifest": "PASS: docs/audits/dev014_rank71_90_continuation_11_manifest_20261010.v1.json; MANIFEST_PREPARATION_ONLY; 11 records; content hash=460c2851b0b8bafb2c30bf7b0234be5ba3150236c40cc4a2e53d0be4d9c08148; file SHA-256=375168fd27504ecd8adc224357e5318297f658a39b23373d834cf14cbb8c49ec.",
+    "durable_history": "PASS: existing 20 completed automated records and journal bytes/hashes preserved; ranks 41 and 53 remain OUTCOME_UNKNOWN; duplicate completed identities=0; no evidence overwrite or reacquisition.",
+    "regressions": "PASS: pytest -q tests/test_dev014_historical_backfill_controller.py tests/test_dev014_cli_acceptance.py tests/test_dev014_birdeye_preflight.py = 23 passed; production CLI dry-run selected the exact 11 records with scheduler=false; isolated production-composition fixture completed rank 71 with credential_reads=0 and one fixture-only transport call.",
+    "safety": "Provider calls=0; paid budget debits=0; live database/queue writes=0; credential reads=0; raw provider retention=false; deployment=0; scheduling=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "audit": "docs/audits/dev014_rank71_90_controller_qualification_20261010.v1.json",
+    "next_action": "STOP. A separately authorized activation and fresh operational/shared-budget preflight are required before any paid acquisition. Do not activate this manifest, retry ranks 41/53, deploy, schedule, expand scope, or mutate lifecycle facts."
   }
 }

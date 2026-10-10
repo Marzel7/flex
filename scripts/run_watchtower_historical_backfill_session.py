@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Explicit bounded DEV-014 historical-session operator; defaults to dry-run."""
 from __future__ import annotations
-import argparse, json, os, sys
+import argparse, hashlib, json, os, sys
 import time
 from pathlib import Path
 from typing import Any
@@ -24,32 +24,57 @@ def _safe(path:Path, *, protected:tuple[Path,...])->Path:
     resolved=path.resolve(strict=False)
     if any(resolved==root or root in resolved.parents for root in protected): raise SystemExit('PROTECTED_PATH_DENIED')
     return resolved
-def _parse_ranks(raw:str)->tuple[int,...]:
-    ranks=tuple(int(x) for x in raw.split(',') if x)
-    allowed={22,23,24,26,41,43,46,47,48,50,53,56,57,58,59,60,62,64,65,66,67,70}
-    if not ranks or len(set(ranks)) != len(ranks) or not set(ranks) <= allowed: raise SystemExit('FROZEN_SUBSET_INVALID')
-    return ranks
+POPULATION_IDENTITY='WATCHTOWER_FORENSIC_POPULATION_V2_20261009'
+MANIFEST_SCHEMA='dev014.frozen-historical-acquisition-manifest.v1'
+MAX_MANIFEST_REQUESTS=20
+
+def _manifest_hash(value:dict[str,Any])->str:
+    payload={key:item for key,item in value.items() if key!='content_hash'}
+    return hashlib.sha256(json.dumps(payload,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+
+def _manifest_records(controller:HistoricalBackfillController, manifest:dict[str,Any])->list[dict[str,Any]]:
+    if (manifest.get('schema')!=MANIFEST_SCHEMA or manifest.get('version')!=1
+            or manifest.get('population_identity')!=POPULATION_IDENTITY
+            or manifest.get('content_hash')!=_manifest_hash(manifest)):
+        raise SystemExit('FROZEN_MANIFEST_INVALID')
+    authorization=manifest.get('authorization'); records=manifest.get('records')
+    if (not isinstance(authorization,dict) or authorization.get('kind')!='EXPLICIT_FROZEN_MANIFEST'
+            or not isinstance(authorization.get('authority_id'),str) or not authorization['authority_id']
+            or not isinstance(records,list) or not records or len(records)>MAX_MANIFEST_REQUESTS
+            or manifest.get('max_authorized_requests')!=len(records) or authorization.get('max_requests')!=len(records)):
+        raise SystemExit('FROZEN_MANIFEST_AUTHORIZATION_INVALID')
+    work={item['rank']:item for item in controller.work()}
+    ranks=[]; selected=[]
+    for record in records:
+        if not isinstance(record,dict) or not isinstance(record.get('rank'),int) or record['rank'] in ranks:
+            raise SystemExit('FROZEN_MANIFEST_RECORD_INVALID')
+        ranks.append(record['rank']); item=work.get(record['rank'])
+        if item is None or item.get('request') is None:
+            raise SystemExit('FROZEN_MANIFEST_INELIGIBLE_MEMBER')
+        expected={'rank':item['rank'],'mint':item['mint'],'anchor':item['anchor'],'requested_window':{'time_from':item['request']['params']['time_from'],'time_to':item['request']['params']['time_to'],'interval':'1m'},'request_identity':item['request']['request_identity']}
+        if record!=expected:
+            raise SystemExit('FROZEN_MANIFEST_RECORD_MISMATCH')
+        selected.append(item)
+    if ranks!=sorted(ranks): raise SystemExit('FROZEN_MANIFEST_ORDER_INVALID')
+    return selected
 def plan(args:argparse.Namespace)->dict[str,Any]:
     recon,pop=_load(RECON),_load(POP); protected=(ROOT/'database',ROOT/'.dev_runtime')
     state_dir=_safe(args.state_dir,protected=protected); evidence_dir=_safe(args.evidence_dir,protected=protected)
     if state_dir==evidence_dir: raise SystemExit('STATE_EVIDENCE_PATH_MUST_DIFFER')
     bounds=SessionBounds(args.max_requests,args.max_runtime_seconds,args.max_evidence_bytes,args.max_consecutive_failures,args.max_health_failures); bounds.validate()
-    ranks=_parse_ranks(args.ranks)
-    full=(22,23,24,26,41,43,46,47,48,50)
-    continuation=(43,46,47,48,50)
-    scaled=(53,56,57,58,59,60,62,64,65,66,67,70)
-    if ranks not in (full, continuation, scaled) or args.max_requests > len(ranks): raise SystemExit('REQUEST_CAP_EXCEEDED')
+    if args.max_requests>MAX_MANIFEST_REQUESTS: raise SystemExit('REQUEST_CAP_EXCEEDED')
+    try: manifest=_load(args.manifest)
+    except (OSError,ValueError): raise SystemExit('FROZEN_MANIFEST_UNREADABLE')
     controller=HistoricalBackfillController(state_dir/'controller.json',recon,pop)
-    selected=[x for x in controller.work() if x['rank'] in ranks]
-    if tuple(x['rank'] for x in selected) != ranks: raise SystemExit('FROZEN_ORDER_INVALID')
-    if any(x['request'] is None for x in selected): raise SystemExit('INELIGIBLE_SUBSET_MEMBER')
-    return {'mode':args.mode,'state_path':str(state_dir/'controller.json'),'binding_path':str(evidence_dir/'journal.json'),'evidence_dir':str(evidence_dir),'selected_ranks':[x['rank'] for x in selected],'request_identities':[x['request']['request_identity'] for x in selected],'max_requests':args.max_requests,'max_runtime_seconds':args.max_runtime_seconds,'max_evidence_bytes':args.max_evidence_bytes,'components':{'controller':'HistoricalBackfillController','binding':'HistoricalExecutionBinding','runtime_gate':'Batch4RuntimeGate','budget':'HistoricalForensicsBudgetAdmission','transport':'BirdeyeProductionBinding'},'scheduler':False}
+    selected=_manifest_records(controller,manifest)
+    if args.max_requests>len(selected): raise SystemExit('REQUEST_CAP_EXCEEDED')
+    return {'mode':args.mode,'state_path':str(state_dir/'controller.json'),'binding_path':str(evidence_dir/'journal.json'),'evidence_dir':str(evidence_dir),'selected_ranks':[x['rank'] for x in selected],'request_identities':[x['request']['request_identity'] for x in selected],'max_requests':args.max_requests,'max_runtime_seconds':args.max_runtime_seconds,'max_evidence_bytes':args.max_evidence_bytes,'manifest_hash':manifest['content_hash'],'components':{'controller':'HistoricalBackfillController','binding':'HistoricalExecutionBinding','runtime_gate':'Batch4RuntimeGate','budget':'HistoricalForensicsBudgetAdmission','transport':'BirdeyeProductionBinding'},'scheduler':False}
 
 def _execute_fixture(args: argparse.Namespace, manifest: dict[str, Any]) -> dict[str, Any]:
     """Provider-free end-to-end seam; never reachable without the test-only flag."""
     controller = HistoricalBackfillController(manifest['state_path'], _load(RECON), _load(POP))
     binding = HistoricalExecutionBinding(manifest['binding_path'])
-    selected = [item for item in controller.work() if item['rank'] in set(manifest['selected_ranks'])]
+    selected = _manifest_records(controller, _load(args.manifest))
     root = Path(manifest['state_path']).parent
     root.mkdir(parents=True, exist_ok=True)
     config, db, listener, funding, resolution = (root/'supervisord.conf', root/'canonical.db', root/'listener.log', root/'funding.log', root/'resolution.log')
@@ -97,7 +122,7 @@ def _execute_production(args: argparse.Namespace, manifest: dict[str, Any], *,
         nonlocal provider
         if provider is None: provider = transport_factory()
         return provider(request)
-    selected = [item for item in controller.work() if item['rank'] in set(manifest['selected_ranks'])]
+    selected = _manifest_records(controller, _load(args.manifest))
     started, completed = time.monotonic(), []
     with controller:
         binding.recover()
@@ -128,7 +153,7 @@ def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, An
     if scenario=='critical-wal': funding.write_text('CRITICAL_WAL_PINNED')
     gate=lambda _:Batch4RuntimeGate(authority,health_fetch=health,process_lines=lines,disk_usage=lambda _:Disk(),wal_size=lambda _:600*1024*1024 if scenario=='wal-over-limit' else 0)
     calls=[]
-    selected=[item for item in HistoricalBackfillController(manifest['state_path'],_load(RECON),_load(POP)).work() if item['rank'] in set(manifest['selected_ranks'])]
+    selected=_manifest_records(HistoricalBackfillController(manifest['state_path'],_load(RECON),_load(POP)),_load(args.manifest))
     class Transport:
         def __call__(self, request):
             calls.append(request)
@@ -155,7 +180,7 @@ def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, An
     result=_execute_production(args,manifest,gate_factory=gate,transport_factory=Transport,authority_resolver=lambda _:authority,crash_at=args.test_crash_at)
     result.update({'fixture_transport_calls':len(calls),'credential_reads':0}); return result
 def main()->int:
-    p=argparse.ArgumentParser(); p.add_argument('--mode',choices=('dry-run','execute'),default='dry-run'); p.add_argument('--ranks',required=True); p.add_argument('--state-dir',type=Path,required=True); p.add_argument('--evidence-dir',type=Path,required=True); p.add_argument('--max-requests',type=int,required=True); p.add_argument('--max-runtime-seconds',type=int,required=True); p.add_argument('--max-evidence-bytes',type=int,required=True); p.add_argument('--max-consecutive-failures',type=int,required=True); p.add_argument('--max-health-failures',type=int,required=True); p.add_argument('--live-opt-in',action='store_true'); p.add_argument('--fixture-fake-live',action='store_true'); p.add_argument('--test-production-fixture',action='store_true'); p.add_argument('--test-scenario',default='healthy'); p.add_argument('--test-crash-at',choices=('PENDING','AFTER_BUDGET','ADMITTED','ATTEMPTED','RESPONSE','EVIDENCE')); p.add_argument('--test-hold-path',type=Path); p.add_argument('--test-hold-seconds',type=float,default=5.0); p.add_argument('--supervisor-config',type=Path); p.add_argument('--queue-root',type=Path); a=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('--mode',choices=('dry-run','execute'),default='dry-run'); p.add_argument('--manifest',type=Path,required=True); p.add_argument('--state-dir',type=Path,required=True); p.add_argument('--evidence-dir',type=Path,required=True); p.add_argument('--max-requests',type=int,required=True); p.add_argument('--max-runtime-seconds',type=int,required=True); p.add_argument('--max-evidence-bytes',type=int,required=True); p.add_argument('--max-consecutive-failures',type=int,required=True); p.add_argument('--max-health-failures',type=int,required=True); p.add_argument('--live-opt-in',action='store_true'); p.add_argument('--fixture-fake-live',action='store_true'); p.add_argument('--test-production-fixture',action='store_true'); p.add_argument('--test-scenario',default='healthy'); p.add_argument('--test-crash-at',choices=('PENDING','AFTER_BUDGET','ADMITTED','ATTEMPTED','RESPONSE','EVIDENCE')); p.add_argument('--test-hold-path',type=Path); p.add_argument('--test-hold-seconds',type=float,default=5.0); p.add_argument('--supervisor-config',type=Path); p.add_argument('--queue-root',type=Path); a=p.parse_args()
     manifest=plan(a)
     if a.fixture_fake_live:
         if a.mode!='execute': raise SystemExit('FIXTURE_REQUIRES_EXECUTE_MODE')

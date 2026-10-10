@@ -8,6 +8,7 @@ import time
 from pathlib import Path
 
 import pytest
+from src.ops.watchtower_historical_backfill_controller import HistoricalBackfillController
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -15,11 +16,19 @@ CLI = ROOT / "scripts" / "run_watchtower_historical_backfill_session.py"
 RANKS = "22,23,24,26,41,43,46,47,48,50"
 SCALED_RANKS = "53,56,57,58,59,60,62,64,65,66,67,70"
 
+def _manifest(root: Path, ranks: str) -> Path:
+    import importlib.util
+    spec=importlib.util.spec_from_file_location('operator',CLI); op=importlib.util.module_from_spec(spec); assert spec.loader; spec.loader.exec_module(op)
+    controller=HistoricalBackfillController(root/'manifest-controller.json',op._load(op.RECON),op._load(op.POP)); work={x['rank']:x for x in controller.work()}; records=[]
+    for rank in map(int,ranks.split(',')):
+        x=work[rank]; records.append({'rank':rank,'mint':x['mint'],'anchor':x['anchor'],'requested_window':{'time_from':x['request']['params']['time_from'],'time_to':x['request']['params']['time_to'],'interval':'1m'},'request_identity':x['request']['request_identity']})
+    value={'schema':op.MANIFEST_SCHEMA,'version':1,'population_identity':op.POPULATION_IDENTITY,'authorization':{'kind':'EXPLICIT_FROZEN_MANIFEST','authority_id':'test','max_requests':len(records)},'max_authorized_requests':len(records),'records':records}; value['content_hash']=op._manifest_hash(value); path=root/'manifest.json'; path.parent.mkdir(parents=True,exist_ok=True); path.write_text(json.dumps(value)); return path
+
 
 def _command(root: Path, *, scenario: str = "healthy", crash_at: str | None = None,
              hold_path: Path | None = None, ranks: str = RANKS, max_requests: int = 1) -> list[str]:
     command = [sys.executable, str(CLI), "--mode", "execute", "--live-opt-in",
-               "--test-production-fixture", "--test-scenario", scenario, "--ranks", ranks,
+               "--test-production-fixture", "--test-scenario", scenario, "--manifest", str(_manifest(root,ranks)),
                "--state-dir", str(root / "state"), "--evidence-dir", str(root / "evidence"),
                "--queue-root", str(root / "queue"), "--max-requests", str(max_requests),
                "--max-runtime-seconds", "30", "--max-evidence-bytes", "1048576",

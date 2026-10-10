@@ -1,0 +1,14 @@
+{
+  "schema": "dev014.frozen-historical-acquisition-manifest.v1",
+  "version": 1,
+  "population_identity": "WATCHTOWER_FORENSIC_POPULATION_V2_20261009",
+  "authorization": {"kind": "MANIFEST_PREPARATION_ONLY", "authority_id": "DEV014_FINAL_FOUR_PREPARATION", "max_requests": 4},
+  "max_authorized_requests": 4,
+  "records": [
+    {"rank": 120, "mint": "6bt4RkPnDYDD3C8CdsGKMP4PZWzVed7yBq4jkXcipump", "anchor": {"class": "QUALIFIED_ENTRY_ANCHOR", "provenance": "884276ccd19cd990e6b15bc8bf28347b48860a844ceefdd9c112963dba385dae", "timestamp": 1790190566}, "entry_mc_usd": 145581.10888, "requested_window": {"interval": "1m", "time_from": 1790190566, "time_to": 1790194166}, "request_identity": "6a55abbca69242875dfd8668368db0bbb4e4ba45d25f514ede9526a6be4d4435"},
+    {"rank": 123, "mint": "ALuAQm3PqLK2G2oGewwdPC1yYadRuiQ6C5jg5GZopump", "anchor": {"class": "QUALIFIED_ENTRY_ANCHOR", "provenance": "1ee8b2a407b01c18e954a790e92e323709a8d9f1f9b100d1d93f3803656a0a24", "timestamp": 1790181200}, "entry_mc_usd": 145688.822892, "requested_window": {"interval": "1m", "time_from": 1790181200, "time_to": 1790184800}, "request_identity": "44103c86503114828ce667eae17e343d4db5d5c4bd1edce51ae1a413170d46ea"},
+    {"rank": 129, "mint": "5tYcEEKvN63RrzpomgF2jWMxJMHmr4Zo19RX1mXipump", "anchor": {"class": "QUALIFIED_ENTRY_ANCHOR", "provenance": "e6c45bf14d4e434ccb27ceb99bd1a5a1138db2889f2a415083dd3352e924600c", "timestamp": 1790025916}, "entry_mc_usd": 245331.359728, "requested_window": {"interval": "1m", "time_from": 1790025916, "time_to": 1790029516}, "request_identity": "362eb7a9b84817cda0a6658675bf00d142b343518eea7e3a9c25d4ce793f161c"},
+    {"rank": 144, "mint": "3uawxC4Ci2VhFpcRw5eD1KKsK3EG317WzxcWsYEjpump", "anchor": {"class": "QUALIFIED_ENTRY_ANCHOR", "provenance": "40b1c79fb710892af8e924c1b39ff2c2558dc59925a34e0350cf91171c6a5cab", "timestamp": 1789940210}, "entry_mc_usd": 110847.484899, "requested_window": {"interval": "1m", "time_from": 1789940210, "time_to": 1789943810}, "request_identity": "16845848449d08e3148e43ac018271e2ecdc6de424b74059a7cd7389e7ca0552"}
+  ],
+  "content_hash": "d0471f83f8249152acea0c2804d07b4f12cbda3cf4c27751afd835d2c72c6ae1"
+}

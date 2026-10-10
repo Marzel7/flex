@@ -23501,7 +23501,7 @@
   },
   "dev014_rank71_90_controller_extension_20261010": {
     "status": "PASS_PREPARATION_ONLY_QUALIFIED_NOT_DEPLOYED",
-    "engineering_revision": "d2e22b3c5d9b5ef1a0dfdd8e37566b4f6150c4fe on codex/dev014-current-mc-freshness; remote published.",
+    "engineering_revision": "d2e22b3cbaf230959992921247bbee1a3bb4c9a7 on codex/dev014-current-mc-freshness; remote published.",
     "population_extension": "PASS: the existing HistoricalBackfillController retains ranks 1-70 and extends the fixed existing chronological assignment through rank 90, projecting creation/opening facts only from WATCHTOWER_FORENSIC_POPULATION_V2_20261009.",
     "qualified_entry_ranks": [71, 72, 74, 75, 77, 78, 79, 80, 82, 84, 86],
     "missing_anchor_ranks": [73, 76, 81, 83, 85, 87, 88, 89, 90],

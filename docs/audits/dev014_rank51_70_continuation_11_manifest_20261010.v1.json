@@ -1,0 +1,190 @@
+{
+  "authorization": {
+    "authority_id": "DEV014_RANK51_70_CONTINUATION_11_PREPARATION_20261010",
+    "kind": "MANIFEST_PREPARATION_ONLY",
+    "max_requests": 11
+  },
+  "content_hash": "3874226adc9b51961a75a42f61f714c673026652c0e1a111c74f217afd87383b",
+  "max_authorized_requests": 11,
+  "population_identity": "WATCHTOWER_FORENSIC_POPULATION_V2_20261009",
+  "records": [
+    {
+      "anchor": {
+        "class": "QUALIFIED_ENTRY_ANCHOR",
+        "provenance": "7a622509e51f2c05135242aaa4c51dea0fbb7d5f3aefa6da2b1dd9b2ee7edc54",
+        "timestamp": 1790785942
+      },
+      "entry_mc_usd": 148551.519815,
+      "mint": "2VeZv5BTYDyf5ZzBynC5FfZgWWs3xDrkqLkAP3Crpump",
+      "rank": 56,
+      "request_identity": "698853eaebe7052a402b4fe6481582958e24edf96819a005119fc452e2e62337",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790785942,
+        "time_to": 1790789542
+      }
+    },
+    {
+      "anchor": {
+        "class": "QUALIFIED_ENTRY_ANCHOR",
+        "provenance": "f360f3e7d602e16f946a2ea1c2b2e33c683ca1eddaec0653d1fa8db915d42762",
+        "timestamp": 1790783915
+      },
+      "entry_mc_usd": 164676.425129,
+      "mint": "E2ujjsdFjh5yiM8jbVc1HeXEeuaQ7q4prNM6RGVppump",
+      "rank": 57,
+      "request_identity": "c6d8cc63cd75cc9bb20313030db23cc9ddd5d9dce854b06447c3bfa36eff7b76",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790783915,
+        "time_to": 1790787515
+      }
+    },
+    {
+      "anchor": {
+        "class": "QUALIFIED_ENTRY_ANCHOR",
+        "provenance": "8226dc68b4da7a30f83f8aee116e4005dceaaf2db9c99196e719654131c5bd74",
+        "timestamp": 1790777377
+      },
+      "entry_mc_usd": 165381.2316,
+      "mint": "CbVTvRQY7aRpXfUKVMW2BZ53mtaUtWgo3KqjU6oYpump",
+      "rank": 58,
+      "request_identity": "f856fd3cd727a5f1b5308a498c2ad8f5b66d264757f42cfb3773586f905a8578",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790777377,
+        "time_to": 1790780977
+      }
+    },
+    {
+      "anchor": {
+        "class": "QUALIFIED_ENTRY_ANCHOR",
+        "provenance": "0ca37f918bef65c8229783c3dfd72ee775818825b3dbb3fcf10428eefe390040",
+        "timestamp": 1790770075
+      },
+      "entry_mc_usd": 206186.870612,
+      "mint": "8nh9t5MHFRyEWn5K9oUqx3LJayLMMHhE4BPdgno5pump",
+      "rank": 59,
+      "request_identity": "14ad9646138c338cc775bcbfd7f547197681668b76d0ebfa466b7eff4c076f20",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790770075,
+        "time_to": 1790773675
+      }
+    },
+    {
+      "anchor": {
+        "class": "QUALIFIED_ENTRY_ANCHOR",
+        "provenance": "43a8856f532c3f3865c799478552b653cd08f2f7d54467b953e7f88530422945",
+        "timestamp": 1790750902
+      },
+      "entry_mc_usd": 0.000144,
+      "mint": "6osBBs9gQTCAYL1uxLAmrkXD5mSH8A8uUmQMSGjhpump",
+      "rank": 60,
+      "request_identity": "52205cedbd635eb9b830f9d9568a284a89be1a2fa331e5ef775cf7cda00b9625",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790750902,
+        "time_to": 1790754502
+      }
+    },
+    {
+      "anchor": {
+        "class": "QUALIFIED_ENTRY_ANCHOR",
+        "provenance": "85e43535e878c902292e00811f4acd89b0cc478887fd1fb6bc66af499aa91b95",
+        "timestamp": 1790749114
+      },
+      "entry_mc_usd": 142292.761106,
+      "mint": "F2xEKTkpc7ACpzttugRRBJWCYSqdFvp7ioixXXzqpump",
+      "rank": 62,
+      "request_identity": "08d90af419f07253d8427c12f237c0cfe70ba0e42997f9362c9cc809d2396b8e",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790749114,
+        "time_to": 1790752714
+      }
+    },
+    {
+      "anchor": {
+        "class": "QUALIFIED_ENTRY_ANCHOR",
+        "provenance": "a77f4589cf85e3e74a61b5594181f57e7e076363d4b2b70f166e7dfc68a4589c",
+        "timestamp": 1790734508
+      },
+      "entry_mc_usd": 142660.800283,
+      "mint": "AdFYwmgMEYfD3ut11oYjiFCyHSj5G7SK8X2kWqZ6pump",
+      "rank": 64,
+      "request_identity": "1716f5583df03ad937348329aac4a99ba309971a267b50f24e3e9c5a4538aef8",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790734508,
+        "time_to": 1790738108
+      }
+    },
+    {
+      "anchor": {
+        "class": "QUALIFIED_ENTRY_ANCHOR",
+        "provenance": "7d55f1c941fdf5750a19376144e91c9064873169472673134bf5dc0af3545f34",
+        "timestamp": 1790729692
+      },
+      "entry_mc_usd": 151090.928928,
+      "mint": "3fkKd57aZ9DTQ6jdGoGNua1BDHVBDX8TpgLPscWjpump",
+      "rank": 65,
+      "request_identity": "4ec40ed9e76a3669bde750141121d58ceca4be36665e83f0abf5a6d860e6e178",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790729692,
+        "time_to": 1790733292
+      }
+    },
+    {
+      "anchor": {
+        "class": "QUALIFIED_ENTRY_ANCHOR",
+        "provenance": "ebe46eeb06ecdba2094748b1b10581e6c70db4ef2ef85d3ff7e9834867d95602",
+        "timestamp": 1790727785
+      },
+      "entry_mc_usd": 160995.717486,
+      "mint": "DHtja2SZXbgLi3Xm35wtPZ6R6dyMoTRi7b8UcDhmpump",
+      "rank": 66,
+      "request_identity": "2a04305794e831fa3518dd242f106be55556081aeb52ab7d32d55ca609e13a36",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790727785,
+        "time_to": 1790731385
+      }
+    },
+    {
+      "anchor": {
+        "class": "QUALIFIED_ENTRY_ANCHOR",
+        "provenance": "44fe5aaea76b07bb22c651d2134801d8514a93fd7a2c0e2480487ff2c791796f",
+        "timestamp": 1790723653
+      },
+      "entry_mc_usd": 170473.387297,
+      "mint": "BiFfzEETEN4wG1vCQLmKk7nBcAcDzVrTEgX3fDiLpump",
+      "rank": 67,
+      "request_identity": "593b17e4ddfd9ba5af0f2d2ec83ac4e4ac56bb6d4fc65a3bc12a98e52d56f3f9",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790723653,
+        "time_to": 1790727253
+      }
+    },
+    {
+      "anchor": {
+        "class": "QUALIFIED_ENTRY_ANCHOR",
+        "provenance": "4a163cca26e4cc9358d4d18d73488d2e30f35568fddad1c7a6a5309d9e7d4480",
+        "timestamp": 1790717311
+      },
+      "entry_mc_usd": 173495.299262,
+      "mint": "H8biQnEVHDM1foz22p8jAyRh4CDpytq22DurHCHvpump",
+      "rank": 70,
+      "request_identity": "49dc97a921104dafd4f6ac78ec5fc2bb4b3ab30265177d821808d8903fb0a52f",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790717311,
+        "time_to": 1790720911
+      }
+    }
+  ],
+  "schema": "dev014.frozen-historical-acquisition-manifest.v1",
+  "version": 1
+}

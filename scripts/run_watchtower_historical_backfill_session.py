@@ -38,7 +38,7 @@ def _manifest_records(controller:HistoricalBackfillController, manifest:dict[str
             or manifest.get('content_hash')!=_manifest_hash(manifest)):
         raise SystemExit('FROZEN_MANIFEST_INVALID')
     authorization=manifest.get('authorization'); records=manifest.get('records')
-    if (not isinstance(authorization,dict) or authorization.get('kind')!='EXPLICIT_FROZEN_MANIFEST'
+    if (not isinstance(authorization,dict) or authorization.get('kind') not in {'EXPLICIT_FROZEN_MANIFEST','MANIFEST_PREPARATION_ONLY'}
             or not isinstance(authorization.get('authority_id'),str) or not authorization['authority_id']
             or not isinstance(records,list) or not records or len(records)>MAX_MANIFEST_REQUESTS
             or manifest.get('max_authorized_requests')!=len(records) or authorization.get('max_requests')!=len(records)):
@@ -52,6 +52,7 @@ def _manifest_records(controller:HistoricalBackfillController, manifest:dict[str
         if item is None or item.get('request') is None:
             raise SystemExit('FROZEN_MANIFEST_INELIGIBLE_MEMBER')
         expected={'rank':item['rank'],'mint':item['mint'],'anchor':item['anchor'],'requested_window':{'time_from':item['request']['params']['time_from'],'time_to':item['request']['params']['time_to'],'interval':'1m'},'request_identity':item['request']['request_identity']}
+        if item['anchor']['class']=='QUALIFIED_ENTRY_ANCHOR' and 'entry_mc_usd' in record: expected['entry_mc_usd']=item['entry_mc_usd']
         if record!=expected:
             raise SystemExit('FROZEN_MANIFEST_RECORD_MISMATCH')
         selected.append(item)
@@ -182,6 +183,8 @@ def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, An
 def main()->int:
     p=argparse.ArgumentParser(); p.add_argument('--mode',choices=('dry-run','execute'),default='dry-run'); p.add_argument('--manifest',type=Path,required=True); p.add_argument('--state-dir',type=Path,required=True); p.add_argument('--evidence-dir',type=Path,required=True); p.add_argument('--max-requests',type=int,required=True); p.add_argument('--max-runtime-seconds',type=int,required=True); p.add_argument('--max-evidence-bytes',type=int,required=True); p.add_argument('--max-consecutive-failures',type=int,required=True); p.add_argument('--max-health-failures',type=int,required=True); p.add_argument('--live-opt-in',action='store_true'); p.add_argument('--fixture-fake-live',action='store_true'); p.add_argument('--test-production-fixture',action='store_true'); p.add_argument('--test-scenario',default='healthy'); p.add_argument('--test-crash-at',choices=('PENDING','AFTER_BUDGET','ADMITTED','ATTEMPTED','RESPONSE','EVIDENCE')); p.add_argument('--test-hold-path',type=Path); p.add_argument('--test-hold-seconds',type=float,default=5.0); p.add_argument('--supervisor-config',type=Path); p.add_argument('--queue-root',type=Path); a=p.parse_args()
     manifest=plan(a)
+    candidate=_load(a.manifest)
+    if a.mode=='execute' and candidate['authorization']['kind']!='EXPLICIT_FROZEN_MANIFEST': raise SystemExit('PAID_MANIFEST_ACTIVATION_REQUIRED')
     if a.fixture_fake_live:
         if a.mode!='execute': raise SystemExit('FIXTURE_REQUIRES_EXECUTE_MODE')
         print(json.dumps(_execute_fixture(a,manifest),sort_keys=True)); return 0

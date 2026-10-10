@@ -1,13 +1,14 @@
 {
   "dev014_bounded_historical_operator_scope_restore_20261010": {
-    "engineering_revision": "c4af5cb7cfded5458ab66a4ffceed0d1f8329a49 on codex/dev014-current-mc-freshness",
-    "status": "PARTIAL_DENIAL_SCENARIOS_WIRED_CRASH_CONCURRENCY_PENDING",
-    "finding": "The fixed --test-production-fixture selector now wires deterministic health/topology/storage denial scenarios plus isolated actual shared-ledger global/per-mint/backoff/malformed-ledger denial state. Eight CLI denial scenarios executed and failed closed; 26 focused tests pass. crash/restart assertions, unreadable-ledger fixture, critical-event append timing, and same-root two-process ownership remain pending.",
-    "tests": "pytest tests/test_watchtower_historical_executor.py tests/test_dev014_batch4_runtime_gate.py: 21 passed; actual operator --fixture-fake-live command: one normalized fake request completed through controller lock, durable journal, real Batch4RuntimeGate injected with local health/process/WAL/disk/checkpoint fixtures, HistoricalForensicsBudgetAdmission→MonitorQueue→DevProviderBudget against an isolated temporary ledger, and real BirdeyeProductionBinding injected with a synthetic credential and fake HTTP callable; provider calls=0; live budget debits=0; live DB/queue/runtime writes=0.",
-    "storage": "Journal and compact evidence maximum single file=1,000,000 bytes; no raw provider retention; unbounded growth paths=0 for this correction.",
+    "engineering_revision": "63e3a752dbb657696c794ea89fc0b283ecfed313 on codex/dev014-current-mc-freshness; remote origin/codex/dev014-current-mc-freshness verified identical",
+    "status": "PASS_PROVIDER_FREE_CLI_CRASH_AND_CONCURRENCY_ACCEPTANCE",
+    "finding": "Actual --test-production-fixture subprocess coverage completed all six crash selectors (PENDING, AFTER_BUDGET, ADMITTED, ATTEMPTED, RESPONSE, EVIDENCE) and deterministic same-root contention. The journal now persists ADMITTED before shared-budget admission: PENDING resumes once; post-admission/possible-attempt crashes recover to OUTCOME_UNKNOWN; durable evidence recovers to COMPLETED. No automatic admitted/possibly-attempted retry or duplicate debit is possible.",
+    "tests": "pytest -q tests/test_dev014_historical_backfill_controller.py tests/test_dev014_historical_backfill_operator.py tests/test_dev014_historical_execution_binding.py tests/test_dev014_shared_birdeye_budget.py tests/test_dev014_batch4_runtime_gate.py tests/test_dev014_batch5_reconciliation.py tests/test_dev014_cli_acceptance.py: 39 passed, 0 failed. The subprocess matrix asserts frozen ten-rank selection, one shared-ledger debit for every crash selector, PENDING one-time recovered completion, OUTCOME_UNKNOWN for AFTER_BUDGET/ADMITTED/ATTEMPTED/RESPONSE, recovered COMPLETED for EVIDENCE, and one controller owner/one fake request/one journal record during held transport overlap. The subsequent invocation proves OS lock release.",
+    "storage": "Journal and compact evidence maximum single file=1,000,000 bytes; test hold marker is a tiny single file; no raw provider retention; unbounded growth paths=0.",
+    "safety": "All execution used isolated temporary state roots and injected transport. Credential reads=0; real provider requests=0; production budget debits=0; live database, queue, runtime service, configuration, and deployment writes=0. Frozen ten request identities remain covered by the existing reconciliation regression.",
     "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Provider-free source correction only; no executable runtime was deployed.",
-    "next_action": "COMPLETE_CRASH_RESTART_AND_SAME_ROOT_CONCURRENCY_ASSERTIONS_AND_REMEDIATE_ANY_FAILED_FIXED_SCENARIOS"
+    "runtime_deployment_reason": "Provider-free test-only fixture and crash-boundary correction only; no executable runtime was deployed.",
+    "next_action": "STOP_BEFORE_PAID_ACQUISITION; obtain separately authorized paid-acquisition/runtime milestone if desired."
   },
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,

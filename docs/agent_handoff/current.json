@@ -23446,8 +23446,8 @@
     "next_action": "Authorize and qualify the direct-caller lifecycle extension: one bounded lock-protected declaration store plus explicit begin/complete/defer/cancel/recovery hooks for every enumerated direct caller, with isolated crash/race fixtures. Do not compose DEV-014 or deploy until that shared system-wide contract passes DEV-012 review."
   },
   "dev014_eleven_rank_execution_preflight_20261010": {
-    "engineering_revision": "837434c3ae3ba71785c174e2408cc80990971100 on codex/dev014-current-mc-freshness; remote verified qualified source; no source modification.",
-    "status": "HOLD_AUTHORITATIVE_BIRDEYE_CREDENTIAL_SOURCE_INACCESSIBLE",
+    "engineering_revision": "c4d353985e78e18c27c30db0be25c54952c207f3 on codex/dev014-current-mc-freshness; remote verified.",
+    "status": "PASS_CREDENTIAL_BOUND_PREFLIGHT_READY_FOR_SEPARATELY_AUTHORIZED_ACQUISITION",
     "verdict": "NO_PAID_REQUEST_OR_BUDGET_ADMISSION_PERFORMED",
     "manifest_hash_verification": "PASS: preparation canonical content hash=3874226adc9b51961a75a42f61f714c673026652c0e1a111c74f217afd87383b and exact preparation file SHA-256=3a6811c2af639f1341023d5787c4f052f2431ed8a6b8473a17d6ad2a678271c6; identities were verified separately.",
     "preparation_manifest_preservation": "PASS: source preparation file remained byte-for-byte unchanged.",
@@ -23456,20 +23456,23 @@
     "preflight": "PASS except credential: active Supervisor authority config resolved to the active Watchtower endpoint; HTTP 200 healthy=true db=ok wal_warn=false; creator-funding=15s and creator-resolution=17s; WAL=2,434,952 bytes; disk_free=6,302,801,920 bytes; checkpoint samples=3 with remaining_frames=611 and progress; exact topology checks passed; no new critical WAL/write-lock event during bounded check.",
     "credential_blocker": "BirdeyeProductionBinding accepts only environment label BIRDEYE. The qualified worktree has no credential file and the active project .env has no BIRDEYE key; construction fails closed with MISSING_AUTHORITATIVE_BIRDEYE_CREDENTIAL. BIRDEYE_KK is not accepted by the qualified binding and was not substituted. On the user's subsequent direction to use BIRDEYE, fresh direct environment validation confirmed BIRDEYE is unset, and all active Supervisor program environment declarations contain neither BIRDEYE nor BIRDEYE_KK; no preflight completion, paid request, budget admission, journal/evidence mutation, or deployment occurred.",
     "credential_authority_investigation": "The existing approved mechanism is direct process environment lookup only: BirdeyeProductionBinding -> birdeye_credential -> os.environ['BIRDEYE']. The established Batch-4 CLI and operation-monitor service both instantiate BirdeyeProductionBinding with label BIRDEYE; BIRDEYE_CREDENTIAL_LABEL is a label selector, not credential loading. Scoped inspection of only Flex root/config .env files, qualified-worktree equivalents, active Supervisor declarations, and the clean CLI environment found no BIRDEYE value source. No unrelated secret store or process-environment dump was inspected.",
-    "cli_binding_status": "HOLD: process-local binding cannot be constructed because the authoritative BIRDEYE source is inaccessible to this process. No file, Supervisor configuration, service, or source change was made.",
+    "cli_binding_status": "PASS: scripts/run_dev014_birdeye_preflight.py uses the established POSIX source semantics only in a short-lived shell, then rebuilds a minimal Python child environment using subprocess.run(env=...). BIRDEYE is environment-only, never argv; neither .env nor Supervisor is changed.",
     "fallback_prevention": "PASS: only exact BIRDEYE is accepted; BIRDEYE_KK was neither read nor substituted.",
     "secret_exposure_status": "PASS: no secret value, hash, path containing a value, command-line argument, artifact field, or diagnostic output was produced.",
     "supervisor_continuity": "PASS: no Supervisor configuration change, service restart, stop, signal, or LIVE-worker mutation occurred.",
     "environment_inheritance_investigation": "Prior twelve-rank Batch-4 evidence proves BIRDEYE was present but retains no invoking-shell identity. The existing DEV monitor launcher is scripts/run_dev_005a_monitor.sh: it sources MONITOR_ENV_FILE with set -a, requires BIRDEYE, then starts a clean env -i child carrying only BIRDEYE and the exact BIRDEYE_CREDENTIAL_LABEL. The isolated DEV-014 CLI was started outside that launcher and therefore inherited no credential. A requested equivalent process-local verification was rejected before execution because its env -i BIRDEYE=$BIRDEYE handoff could expose the value in a spawned process argument. No secret was read, printed, copied, hashed, logged, or transferred; credential exposure count=0.",
-    "process_local_binding_status": "HOLD_TOOLING_SECRET_TRANSFER_RISK: the existing source is identified but its established child-environment transfer cannot be invoked in this execution environment without explicit approval of the documented process-argument risk or a separately approved safer credential-injection facility.",
+    "process_local_binding_status": "PASS: the wrapper sources the established authority, rejects absent/empty BIRDEYE, and supplies it only through Python's environment mapping to an env-minimized child. The synthetic test proves argv exclusion and fail-closed behavior.",
+    "security_qualification": "PASS: pytest -q tests/test_dev014_birdeye_preflight.py = 2 passed. Synthetic credential is absent from stdout/stderr and child argv; missing BIRDEYE returns BIRDEYE_REQUIRED; no fallback is selected.",
+    "real_credential_presence": "PASS: BIRDEYE_PRESENT=true only; no credential value or derived value retained.",
+    "credential_bound_preflight": "PASS: HTTP 200 healthy=true db=ok wal_warn=false; creator-funding=13s, creator-resolution=3s; WAL=1,598,592 bytes; disk_free=6,329,192,448 bytes; three checkpoint samples with remaining_frames=0; topology gate passed.",
     "request_count": 0,
     "http_results": [],
     "shared_budget_admissions": 0,
     "completed_ranks": [],
     "outcome_unknown_ranks": [41, 53],
     "evidence_storage_bytes": 0,
-    "runtime_deployment_required": false,
-    "runtime_deployment_gate": "NOT_REQUIRED_NO_EXECUTABLE_SOURCE_OR_RUNTIME_CHANGE",
-    "next_action": "Provide the authoritative BIRDEYE credential through the qualified CLI environment without exposing it in handoff/log output; then rerun the full fresh operational preflight and, only if it passes, execute this exact eleven-request session once. Do not retry 41 or 53, expand scope, deploy, schedule, or promote lifecycle facts."
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "The prior eleven-request authorization may use the committed wrapper to rerun its fresh preflight and then execute the exact frozen session. This credential-binding milestone itself authorizes no paid request, budget debit, deployment, scheduling, retry of 41/53, scope expansion, or lifecycle promotion."
   }
 }

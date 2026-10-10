@@ -23402,5 +23402,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_REQUIRED_REVIEW_ONLY_HOLD",
     "next_action": "Under the active Monitor-worker workstream, qualify a single durable declaration/priority admission contract that covers queue-backed and direct LIVE callers, including current-MC and generic provider work. Then obtain DEV-012 approval, separately authorize composition into DEV-014, and finally deploy the shared runtime change before any historical acquisition."
+  },
+  "shared_system_wide_live_priority_inventory_20261010": {
+    "status": "HOLD_DIRECT_LIFECYCLE_CONTRACT_UNQUALIFIED",
+    "engineering_revision": "Read-only inventory of active 71b6e338cfb54057ec4984d41bfbe02477c90dba and reviewed queue-backed candidate 245192b9476994b4eec93d2e374905a5eed0de9c. No new source commit was made.",
+    "caller_inventory": "Queue-backed Monitor worker: terminal ATH, early minimum, and 15m evidence have durable MonitorQueue envelopes. Direct callers: dev_current_price_scheduler LIVE_CURRENT keeps only in-process active/due state; watchtower_current_mc_overlay CURRENT_MC_OVERLAY owns an independent quote-store cadence; strict_migration_window OPENING builds a deterministic request then transports directly; generic_provider_work_scheduler selects SQLite PENDING work, debits, writes DISPATCHED, and only later reaches COMPLETE/defer through MonitorWorker. All use the shared MonitorQueue budget boundary; direct paths currently have no MonitorQueue demand declaration.",
+    "direct_demand_boundary": "A safe direct contract must persist deterministic demand identity, provider class, READY/CLAIMED/RELEASED-or-EXPIRED state and bounded expiry under provider_budget.lock before a direct caller becomes transport-eligible. It must retain demand through transport and clear/recover it at each durable completion/defer/cancellation boundary. A debit-only wrapper is insufficient because it releases the priority signal before the direct request lifecycle concludes.",
+    "blocking_finding": "The generic provider scheduler has independent SQLite PENDING/DISPATCHED/COMPLETE state and multiple terminal/defer paths. Current-MC scheduler state is in memory; current-MC overlay has quote-store cadence; strict opening derives a request identity but has direct transport/error paths. No existing cross-caller declaration, completion, crash-recovery, or stale-expiry API joins those lifecycles to provider_budget.lock. Implementing a sidecar without qualifying all release/recovery paths could permanently block historical work or silently lose LIVE priority, so system-wide qualification cannot be claimed from 245192.",
+    "safety": "Inventory only. No provider transport, credential use, budget debit, queue/database mutation, source change, deployment, restart, or scheduler activation occurred.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_INVENTORY_HOLD",
+    "next_action": "Authorize and qualify the direct-caller lifecycle extension: one bounded lock-protected declaration store plus explicit begin/complete/defer/cancel/recovery hooks for every enumerated direct caller, with isolated crash/race fixtures. Do not compose DEV-014 or deploy until that shared system-wide contract passes DEV-012 review."
   }
 }

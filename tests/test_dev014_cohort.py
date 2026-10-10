@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 import pytest
-from src.ops.watchtower_historical_cohort import manifests
+from src.ops.watchtower_historical_cohort import manifests,run_finite
 from src.ops.watchtower_historical_backfill_controller import HistoricalBackfillController
 ROOT=Path(__file__).resolve().parents[1]
 def test_cohort_manifests_are_bounded_and_explicit(tmp_path):
@@ -10,3 +10,19 @@ def test_cohort_manifests_are_bounded_and_explicit(tmp_path):
  with pytest.raises(ValueError): manifests(c,tmp_path/'journal','')
  out=manifests(c,tmp_path/'journal','fixture')
  assert all(len(x['records'])<=50 and x['content_hash'] for x in out)
+
+def test_synthetic_multi_session_cadence_cooldown_and_exhaustion():
+ clock=[0]; calls=[]
+ def tick(n): clock[0]+=n
+ records=[{'request_identity':str(i)} for i in range(100)]
+ manifests=[{'records':records[:50]},{'records':records[50:]}]
+ result=run_finite(manifests,execute=lambda r:calls.append(r['request_identity']),health=lambda:None,clock=lambda:clock[0],sleep=tick)
+ assert result['status']=='EXHAUSTED' and calls==[str(i) for i in range(100)]
+ assert len(result['sessions'])==2 and clock[0]>=540
+
+def test_synthetic_cohort_health_storage_and_cancel_stop():
+ records=[{'request_identity':'x'}]; manifest=[{'records':records}]
+ import pytest
+ with pytest.raises(RuntimeError): run_finite(manifest,execute=lambda _:None,health=lambda:(_ for _ in ()).throw(RuntimeError('health')))
+ assert run_finite(manifest,execute=lambda _:None,health=lambda:None,storage_ok=lambda:False)['status']=='STORAGE_HOLD'
+ assert run_finite(manifest,execute=lambda _:None,health=lambda:None,cancelled=lambda:True)['status']=='CANCELLED'

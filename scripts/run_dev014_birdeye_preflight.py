@@ -14,11 +14,17 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from typing import Callable
 
 
 ROOT = Path(__file__).resolve().parents[1]
 BOUND = "DEV014_BIRDEYE_ENV_BOUND"
 ENV_FILE = Path("/Users/kevinkeaveney/Dev/claude/flex/.env")
+MANIFEST = Path("/private/tmp/dev014_rank51_70_continuation_11_execution_20261010.v1.json")
+STATE_DIR = Path("/private/tmp/dev014-r51-70-state")
+EVIDENCE_DIR = Path("/private/tmp/dev014-r51-70-evidence")
+SUPERVISOR_CONFIG = Path("/Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf")
+QUEUE_ROOT = Path("/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue")
 
 
 class CredentialBindingDenied(RuntimeError):
@@ -78,9 +84,29 @@ print(json.dumps({'BIRDEYE_PRESENT': True, 'credential_label': 'BIRDEYE', 'fallb
     return json.loads(result.stdout)
 
 
+def _production_cli_command() -> list[str]:
+    """The only paid command this wrapper may launch; no secret is an argument."""
+    return [
+        sys.executable, str(ROOT / "scripts" / "run_watchtower_historical_backfill_session.py"),
+        "--mode", "execute", "--manifest", str(MANIFEST),
+        "--state-dir", str(STATE_DIR), "--evidence-dir", str(EVIDENCE_DIR),
+        "--max-requests", "11", "--max-runtime-seconds", "1800",
+        "--max-evidence-bytes", "2000000", "--max-consecutive-failures", "2",
+        "--max-health-failures", "1", "--live-opt-in",
+        "--supervisor-config", str(SUPERVISOR_CONFIG), "--queue-root", str(QUEUE_ROOT),
+    ]
+
+
+def _execute_frozen_session(run: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> int:
+    """Launch exactly the already-authorized frozen session in a clean env."""
+    env = _minimal_environment(os.environ.get("BIRDEYE", ""))
+    result = run(_production_cli_command(), env=env, check=False)
+    return int(result.returncode)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=("verify", "preflight"), default="verify")
+    parser.add_argument("--mode", choices=("verify", "preflight", "execute"), default="verify")
     parser.add_argument("--env-file", type=Path, default=ENV_FILE)
     parser.add_argument("--bound", action="store_true")
     args = parser.parse_args()
@@ -89,6 +115,8 @@ def main() -> int:
             return _source_then_reexec(args.env_file, args.mode)
         if os.environ.get(BOUND) != "1":
             raise CredentialBindingDenied("BOUND_PROCESS_REQUIRED")
+        if args.mode == "execute":
+            return _execute_frozen_session()
         value = _credential_check() if args.mode == "verify" else _preflight()
         print(json.dumps(value, sort_keys=True))
         return 0

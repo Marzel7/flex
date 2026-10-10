@@ -52,9 +52,11 @@ def _execute_fixture(args: argparse.Namespace, manifest: dict[str, Any]) -> dict
         payload={'success': True, 'data': {'items': [{'unixTime': selected[0]['request']['params']['time_from'], 'o': 10, 'h': 11, 'l': 9, 'c': 10}]}}
     def fake_transport(request: dict[str, Any]) -> Outcome:
         calls.append(request); return Outcome()
-    def fake_admit(**_: Any) -> None: return None
+    # The fixture uses the actual shared adapter against an isolated ledger;
+    # production wiring uses the same adapter but remains separately authorized.
+    admission = HistoricalForensicsBudgetAdmission(Path(manifest['state_path']).parent / 'fixture-queue')
     with controller:
-        result = binding.execute(selected[0], health_gate=lambda: None, admit=fake_admit, transport=fake_transport)
+        result = binding.execute(selected[0], health_gate=lambda: None, admit=admission.admit, transport=fake_transport)
     return {'status':'FIXTURE_COMPLETED','request_count':len(calls),'completed_identity':result['request_identity'],
             'live_contention_limitation':'shared budget compliance does not guarantee zero contention with direct LIVE callers'}
 def main()->int:

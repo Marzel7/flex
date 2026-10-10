@@ -1,13 +1,13 @@
 {
   "dev014_bounded_historical_operator_scope_restore_20261010": {
-    "engineering_revision": "58cb4e74770ceaebd01a90115f57bfb23558ad4e on codex/dev014-current-mc-freshness",
-    "status": "HOLD_PRODUCTION_OPERATOR_COMMAND_NOT_IMPLEMENTED",
-    "finding": "DEV-014 scope is restored to the proven Batch 4 contract: no additional Current-MC or early-minimum predicates are required. The retained fake-live operator path succeeds, and 26 focused controller/execution-binding/runtime-gate/shared-budget tests pass. However the CLI still deliberately exits LIVE_EXECUTION_REQUIRES_SEPARATE_RUNTIME_AUTHORIZATION after --live-opt-in, so no production binding command exists to execute Batch4RuntimeGate, the shared queue root, BirdeyeProductionBinding, controller ownership, and bounded evidence root together. Providing a purported live command would be misleading. Separate uncoordinated roots also remain a documented limitation.",
+    "engineering_revision": "a0b087474ad25d50a3dc611251b0bc42e556f531 on codex/dev014-current-mc-freshness",
+    "status": "PARTIAL_PRODUCTION_CLI_COMPOSED_OPERATOR_MATRIX_PENDING",
+    "finding": "DEV-014 scope is restored to the proven Batch 4 contract: no additional Current-MC or early-minimum predicates are required. The production CLI now composes the existing controller, journal, Batch4RuntimeGate, HistoricalForensicsBudgetAdmission, and BirdeyeProductionBinding after explicit --live-opt-in plus Supervisor config and queue-root arguments. Missing authority fails closed before admission or transport. The fixture path and 26 focused tests pass. Full CLI-level negative/crash/concurrency matrix remains pending; separate uncoordinated roots remain a documented limitation.",
     "tests": "pytest tests/test_watchtower_historical_executor.py tests/test_dev014_batch4_runtime_gate.py: 21 passed; actual operator --fixture-fake-live command: one normalized fake request completed through controller lock, durable journal, real Batch4RuntimeGate injected with local health/process/WAL/disk/checkpoint fixtures, HistoricalForensicsBudgetAdmission→MonitorQueue→DevProviderBudget against an isolated temporary ledger, and real BirdeyeProductionBinding injected with a synthetic credential and fake HTTP callable; provider calls=0; live budget debits=0; live DB/queue/runtime writes=0.",
     "storage": "Journal and compact evidence maximum single file=1,000,000 bytes; no raw provider retention; unbounded growth paths=0 for this correction.",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Provider-free source correction only; no executable runtime was deployed.",
-    "next_action": "IMPLEMENT_THE_EXISTING_COMPONENT_PRODUCTION_BINDING_IN_THE_OPERATOR_WITH_EXPLICIT_CONFIGURED_STATE_EVIDENCE_ROOTS_AND_RUN_THE_OPERATOR_LEVEL_NEGATIVE_CRASH_AND_SAME_ROOT_MATRIX"
+    "next_action": "RUN_THE_OPERATOR_LEVEL_NEGATIVE_CRASH_AND_SAME_ROOT_MATRIX_WITH_ISOLATED_INJECTED_AUTHORITIES_BEFORE_REQUESTING_PAID_ACQUISITION"
   },
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,

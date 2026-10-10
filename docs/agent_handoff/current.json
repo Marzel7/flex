@@ -23483,5 +23483,20 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "STOP: the authorized eleven-request session is complete. Do not repeat these identities, retry ranks 41/53, continue beyond rank 70, deploy services, schedule work, acquire sharp-exit windows, or mutate canonical lifecycle facts without a separately authorized gate."
+  },
+  "dev014_rank71_90_preparation_reconciliation_20261010": {
+    "status": "HOLD_FROZEN_POPULATION_AND_CLI_SCOPE_END_AT_RANK_70",
+    "engineering_revision": "dfc117f6433cea1cec98509679968776ca3555e2 on codex/dev014-current-mc-freshness; compact reconciliation audit remotely published.",
+    "authority": "WATCHTOWER_FORENSIC_POPULATION_V2_20261009; current qualified historical controller enumerates only its most_recent_70_mints contract.",
+    "reconciliation": "PASS: 20 completed automated records and 20 unique completed mints across retained journals; duplicate completed request identities=0; ranks 41 and 53 remain OUTCOME_UNKNOWN; retained coverage classes complete=64, provider-missing=13, truncation-suspected=3.",
+    "candidate_anchor_facts": "11 candidate retained Entry-MCAP facts at ranks 71,72,74,75,77,78,79,80,82,84,86 were identified from the planning/baseline evidence, but they are outside the frozen population/controller rank domain and were not converted into request identities.",
+    "missing_anchor_ranks": [73, 76, 81, 83, 85, 87, 88, 89, 90],
+    "manifest_status": "NOT_CREATED_FAIL_CLOSED: no content hash, file SHA-256, or request identities exist because an executable record outside controller work would fail FROZEN_MANIFEST_INELIGIBLE_MEMBER.",
+    "cli_dry_run_status": "BLOCKED_NO_SAFE_MANIFEST: the production CLI cannot validate ranks 71-90 until a qualified population/controller extension exists.",
+    "audit": "docs/audits/dev014_rank71_90_preparation_reconciliation_20261010.v1.json; SHA-256=cb31be9de6732c5ea00f04865c3c4ec3be54db2e6f412489a10db0ae355b6fe5.",
+    "safety": "Provider-free only: paid provider requests=0, live budget debits=0, deployment=0, scheduling=0, lifecycle promotion=0, raw provider retention=false.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_PROVIDER_FREE_HOLD",
+    "next_action": "Qualify and remotely publish a rank 71-90 population extension with exact ordering and controller-owned Entry-anchor/Entry-MCAP projection. Then generate deterministic request identities and run the existing production CLI dry-run. A separately authorized acquisition gate remains required."
   }
 }

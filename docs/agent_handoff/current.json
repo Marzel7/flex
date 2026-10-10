@@ -23532,5 +23532,20 @@
     "runtime_target": "No target reloaded or changed. The qualified source is isolated worktree /private/tmp/flex-dev014-current-mc-freshness at 2c91feb1; running PID/code identity and post-deployment acceptance are intentionally absent.",
     "safety": "Paid Birdeye requests=0; credential reads=0; live budget debits=0; live database/queue writes=0; deployment=0; scheduling=0; raw provider retention=false.",
     "next_action": "Reconcile the immutable chronology/controller authority to supply 50 validated eligible frozen records, then rerun the real-loop 50-request/two-rollover and waiting-interruption matrix. Do not acquire, deploy, or schedule."
+  },
+  "dev014_synthetic_capacity_qualification_20261010": {
+    "status": "PARTIAL_CAPACITY_PASS_STORAGE_GATE_PENDING",
+    "engineering_revision": "46a9f5866402fcd7b5f4aeddb3d547cef0a1edcd on codex/dev014-current-mc-freshness",
+    "fixture_isolation": "PASS: exactly 50 generated DEV014_SYNTHETIC_CAPACITY_V1 identities use fixture_only=true. They bypass immutable manifest selection only through the explicit --test-production-fixture --test-synthetic-clock --test-synthetic-capacity-fixture path; production binding rejects fixture_only records with SYNTHETIC_FIXTURE_DENIED, and normal manifests still require controller-owned records.",
+    "capacity": "PASS: real production loop plus HistoricalExecutionBinding and HistoricalForensicsBudgetAdmission completed 50 sequential fixture transports/admissions. Requests 21 and 41 each saw canonical global exhaustion, persisted PENDING without debit/transport, waited outside the lock, rechecked runtime health, crossed the existing rolling boundary, and completed once. Final ledger <=20 and all 50 journal states COMPLETED with unique identities. Request 51 fails REQUEST_CAP_EXCEEDED before execution.",
+    "interruptions": "PASS: synthetic waiting cancellation returns CANCELLED with 20 debits/21 records (request 21 remains PENDING); deadline returns SESSION_DEADLINE_REACHED after 20 transports; health failure recheck raises API_HEALTH_DENIED before request-21 transport/debit; wait crash leaves request 21 PENDING and restart completes remaining 30 transports without reissuing the first 20.",
+    "contracts_preserved": "Concurrency=1; no-repeat-after-ATTEMPTED preserved; ordinary production reruns remain fail-closed; immutable chronology, 42 unranked exclusions, completed/deferred/OUTCOME_UNKNOWN history, LIVE provider paths, shared 20-global/4-per-mint semantics, and lifecycle facts unchanged.",
+    "regressions": "71 passed: all focused DEV014 provider-free tests.",
+    "storage": "Per-artifact journal bound remains 1 MiB and fixture uses compact normalized evidence/no raw payload. Session 5 MiB bound is existing CLI input. The newly requested 100 MiB cumulative-cohort accounting (including temporary/rotated files) and a fail-closed >=4 GiB free-space gate are not implemented, so unattended cohort readiness is HOLD.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "runtime": "No runtime target/path reload, PID validation, or deployment acceptance was performed.",
+    "safety": "Paid provider=0; credential reads=0; live budget debits=0; live DB/queue writes=0; deployment=0; scheduling=0; raw provider retention=false.",
+    "next_action": "Implement and provider-free qualify the requested bounded cumulative-cohort storage/free-disk guard, then reassess unattended cohort readiness. Do not acquire, deploy, or schedule."
   }
 }

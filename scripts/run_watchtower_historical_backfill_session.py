@@ -24,10 +24,10 @@ def _safe(path:Path, *, protected:tuple[Path,...])->Path:
     resolved=path.resolve(strict=False)
     if any(resolved==root or root in resolved.parents for root in protected): raise SystemExit('PROTECTED_PATH_DENIED')
     return resolved
-def _parse_ranks(raw:str)->set[int]:
-    ranks={int(x) for x in raw.split(',') if x}
-    allowed={22,23,24,26,41,43,46,47,48,50}
-    if not ranks or not ranks <= allowed: raise SystemExit('FROZEN_SUBSET_INVALID')
+def _parse_ranks(raw:str)->tuple[int,...]:
+    ranks=tuple(int(x) for x in raw.split(',') if x)
+    allowed={22,23,24,26,41,43,46,47,48,50,53,56,57,58,59,60,62,64,65,66,67,70}
+    if not ranks or len(set(ranks)) != len(ranks) or not set(ranks) <= allowed: raise SystemExit('FROZEN_SUBSET_INVALID')
     return ranks
 def plan(args:argparse.Namespace)->dict[str,Any]:
     recon,pop=_load(RECON),_load(POP); protected=(ROOT/'database',ROOT/'.dev_runtime')
@@ -35,12 +35,13 @@ def plan(args:argparse.Namespace)->dict[str,Any]:
     if state_dir==evidence_dir: raise SystemExit('STATE_EVIDENCE_PATH_MUST_DIFFER')
     bounds=SessionBounds(args.max_requests,args.max_runtime_seconds,args.max_evidence_bytes,args.max_consecutive_failures,args.max_health_failures); bounds.validate()
     ranks=_parse_ranks(args.ranks)
-    if args.max_requests>10 or len(ranks)>10: raise SystemExit('REQUEST_CAP_EXCEEDED')
-    controller=HistoricalBackfillController(state_dir/'controller.json',recon,pop)
-    selected=[x for x in controller.work() if x['rank'] in ranks]
     full=(22,23,24,26,41,43,46,47,48,50)
     continuation=(43,46,47,48,50)
-    if tuple(x['rank'] for x in selected) not in (full, continuation): raise SystemExit('FROZEN_ORDER_INVALID')
+    scaled=(53,56,57,58,59,60,62,64,65,66,67,70)
+    if ranks not in (full, continuation, scaled) or args.max_requests > len(ranks): raise SystemExit('REQUEST_CAP_EXCEEDED')
+    controller=HistoricalBackfillController(state_dir/'controller.json',recon,pop)
+    selected=[x for x in controller.work() if x['rank'] in ranks]
+    if tuple(x['rank'] for x in selected) != ranks: raise SystemExit('FROZEN_ORDER_INVALID')
     if any(x['request'] is None for x in selected): raise SystemExit('INELIGIBLE_SUBSET_MEMBER')
     return {'mode':args.mode,'state_path':str(state_dir/'controller.json'),'binding_path':str(evidence_dir/'journal.json'),'evidence_dir':str(evidence_dir),'selected_ranks':[x['rank'] for x in selected],'request_identities':[x['request']['request_identity'] for x in selected],'max_requests':args.max_requests,'max_runtime_seconds':args.max_runtime_seconds,'max_evidence_bytes':args.max_evidence_bytes,'components':{'controller':'HistoricalBackfillController','binding':'HistoricalExecutionBinding','runtime_gate':'Batch4RuntimeGate','budget':'HistoricalForensicsBudgetAdmission','transport':'BirdeyeProductionBinding'},'scheduler':False}
 

@@ -117,7 +117,8 @@ def _execute_production(args: argparse.Namespace, manifest: dict[str, Any], *,
         raise SystemExit('SUPERVISOR_CONFIG_AND_QUEUE_ROOT_REQUIRED')
     queue_root = _safe(args.queue_root, protected=(ROOT/'database', ROOT/'.dev_runtime'))
     controller = HistoricalBackfillController(manifest['state_path'], _load(RECON), _load(POP))
-    binding = HistoricalExecutionBinding(manifest['binding_path'], fixture_only=synthetic_selected is not None)
+    binding = HistoricalExecutionBinding(manifest['binding_path'], fixture_only=synthetic_selected is not None,
+                                        cohort_root=Path(manifest['state_path']).parent)
     authority = authority_resolver(args.supervisor_config)
     gate = gate_factory(authority)
     admission = admission_factory(queue_root)

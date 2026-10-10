@@ -5,6 +5,7 @@ import hashlib
 import json
 import math
 import os
+import shutil
 from pathlib import Path
 from typing import Any, Callable
 
@@ -15,18 +16,39 @@ from src.ops.dev_provider_budget import BudgetDenied
 
 STATES = frozenset({"PENDING", "ADMISSION_INTENT", "ADMITTED", "ATTEMPTED", "COMPLETED", "OUTCOME_UNKNOWN", "DEFERRED"})
 MAX_BYTES = 1_000_000
+MAX_COHORT_BYTES = 100 * 1024 * 1024
+MIN_FREE_BYTES = 4 * 1024 * 1024 * 1024
 
 
 class BindingDenied(RuntimeError): pass
+
+class CohortStorageGuard:
+    """Fail-closed accounting for one isolated acquisition cohort root."""
+    def __init__(self, root: str | Path, *, disk_usage: Callable[[str | Path], Any] = shutil.disk_usage):
+        self.root=Path(root).resolve(strict=False); self.disk_usage=disk_usage
+        if self.root.is_symlink(): raise BindingDenied("COHORT_SYMLINK_DENIED")
+    def check(self, reserve: int = 0) -> None:
+        try:
+            usage=self.disk_usage(self.root)
+            if int(usage.free) < MIN_FREE_BYTES + reserve: raise BindingDenied("COHORT_DISK_HEADROOM_DENIED")
+            total=0
+            if self.root.exists():
+                for path in self.root.rglob('*'):
+                    if path.is_symlink(): raise BindingDenied("COHORT_SYMLINK_DENIED")
+                    if path.is_file(): total += path.stat().st_size
+            if total + reserve > MAX_COHORT_BYTES: raise BindingDenied("COHORT_STORAGE_LIMIT_DENIED")
+        except BindingDenied: raise
+        except OSError as exc: raise BindingDenied("COHORT_STORAGE_UNAVAILABLE") from exc
 
 
 def _digest(value: Any) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
-def _atomic(path: Path, value: dict[str, Any]) -> None:
+def _atomic(path: Path, value: dict[str, Any], guard: CohortStorageGuard | None = None) -> None:
     raw = json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
     if len(raw) >= MAX_BYTES: raise BindingDenied("COMPACT_ARTIFACT_BOUND_EXCEEDED")
+    if guard: guard.check(reserve=len(raw)*2)
     tmp = path.with_suffix(path.suffix + ".tmp")
     with tmp.open("wb") as handle:
         handle.write(raw); handle.flush(); os.fsync(handle.fileno())
@@ -35,9 +57,10 @@ def _atomic(path: Path, value: dict[str, Any]) -> None:
 
 class HistoricalExecutionBinding:
     """A file-backed request journal; transport is injected, never scheduled."""
-    def __init__(self, path: str | Path, *, fixture_only: bool = False):
+    def __init__(self, path: str | Path, *, fixture_only: bool = False, cohort_root: str | Path | None = None, disk_usage: Callable[[str | Path], Any] = shutil.disk_usage):
         self.path = Path(path)
         self.fixture_only = fixture_only
+        self.guard = CohortStorageGuard(cohort_root, disk_usage=disk_usage) if cohort_root else None
 
     def read(self) -> dict[str, Any]:
         if not self.path.exists(): return {"version": 1, "records": []}
@@ -46,7 +69,7 @@ class HistoricalExecutionBinding:
         if value.get("version") != 1 or not isinstance(value.get("records"), list): raise BindingDenied("EXECUTION_JOURNAL_INVALID")
         return value
 
-    def _write(self, value: dict[str, Any]) -> None: self.path.parent.mkdir(parents=True, exist_ok=True); _atomic(self.path, value)
+    def _write(self, value: dict[str, Any]) -> None: self.path.parent.mkdir(parents=True, exist_ok=True); _atomic(self.path, value, self.guard)
 
     @staticmethod
     def _validate_evidence_readiness(item: dict[str, Any]) -> dict[str, Any]:
@@ -88,6 +111,7 @@ class HistoricalExecutionBinding:
         if bool(item.get("fixture_only")) != self.fixture_only:
             raise BindingDenied("SYNTHETIC_FIXTURE_DENIED")
         request = self._validate_evidence_readiness(item)
+        if self.guard: self.guard.check()
         identity = request["request_identity"]; journal = self.recover()
         existing = next((x for x in journal["records"] if x.get("request_identity") == identity), None)
         if existing and existing.get("state") != "PENDING":

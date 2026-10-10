@@ -76,14 +76,14 @@ def _execute_fixture(args: argparse.Namespace, manifest: dict[str, Any]) -> dict
 
 def _execute_production(args: argparse.Namespace, manifest: dict[str, Any], *,
                         gate_factory=Batch4RuntimeGate, admission_factory=HistoricalForensicsBudgetAdmission,
-                        transport_factory=BirdeyeProductionBinding) -> dict[str, Any]:
+                        transport_factory=BirdeyeProductionBinding, authority_resolver=resolve_runtime_authority) -> dict[str, Any]:
     """One explicit bounded session; this function never schedules or retries."""
     if not args.supervisor_config or not args.queue_root:
         raise SystemExit('SUPERVISOR_CONFIG_AND_QUEUE_ROOT_REQUIRED')
     queue_root = _safe(args.queue_root, protected=(ROOT/'database', ROOT/'.dev_runtime'))
     controller = HistoricalBackfillController(manifest['state_path'], _load(RECON), _load(POP))
     binding = HistoricalExecutionBinding(manifest['binding_path'])
-    authority = resolve_runtime_authority(args.supervisor_config)
+    authority = authority_resolver(args.supervisor_config)
     gate = gate_factory(authority)
     admission = admission_factory(queue_root)
     provider: Any | None = None
@@ -102,12 +102,31 @@ def _execute_production(args: argparse.Namespace, manifest: dict[str, Any], *,
             completed.append(binding.execute(item, health_gate=gate.check, admit=admission.admit, transport=transport)['request_identity'])
     return {'status':'COMPLETED','request_count':len(completed),'completed_identities':completed,
             'live_contention_limitation':'shared budget compliance does not guarantee zero contention with direct LIVE callers'}
+def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, Any]) -> dict[str, Any]:
+    """Fixed, local-only subprocess fixture for the production composition."""
+    root=Path(manifest['state_path']).parent; root.mkdir(parents=True,exist_ok=True)
+    config,db,listener,funding,resolution=(root/'fixture.conf',root/'fixture.db',root/'listener.log',root/'funding.log',root/'resolution.log')
+    config.write_text('[fixture]'); db.touch(); listener.write_text('[WAL_CHECKPOINT] {"status":"ok","busy":0,"checkpointed_frames":1,"remaining_frames":0}\n'); funding.touch(); resolution.touch()
+    authority=RuntimeAuthority(config,'http://fixture/healthz',db,listener,(funding,resolution))
+    lines=lambda:[f'1 0 Sat Oct 10 00:00:00 2026 /usr/local/bin/supervisord -c {config}','2 1 Sat Oct 10 00:00:00 2026 /usr/bin/python3 -m src.core.creator_funding_worker','3 1 Sat Oct 10 00:00:00 2026 /usr/bin/python3 -m src.core.creator_resolution_worker']
+    health=lambda _:(200,{'healthy':True,'db':'ok','wal_warn':False,'workers':{'creator-funding':{'stale':False,'age_s':1},'creator-resolution':{'stale':False,'age_s':1}}})
+    class Disk: free=5*1024*1024*1024
+    gate=lambda _:Batch4RuntimeGate(authority,health_fetch=health,process_lines=lines,disk_usage=lambda _:Disk(),wal_size=lambda _:0)
+    calls=[]
+    class Transport:
+        def __call__(self, request):
+            calls.append(request); return ProviderTransportOutcome(200,{'success':True,'data':{'items':[{'unixTime':request['request_parameters']['time_from'],'o':10,'h':11,'l':9,'c':10}]}},{})
+    result=_execute_production(args,manifest,gate_factory=gate,transport_factory=Transport,authority_resolver=lambda _:authority)
+    result.update({'fixture_transport_calls':len(calls),'credential_reads':0}); return result
 def main()->int:
-    p=argparse.ArgumentParser(); p.add_argument('--mode',choices=('dry-run','execute'),default='dry-run'); p.add_argument('--ranks',required=True); p.add_argument('--state-dir',type=Path,required=True); p.add_argument('--evidence-dir',type=Path,required=True); p.add_argument('--max-requests',type=int,required=True); p.add_argument('--max-runtime-seconds',type=int,required=True); p.add_argument('--max-evidence-bytes',type=int,required=True); p.add_argument('--max-consecutive-failures',type=int,required=True); p.add_argument('--max-health-failures',type=int,required=True); p.add_argument('--live-opt-in',action='store_true'); p.add_argument('--fixture-fake-live',action='store_true'); p.add_argument('--supervisor-config',type=Path); p.add_argument('--queue-root',type=Path); a=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('--mode',choices=('dry-run','execute'),default='dry-run'); p.add_argument('--ranks',required=True); p.add_argument('--state-dir',type=Path,required=True); p.add_argument('--evidence-dir',type=Path,required=True); p.add_argument('--max-requests',type=int,required=True); p.add_argument('--max-runtime-seconds',type=int,required=True); p.add_argument('--max-evidence-bytes',type=int,required=True); p.add_argument('--max-consecutive-failures',type=int,required=True); p.add_argument('--max-health-failures',type=int,required=True); p.add_argument('--live-opt-in',action='store_true'); p.add_argument('--fixture-fake-live',action='store_true'); p.add_argument('--test-production-fixture',action='store_true'); p.add_argument('--supervisor-config',type=Path); p.add_argument('--queue-root',type=Path); a=p.parse_args()
     manifest=plan(a)
     if a.fixture_fake_live:
         if a.mode!='execute': raise SystemExit('FIXTURE_REQUIRES_EXECUTE_MODE')
         print(json.dumps(_execute_fixture(a,manifest),sort_keys=True)); return 0
+    if a.test_production_fixture:
+        if a.mode!='execute' or not a.live_opt_in: raise SystemExit('TEST_FIXTURE_REQUIRES_EXPLICIT_EXECUTE_OPT_IN')
+        print(json.dumps(_execute_production_fixture(a,manifest),sort_keys=True)); return 0
     if a.mode=='execute':
         if not a.live_opt_in: raise SystemExit('EXPLICIT_LIVE_OPT_IN_REQUIRED')
         print(json.dumps(_execute_production(a,manifest),sort_keys=True)); return 0

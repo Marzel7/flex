@@ -29,7 +29,7 @@ def _manifest(root: Path, ranks: str) -> Path:
 def _command(root: Path, *, scenario: str = "healthy", crash_at: str | None = None,
              hold_path: Path | None = None, ranks: str = RANKS, max_requests: int = 1,
              synthetic_clock: bool = False, synthetic_capacity: bool = False,
-             max_runtime_seconds: int = 30) -> list[str]:
+             max_runtime_seconds: int = 30, capacity_session: int = 1) -> list[str]:
     command = [sys.executable, str(CLI), "--mode", "execute", "--live-opt-in",
                "--test-production-fixture", "--test-scenario", scenario, "--manifest", str(_manifest(root,ranks)),
                "--state-dir", str(root / "state"), "--evidence-dir", str(root / "evidence"),
@@ -44,6 +44,7 @@ def _command(root: Path, *, scenario: str = "healthy", crash_at: str | None = No
         command.append("--test-synthetic-clock")
     if synthetic_capacity:
         command.append("--test-synthetic-capacity-fixture")
+        command.extend(("--test-synthetic-capacity-session",str(capacity_session)))
     return command
 
 
@@ -196,6 +197,14 @@ def test_actual_cli_synthetic_capacity_fixture_completes_fifty_with_two_rollover
     rejected = _run(_command(tmp_path / "synthetic-fifty-one", max_requests=51,
                             synthetic_clock=True, synthetic_capacity=True, max_runtime_seconds=3600))
     assert rejected.returncode == 1 and "REQUEST_CAP_EXCEEDED" in rejected.stderr
+
+def test_actual_cli_two_synthetic_sessions_are_disjoint_and_durable(tmp_path: Path) -> None:
+    root=tmp_path/'two-sessions'
+    first=_run(_command(root,max_requests=50,synthetic_clock=True,synthetic_capacity=True,max_runtime_seconds=3600))
+    second=_run(_command(root,max_requests=50,synthetic_clock=True,synthetic_capacity=True,max_runtime_seconds=3600,capacity_session=2))
+    assert first.returncode==second.returncode==0
+    records=_journal(root)['records']; assert len(records)==100
+    assert len({x['request_identity'] for x in records})==100
 
 
 @pytest.mark.parametrize("scenario,expected", (("wait-cancel", "CANCELLED"), ("wait-health-failure", "API_HEALTH_DENIED")))

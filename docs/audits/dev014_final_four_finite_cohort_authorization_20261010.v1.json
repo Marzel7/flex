@@ -1,0 +1,22 @@
+{
+  "schema": "dev014.finite-cohort-authorization.v1",
+  "population_identity": "WATCHTOWER_FORENSIC_POPULATION_V2_20261009",
+  "chronology_hash": "884276ccd19cd990e6b15bc8bf28347b48860a844ceefdd9c112963dba385dae",
+  "authority_id": "DEV014_FINAL_FOUR_FINITE_COHORT_AUTHORIZATION_20261010",
+  "request_identities": [
+    "6a55abbca69242875dfd8668368db0bbb4e4ba45d25f514ede9526a6be4d4435",
+    "44103c86503114828ce667eae17e343d4db5d5c4bd1edce51ae1a413170d46ea",
+    "362eb7a9b84817cda0a6658675bf00d142b343518eea7e3a9c25d4ce793f161c",
+    "16845848449d08e3148e43ac018271e2ecdc6de424b74059a7cd7389e7ca0552"
+  ],
+  "max_total_paid_requests": 4,
+  "max_requests_per_session": 50,
+  "max_runtime_seconds": 3600,
+  "historical_limit_per_60s": 10,
+  "session_cooldown_seconds": 60,
+  "max_cohort_bytes": 104857600,
+  "min_free_bytes": 4294967296,
+  "cancellation": "STOP",
+  "safety_hold": "STOP_NO_RESTART",
+  "content_hash": "9b67850fe6fd2f215a0c4adcbaa13668df58a9cbcdaf8b330c954aa4df3cfe99"
+}

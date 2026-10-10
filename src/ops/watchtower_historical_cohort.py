@@ -134,6 +134,13 @@ def _write_manifest(root: str|Path, number: int, manifest: dict[str, Any]) -> Pa
     temporary.write_bytes(raw); temporary.replace(path)
     return path
 
+def _storage_permitted(storage_ok: Any) -> bool:
+    """Guards raise on denial; only an explicit False callback means HOLD."""
+    try:
+        return storage_ok() is not False
+    except Exception:
+        return False
+
 def execute_authorized_sessions(controller: Any, authorization: dict[str, Any], *, authoritative_journals: list[str|Path],
                                 session_journal: str|Path, manifest_root: str|Path, execute_session: Any,
                                 health: Any, clock: Any=time.monotonic, sleep: Any=time.sleep,
@@ -144,7 +151,7 @@ def execute_authorized_sessions(controller: Any, authorization: dict[str, Any], 
     while True:
         if cancelled(): return {'status':'CANCELLED','completed':completed,'sessions':sessions}
         health()
-        if not storage_ok(): return {'status':'STORAGE_HOLD','completed':completed,'sessions':sessions}
+        if not _storage_permitted(storage_ok): return {'status':'STORAGE_HOLD','completed':completed,'sessions':sessions}
         # The session journal is reconciled separately; these four are immutable paid authority.
         frozen=authorized_manifests(controller,authorization,authoritative_journals,session_journal)
         if not frozen: return {'status':'EXHAUSTED','completed':completed,'sessions':sessions}
@@ -187,7 +194,7 @@ def run_finite(manifest_list: list[dict[str,Any]], *, execute: Any, health: Any,
                 health(); sleep(1)
             if cancelled(): return {'status':'CANCELLED','completed':completed,'sessions':sessions}
             health()
-            if not storage_ok(): return {'status':'STORAGE_HOLD','completed':completed,'sessions':sessions}
+            if not _storage_permitted(storage_ok): return {'status':'STORAGE_HOLD','completed':completed,'sessions':sessions}
             execute(record); admitted.append(clock()); completed.append(record['request_identity']); batch.append(record['request_identity'])
         sessions.append(batch)
     return {'status':'EXHAUSTED','completed':completed,'sessions':sessions}

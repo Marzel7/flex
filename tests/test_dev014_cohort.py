@@ -26,6 +26,9 @@ def test_synthetic_cohort_health_storage_and_cancel_stop():
  import pytest
  with pytest.raises(RuntimeError): run_finite(manifest,execute=lambda _:None,health=lambda:(_ for _ in ()).throw(RuntimeError('health')))
  assert run_finite(manifest,execute=lambda _:None,health=lambda:None,storage_ok=lambda:False)['status']=='STORAGE_HOLD'
+ assert run_finite(manifest,execute=lambda _:None,health=lambda:None,storage_ok=lambda:None)['status']=='EXHAUSTED'
+ assert run_finite(manifest,execute=lambda _:None,health=lambda:None,
+                   storage_ok=lambda:(_ for _ in ()).throw(OSError('disk unavailable')))['status']=='STORAGE_HOLD'
  assert run_finite(manifest,execute=lambda _:None,health=lambda:None,cancelled=lambda:True)['status']=='CANCELLED'
 
 def test_content_hashed_authorization_and_cli_adapter(tmp_path):
@@ -77,7 +80,7 @@ def test_session_executor_advances_only_after_durable_journal_and_cooldown(tmp_p
   old.extend({'state':'COMPLETED','mint':record['mint'],'request_identity':record['request_identity']} for record in manifest['records'])
   session.write_text(json.dumps({'version':1,'records':old}))
  result=execute_authorized_sessions(Controller(),auth,authoritative_journals=journals,session_journal=session,
-  manifest_root=tmp_path,execute_session=execute,health=lambda:None,clock=lambda:clock[0],sleep=tick)
+  manifest_root=tmp_path,execute_session=execute,health=lambda:None,clock=lambda:clock[0],sleep=tick,storage_ok=lambda:None)
  assert result['status']=='EXHAUSTED' and len(result['completed'])==100 and len(result['sessions'])==2 and clock[0]>=120
 
 def test_session_executor_holds_when_subprocess_lacks_terminal_journal(tmp_path):
@@ -91,3 +94,15 @@ def test_session_executor_holds_when_subprocess_lacks_terminal_journal(tmp_path)
  result=execute_authorized_sessions(Controller(),auth,authoritative_journals=journals,session_journal=session,
   manifest_root=tmp_path,execute_session=lambda _:None,health=lambda:None)
  assert result['status']=='JOURNAL_HOLD' and result['unresolved']==['id']
+
+def test_session_executor_storage_denial_precedes_manifest_or_adapter(tmp_path):
+ class Controller:
+  def work(self): return []
+ journals=[]
+ for number in range(4):
+  path=tmp_path/f'paid-{number}.json'; path.write_text('{"version":1,"records":[]}'); journals.append(path)
+ session=tmp_path/'session.json'; session.write_text('{"version":1,"records":[]}')
+ auth=cohort_authorization(chronology_hash='frozen',identities=['id'],authority_id='operator')
+ result=execute_authorized_sessions(Controller(),auth,authoritative_journals=journals,session_journal=session,
+  manifest_root=tmp_path,execute_session=lambda _:pytest.fail('adapter must not run'),health=lambda:None,storage_ok=lambda:False)
+ assert result['status']=='STORAGE_HOLD'

@@ -141,7 +141,8 @@ def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, An
                     if time.monotonic() >= deadline: raise RuntimeError('TEST_HOLD_TIMEOUT')
                     time.sleep(0.01)
             if scenario=='transport-failure': raise RuntimeError('FIXTURE_TRANSPORT_FAILURE')
-            return ProviderTransportOutcome(200,{'success':True,'data':{'items':[{'unixTime':request['request_parameters']['time_from'],'o':10,'h':11,'l':9,'c':10}]}},{})
+            timestamp = request['request_parameters']['time_from'] // 60 * 60
+            return ProviderTransportOutcome(200,{'success':True,'data':{'items':[{'unixTime':timestamp,'o':10,'h':11,'l':9,'c':10}]}},{})
     queue=Path(args.queue_root); queue.mkdir(parents=True,exist_ok=True)
     mint=selected[0]['mint']; ledger=queue/'provider_budget.json'
     if scenario=='global-budget-denied': ledger.write_text(json.dumps({'calls':[{'at':int(time.time()),'mint':str(x),'class':'x'} for x in range(20)]}))

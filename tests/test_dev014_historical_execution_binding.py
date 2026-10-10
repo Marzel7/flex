@@ -23,3 +23,11 @@ def test_live_and_health_stop_before_admission(tmp_path):
  assert b.execute(item(),health_gate=lambda:None,live_pending=lambda:True,admit=lambda **k:calls.append(k),transport=lambda _:None)['status']=='LIVE_PRIORITY_PENDING'
  with pytest.raises(RuntimeError): b.execute(item(),health_gate=lambda:(_ for _ in ()).throw(RuntimeError('health')),live_pending=lambda:False,admit=lambda **k:calls.append(k),transport=lambda _:None)
  assert calls==[]
+
+
+@pytest.mark.parametrize("field,value", (("entry_mc_usd",None),("entry_mc_usd",0),("entry_mc_usd",float("nan")),("anchor",{"class":"QUALIFIED_ENTRY_ANCHOR","timestamp":1,"provenance":"wrong"})))
+def test_entry_evidence_readiness_denies_before_admission(tmp_path,field,value):
+ candidate=item(); candidate[field]=value; calls=[]
+ binding=HistoricalExecutionBinding(tmp_path/'journal.json')
+ with pytest.raises(BindingDenied): binding.execute(candidate,health_gate=lambda:None,admit=lambda **k:calls.append(k),transport=lambda _:None)
+ assert calls==[] and not (tmp_path/'journal.json').exists()

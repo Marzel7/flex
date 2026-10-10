@@ -1,0 +1,34 @@
+{
+  "schema": "dev014.entry-mc-execution-binding-qualification.v1",
+  "status": "PASS_PROVIDER_FREE",
+  "source_base": "56c31b4c305037edc288d51bdf2398c78243c2bc",
+  "primary_fixture_rank": 53,
+  "secondary_fixture_rank": 41,
+  "field_path": [
+    {"boundary": "frozen population opening evidence", "field": "evidence.opening.entry_mc_usd", "required_for": "QUALIFIED_ENTRY_ANCHOR", "validation": "status, timestamp, provenance, finite positive numeric"},
+    {"boundary": "HistoricalBackfillController.work", "field": "entry_mc_usd", "required_for": "QUALIFIED_ENTRY_ANCHOR", "validation": "same frozen-anchor binding; unavailable later anchors become explicit deferred records"},
+    {"boundary": "operator reconstruction", "field": "entry_mc_usd", "required_for": "selected Entry work", "validation": "controller item is passed unchanged to HistoricalExecutionBinding"},
+    {"boundary": "HistoricalExecutionBinding pre-admission readiness", "field": "entry_mc_usd", "required_for": "QUALIFIED_ENTRY_ANCHOR", "validation": "finite positive numeric plus mint, anchor, provenance, 3600-second window, and request identity"},
+    {"boundary": "Entry-relative evidence builder", "field": "entry_mc_usd", "required_for": "observed_minima", "validation": "already validated before journal admission and transport"}
+  ],
+  "root_cause": "The rank 51-70 continuation projection rebuilt qualified Entry anchors but did not project entry_mc_usd; the execution operator reconstructs controller items, so the plan-time field guarantee did not reach HistoricalExecutionBinding.",
+  "correction": "Both batch-5 and rank-51-70 qualified Entry projections use the same exact-anchor Entry-MC validator. HistoricalExecutionBinding validates evidence readiness before PENDING/ADMITTED state and shared-budget admission.",
+  "provider_free_execution": {
+    "rank_53": {"fixture_transport_calls": 1, "credential_reads": 0, "state": "COMPLETED", "entry_relative_minima": true},
+    "rank_41": {"fixture_transport_calls": 5, "credential_reads": 0, "state": "COMPLETED", "entry_relative_minima": true},
+    "focused_tests": "47 passed"
+  },
+  "preservation": {
+    "rank_41": "OUTCOME_UNKNOWN remains in the real durable journal; fixture completion is isolated proof only",
+    "rank_53": "OUTCOME_UNKNOWN remains in the real durable journal; fixture completion is isolated proof only",
+    "completed_records": 9,
+    "provider_calls": 0,
+    "credential_reads": 0,
+    "live_budget_debits": 0,
+    "raw_provider_payload_retention": false,
+    "max_single_artifact_bytes": 1000000,
+    "unbounded_growth_paths": 0
+  },
+  "continuation_allowlist": [56, 57, 58, 59, 60, 62, 64, 65, 66, 67, 70],
+  "next_action": "Require a separate fresh preflight and explicit paid-acquisition authorization. Never retry rank 41 or rank 53."
+}

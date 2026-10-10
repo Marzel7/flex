@@ -13,14 +13,15 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 CLI = ROOT / "scripts" / "run_watchtower_historical_backfill_session.py"
 RANKS = "22,23,24,26,41,43,46,47,48,50"
+SCALED_RANKS = "53,56,57,58,59,60,62,64,65,66,67,70"
 
 
 def _command(root: Path, *, scenario: str = "healthy", crash_at: str | None = None,
-             hold_path: Path | None = None) -> list[str]:
+             hold_path: Path | None = None, ranks: str = RANKS, max_requests: int = 1) -> list[str]:
     command = [sys.executable, str(CLI), "--mode", "execute", "--live-opt-in",
-               "--test-production-fixture", "--test-scenario", scenario, "--ranks", RANKS,
+               "--test-production-fixture", "--test-scenario", scenario, "--ranks", ranks,
                "--state-dir", str(root / "state"), "--evidence-dir", str(root / "evidence"),
-               "--queue-root", str(root / "queue"), "--max-requests", "1",
+               "--queue-root", str(root / "queue"), "--max-requests", str(max_requests),
                "--max-runtime-seconds", "30", "--max-evidence-bytes", "1048576",
                "--max-consecutive-failures", "1", "--max-health-failures", "1"]
     if crash_at:
@@ -98,3 +99,15 @@ def test_actual_cli_same_root_concurrency_is_single_owner_and_releases_lock(tmp_
     assert third.returncode == 1
     assert "HISTORICAL_CONTROLLER_ALREADY_OWNED" not in third.stderr
     assert len(_budget_calls(root)) == 1
+
+
+def test_actual_production_operator_reconstruction_carries_rank_53_entry_mc(tmp_path: Path) -> None:
+    root = tmp_path / "rank-53"
+    run = _run(_command(root, ranks=SCALED_RANKS))
+    assert run.returncode == 0, run.stderr
+    result = json.loads(run.stdout)
+    assert result["fixture_transport_calls"] == 1 and result["credential_reads"] == 0
+    record = _journal(root)["records"][0]
+    assert record["chronological_rank"] == 53
+    assert record["state"] == "COMPLETED"
+    assert record["entry_relative_observed_minima"]

@@ -29,6 +29,9 @@ def test_qualified_entry_anchor_carries_matching_retained_entry_mc(tmp_path):
     rank_41 = next(item for item in controller(tmp_path).work() if item["rank"] == 41)
     assert rank_41["anchor"]["class"] == "QUALIFIED_ENTRY_ANCHOR"
     assert rank_41["entry_mc_usd"] == 166294.66234
+    rank_53 = next(item for item in controller(tmp_path).work() if item["rank"] == 53)
+    assert rank_53["anchor"]["class"] == "QUALIFIED_ENTRY_ANCHOR"
+    assert rank_53["entry_mc_usd"] > 0
 
 
 def test_qualified_entry_anchor_without_retained_entry_mc_fails_closed(tmp_path):
@@ -38,6 +41,24 @@ def test_qualified_entry_anchor_without_retained_entry_mc_fails_closed(tmp_path)
     try: subject.work()
     except ControllerDenied as exc: assert str(exc) == "QUALIFIED_ENTRY_MC_UNAVAILABLE"
     else: raise AssertionError("missing retained Entry MC was accepted")
+
+
+def test_later_qualified_entry_anchor_rejects_nonfinite_entry_mc(tmp_path):
+    subject = controller(tmp_path)
+    launch = next(x for x in subject.population["launches"] if x["mint"] == "HPHkPvCdGjBV5kaYT4ZeV1Rc27fHMN4Qr4YuG2vzpump")
+    launch["evidence"]["opening"]["entry_mc_usd"] = float("nan")
+    rank_53 = next(item for item in subject.work() if item["rank"] == 53)
+    assert rank_53["request"] is None
+    assert rank_53["anchor"]["class"] == "NO_QUALIFIED_ENTRY_OR_OBSERVED_PRICE_ANCHOR"
+
+
+def test_later_qualified_entry_anchor_rejects_mismatched_provenance(tmp_path):
+    subject = controller(tmp_path)
+    launch = next(x for x in subject.population["launches"] if x["mint"] == "6RufsEXSv9Nd4YUmUGah8MeMXZT2rxn3kriGiBcSpump")
+    launch["evidence"]["opening"]["provenance"] = "mismatched"
+    try: subject.work()
+    except ControllerDenied as exc: assert str(exc) == "QUALIFIED_ENTRY_MC_UNAVAILABLE"
+    else: raise AssertionError("mismatched retained Entry MC provenance was accepted")
 
 
 def test_crash_safe_completed_identity_deduplicates_and_pause_resume(tmp_path):

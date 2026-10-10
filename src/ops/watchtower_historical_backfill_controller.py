@@ -9,6 +9,7 @@ from __future__ import annotations
 import fcntl
 import hashlib
 import json
+import math
 import os
 import time
 from dataclasses import dataclass
@@ -103,6 +104,17 @@ class HistoricalBackfillController:
             os.fsync(handle.fileno())
         os.replace(temporary, self.state_path)
 
+    @staticmethod
+    def _qualified_entry_mc(*, opening: dict[str, Any], anchor: dict[str, Any]) -> float:
+        """Project only Entry MC bound to the exact frozen Entry anchor."""
+        entry_mc = opening.get("entry_mc_usd")
+        if (opening.get("status") != "QUALIFIED" or opening.get("entry_timestamp") != anchor.get("timestamp")
+                or opening.get("provenance") != anchor.get("provenance")
+                or not isinstance(entry_mc, (int, float)) or isinstance(entry_mc, bool)
+                or not math.isfinite(entry_mc) or entry_mc <= 0):
+            raise ControllerDenied("QUALIFIED_ENTRY_MC_UNAVAILABLE")
+        return float(entry_mc)
+
     def pause(self) -> None:
         state = self._state(); state["paused"] = True; self._persist(state)
 
@@ -125,11 +137,7 @@ class HistoricalBackfillController:
             planned_item = {"priority": 3, "rank": item["rank"], "mint": item["mint"], "request": item["proposed_request"], "anchor": item["anchor"], "kind": "HISTORICAL", "deferred_reason": item["skip_reason"]}
             if item["anchor"]["class"] == "QUALIFIED_ENTRY_ANCHOR":
                 opening = launches.get(item["mint"], {}).get("evidence", {}).get("opening", {})
-                entry_mc = opening.get("entry_mc_usd")
-                if (opening.get("status") != "QUALIFIED" or opening.get("entry_timestamp") != item["anchor"]["timestamp"]
-                        or opening.get("provenance") != item["anchor"]["provenance"] or not isinstance(entry_mc, (int, float)) or entry_mc <= 0):
-                    raise ControllerDenied("QUALIFIED_ENTRY_MC_UNAVAILABLE")
-                planned_item["entry_mc_usd"] = float(entry_mc)
+                planned_item["entry_mc_usd"] = self._qualified_entry_mc(opening=opening, anchor=item["anchor"])
             planned.append(planned_item)
         # The frozen 70-mint recent-first population supplies later historical
         # continuation only; it never expands into the 639-token cohort.
@@ -138,9 +146,14 @@ class HistoricalBackfillController:
             opening = launch.get("evidence", {}).get("opening", {})
             if opening.get("status") == "QUALIFIED":
                 anchor = {"class": "QUALIFIED_ENTRY_ANCHOR", "timestamp": opening["entry_timestamp"], "provenance": opening["provenance"]}
-                planned.append({"priority": 3, "rank": rank, "mint": mint, "request": _request(mint, opening["entry_timestamp"], "DEV014_HISTORICAL_CONTINUATION"), "anchor": anchor, "kind": "HISTORICAL"})
-            else:
-                planned.append({"priority": 3, "rank": rank, "mint": mint, "request": None, "anchor": {"class": "NO_QUALIFIED_ENTRY_OR_OBSERVED_PRICE_ANCHOR", "timestamp": None, "provenance": None}, "kind": "HISTORICAL", "deferred_reason": "No qualified Entry anchor or separately qualified observed-price anchor is retained."})
+                try:
+                    entry_mc = self._qualified_entry_mc(opening=opening, anchor=anchor)
+                except ControllerDenied:
+                    opening = {}
+                else:
+                    planned.append({"priority": 3, "rank": rank, "mint": mint, "request": _request(mint, anchor["timestamp"], "DEV014_HISTORICAL_CONTINUATION"), "anchor": anchor, "kind": "HISTORICAL", "entry_mc_usd": entry_mc})
+                    continue
+            planned.append({"priority": 3, "rank": rank, "mint": mint, "request": None, "anchor": {"class": "NO_QUALIFIED_ENTRY_OR_OBSERVED_PRICE_ANCHOR", "timestamp": None, "provenance": None}, "kind": "HISTORICAL", "deferred_reason": "No qualified Entry anchor or separately qualified observed-price anchor is retained."})
         return planned
 
     def next_work(self) -> dict[str, Any] | None:

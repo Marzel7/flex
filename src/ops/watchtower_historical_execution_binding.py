@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 from typing import Any, Callable
@@ -44,6 +45,30 @@ class HistoricalExecutionBinding:
 
     def _write(self, value: dict[str, Any]) -> None: self.path.parent.mkdir(parents=True, exist_ok=True); _atomic(self.path, value)
 
+    @staticmethod
+    def _validate_evidence_readiness(item: dict[str, Any]) -> dict[str, Any]:
+        """Reject incomplete frozen work before it can reach budget admission."""
+        request, anchor = item.get("request"), item.get("anchor")
+        if not isinstance(item.get("mint"), str) or not item["mint"] or not isinstance(request, dict) or not isinstance(anchor, dict):
+            raise BindingDenied("EVIDENCE_READINESS_INVALID_WORK_ITEM")
+        timestamp, provenance = anchor.get("timestamp"), anchor.get("provenance")
+        params = request.get("params")
+        if (not isinstance(timestamp, int) or timestamp <= 0
+                or not isinstance(params, dict) or params.get("time_from") != timestamp or params.get("time_to") != timestamp + 3600
+                or params.get("type") != "1m" or not isinstance(request.get("request_identity"), str) or not request["request_identity"]):
+            raise BindingDenied("EVIDENCE_READINESS_FROZEN_REQUEST_INVALID")
+        if anchor.get("class") == "QUALIFIED_ENTRY_ANCHOR":
+            entry_mc = item.get("entry_mc_usd")
+            if (not isinstance(provenance, str) or not provenance or not isinstance(entry_mc, (int, float)) or isinstance(entry_mc, bool)
+                    or not math.isfinite(entry_mc) or entry_mc <= 0):
+                raise BindingDenied("EVIDENCE_READINESS_QUALIFIED_ENTRY_MC_UNAVAILABLE")
+        elif anchor.get("class") == "OBSERVED_PRICE_ANCHOR":
+            if not isinstance(anchor.get("source"), str) or not anchor["source"]:
+                raise BindingDenied("EVIDENCE_READINESS_OBSERVED_ANCHOR_INVALID")
+        else:
+            raise BindingDenied("EVIDENCE_READINESS_ANCHOR_CLASS_INVALID")
+        return request
+
     def recover(self) -> dict[str, Any]:
         journal = self.read(); changed = False
         for record in journal["records"]:
@@ -57,8 +82,7 @@ class HistoricalExecutionBinding:
 
     def execute(self, item: dict[str, Any], *, health_gate: Callable[[], Any], live_pending: Callable[[], bool] | None = None,
                 admit: Callable[..., None], transport: Callable[[dict[str, Any]], Any], crash_at: str | None = None) -> dict[str, Any]:
-        request = item.get("request")
-        if not isinstance(request, dict): raise BindingDenied("REQUEST_REQUIRED")
+        request = self._validate_evidence_readiness(item)
         identity = request["request_identity"]; journal = self.recover()
         existing = next((x for x in journal["records"] if x.get("request_identity") == identity), None)
         if existing and existing.get("state") != "PENDING":

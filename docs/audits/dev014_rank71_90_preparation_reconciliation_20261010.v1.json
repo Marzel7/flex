@@ -1,0 +1,49 @@
+{
+  "schema": "dev014.rank71-90-preparation-reconciliation.v1",
+  "status": "HOLD_FROZEN_POPULATION_AND_CLI_SCOPE_END_AT_RANK_70",
+  "provider_free": true,
+  "engineering_revision": "9975482823854bdbd67f6f26a18371a3864bd60e",
+  "population_identity": "WATCHTOWER_FORENSIC_POPULATION_V2_20261009",
+  "reconciliation": {
+    "completed_automated_records": 20,
+    "cumulative_unique_completed_mints": 20,
+    "outcome_unknown_ranks": [41, 53],
+    "duplicate_completed_request_identities": 0,
+    "retained_evidence_journals": [
+      "/private/tmp/dev014-evidence/journal.json",
+      "/private/tmp/dev014-r51-70-evidence/journal.json"
+    ],
+    "coverage_classes": {"COMPLETE_OBSERVED_WINDOW": 64, "PROVIDER_MISSING_COVERAGE": 13, "TRUNCATION_SUSPECTED": 3}
+  },
+  "rank_range": [71, 90],
+  "candidate_entry_facts": [
+    {"rank": 71, "mint": "8mnDxKCJUS59RzvesoYEk2ivtVhn5mBS2tmKj32ppump", "creation_timestamp": 1790712329, "entry_timestamp": 1790712258, "entry_mc_usd": 149263.82210116216, "entry_provenance": "d1726e8ff3411a039c33526f6945e26dfbc28f360084de7f2228cadd155da937"},
+    {"rank": 72, "mint": "9Q2DMkmqkFPHAQHNgkRLUN7XYoSp87GqUAFVoV71pump", "creation_timestamp": 1790708343, "entry_timestamp": 1790708069, "entry_mc_usd": 151822.0713488083, "entry_provenance": "0a42ea9a5eddb11915fc69ae2382cfe577dd04a03eaa46e10459b69f52772b14"},
+    {"rank": 74, "mint": "3KdoU8X1DJBvmmxYYttJWQ1KiMfarg3bFAdeCAmspump", "creation_timestamp": 1790696648, "entry_timestamp": 1790696400, "entry_mc_usd": 159332.38039506797, "entry_provenance": "07869239a4c8b472be9c7e914de17492be356c05b84eff491d272fc93044683a"},
+    {"rank": 75, "mint": "8xySnQGLve5959cr4QiJxpNGW5wkBWPh4VxgJVycpump", "creation_timestamp": 1790694878, "entry_timestamp": 1790694772, "entry_mc_usd": 164681.30772440395, "entry_provenance": "7b260e82a385bfa7f21f8e2b38ac2759293bd16810ee766ef5307d1e91f234a5"},
+    {"rank": 77, "mint": "A8MBwPZwR6msXrDBRzg8b1W7BpjjPch1WsTELQJzpump", "creation_timestamp": 1790640081, "entry_timestamp": 1790640005, "entry_mc_usd": 166381.21177152003, "entry_provenance": "9ba4edccf18e3ab28405358845bd894cfecafbc1ef0111752603955b7d550fcc"},
+    {"rank": 78, "mint": "9DPUFzAMZfbh4ie5RLJ1C7Zhes5eEayPsTU91tSzpump", "creation_timestamp": 1790629221, "entry_timestamp": 1790629207, "entry_mc_usd": 0.00016719119566383314, "entry_provenance": "34c9134f15f93b922ad3c9b5c46b7ae6573a6acc01240ade5c8b224d6469588d"},
+    {"rank": 79, "mint": "8n1Qyjo7LrQMFaZsTJ3K1qPkNRMxDmS6R4eDjkvjpump", "creation_timestamp": 1790629146, "entry_timestamp": 1790629085, "entry_mc_usd": 143041.49629433034, "entry_provenance": "92b6d0f6115047856a70da0b11a08e44cc20d177b46ca247325cfa11a32ad7b0"},
+    {"rank": 80, "mint": "FCoXFnRQsHtb2rPReJUrtkPD8qBm8UVbXNdHx49spump", "creation_timestamp": 1790623248, "entry_timestamp": 1790623082, "entry_mc_usd": 157330.79630360802, "entry_provenance": "17ebd74759afad1246a082bdddf24aeff14358c50870fed96aea5c67756a4a35"},
+    {"rank": 82, "mint": "7rnZdzwZMkrviU1S6r74e1gGfMnnDzmMSXTgrXKSpump", "creation_timestamp": 1790576051, "entry_timestamp": 1790576002, "entry_mc_usd": 167819.12322156163, "entry_provenance": "5eef1e94e87e47502f95d74ced45811e3b1ab58fea78daf65453ddb327fcc4eb"},
+    {"rank": 84, "mint": "B5yWXR3PZeRuEDs7P55SBgyZEiVu3Ak7k3uWmYLdpump", "creation_timestamp": 1790553234, "entry_timestamp": 1790553156, "entry_mc_usd": 157743.2979797445, "entry_provenance": "cbf57d99c117f8b72f423d7da41941e293df1034220a1725c27ac9b2c1148d57"},
+    {"rank": 86, "mint": "BvnqdYwuFrvi9ds63EtwQLYME89ikJkULnJPAd83pump", "creation_timestamp": 1790547765, "entry_timestamp": 1790547726, "entry_mc_usd": 124665.91388513995, "entry_provenance": "2b4ce06d49d24c20a3e5eb7333ff84a636c0456fc789acd05c1c2a3d051c32ec"}
+  ],
+  "excluded_missing_anchor_ranks": [73, 76, 81, 83, 85, 87, 88, 89, 90],
+  "manifest": {
+    "authorization": "MANIFEST_PREPARATION_ONLY",
+    "max_requests": 20,
+    "content_hash": null,
+    "file_sha256": null,
+    "request_identities_created": 0,
+    "window_seconds": 3600,
+    "status": "NOT_CREATED_FAIL_CLOSED"
+  },
+  "cli_dry_run": {
+    "status": "BLOCKED_NO_SAFE_MANIFEST",
+    "reason": "HistoricalBackfillController enumerates only population.reconciliation.most_recent_70_mints and returns no work item for ranks 71-90; run_watchtower_historical_backfill_session.py rejects a record not returned by that controller as FROZEN_MANIFEST_INELIGIBLE_MEMBER."
+  },
+  "next_gate": "Qualify and remotely publish a population extension carrying exact rank 71-90 ordering plus controller-owned Entry-anchor/Entry-MCAP projection. Then generate deterministic identities and perform the existing CLI dry-run; no paid acquisition is authorized by this record.",
+  "raw_provider_retention": false,
+  "unbounded_growth_paths": 0
+}

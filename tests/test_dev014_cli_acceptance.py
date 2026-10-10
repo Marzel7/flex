@@ -27,17 +27,20 @@ def _manifest(root: Path, ranks: str) -> Path:
 
 
 def _command(root: Path, *, scenario: str = "healthy", crash_at: str | None = None,
-             hold_path: Path | None = None, ranks: str = RANKS, max_requests: int = 1) -> list[str]:
+             hold_path: Path | None = None, ranks: str = RANKS, max_requests: int = 1,
+             synthetic_clock: bool = False, max_runtime_seconds: int = 30) -> list[str]:
     command = [sys.executable, str(CLI), "--mode", "execute", "--live-opt-in",
                "--test-production-fixture", "--test-scenario", scenario, "--manifest", str(_manifest(root,ranks)),
                "--state-dir", str(root / "state"), "--evidence-dir", str(root / "evidence"),
                "--queue-root", str(root / "queue"), "--max-requests", str(max_requests),
-               "--max-runtime-seconds", "30", "--max-evidence-bytes", "1048576",
+               "--max-runtime-seconds", str(max_runtime_seconds), "--max-evidence-bytes", "1048576",
                "--max-consecutive-failures", "1", "--max-health-failures", "1"]
     if crash_at:
         command.extend(("--test-crash-at", crash_at))
     if hold_path:
         command.extend(("--test-hold-path", str(hold_path), "--test-hold-seconds", "10"))
+    if synthetic_clock:
+        command.append("--test-synthetic-clock")
     return command
 
 
@@ -133,3 +136,41 @@ def test_actual_production_operator_fixture_reconstructs_rank_71_entry_mc_withou
     assert record["chronological_rank"] == 71
     assert record["state"] == "COMPLETED"
     assert record["entry_relative_observed_minima"]
+
+
+def test_actual_cli_synthetic_clock_rolls_over_request_21_without_duplicate_debit(tmp_path: Path) -> None:
+    root = tmp_path / "request-21"
+    run = _run(_command(root, scenario="global-budget-denied", synthetic_clock=True,
+                        max_runtime_seconds=3600))
+    assert run.returncode == 0, run.stderr
+    result = json.loads(run.stdout)
+    assert result["fixture_transport_calls"] == 1
+    assert result["synthetic_clock"] is True and result["synthetic_time"] > 1060
+    assert len(_budget_calls(root)) == 1
+    assert _journal(root)["records"][0]["state"] == "COMPLETED"
+
+
+def test_actual_cli_synthetic_clock_completes_all_frozen_eligible_identities(tmp_path: Path) -> None:
+    root = tmp_path / "eligible"
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("operator", CLI)
+    op = importlib.util.module_from_spec(spec); assert spec.loader; spec.loader.exec_module(op)
+    controller = HistoricalBackfillController(root / "source.json", op._load(op.RECON), op._load(op.POP))
+    ranks = ",".join(str(item["rank"]) for item in controller.work() if item.get("request"))
+    # The immutable controller currently exposes 37 eligible identities.  Do
+    # not manufacture the requested 50th identity from the broader ranked
+    # population; qualification reports the shortfall as a frozen-input hold.
+    assert len(ranks.split(",")) == 37
+    run = _run(_command(root, ranks=ranks, max_requests=37, synthetic_clock=True,
+                        max_runtime_seconds=3600))
+    assert run.returncode == 0, run.stderr
+    result = json.loads(run.stdout)
+    assert result["request_count"] == result["fixture_transport_calls"] == 37
+    assert result["synthetic_time"] >= 1061
+    calls = _budget_calls(root)
+    assert len(calls) <= 20
+    assert len(_journal(root)["records"]) == 37
+    assert {record["state"] for record in _journal(root)["records"]} == {"COMPLETED"}
+    rejected = _run(_command(tmp_path / "request-fifty-one", ranks=ranks, max_requests=51,
+                            synthetic_clock=True, max_runtime_seconds=3600))
+    assert rejected.returncode == 1 and "REQUEST_CAP_EXCEEDED" in rejected.stderr

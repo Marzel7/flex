@@ -23460,6 +23460,8 @@
     "fallback_prevention": "PASS: only exact BIRDEYE is accepted; BIRDEYE_KK was neither read nor substituted.",
     "secret_exposure_status": "PASS: no secret value, hash, path containing a value, command-line argument, artifact field, or diagnostic output was produced.",
     "supervisor_continuity": "PASS: no Supervisor configuration change, service restart, stop, signal, or LIVE-worker mutation occurred.",
+    "environment_inheritance_investigation": "Prior twelve-rank Batch-4 evidence proves BIRDEYE was present but retains no invoking-shell identity. The existing DEV monitor launcher is scripts/run_dev_005a_monitor.sh: it sources MONITOR_ENV_FILE with set -a, requires BIRDEYE, then starts a clean env -i child carrying only BIRDEYE and the exact BIRDEYE_CREDENTIAL_LABEL. The isolated DEV-014 CLI was started outside that launcher and therefore inherited no credential. A requested equivalent process-local verification was rejected before execution because its env -i BIRDEYE=$BIRDEYE handoff could expose the value in a spawned process argument. No secret was read, printed, copied, hashed, logged, or transferred; credential exposure count=0.",
+    "process_local_binding_status": "HOLD_TOOLING_SECRET_TRANSFER_RISK: the existing source is identified but its established child-environment transfer cannot be invoked in this execution environment without explicit approval of the documented process-argument risk or a separately approved safer credential-injection facility.",
     "request_count": 0,
     "http_results": [],
     "shared_budget_admissions": 0,

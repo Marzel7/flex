@@ -10,8 +10,8 @@ if str(ROOT) not in sys.path: sys.path.insert(0,str(ROOT))
 from src.ops.watchtower_historical_backfill_controller import HistoricalBackfillController, SessionBounds
 from src.ops.watchtower_historical_execution_binding import HistoricalExecutionBinding
 from src.ops.watchtower_historical_budget import HistoricalForensicsBudgetAdmission
-from src.ops.dev014_batch4_runtime_gate import Batch4RuntimeGate, resolve_runtime_authority
-from src.ops.token_data_provider_bindings import BirdeyeProductionBinding
+from src.ops.dev014_batch4_runtime_gate import Batch4RuntimeGate, RuntimeAuthority, resolve_runtime_authority
+from src.ops.token_data_provider_bindings import BirdeyeProductionBinding, ProviderTransportOutcome
 
 RECON=ROOT/'docs/audits/dev014_watchtower_recent_first_price_forensics_reconciliation_and_batch_5_20261009.v1.json'
 POP=ROOT/'docs/audits/dev014_watchtower_forensic_population_v2_20261009.v1.json'
@@ -46,17 +46,30 @@ def _execute_fixture(args: argparse.Namespace, manifest: dict[str, Any]) -> dict
     controller = HistoricalBackfillController(manifest['state_path'], _load(RECON), _load(POP))
     binding = HistoricalExecutionBinding(manifest['binding_path'])
     selected = [item for item in controller.work() if item['rank'] in set(manifest['selected_ranks'])]
+    root = Path(manifest['state_path']).parent
+    root.mkdir(parents=True, exist_ok=True)
+    config, db, listener, funding, resolution = (root/'supervisord.conf', root/'canonical.db', root/'listener.log', root/'funding.log', root/'resolution.log')
+    config.write_text('[fixture]'); db.touch()
+    checkpoint = '{"status":"ok","busy":0,"checkpointed_frames":1,"remaining_frames":0}\n'
+    listener.write_text('[WAL_CHECKPOINT] '+checkpoint); funding.touch(); resolution.touch()
+    authority = RuntimeAuthority(config, 'http://fixture/healthz', db, listener, (funding, resolution))
+    processes = lambda: [
+        f'1 0 Sat Oct 10 00:00:00 2026 /usr/local/bin/supervisord -c {config}',
+        '2 1 Sat Oct 10 00:00:00 2026 /usr/bin/python3 -m src.core.creator_funding_worker',
+        '3 1 Sat Oct 10 00:00:00 2026 /usr/bin/python3 -m src.core.creator_resolution_worker']
+    health = lambda _url: (200, {'healthy':True,'db':'ok','wal_warn':False,'workers':{'creator-funding':{'stale':False,'age_s':1},'creator-resolution':{'stale':False,'age_s':1}}})
+    class Disk: free=5*1024*1024*1024
+    gate = Batch4RuntimeGate(authority, health_fetch=health, process_lines=processes, disk_usage=lambda _: Disk(), wal_size=lambda _: 0)
     calls: list[dict[str, Any]] = []
-    class Outcome:
-        status_code=200; response_headers={}
-        payload={'success': True, 'data': {'items': [{'unixTime': selected[0]['request']['params']['time_from'], 'o': 10, 'h': 11, 'l': 9, 'c': 10}]}}
-    def fake_transport(request: dict[str, Any]) -> Outcome:
-        calls.append(request); return Outcome()
+    def fake_http(request: Any, *, timeout_seconds: int) -> ProviderTransportOutcome:
+        calls.append({'url':request.full_url,'timeout':timeout_seconds})
+        return ProviderTransportOutcome(200, {'success': True, 'data': {'items': [{'unixTime': selected[0]['request']['params']['time_from'], 'o': 10, 'h': 11, 'l': 9, 'c': 10}]}}, {})
+    transport = BirdeyeProductionBinding(api_key='fixture-only-not-a-credential', transport=fake_http)
     # The fixture uses the actual shared adapter against an isolated ledger;
     # production wiring uses the same adapter but remains separately authorized.
     admission = HistoricalForensicsBudgetAdmission(Path(manifest['state_path']).parent / 'fixture-queue')
     with controller:
-        result = binding.execute(selected[0], health_gate=lambda: None, admit=admission.admit, transport=fake_transport)
+        result = binding.execute(selected[0], health_gate=gate.check, admit=admission.admit, transport=transport)
     return {'status':'FIXTURE_COMPLETED','request_count':len(calls),'completed_identity':result['request_identity'],
             'live_contention_limitation':'shared budget compliance does not guarantee zero contention with direct LIVE callers'}
 def main()->int:

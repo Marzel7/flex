@@ -1,13 +1,13 @@
 {
   "dev014_bounded_historical_operator_scope_restore_20261010": {
     "engineering_revision": "ad49eb7fcdb0e95946eac72e389b26136dd58a33 on codex/dev014-current-mc-freshness",
-    "status": "PARTIAL_LAZY_CREDENTIAL_CONSTRUCTION_OPERATOR_MATRIX_PENDING",
-    "finding": "DEV-014 scope is restored to the proven Batch 4 contract: no additional Current-MC or early-minimum predicates are required. Production CLI dependencies are injectable as keyword factories for provider-free tests. BirdeyeProductionBinding construction is now lazy inside the transport callback, after journal ATTEMPTED follows the existing safety gate and shared budget admission; missing required authority fails before construction. No actual credential was read. The full operator-level negative/crash/concurrency matrix remains pending.",
+    "status": "HOLD_INJECTION_SEAM_NOT_REACHABLE_FROM_ACTUAL_CLI",
+    "finding": "DEV-014 scope is restored to the proven Batch 4 contract: no additional Current-MC or early-minimum predicates are required. Production CLI dependencies are injectable as keyword factories for direct Python calls, and BirdeyeProductionBinding construction is lazy after safety gate/budget admission/journal ATTEMPTED. However argparse exposes no test-only way to select those factories; --fixture-fake-live follows a separate fixture path. The required actual CLI process negative/crash/concurrency matrix therefore cannot exercise the injected production composition. No actual credential was read.",
     "tests": "pytest tests/test_watchtower_historical_executor.py tests/test_dev014_batch4_runtime_gate.py: 21 passed; actual operator --fixture-fake-live command: one normalized fake request completed through controller lock, durable journal, real Batch4RuntimeGate injected with local health/process/WAL/disk/checkpoint fixtures, HistoricalForensicsBudgetAdmission→MonitorQueue→DevProviderBudget against an isolated temporary ledger, and real BirdeyeProductionBinding injected with a synthetic credential and fake HTTP callable; provider calls=0; live budget debits=0; live DB/queue/runtime writes=0.",
     "storage": "Journal and compact evidence maximum single file=1,000,000 bytes; no raw provider retention; unbounded growth paths=0 for this correction.",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Provider-free source correction only; no executable runtime was deployed.",
-    "next_action": "RUN_THE_INJECTED_OPERATOR_LEVEL_NEGATIVE_CRASH_AND_SAME_ROOT_MATRIX_THEN_REVIEW_ANY_CONCRETE_DEFECTS_BEFORE_PAID_ACQUISITION"
+    "next_action": "AUTHORIZE_A_MINIMAL_TEST_ONLY_CLI_FIXTURE_SELECTOR_THAT_REACHES_THE_EXISTING_INJECTED_PRODUCTION_COMPOSITION_THEN_RUN_THE_OPERATOR_MATRIX"
   },
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,

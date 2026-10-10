@@ -55,14 +55,17 @@ class HistoricalExecutionBinding:
         if changed: self._write(journal)
         return journal
 
-    def execute(self, item: dict[str, Any], *, health_gate: Callable[[], Any], live_pending: Callable[[], bool],
+    def execute(self, item: dict[str, Any], *, health_gate: Callable[[], Any], live_pending: Callable[[], bool] | None = None,
                 admit: Callable[..., None], transport: Callable[[dict[str, Any]], Any], crash_at: str | None = None) -> dict[str, Any]:
         request = item.get("request")
         if not isinstance(request, dict): raise BindingDenied("REQUEST_REQUIRED")
         identity = request["request_identity"]; journal = self.recover()
         existing = next((x for x in journal["records"] if x.get("request_identity") == identity), None)
         if existing: raise BindingDenied(f"REQUEST_NOT_RETRYABLE:{existing.get('state')}")
-        if live_pending(): return {"status": "LIVE_PRIORITY_PENDING"}
+        # Historical work shares the existing atomic budget but does not claim a
+        # system-wide LIVE-priority guarantee.  A caller with an independently
+        # qualified predicate may defer here; ordinary callers must pass None.
+        if live_pending is not None and live_pending(): return {"status": "LIVE_PRIORITY_PENDING"}
         health_gate()
         record = {"mint": item["mint"], "chronological_rank": item["rank"], "anchor": item["anchor"], "request_identity": identity,
                   "requested_window": {"time_from": request["params"]["time_from"], "time_to": request["params"]["time_to"], "interval": "1m"}, "state": "PENDING"}

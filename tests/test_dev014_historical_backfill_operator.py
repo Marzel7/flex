@@ -9,6 +9,8 @@ def args(tmp_path,**changes):
  d.update(changes); return Namespace(**d)
 def test_exact_dry_run_plan(tmp_path):
  x=op.plan(args(tmp_path)); assert x['selected_ranks']==[22,23,24,26,41,43,46,47,48,50]; assert len(set(x['request_identities']))==10; assert x['scheduler'] is False
+def test_fixed_continuation_allowlist_is_the_only_partial_plan(tmp_path):
+ x=op.plan(args(tmp_path,ranks='43,46,47,48,50',max_requests=5)); assert x['selected_ranks']==[43,46,47,48,50]; assert len(set(x['request_identities']))==5
 def test_rejects_unsafe_paths_and_caps(tmp_path):
  with pytest.raises(SystemExit): op.plan(args(tmp_path,state_dir=ROOT/'database'))
  with pytest.raises(SystemExit): op.plan(args(tmp_path,max_requests=11))

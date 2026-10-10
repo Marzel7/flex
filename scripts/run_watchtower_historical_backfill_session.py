@@ -38,7 +38,9 @@ def plan(args:argparse.Namespace)->dict[str,Any]:
     if args.max_requests>10 or len(ranks)>10: raise SystemExit('REQUEST_CAP_EXCEEDED')
     controller=HistoricalBackfillController(state_dir/'controller.json',recon,pop)
     selected=[x for x in controller.work() if x['rank'] in ranks]
-    if [x['rank'] for x in selected] != [22,23,24,26,41,43,46,47,48,50]: raise SystemExit('FROZEN_ORDER_INVALID')
+    full=(22,23,24,26,41,43,46,47,48,50)
+    continuation=(43,46,47,48,50)
+    if tuple(x['rank'] for x in selected) not in (full, continuation): raise SystemExit('FROZEN_ORDER_INVALID')
     if any(x['request'] is None for x in selected): raise SystemExit('INELIGIBLE_SUBSET_MEMBER')
     return {'mode':args.mode,'state_path':str(state_dir/'controller.json'),'binding_path':str(evidence_dir/'journal.json'),'evidence_dir':str(evidence_dir),'selected_ranks':[x['rank'] for x in selected],'request_identities':[x['request']['request_identity'] for x in selected],'max_requests':args.max_requests,'max_runtime_seconds':args.max_runtime_seconds,'max_evidence_bytes':args.max_evidence_bytes,'components':{'controller':'HistoricalBackfillController','binding':'HistoricalExecutionBinding','runtime_gate':'Batch4RuntimeGate','budget':'HistoricalForensicsBudgetAdmission','transport':'BirdeyeProductionBinding'},'scheduler':False}
 

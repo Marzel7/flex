@@ -118,8 +118,11 @@ def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, An
     if scenario=='resolution-stale': payload['workers']['creator-resolution']={'stale':True,'age_s':999}
     health=lambda _:(200,payload)
     if scenario=='checkpoint-stalled': listener.write_text('[WAL_CHECKPOINT] {"status":"ok","busy":1,"checkpointed_frames":0,"remaining_frames":1}\n')
-    class Disk: free=5*1024*1024*1024
-    if scenario=='duplicate-supervisor': lines=lambda:lines()+[f'4 0 Sat Oct 10 00:00:00 2026 /usr/local/bin/supervisord -c {config}']
+    class Disk: free=2*1024*1024*1024 if scenario=='disk-low' else 5*1024*1024*1024
+    base_lines=lines
+    if scenario=='duplicate-supervisor': lines=lambda:base_lines()+[f'4 0 Sat Oct 10 00:00:00 2026 /usr/local/bin/supervisord -c {config}']
+    if scenario=='duplicate-creator': lines=lambda:base_lines()+['4 1 Sat Oct 10 00:00:00 2026 /usr/bin/python3 -m src.core.creator_funding_worker']
+    if scenario=='critical-wal': funding.write_text('CRITICAL_WAL_PINNED')
     gate=lambda _:Batch4RuntimeGate(authority,health_fetch=health,process_lines=lines,disk_usage=lambda _:Disk(),wal_size=lambda _:600*1024*1024 if scenario=='wal-over-limit' else 0)
     calls=[]
     class Transport:
@@ -127,6 +130,12 @@ def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, An
             calls.append(request)
             if scenario=='transport-failure': raise RuntimeError('FIXTURE_TRANSPORT_FAILURE')
             return ProviderTransportOutcome(200,{'success':True,'data':{'items':[{'unixTime':request['request_parameters']['time_from'],'o':10,'h':11,'l':9,'c':10}]}},{})
+    queue=Path(args.queue_root); queue.mkdir(parents=True,exist_ok=True)
+    mint=selected[0]['mint']; ledger=queue/'provider_budget.json'
+    if scenario=='global-budget-denied': ledger.write_text(json.dumps({'calls':[{'at':int(time.time()),'mint':str(x),'class':'x'} for x in range(20)]}))
+    if scenario=='mint-budget-denied': ledger.write_text(json.dumps({'calls':[{'at':int(time.time()),'mint':mint,'class':'x'} for _ in range(4)]}))
+    if scenario=='provider-backoff': (queue/'provider_backoff.json').write_text(json.dumps({'next_eligible_at':int(time.time())+60}))
+    if scenario=='malformed-ledger': ledger.write_text('{')
     result=_execute_production(args,manifest,gate_factory=gate,transport_factory=Transport,authority_resolver=lambda _:authority,crash_at=args.test_crash_at)
     result.update({'fixture_transport_calls':len(calls),'credential_reads':0}); return result
 def main()->int:

@@ -74,7 +74,9 @@ def _execute_fixture(args: argparse.Namespace, manifest: dict[str, Any]) -> dict
     return {'status':'FIXTURE_COMPLETED','request_count':len(calls),'completed_identity':result['request_identity'],
             'live_contention_limitation':'shared budget compliance does not guarantee zero contention with direct LIVE callers'}
 
-def _execute_production(args: argparse.Namespace, manifest: dict[str, Any]) -> dict[str, Any]:
+def _execute_production(args: argparse.Namespace, manifest: dict[str, Any], *,
+                        gate_factory=Batch4RuntimeGate, admission_factory=HistoricalForensicsBudgetAdmission,
+                        transport_factory=BirdeyeProductionBinding) -> dict[str, Any]:
     """One explicit bounded session; this function never schedules or retries."""
     if not args.supervisor_config or not args.queue_root:
         raise SystemExit('SUPERVISOR_CONFIG_AND_QUEUE_ROOT_REQUIRED')
@@ -82,9 +84,15 @@ def _execute_production(args: argparse.Namespace, manifest: dict[str, Any]) -> d
     controller = HistoricalBackfillController(manifest['state_path'], _load(RECON), _load(POP))
     binding = HistoricalExecutionBinding(manifest['binding_path'])
     authority = resolve_runtime_authority(args.supervisor_config)
-    gate = Batch4RuntimeGate(authority)
-    admission = HistoricalForensicsBudgetAdmission(queue_root)
-    transport = BirdeyeProductionBinding()
+    gate = gate_factory(authority)
+    admission = admission_factory(queue_root)
+    provider: Any | None = None
+    def transport(request: dict[str, Any]) -> Any:
+        # Constructor resolution of BIRDEYE is deliberately deferred until the
+        # journal has recorded ATTEMPTED following gate and budget admission.
+        nonlocal provider
+        if provider is None: provider = transport_factory()
+        return provider(request)
     selected = [item for item in controller.work() if item['rank'] in set(manifest['selected_ranks'])]
     started, completed = time.monotonic(), []
     with controller:

@@ -1,7 +1,24 @@
 import json
 from pathlib import Path
 import pytest
-from src.ops.watchtower_historical_execution_binding import BindingDenied, HistoricalExecutionBinding
+from src.ops.watchtower_historical_execution_binding import BindingDenied, HistoricalExecutionBinding, CohortStorageGuard, MAX_COHORT_BYTES, MIN_FREE_BYTES
+
+class Disk:
+ def __init__(self, free): self.free=free
+
+def test_cohort_storage_and_disk_boundaries_are_fail_closed(tmp_path):
+ root=tmp_path/'cohort'; root.mkdir()
+ guard=CohortStorageGuard(root,disk_usage=lambda _:Disk(MIN_FREE_BYTES+100),size_accounting=lambda:MAX_COHORT_BYTES-10)
+ guard.check(reserve=10)
+ with pytest.raises(BindingDenied,match='STORAGE_LIMIT'): guard.check(reserve=11)
+ with pytest.raises(BindingDenied,match='DISK_HEADROOM'): CohortStorageGuard(root,disk_usage=lambda _:Disk(MIN_FREE_BYTES),size_accounting=lambda:0).check(reserve=1)
+ with pytest.raises(BindingDenied,match='STORAGE_UNAVAILABLE'): CohortStorageGuard(root,disk_usage=lambda _:(_ for _ in ()).throw(OSError()),size_accounting=lambda:0).check()
+
+def test_cohort_rejects_symlink_and_preserves_existing_evidence(tmp_path):
+ root=tmp_path/'cohort'; root.mkdir(); evidence=root/'prior.log.1'; evidence.write_text('retained')
+ (root/'escape').symlink_to(tmp_path)
+ with pytest.raises(BindingDenied,match='SYMLINK'): CohortStorageGuard(root).check()
+ assert evidence.read_text()=='retained'
 
 ROOT=Path(__file__).resolve().parents[1]
 def item():

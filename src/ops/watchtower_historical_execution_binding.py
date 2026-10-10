@@ -24,15 +24,17 @@ class BindingDenied(RuntimeError): pass
 
 class CohortStorageGuard:
     """Fail-closed accounting for one isolated acquisition cohort root."""
-    def __init__(self, root: str | Path, *, disk_usage: Callable[[str | Path], Any] = shutil.disk_usage):
-        self.root=Path(root).resolve(strict=False); self.disk_usage=disk_usage
+    def __init__(self, root: str | Path, *, disk_usage: Callable[[str | Path], Any] = shutil.disk_usage,
+                 size_accounting: Callable[[], int] | None = None):
+        self.root=Path(root).resolve(strict=False); self.disk_usage=disk_usage; self.size_accounting=size_accounting
         if self.root.is_symlink(): raise BindingDenied("COHORT_SYMLINK_DENIED")
     def check(self, reserve: int = 0) -> None:
         try:
             usage=self.disk_usage(self.root)
             if int(usage.free) < MIN_FREE_BYTES + reserve: raise BindingDenied("COHORT_DISK_HEADROOM_DENIED")
-            total=0
-            if self.root.exists():
+            if not self.root.exists(): raise BindingDenied("COHORT_STORAGE_UNAVAILABLE")
+            total=self.size_accounting() if self.size_accounting else 0
+            if self.size_accounting is None:
                 for path in self.root.rglob('*'):
                     if path.is_symlink(): raise BindingDenied("COHORT_SYMLINK_DENIED")
                     if path.is_file(): total += path.stat().st_size

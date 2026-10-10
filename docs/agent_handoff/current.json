@@ -1,7 +1,7 @@
 {
   "dev014_bounded_historical_operator_scope_restore_20261010": {
     "engineering_revision": "42ce4b198342f618e4354ef454e08c0e3034ddd5 on codex/dev014-current-mc-freshness; remote verified",
-    "status": "HOLD_RANK51_70_ALLOWLIST_CARDINALITY_CONFLICT",
+    "status": "HOLD_OPERATOR_SELECTOR_DOES_NOT_ACCEPT_12_RANK_ALLOWLIST",
     "finding": "Authorized live DEV-014 session ran under the qualified Batch4RuntimeGate. Ranks 22, 23, 24, and 26 completed compact normalized one-minute MCAP evidence. Rank 41 was durably ADMITTED/ATTEMPTED, then hit KeyError: entry_mc_usd when an Entry-anchor response entered observed_minima; recovery marked it OUTCOME_UNKNOWN. It was not retried. The remaining ranks 43, 46, 47, 48, and 50 were not started, preserving frozen order and no-retry semantics.",
     "tests": "pytest -q tests/test_dev014_historical_backfill_controller.py tests/test_dev014_historical_backfill_operator.py tests/test_dev014_historical_execution_binding.py tests/test_dev014_shared_birdeye_budget.py tests/test_dev014_batch4_runtime_gate.py tests/test_dev014_batch5_reconciliation.py tests/test_dev014_cli_acceptance.py: 39 passed, 0 failed. The subprocess matrix asserts frozen ten-rank selection, one shared-ledger debit for every crash selector, PENDING one-time recovered completion, OUTCOME_UNKNOWN for AFTER_BUDGET/ADMITTED/ATTEMPTED/RESPONSE, recovered COMPLETED for EVIDENCE, and one controller owner/one fake request/one journal record during held transport overlap. The subsequent invocation proves OS lock release.",
     "storage": "Journal and compact evidence maximum single file=1,000,000 bytes; test hold marker is a tiny single file; no raw provider retention; unbounded growth paths=0.",
@@ -16,7 +16,8 @@
     "audit_continuation": "docs/audits/dev014_five_rank_continuation_20261010.v1.json",
     "rank50_plan": "docs/audits/dev014_rank50_reconciliation_and_batch6_plan_20261010.v1.json; Batch 6 eligible=53,56,57,58,59,60; exclusions=51,52,54,55; rank 41 remains OUTCOME_UNKNOWN; scaled up-to-20 session has 14 currently eligible ranks within 51-70 and requires new authorization.",
     "rank51_70_correction": "Frozen controller emits 12 eligible ranks, not 14: 53,56,57,58,59,60,62,64,65,66,67,70. Excluded anchors: 51,52,54,55,61,63,68,69. No provider call, budget debit, live queue/database write, or runtime action was made.",
-    "next_action": "Require explicit corrected authorization for exactly the 12-rank frozen allowlist; do not substitute or continue."
+    "operator_limit": "The qualified production CLI selector accepts only its full ten-rank set or fixed five-rank continuation. It rejects the corrected 12-rank allowlist; per authorization, no bypass or silent execution-limit modification was made.",
+    "next_action": "Authorize and provider-free qualify an explicit fixed 12-rank selector before any acquisition; do not substitute or continue."
   },
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,

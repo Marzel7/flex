@@ -1,0 +1,47 @@
+{
+  "schema": "dev014.eleven-rank-acquisition.v1",
+  "engineering_revision": "ab69567d729bdc11dae34c112c28e8a090385704",
+  "status": "COMPLETED_EXACTLY_ONCE",
+  "manifest": {
+    "content_hash": "08ddaf52eb76bc7604b220e0a8854277a515a73c608aab0542174baddc00fd01",
+    "file_sha256": "b688ba6f46c08bb57dcb7f2717e50fe2ecc5604e4e41b83a964df5d7225dae18",
+    "ranks": [56, 57, 58, 59, 60, 62, 64, 65, 66, 67, 70]
+  },
+  "execution": {
+    "request_count": 11,
+    "http_results": {"200": 11},
+    "shared_budget_admissions": 11,
+    "completed_ranks": [56, 57, 58, 59, 60, 62, 64, 65, 66, 67, 70],
+    "outcome_unknown_ranks_preserved": [41, 53],
+    "retries": 0,
+    "raw_provider_payload_retention": false,
+    "canonical_lifecycle_mutation": false
+  },
+  "coverage_classifications": {
+    "56": {"300": "COMPLETE_OBSERVED_WINDOW", "900": "TRUNCATION_SUSPECTED", "1800": "PROVIDER_MISSING_COVERAGE", "3600": "PROVIDER_MISSING_COVERAGE"},
+    "57": "ALL_COMPLETE_OBSERVED_WINDOW",
+    "58": "ALL_COMPLETE_OBSERVED_WINDOW",
+    "59": {"3600": "PROVIDER_MISSING_COVERAGE", "other_windows": "COMPLETE_OBSERVED_WINDOW"},
+    "60": {"300": "COMPLETE_OBSERVED_WINDOW", "900": "PROVIDER_MISSING_COVERAGE", "1800": "PROVIDER_MISSING_COVERAGE", "3600": "PROVIDER_MISSING_COVERAGE"},
+    "62": {"300": "COMPLETE_OBSERVED_WINDOW", "900": "COMPLETE_OBSERVED_WINDOW", "1800": "PROVIDER_MISSING_COVERAGE", "3600": "PROVIDER_MISSING_COVERAGE"},
+    "64": "ALL_COMPLETE_OBSERVED_WINDOW",
+    "65": "ALL_COMPLETE_OBSERVED_WINDOW",
+    "66": {"3600": "PROVIDER_MISSING_COVERAGE", "other_windows": "COMPLETE_OBSERVED_WINDOW"},
+    "67": "ALL_COMPLETE_OBSERVED_WINDOW",
+    "70": "ALL_COMPLETE_OBSERVED_WINDOW"
+  },
+  "missing_bucket_counts": {"56": 73, "57": 0, "58": 0, "59": 11, "60": 50, "62": 38, "64": 0, "65": 0, "66": 10, "67": 0, "70": 0},
+  "storage": {
+    "journal_bytes": 30707,
+    "maximum_single_artifact_bytes": 1000000,
+    "maximum_session_evidence_bytes": 2000000,
+    "unbounded_growth_paths": 0
+  },
+  "postflight": {
+    "api": "HTTP 200 healthy=true db=ok wal_warn=false",
+    "creator_heartbeats_seconds": {"funding": 2, "resolution": 3},
+    "wal_bytes": 0,
+    "disk_free_bytes": 6288162816,
+    "checkpoint_remaining_frames": 0
+  }
+}

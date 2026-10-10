@@ -1,13 +1,13 @@
 {
   "dev014_bounded_historical_operator_scope_restore_20261010": {
     "engineering_revision": "a0b087474ad25d50a3dc611251b0bc42e556f531 on codex/dev014-current-mc-freshness",
-    "status": "PARTIAL_PRODUCTION_CLI_COMPOSED_OPERATOR_MATRIX_PENDING",
-    "finding": "DEV-014 scope is restored to the proven Batch 4 contract: no additional Current-MC or early-minimum predicates are required. The production CLI now composes the existing controller, journal, Batch4RuntimeGate, HistoricalForensicsBudgetAdmission, and BirdeyeProductionBinding after explicit --live-opt-in plus Supervisor config and queue-root arguments. Missing authority fails closed before admission or transport. The fixture path and 26 focused tests pass. Full CLI-level negative/crash/concurrency matrix remains pending; separate uncoordinated roots remain a documented limitation.",
+    "status": "HOLD_PRODUCTION_CLI_NOT_PROVIDER_FREE_TESTABLE",
+    "finding": "DEV-014 scope is restored to the proven Batch 4 contract: no additional Current-MC or early-minimum predicates are required. The production CLI now composes the existing controller, journal, Batch4RuntimeGate, HistoricalForensicsBudgetAdmission, and BirdeyeProductionBinding after explicit --live-opt-in plus Supervisor config and queue-root arguments. However _execute_production constructs BirdeyeProductionBinding() directly, resolving the actual BIRDEYE credential before any gate execution and with no injectable fake transport/credential seam. Therefore the requested actual-CLI negative/crash/concurrency matrix cannot be run provider-free. No actual credential was read.",
     "tests": "pytest tests/test_watchtower_historical_executor.py tests/test_dev014_batch4_runtime_gate.py: 21 passed; actual operator --fixture-fake-live command: one normalized fake request completed through controller lock, durable journal, real Batch4RuntimeGate injected with local health/process/WAL/disk/checkpoint fixtures, HistoricalForensicsBudgetAdmission→MonitorQueue→DevProviderBudget against an isolated temporary ledger, and real BirdeyeProductionBinding injected with a synthetic credential and fake HTTP callable; provider calls=0; live budget debits=0; live DB/queue/runtime writes=0.",
     "storage": "Journal and compact evidence maximum single file=1,000,000 bytes; no raw provider retention; unbounded growth paths=0 for this correction.",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Provider-free source correction only; no executable runtime was deployed.",
-    "next_action": "RUN_THE_OPERATOR_LEVEL_NEGATIVE_CRASH_AND_SAME_ROOT_MATRIX_WITH_ISOLATED_INJECTED_AUTHORITIES_BEFORE_REQUESTING_PAID_ACQUISITION"
+    "next_action": "AUTHORIZE_A_MINIMAL_TEST_ONLY_DEPENDENCY_INJECTION_SEAM_FOR_THE_EXISTING_PRODUCTION_CLI_COMPONENTS_THEN_RUN_THE_OPERATOR_LEVEL_NEGATIVE_CRASH_AND_SAME_ROOT_MATRIX"
   },
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,

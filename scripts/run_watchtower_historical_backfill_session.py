@@ -11,6 +11,7 @@ if str(ROOT) not in sys.path: sys.path.insert(0,str(ROOT))
 from src.ops.watchtower_historical_backfill_controller import HistoricalBackfillController, SessionBounds
 from src.ops.watchtower_historical_execution_binding import HistoricalExecutionBinding
 from src.ops.watchtower_historical_budget import HistoricalForensicsBudgetAdmission
+from src.ops.dev_provider_budget import BudgetDenied
 from src.ops.dev014_batch4_runtime_gate import Batch4RuntimeGate, RuntimeAuthority, resolve_runtime_authority
 from src.ops.token_data_provider_bindings import BirdeyeProductionBinding, ProviderTransportOutcome
 
@@ -128,8 +129,23 @@ def _execute_production(args: argparse.Namespace, manifest: dict[str, Any], *,
     with controller:
         binding.recover()
         for item in selected[:args.max_requests]:
-            if time.monotonic()-started >= args.max_runtime_seconds: break
-            completed.append(binding.execute(item, health_gate=gate.check, admit=admission.admit, transport=transport, crash_at=crash_at)['request_identity'])
+            while True:
+                if time.monotonic()-started >= args.max_runtime_seconds:
+                    return {'status':'SESSION_DEADLINE_REACHED','request_count':len(completed),'completed_identities':completed}
+                if controller._state().get('cancelled'):
+                    return {'status':'CANCELLED','request_count':len(completed),'completed_identities':completed}
+                try:
+                    result = binding.execute(item, health_gate=gate.check, admit=admission.admit, transport=transport, crash_at=crash_at)
+                except BudgetDenied as exc:
+                    if str(exc) not in {'GLOBAL_PROVIDER_BUDGET_EXHAUSTED','TOKEN_PROVIDER_BUDGET_EXHAUSTED'}:
+                        raise
+                    # Binding restored the known no-debit denial to PENDING.
+                    # Sleep without the shared budget lock, then re-enter the
+                    # full binding (including the runtime health gate).
+                    time.sleep(min(1.0, max(0.0, args.max_runtime_seconds-(time.monotonic()-started))))
+                    continue
+                completed.append(result['request_identity'])
+                break
     return {'status':'COMPLETED','request_count':len(completed),'completed_identities':completed,
             'live_contention_limitation':'shared budget compliance does not guarantee zero contention with direct LIVE callers'}
 def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, Any]) -> dict[str, Any]:

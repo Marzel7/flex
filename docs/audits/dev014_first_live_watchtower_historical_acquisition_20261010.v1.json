@@ -1,0 +1,17 @@
+{
+  "schema": "dev014.live-watchtower-historical-acquisition.v1",
+  "source_revision": "8cdd6adc17e3dbc20298b1ffdbf678427afc73cc",
+  "status": "HOLD_PARTIAL_OUTCOME_UNKNOWN",
+  "bounds": {"max_requests": 10, "max_runtime_seconds": 1800, "max_evidence_bytes": 2000000, "max_single_file_bytes": 1000000},
+  "requests_admitted": 5,
+  "completed": [
+    {"rank": 22, "request_identity": "994f995cd25971435b726935f43fab6cee8802dea5f63fa45ef4e3edc065ff86", "evidence_identity": "c4cacfbaf1bef5b0004a9cd7696d37ed10b5dbfed7e23c3c6bcf30302dc4b11d", "http_status": 200, "returned_candle_count": 60, "coverage": {"5m": "COMPLETE_OBSERVED_WINDOW", "15m": "COMPLETE_OBSERVED_WINDOW", "30m": "COMPLETE_OBSERVED_WINDOW", "60m": "COMPLETE_OBSERVED_WINDOW"}, "missing_bucket_count": 0},
+    {"rank": 23, "request_identity": "66d4a2960daddf4fb7bd18253155a57e6f753b24231ae3d676d7e46032c892b3", "evidence_identity": "b6fc5b6b5b3e3f038915e535f82799df781c61d55affbc3e2aab927c6edca1a3", "http_status": 200, "returned_candle_count": 60, "coverage": {"5m": "COMPLETE_OBSERVED_WINDOW", "15m": "COMPLETE_OBSERVED_WINDOW", "30m": "COMPLETE_OBSERVED_WINDOW", "60m": "COMPLETE_OBSERVED_WINDOW"}, "missing_bucket_count": 0},
+    {"rank": 24, "request_identity": "92058401001b472fe7c296251413b0f64994c8e5922baa33924e41cb75451b99", "evidence_identity": "dc1987cba14461cd018b2175d9b7701d89aa358d4fa2ae5ab60cd8fb27892b60", "http_status": 200, "returned_candle_count": 46, "coverage": {"5m": "COMPLETE_OBSERVED_WINDOW", "15m": "COMPLETE_OBSERVED_WINDOW", "30m": "COMPLETE_OBSERVED_WINDOW", "60m": "PROVIDER_MISSING_COVERAGE"}, "missing_bucket_count": 13},
+    {"rank": 26, "request_identity": "f41ade69208b96d2cbae18be155a2ab7aa5e7bc8248f80c11e09cecdbfa42123", "evidence_identity": "8047ecdd55a505e829068e15b3712e75e536c7b902234ae2c6d63c600bc72cf5", "http_status": 200, "returned_candle_count": 55, "coverage": {"5m": "COMPLETE_OBSERVED_WINDOW", "15m": "COMPLETE_OBSERVED_WINDOW", "30m": "COMPLETE_OBSERVED_WINDOW", "60m": "PROVIDER_MISSING_COVERAGE"}, "missing_bucket_count": 4}
+  ],
+  "outcome_unknown": {"rank": 41, "request_identity": "ee80ca9aa955cd4963e04e5eeb70b21fa9dea2b09f935e1fd9908e96e11f7088", "reason": "KeyError entry_mc_usd after durable ATTEMPTED; recovered without retry"},
+  "not_started_ranks": [43, 46, 47, 48, 50],
+  "raw_provider_payload_retained": false,
+  "live_runtime_postcheck": {"healthy": true, "db": "ok", "wal_warn": false, "creator_funding_age_s": 2, "creator_resolution_age_s": 28, "wal_bytes": 3427872, "disk_free_bytes": 6293786624, "checkpoint_remaining_frames": 26}
+}

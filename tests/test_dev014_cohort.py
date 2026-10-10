@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 import pytest
-from src.ops.watchtower_historical_cohort import manifests,run_finite
+from src.ops.watchtower_historical_cohort import manifests,run_finite,cohort_authorization,cli_executor
 from src.ops.watchtower_historical_backfill_controller import HistoricalBackfillController
 ROOT=Path(__file__).resolve().parents[1]
 def test_cohort_manifests_are_bounded_and_explicit(tmp_path):
@@ -26,3 +26,9 @@ def test_synthetic_cohort_health_storage_and_cancel_stop():
  with pytest.raises(RuntimeError): run_finite(manifest,execute=lambda _:None,health=lambda:(_ for _ in ()).throw(RuntimeError('health')))
  assert run_finite(manifest,execute=lambda _:None,health=lambda:None,storage_ok=lambda:False)['status']=='STORAGE_HOLD'
  assert run_finite(manifest,execute=lambda _:None,health=lambda:None,cancelled=lambda:True)['status']=='CANCELLED'
+
+def test_content_hashed_authorization_and_cli_adapter(tmp_path):
+ auth=cohort_authorization(chronology_hash='frozen',identities=['a','b'],authority_id='operator')
+ assert auth['content_hash'] and auth['max_requests_per_session']==50
+ class R: returncode=0; stdout='{"status":"COMPLETED"}'; stderr=''
+ assert cli_executor(tmp_path/'cli',['--mode','execute'],runner=lambda *a,**k:R())(tmp_path/'manifest')['status']=='COMPLETED'

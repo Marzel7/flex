@@ -154,6 +154,19 @@ def test_actual_cli_synthetic_clock_rolls_over_request_21_without_duplicate_debi
     assert _journal(root)["records"][0]["state"] == "COMPLETED"
 
 
+def test_actual_cli_provider_backoff_uses_epoch_not_elapsed_clock(tmp_path: Path) -> None:
+    blocked_root = tmp_path / "future-backoff"
+    blocked = _run(_command(blocked_root, scenario="provider-backoff", synthetic_clock=True))
+    assert blocked.returncode == 1 and "PROVIDER_GATE_CLOSED" in blocked.stderr
+    assert not (blocked_root / "queue" / "provider_budget.json").exists()
+    assert _journal(blocked_root)["records"][0]["state"] == "ADMISSION_INTENT"
+    expired_root = tmp_path / "expired-backoff"
+    expired = _run(_command(expired_root, scenario="provider-backoff-expired", synthetic_clock=True))
+    assert expired.returncode == 0, expired.stderr
+    assert json.loads(expired.stdout)["fixture_transport_calls"] == 1
+    assert len(_budget_calls(expired_root)) == 1
+
+
 def test_actual_cli_synthetic_clock_completes_all_frozen_eligible_identities(tmp_path: Path) -> None:
     root = tmp_path / "eligible"
     import importlib.util

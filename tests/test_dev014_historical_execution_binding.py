@@ -35,6 +35,15 @@ def test_admitted_and_attempted_recover_unknown(tmp_path):
   b=HistoricalExecutionBinding(tmp_path/(point+'.json'))
   with pytest.raises(RuntimeError): b.execute(item(),health_gate=lambda:None,live_pending=lambda:False,admit=lambda **_:None,transport=lambda _:None,crash_at=point)
   assert b.recover()['records'][0]['state']=='OUTCOME_UNKNOWN'
+
+def test_proven_provider_gate_denial_restores_only_pre_admission_intent(tmp_path):
+ b=HistoricalExecutionBinding(tmp_path/'journal.json')
+ with pytest.raises(BindingDenied,match='PROVIDER_GATE_CLOSED'):
+  b.execute(item(),health_gate=lambda:None,admit=lambda **_:(_ for _ in ()).throw(BindingDenied('PROVIDER_GATE_CLOSED')),transport=lambda _:None)
+ identity=b.read()['records'][0]['request_identity']; mint=b.read()['records'][0]['mint']
+ with pytest.raises(BindingDenied,match='PRE_ADMISSION_INTENT_BUDGET_SIDE_EFFECT'):
+  b.restore_proven_pre_admission_intent(request_identity=identity,mint=mint,budget_calls=[{'mint':mint}])
+ assert b.restore_proven_pre_admission_intent(request_identity=identity,mint=mint,budget_calls=[])['records'][0]['state']=='PENDING'
 def test_live_and_health_stop_before_admission(tmp_path):
  b=HistoricalExecutionBinding(tmp_path/'journal.json'); calls=[]
  assert b.execute(item(),health_gate=lambda:None,live_pending=lambda:True,admit=lambda **k:calls.append(k),transport=lambda _:None)['status']=='LIVE_PRIORITY_PENDING'

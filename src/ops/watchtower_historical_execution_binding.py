@@ -108,6 +108,24 @@ class HistoricalExecutionBinding:
         if changed: self._write(journal)
         return journal
 
+    def restore_proven_pre_admission_intent(self, *, request_identity: str, mint: str,
+                                            budget_calls: list[dict[str, Any]]) -> dict[str, Any]:
+        """Return one intent to PENDING only after independent no-debit proof."""
+        journal = self.read()
+        matches = [record for record in journal["records"] if record.get("request_identity") == request_identity]
+        if len(matches) != 1:
+            raise BindingDenied("PRE_ADMISSION_INTENT_IDENTITY_UNRESOLVED")
+        record = matches[0]
+        if (record.get("state") != "ADMISSION_INTENT" or record.get("mint") != mint
+                or any(key in record for key in ("http_status", "evidence_identity", "provider"))):
+            raise BindingDenied("PRE_ADMISSION_INTENT_NOT_PROVEN")
+        if any(call.get("mint") == mint for call in budget_calls if isinstance(call, dict)):
+            raise BindingDenied("PRE_ADMISSION_INTENT_BUDGET_SIDE_EFFECT")
+        record["state"] = "PENDING"
+        record["recovery_reason"] = "PROVEN_PROVIDER_GATE_DENIAL_WITHOUT_BUDGET_ADMISSION"
+        self._write(journal)
+        return journal
+
     def execute(self, item: dict[str, Any], *, health_gate: Callable[[], Any], live_pending: Callable[[], bool] | None = None,
                 admit: Callable[..., None], transport: Callable[[dict[str, Any]], Any], crash_at: str | None = None) -> dict[str, Any]:
         if bool(item.get("fixture_only")) != self.fixture_only:

@@ -1,13 +1,13 @@
 {
   "dev014_bounded_historical_operator_scope_restore_20261010": {
     "engineering_revision": "58cb4e74770ceaebd01a90115f57bfb23558ad4e on codex/dev014-current-mc-freshness",
-    "status": "HOLD_RUNTIME_GATE_CONTRACT_INCOMPLETE_FOR_REQUIRED_NEGATIVE_MATRIX",
-    "finding": "LIVE provider scheduling, admission, retry, queue, database, transport, credential, and priority behavior remain frozen; experimental codex/monitor-priority-admission remains unmerged and undeployed. DEV-014 no longer requires a fabricated strict LIVE-priority callback: historical execution may use the existing shared atomic 20-global/4-per-mint budget and health gate, but this does not guarantee zero contention with direct LIVE callers. The retained fake-live path succeeds. The feature implementations use WATCHTOWER_CURRENT_MC_OVERLAY_ENABLED and WATCHTOWER_EARLY_MINIMUM_TRACKING_ENABLED environment values, but the checked-in installed Supervisor authority contains neither field in any program stanza. Thus it cannot prove installed feature state, absence, ambiguity, or disagreement. Adding an operator-local predicate would violate the existing-authority requirement.",
+    "status": "HOLD_PRODUCTION_OPERATOR_COMMAND_NOT_IMPLEMENTED",
+    "finding": "DEV-014 scope is restored to the proven Batch 4 contract: no additional Current-MC or early-minimum predicates are required. The retained fake-live operator path succeeds, and 26 focused controller/execution-binding/runtime-gate/shared-budget tests pass. However the CLI still deliberately exits LIVE_EXECUTION_REQUIRES_SEPARATE_RUNTIME_AUTHORIZATION after --live-opt-in, so no production binding command exists to execute Batch4RuntimeGate, the shared queue root, BirdeyeProductionBinding, controller ownership, and bounded evidence root together. Providing a purported live command would be misleading. Separate uncoordinated roots also remain a documented limitation.",
     "tests": "pytest tests/test_watchtower_historical_executor.py tests/test_dev014_batch4_runtime_gate.py: 21 passed; actual operator --fixture-fake-live command: one normalized fake request completed through controller lock, durable journal, real Batch4RuntimeGate injected with local health/process/WAL/disk/checkpoint fixtures, HistoricalForensicsBudgetAdmission→MonitorQueue→DevProviderBudget against an isolated temporary ledger, and real BirdeyeProductionBinding injected with a synthetic credential and fake HTTP callable; provider calls=0; live budget debits=0; live DB/queue/runtime writes=0.",
     "storage": "Journal and compact evidence maximum single file=1,000,000 bytes; no raw provider retention; unbounded growth paths=0 for this correction.",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Provider-free source correction only; no executable runtime was deployed.",
-    "next_action": "RECOVER_OR_DESIGNATE_AN_AUTHORITATIVE_INSTALLED_CONFIGURATION_OR_RUNTIME_API_THAT_DECLARES_BOTH_FEATURE_STATES; THEN_EXTEND_BATCH4RUNTIMEGATE_AND_RUN_THE_FULL_OPERATOR_MATRIX"
+    "next_action": "IMPLEMENT_THE_EXISTING_COMPONENT_PRODUCTION_BINDING_IN_THE_OPERATOR_WITH_EXPLICIT_CONFIGURED_STATE_EVIDENCE_ROOTS_AND_RUN_THE_OPERATOR_LEVEL_NEGATIVE_CRASH_AND_SAME_ROOT_MATRIX"
   },
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,

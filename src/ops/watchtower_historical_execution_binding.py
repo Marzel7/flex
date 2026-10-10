@@ -10,9 +10,10 @@ from typing import Any, Callable
 
 from scripts.run_watchtower_recent_first_price_forensics_batch_4 import HEADER_ALLOWLIST, _normalize
 from src.ops.watchtower_observed_minimum import observed_minima
+from src.ops.dev_provider_budget import BudgetDenied
 
 
-STATES = frozenset({"PENDING", "ADMITTED", "ATTEMPTED", "COMPLETED", "OUTCOME_UNKNOWN", "DEFERRED"})
+STATES = frozenset({"PENDING", "ADMISSION_INTENT", "ADMITTED", "ATTEMPTED", "COMPLETED", "OUTCOME_UNKNOWN", "DEFERRED"})
 MAX_BYTES = 1_000_000
 
 
@@ -75,7 +76,7 @@ class HistoricalExecutionBinding:
             if record.get("state") == "ATTEMPTED" and record.get("evidence_identity"):
                 record["state"] = "COMPLETED"; record["recovery_reason"] = "COMPACT_EVIDENCE_ALREADY_DURABLE"; changed = True
                 continue
-            if record.get("state") in {"ADMITTED", "ATTEMPTED"}:
+            if record.get("state") in {"ADMISSION_INTENT", "ADMITTED", "ATTEMPTED"}:
                 record["state"] = "OUTCOME_UNKNOWN"; record["recovery_reason"] = "INTERRUPTED_AFTER_POSSIBLE_ADMISSION_OR_ATTEMPT"; changed = True
         if changed: self._write(journal)
         return journal
@@ -104,8 +105,17 @@ class HistoricalExecutionBinding:
         # Persist the conservative post-admission boundary before invoking
         # the shared budget gate.  A process crash immediately after a debit
         # can therefore never be mistaken for a retryable PENDING request.
+        record["state"] = "ADMISSION_INTENT"; self._write(journal)
+        try:
+            admit(mint=item["mint"], request_identity=identity)
+        except BudgetDenied as exc:
+            # Only these known pre-debit capacity outcomes are retryable by a
+            # bounded controller-owned wait loop.  Every other result remains
+            # conservatively ambiguous after the durable intent boundary.
+            if str(exc) in {"GLOBAL_PROVIDER_BUDGET_EXHAUSTED", "TOKEN_PROVIDER_BUDGET_EXHAUSTED"}:
+                record["state"] = "PENDING"; self._write(journal)
+            raise
         record["state"] = "ADMITTED"; self._write(journal)
-        admit(mint=item["mint"], request_identity=identity)
         if crash_at == "AFTER_BUDGET": raise RuntimeError("SIMULATED_CRASH")
         if crash_at == "ADMITTED": raise RuntimeError("SIMULATED_CRASH")
         record["state"] = "ATTEMPTED"; self._write(journal)

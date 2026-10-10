@@ -16,6 +16,42 @@ def cohort_authorization(*, chronology_hash: str, identities: list[str], authori
     if not authority_id or len(identities)!=len(set(identities)) or not identities: raise ValueError('EXPLICIT_COHORT_AUTHORIZATION_REQUIRED')
     value={'schema':'dev014.finite-cohort-authorization.v1','population_identity':'WATCHTOWER_FORENSIC_POPULATION_V2_20261009','chronology_hash':chronology_hash,'authority_id':authority_id,'request_identities':identities,'max_total_paid_requests':len(identities),'max_requests_per_session':50,'max_runtime_seconds':max_runtime_seconds,'historical_limit_per_60s':10,'session_cooldown_seconds':60,'max_cohort_bytes':100*1024*1024,'min_free_bytes':4*1024**3,'cancellation':'STOP','safety_hold':'STOP_NO_RESTART'}; value['content_hash']=digest(value); return value
 
+def validate_cohort_authorization(value: dict[str, Any]) -> dict[str, Any]:
+    """Validate operator-supplied finite authority; this never creates authority."""
+    if not isinstance(value, dict): raise ValueError('EXPLICIT_COHORT_AUTHORIZATION_REQUIRED')
+    supplied=value.get('content_hash'); candidate=dict(value); candidate.pop('content_hash',None)
+    required={'schema':'dev014.finite-cohort-authorization.v1','population_identity':'WATCHTOWER_FORENSIC_POPULATION_V2_20261009',
+              'max_requests_per_session':MAX_SESSION,'historical_limit_per_60s':HISTORICAL_LIMIT,
+              'session_cooldown_seconds':SESSION_COOLDOWN,'max_cohort_bytes':100*1024*1024,
+              'min_free_bytes':4*1024**3,'cancellation':'STOP','safety_hold':'STOP_NO_RESTART'}
+    if supplied != digest(candidate) or any(candidate.get(key)!=expected for key,expected in required.items()):
+        raise ValueError('COHORT_AUTHORIZATION_INVALID')
+    identities=candidate.get('request_identities')
+    if (not isinstance(candidate.get('authority_id'),str) or not candidate['authority_id'] or not isinstance(identities,list)
+            or not identities or len(identities)>524 or len(identities)!=len(set(identities))
+            or candidate.get('max_total_paid_requests')!=len(identities)):
+        raise ValueError('COHORT_AUTHORIZATION_INVALID')
+    return value
+
+def reconcile_journals(journals: list[str|Path]) -> dict[str, Any]:
+    """Return a conservative no-repeat set from every authoritative paid journal."""
+    if len(journals)!=4: raise ValueError('FOUR_AUTHORITATIVE_JOURNALS_REQUIRED')
+    blocked_ids:set[str]=set(); blocked_mints:set[str]=set(); outcomes:dict[str,str]={}; sources=[]
+    for raw_path in journals:
+        path=Path(raw_path)
+        if not path.is_file() or path.is_symlink(): raise ValueError('AUTHORITATIVE_JOURNAL_UNAVAILABLE')
+        records=HistoricalExecutionBinding(path).read()['records']; sources.append(str(path))
+        for record in records:
+            identity,mint,state=record.get('request_identity'),record.get('mint'),record.get('state')
+            # Every durable intent/attempt is a no-repeat exclusion until a human reconciles it.
+            if state in {'ADMISSION_INTENT','ADMITTED','ATTEMPTED','COMPLETED','OUTCOME_UNKNOWN'}:
+                if not isinstance(identity,str) or not identity or not isinstance(mint,str) or not mint:
+                    raise ValueError('AUTHORITATIVE_JOURNAL_RECORD_INVALID')
+                previous=outcomes.get(identity)
+                if previous and previous!=state: raise ValueError('AUTHORITATIVE_JOURNAL_IDENTITY_CONFLICT')
+                outcomes[identity]=state; blocked_ids.add(identity); blocked_mints.add(mint)
+    return {'journals':sources,'blocked_request_identities':blocked_ids,'blocked_mints':blocked_mints,'outcomes':outcomes}
+
 def cli_executor(cli: str|Path, base: list[str], *, runner: Any=subprocess.run):
     """Adapter only: caller provides the existing CLI's explicit fixture/live args."""
     def execute(manifest_path: str|Path)->dict[str,Any]:
@@ -43,6 +79,36 @@ def manifests(controller: Any,journal: str|Path,authorization: str)->list[dict[s
             records.append(record)
         value={'schema':'dev014.frozen-historical-acquisition-manifest.v1','version':1,'population_identity':'WATCHTOWER_FORENSIC_POPULATION_V2_20261009','authorization':{'kind':'EXPLICIT_FROZEN_MANIFEST','authority_id':authorization,'max_requests':len(records)},'max_authorized_requests':len(records),'records':records}; value['content_hash']=digest(value); out.append(value)
     return out
+
+def authorized_manifests(controller: Any, authorization: dict[str, Any], journals: list[str|Path]) -> list[dict[str, Any]]:
+    """Freeze only authorized, unrepeated work in chronological batches of at most 50."""
+    authorization=validate_cohort_authorization(authorization); history=reconcile_journals(journals)
+    allowed=set(authorization['request_identities']); selected=[]; found=set()
+    for item in sorted(controller.work(), key=lambda x:x['rank']):
+        request=item.get('request')
+        if not request: continue
+        identity=request.get('request_identity')
+        if identity not in allowed: continue
+        if identity in history['blocked_request_identities'] or item['mint'] in history['blocked_mints']: continue
+        anchor=request.get('params',{}).get('time_from')
+        if (identity in found or not isinstance(anchor,int) or request['params'].get('time_to')!=anchor+3600):
+            raise ValueError('COHORT_MEMBERSHIP_INVALID')
+        found.add(identity); selected.append(item)
+    # An absent authorized identity is dangerous: never substitute or silently expand.
+    missing=allowed-found
+    if missing: raise ValueError('AUTHORIZED_IDENTITY_NOT_SELECTABLE')
+    result=[]
+    for number,offset in enumerate(range(0,len(selected),MAX_SESSION),start=1):
+        records=[]
+        for item in selected[offset:offset+MAX_SESSION]:
+            request=item['request']; records.append({'rank':item['rank'],'mint':item['mint'],'anchor':item['anchor'],
+                'requested_window':{'time_from':request['params']['time_from'],'time_to':request['params']['time_to'],'interval':'1m'},
+                'request_identity':request['request_identity'], **({'entry_mc_usd':item['entry_mc_usd']} if 'entry_mc_usd' in item else {})})
+        value={'schema':'dev014.frozen-historical-acquisition-manifest.v1','version':1,'population_identity':authorization['population_identity'],
+               'authorization':{'kind':'EXPLICIT_FROZEN_MANIFEST','authority_id':authorization['authority_id'],'cohort_content_hash':authorization['content_hash'],'max_requests':len(records)},
+               'max_authorized_requests':len(records),'session_number':number,'records':records}
+        value['content_hash']=digest(value); result.append(value)
+    return result
 
 def run_finite(manifest_list: list[dict[str,Any]], *, execute: Any, health: Any,
                clock: Any=time.monotonic, sleep: Any=time.sleep, cancelled: Any=lambda:False,

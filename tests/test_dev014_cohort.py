@@ -1,7 +1,8 @@
 import json
 from pathlib import Path
 import pytest
-from src.ops.watchtower_historical_cohort import manifests,run_finite,cohort_authorization,cli_executor
+from src.ops.watchtower_historical_cohort import (manifests,run_finite,cohort_authorization,cli_executor,
+    validate_cohort_authorization,reconcile_journals,authorized_manifests)
 from src.ops.watchtower_historical_backfill_controller import HistoricalBackfillController
 ROOT=Path(__file__).resolve().parents[1]
 def test_cohort_manifests_are_bounded_and_explicit(tmp_path):
@@ -32,3 +33,29 @@ def test_content_hashed_authorization_and_cli_adapter(tmp_path):
  assert auth['content_hash'] and auth['max_requests_per_session']==50
  class R: returncode=0; stdout='{"status":"COMPLETED"}'; stderr=''
  assert cli_executor(tmp_path/'cli',['--mode','execute'],runner=lambda *a,**k:R())(tmp_path/'manifest')['status']=='COMPLETED'
+
+def test_authorized_manifests_require_exact_membership_and_four_journals(tmp_path):
+ class Controller:
+  def work(self):
+   return [
+    {'rank':1,'mint':'mint-a','anchor':{'timestamp':100,'class':'CREATION_TIME_ANCHORED_OBSERVATION'},'request':{'request_identity':'a','params':{'time_from':100,'time_to':3700}}},
+    {'rank':2,'mint':'mint-b','anchor':{'timestamp':200,'class':'CREATION_TIME_ANCHORED_OBSERVATION'},'request':{'request_identity':'b','params':{'time_from':200,'time_to':3800}}},
+   ]
+ paths=[]
+ for number in range(4):
+  path=tmp_path/f'journal-{number}.json'; path.write_text(json.dumps({'version':1,'records':[]})); paths.append(path)
+ auth=cohort_authorization(chronology_hash='frozen',identities=['a','b'],authority_id='operator')
+ assert validate_cohort_authorization(auth)['content_hash']==auth['content_hash']
+ frozen=authorized_manifests(Controller(),auth,paths)
+ assert [record['request_identity'] for record in frozen[0]['records']]==['a','b']
+ paths[3].write_text(json.dumps({'version':1,'records':[{'state':'ADMISSION_INTENT','mint':'mint-b','request_identity':'b'}]}))
+ history=reconcile_journals(paths)
+ assert history['outcomes']['b']=='ADMISSION_INTENT'
+ with pytest.raises(ValueError,match='AUTHORIZED_IDENTITY_NOT_SELECTABLE'):
+  authorized_manifests(Controller(),auth,paths)
+
+def test_authorization_rejects_tampering_and_journal_count(tmp_path):
+ auth=cohort_authorization(chronology_hash='frozen',identities=['a'],authority_id='operator')
+ auth['max_total_paid_requests']=2
+ with pytest.raises(ValueError,match='COHORT_AUTHORIZATION_INVALID'): validate_cohort_authorization(auth)
+ with pytest.raises(ValueError,match='FOUR_AUTHORITATIVE_JOURNALS_REQUIRED'): reconcile_journals([])

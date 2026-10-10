@@ -42,13 +42,18 @@ def _minimal_environment(credential: str) -> dict[str, str]:
     }
 
 
-def _source_then_reexec(env_file: Path, mode: str) -> int:
+def _source_then_reexec(env_file: Path, mode: str, cohort_root: Path | None = None) -> int:
     if not env_file.is_file():
         raise CredentialBindingDenied("MONITOR_ENV_FILE_UNAVAILABLE")
     # "$@" contains only interpreter/script/mode arguments.  BIRDEYE remains
     # in the operating-system environment and is never interpolated into argv.
     shell = 'set -aeu; . "$1"; shift; : "${BIRDEYE:?BIRDEYE_REQUIRED}"; export DEV014_BIRDEYE_ENV_BOUND=1; exec "$@"'
-    command = ["/bin/sh", "-ceu", shell, "sh", str(env_file), sys.executable, str(Path(__file__).resolve()), "--bound", "--mode", mode]
+    target = [sys.executable, str(Path(__file__).resolve()), "--bound", "--mode", mode]
+    if mode == "cohort":
+        target = [sys.executable, str(ROOT / "scripts" / "run_dev014_historical_cohort.py"), "--bound", "--execute"]
+        if cohort_root is not None:
+            target.extend(("--cohort-root", str(cohort_root)))
+    command = ["/bin/sh", "-ceu", shell, "sh", str(env_file), *target]
     return subprocess.run(command, check=False).returncode
 
 
@@ -106,17 +111,20 @@ def _execute_frozen_session(run: Callable[..., subprocess.CompletedProcess] = su
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=("verify", "preflight", "execute"), default="verify")
+    parser.add_argument("--mode", choices=("verify", "preflight", "execute", "cohort"), default="verify")
     parser.add_argument("--env-file", type=Path, default=ENV_FILE)
+    parser.add_argument("--cohort-root", type=Path)
     parser.add_argument("--bound", action="store_true")
     args = parser.parse_args()
     try:
         if not args.bound:
-            return _source_then_reexec(args.env_file, args.mode)
+            return _source_then_reexec(args.env_file, args.mode, args.cohort_root)
         if os.environ.get(BOUND) != "1":
             raise CredentialBindingDenied("BOUND_PROCESS_REQUIRED")
         if args.mode == "execute":
             return _execute_frozen_session()
+        if args.mode == "cohort":
+            raise CredentialBindingDenied("COHORT_BOUND_PROCESS_REQUIRED")
         value = _credential_check() if args.mode == "verify" else _preflight()
         print(json.dumps(value, sort_keys=True))
         return 0

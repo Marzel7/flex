@@ -20,9 +20,9 @@ from typing import Callable
 ROOT = Path(__file__).resolve().parents[1]
 BOUND = "DEV014_BIRDEYE_ENV_BOUND"
 ENV_FILE = Path("/Users/kevinkeaveney/Dev/claude/flex/.env")
-MANIFEST = Path("/private/tmp/dev014_rank51_70_continuation_11_execution_20261010.v1.json")
-STATE_DIR = Path("/private/tmp/dev014-r51-70-state")
-EVIDENCE_DIR = Path("/private/tmp/dev014-r51-70-evidence")
+MANIFEST = Path("/private/tmp/dev014_rank71_90_continuation_11_execution_20261010.v1.json")
+STATE_DIR = Path("/private/tmp/dev014-r71-90-state")
+EVIDENCE_DIR = Path("/private/tmp/dev014-r71-90-evidence")
 SUPERVISOR_CONFIG = Path("/Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf")
 QUEUE_ROOT = Path("/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue")
 

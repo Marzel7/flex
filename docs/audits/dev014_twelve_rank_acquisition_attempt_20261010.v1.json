@@ -1,0 +1,36 @@
+{
+  "schema": "dev014.twelve-rank-acquisition-attempt.v1",
+  "status": "HOLD_ENTRY_MC_BINDING_NOT_PRESENT_DURING_EXECUTION",
+  "engineering_revision": "075bc52a2b80a212a1004f8a24cc4c1520614021",
+  "frozen_selector": [53, 56, 57, 58, 59, 60, 62, 64, 65, 66, 67, 70],
+  "execution": {
+    "provider_requests_attempted": 1,
+    "shared_budget_admissions": 1,
+    "completed_ranks": [],
+    "outcome_unknown_ranks": [53],
+    "untouched_ranks": [56, 57, 58, 59, 60, 62, 64, 65, 66, 67, 70],
+    "rank_53_request_identity": "f732729eaa197bff251ad8225273432084f0088bf54151f80f37c577c836bc6f",
+    "rank_53_recovery": "OUTCOME_UNKNOWN; no automatic retry; no compact normalized result retained"
+  },
+  "failure": {
+    "stage": "entry-relative observed-minima construction after provider transport",
+    "exception": "KeyError: entry_mc_usd",
+    "effect": "The execution-time controller item lacked entry_mc_usd despite the plan-time qualified Entry anchor."
+  },
+  "preflight": {
+    "api": "HTTP 200; healthy=true; db=ok; wal_warn=false",
+    "creator_heartbeats_seconds": {"funding": 1, "resolution": 5},
+    "wal_bytes": 251352,
+    "disk_free_bytes": 6305214464,
+    "checkpoint": "healthy PASSIVE samples; busy=0; recent progress observed",
+    "runtime_topology": "one Supervisor, one creator-funding worker, one creator-resolution worker",
+    "credential": "BIRDEYE present; value not retained"
+  },
+  "retention": {
+    "raw_provider_payload_retention": false,
+    "max_single_artifact_bytes": 1000000,
+    "max_session_evidence_bytes": 2000000,
+    "unbounded_growth_paths": 0
+  },
+  "next_action": "Do not acquire or retry rank 53. Separately diagnose and qualify the execution-time Entry-MC binding before authorizing any remaining rank."
+}

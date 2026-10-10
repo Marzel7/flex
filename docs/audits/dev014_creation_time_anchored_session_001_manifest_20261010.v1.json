@@ -1,0 +1,764 @@
+{
+  "authorization": {
+    "authority_id": "DEV014_CREATION_TIME_ANCHORED_COHORT_PREPARATION_20261010_SESSION_001",
+    "kind": "EXPLICIT_FROZEN_MANIFEST",
+    "max_requests": 50
+  },
+  "content_hash": "f4b9cb6e98f7c858d1e648a719edde1b684f853781382a88b11c42aca1f0683f",
+  "max_authorized_requests": 50,
+  "population_identity": "WATCHTOWER_FORENSIC_POPULATION_V2_20261009",
+  "records": [
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "2pFFQYpEtM59HxzcBLyDAnbmG2Y3SNey5WVn6ufc85HeS4zJNC2U6gSb8o4z4oxeMFt9RrZUTAgNed778HCrD5d1",
+        "timestamp": 1790908082
+      },
+      "mint": "AxrtKHZhxAvX3znTsi23ZxDc3HR4KyyVJGCze4pwpump",
+      "rank": 42,
+      "request_identity": "2620a2b0af42ad3a592391626b7a07aa52053105955ccadcfd0612983a039aeb",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790908082,
+        "time_to": 1790911682
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "4uT2rxXE16up3wWNeN5dWRbeDPKbvLsXvNbThNxk5vQhVjzMtmaijzugCVxCs14unT7bY9661tCXGxMy4KjsS1Wm",
+        "timestamp": 1790863500
+      },
+      "mint": "FYRTpigBfveFzFy3JsaX1fSuGHXXn3ddg9zSw9ZDpump",
+      "rank": 44,
+      "request_identity": "b3368a1d0abe271ca1b68962f518d6fe819e2530502e128c7c52a1da267267e0",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790863500,
+        "time_to": 1790867100
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "2vsgoo3jC8CrhPJZSsL3yPyWNoy1TQzJyPFLDKBW7RXLB5QnmRf6YvLXdkDWBUHTSfXYsDXc7f9D156HPacELsEf",
+        "timestamp": 1790857980
+      },
+      "mint": "EteLE6zPKPPXtkU1NDqi5Hw2QePE3pWsYMaxnY9Dpump",
+      "rank": 45,
+      "request_identity": "c5eaeb844157942cb925c64258491c91123e98ec2a3771bc20443db9ed0234fb",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790857980,
+        "time_to": 1790861580
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "2MnSSpH31CJuTvQdqiq3i1UdXAQh9qENZ3LrPLyvB8zAVgMbgpYGHLXpJFzDm53MMPEKn9Gv7KqW8Ufh8qRWJZxY",
+        "timestamp": 1790811743
+      },
+      "mint": "AqYdSQ6oFq8HjLoFkvHW6kYcRM1p94Q1FcvGFxDfpump",
+      "rank": 49,
+      "request_identity": "f654ec0b6a0e779d3073eda30f28b0f5ebeabab0d69ee80efcd151e0d28f56d9",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790811743,
+        "time_to": 1790815343
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "kwXTzvCA6ZqLficGqMnszJU2aU3GAc5MZ7E3HrMwkUDfxw4TRiXEKV4zt549oki2wmbRTq7zoX8TB1DPXMkKaJ6",
+        "timestamp": 1790802440
+      },
+      "mint": "GQo6fhPdC2iAJH56H6k1hbbALsH4Y7ZxDQu2hZK1pump",
+      "rank": 51,
+      "request_identity": "8730ed3bbfa63ca459cdddd78a1c3c95a735232d9399d57fff1df341616f2c89",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790802440,
+        "time_to": 1790806040
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "Jo2eYQQRc64b9fYhk4ECmZcSYpSTdupEJuu3pxFeXuswPUmkhETipfETZpqrdH65gNjmuy7BAapB4qQr31Hu2DE",
+        "timestamp": 1790796292
+      },
+      "mint": "FaujeXeSkDLJpvji5puUmKChScoVaxYxoTbhDYjopump",
+      "rank": 52,
+      "request_identity": "ba2be3f4cadfc2832a8d13e752f128da3d381c61d0f7b6efbc93441c4f76e331",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790796292,
+        "time_to": 1790799892
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "4rEUxbAuHktrfxNJgLCuaDCfPwL297VqyyLVGsg6ghbGTuwCrkFx5Dpjf1z3hPJXaDEjRyRYoA64cAhwXPgkRRFf",
+        "timestamp": 1790791571
+      },
+      "mint": "4wkmgCy5HLjShuK2W5RUbhgGFzbHN9qopEGM3FUGpump",
+      "rank": 54,
+      "request_identity": "e21b84d7a04672e78975ea19467a62abf4fcf496ab8fd2d901c1849023642a01",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790791571,
+        "time_to": 1790795171
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "5pzhmcNL8bYBdYS4tE4a24JTcXqgH4pupjVFhfbFgoajjLZ9XuFBJZoFeLzuEjgfuZjUEfCop3g96BiEwrofKgBP",
+        "timestamp": 1790786824
+      },
+      "mint": "67pyUBgbBKjMumTz4ZnQp9GaX3ag1JNVAMoLeyMipump",
+      "rank": 55,
+      "request_identity": "cbf4903ea1e1ca3cc87d2ebe4de6af0a07823d7813813020619f58877f05b6ea",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790786824,
+        "time_to": 1790790424
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "2qcFcJ9p9RYDXmh8b6PPmiCKngWCwWzcmGcZ8jvaCuND11gBLFArPnK2jTg4LmU72ShSfERWg1jfsPWfaWqnAwRG",
+        "timestamp": 1790750147
+      },
+      "mint": "7hGwu7u8X6Bb88B1eGYKWbTsUiWtpmBLQ9YQ1nxFpump",
+      "rank": 61,
+      "request_identity": "a0956e988448a5dc05780e3c046814a407b70fffa02f584218209de76f92270a",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790750147,
+        "time_to": 1790753747
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "4YzhbW4GTLVJdJUPEUZfUa5GfmgoSUCNkPsWVeLJfbeDCL7oWn13EVQBmo2VmNaq4ansPQkSTcLA1DndRFxmTBNg",
+        "timestamp": 1790744036
+      },
+      "mint": "9qGAEd7CDCEoKA1YLxgHqu7dyVrJB9tnnoBzaQpApump",
+      "rank": 63,
+      "request_identity": "f30f742057165ee885b22bb47495f77071c718102d3f5d1d20bae68faf4d21d0",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790744036,
+        "time_to": 1790747636
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "5cDqK9N9kNAvQztS1fs4yV8FWUuiyirdiBkZJ89he912DaYwJKKg9HHzGymQ7ubSZnW9iCdrcgh74DRoycS6YDNG",
+        "timestamp": 1790723784
+      },
+      "mint": "7rRNjSyx4vAcAY3KcFkrrmZpmhnmpBRYodr1TwcUpump",
+      "rank": 68,
+      "request_identity": "ecc287c586df90685b81f727a0b6b41a7a2ae0b0416821eae94027b717b00208",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790723784,
+        "time_to": 1790727384
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "2fmnUbwEZBQSiHQUU4WgyXg1m8qx4ULevynery9dCpAokfrwVZvBQEjBXxgS3qbPsnkSkLUgiod31ttnzSHWhvDK",
+        "timestamp": 1790723322
+      },
+      "mint": "A3dtfF75L6Aj9QZ4EEz8LpxZpSZHHcactYtv571Gpump",
+      "rank": 69,
+      "request_identity": "79a35e13722afe1e20a35b9402beb9efb2a7fdbad0127f213afd7734d3558f8a",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790723322,
+        "time_to": 1790726922
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "2vus6iGLKHYcB69fUDrRbhQLzU8cdyR5SCU7rdiZcUwJxvy1tQyAyrx5P7Vg825VUADcLnvC8rd8JFAFcvEB9mvK",
+        "timestamp": 1790704978
+      },
+      "mint": "59F95Wkn5LRpiKmG2FE3g87Lzkz4redvNJNKSi1Npump",
+      "rank": 73,
+      "request_identity": "10f2ce3be27d75ff7fe7c442b63a8165b897d8bf06d83ec9aff8c2bc13387ef8",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790704978,
+        "time_to": 1790708578
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "5jgpLAWQ53AVkBrft7JB79sYNvwmVCepGCpocFLPQpb6hFXhLwNUm7wCZgHCDgr7VJw46LwjwEGqosHBaDvQn6An",
+        "timestamp": 1790647305
+      },
+      "mint": "2n3bPZcfbcUNgaP6Ktw8E1wYoycAhuR1sSHa7uB6pump",
+      "rank": 76,
+      "request_identity": "5a33ea4aceec1b31db0a3e0b57c8f80f6fc8d6042e50744ac1a36dea53cd44ee",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790647305,
+        "time_to": 1790650905
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "2QcEUx5VKSqZhZHmqQGxQd2AScZwCTPHdXPThS92Lu9jirGRTpZbG1mN6aKL6eSxR7hiQwtmUgW9Li9LFKA6zZq",
+        "timestamp": 1790611562
+      },
+      "mint": "7mqDrCDrw7zxqQs3KiRWmx3bns7uy3mMSiAKgDotpump",
+      "rank": 81,
+      "request_identity": "8dcbb87b0baf4f7ddb74235ec79d632fbbdc7ecfe11886111ca3dabac5f1354e",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790611562,
+        "time_to": 1790615162
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "JDej9Eky3UaLftcrjadU3jYAT4GWnzszqrfTmB15EPF7XLLjKotDH6GWfc1wLqcTbba4UBwwouAhheETMhReFHm",
+        "timestamp": 1790558234
+      },
+      "mint": "5PmsmHC6aqCuBzECBLX5Mv9FA8Pgd9rfrX9bT4kzpump",
+      "rank": 83,
+      "request_identity": "d229b90938a6bdeac79275fc5fa481083370bafdd411801caf17274fa00bc2ee",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790558234,
+        "time_to": 1790561834
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "67bqWpVFXjMtjpNjsUp1W9dCogWcFfVni3BPxDCk12nYCgowWGi2ZpdMeEbW5ZA7HmLXp7nabcb2Z9fVyNgbSEsu",
+        "timestamp": 1790548933
+      },
+      "mint": "4Z9eH1BCuq2Y6FFRXkZft9LoxwMqQWo7bJsEbcd7pump",
+      "rank": 85,
+      "request_identity": "26a3f0a368b86b92505370a55ef3715571404c7c1067e89dd864436ec458f2c9",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790548933,
+        "time_to": 1790552533
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "5MfMmvQviSfZJckdJoJNWfei8TwTnzBQyUaLQXVCATZy4D54ac3oY61QFwYuuudpZEW5HjtEakqN6RMFzwW75Dre",
+        "timestamp": 1790476536
+      },
+      "mint": "FvYjAkbhhzpp3Rk3BoSLVKjYpi2zJ4baAS26R9hupump",
+      "rank": 87,
+      "request_identity": "52c16f73921c66f8b0449d68388b661f4c791e47d74e2953e709e845232079e5",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790476536,
+        "time_to": 1790480136
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "4EoymRVynrcJ29fDpG7ZL6NZgVAzqxBqdv2o9a1Vpe5DfuYGkTYuQzRFWdBKfdCFdjhhJViybaEqc7t8dRpKUBDi",
+        "timestamp": 1790472988
+      },
+      "mint": "7KG3FFuwqs21v2CHL2UEZtrcZpH3tm676as6SEMdpump",
+      "rank": 88,
+      "request_identity": "cea2b9fc79fbba2a27beb395a070ed2bc1d51e6c00f2bf55a859c159c08b9c3c",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790472988,
+        "time_to": 1790476588
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "5p5bU7yQr5UQWRDBRrZuToxqfkBbX1GkmcUegcjee3P5YSfMkGnahsro5bGs2H6Tv8hKcrdvUSiTwr9NqZMPi2CS",
+        "timestamp": 1790469775
+      },
+      "mint": "BULbQ4j9WU6r63idgdQVsjt6i3nKSTXgyj7Qqcdpump",
+      "rank": 89,
+      "request_identity": "02a71886ac23e035d11e890e50a256f8e7caebd8faefc2f942896bbdfc176fcf",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790469775,
+        "time_to": 1790473375
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "MzVCJYuA7kcdR7v5LC66tHeGnx8YxN91LQGsc6pQiNS8DHN3Q4YZ3DhpbQUk8NB9sFbLhVG7evrStxiEnqLWt7G",
+        "timestamp": 1790468431
+      },
+      "mint": "AoMGtae9dteY2XteudmTa9W4uZLfuDVHXxcduJE1pump",
+      "rank": 90,
+      "request_identity": "1ef3af8655bbd312eca738a570cbdd25f0c41cf3f3b4f25395d19724d87e4fe4",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790468431,
+        "time_to": 1790472031
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "3Pf2S7dmhQQ9nNrTmqXJfMbM7SaSwYrwQD8tcPS1BenJQpMVYSWuaABEpJ4f7hZyGnhECyZb9U2EVwtqfLVqySM4",
+        "timestamp": 1790460826
+      },
+      "mint": "3B84bg2kvqzPLhczcXoALdxUBeUs6GU823rd5hP8pump",
+      "rank": 91,
+      "request_identity": "0cb2e1a42844e7807879294dc6ba64b77623881ea5c77653df14b7d55b206cec",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790460826,
+        "time_to": 1790464426
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "22bConWUGTkGR27zdednGCoSZ4X6oM8x8Y15xRjr4Q3NddtfkNvjMcANsQXGVE3WvqFFZweUcPd6czVN1x5j8SxF",
+        "timestamp": 1790459720
+      },
+      "mint": "4dBsoKgo7XypAQjKH8MYiddJ2VEhdK9kJpLYHJ6zpump",
+      "rank": 92,
+      "request_identity": "2adfb4ba7a4676162bb5ab50c669838bb8c401d9a2fc38dd5fcd6690fd7af5e1",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790459720,
+        "time_to": 1790463320
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "KiAVrepRzt5HE6Y6YPrYpdm9gK8E1W4VASxyZ3ak4ggwimHwjpfpv8m1X6k412A52gUQeDGJrQWvNoyhq5Jf5gg",
+        "timestamp": 1790442704
+      },
+      "mint": "BRN8PquhscNmq7kvarpFtoup7cZVxh65RQcXRyPppump",
+      "rank": 93,
+      "request_identity": "fb9c99536875606ab2b21f1ddf505adcc7299f4db094e36fefac4a9598f9438a",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790442704,
+        "time_to": 1790446304
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "3HT2jMHNreVETkzpS6Wbpgo9gqP7CRYN6NgNSJgFE7A2FHv3yFMpPRTGT7QHKqwDLRqaQu8NibS9y8GWjVgxPFu9",
+        "timestamp": 1790440908
+      },
+      "mint": "Gs8f8yPJbkBmwU1QqwNrdSoC5XQWqJs5kCk74YmKpump",
+      "rank": 94,
+      "request_identity": "aa67261cae3392b30052ffc5c571c1a5e3bb6059853cd56c85a9bc01842006dd",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790440908,
+        "time_to": 1790444508
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "3hAcFjoK9BnFBF7QyCtQNTmRgXhVeXKhMedinpsvZVqCrVrN8pMtPiwTWxucWLZPTDBGrFF7fvV8p9NwBxbHiSYP",
+        "timestamp": 1790437622
+      },
+      "mint": "Fdn88g1A3kDY5sys2pY7jMNNKHs49AkpBWTiGdj9pump",
+      "rank": 95,
+      "request_identity": "487f7f875f4cea81e599df54999a33389fadfffddaffc68cbf28fad98966ba54",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790437622,
+        "time_to": 1790441222
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "CFtT61HWNWzyHcpntHmpTkewTbG8x7jNn9JjjdtjGLEnoo7YHRkGWVAnU4V9EVWNbp9gLh9XUMetYSo7BPSzAmP",
+        "timestamp": 1790436190
+      },
+      "mint": "2GMowfFBuhy6ZxHMdKiC8fTKZFQhnCnmC5x27bTSpump",
+      "rank": 96,
+      "request_identity": "1732060ad4fc6fe502b1e088139584273c138dee323e6735578461990ea9caef",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790436190,
+        "time_to": 1790439790
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "25s4rUceZUDhoziMginuTYBRSfBKWNWZbdutPU31biRnRvYrjDzxLZuvrH3qVwSp5aUZZ5Rch9VHGbxeaXYjstmT",
+        "timestamp": 1790432833
+      },
+      "mint": "9p1mjutXmGgb3X7XZWBVHreMPWRzFG5odELTG7dapump",
+      "rank": 97,
+      "request_identity": "dc7fcb469edc8d0c46c7027e3a7e5d98ca406d1e9572398e0cc3919fc8e883e2",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790432833,
+        "time_to": 1790436433
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "5PkWK33btFXoRmiF2G5XTt132rUAYCMe1vN8pRyQDxRXJz9hhpNNdmsEF3e1Z2pcQabatVVQUngiU8KhXDTxNFh9",
+        "timestamp": 1790431518
+      },
+      "mint": "EtD32XKDQiwC7uBSvuqWNx7FUcHYCejah1vj2M5Upump",
+      "rank": 98,
+      "request_identity": "421357df0bb7f2b47abd8f9fac8c149e56c4584b25a6250fb446852f6bbb74c8",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790431518,
+        "time_to": 1790435118
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "4Wbctwg28oGNdK7KvmjbeDET5ag8NSXXHh7YLjZA46wAhLBJPycubWCZVRcq9mLwnahEN3jDXi2jPhjpM7q1dwne",
+        "timestamp": 1790430807
+      },
+      "mint": "FMjZpnuNAtkDAyHg5SKBb6Pc3gbJQ7qHx47JF35mpump",
+      "rank": 99,
+      "request_identity": "712465aaa03fa1fbe6b49ef7881e79e83fa5cd67569d46e2b7e824d998aabbe3",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790430807,
+        "time_to": 1790434407
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "2WcQucQjEjsNMLuxoo5FQ9W8vAiyaBDDso6wGU3AUXPXS2w4d3BG1JwByPMbe2CNxxhytAp5mZZZ9zwY1dYdukYq",
+        "timestamp": 1790429393
+      },
+      "mint": "G9hMFbN4akTeh9ojDRr3e4NUWGoZhkfX38fvLUB2pump",
+      "rank": 100,
+      "request_identity": "d45d5478a43e04729faaf47fc7d3aaccb723a08bcf0f0c3da9fcee66d1a0f3ab",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790429393,
+        "time_to": 1790432993
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "5vM95a3ztTdoLgeRrn3JwZ94k6Z2Qmk3xCyJNFsmcqjse2wX96XACGvHAUE4yhKZBd3AmiKVpx8PYRMeUZpRMzaH",
+        "timestamp": 1790428401
+      },
+      "mint": "HwX9f6NUQypHQ4S4U8UDKT6ECvbKABkrnsneFec5pump",
+      "rank": 101,
+      "request_identity": "36e365f1982b174360bfc34493c2a5afe421a44dc02a17eb6976fb1203df1d89",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790428401,
+        "time_to": 1790432001
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "2thVjUKMYi9kAn3NLNjZVMoMb7NiPxDYRHTPtx7G4SkvyG6pByciMH65AELGQkRCUZZnMfRpUcyvcjFkP8cx3x9V",
+        "timestamp": 1790425939
+      },
+      "mint": "FcPXx5qUKBxsyGFV3d4t9WvG7d5sKJYUFKoJq4mypump",
+      "rank": 102,
+      "request_identity": "151d4452ee17a9f0e9fd210c88a380ed9882764ad77ad9579df745ff59c3bd4c",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790425939,
+        "time_to": 1790429539
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "nGsDJAiW2KM8hGFi8pfH6pKnafncYrYpnfXSZK2cPCVPjc5L4WADMqbP61XnUt3FtHU1vCzYZ6wFgHMyvvzB5kt",
+        "timestamp": 1790393961
+      },
+      "mint": "Avj4EGfqEsMt8ZrDtFJXWj5mtx2xJ6r64zdBZcJppump",
+      "rank": 103,
+      "request_identity": "35fe741bbc81e1f0f2967a50417b20b5e2ec5a2f1ba8ae45aced6291d72cb19d",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790393961,
+        "time_to": 1790397561
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "39KA2uwnUGvrhwJ2FRZGxMA3bELNuvsQG3buxWEcQCko1QpjDBPTTNN6dr1qvWnv6DFGMVt5GrCoa7eNxAnVtpDW",
+        "timestamp": 1790388510
+      },
+      "mint": "DMNtou2ANqxevM4UngRzTdxVrRgfR1ZLzJyCT5sCpump",
+      "rank": 104,
+      "request_identity": "301aa7c28697471c48613392488b9e02ac7be6a2a94c63bee088f91b5f6de18e",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790388510,
+        "time_to": 1790392110
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "2ixkULuWp8AzourHqkSVtPY34jJNmzET6dheU3Nhmtepu51mpr7gNXxx1etfgAvniXAyeb6xDutpqmVPo1heBh7n",
+        "timestamp": 1790387563
+      },
+      "mint": "BfmahFa45CrMJf45yzkmUgREr9CQubfcowtnuUncpump",
+      "rank": 105,
+      "request_identity": "205b19ba4cc3790a1b55bbc187c4045112458bfb6602b0206cf1642d6b371dbf",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790387563,
+        "time_to": 1790391163
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "Xg64vauvAbpMNbqJo6xkNkGhGghxw9Dk6qDmBwAqcaE8rnR5gLczrCJWNjmfAd4PajvfD2mftinZYATQzLv1mDo",
+        "timestamp": 1790387248
+      },
+      "mint": "ETD6SpD4XiRYKq3uDQ5uKbkFLjyMtYH7X6hrHtHZpump",
+      "rank": 106,
+      "request_identity": "a691c82f4284f6005780b43aec2694499d9dc369dacfaa9b3544bb9b9fba8b9f",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790387248,
+        "time_to": 1790390848
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "4CK7PDVqtfG6h2WEAs8SkqGWceEXw8wrQudvZrRULqupBZDmwjKxiro7TqmvwzouJAV8EiPFoBt7QcCABNsWdVva",
+        "timestamp": 1790379704
+      },
+      "mint": "B9C7Ehd2Ute3fuDQSzbv6QzECHUsEp1yqQ795sTdpump",
+      "rank": 107,
+      "request_identity": "2c58a0901d67abc6119b291fe76c4c782b2c415202f2286e994d0033823bb8e6",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790379704,
+        "time_to": 1790383304
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "4jYwpkKgNVsiW7mW5ZYs3MVsr1DqQvU47B4wQDBemoX2gWxMZmcKW4JgsW2eXLM1ZXJZZmpGyweSgFPCDeraGLTh",
+        "timestamp": 1790378840
+      },
+      "mint": "2eGwstcrSRY2TzRWwe5T58giqURuSdPxvLaHHhZtpump",
+      "rank": 108,
+      "request_identity": "02d8f746b3c4b42c872db80413fbb20d33f5ac7d5e504eee5c77a3857f82b04d",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790378840,
+        "time_to": 1790382440
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "5dUbxoR2hkBNxfWzhEDUsUhPnetRo6Ntrbaiz6ySWJEBN8U3VgQZiZx4AKGLVpQJRc4E5HjQUzE59cJ3ooGrG6cV",
+        "timestamp": 1790357411
+      },
+      "mint": "3xfsfopm2xR89PFbsGGBhT1BfJqrbcoN8Mpxcp1jpump",
+      "rank": 109,
+      "request_identity": "67269eb815899778691a4f993144a395863455a32bfb1cf134bc6fcb8155abe4",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790357411,
+        "time_to": 1790361011
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "4soFPuiArNrHqzWC196AWsFPpV1NVcDD1pQvY7cq1sYm7dMQykRjQZE8J8TERxU2B19af5yavpV8B8pXvES1m75C",
+        "timestamp": 1790281394
+      },
+      "mint": "64xwhN5Rshirb1rB6KAC5Qw26zhYhPEXGPxLkpNmpump",
+      "rank": 110,
+      "request_identity": "f74bdc3e236321f6113bb90d4261c1ac55b4746d9dbf5dc84fca93912a25ce30",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790281394,
+        "time_to": 1790284994
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "4hP2URthp8mcyttHEGxW4VaC6aefSR6XVnUDjTUrdjCQF1duzTWAYnE2HXiU8ZF91T3ongv54WuUGkZ3UUjZ4hLa",
+        "timestamp": 1790279057
+      },
+      "mint": "B5pXX5vFbMNuX2aLNq5KArX62dwqsMvb2FNhLoiRpump",
+      "rank": 111,
+      "request_identity": "c950c7920f51bd764604810fd23f0c45e53750975394d7bf9df10215b1ce6520",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790279057,
+        "time_to": 1790282657
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "JT8LYUhqPDCAjGymoVNv1KknCpCknNR4uHsawKrrgNptipMcutcLfmQySdhLMG9v8ep5xs736fscvc8mfJYzjd5",
+        "timestamp": 1790277917
+      },
+      "mint": "D8aHDLTQtDqMLAghU6KKVGtgFEDvJU1NAkn6vbKVpump",
+      "rank": 112,
+      "request_identity": "fac95bc2e29124f3b38f43567883d1b1051c2cd0eabd9fbc20bd05c74e58d2a0",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790277917,
+        "time_to": 1790281517
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "5sXnCq7txvbn3E7xdd3b4WgvENbgJsqmheXhfiZM7YmPrztSKqj3zHbFmAWmxHJKLpkRycVofXo5AyuJKncfkmRn",
+        "timestamp": 1790276450
+      },
+      "mint": "Gv5fG8pWw7RAxjiYzyxWMbwSg38iYKuXKwCN4Huopump",
+      "rank": 113,
+      "request_identity": "5ec2c8de05607e4eb23d7e0a6588b94c3a4169fa89813755b21a0eceecc65055",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790276450,
+        "time_to": 1790280050
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "47SahTxGHYDGTmLrdspSBXFEDoc83xfKBcBCrnhQXiuaPVEQBPAHmajCku7BLEnkah4AUu69z99Dkn4eUfHmkDbj",
+        "timestamp": 1790265456
+      },
+      "mint": "4aN426Gw1h2Kn5GFnJ62Fr43MjNY9TD8JH5dj96Wpump",
+      "rank": 114,
+      "request_identity": "02a3427b72c9d30f77552dccd2d7eb51f90fce7e588247839139b408dfe6740d",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790265456,
+        "time_to": 1790269056
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "D6u27HvvWiFTqxntC3GWCd3KtfNouFa3DQy1WNqr2RxMvQj4GLs63EpNSF76E7Qh7K4p3M87WjTXANddxSXooEs",
+        "timestamp": 1790257549
+      },
+      "mint": "HNxwU4tZ7urNGnjbjUc7f1jXUfqwhNC3VaAUJhpPpump",
+      "rank": 115,
+      "request_identity": "77a71d57012212e72b6af7aff725a48d011d48345fa167740628e3c2fc6db9c9",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790257549,
+        "time_to": 1790261149
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "3XLGyZ8AuHkeQHDxBC6mPGqW6gA8SQDdENSUdnTE2FZ3CH1KQha8t4BS4yx7dRvBcnrFWsn31rHA2vhAFFj3q1xt",
+        "timestamp": 1790255849
+      },
+      "mint": "8K5tbzsAJx1JYj9yvZdtJbFqbf1A3uKGejpw59wNpump",
+      "rank": 116,
+      "request_identity": "69c6015e0ffb7aae7d63ee729909f87161fcca6ca3b1262f2102e20972e2ccac",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790255849,
+        "time_to": 1790259449
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "4XoyhSmHd3dfJfdeoxWKrd1AvM3eqEd1AswNRPWjybdkNALjn8ANfsWdrVpBJCqhqM4UUYoeRMHjJo6w8UoJExUF",
+        "timestamp": 1790254227
+      },
+      "mint": "2RDV1zyUpJ9RG9Q4aqoB5gSHrT6goM149b95ktCTpump",
+      "rank": 117,
+      "request_identity": "630fc3f29a65e56a1a2d04719e1839f5a20368f34a95457b8610ee4b88283b80",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790254227,
+        "time_to": 1790257827
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "2UZS1tEbgSjuECqRgqmbsq79b2npXy2h3pWT2dxBKNKxKTKSNcgk8B115qprUw9b7REBL2NqV6svTuf7p7sZYiU9",
+        "timestamp": 1790204603
+      },
+      "mint": "4JsLM7iY8R87kjdgHADjxRJYG8HgoNHa2VrVxCDvpump",
+      "rank": 118,
+      "request_identity": "bdadb8245a011efd3e5ef795207e07728a965859feae415b6e8d71a6c849f065",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790204603,
+        "time_to": 1790208203
+      }
+    },
+    {
+      "anchor": {
+        "class": "CREATION_TIME_ANCHORED_OBSERVATION",
+        "provenance": "4dSZ9x9dtfBv4JVnVFTVRwmxhLuBXsBy6r6Xkxcn6R8EniEeTyn9YczajtjGKNXgNqG1xYkKzWpKAHv6J6ttUQDC",
+        "timestamp": 1790194677
+      },
+      "mint": "FDumYKfbqDnMxWCa9N2eW1Y2wGUiPU9ci6rb22pEpump",
+      "rank": 119,
+      "request_identity": "dc3677a737aec737be2e45b4465e89e1ae4b6b9e3e2e87734732414aecf7b1e7",
+      "requested_window": {
+        "interval": "1m",
+        "time_from": 1790194677,
+        "time_to": 1790198277
+      }
+    }
+  ],
+  "schema": "dev014.frozen-historical-acquisition-manifest.v1",
+  "version": 1
+}

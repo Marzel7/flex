@@ -238,6 +238,23 @@ class HistoricalBackfillController:
                     planned.append({"priority": 3, "rank": rank, "mint": mint, "request": _request(mint, anchor["timestamp"], "DEV014_HISTORICAL_CONTINUATION"), "anchor": anchor, "kind": "HISTORICAL", "entry_mc_usd": entry_mc})
                     continue
             planned.append({"priority": 3, "rank": rank, "mint": mint, "request": None, "anchor": {"class": "NO_QUALIFIED_ENTRY_OR_OBSERVED_PRICE_ANCHOR", "timestamp": None, "provenance": None}, "kind": "HISTORICAL", "deferred_reason": "No qualified Entry anchor or separately qualified observed-price anchor is retained."})
+        # A qualified creation timestamp is sufficient for non-canonical
+        # historical observation.  Preserve every existing qualified Entry or
+        # observed-price request unchanged; only formerly deferred records get
+        # a distinct identity namespace and research-only anchor.
+        for item in planned:
+            if item["request"] is not None:
+                continue
+            creation = launches.get(item["mint"], {}).get("creation", {})
+            timestamp = creation.get("timestamp")
+            if (creation.get("chronology_status") != "QUALIFIED_CREATION_TIMESTAMP"
+                    or not isinstance(timestamp, int) or timestamp <= 0):
+                continue
+            item["anchor"] = {"class": "CREATION_TIME_ANCHORED_OBSERVATION", "timestamp": timestamp,
+                              "provenance": creation.get("signature")}
+            item["request"] = _request(item["mint"], timestamp, "DEV014_CREATION_TIME_ANCHORED_OBSERVATION")
+            item["research_class"] = "CREATION_TIME_ANCHORED_OBSERVATION"
+            item.pop("deferred_reason", None)
         return planned
 
     def next_work(self) -> dict[str, Any] | None:

@@ -20,6 +20,27 @@ MAX_COHORT_BYTES = 100 * 1024 * 1024
 MIN_FREE_BYTES = 4 * 1024 * 1024 * 1024
 
 
+def _creation_time_observation(*, timestamp: int, rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Compact, non-Entry-relative extrema for a creation-anchored window."""
+    first = rows[0]
+    candles = [{"timestamp": int(row["timestamp"]), "low_mc_usd": float(row["low_mc_usd"])} for row in rows]
+    minima = observed_minima(entry_timestamp=timestamp, entry_mc_usd=float(first["open_mc_usd"]), candles=candles,
+                             provider_provenance="BIRDEYE_1M_MCAP")["results"]
+    for window, result in minima.items():
+        eligible = [row for row in rows if timestamp <= int(row["timestamp"]) < timestamp + int(window)]
+        if eligible:
+            maximum = max(eligible, key=lambda row: (float(row["high_mc_usd"]), -int(row["timestamp"])))
+            result["observed_maximum_mc_usd"] = float(maximum["high_mc_usd"])
+            result["observed_maximum_timestamp"] = int(maximum["timestamp"])
+        else:
+            result["observed_maximum_mc_usd"] = None
+            result["observed_maximum_timestamp"] = None
+        result.pop("observed_drawdown_percent", None)
+    return {"anchor_class": "CREATION_TIME_ANCHORED_OBSERVATION", "creation_timestamp": timestamp,
+            "first_observed_mc_usd": float(first["open_mc_usd"]), "first_observed_timestamp": int(first["timestamp"]),
+            "provider_provenance": "BIRDEYE_1M_MCAP", "results": minima}
+
+
 class BindingDenied(RuntimeError): pass
 
 class CohortStorageGuard:
@@ -93,6 +114,9 @@ class HistoricalExecutionBinding:
         elif anchor.get("class") == "OBSERVED_PRICE_ANCHOR":
             if not isinstance(anchor.get("source"), str) or not anchor["source"]:
                 raise BindingDenied("EVIDENCE_READINESS_OBSERVED_ANCHOR_INVALID")
+        elif anchor.get("class") == "CREATION_TIME_ANCHORED_OBSERVATION":
+            if not isinstance(timestamp, int) or timestamp <= 0:
+                raise BindingDenied("EVIDENCE_READINESS_CREATION_TIMESTAMP_UNAVAILABLE")
         else:
             raise BindingDenied("EVIDENCE_READINESS_ANCHOR_CLASS_INVALID")
         return request
@@ -180,6 +204,8 @@ class HistoricalExecutionBinding:
             if item["anchor"]["class"] == "QUALIFIED_ENTRY_ANCHOR":
                 # Entry price is intentionally supplied by the frozen item, never invented here.
                 evidence["entry_relative_observed_minima"] = observed_minima(entry_timestamp=item["anchor"]["timestamp"], entry_mc_usd=float(item["entry_mc_usd"]), candles=candles, provider_provenance="BIRDEYE_1M_MCAP")["results"]
+            elif item["anchor"]["class"] == "CREATION_TIME_ANCHORED_OBSERVATION":
+                evidence["creation_time_anchored_observation"] = _creation_time_observation(timestamp=item["anchor"]["timestamp"], rows=rows)
             else: evidence["observed_price_relative_extrema"] = observed_minima(entry_timestamp=item["anchor"]["timestamp"], entry_mc_usd=float(rows[0]["open_mc_usd"]), candles=candles, provider_provenance="BIRDEYE_1M_MCAP")["results"]
             evidence["normalization_status"] = "NORMALIZED"; evidence["failure"] = None; evidence["returned_candle_count"] = len(rows)
         evidence["evidence_identity"] = _digest({k:v for k,v in evidence.items() if k != "state"})

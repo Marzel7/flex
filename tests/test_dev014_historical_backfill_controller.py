@@ -48,8 +48,9 @@ def test_later_qualified_entry_anchor_rejects_nonfinite_entry_mc(tmp_path):
     launch = next(x for x in subject.population["launches"] if x["mint"] == "HPHkPvCdGjBV5kaYT4ZeV1Rc27fHMN4Qr4YuG2vzpump")
     launch["evidence"]["opening"]["entry_mc_usd"] = float("nan")
     rank_53 = next(item for item in subject.work() if item["rank"] == 53)
-    assert rank_53["request"] is None
-    assert rank_53["anchor"]["class"] == "NO_QUALIFIED_ENTRY_OR_OBSERVED_PRICE_ANCHOR"
+    assert rank_53["request"] is not None
+    assert rank_53["anchor"]["class"] == "CREATION_TIME_ANCHORED_OBSERVATION"
+    assert rank_53["anchor"]["class"] == "CREATION_TIME_ANCHORED_OBSERVATION"
 
 
 def test_later_qualified_entry_anchor_rejects_mismatched_provenance(tmp_path):
@@ -79,7 +80,7 @@ def test_frozen_rank_71_90_extension_preserves_order_mints_and_anchor_projection
     qualified = [71, 72, 74, 75, 77, 78, 79, 80, 82, 84, 86]
     deferred = [73, 76, 81, 83, 85, 87, 88, 89, 90]
     assert all(work[rank]["request"] and work[rank]["anchor"]["class"] == "QUALIFIED_ENTRY_ANCHOR" and work[rank]["entry_mc_usd"] > 0 for rank in qualified)
-    assert all(work[rank]["request"] is None and work[rank]["anchor"]["class"] == "NO_QUALIFIED_ENTRY_OR_OBSERVED_PRICE_ANCHOR" for rank in deferred)
+    assert all(work[rank]["request"] is not None and work[rank]["anchor"]["class"] == "CREATION_TIME_ANCHORED_OBSERVATION" for rank in deferred)
     assert work[71]["request"]["params"]["time_to"] - work[71]["request"]["params"]["time_from"] == 3600
     assert work[71]["request"]["request_identity"] == next(item for item in subject.work() if item["rank"] == 71)["request"]["request_identity"]
 
@@ -89,8 +90,9 @@ def test_rank_71_invalid_entry_mc_is_deferred_before_any_admission(tmp_path):
     launch = next(x for x in subject.population["launches"] if x["mint"] == "8mnDxKCJUS59RzvesoYEk2ivtVhn5mBS2tmKj32ppump")
     launch["evidence"]["opening"]["entry_mc_usd"] = 0
     rank_71 = next(item for item in subject.work() if item["rank"] == 71)
-    assert rank_71["request"] is None
-    assert rank_71["anchor"]["class"] == "NO_QUALIFIED_ENTRY_OR_OBSERVED_PRICE_ANCHOR"
+    assert rank_71["request"] is not None
+    assert rank_71["anchor"]["class"] == "CREATION_TIME_ANCHORED_OBSERVATION"
+    assert rank_71["anchor"]["class"] == "CREATION_TIME_ANCHORED_OBSERVATION"
 
 
 def test_crash_safe_completed_identity_deduplicates_and_pause_resume(tmp_path):

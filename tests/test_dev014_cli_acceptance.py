@@ -173,11 +173,9 @@ def test_actual_cli_synthetic_clock_completes_all_frozen_eligible_identities(tmp
     spec = importlib.util.spec_from_file_location("operator", CLI)
     op = importlib.util.module_from_spec(spec); assert spec.loader; spec.loader.exec_module(op)
     controller = HistoricalBackfillController(root / "source.json", op._load(op.RECON), op._load(op.POP))
-    ranks = ",".join(str(item["rank"]) for item in controller.work() if item.get("request"))
-    # The immutable controller currently exposes 37 eligible identities.  Do
-    # not manufacture the requested 50th identity from the broader ranked
-    # population; qualification reports the shortfall as a frozen-input hold.
-    assert len(ranks.split(",")) == 37
+    eligible = [str(item["rank"]) for item in controller.work() if item.get("request")]
+    assert len(eligible) == 561
+    ranks = ",".join(eligible[:37])
     run = _run(_command(root, ranks=ranks, max_requests=37, synthetic_clock=True,
                         max_runtime_seconds=3600))
     assert run.returncode == 0, run.stderr

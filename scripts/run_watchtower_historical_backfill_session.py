@@ -2,6 +2,7 @@
 """Explicit bounded DEV-014 historical-session operator; defaults to dry-run."""
 from __future__ import annotations
 import argparse, json, os, sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -72,14 +73,35 @@ def _execute_fixture(args: argparse.Namespace, manifest: dict[str, Any]) -> dict
         result = binding.execute(selected[0], health_gate=gate.check, admit=admission.admit, transport=transport)
     return {'status':'FIXTURE_COMPLETED','request_count':len(calls),'completed_identity':result['request_identity'],
             'live_contention_limitation':'shared budget compliance does not guarantee zero contention with direct LIVE callers'}
+
+def _execute_production(args: argparse.Namespace, manifest: dict[str, Any]) -> dict[str, Any]:
+    """One explicit bounded session; this function never schedules or retries."""
+    if not args.supervisor_config or not args.queue_root:
+        raise SystemExit('SUPERVISOR_CONFIG_AND_QUEUE_ROOT_REQUIRED')
+    queue_root = _safe(args.queue_root, protected=(ROOT/'database', ROOT/'.dev_runtime'))
+    controller = HistoricalBackfillController(manifest['state_path'], _load(RECON), _load(POP))
+    binding = HistoricalExecutionBinding(manifest['binding_path'])
+    authority = resolve_runtime_authority(args.supervisor_config)
+    gate = Batch4RuntimeGate(authority)
+    admission = HistoricalForensicsBudgetAdmission(queue_root)
+    transport = BirdeyeProductionBinding()
+    selected = [item for item in controller.work() if item['rank'] in set(manifest['selected_ranks'])]
+    started, completed = time.monotonic(), []
+    with controller:
+        binding.recover()
+        for item in selected[:args.max_requests]:
+            if time.monotonic()-started >= args.max_runtime_seconds: break
+            completed.append(binding.execute(item, health_gate=gate.check, admit=admission.admit, transport=transport)['request_identity'])
+    return {'status':'COMPLETED','request_count':len(completed),'completed_identities':completed,
+            'live_contention_limitation':'shared budget compliance does not guarantee zero contention with direct LIVE callers'}
 def main()->int:
-    p=argparse.ArgumentParser(); p.add_argument('--mode',choices=('dry-run','execute'),default='dry-run'); p.add_argument('--ranks',required=True); p.add_argument('--state-dir',type=Path,required=True); p.add_argument('--evidence-dir',type=Path,required=True); p.add_argument('--max-requests',type=int,required=True); p.add_argument('--max-runtime-seconds',type=int,required=True); p.add_argument('--max-evidence-bytes',type=int,required=True); p.add_argument('--max-consecutive-failures',type=int,required=True); p.add_argument('--max-health-failures',type=int,required=True); p.add_argument('--live-opt-in',action='store_true'); p.add_argument('--fixture-fake-live',action='store_true'); a=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('--mode',choices=('dry-run','execute'),default='dry-run'); p.add_argument('--ranks',required=True); p.add_argument('--state-dir',type=Path,required=True); p.add_argument('--evidence-dir',type=Path,required=True); p.add_argument('--max-requests',type=int,required=True); p.add_argument('--max-runtime-seconds',type=int,required=True); p.add_argument('--max-evidence-bytes',type=int,required=True); p.add_argument('--max-consecutive-failures',type=int,required=True); p.add_argument('--max-health-failures',type=int,required=True); p.add_argument('--live-opt-in',action='store_true'); p.add_argument('--fixture-fake-live',action='store_true'); p.add_argument('--supervisor-config',type=Path); p.add_argument('--queue-root',type=Path); a=p.parse_args()
     manifest=plan(a)
     if a.fixture_fake_live:
         if a.mode!='execute': raise SystemExit('FIXTURE_REQUIRES_EXECUTE_MODE')
         print(json.dumps(_execute_fixture(a,manifest),sort_keys=True)); return 0
     if a.mode=='execute':
         if not a.live_opt_in: raise SystemExit('EXPLICIT_LIVE_OPT_IN_REQUIRED')
-        raise SystemExit('LIVE_EXECUTION_REQUIRES_SEPARATE_RUNTIME_AUTHORIZATION')
+        print(json.dumps(_execute_production(a,manifest),sort_keys=True)); return 0
     print(json.dumps(manifest,sort_keys=True)); return 0
 if __name__=='__main__': raise SystemExit(main())

@@ -1,13 +1,13 @@
 {
   "dev014_bounded_historical_operator_scope_restore_20261010": {
-    "engineering_revision": "7df59802cbdb478e47dfe77d127f5914b91c5700 on codex/dev014-current-mc-freshness",
-    "status": "HOLD_SELECTOR_HAS_NO_DENIAL_OR_CRASH_SCENARIOS",
-    "finding": "DEV-014 scope is restored to the proven Batch 4 contract: no additional Current-MC or early-minimum predicates are required. A fixed --test-production-fixture selector routes through _execute_production for the one healthy path. Its CLI exposes no deterministic scenario, failure, budget, or crash selector. Although HistoricalExecutionBinding has library-level crash_at hooks, the actual CLI does not pass them through. The requested actual-CLI matrix cannot run from the approved selector without adding the missing fixed scenario cases.",
+    "engineering_revision": "f00debc8272fe5e0929eb250b29ae32b66d56ec0 on codex/dev014-current-mc-freshness",
+    "status": "PARTIAL_FIXED_SCENARIO_SELECTOR_MATRIX_INCOMPLETE",
+    "finding": "The fixed --test-production-fixture selector now accepts closed named scenarios and forwards fixed crash points to the existing HistoricalExecutionBinding. api-unhealthy was executed and real Batch4RuntimeGate denied before admission or transport. The remaining named budget cases, deterministic concurrency hold/release, and complete matrix assertions still require implementation and focused tests.",
     "tests": "pytest tests/test_watchtower_historical_executor.py tests/test_dev014_batch4_runtime_gate.py: 21 passed; actual operator --fixture-fake-live command: one normalized fake request completed through controller lock, durable journal, real Batch4RuntimeGate injected with local health/process/WAL/disk/checkpoint fixtures, HistoricalForensicsBudgetAdmission→MonitorQueue→DevProviderBudget against an isolated temporary ledger, and real BirdeyeProductionBinding injected with a synthetic credential and fake HTTP callable; provider calls=0; live budget debits=0; live DB/queue/runtime writes=0.",
     "storage": "Journal and compact evidence maximum single file=1,000,000 bytes; no raw provider retention; unbounded growth paths=0 for this correction.",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Provider-free source correction only; no executable runtime was deployed.",
-    "next_action": "AUTHORIZE_FIXED_NAMED_SELECTOR_SCENARIOS_AND_CRASH_POINTS_OR_PROVIDE_AN_EXISTING_CLI_TEST_MATRIX_COMMAND; THEN_RUN_THE_OPERATOR_MATRIX"
+    "next_action": "COMPLETE_FIXED_BUDGET_TOPOLOGY_CONCURRENCY_SCENARIOS_AND_RUN_ALL_ACTUAL_CLI_MATRIX_CASES"
   },
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,

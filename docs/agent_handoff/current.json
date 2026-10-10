@@ -1,7 +1,7 @@
 {
   "dev014_bounded_historical_operator_scope_restore_20261010": {
-    "engineering_revision": "333926e0646205d2fac3527250649c35f1547a7c on codex/dev014-current-mc-freshness; remote verified",
-    "status": "PASS_FIVE_RANK_CONTINUATION_COMPLETE",
+    "engineering_revision": "cb703d618af747e50100e7456919fcb3f92b9a54 on codex/dev014-current-mc-freshness; remote verified",
+    "status": "PASS_RANK50_RECONCILIATION_BATCH6_PLANNED",
     "finding": "Authorized live DEV-014 session ran under the qualified Batch4RuntimeGate. Ranks 22, 23, 24, and 26 completed compact normalized one-minute MCAP evidence. Rank 41 was durably ADMITTED/ATTEMPTED, then hit KeyError: entry_mc_usd when an Entry-anchor response entered observed_minima; recovery marked it OUTCOME_UNKNOWN. It was not retried. The remaining ranks 43, 46, 47, 48, and 50 were not started, preserving frozen order and no-retry semantics.",
     "tests": "pytest -q tests/test_dev014_historical_backfill_controller.py tests/test_dev014_historical_backfill_operator.py tests/test_dev014_historical_execution_binding.py tests/test_dev014_shared_birdeye_budget.py tests/test_dev014_batch4_runtime_gate.py tests/test_dev014_batch5_reconciliation.py tests/test_dev014_cli_acceptance.py: 39 passed, 0 failed. The subprocess matrix asserts frozen ten-rank selection, one shared-ledger debit for every crash selector, PENDING one-time recovered completion, OUTCOME_UNKNOWN for AFTER_BUDGET/ADMITTED/ATTEMPTED/RESPONSE, recovered COMPLETED for EVIDENCE, and one controller owner/one fake request/one journal record during held transport overlap. The subsequent invocation proves OS lock release.",
     "storage": "Journal and compact evidence maximum single file=1,000,000 bytes; test hold marker is a tiny single file; no raw provider retention; unbounded growth paths=0.",
@@ -14,6 +14,7 @@
     "continuation_allowlist": "43,46,47,48,50 only; exact frozen identities/windows/order preserved; max future requests=5; rank 41 remains OUTCOME_UNKNOWN and excluded.",
     "continuation_execution": "Ranks 43,46,47,48,50 completed exactly once, HTTP 200 each; rank 41 remains OUTCOME_UNKNOWN. Journal=25,267 bytes; no raw payload. Missing buckets: 46=60, 47=19, 50=22; 43/48=0. Postcheck API healthy/db ok/wal_warn false; heartbeats 1s/12s; WAL 469,712 bytes; disk 6,330,847,232 bytes.",
     "audit_continuation": "docs/audits/dev014_five_rank_continuation_20261010.v1.json",
+    "rank50_plan": "docs/audits/dev014_rank50_reconciliation_and_batch6_plan_20261010.v1.json; Batch 6 eligible=53,56,57,58,59,60; exclusions=51,52,54,55; rank 41 remains OUTCOME_UNKNOWN; scaled up-to-20 session has 14 currently eligible ranks within 51-70 and requires new authorization.",
     "next_action": "STOP: no Batch 6, no rank-41 retry, no further paid acquisition without new authorization."
   },
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,

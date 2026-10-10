@@ -18,6 +18,9 @@ from typing import Any, Callable
 
 from src.ops.watchtower_historical_budget import HistoricalForensicsBudgetAdmission
 
+ROOT = Path(__file__).resolve().parents[2]
+CHRONOLOGY_PROJECTION = ROOT / "docs/audits/dev014_watchtower_full_chronology_projection_20261010.v1.json"
+
 
 class ControllerDenied(RuntimeError):
     """A bounded historical session cannot continue safely."""
@@ -83,6 +86,27 @@ class HistoricalBackfillController:
         self.reconciliation = reconciliation
         self.population = population
         self._lock_fd: int | None = None
+
+    def _chronology(self) -> list[dict[str, Any]]:
+        """Load the immutable rank authority; never derive or repair ranks."""
+        try:
+            value = json.loads(CHRONOLOGY_PROJECTION.read_text())
+        except (OSError, ValueError) as exc:
+            raise ControllerDenied("CHRONOLOGY_PROJECTION_UNREADABLE") from exc
+        payload = {key: item for key, item in value.items() if key != "content_hash"}
+        if (value.get("population_identity") != "WATCHTOWER_FORENSIC_POPULATION_V2_20261009"
+                or value.get("content_hash") != _digest(payload)
+                or value.get("tie_breaker_contract") != "NO_EQUAL_QUALIFIED_CREATION_TIMESTAMPS; ties fail closed and remain unranked"):
+            raise ControllerDenied("CHRONOLOGY_PROJECTION_INVALID")
+        ranked = value.get("ranked")
+        if not isinstance(ranked, list) or len(ranked) != 597:
+            raise ControllerDenied("CHRONOLOGY_PROJECTION_INVALID")
+        ranks = [item.get("rank") for item in ranked]; mints = [item.get("mint") for item in ranked]; timestamps = [item.get("creation_timestamp") for item in ranked]
+        if (ranks != list(range(1, 598)) or len(set(mints)) != 597 or len(set(timestamps)) != 597
+                or any(not isinstance(timestamp, int) or timestamp <= 0 for timestamp in timestamps)
+                or any(timestamps[index] <= timestamps[index + 1] for index in range(596))):
+            raise ControllerDenied("CHRONOLOGY_PROJECTION_INVALID")
+        return ranked
 
     def acquire(self) -> None:
         self.state_path.parent.mkdir(parents=True, exist_ok=True)
@@ -192,6 +216,24 @@ class HistoricalBackfillController:
                     entry_mc = self._qualified_entry_mc(opening=opening, anchor=anchor)
                 except ControllerDenied:
                     opening = {}
+                else:
+                    planned.append({"priority": 3, "rank": rank, "mint": mint, "request": _request(mint, anchor["timestamp"], "DEV014_HISTORICAL_CONTINUATION"), "anchor": anchor, "kind": "HISTORICAL", "entry_mc_usd": entry_mc})
+                    continue
+            planned.append({"priority": 3, "rank": rank, "mint": mint, "request": None, "anchor": {"class": "NO_QUALIFIED_ENTRY_OR_OBSERVED_PRICE_ANCHOR", "timestamp": None, "provenance": None}, "kind": "HISTORICAL", "deferred_reason": "No qualified Entry anchor or separately qualified observed-price anchor is retained."})
+        # The immutable projection is authority only for later ranks; ranks
+        # 1-90 above retain their prior controller paths byte-for-byte.
+        for item in self._chronology()[90:]:
+            rank, mint = item["rank"], item["mint"]
+            launch = launches.get(mint)
+            if launch is None:
+                raise ControllerDenied("CHRONOLOGY_PROJECTION_MINT_UNAVAILABLE")
+            opening = launch.get("evidence", {}).get("opening", {})
+            if opening.get("status") == "QUALIFIED":
+                anchor = {"class": "QUALIFIED_ENTRY_ANCHOR", "timestamp": opening.get("entry_timestamp"), "provenance": opening.get("provenance")}
+                try:
+                    entry_mc = self._qualified_entry_mc(opening=opening, anchor=anchor)
+                except ControllerDenied:
+                    pass
                 else:
                     planned.append({"priority": 3, "rank": rank, "mint": mint, "request": _request(mint, anchor["timestamp"], "DEV014_HISTORICAL_CONTINUATION"), "anchor": anchor, "kind": "HISTORICAL", "entry_mc_usd": entry_mc})
                     continue

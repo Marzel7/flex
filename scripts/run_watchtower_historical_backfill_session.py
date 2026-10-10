@@ -26,7 +26,7 @@ def _safe(path:Path, *, protected:tuple[Path,...])->Path:
     return resolved
 POPULATION_IDENTITY='WATCHTOWER_FORENSIC_POPULATION_V2_20261009'
 MANIFEST_SCHEMA='dev014.frozen-historical-acquisition-manifest.v1'
-MAX_MANIFEST_REQUESTS=20
+MAX_MANIFEST_REQUESTS=50
 
 def _manifest_hash(value:dict[str,Any])->str:
     payload={key:item for key,item in value.items() if key!='content_hash'}

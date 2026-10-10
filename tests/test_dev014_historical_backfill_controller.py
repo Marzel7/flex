@@ -22,7 +22,7 @@ def test_catchup_precedes_recent_first_and_missing_anchors_are_persisted(tmp_pat
         state["completed_request_ids"] = [item["request"]["request_identity"] for item in subject.work()[:4]]
         subject._persist(state)
         assert subject.next_work()["rank"] == 41
-        assert [item["rank"] for item in subject.work()][-1] == 90
+        assert [item["rank"] for item in subject.work()][-1] == 597
 
 
 def test_qualified_entry_anchor_carries_matching_retained_entry_mc(tmp_path):

@@ -61,19 +61,28 @@ class HistoricalExecutionBinding:
         if not isinstance(request, dict): raise BindingDenied("REQUEST_REQUIRED")
         identity = request["request_identity"]; journal = self.recover()
         existing = next((x for x in journal["records"] if x.get("request_identity") == identity), None)
-        if existing: raise BindingDenied(f"REQUEST_NOT_RETRYABLE:{existing.get('state')}")
+        if existing and existing.get("state") != "PENDING":
+            raise BindingDenied(f"REQUEST_NOT_RETRYABLE:{existing.get('state')}")
         # Historical work shares the existing atomic budget but does not claim a
         # system-wide LIVE-priority guarantee.  A caller with an independently
         # qualified predicate may defer here; ordinary callers must pass None.
         if live_pending is not None and live_pending(): return {"status": "LIVE_PRIORITY_PENDING"}
         health_gate()
-        record = {"mint": item["mint"], "chronological_rank": item["rank"], "anchor": item["anchor"], "request_identity": identity,
-                  "requested_window": {"time_from": request["params"]["time_from"], "time_to": request["params"]["time_to"], "interval": "1m"}, "state": "PENDING"}
-        journal["records"].append(record); self._write(journal)
-        if crash_at == "PENDING": raise RuntimeError("SIMULATED_CRASH")
+        if existing:
+            # PENDING is the sole pre-admission state.  It is safe to resume
+            # because no budget admission has been attempted yet.
+            record = existing
+        else:
+            record = {"mint": item["mint"], "chronological_rank": item["rank"], "anchor": item["anchor"], "request_identity": identity,
+                      "requested_window": {"time_from": request["params"]["time_from"], "time_to": request["params"]["time_to"], "interval": "1m"}, "state": "PENDING"}
+            journal["records"].append(record); self._write(journal)
+            if crash_at == "PENDING": raise RuntimeError("SIMULATED_CRASH")
+        # Persist the conservative post-admission boundary before invoking
+        # the shared budget gate.  A process crash immediately after a debit
+        # can therefore never be mistaken for a retryable PENDING request.
+        record["state"] = "ADMITTED"; self._write(journal)
         admit(mint=item["mint"], request_identity=identity)
         if crash_at == "AFTER_BUDGET": raise RuntimeError("SIMULATED_CRASH")
-        record["state"] = "ADMITTED"; self._write(journal)
         if crash_at == "ADMITTED": raise RuntimeError("SIMULATED_CRASH")
         record["state"] = "ATTEMPTED"; self._write(journal)
         if crash_at == "ATTEMPTED": raise RuntimeError("SIMULATED_CRASH")

@@ -111,7 +111,7 @@ def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, An
     authority=RuntimeAuthority(config,'http://fixture/healthz',db,listener,(funding,resolution))
     lines=lambda:[f'1 0 Sat Oct 10 00:00:00 2026 /usr/local/bin/supervisord -c {config}','2 1 Sat Oct 10 00:00:00 2026 /usr/bin/python3 -m src.core.creator_funding_worker','3 1 Sat Oct 10 00:00:00 2026 /usr/bin/python3 -m src.core.creator_resolution_worker']
     scenario=args.test_scenario
-    if scenario not in {'healthy','api-unhealthy','wrong-api','funding-stale','resolution-stale','wal-over-limit','checkpoint-stalled','disk-low','duplicate-supervisor','duplicate-creator','critical-wal','global-budget-denied','mint-budget-denied','provider-backoff','malformed-ledger','unreadable-ledger','transport-failure'}: raise SystemExit('TEST_SCENARIO_INVALID')
+    if scenario not in {'healthy','api-unhealthy','wrong-api','funding-stale','resolution-stale','wal-over-limit','checkpoint-stalled','disk-low','duplicate-supervisor','duplicate-creator','critical-wal','global-budget-denied','mint-budget-denied','provider-backoff','malformed-ledger','unreadable-ledger','transport-failure','transport-hold'}: raise SystemExit('TEST_SCENARIO_INVALID')
     payload={'healthy':True,'db':'ok','wal_warn':False,'workers':{'creator-funding':{'stale':False,'age_s':1},'creator-resolution':{'stale':False,'age_s':1}}}
     if scenario=='api-unhealthy': payload['healthy']=False
     if scenario=='funding-stale': payload['workers']['creator-funding']={'stale':True,'age_s':999}
@@ -125,9 +125,18 @@ def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, An
     if scenario=='critical-wal': funding.write_text('CRITICAL_WAL_PINNED')
     gate=lambda _:Batch4RuntimeGate(authority,health_fetch=health,process_lines=lines,disk_usage=lambda _:Disk(),wal_size=lambda _:600*1024*1024 if scenario=='wal-over-limit' else 0)
     calls=[]
+    selected=[item for item in HistoricalBackfillController(manifest['state_path'],_load(RECON),_load(POP)).work() if item['rank'] in set(manifest['selected_ranks'])]
     class Transport:
         def __call__(self, request):
             calls.append(request)
+            if scenario=='transport-hold':
+                if args.test_hold_path is None: raise RuntimeError('TEST_HOLD_PATH_REQUIRED')
+                hold=Path(args.test_hold_path); hold.mkdir(parents=True,exist_ok=True)
+                (hold/'entered').write_text('transport-entered')
+                deadline=time.monotonic()+args.test_hold_seconds
+                while not (hold/'release').exists():
+                    if time.monotonic() >= deadline: raise RuntimeError('TEST_HOLD_TIMEOUT')
+                    time.sleep(0.01)
             if scenario=='transport-failure': raise RuntimeError('FIXTURE_TRANSPORT_FAILURE')
             return ProviderTransportOutcome(200,{'success':True,'data':{'items':[{'unixTime':request['request_parameters']['time_from'],'o':10,'h':11,'l':9,'c':10}]}},{})
     queue=Path(args.queue_root); queue.mkdir(parents=True,exist_ok=True)
@@ -136,10 +145,13 @@ def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, An
     if scenario=='mint-budget-denied': ledger.write_text(json.dumps({'calls':[{'at':int(time.time()),'mint':mint,'class':'x'} for _ in range(4)]}))
     if scenario=='provider-backoff': (queue/'provider_backoff.json').write_text(json.dumps({'next_eligible_at':int(time.time())+60}))
     if scenario=='malformed-ledger': ledger.write_text('{')
+    # The fixture still traverses the production composition, whose explicit
+    # supervisor argument is satisfied only by this isolated fixture file.
+    args.supervisor_config=config
     result=_execute_production(args,manifest,gate_factory=gate,transport_factory=Transport,authority_resolver=lambda _:authority,crash_at=args.test_crash_at)
     result.update({'fixture_transport_calls':len(calls),'credential_reads':0}); return result
 def main()->int:
-    p=argparse.ArgumentParser(); p.add_argument('--mode',choices=('dry-run','execute'),default='dry-run'); p.add_argument('--ranks',required=True); p.add_argument('--state-dir',type=Path,required=True); p.add_argument('--evidence-dir',type=Path,required=True); p.add_argument('--max-requests',type=int,required=True); p.add_argument('--max-runtime-seconds',type=int,required=True); p.add_argument('--max-evidence-bytes',type=int,required=True); p.add_argument('--max-consecutive-failures',type=int,required=True); p.add_argument('--max-health-failures',type=int,required=True); p.add_argument('--live-opt-in',action='store_true'); p.add_argument('--fixture-fake-live',action='store_true'); p.add_argument('--test-production-fixture',action='store_true'); p.add_argument('--test-scenario',default='healthy'); p.add_argument('--test-crash-at',choices=('PENDING','AFTER_BUDGET','ADMITTED','ATTEMPTED','RESPONSE','EVIDENCE')); p.add_argument('--supervisor-config',type=Path); p.add_argument('--queue-root',type=Path); a=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('--mode',choices=('dry-run','execute'),default='dry-run'); p.add_argument('--ranks',required=True); p.add_argument('--state-dir',type=Path,required=True); p.add_argument('--evidence-dir',type=Path,required=True); p.add_argument('--max-requests',type=int,required=True); p.add_argument('--max-runtime-seconds',type=int,required=True); p.add_argument('--max-evidence-bytes',type=int,required=True); p.add_argument('--max-consecutive-failures',type=int,required=True); p.add_argument('--max-health-failures',type=int,required=True); p.add_argument('--live-opt-in',action='store_true'); p.add_argument('--fixture-fake-live',action='store_true'); p.add_argument('--test-production-fixture',action='store_true'); p.add_argument('--test-scenario',default='healthy'); p.add_argument('--test-crash-at',choices=('PENDING','AFTER_BUDGET','ADMITTED','ATTEMPTED','RESPONSE','EVIDENCE')); p.add_argument('--test-hold-path',type=Path); p.add_argument('--test-hold-seconds',type=float,default=5.0); p.add_argument('--supervisor-config',type=Path); p.add_argument('--queue-root',type=Path); a=p.parse_args()
     manifest=plan(a)
     if a.fixture_fake_live:
         if a.mode!='execute': raise SystemExit('FIXTURE_REQUIRES_EXECUTE_MODE')

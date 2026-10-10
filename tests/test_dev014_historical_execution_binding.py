@@ -10,7 +10,7 @@ def item():
 def test_crash_after_admission_never_retries(tmp_path):
  b=HistoricalExecutionBinding(tmp_path/'journal.json'); calls=[]
  with pytest.raises(RuntimeError): b.execute(item(),health_gate=lambda:None,live_pending=lambda:False,admit=lambda **k:calls.append(k),transport=lambda _:None,crash_at='AFTER_BUDGET')
- assert b.recover()['records'][0]['state']=='PENDING' # admission persistence gap is conservatively unresolved only on operator reconciliation
+ assert b.recover()['records'][0]['state']=='OUTCOME_UNKNOWN'
  assert len(calls)==1
  with pytest.raises(BindingDenied): b.execute(item(),health_gate=lambda:None,live_pending=lambda:False,admit=lambda **_:None,transport=lambda _:None)
 def test_admitted_and_attempted_recover_unknown(tmp_path):

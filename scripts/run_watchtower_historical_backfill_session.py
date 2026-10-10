@@ -76,7 +76,8 @@ def _execute_fixture(args: argparse.Namespace, manifest: dict[str, Any]) -> dict
 
 def _execute_production(args: argparse.Namespace, manifest: dict[str, Any], *,
                         gate_factory=Batch4RuntimeGate, admission_factory=HistoricalForensicsBudgetAdmission,
-                        transport_factory=BirdeyeProductionBinding, authority_resolver=resolve_runtime_authority) -> dict[str, Any]:
+                        transport_factory=BirdeyeProductionBinding, authority_resolver=resolve_runtime_authority,
+                        crash_at: str | None = None) -> dict[str, Any]:
     """One explicit bounded session; this function never schedules or retries."""
     if not args.supervisor_config or not args.queue_root:
         raise SystemExit('SUPERVISOR_CONFIG_AND_QUEUE_ROOT_REQUIRED')
@@ -99,7 +100,7 @@ def _execute_production(args: argparse.Namespace, manifest: dict[str, Any], *,
         binding.recover()
         for item in selected[:args.max_requests]:
             if time.monotonic()-started >= args.max_runtime_seconds: break
-            completed.append(binding.execute(item, health_gate=gate.check, admit=admission.admit, transport=transport)['request_identity'])
+            completed.append(binding.execute(item, health_gate=gate.check, admit=admission.admit, transport=transport, crash_at=crash_at)['request_identity'])
     return {'status':'COMPLETED','request_count':len(completed),'completed_identities':completed,
             'live_contention_limitation':'shared budget compliance does not guarantee zero contention with direct LIVE callers'}
 def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, Any]) -> dict[str, Any]:
@@ -109,17 +110,27 @@ def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, An
     config.write_text('[fixture]'); db.touch(); listener.write_text('[WAL_CHECKPOINT] {"status":"ok","busy":0,"checkpointed_frames":1,"remaining_frames":0}\n'); funding.touch(); resolution.touch()
     authority=RuntimeAuthority(config,'http://fixture/healthz',db,listener,(funding,resolution))
     lines=lambda:[f'1 0 Sat Oct 10 00:00:00 2026 /usr/local/bin/supervisord -c {config}','2 1 Sat Oct 10 00:00:00 2026 /usr/bin/python3 -m src.core.creator_funding_worker','3 1 Sat Oct 10 00:00:00 2026 /usr/bin/python3 -m src.core.creator_resolution_worker']
-    health=lambda _:(200,{'healthy':True,'db':'ok','wal_warn':False,'workers':{'creator-funding':{'stale':False,'age_s':1},'creator-resolution':{'stale':False,'age_s':1}}})
+    scenario=args.test_scenario
+    if scenario not in {'healthy','api-unhealthy','wrong-api','funding-stale','resolution-stale','wal-over-limit','checkpoint-stalled','disk-low','duplicate-supervisor','duplicate-creator','critical-wal','global-budget-denied','mint-budget-denied','provider-backoff','malformed-ledger','unreadable-ledger','transport-failure'}: raise SystemExit('TEST_SCENARIO_INVALID')
+    payload={'healthy':True,'db':'ok','wal_warn':False,'workers':{'creator-funding':{'stale':False,'age_s':1},'creator-resolution':{'stale':False,'age_s':1}}}
+    if scenario=='api-unhealthy': payload['healthy']=False
+    if scenario=='funding-stale': payload['workers']['creator-funding']={'stale':True,'age_s':999}
+    if scenario=='resolution-stale': payload['workers']['creator-resolution']={'stale':True,'age_s':999}
+    health=lambda _:(200,payload)
+    if scenario=='checkpoint-stalled': listener.write_text('[WAL_CHECKPOINT] {"status":"ok","busy":1,"checkpointed_frames":0,"remaining_frames":1}\n')
     class Disk: free=5*1024*1024*1024
-    gate=lambda _:Batch4RuntimeGate(authority,health_fetch=health,process_lines=lines,disk_usage=lambda _:Disk(),wal_size=lambda _:0)
+    if scenario=='duplicate-supervisor': lines=lambda:lines()+[f'4 0 Sat Oct 10 00:00:00 2026 /usr/local/bin/supervisord -c {config}']
+    gate=lambda _:Batch4RuntimeGate(authority,health_fetch=health,process_lines=lines,disk_usage=lambda _:Disk(),wal_size=lambda _:600*1024*1024 if scenario=='wal-over-limit' else 0)
     calls=[]
     class Transport:
         def __call__(self, request):
-            calls.append(request); return ProviderTransportOutcome(200,{'success':True,'data':{'items':[{'unixTime':request['request_parameters']['time_from'],'o':10,'h':11,'l':9,'c':10}]}},{})
-    result=_execute_production(args,manifest,gate_factory=gate,transport_factory=Transport,authority_resolver=lambda _:authority)
+            calls.append(request)
+            if scenario=='transport-failure': raise RuntimeError('FIXTURE_TRANSPORT_FAILURE')
+            return ProviderTransportOutcome(200,{'success':True,'data':{'items':[{'unixTime':request['request_parameters']['time_from'],'o':10,'h':11,'l':9,'c':10}]}},{})
+    result=_execute_production(args,manifest,gate_factory=gate,transport_factory=Transport,authority_resolver=lambda _:authority,crash_at=args.test_crash_at)
     result.update({'fixture_transport_calls':len(calls),'credential_reads':0}); return result
 def main()->int:
-    p=argparse.ArgumentParser(); p.add_argument('--mode',choices=('dry-run','execute'),default='dry-run'); p.add_argument('--ranks',required=True); p.add_argument('--state-dir',type=Path,required=True); p.add_argument('--evidence-dir',type=Path,required=True); p.add_argument('--max-requests',type=int,required=True); p.add_argument('--max-runtime-seconds',type=int,required=True); p.add_argument('--max-evidence-bytes',type=int,required=True); p.add_argument('--max-consecutive-failures',type=int,required=True); p.add_argument('--max-health-failures',type=int,required=True); p.add_argument('--live-opt-in',action='store_true'); p.add_argument('--fixture-fake-live',action='store_true'); p.add_argument('--test-production-fixture',action='store_true'); p.add_argument('--supervisor-config',type=Path); p.add_argument('--queue-root',type=Path); a=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('--mode',choices=('dry-run','execute'),default='dry-run'); p.add_argument('--ranks',required=True); p.add_argument('--state-dir',type=Path,required=True); p.add_argument('--evidence-dir',type=Path,required=True); p.add_argument('--max-requests',type=int,required=True); p.add_argument('--max-runtime-seconds',type=int,required=True); p.add_argument('--max-evidence-bytes',type=int,required=True); p.add_argument('--max-consecutive-failures',type=int,required=True); p.add_argument('--max-health-failures',type=int,required=True); p.add_argument('--live-opt-in',action='store_true'); p.add_argument('--fixture-fake-live',action='store_true'); p.add_argument('--test-production-fixture',action='store_true'); p.add_argument('--test-scenario',default='healthy'); p.add_argument('--test-crash-at',choices=('PENDING','AFTER_BUDGET','ADMITTED','ATTEMPTED','RESPONSE','EVIDENCE')); p.add_argument('--supervisor-config',type=Path); p.add_argument('--queue-root',type=Path); a=p.parse_args()
     manifest=plan(a)
     if a.fixture_fake_live:
         if a.mode!='execute': raise SystemExit('FIXTURE_REQUIRES_EXECUTE_MODE')

@@ -28,7 +28,8 @@ def _manifest(root: Path, ranks: str) -> Path:
 
 def _command(root: Path, *, scenario: str = "healthy", crash_at: str | None = None,
              hold_path: Path | None = None, ranks: str = RANKS, max_requests: int = 1,
-             synthetic_clock: bool = False, max_runtime_seconds: int = 30) -> list[str]:
+             synthetic_clock: bool = False, synthetic_capacity: bool = False,
+             max_runtime_seconds: int = 30) -> list[str]:
     command = [sys.executable, str(CLI), "--mode", "execute", "--live-opt-in",
                "--test-production-fixture", "--test-scenario", scenario, "--manifest", str(_manifest(root,ranks)),
                "--state-dir", str(root / "state"), "--evidence-dir", str(root / "evidence"),
@@ -41,6 +42,8 @@ def _command(root: Path, *, scenario: str = "healthy", crash_at: str | None = No
         command.extend(("--test-hold-path", str(hold_path), "--test-hold-seconds", "10"))
     if synthetic_clock:
         command.append("--test-synthetic-clock")
+    if synthetic_capacity:
+        command.append("--test-synthetic-capacity-fixture")
     return command
 
 
@@ -174,3 +177,61 @@ def test_actual_cli_synthetic_clock_completes_all_frozen_eligible_identities(tmp
     rejected = _run(_command(tmp_path / "request-fifty-one", ranks=ranks, max_requests=51,
                             synthetic_clock=True, max_runtime_seconds=3600))
     assert rejected.returncode == 1 and "REQUEST_CAP_EXCEEDED" in rejected.stderr
+
+
+def test_actual_cli_synthetic_capacity_fixture_completes_fifty_with_two_rollovers(tmp_path: Path) -> None:
+    root = tmp_path / "synthetic-fifty"
+    run = _run(_command(root, max_requests=50, synthetic_clock=True, synthetic_capacity=True,
+                        max_runtime_seconds=3600))
+    assert run.returncode == 0, run.stderr
+    result = json.loads(run.stdout)
+    assert result["synthetic_fixture_only"] is True
+    assert result["request_count"] == result["fixture_transport_calls"] == 50
+    assert result["synthetic_waits"] == 2 and result["synthetic_time"] >= 1122
+    records = _journal(root)["records"]
+    assert len(records) == 50 and {r["state"] for r in records} == {"COMPLETED"}
+    assert {r["fixture_only"] for r in records} == {True}
+    assert len({r["request_identity"] for r in records}) == 50
+    assert len(_budget_calls(root)) <= 20
+    rejected = _run(_command(tmp_path / "synthetic-fifty-one", max_requests=51,
+                            synthetic_clock=True, synthetic_capacity=True, max_runtime_seconds=3600))
+    assert rejected.returncode == 1 and "REQUEST_CAP_EXCEEDED" in rejected.stderr
+
+
+@pytest.mark.parametrize("scenario,expected", (("wait-cancel", "CANCELLED"), ("wait-health-failure", "API_HEALTH_DENIED")))
+def test_actual_cli_wait_interruptions_are_provider_free(tmp_path: Path, scenario: str, expected: str) -> None:
+    run = _run(_command(tmp_path / scenario, scenario=scenario, max_requests=50,
+                        synthetic_clock=True, synthetic_capacity=True, max_runtime_seconds=3600))
+    if expected == "CANCELLED":
+        assert run.returncode == 0 and json.loads(run.stdout)["status"] == expected
+    else:
+        assert run.returncode == 1 and expected in run.stderr
+    journal = _journal(tmp_path / scenario)
+    # Request 21 has a durable PENDING identity, but its denied admission
+    # never debits capacity or reaches transport.
+    assert len(journal["records"]) == 21
+    assert len(_budget_calls(tmp_path / scenario)) == 20
+
+
+def test_actual_cli_wait_crash_recovers_without_duplicate_transport(tmp_path: Path) -> None:
+    root = tmp_path / "wait-crash"
+    crashed = _run(_command(root, scenario="wait-crash", max_requests=50,
+                            synthetic_clock=True, synthetic_capacity=True, max_runtime_seconds=3600))
+    assert crashed.returncode == 1 and "SIMULATED_WAIT_CRASH" in crashed.stderr
+    assert len(_journal(root)["records"]) == 21
+    restarted = _run(_command(root, max_requests=50, synthetic_clock=True,
+                              synthetic_capacity=True, max_runtime_seconds=3600))
+    assert restarted.returncode == 0, restarted.stderr
+    assert json.loads(restarted.stdout)["fixture_transport_calls"] == 30
+    assert len(_journal(root)["records"]) == 50
+
+
+def test_actual_cli_synthetic_wait_respects_session_deadline(tmp_path: Path) -> None:
+    root = tmp_path / "wait-deadline"
+    run = _run(_command(root, max_requests=50, synthetic_clock=True,
+                        synthetic_capacity=True, max_runtime_seconds=60))
+    assert run.returncode == 0, run.stderr
+    result = json.loads(run.stdout)
+    assert result["status"] == "SESSION_DEADLINE_REACHED"
+    assert result["fixture_transport_calls"] == 20
+    assert len(_budget_calls(root)) == 20 and len(_journal(root)["records"]) == 21

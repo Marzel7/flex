@@ -35,7 +35,9 @@ def _atomic(path: Path, value: dict[str, Any]) -> None:
 
 class HistoricalExecutionBinding:
     """A file-backed request journal; transport is injected, never scheduled."""
-    def __init__(self, path: str | Path): self.path = Path(path)
+    def __init__(self, path: str | Path, *, fixture_only: bool = False):
+        self.path = Path(path)
+        self.fixture_only = fixture_only
 
     def read(self) -> dict[str, Any]:
         if not self.path.exists(): return {"version": 1, "records": []}
@@ -83,6 +85,8 @@ class HistoricalExecutionBinding:
 
     def execute(self, item: dict[str, Any], *, health_gate: Callable[[], Any], live_pending: Callable[[], bool] | None = None,
                 admit: Callable[..., None], transport: Callable[[dict[str, Any]], Any], crash_at: str | None = None) -> dict[str, Any]:
+        if bool(item.get("fixture_only")) != self.fixture_only:
+            raise BindingDenied("SYNTHETIC_FIXTURE_DENIED")
         request = self._validate_evidence_readiness(item)
         identity = request["request_identity"]; journal = self.recover()
         existing = next((x for x in journal["records"] if x.get("request_identity") == identity), None)
@@ -99,6 +103,7 @@ class HistoricalExecutionBinding:
             record = existing
         else:
             record = {"mint": item["mint"], "chronological_rank": item["rank"], "anchor": item["anchor"], "request_identity": identity,
+                      "fixture_only": self.fixture_only,
                       "requested_window": {"time_from": request["params"]["time_from"], "time_to": request["params"]["time_to"], "interval": "1m"}, "state": "PENDING"}
             journal["records"].append(record); self._write(journal)
             if crash_at == "PENDING": raise RuntimeError("SIMULATED_CRASH")

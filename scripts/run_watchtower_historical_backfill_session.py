@@ -69,7 +69,8 @@ def plan(args:argparse.Namespace)->dict[str,Any]:
     except (OSError,ValueError): raise SystemExit('FROZEN_MANIFEST_UNREADABLE')
     controller=HistoricalBackfillController(state_dir/'controller.json',recon,pop)
     selected=_manifest_records(controller,manifest)
-    if args.max_requests>len(selected): raise SystemExit('REQUEST_CAP_EXCEEDED')
+    if args.max_requests>len(selected) and not bool(getattr(args, 'test_synthetic_capacity_fixture', False)):
+        raise SystemExit('REQUEST_CAP_EXCEEDED')
     return {'mode':args.mode,'state_path':str(state_dir/'controller.json'),'binding_path':str(evidence_dir/'journal.json'),'evidence_dir':str(evidence_dir),'selected_ranks':[x['rank'] for x in selected],'request_identities':[x['request']['request_identity'] for x in selected],'max_requests':args.max_requests,'max_runtime_seconds':args.max_runtime_seconds,'max_evidence_bytes':args.max_evidence_bytes,'manifest_hash':manifest['content_hash'],'components':{'controller':'HistoricalBackfillController','binding':'HistoricalExecutionBinding','runtime_gate':'Batch4RuntimeGate','budget':'HistoricalForensicsBudgetAdmission','transport':'BirdeyeProductionBinding'},'scheduler':False}
 
 def _execute_fixture(args: argparse.Namespace, manifest: dict[str, Any]) -> dict[str, Any]:
@@ -108,13 +109,15 @@ def _execute_production(args: argparse.Namespace, manifest: dict[str, Any], *,
                         gate_factory=Batch4RuntimeGate, admission_factory=HistoricalForensicsBudgetAdmission,
                         transport_factory=BirdeyeProductionBinding, authority_resolver=resolve_runtime_authority,
                         crash_at: str | None = None, clock: Callable[[], float] = time.monotonic,
-                        sleeper: Callable[[float], None] = time.sleep) -> dict[str, Any]:
+                        sleeper: Callable[[float], None] = time.sleep,
+                        synthetic_selected: list[dict[str, Any]] | None = None,
+                        cancelled: Callable[[], bool] | None = None) -> dict[str, Any]:
     """One explicit bounded session; this function never schedules or retries."""
     if not args.supervisor_config or not args.queue_root:
         raise SystemExit('SUPERVISOR_CONFIG_AND_QUEUE_ROOT_REQUIRED')
     queue_root = _safe(args.queue_root, protected=(ROOT/'database', ROOT/'.dev_runtime'))
     controller = HistoricalBackfillController(manifest['state_path'], _load(RECON), _load(POP))
-    binding = HistoricalExecutionBinding(manifest['binding_path'])
+    binding = HistoricalExecutionBinding(manifest['binding_path'], fixture_only=synthetic_selected is not None)
     authority = authority_resolver(args.supervisor_config)
     gate = gate_factory(authority)
     admission = admission_factory(queue_root)
@@ -125,15 +128,22 @@ def _execute_production(args: argparse.Namespace, manifest: dict[str, Any], *,
         nonlocal provider
         if provider is None: provider = transport_factory()
         return provider(request)
-    selected = _manifest_records(controller, _load(args.manifest))
+    selected = synthetic_selected if synthetic_selected is not None else _manifest_records(controller, _load(args.manifest))
     started, completed = clock(), []
     with controller:
-        binding.recover()
+        recovered = binding.recover()
+        completed = [str(record["request_identity"]) for record in recovered["records"]
+                     if record.get("state") == "COMPLETED" and isinstance(record.get("request_identity"), str)]
         for item in selected[:args.max_requests]:
+            # Synthetic capacity restart resumes already durable fixture work;
+            # normal production behavior deliberately remains fail-closed on
+            # an explicit rerun of an already completed manifest.
+            if synthetic_selected is not None and item["request"]["request_identity"] in completed:
+                continue
             while True:
                 if clock()-started >= args.max_runtime_seconds:
                     return {'status':'SESSION_DEADLINE_REACHED','request_count':len(completed),'completed_identities':completed}
-                if controller._state().get('cancelled'):
+                if (cancelled and cancelled()) or controller._state().get('cancelled'):
                     return {'status':'CANCELLED','request_count':len(completed),'completed_identities':completed}
                 try:
                     result = binding.execute(item, health_gate=gate.check,
@@ -159,7 +169,7 @@ def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, An
     authority=RuntimeAuthority(config,'http://fixture/healthz',db,listener,(funding,resolution))
     lines=lambda:[f'1 0 Sat Oct 10 00:00:00 2026 /usr/local/bin/supervisord -c {config}','2 1 Sat Oct 10 00:00:00 2026 /usr/bin/python3 -m src.core.creator_funding_worker','3 1 Sat Oct 10 00:00:00 2026 /usr/bin/python3 -m src.core.creator_resolution_worker']
     scenario=args.test_scenario
-    if scenario not in {'healthy','api-unhealthy','wrong-api','funding-stale','resolution-stale','wal-over-limit','checkpoint-stalled','disk-low','duplicate-supervisor','duplicate-creator','critical-wal','global-budget-denied','mint-budget-denied','provider-backoff','malformed-ledger','unreadable-ledger','transport-failure','transport-hold'}: raise SystemExit('TEST_SCENARIO_INVALID')
+    if scenario not in {'healthy','api-unhealthy','wrong-api','funding-stale','resolution-stale','wal-over-limit','checkpoint-stalled','disk-low','duplicate-supervisor','duplicate-creator','critical-wal','global-budget-denied','mint-budget-denied','provider-backoff','malformed-ledger','unreadable-ledger','transport-failure','transport-hold','wait-cancel','wait-health-failure','wait-crash'}: raise SystemExit('TEST_SCENARIO_INVALID')
     payload={'healthy':True,'db':'ok','wal_warn':False,'workers':{'creator-funding':{'stale':False,'age_s':1},'creator-resolution':{'stale':False,'age_s':1}}}
     if scenario=='api-unhealthy': payload['healthy']=False
     if scenario=='funding-stale': payload['workers']['creator-funding']={'stale':True,'age_s':999}
@@ -192,9 +202,14 @@ def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, An
     mint=selected[0]['mint']; ledger=queue/'provider_budget.json'
     # A fixed fixture-only clock permits the real production wait/recheck loop
     # to cross the existing 60-second rolling boundary without wall-clock sleep.
-    synthetic_now=[1000.0]
+    synthetic_now=[1000.0]; synthetic_waits=[0]; cancelled=[False]
     def synthetic_clock() -> float: return synthetic_now[0]
-    def synthetic_sleep(_seconds: float) -> None: synthetic_now[0] += 61.0
+    def synthetic_sleep(_seconds: float) -> None:
+        synthetic_waits[0] += 1
+        if scenario == 'wait-crash': raise RuntimeError('SIMULATED_WAIT_CRASH')
+        synthetic_now[0] += 61.0
+        if scenario == 'wait-cancel': cancelled[0] = True
+        if scenario == 'wait-health-failure': payload['healthy'] = False
     ledger_now=int(synthetic_clock() if args.test_synthetic_clock else time.time())
     if scenario=='global-budget-denied': ledger.write_text(json.dumps({'calls':[{'at':ledger_now,'mint':str(x),'class':'x'} for x in range(20)]}))
     if scenario=='mint-budget-denied': ledger.write_text(json.dumps({'calls':[{'at':ledger_now,'mint':mint,'class':'x'} for _ in range(4)]}))
@@ -203,15 +218,27 @@ def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, An
     # The fixture still traverses the production composition, whose explicit
     # supervisor argument is satisfied only by this isolated fixture file.
     args.supervisor_config=config
+    synthetic_selected=None
+    if args.test_synthetic_capacity_fixture:
+        synthetic_selected=[]
+        for number in range(1, 51):
+            timestamp=100 + number
+            request_identity=hashlib.sha256(f'DEV014_SYNTHETIC_CAPACITY_V1:{number}'.encode()).hexdigest()
+            synthetic_selected.append({'fixture_only':True,'rank':100000+number,'mint':f'SYNTHETIC_CAPACITY_{number:03d}',
+                'anchor':{'class':'OBSERVED_PRICE_ANCHOR','timestamp':timestamp,'source':'DEV014_SYNTHETIC_CAPACITY_V1'},
+                'request':{'endpoint':'GET /defi/v3/ohlcv','params':{'time_from':timestamp,'time_to':timestamp+3600,'type':'1m'},'request_identity':request_identity}})
     result=_execute_production(args,manifest,gate_factory=gate,transport_factory=Transport,authority_resolver=lambda _:authority,
                                crash_at=args.test_crash_at,
                                clock=synthetic_clock if args.test_synthetic_clock else time.monotonic,
-                               sleeper=synthetic_sleep if args.test_synthetic_clock else time.sleep)
+                               sleeper=synthetic_sleep if args.test_synthetic_clock else time.sleep,
+                               synthetic_selected=synthetic_selected,
+                               cancelled=lambda: cancelled[0])
     result.update({'fixture_transport_calls':len(calls),'credential_reads':0,
                    'synthetic_clock':bool(args.test_synthetic_clock),
-                   'synthetic_time':synthetic_now[0] if args.test_synthetic_clock else None}); return result
+                   'synthetic_time':synthetic_now[0] if args.test_synthetic_clock else None,
+                   'synthetic_waits':synthetic_waits[0], 'synthetic_fixture_only':synthetic_selected is not None}); return result
 def main()->int:
-    p=argparse.ArgumentParser(); p.add_argument('--mode',choices=('dry-run','execute'),default='dry-run'); p.add_argument('--manifest',type=Path,required=True); p.add_argument('--state-dir',type=Path,required=True); p.add_argument('--evidence-dir',type=Path,required=True); p.add_argument('--max-requests',type=int,required=True); p.add_argument('--max-runtime-seconds',type=int,required=True); p.add_argument('--max-evidence-bytes',type=int,required=True); p.add_argument('--max-consecutive-failures',type=int,required=True); p.add_argument('--max-health-failures',type=int,required=True); p.add_argument('--live-opt-in',action='store_true'); p.add_argument('--fixture-fake-live',action='store_true'); p.add_argument('--test-production-fixture',action='store_true'); p.add_argument('--test-synthetic-clock',action='store_true'); p.add_argument('--test-scenario',default='healthy'); p.add_argument('--test-crash-at',choices=('PENDING','AFTER_BUDGET','ADMITTED','ATTEMPTED','RESPONSE','EVIDENCE')); p.add_argument('--test-hold-path',type=Path); p.add_argument('--test-hold-seconds',type=float,default=5.0); p.add_argument('--supervisor-config',type=Path); p.add_argument('--queue-root',type=Path); a=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('--mode',choices=('dry-run','execute'),default='dry-run'); p.add_argument('--manifest',type=Path,required=True); p.add_argument('--state-dir',type=Path,required=True); p.add_argument('--evidence-dir',type=Path,required=True); p.add_argument('--max-requests',type=int,required=True); p.add_argument('--max-runtime-seconds',type=int,required=True); p.add_argument('--max-evidence-bytes',type=int,required=True); p.add_argument('--max-consecutive-failures',type=int,required=True); p.add_argument('--max-health-failures',type=int,required=True); p.add_argument('--live-opt-in',action='store_true'); p.add_argument('--fixture-fake-live',action='store_true'); p.add_argument('--test-production-fixture',action='store_true'); p.add_argument('--test-synthetic-clock',action='store_true'); p.add_argument('--test-synthetic-capacity-fixture',action='store_true'); p.add_argument('--test-scenario',default='healthy'); p.add_argument('--test-crash-at',choices=('PENDING','AFTER_BUDGET','ADMITTED','ATTEMPTED','RESPONSE','EVIDENCE')); p.add_argument('--test-hold-path',type=Path); p.add_argument('--test-hold-seconds',type=float,default=5.0); p.add_argument('--supervisor-config',type=Path); p.add_argument('--queue-root',type=Path); a=p.parse_args()
     manifest=plan(a)
     candidate=_load(a.manifest)
     if a.mode=='execute' and candidate['authorization']['kind']!='EXPLICIT_FROZEN_MANIFEST': raise SystemExit('PAID_MANIFEST_ACTIVATION_REQUIRED')
@@ -220,8 +247,9 @@ def main()->int:
         print(json.dumps(_execute_fixture(a,manifest),sort_keys=True)); return 0
     if a.test_production_fixture:
         if a.mode!='execute' or not a.live_opt_in: raise SystemExit('TEST_FIXTURE_REQUIRES_EXPLICIT_EXECUTE_OPT_IN')
+        if a.test_synthetic_capacity_fixture and not a.test_synthetic_clock: raise SystemExit('SYNTHETIC_CAPACITY_REQUIRES_SYNTHETIC_CLOCK')
         print(json.dumps(_execute_production_fixture(a,manifest),sort_keys=True)); return 0
-    if a.test_synthetic_clock: raise SystemExit('SYNTHETIC_CLOCK_REQUIRES_TEST_FIXTURE')
+    if a.test_synthetic_clock or a.test_synthetic_capacity_fixture: raise SystemExit('SYNTHETIC_CLOCK_REQUIRES_TEST_FIXTURE')
     if a.mode=='execute':
         if not a.live_opt_in: raise SystemExit('EXPLICIT_LIVE_OPT_IN_REQUIRED')
         print(json.dumps(_execute_production(a,manifest),sort_keys=True)); return 0

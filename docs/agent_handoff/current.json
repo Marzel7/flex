@@ -1,13 +1,13 @@
 {
   "dev014_bounded_historical_operator_scope_restore_20261010": {
-    "engineering_revision": "f62832c227a870e4c70d7144792a2c2271bb9c36 on codex/dev014-current-mc-freshness",
-    "status": "PARTIAL_OPERATOR_STILL_DECLARATIVE",
+    "engineering_revision": "038727527c84a0fbfaa4a5cf2afa70e1a7397109 on codex/dev014-current-mc-freshness",
+    "status": "PARTIAL_FIXTURE_EXECUTABLE_REAL_LIVE_COMPOSITION_PENDING",
     "finding": "LIVE provider scheduling, admission, retry, queue, database, transport, credential, and priority behavior remain frozen; experimental codex/monitor-priority-admission remains unmerged and undeployed. DEV-014 no longer requires a fabricated strict LIVE-priority callback: historical execution may use the existing shared atomic 20-global/4-per-mint budget and health gate, but this does not guarantee zero contention with direct LIVE callers. The operator dry-run validates the exact frozen ranks 22,23,24,26,41,43,46,47,48,50 and returns ten deterministic identities. Its execute path remains intentionally blocked pending concrete, separately qualified composition of the actual runtime gate, budget adapter, transport, controller ownership, and evidence sink.",
-    "tests": "pytest tests/test_watchtower_historical_executor.py tests/test_dev014_batch4_runtime_gate.py: 21 passed; exact operator dry-run: pass; provider calls=0; budget debits=0; DB/queue/runtime writes=0.",
+    "tests": "pytest tests/test_watchtower_historical_executor.py tests/test_dev014_batch4_runtime_gate.py: 21 passed; exact operator dry-run: pass; actual operator --fixture-fake-live command: one normalized fake request completed through controller lock and durable journal; provider calls=0; budget debits=0; DB/queue/runtime writes=0.",
     "storage": "Journal and compact evidence maximum single file=1,000,000 bytes; no raw provider retention; unbounded growth paths=0 for this correction.",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Provider-free source correction only; no executable runtime was deployed.",
-    "next_action": "IMPLEMENT_CONCRETE_OPERATOR_COMPOSITION_AND_AN_END_TO_END_FAKE_TRANSPORT_TEST_WITHOUT_IMPORTING_SHARED_PRIORITY_CHANGES"
+    "next_action": "REPLACE_TEST_ONLY_FAKE_ADMISSION_WITH_THE_EXISTING_SHARED_BUDGET_ADAPTER_IN_AN_EXPLICITLY_ISOLATED_FIXTURE_AND_BIND_THE_REAL_RUNTIME_COMPONENTS_BEFORE_ANY_PAID_ACQUISITION"
   },
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,

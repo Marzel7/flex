@@ -134,6 +134,22 @@ def _write_manifest(root: str|Path, number: int, manifest: dict[str, Any]) -> Pa
     temporary.write_bytes(raw); temporary.replace(path)
     return path
 
+def _next_manifest_number(root: str|Path) -> int:
+    """Continue only after a contiguous, non-aliased durable manifest sequence."""
+    directory=Path(root)
+    if not directory.is_dir() or directory.is_symlink(): raise RuntimeError('COHORT_MANIFEST_ROOT_UNAVAILABLE')
+    prefix='dev014_session_'; suffix='.manifest.json'; numbers=[]
+    for path in directory.iterdir():
+        name=path.name
+        if not name.startswith(prefix): continue
+        if path.is_symlink() or not name.endswith(suffix): raise RuntimeError('COHORT_MANIFEST_PATH_CONFLICT')
+        number=name[len(prefix):-len(suffix)]
+        if len(number)!=3 or not number.isdigit() or not path.is_file(): raise RuntimeError('COHORT_MANIFEST_PATH_CONFLICT')
+        numbers.append(int(number))
+    numbers.sort()
+    if numbers != list(range(1,len(numbers)+1)): raise RuntimeError('COHORT_MANIFEST_SEQUENCE_INVALID')
+    return len(numbers)+1
+
 def _storage_permitted(storage_ok: Any) -> bool:
     """Guards raise on denial; only an explicit False callback means HOLD."""
     try:
@@ -147,7 +163,7 @@ def execute_authorized_sessions(controller: Any, authorization: dict[str, Any], 
                                 cancelled: Any=lambda:False, storage_ok: Any=lambda:True) -> dict[str, Any]:
     """Finite subprocess-session binding; only a durable terminal journal advances work."""
     validate_cohort_authorization(authorization)
-    completed=[]; sessions=[]
+    completed=[]; sessions=[]; next_manifest_number=_next_manifest_number(manifest_root)
     while True:
         if cancelled(): return {'status':'CANCELLED','completed':completed,'sessions':sessions}
         health()
@@ -156,7 +172,7 @@ def execute_authorized_sessions(controller: Any, authorization: dict[str, Any], 
         frozen=authorized_manifests(controller,authorization,authoritative_journals,session_journal)
         if not frozen: return {'status':'EXHAUSTED','completed':completed,'sessions':sessions}
         manifest=frozen[0]
-        path=_write_manifest(manifest_root,len(sessions)+1,manifest)
+        path=_write_manifest(manifest_root,next_manifest_number+len(sessions),manifest)
         if cancelled(): return {'status':'CANCELLED','completed':completed,'sessions':sessions}
         health(); execute_session(path)  # adapter waits for subprocess completion
         paid=reconcile_journals(authoritative_journals)
@@ -171,9 +187,11 @@ def execute_authorized_sessions(controller: Any, authorization: dict[str, Any], 
         completed.extend(expected); sessions.append(expected)
         # Do not mutate/advance a manifest or invoke a provider during cooldown.
         deadline=clock()+SESSION_COOLDOWN
-        while clock()<deadline:
+        while True:
             if cancelled(): return {'status':'CANCELLED','completed':completed,'sessions':sessions}
-            health(); sleep(min(1,deadline-clock()))
+            remaining=max(0.0,deadline-clock())
+            if remaining<=0: break
+            health(); sleep(min(1.0,remaining))
 
 def run_finite(manifest_list: list[dict[str,Any]], *, execute: Any, health: Any,
                clock: Any=time.monotonic, sleep: Any=time.sleep, cancelled: Any=lambda:False,
@@ -183,10 +201,12 @@ def run_finite(manifest_list: list[dict[str,Any]], *, execute: Any, health: Any,
     for index, manifest in enumerate(manifest_list):
         if index:
             deadline=clock()+SESSION_COOLDOWN
-            while clock()<deadline:
+            while True:
                 if cancelled(): return {'status':'CANCELLED','completed':completed,'sessions':sessions}
+                remaining=max(0.0,deadline-clock())
+                if remaining<=0: break
                 health()
-                sleep(min(1,deadline-clock()))
+                sleep(min(1.0,remaining))
         batch=[]
         for record in manifest['records']:
             while len([x for x in admitted if x>clock()-HISTORICAL_WINDOW]) >= HISTORICAL_LIMIT:

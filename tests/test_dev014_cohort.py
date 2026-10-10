@@ -106,3 +106,50 @@ def test_session_executor_storage_denial_precedes_manifest_or_adapter(tmp_path):
  result=execute_authorized_sessions(Controller(),auth,authoritative_journals=journals,session_journal=session,
   manifest_root=tmp_path,execute_session=lambda _:pytest.fail('adapter must not run'),health=lambda:None,storage_ok=lambda:False)
  assert result['status']=='STORAGE_HOLD'
+
+def test_session_executor_clamps_cooldown_when_clock_crosses_deadline_between_reads(tmp_path):
+ class Controller:
+  def work(self): return [{'rank':1,'mint':'mint','anchor':{'timestamp':1,'class':'CREATION_TIME_ANCHORED_OBSERVATION'},'request':{'request_identity':'id','params':{'time_from':1,'time_to':3601}}}]
+ journals=[]
+ for number in range(4):
+  path=tmp_path/f'paid-{number}.json'; path.write_text('{"version":1,"records":[]}'); journals.append(path)
+ session=tmp_path/'session.json'; session.write_text('{"version":1,"records":[]}')
+ auth=cohort_authorization(chronology_hash='frozen',identities=['id'],authority_id='operator')
+ readings=iter([0.0,59.9,60.1])
+ sleeps=[]
+ def execute(_): session.write_text('{"version":1,"records":[{"state":"COMPLETED","mint":"mint","request_identity":"id"}]}')
+ result=execute_authorized_sessions(Controller(),auth,authoritative_journals=journals,session_journal=session,
+  manifest_root=tmp_path,execute_session=execute,health=lambda:None,clock=lambda:next(readings),sleep=lambda value:sleeps.append(value))
+ assert result['status']=='EXHAUSTED' and sleeps==[pytest.approx(0.1)] and all(value>=0 for value in sleeps)
+
+def test_cooldown_stops_before_second_session_on_cancellation_or_health_failure():
+ records=[{'request_identity':'a'},{'request_identity':'b'}]; manifests=[{'records':[records[0]]},{'records':[records[1]]}]
+ cancelled=[False]; calls=[]
+ def cancel_sleep(_): cancelled[0]=True
+ result=run_finite(manifests,execute=lambda record:calls.append(record['request_identity']),health=lambda:None,
+                   clock=lambda:0.0,sleep=cancel_sleep,cancelled=lambda:cancelled[0])
+ assert result['status']=='CANCELLED' and calls==['a']
+ health_calls=[0]
+ def health():
+  health_calls[0]+=1
+  if health_calls[0]==2: raise RuntimeError('health failure during cooldown')
+ with pytest.raises(RuntimeError,match='during cooldown'):
+  run_finite(manifests,execute=lambda _:None,health=health,clock=lambda:0.0,sleep=lambda _:None)
+
+def test_session_executor_resume_uses_next_durable_manifest_number(tmp_path):
+ class Controller:
+  def work(self):
+   return [{'rank':n,'mint':f'mint-{n}','anchor':{'timestamp':n,'class':'CREATION_TIME_ANCHORED_OBSERVATION'},'request':{'request_identity':f'id-{n}','params':{'time_from':n,'time_to':n+3600}}} for n in (1,2)]
+ journals=[]
+ for number in range(4):
+  path=tmp_path/f'paid-{number}.json'; path.write_text('{"version":1,"records":[]}'); journals.append(path)
+ session=tmp_path/'session.json'; session.write_text('{"version":1,"records":[{"state":"COMPLETED","mint":"mint-1","request_identity":"id-1"}]}')
+ (tmp_path/'dev014_session_001.manifest.json').write_text('{}')
+ auth=cohort_authorization(chronology_hash='frozen',identities=['id-1','id-2'],authority_id='operator')
+ paths=[]
+ clock=[0.0]
+ def execute(path):
+  paths.append(path.name); session.write_text('{"version":1,"records":[{"state":"COMPLETED","mint":"mint-1","request_identity":"id-1"},{"state":"COMPLETED","mint":"mint-2","request_identity":"id-2"}]}')
+ result=execute_authorized_sessions(Controller(),auth,authoritative_journals=journals,session_journal=session,
+  manifest_root=tmp_path,execute_session=execute,health=lambda:None,clock=lambda:clock[0],sleep=lambda seconds:clock.__setitem__(0,clock[0]+seconds))
+ assert result['status']=='EXHAUSTED' and paths==['dev014_session_002.manifest.json']

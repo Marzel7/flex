@@ -23575,5 +23575,18 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_REQUIRED_HOLD",
     "next_action": "Explicitly authorize the minimal provider-free implementation and qualification of a frozen, one-request lifecycle capability-probe adapter that reuses the safe wrapper, runtime gate, shared budget and compact journal. Then obtain paid authorization naming its qualified SHA."
+  },
+  "watchtower_lifecycle_one_request_adapter_20261011": {
+    "status": "PARTIAL_PROVIDER_FREE_ADAPTER_QUALIFIED_WRAPPER_BINDING_PENDING",
+    "engineering_revision": "976c47d8bdf582f2fb4ce8d1c028a114cbaeec94 on codex/dev014-current-mc-freshness; remote verified",
+    "component": "src/ops/watchtower_lifecycle_probe.py",
+    "contract": "one content-hashed authorization, one mint/range/interval, runtime gate before shared-budget admission, one transport, compact JSON journal, no retry after ATTEMPTED, no raw payload or canonical SQLite writes.",
+    "fixture_results": "20 provider-free focused tests passed: exact one transport/admission, terminal NO_VALID_CANDLES, malformed fail-closed, crash after admission non-retryable, existing binding and shared-budget regressions.",
+    "storage": "journal artifact <1 MiB, probe storage <2 MiB, disk reserve 4GiB, raw retention=false, unbounded growth paths=0.",
+    "blocker": "The adapter is not yet exposed through the existing safe BIRDEYE wrapper; no paid launch command exists. Do not invoke it directly with a credentialed environment.",
+    "safety": "Provider requests=0; credential reads=0; budget debits=0; canonical/live DB writes=0; deployment=0; scheduling=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_PROVIDER_FREE_QUALIFICATION",
+    "next_action": "Authorize and qualify only the thin safe-wrapper/CLI binding for this frozen adapter, then obtain a new one-request paid authorization naming that SHA."
   }
 }

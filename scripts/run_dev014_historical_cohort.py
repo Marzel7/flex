@@ -34,6 +34,9 @@ JOURNALS = (
 SUPERVISOR = Path("/Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf")
 QUEUE = Path("/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue")
 DEFAULT_ROOT = Path("/private/tmp/dev014-creation-time-cohort-20261010")
+FINAL_MAX_REQUESTS = 4
+FINAL_MAX_RUNTIME_SECONDS = 1800
+FINAL_MAX_EVIDENCE_BYTES = 2_000_000
 
 
 class LaunchDenied(RuntimeError):
@@ -65,9 +68,21 @@ def _root(path: Path) -> Path:
     return path.resolve()
 
 
-def _run(root: Path) -> dict[str, object]:
+def _final_limits(max_requests: int, max_runtime_seconds: int, max_evidence_bytes: int) -> tuple[int, int, int]:
+    """The final paid authorization is an exact, non-expandable bound tuple."""
+    limits = (max_requests, max_runtime_seconds, max_evidence_bytes)
+    if limits != (FINAL_MAX_REQUESTS, FINAL_MAX_RUNTIME_SECONDS, FINAL_MAX_EVIDENCE_BYTES):
+        raise LaunchDenied("FINAL_EXECUTION_LIMITS_INVALID")
+    return limits
+
+
+def _run(root: Path, *, max_requests: int = FINAL_MAX_REQUESTS,
+         max_runtime_seconds: int = FINAL_MAX_RUNTIME_SECONDS,
+         max_evidence_bytes: int = FINAL_MAX_EVIDENCE_BYTES) -> dict[str, object]:
     if os.environ.get(BOUND) != "1" or not os.environ.get("BIRDEYE", "").strip():
         raise LaunchDenied("BOUND_BIRDEYE_ENV_REQUIRED")
+    max_requests, max_runtime_seconds, max_evidence_bytes = _final_limits(
+        max_requests, max_runtime_seconds, max_evidence_bytes)
     root = _root(root)
     evidence, manifests = root / "evidence", root / "manifests"
     evidence.mkdir(mode=0o700, exist_ok=True); manifests.mkdir(mode=0o700, exist_ok=True)
@@ -81,7 +96,7 @@ def _run(root: Path) -> dict[str, object]:
     gate = Batch4RuntimeGate(authority)
     adapter = cli_executor(ROOT / "scripts/run_watchtower_historical_backfill_session.py", [
         "--mode", "execute", "--live-opt-in", "--state-dir", str(root), "--evidence-dir", str(evidence),
-        "--max-requests", "50", "--max-runtime-seconds", "3600", "--max-evidence-bytes", "5242880",
+        "--max-requests", str(max_requests), "--max-runtime-seconds", str(max_runtime_seconds), "--max-evidence-bytes", str(max_evidence_bytes),
         "--max-consecutive-failures", "1", "--max-health-failures", "1", "--supervisor-config", str(SUPERVISOR),
         "--queue-root", str(QUEUE),
     ])
@@ -98,15 +113,21 @@ def main() -> int:
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--bound", action="store_true")
     parser.add_argument("--cohort-root", type=Path, default=DEFAULT_ROOT)
+    parser.add_argument("--max-requests", type=int, default=FINAL_MAX_REQUESTS)
+    parser.add_argument("--max-runtime-seconds", type=int, default=FINAL_MAX_RUNTIME_SECONDS)
+    parser.add_argument("--max-evidence-bytes", type=int, default=FINAL_MAX_EVIDENCE_BYTES)
     args = parser.parse_args()
     if not args.execute:
         raise SystemExit("EXPLICIT_COHORT_EXECUTION_REQUIRED")
     if not args.bound:
         # Only the established preflight wrapper is allowed to source BIRDEYE.
-        command = [sys.executable, str(ROOT / "scripts/run_dev014_birdeye_preflight.py"), "--mode", "cohort", "--cohort-root", str(args.cohort_root)]
+        command = [sys.executable, str(ROOT / "scripts/run_dev014_birdeye_preflight.py"), "--mode", "cohort", "--cohort-root", str(args.cohort_root),
+                   "--max-requests", str(args.max_requests), "--max-runtime-seconds", str(args.max_runtime_seconds), "--max-evidence-bytes", str(args.max_evidence_bytes)]
         return os.spawnv(os.P_WAIT, sys.executable, command)
     try:
-        print(json.dumps(_run(args.cohort_root), sort_keys=True))
+        print(json.dumps(_run(args.cohort_root, max_requests=args.max_requests,
+                              max_runtime_seconds=args.max_runtime_seconds,
+                              max_evidence_bytes=args.max_evidence_bytes), sort_keys=True))
         return 0
     except LaunchDenied as exc:
         print(str(exc), file=sys.stderr)

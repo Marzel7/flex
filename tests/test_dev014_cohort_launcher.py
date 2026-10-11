@@ -40,3 +40,26 @@ def test_launcher_binds_existing_coordinator_cli_and_four_journals(monkeypatch,t
  assert len(captured['kwargs']['authoritative_journals'])==4
  assert captured['kwargs']['session_journal'].parent.name=='evidence'
  assert captured['kwargs']['manifest_root'].name=='manifests'
+
+
+@pytest.mark.parametrize('limits', ((5,1800,2_000_000),(4,3600,2_000_000),(4,1800,5_242_880)))
+def test_launcher_rejects_any_final_execution_limit_expansion(limits):
+ with pytest.raises(launcher.LaunchDenied,match='FINAL_EXECUTION_LIMITS_INVALID'):
+  launcher._final_limits(*limits)
+
+
+def test_launcher_passes_exact_final_limits_to_existing_cli(monkeypatch,tmp_path):
+ monkeypatch.setenv('BIRDEYE','fixture-only'); monkeypatch.setenv(launcher.BOUND,'1')
+ class Gate:
+  def __init__(self,_): pass
+  def check(self): return None
+ captured={}
+ monkeypatch.setattr(launcher,'resolve_runtime_authority',lambda _:object())
+ monkeypatch.setattr(launcher,'Batch4RuntimeGate',Gate)
+ monkeypatch.setattr(launcher,'cli_executor',lambda _cli,base: captured.setdefault('base',base) or (lambda _: {'status':'EXHAUSTED'}))
+ monkeypatch.setattr(launcher,'execute_authorized_sessions',lambda *_args,**_kwargs:{'status':'EXHAUSTED','completed':[],'sessions':[]})
+ launcher._run(tmp_path/'cohort')
+ base=captured['base']
+ assert base[base.index('--max-requests')+1]=='4'
+ assert base[base.index('--max-runtime-seconds')+1]=='1800'
+ assert base[base.index('--max-evidence-bytes')+1]=='2000000'

@@ -23637,5 +23637,19 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_REQUIRED_PREPARATION_ONLY",
     "next_action": "A separately authorized minimal finite lifecycle dispatcher must compose the frozen authorization with the existing one-request runner, shared pacing/budget/runtime gate, per-identity compact journals, and CohortStorageGuard before any cohort paid authorization. Do not start acquisition from this artifact alone."
+  },
+  "watchtower_lifecycle_finite_dispatcher_20261011": {
+    "status": "PASS_PROVIDER_FREE_QUALIFIED_NOT_EXECUTED",
+    "engineering_revision": "3ea086247655a65fa2be226810b0742af0fe418c on codex/dev014-current-mc-freshness; remote verified",
+    "frozen_authorization": "docs/audits/watchtower_lifecycle_cohort_authorization_20261011.v1.json; content_hash=377103f255f5bacddd36fcd46188d7b7bb3688a552e563b3fd55eb2e47a3cc6c; exact members=550.",
+    "reuse": "FiniteLifecycleDispatcher only composes the existing frozen authorization, OneRequestLifecycleProbe, existing runtime gate, HistoricalForensicsBudgetAdmission, CohortStorageGuard, V3 binding, shared 15m normalizer, lifecycle reducer, and safe BIRDEYE wrapper. No provider client, normalizer, ledger, scheduler, journal format, canonical SQLite writer, or raw-payload store was added.",
+    "new_code_justification": "The existing opening-hour coordinator is hard-bound to 1m/3600-second manifests and HistoricalExecutionBinding records; it cannot validate or dispatch the frozen 15m lifecycle authority. The new finite caller-owned loop is the smallest bridge. Durable state remains one compact journal per deterministic request identity; session state is derived from those journals plus the immutable authorization.",
+    "safety_contract": "At most 50 authorized members/session; concurrency 1; 10 rolling-minute cadence; 60-second session cooldown; runtime health and 100MiB/4GiB CohortStorageGuard before each request and during waits; exclusive root lock; no retry after ADMITTED/ATTEMPTED/terminal state. Only durable PENDING is resumable because it precedes admission/transport. Temporary shared-budget capacity denials remain pre-admission waits.",
+    "qualification": "30 focused provider-free tests passed, including exact cohort membership, terminal-rank and rank593 exclusion, session ceiling/cadence/cooldown, actual dispatcher-to-OneRequestLifecycleProbe fake-HTTP path, durable no-repeat, crash boundary, cancellation, health/storage stops, and unchanged historical-cohort regressions.",
+    "storage": "Per artifact <1MiB; existing CohortStorageGuard enforces cumulative <=100MiB plus transient reserve and >=4GiB disk. Raw provider retention=false; no single-file 500MB path; unbounded growth paths=0. Measured rank593 compact journal=1456 bytes; sample projection 800800 bytes for 550, not a substituted hard bound.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_MANUAL_PROVIDER_FREE_QUALIFICATION",
+    "safety": "Provider requests=0; real credential reads=0; live budget debits=0; canonical database writes=0; deployment=0; scheduling=0. Existing terminal ranks42/44/49 and completed rank593 are unchanged.",
+    "next_action": "Obtain one explicit paid authorization naming 3ea086247655a65fa2be226810b0742af0fe418c and the frozen cohort hash. Then perform fresh runtime preflight and invoke only scripts/run_dev014_birdeye_preflight.py --mode lifecycle-cohort."
   }
 }

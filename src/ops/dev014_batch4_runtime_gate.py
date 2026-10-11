@@ -14,6 +14,7 @@ import shlex
 import shutil
 import subprocess
 import time
+import urllib.error
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
@@ -156,8 +157,12 @@ class Batch4RuntimeGate:
             with urllib.request.urlopen(url, timeout=5) as response:
                 payload = json.loads(response.read())
                 return int(response.status), payload
-        except Exception as exc:
+        except urllib.error.HTTPError as exc:
+            raise RuntimeGateDenied("API_HEALTH_DENIED") from exc
+        except (urllib.error.URLError, TimeoutError, OSError) as exc:
             raise RuntimeGateDenied("API_HEALTH_UNAVAILABLE") from exc
+        except (json.JSONDecodeError, TypeError, ValueError) as exc:
+            raise RuntimeGateDenied("API_HEALTH_RESPONSE_MALFORMED") from exc
 
     @staticmethod
     def _read_process_lines() -> list[str]:

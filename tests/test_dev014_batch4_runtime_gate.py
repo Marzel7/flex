@@ -4,6 +4,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import threading
+import urllib.request
 from types import SimpleNamespace
 
 import pytest
@@ -106,6 +107,17 @@ def test_explicit_unhealthy_and_persistent_transport_failure_still_fail_closed(t
                                    health_confirmation_sleep=lambda _seconds: None)
     with pytest.raises(RuntimeGateDenied, match="API_HEALTH_UNAVAILABLE"):
         persistent.check()
+
+
+def test_malformed_health_json_is_not_transport_recoverable(monkeypatch):
+    class Response:
+        status = 200
+        def read(self): return b"not-json"
+        def __enter__(self): return self
+        def __exit__(self, *_args): return False
+    monkeypatch.setattr(urllib.request, "urlopen", lambda *_args, **_kwargs: Response())
+    with pytest.raises(RuntimeGateDenied, match="API_HEALTH_RESPONSE_MALFORMED"):
+        Batch4RuntimeGate._fetch_health("http://127.0.0.1:5002/healthz")
 
 
 def test_rejects_disk_wal_checkpoint_and_duplicate_failures(tmp_path):

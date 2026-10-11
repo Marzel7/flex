@@ -6,6 +6,7 @@ import time
 from pathlib import Path
 from typing import Any, Callable
 
+from src.ops.dev014_batch4_runtime_gate import RuntimeGateDenied
 from src.ops.dev_provider_budget import BudgetDenied
 from src.ops.watchtower_lifecycle_cohort import MAX_SESSION, digest
 from src.ops.watchtower_lifecycle_probe import request_identity, validate_authorization
@@ -13,6 +14,41 @@ from src.ops.watchtower_lifecycle_probe import request_identity, validate_author
 
 TERMINAL_OR_PROTECTED = frozenset({"PENDING", "ADMITTED", "ATTEMPTED", "COMPLETED", "PARTIAL_VALID_CANDLES", "NO_VALID_CANDLES", "INVALID_CANDLE_VALUES", "MALFORMED_RESPONSE", "PROVIDER_API_ERROR", "HTTP_FAILURE", "OUTCOME_UNKNOWN"})
 RETRYABLE_PRE_ADMISSION = frozenset({"GLOBAL_PROVIDER_BUDGET_EXHAUSTED", "TOKEN_PROVIDER_BUDGET_EXHAUSTED"})
+API_RECOVERY_DEADLINE_SECONDS = 10.0
+
+
+class PreAdmissionRecoveryCancelled(RuntimeError):
+    """The caller cancelled while waiting for an API transport recovery."""
+
+
+class BoundedApiTransportRecovery:
+    """Compose the existing full gate with bounded transport-only recovery."""
+    def __init__(self, gate: Any, *, clock: Callable[[], float] = time.monotonic,
+                 sleep: Callable[[float], None] = time.sleep,
+                 cancelled: Callable[[], bool] = lambda: False,
+                 deadline: Callable[[], bool] = lambda: False):
+        self.gate, self.clock, self.sleep = gate, clock, sleep
+        self.cancelled, self.deadline = cancelled, deadline
+
+    def check(self) -> Any:
+        recovery_deadline = self.clock() + API_RECOVERY_DEADLINE_SECONDS
+        while True:
+            if self.cancelled():
+                raise PreAdmissionRecoveryCancelled("API_HEALTH_RECOVERY_CANCELLED")
+            if self.deadline():
+                raise RuntimeGateDenied("API_HEALTH_RECOVERY_DEADLINE")
+            try:
+                result = self.gate.check()
+                if self.clock() > recovery_deadline:
+                    raise RuntimeGateDenied("API_HEALTH_RECOVERY_DEADLINE")
+                return result
+            except RuntimeGateDenied as exc:
+                if str(exc) != "API_HEALTH_UNAVAILABLE":
+                    raise
+                remaining = recovery_deadline - self.clock()
+                if remaining <= 0:
+                    raise
+                self.sleep(min(1.0, remaining))
 
 
 def validate_lifecycle_cohort_authorization(value: dict[str, Any]) -> dict[str, Any]:
@@ -69,6 +105,13 @@ class FiniteLifecycleDispatcher:
                 remaining.append(record)
         return remaining
 
+    def _check_health(self) -> bool:
+        try:
+            self.health()
+            return True
+        except PreAdmissionRecoveryCancelled:
+            return False
+
     def run(self) -> dict[str, Any]:
         completed: list[str] = []; sessions: list[list[str]] = []; admitted_at: list[float] = []
         while True:
@@ -79,9 +122,11 @@ class FiniteLifecycleDispatcher:
             for record in remaining[:MAX_SESSION]:
                 while len([stamp for stamp in admitted_at if stamp > self.clock() - 60]) >= 10:
                     if self.cancelled(): return {"status": "CANCELLED", "completed": completed, "sessions": sessions}
-                    self.health(); self.storage_guard.check(); self.sleep(1.0)
+                    if not self._check_health(): return {"status": "CANCELLED", "completed": completed, "sessions": sessions}
+                    self.storage_guard.check(); self.sleep(1.0)
                 if self.cancelled(): return {"status": "CANCELLED", "completed": completed, "sessions": sessions}
-                self.health(); self.storage_guard.check()
+                if not self._check_health(): return {"status": "CANCELLED", "completed": completed, "sessions": sessions}
+                self.storage_guard.check()
                 path = self.journal_root / record["request_identity"] / "journal.json"
                 probe = self.probe_factory(record, path)
                 while True:
@@ -94,7 +139,10 @@ class FiniteLifecycleDispatcher:
                         if str(exc) not in RETRYABLE_PRE_ADMISSION:
                             return {"status": "BUDGET_HOLD", "completed": completed, "sessions": sessions, "reason": str(exc)}
                         if self.cancelled(): return {"status": "CANCELLED", "completed": completed, "sessions": sessions}
-                        self.health(); self.storage_guard.check(); self.sleep(1.0)
+                        if not self._check_health(): return {"status": "CANCELLED", "completed": completed, "sessions": sessions}
+                        self.storage_guard.check(); self.sleep(1.0)
+                    except PreAdmissionRecoveryCancelled:
+                        return {"status": "CANCELLED", "completed": completed, "sessions": sessions}
             sessions.append(session)
             if not self._remaining():
                 return {"status": "EXHAUSTED", "completed": completed, "sessions": sessions}
@@ -103,4 +151,5 @@ class FiniteLifecycleDispatcher:
                 if self.cancelled(): return {"status": "CANCELLED", "completed": completed, "sessions": sessions}
                 wait = max(0.0, deadline - self.clock())
                 if wait == 0.0: break
-                self.health(); self.storage_guard.check(); self.sleep(min(1.0, wait))
+                if not self._check_health(): return {"status": "CANCELLED", "completed": completed, "sessions": sessions}
+                self.storage_guard.check(); self.sleep(min(1.0, wait))

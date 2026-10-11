@@ -20,7 +20,7 @@ sys.path.insert(0, str(ROOT))
 from src.ops.dev014_batch4_runtime_gate import Batch4RuntimeGate, RuntimeGateDenied, resolve_runtime_authority
 from src.ops.watchtower_historical_budget import HistoricalForensicsBudgetAdmission
 from src.ops.watchtower_historical_execution_binding import BindingDenied, CohortStorageGuard
-from src.ops.watchtower_lifecycle_dispatcher import FiniteLifecycleDispatcher, journal_outcome
+from src.ops.watchtower_lifecycle_dispatcher import BoundedApiTransportRecovery, FiniteLifecycleDispatcher, journal_outcome
 from src.ops.watchtower_lifecycle_probe import OneRequestLifecycleProbe
 from src.ops.token_data_provider_bindings import BirdeyeProductionBinding
 
@@ -109,9 +109,10 @@ def main() -> int:
         gate = Gate(); admission = HistoricalForensicsBudgetAdmission(root / "fixture-queue")
     else:
         gate = Batch4RuntimeGate(resolve_runtime_authority(SUPERVISOR)); admission = HistoricalForensicsBudgetAdmission(QUEUE); transport = BirdeyeProductionBinding()
+    recovering_gate = BoundedApiTransportRecovery(gate)
     def factory(record, journal):
         auth = {key: record[key] for key in ("rank", "mint", "creation_timestamp", "time_from", "time_to", "interval", "content_hash")}
-        return OneRequestLifecycleProbe(auth, journal, runtime_gate=gate, admission=admission, transport=transport,
+        return OneRequestLifecycleProbe(auth, journal, runtime_gate=recovering_gate, admission=admission, transport=transport,
             disk_free=lambda: shutil.disk_usage(root).free, storage_guard=guard)
     with _lock(root):
         prior_completed = _durable_completion_count(authorization, root / "journals")
@@ -120,7 +121,7 @@ def main() -> int:
             value = dict(value); value["completed"] += prior_completed
             _write_status(root, _status(authorization, source_sha, run_id, started_at, "RUNNING", **value))
         try:
-            result = FiniteLifecycleDispatcher(authorization, root / "journals", health=gate.check, probe_factory=factory, storage_guard=guard, progress=progress).run()
+            result = FiniteLifecycleDispatcher(authorization, root / "journals", health=recovering_gate.check, probe_factory=factory, storage_guard=guard, progress=progress).run()
         except Exception as exc:
             state = "HOLD" if _is_controlled_hold(exc) else "FAILED"
             try: durable_completed = _durable_completion_count(authorization, root / "journals")

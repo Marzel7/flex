@@ -23787,5 +23787,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_REQUIRED_READ_ONLY_DIAGNOSIS",
     "next_action": "HOLD paid resume. Obtain separate operational authorization to qualify/deploy the API-worker availability mitigation or establish a definitive worker-exit cause, then repeat fresh preflight before any renewed paid authority for exactly the 400 untouched identities."
+  },
+  "watchtower_lifecycle_two_worker_qualification_20261011": {
+    "status": "HOLD_TWO_WORKERS_UNSAFE_AS_CURRENTLY_CONFIGURED",
+    "engineering_revision": "06fc3194e4a9c4fcfdf4554286a5486c14fe7649; no engineering source or runtime configuration changed.",
+    "compatibility_audit": "Supervisor API environment already suppresses Flask background workers, disables WebSockets, and preserves DB_WRITE_SERIALIZE=1; listener and creator workers are separate Supervisor programs. However, the API imports operation_dashboard_routes and starts prewarm_operational_intelligence_cache in each Gunicorn worker. Its stated build lock is process-wide only, not cross-process; each worker therefore starts its own sequential prewarm and can independently execute expensive operational-intelligence/pipeline-health cold builds and snapshot callbacks.",
+    "qualification": "Focused existing tests passed: tests/test_x65_50_sequential_prewarm_and_build_lock.py and tests/test_dev_runtime_boundaries.py, 9 passed. They confirm sequential/single-flight behavior inside one process and background-worker suppression, but do not make prewarm single-flight across two processes. Three read-only health samples passed HTTP200 in 24-36ms on the unchanged one-worker runtime.",
+    "safety_verdict": "The requested two-worker configuration cannot be qualified as a configuration-only change: it would duplicate existing per-process background prewarm/cold-build activity. The active configuration remains gthread workers=1 threads=24 max_requests=500 timeout=120 graceful_timeout=10. No reload, restart, rollback, database write, provider request, or paid acquisition occurred.",
+    "resources": "Current active worker RSS was approximately 29MiB and disk free approximately 6.8GiB, exceeding the lifecycle 4GiB reserve. Memory headroom alone does not cure the duplicate-build safety issue. Existing WAL serialization does not establish that duplicated expensive builds or snapshot callbacks are safe.",
+    "cohort_preservation": "Read-only reconciliation: frozen authorization=377103f255f5bacddd36fcd46188d7b7bb3688a552e563b3fd55eb2e47a3cc6c; COMPLETED=149; NO_VALID_CANDLES=1; terminal=150; untouched=400; ATTEMPTED=0; OUTCOME_UNKNOWN=0; duplicates=0; cohort lock absent; no active dispatcher.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_STARTED_COMPATIBILITY_HOLD",
+    "next_action": "Do not change workers or resume paid acquisition. A separately scoped API engineering qualification must first prevent duplicate per-worker prewarm/cold-build activity (or supply a proven existing cross-process ownership mechanism); only then can two-worker configuration, controlled reload, and bounded acceptance be authorized."
   }
 }

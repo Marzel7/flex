@@ -16,7 +16,7 @@ def main() -> int:
   class Gate: 
    def check(self): return None
   calls=[]
-  def transport(req): calls.append(req); return ProviderTransportOutcome(200,{'data':{'items':[]}}, {})
+  def transport(req): calls.append(req); return ProviderTransportOutcome(200,{'success':True,'data':{'items':[]}}, {})
   probe=OneRequestLifecycleProbe(auth,a.journal,runtime_gate=Gate(),admission=HistoricalForensicsBudgetAdmission(a.queue_root),transport=transport,disk_free=lambda:5*1024**3)
  else:
   if os.environ.get('DEV014_BIRDEYE_ENV_BOUND')!='1': raise SystemExit('BOUND_PROCESS_REQUIRED')

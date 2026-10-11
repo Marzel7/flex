@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 import time
 from typing import Any, Mapping
@@ -49,6 +50,44 @@ def normalize_opening_ohlcv(payload: Mapping[str, Any]) -> list[dict[str, float 
             raise ValueError("INVALID_OHLC_INVARIANT")
         candles.append(candle)
     return sorted(candles, key=lambda row: int(row["timestamp"]))
+
+
+def normalize_partial_birdeye_mcap_ohlcv(payload: Mapping[str, Any]) -> tuple[list[dict[str, float | int]], dict[str, int]]:
+    """Compose the established full-OHLC parser for coverage-labelled research.
+
+    This deliberately adds no provider fields or request behaviour.  Opening
+    acquisition continues to call :func:`normalize_opening_ohlcv` unchanged;
+    lifecycle research may retain individually valid documented candles while
+    accounting for invalid siblings.
+    """
+    if not isinstance(payload, Mapping) or payload.get("success") is not True:
+        raise ValueError("INVALID_PROVIDER_SUCCESS")
+    data = payload.get("data")
+    items = data.get("items") if isinstance(data, Mapping) else None
+    if not isinstance(items, list):
+        raise ValueError("MALFORMED_OHLC_CONTAINER")
+    rows: list[dict[str, float | int]] = []
+    rejected: dict[str, int] = {}
+    seen: set[int] = set()
+    for item in items:
+        try:
+            parsed = normalize_opening_ohlcv({"data": {"items": [item]}})[0]
+            values = (parsed["open"], parsed["high"], parsed["low"], parsed["close"])
+            if not all(math.isfinite(float(value)) and float(value) > 0 for value in values):
+                raise ValueError("INVALID_VALUE_OR_FIELDS")
+            timestamp = int(parsed["timestamp"])
+            if timestamp in seen:
+                raise RuntimeError("DUPLICATE_TIMESTAMP")
+        except RuntimeError as exc:
+            code = str(exc)
+        except (IndexError, KeyError, TypeError, ValueError):
+            code = "INVALID_VALUE_OR_FIELDS"
+        else:
+            seen.add(timestamp)
+            rows.append(parsed)
+            continue
+        rejected[code] = rejected.get(code, 0) + 1
+    return sorted(rows, key=lambda row: int(row["timestamp"])), rejected
 
 
 def request_fingerprint(request: Mapping[str, Any]) -> dict[str, Any]:

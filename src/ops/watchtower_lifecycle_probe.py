@@ -6,12 +6,12 @@ uses the existing runtime gate/budget/transport, and persists no raw payload.
 from __future__ import annotations
 import hashlib
 import json
-import math
 from pathlib import Path
 from typing import Any, Callable
 
 from src.ops.dev_provider_budget import BudgetDenied
 from src.ops.token_data_provider_bindings import build_birdeye_ohlcv_request
+from src.ops.strict_migration_window import normalize_partial_birdeye_mcap_ohlcv
 
 MAX_ARTIFACT_BYTES = 1_000_000
 MAX_PROBE_STORAGE_BYTES = 2_000_000
@@ -51,31 +51,18 @@ def compact_outcome(payload: Any, request: dict[str, Any], status: int) -> dict[
         if payload.get("code") is not None: error["provider_error_code"] = str(payload["code"])[:128]
         return error
     try:
-        items = payload["data"]["items"]
-        if not isinstance(items, list): raise ValueError
-    except (KeyError, TypeError, ValueError):
+        rows, rejected = normalize_partial_birdeye_mcap_ohlcv(payload)
+    except ValueError as exc:
+        if str(exc) == "INVALID_PROVIDER_SUCCESS":
+            return {"outcome": "MALFORMED_RESPONSE", "http_status": status}
         return {"outcome": "MALFORMED_RESPONSE", "http_status": status}
-    rows = []; rejected: dict[str, int] = {}; seen: set[int] = set()
-    for item in items:
-        try:
-            timestamp = int(item.get("unixTime", item.get("timestamp")))
-            high, low = float(item["h"]), float(item["l"])
-            if timestamp in seen: raise RuntimeError("DUPLICATE_TIMESTAMP")
-            if not (math.isfinite(high) and math.isfinite(low) and high > 0 and low > 0): raise ValueError
-            rows.append((timestamp, low, high))
-            seen.add(timestamp)
-        except RuntimeError as exc:
-            rejected[str(exc)] = rejected.get(str(exc), 0) + 1
-        except (AttributeError, KeyError, TypeError, ValueError):
-            rejected["INVALID_VALUE_OR_FIELDS"] = rejected.get("INVALID_VALUE_OR_FIELDS", 0) + 1
     if not rows:
         return {"outcome": "INVALID_CANDLE_VALUES" if rejected else "NO_VALID_CANDLES", "http_status": status, "returned_candle_count": 0, "rejected_candle_counts": rejected}
-    rows.sort()
-    minimum, maximum = min(rows, key=lambda row: row[1]), max(rows, key=lambda row: row[2])
+    minimum, maximum = min(rows, key=lambda row: float(row["low"])), max(rows, key=lambda row: float(row["high"]))
     return {"outcome": "PARTIAL_VALID_CANDLES" if rejected else "COMPLETED", "http_status": status, "returned_candle_count": len(rows), "rejected_candle_counts": rejected,
-            "first_returned_timestamp": rows[0][0], "last_returned_timestamp": rows[-1][0],
-            "observed_minimum_mc_usd": minimum[1], "observed_minimum_timestamp": minimum[0],
-            "observed_maximum_mc_usd": maximum[2], "observed_maximum_timestamp": maximum[0],
+            "first_returned_timestamp": int(rows[0]["timestamp"]), "last_returned_timestamp": int(rows[-1]["timestamp"]),
+            "observed_minimum_mc_usd": float(minimum["low"]), "observed_minimum_timestamp": int(minimum["timestamp"]),
+            "observed_maximum_mc_usd": float(maximum["high"]), "observed_maximum_timestamp": int(maximum["timestamp"]),
             "coverage": "OBSERVED_RESPONSE_ONLY"}
 
 

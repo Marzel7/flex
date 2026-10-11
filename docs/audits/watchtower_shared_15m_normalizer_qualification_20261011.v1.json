@@ -1,0 +1,42 @@
+{
+  "audit": "WATCHTOWER_SHARED_15M_NORMALIZER_QUALIFICATION_V1",
+  "status": "PASS_PROVIDER_FREE",
+  "source_base": "a59e7db5f8b86d15b47a4372fbfd309cdcc08423",
+  "retained_real_candle_evidence": {
+    "source": "docs/audits/watchtower_15m_provider_evidence_liveness.v1.json",
+    "result": "Seven real 15m MCAP observations were committed across two mints.",
+    "replayability": "The compact artifact retains counts, endpoint, interval, ranges, and committed state but no full OHLC rows or raw payloads. It cannot replay field-level normalization."
+  },
+  "shared_contract": {
+    "envelope": "success=true and data.items list",
+    "fields": "Existing unixTime|unix_time|timestamp and o|open,h|high,l|low,c|close aliases only",
+    "value_validation": "Each lifecycle candle has finite, strictly positive full OHLC values and existing OHLC invariants.",
+    "ordering": "Valid candles sort by timestamp; duplicate valid timestamps are rejected deterministically.",
+    "partial": "Invalid siblings are counted by reason; valid siblings remain PARTIAL_VALID_CANDLES. Empty valid data is NO_VALID_CANDLES. No candle array is retained.",
+    "coverage": "Lifecycle output remains OBSERVED_RESPONSE_ONLY; it never asserts absence of missing buckets, lifetime ATH, or terminal valuation."
+  },
+  "reuse": {
+    "implementation": "strict_migration_window.normalize_partial_birdeye_mcap_ohlcv composes the unchanged established normalize_opening_ohlcv per documented candle.",
+    "consumer": "watchtower_lifecycle_probe.compact_outcome now consumes that shared composition.",
+    "opening_compatibility": "Opening acquisition still calls normalize_opening_ohlcv directly; its existing all-or-nothing semantics are unchanged.",
+    "new_aliases": false,
+    "new_provider_client_executor_ledger_scheduler_or_journal": false
+  },
+  "synthetic_fixture_results": {
+    "full_ohlc_timestamp_aliases": "PASS",
+    "partial_invalid_retention": "PASS",
+    "duplicate_rejection": "PASS",
+    "success_envelope_required": "PASS",
+    "chronological_extrema": "PASS",
+    "missing_coverage_explicit": "PASS",
+    "no_unobserved_ath_or_terminal_inference": "PASS"
+  },
+  "regression": "23 provider-free tests passed: shared normalizer, lifecycle probe/wrapper, historical executor, terminal adapter, lifecycle accuracy.",
+  "storage": {
+    "raw_provider_retention": false,
+    "diagnostic_and_journal_bounds": "Existing lifecycle limits unchanged: at most 1MiB artifact and 2MiB probe storage.",
+    "unbounded_growth_paths": 0
+  },
+  "runtime_deployment_required": false,
+  "next_gate": "No paid request is authorized. The shared normalizer is qualified for an existing isolated lifecycle composition; separately authorize that composition only if cohort lifecycle acquisition is required."
+}

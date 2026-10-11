@@ -4,6 +4,7 @@ import pytest
 from src.ops.token_data_provider_bindings import ProviderTransportOutcome
 from src.ops.watchtower_lifecycle_probe import OneRequestLifecycleProbe, request_identity
 from src.ops.watchtower_lifecycle_probe import compact_outcome
+from src.ops.token_data_provider_bindings import build_birdeye_ohlcv_request
 
 AUTH={"rank":49,"mint":"AqYdSQ6oFq8HjLoFkvHW6kYcRM1p94Q1FcvGFxDfpump","creation_timestamp":100,"time_from":100,"time_to":1000,"interval":"15m"}
 AUTH["content_hash"]=request_identity(AUTH)
@@ -20,6 +21,8 @@ def probe(tmp_path, response):
 def test_exactly_one_transport_and_compact_extrema(tmp_path):
  p,g,a,c=probe(tmp_path,ProviderTransportOutcome(200,{"success":True,"data":{"items":[{"unixTime":100,"o":10,"h":12,"l":8,"c":11},{"unix_time":1000,"open":10,"high":15,"low":9,"close":12}]}},{}))
  result=p.execute(); assert result["outcome"]=="COMPLETED"; assert len(c)==len(a.calls)==g.calls==1
+ assert result["lifecycle_metrics"]["observed_maximum_mc_usd"] == 15.0
+ assert result["lifecycle_metrics"]["coverage_confidence"] == "CONTIGUOUS_REQUESTED_WINDOW"
  assert "items" not in (tmp_path/'journal.json').read_text()
  with pytest.raises(RuntimeError,match="ALREADY_ATTEMPTED"): p.execute()
 def test_empty_is_terminal_and_crash_is_nonretryable(tmp_path):
@@ -31,7 +34,8 @@ def test_malformed_fails_closed(tmp_path):
  p,_,_,_=probe(tmp_path,ProviderTransportOutcome(200,{"success":True,"data":{"items":[{"unixTime":1,"o":1,"h":"nan","l":1,"c":1}]}},{})); assert p.execute()["outcome"]=="INVALID_CANDLE_VALUES"
 
 def test_http200_provider_error_and_invalid_values_are_distinguished():
+ request=build_birdeye_ohlcv_request(address='fixture', interval='15m', time_from=0, time_to=1800)
  assert compact_outcome({'success':False,'code':'RANGE_TOO_LARGE','message':'discarded'}, {}, 200)['outcome']=='PROVIDER_API_ERROR'
- assert compact_outcome({'success':True,'data':{'items':[{'unixTime':1,'o':1,'h':'nan','l':1,'c':1}]}}, {}, 200)['outcome']=='INVALID_CANDLE_VALUES'
- assert compact_outcome({'success':True,'data':{'items':[{'unixTime':1,'o':1,'h':2,'l':1,'c':1},{'unixTime':1,'o':2,'h':3,'l':2,'c':2}]}}, {}, 200)['outcome']=='PARTIAL_VALID_CANDLES'
- assert compact_outcome({'success':True,'data':{'items':[{'unixTime':1,'o':1,'h':'nan','l':1,'c':1},{'unixTime':2,'o':2,'h':3,'l':2,'c':2}]}}, {}, 200)['outcome']=='PARTIAL_VALID_CANDLES'
+ assert compact_outcome({'success':True,'data':{'items':[{'unixTime':1,'o':1,'h':'nan','l':1,'c':1}]}}, request, 200)['outcome']=='INVALID_CANDLE_VALUES'
+ assert compact_outcome({'success':True,'data':{'items':[{'unixTime':1,'o':1,'h':2,'l':1,'c':1},{'unixTime':1,'o':2,'h':3,'l':2,'c':2}]}}, request, 200)['outcome']=='PARTIAL_VALID_CANDLES'
+ assert compact_outcome({'success':True,'data':{'items':[{'unixTime':1,'o':1,'h':'nan','l':1,'c':1},{'unixTime':2,'o':2,'h':3,'l':2,'c':2}]}}, request, 200)['outcome']=='PARTIAL_VALID_CANDLES'

@@ -1,0 +1,55 @@
+{
+  "audit": "WATCHTOWER_ISOLATED_LIFECYCLE_COMPOSITION_QUALIFICATION_V1",
+  "status": "PASS_PROVIDER_FREE",
+  "source_base": "44205bd6bcded2e8b2230cbf6d1873b6cdaa71b1",
+  "isolated_lifecycle_composition": {
+    "persistence": "Existing OneRequestLifecycleProbe compact atomic journal; NEW/PENDING/ATTEMPTED/terminal states remain crash-safe and non-retryable.",
+    "request": "Existing build_birdeye_ohlcv_request canonical V3 MCAP request; creation timestamp is retained only as non-provider request context.",
+    "normalization": "Existing shared normalize_partial_birdeye_mcap_ohlcv; no aliases or provider parsing duplicated.",
+    "projection": "Existing watchtower_price_fact_contract now has a compact observed-only projection for strict post-peak trough, recovery, last observed close, and coverage labels.",
+    "canonical_database": "No SQLite lifecycle facts or observations are read or written by the composition."
+  },
+  "reused_components": [
+    "Birdeye V3 request builder and production binding",
+    "Shared 15m full-OHLC normalizer",
+    "Existing one-request runtime gate, shared-budget admission, atomic journal, storage bounds, and no-repeat contract",
+    "Existing timestamp-ordered price-fact reduction module"
+  ],
+  "new_code_justification": {
+    "missing": "The established reducer exposed observed peak/crossings and peak-to-close drawdown but did not expose strict peak-to-subsequent-trough, post-trough recovery, observed last close, or request-window coverage labels.",
+    "minimal_change": "One function in the existing reducer and one compact call-site integration. No client, executor, ledger, scheduler, database, or evidence framework was added."
+  },
+  "lifecycle_metrics": {
+    "observed_maximum": "high and timestamp; observed only",
+    "creation_to_maximum": "non-negative seconds from supplied creation timestamp",
+    "drawdown": "only from observed peak to a strictly later observed trough; same-candle order is never inferred",
+    "recovery": "highest observed high strictly after the observed trough, or explicit unavailable state",
+    "last_observed": "last validated candle close and timestamp; never terminal valuation",
+    "coverage": "CONTIGUOUS_REQUESTED_WINDOW only when endpoints and internal interval gaps support it; otherwise PARTIAL_OBSERVED_WINDOW or NO_VALID_CANDLES"
+  },
+  "provider_request_bounds": {
+    "existing_execution_contract": "Exactly one authorization, one budget admission, one transport attempt, no pagination, fallback, or automatic retry.",
+    "cohort_execution": "Not implemented or authorized. Any future multi-request lifecycle work requires a separate finite authorization and explicit composition review."
+  },
+  "storage_bounds": {
+    "max_artifact_bytes": 1000000,
+    "max_probe_storage_bytes": 2000000,
+    "prospective_cohort_ceiling_bytes": 104857600,
+    "minimum_disk_headroom_bytes": 4294967296,
+    "raw_provider_retention": false,
+    "unbounded_growth_paths": 0,
+    "single_file_500mb_or_more_allowed": false
+  },
+  "regression": "25 focused provider-free tests passed, including isolated metrics, crash/no-repeat, shared normalizer, budget-order fixture, historical executor, terminal adapter, and lifecycle-accuracy tests.",
+  "safety": {
+    "provider_requests": 0,
+    "credential_reads": 0,
+    "live_budget_debits": 0,
+    "canonical_database_writes": 0,
+    "deployment": 0,
+    "scheduling": 0,
+    "terminal_probe_retries": 0,
+    "runtime_deployment_required": false
+  },
+  "next_gate": "Stop before paid acquisition. The isolated one-request lifecycle composition is qualified; any request needs separate explicit authorization and cannot target terminal ranks 49, 42, or 44."
+}

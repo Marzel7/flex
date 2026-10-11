@@ -12,6 +12,7 @@ from typing import Any, Callable
 from src.ops.dev_provider_budget import BudgetDenied
 from src.ops.token_data_provider_bindings import build_birdeye_ohlcv_request
 from src.ops.strict_migration_window import normalize_partial_birdeye_mcap_ohlcv
+from src.ops.watchtower_price_fact_contract import summarize_observed_lifecycle
 
 MAX_ARTIFACT_BYTES = 1_000_000
 MAX_PROBE_STORAGE_BYTES = 2_000_000
@@ -59,11 +60,15 @@ def compact_outcome(payload: Any, request: dict[str, Any], status: int) -> dict[
     if not rows:
         return {"outcome": "INVALID_CANDLE_VALUES" if rejected else "NO_VALID_CANDLES", "http_status": status, "returned_candle_count": 0, "rejected_candle_counts": rejected}
     minimum, maximum = min(rows, key=lambda row: float(row["low"])), max(rows, key=lambda row: float(row["high"]))
+    params = request["request_parameters"]
+    interval_seconds = {"1m": 60, "15m": 900, "1h": 3600, "4h": 14400, "1d": 86400}[params["type"]]
+    lifecycle = summarize_observed_lifecycle(creation_timestamp=int(request.get("creation_timestamp", params["time_from"])),
+        candles=rows, interval_seconds=interval_seconds, requested_start=int(params["time_from"]), requested_end=int(params["time_to"]))
     return {"outcome": "PARTIAL_VALID_CANDLES" if rejected else "COMPLETED", "http_status": status, "returned_candle_count": len(rows), "rejected_candle_counts": rejected,
             "first_returned_timestamp": int(rows[0]["timestamp"]), "last_returned_timestamp": int(rows[-1]["timestamp"]),
             "observed_minimum_mc_usd": float(minimum["low"]), "observed_minimum_timestamp": int(minimum["timestamp"]),
             "observed_maximum_mc_usd": float(maximum["high"]), "observed_maximum_timestamp": int(maximum["timestamp"]),
-            "coverage": "OBSERVED_RESPONSE_ONLY"}
+            "coverage": "OBSERVED_RESPONSE_ONLY", "lifecycle_metrics": lifecycle}
 
 
 class OneRequestLifecycleProbe:
@@ -87,6 +92,7 @@ class OneRequestLifecycleProbe:
         self.runtime_gate.check()
         identity = request_identity(self.authorization)
         request = build_birdeye_ohlcv_request(address=self.authorization["mint"], interval=self.authorization["interval"], time_from=self.authorization["time_from"], time_to=self.authorization["time_to"])
+        request["creation_timestamp"] = self.authorization["creation_timestamp"]
         self._write({"state": "PENDING", "request_identity": identity})
         self.admission.admit(mint=self.authorization["mint"], request_identity=identity)
         self._write({"state": "ATTEMPTED", "request_identity": identity})

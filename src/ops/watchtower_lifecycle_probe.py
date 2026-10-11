@@ -72,9 +72,9 @@ def compact_outcome(payload: Any, request: dict[str, Any], status: int) -> dict[
 
 
 class OneRequestLifecycleProbe:
-    def __init__(self, authorization: dict[str, Any], journal: Path, *, runtime_gate: Any, admission: Any, transport: Callable[[dict[str, Any]], Any], disk_free: Callable[[], int]):
+    def __init__(self, authorization: dict[str, Any], journal: Path, *, runtime_gate: Any, admission: Any, transport: Callable[[dict[str, Any]], Any], disk_free: Callable[[], int], storage_guard: Any = None):
         self.authorization = validate_authorization(authorization); self.journal = journal
-        self.runtime_gate, self.admission, self.transport, self.disk_free = runtime_gate, admission, transport, disk_free
+        self.runtime_gate, self.admission, self.transport, self.disk_free, self.storage_guard = runtime_gate, admission, transport, disk_free, storage_guard
 
     def _read(self) -> dict[str, Any]:
         return json.loads(self.journal.read_text()) if self.journal.exists() else {"state": "NEW"}
@@ -83,17 +83,23 @@ class OneRequestLifecycleProbe:
         if self.disk_free() < 4 * 1024**3: raise RuntimeError("PROBE_DISK_HEADROOM_DENIED")
         payload = _canonical(value).encode()
         if len(payload) >= MAX_ARTIFACT_BYTES or len(payload) > MAX_PROBE_STORAGE_BYTES: raise RuntimeError("PROBE_STORAGE_DENIED")
+        if self.storage_guard is not None:
+            self.storage_guard.check(reserve=len(payload) * 2)
         self.journal.parent.mkdir(parents=True, exist_ok=True)
         temp = self.journal.with_suffix(".tmp"); temp.write_bytes(payload); temp.replace(self.journal)
 
     def execute(self, *, crash_after_admission: bool = False) -> dict[str, Any]:
         prior = self._read()
-        if prior["state"] != "NEW": raise RuntimeError("PROBE_ALREADY_ATTEMPTED")
+        # PENDING is the sole crash-safe pre-admission state.  It may arise
+        # before any shared-budget debit or transport; every later state is
+        # conservatively terminal/non-retryable.
+        if prior["state"] not in {"NEW", "PENDING"}: raise RuntimeError("PROBE_ALREADY_ATTEMPTED")
         self.runtime_gate.check()
         identity = request_identity(self.authorization)
         request = build_birdeye_ohlcv_request(address=self.authorization["mint"], interval=self.authorization["interval"], time_from=self.authorization["time_from"], time_to=self.authorization["time_to"])
         request["creation_timestamp"] = self.authorization["creation_timestamp"]
-        self._write({"state": "PENDING", "request_identity": identity})
+        if prior["state"] == "NEW":
+            self._write({"state": "PENDING", "request_identity": identity})
         self.admission.admit(mint=self.authorization["mint"], request_identity=identity)
         self._write({"state": "ATTEMPTED", "request_identity": identity})
         if crash_after_admission: raise RuntimeError("PROBE_TEST_CRASH_AFTER_ADMISSION")

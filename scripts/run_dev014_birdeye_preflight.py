@@ -98,6 +98,8 @@ def _source_then_reexec(env_file: Path, mode: str, cohort_root: Path | None = No
             raise CredentialBindingDenied("LIFECYCLE_AUTHORIZATION_REQUIRED")
         authorization, journal = _lifecycle_probe_paths(lifecycle_authorization)
         target = [sys.executable, str(ROOT / "scripts" / "run_watchtower_lifecycle_probe.py"), "--authorization", str(authorization), "--journal", str(journal), "--queue-root", str(QUEUE_ROOT), "--supervisor-config", str(SUPERVISOR_CONFIG)]
+    if mode == "lifecycle-cohort":
+        target = [sys.executable, str(ROOT / "scripts" / "run_watchtower_lifecycle_cohort.py")]
     if mode == "rank-42-lifecycle-probe":
         target = [sys.executable, str(ROOT / "scripts" / "run_watchtower_lifecycle_probe.py"), "--authorization", "/private/tmp/dev014-lifecycle-probe-2.authorization.json", "--journal", "/private/tmp/dev014-lifecycle-probe-2/journal.json", "--queue-root", str(QUEUE_ROOT), "--supervisor-config", str(SUPERVISOR_CONFIG)]
     if mode == "rank-44-lifecycle-probe":
@@ -160,7 +162,7 @@ def _execute_frozen_session(run: Callable[..., subprocess.CompletedProcess] = su
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=("verify", "preflight", "execute", "cohort", "lifecycle-probe", "rank-42-lifecycle-probe", "rank-44-lifecycle-probe"), default="verify")
+    parser.add_argument("--mode", choices=("verify", "preflight", "execute", "cohort", "lifecycle-probe", "lifecycle-cohort", "rank-42-lifecycle-probe", "rank-44-lifecycle-probe"), default="verify")
     parser.add_argument("--env-file", type=Path, default=ENV_FILE)
     parser.add_argument("--cohort-root", type=Path)
     parser.add_argument("--max-requests", type=int)
@@ -180,7 +182,7 @@ def main() -> int:
             return _execute_frozen_session()
         if args.mode == "cohort":
             raise CredentialBindingDenied("COHORT_BOUND_PROCESS_REQUIRED")
-        if args.mode in {"lifecycle-probe", "rank-42-lifecycle-probe", "rank-44-lifecycle-probe"}:
+        if args.mode in {"lifecycle-probe", "lifecycle-cohort", "rank-42-lifecycle-probe", "rank-44-lifecycle-probe"}:
             raise CredentialBindingDenied("LIFECYCLE_PROBE_BOUND_PROCESS_REQUIRED")
         value = _credential_check() if args.mode == "verify" else _preflight()
         print(json.dumps(value, sort_keys=True))

@@ -1,0 +1,66 @@
+{
+  "audit": "WATCHTOWER_LIFECYCLE_REUSE_PATH_ASSESSMENT_V1",
+  "status": "COMPLETE_PROVIDER_FREE_REUSE_ASSESSMENT",
+  "source_revision": "4c6d55258b603216db0bd6b9c7bfafc5ccfe7e20",
+  "objective": "Accurate, coverage-labelled observed lifecycle MCAP evidence without another provider client, executor, normalizer, journal, or scheduler.",
+  "existing_functionality": {
+    "request_and_transport": "token_data_provider_bindings.build_birdeye_ohlcv_request and BirdeyeProductionBinding provide the canonical V3 MCAP request and one-attempt transport.",
+    "historical_executor": "watchtower_historical_executor.HistoricalExecutor uses the canonical builder, 15m normalization, a durable six-range SQLite FSM, and capped attempts; it is not read-only or cohort-generic.",
+    "terminal_finalizer": "watchtower_terminal_ath_finalizer.WatchtowerTerminalAthFinalizer reuses contiguous retained 15m OHLC when available, otherwise requests chunked OHLC, validates coverage, calculates observed high, 2x/5x/10x crossings and peak-to-current-close drawdown, then writes canonical observations/facts.",
+    "fact_reducer": "watchtower_price_fact_contract.reduce_watchtower_price_facts provides ordered observed-peak, crossing, and close drawdown calculations only.",
+    "retained_evidence": "watchtower_15m_provider_evidence_liveness.v1.json proves 7 committed 15m candles for 2 mints; the opening dataset supplies compact one-hour extrema and coverage, not lifecycle paths."
+  },
+  "reused_components": [
+    "Canonical Birdeye V3 request builder and production binding.",
+    "Established full-OHLC timestamp/value normalization rules, subject to the documented contract mismatch audit.",
+    "reduce_watchtower_price_facts for ordered observed maxima, threshold crossings, and peak-to-close drawdown.",
+    "Existing runtime gate, shared 20-global/4-per-mint admission, compact evidence limits, and crash/no-repeat ownership boundaries."
+  ],
+  "unnecessary_duplication_identified": [
+    "A second Birdeye client, endpoint contract, request builder, budget, scheduler, provider ledger, or canonical lifecycle calculator is unnecessary and prohibited.",
+    "The prior single-request lifecycle probe is not a cohort execution path and must not be expanded or retried."
+  ],
+  "current_lifecycle_data_available": {
+    "opening_hour": "Coverage-labelled compact opening-hour extrema/minima only.",
+    "fifteen_minute": "Seven retained successful 15m observations over two mints; sparse and not cohort-wide lifecycle coverage.",
+    "not_available": [
+      "Contiguous creation-to-last-observation OHLC paths for the Watchtower cohort.",
+      "Coverage-qualified lifecycle observed peaks, post-peak troughs, recoveries, or last observations for the cohort.",
+      "Evidence sufficient to call any observed peak a verified lifetime ATH or any last observation terminal valuation."
+    ]
+  },
+  "lifecycle_accuracy_assessment": {
+    "units": "The canonical request explicitly selects chart_type=mcap and currency=usd; direct provider MCAP values require validated positive-finite full OHLC fields before use.",
+    "chronology": "Existing reducer orders timestamped candles. It identifies an observed high, but it does not itself calculate peak-to-subsequent-trough or recovery peaks; those require a contiguous, coverage-qualified series and an explicitly qualified analysis layer.",
+    "regimes": "Creation/curve and post-migration AMM observations must remain separately labelled. Existing opening evidence cannot be blended into post-migration lifecycle extrema without a defined boundary.",
+    "coverage": "The finalizer rejects gaps for non-retained requests and labels sparse retained 15m results; it is therefore safer than treating HTTP 200 or a last row as coverage."
+  },
+  "zero_code_solution_possible": false,
+  "minimum_missing_capability": "A non-canonical, cohort-scoped composition of existing terminal-finalizer/reducer logic with the existing shared runtime gate, admission, segmented no-repeat journal, compact evidence root, and a coverage-aware post-peak/recovery reducer. Existing finalizer only admits terminal facts and commits canonical SQLite rows; existing historical executor owns a different SQLite FSM and range contract. Configuration alone cannot change either persistence authority or derive post-peak trough/recovery metrics.",
+  "minimum_implementation_if_required": {
+    "reuse": "Call existing canonical request builder/binding, established normalizer, runtime gate, shared admission, segmented journal and price-fact reducer; do not copy them.",
+    "correction": "Add only an isolated persistence adapter and coverage-aware lifecycle projection that consumes validated OHLC output. It must never write operation_monitor_facts or canonical observations.",
+    "provider_impact": "None for qualification. Any future acquisition requires separate explicit request authority after retained-fixture normalization qualification.",
+    "storage": "Compact derived milestones plus coverage diagnostics only; max 1MiB/artifact, explicit cohort cap at or below 100MiB, transient atomic overlap bounded, raw payload retention=false, and no design path to a 500MB file.",
+    "regression": "Existing terminal adapter/executor/reducer tests plus isolated no-repeat, coverage-gap, peak-before-trough, recovery, and canonical-DB-isolation fixtures."
+  },
+  "provider_request_estimate": "Not responsibly quantifiable from retained evidence. Existing finalizer plans ceil((terminal_timestamp-entry_timestamp)/chunk_seconds) V3 requests per mint, while the historical executor permits at most 12 15m physical attempts plus one opening attempt. Neither bound proves lifecycle coverage or is authorized for this cohort.",
+  "recommended_execution_path": [
+    "First use existing retained compact evidence for provider-free opening-hour and sparse-15m analysis only.",
+    "Do not use the canonical terminal finalizer or historical executor against live Watchtower state: both persist canonical SQLite records.",
+    "If lifecycle research remains required, authorize one minimal isolated composition that reuses the listed components, after a retained-fixture shared-normalizer qualification proves the exact provider contract."
+  ],
+  "safety": {
+    "provider_requests": 0,
+    "credential_reads": 0,
+    "canonical_database_writes": 0,
+    "queue_writes": 0,
+    "deployment": 0,
+    "scheduling": 0,
+    "raw_provider_retention": false,
+    "runtime_deployment_required": false,
+    "single_file_bound_bytes": 1000000,
+    "unbounded_growth_paths": 0
+  },
+  "next_gate": "Stop. Do not acquire lifecycle data. A separately authorized retained-fixture normalizer qualification is the prerequisite to deciding whether the minimal isolated composition is justified."
+}

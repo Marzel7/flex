@@ -23653,15 +23653,15 @@
     "next_action": "Obtain one explicit paid authorization naming 3ea086247655a65fa2be226810b0742af0fe418c and the frozen cohort hash. Then perform fresh runtime preflight and invoke only scripts/run_dev014_birdeye_preflight.py --mode lifecycle-cohort."
   },
   "watchtower_lifecycle_cohort_activation_20261011": {
-    "status": "HOLD_CHECKPOINT_PROGRESS_UNPROVEN",
-    "engineering_revision": "3ea086247655a65fa2be226810b0742af0fe418c on codex/dev014-current-mc-freshness; remote matched before preflight",
+    "status": "RUNNING_FINITE_AUTHORIZED_COHORT",
+    "engineering_revision": "3ea086247655a65fa2be226810b0742af0fe418c on codex/dev014-current-mc-freshness; remote matched immediately before execution",
     "authorization": "550-member frozen lifecycle cohort content_hash=377103f255f5bacddd36fcd46188d7b7bb3688a552e563b3fd55eb2e47a3cc6c independently verified. Ranks42/44/49 and completed rank593 absent; identities/mints unique; all windows 15m creation-to-creation+864000.",
-    "preflight": "Safe wrapper --mode preflight returned READ_ONLY_PREFLIGHT_REJECTED. Direct read-only Batch4RuntimeGate diagnosis returned CHECKPOINT_PROGRESS_UNPROVEN.",
-    "runtime_observation": "API /healthz was HTTP 200 with healthy=true, db=ok, wal_warn=false, WAL=2.1MiB; creator-funding heartbeat age=3s and creator-resolution=65s. These observations do not replace the runtime gate's required checkpoint-progress proof.",
-    "execution": "No lifecycle dispatcher process launched. No credential-bound acquisition, provider admission/request, shared-budget debit, lifecycle cohort journal write, canonical DB write, deployment, or scheduling occurred.",
+    "preflight": "PASS via safe wrapper --mode preflight immediately before execution: API healthy=true/db=ok/wal_warn=false; checkpoint samples=3 remaining_frames=110; WAL=2772792 bytes; creator-funding age=6s and creator-resolution age=52s; disk_free_bytes=7391625216; BIRDEYE presence was confirmed without retaining its value.",
+    "runtime_observation": "Dispatcher wrapper PID=76562 started 2026-10-11 19:13:13 local runtime time; child cohort runner PID=76576 started one second later. The exclusive cohort lock exists at the qualified root. The first ten exact authorized identities have durable compact journals, all state=COMPLETED and HTTP=200; no duplicate identity is present. This independently proves shared-budget admission and real provider transport before this running observation.",
+    "execution": "RUNNING finite manual cohort. Observed paid requests=10 of maximum 550; durable lifecycle journals=10; session one is paced at the 10-request rolling-minute boundary. Canonical SQLite writes, deployment, scheduling, raw-payload retention, pagination, fallback, and automatic retry remain disallowed.",
     "runtime_deployment_required": false,
-    "runtime_deployment_gate": "NOT_REQUIRED_HOLD_NO_EXECUTION",
-    "next_action": "Do not retry activation automatically. Under separate read-only authority, identify or await authoritative checkpoint-progress telemetry accepted by the unchanged Batch4RuntimeGate, then obtain/reconfirm paid activation authority before a fresh preflight."
+    "runtime_deployment_gate": "NOT_REQUIRED_ISOLATED_FINITE_MANUAL_EXECUTION",
+    "next_action": "Read-only monitor the active finite dispatcher and reconcile compact journals after each session. Stop permanently at authorization exhaustion or the first genuine safety HOLD; do not restart after HOLD."
   },
   "watchtower_lifecycle_checkpoint_evidence_recovery_20261011": {
     "status": "PASS_RUNTIME_GATE_RESTORED_READ_ONLY",

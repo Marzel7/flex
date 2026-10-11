@@ -23727,5 +23727,17 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "runtime_deployment_reason": "This changes the executable isolated manual lifecycle runner, but no deployment/reload or paid restart was authorized. A future manually authorized run must use the qualified source commit and a fresh operational preflight.",
     "next_action": "Obtain renewed explicit paid authority for exactly the 412 untouched identities, then verify remote engineering publication, fresh runtime health, source identity, and exclusive ownership before any manual continuation. Do not auto-restart."
+  },
+  "watchtower_lifecycle_final_412_activation_20261011": {
+    "status": "HOLD_UNRECORDED_DISPATCHER_EXIT_ZERO_ADMISSIONS",
+    "engineering_revision": "06fc3194e4a9c4fcfdf4554286a5486c14fe7649 on codex/dev014-current-mc-freshness; remotely verified.",
+    "publication": "Engineering branch remote SHA=06fc3194e4a9c4fcfdf4554286a5486c14fe7649. The prior recovery handoff was remotely content-verified at SHA-256 0fc9ac3e2421ca6832e35d9c9687e7b528cdaf0e8add7ac633985561483f819f before launch.",
+    "authority": "Explicit authorization allowed at most 412 paid requests for the untouched identities of authorization 377103f255f5bacddd36fcd46188d7b7bb3688a552e563b3fd55eb2e47a3cc6c.",
+    "preflight": "PASS via the existing safe wrapper: BIRDEYE presence only; API healthy=true/db=ok/wal_warn=false; creator-funding age=0s and creator-resolution age=17s; checkpoint samples=2 remaining_frames=42; WAL=461472 bytes; disk_free_bytes=8450736128.",
+    "launch_and_hold": "Manual detached wrapper PID 6846 started dispatcher PID 6853, acquired the cohort lock, and wrote STARTED at Unix 1791747994. Both processes later exited before any durable request transition. run_status.json remains STARTED with exit_code=null, so no durable exception/HOLD reason exists. Read-only post-exit checks found both PIDs absent and the exclusive lock available. The observed evidence permits only UNRECORDED_PROCESS_EXIT, not a claimed cause.",
+    "durable_preservation": "Post-exit journals remain COMPLETED=137, NO_VALID_CANDLES=1, terminal=138, ATTEMPTED=0, OUTCOME_UNKNOWN=0, untouched=412. No provider admission, transport, request identity, journal transition, canonical SQLite write, or credential disclosure occurred. Cohort storage=196995 bytes.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "Do not auto-restart. Diagnose the process-lifecycle/parent-session termination using retained runtime evidence or use an already-approved independent finite-run ownership mechanism. Any later paid continuation still requires fresh preflight and exact remaining-identity authority."
   }
 }

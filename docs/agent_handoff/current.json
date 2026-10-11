@@ -23598,5 +23598,6 @@
     "no_retry": "PROBE_ALREADY_ATTEMPTED blocks every later execution for the journal identity.",
     "blocker": "Required fixed authorization path /private/tmp/dev014-lifecycle-probe.authorization.json is absent. Its content hash, exact time range, interval, and deterministic request identity cannot be independently verified. No authorization was manufactured and no paid request, credential read, budget debit, or runtime write occurred.",
     "next_action": "Supply or explicitly authorize creation of the exact content-hashed frozen authorization artifact at the wrapper's fixed path, then repeat fresh preflight before the single paid probe."
-  }
+  },
+  "watchtower_lifecycle_rank49_capability_probe_20261011": {"status":"COMPLETE_ONE_REQUEST_TERMINAL_MALFORMED_RESPONSE","engineering_revision":"d761ef0d9cd0225da99405d284976b92863ed81b","authorization_hash":"3be8144ca87e36babdb36fd621b6150584173c7272d62bfbed1644b90a474f49","mint":"AqYdSQ6oFq8HjLoFkvHW6kYcRM1p94Q1FcvGFxDfpump","rank":49,"request":"GET /defi/v3/ohlcv; chart_type=mcap; type=15m; [1790811743,1791729311)","outcome":"HTTP 200 but MALFORMED_RESPONSE under the qualified candle schema; compact journal only, 539 bytes; raw payload retained=false.","safety":"Exactly one shared-budget admission and one transport; no retry/pagination/fallback; no canonical DB writes; no additional paid request authorized.","next_action":"Do not scale lifecycle acquisition. Inspect/qualify the provider response schema under separate provider-free authority before any additional request."}
 }

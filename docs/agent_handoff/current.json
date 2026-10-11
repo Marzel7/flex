@@ -23799,5 +23799,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_STARTED_COMPATIBILITY_HOLD",
     "next_action": "Do not change workers or resume paid acquisition. A separately scoped API engineering qualification must first prevent duplicate per-worker prewarm/cold-build activity (or supply a proven existing cross-process ownership mechanism); only then can two-worker configuration, controlled reload, and bounded acceptance be authorized."
+  },
+  "dev015_api_runtime_reliability_20261011": {
+    "status": "QUALIFIED_NOT_DEPLOYED_PARTIAL",
+    "engineering_revision": "b98ce0efe69171168b751daedafaf8063647c032 on codex/dev015-api-runtime-reliability; remote branch published.",
+    "scope": "Dedicated isolated worktree /Users/kevinkeaveney/.codex/worktrees/dev015-api-runtime-reliability/flex from base 06fc3194e4a9c4fcfdf4554286a5486c14fe7649. DEV-014 cohort code and runtime were untouched.",
+    "change": "Reused intelligence_snapshot_scheduler's existing cross-process ownership protocol for the complete Gunicorn prewarm. Non-owner workers skip prewarm and remain request-serving. Tightened that existing PID lock's creation to O_EXCL so simultaneous worker starts cannot both claim ownership.",
+    "bounds": "One compact PID lock file only; no provider payloads, credentials, canonical DB writes, raw retention, or unbounded files. Maximum lock content is one PID line; no file can approach 500MB.",
+    "qualification": "Focused provider-free regression tests/test_x65_50_sequential_prewarm_and_build_lock.py: 6 passed; py_compile and git diff --check passed. Full two-process startup/replacement and runtime acceptance remain unexecuted because deployment/reload is explicitly out of scope.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "Review/approve a controlled DEV API installation using b98ce0ef, then separately authorize two-worker Supervisor reload and bounded two-worker health/turnover acceptance. Paid Watchtower resume remains blocked."
   }
 }

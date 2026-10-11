@@ -23564,5 +23564,16 @@
     "runtime_deployment_gate": "NOT_REQUIRED_RESEARCH_ONLY",
     "safety": "Provider requests=0; credential reads=0; live database/queue writes=0; deployment=0; scheduling=0; existing opening-hour evidence unchanged.",
     "next_action": "Obtain separate explicit authority for a bounded, one-token lifecycle-provider capability probe; do not infer ATH, terminal MC, recovery, or causal price behaviour from the opening-hour evidence."
+  },
+  "watchtower_lifecycle_single_probe_20261011": {
+    "status": "HOLD_NO_QUALIFIED_SINGLE_REQUEST_EXECUTION_PATH",
+    "engineering_revision": "932dce0de1a4202fda69681ef1da45014ef6db8d",
+    "selected_candidate_not_frozen": "Rank 49 / AqYdSQ6oFq8HjLoFkvHW6kYcRM1p94Q1FcvGFxDfpump is a retained qualified creation-time observation (opening evidence identity 10a188d4...), but no paid request was admitted and this is not a frozen lifecycle request authority.",
+    "blocker": "The qualified production session CLI validates a fixed 1m, 3600-second opening window; it cannot issue the lifecycle-range capability request. The existing HistoricalExecutor can issue up to 13 calls and persists canonical SQLite state. The safe credential wrapper exposes only verify/preflight, a fixed legacy execute session, and cohort launch; it has no one-request lifecycle-probe mode.",
+    "decision": "No direct credentialed/ad-hoc request was made: it would bypass the qualified CLI/wrapper contract or violate the one-request cap.",
+    "safety": "Provider requests=0; credential reads=0; budget debits=0; live database/queue writes=0; deployment=0; scheduling=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_HOLD",
+    "next_action": "Explicitly authorize the minimal provider-free implementation and qualification of a frozen, one-request lifecycle capability-probe adapter that reuses the safe wrapper, runtime gate, shared budget and compact journal. Then obtain paid authorization naming its qualified SHA."
   }
 }

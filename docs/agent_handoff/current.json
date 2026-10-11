@@ -23677,6 +23677,18 @@
     "runtime_deployment_gate": "NOT_REQUIRED_READ_ONLY_DIAGNOSIS",
     "next_action": "Do not restart automatically. If a renewed explicit paid authorization for only the 427 untouched identities is granted, perform a fresh immediate preflight under the unchanged gate and stop again on any persistent or ambiguous failure."
   },
+  "watchtower_lifecycle_final_427_resume_20261011": {
+    "status": "RUNNING_FINITE_MANUAL_COHORT",
+    "engineering_revision": "85f50f28f4a26b9177091663767cd2b119f9f480 on codex/dev014-current-mc-freshness; origin branch independently matched before launch",
+    "authority": "Explicit paid authorization permits at most 427 additional Birdeye requests, restricted to the untouched identities of frozen authorization 377103f255f5bacddd36fcd46188d7b7bb3688a552e563b3fd55eb2e47a3cc6c. No range expansion, pagination, fallback, retry after attempt, canonical SQLite write, service deployment, or scheduler is authorized.",
+    "preflight": "PASS through the safe BIRDEYE wrapper: credential presence only (no value retained), API healthy=true/db=ok/wal_warn=false, creator ages=0s/52s, checkpoint samples=3 remaining_frames=87, WAL=354352 bytes, disk_free=8444923904 bytes.",
+    "execution": "Persistent safe-wrapper PID=96212 launched dispatcher PID=96226 at Unix 1791746099. Exclusive ownership was acquired and run_status became RUNNING. Initial verification observed durable terminals advance from 123 to 133, demonstrating fresh shared-budget admissions/transports and compact journal progression; no completed identity was replayed.",
+    "durable_progress": "At first verified running sample: COMPLETED=132, NO_VALID_CANDLES=1, terminal=133, protected ATTEMPTED=0, OUTCOME_UNKNOWN=0, untouched=417. Authorization/journal duplicates=0 and unauthorized identities=0. Compact cohort storage=189714 bytes.",
+    "observations": "Completed journals carry coverage=OBSERVED_RESPONSE_ONLY. No metric is elevated to lifetime ATH or terminal valuation; raw provider payload retention remains false.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_ISOLATED_FINITE_MANUAL_EXECUTION",
+    "next_action": "Leave the finite dispatcher unattended. It must continue only while full per-request health, shared-budget, pacing, storage, and no-repeat checks pass; stop permanently at exhaustion or first controlled HOLD."
+  },
   "watchtower_lifecycle_checkpoint_evidence_recovery_20261011": {
     "status": "PASS_RUNTIME_GATE_RESTORED_READ_ONLY",
     "engineering_revision": "3ea086247655a65fa2be226810b0742af0fe418c on codex/dev014-current-mc-freshness; remote verified",

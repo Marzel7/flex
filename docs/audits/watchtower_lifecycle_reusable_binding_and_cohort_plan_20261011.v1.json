@@ -1,0 +1,55 @@
+{
+  "audit": "WATCHTOWER_LIFECYCLE_REUSABLE_BINDING_AND_COHORT_PLAN_V1",
+  "status": "PASS_PROVIDER_FREE_COHORT_PREPARATION_NOT_EXECUTABLE",
+  "source_base": "0320d57288bc9c0f89ca5c8dd95def7e3b548ce9",
+  "reusable_binding": {
+    "wrapper_mode": "lifecycle-probe",
+    "fixed_executable": "scripts/run_watchtower_lifecycle_probe.py",
+    "authorization_root": "/private/tmp/dev014-lifecycle-authorizations",
+    "authorization_rule": "Exact content-hashed JSON only; filename must equal deterministic request identity; no symlinks or paths outside the dedicated root.",
+    "journal_rule": "Journal path derives from identity under /private/tmp/dev014-lifecycle-probes; no user-selected journal path.",
+    "prior_attempt_rule": "Existing lifecycle journals are discovered and any previously attempted request identity or mint is rejected.",
+    "credential_rule": "Existing BIRDEYE-only environment binding and fixed runner remain unchanged; no arbitrary command, import, URL, or credential argument."
+  },
+  "reused_components": [
+    "Existing safe BIRDEYE wrapper and fixed probe runner",
+    "Canonical Birdeye V3 request builder and binding",
+    "Batch4RuntimeGate and shared 20-global/4-per-mint budget admission",
+    "Existing atomic one-request journal and storage limits",
+    "Shared 15m partial-valid normalizer and observed lifecycle reducer"
+  ],
+  "new_code_justification": "The wrapper previously required a new source mode and hard-coded path per mint. The narrow binding accepts only an identity-named frozen authorization from one safe root and still invokes one fixed runner. It supplies reusable selection, not another provider path or launcher.",
+  "cohort_eligibility": {
+    "ranked_population": 597,
+    "qualified_opening_observations": 554,
+    "terminal_lifecycle_probe_exclusions": {"ranks": [42, 44, 49], "count": 3},
+    "independently_eligible_for_one_request_validation": 551,
+    "other_exclusions": {
+      "UNACQUIRED_NO_QUALIFIED_ANCHOR": 36,
+      "PROTECTED_OUTCOME_UNKNOWN": 3,
+      "COMPLETED_EVIDENCE_UNQUALIFIED": 3,
+      "PROTECTED_ATTEMPTED": 1
+    },
+    "rule": "Each excluded mint retains its existing status and provenance; it cannot block independently eligible mints. A completed provider request and a qualified lifecycle observation are accounted separately."
+  },
+  "provider_request_estimate": {
+    "current_reusable_contract": "One bounded 15m V3 request per exact authorization.",
+    "maximum_validation_requests": 551,
+    "cadence_floor": "At most 10 historical requests per rolling 60 seconds; serialized execution implies at least 56 rolling-minute windows before runtime health and cooldown overhead.",
+    "coverage_limit": "One response establishes observed-only or partial coverage, never complete lifetime coverage by assumption."
+  },
+  "storage_estimate": {
+    "per_request": "Existing compact journal/artifact <=1MiB; typical derived milestones are materially smaller but are not assumed for safety accounting.",
+    "worst_case_per_request_bound": 1048576,
+    "worst_case_551_request_bytes": 577765376,
+    "cohort_ceiling_bytes": 104857600,
+    "conclusion": "A 551-request cohort cannot use separate worst-case 1MiB artifacts under the 100MiB ceiling. It requires an explicitly qualified compact segmented cohort persistence composition or a smaller finite batch; no such cohort executor is implemented here.",
+    "minimum_disk_headroom_bytes": 4294967296,
+    "raw_provider_retention": false,
+    "unbounded_growth_paths": 0
+  },
+  "missing_cohort_execution_capability": "A finite, segmented, compact cohort coordinator that serializes the already-qualified fixed runner/authorization contract while enforcing the existing 100MiB ceiling and preserving per-mint exclusion accounting. This must reuse the existing segmented journal and not be built unless separately authorized.",
+  "regression": "12 focused provider-free tests passed: reusable wrapper binding, isolated lifecycle projection, probe/no-repeat, wrapper fixture, and shared normalizer.",
+  "safety": {"provider_requests": 0, "credential_reads": 0, "live_budget_debits": 0, "canonical_database_writes": 0, "deployment": 0, "scheduling": 0, "raw_provider_retention": false, "runtime_deployment_required": false},
+  "next_gate": "Stop before acquisition. A bounded real-data validation needs a separately authorized one-request frozen authorization placed in the safe root. Cohort work additionally requires separate authority for the missing compact coordinator; do not claim readiness for 551 requests."
+}

@@ -16,6 +16,8 @@ import sys
 from pathlib import Path
 from typing import Callable
 
+from src.ops.watchtower_lifecycle_probe import request_identity, validate_authorization
+
 
 ROOT = Path(__file__).resolve().parents[1]
 BOUND = "DEV014_BIRDEYE_ENV_BOUND"
@@ -25,6 +27,8 @@ STATE_DIR = Path("/private/tmp/dev014-r71-90-state")
 EVIDENCE_DIR = Path("/private/tmp/dev014-r71-90-evidence")
 SUPERVISOR_CONFIG = Path("/Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf")
 QUEUE_ROOT = Path("/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue")
+LIFECYCLE_AUTHORIZATION_ROOT = Path("/private/tmp/dev014-lifecycle-authorizations")
+LIFECYCLE_JOURNAL_ROOT = Path("/private/tmp/dev014-lifecycle-probes")
 
 
 class CredentialBindingDenied(RuntimeError):
@@ -42,9 +46,37 @@ def _minimal_environment(credential: str) -> dict[str, str]:
     }
 
 
+def _lifecycle_probe_paths(authorization: Path, *, authorization_root: Path = LIFECYCLE_AUTHORIZATION_ROOT,
+                           journal_root: Path = LIFECYCLE_JOURNAL_ROOT) -> tuple[Path, Path]:
+    """Bind frozen data to the one fixed probe runner, never an arbitrary command."""
+    root = authorization_root.resolve(strict=True)
+    candidate = authorization.resolve(strict=True)
+    if candidate.is_symlink() or candidate.parent != root or candidate.suffix != ".json":
+        raise CredentialBindingDenied("LIFECYCLE_AUTHORIZATION_PATH_DENIED")
+    try:
+        value = validate_authorization(json.loads(candidate.read_text()))
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        raise CredentialBindingDenied("LIFECYCLE_AUTHORIZATION_INVALID") from exc
+    identity = request_identity(value)
+    if candidate.stem != identity:
+        raise CredentialBindingDenied("LIFECYCLE_AUTHORIZATION_FILENAME_DENIED")
+    if journal_root.is_symlink():
+        raise CredentialBindingDenied("LIFECYCLE_JOURNAL_ROOT_DENIED")
+    prior_journals = list(Path("/private/tmp").glob("dev014-lifecycle-probe*/journal.json"))
+    prior_journals.extend(journal_root.glob("*/journal.json"))
+    for journal in prior_journals:
+        try:
+            prior = json.loads(journal.read_text())
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            raise CredentialBindingDenied("LIFECYCLE_PRIOR_JOURNAL_UNREADABLE") from exc
+        if prior.get("state") != "NEW" and (prior.get("request_identity") == identity or prior.get("mint") == value["mint"]):
+            raise CredentialBindingDenied("LIFECYCLE_PRIOR_ATTEMPT_DENIED")
+    return candidate, journal_root / identity / "journal.json"
+
+
 def _source_then_reexec(env_file: Path, mode: str, cohort_root: Path | None = None,
                          max_requests: int | None = None, max_runtime_seconds: int | None = None,
-                         max_evidence_bytes: int | None = None) -> int:
+                         max_evidence_bytes: int | None = None, lifecycle_authorization: Path | None = None) -> int:
     if not env_file.is_file():
         raise CredentialBindingDenied("MONITOR_ENV_FILE_UNAVAILABLE")
     # "$@" contains only interpreter/script/mode arguments.  BIRDEYE remains
@@ -62,7 +94,10 @@ def _source_then_reexec(env_file: Path, mode: str, cohort_root: Path | None = No
         if max_evidence_bytes is not None:
             target.extend(("--max-evidence-bytes", str(max_evidence_bytes)))
     if mode == "lifecycle-probe":
-        target = [sys.executable, str(ROOT / "scripts" / "run_watchtower_lifecycle_probe.py"), "--authorization", str(Path("/private/tmp/dev014-lifecycle-probe.authorization.json")), "--journal", str(Path("/private/tmp/dev014-lifecycle-probe/journal.json")), "--queue-root", str(QUEUE_ROOT), "--supervisor-config", str(SUPERVISOR_CONFIG)]
+        if lifecycle_authorization is None:
+            raise CredentialBindingDenied("LIFECYCLE_AUTHORIZATION_REQUIRED")
+        authorization, journal = _lifecycle_probe_paths(lifecycle_authorization)
+        target = [sys.executable, str(ROOT / "scripts" / "run_watchtower_lifecycle_probe.py"), "--authorization", str(authorization), "--journal", str(journal), "--queue-root", str(QUEUE_ROOT), "--supervisor-config", str(SUPERVISOR_CONFIG)]
     if mode == "rank-42-lifecycle-probe":
         target = [sys.executable, str(ROOT / "scripts" / "run_watchtower_lifecycle_probe.py"), "--authorization", "/private/tmp/dev014-lifecycle-probe-2.authorization.json", "--journal", "/private/tmp/dev014-lifecycle-probe-2/journal.json", "--queue-root", str(QUEUE_ROOT), "--supervisor-config", str(SUPERVISOR_CONFIG)]
     if mode == "rank-44-lifecycle-probe":
@@ -131,12 +166,14 @@ def main() -> int:
     parser.add_argument("--max-requests", type=int)
     parser.add_argument("--max-runtime-seconds", type=int)
     parser.add_argument("--max-evidence-bytes", type=int)
+    parser.add_argument("--lifecycle-authorization", type=Path)
     parser.add_argument("--bound", action="store_true")
     args = parser.parse_args()
     try:
         if not args.bound:
             return _source_then_reexec(args.env_file, args.mode, args.cohort_root,
-                                       args.max_requests, args.max_runtime_seconds, args.max_evidence_bytes)
+                                       args.max_requests, args.max_runtime_seconds, args.max_evidence_bytes,
+                                       args.lifecycle_authorization)
         if os.environ.get(BOUND) != "1":
             raise CredentialBindingDenied("BOUND_PROCESS_REQUIRED")
         if args.mode == "execute":

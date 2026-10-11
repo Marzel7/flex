@@ -23651,5 +23651,16 @@
     "runtime_deployment_gate": "NOT_REQUIRED_MANUAL_PROVIDER_FREE_QUALIFICATION",
     "safety": "Provider requests=0; real credential reads=0; live budget debits=0; canonical database writes=0; deployment=0; scheduling=0. Existing terminal ranks42/44/49 and completed rank593 are unchanged.",
     "next_action": "Obtain one explicit paid authorization naming 3ea086247655a65fa2be226810b0742af0fe418c and the frozen cohort hash. Then perform fresh runtime preflight and invoke only scripts/run_dev014_birdeye_preflight.py --mode lifecycle-cohort."
+  },
+  "watchtower_lifecycle_cohort_activation_20261011": {
+    "status": "HOLD_CHECKPOINT_PROGRESS_UNPROVEN",
+    "engineering_revision": "3ea086247655a65fa2be226810b0742af0fe418c on codex/dev014-current-mc-freshness; remote matched before preflight",
+    "authorization": "550-member frozen lifecycle cohort content_hash=377103f255f5bacddd36fcd46188d7b7bb3688a552e563b3fd55eb2e47a3cc6c independently verified. Ranks42/44/49 and completed rank593 absent; identities/mints unique; all windows 15m creation-to-creation+864000.",
+    "preflight": "Safe wrapper --mode preflight returned READ_ONLY_PREFLIGHT_REJECTED. Direct read-only Batch4RuntimeGate diagnosis returned CHECKPOINT_PROGRESS_UNPROVEN.",
+    "runtime_observation": "API /healthz was HTTP 200 with healthy=true, db=ok, wal_warn=false, WAL=2.1MiB; creator-funding heartbeat age=3s and creator-resolution=65s. These observations do not replace the runtime gate's required checkpoint-progress proof.",
+    "execution": "No lifecycle dispatcher process launched. No credential-bound acquisition, provider admission/request, shared-budget debit, lifecycle cohort journal write, canonical DB write, deployment, or scheduling occurred.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_HOLD_NO_EXECUTION",
+    "next_action": "Do not retry activation automatically. Under separate read-only authority, identify or await authoritative checkpoint-progress telemetry accepted by the unchanged Batch4RuntimeGate, then obtain/reconfirm paid activation authority before a fresh preflight."
   }
 }

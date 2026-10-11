@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from src.ops.token_data_provider_bindings import ProviderTransportOutcome
 from src.ops.watchtower_lifecycle_probe import OneRequestLifecycleProbe, request_identity
+from src.ops.watchtower_lifecycle_probe import compact_outcome
 
 AUTH={"rank":49,"mint":"AqYdSQ6oFq8HjLoFkvHW6kYcRM1p94Q1FcvGFxDfpump","creation_timestamp":100,"time_from":100,"time_to":1000,"interval":"15m"}
 AUTH["content_hash"]=request_identity(AUTH)
@@ -27,4 +28,9 @@ def test_empty_is_terminal_and_crash_is_nonretryable(tmp_path):
  with pytest.raises(RuntimeError,match="CRASH"): p.execute(crash_after_admission=True)
  with pytest.raises(RuntimeError,match="ALREADY_ATTEMPTED"): p.execute()
 def test_malformed_fails_closed(tmp_path):
- p,_,_,_=probe(tmp_path,ProviderTransportOutcome(200,{"data":{"items":[{"unixTime":1,"h":"nan","l":1}]}},{})); assert p.execute()["outcome"]=="MALFORMED_RESPONSE"
+ p,_,_,_=probe(tmp_path,ProviderTransportOutcome(200,{"data":{"items":[{"unixTime":1,"h":"nan","l":1}]}},{})); assert p.execute()["outcome"]=="INVALID_CANDLE_VALUES"
+
+def test_http200_provider_error_and_invalid_values_are_distinguished():
+ assert compact_outcome({'success':False,'code':'RANGE_TOO_LARGE','message':'discarded'}, {}, 200)['outcome']=='PROVIDER_API_ERROR'
+ assert compact_outcome({'data':{'items':[{'unixTime':1,'h':'nan','l':1}]}}, {}, 200)['outcome']=='INVALID_CANDLE_VALUES'
+ assert compact_outcome({'data':{'items':[{'unixTime':1,'h':2,'l':1},{'unixTime':1,'h':3,'l':2}]}}, {}, 200)['outcome']=='INVALID_CANDLE_VALUES'

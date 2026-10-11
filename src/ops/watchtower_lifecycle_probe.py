@@ -45,6 +45,11 @@ def validate_authorization(authorization: dict[str, Any]) -> dict[str, Any]:
 def compact_outcome(payload: Any, request: dict[str, Any], status: int) -> dict[str, Any]:
     if status != 200:
         return {"outcome": "HTTP_FAILURE", "http_status": status}
+    if isinstance(payload, dict) and (payload.get("success") is False or payload.get("code") not in (None, 0, "0")):
+        error = {"outcome": "PROVIDER_API_ERROR", "http_status": status,
+                 "response_envelope_fields": sorted(str(key) for key in payload)[:16]}
+        if payload.get("code") is not None: error["provider_error_code"] = str(payload["code"])[:128]
+        return error
     try:
         items = payload["data"]["items"]
         if not isinstance(items, list): raise ValueError
@@ -58,11 +63,12 @@ def compact_outcome(payload: Any, request: dict[str, Any], status: int) -> dict[
             if not (math.isfinite(high) and math.isfinite(low) and high > 0 and low > 0): raise ValueError
             rows.append((timestamp, low, high))
         except (AttributeError, KeyError, TypeError, ValueError):
-            return {"outcome": "MALFORMED_RESPONSE", "http_status": status}
+            return {"outcome": "INVALID_CANDLE_VALUES", "http_status": status,
+                    "response_envelope_fields": sorted(str(key) for key in payload)[:16] if isinstance(payload, dict) else []}
     if not rows:
         return {"outcome": "NO_VALID_CANDLES", "http_status": status, "returned_candle_count": 0}
     rows.sort()
-    if len({row[0] for row in rows}) != len(rows): return {"outcome": "MALFORMED_RESPONSE", "http_status": status}
+    if len({row[0] for row in rows}) != len(rows): return {"outcome": "INVALID_CANDLE_VALUES", "http_status": status}
     minimum, maximum = min(rows, key=lambda row: row[1]), max(rows, key=lambda row: row[2])
     return {"outcome": "COMPLETED", "http_status": status, "returned_candle_count": len(rows),
             "first_returned_timestamp": rows[0][0], "last_returned_timestamp": rows[-1][0],

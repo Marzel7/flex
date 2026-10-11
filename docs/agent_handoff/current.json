@@ -23764,5 +23764,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_REQUIRED_ISOLATED_FINITE_MANUAL_EXECUTION_ALREADY_RUNNING",
     "next_action": "Leave the finite detached dispatcher running. Read-only monitoring may report durable session progress or a HOLD. Do not launch a duplicate or restart automatically."
+  },
+  "watchtower_lifecycle_412_detached_resume_hold_20261011": {
+    "status": "HOLD_API_HEALTH_RECOVERY_DEADLINE",
+    "engineering_revision": "06fc3194e4a9c4fcfdf4554286a5486c14fe7649 on codex/dev014-current-mc-freshness; no source change.",
+    "execution": "Qualified detached screen session flexdev014lifecycle1791749297 launched wrapper PID13454 and dispatcher PID13456 at Unix1791749298. It durably completed 12 additional provider requests before pre-admission API recovery exhausted its qualified 10-second window. The screen session and all three processes exited normally afterward; no automatic restart occurred.",
+    "exit_evidence": "run_status.json is durable HOLD, exception_class=RuntimeGateDenied, reason=API_HEALTH_RECOVERY_DEADLINE, exit_code=1, terminal_count=150, updated_at=1791749391. Retained screenlog.0 is 1417 bytes and ends with the matching traceback plus EXIT_CODE=1. No credential or raw provider content is in that log.",
+    "durable_state": "COMPLETED=149, NO_VALID_CANDLES=1, terminal=150, ATTEMPTED=0, OUTCOME_UNKNOWN=0, untouched=400, lock=AVAILABLE, storage=214419 bytes. No duplicate, unauthorized, uncertain, pagination, fallback, retry, canonical SQLite, deployment, or scheduling state was created.",
+    "post_hold_gate": "The safe-wrapper post-HOLD preflight returned generic READ_ONLY_PREFLIGHT_REJECTED. Credential-free direct Batch4RuntimeGate check identifies current CHECKPOINT_PROGRESS_UNPROVEN. This is post-HOLD evidence only; it does not alter the recorded API transport recovery deadline or authorize restart.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_ISOLATED_FINITE_MANUAL_EXECUTION",
+    "next_action": "Do not auto-restart. A separately authorized read-only runtime/checkpoint diagnosis must establish fresh qualifying gate evidence and assess the repeated transport interruption before any renewed paid authority for only the 400 untouched identities. Preserve screen run directory until its exit evidence is independently reviewed."
   }
 }

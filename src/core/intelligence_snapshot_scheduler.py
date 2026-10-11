@@ -168,7 +168,8 @@ def acquire_window_lock(function: str, window_seconds: int) -> bool:
         except OSError:
             pass
     try:
-        with open(path, "w") as f:
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(fd, "w") as f:
             f.write(str(os.getpid()))
         return True
     except OSError as exc:

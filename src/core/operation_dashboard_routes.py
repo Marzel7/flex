@@ -9297,6 +9297,16 @@ def prewarm_operational_intelligence_cache() -> None:
     _log.warning("X65.51 prewarm scheduled delay=%.1fs", _PREWARM_STARTUP_DELAY_SEC)
 
     def _run() -> None:
+        from src.core.intelligence_snapshot_scheduler import acquire_window_lock, release_window_lock
+        if not acquire_window_lock("gunicorn_prewarm", 0):
+            _log.warning("X65.58 prewarm skipped: another Gunicorn worker owns it")
+            return
+        try:
+            _run_owned()
+        finally:
+            release_window_lock("gunicorn_prewarm", 0)
+
+    def _run_owned() -> None:
         time.sleep(_PREWARM_STARTUP_DELAY_SEC)
         for window_param in _PREWARM_WINDOW_ORDER:
             window_seconds = window_seconds_for(window_param)

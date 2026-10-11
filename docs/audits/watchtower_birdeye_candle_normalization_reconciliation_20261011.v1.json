@@ -1,0 +1,74 @@
+{
+  "audit": "WATCHTOWER_BIRDEYE_CANDLE_NORMALIZATION_RECONCILIATION_V1",
+  "status": "COMPLETE_PROVIDER_FREE",
+  "source_revision": "0da855301906650a411c4dddd5c2523d482f6c22",
+  "scope": "Retained source, fixtures, and compact evidence only; no provider, credential, canonical-database, queue, or runtime action.",
+  "contracts": {
+    "one_minute_opening": {
+      "implementation": "scripts/run_watchtower_recent_first_price_forensics_batch_4.py::_normalize",
+      "envelope": "HTTP 200; success must be true; data.items must be a list",
+      "fields": "unixTime|unix_time|timestamp and o|open,h|high,l|low,c|close",
+      "validation": "positive finite full OHLC, minute alignment, bounded half-open window, strictly increasing input order, OHLC invariants",
+      "failure_mode": "all-or-nothing response rejection"
+    },
+    "fifteen_minute_historical": {
+      "implementation": "src.ops.strict_migration_window::normalize_opening_ohlcv, used by watchtower_terminal_ath_finalizer and watchtower_historical_executor",
+      "envelope": "data.items list; success flag is not checked in this helper",
+      "fields": "unixTime|unix_time|timestamp and o|open,h|high,l|low,c|close",
+      "validation": "timestamp positive; low non-negative; full OHLC ordering invariants; rows sorted after validation",
+      "failure_mode": "all-or-nothing response rejection"
+    },
+    "lifecycle_probe": {
+      "implementation": "src.ops.watchtower_lifecycle_probe::compact_outcome",
+      "envelope": "data.items list after explicit HTTP-200 provider-error classification",
+      "fields": "unixTime|timestamp and h,l only",
+      "validation": "per-candle positive finite high/low and duplicate valid timestamp rejection; valid rows sorted",
+      "failure_mode": "partial acceptance, INVALID_CANDLE_VALUES when every row is rejected"
+    }
+  },
+  "field_differences": [
+    "The lifecycle probe omits unix_time and full open/close fields accepted by both established normalizers.",
+    "The lifecycle probe requires positive low whereas the established 15-minute helper permits zero low; neither contract alone proves which value is valid provider MCAP evidence.",
+    "The opening-hour normalizer checks success=true, minute alignment, request boundaries and input ordering; the probe does not.",
+    "The 15-minute helper sorts validated rows and has no interval-alignment or envelope-success check."
+  ],
+  "retained_fifteen_minute_success_evidence": {
+    "artifact": "docs/audits/watchtower_15m_provider_evidence_liveness.v1.json",
+    "endpoint": "/defi/v3/ohlcv",
+    "interval": "15m",
+    "committed_observations": 7,
+    "successful_mints": 2,
+    "details": [
+      "8n1Qyjo7LrQMFaZsTJ3K1qPkNRMxDmS6R4eDjkvjpump: OBSERVATION_COMMITTED, 4 unique completed candles, 3548-second latest window.",
+      "9DPUFzAMZfbh4ie5RLJ1C7Zhes5eEayPsTU91tSzpump: OBSERVATION_COMMITTED, 3 unique completed candles, 3420-second latest window."
+    ],
+    "limitation": "The compact artifact retains no raw payload or per-row fields; it proves successful 15-minute processing, not equivalence with any terminal lifecycle probe response."
+  },
+  "reusable_rules": {
+    "reuse": [
+      "Canonical V3 request builder and its bounded supported interval set.",
+      "Full OHLC field aliases and timestamp aliases from the established normalizers.",
+      "Chronological extrema only after validated timestamped candles are ordered.",
+      "Compact evidence, no-repeat journal, runtime gate, and shared-budget boundaries."
+    ],
+    "preserve": [
+      "Positive-finite MCAP validation for lifecycle output.",
+      "Explicit PARTIAL_VALID_CANDLES, NO_VALID_CANDLES, provider-error, and malformed-envelope classifications.",
+      "No lifetime-ATH or terminal-valuation claim from sparse or partial coverage."
+    ],
+    "not_proven": "Direct substitution of either legacy all-or-nothing normalizer into the lifecycle probe is not qualified: their success-envelope, zero-value, ordering, boundary, and partial-acceptance contracts differ."
+  },
+  "lifecycle_adapter_compatibility": "PARTIAL_CONTRACT_MISMATCH; reuse the established aliases and full-OHLC parsing only through a separately provider-free qualified shared contract. No further paid probe is justified by retained evidence.",
+  "regression_basis": [
+    "tests/test_watchtower_lifecycle_probe.py",
+    "tests/test_watchtower_historical_executor.py",
+    "tests/test_watchtower_terminal_adapter.py"
+  ],
+  "storage": {
+    "artifact_max_bytes": 1000000,
+    "artifact_raw_provider_retention": false,
+    "unbounded_growth_paths": 0
+  },
+  "runtime_deployment_required": false,
+  "next_gate": "Provider-free shared-normalizer contract qualification against retained known-good 15-minute fixture data, if such a fixture can be located; otherwise no lifecycle acquisition."
+}

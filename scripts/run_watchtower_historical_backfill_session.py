@@ -13,7 +13,7 @@ from src.ops.watchtower_historical_execution_binding import HistoricalExecutionB
 import src.ops.watchtower_historical_execution_binding as execution_binding_module
 from src.ops.watchtower_historical_budget import HistoricalForensicsBudgetAdmission
 from src.ops.dev_provider_budget import BudgetDenied
-from src.ops.dev014_batch4_runtime_gate import Batch4RuntimeGate, RuntimeAuthority, resolve_runtime_authority
+from src.ops.dev014_batch4_runtime_gate import Batch4RuntimeGate, RuntimeAuthority, RuntimeGateDenied, resolve_runtime_authority
 from src.ops.token_data_provider_bindings import BirdeyeProductionBinding, ProviderTransportOutcome
 
 RECON=ROOT/'docs/audits/dev014_watchtower_recent_first_price_forensics_reconciliation_and_batch_5_20261009.v1.json'
@@ -179,12 +179,17 @@ def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, An
     authority=RuntimeAuthority(config,'http://fixture/healthz',db,listener,(funding,resolution))
     lines=lambda:[f'1 0 Sat Oct 10 00:00:00 2026 /usr/local/bin/supervisord -c {config}','2 1 Sat Oct 10 00:00:00 2026 /usr/bin/python3 -m src.core.creator_funding_worker','3 1 Sat Oct 10 00:00:00 2026 /usr/bin/python3 -m src.core.creator_resolution_worker']
     scenario=args.test_scenario
-    if scenario not in {'healthy','api-unhealthy','wrong-api','funding-stale','resolution-stale','wal-over-limit','checkpoint-stalled','disk-low','duplicate-supervisor','duplicate-creator','critical-wal','global-budget-denied','mint-budget-denied','provider-backoff','provider-backoff-expired','malformed-ledger','unreadable-ledger','transport-failure','transport-hold','wait-cancel','wait-health-failure','wait-crash','segment-zero-immutable'}: raise SystemExit('TEST_SCENARIO_INVALID')
+    if scenario not in {'healthy','api-unhealthy','api-transient','wrong-api','funding-stale','resolution-stale','wal-over-limit','checkpoint-stalled','disk-low','duplicate-supervisor','duplicate-creator','critical-wal','global-budget-denied','mint-budget-denied','provider-backoff','provider-backoff-expired','malformed-ledger','unreadable-ledger','transport-failure','transport-hold','wait-cancel','wait-health-failure','wait-crash','segment-zero-immutable'}: raise SystemExit('TEST_SCENARIO_INVALID')
     payload={'healthy':True,'db':'ok','wal_warn':False,'workers':{'creator-funding':{'stale':False,'age_s':1},'creator-resolution':{'stale':False,'age_s':1}}}
     if scenario=='api-unhealthy': payload['healthy']=False
     if scenario=='funding-stale': payload['workers']['creator-funding']={'stale':True,'age_s':999}
     if scenario=='resolution-stale': payload['workers']['creator-resolution']={'stale':True,'age_s':999}
-    health=lambda _:(200,payload)
+    health_calls=[0]
+    def health(_):
+        health_calls[0] += 1
+        if scenario == 'api-transient' and health_calls[0] == 1:
+            raise RuntimeGateDenied('API_HEALTH_UNAVAILABLE')
+        return (200,payload)
     if scenario=='checkpoint-stalled': listener.write_text('[WAL_CHECKPOINT] {"status":"ok","busy":1,"checkpointed_frames":0,"remaining_frames":1}\n')
     class Disk: free=2*1024*1024*1024 if scenario=='disk-low' else 5*1024*1024*1024
     base_lines=lines
@@ -196,6 +201,8 @@ def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, An
     selected=_manifest_records(HistoricalBackfillController(manifest['state_path'],_load(RECON),_load(POP)),_load(args.manifest))
     class Transport:
         def __call__(self, request):
+            if scenario == 'api-transient' and health_calls[0] < 2:
+                raise RuntimeError('FIXTURE_TRANSPORT_BEFORE_CONFIRMED_HEALTH')
             calls.append(request)
             if scenario=='transport-hold':
                 if args.test_hold_path is None: raise RuntimeError('TEST_HOLD_PATH_REQUIRED')

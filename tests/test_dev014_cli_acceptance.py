@@ -135,6 +135,14 @@ def test_actual_cli_resume_routes_immutable_zero_to_successor_segment(tmp_path: 
     assert len(records) == 2 and len(_budget_calls(root)) == 1
 
 
+def test_actual_cli_transient_health_transport_failure_confirms_before_admission(tmp_path: Path) -> None:
+    run = _run(_command(tmp_path / "transient-health", scenario="api-transient"))
+    assert run.returncode == 0, run.stderr
+    result = json.loads(run.stdout)
+    assert result["fixture_transport_calls"] == 1 and result["credential_reads"] == 0
+    assert len(_budget_calls(tmp_path / "transient-health")) == 1
+
+
 def test_actual_production_operator_reconstruction_carries_rank_53_entry_mc(tmp_path: Path) -> None:
     root = tmp_path / "rank-53"
     run = _run(_command(root, ranks=SCALED_RANKS))

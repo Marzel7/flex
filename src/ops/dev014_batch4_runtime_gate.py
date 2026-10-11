@@ -13,6 +13,7 @@ import re
 import shlex
 import shutil
 import subprocess
+import time
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
@@ -128,12 +129,18 @@ class Batch4RuntimeGate:
     def __init__(self, authority: RuntimeAuthority, *, health_fetch: Callable[[str], tuple[int, dict[str, Any]]] | None = None,
                  process_lines: Callable[[], list[str]] | None = None,
                  disk_usage: Callable[[str | Path], Any] = shutil.disk_usage,
-                 wal_size: Callable[[Path], int] | None = None):
+                 wal_size: Callable[[Path], int] | None = None,
+                 health_confirmation_attempts: int = 2,
+                 health_confirmation_sleep: Callable[[float], None] = time.sleep):
+        if health_confirmation_attempts not in {1, 2}:
+            raise ValueError("HEALTH_CONFIRMATION_ATTEMPTS_INVALID")
         self.authority = authority
         self._health_fetch = health_fetch or self._fetch_health
         self._process_lines = process_lines or self._read_process_lines
         self._disk_usage = disk_usage
         self._wal_size = wal_size or (lambda path: path.stat().st_size)
+        self._health_confirmation_attempts = health_confirmation_attempts
+        self._health_confirmation_sleep = health_confirmation_sleep
         self._critical_offsets = {path: self._size(path) for path in authority.creator_logs}
 
     @staticmethod
@@ -172,6 +179,17 @@ class Batch4RuntimeGate:
             if not isinstance(item, dict) or item.get("stale") is not False or not isinstance(item.get("age_s"), (int, float)) or item["age_s"] >= HEARTBEAT_MAX_SECONDS:
                 raise RuntimeGateDenied(f"CREATOR_HEARTBEAT_STALE:{name}")
         return payload
+
+    def _confirmed_health(self) -> dict[str, Any]:
+        """Confirm only a transport-unavailable health read; all other gates fail immediately."""
+        for attempt in range(self._health_confirmation_attempts):
+            try:
+                return self._health()
+            except RuntimeGateDenied as exc:
+                if str(exc) != "API_HEALTH_UNAVAILABLE" or attempt + 1 >= self._health_confirmation_attempts:
+                    raise
+                self._health_confirmation_sleep(0.25)
+        raise RuntimeGateDenied("API_HEALTH_UNAVAILABLE")
 
     def _storage(self) -> dict[str, int]:
         try:
@@ -272,7 +290,7 @@ class Batch4RuntimeGate:
             raise RuntimeGateDenied("COMPETING_BATCH4_RESEARCH")
 
     def check(self) -> dict[str, Any]:
-        health = self._health()
+        health = self._confirmed_health()
         storage = self._storage()
         checkpoint = self._checkpoint()
         self._new_critical_event()

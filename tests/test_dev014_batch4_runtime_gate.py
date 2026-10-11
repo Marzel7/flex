@@ -72,6 +72,42 @@ def test_rejects_unhealthy_or_stale_creator_health(tmp_path, health):
     with pytest.raises(RuntimeGateDenied): _gate(authority, health=health).check()
 
 
+def test_transport_only_health_failure_requires_one_bounded_confirmation(tmp_path):
+    authority, _, _ = _authority(tmp_path)
+    responses = iter((RuntimeGateDenied("API_HEALTH_UNAVAILABLE"), _health()))
+    sleeps = []
+    def fetch(_url):
+        response = next(responses)
+        if isinstance(response, Exception):
+            raise response
+        return response
+    gate = Batch4RuntimeGate(authority, health_fetch=fetch,
+                             process_lines=lambda: _processes(authority),
+                             disk_usage=lambda _path: SimpleNamespace(free=8 * 1024**3),
+                             health_confirmation_sleep=sleeps.append)
+    assert gate.check()["health"]["healthy"] is True
+    assert sleeps == [0.25]
+
+
+def test_explicit_unhealthy_and_persistent_transport_failure_still_fail_closed(tmp_path):
+    authority, _, _ = _authority(tmp_path)
+    calls = []
+    unhealthy = Batch4RuntimeGate(authority, health_fetch=lambda _url: (calls.append(1) or _health(healthy=False)),
+                                  process_lines=lambda: _processes(authority),
+                                  disk_usage=lambda _path: SimpleNamespace(free=8 * 1024**3),
+                                  health_confirmation_sleep=lambda _seconds: pytest.fail("must not retry explicit unhealthy"))
+    with pytest.raises(RuntimeGateDenied, match="API_HEALTH_DENIED"):
+        unhealthy.check()
+    assert calls == [1]
+    persistent = Batch4RuntimeGate(authority,
+                                   health_fetch=lambda _url: (_ for _ in ()).throw(RuntimeGateDenied("API_HEALTH_UNAVAILABLE")),
+                                   process_lines=lambda: _processes(authority),
+                                   disk_usage=lambda _path: SimpleNamespace(free=8 * 1024**3),
+                                   health_confirmation_sleep=lambda _seconds: None)
+    with pytest.raises(RuntimeGateDenied, match="API_HEALTH_UNAVAILABLE"):
+        persistent.check()
+
+
 def test_rejects_disk_wal_checkpoint_and_duplicate_failures(tmp_path):
     authority, _, _ = _authority(tmp_path)
     with pytest.raises(RuntimeGateDenied, match="DISK_HEADROOM_DENIED"): _gate(authority, free=4 * 1024**3).check()

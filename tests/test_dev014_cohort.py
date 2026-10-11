@@ -63,6 +63,18 @@ def test_authorization_rejects_tampering_and_journal_count(tmp_path):
  with pytest.raises(ValueError,match='COHORT_AUTHORIZATION_INVALID'): validate_cohort_authorization(auth)
  with pytest.raises(ValueError,match='FOUR_AUTHORITATIVE_JOURNALS_REQUIRED'): reconcile_journals([])
 
+def test_segmented_session_attempt_is_excluded_without_replay_or_cohort_expansion(tmp_path):
+ class Controller:
+  def work(self):
+   return [{'rank':1,'mint':'mint-a','anchor':{'timestamp':1,'class':'CREATION_TIME_ANCHORED_OBSERVATION'},'request':{'request_identity':'a','params':{'time_from':1,'time_to':3601}}}, {'rank':2,'mint':'mint-b','anchor':{'timestamp':2,'class':'CREATION_TIME_ANCHORED_OBSERVATION'},'request':{'request_identity':'b','params':{'time_from':2,'time_to':3602}}}]
+ paths=[]
+ for number in range(4):
+  path=tmp_path/f'paid-{number}.json'; path.write_text('{"version":1,"records":[]}'); paths.append(path)
+ session=tmp_path/'session.json'; session.write_text('{"version":1,"records":[{"state":"ATTEMPTED","mint":"mint-a","request_identity":"a"}]}')
+ auth=cohort_authorization(chronology_hash='frozen',identities=['a','b'],authority_id='operator')
+ frozen=authorized_manifests(Controller(),auth,paths,session)
+ assert [record['request_identity'] for record in frozen[0]['records']]==['b']
+
 def test_session_executor_advances_only_after_durable_journal_and_cooldown(tmp_path):
  class Controller:
   def work(self):

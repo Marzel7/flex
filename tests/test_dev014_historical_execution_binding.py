@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 import pytest
+import src.ops.watchtower_historical_execution_binding as binding_module
 from src.ops.watchtower_historical_execution_binding import BindingDenied, HistoricalExecutionBinding, CohortStorageGuard, MAX_COHORT_BYTES, MIN_FREE_BYTES
 
 class Disk:
@@ -57,3 +58,27 @@ def test_entry_evidence_readiness_denies_before_admission(tmp_path,field,value):
  binding=HistoricalExecutionBinding(tmp_path/'journal.json')
  with pytest.raises(BindingDenied): binding.execute(candidate,health_gate=lambda:None,admit=lambda **k:calls.append(k),transport=lambda _:None)
  assert calls==[] and not (tmp_path/'journal.json').exists()
+
+def test_segment_rotation_preserves_zero_and_reconstructs_complete_identity_set(tmp_path,monkeypatch):
+ monkeypatch.setattr(binding_module,'MAX_BYTES',800)
+ path=tmp_path/'journal.json'
+ zero={'version':1,'records':[{'request_identity':f'complete-{n}','mint':f'mint-{n}','state':'COMPLETED'} for n in range(20)] + [{'request_identity':'attempted','mint':'mint-attempted','state':'ATTEMPTED'}]}
+ raw=json.dumps(zero,sort_keys=True,separators=(',',':')).encode(); path.write_bytes(raw)
+ before=path.read_bytes(); binding=HistoricalExecutionBinding(path)
+ journal=binding.read(); journal['records'].append({'request_identity':'next','mint':'mint-next','state':'PENDING'})
+ binding._write(journal)
+ assert path.read_bytes()==before
+ assert (tmp_path/'journal.segment.001.json').is_file()
+ recovered=HistoricalExecutionBinding(path).recover()
+ assert {record['request_identity'] for record in recovered['records']}=={record['request_identity'] for record in zero['records']}|{'next'}
+ assert next(record for record in recovered['records'] if record['request_identity']=='attempted')['state']=='ATTEMPTED'
+
+def test_segment_creation_crash_artifacts_are_non_authoritative_and_same_root_is_conservative(tmp_path,monkeypatch):
+ monkeypatch.setattr(binding_module,'MAX_BYTES',800)
+ path=tmp_path/'journal.json'; path.write_text(json.dumps({'version':1,'records':[{'request_identity':f'id-{n}','mint':f'm-{n}','state':'COMPLETED'} for n in range(20)]}))
+ (tmp_path/'journal.segment.001.json.tmp').write_text('partial')
+ binding=HistoricalExecutionBinding(path); journal=binding.read(); journal['records'].append({'request_identity':'new','mint':'new-mint','state':'PENDING'}); binding._write(journal)
+ assert len(HistoricalExecutionBinding(path).read()['records'])==21
+ (tmp_path/'journal.segment.002.json').write_text(json.dumps({'version':1,'records':[{'request_identity':'new','mint':'other','state':'COMPLETED'}]}))
+ with pytest.raises(BindingDenied,match='IDENTITY_CONFLICT'):
+  HistoricalExecutionBinding(path).read()

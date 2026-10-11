@@ -84,15 +84,58 @@ class HistoricalExecutionBinding:
         self.path = Path(path)
         self.fixture_only = fixture_only
         self.guard = CohortStorageGuard(cohort_root, disk_usage=disk_usage) if cohort_root else None
+        self._segments: dict[Path, dict[str, Any]] = {}
+        self._snapshots: dict[Path, bytes] = {}
+
+    def _segment_paths(self) -> list[Path]:
+        prefix=self.path.stem + ".segment."; suffix=self.path.suffix
+        paths=[self.path]
+        for candidate in self.path.parent.glob(self.path.stem + ".segment.*" + suffix):
+            number=candidate.name[len(prefix):-len(suffix)]
+            if candidate.is_symlink() or len(number)!=3 or not number.isdigit(): raise BindingDenied("EXECUTION_JOURNAL_SEGMENT_INVALID")
+            paths.append(candidate)
+        paths[1:]=sorted(paths[1:])
+        expected=[f"{number:03d}" for number in range(1,len(paths))]
+        actual=[path.name[len(prefix):-len(suffix)] for path in paths[1:]]
+        if actual!=expected: raise BindingDenied("EXECUTION_JOURNAL_SEGMENT_GAP")
+        return paths
 
     def read(self) -> dict[str, Any]:
         if not self.path.exists(): return {"version": 1, "records": []}
-        try: value = json.loads(self.path.read_text())
+        self._segments={}; self._snapshots={}; records=[]; identities=set()
+        try:
+            for segment in self._segment_paths():
+                raw=segment.read_bytes(); value=json.loads(raw)
+                if value.get("version") != 1 or not isinstance(value.get("records"), list): raise BindingDenied("EXECUTION_JOURNAL_INVALID")
+                for record in value["records"]:
+                    identity=record.get("request_identity")
+                    if not isinstance(identity,str) or identity in identities: raise BindingDenied("EXECUTION_JOURNAL_IDENTITY_CONFLICT")
+                    identities.add(identity)
+                self._segments[segment]=value; self._snapshots[segment]=json.dumps(value,sort_keys=True,separators=(",", ":")).encode(); records.extend(value["records"])
+        except BindingDenied: raise
         except (OSError, ValueError) as exc: raise BindingDenied("EXECUTION_JOURNAL_UNREADABLE") from exc
-        if value.get("version") != 1 or not isinstance(value.get("records"), list): raise BindingDenied("EXECUTION_JOURNAL_INVALID")
-        return value
+        return {"version": 1, "records": records}
 
-    def _write(self, value: dict[str, Any]) -> None: self.path.parent.mkdir(parents=True, exist_ok=True); _atomic(self.path, value, self.guard)
+    def _write(self, value: dict[str, Any]) -> None:
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        if not self._segments:
+            _atomic(self.path, value, self.guard); return
+        known={record["request_identity"] for segment in self._segments.values() for record in segment["records"]}
+        additions=[record for record in value["records"] if record.get("request_identity") not in known]
+        if additions:
+            if len(additions)!=1: raise BindingDenied("EXECUTION_JOURNAL_SEGMENT_APPEND_INVALID")
+            last=next(reversed(self._segments))
+            candidate={"version":1,"records":self._segments[last]["records"]+[additions[0]]}
+            if len(json.dumps(candidate,sort_keys=True,separators=(",", ":")).encode()) >= MAX_BYTES:
+                last=self.path.with_name(self.path.stem + f".segment.{len(self._segments):03d}" + self.path.suffix)
+                candidate={"version":1,"records":additions}
+            self._segments[last]=candidate
+        immutable_zero=self.path.stat().st_size >= MAX_BYTES * 0.9
+        for segment, document in self._segments.items():
+            raw=json.dumps(document,sort_keys=True,separators=(",", ":")).encode()
+            if raw==self._snapshots.get(segment): continue
+            if segment==self.path and immutable_zero: raise BindingDenied("EXECUTION_JOURNAL_SEGMENT_ZERO_IMMUTABLE")
+            _atomic(segment,document,self.guard); self._snapshots[segment]=raw
 
     @staticmethod
     def _validate_evidence_readiness(item: dict[str, Any]) -> dict[str, Any]:
@@ -123,7 +166,14 @@ class HistoricalExecutionBinding:
 
     def recover(self) -> dict[str, Any]:
         journal = self.read(); changed = False
+        immutable_zero = self.path.exists() and self.path.stat().st_size >= MAX_BYTES * 0.9
+        zero_identities = {record.get("request_identity") for record in self._segments.get(self.path, {}).get("records", [])}
         for record in journal["records"]:
+            if immutable_zero and record.get("request_identity") in zero_identities:
+                # Segment zero is historical authority: an unresolved legacy
+                # attempt remains conservatively non-retryable until a later
+                # explicit disposition, rather than being rewritten in place.
+                continue
             if record.get("state") == "ATTEMPTED" and record.get("evidence_identity"):
                 record["state"] = "COMPLETED"; record["recovery_reason"] = "COMPACT_EVIDENCE_ALREADY_DURABLE"; changed = True
                 continue

@@ -84,12 +84,14 @@ def authorized_manifests(controller: Any, authorization: dict[str, Any], journal
                          session_journal: str|Path|None=None) -> list[dict[str, Any]]:
     """Freeze only authorized, unrepeated work in chronological batches of at most 50."""
     authorization=validate_cohort_authorization(authorization); history=reconcile_journals(journals)
+    protected_session_unresolved:set[str]=set()
     if session_journal is not None:
         for record in HistoricalExecutionBinding(session_journal).read()['records']:
             identity,mint,state=record.get('request_identity'),record.get('mint'),record.get('state')
             if state in {'ADMISSION_INTENT','ADMITTED','ATTEMPTED','COMPLETED','OUTCOME_UNKNOWN'}:
                 if not isinstance(identity,str) or not isinstance(mint,str): raise ValueError('SESSION_JOURNAL_RECORD_INVALID')
                 history['outcomes'][identity]=state; history['blocked_request_identities'].add(identity); history['blocked_mints'].add(mint)
+                if state in {'ADMISSION_INTENT','ADMITTED','ATTEMPTED'}: protected_session_unresolved.add(identity)
     allowed=set(authorization['request_identities']); selected=[]; found=set()
     for item in sorted(controller.work(), key=lambda x:x['rank']):
         request=item.get('request')
@@ -104,7 +106,7 @@ def authorized_manifests(controller: Any, authorization: dict[str, Any], journal
     # A terminal record is a permitted omission; an intent/attempt is an ambiguity
     # and must stop rather than let a later creation-time identity replay it.
     missing=allowed-found
-    unresolved={identity for identity in missing if history['outcomes'].get(identity) in {'ADMISSION_INTENT','ADMITTED','ATTEMPTED'}}
+    unresolved={identity for identity in missing if history['outcomes'].get(identity) in {'ADMISSION_INTENT','ADMITTED','ATTEMPTED'} and identity not in protected_session_unresolved}
     if unresolved: raise ValueError('COHORT_UNRESOLVED_OUTCOME')
     selectable={item['request']['request_identity'] for item in controller.work() if item.get('request')}
     if missing-selectable: raise ValueError('AUTHORIZED_IDENTITY_NOT_SELECTABLE')

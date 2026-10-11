@@ -23775,5 +23775,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_REQUIRED_ISOLATED_FINITE_MANUAL_EXECUTION",
     "next_action": "Do not auto-restart. A separately authorized read-only runtime/checkpoint diagnosis must establish fresh qualifying gate evidence and assess the repeated transport interruption before any renewed paid authority for only the 400 untouched identities. Preserve screen run directory until its exit evidence is independently reviewed."
+  },
+  "watchtower_lifecycle_api_instability_diagnosis_20261011": {
+    "status": "HOLD_RUNTIME_AVAILABILITY_UNRESOLVED_READ_ONLY",
+    "engineering_revision": "06fc3194e4a9c4fcfdf4554286a5486c14fe7649 on codex/dev014-current-mc-freshness; no source change.",
+    "api_evidence": "Gunicorn master PID 9045 has remained Supervisor-owned since 2026-10-09. Active configuration is gthread with workers=1, threads=24, max_requests=500 plus jitter, timeout=120s, graceful_timeout=10s. A credential-free health fetch timed out after 5 seconds with no HTTP response while the prior single worker PID 11663 disappeared; replacement PID 16754 was then observed under the same master. This confirms a worker-level availability gap while the master persisted.",
+    "correlation_limits": "Worker starts align closely with the first two recorded lifecycle API interruptions, but retained logs contain no definitive worker-exit reason and do not prove that turnover caused every historical HOLD. The final worker began about seven minutes before the final recovery-deadline HOLD. Slow cold-build activity and 10GiB snapshot-persistence refusals are retained application warnings, not proven causal evidence.",
+    "checkpoint": "Listener telemetry is current and healthy: the latest three routine PASSIVE records are status=ok/busy=0; the latest has checkpointed_frames=294 and remaining_frames=704. Earlier zero-progress samples with nonzero remaining frames explain CHECKPOINT_PROGRESS_UNPROVEN as stale or insufficient evidence, not a demonstrated checkpoint obstruction. No manual checkpoint was run.",
+    "cohort_preservation": "Read-only reconciliation: authorization hash 377103f255f5bacddd36fcd46188d7b7bb3688a552e563b3fd55eb2e47a3cc6c, records=550, COMPLETED=149, NO_VALID_CANDLES=1, terminal=150, untouched=400, ATTEMPTED=0, OUTCOME_UNKNOWN=0, duplicates=0, lock=AVAILABLE, storage=214419 bytes. run_status remains durable HOLD API_HEALTH_RECOVERY_DEADLINE.",
+    "minimum_correction": "No live change was authorized or applied. The smallest justified operational mitigation for the confirmed single-worker availability gap is a separately authorized and qualified existing-Gunicorn configuration change from one to two workers, followed by controlled reload and bounded health acceptance. Its database/process safety and the missing worker-exit telemetry must be qualified by the API owner before deployment; lifecycle logic must remain unchanged.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_READ_ONLY_DIAGNOSIS",
+    "next_action": "HOLD paid resume. Obtain separate operational authorization to qualify/deploy the API-worker availability mitigation or establish a definitive worker-exit cause, then repeat fresh preflight before any renewed paid authority for exactly the 400 untouched identities."
   }
 }

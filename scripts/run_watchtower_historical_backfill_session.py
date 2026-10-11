@@ -179,7 +179,7 @@ def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, An
     authority=RuntimeAuthority(config,'http://fixture/healthz',db,listener,(funding,resolution))
     lines=lambda:[f'1 0 Sat Oct 10 00:00:00 2026 /usr/local/bin/supervisord -c {config}','2 1 Sat Oct 10 00:00:00 2026 /usr/bin/python3 -m src.core.creator_funding_worker','3 1 Sat Oct 10 00:00:00 2026 /usr/bin/python3 -m src.core.creator_resolution_worker']
     scenario=args.test_scenario
-    if scenario not in {'healthy','api-unhealthy','api-transient','wrong-api','funding-stale','resolution-stale','wal-over-limit','checkpoint-stalled','disk-low','duplicate-supervisor','duplicate-creator','critical-wal','global-budget-denied','mint-budget-denied','provider-backoff','provider-backoff-expired','malformed-ledger','unreadable-ledger','transport-failure','transport-hold','wait-cancel','wait-health-failure','wait-crash','segment-zero-immutable'}: raise SystemExit('TEST_SCENARIO_INVALID')
+    if scenario not in {'healthy','api-unhealthy','api-transient','wrong-api','funding-stale','resolution-stale','wal-over-limit','checkpoint-stalled','disk-low','duplicate-supervisor','duplicate-creator','critical-wal','global-budget-denied','mint-budget-denied','provider-backoff','provider-backoff-expired','malformed-ledger','unreadable-ledger','transport-failure','transport-hold','wait-cancel','wait-health-failure','wait-crash','segment-zero-immutable','empty-candles','malformed-provider'}: raise SystemExit('TEST_SCENARIO_INVALID')
     payload={'healthy':True,'db':'ok','wal_warn':False,'workers':{'creator-funding':{'stale':False,'age_s':1},'creator-resolution':{'stale':False,'age_s':1}}}
     if scenario=='api-unhealthy': payload['healthy']=False
     if scenario=='funding-stale': payload['workers']['creator-funding']={'stale':True,'age_s':999}
@@ -213,6 +213,10 @@ def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, An
                     if time.monotonic() >= deadline: raise RuntimeError('TEST_HOLD_TIMEOUT')
                     time.sleep(0.01)
             if scenario=='transport-failure': raise RuntimeError('FIXTURE_TRANSPORT_FAILURE')
+            if scenario=='empty-candles':
+                return ProviderTransportOutcome(200, {'success': True, 'data': {'items': []}}, {})
+            if scenario=='malformed-provider':
+                return ProviderTransportOutcome(200, {'success': True, 'data': {'items': 'not-a-list'}}, {})
             timestamp = request['request_parameters']['time_from'] // 60 * 60
             return ProviderTransportOutcome(200,{'success':True,'data':{'items':[{'unixTime':timestamp,'o':10,'h':11,'l':9,'c':10}]}},{})
     queue=Path(args.queue_root); queue.mkdir(parents=True,exist_ok=True)

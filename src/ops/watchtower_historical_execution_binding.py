@@ -253,7 +253,26 @@ class HistoricalExecutionBinding:
         rows, failure = _normalize(outcome, start=request["params"]["time_from"], end=request["params"]["time_to"])
         if crash_at == "RESPONSE": raise RuntimeError("SIMULATED_CRASH")
         evidence = {**record, "provider": "BIRDEYE", "http_status": outcome.status_code, "provider_metadata": {str(k).lower(): str(v) for k,v in outcome.response_headers.items() if str(k).lower() in HEADER_ALLOWLIST}, "normalization_status": "FAILED", "failure": failure}
-        if failure is None:
+        if failure is None and not rows:
+            # A successful provider response can legitimately contain no
+            # usable one-minute candles for the bounded window.  This is a
+            # terminal research result, not a price observation: in
+            # particular, do not invent an opening MC or extrema from an
+            # absent first candle.  The completed durable record preserves
+            # the no-repeat contract while keeping it out of lifecycle
+            # evidence qualification.
+            evidence["normalization_status"] = "NO_VALID_CANDLES"
+            evidence["failure"] = {
+                "category": "NO_VALID_CANDLES",
+                "missing_coverage": {
+                    "time_from": request["params"]["time_from"],
+                    "time_to": request["params"]["time_to"],
+                    "interval": "1m",
+                    "valid_candle_count": 0,
+                },
+            }
+            evidence["returned_candle_count"] = 0
+        elif failure is None:
             candles = [{"timestamp": int(row["timestamp"]), "low_mc_usd": float(row["low_mc_usd"])} for row in rows]
             if item["anchor"]["class"] == "QUALIFIED_ENTRY_ANCHOR":
                 # Entry price is intentionally supplied by the frozen item, never invented here.

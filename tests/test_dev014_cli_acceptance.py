@@ -135,6 +135,38 @@ def test_actual_cli_resume_routes_immutable_zero_to_successor_segment(tmp_path: 
     assert len(records) == 2 and len(_budget_calls(root)) == 1
 
 
+def test_actual_cli_empty_candles_are_terminal_without_fabricated_observation(tmp_path: Path) -> None:
+    """A successful empty provider list is terminal but never price evidence."""
+    root = tmp_path / "empty-candles"
+    run = _run(_command(root, scenario="empty-candles"))
+    assert run.returncode == 0, run.stderr
+    result = json.loads(run.stdout)
+    assert result["fixture_transport_calls"] == 1 and result["credential_reads"] == 0
+    record = _journal(root)["records"][0]
+    assert record["state"] == "COMPLETED"
+    assert record["normalization_status"] == "NO_VALID_CANDLES"
+    assert record["returned_candle_count"] == 0
+    assert record["provider"] == "BIRDEYE" and record["http_status"] == 200
+    assert record["failure"]["category"] == "NO_VALID_CANDLES"
+    assert record["failure"]["missing_coverage"]["valid_candle_count"] == 0
+    assert not {"entry_relative_observed_minima", "creation_time_anchored_observation", "observed_price_relative_extrema"} & set(record)
+    assert len(_budget_calls(root)) == 1
+    replay = _run(_command(root, scenario="empty-candles"))
+    assert replay.returncode == 1 and "REQUEST_NOT_RETRYABLE:COMPLETED" in replay.stderr
+    assert len(_budget_calls(root)) == 1
+
+
+def test_actual_cli_malformed_provider_response_is_not_empty_candle_outcome(tmp_path: Path) -> None:
+    root = tmp_path / "malformed-provider"
+    run = _run(_command(root, scenario="malformed-provider"))
+    assert run.returncode == 0, run.stderr
+    record = _journal(root)["records"][0]
+    assert record["state"] == "COMPLETED"
+    assert record["normalization_status"] == "FAILED"
+    assert record["failure"]["category"] != "NO_VALID_CANDLES"
+    assert not {"entry_relative_observed_minima", "creation_time_anchored_observation", "observed_price_relative_extrema"} & set(record)
+
+
 def test_actual_cli_transient_health_transport_failure_confirms_before_admission(tmp_path: Path) -> None:
     run = _run(_command(tmp_path / "transient-health", scenario="api-transient"))
     assert run.returncode == 0, run.stderr

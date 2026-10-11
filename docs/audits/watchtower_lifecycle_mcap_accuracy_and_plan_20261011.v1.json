@@ -1,0 +1,99 @@
+{
+  "artifact_type": "watchtower-lifecycle-mcap-accuracy.v1",
+  "complete_window_denominator": {
+    "all_qualified_anchor_complete_60m": 242,
+    "creation_time_complete_60m": 222,
+    "difference": 20,
+    "explanation": "242 counts all qualified anchor types; 222 is the creation-time-only subset. Neither is the denominator for the 312 partial-window range statistic."
+  },
+  "content_sha256": "6fb5d18072b5854f8ccb26c2dcd597dbc9741e6206848170a9c31b64fc1809ae",
+  "corrected_collapse_statistics": {
+    "claim_boundary": "Call these observed-range severities only. Do not label 92.9% a chronological collapse rate, recovery rate, ATH decline, or lifecycle loss.",
+    "complete_observed_range_90pct_or_more": {
+      "denominator": 242,
+      "numerator": 26,
+      "proportion": 0.10743801652892562
+    },
+    "partial_observed_range_90pct_or_more": {
+      "denominator": 312,
+      "numerator": 290,
+      "proportion": 0.9294871794871795
+    }
+  },
+  "existing_lifecycle_coverage": {
+    "capability_verdict": "UNQUALIFIED_FOR_LIFETIME_ATH_OR_TERMINAL_RECONSTRUCTION: the current retained one-hour evidence cannot establish it, and provider capability has not been proven for bounded long-range historical windows.",
+    "not_retained": "Full candle paths, durable last-observed MC, lifecycle-wide peak/terminal series, and complete migration-to-terminal coverage.",
+    "retained": "Opening-hour compact OHLCV extrema/minima and explicit bucket coverage only."
+  },
+  "lifecycle_metric_contract": {
+    "fields": [
+      "creation_timestamp",
+      "first_observed_mc_and_timestamp",
+      "migration_timestamp_if_qualified",
+      "first_post_migration_mc_and_timestamp_if_qualified",
+      "maximum_observed_mc_and_timestamp_by_regime",
+      "chronological_peak_to_subsequent_trough_only_when_ordered",
+      "decline_and_recovery_events_with_coverage",
+      "last_observed_mc_and_timestamp",
+      "gap_topology_and_confidence"
+    ],
+    "prohibitions": [
+      "observed maximum is not ATH",
+      "last observed is not terminal valuation",
+      "missing periods are not flat prices",
+      "no curve/AMM regime mixing"
+    ]
+  },
+  "mcap_calculation_validity": {
+    "near_zero_rule": "small positive values remain observations, not invalid zeros; they require provenance and coverage qualification rather than value imputation.",
+    "positive_finite_guard": "normalizer excludes non-positive and non-finite market-cap values before extrema calculation.",
+    "provider_field": "Birdeye OHLCV market-cap candle fields (open/high/low/close), retained directly; no price-times-supply conversion in DEV-014.",
+    "regime_rule": "creation/curve observations, post-migration AMM observations, and Entry-relative observations remain separate regimes; no cross-regime extrema are permitted."
+  },
+  "minimum_additional_request_plan": {
+    "future_gate": "Separate paid authority after a provider-free contract review and a bounded capability probe.",
+    "immediate_requests": 0,
+    "probe": "One representative, exact mint and fixed coarse interval; retain only response metadata, normalized milestone rows, coverage counts, and content hash. First prove supported range, interval, pagination/cap semantics, and mcap field availability before any cohort scale-up.",
+    "refinement": "Only targeted subranges around proven coarse extrema/gaps; each request bounded, identity-authorized, no raw payload retention, no wallet-history discovery, no unbounded pagination."
+  },
+  "opening_collapse_audit": {
+    "chronology_rule": {
+      "chronological_collapse_eligible": 7,
+      "counts": {
+        "INTRA_CANDLE_ORDER_UNKNOWN": 2,
+        "PEAK_THEN_TROUGH": 7,
+        "TROUGH_BEFORE_PEAK": 0,
+        "UNAVAILABLE": 0
+      },
+      "rule": "only a strictly earlier retained peak and later retained trough qualify; same-minute OHLC ordering is unknown",
+      "severe_90pct_or_more": {
+        "INTRA_CANDLE_ORDER_UNKNOWN": 0,
+        "PEAK_THEN_TROUGH": 5,
+        "TROUGH_BEFORE_PEAK": 0,
+        "UNAVAILABLE": 0
+      }
+    },
+    "finding": "92.9% is 290/312 partial-window observed high-low ranges at or above 90%; it is not a cohort chronological-collapse prevalence.",
+    "reason": "The retained compact artifact has only extrema timestamps for selected examples, while most partial records have missing buckets and no retained full candle path. A range cannot establish the order of peak and trough.",
+    "verdict": "RANGE_STATISTIC_SUPPORTED_CHRONOLOGICAL_92_9_PERCENT_CLAIM_NOT_SUPPORTED"
+  },
+  "safety": {
+    "credential_reads": 0,
+    "live_database_writes": 0,
+    "provider_free": true,
+    "runtime_deployment_reason": "research-only derived audit; no executable runtime path changed",
+    "runtime_deployment_required": false
+  },
+  "source_inputs": {
+    "missing_analysis_sha256": "ecc3024549016fbde79348780ff0167267d309eba5daea2858f25ea15dc786ec",
+    "missing_candle_analysis_version": "v1",
+    "reconciliation_sha256": "860061a1b51098b11d638a973f385fbf7383aba41b32c5dda97562d93c1078fc"
+  },
+  "storage_contract": {
+    "new_artifact_max_bytes": 1000000,
+    "new_lifecycle_cohort_max_bytes": 100000000,
+    "raw_provider_retention": false,
+    "transient_max_bytes": 2000000,
+    "unbounded_growth_paths": 0
+  }
+}

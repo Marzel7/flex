@@ -23588,5 +23588,15 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_REQUIRED_PROVIDER_FREE_QUALIFICATION",
     "next_action": "Authorize and qualify only the thin safe-wrapper/CLI binding for this frozen adapter, then obtain a new one-request paid authorization naming that SHA."
+  },
+  "watchtower_lifecycle_probe_wrapper_binding_20261011": {
+    "status": "HOLD_FROZEN_PROBE_AUTHORIZATION_FILE_MISSING",
+    "engineering_revision": "d761ef0d9cd0225da99405d284976b92863ed81b on codex/dev014-current-mc-freshness; remote verified",
+    "frozen_candidate": "rank 49 / AqYdSQ6oFq8HjLoFkvHW6kYcRM1p94Q1FcvGFxDfpump",
+    "wrapper": "scripts/run_dev014_birdeye_preflight.py --mode lifecycle-probe; fixed runner scripts/run_watchtower_lifecycle_probe.py",
+    "regression": "7 focused provider-free tests passed; one admission/transport, terminal empty response, malformed response, and non-retryable crash covered.",
+    "no_retry": "PROBE_ALREADY_ATTEMPTED blocks every later execution for the journal identity.",
+    "blocker": "Required fixed authorization path /private/tmp/dev014-lifecycle-probe.authorization.json is absent. Its content hash, exact time range, interval, and deterministic request identity cannot be independently verified. No authorization was manufactured and no paid request, credential read, budget debit, or runtime write occurred.",
+    "next_action": "Supply or explicitly authorize creation of the exact content-hashed frozen authorization artifact at the wrapper's fixed path, then repeat fresh preflight before the single paid probe."
   }
 }

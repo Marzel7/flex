@@ -23739,5 +23739,18 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "Do not auto-restart. Diagnose the process-lifecycle/parent-session termination using retained runtime evidence or use an already-approved independent finite-run ownership mechanism. Any later paid continuation still requires fresh preflight and exact remaining-identity authority."
+  },
+  "watchtower_lifecycle_finite_run_ownership_20261011": {
+    "status": "PASS_PROVIDER_FREE_SCREEN_METHOD_QUALIFIED_NO_PAID_RESUME",
+    "engineering_revision": "06fc3194e4a9c4fcfdf4554286a5486c14fe7649 on codex/dev014-current-mc-freshness; no source change.",
+    "process_exit_root_cause": "UNRESOLVED_INSUFFICIENT_RETAINED_EVIDENCE. The failed run retained only STARTED before wrapper PID6846 and dispatcher PID6853 disappeared. There is no retained parent ancestry, signal, stderr, exit code, Python traceback, runtime HOLD, or memory-pressure record. Process disappearance alone does not establish invoking-session cleanup, signal, or exception.",
+    "ownership_options": "launchctl submit was tested and rejected: it created a Submitted job with inferred keepalive and repeatedly relaunched an eight-second fixture (runs=5), violating no-auto-restart. Installed GNU screen supports detached one-shot manual sessions and does not restart them; tmux and setsid are unavailable.",
+    "qualified_method": "Use a uniquely named detached screen session from a dedicated 0700 /private/tmp run directory. Start only the existing safe wrapper command with PYTHONPATH set to the isolated worktree. Screen's -L terminal log retains bounded lifecycle console output; a shell trailer writes EXIT_CODE after normal child return. The existing /private/tmp cohort run_status.json remains the bounded authoritative run record. This is manual finite ownership, not Supervisor, launchd, scheduler, daemon, or a new provider path.",
+    "fixture_results": "Normal fixture: detached screen survived invoking-command return, wrote fixture-started fixture-completed EXIT=0 to a 40-byte screenlog, and terminated without restart. Cancellation fixture: session appeared detached while active; screen -S <label> -X quit stopped it and it did not restart. Fixtures used no credentials, network/provider access, canonical database writes, or acquisition code; their temporary directories were removed.",
+    "limitations": "screen quit is an external termination and may prevent a final shell exit marker or run_status write, just as SIGKILL can. Existing durable per-request journals, not a stale STARTED status or console log, govern no-repeat recovery. Do not use launchctl submit because of its automatic relaunch behavior.",
+    "cohort_preservation": "Read-only reconciliation: authorization hash 377103f255f5bacddd36fcd46188d7b7bb3688a552e563b3fd55eb2e47a3cc6c, records=550, COMPLETED=137, NO_VALID_CANDLES=1, terminal=138, untouched=412, ATTEMPTED=0, OUTCOME_UNKNOWN=0, duplicates=0, identity mismatches=0, lock=AVAILABLE, storage=196995 bytes.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_PROVIDER_FREE_OWNERSHIP_QUALIFICATION",
+    "next_action": "Obtain renewed explicit paid authority for exactly the 412 untouched identities. Then fresh-preflight and manually start the existing safe wrapper inside the qualified finite screen session; do not auto-restart after any HOLD."
   }
 }

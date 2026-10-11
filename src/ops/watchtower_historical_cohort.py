@@ -9,6 +9,9 @@ MAX_SESSION=50
 HISTORICAL_WINDOW=60
 HISTORICAL_LIMIT=10
 SESSION_COOLDOWN=60
+MANIFEST_PREFIX='dev014_session_'
+MANIFEST_SUFFIX='.manifest.json'
+CORRECTED_MANIFEST_SUFFIX='.manifest.v2.json'
 def digest(value: Any)->str: return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':')).encode()).hexdigest()
 
 def cohort_authorization(*, chronology_hash: str, identities: list[str], authority_id: str,
@@ -123,13 +126,37 @@ def authorized_manifests(controller: Any, authorization: dict[str, Any], journal
         value['content_hash']=digest(value); result.append(value)
     return result
 
+def _canonical_manifest_bytes(manifest: dict[str, Any]) -> bytes:
+    return json.dumps(manifest,sort_keys=True,separators=(',',':')).encode()
+
+def _numbered_manifest(manifest: dict[str, Any], number: int) -> dict[str, Any]:
+    value={key:item for key,item in manifest.items() if key not in {'content_hash','supersedes'}}
+    value['session_number']=number
+    value['content_hash']=digest(value)
+    return value
+
+def _manifest_path(root: str|Path, number: int) -> Path:
+    return Path(root)/f'{MANIFEST_PREFIX}{number:03d}{MANIFEST_SUFFIX}'
+
+def _corrected_manifest_path(root: str|Path, number: int) -> Path:
+    return Path(root)/f'{MANIFEST_PREFIX}{number:03d}{CORRECTED_MANIFEST_SUFFIX}'
+
+def _validated_manifest(path: Path) -> tuple[dict[str, Any], bytes]:
+    if not path.is_file() or path.is_symlink(): raise RuntimeError('COHORT_MANIFEST_PATH_CONFLICT')
+    try: raw=path.read_bytes(); value=json.loads(raw)
+    except (OSError, ValueError, UnicodeDecodeError) as exc: raise RuntimeError('COHORT_MANIFEST_UNREADABLE') from exc
+    if not isinstance(value,dict) or raw != _canonical_manifest_bytes(value): raise RuntimeError('COHORT_MANIFEST_CANONICAL_INVALID')
+    candidate=dict(value); supplied=candidate.pop('content_hash',None)
+    if not isinstance(supplied,str) or supplied!=digest(candidate): raise RuntimeError('COHORT_MANIFEST_HASH_INVALID')
+    return value,raw
+
 def _write_manifest(root: str|Path, number: int, manifest: dict[str, Any]) -> Path:
     """Persist one compact frozen manifest; caller supplies an isolated/cohort root."""
     directory=Path(root)
     if not directory.is_dir() or directory.is_symlink(): raise RuntimeError('COHORT_MANIFEST_ROOT_UNAVAILABLE')
-    path=directory/f'dev014_session_{number:03d}.manifest.json'
+    path=_manifest_path(directory,number)
     if path.exists() or path.is_symlink(): raise RuntimeError('COHORT_MANIFEST_PATH_CONFLICT')
-    raw=json.dumps(manifest,sort_keys=True,separators=(',',':')).encode()
+    raw=_canonical_manifest_bytes(manifest)
     if len(raw)>=1_000_000: raise RuntimeError('COHORT_MANIFEST_BOUND_EXCEEDED')
     temporary=path.with_suffix('.json.tmp')
     if temporary.exists(): raise RuntimeError('COHORT_MANIFEST_PATH_CONFLICT')
@@ -140,17 +167,61 @@ def _next_manifest_number(root: str|Path) -> int:
     """Continue only after a contiguous, non-aliased durable manifest sequence."""
     directory=Path(root)
     if not directory.is_dir() or directory.is_symlink(): raise RuntimeError('COHORT_MANIFEST_ROOT_UNAVAILABLE')
-    prefix='dev014_session_'; suffix='.manifest.json'; numbers=[]
+    numbers=[]
     for path in directory.iterdir():
         name=path.name
-        if not name.startswith(prefix): continue
-        if path.is_symlink() or not name.endswith(suffix): raise RuntimeError('COHORT_MANIFEST_PATH_CONFLICT')
-        number=name[len(prefix):-len(suffix)]
+        if not name.startswith(MANIFEST_PREFIX): continue
+        if name.endswith(CORRECTED_MANIFEST_SUFFIX):
+            number=name[len(MANIFEST_PREFIX):-len(CORRECTED_MANIFEST_SUFFIX)]
+            if len(number)!=3 or not number.isdigit() or not path.is_file() or path.is_symlink(): raise RuntimeError('COHORT_MANIFEST_PATH_CONFLICT')
+            continue
+        if path.is_symlink() or not name.endswith(MANIFEST_SUFFIX): raise RuntimeError('COHORT_MANIFEST_PATH_CONFLICT')
+        number=name[len(MANIFEST_PREFIX):-len(MANIFEST_SUFFIX)]
         if len(number)!=3 or not number.isdigit() or not path.is_file(): raise RuntimeError('COHORT_MANIFEST_PATH_CONFLICT')
         numbers.append(int(number))
     numbers.sort()
     if numbers != list(range(1,len(numbers)+1)): raise RuntimeError('COHORT_MANIFEST_SEQUENCE_INVALID')
     return len(numbers)+1
+
+def _same_manifest_membership(left: dict[str, Any], right: dict[str, Any]) -> bool:
+    return all(left.get(key)==right.get(key) for key in ('schema','version','population_identity','authorization','max_authorized_requests','records'))
+
+def _resume_or_write_manifest(root: str|Path, expected: dict[str, Any], number: int) -> Path:
+    """Reuse a validated pending manifest or explicitly supersede only its number typo."""
+    directory=Path(root); original=_manifest_path(directory,number); corrected=_corrected_manifest_path(directory,number)
+    if corrected.exists():
+        value,_=_validated_manifest(corrected)
+        if not original.exists(): raise RuntimeError('COHORT_MANIFEST_SUPERSESSION_ORIGINAL_MISSING')
+        original_value,original_raw=_validated_manifest(original)
+        supersedes=value.get('supersedes')
+        if (not isinstance(supersedes,dict) or supersedes.get('reason')!='SESSION_NUMBER_METADATA_CORRECTION'
+                or supersedes.get('original_filename')!=original.name
+                or supersedes.get('original_content_hash')!=original_value.get('content_hash')
+                or supersedes.get('original_file_sha256')!=hashlib.sha256(original_raw).hexdigest()
+                or not _same_manifest_membership(value,expected) or value.get('session_number')!=number):
+            raise RuntimeError('COHORT_MANIFEST_SUPERSESSION_INVALID')
+        return corrected
+    if not original.exists(): return _write_manifest(directory,number,expected)
+    original_value,original_raw=_validated_manifest(original)
+    if _same_manifest_membership(original_value,expected) and original_value.get('session_number')==number:
+        return original
+    if not _same_manifest_membership(original_value,expected) or original_value.get('session_number')==number:
+        raise RuntimeError('COHORT_MANIFEST_SEQUENCE_INVALID')
+    # The original remains immutable.  A correction is permitted only when
+    # every acquisition-bearing field already matches the exact authorized
+    # work and the sole discrepancy is the embedded durable session number.
+    if set(original_value) - {'content_hash','session_number'} != set(expected) - {'content_hash','session_number'}:
+        raise RuntimeError('COHORT_MANIFEST_SUPERSESSION_INVALID')
+    corrected_value=dict(expected)
+    corrected_value['supersedes']={'reason':'SESSION_NUMBER_METADATA_CORRECTION','original_filename':original.name,
+        'original_content_hash':original_value['content_hash'],'original_file_sha256':hashlib.sha256(original_raw).hexdigest()}
+    corrected_value['content_hash']=digest({key:item for key,item in corrected_value.items() if key!='content_hash'})
+    raw=_canonical_manifest_bytes(corrected_value)
+    if len(raw)>=1_000_000: raise RuntimeError('COHORT_MANIFEST_BOUND_EXCEEDED')
+    temporary=corrected.with_suffix('.json.tmp')
+    if temporary.exists() or corrected.is_symlink(): raise RuntimeError('COHORT_MANIFEST_PATH_CONFLICT')
+    temporary.write_bytes(raw); temporary.replace(corrected)
+    return corrected
 
 def _storage_permitted(storage_ok: Any) -> bool:
     """Guards raise on denial; only an explicit False callback means HOLD."""
@@ -165,7 +236,7 @@ def execute_authorized_sessions(controller: Any, authorization: dict[str, Any], 
                                 cancelled: Any=lambda:False, storage_ok: Any=lambda:True) -> dict[str, Any]:
     """Finite subprocess-session binding; only a durable terminal journal advances work."""
     validate_cohort_authorization(authorization)
-    completed=[]; sessions=[]; next_manifest_number=_next_manifest_number(manifest_root)
+    completed=[]; sessions=[]
     while True:
         if cancelled(): return {'status':'CANCELLED','completed':completed,'sessions':sessions}
         health()
@@ -173,8 +244,15 @@ def execute_authorized_sessions(controller: Any, authorization: dict[str, Any], 
         # The session journal is reconciled separately; these four are immutable paid authority.
         frozen=authorized_manifests(controller,authorization,authoritative_journals,session_journal)
         if not frozen: return {'status':'EXHAUSTED','completed':completed,'sessions':sessions}
-        manifest=frozen[0]
-        path=_write_manifest(manifest_root,next_manifest_number+len(sessions),manifest)
+        matching=[]
+        for number in range(1,_next_manifest_number(manifest_root)):
+            path=_manifest_path(manifest_root,number)
+            value,_=_validated_manifest(path)
+            if _same_manifest_membership(value,frozen[0]): matching.append(number)
+        if len(matching)>1: raise RuntimeError('COHORT_MANIFEST_DUPLICATE_ACTIVE_SESSION')
+        number=matching[0] if matching else _next_manifest_number(manifest_root)
+        manifest=_numbered_manifest(frozen[0],number)
+        path=_resume_or_write_manifest(manifest_root,manifest,number)
         if cancelled(): return {'status':'CANCELLED','completed':completed,'sessions':sessions}
         health(); execute_session(path)  # adapter waits for subprocess completion
         paid=reconcile_journals(authoritative_journals)

@@ -156,6 +156,31 @@ def test_actual_cli_empty_candles_are_terminal_without_fabricated_observation(tm
     assert len(_budget_calls(root)) == 1
 
 
+def test_actual_cli_fixture_accepts_exact_four_record_superseding_manifest_once(tmp_path: Path) -> None:
+    """The production CLI still validates the four unchanged records and never sees the original."""
+    root = tmp_path / "corrected-session"
+    original = _manifest(root, "594,595,596,597")
+    value = json.loads(original.read_text())
+    original_bytes = original.read_bytes()
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("operator", CLI)
+    operator = importlib.util.module_from_spec(spec); assert spec.loader; spec.loader.exec_module(operator)
+    value["session_number"] = 17
+    value["supersedes"] = {"reason": "SESSION_NUMBER_METADATA_CORRECTION", "original_filename": original.name,
+                            "original_content_hash": json.loads(original_bytes)["content_hash"], "original_file_sha256": "0" * 64}
+    value["content_hash"] = operator._manifest_hash(value)
+    corrected = root / "dev014_session_017.manifest.v2.json"
+    corrected.write_text(json.dumps(value, sort_keys=True, separators=(",", ":")))
+    command = _command(root, ranks="594,595,596,597", max_requests=4)
+    command[command.index("--manifest") + 1] = str(corrected)
+    run = _run(command)
+    assert run.returncode == 0, run.stderr
+    assert json.loads(run.stdout)["fixture_transport_calls"] == 4
+    assert original.read_bytes() == original_bytes
+    replay = _run(command)
+    assert replay.returncode == 1 and len(_budget_calls(root)) == 4
+
+
 def test_actual_cli_malformed_provider_response_is_not_empty_candle_outcome(tmp_path: Path) -> None:
     root = tmp_path / "malformed-provider"
     run = _run(_command(root, scenario="malformed-provider"))

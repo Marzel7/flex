@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 import pytest
 from src.ops.watchtower_historical_cohort import (manifests,run_finite,cohort_authorization,cli_executor,
-    validate_cohort_authorization,reconcile_journals,authorized_manifests,execute_authorized_sessions)
+    validate_cohort_authorization,reconcile_journals,authorized_manifests,execute_authorized_sessions,digest)
 from src.ops.watchtower_historical_backfill_controller import HistoricalBackfillController
 ROOT=Path(__file__).resolve().parents[1]
 def test_cohort_manifests_are_bounded_and_explicit(tmp_path):
@@ -156,7 +156,8 @@ def test_session_executor_resume_uses_next_durable_manifest_number(tmp_path):
  for number in range(4):
   path=tmp_path/f'paid-{number}.json'; path.write_text('{"version":1,"records":[]}'); journals.append(path)
  session=tmp_path/'session.json'; session.write_text('{"version":1,"records":[{"state":"COMPLETED","mint":"mint-1","request_identity":"id-1"}]}')
- (tmp_path/'dev014_session_001.manifest.json').write_text('{}')
+ prior={'session_number':1,'records':[]}; prior['content_hash']=digest({key:value for key,value in prior.items() if key!='content_hash'})
+ (tmp_path/'dev014_session_001.manifest.json').write_text(json.dumps(prior,sort_keys=True,separators=(',',':')))
  auth=cohort_authorization(chronology_hash='frozen',identities=['id-1','id-2'],authority_id='operator')
  paths=[]
  clock=[0.0]
@@ -165,3 +166,58 @@ def test_session_executor_resume_uses_next_durable_manifest_number(tmp_path):
  result=execute_authorized_sessions(Controller(),auth,authoritative_journals=journals,session_journal=session,
   manifest_root=tmp_path,execute_session=execute,health=lambda:None,clock=lambda:clock[0],sleep=lambda seconds:clock.__setitem__(0,clock[0]+seconds))
  assert result['status']=='EXHAUSTED' and paths==['dev014_session_002.manifest.json']
+
+
+def test_session_executor_supersedes_only_number_mismatched_frozen_manifest_and_reuses_it_after_crash(tmp_path):
+ class Controller:
+  def work(self):
+   return [{'rank':n,'mint':f'mint-{n}','anchor':{'timestamp':n,'class':'CREATION_TIME_ANCHORED_OBSERVATION'},
+            'request':{'request_identity':f'id-{n}','params':{'time_from':n,'time_to':n+3600}}} for n in range(594,598)]
+ journals=[]
+ for number in range(4):
+  path=tmp_path/f'paid-{number}.json'; path.write_text('{"version":1,"records":[]}'); journals.append(path)
+ session=tmp_path/'session.json'; session.write_text('{"version":1,"records":[]}')
+ auth=cohort_authorization(chronology_hash='frozen',identities=[f'id-{n}' for n in range(594,598)],authority_id='operator')
+ # Retained sessions establish the durable 1..16 sequence without matching
+ # the remaining four identities.
+ for number in range(1,17):
+  prior={'session_number':number,'records':[]}; prior['content_hash']=digest({key:value for key,value in prior.items() if key!='content_hash'})
+  (tmp_path/f'dev014_session_{number:03d}.manifest.json').write_text(json.dumps(prior,sort_keys=True,separators=(',',':')))
+ original=authorized_manifests(Controller(),auth,journals,session)[0]
+ original['session_number']=1; original['content_hash']=digest({key:value for key,value in original.items() if key!='content_hash'})
+ original_path=tmp_path/'dev014_session_017.manifest.json'; original_path.write_text(json.dumps(original,sort_keys=True,separators=(',',':')))
+ original_bytes=original_path.read_bytes()
+ with pytest.raises(RuntimeError,match='CRASH_AFTER_MANIFEST'):
+  execute_authorized_sessions(Controller(),auth,authoritative_journals=journals,session_journal=session,manifest_root=tmp_path,
+   execute_session=lambda _:(_ for _ in ()).throw(RuntimeError('CRASH_AFTER_MANIFEST')),health=lambda:None)
+ corrected=tmp_path/'dev014_session_017.manifest.v2.json'
+ assert original_path.read_bytes()==original_bytes and corrected.is_file()
+ corrected_value=json.loads(corrected.read_text())
+ assert corrected_value['session_number']==17 and corrected_value['records']==original['records']
+ assert corrected_value['supersedes']['original_filename']==original_path.name
+ seen=[]
+ def execute(path):
+  seen.append(path.name); manifest=json.loads(path.read_text())
+  session.write_text(json.dumps({'version':1,'records':[{'state':'COMPLETED','mint':record['mint'],'request_identity':record['request_identity']} for record in manifest['records']]}))
+ clock=[0.0]
+ result=execute_authorized_sessions(Controller(),auth,authoritative_journals=journals,session_journal=session,
+  manifest_root=tmp_path,execute_session=execute,health=lambda:None,clock=lambda:clock[0],sleep=lambda seconds:clock.__setitem__(0,clock[0]+seconds))
+ assert result['status']=='EXHAUSTED' and seen==['dev014_session_017.manifest.v2.json']
+ assert original_path.read_bytes()==original_bytes
+
+
+def test_session_executor_rejects_tampered_or_wrong_number_supersession(tmp_path):
+ class Controller:
+  def work(self): return [{'rank':1,'mint':'mint','anchor':{'timestamp':1,'class':'CREATION_TIME_ANCHORED_OBSERVATION'},'request':{'request_identity':'id','params':{'time_from':1,'time_to':3601}}}]
+ journals=[]
+ for number in range(4):
+  path=tmp_path/f'paid-{number}.json'; path.write_text('{"version":1,"records":[]}'); journals.append(path)
+ session=tmp_path/'session.json'; session.write_text('{"version":1,"records":[]}')
+ auth=cohort_authorization(chronology_hash='frozen',identities=['id'],authority_id='operator')
+ original=authorized_manifests(Controller(),auth,journals,session)[0]; original['session_number']=0; original['content_hash']=digest({key:value for key,value in original.items() if key!='content_hash'})
+ (tmp_path/'dev014_session_001.manifest.json').write_text(json.dumps(original,sort_keys=True,separators=(',',':')))
+ with pytest.raises(RuntimeError,match='CRASH'):
+  execute_authorized_sessions(Controller(),auth,authoritative_journals=journals,session_journal=session,manifest_root=tmp_path,execute_session=lambda _:(_ for _ in ()).throw(RuntimeError('CRASH')),health=lambda:None)
+ corrected=tmp_path/'dev014_session_001.manifest.v2.json'; value=json.loads(corrected.read_text()); value['session_number']=2; value['content_hash']=digest({key:item for key,item in value.items() if key!='content_hash'}); corrected.write_text(json.dumps(value,sort_keys=True,separators=(',',':')))
+ with pytest.raises(RuntimeError,match='COHORT_MANIFEST_SUPERSESSION_INVALID'):
+  execute_authorized_sessions(Controller(),auth,authoritative_journals=journals,session_journal=session,manifest_root=tmp_path,execute_session=lambda _:None,health=lambda:None)

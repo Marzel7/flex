@@ -1,0 +1,81 @@
+{
+  "artifact_type": "WATCHTOWER_LIFECYCLE_ONE_REQUEST_PREPARATION_V1",
+  "status": "PREPARED_NOT_PAID_WRAPPER_BINDING_REQUIRED",
+  "source_base": "3e7b4cebe140d5ab7a458c6e8d6499d758b41d9a",
+  "authorization": {
+    "rank": 593,
+    "mint": "2HBTVUsaorJ1axpMxkqBv1c85nyXp34GFMnrSA2ipump",
+    "creation_timestamp": 1784670469,
+    "time_from": 1784670469,
+    "time_to": 1785534469,
+    "interval": "15m",
+    "content_hash": "97cf2a0bef962350f2752c38a46a57e2587d594f96f2aa12fa4a85571fa5483d"
+  },
+  "request": {
+    "endpoint": "GET /defi/v3/ohlcv",
+    "parameters": {
+      "chart_type": "mcap",
+      "currency": "usd",
+      "mode": "range",
+      "padding": false,
+      "type": "15m",
+      "time_from": 1784670469,
+      "time_to": 1785534469
+    },
+    "bounded_range_seconds": 864000,
+    "maximum_provider_requests": 1,
+    "pagination": false,
+    "fallback": false,
+    "automatic_retry": false
+  },
+  "selection_evidence": {
+    "source": "docs/audits/dev014_watchtower_opening_hour_reconciliation_20261011.v1.json",
+    "opening_hour_status": "COMPLETED_QUALIFIED_OBSERVATION",
+    "anchor_type": "CREATION_TIME_ANCHORED_OBSERVATION",
+    "opening_evidence_identity": "2926641d484d1ac3d5ef2a7a79136d4798bf7435496aa5a077d9d3fc3f4e72ca",
+    "existing_provider_provenance": "BIRDEYE_1M_MCAP",
+    "age_basis": "Creation timestamp predates this fixed 10-day bounded range; requested range extends beyond the one-hour retained opening window."
+  },
+  "no_repeat": {
+    "terminal_journals_read": [
+      "/private/tmp/dev014-lifecycle-probe/journal.json",
+      "/private/tmp/dev014-lifecycle-probe-2/journal.json",
+      "/private/tmp/dev014-lifecycle-probe-3/journal.json"
+    ],
+    "terminal_exclusions": ["rank 49", "rank 42", "rank 44"],
+    "selected_identity_present": false,
+    "selected_mint_present": false
+  },
+  "existing_component_reuse": [
+    "build_birdeye_ohlcv_request",
+    "BirdeyeProductionBinding",
+    "Batch4RuntimeGate and shared 20-global/4-per-mint budget admission",
+    "OneRequestLifecycleProbe atomic no-repeat journal",
+    "normalize_partial_birdeye_mcap_ohlcv",
+    "summarize_observed_lifecycle"
+  ],
+  "wrapper_compatibility": {
+    "status": "HOLD_CLOSED_SELECTION_MISSING",
+    "observed_modes": ["lifecycle-probe", "rank-42-lifecycle-probe", "rank-44-lifecycle-probe"],
+    "reason": "The safe credential wrapper intentionally permits only fixed prior authorization paths. No closed rank-593 path exists, and adding a generic credentialed launcher would violate the existing wrapper safety contract.",
+    "required_future_change": "A separately authorized closed rank-593 wrapper selection binding this exact authorization path and journal; no generic path or arbitrary command execution."
+  },
+  "provider_free_preflight": {
+    "authorization_shape_and_hash": "PASS",
+    "one_request_contract": "PASS",
+    "terminal_no_repeat": "PASS",
+    "runtime_health_and_budget": "NOT_EXECUTED: would require credentialed/live preflight and is reserved for a later explicit paid authorization.",
+    "storage": "Existing 1MiB artifact, 2MiB probe storage, 4GiB disk reserve, and raw-payload prohibition remain applicable."
+  },
+  "safety": {
+    "provider_requests": 0,
+    "credential_reads": 0,
+    "live_budget_debits": 0,
+    "canonical_database_writes": 0,
+    "deployment": 0,
+    "scheduling": 0,
+    "raw_provider_retention": false,
+    "runtime_deployment_required": false
+  },
+  "next_gate": "Stop before acquisition. Separately authorize only a fixed rank-593 safe-wrapper binding, provider-free qualification, and publication; then obtain a distinct one-request paid authorization."
+}

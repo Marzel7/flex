@@ -23663,6 +23663,20 @@
     "runtime_deployment_gate": "NOT_REQUIRED_ISOLATED_FINITE_MANUAL_EXECUTION",
     "next_action": "Do not restart automatically. A separately authorized read-only diagnosis may distinguish transient transport/API health interruption from a persistent runtime fault; any paid continuation requires renewed explicit authority for only the remaining 427 identities."
   },
+  "watchtower_lifecycle_api_health_diagnosis_20261011": {
+    "status": "PASS_READ_ONLY_RUNTIME_RECOVERED_RESUME_REQUIRES_RENEWED_PAID_AUTHORITY",
+    "engineering_revision": "85f50f28f4a26b9177091663767cd2b119f9f480 on codex/dev014-current-mc-freshness; remote verified",
+    "recorded_hold": "run_status.json records RuntimeGateDenied/API_HEALTH_UNAVAILABLE, exit_code=1, updated_at=1791745078, after 123 terminal identities. The journal/state authority was not mutated during diagnosis.",
+    "root_cause": "The retained status preserves only the fail-closed reason. Batch4RuntimeGate._fetch_health wraps all urllib exceptions as API_HEALTH_UNAVAILABLE, and the dispatcher status intentionally stores only the sanitized gate reason; therefore the underlying socket/HTTP exception and per-attempt result are not recoverable. A Gunicorn worker started at the same recorded second as the HOLD while master PID 9045 remained continuous; this is correlation only, not a proven causal API outage.",
+    "confirmation_contract": "Existing lifecycle execution already reuses Batch4RuntimeGate._confirmed_health: exactly two health reads with a 0.25-second pause, only after API_HEALTH_UNAVAILABLE. Explicit non-200/unhealthy/db!=ok/wal_warn=true and stale creator responses fail immediately. The historic artifact does not retain whether the second attempt occurred, so there is no concrete integration defect or safe basis to extend/change the contract.",
+    "current_runtime": "Read-only gate PASS: API http://127.0.0.1:5002/healthz healthy=true/db=ok/wal_warn=false; creator-funding=2s and creator-resolution=9s; checkpoint samples=3, remaining_frames=53, all status=ok/busy=0 with positive checkpoint progress; WAL=646872 bytes; disk_free=8433717248 bytes. Supervisor reports watchtower_api/listener/funding/resolution RUNNING. No lifecycle dispatcher process is active.",
+    "journal_reconciliation": "Authorization content_hash=377103f255f5bacddd36fcd46188d7b7bb3688a552e563b3fd55eb2e47a3cc6c; records=550 unique. Journals=123: COMPLETED=122, NO_VALID_CANDLES=1, ATTEMPTED=0, OUTCOME_UNKNOWN=0, unauthorized=0, duplicates=0, untouched=427. Terminal lifecycle ranks42/44/49 remain excluded and rank593 remains completed/excluded. Cohort storage=175266 bytes.",
+    "minimum_correction": "NONE. The bounded transport-only confirmation already exists and is shared by the lifecycle path. Adding diagnostic retention or changing the confirmation window would be new engineering unsupported by retained evidence.",
+    "regression": "No source change or test run in this read-only diagnostic. Existing confirmation behavior was inspected directly and the unchanged real runtime gate passed.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_READ_ONLY_DIAGNOSIS",
+    "next_action": "Do not restart automatically. If a renewed explicit paid authorization for only the 427 untouched identities is granted, perform a fresh immediate preflight under the unchanged gate and stop again on any persistent or ambiguous failure."
+  },
   "watchtower_lifecycle_checkpoint_evidence_recovery_20261011": {
     "status": "PASS_RUNTIME_GATE_RESTORED_READ_ONLY",
     "engineering_revision": "3ea086247655a65fa2be226810b0742af0fe418c on codex/dev014-current-mc-freshness; remote verified",

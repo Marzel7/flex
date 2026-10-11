@@ -65,6 +65,8 @@ def _source_then_reexec(env_file: Path, mode: str, cohort_root: Path | None = No
         target = [sys.executable, str(ROOT / "scripts" / "run_watchtower_lifecycle_probe.py"), "--authorization", str(Path("/private/tmp/dev014-lifecycle-probe.authorization.json")), "--journal", str(Path("/private/tmp/dev014-lifecycle-probe/journal.json")), "--queue-root", str(QUEUE_ROOT), "--supervisor-config", str(SUPERVISOR_CONFIG)]
     if mode == "rank-42-lifecycle-probe":
         target = [sys.executable, str(ROOT / "scripts" / "run_watchtower_lifecycle_probe.py"), "--authorization", "/private/tmp/dev014-lifecycle-probe-2.authorization.json", "--journal", "/private/tmp/dev014-lifecycle-probe-2/journal.json", "--queue-root", str(QUEUE_ROOT), "--supervisor-config", str(SUPERVISOR_CONFIG)]
+    if mode == "rank-44-lifecycle-probe":
+        target = [sys.executable, str(ROOT / "scripts" / "run_watchtower_lifecycle_probe.py"), "--authorization", "/private/tmp/dev014-lifecycle-probe-3.authorization.json", "--journal", "/private/tmp/dev014-lifecycle-probe-3/journal.json", "--queue-root", str(QUEUE_ROOT), "--supervisor-config", str(SUPERVISOR_CONFIG)]
     command = ["/bin/sh", "-ceu", shell, "sh", str(env_file), *target]
     return subprocess.run(command, check=False).returncode
 
@@ -123,7 +125,7 @@ def _execute_frozen_session(run: Callable[..., subprocess.CompletedProcess] = su
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=("verify", "preflight", "execute", "cohort", "lifecycle-probe", "rank-42-lifecycle-probe"), default="verify")
+    parser.add_argument("--mode", choices=("verify", "preflight", "execute", "cohort", "lifecycle-probe", "rank-42-lifecycle-probe", "rank-44-lifecycle-probe"), default="verify")
     parser.add_argument("--env-file", type=Path, default=ENV_FILE)
     parser.add_argument("--cohort-root", type=Path)
     parser.add_argument("--max-requests", type=int)
@@ -141,7 +143,7 @@ def main() -> int:
             return _execute_frozen_session()
         if args.mode == "cohort":
             raise CredentialBindingDenied("COHORT_BOUND_PROCESS_REQUIRED")
-        if args.mode in {"lifecycle-probe", "rank-42-lifecycle-probe"}:
+        if args.mode in {"lifecycle-probe", "rank-42-lifecycle-probe", "rank-44-lifecycle-probe"}:
             raise CredentialBindingDenied("LIFECYCLE_PROBE_BOUND_PROCESS_REQUIRED")
         value = _credential_check() if args.mode == "verify" else _preflight()
         print(json.dumps(value, sort_keys=True))

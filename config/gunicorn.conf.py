@@ -13,7 +13,7 @@ recovery_mode = os.environ.get("FLEX_UI_RECOVERY_MODE", "0").lower() in {"1", "t
 # Workers — sync+threaded is safer with our daemon-thread-heavy architecture.
 # gevent monkey-patches can deadlock with threading.Thread I/O.
 worker_class = "gthread"
-workers = 1
+workers = 2
 # Dashboard pages fan out 11-22 concurrent /api fetches on load. With only 8
 # threads the page's own requests starved each other — one transiently-slow
 # handler queued the rest, manifesting as "loading very slow". These handlers are

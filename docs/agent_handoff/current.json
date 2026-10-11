@@ -23752,5 +23752,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_REQUIRED_PROVIDER_FREE_OWNERSHIP_QUALIFICATION",
     "next_action": "Obtain renewed explicit paid authority for exactly the 412 untouched identities. Then fresh-preflight and manually start the existing safe wrapper inside the qualified finite screen session; do not auto-restart after any HOLD."
+  },
+  "watchtower_lifecycle_412_detached_resume_20261011": {
+    "status": "RUNNING_FINITE_AUTHORIZED_COHORT",
+    "engineering_revision": "06fc3194e4a9c4fcfdf4554286a5486c14fe7649 on codex/dev014-current-mc-freshness; remote SHA verified before launch.",
+    "authority": "Explicit paid authorization permits at most 412 additional requests for the exact untouched members of frozen authorization 377103f255f5bacddd36fcd46188d7b7bb3688a552e563b3fd55eb2e47a3cc6c.",
+    "preflight": "PASS via safe wrapper immediately before launch: API healthy=true/db=ok/wal_warn=false; creator ages=9s/99s; checkpoint samples=2 remaining_frames=235; WAL=486192 bytes; disk_free_bytes=7348547584; BIRDEYE presence only, no value retained.",
+    "ownership": "Detached finite screen session label=flexdev014lifecycle1791749297; run directory=/private/tmp/dev014-lifecycle-screen.2d3FfH; wrapper PID=13454; dispatcher PID=13456; run_id=fb0f8facc77744849bec9d77c1b07adb; started_at=1791749298. Screen session, dispatcher, exclusive cohort ownership, and run_status RUNNING were independently observed.",
+    "progress_snapshot": "At the compact handoff snapshot: COMPLETED=147, NO_VALID_CANDLES=1, terminal=148, remaining=402, storage=211449 bytes. First ten new request identities completed with HTTP 200 and durable journal progression. No retry, pagination, fallback, canonical SQLite write, deployment, or scheduler was used.",
+    "limits": "Existing finite dispatcher remains concurrency=1, max50/session, 10 requests/rolling minute, shared20-global/4-per-mint budget, 60-second cooldown, 1MiB/artifact, 100MiB cumulative, >=4GiB disk, and bounded 10-second transport-only API recovery. Explicit unhealthy runtime states remain immediate HOLD.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_ISOLATED_FINITE_MANUAL_EXECUTION_ALREADY_RUNNING",
+    "next_action": "Leave the finite detached dispatcher running. Read-only monitoring may report durable session progress or a HOLD. Do not launch a duplicate or restart automatically."
   }
 }

@@ -23653,15 +23653,15 @@
     "next_action": "Obtain one explicit paid authorization naming 3ea086247655a65fa2be226810b0742af0fe418c and the frozen cohort hash. Then perform fresh runtime preflight and invoke only scripts/run_dev014_birdeye_preflight.py --mode lifecycle-cohort."
   },
   "watchtower_lifecycle_cohort_activation_20261011": {
-    "status": "RUNNING_FINITE_AUTHORIZED_LIFECYCLE_COHORT",
+    "status": "HOLD_API_HEALTH_UNAVAILABLE",
     "engineering_revision": "85f50f28f4a26b9177091663767cd2b119f9f480 on codex/dev014-current-mc-freshness; remote verified",
     "authorization": "550-member frozen lifecycle cohort content_hash=377103f255f5bacddd36fcd46188d7b7bb3688a552e563b3fd55eb2e47a3cc6c independently verified. Ranks42/44/49 and completed rank593 absent; identities/mints unique; all windows 15m creation-to-creation+864000.",
     "preflight": "PASS via safe wrapper immediately before paid continuation: API healthy=true/db=ok/wal_warn=false; checkpoint samples=3 remaining_frames=188; WAL=103032 bytes; creator-funding age=0s and creator-resolution age=5s; disk_free_bytes=8444182528; BIRDEYE presence was confirmed without retaining its value.",
-    "runtime_observation": "Read-only live check: wrapper PID=88414 and dispatcher PID=88425 remain live; PID 88425 owns the exclusive cohort lock. run_status.json remains RUNNING with matching authorization/source hashes, last_durable_completion_count=107, current_session=1, exit_code=null. All 107 durable journals are authorized and unique: COMPLETED=106, NO_VALID_CANDLES=1. A transient ATTEMPTED journal observed during an in-flight transition reached COMPLETED on the immediate recheck; no protected ATTEMPTED or OUTCOME_UNKNOWN state remains.",
-    "execution": "RUNNING finite manual cohort under renewed authority: additional paid requests observed=38 of maximum 481; remaining untouched=443. Existing pacing, health, storage, no-repeat, and no raw-payload constraints remain active; no canonical SQLite write, deployment, scheduling, pagination, fallback, or automatic retry is authorized.",
+    "runtime_observation": "Dispatcher PID=88425 and wrapper PID=88414 exited and released the exclusive lock. The bounded run_status.json correctly retained HOLD with exception_class=RuntimeGateDenied, exception_reason=API_HEALTH_UNAVAILABLE, exit_code=1, and last_durable_completion_count=123. Current post-HOLD API sample has recovered: healthy=true/db=ok/wal_warn=false; creator heartbeat ages=1s/8s; WAL=0.3MiB; disk free approximately 7.37GiB. Recovery after the stop does not alter the recorded HOLD or authorize restart.",
+    "execution": "Controlled safety HOLD after additional paid requests=54 of maximum 481. Durable journals=123: COMPLETED=122, NO_VALID_CANDLES=1, all authorized/unique; remaining untouched=427; storage=175266 bytes. No provider error/unknown journal, canonical SQLite write, deployment, scheduling, pagination, fallback, or automatic retry occurred.",
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_REQUIRED_ISOLATED_FINITE_MANUAL_EXECUTION",
-    "next_action": "Continue the currently running finite manual dispatcher unattended. Reconcile compact journals/status after sessions; stop at exhaustion or first genuine HOLD. Do not restart after a HOLD."
+    "next_action": "Do not restart automatically. A separately authorized read-only diagnosis may distinguish transient transport/API health interruption from a persistent runtime fault; any paid continuation requires renewed explicit authority for only the remaining 427 identities."
   },
   "watchtower_lifecycle_checkpoint_evidence_recovery_20261011": {
     "status": "PASS_RUNTIME_GATE_RESTORED_READ_ONLY",

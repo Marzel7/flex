@@ -23623,5 +23623,19 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_REQUIRED_ISOLATED_MANUAL_PROBE",
     "next_action": "Stop paid lifecycle acquisition. Provider-free review may use this compact observed-only evidence; a cohort requires separately authorized storage-bounded execution work and cannot rely on the sample projection alone."
+  },
+  "watchtower_lifecycle_full_cohort_preparation_20261011": {
+    "status": "PASS_PROVIDER_FREE_FROZEN_AUTHORIZATION_PREPARED",
+    "engineering_revision": "72e0ed15cad7bb4b8291853dab3da351d933d452 on codex/dev014-current-mc-freshness",
+    "artifact": "docs/audits/watchtower_lifecycle_cohort_authorization_20261011.v1.json",
+    "authorization_content_hash": "377103f255f5bacddd36fcd46188d7b7bb3688a552e563b3fd55eb2e47a3cc6c",
+    "eligibility": "550 exact independently eligible qualified-opening mints from the immutable 597-rank reconciliation. All ranks, mints, and deterministic request identities are unique. Ranks 42, 44, and 49 remain terminal exclusions; rank 593 is durably COMPLETED and excluded. Unqualified opening records remain excluded without substitution.",
+    "request_contract": "One frozen BIRDEYE V3 OHLCV MCAP request per member: 15m, [creation_timestamp, creation_timestamp+864000), no pagination, fallback, or retry. Max 50/session, 10/rolling minute, concurrency 1, 60-second cooldown, 4GiB reserve, and 100MiB cumulative storage ceiling are carried in the authorization.",
+    "reuse_and_gap": "Uses existing request identity, shared lifecycle authorization validation, compact journal-derived no-repeat exclusions, normalizer, reducer, and one-request binding. The opening-hour finite coordinator is intentionally not reused for execution because it is hard-bound to 1m/3600-second manifests and HistoricalExecutionBinding records. No dispatcher, scheduler, provider client, normalizer, ledger, journal format, or canonical SQLite writer was added.",
+    "storage": "Frozen authorization=180963 bytes (<1MiB). Rank593 compact journal measured 1456 bytes, producing a sample-based 550-request estimate of 800800 bytes. The hard 100MiB cohort guard remains required; 1MiB/request theoretical maximum is not treated as an execution estimate and would exceed the ceiling.",
+    "regression": "10 focused provider-free tests passed: lifecycle cohort exact membership/exclusion/hash/window validation plus existing probe, reusable-wrapper, and observed-lifecycle projection tests. No provider, credential, budget, queue, canonical DB, deployment, or scheduling action occurred.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_PREPARATION_ONLY",
+    "next_action": "A separately authorized minimal finite lifecycle dispatcher must compose the frozen authorization with the existing one-request runner, shared pacing/budget/runtime gate, per-identity compact journals, and CohortStorageGuard before any cohort paid authorization. Do not start acquisition from this artifact alone."
   }
 }

@@ -10,6 +10,7 @@ ROOT=Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path: sys.path.insert(0,str(ROOT))
 from src.ops.watchtower_historical_backfill_controller import HistoricalBackfillController, SessionBounds
 from src.ops.watchtower_historical_execution_binding import HistoricalExecutionBinding
+import src.ops.watchtower_historical_execution_binding as execution_binding_module
 from src.ops.watchtower_historical_budget import HistoricalForensicsBudgetAdmission
 from src.ops.dev_provider_budget import BudgetDenied
 from src.ops.dev014_batch4_runtime_gate import Batch4RuntimeGate, RuntimeAuthority, resolve_runtime_authority
@@ -178,7 +179,7 @@ def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, An
     authority=RuntimeAuthority(config,'http://fixture/healthz',db,listener,(funding,resolution))
     lines=lambda:[f'1 0 Sat Oct 10 00:00:00 2026 /usr/local/bin/supervisord -c {config}','2 1 Sat Oct 10 00:00:00 2026 /usr/bin/python3 -m src.core.creator_funding_worker','3 1 Sat Oct 10 00:00:00 2026 /usr/bin/python3 -m src.core.creator_resolution_worker']
     scenario=args.test_scenario
-    if scenario not in {'healthy','api-unhealthy','wrong-api','funding-stale','resolution-stale','wal-over-limit','checkpoint-stalled','disk-low','duplicate-supervisor','duplicate-creator','critical-wal','global-budget-denied','mint-budget-denied','provider-backoff','provider-backoff-expired','malformed-ledger','unreadable-ledger','transport-failure','transport-hold','wait-cancel','wait-health-failure','wait-crash'}: raise SystemExit('TEST_SCENARIO_INVALID')
+    if scenario not in {'healthy','api-unhealthy','wrong-api','funding-stale','resolution-stale','wal-over-limit','checkpoint-stalled','disk-low','duplicate-supervisor','duplicate-creator','critical-wal','global-budget-denied','mint-budget-denied','provider-backoff','provider-backoff-expired','malformed-ledger','unreadable-ledger','transport-failure','transport-hold','wait-cancel','wait-health-failure','wait-crash','segment-zero-immutable'}: raise SystemExit('TEST_SCENARIO_INVALID')
     payload={'healthy':True,'db':'ok','wal_warn':False,'workers':{'creator-funding':{'stale':False,'age_s':1},'creator-resolution':{'stale':False,'age_s':1}}}
     if scenario=='api-unhealthy': payload['healthy']=False
     if scenario=='funding-stale': payload['workers']['creator-funding']={'stale':True,'age_s':999}
@@ -208,6 +209,14 @@ def _execute_production_fixture(args: argparse.Namespace, manifest: dict[str, An
             timestamp = request['request_parameters']['time_from'] // 60 * 60
             return ProviderTransportOutcome(200,{'success':True,'data':{'items':[{'unixTime':timestamp,'o':10,'h':11,'l':9,'c':10}]}},{})
     queue=Path(args.queue_root); queue.mkdir(parents=True,exist_ok=True)
+    if scenario == 'segment-zero-immutable':
+        # Fixed fixture-only resume shape: compactly model a near-cap immutable
+        # historical segment zero, then exercise the exact production CLI path.
+        execution_binding_module.MAX_BYTES = 20_000
+        zero = {'version': 1, 'records': [{'request_identity': 'legacy-completed', 'mint': 'legacy-mint',
+                 'state': 'COMPLETED', 'padding': 'x' * 17_900}]}
+        binding_path = Path(manifest['binding_path']); binding_path.parent.mkdir(parents=True, exist_ok=True)
+        binding_path.write_bytes(json.dumps(zero, sort_keys=True, separators=(',', ':')).encode())
     mint=selected[0]['mint']; ledger=queue/'provider_budget.json'
     # A fixed fixture-only clock permits the real production wait/recheck loop
     # to cross the existing 60-second rolling boundary without wall-clock sleep.

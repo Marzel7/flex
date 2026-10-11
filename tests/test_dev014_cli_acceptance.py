@@ -118,6 +118,23 @@ def test_actual_cli_same_root_concurrency_is_single_owner_and_releases_lock(tmp_
     assert len(_budget_calls(root)) == 1
 
 
+def test_actual_cli_resume_routes_immutable_zero_to_successor_segment(tmp_path: Path) -> None:
+    """The production CLI fixture must never rewrite an immutable segment zero."""
+    root = tmp_path / "segmented-resume"
+    run = _run(_command(root, scenario="segment-zero-immutable"))
+    assert run.returncode == 0, run.stderr
+    result = json.loads(run.stdout)
+    zero = root / "evidence" / "journal.json"
+    successor = root / "evidence" / "journal.segment.001.json"
+    assert successor.is_file()
+    assert json.loads(zero.read_text())["records"][0]["request_identity"] == "legacy-completed"
+    assert result["fixture_transport_calls"] == 1 and result["credential_reads"] == 0
+    from src.ops.watchtower_historical_execution_binding import HistoricalExecutionBinding
+    records = HistoricalExecutionBinding(zero).read()["records"]
+    assert {record["state"] for record in records} == {"COMPLETED"}
+    assert len(records) == 2 and len(_budget_calls(root)) == 1
+
+
 def test_actual_production_operator_reconstruction_carries_rank_53_entry_mc(tmp_path: Path) -> None:
     root = tmp_path / "rank-53"
     run = _run(_command(root, ranks=SCALED_RANKS))

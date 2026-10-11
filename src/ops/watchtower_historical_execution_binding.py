@@ -120,17 +120,21 @@ class HistoricalExecutionBinding:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         if not self._segments:
             _atomic(self.path, value, self.guard); return
+        # A near-cap segment zero is retained historical authority.  Even when
+        # its next compact record would still fit below MAX_BYTES, it must not
+        # be rewritten: route the first resumed transition to segment 001.
+        immutable_zero = self.path.stat().st_size >= MAX_BYTES * 0.9
         known={record["request_identity"] for segment in self._segments.values() for record in segment["records"]}
         additions=[record for record in value["records"] if record.get("request_identity") not in known]
         if additions:
             if len(additions)!=1: raise BindingDenied("EXECUTION_JOURNAL_SEGMENT_APPEND_INVALID")
             last=next(reversed(self._segments))
             candidate={"version":1,"records":self._segments[last]["records"]+[additions[0]]}
-            if len(json.dumps(candidate,sort_keys=True,separators=(",", ":")).encode()) >= MAX_BYTES:
+            if (last == self.path and immutable_zero
+                    or len(json.dumps(candidate,sort_keys=True,separators=(",", ":")).encode()) >= MAX_BYTES):
                 last=self.path.with_name(self.path.stem + f".segment.{len(self._segments):03d}" + self.path.suffix)
                 candidate={"version":1,"records":additions}
             self._segments[last]=candidate
-        immutable_zero=self.path.stat().st_size >= MAX_BYTES * 0.9
         for segment, document in self._segments.items():
             raw=json.dumps(document,sort_keys=True,separators=(",", ":")).encode()
             if raw==self._snapshots.get(segment): continue

@@ -23810,5 +23810,18 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "Review/approve a controlled DEV API installation using b98ce0ef, then separately authorize two-worker Supervisor reload and bounded two-worker health/turnover acceptance. Paid Watchtower resume remains blocked."
+  },
+  "dev015_runtime_specific_qualification_20261011": {
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "runtime_base_sha": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+    "source_sha": "b98ce0efe69171168b751daedafaf8063647c032",
+    "runtime_specific_sha": "2fbb0736bd4fcc84d7a6017f544f32689ee695c0",
+    "branch": "codex/dev015-runtime-specific",
+    "changes": "Only src/core/intelligence_snapshot_scheduler.py and src/core/operation_dashboard_routes.py: atomic O_EXCL PID ownership and one complete Gunicorn prewarm owner.",
+    "tests": "33 passed: x65_50 prewarm/build-lock, x67_28 snapshot scheduler, x65_51 prewarm observability/config; py_compile and diff --check passed. test_dev_runtime_boundaries.py is absent from the installed-source worktree.",
+    "rollback_target": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "Separate authorization required to install 2fbb0736 in the isolated DEV API checkout, change workers=2, reload only watchtower_api, and run bounded two-worker acceptance."
   }
 }

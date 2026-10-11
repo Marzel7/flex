@@ -60,3 +60,19 @@ def test_dispatcher_cancellation_precedes_any_probe(tmp_path):
     auth=build_cohort_authorization([_record(1)],chronology_hash="c",authority_id="a")
     result=FiniteLifecycleDispatcher(auth,tmp_path,health=lambda:None,probe_factory=lambda *_:(_ for _ in ()).throw(AssertionError("probe")),storage_guard=Guard(),cancelled=lambda:True).run()
     assert result["status"]=="CANCELLED" and not result["completed"]
+
+
+def test_dispatcher_reports_progress_only_after_durable_completion(tmp_path):
+    auth=build_cohort_authorization([_record(1),_record(2)],chronology_hash="c",authority_id="a")
+    progress=[]
+    class Probe:
+        def __init__(self, record, path): self.record,self.path=record,path
+        def execute(self):
+            self.path.parent.mkdir(parents=True,exist_ok=True)
+            self.path.write_text(json.dumps({"state":"COMPLETED","request_identity":self.record["request_identity"],"mint":self.record["mint"]}))
+    result=FiniteLifecycleDispatcher(auth,tmp_path,health=lambda:None,probe_factory=Probe,storage_guard=Guard(),progress=progress.append).run()
+    assert result["status"]=="EXHAUSTED"
+    assert progress==[
+        {"completed":1,"completed_sessions":0,"current_session":1},
+        {"completed":2,"completed_sessions":0,"current_session":1},
+    ]

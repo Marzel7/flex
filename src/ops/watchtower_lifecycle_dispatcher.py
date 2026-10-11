@@ -54,11 +54,12 @@ def journal_outcome(path: Path, record: dict[str, Any]) -> str:
 
 class FiniteLifecycleDispatcher:
     """A caller-owned finite loop; per-request durability remains OneRequestLifecycleProbe."""
-    def __init__(self, authorization: dict[str, Any], journal_root: Path, *, health: Callable[[], Any], probe_factory: Callable[[dict[str, Any], Path], Any], storage_guard: Any, clock: Callable[[], float] = time.monotonic, sleep: Callable[[float], None] = time.sleep, cancelled: Callable[[], bool] = lambda: False):
+    def __init__(self, authorization: dict[str, Any], journal_root: Path, *, health: Callable[[], Any], probe_factory: Callable[[dict[str, Any], Path], Any], storage_guard: Any, clock: Callable[[], float] = time.monotonic, sleep: Callable[[float], None] = time.sleep, cancelled: Callable[[], bool] = lambda: False, progress: Callable[[dict[str, Any]], None] | None = None):
         self.authorization = validate_lifecycle_cohort_authorization(authorization)
         self.journal_root = Path(journal_root)
         self.health, self.probe_factory, self.storage_guard = health, probe_factory, storage_guard
         self.clock, self.sleep, self.cancelled = clock, sleep, cancelled
+        self.progress = progress or (lambda _value: None)
 
     def _remaining(self) -> list[dict[str, Any]]:
         remaining = []
@@ -87,6 +88,7 @@ class FiniteLifecycleDispatcher:
                     try:
                         probe.execute()
                         admitted_at.append(self.clock()); completed.append(record["request_identity"]); session.append(record["request_identity"])
+                        self.progress({"completed": len(completed), "completed_sessions": len(sessions), "current_session": len(sessions) + 1})
                         break
                     except BudgetDenied as exc:
                         if str(exc) not in RETRYABLE_PRE_ADMISSION:

@@ -192,11 +192,23 @@ class Batch4RuntimeGate:
         raise RuntimeGateDenied("API_HEALTH_UNAVAILABLE")
 
     def _storage(self) -> dict[str, int]:
+        database = self.authority.canonical_db
+        wal_path = database.with_name(database.name + "-wal")
         try:
-            wal_bytes = int(self._wal_size(self.authority.canonical_db.with_name(self.authority.canonical_db.name + "-wal")))
-            free_bytes = int(self._disk_usage(self.authority.canonical_db.parent).free)
+            if database.is_symlink() or not database.is_file():
+                raise RuntimeGateDenied("CANONICAL_DATABASE_UNAVAILABLE")
+            try:
+                wal_bytes = int(self._wal_size(wal_path))
+            except FileNotFoundError:
+                # A clean SQLite checkpoint may remove the -wal sidecar.  This
+                # path is reached only after confirmed API/db/creator health,
+                # checkpoint progress, and critical-log checks in check().
+                wal_bytes = 0
+            free_bytes = int(self._disk_usage(database.parent).free)
         except OSError as exc:
             raise RuntimeGateDenied("WAL_OR_DISK_UNAVAILABLE") from exc
+        except RuntimeGateDenied:
+            raise
         if wal_bytes >= WAL_LIMIT_BYTES:
             raise RuntimeGateDenied("WAL_SIZE_DENIED")
         if free_bytes <= DISK_MINIMUM_BYTES:
@@ -291,8 +303,8 @@ class Batch4RuntimeGate:
 
     def check(self) -> dict[str, Any]:
         health = self._confirmed_health()
-        storage = self._storage()
         checkpoint = self._checkpoint()
         self._new_critical_event()
+        storage = self._storage()
         self._topology()
         return {"api_url": self.authority.api_url, "health": health, "storage": storage, "checkpoint": checkpoint}

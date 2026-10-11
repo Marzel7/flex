@@ -120,6 +120,25 @@ def test_rejects_disk_wal_checkpoint_and_duplicate_failures(tmp_path):
         _gate(authority, processes=_processes(authority, [_record(4, 1, "/usr/bin/python -m src.core.creator_funding_worker")])).check()
 
 
+def test_missing_wal_requires_independent_healthy_checkpoint_evidence(tmp_path):
+    authority, _, _ = _authority(tmp_path)
+    wal = authority.canonical_db.with_name(authority.canonical_db.name + "-wal")
+    wal.unlink()
+    assert _gate(authority).check()["storage"]["wal_bytes"] == 0
+    authority.listener_log.write_text("")
+    with pytest.raises(RuntimeGateDenied, match="CHECKPOINT_TELEMETRY_UNAVAILABLE"):
+        _gate(authority).check()
+
+
+def test_unreadable_wal_and_missing_database_fail_closed(tmp_path):
+    authority, _, _ = _authority(tmp_path)
+    with pytest.raises(RuntimeGateDenied, match="WAL_OR_DISK_UNAVAILABLE"):
+        _gate(authority, wal_size=lambda _path: (_ for _ in ()).throw(PermissionError())).check()
+    authority.canonical_db.unlink()
+    with pytest.raises(RuntimeGateDenied, match="CANONICAL_DATABASE_UNAVAILABLE"):
+        _gate(authority).check()
+
+
 def test_supervisor_shell_wrappers_and_tools_are_not_daemons(tmp_path):
     authority, _, _ = _authority(tmp_path)
     ignored = [

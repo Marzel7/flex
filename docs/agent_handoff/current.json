@@ -23713,5 +23713,19 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_REQUIRED_READ_ONLY_RUNTIME_EVIDENCE",
     "next_action": "The prior paid authority was consumed only by a preflight attempt that made zero admissions. Obtain/reconfirm explicit paid activation authority before a fresh immediate preflight and finite cohort launch; do not auto-start."
+  },
+  "watchtower_lifecycle_api_transport_recovery_20261011": {
+    "status": "PASS_PROVIDER_FREE_QUALIFIED_NOT_DEPLOYED_HANDOFF_TRANSPORT_DEGRADED",
+    "engineering_revision": "06fc3194e4a9c4fcfdf4554286a5486c14fe7649 in the isolated lifecycle worktree; local source commit only because remote publication was blocked by the execution environment's remote-egress policy.",
+    "scope": "Minimal pre-admission composition only. BoundedApiTransportRecovery wraps the existing Batch4RuntimeGate and is passed to both FiniteLifecycleDispatcher and OneRequestLifecycleProbe; no new health service, provider client, scheduler, journal, database, or credential loader was introduced.",
+    "recovery_contract": "Only RuntimeGateDenied/API_HEALTH_UNAVAILABLE is retried, for a maximum 10 seconds including the gate's existing two-attempt/250ms confirmation and the wrapper's one-second bounded waits. Every retry reruns the complete existing gate. API HTTP errors are API_HEALTH_DENIED and malformed health JSON is API_HEALTH_RESPONSE_MALFORMED, so neither enters recovery. All db/wal/creator/checkpoint/disk/topology and shared-budget failures remain fail-closed.",
+    "cancellation_and_deadline": "The recovery wrapper consumes existing clock/sleeper/cancellation/deadline seams; cancellation ends the dispatcher without provider admission, and deadline raises API_HEALTH_RECOVERY_DEADLINE. The manual runner currently provides no separate session deadline, so no new independent timing system was added.",
+    "qualification": "36 focused provider-free tests passed: lifecycle dispatcher/cohort/probe/run-status/reusable-wrapper and Batch4RuntimeGate suites. Tests cover transient recovery before actual fake-probe admission, persistent failure at 10 seconds, explicit unhealthy/malformed failures immediate, cancellation/deadline, health/storage/budget/cadence/no-repeat/crash paths. No real credentials, provider transport, live budget debit, canonical SQLite write, journal mutation, deployment, or scheduling occurred.",
+    "cohort_preservation": "Read-only reconciliation of authorization 377103f255f5bacddd36fcd46188d7b7bb3688a552e563b3fd55eb2e47a3cc6c: 550 unique records; COMPLETED=137, NO_VALID_CANDLES=1, terminal=138, ATTEMPTED=0, OUTCOME_UNKNOWN=0, untouched=412, journal identity mismatches=0, root storage=197106 bytes. Terminal lifecycle probes remain excluded and rank593 remains completed/excluded.",
+    "storage": "No new persistent runtime artifact. Existing compact per-identity journals remain <1MiB and CohortStorageGuard remains 100MiB cumulative plus >=4GiB disk; raw provider retention=false; no >=500MB or unbounded-growth path was added.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "runtime_deployment_reason": "This changes the executable isolated manual lifecycle runner, but no deployment/reload or paid restart was authorized. A future manually authorized run must use the qualified source commit and a fresh operational preflight.",
+    "next_action": "Obtain renewed explicit paid authority for exactly the 412 untouched identities, then verify remote engineering publication, fresh runtime health, source identity, and exclusive ownership before any manual continuation. Do not auto-restart."
   }
 }

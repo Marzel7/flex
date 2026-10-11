@@ -33,4 +33,5 @@ def test_malformed_fails_closed(tmp_path):
 def test_http200_provider_error_and_invalid_values_are_distinguished():
  assert compact_outcome({'success':False,'code':'RANGE_TOO_LARGE','message':'discarded'}, {}, 200)['outcome']=='PROVIDER_API_ERROR'
  assert compact_outcome({'data':{'items':[{'unixTime':1,'h':'nan','l':1}]}}, {}, 200)['outcome']=='INVALID_CANDLE_VALUES'
- assert compact_outcome({'data':{'items':[{'unixTime':1,'h':2,'l':1},{'unixTime':1,'h':3,'l':2}]}}, {}, 200)['outcome']=='INVALID_CANDLE_VALUES'
+ assert compact_outcome({'data':{'items':[{'unixTime':1,'h':2,'l':1},{'unixTime':1,'h':3,'l':2}]}}, {}, 200)['outcome']=='PARTIAL_VALID_CANDLES'
+ assert compact_outcome({'data':{'items':[{'unixTime':1,'h':'nan','l':1},{'unixTime':2,'h':3,'l':2}]}}, {}, 200)['outcome']=='PARTIAL_VALID_CANDLES'

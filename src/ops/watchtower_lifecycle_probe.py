@@ -55,22 +55,24 @@ def compact_outcome(payload: Any, request: dict[str, Any], status: int) -> dict[
         if not isinstance(items, list): raise ValueError
     except (KeyError, TypeError, ValueError):
         return {"outcome": "MALFORMED_RESPONSE", "http_status": status}
-    rows = []
+    rows = []; rejected: dict[str, int] = {}; seen: set[int] = set()
     for item in items:
         try:
             timestamp = int(item.get("unixTime", item.get("timestamp")))
             high, low = float(item["h"]), float(item["l"])
+            if timestamp in seen: raise RuntimeError("DUPLICATE_TIMESTAMP")
             if not (math.isfinite(high) and math.isfinite(low) and high > 0 and low > 0): raise ValueError
             rows.append((timestamp, low, high))
+            seen.add(timestamp)
+        except RuntimeError as exc:
+            rejected[str(exc)] = rejected.get(str(exc), 0) + 1
         except (AttributeError, KeyError, TypeError, ValueError):
-            return {"outcome": "INVALID_CANDLE_VALUES", "http_status": status,
-                    "response_envelope_fields": sorted(str(key) for key in payload)[:16] if isinstance(payload, dict) else []}
+            rejected["INVALID_VALUE_OR_FIELDS"] = rejected.get("INVALID_VALUE_OR_FIELDS", 0) + 1
     if not rows:
-        return {"outcome": "NO_VALID_CANDLES", "http_status": status, "returned_candle_count": 0}
+        return {"outcome": "INVALID_CANDLE_VALUES" if rejected else "NO_VALID_CANDLES", "http_status": status, "returned_candle_count": 0, "rejected_candle_counts": rejected}
     rows.sort()
-    if len({row[0] for row in rows}) != len(rows): return {"outcome": "INVALID_CANDLE_VALUES", "http_status": status}
     minimum, maximum = min(rows, key=lambda row: row[1]), max(rows, key=lambda row: row[2])
-    return {"outcome": "COMPLETED", "http_status": status, "returned_candle_count": len(rows),
+    return {"outcome": "PARTIAL_VALID_CANDLES" if rejected else "COMPLETED", "http_status": status, "returned_candle_count": len(rows), "rejected_candle_counts": rejected,
             "first_returned_timestamp": rows[0][0], "last_returned_timestamp": rows[-1][0],
             "observed_minimum_mc_usd": minimum[1], "observed_minimum_timestamp": minimum[0],
             "observed_maximum_mc_usd": maximum[2], "observed_maximum_timestamp": maximum[0],

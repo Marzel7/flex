@@ -23662,5 +23662,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_REQUIRED_HOLD_NO_EXECUTION",
     "next_action": "Do not retry activation automatically. Under separate read-only authority, identify or await authoritative checkpoint-progress telemetry accepted by the unchanged Batch4RuntimeGate, then obtain/reconfirm paid activation authority before a fresh preflight."
+  },
+  "watchtower_lifecycle_checkpoint_evidence_recovery_20261011": {
+    "status": "PASS_RUNTIME_GATE_RESTORED_READ_ONLY",
+    "engineering_revision": "3ea086247655a65fa2be226810b0742af0fe418c on codex/dev014-current-mc-freshness; remote verified",
+    "checkpoint_authority": "/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/listener.log; Batch4RuntimeGate final-4000-line parser.",
+    "initial_hold": "The parser saw one valid latest checkpoint with status=ok, busy=0, checkpointed_frames=0, remaining_frames=156, plus one malformed concatenated checkpoint log line. This was insufficient evidence, not a checkpoint obstruction.",
+    "recovery": "Normal listener activity produced an authoritative later WAL_CHECKPOINT: status=ok, busy=0, checkpointed_frames=527, remaining_frames=88, wal_frames=615, ended_at=1791741937.3072991. No manual checkpoint, service restart, log modification, or source change occurred.",
+    "unchanged_gate": "PASS: API healthy/db ok/wal_warn false; creator funding age=2s and resolution age=23s; storage wal_bytes=0 under qualified absent-WAL contract; disk_free_bytes=7420141568; checkpoint samples=2, remaining_frames=88.",
+    "cohort_preservation": "Frozen authorization hash=377103f255f5bacddd36fcd46188d7b7bb3688a552e563b3fd55eb2e47a3cc6c remains valid with 550 records. Lifecycle cohort journals=0; no active dispatcher; no provider request/admission, credential read, budget debit, canonical DB write, deployment, or scheduling occurred.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_READ_ONLY_RUNTIME_EVIDENCE",
+    "next_action": "The prior paid authority was consumed only by a preflight attempt that made zero admissions. Obtain/reconfirm explicit paid activation authority before a fresh immediate preflight and finite cohort launch; do not auto-start."
   }
 }

@@ -7,6 +7,7 @@ from src.ops.token_data_provider_bindings import BirdeyeProductionBinding, build
 from src.ops.watchtower_historical_backfill import begin_next_range, complete_after_terminal_history, complete_range, fail_range, job_state, ranges
 from src.ops.watchtower_terminal_ath_finalizer import _candles
 from src.ops.strict_migration_window import normalize_opening_ohlcv, reduce_retained_offsets
+from src.ops.dev020_prepeak_metrics import calculate_prepeak_observed_metrics
 
 MAX_HISTORICAL_RANGES=6
 MAX_ATTEMPTS_PER_RANGE=2
@@ -19,6 +20,14 @@ class HistoricalExecutor:
         validate_birdeye_credential_label(credential_label)
         self.db_path=db_path; self.binding=binding or BirdeyeProductionBinding(credential_label=credential_label)
         self.calls=0
+    def derive_prepeak_metrics(self, candles: list[dict[str, Any]], **context: Any) -> dict[str, Any]:
+        """Use the DEV020 observed-only reducer without a provider call or raw retention.
+
+        The future bounded DEV020 dispatcher supplies its normalized response to
+        this seam, then persists only the returned compact result.  Keeping this
+        outside ``run`` preserves the existing DEV014/DEV019 request FSM.
+        """
+        return calculate_prepeak_observed_metrics(candles, **context)
     def acquire_opening(self, boundary: dict[str, Any]) -> dict[str, Any]:
         """Durable strict-1s then 1m-open acquisition; never repeats an owned stage."""
         import json

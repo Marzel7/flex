@@ -24488,5 +24488,18 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_NO_CODE_CHANGE",
     "next_action": "NONE — COMPLETE."
+  },
+  "dev021_watchtower_price_behaviour_and_documentation_20261012": {
+    "status": "PASS",
+    "engineering_revision": "b5a76bd52421748fff7f2c5d22454ee161b8e4e1 on codex/dev021-price-lifecycle-analysis; remote verified",
+    "scope": "Provider-free DEV-only analysis and documentation. No credential read, Birdeye/Helius/RPC call, journal mutation, runtime deployment, scheduler activation, or production change occurred.",
+    "analysis": "docs/audits/dev021_watchtower_price_behaviour_20261012.v1.json: 539 terminal eligible tokens (415 contiguous, 111 sparse, 13 insufficient). 535 retained opening-to-observed-peak multiples have median 1.8714x, p90 5.2861x; 240 reached >=2x, 57 >=5x, 12 >=10x. 526 chronological pre-peak drawdowns have median 51.47%, p90 81.28%.",
+    "hypothesis": "For lows >=70% below opening, 62 tokens qualify; 15 later exceeded opening, 8 reached >=2x, and 3 reached >=5x before the selected observed peak. All retained low-to-observed-peak orderings were strict; direct recovery above the preceding high is retained for 10. This supports a negative observed association, not a causal or complete-history claim.",
+    "documentation": "docs/watchtower_price_lifecycle_acquisition.md records identity, strict and historical opening contracts, observed-peak/pre-peak/post-peak semantics, module and journal references, credential and budget controls, ADMISSION_INTENT durability, sparse limitations, and the explicitly absent future automatic-DEV020 integration.",
+    "verification": "JSON validation, 539 terminal-state accounting, 70%-threshold assertion, git diff --check, source remote content verification passed.",
+    "storage": "One compact JSON analysis artifact and one Markdown document; no raw payload retention, unbounded writer, or 500 MB path.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_DOCUMENTATION_AND_LOCAL_ANALYSIS",
+    "next_action": "NONE — DEV021 COMPLETE. Future automatic token processing remains a separately authorized integration milestone."
   }
 }

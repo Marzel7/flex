@@ -24549,5 +24549,17 @@
     "runtime_deployment_required":false,
     "runtime_deployment_gate":"NOT_APPLICABLE_PROVIDER_FREE_ANALYSIS",
     "next_action":"NONE — DEV024 complete. A realistic experiment requires separately authorized ordered-path retention, not historical reacquisition by default."
+  },
+  "dev025_watchtower_post_peak_opening_breakdown_20261012": {
+    "status":"PASS_CONDITIONED_POST_PEAK_ANALYSIS_COMPLETE",
+    "engineering_revision":"c1f758dc54cd0d28f9323400153cd665b4657a9a on codex/dev025-post-peak-breakdown; remote verified",
+    "scope":"Provider-free DEV-only join of retained compact DEV020 comparable openings/peaks with DEV014 post-peak trough/latest facts; no provider, trading, acquisition, mutation, deployment, or production action.",
+    "coverage":"539 comparable opening/peak records; 528 overlap with retained post-peak low and latest facts; 11 missing. This overlap is conditioned on a retained peak-to-subsequent-trough fact and is not an unselected population panel.",
+    "result":"In the conditioned overlap, post-peak low <= opening=528, <=75%=527, <=50%=527, <=25%=527, <=10%=526, <=5%=518. Latest < opening=527, <50%=527, <10%=526, above opening=1. Median observed post-peak drawdown=99.18%, p90=99.70%, p95=99.78%.",
+    "interpretation":"The retained subset strongly associates post-peak return through opening with later observed collapse, but cannot prove first crossing, causality, recovery absence, population-wide rate, or executable threshold exit. All 150/125/100/75/50%-of-opening exits remain ORDERING_UNPROVEN.",
+    "artifact":"docs/audits/dev025_watchtower_post_peak_opening_breakdown_20261012.v1.json; compact/no raw payload/no growth path.",
+    "runtime_deployment_required":false,
+    "runtime_deployment_gate":"NOT_APPLICABLE_PROVIDER_FREE_ANALYSIS",
+    "next_action":"NONE — DEV025 complete. A practical exit rule requires separately authorized unselected ordered post-peak path and fill evidence."
   }
 }

@@ -23823,5 +23823,31 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "Separate authorization required to install 2fbb0736 in the isolated DEV API checkout, change workers=2, reload only watchtower_api, and run bounded two-worker acceptance."
+  },
+  "dev015_clean_two_worker_deployment_method_20261011": {
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "method": "Option B exact clean commit; external override was not selected because config explicitly assigns workers and precedence was not independently proven.",
+    "runtime_base_sha": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+    "source_sha": "6effaad7d1d90356f5f7d371ba96a369bbd3d87d",
+    "changes": "DEV-015 prewarm ownership changes plus config/gunicorn.conf.py workers=2; all tracked, committed, and clean.",
+    "tests": "33 provider-free tests passed: x65_50, x67_28, x65_51; py_compile and diff --check passed.",
+    "rollback_target": "71b6e338cfb54057ec4984d41bfbe02477c90dba with workers=1",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "Separate authorization: exact detached checkout 6effaad7, update Supervisor expected SHA only, reload watchtower_api, and run bounded acceptance."
+  },
+  "dev015_final_acceptance_20261012": {
+    "status": "ACCEPTED",
+    "engineering_revision": "6effaad7d1d90356f5f7d371ba96a369bbd3d87d; active isolated DEV API checkout /private/tmp/flex-dev014-early-minimum-api",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "current_gunicorn_master_pid": 35313,
+    "current_worker_pids": [72536, 88532],
+    "worker_check": "PASS: exactly two live direct Gunicorn worker children of master 35313 before and after acceptance reads.",
+    "healthz": "PASS: 10/10 sequential loopback GET http://127.0.0.1:5002/healthz requests returned HTTP 200.",
+    "duplicate_initialization_errors": "NO: no duplicate-prewarm or snapshot-callback error matches in the current Gunicorn error-log window (last 4,000 lines).",
+    "safety": "Read-only acceptance: no restart, signal, code/config/database change, provider/RPC call, Watchtower acquisition, or worker-turnover test.",
+    "verdict": "DEV015 ACCEPTED",
+    "next_action": "CLOSE"
   }
 }

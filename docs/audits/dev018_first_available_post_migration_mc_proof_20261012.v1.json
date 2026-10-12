@@ -1,0 +1,35 @@
+{
+  "schema_version": "DEV018_FIRST_AVAILABLE_POST_MIGRATION_MC_PROOF_V1",
+  "environment": "DEV",
+  "token_mint": "GTP5PX2pUpwdGV17KnugQh8yQENz1FcVzrjcwvYxpump",
+  "canonical_migration_timestamp": 1784784355,
+  "canonical_migration_signature": "5h6FTwot3gHrHhvgAQx4HPpMTRZ2he1FcxLVWvhpnuzstjrUET81Z66rCiXu66RrknujeDTBENF7htXgAzD9WygD",
+  "request": {
+    "endpoint": "/defi/v3/ohlcv",
+    "parameters": {
+      "type": "1s",
+      "time_from": 1784784355,
+      "time_to": 1784784655,
+      "currency": "usd",
+      "chart_type": "mcap",
+      "mode": "range",
+      "padding": false
+    },
+    "chain": "solana",
+    "credential_alias": "BIRDEYE"
+  },
+  "provider_request_count": 1,
+  "helius_request_count": 0,
+  "http_status": 200,
+  "provider_item_count": 0,
+  "normalized_candle_count": 0,
+  "qualifying_candle_count": 0,
+  "baseline_type": "FIRST_AVAILABLE_POST_MIGRATION_MC",
+  "qualification_status": "INSUFFICIENT_EVIDENCE",
+  "failure_reason": "NO_POST_MIGRATION_CANDLE_IN_BOUNDED_WINDOW",
+  "raw_provider_payload_retained": false,
+  "observed_peak_mc_usd": 325051.0948492504,
+  "opening_to_observed_peak_multiple": null,
+  "artifact_max_bytes": 1048576,
+  "unbounded_growth_paths": 0
+}

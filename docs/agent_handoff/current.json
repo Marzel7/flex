@@ -24599,5 +24599,17 @@
     "runtime_deployment_required":false,
     "runtime_deployment_gate":"NOT_APPLICABLE_READ_ONLY_RECONCILIATION",
     "next_action":"NONE — requested historical recovery is complete; retain the existing detector rather than creating another."
+  },
+  "dev027_watchtower_price_pattern_discovery_20261012": {
+    "status":"PASS_PROVIDER_FREE_ANALYSIS_COMPLETE",
+    "engineering_revision":"8e7c687bd88c2f5a9172a55f8f8e61eb67760667 on codex/dev027-price-patterns; remote verified",
+    "scope":"DEV-only, read-only analysis of retained DEV014 lifecycle journals, DEV019 openings, DEV020 pre-peak journal, and compact DEV014 30-second evidence. Provider/RPC calls=0; no evidence, journal, runtime, deployment, or production mutation.",
+    "coverage":"549 observed peaks; 539 opening-to-peak pairs (415 contiguous, 111 sparse, 13 insufficient pre-peak); 526 pre-peak paths; 528 opening-linked post-peak observations; 11 valid but partial 30-second crash-candle records.",
+    "findings":"Opening MC has negligible correlation with observed peak multiple (log r=-0.071, n=539). The strongest exploratory relationship is a 70%+ observed pre-peak drawdown group (n=88) with median observed peak multiple 0.095x versus 1.459x–2.153x for shallower 10–70% groups. Post-peak collapse is descriptively severe in every positive-peak stratum, but is future-dependent and not a trading signal. UTC/hour and weekday variation is not robust.",
+    "signal_boundary":"A 70% real-time drawdown state is the strongest prospective research candidate, not a validated strategy. Opening MC should be a normalizer rather than a primary entry filter. Existing post-peak and crash-candle evidence cannot support executable exits, profitability, or a crash predictor.",
+    "artifact":"docs/audits/dev027_watchtower_price_pattern_discovery.md; 7,598-byte compact report; raw payload retention=false; no growth path approaches 500 MB.",
+    "runtime_deployment_required":false,
+    "runtime_deployment_gate":"NOT_APPLICABLE_READ_ONLY_ANALYSIS",
+    "next_action":"NONE — DEV027 complete. A future practical strategy test needs separately authorized prospective ordered OHLC coverage plus fill/liquidity/cost evidence; no acquisition is implied."
   }
 }

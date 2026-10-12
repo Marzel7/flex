@@ -1,0 +1,23 @@
+{
+  "schema": "DEV021_WATCHTOWER_PRICE_BEHAVIOUR_V1",
+  "scope": "Provider-free analysis of retained DEV020 compact journal results and DEV014-derived selection facts.",
+  "population": {
+    "eligible_tokens": 539,
+    "terminal_states": {"OBSERVED_CONTIGUOUS": 415, "OBSERVED_SPARSE": 111, "INSUFFICIENT_EVIDENCE": 13},
+    "observed_peak_multiple_count": 535,
+    "prepeak_drawdown_count": 526
+  },
+  "opening_to_observed_peak_multiple": {"min": 0.009776764435605738, "p25": 1.2341440661773786, "median": 1.8713666976505723, "p75": 2.8492914376140557, "p90": 5.286108867815869, "max": 69.3943160086119, "at_least_2x": 240, "at_least_5x": 57, "at_least_10x": 12},
+  "time_opening_to_observed_peak_seconds": {"min": 0, "p25": 720, "median": 1620, "p75": 4020, "p90": 10376, "max": 857700},
+  "maximum_observed_prepeak_drawdown_percent": {"min": 5.591684052819871, "p25": 39.79586002289381, "median": 51.4725267540169, "p75": 64.90247054976264, "p90": 81.28045812001744, "max": 99.49518928597116},
+  "threshold_recovery": {
+    "contract": "A token qualifies when retained lowest observed MC is at least the stated percentage below the qualified opening MC. Above-opening/multiple counts require lowest_observed_timestamp < observed_peak_timestamp; they establish an ordered low before the selected observed peak, not a verified absolute ATH or a candle-by-candle recovery path.",
+    "30": {"qualifying": 330, "chronologically_ordered": 330, "observed_above_opening": 263, "observed_at_least_2x_opening": 140, "observed_at_least_5x_opening": 35, "without_chronological_recovery_evidence": 0, "direct_recovery_above_preceding_high": 169},
+    "50": {"qualifying": 156, "chronologically_ordered": 156, "observed_above_opening": 97, "observed_at_least_2x_opening": 54, "observed_at_least_5x_opening": 14, "without_chronological_recovery_evidence": 0, "direct_recovery_above_preceding_high": 62},
+    "70": {"qualifying": 62, "chronologically_ordered": 62, "observed_above_opening": 15, "observed_at_least_2x_opening": 8, "observed_at_least_5x_opening": 3, "without_chronological_recovery_evidence": 0, "direct_recovery_above_preceding_high": 10},
+    "90": {"qualifying": 46, "chronologically_ordered": 46, "observed_above_opening": 0, "observed_at_least_2x_opening": 0, "observed_at_least_5x_opening": 0, "without_chronological_recovery_evidence": 0, "direct_recovery_above_preceding_high": 0}
+  },
+  "direct_preceding_high_recovery_seconds": {"count": 253, "min": 60, "p25": 240, "median": 480, "p75": 900, "p90": 1680, "max": 19500},
+  "interpretation": "The retained observations support a strong negative association at the 70% threshold: only 15/62 later exceeded opening, 8/62 reached 2x, and 3/62 reached 5x before the selected observed peak. This is not a causal, controller, manipulation, or complete-history conclusion. Sparse windows and unobserved lifecycle gaps remain explicit.",
+  "storage": "Analysis is compact and payload-free. Raw provider responses are absent; no writer or file can reach 500 MB in this work."
+}

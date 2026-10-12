@@ -152,8 +152,14 @@ def _monitor_live_projection() -> dict:
     now = int(time.time()); rows = []
     storage_bytes = 0
     conn = _monitor_store_connection()
+    lifecycle_jobs = {}
     try:
         rows = [dict(r) for r in conn.execute("SELECT f.*,CASE WHEN EXISTS(SELECT 1 FROM operation_monitor_observations o WHERE o.operation_id=f.operation_id AND o.mint=f.mint AND o.high_mc_usd IS NOT NULL) THEN 'CANDLE_HIGH' WHEN EXISTS(SELECT 1 FROM operation_monitor_observations o WHERE o.operation_id=f.operation_id AND o.mint=f.mint) THEN 'CLOSE_ONLY_LOWER_BOUND' ELSE 'ENTRY_ONLY' END AS peak_exactness FROM operation_monitor_facts f WHERE lower(f.operation_id) IN ('watchtower','byzantine') ORDER BY CASE WHEN f.monitor_state LIKE 'MONITORING%' THEN 0 WHEN f.monitor_state LIKE 'WAITING%' THEN 1 ELSE 2 END,f.next_observation_at ASC,f.assignment_timestamp DESC")]
+        try:
+            for job in conn.execute("SELECT assignment_identity,mint,state,opening_json,peak_json,prepeak_json,postpeak_json FROM watchtower_price_lifecycle_jobs"):
+                lifecycle_jobs[str(job['mint'])] = {"assignment_identity":job['assignment_identity'],"status":job['state'],"opening":json.loads(job['opening_json']) if job['opening_json'] else None,"observed_peak":json.loads(job['peak_json']) if job['peak_json'] else None,"prepeak":json.loads(job['prepeak_json']) if job['prepeak_json'] else None,"postpeak":json.loads(job['postpeak_json']) if job['postpeak_json'] else None}
+        except (sqlite3.Error, ValueError, TypeError):
+            pass
         # Compact logical accounting avoids reporting the whole shared DB file.
         storage_bytes = int(conn.execute("SELECT COALESCE(SUM(LENGTH(operation_id)+LENGTH(mint)+LENGTH(provenance_digest)+160),0) FROM operation_monitor_facts").fetchone()[0] or 0)
         try: storage_bytes += int(conn.execute("SELECT COALESCE(SUM(LENGTH(operation_id)+LENGTH(mint)+LENGTH(provenance_digest)+96),0) FROM operation_monitor_observations").fetchone()[0] or 0)
@@ -226,6 +232,7 @@ def _monitor_live_projection() -> dict:
         row.update(quote or {'current_mc_quote_usd':None,'quote_fetched_at':None,'quote_last_trade_at':None,'quote_source':None,'quote_freshness':'UNAVAILABLE','quote_expires_at':None})
         if str(row.get('operation_id')).lower() == 'watchtower':
             row['early_minimum_evidence'] = _early_minimum_projection(str(row.get('mint') or ''))
+            row['lifecycle_processing'] = lifecycle_jobs.get(str(row.get('mint') or ''), {"status":"NOT_ENQUEUED"})
         row['age_seconds'] = now - int(row['entry_timestamp'] or row['assignment_timestamp'] or now)
         row['freshness_seconds'] = now - int(row['last_observation_at'] or now)
         terminal = row.get('monitor_state') == 'PRICE_MONITOR_COMPLETE_COLLAPSED'

@@ -13,11 +13,12 @@ from src.utils.supervisor_isolation import (
 )
 
 
-def _config(root: Path, *, server="%(here)s/server.sock", control="unix://%(here)s/server.sock") -> Path:
+def _config(root: Path, *, server="%(here)s/server.sock", control="unix://%(here)s/server.sock",
+            pidfile="%(here)s/supervisord.pid") -> Path:
     path = root / "isolated.conf"
     path.write_text(
         "[unix_http_server]\nfile=" + server + "\n\n"
-        "[supervisord]\npidfile=%(here)s/supervisord.pid\n\n"
+        "[supervisord]\npidfile=" + pidfile + "\n\n"
         "[supervisorctl]\nserverurl=" + control + "\n"
     )
     return path
@@ -46,6 +47,15 @@ def test_missing_control_endpoint_is_blocked(tmp_path):
     live = tmp_path / "live"; live.mkdir()
     with pytest.raises(SupervisorIsolationError, match="EMPTY"):
         validate_offline_config(_config(tmp_path, control=""), **_policy(tmp_path, live))
+
+
+def test_pidfile_must_be_separate_from_the_test_control_socket(tmp_path):
+    live = tmp_path / "live"; live.mkdir()
+    with pytest.raises(SupervisorIsolationError, match="ENDPOINT_COLLISION"):
+        validate_offline_config(
+            _config(tmp_path, pidfile="%(here)s/server.sock"),
+            **_policy(tmp_path, live),
+        )
 
 
 def test_default_config_fallback_and_uninspected_include_are_blocked(tmp_path):

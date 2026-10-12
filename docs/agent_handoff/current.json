@@ -24501,5 +24501,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_DOCUMENTATION_AND_LOCAL_ANALYSIS",
     "next_action": "NONE — DEV021 COMPLETE. Future automatic token processing remains a separately authorized integration milestone."
+  },
+  "dev022_watchtower_lifecycle_job_projection_20261012": {
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "engineering_revision": "83b0ae92f1647c617368a3ef1c9054ecf212d318 on codex/dev022-automatic-price-lifecycle; remote verified",
+    "implementation": "Added disabled-by-default src/ops/watchtower_price_lifecycle_jobs.py and invoked its post-commit membership projection after existing Watchtower assignment reconciliation. It creates one compact idempotent job per committed membership identity, retains WAITING_FOR_OPENING / WAITING_FOR_OBSERVED_PEAK / WAITING_FOR_PREPEAK_OBSERVATION / COMPLETE stages from detached retained facts, and does not construct a credential, transport, provider loop, or new budget ledger.",
+    "safety": "Activation flag WATCHTOWER_PRICE_LIFECYCLE_ENABLED defaults false. When false reconciliation does not create its table or jobs. Existing MonitorWorker remains the sole opening/peak transport owner; DEV020 remains the separately bounded pre-peak owner. No provider, credential, queue, live DB, runtime, or production action occurred during qualification.",
+    "tests": "Focused provider-free suite: tests/test_watchtower_price_lifecycle_jobs.py plus tests/test_dev020_synthetic_clock_budget.py: 11 passed. It proves post-commit idempotency, disabled non-mutation, enabled one-job projection, retained-only stage progression, sparse state persistence, and existing budget pacing regression. A broader historical executor test has a pre-existing duplicate-evidence fixture failure unrelated to this job path (expected fail-closed exception was not raised).",
+    "storage": "SQLite projection uses compact JSON fields only, PRAGMA max_page_count=16384 (64 MiB), no raw candles/responses, and no unbounded file path.",
+    "api_ui": "Existing lifecycle API/UI surfaces remain unchanged and retain existing monitor facts. Automatic projection-to-API/UI publication is not yet implemented; activation/deployment must not proceed until that explicit projection is added and qualified.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "Implement and provider-free qualify compact lifecycle-job projection into existing Watchtower API/UI facts, then perform DEV deployment with acquisition flag still false."
   }
 }

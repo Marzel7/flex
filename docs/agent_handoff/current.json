@@ -24573,5 +24573,17 @@
     "runtime_deployment_required":false,
     "runtime_deployment_gate":"NOT_APPLICABLE_PROVIDER_FREE_ANALYSIS",
     "next_action":"NONE — DEV026 feasibility milestone complete."
+  },
+  "dev026_single_token_post_ath_crash_candle_proof_20261012": {
+    "status":"PASS_NO_85_PERCENT_CANDLE_OBSERVED",
+    "engineering_revision":"3718530c193dfa6b0ca5eac4c3a2e89c38f15ea4 on codex/dev026-catastrophic-candle-feasibility; remote verified",
+    "scope":"DEV-only one-token proof. Exactly one authoritative BIRDEYE 1-minute MCAP OHLCV request; no retry, pagination, fallback, RPC, production, deployment, or lifecycle mutation.",
+    "selection":"2GMowfFBuhy6ZxHMdKiC8fTKZFQhnCnmC5x27bTSpump was selected before the provider response as the shortest retained peak-to-lifecycle-end window (900 seconds) among tokens with qualified opening, retained observed peak, and severe retained post-peak drawdown.",
+    "result":"Opening MC=137611.2395017446; observed peak MC=167398.76746685774 at 1790436600. The sole /defi/v3/ohlcv request for [1790436600,1790437500], type=1m, chart_type=mcap, mode=range, padding=false returned HTTP 200 and zero candles. Therefore no strictly post-peak (timestamp > peak) >=85% open-to-close candle was observed.",
+    "evidence":"docs/audits/dev026_single_token_post_ath_crash_candle_proof_20261012.v1.json; compact normalized result only; raw provider payload retained=false; no file growth path approaches 500 MB.",
+    "interpretation":"NO_85_PERCENT_CANDLE_OBSERVED is confined to the one bounded response and does not prove that no crash occurred. The retained aggregate 98.6489698999511% post-peak drawdown was not treated as a candle event.",
+    "runtime_deployment_required":false,
+    "runtime_deployment_gate":"NOT_APPLICABLE_DATA_ONLY_PROOF",
+    "next_action":"NONE — one-token proof complete; no further provider request is authorized."
   }
 }

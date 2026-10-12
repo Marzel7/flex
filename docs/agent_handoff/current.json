@@ -24104,5 +24104,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_EVIDENCE_ONLY",
     "next_action": "Stop after the single-token proof and await review before any cohort expansion."
+  },
+  "dev018_opening_mc_method_finalization_20261012": {
+    "status": "READY_TO_SCALE",
+    "engineering_revision": "1edc9ec95ba2f7cd7795f5df4f8a069ae3af7c98; isolated DEV018 evidence commit",
+    "scope": "Read-only field-mapping and retained-evidence finalization for the existing Watchtower opening-MC method. No provider/RPC call, code/configuration change, deployment, or cohort acquisition occurred.",
+    "priority": "FIRST_FULL_POST_MIGRATION_SECOND_MC remains the unchanged preferred baseline. The defined fallback is FIRST_AVAILABLE_POST_MIGRATION_1M_OPEN_MC: earliest positive non-padded 1-minute candle whose interval start is at or after canonical migration, using normalized open and retaining interval/provenance fields.",
+    "gtp5": "The normalizer supports open and close, but the single successful provider proof retained only close=USD 148063.21660039216 at interval start 1784784360 (five seconds after migration). Raw payload is intentionally absent, so open cannot be inferred. The close is preserved only as FIRST_AVAILABLE_POST_MIGRATION_1M_CLOSE_MC_OBSERVATION, not an exact opening MC, launch MC, or first-trade MC. Its 2.195353459911187x peak comparison is observational-only.",
+    "preservation": "Existing valid strict Watchtower entry MC records are untouched. The companion compact finalization record is docs/audits/dev018_opening_mc_method_finalization_20261012.v1.json; raw payload retained=false; maximum artifact=1 MiB; unbounded growth paths=0; no file can reach 500 MB.",
+    "scale_population": "Of the prior 462 signed unresolved identities with canonical migration evidence, GTP5 has been processed, leaving 461 eligible for the defined method. Nine unresolved identities still lack canonical signature/migration evidence and are outside this eligible set.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_EVIDENCE_METHOD_FINALIZATION",
+    "next_action": "Await explicit authorization before any cohort-scale acquisition; future fallback requests must retain normalized open and the defined provenance fields."
   }
 }

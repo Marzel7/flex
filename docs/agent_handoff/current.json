@@ -24049,5 +24049,18 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_EVIDENCE_ONLY",
     "next_action": "Stop after this token. Review the strict-candle absence before authorizing any further activity."
+  },
+  "dev018_opening_mc_fallback_review_20261012": {
+    "status": "COMPLETE_INSUFFICIENT_EVIDENCE",
+    "scope": "Read-only review of the established strict migration-window reducer and retained compact DEV018/DEV014 evidence for one token. No provider/RPC call, retry, acquisition, code/configuration change, deployment, or cohort expansion occurred.",
+    "token": "GTP5PX2pUpwdGV17KnugQh8yQENz1FcVzrjcwvYxpump",
+    "existing_fallbacks": "The primary requires a positive 1-second market-cap candle at canonical migration+1: FIRST_FULL_POST_MIGRATION_SECOND_MC. Only if that offset is absent, a positive candle exactly at migration may qualify as MIGRATION_SECOND_MC_FALLBACK. Only if both migration+1 and migration are absent, a positive candle at migration+2 may qualify as BOUNDED_POST_MIGRATION_MC_FALLBACK. Later offsets, including +3/+4, are never candidates.",
+    "applicability": "NOT_APPLICABLE: canonical migration timestamp is 1784784355, so the only candidate seconds are 1784784355, 1784784356, and 1784784357. The already authorized exact OHLCV query returned zero provider and normalized candles; no retained value exists at any permitted offset.",
+    "local_evidence": "Canonical migration signature/timestamp, DEV014 journal metadata, and observed-window peak MC USD 325051.0948492504 are retained. The first DEV014 15-minute observed candle is timestamp 1784784600, 245 seconds after migration, and cannot be substituted into a strict fallback.",
+    "result": "OPENING_MC_RECOVERABLE=NO; retain INSUFFICIENT_EVIDENCE. No existing opening-market-cap definition is broadened or relabelled.",
+    "storage": "No file was written. Existing compact proofs remain payload-free and below their 1 MiB bound; no unbounded growth path and no file can reach 500 MB.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY_FALLBACK_REVIEW",
+    "next_action": "Stop. Preserve INSUFFICIENT_EVIDENCE for this token unless separately authorized evidence acquisition or a new explicitly defined baseline policy is approved."
   }
 }

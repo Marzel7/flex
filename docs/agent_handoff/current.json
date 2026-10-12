@@ -24585,5 +24585,19 @@
     "runtime_deployment_required":false,
     "runtime_deployment_gate":"NOT_APPLICABLE_DATA_ONLY_PROOF",
     "next_action":"NONE — one-token proof complete; no further provider request is authorized."
+  },
+  "dev026_earlier_watchtower_crash_candle_reconciliation_20261012": {
+    "status":"PASS_RETAINED_EVIDENCE_RECONCILED",
+    "engineering_revision":"e5a9603f6d5a083b5c7a62b39d7449c73dfe2f4e on codex/dev026-catastrophic-candle-feasibility; remote verified",
+    "scope":"Read-only DEV reconciliation of retained DEV014 sharp-exit handoffs, source history, and compact facts. Provider/RPC calls=0; evidence, journals, runtime, deployment, and production unchanged.",
+    "earlier_work":"Recovered DEV014 15-minute candidate discovery, the 30-second sharp-exit normalizer at c3c1588d, one 30-second probe, and the 11-record 30-second pilot. The normalizer validates timestamp alignment/order and positive finite consistent OHLC before computing open-to-close decline; it distinguishes PARTIAL_30S_COVERAGE from complete coverage.",
+    "representative":"6LdjC13zbAxmruKrqsAQ4znUrjNe7gXXVeCHDBMYpump retains qualified opening $162775.9385584885, observed peak $274476.6056229458 at 1791484502, and a 30-second candle at 1791485160 from $191574.83631276395 to $2166.588655867152: 98.8690640704346% open-to-close decline, 1.176923555221446x opening, 0.6979641703086865x retained peak, 658 seconds after peak. It is an ordered observed-partial event, not complete-window evidence.",
+    "counts":"11 valid observed 30-second catastrophic red-candle records; zero complete 30-second windows; two opening overlaps; one exact opening-and-observed-peak overlap.",
+    "normalization":"The historic payload/response_headers alias correction remains reusable. Separate Byzantine low-field scale discontinuity affects low-based drawdowns and does not license any 85% low-based claim; it does not alter retained positive open-to-close candle arithmetic.",
+    "conclusion":"Earlier evidence supplies one ordered observed-partial post-peak ratio, but does not establish a complete-coverage post-ATH population or a clustering conclusion around opening MC. No reacquisition is proposed.",
+    "artifact":"docs/audits/dev026_earlier_watchtower_crash_candle_reconciliation_20261012.v1.json; compact/no raw payload/no growth path.",
+    "runtime_deployment_required":false,
+    "runtime_deployment_gate":"NOT_APPLICABLE_READ_ONLY_RECONCILIATION",
+    "next_action":"NONE — requested historical recovery is complete; retain the existing detector rather than creating another."
   }
 }

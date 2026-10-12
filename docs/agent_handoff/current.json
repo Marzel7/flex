@@ -24230,5 +24230,18 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY",
     "next_action": "Use this coverage result before considering any separate pre-peak evidence authority."
+  },
+  "dev020_uranus_prepeak_proof_20261012": {
+    "status": "PASS",
+    "engineering_revision": "fe973845a86d2974b9f38de238ddbb67e94ad557; isolated evidence commit",
+    "scope": "One-token, one-request DEV020 proof. No Helius/RPC call, retry, pagination, fallback, code/configuration change, deployment, or cohort expansion occurred.",
+    "request": "Birdeye /defi/v3/ohlcv, 1m MC, non-padded range 1789821120..1789823700 for 3seG33wYiv2T8V68813Kq7XNPJU8iFbJjsnNT3Lrpump; BIRDEYE credential.",
+    "result": "HTTP 200; 44 provider items and 43 qualifying intervals. Lowest pre-peak observed MC=USD 91491.36766641765 at interval 1789821600, below opening. Maximum interval-safe pre-peak drawdown=42.542439635545094%, from high USD 159232.94878182322 at 1789821360 to later low USD 91491.36766641765 at 1789821600. First later candle close at/above the preceding high occurs after 480 seconds.",
+    "semantics": "The drawdown only compares a high in an earlier one-minute interval to a low in a later interval; it does not infer intraminute ordering. Existing opening and DEV014 observed peak are unchanged.",
+    "durable_evidence": "docs/audits/dev020_uranus_prepeak_proof_20261012.v1.json; compact payload-free evidence; maximum artifact 1 MiB; no unbounded writer or 500 MB file path.",
+    "provider_accounting": "Birdeye=1; Helius=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_EVIDENCE_ONLY",
+    "next_action": "Stop after this single-token proof; review before any cohort-scale pre-peak work."
   }
 }

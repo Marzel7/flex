@@ -24276,6 +24276,18 @@
     "runtime_deployment_gate": "HOLD_DURABLE_JOURNAL_STATE_CONFLICT",
     "next_action": "Identify and authorize the provenance of the external journal transition before deployment. Do not assume the former uncertain token is safe to reacquire."
   },
+  "dev020_journal_state_reconciliation_20261012": {
+    "status": "PASS_AUTHORIZED_SESSION_COMPLETED",
+    "scope": "Read-only focused reconciliation of the compact DEV020 journal, its rolling provider-budget ledger, file metadata, and acquisition process list. No provider/RPC call, budget debit, journal write, code change, service restart, or deployment occurred.",
+    "finding": "The apparent 261-to-300 transition is the completion of the same authorized first 50-token session launched at 2026-10-12T15:38:29Z. All 50 rows share created_at=1791819509; their updates span 15:38:30Z through 15:43:24Z. The earlier interim observation happened mid-session after 11 terminal results. The remaining 39 terminal results are 38 OBSERVED_CONTIGUOUS and 1 OBSERVED_SPARSE. No second session was started.",
+    "uncertain_identity": "7fq3GjZHV3AekpjCh1u1kxb1panj4A2nDrfkuZYpump is now OBSERVED_CONTIGUOUS, updated at 2026-10-12T15:39:36Z with compact result_json length 1199. It belongs to the same 50-row selection/time envelope. The prior REQUEST_IN_FLIGHT observation was mid-session, not a durable post-process recovery or overwrite.",
+    "integrity": "SQLite integrity_check=ok; 300 unique mint primary keys; duplicate_mints=0; terminal rows with null result_json=0. Final counts OBSERVED_CONTIGUOUS=205, OBSERVED_SPARSE=82, INSUFFICIENT_EVIDENCE=13. The compact rolling ledger has ten DEV020_PREPEAK_1M entries and updated_at=2026-10-12T15:43:24Z, consistent with the final paced requests. No DEV020 acquisition process remains active.",
+    "authorization": "The writer is attributable to the previously authorized first 50-token session invoked under the exact BIRDEYE process-local binding. Its asynchronous continuation after the terminal tool wait was not recognized in the interim report; the durable timestamps establish the completed execution boundary.",
+    "readiness": "The journal is consistent and the qualified e37aa4b479ec7d760961fe48a188fcea3c7f6113 state-ordering correction remains ready for a separately authorized DEV deployment. This reconciliation does not deploy it or authorize more acquisition.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY_RECONCILIATION",
+    "next_action": "Deploy the already-qualified state-ordering correction only under the existing DEV-only deployment authority; do not start the second authorized 50-token session until the corrected runtime is installed and preflight passes."
+  },
   "dev020_prepeak_coverage_20261012": {
     "status": "COMPLETE_READ_ONLY",
     "scope": "Bounded local reconciliation of 550 DEV014 compact journals, DEV019 durable opening journal, canonical/DEV013 retained baselines, and indexed Watchtower monitor observations. No provider/RPC call, code change, deployment, or acquisition occurred.",

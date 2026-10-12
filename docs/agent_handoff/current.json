@@ -24673,5 +24673,18 @@
     "runtime_deployment_required":false,
     "runtime_deployment_reason":"Read-only incident provenance reconciliation; runtime remains the already-restored scheduler deployment.",
     "next_action":"NONE — specific regression identified and restoration remains intact. Any validation-isolation hardening requires separate authorization."
+  },
+  "dev030_supervisor_test_control_plane_isolation_20261012": {
+    "status":"PASS_INCIDENT_PATH_BLOCKED",
+    "engineering_revision":"b889ee3d5bd54df909ff06fc82268711206af53d on origin/codex/dev030-supervisor-isolation; remote verified",
+    "scope":"DEV-only isolated-worktree tooling/test/documentation correction. Production configuration, daemon, services, scheduler, databases, providers, and credentials were untouched.",
+    "implementation":"Added offline-only Supervisor isolation validator and entry point. It requires an explicit flattened config, one temporary-root-confined test config/socket/PID/control endpoint, rejects includes/relative/environment-derived endpoints, and rejects protected production config or endpoint identities. It never invokes supervisorctl.",
+    "control_guard":"A control argv can be constructed only after the temporary endpoint exists as a UNIX socket. Protected endpoint identities are re-resolved and compared immediately before argv construction, preventing post-validation symlink replacement to the live socket. The helper only returns argv and never executes it.",
+    "regression":"Nine focused tests pass: isolated endpoint acceptance, inherited production endpoint rejection, missing/ambiguous/relative/environment endpoint rejection, separate PID requirement, production-config rejection, no argv for unavailable/non-socket endpoint, and exact October-8 post-validation alias-to-live-socket rejection. py_compile and git diff --check pass.",
+    "documentation":"AGENTS.md adds the concise DEV Supervisor isolation rule: independently verify test-only endpoint and PID, never inherit/target production socket, fail closed before control commands.",
+    "storage":"Temporary test sockets only; cleaned by fixture. Raw retention=false; no unbounded file path or 500 MB-capable artifact introduced.",
+    "runtime_deployment_required":false,
+    "runtime_deployment_reason":"DEV tooling, provider-free tests, and engineering guidance only; no executable production runtime behavior changed.",
+    "next_action":"NONE — DEV030 complete. Use the offline validator for any future Supervisor validation; any actual isolated control harness must pass the guard before constructing commands."
   }
 }

@@ -24525,5 +24525,17 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS",
     "next_action": "NONE — DEV022 COMPLETE. Enabling automatic lifecycle job projection or any provider acquisition requires separate explicit authorization."
+  },
+  "dev023_watchtower_dip_entry_backtest_20261012": {
+    "status": "PASS_EVIDENCE_FEASIBILITY_COMPLETE",
+    "engineering_revision": "3d660967c7ddc92faab1eeae3edf1d1bfb97d942 on codex/dev023-dip-entry-backtest; remote verified",
+    "scope": "Provider-free DEV-only historical feasibility analysis. No credentials, provider/RPC calls, trading, acquisition, journal mutation, runtime deployment, or production action occurred.",
+    "result": "539-token cohort: 526 partial pre-peak paths (415 contiguous classification, 111 sparse) and 13 insufficient. BACKTEST_EXECUTABLE=0 because retained DEV020 data stores extrema/coverage/selected recovery only, not the ordered candle path required to determine entry fill, target-versus-stop ordering, staged/trailing/time exits, or costs.",
+    "thresholds": "Triggered reaches: -10%=471, -20%=420, -30%=330, -40%=246, -50%=156, -60%=86, -70%=62. At -70%, 25 had observed peak >=25% above the retained low, 21 >=50%, 19 >=100%, and 18 >=200%; these are maximum observed upside bounds, not executable profits. Median peak-to-low bound falls 3.554x (-50%) -> 1.630x (-60%) -> 1.112x (-70%).",
+    "conclusion": "No repeatable net-profitable strategy, candidate exit, win rate, net SOL result, profit factor, or out-of-sample selection is supportable without falsely reconstructing fills. Exact missing evidence is ordered post-entry candles, quotes/liquidity/fills, stop-target ordering, time-exit observations, and execution costs.",
+    "artifact": "docs/audits/dev023_watchtower_dip_entry_backtest_20261012.v1.json; compact/no raw payload/no growth path.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_PROVIDER_FREE_ANALYSIS",
+    "next_action": "NONE — DEV023 evidence-feasibility milestone complete. A future executable backtest requires separately authorized ordered observation retention; do not launch acquisition automatically."
   }
 }

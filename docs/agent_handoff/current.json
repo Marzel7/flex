@@ -24611,5 +24611,18 @@
     "runtime_deployment_required":false,
     "runtime_deployment_gate":"NOT_APPLICABLE_READ_ONLY_ANALYSIS",
     "next_action":"NONE — DEV027 complete. A future practical strategy test needs separately authorized prospective ordered OHLC coverage plus fill/liquidity/cost evidence; no acquisition is implied."
+  },
+  "dev029_watchtower_intake_outage_preflight_20261012": {
+    "status":"HOLD_UNQUALIFIED_SHARED_SOURCE",
+    "scope":"Production read-only restoration preflight only. No restart, code/config/database mutation, provider/RPC call, or historical recovery was performed.",
+    "supervisor_status":"operation_scheduler is STOPPED (Not started) through /Users/kevinkeaveney/Production/flex-scheduler/config/supervisor/supervisord.conf; no duplicate Python scheduler process was observed.",
+    "configured_command":"/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -m src.core.operation_scheduler --loop; directory and PYTHONPATH=/Users/kevinkeaveney/Dev/claude/flex; intake interval=900s, forward interval=180s, configured RPC caps=120/180; autostart=false; autorestart=true.",
+    "source":"Supervisor config checkout=78ff47bcbbcf824445a9745992ce488fcc7f74f2. Actual configured execution checkout=/Users/kevinkeaveney/Dev/claude/flex at 580508a70c80e7fc944e0069f85e67b851a117fa with material unstaged/deleted source and configuration changes, including operation_scheduler.py and supervisord.conf.",
+    "health":"Read-only SELECT 1 passed for wt_ops_v2.db and flex_complete_database.db. Disk available=10,566,192 KiB. Scheduler log ends in clean SIGTERM handling; it cannot identify the initiating actor. Last shown cycles were bounded (50 candidate creators / about 50 intake RPC and forward cap behavior).",
+    "blocker":"Restarting via the existing Supervisor command would execute the materially dirty shared checkout, contrary to the clean-source deployment safety requirement. The STOPPED state is also consistent with an explicit Supervisor stop because autostart=false; SIGTERM alone does not establish the actor or authorization.",
+    "smallest_correction":"Prepare and verify a clean approved production scheduler source/config baseline, update the Supervisor execution target only under separate deployment authorization, then rerun this narrow preflight. Only after that and explicit restart authorization may the exact command be used: /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/supervisorctl -c /Users/kevinkeaveney/Production/flex-scheduler/config/supervisor/supervisord.conf start operation_scheduler.",
+    "runtime_deployment_required":true,
+    "runtime_deployment_gate":"HOLD",
+    "next_action":"AUTHORIZE_CLEAN_PRODUCTION_SCHEDULER_BASELINE_PREPARATION — do not start operation_scheduler from the dirty shared checkout."
   }
 }

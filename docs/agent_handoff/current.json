@@ -1,4 +1,17 @@
 {
+  "dev028_corrected_30s_crash_evidence_proof_20261012": {
+    "status": "PASS_NO_85_PERCENT_CANDLE_IN_BOUNDED_PARTIAL_OBSERVATION",
+    "engineering_revision": "d074517182ee38acef629e84f040cb186e5f91e6 on codex/dev028-crash-study; local commit verified; source branch remote publication remains unavailable because the environment egress guard blocked it.",
+    "scope": "DEV-only one-token corrected-normalizer proof. Exactly one authorized Birdeye request; no retry, pagination, fallback, cohort expansion, production, trading, deployment, scheduler, Helius, or RPC action.",
+    "selection": "Frozen DEV028 ordinal 1: 7guAAEFPKxPH3VsffZWh1upJzxqHxqUSCbQxL55Gpump. The original DEV028 journal remains byte-identical, with its terminal INSUFFICIENT_EVIDENCE state retained.",
+    "request": "HTTP 200, /defi/v3/ohlcv type=30s chart_type=mcap currency=usd mode=range padding=false, [1789749600,1789754400). The real DevProviderBudget admitted exactly one proof request using authoritative BIRDEYE process-local binding.",
+    "result": "The restored alias-aware 87ef772a normalizer accepted 42 valid 30-second OHLC candles. Coverage is PARTIAL_30S_COVERAGE with 118 missing of 160 expected buckets. No >=85% open-to-close candle was observed. Largest observed red candle: 18349.799264713078 to 15697.270082737023 (14.455358032591159%) at 450 seconds after retained observed peak. No pre-crash ratio is applicable.",
+    "storage": "Proof journal=/private/tmp/dev028-watchtower-sharp-exit/corrected-proof-ordinal-1.json, 3,619 bytes; raw provider retention=false; no unbounded growth path; no file may reach 500 MB.",
+    "artifact": "docs/audits/dev028_corrected_30s_crash_evidence_proof_20261012.v1.json",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_BOUNDED_DATA_PROOF",
+    "next_action": "Stop. No cohort retry or further acquisition is authorized."
+  },
   "dev028_30s_normalization_reconciliation_20261012": {
     "status": "PARTIAL_CORRECTION_APPLIED_EXISTING_RESULTS_UNRECOVERABLE",
     "engineering_revision": "9b71f9ebb636647c0c0b62e51404e80e92e11a0c on codex/dev028-crash-study; local commit verified; source branch remote publication remains unavailable because the environment egress guard blocked it.",

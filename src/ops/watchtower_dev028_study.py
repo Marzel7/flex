@@ -136,13 +136,37 @@ def prepare_manifest(*, prepeak_db: Path, lifecycle_root: Path, destination: Pat
 def _verified_manifest(path: Path) -> dict[str, Any]:
     manifest = _read_json(path)
     supplied = manifest.pop("content_hash", None)
-    if manifest.get("schema") != MANIFEST_SCHEMA or manifest.get("maximum_requests") != MAX_REQUESTS or not isinstance(supplied, str) or supplied != _sha(manifest):
+    maximum = manifest.get("maximum_requests")
+    if manifest.get("schema") != MANIFEST_SCHEMA or not isinstance(maximum, int) or not 1 <= maximum <= MAX_REQUESTS or not isinstance(supplied, str) or supplied != _sha(manifest):
         raise ValueError("DEV028_MANIFEST_VERIFICATION_FAILED")
     records = manifest.get("records")
-    if not isinstance(records, list) or len(records) != MAX_REQUESTS or len({record.get("request_identity") for record in records}) != MAX_REQUESTS:
+    if not isinstance(records, list) or len(records) != maximum or len({record.get("request_identity") for record in records}) != maximum:
         raise ValueError("DEV028_MANIFEST_IDENTITY_FAILURE")
     manifest["content_hash"] = supplied
     return manifest
+
+
+def prepare_corrected_continuation_manifest(*, original_manifest_path: Path, proof_journal_path: Path, destination: Path) -> dict[str, Any]:
+    """Freeze the unproven remainder of the original cohort without substitution."""
+    original = _verified_manifest(original_manifest_path)
+    proof = _read_json(proof_journal_path)
+    excluded_mint = proof.get("mint")
+    if not isinstance(excluded_mint, str) or proof.get("provider_requests") != 1:
+        raise ValueError("DEV028_PROOF_IDENTITY_UNVERIFIED")
+    records = [record for record in original["records"] if record.get("mint") != excluded_mint]
+    if len(records) != len(original["records"]) - 1 or not records:
+        raise ValueError("DEV028_CONTINUATION_SELECTION_FAILURE")
+    content = {
+        "schema": MANIFEST_SCHEMA,
+        "maximum_requests": len(records),
+        "continuation_of_content_hash": original["content_hash"],
+        "excluded_corrected_proof_mint": excluded_mint,
+        "selection_method": "Exact original frozen DEV028 records excluding the separately completed corrected one-token proof; no substitutions.",
+        "records": records,
+    }
+    continuation = {**content, "content_hash": _sha(content)}
+    _atomic_json(destination, continuation)
+    return continuation
 
 
 def initialize_journal(*, manifest: Mapping[str, Any], destination: Path) -> dict[str, Any]:

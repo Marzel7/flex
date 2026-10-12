@@ -3,7 +3,7 @@ import sqlite3
 from pathlib import Path
 
 from src.ops.token_data_provider_bindings import ProviderTransportOutcome
-from src.ops.watchtower_dev028_study import execute, execute_single_corrected_proof, initialize_journal, prepare_manifest
+from src.ops.watchtower_dev028_study import execute, execute_single_corrected_proof, initialize_journal, prepare_corrected_continuation_manifest, prepare_manifest
 
 
 def _fixture_sources(root: Path):
@@ -108,3 +108,20 @@ def test_single_corrected_proof_is_separate_from_original_outcome(tmp_path):
     assert proof["provider_requests"] == 1
     assert proof["state"] == "NO_85_PERCENT_CANDLE_OBSERVED"
     assert json.load(open(state / "original.json"))["records"][manifest["records"][0]["request_identity"]]["state"] == "INSUFFICIENT_EVIDENCE"
+
+
+def test_continuation_manifest_excludes_only_the_completed_proof(tmp_path):
+    db, lifecycle = _fixture_sources(tmp_path)
+    state = tmp_path / "state"
+    manifest = prepare_manifest(prepeak_db=db, lifecycle_root=lifecycle, destination=state / "manifest.json")
+    original = initialize_journal(manifest=manifest, destination=state / "original.json")
+    original_record = next(iter(original["records"].values())); original_record["state"] = "INSUFFICIENT_EVIDENCE"
+    (state / "original.json").write_text(json.dumps(original))
+    (tmp_path / ".env").write_text("BIRDEYE=synthetic\n")
+    budget_root = tmp_path / "budget"; budget_root.mkdir(); (budget_root / "provider_budget.json").write_text('{"calls":[],"version":1}\n')
+    proof = execute_single_corrected_proof(manifest_path=state / "manifest.json", original_journal_path=state / "original.json",
+                                           proof_journal_path=state / "proof.json", budget_root=budget_root, env_path=tmp_path / ".env",
+                                           binding_factory=lambda: _outcome)
+    continuation = prepare_corrected_continuation_manifest(original_manifest_path=state / "manifest.json", proof_journal_path=state / "proof.json", destination=state / "continuation.json")
+    assert continuation["maximum_requests"] == 9
+    assert proof["mint"] not in {record["mint"] for record in continuation["records"]}

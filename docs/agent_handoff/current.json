@@ -24243,5 +24243,18 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_EVIDENCE_ONLY",
     "next_action": "Stop after this single-token proof; review before any cohort-scale pre-peak work."
+  },
+  "dev020_prepeak_budget_20261012": {
+    "status": "COMPLETE_READ_ONLY_BUDGET_LIMIT_UNPROVEN",
+    "scope": "Read-only calculation from DEV019 durable opening journal, DEV013/DEV017 retained baselines, and compact DEV014 observed peaks. No provider/RPC call, code change, deployment, or acquisition occurred.",
+    "eligible": "539/550 have comparable qualified opening and observed-peak timestamps; 540 have qualified opening baselines and 549 have observed peaks.",
+    "duration_seconds": "min=0; median=1620; p75=3990; p90=10376.8; p95=21344.2; max=857700.",
+    "buckets": "0-60m=389; 1-3h=101; 3-6h=22; 6-12h=7; 12-24h=9; over24h=11.",
+    "candle_estimate": "Expected one-minute interval volume for the 539 comparable windows is 96043 (ceil(duration/60), prior to provider sparsity).",
+    "endpoint_limit": "The existing Birdeye V3 OHLCV client permits 1m requests with arbitrary ordered time_from/time_to and retains no maximum window or maximum returned-item contract. URANUS proves 43 minutes/43 qualifying candles in one request only. Therefore one-request count, multi-request count, coarser-resolution count, exact total request estimate, and finite maximum bounded request budget are UNPROVEN from retained local evidence; assuming an undocumented provider cap would be unsafe.",
+    "provider_calls": 0,
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY",
+    "next_action": "Before authorization, define or prove a provider-return cardinality/window ceiling with a separate bounded contract; then calculate a finite per-window split plan. Do not begin cohort acquisition from this assessment."
   }
 }

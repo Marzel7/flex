@@ -24537,5 +24537,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_PROVIDER_FREE_ANALYSIS",
     "next_action": "NONE — DEV023 evidence-feasibility milestone complete. A future executable backtest requires separately authorized ordered observation retention; do not launch acquisition automatically."
+  },
+  "dev024_watchtower_recovery_stop_analysis_20261012": {
+    "status":"PASS_CONDITIONAL_ASSOCIATION_ANALYSIS_COMPLETE",
+    "engineering_revision":"d4df94dedcb287174eae9739177a1b57726b84cf on codex/dev024-recovery-stop-analysis; remote verified",
+    "scope":"Provider-free DEV-only retained-extrema analysis; no credential/provider/RPC/trading/acquisition/journal/runtime/production activity.",
+    "result":"539 eligible tokens, 526 prepeak observed (415 contiguous, 111 sparse), 13 insufficient. Conditional observed above-opening recovery declines from 83.7% at -10%, 79.7% -30%, 74.4% -40%, 62.2% -50%, 39.5% -60%, 24.2% -70%, 9.8% -80%, to 0/46 -90%.",
+    "assessment":"The largest deterioration occurs around -50% to -60% (12.2pp then 22.7pp nested-threshold changes). This is a recovery-deterioration zone, not a precise death threshold or permanent-decline classification; sparse evidence and nested samples prevent independent-bin statistical claims.",
+    "strategy_boundary":"No entry/stop combination, net profitability, fill, loss avoidance, recovery time above opening, or executable ranking is supported because first crossings, ordered post-entry candles, stops-versus-target order, liquidity/fills, and costs are not retained. -20/-50 and -30/-50 are only future ordered-path research priorities; no live strategy recommendation.",
+    "artifact":"docs/audits/dev024_watchtower_recovery_stop_analysis_20261012.v1.json; compact/no raw payload/no growth path.",
+    "runtime_deployment_required":false,
+    "runtime_deployment_gate":"NOT_APPLICABLE_PROVIDER_FREE_ANALYSIS",
+    "next_action":"NONE — DEV024 complete. A realistic experiment requires separately authorized ordered-path retention, not historical reacquisition by default."
   }
 }

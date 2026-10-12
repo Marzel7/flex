@@ -1,0 +1,59 @@
+{
+  "schema": "DEV028_CORRECTED_30S_CRASH_EVIDENCE_PROOF_V1",
+  "environment": "DEV",
+  "engineering_revision": "ff20028945610615c1c9d5d775e3da9157bff3db",
+  "selection": {
+    "method": "Frozen DEV028 manifest ordinal 1; deterministic; original terminal record remains unchanged.",
+    "mint": "7guAAEFPKxPH3VsffZWh1upJzxqHxqUSCbQxL55Gpump",
+    "opening_mc_usd": 179376.56432827772,
+    "opening_timestamp": 1789676100,
+    "observed_peak_mc_usd": 18514.703591192578,
+    "observed_peak_timestamp": 1789749900
+  },
+  "request": {
+    "provider": "BIRDEYE",
+    "endpoint": "/defi/v3/ohlcv",
+    "type": "30s",
+    "chart_type": "mcap",
+    "currency": "usd",
+    "mode": "range",
+    "padding": false,
+    "time_from": 1789749600,
+    "time_to": 1789754400,
+    "provider_requests": 1,
+    "http_status": 200
+  },
+  "normalization": {
+    "normalizer": "alias-aware DEV014 correction 87ef772a",
+    "status": "OBSERVED_PARTIAL",
+    "returned_valid_30s_candle_count": 42,
+    "expected_bucket_count": 160,
+    "missing_bucket_count": 118,
+    "coverage": "PARTIAL_30S_COVERAGE",
+    "schema_failure_diagnostic": null,
+    "raw_provider_payload_retained": false
+  },
+  "crash_detection": {
+    "qualified_85_percent_crash": false,
+    "first_qualifying_collapse": null,
+    "largest_observed_red_candle": {
+      "timestamp": 1789750350,
+      "open_mc_usd": 18349.799264713078,
+      "close_mc_usd": 15697.270082737023,
+      "open_to_close_decline_percent": 14.455358032591159,
+      "time_from_observed_peak_seconds": 450
+    },
+    "pre_crash_to_opening_ratio": "NOT_APPLICABLE_NO_85_PERCENT_CANDLE",
+    "pre_crash_to_observed_peak_ratio": "NOT_APPLICABLE_NO_85_PERCENT_CANDLE"
+  },
+  "preservation": {
+    "original_dev028_journal_sha256_before_and_after": "710e88cbae1694454dd0acd6510d309171500f8fc1637f595e1235bb7ab759cd",
+    "original_record_state": "INSUFFICIENT_EVIDENCE",
+    "proof_journal_path": "/private/tmp/dev028-watchtower-sharp-exit/corrected-proof-ordinal-1.json",
+    "proof_journal_bytes": 3619
+  },
+  "storage": {"single_file_limit_bytes": 500000000, "unbounded_growth_paths": 0},
+  "runtime_deployment_required": false,
+  "runtime_deployment_gate": "NOT_APPLICABLE_BOUNDED_DATA_PROOF",
+  "next_action": "Stop after this one request. No cohort retry or expansion is authorized."
+}

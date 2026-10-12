@@ -24241,6 +24241,17 @@
     "runtime_deployment_gate": "PASS",
     "next_action": "No acquisition is authorized by this deployment. Obtain separate session authority before any provider-backed DEV020 work."
   },
+  "dev020_birdeye_binding_restore_20261012": {
+    "status": "HOLD_AUTHORITATIVE_BINDING_UNAVAILABLE",
+    "engineering_revision": "771b3495518680f2e9208f5fd41fdc99d2d7050d remains installed in the DEV020 runtime",
+    "scope": "Credential-presence inspection only. No provider request, credential output, legacy-key use, budget debit, journal mutation, service change, or source change occurred.",
+    "finding": "The DEV020 runner requires the exact BIRDEYE environment name. The current shell has no nonempty BIRDEYE binding; the established /Users/kevinkeaveney/Dev/claude/flex/.env contains no configured BIRDEYE entry; approved shell configuration labels contain none; and existence-only checks found no BIRDEYE Keychain item or Birdeye endpoint credential. The historic DEV019/DEV020 direct runner path depended on a caller-supplied BIRDEYE environment rather than a Supervisor binding.",
+    "durability": "DEV020 durable journal remains unchanged at 540672 bytes with 250 terminal rows and zero REQUEST_IN_FLIGHT rows. No provider_budget.json was created at the DEV020 root.",
+    "required_action": "Restore the pre-existing paid value through an approved authority under the exact BIRDEYE environment name for the DEV020 execution context. Do not use BIRDEYE_KK, create a new key, or reconstruct a credential.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "PASS_EXISTING_DEPLOYMENT_UNCHANGED",
+    "next_action": "After the approved BIRDEYE binding is present and nonempty, rerun fresh DEV preflight and the separately authorized two 50-token sessions."
+  },
   "dev020_prepeak_coverage_20261012": {
     "status": "COMPLETE_READ_ONLY",
     "scope": "Bounded local reconciliation of 550 DEV014 compact journals, DEV019 durable opening journal, canonical/DEV013 retained baselines, and indexed Watchtower monitor observations. No provider/RPC call, code change, deployment, or acquisition occurred.",

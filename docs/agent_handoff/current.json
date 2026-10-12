@@ -24636,5 +24636,16 @@
     "runtime_deployment_required":true,
     "runtime_deployment_gate":"READY_FOR_AUTHORIZED_RESTART",
     "next_action":"With explicit authorization, apply only the prepared operation_scheduler Supervisor repoint, reread/update only that program, then start only operation_scheduler and perform the bounded post-start acceptance."
+  },
+  "dev029_scheduler_restore_execution_20261012": {
+    "status":"HOLD_EFFECTIVE_SUPERVISOR_CONFIG_MISMATCH",
+    "scope":"Authorized scheduler-only repoint/start attempt. No code deployment, provider/RPC call, database mutation, attribution change, historical backfill, or unrelated service restart occurred.",
+    "attempt":"Prepared three-field patch was applied only to /Users/kevinkeaveney/Production/flex-scheduler/config/supervisor/supervisord.conf. Its diff was exact. supervisorctl reread unexpectedly reported no config updates; start then launched operation_scheduler PID 63870 from /Users/kevinkeaveney/Production/flex-scheduler, not the authorized clean worktree /Users/kevinkeaveney/Production/flex-operation-scheduler-77492.",
+    "protective_action":"The mismatched scheduler was stopped immediately through Supervisor. Final status is STOPPED. No other service was started, stopped, restarted, or reloaded.",
+    "root_cause":"The active supervisord daemon is launched with /Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf, not the prepared flex-scheduler config file. Its loaded scheduler stanza targets flex-scheduler and contains its own explicit OPS/FLEX/WT_OPS DB bindings and lock path. Therefore the prepared file was not the effective Supervisor authority.",
+    "required_correction":"Review and separately authorize the scheduler-only equivalent repoint against the active daemon configuration file, after verifying flex-scheduler source identity against 77492d22 or selecting the clean 77492 worktree as the target. Rerun effective-config verification before a new start. Do not start from the current loaded target without that explicit decision.",
+    "runtime_deployment_required":true,
+    "runtime_deployment_gate":"HOLD",
+    "next_action":"AUTHORIZE_EFFECTIVE_SUPERVISOR_CONFIG_REPOINT — scheduler remains STOPPED pending a source-identity decision for the active daemon configuration."
   }
 }

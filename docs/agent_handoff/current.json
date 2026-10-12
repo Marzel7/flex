@@ -23958,5 +23958,19 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "runtime_deployment_reason": "The active DEV Gunicorn master PID 35313 uses /private/tmp/flex-dev014-early-minimum-api, a separate pinned checkout. No implicit synchronization, reload, restart, signal, or target mutation was performed from the DEV016 worktree.",
     "next_action": "Deploy revision aaa6f0adfffa76d4a34f639cbcaf1426cdae4270 to the explicitly selected DEV API target under the runtime deployment gate, then perform bounded HTTP API acceptance."
+  },
+  "dev017_opening_mc_recovery_20261012": {
+    "status": "COMPLETE_QUALIFIED_NOT_DEPLOYED",
+    "engineering_revision": "8357861760a650a66200c4bcb17fa6020fb7efa1; isolated DEV017 worktree commit",
+    "scope": "Read-only local recovery over existing DEV013, DEV014, Watchtower operations, and canonical token tables. No provider/RPC acquisition, historical replay, raw payload retention, evidence overwrite, production action, or runtime reload occurred.",
+    "result": "Opening-baseline coverage rose from 53/550 to 79/550: 53 FIRST_AVAILABLE_TRADE_MARKET_CAP, 23 MARKET_FIRST_OBSERVED, and 3 FIRST_RETAINED_MONITOR_CANDLE. The latter two retain their source, timestamp, confidence, and exact semantic; no value is relabelled as launch-time or first-available-candle MC. Launch-time and first-available-candle MC remain unavailable.",
+    "comparability": "78/550 retained baselines precede the DEV014 observed candle peak and therefore receive opening-to-observed-peak multiple and percentage gain. The one retained baseline paired with NO_VALID_CANDLES correctly receives no peak comparison.",
+    "gaps": "471/550 lack a defensible local baseline. The new bounded API manifest names each mint, journal state, creation timestamp, missing baseline type, and DEV013 first-available-trade proposal. It estimates at most one Helius transaction request and one Birdeye trade request per unresolved token; this is a plan only, not acquisition authority.",
+    "tests": "PYTHONDONTWRITEBYTECODE=1 python -m pytest -q -p no:cacheprovider tests/test_dev016_lifecycle_metrics.py: 6 passed. Covers local recovery semantics, multiple/gain calculation, manifest scope, NO_VALID_CANDLES, coverage, and provider_calls=0 API routes.",
+    "storage": "No writer or raw retention was added. Journal readers reject files over 1 MiB; API manifest is bounded by the 550-member cohort; maximum per-record output is compact metadata only; unbounded growth paths=0; no single file can reach 500 MB.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "runtime_deployment_reason": "The active DEV Gunicorn remains pinned to a separate checkout. Its source, configuration, process, and workers were not changed from the DEV017 worktree.",
+    "next_action": "Deploy revision 8357861760a650a66200c4bcb17fa6020fb7efa1 to the explicitly selected DEV API target under the runtime deployment gate, perform bounded HTTP acceptance, then separately authorize any acquisition from the 471-item manifest."
   }
 }

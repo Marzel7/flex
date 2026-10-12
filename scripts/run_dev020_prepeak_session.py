@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from src.ops.dev016_lifecycle_metrics import COHORT_ROOT, _opening_baseline
-from src.ops.dev_provider_budget import DevProviderBudget
+from src.ops.dev_provider_budget import BudgetDenied, DevProviderBudget
 from src.ops.dev020_prepeak_metrics import calculate_prepeak_observed_metrics
 from src.ops.strict_migration_window import normalize_opening_ohlcv
 from src.ops.token_data_provider_bindings import BirdeyeProductionBinding, build_birdeye_ohlcv_request
@@ -40,7 +40,8 @@ class RateLimited:
         # not a DEV020-specific counter or replacement ledger.
         self._budget = DevProviderBudget(budget_root, now=wall_clock)
 
-    def __call__(self, request: dict[str, Any]) -> Any:
+    def admit(self, request: dict[str, Any]) -> None:
+        """Atomically debit the established ledger before one transport."""
         if self.calls >= MAX_TOKENS:
             raise RuntimeError("DEV020_PROVIDER_REQUEST_CAP")
         if self.last is not None:
@@ -61,7 +62,13 @@ class RateLimited:
         )
         self.last = self._monotonic_clock()
         self.calls += 1
+
+    def dispatch(self, request: dict[str, Any]) -> Any:
         return self.binding(request)
+
+    def __call__(self, request: dict[str, Any]) -> Any:
+        self.admit(request)
+        return self.dispatch(request)
 
 
 def _require_session_ready(*, now: int) -> None:
@@ -148,8 +155,8 @@ def _connect() -> sqlite3.Connection:
 def select() -> list[dict[str, Any]]:
     rows = eligible_rows()
     with _connect() as connection:
-        terminal = {row[0] for row in connection.execute("SELECT mint FROM dev020_prepeak_tokens WHERE state IN ('OBSERVED_CONTIGUOUS','OBSERVED_SPARSE','INSUFFICIENT_EVIDENCE')")}
-        in_flight = connection.execute("SELECT mint FROM dev020_prepeak_tokens WHERE state='REQUEST_IN_FLIGHT'").fetchall()
+        terminal = {row[0] for row in connection.execute("SELECT mint FROM dev020_prepeak_tokens WHERE state IN ('OBSERVED_CONTIGUOUS','OBSERVED_SPARSE','INSUFFICIENT_EVIDENCE','SAFETY_FAILURE')")}
+        in_flight = connection.execute("SELECT mint FROM dev020_prepeak_tokens WHERE state IN ('ADMISSION_INTENT','REQUEST_IN_FLIGHT')").fetchall()
         if in_flight:
             raise RuntimeError("DEV020_ATTEMPT_OUTCOME_UNPROVEN")
         chosen = [row for row in rows if row["mint"] not in terminal][:MAX_TOKENS]
@@ -162,6 +169,32 @@ def select() -> list[dict[str, Any]]:
         raise RuntimeError("DEV020_SELECTION_SIZE_BOUND")
     SNAPSHOT.write_text(encoded, encoding="utf-8")
     return chosen
+
+
+def _admit_then_mark_in_flight(*, mint: str, request: dict[str, Any], transport: RateLimited, now: int) -> Any:
+    """Keep pre-admission denials retryable and post-admission outcomes fail-closed."""
+    with _connect() as connection:
+        connection.execute(
+            "UPDATE dev020_prepeak_tokens SET state='ADMISSION_INTENT',updated_at=? WHERE mint=? AND state='PENDING'",
+            (now, mint),
+        )
+    try:
+        transport.admit(request)
+    except BudgetDenied:
+        # DevProviderBudget raised before debit.  Restore only this known
+        # pre-admission state; unexpected faults retain ADMISSION_INTENT.
+        with _connect() as connection:
+            connection.execute(
+                "UPDATE dev020_prepeak_tokens SET state='PENDING',updated_at=? WHERE mint=? AND state='ADMISSION_INTENT'",
+                (now, mint),
+            )
+        raise
+    with _connect() as connection:
+        connection.execute(
+            "UPDATE dev020_prepeak_tokens SET state='REQUEST_IN_FLIGHT',updated_at=? WHERE mint=? AND state='ADMISSION_INTENT'",
+            (now, mint),
+        )
+    return transport.dispatch(request)
 
 
 def run() -> dict[str, Any]:
@@ -177,7 +210,6 @@ def run() -> dict[str, Any]:
             state = connection.execute("SELECT state FROM dev020_prepeak_tokens WHERE mint=?", (mint,)).fetchone()[0]
             if state in counts:
                 continue
-            connection.execute("UPDATE dev020_prepeak_tokens SET state='REQUEST_IN_FLIGHT',updated_at=? WHERE mint=?", (int(time.time()), mint))
         if candidate["duration_seconds"] <= 0:
             compact = {"reason": "NON_POSITIVE_OPENING_TO_PEAK_WINDOW", "baseline_type": candidate["baseline_type"], "metrics": {"evidence_source": "RETAINED_OPENING_AND_PEAK", "observation_coverage": {"qualification_status": "INSUFFICIENT_EVIDENCE", "requested_window_start": candidate["opening_timestamp"], "requested_window_end": candidate["observed_peak_timestamp"], "candle_interval_seconds": 60, "qualifying_candle_count": 0, "first_returned_candle_timestamp": None, "last_returned_candle_timestamp": None, "missing_interval_count": 0, "missing_interval_duration_seconds": 0, "largest_unobserved_gap_seconds": 0, "coverage_is_complete": False}}}
             with _connect() as connection:
@@ -185,7 +217,7 @@ def run() -> dict[str, Any]:
             counts["INSUFFICIENT_EVIDENCE"] += 1
             continue
         request = build_birdeye_ohlcv_request(address=mint, interval="1m", time_from=candidate["opening_timestamp"], time_to=candidate["observed_peak_timestamp"])
-        outcome = transport(request)
+        outcome = _admit_then_mark_in_flight(mint=mint, request=request, transport=transport, now=int(time.time()))
         if outcome.status_code != 200:
             with _connect() as connection:
                 connection.execute("UPDATE dev020_prepeak_tokens SET state='SAFETY_FAILURE',result_json=?,updated_at=? WHERE mint=?", (json.dumps({"reason": f"HTTP_{outcome.status_code}"}), int(time.time()), mint))

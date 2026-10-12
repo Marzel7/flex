@@ -37,6 +37,21 @@ def _ledger_calls(root: Path) -> list[dict]:
     return json.loads((root / "provider_budget.json").read_text())["calls"]
 
 
+def _seed_pending(module, root: Path, mint: str = "mint") -> None:
+    module.ROOT = root
+    module.JOURNAL = root / "journal.db"
+    with module._connect() as connection:
+        connection.execute(
+            "INSERT INTO dev020_prepeak_tokens VALUES(?,?,?,?,?,?)",
+            (mint, "{}", "PENDING", None, 1, 1),
+        )
+
+
+def _state(module, mint: str = "mint") -> str:
+    with module._connect() as connection:
+        return connection.execute("SELECT state FROM dev020_prepeak_tokens WHERE mint=?", (mint,)).fetchone()[0]
+
+
 def test_real_ledger_enforces_ten_per_rolling_minute_without_early_debit(tmp_path):
     clock = SyntheticClock()
     budget = DevProviderBudget(tmp_path, now=clock.wall)
@@ -84,6 +99,68 @@ def test_rate_limiter_uses_real_ledger_and_rejected_admission_never_transports(t
     limiter({"request_parameters": {"address": "mint-10"}})
     assert transported[-1] == "mint-10"
     assert len(_ledger_calls(tmp_path)) == 1
+
+
+def test_budget_denial_restores_pending_without_transport_or_debit(tmp_path):
+    module = _module()
+    _seed_pending(module, tmp_path)
+    clock = SyntheticClock()
+    budget = DevProviderBudget(tmp_path / "budget", now=clock.wall)
+    for number in range(10):
+        budget.admit(f"prior-{number}", "DEV020_TEST", global_limit=10)
+    calls: list[dict] = []
+    limiter = module.RateLimited(
+        lambda request: calls.append(request) or {"ok": True},
+        budget_root=tmp_path / "budget",
+        monotonic_clock=clock.monotonic,
+        wall_clock=clock.wall,
+        sleep=lambda _seconds: None,
+    )
+
+    with pytest.raises(BudgetDenied, match="GLOBAL_PROVIDER_BUDGET_EXHAUSTED"):
+        module._admit_then_mark_in_flight(
+            mint="mint", request={"request_parameters": {"address": "mint"}}, transport=limiter, now=1,
+        )
+    assert _state(module) == "PENDING"
+    assert calls == []
+    assert len(_ledger_calls(tmp_path / "budget")) == 10
+
+
+def test_successful_admission_marks_in_flight_before_one_transport(tmp_path):
+    module = _module()
+    _seed_pending(module, tmp_path)
+    clock = SyntheticClock()
+    calls: list[dict] = []
+    limiter = module.RateLimited(
+        lambda request: calls.append(request) or {"ok": True},
+        budget_root=tmp_path / "budget",
+        monotonic_clock=clock.monotonic,
+        wall_clock=clock.wall,
+        sleep=lambda _seconds: None,
+    )
+
+    result = module._admit_then_mark_in_flight(
+        mint="mint", request={"request_parameters": {"address": "mint"}}, transport=limiter, now=1,
+    )
+    assert result == {"ok": True}
+    assert _state(module) == "REQUEST_IN_FLIGHT"
+    assert len(calls) == 1
+    assert len(_ledger_calls(tmp_path / "budget")) == 1
+
+
+@pytest.mark.parametrize("uncertain", ["ADMISSION_INTENT", "REQUEST_IN_FLIGHT"])
+def test_uncertain_attempts_remain_excluded_and_terminal_records_unchanged(tmp_path, monkeypatch, uncertain):
+    module = _module()
+    _seed_pending(module, tmp_path, mint="terminal")
+    with module._connect() as connection:
+        connection.execute("UPDATE dev020_prepeak_tokens SET state='OBSERVED_SPARSE',result_json='stable' WHERE mint='terminal'")
+        connection.execute("INSERT INTO dev020_prepeak_tokens VALUES(?,?,?,?,?,?)", ("uncertain", "{}", uncertain, None, 1, 1))
+    monkeypatch.setattr(module, "eligible_rows", lambda: [])
+
+    with pytest.raises(RuntimeError, match="DEV020_ATTEMPT_OUTCOME_UNPROVEN"):
+        module.select()
+    with module._connect() as connection:
+        assert connection.execute("SELECT state,result_json FROM dev020_prepeak_tokens WHERE mint='terminal'").fetchone() == ("OBSERVED_SPARSE", "stable")
 
 
 def test_fifty_token_cap_and_durable_cooldown_are_deterministic(tmp_path, monkeypatch):

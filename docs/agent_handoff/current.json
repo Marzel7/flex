@@ -24062,5 +24062,19 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY_FALLBACK_REVIEW",
     "next_action": "Stop. Preserve INSUFFICIENT_EVIDENCE for this token unless separately authorized evidence acquisition or a new explicitly defined baseline policy is approved."
+  },
+  "dev018_first_available_post_migration_mc_proof_20261012": {
+    "status": "HOLD_INSUFFICIENT_EVIDENCE",
+    "engineering_revision": "0c320dcd8bb023a9d321366a922182472a30aae7; isolated DEV018 evidence commit",
+    "scope": "One-token, one-request DEV proof using the existing Birdeye V3 OHLCV binding. No Helius request, pagination, retry, provider fallback, code/configuration change, deployment, or cohort expansion occurred.",
+    "token": "GTP5PX2pUpwdGV17KnugQh8yQENz1FcVzrjcwvYxpump",
+    "request": "GET /defi/v3/ohlcv; type=1s; time_from=1784784355; time_to=1784784655; currency=usd; chart_type=mcap; mode=range; padding=false; x-chain=solana; credential alias BIRDEYE.",
+    "result": "The one transmitted request returned HTTP 200, provider_item_count=0 and normalized_candle_count=0. Therefore no positive candle at or after migration exists in the bounded five-minute response, and FIRST_AVAILABLE_POST_MIGRATION_MC is INSUFFICIENT_EVIDENCE.",
+    "accounting": "Birdeye=1; Helius=0. An initial isolated-worktree credential-load failure occurred before binding transport and sent zero request; it is not a provider attempt.",
+    "durable_evidence": "docs/audits/dev018_first_available_post_migration_mc_proof_20261012.v1.json; compact payload-free evidence; artifact maximum 1 MiB; no unbounded writer and no file can reach 500 MB.",
+    "metrics": "Retained DEV014 observed peak MC is USD 325051.0948492504. No baseline, multiple, or percentage gain is calculated and no existing strict-candle evidence is overwritten.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_EVIDENCE_ONLY",
+    "next_action": "Stop after this proof and retain INSUFFICIENT_EVIDENCE pending user review."
   }
 }

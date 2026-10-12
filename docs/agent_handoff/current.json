@@ -24333,5 +24333,18 @@
     "runtime_deployment_gate": "PASS_MANUAL_DEV_EXECUTION",
     "runtime_target": "/Users/kevinkeaveney/.codex/worktrees/dev020-runtime/flex at 2e9b43a8d992aaee0a151171bb6d2d01ffbd0740; existing API/listener processes were preserved.",
     "next_action": "Stop for review. Remaining eligible tokens=489; do not start another cohort session without explicit authorization."
+  },
+  "dev020_prepeak_next100_execution_20261012": {
+    "status": "PARTIAL_SELECTOR_LIMITATION",
+    "engineering_revision": "2e9b43a8d992aaee0a151171bb6d2d01ffbd0740; unchanged DEV020 session runner",
+    "scope": "DEV-only requested next-100 execution. One resumed bounded session was started after more than the required 60-second elapsed cooldown. No second session was started because the existing selector exhausted its visible eligible population.",
+    "execution": "27 newly processed tokens; cumulative results now 77 terminal outcomes: 2 OBSERVED_CONTIGUOUS, 75 OBSERVED_SPARSE, 0 INSUFFICIENT_EVIDENCE. All 77 had observed drawdowns; cumulative mean=57.4424137311135%, maximum=99.49518928597116%. Compact journal size=172032 bytes; no raw payload retained.",
+    "provider_accounting": "This execution Birdeye=27; cumulative DEV020 pre-peak journal Birdeye=77; Helius=0; RPC=0.",
+    "controls": "One request per processed token, serial execution, six-second spacing, no retry, no pagination, no Helius/RPC. Process stopped; no REQUEST_IN_FLIGHT row remains.",
+    "blocker": "The unchanged runner selects candidates through DEV016 _opening_baseline(), whose current data-access path exposes only 77 baselines. It does not read the completed DEV019 durable opening-baseline journal that establishes the authorized 539-token eligible population. Therefore it cannot deterministically select the requested next 73 tokens without modifying that selector; continuing would either repeat completed rows or silently shrink the cohort.",
+    "storage": "Selection and SQLite journal are compact and below 1 MiB. No raw payload store, unbounded writer, or 500 MB single-file path exists.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_NO_CODE_CHANGE",
+    "next_action": "Stop pending authorization to make the smallest selector correction that reads the retained DEV019 qualified opening-baseline journal, then test and deploy it before resuming the remaining 462 authorized eligible tokens."
   }
 }

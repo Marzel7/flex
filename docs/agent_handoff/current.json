@@ -24346,5 +24346,18 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_NO_CODE_CHANGE",
     "next_action": "Stop pending authorization to make the smallest selector correction that reads the retained DEV019 qualified opening-baseline journal, then test and deploy it before resuming the remaining 462 authorized eligible tokens."
+  },
+  "dev020_prepeak_selector_correction_and_next100_20261012": {
+    "status": "PASS",
+    "engineering_revision": "524b709ba1f1c4b2a344789f85e0621363035bf4; clean isolated DEV worktree",
+    "selector_correction": "The existing scripts/run_dev020_prepeak_session.py selector now reads compact qualified DEV019 opening facts from /private/tmp/dev019-watchtower-opening-mc/journal.db only when existing DEV013/DEV017/canonical baseline lookup has no result. Existing baseline precedence and provenance are retained; mint identities are deduplicated by the compact DEV014 cohort journal. Zero-duration opening-to-peak identities remain in the 539-token reconciliation and terminalize as INSUFFICIENT_EVIDENCE without an invalid zero-width provider request.",
+    "verification": "18 bounded tests passed, including DEV019 fallback selection, preservation of an existing higher-precedence baseline, duplicate prevention, and zero-duration reconciliation. The corrected selector resolves exactly 539 unique eligible identities, including four zero-duration windows. Existing DEV020 journal skip logic excluded all 77 completed outcomes.",
+    "deployment": "Supervisor watchtower_api was reloaded from clean /Users/kevinkeaveney/.codex/worktrees/dev020-runtime/flex at 524b709ba1f1c4b2a344789f85e0621363035bf4. Post-reload API health returned HTTP 200; master PID=46221 with worker PIDs=46231,46233 using the clean worktree Gunicorn configuration. Existing listener and non-API processes were preserved.",
+    "execution": "Completed the previously authorized remaining 73 token outcomes in sessions of 50 then 23, separated by the durable 60-second cooldown. Total DEV020 outcomes=150: OBSERVED_SPARSE=75, OBSERVED_CONTIGUOUS=62, INSUFFICIENT_EVIDENCE=13. Drawdowns exist for 137 outcomes; mean=50.42335042137181%, maximum=99.49518928597116%.",
+    "provider_accounting": "This continuation Birdeye=69 (four zero-duration identities issued no request); cumulative journal Birdeye=146; Helius=0; RPC=0. Every requested token had at most one serial 1m non-padded range request, with six-second spacing, no retry, and no pagination.",
+    "storage": "Compact durable journal=/private/tmp/dev020-watchtower-prepeak/journal.db (327680 bytes). It retains request metadata, normalized derived metrics, and coverage provenance only; no raw payload. No unbounded writer or 500 MB single-file path exists.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "next_action": "Stop for review. Remaining original eligible tokens=389; do not begin another cohort session without explicit authorization."
   }
 }

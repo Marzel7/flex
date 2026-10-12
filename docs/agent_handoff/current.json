@@ -24868,6 +24868,18 @@
     "safety":"Provider calls=0; real credential reads=0; live budget debits=0; operational database/queue writes=0; service restart/deployment=0; existing DEV014-DEV033 evidence unchanged.",
     "runtime_deployment_required":false,
     "runtime_deployment_reason":"The executor is an explicit DEV research CLI; no running service behavior changed.",
-    "next_action":"A separate explicit acquisition authorization may run only the exact frozen 30-token manifest after fresh manifest/source/credential/budget preflight."
+    "next_action":"Superseded by dev033_phase_b_acquisition_20261013."
+  },
+  "dev033_phase_b_acquisition_20261013": {
+    "status":"PASS_FROZEN_30_TOKEN_ACQUISITION_COMPLETE",
+    "executing_source":"f28d597203839ddc33797f0e10207de9d45d5ac0 on origin/codex/dev033-chronological-backtest-phase-a",
+    "manifest":"Verified file_sha256=f5a8a2289bb369b95b44896fc6d7f7db3bc79c890a3bba1b0fcd3ec32f3662d3 and content_hash=a2c4202338d58651c20462405990d02b40f44bb210b0efe68ecf6c99d7961885 before transport; 30 frozen identities and deterministic windows only.",
+    "result":"30/30 terminal outcomes: ORDERED_CONTIGUOUS=1, ORDERED_SPARSE=29, INSUFFICIENT_EVIDENCE=0. Normalized retained candles=2,860. No gaps were interpolated or represented as crash-free.",
+    "provider_controls":"Birdeye requests=30 exactly; one per identity; single concurrency; six-second pacing; real shared DevProviderBudget with 10/minute admission; no retry, pagination, fallback, Helius, or RPC calls. Existing ledger was readable with zero recent calls before start; it remained readable after completion.",
+    "durability_and_storage":"Journal=/private/tmp/dev033-chronological-pilot/journal.json; 533,038 bytes. Normalized evidence bytes=524,558, below 8 MiB; each record <=256 KiB; journal/temp <=4 MiB; no raw provider payloads and no operational database writes. Compact local per-token evidence index is committed locally at cb6c25f926de690eb7389e02266360aabbadfb8b but was not exported because the external-publication safety gate rejected provider-derived token evidence.",
+    "backtest_readiness":"Evidence is available for provider-free chronological analysis, but only one series is contiguous; any later backtest must preserve the 29 sparse paths and must not infer behavior through gaps. No strategy optimization ran in Phase B.",
+    "runtime_deployment_required":false,
+    "runtime_deployment_reason":"The explicit DEV research CLI ran manually; no service behavior changed.",
+    "next_action":"Separate provider-free strategy/backtest analysis may use the durable normalized evidence with sparse-coverage safeguards."
   }
 }

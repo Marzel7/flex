@@ -1,4 +1,18 @@
 {
+  "dev028_30s_normalization_reconciliation_20261012": {
+    "status": "PARTIAL_CORRECTION_APPLIED_EXISTING_RESULTS_UNRECOVERABLE",
+    "engineering_revision": "9b71f9ebb636647c0c0b62e51404e80e92e11a0c on codex/dev028-crash-study; local commit verified; source branch remote publication remains unavailable because the environment egress guard blocked it.",
+    "scope": "DEV-only, provider-free targeted comparison. No Birdeye, Helius, RPC, database, queue, deployment, production, scheduler, or terminal-journal mutation occurred.",
+    "root_cause": "DEV028 executed the older c3c1588d 30-second normalizer, which accepts only unixTime/o/h/l/c and emits one generic INVALID_30S_MCAP_CANDLE error. The previously successful DEV014 validation route included the immediately subsequent 87ef772a correction: established timestamp/open/high/low/close aliases plus compact field/type/schema diagnostics. This version mismatch is the demonstrated cause of non-diagnostic DEV028 failures.",
+    "limits_of_reconciliation": "The ten immutable DEV028 records retain only HTTP 200 and INVALID_30S_MCAP_CANDLE, by design. They contain no raw payload, field-presence, value-class, invalid-index, or schema-fingerprint data; consequently the actual provider-row defect for those historical responses cannot be distinguished among alias/schema, missing/nonpositive/nonfinite OHLC, timestamp alignment, or OHLC consistency. HTTP 200 is not qualified candle evidence.",
+    "correction": "Applied the previously qualified 87ef772a alias-aware fail-closed normalizer behavior and updated the DEV028 runner to persist only compact bounded validation diagnostics. The >=85% crash definition is unchanged. Existing ten terminal outcomes were not altered or retried.",
+    "tests": "pytest -q tests/test_watchtower_sharp_exit_evidence.py tests/test_watchtower_dev028_study.py: 20 passed. Covers aliases, specific invalid-field diagnostics, bounded diagnostic retention, deterministic fixture execution, and no-retry recovery.",
+    "artifact": "docs/audits/dev028_30s_normalization_reconciliation_20261012.v1.json",
+    "storage": "Compact diagnostic maximum=1,024 bytes; raw provider retention=false; no new growth path; no file may reach 500 MB.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_OFFLINE_NORMALIZATION_CORRECTION",
+    "next_action": "Do not reacquire DEV028. A separately authorized bounded observation may use the corrected diagnostic path if new evidence is required."
+  },
   "dev028_watchtower_post_ath_crash_pattern_20261012": {
     "status": "COMPLETE_INSUFFICIENT_30S_CANDLE_EVIDENCE",
     "engineering_revision": "b2775a09d3483d3dd9dc26addcd78bdc8522d4e2 on codex/dev028-crash-study; local commit verified; remote source publication not completed because the source push was blocked by the environment egress guard.",

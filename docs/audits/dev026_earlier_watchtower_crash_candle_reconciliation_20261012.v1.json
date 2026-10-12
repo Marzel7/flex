@@ -1,0 +1,77 @@
+{
+  "schema": "DEV026_EARLIER_WATCHTOWER_CRASH_CANDLE_RECONCILIATION_V1",
+  "environment": "DEV",
+  "mode": "read_only_historical_evidence_reconciliation",
+  "provider_calls": 0,
+  "earlier_milestones": [
+    {
+      "id": "dev014_watchtower_sharp_exit_evidence_discovery_20261009",
+      "finding": "15-minute retained-collapse candidates only; explicitly not proof of an instantaneous crash candle."
+    },
+    {
+      "id": "dev014_watchtower_sharp_exit_30s_mcap_probe_20261009",
+      "finding": "One valid 30-second observed sparse red candle for B5yWXR; opening and candle OHLC retained, but no exact observed-peak MC/timestamp retained."
+    },
+    {
+      "id": "dev014_watchtower_30s_normalizer_live_verification_20261009",
+      "finding": "One valid 30-second observed sparse red candle for 6Ldj, with compact candle fields and peak-to-start timing retained."
+    },
+    {
+      "id": "dev014_watchtower_30s_sharp_exit_pilot_completion_20261009",
+      "finding": "Eleven valid observed red-candle records, all PARTIAL_30S_COVERAGE/PARTIAL_EXIT_EVIDENCE; no complete-window event."
+    }
+  ],
+  "implementation": {
+    "source_revision": "c3c1588d927ca205f2c026a283dfbb4ab47479c4",
+    "path": "src/ops/watchtower_sharp_exit_evidence.py",
+    "entry_point": "normalize_30s_exit_evidence",
+    "contract": "Validates timestamp ordering/alignment, positive finite OHLC values and OHLC consistency before calculating (1 - close/open) * 100. It retains only compact derived event fields and explicit coverage status.",
+    "reuse_status": "Reusable only as the existing 30-second observed-exit normalizer; it must retain its PARTIAL versus COMPLETE distinction and is not a DEV026 1-minute post-ATH detector."
+  },
+  "normalization_correction": {
+    "status": "VALID_30S_ALIAS_AND_TRANSPORT_FIX_RETAINED",
+    "details": "The original one-shot path used unavailable ProviderTransportOutcome body/headers attributes. The qualified correction reads payload/response_headers and accepts established timestamp/OHLC aliases, while failing closed on malformed or inconsistent candles.",
+    "separate_invalid_signal": "Byzantine MCAP low-field scale discontinuity made low-based >=85% drawdowns artificial. It does not invalidate these open-to-close calculations, which use positive finite open and close fields; low-based 85% conclusions remain excluded."
+  },
+  "counts": {
+    "valid_observed_30s_crash_candles": 11,
+    "complete_30s_coverage_events": 0,
+    "pre_crash_market_cap_records": 11,
+    "qualified_opening_overlap": 2,
+    "exact_opening_and_observed_peak_overlap": 1
+  },
+  "representative_joined_event": {
+    "qualification": "OBSERVED_PARTIAL_POST_PEAK_CANDLE",
+    "mint": "6LdjC13zbAxmruKrqsAQ4znUrjNe7gXXVeCHDBMYpump",
+    "opening_mc_usd": 162775.9385584885,
+    "observed_peak_mc_usd": 274476.6056229458,
+    "observed_peak_timestamp": 1791484502,
+    "candle_interval": "30s",
+    "crash_candle_timestamp": 1791485160,
+    "pre_crash_open_mc_usd": 191574.83631276395,
+    "post_crash_close_mc_usd": 2166.588655867152,
+    "open_to_close_decline_percent": 98.8690640704346,
+    "pre_crash_to_opening_ratio": 1.176923555221446,
+    "pre_crash_to_observed_peak_ratio": 0.6979641703086865,
+    "time_from_observed_peak_seconds": 658,
+    "coverage": "PARTIAL_30S_COVERAGE",
+    "limitation": "The individual candle and its ordering after the retained observed peak are established, but sparse returned buckets mean it is not a complete-window or population-level crash conclusion."
+  },
+  "additional_opening_overlap_without_exact_peak": {
+    "mint": "B5yWXR3PZeRuEDs7P55SBgyZEiVu3Ak7k3uWmYLdpump",
+    "opening_mc_usd": 157743.2979797445,
+    "candle_interval": "30s",
+    "pre_crash_open_mc_usd": 93235.20794081292,
+    "post_crash_close_mc_usd": 3080.653503385997,
+    "open_to_close_decline_percent": 96.69582599596748,
+    "pre_crash_to_opening_ratio": 0.591056540182,
+    "missing": ["exact retained observed-peak MC", "exact retained observed-peak timestamp"],
+    "coverage": "PARTIAL_30S_COVERAGE"
+  },
+  "conclusion": "Existing evidence proves one reusable, ordered observed-partial post-peak crash candle with a pre-crash value 1.1769x opening. It does not provide a complete-coverage post-ATH crash population or support clustering inference around opening MC.",
+  "storage": {
+    "raw_provider_payload_retained": false,
+    "new_artifact": "compact reconciliation only",
+    "single_file_limit_bytes": 500000000
+  }
+}

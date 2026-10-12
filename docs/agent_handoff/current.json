@@ -23933,5 +23933,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_REQUIRED_EXISTING_ACQUISITION_RUNNING",
     "next_action": "Allow the unchanged launcher to continue from durable journals until exhaustion or a new concrete HOLD."
+  },
+  "dev014_lifecycle_acquisition_completion_20261012": {
+    "status": "COMPLETED",
+    "engineering_revision": "06fc3194e4a9c4fcfdf4554286a5486c14fe7649; existing DEV014 lifecycle worker",
+    "durable_final_state": "550 terminal outcomes: 549 COMPLETED with compact retained lifecycle market-cap/candle evidence and 1 NO_VALID_CANDLES; NEW=0, IN_FLIGHT=0, ADMITTED=0, ATTEMPTED=0.",
+    "execution": "Existing unchanged launcher completed its final run cleanly: run_status=COMPLETED, last_durable_completion_count=550, completed_sessions=5.",
+    "provider_accounting": "One authorized Birdeye OHLCV request per cohort identity; no retries after an attempted identity, no pagination, and no fallback.",
+    "safety": "Single concurrency, 10/minute, 50/session, 60-second cooldown, BIRDEYE-only credential binding, compact evidence retention, and 100MiB cohort / 1MiB single-artifact bounds remained enforced. No gate bypass, code/config/runtime change, restart, signal, or production process change.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_FINITE_ACQUISITION_COMPLETED",
+    "next_action": "DEV014 LIFECYCLE ACQUISITION COMPLETE."
   }
 }

@@ -3,20 +3,21 @@ import sqlite3
 from pathlib import Path
 
 from src.ops.token_data_provider_bindings import ProviderTransportOutcome
-from src.ops.watchtower_dev028_study import execute, execute_single_corrected_proof, initialize_journal, prepare_corrected_continuation_manifest, prepare_manifest
+from src.ops.watchtower_dev028_study import _selection_rows, execute, execute_single_corrected_proof, initialize_journal, prepare_corrected_continuation_manifest, prepare_manifest
 
 
-def _fixture_sources(root: Path):
+def _fixture_sources(root: Path, count: int = 10):
     db = root / "prepeak.db"
     with sqlite3.connect(db) as con:
         con.execute("CREATE TABLE dev020_prepeak_tokens(mint TEXT, selection_json TEXT, state TEXT)")
-        for index in range(10):
+        for index in range(count):
             mint = f"FixtureMint{index:02d}"
             selection = {"opening_market_cap": 100000 + index, "opening_timestamp": 1_800_000_000 + index * 900,
-                         "observed_peak_market_cap": (100000 + index) * (1.1 + index / 10), "observed_peak_timestamp": 1_800_000_900 + index * 900}
+                         "observed_peak_market_cap": (100000 + index) * (1.1 + index / 10), "observed_peak_timestamp": 1_800_000_900 + index * 900,
+                         "baseline_type": "FIRST_FULL_POST_MIGRATION_SECOND_MC" if index == 1 else "FIRST_AVAILABLE_POST_MIGRATION_1M_OPEN_MC"}
             con.execute("INSERT INTO dev020_prepeak_tokens VALUES(?,?,?)", (mint, json.dumps(selection), "OBSERVED_CONTIGUOUS"))
     lifecycle = root / "lifecycle"
-    for index in range(10):
+    for index in range(count):
         path = lifecycle / "journals" / f"{index:064x}" / "journal.json"
         path.parent.mkdir(parents=True)
         peak = 1_800_000_900 + index * 900
@@ -24,6 +25,23 @@ def _fixture_sources(root: Path):
                                     "lifecycle_metrics": {"last_observed_timestamp": peak + 9000, "coverage_confidence": "PARTIAL_OBSERVED_WINDOW",
                                                           "peak_to_subsequent_trough": {"drawdown_percent": 90.0}}}))
     return db, lifecycle
+
+
+def test_close_only_monitor_fallback_cannot_qualify_as_an_opening_baseline(tmp_path):
+    db, lifecycle = _fixture_sources(tmp_path, count=11)
+    with sqlite3.connect(db) as con:
+        row = con.execute("SELECT selection_json FROM dev020_prepeak_tokens WHERE mint='FixtureMint10'").fetchone()
+        selection = json.loads(row[0])
+        selection["baseline_type"] = "FIRST_RETAINED_MONITOR_CANDLE"
+        con.execute("UPDATE dev020_prepeak_tokens SET selection_json=? WHERE mint='FixtureMint10'", (json.dumps(selection),))
+
+    rows = _selection_rows(db, lifecycle)
+
+    assert len(rows) == 10
+    assert "FixtureMint10" not in {row["mint"] for row in rows}
+    assert {row["opening_baseline_type"] for row in rows} == {
+        "FIRST_AVAILABLE_POST_MIGRATION_1M_OPEN_MC", "FIRST_FULL_POST_MIGRATION_SECOND_MC"
+    }
 
 
 def _outcome(request):

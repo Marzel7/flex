@@ -1,0 +1,17 @@
+{
+  "schema": "DEV028_OPENING_BASELINE_COMPATIBILITY_CORRECTION_V1",
+  "scope": "DEV-only provider-free derived-analysis correction. Immutable DEV014, DEV019, DEV020, and DEV028 evidence remains unchanged.",
+  "fallback_review": [
+    {"mint":"7guAAEFPKxPH3VsffZWh1upJzxqHxqUSCbQxL55Gpump","baseline_type":"FIRST_RETAINED_MONITOR_CANDLE","monitor_timestamp":1789676100,"creation_timestamp":1789678472,"classification":"INCOMPATIBLE_PRE_CREATION_MONITOR_OBSERVATION"},
+    {"mint":"7xXQVWbn3ac6XoQW3RA5jqPj6eTBaBKe2o3Hk6w3pump","baseline_type":"FIRST_RETAINED_MONITOR_CANDLE","monitor_timestamp":1789569900,"creation_timestamp":1789569441,"classification":"INCOMPATIBLE_CLOSE_ONLY_SAME_BUCKET_AS_PEAK_HIGH"},
+    {"mint":"HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump","baseline_type":"FIRST_RETAINED_MONITOR_CANDLE","monitor_timestamp":1789574400,"creation_timestamp":1789574203,"classification":"INCOMPATIBLE_CLOSE_ONLY_MONITOR_OBSERVATION"}
+  ],
+  "compatibility_rule": "FIRST_RETAINED_MONITOR_CANDLE is excluded from opening-to-peak and pre-crash-to-opening analysis. Qualified first-full-post-migration-second and first-available-post-migration-1m-open baselines remain eligible.",
+  "corrected_crash_opening_overlaps": [
+    {"mint":"B4PBamVhXRq3Lp4rGTtgwR8youh8C5rP3ShVZUmPpump","baseline_type":"FIRST_AVAILABLE_POST_MIGRATION_1M_OPEN_MC","pre_crash_to_opening":0.7025450321199306},
+    {"mint":"Awzaq2s75uJAmPJBWHc9PwS7H7LfCiAp1KRJxh3kpump","baseline_type":"FIRST_AVAILABLE_POST_MIGRATION_1M_OPEN_MC","pre_crash_to_opening":1.0095334376063974}
+  ],
+  "corrected_distribution": {"count":2,"minimum":0.7025450321199306,"median":0.856039234863164,"maximum":1.0095334376063974,"status":"INSUFFICIENT_FOR_PATTERN_INFERENCE"},
+  "preservation": {"original_dev028_evidence_modified":false,"provider_calls":0,"raw_provider_payload_retained":false,"single_file_limit_bytes":500000000,"unbounded_growth_paths":0},
+  "next_action": "Use only compatible qualified baselines for future derived opening-ratio analysis; do not reacquire or rewrite retained evidence without separate authorization."
+}

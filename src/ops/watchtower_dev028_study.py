@@ -34,6 +34,10 @@ KNOWN_EXAMPLES = {
     "2GMowfFBuhy6ZxHMdKiC8fTKZFQhnCnmC5x27bTSpump",
 }
 TERMINAL = {"QUALIFIED_CRASH_OBSERVED", "NO_85_PERCENT_CANDLE_OBSERVED", "INSUFFICIENT_EVIDENCE", "OBSERVED_PARTIAL", "OUTCOME_UNKNOWN"}
+# A retained monitor bucket does not establish an opening reference.  Its scalar
+# value may be a close-only observation and, unlike the qualified 1s/1m opening
+# baselines, carries no opening-field semantic.
+INCOMPATIBLE_OPENING_BASELINE_TYPES = frozenset({"FIRST_RETAINED_MONITOR_CANDLE"})
 
 
 def _canonical(value: object) -> str:
@@ -81,6 +85,9 @@ def _selection_rows(prepeak_db: Path, lifecycle_root: Path) -> list[dict[str, An
     candidates: list[dict[str, Any]] = []
     for mint, selection_json, prepeak_state in rows:
         selection = json.loads(selection_json)
+        baseline_type = selection.get("baseline_type")
+        if baseline_type in INCOMPATIBLE_OPENING_BASELINE_TYPES:
+            continue
         retained = lifecycle.get(mint)
         metrics = retained.get("lifecycle_metrics") if retained else None
         trough = metrics.get("peak_to_subsequent_trough") if isinstance(metrics, dict) else None
@@ -101,6 +108,7 @@ def _selection_rows(prepeak_db: Path, lifecycle_root: Path) -> list[dict[str, An
             "mint": mint,
             "opening_mc_usd": float(opening_mc),
             "opening_timestamp": int(opening_timestamp),
+            "opening_baseline_type": baseline_type,
             "observed_peak_mc_usd": float(peak_mc),
             "observed_peak_timestamp": int(peak_timestamp),
             "retained_lifecycle_end_timestamp": int(lifecycle_end),

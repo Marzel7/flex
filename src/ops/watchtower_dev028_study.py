@@ -24,8 +24,10 @@ from src.ops.watchtower_sharp_exit_evidence import (
 )
 
 MANIFEST_SCHEMA = "DEV028_WATCHTOWER_SHARP_EXIT_MANIFEST_V1"
+DEV031_MANIFEST_SCHEMA = "DEV031_WATCHTOWER_CATASTROPHIC_CRASH_VALIDATION_MANIFEST_V1"
 JOURNAL_SCHEMA = "DEV028_WATCHTOWER_SHARP_EXIT_JOURNAL_V1"
 MAX_REQUESTS = 10
+DEV031_MAX_REQUESTS = 20
 PACE_SECONDS = 6
 MAX_JOURNAL_BYTES = 1_000_000
 KNOWN_EXAMPLES = {
@@ -38,6 +40,15 @@ TERMINAL = {"QUALIFIED_CRASH_OBSERVED", "NO_85_PERCENT_CANDLE_OBSERVED", "INSUFF
 # value may be a close-only observation and, unlike the qualified 1s/1m opening
 # baselines, carries no opening-field semantic.
 INCOMPATIBLE_OPENING_BASELINE_TYPES = frozenset({"FIRST_RETAINED_MONITOR_CANDLE"})
+DEV031_OPENING_BASELINE_TYPES = frozenset({"FIRST_AVAILABLE_POST_MIGRATION_1M_OPEN_MC", "FIRST_FULL_POST_MIGRATION_SECOND_MC"})
+DEV031_PREVIOUS_HIGH_RESOLUTION_MINTS = frozenset({
+    "7guAAEFPKxPH3VsffZWh1upJzxqHxqUSCbQxL55Gpump", "B4PBamVhXRq3Lp4rGTtgwR8youh8C5rP3ShVZUmPpump",
+    "6dwLzSNZBKb4UWNVReCTZgT2tETQZDqnFAX3LNXppump", "Awzaq2s75uJAmPJBWHc9PwS7H7LfCiAp1KRJxh3kpump",
+    "xdzisMygWZew8BYTnRAg995BWJogpSp5cMrXMHFpump", "GEffekmuHN6fEFnH1GLLQGeBtsnyjC94vcc6hM9dpump",
+    "utAkisiJV2QMFrXJR3hbA4qKU65j6Vhqst2qhgcpump", "gHNvRdZLtJFsfJuEnwePNtgiDCy9sbgTc5Mfi2Upump",
+    "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump", "7xXQVWbn3ac6XoQW3RA5jqPj6eTBaBKe2o3Hk6w3pump",
+    "B5yWXR3PZeRuEDs7P55SBgyZEiVu3Ak7k3uWmYLdpump",
+})
 
 
 def _canonical(value: object) -> str:
@@ -141,15 +152,81 @@ def prepare_manifest(*, prepeak_db: Path, lifecycle_root: Path, destination: Pat
     return manifest
 
 
+def prepare_dev031_manifest(*, prepeak_db: Path, lifecycle_root: Path, destination: Path) -> dict[str, Any]:
+    """Freeze the exact Phase-A 20-token stratified cohort without acquisition."""
+    lifecycle = _load_lifecycle(lifecycle_root)
+    connection = sqlite3.connect(f"file:{prepeak_db}?mode=ro", uri=True)
+    try:
+        source_rows = connection.execute("SELECT mint, selection_json, state FROM dev020_prepeak_tokens").fetchall()
+    finally:
+        connection.close()
+    candidates: list[dict[str, Any]] = []
+    for mint, raw_selection, state in source_rows:
+        selection = json.loads(raw_selection)
+        retained = lifecycle.get(mint)
+        metrics = retained.get("lifecycle_metrics") if retained else None
+        values = (selection.get("opening_market_cap"), selection.get("opening_timestamp"), selection.get("observed_peak_market_cap"), selection.get("observed_peak_timestamp"), metrics.get("last_observed_timestamp") if isinstance(metrics, dict) else None)
+        if mint in DEV031_PREVIOUS_HIGH_RESOLUTION_MINTS or selection.get("baseline_type") not in DEV031_OPENING_BASELINE_TYPES or state not in {"OBSERVED_CONTIGUOUS", "OBSERVED_SPARSE"}:
+            continue
+        if not all(isinstance(value, (int, float)) and math.isfinite(float(value)) and value > 0 for value in values):
+            continue
+        opening_mc, opening_timestamp, peak_mc, peak_timestamp, lifecycle_end = values
+        candidate_start = int(peak_timestamp) - (int(peak_timestamp) % 900)
+        if peak_timestamp < opening_timestamp or lifecycle_end < candidate_start + WINDOW_AFTER_SECONDS:
+            continue
+        candidates.append({"mint": mint, "opening_baseline_type": selection["baseline_type"], "opening_mc_usd": float(opening_mc),
+                           "opening_timestamp": int(opening_timestamp), "observed_peak_mc_usd": float(peak_mc),
+                           "observed_peak_timestamp": int(peak_timestamp), "post_peak_end_timestamp": int(lifecycle_end),
+                           "peak_multiple": float(peak_mc / opening_mc), "post_peak_duration_seconds": int(lifecycle_end - peak_timestamp),
+                           "candidate_start": candidate_start})
+    candidates.sort(key=lambda item: (item["peak_multiple"], item["post_peak_duration_seconds"], item["mint"]))
+    if len(candidates) < DEV031_MAX_REQUESTS:
+        raise RuntimeError("DEV031_INSUFFICIENT_QUALIFIED_CANDIDATES")
+    selected: list[dict[str, Any]] = []
+    for peak_stratum in range(4):
+        start, end = peak_stratum * len(candidates) // 4, (peak_stratum + 1) * len(candidates) // 4
+        bucket = sorted(candidates[start:end], key=lambda item: (item["post_peak_duration_seconds"], item["peak_multiple"], item["mint"]))
+        for duration_stratum in range(5):
+            record = dict(bucket[round(duration_stratum * (len(bucket) - 1) / 4)])
+            record.update({"peak_multiple_stratum": peak_stratum + 1, "duration_stratum": duration_stratum + 1})
+            record["request_identity"] = request_identity(mint=record["mint"], entry_timestamp=record["opening_timestamp"], candidate_start=record["candidate_start"])
+            record["request_window"] = {"time_from": record["candidate_start"] - WINDOW_BEFORE_SECONDS, "time_to": record["candidate_start"] + WINDOW_AFTER_SECONDS, "type": "30s", "chart_type": "mcap", "currency": "usd", "mode": "range", "padding": False}
+            selected.append(record)
+    content = {"schema": DEV031_MANIFEST_SCHEMA, "phase": "PREPARATION_ONLY", "maximum_requests": DEV031_MAX_REQUESTS,
+               "selection_method": "compatible baseline; four deterministic peak-multiple strata x five deterministic post-peak-duration quantiles; exclude prior DEV014/DEV028 high-resolution targets", "records": selected}
+    manifest = {**content, "content_hash": _sha(content)}
+    _atomic_json(destination, manifest)
+    return manifest
+
+
+def _execution_fields(item: Mapping[str, Any]) -> tuple[int, float, int]:
+    """Adapt the frozen DEV031 compact names without changing DEV028 records."""
+    opening_timestamp = item.get("opening_timestamp")
+    opening_mc = item.get("opening_mc_usd", item.get("opening"))
+    peak_timestamp = item.get("observed_peak_timestamp", item.get("peak_timestamp"))
+    if not isinstance(opening_timestamp, int) or not isinstance(peak_timestamp, int) or not isinstance(opening_mc, (int, float)):
+        raise ValueError("DEV031_EXECUTION_RECORD_FIELDS_INVALID")
+    return opening_timestamp, float(opening_mc), peak_timestamp
+
+
 def _verified_manifest(path: Path) -> dict[str, Any]:
     manifest = _read_json(path)
     supplied = manifest.pop("content_hash", None)
     maximum = manifest.get("maximum_requests")
-    if manifest.get("schema") != MANIFEST_SCHEMA or not isinstance(maximum, int) or not 1 <= maximum <= MAX_REQUESTS or not isinstance(supplied, str) or supplied != _sha(manifest):
+    caps = {MANIFEST_SCHEMA: MAX_REQUESTS, DEV031_MANIFEST_SCHEMA: DEV031_MAX_REQUESTS}
+    cap = caps.get(manifest.get("schema"))
+    if cap is None or not isinstance(maximum, int) or not 1 <= maximum <= cap or not isinstance(supplied, str) or supplied != _sha(manifest):
         raise ValueError("DEV028_MANIFEST_VERIFICATION_FAILED")
     records = manifest.get("records")
     if not isinstance(records, list) or len(records) != maximum or len({record.get("request_identity") for record in records}) != maximum:
         raise ValueError("DEV028_MANIFEST_IDENTITY_FAILURE")
+    if manifest.get("schema") == DEV031_MANIFEST_SCHEMA:
+        for record in records:
+            opening_timestamp, _opening_mc, _peak_timestamp = _execution_fields(record)
+            candidate_start = record.get("candidate_start")
+            window = record.get("request_window")
+            if not isinstance(candidate_start, int) or not isinstance(window, Mapping) or record.get("opening_baseline_type") not in DEV031_OPENING_BASELINE_TYPES or record.get("request_identity") != request_identity(mint=record.get("mint", ""), entry_timestamp=opening_timestamp, candidate_start=candidate_start) or window != {"time_from": candidate_start - WINDOW_BEFORE_SECONDS, "time_to": candidate_start + WINDOW_AFTER_SECONDS, "type": "30s", "chart_type": "mcap", "currency": "usd", "mode": "range", "padding": False}:
+                raise ValueError("DEV031_MANIFEST_RECORD_VERIFICATION_FAILED")
     manifest["content_hash"] = supplied
     return manifest
 
@@ -183,7 +260,7 @@ def initialize_journal(*, manifest: Mapping[str, Any], destination: Path) -> dic
         if existing.get("manifest_content_hash") != manifest.get("content_hash"):
             raise ValueError("DEV028_JOURNAL_MANIFEST_MISMATCH")
         return existing
-    journal = {"schema": JOURNAL_SCHEMA, "manifest_content_hash": manifest["content_hash"], "records": {record["request_identity"]: {"mint": record["mint"], "ordinal": record["ordinal"], "state": "PENDING", "provider_requests": 0} for record in manifest["records"]}}
+    journal = {"schema": JOURNAL_SCHEMA, "manifest_content_hash": manifest["content_hash"], "records": {record["request_identity"]: {"mint": record["mint"], "ordinal": ordinal, "state": "PENDING", "provider_requests": 0} for ordinal, record in enumerate(manifest["records"], start=1)}}
     _atomic_json(destination, journal)
     return journal
 
@@ -213,6 +290,7 @@ def _classify(normalized: Mapping[str, Any]) -> str:
 
 def execute(*, manifest_path: Path, journal_path: Path, budget_root: Path, env_path: Path, binding_factory: Callable[[], Callable[[Mapping[str, Any]], Any]] | None = None, now: Callable[[], float] = time.time, sleep: Callable[[float], None] = time.sleep) -> dict[str, Any]:
     manifest = _verified_manifest(manifest_path)
+    request_cap = DEV031_MAX_REQUESTS if manifest["schema"] == DEV031_MANIFEST_SCHEMA else MAX_REQUESTS
     journal = initialize_journal(manifest=manifest, destination=journal_path)
     # An interrupted post-admission attempt is never replayed automatically.
     for record in journal["records"].values():
@@ -230,14 +308,14 @@ def execute(*, manifest_path: Path, journal_path: Path, budget_root: Path, env_p
     os.environ["BIRDEYE"] = credential
     binding = binding_factory() if binding_factory else BirdeyeProductionBinding(credential_label="BIRDEYE")
     transport_count = sum(int(item.get("provider_requests", 0)) for item in journal["records"].values())
-    if transport_count > MAX_REQUESTS:
+    if transport_count > request_cap:
         raise RuntimeError("DEV028_REQUEST_CAP_ALREADY_EXCEEDED")
     last_transport_at: float | None = None
     for item in manifest["records"]:
         state = journal["records"][item["request_identity"]]
         if state.get("state") in TERMINAL:
             continue
-        if state.get("state") != "PENDING" or transport_count >= MAX_REQUESTS:
+        if state.get("state") != "PENDING" or transport_count >= request_cap:
             raise RuntimeError("DEV028_NON_RETRYABLE_STATE_OR_CAP")
         if last_transport_at is not None:
             remaining = PACE_SECONDS - (now() - last_transport_at)
@@ -249,7 +327,7 @@ def execute(*, manifest_path: Path, journal_path: Path, budget_root: Path, env_p
             # DEV028 is intentionally stricter than the shared ledger's
             # default global ceiling: this bounded study permits at most ten
             # admissions in its rolling minute.
-            admission = DevProviderBudget(budget_root, now=now).admit(item["mint"], "DEV028_30S_SHARP_EXIT", global_limit=10)
+            admission = DevProviderBudget(budget_root, now=now).admit(item["mint"], "DEV031_30S_CRASH_LEVEL" if request_cap == DEV031_MAX_REQUESTS else "DEV028_30S_SHARP_EXIT", global_limit=10)
         except BudgetDenied as error:
             state.update({"state": "PENDING", "reason": str(error)})
             _atomic_json(journal_path, journal)
@@ -266,7 +344,8 @@ def execute(*, manifest_path: Path, journal_path: Path, budget_root: Path, env_p
             state.update({"state": "INSUFFICIENT_EVIDENCE", "http_status": outcome.status_code, "transport_error": outcome.error_state})
         else:
             try:
-                normalized = normalize_30s_exit_evidence(outcome=outcome, mint=item["mint"], entry_timestamp=item["opening_timestamp"], entry_mc_usd=item["opening_mc_usd"], candidate_start=item["candidate_start"], request_id=item["request_identity"], provider_provenance="BIRDEYE_V3_30S_MCAP", observed_peak_timestamp=item["observed_peak_timestamp"])
+                opening_timestamp, opening_mc, peak_timestamp = _execution_fields(item)
+                normalized = normalize_30s_exit_evidence(outcome=outcome, mint=item["mint"], entry_timestamp=opening_timestamp, entry_mc_usd=opening_mc, candidate_start=item["candidate_start"], request_id=item["request_identity"], provider_provenance="BIRDEYE_V3_30S_MCAP", observed_peak_timestamp=peak_timestamp)
                 state.update({"state": _classify(normalized), "http_status": outcome.status_code, "evidence": normalized})
             except ExitEvidenceValidationError as error:
                 # Keep only the established bounded, field-presence diagnostic;

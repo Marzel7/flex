@@ -3,7 +3,7 @@ import sqlite3
 from pathlib import Path
 
 from src.ops.token_data_provider_bindings import ProviderTransportOutcome
-from src.ops.watchtower_dev028_study import _selection_rows, execute, execute_single_corrected_proof, initialize_journal, prepare_corrected_continuation_manifest, prepare_manifest
+from src.ops.watchtower_dev028_study import _selection_rows, _sha, execute, execute_single_corrected_proof, initialize_journal, prepare_corrected_continuation_manifest, prepare_dev031_manifest, prepare_manifest
 
 
 def _fixture_sources(root: Path, count: int = 10):
@@ -143,3 +143,51 @@ def test_continuation_manifest_excludes_only_the_completed_proof(tmp_path):
     continuation = prepare_corrected_continuation_manifest(original_manifest_path=state / "manifest.json", proof_journal_path=state / "proof.json", destination=state / "continuation.json")
     assert continuation["maximum_requests"] == 9
     assert proof["mint"] not in {record["mint"] for record in continuation["records"]}
+
+
+def test_dev031_twenty_record_manifest_is_deterministic_and_executes_with_real_budget(tmp_path):
+    db, lifecycle = _fixture_sources(tmp_path, count=24)
+    state = tmp_path / "state"
+    first = prepare_dev031_manifest(prepeak_db=db, lifecycle_root=lifecycle, destination=state / "first.json")
+    second = prepare_dev031_manifest(prepeak_db=db, lifecycle_root=lifecycle, destination=state / "second.json")
+    assert first["content_hash"] == second["content_hash"]
+    assert len(first["records"]) == 20
+    assert len({row["request_identity"] for row in first["records"]}) == 20
+    (tmp_path / ".env").write_text("BIRDEYE=synthetic\n")
+    budget_root = tmp_path / "budget"; budget_root.mkdir(); (budget_root / "provider_budget.json").write_text('{"calls":[],"version":1}\n')
+    clock = [1_900_000_000.0]
+    result = execute(manifest_path=state / "first.json", journal_path=state / "journal.json", budget_root=budget_root,
+                     env_path=tmp_path / ".env", binding_factory=lambda: _outcome, now=lambda: clock[0],
+                     sleep=lambda seconds: clock.__setitem__(0, clock[0] + seconds))
+    assert sum(row["provider_requests"] for row in result["records"].values()) == 20
+    # The real rolling ledger retains the active one-minute window, not an
+    # unbounded session history; all twenty durable request records prove the
+    # session count while this proves the ten-per-minute ledger ceiling.
+    assert len(json.loads((budget_root / "provider_budget.json").read_text())["calls"]) == 10
+    restarted = execute(manifest_path=state / "first.json", journal_path=state / "journal.json", budget_root=budget_root,
+                        env_path=tmp_path / ".env", binding_factory=lambda: _outcome, now=lambda: clock[0], sleep=lambda _: None)
+    assert sum(row["provider_requests"] for row in restarted["records"].values()) == 20
+
+
+def test_dev031_manifest_rejects_tampering_duplicate_identity_and_request_twenty_one(tmp_path):
+    db, lifecycle = _fixture_sources(tmp_path, count=24)
+    state = tmp_path / "state"
+    manifest = prepare_dev031_manifest(prepeak_db=db, lifecycle_root=lifecycle, destination=state / "manifest.json")
+    tampered = dict(manifest); tampered["records"] = [dict(row) for row in manifest["records"]]
+    tampered["records"][0]["mint"] = "ChangedMint"
+    (state / "tampered.json").write_text(json.dumps(tampered))
+    budget_root = tmp_path / "budget"; budget_root.mkdir(); (budget_root / "provider_budget.json").write_text('{"calls":[],"version":1}\n')
+    (tmp_path / ".env").write_text("BIRDEYE=synthetic\n")
+    duplicate = dict(manifest); duplicate["records"] = [*manifest["records"][:-1], manifest["records"][0]]
+    duplicate_payload = dict(duplicate); duplicate_payload.pop("content_hash", None); duplicate["content_hash"] = _sha(duplicate_payload)
+    twenty_one = {**manifest, "records": [*manifest["records"], manifest["records"][0]], "maximum_requests": 21}
+    twenty_one_payload = dict(twenty_one); twenty_one_payload.pop("content_hash", None); twenty_one["content_hash"] = _sha(twenty_one_payload)
+    for invalid in (tampered, duplicate, twenty_one):
+        path = state / f"invalid-{invalid['maximum_requests']}.json"; path.write_text(json.dumps(invalid))
+        calls = []
+        try:
+            execute(manifest_path=path, journal_path=state / f"{path.stem}.journal", budget_root=budget_root, env_path=tmp_path / ".env", binding_factory=lambda: calls.append(True))
+            assert False, "invalid manifest must fail before transport"
+        except ValueError:
+            pass
+        assert calls == []

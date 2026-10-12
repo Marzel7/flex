@@ -24475,5 +24475,18 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_NO_CODE_CHANGE",
     "next_action": "Stop. Remaining original eligible tokens=139; a later session requires separate explicit authorization."
+  },
+  "dev020_prepeak_completion_20261012": {
+    "status": "PASS_COMPLETE",
+    "engineering_revision": "e37aa4b479ec7d760961fe48a188fcea3c7f6113; deployed clean DEV runtime worktree",
+    "scope": "DEV-only final authorized completion from 400 terminal outcomes. Three serial sessions completed 50, 50, and 39 tokens respectively, observing the durable 60-second cooldown between sessions. No production change, code change, Helius/RPC call, pagination, retry, or reacquisition occurred.",
+    "execution_controls": "BIRDEYE was process-locally loaded from the original Flex .env without disclosure. The real DevProviderBudget ledger, corrected ADMISSION_INTENT ordering, one-request-per-token maximum, single concurrency, six-second pacing, 10/minute limit, and 50-token cap were preserved.",
+    "outcome": "539/539 eligible tokens are terminal: OBSERVED_CONTIGUOUS=415, OBSERVED_SPARSE=111, INSUFFICIENT_EVIDENCE=13. PENDING=0, ADMISSION_INTENT/REQUEST_IN_FLIGHT=0, SAFETY_FAILURE=0. SQLite integrity_check=ok. No acquisition process remains active.",
+    "provider_accounting": "This execution Birdeye=139; cumulative Birdeye requests=495; Helius=0; RPC=0.",
+    "runtime": "Final localhost API health: HTTP 200, healthy=true, db=ok, wal_warn=false, WAL=5.0 MiB.",
+    "storage": "Compact journal=/private/tmp/dev020-watchtower-prepeak/journal.db (1146880 bytes); provider ledger=1047 bytes. No raw provider payload retention, no unbounded writer, and no file approaches 500 MB.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_NO_CODE_CHANGE",
+    "next_action": "NONE — COMPLETE."
   }
 }

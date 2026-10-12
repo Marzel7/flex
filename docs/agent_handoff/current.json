@@ -24647,5 +24647,18 @@
     "runtime_deployment_required":true,
     "runtime_deployment_gate":"HOLD",
     "next_action":"AUTHORIZE_EFFECTIVE_SUPERVISOR_CONFIG_REPOINT — scheduler remains STOPPED pending a source-identity decision for the active daemon configuration."
+  },
+  "dev029_active_supervisor_scheduler_restoration_20261012": {
+    "status":"PASS_WATCHTOWER_INTAKE_RESTORED",
+    "scope":"Authorized production scheduler-only Supervisor repoint and start. No code, attribution, credential, provider-budget, database-schema, historical-backfill, or unrelated service change was made.",
+    "active_supervisor_config":"/Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf, confirmed from active supervisord PID 73409 command line.",
+    "backup":"/Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf.dev029-pre-repoint-20261012T2220Z.bak",
+    "effective_change":"Only operation_scheduler directory and PYTHONPATH changed from /Users/kevinkeaveney/Production/flex-scheduler to /Users/kevinkeaveney/Production/flex-operation-scheduler-77492. Existing OPS_V2_DB_PATH, WT_OPS_DB_PATH, FLEX_DB_PATH, DB_PATH, lock, cadence, and RPC-cap bindings were preserved exactly.",
+    "deployment":"Supervisor reread reported operation_scheduler changed; scheduler-only update completed while stopped. It was then explicitly started. PID 66022 is RUNNING with cwd /Users/kevinkeaveney/Production/flex-operation-scheduler-77492. The clean checkout is HEAD 77492d22497e31a5984a234e2bb1f5cd2fc10613 and clean.",
+    "acceptance":"Single scheduler process observed. Durable wt_scheduler_state advanced after startup. Read-only SELECT 1 passed against wt_ops_v2.db and flex_complete_database.db. Effective limits remain intake=900s, forwarding=180s, RPC caps=120/180. No new launch was required; no unrelated service was restarted or modified.",
+    "storage":"One timestamped Supervisor-config backup only; raw provider payload retention=false; no new unbounded growth path or 500 MB-capable file introduced.",
+    "runtime_deployment_required":true,
+    "runtime_deployment_gate":"PASS",
+    "next_action":"NONE — Watchtower intake scheduler restored. Historical missed-launch assessment remains a separate authorized task."
   }
 }

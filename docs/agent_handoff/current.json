@@ -24624,5 +24624,17 @@
     "runtime_deployment_required":true,
     "runtime_deployment_gate":"HOLD",
     "next_action":"AUTHORIZE_CLEAN_PRODUCTION_SCHEDULER_BASELINE_PREPARATION — do not start operation_scheduler from the dirty shared checkout."
+  },
+  "dev029_clean_scheduler_restoration_preparation_20261012": {
+    "status":"PASS_READY_FOR_RESTART_AUTHORIZATION",
+    "qualified_scheduler_sha":"77492d22497e31a5984a234e2bb1f5cd2fc10613 (retire legacy Farm Detector from production scheduling)",
+    "clean_worktree":"/Users/kevinkeaveney/Production/flex-operation-scheduler-77492 on branch codex/dev029-scheduler-clean; HEAD exact and working tree clean. Dirty shared /Users/kevinkeaveney/Dev/claude/flex was not modified.",
+    "comparison":"The scheduler source and Supervisor program stanza at 77492d22 are unchanged relative to the configured shared revision 580508a7. The known-good revision contains the current bounded loop and Farm-retirement correction.",
+    "verification":"Non-executing import passed with PYTHONDONTWRITEBYTECODE=1. Existing cadence/caps verify as intake=900s, forward=180s, intake RPC=120, forward RPC=180. Supported OPS_V2_DB_PATH binding resolves to the authoritative /Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db; scheduler derives the colocated flex_complete_database.db target. No scheduler was started and no database mutation occurred.",
+    "supervisor_repoint_plan":"Prepared but not applied at /private/tmp/dev029_operation_scheduler_supervisor_repoint.patch. Change only operation_scheduler directory/PYTHONPATH to the clean worktree and add OPS_V2_DB_PATH for the existing authoritative ops DB. Supervisor was not reread, reloaded, or changed.",
+    "production_mutations":0,
+    "runtime_deployment_required":true,
+    "runtime_deployment_gate":"READY_FOR_AUTHORIZED_RESTART",
+    "next_action":"With explicit authorization, apply only the prepared operation_scheduler Supervisor repoint, reread/update only that program, then start only operation_scheduler and perform the bounded post-start acceptance."
   }
 }

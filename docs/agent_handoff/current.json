@@ -54,6 +54,16 @@
     "runtime_deployment_gate": "NOT_APPLICABLE_PHASE_A_READ_ONLY_PREPARATION",
     "next_action": "STOP. Phase B requires separate explicit authorization for at most 20 paid Birdeye requests."
   },
+  "dev031_crash_level_phase_b_execution_gate_20261012": {
+    "status": "HOLD_EXECUTION_ARTIFACT_AND_QUALIFIED_CAP_MISSING",
+    "engineering_revision": "ff2bf9ea625f858302234c8ae5eaeecdc6aea83e in isolated codex/dev031-crash-validation; no source or runtime change.",
+    "finding": "The Phase A handoff preserves a selection hash and mint list, but no frozen manifest file containing the 20 exact record identities, opening/peak facts, deterministic request identities, and windows exists in the repository or retained Phase A paths. The existing qualified DEV028 executor has MAX_REQUESTS=10 and rejects a twenty-record manifest.",
+    "safety": "No credential read, Birdeye/Helius/RPC call, provider-budget debit, journal write, database write, retry, pagination, service action, or evidence mutation occurred. The cohort was not regenerated into an execution artifact and was not split into unqualified ten-request sessions.",
+    "required_correction": "Provider-free only: persist and content-hash the exact twenty-record selection manifest, qualify a bounded twenty-request execution cap with the real budget and existing normalizer, then obtain a fresh Phase B execution authorization against that artifact. This must preserve the frozen cohort and must not modify prior evidence.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_PRE_EXECUTION_HOLD",
+    "next_action": "Do not acquire. Authorize the narrow provider-free manifest/execution-cap qualification correction first."
+  },
   "dev028_corrected_30s_crash_evidence_proof_20261012": {
     "status": "PASS_NO_85_PERCENT_CANDLE_IN_BOUNDED_PARTIAL_OBSERVATION",
     "engineering_revision": "d074517182ee38acef629e84f040cb186e5f91e6 on codex/dev028-crash-study; local commit verified; source branch remote publication remains unavailable because the environment egress guard blocked it.",

@@ -1,0 +1,42 @@
+{
+  "schema": "DEV026_SINGLE_TOKEN_POST_ATH_CRASH_CANDLE_PROOF_V1",
+  "environment": "DEV",
+  "selection": {
+    "method": "Shortest retained observed-peak-to-lifecycle-end interval among candidates with a qualified opening market cap, retained observed peak, and severe retained post-peak drawdown. Provider response was not used for selection.",
+    "retained_post_peak_drawdown_percent": 98.6489698999511,
+    "window_seconds": 900
+  },
+  "token_mint": "2GMowfFBuhy6ZxHMdKiC8fTKZFQhnCnmC5x27bTSpump",
+  "qualified_opening_market_cap_usd": 137611.2395017446,
+  "observed_peak_market_cap_usd": 167398.76746685774,
+  "observed_peak_timestamp": 1790436600,
+  "request": {
+    "provider": "BIRDEYE",
+    "endpoint": "/defi/v3/ohlcv",
+    "chain": "solana",
+    "type": "1m",
+    "chart_type": "mcap",
+    "currency": "usd",
+    "mode": "range",
+    "padding": false,
+    "time_from": 1790436600,
+    "time_to": 1790437500,
+    "http_status": 200,
+    "provider_requests": 1
+  },
+  "normalization": {
+    "strict_post_peak_requirement": "candle timestamp > observed_peak_timestamp",
+    "returned_candles": 0,
+    "first_85_percent_crash": "NO_85_PERCENT_CANDLE_OBSERVED"
+  },
+  "crash_event": null,
+  "limitations": [
+    "The empty returned candle collection establishes no qualifying retained provider observation in this one bounded request; it does not establish that no crash occurred.",
+    "The retained aggregate post-peak drawdown was not treated as a single-candle crash."
+  ],
+  "storage": {
+    "raw_provider_payload_retained": false,
+    "retention": "compact normalized event result only",
+    "single_file_limit_bytes": 500000000
+  }
+}

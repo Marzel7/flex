@@ -1,0 +1,38 @@
+{
+  "schema_version": "DEV018_WATCHTOWER_OPENING_METHOD_PROOF_V1",
+  "environment": "DEV",
+  "mint": "GTP5PX2pUpwdGV17KnugQh8yQENz1FcVzrjcwvYxpump",
+  "canonical_migration_timestamp": 1784784355,
+  "canonical_migration_signature": "5h6FTwot3gHrHhvgAQx4HPpMTRZ2he1FcxLVWvhpnuzstjrUET81Z66rCiXu66RrknujeDTBENF7htXgAzD9WygD",
+  "request": {
+    "endpoint": "/defi/v3/ohlcv",
+    "parameters": {
+      "address": "GTP5PX2pUpwdGV17KnugQh8yQENz1FcVzrjcwvYxpump",
+      "type": "1s",
+      "time_from": 1784784355,
+      "time_to": 1784784357,
+      "currency": "usd",
+      "chart_type": "mcap",
+      "mode": "range",
+      "padding": "false"
+    },
+    "credential_label": "BIRDEYE",
+    "request_count": 1
+  },
+  "response": {
+    "http_status": 200,
+    "provider_item_count": 0,
+    "normalized_item_count": 0,
+    "candidate_counts": {"migration": 0, "plus_one": 0, "plus_two": 0}
+  },
+  "qualification_status": "INSUFFICIENT_EVIDENCE",
+  "qualification_reason": "STRICT_MIGRATION_TARGET_SECOND_REQUIRED",
+  "baseline_type": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+  "opening_market_cap": null,
+  "opening_timestamp": null,
+  "observed_peak_market_cap": 325051.0948492504,
+  "opening_to_peak_multiple": null,
+  "raw_provider_payload_retained": false,
+  "maximum_single_artifact_bytes": 1000000,
+  "next_action": "Stop after the authorized request; do not retry, paginate, fall back, or select another token."
+}

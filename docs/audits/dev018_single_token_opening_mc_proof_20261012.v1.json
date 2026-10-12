@@ -1,0 +1,31 @@
+{
+  "schema_version": "DEV018_SINGLE_TOKEN_OPENING_MC_PROOF_V1",
+  "environment": "DEV",
+  "mint": "GTP5PX2pUpwdGV17KnugQh8yQENz1FcVzrjcwvYxpump",
+  "canonical_create_signature": "17irPYRC1ktPkt4T5BrjawDyqfsRtrNDuWuS5snVbVpq1zPycxmAjD6jLggP5iX9b1QybRqcie1XwLLWYDQG9V6",
+  "create_slot": 434654644,
+  "create_timestamp": 1784784354,
+  "qualified_supply": 1000000000,
+  "supply_evidence": "Helius create-transaction post-token balances summed to the retained qualified supply; raw response omitted.",
+  "helius_request_count": 1,
+  "birdeye_request_count": 1,
+  "birdeye_request": {
+    "endpoint": "/defi/v3/token/txs",
+    "after_time": 1784784353,
+    "before_time": 1784784384,
+    "returned_item_count": 10
+  },
+  "qualification_status": "NO_FIRST_AVAILABLE_TRADE_IN_WINDOW",
+  "slot_trade_counts": {
+    "PRE_CREATE_SLOT": 0,
+    "CREATE_SLOT": 0,
+    "OPEN_SLOT": 0
+  },
+  "opening_market_cap": null,
+  "first_available_trade_timestamp": null,
+  "observed_peak_market_cap": 325051.0948492504,
+  "opening_to_peak_multiple": null,
+  "raw_provider_payload_retained": false,
+  "maximum_single_artifact_bytes": 1000000,
+  "next_action": "Stop after this single token. Do not retry or choose another token without review."
+}

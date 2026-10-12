@@ -24218,5 +24218,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_OFFLINE_DEV_ACQUISITION",
     "next_action": "DEV019 complete; do not reacquire the cohort. Use the durable journal and retained DEV014 evidence for downstream local analysis only."
+  },
+  "dev020_prepeak_coverage_20261012": {
+    "status": "COMPLETE_READ_ONLY",
+    "scope": "Bounded local reconciliation of 550 DEV014 compact journals, DEV019 durable opening journal, canonical/DEV013 retained baselines, and indexed Watchtower monitor observations. No provider/RPC call, code change, deployment, or acquisition occurred.",
+    "coverage": "Qualified opening baseline=540/550 (461 DEV019 plus 53 DEV013, 23 canonical first-observed, and 3 retained monitor baselines); observed-window peak=549/550; post-peak trough/drawdown=549/550. Compact DEV014 journals retain peak, post-peak trough, latest, and timestamps, but no ordered pre-peak candle sequence. Watchtower monitor observations have only 20 points across 3 cohort mints and supply no qualifying opening-to-peak sequence.",
+    "prepeak": "qualified pre-peak low=0/550; qualified chronological maximum pre-peak drawdown=0/550; locally recoverable pre-peak metrics=0/550; genuinely missing ordered pre-peak observations=550/550. Overall or post-peak minima were not substituted.",
+    "uranus": "3seG33wYiv2T8V68813Kq7XNPJU8iFbJjsnNT3Lrpump retains DEV019 opening USD 130710.49988737828 at 1789821120 and DEV014 observed peak USD 788884.3544970722 at 1789823700, plus post-peak drawdown. It has no retained ordered pre-peak observation series, so all pre-peak behaviour is INSUFFICIENT_EVIDENCE.",
+    "minimum_remaining_work": "If separately authorized later, acquire one bounded non-padded chronological MC candle range from each qualified opening timestamp through its retained observed-peak timestamp, at a suitable resolution, and calculate ordered drawdowns locally. No provider plan is authorized or executed by this assessment.",
+    "provider_calls": 0,
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY",
+    "next_action": "Use this coverage result before considering any separate pre-peak evidence authority."
   }
 }

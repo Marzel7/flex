@@ -24371,5 +24371,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_NO_CODE_CHANGE",
     "next_action": "Stop for review. Remaining original eligible tokens=289; no further session is authorized by this milestone."
+  },
+  "dev020_extreme_drawdown_audit_20261012": {
+    "status": "PASS_WITH_FOUR_ORDERING_EXCLUSIONS",
+    "scope": "Read-only audit of compact DEV020 journal evidence for 250 completed tokens. No provider/RPC call, acquisition, code/configuration change, deployment, or qualification-rule change occurred.",
+    "result": "237 outcomes have a reported observed pre-peak drawdown. The top ten range from 98.83164015763111% to 99.49518928597116% high-to-later-low drawdown. Their low timestamps are before their retained observed-peak timestamps; none has post-peak-low contamination. All top-ten direct recovery_time values are absent, so compact evidence does not support a recovery-to-preceding-high claim for any of them.",
+    "ordering": "233/237 drawdown records satisfy opening_timestamp <= preceding_high_timestamp < subsequent_low_timestamp < observed_peak_timestamp. Four records have opening/high/low in the same one-minute interval (Qs3Zkx6PBTSATurFNwkGJHBk8yjKRekUS6o5oRZpump, DDKhCDMfXdnZQft8UUaQTNX4xVbbxj2E4b324zt3pump, Cq5sidkkcx66wCo2Trpfv2Xz69VkkzX4ntb3oGYNpump, HLD7wcQciQxbUFLi5rVJ26WVkFQEksBkt3MxZSERpump). Their high-to-low drawdowns are unsupported because intraminute ordering is not retained; they are audit exclusions, not evidence of an observed drawdown.",
+    "thresholds": "Low at least 30/50/70/90% below opening: 136/72/31/24. For those respective groups, a later retained observed peak exceeded opening in 93/37/6/0 cases, 2x opening in 27/12/1/0 cases, and 5x opening in 0/0/0/0 cases. These establish only later observed peak threshold crossing, not an exact recovery path. Direct conservative recovery-to-preceding-high exists in 69 records.",
+    "provider_calls": 0,
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY",
+    "next_action": "Preserve the four same-interval records as unsupported for pre-peak drawdown reporting; no provider action or qualification change is implied."
   }
 }

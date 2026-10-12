@@ -24319,5 +24319,19 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS",
     "next_action": "DEV020 gap-aware observed drawdown integration is deployed and accepted. Do not start cohort acquisition without separate authorization."
+  },
+  "dev020_prepeak_batch1_20261012": {
+    "status": "PASS",
+    "engineering_revision": "2e9b43a8d992aaee0a151171bb6d2d01ffbd0740; clean isolated DEV execution worktree",
+    "scope": "First bounded DEV020 pre-peak acquisition session only. Selected 50 of the 539 known eligible Watchtower tokens, prioritizing positive opening-to-observed-peak durations at or below one hour, using compact DEV014/DEV019-derived facts. No opening or observed-peak value was reacquired.",
+    "selection_and_journal": "Deterministic compact selection at /private/tmp/dev020-watchtower-prepeak/selection.json (13640 bytes); durable SQLite journal at /private/tmp/dev020-watchtower-prepeak/journal.db (114688 bytes). Journal commits REQUEST_IN_FLIGHT before transport and never retries an in-flight attempt after interruption. No raw payload is retained.",
+    "execution_controls": "One Birdeye V3 OHLCV 1m MC non-padded range request per token; BIRDEYE credential only; single process/concurrency; six-second minimum inter-request spacing (10/minute); 50-request hard cap; no retry, pagination, Helius, or RPC call.",
+    "outcome": "50 selected, 50 processed, 50 OBSERVED_SPARSE, 0 OBSERVED_CONTIGUOUS, 0 INSUFFICIENT_EVIDENCE. All 50 had a calculated observed pre-peak drawdown; mean=54.1899952286539%, maximum=98.93333229477923%. Sparse classification remains observed-only and does not claim complete provider history.",
+    "provider_accounting": "Birdeye=50; Helius=0; RPC=0.",
+    "storage": "Only compact request metadata, normalized derived metrics, and coverage provenance were retained. No raw candle/provider payload retention; selection and journal remain below 1 MiB, with no unbounded writer or 500 MB file path.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS_MANUAL_DEV_EXECUTION",
+    "runtime_target": "/Users/kevinkeaveney/.codex/worktrees/dev020-runtime/flex at 2e9b43a8d992aaee0a151171bb6d2d01ffbd0740; existing API/listener processes were preserved.",
+    "next_action": "Stop for review. Remaining eligible tokens=489; do not start another cohort session without explicit authorization."
   }
 }

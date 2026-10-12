@@ -24076,5 +24076,18 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_EVIDENCE_ONLY",
     "next_action": "Stop after this proof and retain INSUFFICIENT_EVIDENCE pending user review."
+  },
+  "dev018_historical_candle_granularity_review_20261012": {
+    "status": "COMPLETE_READ_ONLY",
+    "scope": "Read-only comparison of the named token's retained DEV014 compact journal with the established OHLCV request contract and prior DEV018 bounded 1-second proof. No provider/RPC call, code/configuration change, deployment, or cohort expansion occurred.",
+    "token": "GTP5PX2pUpwdGV17KnugQh8yQENz1FcVzrjcwvYxpump",
+    "dev014_request": "Birdeye /defi/v3/ohlcv, type=15m, chart_type=mcap, currency=usd, mode=range, padding=false, time_from=1784784354, time_to=1785648354.",
+    "retained_result": "DEV014 retained first_returned_timestamp=1784784600 and 428 returned candles, with observed peak/minimum/latest aggregates. It did not retain the opening MC of that first candle, so no local first-candle baseline can be reconstructed.",
+    "granularity": "The existing binding supports 1s, 1m, 15m, 1h, 4h, and 1d. The previously authorized 1-second request over 1784784355..1784784655 returned zero items, which proves 1-second unavailability for this token/window only; it does not establish account-wide historical 1-second availability.",
+    "recommended_method": "If separately authorized, use FIRST_AVAILABLE_POST_MIGRATION_MC from one non-padded 1-minute OHLCV range beginning at canonical migration; select the earliest returned positive MC candle at or after migration and retain its timestamp/delay semantics.",
+    "minimum_next_provider_request": "One BIRDEYE GET /defi/v3/ohlcv for this mint with type=1m, time_from=1784784355, time_to=1784784655, currency=usd, chart_type=mcap, mode=range, padding=false, x-chain=solana. This is a recommendation only; no request was sent.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY_GRANULARITY_REVIEW",
+    "next_action": "Await explicit authorization for the single 1-minute bounded request, or retain INSUFFICIENT_EVIDENCE."
   }
 }

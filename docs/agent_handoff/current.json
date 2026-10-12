@@ -24126,5 +24126,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_NO_EXECUTABLE_CHANGE",
     "next_action": "Implement the smallest bounded durable DEV019 runner: strict 1-second request then one-minute open fallback only after strict insufficiency, one terminal journal record per token, 50-token session cap, 10 requests/minute, and 60-second between-session cooldown; add bounded tests before any provider dispatch."
+  },
+  "dev019_fallback_executor_implementation_20261012": {
+    "status": "PARTIAL_IMPLEMENTED_NO_LIVE_DISPATCH",
+    "engineering_revision": "7440ff96e2bad401d10de63143cdc9affc0e876b; isolated DEV019 worktree commit",
+    "implementation": "HistoricalExecutor.acquire_opening now uses a compact durable per-mint state machine: strict 1-second request first, then one non-padded five-minute 1-minute OHLCV fallback only after durable strict insufficiency. The fallback selects earliest interval start at/after migration and uses normalized open only. It persists qualified baseline or INSUFFICIENT_EVIDENCE; an in-flight stage with unproven outcome fails closed and is never retried.",
+    "tests": "PYTHONDONTWRITEBYTECODE=1 python -m pytest -q -p no:cacheprovider tests/test_dev019_opening_executor.py: 5 passed. Fixtures cover strict success/no fallback, strict miss to 1m open (not close), terminal insufficiency, persisted strict-miss resume without strict replay, completed-token skip, and structural two-request cap.",
+    "storage": "The only new durable state is compact JSON plus stage labels in watchtower_historical_openings. It stores no raw payload. Test fixtures are temporary; production record design is bounded metadata only, with no unbounded writer and no file path capable of 500 MB.",
+    "live_dispatch": "Not started. Birdeye=0; Helius=0. A bounded read-only reconciliation of the active canonical and operations databases did not complete within the command window, so no candidate was selected ambiguously.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_OFFLINE_EXECUTOR_NOT_DEPLOYED",
+    "next_action": "Perform a bounded, lock-safe eligible-mint snapshot (target 461), then run one 50-token DEV session through the durable executor at single concurrency and no more than 10 requests/minute; stop on any unproven stage or transport safety failure."
   }
 }

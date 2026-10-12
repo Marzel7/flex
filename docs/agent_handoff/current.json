@@ -24294,5 +24294,16 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "Deploy revision 9016620069bae9782bc32026a0920fe386648d2b to the intended DEV runtime, record target pre/post identities and a bounded no-provider acceptance, before marking DEV020 executable integration complete."
+  },
+  "dev020_gap_aware_prepeak_deployment_preflight_20261012": {
+    "status": "HOLD_TARGET_WORKSPACE_AMBIGUOUS",
+    "engineering_revision": "9016620069bae9782bc32026a0920fe386648d2b; isolated DEV worktree commit",
+    "scope": "DEV-only deployment preflight following the tested gap-aware implementation. No provider/RPC call, code change, runtime restart, process signal, acquisition, or production change occurred.",
+    "target_observation": "The apparent DEV source checkout /Users/kevinkeaveney/Dev/claude/flex is on classification-attribution-axis at 580508a70c80e7fc944e0069f85e67b851a117fa and contains extensive unrelated tracked and untracked changes. It is not a clean, attributable deployment target for isolated commit 9016620069bae9782bc32026a0920fe386648d2b.",
+    "blocker": "Applying or restarting this ambiguous checkout could incorporate unrelated user work, violating the isolated DEV-only deployment requirement. No safe target runtime identity is currently demonstrated.",
+    "provider_calls": 0,
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_TARGET_WORKSPACE_AMBIGUOUS",
+    "next_action": "Provide or prepare a clean DEV runtime checkout pinned to 9016620069bae9782bc32026a0920fe386648d2b; then record pre/post runtime identities and run bounded no-provider acceptance."
   }
 }

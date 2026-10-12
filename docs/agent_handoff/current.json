@@ -24157,5 +24157,15 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_OFFLINE_DEV_ACQUISITION",
     "next_action": "Execution time stop: retain the durable journal, wait the mandatory 60-second cooldown, then continue with the next 50-token session."
+  },
+  "dev019_session2_baseline_read_20261012": {
+    "status": "COMPLETE_READ_ONLY",
+    "scope": "Read-only selection from the durable DEV019 journal joined to the matching compact DEV014 journal. No provider/RPC call, code change, journal mutation, deployment, or additional investigation occurred.",
+    "token": "216khC5czWce344BXeUYf2e8zz2sUMyTkQ1UdLorpump",
+    "baseline": "FIRST_AVAILABLE_POST_MIGRATION_1M_OPEN_MC; opening MC USD 96693.19686457432; candle timestamp 1787958900; delay 16 seconds after canonical migration.",
+    "comparison": "DEV014 observed peak MC USD 106585.14589519016; opening-to-observed-peak multiple 1.1023024302782152.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY",
+    "next_action": "Resume DEV019 from the durable session journal after cooldown."
   }
 }

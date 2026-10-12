@@ -1,0 +1,60 @@
+{
+  "schema": "DEV028_WATCHTOWER_POST_ATH_CRASH_PATTERN_V1",
+  "environment": "DEV",
+  "status": "COMPLETE_INSUFFICIENT_30S_CANDLE_EVIDENCE",
+  "engineering_revision": "6d135c89cc7018df6a10c305714bfa6bead50b42",
+  "scope": "Ten deterministic peak-multiple-stratified Watchtower records; previously known DEV026 examples excluded.",
+  "manifest": {
+    "content_hash": "e403c41b197bdc2e208d697d6096135dedfd10fb79c6fc50f5881b0eae0d98f8",
+    "file_sha256": "7bf5e3fddf2ae9507f1dfce05ccdd9b32f948f52488fa18362e7d883e1679f37",
+    "records": 10,
+    "request_bound": "One peak-aligned request per mint, [candidate_start-300, candidate_start+4500), 30s MCAP, padding=false; no pagination, retry, or window expansion."
+  },
+  "selection": {
+    "mints": [
+      "7guAAEFPKxPH3VsffZWh1upJzxqHxqUSCbQxL55Gpump",
+      "B4PBamVhXRq3Lp4rGTtgwR8youh8C5rP3ShVZUmPpump",
+      "6dwLzSNZBKb4UWNVReCTZgT2tETQZDqnFAX3LNXppump",
+      "Awzaq2s75uJAmPJBWHc9PwS7H7LfCiAp1KRJxh3kpump",
+      "xdzisMygWZew8BYTnRAg995BWJogpSp5cMrXMHFpump",
+      "GEffekmuHN6fEFnH1GLLQGeBtsnyjC94vcc6hM9dpump",
+      "utAkisiJV2QMFrXJR3hbA4qKU65j6Vhqst2qhgcpump",
+      "gHNvRdZLtJFsfJuEnwePNtgiDCy9sbgTc5Mfi2Upump",
+      "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump",
+      "7xXQVWbn3ac6XoQW3RA5jqPj6eTBaBKe2o3Hk6w3pump"
+    ],
+    "qualification": "Each had retained DEV020 opening and observed-peak facts plus retained DEV014 post-peak lifecycle evidence and >=85% retained peak-to-subsequent-trough drawdown. Selection was frozen before transport."
+  },
+  "execution": {
+    "provider": "BIRDEYE",
+    "requests": 10,
+    "http_200": 10,
+    "pacing": "single concurrency; at least six seconds between transport attempts; DevProviderBudget admissions used a stricter rolling global limit of ten.",
+    "credential": "authoritative BIRDEYE loaded process-locally from the approved Flex .env; value was not retained or reported.",
+    "raw_provider_payload_retained": false
+  },
+  "outcomes": {
+    "QUALIFIED_CRASH_OBSERVED": 0,
+    "NO_85_PERCENT_CANDLE_OBSERVED": 0,
+    "OBSERVED_PARTIAL": 0,
+    "INSUFFICIENT_EVIDENCE": 10,
+    "normalizer_failure_counts": {"INVALID_30S_MCAP_CANDLE": 10},
+    "interpretation": "All ten HTTP-success responses failed the established c3c1588d strict 30-second OHLC validation before any compact candle event could be derived. No raw values were retained, no crash ratio was calculated, and an HTTP 200 response was not treated as qualified evidence."
+  },
+  "pattern_assessment": {
+    "pre_crash_to_opening_ratio": "INSUFFICIENT_EVIDENCE",
+    "pre_crash_to_peak_ratio": "INSUFFICIENT_EVIDENCE",
+    "absolute_pre_crash_mc": "INSUFFICIENT_EVIDENCE",
+    "time_from_peak_to_crash": "INSUFFICIENT_EVIDENCE",
+    "verdict": "INCONCLUSIVE: this bounded study neither establishes nor refutes clustering near opening MC. No further acquisition is authorized by this artifact."
+  },
+  "storage": {
+    "journal_path": "/private/tmp/dev028-watchtower-sharp-exit/journal.json",
+    "journal_bytes": 3655,
+    "single_file_limit_bytes": 500000000,
+    "unbounded_growth_paths": 0
+  },
+  "runtime_deployment_required": false,
+  "runtime_deployment_gate": "NOT_APPLICABLE_BOUNDED_DATA_STUDY",
+  "next_action": "Stop for review. Any normalization-contract change or additional 30-second acquisition requires separate authorization."
+}

@@ -24855,6 +24855,19 @@
     "safety":"Provider calls=0; budget debits=0; credential reads=0; database/queue/runtime mutations=0; existing evidence unchanged.",
     "runtime_deployment_required":false,
     "runtime_deployment_reason":"No executable behavior was changed; this was a verification-only preflight.",
-    "next_action":"Authorize and qualify the smallest DEV033-owned bounded 1-minute compact-journal executor (real DevProviderBudget, no retry/pagination, 30-request cap) before reauthorizing the frozen 30-request acquisition."
+    "next_action":"Superseded by dev033_bounded_1m_executor_qualification_20261013."
+  },
+  "dev033_bounded_1m_executor_qualification_20261013": {
+    "status":"PASS_QUALIFIED_NOT_EXECUTED",
+    "engineering_revision":"f28d597203839ddc33797f0e10207de9d45d5ac0 on origin/codex/dev033-chronological-backtest-phase-a",
+    "implementation":"Added a DEV033-owned manually invoked 1-minute executor plus explicit CLI. It validates the exact 30-record frozen manifest and deterministic identities before credential/budget use; requires explicit execution authorization; has a compact independent journal; uses DevProviderBudget at 10/minute with single serial six-second pacing; makes one bounded request per identity; never retries, paginates, expands a window, or writes the operational database.",
+    "durability":"States are PENDING -> ADMISSION_INTENT -> REQUEST_IN_FLIGHT -> terminal. Known pre-transport budget denial restores PENDING. Restart converts post-admission states to OUTCOME_UNKNOWN and excludes them from replay. Completed terminal records are skipped.",
+    "qualification":"pytest -q tests/test_watchtower_dev033_executor.py: 8 passed. Covers frozen file SHA/record validation, altered-window/mint and 31-record rejection, 30 synthetic serial transports through real rolling DevProviderBudget, six-second pacing, ordered and sparse normalization/gaps, HTTP 429 terminal no-retry behavior, pre-admission denial without transport/debit, restart uncertain exclusion, and explicit execution authorization. CLI verification-only mode returned VERIFIED_NOT_EXECUTED for the frozen manifest.",
+    "manifest":"docs/audits/dev033_chronological_backtest_pilot_manifest_20261013.v1.json; file_sha256=f5a8a2289bb369b95b44896fc6d7f7db3bc79c890a3bba1b0fcd3ec32f3662d3; content_hash=a2c4202338d58651c20462405990d02b40f44bb210b0efe68ecf6c99d7961885; records=30.",
+    "storage":"Raw provider retention=false. Per-token evidence <=256 KiB, aggregate evidence <=8 MiB, journal and temporary files <=4 MiB; one atomic compact journal only; unbounded growth paths=0; no file may reach 500 MB.",
+    "safety":"Provider calls=0; real credential reads=0; live budget debits=0; operational database/queue writes=0; service restart/deployment=0; existing DEV014-DEV033 evidence unchanged.",
+    "runtime_deployment_required":false,
+    "runtime_deployment_reason":"The executor is an explicit DEV research CLI; no running service behavior changed.",
+    "next_action":"A separate explicit acquisition authorization may run only the exact frozen 30-token manifest after fresh manifest/source/credential/budget preflight."
   }
 }

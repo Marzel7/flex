@@ -24256,5 +24256,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY",
     "next_action": "Before authorization, define or prove a provider-return cardinality/window ceiling with a separate bounded contract; then calculate a finite per-window split plan. Do not begin cohort acquisition from this assessment."
+  },
+  "dev020_birdeye_limits_plan_20261012": {
+    "status": "HOLD_PROVIDER_RESPONSE_CAP_UNPROVEN",
+    "scope": "Read-only inspection of local Birdeye V3 binding/contracts and official Birdeye documentation search. No provider/RPC call, code change, deployment, or acquisition occurred.",
+    "local_contract": "build_birdeye_ohlcv_request accepts only 1s, 1m, 15m, 1h, 4h, 1d; 5m is not supported. It enforces only address and time_from < time_to, with no maximum time window, item count, truncation marker, or historical-retention-by-interval contract. Existing caller pacing remains stricter than account plan rate limits.",
+    "documentation": "Official Birdeye material located for pricing/rate limits does not specify a V3 OHLCV maximum response candle count, time window, truncation signal, or historical retention differentiation. The URANUS proof establishes only 43 qualifying 1m candles over 43 minutes, not a general cap.",
+    "plan_status": "A finite complete-sequence acquisition plan cannot be safely finalized: any request segmentation size, single-request count, multi-request count, coarser-resolution count, exact total cost, or hard maximum would assume an unproven provider completeness limit. The 539-token/96043 expected 1m interval estimate remains analytical only.",
+    "provider_calls": 0,
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY",
+    "next_action": "Obtain or retain an authoritative OHLCV response-cardinality/time-window/truncation contract before authorizing cohort acquisition. Do not execute from this plan."
   }
 }

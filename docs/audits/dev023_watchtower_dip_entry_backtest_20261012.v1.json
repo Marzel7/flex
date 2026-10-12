@@ -1,0 +1,21 @@
+{
+  "schema": "DEV023_WATCHTOWER_DIP_ENTRY_BACKTEST_V1",
+  "mode": "provider-free retained-evidence feasibility analysis",
+  "cohort": {"total": 539, "prepeak_observed": 526, "observed_contiguous": 415, "observed_sparse": 111, "insufficient_evidence": 13},
+  "feasibility": {"BACKTEST_EXECUTABLE": 0, "PARTIAL_PATH_EVIDENCE": 526, "INSUFFICIENT_EVIDENCE": 13, "reason": "DEV020 retains compact extrema, coverage, and selected recovery facts, not the full chronological candle sequence needed to order threshold entry against profit target, stop loss, staged sale, trailing stop, or time exit."},
+  "entry_thresholds": {
+    "10": {"triggered":471,"ordered_low_before_observed_peak":471,"observed_peak_at_least_25pct_above_low":419,"50pct":390,"100pct":347,"200pct":234,"median_peak_to_low_multiple":2.947},
+    "20": {"triggered":420,"ordered_low_before_observed_peak":420,"observed_peak_at_least_25pct_above_low":374,"50pct":352,"100pct":320,"200pct":221,"median_peak_to_low_multiple":3.067},
+    "30": {"triggered":330,"ordered_low_before_observed_peak":330,"observed_peak_at_least_25pct_above_low":288,"50pct":280,"100pct":261,"200pct":193,"median_peak_to_low_multiple":3.333},
+    "40": {"triggered":246,"ordered_low_before_observed_peak":246,"observed_peak_at_least_25pct_above_low":205,"50pct":200,"100pct":188,"200pct":142,"median_peak_to_low_multiple":3.423},
+    "50": {"triggered":156,"ordered_low_before_observed_peak":156,"observed_peak_at_least_25pct_above_low":117,"50pct":113,"100pct":105,"200pct":88,"median_peak_to_low_multiple":3.554},
+    "60": {"triggered":86,"ordered_low_before_observed_peak":86,"observed_peak_at_least_25pct_above_low":48,"50pct":44,"100pct":40,"200pct":37,"median_peak_to_low_multiple":1.63},
+    "70": {"triggered":62,"ordered_low_before_observed_peak":62,"observed_peak_at_least_25pct_above_low":25,"50pct":21,"100pct":19,"200pct":18,"median_peak_to_low_multiple":1.112}
+  },
+  "interpretation": "Peak-to-low comparisons are maximum observed upside bounds, not executable entries or exits. A derived low proves a threshold was observed but does not retain the executable fill, later stop/target ordering, liquidity, slippage, price impact, failed execution, or time-exit path. Consequently every target/stop/staged/time exit is EXECUTION_ORDER_UNPROVEN and no net SOL return, win rate, profit factor, strategy drawdown, or candidate strategy is defensibly calculable.",
+  "cost_scenarios": "Not calculated: applying conservative/moderate/optimistic costs to unproven fills would create false profitability precision.",
+  "70_percent_hypothesis": "Deeper discount does not monotonically improve retained maximum-upside potential: median observed peak-to-low multiple falls from 3.554x at -50% to 1.630x at -60% and 1.112x at -70%. This is an observed bound, not a trade-return result.",
+  "out_of_sample": "NOT_CREDIBLE: no executable in-sample path exists, so parameter selection and holdout validation would be overfitting derived extrema.",
+  "missing_execution_evidence": ["ordered normalized 1-minute candle path after threshold crossing", "entry fill/quote and liquidity", "post-entry stop-versus-target ordering", "time-based closing observations", "fees, priority fees, slippage, price impact, failed/missed-fill evidence"],
+  "storage": "One compact analysis file; no raw provider payloads, no new database/journal, and no 500 MB growth path."
+}

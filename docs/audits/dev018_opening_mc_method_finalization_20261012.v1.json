@@ -1,0 +1,56 @@
+{
+  "schema_version": "DEV018_OPENING_MC_METHOD_FINALIZATION_V1",
+  "environment": "DEV",
+  "preferred_baseline": {
+    "type": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+    "definition": "Existing unchanged positive 1-second market-cap candle at canonical migration plus one second, subject to the existing strict bounded fallback policy."
+  },
+  "one_minute_fallback": {
+    "type": "FIRST_AVAILABLE_POST_MIGRATION_1M_OPEN_MC",
+    "definition": "Earliest positive non-padded 1-minute market-cap candle whose interval start is at or after canonical migration; use its normalized open field as the observed valuation.",
+    "provenance_required": [
+      "market_cap_usd",
+      "interval_start_timestamp",
+      "interval",
+      "market_cap_field",
+      "seconds_after_migration",
+      "baseline_type",
+      "qualification_status"
+    ],
+    "not_equivalent_to": [
+      "exact migration-second MC",
+      "launch-time MC",
+      "first-trade MC"
+    ]
+  },
+  "gtp5": {
+    "token_mint": "GTP5PX2pUpwdGV17KnugQh8yQENz1FcVzrjcwvYxpump",
+    "one_minute_interval_start_timestamp": 1784784360,
+    "seconds_after_migration": 5,
+    "normalized_open_field_supported": true,
+    "normalized_open_value_retained": false,
+    "open_baseline_status": "INSUFFICIENT_EVIDENCE",
+    "retained_close_observation": {
+      "type": "FIRST_AVAILABLE_POST_MIGRATION_1M_CLOSE_MC_OBSERVATION",
+      "market_cap_usd": 148063.21660039216,
+      "market_cap_field": "close",
+      "is_exact_opening_mc": false,
+      "source_proof": "docs/audits/dev018_one_minute_opening_mc_proof_20261012.v1.json"
+    },
+    "observed_peak_comparison": {
+      "observed_peak_mc_usd": 325051.0948492504,
+      "comparison_status": "OBSERVATIONAL_ONLY_CLOSE_FIELD",
+      "multiple": 2.195353459911187,
+      "gain_percent": 119.535345991119
+    }
+  },
+  "eligible_scale_population": {
+    "signed_unresolved_before_gtp5": 462,
+    "gtp5_processed": 1,
+    "remaining_with_canonical_migration_evidence": 461,
+    "outside_eligible_population_without_canonical_signature": 9
+  },
+  "raw_provider_payload_retained": false,
+  "artifact_max_bytes": 1048576,
+  "unbounded_growth_paths": 0
+}

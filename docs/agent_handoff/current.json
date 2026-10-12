@@ -24252,6 +24252,19 @@
     "runtime_deployment_gate": "PASS_EXISTING_DEPLOYMENT_UNCHANGED",
     "next_action": "After the approved BIRDEYE binding is present and nonempty, rerun fresh DEV preflight and the separately authorized two 50-token sessions."
   },
+  "dev020_prepeak_resume_20261012": {
+    "status": "STOPPED_DURABILITY_SAFETY_FAILURE",
+    "engineering_revision": "771b3495518680f2e9208f5fd41fdc99d2d7050d remains installed in the DEV020 runtime",
+    "credential": "The existing original-project .env was loaded process-locally with its established shell semantics and supplied nonempty exact BIRDEYE. No credential value was printed, retained, or committed; no legacy alias was used.",
+    "preflight": "Before dispatch: watchtower_api RUNNING; local health HTTP 200 healthy=true db=ok wal_warn=false; journal had 250 terminal rows and zero REQUEST_IN_FLIGHT; fresh DEV020 provider ledger; installed source identity matched.",
+    "execution": "Authorized session 1 began serially. Ten atomic DEV020_PREPEAK_1M provider-budget admissions were recorded. Eleven new terminal outcomes were durably retained (OBSERVED_CONTIGUOUS increased 156 to 167); one selected identity 7fq3GjZHV3AekpjCh1u1kxb1panj4A2nDrfkuZYpump is durable REQUEST_IN_FLIGHT; 38 selected identities remain PENDING. Session 2 was not started. No retry or reacquisition was issued.",
+    "stop_reason": "The runner records REQUEST_IN_FLIGHT before the newly integrated budget admission, and the observed stop left one such durable state without a terminal result. That state is indistinguishable from an uncertain attempt under the durable journal contract. The exact exception was not retained by the launcher; regardless of cause, execution stopped immediately rather than retrying. This ordering must be corrected and qualified before continuation.",
+    "state": "Journal is 573440 bytes; terminal=261, pending=38, in_flight=1. Current rolling ledger has ten compact calls of class DEV020_PREPEAK_1M. API remains healthy. Raw payload retention=false; no file approaches 500 MB.",
+    "accounting": "New paid-provider admissions=10; cumulative known Birdeye request count=256 (prior durable cumulative 246 plus ten new admissions).",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "PASS_EXISTING_DEPLOYMENT_UNCHANGED",
+    "next_action": "Do not retry the REQUEST_IN_FLIGHT identity. Separately authorize and qualify the smallest ordering correction that obtains/preflights atomic budget admission before marking a token REQUEST_IN_FLIGHT, then reconcile the uncertain identity without provider re-dispatch."
+  },
   "dev020_prepeak_coverage_20261012": {
     "status": "COMPLETE_READ_ONLY",
     "scope": "Bounded local reconciliation of 550 DEV014 compact journals, DEV019 durable opening journal, canonical/DEV013 retained baselines, and indexed Watchtower monitor observations. No provider/RPC call, code change, deployment, or acquisition occurred.",

@@ -24010,5 +24010,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_EVIDENCE_ONLY",
     "next_action": "Stop. Review the normalized no-trade outcome before authorizing any other token."
+  },
+  "dev018_trade_qualification_reconciliation_20261012": {
+    "status": "COMPLETE_READ_ONLY",
+    "scope": "Read-only examination of the DEV018 compact evidence and deterministic DEV013 reducer. No provider call, retry, pagination, additional token, code/configuration change, deployment, or infrastructure investigation occurred.",
+    "request": "Birdeye /defi/v3/token/txs for GTP5PX2pUpwdGV17KnugQh8yQENz1FcVzrjcwvYxpump with after_time=1784784353 and before_time=1784784384; create slot=434654644; create time=1784784354.",
+    "finding": "The response item count was 10, while reducer slot_trade_counts is PRE_CREATE_SLOT=0, CREATE_SLOT=0, OPEN_SLOT=0. Therefore all 10 were rejected by normalize_trade before slot classification. The reducer rejects records that lack an integer slot/block_slot or a positive numeric execution_price_usd/price_usd/price.",
+    "limitation": "Raw provider payloads and per-record safe field-presence diagnostics were intentionally not retained. It is impossible to determine whether the concrete cause was missing slot, missing/non-numeric valuation, response-schema mismatch, transaction type, timestamp mismatch, or a combination. The result does not prove that no provider trades existed.",
+    "qualification_logic": "CORRECT_FAIL_CLOSED for the established contract: a first trade cannot qualify without slot and positive price, and only a slot strictly after canonical create may be selected. Response-to-normalizer schema compatibility for these 10 non-retained records is UNPROVEN; rules were not weakened.",
+    "local_recovery": "No qualifying trade or opening MC can be established from retained evidence.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY_RECONCILIATION",
+    "next_action": "Do not retry. If future authority permits another bounded proof, retain per-record field-presence/rejection metadata (not raw payload) before deciding whether a transport schema adaptation is needed."
   }
 }

@@ -1,0 +1,13 @@
+{
+  "schema":"DEV026_WATCHTOWER_CATASTROPHIC_POST_PEAK_CANDLE_FEASIBILITY_V1",
+  "scope":"Provider-free inspection of retained DEV014 compact lifecycle journals and DEV020 comparable cohort facts.",
+  "eligible_token_count":539,
+  "retained_post_peak_candle_contract":"ABSENT",
+  "tokens_with_ordered_post_peak_candles":0,
+  "tokens_with_85_percent_crash_candle":0,
+  "reason":"Retained compact journals contain observed extrema, timestamps, aggregate coverage, request metadata, and peak_to_subsequent_trough summaries. They do not retain chronological post-peak 1-minute OHLCV open/close values, raw payloads, or a non-padded candle path.",
+  "prohibited_substitutions":["aggregate post-peak trough is not a single candle close","ATH-to-trough drawdown is not open-to-close candle loss","latest observed MC is not a crash candle close"],
+  "missing_evidence":["ordered non-padded post-peak candles at one fixed interval","each candle open and close","peak-to-candle chronology","bounded evidence provenance sufficient to reject padded/synthetic observations"],
+  "minimum_additional_acquisition":"Separately authorize at most one bounded 1-minute MC OHLCV range per eligible token from retained observed-peak timestamp to retained lifecycle-window end, with compact normalization retaining only the first qualifying >=85% open-to-close candle (or explicit none), no raw payload, fixed byte cap, shared provider budget, and no retries/pagination. This is not authorized by DEV026.",
+  "storage":"One compact JSON feasibility artifact; no provider call, raw retention, journal mutation, or 500 MB growth path."
+}

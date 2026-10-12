@@ -23996,5 +23996,19 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY_ALIGNMENT_CHECK",
     "next_action": "Use DEV014 peak/drawdown only with OBSERVED_WINDOW semantics; do not reopen DEV014 or acquire data from this check."
+  },
+  "dev018_single_token_opening_mc_proof_20261012": {
+    "status": "HOLD_NO_FIRST_AVAILABLE_TRADE",
+    "engineering_revision": "79c714592cd38d3183a4e0290d2c30fd6c6105d7; isolated DEV017 worktree evidence commit",
+    "token": "GTP5PX2pUpwdGV17KnugQh8yQENz1FcVzrjcwvYxpump",
+    "selection": "One of the 462 previously identified signed unresolved tokens; no qualified opening MC; DEV014 COMPLETED with observed peak MC USD 325051.0948492504.",
+    "helius": "Exactly one authorized getTransaction read. Create signature 17irPYRC1ktPkt4T5BrjawDyqfsRtrNDuWuS5snVbVpq1zPycxmAjD6jLggP5iX9b1QybRqcie1XwLLWYDQG9V6; slot 434654644; block time 1784784354. Post-token-balance supply components qualified total supply 1,000,000,000; raw response not retained.",
+    "birdeye": "Exactly one authorized BIRDEYE /defi/v3/token/txs request over [1784784353,1784784384]. It returned 10 items but zero normalized PRE_CREATE_SLOT/CREATE_SLOT/OPEN_SLOT records; established DEV013 reducer returned NO_FIRST_AVAILABLE_TRADE_IN_WINDOW. No retry, pagination, fallback, or replacement token.",
+    "durable_evidence": "docs/audits/dev018_single_token_opening_mc_proof_20261012.v1.json; 1,224 bytes; payload-free compact evidence; maximum artifact bound 1 MiB; no unbounded writer and no file can reach 500 MB.",
+    "integration": "No opening MC was recovered, so no provenance row was inserted and DEV016 correctly continues to report INSUFFICIENT_EVIDENCE. Multiple/gain are not calculated.",
+    "provider_accounting": "Helius=1; Birdeye=1; total=2, within authorization.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_EVIDENCE_ONLY",
+    "next_action": "Stop. Review the normalized no-trade outcome before authorizing any other token."
   }
 }

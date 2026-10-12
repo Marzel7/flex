@@ -170,6 +170,11 @@ def normalize_30s_exit_evidence(
     candidate = tuple(candle for candle in candles if candidate_start <= candle.start < candidate_start + 900)
     red = tuple(candle for candle in candidate if candle.close_mc_usd < candle.open_mc_usd)
     largest = max(red, key=lambda candle: (candle.open_mc_usd - candle.close_mc_usd, -candle.start), default=None)
+    # Retain the historical largest-red summary and also the first observed
+    # threshold-qualified candle.  Both are compact derived fields; raw candle
+    # history stays outside this evidence contract.
+    qualifying = tuple(candle for candle in red if (1.0 - candle.close_mc_usd / candle.open_mc_usd) * 100.0 >= RAPID_COLLAPSE_PERCENT)
+    first_qualifying = min(qualifying, key=lambda candle: candle.start, default=None)
     metadata = {str(key).lower(): str(value) for key, value in outcome.response_headers.items() if str(key).lower() in _HEADER_ALLOWLIST}
     coverage = "COMPLETE_30S_COVERAGE" if not missing else "PARTIAL_30S_COVERAGE"
     event: dict[str, Any] = {
@@ -192,13 +197,13 @@ def normalize_30s_exit_evidence(
         "provider_response_metadata": metadata,
     }
     if largest is None:
-        event.update({"exit_classification": "INSUFFICIENT_EVIDENCE" if not candidate else "NO_QUALIFYING_COLLAPSE", "largest_observed_red_candle": None, "post_exit_recovery": {"status": "INSUFFICIENT_EVIDENCE"}})
+        event.update({"exit_classification": "INSUFFICIENT_EVIDENCE" if not candidate else "NO_QUALIFYING_COLLAPSE", "first_qualifying_collapse": None, "largest_observed_red_candle": None, "post_exit_recovery": {"status": "INSUFFICIENT_EVIDENCE"}})
     else:
         collapse_pct = (1.0 - largest.close_mc_usd / largest.open_mc_usd) * 100.0
         post = tuple(candle for candle in candles if candle.start > largest.start)
         if coverage != "COMPLETE_30S_COVERAGE":
             classification = "PARTIAL_EXIT_EVIDENCE"
-        elif collapse_pct >= RAPID_COLLAPSE_PERCENT:
+        elif first_qualifying is not None:
             classification = "HIGH_RESOLUTION_EXIT_CONFIRMED"
         elif len(red) > 1:
             classification = "MULTI_CANDLE_DECLINE"
@@ -206,6 +211,19 @@ def normalize_30s_exit_evidence(
             classification = "RAPID_EXIT_CANDIDATE"
         event.update({
             "exit_classification": classification,
+            "first_qualifying_collapse": ({
+                "start": first_qualifying.start,
+                "end": first_qualifying.start + INTERVAL_SECONDS,
+                "open_mc_usd": first_qualifying.open_mc_usd,
+                "high_mc_usd": first_qualifying.high_mc_usd,
+                "low_mc_usd": first_qualifying.low_mc_usd,
+                "close_mc_usd": first_qualifying.close_mc_usd,
+                "absolute_collapse_usd": first_qualifying.open_mc_usd - first_qualifying.close_mc_usd,
+                "collapse_percent": (1.0 - first_qualifying.close_mc_usd / first_qualifying.open_mc_usd) * 100.0,
+                "entry_to_exit_start_seconds": first_qualifying.start - entry_timestamp,
+                "entry_to_exit_end_seconds": first_qualifying.start + INTERVAL_SECONDS - entry_timestamp,
+                "observed_peak_to_exit_start_seconds": first_qualifying.start - observed_peak_timestamp if observed_peak_timestamp else None,
+            } if first_qualifying is not None else None),
             "largest_observed_red_candle": {
                 "start": largest.start,
                 "end": largest.start + INTERVAL_SECONDS,

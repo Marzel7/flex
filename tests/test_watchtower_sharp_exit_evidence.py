@@ -47,6 +47,16 @@ def test_actual_transport_shape_normalizes_catastrophic_candle_without_raw_histo
     assert "items" not in record and "payload" not in record
 
 
+def test_retains_first_threshold_collapse_not_largest_absolute_red_candle():
+    rows = valid_items()
+    rows[10] = candle(CANDIDATE, 100.0, 100.0, 10.0, 10.0)
+    rows[20] = candle(CANDIDATE + 300, 1000.0, 1000.0, 500.0, 500.0)
+    record = normalize(rows)
+    assert record["first_qualifying_collapse"]["start"] == CANDIDATE
+    assert record["first_qualifying_collapse"]["collapse_percent"] == pytest.approx(90.0)
+    assert record["largest_observed_red_candle"]["start"] == CANDIDATE + 300
+
+
 @pytest.mark.parametrize("transport,error", [
     (ProviderTransportOutcome(200, None, {"X": "1"}), "MISSING_PROVIDER_PAYLOAD"),
     (ProviderTransportOutcome(200, {"success": True, "data": {"items": []}}, {}), "MISSING_RESPONSE_HEADERS"),

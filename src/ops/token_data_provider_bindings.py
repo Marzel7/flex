@@ -16,7 +16,7 @@ AUTHORITATIVE_BIRDEYE_CREDENTIAL_LABEL = "BIRDEYE"
 
 def build_birdeye_ohlcv_request(*, address: str, interval: str, time_from: int, time_to: int) -> dict[str, Any]:
     """Canonical qualified V3 OHLCV request shared by live and historical paths."""
-    if not address or interval not in {"1s", "1m", "15m", "1h", "4h", "1d"}: raise ValueError("UNQUALIFIED_OHLCV_PROFILE")
+    if not address or interval not in {"1s", "30s", "1m", "15m", "1h", "4h", "1d"}: raise ValueError("UNQUALIFIED_OHLCV_PROFILE")
     if not (int(time_from) < int(time_to)): raise ValueError("INVALID_OHLCV_WINDOW")
     params={"address":address,"chart_type":"mcap","currency":"usd","mode":"range","padding":"false","time_from":int(time_from),"time_to":int(time_to),"type":interval}
     query=urlencode(params)

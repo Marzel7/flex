@@ -24288,6 +24288,17 @@
     "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY_RECONCILIATION",
     "next_action": "Deploy the already-qualified state-ordering correction only under the existing DEV-only deployment authority; do not start the second authorized 50-token session until the corrected runtime is installed and preflight passes."
   },
+  "dev020_provider_admission_state_ordering_deployment_20261012": {
+    "status": "PASS",
+    "engineering_revision": "e37aa4b479ec7d760961fe48a188fcea3c7f6113 on codex/dev020-admission-ordering; origin verified",
+    "deployment": "Only Supervisor program watchtower_api was reloaded from /Users/kevinkeaveney/.codex/worktrees/dev020-runtime/flex. Its configured source identity changed from 771b3495518680f2e9208f5fd41fdc99d2d7050d to e37aa4b479ec7d760961fe48a188fcea3c7f6113. No unrelated service or production target changed.",
+    "runtime_acceptance": "watchtower_api RUNNING pid 91969 from the DEV020 worktree gunicorn configuration. Local health returned HTTP 200 with healthy=true, db=ok, wal_warn=false. The installed worktree ran 14 provider-free synthetic-clock/selector/metrics tests successfully.",
+    "state_ordering": "Installed tests prove known DevProviderBudget denials return ADMISSION_INTENT to PENDING without a provider debit or fixture transport; successful admission makes REQUEST_IN_FLIGHT before exactly one fixture transport; ADMISSION_INTENT and REQUEST_IN_FLIGHT are excluded; and terminal rows remain unchanged. Existing 10/minute rolling ledger, six-second pacing, 50-token session cap, and 60-second cooldown are retained.",
+    "durability": "DEV020 journal remains exactly 643072 bytes with 300 terminal rows: contiguous=205, sparse=82, insufficient=13, uncertain=0. The existing compact rolling provider ledger remains at ten DEV020_PREPEAK_1M entries. No provider call, credential read, live budget debit, acquisition, raw payload retention, or journal repair occurred.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "next_action": "The corrected DEV runtime is ready for a separately authorized continuation session."
+  },
   "dev020_prepeak_coverage_20261012": {
     "status": "COMPLETE_READ_ONLY",
     "scope": "Bounded local reconciliation of 550 DEV014 compact journals, DEV019 durable opening journal, canonical/DEV013 retained baselines, and indexed Watchtower monitor observations. No provider/RPC call, code change, deployment, or acquisition occurred.",

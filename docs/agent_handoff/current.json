@@ -24805,5 +24805,19 @@
     "runtime_deployment_required":false,
     "runtime_deployment_reason":"DEV tooling, provider-free tests, and engineering guidance only; no executable production runtime behavior changed.",
     "next_action":"NONE — DEV030 complete. Use the offline validator for any future Supervisor validation; any actual isolated control harness must pass the guard before constructing commands."
+  },
+  "dev031_frozen_twenty_token_crash_study_execution_20261013": {
+    "status":"PARTIAL_OBSERVATION_COMPLETE_NO_FURTHER_ACQUISITION_AUTHORIZED",
+    "engineering_revision":"8e73d45966af51cceced5b47587ec50ef0a8d6ba; exact clean qualified DEV031 worktree",
+    "scope":"Authorized DEV-only execution of the exact frozen 20-token manifest. Twenty serial Birdeye requests were issued through the existing corrected alias-aware 30-second MCAP normalizer and real DevProviderBudget. No retries, pagination, Helius/RPC calls, deployment, service restart, or production action occurred.",
+    "manifest":"docs/audits/dev031_crash_level_validation_manifest_20261013.v1.json; byte_sha256=49e4e5fb47b7e3d3570298a95a3256241e227377da1c2db759997e61e61e2fd7; canonical_content_hash=ec619a1a1d00bf673dfc4480e39407a6738bc591587409d9e377dac30fe48bfc; 20 records and 20 unique deterministic request identities verified before transport.",
+    "result":"20/20 durable terminal outcomes; provider_requests=20; states=16 OBSERVED_PARTIAL and 4 INSUFFICIENT_EVIDENCE. Returned candles=878 total; missing 30-second buckets=1,682 total. No COMPLETE_30S_COVERAGE result permits a crash-free cohort conclusion.",
+    "observed_crashes":"Two first observed >=85% open-to-close candles under partial coverage: 3JKhx3e5pPbDkwUP7oP4JFXGwk23z2NtrHWVKPVYpump at 1787026410, $142,629.0922 to $1,507.6166, 98.9430%, pre/opening=1.035212, pre/peak=0.755555, 810s after peak; ALryq6MuYTt6nXEsXFTUFXbdburCPpe7uhi941Pmpump at 1787905230, $150,696.9336 to $2,690.5536, 98.2146%, pre/opening=2.004323, pre/peak=0.715078, 330s after peak. Median across the two observed events: pre/opening=1.519767 and pre/peak=0.735317.",
+    "controls":"All 20 windows were partial or missing; compact retention does not prove non-crash controls or absence of a crash in unobserved intervals. No band-entry versus later-crash causal classification is asserted.",
+    "durability_and_storage":"Compact journal=/private/tmp/dev031-crash-level/journal.json; sha256=a07068aaee33de6e5e68c14ef413dea451c53cecf4bfe06ce80682487a9f017e; bytes=51,657; raw provider retention=false; no 500 MB-capable file path introduced. Existing DEV028 and DEV031 evidence was preserved.",
+    "budget":"Existing ledger parsed before and after execution. Six-second pacing, serial execution, and real rolling budget admission were used; final ledger contains 10 active rolling-window entries, with expired entries pruned by the existing ledger semantics.",
+    "runtime_deployment_required":false,
+    "runtime_deployment_reason":"The authorized work was a bounded manual DEV CLI session from the exact qualified worktree; no installed runtime behavior was changed.",
+    "next_action":"STOP — frozen manifest fully consumed. Treat the two events only as partial-coverage observations; any new acquisition or cohort inference requires separate authorization."
   }
 }

@@ -24305,5 +24305,19 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD_TARGET_WORKSPACE_AMBIGUOUS",
     "next_action": "Provide or prepare a clean DEV runtime checkout pinned to 9016620069bae9782bc32026a0920fe386648d2b; then record pre/post runtime identities and run bounded no-provider acceptance."
+  },
+  "dev020_gap_aware_prepeak_dev_deployment_20261012": {
+    "status": "PASS",
+    "engineering_revision": "9016620069bae9782bc32026a0920fe386648d2b",
+    "qualified_diff": "Added src/ops/dev020_prepeak_metrics.py, the no-provider executor integration seam in src/ops/watchtower_historical_executor.py, and bounded synthetic tests in tests/test_dev020_prepeak_metrics.py.",
+    "scope": "DEV-only controlled API deployment. No Birdeye, Helius, RPC, cohort acquisition, raw-payload retention, or production change occurred.",
+    "runtime_target": "Supervisor program watchtower_api was repointed from /private/tmp/flex-dev014-early-minimum-api at 6effaad7d1d90356f5f7d371ba96a369bbd3d87d to clean isolated worktree /Users/kevinkeaveney/.codex/worktrees/dev020-runtime/flex at 9016620069bae9782bc32026a0920fe386648d2b. The unrelated dirty /Users/kevinkeaveney/Dev/claude/flex checkout was not reset, cleaned, stashed, or overwritten.",
+    "reload": "supervisor reread/update watchtower_api completed. Post-reload master PID=36889 and workers=36901,36902; each command uses /Users/kevinkeaveney/.codex/worktrees/dev020-runtime/flex/config/gunicorn.conf.py. That config specifies two workers.",
+    "acceptance": "Five bounded localhost /healthz requests returned HTTP 200. In the deployed source worktree, no-provider contiguous and sparse reducer checks returned OBSERVED_CONTIGUOUS and OBSERVED_SPARSE respectively, with sparse coverage_is_complete=false. The qualified 16-test suite passed before reload.",
+    "storage": "No runtime result records or raw candle payloads were added. Derived result design remains compact, payload-free, capped at 1 MiB per artifact, with no unbounded writer or 500 MB single-file path.",
+    "provider_calls": 0,
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "next_action": "DEV020 gap-aware observed drawdown integration is deployed and accepted. Do not start cohort acquisition without separate authorization."
   }
 }

@@ -24462,5 +24462,18 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY",
     "next_action": "Preserve the four same-interval records as unsupported for pre-peak drawdown reporting; no provider action or qualification change is implied."
+  },
+  "dev020_prepeak_next100_resumed_20261012": {
+    "status": "PASS",
+    "engineering_revision": "e37aa4b479ec7d760961fe48a188fcea3c7f6113; deployed clean DEV runtime worktree",
+    "scope": "DEV-only authorized continuation from 300 terminal outcomes. Two serial sessions of 50 tokens completed, with the durable 60-second session-control cooldown observed between sessions. No production change, Helius/RPC call, pagination, retry, or reacquisition occurred.",
+    "execution_controls": "BIRDEYE was loaded process-locally from the original Flex project .env without disclosure. The corrected ADMISSION_INTENT ordering and real DevProviderBudget ledger were used. One request per processed token maximum; single concurrency; six-second minimum pacing; 10 requests/minute; 50-token session cap.",
+    "outcome": "100 newly terminal outcomes; cumulative terminal outcomes=400: OBSERVED_CONTIGUOUS=301, OBSERVED_SPARSE=86, INSUFFICIENT_EVIDENCE=13. PENDING=0, ADMISSION_INTENT/REQUEST_IN_FLIGHT=0, SAFETY_FAILURE=0. SQLite integrity_check=ok.",
+    "provider_accounting": "This execution Birdeye=100; cumulative Birdeye requests=356; Helius=0; RPC=0.",
+    "runtime": "Post-session localhost API health: HTTP 200, healthy=true, db=ok, wal_warn=false, WAL=0.5 MiB. No acquisition process remains active.",
+    "storage": "Compact journal=/private/tmp/dev020-watchtower-prepeak/journal.db (856064 bytes); provider ledger=1048 bytes. No raw provider payload retention, no unbounded writer, and no file approaches the 500 MB prohibition.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_NO_CODE_CHANGE",
+    "next_action": "Stop. Remaining original eligible tokens=139; a later session requires separate explicit authorization."
   }
 }

@@ -23984,5 +23984,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY_RECONCILIATION",
     "next_action": "Replace the 471-item plan's speculative 471+471 estimate with the bounded 462+462 eligible subset and leave the 9 unsigned identities as INSUFFICIENT_CREATE_EVIDENCE pending separate authority."
+  },
+  "dev014_historical_window_alignment_20261012": {
+    "status": "COMPLETE_READ_ONLY",
+    "scope": "Targeted local data-correctness check of retained DEV014 journals against 541 canonical token_analysis records. No provider/RPC call, acquisition, deployment, code/configuration change, or infrastructure investigation occurred.",
+    "anchor_origin": "journal.creation_timestamp is the DEV014 cohort window anchor and each journal uses it verbatim as Birdeye OHLCV time_from. It is not a proven canonical creation or migration timestamp.",
+    "offset_distribution_seconds": "anchor minus canonical creation: n=541, min=-0.685s, p25=24s, median=50s, p75=83s, p95=291s, max=16,945s; 4 before, 65 equal, 472 after. Anchor minus canonical migration: n=541, min=-5s, p25=22s, median=49s, p75=79s, p95=290s, max=16,943s; 64 before, 5 equal, 472 after.",
+    "observation_alignment": "For 540 canonical-overlap journals with returned candles, first returned candle is after creation and migration in 540/540 (creation offset min=5s, median=545s; migration offset min=4s, median=544s). Observed peak is after creation and migration in 540/540. The retained final point is after migration in 540/540.",
+    "verdict": "VALID_FOR_ACTUAL_OBSERVED_WINDOWS. The 549 completed DEV014 peak/drawdown records remain valid observed-candle-window measures. They do not establish uninterrupted lifecycle coverage from canonical creation/migration through the first returned candle; timestamp inequality alone does not invalidate acquisition.",
+    "affected": "1 token has NO_VALID_CANDLES and therefore no observed-window metrics. 9 cohort tokens lack canonical comparison records. No completed canonical-overlap token has a retained first candle or peak before canonical creation/migration.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY_ALIGNMENT_CHECK",
+    "next_action": "Use DEV014 peak/drawdown only with OBSERVED_WINDOW semantics; do not reopen DEV014 or acquire data from this check."
   }
 }

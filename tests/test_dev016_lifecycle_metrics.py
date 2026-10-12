@@ -36,6 +36,25 @@ def test_projection_marks_only_retained_window_peak_as_observed(tmp_path, monkey
     assert result["opening_market_cap"]["status"] == "INSUFFICIENT_EVIDENCE"
 
 
+def test_projection_joins_dev013_first_available_trade_without_relabelling_it(tmp_path, monkeypatch):
+    _journal(tmp_path, "one", {
+        "mint": "mint-one", "state": "COMPLETED", "creation_timestamp": 100,
+        "lifecycle_metrics": {"observed_maximum_mc_usd": 300, "observed_maximum_timestamp": 200},
+    })
+    monkeypatch.setattr(metrics, "COHORT_ROOT", tmp_path)
+    monkeypatch.setattr(metrics, "_dev013_first_available", lambda _: {
+        "entry_mc_usd": 100, "entry_timestamp": 120, "first_available_signature": "sig", "first_available_venue": "pump_amm",
+    })
+
+    result = metrics.lifecycle_metrics("mint-one")
+
+    assert result["opening_market_cap"]["value"] == 100
+    assert result["opening_market_cap_semantic"] == "FIRST_AVAILABLE_TRADE_MARKET_CAP"
+    assert result["launch_time_market_cap"]["status"] == "INSUFFICIENT_EVIDENCE"
+    assert result["first_available_candle_market_cap"]["status"] == "INSUFFICIENT_EVIDENCE"
+    assert result["gain_from_opening_market_cap_percent"]["value"] == 200
+
+
 def test_projection_preserves_no_valid_candles(tmp_path, monkeypatch):
     _journal(tmp_path, "empty", {"mint": "mint-empty", "state": "NO_VALID_CANDLES", "creation_timestamp": 100})
     monkeypatch.setattr(metrics, "COHORT_ROOT", tmp_path)
@@ -51,12 +70,13 @@ def test_coverage_does_not_count_missing_opening_evidence(tmp_path, monkeypatch)
     _journal(tmp_path, "two", {"mint": "mint-two", "state": "NO_VALID_CANDLES"})
     monkeypatch.setattr(metrics, "COHORT_ROOT", tmp_path)
     monkeypatch.setattr(metrics, "_assigned_mints", lambda: {"mint-one", "outside"})
+    monkeypatch.setattr(metrics, "_dev013_first_available_mints", lambda: {"mint-one"})
 
     result = metrics.coverage()
 
     assert result["dev014_cohort_count"] == 2
     assert result["tokens_with_lifecycle_evidence"] == 1
-    assert result["opening_market_cap_coverage"] == 0
+    assert result["opening_market_cap_coverage"] == 1
     assert result["latest_market_cap_coverage"] == 1
     assert result["tokens_outside_dev014_count"] == 1
 

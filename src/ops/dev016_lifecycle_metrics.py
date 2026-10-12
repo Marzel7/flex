@@ -47,8 +47,24 @@ def lifecycle_metrics(mint: str) -> dict[str, Any]:
         return {"mint": mint, "status": "NOT_IN_DEV014_COHORT"}
 
     launch = journal.get("creation_timestamp")
+    first_available = _dev013_first_available(mint)
+    first_available_mc = first_available.get("entry_mc_usd") if first_available else None
+    first_available_at = first_available.get("entry_timestamp") if first_available else None
+    first_available_provenance = {
+        "policy": "WATCHTOWER_FIRST_AVAILABLE_MC_V1",
+        "semantic": "FIRST_AVAILABLE_TRADE_MARKET_CAP",
+        "signature": first_available.get("first_available_signature") if first_available else None,
+        "venue": first_available.get("first_available_venue") if first_available else None,
+    }
     if journal.get("state") != "COMPLETED":
-        return {"mint": mint, "status": journal.get("state", "INSUFFICIENT_EVIDENCE"), "launch_timestamp": _observed(launch, "WATCHTOWER_CREATION_EVENT"), "evidence_status": "NO_RETAINED_VALID_CANDLES"}
+        return {
+            "mint": mint, "status": journal.get("state", "INSUFFICIENT_EVIDENCE"),
+            "launch_timestamp": _observed(launch, "WATCHTOWER_CREATION_EVENT"),
+            "opening_market_cap": _observed(first_available_mc, first_available_provenance),
+            "opening_timestamp": _observed(first_available_at, first_available_provenance),
+            "opening_market_cap_semantic": "FIRST_AVAILABLE_TRADE_MARKET_CAP" if first_available else "INSUFFICIENT_EVIDENCE",
+            "evidence_status": "NO_RETAINED_VALID_CANDLES",
+        }
 
     facts = journal.get("lifecycle_metrics") or {}
     provenance = journal.get("provider_provenance")
@@ -65,10 +81,14 @@ def lifecycle_metrics(mint: str) -> dict[str, Any]:
         "status": "OBSERVED_LIFECYCLE_AVAILABLE",
         "launch_timestamp": _observed(launch, "WATCHTOWER_CREATION_EVENT"),
         "opening_price": _insufficient(),
-        "opening_market_cap": _insufficient(),
-        "opening_timestamp": _insufficient(),
+        "opening_market_cap": _observed(first_available_mc, first_available_provenance),
+        "opening_timestamp": _observed(first_available_at, first_available_provenance),
+        "opening_market_cap_semantic": "FIRST_AVAILABLE_TRADE_MARKET_CAP" if first_available else "INSUFFICIENT_EVIDENCE",
+        "launch_time_market_cap": _insufficient(),
+        "first_available_candle_market_cap": _insufficient(),
         "first_observed_candle_timestamp": _observed(first_at, provenance),
-        "first_observed_trade_timestamp": _insufficient(),
+        "first_observed_trade_market_cap": _observed(first_available_mc, first_available_provenance),
+        "first_observed_trade_timestamp": _observed(first_available_at, first_available_provenance),
         "observed_candle_peak_market_cap": _observed(facts.get("observed_maximum_mc_usd"), provenance),
         "observed_candle_peak_timestamp": _observed(peak_at, provenance),
         "verified_historical_ath_price": _insufficient(),
@@ -76,7 +96,12 @@ def lifecycle_metrics(mint: str) -> dict[str, Any]:
         "verified_historical_ath_timestamp": _insufficient(),
         "seconds_launch_to_observed_candle_peak": _observed(observed_seconds(launch, peak_at), provenance),
         "seconds_first_observed_candle_to_peak": _observed(observed_seconds(first_at, peak_at), provenance),
-        "gain_from_opening_market_cap_percent": _insufficient(),
+        "gain_from_opening_market_cap_percent": _observed(
+            ((facts.get("observed_maximum_mc_usd") / first_available_mc) - 1) * 100
+            if isinstance(first_available_mc, (int, float)) and first_available_mc > 0 and isinstance(facts.get("observed_maximum_mc_usd"), (int, float))
+            else None,
+            {"semantic": "FIRST_AVAILABLE_TRADE_TO_OBSERVED_CANDLE_PEAK", **first_available_provenance},
+        ),
         "post_peak_low_market_cap": _observed(trough.get("observed_minimum_mc_usd"), provenance),
         "post_peak_low_timestamp": _observed(trough.get("observed_minimum_timestamp"), provenance),
         "max_observed_drawdown_percent": _observed(trough.get("drawdown_percent"), provenance),
@@ -103,10 +128,55 @@ def _assigned_mints() -> set[str] | None:
         return None
 
 
+def _dev013_first_available(mint: str) -> dict[str, Any] | None:
+    """Read a qualified DEV013 first-available *trade* fact, if retained.
+
+    This is neither launch-time valuation nor a candle value. The narrow policy
+    predicate protects DEV016 from silently consuming a different monitor entry.
+    """
+    if not OPS_DB_PATH.is_file():
+        return None
+    try:
+        connection = sqlite3.connect(f"file:{OPS_DB_PATH}?mode=ro", uri=True)
+        connection.row_factory = sqlite3.Row
+        try:
+            row = connection.execute(
+                "SELECT entry_mc_usd, entry_timestamp, first_available_signature, first_available_venue "
+                "FROM operation_monitor_entry_provenance "
+                "WHERE operation_id='watchtower' AND mint=? "
+                "AND entry_policy='WATCHTOWER_FIRST_AVAILABLE_MC_V1' "
+                "AND entry_quality='FIRST_AVAILABLE_SLOT' AND entry_mc_usd > 0",
+                (mint,),
+            ).fetchone()
+        finally:
+            connection.close()
+    except sqlite3.Error:
+        return None
+    return dict(row) if row else None
+
+
+def _dev013_first_available_mints() -> set[str]:
+    if not OPS_DB_PATH.is_file():
+        return set()
+    try:
+        connection = sqlite3.connect(f"file:{OPS_DB_PATH}?mode=ro", uri=True)
+        try:
+            return {row[0] for row in connection.execute(
+                "SELECT mint FROM operation_monitor_entry_provenance "
+                "WHERE operation_id='watchtower' AND entry_policy='WATCHTOWER_FIRST_AVAILABLE_MC_V1' "
+                "AND entry_quality='FIRST_AVAILABLE_SLOT' AND entry_mc_usd > 0"
+            )}
+        finally:
+            connection.close()
+    except sqlite3.Error:
+        return set()
+
+
 def coverage() -> dict[str, Any]:
     rows = list(_journals())
     cohort_mints = {row.get("mint") for row in rows if row.get("mint")}
     assigned = _assigned_mints()
+    dev013_opening_mints = _dev013_first_available_mints()
     evidence_rows = [row for row in rows if row.get("state") == "COMPLETED"]
     result: dict[str, Any] = {
         "dev014_cohort_count": len(cohort_mints),
@@ -114,7 +184,7 @@ def coverage() -> dict[str, Any]:
         "terminal_no_valid_candles_count": sum(row.get("state") == "NO_VALID_CANDLES" for row in rows),
         "observed_peak_coverage": len(evidence_rows),
         "drawdown_coverage": sum(bool((row.get("lifecycle_metrics") or {}).get("peak_to_subsequent_trough")) for row in evidence_rows),
-        "opening_market_cap_coverage": 0,
+        "opening_market_cap_coverage": len(cohort_mints & dev013_opening_mints),
         "latest_market_cap_coverage": sum((row.get("lifecycle_metrics") or {}).get("last_observed_mc_usd") is not None for row in evidence_rows),
     }
     if assigned is None:

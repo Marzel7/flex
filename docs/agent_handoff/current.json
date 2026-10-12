@@ -24167,5 +24167,14 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY",
     "next_action": "Resume DEV019 from the durable session journal after cooldown."
+  },
+  "dev019_session2_lifecycle_read_20261012": {
+    "status": "COMPLETE_READ_ONLY",
+    "scope": "Read-only lifecycle projection for a confirmed second-session 1-minute-open baseline using durable DEV019 and compact DEV014 journals. No provider/RPC call, acquisition, code change, or infrastructure action occurred.",
+    "token": "3seG33wYiv2T8V68813Kq7XNPJU8iFbJjsnNT3Lrpump",
+    "result": "Opening=USD 130710.49988737828 at 1789821120, FIRST_AVAILABLE_POST_MIGRATION_1M_OPEN_MC, 49 seconds after migration. DEV014 observed peak=USD 788884.3544970722 at 1789823700; multiple=6.035355653729305; gain=503.53556537293053%; time=2580 seconds. Post-peak low=USD 2254.1394438281714 at 1789936200 and peak-to-trough drawdown=99.714262371794%. Latest=USD 2429.8371239654366 at 1790019900. Pre-peak low/drawdown are INSUFFICIENT_EVIDENCE because compact DEV014 retains no pre-peak low series.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY",
+    "next_action": "Resume DEV019 acquisition from the durable journal after cooldown."
   }
 }

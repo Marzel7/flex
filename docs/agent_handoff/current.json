@@ -24267,5 +24267,19 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY",
     "next_action": "Obtain or retain an authoritative OHLCV response-cardinality/time-window/truncation contract before authorizing cohort acquisition. Do not execute from this plan."
+  },
+  "dev020_180m_ohlcv_window_proof_20261012": {
+    "status": "HOLD_INDETERMINATE_GAPPED_SEQUENCE",
+    "engineering_revision": "dbb0e5ce127b05dba811ef8d91e3c275ebfcdca1; isolated compact-evidence commit",
+    "scope": "One authorized Birdeye request for one DEV token. No retry, pagination, Helius/RPC call, code/configuration change, deployment, or cohort acquisition occurred.",
+    "token": "2RDV1zyUpJ9RG9Q4aqoB5gSHrT6goM149b95ktCTpump; retained opening-to-observed-peak duration=86160 seconds.",
+    "request": "Birdeye /defi/v3/ohlcv, 1m MC, non-padded range 1790254140..1790264940 (10800 seconds); BIRDEYE credential.",
+    "result": "HTTP 200; 15 provider items and 15 normalized one-minute candle timestamps, from 1790254140 through 1790256120. Of 180 expected minute intervals, 165 are absent. Safe response metadata had no explicit truncation/pagination/next-page/total/limit/more-data indicator.",
+    "verdict": "The response does not establish complete 180-minute coverage and does not prove truncation: sparse historical observations can produce the same gap pattern. It must not be generalized as a universal provider response limit.",
+    "durable_evidence": "docs/audits/dev020_180m_ohlcv_window_proof_20261012.v1.json; compact payload-free evidence; maximum artifact 1 MiB; no unbounded writer or 500 MB file path.",
+    "provider_accounting": "Birdeye=1; Helius=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_EVIDENCE_ONLY",
+    "next_action": "Stop after this one-request proof. A provider completeness contract or distinct authoritative evidence is required before treating a gapped response as a bounded complete sequence."
   }
 }

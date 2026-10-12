@@ -1,0 +1,24 @@
+{
+  "schema":"DEV024_WATCHTOWER_RECOVERY_STOP_ANALYSIS_V1",
+  "scope":"Provider-free conditional observed association from the immutable DEV020 compact extrema journal.",
+  "population":{"eligible":539,"prepeak_observed":526,"contiguous":415,"sparse":111,"insufficient":13},
+  "contract":"A row qualifies at a threshold when retained lowest observed MC is at least that percentage below qualified opening and that low precedes the selected observed peak. Subsequent peak crossings are observed associations, not first-crossing signals, executable fills, or recovery-time evidence.",
+  "recovery_curve":{
+    "10":{"n":471,"above_opening":394,"above_1_5x":290,"above_2x":201,"above_5x":46,"recovery_probability":0.837,"approx_95_half_width":0.033},
+    "20":{"n":420,"above_opening":346,"above_1_5x":258,"above_2x":176,"above_5x":46,"recovery_probability":0.824,"approx_95_half_width":0.036},
+    "30":{"n":330,"above_opening":263,"above_1_5x":199,"above_2x":140,"above_5x":35,"recovery_probability":0.797,"approx_95_half_width":0.043},
+    "40":{"n":246,"above_opening":183,"above_1_5x":132,"above_2x":93,"above_5x":23,"recovery_probability":0.744,"approx_95_half_width":0.055},
+    "50":{"n":156,"above_opening":97,"above_1_5x":71,"above_2x":54,"above_5x":14,"recovery_probability":0.622,"approx_95_half_width":0.076},
+    "60":{"n":86,"above_opening":34,"above_1_5x":28,"above_2x":21,"above_5x":6,"recovery_probability":0.395,"approx_95_half_width":0.103},
+    "70":{"n":62,"above_opening":15,"above_1_5x":12,"above_2x":8,"above_5x":3,"recovery_probability":0.242,"approx_95_half_width":0.107},
+    "80":{"n":51,"above_opening":5,"above_1_5x":4,"above_2x":3,"above_5x":2,"recovery_probability":0.098,"approx_95_half_width":0.082},
+    "90":{"n":46,"above_opening":0,"above_1_5x":0,"above_2x":0,"above_5x":0,"recovery_probability":0.0,"approx_95_half_width":0.0}
+  },
+  "death_threshold_assessment":"Recovery declines gradually through -40% (74.4%), then drops 12.2 percentage points at -50%, 22.7 at -60%, and 15.3 at -70%. The retained association is consistent with a deterioration zone around -50% to -60%, not a precise statistically identified permanent-death threshold. Nested thresholds and sparse windows preclude independent-bin significance claims.",
+  "entry_potential":"-10/-20/-30/-40/-50% entries have 471/420/330/246/156 observed threshold reaches. Retained extrema allow maximum-upside bounds only; entry fill, deeper adverse movement after entry, stops, exits, and holding duration are EXECUTION_ORDER_UNPROVEN.",
+  "stop_tradeoff":"-30/-40/-50/-60/-70% stop reaches have 330/246/156/86/62 tokens; their above-opening associations are 79.7%/74.4%/62.2%/39.5%/24.2%. These counts identify potential winners a stop could exclude, but cannot estimate realized loss avoidance because entry-before-stop and target/stop order are absent.",
+  "combinations":"No entry/stop combination is ranked as profitable. -20/-50 and -30/-50 deserve only a future ordered-path experiment because they balance sample size with a materially lower conditional recovery group; -40/-70 is not supported by its low 24.2% conditional recovery. These are research priorities, not recommendations.",
+  "recovery_time":"Median time-to-recovery-above-opening is unavailable: retained recovery_time_seconds measures recovery above a preceding high only, not first recovery above opening.",
+  "limitations":["no first qualifying crossing", "no ordered post-entry candle path", "no executable fill/liquidity/cost evidence", "sparse observations and unobserved gaps", "nested thresholds are not independent samples"],
+  "storage":"Compact JSON only; no raw provider response, new journal, or 500 MB growth path."
+}

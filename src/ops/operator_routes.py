@@ -274,6 +274,14 @@ def dev016_watchtower_lifecycle_coverage_api():
     from src.ops.dev016_lifecycle_metrics import coverage
     return jsonify({"operation_id": "watchtower", "lifecycle_coverage": coverage(), "provider_calls": 0})
 
+
+@operator_bp.route('/api/operations/live-monitor/watchtower/opening-mc-gaps')
+def dev017_watchtower_opening_mc_gaps_api():
+    from src.ops.dev016_lifecycle_metrics import acquisition_manifest
+    manifest = acquisition_manifest()
+    return jsonify({"operation_id": "watchtower", "opening_mc_gap_count": len(manifest), "acquisition_manifest": manifest, "provider_calls": 0})
+
+
 @operator_bp.route('/api/operations/live-monitor/watchtower/<mint>/lifecycle-metrics')
 def dev016_watchtower_lifecycle_metrics_api(mint: str):
     from src.ops.dev016_lifecycle_metrics import lifecycle_metrics

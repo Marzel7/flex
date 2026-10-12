@@ -53,6 +53,7 @@ def test_projection_joins_dev013_first_available_trade_without_relabelling_it(tm
     assert result["launch_time_market_cap"]["status"] == "INSUFFICIENT_EVIDENCE"
     assert result["first_available_candle_market_cap"]["status"] == "INSUFFICIENT_EVIDENCE"
     assert result["gain_from_opening_market_cap_percent"]["value"] == 200
+    assert result["opening_to_observed_candle_peak_multiple"]["value"] == 3
 
 
 def test_projection_preserves_no_valid_candles(tmp_path, monkeypatch):
@@ -71,6 +72,7 @@ def test_coverage_does_not_count_missing_opening_evidence(tmp_path, monkeypatch)
     monkeypatch.setattr(metrics, "COHORT_ROOT", tmp_path)
     monkeypatch.setattr(metrics, "_assigned_mints", lambda: {"mint-one", "outside"})
     monkeypatch.setattr(metrics, "_dev013_first_available_mints", lambda: {"mint-one"})
+    monkeypatch.setattr(metrics, "_opening_baseline", lambda mint: {"market_cap_usd": 10, "timestamp": 1, "baseline_type": "MARKET_FIRST_OBSERVED"} if mint == "mint-one" else None)
 
     result = metrics.coverage()
 
@@ -79,6 +81,18 @@ def test_coverage_does_not_count_missing_opening_evidence(tmp_path, monkeypatch)
     assert result["opening_market_cap_coverage"] == 1
     assert result["latest_market_cap_coverage"] == 1
     assert result["tokens_outside_dev014_count"] == 1
+
+
+def test_manifest_contains_only_unrecoverable_mints(tmp_path, monkeypatch):
+    _journal(tmp_path, "one", {"mint": "recover", "state": "COMPLETED", "creation_timestamp": 10})
+    _journal(tmp_path, "two", {"mint": "gap", "state": "NO_VALID_CANDLES", "creation_timestamp": 20})
+    monkeypatch.setattr(metrics, "COHORT_ROOT", tmp_path)
+    monkeypatch.setattr(metrics, "_opening_baseline", lambda mint: {"market_cap_usd": 1, "timestamp": 10, "baseline_type": "MARKET_FIRST_OBSERVED"} if mint == "recover" else None)
+
+    assert metrics.acquisition_manifest() == [{
+        "mint": "gap", "existing_evidence_status": "NO_VALID_CANDLES", "missing_baseline_type": "EARLIEST_DEFENSIBLE_MARKET_CAP", "earliest_known_relevant_timestamp": 20,
+        "proposed_bounded_method": "DEV013_FIRST_AVAILABLE_TRADE", "estimated_provider_request_cost": {"helius_max": 1, "birdeye_max": 1},
+    }]
 
 
 def test_routes_expose_read_only_projection(tmp_path, monkeypatch):
@@ -93,3 +107,8 @@ def test_routes_expose_read_only_projection(tmp_path, monkeypatch):
     assert response.status_code == 200
     assert response.get_json()["provider_calls"] == 0
     assert response.get_json()["lifecycle"]["status"] == "OBSERVED_LIFECYCLE_AVAILABLE"
+
+    gaps = app.test_client().get("/api/operations/live-monitor/watchtower/opening-mc-gaps")
+    assert gaps.status_code == 200
+    assert gaps.get_json()["opening_mc_gap_count"] == 1
+    assert gaps.get_json()["provider_calls"] == 0

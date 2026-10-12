@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from src.ops.dev016_lifecycle_metrics import COHORT_ROOT, _opening_baseline
+from src.ops.dev_provider_budget import DevProviderBudget
 from src.ops.dev020_prepeak_metrics import calculate_prepeak_observed_metrics
 from src.ops.strict_migration_window import normalize_opening_ohlcv
 from src.ops.token_data_provider_bindings import BirdeyeProductionBinding, build_birdeye_ohlcv_request
@@ -21,24 +22,62 @@ DEV019_JOURNAL = Path(os.getenv("DEV019_OPENING_JOURNAL", "/private/tmp/dev019-w
 MAX_TOKENS = int(os.getenv("DEV020_MAX_TOKENS", "50"))
 MIN_REQUEST_SECONDS = 6
 MAX_SNAPSHOT_BYTES = 1_048_576
+ROLLING_PROVIDER_LIMIT = 10
+PREPEAK_REQUEST_CLASS = "DEV020_PREPEAK_1M"
 
 
 class RateLimited:
-    """The DEV019 single-concurrency, ten-requests-per-minute guard."""
+    """Single-concurrency DEV020 pacing backed by the shared DEV ledger."""
 
-    def __init__(self, binding: Any) -> None:
+    def __init__(self, binding: Any, *, budget_root: Path = ROOT,
+                 monotonic_clock=time.monotonic, wall_clock=time.time,
+                 sleep=time.sleep) -> None:
         self.binding, self.last, self.calls = binding, None, 0
+        self._monotonic_clock = monotonic_clock
+        self._wall_clock = wall_clock
+        self._sleep = sleep
+        # This is the established atomic provider_budget.json implementation,
+        # not a DEV020-specific counter or replacement ledger.
+        self._budget = DevProviderBudget(budget_root, now=wall_clock)
 
     def __call__(self, request: dict[str, Any]) -> Any:
         if self.calls >= MAX_TOKENS:
             raise RuntimeError("DEV020_PROVIDER_REQUEST_CAP")
         if self.last is not None:
-            delay = MIN_REQUEST_SECONDS - (time.monotonic() - self.last)
+            delay = MIN_REQUEST_SECONDS - (self._monotonic_clock() - self.last)
             if delay > 0:
-                time.sleep(delay)
-        self.last = time.monotonic()
+                self._sleep(delay)
+        parameters = request.get("request_parameters") or {}
+        mint = parameters.get("address")
+        if not isinstance(mint, str) or not mint:
+            raise RuntimeError("DEV020_REQUEST_MINT_REQUIRED")
+        # Admit immediately before the one transport attempt.  A denial leaves
+        # the call count and the transport untouched.
+        self._budget.admit(
+            mint,
+            PREPEAK_REQUEST_CLASS,
+            now=int(self._wall_clock()),
+            global_limit=ROLLING_PROVIDER_LIMIT,
+        )
+        self.last = self._monotonic_clock()
         self.calls += 1
         return self.binding(request)
+
+
+def _require_session_ready(*, now: int) -> None:
+    with _connect() as connection:
+        row = connection.execute("SELECT next_eligible_at FROM dev020_prepeak_session_control WHERE id=1").fetchone()
+        if row and now < int(row[0]):
+            raise RuntimeError("DEV020_SESSION_COOLDOWN_ACTIVE")
+
+
+def _record_session_cooldown(*, now: int) -> None:
+    with _connect() as connection:
+        connection.execute(
+            "INSERT INTO dev020_prepeak_session_control(id,next_eligible_at) VALUES(1,?) "
+            "ON CONFLICT(id) DO UPDATE SET next_eligible_at=excluded.next_eligible_at",
+            (now + 60,),
+        )
 
 
 def _read_journal(path: Path) -> dict[str, Any] | None:
@@ -126,10 +165,7 @@ def select() -> list[dict[str, Any]]:
 
 
 def run() -> dict[str, Any]:
-    with _connect() as connection:
-        row = connection.execute("SELECT next_eligible_at FROM dev020_prepeak_session_control WHERE id=1").fetchone()
-        if row and int(time.time()) < row[0]:
-            raise RuntimeError("DEV020_SESSION_COOLDOWN_ACTIVE")
+    _require_session_ready(now=int(time.time()))
     chosen = select()
     transport = RateLimited(BirdeyeProductionBinding(credential_label="BIRDEYE"))
     counts = {"OBSERVED_CONTIGUOUS": 0, "OBSERVED_SPARSE": 0, "INSUFFICIENT_EVIDENCE": 0, "drawdown_count": 0}
@@ -165,8 +201,7 @@ def run() -> dict[str, Any]:
             counts["drawdown_count"] += 1
             drawdowns.append(float(drawdown))
     finally:
-        with _connect() as connection:
-            connection.execute("INSERT INTO dev020_prepeak_session_control(id,next_eligible_at) VALUES(1,?) ON CONFLICT(id) DO UPDATE SET next_eligible_at=excluded.next_eligible_at", (int(time.time()) + 60,))
+        _record_session_cooldown(now=int(time.time()))
     return {"tokens_selected": len(chosen), "tokens_processed": sum(counts[key] for key in ("OBSERVED_CONTIGUOUS", "OBSERVED_SPARSE", "INSUFFICIENT_EVIDENCE")), "provider_requests": transport.calls, **counts, "average_drawdown": sum(drawdowns) / len(drawdowns) if drawdowns else None, "maximum_drawdown": max(drawdowns) if drawdowns else None}
 
 

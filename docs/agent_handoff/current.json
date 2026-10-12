@@ -23972,5 +23972,17 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "runtime_deployment_reason": "The active DEV Gunicorn remains pinned to a separate checkout. Its source, configuration, process, and workers were not changed from the DEV017 worktree.",
     "next_action": "Deploy revision 8357861760a650a66200c4bcb17fa6020fb7efa1 to the explicitly selected DEV API target under the runtime deployment gate, perform bounded HTTP acceptance, then separately authorize any acquisition from the 471-item manifest."
+  },
+  "dev017_helius_timestamp_reconciliation_20261012": {
+    "status": "COMPLETE_READ_ONLY",
+    "scope": "Read-only reconciliation of 550 DEV014 compact journals, canonical token_analysis, Watchtower provenance/observation tables, and retained create/migration ledgers. No provider/RPC call, code/configuration change, deployment, or infrastructure action occurred.",
+    "helius_calls_previously_made": "UNPROVEN: no cohort-scoped Helius transport journal or call-count ledger is retained. 53 qualified DEV013 first-available-trade outputs imply prior create-slot evidence under that contract, but raw transaction responses and exact call accounting were intentionally not retained.",
+    "timestamps": "DEV014 journal creation_timestamp=550/550 and was used verbatim as Birdeye OHLCV time_from=550/550. Canonical token_analysis has created_at/create_tx_signature/migrated_at/migration_tx for 541/550 and first_observed_at for 24/550. Retained Watchtower create-event and migration-ledger tables have zero rows for this cohort. Only 53/550 have a retained qualified first-available trade timestamp.",
+    "anchor_provenance": "Journal creation_timestamp is a cohort window anchor, not a traceably retained Helius transaction timestamp: among the 541 canonical overlaps, it equals canonical created_at for 65 and migrated_at for 5. It must not be relabelled birth or migration time.",
+    "valuation": "No additional local opening MC is recoverable from transaction evidence: no cohort rows exist in retained create-event/migration ledgers, DEV013 outputs retain raw_retained=false, and canonical transaction identifiers/timestamps contain no reserve, supply-price, or market-cap valuation facts. The already reported 79 baseline values remain the complete local recovery.",
+    "future_request_reduction": "Of the 471 unresolved tokens, 462 already retain a canonical create signature and migration metadata; an exact DEV013 first-available-trade recovery would need at most 462 Helius transaction reads to obtain missing create slot/block-time plus at most 462 Birdeye trade reads. The remaining 9 have no retained canonical row/signature, so a direct Helius transaction read is not currently defined for them. No acquisition is authorized by this finding.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY_RECONCILIATION",
+    "next_action": "Replace the 471-item plan's speculative 471+471 estimate with the bounded 462+462 eligible subset and leave the 9 unsigned identities as INSUFFICIENT_CREATE_EVIDENCE pending separate authority."
   }
 }

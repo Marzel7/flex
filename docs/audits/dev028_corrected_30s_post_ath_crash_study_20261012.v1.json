@@ -1,0 +1,65 @@
+{
+  "schema": "DEV028_CORRECTED_30S_POST_ATH_CRASH_STUDY_V1",
+  "environment": "DEV",
+  "engineering_revision": "85b64bc0f184d3e845cc09cd4de2cfb3ef5ce62c",
+  "continuation_manifest": {
+    "content_hash": "1d276f546bea4c195a3b511b26b2de62e041a3dfdf918976fc04fe7eacf36220",
+    "file_sha256": "1c8f2c32b9131198bea0e002222d83192d8fdc8b3042bcf3cb3e9e9647fb354a",
+    "selected_tokens": 9,
+    "selection": "Exact frozen DEV028 records 2-10, excluding only the separately completed corrected one-token proof; no substitutions."
+  },
+  "execution": {
+    "provider": "BIRDEYE",
+    "requests": 9,
+    "http_200": 9,
+    "controls": "single concurrency; six-second pacing; rolling ten-per-minute DevProviderBudget admission; one request per token; no retry, pagination, fallback, or expansion.",
+    "raw_provider_payload_retained": false
+  },
+  "outcome_counts": {
+    "QUALIFIED_85_PERCENT_CRASH_OBSERVED_PARTIAL": 3,
+    "NO_85_PERCENT_CANDLE_OBSERVED_PARTIAL": 4,
+    "INSUFFICIENT_EVIDENCE": 2,
+    "complete_30s_coverage": 0
+  },
+  "crash_events": [
+    {"mint":"B4PBamVhXRq3Lp4rGTtgwR8youh8C5rP3ShVZUmPpump","timestamp":1787755050,"open_mc_usd":82448.10884562945,"close_mc_usd":2055.17412924607,"crash_percent":97.50731198323294,"pre_crash_to_opening":0.7025450321199306,"pre_crash_to_peak":0.6363503061269932,"seconds_from_peak":450,"coverage":"PARTIAL_30S_COVERAGE"},
+    {"mint":"Awzaq2s75uJAmPJBWHc9PwS7H7LfCiAp1KRJxh3kpump","timestamp":1788182070,"open_mc_usd":137167.16943706325,"close_mc_usd":2735.2444983538185,"crash_percent":98.00590439419337,"pre_crash_to_opening":1.0095334376063974,"pre_crash_to_peak":0.6376844560732,"seconds_from_peak":870,"coverage":"PARTIAL_30S_COVERAGE"},
+    {"mint":"7xXQVWbn3ac6XoQW3RA5jqPj6eTBaBKe2o3Hk6w3pump","timestamp":1789570530,"open_mc_usd":36027.03161764266,"close_mc_usd":2223.712315464167,"crash_percent":93.82765602488548,"pre_crash_to_opening":18.876146477321825,"pre_crash_to_peak":0.15611646638750454,"seconds_from_peak":630,"coverage":"PARTIAL_30S_COVERAGE"}
+  ],
+  "coverage": {
+    "valid_partial_observations": [
+      {"ordinal":2,"valid_candles":28,"missing_buckets":132,"largest_missing_gap_seconds":2070,"crash_observed":true},
+      {"ordinal":3,"valid_candles":65,"missing_buckets":95,"largest_missing_gap_seconds":1620,"crash_observed":false},
+      {"ordinal":4,"valid_candles":62,"missing_buckets":98,"largest_missing_gap_seconds":720,"crash_observed":true},
+      {"ordinal":5,"valid_candles":55,"missing_buckets":105,"largest_missing_gap_seconds":1950,"crash_observed":false},
+      {"ordinal":7,"valid_candles":115,"missing_buckets":45,"largest_missing_gap_seconds":480,"crash_observed":false},
+      {"ordinal":9,"valid_candles":54,"missing_buckets":106,"largest_missing_gap_seconds":1530,"crash_observed":false},
+      {"ordinal":10,"valid_candles":44,"missing_buckets":116,"largest_missing_gap_seconds":1470,"crash_observed":true}
+    ],
+    "insufficient": [
+      {"ordinal":6,"reason":"OUT_OF_RANGE_TIMESTAMP","candle_index":160},
+      {"ordinal":8,"reason":"OUT_OF_RANGE_TIMESTAMP","candle_index":160}
+    ],
+    "first_last_qualifying_candle_timestamps": "Not retained by the compact normalizer; missing-bucket coordinates and counts are retained."
+  },
+  "relationships": {
+    "pre_crash_to_opening_values":[0.7025450321199306,1.0095334376063974,18.876146477321825],
+    "pre_crash_to_opening_median":1.0095334376063974,
+    "pre_crash_to_peak_values":[0.15611646638750454,0.6363503061269932,0.6376844560732],
+    "pre_crash_to_peak_median":0.6363503061269932,
+    "absolute_pre_crash_mc_values":[36027.03161764266,82448.10884562945,137167.16943706325],
+    "absolute_pre_crash_mc_median":82448.10884562945,
+    "time_from_peak_seconds":[450,630,870],
+    "time_from_peak_median_seconds":630,
+    "verdict":"INCONCLUSIVE: n=3 and partial coverage throughout. Opening-relative values span 0.70x to 18.88x, which does not support H1 clustering at 1.0-1.3x. Peak-relative values are also dispersed; no repeatable peak fraction, absolute level, or timing rule is established."
+  },
+  "preservation": {
+    "original_failed_journal_sha256":"710e88cbae1694454dd0acd6510d309171500f8fc1637f595e1235bb7ab759cd",
+    "corrected_single_proof_preserved":true,
+    "continuation_journal_bytes":23830
+  },
+  "storage":{"raw_provider_payload_retained":false,"single_file_limit_bytes":500000000,"unbounded_growth_paths":0},
+  "runtime_deployment_required":false,
+  "runtime_deployment_gate":"NOT_APPLICABLE_BOUNDED_DATA_STUDY",
+  "next_action":"Stop. No additional acquisition is authorized."
+}

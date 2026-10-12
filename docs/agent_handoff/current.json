@@ -24035,5 +24035,19 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY_TRACE",
     "next_action": "Obtain explicit authorization for exactly the one BIRDEYE OHLCV request before attempting single-token recovery; otherwise stop."
+  },
+  "dev018_watchtower_opening_method_proof_20261012": {
+    "status": "HOLD_STRICT_MIGRATION_CANDLE_ABSENT",
+    "engineering_revision": "0e6c51acd42b05ee5e6eff5364d8f4886220007e; isolated DEV017 worktree evidence commit",
+    "token": "GTP5PX2pUpwdGV17KnugQh8yQENz1FcVzrjcwvYxpump",
+    "authorization": "Exactly one BIRDEYE request; zero Helius requests; no retry, pagination, fallback, or additional token.",
+    "request": "GET /defi/v3/ohlcv; address=GTP5PX2pUpwdGV17KnugQh8yQENz1FcVzrjcwvYxpump; type=1s; time_from=1784784355; time_to=1784784357; currency=usd; chart_type=mcap; mode=range; padding=false; x-chain=solana; authoritative credential BIRDEYE.",
+    "result": "HTTP 200 with provider_item_count=0 and normalized_item_count=0. No candle at migration, migration+1, or migration+2. Existing strict reducer returned INSUFFICIENT_EVIDENCE / STRICT_MIGRATION_TARGET_SECOND_REQUIRED.",
+    "retention": "docs/audits/dev018_watchtower_opening_method_proof_20261012.v1.json; 1,410 bytes; compact payload-free evidence; maximum artifact 1 MiB; no unbounded writer and no file can reach 500 MB.",
+    "metrics": "Opening MC/timestamp and opening-to-DEV014-peak multiple remain unavailable. Retained DEV014 observed peak is USD 325051.0948492504. No fact/provenance insertion occurred, preserving prior evidence.",
+    "provider_accounting": "BIRDEYE=1; HELIUS=0; total=1, within authorization.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_EVIDENCE_ONLY",
+    "next_action": "Stop after this token. Review the strict-candle absence before authorizing any further activity."
   }
 }

@@ -1,0 +1,14 @@
+{
+  "schema":"DEV025_WATCHTOWER_POST_PEAK_OPENING_BREAKDOWN_V1",
+  "scope":"Provider-free join of 539 DEV020 comparable opening/observed-peak records with compact DEV014 peak-to-subsequent-trough/later-observation facts.",
+  "coverage":{"comparable_opening_peak":539,"post_peak_low_and_latest_overlap":528,"missing_postpeak_or_latest":11,"note":"DEV014 retained lifecycle windows are bounded observed windows, not complete history or verified ATH paths."},
+  "post_peak_low_to_opening":{"at_or_below_100pct":528,"at_or_below_75pct":527,"at_or_below_50pct":527,"at_or_below_25pct":527,"at_or_below_10pct":526,"at_or_below_5pct":518},
+  "latest_to_opening":{"below_100pct":527,"below_50pct":527,"below_10pct":526,"above_opening":1},
+  "post_peak_drawdown_percent":{"median":99.17792234676152,"p75":99.48030246247316,"p90":99.70306960812637,"p95":99.77660549700803},
+  "interpretation":"Within this retained, post-peak-trough-qualified subset, crossing back through opening is associated with extremely low retained later valuations. The selection is conditioned on a retained peak-to-subsequent-trough fact, so it cannot estimate a population-wide first-crossing probability or prove that opening crossing causes collapse.",
+  "candidate_exits":{"150pct":"ORDERING_UNPROVEN","125pct":"ORDERING_UNPROVEN","100pct":"ORDERING_UNPROVEN","75pct":"ORDERING_UNPROVEN","50pct":"ORDERING_UNPROVEN","reason":"Compact records retain extrema and later/latest observations, not threshold-crossing time, tradable fill, subsequent recovery path, or exit execution."},
+  "peak_multiple_groups":"Not calculated as a risk rule: the available overlap is overwhelmingly selected terminal/trough evidence and would misleadingly imply every peak-multiple group has an identical collapse rate. A complete unselected post-peak panel is required.",
+  "representatives":"Individual examples omitted from the compact artifact because no unselected ordered recovery path is retained; selecting extrema would imply an executable narrative not supported by the data.",
+  "missing_execution_evidence":["first post-peak threshold crossing timestamp","ordered candles after crossing","recovery observations after low","liquidity/fill/slippage/cost data","unselected complete post-peak coverage"],
+  "storage":"Compact JSON only; no raw payload, acquisition, evidence mutation, or 500 MB growth path."
+}

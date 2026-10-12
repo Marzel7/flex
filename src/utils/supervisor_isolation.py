@@ -25,6 +25,7 @@ class IsolatedSupervisorConfig:
     server_socket: Path
     pidfile: Path
     control_socket: Path
+    protected_endpoint_paths: tuple[Path, ...]
 
 
 _INTERPOLATION = re.compile(r"%\(([^)]+)\)s")
@@ -121,12 +122,23 @@ def validate_offline_config(config_path: Path | None, *, temp_root: Path,
         raise SupervisorIsolationError("SUPERVISOR_ISOLATION_SERVER_CONTROL_MISMATCH")
     if pidfile == server_socket:
         raise SupervisorIsolationError("SUPERVISOR_ISOLATION_ENDPOINT_COLLISION")
-    return IsolatedSupervisorConfig(config, root, server_socket, pidfile, control_socket)
+    return IsolatedSupervisorConfig(
+        config,
+        root,
+        server_socket,
+        pidfile,
+        control_socket,
+        tuple(_resolved(item) for item in protected_endpoint_paths),
+    )
 
 
 def require_verified_control_socket(config: IsolatedSupervisorConfig) -> None:
     """Verify a temporary UNIX socket before a caller constructs an argv."""
     socket_path = config.control_socket
+    # The configuration check alone is not sufficient: a path may be replaced
+    # after validation. Re-resolve the actual filesystem identity immediately
+    # before an argv can be constructed.
+    _reject_protected(socket_path, config.protected_endpoint_paths)
     if not socket_path.exists():
         raise SupervisorIsolationError("SUPERVISOR_ISOLATION_CONTROL_SOCKET_UNAVAILABLE")
     try:

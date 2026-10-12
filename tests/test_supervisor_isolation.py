@@ -1,6 +1,8 @@
 from pathlib import Path
 from types import SimpleNamespace
+import socket
 import stat
+import tempfile
 
 import pytest
 
@@ -84,6 +86,24 @@ def test_unavailable_or_non_socket_control_endpoint_never_yields_argv(tmp_path):
     config.control_socket.touch()
     with pytest.raises(SupervisorIsolationError, match="NOT_UNIX"):
         isolated_supervisorctl_argv(config, "status")
+
+
+def test_control_socket_rechecks_actual_identity_before_constructing_argv():
+    # macOS AF_UNIX paths have a short maximum; use an explicit short root so
+    # this tests identity rather than the test worktree's path length.
+    with tempfile.TemporaryDirectory(prefix="si-", dir="/tmp") as directory:
+        root = Path(directory)
+        live = root / "live"; live.mkdir()
+        live_socket = live / "supervisor.sock"
+        listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        listener.bind(str(live_socket))
+        try:
+            config = validate_offline_config(_config(root), **_policy(root, live))
+            config.control_socket.symlink_to(live_socket)
+            with pytest.raises(SupervisorIsolationError, match="PROTECTED"):
+                isolated_supervisorctl_argv(config, "shutdown")
+        finally:
+            listener.close()
 
 
 def test_verified_temporary_socket_only_constructs_isolated_argv(tmp_path, monkeypatch):

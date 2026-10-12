@@ -1,0 +1,36 @@
+{
+  "artifact": "DEV020 bounded 180-minute OHLCV completeness proof",
+  "environment": "DEV",
+  "provider_request_count": 1,
+  "provider": "Birdeye",
+  "endpoint": "/defi/v3/ohlcv",
+  "request": {
+    "token_mint": "2RDV1zyUpJ9RG9Q4aqoB5gSHrT6goM149b95ktCTpump",
+    "interval": "1m",
+    "chart_type": "mcap",
+    "currency": "usd",
+    "mode": "range",
+    "padding": false,
+    "chain": "solana",
+    "time_from": 1790254140,
+    "time_to": 1790264940,
+    "window_seconds": 10800
+  },
+  "response_summary": {
+    "http_status": 200,
+    "provider_item_count": 15,
+    "normalized_candle_count": 15,
+    "first_candle_timestamp": 1790254140,
+    "last_candle_timestamp": 1790256120,
+    "expected_one_minute_intervals": 180,
+    "missing_interval_count": 165,
+    "explicit_truncation_indicator_keys": []
+  },
+  "coverage_verdict": "INDETERMINATE_GAPPED_SEQUENCE",
+  "truncation_evidence": "No explicit truncation, pagination, next-page, total, limit, or more-data indicator was present in the safe response metadata. The 165 missing minute intervals may reflect sparse historical observations or provider-side truncation; this response alone cannot distinguish them.",
+  "retention": {
+    "raw_provider_payload_retained": false,
+    "maximum_single_artifact_bytes": 1048576,
+    "unbounded_growth_paths": 0
+  }
+}

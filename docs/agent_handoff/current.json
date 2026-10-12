@@ -23921,5 +23921,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_REQUIRED_ACQUISITION_HOLD",
     "next_action": "Inspect the exact process-table parsing dependency and establish a minimal safe correction before rerunning the unchanged launcher for the 220 NEW identities."
+  },
+  "dev014_process_arguments_resolution_20261012": {
+    "status": "RUNNING",
+    "engineering_revision": "06fc3194e4a9c4fcfdf4554286a5486c14fe7649; existing DEV014 lifecycle worker",
+    "ambiguity_cause": "Transient process-table parsing failure: a fresh full ps snapshot parsed with zero malformed records, and the unchanged Batch4RuntimeGate preflight subsequently passed. No conflicting lifecycle, Supervisor, or protected worker process was present.",
+    "correction": "None. No persistent detection defect was demonstrated, so the topology requirement and code remain unchanged.",
+    "gate": "PASS: original gate accepted verified topology and a genuine quiescent listener checkpoint with remaining_frames=0.",
+    "durable_progress": "339 COMPLETED, 1 NO_VALID_CANDLES, 210 NEW; terminal=340. Current launcher run is RUNNING with last_durable_completion_count=340.",
+    "safety": "Existing single concurrency, provider budget/cooldown, no-retry, no-pagination, no-fallback, BIRDEYE-only, compact-evidence, and storage bounds are unchanged; no restart, signal, telemetry/code/config change, or gate bypass.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_EXISTING_ACQUISITION_RUNNING",
+    "next_action": "Allow the unchanged launcher to continue from durable journals until exhaustion or a new concrete HOLD."
   }
 }

@@ -1,0 +1,51 @@
+{
+  "schema_version": "DEV018_ONE_MINUTE_OPENING_MC_PROOF_V1",
+  "environment": "DEV",
+  "token_mint": "GTP5PX2pUpwdGV17KnugQh8yQENz1FcVzrjcwvYxpump",
+  "canonical_migration": {
+    "timestamp": 1784784355,
+    "signature": "5h6FTwot3gHrHhvgAQx4HPpMTRZ2he1FcxLVWvhpnuzstjrUET81Z66rCiXu66RrknujeDTBENF7htXgAzD9WygD"
+  },
+  "request": {
+    "endpoint": "/defi/v3/ohlcv",
+    "parameters": {
+      "type": "1m",
+      "time_from": 1784784355,
+      "time_to": 1784784655,
+      "currency": "usd",
+      "chart_type": "mcap",
+      "mode": "range",
+      "padding": false
+    },
+    "chain": "solana",
+    "credential_alias": "BIRDEYE"
+  },
+  "provider_request_count": 1,
+  "helius_request_count": 0,
+  "http_status": 200,
+  "provider_item_count": 5,
+  "normalized_candle_count": 5,
+  "baseline": {
+    "type": "FIRST_AVAILABLE_POST_MIGRATION_MC",
+    "qualification_status": "QUALIFIED",
+    "interval": "1m",
+    "interval_start_timestamp": 1784784360,
+    "interval_end_timestamp": 1784784420,
+    "seconds_after_migration": 5,
+    "overlaps_migration_interval": false,
+    "timestamp_field": "timestamp",
+    "market_cap_field": "close",
+    "market_cap_usd": 148063.21660039216
+  },
+  "comparison": {
+    "observed_peak_mc_usd": 325051.0948492504,
+    "observed_peak_timestamp": 1784785500,
+    "temporally_comparable": true,
+    "economically_comparable": true,
+    "opening_to_observed_peak_multiple": 2.195353459911187,
+    "opening_to_observed_peak_gain_percent": 119.535345991119
+  },
+  "raw_provider_payload_retained": false,
+  "artifact_max_bytes": 1048576,
+  "unbounded_growth_paths": 0
+}

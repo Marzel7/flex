@@ -1,0 +1,19 @@
+{
+  "schema_version": "DEV020_URANUS_PREPEAK_PROOF_V1",
+  "environment": "DEV",
+  "token_mint": "3seG33wYiv2T8V68813Kq7XNPJU8iFbJjsnNT3Lrpump",
+  "request": {"endpoint": "/defi/v3/ohlcv", "type": "1m", "time_from": 1789821120, "time_to": 1789823700, "currency": "usd", "chart_type": "mcap", "mode": "range", "padding": false, "chain": "solana", "credential_alias": "BIRDEYE"},
+  "provider_request_count": 1,
+  "provider_item_count": 44,
+  "qualifying_candle_count": 43,
+  "opening_mc_usd": 130710.49988737828,
+  "opening_timestamp": 1789821120,
+  "observed_peak_mc_usd": 788884.3544970722,
+  "observed_peak_timestamp": 1789823700,
+  "prepeak_low": {"mc_usd": 91491.36766641765, "interval_start_timestamp": 1789821600, "field": "low", "below_opening": true},
+  "maximum_prepeak_drawdown": {"percent": 42.542439635545094, "preceding_high_mc_usd": 159232.94878182322, "preceding_high_interval_start_timestamp": 1789821360, "subsequent_low_mc_usd": 91491.36766641765, "subsequent_low_interval_start_timestamp": 1789821600, "qualification": "INTERVAL_SAFE_PRECEDING_HIGH_TO_LATER_LOW"},
+  "recovery": {"seconds": 480, "qualification": "FIRST_LATER_CANDLE_CLOSE_AT_OR_ABOVE_PRECEDING_HIGH"},
+  "raw_provider_payload_retained": false,
+  "artifact_max_bytes": 1048576,
+  "unbounded_growth_paths": 0
+}

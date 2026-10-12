@@ -23910,5 +23910,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_REQUIRED_EXISTING_ACQUISITION_RUNNING",
     "next_action": "Allow the existing launcher to continue from durable journals until exhaustion or a concrete safety/acquisition HOLD; report only material state changes."
+  },
+  "dev014_continue_250_execution_stop_20261012": {
+    "status": "HOLD_PROCESS_ARGUMENTS_AMBIGUOUS",
+    "engineering_revision": "06fc3194e4a9c4fcfdf4554286a5486c14fe7649; existing DEV014 lifecycle worker",
+    "durable_state": "329 COMPLETED, 1 NO_VALID_CANDLES, 220 NEW; terminal=330. The resumed launcher durably completed 20 identities since its RUNNING handoff, then stopped before any further admission.",
+    "immediate_cause": "The unchanged Batch4RuntimeGate topology check rejected a current process-table record as PROCESS_ARGUMENTS_AMBIGUOUS.",
+    "provider_accounting": "20 lifecycle requests in this resumed segment; current rolling shared queue ledger=10 calls.",
+    "safety": "No retry, gate bypass, telemetry change, code/config/runtime change, restart, signal, raw lifecycle payload retention, or production process change.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_ACQUISITION_HOLD",
+    "next_action": "Inspect the exact process-table parsing dependency and establish a minimal safe correction before rerunning the unchanged launcher for the 220 NEW identities."
   }
 }

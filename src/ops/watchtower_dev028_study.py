@@ -245,3 +245,56 @@ def execute(*, manifest_path: Path, journal_path: Path, budget_root: Path, env_p
                 state.update({"state": "INSUFFICIENT_EVIDENCE", "http_status": outcome.status_code, "normalization_error": str(error)})
         _atomic_json(journal_path, journal)
     return _read_json(journal_path)
+
+
+def execute_single_corrected_proof(*, manifest_path: Path, original_journal_path: Path, proof_journal_path: Path,
+                                  budget_root: Path, env_path: Path, ordinal: int = 1,
+                                  binding_factory: Callable[[], Callable[[Mapping[str, Any]], Any]] | None = None,
+                                  now: Callable[[], float] = time.time) -> dict[str, Any]:
+    """Run one explicitly authorized corrected-normalizer proof without mutating DEV028 outcomes."""
+    if proof_journal_path.exists():
+        raise RuntimeError("DEV028_PROOF_JOURNAL_ALREADY_EXISTS")
+    manifest = _verified_manifest(manifest_path)
+    original = _read_json(original_journal_path)
+    selected = next((item for item in manifest["records"] if item["ordinal"] == ordinal), None)
+    if selected is None:
+        raise ValueError("DEV028_PROOF_ORDINAL_NOT_FROZEN")
+    prior = original.get("records", {}).get(selected["request_identity"])
+    if not isinstance(prior, Mapping) or prior.get("state") != "INSUFFICIENT_EVIDENCE":
+        raise RuntimeError("DEV028_ORIGINAL_OUTCOME_NOT_PRESERVED")
+    try:
+        ledger = _read_json(budget_root / "provider_budget.json")
+        if not isinstance(ledger.get("calls", []), list):
+            raise ValueError
+    except (OSError, ValueError, json.JSONDecodeError):
+        raise RuntimeError("DEV028_PROVIDER_BUDGET_LEDGER_UNREADABLE")
+    proof_identity = _sha({"schema": "DEV028_CORRECTED_30S_PROOF_V1", "original_request_identity": selected["request_identity"]})
+    journal: dict[str, Any] = {"schema": "DEV028_CORRECTED_30S_PROOF_V1", "proof_identity": proof_identity,
+                                "original_request_identity": selected["request_identity"], "mint": selected["mint"],
+                                "state": "PENDING", "provider_requests": 0}
+    _atomic_json(proof_journal_path, journal)
+    credential = _read_authoritative_birdeye(env_path)
+    os.environ["BIRDEYE"] = credential
+    binding = binding_factory() if binding_factory else BirdeyeProductionBinding(credential_label="BIRDEYE")
+    journal["state"] = "ADMISSION_INTENT"; _atomic_json(proof_journal_path, journal)
+    try:
+        journal["budget_admission"] = DevProviderBudget(budget_root, now=now).admit(selected["mint"], "DEV028_CORRECTED_30S_PROOF", global_limit=10)
+    except BudgetDenied as error:
+        journal.update({"state": "PENDING", "reason": str(error)}); _atomic_json(proof_journal_path, journal); return journal
+    journal.update({"state": "ADMITTED"}); _atomic_json(proof_journal_path, journal)
+    journal.update({"state": "ATTEMPTED", "provider_requests": 1}); _atomic_json(proof_journal_path, journal)
+    request = build_birdeye_ohlcv_request(address=selected["mint"], interval="30s", time_from=selected["request_window"]["time_from"], time_to=selected["request_window"]["time_to"])
+    outcome = binding(request)
+    if outcome.status_code != 200 or outcome.error_state is not None:
+        journal.update({"state": "INSUFFICIENT_EVIDENCE", "http_status": outcome.status_code, "transport_error": outcome.error_state})
+    else:
+        try:
+            normalized = normalize_30s_exit_evidence(outcome=outcome, mint=selected["mint"], entry_timestamp=selected["opening_timestamp"], entry_mc_usd=selected["opening_mc_usd"], candidate_start=selected["candidate_start"], request_id=selected["request_identity"], provider_provenance="BIRDEYE_V3_30S_MCAP", observed_peak_timestamp=selected["observed_peak_timestamp"])
+            journal.update({"state": _classify(normalized), "http_status": outcome.status_code, "evidence": normalized})
+        except ExitEvidenceValidationError as error:
+            journal.update({"state": "INSUFFICIENT_EVIDENCE", "http_status": outcome.status_code,
+                            "normalization_diagnostic": compact_failure_diagnostic(error, request_id=selected["request_identity"])})
+        except ValueError as error:
+            journal.update({"state": "INSUFFICIENT_EVIDENCE", "http_status": outcome.status_code, "normalization_error": str(error)})
+    _atomic_json(proof_journal_path, journal)
+    return journal

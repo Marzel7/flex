@@ -24281,5 +24281,18 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_EVIDENCE_ONLY",
     "next_action": "Stop after this one-request proof. A provider completeness contract or distinct authoritative evidence is required before treating a gapped response as a bounded complete sequence."
+  },
+  "dev020_gap_aware_prepeak_metrics_20261012": {
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "engineering_revision": "9016620069bae9782bc32026a0920fe386648d2b; isolated DEV worktree commit",
+    "scope": "DEV020 local calculation implementation and synthetic bounded tests. No Birdeye, Helius, RPC, deployment, cohort acquisition, raw-payload retention, or production change occurred.",
+    "implementation": "Added payload-free gap-aware OHLCV reducer and exposed it through the existing Watchtower historical executor. It returns low observation, below-opening flag, strictly-earlier-interval high-to-later-low drawdown, conservative close-based recovery, baseline-to-observed-peak multiple, and requested-window coverage metadata. Same-interval high/low never establish an ordering claim.",
+    "coverage_contract": "Two or more valid candles are OBSERVED_CONTIGUOUS only with zero expected-interval gaps; otherwise they are OBSERVED_SPARSE. Fewer valid candles are INSUFFICIENT_EVIDENCE. Neither observed classification claims provider-history completeness or an absolute drawdown.",
+    "validation": "16 tests passed: tests/test_dev020_prepeak_metrics.py, tests/test_dev019_opening_executor.py, and tests/test_dev016_lifecycle_metrics.py. URANUS is preserved as historical proof because its source candles were intentionally not retained; a compact synthetic fixture validates its documented 42.542439635545094% reducer semantics and 480-second recovery without fabricating a replay. Sparse synthetic coverage validates 15/180-style gaps remain observed-only.",
+    "storage": "No runtime records or raw candles were written. The reducer returns compact derived values only; maximum planned per-result artifact is 1 MiB and there is no unbounded raw-retention path or 500 MB single-file path.",
+    "provider_calls": 0,
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "Deploy revision 9016620069bae9782bc32026a0920fe386648d2b to the intended DEV runtime, record target pre/post identities and a bounded no-provider acceptance, before marking DEV020 executable integration complete."
   }
 }

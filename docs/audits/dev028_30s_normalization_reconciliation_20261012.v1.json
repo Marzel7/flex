@@ -1,0 +1,40 @@
+{
+  "schema": "DEV028_30S_NORMALIZATION_RECONCILIATION_V1",
+  "environment": "DEV",
+  "provider_calls": 0,
+  "status": "PARTIAL_CORRECTION_APPLIED_EXISTING_RESULTS_UNRECOVERABLE",
+  "comparison": {
+    "dev028_executed_normalizer": "c3c1588d927ca205f2c026a283dfbb4ab47479c4",
+    "successful_dev014_followup": "87ef772ab1e8a3b56ff0a5c2e2b5f8bf3856eff5",
+    "request_contract": "Both use /defi/v3/ohlcv with chart_type=mcap, currency=usd, mode=range, padding=false, type=30s, and the fixed candidate window.",
+    "material_difference": "c3 accepts only unixTime/o/h/l/c and collapses all candle validation failures into INVALID_30S_MCAP_CANDLE. 87ef adds established timestamp/open/high/low/close aliases plus bounded field/type/schema diagnostics while preserving positive finite OHLC, alignment, ordering, and OHLC-consistency qualification."
+  },
+  "retained_dev028_evidence": {
+    "requests": 10,
+    "http_200": 10,
+    "terminal_states": {"INSUFFICIENT_EVIDENCE": 10},
+    "only_rejection_metadata": {"INVALID_30S_MCAP_CANDLE": 10},
+    "missing": ["field-presence aliases", "value classes", "first invalid candle index", "schema fingerprint", "raw provider candles"],
+    "conclusion": "The generic c3 validation path is the demonstrated cause of DEV028's non-diagnostic failures. The retained compact records cannot establish whether the actual provider rows used aliases, contained missing/nonpositive/nonfinite values, had bad timestamps, or violated OHLC consistency. HTTP 200 alone cannot answer that question."
+  },
+  "correction": {
+    "source": "87ef772a previously qualified DEV014 correction, applied to the DEV028 study branch",
+    "behavior": "Accept established aliases; fail closed with a compact diagnostic containing only failure category, field path, candle index, expected type, actual value class, and schema fingerprint. No provider values, full candles, or raw payload are retained.",
+    "qualification_definition": "UNCHANGED: a qualifying crash remains a valid positive finite, aligned, ordered, internally consistent OHLC candle with open-to-close decline >=85%.",
+    "existing_terminal_records_modified": false
+  },
+  "tests": {
+    "command": "pytest -q tests/test_watchtower_sharp_exit_evidence.py tests/test_watchtower_dev028_study.py",
+    "result": "20 passed",
+    "coverage": ["alias normalization", "missing/invalid field diagnostics", "bounded diagnostic retention", "first qualifying collapse", "ten-record fixture execution", "post-admission no-retry"]
+  },
+  "storage": {
+    "failure_diagnostic_max_bytes": 1024,
+    "raw_provider_payload_retained": false,
+    "single_file_limit_bytes": 500000000,
+    "unbounded_growth_paths": 0
+  },
+  "runtime_deployment_required": false,
+  "runtime_deployment_gate": "NOT_APPLICABLE_OFFLINE_NORMALIZATION_CORRECTION",
+  "next_action": "Do not reacquire the DEV028 records. A separate authorization would be required for any new bounded observation using the corrected diagnostic path."
+}

@@ -19,6 +19,7 @@ from src.ops.dev_provider_budget import BudgetDenied, DevProviderBudget
 from src.ops.token_data_provider_bindings import BirdeyeProductionBinding, build_birdeye_ohlcv_request
 from src.ops.watchtower_sharp_exit_evidence import (
     CONTRACT_VERSION, WINDOW_AFTER_SECONDS, WINDOW_BEFORE_SECONDS,
+    ExitEvidenceValidationError, compact_failure_diagnostic,
     normalize_30s_exit_evidence, request_identity,
 )
 
@@ -235,6 +236,11 @@ def execute(*, manifest_path: Path, journal_path: Path, budget_root: Path, env_p
             try:
                 normalized = normalize_30s_exit_evidence(outcome=outcome, mint=item["mint"], entry_timestamp=item["opening_timestamp"], entry_mc_usd=item["opening_mc_usd"], candidate_start=item["candidate_start"], request_id=item["request_identity"], provider_provenance="BIRDEYE_V3_30S_MCAP", observed_peak_timestamp=item["observed_peak_timestamp"])
                 state.update({"state": _classify(normalized), "http_status": outcome.status_code, "evidence": normalized})
+            except ExitEvidenceValidationError as error:
+                # Keep only the established bounded, field-presence diagnostic;
+                # never retain provider values or full candle history.
+                state.update({"state": "INSUFFICIENT_EVIDENCE", "http_status": outcome.status_code,
+                              "normalization_diagnostic": compact_failure_diagnostic(error, request_id=item["request_identity"])})
             except ValueError as error:
                 state.update({"state": "INSUFFICIENT_EVIDENCE", "http_status": outcome.status_code, "normalization_error": str(error)})
         _atomic_json(journal_path, journal)

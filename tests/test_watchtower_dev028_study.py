@@ -69,3 +69,24 @@ def test_post_admission_state_is_never_retried(tmp_path):
                      env_path=tmp_path / ".env", binding_factory=lambda: _outcome, sleep=lambda _: None)
     assert any(row["state"] == "OUTCOME_UNKNOWN" for row in result["records"].values())
     assert sum(row["provider_requests"] for row in result["records"].values()) == 10
+
+
+def test_invalid_candle_persists_only_bounded_diagnostic(tmp_path):
+    db, lifecycle = _fixture_sources(tmp_path)
+    state = tmp_path / "state"
+    manifest = prepare_manifest(prepeak_db=db, lifecycle_root=lifecycle, destination=state / "manifest.json")
+    initialize_journal(manifest=manifest, destination=state / "journal.json")
+    (tmp_path / ".env").write_text("BIRDEYE=synthetic\n")
+    budget_root = tmp_path / "budget"; budget_root.mkdir(); (budget_root / "provider_budget.json").write_text('{"calls":[],"version":1}\n')
+
+    def invalid(request):
+        response = _outcome(request)
+        response.payload["data"]["items"][0]["l"] = 0
+        return response
+
+    result = execute(manifest_path=state / "manifest.json", journal_path=state / "journal.json", budget_root=budget_root,
+                     env_path=tmp_path / ".env", binding_factory=lambda: invalid, sleep=lambda _: None)
+    diagnostic = next(iter(result["records"].values()))["normalization_diagnostic"]
+    assert diagnostic["failure_category"] == "INVALID_OHLC_VALUE"
+    assert diagnostic["field_path"] == "item.low"
+    assert "payload" not in diagnostic and "items" not in diagnostic

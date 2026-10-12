@@ -24230,6 +24230,17 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "Review and separately authorize deployment to the intended DEV020 runtime before any further provider-backed DEV020 session."
   },
+  "dev020_budget_pacing_deployment_20261012": {
+    "status": "PASS",
+    "engineering_revision": "771b3495518680f2e9208f5fd41fdc99d2d7050d on codex/dev020-synthetic-clock; origin verified",
+    "deployment": "Only Supervisor program watchtower_api was reloaded from the existing clean isolated DEV runtime worktree /Users/kevinkeaveney/.codex/worktrees/dev020-runtime/flex. Its command revision was updated from 524b709ba1f1c4b2a344789f85e0621363035bf4 to the qualified revision. No unrelated service was restarted and no production target was changed.",
+    "runtime_acceptance": "watchtower_api is RUNNING pid 66958 from the DEV020 worktree gunicorn configuration. GET http://127.0.0.1:5002/healthz returned HTTP 200 with healthy=true, db=ok, wal_warn=false. The installed worktree is clean at 771b3495518680f2e9208f5fd41fdc99d2d7050d and ran the 10-test DEV020 synthetic-clock/selector/metrics suite successfully.",
+    "budget_and_pacing": "Installed source uses the existing DevProviderBudget provider_budget.json lock/debit implementation immediately before transport, preserves six-second pacing, the 10-per-rolling-minute admission ceiling, 50-token cap, and 60-second durable session cooldown. Runtime acceptance did not invoke it: no credential read, provider call, live provider-budget debit, or cohort acquisition occurred.",
+    "durability": "Existing DEV020 journal /private/tmp/dev020-watchtower-prepeak/journal.db remains 540672 bytes with 250 rows and zero REQUEST_IN_FLIGHT records. No provider_budget.json was created at that root. Compact-only storage, no raw payload retention, and the 500 MB single-file prohibition remain preserved.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "next_action": "No acquisition is authorized by this deployment. Obtain separate session authority before any provider-backed DEV020 work."
+  },
   "dev020_prepeak_coverage_20261012": {
     "status": "COMPLETE_READ_ONLY",
     "scope": "Bounded local reconciliation of 550 DEV014 compact journals, DEV019 durable opening journal, canonical/DEV013 retained baselines, and indexed Watchtower monitor observations. No provider/RPC call, code change, deployment, or acquisition occurred.",

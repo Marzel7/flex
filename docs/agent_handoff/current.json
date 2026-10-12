@@ -24022,5 +24022,18 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY_RECONCILIATION",
     "next_action": "Do not retry. If future authority permits another bounded proof, retain per-record field-presence/rejection metadata (not raw payload) before deciding whether a transport schema adaptation is needed."
+  },
+  "dev018_proven_opening_method_trace_20261012": {
+    "status": "HOLD_LIVE_REQUEST_AUTHORIZATION_REQUIRED",
+    "scope": "Read-only trace of one retained positive Watchtower UI/API entry through operation_monitor_facts, canonical migration evidence, strict migration-window code, and comparison against the DEV018 missing token. No provider call, retry, code/configuration change, deployment, or additional token occurred.",
+    "successful_token": "7guAAEFPKxPH3VsffZWh1upJzxqHxqUSCbQxL55Gpump",
+    "ui_api_database_path": "The /api/operations/live-monitor projection exposes operation_monitor_facts.entry_mc_usd, entry_timestamp, entry_method, running_peak_mc_usd and running_peak_timestamp. The selected row has entry MC USD 128112.982247689 at 1789675489; method FIRST_FULL_POST_MIGRATION_SECOND_MC; retained peak USD 396788.521006539 at 1789677000.",
+    "successful_evidence": "Canonical token_analysis retains migration timestamp 1789675488 and migration signature 5cGVfXMzjQcksFZeJzThv7VfTF5GzYjbJ9fHVm18UaW8G9rnhSHhBBeoxR5Tcxpk5rFnde5pqfARVoHqybRpsfLf. The established strict_migration_window path requests Birdeye v3 OHLCV market-cap candles at migration+1 second (with narrow migration/migration+2 fallbacks), then stores the qualified value in operation_monitor_facts. This is post-migration 1-second candle MC, not launch-time or first-trade MC; raw response is not retained.",
+    "failure_difference": "DEV018 previously used /defi/v3/token/txs and a Helius create-slot predicate for FIRST_AVAILABLE_TRADE_MARKET_CAP. Its failure was an unproven transaction-response normalization mismatch. The proven UI method instead uses canonical migration time plus /defi/v3/ohlcv 1s market-cap candle normalization; it does not require transaction trade slots or token-supply multiplication.",
+    "missing_token_applicability": "GTP5PX2pUpwdGV17KnugQh8yQENz1FcVzrjcwvYxpump has retained migration timestamp 1784784355 and migration signature 5h6FTwot3gHrHhvgAQx4HPpMTRZ2he1FcxLVWvhpnuzstjrUET81Z66rCiXu66RrknujeDTBENF7htXgAzD9WygD, so the method applies. Its retained DEV014 first candle is 1784784600 and cannot supply the required migration+1 second value.",
+    "minimum_live_request": "One authorized BIRDEYE request only: GET /defi/v3/ohlcv with address=GTP5PX2pUpwdGV17KnugQh8yQENz1FcVzrjcwvYxpump, type=1s, time_from=1784784355, time_to=1784784357, currency=usd, chart_type=mcap, mode=range, padding=false, x-chain=solana, authoritative credential label BIRDEYE. No Helius request, pagination, retry, fallback, or other token is needed.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY_TRACE",
+    "next_action": "Obtain explicit authorization for exactly the one BIRDEYE OHLCV request before attempting single-token recovery; otherwise stop."
   }
 }

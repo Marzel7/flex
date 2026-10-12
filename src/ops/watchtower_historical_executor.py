@@ -23,6 +23,7 @@ class HistoricalExecutor:
         """Durable strict-1s then 1m-open acquisition; never repeats an owned stage."""
         import json
         mint, timestamp = str(boundary["mint"]), int(boundary["migration_timestamp"])
+        migration_signature = str(boundary.get("migration_signature") or "")
         with sqlite3.connect(self.db_path) as conn:
             conn.execute("CREATE TABLE IF NOT EXISTS watchtower_historical_openings(mint TEXT PRIMARY KEY,state TEXT NOT NULL,result_json TEXT,created_at INTEGER NOT NULL)")
             columns={row[1] for row in conn.execute("PRAGMA table_info(watchtower_historical_openings)")}
@@ -60,7 +61,7 @@ class HistoricalExecutor:
                 else: offsets[offset]=candle["close"]
             selected=reduce_retained_offsets(migration_timestamp=timestamp, offsets=offsets, duplicate_offsets=duplicates)
             if selected.get("state") == "QUALIFIED":
-                result={**selected,"mint":mint,"interval":"1s","market_cap_field":"close","seconds_after_migration":int(selected["entry_timestamp"])-timestamp,"provider":"BIRDEYE"}
+                result={**selected,"mint":mint,"migration_timestamp":timestamp,"migration_signature":migration_signature,"interval":"1s","market_cap_field":"close","seconds_after_migration":int(selected["entry_timestamp"])-timestamp,"provider":"BIRDEYE"}
                 persist("QUALIFIED", strict="QUALIFIED", result=result); return result
             persist("FALLBACK_PENDING", strict="INSUFFICIENT_EVIDENCE")
 
@@ -75,9 +76,9 @@ class HistoricalExecutor:
             valid=[row for row in candles if int(row["timestamp"]) >= timestamp and float(row["open"]) > 0]
             if valid:
                 row=min(valid,key=lambda item:int(item["timestamp"]))
-                result={"state":"QUALIFIED","mint":mint,"entry_timestamp":int(row["timestamp"]),"entry_mc_usd":float(row["open"]),"entry_method":"FIRST_AVAILABLE_POST_MIGRATION_1M_OPEN_MC","entry_exactness":"OBSERVED_1M_CANDLE_OPEN","interval":"1m","market_cap_field":"open","seconds_after_migration":int(row["timestamp"])-timestamp,"provider":"BIRDEYE"}
+                result={"state":"QUALIFIED","mint":mint,"migration_timestamp":timestamp,"migration_signature":migration_signature,"entry_timestamp":int(row["timestamp"]),"entry_mc_usd":float(row["open"]),"entry_method":"FIRST_AVAILABLE_POST_MIGRATION_1M_OPEN_MC","entry_exactness":"OBSERVED_1M_CANDLE_OPEN","interval":"1m","market_cap_field":"open","seconds_after_migration":int(row["timestamp"])-timestamp,"provider":"BIRDEYE"}
                 persist("QUALIFIED", fallback="QUALIFIED", result=result); return result
-            result={"state":"INSUFFICIENT_EVIDENCE","mint":mint,"reason":"NO_QUALIFYING_1M_OPEN_CANDLE"}
+            result={"state":"INSUFFICIENT_EVIDENCE","mint":mint,"migration_timestamp":timestamp,"migration_signature":migration_signature,"reason":"NO_QUALIFYING_1M_OPEN_CANDLE"}
             persist("INSUFFICIENT_EVIDENCE", fallback="INSUFFICIENT_EVIDENCE", result=result); return result
         return {"state":"ATTEMPT_OUTCOME_UNPROVEN", "mint":mint}
     def run(self, job_id: str, mint: str, *, terminal_result: dict[str, Any] | None=None) -> dict[str,Any]:

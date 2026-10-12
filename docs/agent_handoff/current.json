@@ -28,6 +28,20 @@
     "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY_RECONCILIATION",
     "next_action": "Exclude XMoney from DEV028 crash-pattern conclusions. Do not reacquire or alter the existing baseline without separate authorization."
   },
+  "dev028_opening_baseline_compatibility_correction_20261012": {
+    "status": "PASS_COMPATIBILITY_GUARD_AND_DERIVED_SUMMARY_CORRECTED",
+    "engineering_revision": "ff2bf9ea625f858302234c8ae5eaeecdc6aea83e on codex/dev028-crash-study; local isolated commit verified. Source-branch remote publication remains unavailable because the environment egress guard previously blocked it.",
+    "scope": "DEV-only provider-free correction. No provider/RPC request, credential read, database/evidence mutation, deployment, production, or raw-payload retention occurred.",
+    "implementation": "DEV028 candidate selection now excludes FIRST_RETAINED_MONITOR_CANDLE and carries baseline type into a candidate only after that compatibility check. This leaves FIRST_FULL_POST_MIGRATION_SECOND_MC and FIRST_AVAILABLE_POST_MIGRATION_1M_OPEN_MC eligible.",
+    "fallback_review": "All three fallback identities are incompatible for opening ratios: 7gu... has a monitor timestamp before retained creation; XMoney is a close-only scalar in the same bucket whose lifecycle peak is a high; HXp... is an early but close-only monitor observation. No durable fact was changed.",
+    "corrected_summary": "Valid DEV028 pre-crash/opening overlaps=2: B4PB...=0.7025450321x and Awza...=1.0095334376x; corrected median=0.8560392349x, range=0.7025450321x-1.0095334376x. XMoney's 18.8761464773x value is excluded. n=2 remains insufficient for a pattern claim.",
+    "tests": "pytest -q tests/test_watchtower_dev028_study.py tests/test_watchtower_sharp_exit_evidence.py: 23 passed. New regression proves FIRST_RETAINED_MONITOR_CANDLE cannot qualify while 1-second and 1-minute qualified opening types remain selected. Actual read-only selector check: eligible=486, fallback_selected=0.",
+    "artifact": "docs/audits/dev028_opening_baseline_compatibility_correction_20261012.v1.json",
+    "storage": "No new runtime writer; compact audit only; raw provider retention=false; no file may reach 500 MB.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_OFFLINE_DERIVED_ANALYSIS_CORRECTION",
+    "next_action": "Use compatible qualified baselines only. No reacquisition or evidence rewrite is authorized."
+  },
   "dev028_corrected_30s_crash_evidence_proof_20261012": {
     "status": "PASS_NO_85_PERCENT_CANDLE_IN_BOUNDED_PARTIAL_OBSERVATION",
     "engineering_revision": "d074517182ee38acef629e84f040cb186e5f91e6 on codex/dev028-crash-study; local commit verified; source branch remote publication remains unavailable because the environment egress guard blocked it.",

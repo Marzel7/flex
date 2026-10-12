@@ -24513,5 +24513,17 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "Implement and provider-free qualify compact lifecycle-job projection into existing Watchtower API/UI facts, then perform DEV deployment with acquisition flag still false."
+  },
+  "dev022_api_ui_deployment_20261012": {
+    "status": "PASS",
+    "engineering_revision": "cd459a99017f4495188c875af710bde115038137 on codex/dev022-automatic-price-lifecycle; remote verified",
+    "implementation": "Existing /api/operations/live-monitor Watchtower rows now include compact lifecycle_processing with assignment identity, overall stage, and retained opening/observed-peak/pre-peak/post-peak fields when a job exists. Missing job tables/read failures degrade to NOT_ENQUEUED; no endpoint constructs a provider client. Existing operations_live_monitor.html renders lifecycle-job status in its existing Watchtower table, not a new dashboard.",
+    "tests": "Provider-free focused suite: lifecycle jobs, existing Watchtower UI, and DEV020 shared-budget synthetic regressions: 16 passed. No provider, credential, live queue, or live acquisition execution was used.",
+    "deployment": "Clean target /Users/kevinkeaveney/.codex/worktrees/dev020-runtime/flex changed from e37aa4b479ec7d760961fe48a188fcea3c7f6113 to cd459a99017f4495188c875af710bde115038137. Supervisor reread/update restarted only watchtower_api; running PID 22020. HTTP /healthz returned 200 healthy=true db=ok wal_warn=false. /api/operations/live-monitor returned 103 Watchtower rows and lifecycle_processing was present on every row.",
+    "activation": "WATCHTOWER_PRICE_LIFECYCLE_ENABLED remains unset/false. No automatic job projection or paid acquisition was activated in the deployed runtime.",
+    "storage": "Compact job table is capped at 64 MiB; no raw provider retention or unbounded writer; no 500 MB path.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "next_action": "NONE — DEV022 COMPLETE. Enabling automatic lifecycle job projection or any provider acquisition requires separate explicit authorization."
   }
 }

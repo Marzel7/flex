@@ -42,6 +42,18 @@
     "runtime_deployment_gate": "NOT_APPLICABLE_OFFLINE_DERIVED_ANALYSIS_CORRECTION",
     "next_action": "Use compatible qualified baselines only. No reacquisition or evidence rewrite is authorized."
   },
+  "dev031_catastrophic_crash_level_validation_phase_a_20261012": {
+    "status": "PASS_PHASE_A_PREPARATION_COMPLETE_AWAITING_ACQUISITION_AUTHORIZATION",
+    "engineering_revision": "ff2bf9ea625f858302234c8ae5eaeecdc6aea83e base in isolated codex/dev031-crash-validation worktree; Phase A made no source, evidence, database, runtime, or provider change.",
+    "reconciliation": "Two independent DEV028 30-second partial-coverage events have compatible 1m opening baselines: B4PBamVhXRq3Lp4rGTtgwR8youh8C5rP3ShVZUmPpump=0.7025450321x and Awzaq2s75uJAmPJBWHc9PwS7H7LfCiAp1KRJxh3kpump=1.0095334376x. XMoney is excluded for its incompatible close-only baseline. The retained DEV014 B5 event is a distinct partial 30s event, but its claimed 1.1769x opening ratio cannot be reproduced from retained compatible opening facts and is excluded from opening-ratio inference rather than reconstructed.",
+    "selection": "Frozen deterministic pool=420: completed lifecycle, compatible qualified 1m/1s opening baseline, observed peak, >=4,500 seconds retained post-peak window, no prior DEV014/DEV028 high-resolution target. Four peak-multiple strata x five within-stratum post-peak-duration quantiles selected 20. Content hash=ec619a1a1d00bf673dfc4480e39407a6738bc591587409d9e377dac30fe48bfc.",
+    "selected_mints": "Gv5fG8pWw7RAxjiYzyxWMbwSg38iYKuXKwCN4Huopump,D5bhLFTZ5iSvXnVyX8ZQe43QgArXr9actbuRwVNqpump,FfswHHLXcvF6hvFZZzpz5WSYkgB9MfAC8j8dpAyNpump,9Bg16jZHJS2ypdMzfhSwpfqgr5mbSfh86sU7mWddpump,EaHKRd62bxJBP6VMwoeWLy1uYKkwSX92ux2gQ7JBpump,FUhLM3YpvJDvNdAjhgx6r25w529vAwSo7yUNsNDxpump,3JKhx3e5pPbDkwUP7oP4JFXGwk23z2NtrHWVKPVYpump,7MhgNYMLYbFqkL1CikXTvMFbC6wbwKJq41mq6DPbpump,E48e1En3hWSBE8LgNDkDaKFvxDgjHHk83AwSxqicpump,7Cj9EczteUsSu1vgPXoLdVcxLqpCWwyYWn8kgwDwpump,ALryq6MuYTt6nXEsXFTUFXbdburCPpe7uhi941Pmpump,784rob2DZqKnGPMfDJf9kRhuFK2FtDNZAhXRo5Ykpump,5CRAcjv4hMzNSdSzVALVEEfWhtvtqUn7mXuWK9copump,8JiwY37eQrz1WzDke37yJNWWsGKiibbufUB5gQGppump,FvYjAkbhhzpp3Rk3BoSLVKjYpi2zJ4baAS26R9hupump,JA2GsWfRHF59aaxCy7wyp54VYc1eidNgV4MRMFZdpump,GepVkouMVapm62pd5KzC5pxVh7j451n9jQJtEZjTpump,9AX92xMkM5Z26nQzmJfb5wRZsLSs4n4fTJxMNom2pump,69i2k5bwac9f7UAackSGN1kXAngvttEcyMBfowkpump,8zP8DhqoTGNGXHXdQfHPPWrAijWt7FkgyporQ4FHpump",
+    "proposed_acquisition": "Exactly 20 deterministic /defi/v3/ohlcv MCAP 30s range windows, each [floor(observed_peak,900)-300, floor(observed_peak,900)+4500), padding=false; one request/token, serial, six-second pacing, existing real DevProviderBudget capped at 10/minute, no retry/pagination/fallback. Existing alias-aware normalize_30s_exit_evidence and DEV028 baseline guard are required.",
+    "controls": "Non-crash controls and threshold-warning denominators are INSUFFICIENT_COVERAGE until ordered 30-second evidence exists; no event outcome is inferred from retained extrema. Provider calls=0; raw retention=false; maximum planned compact artifact below 1 MiB; no file may reach 500 MB.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_PHASE_A_READ_ONLY_PREPARATION",
+    "next_action": "STOP. Phase B requires separate explicit authorization for at most 20 paid Birdeye requests."
+  },
   "dev028_corrected_30s_crash_evidence_proof_20261012": {
     "status": "PASS_NO_85_PERCENT_CANDLE_IN_BOUNDED_PARTIAL_OBSERVATION",
     "engineering_revision": "d074517182ee38acef629e84f040cb186e5f91e6 on codex/dev028-crash-study; local commit verified; source branch remote publication remains unavailable because the environment egress guard blocked it.",

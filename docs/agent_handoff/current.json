@@ -1,4 +1,18 @@
 {
+  "dev028_corrected_30s_post_ath_crash_study_20261012": {
+    "status": "PASS_BOUNDED_STUDY_COMPLETE_INCONCLUSIVE_PATTERN",
+    "engineering_revision": "5c7ae367a88dca1440f89cd2f02aa4b508692beb on codex/dev028-crash-study; local commit verified; source branch remote publication remains unavailable because the environment egress guard blocked it.",
+    "scope": "DEV-only corrected continuation. Exact frozen records 2-10 were processed; the prior corrected one-token proof was excluded and no replacement was introduced. No production, trading, service, scheduler, Helius, RPC, pagination, retry, fallback, or cohort expansion action occurred.",
+    "execution": "Nine requests, all HTTP 200, through the corrected alias-aware 87ef772a normalizer. Single concurrency, six-second pacing, one request per token, and the real DevProviderBudget under the stricter ten-per-minute limit were maintained. BIRDEYE was process-locally loaded from the approved Flex .env without disclosure.",
+    "outcomes": "3 valid >=85% first observed crash candles, all OBSERVED_PARTIAL; 4 valid partial observations without an >=85% candle; 2 INSUFFICIENT_EVIDENCE due OUT_OF_RANGE_TIMESTAMP at provider candle index 160; complete coverage=0. No raw payload retained.",
+    "relationship": "Crash pre-opening ratios: 0.7025450321x, 1.0095334376x, 18.8761464773x (median 1.0095334376x). Pre-peak ratios: 0.1561164664x, 0.6363503061x, 0.6376844561x. Pre-crash MC: 36,027.03, 82,448.11, 137,167.17 USD. Peak-to-crash: 450, 630, 870 seconds. With n=3 and partial coverage throughout, no repeatable opening-relative, peak-relative, absolute-MC, or timing relationship is established.",
+    "preservation": "Original failed journal SHA-256 remains 710e88cbae1694454dd0acd6510d309171500f8fc1637f595e1235bb7ab759cd; corrected single proof retained; continuation compact journal=23,830 bytes.",
+    "artifact": "docs/audits/dev028_corrected_30s_post_ath_crash_study_20261012.v1.json",
+    "storage": "raw provider retention=false; no unbounded writer; no file may reach 500 MB.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_BOUNDED_DATA_STUDY",
+    "next_action": "Stop. Additional acquisition requires separate authorization."
+  },
   "dev028_corrected_30s_crash_evidence_proof_20261012": {
     "status": "PASS_NO_85_PERCENT_CANDLE_IN_BOUNDED_PARTIAL_OBSERVATION",
     "engineering_revision": "d074517182ee38acef629e84f040cb186e5f91e6 on codex/dev028-crash-study; local commit verified; source branch remote publication remains unavailable because the environment egress guard blocked it.",

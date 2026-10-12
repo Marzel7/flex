@@ -26,6 +26,7 @@ from src.ops.token_data_provider_bindings import (
     production_provider_bindings,
 )
 from src.ops.operation_monitor_worker import MonitorBirdeyeTransport
+from src.ops.watchtower_price_lifecycle_jobs import reconcile_committed_assignments
 
 _STOP = False
 NO_TRANSPORT_PREFLIGHT_MODE = 'MONITOR_PREFLIGHT_NO_TRANSPORT'
@@ -82,6 +83,9 @@ def run_once(*, worker: MonitorWorker, queue, db_path: str) -> None:
         return worker.process_once()
     reconcile_byzantine_assignment_admissions(db_path, queue)
     reconcile_watchtower_assignment_admissions(db_path, queue)
+    # Disabled by default: compact post-commit lifecycle jobs only, never
+    # provider acquisition.  Existing MonitorWorker remains the sole owner.
+    reconcile_committed_assignments(db_path)
     reconcile_watchtower_deep_assignment_admissions(db_path, queue)
     reconcile_qualified_monitor_fact_queue_projection(db_path, queue)
     worker.reconcile_stale_watchtower_pending_openings()

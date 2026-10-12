@@ -24819,5 +24819,19 @@
     "runtime_deployment_required":false,
     "runtime_deployment_reason":"The authorized work was a bounded manual DEV CLI session from the exact qualified worktree; no installed runtime behavior was changed.",
     "next_action":"STOP — frozen manifest fully consumed. Treat the two events only as partial-coverage observations; any new acquisition or cohort inference requires separate authorization."
+  },
+  "dev032_watchtower_crash_mc_relationship_20261013": {
+    "status":"PASS_EXPLORATORY_READ_ONLY_ANALYSIS_COMPLETE",
+    "engineering_revision":"65c1d6c6d4e23993158b228df99277eaa3d37c87 on origin/codex/dev032-crash-mc-relationship; isolated branch and worktree",
+    "scope":"DEV-only read-only reconciliation of four independent, compatible-opening-baseline observed >=85% 30-second crash candles. No provider/RPC call, credential read, acquisition, code/detector change, deployment, database/evidence mutation, or production action occurred.",
+    "artifact":"docs/audits/dev032_watchtower_crash_mc_relationship.md",
+    "four_event_result":"Pre-crash MC=$82,448.11,$137,167.17,$142,629.09,$150,696.93; median=$139,898.13; absolute CV=20.95%. Opening-relative values=0.702545x,1.009533x,1.035212x,2.004323x; CV=41.18%. Peak-relative values=0.636350x,0.637684x,0.715078x,0.755555x; median=0.676381x; CV=7.46%, the lowest requested level relationship. Peak-to-crash time=330,450,810,870s; CV=37.39%.",
+    "interpretation":"Peak-relative level is the strongest exploratory candidate only. Partial coverage for every event, n=4, and event-selected data preclude a predictive threshold, causal claim, cluster claim, or trading inference. Absolute $140K-$150K clustering does not persist: one event starts at $82.45K.",
+    "controls":"INSUFFICIENT_RETAINED_CHRONOLOGY: DEV031 compact non-crash evidence has coverage/missing-bucket summaries but not ordered candle-band observations. No incomplete window is treated as crash-free and no band-entry/later-crash comparison is asserted.",
+    "excluded":"XMoney's close-only FIRST_RETAINED_MONITOR_CANDLE and the earlier DEV014 event without reproducible compatible opening ratio remain excluded.",
+    "storage":"One 6,023-byte Markdown audit; raw provider retention=false; unbounded growth paths=0; no file may reach 500 MB.",
+    "runtime_deployment_required":false,
+    "runtime_deployment_reason":"Read-only analysis artifact only; executable runtime behavior is unchanged.",
+    "next_action":"NONE — DEV032 complete. The highest-value future evidence, if separately authorized, is complete chronological 30-second post-peak coverage with non-crash controls."
   }
 }

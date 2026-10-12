@@ -23886,5 +23886,18 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_REQUIRED_ACQUISITION_HOLD",
     "next_action": "Resolve or obtain fresh qualifying listener checkpoint-progress telemetry, then rerun the existing launcher; do not bypass the gate."
+  },
+  "dev014_checkpoint_restore_and_resume_20261012": {
+    "status": "HOLD_CHECKPOINT_PROGRESS_UNPROVEN",
+    "engineering_revision": "06fc3194e4a9c4fcfdf4554286a5486c14fe7649; existing DEV014 lifecycle worker",
+    "checkpoint_failure_cause": "The gate requires either checkpointed_frames>0 in one of the latest three listener WAL_CHECKPOINT samples, or a latest remaining_frames=0. The initial hold was transient: the prior three samples were healthy but non-quiescent with zero checkpointed frames; a later genuine listener sample had remaining_frames=0, so no correction was needed and the gate passed.",
+    "correction_applied": "None. Existing listener PASSIVE checkpoint telemetry was read correctly; the later genuine quiescent sample satisfied the unchanged gate.",
+    "acquisition": "Existing launcher resumed and durably completed 150 additional NEW identities with compact lifecycle evidence. It then stopped itself before another admission when the checkpoint gate again reported CHECKPOINT_PROGRESS_UNPROVEN.",
+    "durable_state": "299 COMPLETED, 1 NO_VALID_CANDLES, 250 NEW; terminal=300; no IN_FLIGHT, ADMITTED, ATTEMPTED, duplicate, or altered prior terminal records.",
+    "provider_accounting": "Lifecycle provider requests in resumed run=150; current rolling shared queue ledger=10 calls. No retries, pagination, fallback, or raw lifecycle payload retention.",
+    "safety": "No runtime/config/code change, restart, signal, production process change, or safety-gate bypass.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_ACQUISITION_HOLD",
+    "next_action": "Wait for or restore fresh qualifying genuine listener checkpoint telemetry, then rerun the unchanged existing launcher for the 250 NEW identities."
   }
 }

@@ -269,6 +269,16 @@ def _monitor_live_projection() -> dict:
     return {'mode':mode,'now':now,'rows':rows,'operations':ops,'early_minimum_research':_early_minimum_research_projection(),'summary':{'active':sum(r['monitor_state']=='MONITORING_ACTIVE' for r in rows),'waiting':sum('WAITING' in r['monitor_state'] for r in rows),'backoff':sum('BACKOFF' in r['monitor_state'] for r in rows),'completed_today':sum('COMPLETE' in r['monitor_state'] and int(r.get('monitor_completed_at') or 0)>=now-86400 for r in rows),'failed':sum('FAIL' in r['monitor_state'] or 'INSUFFICIENT' in r['monitor_state'] for r in rows),'total':len(rows),'calls_today':sum(int(r.get('provider_call_count') or 0) for r in rows)},'storage':{'bytes':storage_bytes,'ceiling_bytes':10_000_000},'worker_health':{'status':'IDLE' if mode=='MONITOR' else 'STOPPED','last_heartbeat':None,'last_success':last_success,'last_error_class':None,'last_error_at':None},'queue_health':{'status':'BACKOFF' if depth.get('retry') else ('PENDING' if depth.get('pending') else 'IDLE'),'depth':sum(depth.values()),'pending':depth.get('pending',0),'claimed':depth.get('processing',0),'retry':depth.get('retry',0),'dead_letter':depth.get('dead_letter',0),'oldest_pending_age':oldest},'provider_health':{'status':'READY' if not depth.get('retry') else 'BACKOFF','last_success':last_success,'last_error_class':None,'backoff_until':None}}
 
 
+@operator_bp.route('/api/operations/live-monitor/watchtower/lifecycle-metrics')
+def dev016_watchtower_lifecycle_coverage_api():
+    from src.ops.dev016_lifecycle_metrics import coverage
+    return jsonify({"operation_id": "watchtower", "lifecycle_coverage": coverage(), "provider_calls": 0})
+
+@operator_bp.route('/api/operations/live-monitor/watchtower/<mint>/lifecycle-metrics')
+def dev016_watchtower_lifecycle_metrics_api(mint: str):
+    from src.ops.dev016_lifecycle_metrics import lifecycle_metrics
+    return jsonify({"operation_id": "watchtower", "lifecycle": lifecycle_metrics(mint), "provider_calls": 0})
+
 @operator_bp.route('/api/operations/live-monitor')
 def live_monitor_api():
     try:

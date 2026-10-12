@@ -24116,5 +24116,15 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_EVIDENCE_METHOD_FINALIZATION",
     "next_action": "Await explicit authorization before any cohort-scale acquisition; future fallback requests must retain normalized open and the defined provenance fields."
+  },
+  "dev019_opening_mc_acquisition_start_20261012": {
+    "status": "BLOCKED_IMPLEMENTATION_GAP",
+    "scope": "Pre-execution verification for the authorized DEV019 cohort acquisition. No provider/RPC call, Helius call, code/configuration change, deployment, journal transition, or token acquisition occurred.",
+    "finding": "The existing strict_migration_window implementation supports only the strict 1-second selection at offsets 0/+1/+2. The existing HistoricalExecutor acquires only that strict 1-second opening and throws OPENING_INSUFFICIENT_EVIDENCE on a strict miss. Neither component implements the approved FIRST_AVAILABLE_POST_MIGRATION_1M_OPEN_MC selection nor a durable terminal journal that records its outcome.",
+    "safety_impact": "Invoking the existing executor for the 461-token cohort would either omit valid approved 1-minute baselines or require an unapproved close substitution. It cannot satisfy the required per-token two-attempt state machine/idempotence contract.",
+    "provider_accounting": "Birdeye=0; Helius=0.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_NO_EXECUTABLE_CHANGE",
+    "next_action": "Implement the smallest bounded durable DEV019 runner: strict 1-second request then one-minute open fallback only after strict insufficiency, one terminal journal record per token, 50-token session cap, 10 requests/minute, and 60-second between-session cooldown; add bounded tests before any provider dispatch."
   }
 }

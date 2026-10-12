@@ -13,6 +13,21 @@
     "runtime_deployment_gate": "NOT_APPLICABLE_BOUNDED_DATA_STUDY",
     "next_action": "Stop. Additional acquisition requires separate authorization."
   },
+  "dev028_xmoney_opening_market_cap_audit_20261012": {
+    "status": "PASS_ROOT_CAUSE_IDENTIFIED_RATIO_EXCLUDED",
+    "engineering_revision": "5c7ae367a88dca1440f89cd2f02aa4b508692beb on codex/dev028-crash-study; read-only reconciliation, no source, evidence, database, or runtime modification.",
+    "scope": "DEV-only, provider-free reconciliation for 7xXQVWbn3ac6XoQW3RA5jqPj6eTBaBKe2o3Hk6w3pump. No provider/RPC call, credential read, acquisition, database write, code change, deployment, or production action occurred.",
+    "finding": "The retained 1,908.60097747844 USD baseline is not a DEV019 opening record: DEV019 contains no row for this mint. DEV020 selected it from operation_monitor_observations as FIRST_RETAINED_MONITOR_CANDLE at timestamp 1789569900, resolution=15m, source=BIRDEYE_OHLCV, request_identity=90ff17c55b675522f400d94b6907ebeb961187ec6efe3fc27ca93016309bf921. The stored scalar mc_usd is a close-only monitor valuation; all retained open/high/low/close columns for the six rows are null.",
+    "field_semantics": "The DEV014 compact lifecycle journal independently retains a 15-minute MCAP request [1789569441,1790433441] with mode=range, padding=false, currency=usd, address=XMoney and observed maximum=230770.22207393643 at the same 1789569900 bucket. Lifecycle maxima use candle high, while the older monitor row retained only its scalar close-equivalent mc_usd. The original request parameters for 90ff17... were not retained, so no unrecorded exact provider field is claimed.",
+    "timestamps": "Retained cohort creation/canonical lifecycle timestamp=1789569441. The relevant monitor bucket/opening-baseline timestamp=1789569900 (459 seconds later). The later DEV020 pre-peak record is INSUFFICIENT_EVIDENCE because its fallback baseline and observed peak share that timestamp, producing NON_POSITIVE_OPENING_TO_PEAK_WINDOW.",
+    "root_cause": "Semantic-field mismatch: DEV028 consumed a close-only FIRST_RETAINED_MONITOR_CANDLE as an opening MC, while its observed peak used the high from the same 15-minute candle. This is neither a price-vs-MCAP conversion nor demonstrated supply/scaling fault. It is not a DEV019 normalizer acceptance defect.",
+    "impact": "XMoney's 18.8761464773x pre-crash/opening ratio is invalid for DEV028 pattern interpretation and is excluded. Of 539 DEV020 selections, 3 used FIRST_RETAINED_MONITOR_CANDLE; two have positive opening-to-peak duration and remain individually unproven but not implicated by the timestamp-equality defect. XMoney is the sole fallback record with opening_timestamp=observed_peak_timestamp.",
+    "corrective_action": "Do not replace the baseline from a visual chart or mutate durable evidence. A separately authorized correction must require semantically compatible, qualified opening and peak fields before a token enters crash-ratio analysis, then recompute derived analysis only from retained qualified facts or separately authorized acquisition.",
+    "storage": "Read-only queries only; no raw payload retention or new storage growth path; no file may reach 500 MB.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY_RECONCILIATION",
+    "next_action": "Exclude XMoney from DEV028 crash-pattern conclusions. Do not reacquire or alter the existing baseline without separate authorization."
+  },
   "dev028_corrected_30s_crash_evidence_proof_20261012": {
     "status": "PASS_NO_85_PERCENT_CANDLE_IN_BOUNDED_PARTIAL_OBSERVATION",
     "engineering_revision": "d074517182ee38acef629e84f040cb186e5f91e6 on codex/dev028-crash-study; local commit verified; source branch remote publication remains unavailable because the environment egress guard blocked it.",

@@ -64,6 +64,18 @@
     "runtime_deployment_gate": "NOT_APPLICABLE_PRE_EXECUTION_HOLD",
     "next_action": "Do not acquire. Authorize the narrow provider-free manifest/execution-cap qualification correction first."
   },
+  "dev031_manifest_and_twenty_request_cap_qualification_20261013": {
+    "status": "PASS_QUALIFIED_NOT_DEPLOYED_READY_FOR_FRESH_EXECUTION_AUTHORIZATION",
+    "engineering_revision": "8e73d45966af51cceced5b47587ec50ef0a8d6ba on isolated codex/dev031-crash-validation.",
+    "manifest": "docs/audits/dev031_crash_level_validation_manifest_20261013.v1.json; schema=DEV031_WATCHTOWER_CATASTROPHIC_CRASH_VALIDATION_MANIFEST_V1; records=20; canonical content_hash=ec619a1a1d00bf673dfc4480e39407a6738bc591587409d9e377dac30fe48bfc (exact Phase A hash); file SHA-256=49e4e5fb47b7e3d3570298a95a3256241e227377da1c2db759997e61e61e2fd7. It preserves the original 20 identities, order, compatible 1m/1s opening facts, observed peaks, deterministic identities, and 30s peak-aligned windows.",
+    "implementation": "The existing executor remains the sole execution path. Manifest schema now selects its bounded cap: DEV028 remains 10 and DEV031 permits exactly 20. The same journal transitions, one-request identity semantics, six-second pacing, alias-aware normalizer, real DevProviderBudget with a 10/minute rolling admission, and no-retry handling are reused. No new provider or budget subsystem was added.",
+    "tests": "pytest -q tests/test_watchtower_dev028_study.py tests/test_watchtower_sharp_exit_evidence.py: 25 passed. Includes deterministic 20-record manifests, changed mint/window hash rejection, duplicate identity rejection, 21-record rejection before transport, real rolling-budget/pacing fixture, restart completed-skip, uncertain post-admission recovery, and existing DEV028 ten-request execution fixture.",
+    "safety": "Provider calls=0; credentials=0; live budget debits=0; no live journal/database/queue writes; raw provider retention=false. Manifest/journal cap remains 1,000,000 bytes and no file may reach 500 MB.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "runtime_deployment_reason": "The qualified source is in the isolated DEV031 worktree; no active DEV runtime was changed. A separately authorized acquisition must invoke this exact revision/worktree or first complete a bounded DEV runtime deployment gate.",
+    "next_action": "Fresh explicit authorization may execute this exact frozen manifest only, with at most 20 paid Birdeye requests and a fresh operational/shared-budget preflight."
+  },
   "dev028_corrected_30s_crash_evidence_proof_20261012": {
     "status": "PASS_NO_85_PERCENT_CANDLE_IN_BOUNDED_PARTIAL_OBSERVATION",
     "engineering_revision": "d074517182ee38acef629e84f040cb186e5f91e6 on codex/dev028-crash-study; local commit verified; source branch remote publication remains unavailable because the environment egress guard blocked it.",

@@ -24561,5 +24561,17 @@
     "runtime_deployment_required":false,
     "runtime_deployment_gate":"NOT_APPLICABLE_PROVIDER_FREE_ANALYSIS",
     "next_action":"NONE — DEV025 complete. A practical exit rule requires separately authorized unselected ordered post-peak path and fill evidence."
+  },
+  "dev026_watchtower_catastrophic_post_peak_candle_feasibility_20261012": {
+    "status":"PASS_EVIDENCE_FEASIBILITY_COMPLETE",
+    "engineering_revision":"d60e7befb5ab43d1d9bcd7807022fc4221b3bc5f on codex/dev026-catastrophic-candle-feasibility; remote verified",
+    "scope":"Provider-free DEV-only retained-evidence inspection; no credential/provider/RPC/trading/acquisition/mutation/deployment/production action.",
+    "result":"539 eligible comparable tokens; 0 with retained ordered post-peak candles; 0 proven >=85% open-to-close crash candles. DEV014 journals retain compact extrema, timestamps, coverage, request metadata, and aggregate peak_to_subsequent_trough only—no candle open/close path or raw payload.",
+    "boundary":"Post-peak trough, ATH-to-trough drawdown, and latest MC cannot substitute for a crash candle. Pre-crash/opening ratios, first crash timestamps, and time from peak to crash are uncomputable without inventing evidence.",
+    "minimum_future_acquisition":"Separately authorize at most one bounded 1-minute MC OHLCV range per eligible mint from retained observed peak to retained lifecycle-window end, compactly retaining only the first qualifying >=85% candle or explicit none; fixed byte cap, no raw payload/retry/pagination, shared budget. Not authorized here.",
+    "artifact":"docs/audits/dev026_watchtower_catastrophic_post_peak_candle_feasibility_20261012.v1.json; compact/no raw payload/no growth path.",
+    "runtime_deployment_required":false,
+    "runtime_deployment_gate":"NOT_APPLICABLE_PROVIDER_FREE_ANALYSIS",
+    "next_action":"NONE — DEV026 feasibility milestone complete."
   }
 }

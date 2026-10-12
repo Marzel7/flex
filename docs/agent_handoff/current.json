@@ -24265,6 +24265,17 @@
     "runtime_deployment_gate": "PASS_EXISTING_DEPLOYMENT_UNCHANGED",
     "next_action": "Do not retry the REQUEST_IN_FLIGHT identity. Separately authorize and qualify the smallest ordering correction that obtains/preflights atomic budget admission before marking a token REQUEST_IN_FLIGHT, then reconcile the uncertain identity without provider re-dispatch."
   },
+  "dev020_provider_admission_state_ordering_20261012": {
+    "status": "QUALIFIED_NOT_DEPLOYED_JOURNAL_CONFLICT",
+    "engineering_revision": "e37aa4b479ec7d760961fe48a188fcea3c7f6113 on codex/dev020-admission-ordering; origin verified",
+    "implementation": "Added ADMISSION_INTENT before atomic DevProviderBudget admission. Known BudgetDenied returns ADMISSION_INTENT to PENDING without transport. Only a successful admission advances to REQUEST_IN_FLIGHT before transport; unexpected post-intent faults remain excluded. Both ADMISSION_INTENT and REQUEST_IN_FLIGHT block selection, and SAFETY_FAILURE is excluded from reacquisition.",
+    "verification": "14 provider-free tests passed from the isolated worktree. They exercise the real ledger with synthetic time, prove a 10/minute denial makes no debit or transport and returns PENDING, prove successful admission makes exactly one REQUEST_IN_FLIGHT transition before one fixture transport, preserve terminal rows, exclude uncertain states, and retain the 50-token cap and 60-second cooldown.",
+    "deployment": "Not deployed. Before the authorized restart, the actual durable journal unexpectedly changed from the previously observed terminal=261/pending=38/request_in_flight=1 to terminal=300 (OBSERVED_CONTIGUOUS=205, OBSERVED_SPARSE=82, INSUFFICIENT_EVIDENCE=13) with no pending or uncertain state. The required preservation target therefore changed outside this task. The DEV runtime worktree was restored to the running 771b3495518680f2e9208f5fd41fdc99d2d7050d; watchtower_api remained running without restart.",
+    "safety": "No provider/RPC call, live budget debit, credential access, journal edit, raw payload retention, or service restart occurred during this correction/deployment attempt. No file approaches 500 MB.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_DURABLE_JOURNAL_STATE_CONFLICT",
+    "next_action": "Identify and authorize the provenance of the external journal transition before deployment. Do not assume the former uncertain token is safe to reacquire."
+  },
   "dev020_prepeak_coverage_20261012": {
     "status": "COMPLETE_READ_ONLY",
     "scope": "Bounded local reconciliation of 550 DEV014 compact journals, DEV019 durable opening journal, canonical/DEV013 retained baselines, and indexed Watchtower monitor observations. No provider/RPC call, code change, deployment, or acquisition occurred.",

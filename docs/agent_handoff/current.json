@@ -23863,5 +23863,16 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_REQUIRED_READINESS_CHECK",
     "next_action": "Run the existing lifecycle-cohort preflight launcher from its DEV014 worktree to acquire only the 400 NEW authorized identities."
+  },
+  "dev014_one_session_execution_20261012": {
+    "status": "HOLD_EXISTING_LAUNCHER_EXCEEDS_ONE_SESSION_SCOPE",
+    "engineering_revision": "06fc3194e4a9c4fcfdf4554286a5486c14fe7649; existing DEV014 lifecycle worker",
+    "starting_state": "550 total; 149 COMPLETED, 1 NO_VALID_CANDLES, 400 NEW; no active lifecycle process.",
+    "blocker": "The existing FiniteLifecycleDispatcher treats max_requests_per_session=50 as a session/cooldown boundary only. After the 60-second cooldown it automatically begins the next 50-token session until all remaining NEW records are exhausted. It exposes no max-session or stop-after-session control.",
+    "safety_decision": "No paid acquisition was started because invoking the existing launcher would exceed the explicitly authorized single session of up to 50 tokens. Existing terminal records and all 400 NEW records remain unchanged.",
+    "smallest_correction": "Add an explicit bounded one-session termination control to the existing launcher/dispatcher, then run that existing path. Do not use a timeout, signal, or external process kill as a substitute for a clean session boundary.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_REQUIRED_NO_RUNTIME_CHANGE",
+    "next_action": "Authorize the minimal one-session stop control, or authorize the existing launcher to continue beyond one session."
   }
 }

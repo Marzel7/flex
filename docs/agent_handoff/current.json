@@ -24219,6 +24219,17 @@
     "runtime_deployment_gate": "NOT_APPLICABLE_OFFLINE_DEV_ACQUISITION",
     "next_action": "DEV019 complete; do not reacquire the cohort. Use the durable journal and retained DEV014 evidence for downstream local analysis only."
   },
+  "dev020_synthetic_clock_budget_qualification_20261012": {
+    "status": "PASS_QUALIFIED_NOT_DEPLOYED",
+    "engineering_revision": "771b3495518680f2e9208f5fd41fdc99d2d7050d on codex/dev020-synthetic-clock; origin/codex/dev020-synthetic-clock verified",
+    "scope": "DEV-only provider-free admission qualification. No credential read, provider request, live budget debit, database/queue write, deployment, or scheduling action occurred.",
+    "implementation": "DEV020's existing six-second single-concurrency limiter now takes admission through the established atomic DevProviderBudget ledger with its existing lock/debit logic, at the existing ten-request rolling-minute ceiling. Constructor-only monotonic, wall-clock, and sleep seams default to production clocks; no production timing policy changed. Durable 60-second session cooldown was factored into deterministic helpers without changing its value.",
+    "verification": "pytest -q tests/test_dev020_synthetic_clock_budget.py tests/test_dev020_prepeak_selector.py tests/test_dev020_prepeak_metrics.py: 10 passed. Synthetic clock exercised the real provider_budget.json implementation: ten admissions succeed; the eleventh is denied without a ledger debit or transport; denial persists through 59 seconds; admission resumes at 60 seconds. Fifty serial fixture requests obey the 50-token cap and durable cooldown. No sleeping, process monkey-patching, real provider, credentials, or live roots were used.",
+    "storage": "Test ledgers, SQLite fixtures, and snapshots are temporary and compact. The production ledger retains only the rolling window; raw provider retention=false; no added writer can reach 500 MB; unbounded growth paths=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "Review and separately authorize deployment to the intended DEV020 runtime before any further provider-backed DEV020 session."
+  },
   "dev020_prepeak_coverage_20261012": {
     "status": "COMPLETE_READ_ONLY",
     "scope": "Bounded local reconciliation of 550 DEV014 compact journals, DEV019 durable opening journal, canonical/DEV013 retained baselines, and indexed Watchtower monitor observations. No provider/RPC call, code change, deployment, or acquisition occurred.",

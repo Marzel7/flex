@@ -24836,7 +24836,7 @@
   },
   "dev033_chronological_backtest_phase_a_20261013": {
     "status":"PASS_PHASE_A_FROZEN_PILOT_READY_FOR_SEPARATE_REVIEW",
-    "engineering_revision":"0c587ceb6ff4db7d4f8b2f1885f08a94c85b31c0 on origin/codex/dev033-chronological-backtest-phase-a",
+    "engineering_revision":"0c587ceb6dab963b320ad72e8e51af53d8a27242 on origin/codex/dev033-chronological-backtest-phase-a",
     "scope":"DEV-only provider-free preparation. No credential read, provider/RPC request, acquisition, trading action, database/queue/runtime mutation, deployment, or production action occurred.",
     "manifest":"docs/audits/dev033_chronological_backtest_pilot_manifest_20261013.v1.json; 30 unique mints and deterministic identities; content_hash=a2c4202338d58651c20462405990d02b40f44bb210b0efe68ecf6c99d7961885; file_sha256=f5a8a2289bb369b95b44896fc6d7f7db3bc79c890a3bba1b0fcd3ec32f3662d3.",
     "selection":"Sampling frame=539 DEV020 comparable outcomes. Requestable compatible frame=448 after excluding 81 incompatible/non-strict opening baselines and 10 records without a retained post-peak window. Deterministic marginal stratification covers peak multiple, time-to-peak, post-peak drawdown, and launch date; crash outcomes are not selection inputs.",

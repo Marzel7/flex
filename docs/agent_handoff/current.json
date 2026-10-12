@@ -24359,5 +24359,17 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS",
     "next_action": "Stop for review. Remaining original eligible tokens=389; do not begin another cohort session without explicit authorization."
+  },
+  "dev020_prepeak_next100_20261012": {
+    "status": "PASS",
+    "engineering_revision": "524b709ba1f1c4b2a344789f85e0621363035bf4; unchanged corrected DEV020 executor",
+    "scope": "DEV-only next-100 continuation. Resumed the durable journal at 150 terminal outcomes, executed two 50-token sessions, and stopped at exactly 100 newly processed outcomes.",
+    "execution_controls": "The recorded 60-second cooldown was satisfied before session one and the durable session-control deadline was satisfied before session two. Single concurrency, six-second minimum spacing, one 1m non-padded range request per token maximum, BIRDEYE-only credential, no retries, pagination, Helius, or RPC.",
+    "outcome": "Total terminal outcomes=250: OBSERVED_SPARSE=81, OBSERVED_CONTIGUOUS=156, INSUFFICIENT_EVIDENCE=13. All metrics remain observed-only and do not infer unobserved movement across gaps.",
+    "provider_accounting": "This execution Birdeye=100; cumulative compact-journal request records=246; Helius=0; RPC=0.",
+    "storage": "Journal /private/tmp/dev020-watchtower-prepeak/journal.db is 540672 bytes, retaining compact request metadata, derived metrics, and coverage provenance only. No raw payload, unbounded writer, or 500 MB single-file path.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_NO_CODE_CHANGE",
+    "next_action": "Stop for review. Remaining original eligible tokens=289; no further session is authorized by this milestone."
   }
 }

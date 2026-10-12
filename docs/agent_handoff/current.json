@@ -24660,5 +24660,18 @@
     "runtime_deployment_required":true,
     "runtime_deployment_gate":"PASS",
     "next_action":"NONE — Watchtower intake scheduler restored. Historical missed-launch assessment remains a separate authorized task."
+  },
+  "dev029_post_freeze_scheduler_regression_investigation_20261012": {
+    "status":"PASS_SPECIFIC_CONTROL_PLANE_REGRESSION_IDENTIFIED",
+    "scope":"Production read-only reconciliation of Git, retained Supervisor logs, October-8 config backups, and historical handoff commits. No process, signal, source, configuration, database, provider, or network action occurred; the restored scheduler was not touched.",
+    "freeze_authority":"No immutable full-production freeze revision was ever established: the 2026-10-07 known-working freeze handoff explicitly records runtime/source identity as unreproducible. The qualified scheduler component baseline is 77492d22497e31a5984a234e2bb1f5cd2fc10613 (2026-09-18T16:38:30+01:00). The incident-time original Supervisor configuration was retained unchanged with SHA256 de358f18394f56651b6a8493d137287fdbec0dd21b84c46dbf576246ab4e154d.",
+    "scheduler_change_analysis":"No October scheduler source, Scheduler Supervisor stanza, cadence/cap, or service-control script change is present between scheduler baseline 77492d22 and the post-freeze shared revision. The only later scheduler-source commits were September snapshots/lifecycle provenance, not an October stop configuration change.",
+    "autostart_origin":"operation_scheduler autostart=false and autorestart=true were introduced in commit 23eaf59da1d3be1b0fdba6c474fe7a40df25f893 on 2026-06-17. The 77492d22 baseline and all 2026-10-08 retained Supervisor backups preserve the same settings. It was not introduced post-freeze.",
+    "proven_cause":"Historical handoff 476fe7618ea67380a958e107107fc84b504bb767 records that an isolated Supervisor validation inherited the production supervisorctl serverurl and then issued status/shutdown against the live endpoint. Supervisor log records the coordinated shutdown at 2026-10-08 00:55 local and scheduler clean stop at 00:55:30. The original daemon restarted at 01:00:56, spawning only autostart=true programs; operation_scheduler was intentionally absent. Thus its continued STOPPED state resulted from the accidental live Supervisor shutdown plus pre-existing manual-start policy, not scheduler crash or config regression.",
+    "responsible_operation":"Watchtower in-place Supervisor composition validation during the controlled runtime-transition work; the handoff explicitly classifies it as an isolation failure and control-plane breach. Retained logs do not identify a human or OS signal sender beyond that documented supervisorctl endpoint error.",
+    "minimum_correction":"The scheduler has already been restored from clean 77492d22 source. Prevent recurrence by making isolated Supervisor validation use an endpoint-only test configuration with no production supervisorctl section and reject any socket/PID endpoint equivalence before issuing a control command. This is a future bounded hardening change, not applied here.",
+    "runtime_deployment_required":false,
+    "runtime_deployment_reason":"Read-only incident provenance reconciliation; runtime remains the already-restored scheduler deployment.",
+    "next_action":"NONE — specific regression identified and restoration remains intact. Any validation-isolation hardening requires separate authorization."
   }
 }

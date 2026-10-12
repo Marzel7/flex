@@ -24089,5 +24089,20 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY_GRANULARITY_REVIEW",
     "next_action": "Await explicit authorization for the single 1-minute bounded request, or retain INSUFFICIENT_EVIDENCE."
+  },
+  "dev018_one_minute_opening_mc_proof_20261012": {
+    "status": "PASS",
+    "engineering_revision": "444d3e2d619230bf71db12b9645cc6645523c2c3; isolated DEV018 evidence commit",
+    "scope": "One-token, one-request DEV proof using the existing Birdeye V3 OHLCV binding. No Helius request, retry, pagination, provider fallback, code/configuration change, deployment, or cohort expansion occurred.",
+    "token": "GTP5PX2pUpwdGV17KnugQh8yQENz1FcVzrjcwvYxpump",
+    "request": "GET /defi/v3/ohlcv; type=1m; time_from=1784784355; time_to=1784784655; currency=usd; chart_type=mcap; mode=range; padding=false; x-chain=solana; credential alias BIRDEYE.",
+    "result": "HTTP 200; provider_item_count=5; normalized_candle_count=5. The earliest positive non-padded normalized interval begins 1784784360, five seconds after canonical migration, and does not overlap the migration interval. Its market-cap field is close=USD 148063.21660039216.",
+    "baseline": "FIRST_AVAILABLE_POST_MIGRATION_MC, 1-minute interval, timestamp is interval start. It is explicitly not labelled exact migration-second, launch-time, or first-trade MC.",
+    "comparison": "DEV014 observed peak=USD 325051.0948492504 at 1784785500. The baseline precedes it and both are USD MC observations, so multiple=2.195353459911187 and gain_percent=119.535345991119.",
+    "accounting": "Birdeye=1; Helius=0.",
+    "durable_evidence": "docs/audits/dev018_one_minute_opening_mc_proof_20261012.v1.json; compact payload-free evidence; artifact maximum 1 MiB; no unbounded writer and no file can reach 500 MB.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_EVIDENCE_ONLY",
+    "next_action": "Stop after the single-token proof and await review before any cohort expansion."
   }
 }

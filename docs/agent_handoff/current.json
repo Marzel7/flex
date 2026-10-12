@@ -23944,5 +23944,17 @@
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_REQUIRED_FINITE_ACQUISITION_COMPLETED",
     "next_action": "DEV014 LIFECYCLE ACQUISITION COMPLETE."
+  },
+  "dev016_lifecycle_metrics_20261012": {
+    "status": "PARTIAL_QUALIFIED_NOT_DEPLOYED",
+    "engineering_revision": "0044326567793d513ffcafedadd84cf4a6baf5bf; isolated DEV016 worktree commit",
+    "evidence": "Read-only projection over 550 compact DEV014 journals: 549 COMPLETED observed lifecycle windows and 1 preserved NO_VALID_CANDLES terminal outcome. No provider, RPC, acquisition, historical backfill, raw payload, or evidence mutation occurred.",
+    "coverage": "Current read-only comparison: Watchtower attribution table=22,648 distinct mints; DEV014 cohort=550; 536 currently intersect, 14 cohort members are no longer assigned, and 22,112 currently assigned mints are outside DEV014. Observed peak/drawdown/latest-MC coverage=549; opening-MC coverage=0 because it was not retained.",
+    "implementation": "Adds compact local projection and existing DEV API routes for cohort coverage and per-mint lifecycle metrics. Observed candle peaks are not called verified historical ATH; absent opening, price, trade, and historical-ATH facts return INSUFFICIENT_EVIDENCE. Reader rejects journal files above 1 MiB; it writes no files and creates no unbounded growth path.",
+    "tests": "PYTHONDONTWRITEBYTECODE=1 python -m pytest -q -p no:cacheprovider tests/test_dev016_lifecycle_metrics.py: 4 passed. Covers observed-only metrics, insufficient evidence, NO_VALID_CANDLES preservation, coverage, and API route provider_calls=0.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "runtime_deployment_reason": "The active DEV Gunicorn master PID 35313 uses /private/tmp/flex-dev014-early-minimum-api, a separate pinned checkout. No implicit synchronization, reload, restart, signal, or target mutation was performed from the DEV016 worktree.",
+    "next_action": "Deploy revision 0044326567793d513ffcafedadd84cf4a6baf5bf to the explicitly selected DEV API target under the runtime deployment gate, then perform bounded HTTP API acceptance."
   }
 }

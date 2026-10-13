@@ -1,4 +1,16 @@
 {
+  "dev035_mission_control": {
+    "engineering_revision": "c759f2d512c7e42a68897227bec5fe897732597c",
+    "status": "QUALIFIED_ISOLATED_DEV_RUNTIME_ONLY",
+    "finding": "Mission Control now performs a coordinated 15-second, visibility-aware, abortable refresh cycle with generation guards and explicit last-success/stale UI state. Live ingestion ignores historical socket disconnection after fresh activity, funding requires committed progress telemetry, and the walkback handoff projection uses only current mint/time-aligned durable evidence. Active incidents are recomputed without duplicates and clear on recovery.",
+    "tests": "69 focused provider-free tests passed: tests/test_dev035_mission_control.py, tests/test_mc1_1_capability_layer.py, tests/test_system_health_post_reduction_truth.py, tests/test_x76_5a_walkback_candidate_health.py, tests/test_walkback_health_combined_aggregation.py.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_ISOLATED_DEV_RUNTIME_ONLY",
+    "runtime": "Temporary isolated worktree runtime served /system-health and /api/health/full at HTTP 200 on 127.0.0.1:8101. The persistent DEV port-8100 runtime is sourced from the dirty shared checkout and was deliberately not altered. Its API liveness remained independent of unavailable operational health data.",
+    "safety": "DEV only; provider calls=0; production changes=0; no operational database mutation; no new worker, schema, or retention path; storage rule not applicable.",
+    "blocker": "Persistent shared DEV runtime is not an isolated target for c759f2d5 because it runs from /Users/kevinkeaveney/Dev/claude/flex with unrelated uncommitted state.",
+    "next_action": "Deploy c759f2d5 to a designated clean persistent DEV runtime, then verify /system-health and all five coordinated health endpoints."
+  },
   "dev028_corrected_30s_post_ath_crash_study_20261012": {
     "status": "PASS_BOUNDED_STUDY_COMPLETE_INCONCLUSIVE_PATTERN",
     "engineering_revision": "5c7ae367a88dca1440f89cd2f02aa4b508692beb on codex/dev028-crash-study; local commit verified; source branch remote publication remains unavailable because the environment egress guard blocked it.",

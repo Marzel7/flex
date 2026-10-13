@@ -24880,6 +24880,19 @@
     "backtest_readiness":"Evidence is available for provider-free chronological analysis, but only one series is contiguous; any later backtest must preserve the 29 sparse paths and must not infer behavior through gaps. No strategy optimization ran in Phase B.",
     "runtime_deployment_required":false,
     "runtime_deployment_reason":"The explicit DEV research CLI ran manually; no service behavior changed.",
-    "next_action":"Separate provider-free strategy/backtest analysis may use the durable normalized evidence with sparse-coverage safeguards."
+    "next_action":"Superseded by dev033_phase_c_strategy_backtest_20261013."
+  },
+  "dev033_phase_c_strategy_backtest_20261013": {
+    "status":"PASS_PROVIDER_FREE_EXPLORATORY_BACKTEST_COMPLETE",
+    "engineering_revision":"5c65f3f8e8de5c34e5cd627e47ca83074f57a8e1 locally retained in the isolated DEV033 worktree; external source publication intentionally not attempted because it includes provider-derived evidence references.",
+    "implementation":"Added a deterministic DEV033 chronological backtest module and manual read-only CLI. It verifies the frozen manifest and journal identity, uses only timestamp-ordered retained candles, waits for the next contiguous candle open after a signal, maintains only a running observed peak, and preserves same-candle conflicts and missing-next-candle cases as ORDERING_AMBIGUOUS or GAP_UNRESOLVED.",
+    "coverage":"30 frozen identities and 2,860 one-minute candles: ORDERED_CONTIGUOUS=1, ORDERED_SPARSE=29. No interpolation, future-ATH input, provider/RPC call, raw payload retention, operational database write, service change, or trading occurred.",
+    "strategies":"Seven predeclared interpretable entry/exit combinations were tested. The opening/+25% target/60-minute rule scored best under the deliberately punitive unresolved-trade convention: base modeled net +4.197 SOL, optimistic +4.797, conservative +2.997. Its result is dominated by one observed token: removal changes the base score to approximately -0.822 SOL. All dip strategies scored negative base modeled net.",
+    "uncertainty":"Across the seven comparisons there was one ORDERING_AMBIGUOUS trade and 14 GAP_UNRESOLVED trades. Entered unresolved paths receive -100% only for conservative ranking, not as a claimed realized loss. A portfolio maximum drawdown is not defensible because paths overlap and are mostly sparse. Actual liquidity, fees, price impact and fills are not retained.",
+    "verification":"pytest -q tests/test_watchtower_dev033_backtest.py tests/test_watchtower_dev033_executor.py: 11 passed. Synthetic tests cover next-observation entry ordering, gap-unresolved handling, and same-candle conflict handling.",
+    "storage":"Backtest audit=4,835 bytes; compact generated summary=3,347 bytes; raw retention=false; unbounded growth paths=0; no file may reach 500 MB.",
+    "runtime_deployment_required":false,
+    "runtime_deployment_reason":"Provider-free manual analysis only; no runtime behavior changed.",
+    "next_action":"NONE — Phase C complete. Do not optimize or deploy from this pilot. A separately authorized, pre-registered contiguous validation cohort with liquidity/execution evidence would be required before any stronger conclusion."
   }
 }

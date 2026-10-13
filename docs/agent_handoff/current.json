@@ -24894,5 +24894,18 @@
     "runtime_deployment_required":false,
     "runtime_deployment_reason":"Provider-free manual analysis only; no runtime behavior changed.",
     "next_action":"NONE — Phase C complete. Do not optimize or deploy from this pilot. A separately authorized, pre-registered contiguous validation cohort with liquidity/execution evidence would be required before any stronger conclusion."
+  },
+  "dev029_post_restoration_operational_check_20261013": {
+    "status":"INTAKE_STALLED",
+    "scope":"Production read-only, bounded incident follow-up. No provider/RPC calls, database mutations, service signals, configuration/source changes, deployment, or historical backfill occurred.",
+    "scheduler":"operation_scheduler is RUNNING as PID 66022 from the qualified clean source 77492d22497e31a5984a234e2bb1f5cd2fc10613. Its 900-second intake and 180-second forwarding watermarks continue advancing; 37 successful intake cycles and 177 successful forwarding cycles were retained since restoration, with no scheduler-run error rows.",
+    "pipeline":"Since restoration, canonical migration ingestion recorded 399 migrations. Scheduler intake recorded 1,850 scan candidates across the 37 cycles (3 traced, 1,847 previously known/skipped); forwarding added 18 candidate events. The downstream retained work shows 400 walkback queue records, 272 attribution outcomes, 86 WALKBACK-tier attribution projections, two provisional FIRED_CREATE records, zero confirmed operation matches, and seven REVIEW-state route candidates. These demonstrate that scheduler intake, forwarding, and walkback/attribution execution are advancing; they do not establish new confirmed Watchtower assignments.",
+    "blocker":"creator_funding_worker is in Supervisor BACKOFF. Its configured directory and PYTHONPATH are /private/tmp/flex-dev024-creator-funding-runtime-6806d2b2, where src/core/creator_funding_worker.py is absent; stderr proves repeated 'No module named src.core.creator_funding_worker'. The intended project source contains that module. This blocks new creator-funding lineage enrichment before it can be admitted as a newly qualified intake candidate.",
+    "treasury_route":"Existing operational topology remains populated (treasuries, subproviders, and creators). Scheduler subprovider discovery is active, but a separate auto-confirm path logs a tuple-to-dict row-shape exception during treasury reconciliation. It leaves newly discovered routes in review and is a localized promotion degradation, not evidence that all scheduler cycles are stopped.",
+    "known_examples":"The two specified abbreviated mints were absent from the retained canonical migration, Watchtower-launch, walkback, and attribution projections inspected. Retained local evidence cannot establish whether their original absence was caused by the prior outage or a current defect.",
+    "minimum_correction":"Under separate production-change authorization, repoint creator_funding_worker only to the qualified runtime source containing its module, then verify its heartbeat and bounded queue drain. Separately qualify the treasury-reconciliation row adapter/connection-row-factory correction before any deployment; do not change attribution criteria or backfill.",
+    "runtime_deployment_required":false,
+    "runtime_deployment_reason":"Read-only incident determination only; no runtime behavior was changed.",
+    "next_action":"Authorize the narrow creator_funding_worker Supervisor source-path correction and bounded post-start acceptance. Do not restart or modify operation_scheduler in that change."
   }
 }

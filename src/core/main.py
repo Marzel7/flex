@@ -9432,6 +9432,36 @@ def highlight_infra_in_funding(funders_list):
     
     return enriched_funders
 
+class _HealthComponentDeadlineExceeded(RuntimeError):
+    """A read-only health component exceeded its bounded request budget."""
+
+
+def _bounded_health_ro_connect(sqlite_module, database_path, deadline):
+    """Open a read-only health connection that aborts SQLite work at deadline."""
+    import time as _time
+
+    remaining = deadline - _time.monotonic()
+    if remaining <= 0:
+        raise _HealthComponentDeadlineExceeded("health component time budget exceeded")
+    conn = sqlite_module.connect(
+        f"file:{database_path}?mode=ro", uri=True, timeout=min(0.25, remaining)
+    )
+
+    def _abort_if_over_budget():
+        return 1 if _time.monotonic() >= deadline else 0
+
+    conn.set_progress_handler(_abort_if_over_budget, 1000)
+    return conn
+
+
+def _health_unknown_from_deadline(component):
+    return {
+        "status": "UNKNOWN",
+        "evidence": "TIME_BUDGET_EXCEEDED",
+        "component": component,
+    }
+
+
 @app.route('/healthz')
 def healthz():
     """Lightweight health check for supervisor / uptime monitors."""
@@ -9472,9 +9502,14 @@ def healthz():
     wal_warn = wal_mb > 500
 
     stale = [w for w, v in rows.items() if v.get("stale")]
-    healthy = db_ok and not stale and not wal_warn
+    # /healthz is API liveness, not Watchtower readiness.  Historical worker
+    # telemetry remains visible below and in /api/health/full, but only a real
+    # local dependency failure can make this responding API return 503.
+    healthy = db_ok
+    operational_ready = db_ok and not stale and not wal_warn
     return jsonify({
         "healthy": healthy,
+        "operational_ready": operational_ready,
         "db": "ok" if db_ok else "error",
         "workers": rows,
         "stale_workers": stale,
@@ -23992,6 +24027,7 @@ def api_health_full():
 
     # ── 1. Ingestion ──────────────────────────────────────────────────────────
     ingestion = {"status": "UNKNOWN"}
+    _ingestion_deadline = _t.monotonic() + 1.5
     try:
         import re as _re
         _LOG = _os.path.normpath(_os.path.join(
@@ -24038,7 +24074,7 @@ def api_health_full():
                 if "database is locked" in _ln or "batch write failed" in _ln:
                     lock_total += 1
 
-        _db2 = _sq.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=1)
+        _db2 = _bounded_health_ro_connect(_sq, DB_PATH, _ingestion_deadline)
         _db2.row_factory = _sq.Row
         _mts = _db2.execute("SELECT MAX(migrated_at) FROM token_analysis WHERE migrated_at IS NOT NULL").fetchone()[0]
         _bts = _db2.execute("SELECT MAX(analyzed_at) FROM token_analysis WHERE source_platform='pumpfun' AND analyzed_at IS NOT NULL").fetchone()[0]
@@ -24077,7 +24113,11 @@ def api_health_full():
             "price_worker_enabled":     pw_enabled,
         }
     except Exception as _e:
-        ingestion = {"status": "UNKNOWN", "error": str(_e)[:120]}
+        ingestion = (
+            _health_unknown_from_deadline("ingestion")
+            if isinstance(_e, _HealthComponentDeadlineExceeded) or _t.monotonic() >= _ingestion_deadline
+            else {"status": "UNKNOWN", "error": str(_e)[:120]}
+        )
 
     # ── 2. Retired price worker ────────────────────────────────────────────────
     # Dense price snapshots and tracked-token telemetry are historical data, not
@@ -24091,8 +24131,9 @@ def api_health_full():
 
     # ── 3. Cascade Infrastructure ─────────────────────────────────────────────
     cascade_infra = {"status": "UNKNOWN"}
+    _cascade_infra_deadline = _t.monotonic() + 1.0
     try:
-        _co = _sq.connect(f"file:{_OPS_DB}?mode=ro", uri=True, timeout=1)
+        _co = _bounded_health_ro_connect(_sq, _OPS_DB, _cascade_infra_deadline)
         _cr = _co.execute(
             "SELECT last_seen, status, meta_json FROM wt_worker_heartbeat WHERE worker_name='ws_cascade' LIMIT 1"
         ).fetchone()
@@ -24131,12 +24172,17 @@ def api_health_full():
                 "pending_reqs":      pending,
             }
     except Exception as _e:
-        cascade_infra = {"status": "UNKNOWN", "error": str(_e)[:120]}
+        cascade_infra = (
+            _health_unknown_from_deadline("cascade_infrastructure")
+            if isinstance(_e, _HealthComponentDeadlineExceeded) or _t.monotonic() >= _cascade_infra_deadline
+            else {"status": "UNKNOWN", "error": str(_e)[:120]}
+        )
 
     # ── 4. Cascade Activity ───────────────────────────────────────────────────
     cascade_activity = {"status": "UNKNOWN"}
+    _cascade_activity_deadline = _t.monotonic() + 1.0
     try:
-        _co2 = _sq.connect(f"file:{_OPS_DB}?mode=ro", uri=True, timeout=1)
+        _co2 = _bounded_health_ro_connect(_sq, _OPS_DB, _cascade_activity_deadline)
         _lr  = _co2.execute(
             "SELECT MAX(create_time) FROM wt_watchtower_launches"
         ).fetchone()[0]
@@ -24164,7 +24210,11 @@ def api_health_full():
             "launches_24h":          int(_l24),
         }
     except Exception as _e:
-        cascade_activity = {"status": "UNKNOWN", "error": str(_e)[:120]}
+        cascade_activity = (
+            _health_unknown_from_deadline("cascade_activity")
+            if isinstance(_e, _HealthComponentDeadlineExceeded) or _t.monotonic() >= _cascade_activity_deadline
+            else {"status": "UNKNOWN", "error": str(_e)[:120]}
+        )
 
     # ── 5. Database ───────────────────────────────────────────────────────────
     database = {"status": "UNKNOWN"}
@@ -24256,8 +24306,9 @@ def api_health_full():
 
     # ── 7. Intelligence Engine ────────────────────────────────────────────────
     intelligence = {"status": "UNKNOWN"}
+    _intelligence_deadline = _t.monotonic() + 2.0
     try:
-        _idb = _sq.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=1)
+        _idb = _bounded_health_ro_connect(_sq, DB_PATH, _intelligence_deadline)
         _idb.row_factory = _sq.Row
 
         _crq = _idb.execute(
@@ -24270,12 +24321,11 @@ def api_health_full():
         _crq_rt_avg  = _idb.execute("SELECT AVG(runtime_secs) FROM creator_resolution_queue WHERE runtime_secs IS NOT NULL").fetchone()[0]
         _crq_pg_avg  = _idb.execute("SELECT AVG(pages_examined) FROM creator_resolution_queue WHERE pages_examined IS NOT NULL").fetchone()[0]
         _crq_pg_max  = _idb.execute("SELECT MAX(pages_examined) FROM creator_resolution_queue WHERE pages_examined IS NOT NULL").fetchone()[0]
-        # p95 runtime: offset = CEIL(count * 0.95) - 1
-        _crq_rt_p95r = _idb.execute(
-            "SELECT runtime_secs FROM creator_resolution_queue WHERE runtime_secs IS NOT NULL "
-            "ORDER BY runtime_secs ASC LIMIT 1 OFFSET "
-            "MAX(0, CAST((SELECT COUNT(*) FROM creator_resolution_queue WHERE runtime_secs IS NOT NULL) * 0.95 AS INTEGER) - 1)"
-        ).fetchone()
+        # No runtime_secs index exists.  The former percentile query scanned
+        # the entire queue twice and created a temporary B-tree on every poll.
+        # Do not turn an unbounded historical aggregate into a health blocker.
+        _crq_rt_p95r = None
+        _crq_p95_status = "UNKNOWN_UNBOUNDED_QUERY"
 
         _fq = _idb.execute(
             "SELECT COUNT(*) FROM creator_funding_queue WHERE status IN ('pending','retry','running','in_progress')"
@@ -24331,7 +24381,7 @@ def api_health_full():
         cp_age = None
         pending_attr = 0
         try:
-            _wdb = _sq.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=1)
+            _wdb = _bounded_health_ro_connect(_sq, DB_PATH, _intelligence_deadline)
             _cp = _wdb.execute(
                 "SELECT last_seen, meta_json FROM wt_worker_heartbeat WHERE worker_name='creator-resolution' LIMIT 1"
             ).fetchone()
@@ -24456,6 +24506,7 @@ def api_health_full():
             "crq_resolution_efficiency":    crq_efficiency,
             "crq_avg_runtime_secs":         round(float(_crq_rt_avg), 1) if _crq_rt_avg else None,
             "crq_p95_runtime_secs":         round(float(_crq_rt_p95r[0]), 1) if _crq_rt_p95r else None,
+            "crq_p95_runtime_status":       _crq_p95_status,
             "crq_avg_pages":                round(float(_crq_pg_avg), 1) if _crq_pg_avg else None,
             "crq_max_pages":                int(_crq_pg_max) if _crq_pg_max else None,
             "funding_queue_pending":        int(_fq),
@@ -24488,7 +24539,11 @@ def api_health_full():
             "pending_attribution":          pending_attr,
         }
     except Exception as _e:
-        intelligence = {"status": "UNKNOWN", "error": str(_e)[:120]}
+        intelligence = (
+            _health_unknown_from_deadline("intelligence")
+            if isinstance(_e, _HealthComponentDeadlineExceeded) or _t.monotonic() >= _intelligence_deadline
+            else {"status": "UNKNOWN", "error": str(_e)[:120]}
+        )
 
     # ── Top-level status (legacy — kept for backward-compat computation
     # only; superseded as the actual source of the "status" field by the

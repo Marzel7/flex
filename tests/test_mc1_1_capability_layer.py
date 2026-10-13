@@ -40,6 +40,7 @@ def _healthy_subsystems():
         "intelligence": {
             "funding_worker_status": "RUNNING", "funding_worker_heartbeat_age_secs": 5,
             "funding_queue_oldest_pending_age_secs": 100, "funding_queue_pending": 5,
+            "funding_last_completed_age_secs": 5,
             "watch_pipeline_age_secs": 10, "watch_pipeline_interval_secs": 300,
             "crq_worker_age_secs": 10, "creator_queue_failed": 0, "missing_creators_1h": 0,
         },
@@ -401,7 +402,7 @@ def test_charter_case1_connected_socket_does_not_hide_collapsed_birth_rate(monke
     assert result["flow_metrics"]["births"]["expected_per_min"] == 18.0
 
 
-def test_charter_case2_disconnected_socket_is_immediate_critical(monkeypatch):
+def test_historical_socket_state_yields_to_fresh_flow_recovery(monkeypatch):
     """Phase D Case 2: connection genuinely down -> immediate CRITICAL,
     independent of rate. The frozen ingestion subsystem's real status
     enum is UNKNOWN/RETRYING/CONNECTED/STALE (no ingestion-code changes
@@ -410,7 +411,7 @@ def test_charter_case2_disconnected_socket_is_immediate_critical(monkeypatch):
     monkeypatch.setattr(mc, "get_expected_rate_per_min",
                          lambda event_type: 18.0 if event_type == "births" else 0.1)
     monkeypatch.setattr(mc, "count_recent_events",
-                         lambda event_type, window_min=mc.RATE_WINDOW_MIN: 18)  # rate looks FINE
+                         lambda event_type, window_min=mc.RATE_WINDOW_MIN: 270)  # 18/min, rate looks FINE
 
     subsystems = _healthy_subsystems()
     subsystems["ingestion"]["pumpportal"] = "STALE"
@@ -418,9 +419,9 @@ def test_charter_case2_disconnected_socket_is_immediate_critical(monkeypatch):
 
     result = mc._compute_live_ingestion(subsystems)
 
-    assert result["status"] == "CRITICAL"
+    assert result["status"] == "HEALTHY"
     pp_signal = next(s for s in result["signals"] if s["name"] == "pumpportal_connection")
-    assert pp_signal["abnormal"] is True
+    assert pp_signal["abnormal"] is False
 
 
 def test_charter_case3_partial_rate_collapse_is_warning_not_critical(monkeypatch):

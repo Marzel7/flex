@@ -2105,6 +2105,11 @@
         // MAIN ORCHESTRATION
         // ══════════════════════════════════════════════════════════════════
         let systemHealthRefreshGeneration = 0;
+        const SYSTEM_HEALTH_REFRESH_MS = 15000;
+        let systemHealthRefreshTimer = null;
+        let systemHealthRefreshInFlight = false;
+        let systemHealthAbortController = null;
+        let systemHealthDisposed = false;
         let runtimeBudgetPollingStarted = false;
         let runtimeBudgetRefreshGeneration = 0;
 
@@ -2122,7 +2127,23 @@
             if (body) body.innerHTML = `<div style="color:var(--text-secondary);font-size:0.85rem;">Loading ${label.toLowerCase()}…</div>`;
         }
 
-        function updateDashboard() {
+        function setRefreshState(state, detail) {
+            const el = document.getElementById('lastUpdate');
+            if (!el) return;
+            if (state === 'success') {
+                el.style.color = 'var(--text-secondary)';
+                el.textContent = `Last successful refresh: ${new Date().toLocaleTimeString()}`;
+            } else {
+                el.style.color = '#facc15';
+                el.textContent = `Health ${state}: ${detail || 'awaiting a successful refresh'}`;
+            }
+        }
+
+        async function updateDashboard() {
+            if (systemHealthDisposed || document.hidden || systemHealthRefreshInFlight) return false;
+            systemHealthRefreshInFlight = true;
+            const controller = new AbortController();
+            systemHealthAbortController = controller;
             const generation = ++systemHealthRefreshGeneration;
             let fullHealth = null;
             let recovery = null;
@@ -2179,42 +2200,83 @@
             document.getElementById('lastUpdate').textContent = `Last updated: ${now.toLocaleTimeString()}`;
             };
 
-            fetch('/api/health/full').then(r => r.json()).catch(() => null).then(renderCritical);
-            fetch('/api/ops-v2/walkback-candidate-health').then(r => r.json()).catch(() => null).then(value => {
+            const fetchJson = url => fetch(url, {signal: controller.signal}).then(r => {
+                if (!r.ok) throw new Error(`${r.status} ${url}`);
+                return r.json();
+            });
+            const coreRequest = fetchJson('/api/health/full');
+            const walkbackRequest = fetchJson('/api/ops-v2/walkback-candidate-health');
+            const recoveryRequest = fetchJson('/api/listener-recovery-status');
+            const fundingRequest = fetchJson('/api/internal/funding-queue-stats');
+            const databaseRequest = fetchJson('/api/db-health');
+
+            coreRequest.catch(() => null).then(renderCritical);
+            walkbackRequest.catch(() => null).then(value => {
                 if (!current()) return;
                 walkbackSettled = true;
                 walkbackHealth = value;
                 if (fullHealth) renderIntelligenceGroup(fullHealth, walkbackHealth, false);
             });
-            fetch('/api/listener-recovery-status').then(r => r.json()).catch(() => null).then(value => {
+            recoveryRequest.catch(() => null).then(value => {
                 if (!current()) return;
                 recovery = value;
                 if (recovery) renderIngestionGroup(recovery, fundingStats, dbHealth);
                 else renderDiagnosticPending('grp-ingestion', 'grp-ingestion-body', 'Listener recovery status unavailable');
             });
-            fetch('/api/internal/funding-queue-stats').then(r => r.json()).catch(() => null).then(value => {
+            fundingRequest.catch(() => null).then(value => {
                 if (!current()) return;
                 fundingStats = value;
                 if (recovery) renderIngestionGroup(recovery, fundingStats, dbHealth);
             });
-            fetch('/api/db-health').then(r => r.json()).catch(() => null).then(value => {
+            databaseRequest.catch(() => null).then(value => {
                 if (!current()) return;
                 dbHealth = value;
                 dbHealthSettled = true;
                 if (fullHealth && dbHealth) renderInfraGroup(dbHealth, fullHealth);
                 else if (fullHealth) renderDiagnosticPending('grp-infra', 'grp-infra-body', 'Database diagnostics unavailable');
             });
+            const results = await Promise.allSettled([coreRequest, walkbackRequest, recoveryRequest, fundingRequest, databaseRequest]);
+            if (current()) {
+                if (results.every(result => result.status === 'fulfilled')) setRefreshState('success');
+                else setRefreshState('stale', 'one or more health requests failed');
+            }
+            if (systemHealthAbortController === controller) systemHealthAbortController = null;
+            systemHealthRefreshInFlight = false;
+            return results.every(result => result.status === 'fulfilled');
         }
 
         document.getElementById('refreshBtn').addEventListener('click', () => {
             const btn = document.getElementById('refreshBtn');
             btn.classList.add('refreshing');
-            updateDashboard();
-            window.setTimeout(() => btn.classList.remove('refreshing'), 250);
+            updateDashboard().finally(() => btn.classList.remove('refreshing'));
         });
 
+        function scheduleSystemHealthRefresh() {
+            if (systemHealthRefreshTimer !== null) return;
+            systemHealthRefreshTimer = window.setInterval(updateDashboard, SYSTEM_HEALTH_REFRESH_MS);
+        }
+        function stopSystemHealthRefresh() {
+            if (systemHealthRefreshTimer !== null) window.clearInterval(systemHealthRefreshTimer);
+            systemHealthRefreshTimer = null;
+            // Invalidate callbacks which raced page hiding/teardown.
+            ++systemHealthRefreshGeneration;
+            if (systemHealthAbortController) systemHealthAbortController.abort();
+        }
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                stopSystemHealthRefresh();
+                setRefreshState('stale', 'polling paused while this page is hidden');
+            } else {
+                scheduleSystemHealthRefresh();
+                updateDashboard();
+            }
+        });
+        window.addEventListener('pagehide', () => {
+            systemHealthDisposed = true;
+            stopSystemHealthRefresh();
+        }, {once: true});
+        scheduleSystemHealthRefresh();
         updateDashboard();
-        setInterval(updateDashboard, 60000); // STABILITY: 60s cadence — avoids RW WAL contention with cascade
 
         // ── Runtime Budget Health (Level-3 detail inside Infrastructure) ────
         async function loadSHRuntimeBudget(){

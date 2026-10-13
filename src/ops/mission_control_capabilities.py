@@ -654,8 +654,15 @@ def _compute_live_ingestion(subsystems: Dict[str, Any]) -> Dict[str, Any]:
     # the more severe connection-signal case, RETRYING as the lesser one,
     # matching Case 2's "not connected -> CRITICAL-level signal" intent
     # without inventing a new status value in the frozen ingestion code.
-    pp_disconnected = pp_status in ("STALE", "UNKNOWN")
-    ps_disconnected = ps_status in ("STALE", "UNKNOWN")
+    # A socket state is only current evidence while event/log freshness also
+    # says the pipeline is currently silent.  A historical disconnect must
+    # not keep an incident active after fresh traffic recovers.
+    has_fresh_activity = (
+        (birth_age is not None and birth_age <= 300)
+        or (listener_log_age is not None and listener_log_age <= 300)
+    )
+    pp_disconnected = pp_status in ("STALE", "UNKNOWN") and not has_fresh_activity
+    ps_disconnected = ps_status in ("STALE", "UNKNOWN") and not has_fresh_activity
 
     signals = [
         _signal("birth_rate_collapse", birth_rate["status"] != "HEALTHY", birth_rate["detail"]),
@@ -666,8 +673,8 @@ def _compute_live_ingestion(subsystems: Dict[str, Any]) -> Dict[str, Any]:
         # or opens an incident (Phase E: "a normal migration lull must
         # never create a CRITICAL incident").
         _signal("migration_health", migration_rate["status"] not in ("HEALTHY", "UNKNOWN"), migration_rate["detail"]),
-        _signal("pumpportal_connection", pp_status == "RETRYING" or pp_disconnected, pp_status),
-        _signal("pumpswap_connection", ps_status == "RETRYING" or ps_disconnected, ps_status),
+        _signal("pumpportal_connection", pp_status == "RETRYING" or pp_disconnected, pp_status if not has_fresh_activity else f"{pp_status}; fresh activity observed"),
+        _signal("pumpswap_connection", ps_status == "RETRYING" or ps_disconnected, ps_status if not has_fresh_activity else f"{ps_status}; fresh activity observed"),
         _signal(
             "listener_log_freshness",
             listener_log_age is not None and listener_log_age > 300,
@@ -703,6 +710,10 @@ def _compute_live_ingestion(subsystems: Dict[str, Any]) -> Dict[str, Any]:
         "CRITICAL" if pp_disconnected or ps_disconnected else ("WARNING" if pp_status == "RETRYING" or ps_status == "RETRYING" else "HEALTHY"),
         "WARNING" if (birth_queue > 5 or mig_queue > 5) else "HEALTHY",
     )
+    # Absence of both fresh event and listener evidence is epistemic UNKNOWN,
+    # not a sustained outage inferred from a stale socket label.
+    if birth_age is None and listener_log_age is None:
+        status = "UNKNOWN"
     result = _capability_result(status, signals)
     # MC1.2 Phase E: expose the raw observed/expected rate numbers
     # directly (not just the signal detail string) so the dashboard card
@@ -745,6 +756,7 @@ def _compute_creator_funding(subsystems: Dict[str, Any]) -> Dict[str, Any]:
 
     worker_status = intelligence.get("funding_worker_status") or "UNKNOWN"
     progress_status = intelligence.get("funding_progress_status") or worker_status
+    completed_age = intelligence.get("funding_last_completed_age_secs")
     hb_age = intelligence.get("funding_worker_heartbeat_age_secs")
     oldest_age = intelligence.get("funding_oldest_hot_age_secs")
     if oldest_age is None:
@@ -754,11 +766,7 @@ def _compute_creator_funding(subsystems: Dict[str, Any]) -> Dict[str, Any]:
         pending = intelligence.get("funding_queue_pending") or 0
 
     signals = [
-        _signal(
-            "worker_status",
-            worker_status not in ("RUNNING",),
-            progress_status,
-        ),
+        _signal("worker_status", worker_status not in ("RUNNING",), progress_status),
         _signal(
             "heartbeat_freshness",
             hb_age is not None and hb_age > 120,
@@ -769,22 +777,24 @@ def _compute_creator_funding(subsystems: Dict[str, Any]) -> Dict[str, Any]:
             oldest_age is not None and oldest_age > 3600,
             f"{oldest_age}s (threshold 3600s)" if oldest_age is not None else "unknown",
         ),
-        _signal(
-            "queue_backlog_growth",
-            False,  # MC1.0 Section 4: trend detection deferred -- no new
-            # measurement added by this module; current pending count
-            # alone is not evidence of GROWTH (X78.15 established large
-            # pending counts are expected/normal). Left as an always-
-            # normal placeholder signal so the evidence denominator (4)
-            # matches MC1.0's Section 10 worked example without asserting
-            # an abnormal condition this module cannot actually measure.
-            "normal" if pending is not None else "unknown",
-        ),
+        _signal("committed_progress", completed_age is not None and completed_age > 600,
+                f"last completion {completed_age}s ago" if completed_age is not None else "unknown"),
+        _signal("queue_backlog_growth", pending > 0 and completed_age is not None and completed_age > 600,
+                f"pending={pending}; last completion age={completed_age}" if completed_age is not None else "progress telemetry unknown"),
     ]
 
     status = "HEALTHY"
-    if worker_status not in ("RUNNING",) and pending > 0:
+    if worker_status == "UNKNOWN":
+        status = "UNKNOWN"
+    elif worker_status == "RUNNING" and completed_age is None:
+        status = "UNKNOWN"
+    elif worker_status not in ("RUNNING",) and pending > 0:
         status = "CRITICAL" if worker_status == "STOPPED" else "WARNING"
+    elif pending > 0 and completed_age is not None and completed_age > 600:
+        status = "WARNING"
+    elif oldest_age is not None and oldest_age > 3600 and completed_age is not None and completed_age <= 600:
+        # Backlog with recent committed work is recovery, not failure.
+        status = "HEALTHY"
     elif oldest_age is not None and oldest_age > 3600:
         status = "WARNING"
 

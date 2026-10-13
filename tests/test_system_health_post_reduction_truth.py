@@ -116,16 +116,16 @@ def test_system_health_progressively_renders_core_before_diagnostics() -> None:
     end = source.index("document.getElementById('refreshBtn')", start)
     bootstrap = source[start:end]
 
-    assert "Promise.all" not in bootstrap
-    assert "fetch('/api/health/full')" in bootstrap
+    assert "Promise.allSettled" in bootstrap
+    assert "fetchJson('/api/health/full')" in bootstrap
     assert "renderIntelligenceGroup(fullHealth, walkbackHealth, !walkbackSettled)" in bootstrap
-    assert "fetch('/api/ops-v2/walkback-candidate-health')" in bootstrap
+    assert "fetchJson('/api/ops-v2/walkback-candidate-health')" in bootstrap
     assert "renderIntelligenceGroup(fullHealth, walkbackHealth, false)" in bootstrap
     assert "systemHealthRefreshGeneration" in bootstrap
     for endpoint in (
-        "/api/db-health",
-        "/api/listener-recovery-status",
-        "/api/internal/funding-queue-stats",
+        "fetchJson('/api/db-health')",
+        "fetchJson('/api/listener-recovery-status')",
+        "fetchJson('/api/internal/funding-queue-stats')",
     ):
         assert endpoint in bootstrap
 
@@ -136,8 +136,8 @@ def test_system_health_walkback_has_explicit_pending_state_and_runtime_is_deferr
     assert "Loading current Walkback health…" in source
     assert "runtimeBudgetPollingStarted" in source
     assert "setInterval(loadSHRuntimeBudget, 30000)" in source
-    assert source.count("fetch('/api/health/full')") == 1
-    assert source.count("fetch('/api/ops-v2/walkback-candidate-health')") == 1
+    assert source.count("fetchJson('/api/health/full')") == 1
+    assert source.count("fetchJson('/api/ops-v2/walkback-candidate-health')") == 1
 
 
 def test_operator_registry_polling_is_visible_tab_only_and_minute_cadence() -> None:

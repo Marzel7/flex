@@ -8655,7 +8655,10 @@ def api_walkback_candidate_health():
     termination recovery history. Read-only; changes nothing."""
     try:
         from src.ops.walkback_candidate_health import build_walkback_candidate_health
-        return jsonify(build_walkback_candidate_health(OPS_DB_PATH, LIVE_DB_PATH))
+        from src.ops.migration_walkback_handoff_health import build_migration_walkback_handoff_health_from_paths
+        payload = build_walkback_candidate_health(OPS_DB_PATH, LIVE_DB_PATH)
+        payload["migration_handoff"] = build_migration_walkback_handoff_health_from_paths(LIVE_DB_PATH, OPS_DB_PATH)
+        return jsonify(payload)
     except Exception as exc:
         return jsonify({"ok": False, "error": str(exc)}), 500
 

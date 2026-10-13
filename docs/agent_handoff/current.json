@@ -1,15 +1,15 @@
 {
   "dev035_mission_control": {
     "engineering_revision": "c759f2d512c7e42a68897227bec5fe897732597c",
-    "status": "HOLD_CLEAN_PERSISTENT_RUNTIME_WRAPPER_NOT_VERSIONED",
-    "finding": "Mission Control now performs a coordinated 15-second, visibility-aware, abortable refresh cycle with generation guards and explicit last-success/stale UI state. Live ingestion ignores historical socket disconnection after fresh activity, funding requires committed progress telemetry, and the walkback handoff projection uses only current mint/time-aligned durable evidence. Active incidents are recomputed without duplicates and clear on recovery.",
+    "status": "HOLD_CLEAN_RUNTIME_DEPENDENCIES_NOT_VERSIONED",
+    "finding": "Mission Control remains qualified at c759f2d5. The shared untracked wrapper hash is cf5d3f07b8f58a6e8417843f6cdc781ad655a94a84d3a8c6d8024c46d373d7cf. A provider-free isolated startup reproduced its read-only guard and suppressed db-wal-watchdog plus operational-intelligence-prewarm before correctly failing because its second dependency, src.dev_work_registry, is also absent from c759f2d5. No combined clean runtime source can yet be attributed to the qualified revision.",
     "tests": "69 focused provider-free tests passed: tests/test_dev035_mission_control.py, tests/test_mc1_1_capability_layer.py, tests/test_system_health_post_reduction_truth.py, tests/test_x76_5a_walkback_candidate_health.py, tests/test_walkback_health_combined_aggregation.py.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD",
     "runtime": "Persistent port-8100 is owned by PIDs 22967 and 14001, manually running src.dev_runtime from /Users/kevinkeaveney/Dev/claude/flex. It served /healthz, /system-health, and /api/health/full at HTTP 200 before this decision. The clean c759f2d5 checkout is /private/tmp/flex-dev035-mission-control.",
     "safety": "DEV only; provider calls=0; production changes=0; no operational database mutation; no new worker, schema, or retention path; storage rule not applicable.",
-    "blocker": "The safety-critical src/dev_runtime.py wrapper that supplies read-only database access and outbound-network denial for port 8100 is untracked and exists only in the dirty shared checkout; it is absent from c759f2d5. Repointing to ordinary Gunicorn would bypass those protections, while copying the untracked wrapper would make the target non-attributable to the qualified SHA.",
-    "next_action": "Commit/qualify the DEV runtime wrapper on an attributable clean source revision, then create a clean persistent DEV target and restart only its API process."
+    "blocker": "Both the safety-critical src/dev_runtime.py wrapper and its required src.dev_work_registry dependency are untracked/shared-checkout-only and absent from c759f2d5. Ordinary Gunicorn would bypass the wrapper protections; copying either file would make the runtime non-attributable to the qualified SHA.",
+    "next_action": "Commit and provider-free qualify the wrapper plus src.dev_work_registry as an attributable DEV runtime revision, then create a clean persistent DEV target and restart only its API process."
   },
   "dev028_corrected_30s_post_ath_crash_study_20261012": {
     "status": "PASS_BOUNDED_STUDY_COMPLETE_INCONCLUSIVE_PATTERN",

@@ -607,7 +607,9 @@ def _capability_result(status: str, signals: List[Dict[str, Any]]) -> Dict[str, 
     }
 
 
-def _compute_live_ingestion(subsystems: Dict[str, Any]) -> Dict[str, Any]:
+def _compute_live_ingestion(
+    subsystems: Dict[str, Any], *, include_historical_measurements: bool = True
+) -> Dict[str, Any]:
     ingestion = subsystems.get("ingestion") or {}
     now = int(time.time())
 
@@ -628,13 +630,24 @@ def _compute_live_ingestion(subsystems: Dict[str, Any]) -> Dict[str, Any]:
     # wiring in a real count and a real baseline instead of the
     # placeholder 0/None that made every prior evaluation fall through to
     # the silence-only path.
-    birth_count = count_recent_events("births")
-    birth_rate = evaluate_rate_signal(
-        event_type="births",
-        observed_count_in_window=birth_count,
-        silence_secs=birth_age,
-        fallback_silence_sec=BIRTH_SILENCE_FALLBACK_SEC,
-    )
+    if include_historical_measurements:
+        birth_count = count_recent_events("births")
+        birth_rate = evaluate_rate_signal(
+            event_type="births",
+            observed_count_in_window=birth_count,
+            silence_secs=birth_age,
+            fallback_silence_sec=BIRTH_SILENCE_FALLBACK_SEC,
+        )
+    else:
+        # The full-health request must remain bounded even when the
+        # historical rate/baseline queries cannot safely acquire a read slot.
+        # Freshness remains available in the already-bounded ingestion block,
+        # but it must not be misrepresented as sustained throughput.
+        birth_rate = {
+            "status": "UNKNOWN",
+            "mode": "unavailable_within_endpoint_budget",
+            "detail": "historical throughput evidence unavailable within endpoint budget",
+        }
     # MC1.2A Phase B: migrations use the elapsed-time band policy, NOT the
     # rate-ratio logic births use (Phase A: birth logic is unchanged,
     # above). Migrations are naturally bursty -- a rate-ratio comparison
@@ -744,10 +757,17 @@ def _compute_live_ingestion(subsystems: Dict[str, Any]) -> Dict[str, Any]:
     # MC1.3 Phase B: real-data trend (5m/15m/60m/24h rates + measured
     # direction), computed the same way as flow_metrics above -- no new
     # persistence, genuine historical event data.
-    result["trend"] = {
-        "births": compute_live_ingestion_trend("births"),
-        "migrations": compute_live_ingestion_trend("migrations"),
-    }
+    result["trend"] = (
+        {
+            "births": compute_live_ingestion_trend("births"),
+            "migrations": compute_live_ingestion_trend("migrations"),
+        }
+        if include_historical_measurements
+        else {
+            "births": {"status": "UNKNOWN", "evidence": "TIME_BUDGET_EXCLUDED"},
+            "migrations": {"status": "UNKNOWN", "evidence": "TIME_BUDGET_EXCLUDED"},
+        }
+    )
     return result
 
 
@@ -971,7 +991,9 @@ def _apply_propagation(capabilities: Dict[str, Dict[str, Any]]) -> None:
             own["status"] = _max_status(own["status"], "WARNING")
 
 
-def compute_capabilities(subsystems: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
+def compute_capabilities(
+    subsystems: Dict[str, Any], *, include_historical_measurements: bool = True
+) -> Dict[str, Dict[str, Any]]:
     """Phase A entry point. Deterministic given `subsystems` and the
     real-data sources it reads (token_analysis for Live Ingestion's own
     trend, computed inside _compute_live_ingestion) -- identical inputs
@@ -987,7 +1009,17 @@ def compute_capabilities(subsystems: Dict[str, Any]) -> Dict[str, Dict[str, Any]
     own `trend` key is populated INSIDE _compute_live_ingestion from real
     historical data, not from this buffer -- the generic buffer-based
     trend is only attached to the other 5 capabilities, below."""
-    capabilities = {name: _COMPUTE_FN[name](subsystems) for name in CAPABILITY_NAMES}
+    capabilities = {
+        name: (
+            _compute_live_ingestion(
+                subsystems,
+                include_historical_measurements=include_historical_measurements,
+            )
+            if name == "live_ingestion"
+            else _COMPUTE_FN[name](subsystems)
+        )
+        for name in CAPABILITY_NAMES
+    }
     _apply_propagation(capabilities)
     _record_capability_samples(capabilities)
     for name, cap in capabilities.items():

@@ -89,3 +89,21 @@ def test_full_health_marks_unindexed_percentile_evidence_unknown():
     block = source[start:end]
     assert "UNKNOWN_UNBOUNDED_QUERY" in block
     assert "ORDER BY runtime_secs ASC LIMIT 1 OFFSET" not in block
+
+
+def test_full_health_excludes_unbounded_capability_history(monkeypatch):
+    import src.core.main as main
+    import src.ops.mission_control_capabilities as capabilities
+
+    def _must_not_run(*_args, **_kwargs):
+        raise AssertionError("unbounded historical measurement was invoked")
+
+    monkeypatch.setattr(capabilities, "compute_live_ingestion_trend", _must_not_run)
+    monkeypatch.setattr(capabilities, "count_recent_events", _must_not_run)
+
+    response = main.app.test_client().get("/api/health/full")
+
+    assert response.status_code == 200
+    live = response.get_json()["capabilities"]["live_ingestion"]
+    assert live["flow_metrics"]["births"]["mode"] == "unavailable_within_endpoint_budget"
+    assert live["trend"]["births"]["status"] == "UNKNOWN"

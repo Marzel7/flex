@@ -24598,7 +24598,14 @@ def api_health_full():
             compute_incidents as _mc_compute_incidents,
             compute_platform_status as _mc_compute_platform_status,
         )
-        capabilities = _mc_compute_capabilities(_subsystems)
+        # The subsystem reads above have explicit component budgets.  The
+        # capability layer's optional historical rate/trend reads do not, so
+        # exclude them from this request path rather than allowing them to
+        # delay the complete response.  Fresh bounded evidence remains
+        # visible; sustained-throughput evidence is explicitly UNKNOWN.
+        capabilities = _mc_compute_capabilities(
+            _subsystems, include_historical_measurements=False
+        )
         incidents = _mc_compute_incidents(capabilities)
         top = _mc_compute_platform_status(capabilities)
     except Exception as _e:

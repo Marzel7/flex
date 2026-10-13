@@ -92,7 +92,7 @@ def test_all_healthy_produces_healthy_platform_and_zero_incidents():
     assert mc.compute_incidents(caps) == []
 
 
-def test_capability_computation_is_pure_and_deterministic():
+def test_capability_computation_is_pure_and_deterministic(monkeypatch):
     """Same input -> same status/evidence/signals, every time. No hidden
     state affects the HEALTH CLASSIFICATION itself (only
     compute_incidents's first_detected_at tracking, and MC1.3's own
@@ -106,6 +106,16 @@ def test_capability_computation_is_pure_and_deterministic():
     subsystems["ingestion"]["pumpportal"] = "RETRYING"
     subsystems["ingestion"]["last_birth_age_secs"] = 6000
     subsystems["ingestion"]["last_migration_age_secs"] = 6000
+
+    # This test concerns deterministic capability derivation.  Keep its
+    # historical-rate/trend evidence isolated from the concurrently changing
+    # DEV database, just as the autouse fixture already does for baseline and
+    # current-count reads.
+    monkeypatch.setattr(
+        mc,
+        "compute_live_ingestion_trend",
+        lambda _event_type: {"status": "UNKNOWN", "evidence": "TEST_ISOLATED"},
+    )
 
     result_1 = mc.compute_capabilities(subsystems)
     result_2 = mc.compute_capabilities(subsystems)

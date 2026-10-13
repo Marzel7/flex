@@ -24907,5 +24907,15 @@
     "runtime_deployment_required":false,
     "runtime_deployment_reason":"Read-only incident determination only; no runtime behavior was changed.",
     "next_action":"Authorize the narrow creator_funding_worker Supervisor source-path correction and bounded post-start acceptance. Do not restart or modify operation_scheduler in that change."
+  },
+  "dev034_creator_funding_worker_restoration_20261013": {
+    "status":"PARTIAL_RUNTIME_STARTED_SCHEMA_COMPATIBILITY_HOLD",
+    "qualified_worker_source":"/Users/kevinkeaveney/Production/flex-funding at c3565a9d5c2e5199c5362ac96573246a8d5a42dc; clean, module present, direct import passed.",
+    "change":"Backed up the active Supervisor configuration, then changed only creator_funding_worker directory and PYTHONPATH from the missing temporary runtime to the qualified funding checkout. Database/provider bindings were preserved. operation_scheduler was not changed and remained RUNNING as PID 66022.",
+    "acceptance":"Supervisor now reports creator_funding_worker RUNNING as PID 58561, executing python -m src.core.creator_funding_worker. The previous module-not-found failure is resolved.",
+    "blocker":"Fresh worker stderr now reports 'Error in classify_addresses_from_funding: no such table: creator_funders'. This prevents proving heartbeat and bounded queue progress against the configured database, so full restoration cannot be declared safe.",
+    "runtime_deployment_required":true,
+    "runtime_deployment_gate":"HOLD_SCHEMA_COMPATIBILITY",
+    "next_action":"Read-only verify the intended creator-funding database binding/schema and qualify the smallest worker-only configuration or source correction before further runtime action."
   }
 }

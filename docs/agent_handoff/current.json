@@ -66,6 +66,21 @@
     "safety": "Provider calls=0; production changes=0; database writes=0; no restart, source edit, database clone, raw payload retention, or service action. Existing read-only and network-denial protections remained active.",
     "next_action": "Await authorization for the narrow runtime binding and registry-unavailable presentation correction."
   },
+  "dev036_activity_index_qualification": {
+    "engineering_revision": "a89470578d14005f6b208bb918dfbf0486b23eb9 on codex/dev036-activity-index-qualification at /private/tmp/flex-dev036-activity-index-qualification; test/candidate-SQL only, installed runtime unchanged.",
+    "status": "PARTIAL_FIXTURE_INDEX_QUALIFIED_ENDPOINT_TARGET_UNPROVEN",
+    "frozen_baseline": "Existing live_potential_activity implementation is byte-identical to frozen 6877f6e41477f7357463225d071f7a50f29c743e. Candidate index preserves its WHERE predicate and exact selected-route matcher.",
+    "proposed_index": "CREATE INDEX ix_wbq_activity_time_mint ON wt_walkback_queue(funder_block_time, mint); candidate retained in scripts/dev036_activity_index_candidate.sql, explicitly not authorized for live application.",
+    "plan": "Original: SCAN wt_walkback_queue. Disposable candidate: SEARCH wt_walkback_queue USING COVERING INDEX ix_wbq_activity_time_mint (funder_block_time>?). No temporary sort is introduced. Existing live database metadata confirms no equivalent general time index; the existing partial time index cannot cover this population.",
+    "performance": "Three synthetic 60,000-row fixtures, recent fractions 1%,10%,75%: original selection 14.389/12.989/35.201 ms; indexed selection 0.357/2.802/22.921 ms. Index build 47-64 ms on these fixtures. These are selection-only synthetic timings, not endpoint or live-database timings.",
+    "equivalence": "8 provider-free tests passed: new index qualification tests plus existing live_potential_activity tests. Matched identities, timestamps, counts, ambiguity classifications, and max last-launch values are equivalent; indexed reads may change the incidental live_matches array order because the SQL has no ORDER BY. Registry ordering derives from the preserved maximum timestamp. No operator membership or token-selection change was implemented.",
+    "storage": "Disposable fixtures stayed below 23.3 MB with explicit SQLite max_page_count bounding below 50 MB and memory temporary sorting. Measured index overhead 1.24-1.35 MB, approximately 20.7-22.5 bytes per synthetic short-mint row. This underestimates real 44-character mint overhead. No live index-size/build-lock/WAL estimate is qualified, and no operational database was cloned or changed.",
+    "feasibility": "The index materially improves queue selection, but selected-edge signature enrichment still scales with every launch in the 30-day result. A five-second whole-endpoint target is not proven. Applying an index to the 15 GB established shared operations authority would mutate a production-accessed database and exceed this disposable-fixture authorization; no such application is permitted or proposed as ready.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_OFFLINE_INDEX_QUALIFICATION",
+    "safety": "Live DEV database mutations=0; production changes=0; provider calls=0; no service action, application-source change, operational clone, raw payload retention, or live index build.",
+    "next_action": "Do not apply the index or deploy based on selection-only evidence. The remaining implementation decision is explicit bounded UNKNOWN activity handling with retained-evidence ordering, or separate authorization for a safe database authority and full projection qualification."
+  },
   "dev036_activity_projection_continuation": {
     "engineering_revision": "a2e4c119031fd8b7db3e4392e741506f9b4907af; installed DEV source unchanged.",
     "status": "HOLD_EXACT_BOUNDED_SELECTION_NOT_QUALIFIED",

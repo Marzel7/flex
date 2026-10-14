@@ -1,4 +1,23 @@
 {
+  "dev037_safe_rollback_and_deployment_attempt": {
+    "status": "HOLD_CANDIDATE_BOOTSTRAP_FAILED_ROLLBACK_VERIFIED",
+    "engineering_revision": "Qualified candidate d10a690e5dc02c7a962bc14d299286d4eca57c56 remains isolated and NOT installed. Restored actual DEV runtime 43dfcddcacd8a0a6edaa9e24aaf1499a1ac655cc.",
+    "permitted_write_scope": "Verified existing /Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db resolves inside existing DEV_ROOT,1138688 bytes at preflight. Existing universal_monitor_* startup tables present. Candidate and rollback universal_monitor_runtime.py/adoption.py are byte-identical. Startup is bounded max_page_count16384/64MiB, temporary _schema adoption INSERT/DELETE plus idempotent policy/budget/schema/trigger creation and forward_state INSERT / budget dispatch_enabled/updated_at UPDATE. No attribution, operator membership, monitor facts or research writes in those functions. Canonical/core paths outside DEV_ROOT forced mode=ro/query_only; provider transport denied and workers suppressed. Only the newly authorized existing DEV-owned initialization ran during rollback.",
+    "rollback_backup": "/private/tmp/flex-dev037-rollback.OH5b2S/com.flex.dev035-api.plist exact original bytes; SHA2569f37096873702b323ca5c264c75fe040c8d551713f200389491eb19284caa95d. Candidate definition preserved alongside as candidate.plist. Previous worktree /private/tmp/flex-dev035-health-scope source43df unchanged; interpreter /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -m src.dev_runtime. Original environment/launchd configuration retained in dev037_controlled_deployment_preflight.",
+    "deployment_attempt": "Validated original/candidate plists and exact candidate HEAD. Existing plist repointed only WorkingDirectory/PYTHONPATH to candidate with explicit preservation of prior core DB_PATH, canonical WT_OPS_DB_PATH, existing monitor/queue/research adapter bindings. FLEX_DEV_RELOAD0 and all old environment/manager controls retained. One launchctl bootout gui/501/com.flex.dev035-api completed; launchctl bootstrap gui/501 /Users/kevinkeaveney/Library/LaunchAgents/com.flex.dev035-api.plist failed with exit5 Input/output error. Candidate process never reached runtime acceptance. No application code change or unrelated service action.",
+    "rollback_execution": "Immediately restored original plist bytes using saved backup content and verified original SHA256. One authorized rollback launchctl bootstrap gui/501 /Users/kevinkeaveney/Library/LaunchAgents/com.flex.dev035-api.plist succeeded. RUNNING PID95243, original cwd/source43df. After bounded startup observation, port8100 responds, healthz healthy=true/db=ok and /ops-os HTTP200. Browser rendered DEVELOPMENT READ ONLY, Operations OS navigation and separate API-live/detail labels. Safety endpoint source_root=/private/tmp/flex-dev035-health-scope, production_databases=read-only,outbound_network=blocked. No repeated candidate registration or source correction attempted.",
+    "candidate_acceptance": "Prior isolated qualification only:83ms Live Monitor response,115 actual rows,Watchtower38LIVE/65ENDED,Byzantine12LIVE and4 registry identities. These are NOT installed8100 acceptance results. Existing baseline limitations remain; no claim recovered token tables deployed.",
+    "research": "539 cohort SHA2560aec34375865d5106341a3c03c9afa22f3cbf89e8c15f737cb57b5e6126a679d;2860-candle journal6ebea1e8c6fc84b466e6910f51a1c26e5ecf16964fe4a1728475dc60d22a4456;strategy summary8bdac654215bfa304162c567acd7bece4409a0c1512741c62c12318261166eea rechecked unchanged after attempt. No evidence relocation, raw retention, canonical database writes or database copies.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "rollback_readiness": "PASS_EXECUTED_AND_FUNCTIONALLY_VERIFIED",
+    "dev_api_pid": 95243,
+    "port_8100_status": "LISTENING_RESPONDING_RESTORED_BASELINE",
+    "production_changes": 0,
+    "provider_calls": 0,
+    "canonical_database_writes": 0,
+    "next_action": "STOP — qualified candidate deployment blocked by exact launchd bootstrap error5. Previous runtime restored and verified. Any further bounded registration recovery requires separate authorization; no new engineering or retry performed."
+  },
   "dev037_controlled_deployment_preflight": {
     "status": "HOLD_BEFORE_SERVICE_CHANGE_ZERO_WRITE_ROLLBACK_UNAVAILABLE",
     "engineering_revision": "Qualified candidate d10a690e5dc02c7a962bc14d299286d4eca57c56; unchanged installed runtime 43dfcddcacd8a0a6edaa9e24aaf1499a1ac655cc",

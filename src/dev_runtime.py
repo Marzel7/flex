@@ -189,13 +189,6 @@ def _dev_runtime_request_guard():
 @app.get("/health")
 @app.get("/dev-runtime/health")
 def dev_runtime_health():
-    if request.args.get("request_stacks") == "1":
-        import sys
-        import traceback
-        return jsonify(stacks=[[
-            {"file": item.filename, "line": item.lineno, "function": item.name}
-            for item in traceback.extract_stack(frame)[-18:]
-        ] for frame in list(sys._current_frames().values())[:32]])
     return jsonify(
         status="ok",
         environment="DEVELOPMENT",

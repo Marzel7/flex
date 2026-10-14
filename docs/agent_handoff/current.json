@@ -1,4 +1,21 @@
 {
+  "dev037_recovered_ui_preview_8102": {
+    "status": "PASS_PREVIEW_RUNNING_FOR_USER_INSPECTION",
+    "engineering_revision": "d10a690e5dc02c7a962bc14d299286d4eca57c56",
+    "runtime": "Manual temporary existing src.dev_runtime process PID97775, loopback127.0.0.1:8102, cwd /private/tmp/flex-dev037-recovery-evidence-audit. Managed exec PTY session55485 left running explicitly for user inspection; no launchd service created or changed. Qualified tracked source unchanged; existing compact untracked runtime guard only.",
+    "configuration": "Interpreter /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -m src.dev_runtime; PYTHONDONTWRITEBYTECODE=1; FLEX_DEV_READ_ONLY_QUALIFICATION=1; FLEX_DEV_RELOAD=0; FLEX_DEV_OPERATIONS_MODE=OFF; FLEX_DEV_STATE_ROOT=/private/tmp/flex-dev037-qualification.odp7tk; DB_PATH=same/core-fixture.db; WT_OPS_DB_PATH=/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db; WATCHTOWER_MONITOR_UI_DB_PATH=/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db; WATCHTOWER_MONITOR_QUEUE_PATH=same/dev_005a/queue; WATCHTOWER_EARLY_MINIMUM_RESEARCH_PILOT_PATH=/Users/kevinkeaveney/.codex/worktrees/dev020-runtime/flex/docs/audits/dev014_watchtower_early_minimum_mcap_pilot_20261009.v1.json. Existing retained disposable startup state read-only; no DB initialization writes or database copy.",
+    "acceptance": "Port8102 listener PID97775 verified. healthz healthy=true/db=ok. Safety endpoint DEVELOPMENT/read-only/outbound_network=blocked with correct source/state roots. Actual API115 retained rows:103Watchtower/12Byzantine. Browser combined registry shows4confirmed identities (API5includes provisional filtered under existing contract),115token links,Watchtower38LIVE/65ENDED,Byzantine12LIVE. Actual standalone /operations/live-monitor renders115rows. Operations OS/navigation render; optional data panels may be UNAVAILABLE. Mission Control renders System Health Unknown/Fresh operational evidence unavailable, distinct API-live indicator. No synthetic fixture used. Preview browser tab retained as deliverable on registry.",
+    "urls": {"operations_os":"http://localhost:8102/ops-os","registry_and_monitor":"http://localhost:8102/intelligence/operators","mission_control":"http://localhost:8102/system-health","standalone_live_monitor":"http://localhost:8102/operations/live-monitor"},
+    "preservation": "Current port8100 launchd service unchanged PID95243, cwd /private/tmp/flex-dev035-health-scope. Original plist SHA2569f37096873702b323ca5c264c75fe040c8d551713f200389491eb19284caa95d unchanged. No production process/service touched. Existing FD/safety code unchanged; no threshold adjustment. Canonical/DEV DB connections all forced read-only in preview; HTTP mutations blocked, workers suppressed, outbound denied.",
+    "research": "Verified unchanged before startup:539cohort0aec34375865d5106341a3c03c9afa22f3cbf89e8c15f737cb57b5e6126a679d;2860-candle journal6ebea1e8c6fc84b466e6910f51a1c26e5ecf16964fe4a1728475dc60d22a4456;strategy summary8bdac654215bfa304162c567acd7bece4409a0c1512741c62c12318261166eea. No research relocation/copy or raw payload retention; no new storage-producing implementation.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS_ISOLATED_PREVIEW_ONLY_NOT_PERSISTENT_DEPLOYMENT",
+    "provider_calls": 0,
+    "production_changes": 0,
+    "database_writes": 0,
+    "port_8100_changes": 0,
+    "next_action": "USER_INSPECTION — preview remains running at8102; no persistent deployment or additional engineering authorized."
+  },
   "dev037_safe_rollback_and_deployment_attempt": {
     "status": "HOLD_CANDIDATE_BOOTSTRAP_FAILED_ROLLBACK_VERIFIED",
     "engineering_revision": "Qualified candidate d10a690e5dc02c7a962bc14d299286d4eca57c56 remains isolated and NOT installed. Restored actual DEV runtime 43dfcddcacd8a0a6edaa9e24aaf1499a1ac655cc.",

@@ -1,4 +1,24 @@
 {
+  "dev037_recovery_evidence_preservation_audit": {
+    "status": "AUDIT_COMPLETE_RECOVERY_HOLD_PRESERVATION_REQUIRED",
+    "engineering_revision": "aa79361f769ffe5b992cc87dc17fd20af227158d",
+    "audit_artifact": "/private/tmp/flex-dev037-recovery-evidence-audit/docs/audits/dev037_recovery_evidence_audit_20261014.v1.json",
+    "audited_dev_runtime": "43dfcddcacd8a0a6edaa9e24aaf1499a1ac655cc; PID 65252; /private/tmp/flex-dev035-health-scope; src.dev_runtime; FLEX_DEV_RELOAD=0. No runtime actions in this audit.",
+    "evidence_preservation": "Read-only inspection retained 550 unique lifecycle journals (549 completed), 539 DEV020 records and 461 qualified DEV019 opening records. DEV033 full chronology contains 30 records and 2860 candle objects (1 contiguous, 29 sparse). These primary journals remain in /private/tmp and are AT_RISK, not verified durable backups. Git-published derivative summaries do not preserve full chronology. Canonical core and ops databases opened read-only; full integrity was not asserted or scanned. No databases were copied.",
+    "frozen_comparison": "6877f6e41477f7357463225d071f7a50f29c743e is a source reference, not a proven complete working deployment, and is not an ancestor of current DEV. Accepted behavior must be recovered component-wise. Current source lacks operations_live_monitor.html and operator_lifecycle_projection.py; production API cd459a99017f4495188c875af710bde115038137 retains these and an explicit read-only monitor-store adapter. Preserve current health, liveness, unavailable-state and registry binding improvements.",
+    "domain_contract": "WATCHTOWER, Byzantine and Nexus remain accepted operation identities. WATCHTOWER_DEEP must not be an independent operation under the requested contract; preserve its 26 historical memberships and provenance without rewriting attribution. Current separate DEEP rendering is legacy behavior; a previously deployed consolidated UI was not proven.",
+    "production_observation": "Fresh scheduler, funding, resolution, walkback and cascade evidence was observed; funding recorded 18 completed and 78 pending, but sustained recent throughput and full fresh attribution were not proven. No production action occurred. Monitor worker PID 9126 lacks its on-disk module/Git checkout; bridge PID 21106 has an absent configured checkout. Preserve these processes; restart safety is unverified.",
+    "verification": "Audit JSON validated; git diff --check passed; documentation-only commit. Evidence counts, compact journal hashes, source identities, bounded indexed metadata and source comparisons are recorded in the audit. No slow live monitor request or provider acquisition was initiated.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only audit and isolated documentation only; no executable behavior changed.",
+    "recommended_option": "A: preserve compact primary evidence first, then separately qualify selective recovery on current 43df DEV baseline using accepted cd459 monitor components and compatible playbook contracts, with non-owning DEEP presentation. Do not wholesale roll back frozen source or replace databases.",
+    "acceptance_contract": "Future recovery must demonstrate browser-visible navigation, correct registry identities, bounded monitor token data, honest unavailable states, four-state Mission Control, preserved cohort and chronology, unchanged canonical data and production processing, and zero UI-triggered provider acquisition.",
+    "production_changes": 0,
+    "provider_calls": 0,
+    "database_writes": 0,
+    "service_actions": 0,
+    "next_action": "Request separate authorization to preserve the compact temporary primary journals in a durable non-temporary location with hash/count and restore verification, then qualify Option A. No repair, deployment or cleanup authorized by DEV037 audit."
+  },
   "dev035_mission_control": {
     "engineering_revision": "9cd6f014a3bcaf2e878164cc4dc20cd43090156b on clean codex/dev035-health-scope at /private/tmp/flex-dev035-health-scope; based on qualified 02a62a2bb0fb8f0e27eddaa690e0d271963866cf with versioned safety wrapper and registry.",
     "status": "PASS_DEV035_FINAL_HEALTH_PRESENTATION_DEPLOYED",

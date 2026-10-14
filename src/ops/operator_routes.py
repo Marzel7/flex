@@ -246,6 +246,11 @@ def operator_summary():
 def operator_coverage_24h():
     """Read-only coverage of completed mints by confirmed-operation evidence."""
     from src.core.db import OPS_DB_PATH
+    from src.ops.live_potential_activity import cached_activity
+    live_activity, activity_evidence = cached_activity(str(OPS_DB_PATH))
+    if activity_evidence["status"] == "UNKNOWN":
+        return jsonify(ok=False, status="UNKNOWN", error="ACTIVITY_UNAVAILABLE",
+                       reason=activity_evidence["reason"]), 503
     cutoff = int(time.time()) - 86400
     conn = sqlite3.connect(OPS_DB_PATH)
     try:
@@ -276,7 +281,6 @@ def operator_coverage_24h():
         nexus = set()
         potential = set()
         try:
-            live_activity, _ = aggregate_live_activity(str(OPS_DB_PATH))
             for candidate_id, candidate in live_activity.items():
                 mints = {
                     m["mint"] for m in candidate.get("live_matches", [])

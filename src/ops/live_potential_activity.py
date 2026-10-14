@@ -141,6 +141,25 @@ def _build_aggregate(db_path: str, now: int | None = None) -> tuple[dict[str, di
         connection.close()
 
 
+def cached_activity(db_path: str) -> tuple[dict[str, dict], dict]:
+    """UI-only read: never aggregate history or wait for an ongoing refresh.
+
+    The established aggregate() remains the exact matcher/refresh path.
+    A cold, expired, or busy cache is explicitly unknown, never a zero count.
+    """
+    if not _CACHE_LOCK.acquire(blocking=False):
+        return {}, {"status": "UNKNOWN", "reason": "Activity refresh in progress"}
+    try:
+        if _CACHE_VALUE is None or _CACHE_DB_PATH != db_path:
+            return {}, {"status": "UNKNOWN", "reason": "No current route activity available"}
+        if time.monotonic() >= _CACHE_EXPIRES_AT:
+            return {}, {"status": "UNKNOWN", "reason": "Route activity evidence expired"}
+        values, stats = copy.deepcopy(_CACHE_VALUE)
+        return values, {**stats, "status": "HEALTHY"}
+    finally:
+        _CACHE_LOCK.release()
+
+
 def aggregate(db_path: str, now: int | None = None) -> tuple[dict[str, dict], dict]:
     """Read-only live projection; default-current reads share a short local cache."""
     if now is not None:

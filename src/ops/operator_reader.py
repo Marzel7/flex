@@ -632,10 +632,11 @@ class OperatorReader:
                 result = []
                 from src.ops.operation_identity_metadata import identity_metadata
                 try:
-                    from src.ops.live_potential_activity import aggregate as aggregate_live_activity
-                    current_route_activity, _ = aggregate_live_activity(self._path)
+                    from src.ops.live_potential_activity import cached_activity
+                    current_route_activity, route_evidence = cached_activity(self._path)
                 except (sqlite3.Error, OSError, ValueError, KeyError):
                     current_route_activity = {}
+                    route_evidence = {"status": "UNKNOWN", "reason": "Route activity unavailable"}
                 for row in rows:
                     value = dict(row)
                     if value["operator_id"] in _RETIRED_OPERATION_IDS:
@@ -705,8 +706,22 @@ class OperatorReader:
                             "activity_state_source": "LIVE_QUALIFIED_ROUTE_MATCHER",
                             "activity_state": live_route["live_activity_state"],
                         })
+                    if profile_provenance.get("detector") == "DIRECT_10K_CREATOR_PROVISIONING" and route_evidence["status"] == "UNKNOWN":
+                        value.update({"live_launches_24h": None, "live_launches_7d": None,
+                                      "live_launches_30d": None, "activity_state": "ACTIVITY_UNKNOWN",
+                                      "activity_state_source": "UNKNOWN_ROUTE_ACTIVITY",
+                                      "activity_unavailable_reason": route_evidence["reason"]})
                     if value["operator_id"] == _BYZANTINE_OPERATOR_ID:
-                        infrastructure = _byzantine_infrastructure_activity(conn)
+                        deadline = time.monotonic() + 0.2
+                        conn.set_progress_handler(lambda: int(time.monotonic() >= deadline), 1000)
+                        try:
+                            infrastructure = _byzantine_infrastructure_activity(conn)
+                        finally:
+                            conn.set_progress_handler(None, 0)
+                        if infrastructure is None:
+                            value.update({"live_launches_24h": None, "live_launches_7d": None,
+                                          "live_launches_30d": None, "activity_state": "ACTIVITY_UNKNOWN",
+                                          "activity_state_source": "UNKNOWN_INFRASTRUCTURE_ACTIVITY"})
                         if infrastructure:
                             # The strict 10-SOL four-step membership remains
                             # immutable.  Only the read-side activity telemetry

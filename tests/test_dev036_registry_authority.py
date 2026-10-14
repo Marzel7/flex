@@ -50,6 +50,7 @@ def test_coverage_route_uses_the_bound_operations_authority(monkeypatch, tmp_pat
             """
         )
     monkeypatch.setattr(core_db, "OPS_DB_PATH", str(db_path))
+    monkeypatch.setattr("src.ops.live_potential_activity.cached_activity", lambda _path: ({}, {"status": "HEALTHY"}))
     app = Flask(__name__)
     app.register_blueprint(operator_routes.operator_bp)
 

@@ -39,8 +39,11 @@ def test_direct_10k_is_active_with_live_windows_and_prospective_hold(tmp_path, m
         conn.execute("INSERT INTO wt_walkback_queue VALUES (?,?,?,?)", (mint, stamp, None, None))
     conn.commit(); conn.close()
 
+    monkeypatch.setattr("src.ops.live_potential_activity.cached_activity", lambda _path: ({}, {"status": "UNKNOWN", "reason": "Cold cache"}))
     row = next(item for item in OperatorReader(str(path)).fetch_active_manual_operators() if item["operator_id"] == OID)
-    assert (row["live_launches_24h"], row["live_launches_7d"], row["live_launches_30d"]) == (1, 2, 3)
+    assert (row["live_launches_24h"], row["live_launches_7d"], row["live_launches_30d"]) == (None, None, None)
+    assert row["activity_state_source"] == "UNKNOWN_ROUTE_ACTIVITY"
+    assert row["last_launch_at"] == now - 3600  # retained evidence still orders the identity
     assert row["prospective_detector_status"] == "HOLD"
     assert "retained transaction-role evidence" in row["prospective_detector_detail"]
     assert row["total_launches"] == 3  # Established membership backs the count without a snapshot.

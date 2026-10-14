@@ -31,11 +31,46 @@
    const query = state.query.toLowerCase();
    const rows = state.rows.filter(row => [row.display_name,row.summary,row.operator_id,row.aliases].join(' ').toLowerCase().includes(query));
    const confirmedCount=state.rows.length; document.getElementById('confirmed-count').textContent=confirmedCount;
-   document.getElementById('tokens-24h-count').textContent = number(state.rows.reduce((total, row) => { const value = row.launches_last_1d; return total + (observed(value) ? Number(value) : 0); }, 0));
+   document.getElementById('tokens-24h-count').textContent = state.rows.every(row => observed(row.launches_last_1d)) ? number(state.rows.reduce((total, row) => total + Number(row.launches_last_1d), 0)) : 'UNKNOWN';
    document.getElementById('registry-status').textContent = rows.length === state.rows.length ? confirmedCount+' Confirmed Operation'+(confirmedCount===1?'':'s') : rows.length+' matching operation'+(rows.length===1?'':'s');
 const group=(title,items)=>items.length?'<section class="review-section"><div class="review-header"><h2 class="review-title">'+title+'</h2><span class="review-subtitle">Current retained-timestamp activity; snapshot fallback is labelled</span></div><div class="registry-columns"><span>Operator</span><span>Activity 24h / 7d / 30d</span><span>Established launches</span><span>Last launch</span><span>Evolution Watch</span><span>Action</span></div>'+items.map(row=>{const c=row.current_queue_census||{},e=c.evolution_watch||{},activity=[row.live_launches_24h,row.live_launches_7d,row.live_launches_30d].every(observed)?[row.live_launches_24h,row.live_launches_7d,row.live_launches_30d].join(' / '):[row.snapshot_launches_24h,row.snapshot_launches_7d,row.snapshot_launches_30d].every(observed)?[row.snapshot_launches_24h,row.snapshot_launches_7d,row.snapshot_launches_30d].join(' / ')+' · snapshot as of '+timestamp(row.snapshot_as_of):'Not measured';let watch=c.strategy==='DYNAMIC_ROLE_DISCOVERY'?'Dynamic role monitoring':c.near_label==='Related observations'?number(c.near)+' related · Unresolved':(e.label||'—');watch=watch==='None observed'?'—':watch;const detector=row.prospective_detector_status==='HOLD'?' · Prospective detector: HOLD — retained role evidence required':'';return '<a class="registry-row" href="/intelligence/operator/'+encodeURIComponent(row.operator_id||'')+'"><div><div class="registry-name">'+esc(row.human_display_name||row.display_name||row.summary||'Active operation')+'</div><div class="registry-id">'+esc(row.operation_family||'')+esc(detector)+'</div></div><div class="registry-metric"><strong>'+esc(activity)+'</strong><span>'+esc(row.activity_state_source||'')+'</span></div><div class="registry-metric"><strong>'+esc(number(row.total_launches))+'</strong></div><div class="registry-metric"><strong>'+esc(lastLaunchAge(row.last_launch_at))+'</strong></div><div class="registry-metric"><strong>'+esc(watch)+'</strong></div><span class="registry-open">Open →</span></a>';}).join('')+'</section>':'';document.getElementById('registry-list').innerHTML=rows.length?group('Confirmed Operations',rows):'<div class="registry-empty">No manually admitted confirmed operations match this search.</div>';
  }
- function refresh(){ fetch('/api/ops/operators').then(response => response.ok ? response.json() : Promise.reject(new Error('Registry request failed'))).then(data => { state.rows = (Array.isArray(data.operators) ? data.operators : []).filter(row => row.qualification_category !== 'PROVISIONAL'); render(); }).catch(error => { document.getElementById('registry-status').textContent = 'Unable to load the active registry.'; document.getElementById('registry-list').innerHTML = '<div class="registry-empty">'+esc(error.message)+'</div>'; }); fetch('/api/ops/operators/coverage-24h').then(r=>r.ok?r.json():Promise.reject()).then(d=>{document.getElementById('coverage-24h-count').textContent=d.percentage===null?'—':d.percentage.toFixed(1)+'%';document.getElementById('coverage-24h-detail').textContent=d.eligible?d.assigned+' / '+d.eligible+' tokens':'0 eligible tokens';document.getElementById('potential-24h-count').textContent=d.potential_operations_percentage===null?'—':d.potential_operations_percentage.toFixed(1)+'%';document.getElementById('potential-24h-detail').textContent=d.eligible?d.potential_operations+' / '+d.eligible+' tokens':'0 eligible tokens';document.getElementById('cex-infra-24h-count').textContent=d.cex_infrastructure_percentage===null?'—':d.cex_infrastructure_percentage.toFixed(1)+'%';document.getElementById('cex-infra-24h-detail').textContent=d.eligible?d.cex_infrastructure+' / '+d.eligible+' tokens':'0 eligible tokens';document.getElementById('unknown-24h-count').textContent=d.unknown_percentage===null?'—':d.unknown_percentage.toFixed(1)+'%';document.getElementById('unknown-24h-detail').textContent=d.eligible?d.unknown+' / '+d.eligible+' tokens':'0 eligible tokens';}).catch(()=>{document.getElementById('coverage-24h-detail').textContent='Unavailable';}); }
+ let refreshVersion = 0;
+ async function readPanel(url) {
+   const controller = new AbortController();
+   const timer = setTimeout(() => controller.abort(), 5000);
+   try {
+     const response = await fetch(url, {signal: controller.signal});
+     if (!response.ok) throw new Error('Evidence unavailable');
+     return await response.json();
+   } finally { clearTimeout(timer); }
+ }
+ function refresh() {
+   const version = ++refreshVersion;
+   readPanel('/api/ops/operators').then(data => {
+     if (version !== refreshVersion) return;
+     state.rows = (Array.isArray(data.operators) ? data.operators : []).filter(row => row.qualification_category !== 'PROVISIONAL');
+     render();
+   }).catch(() => {
+     if (version !== refreshVersion) return;
+     document.getElementById('registry-status').textContent = 'Registry unavailable — retained cards may be stale.';
+   });
+   readPanel('/api/ops/operators/coverage-24h').then(d => {
+     if (version !== refreshVersion) return;
+     for (const [id, count, percent] of [
+       ['coverage', d.assigned, d.percentage], ['potential', d.potential_operations, d.potential_operations_percentage],
+       ['cex-infra', d.cex_infrastructure, d.cex_infrastructure_percentage], ['unknown', d.unknown, d.unknown_percentage]]) {
+       document.getElementById(id+'-24h-count').textContent = percent == null ? '—' : percent.toFixed(1)+'%';
+       document.getElementById(id+'-24h-detail').textContent = d.eligible ? count+' / '+d.eligible+' tokens' : '0 eligible tokens';
+     }
+   }).catch(() => {
+     if (version !== refreshVersion) return;
+     for (const id of ['coverage','potential','cex-infra','unknown']) {
+       document.getElementById(id+'-24h-count').textContent = 'UNKNOWN';
+       document.getElementById(id+'-24h-detail').textContent = 'Activity evidence unavailable';
+     }
+   });
+ }
  const refreshAll = () => { if (!document.hidden) refresh(); };
  refresh(); window.setInterval(refreshAll, 60000);
  document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshAll(); });

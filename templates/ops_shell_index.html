@@ -453,16 +453,32 @@
   }
 
   var LC_COLOUR = { IDLE: 'dim', OBSERVING: 'blue', ARMED: 'amber', ACTIVE: 'green', COMPLETED: 'muted' };
+  var PANEL_REQUEST_DEADLINE_MS = 3000;
+  var panelRequestVersions = {};
+
+  function fetchPanelJson(panel, url) {
+    var version = (panelRequestVersions[panel] || 0) + 1;
+    panelRequestVersions[panel] = version;
+    var controller = window.AbortController ? new AbortController() : null;
+    var deadline = setTimeout(function() { if (controller) controller.abort(); }, PANEL_REQUEST_DEADLINE_MS);
+    return fetch(url, controller ? {signal: controller.signal} : {})
+      .then(function(response) {
+        if (!response.ok) throw new Error('Request unavailable');
+        return response.json();
+      })
+      .then(function(data) {
+        if (panelRequestVersions[panel] !== version) throw new Error('Stale response');
+        return data;
+      })
+      .finally(function() { clearTimeout(deadline); });
+  }
 
   loadDiscoveryEvents();
   loadTreasuryReviewCard();
 
   /* ── 1. Platform lifecycle (situation strip + op states) ─────────────── */
-  fetch('/api/ops/lifecycle/platform')
-    .then(function(r) { return r.ok ? r.json() : null; })
+  fetchPanelJson('lifecycle', '/api/ops/lifecycle/platform')
     .then(function(d) {
-      if (!d) return;
-
       document.getElementById('mc-ts').textContent = ago(d.generated_at);
       document.getElementById('sit-active').textContent = fmtN((d.active_total || 0) + (d.armed_total || 0));
 
@@ -544,16 +560,13 @@
     })
     .catch(function(e) {
       document.getElementById('mc-ops-list').innerHTML =
-        '<div class="ip-error">Failed to load lifecycle: ' + e + '</div>';
+        '<div class="ip-unavailable">Lifecycle UNAVAILABLE.</div>';
     });
 
   /* ── 2. Inbox summary (Attention panel) ──────────────────────────────────── */
-  fetch('/api/ops/inbox/summary')
-    .then(function(r) { return r.ok ? r.json() : null; })
+  fetchPanelJson('inbox', '/api/ops/inbox/summary')
     .then(function(d) {
       var el = document.getElementById('mc-attn');
-      if (!d) { el.innerHTML = '<div class="ip-unavailable" style="padding:14px;font-size:11px;">Unavailable.</div>'; return; }
-
       var newN = d.new          || 0;
       var ackN = d.acknowledged || 0;
       var ipN  = d.in_progress  || 0;
@@ -600,10 +613,10 @@
   function loadDiscoveryEvents() {
     var el = document.getElementById('mc-transitions');
     Promise.all([
-      fetch('/api/discovery/recent?limit=6').then(function(r) { return r.ok ? r.json() : null; }),
-      fetch('/api/operators/promotions').then(function(r) { return r.ok ? r.json() : null; }),
-      fetch('/api/ops/emerging-operators?limit=6').then(function(r) { return r.ok ? r.json() : null; }),
-      fetch('/api/discovery/convergence?behaviour_limit=1').then(function(r) { return r.ok ? r.json() : null; })
+      fetchPanelJson('discovery-recent', '/api/discovery/recent?limit=6'),
+      fetchPanelJson('promotions', '/api/operators/promotions'),
+      fetchPanelJson('emerging-operators', '/api/ops/emerging-operators?limit=6'),
+      fetchPanelJson('convergence', '/api/discovery/convergence?behaviour_limit=1')
     ]).then(function(results) {
         var d = results[0], promotions = results[1], emerging = results[2], convergence = results[3] || {};
         var streams = (d && d.streams) || {watchtower:[],promotions:[],emerging_operators:[],reviews:[],walkbacks:[],discovery:[],treasury_expansions:[]};
@@ -696,8 +709,7 @@
     function action(href, label) {
       return '<div class="vi-action"><span>' + esc(label) + '</span><span>→</span></div>';
     }
-    fetch('/api/ops/treasury-review?status=PENDING_REVIEW&limit=1')
-      .then(function(r){ return r.ok ? r.json() : null; })
+    fetchPanelJson('treasury-review', '/api/ops/treasury-review?status=PENDING_REVIEW&limit=1')
       .then(function(d){
         if (!d || !d.ok) return;
         var oldest = d.oldest_pending_age_secs!=null ? Math.floor(d.oldest_pending_age_secs/86400)+'d' : '—';
@@ -710,17 +722,15 @@
       .catch(function(){});
   }
 
-  fetch('/api/ops/operators/summary')
-    .then(function(r) { return r.ok ? r.json() : null; })
+  fetchPanelJson('operator-summary', '/api/ops/operators/summary')
     .then(function(d) {
-      if (!d) return;
       var byStatus = d.by_status || {};
       var count = d.total;
       if (count === undefined) count = d.total_operators;
       if (count === undefined) count = Object.keys(byStatus).reduce(function(n, key) { return n + (byStatus[key] || 0); }, 0);
       document.getElementById('sit-observing').textContent = fmtN(count || 0);
     }).catch(function() {
-      document.getElementById('sit-observing').textContent = '—';
+      document.getElementById('sit-observing').textContent = 'UNKNOWN';
     });
 
   /* ── Search ────────────────────────────────────────────────────────────── */

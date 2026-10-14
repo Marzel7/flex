@@ -1,0 +1,507 @@
+{
+  "schema": "DEV037_FLEX_RECOVERY_AND_EVIDENCE_PRESERVATION_AUDIT_V1",
+  "status": "AUDIT_COMPLETE_RECOVERY_HOLD_PRESERVATION_REQUIRED",
+  "mode": "READ_ONLY_NO_RESTORATION",
+  "audit_base_sha": "43dfcddcacd8a0a6edaa9e24aaf1499a1ac655cc",
+  "audit_worktree": "/private/tmp/flex-dev037-recovery-evidence-audit",
+  "audit_branch": "codex/dev037-recovery-evidence-audit",
+  "scope": {
+    "provider_calls": 0,
+    "production_mutations": 0,
+    "database_writes": 0,
+    "service_actions": 0,
+    "operational_database_copies": 0,
+    "existing_artifact_changes": 0,
+    "new_files": "Isolated audit documentation and required handoff only; no raw payloads; fixed artifact under 1 MB; no unbounded growth path."
+  },
+  "priority_verdict": "Critical price evidence checked is present and readable. Primary normalized research journals remain under /private/tmp and are AT_RISK from cleanup. Their presence is not proof of durable backup. No recovery that overwrites, cleans or replaces their paths or databases is recommended.",
+  "evidence_inventory": [
+    {
+      "family": "DEV019 opening baselines",
+      "classification": "AT_RISK",
+      "location": "/private/tmp/dev019-watchtower-opening-mc/journal.db",
+      "bytes": 360448,
+      "record_count": 461,
+      "qualification": "All 461 journal rows state QUALIFIED. Current entry methods: 457 FIRST_AVAILABLE_POST_MIGRATION_1M_OPEN_MC, 1 FIRST_FULL_POST_MIGRATION_SECOND_MC, 3 MIGRATION_SECOND_MC_FALLBACK. Preserve distinct methods; do not relabel fallback as strict 1-second evidence.",
+      "sha256": "098ad24ec546c0c726afe2b8a653dabbc6e01decd8e3e286a86a88ae3414c394",
+      "provenance": "dev019_session_1_20261012: launcher 774b2cf7536faacb2e1e9fbe230a4c07b2ff3ff1, executor b2ceca374ff10c09420e33e8d44582cd77d14135; eligible_snapshot.json also present (93,065 bytes). Historical session counts differ from current full-journal method totals; this audit reports observable current rows.",
+      "readable": true,
+      "retention": "Primary journal verified local only; temporary path, not a runtime worktree. No full journal remote retention proven.",
+      "cleanup_risk": "Deleting /private/tmp/dev019-watchtower-opening-mc loses primary opening facts unless separately preserved."
+    },
+    {
+      "family": "DEV014 lifecycle and DEV020 comparable cohort",
+      "classification": "AT_RISK",
+      "location": "/private/tmp/dev014-watchtower-lifecycle-cohort/journals/*/journal.json",
+      "record_count": 550,
+      "unique_mints": 550,
+      "qualification": "549 COMPLETED with observed peak, 1 NO_VALID_CANDLES. Compact extrema, timestamps, coverage and post-peak facts; not full ordered candle histories. DEV020 comparable subset is 539, not every one of the 550.",
+      "integrity": "Sorted inventory SHA256 over directory identity plus each file digest: f6c8f5b519ecbec9ecfe9d2cf741f61b4317a72f6522711fe3f74ce7787c968c",
+      "provenance": "Retained DEV014 lifecycle cohort used by DEV019 selection and DEV020/DEV025/DEV033; recorded historical provider provenance remains in individual compact journals.",
+      "readable": true,
+      "retention": "Local temporary corpus; no complete remote copy verified.",
+      "cleanup_risk": "550 compact journals are directly dependent on temporary-directory retention."
+    },
+    {
+      "family": "DEV020 pre-peak/lifecycle-derived evidence",
+      "classification": "AT_RISK",
+      "location": "/private/tmp/dev020-watchtower-prepeak/journal.db",
+      "bytes": 1146880,
+      "record_count": 539,
+      "qualification": "415 OBSERVED_CONTIGUOUS, 111 OBSERVED_SPARSE, 13 INSUFFICIENT_EVIDENCE; all terminal. Preserves derived pre-peak metrics/request provenance, not raw provider payloads.",
+      "sha256": "0aec34375865d5106341a3c03c9afa22f3cbf89e8c15f737cb57b5e6126a679d",
+      "provenance": "Completion source e37aa4b479ec7d760961fe48a188fcea3c7f6113; current production UI source cd459a99 is a later API revision, not the research journal.",
+      "readable": true,
+      "retention": "Local temporary journal; selection.json present. Completion handoff is durable but is not a substitute for 539 per-token results.",
+      "cleanup_risk": "Temporary primary derived dataset."
+    },
+    {
+      "family": "DEV024 recovery curves",
+      "classification": "VERIFIED_DURABLE",
+      "location": "Git d4df94dedcb287174eae9739177a1b57726b84cf:docs/audits/dev024_watchtower_recovery_stop_analysis_20261012.v1.json",
+      "record_count": "539-token population; 9 nested threshold summaries",
+      "qualification": "526 observed pre-peak records (415 contiguous,111 sparse),13 insufficient. Conditional extrema associations; no executable entry/stop ordering.",
+      "sha256": "0176d00c8bc0f32e8cb7562e3e558f307a94bab239ebaeb7433f23b80b3e97ec",
+      "provenance": "Exact remote branch head codex/dev024-recovery-stop-analysis reverified with git ls-remote.",
+      "readable": true,
+      "retention": "Local Git object and exact remote source branch; primary dependent DEV020 journal still at risk.",
+      "temporary_worktree_dependency": false
+    },
+    {
+      "family": "DEV025 post-peak breakdown",
+      "classification": "VERIFIED_DURABLE",
+      "location": "Git c1f758dc54cd0d28f9323400153cd665b4657a9a:docs/audits/dev025_watchtower_post_peak_opening_breakdown_20261012.v1.json",
+      "record_count": "539 comparable records; 528 post-peak/latest overlaps; 11 missing",
+      "qualification": "Conditioned compact extrema analysis, not ordered first-crossing or executable strategy evidence.",
+      "sha256": "33f56168ee4bee0c627965c687869449753ee740203c991a191ae43b4841f9b7",
+      "provenance": "Exact remote branch head codex/dev025-post-peak-breakdown reverified.",
+      "readable": true,
+      "retention": "Local Git and remote artifact; primary underlying journals remain temporary.",
+      "temporary_worktree_dependency": false
+    },
+    {
+      "family": "DEV026 historical crash-candle reconciliation",
+      "classification": "VERIFIED_DURABLE",
+      "location": "Git e5a9603f6d5a083b5c7a62b39d7449c73dfe2f4e:docs/audits/dev026_earlier_watchtower_crash_candle_reconciliation_20261012.v1.json; docs/agent_handoff/current.json dev014_watchtower_30s_sharp_exit_pilot_completion_20261009",
+      "record_count": "11 compact observed 30-second crash records; zero complete 30-second windows",
+      "qualification": "Earlier pilot deliberately retained compact derived records/gap ranges in the handoff, not full candle arrays. Do not classify absent raw/full arrays as lost records.",
+      "sha256": "dd6c19abb76578a95171926a5850fbba36eb82ebcf67f9c683091406682ef121",
+      "provenance": "Exact remote codex/dev026-catastrophic-candle-feasibility head reverified; original normalizer c3c1588d927ca205f2c026a283dfbb4ab47479c4.",
+      "readable": true,
+      "retention": "Derived reconciliation Git/remote and compact per-token metrics in published handoff.",
+      "temporary_worktree_dependency": false
+    },
+    {
+      "family": "DEV028 corrected 30-second observations",
+      "classification": "AT_RISK",
+      "location": "/private/tmp/dev028-watchtower-sharp-exit/corrected-continuation-journal.json; corrected-proof-ordinal-1.json; corrected-continuation-manifest.json",
+      "record_count": "9 continuation records (7 OBSERVED_PARTIAL,2 INSUFFICIENT_EVIDENCE), plus separate one-token corrected proof",
+      "qualification": "Three observed >=85% candles in continuation, all partial; incompatible monitor-close opening baseline excluded by later correction.",
+      "sha256": "ee55454f32d4487595c5aba780291babfcfc447b970442c42e45021ea4037f4a",
+      "provenance": "Local worktree /Users/kevinkeaveney/.codex/worktrees/dev028-crash-study/flex at ff2bf9ea625f858302234c8ae5eaeecdc6aea83e. Derived audit docs are readable and Git-retained there; current full journal under tmp.",
+      "readable": true,
+      "retention": "Primary journal local temporary; source/derived documents local Git. Full journal remote retention unproven.",
+      "cleanup_risk": "Keep both corrected proof and continuation; do not replace with older failed journal.json."
+    },
+    {
+      "family": "DEV031 crash-market-cap study",
+      "classification": "AT_RISK",
+      "location": "/private/tmp/dev031-crash-level/journal.json; /Users/kevinkeaveney/.codex/worktrees/dev031-crash-validation/flex/docs/audits/dev031_crash_level_validation_manifest_20261013.v1.json",
+      "record_count": "20 terminal records;16 OBSERVED_PARTIAL,4 INSUFFICIENT_EVIDENCE",
+      "qualification": "Historical execution recorded 878 returned candles and two partial observed >=85% events. The journal retains normalized event/coverage fields; no complete-coverage negative inference.",
+      "sha256": "Journal a07068aaee33de6e5e68c14ef413dea451c53cecf4bfe06ce80682487a9f017e; manifest 49e4e5fb47b7e3d3570298a95a3256241e227377da1c2db759997e61e61e2fd7",
+      "provenance": "8e73d45966af51cceced5b47587ec50ef0a8d6ba; manifest content hash ec619a1a1d00bf673dfc4480e39407a6738bc591587409d9e377dac30fe48bfc.",
+      "readable": true,
+      "retention": "Manifest in Git/worktree; primary execution journal local temporary.",
+      "cleanup_risk": "Do not clean tmp journal or the source worktree."
+    },
+    {
+      "family": "DEV032 relationship analysis",
+      "classification": "VERIFIED_DURABLE",
+      "location": "/private/tmp/flex-dev032-crash-mc-relationship/docs/audits/dev032_watchtower_crash_mc_relationship.md",
+      "record_count": 4,
+      "qualification": "Four independent compatible-opening observed crash events, partial coverage; exploratory peak-relative relationship, not predictive/trading evidence.",
+      "sha256": "9db2d3cc65cd3863365a93c428aedb1514c3ad7652acc1eeaf9d2ab1ddce0f94",
+      "provenance": "Actual Git and exact remote branch HEAD 65c1d6c6bce149fe50580cfdb401c74606e3aa7c. Prior handoff incorrectly spells the full SHA as 65c1d6c6d4e23993158b228df99277eaa3d37c87; that object does not exist locally.",
+      "readable": true,
+      "retention": "Git/remote retained derived analysis; inputs remain local temporary journals.",
+      "temporary_worktree_dependency": "Checked-out convenience copy temporary, but derived document recoverable from verified Git/remote."
+    },
+    {
+      "family": "DEV033 frozen pilot manifest",
+      "classification": "VERIFIED_DURABLE",
+      "location": "/private/tmp/flex-dev033-chronological-backtest-phase-a/docs/audits/dev033_chronological_backtest_pilot_manifest_20261013.v1.json",
+      "record_count": 30,
+      "qualification": "Frozen selection from539 comparable records; same content identity in chronology journal.",
+      "sha256": "f5a8a2289bb369b95b44896fc6d7f7db3bc79c890a3bba1b0fcd3ec32f3662d3",
+      "content_hash": "a2c4202338d58651c20462405990d02b40f44bb210b0efe68ecf6c99d7961885",
+      "provenance": "Remote codex/dev033-chronological-backtest-phase-a verified at f28d597203839ddc33797f0e10207de9d45d5ac0, which contains manifest but not later acquisition/backtest report.",
+      "readable": true,
+      "retention": "Git and exact remote branch.",
+      "temporary_worktree_dependency": false
+    },
+    {
+      "family": "DEV033 chronological normalized candles",
+      "classification": "AT_RISK",
+      "location": "/private/tmp/dev033-chronological-pilot/journal.json",
+      "bytes": 533038,
+      "record_count": 30,
+      "candle_count": 2860,
+      "qualification": "1 ORDERED_CONTIGUOUS,29 ORDERED_SPARSE; all2860 candle objects actually counted. Sparse paths remain sparse.",
+      "sha256": "6ebea1e8c6fc84b466e6910f51a1c26e5ecf16964fe4a1728475dc60d22a4456",
+      "provenance": "Executed f28d597203839ddc33797f0e10207de9d45d5ac0; local cb6c25f926de690eb7389e02266360aabbadfb8b only commits the acquisition summary, not the full journal.",
+      "readable": true,
+      "retention": "Full normalized chronology verified local-only temporary path. Remote branch stops before acquisition reports. No durable full-journal copy proven.",
+      "cleanup_risk": "Highest priority: full2860-candle evidence depends on temporary journal. Never treat remote manifest/report as its backup."
+    },
+    {
+      "family": "DEV033 strategy simulations",
+      "classification": "VERIFIED_LOCAL_ONLY",
+      "location": "/private/tmp/dev033-backtest-summary.json; /private/tmp/flex-dev033-chronological-backtest-phase-a/docs/audits/dev033_watchtower_chronological_strategy_backtest.md",
+      "record_count": 7,
+      "qualification": "Predeclared strategy comparisons; sparse/ambiguous paths retained; punitive unresolved ranking is not realized execution. No deployable strategy claim.",
+      "sha256": "Summary 8bdac654215bfa304162c567acd7bece4409a0c1512741c62c12318261166eea; report 572313ee04eb6dd77826181d4944bfa365c837362d5aa07fa409f613b15a876a",
+      "provenance": "Local committed HEAD 5c65f3f8e8de5c34e5cd627e47ca83074f57a8e1; external publication intentionally not performed.",
+      "readable": true,
+      "retention": "Report local Git object survives worktree removal if refs remain; generated summary and full chronology remain temporary.",
+      "cleanup_risk": "Preserve local Git refs and temporary summary/input."
+    }
+  ],
+  "canonical_databases": [
+    {
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "classification": "PRESENT_UNVERIFIED",
+      "bytes": 35652194304,
+      "readable": true,
+      "verification": "mode=ro + query_only; SELECT1 succeeds; schema/heartbeat/funding-event metadata readable. No database-wide integrity scan or full-file hash performed.",
+      "authority": "Canonical live/token/funding database used by existing production services. Not the 96KB worktree-local DEV liveness fixture.",
+      "preserve": "Do not copy, replace, migrate, delete or roll back. Existing size exceeds500MB; this audit creates no such file."
+    },
+    {
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+      "classification": "PRESENT_UNVERIFIED",
+      "bytes": 16194387968,
+      "readable": true,
+      "verification": "mode=ro + query_only; SELECT1 and bounded indexed reads succeed; no full integrity/hash scan.",
+      "retained_counts": {
+        "watchtower_memberships": 616,
+        "legacy_deep_memberships": 26,
+        "byzantine_memberships": 162,
+        "nexus_memberships": 84,
+        "confirmed_treasuries": 106
+      },
+      "preserve": "Keep attribution, treasury, selected-route, membership/disposition and funding-lineage tables intact. Historical Deep-labelled rows must not be rewritten."
+    },
+    {
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db",
+      "classification": "PRESENT_UNVERIFIED",
+      "bytes": 1138688,
+      "readable": true,
+      "record_counts": {
+        "facts": 117,
+        "observations": 1596,
+        "watchtower": 100,
+        "byzantine": 12,
+        "watchtower_deep": 5
+      },
+      "authority": "Existing production-monitor worker/API binding; DEV-owned location does not mean disposable.",
+      "preserve": "Do not replace with the other monitor DB or recreate schema."
+    },
+    {
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/wt_ops_v2.dev.db",
+      "classification": "PRESENT_UNVERIFIED",
+      "bytes": 712704,
+      "readable": true,
+      "record_counts": {
+        "facts": 9,
+        "observations": 59,
+        "watchtower": 6,
+        "watchtower_deep": 3
+      },
+      "authority": "Separate legacy DEV monitor authority, not interchangeable with dev_005a.",
+      "preserve": "Retain independently; no consolidation performed."
+    }
+  ],
+  "runtime_baseline": {
+    "dev": {
+      "pid": 65252,
+      "source_sha": "43dfcddcacd8a0a6edaa9e24aaf1499a1ac655cc",
+      "worktree": "/private/tmp/flex-dev035-health-scope",
+      "service": "gui/501/com.flex.dev035-api",
+      "entry_point": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -m src.dev_runtime",
+      "ops_db": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+      "core_db": "/private/tmp/flex-dev035-health-scope/database/flex_complete_database.db (96KB fixture; wrapper forces this relative binding)",
+      "monitor_db": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db",
+      "reload": 0,
+      "operations_mode": "OFF",
+      "safety": "Production SQLite read-only, non-loopback network blocked, mutations/worker startup suppressed, FD watchdog12.",
+      "plist": "/Users/kevinkeaveney/Library/LaunchAgents/com.flex.dev035-api.plist",
+      "plist_sha256": "9f37096873702b323ca5c264c75fe040c8d551713f200389491eb19284caa95d"
+    },
+    "supervisor": {
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf",
+      "sha256": "18f39cb1b9d60d9e5b00d212acdc6697e9c0f68f1031d77c3cff91f40f3c4ccc",
+      "mutated": false
+    },
+    "production": [
+      {
+        "service": "watchtower_api",
+        "pid": 22020,
+        "source": "cd459a99017f4495188c875af710bde115038137",
+        "cwd": "/Users/kevinkeaveney/.codex/worktrees/dev020-runtime/flex"
+      },
+      {
+        "service": "watchtower_listener",
+        "pid": 68669,
+        "source": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+        "cwd": "/Users/kevinkeaveney/Production/flex-listener"
+      },
+      {
+        "service": "operation_scheduler",
+        "pid": 66022,
+        "source": "77492d22497e31a5984a234e2bb1f5cd2fc10613",
+        "cwd": "/Users/kevinkeaveney/Production/flex-operation-scheduler-77492"
+      },
+      {
+        "service": "creator_funding_worker",
+        "pid": 8868,
+        "source": "f10a56a01098755328f6d3b1eba9ba010412296d",
+        "cwd": "/Users/kevinkeaveney/Production/flex-funding"
+      },
+      {
+        "service": "creator_resolution_worker",
+        "pid": 3695,
+        "source": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215",
+        "cwd": "/Users/kevinkeaveney/Production/flex-main-workers"
+      },
+      {
+        "service": "walkback_worker",
+        "pid": 73413,
+        "source": "afbe9e58b11eb2e4d616246da123ce31ab45700c",
+        "cwd": "/Users/kevinkeaveney/Production/flex-walkback-dev002"
+      },
+      {
+        "service": "ws_cascade",
+        "pid": 73417,
+        "source": "26da06daba23608bd64d5b86cde1f92b24d3a98d",
+        "cwd": "/Users/kevinkeaveney/Production/flex-cascade"
+      },
+      {
+        "service": "operation_monitor_worker",
+        "pid": 9126,
+        "source": "Actual executing in-memory bytes UNVERIFIED; configured launch reference71b6e338cfb54057ec4984d41bfbe02477c90dba",
+        "cwd": "/private/tmp/flex-dev014-early-minimum-worker",
+        "risk": "Directory exists but module and Git pointer are absent. Do not restart."
+      },
+      {
+        "service": "operation_monitor_bridge",
+        "pid": 21106,
+        "source": "UNVERIFIED; configured source checkout absent",
+        "cwd": "/Users/kevinkeaveney/.codex/worktrees/watchtower-monitor-bounded-soak/flex",
+        "risk": "Configured checkout does not exist. Do not restart."
+      }
+    ],
+    "production_database_bindings": "API/listener/scheduler/funding/resolution/walkback/cascade config binds canonical core/ops paths above; monitor worker binds dev_005a monitor DB and canonical birth DB separately. CWDs corroborated using lsof; HEADs are on-disk identity, not independent byte-for-byte verification of already-loaded process memory.",
+    "frozen_references": [
+      "6877f6e41477f7357463225d071f7a50f29c743e API source reference",
+      "watchtower-operational-baseline-20261008-d3c0d4ed",
+      "watchtower-operational-baseline-postfreeze-20261008",
+      "watchtower_known_working_freeze_investigation_20261007: no reproducible complete golden runtime proven"
+    ]
+  },
+  "accepted_domain_contracts": {
+    "watchtower_deep": {
+      "current_user_authority": "DEV037 explicitly requires Deep not be an independent confirmed operation, while all historical Deep evidence is preserved and WATCHTOWER remains the identity.",
+      "retained_design": "watchtower_deep_classification_coupling_qualification_20260929: one canonical WATCHTOWER owner, non-owning operator_subtype_projection REVIEW_ONLY annotation, no schema or historical membership rewrite; implementation review READY_FOR_AUTHORIZATION.",
+      "deployment_evidence": "docs/audits/watchtower_deep_classification_deployment_contract.v1.json says authorized=false/deployment_allowed=false. No completed deployment/consolidated-UI acceptance found.",
+      "current_conflict": "operators contains legacy Deep CONFIRMED, disposition ACTIVE_MANUAL,26 retained memberships. Frozen/current readers do not suppress/group this identity; current registry therefore renders independent Deep. Not a proven post-freeze rollback commit; a legacy model conflicts with the now-explicit accepted domain contract.",
+      "preserve": "Historical operator IDs,26 memberships,5 dev_005a monitor facts and research provenance remain intact. Any future display consolidation must be non-owning and must not reassign those facts."
+    },
+    "byzantine": "Established independent confirmed operation,162 current canonical memberships. Existing three retired IDs remain excluded. Preserve 12 LIVE monitor identities and distinguish separate historical ATH evidence; do not equate 2H peak with lifetime ATH.",
+    "nexus": "Established manually admitted identity with84 memberships; prospective DIRECT_10K_CREATOR_PROVISIONING detector remains HOLD pending genuine retained role evidence. Current activity UNKNOWN is not absence of operation or attribution failure.",
+    "membership": "Manual dispositions and existing merged/retired/provisional exclusions remain authority; current5 eligible API identities produce4 confirmed cards. Removing the independent Deep card is a presentation-contract correction, not permission to rewrite membership.",
+    "funding_topology": "Treasury -> SubProvider -> Funding Account -> Creator -> Launch; treasury recognition, route evidence, operation membership and review-only subtype evidence are separate authorities."
+  },
+  "last_proven_working_ui": {
+    "complete_golden_revision": "NOT_PROVEN. October7 freeze investigation explicitly lacked reproducible API process/config identity. Frozen source is a reference, not successful-runtime proof.",
+    "components": [
+      {
+        "feature": "Operations OS/navigation",
+        "last_accepted": "02a62a2bb0fb8f0e27eddaa690e0d271963866cf DEV runtime acceptance; shell correction749884828b9889847f8fdea883034895e21e3f5b. Current43df retains these changes.",
+        "evidence": "Retained browser navigation and unavailable-panel acceptance in DEV035/DEV036 handoffs; healthz drives shell liveness.",
+        "authority": "Guarded DEV fixture/absolute ops DB; no production-worker readiness inference."
+      },
+      {
+        "feature": "Mission Control",
+        "last_accepted": "9cd6f014a3bcaf2e878164cc4dc20cd43090156b, retained by43df",
+        "evidence": "52 focused tests and browser System Health Unknown/Platform same scope; current health view separate from API liveness."
+      },
+      {
+        "feature": "Active registry response/render",
+        "last_accepted": "43dfcddcacd8a0a6edaa9e24aaf1499a1ac655cc, PID65252, current DEV",
+        "evidence": "3.769-second API response; four browser cards in immediately preceding material handoff. Functional response PASS but domain-contract FAIL because Deep independent."
+      },
+      {
+        "feature": "Live Monitor",
+        "last_accepted": "cd459a99017f4495188c875af710bde115038137, production API PID22020, dev020-runtime checkout",
+        "evidence": "DEV022 API deployment retained103 Watchtower rows with lifecycle_processing; earlier browser live monitor readback at5002 verified25 rows/observations. Current count may differ naturally; no claim today's endpoint meets5seconds.",
+        "authority": "Explicit WATCHTOWER_MONITOR_UI_DB_PATH=dev_005a monitor DB. Current DEV route instead uses OPS_DB_PATH."
+      },
+      {
+        "feature": "Watchtower rich playbook",
+        "last_accepted": "e21867c1591931720bf85d17beaccf0e226097ee plus artifact-backed rich playbook",
+        "evidence": "Four tests, route parity and browser15-row research readback retained in watchtower_rich_playbook_ui_promotion.",
+        "authority": "Retained15-token research artifacts, separate from539-token cohort."
+      },
+      {
+        "feature": "Byzantine page/retained ATH presentation",
+        "last_accepted": "580508a70c80e7fc944e0069f85e67b851a117fa WITH DIRTY WORKTREE DIFF, not a reproducible clean golden SHA",
+        "evidence": "byzantine_ui_order_and_true_ath:12 LIVE rows plus4 historical ATH rows,12 tests and browser readback. Exact accepted uncommitted source needs recovery before reuse."
+      },
+      {
+        "feature": "Nexus detail",
+        "last_accepted": "No complete clean runtime/browser acceptance found. fc6c58fc source contains richer shared P3R/Nexus presentation omitted by current assembly; this is a source candidate only.",
+        "evidence": "Current template lacks detector replay/profile sections expected by existing tests; do not declare all such tests current regressions without an accepted matching artifact/source set."
+      }
+    ],
+    "screenshots": [
+      "/Users/kevinkeaveney/Desktop/Screenshot 2026-10-13 at 23.13.40.png (246206 bytes, readable path; health unavailable state)",
+      "/Users/kevinkeaveney/Desktop/Screenshot 2026-10-14 at 22.39.59.png (476509 bytes; registry loading state)"
+    ]
+  },
+  "regression_matrix": [
+    {
+      "feature": "Independent Deep registry card",
+      "last_accepted": "September single-owner/non-owning-Deep design + current explicit user domain contract",
+      "current": "43df renders legacy Deep as separate confirmed operation",
+      "difference": "Accepted design never proven deployed; historical disposition still admitted",
+      "impact": "Domain-inconsistent operation presentation",
+      "restoration_candidate": "Read-only display consolidation under WATCHTOWER with historical Deep provenance accessible; preserve every legacy row"
+    },
+    {
+      "feature": "Live Monitor HTML",
+      "last_accepted": "Frozen6877 template and productioncd459 updated template",
+      "current": "templates/operations_live_monitor.html absent while route renders it",
+      "difference": "Source assembly omits required template",
+      "impact": "Route can raise TemplateNotFound; API fixes alone cannot restore page",
+      "restoration_candidate": "Exact accepted cd459 template and dependency/response compatibility qualification"
+    },
+    {
+      "feature": "Live Monitor database/read projection",
+      "last_accepted": "cd459 explicit read-only dedicated monitor-store adapter",
+      "current": "OPS_DB_PATH against16.19GB canonical ops; old correlated enrichment and SUM(LENGTH(...))",
+      "difference": "Wrong authority and loss of accepted dedicated read path",
+      "impact": "Slow reads, wrong data authority and incomplete monitor behavior",
+      "restoration_candidate": "Selectively restore existing cd459 dedicated adapter and compatible lifecycle fields under guarded DEV; no new query/cache architecture"
+    },
+    {
+      "feature": "Playbooks",
+      "last_accepted": "6877/cd459 have operator_lifecycle_projection module; e218 rich playbook acceptance",
+      "current": "Module absent; routes still import it; retained startup logs show ModuleNotFoundError",
+      "difference": "Required source dependency omitted",
+      "impact": "Playbook page failure",
+      "restoration_candidate": "Recover exact module plus proven dependencies, using component acceptance"
+    },
+    {
+      "feature": "Nexus/operation detail UI",
+      "last_accepted": "Richer fc6c58fc source and separate accepted Byzantine dirty-worktree UI",
+      "current": "Shared profile/funder-trace sections absent",
+      "difference": "93-line detail-template delta plus retired-operation changes",
+      "impact": "Lost research presentation possible; exact last accepted Nexus revision not proven",
+      "restoration_candidate": "Recover only valid Nexus/Byzantine retained-evidence sections, do not resurrect retired operations"
+    },
+    {
+      "feature": "Mission Control health",
+      "last_accepted": "9cd6f014",
+      "current": "Preserved by43df; UNKNOWN and stale semantics, same banner/Platform scope",
+      "difference": "Necessary post-freeze improvement",
+      "impact": "Keep this correction",
+      "restoration_candidate": "Retain current health/liveness separation"
+    },
+    {
+      "feature": "Registry timeouts/false zero",
+      "last_accepted": "43df current bounded-read acceptance",
+      "current": "Five eligible API rows, four confirmed cards, UNKNOWN optional evidence",
+      "difference": "Post-freeze safety/availability improvements",
+      "impact": "Keep budgets, unavailable503 and deadline protections",
+      "restoration_candidate": "Retain current registry mechanism and apply domain presentation separately"
+    },
+    {
+      "feature": "Global visual navigation",
+      "last_accepted": "Component browser records, not a clean single whole-app snapshot",
+      "current": "Slim sidebar and Operations OS recovery shell",
+      "difference": "Multiple explicit retirement/recovery changes; frozen not ancestor of current43df",
+      "impact": "Wholesale rollback may reintroduce retired surfaces or remove accepted fixes",
+      "restoration_candidate": "Agree recognizable screenshot/component contract, selectively compose"
+    }
+  ],
+  "production_processing": {
+    "observed_processes": "Scheduler, funding/resolution, walkback, listener, API, cascade, monitor bridge/worker RUNNING in Supervisor. Running alone is not throughput.",
+    "scheduler": "Fresh persisted main state updated2026-10-14T22:11:21Z; last_success FORWARD_MONITOR at1792015849,rows_written0,batch25,pressureLOW. Indicates successful scheduling cycle, not new qualified assignment.",
+    "creator_funding": "Fresh heartbeat,cycles2590,total_completed18,total_claimed35,pending78,active_slots0. last_completed_at1792008412; latest committed COMPLETED lifecycle event1792008411. Committed processing exists, but sustained current throughput/backlog progress is not proven by process/heartbeat alone.",
+    "walkback": "Fresh HEALTHY heartbeat;pending0,running0,completed_last_hour0,nested_write_failures_last_hour0. Recent outcome index shows LINEAGE_GAP/INSUFFICIENT_EVIDENCE completions at1792007265 and earlier. Idle/no qualifying candidate is not forced failure.",
+    "treasury_reconciliation": "106 confirmed treasuries; fresh cascade heartbeat52 subscriptions and successful ack counters. No recent treasury-admission proof inferred from heartbeat.",
+    "attribution": "616 WATCHTOWER memberships retained,26 legacy Deep memberships. Latest canonical outbox row is an older Byzantine assignment; no fresh committed WATCHTOWER assignment proven in this bounded audit. Full present-time attribution acceptance remains UNVERIFIED.",
+    "safety": "No worker/provider endpoint invoked; only existing records read. No natural launch required and no historical replay."
+  },
+  "recovery_options": [
+    {
+      "id": "A",
+      "recommended": true,
+      "description": "Preserve primary research first; then selectively compose accepted UI components into current guarded DEV baseline.",
+      "sources": [
+        "Current43df safety/health/registry corrections",
+        "Productioncd459 monitor adapter/template/lifecycle fields",
+        "Existing6877/cd459 playbook module dependency",
+        "e218 rich playbook artifact contract",
+        "Current explicit WATCHTOWER/Deep display contract"
+      ],
+      "data_compatibility": "Keep both canonical DBs and dev_005a monitor DB exactly where bound. Preserve all539 research records,2860 normalized candles and26 legacy Deep memberships; no migration or ownership rewrite.",
+      "required_runtime_changes": "Future separately authorized DEV source deployment only after fixture/browser qualification. No production service or runtime change. Before that, separately authorize a compact durable non-temp preservation target for normalized research journals with hash/count verification; no large DB clone or external publication implied.",
+      "features_restored": "Monitor HTML/data authority; playbooks; accepted recognizable navigation/detail components; single WATCHTOWER display with historical Deep provenance.",
+      "features_potentially_lost": "Unknown current activity remains honestly UNKNOWN. Do not restore retired generic/P3R operations or unqualified detector activation.",
+      "risk": "Source dependency and schema compatibility must be tested against existing small fixtures; current ops DB is shared production authority and must stay read-only.",
+      "rollback": "Retain43df runtime/source identity and exact plist hash; revert only DEV source target if acceptance fails, never databases or journals.",
+      "acceptance": "All checks in recovery_acceptance_contract; browser data visibility required."
+    },
+    {
+      "id": "B",
+      "recommended": false,
+      "description": "Use accepted production APIcd459 as a guarded DEV source reference and reapply required current health/registry/domain presentation fixes before any runtime switch.",
+      "sources": [
+        "cd459",
+        "43df current fixes",
+        "Explicit accepted Deep display contract"
+      ],
+      "data_compatibility": "Same preserved absolute authorities, read-only; preserve lifecycle activation flags false. No production repoint.",
+      "required_runtime_changes": "Larger isolated source composition and a later separately authorized DEV runtime transition; no worker restart.",
+      "features_restored": "Broader accepted monitor/playbook stack with known dependencies.",
+      "features_potentially_lost": "Current UNKNOWN/stale health, bounded registry and UI deadline fixes unless explicitly reapplied; older navigation may not match desired UI.",
+      "risk": "Larger diff and incomplete whole-app golden acceptance; unsuitable for blind frozen rollback.",
+      "rollback": "Current43df/source and plist retained; source-only DEV reversal; all data remains untouched.",
+      "acceptance": "Same full component/browser checks; no claim frozen source proves runtime."
+    }
+  ],
+  "recommended_recovery_baseline": "Option A after preservation. Keep current43df safe DEV runtime and all canonical/research evidence; recover the accepted cd459 monitor/playbook components selectively and consolidate Deep only in presentation with accessible historical evidence. No recovery is executed or authorized by this audit.",
+  "recovery_acceptance_contract": [
+    "Primary DEV019/DEV020/DEV014/DEV028/DEV031/DEV033 normalized journals have an explicitly authorized durable non-temp preservation location, matching hashes/counts, and readable restore proof before any cleanup/recovery.",
+    "Main UI recognizable against agreed screenshots; navigation and Operations OS visibly work.",
+    "Registry renders accepted operation identities with Deep accessible only as historical/review provenance under WATCHTOWER, not an independent confirmed card; historical26 memberships remain unchanged.",
+    "Registry errors and activity timeouts produce unavailable/UNKNOWN, never false zero or indefinite loading.",
+    "Live Monitor correct existing dev_005a authority; bounded deadline explicitly measured (target<5seconds) and actual retained token rows visible in browser.",
+    "Watchtower rich playbook and Nexus/Byzantine detail contracts render retained evidence;2H peak/observed peak/lifetimeATH and detectorHOLD stay distinct.",
+    "Mission Control HEALTHY/UNKNOWN/DEGRADED/CRITICAL and stale state consistent; /healthz remains independent liveness.",
+    "Canonical databases remain at established paths, readable, no schema/data mutation, cloning or rollback; research539-cohort/2860-candle facts unchanged.",
+    "Production source/service/config identities remain unchanged; process versus committed-processing evidence recorded without requiring a new qualifying token.",
+    "UI GETs construct no provider transport, dispatch no acquisition and mutate no database; guarded DEV safety and FD watchdog retained."
+  ],
+  "limitations": [
+    "No full integrity scans or full35GB/16GB database hashes; canonical status is PRESENT_UNVERIFIED, not corruption-free certification.",
+    "No single fully accepted application revision is proven; component evidence is explicit.",
+    "On-disk source HEAD plus CWD/config does not prove all loaded process bytes, especially missing worker/bridge source.",
+    "DEV032 historical handoff full SHA is malformed; actual remote/local SHA recorded above.",
+    "Fresh remote verification covers derivative research branches/manifests only; it does not back up temporary primary journals.",
+    "Audit did not call slow Live Monitor or production acquisition endpoints; current usability conclusions use retained acceptance plus observable source omissions and read-only metadata."
+  ],
+  "next_action": "Authorize compact evidence preservation first. Then separately authorize Option A source composition/qualification in DEV; no cleanup, restart or database replacement now."
+}

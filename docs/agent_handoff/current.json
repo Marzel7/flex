@@ -1,4 +1,26 @@
 {
+  "dev037_preserved_live_monitor_adapter_qualification": {
+    "status": "PASS_ISOLATED_QUALIFICATION_NOT_DEPLOYED",
+    "engineering_revision": "d10a690e5dc02c7a962bc14d299286d4eca57c56",
+    "branch": "codex/dev037-pre-dev035-ui-candidate",
+    "worktree": "/private/tmp/flex-dev037-recovery-evidence-audit",
+    "reference": "cd459a99017f4495188c875af710bde115038137, accepted October12 API deployment; reference counts not used as expected current population.",
+    "implementation": "Copied only preserved monitor store/queue/display/research helpers, _monitor_live_projection and live/observations endpoint bodies into current operator_routes; all other registry/API behavior retained. Exact AST equivalence checked for selection/projection, store reader and queue root helper. Added Path import and two direct read dependencies: watchtower_current_mc_overlay.py (reference blob0019fe5cba800a924f421c5a03558ea4252955f5, provider imports made lazy inside acquisition-only methods) and watchtower_early_minimum_research.py (exact blobcd437166744a0d7b2587079e0cde1f341e512853). No acquisition-worker files or dependency stack copied/imported. Existing token eligibility and SQL ordering unchanged. UI maps authoritative PRICE_MONITOR_COMPLETE_COLLAPSED to ENDED when legacy presentation field absent; no membership or evidence mutation.",
+    "read_only_qualification": "FLEX_DEV_READ_ONLY_QUALIFICATION=1 tightens existing wrapper to mode=ro/query_only for ALL SQLite connections, including DEV state; startup reads retained temporary forward state instead of schema/policy writes. Default wrapper behavior unchanged. FLEX_DEV_RELOAD=0, workers suppressed, HTTP mutations denied and outbound transport blocked. Used existing /private/tmp/flex-dev037-qualification.odp7tk fixture/state with no DB creation/update. Canonical WT_OPS_DB_PATH remains absolute shared ops authority read-only. Adapter binds existing dev_005a monitor DB and queue directly, not core/ops fallback. Optional research read uses existing cd459 worktree artifact absolute path, no copy. No credentials or provider calls required.",
+    "acceptance": "Actual wrapper served separate127.0.0.1:8103. Live Monitor HTTP200 in0.082573s, 115 retained rows measured:103 Watchtower and12 Byzantine. Browser registry displayed4 retained identities; token links115, Watchtower38LIVE/65ENDED and Byzantine12LIVE/0ENDED. Retained price fields visible; missing fields remained blank. Operations OS navigation works; Mission Control renders System Health Unknown with current guarded DEV context and separate API-live indicator. Registry coverage remains explicitly UNAVAILABLE; old actual-entry/2H enrichment absent where adapter lacks evidence, not invented. This is PASS for adapter/read compatibility, not acceptance of all historical research enrichment or DEEP consolidation. Existing legacyDEEP identity/classification unchanged.",
+    "tests": "21 passed,2 deselected (database-mutating fixtures excluded): test_dev037_preserved_adapter.py, test_dev036_nonblocking_ui_shell.py, test_dev035_mission_control.py. Covers AST selection equivalence, explicit unavailable authority, read dependency import without worker/provider binding import, query_only even insideDEV root, transport denial before connection, terminal display compatibility and deadlines. No DB mutations in this qualification. git diff --check passed; tracked engineering source clean. Preserved untracked compact startup guard file remains unstaged, not source.",
+    "research": "Fresh SHA256 unchanged:539 cohort0aec34375865d5106341a3c03c9afa22f3cbf89e8c15f737cb57b5e6126a679d; DEV0332860-candle journal6ebea1e8c6fc84b466e6910f51a1c26e5ecf16964fe4a1728475dc60d22a4456; strategy summary8bdac654215bfa304162c567acd7bece4409a0c1512741c62c12318261166eea; strategy report572313ee04eb6dd77826181d4944bfa365c837362d5aa07fa409f613b15a876a. No evidence relocation/copy, canonical DB change or acquisition. Temporary evidence risks unchanged.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "ready_for_separately_authorized_dev_deployment": true,
+    "runtime_state": "Isolated server stopped after acceptance. Persistent8100 and all production processes untouched. Required monitor DB/queue/research bindings recorded above; do not assume source SHA alone installs those bindings.",
+    "storage": "Compact source/tests only; no new DB writer, cache, raw retention or unbounded file-growth path; no database copies or new large files.",
+    "database_writes": 0,
+    "provider_calls": 0,
+    "production_changes": 0,
+    "persistent_service_actions": 0,
+    "next_action": "STOP — isolated adapter qualification complete. Await explicit authorization before persistent DEV deployment of d10a690e with verified read-only monitor/queue bindings; no further reconstruction."
+  },
   "dev037_live_monitor_module_provenance": {
     "status": "READ_ONLY_PROVENANCE_COMPLETE_SOURCE_COMPOSITION_MISMATCH",
     "engineering_revision": "Audited recovery candidate b515b85b93631985780fe74c6e1d2adf093853d4; accepted October12 API composition cd459a99017f4495188c875af710bde115038137",

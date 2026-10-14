@@ -766,9 +766,23 @@ class OperatorReader:
                         "SELECT COUNT(*) FROM operator_launch_membership WHERE operator_id=?",
                         (value["operator_id"],),
                     ).fetchone()[0]
-                    identity = identity_metadata(
-                        conn, value["display_name"], int(membership_count)
-                    ) or {}
+                    deadline = time.monotonic() + 0.2
+                    conn.set_progress_handler(lambda: int(time.monotonic() >= deadline), 100)
+                    try:
+                        identity = identity_metadata(
+                            conn, value["display_name"], int(membership_count)
+                        ) or {}
+                        value["identity_evidence_status"] = "HEALTHY"
+                        if time.monotonic() >= deadline:
+                            identity = {}
+                            value["identity_evidence_status"] = "UNKNOWN"
+                    except sqlite3.OperationalError as exc:
+                        if str(exc) != "interrupted":
+                            raise
+                        identity = {}
+                        value["identity_evidence_status"] = "UNKNOWN"
+                    finally:
+                        conn.set_progress_handler(None, 0)
                     value["human_display_name"] = identity.get(
                         "human_name", value["display_name"]
                     )

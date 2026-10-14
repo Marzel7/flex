@@ -19,8 +19,8 @@ OID = "bd7d7479-1454-5d41-9f68-115550348f3e"
 CID = "p3r-v2-6437acd385e566e301a7"
 
 
-@pytest.mark.parametrize("interrupt_timestamp_read", [False, True])
-def test_direct_10k_is_active_with_live_windows_and_prospective_hold(tmp_path, monkeypatch, interrupt_timestamp_read):
+@pytest.mark.parametrize("interrupt_timestamp_read,interrupt_identity_read", [(False, False), (True, False), (False, True)])
+def test_direct_10k_is_active_with_live_windows_and_prospective_hold(tmp_path, monkeypatch, interrupt_timestamp_read, interrupt_identity_read):
     path = tmp_path / "ops.db"
     now = 2_000_000_000
     monkeypatch.setattr(operator_reader.time, "time", lambda: now)
@@ -43,6 +43,10 @@ def test_direct_10k_is_active_with_live_windows_and_prospective_hold(tmp_path, m
     conn.commit(); conn.close()
 
     monkeypatch.setattr("src.ops.live_potential_activity.cached_activity", lambda _path: ({}, {"status": "UNKNOWN", "reason": "Cold cache"}))
+    if interrupt_identity_read:
+        def unavailable_identity(*args):
+            raise sqlite3.OperationalError("interrupted")
+        monkeypatch.setattr("src.ops.operation_identity_metadata.identity_metadata", unavailable_identity)
     if interrupt_timestamp_read:
         original_connect = OperatorReader._connect
         progress_calls = []
@@ -69,6 +73,7 @@ def test_direct_10k_is_active_with_live_windows_and_prospective_hold(tmp_path, m
     assert row["prospective_detector_status"] == "HOLD"
     assert "retained transaction-role evidence" in row["prospective_detector_detail"]
     assert row["total_launches"] == 3  # Established membership backs the count without a snapshot.
+    assert row["identity_evidence_status"] == ("UNKNOWN" if interrupt_identity_read else "HEALTHY")
 
 
 def test_direct_10k_candidate_is_excluded_from_potential_rows(monkeypatch, tmp_path):

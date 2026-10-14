@@ -66,6 +66,18 @@
     "safety": "Provider calls=0; production changes=0; database writes=0; no restart, source edit, database clone, raw payload retention, or service action. Existing read-only and network-denial protections remained active.",
     "next_action": "Await authorization for the narrow runtime binding and registry-unavailable presentation correction."
   },
+  "dev036_activity_projection_continuation": {
+    "engineering_revision": "a2e4c119031fd8b7db3e4392e741506f9b4907af; installed DEV source unchanged.",
+    "status": "HOLD_EXACT_BOUNDED_SELECTION_NOT_QUALIFIED",
+    "frozen_baseline": "live_potential_activity.py is byte-identical to frozen 6877f6e41477f7357463225d071f7a50f29c743e, SHA256 dd707fd5d61be4c7d34a9cbee4713c522205506e66432fb820f5e88e5074d82b. No frozen rollback would eliminate this scan.",
+    "evidence": "Read-only sqlite_master and EXPLAIN QUERY PLAN show SELECT mint,funder_block_time FROM wt_walkback_queue WHERE funder_block_time>? uses SCAN wt_walkback_queue. No general funder_block_time index exists. The only time index is partial and restricted to a particular LINEAGE_GAP/WSOL amount population; it cannot preserve all route eligibility. Selected-edge indexes are mint/hop and candidate_parent, not address-independent mechanism/amount signature indexes. Filtering by known candidate parent would exclude otherwise qualifying rotating-address routes. Registry ordering uses the resulting current last-launch timestamps; replacing unavailable live results with snapshot ordering is not exact ordering equivalence.",
+    "source_composition_finding": "The installed operator_routes.py also retains the old unbounded Live Monitor correlated enrichment and full-table SUM(LENGTH(...)) storage calculations. The claimed prior bounded projection is not present in installed a2e4c119 or retained codex/dev036-live-monitor-index HEAD 669a41bc. End-to-end success must verify the actual assembled source, not assume those corrections are installed.",
+    "changes": "None. No source, database, service, index, or runtime change was made during this continuation.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_FEASIBILITY_ONLY",
+    "safety": "Provider calls=0; production changes=0; database writes=0; no database clone or raw payload retention.",
+    "next_action": "Obtain authorization for compact-fixture qualification of a narrowly scoped activity-query supporting index, without applying it to live databases. Alternatively explicitly permit UNKNOWN activity and retained-evidence ordering when fresh activity cannot be calculated within the request budget. Current exact-order/no-index requirements cannot yet be qualified together."
+  },
   "dev036_registry_authority_restoration": {
     "engineering_revision": "a2e4c119031fd8b7db3e4392e741506f9b4907af on isolated codex/dev035-health-scope at /private/tmp/flex-dev035-health-scope.",
     "status": "PARTIAL_SERVICE_RECOVERED_REGISTRY_ACCEPTANCE_BLOCKED",

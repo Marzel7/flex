@@ -34,6 +34,16 @@ def test_banner_and_platform_use_the_same_full_health_scope():
     assert "System Health Unknown" in source
 
 
+def test_failed_core_refresh_marks_existing_health_evidence_stale_not_healthy():
+    source = (ROOT / "templates/system_health_dashboard.html").read_text()
+    assert "let lastSuccessfulHealthAt = null;" in source
+    assert "System Health Stale" in source
+    assert "Operational evidence stale" in source
+    assert "core health request failed" in source
+    assert "results[0].status === 'fulfilled'" in source
+    assert "Last successful refresh: ${lastSuccessfulHealthAt.toLocaleTimeString()}" in source
+
+
 def test_watchtower_subscription_telemetry_missing_is_unknown_not_zero():
     result = mc._compute_watchtower({"cascade_infrastructure": {
         "status": "UNKNOWN", "error": "subscription telemetry unavailable",

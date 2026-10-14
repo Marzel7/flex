@@ -2106,15 +2106,18 @@
         let systemHealthRefreshInFlight = false;
         let systemHealthAbortController = null;
         let systemHealthDisposed = false;
+        let lastSuccessfulHealthAt = null;
         let runtimeBudgetPollingStarted = false;
         let runtimeBudgetRefreshGeneration = 0;
 
         function renderCoreHealthFailure() {
             const banner = document.getElementById('mc-banner');
-            banner.className = 'mc-banner warning';
-            banner.innerHTML = '<i class="fas fa-triangle-exclamation"></i><span>System health unavailable</span><span class="sub">Core health request failed.</span>';
-            mcSetGroupStatus('grp-platform', 'neutral', 'Core health unavailable');
-            document.getElementById('grp-platform-body').innerHTML = '<div style="color:var(--text-secondary);font-size:0.85rem;">Core health request failed. Retrying on the next refresh.</div>';
+            const lastSuccess = lastSuccessfulHealthAt
+                ? `Last successful evidence: ${lastSuccessfulHealthAt.toLocaleTimeString()}`
+                : 'No successful operational-health evidence is available';
+            banner.className = 'mc-banner neutral';
+            banner.innerHTML = `<i class="fas fa-circle-question"></i><span>System Health Stale</span><span class="sub">${lastSuccess}</span>`;
+            mcSetGroupStatus('grp-platform', 'neutral', 'Operational evidence stale');
         }
 
         function renderDiagnosticPending(groupId, bodyId, label) {
@@ -2127,11 +2130,15 @@
             const el = document.getElementById('lastUpdate');
             if (!el) return;
             if (state === 'success') {
+                lastSuccessfulHealthAt = new Date();
                 el.style.color = 'var(--text-secondary)';
-                el.textContent = `Last successful refresh: ${new Date().toLocaleTimeString()}`;
+                el.textContent = `Last successful refresh: ${lastSuccessfulHealthAt.toLocaleTimeString()}`;
             } else {
                 el.style.color = '#facc15';
-                el.textContent = `Health ${state}: ${detail || 'awaiting a successful refresh'}`;
+                const lastSuccess = lastSuccessfulHealthAt
+                    ? ` Last successful refresh: ${lastSuccessfulHealthAt.toLocaleTimeString()}`
+                    : '';
+                el.textContent = `Health ${state}: ${detail || 'awaiting a successful refresh'}.${lastSuccess}`;
             }
         }
 
@@ -2160,6 +2167,7 @@
                     renderCoreHealthFailure();
                     return;
                 }
+                lastSuccessfulHealthAt = new Date();
             // MC1.1B — capability-first incident layer is now the SOLE
             // source of truth for the top banner, incident cards, and
             // capability strip/grid below it. Previously the banner
@@ -2233,8 +2241,11 @@
             });
             const results = await Promise.allSettled([coreRequest, walkbackRequest, recoveryRequest, fundingRequest, databaseRequest]);
             if (current()) {
-                if (results.every(result => result.status === 'fulfilled')) setRefreshState('success');
-                else setRefreshState('stale', 'one or more health requests failed');
+                if (results[0].status === 'fulfilled') {
+                    setRefreshState('success');
+                } else {
+                    setRefreshState('stale', 'core health request failed');
+                }
             }
             if (systemHealthAbortController === controller) systemHealthAbortController = null;
             systemHealthRefreshInFlight = false;

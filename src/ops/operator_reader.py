@@ -667,7 +667,7 @@ class OperatorReader:
                     timestamps_unavailable = False
                     if mints:
                         placeholders = ",".join("?" for _ in mints)
-                        deadline = time.monotonic() + 0.25
+                        deadline = time.monotonic() + 0.05
                         conn.set_progress_handler(lambda: int(time.monotonic() >= deadline), 1)
                         try:
                             selected_mints = sorted(mints)
@@ -716,7 +716,7 @@ class OperatorReader:
                     value.update(read_model)
                     if timestamps_unavailable:
                         value["activity_state_source"] = "UNKNOWN_TIMESTAMP_EVIDENCE"
-                        value["activity_unavailable_reason"] = "Retained timestamp read exceeded 250 ms"
+                        value["activity_unavailable_reason"] = "Retained timestamp read exceeded 50 ms"
                     live_route = current_route_activity.get(value.get("registry_source_candidate_id"))
                     if profile_provenance.get("detector") == "DIRECT_10K_CREATOR_PROVISIONING" and live_route and live_route.get("activity_source") == "LIVE_CURRENT":
                         # The existing qualified route matcher is the current
@@ -775,8 +775,8 @@ class OperatorReader:
                         "SELECT COUNT(*) FROM operator_launch_membership WHERE operator_id=?",
                         (value["operator_id"],),
                     ).fetchone()[0]
-                    deadline = time.monotonic() + 0.2
-                    conn.set_progress_handler(lambda: int(time.monotonic() >= deadline), 100)
+                    deadline = time.monotonic() + 0.05
+                    conn.set_progress_handler(lambda: int(time.monotonic() >= deadline), 1)
                     try:
                         identity = identity_metadata(
                             conn, value["display_name"], int(membership_count)

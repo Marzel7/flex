@@ -66,6 +66,21 @@
     "safety": "Provider calls=0; production changes=0; database writes=0; no restart, source edit, database clone, raw payload retention, or service action. Existing read-only and network-denial protections remained active.",
     "next_action": "Await authorization for the narrow runtime binding and registry-unavailable presentation correction."
   },
+  "dev036_registry_runtime_blocker_resolution": {
+    "engineering_revision": "43dfcddcacd8a0a6edaa9e24aaf1499a1ac655cc installed in /private/tmp/flex-dev035-health-scope on codex/dev035-health-scope; qualification branch codex/dev036-activity-index-qualification.",
+    "status": "PASS_REGISTRY_VISIBLE",
+    "frozen_baseline": "Frozen 6877f6e41477f7357463225d071f7a50f29c743e contains the same timestamp enrichment and identity metadata join. Membership and existing exclusions remain unchanged. User explicitly approved bounded UNKNOWN activity and retained-evidence ordering; no index or frozen rollback was deployed.",
+    "python_evidence": "Bounded Python stack capture of active /api/ops/operators requests identified OperatorReader.fetch_active_manual_operators at the wt_walkback_queue mint-IN timestamp read and then operation_identity_metadata.identity_metadata:22 at the Byzantine COUNT(DISTINCT membership.mint) selected-edge/candidate-parent join. EXPLAIN confirms the timestamp read uses the existing mint index, not a table scan. The evidence captured function/source lines only; no locals, credentials or query payloads. py-spy attachment was unavailable without root, so a temporary DEV wrapper stack view supplied Python-level evidence and was removed from the final source/runtime.",
+    "correction": "Only the proven optional registry reads were changed: timestamp enrichment uses 25-mint batches, per-row/batch elapsed checks, a 50 ms budget and fine SQLite progress cancellation; interrupted partial timestamp evidence is cleared. Identity metadata has a 50 ms SQLite progress budget and reports UNKNOWN rather than losing the operator or substituting historical coverage. Both handlers are cleared in finally paths. Selected identities, membership counts, merged/retired/provisional rules, attribution and schemas are preserved.",
+    "tests": "14 focused provider-free tests pass in the installed checkout: nonblocking activity, registry-authority handling, retired exclusions and directly affected creator-provisioning surface tests. Forced timestamp and metadata interruptions retain operator identity and established membership while reporting unavailable evidence; cleanup is verified. Three existing unrelated Nexus artifact/template tests remain excluded and were not modified.",
+    "runtime": "PID 65252 in existing gui/501/com.flex.dev035-api; installed source 43dfcddcacd8a0a6edaa9e24aaf1499a1ac655cc; entry point src.dev_runtime; FLEX_DEV_RELOAD=0; WT_OPS_DB_PATH=/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db. Existing service definition and all database/network/watchdog bindings unchanged. Temporary Python-stack instrumentation is absent from final source and runtime.",
+    "acceptance": "Final /api/ops/operators returned HTTP 200 in 3.769 seconds with five eligible API identities. Final browser reload rendered four confirmed cards: Byzantine, WATCHTOWER, WATCHTOWER_DEEP and Nexus. Nine manual dispositions become eight after merged exclusion, five after the three established retired exclusions, and four confirmed browser cards after the existing provisional filter. Coverage/current activity tiles show UNKNOWN rather than false zero. /healthz HTTP 200 in 7.7 ms; wrapper health confirms read-only production databases and blocked outbound network.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "safety": "DEV only; provider calls=0; production changes=0; operational database writes=0; no schema/index, membership, attribution, shared-checkout, plist, unrelated-service or provider change. No database copies, raw payload retention, new workers or unbounded storage path; compact stack fixtures/artifacts only.",
+    "blocker": null,
+    "next_action": "NONE — Registry blocker task COMPLETE. This does not claim Live Monitor or operation-detail performance acceptance."
+  },
   "dev036_nonblocking_registry_implementation": {
     "engineering_revision": "Installed 67740c4dbcf7663b51ddae4fb65aaf53a1a1ea11 in /private/tmp/flex-dev035-health-scope; isolated qualification commit 45b38e1edb89a5ff5762016760318d49bed5006c.",
     "status": "PARTIAL_IMPLEMENTED_RUNTIME_REGISTRY_TIMEOUT",
@@ -17024,11 +17039,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "classification-attribution-axis",
-    "git_head": "f661ae4593e5aaf434c4d0c91e9fb8dc2afd4f08",
+    "branch": "codex/dev035-health-scope",
+    "git_head": "43dfcddcacd8a0a6edaa9e24aaf1499a1ac655cc",
     "name": "flex",
-    "updated_at_utc": "2026-08-17T18:50:18Z",
-    "working_tree": "dirty: H8-to-H4 compatibility adapter added; projection runtime and H4 rerun materialized 150 operations"
+    "updated_at_utc": "2026-10-14T22:03:32Z",
+    "working_tree": "DEV runtime /private/tmp/flex-dev035-health-scope; engineering files committed; unrelated runtime-created database guard untracked and preserved"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

@@ -668,12 +668,21 @@ class OperatorReader:
                     if mints:
                         placeholders = ",".join("?" for _ in mints)
                         deadline = time.monotonic() + 0.25
-                        conn.set_progress_handler(lambda: int(time.monotonic() >= deadline), 100)
+                        conn.set_progress_handler(lambda: int(time.monotonic() >= deadline), 1)
                         try:
-                            timestamps_by_mint.update(dict(conn.execute(
-                                f"SELECT mint,COALESCE(create_anchor_block_time,funder_block_time,completed_at) FROM wt_walkback_queue WHERE mint IN ({placeholders}) AND COALESCE(create_anchor_block_time,funder_block_time,completed_at) IS NOT NULL",
-                                tuple(mints),
-                            )))
+                            selected_mints = sorted(mints)
+                            for offset in range(0, len(selected_mints), 25):
+                                if time.monotonic() >= deadline:
+                                    raise sqlite3.OperationalError("interrupted")
+                                batch = selected_mints[offset:offset + 25]
+                                batch_placeholders = ",".join("?" for _ in batch)
+                                for mint, stamp in conn.execute(
+                                    f"SELECT mint,COALESCE(create_anchor_block_time,funder_block_time,completed_at) FROM wt_walkback_queue WHERE mint IN ({batch_placeholders}) AND COALESCE(create_anchor_block_time,funder_block_time,completed_at) IS NOT NULL",
+                                    tuple(batch),
+                                ):
+                                    if time.monotonic() >= deadline:
+                                        raise sqlite3.OperationalError("interrupted")
+                                    timestamps_by_mint[mint] = stamp
                         except sqlite3.OperationalError as exc:
                             if str(exc) != "interrupted":
                                 raise

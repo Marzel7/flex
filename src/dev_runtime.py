@@ -22,6 +22,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEV_ROOT = Path(os.environ.get("FLEX_DEV_STATE_ROOT", PROJECT_ROOT / ".dev_runtime")).resolve()
 DEV_HOST = os.environ.get("FLEX_DEV_HOST", "127.0.0.1")
 DEV_PORT = int(os.environ.get("FLEX_DEV_PORT", "8100"))
+READ_ONLY_QUALIFICATION = os.environ.get("FLEX_DEV_READ_ONLY_QUALIFICATION") == "1"
 DEV_MONITOR_DB = DEV_ROOT / "monitor" / "wt_ops_v2.dev.db"
 MISSION_CONTROL_MONITOR_DB = Path(os.environ.get(
     "MISSION_CONTROL_MONITOR_UI_DB_PATH",
@@ -87,7 +88,7 @@ def _dev_guarded_connect(database, *args, **kwargs):
         in_dev_root = True
     except ValueError:
         in_dev_root = False
-    if in_dev_root:
+    if in_dev_root and not READ_ONLY_QUALIFICATION:
         return _sqlite_connect(database, *args, **kwargs)
     if not path.exists():
         raise sqlite3.OperationalError(
@@ -164,8 +165,14 @@ threading.Thread.start = _thread_start
 # It creates compact schema/policy/budget state in the same DEV authority used
 # by Mission Control, but owns no provider transport and cannot dispatch.
 with sqlite3.connect(MISSION_CONTROL_MONITOR_DB) as _universal_bridge_db:
-    ensure_runtime_schema(_universal_bridge_db)
-    _universal_forward_state = enable_forward_monitoring(_universal_bridge_db, now=__import__('time').time_ns() // 1_000_000_000)
+    if READ_ONLY_QUALIFICATION:
+        _state = _universal_bridge_db.execute("SELECT enabled_at,scheduler_enabled FROM universal_monitor_forward_state WHERE singleton=1").fetchone()
+        if _state is None:
+            raise RuntimeError("Read-only qualification requires retained startup state")
+        _universal_forward_state = dict(enabled_at=_state[0], scheduler_enabled=_state[1])
+    else:
+        ensure_runtime_schema(_universal_bridge_db)
+        _universal_forward_state = enable_forward_monitoring(_universal_bridge_db, now=__import__('time').time_ns() // 1_000_000_000)
 
 
 app.config.update(

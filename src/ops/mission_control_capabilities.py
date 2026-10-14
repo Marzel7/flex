@@ -869,7 +869,13 @@ def _compute_watchtower(subsystems: Dict[str, Any]) -> Dict[str, Any]:
 
     infra_status = cascade_infra.get("status") or "UNKNOWN"
     hb_age = cascade_infra.get("heartbeat_age_secs")
-    subs_total = cascade_infra.get("subs_total") or 0
+    subs_total = cascade_infra.get("subs_total")
+    subscription_evidence_available = subs_total is not None
+    subscription_detail = (
+        f"subs_total={subs_total}"
+        if subscription_evidence_available
+        else f"unknown: {cascade_infra.get('error') or 'cascade subscription telemetry unavailable'}"
+    )
 
     signals = [
         _signal("cascade_connection", infra_status == "OFFLINE", infra_status),
@@ -878,12 +884,18 @@ def _compute_watchtower(subsystems: Dict[str, Any]) -> Dict[str, Any]:
             hb_age is not None and hb_age > 120,
             f"{hb_age}s (threshold 120s)" if hb_age is not None else "unknown",
         ),
-        _signal("subscriptions_active", subs_total == 0, f"subs_total={subs_total}"),
+        _signal(
+            "subscriptions_active",
+            subscription_evidence_available and subs_total == 0,
+            subscription_detail,
+        ),
     ]
 
     status = "HEALTHY"
     if infra_status == "OFFLINE":
         status = "CRITICAL"
+    elif infra_status == "UNKNOWN" or not subscription_evidence_available:
+        status = "UNKNOWN"
     elif infra_status == "DEGRADED" or subs_total == 0:
         status = "WARNING"
 

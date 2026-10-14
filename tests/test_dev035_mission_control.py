@@ -25,6 +25,42 @@ def test_refresh_coordinator_has_bounded_nonoverlap_hidden_abort_and_stale_contr
     assert "Last successful refresh:" in source
 
 
+def test_banner_and_platform_use_the_same_full_health_scope():
+    source = (ROOT / "templates/system_health_dashboard.html").read_text()
+    assert "function mcPlatformIncidents" not in source
+    assert "mcUpdateBanner(fullHealth);" in source
+    assert "const scopeStatus = (fullHealth && fullHealth.status) || 'UNKNOWN';" in source
+    assert "const top = h?.status || 'UNKNOWN';" in source
+    assert "System Health Unknown" in source
+
+
+def test_watchtower_subscription_telemetry_missing_is_unknown_not_zero():
+    result = mc._compute_watchtower({"cascade_infrastructure": {
+        "status": "UNKNOWN", "error": "subscription telemetry unavailable",
+    }})
+    signal = next(s for s in result["signals"] if s["name"] == "subscriptions_active")
+    assert result["status"] == "UNKNOWN"
+    assert signal["abnormal"] is False
+    assert "unknown:" in signal["detail"]
+
+
+def test_watchtower_qualified_zero_subscriptions_remains_warning():
+    result = mc._compute_watchtower({"cascade_infrastructure": {
+        "status": "CONNECTED", "subs_total": 0, "heartbeat_age_secs": 10,
+    }})
+    signal = next(s for s in result["signals"] if s["name"] == "subscriptions_active")
+    assert result["status"] == "WARNING"
+    assert signal["abnormal"] is True
+    assert signal["detail"] == "subs_total=0"
+
+
+def test_watchtower_fresh_positive_subscription_evidence_is_healthy():
+    result = mc._compute_watchtower({"cascade_infrastructure": {
+        "status": "CONNECTED", "subs_total": 3, "heartbeat_age_secs": 10,
+    }})
+    assert result["status"] == "HEALTHY"
+
+
 def test_historical_ingestion_disconnect_does_not_outlive_fresh_recovery(monkeypatch):
     monkeypatch.setattr(mc, "get_expected_rate_per_min", lambda _: None)
     monkeypatch.setattr(mc, "count_recent_events", lambda *_: 1)

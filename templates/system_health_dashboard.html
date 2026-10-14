@@ -55,6 +55,7 @@
             font-size: 1rem; font-weight: 700;
         }
         .mc-banner.ok       { background: rgba(34,197,94,0.1);  border: 1px solid rgba(34,197,94,0.35);  color: #4ade80; }
+        .mc-banner.neutral  { background: rgba(100,116,139,0.12); border: 1px solid rgba(148,163,184,0.35); color: #cbd5e1; }
         .mc-banner.warning  { background: rgba(234,179,8,0.1);  border: 1px solid rgba(234,179,8,0.4);   color: #facc15; }
         .mc-banner.critical { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.45);  color: #f87171; }
         .mc-banner .sub { font-weight: 400; font-size: 0.85rem; opacity: 0.8; margin-left: auto; }
@@ -841,29 +842,11 @@
         // their severity, membership, and content are entirely the frozen
         // incident engine's output, untouched.
         const MC_SEV_RANK = { CRITICAL: 2, WARNING: 1 };
-        // MC1.1E — Phase F requires WATCHTOWER be excluded from platform-
-        // level capability NAVIGATION entirely, not just the strip/grid.
-        // MC1.1C only filtered it out of mcRenderCapStrip/mcRenderCapabilityGrid
-        // -- mcRenderIncidents and mcUpdateBanner still read the raw,
-        // unfiltered fullHealth.incidents, so a WATCHTOWER incident could
-        // (and did) become the banner's primary headline and open its own
-        // top-level incident card with a dead "Jump to WATCHTOWER" link
-        // (no WATCHTOWER card exists in the grid to jump to since MC1.1C).
-        // This is the single shared filter point both functions now use --
-        // WATCHTOWER's own incident/status is NOT discarded, it's fully
-        // preserved and visible via the existing nested subline inside the
-        // Operational Intelligence card (mcWatchtowerSublineHtml, reads
-        // fullHealth.capabilities.watchtower directly, unaffected by this
-        // filter since it never went through the incidents array).
-        function mcPlatformIncidents(incidents) {
-            return (incidents || []).filter(inc => inc.capability !== 'watchtower');
-        }
-
         function mcRenderIncidents(fullHealth) {
             const el = document.getElementById('mc-incidents');
             if (!el) return;
             const incidents = mcSortByHierarchy(
-                mcPlatformIncidents((fullHealth && fullHealth.incidents) || []),
+                (fullHealth && fullHealth.incidents) || [],
                 inc => inc.capability
             );
             if (!incidents.length) { el.innerHTML = ''; return; }
@@ -1087,29 +1070,42 @@
         // now driven EXCLUSIVELY by fullHealth.incidents (same data, same
         // sort order as the incident cards) so it can never disagree with
         // what's rendered below it -- single source of truth.
-        function mcUpdateBanner(incidents) {
+        function mcUpdateBanner(fullHealth) {
             const el = document.getElementById('mc-banner');
+            const scopeStatus = (fullHealth && fullHealth.status) || 'UNKNOWN';
+            const incidents = (fullHealth && fullHealth.incidents) || [];
             const sorted = mcSortByHierarchy(incidents || [], inc => inc.capability);
             const criticalIncidents = sorted.filter(i => i.severity === 'CRITICAL');
             const warningIncidents = sorted.filter(i => i.severity === 'WARNING');
-            const worst = criticalIncidents.length ? 'critical' : warningIncidents.length ? 'warning' : 'ok';
+            const worst = scopeStatus === 'CRITICAL' ? 'critical'
+                : scopeStatus === 'WARNING' ? 'warning'
+                : scopeStatus === 'UNKNOWN' ? 'neutral'
+                : 'ok';
             el.className = `mc-banner ${worst}`;
 
             // Lead with the single most upstream incident (first in
             // hierarchy order) -- this is what answers "what capability
             // have I lost" in one glance, per MC1.0's acceptance criterion.
-            if (worst === 'critical') {
+            if (worst === 'critical' && criticalIncidents.length) {
                 const lead = criticalIncidents[0];
                 const rest = sorted.filter(i => i !== lead).map(i => `${MC_CAPABILITY_LABELS[i.capability] || i.capability} ${i.severity}`);
                 el.innerHTML = `<i class="fas fa-circle-exclamation"></i>
                     <span>Critical — ${lead.title}</span>
                     <span class="sub">${rest.length ? rest.join(' · ') : `First detected ${mcFormatDuration(lead.current_duration_secs)} ago`}</span>`;
-            } else if (worst === 'warning') {
+            } else if (worst === 'warning' && warningIncidents.length) {
                 const lead = warningIncidents[0];
                 const rest = sorted.filter(i => i !== lead).map(i => `${MC_CAPABILITY_LABELS[i.capability] || i.capability} ${i.severity}`);
                 el.innerHTML = `<i class="fas fa-triangle-exclamation"></i>
                     <span>Warning — ${lead.title}</span>
                     <span class="sub">${rest.length ? rest.join(' · ') : `First detected ${mcFormatDuration(lead.current_duration_secs)} ago`}</span>`;
+            } else if (worst === 'critical' || worst === 'warning') {
+                el.innerHTML = `<i class="fas fa-${worst === 'critical' ? 'circle-exclamation' : 'triangle-exclamation'}"></i>
+                    <span>${scopeStatus === 'CRITICAL' ? 'System Critical' : 'System Warning'}</span>
+                    <span class="sub">Current operational evidence requires attention</span>`;
+            } else if (scopeStatus === 'UNKNOWN') {
+                el.innerHTML = `<i class="fas fa-circle-question"></i>
+                    <span>System Health Unknown</span>
+                    <span class="sub">Fresh operational evidence unavailable</span>`;
             } else {
                 el.innerHTML = `<i class="fas fa-circle-check"></i> <span>System Healthy</span> <span class="sub">No action required</span>`;
             }
@@ -2178,7 +2174,7 @@
             mcRenderCapStrip(fullHealth);
             mcRenderIncidents(fullHealth);
             mcRenderCapabilityGrid(fullHealth);
-            mcUpdateBanner(mcPlatformIncidents((fullHealth && fullHealth.incidents) || []));
+            mcUpdateBanner(fullHealth);
 
             // Legacy per-group detail sections (Platform/Ingestion/
             // Intelligence/Infrastructure bodies further down the page)

@@ -12,6 +12,19 @@
     "blocker": null,
     "next_action": "NONE — COMPLETE."
   },
+  "dev035_health_reconciliation": {
+    "engineering_revision": "02a62a2bb0fb8f0e27eddaa690e0d271963866cf, persistent DEV runtime /private/tmp/flex-dev036-nonblocking-ui-runtime, PID 17618.",
+    "status": "PASS_READ_ONLY_RECONCILIATION",
+    "scope": "DEV-only, read-only reconciliation of the Mission Control top banner and Platform group. No source, runtime, database, provider, or service change occurred.",
+    "frozen_baseline": "Frozen reference 6877f6e41477f7357463225d071f7a50f29c743e already contains the same contract split: mcPlatformIncidents filters WATCHTOWER before mcUpdateBanner, while renderPlatformGroup takes the unfiltered fullHealth.status. This is not a demonstrated DEV035 regression.",
+    "live_evidence": "The bounded /api/health/full response was HTTP 200 in 103.538 ms with ts=1792010070, status=WARNING, API=HEALTHY, database=HEALTHY, watchtower=WARNING and one active WATCHTOWER incident. Browser observation showed the banner 'System Healthy' while the Platform group showed CRITICAL/WATCHTOWER WARNING/RECOVERY MODE, plus UNKNOWN ingestion and intelligence evidence. /healthz separately returned HTTP 200 healthy=true/db=ok; it is API liveness, not the dashboard banner source.",
+    "root_cause": "The banner calls mcUpdateBanner(mcPlatformIncidents(fullHealth.incidents)); the filter removes the sole active WATCHTOWER incident, so an empty list renders 'System Healthy'. The Platform card instead reads fullHealth.status, which is the maximum capability severity and includes WATCHTOWER. The WATCHTOWER warning itself is non-affirmative DEV evidence: cascade infrastructure/activity are UNKNOWN because api_health_full constructs a clean-worktree-relative database path rather than using the wrapper's read-only WT_OPS_DB_PATH; _compute_watchtower defaults missing subs_total to 0, treating unavailable subscription evidence as a WARNING signal. Ingestion and intelligence UNKNOWN states likewise have no usable freshness evidence (read errors for absent tables), not evidence of production failure.",
+    "minimum_correction": "Presentation-only: label the banner as 'Platform capabilities excluding WATCHTOWER' or include the WATCHTOWER incident in that banner; then use the same explicit scope for the Platform group. Separately, preserve UNKNOWN rather than deriving subscriptions_active from a missing cascade subs_total. Do not change /healthz semantics, do not infer a production outage from DEV telemetry, and do not implement without separate authorization.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY_RECONCILIATION",
+    "safety": "Provider calls=0; production changes=0; no database writes, source changes, service actions, or raw payload retention.",
+    "next_action": "Await separate authorization for the narrowly scoped UI/API presentation correction, if desired."
+  },
   "dev028_corrected_30s_post_ath_crash_study_20261012": {
     "status": "PASS_BOUNDED_STUDY_COMPLETE_INCONCLUSIVE_PATTERN",
     "engineering_revision": "5c7ae367a88dca1440f89cd2f02aa4b508692beb on codex/dev028-crash-study; local commit verified; source branch remote publication remains unavailable because the environment egress guard blocked it.",

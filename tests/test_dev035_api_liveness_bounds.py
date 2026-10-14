@@ -64,6 +64,62 @@ def test_elapsed_component_budget_becomes_unknown_without_querying():
     }
 
 
+class _HealthConnectionProbe:
+    def __init__(self):
+        self.closed = False
+
+    def set_progress_handler(self, *_args):
+        pass
+
+    def close(self):
+        self.closed = True
+
+
+def test_bounded_health_connection_closes_on_success_and_exception():
+    import src.core.main as main
+
+    probes = []
+
+    class _SQLiteProbe:
+        @staticmethod
+        def connect(*_args, **_kwargs):
+            probe = _HealthConnectionProbe()
+            probes.append(probe)
+            return probe
+
+    with main._bounded_health_ro_connection(_SQLiteProbe, "ignored", time.monotonic() + 1):
+        pass
+    assert probes[-1].closed is True
+
+    with pytest.raises(RuntimeError), main._bounded_health_ro_connection(
+        _SQLiteProbe, "ignored", time.monotonic() + 1
+    ):
+        raise RuntimeError("query failed")
+    assert probes[-1].closed is True
+
+
+def test_full_health_closes_every_connection_when_queries_fail(monkeypatch):
+    import src.core.main as main
+
+    probes = []
+
+    class _FailingConnection(_HealthConnectionProbe):
+        def execute(self, *_args, **_kwargs):
+            raise sqlite3.OperationalError("fixture query failure")
+
+    def _open(*_args, **_kwargs):
+        probe = _FailingConnection()
+        probes.append(probe)
+        return probe
+
+    monkeypatch.setattr(main, "_bounded_health_ro_connect", _open)
+    response = main.app.test_client().get("/api/health/full")
+
+    assert response.status_code == 200
+    assert probes
+    assert all(probe.closed for probe in probes)
+
+
 def test_full_health_returns_partial_unknown_when_component_deadline_expires(monkeypatch):
     import src.core.main as main
 

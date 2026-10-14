@@ -16,6 +16,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 import sqlite3
 import json
 import requests
+from contextlib import contextmanager
 from src.utils.db_locking import db_connect, managed_db_connect
 import threading
 import asyncio
@@ -9452,6 +9453,16 @@ def _bounded_health_ro_connect(sqlite_module, database_path, deadline):
 
     conn.set_progress_handler(_abort_if_over_budget, 1000)
     return conn
+
+
+@contextmanager
+def _bounded_health_ro_connection(sqlite_module, database_path, deadline):
+    """Yield a bounded read-only connection and close it on every path."""
+    conn = _bounded_health_ro_connect(sqlite_module, database_path, deadline)
+    try:
+        yield conn
+    finally:
+        conn.close()
 
 
 def _health_unknown_from_deadline(component):
@@ -24074,16 +24085,15 @@ def api_health_full():
                 if "database is locked" in _ln or "batch write failed" in _ln:
                     lock_total += 1
 
-        _db2 = _bounded_health_ro_connect(_sq, DB_PATH, _ingestion_deadline)
-        _db2.row_factory = _sq.Row
-        _mts = _db2.execute("SELECT MAX(migrated_at) FROM token_analysis WHERE migrated_at IS NOT NULL").fetchone()[0]
-        _bts = _db2.execute("SELECT MAX(analyzed_at) FROM token_analysis WHERE source_platform='pumpfun' AND analyzed_at IS NOT NULL").fetchone()[0]
-        _bq  = _db2.execute("SELECT SUM(CASE WHEN consumed=0 THEN 1 ELSE 0 END) FROM webhook_birth_queue").fetchone()[0] or 0
-        try:
-            _mq = _db2.execute("SELECT SUM(CASE WHEN status='PENDING' THEN 1 ELSE 0 END) FROM migration_persist_queue").fetchone()[0] or 0
-        except Exception:
-            _mq = 0
-        _db2.close()
+        with _bounded_health_ro_connection(_sq, DB_PATH, _ingestion_deadline) as _db2:
+            _db2.row_factory = _sq.Row
+            _mts = _db2.execute("SELECT MAX(migrated_at) FROM token_analysis WHERE migrated_at IS NOT NULL").fetchone()[0]
+            _bts = _db2.execute("SELECT MAX(analyzed_at) FROM token_analysis WHERE source_platform='pumpfun' AND analyzed_at IS NOT NULL").fetchone()[0]
+            _bq  = _db2.execute("SELECT SUM(CASE WHEN consumed=0 THEN 1 ELSE 0 END) FROM webhook_birth_queue").fetchone()[0] or 0
+            try:
+                _mq = _db2.execute("SELECT SUM(CASE WHEN status='PENDING' THEN 1 ELSE 0 END) FROM migration_persist_queue").fetchone()[0] or 0
+            except Exception:
+                _mq = 0
 
         mig_age  = _age(_mts)
         birth_age = _age(_bts) if _bts else None
@@ -24133,11 +24143,10 @@ def api_health_full():
     cascade_infra = {"status": "UNKNOWN"}
     _cascade_infra_deadline = _t.monotonic() + 1.0
     try:
-        _co = _bounded_health_ro_connect(_sq, _OPS_DB, _cascade_infra_deadline)
-        _cr = _co.execute(
-            "SELECT last_seen, status, meta_json FROM wt_worker_heartbeat WHERE worker_name='ws_cascade' LIMIT 1"
-        ).fetchone()
-        _co.close()
+        with _bounded_health_ro_connection(_sq, _OPS_DB, _cascade_infra_deadline) as _co:
+            _cr = _co.execute(
+                "SELECT last_seen, status, meta_json FROM wt_worker_heartbeat WHERE worker_name='ws_cascade' LIMIT 1"
+            ).fetchone()
 
         if _cr is None:
             cascade_infra = {"status": "OFFLINE", "note": "no heartbeat row"}
@@ -24182,15 +24191,14 @@ def api_health_full():
     cascade_activity = {"status": "UNKNOWN"}
     _cascade_activity_deadline = _t.monotonic() + 1.0
     try:
-        _co2 = _bounded_health_ro_connect(_sq, _OPS_DB, _cascade_activity_deadline)
-        _lr  = _co2.execute(
-            "SELECT MAX(create_time) FROM wt_watchtower_launches"
-        ).fetchone()[0]
-        _l24 = _co2.execute(
-            "SELECT COUNT(*) FROM wt_watchtower_launches WHERE create_time >= ?",
-            (now - 86400,)
-        ).fetchone()[0]
-        _co2.close()
+        with _bounded_health_ro_connection(_sq, _OPS_DB, _cascade_activity_deadline) as _co2:
+            _lr  = _co2.execute(
+                "SELECT MAX(create_time) FROM wt_watchtower_launches"
+            ).fetchone()[0]
+            _l24 = _co2.execute(
+                "SELECT COUNT(*) FROM wt_watchtower_launches WHERE create_time >= ?",
+                (now - 86400,)
+            ).fetchone()[0]
 
         last_launch_age = _age(_lr)
         ca_subs = cascade_infra.get("subs_candidate", 0)
@@ -24307,6 +24315,7 @@ def api_health_full():
     # ── 7. Intelligence Engine ────────────────────────────────────────────────
     intelligence = {"status": "UNKNOWN"}
     _intelligence_deadline = _t.monotonic() + 2.0
+    _idb = None
     try:
         _idb = _bounded_health_ro_connect(_sq, DB_PATH, _intelligence_deadline)
         _idb.row_factory = _sq.Row
@@ -24377,18 +24386,18 @@ def api_health_full():
             (now - 3600,)
         ).fetchone()[0]
         _idb.close()
+        _idb = None
 
         cp_age = None
         pending_attr = 0
         try:
-            _wdb = _bounded_health_ro_connect(_sq, DB_PATH, _intelligence_deadline)
-            _cp = _wdb.execute(
-                "SELECT last_seen, meta_json FROM wt_worker_heartbeat WHERE worker_name='creator-resolution' LIMIT 1"
-            ).fetchone()
-            _pa = _wdb.execute(
-                "SELECT COUNT(*) FROM wt_operations WHERE state='UNKNOWN'"
-            ).fetchone()
-            _wdb.close()
+            with _bounded_health_ro_connection(_sq, DB_PATH, _intelligence_deadline) as _wdb:
+                _cp = _wdb.execute(
+                    "SELECT last_seen, meta_json FROM wt_worker_heartbeat WHERE worker_name='creator-resolution' LIMIT 1"
+                ).fetchone()
+                _pa = _wdb.execute(
+                    "SELECT COUNT(*) FROM wt_operations WHERE state='UNKNOWN'"
+                ).fetchone()
             if _cp:
                 cp_age = now - int(_cp[0])
                 try:
@@ -24539,6 +24548,8 @@ def api_health_full():
             "pending_attribution":          pending_attr,
         }
     except Exception as _e:
+        if _idb is not None:
+            _idb.close()
         intelligence = (
             _health_unknown_from_deadline("intelligence")
             if isinstance(_e, _HealthComponentDeadlineExceeded) or _t.monotonic() >= _intelligence_deadline

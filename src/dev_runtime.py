@@ -42,7 +42,7 @@ os.environ.update(
         "ENABLE_CREATE_INTERCEPTOR": "false",
         "OPERATIONS_MODE": os.environ.get("FLEX_DEV_OPERATIONS_MODE", "MONITOR"),
         "WT_PREWARM_START_DELAY_SECONDS": "86400",
-        "DB_PATH": str((PROJECT_ROOT / "database" / "flex_complete_database.db").resolve()),
+        "DB_PATH": os.environ.get("DB_PATH", str((PROJECT_ROOT / "database" / "flex_complete_database.db").resolve())),
         # Registry/read-model queries continue to use the established
         # operations authority read-only.  A clean runtime worktree does not
         # contain that database, so retain an explicitly supplied binding

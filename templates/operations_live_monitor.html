@@ -13,6 +13,25 @@
   <details class="ip-subtitle" style="margin-top:20px"><summary>Methodology & evidence</summary>Live rows are PROSPECTIVE_MONITOR_COHORT only. Current MC is the latest retained close. Peak MC is evidence-qualified and is never a claim of a GMGN all-time high. Crossings are observed market levels, not executable fills. Historical research remains in the operation Playbooks.</details>
 </main>
 <script>
+const dev037Requests = new Map();
+async function dev037Fetch(url, options = {}) {
+ const previous = dev037Requests.get(url);
+ if (previous) previous.abort();
+ const controller = new AbortController();
+ dev037Requests.set(url, controller);
+ const timeout = setTimeout(() => controller.abort(), 3000);
+ try {
+  const response = await fetch(url, {...options, signal: controller.signal});
+  const body = await response.text();
+  if (dev037Requests.get(url) !== controller) throw new Error('Superseded response');
+  return {ok: response.ok, text: async () => body, json: async () => JSON.parse(body)};
+ } finally {
+  clearTimeout(timeout);
+  if (dev037Requests.get(url) === controller) dev037Requests.delete(url);
+ }
+}
+window.addEventListener('pagehide', () => {for (const request of dev037Requests.values()) request.abort();});
+
 const dash='—';
 const element=id=>typeof document==='undefined'?null:document.getElementById(id); const modeEl=element('mode'),cardsEl=element('cards'),healthEl=element('health'),emptyEl=element('empty'),tablewrapEl=element('tablewrap'),rowsEl=element('rows');
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -27,7 +46,7 @@ const tableMultiple=x=>{if(x.monitor_state==='PRICE_MONITOR_COMPLETE_COLLAPSED'&
 const detail=x=>{const terminal=x.monitor_state==='PRICE_MONITOR_COMPLETE_COLLAPSED',finalized=terminal&&x.final_ath_status==='QUALIFIED';return '<b>'+esc(x.mint)+'</b><span style="margin-left:12px">FROZEN STRATEGY ENTRY '+usd(x.entry_mc_usd)+'</span><span style="margin-left:12px">FINAL MC '+usd(x.latest_mc_usd)+'</span><span style="margin-left:12px">FINAL / ENTRY '+multiple(x.current_multiple)+'</span>'+(finalized?'<span style="margin-left:12px">FINAL ATH '+usd(x.final_proven_ath_mc)+'</span><span style="margin-left:12px">ATH × '+multiple(x.final_ath_multiple)+'</span><span style="margin-left:12px">'+esc(String(x.final_ath_evidence||'').replaceAll('_',' '))+' · '+esc(x.final_ath_resolution||dash)+'</span>':'')+'<div data-history>Observed lifecycle: loading retained evidence…</div>';};
 const historyDetail=h=>{if(!h)return 'OBSERVED LIFECYCLE: no retained 4h history · FROZEN STRATEGY ENTRY: INSUFFICIENT EVIDENCE';const r=h.result||{};return 'OBSERVED LIFECYCLE · '+esc(h.status||dash)+' · anchor '+esc(h.anchor_type||dash)+' · 4h '+esc(r.window_completeness||dash)+' · '+esc(r.candle_count??dash)+' candles / '+esc(r.gap_count??dash)+' gaps · first observed '+usd(r.first_observed_mcap)+' · peak '+usd(r.peak_mcap)+' · peak multiple '+multiple(r.peak_multiple_from_first_15m)+' · post-peak low '+usd(r.post_peak_low_mcap)+' · drawdown '+percent(r.drawdown_from_peak_percent)+' · 85% collapse '+(r.collapse_85_reached?'reached':'not observed')+' · peak→collapse '+duration(r.seconds_peak_to_collapse)+' · final '+usd(r.final_mcap)+'<br>FROZEN STRATEGY ENTRY: '+esc((h.strategy_entry_status||'INSUFFICIENT_EVIDENCE').replaceAll('_',' '));};
 const kb=x=>x<1024?'0 KB':(x/1024).toFixed(1)+' KB';
-fetch('/api/operations/live-monitor').then(r=>r.json()).then(d=>{
+dev037Fetch('/api/operations/live-monitor').then(r=>r.json()).then(d=>{
   modeEl.textContent='● MONITOR MODE · '+(d.mode==='MONITOR'?'ON':d.mode);
   const o=d.operations||{},wt=o.watchtower||{},by=o.byzantine||{};
   const c=[[String(d.summary.active),'ACTIVE MONITORS',d.summary.active?wt.active+' Watchtower · '+by.active+' Byzantine':'Watchtower + Byzantine'],[String(d.summary.waiting),'WAITING FOR ENTRY','Qualified assignments awaiting entry reference'],[String(d.summary.completed_today),'COMPLETED · TODAY','Terminal Monitor lifecycles'],[String(d.summary.calls_today),'BIRDEYE CALLS · TODAY','Monitor acquisition only'],[kb(d.storage.bytes),'MONITOR STORAGE','10 MB ceiling · '+(d.storage.bytes/100000).toFixed(1)+'% used']];
@@ -35,7 +54,7 @@ fetch('/api/operations/live-monitor').then(r=>r.json()).then(d=>{
   const w=d.worker_health,q=d.queue_health,p=d.provider_health;healthEl.innerHTML='<b>● Monitor '+((d.mode==='MONITOR'&&['IDLE','HEALTHY'].includes(w.status)&&q.depth===0&&p.status==='READY')?'healthy':'degraded')+'</b><span>Worker '+esc(w.status)+'</span><span>Queue '+q.depth+'</span><span>Provider '+esc(p.status)+'</span>';
   const liveRows=(d.rows||[]).filter(x=>x.cohort_class==='PROSPECTIVE_MONITOR_COHORT');emptyEl.hidden=!!liveRows.length;tablewrapEl.hidden=!liveRows.length;
   rowsEl.innerHTML=liveRows.map((x,i)=>{const [label,cls]=stateInfo(x.monitor_state),peak=peakPresentation(x);return '<tr data-index="'+i+'"><td>'+esc(x.mint)+'</td><td>'+esc(x.operation_id)+'</td><td><span class="state-badge '+cls+'">'+esc(label)+'</span></td><td class="number">'+duration(x.age_seconds)+'</td><td class="number">'+usd(x.entry_mc_usd)+'</td><td class="number">'+usd(x.latest_mc_usd)+'</td><td class="number">'+tableMultiple(x)+'</td><td><b>'+esc(peak.primary)+'</b><div class="peak-secondary">'+esc(peak.secondary)+'</div></td><td>'+esc(peak.evidence)+'</td><td class="number">'+percent(x.drawdown_percent)+'</td><td class="number">'+duration(x.freshness_seconds)+'</td><td>'+nextCheck(x.next_observation_at,d.now)+'</td><td class="number">'+(Number.isFinite(Number(x.provider_call_count))?x.provider_call_count:dash)+'</td></tr>';}).join('');
-  rowsEl.querySelectorAll('tr').forEach(row=>row.addEventListener('click',()=>{const x=liveRows[Number(row.dataset.index)],box=document.querySelector('#token-detail');box.innerHTML=detail(x);box.hidden=false;fetch('/api/operations/live-monitor/'+encodeURIComponent(x.operation_id)+'/'+encodeURIComponent(x.mint)+'/historical-lifecycle').then(r=>r.json()).then(d=>{const h=d.observed_lifecycle;if(h&&h.result)h.result.strategy_entry_status=x.entry_status||'INSUFFICIENT_EVIDENCE';const target=box.querySelector('[data-history]');if(target)target.innerHTML=historyDetail(h);}).catch(()=>{const target=box.querySelector('[data-history]');if(target)target.textContent='Observed lifecycle readback unavailable.';});}));
-});
+  rowsEl.querySelectorAll('tr').forEach(row=>row.addEventListener('click',()=>{const x=liveRows[Number(row.dataset.index)],box=document.querySelector('#token-detail');box.innerHTML=detail(x);box.hidden=false;dev037Fetch('/api/operations/live-monitor/'+encodeURIComponent(x.operation_id)+'/'+encodeURIComponent(x.mint)+'/historical-lifecycle').then(r=>r.json()).then(d=>{const h=d.observed_lifecycle;if(h&&h.result)h.result.strategy_entry_status=x.entry_status||'INSUFFICIENT_EVIDENCE';const target=box.querySelector('[data-history]');if(target)target.innerHTML=historyDetail(h);}).catch(()=>{const target=box.querySelector('[data-history]');if(target)target.textContent='Observed lifecycle readback unavailable.';});}));
+}).catch(()=>{healthEl.textContent='Live Monitor UNAVAILABLE';modeEl.textContent='MONITOR MODE · UNKNOWN';});
 </script>
 {% endblock %}

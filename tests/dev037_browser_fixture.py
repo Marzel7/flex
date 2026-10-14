@@ -23,6 +23,25 @@ socket.socket.connect = loopback_only
 app = Flask(__name__, template_folder=str(ROOT / "templates"), static_folder=str(ROOT / "static"))
 app.config["DEV_RUNTIME"] = True
 
+@app.after_request
+def fixture_label(response):
+    if response.mimetype == 'text/html':
+        response.set_data(response.get_data().replace(b'<body>', b'<body><p style="background:#7c2d12;color:white;padding:12px">DEV037 SYNTHETIC PRESENTATION FIXTURE - NOT LIVE TOKEN EVIDENCE</p>', 1))
+    return response
+
+@app.get('/api/operations/live-monitor')
+def monitor_fixture():
+    rows = [dict(operation_id=operation, mint='FIXTURE_'+operation,
+                 token_symbol='FIXTURE '+operation.upper(), cohort_class='PROSPECTIVE_MONITOR_COHORT',
+                 monitor_state='MONITORING_ACTIVE', assignment_timestamp=100,
+                 entry_mc_usd=100, running_peak_mc_usd=200, latest_mc_usd=150,
+                 current_multiple=1.5, peak_exactness='CANDLE_HIGH')
+            for operation in ['watchtower', 'byzantine']]
+    return jsonify(qualification_fixture=True, mode='MONITOR', now=200, rows=rows,
+                   operations={}, summary=dict(active=2, waiting=0, completed_today=0, calls_today=0),
+                   storage=dict(bytes=0), worker_health=dict(status='UNKNOWN'),
+                   queue_health=dict(depth=0), provider_health=dict(status='UNKNOWN'))
+
 @app.get("/")
 @app.get("/intelligence/operators")
 def registry():

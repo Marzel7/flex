@@ -664,16 +664,29 @@ class OperatorReader:
                         "SELECT mint FROM operator_launch_membership WHERE operator_id=?", (value["operator_id"],)
                     ))
                     timestamps_by_mint = {}
+                    timestamps_unavailable = False
                     if mints:
                         placeholders = ",".join("?" for _ in mints)
-                        timestamps_by_mint.update(dict(conn.execute(
-                            f"SELECT mint,COALESCE(create_anchor_block_time,funder_block_time,completed_at) FROM wt_walkback_queue WHERE mint IN ({placeholders}) AND COALESCE(create_anchor_block_time,funder_block_time,completed_at) IS NOT NULL",
-                            tuple(mints),
-                        )))
+                        deadline = time.monotonic() + 0.25
+                        conn.set_progress_handler(lambda: int(time.monotonic() >= deadline), 100)
+                        try:
+                            timestamps_by_mint.update(dict(conn.execute(
+                                f"SELECT mint,COALESCE(create_anchor_block_time,funder_block_time,completed_at) FROM wt_walkback_queue WHERE mint IN ({placeholders}) AND COALESCE(create_anchor_block_time,funder_block_time,completed_at) IS NOT NULL",
+                                tuple(mints),
+                            )))
+                        except sqlite3.OperationalError as exc:
+                            if str(exc) != "interrupted":
+                                raise
+                            timestamps_by_mint.clear()
+                            timestamps_unavailable = True
+                        finally:
+                            conn.set_progress_handler(None, 0)
                         # Behavioural profiles may retain launches not present in
                         # the current walkback queue. Read their retained core
                         # timestamps without touching either database.
                         try:
+                            if timestamps_unavailable:
+                                raise sqlite3.OperationalError("Timestamp evidence exceeded read budget")
                             from src.core.db import DB_PATH
                             core = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True)
                             core.execute("PRAGMA query_only=ON")
@@ -692,6 +705,9 @@ class OperatorReader:
                         list(timestamps_by_mint.values()), metrics, value.get("activity_snapshot_observed_at")
                     )
                     value.update(read_model)
+                    if timestamps_unavailable:
+                        value["activity_state_source"] = "UNKNOWN_TIMESTAMP_EVIDENCE"
+                        value["activity_unavailable_reason"] = "Retained timestamp read exceeded 250 ms"
                     live_route = current_route_activity.get(value.get("registry_source_candidate_id"))
                     if profile_provenance.get("detector") == "DIRECT_10K_CREATOR_PROVISIONING" and live_route and live_route.get("activity_source") == "LIVE_CURRENT":
                         # The existing qualified route matcher is the current

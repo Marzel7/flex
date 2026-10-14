@@ -2,9 +2,11 @@
 from __future__ import annotations
 
 import json
+import contextlib
 import sqlite3
 import time
 from pathlib import Path
+import pytest
 
 from src.ops import potential_operations
 from src.ops import operator_reader
@@ -17,7 +19,8 @@ OID = "bd7d7479-1454-5d41-9f68-115550348f3e"
 CID = "p3r-v2-6437acd385e566e301a7"
 
 
-def test_direct_10k_is_active_with_live_windows_and_prospective_hold(tmp_path, monkeypatch):
+@pytest.mark.parametrize("interrupt_timestamp_read", [False, True])
+def test_direct_10k_is_active_with_live_windows_and_prospective_hold(tmp_path, monkeypatch, interrupt_timestamp_read):
     path = tmp_path / "ops.db"
     now = 2_000_000_000
     monkeypatch.setattr(operator_reader.time, "time", lambda: now)
@@ -40,10 +43,29 @@ def test_direct_10k_is_active_with_live_windows_and_prospective_hold(tmp_path, m
     conn.commit(); conn.close()
 
     monkeypatch.setattr("src.ops.live_potential_activity.cached_activity", lambda _path: ({}, {"status": "UNKNOWN", "reason": "Cold cache"}))
+    if interrupt_timestamp_read:
+        original_connect = OperatorReader._connect
+        progress_calls = []
+        class InterruptedRead:
+            def __init__(self, connection): self.connection = connection
+            def execute(self, sql, *args):
+                if sql.startswith("SELECT mint,COALESCE(create_anchor_block_time"):
+                    raise sqlite3.OperationalError("interrupted")
+                return self.connection.execute(sql, *args)
+            def set_progress_handler(self, callback, steps):
+                progress_calls.append((callback, steps))
+                self.connection.set_progress_handler(callback, steps)
+        @contextlib.contextmanager
+        def connect(reader):
+            with original_connect(reader) as connection:
+                yield InterruptedRead(connection)
+        monkeypatch.setattr(OperatorReader, "_connect", connect)
     row = next(item for item in OperatorReader(str(path)).fetch_active_manual_operators() if item["operator_id"] == OID)
     assert (row["live_launches_24h"], row["live_launches_7d"], row["live_launches_30d"]) == (None, None, None)
     assert row["activity_state_source"] == "UNKNOWN_ROUTE_ACTIVITY"
-    assert row["last_launch_at"] == now - 3600  # retained evidence still orders the identity
+    assert row["last_launch_at"] == (None if interrupt_timestamp_read else now - 3600)
+    if interrupt_timestamp_read:
+        assert progress_calls[-1] == (None, 0)
     assert row["prospective_detector_status"] == "HOLD"
     assert "retained transaction-role evidence" in row["prospective_detector_detail"]
     assert row["total_launches"] == 3  # Established membership backs the count without a snapshot.

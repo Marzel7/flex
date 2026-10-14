@@ -52,6 +52,20 @@
     "blocker": null,
     "next_action": "NONE — COMPLETE."
   },
+  "dev036_active_operations_registry_diagnosis": {
+    "engineering_revision": "9cd6f014a3bcaf2e878164cc4dc20cd43090156b, running clean DEV worktree /private/tmp/flex-dev035-health-scope.",
+    "status": "HOLD_RUNTIME_DATABASE_AUTHORITY_MISBOUND",
+    "scope": "DEV-only read-only diagnosis of Active Operations Registry and /api/ops/operators/coverage-24h. No source, database, service, provider, or attribution change occurred.",
+    "frozen_baseline": "Frozen reference 6877f6e41477f7357463225d071f7a50f29c743e contains the same coverage endpoint, response schema, OperatorReader active-manual contract, and WT_OPS_DB_PATH resolver. The endpoint body is unchanged; frozen source alone does not establish that its runtime database binding was valid.",
+    "exception": "A bounded loopback GET reproduced HTTP 500 in 277 ms. Fresh dev_api.log traceback identifies src/ops/operator_routes.py:242 operator_coverage_24h at sqlite3.connect(OPS_DB_PATH), failing through the active safety wrapper with sqlite3.OperationalError: DEV runtime refuses to create SQLite state outside /Users/kevinkeaveney/Dev/claude/flex/.dev_runtime: /private/tmp/flex-dev035-health-scope/database/wt_ops_v2.db. This is a missing-path/binding failure, not a query timeout or schema exception.",
+    "database_authority": "src.dev_runtime sets WT_OPS_DB_PATH relative to the clean worktree, where database/wt_ops_v2.db does not exist. The established retained operations authority is /Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db and was inspected only with SQLite mode=ro plus PRAGMA query_only. The wrapper correctly prevents accidental creation at the absent clean-worktree path.",
+    "registry_evidence": "The retained authority has 9 ACTIVE_MANUAL dispositions and 8 renderable active-manual operators after the existing MERGED exclusion. Examples include WATCHTOWER, Byzantine, Nexus, P3R and P3R_13A04. Thus zero is not a qualified empty registry result. /api/ops/operators returned HTTP 200 count=0 and /summary returned active=0/confirmed=0 because OperatorReader.fetch_active_manual_operators catches SQLite/OSError and returns an empty list; coverage independently returns HTTP 500 before its query can run. Both symptoms share the binding failure; the coverage failure does not itself alter membership.",
+    "minimum_correction": "Under separate implementation authorization, preserve the safety wrapper and configure its existing read-only WT_OPS_DB_PATH binding to the established retained operations authority (or otherwise provide that same existing read-only authority), then add explicit unavailable handling so a connection failure cannot be rendered as zero confirmed operations. Do not alter membership, attribution, schema, indexes, provider behavior, or frozen response fields.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY_DIAGNOSIS",
+    "safety": "Provider calls=0; production changes=0; database writes=0; no restart, source edit, database clone, raw payload retention, or service action. Existing read-only and network-denial protections remained active.",
+    "next_action": "Await authorization for the narrow runtime binding and registry-unavailable presentation correction."
+  },
   "dev028_corrected_30s_post_ath_crash_study_20261012": {
     "status": "PASS_BOUNDED_STUDY_COMPLETE_INCONCLUSIVE_PATTERN",
     "engineering_revision": "5c7ae367a88dca1440f89cd2f02aa4b508692beb on codex/dev028-crash-study; local commit verified; source branch remote publication remains unavailable because the environment egress guard blocked it.",

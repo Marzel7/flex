@@ -23,7 +23,7 @@ from src.ops.operator_model import (
     EVIDENCE_CATALOGUE,
     OPERATOR_STATES,
 )
-from src.ops.operator_reader import OperatorReader
+from src.ops.operator_reader import OperatorReader, RegistryUnavailableError
 from src.ops.operator_resolver import OperatorResolver
 
 operator_bp = Blueprint("operators", __name__)
@@ -216,7 +216,15 @@ def list_operators():
     store = _get_store()
     limit = min(int(request.args.get("limit", 100)), 500)
     include_rejected = request.args.get("include_rejected", "false").lower() == "true"
-    rows = store.fetch_all_operators(exclude_rejected=not include_rejected, limit=limit) if include_rejected else store.fetch_active_manual_operators(limit=limit)
+    try:
+        rows = store.fetch_all_operators(exclude_rejected=not include_rejected, limit=limit) if include_rejected else store.fetch_active_manual_operators(limit=limit)
+    except RegistryUnavailableError:
+        return jsonify({
+            "ok": False,
+            "operators": [],
+            "count": None,
+            "error": "REGISTRY_STORAGE_UNAVAILABLE",
+        }), 503
     return jsonify({
         "ok":          True,
         "operators":   rows,

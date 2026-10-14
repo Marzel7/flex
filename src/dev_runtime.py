@@ -43,9 +43,15 @@ os.environ.update(
         "OPERATIONS_MODE": os.environ.get("FLEX_DEV_OPERATIONS_MODE", "MONITOR"),
         "WT_PREWARM_START_DELAY_SECONDS": "86400",
         "DB_PATH": str((PROJECT_ROOT / "database" / "flex_complete_database.db").resolve()),
-        # Registry/read-model queries continue to use the production operations
-        # DB read-only.  Only the Monitor projection reads this DEV-owned DB.
-        "WT_OPS_DB_PATH": str((PROJECT_ROOT / "database" / "wt_ops_v2.db").resolve()),
+        # Registry/read-model queries continue to use the established
+        # operations authority read-only.  A clean runtime worktree does not
+        # contain that database, so retain an explicitly supplied binding
+        # instead of silently resolving a nonexistent worktree-relative path.
+        # Only the Monitor projection reads this DEV-owned DB.
+        "WT_OPS_DB_PATH": os.environ.get(
+            "WT_OPS_DB_PATH",
+            str((PROJECT_ROOT / "database" / "wt_ops_v2.db").resolve()),
+        ),
         "DEV_MONITOR_DB_PATH": str(DEV_MONITOR_DB),
         "MISSION_CONTROL_MONITOR_UI_DB_PATH": str(MISSION_CONTROL_MONITOR_DB),
         "OPERATION_MONITOR_QUEUE_PATH": str(DEV_ROOT / "monitor" / "queue"),

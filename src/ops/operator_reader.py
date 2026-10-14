@@ -45,6 +45,10 @@ _NEXUS_OPERATOR_ID = "bd7d7479-1454-5d41-9f68-115550348f3e"
 _NEXUS_DETECTOR_AUDIT = Path(__file__).resolve().parents[2] / "docs/audits/direct_10k_creator_provisioning_detector_results.v3.json"
 
 
+class RegistryUnavailableError(RuntimeError):
+    """The read-only registry authority could not be reached safely."""
+
+
 def _byzantine_dual_leg_evidence() -> dict[str, dict]:
     """Read the frozen, additive Byzantine role evidence; never infer a leg.
 
@@ -748,8 +752,8 @@ class OperatorReader:
                     reverse=True,
                 )
                 return result
-        except (sqlite3.Error, OSError):
-            return []
+        except (sqlite3.Error, OSError) as exc:
+            raise RegistryUnavailableError("Active operations registry storage is unavailable") from exc
 
     def fetch_operation_review_queue(self, *, limit: int = 50) -> list[dict]:
         """Return non-member walkback results that require analyst review.

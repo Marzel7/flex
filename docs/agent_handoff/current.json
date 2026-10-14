@@ -1,4 +1,23 @@
 {
+  "dev037_isolated_ui_candidate_qualification": {
+    "status": "PARTIAL_ASSEMBLED_BROWSER_RENDER_VERIFIED_RUNTIME_QUALIFICATION_HOLD",
+    "engineering_revision": "d79c0011208a285a089de7417289155877b58623",
+    "branch": "codex/dev037-pre-dev035-ui-candidate",
+    "worktree": "/private/tmp/flex-dev037-recovery-evidence-audit",
+    "assembly": "Base current qualified 43dfcddcacd8a0a6edaa9e24aaf1499a1ac655cc plus prior audit document. Added preserved shared operations_live_monitor.html (blob 22de309887bc381d855ed03e03c9e00b9ee3d7a1), operator_lifecycle_projection.py (57cca4dc3312533c03da76adc6899a78b8301e57), and operators_index.html (439fc19f25fd8e3347474008bcc9d6df59755cdd). Exact content hashes retained. Current wrapper/registry, Mission Control, sidebar, Operations OS and health backend unchanged. Not an exact timestamped historical rollback.",
+    "verification": "7 selected database-free shell/health-presentation tests passed; git diff --check passed and guarded source files matched 43df byte-for-byte. Browser on isolated port 8102 rendered registry/monitor shell, explicit Live Monitor data unavailable, navigation to Operations OS, API-live/detail-separate strip, UNKNOWN active operators and unavailable discovery/inbox. This was tests/dev037_browser_fixture.py, a render-only Flask harness denying ALL SQLite connections and non-loopback socket.connect, returning explicit 503 fixture responses for APIs. It did not import the real application, prove operator/token readback, or substitute for src.dev_runtime acceptance. Harness stopped after verification.",
+    "blockers": "Unchanged src.dev_runtime import opens the existing DEV monitor authority then runs ensure_runtime_schema and enable_forward_monitoring: these perform CREATE/INSERT policy/budget/forward-state writes. Thus unchanged actual-wrapper startup cannot meet the user's absolute zero database writes constraint. Separately, preserved shared operators template includes universal-monitor rendering expecting universal_monitor/live_tokens/recent_tokens response fields not provided by current operator_routes; blind file restoration is not compatible. Restored registry requests also lack current bounded request helper. Do not deploy this unqualified assembly.",
+    "research_evidence": "539-cohort journal SHA256 0aec34375865d5106341a3c03c9afa22f3cbf89e8c15f737cb57b5e6126a679d and 2860-candle journal 6ebea1e8c6fc84b466e6910f51a1c26e5ecf16964fe4a1728475dc60d22a4456 rechecked unchanged; no research or operational data copied, moved, or modified. No provider credentials or application startup used in fixture.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED_ONLY_RENDER_SUBSET_FULL_CANDIDATE_HOLD",
+    "runtime_state": "Persistent port-8100 service and production processes untouched. Managed worktree creation also completed late at /Users/kevinkeaveney/.codex/worktrees/dev037-pre-dev035-ui-candidate/flex; it is an unused 43df checkout, not the candidate source. Candidate remains in stated dedicated branch/worktree.",
+    "storage": "Only compact source/test files created, no database copies, raw payloads or unbounded retention path; browser fixture has no persistent output and cannot open databases.",
+    "provider_calls": 0,
+    "production_changes": 0,
+    "database_writes": 0,
+    "persistent_service_actions": 0,
+    "next_action": "Do not deploy. Obtain direction for a narrowly scoped zero-write qualification startup mode and UI/API contract alignment before real operator/token browser acceptance. Existing guards must not be bypassed; port 8100 remains unchanged."
+  },
   "dev037_48h_application_composition": {
     "status": "PARTIAL_PRESERVED_COMPONENTS_FOUND_EXACT_48H_COMPOSITION_UNPROVEN",
     "engineering_revision": "Historical shared HEAD 580508a70c80e7fc944e0069f85e67b851a117fa; current DEV 43dfcddcacd8a0a6edaa9e24aaf1499a1ac655cc. Read-only comparison only.",

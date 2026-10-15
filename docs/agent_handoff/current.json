@@ -1,4 +1,18 @@
 {
+  "dev037_preview_8103_availability_restoration": {
+    "status": "RESTORED_HTTP_AVAILABILITY; BROWSER_VISUAL_CHECK_BLOCKED_BY_TOOL_POLICY",
+    "engineering_revision": "cb882091bbd402ad826fc44cc82541a0e3d4b2ca; existing recovered preview source unchanged",
+    "runtime": "Existing preview initially port8103unbound. Relaunched same guarded src.dev_runtime manually on127.0.0.1:8103;PID64551,execsession64668,left running for user. No launchd/Supervisor edits,Production/8100/8102 signals or source changes. Existing untracked DBowner guard preserved.",
+    "configuration": "FLEX_DEV_RELOAD0,READ_ONLY_QUALIFICATION1,OPERATIONS_MODEOFF;state/private/tmp/flex-dev037-rich-preview.8Vl62t;DB_PATH/FLEX_DB_PATH existing disposable corefixture/private/tmp/flex-dev037-qualification.odp7tk/core-fixture.db;canonical absoluteWT_OPS_DB_PATH;MISSION_CONTROL_MONITOR_UI_DB_PATH/WATCHTOWER_MONITOR_UI_DB_PATH existing.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db;OPERATION_MONITOR_QUEUE_PATH/WATCHTOWER_MONITOR_QUEUE_PATH existing.dev_runtime/monitor/dev_005a/queue. No copied/new authority or startup policy writes;qualification forcesall SQLitequery_only/read-only. Networkdenial,HTTPmutationblock,workersuppression,reloader0,FDwatchdog preserved.",
+    "acceptance": "Escalated loopbackHTTPverification:healthz20068.984ms,system-health200105.602ms;dev-runtime/health reportsDEVELOPMENT/read-only,outbound_networkblocked,production_databasesread-only,expectedsource/state. lsofPID64551 LISTEN127.0.0.1:8103. Unprivileged sandboxcurlcouldnotreachlocalport;outside-sandboxverification succeeded. Existing startup nonfatalwarnings(operatorscommit_write_and_wait import,price_api absentworktreedatabase creation denied)not modified/investigated;do not claimall dataAPIsqualified by page200.",
+    "browser_limit": "CUA existing preview-tab binding rejected by browser securitypolicy. No alternatebrowser/surface/workaround attempted. HTTPpageavailabilityverified,visual/data-panel acceptance notclaimed. User can open http://localhost:8103/system-health.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS_EXISTING_PREVIEW_HTTP_AVAILABILITY_ONLY",
+    "provider_calls": 0,
+    "production_changes": 0,
+    "canonical_database_writes": 0,
+    "next_action": "User refresh/open http://localhost:8103/system-health. Leavepreview64551running;no furtherengineering or servicechanges."
+  },
   "dev039_single_request_latest_migration_version_check": {
     "status": "VERSION0_LIVE_COMPATIBILITY_VERIFIED; V1_FUNCTIONAL_ACCEPTANCE_PENDING_LIVE_EVIDENCE",
     "engineering_revision": "f52609c058be6f881f15d887771160c2b3881ebd; retained qualified listener unchanged",

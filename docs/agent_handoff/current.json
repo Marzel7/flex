@@ -1,4 +1,21 @@
 {
+  "dev037_rich_ui_readonly_adapter_alignment": {
+    "status": "QUALIFIED_NOT_DEPLOYED_READY_FOR_ISOLATED_BROWSER_ACCEPTANCE",
+    "engineering_revision": "d22ac6291a295460b4136e4ef73f9e4f4eaf12e6",
+    "branch": "codex/dev037-rich-source-composition",
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev037-pre-dev035-ui-candidate/flex",
+    "manifest": "docs/audits/dev037_rich_source_composition.v1.json in engineering revision; preserved inputs, adapted component hashes, direct dependencies, read-only authorities and acceptance limits recorded.",
+    "implementation": "Preserved rich sources from5c81 aligned with d10 explicit queue root/depth read adapter. Original MONITOR/INFRASTRUCTURE enablement, token selection, assignment, ordering/dedup, latest20 and price qualification unchanged. No worker import/constructor. Optional universal read failures now explicitly UNAVAILABLE with null evidence and reason, retaining successful rows/history. Rich UI uses3second abortable response/body deadlines, late-response guards and pagehide cleanup; removes endless payload polling, preserves WT/Byz sections through rich replacement, and does not default missing budget to success.",
+    "references": "Exact preserved inputs: rich template439fc19f25fd8e3347474008bcc9d6df59755cdd; API802976ef21a824a7bb980afff2968739185eee64; enrichmentf3bef3609cdef68272b7231855fd45cb648046dc. Adapterd10a690e5dc02c7a962bc14d299286d4eca57c56 and qualified DEV036 deadline contract; frozen6877f6e41477f7357463225d071f7a50f29c743e remains secondary reference, not deployment proof.",
+    "tests": "22 focused offline tests passed in4.93s. Complete Flask test-client retained API813.05ms:20rows (8WT,12Byz),20history,9populated opening/peak history,9Byzantine actual-entry enrichment rows. Original and adapted complete projection dicts identical with queue enabled/disabled. No acquisition worker imports. Node executes deadline/body-hang/supersession/pagehide tests and compiles inlineJS. Shell and read-only/network safety tests pass.",
+    "evidence_limits": "Selected8WT rows lack qualified opening evidence and correctly remain null; separate all-facts historical sample has14priced history records and canonical20mint enrichment sample17qualified openings/ATH. These are different populations; eligibility was not broadened to fill blanks. Distinct2Hpeak/ATH, historicalByz and WT LIVE/ENDED presentation retained. Actual browser-visible rendering and isolated runtime startup are pending; no full application/browser PASS claimed.",
+    "safety": "No candidate started/deployed, no service restarts, port8100/8102 unchanged. d10 safety wrapper/work registry, MissionControl,sidebar andOperationsOS bytes unchanged. SQLite qualification forces existing-file mode=ro/query_only and1second progress budget; network transports denied. Canonical DB writes0; providers0; production changes0; no acquisition stack, schema/index changes, copied DBs or raw payloads. Compact source/test/JSON outputs only, design bound1MB per new file, unbounded growth paths0.",
+    "research": "Fresh SHA256 checks unchanged for DEV019,539cohort,DEV028,DEV031,DEV032,DEV0332860candles and backtest summary. Paths/hashes retained in manifest/prior preservation record; no evidence copied, moved or modified.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Only source compatibility qualification authorized; user prohibits candidate startup/deployment in this task.",
+    "ready_for_isolated_browser_acceptance": true,
+    "next_action": "Separate authorization for isolated src.dev_runtime/browser acceptance with explicit canonical read-only OPS/core and DEV monitor/queue bindings; do not repoint8100 or replace8102 automatically. Stop without further engineering."
+  },
   "dev037_exact_rich_shared_source_preservation": {
     "status": "PARTIAL_EXACT_SOURCE_PRESERVED_COMPONENT_TESTS_PASS_FULL_API_HOLD",
     "engineering_revision": "5c81ed8f30ea111f0db55e0ff650a303c776a462",

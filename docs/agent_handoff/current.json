@@ -1,4 +1,27 @@
 {
+  "dev039_specific_9le_watchtower_investigation": {
+    "status": "INSUFFICIENT_EVIDENCE_TOKEN_NOT_FOUND_IN_CHECKED_RETAINED_AUTHORITIES",
+    "engineering_revision": "a0bc06004f2ef545f72c4f8b1a9939f6387c2ada unchanged DEV039 audit; no implementation",
+    "token_mint": "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump",
+    "treasury": "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe",
+    "exact_operational_lookups": "CanonicalOPS exactmint:wt_walkback_queue,wt_watchtower_launches,operator_launch_membership,wt_attribution_outcomes,wt_watchtower_promotion_outcomes,wt_provisioning_sessions(source_mint),wt_provisioning_wallets,wt_walkback_edge_candidates,wt_launch_audit,operator_launch_assignment_history all returned0. No queue,classification,admission or membership decision recovered; do not inventrejection.",
+    "exact_core_lookups": "Canonicalcore exactmint:birth_persist_queue,migration_persist_queue,migration_walkback_handoff,token_analysis,migrated_tokens,token_metadata,tracked_tokens returned0. Token_analysis is listener birth persistence target confirmed by existing drain_birth_persist_queue source. Schema-only absent guessedtablesnotcountedasadditionalcoverage. wt_creator_birth_launch uses token_mint without mintindex; no unbounded scan executed. webhook rawpayload/inboxmint_hint notscanned. No provideracquisition.",
+    "artifact_check": "Exactmint rg bounded10MiB textfiles inexistingdocs/audits,docs/design,artifacts completedwithnomatch. Exactrootreview retained evidence_mints/evidence_sigs didnotcontain target; evidence_json/notesempty. Not claim universalabsencefromallarchives or deletedrecords.",
+    "launch_and_route": "Launch timestamp,creator,CREATEsignature,fundingtransaction/mechanism/slots,SubProvider,selectedFundingAccount,fanout and ancestry UNAVAILABLE for exacttarget fromcheckedretainedauthorities. Userprovided treasuryassociation unverified for thismint. No inferencefromamounts or historicalrootassociation.",
+    "treasury_authority": "Currentconfirmedtable exactrootabsent; reviewPENDING_REVIEW detected_viatopology_cohort_qualified,detected_at1787011860,last_walkback_at1790782961,no reviewed_at. Existing131canonicalmembers withthisqueueroot preserved. Current _is_known_treasury testsconfirmedtablepresence,so thisroot alonewouldnotqualifythere. Pendingdoesnotautomaticallyrevoke historicalacceptance; no registrychangehistory toprovewhenthatstatestarted. Cache/knownSubProvider paths can historicallyacceptwithouta presentrootrow; no originalbranchtraceasserted.",
+    "historical_controls": [
+      {"mint":"5GWVzRPoYSxsaN18HEjTUCpMxfz2tDs4o85rN1cFpump","assigned_at":1791086010,"subprovider":"HTKrrWnPGfikqyCYQwNxGcKxsJdiHk3tULUT2rUpssVb","creator":"47Jg28GmgoaxG2jRHAEdyHXmcAbYhkmeS992wkZ79pyB","wsol_signature":"4sniVWwN6eha8mNKjcvxqx4oVwGpg2C1jFrhXfVJFzEfR7xHKEiBWKpqSUYCjGkxQrDfXFTunSmiUJiEmdC112zU","session":"treasury88WR,rootPLAIN_XFER600SOL1791080557,creatorWSOL0.203039SOL1791080643,matchingcreator/SubProvider;queueWATCHTOWER_CONFIRMED,admissionPROMOTED,membershippresent;selectedFundingAccountrecordabsent"},
+      {"mint":"yDp9dCy1UrRTuwv4urMgkSUHNpw76UvyZHXLmPrpump","assigned_at":1790965787,"subprovider":"GrEBosrh357fiiJhETPc26G1m3HQLK7b9J4sNGcDRWGh","creator":"GxjSx294iLciwYu3NeCTKBahekfeVJ16SWrFPqaRkykC","wsol_signature":"5LdyWmnw1McdSCqkqBz34XiMDeaahY2pXUiAjMwRvFawBQuby1QQEqqsvoKP1VRo3uwujeJahhsg2ECDHopcGh12","session":"treasury88WR,rootPLAIN_XFER800SOL1790965649,creatorWSOL0.203039SOL1790965755,matchingroles;queueCONFIRMED,admissionPROMOTED,membershippresent;selectedFundingAccountrecordabsent"}
+    ],
+    "comparison_limit": "Historicalcontrolsproveacceptedstateandretainedsessionrole/mechanism,notfullfanout/selectedFundingAccountqualification. Theycannotfillmissingtargetroute. No newthresholdorqualificationcriteria introduced. Frozenknown-rootpredicateweaknesspreviouslyestablishedunchanged; no repeatbroaddetectorsourcecomparison.",
+    "first_failed_transition": "NOT ESTABLISHED. Earliestobservablegap isabsenceofexactmintintake/job/proofincheckedauthorities,not demonstratedadmissionfailure. No completedqualifyinglaunch independentlyestablished,so cannot labelQUALIFIED_LAUNCH_NOT_INGESTED or blamecurrenttreasurypendingstatecausally.",
+    "false_negative_verdict": "INSUFFICIENT_EVIDENCE; realregistry-versus-historicalacceptancemismatchnotedbutnotprovedtargetcause. No claimtokenisnon-Watchtower or neveringestedinallhistory.",
+    "minimum_safe_correction": "NONE justified. Need already-retained CREATE/funding signature,creatorortransaction-route artifactforthisexactmint toanchorlaunch/intakeverification. Do not autoapprove88WR,admittarget,changeadmissionoracquireproviderdatafromthisaudit.",
+    "runtime_deployment_required":false,
+    "runtime_deployment_reason":"Read-onlytoken-specificevidenceaudit.",
+    "safety":"Provider calls0;productionchanges0;DBwrites0;no source/service/registry/policy/UI changes,replay/backfill or evidence relocation. Canonicalmode=ro/query_only2seconddeadlines,smallidentityqueries/staticbirthpersistencereferenceandboundedartifactsearchonly. No DBcopies/rawpayloadretention;compactrequiredhandoffonly.",
+    "next_action":"STOP — requestexistingretainedCREATE/fundingreferenceorcreatorforthisexactmint; no correctionordeploymentauthorized."
+  },
   "dev039_completed_post_oct10_provisioning_candidate_search": {
     "status": "COMPLETE_EXACT_PREVIOUSLY_TIMED_OUT_SEARCH_ZERO_MATCHES",
     "engineering_revision": "a0bc06004f2ef545f72c4f8b1a9939f6387c2ada unchanged DEV039 audit; no implementation",

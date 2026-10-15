@@ -55,7 +55,14 @@ os.environ.update(
         ),
         "DEV_MONITOR_DB_PATH": str(DEV_MONITOR_DB),
         "MISSION_CONTROL_MONITOR_UI_DB_PATH": str(MISSION_CONTROL_MONITOR_DB),
-        "OPERATION_MONITOR_QUEUE_PATH": str(DEV_ROOT / "monitor" / "queue"),
+        # Qualification is observational: honor the explicitly verified queue
+        # authority without constructing it. Conflicting explicit bindings
+        # remain visible for the adapter's fail-closed validation.
+        "OPERATION_MONITOR_QUEUE_PATH": (
+            os.environ.get("OPERATION_MONITOR_QUEUE_PATH")
+            or os.environ.get("WATCHTOWER_MONITOR_QUEUE_PATH")
+            or str(DEV_ROOT / "monitor" / "queue")
+        ) if READ_ONLY_QUALIFICATION else str(DEV_ROOT / "monitor" / "queue"),
         "SQLITE_LIFECYCLE_LOG": str(DEV_ROOT / "logs" / "sqlite_lifecycle.jsonl"),
         "DB_CONNECTION_LIFECYCLE_LOG": str(DEV_ROOT / "logs" / "db_connection_lifecycle.jsonl"),
         "DB_WRITE_DIAGNOSTICS_PATH": str(DEV_ROOT / "logs" / "db_write_diagnostics.jsonl"),

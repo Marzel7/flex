@@ -254,6 +254,44 @@ vm.runInNewContext(HELPER,context);
     assert 'flex-monitor-ready' in source
 
 def test_safety_health_and_shell_bytes_preserved():
-    for path in ['src/dev_runtime.py','src/dev_work_registry.py','templates/system_health_dashboard.html',
+    for path in ['src/dev_work_registry.py','templates/system_health_dashboard.html',
                  'templates/partials/sidebar.html','templates/ops_shell_index.html']:
         assert (ROOT/path).read_bytes()==subprocess.check_output(['git','show','d10a690e:'+path],cwd=ROOT)
+
+@pytest.mark.parametrize('qualification', [False, True])
+@pytest.mark.parametrize('explicit', [None, '/incorrect/queue'])
+def test_wrapper_queue_binding_and_adapter_validation(monkeypatch, qualification, explicit):
+    from src.ops import operator_routes as routes
+    root=MONITOR.parent/'queue'
+    monkeypatch.setenv('WATCHTOWER_MONITOR_QUEUE_PATH',str(root))
+    if explicit:
+        monkeypatch.setenv('OPERATION_MONITOR_QUEUE_PATH',explicit)
+    else:
+        monkeypatch.delenv('OPERATION_MONITOR_QUEUE_PATH',raising=False)
+    tree=ast.parse((ROOT/'src/dev_runtime.py').read_text())
+    update=next(n.value for n in tree.body if isinstance(n,ast.Expr) and isinstance(n.value,ast.Call)
+                and isinstance(n.value.func,ast.Attribute) and n.value.func.attr=='update')
+    expression=next(value for key,value in zip(update.args[0].keys,update.args[0].values)
+                    if isinstance(key,ast.Constant) and key.value=='OPERATION_MONITOR_QUEUE_PATH')
+    import os
+    effective=eval(compile(ast.Expression(expression),'<wrapper-binding>','eval'),
+                   dict(os=os,READ_ONLY_QUALIFICATION=qualification,DEV_ROOT=Path('/disposable')))
+    expected=(explicit or str(root)) if qualification else '/disposable/monitor/queue'
+    assert effective==expected
+    monkeypatch.setenv('OPERATION_MONITOR_QUEUE_PATH',effective)
+    if qualification and explicit is None:
+        assert routes._monitor_queue_root()==root
+    else:
+        with pytest.raises(routes.MissionControlMonitorAuthorityError,match='MISMATCH'):
+            routes._monitor_queue_root()
+
+def test_only_wrapper_queue_configuration_changed():
+    before=ast.parse(subprocess.check_output(['git','show','d22ac629:src/dev_runtime.py'],cwd=ROOT,text=True))
+    after=ast.parse((ROOT/'src/dev_runtime.py').read_text())
+    def normalize(tree):
+        update=next(n.value for n in tree.body if isinstance(n,ast.Expr) and isinstance(n.value,ast.Call)
+                    and isinstance(n.value.func,ast.Attribute) and n.value.func.attr=='update')
+        index=next(i for i,key in enumerate(update.args[0].keys) if key.value=='OPERATION_MONITOR_QUEUE_PATH')
+        update.args[0].values[index]=ast.Constant('QUALIFIED_QUEUE_BINDING')
+        return ast.dump(tree)
+    assert normalize(before)==normalize(after)

@@ -1,0 +1,200 @@
+{
+  "schema": "DEV037_RICH_SHARED_COMPOSITION_V1",
+  "status": "PRESERVED_COMPONENTS_QUALIFIED_FULL_API_HOLD",
+  "base_revision": "d10a690e5dc02c7a962bc14d299286d4eca57c56",
+  "branch": "codex/dev037-rich-source-composition",
+  "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev037-pre-dev035-ui-candidate/flex",
+  "composition_revision": "Git commit containing this manifest; exact final SHA recorded in agent-handoff",
+  "objective": "Preserve identified exact shared files; qualify direct contracts without starting a runtime or adding acquisition infrastructure.",
+  "components": [
+    {
+      "path": "templates/operators_index.html",
+      "bytes": 43252,
+      "git_blob": "439fc19f25fd8e3347474008bcc9d6df59755cdd",
+      "sha256": "1668397f6369385a5804651de5b542817e2bbb6d385507e94dee95e925f660b5",
+      "provenance": "Exact blob preserved in d79c0011208a285a089de7417289155877b58623; original shared modified template."
+    },
+    {
+      "path": "src/ops/operator_routes.py",
+      "bytes": 77432,
+      "git_blob": "802976ef21a824a7bb980afff2968739185eee64",
+      "sha256": "6b72ac070b7f1e336e169eace433501b0f98c14d555203bf739b53b33c2345f2",
+      "provenance": "Exact verified shared file; earlier committed origin not proven. This preservation commit makes the bytes attributable, not a claim of exact historical runtime identity."
+    },
+    {
+      "path": "src/ops/watchtower_dev013_ui_projection.py",
+      "bytes": 6160,
+      "git_blob": "f3bef3609cdef68272b7231855fd45cb648046dc",
+      "sha256": "7fadf3c853e9664c61bae240a194999af5dc7528c98ca56b8f8710e8d5eeb955",
+      "provenance": "Exact verified shared file; earlier committed origin not proven. This preservation commit makes the bytes attributable, not a claim of exact historical runtime identity."
+    },
+    {
+      "path": "src/ops/operation_monitor_capabilities.py",
+      "bytes": 4069,
+      "git_blob": "fb8cecf132783ce06238a1b032887665f9bfb1da",
+      "sha256": "90de1007e459460970d55973e5d12542448d071eda634a504eb014c6e167ec05",
+      "provenance": "Exact committed component from cd459a99017f4495188c875af710bde115038137; direct read-model dependency only."
+    },
+    {
+      "path": "docs/operations/operation_monitor_capabilities.v1.json",
+      "bytes": 1230,
+      "git_blob": "51a4d27862d5f1c53acb81d32c05941954b62d60",
+      "sha256": "a277943157f548c8ecd2bc8fe8439010ee874b2a0c10e1ed0302059e82e90769",
+      "provenance": "Exact committed component from cd459a99017f4495188c875af710bde115038137; direct read-model dependency only."
+    }
+  ],
+  "direct_import_inventory": [
+    {
+      "scope": "top_level",
+      "module": "src.ops.operator_model",
+      "symbols": [
+        "EVIDENCE_CATALOGUE",
+        "OPERATOR_STATES"
+      ],
+      "candidate_present": true
+    },
+    {
+      "scope": "top_level",
+      "module": "src.ops.operator_reader",
+      "symbols": [
+        "OperatorReader"
+      ],
+      "candidate_present": true
+    },
+    {
+      "scope": "top_level",
+      "module": "src.ops.operator_resolver",
+      "symbols": [
+        "OperatorResolver"
+      ],
+      "candidate_present": true
+    },
+    {
+      "scope": "_monitor_live_projection",
+      "module": "src.core.db",
+      "symbols": [
+        "OPS_DB_PATH"
+      ],
+      "candidate_present": true
+    },
+    {
+      "scope": "_monitor_live_projection",
+      "module": "src.ops.operation_monitor_capabilities",
+      "symbols": [
+        "monitor_capable_operations"
+      ],
+      "candidate_present": false
+    },
+    {
+      "scope": "_monitor_live_projection",
+      "module": "src.ops.operation_monitor_worker",
+      "symbols": [
+        "production_queue"
+      ],
+      "candidate_present": false
+    },
+    {
+      "scope": "_monitor_live_projection",
+      "module": "src.core.db",
+      "symbols": [
+        "DB_PATH"
+      ],
+      "candidate_present": true
+    },
+    {
+      "scope": "_monitor_live_projection",
+      "module": "src.core.db",
+      "symbols": [
+        "DB_PATH"
+      ],
+      "candidate_present": true
+    },
+    {
+      "scope": "_monitor_live_projection",
+      "module": "src.ops.watchtower_dev013_ui_projection",
+      "symbols": [
+        "dev013_watchtower_ui_facts"
+      ],
+      "candidate_present": false
+    },
+    {
+      "scope": "_get_store",
+      "module": "src.core.db",
+      "symbols": [
+        "OPS_DB_PATH"
+      ],
+      "candidate_present": true
+    }
+  ],
+  "dependency_resolution": {
+    "watchtower_enrichment": "Exact specified module preserved.",
+    "monitor_capability": "Exact committed module and required declaration JSON preserved.",
+    "worker_queue": "UNRESOLVED: original full projection imports operation_monitor_worker.production_queue. No worker or its dependencies copied/imported.",
+    "base_readers": "Retained d10 OperatorReader, model, resolver and identity framework import successfully; full request execution not qualified.",
+    "other_direct_contracts": [
+      "base_shell.html/static CSS and sidebar",
+      "operation_monitor_capabilities.v1.json",
+      "monitor facts/observations and byzantine_actual_entry_24h_ath_facts",
+      "canonical operation_monitor_entry_provenance and DEV013 lifecycle tables",
+      "optional docs/audits/dev013_watchtower_recent50_adaptive_lifecycle_pilot.v1.json (not copied)",
+      "core metadata_cache for selected token labels",
+      "canonical registry/membership for selected active operators",
+      "universal_monitor_global_work/ownership/adoptions/price_facts/budget read schema"
+    ]
+  },
+  "authorities": {
+    "monitor": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db via MISSION_CONTROL_MONITOR_UI_DB_PATH; mode=ro/query_only",
+    "ops": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db; registry/enrichment only, read-only",
+    "metadata": "Canonical core metadata_cache is required for historical names; no binding changed and no core DB copied.",
+    "queue": "Existing queue read authority required by original worker-dependent read; not instantiated.",
+    "research": "Existing DEV019–DEV033 journals remain independent and unchanged."
+  },
+  "compatibility": {
+    "top_level_import": "PASS actual API/enrichment imports without worker import.",
+    "history": "PASS actual retained rows yield latest20, deterministic timestamp/mint descending, unique identities; 14 opening/peak/multiple/time-to-peak values, zero current values in historical rows.",
+    "watchtower": "PASS bounded read of20 actual canonical retained mints:17 qualified openings and17 ATH values. Renderer LIVE/ENDED contract preserved; full endpoint not accepted.",
+    "byzantine": "PASS preserved renderer includes LIVE/historical and distinct2H peak/ATH; existing monitor evidence has9 actual-entry/ATH facts with both fields populated. Full data path not accepted.",
+    "missing_price": "PASS missing opening/current/peak/multiple remains null; no price fabricated.",
+    "identity": "Preserved operation_summaries explicitly selectByzantine/Watchtower/Nexus; historicalDeep evidence untouched. Full endpoint presentation not runtime-verified.",
+    "renderer": "PASS Flask/Jinja render, no app server started. Contains screenshot-required live/history/cadence and operation views.",
+    "safety": "Base d10 dev_runtime, health, sidebar and OperationsOS byte-unchanged. Tests patch SQLite to mode=ro/query_only with1s progress budget and deny network; no provider/acquisition worker imports or DB mutations.",
+    "remaining_gaps": [
+      "Original full projection requires unavailable acquisition-worker queue adapter. Must qualify only existing preserved read-only adapter compatibility separately; do not copy acquisition stack automatically.",
+      "Exact rich template has no AbortController/deadline and polls for absent universal payload indefinitely. Original bytes intentionally preserved; no compatibility rewrite authorized/performed here.",
+      "Full endpoint schema unavailable/error semantics not accepted: optional universal SQL errors currently become empty work/price arrays and template defaults can display zero counters.",
+      "Canonical metadata and optional lifecycle-pilot bindings have not been qualified for a future runtime.",
+      "No browser/runtime acceptance; no claim that complete application is ready."
+    ]
+  },
+  "tests": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python -m pytest -p no:cacheprovider tests/test_dev037_rich_source_composition.py -q",
+    "result": "7 passed in0.46s",
+    "evidence": "Actual retained monitor rows and canonical enrichment accessed read-only; not synthetic rendering alone.",
+    "writes": 0,
+    "provider_calls": 0
+  },
+  "research_hashes": {
+    "dev019": "098ad24ec546c0c726afe2b8a653dabbc6e01decd8e3e286a86a88ae3414c394",
+    "cohort539": "0aec34375865d5106341a3c03c9afa22f3cbf89e8c15f737cb57b5e6126a679d",
+    "dev028": "ee55454f32d4487595c5aba780291babfcfc447b970442c42e45021ea4037f4a",
+    "dev031": "a07068aaee33de6e5e68c14ef413dea451c53cecf4bfe06ce80682487a9f017e",
+    "dev032": "9db2d3cc65cd3863365a93c428aedb1514c3ad7652acc1eeaf9d2ab1ddce0f94",
+    "dev033_candles2860": "6ebea1e8c6fc84b466e6910f51a1c26e5ecf16964fe4a1728475dc60d22a4456",
+    "backtest": "8bdac654215bfa304162c567acd7bece4409a0c1512741c62c12318261166eea",
+    "retention": "Fresh rechecks unchanged; local temporary primary journal risks remain; no evidence copied/moved."
+  },
+  "source_vs_runtime": "Durable source preservation, not qualified recovery candidate. Original shared files and both running runtimes unchanged.",
+  "runtime_deployment_required": false,
+  "runtime_deployment_reason": "Preservation and offline tests only; no runtime started; full composition remains HOLD.",
+  "ready_for_isolated_runtime_acceptance": false,
+  "production_changes": 0,
+  "provider_calls": 0,
+  "database_writes": 0,
+  "storage": {
+    "max_new_file_bytes": 1000000,
+    "raw_retention": false,
+    "unbounded_growth_paths": 0,
+    "notes": "Only compact source, test and manifest files; no database clone or new runtime writer."
+  },
+  "next_action": "STOP at source qualification. Separate authorization is needed for minimal preserved read-only queue-adapter alignment and deadline/unavailable handling; do not start this snapshot."
+}

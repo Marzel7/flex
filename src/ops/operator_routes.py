@@ -24,173 +24,278 @@ from src.ops.operator_model import (
     EVIDENCE_CATALOGUE,
     OPERATOR_STATES,
 )
-from src.ops.operator_reader import OperatorReader, RegistryUnavailableError
+from src.ops.operator_reader import OperatorReader
 from src.ops.operator_resolver import OperatorResolver
 
 operator_bp = Blueprint("operators", __name__)
 
 
-
-_MONITOR_QUEUE_STATES = ("pending", "retry", "processing", "dead_letter")
-
-class MonitorStoreUnavailable(RuntimeError):
-    """The explicitly configured monitor projection store is unsafe to read."""
+class MissionControlMonitorAuthorityError(RuntimeError):
+    """Mission Control cannot safely open its configured Monitor authority."""
 
 
-def _monitor_store_connection() -> sqlite3.Connection:
-    """Open the dedicated monitor store read-only; never fall back to OPS_DB_PATH."""
-    configured = os.getenv("WATCHTOWER_MONITOR_UI_DB_PATH", "").strip()
-    if not configured:
-        raise MonitorStoreUnavailable("WATCHTOWER_MONITOR_UI_DB_PATH_REQUIRED")
-    path = Path(configured).expanduser()
-    if not path.is_file():
-        raise MonitorStoreUnavailable("WATCHTOWER_MONITOR_UI_DB_PATH_UNAVAILABLE")
-    conn = None
-    try:
-        conn = sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True)
-        conn.row_factory = sqlite3.Row
-        tables = {str(row[0]) for row in conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'"
-        )}
-        required = {"operation_monitor_facts", "operation_monitor_observations"}
-        if not required.issubset(tables):
-            raise MonitorStoreUnavailable("WATCHTOWER_MONITOR_UI_DB_SCHEMA_INVALID")
-        fact_columns = {str(row[1]) for row in conn.execute("PRAGMA table_info(operation_monitor_facts)")}
-        if not {"operation_id", "mint", "monitor_state", "next_observation_at", "assignment_timestamp", "provenance_digest"}.issubset(fact_columns):
-            raise MonitorStoreUnavailable("WATCHTOWER_MONITOR_UI_DB_SCHEMA_INVALID")
-        observation_columns = {str(row[1]) for row in conn.execute("PRAGMA table_info(operation_monitor_observations)")}
-        if not {"operation_id", "mint", "observation_timestamp", "mc_usd", "resolution", "high_mc_usd", "provenance_digest"}.issubset(observation_columns):
-            raise MonitorStoreUnavailable("WATCHTOWER_MONITOR_UI_DB_SCHEMA_INVALID")
-        return conn
-    except MonitorStoreUnavailable:
-        if conn is not None:
-            conn.close()
-        raise
-    except sqlite3.Error as exc:
-        if conn is not None:
-            conn.close()
-        raise MonitorStoreUnavailable("WATCHTOWER_MONITOR_UI_DB_UNREADABLE") from exc
+RECENT_TOKEN_LIMIT = 20
+RECENT_TOKEN_SORT = "CREATE_OR_ASSIGNMENT_TIMESTAMP_DESC"
+MONITOR_UI_FACT_LIMIT = RECENT_TOKEN_LIMIT
 
 
-def _monitor_queue_root() -> Path:
-    """Return the explicitly bound monitor queue root without constructing it.
-
-    The Watchtower projection must use the same durable queue authority as the
-    monitor worker.  It must never substitute the generic operations queue or
-    call a queue constructor, either of which could mask a configuration
-    mismatch or create state during a read-only API request.
-    """
-    configured = os.getenv("WATCHTOWER_MONITOR_QUEUE_PATH", "").strip()
-    if not configured:
-        raise MonitorStoreUnavailable("WATCHTOWER_MONITOR_QUEUE_PATH_REQUIRED")
-    root = Path(configured).expanduser()
-    if not root.is_dir():
-        raise MonitorStoreUnavailable("WATCHTOWER_MONITOR_QUEUE_PATH_UNAVAILABLE")
-    if any(not (root / state).is_dir() for state in _MONITOR_QUEUE_STATES):
-        raise MonitorStoreUnavailable("WATCHTOWER_MONITOR_QUEUE_PATH_INVALID")
-    return root
-
-
-def _monitor_queue_depth(root: Path) -> dict[str, int]:
-    """Count only existing compact queue messages; no queue mutation occurs."""
-    return {
-        state: sum(1 for path in (root / state).glob("*.json") if path.is_file())
-        for state in _MONITOR_QUEUE_STATES
-    }
-
-
-def _early_minimum_projection(mint: str) -> dict:
-    """Read only the explicit sidecar authority; canonical monitor DB is never a fallback."""
-    configured = os.getenv("WATCHTOWER_EARLY_MINIMUM_EVIDENCE_DB_PATH", "").strip()
-    if not configured:
-        return {"evidence_status": "UNAVAILABLE_NOT_CONFIGURED", "windows": {}}
-    from src.ops.watchtower_early_minimum_tracking import read_projection
-    from src.ops.watchtower_observed_minimum_store import ObservedMinimumEvidenceStore, EvidenceStoreLimitError
-    try:
-        rows = read_projection(store=ObservedMinimumEvidenceStore(configured), mint=mint)
-    except (OSError, ValueError, EvidenceStoreLimitError) as exc:
-        raise MonitorStoreUnavailable("WATCHTOWER_EARLY_MINIMUM_EVIDENCE_UNREADABLE") from exc
-    return {"evidence_status": "OBSERVED_LOWER_BOUND" if rows else "NOT_OBSERVED", "windows": {str(key): value for key, value in rows.items()}}
-
-
-def _early_minimum_research_projection() -> dict:
-    """The pilot is display-only research, never an evidence-store fallback."""
-    from src.ops.watchtower_early_minimum_research import projection
-    configured = os.getenv("WATCHTOWER_EARLY_MINIMUM_RESEARCH_PILOT_PATH", "").strip()
-    expected_sha256 = os.getenv("WATCHTOWER_EARLY_MINIMUM_RESEARCH_PILOT_SHA256", "").strip() or None
-    try:
-        return projection(configured, expected_sha256=expected_sha256) if configured else projection(expected_sha256=expected_sha256)
-    except (OSError, ValueError, json.JSONDecodeError) as exc:
-        raise MonitorStoreUnavailable("WATCHTOWER_EARLY_MINIMUM_RESEARCH_UNREADABLE") from exc
-
-
-def _watchtower_display_fields(row: dict) -> dict:
-    """Derive display-only lifecycle semantics from persisted monitor facts."""
-    if str(row.get("operation_id")).lower() != "watchtower":
-        return row
-    terminal = row.get("monitor_state") == "PRICE_MONITOR_COMPLETE_COLLAPSED"
-    sparse = row.get("final_ath_resolution") == "15m:SPARSE:OBSERVED_ONLY"
-    finalized = terminal and row.get("final_proven_ath_mc") is not None
-    observed_peak = row.get("retained_monitor_peak_mc_usd") or row.get("running_peak_mc_usd")
-    row["coverage_class"] = "SPARSE" if sparse else ("COMPLETE" if finalized else ("OBSERVED_LOWER_BOUND" if terminal and observed_peak is not None else None))
-    row["terminal_metric_exactness"] = "OBSERVED_ONLY" if sparse else ("COMPLETE" if finalized else ("OBSERVED_LOWER_BOUND" if terminal and observed_peak is not None else None))
-    row["history_visible"] = bool(finalized)
-    row["lifecycle_class"] = (
-        "TERMINAL_SPARSE_OBSERVED" if sparse else
-        "TERMINAL_COMPLETE" if finalized else
-        "TERMINAL_OBSERVED_LOWER_BOUND" if terminal and observed_peak is not None else
-        "TERMINAL_PENDING_RECONSTRUCTION" if terminal else
-        "LIVE" if row.get("monitor_state") == "MONITORING_ACTIVE" else
-        "WAITING_FOR_ENTRY_REFERENCE" if row.get("entry_status") == "WAITING_FOR_ENTRY_REFERENCE" else
-        str(row.get("monitor_state") or "UNKNOWN")
+def _authoritative_live(row: dict, *, now: int | None = None) -> bool:
+    """Apply the universal active-monitor horizon from retained facts only."""
+    now = int(time.time()) if now is None else int(now)
+    entry_timestamp = row.get("entry_timestamp")
+    qualified_opening = (
+        row.get("entry_mc_usd") is not None
+        and (
+            str(row.get("entry_status") or "") == "QUALIFIED"
+            or str(row.get("entry_exactness") or "") == "FIRST_AVAILABLE_SLOT"
+            or bool(row.get("byzantine_actual_entry_enrichment"))
+        )
     )
-    return row
+    terminal = (
+        "COMPLETE" in str(row.get("monitor_state") or "")
+        or str(row.get("watchtower_ui_state") or "") == "ENDED"
+        or str(row.get("byzantine_ui_state") or "") == "ENDED"
+        or str(row.get("lifecycle_status") or "") == "QUALIFIED_TERMINAL"
+    )
+    return (
+        qualified_opening
+        and isinstance(entry_timestamp, int)
+        and now < entry_timestamp + 24 * 60 * 60
+        and not terminal
+        and str(row.get("monitor_state") or "") == "MONITORING_ACTIVE"
+    )
+
+
+def _recent_operation_tokens(rows: list[dict], *, limit: int = RECENT_TOKEN_LIMIT,
+                             exclude_live: bool = False, now: int | None = None) -> list[dict]:
+    """Return display-ready retained facts without deriving financial values.
+
+    This deliberately consumes the established read projection.  It does not
+    query a provider, calculate a multiple, or promote a bounded peak to ATH.
+    """
+    def timestamp(row: dict) -> int:
+        return int(row.get("assignment_timestamp") or row.get("entry_timestamp") or 0)
+
+    def lifecycle(row: dict) -> str:
+        state = str(row.get("monitor_state") or "NOT_MONITORED")
+        if state == "MONITORING_ACTIVE":
+            return "MONITORING"
+        if "WAITING" in state:
+            return "OPENING"
+        if "COMPLETE" in state:
+            return "24H COMPLETE" if "TERMINAL" not in state else "ENDED"
+        if state == "NOT_MONITORED":
+            return "HISTORICAL" if row.get("entry_mc_usd") is not None else "ENTRY MISSING"
+        return state.replace("_", " ")
+
+    projection_now = int(time.time()) if now is None else int(now)
+
+    def peak(row: dict) -> tuple[object, str, object, object, str]:
+        if row.get("watchtower_historical_enrichment") and row.get("ath_mc_usd") is not None:
+            return (row.get("ath_mc_usd"), "QUALIFIED ATH", row.get("max_multiple"),
+                    row.get("time_to_ath_seconds"), "First Available · retained lifecycle")
+        if row.get("byzantine_actual_entry_enrichment") and row.get("ath_mc_usd") is not None:
+            return (row.get("ath_mc_usd"), "QUALIFIED ATH", row.get("max_multiple"),
+                    row.get("time_to_ath_seconds"), "Actual Entry · retained lifecycle")
+        if row.get("final_proven_ath_mc") is not None:
+            return (row.get("final_proven_ath_mc"), "FINAL ATH", row.get("final_ath_multiple"),
+                    row.get("time_to_ath_seconds"), "Retained lifecycle")
+        entry_timestamp = row.get("entry_timestamp")
+        peak_timestamp = row.get("running_peak_timestamp")
+        time_to_peak = None
+        if entry_timestamp is not None and peak_timestamp is not None:
+            time_to_peak = max(0, int(peak_timestamp) - int(entry_timestamp))
+        peak_scope = "RUNNING PEAK" if _authoritative_live(row, now=projection_now) else "RETAINED PEAK"
+        return (row.get("running_peak_mc_usd"), peak_scope if row.get("running_peak_mc_usd") is not None else "—",
+                row.get("running_peak_multiple"), time_to_peak,
+                "Universal live" if row.get("monitor_state") == "MONITORING_ACTIVE" else "Retained reference")
+
+    selected = []
+    seen_mints = set()
+    for row in sorted(rows, key=lambda row: (timestamp(row), str(row.get("mint") or "")), reverse=True):
+        mint = str(row.get("mint") or "")
+        if not mint or mint in seen_mints or (exclude_live and _authoritative_live(row, now=projection_now)):
+            continue
+        seen_mints.add(mint)
+        selected.append(row)
+        if len(selected) == limit:
+            break
+    result = []
+    for row in selected:
+        peak_mc, peak_scope, multiple, time_to_peak, evidence = peak(row)
+        if peak_mc is None:
+            peak_scope = "—"
+        result.append({
+            "mint": row.get("mint"),
+            "token_symbol": row.get("token_symbol"),
+            "token_name": row.get("token_name"),
+            "operation_id": row.get("operation_id"),
+            "operation_display_name": row.get("operation_display_name") or row.get("operation_id"),
+            "assignment_timestamp": timestamp(row),
+            "age_seconds": row.get("age_seconds"),
+            "entry_mc_usd": row.get("entry_mc_usd"),
+            # Entry provenance is a first-class read fact.  In particular a
+            # migration-second fallback must never be rendered as the strict
+            # +1 policy merely because both produce a numeric MC reference.
+            "entry_method": row.get("entry_method"),
+            "entry_exactness": row.get("entry_exactness"),
+            # A current value is shown only from a retained active observation.
+            "current_mc_usd": row.get("latest_mc_usd") if row.get("monitor_state") == "MONITORING_ACTIVE" else None,
+            "peak_mc_usd": peak_mc,
+            "peak_scope": peak_scope,
+            "max_multiple": multiple,
+            "time_to_peak_seconds": time_to_peak,
+            "lifecycle": lifecycle(row),
+            "evidence": evidence if row.get("entry_mc_usd") is not None else "Entry unavailable",
+            "freshness_seconds": row.get("freshness_seconds"),
+            "next_check_at": row.get("next_observation_at"),
+            "authoritative_lifecycle_state": row.get("watchtower_ui_state") or row.get("byzantine_ui_state") or row.get("monitor_state"),
+        })
+    return result
+
+
+def _mission_control_monitor_read_connection() -> sqlite3.Connection:
+    """Open only the explicit Mission Control authority in SQLite read-only mode."""
+    configured_path = os.environ.get("MISSION_CONTROL_MONITOR_UI_DB_PATH")
+    if not configured_path:
+        raise MissionControlMonitorAuthorityError("MISSION_CONTROL_MONITOR_UI_DB_PATH is required")
+    try:
+        db_path = Path(configured_path).expanduser().resolve(strict=True)
+    except (OSError, RuntimeError) as exc:
+        raise MissionControlMonitorAuthorityError("configured Mission Control monitor database is unavailable") from exc
+    if not db_path.is_file() or not os.access(db_path, os.R_OK):
+        raise MissionControlMonitorAuthorityError("configured Mission Control monitor database is unreadable")
+    try:
+        conn = sqlite3.connect(f"{db_path.as_uri()}?mode=ro", uri=True)
+        required = {"operation_monitor_facts", "operation_monitor_observations"}
+        present = {row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        if not required.issubset(present):
+            conn.close()
+            raise MissionControlMonitorAuthorityError("configured Mission Control monitor database schema is incompatible")
+        return conn
+    except sqlite3.Error as exc:
+        raise MissionControlMonitorAuthorityError("configured Mission Control monitor database cannot be opened read-only") from exc
+
 
 
 def _monitor_live_projection() -> dict:
     """Read-only projection; it never constructs a queue or provider client."""
+    from src.core.db import OPS_DB_PATH
+    from src.ops.operation_monitor_capabilities import monitor_capable_operations
+    active = [row for row in _get_store().fetch_active_manual_operators(limit=200)
+              if row.get('qualification_category') != 'PROVISIONAL']
+    capable_operations = monitor_capable_operations(active)
+    monitor_by_operator = {
+        str(row['operator_id']): str(row['monitor_operation_id'])
+        for row in capable_operations
+    }
+    monitor_ids = set(monitor_by_operator.values())
+    operator_names = {
+        str(row['operator_id']): str(row.get('display_name') or row['operator_id'])
+        for row in active
+    }
     now = int(time.time()); rows = []
     storage_bytes = 0
-    conn = _monitor_store_connection()
-    lifecycle_jobs = {}
     try:
-        rows = [dict(r) for r in conn.execute("SELECT f.*,CASE WHEN EXISTS(SELECT 1 FROM operation_monitor_observations o WHERE o.operation_id=f.operation_id AND o.mint=f.mint AND o.high_mc_usd IS NOT NULL) THEN 'CANDLE_HIGH' WHEN EXISTS(SELECT 1 FROM operation_monitor_observations o WHERE o.operation_id=f.operation_id AND o.mint=f.mint) THEN 'CLOSE_ONLY_LOWER_BOUND' ELSE 'ENTRY_ONLY' END AS peak_exactness FROM operation_monitor_facts f WHERE lower(f.operation_id) IN ('watchtower','byzantine') ORDER BY CASE WHEN f.monitor_state LIKE 'MONITORING%' THEN 0 WHEN f.monitor_state LIKE 'WAITING%' THEN 1 ELSE 2 END,f.next_observation_at ASC,f.assignment_timestamp DESC")]
-        try:
-            for job in conn.execute("SELECT assignment_identity,mint,state,opening_json,peak_json,prepeak_json,postpeak_json FROM watchtower_price_lifecycle_jobs"):
-                lifecycle_jobs[str(job['mint'])] = {"assignment_identity":job['assignment_identity'],"status":job['state'],"opening":json.loads(job['opening_json']) if job['opening_json'] else None,"observed_peak":json.loads(job['peak_json']) if job['peak_json'] else None,"prepeak":json.loads(job['prepeak_json']) if job['prepeak_json'] else None,"postpeak":json.loads(job['postpeak_json']) if job['postpeak_json'] else None}
-        except (sqlite3.Error, ValueError, TypeError):
-            pass
-        # Compact logical accounting avoids reporting the whole shared DB file.
-        storage_bytes = int(conn.execute("SELECT COALESCE(SUM(LENGTH(operation_id)+LENGTH(mint)+LENGTH(provenance_digest)+160),0) FROM operation_monitor_facts").fetchone()[0] or 0)
-        try: storage_bytes += int(conn.execute("SELECT COALESCE(SUM(LENGTH(operation_id)+LENGTH(mint)+LENGTH(provenance_digest)+96),0) FROM operation_monitor_observations").fetchone()[0] or 0)
-        except sqlite3.Error: pass
-    except sqlite3.Error as exc:
-        raise MonitorStoreUnavailable("WATCHTOWER_MONITOR_UI_DB_UNREADABLE") from exc
-    finally:
+        conn = _mission_control_monitor_read_connection(); conn.row_factory = sqlite3.Row
+        if monitor_ids:
+            placeholders = ','.join('?' for _ in monitor_ids)
+            rows = [dict(r) for r in conn.execute(
+                f"SELECT f.* FROM operation_monitor_facts f WHERE f.operation_id IN ({placeholders}) "
+                "ORDER BY CASE WHEN f.monitor_state LIKE 'MONITORING%' THEN 0 "
+                "WHEN f.monitor_state LIKE 'WAITING%' THEN 1 ELSE 2 END,"
+                "f.next_observation_at ASC,f.assignment_timestamp DESC LIMIT ?",
+                (*sorted(monitor_ids), MONITOR_UI_FACT_LIMIT),
+            )]
+            # Observation evidence is deliberately evaluated only for the
+            # bounded UI identity set, never as a correlated whole-table pass.
+            for row in rows:
+                identity = (row['operation_id'], row['mint'])
+                has_high = conn.execute(
+                    "SELECT 1 FROM operation_monitor_observations "
+                    "WHERE operation_id=? AND mint=? AND high_mc_usd IS NOT NULL LIMIT 1",
+                    identity,
+                ).fetchone()
+                has_observation = has_high or conn.execute(
+                    "SELECT 1 FROM operation_monitor_observations "
+                    "WHERE operation_id=? AND mint=? LIMIT 1",
+                    identity,
+                ).fetchone()
+                row['peak_exactness'] = (
+                    'CANDLE_HIGH' if has_high else
+                    'CLOSE_ONLY_LOWER_BOUND' if has_observation else 'ENTRY_ONLY'
+                )
+        else:
+            rows = []
+        # Accurate logical totals require full-table scans.  The live UI must
+        # fail explicit rather than degrade request latency to derive them.
+        storage_bytes = None
         conn.close()
+    except MissionControlMonitorAuthorityError:
+        raise
+    except sqlite3.Error as exc:
+        raise MissionControlMonitorAuthorityError("configured Mission Control monitor database query failed") from exc
+    # DEV-only compact actual-trade evidence is additive to, and never replaces,
+    # the retained Scenario-D monitor fact.  Missing evidence leaves the legacy
+    # row untouched and no provider work occurs in this read projection.
+    if rows:
+        try:
+            evidence = _mission_control_monitor_read_connection(); evidence.row_factory = sqlite3.Row
+            present = evidence.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='byzantine_actual_entry_24h_ath_facts'").fetchone()
+            if present:
+                actual = {str(x['mint']): dict(x) for x in evidence.execute("SELECT * FROM byzantine_actual_entry_24h_ath_facts")}
+                for row in rows:
+                    fact = actual.get(str(row.get('mint')))
+                    if str(row.get('operation_id')).lower() == 'byzantine' and fact:
+                        row.update({'byzantine_actual_entry_enrichment': True, 'byzantine_actual_entry_provenance': fact['entry_provenance_version'],
+                                    'byzantine_actual_ath_provenance': fact['lifecycle_provenance_version'], 'actual_entry_signature': fact['actual_entry_signature'],
+                                    'actual_entry_slot': fact['actual_entry_slot'], 'actual_entry_timestamp': fact['actual_entry_timestamp'],
+                                    'entry_mc_usd': fact['entry_mc_usd'], 'ath_mc_usd': fact['ath_mc_usd'], 'ath_timestamp': fact['ath_timestamp'],
+                                    'max_multiple': fact['max_multiple'], 'time_to_ath_seconds': fact['time_to_ath_seconds'], 'ath_horizon': fact['horizon_capturing_ath']})
+            evidence.close()
+        except sqlite3.Error:
+            pass
+    # Monitor facts intentionally live in the operations database, while the
+    # listener-owned token metadata cache is in the primary database.  Enrich
+    # this read model only; missing metadata remains a mint fallback.
+    if rows:
+        try:
+            from src.core.db import DB_PATH
+            mints = sorted({str(row['mint']) for row in rows if row.get('mint')})
+            placeholders = ','.join('?' for _ in mints)
+            metadata = sqlite3.connect(str(DB_PATH)); metadata.row_factory = sqlite3.Row
+            names = {
+                row['mint']: (row['symbol'], row['name'])
+                for row in metadata.execute(
+                    f"SELECT mint, symbol, name FROM metadata_cache WHERE mint IN ({placeholders})",
+                    mints,
+                )
+            }
+            metadata.close()
+            for row in rows:
+                symbol, name = names.get(row['mint'], (None, None))
+                row['token_symbol'] = symbol or None
+                row['token_name'] = name or symbol or None
+        except sqlite3.Error:
+            pass
     # Queue-only assignments are live prospective state too.  This projection is
     # deliberately file/DB read-only: it does not construct a client, claim work,
     # or create placeholder fact rows.
-    queue_root = _monitor_queue_root()
-    queue_deadlines = {}
-    fact_keys = {(str(r['operation_id']).lower(), str(r['mint'])) for r in rows}
-    for state in _MONITOR_QUEUE_STATES:
-        for path in sorted((queue_root / state).glob('*.json')):
-            try:
-                payload = json.loads(path.read_text(encoding='utf-8'))
-                envelope = payload.get('envelope') or {}
-                operation_id = str(envelope.get('operation_id') or '').lower()
-                mint = str(envelope.get('mint') or '')
-                key = (operation_id, mint)
-                if operation_id not in {'watchtower', 'byzantine'} or not mint:
-                    continue
-                deadline = envelope.get('next_eligible_dispatch_at') or envelope.get('recovery_deadline_at') or envelope.get('backoff_until')
-                if key in fact_keys:
-                    if state in {'pending', 'processing', 'retry'} and deadline is not None:
-                        queue_deadlines[key] = {'next_check_at': int(deadline), 'next_check_state': 'DUE_NOW' if int(deadline) <= now else 'SCHEDULED'}
-                    continue
-                assignment = envelope.get('assignment') or {}
-                rows.append({
+    from src.ops.operation_monitor_worker import production_queue
+    q = production_queue().queue
+    if q.enabled:
+        fact_keys = {(str(r['operation_id']).lower(), str(r['mint'])) for r in rows}
+        for state in ('pending', 'retry', 'processing', 'dead_letter'):
+            for path in sorted((q.root / state).glob('*.json')):
+                try:
+                    payload = json.loads(path.read_text(encoding='utf-8'))
+                    envelope = payload.get('envelope') or {}
+                    operation_id = str(envelope.get('operation_id') or '').lower()
+                    mint = str(envelope.get('mint') or '')
+                    if operation_id not in monitor_ids or not mint or (operation_id, mint) in fact_keys:
+                        continue
+                    assignment = envelope.get('assignment') or {}
+                    rows.append({
                         'operation_id': operation_id, 'mint': mint,
                         'cohort_class': envelope.get('cohort', 'PROSPECTIVE_MONITOR_COHORT'),
                         'assignment_timestamp': assignment.get('assigned_at'),
@@ -207,32 +312,127 @@ def _monitor_live_projection() -> dict:
                         'evidence_status': envelope.get('entry_evaluation_result', 'WAITING_FOR_ENTRY_REFERENCE'),
                         'provenance_digest': envelope.get('assignment_digest'),
                         'queue_state': state, 'queue_message_id': payload.get('message_id'),
-                })
-                fact_keys.add((operation_id, mint))
-            except (OSError, ValueError, TypeError):
-                continue
-    for row in rows:
-        scheduled = queue_deadlines.get((str(row.get('operation_id') or '').lower(), str(row.get('mint') or '')))
-        if scheduled:
-            row.update(scheduled)
-        elif row.get('monitor_state') == 'PRICE_MONITOR_COMPLETE_COLLAPSED':
-            row['next_check_at'] = None
-            row['next_check_state'] = 'NO_FURTHER_CHECK'
-        else:
-            due = row.get('next_observation_at')
-            row['next_check_at'] = due
-            row['next_check_state'] = 'DUE_NOW' if due is not None and int(due) <= now else 'SCHEDULED'
-        # Optional sidecar values remain distinct from latest_mc_usd, which is
-        # the latest retained OHLCV close. This read path performs no provider work.
+                    })
+                    fact_keys.add((operation_id, mint))
+                except (OSError, ValueError, TypeError):
+                    continue
+    # The table is a recent assigned-launch view, not a historical Monitor-fact
+    # ledger.  Project only active registry operations that also declare a
+    # Monitor capability; registry-only operations remain visible in the
+    # registry but are never misrepresented as Monitor targets.
+    try:
+        recent = []
+        if monitor_by_operator:
+            placeholders = ','.join('?' for _ in monitor_by_operator)
+            with sqlite3.connect(str(OPS_DB_PATH)) as conn:
+                conn.row_factory = sqlite3.Row
+                recent = [dict(row) for row in conn.execute(
+                    f"SELECT mint,operator_id,assigned_at FROM operator_launch_membership "
+                    f"WHERE operator_id IN ({placeholders}) ORDER BY assigned_at DESC LIMIT {MONITOR_UI_FACT_LIMIT}",
+                    tuple(monitor_by_operator),
+                )]
+        facts = {(str(row.get('operation_id')).lower(), str(row.get('mint'))): row for row in rows}
+        projected = []
+        for assignment in recent:
+            display_name = operator_names[assignment['operator_id']]
+            monitor_id = monitor_by_operator.get(str(assignment['operator_id']))
+            fact = facts.get((monitor_id, assignment['mint']))
+            row = dict(fact) if fact else {
+                'mint': assignment['mint'], 'operation_id': monitor_id,
+                'cohort_class': 'ASSIGNED_OPERATION_LAUNCH',
+                'monitor_state': 'NOT_MONITORED', 'provider_call_count': 0,
+                'candles_retained': 0, 'entry_method': None,
+                'entry_timestamp': None, 'entry_mc_usd': None,
+                'latest_mc_usd': None, 'latest_mc_timestamp': None,
+                'current_multiple': None, 'running_peak_mc_usd': None,
+                'running_peak_multiple': None, 'drawdown_percent': None,
+                'last_observation_at': None, 'next_observation_at': None,
+            }
+            row['operation_id'] = monitor_id
+            row['operation_display_name'] = display_name
+            row['assignment_timestamp'] = assignment['assigned_at']
+            projected.append(row)
+        if recent:
+            # The recent-membership fallback is appropriate for generic
+            # operations, but Byzantine's DEV surface has an explicit frozen
+            # prospective Monitor authority.  Preserve those facts rather
+            # than replacing them with unrelated newer memberships that have
+            # no Monitor evidence.  This is read-model selection only.
+            byzantine_facts = [row for row in rows if str(row.get('operation_id')).lower() == 'byzantine']
+            rows = [row for row in projected if str(row.get('operation_id')).lower() != 'byzantine'] + byzantine_facts
+    except (sqlite3.Error, OSError, ValueError, KeyError):
+        # Keep the established Monitor projection if the registry read model is
+        # temporarily unavailable; this endpoint must remain observational.
+        pass
+    # All remaining enrichment is bounded to the existing UI population.
+    rows = rows[:MONITOR_UI_FACT_LIMIT]
+    # The recent membership projection may introduce mints that never had a
+    # monitor fact, so enrich labels after the projection as well.
+    if rows:
         try:
-            from src.ops.watchtower_current_mc_overlay import read_current_mc_quote_projection
-            quote = read_current_mc_quote_projection(os.getenv('WATCHTOWER_CURRENT_MC_QUOTE_DB_PATH'), now=now).get(str(row.get('mint')))
-        except (OSError, ValueError):
-            quote = None
-        row.update(quote or {'current_mc_quote_usd':None,'quote_fetched_at':None,'quote_last_trade_at':None,'quote_source':None,'quote_freshness':'UNAVAILABLE','quote_expires_at':None})
-        if str(row.get('operation_id')).lower() == 'watchtower':
-            row['early_minimum_evidence'] = _early_minimum_projection(str(row.get('mint') or ''))
-            row['lifecycle_processing'] = lifecycle_jobs.get(str(row.get('mint') or ''), {"status":"NOT_ENQUEUED"})
+            from src.core.db import DB_PATH
+            mints = sorted({str(row['mint']) for row in rows if row.get('mint')})
+            placeholders = ','.join('?' for _ in mints)
+            with sqlite3.connect(str(DB_PATH)) as metadata:
+                metadata.row_factory = sqlite3.Row
+                names = {row['mint']: (row['symbol'], row['name']) for row in metadata.execute(
+                    f"SELECT mint, symbol, name FROM metadata_cache WHERE mint IN ({placeholders})", mints)}
+            for row in rows:
+                symbol, name = names.get(row['mint'], (None, None))
+                row['token_symbol'] = symbol or row.get('token_symbol') or None
+                row['token_name'] = name or symbol or row.get('token_name') or None
+        except sqlite3.Error:
+            pass
+    # Read-only historical enrichment is limited to rows already selected and
+    # labelled as Watchtower by the Monitor authority.  It never changes
+    # membership, row order, monitor state, or any non-Watchtower row.
+    watchtower_mints = [str(row["mint"]) for row in rows if str(row.get("operation_id")).lower() == "watchtower"]
+    if watchtower_mints:
+        try:
+            from src.ops.watchtower_dev013_ui_projection import dev013_watchtower_ui_facts
+
+            evidence = sqlite3.connect(f"{Path(OPS_DB_PATH).resolve().as_uri()}?mode=ro", uri=True)
+            evidence.row_factory = sqlite3.Row
+            facts = dev013_watchtower_ui_facts(evidence, watchtower_mints)
+            evidence.close()
+            for row in rows:
+                if str(row.get("operation_id")).lower() != "watchtower":
+                    continue
+                fact = facts.get(str(row.get("mint"))) or {}
+                # Entry and lifecycle/peak facts are independent retained
+                # dimensions.  A qualified peak must never be hidden simply
+                # because this mint lacks a First Available entry record.
+                if not fact:
+                    continue
+                if fact.get("entry_quality") == "FIRST_AVAILABLE_SLOT":
+                    row["legacy_entry_mc_usd"] = row.get("entry_mc_usd")
+                if fact.get("entry_quality") == "FIRST_AVAILABLE_SLOT" or fact.get("ath_mc_usd") is not None or fact.get("max_multiple") is not None:
+                    row["watchtower_historical_enrichment"] = True
+                row.update(fact)
+        except (OSError, sqlite3.Error, ValueError):
+            # Optional historical evidence must leave the established live
+            # monitor projection untouched when it is unavailable.
+            pass
+    # Watchtower's user-facing lifecycle is deliberately independent of the
+    # worker's acquisition state.  A committed assignment is LIVE until its
+    # retained evidence proves the first terminal >=85% drawdown.  This is a
+    # read-model label only: membership, admission, queue, and monitor facts
+    # remain authoritative and unchanged.
+    for row in rows:
+        if str(row.get("operation_id")).lower() != "watchtower":
+            continue
+        row["watchtower_ui_state"] = (
+            "ENDED" if row.get("lifecycle_status") == "QUALIFIED_TERMINAL"
+            and row.get("terminal_reason") == "DRAWDOWN_85" else "LIVE"
+        )
+    for row in rows:
+        if str(row.get("operation_id")).lower() == "byzantine":
+            # Byzantine retains its own Scenario-D entry semantics and its
+            # monitor terminal state; never apply Watchtower's drawdown rule.
+            row["byzantine_ui_state"] = (
+                "ENDED" if row.get("monitor_state") == "PRICE_MONITOR_COMPLETE_TERMINAL" else "LIVE"
+            )
+    for row in rows:
         row['age_seconds'] = now - int(row['entry_timestamp'] or row['assignment_timestamp'] or now)
         row['freshness_seconds'] = now - int(row['last_observation_at'] or now)
         terminal = row.get('monitor_state') == 'PRICE_MONITOR_COMPLETE_COLLAPSED'
@@ -251,50 +451,140 @@ def _monitor_live_projection() -> dict:
             row['final_ath_status'] = 'RUNNING'
         else:
             row['final_ath_status'] = 'NOT_APPLICABLE'
-        _watchtower_display_fields(row)
-    # Optional immutable audit evidence is read only and deliberately remains
-    # nested under a distinct key; it never populates authoritative Entry fields.
-    audit_path = os.getenv('WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH', '').strip()
-    if audit_path:
-        try:
-            from src.ops.watchtower_offset_audit import product_projection
-            audit = product_projection(audit_path)
-        except (OSError, ValueError):
-            audit = {}
-        for row in rows:
-            if str(row.get('operation_id')).lower() == 'watchtower' and row.get('mint') in audit:
-                row['opening_offset_audit'] = audit[row['mint']]
     ops = {}
-    for name in ('watchtower','byzantine'):
-        subset=[r for r in rows if str(r['operation_id']).lower()==name]
-        ops[name]={'active':sum(r['monitor_state']=='MONITORING_ACTIVE' for r in subset),'waiting':sum('WAITING' in r['monitor_state'] for r in subset),'completed':sum('COMPLETE' in r['monitor_state'] for r in subset),'failed':sum('FAIL' in r['monitor_state'] or 'INSUFFICIENT' in r['monitor_state'] for r in subset),'calls_today':sum(int(r.get('provider_call_count') or 0) for r in subset),'last_success':max((r.get('last_observation_at') or 0 for r in subset),default=None),'profile':('FIRST_FULL_POST_MIGRATION_SECOND_MC · >=85% running-peak drawdown' if name=='watchtower' else 'Scenario-D 12/13 · terminal rule unqualified')}
-    depth = _monitor_queue_depth(queue_root)
-    pending_paths = list((queue_root / 'pending').glob('*.json'))
+    for operation in capable_operations:
+        monitor_id = str(operation['monitor_operation_id'])
+        subset = [r for r in rows if str(r['operation_id']).lower() == monitor_id.lower()]
+        ops[monitor_id] = {
+            'display_name': operation.get('display_name') or monitor_id,
+            'active': sum(r['monitor_state'] == 'MONITORING_ACTIVE' for r in subset),
+            'waiting': sum('WAITING' in r['monitor_state'] for r in subset),
+            'completed': sum('COMPLETE' in r['monitor_state'] for r in subset),
+            'failed': sum('FAIL' in r['monitor_state'] or 'INSUFFICIENT' in r['monitor_state'] for r in subset),
+            'calls_today': sum(int(r.get('provider_call_count') or 0) for r in subset),
+            'last_success': max((r.get('last_observation_at') or 0 for r in subset), default=None),
+            'profile': operation.get('monitor_profile', 'GENERIC'),
+        }
+    depth = q.depth()
+    pending_paths = list((q.root / 'pending').glob('*.json')) if q.enabled else []
     oldest = min((now-int(p.stat().st_mtime) for p in pending_paths),default=None)
     last_success=max((r.get('last_observation_at') or 0 for r in rows),default=None)
     mode=os.getenv('OPERATIONS_MODE','OFF').upper()
-    return {'mode':mode,'now':now,'rows':rows,'operations':ops,'early_minimum_research':_early_minimum_research_projection(),'summary':{'active':sum(r['monitor_state']=='MONITORING_ACTIVE' for r in rows),'waiting':sum('WAITING' in r['monitor_state'] for r in rows),'backoff':sum('BACKOFF' in r['monitor_state'] for r in rows),'completed_today':sum('COMPLETE' in r['monitor_state'] and int(r.get('monitor_completed_at') or 0)>=now-86400 for r in rows),'failed':sum('FAIL' in r['monitor_state'] or 'INSUFFICIENT' in r['monitor_state'] for r in rows),'total':len(rows),'calls_today':sum(int(r.get('provider_call_count') or 0) for r in rows)},'storage':{'bytes':storage_bytes,'ceiling_bytes':10_000_000},'worker_health':{'status':'IDLE' if mode=='MONITOR' else 'STOPPED','last_heartbeat':None,'last_success':last_success,'last_error_class':None,'last_error_at':None},'queue_health':{'status':'BACKOFF' if depth.get('retry') else ('PENDING' if depth.get('pending') else 'IDLE'),'depth':sum(depth.values()),'pending':depth.get('pending',0),'claimed':depth.get('processing',0),'retry':depth.get('retry',0),'dead_letter':depth.get('dead_letter',0),'oldest_pending_age':oldest},'provider_health':{'status':'READY' if not depth.get('retry') else 'BACKOFF','last_success':last_success,'last_error_class':None,'backoff_until':None}}
+    # These are the four retained, independently reconciled historical ATH
+    # references.  They are deliberately a separate surface: none is in the
+    # frozen current Monitor population, and a 2H monitor peak must never be
+    # promoted to an ATH merely to fill this column.
+    historical_byzantine_ath = [
+        {'token_symbol': 'FNC', 'mint': '37PbQspU3ewcqY5ymJbzDiKLQS7fLgjBbph1fUbmpump', 'ath_mc_usd': 100374.2216718332, 'ath_timestamp': 1790978085},
+        {'token_symbol': 'Pumpkinu', 'mint': 'CJZaHX5RQbvKrRyMoUU9D3jyvXj8Yy7QLLmcKvoopump', 'ath_mc_usd': 1750785.031252793, 'ath_timestamp': 1790972160},
+        {'token_symbol': 'Cassie', 'mint': 'DpLrtcrzJBheLc4Wvt75XRfwQ125sLxuLZWQkozpump', 'ath_mc_usd': 820783.0779105984, 'ath_timestamp': 1790955270},
+        {'token_symbol': 'INU', 'mint': 'GBJUUm9VZ8a2gjJoKaw2tmqgxxSP79DSCXFQJCiopump', 'ath_mc_usd': 593330.2781832365, 'ath_timestamp': 1790945610},
+    ]
+    for fact in historical_byzantine_ath:
+        fact['ath_provenance'] = 'BIRDEYE_V3_OHLCV_CHART_TYPE_MCAP_USD_15S; retained GMGN-reconciled historical reference'
+        fact['historical_membership_reason'] = 'confirmed Byzantine membership; outside frozen current Monitor population'
+    # The current registry is intentionally broader than price-monitor
+    # capability: Nexus is an established active operation with retained
+    # metrics but no monitor adapter.  Conversely WATCHTOWER_DEEP is retired
+    # from this presentation only; its historical evidence is untouched.
+    current_operation_names = ("byzantine", "watchtower", "nexus")
+    operation_summaries = []
+    for name in current_operation_names:
+        record = next((row for row in active if str(row.get('display_name') or '').lower() == name), None)
+        if record is None:
+            continue
+        monitor_id = monitor_by_operator.get(str(record['operator_id']))
+        operation_summaries.append({
+            'operation_id': monitor_id or name,
+            'display_name': record.get('display_name') or name.title(),
+            'detail_href': f"/intelligence/operator/{record['operator_id']}",
+            'status': record.get('activity_status') or record.get('status') or 'ACTIVE',
+            'tokens': record.get('total_launches'),
+            'activity_24h': record.get('live_launches_24h', record.get('snapshot_launches_24h')),
+            'activity_7d': record.get('live_launches_7d', record.get('snapshot_launches_7d')),
+            'activity_30d': record.get('live_launches_30d', record.get('snapshot_launches_30d')),
+            'latest_launch_at': record.get('last_launch_at'),
+            'monitor': ops.get(monitor_id, {}),
+        })
+    return {'mode':mode,'now':now,'rows':rows,'byzantine_historical_ath':historical_byzantine_ath,'operations':ops,'operation_summaries':operation_summaries,'summary':{'active':sum(r['monitor_state']=='MONITORING_ACTIVE' for r in rows),'waiting':sum('WAITING' in r['monitor_state'] for r in rows),'backoff':sum('BACKOFF' in r['monitor_state'] for r in rows),'completed_today':sum('COMPLETE' in r['monitor_state'] and int(r.get('monitor_completed_at') or 0)>=now-86400 for r in rows),'failed':sum('FAIL' in r['monitor_state'] or 'INSUFFICIENT' in r['monitor_state'] for r in rows),'total':len(rows),'calls_today':sum(int(r.get('provider_call_count') or 0) for r in rows)},'storage':{'bytes':storage_bytes,'ceiling_bytes':10_000_000,'status':'UNKNOWN' if storage_bytes is None else 'KNOWN'},'worker_health':{'status':'IDLE' if mode=='MONITOR' else 'STOPPED','last_heartbeat':None,'last_success':last_success,'last_error_class':None,'last_error_at':None},'queue_health':{'status':'BACKOFF' if depth.get('retry') else ('PENDING' if depth.get('pending') else 'IDLE'),'depth':sum(depth.values()),'pending':depth.get('pending',0),'claimed':depth.get('processing',0),'retry':depth.get('retry',0),'dead_letter':depth.get('dead_letter',0),'oldest_pending_age':oldest},'provider_health':{'status':'READY' if not depth.get('retry') else 'BACKOFF','last_success':last_success,'last_error_class':None,'backoff_until':None}}
 
 
 @operator_bp.route('/api/operations/live-monitor')
 def live_monitor_api():
     try:
-        return jsonify(_monitor_live_projection())
-    except MonitorStoreUnavailable as exc:
-        return jsonify({"error": str(exc), "rows": []}), 503
+        payload = _monitor_live_projection()
+        # Bounded presentation projection only.  It is intentionally separate
+        # from universal work so historical retained intelligence never changes
+        # active-monitor counts or scheduling eligibility.
+        source_rows = payload.get('rows') or []
+        projection_now = int(payload['now'])
+        payload['live_tokens'] = _recent_operation_tokens(
+            [row for row in source_rows if _authoritative_live(row, now=projection_now)], limit=len(source_rows), now=projection_now
+        )
+        payload['recent_operation_tokens'] = _recent_operation_tokens(source_rows, exclude_live=True, now=projection_now)
+        payload['recent_operation_tokens_contract'] = {
+            'limit': RECENT_TOKEN_LIMIT,
+            'sort': RECENT_TOKEN_SORT,
+            'operation_agnostic': True,
+            'recomputes_entry': False,
+            'recomputes_ath': False,
+            'recomputes_multiple': False,
+            'recomputes_time_to_peak': False,
+            'current_mc_live_only': True,
+        }
+        try:
+            conn = _mission_control_monitor_read_connection(); conn.row_factory = sqlite3.Row
+            work = [dict(row) for row in conn.execute(
+                "SELECT w.operation_id,w.mint,w.state,w.due_at,w.checkpoint_boundary,"
+                "o.owner,a.snapshot_json FROM universal_monitor_global_work w "
+                "JOIN universal_monitor_ownership o USING(operation_id,mint) "
+                "JOIN universal_monitor_adoptions a ON a.adoption_id=w.adoption_id "
+                "WHERE w.state IN ('PENDING','CLAIMED') ORDER BY w.due_at ASC LIMIT ?",
+                (MONITOR_UI_FACT_LIMIT,),
+            )]
+            identities = [(row['operation_id'], row['mint']) for row in work]
+            prices = []
+            if identities:
+                predicate = " OR ".join("(operation_id=? AND mint=?)" for _ in identities)
+                params = tuple(value for identity in identities for value in identity)
+                prices = [dict(row) for row in conn.execute(
+                    f"SELECT * FROM universal_monitor_price_facts WHERE {predicate}", params)]
+            budget = conn.execute("SELECT hour_cap,day_cap,normal_rps,dispatch_enabled FROM universal_monitor_budget_state WHERE provider='BIRDEYE'").fetchone(); conn.close()
+            payload['universal_monitor']={'work':work,'price_facts':prices,'budget':dict(budget) if budget else None}
+        except (sqlite3.Error, MissionControlMonitorAuthorityError):
+            payload['universal_monitor']={'work':[],'price_facts':[],'budget':None}
+        return jsonify(payload)
+    except MissionControlMonitorAuthorityError as exc:
+        return jsonify({'error': str(exc), 'monitor_authority': 'UNAVAILABLE'}), 503
 
 
 @operator_bp.route('/api/operations/live-monitor/<operation_id>/<mint>/observations')
 def live_monitor_observations_api(operation_id: str, mint: str):
     try:
-        conn=_monitor_store_connection()
-        try:
-            rows=[dict(r) for r in conn.execute("SELECT observation_timestamp,mc_usd,resolution FROM operation_monitor_observations WHERE operation_id=? AND mint=? ORDER BY observation_timestamp",(operation_id,mint))]
-        finally:
-            conn.close()
-    except MonitorStoreUnavailable as exc:
-        return jsonify({"error": str(exc), "operation_id":operation_id,"mint":mint,"observations":[]}), 503
+        conn=_mission_control_monitor_read_connection(); conn.row_factory=sqlite3.Row
+        rows=[dict(r) for r in conn.execute("SELECT observation_timestamp,mc_usd,resolution FROM operation_monitor_observations WHERE operation_id=? AND mint=? ORDER BY observation_timestamp",(operation_id,mint))]; conn.close()
+    except MissionControlMonitorAuthorityError as exc:
+        return jsonify({'error': str(exc), 'monitor_authority': 'UNAVAILABLE'}), 503
+    except sqlite3.Error:
+        return jsonify({'error': 'configured Mission Control monitor database query failed', 'monitor_authority': 'UNAVAILABLE'}), 503
     return jsonify({'operation_id':operation_id,'mint':mint,'observations':rows})
+
+
+@operator_bp.route('/api/operations/live-monitor/<operation_id>/<mint>/historical-lifecycle')
+def historical_lifecycle_readback_api(operation_id: str, mint: str):
+    """Retained DEV historical evidence only; this route never dispatches."""
+    from src.core.db import OPS_DB_PATH
+    monitor_db_path = os.environ.get('DEV_MONITOR_DB_PATH') if (os.getenv('FLEX_DEV_RUNTIME') == '1' or os.getenv('MONITOR_RUNTIME') == 'dev') else None
+    monitor_db_path = monitor_db_path or (os.environ.get('WT_OPS_DB_PATH') if os.getenv('MONITOR_RUNTIME') == 'dev' else None)
+    try:
+        from src.ops.historical_lifecycle_jobs import HistoricalLifecycleJobs
+        result = HistoricalLifecycleJobs(monitor_db_path or str(OPS_DB_PATH)).readback(
+            operation_id=operation_id, mint=mint)
+    except (sqlite3.Error, ValueError, OSError):
+        result = None
+    return jsonify({'operation_id': operation_id, 'mint': mint,
+                    'observed_lifecycle': result,
+                    'strategy_entry': {'status': 'INSUFFICIENT_EVIDENCE' if not result else 'NOT_PROJECTED_BY_HISTORY'}})
 
 
 @operator_bp.route('/operations/live-monitor')
@@ -385,15 +675,7 @@ def list_operators():
     store = _get_store()
     limit = min(int(request.args.get("limit", 100)), 500)
     include_rejected = request.args.get("include_rejected", "false").lower() == "true"
-    try:
-        rows = store.fetch_all_operators(exclude_rejected=not include_rejected, limit=limit) if include_rejected else store.fetch_active_manual_operators(limit=limit)
-    except RegistryUnavailableError:
-        return jsonify({
-            "ok": False,
-            "operators": [],
-            "count": None,
-            "error": "REGISTRY_STORAGE_UNAVAILABLE",
-        }), 503
+    rows = store.fetch_all_operators(exclude_rejected=not include_rejected, limit=limit) if include_rejected else store.fetch_active_manual_operators(limit=limit)
     return jsonify({
         "ok":          True,
         "operators":   rows,
@@ -415,11 +697,6 @@ def operator_summary():
 def operator_coverage_24h():
     """Read-only coverage of completed mints by confirmed-operation evidence."""
     from src.core.db import OPS_DB_PATH
-    from src.ops.live_potential_activity import cached_activity
-    live_activity, activity_evidence = cached_activity(str(OPS_DB_PATH))
-    if activity_evidence["status"] == "UNKNOWN":
-        return jsonify(ok=False, status="UNKNOWN", error="ACTIVITY_UNAVAILABLE",
-                       reason=activity_evidence["reason"]), 503
     cutoff = int(time.time()) - 86400
     conn = sqlite3.connect(OPS_DB_PATH)
     try:
@@ -450,6 +727,7 @@ def operator_coverage_24h():
         nexus = set()
         potential = set()
         try:
+            live_activity, _ = aggregate_live_activity(str(OPS_DB_PATH))
             for candidate_id, candidate in live_activity.items():
                 mints = {
                     m["mint"] for m in candidate.get("live_matches", [])

@@ -1,4 +1,20 @@
 {
+  "dev039_oct8_route_recovery": {
+    "status": "PARTIAL_ACCOUNT_ROLE_EVIDENCE_GAP_STOPPED",
+    "engineering_revision": "a0bc06004f2ef545f72c4f8b1a9939f6387c2ada unchanged; October 8 reference 064021bd7e3aef0dec2e55d067693d94b8cf1922",
+    "mint": "6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump",
+    "ui_provenance": "GET /api/ops/operators/<operator_id> -> OperatorReader.fetch_operator recent_launches -> operation_summary.build_operation_summary -> operator_intelligence.html observed funding path. WATCHTOWER combines launch ledger with confirmed membership-only queue fallback. Summary anchor=treasury_wallet, intermediary=subprov_wallet, creator=creator_wallet. Four-node rendering is abbreviated; it does not establish separate Funding Account or temporary WSOL roles.",
+    "selected_signature": "5oFYoLgyQWhihwmvQ3exjnEgpU7nWMrMHigdhGF6yucSPJv2zs3vp3Ze3aEHEGy4yyPW2qKcUoDWJmKPQdML2TEW",
+    "retained_mapping": "Fee payer 25hETX6m6CcQLRuSZ7DNP9PjqGXWfkm1PUMA6kg4KA1J; signers that address and HJ5FrqwDRUYhHuciaAyrPmgBb9Zki5GRq3icknfN8AMv. Outer shape createAccountWithSeed/initializeAccount/closeAccount; inner shape empty. No instruction account-key mapping retained in role projection. Signer HJ5 is not proven Funding Account. Selected edge WSOL_WRAP_CLOSE 203039000 lamports; temporary_account/owner/close_authority/close_destination blank. Exact-signature atomic flows and mint provisioning record absent. Exact getTransaction cache-key lookups absent in both canonical OPS and core caches; no cache scans or provider requests.",
+    "route": "Treasury GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac -> queue-labelled SubProvider/direct funder 25hETX6m6CcQLRuSZ7DNP9PjqGXWfkm1PUMA6kg4KA1J -> creator B5mSYJei2rJS6Bf3xKpzYMF34srFkBkAVGHime5796xg -> mint. Root selected PLAIN_XFER signature 542ZhY1i7Tzbg6yHcqcBhAw78xYtHKcQyt1KSu8jVvGg1uVgAbpFTd1n2tbHVoeScg15r6z9xMDdejmPTsE2HBZm retains DIRECT transaction-role mapping. Root ancestry is supported at this edge; separate selected Funding Account and reusable fan-out proof for 25h are not established.",
+    "confirmation_limit": "FULL_WALKBACK 2026-10-08T17:25:56Z-17:25:58Z, RPC12, WATCHTOWER_CONFIRMED/CANONICAL_OPERATOR_REACHED/PROMOTED retained. Selected hop2 exists, unlike cache-only routes with no root edge. Frozen known-SubProvider/cached-label shortcut also exists, but no branch-level decision trace or exact loaded source proves which branch was decisive. Historical promotion does not prove complete five-stage qualification.",
+    "complete_five_stage_route": false,
+    "remaining_gap": "Original transaction instruction account mappings, selected Funding Account, temporary WSOL account and token-specific/reusable SubProvider fan-out qualification reference. Stop condition met; do not infer roles or claim full positive-control equivalence.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only evidence recovery; no executable changes.",
+    "safety": "Provider calls 0; production changes 0; DB/queue writes 0; no replay/restart/source changes or raw payload retention. Only handoff publication changes documentation. Storage growth rule not applicable to runtime; compact handoff only.",
+    "next_action": "STOP. Complete route requires an already-preserved decoded transaction/account-role artifact for the exact signature. No acquisition, replay, correction or deployment authorized."
+  },
   "dev039_oct8_full_walkback_positive_control_search": {
     "status": "PARTIAL_INDEPENDENT_FULL_PROCESSING_AND_ADMISSION_FOUND_SELECTED_ACCOUNT_ADDRESS_NOT_RETAINED",
     "engineering_revision": "a0bc06004f2ef545f72c4f8b1a9939f6387c2ada unchanged audit branch; no source changes",

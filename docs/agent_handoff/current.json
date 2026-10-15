@@ -1,4 +1,29 @@
 {
+  "dev037_watchtower_selected_identity_join": {
+    "status": "PASS_ISOLATED_PREVIEW_ONLY",
+    "engineering_revision": "7d5243d0c7dcf3576780826a1e7d41c5769d8df5",
+    "branch": "codex/dev037-rich-source-composition",
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev037-pre-dev035-ui-candidate/flex",
+    "accepted_and_frozen_reference": "Existing be8ddba6 unified renderer unchanged. Proven defect in preserved API blob802976ef (5c81 snapshot): priority LIMIT precedes selected membership join. Frozen6877f6e4 all-facts read is not restored; existing bounded query/authority preserved. No historical acquisition or evidence requalification.",
+    "implementation": "Added _selected_monitor_facts: at most20 distinct selected(operation_id,mint) primary-key lookups in existing DEV monitor authority, bounded observation evidence only for returned facts, finally-close on success/error. Merge these facts into existing selected membership join before placeholder fallback. Existing membership selection SQL, identity ordering/dedup, final20 limit, queue behavior, attribution and raw stored evidence unchanged. No new index or cache.",
+    "qualification": "33 focused provider-free tests passed in4.87s after correcting test-module import. Actual retained five exact opening/peak pairs match source values; peaks remain RETAINED PEAK and stored multiples unchanged, final_proven_ath_mc null. Three absent facts remain unavailable. Regression proves five identities outside original priority20 subset recover correctly; original/adapted selected identity order equal with queue enabled/disabled. EXPLAIN shows primary-key SEARCH, no SCAN; repeated identities dedup and21identity budget rejected. Existing unified layout, deadlines, imports, read-only/network and research tests pass.",
+    "restored_pairs": [
+      {"mint":"DNtZMNDZ65hAJbJXRiP9NnV98ZTrwLTEJZ78fWKCpump","opening":144175.59776543334,"retained_peak":594764.794662167,"method":"FIRST_FULL_POST_MIGRATION_SECOND_MC"},
+      {"mint":"6LdjC13zbAxmruKrqsAQ4znUrjNe7gXXVeCHDBMYpump","opening":162775.9385584885,"retained_peak":274476.6056229458,"method":"MIGRATION_SECOND_MC_FALLBACK"},
+      {"mint":"6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump","opening":125378.29249620523,"retained_peak":125378.29249620523,"method":"FIRST_FULL_POST_MIGRATION_SECOND_MC"},
+      {"mint":"7JVDPbS8iYHoUD4yWYxQH9yHcop5oPeBnfBvXkiqpump","opening":128917.09988926353,"retained_peak":168300.03364945002,"method":"FIRST_FULL_POST_MIGRATION_SECOND_MC"},
+      {"mint":"9JtPfLbN32CszHmstoXYdWaazFLaoxhfqf9mKgQMpump","opening":105600.45900012992,"retained_peak":222174.89682065282,"method":"FIRST_FULL_POST_MIGRATION_SECOND_MC"}
+    ],
+    "acceptance": "Actual monitor API HTTP200 in534.39ms; same20history identities/order, eightWT rows: five qualified openings/retained peaks and three unavailable. FalseNOT_MONITORED for retained facts0. Five stored states PRICE_MONITOR_COMPLETE_COLLAPSED preserved, not updated in DB or relabelled finalATH. Genuine currentLIVE still empty. Historical current/nextcheck remain unavailable; no fabrication.",
+    "browser": "Tab16 http://127.0.0.1:8103/intelligence/operators visibly shows allfive WT prices, RETAINED PEAK scope and multiples4.13x/1.69x/1.00x/1.31x/2.10x, three Entry unavailable rows. WT filter8, ALL20 restored. Unified LIVE10/HISTORY8 columns/cadence retained with no separate operation token tables; noJSerrors captured. SystemHealth browser still UNKNOWN with separate API live and successful refresh; navigation preserved. Preview left running for inspection, no persistent deployment authorized.",
+    "runtime": "Preflight PID24892/sourcebe8ddba6/cwd verified; stopped only that owned8103preview via execsession57854. New PID31931, execsession38085, source7d5243d0 in same isolated worktree. Wrapper src.dev_runtime unchanged; FLEX_DEV_READ_ONLY_QUALIFICATION=1, FLEX_DEV_RELOAD=0, modeOFF, same disposable state/core fixture/canonicalOPS/DEVmonitor queue authorities, outbound denial, worker suppression and FDthreshold12 retained. Existing8100PID95243 and8102PID97775 unchanged.",
+    "research_integrity": "Fresh matched hashes: DEV019098ad24ec546c0c726afe2b8a653dabbc6e01decd8e3e286a86a88ae3414c394; DEV020539cohort/lifecycle0aec34375865d5106341a3c03c9afa22f3cbf89e8c15f737cb57b5e6126a679d; DEV033candles6ebea1e8c6fc84b466e6910f51a1c26e5ecf16964fe4a1728475dc60d22a4456; backtestsummary8bdac654215bfa304162c567acd7bece4409a0c1512741c62c12318261166eea; fullbacktestreport572313ee04eb6dd77826181d4944bfa365c837362d5aa07fa409f613b15a876a. No research acquisition, copy, move or mutation.",
+    "safety": "Provider/RPCcalls0; productionchanges0; canonicalDBwrites0; queuewrites0; migrations/indexes/workers/caches0. SQLite qualification mode=ro/query_only with bounded progress handlers. Source changes introduce no file writer, raw retention or unbounded growth path; compact source/tests only. Existing generated untracked database guard preserved, not committed.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS_ISOLATED_8103_PREVIEW",
+    "persistent_deployment_authorized": false,
+    "next_action": "NONE — COMPLETE for selected-identity price join. Leave8103preview running for user inspection; no additional engineering or persistent deployment."
+  },
   "dev037_watchtower_opening_peak_readonly_reconciliation": {
     "status": "PASS_AUDIT_PROVEN_BOUNDED_JOIN_DEFECT_NO_IMPLEMENTATION",
     "engineering_revision": "be8ddba6ed225ba301ea7559ee476e5437f39a33",

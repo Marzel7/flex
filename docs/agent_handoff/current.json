@@ -1,4 +1,24 @@
 {
+  "dev037_exact_rich_shared_source_preservation": {
+    "status": "PARTIAL_EXACT_SOURCE_PRESERVED_COMPONENT_TESTS_PASS_FULL_API_HOLD",
+    "engineering_revision": "5c81ed8f30ea111f0db55e0ff650a303c776a462",
+    "branch": "codex/dev037-rich-source-composition",
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev037-pre-dev035-ui-candidate/flex",
+    "manifest": "docs/audits/dev037_rich_source_composition.v1.json in that source commit; single attributable manifest includes exact Git/SHA256 hashes, direct import inventory, authorities, results and gaps. Engineering commit locally preserved, not claimed remotely backed up; no source payloads/evidence pushed.",
+    "exact_sources": "Rich template439fc19f25fd8e3347474008bcc9d6df59755cdd (exact d79c0011 blob); shared API802976ef21a824a7bb980afff2968739185eee64; Watchtower enrichment f3bef3609cdef68272b7231855fd45cb648046dc. Originals hash-verified and untouched. Only direct classifier/module fb8cecf132783ce06238a1b032887665f9bfb1da plus declaration51a4d27862d5f1c53acb81d32c05941954b62d60 added from exactcd459 source. No unrelated shared files or acquisition worker dependencies imported.",
+    "qualification": "7 offline tests passed in0.46s. Actual top-level API/enrichment imports succeed without worker import. Actual retained latest20 rows deterministic/deduplicated,14 have opening/peak/multiple/time values; historical current fields correctly null. Bounded canonical20mint enrichment read returned17qualified openings and17ATH. Existing monitor store has9Byzantine actual-entry/ATH records, all populated. Jinja rich template renders required fields/cadence/history/operation sections; missing price fields remain null. Source operation_summaries excludes independentDeep without mutating historical identity. Full endpoint/Byzantine enriched browser data path not accepted because worker dependency unresolved.",
+    "remaining_gaps": "Exact preserved _monitor_live_projection still imports absent src.ops.operation_monitor_worker.production_queue. No acquisition stack copied. Rich original template has no bounded AbortController deadlines and polls forever when universal payload absent. Optional universal SQL errors become empty work/prices; unavailable-vs-empty semantics need scoped compatibility correction. Canonical metadata and optional lifecycle-pilot runtime bindings still need qualification. These blockers are recorded, not masked by successful component tests. No full recovery candidate is declared ready.",
+    "safety": "Base d10 safety wrapper, Mission Control, sidebar and Operations OS byte-unchanged. Test SQLite connections forced mode=ro/query_only with1second progress budget and network connect/create_connection denied. No runtime started or service restarted; port8100 and8102 source/processes untouched. No DB mutations, providers, schema migrations, canonical copies, raw payload retention or new writer. New files compact (<1MB design bound), zero unbounded growth paths. Worktree clean after commit.",
+    "research": "DEV019/020/028/031/032/033 and strategy-summary hashes freshly rechecked unchanged; full values in manifest. Original local temporary journal risk unchanged; no evidence copied/moved/regenerated.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Exact source preservation plus offline tests only; no runtime launch authorized or performed.",
+    "ready_for_isolated_runtime_acceptance": false,
+    "provider_calls": 0,
+    "production_changes": 0,
+    "database_writes": 0,
+    "service_actions": 0,
+    "next_action": "STOP. Separately authorize only minimal preserved read-only queue-adapter/API alignment and bounded unavailable handling, preserving rich presentation and evidence. Do not start or deploy preservation snapshot5c81ed8f as a qualified application."
+  },
   "dev037_latest_oct12_13_application_recovery_analysis": {
     "status": "HOLD_COMPLETE_LATEST_ACCEPTED_COMPOSITION_NOT_PROVEN",
     "engineering_revision": "Audited current persistent DEV43dfcddcacd8a0a6edaa9e24aaf1499a1ac655cc PID95243; preview d10a690e5dc02c7a962bc14d299286d4eca57c56 unchanged. Historical shared base580508a70c80e7fc944e0069f85e67b851a117fa is not a complete working application identity.",

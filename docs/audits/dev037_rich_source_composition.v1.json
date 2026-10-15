@@ -1,11 +1,11 @@
 {
   "schema": "DEV037_RICH_SHARED_COMPOSITION_V1",
-  "status": "PRESERVED_COMPONENTS_QUALIFIED_FULL_API_HOLD",
+  "status": "QUALIFIED_NOT_DEPLOYED_READY_FOR_ISOLATED_BROWSER_ACCEPTANCE",
   "base_revision": "d10a690e5dc02c7a962bc14d299286d4eca57c56",
   "branch": "codex/dev037-rich-source-composition",
   "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev037-pre-dev035-ui-candidate/flex",
   "composition_revision": "Git commit containing this manifest; exact final SHA recorded in agent-handoff",
-  "objective": "Preserve identified exact shared files; qualify direct contracts without starting a runtime or adding acquisition infrastructure.",
+  "objective": "Align preserved rich UI/API to qualified d10 read-only queue adapter; bounded UI requests and explicit unavailable evidence. No candidate runtime started.",
   "components": [
     {
       "path": "templates/operators_index.html",
@@ -83,15 +83,7 @@
       "symbols": [
         "monitor_capable_operations"
       ],
-      "candidate_present": false
-    },
-    {
-      "scope": "_monitor_live_projection",
-      "module": "src.ops.operation_monitor_worker",
-      "symbols": [
-        "production_queue"
-      ],
-      "candidate_present": false
+      "candidate_present": true
     },
     {
       "scope": "_monitor_live_projection",
@@ -115,7 +107,7 @@
       "symbols": [
         "dev013_watchtower_ui_facts"
       ],
-      "candidate_present": false
+      "candidate_present": true
     },
     {
       "scope": "_get_store",
@@ -129,8 +121,8 @@
   "dependency_resolution": {
     "watchtower_enrichment": "Exact specified module preserved.",
     "monitor_capability": "Exact committed module and required declaration JSON preserved.",
-    "worker_queue": "UNRESOLVED: original full projection imports operation_monitor_worker.production_queue. No worker or its dependencies copied/imported.",
-    "base_readers": "Retained d10 OperatorReader, model, resolver and identity framework import successfully; full request execution not qualified.",
+    "worker_queue": "RESOLVED: explicit existing WATCHTOWER_MONITOR_QUEUE_PATH read-only root/depth adapter from d10. Original MONITOR/INFRASTRUCTURE enablement preserved. Worker-path mismatch fails closed; no worker imports or queue constructors.",
+    "base_readers": "PASS complete real retained API execution through Flask test client; canonical read-only registry/membership/metadata and monitor evidence.",
     "other_direct_contracts": [
       "base_shell.html/static CSS and sidebar",
       "operation_monitor_capabilities.v1.json",
@@ -145,31 +137,32 @@
   "authorities": {
     "monitor": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db via MISSION_CONTROL_MONITOR_UI_DB_PATH; mode=ro/query_only",
     "ops": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db; registry/enrichment only, read-only",
-    "metadata": "Canonical core metadata_cache is required for historical names; no binding changed and no core DB copied.",
-    "queue": "Existing queue read authority required by original worker-dependent read; not instantiated.",
+    "metadata": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db via DB_PATH in offline test; existing file mode=ro/query_only, selected mint labels only. Runtime binding must be preserved explicitly during separate acceptance.",
+    "queue": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue via explicit WATCHTOWER_MONITOR_QUEUE_PATH; no constructor or writes. OPERATION_MONITOR_QUEUE_PATH must match when supplied.",
     "research": "Existing DEV019–DEV033 journals remain independent and unchanged."
   },
   "compatibility": {
     "top_level_import": "PASS actual API/enrichment imports without worker import.",
-    "history": "PASS actual retained rows yield latest20, deterministic timestamp/mint descending, unique identities; 14 opening/peak/multiple/time-to-peak values, zero current values in historical rows.",
-    "watchtower": "PASS bounded read of20 actual canonical retained mints:17 qualified openings and17 ATH values. Renderer LIVE/ENDED contract preserved; full endpoint not accepted.",
-    "byzantine": "PASS preserved renderer includes LIVE/historical and distinct2H peak/ATH; existing monitor evidence has9 actual-entry/ATH facts with both fields populated. Full data path not accepted.",
+    "history": "PASS preserved sort/dedup/limit/qualification algorithms unchanged. Actual full endpoint history has9 priced rows; separate all-facts component fixture remains14. No eligibility widened to fill gaps.",
+    "watchtower": "LIVE/ENDED template sections retained through rich renderer replacement. Current selected8 WT rows lack qualified opening and remain null; separate canonical20mint component sample has17 enriched openings/ATH. These are different populations. No claim of current WT price completeness.",
+    "byzantine": "Actual endpoint includes12Byzantine rows,9 enriched actual-entry/peak records. Preserved separate2H peak/ATH and historical tables retained; no inferred lifetime ATH.",
     "missing_price": "PASS missing opening/current/peak/multiple remains null; no price fabricated.",
-    "identity": "Preserved operation_summaries explicitly selectByzantine/Watchtower/Nexus; historicalDeep evidence untouched. Full endpoint presentation not runtime-verified.",
-    "renderer": "PASS Flask/Jinja render, no app server started. Contains screenshot-required live/history/cadence and operation views.",
-    "safety": "Base d10 dev_runtime, health, sidebar and OperationsOS byte-unchanged. Tests patch SQLite to mode=ro/query_only with1s progress budget and deny network; no provider/acquisition worker imports or DB mutations.",
+    "identity": "Byzantine/Watchtower/Nexus operation summaries unchanged; independentDEEP filter tab suppressed without mutating historical records. Selection and attribution unchanged.",
+    "renderer": "Flask/Jinja renders rich template; all inline JavaScript syntax compiled with Node. Executable Node tests exercise3s deadline, hung response body, AbortController, supersession/late response and pagehide cleanup. Rich replacement retains WT/Byz sections; no browser/runtime acceptance claimed.",
+    "safety": "d10 dev_runtime/work_registry, MissionControl,sidebar,OperationsOS bytes unchanged;SQLite tests enforce mode=ro/query_only and1s/component progress budget; network transport denied. Safety guard function tests passed.",
     "remaining_gaps": [
-      "Original full projection requires unavailable acquisition-worker queue adapter. Must qualify only existing preserved read-only adapter compatibility separately; do not copy acquisition stack automatically.",
-      "Exact rich template has no AbortController/deadline and polls for absent universal payload indefinitely. Original bytes intentionally preserved; no compatibility rewrite authorized/performed here.",
-      "Full endpoint schema unavailable/error semantics not accepted: optional universal SQL errors currently become empty work/price arrays and template defaults can display zero counters.",
-      "Canonical metadata and optional lifecycle-pilot bindings have not been qualified for a future runtime.",
-      "No browser/runtime acceptance; no claim that complete application is ready."
-    ]
+      "Isolated src.dev_runtime startup and actual browser-visible acceptance remain explicitly pending and unauthorized in this task.",
+      "Selected8Watchtower rows legitimately have no qualified opening evidence; no historical reconstruction or eligibility expansion performed.",
+      "Optional historical lifecycle pilot is absent and remains optional/unavailable; canonical retained enrichment read path passes."
+    ],
+    "queue_equivalence": "PASS original preserved projection versus adapted projection: exact complete dict equality on actual retained authority, queue disabled and enabled, frozen time; original worker import removed only in test harness and supplied existing queue read interface. No acquisition worker import/execution.",
+    "full_api": "PASS offline Flask test-client call: 20 retained rows (8 Watchtower,12 Byzantine),20 deterministic latest-history rows;9 populated opening/peak records. Approximately0.8 seconds. No HTTP server started.",
+    "unavailable": "Optional universal schema/read errors return status UNAVAILABLE, reason, null work/prices/budget while preserving successful retained rows/history. UI labels unknown evidence instead of fabricated budget/default success. Missing queue authority remains503."
   },
   "tests": {
-    "command": "PYTHONDONTWRITEBYTECODE=1 python -m pytest -p no:cacheprovider tests/test_dev037_rich_source_composition.py -q",
-    "result": "7 passed in0.46s",
-    "evidence": "Actual retained monitor rows and canonical enrichment accessed read-only; not synthetic rendering alone.",
+    "command": "PYTHONDONTWRITEBYTECODE=1 python -m pytest -p no:cacheprovider tests/test_dev037_rich_source_composition.py tests/test_dev036_nonblocking_ui_shell.py plus two preserved wrapper safety tests -q -s",
+    "result": "22 passed; exact final duration recorded in handoff",
+    "evidence": "Actual retained API/registry/price evidence and canonical historical enrichment, original-versus-adapter equivalence; Node deadline execution; no server or synthetic rendering-only acceptance",
     "writes": 0,
     "provider_calls": 0
   },
@@ -183,10 +176,10 @@
     "backtest": "8bdac654215bfa304162c567acd7bece4409a0c1512741c62c12318261166eea",
     "retention": "Fresh rechecks unchanged; local temporary primary journal risks remain; no evidence copied/moved."
   },
-  "source_vs_runtime": "Durable source preservation, not qualified recovery candidate. Original shared files and both running runtimes unchanged.",
+  "source_vs_runtime": "Qualified source compatibility candidate only. No server start, persistent deployment, port8100/8102 or launchd/process change.",
   "runtime_deployment_required": false,
-  "runtime_deployment_reason": "Preservation and offline tests only; no runtime started; full composition remains HOLD.",
-  "ready_for_isolated_runtime_acceptance": false,
+  "runtime_deployment_reason": "Offline compatibility qualification only. User prohibits startup/deployment; runtime acceptance requires separately authorized isolated preview.",
+  "ready_for_isolated_runtime_acceptance": true,
   "production_changes": 0,
   "provider_calls": 0,
   "database_writes": 0,
@@ -196,5 +189,21 @@
     "unbounded_growth_paths": 0,
     "notes": "Only compact source, test and manifest files; no database clone or new runtime writer."
   },
-  "next_action": "STOP at source qualification. Separate authorization is needed for minimal preserved read-only queue-adapter alignment and deadline/unavailable handling; do not start this snapshot."
+  "next_action": "Separately authorize isolated guarded runtime/browser acceptance with explicit retained DB/queue bindings; do not repoint8100 or replace8102 automatically.",
+  "preservation_snapshot": "5c81ed8f30ea111f0db55e0ff650a303c776a462",
+  "compatibility_changes": {
+    "adapter_reference": "d10a690e5dc02c7a962bc14d299286d4eca57c56",
+    "ui_deadline_reference": "DEV036 749884828b9889847f8fdea883034895e21e3f5b retained in d10; same3s/abort/generation contract, strengthened to bound response-body hangs",
+    "frozen_reference": "6877f6e41477f7357463225d071f7a50f29c743e remains secondary frozen contract, not assumed deployment proof; primary exact preserved sources5c81 and read-only adapterd10",
+    "changed_files": [
+      "src/ops/operator_routes.py",
+      "templates/operators_index.html"
+    ],
+    "selection_changes": "NONE; original complete projection dictionary equality proved on retained source"
+  },
+  "candidate_git_blobs": [
+    "0e490b8a6984c234ab757fc43286ceaebde715da",
+    "3a4815d00b522598f3d97200d5f848a0a3379798",
+    "f3bef3609cdef68272b7231855fd45cb648046dc"
+  ]
 }

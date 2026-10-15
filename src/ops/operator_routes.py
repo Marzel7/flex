@@ -38,6 +38,28 @@ RECENT_TOKEN_LIMIT = 20
 RECENT_TOKEN_SORT = "CREATE_OR_ASSIGNMENT_TIMESTAMP_DESC"
 MONITOR_UI_FACT_LIMIT = RECENT_TOKEN_LIMIT
 
+_MONITOR_QUEUE_STATES = ("pending", "retry", "processing", "dead_letter")
+
+
+def _monitor_queue_root() -> Path:
+    """Qualified d10 adapter: inspect the explicit queue, never construct it."""
+    configured = os.getenv("WATCHTOWER_MONITOR_QUEUE_PATH", "").strip()
+    if not configured:
+        raise MissionControlMonitorAuthorityError("WATCHTOWER_MONITOR_QUEUE_PATH_REQUIRED")
+    root = Path(configured).expanduser()
+    if not root.is_dir() or any(not (root / state).is_dir() for state in _MONITOR_QUEUE_STATES):
+        raise MissionControlMonitorAuthorityError("WATCHTOWER_MONITOR_QUEUE_PATH_UNAVAILABLE")
+    worker_path = os.getenv("OPERATION_MONITOR_QUEUE_PATH", "").strip()
+    if worker_path and Path(worker_path).expanduser().resolve() != root.resolve():
+        raise MissionControlMonitorAuthorityError("MONITOR_QUEUE_AUTHORITY_MISMATCH")
+    return root
+
+
+def _monitor_queue_depth(root: Path) -> dict[str, int]:
+    """Qualified d10 adapter: no queue claims, constructors, or writes."""
+    return {state: sum(1 for _ in (root / state).glob("*.json"))
+            for state in _MONITOR_QUEUE_STATES}
+
 
 def _authoritative_live(row: dict, *, now: int | None = None) -> bool:
     """Apply the universal active-monitor horizon from retained facts only."""
@@ -281,12 +303,13 @@ def _monitor_live_projection() -> dict:
     # Queue-only assignments are live prospective state too.  This projection is
     # deliberately file/DB read-only: it does not construct a client, claim work,
     # or create placeholder fact rows.
-    from src.ops.operation_monitor_worker import production_queue
-    q = production_queue().queue
-    if q.enabled:
+    queue_root = _monitor_queue_root()
+    queue_enabled = (os.getenv('MONITOR_INFRASTRUCTURE_ENABLED', 'false').lower() == 'true'
+                     or os.getenv('OPERATIONS_MODE', 'OFF').upper() == 'MONITOR')
+    if queue_enabled:
         fact_keys = {(str(r['operation_id']).lower(), str(r['mint'])) for r in rows}
         for state in ('pending', 'retry', 'processing', 'dead_letter'):
-            for path in sorted((q.root / state).glob('*.json')):
+            for path in sorted((queue_root / state).glob('*.json')):
                 try:
                     payload = json.loads(path.read_text(encoding='utf-8'))
                     envelope = payload.get('envelope') or {}
@@ -465,8 +488,8 @@ def _monitor_live_projection() -> dict:
             'last_success': max((r.get('last_observation_at') or 0 for r in subset), default=None),
             'profile': operation.get('monitor_profile', 'GENERIC'),
         }
-    depth = q.depth()
-    pending_paths = list((q.root / 'pending').glob('*.json')) if q.enabled else []
+    depth = _monitor_queue_depth(queue_root) if queue_enabled else {state: 0 for state in _MONITOR_QUEUE_STATES}
+    pending_paths = list((queue_root / 'pending').glob('*.json')) if queue_enabled else []
     oldest = min((now-int(p.stat().st_mtime) for p in pending_paths),default=None)
     last_success=max((r.get('last_observation_at') or 0 for r in rows),default=None)
     mode=os.getenv('OPERATIONS_MODE','OFF').upper()
@@ -532,6 +555,7 @@ def live_monitor_api():
             'recomputes_time_to_peak': False,
             'current_mc_live_only': True,
         }
+        conn = None
         try:
             conn = _mission_control_monitor_read_connection(); conn.row_factory = sqlite3.Row
             work = [dict(row) for row in conn.execute(
@@ -550,9 +574,12 @@ def live_monitor_api():
                 prices = [dict(row) for row in conn.execute(
                     f"SELECT * FROM universal_monitor_price_facts WHERE {predicate}", params)]
             budget = conn.execute("SELECT hour_cap,day_cap,normal_rps,dispatch_enabled FROM universal_monitor_budget_state WHERE provider='BIRDEYE'").fetchone(); conn.close()
-            payload['universal_monitor']={'work':work,'price_facts':prices,'budget':dict(budget) if budget else None}
-        except (sqlite3.Error, MissionControlMonitorAuthorityError):
-            payload['universal_monitor']={'work':[],'price_facts':[],'budget':None}
+            payload['universal_monitor']={'status':'AVAILABLE','work':work,'price_facts':prices,'budget':dict(budget) if budget else None}
+        except (sqlite3.Error, MissionControlMonitorAuthorityError) as exc:
+            payload['universal_monitor']={'status':'UNAVAILABLE','reason':str(exc),'work':None,'price_facts':None,'budget':None}
+        finally:
+            if conn is not None:
+                conn.close()
         return jsonify(payload)
     except MissionControlMonitorAuthorityError as exc:
         return jsonify({'error': str(exc), 'monitor_authority': 'UNAVAILABLE'}), 503

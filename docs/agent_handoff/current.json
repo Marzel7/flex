@@ -1,4 +1,30 @@
 {
+  "dev039_missing_token_migration_eligibility": {
+    "status": "MIGRATION_VERIFIED_INTAKE_UNPROVEN; migration state corroborated, canonical event provenance incomplete",
+    "engineering_revision": "a0bc06004f2ef545f72c4f8b1a9939f6387c2ada; unchanged audit source",
+    "verified_at_utc": "2026-10-15T21:58:35Z",
+    "token_mint": "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump",
+    "retained_evidence": "Exact-mint indexed queries against canonical core migrated_tokens, token_analysis, migration_walkback_handoff and canonical OPS wt_walkback_queue all returned no rows. Each EXPLAIN used mint primary/unique indexes; query_only, mode=ro, 1-second progress deadlines. Reused prior bounded log/intake evidence; no broad historical scan. migration_inbox has no mint_hint index; no unbounded mint_hint scan performed.",
+    "external_evidence": {
+      "request_1": "Birdeye GET /defi/v2/markets for exact mint, limit10 offset0, authoritative BIRDEYE credential only. HTTP200 success true, total2 returned2. Pump Amm base exactly target mint, quote WSOL, pool5PNjKokcZC8r5RawoNEuBcb4rDWxTxHtkt4FmFNfK7UA, provider createdAt2026-10-13T00:12:44.120Z. Pump Dot Fun address8d9f8A6kLmvSPYu1fcniZcdYePdvxTroqGogJAJuQsf, createdAt2026-10-13T00:12:43.924Z. These are provider pool timestamps, NOT independently verified migration block times.",
+      "request_2": "Existing HELIUS_RPC_URL, one getMultipleAccounts finalized lookup of only the reported curve and pool. HTTP200 context.slot457395708 (observation slot, NOT migration slot). Curve owner6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P,166bytes, discriminator17b7f83760d8ac60 matches SHA256 account:BondingCurve, complete byte48=1 per existing listener decoder. Pool ownerpAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA,301bytes, discriminatorf19a6d0411b16dbc matches SHA256 account:Pool. No decoded migration transaction, pool creator/canonical migration instruction or event signature obtained.",
+      "migration_signature": null,
+      "migration_timestamp": null,
+      "migration_slot": null,
+      "interpretation": "Completed curve plus exact-mint provider-reported Pump AMM market and matching on-chain account types corroborate migration state. Canonical migration event provenance remains UNKNOWN; do not equate pool createdAt or RPC context slot with migration event timestamp/slot."
+    },
+    "oct8_contract": "Current on-disk Production/flex-listener handle_migration and _check_watchtower_migration AST-identical to frozen064021bd7e3aef0dec2e55d067693d94b8cf1922. PumpPortal migration/migrate frames require nonempty signature not in completed_migrations, then handle_migration fetches transaction and extracts mint; processing signature guards prevent duplicates. Unknown creator branch records durable handoff intent before OPS enqueue. enqueue_migration is mint-idempotent; classification may LINK_ONLY/SKIP or require FULL/PARTIAL work. A CREATE alone does not require a job. This is source-contract comparison, not proof of Oct13 loaded runtime or message delivery.",
+    "listener_coverage": "UNPROVEN for token's migration event. Previous audit found no exact-mint/signature/creator in bounded relevant listener rotation, whose event-time coverage is incomplete; current PID/startup cannot establish Oct13 continuous coverage. Migration signature unavailable, so cannot trace exact receipt/dedup rejection. No proven mint-specific filter exclusion.",
+    "walkback_eligibility": "Migration state supports investigation under established migration intake contract. Exact event signature, decoded migration eligibility and event-time listener delivery remain unverified. Cannot establish that an eligible delivered event was ingested-but-not-queued, nor a particular intake/configuration defect.",
+    "first_missing_transition": "Externally corroborated migration state -> retained local migration intake. Classified MIGRATION_VERIFIED_INTAKE_UNPROVEN, not ELIGIBLE_MIGRATION_NOT_INGESTED or INGESTED_NOT_QUEUED. Watchtower funding ancestry/admission not established by these migration checks.",
+    "provider_calls": 2,
+    "provider_safety": "1Birdeye+1Helius targeted requests,0retries,20second timeout each,64KiB in-memory response cap each. Initial credential parse preflight sent no request, then authoritative named credential parsed correctly; no fallback. No trades,candles,address histories,unrelated transactions or raw response retention. Compact derived facts only.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only audit; no executable/source/runtime changes.",
+    "production_changes": 0,
+    "database_writes": 0,
+    "next_action": "STOP: two-request budget exhausted. Migration state corroborated but canonical migration signature/time/slot and listener coverage remain UNKNOWN. Any additional targeted acquisition requires separate authorization; no replay,backfill,admission or deployment."
+  },
   "dev039_missing_launch_external_creation_verification": {
     "status": "LAUNCH_VERIFIED_INTAKE_COVERAGE_UNPROVEN",
     "engineering_revision": "a0bc06004f2ef545f72c4f8b1a9939f6387c2ada unchanged DEV039 audit; no implementation",

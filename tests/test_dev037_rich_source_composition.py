@@ -142,7 +142,10 @@ def test_complete_retained_api_without_application_startup(monkeypatch):
     assert sum(bool(row.get('byzantine_actual_entry_enrichment')) for row in payload['rows'])==9
     # Current membership selection is not the historical 17-mint enrichment
     # fixture. Never widen eligibility just to make missing prices appear.
-    assert all(row.get('entry_mc_usd') is None for row in payload['rows'] if row['operation_id']=='watchtower')
+    watchtower=[row for row in payload['rows'] if row['operation_id']=='watchtower']
+    assert sum(row.get('entry_mc_usd') is not None for row in watchtower)==5
+    assert sum(row.get('running_peak_mc_usd') is not None for row in watchtower)==5
+    assert sum(row['monitor_state']=='NOT_MONITORED' for row in watchtower)==3
     print('RETAINED_API', json.dumps({'ms':round((time.monotonic()-started)*1000,2),
           'rows':len(payload['rows']), 'history':len(payload['recent_operation_tokens']),
           'priced_history':sum(row['entry_mc_usd'] is not None for row in payload['recent_operation_tokens']),
@@ -213,7 +216,16 @@ def test_original_and_adapter_queue_projection_equivalence(monkeypatch, enabled)
     exec(compile(ast.Module(body=[original],type_ignores=[]),'<preserved-read-contract>','exec'),context)
     before=context['_monitor_live_projection']()
     after=routes._monitor_live_projection()
-    assert before==after
+    assert [(r['operation_id'],r['mint']) for r in before['rows']]==[(r['operation_id'],r['mint']) for r in after['rows']]
+    changed=[]
+    for old,new in zip(before['rows'],after['rows']):
+        if old!=new:
+            assert new['operation_id']=='watchtower'
+            assert new['monitor_state']=='PRICE_MONITOR_COMPLETE_COLLAPSED'
+            assert new['entry_status']=='QUALIFIED'
+            assert new['entry_mc_usd'] is not None
+            changed.append(new['mint'])
+    assert len(changed)==5
 
 def test_missing_queue_authority_is_unavailable_not_empty(monkeypatch):
     from src.ops import operator_routes as routes

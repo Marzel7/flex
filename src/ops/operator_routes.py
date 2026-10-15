@@ -201,6 +201,44 @@ def _mission_control_monitor_read_connection() -> sqlite3.Connection:
 
 
 
+def _selected_monitor_facts(identities: list[tuple[str, str]]) -> dict:
+    """Read facts only for selected identities, independent of priority LIMIT.
+
+    This is an identity join, not another selection authority. Preserve the
+    stored methods, prices and states; bounded peaks are never finalized here.
+    """
+    selected = list(dict.fromkeys(identities))
+    if len(selected) > MONITOR_UI_FACT_LIMIT:
+        raise MissionControlMonitorAuthorityError("selected monitor identity budget exceeded")
+    if not selected:
+        return {}
+    connection = _mission_control_monitor_read_connection()
+    connection.row_factory = sqlite3.Row
+    try:
+        facts = {}
+        for identity in selected:
+            record = connection.execute(
+                "SELECT * FROM operation_monitor_facts WHERE operation_id=? AND mint=?",
+                identity,
+            ).fetchone()
+            if record is None:
+                continue
+            row = dict(record)
+            high = connection.execute(
+                "SELECT 1 FROM operation_monitor_observations WHERE operation_id=? AND mint=? "
+                "AND high_mc_usd IS NOT NULL LIMIT 1", identity,
+            ).fetchone()
+            observed = high or connection.execute(
+                "SELECT 1 FROM operation_monitor_observations WHERE operation_id=? AND mint=? LIMIT 1",
+                identity,
+            ).fetchone()
+            row['peak_exactness'] = 'CANDLE_HIGH' if high else 'CLOSE_ONLY_LOWER_BOUND' if observed else 'ENTRY_ONLY'
+            facts[identity] = row
+        return facts
+    finally:
+        connection.close()
+
+
 def _monitor_live_projection() -> dict:
     """Read-only projection; it never constructs a queue or provider client."""
     from src.core.db import OPS_DB_PATH
@@ -356,6 +394,13 @@ def _monitor_live_projection() -> dict:
                     tuple(monitor_by_operator),
                 )]
         facts = {(str(row.get('operation_id')).lower(), str(row.get('mint'))): row for row in rows}
+        # Membership determines the existing selected identities. The initial
+        # priority-limited facts are not a complete identity lookup: terminal
+        # evidence can sit outside that subset and must not become a placeholder.
+        facts.update(_selected_monitor_facts([
+            (monitor_by_operator[str(assignment['operator_id'])], str(assignment['mint']))
+            for assignment in recent
+        ]))
         projected = []
         for assignment in recent:
             display_name = operator_names[assignment['operator_id']]

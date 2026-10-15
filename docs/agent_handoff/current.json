@@ -1,4 +1,22 @@
 {
+  "dev039_two_latest_completed_migration_version_checks": {
+    "status": "BOTH_VERSION0_HANDOFFS_COMPLETE; V1_FUNCTIONAL_ACCEPTANCE_PENDING_LIVE_EVIDENCE",
+    "engineering_revision": "f52609c058be6f881f15d887771160c2b3881ebd qualified installed listener;no runtimechanges",
+    "selection": "Latest2distinct MIGRATION_TOTAL completions at selection time in bounded postinstall listener.log suffix;fullmint uniquely resolved and canonical exactsignature/slot verified by primarykeyread. Snapshot latest,not assertion no later events.",
+    "results": [
+      {"mint":"DntgsvebgVev5qRUD8zv1mbTNXd6EAWTEvZ8ho4dpump","signature":"3L3qzLpPgoZTSGqcAsQ1ATDiFzNrVB3H4q6vbrb6FBnnMp7F5aJEikhMLAEejZvn4JvDDdQAydXr5pg8EAsAXVyk","version":0,"slot":457419363,"provider_block_time":1792106587,"utc":"2026-10-15T23:23:07Z","canonical_migrated_at":1792106588,"execution_error":null,"signature_and_mint_match":true,"instruction":"MigrateV2","handoff":"COMPLETE","attempt_count":0,"handoff_completed_at":1792106591,"handoff_error":null,"queue":"one mintPKrow FULL_WALKBACK/waiting"},
+      {"mint":"Bi3Soo48uprAtDim6Ks5pBNje5hS54ZLAGC9ks1Epump","signature":"2tuchULW7EcfqeEgb4R3stkcu9APcMTXbKSRnxrfEbY3UjZ3nCm1dNUPP6Cr6nrdiuo3i1gX2js4o72hAurRLVZy","version":0,"slot":457418925,"provider_block_time":1792106493,"utc":"2026-10-15T23:21:33Z","canonical_migrated_at":1792106494,"execution_error":null,"signature_and_mint_match":true,"instruction":"Migrate","handoff":"COMPLETE","attempt_count":0,"handoff_completed_at":1792106506,"handoff_error":null,"queue":"one mintPKrow PARTIAL_TREASURY/complete"}
+    ],
+    "provider_budget": "Exactly2userauthorizedrequests,one exact getTransaction per selectedsignature through establishedALCHEMYURL,jsonParsed/finalized/maxSupportedTransactionVersion1. BothHTTP200 andsuccessful.20secondtimeout/256KiBmemorycap each,0retry,no pagination/unrelatedtransactions/rawresponse/credentialretention. No extra providerrequests.",
+    "read_only_confirmation": "Canonical migration,slot andsignature matched;handoffs rechecked afterproviderverification,eachCOMPLETE0attempts/errorNULL. DBconnectionsmode=ro/query_only,0.5-1secondprogressbudgets;no writes/replay orservicechanges. Downstreamqueueprocessing distinct fromhandoffcommit;notclaiming Watchtoweradmission.",
+    "verdict": "Bothlatestselectedmigrations independently verifiedV0,notV1. LiveV0handling/handoff confirmed;V1functionalacceptance remainsPENDING_LIVE_EVIDENCE. MigrateV2 doesnotmean transactionversion1. Qualified listener remainsinstalled underapprovedpolicy.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only targeted providerverification and committedhandoff audit only.",
+    "provider_calls": 2,
+    "production_changes": 0,
+    "database_writes": 0,
+    "next_action": "STOP;2requestbudgetexhausted. Leaveexistingruntimeunchanged,no replay/acquisition/restart/furthersearch authorized."
+  },
   "dev037_mission_control_8103_data_acceptance_audit": {
     "status": "PARTIAL_DATA_LOADING; OPERATIONAL_TELEMETRY_INCOMPLETE",
     "engineering_revision": "cb882091bbd402ad826fc44cc82541a0e3d4b2ca existing guarded8103preview;no source/runtime changes",

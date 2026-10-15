@@ -35,7 +35,7 @@ class MissionControlMonitorAuthorityError(RuntimeError):
 
 
 RECENT_TOKEN_LIMIT = 20
-RECENT_TOKEN_SORT = "CREATE_OR_ASSIGNMENT_TIMESTAMP_DESC"
+RECENT_TOKEN_SORT = "MEMBERSHIP_ASSIGNED_AT_DESC_MINT_DESC"
 MONITOR_UI_FACT_LIMIT = RECENT_TOKEN_LIMIT
 
 _MONITOR_QUEUE_STATES = ("pending", "retry", "processing", "dead_letter")
@@ -390,7 +390,7 @@ def _monitor_live_projection() -> dict:
                 conn.row_factory = sqlite3.Row
                 recent = [dict(row) for row in conn.execute(
                     f"SELECT mint,operator_id,assigned_at FROM operator_launch_membership "
-                    f"WHERE operator_id IN ({placeholders}) ORDER BY assigned_at DESC LIMIT {MONITOR_UI_FACT_LIMIT}",
+                    f"WHERE operator_id IN ({placeholders}) ORDER BY assigned_at DESC,mint DESC LIMIT {MONITOR_UI_FACT_LIMIT}",
                     tuple(monitor_by_operator),
                 )]
         facts = {(str(row.get('operation_id')).lower(), str(row.get('mint'))): row for row in rows}
@@ -421,18 +421,12 @@ def _monitor_live_projection() -> dict:
             row['operation_display_name'] = display_name
             row['assignment_timestamp'] = assignment['assigned_at']
             projected.append(row)
-        if recent:
-            # The recent-membership fallback is appropriate for generic
-            # operations, but Byzantine's DEV surface has an explicit frozen
-            # prospective Monitor authority.  Preserve those facts rather
-            # than replacing them with unrelated newer memberships that have
-            # no Monitor evidence.  This is read-model selection only.
-            byzantine_facts = [row for row in rows if str(row.get('operation_id')).lower() == 'byzantine']
-            rows = [row for row in projected if str(row.get('operation_id')).lower() != 'byzantine'] + byzantine_facts
-    except (sqlite3.Error, OSError, ValueError, KeyError):
-        # Keep the established Monitor projection if the registry read model is
-        # temporarily unavailable; this endpoint must remain observational.
-        pass
+        # Membership is unique by mint. Its globally ordered selection is the
+        # complete selected population, including a qualified empty result.
+        # Never replace any operation's identities with older monitor facts.
+        rows = projected
+    except (sqlite3.Error, OSError, ValueError, KeyError) as exc:
+        raise MissionControlMonitorAuthorityError("canonical history membership unavailable") from exc
     # All remaining enrichment is bounded to the existing UI population.
     rows = rows[:MONITOR_UI_FACT_LIMIT]
     # The recent membership projection may introduce mints that never had a

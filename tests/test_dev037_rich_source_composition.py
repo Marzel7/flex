@@ -139,13 +139,28 @@ def test_complete_retained_api_without_application_startup(monkeypatch):
     assert 'src.ops.operation_monitor_worker' not in sys.modules
     assert sum(row['operation_id']=='watchtower' for row in payload['rows'])==8
     assert sum(row['operation_id']=='byzantine' for row in payload['rows'])==12
-    assert sum(bool(row.get('byzantine_actual_entry_enrichment')) for row in payload['rows'])==9
+    assert all(row['assignment_timestamp'] for row in payload['rows'])
     # Current membership selection is not the historical 17-mint enrichment
     # fixture. Never widen eligibility just to make missing prices appear.
     watchtower=[row for row in payload['rows'] if row['operation_id']=='watchtower']
     assert sum(row.get('entry_mc_usd') is not None for row in watchtower)==5
     assert sum(row.get('running_peak_mc_usd') is not None for row in watchtower)==5
     assert sum(row['monitor_state']=='NOT_MONITORED' for row in watchtower)==3
+    from src.ops.operation_monitor_capabilities import monitor_capable_operations
+    active=[row for row in routes._get_store().fetch_active_manual_operators(limit=200)
+            if row.get('qualification_category')!='PROVISIONAL']
+    eligible=monitor_capable_operations(active)
+    names={row['operator_id']:row['monitor_operation_id'] for row in eligible}
+    connection=sqlite3.connect(OPS)
+    try:
+        placeholders=','.join('?' for _ in names)
+        expected=connection.execute(
+            f'SELECT mint,operator_id,assigned_at FROM operator_launch_membership WHERE operator_id IN ({placeholders}) '
+            'ORDER BY assigned_at DESC,mint DESC LIMIT 20',tuple(names)).fetchall()
+    finally:
+        connection.close()
+    assert [(r['mint'],r['operation_id'],r['assignment_timestamp']) for r in payload['recent_operation_tokens']]==[
+        (mint,names[operator],timestamp) for mint,operator,timestamp in expected]
     print('RETAINED_API', json.dumps({'ms':round((time.monotonic()-started)*1000,2),
           'rows':len(payload['rows']), 'history':len(payload['recent_operation_tokens']),
           'priced_history':sum(row['entry_mc_usd'] is not None for row in payload['recent_operation_tokens']),
@@ -216,16 +231,15 @@ def test_original_and_adapter_queue_projection_equivalence(monkeypatch, enabled)
     exec(compile(ast.Module(body=[original],type_ignores=[]),'<preserved-read-contract>','exec'),context)
     before=context['_monitor_live_projection']()
     after=routes._monitor_live_projection()
-    assert [(r['operation_id'],r['mint']) for r in before['rows']]==[(r['operation_id'],r['mint']) for r in after['rows']]
-    changed=[]
-    for old,new in zip(before['rows'],after['rows']):
-        if old!=new:
-            assert new['operation_id']=='watchtower'
-            assert new['monitor_state']=='PRICE_MONITOR_COMPLETE_COLLAPSED'
-            assert new['entry_status']=='QUALIFIED'
-            assert new['entry_mc_usd'] is not None
-            changed.append(new['mint'])
-    assert len(changed)==5
+    # The legacy Byz substitution is intentionally removed. Queue enablement
+    # must not override canonical membership chronology or the restored WTfacts.
+    assert [r['mint'] for r in before['rows'] if r['operation_id']=='watchtower']==[
+        r['mint'] for r in after['rows'] if r['operation_id']=='watchtower']
+    assert {r['mint'] for r in before['rows'] if r['operation_id']=='byzantine'}!={
+        r['mint'] for r in after['rows'] if r['operation_id']=='byzantine'}
+    keys=[(r['assignment_timestamp'],r['mint']) for r in after['rows']]
+    assert keys==sorted(keys,reverse=True)
+    assert sum(r['operation_id']=='watchtower' and r.get('entry_status')=='QUALIFIED' for r in after['rows'])==5
 
 def test_missing_queue_authority_is_unavailable_not_empty(monkeypatch):
     from src.ops import operator_routes as routes

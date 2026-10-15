@@ -1,4 +1,23 @@
 {
+  "dev039_three_historical_admission_decisions": {
+    "status": "INSUFFICIENT_EVIDENCE_ORIGINAL_VALIDATOR_AND_INPUT_SNAPSHOT_NOT_RETAINED",
+    "engineering_revision": "a0bc06004f2ef545f72c4f8b1a9939f6387c2ada unchanged DEV039 audit; no implementation",
+    "candidate_timelines": [
+      {"mint":"4vvmFPzhuW2cdfSxtHUfJQCSFFb7zPBXH4neBooipump","decision_utc":"2026-09-28T02:54:42Z","decision_epoch":1790564082,"session_recorded_at":1790564082,"retained_creator_funding_time":1790563998,"classification":"INSUFFICIENT_EVIDENCE"},
+      {"mint":"C5zyCRUo23yLHDfcYWWTZNVh4yxWgQ8PFr1zx1Zrpump","decision_utc":"2026-09-28T00:56:59Z","decision_epoch":1790557019,"session_recorded_at":1790557019,"retained_creator_funding_time":1790557010,"classification":"INSUFFICIENT_EVIDENCE"},
+      {"mint":"2pMyVuWtYh3SH44RNKPqqj6tiYqfMAFaKFkohS1npump","decision_utc":"2026-09-27T23:42:44Z","decision_epoch":1790552564,"session_recorded_at":1790552564,"retained_creator_funding_time":1790552518,"classification":"INSUFFICIENT_EVIDENCE"}
+    ],
+    "original_decisions": "Each has exactly1 retained outcome, attempt_count1, first_attempted_at=last_attempted_at=terminal completion, REJECTED_ROUTE_EVIDENCE_INCOMPLETE, registry ABSENT->ABSENT, validator_version WATCHTOWER_ROLE_NORMALIZED_ROUTE_V1. All match evidence_digest c2965c71a57be691301d0cf8f633b57323d13700c6cf47d75d90d5c1bc10ec51; all qualification booleansNULL. No original sourceSHA/worker identity or original validation-input snapshot in these rows.",
+    "digest_limit": "Static _promotion_evidence_digest source hashes validator label+validation result+outcome, not raw queue/session account fields or transaction provenance. Same digest across three rejections therefore does not recover their original evidence or prove identical routes.",
+    "retained_evidence": "All3 currently have Gzaa queue treasury, nonempty creator/SubProvider/funder signature, WSOL_WRAP_CLOSE and matching session creator/SubProvider/WSOL. All3 sessions have NULL treasury, treasury-hop time/mechanism/amount, and creator-launch time. This supports retained creator-funding observation, not complete treasury ancestry or fanout/Funding Account qualification. No null treasury treated as proof of a genuine Watchtower route.",
+    "later_evidence_changes": "Queue updated_at=completed_at, session recorded_at=completion, attribution source_queue_updated_at/materialized_at=completion. No later update or later admission attempt evidenced by these timestamps. Mutable rows lack revision history/input snapshot; cannot prove no field ever changed or establish original values conclusively.",
+    "historical_rule_comparison": "Static inspection of preserved7fb29c0dda3bfb76e14a4349dcf7b9faa5bd1d28 and662d5e5919f520afe39a74fb955b5a9243eb2f40 already permits NULL session treasury, like current validator. Both commits are later than these three decision times; neither establishes actually loaded original source. Later role-distinguishing direct-edge addition affects nonnull mismatches, not these NULL cases. Therefore no demonstrated later null-rule change explains discrepancy; original rejection validity cannot be established from present rows and version label alone.",
+    "requalification_eligibility": "NOT ESTABLISHED. Present minimal-validator compatibility is not independently qualified ancestry or authorization. Do not label HISTORICALLY_VALID_REJECTION or STALE_DECISION_REQUIRES_REQUALIFICATION conclusively without original validator/input provenance. No replay, requalification or admission executed.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only decision provenance audit; no executable changes.",
+    "safety": "Provider calls0;production changes0;DBwrites0;no service/source/policy changes,replay/backfill/acquisition or evidence relocation. Identity-indexed mode=ro/query_only reads within2second deadline; static committed-source inspection only. Compact handoff is sole write; no runtime storage growth.",
+    "next_action": "STOP at required provenance limitation. Original loaded validator SHA and decision-time input snapshot unavailable from checked retained records. No implementation, requalification, admission or deployment authorized."
+  },
   "dev039_post_detection_admission_audit": {
     "status": "MATERIAL_CHANGE_NO_PROVEN_FAILURE",
     "engineering_revision": "a0bc06004f2ef545f72c4f8b1a9939f6387c2ada unchanged audit; compared afbe9e58 committed admission with current pinned production disk modules documented in preceding handoff",

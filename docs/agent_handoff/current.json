@@ -1,4 +1,19 @@
 {
+  "dev037_watchtower_activity_sql_first_qualification": {
+    "status": "HOLD_EXISTING_50MS_BUDGET_NOT_MET",
+    "engineering_revision": "e723d26819ebdd83bcecedae1d087fc5314b9ffa",
+    "objective": "Qualify accepted Watchtower ledger-plus-membership activity counts and detection/admission/monitoring distinctions without changing the existing read budget.",
+    "frozen_compatibility": "Preserved frozen/current manual_registry contract: distinct non-review ledger mints with MAX(create_time), strict membership union, canonical core created_at fallback only for membership-only mints, rolling > now minus 1/7/30 days. Untimestamped launch remains in total but not time windows. No assigned_at substitution or Deep membership merge.",
+    "qualification": "One renewed SQL-first read-only experiment used canonical OPS/core and existing DEV monitor authorities, mode=ro, query_only, shared 50ms deadline, progress callback every 1000 instructions, LIMIT 2001 caps. Ledger grouping/filtering was moved into SQL; membership and exact-mint core fallback and monitor reads were planned within the same deadline. SQLite interrupted at 51.06ms during the OPS stage, before core fallback or monitor reads. Evidence does not distinguish ledger SQL from subsequent membership SQL within that stage. No complete or partial result was accepted.",
+    "counts": "Prior verified audit context only: canonical population 969, timestamped 968, windows 4/41/332, non-review ledger 953, strict memberships 616. These are not newly qualified budget-compliant results. Four newer ledger-only launches remain unadmitted, with three WATCHTOWER_CONFIRMED and one LINEAGE_GAP, and no retained monitor facts or strict opening provenance.",
+    "implementation_and_tests": "No source changes, new tests, deployment or browser acceptance. Read-budget feasibility failed. Previous 35 focused tests, global latest-20 ordering and five restored Watchtower price pairs remain preserved; no new pass claimed.",
+    "runtime": "Preview source e723d26819ebdd83bcecedae1d087fc5314b9ffa and last verified PID 37837 unchanged by this task. Ports 8100 and 8102 untouched. No service restart or configuration change.",
+    "research_integrity": "Research files were not modified, copied or reacquired. Previously verified hashes retained in preceding handoff; no fresh hash verification claimed for this renewed experiment.",
+    "safety": "Provider/RPC calls 0; production changes 0; canonical database writes 0; queue writes 0; migrations/indexes/workers/caches 0. Only compact handoff publication. No database copies or raw payload retention; no storage-producing feature introduced.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only feasibility stopped at explicit budget failure; no executable change.",
+    "next_action": "Stop; preserve preview. Counts remain unrestored. Separate authorization is required to revise the read budget or qualify another narrowly scoped approach; do not increase budget, add infrastructure or restart automatically."
+  },
   "dev037_watchtower_activity_projection_budget_qualification": {
     "status": "HOLD_COMPLETE_READ_PATH_EXCEEDED_EXISTING_50MS_BUDGET_NO_IMPLEMENTATION",
     "engineering_revision": "e723d26819ebdd83bcecedae1d087fc5314b9ffa",

@@ -1,4 +1,19 @@
 {
+  "dev037_rich_browser_acceptance_8103": {
+    "status": "HOLD_BROWSER_ACCEPTANCE_FAILED_QUEUE_AUTHORITY_MISMATCH",
+    "engineering_revision": "d22ac6291a295460b4136e4ef73f9e4f4eaf12e6",
+    "runtime": "Isolated manually launched src.dev_runtime PID18964, port127.0.0.1:8103, source/Users/kevinkeaveney/.codex/worktrees/dev037-pre-dev035-ui-candidate/flex; exec session13794. No launchd change. Preview left available for inspecting explicit failure, not accepted rich UI.",
+    "startup_configuration": "FLEX_DEV_READ_ONLY_QUALIFICATION=1,FLEX_DEV_RELOAD=0,FLEX_DEV_OPERATIONS_MODE=OFF. Fresh disposable state/private/tmp/flex-dev037-rich-preview.8Vl62t; existing qualified compact core fixture/private/tmp/flex-dev037-qualification.odp7tk/core-fixture.db. Canonical absoluteWT_OPS_DB_PATH;MISSION_CONTROL_MONITOR_UI_DB_PATH andWATCHTOWER_MONITOR_UI_DB_PATH bound to existing.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db;WATCHTOWER_MONITOR_QUEUE_PATH same authority/dev_005a/queue. All SQLite connections forced read-only, including startup policy reads; no DB clone or initialization writes.",
+    "acceptance": "Port8103 bound; healthz200 in29.6ms. Actual monitor API503 in579.7ms with errorMONITOR_QUEUE_AUTHORITY_MISMATCH. Browser tab16 http://127.0.0.1:8103/intelligence/operators visibly shows guardedDEV banner, navigation, separate API-live label and UNAVAILABLE Live Monitor data unavailable;0token rows. Rich price/history/WT/Byz presentation cannot be accepted. No synthetic substitution or claim of visible retained prices. Other page acceptance stopped at this demonstrated blocker.",
+    "root_cause": "Unchanged src.dev_runtime overwrites OPERATION_MONITOR_QUEUE_PATH to DEV_ROOT/monitor/queue, here/private/tmp/flex-dev037-rich-preview.8Vl62t/monitor/queue. Adapter requires explicitWATCHTOWER_MONITOR_QUEUE_PATH to agree with that worker path when set. Qualified retainedqueue is/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue. Offline endpoint tests unset or matched OPERATION_MONITOR_QUEUE_PATH and missed the wrapper overwrite. Do not weaken authority checks or silently substitute queue.",
+    "additional_startup_evidence": "Nonfatal import error: operator startup cannot import commit_write_and_wait from src.core.db_writer; not investigated or repaired. Optional price_api metadata initialization attempted absent worktree-relativeDB and was denied by wrapper. Guarded main API nonetheless starts and liveness200. No scope expansion.",
+    "safety": "Existing8100PID95243 and8102PID97775 preserved; no existing service restart, source edits, provider/RPC calls, canonical writes, production change or migration. Current wrapper FD threshold/network denial/worker suppression unchanged. New disposable state only, no raw provider payload retention or large DB copies.",
+    "research": "Fresh hashes unchanged:539cohort0aec34375865d5106341a3c03c9afa22f3cbf89e8c15f737cb57b5e6126a679d;DEV033candles6ebea1e8c6fc84b466e6910f51a1c26e5ecf16964fe4a1728475dc60d22a4456;backtest8bdac654215bfa304162c567acd7bece4409a0c1512741c62c12318261166eea.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "ready_for_persistent_dev_deployment": false,
+    "next_action": "Stop. Separate authorization needed for minimal wrapper/adapter queue-binding compatibility correction preserving exact authority and safety; no further runtime or source engineering authorized by this browser-acceptance task."
+  },
   "dev037_rich_browser_acceptance_preflight": {
     "status": "HOLD_PORT_8102_OCCUPIED_NO_RUNTIME_CHANGED",
     "engineering_revision": "d22ac6291a295460b4136e4ef73f9e4f4eaf12e6",

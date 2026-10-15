@@ -1,4 +1,26 @@
 {
+  "dev039_single_request_latest_migration_version_check": {
+    "status": "VERSION0_LIVE_COMPATIBILITY_VERIFIED; V1_FUNCTIONAL_ACCEPTANCE_PENDING_LIVE_EVIDENCE",
+    "engineering_revision": "f52609c058be6f881f15d887771160c2b3881ebd; retained qualified listener unchanged",
+    "checked_at_utc": "2026-10-15T22:54:00Z",
+    "selection": "Latest MIGRATION_TOTAL completion at selection time in bounded postinstall listener.log suffix;exact fullmint resolved uniquely from retained MIGRATION_DETECTED log and correlated by signatureprefix to primarykey canonicalrecord. 'Latest' is selection-time snapshot,notclaimno subsequent runtime events. Initial indexed migrated_tokens latest lookup returned no rows;actual listener authority token_analysis used instead,no broadtable scans.",
+    "mint": "AUTi5kVWVzdcFMBneRdyP5WymXaJP3Yg956rWSuVpump",
+    "signature": "bMmyX7ixojeuECnbAj1NDp7BJPbVPBAHg96A5u4JaAJJEcmcyw1CQcMhxfUWqZqd8sygdayATWE5x1kPSLE4rk1",
+    "transaction_version": 0,
+    "slot": 457410715,
+    "block_time": 1792104727,
+    "timestamp_utc": "2026-10-15T22:52:07Z",
+    "provider_verification": "Exactly1user-authorized request via established ALCHEMY URL,getTransaction exactsignature,jsonParsed,finalized,maxSupportedTransactionVersion1;HTTP200,meta.errnull,exactsignaturematch,targetmint inaccounts,version0. LogsMigrateV2+CreatePool. This independently demonstrates why MigrateV2 is nottransactionversion1.20secondtimeout,256KiBmemorycap,0retry,no rawresponse/credentialsretained. No otherproviderrequests.",
+    "committed_handoff": "Canonical token_analysis exactmint has same fullsignature,migration_slot457410715,migrated_at1792104727. migration_walkback_handoff COMPLETE,attempt_count0,completed_at1792104731,last_error_classNULL. OPS wt_walkback_queue exactlyone row PARTIAL_TREASURY,pending,enqueued_at1792104728. Mode=ro/query_only primarykeyqueries,1secondprogressbudgets. Pending downstreamworkerprocessing is distinct from successfully committed handoff;notclaiming treasuryqualification/admission.",
+    "acceptance": "LiveV0retrieval/persistence/handoff compatibility established on installed corrected runtime. Selectedtransaction is notV1;V1functionalacceptance remainsPENDING_LIVE_EVIDENCE. Do not chase othertokens/exceed1request,roll backforabsentV1 orclaimalltransactionsverified.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Targeted read-only acceptance evidence verification only;no executable/runtime changes.",
+    "provider_calls": 1,
+    "production_changes": 0,
+    "database_writes": 0,
+    "storage": "No rawproviderresponse retention,DBcopies or newgrowthpaths;compacthandoffonly.",
+    "next_action": "STOP;leavequalifiedlistenerinstalled. V1functionalacceptancepending;no secondproviderrequest,replay,manualqueuewrite orruntimechange authorized."
+  },
   "dev039_v1_deferred_evidence_check_20261015_224810": {
     "status": "V1_FUNCTIONAL_ACCEPTANCE_PENDING_LIVE_EVIDENCE; NATURAL_MIGRATION_HANDOFFS_CONTINUE",
     "engineering_revision": "f52609c058be6f881f15d887771160c2b3881ebd qualified installed listener-file source; no source/runtime changes by this check",

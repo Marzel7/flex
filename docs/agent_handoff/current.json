@@ -1,4 +1,45 @@
 {
+  "dev039_post_detection_admission_audit": {
+    "status": "MATERIAL_CHANGE_NO_PROVEN_FAILURE",
+    "engineering_revision": "a0bc06004f2ef545f72c4f8b1a9939f6387c2ada unchanged audit; compared afbe9e58 committed admission with current pinned production disk modules documented in preceding handoff",
+    "scope": "Read-only post-detection audit only. No detector recomparison, classifier invocation, projector replay or historical reconstruction. All interpretation from existing rows and static predicates. No complete independently qualified genuine launch proven lost under a stricter new admission gate.",
+    "historical_contract": "Canonical attribution eligibility CANONICAL_OPERATOR_REACHED plus Watchtower operator unchanged. Historical ledger promotion also allowed queue-route-only eligibility. Old verified queue route required creator/treasury/subprov/signature nonempty, WSOL queue+session, creator/SubProvider equality and exact queue/session treasury equality. Worker invoked membership projector only if ledger action promoted/already_present. Membership was direct INSERT.",
+    "current_contract": "Ledger promotion requires canonical attribution; independent membership invocation no longer depends on ledger success. Queue/session treasury mismatch is allowed only with retained direct role edge; null session treasury permitted. Remaining creator/SubProvider/signature/WSOL checks retained. Membership uses same-source membership+outbox helper, explicit outcomes. No old verified-route check became more restrictive at this evidence gate; new persistence dependencies can fail in principle but no observed candidate failure proves that occurred.",
+    "bounded_population": "Indexed canonical outcome/time samples 4 before Sep22 and4 afterSep28 initially; unsupported LINK_ONLY/cache labels excluded as positives. Expanded outcome-index query for WATCHTOWER_CONFIRMED/WSOL/unadmitted/completed>=1790550000 (2026-09-27T23:00:00Z) LIMIT33 returned12, below cap; all12 have explicit retained rejection decisions. Query remained under2second connection budget. This is a finite selected population, not all historical qualification coverage.",
+    "successful_admission_controls": [
+      {"mint":"EQ8kbWKfvmGeCF4UFjqBftsvnuqCC1ejBxZTJX8opump","transition":"FULL_WALKBACK confirmed/WSOL -> Gzaa TOPOLOGY_COHORT STRICT root, matching session treasury/creator/SubProvider -> canonical outcome + ledger retained -> canonical membership assigned1790025816. Legacy event_id null; no explicit promotion outcome retained. Both old/current evidence predicates compatible; complete fanout proof not newly asserted."},
+      {"mint":"EHY56TBNQ1jX6zUQx7gTPwbdGo7zfKMUH6kvXLbSpump","transition":"FULL/WSOL completed1790028473 -> queue2gh/sessionGozg -> ledger present -> PROMOTED/member1790340140, event_idnull. Previously preserved role-normalization evidence supports this distinction. Old exact equality would reject these present rows, illustrating expansion rather than stricter rejection; historical row snapshots unavailable."},
+      {"mint":"2GE5VekSBFzLBXfNYTJ58bnEyCepqSPLpzA9JZjJpump","transition":"FULL/WSOL confirmed -> Gzaa root/session2b6 role distinction -> ledger present -> PROMOTED -> member/outbox same identity1791328581 (Oct6 23:16:21Z), outbox DELIVERED. No persistence loss observed."},
+      {"mint":"6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump","transition":"FULL/WSOL confirmed -> Gzaa/sessionGzaa matching roles/signature -> ledger present -> PROMOTED/member1791480358 Oct8 17:25:58Z -> matching outbox DELIVERED. Old/current admission predicates compatible. Prior missing Funding Account/fanout artifact limitation preserved; do not promote membership label into complete five-stage positive proof."}
+    ],
+    "recent_treasury_conflicts": [
+      "ip623MjNNPmgNUiGYjmtRrAZs3EmTbDJgbCzrnYpump: queue9uYKnSF... vs session4RnbLv...",
+      "RBgEki8XNdpx6xB9ozWsMcKpqTasjvgH6riqRzHpump: queue6qFhFhz... vs session5tLyQ1...",
+      "D7gDjeXBKT3p3Qs5kVUGD7KrntPsJW4kJLnXHMSpump: queueECNdNm... vs session3JLBsy...",
+      "ZSQhojF6qe6jhJggETrimLCgVePzLCoAwkPJaTHpump: queueE1J5xP... vs session3L4Xt...",
+      "PS88MitFtGtaaj2RbeCvUSgcwvV2KDkB5P39w6ppump: queueFqtLm1... vs session8LgER...",
+      "oduUBrsiu3WhTDZmEUUyCf55tYicswdmACSuBJZpump: queue2qZ3G... vs sessionEGUDF...",
+      "ANMU6Bytzuy4zwQJNf29Zw5nADt9M9CS8LS6jr8Ypump: queue2gh vs sessionGozg",
+      "DfgAB26ETW55SEhEc6KkAutwDq52ByxZpVqcN9Eqpump: queue2gh vs sessionGozg",
+      "7H5ieJCw4wu1PpDRva831GA4WmfGku8fmVtSzxZRpump: queue2gh vs sessionGozg"
+    ],
+    "conflict_transition": "All9 selected unadmitted WSOL rows retain creator/SubProvider match and signature, recorded REJECTED_TREASURY_EVIDENCE_CONFLICT, no membership. Four newest inspected additionally retain canonical-attribution eligibility and existing launch ledger, so first observed unsuccessful transition is membership validation, not ledger eligibility or insertion. LAUNCH_CHAIN treasury registry labels are not independently verified ancestry. Old exact equality fails same mismatched evidence. Do not call all conflicts genuine or policy-correct without complete role proof.",
+    "stale_decision_discrepancy": [
+      "4vvmFPzhuW2cdfSxtHUfJQCSFFb7zPBXH4neBooipump",
+      "C5zyCRUo23yLHDfcYWWTZNVh4yxWgQ8PFr1zx1Zrpump",
+      "2pMyVuWtYh3SH44RNKPqqj6tiYqfMAFaKFkohS1npump"
+    ],
+    "stale_decision_details": "These3 retain Gzaa queue treasury, WSOL/signature, matching session creator/SubProvider and WSOL, but session treasuryNULL; original completion-time outcome REJECTED_ROUTE_EVIDENCE_INCOMPLETE, no later attempt, no membership. Present fields satisfy current on-disk minimal validator's null-session rule by static comparison, while old equality fails. Thus unresolved historical-version/evidence-update/requalification processing gap; not proven historical-pass/current-reject regression or complete five-stage genuine qualification. Exact validator loaded at original attempts unavailable. No replay executed or recommended automatically.",
+    "negative_control": "Ei6z97gFFVqfoMu4oswbSViBuBSh4fJDrd2ZMpSMpump confirms canonical attribution/ledger can coexist with F7p3 PLAIN_XFER and REJECTED_FUNDING_MECHANISM_MISMATCH/no membership. Legitimate mechanism gate under both contracts, not qualified positive or persistence loss. Other two F7 controls unchanged from prior audit.",
+    "persistence": "Both inspected post-change membership event IDs have exact membership_id-index outbox DELIVERED rows. State-index bounded PENDING query LIMIT501 returned0. No outbox writes/replay. No missing outbox inferred from null legacy event IDs. Bounded last64KiB current worker log has0 registry-call/ledger-failure/storage-limit/conflict messages; not proof of clean historical logs. Latest retained canonical Watchtower membership E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump assigned1791635260 Oct10 12:27:40Z.",
+    "evidence_limit": "Direct role-edge table has no indexes. Attempted bounded read returned no matching edges for first2 newest pairs; shared2second progress budget interrupted during third. No retry/full scan; no assertion that all other role links absent. Persisted rejection decisions used rather than unsupported reconstruction. Complete five-stage positives and historical loaded source remain separately limited as recorded earlier.",
+    "first_failed_transition": "Observed: membership route qualification for12 unadmitted WSOL rows. PROVEN_GENUINE_ADMISSION_REGRESSION: NONE. Three null-session cases have stale decision/current-source discrepancy requiring distinct provenance clarification, not policy weakening or automatic admission.",
+    "regression_commit": "NONE PROVEN. Relevant material commits remain7fb29c0d promotion repair/role normalization,d64809b9 membership outbox,662d5e59 wrapper lineage; exact original deployment/loaded revision not established.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only admission evidence and static-contract audit only.",
+    "safety": "Provider calls0;production changes0;database writes0;no source/service/treasury/policy/UI changes,replay/backfill or data copies. Only compact required handoff publication; no runtime file-growth paths.",
+    "next_action": "STOP. No corrective source change or rollback justified. If separately authorized, clarify original validator/evidence timing for named3 stale decisions and already-retained role proof for2gh/Gozg cases; do not reclassify, replay or admit from this audit."
+  },
   "dev039_pre_oct7_detection_code_comparison": {
     "status": "MATERIAL_CHANGES_CAUSALITY_UNPROVEN",
     "engineering_revision": "a0bc06004f2ef545f72c4f8b1a9939f6387c2ada unchanged DEV039 audit; no executable edits",

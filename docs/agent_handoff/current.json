@@ -1,4 +1,17 @@
 {
+  "dev039_three_candidates_admission_commit_order": {
+    "status": "NO_PRE_PERSISTENCE_ADMISSION_IN_CHECKED_CALL_ORDER",
+    "engineering_revision": "a0bc06004f2ef545f72c4f8b1a9939f6387c2ada unchanged; static read-only comparison of pinned production disk and preserved afbe9e58/7fb29c0d",
+    "candidates": ["4vvmFPzhuW2cdfSxtHUfJQCSFFb7zPBXH4neBooipump","C5zyCRUo23yLHDfcYWWTZNVh4yxWgQ8PFr1zx1Zrpump","2pMyVuWtYh3SH44RNKPqqj6tiYqfMAFaKFkohS1npump"],
+    "call_order": "_process_row -> _store_funder writes queue funding fields -> _persist_hop1_evidence -> _capture_provisioning_facts/capture_provisioning_relationship writes session -> _mark_complete updates queue subprov/treasury/status/outcome -> materialize_outcome + sync_walkback_result -> ops.commit -> postcommit notifications/retained projectors -> _promote_if_canonical_watchtower -> ledger promotion -> project_watchtower_confirmed_membership reads queue/session using same ops connection -> subsequent admission commit. No need for a separate reader to wait for these pre-admission writes.",
+    "source_equivalence": "_process_row,_store_funder,_capture_provisioning_facts,_mark_complete AST-identical to afbe9e58 and7fb29c0d; provisioning_edges.py byte-identical. Promotion wrapper gating differs as previously recorded, but both historical/current invoke it after terminal commit. No new database queries or replay.",
+    "session_null_explanation": "Worker lines1448-1451 explicitly pass treasury=None in known-SubProvider/cached-treasury early branch because only creator funding was freshly observed; _mark_complete subsequently receives resolved treasury for queue. Provisioning sessions use ON CONFLICT(source_mint) DO NOTHING, so an existing partial session is not upgraded by later capture. These are source-supported explanations for partial session evidence, not missing commit visibility. No branch-level trace proves these3 took this exact branch or had prior session conflicts.",
+    "conclusion": "Checked call order does not support admission-before-queue/session-persistence explanation. Missing session treasury is not equivalent to unwritten queue treasury. Exact original loaded validator and decision inputs remain unproven; cannot establish cause of original ROUTE_EVIDENCE_INCOMPLETE from this static trace alone. No candidate requalified or presumed genuine.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only call/commit-order trace only.",
+    "safety": "Provider calls0; production changes0; database queries/writes0; no source/service/policy changes or replay. Required compact handoff publication only; no runtime storage growth.",
+    "next_action": "STOP. No persistence-order correction justified by checked source. Preserve original validator/input provenance limitation; no admission or implementation authorized."
+  },
   "dev039_three_historical_admission_decisions": {
     "status": "INSUFFICIENT_EVIDENCE_ORIGINAL_VALIDATOR_AND_INPUT_SNAPSHOT_NOT_RETAINED",
     "engineering_revision": "a0bc06004f2ef545f72c4f8b1a9939f6387c2ada unchanged DEV039 audit; no implementation",

@@ -563,6 +563,12 @@ class OperatorReader:
                             "AND COALESCE(state, 'FIRED_CREATE') != 'PENDING_REVIEW' "
                             "ORDER BY create_time DESC LIMIT 250"
                         ).fetchall()]
+                if op.get("display_name") == "WATCHTOWER":
+                    from src.ops.watchtower_observation_presentation import qualify_observation_labels
+                    qualify_observation_labels(conn, op.get("recent_launches", []), operator_id)
+                    op["confirmed_membership_count"] = conn.execute(
+                        "SELECT COUNT(*) FROM operator_launch_membership WHERE operator_id=?", (operator_id,)
+                    ).fetchone()[0]
                 from src.ops.operator_identity_governance import read_identity_lifecycle
                 op["identity_lifecycle"] = read_identity_lifecycle(self._path, operator_id)
                 if op["identity_lifecycle"]:

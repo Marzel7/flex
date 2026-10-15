@@ -95,6 +95,7 @@ def _launch_presentation(row: dict[str, Any]) -> dict[str, Any]:
     """Keep generic launch presentation compact while preserving optional roles."""
     return {
         "mint": row.get("mint"), "creator": row.get("creator_wallet"),
+        **{key: row[key] for key in ("canonical_membership", "admission_label", "admission_reason", "admission_outcome", "walkback_status", "walkback_path_state", "observation_provenance") if key in row},
         "intermediary": row.get("stored_candidate_parent_direct_funder") or row.get("subprov_wallet"),
         "observed_at": _timestamp(row.get("parent_first_funder_timestamp")) or row.get("create_time"),
         "anchor": row.get("parent_first_funder_fee_payer") or row.get("treasury_wallet"),

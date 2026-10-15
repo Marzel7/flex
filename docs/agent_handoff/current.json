@@ -1,4 +1,18 @@
 {
+  "dev039_completed_post_oct10_provisioning_candidate_search": {
+    "status": "COMPLETE_EXACT_PREVIOUSLY_TIMED_OUT_SEARCH_ZERO_MATCHES",
+    "engineering_revision": "a0bc06004f2ef545f72c4f8b1a9939f6387c2ada unchanged DEV039 audit; no implementation",
+    "authority": "CanonicalOPS mode=ro/query_only. Same population as interrupted broad join: distinct nonnull wt_walkback_queue.subprov for canonical Watchtower memberships assigned before2026-10-10T00:00:00Z;614identities. Membership association is search provenance,not assertion that all614have independently completefanoutproof. Sortedaddresspopulation SHA2567de9b4210b468a550b5e9a2d1b97b5cbc580504c73888242238f8cd64570a006.",
+    "bounded_method": "614separate parameterized SELECTs on wt_candidate_websocket_watches INDEXED BY ix_wc_subprov_time WHERE subprov_wallet=? AND wrap_close_time>=1791590400 ORDER BY wrap_close_time,id LIMIT65. EXPLAIN SEARCH index(subprov_wallet=? AND wrap_close_time>?),no temporarysort. Peridentity250ms progressdeadline,total35secondbudget; no files or transactions written.",
+    "results": {"population":614,"completed":614,"timed_out":0,"capped":0,"matching_candidate_rows":0,"read_elapsed_ms":40},
+    "supersedes": "Previous broad historicalSubProvider candidatewatchjoin timeout in dev039_post_oct10_false_negative_investigation. That specific unknown is now resolved to0retainedrows under identical authority/window; no population/window/qualification substitution.",
+    "retained_launch_result": "No additional launch identity recovered through this candidateprojection. Earlier completed treasury-index ledger query across historically acceptedroots returned only admitted E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump atOct10 12:27:40Z,notamissedlaunch; preservedresultnotrequeried. Newerknown-rootfunding activity remains activity,notproof of a creator-fundedlaunch.",
+    "coverage_limit": "Cutoff authority is retained wrap_close_time,not inferred launch/birth/detected time. NULLwrap_close_time excluded by original query and notcallednegativeevidence. Doesnotcover whollynewrotatedSubProviders,unretainedcandidateevents,or independentlyproveWatchtowerstoppedlaunching. No qualifiedpostOct10false-negative or failingtransition established.",
+    "runtime_deployment_required":false,
+    "runtime_deployment_reason":"Read-only bounded evidence search only.",
+    "safety":"Provider calls0;productionchanges0;DBwrites0;no source/service/subscription/UI/policychanges,replay/backfill or databasecopies. Requiredcompacthandoffonly; no runtimefilegrowth.",
+    "next_action":"NONE — exact timed-out search COMPLETE. Stop; no missedgenuinelaunch proven and no correction justified by zero retainedmatches."
+  },
   "dev039_post_oct10_false_negative_investigation": {
     "status": "INSUFFICIENT_EVIDENCE_NO_QUALIFIED_FALSE_NEGATIVE_ESTABLISHED",
     "engineering_revision": "a0bc06004f2ef545f72c4f8b1a9939f6387c2ada unchanged DEV039 audit; no executable edits",

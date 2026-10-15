@@ -1,4 +1,35 @@
 {
+  "dev039_post_oct10_false_negative_investigation": {
+    "status": "INSUFFICIENT_EVIDENCE_NO_QUALIFIED_FALSE_NEGATIVE_ESTABLISHED",
+    "engineering_revision": "a0bc06004f2ef545f72c4f8b1a9939f6387c2ada unchanged DEV039 audit; no executable edits",
+    "objective_scope": "Candidate discovery independent of WATCHTOWER_CONFIRMED labels, from retained historical memberships/infrastructure and exact treasury/provisioning authorities. Excluded F7 controls and no core source comparison, subscription investigation or new acquisition. Continued after interruption using completed query results, not rerunning them.",
+    "time_window": "2026-10-10T00:00:00Z onward, epoch1791590400; distinguish October10 admitted control from launches after last assignment12:27:40Z.",
+    "discovery_results": [
+      "Treasury-index launch ledger and provisioning-session lookups for independently evidenced Gzaa,2gh and historical9hGcx root returned only existing admittedE8launch; no newroot-session source_mint candidates. Funding-edge lookups via ix_wpe_from with funding_block_time>=cutoff returnednone for these3roots. Absence in these specific projections does not imply no funding activity.",
+      "Historical acceptedmembership operator-index/queuePK join -> distinctpriorSubProviders -> recent queue via ix_wbq_funder returned0rows; priorSubProvider -> selectedFundingAccount projection via ix_wpw_subprov with recorded_at>=cutoff returned0rows. These discover withoutconfirmationlabel filter but do not cover whollynew rotated infrastructure/unretained routes.",
+      "Historical acceptedmembership roots -> indexedlaunchledger create_time>=cutoff LIMIT33 returned1belowcap:E8bCunY...; preserved historicalacceptance not inferredsolelyfromtreasuryregistrylabels.",
+      "Broader historicalSubProvider-to-candidatewatch join hit shared2second progress deadline after previousquerycompleted; resultUNKNOWN,notempty. Didnot repeatbroadscan. Narrow exactcontrolSubProviders HA71615XkBEcLC6Spn1zW9VRavtYiQXgcBEvekVUUqZq,25hETX6m6CcQLRuSZ7DNP9PjqGXWfkm1PUMA6kg4KA1J,GgeisXDxQqE6sH6Su7eK68UDUQwQyDpuLoTA4FQTc8XL forcedexistingix_wc_subprov_time,wrap_close_time>=cutoff,LIMIT17each returned0. No fullhistoryscan or newindexes."
+    ],
+    "retained_oct10_control": {
+      "mint":"E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump",
+      "ledger_time":"2026-10-10T12:27:40Z (retained ledger create_time1791635260,not independently redecoded birth)",
+      "treasury":"2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+      "subprovider":"GgeisXDxQqE6sH6Su7eK68UDUQwQyDpuLoTA4FQTc8XL",
+      "creator":"2HF8121mrLKsSiHh5RJqcaLJNRq5EL2nu5UcKqYyeYNg",
+      "wsol_signature":"4Apv92Pbo5gmGqxU9o2NFRiNAUkTdbcKdFnPDXxErughDmGJ9e4uwbboqkf5fgG3YQ4S4ho4ViMStaRF4dbFLcLo",
+      "create_signature":"PhyH2pCd4jGHkwPD9DTriECJEjwC1wWpZUNSoxkTdVMQbgfYwMk6ANGNbLqPbaqnHBx2TuLQMYJvRPA6HvVD7JV",
+      "pipeline":"Prior directverification:FULL_WALKBACK/WSOL,CONFIRMED,PROMOTED,canonicalmembership1791635260,matchingoutboxDELIVERED,returnedUIlatest20. No missingtransition. Exactmint selectedFundingAccounttable empty; no token-specific reusablefanout proof recovered here. Do not claim membershipaloneiscompletefive-stagequalification."
+    },
+    "recent_known_root_activity": "Previously preserved independentrootinput: Gzaa1000SOL ->2b6FSoRWU2TwR8gH86ZTipf1LayqXfvdxGtBuiFAJhaN Oct15 11:58:04Z,signature5Vs9L4mHusHPUpVNzXVmbr8iD2k1cBns4e9wevAikH5TPvtgDXuAX2AenoetzU7Cvg4qs2q7utCH4ehJBVoG1CN9. Retainedsessionfunded/reactivated thenexpired;SELF_CLOSE_IGNORED/CANDIDATE_WATCH_EXPIRED,no retainedqualifyingcreatorlaunch. Reusedpriorauditevidence,no newCascadeexecution/subscriptionanalysis. Provesactivity,notmissedgenuinelaunch; emptyprovisioningedgequerydoesnoteraseit.",
+    "historical_controls": "October8 acceptedFULL6Ku control retainsworker/decision/admission andWSOL/rootedge but separateFundingAccount/fanoutartifactgap remains asclosedearlieraudits. AcceptedcohortGzaa11/2gh25havepreservedchainreferences; not newthresholds. No completeOct7-8perlaunchpositivecounterfactual can be assertedwhere selectedaccountmappingabsent. Existing accepted identities preserved.",
+    "false_negative_categories": {"QUALIFIED_LAUNCH_NOT_INGESTED":"NOT_ESTABLISHED;no independentcompleteunadmittedlaunch identified","QUALIFIED_LAUNCH_NOT_PROCESSED":"NOT_ESTABLISHED","QUALIFIED_ROUTE_NOT_RECOGNISED":"NOT_ESTABLISHED","QUALIFIED_CONFIRMATION_REJECTED":"NOT_ESTABLISHED","QUALIFIED_MEMBERSHIP_NOT_COMMITTED":"NOT_ESTABLISHED","INSUFFICIENT_EVIDENCE":"Retainedboundedknown-infrastructureprojections contain no newcompletequalifyingunadmittedmint; broadercandidatewatchcoverage incomplete and whollynewinfrastructureunobserved."},
+    "first_proven_false_negative": "NONE ESTABLISHED. No claimWatchtowerstoppedlaunching,no claimallrecentlaunchesreviewed,and no reuseunsupportedcachedconfirmationsaspositivecontrols. Specificretention/coveragegap preventsselectionofgenuinecandidatewithfullrequiredroute; cannot assignintake/traversal/admissionfaultwithoutone.",
+    "minimum_safe_correction": "NONE justified. Do not weakenadmission,altercache,promoteroots,replayorbackfill. A completealready-retainedpostOct10candidate route/mint would be the minimum evidence needed to identify an actual firstfailedtransition; obtainingnewproviderdata notauthorized.",
+    "runtime_deployment_required":false,
+    "runtime_deployment_reason":"Read-onlyfalse-negativeevidenceauditonly.",
+    "safety":"Provider calls0;productionchanges0;databasewrites0;no source/service/subscription/policy/UI changes,replay,backfill,DBcopies or researchchanges. Canonicalmode=ro/query_only2seconddeadlines; compactrequiredhandoffonly.",
+    "next_action":"STOP — insufficientretainedproof,notprovenabsenceofgenuinelaunches. No implementationordeployment. Do not expand into newacquisitionorbroadhistorywithout separateauthority."
+  },
   "dev039_walkback_to_ui_contract_verification": {
     "status": "PARTIAL_PROCESSING_AND_UI_PROPAGATION_VERIFIED_GENUINE_QUALIFICATION_PARITY_NOT_ESTABLISHED",
     "engineering_revision": "DEV039 audit a0bc06004f2ef545f72c4f8b1a9939f6387c2ada unchanged; current pinned Walkback afbe9e58 plus previously hashed dirty modules; guarded DEV037 preview cb882091bbd402ad826fc44cc82541a0e3d4b2ca unchanged",

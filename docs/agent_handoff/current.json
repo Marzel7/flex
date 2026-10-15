@@ -1,4 +1,17 @@
 {
+  "dev037_rich_browser_acceptance_preflight": {
+    "status": "HOLD_PORT_8102_OCCUPIED_NO_RUNTIME_CHANGED",
+    "engineering_revision": "d22ac6291a295460b4136e4ef73f9e4f4eaf12e6",
+    "candidate": "Exact requested revision verified clean at /Users/kevinkeaveney/.codex/worktrees/dev037-pre-dev035-ui-candidate/flex; prior22offline tests remain qualified, not browser acceptance.",
+    "blocker": "Required127.0.0.1:8102 already LISTENING under PID97775, python -m src.dev_runtime, cwd/private/tmp/flex-dev037-recovery-evidence-audit. This is the earlier preview, not requested candidate. User simultaneously forbids replacing/restarting existing DEV runtimes. No signal, restart, service/source/database/environment change performed.8103 has no listener but was not substituted without user direction.",
+    "acceptance": "Candidate not launched; OperationsOS/registry/richmonitor/WT/Byz/MissionControl browser acceptance NOT_RUN. Do not attribute existing8102 contents to requested candidate.",
+    "research": "Fresh539cohort,DEV033candle and backtest-summary hashes unchanged from qualified manifest.",
+    "safety": "Provider calls0;production changes0;canonical database writes0;port8100/8102 and safety protections unchanged. Only compact handoff update.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Preflight stopped before isolated runtime start; persistent deployment not authorized.",
+    "ready_for_persistent_dev_deployment": false,
+    "next_action": "Ask user to authorize replacing only the earlier8102preview or choose free8103 while preserving it; then perform requested isolated browser acceptance."
+  },
   "dev037_rich_ui_readonly_adapter_alignment": {
     "status": "QUALIFIED_NOT_DEPLOYED_READY_FOR_ISOLATED_BROWSER_ACCEPTANCE",
     "engineering_revision": "d22ac6291a295460b4136e4ef73f9e4f4eaf12e6",

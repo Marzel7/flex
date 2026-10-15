@@ -1,4 +1,19 @@
 {
+  "dev037_byzantine_watchtower_counts_250ms_qualification": {
+    "status": "HOLD_BYZANTINE_250MS_BUDGET_FAILED_NO_IMPLEMENTATION",
+    "engineering_revision": "e723d26819ebdd83bcecedae1d087fc5314b9ffa",
+    "runtime": "Existing preview8103 PID37837/source verified unchanged; tracked checkout clean, pre-existing runtime guard untracked preserved. No source/config changes, restart or deployment. Ports8100/8102 untouched.",
+    "frozen_reference": "6877f6e41477f7357463225d071f7a50f29c743e and candidate retain same Byzantine DISTINCT funder_block_time completed shared-SubProvider query and Watchtower non-review launch-ledger MAXcreate_time/mint plus membership-only corecreated_at fallback. Byzantine is infrastructure telemetry, not membership-only count. Existing DISTINCT timestamp behavior must not be silently replaced by distinct mint; latest request's distinct-mint requirement and frozen timestamp-dedup behavior would require explicit equivalence before implementation.",
+    "qualification": "One bounded readonly mode=ro/query_only Byzantine read with250ms progress deadline. EXPLAIN: SEARCH wt_walkback_queue USING INDEX ix_wbq_priority(status=?); USE TEMP B-TREE FOR DISTINCT. Interrupted254.62ms without complete results. No broader timing scans, indexes, cache, worker, partial count substitution or budget increase. Explicit user stop condition honored.",
+    "watchtower_semantic_gap": "No newly qualified Watchtower counts. Prior969/968 and4/41/332 remain historical audit context only. Accepted non-review ledger population includes the three recently disputed PLAIN_XFER/shared rejected-infrastructure launches. A qualified existing canonical exclusion contract was not established; removing them ad hoc or presenting all969 as qualified Watchtower would silently resolve attribution ambiguity. Do not change membership or classification to restore summary counts.",
+    "unchanged_summary_read": "Existing loopback API completed within curl5s cap; precise HTTP elapsed not instrumented. Returned Byzantine total162 andnull24h/7d/30d; Watchtower stale949 andnullwindows; Nexus84 andnullwindows at observation. User baseline Nexus5/113/254 was not reproduced in this read; no Nexus investigation or source/query/presentation change made. Do not claim unchanged numerical values when evidence returnedUNKNOWN.",
+    "tests_and_acceptance": "Budget feasibility FAIL. No implementation/regression tests or new browser acceptance claimed; no executable changes. Existing unified history, selected identity price joins and monitoring cadence left untouched. No preview restart because qualification failed.",
+    "research_integrity": "Fresh hashes unchanged:539cohort0aec34375865d5106341a3c03c9afa22f3cbf89e8c15f737cb57b5e6126a679d;DEV033candles6ebea1e8c6fc84b466e6910f51a1c26e5ecf16964fe4a1728475dc60d22a4456;backtest8bdac654215bfa304162c567acd7bece4409a0c1512741c62c12318261166eea. No evidence copied or modified.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only qualification failed explicit budget gate; no implementation.",
+    "safety": "Provider calls0;production changes0;canonical/queue writes0; no database copies,migrations,indexes,newcache/worker or raw retention; no storage-producing functionality introduced.",
+    "next_action": "Stop. Retain UNKNOWN and preserve preview. Any further work requires separately scoped authorization resolving Byzantine bounded access and Watchtower accepted exclusion semantics; no speculative workaround or Nexus changes."
+  },
   "watchtower_plain_xfer_treasury_audit": {
     "status": "COMPLETE_READONLY_ALL_THREE_AMBIGUOUS_LINEAGE",
     "engineering_revision": "No source changes; retained evidence audit against canonical OPS. Relevant on-disk walkback worktree HEAD afbe9e58b11eb2e4d616246da123ce31ab45700c plus existing modifications; loaded Python code not attested.",

@@ -117,8 +117,8 @@ def _recent_operation_tokens(rows: list[dict], *, limit: int = RECENT_TOKEN_LIMI
             return (row.get("ath_mc_usd"), "QUALIFIED ATH", row.get("max_multiple"),
                     row.get("time_to_ath_seconds"), "First Available · retained lifecycle")
         if row.get("byzantine_actual_entry_enrichment") and row.get("ath_mc_usd") is not None:
-            return (row.get("ath_mc_usd"), "QUALIFIED ATH", row.get("max_multiple"),
-                    row.get("time_to_ath_seconds"), "Actual Entry · retained lifecycle")
+            return (row.get("ath_mc_usd"), "2H PEAK", row.get("max_multiple"),
+                    row.get("time_to_ath_seconds"), "Actual Entry · retained 2H lifecycle")
         if row.get("final_proven_ath_mc") is not None:
             return (row.get("final_proven_ath_mc"), "FINAL ATH", row.get("final_ath_multiple"),
                     row.get("time_to_ath_seconds"), "Retained lifecycle")
@@ -145,6 +145,7 @@ def _recent_operation_tokens(rows: list[dict], *, limit: int = RECENT_TOKEN_LIMI
     result = []
     for row in selected:
         peak_mc, peak_scope, multiple, time_to_peak, evidence = peak(row)
+        incompatible_opening = row.get("entry_exactness") == "CLOSE_ONLY_LOWER_BOUND"
         if peak_mc is None:
             peak_scope = "—"
         result.append({
@@ -155,21 +156,21 @@ def _recent_operation_tokens(rows: list[dict], *, limit: int = RECENT_TOKEN_LIMI
             "operation_display_name": row.get("operation_display_name") or row.get("operation_id"),
             "assignment_timestamp": timestamp(row),
             "age_seconds": row.get("age_seconds"),
-            "entry_mc_usd": row.get("entry_mc_usd"),
+            "entry_mc_usd": None if incompatible_opening else row.get("entry_mc_usd"),
             # Entry provenance is a first-class read fact.  In particular a
             # migration-second fallback must never be rendered as the strict
             # +1 policy merely because both produce a numeric MC reference.
             "entry_method": row.get("entry_method"),
             "entry_exactness": row.get("entry_exactness"),
             # A current value is shown only from a retained active observation.
-            "current_mc_usd": row.get("latest_mc_usd") if row.get("monitor_state") == "MONITORING_ACTIVE" else None,
+            "current_mc_usd": row.get("latest_mc_usd") if _authoritative_live(row, now=projection_now) else None,
             "peak_mc_usd": peak_mc,
             "peak_scope": peak_scope,
-            "max_multiple": multiple,
+            "max_multiple": None if incompatible_opening else multiple,
             "time_to_peak_seconds": time_to_peak,
             "lifecycle": lifecycle(row),
-            "evidence": evidence if row.get("entry_mc_usd") is not None else "Entry unavailable",
-            "freshness_seconds": row.get("freshness_seconds"),
+            "evidence": evidence if row.get("entry_mc_usd") is not None and not incompatible_opening else "Entry unavailable",
+            "freshness_seconds": row.get("freshness_seconds") if row.get("last_observation_at") is not None else None,
             "next_check_at": row.get("next_observation_at"),
             "authoritative_lifecycle_state": row.get("watchtower_ui_state") or row.get("byzantine_ui_state") or row.get("monitor_state"),
         })

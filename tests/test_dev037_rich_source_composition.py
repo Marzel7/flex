@@ -99,8 +99,10 @@ def test_rich_renderer_and_identity_scope_are_preserved():
     app=Flask(__name__,template_folder=str(ROOT/'templates'),static_folder=str(ROOT/'static'))
     with app.test_request_context('/'):
         text=render_template('operators_index.html',active_page='operators')
-    for marker in ['LIVE TOKENS','HISTORY — LAST 20 TOKENS','RUNNING MULTIPLE','TIME TO PEAK','MONITORING CADENCE','LIVE WATCHTOWER','LIVE BYZANTINE','HISTORICAL BYZANTINE']:
+    for marker in ['LIVE TOKENS','HISTORY — LAST 20 TOKENS','RUNNING MULTIPLE','TIME TO PEAK','MONITORING CADENCE']:
         assert marker in text
+    for obsolete in ['LIVE WATCHTOWER','ENDED WATCHTOWER','LIVE BYZANTINE','HISTORICAL BYZANTINE']:
+        assert obsolete not in text
     source=(ROOT/'src/ops/operator_routes.py').read_text()
     assert 'current_operation_names = ("byzantine", "watchtower", "nexus")' in source
 
@@ -250,7 +252,7 @@ vm.runInNewContext(HELPER,context);
     subprocess.run(['node','-e',"const vm=require('node:vm');for(const s of JSON.parse(process.argv[1]))new vm.Script(s)",
                     json.dumps([script.split('</script>',1)[0] for script in scripts])],check=True,timeout=5)
     assert 'setTimeout(render,500)' not in source
-    assert 'h.append(...retainedViews)' in source
+    assert 'retainedViews' not in source
     assert 'flex-monitor-ready' in source
 
 def test_safety_health_and_shell_bytes_preserved():

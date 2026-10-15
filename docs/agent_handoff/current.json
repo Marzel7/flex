@@ -1,4 +1,22 @@
 {
+  "dev039_version1_migration_retrieval_qualification": {
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "engineering_revision": "f52609c058be6f881f15d887771160c2b3881ebd",
+    "branch": "codex/dev039-version1-migration-retrieval",
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev039-watchtower-regression-audit/flex",
+    "baseline": "a0bc06004f2ef545f72c4f8b1a9939f6387c2ada isolated source; relevant migration methods compared previously to Oct8 frozen064021bd and running-listener disk source, same version0 ceiling. Historical source is not asserted as exact loaded runtime.",
+    "correction": "src/core/pumpfun_curve_listener.py: exactly5 maxSupportedTransactionVersion literals0->1, in _get_transaction_cached payload/actual request, _fetch_mint_from_transaction fallback, _extract_pool_from_migration_tx fallback, and handle_migration delayed45second retry. Reconciler uses corrected shared cached retrieval. Explicit ceiling1, not127. No criteria, instructions, identities, admission, schema, retry/time budgets or unrelated trade retrieval changed. AST equality verified after only those5 constant substitutions.",
+    "provider_free_tests": "15new tests PASS in tests/test_dev039_version1_migration_retrieval.py plus2existing connection-ownership tests PASS:17passed8.51seconds. Legacy/v0/v1 retrieval and initial indexing retry,cache-hit no extra calls,unsupported/error bounded attempts+lock cleanup,mint/pool cold fallback and prefetch,version1 delayed retry success/unavailable cleanup,mint/pool fallback retry ceilings,static coverage of all changed request sites and unchanged trade ceiling. Only AST-extracted methods executed; mocked RPC and DB/network deny guards; no listener startup/import or replay. Local asyncio AF_UNIX self-pipe permitted while Internet sockets forbidden.",
+    "existing_regression_tests": "Expanded selection21pass3fail of24. Three test_b2bf_watchtower_migration_connection_close unknown-creator handoff assertions fail identically on unchanged HEADbaseline loaded in-memory: baseline6pass3fail of9. No new failure introduced; _check_watchtower_migration unchanged. Do not claim full existing suite green. Initial test harness needed asyncio self-pipe allowance and PUMPFUN_PROGRAM namespace; fixed test harness only. python3.14 lacked pytest; established algotrader Python3.11.5/pytest9.0.2 used without installation.",
+    "legacy_version0_support": "Preserved by version ceiling1 and parameterized mocked retrieval/parsing tests for legacy,0,1. Actual provider qualification excluded by user; version1 fixture derived from prior exactmigration compact evidence, not retained raw transaction.",
+    "retry_compatibility": "Initial cached retry remains2attempts in configured test with1second delay,caller timeout15; existing production retry config untouched. Mint fallback retry0.5second and pool exception retry1second tested. Delayed migration retry remains45second delay,finalized commitment,20second RPC timeout; nowceiling1. No additional requests or background mechanisms introduced.",
+    "safety": "Providercalls0;databasewrites0;replay0;productionchanges0;service/source changes outside isolated worktree0;shared dirty checkout unchanged. No runtime import/start/deployment,treasury/admission/UI changes or acquisition. No raw retention. No new storage-producing runtime paths; compact source/test/handoff only, no files approaching500MB.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "production_activation": false,
+    "deployment_authorized": false,
+    "next_action": "STOP at isolated qualification. Separate authorization required for runtime installation and bounded deployment acceptance. No historical replay/backfill/queue insertion authorized; three pre-existing handoff-test failures documented without expanding scope."
+  },
   "dev039_exact_migration_transaction": {
     "status": "EVENT_RECEIVED_NOT_PERSISTED; PROVEN_TRANSACTION_VERSION_COMPATIBILITY_FAILURE",
     "engineering_revision": "a0bc06004f2ef545f72c4f8b1a9939f6387c2ada; dedicated isolated audit worktree unchanged",
@@ -18334,11 +18352,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev035-health-scope",
-    "git_head": "43dfcddcacd8a0a6edaa9e24aaf1499a1ac655cc",
+    "branch": "codex/dev039-version1-migration-retrieval",
+    "git_head": "f52609c058be6f881f15d887771160c2b3881ebd",
     "name": "flex",
-    "updated_at_utc": "2026-10-14T22:03:32Z",
-    "working_tree": "DEV runtime /private/tmp/flex-dev035-health-scope; engineering files committed; unrelated runtime-created database guard untracked and preserved"
+    "updated_at_utc": "2026-10-15T22:18:49Z",
+    "working_tree": "Isolated DEV039 /Users/kevinkeaveney/.codex/worktrees/dev039-watchtower-regression-audit/flex; clean committed qualification only, not installed. Existing DEV/production runtimes unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

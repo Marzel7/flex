@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev042-monitor-source-recovery",
-    "git_head": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48",
+    "git_head": "5e32f2e921fbe5f7618ef7634d3c9dbefc7dc7e7",
     "name": "flex",
     "updated_at_utc": "2026-10-16T08:55:23.248007+00:00",
-    "working_tree": "Preserved8475 isolated recovery source; owned8145preview stopped after bounded freeze HOLD. Persistent8100/Production unchanged."
+    "working_tree": "codex/dev043-pending-request-lifecycle isolatedsource5e32;cleanrestartfrontendPASS,baselineAPIHOLD;owned8145stopped. Persistent8100andProductionuntouched."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -28791,5 +28791,182 @@
     "RUNTIME_DEPLOYMENT_REQUIRED": false,
     "RUNTIME_DEPLOYMENT_REASON": "Qualification stopped; no source/runtime update deployed. Owned isolated test API stopped per task.",
     "engineering_revision": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48"
+  },
+  "dev043_pending_failure_handling": {
+    "DEV043_PENDING_FAILURE_HANDLING_STATUS": "PARTIAL_CORRECTION_QUALIFIED_BASELINE_FREEZE_HOLD",
+    "REQUEST_TIMEOUT_CAUSE": "Original treasury_review.html fetch/json chain had no deadline,abort,supersession or navigation cleanup; catch only ran on eventual error,so spinner remained69seconds.",
+    "DEADLINE_HANDLING": "3seconds via Promise.race covering fetch+JSON body;AbortController,clearTimeout,failure ends aria-busy,UNKNOWN counts,UNAVAILABLE reason;no automatic retry. Exact backend URL sort/status/limit20/offset semantics retained.",
+    "ABORT_STALE_RESPONSE_PROTECTION": "Cancel previous controller and reject prior race on filter/manual pagination;generation guards all UI writes;pagehide increments generation and cancels;late responses ignored even if transport ignores abort.",
+    "UNAVAILABLE_STATE": "UNAVAILABLE: Treasury review workspace \u2014 Request exceeded3seconds;server-side query cancellation is not guaranteed. CountsUNKNOWN;loadingends;filters/navigation remainusable;noempty/zero fallback on failure.",
+    "BACKEND_QUERY_UNCHANGED": true,
+    "SERVER_SIDE_RESOURCE_RISK": "Abort stops browser consumption,not Flask/SQLite execution. Outstanding expensive requests may continue;manual filtering/navigation/revisits may create concurrent server work. No automatic retry,polling or overlapping dispatch loop added. Server CPU/query lifetime and concurrent manual requests remain unbounded by this frontend change;not claimed repaired.",
+    "PROVIDER_FREE_TESTS": {
+      "command": "node tests/dev043/pending_request_lifecycle.cjs",
+      "first_and_clean": "PASS",
+      "cases": [
+        "fast",
+        "timeout3s",
+        "networkfailure",
+        "HTTP503",
+        "abort",
+        "hungresponsebody",
+        "staleresponse",
+        "manualfilterchange",
+        "pagehide",
+        "repeatednavigation",
+        "noautomaticretry"
+      ],
+      "boundary": "Actual inline template script executed with deterministic fake transport/clock;no network/database traffic."
+    },
+    "BROWSER_ACCEPTANCE": {
+      "correction": "PASS first and clean: Pending3sUNAVAILABLE,no spinner;Confirmed retainedrecordsload;registry/filter/historypriceevidence;WTplaybooks,admissiondistinctions,Byz/Nexusdetails,MissionControl,SystemHealth rendered.",
+      "overall_baseline": "HOLD: included API acceptance failed timeout60s. Initial runner did not retain failing route;follow-up GET diagnostics identified Byz and Nexus requests exceeding8s. Do not attribute60stimeout to one exactroute without evidence.",
+      "clean_routes": [
+        {
+          "route": "/operations/playbooks",
+          "present": true
+        },
+        {
+          "route": "/operations/watchtower/playbook",
+          "present": true
+        },
+        {
+          "route": "/operations/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334/playbook",
+          "present": true
+        },
+        {
+          "route": "/intelligence/operator/04265d9f-6eb2-568c-a49e-9253091a4dbb",
+          "present": true
+        },
+        {
+          "route": "/intelligence/operator/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334",
+          "present": true
+        },
+        {
+          "route": "/intelligence/operator/bd7d7479-1454-5d41-9f68-115550348f3e",
+          "present": true,
+          "slow": true
+        },
+        {
+          "route": "/ops-os",
+          "present": true,
+          "unavailable": true
+        },
+        {
+          "route": "/system-health",
+          "present": true,
+          "unavailable": true
+        },
+        {
+          "route": "/intelligence/treasury-review",
+          "pendingTimeout": true,
+          "loadingEnded": true,
+          "confirmedRecords": true
+        }
+      ],
+      "api_diagnostics": [
+        {
+          "path": "/healthz",
+          "status": 200,
+          "seconds": 0.073
+        },
+        {
+          "path": "/api/ops/operators",
+          "status": 200,
+          "seconds": 0.614
+        },
+        {
+          "path": "/api/operations/live-monitor",
+          "status": 200,
+          "seconds": 0.793,
+          "chronology": true,
+          "priced_rows": 5
+        },
+        {
+          "path": "/operations/playbooks",
+          "status": 200,
+          "seconds": 0.061
+        },
+        {
+          "path": "/operations/watchtower/playbook",
+          "status": 200,
+          "seconds": 0.032
+        },
+        {
+          "path": "/operations/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334/playbook",
+          "status": 200,
+          "seconds": 0.07
+        },
+        {
+          "path": "/intelligence/operator/04265d9f-6eb2-568c-a49e-9253091a4dbb",
+          "status": 200,
+          "seconds": 1.285
+        },
+        {
+          "path": "/intelligence/operator/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334",
+          "error": "timed out",
+          "seconds": 8.004
+        },
+        {
+          "path": "/intelligence/operator/bd7d7479-1454-5d41-9f68-115550348f3e",
+          "error": "timed out",
+          "seconds": 8.01
+        },
+        {
+          "path": "/ops-os",
+          "status": 200,
+          "seconds": 0.179
+        },
+        {
+          "path": "/system-health",
+          "status": 200,
+          "seconds": 0.043
+        },
+        {
+          "path": "/api/ops/treasury-review?status=CONFIRMED&limit=2",
+          "status": 200,
+          "seconds": 1.995
+        },
+        {
+          "path": "/api/ops-v2/intel/runtime-budget",
+          "status": 200,
+          "seconds": 0.101
+        }
+      ],
+      "limitations": [
+        "Nexus browser navigation timed out then content was observable;slow detail evidence retained",
+        "15/20selectedhistoricalpricesunavailable,noLIVErows",
+        "CoreHealthUNKNOWN/coverageunavailable",
+        "Legacy/opsmissingtemplate andDiscovery/emergingunavailability remain separate knownlimitations"
+      ]
+    },
+    "CLEAN_CHECKOUT_RESTART": {
+      "source": "5e32f2e921fbe5f7618ef7634d3c9dbefc7dc7e7",
+      "checkout": "/private/tmp/dev043-pending-clean-recovery",
+      "fresh_state": "/private/tmp/dev043-pending-clean-state",
+      "result": "Frontend correction and source/dependency closure PASS;full included API gateFAIL;not a qualified baseline",
+      "project_modules_tracked_hash_verified": 167,
+      "untracked_runtime_dependencies": 0,
+      "dependency_hashes": "docs/audits/dev043/bounded_recovery/dependency_hashes.json",
+      "guard_denials": 0,
+      "first_guard_denials": 0,
+      "isolated_apis_stopped": true
+    },
+    "FROZEN_BOUNDED_BASELINE": "NOT_CREATED;DEV043_BOUNDED_RECOVERY_BASELINE withheld because not all acceptance gates passed",
+    "READY_FOR_PERSISTENT_DEV": false,
+    "PROVIDER_CALLS": 0,
+    "PRODUCTION_CHANGES": 0,
+    "CANONICAL_WRITES": 0,
+    "SHARED_QUEUE_WRITES": 0,
+    "OUTSIDE_STATE_WRITES": 0,
+    "PERSISTENT_DEV_CHANGES": 0,
+    "SOURCE_COMPOSITION_SHA": "5e32f2e921fbe5f7618ef7634d3c9dbefc7dc7e7",
+    "CORRECTION_COMMIT": "aaaaec30",
+    "engineering_revision": "5e32f2e921fbe5f7618ef7634d3c9dbefc7dc7e7",
+    "RUNTIME_DEPLOYMENT_REQUIRED": true,
+    "RUNTIME_DEPLOYMENT_GATE": "QUALIFIED_NOT_DEPLOYED_PERSISTENT_DEV;isolatedchangedUIaccepted;baselineHOLD",
+    "RESTORATION_INSTRUCTIONS": "docs/audits/dev043/bounded_recovery/RESTORE.md at sourceSHA;neverrestoreasfrozenrelease;source-onlyrollback8475b337reintroducesoldPendinghang",
+    "NEXT_ACTION": "Keep committed frontend correction. Diagnose/qualify includedByzantine/Nexus API responsiveness without changing treasuryquery,then repeat failing included API acceptance and freeze only if all agreedgatespass. No new queries/indexes/workers or persistent deployment authorized.",
+    "storage": "Newsource/test/manifestscompact;externalruntimefilescapped8MiBbyexistingbootstrap;no DBcopy/rawpayloadretention. Backendquerymemorynotboundedbyclienttimeout."
   }
 }

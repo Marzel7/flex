@@ -1,0 +1,51 @@
+# Flex development and release workflow (DEV048)
+
+This tooling uses Git worktrees, Python, the unchanged DEV043 guard bootstrap and the DEV047 preservation layout. There is no daemon, release database, provider acquisition or deployment implementation. Golden source remains0eb749ecd6acd0ab70ec6d09b9170c583d82374b. All original bounded exclusions remain; complete historical recovery is not claimed.
+
+## Everyday operation
+
+Use the versioned durable `flex-dev` launcher published by DEV048 (or `bin/flex-dev` in its clean tooling checkout). The application golden SHA does not contain this later tooling; its separate tooling revision/hash is recorded. It never changes the golden reference.
+
+    flex-dev create DEV049 --objective "Specific outcome" --scope "Explicit permitted changes" --level 1
+    # Edit only the new durable source checkout; commit source/tests there.
+    flex-dev verify DEV049
+    flex-dev qualify DEV049 --focused-test tests/your_affected_contract.py --browser-wait 600
+    # While qualify reports AWAITING_BROWSER, perform actual browser acceptance.
+    flex-dev browser DEV049 --input /absolute/path/to/browser-evidence.json
+    # qualify stops its owned API and writes a source-bound PASS or HOLD.
+    flex-dev candidate DEV049
+    flex-dev restore DEV049 --focused-test tests/your_affected_contract.py --browser-wait 600
+    # Repeat real browser acceptance for this fresh session using browser command.
+    flex-dev promote DEV049 --dry-run --target persistent-dev --runtime-evidence /absolute/path/runtime.json
+
+Default workspaces: /Users/kevinkeaveney/Dev/claude/flex-development/DEV049/{source,state,runs}. One branch and Git worktree in the existing repository, no new per-DEV repository. Metadata includes baseline SHA, objective, scope, risk, bindings, reserved preview port and tooling hash. The port is checked at creation and again at startup, not held open between commands. Race/conflict causes HOLD, never stops the conflicting service. No processes are started by create. Failed runs and worktrees are preserved, not cleaned automatically.
+
+Verify checks required tracked source, clean committed tree, exact Git blobs and hashes, syntax, golden ancestry, unchanged guard bootstrap, exact external dependencies and guarded real application startup/imported-symbol compatibility. It rejects loaded project dependencies from other worktrees in both the API and focused-test receipts. Every changed Python module must actually be imported by those guarded checks; a declaration alone cannot satisfy closure. Loaded distribution versions are collected alongside exact file hashes. Accepted active paths are qualified; optional/deferred historical workers remain explicitly excluded, not fabricated to satisfy import counts.
+
+Qualification runs the protected baseline resource tests, existing actual inline frontend lifecycle tests and focused Python tests. Focused tests execute after the unchanged bootstrap self-test installs outer file/SQLite/network guards, without importing the application; fixtures must live in the run state. The actual API separately retains the stricter read-only application wrapper. Baseline acceptance test files may not be weakened or edited without a separately qualified acceptance contract. Core API checks verify current three-operation registry, latest20/dedup/order, retained reference prices/methods, Watchtower admission labels, playbooks, Mission Control/Health and detail deadlines. Missing retained acceptance references cause HOLD, not fabricated counts; a changed evidence universe needs separately qualified reference evidence. New feature correctness also requires its focused tests and affected-subsystem evidence.
+
+## Real-browser evidence
+
+Qualification prints active-session.json containing source_sha, run_id, port and preview URL. Use the existing browser tool or human browser; this CLI does not install a browser or simulate visual QA. The browser import validates session/source/URL, required DOM contracts, captured screenshots and hashes. API200 alone is never browser acceptance. The trusted operator must capture actual observations; a JSON status flag without evidence is rejected. This is operator evidence, not a cryptographic browser-origin attestation.
+
+Input JSON: {"status":"PASS","source_sha":"<exact committed SHA>","run_id":"<active run id>","features":{"registry":{"url":"http://127.0.0.1:<port>/intelligence/operators","dom":"registry.txt","screenshot":"registry.jpg"},...}}. Paths are relative to input directory, may not escape it and are bounded. Required feature names/routes are defined in tools/flex_dev.py FEATURES/ROUTES. Include registry,history_prices,watchtower_admission,watchtower_playbook,byzantine_playbook,mission_control,core_health,pending,byzantine_detail,nexus_detail. DOM files must contain the observed real page snapshot, not source HTML or API replacement. Pending is visited once per session; verify its3s UNAVAILABLE and terminated spinner. Client abort does not cancel SQL; no automatic retry is introduced. The expensive detail requests are server-bounded at3s with capacity1/wait0/max4 owned SQLite connections. Capture these explicit unavailable states rather than claiming full detail execution. New/changed pages require additional focused acceptance evidence atLevel2/3; do not silently narrow baseline contracts.
+
+## Risk levels
+
+Level1 presentation: focused tests, affected template/API/browser contract and baseline smoke/API/browser acceptance. Level2 API/worker: allLevel1 plus source-bound affected-subsystem evidence containing dependency_closure,provider_budget,queue_safety andstatusPASS. Level3 database/attribution/operations: allLevel2 plus canonical_preservation,rollback_verification and explicit_target_authorization. Path-based minimum-risk detection prevents selecting a lower level for API/DB/treasury changes. These declarations must be supported by actual focused qualification; they do not authorize deployment. Unknown or unsupported closure/binding/rollback is HOLD. The initial tooling supports the current qualified golden parent; incompatible/non-descendant parents require separate provenance/tooling qualification, never an unchecked override.
+
+## Candidate and regression evidence
+
+Candidate requires clean source and a still-valid source/config/tool-bound qualification, unchanged evidence hashes, real browser coverage and no REGRESSED/UNKNOWN mandatory feature. It packages source archive, full tracked-file manifest, dependencies, configuration/bindings, tests, browser artifacts, known exclusions, rollback and comparison. Archive/source tree ceiling256MB, JSON2MB, browser16MB/run, guarded logs/runtime files8MiB. Maximum20runs,40verify receipts and20restoration checkouts/DEV; at most8 failed atomic manifest temporaries per directory;100DEV entries; exhaustion is HOLD and requests preservation review, not automatic deletion. No canonical database/journal copies or raw provider payloads. All limits are below500000000bytes perfile. A single changed oversized file fails before reading/copying it. No unbounded file writer exists.
+
+Candidate tag is unique `<DEV>_CANDIDATE_<SHA12>`, annotated with manifest digest. Tag file and candidate files/directories are protected by readonly/user-immutable flags. Never overwrite or retag. Candidates are QUALIFIED_NOT_DEPLOYED. Fresh restoration uses another detached checkout in the same Git repository, compares all source hashes and repeats guarded integration/browser acceptance. It does not assume successful imports prove recovery.
+
+Comparison records FEATURE → protected baseline contract → observed candidate contract → EQUIVALENT/IMPROVED/REGRESSED/UNKNOWN. Automated baseline assertions establish equivalence only within the bounded accepted scope; they do not infer novel functional improvement. Source differences, price provenance, admission distinctions, safety, bindings, provider restrictions and exclusions accompany the comparison. Any previously accepted feature becoming unavailable fails its contract. Changed/expanded acceptance requires separate explicit approval and a new qualified contract; changing a test to get green is rejected.
+
+## Promotion and rollback — dry run only
+
+There is no non-dry-run promote mode. No launchctl mutation, restart, install, queue mutation or Production deployment is implemented. A dry run still needs exact candidate, successful fresh restoration, actual installed source/configuration/manager ownership, isolated writable bindings, explicit canonical read-only/provider-denied authority, a preserved exact previous-source manifest/configuration copy, verified rollback acceptance and post-deployment checks. On this macOS host the real-manager observer supports launchd; unsupported managers/authorities HOLD rather than being guessed. No dry-run flag grants authorization. Actual deployment requires a separate human instruction naming target and exact release.
+
+Runtime evidence contains target,source_sha,source_path,manager_identity,configuration_path,configuration_sha256,pid,health_port,canonical_readonly,provider_transport,writable_state,queue,rollback_source_sha,rollback_source_manifest,rollback_configuration_path,rollback_acceptance andpost_deployment_acceptance. Real mode observes launchctl PID,lsof cwd and read-only health; metadata booleans alone cannot establish ownership. A disposable_fixture may use an actual recorded qualification receipt; its verdict is PASS_FIXTURE_DRY_RUN only, never persistentDEV/Production readiness. Rollback source/configuration equality and source hashes are still checked. Future owner authorization does not bypass any guard.
+
+Mandatory sequence: Golden Baseline → Isolated DEV → Tests → Integration Acceptance → Candidate Release → Controlled Promotion → New Golden Baseline. Every DEV records parent,changedfiles,dependencyclosure,bindings,tests/browseracceptance,limitations androllback. Persistent sources must be durable candidate releases, not temporary worktrees. Do not delete a release referenced by services or rollback, or clean any worktree with unique/unpreserved work. This tool has no cleanup/prune/reset commands and does not modify DEV041/DEV042 archives or existing services.

@@ -1,0 +1,42 @@
+[
+  {
+    "control": "missing_source_module",
+    "status": "PASS_REJECTED",
+    "reason": "missing required source module: src/ops/operator_reader.py"
+  },
+  {
+    "control": "untracked_runtime_dependency",
+    "status": "PASS_REJECTED",
+    "reason": "dirty candidate or untracked runtime dependency"
+  },
+  {
+    "control": "dirty_candidate",
+    "status": "PASS_REJECTED",
+    "reason": "dirty candidate or untracked runtime dependency"
+  },
+  {
+    "control": "incorrect_database_binding",
+    "status": "PASS_REJECTED",
+    "reason": "incorrect database binding"
+  },
+  {
+    "control": "shared_writable_queue",
+    "status": "PASS_REJECTED",
+    "reason": "shared writable queue"
+  },
+  {
+    "control": "unqualified_browser",
+    "status": "PASS_REJECTED",
+    "reason": "unqualified browser acceptance"
+  },
+  {
+    "control": "incorrect_source_sha",
+    "status": "PASS_REJECTED",
+    "reason": "incorrect candidate source SHA"
+  },
+  {
+    "control": "missing_rollback_reference",
+    "status": "PASS_REJECTED",
+    "reason": "missing/oversized JSON: /Users/kevinkeaveney/Dev/claude/flex-releases/candidates/DEV048-negative-missing-rollback/rollback.json"
+  }
+]

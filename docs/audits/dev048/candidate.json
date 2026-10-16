@@ -1,0 +1,8 @@
+{
+  "candidate": "/Users/kevinkeaveney/Dev/claude/flex-releases/candidates/DEV048-test_CANDIDATE_cceff76deda8",
+  "deployment_authorized": false,
+  "manifest_sha256": "751169412f149ef6cae24cb0713c996de284d37c5cf0dbca59b3e126744fee86",
+  "source_sha": "cceff76deda876a8bfcf98cf72e02e11d69c830d",
+  "status": "PASS",
+  "tag": "DEV048-test_CANDIDATE_cceff76deda8"
+}

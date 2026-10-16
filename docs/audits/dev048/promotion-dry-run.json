@@ -1,0 +1,18 @@
+{
+  "actions_executed": [],
+  "candidate_sha": "cceff76deda876a8bfcf98cf72e02e11d69c830d",
+  "deployment_authorized": false,
+  "installed_source_sha": "cceff76deda876a8bfcf98cf72e02e11d69c830d",
+  "procedure": [
+    "separate explicit authorization naming target and exactrelease",
+    "preserve previoussource/configuration/statebindings",
+    "install durable candidate;never temporaryworktree",
+    "change only authorized service target;one controlledrestart",
+    "run recorded acceptance/isolation checks",
+    "on failure restore verified previous source/configuration;never canonical DB orqueue rewind"
+  ],
+  "rollback_ready": true,
+  "runtime_evidence_sha256": "10ebf783257819a3ee9cd67b9ebd1efcb6290ef888d9ebabe42f1c254e330a49",
+  "status": "PASS_FIXTURE_DRY_RUN",
+  "target": "persistent-dev"
+}

@@ -1,0 +1,12 @@
+{
+  "tooling_source_sha": "601420fa0c8482ecea2cf1c1d66a67f416216002",
+  "versioned_tooling": "/Users/kevinkeaveney/Dev/claude/flex-releases/tooling/DEV048-601420fa",
+  "launcher": "/Users/kevinkeaveney/Dev/claude/flex-releases/bin/flex-dev",
+  "hashes": {
+    "bin/flex-dev": "79722534f41ffcf56e8e2a4d04b2f14aec5cf28d09e22f891814a451b014a6f6",
+    "tools/flex_dev.py": "be055b326da3a89454928dae2e4e067f9386795cd8276251fe19023c4a93a406",
+    "tools/flex_dev_guarded.py": "530a05efa0d78bed05af20b446685e250fb6d00ac3bc72aad95db86939cacb4e",
+    "tests/test_flex_dev_workflow.py": "7f81746d2f82530d38a607e416cbcb6a7318baac8aa516ff80ebba8940308ba0",
+    "docs/development/FLEX_DEV_WORKFLOW.md": "2d8c379182adb67929773629dcae7eab3efed08eb12875d4a25c29119deee22f"
+  }
+}

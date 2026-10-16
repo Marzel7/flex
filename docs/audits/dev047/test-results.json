@@ -1,0 +1,17 @@
+{
+  "resource_safety": "12passed1.09seconds;tests/test_dev043_detail_resource_safety.py;compactfixtures",
+  "pending_frontend": "PASS fast,3s timeout,network,503,abort,hung body,stale filter,pagehide/repeated navigation,no automatic retries;actual inline script",
+  "new_project_modules_loaded": 163,
+  "qualified_module_manifest_hashes": 168,
+  "external_dependency_file_hashes": 715,
+  "tracked_files_verified": 5458,
+  "guard_denials": 0,
+  "no_untracked_project_dependencies": true,
+  "source_checkout_clean": true,
+  "isolated_server_pid": 21340,
+  "isolated_port": 8147,
+  "stopped": true,
+  "existing8100_pid": 95243,
+  "existing8145_pid": 11537,
+  "existing_services_unchanged": true
+}

@@ -1,0 +1,179 @@
+{
+  "DEV047_GOLDEN_BASELINE_STATUS": "PASS_BOUNDED_GOLDEN_FOUNDATION_PROTECTED_AND_INDEPENDENTLY_RESTORED",
+  "BASELINE_SOURCE_SHA": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+  "BASELINE_REFERENCE": "DEV043_BOUNDED_RECOVERY_BASELINE",
+  "ANNOTATED_TAG_OBJECT": "32597ef2012bd13da38af595261734f4d985e289",
+  "DURABLE_RELEASE_LOCATION": "/Users/kevinkeaveney/Dev/claude/flex-releases/DEV043_BOUNDED_RECOVERY_BASELINE-0eb749ec",
+  "REMOTE_PRESERVATION": {
+    "status": "PASS",
+    "repository": "https://github.com/Marzel7/flex",
+    "tag": "refs/tags/DEV043_BOUNDED_RECOVERY_BASELINE",
+    "tag_object": "32597ef2012bd13da38af595261734f4d985e289",
+    "peeled_commit": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "push": "Non-force existing exact tag publication; remote identities reverified",
+    "local_self_contained_repository": "repository.git;depth-one snapshot;no alternates;git fsck PASS",
+    "full_ancestral_history_in_local_snapshot": false,
+    "archive_bytes": 62057469,
+    "archive_sha256": "d327800d06586bf3e3d65a86d65e2203a7f48f05f8d50c9ebcdd823e07f9f4d7",
+    "tracked_files": 5458,
+    "source_tree_bytes": 149883164,
+    "canonical_databases_or_external_journals_copied": false
+  },
+  "CLEAN_CHECKOUT_RESTORATION": {
+    "status": "PASS",
+    "source": "/private/tmp/dev047-independent-restoration-20261016",
+    "origin": "/Users/kevinkeaveney/Dev/claude/flex-releases/DEV043_BOUNDED_RECOVERY_BASELINE-0eb749ec/repository.git",
+    "independent_object_store": true,
+    "all5458tracked_git_blobs_verified": true,
+    "all168project_manifest_hashes_verified": true,
+    "all715external_dependency_hashes_verified": true,
+    "loaded_module_closure": {
+      "source": "/private/tmp/dev047-independent-restoration-20261016",
+      "loaded_tracked_project_modules": 163,
+      "untracked_or_foreign_project_modules": [],
+      "guard_denials": 0,
+      "queue_files": 0,
+      "clean_git_checkout": true,
+      "api_stopped": true
+    },
+    "isolated_pid": 21340,
+    "isolated_port": 8147,
+    "isolated_state": "/private/tmp/dev047-isolated-state-20261016",
+    "stopped": true,
+    "browser_checks": [
+      {
+        "page": "registry",
+        "operations": true,
+        "history": true,
+        "prices": true,
+        "liveEmpty": true
+      },
+      {
+        "page": "mission-control",
+        "rendered": true,
+        "retainedData": true,
+        "discoveryUnavailable": true
+      },
+      {
+        "page": "core-health",
+        "rendered": true,
+        "explicitUnavailable": true,
+        "cards": true
+      },
+      {
+        "page": "playbook-index",
+        "rendered": true
+      },
+      {
+        "page": "watchtower-playbook",
+        "rendered": true,
+        "retainedData": true
+      },
+      {
+        "page": "byzantine",
+        "unavailable": true,
+        "deadline": true
+      },
+      {
+        "page": "nexus",
+        "unavailable": true,
+        "deadline": true
+      },
+      {
+        "page": "pending",
+        "unavailable": true,
+        "deadline": true,
+        "countsUnknown": true,
+        "noSpinner": true
+      },
+      {
+        "page": "confirmed",
+        "retainedData": true
+      },
+      {
+        "page": "byzantine-playbook",
+        "rendered": true,
+        "no500": true
+      }
+    ],
+    "resource_tests": "12 passed1.09s",
+    "frontend_tests": "PASS actual inline Pending lifecycle fast/3s/network/503/abort/hung-body/stale/pagehide/no-auto-retry",
+    "restore_command": "git clone --no-local --depth 1 --branch DEV043_BOUNDED_RECOVERY_BASELINE file:///Users/kevinkeaveney/Dev/claude/flex-releases/DEV043_BOUNDED_RECOVERY_BASELINE-0eb749ec/repository.git <fresh-checkout>"
+  },
+  "ACCEPTED_FUNCTIONAL_SCOPE": [
+    "three-operation Registry",
+    "unified LIVE/HISTORY",
+    "global latest20 chronology",
+    "qualified retained opening/peak values and unavailable distinctions",
+    "operation playbooks",
+    "Watchtower admitted/rejected preserved unchanged",
+    "Mission Control",
+    "core Health with UNKNOWN states",
+    "Confirmed Treasury",
+    "Pending client3s unavailable handling",
+    "Byzantine/Nexus server3s unavailable handling;active1/wait0/ownedSQLite4"
+  ],
+  "KNOWN_EXCLUSIONS": [
+    "full Byzantine/Nexus historicaldetail",
+    "complete defaultPending results/serverSQL cancellation",
+    "MissingCREATE24hHealth",
+    "fullactivity/coverage and staleWatchtower snapshot totals",
+    "missingcurrentLIVE/acquisition and incompletepricehistory",
+    "DEV042worker/bridge reproducibility",
+    "DEV046 missingPotential Evolution/Leviathan projection,C357selection drift andnull latest0m defect",
+    "legacy/ops missingtemplate,Discoveryunavailable",
+    "funding-edge order-dependent overwrite unchanged"
+  ],
+  "BASELINE_PROTECTION": {
+    "protected_files_and_directories": 63,
+    "user_immutable_flags": "VERIFIED_ALL",
+    "normal_write_open": "DENIED",
+    "deletion_protection": "UF_IMMUTABLE flags verified; no delete attempt or cleanup performed",
+    "readonly_modes": "files0444,dirs0555,receive-hook0555",
+    "receive_hook": "deny all updates",
+    "remote_server_ruleset": "NOT_ASSERTED",
+    "policy": "/Users/kevinkeaveney/Dev/claude/flex-releases/AGENTS.md",
+    "sha256_readback": "ALL_MATCH",
+    "max_single_file_bytes": 63265552
+  },
+  "FUTURE_DEV_WORKFLOW": {
+    "sequence": "Golden Baseline \u2192 Isolated DEV \u2192 Tests \u2192 Integration Acceptance \u2192 Candidate Release \u2192 Controlled Promotion \u2192 New Golden Baseline",
+    "required_records": [
+      "parent baseline SHA",
+      "changed files",
+      "dependency closure/versions/hashes",
+      "environment/database/queue/network bindings",
+      "tests and real browser acceptance",
+      "known limitations",
+      "rollback source/configuration/state"
+    ],
+    "rules": "/Users/kevinkeaveney/Dev/claude/flex-releases/DEV043_BOUNDED_RECOVERY_BASELINE-0eb749ec/instructions/GOLDEN_BASELINE_RULES.md",
+    "inherited_release_policy": "/Users/kevinkeaveney/Dev/claude/flex-releases/AGENTS.md",
+    "promotion": "Separate explicit authorization; no temporary deployment source; no replacement before acceptance;append-only uniquely named releases;do not move existing tag",
+    "cleanup": "NONE performed; unique/unpreserved work or runtime/rollback references block cleanup"
+  },
+  "EXTERNAL_RESTORATION_PREREQUISITES": [
+    "Existing local Python3.11.5 and recorded package versions/file hashes;not an offline portable distribution",
+    "Existing retained canonical OPS/core and monitor main files,readonly;no DB bundle",
+    "Unused loopback port and new isolated state;unchanged guard preflight required"
+  ],
+  "STORAGE": {
+    "maximum_new_single_file_bytes": 63265552,
+    "preservation_process_file_ceiling_bytes": 256000000,
+    "runtime_process_file_ceiling_bytes": 8388608,
+    "raw_provider_acquisition_retention": false,
+    "unbounded_growth_paths": 0,
+    "no_large_database_clones": true
+  },
+  "RUNTIME_DEPLOYMENT_REQUIRED": false,
+  "RUNTIME_DEPLOYMENT_REASON": "Preservation/documentation and temporary stopped restoration qualification;application behaviour unchanged;no persistent deployment.",
+  "PROVIDER_CALLS": 0,
+  "CANONICAL_DATABASE_WRITES": 0,
+  "SHARED_QUEUE_WRITES": 0,
+  "PRODUCTION_CHANGES": 0,
+  "PERSISTENT_DEV_CHANGES": 0,
+  "APPLICATION_FUNCTIONAL_CHANGES": 0,
+  "DEV043_BASELINE_CHANGES": 0,
+  "CLEANUP_OR_DELETIONS": 0,
+  "NEXT_ACTION": "NONE \u2014 COMPLETE. Future DEV must use this golden parent/workflow; promotion requires separate authorization."
+}

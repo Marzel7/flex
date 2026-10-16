@@ -1,0 +1,10 @@
+{
+  "git_fsck": "PASS",
+  "archive_sha256": "d327800d06586bf3e3d65a86d65e2203a7f48f05f8d50c9ebcdd823e07f9f4d7",
+  "archive_bytes": 62057469,
+  "tag_object": "32597ef2012bd13da38af595261734f4d985e289",
+  "commit": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+  "shallow_snapshot": true,
+  "alternates": false,
+  "largest_repository_file": 63265552
+}

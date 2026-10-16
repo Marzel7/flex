@@ -1,0 +1,56 @@
+[
+  {
+    "page": "registry",
+    "operations": true,
+    "history": true,
+    "prices": true,
+    "liveEmpty": true
+  },
+  {
+    "page": "mission-control",
+    "rendered": true,
+    "retainedData": true,
+    "discoveryUnavailable": true
+  },
+  {
+    "page": "core-health",
+    "rendered": true,
+    "explicitUnavailable": true,
+    "cards": true
+  },
+  {
+    "page": "playbook-index",
+    "rendered": true
+  },
+  {
+    "page": "watchtower-playbook",
+    "rendered": true,
+    "retainedData": true
+  },
+  {
+    "page": "byzantine",
+    "unavailable": true,
+    "deadline": true
+  },
+  {
+    "page": "nexus",
+    "unavailable": true,
+    "deadline": true
+  },
+  {
+    "page": "pending",
+    "unavailable": true,
+    "deadline": true,
+    "countsUnknown": true,
+    "noSpinner": true
+  },
+  {
+    "page": "confirmed",
+    "retainedData": true
+  },
+  {
+    "page": "byzantine-playbook",
+    "rendered": true,
+    "no500": true
+  }
+]

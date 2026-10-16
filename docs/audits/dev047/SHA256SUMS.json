@@ -1,0 +1,15 @@
+{
+  "dependency-versions.json": "b9de3a677673ced8aeca61c093ec82a086487d7f8d9af2d1f8dbbdfde102e93e",
+  "DEV047_GOLDEN_BASELINE_STATUS.json": "d3ca9b8daf8a1f3593986718d64fd317d2e2197d230de96eac0c744d31ef59c2",
+  "browser-checks.json": "bdc4ba3454a7c8b759a9d62422658ea4b00e1fef2a0b3bf819a907fca46ef62b",
+  "durable-release-identity.json": "6d013baea59778968cfa9c9f5c34d99ee1a9b6262c7a391517716886022cd6ed",
+  "api.json": "acc04c68a54c50732ceb0e05f540969b9b74995195356fd45e319c071a56786f",
+  "test-results.json": "8b90ad1c3125a3cf0a6d999fe3ba02589525aa852e0675e25b50c4cfdca00ee7",
+  "GOLDEN_BASELINE_RULES.md": "cab1766a8950e275f6a73e3ae71cc1abc510530c082d5f10b9b2f37431298455",
+  "protection.json": "4e1a2e81d20d37c5b050864ef98a06c9b56a1321c391756e573cf81103de4691",
+  "preservation.json": "7e06cf0f41fea3528d84519ac7af9aff038931f6d4aca96830ce228e864efba1",
+  "RESTORE_AND_ROLLBACK.md": "ba34c8da0406eb16d40743996cc321c3bbab8532bf42c2ad00b731221624dbf5",
+  "README.md": "62f9cc17cacbb16e97288d1942596043b72340b084cf554d0c1a060c4f5d3797",
+  "safe-runtime.json": "06ed3a2a701310da62b798c1ab4ca6a915b79a41f30380f22f84884d660c0d59",
+  "closure.json": "420b58a5a1ddd38a8b2fa3a6eadcb07ba31cea851a9e7c3eecaab5c4a79d3817"
+}

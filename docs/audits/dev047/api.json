@@ -1,0 +1,46 @@
+[
+  {
+    "path": "/healthz",
+    "status": 200,
+    "seconds": 0.019,
+    "bytes": 1053
+  },
+  {
+    "path": "/dev-runtime/health",
+    "status": 200,
+    "seconds": 0.001,
+    "bytes": 309,
+    "result": {
+      "environment": "DEVELOPMENT",
+      "mode": "read-only",
+      "outbound_network": "blocked",
+      "production_databases": "read-only",
+      "source_root": "/private/tmp/dev047-independent-restoration-20261016",
+      "state_root": "/private/tmp/dev047-isolated-state-20261016",
+      "status": "ok",
+      "universal_monitor_bridge": "forward-enabled-policy-c"
+    }
+  },
+  {
+    "path": "/api/operations/live-monitor",
+    "status": 200,
+    "seconds": 0.581,
+    "bytes": 35883,
+    "operations": [
+      "Byzantine",
+      "WATCHTOWER",
+      "Nexus"
+    ],
+    "history_rows": 20,
+    "priced": 5,
+    "live": 0,
+    "chronology": "PASS"
+  },
+  {
+    "path": "/operations/watchtower/playbook",
+    "status": 200,
+    "seconds": 0.022,
+    "bytes": 169858,
+    "null_unavailable": true
+  }
+]

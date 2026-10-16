@@ -1,0 +1,12 @@
+{
+  "protected_files_and_directories": 63,
+  "user_immutable_flags": "VERIFIED_ALL",
+  "normal_write_open": "DENIED",
+  "deletion_protection": "UF_IMMUTABLE flags verified; no delete attempt or cleanup performed",
+  "readonly_modes": "files0444,dirs0555,receive-hook0555",
+  "receive_hook": "deny all updates",
+  "remote_server_ruleset": "NOT_ASSERTED",
+  "policy": "/Users/kevinkeaveney/Dev/claude/flex-releases/AGENTS.md",
+  "sha256_readback": "ALL_MATCH",
+  "max_single_file_bytes": 63265552
+}

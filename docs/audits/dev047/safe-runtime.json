@@ -1,0 +1,23 @@
+{
+  "source_sha": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+  "bootstrap": "docs/audits/dev043/isolation_bootstrap.py",
+  "bootstrap_sha256": "129e4f7313e88ae7ef9dbe7e9e647d7f2c08f83b15f2fee04db6771455eb99e5",
+  "interpreter": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+  "environment": "env -i PATH=/usr/bin:/bin:/usr/sbin:/sbin HOME=<fresh-state> DEV043_STATE_ROOT=<fresh-state> DEV043_PORT=<unused-loopback-port> DEV043_ISOLATION_RECEIPT=<fresh-state>/preflight.json",
+  "canonical_readonly": [
+    "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+    "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+    "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db"
+  ],
+  "read_policy": "Explicit allowlist,mode=ro,immutable=1,query_only;main files only,WAL excluded. Existing evidence must be present; it is not bundled.",
+  "writable": "fresh disposable STATE only;metadata cache schema,monitor DB and empty STATE/monitor/queue;never shared state",
+  "provider_transport": "all outbound connections including Production loopback denied;env credential/.env reads blocked;no operational workers",
+  "detail_limits": {
+    "seconds": 3,
+    "active": 1,
+    "waiting": 0,
+    "owned_sqlite_connections": 4
+  },
+  "process_written_file_max_bytes": 8388608,
+  "no_raw_provider_retention": true
+}

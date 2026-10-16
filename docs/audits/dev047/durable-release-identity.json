@@ -1,0 +1,38 @@
+{
+  "name": "DEV043_BOUNDED_RECOVERY_BASELINE",
+  "scope": "PERMANENT_BOUNDED_GOLDEN_SOURCE_FOUNDATION",
+  "source_sha": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+  "tag_object": "32597ef2012bd13da38af595261734f4d985e289",
+  "remote": "https://github.com/Marzel7/flex",
+  "remote_tag_verified": true,
+  "created_utc": "2026-10-16T17:49:12.018073+00:00",
+  "tracked_files": 5458,
+  "tree_bytes": 149883164,
+  "canonical_databases_bundled": false,
+  "external_research_journals_copied": false,
+  "raw_provider_acquisition": false,
+  "archive": {
+    "git_fsck": "PASS",
+    "archive_sha256": "d327800d06586bf3e3d65a86d65e2203a7f48f05f8d50c9ebcdd823e07f9f4d7",
+    "archive_bytes": 62057469,
+    "tag_object": "32597ef2012bd13da38af595261734f4d985e289",
+    "commit": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "shallow_snapshot": true,
+    "alternates": false,
+    "largest_repository_file": 63265552
+  },
+  "restoration": "PASS;fresh independent clone from durable snapshot;accepted UI scope verified;API stopped",
+  "protection": "sealed files/directories readonly+macOS user-immutable;deny-all receive hook;append-only policy;no server-side ruleset claim",
+  "known_exclusions": [
+    "full Byzantine/Nexus historicaldetail",
+    "complete defaultPending results/serverSQL cancellation",
+    "MissingCREATE24hHealth",
+    "fullactivity/coverage and staleWatchtower snapshot totals",
+    "missingcurrentLIVE/acquisition and incompletepricehistory",
+    "DEV042worker/bridge reproducibility",
+    "DEV046 missingPotential Evolution/Leviathan projection,C357selection drift andnull latest0m defect",
+    "legacy/ops missingtemplate,Discoveryunavailable",
+    "funding-edge order-dependent overwrite unchanged"
+  ],
+  "environment_not_bundled": "Existing tested local Python/packages and retained readonly canonical evidence are prerequisites. No completehistorical parity or cross-host offline environment claim."
+}

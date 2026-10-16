@@ -19272,8 +19272,8 @@
     "branch": "codex/dev049",
     "git_head": "e15720cbac1ff4fa1815b92446ce5b5b13727e0d",
     "name": "flex",
-    "updated_at_utc": "2026-10-16T20:41:37.849229+00:00",
-    "working_tree": "DEV049 target-readinessHOLD: exact runtime transaction classifier excludesBEGIN; candidate SQLite lock precedes sharedwrite lane. Canonical cursorDB16.2GB lacks compliant file bound. Candidateunchanged, runtimeuntouched."
+    "updated_at_utc": "2026-10-16T21:19:29.314101+00:00",
+    "working_tree": "DEV049 integrationHOLD: external cursor/OPS WAL cross-file atomicity unqualified; four bounded commit-boundary fixture cases. Candidate/tests unchanged; no runtime/DB/provider changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -30588,5 +30588,183 @@
     },
     "NEXT_ACTION": "Keep deployment on HOLD. Separately qualify a write-lane-aware transaction integration in a new isolated revision, plus a cursor storage authority compliant with the per-file limit. Preserve candidatee15720cb unchanged; no canonical schema/index changes, runtime-protection bypass or deployment authorized.",
     "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/DEV049_DEPLOYMENT_READINESS.json"
+  },
+  "dev049_cursor_integration": {
+    "DEV049_CURSOR_INTEGRATION_STATUS": "HOLD_CROSS_DATABASE_ATOMICITY",
+    "PRESERVED_BASELINE": {
+      "canonical_ops_journal_mode": "wal",
+      "sqlite_version": "3.41.2",
+      "source_sha": "e15720cbac1ff4fa1815b92446ce5b5b13727e0d",
+      "candidate_tag": "e15720cbac1ff4fa1815b92446ce5b5b13727e0d",
+      "files": {
+        "src/ops/anchor_reconciliation.py": "226b32f79b4bb5e705f5e15acdb0ab3437470b6b25aeae95e138895c2fc6e2d6",
+        "tests/test_dev049_cursor.py": "261eddf35719aec5f53810d4cb39050975219c709b20f8e282dec5a1f3e06ed4"
+      },
+      "source_status": ""
+    },
+    "LOCK_ORDERING": {
+      "existing_contract": "Acquire in-process/shared application write lane before SQLite write lock; connection owns lease until commit/rollback/close. Do not acquire another independent nested database lease.",
+      "candidate_defect": "BEGIN IMMEDIATE is excluded by runtime _is_write_sql, so candidate takes SQLite lock before the shared lane. Previously demonstrated, unchanged.",
+      "minimum_order_design": "Use the existing tracked connection write-lane owner before BEGIN; keep the lane through the existing transaction acknowledgment and release on every failed BEGIN/commit/rollback path. No competing writer or second lane.",
+      "implementation": "NONE \u2014 external cursor atomicity gate failed before a partial production-candidate correction was introduced."
+    },
+    "SHARED_WRITE_LANE_COMPATIBILITY": {
+      "authority": "Installed database_write_service.acquire_write_lease/release_write_lease and TrackedConnection",
+      "nested_database_contract": "Runtime explicitly rejects same-thread second database lease as an independently committed inner transaction.",
+      "commit_acknowledgment": "Tracked commit can commit SQLite then encounter lease-release failure; caller exception alone is not proof of rollback. Recovery needs durable acknowledgement, not exception-based cursor guessing.",
+      "status": "NOT_QUALIFIED; no runtime protections weakened"
+    },
+    "CURSOR_STORAGE_AUTHORITY": {
+      "evaluated": "Dedicated compact scheduling SQLite file outside canonical OPS, one existing recovery-service owner, no background worker",
+      "persistent_file_created": false,
+      "fixtures_only": true,
+      "canonical_ops_journal_mode": "wal",
+      "initialization": "Not performed for any live service; no new shared writable DEV/Production path",
+      "single_authority": "Not established for an operational external cursor because atomic state coupling remains unresolved."
+    },
+    "CROSS_DATABASE_ATOMICITY": {
+      "status": "FAIL_QUALIFICATION",
+      "required": "Recovery attempt/evidence bookkeeping and cursor advancement must have a provable crash/restart coupling to preserve no skipped or duplicate attempt after commit uncertainty.",
+      "separate_connections": [
+        {
+          "case": "before_commit",
+          "owned_child_exit": 77,
+          "observed_after_reopen": {
+            "committed_attempts": 0,
+            "cursor_position": 0
+          },
+          "consequence": "Both roll back",
+          "max_fixture_file_bytes": 8192
+        },
+        {
+          "case": "cursor_first",
+          "owned_child_exit": 77,
+          "observed_after_reopen": {
+            "committed_attempts": 0,
+            "cursor_position": 1
+          },
+          "consequence": "Cursor skips an attempt that never committed",
+          "max_fixture_file_bytes": 8192
+        },
+        {
+          "case": "ops_first",
+          "owned_child_exit": 77,
+          "observed_after_reopen": {
+            "committed_attempts": 1,
+            "cursor_position": 0
+          },
+          "consequence": "Cursor restart repeats an already committed attempt; replay counter verified2",
+          "max_fixture_file_bytes": 8192
+        },
+        {
+          "case": "both_committed",
+          "owned_child_exit": 0,
+          "observed_after_reopen": {
+            "committed_attempts": 1,
+            "cursor_position": 1
+          },
+          "consequence": "Consistent only when both commits finish",
+          "max_fixture_file_bytes": 8192
+        }
+      ],
+      "attach_alternative": "SQLite WAL transactions are atomic within individual attached database files, not across all files as a set; cannot claim host-crash atomicity for attached external cursor.",
+      "existing_receipts": "anchor_lookup_attempts/last_anchor_lookup_at are counters/timestamps, not unique per-turn commit receipts; unresolved lookups have no successful-recovery log row. No existing cross-file coordinator or receipt protocol identified.",
+      "limits": "This rejects evaluated simple commit/ATTACH designs; it is not a proof that every possible coordination protocol is impossible. No protocol was invented and claimed safe.",
+      "sources": [
+        "https://www.sqlite.org/lang_attach.html",
+        "https://www.sqlite.org/wal.html"
+      ]
+    },
+    "CRASH_RECOVERY": {
+      "tests": [
+        {
+          "case": "before_commit",
+          "owned_child_exit": 77,
+          "observed_after_reopen": {
+            "committed_attempts": 0,
+            "cursor_position": 0
+          },
+          "consequence": "Both roll back",
+          "max_fixture_file_bytes": 8192
+        },
+        {
+          "case": "cursor_first",
+          "owned_child_exit": 77,
+          "observed_after_reopen": {
+            "committed_attempts": 0,
+            "cursor_position": 1
+          },
+          "consequence": "Cursor skips an attempt that never committed",
+          "max_fixture_file_bytes": 8192
+        },
+        {
+          "case": "ops_first",
+          "owned_child_exit": 77,
+          "observed_after_reopen": {
+            "committed_attempts": 1,
+            "cursor_position": 0
+          },
+          "consequence": "Cursor restart repeats an already committed attempt; replay counter verified2",
+          "max_fixture_file_bytes": 8192
+        },
+        {
+          "case": "both_committed",
+          "owned_child_exit": 0,
+          "observed_after_reopen": {
+            "committed_attempts": 1,
+            "cursor_position": 1
+          },
+          "consequence": "Consistent only when both commits finish",
+          "max_fixture_file_bytes": 8192
+        }
+      ],
+      "uncommitted": "Both fixture transactions rolled back on owned child exit before commit",
+      "between_commits": "Divergent attempt/cursor state reproduced in both orders",
+      "after_both_commits": "Consistent state after successful completion",
+      "host_power_failure": "Not simulated; SQLite documented guarantee used for attached-WAL assessment"
+    },
+    "FAIRNESS_REGRESSION": {
+      "implementation_and_tests": "Unchanged exact preserved hashes",
+      "previous_qualification": "13 focused tests including50000-row guarded fairness, restart/rollback/duplicate checks;100000-row equal-timestamp indexed seek",
+      "new_cross_file_fairness": "NOT_QUALIFIED because cursor can skip or repeat work at commit boundary",
+      "no_fallback": "No in-memory rotation or oldest-row fallback introduced"
+    },
+    "PROVIDER_BUDGET_EQUIVALENCE": "UNCHANGED \u2014 no application source modification, real lookups or new transport; existing anchor pass zero-RPC/limit1 and worker budgets preserved",
+    "STORAGE_BOUNDS": {
+      "fixture_max_file_bytes": 8192,
+      "maximum_probe_file_limit_bytes": 8388608,
+      "maximum_diagnostic_json_bytes": 2000000,
+      "raw_provider_retention": false,
+      "unbounded_growth_paths": 0,
+      "external_state": "Compact fixture proves small file feasibility only, not atomic operational authority",
+      "canonical_database": "No writes, copies, journal-mode changes, migrations or indexes"
+    },
+    "PROVIDER_FREE_TESTS": {
+      "counterexample_cases": 4,
+      "result": "Commit-gap counterexamples reproduced; no passing external-cursor integration claimed",
+      "child_processes": "Four disposable owned test children; os._exit at fixed boundaries, timeout5s; no operational worker started or signalled",
+      "script": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/cursor-integration/cross-database-probe.py",
+      "script_sha256": "767d049a5dfda4ce90babd285119ba1a2fb9d24ec5677a9f57a935f5174ced14",
+      "results": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/cursor-integration/cross-database-results.json"
+    },
+    "DEV048_RELEASE_QUALIFICATION": {
+      "current_candidate": "Preserved e15720cbac1ff4fa1815b92446ce5b5b13727e0d, clean source tree",
+      "new_implementation": "NONE due explicit atomicity stop condition",
+      "previous_gates": "Normal and clean checkout25Python tests, unchanged frontend,10browser contracts,0guarddenials remain historical accepted evidence; no new releasePASS claimed",
+      "tooling_source": "4664b4a62b892dacf4540b3b1a7622fb156b8aa8",
+      "new_full_suite": "NOT_RUN \u2014 no corrected candidate exists; do not rerun unrelated browser acceptance to mask failed durability design"
+    },
+    "NEW_CANDIDATE_SHA": null,
+    "READY_FOR_DEPLOYMENT": false,
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "RUNTIME_DEPLOYMENT_REASON": "Read-only contract qualification and disposable counterexample tests; no executable/runtime changes",
+    "PROVIDER_CALLS": 0,
+    "PRODUCTION_CHANGES": 0,
+    "PERSISTENT_DEV_CHANGES": 0,
+    "CANONICAL_DATABASE_WRITES": 0,
+    "SHARED_QUEUE_WRITES": 0,
+    "OPERATIONAL_SERVICE_RESTARTS": 0,
+    "NEXT_ACTION": "Keep existing candidate and deployment on HOLD. A separately qualified durable per-turn acknowledgment/reconciliation protocol or atomic single-authority design is needed before moving cursor outside OPS. It must preserve current WAL/runtime protections, storage bounds and retry/evidence semantics; no canonical receipt/schema/journal-mode changes or new infrastructure are implied.",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/DEV049_CURSOR_INTEGRATION_STATUS.json"
   }
 }

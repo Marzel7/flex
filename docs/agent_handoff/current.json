@@ -8068,11 +8068,11 @@
   "hand_off_transport_blocker": "HANDOFF_TRANSPORT_DEGRADED",
   "handoff_transport": {
     "branch": "agent-handoff",
-    "note": "DEV040 publication uses only this current.json; exact remote branch head and committed file blob must match after push. No fetch or engineering branch publication.",
+    "note": "DEV041 handoff-only publication; verify exact remote transport commit and committed current.json bytes after push. No engineering branch or preserved research payload publication.",
     "protocol_version": 1,
     "published_at_utc": "2026-08-17T15:35:17Z",
     "status": "COMMIT_ADDRESSED_AGENT_HANDOFF",
-    "updated_at_utc": "2026-10-16T08:05:50.718934+00:00"
+    "updated_at_utc": "2026-10-16T08:24:29.227482+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev040-forensic-audit",
-    "git_head": "d8adac7655909d55f09e115772d2335403eafa6e",
+    "branch": "codex/dev041-evidence-preservation",
+    "git_head": "0f35e2e037c819da9fd68253d8b405e9fec75b11",
     "name": "flex",
-    "updated_at_utc": "2026-10-16T08:05:50.718934+00:00",
-    "working_tree": "Isolated documentation-only forensic audit at /private/tmp/flex-dev040-forensic-audit. No executable source/runtime deployment. Production identities recorded independently in DEV040 runtime map."
+    "updated_at_utc": "2026-10-16T08:24:29.227482+00:00",
+    "working_tree": "Isolated DEV041 preservation documentation at /private/tmp/flex-dev041-evidence-preservation. No application implementation or runtime deployment. Durable normalized evidence stored outside temporary/Codex worktrees."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -27548,5 +27548,48 @@
     "blocker_to_restoration_certification": "150 absent lifecycle journals; monitor worker/bridge source roots absent; complete integrated source/config/dependency/retained-data browser baseline not established. Unknowns do not invalidate the forensic observations.",
     "authorization": "User explicitly allowed audit worktree creation and handoff-only push as exception to no remote mutations; no engineering branch publication.",
     "next_action": "REVIEW_DEV040_REPORT; separately authorize primary-evidence preservation and bounded search for the 150 absent lifecycle journals; no restoration or runtime change authorized"
+  },
+  "dev041_critical_research_preservation_20261016": {
+    "status": "PASS_SURVIVING_PRIMARY_PRESERVED_AND_BOUNDED_SEARCH_COMPLETE; FULL_LIFECYCLE_CORPUS_INCOMPLETE",
+    "engineering_revision": "0f35e2e037c819da9fd68253d8b405e9fec75b11",
+    "baseline": "DEV040 d8adac7655909d55f09e115772d2335403eafa6e: all 441 indexed files unchanged; 400 journals survive; 150 original journal paths remain missing.",
+    "report": "/private/tmp/flex-dev041-evidence-preservation/docs/audits/dev041/DEV041_EVIDENCE_PRESERVATION_REPORT.md",
+    "report_sha256": "87afa3382520dafefe8758cc1915618f0e936057f8ecca5c41b1e0ef09722998",
+    "durable_backup_location": "/Users/kevinkeaveney/Dev/claude/flex/research_preservation/DEV041_20261016",
+    "preservation": "441 baseline artifacts (2,974,902 bytes) plus four provenance originals preserved with exact bytes and original modification timestamps. The final ledger covers 455 files, plus the ledger itself. Existing verified artifacts were never overwritten.",
+    "verified_counts": {
+      "dev019_qualified_openings": 461,
+      "dev020_cohort": 539,
+      "dev033_tokens": 30,
+      "dev033_candles": 2860,
+      "surviving_lifecycle_journals": 400,
+      "expected_lifecycle_journals": 550,
+      "missing_lifecycle_journals": 150,
+      "recovered_full_journals": 0
+    },
+    "missing_identity_classification": {
+      "DERIVED_EVIDENCE_ONLY": 149,
+      "NOT_LOCATED": 1
+    },
+    "search": "216 explicit DEV040 authority paths, 110 existing; 50,065 metadata entries; 561 unique compact JSON candidates; 80 historical Git blobs; one 138,058-byte archive; known frozen DEV014 evidence/state paths. No full journal copy found. All 150 identities match the original request authorization. Derived DEV020 peak fields survive for 149 identities; one has authorization only. Absence outside these bounded authorities is not established.",
+    "verification": "Independent destination-only readback PASS: SHA-256 for all 441 baseline and four provenance files; read-only immutable SQLite counts/result schemas; 400 journal identities/windows validated against the 550-record authorization; 2,860 ordered candles retained without gap filling. Audit JSON and Python AST validation, staged diff check and complete durable ledger checks passed.",
+    "durable_ledger_sha256": "10b402c29ae424e6cf204e7e43c236cb70b4079c75e7c356cebfb2952342ff6b",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Exact-byte research preservation and forensic documentation only; no executable runtime behavior changed.",
+    "production_flags": "No worker, bridge, Walkback, listener, Cascade, API or DEV037 UI change, restart, signal or activation. No canonical database, monitoring queue or active WAL write/copy.",
+    "provider_calls": 0,
+    "production_changes": 0,
+    "service_restarts": 0,
+    "storage": {
+      "maximum_single_file_design_bytes": 8388608,
+      "maximum_session_payload_bytes": 33554432,
+      "actual_primary_artifact_bytes": 2974902,
+      "largest_preserved_file_bytes": 1146880,
+      "temporary_copy_files": 0,
+      "raw_provider_payload_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "remaining_data_loss": "150 complete original journals remain unlocated in bounded searched authorities.149 identities retain derived DEV020 peak evidence;1 has request authorization only. This is not a claim of irreversible global loss. No synthetic journal reconstruction.",
+    "next_action": "NONE — authorized DEV041 preservation and bounded recovery search complete. Keep durable snapshot;150 full journals remain unrecovered. Further authorities or provider reacquisition require separate authorization."
   }
 }

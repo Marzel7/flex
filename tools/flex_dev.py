@@ -10,6 +10,10 @@ ROOT = P('/Users/kevinkeaveney/Dev/claude/flex')
 RELEASE = ROOT.parent / 'flex-releases' / (TAG + '-0eb749ec')
 HOME = ROOT.parent / 'flex-development'
 PYTHON = '/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python'
+# Concrete preinstalled runtime used by the passing qualification, never a PATH shim.
+NODE = P('/opt/homebrew/Cellar/node@22/22.23.2/bin/node')
+NODE_SHA256 = '1f72236fcbfc84855d7c884fbcba0f6a7c635d600d7e493b823e77c467f2ae95'
+NODE_VERSION = 'v22.23.2'
 BOOT = 'docs/audits/dev043/isolation_bootstrap.py'
 CAP, SMALL = 256_000_000, 2_000_000
 FEATURES = {
@@ -157,12 +161,31 @@ def validate_source(dev,d):
  return manifest,changed
 def env(state,port):return {'PATH':'/usr/bin:/bin:/usr/sbin:/sbin','HOME':str(state),'DEV043_STATE_ROOT':str(state),'DEV043_PORT':str(port),'TMPDIR':str(state),'PYTHONDONTWRITEBYTECODE':'1'}
 def limits():resource.setrlimit(resource.RLIMIT_FSIZE,(8_388_608,8_388_608))
+def frontend_runtime():
+ need(NODE.is_file() and digest(NODE)==NODE_SHA256,'qualified concrete Node runtime missing/changed; no shim/install fallback')
+ return {'path':str(NODE),'sha256':NODE_SHA256,'version':NODE_VERSION}
 def run_log(command,log,cwd,environment,timeout=60):
  need(not log.exists(),'run log already exists')
- with log.open('xb') as f:
-  r=subprocess.run(command,cwd=cwd,env=environment,stdout=f,stderr=subprocess.STDOUT,timeout=timeout,preexec_fn=limits)
- need(r.returncode==0,'guarded command failed; inspect '+str(log));need(log.stat().st_size<8_388_608,'log budget')
- return {'command':command,'log':str(log),'sha256':digest(log),'status':'PASS'}
+ receipt={'command':list(map(str,command)),'cwd':str(cwd),'timeout_seconds':timeout,
+  'environment':{k:environment[k] for k in ('PATH','HOME','TMPDIR') if k in environment},
+  'stdout':str(log),'stderr':'STDOUT','file_limit_bytes':8_388_608,'status':'STARTED'}
+ metadata=log.with_suffix(log.suffix+'.command.json');save(metadata,receipt);started=time.monotonic()
+ try:
+  with log.open('xb') as f:
+   r=subprocess.run(command,cwd=cwd,env=environment,stdout=f,stderr=subprocess.STDOUT,timeout=timeout,preexec_fn=limits)
+  receipt.update(returncode=r.returncode,signal=signal.Signals(-r.returncode).name if r.returncode<0 else None,status='PASS' if r.returncode==0 else 'FAIL')
+ except subprocess.TimeoutExpired:
+  receipt.update(status='TIMEOUT',timed_out=True,cleanup='subprocess.run killed and waited for its owned child')
+ except BaseException as exc:
+  receipt.update(status='ERROR',error_type=type(exc).__name__)
+  raise
+ finally:
+  receipt.update(elapsed_seconds=time.monotonic()-started,log_bytes=log.stat().st_size if log.exists() else 0)
+  save(metadata,receipt)
+ need(receipt['status']=='PASS','guarded command '+receipt['status']+'; returncode='+str(receipt.get('returncode'))+' signal='+str(receipt.get('signal'))+'; inspect '+str(metadata))
+ need(log.stat().st_size<8_388_608,'log budget')
+ return {'command':command,'log':str(log),'sha256':digest(log),'status':'PASS','execution':receipt,'execution_receipt':str(metadata)}
+
 def preflight(source,state,port):
  state.mkdir(parents=True,exist_ok=False);log=state/'preflight.log'
  run_log([PYTHON,'-I','-B',str(source/BOOT),'--self-test'],log,source,env(state,port))
@@ -280,9 +303,9 @@ def qualify(dev,focused,wait=180,extra=None,restoring=False):
   runner=P(__file__).with_name('flex_dev_guarded.py');need(runner.is_file(),'guarded test runner missing')
   tests=run_log([PYTHON,'-I','-B',str(runner),str(dev.source),*dict.fromkeys([fixed[0],*focused])],out/'pytest.log',dev.source,test_env,120)
   test_closure=loaded(dev.source,tests_state,verification['manifest'],'test-module-receipt.json')
-  import shutil
-  node=shutil.which('node');need(node,'Node runtime required for existing frontend lifecycle tests')
+  node_runtime=frontend_runtime();node=node_runtime['path']
   js=run_log([node,str(dev.source/fixed[1])],out/'frontend.log',dev.source,{'PATH':os.environ.get('PATH',''),'HOME':str(tests_state)},30)
+  js['runtime']=node_runtime
   with Server(dev.source,state,d['port']) as server:
    session.update(status='API_ACCEPTANCE',pid=server.process.pid);save(dev.root/'active-session.json',session)
    checks=api_acceptance(d['port']);save(out/'api.json',checks)

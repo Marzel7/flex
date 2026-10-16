@@ -1,0 +1,43 @@
+{
+  "command": [
+    "/Users/kevinkeaveney/.volta/bin/node",
+    "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/restorations/9ffa29efe276/source/tests/dev043/pending_request_lifecycle.cjs"
+  ],
+  "cwd": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/restorations/9ffa29efe276/source",
+  "environment": {
+    "PATH": "/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/kevinkeaveney/anaconda3/envs/algotrader/bin:/Users/kevinkeaveney/anaconda3/condabin:/Users/kevinkeaveney/.volta/bin:/Users/kevinkeaveney/.bun/bin:/Users/kevinkeaveney/.yarn/bin:/Users/kevinkeaveney/.config/yarn/global/node_modules/.bin:/Library/Frameworks/Python.framework/Versions/3.11/bin:/usr/bin/python3:/bin:/usr/bin:/usr/local/bin:/sbin:/Users/kevinkeaveney/.local/share/solana/install/active_release/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/opt/pmk/env/global/bin:/usr/local/go/bin:/Users/kevinkeaveney/.cargo/bin:/Users/kevinkeaveney/.codex/tmp/arg0/codex-arg0JMXGDw:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/kevinkeaveney/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/kevinkeaveney/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS:/Users/kevinkeaveney/.foundry/bin:/Users/kevinkeaveney/.foundry/bin",
+    "HOME": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/state/tests-054169761dac"
+  },
+  "timeout_seconds": 30,
+  "resource_limits_parent": {
+    "RLIMIT_FSIZE": [
+      256000000,
+      256000000
+    ],
+    "RLIMIT_NOFILE": [
+      1048575,
+      9223372036854775807
+    ],
+    "RLIMIT_AS": [
+      9223372036854775807,
+      9223372036854775807
+    ],
+    "RLIMIT_CORE": [
+      0,
+      9223372036854775807
+    ]
+  },
+  "preexec_resource_limit": "Unchanged DEV048 limits(): RLIMIT_FSIZE soft=hard8388608bytes",
+  "stdout": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/runs/054169761dac/frontend.log",
+  "stderr": "STDOUT merged",
+  "start_utc": "2026-10-16T20:20:50Z",
+  "executable_resolved": "/Users/kevinkeaveney/.volta/bin/volta-shim",
+  "test_sha256": "b2251f8cd55a7ce7e2b3a7cd9eb53e852900861b79410d7e71141b263739b81f",
+  "returncode": -25,
+  "signal": "SIGXFSZ",
+  "elapsed_seconds": 5.271267458098009,
+  "pid": 49948,
+  "log_bytes": 0,
+  "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "child_still_exists": false
+}

@@ -1,0 +1,81 @@
+{
+  "candidate": {
+    "candidate": "/Users/kevinkeaveney/Dev/claude/flex-releases/candidates/DEV049_CANDIDATE_e15720cbac1f",
+    "deployment_authorized": false,
+    "manifest_sha256": "85398a259453d0be6bbb47bbda333cd30e8f2aae032c8dea2d32b947d11830f5",
+    "source_sha": "e15720cbac1ff4fa1815b92446ce5b5b13727e0d",
+    "status": "PASS",
+    "tag": "DEV049_CANDIDATE_e15720cbac1f"
+  },
+  "all_manifest_hashes_verified": true,
+  "immutable_directory": true,
+  "original_qualification_run": "eb4b28969c65",
+  "original_frontend": {
+    "command": [
+      "/opt/homebrew/bin/node",
+      "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/source/tests/dev043/pending_request_lifecycle.cjs"
+    ],
+    "log": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/runs/eb4b28969c65/frontend.log",
+    "sha256": "449a46df6ee04fb185338a84b70041c49288d816b2c3d2fe8eb803813b790987",
+    "status": "PASS"
+  },
+  "source_comparison": [
+    {
+      "source": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/source",
+      "sha": "e15720cbac1ff4fa1815b92446ce5b5b13727e0d",
+      "file_hashes": {
+        "tests/dev043/pending_request_lifecycle.cjs": "b2251f8cd55a7ce7e2b3a7cd9eb53e852900861b79410d7e71141b263739b81f",
+        "templates/treasury_review.html": "e321f1438b6da7b7639bcd6cd2d0c69453a9b2f0382b29bcc7e54a64bcece740",
+        "src/ops/anchor_reconciliation.py": "226b32f79b4bb5e705f5e15acdb0ab3437470b6b25aeae95e138895c2fc6e2d6",
+        "tests/test_dev049_cursor.py": "261eddf35719aec5f53810d4cb39050975219c709b20f8e282dec5a1f3e06ed4"
+      },
+      "cwd_permissions": "0o755"
+    },
+    {
+      "source": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/restorations/6a3f562ed432/source",
+      "sha": "e15720cbac1ff4fa1815b92446ce5b5b13727e0d",
+      "file_hashes": {
+        "tests/dev043/pending_request_lifecycle.cjs": "b2251f8cd55a7ce7e2b3a7cd9eb53e852900861b79410d7e71141b263739b81f",
+        "templates/treasury_review.html": "e321f1438b6da7b7639bcd6cd2d0c69453a9b2f0382b29bcc7e54a64bcece740",
+        "src/ops/anchor_reconciliation.py": "226b32f79b4bb5e705f5e15acdb0ab3437470b6b25aeae95e138895c2fc6e2d6",
+        "tests/test_dev049_cursor.py": "261eddf35719aec5f53810d4cb39050975219c709b20f8e282dec5a1f3e06ed4"
+      },
+      "cwd_permissions": "0o755"
+    },
+    {
+      "source": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/restorations/80ea38e893d2/source",
+      "sha": "e15720cbac1ff4fa1815b92446ce5b5b13727e0d",
+      "file_hashes": {
+        "tests/dev043/pending_request_lifecycle.cjs": "b2251f8cd55a7ce7e2b3a7cd9eb53e852900861b79410d7e71141b263739b81f",
+        "templates/treasury_review.html": "e321f1438b6da7b7639bcd6cd2d0c69453a9b2f0382b29bcc7e54a64bcece740",
+        "src/ops/anchor_reconciliation.py": "226b32f79b4bb5e705f5e15acdb0ab3437470b6b25aeae95e138895c2fc6e2d6",
+        "tests/test_dev049_cursor.py": "261eddf35719aec5f53810d4cb39050975219c709b20f8e282dec5a1f3e06ed4"
+      },
+      "cwd_permissions": "0o755"
+    },
+    {
+      "source": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/restorations/9ffa29efe276/source",
+      "sha": "e15720cbac1ff4fa1815b92446ce5b5b13727e0d",
+      "file_hashes": {
+        "tests/dev043/pending_request_lifecycle.cjs": "b2251f8cd55a7ce7e2b3a7cd9eb53e852900861b79410d7e71141b263739b81f",
+        "templates/treasury_review.html": "e321f1438b6da7b7639bcd6cd2d0c69453a9b2f0382b29bcc7e54a64bcece740",
+        "src/ops/anchor_reconciliation.py": "226b32f79b4bb5e705f5e15acdb0ab3437470b6b25aeae95e138895c2fc6e2d6",
+        "tests/test_dev049_cursor.py": "261eddf35719aec5f53810d4cb39050975219c709b20f8e282dec5a1f3e06ed4"
+      },
+      "cwd_permissions": "0o755"
+    }
+  ],
+  "old_failed_logs": [
+    {
+      "run": "d6b19431dbba",
+      "log_bytes": 0
+    },
+    {
+      "run": "934004826c0f",
+      "log_bytes": 0
+    }
+  ],
+  "port_causality": "Frontend harness mocks fetch and timers and opens no API socket. Port8150 is used only by later API gate.",
+  "stdout_handling": "Original DEV048 merges stderr into exclusively created binary stdout log, waits via subprocess.run(timeout30), fails on nonzero; failed returncode was omitted from receipt. Empty output alone does not identify execution stage.",
+  "limits": "Same original8MiB RLIMIT_FSIZE in passing/failing frontend runs,30s timeout; no guard/test changes."
+}

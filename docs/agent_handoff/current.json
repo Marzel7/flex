@@ -19273,7 +19273,7 @@
     "git_head": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48",
     "name": "flex",
     "updated_at_utc": "2026-10-16T08:55:23.248007+00:00",
-    "working_tree": "Isolated rich preview /private/tmp/flex-rich-preview-8475 port8145; persistent8100 remains43dfcdd; no deployment"
+    "working_tree": "Preserved8475 isolated recovery source; owned8145preview stopped after bounded freeze HOLD. Persistent8100/Production unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -28734,5 +28734,62 @@
     ],
     "engineering_revision": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48",
     "diagnostic_artifact_bound": "Compact report below128KiB; no raw provider data, operational rows or unbounded outputs retained"
+  },
+  "dev043_bounded_baseline_freeze": {
+    "DEV043_BOUNDED_BASELINE_STATUS": "HOLD_EXCLUDED_PENDING_PATH_HAS_NO_BOUNDED_VISIBLE_FAILURE",
+    "ACCEPTED_FUNCTIONAL_SCOPE": {
+      "verified_this_run": [
+        "Registry rich three-operation layout, real retained price/history evidence (prior browser filter acceptance retained)",
+        "Watchtower detail rejection/non-admission distinctions",
+        "Watchtower playbook via detail navigation",
+        "Byzantine retained detail rendering",
+        "Nexus retained qualified-route detail eventually renders",
+        "Core System Health explicit UNKNOWN with retained diagnostics",
+        "12 included API routes attempted:11HTTP200, Nexus exceeded8s client deadline; history20 deterministic rows,5priced entries"
+      ],
+      "limits": "Not a new full included-scope PASS: Mission Control acceptance carried from DEV045, further browser filters/playbooks/navigation and clean-checkout repeat incomplete."
+    },
+    "EXCLUDED_FUNCTIONAL_SCOPE": [
+      "MissingCREATE24hcards",
+      "DefaultPendingTreasury performance",
+      "Incompleteactivity/coverage",
+      "No currentLIVEtokens",
+      "Incompletehistoricalpricecoverage",
+      "DEV042worker/bridge reproducibility gaps"
+    ],
+    "BROWSER_ACCEPTANCE": {
+      "status": "PARTIAL_FAIL_FREEZE_GATE",
+      "pending_one_request_elapsed_seconds": 69,
+      "pending_result": "Still Loading treasury review workspace; no timeout/unavailable state",
+      "source_cause": "templates/treasury_review.html:155 fetch/catch has no AbortController/deadline; catch only handles eventual rejection",
+      "additional_findings": [
+        "Nexus browser command timeout recovered by AX observation; HTTP probe exceeded8s",
+        "Existing emerging-operator request diskI/Oerror; no repair attempted",
+        "Legacy /ops missingtemplate remains previously recorded; no claim navigation complete"
+      ]
+    },
+    "CLEAN_CHECKOUT_RESTART": "NOT_RUN: prerequisite bounded safety acceptance failed; no fresh restart or baseline freeze claimed",
+    "SOURCE_COMPOSITION_SHA": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48",
+    "SOURCE_COMPOSITION_MANIFEST_SHA256": "efb2b349422711c917ca3c1da240de16042a01e12bad33b2ccffb0f87f09e17f",
+    "IMMUTABLE_BASELINE_REFERENCE": "NOT_CREATED: DEV043_BOUNDED_RECOVERY_BASELINE reserved until acceptance passes",
+    "KNOWN_LIMITATIONS": [
+      "All explicit excluded scope remains unrestored",
+      "Default Pending path hangs beyond69s instead of bounded visible failure",
+      "Some included acceptance/reproducibility steps incomplete"
+    ],
+    "READY_FOR_PERSISTENT_DEV": false,
+    "PROVIDER_CALLS": 0,
+    "PRODUCTION_CHANGES": 0,
+    "CANONICAL_WRITES": 0,
+    "SHARED_QUEUE_WRITES": 0,
+    "GUARD_DENIAL_COUNT": 0,
+    "LOADED_PROJECT_MODULES": 167,
+    "UNTRACKED_RUNTIME_DEPENDENCIES": [],
+    "PREVIEW_STOPPED": true,
+    "PREVIEW_STOP_EVIDENCE": "Owned exec session94187 exit0; PID66816 absent after Ctrl-C; source receipt emitted. Port8100/Production not signalled.",
+    "NEXT_ACTION": "Qualify a minimal isolated Pending timeout/visible unavailable boundary, without changing query/rank semantics or introducing indexes; then rerun included acceptance and clean-checkout restoration before creating baseline reference.",
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "RUNTIME_DEPLOYMENT_REASON": "Qualification stopped; no source/runtime update deployed. Owned isolated test API stopped per task.",
+    "engineering_revision": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48"
   }
 }

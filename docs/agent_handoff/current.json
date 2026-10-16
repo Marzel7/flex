@@ -19270,7 +19270,7 @@
   },
   "project": {
     "branch": "codex/dev042-monitor-source-recovery",
-    "git_head": "1f6779f9b426ecffeceea9488ea18ed250907dfe",
+    "git_head": "8c4d67b43d3a23321546b7c421c97ab55b8e0926",
     "name": "flex",
     "updated_at_utc": "2026-10-16T08:55:23.248007+00:00",
     "working_tree": "Isolated DEV042 exact source preservation and offline qualification. No runtime or production deployment. Worker and bridge source bundles are archival references, not complete qualified recovery candidates."
@@ -27850,5 +27850,163 @@
     "verification": "14 targeted checks+11 compact treasury regressions PASS;14 selected HTTP routes PASS;final runtime guard denials0;163 project modules tracked;full default pending browser acceptance incomplete",
     "production_flags": "All isolated APIs stopped;no operational service signals/restarts,provider calls,canonical writes,shared queues or persistent DEV changes",
     "storage": "All new artifacts<8MiB;fixture/runtime RLIMIT8MiB;no raw provider retention"
+  },
+  "dev043_pending_treasury_bound_20261016": {
+    "DEV043_PENDING_TREASURY_STATUS": "HOLD_NO_QUALIFIED_BOUNDED_GLOBAL_ORDER_PLAN",
+    "PENDING_POPULATION": {
+      "pending_review_rows": 14768,
+      "distinct_treasuries": 14768,
+      "null_treasuries": 0,
+      "excluded_by_existing_canonical_membership_rule": 40,
+      "eligible_pending_rows": 14728,
+      "elapsed_seconds": 0.507118,
+      "authority": "immutable read-only main-file OPS; original union-of-membership exclusion rule; no rank/classification change"
+    },
+    "EXACT_PERFORMANCE_CAUSE": {
+      "endpoint": "GET /api/ops/treasury-review?status=PENDING_REVIEW&sort=actionable&limit=20&offset=0",
+      "projection": "src.ops.treasury_review_workspace.list_review_workspace",
+      "materialization": "fetchall of status population, canonical exclusions, shared operation references, compose_review_item for every eligible row, global Python sort, then slice",
+      "default_order": "comparison_triage.sort_rank ASC, -(last_walkback_at or detected_at or0),treasury ASC",
+      "rank_authority": "_operation_matches using retained role/funding/topology evidence,confirmed operation reference profiles and exact identity overlaps; _comparison_triage categorical ranks1–5; not persisted/indexed",
+      "population_summaries": "Global triage_counts and eligible totals also require population coverage; only selected-page watchtower_candidates is page scoped",
+      "bottleneck": "Instrumented server handler fails to produce a response within60s without browser rendering. No browser-render bottleneck measurement needed to establish server bottleneck."
+    },
+    "ORIGINAL_QUERY_PLAN": [
+      [
+        4,
+        0,
+        0,
+        "SEARCH wt_treasury_review USING INDEX ix_treas_review_status (status=?)"
+      ],
+      [
+        43,
+        0,
+        0,
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    ],
+    "BOUNDED_QUERY_PLAN": {
+      "qualified": false,
+      "detected_at_LIMIT_candidate": [
+        [
+          8,
+          0,
+          0,
+          "SEARCH wt_treasury_review USING INDEX ix_treas_review_status (status=?)"
+        ],
+        [
+          52,
+          0,
+          0,
+          "USE TEMP B-TREE FOR ORDER BY"
+        ]
+      ],
+      "why_rejected": "Different global authority: raw detected_at order precedes canonical exclusion and computed comparison triage; fixture omits global winner",
+      "computed_rank_EXPLAIN": [
+        [
+          5,
+          0,
+          0,
+          "SEARCH wt_treasury_review USING INDEX ix_treas_review_status (status=?)"
+        ],
+        [
+          31,
+          0,
+          0,
+          "USE TEMP B-TREE FOR ORDER BY"
+        ]
+      ],
+      "scope": "EXPLAIN-only non-indexed marker, not an implementation or equivalence proof. A computed global rank still requires examining candidate population and sorting; LIMIT alone does not bound rank evaluation.",
+      "indexes": "Existing treasury PK plus status-only ix_treas_review_status; no indexed derived triage/last-observed ordering. No new index/cache/worker/query-ranking architecture introduced."
+    },
+    "FILTER_SORT_EQUIVALENCE": "No replacement accepted. Original eligibility,classification,filters and all4 sort modes unchanged. Compact reference witness verifies original semantics and disproves page-local sorting shortcut.",
+    "PAGINATION_EQUIVALENCE": {
+      "original_fixture": {
+        "status": "PASS_REFERENCE_BOUNDARY_WITNESS",
+        "checks": [
+          "global actionable winner omitted by detected_at LIMIT pushdown",
+          "first/middle/final page original reference",
+          "all existing sorts",
+          "canonical exclusion/counts",
+          "no duplicates/omissions",
+          "empty final page",
+          "status filter empty"
+        ],
+        "raw_fixture_population": 22,
+        "eligible_population": 21,
+        "global_first": "old-actionable",
+        "raw_newest_limit_contains_winner": false,
+        "page_counts": {
+          "actionable": [
+            7,
+            7,
+            7
+          ],
+          "newest": [
+            7,
+            7,
+            7
+          ],
+          "oldest": [
+            7,
+            7,
+            7
+          ],
+          "launches": [
+            7,
+            7,
+            7
+          ]
+        },
+        "bounded_candidate_qualified": false,
+        "provider_calls": 0,
+        "canonical_writes": 0
+      },
+      "retained_candidate_pages": "NOT_RUN — no candidate passes mandatory plan/semantics gate; no first/middle/final retained-page PASS claimed"
+    },
+    "QUERY_LATENCY": {
+      "status": "DEADLINE_EXCEEDED_60S",
+      "elapsed_seconds": 60.1972,
+      "deadline_seconds": 60,
+      "completed_compositions": 7457,
+      "started_compositions": 7458,
+      "SQL_statements": 89520,
+      "response_bytes": null,
+      "caveat": "Instrumented Flask test-client actual handler; line tracing/tracemalloc overhead included. Abort initiated at60s; unwind/cleanup extends measured total to60.1972s. Not an uninstrumented completion time or estimate."
+    },
+    "MEMORY_BOUNDS": {
+      "observed_python_allocation_peak_bytes": 142339271,
+      "observed_process_peak_RSS_bytes": 250691584,
+      "qualified_page_memory_bound": false,
+      "result_size": "No response completed; no successful result-size bound claimed",
+      "new_fixture_artifact_file_cap_bytes": 8388608,
+      "raw_retention": false
+    },
+    "PROVIDER_FREE_TESTS": {
+      "original_retained_handler": "deadline failed;zero guard denials",
+      "population_count": "14768 raw distinct treasury identities;40 existing canonical exclusions;14728 eligible;readonly count0.507118s",
+      "compact_reference": "7 checks PASS;22 raw/21 eligible;first/middle/final7-row pages,all4 sorts,no duplicates/omissions,empty/status filter",
+      "newest_limit_counterexample": "old-actionable rank winner absent from raw newest20",
+      "provider_calls": 0,
+      "canonical_writes": 0
+    },
+    "FULL_BROWSER_ACCEPTANCE": "NOT_RUN_THIS_STAGE — mandatory bounded projection gate not met. Loading is not accepted.",
+    "CLEAN_CHECKOUT_RESTART": "NOT_RUN — browser prerequisite not met; no release frozen",
+    "GUARD_DENIAL_COUNT": 0,
+    "RECOVERY_SOURCE_SHA": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48 executable source unchanged; current branch metadata includes later evidence commits",
+    "FROZEN_RECOVERY_BASELINE": false,
+    "READY_FOR_PERSISTENT_DEV": false,
+    "PROVIDER_CALLS": 0,
+    "PRODUCTION_CHANGES": 0,
+    "PERSISTENT_DEV_CHANGES": 0,
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "runtime_deployment_reason": "Measurement and compact reference tests only; no application source or configuration correction implemented; no API service started",
+    "NEXT_ACTION": "STOP_AT_HOLD. Separately approve a design capable of maintaining exact global comparison order through an indexed authority, or explicitly permit a whole-population ranking stage under defined time/memory bounds. No page-local sorting,filter substitution,index,cache or deployment authorized by this result.",
+    "engineering_revision": "8c4d67b43d3a23321546b7c421c97ab55b8e0926",
+    "report": "/private/tmp/flex-dev043-integration-baseline/docs/audits/dev043/DEV043_PENDING_TREASURY_REPORT.md",
+    "report_sha256": "58cc5b3782d18080a836ffea7f51c6f1c405959ad1d469e8842efaa4e482f223",
+    "verification": "Original actual handler60s instrumented deadline;7457 compositions/89520 SQL statements;Python allocation peak142339271B;zero denials.7 compact original-reference checks PASS. Newest-LIMIT witness omits global actionable winner. No bounded replacement qualified.",
+    "production_flags": "No application source/template/config changes versus8475b337;no API service started,providers,canonical writes,shared queues or Production/persistent DEV changes",
+    "storage": "New files<8MiB;memory-only fixtures;no raw provider retention or DB copies"
   }
 }

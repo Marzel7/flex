@@ -19270,7 +19270,7 @@
   },
   "project": {
     "branch": "codex/dev042-monitor-source-recovery",
-    "git_head": "8c4d67b43d3a23321546b7c421c97ab55b8e0926",
+    "git_head": "fb3a061c1686b7069550befafefe2156671cbe29",
     "name": "flex",
     "updated_at_utc": "2026-10-16T08:55:23.248007+00:00",
     "working_tree": "Isolated DEV042 exact source preservation and offline qualification. No runtime or production deployment. Worker and bridge source bundles are archival references, not complete qualified recovery candidates."
@@ -28008,5 +28008,142 @@
     "verification": "Original actual handler60s instrumented deadline;7457 compositions/89520 SQL statements;Python allocation peak142339271B;zero denials.7 compact original-reference checks PASS. Newest-LIMIT witness omits global actionable winner. No bounded replacement qualified.",
     "production_flags": "No application source/template/config changes versus8475b337;no API service started,providers,canonical writes,shared queues or Production/persistent DEV changes",
     "storage": "New files<8MiB;memory-only fixtures;no raw provider retention or DB copies"
+  },
+  "dev044_global_treasury_ranking_design_20261016": {
+    "DEV044_STATUS": "HOLD_MAINTENANCE_AND_INVALIDATION_NOT_QUALIFIED",
+    "FROZEN_BASELINE_REFERENCE": {
+      "source_snapshot": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48",
+      "evidence_snapshot": "8c4d67b43d3a23321546b7c421c97ab55b8e0926",
+      "qualified_behavior": "DEV043 original comparison/canonical exclusion/reference fixtures; read-only corrections and nullable formatting preserved. Pending request deadline exceeded; no complete recovery release or successful Production deployment inferred.",
+      "source_hashes": {
+        "src/ops/treasury_review_workspace.py": "cedc1cf20695c8bb5b6bbe7961b1d971ec3f8b237f9eee5e62521da0e13f78bc",
+        "src/ops/operation_matching_profile.py": "f34374ce2ba73d5d4facafcf01891639c41971663bc63bd114d69cc21342de54",
+        "src/ops/treasury_review_routes.py": "c4e1d38449b4dce2346b56a2d1f4c367204653c3564d17392b5cde9033a314ed"
+      },
+      "preserved_fixes": [
+        "original durable writer contract",
+        "rich UI/playbook source composition",
+        "nullable price UNAVAILABLE formatting",
+        "read-only schema/cache/trace handling",
+        "UNKNOWN listener counters and no canonical alignment repair"
+      ]
+    },
+    "GLOBAL_RANK_AUTHORITY_DESIGN": "Design only: versioned exact original rank/order tuples,4 covering indexes and coherent same-generation count metadata. No relation/index/cache created outside scratch memory fixtures. Details in DEV044_GLOBAL_RANK_AUTHORITY_DESIGN.md.",
+    "RANK_DEPENDENCIES": [
+      "review identity/status/evidence JSON/timestamps",
+      "candidate verified mint-scoped provisioning edges",
+      "confirmed-operation set and complete entity sets",
+      "verified reference edges touching either endpoint entity",
+      "retained Watchtower launch reference facts",
+      "matching profile defining entity types and WATCHTOWER name-specific branch",
+      "canonical operator entities/ACTIVE assets/confirmed treasury fallback for eligibility",
+      "source/helper/schema/table-presence revisions; page-only evidence remains authoritative"
+    ],
+    "INVALIDATION_COVERAGE": {
+      "status": "INCOMPLETE",
+      "identified_required_cases": "insert/update/delete,old+new endpoint/mint/signature/type,status/membership changes,operation/profile/merge changes,bulk restoration",
+      "global_fanout_witness": {
+        "source_change": "one verified provisioning edge touching a confirmed-operation entity",
+        "candidate_facts_changed": 0,
+        "candidate_ranks_changed": 14768,
+        "rank_before": 5,
+        "rank_after": 4,
+        "elapsed_seconds_instrumented": 3.031584583921358,
+        "original_implementation": true
+      },
+      "writer_coverage": "Multiple existing writer paths; no complete transactional revision/change stream demonstrated. No triggers on seven relevant retained fact tables.",
+      "maintenance_gap": "Single reference mutation can invalidate N ranks; synchronous update cost unbounded absent source envelopes; asynchronous/chunked stale publication cannot preserve original current-state contract."
+    },
+    "INDEXED_QUERY_PLAN": {
+      "fixture_status": "PASS_SNAPSHOT_RETRIEVAL_ONLY",
+      "plans": {
+        "actionable": [
+          "SEARCH rank_model USING COVERING INDEX design_actionable (generation=? AND status=? AND eligible=?)"
+        ],
+        "newest": [
+          "SEARCH rank_model USING COVERING INDEX design_newest (generation=? AND status=? AND eligible=?)"
+        ],
+        "oldest": [
+          "SEARCH rank_model USING COVERING INDEX design_oldest (generation=? AND status=? AND eligible=?)"
+        ],
+        "launches": [
+          "SEARCH rank_model USING COVERING INDEX design_launches (generation=? AND status=? AND eligible=?)"
+        ]
+      },
+      "created_where": "SQLite :memory: design fixture only; no canonical or persistent index"
+    },
+    "FILTER_SORT_EQUIVALENCE": {
+      "rank_truth_cases": 156,
+      "sorts": [
+        "actionable",
+        "newest",
+        "oldest",
+        "launches"
+      ],
+      "scope": "Fixture tuples match original keys,canonical exclusion semantics preserved; full retained rank and live invalidation equivalence not qualified"
+    },
+    "PAGINATION_EQUIVALENCE": {
+      "checks": 2964,
+      "first_middle_final_empty": "PASS in all4 fixture sorts and3 status partitions",
+      "continuity": "Full fixture traversal matches reference without duplicates or omissions at fixed generation",
+      "limitation": "OFFSET O(offset+limit); no enforced population cap or generation-consistency contract proved for existing API"
+    },
+    "GLOBAL_COUNT_AUTHORITY": {
+      "proposal": "Same-generation raw/eligible/status/triage/exclusion-by-operation counters,detected extrema;atomic old/new deltas;page watchtower_candidates remains page-scoped",
+      "fixture_counts": [
+        [
+          "CONFIRMED",
+          1,
+          5
+        ],
+        [
+          "PENDING_REVIEW",
+          0,
+          40
+        ],
+        [
+          "PENDING_REVIEW",
+          1,
+          14728
+        ]
+      ],
+      "status": "Snapshot count model PASS; transactionally complete maintenance NOT_QUALIFIED"
+    },
+    "COMPUTE_AND_MEMORY_BOUNDS": {
+      "max_fixture_page_seconds": 0.000788707984611392,
+      "python_model_peak_bytes": 5844040,
+      "fanout_rank_changes": 14768,
+      "uniform_update_bound": false,
+      "missing_envelopes": "N pending population,O confirmed operations,E reference entities/edges,B evidence cardinality; no accepted enforced bounds proved"
+    },
+    "STORAGE_BOUNDS": {
+      "diagnostic_max_file_bytes": 8388608,
+      "fixture_SQLite_memory_bytes": 3211264,
+      "persistent_authority_files_created": 0,
+      "raw_provider_retention": false,
+      "future_persisted_bound": "NOT_QUALIFIED: no enforced source-cardinality/key/payload caps,WAL/transient/generation retention proof; hypothetical design must fail before500000000bytes without truncating accepted evidence"
+    },
+    "PROVIDER_CALLS": 0,
+    "APPLICATION_CHANGES": 0,
+    "PERSISTENT_DEV_CHANGES": 0,
+    "PRODUCTION_CHANGES": 0,
+    "GUARD_DENIAL_COUNT": 0,
+    "QUALIFICATION_GAPS": [
+      "Complete transactional capture and reverse-dependency coverage not demonstrated",
+      "One local reference mutation invalidates every candidate rank in original comparison fixture",
+      "No uniform bound for recomputation or source/reference/evidence growth",
+      "Snapshot publication cannot silently serve stale ranks with current facts; availability semantics not approved",
+      "No full retained-data rank equivalence or enforced persisted file/WAL/recovery bound qualified",
+      "Canonical exclusion-by-operation ties need original uniqueness/selection proof"
+    ],
+    "NEXT_ACTION": "STOP — design qualification only. Establish an authorized finite input/maintenance envelope and complete mutation coverage, or explicitly agree versioned snapshot/fail-closed availability semantics in a separately scoped design decision. No implementation,migration,index,cache,worker or deployment authorized.",
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "runtime_deployment_reason": "Design and in-memory fixture evidence only; no application implementation or service run.",
+    "engineering_revision": "fb3a061c1686b7069550befafefe2156671cbe29",
+    "report": "/private/tmp/flex-dev043-integration-baseline/docs/audits/dev044/DEV044_GLOBAL_RANK_AUTHORITY_DESIGN.md",
+    "report_sha256": "349f3567248bd743e21a1c82d73f8834b67b5aea9f8c1bd58b5038b459c003b2",
+    "verification": "156 original-helper rank truth-table checks and2964 indexed all-page reference comparisons PASS in memory fixtures;one reference edge changes14768 original ranks5->4;complete invalidation/bounded maintenance not qualified",
+    "production_flags": "No application/configuration changes,canonical writes,service runs,restarts,provider calls,persistent cache,migration or deployment",
+    "storage": "No persistent authority created;memory model3211264bytes;diagnostic files<8MiB;no raw provider retention"
   }
 }

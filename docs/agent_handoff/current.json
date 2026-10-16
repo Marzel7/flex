@@ -19270,7 +19270,7 @@
   },
   "project": {
     "branch": "codex/dev042-monitor-source-recovery",
-    "git_head": "41bf4dbfddec20d6ca58b510b59ea54a0330f147",
+    "git_head": "e9745d8d55fac693cbc1bd46a5ea3f43f2eaa18e",
     "name": "flex",
     "updated_at_utc": "2026-10-16T08:55:23.248007+00:00",
     "working_tree": "Isolated DEV042 exact source preservation and offline qualification. No runtime or production deployment. Worker and bridge source bundles are archival references, not complete qualified recovery candidates."
@@ -27675,5 +27675,51 @@
     "verification": "156 imported/preserved hashes and AST PASS; isolation preflight PASS; retained-data/browser/restart not run after explicit stop",
     "storage": "New files<8MiB; fixture RLIMIT8MiB; no raw retention",
     "blocker": "Required commit_write_and_wait missing in selected db_writer; safe read-only startup bindings unresolved"
+  },
+  "dev043_source_compatibility_20261016": {
+    "DEV043_COMPATIBILITY_STATUS": "HOLD_CANONICAL_STARTUP_WRITE",
+    "DB_WRITER_SOURCE_AUTHORITY": "d2fffdc34fca2539807e1463cad68dab0b3ef042",
+    "COMMIT_WRITE_AND_WAIT_COMPATIBILITY": "PASS exact writer; six compact contract checks PASS; unchanged prior function AST",
+    "OUTSIDE_STATE_WRITE_CAUSE": {
+      "module": "src.ops.operator_routes.register_operator_routes -> src.ops.operator_lifecycle_projection.persist_monitor_mode_transition -> src.core.db_writer._commit_batch -> DatabaseWriteService._execute -> acquire_write_lease",
+      "target": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db.write.lock",
+      "stage": "operator route registration, startup monitor-mode transition",
+      "authority": "canonical operations state; SQL INSERT operation_monitor_mode_transitions",
+      "required_for_read_only_ui": "No read-only startup bypass exists at this callsite; cannot redirect only this authority through existing bindings without changing operations read authority. Guard denied lock open before transaction.",
+      "original_schema_warning": "Original run did not capture exact target/stack; current controlled probe canonical schema check passes, then mode transition attempts the exact write above. Do not equate original warning with proven current callsite."
+    },
+    "ISOLATED_BINDING_CORRECTION": "NONE — canonical state is not disposable. No redirection or guard bypass. Metadata-cache local missing binding remains unresolved after mandatory HOLD.",
+    "OFFLINE_TESTS": {
+      "status": "PASS",
+      "checks": [
+        "compatible imports",
+        "post-commit independent readback",
+        "multi-statement atomic rollback",
+        "missing database failure receipt",
+        "service timeout converted to failure receipt",
+        "no best-effort queue use"
+      ],
+      "fixture_max_bytes": 8192,
+      "provider_calls": 0,
+      "canonical_writes": 0
+    },
+    "ISOLATED_STARTUP": "FAIL_QUALIFICATION: guarded import-only probe exposed canonical write; process exited; no API server started",
+    "REAL_DATA_BROWSER_ACCEPTANCE": "NOT_RUN_STOP_CONDITION",
+    "CLEAN_CHECKOUT_RESTART": "NOT_RUN_STOP_CONDITION",
+    "QUALIFIED_SOURCE_SHA": "writer component only; enclosing commit recorded in handoff; no fully qualified integration revision",
+    "READY_FOR_PERSISTENT_DEV": false,
+    "PROVIDER_CALLS": 0,
+    "PRODUCTION_CHANGES": 0,
+    "PERSISTENT_DEV_CHANGES": 0,
+    "CANONICAL_WRITES": 0,
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "NEXT_ACTION": "Separately authorize a narrow read-only startup policy for canonical schema/mode-transition initialization, preserving canonical read authority and existing write semantics outside qualification; then resolve local cache binding and repeat guarded retained-data/clean-checkout acceptance. No deployment.",
+    "engineering_revision": "e9745d8d55fac693cbc1bd46a5ea3f43f2eaa18e",
+    "report": "/private/tmp/flex-dev043-integration-baseline/docs/audits/dev043/DEV043_COMPATIBILITY_REPORT.md",
+    "report_sha256": "08750b781ccc48f852ac4b1ab152118160ac41c89ec797ca642a7c1a9d5b0696",
+    "qualified_component": "Exact writer only; entire integration remains HOLD",
+    "storage": "All new files below8MiB; fixtures RLIMIT8MiB; no raw payload retention",
+    "production_flags": "No server/operational workers started; no service signals, canonical writes, queue writes or persistent DEV changes"
   }
 }

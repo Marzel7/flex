@@ -1,0 +1,24 @@
+[DB_WRITER] transaction failed — dead-lettering 1 items: UNIQUE constraint failed: evidence.id
+Traceback (most recent call last):
+  File "/private/tmp/flex-dev043-integration-baseline/src/core/db_writer.py", line 101, in _commit_batch
+    database_write_service.submit(database, "sql-batch", transaction)
+  File "/private/tmp/flex-dev043-integration-baseline/src/core/database_write_service.py", line 1093, in submit
+    raise item.error
+  File "/private/tmp/flex-dev043-integration-baseline/src/core/database_write_service.py", line 1100, in _worker_loop
+    self._execute(item)
+  File "/private/tmp/flex-dev043-integration-baseline/src/core/database_write_service.py", line 1192, in _execute
+    item.result = item.transaction(conn)
+                  ^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/flex-dev043-integration-baseline/src/core/db_writer.py", line 97, in transaction
+    conn.executemany(sql, param_list)
+sqlite3.IntegrityError: UNIQUE constraint failed: evidence.id
+[DEAD_LETTER] domain=enrichment label=DEV043-fixture
+[DB_WRITER] transaction failed — dead-lettering 1 items: fixture timeout
+Traceback (most recent call last):
+  File "/private/tmp/flex-dev043-integration-baseline/src/core/db_writer.py", line 101, in _commit_batch
+    database_write_service.submit(database, "sql-batch", transaction)
+  File "/private/tmp/flex-dev043-integration-baseline/docs/audits/dev043/test_writer_contract.py", line 25, in timeout
+    def timeout(*a,**kw):raise TimeoutError('fixture timeout')
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TimeoutError: fixture timeout
+[DEAD_LETTER] domain=enrichment label=DEV043-fixture

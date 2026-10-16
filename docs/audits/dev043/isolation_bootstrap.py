@@ -13,7 +13,9 @@ def inside(path):
  try:pathlib.Path(path).resolve().relative_to(STATE);return True
  except(ValueError,TypeError):return False
 def reject(kind,target):
- EVENTS.append({'kind':kind,'target':str(target)[:300]})
+ import traceback
+ EVENTS.append({'kind':kind,'target':str(target)[:300], 'stack':traceback.format_stack(limit=12)})
+ print('DEV043_DENIED='+json.dumps(EVENTS[-1]),flush=True)
  raise PermissionError('DEV043_ISOLATION_DENIED:'+kind)
 def audit(event,args):
  if event in ['socket.connect','socket.getaddrinfo']:
@@ -71,7 +73,9 @@ sys.path.insert(0,str(ROOT))
 try:
  import src.dev_runtime as runtime
  print('DEV043_IMPORT_PASS',flush=True)
- runtime.main()
+ if '--probe-startup' in sys.argv:
+  print('DEV043_ISOLATION_EVENTS='+json.dumps(EVENTS),flush=True)
+ else:runtime.main()
 except BaseException:
  print('DEV043_ISOLATION_EVENTS='+json.dumps(EVENTS),flush=True)
  raise

@@ -26,5 +26,5 @@
   "external_database_policy": "allowlisted,mode=ro,immutable=1,query_only",
   "application_imported": false,
   "port": 8143,
-  "bootstrap_sha256": "85310381ed8a53f325c86a3c194ad5e7acbe26554405d9ded4b0bfa3fd1d4b02"
+  "bootstrap_sha256": "02f3d7207a2ea5b9d061934cdbd274e27b4e390877c3c45ae9ed29135301af9f"
 }

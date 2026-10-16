@@ -1,0 +1,1 @@
+{"status": "PASS", "checks": ["compatible imports", "post-commit independent readback", "multi-statement atomic rollback", "missing database failure receipt", "service timeout converted to failure receipt", "no best-effort queue use"], "fixture_max_bytes": 8192, "provider_calls": 0, "canonical_writes": 0}

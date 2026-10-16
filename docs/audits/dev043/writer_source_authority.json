@@ -1,0 +1,25 @@
+{
+  "source_sha": "d2fffdc34fca2539807e1463cad68dab0b3ef042",
+  "source_blob": "011b008d684aed29bdde970eff2d8115dc7549e1",
+  "path": "src/core/db_writer.py",
+  "sha256": "fa5c7ce795d0391c10aa7f7b60823f2624a936ed0cf298e07cb92c0c85807b32",
+  "integration": "exact complete source file; all pre-existing functions AST identical",
+  "added_symbols": [
+    "DurableWriteReceipt",
+    "commit_write_and_wait"
+  ],
+  "signature": "commit_write_and_wait(db_path: str, item: WriteItem) -> DurableWriteReceipt",
+  "transaction": "_commit_batch assigns sequences, groups statements by SQL, calls existing DatabaseWriteService.submit synchronously; one service-owned transaction; rollback on exception",
+  "ack": "Receipt committed=True only after service submit returns following commit; independent fixture readback passed",
+  "timeouts": "No wrapper timeout parameter or total deadline. Existing submit uses item.event.wait() without timeout; service cross-process lease default60s and native SQLite timeout10s. Exceptions reaching _commit_batch become failure receipts. Injected TimeoutError receipt test passed; no claim of bounded total wait.",
+  "failure": "Missing database returns WRITER_DATABASE_UNAVAILABLE; _commit_batch catches Exception, dead-letters and wrapper returns SHARED_WRITER_COMMIT_FAILED; BaseException not swallowed",
+  "direct_dependencies": [
+    "stdlib dataclasses, threading, time, logging, os, collections, typing",
+    "unchanged src.core.db_write_queue: drain_batch,WriteItem,queue_depths,migration_signal",
+    "unchanged src.core.database_write_service: database_write_service"
+  ],
+  "existing_callers": [
+    "src/ops/operator_lifecycle_projection.py:persist_monitor_mode_transition"
+  ],
+  "no_persistence_semantics_change": true
+}

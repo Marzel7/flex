@@ -62,4 +62,12 @@ for qualification in [True,False]:
   else:assert not qualification
   assert len(calls)==(0 if qualification else 1)
 checks+=['read-only alignment explicit gap without repair','normal canonical reconciliation unchanged']
+fn=next(n for n in ast.parse((ROOT/'src/core/operation_dashboard_routes.py').read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='api_intel_runtime_budget')
+start=next(i for i,n in enumerate(fn.body) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='_critical_failures' for t in n.targets))
+end=next(i for i,n in enumerate(fn.body[start:],start) if isinstance(n,ast.If) and '_cascade_ok' in ast.unparse(n.test))
+for unknown in [True,False]:
+ runtime={k:0 for k in ['treasury_timeout','create_fetch_timeout','creator_resolution_skipped','pool_discovery_deferred','validation_timeout','catchup_timeout','db_lock_errors_5m','db_p99_wait_ms']};runtime['cascade_state']='LIVE'
+ if unknown:runtime['validation_timeout']=None
+ ns={'runtime':runtime};exec(compile(ast.Module(body=fn.body[start:end+1],type_ignores=[]),'budget-health-source','exec'),ns);assert ns['health']==('UNKNOWN' if unknown else 'GREEN')
+checks+=['missing budget total remains UNKNOWN without null arithmetic','normal budget health unchanged']
 print(json.dumps({'status' :'PASS','checks':checks,'provider_calls':0,'canonical_writes':0}))

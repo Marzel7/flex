@@ -1,5 +1,5 @@
 {
-  "status": "READ_ONLY_CORRECTION_OFFLINE_PASS_PENDING_BROWSER",
+  "status": "READ_ONLY_UNIT_PASS_FULL_PENDING_TREASURY_ACCEPTANCE_INCOMPLETE",
   "integration_parent": "cb882091bbd402ad826fc44cc82541a0e3d4b2ca",
   "parent_tree": "53fa6a10e6fd8435c08839caddaf3f0be5358f5b",
   "parent_files_authority": "git ls-tree -r cb882091bbd402ad826fc44cc82541a0e3d4b2ca",
@@ -1338,7 +1338,7 @@
       "path": "src/core/operation_dashboard_routes.py",
       "original_source": "02e9e19ed6dfc7b6043b55dd1250d238b7b4976d",
       "original_blob": "fd8ed541416ca34aece7b4f9a4f5ace7ac1a8f53",
-      "sha256": "c53db49633404dd4b4ab59483678ae46aa8bf913892a27d8a46f4ee98a55a56b"
+      "sha256": "d454fe8f1a8c243a3818e85c75985d61cb79b30b02f0a5d2a4fa1c5a607cc2c9"
     },
     {
       "path": "templates/treasury_review.html",

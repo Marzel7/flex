@@ -5653,7 +5653,9 @@ def api_intel_runtime_budget():
         runtime["treasury_timeout"] +
         runtime["create_fetch_timeout"]
     )
-    _optional_deferred = (
+    _optional_deferred = None if any(runtime.get(key) is None for key in (
+        'pool_discovery_deferred', 'validation_timeout',
+    )) else (
         runtime.get("creator_resolution_skipped", 0) +
         runtime["pool_discovery_deferred"] +
         runtime["validation_timeout"] +
@@ -5672,6 +5674,10 @@ def api_intel_runtime_budget():
         health = "YELLOW"
         health_label = "Near budget"
         health_note  = f"{_critical_failures} critical timeout(s) — monitor"
+    elif _optional_deferred is None:
+        health = "UNKNOWN"
+        health_label = "Listener counters unavailable"
+        health_note = "Read-only API process has no in-process listener counters"
     elif _optional_deferred > 0:
         health = "GREEN"
         health_label = "Degrading gracefully"

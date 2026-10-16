@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev047-golden-baseline",
-    "git_head": "989308687575e4f730f77b750abf7b6ef503fd66",
+    "branch": "codex/dev048-release-workflow",
+    "git_head": "7b62d68de4d0eee3ba058507dc80cf4d88e2b084",
     "name": "flex",
-    "updated_at_utc": "2026-10-16T17:51:34.266239+00:00",
-    "working_tree": "DEV047 protected golden source preserved and independently restored;temporary8147stopped;8100/8145 unchanged;futureDEVusesgoldenworkflow."
+    "updated_at_utc": "2026-10-16T18:50:58.573655+00:00",
+    "working_tree": "DEV048 workflow PASS; immutable tooling installed; disposable candidate independently restored; owned APIs stopped; existing 8100/8145 unchanged; no application deployment."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -29893,5 +29893,26 @@
     "baseline_changes": 0,
     "report": "/Users/kevinkeaveney/.codex/worktrees/dev047-golden-baseline/flex/docs/audits/dev047/DEV047_GOLDEN_BASELINE_STATUS.json",
     "next_action": "NONE \u2014 COMPLETE. Future DEV uses golden parent/workflow; persistentDEV/Production promotion separately authorized."
+  },
+  "dev048_release_workflow": {
+    "status": "PASS",
+    "engineering_revision": "7b62d68de4d0eee3ba058507dc80cf4d88e2b084",
+    "tooling_source_sha": "601420fa0c8482ecea2cf1c1d66a67f416216002",
+    "command": "/Users/kevinkeaveney/Dev/claude/flex-releases/bin/flex-dev",
+    "baseline_sha": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "candidate_sha": "cceff76deda876a8bfcf98cf72e02e11d69c830d",
+    "candidate_reference": "DEV048-test_CANDIDATE_cceff76deda8",
+    "qualification": "18 tooling unit tests, 8 live invalid-candidate rejections, 12 original resource tests, frontend lifecycle, 10 real retained-data browser contracts in qualification and fresh restoration PASS; 168 project modules/46 loaded distributions recorded; zero normal guard denials. APIs stopped.",
+    "promotion": "PASS_FIXTURE_DRY_RUN only; no operational target readiness or deployment authorization; no actions executed",
+    "runtime_deployment_gate": "PASS_TOOLING_ONLY \u2014 installed immutable command exercised; application unchanged",
+    "providers": 0,
+    "canonical_writes": 0,
+    "shared_queue_writes": 0,
+    "production_changes": 0,
+    "persistent_dev_changes": 0,
+    "known_limitations": "Original bounded golden exclusions unchanged; local dependency/database prerequisites; trusted operator browser receipts; higher-risk changes require per-DEV subsystem evidence.",
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev048-release-workflow/flex/docs/audits/dev048/DEV048_RELEASE_WORKFLOW_STATUS.json",
+    "guide": "/Users/kevinkeaveney/.codex/worktrees/dev048-release-workflow/flex/docs/development/FLEX_DEV_WORKFLOW.md",
+    "next_action": "NONE \u2014 COMPLETE. Future DEV starts through installed command; promotion requires separate explicit authorization naming exact release and target."
   }
 }

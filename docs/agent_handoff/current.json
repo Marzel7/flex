@@ -8068,11 +8068,11 @@
   "hand_off_transport_blocker": "HANDOFF_TRANSPORT_DEGRADED",
   "handoff_transport": {
     "branch": "agent-handoff",
-    "note": "DEV041 handoff-only publication; verify exact remote transport commit and committed current.json bytes after push. No engineering branch or preserved research payload publication.",
+    "note": "DEV042 handoff-only publication. Verify remote exact transport commit and current.json bytes after push. No engineering/source-bundle branch published.",
     "protocol_version": 1,
     "published_at_utc": "2026-08-17T15:35:17Z",
     "status": "COMMIT_ADDRESSED_AGENT_HANDOFF",
-    "updated_at_utc": "2026-10-16T08:24:29.227482+00:00"
+    "updated_at_utc": "2026-10-16T08:55:23.248007+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev041-evidence-preservation",
-    "git_head": "0f35e2e037c819da9fd68253d8b405e9fec75b11",
+    "branch": "codex/dev042-monitor-source-recovery",
+    "git_head": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
     "name": "flex",
-    "updated_at_utc": "2026-10-16T08:24:29.227482+00:00",
-    "working_tree": "Isolated DEV041 preservation documentation at /private/tmp/flex-dev041-evidence-preservation. No application implementation or runtime deployment. Durable normalized evidence stored outside temporary/Codex worktrees."
+    "updated_at_utc": "2026-10-16T08:55:23.248007+00:00",
+    "working_tree": "Isolated DEV042 exact source preservation and offline qualification. No runtime or production deployment. Worker and bridge source bundles are archival references, not complete qualified recovery candidates."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -27591,5 +27591,57 @@
     },
     "remaining_data_loss": "150 complete original journals remain unlocated in bounded searched authorities.149 identities retain derived DEV020 peak evidence;1 has request authorization only. This is not a claim of irreversible global loss. No synthetic journal reconstruction.",
     "next_action": "NONE — authorized DEV041 preservation and bounded recovery search complete. Keep durable snapshot;150 full journals remain unrecovered. Further authorities or provider reacquisition require separate authorization."
+  },
+  "dev042_running_monitor_source_preservation_20261016": {
+    "status": "PARTIAL_SOURCE_PRESERVED; HOLD_COMPLETE_COMPOSITION_AND_DEPLOYMENT_READINESS",
+    "engineering_revision": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+    "report": "/private/tmp/flex-dev042-monitor-source-recovery/docs/audits/dev042/DEV042_MONITOR_SOURCE_RECOVERY_REPORT.md",
+    "report_sha256": "8f857e05df413b9861cf7ca8c61f83eae4ea13af65e9ee0486ec80a34433ae66",
+    "current_worker": {
+      "pid": 9126,
+      "module": "src.ops.operation_monitor_service",
+      "source_root": "/private/tmp/flex-dev014-early-minimum-worker",
+      "source_module_present": false
+    },
+    "current_bridge": {
+      "pid": 21106,
+      "module": "src.ops.operation_monitor_bridge_service",
+      "source_root": "/Users/kevinkeaveney/.codex/worktrees/watchtower-monitor-bounded-soak/flex",
+      "source_module_present": false
+    },
+    "source_references": {
+      "worker": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "bridge": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d"
+    },
+    "preservation": "141 exact source/config/test files committed, including original Git modes; worker full graph66 source files, bridge61. Per-service manifests include hashes, startup command, Supervisor identity, safe effective environment, database/queue paths, observed versions, rollback reference and gaps. No later incompatible module or business-logic patch introduced.",
+    "runtime_environment": "Worker launcher resets environment: effective DB_PATH/FLEX_DB_PATH are monitor_aux.dev.db, not canonical core from Supervisor stanza. Worker HISTORICAL, fair scheduling, idle5s, budgets20 global/4 per token, BIRDEYE_CREDENTIAL_LABEL=BIRDEYE observed. Early-minimum/current-MC flags from stanza are absent after env reset. Bridge cadence60s and pinned a1b7 source label observed. Credential values not retained. Loaded Python bytes UNVERIFIED.",
+    "source_gaps": "Eight unique deferred dependencies absent from selected committed trees: live_opening_action_job, acquisition_modes, pre_action_state_comparison, pumpfun_execution_model_target_era, token_data_chain_facts, token_data_lifecycle_facts, token_data_fx_facts, operation_opening_history. Later shared files survive but exact loaded lineage not proven. Optional opening absence remains fail-closed, not silently activated.",
+    "selection_gap": "Worker shared untracked519-byte selection preserved. Bridge original selection path absent; pinned103-byte watermark recovered. Fixture proves restoring watermark changes selection semantics relative to missing-file behavior, so no silent restore/deploy.",
+    "qualification": {
+      "worker_no_transport_startup": "PASS",
+      "bridge_idle_startup": "PASS",
+      "single_source_root": "PASS for both",
+      "frozen_worker_tests": {
+        "passed": 19,
+        "failed": 6
+      },
+      "matched_worker_contracts": "3/3 PASS",
+      "bridge_contracts": "5/5 PASS",
+      "external_network_or_storage_attempts": "0 in final qualification runs"
+    },
+    "frozen_test_failure_interpretation": "Five retained fixture failures omit canonical birth/due Policy-C scheduling; pending envelopes show CANONICAL_BIRTH_READ_FAILED. One stale queue double lacks selection_only_mode. Additional matched contract fixtures pass without source changes. No production failure inferred from these fixture failures.",
+    "schema_scope": "Known monitor/aux/canonical OPS main-file schema metadata read immutable/query_only, no WAL merge. Offline fixtures only for all service/queue behavior; active state compatibility not certified.",
+    "verification": "141 original Git byte/mode identities verified. JSON and Python AST validation passed. New audit files pass staged whitespace check; twelve inherited blank-at-EOF warnings deliberately preserved in exact source. No complete dependency/environment lock or PID-bound historical source/config manifest recovered.",
+    "reproducible_recovery_candidate": false,
+    "ready_for_deployment": false,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Exact source preservation and offline fixtures only; no executable runtime changes.",
+    "production_flags": "No worker/bridge/service signal,restart,repoint,configuration or live queue mutation. No canonical database writes/copies, provider calls, replay,backfill,attribution/UI change or DEV041 snapshot change.",
+    "provider_calls": 0,
+    "production_changes": 0,
+    "service_restarts": 0,
+    "storage": "Source bundles approximately1.34MB; all new files<8MiB. Each fixture file8MiB RLIMIT; observed final fixture totals<0.35MiB each. Raw retention=false; no new runtime growth path.",
+    "blocker": "Full deferred source lineage and bridge selection authority unresolved; loaded composition and exact external environment cannot be certified. Core offline passes do not qualify a complete deployment.",
+    "next_action": "HOLD. Use an archived source/config manifest attributable to the running service compositions to resolve the deferred-source and selection gaps; then qualify that exact composition offline. Do not restart or repoint existing services."
   }
 }

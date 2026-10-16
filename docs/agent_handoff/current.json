@@ -1,4 +1,29 @@
 {
+  "dev039_recent_v1_migration_live_acceptance": {
+    "status": "PASS_V1_FUNCTIONAL_ACCEPTANCE; CORRECTED_LISTENER_PERSISTENCE_AND_HANDOFF_VERIFIED",
+    "engineering_revision": "f52609c058be6f881f15d887771160c2b3881ebd file-only correction installed;no changes by thisverification",
+    "mint": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump",
+    "signature": "5w5Vc6KfCPj1MfubnHUMsaWMVgCsvi48jQvGkvJHm9hj5d1837qtcpXDZNeCcUiDRuM3ZkP1jBQodJ8HRMUAHNEn",
+    "transaction_version": 1,
+    "slot": 457546188,
+    "block_time": 1792134015,
+    "migration_utc": "2026-10-16T07:00:15Z",
+    "execution_status": "Bothproviders successful,meta.errnull;exactsignatureandmintmatch;Migrate+CreatePool instructionmarkers;expectedmigrationaccountincluded",
+    "provider_budget": "Exactly2userauthorizedtargetedrequests,0retries:1Helius getTransactionsForAddress forknownmigrationauthority39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg,full,maxSupportedTransactionVersion1,successful,descending,limit20,15minwindow1792133352..1792134252;9returned,paginationnotfollowed,selectedversion1withMigrate/CreatePool rather than othernonmigrationV1entries.2EstablishedALCHEMYURL getTransaction exactselectedsignature,jsonParsed,finalized,maxSupportedTransactionVersion1 independentlyconfirmedversion1,slot,blockTime,execution,mintandaccountmatch.20secondtimeout,firstresponse1MiBmemorycap,second256KiB;no rawresponse,unrelatedaddresshistory,pagination,credentialretention ornewacquisitionconfiguration.",
+    "corrected_runtime_identity": "Supervisorwatchtower_listener RUNNINGPID59409 uptime8:23:25 atcheck;installedlistenerSHA256139c8fbcd69484b5bb30038e76445d7843892e2ce28a7157485d917bdfccdd39 matchesqualifiedcandidate. No restart,reload,signal,source/configchanges bythisaudit.",
+    "runtime_retrieval_evidence": "Boundedcurrentlistener.log(437742bytesinitially):line6506TX_CACHEMISS fetching5w5Vc6KfCPj1Mfub;6570CACHED44551bytes;6571HIT;6572MIGRATION_STARTexactmint/signatureprefix;6577fullsignatureMigrationevent;6578minimalentry;6595Markedtokenmigratedwithselectedsignature;6703StoredmigrationTX. Confirms existingcorrectedcache/reconcilerretrieval executed,notmerelyexternalprovideridentity orcodeceiling. Existingnormalruntimeprocessing occurred duringverification;no replay/queueinsert/providertrigger dispatched tolistener.",
+    "canonical_persistence": "ExactmintPKread canonicalcoretoken_analysis has same fullsignature,slot457546188,migrated_at1792134255(2026-10-16T07:04:15Z receipt/persisttimestamp,distinctfromblockTime07:00:15Z). CorrectedlistenerretainedV1migration.",
+    "walkback_handoff": "migration_walkback_handoff exactmintCOMPLETE,attempt_count0,created_at1792134259,completed_at1792134259(07:04:19Z),last_error_classNULL. canonicalOPS wt_walkback_queue exactlyonePKrow,waiting,FULL_WALKBACK,enqueued_at1792134259. Commit-to-queueverified,no duplicate. Waitingworkerprocessing notfailureofcommittedhandoff andnotclaimcompletedWalkback/Watchtoweradmission.",
+    "acceptance_verdict": "V1_FUNCTIONAL_ACCEPTANCE=PASS underapprovedpolicy:independentversion1identity+exactsignaturecorrectedretrieval+matchingcanonicalmigration+durablehandoffcomplete/idempotentqueue. InstallationacceptancepreviouslyPASS;runtimegateforV1retrievalcorrectionnowPASS. Historical9LEtargetnotreplayed,notautomaticallyadmitted. No newattributionclaim orbroaderWatchtowerhealthguarantee.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS_INSTALLATION_AND_V1_FUNCTIONAL_ACCEPTANCE",
+    "provider_calls": 2,
+    "production_changes": 0,
+    "manual_database_writes": 0,
+    "replay": 0,
+    "storage": "Compactderiveddiagnostichandoffonly;no rawtransactionretention,DBcopies ornewgrowthpaths;nofile>=500MB.",
+    "next_action": "NONE — COMPLETE for migrationV1retrieval/persistence/handoffqualification. Leavecorrectedlistenerinstalled;no furtherproviderrequests,replay,admissionchanges orengineering."
+  },
   "dev039_two_latest_completed_migration_version_checks": {
     "status": "BOTH_VERSION0_HANDOFFS_COMPLETE; V1_FUNCTIONAL_ACCEPTANCE_PENDING_LIVE_EVIDENCE",
     "engineering_revision": "f52609c058be6f881f15d887771160c2b3881ebd qualified installed listener;no runtimechanges",
@@ -18539,7 +18564,7 @@
     "git_head": "f52609c058be6f881f15d887771160c2b3881ebd",
     "name": "flex",
     "updated_at_utc": "2026-10-15T22:44:34Z",
-    "working_tree": "Qualified isolated DEV039 source; listener file only now installed in /Users/kevinkeaveney/Production/flex-listener, PID59409, installation acceptance PASS/V1 functional pending under approved retention policy. Other runtime sources unchanged; not a whole-checkout deployment."
+    "working_tree": "Qualified isolated DEV039 source; listener file only installed in /Users/kevinkeaveney/Production/flex-listener, PID59409. Installation and V1 retrieval/persistence/handoff functional acceptance PASS via independently verified recent version1 migration. Other runtime sources unchanged; not a whole-checkout deployment."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

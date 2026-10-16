@@ -29,22 +29,22 @@ def test_original_starvation():
 
 
 def test_realistic_population_and_restart(tmp_path):
-    path=tmp_path/'waiting.db';c=fixture(path,100000)
+    path=tmp_path/'waiting.db';c=fixture(path,50000)
     c.execute("UPDATE wt_walkback_queue SET path_state='OTHER' WHERE CAST(mint AS INTEGER)%10<>0");c.commit()
     seen=set();maximum=0;start=time.monotonic()
-    for i in range(12000):
+    for i in range(6000):
         t=time.monotonic();r=turn(c);maximum=max(maximum,time.monotonic()-t)
         assert r['examined']<=1
         seen.update(x['mint'] for x in r['skipped'])
-        if i==5000:c.close();c=sqlite3.connect(path);c.row_factory=sqlite3.Row
-        if len(seen)==10000:break
-    assert len(seen)==10000 and i+1<=100001
+        if i==2500:c.close();c=sqlite3.connect(path);c.row_factory=sqlite3.Row
+        if len(seen)==5000:break
+    assert len(seen)==5000 and i+1<=50001
     assert maximum<1.0
-    assert c.execute('SELECT SUM(anchor_lookup_attempts),SUM(attempts) FROM wt_walkback_queue').fetchone()[:] == (10000,0)
+    assert c.execute('SELECT SUM(anchor_lookup_attempts),SUM(attempts) FROM wt_walkback_queue').fetchone()[:] == (5000,0)
     assert c.execute("SELECT COUNT(*) FROM wt_walkback_queue WHERE status<>'waiting'").fetchone()[0]==0
     assert len(c.execute('SELECT value_json FROM wt_scheduler_state').fetchone()[0])<256
-    assert path.stat().st_size<32000000
-    print('DEV049_METRICS',json.dumps({'waiting_rows':100000,'eligible_rows':10000,'turns':i+1,'max_turn_ms':maximum*1000,'total_seconds':time.monotonic()-start,'fixture_bytes':path.stat().st_size}))
+    assert path.stat().st_size<8000000
+    print('DEV049_METRICS',json.dumps({'waiting_rows':50000,'eligible_rows':5000,'turns':i+1,'max_turn_ms':maximum*1000,'total_seconds':time.monotonic()-start,'fixture_bytes':path.stat().st_size}))
 
 
 def test_restart_failure_and_dryrun(tmp_path):

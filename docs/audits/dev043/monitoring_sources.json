@@ -1,0 +1,1133 @@
+{
+  "source_role": "separate frozen service namespaces, never started against live queues; no historical bridge selection bound",
+  "files": [
+    {
+      "path": "integration_sources/monitor_worker/docs/audits/watchtower_continuous_monitor_watermark.v1.json",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/docs/audits/watchtower_continuous_monitor_watermark.v1.json",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "ae137f624fe921e2fca1e03b1df3d01447f51db3980ab38013be8db5541fa909",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/docs/operations/operation_monitor_capabilities.v1.json",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/docs/operations/operation_monitor_capabilities.v1.json",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "a277943157f548c8ecd2bc8fe8439010ee874b2a0c10e1ed0302059e82e90769",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/scripts/launch_watchtower_final.sh",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/scripts/launch_watchtower_final.sh",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "ed84b9937043b1fd268d270322b0601bd0fa77b8e409368f5997b2a1c0ca1f80",
+      "mode": "100755"
+    },
+    {
+      "path": "integration_sources/monitor_worker/scripts/run_dev_005a_monitor.sh",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/scripts/run_dev_005a_monitor.sh",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "692e8075b4fbcc43c5047f8a6a26e131d5a0c8712c83b73875e6f5a199a998c3",
+      "mode": "100755"
+    },
+    {
+      "path": "integration_sources/monitor_worker/scripts/verify_watchtower_final_runtime.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/scripts/verify_watchtower_final_runtime.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "f9c372fd2144007a476cb7df93e01c962b2986be81d258b421389832c05659dd",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/__init__.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/__init__.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/acquisition/__init__.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/acquisition/__init__.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "516cca57e48c64a8de1ab8b706367a7fcd9ae481e1b4c196d15f6457ae089341",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/acquisition/degraded_accounting.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/acquisition/degraded_accounting.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "a57b1cffc59980561b5a5f67a928a6011581691913a2df17ec2594d880cf91dc",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/acquisition/factory.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/acquisition/factory.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "5784092cb0dda0928f08f3dc398bc43573f274837aa1f5c817603295f2bccbeb",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/acquisition/retained_observations.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/acquisition/retained_observations.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "01dca8fe2075963fcdd3c961f817bc126113e05a2893868fd43b12465e68be6f",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/acquisition/transaction.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/acquisition/transaction.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "fc11a5401ccc869f433e99ee65687d8356f9a949d47a43d097fe8aea14a84605",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/core/__init__.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/core/__init__.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/core/database_write_service.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/core/database_write_service.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/core/db_write_queue.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/core/db_write_queue.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "eff1e13d2a9f79d87f0178a6979b7e48b48236d4f08b25c83fd24a288a3c38fe",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/core/db_writer.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/core/db_writer.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "fa5c7ce795d0391c10aa7f7b60823f2624a936ed0cf298e07cb92c0c85807b32",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/__init__.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/__init__.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "8f6e59d1b0912c23d205b4a6c95c6626195bc04f03ce8c89edc32ce274744d0d",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/artifacts.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/artifacts.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "0906c3c76da689ab94c4b1806d3907cc7039188ad6b459317ce29ce54f6cabe5",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/cohort_gate.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/cohort_gate.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "d93f0e2be8809cf657855fe1e85ad2ffa1307669408737e2e06f7688566bbcd0",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/config.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/config.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "50f0c098f8661e0697aa78ea2704607c917bf90e979220be01209e6fddd3724e",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/contracts/__init__.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/contracts/__init__.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "8f6d775d84eaea6b8e05be051b41a59fbfc28ffab0503661911cc6f510a72991",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/contracts/identity.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/contracts/identity.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "0f39bdd7e835a510edf537e607ce6609a333c0c8d6a370e4da7e53438877734e",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/contracts/raw_artifact.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/contracts/raw_artifact.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "20304cd312fd10e400adbcdf57a70706289648bbd4126bfd51ffff99d1f4a47d",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/contracts/records.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/contracts/records.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "1be1a232fa0a573469641ffb87792792e688b8db5890939a5c1fb4425036f6f3",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/database.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/database.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "a81f75b4e62866dc96465daee08c67631e1f37c1b213c5e9ea3ff35e7df40de9",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/errors.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/errors.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "7c4661886cc353edae8794541d441f374e248314571fa963f15add2f21c4b69a",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/launch_decoders.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/launch_decoders.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "87e923c0a530aa2bf60537a087ace2c321a9acee45b635fea1f70da0ee761ce1",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/logging.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/logging.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "ce9894ad94865293485bcecc0df0352c61707b506f0769511016b20d85bd2d62",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/metrics.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/metrics.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "fc60593d711abfa7f90c747e9f9017948f994230e07d7cc31e3d3ea8bb96c4dd",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/mirror.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/mirror.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "7206315ccf1244150b9e3fe828e8500a81c311ec3ddbcb3d9fd4a07cab54e365",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/normalization.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/normalization.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "47914f28d823138a7149f3bdcaf32918ee5a044b195aa1b5a036011ab7b9a3df",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/normalizers.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/normalizers.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "ba3fdf508872593dea1e91d500a0c67b99032db9d1618487d76487bcc0ea18de",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/primitives/__init__.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/primitives/__init__.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "8e33b8c0a7647c9724dc5c1507579b53b50c785d786446a8ae8aaf07267d8267",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/primitives/contracts.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/primitives/contracts.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "c7ec50d14bdbe34aca18f2e9ce5a13083c8e71681dec935589425d79f204fe34",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/primitives/engine.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/primitives/engine.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "9423bfa3b9358e0d64e27768c70eb0360fb6059535f5ea938082c9f4615072bb",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/primitives/registry.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/primitives/registry.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "b7b591d7d39a7a36ed4bf6f13312ef0ab05d4e7c4f4c678b99fa09e4351d52e9",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/queue.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/queue.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "da6412a3495fbca11bf317136a82d91382b27642302438981a71bfc0f4c62c87",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/service.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/service.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "a95a61e05a7a7f7dc9ea77489f21a2405a34feed44d405387612d0f70edc9409",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/evidence/writer.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/evidence/writer.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "c16f26c84a0c426117f0ab224b84af93a8286c71496e76f8f3437b6360e312d5",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/__init__.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/__init__.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "c2554b15f58d18c8f7a3928a8e56ef587c8fded137cbbe0bd2a48dbbc3279406",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/birdeye_rate_limit.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/birdeye_rate_limit.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "7843fd4ebc5a080696be48e0b5deb513234a65e00a0ce59767d2fa31da28a151",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/byzantine_live_cluster_recurrence.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/byzantine_live_cluster_recurrence.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "15647e371a6f92db174b7ae30ff68716e2ec74a6f0666b7f4f75e23b2e2dfa81",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/byzantine_monitor_entry.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/byzantine_monitor_entry.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "bfdcf44316f4fdfe5b66602e82249260c714f7a0449ec72bfae92f7d60eb39c5",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/canonical_launch_birth.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/canonical_launch_birth.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "6d7b4fb44d382cd6da3a1ff83f7f818546f7237de50842181513b89ee704d205",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/dev_current_price_scheduler.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/dev_current_price_scheduler.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "6fc1f2157bf952da7fc08a7a8cecdbdfd3657950f7dca01991ef82472e32d52d",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/dev_provider_budget.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/dev_provider_budget.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "a9c8f10cc4af8d153a0ba1e8140c0fa83dc7d4c75412b1d2aa01ba1f8b9f3edb",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/entry_reference_policy_adapters.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/entry_reference_policy_adapters.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "7ea42b22220e635e4410d4e7306d6b85538facc79f202326dbd9b6f4aa3a1515",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/generic_provider_work_scheduler.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/generic_provider_work_scheduler.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "cb96832799f9df816507f15cf080578016f32f692e1e138d8f48300c3decfe48",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/historical_15m_reconstruction.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/historical_15m_reconstruction.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "102e6389901a9083586fdcaeb2b8623818ba88b143350d37499aa441a8f08195",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/historical_lifecycle_jobs.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/historical_lifecycle_jobs.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "5448ef754a02f2f219715e5af1c2a97ac4a945873efe0359b41fec029f7290ea",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/operation_monitor_capabilities.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/operation_monitor_capabilities.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "90de1007e459460970d55973e5d12542448d071eda634a504eb014c6e167ec05",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/operation_monitor_service.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/operation_monitor_service.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "b4b881fa75b9305cfd4bdadf0828ee9005a81f63aea663c8ac45d580e6dbed2c",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/operation_monitor_worker.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/operation_monitor_worker.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "553cbdf96e2a1e25bf231694ca70ff0d91d513296789e0fed616b2999137a865",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/operation_price_research_orchestrator.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/operation_price_research_orchestrator.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "d9adbbec98de8cf9063d09e80c32ca6f8d7b2901b3f5873e96baa4d85c327e7d",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/operation_strategy_trigger_producer.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/operation_strategy_trigger_producer.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "71abbcae1165f3f7908540db9c61a3849b4ee30588a13de1143112f28a45e8e2",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/provider_rate_limit_gate.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/provider_rate_limit_gate.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "6c6898fad70964e92e18ca654e94d735da2abd15f4aaa3207c835124899a9358",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/pumpfun_opening_impulse.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/pumpfun_opening_impulse.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "2e6cc59cdebf077c781760d08d9005b28ee61bf51de1499c59eee4eac8be28b9",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/strict_migration_window.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/strict_migration_window.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "1876b7214b00370871bca50aeceb22274eb866b960b6c849a15ba0f16ebd74a8",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/token_data_fact_adapters.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/token_data_fact_adapters.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "a7038ed2e95f329d7f3f22ba39604f7a4d8f82f2933f7ae8d3ae683a0cd4bf6c",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/token_data_provider_bindings.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/token_data_provider_bindings.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "47e2b817b210f7c3f1b019e83f8f2d8b61d5ce545b627d14136d3e5200aec525",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/watchtower_current_mc_overlay.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/watchtower_current_mc_overlay.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "f0124e4e439cc17f089913fca6c702188659261ffd022fdbb289bdd72dbacaf6",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/watchtower_early_minimum_tracking.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/watchtower_early_minimum_tracking.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "0e4848ef79496ee9e608ec8b93e676bb59e4c464be47ce4b6ff9442c45941813",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/watchtower_observed_minimum.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/watchtower_observed_minimum.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "63e8096b3cc44d1520acb187a7acdc8943ce4d0ed2af20191077bb3f20a1defd",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/watchtower_observed_minimum_evidence.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/watchtower_observed_minimum_evidence.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "d841ff534af921e993881ae6b84a9e13d0bd6e2c0e4e70727a7d1f0fd4173ecb",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/watchtower_observed_minimum_store.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/watchtower_observed_minimum_store.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "7e33f1245618da26d40419d624e56ecb91abefabcaea8df1b0aed45ff7d7530a",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/watchtower_offset_audit.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/watchtower_offset_audit.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "7f1401568a816525d9655f9fcc4ff5c304a256fd4623bde82f9ec24c9a2609e5",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/watchtower_policy_c.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/watchtower_policy_c.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "b0b411fbd4cc8d8be0f13c0c5c2b532d1c0800f3e9f7ff578ca69067d63a81dc",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/watchtower_price_fact_contract.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/watchtower_price_fact_contract.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "4603cd20653b7243d723e14d05123020bf869c8bdb0164915c99ec3362268f16",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/watchtower_shadow_capture.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/watchtower_shadow_capture.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "49dcc108d84368a9c01298ef711a286e1d3c4372145411b7236209610d417a5f",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/ops/watchtower_terminal_ath_finalizer.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/ops/watchtower_terminal_ath_finalizer.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "15f286c648e8445054fe0b3685b2f0a1145004b7be25b47c2c4b3bfafd2a4208",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/utils/__init__.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/utils/__init__.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/src/utils/db_locking.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/src/utils/db_locking.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "b221792f507c705427973c653afae2ea7ed366f0cb523cbc82e2ce7c7dc852e8",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/tests/test_monitor_optional_opening_capability.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/tests/test_monitor_optional_opening_capability.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "cac8fc6a27db0d86ac8efdf35f71298df9d349a15b245aa5230cf4fcdc5d6d0c",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/tests/test_monitor_service_compatibility.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/tests/test_monitor_service_compatibility.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "89f97d4eeaaa7218581a3e355a45a476355f9be1474fcd1e2dc1a57a75b4be6d",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_worker/tests/test_watchtower_monitor_bounded_soak.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/worker/tests/test_watchtower_monitor_bounded_soak.py",
+      "original_reference": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "sha256": "cc580e22cae4604a3bba549c81e6c4245c48a92c6e6288a2484193ee40f73570",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/docs/audits/watchtower_continuous_monitor_watermark.v1.json",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/docs/audits/watchtower_continuous_monitor_watermark.v1.json",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "ae137f624fe921e2fca1e03b1df3d01447f51db3980ab38013be8db5541fa909",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/docs/operations/operation_monitor_capabilities.v1.json",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/docs/operations/operation_monitor_capabilities.v1.json",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "a277943157f548c8ecd2bc8fe8439010ee874b2a0c10e1ed0302059e82e90769",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/scripts/launch_watchtower_final.sh",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/scripts/launch_watchtower_final.sh",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "ed84b9937043b1fd268d270322b0601bd0fa77b8e409368f5997b2a1c0ca1f80",
+      "mode": "100755"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/scripts/run_dev_005a_monitor.sh",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/scripts/run_dev_005a_monitor.sh",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "692e8075b4fbcc43c5047f8a6a26e131d5a0c8712c83b73875e6f5a199a998c3",
+      "mode": "100755"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/scripts/verify_watchtower_final_runtime.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/scripts/verify_watchtower_final_runtime.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "f9c372fd2144007a476cb7df93e01c962b2986be81d258b421389832c05659dd",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/__init__.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/__init__.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/acquisition/__init__.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/acquisition/__init__.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "516cca57e48c64a8de1ab8b706367a7fcd9ae481e1b4c196d15f6457ae089341",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/acquisition/degraded_accounting.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/acquisition/degraded_accounting.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "a57b1cffc59980561b5a5f67a928a6011581691913a2df17ec2594d880cf91dc",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/acquisition/factory.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/acquisition/factory.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "5784092cb0dda0928f08f3dc398bc43573f274837aa1f5c817603295f2bccbeb",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/acquisition/retained_observations.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/acquisition/retained_observations.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "01dca8fe2075963fcdd3c961f817bc126113e05a2893868fd43b12465e68be6f",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/acquisition/transaction.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/acquisition/transaction.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "fc11a5401ccc869f433e99ee65687d8356f9a949d47a43d097fe8aea14a84605",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/core/__init__.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/core/__init__.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/core/database_write_service.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/core/database_write_service.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/core/db_write_queue.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/core/db_write_queue.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "eff1e13d2a9f79d87f0178a6979b7e48b48236d4f08b25c83fd24a288a3c38fe",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/core/db_writer.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/core/db_writer.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "fa5c7ce795d0391c10aa7f7b60823f2624a936ed0cf298e07cb92c0c85807b32",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/__init__.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/__init__.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "8f6e59d1b0912c23d205b4a6c95c6626195bc04f03ce8c89edc32ce274744d0d",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/artifacts.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/artifacts.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "0906c3c76da689ab94c4b1806d3907cc7039188ad6b459317ce29ce54f6cabe5",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/cohort_gate.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/cohort_gate.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "d93f0e2be8809cf657855fe1e85ad2ffa1307669408737e2e06f7688566bbcd0",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/config.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/config.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "50f0c098f8661e0697aa78ea2704607c917bf90e979220be01209e6fddd3724e",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/contracts/__init__.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/contracts/__init__.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "8f6d775d84eaea6b8e05be051b41a59fbfc28ffab0503661911cc6f510a72991",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/contracts/identity.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/contracts/identity.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "0f39bdd7e835a510edf537e607ce6609a333c0c8d6a370e4da7e53438877734e",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/contracts/raw_artifact.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/contracts/raw_artifact.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "20304cd312fd10e400adbcdf57a70706289648bbd4126bfd51ffff99d1f4a47d",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/contracts/records.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/contracts/records.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "1be1a232fa0a573469641ffb87792792e688b8db5890939a5c1fb4425036f6f3",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/database.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/database.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "a81f75b4e62866dc96465daee08c67631e1f37c1b213c5e9ea3ff35e7df40de9",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/errors.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/errors.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "7c4661886cc353edae8794541d441f374e248314571fa963f15add2f21c4b69a",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/launch_decoders.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/launch_decoders.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "87e923c0a530aa2bf60537a087ace2c321a9acee45b635fea1f70da0ee761ce1",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/logging.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/logging.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "ce9894ad94865293485bcecc0df0352c61707b506f0769511016b20d85bd2d62",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/metrics.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/metrics.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "fc60593d711abfa7f90c747e9f9017948f994230e07d7cc31e3d3ea8bb96c4dd",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/mirror.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/mirror.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "7206315ccf1244150b9e3fe828e8500a81c311ec3ddbcb3d9fd4a07cab54e365",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/normalization.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/normalization.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "47914f28d823138a7149f3bdcaf32918ee5a044b195aa1b5a036011ab7b9a3df",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/normalizers.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/normalizers.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "ba3fdf508872593dea1e91d500a0c67b99032db9d1618487d76487bcc0ea18de",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/primitives/__init__.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/primitives/__init__.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "8e33b8c0a7647c9724dc5c1507579b53b50c785d786446a8ae8aaf07267d8267",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/primitives/contracts.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/primitives/contracts.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "c7ec50d14bdbe34aca18f2e9ce5a13083c8e71681dec935589425d79f204fe34",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/primitives/engine.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/primitives/engine.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "9423bfa3b9358e0d64e27768c70eb0360fb6059535f5ea938082c9f4615072bb",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/primitives/registry.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/primitives/registry.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "b7b591d7d39a7a36ed4bf6f13312ef0ab05d4e7c4f4c678b99fa09e4351d52e9",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/queue.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/queue.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "da6412a3495fbca11bf317136a82d91382b27642302438981a71bfc0f4c62c87",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/service.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/service.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "a95a61e05a7a7f7dc9ea77489f21a2405a34feed44d405387612d0f70edc9409",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/evidence/writer.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/evidence/writer.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "c16f26c84a0c426117f0ab224b84af93a8286c71496e76f8f3437b6360e312d5",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/__init__.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/__init__.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "c2554b15f58d18c8f7a3928a8e56ef587c8fded137cbbe0bd2a48dbbc3279406",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/birdeye_rate_limit.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/birdeye_rate_limit.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "7843fd4ebc5a080696be48e0b5deb513234a65e00a0ce59767d2fa31da28a151",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/byzantine_live_cluster_recurrence.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/byzantine_live_cluster_recurrence.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "15647e371a6f92db174b7ae30ff68716e2ec74a6f0666b7f4f75e23b2e2dfa81",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/byzantine_monitor_entry.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/byzantine_monitor_entry.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "bfdcf44316f4fdfe5b66602e82249260c714f7a0449ec72bfae92f7d60eb39c5",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/canonical_launch_birth.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/canonical_launch_birth.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "6d7b4fb44d382cd6da3a1ff83f7f818546f7237de50842181513b89ee704d205",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/canonical_membership_outbox.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/canonical_membership_outbox.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "75626746f5b71b2e35941b260c62fd4079a1f09a0ca77a3f4574c598e5638d13",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/dev_provider_budget.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/dev_provider_budget.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "a9c8f10cc4af8d153a0ba1e8140c0fa83dc7d4c75412b1d2aa01ba1f8b9f3edb",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/entry_reference_policy_adapters.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/entry_reference_policy_adapters.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "7ea42b22220e635e4410d4e7306d6b85538facc79f202326dbd9b6f4aa3a1515",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/generic_provider_work_scheduler.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/generic_provider_work_scheduler.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "cb96832799f9df816507f15cf080578016f32f692e1e138d8f48300c3decfe48",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/historical_15m_reconstruction.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/historical_15m_reconstruction.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "102e6389901a9083586fdcaeb2b8623818ba88b143350d37499aa441a8f08195",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/historical_lifecycle_jobs.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/historical_lifecycle_jobs.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "5448ef754a02f2f219715e5af1c2a97ac4a945873efe0359b41fec029f7290ea",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/monitor_live_admission.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/monitor_live_admission.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "f1cee492ea74c1b185de43358c055e49aa845466696ff0e6baa44ffa88a14293",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/operation_monitor_bridge_service.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/operation_monitor_bridge_service.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "709c61bfee94636798cc19b2bf428865e09618e636fad414b1389ca7b1f3effd",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/operation_monitor_capabilities.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/operation_monitor_capabilities.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "90de1007e459460970d55973e5d12542448d071eda634a504eb014c6e167ec05",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/operation_monitor_worker.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/operation_monitor_worker.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "54057a8e0513c793c2d71fc0663cde8c021455a326f81fec45b6567ef021e477",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/operation_price_research_orchestrator.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/operation_price_research_orchestrator.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "d9adbbec98de8cf9063d09e80c32ca6f8d7b2901b3f5873e96baa4d85c327e7d",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/operation_strategy_trigger_producer.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/operation_strategy_trigger_producer.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "71abbcae1165f3f7908540db9c61a3849b4ee30588a13de1143112f28a45e8e2",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/provider_rate_limit_gate.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/provider_rate_limit_gate.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "6c6898fad70964e92e18ca654e94d735da2abd15f4aaa3207c835124899a9358",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/pumpfun_opening_impulse.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/pumpfun_opening_impulse.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "2e6cc59cdebf077c781760d08d9005b28ee61bf51de1499c59eee4eac8be28b9",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/strict_migration_window.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/strict_migration_window.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "1876b7214b00370871bca50aeceb22274eb866b960b6c849a15ba0f16ebd74a8",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/token_data_fact_adapters.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/token_data_fact_adapters.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "a7038ed2e95f329d7f3f22ba39604f7a4d8f82f2933f7ae8d3ae683a0cd4bf6c",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/token_data_provider_bindings.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/token_data_provider_bindings.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "3dc454acff93906189a414d099c03a00ce655d1020f1de77b4026adc6e43d31c",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/watchtower_offset_audit.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/watchtower_offset_audit.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "7f1401568a816525d9655f9fcc4ff5c304a256fd4623bde82f9ec24c9a2609e5",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/watchtower_price_fact_contract.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/watchtower_price_fact_contract.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "4603cd20653b7243d723e14d05123020bf869c8bdb0164915c99ec3362268f16",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/watchtower_shadow_capture.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/watchtower_shadow_capture.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "49dcc108d84368a9c01298ef711a286e1d3c4372145411b7236209610d417a5f",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/ops/watchtower_terminal_ath_finalizer.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/ops/watchtower_terminal_ath_finalizer.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "15f286c648e8445054fe0b3685b2f0a1145004b7be25b47c2c4b3bfafd2a4208",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/utils/__init__.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/utils/__init__.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/src/utils/db_locking.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/src/utils/db_locking.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "b221792f507c705427973c653afae2ea7ed366f0cb523cbc82e2ce7c7dc852e8",
+      "mode": "100644"
+    },
+    {
+      "path": "integration_sources/monitor_bridge/tests/test_watchtower_monitor_bounded_soak.py",
+      "source_commit": "f63f5c38e0303cbecb23e7286d61e0527ef00abf",
+      "source_path": "docs/audits/dev042/preserved_source/bridge/tests/test_watchtower_monitor_bounded_soak.py",
+      "original_reference": "a1b7cf2cef38e2baa9dc2480dc42ab5828b7a68d",
+      "sha256": "cc580e22cae4604a3bba549c81e6c4245c48a92c6e6288a2484193ee40f73570",
+      "mode": "100644"
+    }
+  ]
+}

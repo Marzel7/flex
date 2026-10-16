@@ -1,0 +1,2054 @@
+{
+  "cases": [
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.5934603380969453e-05,
+        "effective_time": 1788281161,
+        "equivalent_valuation_usd": 15934.603380969453,
+        "sol_usd": 101.01015202437141,
+        "sol_usd_offset_seconds": 1,
+        "sol_usd_time": 1788281160,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.009682400871117824
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "12GDLxNHvw4QKuBM1SMr6FhTiEVLeWQJYWfEjLCpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 405839,
+        "first_safe_point_price": 2.847905322133724e-06,
+        "first_safe_point_time": 1788281220,
+        "peak_multiple": 0.18808742273084209,
+        "peak_return_pct": -81.1912577269158,
+        "retained_peak_equivalent_valuation": 2997.098482164707,
+        "retained_peak_time": 1788687000,
+        "retained_peak_usd_per_token": 2.997098482164707e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.640748992756925e-05,
+        "effective_time": 1788209093,
+        "equivalent_valuation_usd": 16407.48992756925,
+        "sol_usd": 103.51864403122875,
+        "sol_usd_offset_seconds": 53,
+        "sol_usd_time": 1788209040,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9639184814624204
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "2GAd4qECH8cN4oQWwhiaBMADNupKCv8h9m9x3a4mpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 127,
+        "first_safe_point_price": 4.534960261486797e-05,
+        "first_safe_point_time": 1788209160,
+        "peak_multiple": 4.017037429170354,
+        "peak_return_pct": 301.70374291703536,
+        "retained_peak_equivalent_valuation": 65909.50115778125,
+        "retained_peak_time": 1788209220,
+        "retained_peak_usd_per_token": 6.590950115778126e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.639346109035887e-05,
+        "effective_time": 1787992554,
+        "equivalent_valuation_usd": 16393.46109035887,
+        "sol_usd": 103.29061029600244,
+        "sol_usd_offset_seconds": 54,
+        "sol_usd_time": 1787992500,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9898808714260324
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "2MmEYtGfRFLd5L6d9Veg1WLcH23NSxQKVhR7y1Bhpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 606,
+        "first_safe_point_price": 8.285924281179677e-05,
+        "first_safe_point_time": 1787992620,
+        "peak_multiple": 13.141932560083733,
+        "peak_return_pct": 1214.1932560083733,
+        "retained_peak_equivalent_valuation": 215441.760075853,
+        "retained_peak_time": 1787993160,
+        "retained_peak_usd_per_token": 0.000215441760075853
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.625351970997086e-05,
+        "effective_time": 1788263454,
+        "equivalent_valuation_usd": 16253.519709970862,
+        "sol_usd": 102.3886073969607,
+        "sol_usd_offset_seconds": 54,
+        "sol_usd_time": 1788263400,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.19699921877810078
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "2QLvzb6LK2hZzWXyuQxmo1SJdtRhhJVcsMK3nkZJpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 6,
+        "first_safe_point_price": 3.54511738149653e-06,
+        "first_safe_point_time": 1788263460,
+        "peak_multiple": 0.21811382671297633,
+        "peak_return_pct": -78.18861732870236,
+        "retained_peak_equivalent_valuation": 3545.11738149653,
+        "retained_peak_time": 1788263460,
+        "retained_peak_usd_per_token": 3.54511738149653e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6178840500455303e-05,
+        "effective_time": 1788155247,
+        "equivalent_valuation_usd": 16178.840500455302,
+        "sol_usd": 102.5845649217294,
+        "sol_usd_offset_seconds": 27,
+        "sol_usd_time": 1788155220,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9971271671860213
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "2WSPxpq8CdPujQmo4u1NT1zWG9xCQ2DEMT6Yn9V7pump",
+      "post_entry": {
+        "entry_to_peak_seconds": 1233,
+        "first_safe_point_price": 6.971179037889674e-05,
+        "first_safe_point_time": 1788155340,
+        "peak_multiple": 45.876289252595676,
+        "peak_return_pct": 4487.628925259568,
+        "retained_peak_equivalent_valuation": 742225.1665704972,
+        "retained_peak_time": 1788156480,
+        "retained_peak_usd_per_token": 0.0007422251665704973
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.5893216943937483e-05,
+        "effective_time": 1788335929,
+        "equivalent_valuation_usd": 15893.216943937483,
+        "sol_usd": 100.27307560087344,
+        "sol_usd_offset_seconds": 49,
+        "sol_usd_time": 1788335880,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.025924291765162866
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "2fDUfKj62axPjHLxQvXtF1erwxR7ugzRjmtCF6fwpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 71,
+        "first_safe_point_price": 2.8490504705839306e-06,
+        "first_safe_point_time": 1788336000,
+        "peak_multiple": 0.1792620386818988,
+        "peak_return_pct": -82.07379613181011,
+        "retained_peak_equivalent_valuation": 2849.0504705839303,
+        "retained_peak_time": 1788336000,
+        "retained_peak_usd_per_token": 2.8490504705839306e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.64781063718165e-05,
+        "effective_time": 1788520034,
+        "equivalent_valuation_usd": 16478.1063718165,
+        "sol_usd": 104.13756677150475,
+        "sol_usd_offset_seconds": 14,
+        "sol_usd_time": 1788520020,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.0009873645951986587
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "2gJqYu9unk6oNJWG3sZbeGrJbDtia1svkxpgbR3opump",
+      "post_entry": {
+        "entry_to_peak_seconds": 46,
+        "first_safe_point_price": 2.907384673429546e-06,
+        "first_safe_point_time": 1788520080,
+        "peak_multiple": 0.1764392465873519,
+        "peak_return_pct": -82.35607534126481,
+        "retained_peak_equivalent_valuation": 2907.3846734295457,
+        "retained_peak_time": 1788520080,
+        "retained_peak_usd_per_token": 2.907384673429546e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.642275237867656e-05,
+        "effective_time": 1788000885,
+        "equivalent_valuation_usd": 16422.75237867656,
+        "sol_usd": 103.67141954475566,
+        "sol_usd_offset_seconds": 45,
+        "sol_usd_time": 1788000840,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.32546067508028576
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "36F3yEK5ngLhxZfbEoFVBFBmLxtjSTpczsLihWpYpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 72315,
+        "first_safe_point_price": 4.23700306410527e-06,
+        "first_safe_point_time": 1788000900,
+        "peak_multiple": 0.2636524615745291,
+        "peak_return_pct": -73.6347538425471,
+        "retained_peak_equivalent_valuation": 4329.899090467028,
+        "retained_peak_time": 1788073200,
+        "retained_peak_usd_per_token": 4.329899090467027e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.5847218891953794e-05,
+        "effective_time": 1788337251,
+        "equivalent_valuation_usd": 15847.218891953793,
+        "sol_usd": 100.25948806458413,
+        "sol_usd_offset_seconds": 51,
+        "sol_usd_time": 1788337200,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.013138198723538275
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "3bTgy1xLE2ht6B97SWMhmqQjkdU8UAYzm4kaCj5cpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 129,
+        "first_safe_point_price": 2.792198741038296e-06,
+        "first_safe_point_time": 1788337260,
+        "peak_multiple": 0.17698384553128213,
+        "peak_return_pct": -82.30161544687179,
+        "retained_peak_equivalent_valuation": 2804.701740473966,
+        "retained_peak_time": 1788337380,
+        "retained_peak_usd_per_token": 2.804701740473966e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.0371570672810786e-05,
+        "effective_time": 1788520107,
+        "equivalent_valuation_usd": 10371.570672810785,
+        "sol_usd": 104.20157242539524,
+        "sol_usd_offset_seconds": 27,
+        "sol_usd_time": 1788520080,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.6761508790936164
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "3jW73wn4skHyLMEDTZ5dzGzcF9C1YEbYuk9y61pUpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 93,
+        "first_safe_point_price": 9.195472478669144e-06,
+        "first_safe_point_time": 1788520200,
+        "peak_multiple": 0.8866036561632078,
+        "peak_return_pct": -11.33963438367922,
+        "retained_peak_equivalent_valuation": 9195.472478669144,
+        "retained_peak_time": 1788520200,
+        "retained_peak_usd_per_token": 9.195472478669144e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "NEW_RAW_BACKED_REPLAY_AUTHORITATIVE",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.628204585271077e-05,
+        "effective_time": 1787993883,
+        "equivalent_valuation_usd": 16282.04585271077,
+        "sol_usd": 103.33870285267179,
+        "sol_usd_offset_seconds": 3,
+        "sol_usd_time": 1787993880,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.002611965883578704
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "3n7RAG3G2KGH6sg29MoKop245V7ACXP35ZEWCMFWpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 81117,
+        "first_safe_point_price": 2.8993095429684547e-06,
+        "first_safe_point_time": 1787993940,
+        "peak_multiple": 0.18133187655076613,
+        "peak_return_pct": -81.86681234492339,
+        "retained_peak_equivalent_valuation": 2952.453928557663,
+        "retained_peak_time": 1788075000,
+        "retained_peak_usd_per_token": 2.9524539285576626e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.621814306537561e-05,
+        "effective_time": 1788157431,
+        "equivalent_valuation_usd": 16218.143065375609,
+        "sol_usd": 102.44883433710808,
+        "sol_usd_offset_seconds": 51,
+        "sol_usd_time": 1788157380,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9522494650068034
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "3zSPF9RDvLhzvPB8BwqdM3EacsA335xS4KY2gs6Ypump",
+      "post_entry": {
+        "entry_to_peak_seconds": 129,
+        "first_safe_point_price": 5.755900921307387e-05,
+        "first_safe_point_time": 1788157560,
+        "peak_multiple": 3.549050528229559,
+        "peak_return_pct": 254.9050528229559,
+        "retained_peak_equivalent_valuation": 57559.00921307386,
+        "retained_peak_time": 1788157560,
+        "retained_peak_usd_per_token": 5.755900921307387e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6439301705127698e-05,
+        "effective_time": 1788244082,
+        "equivalent_valuation_usd": 16439.3017051277,
+        "sol_usd": 103.46984404872013,
+        "sol_usd_offset_seconds": 2,
+        "sol_usd_time": 1788244080,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9910377171688983
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "4AB7xdAuoDac6k23JdqJeXbPhqYctgDvG4u2rZd9pump",
+      "post_entry": {
+        "entry_to_peak_seconds": 1438,
+        "first_safe_point_price": 6.899437603068024e-05,
+        "first_safe_point_time": 1788244260,
+        "peak_multiple": 15.162363456886665,
+        "peak_return_pct": 1416.2363456886665,
+        "retained_peak_equivalent_valuation": 249258.66743056284,
+        "retained_peak_time": 1788245520,
+        "retained_peak_usd_per_token": 0.00024925866743056283
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6260007240698746e-05,
+        "effective_time": 1788183322,
+        "equivalent_valuation_usd": 16260.007240698746,
+        "sol_usd": 102.42677655321383,
+        "sol_usd_offset_seconds": 22,
+        "sol_usd_time": 1788183300,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9853320396688798
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "4Br5uAvyWD6s84FQtB5SS39xxGVuDQhSeHs5oArypump",
+      "post_entry": {
+        "entry_to_peak_seconds": 698,
+        "first_safe_point_price": 6.98632165907137e-05,
+        "first_safe_point_time": 1788183540,
+        "peak_multiple": 8.945533756269134,
+        "peak_return_pct": 794.5533756269134,
+        "retained_peak_equivalent_valuation": 145454.44364885116,
+        "retained_peak_time": 1788184020,
+        "retained_peak_usd_per_token": 0.00014545444364885116
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6489619124344373e-05,
+        "effective_time": 1787997019,
+        "equivalent_valuation_usd": 16489.61912434437,
+        "sol_usd": 103.84230016016318,
+        "sol_usd_offset_seconds": 19,
+        "sol_usd_time": 1787997000,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9098281994755806
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "4CgDVUCZVwJosK8e4mTKHnFJKvyN3kxPcWRUnNQbpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 41,
+        "first_safe_point_price": 3.216475240894372e-05,
+        "first_safe_point_time": 1787997060,
+        "peak_multiple": 1.950606145987777,
+        "peak_return_pct": 95.0606145987777,
+        "retained_peak_equivalent_valuation": 32164.752408943717,
+        "retained_peak_time": 1787997060,
+        "retained_peak_usd_per_token": 3.216475240894372e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6088434650303978e-05,
+        "effective_time": 1788553350,
+        "equivalent_valuation_usd": 16088.434650303978,
+        "sol_usd": 102.17171154306808,
+        "sol_usd_offset_seconds": 30,
+        "sol_usd_time": 1788553320,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.6753492028248709
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "4ZXXiMMyN3wotCEW2QfmRbesHg3pS7S3rovnrKcYpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 270,
+        "first_safe_point_price": 7.70530671591178e-06,
+        "first_safe_point_time": 1788553560,
+        "peak_multiple": 0.5363359488858931,
+        "peak_return_pct": -46.36640511141069,
+        "retained_peak_equivalent_valuation": 8628.805864259466,
+        "retained_peak_time": 1788553620,
+        "retained_peak_usd_per_token": 8.628805864259466e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6188329621738495e-05,
+        "effective_time": 1788158016,
+        "equivalent_valuation_usd": 16188.329621738496,
+        "sol_usd": 102.63967959908636,
+        "sol_usd_offset_seconds": 36,
+        "sol_usd_time": 1788157980,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9016608443574965
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "53EquyksZ769BkVDZT658w66cA45t6uiYtkN2imqpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 24,
+        "first_safe_point_price": 2.926532671203219e-05,
+        "first_safe_point_time": 1788158040,
+        "peak_multiple": 1.8078039795244378,
+        "peak_return_pct": 80.78039795244378,
+        "retained_peak_equivalent_valuation": 29265.32671203219,
+        "retained_peak_time": 1788158040,
+        "retained_peak_usd_per_token": 2.926532671203219e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6609018257776784e-05,
+        "effective_time": 1788463623,
+        "equivalent_valuation_usd": 16609.018257776785,
+        "sol_usd": 105.4434704630326,
+        "sol_usd_offset_seconds": 3,
+        "sol_usd_time": 1788463620,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9733659539259071
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "5F2uun8KhzjEY3jMXaP6eGG1rS1LaG6KoikSqc9tpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 357,
+        "first_safe_point_price": 5.261028484896227e-05,
+        "first_safe_point_time": 1788463800,
+        "peak_multiple": 4.883480919459886,
+        "peak_return_pct": 388.3480919459886,
+        "retained_peak_equivalent_valuation": 81109.8237528138,
+        "retained_peak_time": 1788463980,
+        "retained_peak_usd_per_token": 8.110982375281379e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.574879066298186e-05,
+        "effective_time": 1788337839,
+        "equivalent_valuation_usd": 15748.790662981859,
+        "sol_usd": 99.56364026428477,
+        "sol_usd_offset_seconds": 39,
+        "sol_usd_time": 1788337800,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9102560054522394
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "5dfUHdDeo6CmX36FjpbLGK7XM1uzrZzuFAcGPh3kpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 21,
+        "first_safe_point_price": 3.091901452005718e-05,
+        "first_safe_point_time": 1788337860,
+        "peak_multiple": 1.963262778819806,
+        "peak_return_pct": 96.3262778819806,
+        "retained_peak_equivalent_valuation": 30919.01452005718,
+        "retained_peak_time": 1788337860,
+        "retained_peak_usd_per_token": 3.091901452005718e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6576993101887172e-05,
+        "effective_time": 1788464679,
+        "equivalent_valuation_usd": 16576.993101887172,
+        "sol_usd": 105.24662518190219,
+        "sol_usd_offset_seconds": 39,
+        "sol_usd_time": 1788464640,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.011033039587496463
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "5eBcmVpmC4aDrzqu37KsYk8xdvfqMEmyAGwEy6h4pump",
+      "post_entry": {
+        "entry_to_peak_seconds": 24321,
+        "first_safe_point_price": 2.94841279667144e-06,
+        "first_safe_point_time": 1788464700,
+        "peak_multiple": 0.22378065038725214,
+        "peak_return_pct": -77.62193496127479,
+        "retained_peak_equivalent_valuation": 3709.6102978053036,
+        "retained_peak_time": 1788489000,
+        "retained_peak_usd_per_token": 3.709610297805304e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.5696388161381404e-05,
+        "effective_time": 1788337494,
+        "equivalent_valuation_usd": 15696.388161381405,
+        "sol_usd": 99.69905310090053,
+        "sol_usd_offset_seconds": 54,
+        "sol_usd_time": 1788337440,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9091435393138172
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "5vYF97goB1Jxf3dVHE6r7PZSCyTxLuX3yLZS5Y6tpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 6,
+        "first_safe_point_price": 3.1036945214660535e-05,
+        "first_safe_point_time": 1788337500,
+        "peak_multiple": 1.9773303829872313,
+        "peak_return_pct": 97.73303829872313,
+        "retained_peak_equivalent_valuation": 31036.945214660536,
+        "retained_peak_time": 1788337500,
+        "retained_peak_usd_per_token": 3.1036945214660535e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.612686504612347e-05,
+        "effective_time": 1788185494,
+        "equivalent_valuation_usd": 16126.865046123468,
+        "sol_usd": 102.40295875940886,
+        "sol_usd_offset_seconds": 34,
+        "sol_usd_time": 1788185460,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.007017564623186923
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "67f1tMppyWvGfpiLoRi21HTpoRk9ktnsA19dzMampump",
+      "post_entry": {
+        "entry_to_peak_seconds": 26,
+        "first_safe_point_price": 2.8772604208349856e-06,
+        "first_safe_point_time": 1788185520,
+        "peak_multiple": 0.17841411908674795,
+        "peak_return_pct": -82.1585880913252,
+        "retained_peak_equivalent_valuation": 2877.2604208349853,
+        "retained_peak_time": 1788185520,
+        "retained_peak_usd_per_token": 2.8772604208349856e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6546345447692072e-05,
+        "effective_time": 1788012373,
+        "equivalent_valuation_usd": 16546.34544769207,
+        "sol_usd": 103.84958946179339,
+        "sol_usd_offset_seconds": 13,
+        "sol_usd_time": 1788012360,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9570506727239785
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "78FRWVpjK476fLThDU2U8V4Y1CTnvhtqboNmY4NSpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 167,
+        "first_safe_point_price": 5.6636645661797564e-05,
+        "first_safe_point_time": 1788012480,
+        "peak_multiple": 3.4243226989553284,
+        "peak_return_pct": 242.43226989553284,
+        "retained_peak_equivalent_valuation": 56660.02630128812,
+        "retained_peak_time": 1788012540,
+        "retained_peak_usd_per_token": 5.666002630128813e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.632234861981371e-05,
+        "effective_time": 1788446125,
+        "equivalent_valuation_usd": 16322.348619813709,
+        "sol_usd": 102.94991362924706,
+        "sol_usd_offset_seconds": 25,
+        "sol_usd_time": 1788446100,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9488227324319661
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "7SyrcuqYg3zUSGpZLzzx8EwyvrNxdbxdNd22uEx5pump",
+      "post_entry": {
+        "entry_to_peak_seconds": 95,
+        "first_safe_point_price": 5.30135235615368e-05,
+        "first_safe_point_time": 1788446220,
+        "peak_multiple": 3.2479102607319423,
+        "peak_return_pct": 224.79102607319425,
+        "retained_peak_equivalent_valuation": 53013.5235615368,
+        "retained_peak_time": 1788446220,
+        "retained_peak_usd_per_token": 5.30135235615368e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6566473187984645e-05,
+        "effective_time": 1788017869,
+        "equivalent_valuation_usd": 16566.473187984644,
+        "sol_usd": 104.69531418146194,
+        "sol_usd_offset_seconds": 49,
+        "sol_usd_time": 1788017820,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9059249769898265
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "7ncZBJH12i7cA4Xv7FwSyYm2Cd7wTZtjGrFVNuyNpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 71,
+        "first_safe_point_price": 2.4974931743751193e-05,
+        "first_safe_point_time": 1788017880,
+        "peak_multiple": 1.8963959092487928,
+        "peak_return_pct": 89.63959092487927,
+        "retained_peak_equivalent_valuation": 31416.591984373885,
+        "retained_peak_time": 1788017940,
+        "retained_peak_usd_per_token": 3.141659198437389e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6118553007294824e-05,
+        "effective_time": 1788255869,
+        "equivalent_valuation_usd": 16118.553007294824,
+        "sol_usd": 102.21395462339342,
+        "sol_usd_offset_seconds": 29,
+        "sol_usd_time": 1788255840,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.009054941131745542
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "7rRjovexyYfTFELzRKKdnQWgcKUef1NHLHCvafFJpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 257431,
+        "first_safe_point_price": 2.8688846021282493e-06,
+        "first_safe_point_time": 1788255900,
+        "peak_multiple": 0.18163655227828435,
+        "peak_return_pct": -81.83634477217157,
+        "retained_peak_equivalent_valuation": 2927.7183959598037,
+        "retained_peak_time": 1788513300,
+        "retained_peak_usd_per_token": 2.927718395959804e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6015288829125752e-05,
+        "effective_time": 1788421357,
+        "equivalent_valuation_usd": 16015.288829125751,
+        "sol_usd": 101.06011222031343,
+        "sol_usd_offset_seconds": 37,
+        "sol_usd_time": 1788421320,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.009821806381912657
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "8u9vXyvEfwk8znA4K3PCsa26jGUgvPfvxVYTYemRpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 34343,
+        "first_safe_point_price": 2.8425387251861898e-06,
+        "first_safe_point_time": 1788421560,
+        "peak_multiple": 0.18249873810189582,
+        "peak_return_pct": -81.75012618981042,
+        "retained_peak_equivalent_valuation": 2922.7700016528383,
+        "retained_peak_time": 1788455700,
+        "retained_peak_usd_per_token": 2.9227700016528385e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6334434984883934e-05,
+        "effective_time": 1788191104,
+        "equivalent_valuation_usd": 16334.434984883934,
+        "sol_usd": 103.22630194540385,
+        "sol_usd_offset_seconds": 4,
+        "sol_usd_time": 1788191100,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.008198627218988896
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "8yfRhViJa9bf9yUTpt18RcCndFTQKxE89UZ4rViVpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 176,
+        "first_safe_point_price": 2.888914957674477e-06,
+        "first_safe_point_time": 1788191160,
+        "peak_multiple": 0.1776270555362653,
+        "peak_return_pct": -82.23729444637347,
+        "retained_peak_equivalent_valuation": 2901.437590213493,
+        "retained_peak_time": 1788191280,
+        "retained_peak_usd_per_token": 2.9014375902134934e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.685509887566834e-05,
+        "effective_time": 1788100066,
+        "equivalent_valuation_usd": 16855.09887566834,
+        "sol_usd": 106.57416382375652,
+        "sol_usd_offset_seconds": 46,
+        "sol_usd_time": 1788100020,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.8944077210776082
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "9RtEo6KYbp5MExNBMsAuMehe3mcs4Ui88UNNXwyxpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 74,
+        "first_safe_point_price": 2.5384745052320155e-05,
+        "first_safe_point_time": 1788100080,
+        "peak_multiple": 1.562154742239155,
+        "peak_return_pct": 56.21547422391551,
+        "retained_peak_equivalent_valuation": 26330.27263953515,
+        "retained_peak_time": 1788100140,
+        "retained_peak_usd_per_token": 2.6330272639535152e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.615099539808574e-05,
+        "effective_time": 1788527203,
+        "equivalent_valuation_usd": 16150.99539808574,
+        "sol_usd": 101.9741093508983,
+        "sol_usd_offset_seconds": 43,
+        "sol_usd_time": 1788527160,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.037316875286336204
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "9oqkfbJiPTHpXMWzucEfHtxc2QrjSJ1T2oYtW5fTpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 177797,
+        "first_safe_point_price": 2.922818902348426e-06,
+        "first_safe_point_time": 1788527220,
+        "peak_multiple": 0.1834822812718099,
+        "peak_return_pct": -81.65177187281901,
+        "retained_peak_equivalent_valuation": 2963.4214804512753,
+        "retained_peak_time": 1788705000,
+        "retained_peak_usd_per_token": 2.9634214804512753e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.5951322462218203e-05,
+        "effective_time": 1788281290,
+        "equivalent_valuation_usd": 15951.322462218202,
+        "sol_usd": 101.02090949961664,
+        "sol_usd_offset_seconds": 10,
+        "sol_usd_time": 1788281280,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.0038166521370492923
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "A82WhnkYPidBub8zkeu9Hei3w9NB1m6XpzeX7nJnpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 405710,
+        "first_safe_point_price": 2.8362185854853783e-06,
+        "first_safe_point_time": 1788281400,
+        "peak_multiple": 0.18789804818662353,
+        "peak_return_pct": -81.21019518133765,
+        "retained_peak_equivalent_valuation": 2997.222356646246,
+        "retained_peak_time": 1788687000,
+        "retained_peak_usd_per_token": 2.9972223566462464e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6701056523867145e-05,
+        "effective_time": 1788111019,
+        "equivalent_valuation_usd": 16701.056523867144,
+        "sol_usd": 105.74392869830571,
+        "sol_usd_offset_seconds": 19,
+        "sol_usd_time": 1788111000,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9964850922016808
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "AiSiwKxkbNg4TGMHq8GEvwf8mpma1a3Ee7m3TB4rpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 1961,
+        "first_safe_point_price": 7.550667666972582e-05,
+        "first_safe_point_time": 1788111300,
+        "peak_multiple": 36.34359405339755,
+        "peak_return_pct": 3534.359405339755,
+        "retained_peak_equivalent_valuation": 606976.4185662743,
+        "retained_peak_time": 1788112980,
+        "retained_peak_usd_per_token": 0.0006069764185662744
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6424269401445017e-05,
+        "effective_time": 1788519977,
+        "equivalent_valuation_usd": 16424.269401445017,
+        "sol_usd": 104.02382482796,
+        "sol_usd_offset_seconds": 17,
+        "sol_usd_time": 1788519960,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.026526461549205016
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "ArUMvNV4pwZ3whWQ37bjkBmmnZDijrfzxjeqzRw9pump",
+      "post_entry": {
+        "entry_to_peak_seconds": 43,
+        "first_safe_point_price": 2.929020349239395e-06,
+        "first_safe_point_time": 1788520020,
+        "peak_multiple": 0.17833489439607572,
+        "peak_return_pct": -82.16651056039242,
+        "retained_peak_equivalent_valuation": 2929.020349239395,
+        "retained_peak_time": 1788520020,
+        "retained_peak_usd_per_token": 2.929020349239395e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6430254953730227e-05,
+        "effective_time": 1788452003,
+        "equivalent_valuation_usd": 16430.254953730226,
+        "sol_usd": 104.30403834512012,
+        "sol_usd_offset_seconds": 23,
+        "sol_usd_time": 1788451980,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.005868840359475103
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "B8gZpcJRRr9am23PmBMG51korwxYXD8Q6wnsprWpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 2377,
+        "first_safe_point_price": 2.925238045700774e-06,
+        "first_safe_point_time": 1788452040,
+        "peak_multiple": 0.17845552947687737,
+        "peak_return_pct": -82.15444705231226,
+        "retained_peak_equivalent_valuation": 2932.069847208015,
+        "retained_peak_time": 1788454380,
+        "retained_peak_usd_per_token": 2.932069847208015e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6158886912692075e-05,
+        "effective_time": 1788265231,
+        "equivalent_valuation_usd": 16158.886912692076,
+        "sol_usd": 102.10580082841817,
+        "sol_usd_offset_seconds": 31,
+        "sol_usd_time": 1788265200,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9070839094193182
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "BKcSqBWmyTAVLj5VojbmC9j9Kg2Hxoi5LDusx4rrpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 89,
+        "first_safe_point_price": 2.9912357859196802e-05,
+        "first_safe_point_time": 1788265320,
+        "peak_multiple": 1.8511397487225434,
+        "peak_return_pct": 85.11397487225435,
+        "retained_peak_equivalent_valuation": 29912.357859196803,
+        "retained_peak_time": 1788265320,
+        "retained_peak_usd_per_token": 2.9912357859196802e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6110474320495685e-05,
+        "effective_time": 1788529999,
+        "equivalent_valuation_usd": 16110.474320495685,
+        "sol_usd": 101.51670684155937,
+        "sol_usd_offset_seconds": 19,
+        "sol_usd_time": 1788529980,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.8784689790962447
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "BSMYixMm6XHgi49bBG117FeeowTQz9dJmUmjwx5kpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 41,
+        "first_safe_point_price": 2.3288594707634607e-05,
+        "first_safe_point_time": 1788530040,
+        "peak_multiple": 1.4455561173643996,
+        "peak_return_pct": 44.55561173643996,
+        "retained_peak_equivalent_valuation": 23288.594707634606,
+        "retained_peak_time": 1788530040,
+        "retained_peak_usd_per_token": 2.3288594707634607e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.650380711791016e-05,
+        "effective_time": 1788506864,
+        "equivalent_valuation_usd": 16503.80711791016,
+        "sol_usd": 103.65651093583249,
+        "sol_usd_offset_seconds": 44,
+        "sol_usd_time": 1788506820,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9932718382740104
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "BcwDGmnYzWquSVrWHMZqPaewCmxLD8kk7eVGM2Wrpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 496,
+        "first_safe_point_price": 8.444739366425663e-05,
+        "first_safe_point_time": 1788506940,
+        "peak_multiple": 18.500010864565667,
+        "peak_return_pct": 1750.0010864565666,
+        "retained_peak_equivalent_valuation": 305320.61098803417,
+        "retained_peak_time": 1788507360,
+        "retained_peak_usd_per_token": 0.00030532061098803413
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "NEW_RAW_BACKED_REPLAY_AUTHORITATIVE",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.0357736411539554e-05,
+        "effective_time": 1788505865,
+        "equivalent_valuation_usd": 10357.736411539554,
+        "sol_usd": 104.01315301515986,
+        "sol_usd_offset_seconds": 5,
+        "sol_usd_time": 1788505860,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.0
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "BeEvn8SCgkduNn16fHprLXVYQN11yHX8nkPp2Vs5pump",
+      "post_entry": {
+        "entry_to_peak_seconds": 17335,
+        "first_safe_point_price": 2.8977826153223153e-06,
+        "first_safe_point_time": 1788505920,
+        "peak_multiple": 0.28141849186591483,
+        "peak_return_pct": -71.85815081340851,
+        "retained_peak_equivalent_valuation": 2914.858560080134,
+        "retained_peak_time": 1788523200,
+        "retained_peak_usd_per_token": 2.914858560080134e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.5884736750520505e-05,
+        "effective_time": 1788422888,
+        "equivalent_valuation_usd": 15884.736750520504,
+        "sol_usd": 101.04834038896423,
+        "sol_usd_offset_seconds": 8,
+        "sol_usd_time": 1788422880,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9062498061527688
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "BoRniH1ALDv4jqZhki3HWKQuufBRLttBTGhDAoEcpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 52,
+        "first_safe_point_price": 3.0062420046031633e-05,
+        "first_safe_point_time": 1788422940,
+        "peak_multiple": 1.8925349861430067,
+        "peak_return_pct": 89.25349861430067,
+        "retained_peak_equivalent_valuation": 30062.42004603163,
+        "retained_peak_time": 1788422940,
+        "retained_peak_usd_per_token": 3.0062420046031633e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.602271331867172e-05,
+        "effective_time": 1788255822,
+        "equivalent_valuation_usd": 16022.713318671718,
+        "sol_usd": 101.80784226254471,
+        "sol_usd_offset_seconds": 42,
+        "sol_usd_time": 1788255780,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.013974482913162278
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "ChgwT7je6pAKCXSdgirREvh2AAfN3LccJsUgiHZvpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 138,
+        "first_safe_point_price": 2.8880659355914824e-06,
+        "first_safe_point_time": 1788255840,
+        "peak_multiple": 0.18056204103916235,
+        "peak_return_pct": -81.94379589608376,
+        "retained_peak_equivalent_valuation": 2893.093819804736,
+        "retained_peak_time": 1788255960,
+        "retained_peak_usd_per_token": 2.893093819804736e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.0440226756549893e-05,
+        "effective_time": 1788514190,
+        "equivalent_valuation_usd": 10440.226756549893,
+        "sol_usd": 104.46784087032803,
+        "sol_usd_offset_seconds": 50,
+        "sol_usd_time": 1788514140,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.8914453728580827
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "CitKxWwGV88AwMnAUtA4RzpSegYntMKH18yjv2gspump",
+      "post_entry": {
+        "entry_to_peak_seconds": 10,
+        "first_safe_point_price": 2.682961393607573e-05,
+        "first_safe_point_time": 1788514200,
+        "peak_multiple": 2.5698305756858795,
+        "peak_return_pct": 156.98305756858795,
+        "retained_peak_equivalent_valuation": 26829.613936075733,
+        "retained_peak_time": 1788514200,
+        "retained_peak_usd_per_token": 2.682961393607573e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.621555647154442e-05,
+        "effective_time": 1788255990,
+        "equivalent_valuation_usd": 16215.556471544422,
+        "sol_usd": 102.35399948162846,
+        "sol_usd_offset_seconds": 30,
+        "sol_usd_time": 1788255960,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.04803285940953084
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "DGhuaYQoD3Q5GwG1LegLFMVjz4KxP7c6Fpn6spZKpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 90,
+        "first_safe_point_price": 2.8937591958046348e-06,
+        "first_safe_point_time": 1788256020,
+        "peak_multiple": 0.17890430845193347,
+        "peak_return_pct": -82.10956915480665,
+        "retained_peak_equivalent_valuation": 2901.032916704929,
+        "retained_peak_time": 1788256080,
+        "retained_peak_usd_per_token": 2.9010329167049294e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6807950770680627e-05,
+        "effective_time": 1788099512,
+        "equivalent_valuation_usd": 16807.95077068063,
+        "sol_usd": 106.83850308026238,
+        "sol_usd_offset_seconds": 32,
+        "sol_usd_time": 1788099480,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9293670548446941
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "DieGJFBBKYmPg1cjgDZuymUxbPiKWsyF1rKxq4xopump",
+      "post_entry": {
+        "entry_to_peak_seconds": 268,
+        "first_safe_point_price": 3.0195963936515225e-05,
+        "first_safe_point_time": 1788099540,
+        "peak_multiple": 2.3528293489801735,
+        "peak_return_pct": 135.28293489801734,
+        "retained_peak_equivalent_valuation": 39546.23986947131,
+        "retained_peak_time": 1788099780,
+        "retained_peak_usd_per_token": 3.954623986947131e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.549281114677789e-05,
+        "effective_time": 1788345800,
+        "equivalent_valuation_usd": 15492.811146777889,
+        "sol_usd": 97.88992270180071,
+        "sol_usd_offset_seconds": 20,
+        "sol_usd_time": 1788345780,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9893666666091009
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "DrZbMBkhTB876NryuixQy68aoCgaMFZCdN2FzPdKpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 1360,
+        "first_safe_point_price": 5.997103879458375e-05,
+        "first_safe_point_time": 1788346020,
+        "peak_multiple": 12.74456018861431,
+        "peak_return_pct": 1174.456018861431,
+        "retained_peak_equivalent_valuation": 197449.0641509455,
+        "retained_peak_time": 1788347160,
+        "retained_peak_usd_per_token": 0.0001974490641509455
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6606802760856998e-05,
+        "effective_time": 1788016665,
+        "equivalent_valuation_usd": 16606.802760856997,
+        "sol_usd": 104.9433353398251,
+        "sol_usd_offset_seconds": 45,
+        "sol_usd_time": 1788016620,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.97529720298473
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "DyfGK1hobTQjhp6CpSUTTznzQuq649xFoMTnygBapump",
+      "post_entry": {
+        "entry_to_peak_seconds": 315,
+        "first_safe_point_price": 6.009646584630953e-05,
+        "first_safe_point_time": 1788016800,
+        "peak_multiple": 5.297896391051871,
+        "peak_return_pct": 429.78963910518706,
+        "retained_peak_equivalent_valuation": 87981.12041365453,
+        "retained_peak_time": 1788016980,
+        "retained_peak_usd_per_token": 8.798112041365454e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6149860286210786e-05,
+        "effective_time": 1788272666,
+        "equivalent_valuation_usd": 16149.860286210785,
+        "sol_usd": 102.26375809516452,
+        "sol_usd_offset_seconds": 26,
+        "sol_usd_time": 1788272640,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.02699201037239085
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "E62oHgjBSZaVcuYAT12nJRiVcQjfCrRiW2kzZ7KHpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 154,
+        "first_safe_point_price": 2.868722488816596e-06,
+        "first_safe_point_time": 1788272700,
+        "peak_multiple": 0.17767083458709781,
+        "peak_return_pct": -82.23291654129021,
+        "retained_peak_equivalent_valuation": 2869.3591555160965,
+        "retained_peak_time": 1788272820,
+        "retained_peak_usd_per_token": 2.869359155516097e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.625622235023499e-05,
+        "effective_time": 1788159516,
+        "equivalent_valuation_usd": 16256.22235023499,
+        "sol_usd": 103.05811459465353,
+        "sol_usd_offset_seconds": 36,
+        "sol_usd_time": 1788159480,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9993690839993732
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "EBK2daxNw6rHfirCyemmvzpDcotvp8wH4fYZqwsVpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 3084,
+        "first_safe_point_price": 7.143720878799159e-05,
+        "first_safe_point_time": 1788159600,
+        "peak_multiple": 224.96943729241332,
+        "peak_return_pct": 22396.94372924133,
+        "retained_peak_equivalent_valuation": 3657153.1946327183,
+        "retained_peak_time": 1788162600,
+        "retained_peak_usd_per_token": 0.0036571531946327186
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6525498708157034e-05,
+        "effective_time": 1788017766,
+        "equivalent_valuation_usd": 16525.498708157036,
+        "sol_usd": 104.65368057975121,
+        "sol_usd_offset_seconds": 6,
+        "sol_usd_time": 1788017760,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.0
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "EMeUvL1MKdZbUNXBYeKksbXCEVGXspk2jj4LrzzKpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 1734,
+        "first_safe_point_price": 2.944923942433996e-06,
+        "first_safe_point_time": 1788017820,
+        "peak_multiple": 0.17826308142916464,
+        "peak_return_pct": -82.17369185708354,
+        "retained_peak_equivalent_valuation": 2945.886321869753,
+        "retained_peak_time": 1788019500,
+        "retained_peak_usd_per_token": 2.9458863218697523e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.662304121378543e-05,
+        "effective_time": 1788460364,
+        "equivalent_valuation_usd": 16623.04121378543,
+        "sol_usd": 104.61697670891627,
+        "sol_usd_offset_seconds": 44,
+        "sol_usd_time": 1788460320,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9959593949182487
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "EbM9YwGHM6d6w5J1xBX5yqLsPHhMp7mDmPqpkE7Tpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 2536,
+        "first_safe_point_price": 7.926510101940699e-05,
+        "first_safe_point_time": 1788460440,
+        "peak_multiple": 31.655554860729374,
+        "peak_return_pct": 3065.5554860729376,
+        "retained_peak_equivalent_valuation": 526211.5930951501,
+        "retained_peak_time": 1788462900,
+        "retained_peak_usd_per_token": 0.0005262115930951501
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6517504379655156e-05,
+        "effective_time": 1788017173,
+        "equivalent_valuation_usd": 16517.504379655154,
+        "sol_usd": 104.75663373504734,
+        "sol_usd_offset_seconds": 13,
+        "sol_usd_time": 1788017160,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9787428508042385
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "FkM6ZxDkpW2dAtt8QfiPsFG1aRtdgk6HPzrADzzEpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 107,
+        "first_safe_point_price": 5.252754208243003e-05,
+        "first_safe_point_time": 1788017220,
+        "peak_multiple": 6.780993417374937,
+        "peak_return_pct": 578.0993417374937,
+        "retained_peak_equivalent_valuation": 112005.08846990329,
+        "retained_peak_time": 1788017280,
+        "retained_peak_usd_per_token": 0.0001120050884699033
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.5816238543958846e-05,
+        "effective_time": 1788337380,
+        "equivalent_valuation_usd": 15816.238543958847,
+        "sol_usd": 100.164361204516,
+        "sol_usd_offset_seconds": 0,
+        "sol_usd_time": 1788337380,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.02618161057814572
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "FmVBbE3f7oncfPZ2TDRbWb6gZKggtky977pwqasnpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 349620,
+        "first_safe_point_price": 2.8040688509287075e-06,
+        "first_safe_point_time": 1788337440,
+        "peak_multiple": 0.189707671564204,
+        "peak_return_pct": -81.0292328435796,
+        "retained_peak_equivalent_valuation": 3000.461787078449,
+        "retained_peak_time": 1788687000,
+        "retained_peak_usd_per_token": 3.000461787078449e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.597402364286769e-05,
+        "effective_time": 1788530215,
+        "equivalent_valuation_usd": 15974.023642867689,
+        "sol_usd": 101.90425605158696,
+        "sol_usd_offset_seconds": 55,
+        "sol_usd_time": 1788530160,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9737755505723503
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "FqXipMyKJJUrU9MASnpWqTESVcdZjkK83ttFmWdVpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 1565,
+        "first_safe_point_price": 4.39684098722925e-05,
+        "first_safe_point_time": 1788530820,
+        "peak_multiple": 4.871686607602549,
+        "peak_return_pct": 387.1686607602549,
+        "retained_peak_equivalent_valuation": 77820.43705048501,
+        "retained_peak_time": 1788531780,
+        "retained_peak_usd_per_token": 7.7820437050485e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.040289441226627e-05,
+        "effective_time": 1788515504,
+        "equivalent_valuation_usd": 10402.89441226627,
+        "sol_usd": 104.59549622586398,
+        "sol_usd_offset_seconds": 43,
+        "sol_usd_time": 1788515460,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9976411505516288
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "G5vBr81KJZEuFvD8Nf2oB5XRa6Ess7yHJefoUCjJpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 2536,
+        "first_safe_point_price": 8.872952018421546e-05,
+        "first_safe_point_time": 1788515640,
+        "peak_multiple": 98.8958545709122,
+        "peak_return_pct": 9789.58545709122,
+        "retained_peak_equivalent_valuation": 1028803.1329120403,
+        "retained_peak_time": 1788518040,
+        "retained_peak_usd_per_token": 0.0010288031329120403
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "NEW_RAW_BACKED_REPLAY_AUTHORITATIVE",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6605210560619414e-05,
+        "effective_time": 1788017633,
+        "equivalent_valuation_usd": 16605.210560619413,
+        "sol_usd": 105.4177361960856,
+        "sol_usd_offset_seconds": 53,
+        "sol_usd_time": 1788017580,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.8550722453010894
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "GNY3yPV5ekqC89brpHCpkpV23eVvBoniRTw6czgSpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 7,
+        "first_safe_point_price": 2.0242285757071075e-05,
+        "first_safe_point_time": 1788017640,
+        "peak_multiple": 1.2190321636196095,
+        "peak_return_pct": 21.903216361960954,
+        "retained_peak_equivalent_valuation": 20242.285757071073,
+        "retained_peak_time": 1788017640,
+        "retained_peak_usd_per_token": 2.0242285757071075e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.0352216509465994e-05,
+        "effective_time": 1788519442,
+        "equivalent_valuation_usd": 10352.216509465994,
+        "sol_usd": 104.07746680260173,
+        "sol_usd_offset_seconds": 22,
+        "sol_usd_time": 1788519420,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.0362434630745061
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "HDvwQ7ai3Ywi1badnXREqJSaAAzoe1q63SbZwTvKpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 158,
+        "first_safe_point_price": 2.920913842129606e-06,
+        "first_safe_point_time": 1788519480,
+        "peak_multiple": 0.28559429888895305,
+        "peak_return_pct": -71.44057011110469,
+        "retained_peak_equivalent_valuation": 2956.534015967585,
+        "retained_peak_time": 1788519600,
+        "retained_peak_usd_per_token": 2.9565340159675855e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6670297992792085e-05,
+        "effective_time": 1788464852,
+        "equivalent_valuation_usd": 16670.297992792086,
+        "sol_usd": 105.3385978949938,
+        "sol_usd_offset_seconds": 32,
+        "sol_usd_time": 1788464820,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9748447581129807
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "HiYHZmYti5f2SVvEwCs296AELFR2UMW3r4aBHFmjpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 148,
+        "first_safe_point_price": 8.669779823543034e-05,
+        "first_safe_point_time": 1788464940,
+        "peak_multiple": 6.051354907028324,
+        "peak_return_pct": 505.13549070283244,
+        "retained_peak_equivalent_valuation": 100877.88956030681,
+        "retained_peak_time": 1788465000,
+        "retained_peak_usd_per_token": 0.00010087788956030681
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.0433511452578253e-05,
+        "effective_time": 1788521394,
+        "equivalent_valuation_usd": 10433.511452578254,
+        "sol_usd": 103.842451414026,
+        "sol_usd_offset_seconds": 54,
+        "sol_usd_time": 1788521340,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.02797989463841899
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "HpoucnSt8mYoYf1sq7mvtc3GfHttDdtHLaEeiw5upump",
+      "post_entry": {
+        "entry_to_peak_seconds": 66,
+        "first_safe_point_price": 2.919827906741709e-06,
+        "first_safe_point_time": 1788521400,
+        "peak_multiple": 0.2807961417887874,
+        "peak_return_pct": -71.92038582112126,
+        "retained_peak_equivalent_valuation": 2929.689761193101,
+        "retained_peak_time": 1788521460,
+        "retained_peak_usd_per_token": 2.9296897611931008e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.670898239922885e-05,
+        "effective_time": 1788464169,
+        "equivalent_valuation_usd": 16708.98239922885,
+        "sol_usd": 105.5186335702637,
+        "sol_usd_offset_seconds": 9,
+        "sol_usd_time": 1788464160,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.6579345103807812
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "VGpxjH2dtrk2PK9ynRLdVMZfWwwY5jaG7wNdJeYpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 111,
+        "first_safe_point_price": 8.089525169678397e-06,
+        "first_safe_point_time": 1788464280,
+        "peak_multiple": 0.4841423000153344,
+        "peak_return_pct": -51.58576999846656,
+        "retained_peak_equivalent_valuation": 8089.525169678397,
+        "retained_peak_time": 1788464280,
+        "retained_peak_usd_per_token": 8.089525169678397e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6485680299505906e-05,
+        "effective_time": 1788002657,
+        "equivalent_valuation_usd": 16485.680299505904,
+        "sol_usd": 103.50230161150444,
+        "sol_usd_offset_seconds": 17,
+        "sol_usd_time": 1788002640,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9084620483229036
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "b8QQGeBdNeCuxEZC1mQYN69HtqMSH8hjgdmBPRupump",
+      "post_entry": {
+        "entry_to_peak_seconds": 43,
+        "first_safe_point_price": 3.072851283478918e-05,
+        "first_safe_point_time": 1788002700,
+        "peak_multiple": 1.8639517615606163,
+        "peak_return_pct": 86.39517615606162,
+        "retained_peak_equivalent_valuation": 30728.512834789177,
+        "retained_peak_time": 1788002700,
+        "retained_peak_usd_per_token": 3.072851283478918e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6304418509740838e-05,
+        "effective_time": 1788518561,
+        "equivalent_valuation_usd": 16304.418509740839,
+        "sol_usd": 103.66279459466588,
+        "sol_usd_offset_seconds": 41,
+        "sol_usd_time": 1788518520,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.059933719462675006
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "eH9uErNehYg3p8Y14Ujf5eUBNnX6AkaEqkxLbvRpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 19,
+        "first_safe_point_price": 3.0272472685968503e-06,
+        "first_safe_point_time": 1788518580,
+        "peak_multiple": 0.18567036087722266,
+        "peak_return_pct": -81.43296391227773,
+        "retained_peak_equivalent_valuation": 3027.2472685968505,
+        "retained_peak_time": 1788518580,
+        "retained_peak_usd_per_token": 3.0272472685968503e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6378820118160088e-05,
+        "effective_time": 1787992435,
+        "equivalent_valuation_usd": 16378.820118160087,
+        "sol_usd": 103.34195959217783,
+        "sol_usd_offset_seconds": 55,
+        "sol_usd_time": 1787992380,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.004374485006445883
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "iADSLGnCLWwVzQckm8HFywnS4E61493wC59HJHKpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 5,
+        "first_safe_point_price": 2.8903046530218004e-06,
+        "first_safe_point_time": 1787992440,
+        "peak_multiple": 0.176465986693215,
+        "peak_return_pct": -82.3534013306785,
+        "retained_peak_equivalent_valuation": 2890.3046530218003,
+        "retained_peak_time": 1787992440,
+        "retained_peak_usd_per_token": 2.8903046530218004e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6645966384642652e-05,
+        "effective_time": 1788014647,
+        "equivalent_valuation_usd": 16645.966384642652,
+        "sol_usd": 105.15134979701865,
+        "sol_usd_offset_seconds": 7,
+        "sol_usd_time": 1788014640,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.7999511169218536
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "kDhik8Hd1sVkSH3kNyksxbKkK9ueSKXLj2GSN2Tpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 173,
+        "first_safe_point_price": 1.0031658001178217e-05,
+        "first_safe_point_time": 1788014760,
+        "peak_multiple": 0.81537666418491,
+        "peak_return_pct": -18.462333581509004,
+        "retained_peak_equivalent_valuation": 13572.73254284407,
+        "retained_peak_time": 1788014820,
+        "retained_peak_usd_per_token": 1.3572732542844072e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.647290184480923e-05,
+        "effective_time": 1788519764,
+        "equivalent_valuation_usd": 16472.901844809232,
+        "sol_usd": 104.09210723983007,
+        "sol_usd_offset_seconds": 44,
+        "sol_usd_time": 1788519720,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.0629450931539749
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "vZd5wgnfqPio9rfCg8vem7ZPNBJSixGCYNZsRmYpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 376,
+        "first_safe_point_price": 3.031110611883791e-06,
+        "first_safe_point_time": 1788519780,
+        "peak_multiple": 0.18505987146019826,
+        "peak_return_pct": -81.49401285398017,
+        "retained_peak_equivalent_valuation": 3048.473097976859,
+        "retained_peak_time": 1788520140,
+        "retained_peak_usd_per_token": 3.048473097976859e-06
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    },
+    {
+      "entry": {
+        "average_execution_usd_per_token": 1.6055155683666725e-05,
+        "effective_time": 1788552768,
+        "equivalent_valuation_usd": 16055.155683666724,
+        "sol_usd": 101.64157279411796,
+        "sol_usd_offset_seconds": 48,
+        "sol_usd_time": 1788552720,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "lifecycle": {
+        "evidence_state": "RECONSTRUCTED",
+        "max_proven_drawdown_7d": 0.9548643215745017
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "zRoYAdLYogsS491qazGakt2BDvgjMMiE8xQWpSVpump",
+      "post_entry": {
+        "entry_to_peak_seconds": 312,
+        "first_safe_point_price": 4.6676602096155057e-05,
+        "first_safe_point_time": 1788552900,
+        "peak_multiple": 3.0172144179574754,
+        "peak_return_pct": 201.72144179574752,
+        "retained_peak_equivalent_valuation": 48441.84721131115,
+        "retained_peak_time": 1788553080,
+        "retained_peak_usd_per_token": 4.844184721131115e-05
+      },
+      "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+      "scenario_d": {
+        "authority": "RECONCILED",
+        "input_sol": 0.25
+      }
+    }
+  ],
+  "population_digest": "c238e36681b63039de45882be9702d78fe688dce4a978b98791436f353d1fe26",
+  "schema_version": "BYZANTINE_64_STRATEGY_EVIDENCE_CASES_V1"
+}

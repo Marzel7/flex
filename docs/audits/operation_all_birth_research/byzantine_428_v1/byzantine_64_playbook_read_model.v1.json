@@ -1,0 +1,16 @@
+{
+  "trading_opportunity": {
+    "entry": {
+      "mean_equivalent_valuation": 15739.082907521322,
+      "median_equivalent_valuation": 16258.114795466867
+    },
+    "post_entry_peak": {
+      "median_equivalent_valuation": 21765.44023235284,
+      "median_multiple": 1.3322941404920046,
+      "reach_2x_count": 22,
+      "reach_5x_count": 13
+    },
+    "qualified_count": 64,
+    "strategy_status": "PENDING_SCORING"
+  }
+}

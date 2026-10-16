@@ -1,0 +1,125 @@
+{
+  "integration_parent": "cb882091bbd402ad826fc44cc82541a0e3d4b2ca",
+  "imports": [
+    {
+      "path": "src/ops/operation_playbook_registry.py",
+      "source": "064021bd7e3aef0dec2e55d067693d94b8cf1922",
+      "status": "IMPORTED_EXACT",
+      "sha256": "252e87033094d6abbf6dc0f21eac8709fa832a679ca41303e8a655113eca56fb",
+      "blob": "31311acb82d0a8decf8687f6a3ce9952418b134b",
+      "bytes": 5660
+    },
+    {
+      "path": "src/ops/watchtower_research_cohorts.py",
+      "source": "064021bd7e3aef0dec2e55d067693d94b8cf1922",
+      "status": "IMPORTED_EXACT",
+      "sha256": "00774d562005d52e0ee77aeab24fec8e615ffae07afc754a8f75623ec249ed70",
+      "blob": "65d248d0c7582cc06a6001e8a04eed689c25c89b",
+      "bytes": 3781
+    },
+    {
+      "path": "src/ops/operator_research_module.py",
+      "source": "064021bd7e3aef0dec2e55d067693d94b8cf1922",
+      "status": "IMPORTED_EXACT",
+      "sha256": "a49c7883e566b8d33c0b63d4ccc4ea5309bc4899c2e7e6be6a01bc7365a2da88",
+      "blob": "15a5cbe3a43bd194b71019a2f44a097328bcd262",
+      "bytes": 7553
+    },
+    {
+      "path": "templates/operation_artifact_playbook.html",
+      "source": "064021bd7e3aef0dec2e55d067693d94b8cf1922",
+      "status": "IMPORTED_EXACT",
+      "sha256": "34058338ce5654401409f4eb7eda310a7bc1434bead1d9094ffccfc093f76976",
+      "blob": "a7d3159dd33e5c21022152549e52c3200e9ff3a2",
+      "bytes": 11513
+    },
+    {
+      "path": "templates/operation_playbook.html",
+      "source": "064021bd7e3aef0dec2e55d067693d94b8cf1922",
+      "status": "IMPORTED_EXACT",
+      "sha256": "e622d26bd66bd007beb4f932aa95e1fb8df3978ae33843faeddaa821e5bb7232",
+      "blob": "885fe87516f52386ecb1e2fbf47be290f6020aaa",
+      "bytes": 32926
+    },
+    {
+      "path": "templates/operation_playbooks_index.html",
+      "source": "064021bd7e3aef0dec2e55d067693d94b8cf1922",
+      "status": "IMPORTED_EXACT",
+      "sha256": "697bf63436179128e13d1bdd90b791bf7f8bdf9ffef99841dad3318edaa83198",
+      "blob": "93c96afe3bdcb6f8046b0769be153b7c65d4c16e",
+      "bytes": 1718
+    },
+    {
+      "path": "docs/operations/playbooks/operation_playbook_registry.v1.json",
+      "source": "064021bd7e3aef0dec2e55d067693d94b8cf1922",
+      "status": "IMPORTED_EXACT",
+      "sha256": "d62563f96585b7cce9eec042fa5743249c225b698cec01798705efdd5667a31b",
+      "blob": "c22faf8bd4c42e609201f5ef67b7dd016fa1f5aa",
+      "bytes": 1099
+    },
+    {
+      "path": "docs/audits/watchtower_51_generic_price_fact_replay.v1.json",
+      "source": "064021bd7e3aef0dec2e55d067693d94b8cf1922",
+      "status": "IMPORTED_EXACT",
+      "sha256": "09071c830e6a61792b3f2f098e22528cbbe4382062e1394e7d58aa370c0d12bf",
+      "blob": "c9f3ddbe5cfbf518a6d91cb42e31187fd5ab8bb8",
+      "bytes": 86652
+    },
+    {
+      "path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_full_lifecycle_peak_reevaluation.v1.json",
+      "source": "064021bd7e3aef0dec2e55d067693d94b8cf1922",
+      "status": "IMPORTED_EXACT",
+      "sha256": "fbc166438fc5d435241225a14fced364e70145f069134169c39e4738ff65b895",
+      "blob": "607026513ff59cc088ce5a1651e31a06cdb10839",
+      "bytes": 189765
+    },
+    {
+      "path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_playbook_read_model.v1.json",
+      "source": "064021bd7e3aef0dec2e55d067693d94b8cf1922",
+      "status": "IMPORTED_EXACT",
+      "sha256": "147a1435a5777767a436959e23aee965fce9f3a87e2c103a61b954bc294a5924",
+      "blob": "4489c99b3d2dd9e9c45c9c401250df20ba85cc79",
+      "bytes": 424
+    },
+    {
+      "path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_playbook_read_model.v3.json",
+      "source": "064021bd7e3aef0dec2e55d067693d94b8cf1922",
+      "status": "IMPORTED_EXACT",
+      "sha256": "a6126469ff2c931c0abccf72e8aa90b3c0c86298500dfce68cae5c29bf2ed2e1",
+      "blob": "c8356c1e9be2af3b08a0ea35088e5d735325e807",
+      "bytes": 131868
+    },
+    {
+      "path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_playbook_read_model.v4.json",
+      "source": "064021bd7e3aef0dec2e55d067693d94b8cf1922",
+      "status": "IMPORTED_EXACT",
+      "sha256": "8c30cfbec01b2f6cadb9451e1d8cbc7989510de17514deefb3a07a926fe224a0",
+      "blob": "66e091d3bd9d6b629438fe2b445843a3931a28b4",
+      "bytes": 226713
+    },
+    {
+      "path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_strategy_evidence_cases.v1.json",
+      "source": "064021bd7e3aef0dec2e55d067693d94b8cf1922",
+      "status": "IMPORTED_EXACT",
+      "sha256": "9e40cd933736bb80b38b45082d5200154a3691aca02c6fa87ba600824232b3d2",
+      "blob": "e2a39afe2cf27858c92373660f70e27a15aed77e",
+      "bytes": 74521
+    },
+    {
+      "path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_post_entry_rug_timing.v1.json",
+      "source": "064021bd7e3aef0dec2e55d067693d94b8cf1922",
+      "status": "IMPORTED_EXACT",
+      "sha256": "50b21dbd3ce22a3f1a50668098a87b7ec7f90da7454357a3c3e912444c46a064",
+      "blob": "fbb6311a338fecc0a5ecb314d36be594a9cdf46a",
+      "bytes": 44538
+    },
+    {
+      "path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_position_peak_trading_opportunity.v2.json",
+      "source": "064021bd7e3aef0dec2e55d067693d94b8cf1922",
+      "status": "IMPORTED_EXACT",
+      "sha256": "5a45024e025ee0f1693eda3f3a234b5c1d188a20854f6c96765dd0c0ca731c39",
+      "blob": "a1fe6f148ae280e6d794a11d0cbf278e87099aa5",
+      "bytes": 107384
+    }
+  ]
+}

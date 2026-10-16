@@ -1,0 +1,4372 @@
+{
+  "aggregate": {
+    "adjacent_gap_seconds": {
+      "count": 107,
+      "max": 900,
+      "mean": 217.00934579439252,
+      "median": 60.0,
+      "min": 60,
+      "p25": 60.0,
+      "p75": 60.0,
+      "p90": 900.0
+    },
+    "drawdown_changed_cases": 9,
+    "full_lifecycle_maximum_by_region": {
+      "later": 10,
+      "opening": 54
+    },
+    "known_violation_count": 10,
+    "known_violation_drawdown_change_pp": {
+      "count": 10,
+      "max": 18.78362107689201,
+      "mean": 1.0339575991810948,
+      "median": -0.5371167276300326,
+      "min": -3.7316875286336204,
+      "p25": -0.9525535936274754,
+      "p75": -0.0652991470894676,
+      "p90": 2.8818330784334547
+    },
+    "no_post_max_observation": 0,
+    "revised_drawdown": {
+      "count": 64,
+      "max": 0.9993690839993732,
+      "mean": 0.5501354957185357,
+      "median": 0.866770612198667,
+      "min": 0.0,
+      "p25": 0.02293683955216272,
+      "p75": 0.958767624908589,
+      "p90": 0.9906906634460385
+    },
+    "revised_reconstructed": 64,
+    "revised_threshold_counts": {
+      "0.8": 33,
+      "0.85": 33,
+      "0.9": 29,
+      "0.925": 21,
+      "0.95": 19
+    },
+    "semantic_edge_cases": {
+      "EQUAL_MAXIMUM_MULTIPLE_TIMESTAMPS": 21
+    }
+  },
+  "cases": [
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.0,
+      "birth": 1788281183,
+      "drawdown_difference_percentage_points": -0.9682400871117824,
+      "equal_maximum_occurrences": 222,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.997098482164707e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/fe8bfcf07ced9e5bb205e74121cb1ce58e9f5b51b92ffa865ae4c81fcd408a0b.json",
+        "request_identity": "cf3026b69c0a22856a4c36823976991826c96a0fa4ed0d0c42f1e4ed118858e7",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788687000
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        900,
+        900
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.052386980308461784,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.997098482164707e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/fe8bfcf07ced9e5bb205e74121cb1ce58e9f5b51b92ffa865ae4c81fcd408a0b.json",
+        "request_identity": "cf3026b69c0a22856a4c36823976991826c96a0fa4ed0d0c42f1e4ed118858e7",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788687900
+      },
+      "mint": "12GDLxNHvw4QKuBM1SMr6FhTiEVLeWQJYWfEjLCpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.009682400871117824,
+        "maximum": {
+          "price_usd": 2.847905322133724e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/0c4b82c5e6f5998ea7be76d1bb551d5503e04cb419224fac048a7614519d0bc3.json",
+          "request_identity": "a786987f44e4b7efb0b26a29c4c9b36bdf9d903f23950c9bea5efb6cb0480123",
+          "stage": "opening",
+          "timestamp": 1788281220
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.8203307611618354e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/0c4b82c5e6f5998ea7be76d1bb551d5503e04cb419224fac048a7614519d0bc3.json",
+          "request_identity": "a786987f44e4b7efb0b26a29c4c9b36bdf9d903f23950c9bea5efb6cb0480123",
+          "stage": "opening",
+          "timestamp": 1788281340
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9639184814624204,
+      "birth": 1788209158,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 6.590950115778126e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/b5847eef3424a59f06f0ecd80748e64a0b68ffa6d2cd88fe793aa88763f4cdd5.json",
+        "request_identity": "942b990a16df4136c2e46c5f24cfd505106cd61ada6487e79740951e4b7da447",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788209220
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.3781148878271057e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/d6008573e312f6afe5b5cc904bd5120c0ced247009fa361875964e008e9db9db.json",
+        "request_identity": "f486b6df18583be55e5e70a44cd88535545ca4ef14d82bcdd381a297a432e182",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788383700
+      },
+      "mint": "2GAd4qECH8cN4oQWwhiaBMADNupKCv8h9m9x3a4mpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9639184814624204,
+        "maximum": {
+          "price_usd": 6.590950115778126e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/b5847eef3424a59f06f0ecd80748e64a0b68ffa6d2cd88fe793aa88763f4cdd5.json",
+          "request_identity": "942b990a16df4136c2e46c5f24cfd505106cd61ada6487e79740951e4b7da447",
+          "stage": "opening",
+          "timestamp": 1788209220
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.3781148878271057e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/d6008573e312f6afe5b5cc904bd5120c0ced247009fa361875964e008e9db9db.json",
+          "request_identity": "f486b6df18583be55e5e70a44cd88535545ca4ef14d82bcdd381a297a432e182",
+          "stage": "later",
+          "timestamp": 1788383700
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9898808714260324,
+      "birth": 1787992604,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 0.000215441760075853,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/63ca5be1c3ed1e5b2aa4c03702b7ac35ac7cab9b9403ac8bb7cce555a5232405.json",
+        "request_identity": "8ca421f873bdb983c8a3196139a86aefe2b0437cd2103709f4505b55d94efb93",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1787993160
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.1800828704094252e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/92fe93b741d36bcb1442262502032fa8305a3258f16e3736fbdf2030afa07ea4.json",
+        "request_identity": "e4c1f839ebe2d6e885b207c8a8be391b4584c09e67a6d3ddcfbe2dc41b3a2fdc",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788278400
+      },
+      "mint": "2MmEYtGfRFLd5L6d9Veg1WLcH23NSxQKVhR7y1Bhpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9898808714260324,
+        "maximum": {
+          "price_usd": 0.000215441760075853,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/63ca5be1c3ed1e5b2aa4c03702b7ac35ac7cab9b9403ac8bb7cce555a5232405.json",
+          "request_identity": "8ca421f873bdb983c8a3196139a86aefe2b0437cd2103709f4505b55d94efb93",
+          "stage": "opening",
+          "timestamp": 1787993160
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.1800828704094252e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/92fe93b741d36bcb1442262502032fa8305a3258f16e3736fbdf2030afa07ea4.json",
+          "request_identity": "e4c1f839ebe2d6e885b207c8a8be391b4584c09e67a6d3ddcfbe2dc41b3a2fdc",
+          "stage": "later",
+          "timestamp": 1788278400
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.19699921877810078,
+      "birth": 1788263455,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 3.54511738149653e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/ca7598686c38a733ec33c3c0b3331b01d2d063db467356643f9fbb4cab24b834.json",
+        "request_identity": "850f485ca66cd88266578afa5e1013c1e06485b10e1d0b73699dd8c397e2d2bf",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788263460
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.8467320268650473e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/1acc063e2f9b63864b64116c62d4e82f30e36f8c6a896a32973c74412d194f89.json",
+        "request_identity": "0b4bd7bca839398c0c636c79025db6a25f4f83eea23d9e9f4bcf0b9fcfcd5da5",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788274800
+      },
+      "mint": "2QLvzb6LK2hZzWXyuQxmo1SJdtRhhJVcsMK3nkZJpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.19699921877810078,
+        "maximum": {
+          "price_usd": 3.54511738149653e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/ca7598686c38a733ec33c3c0b3331b01d2d063db467356643f9fbb4cab24b834.json",
+          "request_identity": "850f485ca66cd88266578afa5e1013c1e06485b10e1d0b73699dd8c397e2d2bf",
+          "stage": "opening",
+          "timestamp": 1788263460
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.8467320268650473e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/1acc063e2f9b63864b64116c62d4e82f30e36f8c6a896a32973c74412d194f89.json",
+          "request_identity": "0b4bd7bca839398c0c636c79025db6a25f4f83eea23d9e9f4bcf0b9fcfcd5da5",
+          "stage": "later",
+          "timestamp": 1788274800
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9971271671860213,
+      "birth": 1788155320,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 0.0007422251665704973,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/ec5c77839b3186fb74beb4bc654d1ceddb38baedba2b772d30218e54c8d3dc82.json",
+        "request_identity": "8e4ade74c78b8bc74bcb3133f88b46309bee2d1921b64baf6d0f1fd4c307cbe6",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788156480
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.132288813884463e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/ffcbb57d8e868bd9bf61070bd2b02a7af91e6908cec3d63981c2389af1d9ac05.json",
+        "request_identity": "0eac580f41ae760c5debe71fa3013f5823cfded7cd6f6bc86e43314701888abe",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788282900
+      },
+      "mint": "2WSPxpq8CdPujQmo4u1NT1zWG9xCQ2DEMT6Yn9V7pump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9971271671860213,
+        "maximum": {
+          "price_usd": 0.0007422251665704973,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/ec5c77839b3186fb74beb4bc654d1ceddb38baedba2b772d30218e54c8d3dc82.json",
+          "request_identity": "8e4ade74c78b8bc74bcb3133f88b46309bee2d1921b64baf6d0f1fd4c307cbe6",
+          "stage": "opening",
+          "timestamp": 1788156480
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.132288813884463e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/ffcbb57d8e868bd9bf61070bd2b02a7af91e6908cec3d63981c2389af1d9ac05.json",
+          "request_identity": "0eac580f41ae760c5debe71fa3013f5823cfded7cd6f6bc86e43314701888abe",
+          "stage": "later",
+          "timestamp": 1788282900
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.025924291765162866,
+      "birth": 1788335948,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.8490504705839306e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/6d0969c45e33e6214cedbf7dbcb7e1319df21495077d8ab7bf69d943a615d806.json",
+        "request_identity": "cbe89a895858db129f4dc9897e26956c3ad8499a3cd7969d2dedcc25374b0fc3",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788336000
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.775190854930838e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/165be203fef13340bdf7d536405e42dc4f6bf757ae7407e8eaecb54b6ec45cdf.json",
+        "request_identity": "74c988b6d1c766bb24dc5df4af0ba00a41ba3153cec287d4ab8dab3b11b159f4",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788360300
+      },
+      "mint": "2fDUfKj62axPjHLxQvXtF1erwxR7ugzRjmtCF6fwpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.025924291765162866,
+        "maximum": {
+          "price_usd": 2.8490504705839306e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/6d0969c45e33e6214cedbf7dbcb7e1319df21495077d8ab7bf69d943a615d806.json",
+          "request_identity": "cbe89a895858db129f4dc9897e26956c3ad8499a3cd7969d2dedcc25374b0fc3",
+          "stage": "opening",
+          "timestamp": 1788336000
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.775190854930838e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/165be203fef13340bdf7d536405e42dc4f6bf757ae7407e8eaecb54b6ec45cdf.json",
+          "request_identity": "74c988b6d1c766bb24dc5df4af0ba00a41ba3153cec287d4ab8dab3b11b159f4",
+          "stage": "later",
+          "timestamp": 1788360300
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.0009873645951986587,
+      "birth": 1788520035,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 53,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.907384673429546e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/bc6326f077e055f4098e2a70e4c87a26cb4a688e274a6a06ddc2a2c96bb60fb3.json",
+        "request_identity": "8e9e06ab28985be438e56b420e167a683c5a020c38c520e1a592bec2365035d4",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788520080
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.9045140247383785e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/bc6326f077e055f4098e2a70e4c87a26cb4a688e274a6a06ddc2a2c96bb60fb3.json",
+        "request_identity": "8e9e06ab28985be438e56b420e167a683c5a020c38c520e1a592bec2365035d4",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788523260
+      },
+      "mint": "2gJqYu9unk6oNJWG3sZbeGrJbDtia1svkxpgbR3opump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.0009873645951986587,
+        "maximum": {
+          "price_usd": 2.907384673429546e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/bc6326f077e055f4098e2a70e4c87a26cb4a688e274a6a06ddc2a2c96bb60fb3.json",
+          "request_identity": "8e9e06ab28985be438e56b420e167a683c5a020c38c520e1a592bec2365035d4",
+          "stage": "opening",
+          "timestamp": 1788520080
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.9045140247383785e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/bc6326f077e055f4098e2a70e4c87a26cb4a688e274a6a06ddc2a2c96bb60fb3.json",
+          "request_identity": "8e9e06ab28985be438e56b420e167a683c5a020c38c520e1a592bec2365035d4",
+          "stage": "opening",
+          "timestamp": 1788523260
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.33661035253299976,
+      "birth": 1788000885,
+      "drawdown_difference_percentage_points": 1.1149677452714002,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 4.329899090467027e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/960731378d2fecf7516868cab518813cd4cdc1fe58567da913a55e7652877bf0.json",
+        "request_identity": "0f1f3e0ba1dd6358c72fc9cc2b7e1764bcf9e533ef5112e65dd6a35651ca5d62",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788073200
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        900,
+        900
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.016807132121049007,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.872410231192606e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/960731378d2fecf7516868cab518813cd4cdc1fe58567da913a55e7652877bf0.json",
+        "request_identity": "0f1f3e0ba1dd6358c72fc9cc2b7e1764bcf9e533ef5112e65dd6a35651ca5d62",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788277500
+      },
+      "mint": "36F3yEK5ngLhxZfbEoFVBFBmLxtjSTpczsLihWpYpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.32546067508028576,
+        "maximum": {
+          "price_usd": 4.258328795781461e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/5b469ea8e30681d51e2adb01ae8fd06030592e7150bf8cbcdf26572b950b0185.json",
+          "request_identity": "386bb2365b385645542971fc3ffce52d935f1ea1c88aa6f1759f232b24bc5f80",
+          "stage": "opening",
+          "timestamp": 1788000960
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.872410231192606e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/960731378d2fecf7516868cab518813cd4cdc1fe58567da913a55e7652877bf0.json",
+          "request_identity": "0f1f3e0ba1dd6358c72fc9cc2b7e1764bcf9e533ef5112e65dd6a35651ca5d62",
+          "stage": "later",
+          "timestamp": 1788277500
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.013138198723538275,
+      "birth": 1788337251,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 3,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.804701740473966e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/a7d7e18fa76ca978acb84690e9693d4f9d623228ec7c38b1a9320427b76ba3f9.json",
+        "request_identity": "4a428d76ff961d43e72dc06b70d2fe12a577be1588d72555d9fc1eb10a1755ac",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788337380
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.7678530116473654e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/a7d7e18fa76ca978acb84690e9693d4f9d623228ec7c38b1a9320427b76ba3f9.json",
+        "request_identity": "4a428d76ff961d43e72dc06b70d2fe12a577be1588d72555d9fc1eb10a1755ac",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788339060
+      },
+      "mint": "3bTgy1xLE2ht6B97SWMhmqQjkdU8UAYzm4kaCj5cpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.013138198723538275,
+        "maximum": {
+          "price_usd": 2.804701740473966e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/a7d7e18fa76ca978acb84690e9693d4f9d623228ec7c38b1a9320427b76ba3f9.json",
+          "request_identity": "4a428d76ff961d43e72dc06b70d2fe12a577be1588d72555d9fc1eb10a1755ac",
+          "stage": "opening",
+          "timestamp": 1788337380
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.7678530116473654e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/a7d7e18fa76ca978acb84690e9693d4f9d623228ec7c38b1a9320427b76ba3f9.json",
+          "request_identity": "4a428d76ff961d43e72dc06b70d2fe12a577be1588d72555d9fc1eb10a1755ac",
+          "stage": "opening",
+          "timestamp": 1788339060
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.6761508790936164,
+      "birth": 1788520155,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 9.195472478669144e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/41980363a83c34d803514d30ba2cfa21f493d3e7f0053d2afbf6ae5e309c492d.json",
+        "request_identity": "bd10ae7db38f013b889c681beb136b194346b54e0b134f68cc006b4cf35df091",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788520200
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.977945678535846e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/11ee364f065275260519ec0c374e01513bc0fd6d2540f3a2bee3a8460e2e2d5f.json",
+        "request_identity": "468caaf73839208e8e33f29e83fa614166bf1454e0e3051ac7e83ecf663aae2c",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788534000
+      },
+      "mint": "3jW73wn4skHyLMEDTZ5dzGzcF9C1YEbYuk9y61pUpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.6761508790936164,
+        "maximum": {
+          "price_usd": 9.195472478669144e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/41980363a83c34d803514d30ba2cfa21f493d3e7f0053d2afbf6ae5e309c492d.json",
+          "request_identity": "bd10ae7db38f013b889c681beb136b194346b54e0b134f68cc006b4cf35df091",
+          "stage": "opening",
+          "timestamp": 1788520200
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.977945678535846e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/11ee364f065275260519ec0c374e01513bc0fd6d2540f3a2bee3a8460e2e2d5f.json",
+          "request_identity": "468caaf73839208e8e33f29e83fa614166bf1454e0e3051ac7e83ecf663aae2c",
+          "stage": "later",
+          "timestamp": 1788534000
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.0,
+      "birth": 1787993884,
+      "drawdown_difference_percentage_points": -0.2611965883578704,
+      "equal_maximum_occurrences": 582,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.9524539285576626e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/2a147b1a6558fbcacd59397859f7ea9d526cbc82045398a18612e0ba00ce8937.json",
+        "request_identity": "87a2c0f99aec34fe3e3390dbf804e4fb39e0971baa93ea3a424a8a34c8199cdb",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788075000
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        900,
+        900
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.017629335535618962,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.9524539285576626e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/2a147b1a6558fbcacd59397859f7ea9d526cbc82045398a18612e0ba00ce8937.json",
+        "request_identity": "87a2c0f99aec34fe3e3390dbf804e4fb39e0971baa93ea3a424a8a34c8199cdb",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788075900
+      },
+      "mint": "3n7RAG3G2KGH6sg29MoKop245V7ACXP35ZEWCMFWpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.002611965883578704,
+        "maximum": {
+          "price_usd": 2.901305834509643e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/f465905096ed10dad361f94c8c0b77509301e8c2e4940b748b7d20b975cbbe8e.json",
+          "request_identity": "4b5ebafb2a6d6aa6772a82cdf09eef6e44ae086b8f4e492d7693475f0c4e6cc3",
+          "stage": "opening",
+          "timestamp": 1787994000
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.893727722652076e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/f465905096ed10dad361f94c8c0b77509301e8c2e4940b748b7d20b975cbbe8e.json",
+          "request_identity": "4b5ebafb2a6d6aa6772a82cdf09eef6e44ae086b8f4e492d7693475f0c4e6cc3",
+          "stage": "opening",
+          "timestamp": 1787998440
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9522494650068034,
+      "birth": 1788157560,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 5.755900921307387e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/47ca1e5761ee87ad1c3001f78482a55ae0d1ba61e56f27acca2d8f05b847cec4.json",
+        "request_identity": "64db69a889e48866860b3cc70a6aed291f531f893a7f3f7b4fcc34d515a03030",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788157560
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.7484734836026115e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/cde8337ea3b071121edad32c8cb3993b0ea857c637650d1e47e8a4856327d5fd.json",
+        "request_identity": "eebc1f71af55763eb016e67556073e5d2ea102d9a44d804ea66846f4e1dd98b7",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788314400
+      },
+      "mint": "3zSPF9RDvLhzvPB8BwqdM3EacsA335xS4KY2gs6Ypump",
+      "observation_count": 785,
+      "old_two_hour_method": {
+        "drawdown": 0.9522494650068034,
+        "maximum": {
+          "price_usd": 5.755900921307387e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/47ca1e5761ee87ad1c3001f78482a55ae0d1ba61e56f27acca2d8f05b847cec4.json",
+          "request_identity": "64db69a889e48866860b3cc70a6aed291f531f893a7f3f7b4fcc34d515a03030",
+          "stage": "opening",
+          "timestamp": 1788157560
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.7484734836026115e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/cde8337ea3b071121edad32c8cb3993b0ea857c637650d1e47e8a4856327d5fd.json",
+          "request_identity": "eebc1f71af55763eb016e67556073e5d2ea102d9a44d804ea66846f4e1dd98b7",
+          "stage": "later",
+          "timestamp": 1788314400
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9910377171688983,
+      "birth": 1788244241,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 0.00024925866743056283,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/fa77f29ada1eb7b181e0595be0c1f411d1d9a891fdf24709c074bd9bbef54c7b.json",
+        "request_identity": "d77c6c6261ed3fd2d6929fa243f188fe0b1e3dcf98ba9d401d4a5957e8b7a0af",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788245520
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.233926675616221e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/fa193682389c1de0d29fa7cc42fa547b688660c998546c7a59cac4191d934661.json",
+        "request_identity": "83ac0061207b32cfa59b93c5f439d3e86c9c973bc06385a63c2b524a5303061f",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788346800
+      },
+      "mint": "4AB7xdAuoDac6k23JdqJeXbPhqYctgDvG4u2rZd9pump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9910377171688983,
+        "maximum": {
+          "price_usd": 0.00024925866743056283,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/fa77f29ada1eb7b181e0595be0c1f411d1d9a891fdf24709c074bd9bbef54c7b.json",
+          "request_identity": "d77c6c6261ed3fd2d6929fa243f188fe0b1e3dcf98ba9d401d4a5957e8b7a0af",
+          "stage": "opening",
+          "timestamp": 1788245520
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.233926675616221e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/fa193682389c1de0d29fa7cc42fa547b688660c998546c7a59cac4191d934661.json",
+          "request_identity": "83ac0061207b32cfa59b93c5f439d3e86c9c973bc06385a63c2b524a5303061f",
+          "stage": "later",
+          "timestamp": 1788346800
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9853320396688798,
+      "birth": 1788183497,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 0.00014545444364885116,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/e76db568a9539e439bd2a6ca328fab478d43e506ebfd51c5d5f5ec91fb2057cc.json",
+        "request_identity": "546d382a7b89f37796a7cc3d95e2ff218ce881fd0463b468072594677f290917",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788184020
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.1335200094265044e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/009e74a7fd23b5b6dcc04e22f8d37592931bfc5f5a19ddfa0d352b210edba03e.json",
+        "request_identity": "ca0ac5325fd150af5d4dc9a71e4690ff773e016bbe4d22a63a3a7517f13497fb",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788298200
+      },
+      "mint": "4Br5uAvyWD6s84FQtB5SS39xxGVuDQhSeHs5oArypump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9853320396688798,
+        "maximum": {
+          "price_usd": 0.00014545444364885116,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/e76db568a9539e439bd2a6ca328fab478d43e506ebfd51c5d5f5ec91fb2057cc.json",
+          "request_identity": "546d382a7b89f37796a7cc3d95e2ff218ce881fd0463b468072594677f290917",
+          "stage": "opening",
+          "timestamp": 1788184020
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.1335200094265044e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/009e74a7fd23b5b6dcc04e22f8d37592931bfc5f5a19ddfa0d352b210edba03e.json",
+          "request_identity": "ca0ac5325fd150af5d4dc9a71e4690ff773e016bbe4d22a63a3a7517f13497fb",
+          "stage": "later",
+          "timestamp": 1788298200
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9098281994755806,
+      "birth": 1787997019,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 3.216475240894372e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/41587b9de39924c15e76362abf892e0c8db6c04b4d1345ef16ca5fab87009eac.json",
+        "request_identity": "a725623e174f12007fd4827d4054ecf2ab4e6ff9fb4e7c46c32116f2ebb92508",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1787997060
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.9003536381366107e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/41587b9de39924c15e76362abf892e0c8db6c04b4d1345ef16ca5fab87009eac.json",
+        "request_identity": "a725623e174f12007fd4827d4054ecf2ab4e6ff9fb4e7c46c32116f2ebb92508",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1787999520
+      },
+      "mint": "4CgDVUCZVwJosK8e4mTKHnFJKvyN3kxPcWRUnNQbpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9098281994755806,
+        "maximum": {
+          "price_usd": 3.216475240894372e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/41587b9de39924c15e76362abf892e0c8db6c04b4d1345ef16ca5fab87009eac.json",
+          "request_identity": "a725623e174f12007fd4827d4054ecf2ab4e6ff9fb4e7c46c32116f2ebb92508",
+          "stage": "opening",
+          "timestamp": 1787997060
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.9003536381366107e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/41587b9de39924c15e76362abf892e0c8db6c04b4d1345ef16ca5fab87009eac.json",
+          "request_identity": "a725623e174f12007fd4827d4054ecf2ab4e6ff9fb4e7c46c32116f2ebb92508",
+          "stage": "opening",
+          "timestamp": 1787999520
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.6753492028248709,
+      "birth": 1788553554,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 8.628805864259466e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/6de1c2c3b5a2bcd54e90687041bbad1fa64844fc524c482803f1ccc61afcb96e.json",
+        "request_identity": "58793cc76a8f6ce375f4684ff6370b51c51806abfd528d522f52907b72a62d8e",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788553620
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.801348702501265e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/f8c558be3aba8974118e62944ffe9fe60cc7151caefbf31aaa977ca8e235df4c.json",
+        "request_identity": "54558a4be95b363443b4dcfaf56c4c69c4343608d9f33a08fcafd09530436bb2",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788576300
+      },
+      "mint": "4ZXXiMMyN3wotCEW2QfmRbesHg3pS7S3rovnrKcYpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.6753492028248709,
+        "maximum": {
+          "price_usd": 8.628805864259466e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/6de1c2c3b5a2bcd54e90687041bbad1fa64844fc524c482803f1ccc61afcb96e.json",
+          "request_identity": "58793cc76a8f6ce375f4684ff6370b51c51806abfd528d522f52907b72a62d8e",
+          "stage": "opening",
+          "timestamp": 1788553620
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.801348702501265e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/f8c558be3aba8974118e62944ffe9fe60cc7151caefbf31aaa977ca8e235df4c.json",
+          "request_identity": "54558a4be95b363443b4dcfaf56c4c69c4343608d9f33a08fcafd09530436bb2",
+          "stage": "later",
+          "timestamp": 1788576300
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9016608443574965,
+      "birth": 1788158017,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.926532671203219e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/d5af0abe6e0c12d705dd025fc888ece8f3fc145468ba32f72c0d143250484555.json",
+        "request_identity": "eba1da9dba3d3210b14543f8ab6af1826095dc65a8b6e587fab12306af93d73e",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788158040
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.8779275184632505e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/d5af0abe6e0c12d705dd025fc888ece8f3fc145468ba32f72c0d143250484555.json",
+        "request_identity": "eba1da9dba3d3210b14543f8ab6af1826095dc65a8b6e587fab12306af93d73e",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788158100
+      },
+      "mint": "53EquyksZ769BkVDZT658w66cA45t6uiYtkN2imqpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9016608443574965,
+        "maximum": {
+          "price_usd": 2.926532671203219e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/d5af0abe6e0c12d705dd025fc888ece8f3fc145468ba32f72c0d143250484555.json",
+          "request_identity": "eba1da9dba3d3210b14543f8ab6af1826095dc65a8b6e587fab12306af93d73e",
+          "stage": "opening",
+          "timestamp": 1788158040
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.8779275184632505e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/d5af0abe6e0c12d705dd025fc888ece8f3fc145468ba32f72c0d143250484555.json",
+          "request_identity": "eba1da9dba3d3210b14543f8ab6af1826095dc65a8b6e587fab12306af93d73e",
+          "stage": "opening",
+          "timestamp": 1788158100
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9733659539259071,
+      "birth": 1788463758,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 8.110982375281379e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c88b57420a65b09b7aa18979ad5c959ed8de3a518f35cdf70db3b267be5abb71.json",
+        "request_identity": "1c4a30c26479fa8155234119f8803770ca7f15f8303a50cd86854ecbafa50140",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788463980
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.1602827828939995e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/9ad2a79fdcdb60a4d578757df6dd8f36ac5f840759d7002b43c4f7ad2b62cc4f.json",
+        "request_identity": "93960068c4b48b9635fa9d42d69738a25d4b15359b445499b5cf650b695feff7",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788474600
+      },
+      "mint": "5F2uun8KhzjEY3jMXaP6eGG1rS1LaG6KoikSqc9tpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9733659539259071,
+        "maximum": {
+          "price_usd": 8.110982375281379e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c88b57420a65b09b7aa18979ad5c959ed8de3a518f35cdf70db3b267be5abb71.json",
+          "request_identity": "1c4a30c26479fa8155234119f8803770ca7f15f8303a50cd86854ecbafa50140",
+          "stage": "opening",
+          "timestamp": 1788463980
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.1602827828939995e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/9ad2a79fdcdb60a4d578757df6dd8f36ac5f840759d7002b43c4f7ad2b62cc4f.json",
+          "request_identity": "93960068c4b48b9635fa9d42d69738a25d4b15359b445499b5cf650b695feff7",
+          "stage": "later",
+          "timestamp": 1788474600
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9102560054522394,
+      "birth": 1788337840,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 3.091901452005718e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/40b07af9281a83d725982ba599d3a8f6b97b16ab7981cf01ccf6eeabe9fb9cb8.json",
+        "request_identity": "a03a616571f1419f28777dd6d07ccc3b9dc8c1fdea842179514efd78082ef3e3",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788337860
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.7747958705101427e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/40b07af9281a83d725982ba599d3a8f6b97b16ab7981cf01ccf6eeabe9fb9cb8.json",
+        "request_identity": "a03a616571f1419f28777dd6d07ccc3b9dc8c1fdea842179514efd78082ef3e3",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788339060
+      },
+      "mint": "5dfUHdDeo6CmX36FjpbLGK7XM1uzrZzuFAcGPh3kpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9102560054522394,
+        "maximum": {
+          "price_usd": 3.091901452005718e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/40b07af9281a83d725982ba599d3a8f6b97b16ab7981cf01ccf6eeabe9fb9cb8.json",
+          "request_identity": "a03a616571f1419f28777dd6d07ccc3b9dc8c1fdea842179514efd78082ef3e3",
+          "stage": "opening",
+          "timestamp": 1788337860
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.7747958705101427e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/40b07af9281a83d725982ba599d3a8f6b97b16ab7981cf01ccf6eeabe9fb9cb8.json",
+          "request_identity": "a03a616571f1419f28777dd6d07ccc3b9dc8c1fdea842179514efd78082ef3e3",
+          "stage": "opening",
+          "timestamp": 1788339060
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.19886925035641656,
+      "birth": 1788464686,
+      "drawdown_difference_percentage_points": 18.78362107689201,
+      "equal_maximum_occurrences": 2,
+      "full_lifecycle_maximum": {
+        "price_usd": 3.709610297805304e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/3604df09495289bff32fb606164fcf3814f0be82e9e85c71380d973130652f4c.json",
+        "request_identity": "be7b02eb9059d9794f30e4822ea643fc03d765c269d6ad25cfab53575947d2fa",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788489000
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        900,
+        900
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.2523531947588602,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.97188287876632e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/3604df09495289bff32fb606164fcf3814f0be82e9e85c71380d973130652f4c.json",
+        "request_identity": "be7b02eb9059d9794f30e4822ea643fc03d765c269d6ad25cfab53575947d2fa",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788650100
+      },
+      "mint": "5eBcmVpmC4aDrzqu37KsYk8xdvfqMEmyAGwEy6h4pump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.011033039587496463,
+        "maximum": {
+          "price_usd": 2.962111897290753e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/1690d0f1f8b12189e38eca9b3262c6125f3ca8ea278c47c07c1494962660a98b.json",
+          "request_identity": "0bcc59e3988b8e2adacd5c535bcc8687555fe2f15c5cdf50791ca37528df1a0b",
+          "stage": "opening",
+          "timestamp": 1788464880
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.92943079946535e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/1690d0f1f8b12189e38eca9b3262c6125f3ca8ea278c47c07c1494962660a98b.json",
+          "request_identity": "0bcc59e3988b8e2adacd5c535bcc8687555fe2f15c5cdf50791ca37528df1a0b",
+          "stage": "opening",
+          "timestamp": 1788465840
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9091435393138172,
+      "birth": 1788337495,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 3.1036945214660535e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/90f18342a6a0129d5df23319b688f80d38bc36fecfa1ff386f72a2d0f8aedcf3.json",
+        "request_identity": "9a62b0280f4485345cc073db071e183e25785b6b57b29daf9e325b98c3825044",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788337500
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.8199069927150155e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/7962cba044069113b32f1a37c93e8247d861136f0b1d930fac6a4e44fa0fbac8.json",
+        "request_identity": "68754774c1bb246278c1135d0c562d007d1ae803c81580dce8c5b2493e50d27b",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788383700
+      },
+      "mint": "5vYF97goB1Jxf3dVHE6r7PZSCyTxLuX3yLZS5Y6tpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9091435393138172,
+        "maximum": {
+          "price_usd": 3.1036945214660535e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/90f18342a6a0129d5df23319b688f80d38bc36fecfa1ff386f72a2d0f8aedcf3.json",
+          "request_identity": "9a62b0280f4485345cc073db071e183e25785b6b57b29daf9e325b98c3825044",
+          "stage": "opening",
+          "timestamp": 1788337500
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.8199069927150155e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/7962cba044069113b32f1a37c93e8247d861136f0b1d930fac6a4e44fa0fbac8.json",
+          "request_identity": "68754774c1bb246278c1135d0c562d007d1ae803c81580dce8c5b2493e50d27b",
+          "stage": "later",
+          "timestamp": 1788383700
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.007017564623186923,
+      "birth": 1788185494,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 214,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.8772604208349856e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/37b5b42c20259b8265f80cf5181e49dc4cc7212130e332b2723f04582a622dff.json",
+        "request_identity": "3e904bee7d3ac669c6b5cccfcbca1c259db2d6876acf29c543c7e6ce1668912b",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788185520
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.857069059894038e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/08958ff6648cdf7b96c32e9dae872da09c983c45c5a3325196fc8e40f7c82d4e.json",
+        "request_identity": "b9801cef28aa94e9b54d85663da9d170aa28e2791fd5ba962b15ab522c3cb88f",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788277500
+      },
+      "mint": "67f1tMppyWvGfpiLoRi21HTpoRk9ktnsA19dzMampump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.007017564623186923,
+        "maximum": {
+          "price_usd": 2.8772604208349856e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/37b5b42c20259b8265f80cf5181e49dc4cc7212130e332b2723f04582a622dff.json",
+          "request_identity": "3e904bee7d3ac669c6b5cccfcbca1c259db2d6876acf29c543c7e6ce1668912b",
+          "stage": "opening",
+          "timestamp": 1788185520
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.857069059894038e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/08958ff6648cdf7b96c32e9dae872da09c983c45c5a3325196fc8e40f7c82d4e.json",
+          "request_identity": "b9801cef28aa94e9b54d85663da9d170aa28e2791fd5ba962b15ab522c3cb88f",
+          "stage": "later",
+          "timestamp": 1788277500
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9570506727239785,
+      "birth": 1788012444,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 5.666002630128813e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/69b1b9a4589a6a38fc19f14bf447054bb8142dc82b557e21fcbef436727d96f2.json",
+        "request_identity": "1235f0be9cecb84b3d43714182ff68bd8e633a797116605c8837e5320127aa3f",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788012540
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.4335100130820096e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c636a707741f0e55e5ed8209ee9686892f7a72f1bfcc97630ff417341e0f3dbd.json",
+        "request_identity": "8dd4d85069fe989f364e8106cd02dcdfbb53f53b53a444dc660b7a9b6bb0c98d",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788323400
+      },
+      "mint": "78FRWVpjK476fLThDU2U8V4Y1CTnvhtqboNmY4NSpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9570506727239785,
+        "maximum": {
+          "price_usd": 5.666002630128813e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/69b1b9a4589a6a38fc19f14bf447054bb8142dc82b557e21fcbef436727d96f2.json",
+          "request_identity": "1235f0be9cecb84b3d43714182ff68bd8e633a797116605c8837e5320127aa3f",
+          "stage": "opening",
+          "timestamp": 1788012540
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.4335100130820096e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c636a707741f0e55e5ed8209ee9686892f7a72f1bfcc97630ff417341e0f3dbd.json",
+          "request_identity": "8dd4d85069fe989f364e8106cd02dcdfbb53f53b53a444dc660b7a9b6bb0c98d",
+          "stage": "later",
+          "timestamp": 1788323400
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9488227324319661,
+      "birth": 1788446198,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 5.30135235615368e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/bca39008c827533602d46b11ee3e631bb276482b4d7608685cec64cdcc75a385.json",
+        "request_identity": "9c38f1c8d2cbb7411d455d4b84ef0996f68a13ec4a01508e8acd8afc622096d7",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788446220
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.7130872800330368e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/a04b037f444d5cec066859d556e001f06d955b9581ef4abd541b9aa6b281d5e7.json",
+        "request_identity": "2df56a9c2445474d95ecec3e74c1787892bee301ef817fdf335f0cb515c0d3d0",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788993900
+      },
+      "mint": "7SyrcuqYg3zUSGpZLzzx8EwyvrNxdbxdNd22uEx5pump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9488227324319661,
+        "maximum": {
+          "price_usd": 5.30135235615368e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/bca39008c827533602d46b11ee3e631bb276482b4d7608685cec64cdcc75a385.json",
+          "request_identity": "9c38f1c8d2cbb7411d455d4b84ef0996f68a13ec4a01508e8acd8afc622096d7",
+          "stage": "opening",
+          "timestamp": 1788446220
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.7130872800330368e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/a04b037f444d5cec066859d556e001f06d955b9581ef4abd541b9aa6b281d5e7.json",
+          "request_identity": "2df56a9c2445474d95ecec3e74c1787892bee301ef817fdf335f0cb515c0d3d0",
+          "stage": "later",
+          "timestamp": 1788993900
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9059249769898265,
+      "birth": 1788017870,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 3.141659198437389e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/26c2e76f5cd8c1f9c41a42cf072121bd50fb92dae766289e4536f660d1800676.json",
+        "request_identity": "dc0f59d0827c5880ca5c87bdb90460a2269effeeafb541cf16c022d908947c15",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788017940
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.955516613831203e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/a1ba2dc9ed9d8d358a5444300e85448b65eb2e4d071fb2dd28dc16c911f84129.json",
+        "request_identity": "4432b5722dd3e03bdbddd540b72a61db912f85fbd1db936db61cb4e0e7cc5c5e",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788034500
+      },
+      "mint": "7ncZBJH12i7cA4Xv7FwSyYm2Cd7wTZtjGrFVNuyNpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9059249769898265,
+        "maximum": {
+          "price_usd": 3.141659198437389e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/26c2e76f5cd8c1f9c41a42cf072121bd50fb92dae766289e4536f660d1800676.json",
+          "request_identity": "dc0f59d0827c5880ca5c87bdb90460a2269effeeafb541cf16c022d908947c15",
+          "stage": "opening",
+          "timestamp": 1788017940
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.955516613831203e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/a1ba2dc9ed9d8d358a5444300e85448b65eb2e4d071fb2dd28dc16c911f84129.json",
+          "request_identity": "4432b5722dd3e03bdbddd540b72a61db912f85fbd1db936db61cb4e0e7cc5c5e",
+          "stage": "later",
+          "timestamp": 1788034500
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.0,
+      "birth": 1788255869,
+      "drawdown_difference_percentage_points": -0.9054941131745542,
+      "equal_maximum_occurrences": 386,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.927718395959804e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/298abc19d972c2ed6a7352ce01b46ca3a27e64e68365d39a4d93acdd179beb2a.json",
+        "request_identity": "f36ba092259da70015be3d1af5ffc1eaf2964fc664fa6f302ca01ab63f4d3e5c",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788513300
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        900,
+        900
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.02050754979405922,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.927718395959804e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/298abc19d972c2ed6a7352ce01b46ca3a27e64e68365d39a4d93acdd179beb2a.json",
+        "request_identity": "f36ba092259da70015be3d1af5ffc1eaf2964fc664fa6f302ca01ab63f4d3e5c",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788514200
+      },
+      "mint": "7rRjovexyYfTFELzRKKdnQWgcKUef1NHLHCvafFJpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.009054941131745542,
+        "maximum": {
+          "price_usd": 2.8688846021282493e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/8fe1e12fffc94b6a323891290b94416c19162ceeec7e209a1cc9f3be1f049038.json",
+          "request_identity": "3e0e023c9f02648061588d0a3ba37c81708985eb151797134ba5c5d8cd7cf991",
+          "stage": "opening",
+          "timestamp": 1788255900
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.842907020942207e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/8fe1e12fffc94b6a323891290b94416c19162ceeec7e209a1cc9f3be1f049038.json",
+          "request_identity": "3e0e023c9f02648061588d0a3ba37c81708985eb151797134ba5c5d8cd7cf991",
+          "stage": "opening",
+          "timestamp": 1788256920
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.002896123966361297,
+      "birth": 1788421504,
+      "drawdown_difference_percentage_points": -0.692568241555136,
+      "equal_maximum_occurrences": 71,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.9227700016528385e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c44e264d8a45230fa6cf375d86819438ef6debb0c4cedae41701548e244228b2.json",
+        "request_identity": "fdb737602a8e8fca5b8cca6b008f0461b99e8425b069d8601627c0ee1c8d2dcc",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788455700
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        900,
+        900
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.028225218448481693,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.9143052974028898e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c44e264d8a45230fa6cf375d86819438ef6debb0c4cedae41701548e244228b2.json",
+        "request_identity": "fdb737602a8e8fca5b8cca6b008f0461b99e8425b069d8601627c0ee1c8d2dcc",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788519600
+      },
+      "mint": "8u9vXyvEfwk8znA4K3PCsa26jGUgvPfvxVYTYemRpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.009821806381912657,
+        "maximum": {
+          "price_usd": 2.8425387251861898e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/21c64de0e27854fde1705a539f1c6b8c87ce25efcd18471e9b4c0336af4dd74b.json",
+          "request_identity": "aaa56f053acacbac1b089808f9b44ff2f3023b12f373dd40f84323c83d859208",
+          "stage": "opening",
+          "timestamp": 1788421560
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.8146198601943222e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/21c64de0e27854fde1705a539f1c6b8c87ce25efcd18471e9b4c0336af4dd74b.json",
+          "request_identity": "aaa56f053acacbac1b089808f9b44ff2f3023b12f373dd40f84323c83d859208",
+          "stage": "opening",
+          "timestamp": 1788422220
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.008198627218988896,
+      "birth": 1788191104,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 15,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.9014375902134934e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/01c74130807c7205f97e9af4c8da8ca35fe088e748bfd703462033ccab1eb098.json",
+        "request_identity": "d716f87a6c14aee44f55d72d4a771f5b36ab93c7ef37e0dfd2ca63c8b19c6d80",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788191280
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.8776497850121717e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/01c74130807c7205f97e9af4c8da8ca35fe088e748bfd703462033ccab1eb098.json",
+        "request_identity": "d716f87a6c14aee44f55d72d4a771f5b36ab93c7ef37e0dfd2ca63c8b19c6d80",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788192180
+      },
+      "mint": "8yfRhViJa9bf9yUTpt18RcCndFTQKxE89UZ4rViVpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.008198627218988896,
+        "maximum": {
+          "price_usd": 2.9014375902134934e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/01c74130807c7205f97e9af4c8da8ca35fe088e748bfd703462033ccab1eb098.json",
+          "request_identity": "d716f87a6c14aee44f55d72d4a771f5b36ab93c7ef37e0dfd2ca63c8b19c6d80",
+          "stage": "opening",
+          "timestamp": 1788191280
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.8776497850121717e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/01c74130807c7205f97e9af4c8da8ca35fe088e748bfd703462033ccab1eb098.json",
+          "request_identity": "d716f87a6c14aee44f55d72d4a771f5b36ab93c7ef37e0dfd2ca63c8b19c6d80",
+          "stage": "opening",
+          "timestamp": 1788192180
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.8944077210776082,
+      "birth": 1788100067,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.6330272639535152e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/194abb973346fc165a0aa1424497fc0498162fb24761634eae0d2551aeee979b.json",
+        "request_identity": "763232f9010a2c873b1e52165ab6e4d72b670321d3104994bf18547bbdb66acb",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788100140
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.780273492656417e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/79b39a2961e51f7d41f8f95634ec0885c68fa82ee2506f4e325f0eb858b91d04.json",
+        "request_identity": "3f1b125f8a068fbf48b34c9eab2e8c3c0327e87182947ad13a9245dcc22890fc",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788383700
+      },
+      "mint": "9RtEo6KYbp5MExNBMsAuMehe3mcs4Ui88UNNXwyxpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.8944077210776082,
+        "maximum": {
+          "price_usd": 2.6330272639535152e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/194abb973346fc165a0aa1424497fc0498162fb24761634eae0d2551aeee979b.json",
+          "request_identity": "763232f9010a2c873b1e52165ab6e4d72b670321d3104994bf18547bbdb66acb",
+          "stage": "opening",
+          "timestamp": 1788100140
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.780273492656417e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/79b39a2961e51f7d41f8f95634ec0885c68fa82ee2506f4e325f0eb858b91d04.json",
+          "request_identity": "3f1b125f8a068fbf48b34c9eab2e8c3c0327e87182947ad13a9245dcc22890fc",
+          "stage": "later",
+          "timestamp": 1788383700
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.0,
+      "birth": 1788527204,
+      "drawdown_difference_percentage_points": -3.7316875286336204,
+      "equal_maximum_occurrences": 475,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.9634214804512753e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/e06852542ef8da37c736e53bae3d1aaffa4b871fa276b81b7c1e60c0c44db6c8.json",
+        "request_identity": "597d3125c40d042a623fe82021573bfe0266b4d029d80c822a8d1362773d3400",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788705000
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        900,
+        900
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.013891581880158821,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.9634214804512753e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/e06852542ef8da37c736e53bae3d1aaffa4b871fa276b81b7c1e60c0c44db6c8.json",
+        "request_identity": "597d3125c40d042a623fe82021573bfe0266b4d029d80c822a8d1362773d3400",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788705900
+      },
+      "mint": "9oqkfbJiPTHpXMWzucEfHtxc2QrjSJ1T2oYtW5fTpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.037316875286336204,
+        "maximum": {
+          "price_usd": 2.922818902348426e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/beedb6b73a9d73bf0557de63467451c4f33845885b258beb4681d88f04c94b0b.json",
+          "request_identity": "6a091b8aa46479bcaab8b9910b6bc228ecadcfbbcb57b35d175ce10be85c5741",
+          "stage": "opening",
+          "timestamp": 1788527220
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.8137484338849437e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/beedb6b73a9d73bf0557de63467451c4f33845885b258beb4681d88f04c94b0b.json",
+          "request_identity": "6a091b8aa46479bcaab8b9910b6bc228ecadcfbbcb57b35d175ce10be85c5741",
+          "stage": "opening",
+          "timestamp": 1788532980
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.0,
+      "birth": 1788281380,
+      "drawdown_difference_percentage_points": -0.38166521370492923,
+      "equal_maximum_occurrences": 222,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.9972223566462464e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/709020b28403c5f88500286afb56a2391dfee25c9129236a0025aa3ddb885cca.json",
+        "request_identity": "90b0225e1fe9378013b2dee403fb5d9d057497ab9cd78e5b25c75889c55a95f0",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788687000
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        900,
+        900
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.056767053140692525,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.9972223566462464e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/709020b28403c5f88500286afb56a2391dfee25c9129236a0025aa3ddb885cca.json",
+        "request_identity": "90b0225e1fe9378013b2dee403fb5d9d057497ab9cd78e5b25c75889c55a95f0",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788687900
+      },
+      "mint": "A82WhnkYPidBub8zkeu9Hei3w9NB1m6XpzeX7nJnpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.0038166521370492923,
+        "maximum": {
+          "price_usd": 2.8362185854853783e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/f4fc739ef43fdaf3877fbfc28b1fc8c8a397ea1ced2bfe622b8257c7e50bfc70.json",
+          "request_identity": "5e06bb7aa58488112105f7a2c09c7cffbd4f4b52f5b9a28877caa60abaad309c",
+          "stage": "opening",
+          "timestamp": 1788281400
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.8253937257599466e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/f4fc739ef43fdaf3877fbfc28b1fc8c8a397ea1ced2bfe622b8257c7e50bfc70.json",
+          "request_identity": "5e06bb7aa58488112105f7a2c09c7cffbd4f4b52f5b9a28877caa60abaad309c",
+          "stage": "opening",
+          "timestamp": 1788282780
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9964850922016808,
+      "birth": 1788111253,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 0.0006069764185662744,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/f1720e38b423f6ce83a745e8090185cf09822be4cbc42d8c586030e0a938c452.json",
+        "request_identity": "49fef6a4f474e20a1d3588e6ff1f318c15e9a8f73a90ce33b5fc701b43dbb569",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788112980
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.1334661470144594e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c541feea1dd2fa170eaea90e776a407008c310b83459e85ba666fba3c113f52e.json",
+        "request_identity": "2f3ceca98f70082b735e178afc6c6c0dd5112145da320b61ba1c8f03ea068369",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788297300
+      },
+      "mint": "AiSiwKxkbNg4TGMHq8GEvwf8mpma1a3Ee7m3TB4rpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9964850922016808,
+        "maximum": {
+          "price_usd": 0.0006069764185662744,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/f1720e38b423f6ce83a745e8090185cf09822be4cbc42d8c586030e0a938c452.json",
+          "request_identity": "49fef6a4f474e20a1d3588e6ff1f318c15e9a8f73a90ce33b5fc701b43dbb569",
+          "stage": "opening",
+          "timestamp": 1788112980
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.1334661470144594e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c541feea1dd2fa170eaea90e776a407008c310b83459e85ba666fba3c113f52e.json",
+          "request_identity": "2f3ceca98f70082b735e178afc6c6c0dd5112145da320b61ba1c8f03ea068369",
+          "stage": "later",
+          "timestamp": 1788297300
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.026526461549205016,
+      "birth": 1788519977,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 2,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.929020349239395e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/75be0893bd962fea40e27883c8c68b260add45fe15644e7b2d155a8ea38de576.json",
+        "request_identity": "a5a7fc4e4457d886a9d63353a0bd6953b041271704250ea59d676476c51f4a58",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788520020
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.851323803568457e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/03f690bc3dff19178fd83c21928611ef67b03955559432c44134f2fad236878f.json",
+        "request_identity": "dffa6b8357cb87c7f711c44ada8df4dd72176f8fe0fadcd5c882ece3fac8f889",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788589800
+      },
+      "mint": "ArUMvNV4pwZ3whWQ37bjkBmmnZDijrfzxjeqzRw9pump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.026526461549205016,
+        "maximum": {
+          "price_usd": 2.929020349239395e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/75be0893bd962fea40e27883c8c68b260add45fe15644e7b2d155a8ea38de576.json",
+          "request_identity": "a5a7fc4e4457d886a9d63353a0bd6953b041271704250ea59d676476c51f4a58",
+          "stage": "opening",
+          "timestamp": 1788520020
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.851323803568457e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/03f690bc3dff19178fd83c21928611ef67b03955559432c44134f2fad236878f.json",
+          "request_identity": "dffa6b8357cb87c7f711c44ada8df4dd72176f8fe0fadcd5c882ece3fac8f889",
+          "stage": "later",
+          "timestamp": 1788589800
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.005868840359475103,
+      "birth": 1788452027,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 148,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.932069847208015e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/78fe9e99ced4092606c1fc5a2165b7ec254307ec5ed92de2ba13311d69ad5325.json",
+        "request_identity": "915a05bdacdd246946b44788fcefb5bde533b21b2f79b65caa1f2bb81ec1ec6b",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788454380
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.9148619973519205e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/5138118abc270cfee092d037599e002ff82cf6eac466f15dbc1435ae62f0db4e.json",
+        "request_identity": "00b6162394f534a6a54c007ed1b149b53d8b590069c3de7797fb3ecf0eb49bab",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788519600
+      },
+      "mint": "B8gZpcJRRr9am23PmBMG51korwxYXD8Q6wnsprWpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.005868840359475103,
+        "maximum": {
+          "price_usd": 2.932069847208015e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/78fe9e99ced4092606c1fc5a2165b7ec254307ec5ed92de2ba13311d69ad5325.json",
+          "request_identity": "915a05bdacdd246946b44788fcefb5bde533b21b2f79b65caa1f2bb81ec1ec6b",
+          "stage": "opening",
+          "timestamp": 1788454380
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.9148619973519205e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/5138118abc270cfee092d037599e002ff82cf6eac466f15dbc1435ae62f0db4e.json",
+          "request_identity": "00b6162394f534a6a54c007ed1b149b53d8b590069c3de7797fb3ecf0eb49bab",
+          "stage": "later",
+          "timestamp": 1788519600
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9070839094193182,
+      "birth": 1788265261,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.9912357859196802e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/0d57d06a1c43bf71fa1e12fe755a8c1b3ef5703219d081623c6c8ddbe810ec24.json",
+        "request_identity": "f47e4813eb971aa7f798b81b733efe724b84f73d838f11c7697aa7af574c0ec4",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788265320
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.7793393523269003e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/5604c0bd9e35971ee79490c768df9336050ad4cbf9fd5b3f51c1608c58f9e4fa.json",
+        "request_identity": "41e4369cf358d5332157afa418d35a773c82dc503fc67695ffa80dd0806eca6c",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788374700
+      },
+      "mint": "BKcSqBWmyTAVLj5VojbmC9j9Kg2Hxoi5LDusx4rrpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9070839094193182,
+        "maximum": {
+          "price_usd": 2.9912357859196802e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/0d57d06a1c43bf71fa1e12fe755a8c1b3ef5703219d081623c6c8ddbe810ec24.json",
+          "request_identity": "f47e4813eb971aa7f798b81b733efe724b84f73d838f11c7697aa7af574c0ec4",
+          "stage": "opening",
+          "timestamp": 1788265320
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.7793393523269003e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/5604c0bd9e35971ee79490c768df9336050ad4cbf9fd5b3f51c1608c58f9e4fa.json",
+          "request_identity": "41e4369cf358d5332157afa418d35a773c82dc503fc67695ffa80dd0806eca6c",
+          "stage": "later",
+          "timestamp": 1788374700
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.8784689790962447,
+      "birth": 1788529999,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.3288594707634607e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/5a5656f6797993070194374e944826c4ef4718aef8cc42dc12faa0aa297f2e71.json",
+        "request_identity": "fc0c4c266161653702d37a7bb482908fcd2f1fd25a0e8eca63576436870832e0",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788530040
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.8302866902326283e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/5a5656f6797993070194374e944826c4ef4718aef8cc42dc12faa0aa297f2e71.json",
+        "request_identity": "fc0c4c266161653702d37a7bb482908fcd2f1fd25a0e8eca63576436870832e0",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788531360
+      },
+      "mint": "BSMYixMm6XHgi49bBG117FeeowTQz9dJmUmjwx5kpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.8784689790962447,
+        "maximum": {
+          "price_usd": 2.3288594707634607e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/5a5656f6797993070194374e944826c4ef4718aef8cc42dc12faa0aa297f2e71.json",
+          "request_identity": "fc0c4c266161653702d37a7bb482908fcd2f1fd25a0e8eca63576436870832e0",
+          "stage": "opening",
+          "timestamp": 1788530040
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.8302866902326283e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/5a5656f6797993070194374e944826c4ef4718aef8cc42dc12faa0aa297f2e71.json",
+          "request_identity": "fc0c4c266161653702d37a7bb482908fcd2f1fd25a0e8eca63576436870832e0",
+          "stage": "opening",
+          "timestamp": 1788531360
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9932718382740104,
+      "birth": 1788506899,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 0.00030532061098803413,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/0a217a73494eafa8a01152f2d588a83130a641c7704cef0c2ba205a1f99e00d2.json",
+        "request_identity": "e4769e049f48f2a432e9fbaece08e135e70d1baa33002707d3bed678c8e2c8b0",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788507360
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.0542464490054307e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/467c96b5c5f9f20f422e69e5d1cca151dc43c3d8e09dbfd49bdaecf628d4aec4.json",
+        "request_identity": "f6b5e156267bd2ed02313aa912967e765184267f9f174bf2aa174aa84d3155dc",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788597900
+      },
+      "mint": "BcwDGmnYzWquSVrWHMZqPaewCmxLD8kk7eVGM2Wrpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9932718382740104,
+        "maximum": {
+          "price_usd": 0.00030532061098803413,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/0a217a73494eafa8a01152f2d588a83130a641c7704cef0c2ba205a1f99e00d2.json",
+          "request_identity": "e4769e049f48f2a432e9fbaece08e135e70d1baa33002707d3bed678c8e2c8b0",
+          "stage": "opening",
+          "timestamp": 1788507360
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.0542464490054307e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/467c96b5c5f9f20f422e69e5d1cca151dc43c3d8e09dbfd49bdaecf628d4aec4.json",
+          "request_identity": "f6b5e156267bd2ed02313aa912967e765184267f9f174bf2aa174aa84d3155dc",
+          "stage": "later",
+          "timestamp": 1788597900
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.0,
+      "birth": 1788505866,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 653,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.914858560080134e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/325b83d8366c3ee2352b6a7a34fb2f9e7109a375177aca209657cd7f3669830d.json",
+        "request_identity": "8c569cce7273e07d890433d02590ed1f8c5d479f4575479d189c66c3dcf998fd",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788523200
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        900,
+        900
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.002650222113030676,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.914858560080134e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/325b83d8366c3ee2352b6a7a34fb2f9e7109a375177aca209657cd7f3669830d.json",
+        "request_identity": "8c569cce7273e07d890433d02590ed1f8c5d479f4575479d189c66c3dcf998fd",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788524100
+      },
+      "mint": "BeEvn8SCgkduNn16fHprLXVYQN11yHX8nkPp2Vs5pump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.0,
+        "maximum": {
+          "price_usd": 2.907153956378954e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c62282d5e774aa579de32d4b4c6db618655a91a647722e1c29fc34c29b3ec09d.json",
+          "request_identity": "8cf601e6351bdbe8f9234f6ef5d13ec1da066426c3ea6eaa9577026c759b8c0e",
+          "stage": "opening",
+          "timestamp": 1788507720
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.907153956378954e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c62282d5e774aa579de32d4b4c6db618655a91a647722e1c29fc34c29b3ec09d.json",
+          "request_identity": "8cf601e6351bdbe8f9234f6ef5d13ec1da066426c3ea6eaa9577026c759b8c0e",
+          "stage": "opening",
+          "timestamp": 1788507780
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9062498061527688,
+      "birth": 1788422889,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 3.0062420046031633e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/d3ead9c74d76e096e4db074797c521ed2553da0dd11189de66e4c45aaaeafbb7.json",
+        "request_identity": "e24ab65660dba8bec17c3c3ef1a149e169d737be23bd9eb363f37c89e36155b1",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788422940
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.8183577068323552e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/d3ead9c74d76e096e4db074797c521ed2553da0dd11189de66e4c45aaaeafbb7.json",
+        "request_identity": "e24ab65660dba8bec17c3c3ef1a149e169d737be23bd9eb363f37c89e36155b1",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788423660
+      },
+      "mint": "BoRniH1ALDv4jqZhki3HWKQuufBRLttBTGhDAoEcpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9062498061527688,
+        "maximum": {
+          "price_usd": 3.0062420046031633e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/d3ead9c74d76e096e4db074797c521ed2553da0dd11189de66e4c45aaaeafbb7.json",
+          "request_identity": "e24ab65660dba8bec17c3c3ef1a149e169d737be23bd9eb363f37c89e36155b1",
+          "stage": "opening",
+          "timestamp": 1788422940
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.8183577068323552e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/d3ead9c74d76e096e4db074797c521ed2553da0dd11189de66e4c45aaaeafbb7.json",
+          "request_identity": "e24ab65660dba8bec17c3c3ef1a149e169d737be23bd9eb363f37c89e36155b1",
+          "stage": "opening",
+          "timestamp": 1788423660
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.013974482913162278,
+      "birth": 1788255822,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 7,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.893093819804736e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/90778ac725ed7394f83269f29b0d9fcee443a0a63025c51da619aae4283d3e73.json",
+        "request_identity": "d4d48153eb7d207b5bebc189893e78a0c8d5438a59a00df1b372805f4dcb6520",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788255960
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.8526643296536993e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/90778ac725ed7394f83269f29b0d9fcee443a0a63025c51da619aae4283d3e73.json",
+        "request_identity": "d4d48153eb7d207b5bebc189893e78a0c8d5438a59a00df1b372805f4dcb6520",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788257520
+      },
+      "mint": "ChgwT7je6pAKCXSdgirREvh2AAfN3LccJsUgiHZvpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.013974482913162278,
+        "maximum": {
+          "price_usd": 2.893093819804736e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/90778ac725ed7394f83269f29b0d9fcee443a0a63025c51da619aae4283d3e73.json",
+          "request_identity": "d4d48153eb7d207b5bebc189893e78a0c8d5438a59a00df1b372805f4dcb6520",
+          "stage": "opening",
+          "timestamp": 1788255960
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.8526643296536993e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/90778ac725ed7394f83269f29b0d9fcee443a0a63025c51da619aae4283d3e73.json",
+          "request_identity": "d4d48153eb7d207b5bebc189893e78a0c8d5438a59a00df1b372805f4dcb6520",
+          "stage": "opening",
+          "timestamp": 1788257520
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.8914453728580827,
+      "birth": 1788514191,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.682961393607573e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/74b4b96b35a049e6e2f0aeeef0d22cff72af2c7251a34f8e4c819ef4264a1864.json",
+        "request_identity": "c7d51823c739f1da8a785fdbd48063a513c551e642681f780a1d8c5fd30510f2",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788514200
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.912478737192289e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/74b4b96b35a049e6e2f0aeeef0d22cff72af2c7251a34f8e4c819ef4264a1864.json",
+        "request_identity": "c7d51823c739f1da8a785fdbd48063a513c551e642681f780a1d8c5fd30510f2",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788516060
+      },
+      "mint": "CitKxWwGV88AwMnAUtA4RzpSegYntMKH18yjv2gspump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.8914453728580827,
+        "maximum": {
+          "price_usd": 2.682961393607573e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/74b4b96b35a049e6e2f0aeeef0d22cff72af2c7251a34f8e4c819ef4264a1864.json",
+          "request_identity": "c7d51823c739f1da8a785fdbd48063a513c551e642681f780a1d8c5fd30510f2",
+          "stage": "opening",
+          "timestamp": 1788514200
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.912478737192289e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/74b4b96b35a049e6e2f0aeeef0d22cff72af2c7251a34f8e4c819ef4264a1864.json",
+          "request_identity": "c7d51823c739f1da8a785fdbd48063a513c551e642681f780a1d8c5fd30510f2",
+          "stage": "opening",
+          "timestamp": 1788516060
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.04803285940953084,
+      "birth": 1788255990,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.9010329167049294e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/7e565d45d013bbd90474a300d0b5c478971084440d97b132aab2ddbe4bde0f0b.json",
+        "request_identity": "2edb7cf6d2aaf30e7a3fb2c9d70e1308337c7ed99200927e7803250512dd2385",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788256080
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.7616880104744203e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/0fbb84c588a652ba8a7e5d2019bf64c1932d4aa6babff91fce6f191d06650f65.json",
+        "request_identity": "71f844b4e313b82266b29812bdd56c89a00ac474d281c94786338c33388cf9e8",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788342300
+      },
+      "mint": "DGhuaYQoD3Q5GwG1LegLFMVjz4KxP7c6Fpn6spZKpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.04803285940953084,
+        "maximum": {
+          "price_usd": 2.9010329167049294e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/7e565d45d013bbd90474a300d0b5c478971084440d97b132aab2ddbe4bde0f0b.json",
+          "request_identity": "2edb7cf6d2aaf30e7a3fb2c9d70e1308337c7ed99200927e7803250512dd2385",
+          "stage": "opening",
+          "timestamp": 1788256080
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.7616880104744203e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/0fbb84c588a652ba8a7e5d2019bf64c1932d4aa6babff91fce6f191d06650f65.json",
+          "request_identity": "71f844b4e313b82266b29812bdd56c89a00ac474d281c94786338c33388cf9e8",
+          "stage": "later",
+          "timestamp": 1788342300
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9293670548446941,
+      "birth": 1788099512,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 3.954623986947131e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/a7e33a2cfbc521b37d8abdb330793c4c90cbb0314954b8e4cfafaa990c895507.json",
+        "request_identity": "d274589ed2edbf76b0a25b3496019f13d1b38faa14c7d0b8614f69224863ad00",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788099780
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.793267391798941e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/db467048661a868987755b8b7feb8cd7a6920d89103c267e60c91cc89159f9e9.json",
+        "request_identity": "f511772712a0113387c9154bfa7f247748b323f454d95929769a853df56a05a6",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788374700
+      },
+      "mint": "DieGJFBBKYmPg1cjgDZuymUxbPiKWsyF1rKxq4xopump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9293670548446941,
+        "maximum": {
+          "price_usd": 3.954623986947131e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/a7e33a2cfbc521b37d8abdb330793c4c90cbb0314954b8e4cfafaa990c895507.json",
+          "request_identity": "d274589ed2edbf76b0a25b3496019f13d1b38faa14c7d0b8614f69224863ad00",
+          "stage": "opening",
+          "timestamp": 1788099780
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.793267391798941e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/db467048661a868987755b8b7feb8cd7a6920d89103c267e60c91cc89159f9e9.json",
+          "request_identity": "f511772712a0113387c9154bfa7f247748b323f454d95929769a853df56a05a6",
+          "stage": "later",
+          "timestamp": 1788374700
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9893666666091009,
+      "birth": 1788345974,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 0.0001974490641509455,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/43730859acdb152356f3ed7544ff9b6d7c8cd29123ee15a3159f5c493d49edb6.json",
+        "request_identity": "0b0ed350ac370e97b2f75a38d28f1d95e94c21b64a438863f94f6e1e2b8d6ee5",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788347160
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.099541726838026e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/43730859acdb152356f3ed7544ff9b6d7c8cd29123ee15a3159f5c493d49edb6.json",
+        "request_identity": "0b0ed350ac370e97b2f75a38d28f1d95e94c21b64a438863f94f6e1e2b8d6ee5",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788347700
+      },
+      "mint": "DrZbMBkhTB876NryuixQy68aoCgaMFZCdN2FzPdKpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9893666666091009,
+        "maximum": {
+          "price_usd": 0.0001974490641509455,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/43730859acdb152356f3ed7544ff9b6d7c8cd29123ee15a3159f5c493d49edb6.json",
+          "request_identity": "0b0ed350ac370e97b2f75a38d28f1d95e94c21b64a438863f94f6e1e2b8d6ee5",
+          "stage": "opening",
+          "timestamp": 1788347160
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.099541726838026e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/43730859acdb152356f3ed7544ff9b6d7c8cd29123ee15a3159f5c493d49edb6.json",
+          "request_identity": "0b0ed350ac370e97b2f75a38d28f1d95e94c21b64a438863f94f6e1e2b8d6ee5",
+          "stage": "opening",
+          "timestamp": 1788347700
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.97529720298473,
+      "birth": 1788016759,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 8.798112041365454e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/b67b2fb2aaa0e8fb2bed54c32673e21b74ca037e312a1d560de63f2639c83e74.json",
+        "request_identity": "1cc82af059147a84bb8eec03181b5fe1fd902482ff7e1d6593cbafcfcf8d1da3",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788016980
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.1733797587545343e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/03a85eae2a7a187aa7ada681aa35adcc7a0f8e29660f4783de1938cbddf91b36.json",
+        "request_identity": "214e459d99c069d7c6183fb256fda3bc8b55eededbd06751a4cacc876436ec5d",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788387300
+      },
+      "mint": "DyfGK1hobTQjhp6CpSUTTznzQuq649xFoMTnygBapump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.97529720298473,
+        "maximum": {
+          "price_usd": 8.798112041365454e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/b67b2fb2aaa0e8fb2bed54c32673e21b74ca037e312a1d560de63f2639c83e74.json",
+          "request_identity": "1cc82af059147a84bb8eec03181b5fe1fd902482ff7e1d6593cbafcfcf8d1da3",
+          "stage": "opening",
+          "timestamp": 1788016980
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.1733797587545343e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/03a85eae2a7a187aa7ada681aa35adcc7a0f8e29660f4783de1938cbddf91b36.json",
+          "request_identity": "214e459d99c069d7c6183fb256fda3bc8b55eededbd06751a4cacc876436ec5d",
+          "stage": "later",
+          "timestamp": 1788387300
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.02699201037239085,
+      "birth": 1788272667,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 8,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.869359155516097e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/5f460a8f6876ceb94945fbc03e3d3c166e08cc784c997d851b8565a1375e72f4.json",
+        "request_identity": "886b47044bd471f27fa255df5eb6f28a0544683649e7d3b5ce087be9b005228a",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788272820
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.7919093834282918e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/3f86e032ff434b10abb174ff5a2092ef343592de021b14e7143fb1e8e02ca97e.json",
+        "request_identity": "77e04a92c0c9dad1d0e7457841dd6b16cbe100710066f8ce3543924d11b52d90",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788286500
+      },
+      "mint": "E62oHgjBSZaVcuYAT12nJRiVcQjfCrRiW2kzZ7KHpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.02699201037239085,
+        "maximum": {
+          "price_usd": 2.869359155516097e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/5f460a8f6876ceb94945fbc03e3d3c166e08cc784c997d851b8565a1375e72f4.json",
+          "request_identity": "886b47044bd471f27fa255df5eb6f28a0544683649e7d3b5ce087be9b005228a",
+          "stage": "opening",
+          "timestamp": 1788272820
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.7919093834282918e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/3f86e032ff434b10abb174ff5a2092ef343592de021b14e7143fb1e8e02ca97e.json",
+          "request_identity": "77e04a92c0c9dad1d0e7457841dd6b16cbe100710066f8ce3543924d11b52d90",
+          "stage": "later",
+          "timestamp": 1788286500
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9993690839993732,
+      "birth": 1788159598,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 0.0036571531946327186,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/63c36605b309ccf55bf939943d71c5f3d8e3546b6b8eb9fd0f39eb7004f59d4b.json",
+        "request_identity": "ffadeb031832f4a025365fd7db039fec0b7c10b245e874009d3a80063cca0266",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788162600
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.3073564672371386e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/ad0d83b06a3613750524b0a5b62a68099d0d90e385cd6f7bd6cd4bf87551d5a3.json",
+        "request_identity": "c3d202215f12565f7782b61740b2c7415802eae39f0091839c460cfe5bccce8f",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788341400
+      },
+      "mint": "EBK2daxNw6rHfirCyemmvzpDcotvp8wH4fYZqwsVpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9993690839993732,
+        "maximum": {
+          "price_usd": 0.0036571531946327186,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/63c36605b309ccf55bf939943d71c5f3d8e3546b6b8eb9fd0f39eb7004f59d4b.json",
+          "request_identity": "ffadeb031832f4a025365fd7db039fec0b7c10b245e874009d3a80063cca0266",
+          "stage": "opening",
+          "timestamp": 1788162600
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.3073564672371386e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/ad0d83b06a3613750524b0a5b62a68099d0d90e385cd6f7bd6cd4bf87551d5a3.json",
+          "request_identity": "c3d202215f12565f7782b61740b2c7415802eae39f0091839c460cfe5bccce8f",
+          "stage": "later",
+          "timestamp": 1788341400
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.0,
+      "birth": 1788017766,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 756,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.9458863218697523e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/896ca8f1e5765200cd177b6ee08709549b8f5eb6fd47a5c7e725f1fb9b54feda.json",
+        "request_identity": "98c88a5a1a76b1971dd738123589f8402bc7b09f3097d27c24bdf54ef31b0b20",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788019500
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.9458863218697523e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/896ca8f1e5765200cd177b6ee08709549b8f5eb6fd47a5c7e725f1fb9b54feda.json",
+        "request_identity": "98c88a5a1a76b1971dd738123589f8402bc7b09f3097d27c24bdf54ef31b0b20",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788019560
+      },
+      "mint": "EMeUvL1MKdZbUNXBYeKksbXCEVGXspk2jj4LrzzKpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.0,
+        "maximum": {
+          "price_usd": 2.9458863218697523e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/896ca8f1e5765200cd177b6ee08709549b8f5eb6fd47a5c7e725f1fb9b54feda.json",
+          "request_identity": "98c88a5a1a76b1971dd738123589f8402bc7b09f3097d27c24bdf54ef31b0b20",
+          "stage": "opening",
+          "timestamp": 1788019500
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.9458863218697523e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/896ca8f1e5765200cd177b6ee08709549b8f5eb6fd47a5c7e725f1fb9b54feda.json",
+          "request_identity": "98c88a5a1a76b1971dd738123589f8402bc7b09f3097d27c24bdf54ef31b0b20",
+          "stage": "opening",
+          "timestamp": 1788019560
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9959593949182487,
+      "birth": 1788460439,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 0.0005262115930951501,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/09f8174ef2cdbdba3541a278188f68640da6dc15833b5edce581a36a2774ec34.json",
+        "request_identity": "bae62cf9b629c92cd23e9def6f500c78da5fb41cd498e7e61ee708b4cb6bb5dd",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788462900
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.126213237136726e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/52db6c3e54e7d925a8f4c3b7080a3a322c76822b85fc24cb4eb0c9ea39c8d7ca.json",
+        "request_identity": "d78ed7d08a83505f4bbf960745ac9ffd3edd7174c5984b55d188e921a005d8c2",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788495300
+      },
+      "mint": "EbM9YwGHM6d6w5J1xBX5yqLsPHhMp7mDmPqpkE7Tpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9959593949182487,
+        "maximum": {
+          "price_usd": 0.0005262115930951501,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/09f8174ef2cdbdba3541a278188f68640da6dc15833b5edce581a36a2774ec34.json",
+          "request_identity": "bae62cf9b629c92cd23e9def6f500c78da5fb41cd498e7e61ee708b4cb6bb5dd",
+          "stage": "opening",
+          "timestamp": 1788462900
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.126213237136726e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/52db6c3e54e7d925a8f4c3b7080a3a322c76822b85fc24cb4eb0c9ea39c8d7ca.json",
+          "request_identity": "d78ed7d08a83505f4bbf960745ac9ffd3edd7174c5984b55d188e921a005d8c2",
+          "stage": "later",
+          "timestamp": 1788495300
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9787428508042385,
+      "birth": 1788017218,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 0.0001120050884699033,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/100aed3f11ad0699bc180e533df8492386ac4029bc8789092007b9a7dce1355f.json",
+        "request_identity": "6903ff5bc48201ffebd45b4077eeadbd6f339ce5576d1c2d7b99c6311915a78f",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788017280
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.3809088762891977e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/dada248998e98a8ea2db015290e3d571cec0d418906699a62c834658b9eec47e.json",
+        "request_identity": "dae5a4e5ceb47ab5d1d840846fae4fee8d4ba41dbf2cafdb969df612d01e6ad6",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788271200
+      },
+      "mint": "FkM6ZxDkpW2dAtt8QfiPsFG1aRtdgk6HPzrADzzEpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9787428508042385,
+        "maximum": {
+          "price_usd": 0.0001120050884699033,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/100aed3f11ad0699bc180e533df8492386ac4029bc8789092007b9a7dce1355f.json",
+          "request_identity": "6903ff5bc48201ffebd45b4077eeadbd6f339ce5576d1c2d7b99c6311915a78f",
+          "stage": "opening",
+          "timestamp": 1788017280
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.3809088762891977e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/dada248998e98a8ea2db015290e3d571cec0d418906699a62c834658b9eec47e.json",
+          "request_identity": "dae5a4e5ceb47ab5d1d840846fae4fee8d4ba41dbf2cafdb969df612d01e6ad6",
+          "stage": "later",
+          "timestamp": 1788271200
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.0,
+      "birth": 1788337380,
+      "drawdown_difference_percentage_points": -2.618161057814572,
+      "equal_maximum_occurrences": 284,
+      "full_lifecycle_maximum": {
+        "price_usd": 3.000461787078449e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/bbc018a792719e3cc280a2e6ccb5a09b29ef42565d4668a287ce42078d604906.json",
+        "request_identity": "6178b34ca35de8ba6a9b6c38b7f022226b865c3f13c9ab936ff9120cafdba2d2",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788687000
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        900,
+        900
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.05233330605952302,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 3.000461787078449e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/bbc018a792719e3cc280a2e6ccb5a09b29ef42565d4668a287ce42078d604906.json",
+        "request_identity": "6178b34ca35de8ba6a9b6c38b7f022226b865c3f13c9ab936ff9120cafdba2d2",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788687900
+      },
+      "mint": "FmVBbE3f7oncfPZ2TDRbWb6gZKggtky977pwqasnpump",
+      "observation_count": 785,
+      "old_two_hour_method": {
+        "drawdown": 0.02618161057814572,
+        "maximum": {
+          "price_usd": 2.851246624811031e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/9efab75f43fef047e4ea4823861a71f957877e992272cc031c8a7ee1848a799a.json",
+          "request_identity": "0a4ec339e8eca4c6cbd9fd3f1e55ff5b2385df45ff8bf9cd63d56021d478b739",
+          "stage": "opening",
+          "timestamp": 1788337380
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.7765963960179764e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/9efab75f43fef047e4ea4823861a71f957877e992272cc031c8a7ee1848a799a.json",
+          "request_identity": "0a4ec339e8eca4c6cbd9fd3f1e55ff5b2385df45ff8bf9cd63d56021d478b739",
+          "stage": "opening",
+          "timestamp": 1788338520
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9737755505723503,
+      "birth": 1788530789,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 7.7820437050485e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c1bcb3574114b07f0c05f76e0ceb7057a282d90c462dc759a77e0060a58c49d0.json",
+        "request_identity": "a1a03a22ce77c8ef53da0a97145c47906fde366374ed73a50c1f6bc90ccdbc27",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788531780
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.0407981158680373e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/186288aefd48c160db61ad4b560f0de7af227ebd658e380da750d93d25f11388.json",
+        "request_identity": "ebe5dda2b5f3efc64a26e75456f7fc1d8ef410f1cffebc422d9b4918a1ac8310",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1789048800
+      },
+      "mint": "FqXipMyKJJUrU9MASnpWqTESVcdZjkK83ttFmWdVpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9737755505723503,
+        "maximum": {
+          "price_usd": 7.7820437050485e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c1bcb3574114b07f0c05f76e0ceb7057a282d90c462dc759a77e0060a58c49d0.json",
+          "request_identity": "a1a03a22ce77c8ef53da0a97145c47906fde366374ed73a50c1f6bc90ccdbc27",
+          "stage": "opening",
+          "timestamp": 1788531780
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.0407981158680373e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/186288aefd48c160db61ad4b560f0de7af227ebd658e380da750d93d25f11388.json",
+          "request_identity": "ebe5dda2b5f3efc64a26e75456f7fc1d8ef410f1cffebc422d9b4918a1ac8310",
+          "stage": "later",
+          "timestamp": 1789048800
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9976411505516288,
+      "birth": 1788515588,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 0.0010288031329120403,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/dd78336a3606091510ffa12ba0193df00c05f7a0737ddede1888bff52ba53dd1.json",
+        "request_identity": "8d2d4529d1632ffd66d590b196792cb6de4807fc2813ae98326536013aa09680",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788518040
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.4267917025520833e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/dd78336a3606091510ffa12ba0193df00c05f7a0737ddede1888bff52ba53dd1.json",
+        "request_identity": "8d2d4529d1632ffd66d590b196792cb6de4807fc2813ae98326536013aa09680",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788519360
+      },
+      "mint": "G5vBr81KJZEuFvD8Nf2oB5XRa6Ess7yHJefoUCjJpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9976411505516288,
+        "maximum": {
+          "price_usd": 0.0010288031329120403,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/dd78336a3606091510ffa12ba0193df00c05f7a0737ddede1888bff52ba53dd1.json",
+          "request_identity": "8d2d4529d1632ffd66d590b196792cb6de4807fc2813ae98326536013aa09680",
+          "stage": "opening",
+          "timestamp": 1788518040
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.4267917025520833e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/dd78336a3606091510ffa12ba0193df00c05f7a0737ddede1888bff52ba53dd1.json",
+          "request_identity": "8d2d4529d1632ffd66d590b196792cb6de4807fc2813ae98326536013aa09680",
+          "stage": "opening",
+          "timestamp": 1788519360
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.8550722453010894,
+      "birth": 1788017633,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.0242285757071075e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/cb893f47c527a9243712d25cf9e397221815f52435689ba990443583de7ec798.json",
+        "request_identity": "8203ebc654b0adec715d6c39cc4a3b49bb991f91b43f0d05664fb4abe657a1ca",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788017640
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.9336690247460495e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/cb893f47c527a9243712d25cf9e397221815f52435689ba990443583de7ec798.json",
+        "request_identity": "8203ebc654b0adec715d6c39cc4a3b49bb991f91b43f0d05664fb4abe657a1ca",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788017940
+      },
+      "mint": "GNY3yPV5ekqC89brpHCpkpV23eVvBoniRTw6czgSpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.8550722453010894,
+        "maximum": {
+          "price_usd": 2.0242285757071075e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/cb893f47c527a9243712d25cf9e397221815f52435689ba990443583de7ec798.json",
+          "request_identity": "8203ebc654b0adec715d6c39cc4a3b49bb991f91b43f0d05664fb4abe657a1ca",
+          "stage": "opening",
+          "timestamp": 1788017640
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.9336690247460495e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/cb893f47c527a9243712d25cf9e397221815f52435689ba990443583de7ec798.json",
+          "request_identity": "8203ebc654b0adec715d6c39cc4a3b49bb991f91b43f0d05664fb4abe657a1ca",
+          "stage": "opening",
+          "timestamp": 1788017940
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.0362434630745061,
+      "birth": 1788519442,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.9565340159675855e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/e4a7d7579cd941ebb14b64a044629e8ca64f005009c7f3054b945e13d5dfd94e.json",
+        "request_identity": "39badaeef351f60b1c6b14f3e25f73a77a909b97babe21bc57f0a129106bb35f",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788519600
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.849378984531343e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/7a416f736a7ec2d0b5681a68742569494c6ecd304f3f5048545374f3f1468e3a.json",
+        "request_identity": "6460a9f4bcbd40f8cd236676ce6e95853742d7dacba550d4eab0aca12c2e39c8",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788590700
+      },
+      "mint": "HDvwQ7ai3Ywi1badnXREqJSaAAzoe1q63SbZwTvKpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.0362434630745061,
+        "maximum": {
+          "price_usd": 2.9565340159675855e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/e4a7d7579cd941ebb14b64a044629e8ca64f005009c7f3054b945e13d5dfd94e.json",
+          "request_identity": "39badaeef351f60b1c6b14f3e25f73a77a909b97babe21bc57f0a129106bb35f",
+          "stage": "opening",
+          "timestamp": 1788519600
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.849378984531343e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/7a416f736a7ec2d0b5681a68742569494c6ecd304f3f5048545374f3f1468e3a.json",
+          "request_identity": "6460a9f4bcbd40f8cd236676ce6e95853742d7dacba550d4eab0aca12c2e39c8",
+          "stage": "later",
+          "timestamp": 1788590700
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9748447581129807,
+      "birth": 1788464916,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 0.00010087788956030681,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/e669f695f2ba7d8dbfb683ba829207d67f4f0d06459a1afb38aa29e82c3a62f2.json",
+        "request_identity": "922e361f745b2b623b3785dd1e16365558586add6bfb965bea6fb9c85bbb08f1",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788465000
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.537607712941542e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/23cc543f6c56f2a3af2c09c7a34b760fb14612947960bbddeb5805f3449be946.json",
+        "request_identity": "cc5fddedc320e6d0ea49b7e1674db158c4f20fae6456084e03e3f4d926e2419c",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788607800
+      },
+      "mint": "HiYHZmYti5f2SVvEwCs296AELFR2UMW3r4aBHFmjpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9748447581129807,
+        "maximum": {
+          "price_usd": 0.00010087788956030681,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/e669f695f2ba7d8dbfb683ba829207d67f4f0d06459a1afb38aa29e82c3a62f2.json",
+          "request_identity": "922e361f745b2b623b3785dd1e16365558586add6bfb965bea6fb9c85bbb08f1",
+          "stage": "opening",
+          "timestamp": 1788465000
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.537607712941542e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/23cc543f6c56f2a3af2c09c7a34b760fb14612947960bbddeb5805f3449be946.json",
+          "request_identity": "cc5fddedc320e6d0ea49b7e1674db158c4f20fae6456084e03e3f4d926e2419c",
+          "stage": "later",
+          "timestamp": 1788607800
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.02797989463841899,
+      "birth": 1788521394,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 30,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.9296897611931008e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/86330eb297758d50e80861988c96fd12216fe9ca0d4354628242a50c1bc3b160.json",
+        "request_identity": "d59067657b340d8566229548b2dd7f2bffd0668499027755a561bb28396fe927",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788521460
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.847717350351663e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/ad089676cf6816cd7a8a5db5268ad6743f852d9426d901ceb7868cf80d3bfde1.json",
+        "request_identity": "ef2124be0ab12d012f474cc1e2f587b223aa06da7d83c250166b893f4ca39835",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788589800
+      },
+      "mint": "HpoucnSt8mYoYf1sq7mvtc3GfHttDdtHLaEeiw5upump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.02797989463841899,
+        "maximum": {
+          "price_usd": 2.9296897611931008e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/86330eb297758d50e80861988c96fd12216fe9ca0d4354628242a50c1bc3b160.json",
+          "request_identity": "d59067657b340d8566229548b2dd7f2bffd0668499027755a561bb28396fe927",
+          "stage": "opening",
+          "timestamp": 1788521460
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.847717350351663e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/ad089676cf6816cd7a8a5db5268ad6743f852d9426d901ceb7868cf80d3bfde1.json",
+          "request_identity": "ef2124be0ab12d012f474cc1e2f587b223aa06da7d83c250166b893f4ca39835",
+          "stage": "later",
+          "timestamp": 1788589800
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.6579345103807812,
+      "birth": 1788464268,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 8.089525169678397e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/af41ff976b43b8f18587d662700c93183f11c6fb76e4900400761507a3a90b64.json",
+        "request_identity": "2f50f58bb01cea11d586ee2b7f62dc8ba3c9dc1e281d5c48b162960a2109ba60",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788464280
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.767147387953035e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/d60218fa67339ff55322dcb244642813cdc91d08abb605258c3670746c5fd20b.json",
+        "request_identity": "77dd111521ae07aadac229ae297c2949cd2c80f0cabc2f65c5fca238f50e4eb1",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788983100
+      },
+      "mint": "VGpxjH2dtrk2PK9ynRLdVMZfWwwY5jaG7wNdJeYpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.6579345103807812,
+        "maximum": {
+          "price_usd": 8.089525169678397e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/af41ff976b43b8f18587d662700c93183f11c6fb76e4900400761507a3a90b64.json",
+          "request_identity": "2f50f58bb01cea11d586ee2b7f62dc8ba3c9dc1e281d5c48b162960a2109ba60",
+          "stage": "opening",
+          "timestamp": 1788464280
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.767147387953035e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/d60218fa67339ff55322dcb244642813cdc91d08abb605258c3670746c5fd20b.json",
+          "request_identity": "77dd111521ae07aadac229ae297c2949cd2c80f0cabc2f65c5fca238f50e4eb1",
+          "stage": "later",
+          "timestamp": 1788983100
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9084620483229036,
+      "birth": 1788002658,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 3.072851283478918e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/a26c6cefe2a9e4aa06609e1b6014f75b4a7510f512579a8dd0d556a08df5141a.json",
+        "request_identity": "477ea9bf24c3cb2081c41b1ef70fecabe7eab10b4138382b6982d7e2e30c66db",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788002700
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.8128251229799717e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/a3d0e5989e7c2e85dd8e995a9fa5b5e05e03d460627f4f151140a6e6d31fc5e7.json",
+        "request_identity": "2e5631fc6bdea67683668114d93f24eda3539f2b718dee609b07aee80c055e6e",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788328800
+      },
+      "mint": "b8QQGeBdNeCuxEZC1mQYN69HtqMSH8hjgdmBPRupump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9084620483229036,
+        "maximum": {
+          "price_usd": 3.072851283478918e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/a26c6cefe2a9e4aa06609e1b6014f75b4a7510f512579a8dd0d556a08df5141a.json",
+          "request_identity": "477ea9bf24c3cb2081c41b1ef70fecabe7eab10b4138382b6982d7e2e30c66db",
+          "stage": "opening",
+          "timestamp": 1788002700
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.8128251229799717e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/a3d0e5989e7c2e85dd8e995a9fa5b5e05e03d460627f4f151140a6e6d31fc5e7.json",
+          "request_identity": "2e5631fc6bdea67683668114d93f24eda3539f2b718dee609b07aee80c055e6e",
+          "stage": "later",
+          "timestamp": 1788328800
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.059933719462675006,
+      "birth": 1788518561,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 3.0272472685968503e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c7b2dea11190a8efabba82f74de2f131928ddd679a0ea38279df9cb41adbeb4b.json",
+        "request_identity": "577578b2cd98dee56d7a2322519bcd6cb38abfff1fe3b3f6fb5c43c8e417e6dd",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788518580
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.8458130800566173e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/b2a9aec726a15a364dc4910a90603389ab1bc81091e1761c5f1a60320888dbc0.json",
+        "request_identity": "06197e5ff1c0c139310120680586c7f081d93b392426a42401f3f84f9804e597",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788528600
+      },
+      "mint": "eH9uErNehYg3p8Y14Ujf5eUBNnX6AkaEqkxLbvRpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.059933719462675006,
+        "maximum": {
+          "price_usd": 3.0272472685968503e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c7b2dea11190a8efabba82f74de2f131928ddd679a0ea38279df9cb41adbeb4b.json",
+          "request_identity": "577578b2cd98dee56d7a2322519bcd6cb38abfff1fe3b3f6fb5c43c8e417e6dd",
+          "stage": "opening",
+          "timestamp": 1788518580
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.8458130800566173e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/b2a9aec726a15a364dc4910a90603389ab1bc81091e1761c5f1a60320888dbc0.json",
+          "request_identity": "06197e5ff1c0c139310120680586c7f081d93b392426a42401f3f84f9804e597",
+          "stage": "later",
+          "timestamp": 1788528600
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.004374485006445883,
+      "birth": 1787992435,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 100,
+      "full_lifecycle_maximum": {
+        "price_usd": 2.8903046530218004e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c8d6547343f91aaab7f6422c2b0d9a8169775804c7a4ee7043e9a966f38dc44e.json",
+        "request_identity": "9fe45117da638aaa44d2c2905de82367f4ff0f2f9a41ee6c191ae7a87d7cf155",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1787992440
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.877661058653096e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c8d6547343f91aaab7f6422c2b0d9a8169775804c7a4ee7043e9a966f38dc44e.json",
+        "request_identity": "9fe45117da638aaa44d2c2905de82367f4ff0f2f9a41ee6c191ae7a87d7cf155",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1787998440
+      },
+      "mint": "iADSLGnCLWwVzQckm8HFywnS4E61493wC59HJHKpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.004374485006445883,
+        "maximum": {
+          "price_usd": 2.8903046530218004e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c8d6547343f91aaab7f6422c2b0d9a8169775804c7a4ee7043e9a966f38dc44e.json",
+          "request_identity": "9fe45117da638aaa44d2c2905de82367f4ff0f2f9a41ee6c191ae7a87d7cf155",
+          "stage": "opening",
+          "timestamp": 1787992440
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.877661058653096e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c8d6547343f91aaab7f6422c2b0d9a8169775804c7a4ee7043e9a966f38dc44e.json",
+          "request_identity": "9fe45117da638aaa44d2c2905de82367f4ff0f2f9a41ee6c191ae7a87d7cf155",
+          "stage": "opening",
+          "timestamp": 1787998440
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.7999511169218536,
+      "birth": 1788014731,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 1.3572732542844072e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/9271d6e153103f06ddb7869ec45abb5cb59dffd597da19c58acc9d6b64ea557e.json",
+        "request_identity": "de0a3d9905bde59b00bcbf537777345f57886ffad40af4acf4f9ea7943ebc672",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788014820
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.7152099855143667e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/32a0494d7f54024c4a6fff4f503cb153cd15c4e478a527f8046a0ad47bffa159.json",
+        "request_identity": "eba215c1f402e9637d2735ead06e0c9a8ecfe154ac4f36ce7e2dae142d12f329",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788318900
+      },
+      "mint": "kDhik8Hd1sVkSH3kNyksxbKkK9ueSKXLj2GSN2Tpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.7999511169218536,
+        "maximum": {
+          "price_usd": 1.3572732542844072e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/9271d6e153103f06ddb7869ec45abb5cb59dffd597da19c58acc9d6b64ea557e.json",
+          "request_identity": "de0a3d9905bde59b00bcbf537777345f57886ffad40af4acf4f9ea7943ebc672",
+          "stage": "opening",
+          "timestamp": 1788014820
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.7152099855143667e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/32a0494d7f54024c4a6fff4f503cb153cd15c4e478a527f8046a0ad47bffa159.json",
+          "request_identity": "eba215c1f402e9637d2735ead06e0c9a8ecfe154ac4f36ce7e2dae142d12f329",
+          "stage": "later",
+          "timestamp": 1788318900
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.0629450931539749,
+      "birth": 1788519765,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 4,
+      "full_lifecycle_maximum": {
+        "price_usd": 3.048473097976859e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/079c141082ebbf603520a3bc875ce6f6d7d23d465019501972b16c87becf0707.json",
+        "request_identity": "1c2d1ecb8dd041cf37e119ef2f74bc6e6f708519fe366cfebd0ffcdbe7873c08",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788520140
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.856586674847319e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/80e69159525dd4fbf59b8825d867cec212fe36c856d51a31bcb4dc0bcdf62e8f.json",
+        "request_identity": "3cf1a0ca4c20414ba2b0d2f488f8a2726251302d9307118ac6126e0b08afd695",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788590700
+      },
+      "mint": "vZd5wgnfqPio9rfCg8vem7ZPNBJSixGCYNZsRmYpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.0629450931539749,
+        "maximum": {
+          "price_usd": 3.048473097976859e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/079c141082ebbf603520a3bc875ce6f6d7d23d465019501972b16c87becf0707.json",
+          "request_identity": "1c2d1ecb8dd041cf37e119ef2f74bc6e6f708519fe366cfebd0ffcdbe7873c08",
+          "stage": "opening",
+          "timestamp": 1788520140
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.856586674847319e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/80e69159525dd4fbf59b8825d867cec212fe36c856d51a31bcb4dc0bcdf62e8f.json",
+          "request_identity": "3cf1a0ca4c20414ba2b0d2f488f8a2726251302d9307118ac6126e0b08afd695",
+          "stage": "later",
+          "timestamp": 1788590700
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      },
+      "thresholds_revised": {
+        "0.8": false,
+        "0.85": false,
+        "0.9": false,
+        "0.925": false,
+        "0.95": false
+      }
+    },
+    {
+      "MAX_PROVEN_DRAWDOWN_WITHIN_7D": 0.9548643215745017,
+      "birth": 1788552876,
+      "drawdown_difference_percentage_points": 0.0,
+      "equal_maximum_occurrences": 1,
+      "full_lifecycle_maximum": {
+        "price_usd": 4.844184721131115e-05,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/b1db931ea72e39f0a1ddb046c9ac4b556295d6b3236dcff0cc2524a26c0eab17.json",
+        "request_identity": "03497e3cb0f2259d357fb3e3fdd4b03e90cf873c111681579d72d4d74754afca",
+        "resolution": "1m",
+        "stage": "opening",
+        "timestamp": 1788553080
+      },
+      "gaps_adjacent_to_maximum_seconds": [
+        60,
+        60
+      ],
+      "large_gap_near_maximum": false,
+      "largest_gap_seconds": 900,
+      "maximum_difference_fraction": 0.0,
+      "minimum_after_full_lifecycle_maximum": {
+        "price_usd": 2.186455638066859e-06,
+        "raw_artifact": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/43b1a0976d290a681a2bdbb074beeece685c79f2f7532b74f594119471b6646c.json",
+        "request_identity": "2e2b25fc43b622d6a26a99cac74a6527867b218f1b3cb26f7102d0d4e232739a",
+        "resolution": "15m",
+        "stage": "later",
+        "timestamp": 1788583500
+      },
+      "mint": "zRoYAdLYogsS491qazGakt2BDvgjMMiE8xQWpSVpump",
+      "observation_count": 784,
+      "old_two_hour_method": {
+        "drawdown": 0.9548643215745017,
+        "maximum": {
+          "price_usd": 4.844184721131115e-05,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/b1db931ea72e39f0a1ddb046c9ac4b556295d6b3236dcff0cc2524a26c0eab17.json",
+          "request_identity": "03497e3cb0f2259d357fb3e3fdd4b03e90cf873c111681579d72d4d74754afca",
+          "stage": "opening",
+          "timestamp": 1788553080
+        },
+        "minimum_after_maximum": {
+          "price_usd": 2.186455638066859e-06,
+          "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/43b1a0976d290a681a2bdbb074beeece685c79f2f7532b74f594119471b6646c.json",
+          "request_identity": "2e2b25fc43b622d6a26a99cac74a6527867b218f1b3cb26f7102d0d4e232739a",
+          "stage": "later",
+          "timestamp": 1788583500
+        }
+      },
+      "sparse_near_maximum": false,
+      "state": "RECONSTRUCTED_FULL_LIFECYCLE_PEAK",
+      "thresholds_old": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      },
+      "thresholds_revised": {
+        "0.8": true,
+        "0.85": true,
+        "0.9": true,
+        "0.925": true,
+        "0.95": true
+      }
+    }
+  ],
+  "known_two_hour_peak_violations": [
+    {
+      "birth_to_later_maximum_seconds": 405817,
+      "drawdown_difference_percentage_points": -0.9682400871117824,
+      "exceedance_fraction": 0.052386980308461784,
+      "first_two_hour_maximum": {
+        "price_usd": 2.847905322133724e-06,
+        "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/0c4b82c5e6f5998ea7be76d1bb551d5503e04cb419224fac048a7614519d0bc3.json",
+        "request_identity": "a786987f44e4b7efb0b26a29c4c9b36bdf9d903f23950c9bea5efb6cb0480123",
+        "stage": "opening",
+        "timestamp": 1788281220
+      },
+      "later_higher_point": {
+        "price_usd": 2.997098482164707e-06,
+        "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/fe8bfcf07ced9e5bb205e74121cb1ce58e9f5b51b92ffa865ae4c81fcd408a0b.json",
+        "request_identity": "cf3026b69c0a22856a4c36823976991826c96a0fa4ed0d0c42f1e4ed118858e7",
+        "stage": "later",
+        "timestamp": 1788687000
+      },
+      "mint": "12GDLxNHvw4QKuBM1SMr6FhTiEVLeWQJYWfEjLCpump",
+      "old_drawdown": 0.009682400871117824,
+      "revised_drawdown": 0.0,
+      "thresholds_changed": []
+    },
+    {
+      "birth_to_later_maximum_seconds": 72315,
+      "drawdown_difference_percentage_points": 1.1149677452714002,
+      "exceedance_fraction": 0.016807132121049007,
+      "first_two_hour_maximum": {
+        "price_usd": 4.258328795781461e-06,
+        "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/5b469ea8e30681d51e2adb01ae8fd06030592e7150bf8cbcdf26572b950b0185.json",
+        "request_identity": "386bb2365b385645542971fc3ffce52d935f1ea1c88aa6f1759f232b24bc5f80",
+        "stage": "opening",
+        "timestamp": 1788000960
+      },
+      "later_higher_point": {
+        "price_usd": 4.329899090467027e-06,
+        "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/960731378d2fecf7516868cab518813cd4cdc1fe58567da913a55e7652877bf0.json",
+        "request_identity": "0f1f3e0ba1dd6358c72fc9cc2b7e1764bcf9e533ef5112e65dd6a35651ca5d62",
+        "stage": "later",
+        "timestamp": 1788073200
+      },
+      "mint": "36F3yEK5ngLhxZfbEoFVBFBmLxtjSTpczsLihWpYpump",
+      "old_drawdown": 0.32546067508028576,
+      "revised_drawdown": 0.33661035253299976,
+      "thresholds_changed": []
+    },
+    {
+      "birth_to_later_maximum_seconds": 81116,
+      "drawdown_difference_percentage_points": -0.2611965883578704,
+      "exceedance_fraction": 0.017629335535618962,
+      "first_two_hour_maximum": {
+        "price_usd": 2.901305834509643e-06,
+        "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/f465905096ed10dad361f94c8c0b77509301e8c2e4940b748b7d20b975cbbe8e.json",
+        "request_identity": "4b5ebafb2a6d6aa6772a82cdf09eef6e44ae086b8f4e492d7693475f0c4e6cc3",
+        "stage": "opening",
+        "timestamp": 1787994000
+      },
+      "later_higher_point": {
+        "price_usd": 2.9524539285576626e-06,
+        "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/2a147b1a6558fbcacd59397859f7ea9d526cbc82045398a18612e0ba00ce8937.json",
+        "request_identity": "87a2c0f99aec34fe3e3390dbf804e4fb39e0971baa93ea3a424a8a34c8199cdb",
+        "stage": "later",
+        "timestamp": 1788075000
+      },
+      "mint": "3n7RAG3G2KGH6sg29MoKop245V7ACXP35ZEWCMFWpump",
+      "old_drawdown": 0.002611965883578704,
+      "revised_drawdown": 0.0,
+      "thresholds_changed": []
+    },
+    {
+      "birth_to_later_maximum_seconds": 24314,
+      "drawdown_difference_percentage_points": 18.78362107689201,
+      "exceedance_fraction": 0.2523531947588602,
+      "first_two_hour_maximum": {
+        "price_usd": 2.962111897290753e-06,
+        "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/1690d0f1f8b12189e38eca9b3262c6125f3ca8ea278c47c07c1494962660a98b.json",
+        "request_identity": "0bcc59e3988b8e2adacd5c535bcc8687555fe2f15c5cdf50791ca37528df1a0b",
+        "stage": "opening",
+        "timestamp": 1788464880
+      },
+      "later_higher_point": {
+        "price_usd": 3.709610297805304e-06,
+        "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/3604df09495289bff32fb606164fcf3814f0be82e9e85c71380d973130652f4c.json",
+        "request_identity": "be7b02eb9059d9794f30e4822ea643fc03d765c269d6ad25cfab53575947d2fa",
+        "stage": "later",
+        "timestamp": 1788489000
+      },
+      "mint": "5eBcmVpmC4aDrzqu37KsYk8xdvfqMEmyAGwEy6h4pump",
+      "old_drawdown": 0.011033039587496463,
+      "revised_drawdown": 0.19886925035641656,
+      "thresholds_changed": []
+    },
+    {
+      "birth_to_later_maximum_seconds": 257431,
+      "drawdown_difference_percentage_points": -0.9054941131745542,
+      "exceedance_fraction": 0.02050754979405922,
+      "first_two_hour_maximum": {
+        "price_usd": 2.8688846021282493e-06,
+        "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/8fe1e12fffc94b6a323891290b94416c19162ceeec7e209a1cc9f3be1f049038.json",
+        "request_identity": "3e0e023c9f02648061588d0a3ba37c81708985eb151797134ba5c5d8cd7cf991",
+        "stage": "opening",
+        "timestamp": 1788255900
+      },
+      "later_higher_point": {
+        "price_usd": 2.927718395959804e-06,
+        "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/298abc19d972c2ed6a7352ce01b46ca3a27e64e68365d39a4d93acdd179beb2a.json",
+        "request_identity": "f36ba092259da70015be3d1af5ffc1eaf2964fc664fa6f302ca01ab63f4d3e5c",
+        "stage": "later",
+        "timestamp": 1788513300
+      },
+      "mint": "7rRjovexyYfTFELzRKKdnQWgcKUef1NHLHCvafFJpump",
+      "old_drawdown": 0.009054941131745542,
+      "revised_drawdown": 0.0,
+      "thresholds_changed": []
+    },
+    {
+      "birth_to_later_maximum_seconds": 34196,
+      "drawdown_difference_percentage_points": -0.692568241555136,
+      "exceedance_fraction": 0.028225218448481693,
+      "first_two_hour_maximum": {
+        "price_usd": 2.8425387251861898e-06,
+        "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/21c64de0e27854fde1705a539f1c6b8c87ce25efcd18471e9b4c0336af4dd74b.json",
+        "request_identity": "aaa56f053acacbac1b089808f9b44ff2f3023b12f373dd40f84323c83d859208",
+        "stage": "opening",
+        "timestamp": 1788421560
+      },
+      "later_higher_point": {
+        "price_usd": 2.9227700016528385e-06,
+        "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c44e264d8a45230fa6cf375d86819438ef6debb0c4cedae41701548e244228b2.json",
+        "request_identity": "fdb737602a8e8fca5b8cca6b008f0461b99e8425b069d8601627c0ee1c8d2dcc",
+        "stage": "later",
+        "timestamp": 1788455700
+      },
+      "mint": "8u9vXyvEfwk8znA4K3PCsa26jGUgvPfvxVYTYemRpump",
+      "old_drawdown": 0.009821806381912657,
+      "revised_drawdown": 0.002896123966361297,
+      "thresholds_changed": []
+    },
+    {
+      "birth_to_later_maximum_seconds": 177796,
+      "drawdown_difference_percentage_points": -3.7316875286336204,
+      "exceedance_fraction": 0.013891581880158821,
+      "first_two_hour_maximum": {
+        "price_usd": 2.922818902348426e-06,
+        "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/beedb6b73a9d73bf0557de63467451c4f33845885b258beb4681d88f04c94b0b.json",
+        "request_identity": "6a091b8aa46479bcaab8b9910b6bc228ecadcfbbcb57b35d175ce10be85c5741",
+        "stage": "opening",
+        "timestamp": 1788527220
+      },
+      "later_higher_point": {
+        "price_usd": 2.9634214804512753e-06,
+        "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/e06852542ef8da37c736e53bae3d1aaffa4b871fa276b81b7c1e60c0c44db6c8.json",
+        "request_identity": "597d3125c40d042a623fe82021573bfe0266b4d029d80c822a8d1362773d3400",
+        "stage": "later",
+        "timestamp": 1788705000
+      },
+      "mint": "9oqkfbJiPTHpXMWzucEfHtxc2QrjSJ1T2oYtW5fTpump",
+      "old_drawdown": 0.037316875286336204,
+      "revised_drawdown": 0.0,
+      "thresholds_changed": []
+    },
+    {
+      "birth_to_later_maximum_seconds": 405620,
+      "drawdown_difference_percentage_points": -0.38166521370492923,
+      "exceedance_fraction": 0.056767053140692525,
+      "first_two_hour_maximum": {
+        "price_usd": 2.8362185854853783e-06,
+        "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/f4fc739ef43fdaf3877fbfc28b1fc8c8a397ea1ced2bfe622b8257c7e50bfc70.json",
+        "request_identity": "5e06bb7aa58488112105f7a2c09c7cffbd4f4b52f5b9a28877caa60abaad309c",
+        "stage": "opening",
+        "timestamp": 1788281400
+      },
+      "later_higher_point": {
+        "price_usd": 2.9972223566462464e-06,
+        "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/709020b28403c5f88500286afb56a2391dfee25c9129236a0025aa3ddb885cca.json",
+        "request_identity": "90b0225e1fe9378013b2dee403fb5d9d057497ab9cd78e5b25c75889c55a95f0",
+        "stage": "later",
+        "timestamp": 1788687000
+      },
+      "mint": "A82WhnkYPidBub8zkeu9Hei3w9NB1m6XpzeX7nJnpump",
+      "old_drawdown": 0.0038166521370492923,
+      "revised_drawdown": 0.0,
+      "thresholds_changed": []
+    },
+    {
+      "birth_to_later_maximum_seconds": 17334,
+      "drawdown_difference_percentage_points": 0.0,
+      "exceedance_fraction": 0.002650222113030676,
+      "first_two_hour_maximum": {
+        "price_usd": 2.907153956378954e-06,
+        "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c62282d5e774aa579de32d4b4c6db618655a91a647722e1c29fc34c29b3ec09d.json",
+        "request_identity": "8cf601e6351bdbe8f9234f6ef5d13ec1da066426c3ea6eaa9577026c759b8c0e",
+        "stage": "opening",
+        "timestamp": 1788507720
+      },
+      "later_higher_point": {
+        "price_usd": 2.914858560080134e-06,
+        "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/325b83d8366c3ee2352b6a7a34fb2f9e7109a375177aca209657cd7f3669830d.json",
+        "request_identity": "8c569cce7273e07d890433d02590ed1f8c5d479f4575479d189c66c3dcf998fd",
+        "stage": "later",
+        "timestamp": 1788523200
+      },
+      "mint": "BeEvn8SCgkduNn16fHprLXVYQN11yHX8nkPp2Vs5pump",
+      "old_drawdown": 0.0,
+      "revised_drawdown": 0.0,
+      "thresholds_changed": []
+    },
+    {
+      "birth_to_later_maximum_seconds": 349620,
+      "drawdown_difference_percentage_points": -2.618161057814572,
+      "exceedance_fraction": 0.05233330605952302,
+      "first_two_hour_maximum": {
+        "price_usd": 2.851246624811031e-06,
+        "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/9efab75f43fef047e4ea4823861a71f957877e992272cc031c8a7ee1848a799a.json",
+        "request_identity": "0a4ec339e8eca4c6cbd9fd3f1e55ff5b2385df45ff8bf9cd63d56021d478b739",
+        "stage": "opening",
+        "timestamp": 1788337380
+      },
+      "later_higher_point": {
+        "price_usd": 3.000461787078449e-06,
+        "raw_path": "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/bbc018a792719e3cc280a2e6ccb5a09b29ef42565d4668a287ce42078d604906.json",
+        "request_identity": "6178b34ca35de8ba6a9b6c38b7f022226b865c3f13c9ab936ff9120cafdba2d2",
+        "stage": "later",
+        "timestamp": 1788687000
+      },
+      "mint": "FmVBbE3f7oncfPZ2TDRbWb6gZKggtky977pwqasnpump",
+      "old_drawdown": 0.02618161057814572,
+      "revised_drawdown": 0.0,
+      "thresholds_changed": []
+    }
+  ],
+  "method": "MAX_RETAINED_QUALIFIED_POINT_WITHIN_7D; earliest timestamp resolves equal maxima; minimum strictly after maximum; no interpolation",
+  "prior_artifacts_modified": 0,
+  "provider_calls": 0,
+  "raw_artifacts_modified": 0,
+  "schema_version": "BYZANTINE_64_FULL_LIFECYCLE_MIXED_RESOLUTION_PEAK_REEVALUATION_V1",
+  "scope": {
+    "current_population": 103,
+    "fully_reconstructed_input": 64,
+    "mature": 64,
+    "unresolved_mature": 0
+  }
+}

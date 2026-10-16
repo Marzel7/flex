@@ -1,0 +1,2671 @@
+{
+  "aggregate": {
+    "distribution": {
+      "max": 224.96943729241335,
+      "mean": 9.48013292304552,
+      "p25": 1.0,
+      "p50": 1.4455561173643996,
+      "p75": 3.5490505282295595,
+      "p90": 15.162363456886665
+    },
+    "min_position_peak_multiple": 1.0,
+    "rug": {
+      "not_proven": 31,
+      "proven": 33,
+      "unresolved": 0
+    },
+    "target_reach": {
+      "1.25": 32,
+      "1.5": 31,
+      "10": 9,
+      "2": 22,
+      "3": 20,
+      "5": 13
+    }
+  },
+  "provider_rpc_network_calls": 0,
+  "rows": [
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.009682400871117824,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.390190507145418e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.5934603380969453e-05,
+        "effective_time": 1788281161,
+        "equivalent_valuation_usd": 15934.603380969453,
+        "sol_usd": 101.01015202437141,
+        "sol_usd_offset_seconds": 1,
+        "sol_usd_time": 1788281160,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/0c4b82c5e6f5998ea7be76d1bb551d5503e04cb419224fac048a7614519d0bc3.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/fe8bfcf07ced9e5bb205e74121cb1ce58e9f5b51b92ffa865ae4c81fcd408a0b.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "12GDLxNHvw4QKuBM1SMr6FhTiEVLeWQJYWfEjLCpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.5934603380969453e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788281161,
+        "valuation": 15934.603380969453
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788687000,
+        "max_retained_valuation": 2997.098482164707
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 8.408069952375753e-06,
+        "entry_to_85_seconds": 247,
+        "first_crossing_time": 1788209340,
+        "max_proven_drawdown_7d": 0.9639184814624204,
+        "peak_to_85_seconds": 120,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 9.886425173667188e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.640748992756925e-05,
+        "effective_time": 1788209093,
+        "equivalent_valuation_usd": 16407.48992756925,
+        "sol_usd": 103.51864403122875,
+        "sol_usd_offset_seconds": 53,
+        "sol_usd_time": 1788209040,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/b5847eef3424a59f06f0ecd80748e64a0b68ffa6d2cd88fe793aa88763f4cdd5.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/d6008573e312f6afe5b5cc904bd5120c0ced247009fa361875964e008e9db9db.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "2GAd4qECH8cN4oQWwhiaBMADNupKCv8h9m9x3a4mpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 127,
+        "multiple": 4.017037429170354,
+        "price": 6.590950115778126e-05,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788209220,
+        "valuation": 65909.50115778125
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788209220,
+        "max_retained_valuation": 65909.50115778125
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.275250009863404e-06,
+        "entry_to_85_seconds": 1026,
+        "first_crossing_time": 1787993580,
+        "max_proven_drawdown_7d": 0.9898808714260324,
+        "peak_to_85_seconds": 420,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 3.231626401137795e-05
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.639346109035887e-05,
+        "effective_time": 1787992554,
+        "equivalent_valuation_usd": 16393.46109035887,
+        "sol_usd": 103.29061029600244,
+        "sol_usd_offset_seconds": 54,
+        "sol_usd_time": 1787992500,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/63ca5be1c3ed1e5b2aa4c03702b7ac35ac7cab9b9403ac8bb7cce555a5232405.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/92fe93b741d36bcb1442262502032fa8305a3258f16e3736fbdf2030afa07ea4.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "2MmEYtGfRFLd5L6d9Veg1WLcH23NSxQKVhR7y1Bhpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 606,
+        "multiple": 13.141932560083733,
+        "price": 0.000215441760075853,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1787993160,
+        "valuation": 215441.760075853
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1787993160,
+        "max_retained_valuation": 215441.760075853
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.19699921877810078,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.438027956495629e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.625351970997086e-05,
+        "effective_time": 1788263454,
+        "equivalent_valuation_usd": 16253.519709970862,
+        "sol_usd": 102.3886073969607,
+        "sol_usd_offset_seconds": 54,
+        "sol_usd_time": 1788263400,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/1acc063e2f9b63864b64116c62d4e82f30e36f8c6a896a32973c74412d194f89.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/ca7598686c38a733ec33c3c0b3331b01d2d063db467356643f9fbb4cab24b834.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "2QLvzb6LK2hZzWXyuQxmo1SJdtRhhJVcsMK3nkZJpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.625351970997086e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788263454,
+        "valuation": 16253.519709970862
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788263460,
+        "max_retained_valuation": 3545.11738149653
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.2890731708268042e-06,
+        "entry_to_85_seconds": 1353,
+        "first_crossing_time": 1788156600,
+        "max_proven_drawdown_7d": 0.9971271671860213,
+        "peak_to_85_seconds": 120,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 0.00011133377498557459
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6178840500455303e-05,
+        "effective_time": 1788155247,
+        "equivalent_valuation_usd": 16178.840500455302,
+        "sol_usd": 102.5845649217294,
+        "sol_usd_offset_seconds": 27,
+        "sol_usd_time": 1788155220,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/ec5c77839b3186fb74beb4bc654d1ceddb38baedba2b772d30218e54c8d3dc82.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/ffcbb57d8e868bd9bf61070bd2b02a7af91e6908cec3d63981c2389af1d9ac05.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "2WSPxpq8CdPujQmo4u1NT1zWG9xCQ2DEMT6Yn9V7pump",
+      "position_peak": {
+        "entry_to_peak_seconds": 1233,
+        "multiple": 45.87628925259568,
+        "price": 0.0007422251665704973,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788156480,
+        "valuation": 742225.1665704973
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788156480,
+        "max_retained_valuation": 742225.1665704973
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.025924291765162866,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.3839825415906226e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.5893216943937483e-05,
+        "effective_time": 1788335929,
+        "equivalent_valuation_usd": 15893.216943937483,
+        "sol_usd": 100.27307560087344,
+        "sol_usd_offset_seconds": 49,
+        "sol_usd_time": 1788335880,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/165be203fef13340bdf7d536405e42dc4f6bf757ae7407e8eaecb54b6ec45cdf.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/6d0969c45e33e6214cedbf7dbcb7e1319df21495077d8ab7bf69d943a615d806.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "2fDUfKj62axPjHLxQvXtF1erwxR7ugzRjmtCF6fwpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.5893216943937483e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788335929,
+        "valuation": 15893.216943937483
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788336000,
+        "max_retained_valuation": 2849.0504705839307
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.0009873645951986587,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.471715955772475e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.64781063718165e-05,
+        "effective_time": 1788520034,
+        "equivalent_valuation_usd": 16478.1063718165,
+        "sol_usd": 104.13756677150475,
+        "sol_usd_offset_seconds": 14,
+        "sol_usd_time": 1788520020,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/a75616212396a5373fd5807695737c908112713a2642f7c78b7b5ec7f225f15d.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/bc6326f077e055f4098e2a70e4c87a26cb4a688e274a6a06ddc2a2c96bb60fb3.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "2gJqYu9unk6oNJWG3sZbeGrJbDtia1svkxpgbR3opump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.64781063718165e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788520034,
+        "valuation": 16478.1063718165
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788520080,
+        "max_retained_valuation": 2907.384673429546
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.32546067508028576,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.463412856801484e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.642275237867656e-05,
+        "effective_time": 1788000885,
+        "equivalent_valuation_usd": 16422.75237867656,
+        "sol_usd": 103.67141954475566,
+        "sol_usd_offset_seconds": 45,
+        "sol_usd_time": 1788000840,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/5b469ea8e30681d51e2adb01ae8fd06030592e7150bf8cbcdf26572b950b0185.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/960731378d2fecf7516868cab518813cd4cdc1fe58567da913a55e7652877bf0.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "36F3yEK5ngLhxZfbEoFVBFBmLxtjSTpczsLihWpYpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.642275237867656e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788000885,
+        "valuation": 16422.75237867656
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788073200,
+        "max_retained_valuation": 4329.899090467027
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.013138198723538275,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.377082833793069e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.5847218891953794e-05,
+        "effective_time": 1788337251,
+        "equivalent_valuation_usd": 15847.218891953793,
+        "sol_usd": 100.25948806458413,
+        "sol_usd_offset_seconds": 51,
+        "sol_usd_time": 1788337200,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/a7d7e18fa76ca978acb84690e9693d4f9d623228ec7c38b1a9320427b76ba3f9.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/ee6c9af8a9684ecad1a956d8c824f81c4c938b88df26a350b6ab916f01daca0d.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "3bTgy1xLE2ht6B97SWMhmqQjkdU8UAYzm4kaCj5cpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.5847218891953794e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788337251,
+        "valuation": 15847.218891953793
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788337380,
+        "max_retained_valuation": 2804.7017404739663
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.6761508790936164,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 1.5557356009216178e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.0371570672810786e-05,
+        "effective_time": 1788520107,
+        "equivalent_valuation_usd": 10371.570672810785,
+        "sol_usd": 104.20157242539524,
+        "sol_usd_offset_seconds": 27,
+        "sol_usd_time": 1788520080,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/11ee364f065275260519ec0c374e01513bc0fd6d2540f3a2bee3a8460e2e2d5f.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/41980363a83c34d803514d30ba2cfa21f493d3e7f0053d2afbf6ae5e309c492d.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "3jW73wn4skHyLMEDTZ5dzGzcF9C1YEbYuk9y61pUpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.0371570672810784e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788520107,
+        "valuation": 10371.570672810785
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788520200,
+        "max_retained_valuation": 9195.472478669144
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.002611965883578704,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.442306877906615e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.628204585271077e-05,
+        "effective_time": 1787993883,
+        "equivalent_valuation_usd": 16282.04585271077,
+        "sol_usd": 103.33870285267179,
+        "sol_usd_offset_seconds": 3,
+        "sol_usd_time": 1787993880,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/2a147b1a6558fbcacd59397859f7ea9d526cbc82045398a18612e0ba00ce8937.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/f465905096ed10dad361f94c8c0b77509301e8c2e4940b748b7d20b975cbbe8e.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "3n7RAG3G2KGH6sg29MoKop245V7ACXP35ZEWCMFWpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.628204585271077e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1787993883,
+        "valuation": 16282.04585271077
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788075000,
+        "max_retained_valuation": 2952.4539285576625
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 8.183865800678484e-06,
+        "entry_to_85_seconds": 189,
+        "first_crossing_time": 1788157620,
+        "max_proven_drawdown_7d": 0.9522494650068034,
+        "peak_to_85_seconds": 60,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 8.63385138196108e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.621814306537561e-05,
+        "effective_time": 1788157431,
+        "equivalent_valuation_usd": 16218.143065375609,
+        "sol_usd": 102.44883433710808,
+        "sol_usd_offset_seconds": 51,
+        "sol_usd_time": 1788157380,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/47ca1e5761ee87ad1c3001f78482a55ae0d1ba61e56f27acca2d8f05b847cec4.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/cde8337ea3b071121edad32c8cb3993b0ea857c637650d1e47e8a4856327d5fd.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "3zSPF9RDvLhzvPB8BwqdM3EacsA335xS4KY2gs6Ypump",
+      "position_peak": {
+        "entry_to_peak_seconds": 129,
+        "multiple": 3.5490505282295595,
+        "price": 5.755900921307387e-05,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788157560,
+        "valuation": 57559.00921307387
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788157560,
+        "max_retained_valuation": 57559.00921307387
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.518392052310898e-06,
+        "entry_to_85_seconds": 2038,
+        "first_crossing_time": 1788246120,
+        "max_proven_drawdown_7d": 0.9910377171688983,
+        "peak_to_85_seconds": 600,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 3.7388800114584425e-05
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6439301705127698e-05,
+        "effective_time": 1788244082,
+        "equivalent_valuation_usd": 16439.3017051277,
+        "sol_usd": 103.46984404872013,
+        "sol_usd_offset_seconds": 2,
+        "sol_usd_time": 1788244080,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/fa193682389c1de0d29fa7cc42fa547b688660c998546c7a59cac4191d934661.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/fa77f29ada1eb7b181e0595be0c1f411d1d9a891fdf24709c074bd9bbef54c7b.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "4AB7xdAuoDac6k23JdqJeXbPhqYctgDvG4u2rZd9pump",
+      "position_peak": {
+        "entry_to_peak_seconds": 1438,
+        "multiple": 15.162363456886665,
+        "price": 0.00024925866743056283,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788245520,
+        "valuation": 249258.66743056284
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788245520,
+        "max_retained_valuation": 249258.66743056284
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.5563265244313173e-06,
+        "entry_to_85_seconds": 998,
+        "first_crossing_time": 1788184320,
+        "max_proven_drawdown_7d": 0.9853320396688798,
+        "peak_to_85_seconds": 300,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 2.1818166547327673e-05
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6260007240698746e-05,
+        "effective_time": 1788183322,
+        "equivalent_valuation_usd": 16260.007240698746,
+        "sol_usd": 102.42677655321383,
+        "sol_usd_offset_seconds": 22,
+        "sol_usd_time": 1788183300,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/009e74a7fd23b5b6dcc04e22f8d37592931bfc5f5a19ddfa0d352b210edba03e.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/e76db568a9539e439bd2a6ca328fab478d43e506ebfd51c5d5f5ec91fb2057cc.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "4Br5uAvyWD6s84FQtB5SS39xxGVuDQhSeHs5oArypump",
+      "position_peak": {
+        "entry_to_peak_seconds": 698,
+        "multiple": 8.945533756269134,
+        "price": 0.00014545444364885116,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788184020,
+        "valuation": 145454.44364885116
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788184020,
+        "max_retained_valuation": 145454.44364885116
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.943668209836354e-06,
+        "entry_to_85_seconds": 101,
+        "first_crossing_time": 1787997120,
+        "max_proven_drawdown_7d": 0.9098281994755806,
+        "peak_to_85_seconds": 60,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 4.824712861341558e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6489619124344373e-05,
+        "effective_time": 1787997019,
+        "equivalent_valuation_usd": 16489.61912434437,
+        "sol_usd": 103.84230016016318,
+        "sol_usd_offset_seconds": 19,
+        "sol_usd_time": 1787997000,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/41587b9de39924c15e76362abf892e0c8db6c04b4d1345ef16ca5fab87009eac.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "4CgDVUCZVwJosK8e4mTKHnFJKvyN3kxPcWRUnNQbpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 41,
+        "multiple": 1.9506061459877773,
+        "price": 3.216475240894372e-05,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1787997060,
+        "valuation": 32164.75240894372
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1787997060,
+        "max_retained_valuation": 32164.75240894372
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.6753492028248709,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.4132651975455965e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6088434650303978e-05,
+        "effective_time": 1788553350,
+        "equivalent_valuation_usd": 16088.434650303978,
+        "sol_usd": 102.17171154306808,
+        "sol_usd_offset_seconds": 30,
+        "sol_usd_time": 1788553320,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/6de1c2c3b5a2bcd54e90687041bbad1fa64844fc524c482803f1ccc61afcb96e.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/f8c558be3aba8974118e62944ffe9fe60cc7151caefbf31aaa977ca8e235df4c.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "4ZXXiMMyN3wotCEW2QfmRbesHg3pS7S3rovnrKcYpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.6088434650303978e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788553350,
+        "valuation": 16088.434650303978
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788553620,
+        "max_retained_valuation": 8628.805864259466
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.8779275184632505e-06,
+        "entry_to_85_seconds": 84,
+        "first_crossing_time": 1788158100,
+        "max_proven_drawdown_7d": 0.9016608443574965,
+        "peak_to_85_seconds": 60,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 4.3897990068048286e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6188329621738495e-05,
+        "effective_time": 1788158016,
+        "equivalent_valuation_usd": 16188.329621738496,
+        "sol_usd": 102.63967959908636,
+        "sol_usd_offset_seconds": 36,
+        "sol_usd_time": 1788157980,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/09fba72c18a1a01bd1464d8893f355356df85244af9d9ea5187d1995d36a7dac.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/d5af0abe6e0c12d705dd025fc888ece8f3fc145468ba32f72c0d143250484555.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "53EquyksZ769BkVDZT658w66cA45t6uiYtkN2imqpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 24,
+        "multiple": 1.8078039795244378,
+        "price": 2.926532671203219e-05,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788158040,
+        "valuation": 29265.32671203219
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788158040,
+        "max_retained_valuation": 29265.32671203219
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.2991229926146987e-06,
+        "entry_to_85_seconds": 477,
+        "first_crossing_time": 1788464100,
+        "max_proven_drawdown_7d": 0.9733659539259071,
+        "peak_to_85_seconds": 120,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 1.2166473562922066e-05
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6609018257776784e-05,
+        "effective_time": 1788463623,
+        "equivalent_valuation_usd": 16609.018257776785,
+        "sol_usd": 105.4434704630326,
+        "sol_usd_offset_seconds": 3,
+        "sol_usd_time": 1788463620,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/9ad2a79fdcdb60a4d578757df6dd8f36ac5f840759d7002b43c4f7ad2b62cc4f.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c88b57420a65b09b7aa18979ad5c959ed8de3a518f35cdf70db3b267be5abb71.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "5F2uun8KhzjEY3jMXaP6eGG1rS1LaG6KoikSqc9tpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 357,
+        "multiple": 4.883480919459885,
+        "price": 8.110982375281379e-05,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788463980,
+        "valuation": 81109.82375281378
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788463980,
+        "max_retained_valuation": 81109.82375281378
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.7911059916398454e-06,
+        "entry_to_85_seconds": 81,
+        "first_crossing_time": 1788337920,
+        "max_proven_drawdown_7d": 0.9102560054522394,
+        "peak_to_85_seconds": 60,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 4.637852178008578e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.574879066298186e-05,
+        "effective_time": 1788337839,
+        "equivalent_valuation_usd": 15748.790662981859,
+        "sol_usd": 99.56364026428477,
+        "sol_usd_offset_seconds": 39,
+        "sol_usd_time": 1788337800,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/40b07af9281a83d725982ba599d3a8f6b97b16ab7981cf01ccf6eeabe9fb9cb8.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/8956f86914aab4d4ea02c4de688e9316815eaceb9928fceefb3bf853df0b97f4.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "5dfUHdDeo6CmX36FjpbLGK7XM1uzrZzuFAcGPh3kpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 21,
+        "multiple": 1.9632627788198063,
+        "price": 3.091901452005718e-05,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788337860,
+        "valuation": 30919.014520057182
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788337860,
+        "max_retained_valuation": 30919.014520057182
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.011033039587496463,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.4865489652830758e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6576993101887172e-05,
+        "effective_time": 1788464679,
+        "equivalent_valuation_usd": 16576.993101887172,
+        "sol_usd": 105.24662518190219,
+        "sol_usd_offset_seconds": 39,
+        "sol_usd_time": 1788464640,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/1690d0f1f8b12189e38eca9b3262c6125f3ca8ea278c47c07c1494962660a98b.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/3604df09495289bff32fb606164fcf3814f0be82e9e85c71380d973130652f4c.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "5eBcmVpmC4aDrzqu37KsYk8xdvfqMEmyAGwEy6h4pump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.6576993101887172e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788464679,
+        "valuation": 16576.993101887172
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788489000,
+        "max_retained_valuation": 3709.610297805304
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.8399885269808476e-06,
+        "entry_to_85_seconds": 66,
+        "first_crossing_time": 1788337560,
+        "max_proven_drawdown_7d": 0.9091435393138172,
+        "peak_to_85_seconds": 60,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 4.655541782199081e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.5696388161381404e-05,
+        "effective_time": 1788337494,
+        "equivalent_valuation_usd": 15696.388161381405,
+        "sol_usd": 99.69905310090053,
+        "sol_usd_offset_seconds": 54,
+        "sol_usd_time": 1788337440,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/7962cba044069113b32f1a37c93e8247d861136f0b1d930fac6a4e44fa0fbac8.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/90f18342a6a0129d5df23319b688f80d38bc36fecfa1ff386f72a2d0f8aedcf3.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "5vYF97goB1Jxf3dVHE6r7PZSCyTxLuX3yLZS5Y6tpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 6,
+        "multiple": 1.9773303829872313,
+        "price": 3.1036945214660535e-05,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788337500,
+        "valuation": 31036.945214660536
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788337500,
+        "max_retained_valuation": 31036.945214660536
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.007017564623186923,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.41902975691852e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.612686504612347e-05,
+        "effective_time": 1788185494,
+        "equivalent_valuation_usd": 16126.865046123468,
+        "sol_usd": 102.40295875940886,
+        "sol_usd_offset_seconds": 34,
+        "sol_usd_time": 1788185460,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/08958ff6648cdf7b96c32e9dae872da09c983c45c5a3325196fc8e40f7c82d4e.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/37b5b42c20259b8265f80cf5181e49dc4cc7212130e332b2723f04582a622dff.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "67f1tMppyWvGfpiLoRi21HTpoRk9ktnsA19dzMampump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.612686504612347e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788185494,
+        "valuation": 16126.865046123468
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788185520,
+        "max_retained_valuation": 2877.260420834986
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 7.478183143717846e-06,
+        "entry_to_85_seconds": 227,
+        "first_crossing_time": 1788012600,
+        "max_proven_drawdown_7d": 0.9570506727239785,
+        "peak_to_85_seconds": 60,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 8.49900394519322e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6546345447692072e-05,
+        "effective_time": 1788012373,
+        "equivalent_valuation_usd": 16546.34544769207,
+        "sol_usd": 103.84958946179339,
+        "sol_usd_offset_seconds": 13,
+        "sol_usd_time": 1788012360,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/69b1b9a4589a6a38fc19f14bf447054bb8142dc82b557e21fcbef436727d96f2.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c636a707741f0e55e5ed8209ee9686892f7a72f1bfcc97630ff417341e0f3dbd.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "78FRWVpjK476fLThDU2U8V4Y1CTnvhtqboNmY4NSpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 167,
+        "multiple": 3.424322698955329,
+        "price": 5.666002630128813e-05,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788012540,
+        "valuation": 56660.026301288126
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788012540,
+        "max_retained_valuation": 56660.026301288126
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 7.120537110560718e-06,
+        "entry_to_85_seconds": 215,
+        "first_crossing_time": 1788446340,
+        "max_proven_drawdown_7d": 0.9488227324319661,
+        "peak_to_85_seconds": 120,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 7.95202853423052e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.632234861981371e-05,
+        "effective_time": 1788446125,
+        "equivalent_valuation_usd": 16322.348619813709,
+        "sol_usd": 102.94991362924706,
+        "sol_usd_offset_seconds": 25,
+        "sol_usd_time": 1788446100,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/a04b037f444d5cec066859d556e001f06d955b9581ef4abd541b9aa6b281d5e7.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/bca39008c827533602d46b11ee3e631bb276482b4d7608685cec64cdcc75a385.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "7SyrcuqYg3zUSGpZLzzx8EwyvrNxdbxdNd22uEx5pump",
+      "position_peak": {
+        "entry_to_peak_seconds": 95,
+        "multiple": 3.2479102607319423,
+        "price": 5.30135235615368e-05,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788446220,
+        "valuation": 53013.5235615368
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788446220,
+        "max_retained_valuation": 53013.5235615368
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.9593717154022695e-06,
+        "entry_to_85_seconds": 191,
+        "first_crossing_time": 1788018060,
+        "max_proven_drawdown_7d": 0.9059249769898265,
+        "peak_to_85_seconds": 120,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 4.712488797656083e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6566473187984645e-05,
+        "effective_time": 1788017869,
+        "equivalent_valuation_usd": 16566.473187984644,
+        "sol_usd": 104.69531418146194,
+        "sol_usd_offset_seconds": 49,
+        "sol_usd_time": 1788017820,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/26c2e76f5cd8c1f9c41a42cf072121bd50fb92dae766289e4536f660d1800676.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/a1ba2dc9ed9d8d358a5444300e85448b65eb2e4d071fb2dd28dc16c911f84129.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "7ncZBJH12i7cA4Xv7FwSyYm2Cd7wTZtjGrFVNuyNpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 71,
+        "multiple": 1.896395909248793,
+        "price": 3.141659198437389e-05,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788017940,
+        "valuation": 31416.59198437389
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788017940,
+        "max_retained_valuation": 31416.59198437389
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.009054941131745542,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.417782951094223e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6118553007294824e-05,
+        "effective_time": 1788255869,
+        "equivalent_valuation_usd": 16118.553007294824,
+        "sol_usd": 102.21395462339342,
+        "sol_usd_offset_seconds": 29,
+        "sol_usd_time": 1788255840,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/298abc19d972c2ed6a7352ce01b46ca3a27e64e68365d39a4d93acdd179beb2a.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/8fe1e12fffc94b6a323891290b94416c19162ceeec7e209a1cc9f3be1f049038.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "7rRjovexyYfTFELzRKKdnQWgcKUef1NHLHCvafFJpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.6118553007294824e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788255869,
+        "valuation": 16118.553007294824
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788513300,
+        "max_retained_valuation": 2927.7183959598037
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.009821806381912657,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.4022933243688627e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6015288829125752e-05,
+        "effective_time": 1788421357,
+        "equivalent_valuation_usd": 16015.288829125751,
+        "sol_usd": 101.06011222031343,
+        "sol_usd_offset_seconds": 37,
+        "sol_usd_time": 1788421320,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/21c64de0e27854fde1705a539f1c6b8c87ce25efcd18471e9b4c0336af4dd74b.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c44e264d8a45230fa6cf375d86819438ef6debb0c4cedae41701548e244228b2.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "8u9vXyvEfwk8znA4K3PCsa26jGUgvPfvxVYTYemRpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.6015288829125752e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788421357,
+        "valuation": 16015.288829125751
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788455700,
+        "max_retained_valuation": 2922.7700016528383
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.008198627218988896,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.45016524773259e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6334434984883934e-05,
+        "effective_time": 1788191104,
+        "equivalent_valuation_usd": 16334.434984883934,
+        "sol_usd": 103.22630194540385,
+        "sol_usd_offset_seconds": 4,
+        "sol_usd_time": 1788191100,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/01c74130807c7205f97e9af4c8da8ca35fe088e748bfd703462033ccab1eb098.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/cfd469d4bdb9c779fc764fa0f65bfe45dda26a2dcd4bc527c01a775f2ef6f33e.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "8yfRhViJa9bf9yUTpt18RcCndFTQKxE89UZ4rViVpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.6334434984883934e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788191104,
+        "valuation": 16334.434984883934
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788191280,
+        "max_retained_valuation": 2901.4375902134934
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 3.014768533207068e-06,
+        "entry_to_85_seconds": 134,
+        "first_crossing_time": 1788100200,
+        "max_proven_drawdown_7d": 0.8944077210776082,
+        "peak_to_85_seconds": 60,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 3.949540895930272e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.685509887566834e-05,
+        "effective_time": 1788100066,
+        "equivalent_valuation_usd": 16855.09887566834,
+        "sol_usd": 106.57416382375652,
+        "sol_usd_offset_seconds": 46,
+        "sol_usd_time": 1788100020,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/194abb973346fc165a0aa1424497fc0498162fb24761634eae0d2551aeee979b.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/79b39a2961e51f7d41f8f95634ec0885c68fa82ee2506f4e325f0eb858b91d04.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "9RtEo6KYbp5MExNBMsAuMehe3mcs4Ui88UNNXwyxpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 74,
+        "multiple": 1.5621547422391553,
+        "price": 2.6330272639535152e-05,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788100140,
+        "valuation": 26330.272639535153
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788100140,
+        "max_retained_valuation": 26330.272639535153
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.037316875286336204,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.4226493097128607e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.615099539808574e-05,
+        "effective_time": 1788527203,
+        "equivalent_valuation_usd": 16150.99539808574,
+        "sol_usd": 101.9741093508983,
+        "sol_usd_offset_seconds": 43,
+        "sol_usd_time": 1788527160,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/beedb6b73a9d73bf0557de63467451c4f33845885b258beb4681d88f04c94b0b.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/e06852542ef8da37c736e53bae3d1aaffa4b871fa276b81b7c1e60c0c44db6c8.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "9oqkfbJiPTHpXMWzucEfHtxc2QrjSJ1T2oYtW5fTpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.615099539808574e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788527203,
+        "valuation": 16150.99539808574
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788705000,
+        "max_retained_valuation": 2963.4214804512753
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.0038166521370492923,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.39269836933273e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.5951322462218203e-05,
+        "effective_time": 1788281290,
+        "equivalent_valuation_usd": 15951.322462218202,
+        "sol_usd": 101.02090949961664,
+        "sol_usd_offset_seconds": 10,
+        "sol_usd_time": 1788281280,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/709020b28403c5f88500286afb56a2391dfee25c9129236a0025aa3ddb885cca.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/f4fc739ef43fdaf3877fbfc28b1fc8c8a397ea1ced2bfe622b8257c7e50bfc70.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "A82WhnkYPidBub8zkeu9Hei3w9NB1m6XpzeX7nJnpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.5951322462218203e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788281290,
+        "valuation": 15951.322462218202
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788687000,
+        "max_retained_valuation": 2997.222356646246
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.5346190967764256e-06,
+        "entry_to_85_seconds": 2141,
+        "first_crossing_time": 1788113160,
+        "max_proven_drawdown_7d": 0.9964850922016808,
+        "peak_to_85_seconds": 180,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 9.104646278494114e-05
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6701056523867145e-05,
+        "effective_time": 1788111019,
+        "equivalent_valuation_usd": 16701.056523867144,
+        "sol_usd": 105.74392869830571,
+        "sol_usd_offset_seconds": 19,
+        "sol_usd_time": 1788111000,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c541feea1dd2fa170eaea90e776a407008c310b83459e85ba666fba3c113f52e.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/f1720e38b423f6ce83a745e8090185cf09822be4cbc42d8c586030e0a938c452.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "AiSiwKxkbNg4TGMHq8GEvwf8mpma1a3Ee7m3TB4rpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 1961,
+        "multiple": 36.34359405339755,
+        "price": 0.0006069764185662744,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788112980,
+        "valuation": 606976.4185662743
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788112980,
+        "max_retained_valuation": 606976.4185662743
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.026526461549205016,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.4636404102167526e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6424269401445017e-05,
+        "effective_time": 1788519977,
+        "equivalent_valuation_usd": 16424.269401445017,
+        "sol_usd": 104.02382482796,
+        "sol_usd_offset_seconds": 17,
+        "sol_usd_time": 1788519960,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/03f690bc3dff19178fd83c21928611ef67b03955559432c44134f2fad236878f.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/75be0893bd962fea40e27883c8c68b260add45fe15644e7b2d155a8ea38de576.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "ArUMvNV4pwZ3whWQ37bjkBmmnZDijrfzxjeqzRw9pump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.6424269401445017e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788519977,
+        "valuation": 16424.269401445017
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788520020,
+        "max_retained_valuation": 2929.0203492393953
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.005868840359475103,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.4645382430595335e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6430254953730227e-05,
+        "effective_time": 1788452003,
+        "equivalent_valuation_usd": 16430.254953730226,
+        "sol_usd": 104.30403834512012,
+        "sol_usd_offset_seconds": 23,
+        "sol_usd_time": 1788451980,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/5138118abc270cfee092d037599e002ff82cf6eac466f15dbc1435ae62f0db4e.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/78fe9e99ced4092606c1fc5a2165b7ec254307ec5ed92de2ba13311d69ad5325.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "B8gZpcJRRr9am23PmBMG51korwxYXD8Q6wnsprWpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.6430254953730227e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788452003,
+        "valuation": 16430.254953730226
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788454380,
+        "max_retained_valuation": 2932.069847208015
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 3.5441258131843474e-06,
+        "entry_to_85_seconds": 149,
+        "first_crossing_time": 1788265380,
+        "max_proven_drawdown_7d": 0.9070839094193182,
+        "peak_to_85_seconds": 60,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 4.48685367887952e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6158886912692075e-05,
+        "effective_time": 1788265231,
+        "equivalent_valuation_usd": 16158.886912692076,
+        "sol_usd": 102.10580082841817,
+        "sol_usd_offset_seconds": 31,
+        "sol_usd_time": 1788265200,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/0d57d06a1c43bf71fa1e12fe755a8c1b3ef5703219d081623c6c8ddbe810ec24.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/5604c0bd9e35971ee79490c768df9336050ad4cbf9fd5b3f51c1608c58f9e4fa.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "BKcSqBWmyTAVLj5VojbmC9j9Kg2Hxoi5LDusx4rrpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 89,
+        "multiple": 1.8511397487225434,
+        "price": 2.9912357859196802e-05,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788265320,
+        "valuation": 29912.357859196803
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788265320,
+        "max_retained_valuation": 29912.357859196803
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.852319131794132e-06,
+        "entry_to_85_seconds": 101,
+        "first_crossing_time": 1788530100,
+        "max_proven_drawdown_7d": 0.8784689790962447,
+        "peak_to_85_seconds": 60,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 3.493289206145191e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6110474320495685e-05,
+        "effective_time": 1788529999,
+        "equivalent_valuation_usd": 16110.474320495685,
+        "sol_usd": 101.51670684155937,
+        "sol_usd_offset_seconds": 19,
+        "sol_usd_time": 1788529980,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/5a5656f6797993070194374e944826c4ef4718aef8cc42dc12faa0aa297f2e71.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/cd024bc76df55e16dedfe025cc3b44ab746b7ae641298d286288e736c3040fe2.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "BSMYixMm6XHgi49bBG117FeeowTQz9dJmUmjwx5kpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 41,
+        "multiple": 1.4455561173643996,
+        "price": 2.3288594707634607e-05,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788530040,
+        "valuation": 23288.594707634606
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788530040,
+        "max_retained_valuation": 23288.594707634606
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 4.3645316367420684e-05,
+        "entry_to_85_seconds": 856,
+        "first_crossing_time": 1788507720,
+        "max_proven_drawdown_7d": 0.9932718382740104,
+        "peak_to_85_seconds": 360,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 4.5798091648205115e-05
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.650380711791016e-05,
+        "effective_time": 1788506864,
+        "equivalent_valuation_usd": 16503.80711791016,
+        "sol_usd": 103.65651093583249,
+        "sol_usd_offset_seconds": 44,
+        "sol_usd_time": 1788506820,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/0a217a73494eafa8a01152f2d588a83130a641c7704cef0c2ba205a1f99e00d2.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/467c96b5c5f9f20f422e69e5d1cca151dc43c3d8e09dbfd49bdaecf628d4aec4.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "BcwDGmnYzWquSVrWHMZqPaewCmxLD8kk7eVGM2Wrpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 496,
+        "multiple": 18.500010864565663,
+        "price": 0.00030532061098803413,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788507360,
+        "valuation": 305320.6109880341
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788507360,
+        "max_retained_valuation": 305320.6109880341
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.0,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 1.5536604617309332e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.0357736411539554e-05,
+        "effective_time": 1788505865,
+        "equivalent_valuation_usd": 10357.736411539554,
+        "sol_usd": 104.01315301515986,
+        "sol_usd_offset_seconds": 5,
+        "sol_usd_time": 1788505860,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/325b83d8366c3ee2352b6a7a34fb2f9e7109a375177aca209657cd7f3669830d.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c62282d5e774aa579de32d4b4c6db618655a91a647722e1c29fc34c29b3ec09d.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "BeEvn8SCgkduNn16fHprLXVYQN11yHX8nkPp2Vs5pump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.0357736411539554e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788505865,
+        "valuation": 10357.736411539554
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788523200,
+        "max_retained_valuation": 2914.858560080134
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.831149509929773e-06,
+        "entry_to_85_seconds": 112,
+        "first_crossing_time": 1788423000,
+        "max_proven_drawdown_7d": 0.9062498061527688,
+        "peak_to_85_seconds": 60,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 4.509363006904745e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.5884736750520505e-05,
+        "effective_time": 1788422888,
+        "equivalent_valuation_usd": 15884.736750520504,
+        "sol_usd": 101.04834038896423,
+        "sol_usd_offset_seconds": 8,
+        "sol_usd_time": 1788422880,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/202b3db267232fce3faa9dba5ced3644d6a106bb844b0c213d0da0af1d4925fb.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/d3ead9c74d76e096e4db074797c521ed2553da0dd11189de66e4c45aaaeafbb7.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "BoRniH1ALDv4jqZhki3HWKQuufBRLttBTGhDAoEcpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 52,
+        "multiple": 1.8925349861430067,
+        "price": 3.0062420046031633e-05,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788422940,
+        "valuation": 30062.42004603163
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788422940,
+        "max_retained_valuation": 30062.42004603163
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.013974482913162278,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.403406997800758e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.602271331867172e-05,
+        "effective_time": 1788255822,
+        "equivalent_valuation_usd": 16022.713318671718,
+        "sol_usd": 101.80784226254471,
+        "sol_usd_offset_seconds": 42,
+        "sol_usd_time": 1788255780,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/5895ce6ee5587885cca4df86afac19192ad603c91a8daef139d5504f734abb06.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/90778ac725ed7394f83269f29b0d9fcee443a0a63025c51da619aae4283d3e73.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "ChgwT7je6pAKCXSdgirREvh2AAfN3LccJsUgiHZvpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.602271331867172e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788255822,
+        "valuation": 16022.713318671718
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788255960,
+        "max_retained_valuation": 2893.093819804736
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 3.3277606725043363e-06,
+        "entry_to_85_seconds": 70,
+        "first_crossing_time": 1788514260,
+        "max_proven_drawdown_7d": 0.8914453728580827,
+        "peak_to_85_seconds": 60,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 4.02444209041136e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.0440226756549893e-05,
+        "effective_time": 1788514190,
+        "equivalent_valuation_usd": 10440.226756549893,
+        "sol_usd": 104.46784087032803,
+        "sol_usd_offset_seconds": 50,
+        "sol_usd_time": 1788514140,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/14781bfcf7662fdd65a0c23b59718583c61ec80a22978fb7bc5ee948f12919bf.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/74b4b96b35a049e6e2f0aeeef0d22cff72af2c7251a34f8e4c819ef4264a1864.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "CitKxWwGV88AwMnAUtA4RzpSegYntMKH18yjv2gspump",
+      "position_peak": {
+        "entry_to_peak_seconds": 10,
+        "multiple": 2.569830575685879,
+        "price": 2.682961393607573e-05,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788514200,
+        "valuation": 26829.61393607573
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788514200,
+        "max_retained_valuation": 26829.61393607573
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.04803285940953084,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.432333470731663e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.621555647154442e-05,
+        "effective_time": 1788255990,
+        "equivalent_valuation_usd": 16215.556471544422,
+        "sol_usd": 102.35399948162846,
+        "sol_usd_offset_seconds": 30,
+        "sol_usd_time": 1788255960,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/0fbb84c588a652ba8a7e5d2019bf64c1932d4aa6babff91fce6f191d06650f65.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/7e565d45d013bbd90474a300d0b5c478971084440d97b132aab2ddbe4bde0f0b.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "DGhuaYQoD3Q5GwG1LegLFMVjz4KxP7c6Fpn6spZKpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.621555647154442e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788255990,
+        "valuation": 16215.556471544422
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788256080,
+        "max_retained_valuation": 2901.0329167049294
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 3.1049870416374976e-06,
+        "entry_to_85_seconds": 388,
+        "first_crossing_time": 1788099900,
+        "max_proven_drawdown_7d": 0.9293670548446941,
+        "peak_to_85_seconds": 120,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 5.931935980420697e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6807950770680627e-05,
+        "effective_time": 1788099512,
+        "equivalent_valuation_usd": 16807.95077068063,
+        "sol_usd": 106.83850308026238,
+        "sol_usd_offset_seconds": 32,
+        "sol_usd_time": 1788099480,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/a7e33a2cfbc521b37d8abdb330793c4c90cbb0314954b8e4cfafaa990c895507.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/db467048661a868987755b8b7feb8cd7a6920d89103c267e60c91cc89159f9e9.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "DieGJFBBKYmPg1cjgDZuymUxbPiKWsyF1rKxq4xopump",
+      "position_peak": {
+        "entry_to_peak_seconds": 268,
+        "multiple": 2.3528293489801735,
+        "price": 3.9546239869471315e-05,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788099780,
+        "valuation": 39546.23986947131
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788099780,
+        "max_retained_valuation": 39546.23986947131
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.161676291433955e-06,
+        "entry_to_85_seconds": 1780,
+        "first_crossing_time": 1788347580,
+        "max_proven_drawdown_7d": 0.9893666666091009,
+        "peak_to_85_seconds": 420,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 2.9617359622641824e-05
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.549281114677789e-05,
+        "effective_time": 1788345800,
+        "equivalent_valuation_usd": 15492.811146777889,
+        "sol_usd": 97.88992270180071,
+        "sol_usd_offset_seconds": 20,
+        "sol_usd_time": 1788345780,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/3a74472bda5ea74566bb7dc4dd9e8f1a75edf4914a7a7d21c04cedb1ea665307.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/43730859acdb152356f3ed7544ff9b6d7c8cd29123ee15a3159f5c493d49edb6.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "DrZbMBkhTB876NryuixQy68aoCgaMFZCdN2FzPdKpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 1360,
+        "multiple": 12.74456018861431,
+        "price": 0.00019744906415094547,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788347160,
+        "valuation": 197449.0641509455
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788347160,
+        "max_retained_valuation": 197449.0641509455
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 3.1519711699309396e-06,
+        "entry_to_85_seconds": 375,
+        "first_crossing_time": 1788017040,
+        "max_proven_drawdown_7d": 0.97529720298473,
+        "peak_to_85_seconds": 60,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 1.3197168062048181e-05
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6606802760856998e-05,
+        "effective_time": 1788016665,
+        "equivalent_valuation_usd": 16606.802760856997,
+        "sol_usd": 104.9433353398251,
+        "sol_usd_offset_seconds": 45,
+        "sol_usd_time": 1788016620,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/03a85eae2a7a187aa7ada681aa35adcc7a0f8e29660f4783de1938cbddf91b36.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/b67b2fb2aaa0e8fb2bed54c32673e21b74ca037e312a1d560de63f2639c83e74.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "DyfGK1hobTQjhp6CpSUTTznzQuq649xFoMTnygBapump",
+      "position_peak": {
+        "entry_to_peak_seconds": 315,
+        "multiple": 5.2978963910518715,
+        "price": 8.798112041365455e-05,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788016980,
+        "valuation": 87981.12041365454
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788016980,
+        "max_retained_valuation": 87981.12041365454
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.02699201037239085,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.4224790429316178e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6149860286210786e-05,
+        "effective_time": 1788272666,
+        "equivalent_valuation_usd": 16149.860286210785,
+        "sol_usd": 102.26375809516452,
+        "sol_usd_offset_seconds": 26,
+        "sol_usd_time": 1788272640,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/3f86e032ff434b10abb174ff5a2092ef343592de021b14e7143fb1e8e02ca97e.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/5f460a8f6876ceb94945fbc03e3d3c166e08cc784c997d851b8565a1375e72f4.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "E62oHgjBSZaVcuYAT12nJRiVcQjfCrRiW2kzZ7KHpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.6149860286210786e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788272666,
+        "valuation": 16149.860286210785
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788272820,
+        "max_retained_valuation": 2869.359155516097
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 0.00040912108983457237,
+        "entry_to_85_seconds": 3684,
+        "first_crossing_time": 1788163200,
+        "max_proven_drawdown_7d": 0.9993690839993732,
+        "peak_to_85_seconds": 600,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 0.0005485729791949078
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.625622235023499e-05,
+        "effective_time": 1788159516,
+        "equivalent_valuation_usd": 16256.22235023499,
+        "sol_usd": 103.05811459465353,
+        "sol_usd_offset_seconds": 36,
+        "sol_usd_time": 1788159480,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/63c36605b309ccf55bf939943d71c5f3d8e3546b6b8eb9fd0f39eb7004f59d4b.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/ad0d83b06a3613750524b0a5b62a68099d0d90e385cd6f7bd6cd4bf87551d5a3.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "EBK2daxNw6rHfirCyemmvzpDcotvp8wH4fYZqwsVpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 3084,
+        "multiple": 224.96943729241335,
+        "price": 0.0036571531946327186,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788162600,
+        "valuation": 3657153.194632719
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788162600,
+        "max_retained_valuation": 3657153.194632719
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.0,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.478824806223555e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6525498708157034e-05,
+        "effective_time": 1788017766,
+        "equivalent_valuation_usd": 16525.498708157036,
+        "sol_usd": 104.65368057975121,
+        "sol_usd_offset_seconds": 6,
+        "sol_usd_time": 1788017760,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/896ca8f1e5765200cd177b6ee08709549b8f5eb6fd47a5c7e725f1fb9b54feda.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/eceb6b20141d2c98ba1ef2e3aa2665434e84fdba7b6d473f5b4d89f1a47ad74a.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "EMeUvL1MKdZbUNXBYeKksbXCEVGXspk2jj4LrzzKpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.6525498708157038e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788017766,
+        "valuation": 16525.498708157036
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788019500,
+        "max_retained_valuation": 2945.8863218697525
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 3.635154768524083e-05,
+        "entry_to_85_seconds": 3076,
+        "first_crossing_time": 1788463440,
+        "max_proven_drawdown_7d": 0.9959593949182487,
+        "peak_to_85_seconds": 540,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 7.89317389642725e-05
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.662304121378543e-05,
+        "effective_time": 1788460364,
+        "equivalent_valuation_usd": 16623.04121378543,
+        "sol_usd": 104.61697670891627,
+        "sol_usd_offset_seconds": 44,
+        "sol_usd_time": 1788460320,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/09f8174ef2cdbdba3541a278188f68640da6dc15833b5edce581a36a2774ec34.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/52db6c3e54e7d925a8f4c3b7080a3a322c76822b85fc24cb4eb0c9ea39c8d7ca.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "EbM9YwGHM6d6w5J1xBX5yqLsPHhMp7mDmPqpkE7Tpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 2536,
+        "multiple": 31.655554860729374,
+        "price": 0.0005262115930951501,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788462900,
+        "valuation": 526211.5930951501
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788462900,
+        "max_retained_valuation": 526211.5930951501
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 7.703558805473112e-06,
+        "entry_to_85_seconds": 227,
+        "first_crossing_time": 1788017400,
+        "max_proven_drawdown_7d": 0.9787428508042385,
+        "peak_to_85_seconds": 120,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 1.6800763270485497e-05
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6517504379655156e-05,
+        "effective_time": 1788017173,
+        "equivalent_valuation_usd": 16517.504379655154,
+        "sol_usd": 104.75663373504734,
+        "sol_usd_offset_seconds": 13,
+        "sol_usd_time": 1788017160,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/100aed3f11ad0699bc180e533df8492386ac4029bc8789092007b9a7dce1355f.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/dada248998e98a8ea2db015290e3d571cec0d418906699a62c834658b9eec47e.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "FkM6ZxDkpW2dAtt8QfiPsFG1aRtdgk6HPzrADzzEpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 107,
+        "multiple": 6.780993417374938,
+        "price": 0.0001120050884699033,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788017280,
+        "valuation": 112005.0884699033
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788017280,
+        "max_retained_valuation": 112005.0884699033
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.02618161057814572,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.372435781593827e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.5816238543958846e-05,
+        "effective_time": 1788337380,
+        "equivalent_valuation_usd": 15816.238543958847,
+        "sol_usd": 100.164361204516,
+        "sol_usd_offset_seconds": 0,
+        "sol_usd_time": 1788337380,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/9efab75f43fef047e4ea4823861a71f957877e992272cc031c8a7ee1848a799a.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/bbc018a792719e3cc280a2e6ccb5a09b29ef42565d4668a287ce42078d604906.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "FmVBbE3f7oncfPZ2TDRbWb6gZKggtky977pwqasnpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.5816238543958846e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788337380,
+        "valuation": 15816.238543958847
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788687000,
+        "max_retained_valuation": 3000.461787078449
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.1920054443718786e-06,
+        "entry_to_85_seconds": 1925,
+        "first_crossing_time": 1788532140,
+        "max_proven_drawdown_7d": 0.9737755505723503,
+        "peak_to_85_seconds": 360,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 1.167306555757275e-05
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.597402364286769e-05,
+        "effective_time": 1788530215,
+        "equivalent_valuation_usd": 15974.023642867689,
+        "sol_usd": 101.90425605158696,
+        "sol_usd_offset_seconds": 55,
+        "sol_usd_time": 1788530160,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/186288aefd48c160db61ad4b560f0de7af227ebd658e380da750d93d25f11388.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c1bcb3574114b07f0c05f76e0ceb7057a282d90c462dc759a77e0060a58c49d0.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "FqXipMyKJJUrU9MASnpWqTESVcdZjkK83ttFmWdVpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 1565,
+        "multiple": 4.871686607602549,
+        "price": 7.7820437050485e-05,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788531780,
+        "valuation": 77820.43705048501
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788531780,
+        "max_retained_valuation": 77820.43705048501
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.556818748062855e-06,
+        "entry_to_85_seconds": 2776,
+        "first_crossing_time": 1788518280,
+        "max_proven_drawdown_7d": 0.9976411505516288,
+        "peak_to_85_seconds": 240,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 0.00015432046993680605
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.040289441226627e-05,
+        "effective_time": 1788515504,
+        "equivalent_valuation_usd": 10402.89441226627,
+        "sol_usd": 104.59549622586398,
+        "sol_usd_offset_seconds": 43,
+        "sol_usd_time": 1788515460,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/6083181d6b555678f38cb83d9983f7a7fecd26f6605fb6fad0272c457d2330ea.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/dd78336a3606091510ffa12ba0193df00c05f7a0737ddede1888bff52ba53dd1.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "G5vBr81KJZEuFvD8Nf2oB5XRa6Ess7yHJefoUCjJpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 2536,
+        "multiple": 98.8958545709122,
+        "price": 0.0010288031329120403,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788518040,
+        "valuation": 1028803.1329120403
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788518040,
+        "max_retained_valuation": 1028803.1329120403
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.9359819194474135e-06,
+        "entry_to_85_seconds": 67,
+        "first_crossing_time": 1788017700,
+        "max_proven_drawdown_7d": 0.8550722453010894,
+        "peak_to_85_seconds": 60,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 3.0363428635606615e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6605210560619414e-05,
+        "effective_time": 1788017633,
+        "equivalent_valuation_usd": 16605.210560619413,
+        "sol_usd": 105.4177361960856,
+        "sol_usd_offset_seconds": 53,
+        "sol_usd_time": 1788017580,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/4cffd3cce0ae1cb3605301ba21769fdf7c8387d63842e3e277183c0b15b5c165.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/cb893f47c527a9243712d25cf9e397221815f52435689ba990443583de7ec798.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "GNY3yPV5ekqC89brpHCpkpV23eVvBoniRTw6czgSpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 7,
+        "multiple": 1.2190321636196098,
+        "price": 2.0242285757071075e-05,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788017640,
+        "valuation": 20242.285757071077
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788017640,
+        "max_retained_valuation": 20242.285757071077
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.0362434630745061,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 1.552832476419899e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.0352216509465994e-05,
+        "effective_time": 1788519442,
+        "equivalent_valuation_usd": 10352.216509465994,
+        "sol_usd": 104.07746680260173,
+        "sol_usd_offset_seconds": 22,
+        "sol_usd_time": 1788519420,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/7a416f736a7ec2d0b5681a68742569494c6ecd304f3f5048545374f3f1468e3a.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/e4a7d7579cd941ebb14b64a044629e8ca64f005009c7f3054b945e13d5dfd94e.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "HDvwQ7ai3Ywi1badnXREqJSaAAzoe1q63SbZwTvKpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.0352216509465994e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788519442,
+        "valuation": 10352.216509465994
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788519600,
+        "max_retained_valuation": 2956.5340159675857
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 1.0460765909242226e-05,
+        "entry_to_85_seconds": 208,
+        "first_crossing_time": 1788465060,
+        "max_proven_drawdown_7d": 0.9748447581129807,
+        "peak_to_85_seconds": 60,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 1.5131683434046021e-05
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6670297992792085e-05,
+        "effective_time": 1788464852,
+        "equivalent_valuation_usd": 16670.297992792086,
+        "sol_usd": 105.3385978949938,
+        "sol_usd_offset_seconds": 32,
+        "sol_usd_time": 1788464820,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/23cc543f6c56f2a3af2c09c7a34b760fb14612947960bbddeb5805f3449be946.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/e669f695f2ba7d8dbfb683ba829207d67f4f0d06459a1afb38aa29e82c3a62f2.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "HiYHZmYti5f2SVvEwCs296AELFR2UMW3r4aBHFmjpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 148,
+        "multiple": 6.051354907028324,
+        "price": 0.00010087788956030681,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788465000,
+        "valuation": 100877.88956030681
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788465000,
+        "max_retained_valuation": 100877.88956030681
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.02797989463841899,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 1.565026717886738e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.0433511452578253e-05,
+        "effective_time": 1788521394,
+        "equivalent_valuation_usd": 10433.511452578254,
+        "sol_usd": 103.842451414026,
+        "sol_usd_offset_seconds": 54,
+        "sol_usd_time": 1788521340,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/86330eb297758d50e80861988c96fd12216fe9ca0d4354628242a50c1bc3b160.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/ad089676cf6816cd7a8a5db5268ad6743f852d9426d901ceb7868cf80d3bfde1.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "HpoucnSt8mYoYf1sq7mvtc3GfHttDdtHLaEeiw5upump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.0433511452578253e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788521394,
+        "valuation": 10433.511452578254
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788521460,
+        "max_retained_valuation": 2929.689761193101
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.6579345103807812,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.5063473598843274e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.670898239922885e-05,
+        "effective_time": 1788464169,
+        "equivalent_valuation_usd": 16708.98239922885,
+        "sol_usd": 105.5186335702637,
+        "sol_usd_offset_seconds": 9,
+        "sol_usd_time": 1788464160,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/af41ff976b43b8f18587d662700c93183f11c6fb76e4900400761507a3a90b64.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/d60218fa67339ff55322dcb244642813cdc91d08abb605258c3670746c5fd20b.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "VGpxjH2dtrk2PK9ynRLdVMZfWwwY5jaG7wNdJeYpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.670898239922885e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788464169,
+        "valuation": 16708.98239922885
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788464280,
+        "max_retained_valuation": 8089.525169678397
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.960567030853267e-06,
+        "entry_to_85_seconds": 163,
+        "first_crossing_time": 1788002820,
+        "max_proven_drawdown_7d": 0.9084620483229036,
+        "peak_to_85_seconds": 120,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 4.609276925218377e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6485680299505906e-05,
+        "effective_time": 1788002657,
+        "equivalent_valuation_usd": 16485.680299505904,
+        "sol_usd": 103.50230161150444,
+        "sol_usd_offset_seconds": 17,
+        "sol_usd_time": 1788002640,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/a26c6cefe2a9e4aa06609e1b6014f75b4a7510f512579a8dd0d556a08df5141a.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/a3d0e5989e7c2e85dd8e995a9fa5b5e05e03d460627f4f151140a6e6d31fc5e7.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "b8QQGeBdNeCuxEZC1mQYN69HtqMSH8hjgdmBPRupump",
+      "position_peak": {
+        "entry_to_peak_seconds": 43,
+        "multiple": 1.8639517615606167,
+        "price": 3.072851283478918e-05,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788002700,
+        "valuation": 30728.512834789184
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788002700,
+        "max_retained_valuation": 30728.512834789184
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.059933719462675006,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.445662776461126e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6304418509740838e-05,
+        "effective_time": 1788518561,
+        "equivalent_valuation_usd": 16304.418509740839,
+        "sol_usd": 103.66279459466588,
+        "sol_usd_offset_seconds": 41,
+        "sol_usd_time": 1788518520,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/b2a9aec726a15a364dc4910a90603389ab1bc81091e1761c5f1a60320888dbc0.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c7b2dea11190a8efabba82f74de2f131928ddd679a0ea38279df9cb41adbeb4b.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "eH9uErNehYg3p8Y14Ujf5eUBNnX6AkaEqkxLbvRpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.6304418509740838e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788518561,
+        "valuation": 16304.418509740839
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788518580,
+        "max_retained_valuation": 3027.24726859685
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.004374485006445883,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.456823017724013e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6378820118160088e-05,
+        "effective_time": 1787992435,
+        "equivalent_valuation_usd": 16378.820118160087,
+        "sol_usd": 103.34195959217783,
+        "sol_usd_offset_seconds": 55,
+        "sol_usd_time": 1787992380,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/c8d6547343f91aaab7f6422c2b0d9a8169775804c7a4ee7043e9a966f38dc44e.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/d9f8032b754ba5ae4b5c6a966d6938ed131b553ce29b8275678f45693e565cf8.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "iADSLGnCLWwVzQckm8HFywnS4E61493wC59HJHKpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.6378820118160088e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1787992435,
+        "valuation": 16378.820118160087
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1787992440,
+        "max_retained_valuation": 2890.3046530218003
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.7999511169218536,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.496894957696398e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6645966384642652e-05,
+        "effective_time": 1788014647,
+        "equivalent_valuation_usd": 16645.966384642652,
+        "sol_usd": 105.15134979701865,
+        "sol_usd_offset_seconds": 7,
+        "sol_usd_time": 1788014640,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/32a0494d7f54024c4a6fff4f503cb153cd15c4e478a527f8046a0ad47bffa159.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/9271d6e153103f06ddb7869ec45abb5cb59dffd597da19c58acc9d6b64ea557e.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "kDhik8Hd1sVkSH3kNyksxbKkK9ueSKXLj2GSN2Tpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.6645966384642652e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788014647,
+        "valuation": 16645.966384642652
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788014820,
+        "max_retained_valuation": 13572.732542844073
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.0629450931539749,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.4709352767213845e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.647290184480923e-05,
+        "effective_time": 1788519764,
+        "equivalent_valuation_usd": 16472.901844809232,
+        "sol_usd": 104.09210723983007,
+        "sol_usd_offset_seconds": 44,
+        "sol_usd_time": 1788519720,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/079c141082ebbf603520a3bc875ce6f6d7d23d465019501972b16c87becf0707.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/80e69159525dd4fbf59b8825d867cec212fe36c856d51a31bcb4dc0bcdf62e8f.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "vZd5wgnfqPio9rfCg8vem7ZPNBJSixGCYNZsRmYpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 0,
+        "multiple": 1.0,
+        "price": 1.647290184480923e-05,
+        "source": "ENTRY_EXECUTION_VALUE",
+        "timestamp": 1788519764,
+        "valuation": 16472.901844809232
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788520140,
+        "max_retained_valuation": 3048.4730979768588
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.406286615434897e-06,
+        "entry_to_85_seconds": 432,
+        "first_crossing_time": 1788553200,
+        "max_proven_drawdown_7d": 0.9548643215745017,
+        "peak_to_85_seconds": 120,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 7.266277081696672e-06
+      },
+      "entry": {
+        "average_execution_usd_per_token": 1.6055155683666725e-05,
+        "effective_time": 1788552768,
+        "equivalent_valuation_usd": 16055.155683666724,
+        "sol_usd": 101.64157279411796,
+        "sol_usd_offset_seconds": 48,
+        "sol_usd_time": 1788552720,
+        "valuation_semantic": "FDV_EQUIVALENT"
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED",
+        "raw_retained_sources": [
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/43b1a0976d290a681a2bdbb074beeece685c79f2f7532b74f594119471b6646c.json",
+          "docs/audits/operation_all_birth_research/byzantine_428_v1/byzantine_64_corrected_lifecycle_raw/b1db931ea72e39f0a1ddb046c9ac4b556295d6b3236dcff0cc2524a26c0eab17.json"
+        ]
+      },
+      "membership": "RESEARCH_ONLY",
+      "mint": "zRoYAdLYogsS491qazGakt2BDvgjMMiE8xQWpSVpump",
+      "position_peak": {
+        "entry_to_peak_seconds": 312,
+        "multiple": 3.0172144179574754,
+        "price": 4.844184721131115e-05,
+        "source": "RETAINED_POST_ENTRY_POINT",
+        "timestamp": 1788553080,
+        "valuation": 48441.84721131115
+      },
+      "post_entry_observation": {
+        "max_retained_time": 1788553080,
+        "max_retained_valuation": 48441.84721131115
+      }
+    }
+  ],
+  "schema_version": "BYZANTINE_64_POSITION_PEAK_TRADING_OPPORTUNITY_V2",
+  "semantic_delta": {
+    "changed_rug_state": 0,
+    "changed_rug_timing": 0,
+    "rows_corrected_to_1x": 31,
+    "rows_previously_peak_below_entry": 31
+  },
+  "trading_opportunity": {
+    "entry": {
+      "median_equivalent_valuation": 16258.114795466867
+    },
+    "post_entry_peak": {
+      "median_multiple": 1.3322941404920048,
+      "reach_2x_count": 22,
+      "reach_5x_count": 13
+    },
+    "qualified_count": 64,
+    "strategy_status": "PENDING_SCORING"
+  }
+}

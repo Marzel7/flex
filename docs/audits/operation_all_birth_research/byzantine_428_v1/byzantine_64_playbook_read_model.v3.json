@@ -1,0 +1,3736 @@
+{
+  "entry": {
+    "median_equivalent_valuation": 16256.22235023499
+  },
+  "migration_badge_count": 23,
+  "post_entry_peak": {
+    "median_multiple": 2.0647663461490353,
+    "reach_2x_count": 37,
+    "reach_5x_count": 15
+  },
+  "proven_high": {
+    "median_multiple": 2.0647663461490353,
+    "reach_counts": {
+      "10": 9,
+      "2": 37,
+      "5": 15
+    }
+  },
+  "provider_calls": 0,
+  "qualified_count": 64,
+  "rows": [
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.009682400871117824,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.390190507145418e-06
+      },
+      "display_mint": "12GD\u2026LCpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.5934603380969453e-05,
+        "effective_time": 1788281161,
+        "equivalent_valuation_usd": 15934.603380969453,
+        "price_usd_per_token": 1.5934603380969453e-05,
+        "sol_usd": 101.01015202437141,
+        "timestamp": 1788281161,
+        "valuation_usd": 15934.603380969453
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.009682400871117824,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "12GDLxNHvw4QKuBM1SMr6FhTiEVLeWQJYWfEjLCpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 29,
+        "peak_multiple": 1.8009123298139296,
+        "retained_peak_equivalent_valuation": 28696.823699482615,
+        "retained_peak_time": 1788281190,
+        "retained_peak_usd_per_token": 2.8696823699482616e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 1.8009123298139296,
+        "price_usd_per_token": 2.8696823699482616e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788281190,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 28696.823699482615
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 8.408069952375753e-06,
+        "entry_to_85_seconds": 247,
+        "first_crossing_time": 1788209340,
+        "max_proven_drawdown_7d": 0.9639184814624204,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 9.886425173667188e-06
+      },
+      "display_mint": "2GAd\u20264mpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.640748992756925e-05,
+        "effective_time": 1788209093,
+        "equivalent_valuation_usd": 16407.48992756925,
+        "price_usd_per_token": 1.640748992756925e-05,
+        "sol_usd": 103.51864403122875,
+        "timestamp": 1788209093,
+        "valuation_usd": 16407.48992756925
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9639184814624204,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788209160
+      },
+      "mint": "2GAd4qECH8cN4oQWwhiaBMADNupKCv8h9m9x3a4mpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 112,
+        "peak_multiple": 3.667943845540447,
+        "retained_peak_equivalent_valuation": 60181.75170059451,
+        "retained_peak_time": 1788209205,
+        "retained_peak_usd_per_token": 6.018175170059451e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 3.667943845540447,
+        "price_usd_per_token": 6.018175170059451e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788209205,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 60181.75170059451
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.275250009863404e-06,
+        "entry_to_85_seconds": 1026,
+        "first_crossing_time": 1787993580,
+        "max_proven_drawdown_7d": 0.9898808714260324,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 3.231626401137795e-05
+      },
+      "display_mint": "2MmE\u2026Bhpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.639346109035887e-05,
+        "effective_time": 1787992554,
+        "equivalent_valuation_usd": 16393.46109035887,
+        "price_usd_per_token": 1.639346109035887e-05,
+        "sol_usd": 103.29061029600244,
+        "timestamp": 1787992554,
+        "valuation_usd": 16393.46109035887
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9898808714260324,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1787992606
+      },
+      "mint": "2MmEYtGfRFLd5L6d9Veg1WLcH23NSxQKVhR7y1Bhpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 111,
+        "peak_multiple": 5.720082770285511,
+        "retained_peak_equivalent_valuation": 93771.9543283077,
+        "retained_peak_time": 1787992665,
+        "retained_peak_usd_per_token": 9.37719543283077e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 5.720082770285511,
+        "price_usd_per_token": 9.37719543283077e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1787992665,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 93771.9543283077
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.19699921877810078,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.438027956495629e-06
+      },
+      "display_mint": "2QLv\u2026ZJpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.625351970997086e-05,
+        "effective_time": 1788263454,
+        "equivalent_valuation_usd": 16253.519709970862,
+        "price_usd_per_token": 1.625351970997086e-05,
+        "sol_usd": 102.3886073969607,
+        "timestamp": 1788263454,
+        "valuation_usd": 16253.519709970862
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.19699921877810078,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "2QLvzb6LK2hZzWXyuQxmo1SJdtRhhJVcsMK3nkZJpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 51,
+        "peak_multiple": 1.86159374877539,
+        "retained_peak_equivalent_valuation": 30257.450687679346,
+        "retained_peak_time": 1788263505,
+        "retained_peak_usd_per_token": 3.0257450687679347e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 1.86159374877539,
+        "price_usd_per_token": 3.0257450687679347e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788263505,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 30257.450687679346
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.2890731708268042e-06,
+        "entry_to_85_seconds": 1353,
+        "first_crossing_time": 1788156600,
+        "max_proven_drawdown_7d": 0.9971271671860213,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 0.00011133377498557459
+      },
+      "display_mint": "2WSP\u2026V7pump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6178840500455303e-05,
+        "effective_time": 1788155247,
+        "equivalent_valuation_usd": 16178.840500455302,
+        "price_usd_per_token": 1.6178840500455303e-05,
+        "sol_usd": 102.5845649217294,
+        "timestamp": 1788155247,
+        "valuation_usd": 16178.840500455302
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9971271671860213,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788155321
+      },
+      "mint": "2WSPxpq8CdPujQmo4u1NT1zWG9xCQ2DEMT6Yn9V7pump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 123,
+        "peak_multiple": 5.934866364359615,
+        "retained_peak_equivalent_valuation": 96019.25630049125,
+        "retained_peak_time": 1788155370,
+        "retained_peak_usd_per_token": 9.601925630049125e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 5.934866364359615,
+        "price_usd_per_token": 9.601925630049125e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788155370,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 96019.25630049125
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.025924291765162866,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.3839825415906226e-06
+      },
+      "display_mint": "2fDU\u2026fwpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.5893216943937483e-05,
+        "effective_time": 1788335929,
+        "equivalent_valuation_usd": 15893.216943937483,
+        "price_usd_per_token": 1.5893216943937483e-05,
+        "sol_usd": 100.27307560087344,
+        "timestamp": 1788335929,
+        "valuation_usd": 15893.216943937483
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.025924291765162866,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "2fDUfKj62axPjHLxQvXtF1erwxR7ugzRjmtCF6fwpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 41,
+        "peak_multiple": 1.5248907215599088,
+        "retained_peak_equivalent_valuation": 24235.419053548998,
+        "retained_peak_time": 1788335970,
+        "retained_peak_usd_per_token": 2.4235419053548996e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 1.5248907215599088,
+        "price_usd_per_token": 2.4235419053548996e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788335970,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 24235.419053548998
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.0009873645951986587,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.471715955772475e-06
+      },
+      "display_mint": "2gJq\u20263opump",
+      "entry": {
+        "average_execution_usd_per_token": 1.64781063718165e-05,
+        "effective_time": 1788520034,
+        "equivalent_valuation_usd": 16478.1063718165,
+        "price_usd_per_token": 1.64781063718165e-05,
+        "sol_usd": 104.13756677150475,
+        "timestamp": 1788520034,
+        "valuation_usd": 16478.1063718165
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.0009873645951986587,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "2gJqYu9unk6oNJWG3sZbeGrJbDtia1svkxpgbR3opump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 1,
+        "peak_multiple": 1.1526716127819765,
+        "retained_peak_equivalent_valuation": 18993.845447194686,
+        "retained_peak_time": 1788520035,
+        "retained_peak_usd_per_token": 1.8993845447194688e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "LOWER_BOUND_ONLY",
+        "is_lower_bound": true,
+        "multiple": 1.1526716127819765,
+        "price_usd_per_token": 1.8993845447194688e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788520035,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 18993.845447194686
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.32546067508028576,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.463412856801484e-06
+      },
+      "display_mint": "36F3\u2026pYpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.642275237867656e-05,
+        "effective_time": 1788000885,
+        "equivalent_valuation_usd": 16422.75237867656,
+        "price_usd_per_token": 1.642275237867656e-05,
+        "sol_usd": 103.67141954475566,
+        "timestamp": 1788000885,
+        "valuation_usd": 16422.75237867656
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.32546067508028576,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "36F3yEK5ngLhxZfbEoFVBFBmLxtjSTpczsLihWpYpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 0,
+        "peak_multiple": 1.0,
+        "retained_peak_equivalent_valuation": 16422.75237867656,
+        "retained_peak_time": 1788000885,
+        "retained_peak_usd_per_token": 1.642275237867656e-05,
+        "source": "SCENARIO_D_ENTRY_FLOOR"
+      },
+      "proven_high": {
+        "high_authority": "LOWER_BOUND_ONLY",
+        "is_lower_bound": false,
+        "multiple": 1.0,
+        "price_usd_per_token": 1.642275237867656e-05,
+        "strongest_high_source": "SCENARIO_D_ENTRY_FLOOR",
+        "timestamp": 1788000885,
+        "timing_precision": "RETAINED_POINT",
+        "valuation_usd": 16422.75237867656
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.013138198723538275,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.377082833793069e-06
+      },
+      "display_mint": "3bTg\u20265cpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.5847218891953794e-05,
+        "effective_time": 1788337251,
+        "equivalent_valuation_usd": 15847.218891953793,
+        "price_usd_per_token": 1.5847218891953794e-05,
+        "sol_usd": 100.25948806458413,
+        "timestamp": 1788337251,
+        "valuation_usd": 15847.218891953793
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.013138198723538275,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "3bTgy1xLE2ht6B97SWMhmqQjkdU8UAYzm4kaCj5cpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 9,
+        "peak_multiple": 1.4535100876033151,
+        "retained_peak_equivalent_valuation": 23034.09251991267,
+        "retained_peak_time": 1788337260,
+        "retained_peak_usd_per_token": 2.303409251991267e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 1.4535100876033151,
+        "price_usd_per_token": 2.303409251991267e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788337260,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 23034.09251991267
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.6761508790936164,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 1.5557356009216178e-06
+      },
+      "display_mint": "3jW7\u2026pUpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.0371570672810786e-05,
+        "effective_time": 1788520107,
+        "equivalent_valuation_usd": 10371.570672810785,
+        "price_usd_per_token": 1.0371570672810786e-05,
+        "sol_usd": 104.20157242539524,
+        "timestamp": 1788520107,
+        "valuation_usd": 10371.570672810785
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.6761508790936164,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788520157
+      },
+      "mint": "3jW73wn4skHyLMEDTZ5dzGzcF9C1YEbYuk9y61pUpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 48,
+        "peak_multiple": 5.643701256350526,
+        "retained_peak_equivalent_valuation": 58534.0464364705,
+        "retained_peak_time": 1788520155,
+        "retained_peak_usd_per_token": 5.85340464364705e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 5.643701256350526,
+        "price_usd_per_token": 5.85340464364705e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788520155,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 58534.0464364705
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.002611965883578704,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.442306877906615e-06
+      },
+      "display_mint": "3n7R\u2026FWpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.628204585271077e-05,
+        "effective_time": 1787993883,
+        "equivalent_valuation_usd": 16282.04585271077,
+        "price_usd_per_token": 1.628204585271077e-05,
+        "sol_usd": 103.33870285267179,
+        "timestamp": 1787993883,
+        "valuation_usd": 16282.04585271077
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.002611965883578704,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "3n7RAG3G2KGH6sg29MoKop245V7ACXP35ZEWCMFWpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 12,
+        "peak_multiple": 1.39855063931619,
+        "retained_peak_equivalent_valuation": 22771.265636684166,
+        "retained_peak_time": 1787993895,
+        "retained_peak_usd_per_token": 2.2771265636684164e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 1.39855063931619,
+        "price_usd_per_token": 2.2771265636684164e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1787993895,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 22771.265636684166
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 8.183865800678484e-06,
+        "entry_to_85_seconds": 189,
+        "first_crossing_time": 1788157620,
+        "max_proven_drawdown_7d": 0.9522494650068034,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 8.63385138196108e-06
+      },
+      "display_mint": "3zSP\u20266Ypump",
+      "entry": {
+        "average_execution_usd_per_token": 1.621814306537561e-05,
+        "effective_time": 1788157431,
+        "equivalent_valuation_usd": 16218.143065375609,
+        "price_usd_per_token": 1.621814306537561e-05,
+        "sol_usd": 102.44883433710808,
+        "timestamp": 1788157431,
+        "valuation_usd": 16218.143065375609
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9522494650068034,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788157562
+      },
+      "mint": "3zSPF9RDvLhzvPB8BwqdM3EacsA335xS4KY2gs6Ypump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 174,
+        "peak_multiple": 4.211460033601026,
+        "retained_peak_equivalent_valuation": 68302.061339053,
+        "retained_peak_time": 1788157605,
+        "retained_peak_usd_per_token": 6.8302061339053e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 4.211460033601026,
+        "price_usd_per_token": 6.8302061339053e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788157605,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 68302.061339053
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.518392052310898e-06,
+        "entry_to_85_seconds": 2038,
+        "first_crossing_time": 1788246120,
+        "max_proven_drawdown_7d": 0.9910377171688983,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 3.7388800114584425e-05
+      },
+      "display_mint": "4AB7\u2026d9pump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6439301705127698e-05,
+        "effective_time": 1788244082,
+        "equivalent_valuation_usd": 16439.3017051277,
+        "price_usd_per_token": 1.6439301705127698e-05,
+        "sol_usd": 103.46984404872013,
+        "timestamp": 1788244082,
+        "valuation_usd": 16439.3017051277
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9910377171688983,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788244244
+      },
+      "mint": "4AB7xdAuoDac6k23JdqJeXbPhqYctgDvG4u2rZd9pump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 208,
+        "peak_multiple": 3.8130598530012514,
+        "retained_peak_equivalent_valuation": 62684.041343197445,
+        "retained_peak_time": 1788244290,
+        "retained_peak_usd_per_token": 6.268404134319745e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 3.8130598530012514,
+        "price_usd_per_token": 6.268404134319745e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788244290,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 62684.041343197445
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.5563265244313173e-06,
+        "entry_to_85_seconds": 998,
+        "first_crossing_time": 1788184320,
+        "max_proven_drawdown_7d": 0.9853320396688798,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 2.1818166547327673e-05
+      },
+      "display_mint": "4Br5\u2026rypump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6260007240698746e-05,
+        "effective_time": 1788183322,
+        "equivalent_valuation_usd": 16260.007240698746,
+        "price_usd_per_token": 1.6260007240698746e-05,
+        "sol_usd": 102.42677655321383,
+        "timestamp": 1788183322,
+        "valuation_usd": 16260.007240698746
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9853320396688798,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788183499
+      },
+      "mint": "4Br5uAvyWD6s84FQtB5SS39xxGVuDQhSeHs5oArypump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 233,
+        "peak_multiple": 3.9046449047117218,
+        "retained_peak_equivalent_valuation": 63489.55442297006,
+        "retained_peak_time": 1788183555,
+        "retained_peak_usd_per_token": 6.348955442297006e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 3.9046449047117218,
+        "price_usd_per_token": 6.348955442297006e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788183555,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 63489.55442297006
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.943668209836354e-06,
+        "entry_to_85_seconds": 101,
+        "first_crossing_time": 1787997120,
+        "max_proven_drawdown_7d": 0.9098281994755806,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 4.824712861341558e-06
+      },
+      "display_mint": "4CgD\u2026Qbpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6489619124344373e-05,
+        "effective_time": 1787997019,
+        "equivalent_valuation_usd": 16489.61912434437,
+        "price_usd_per_token": 1.6489619124344373e-05,
+        "sol_usd": 103.84230016016318,
+        "timestamp": 1787997019,
+        "valuation_usd": 16489.61912434437
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9098281994755806,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "4CgDVUCZVwJosK8e4mTKHnFJKvyN3kxPcWRUnNQbpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 116,
+        "peak_multiple": 2.092001043831763,
+        "retained_peak_equivalent_valuation": 34496.30042051663,
+        "retained_peak_time": 1787997135,
+        "retained_peak_usd_per_token": 3.449630042051663e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 2.092001043831763,
+        "price_usd_per_token": 3.449630042051663e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1787997135,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 34496.30042051663
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.6753492028248709,
+        "peak_to_85_seconds": null,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.4132651975455965e-06
+      },
+      "display_mint": "4ZXX\u2026cYpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6088434650303978e-05,
+        "effective_time": 1788553350,
+        "equivalent_valuation_usd": 16088.434650303978,
+        "price_usd_per_token": 1.6088434650303978e-05,
+        "sol_usd": 102.17171154306808,
+        "timestamp": 1788553350,
+        "valuation_usd": 16088.434650303978
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.6753492028248709,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_STRATEGY_GRADE"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788553555
+      },
+      "mint": "4ZXXiMMyN3wotCEW2QfmRbesHg3pS7S3rovnrKcYpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 210,
+        "peak_multiple": 3.0260281342001694,
+        "retained_peak_equivalent_valuation": 48684.0558870607,
+        "retained_peak_time": 1788553560,
+        "retained_peak_usd_per_token": 4.8684055887060696e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "STRATEGY_GRADE",
+        "is_lower_bound": true,
+        "multiple": 3.0260281342001694,
+        "price_usd_per_token": 4.8684055887060696e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788553560,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 48684.0558870607
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.8779275184632505e-06,
+        "entry_to_85_seconds": 84,
+        "first_crossing_time": 1788158100,
+        "max_proven_drawdown_7d": 0.9016608443574965,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 4.3897990068048286e-06
+      },
+      "display_mint": "53Eq\u2026mqpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6188329621738495e-05,
+        "effective_time": 1788158016,
+        "equivalent_valuation_usd": 16188.329621738496,
+        "price_usd_per_token": 1.6188329621738495e-05,
+        "sol_usd": 102.63967959908636,
+        "timestamp": 1788158016,
+        "valuation_usd": 16188.329621738496
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9016608443574965,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "53EquyksZ769BkVDZT658w66cA45t6uiYtkN2imqpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 69,
+        "peak_multiple": 2.0647663461490353,
+        "retained_peak_equivalent_valuation": 33425.118203333186,
+        "retained_peak_time": 1788158085,
+        "retained_peak_usd_per_token": 3.342511820333319e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 2.0647663461490353,
+        "price_usd_per_token": 3.342511820333319e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788158085,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 33425.118203333186
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.2991229926146987e-06,
+        "entry_to_85_seconds": 477,
+        "first_crossing_time": 1788464100,
+        "max_proven_drawdown_7d": 0.9733659539259071,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 1.2166473562922066e-05
+      },
+      "display_mint": "5F2u\u20269tpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6609018257776784e-05,
+        "effective_time": 1788463623,
+        "equivalent_valuation_usd": 16609.018257776785,
+        "price_usd_per_token": 1.6609018257776784e-05,
+        "sol_usd": 105.4434704630326,
+        "timestamp": 1788463623,
+        "valuation_usd": 16609.018257776785
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9733659539259071,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788463761
+      },
+      "mint": "5F2uun8KhzjEY3jMXaP6eGG1rS1LaG6KoikSqc9tpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 192,
+        "peak_multiple": 3.99185830127675,
+        "retained_peak_equivalent_valuation": 66300.84740836336,
+        "retained_peak_time": 1788463815,
+        "retained_peak_usd_per_token": 6.630084740836337e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 3.99185830127675,
+        "price_usd_per_token": 6.630084740836337e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788463815,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 66300.84740836336
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.7911059916398454e-06,
+        "entry_to_85_seconds": 81,
+        "first_crossing_time": 1788337920,
+        "max_proven_drawdown_7d": 0.9102560054522394,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 4.637852178008578e-06
+      },
+      "display_mint": "5dfU\u20263kpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.574879066298186e-05,
+        "effective_time": 1788337839,
+        "equivalent_valuation_usd": 15748.790662981859,
+        "price_usd_per_token": 1.574879066298186e-05,
+        "sol_usd": 99.56364026428477,
+        "timestamp": 1788337839,
+        "valuation_usd": 15748.790662981859
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9102560054522394,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "5dfUHdDeo6CmX36FjpbLGK7XM1uzrZzuFAcGPh3kpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 51,
+        "peak_multiple": 2.1444206873488367,
+        "retained_peak_equivalent_valuation": 33772.0324984245,
+        "retained_peak_time": 1788337890,
+        "retained_peak_usd_per_token": 3.37720324984245e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 2.1444206873488367,
+        "price_usd_per_token": 3.37720324984245e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788337890,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 33772.0324984245
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.011033039587496463,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.4865489652830758e-06
+      },
+      "display_mint": "5eBc\u2026h4pump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6576993101887172e-05,
+        "effective_time": 1788464679,
+        "equivalent_valuation_usd": 16576.993101887172,
+        "price_usd_per_token": 1.6576993101887172e-05,
+        "sol_usd": 105.24662518190219,
+        "timestamp": 1788464679,
+        "valuation_usd": 16576.993101887172
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.011033039587496463,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "5eBcmVpmC4aDrzqu37KsYk8xdvfqMEmyAGwEy6h4pump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 51,
+        "peak_multiple": 1.2063217003312734,
+        "retained_peak_equivalent_valuation": 19997.186505048325,
+        "retained_peak_time": 1788464730,
+        "retained_peak_usd_per_token": 1.9997186505048325e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "LOWER_BOUND_ONLY",
+        "is_lower_bound": true,
+        "multiple": 1.2063217003312734,
+        "price_usd_per_token": 1.9997186505048325e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788464730,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 19997.186505048325
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.8399885269808476e-06,
+        "entry_to_85_seconds": 66,
+        "first_crossing_time": 1788337560,
+        "max_proven_drawdown_7d": 0.9091435393138172,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 4.655541782199081e-06
+      },
+      "display_mint": "5vYF\u20266tpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.5696388161381404e-05,
+        "effective_time": 1788337494,
+        "equivalent_valuation_usd": 15696.388161381405,
+        "price_usd_per_token": 1.5696388161381404e-05,
+        "sol_usd": 99.69905310090053,
+        "timestamp": 1788337494,
+        "valuation_usd": 15696.388161381405
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9091435393138172,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "5vYF97goB1Jxf3dVHE6r7PZSCyTxLuX3yLZS5Y6tpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 51,
+        "peak_multiple": 1.9987774060477204,
+        "retained_peak_equivalent_valuation": 31373.58601352407,
+        "retained_peak_time": 1788337545,
+        "retained_peak_usd_per_token": 3.137358601352407e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 1.9987774060477204,
+        "price_usd_per_token": 3.137358601352407e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788337545,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 31373.58601352407
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.007017564623186923,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.41902975691852e-06
+      },
+      "display_mint": "67f1\u2026ampump",
+      "entry": {
+        "average_execution_usd_per_token": 1.612686504612347e-05,
+        "effective_time": 1788185494,
+        "equivalent_valuation_usd": 16126.865046123468,
+        "price_usd_per_token": 1.612686504612347e-05,
+        "sol_usd": 102.40295875940886,
+        "timestamp": 1788185494,
+        "valuation_usd": 16126.865046123468
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.007017564623186923,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "67f1tMppyWvGfpiLoRi21HTpoRk9ktnsA19dzMampump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 0,
+        "peak_multiple": 1.0,
+        "retained_peak_equivalent_valuation": 16126.865046123468,
+        "retained_peak_time": 1788185494,
+        "retained_peak_usd_per_token": 1.612686504612347e-05,
+        "source": "SCENARIO_D_ENTRY_FLOOR"
+      },
+      "proven_high": {
+        "high_authority": "LOWER_BOUND_ONLY",
+        "is_lower_bound": false,
+        "multiple": 1.0,
+        "price_usd_per_token": 1.612686504612347e-05,
+        "strongest_high_source": "SCENARIO_D_ENTRY_FLOOR",
+        "timestamp": 1788185494,
+        "timing_precision": "RETAINED_POINT",
+        "valuation_usd": 16126.865046123468
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 7.478183143717846e-06,
+        "entry_to_85_seconds": 227,
+        "first_crossing_time": 1788012600,
+        "max_proven_drawdown_7d": 0.9570506727239785,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 8.49900394519322e-06
+      },
+      "display_mint": "78FR\u2026NSpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6546345447692072e-05,
+        "effective_time": 1788012373,
+        "equivalent_valuation_usd": 16546.34544769207,
+        "price_usd_per_token": 1.6546345447692072e-05,
+        "sol_usd": 103.84958946179339,
+        "timestamp": 1788012373,
+        "valuation_usd": 16546.34544769207
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9570506727239785,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "78FRWVpjK476fLThDU2U8V4Y1CTnvhtqboNmY4NSpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 182,
+        "peak_multiple": 4.328215891071077,
+        "retained_peak_equivalent_valuation": 71616.15530585239,
+        "retained_peak_time": 1788012555,
+        "retained_peak_usd_per_token": 7.161615530585238e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 4.328215891071077,
+        "price_usd_per_token": 7.161615530585238e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788012555,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 71616.15530585239
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 7.120537110560718e-06,
+        "entry_to_85_seconds": 215,
+        "first_crossing_time": 1788446340,
+        "max_proven_drawdown_7d": 0.9488227324319661,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 7.95202853423052e-06
+      },
+      "display_mint": "7Syr\u2026x5pump",
+      "entry": {
+        "average_execution_usd_per_token": 1.632234861981371e-05,
+        "effective_time": 1788446125,
+        "equivalent_valuation_usd": 16322.348619813709,
+        "price_usd_per_token": 1.632234861981371e-05,
+        "sol_usd": 102.94991362924706,
+        "timestamp": 1788446125,
+        "valuation_usd": 16322.348619813709
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9488227324319661,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788446529
+      },
+      "mint": "7SyrcuqYg3zUSGpZLzzx8EwyvrNxdbxdNd22uEx5pump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 140,
+        "peak_multiple": 3.718740984125103,
+        "retained_peak_equivalent_valuation": 60698.58676967905,
+        "retained_peak_time": 1788446265,
+        "retained_peak_usd_per_token": 6.069858676967905e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 3.718740984125103,
+        "price_usd_per_token": 6.069858676967905e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788446265,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 60698.58676967905
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.9593717154022695e-06,
+        "entry_to_85_seconds": 191,
+        "first_crossing_time": 1788018060,
+        "max_proven_drawdown_7d": 0.9059249769898265,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 4.712488797656083e-06
+      },
+      "display_mint": "7ncZ\u2026yNpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6566473187984645e-05,
+        "effective_time": 1788017869,
+        "equivalent_valuation_usd": 16566.473187984644,
+        "price_usd_per_token": 1.6566473187984645e-05,
+        "sol_usd": 104.69531418146194,
+        "timestamp": 1788017869,
+        "valuation_usd": 16566.473187984644
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9059249769898265,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "7ncZBJH12i7cA4Xv7FwSyYm2Cd7wTZtjGrFVNuyNpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 176,
+        "peak_multiple": 2.041100008089093,
+        "retained_peak_equivalent_valuation": 33813.8285580032,
+        "retained_peak_time": 1788018045,
+        "retained_peak_usd_per_token": 3.38138285580032e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 2.041100008089093,
+        "price_usd_per_token": 3.38138285580032e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788018045,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 33813.8285580032
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.009054941131745542,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.417782951094223e-06
+      },
+      "display_mint": "7rRj\u2026FJpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6118553007294824e-05,
+        "effective_time": 1788255869,
+        "equivalent_valuation_usd": 16118.553007294824,
+        "price_usd_per_token": 1.6118553007294824e-05,
+        "sol_usd": 102.21395462339342,
+        "timestamp": 1788255869,
+        "valuation_usd": 16118.553007294824
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.009054941131745542,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "7rRjovexyYfTFELzRKKdnQWgcKUef1NHLHCvafFJpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 16,
+        "peak_multiple": 1.441714959577924,
+        "retained_peak_equivalent_valuation": 23238.358997366682,
+        "retained_peak_time": 1788255885,
+        "retained_peak_usd_per_token": 2.3238358997366682e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 1.441714959577924,
+        "price_usd_per_token": 2.3238358997366682e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788255885,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 23238.358997366682
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.009821806381912657,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.4022933243688627e-06
+      },
+      "display_mint": "8u9v\u2026mRpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6015288829125752e-05,
+        "effective_time": 1788421357,
+        "equivalent_valuation_usd": 16015.288829125751,
+        "price_usd_per_token": 1.6015288829125752e-05,
+        "sol_usd": 101.06011222031343,
+        "timestamp": 1788421357,
+        "valuation_usd": 16015.288829125751
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.009821806381912657,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "8u9vXyvEfwk8znA4K3PCsa26jGUgvPfvxVYTYemRpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 0,
+        "peak_multiple": 1.0,
+        "retained_peak_equivalent_valuation": 16015.288829125751,
+        "retained_peak_time": 1788421357,
+        "retained_peak_usd_per_token": 1.6015288829125752e-05,
+        "source": "SCENARIO_D_ENTRY_FLOOR"
+      },
+      "proven_high": {
+        "high_authority": "LOWER_BOUND_ONLY",
+        "is_lower_bound": false,
+        "multiple": 1.0,
+        "price_usd_per_token": 1.6015288829125752e-05,
+        "strongest_high_source": "SCENARIO_D_ENTRY_FLOOR",
+        "timestamp": 1788421357,
+        "timing_precision": "RETAINED_POINT",
+        "valuation_usd": 16015.288829125751
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.008198627218988896,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.45016524773259e-06
+      },
+      "display_mint": "8yfR\u2026iVpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6334434984883934e-05,
+        "effective_time": 1788191104,
+        "equivalent_valuation_usd": 16334.434984883934,
+        "price_usd_per_token": 1.6334434984883934e-05,
+        "sol_usd": 103.22630194540385,
+        "timestamp": 1788191104,
+        "valuation_usd": 16334.434984883934
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.008198627218988896,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "8yfRhViJa9bf9yUTpt18RcCndFTQKxE89UZ4rViVpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 11,
+        "peak_multiple": 1.1279914110090075,
+        "retained_peak_equivalent_valuation": 18425.102366634124,
+        "retained_peak_time": 1788191115,
+        "retained_peak_usd_per_token": 1.8425102366634125e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "LOWER_BOUND_ONLY",
+        "is_lower_bound": true,
+        "multiple": 1.1279914110090075,
+        "price_usd_per_token": 1.8425102366634125e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788191115,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 18425.102366634124
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 3.014768533207068e-06,
+        "entry_to_85_seconds": 134,
+        "first_crossing_time": 1788100200,
+        "max_proven_drawdown_7d": 0.8944077210776082,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 3.949540895930272e-06
+      },
+      "display_mint": "9RtE\u2026yxpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.685509887566834e-05,
+        "effective_time": 1788100066,
+        "equivalent_valuation_usd": 16855.09887566834,
+        "price_usd_per_token": 1.685509887566834e-05,
+        "sol_usd": 106.57416382375652,
+        "timestamp": 1788100066,
+        "valuation_usd": 16855.09887566834
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.8944077210776082,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "9RtEo6KYbp5MExNBMsAuMehe3mcs4Ui88UNNXwyxpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 104,
+        "peak_multiple": 2.0039394791910103,
+        "retained_peak_equivalent_valuation": 33776.5980626198,
+        "retained_peak_time": 1788100170,
+        "retained_peak_usd_per_token": 3.3776598062619796e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 2.0039394791910103,
+        "price_usd_per_token": 3.3776598062619796e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788100170,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 33776.5980626198
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.037316875286336204,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.4226493097128607e-06
+      },
+      "display_mint": "9oqk\u2026fTpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.615099539808574e-05,
+        "effective_time": 1788527203,
+        "equivalent_valuation_usd": 16150.99539808574,
+        "price_usd_per_token": 1.615099539808574e-05,
+        "sol_usd": 101.9741093508983,
+        "timestamp": 1788527203,
+        "valuation_usd": 16150.99539808574
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.037316875286336204,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "9oqkfbJiPTHpXMWzucEfHtxc2QrjSJ1T2oYtW5fTpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 62,
+        "peak_multiple": 2.0554247988615213,
+        "retained_peak_equivalent_valuation": 33197.15646752374,
+        "retained_peak_time": 1788527265,
+        "retained_peak_usd_per_token": 3.319715646752374e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 2.0554247988615213,
+        "price_usd_per_token": 3.319715646752374e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788527265,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 33197.15646752374
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.0038166521370492923,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.39269836933273e-06
+      },
+      "display_mint": "A82W\u2026Jnpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.5951322462218203e-05,
+        "effective_time": 1788281290,
+        "equivalent_valuation_usd": 15951.322462218202,
+        "price_usd_per_token": 1.5951322462218203e-05,
+        "sol_usd": 101.02090949961664,
+        "timestamp": 1788281290,
+        "valuation_usd": 15951.322462218202
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.0038166521370492923,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "A82WhnkYPidBub8zkeu9Hei3w9NB1m6XpzeX7nJnpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 35,
+        "peak_multiple": 1.3898335424951673,
+        "retained_peak_equivalent_valuation": 22169.68300514746,
+        "retained_peak_time": 1788281325,
+        "retained_peak_usd_per_token": 2.2169683005147462e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 1.3898335424951673,
+        "price_usd_per_token": 2.2169683005147462e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788281325,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 22169.68300514746
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.5346190967764256e-06,
+        "entry_to_85_seconds": 2141,
+        "first_crossing_time": 1788113160,
+        "max_proven_drawdown_7d": 0.9964850922016808,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 9.104646278494114e-05
+      },
+      "display_mint": "AiSi\u20264rpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6701056523867145e-05,
+        "effective_time": 1788111019,
+        "equivalent_valuation_usd": 16701.056523867144,
+        "price_usd_per_token": 1.6701056523867145e-05,
+        "sol_usd": 105.74392869830571,
+        "timestamp": 1788111019,
+        "valuation_usd": 16701.056523867144
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9964850922016808,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788111255
+      },
+      "mint": "AiSiwKxkbNg4TGMHq8GEvwf8mpma1a3Ee7m3TB4rpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 296,
+        "peak_multiple": 4.749968936385875,
+        "retained_peak_equivalent_valuation": 79329.49969319359,
+        "retained_peak_time": 1788111315,
+        "retained_peak_usd_per_token": 7.932949969319359e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 4.749968936385875,
+        "price_usd_per_token": 7.932949969319359e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788111315,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 79329.49969319359
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.026526461549205016,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.4636404102167526e-06
+      },
+      "display_mint": "ArUM\u2026w9pump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6424269401445017e-05,
+        "effective_time": 1788519977,
+        "equivalent_valuation_usd": 16424.269401445017,
+        "price_usd_per_token": 1.6424269401445017e-05,
+        "sol_usd": 104.02382482796,
+        "timestamp": 1788519977,
+        "valuation_usd": 16424.269401445017
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.026526461549205016,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "ArUMvNV4pwZ3whWQ37bjkBmmnZDijrfzxjeqzRw9pump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 0,
+        "peak_multiple": 1.0,
+        "retained_peak_equivalent_valuation": 16424.269401445017,
+        "retained_peak_time": 1788519977,
+        "retained_peak_usd_per_token": 1.6424269401445017e-05,
+        "source": "SCENARIO_D_ENTRY_FLOOR"
+      },
+      "proven_high": {
+        "high_authority": "LOWER_BOUND_ONLY",
+        "is_lower_bound": false,
+        "multiple": 1.0,
+        "price_usd_per_token": 1.6424269401445017e-05,
+        "strongest_high_source": "SCENARIO_D_ENTRY_FLOOR",
+        "timestamp": 1788519977,
+        "timing_precision": "RETAINED_POINT",
+        "valuation_usd": 16424.269401445017
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.005868840359475103,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.4645382430595335e-06
+      },
+      "display_mint": "B8gZ\u2026rWpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6430254953730227e-05,
+        "effective_time": 1788452003,
+        "equivalent_valuation_usd": 16430.254953730226,
+        "price_usd_per_token": 1.6430254953730227e-05,
+        "sol_usd": 104.30403834512012,
+        "timestamp": 1788452003,
+        "valuation_usd": 16430.254953730226
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.005868840359475103,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "B8gZpcJRRr9am23PmBMG51korwxYXD8Q6wnsprWpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 7,
+        "peak_multiple": 1.4497486571607165,
+        "retained_peak_equivalent_valuation": 23819.740055978607,
+        "retained_peak_time": 1788452010,
+        "retained_peak_usd_per_token": 2.3819740055978606e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 1.4497486571607165,
+        "price_usd_per_token": 2.3819740055978606e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788452010,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 23819.740055978607
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 3.5441258131843474e-06,
+        "entry_to_85_seconds": 149,
+        "first_crossing_time": 1788265380,
+        "max_proven_drawdown_7d": 0.9070839094193182,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 4.48685367887952e-06
+      },
+      "display_mint": "BKcS\u2026rrpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6158886912692075e-05,
+        "effective_time": 1788265231,
+        "equivalent_valuation_usd": 16158.886912692076,
+        "price_usd_per_token": 1.6158886912692075e-05,
+        "sol_usd": 102.10580082841817,
+        "timestamp": 1788265231,
+        "valuation_usd": 16158.886912692076
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9070839094193182,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "BKcSqBWmyTAVLj5VojbmC9j9Kg2Hxoi5LDusx4rrpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 164,
+        "peak_multiple": 2.009947087049959,
+        "retained_peak_equivalent_valuation": 32478.50768013515,
+        "retained_peak_time": 1788265395,
+        "retained_peak_usd_per_token": 3.247850768013515e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 2.009947087049959,
+        "price_usd_per_token": 3.247850768013515e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788265395,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 32478.50768013515
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.852319131794132e-06,
+        "entry_to_85_seconds": 101,
+        "first_crossing_time": 1788530100,
+        "max_proven_drawdown_7d": 0.8784689790962447,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 3.493289206145191e-06
+      },
+      "display_mint": "BSMY\u20265kpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6110474320495685e-05,
+        "effective_time": 1788529999,
+        "equivalent_valuation_usd": 16110.474320495685,
+        "price_usd_per_token": 1.6110474320495685e-05,
+        "sol_usd": 101.51670684155937,
+        "timestamp": 1788529999,
+        "valuation_usd": 16110.474320495685
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.8784689790962447,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "BSMYixMm6XHgi49bBG117FeeowTQz9dJmUmjwx5kpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 101,
+        "peak_multiple": 1.4941482587775288,
+        "retained_peak_equivalent_valuation": 24071.43715404872,
+        "retained_peak_time": 1788530100,
+        "retained_peak_usd_per_token": 2.407143715404872e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 1.4941482587775288,
+        "price_usd_per_token": 2.407143715404872e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788530100,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 24071.43715404872
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 4.3645316367420684e-05,
+        "entry_to_85_seconds": 856,
+        "first_crossing_time": 1788507720,
+        "max_proven_drawdown_7d": 0.9932718382740104,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 4.5798091648205115e-05
+      },
+      "display_mint": "BcwD\u2026Wrpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.650380711791016e-05,
+        "effective_time": 1788506864,
+        "equivalent_valuation_usd": 16503.80711791016,
+        "price_usd_per_token": 1.650380711791016e-05,
+        "sol_usd": 103.65651093583249,
+        "timestamp": 1788506864,
+        "valuation_usd": 16503.80711791016
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9932718382740104,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788506924
+      },
+      "mint": "BcwDGmnYzWquSVrWHMZqPaewCmxLD8kk7eVGM2Wrpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 106,
+        "peak_multiple": 5.513660978250517,
+        "retained_peak_equivalent_valuation": 90996.39729859438,
+        "retained_peak_time": 1788506970,
+        "retained_peak_usd_per_token": 9.099639729859438e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 5.513660978250517,
+        "price_usd_per_token": 9.099639729859438e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788506970,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 90996.39729859438
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.0,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 1.5536604617309332e-06
+      },
+      "display_mint": "BeEv\u2026s5pump",
+      "entry": {
+        "average_execution_usd_per_token": 1.0357736411539554e-05,
+        "effective_time": 1788505865,
+        "equivalent_valuation_usd": 10357.736411539554,
+        "price_usd_per_token": 1.0357736411539554e-05,
+        "sol_usd": 104.01315301515986,
+        "timestamp": 1788505865,
+        "valuation_usd": 10357.736411539554
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.0,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "BeEvn8SCgkduNn16fHprLXVYQN11yHX8nkPp2Vs5pump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 25,
+        "peak_multiple": 2.617360387342958,
+        "retained_peak_equivalent_valuation": 27109.928986103427,
+        "retained_peak_time": 1788505890,
+        "retained_peak_usd_per_token": 2.7109928986103427e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 2.617360387342958,
+        "price_usd_per_token": 2.7109928986103427e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788505890,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 27109.928986103427
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.831149509929773e-06,
+        "entry_to_85_seconds": 112,
+        "first_crossing_time": 1788423000,
+        "max_proven_drawdown_7d": 0.9062498061527688,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 4.509363006904745e-06
+      },
+      "display_mint": "BoRn\u2026Ecpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.5884736750520505e-05,
+        "effective_time": 1788422888,
+        "equivalent_valuation_usd": 15884.736750520504,
+        "price_usd_per_token": 1.5884736750520505e-05,
+        "sol_usd": 101.04834038896423,
+        "timestamp": 1788422888,
+        "valuation_usd": 15884.736750520504
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9062498061527688,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "BoRniH1ALDv4jqZhki3HWKQuufBRLttBTGhDAoEcpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 97,
+        "peak_multiple": 2.081509558094211,
+        "retained_peak_equivalent_valuation": 33064.231374018804,
+        "retained_peak_time": 1788422985,
+        "retained_peak_usd_per_token": 3.30642313740188e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 2.081509558094211,
+        "price_usd_per_token": 3.30642313740188e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788422985,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 33064.231374018804
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.013974482913162278,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.403406997800758e-06
+      },
+      "display_mint": "Chgw\u2026Zvpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.602271331867172e-05,
+        "effective_time": 1788255822,
+        "equivalent_valuation_usd": 16022.713318671718,
+        "price_usd_per_token": 1.602271331867172e-05,
+        "sol_usd": 101.80784226254471,
+        "timestamp": 1788255822,
+        "valuation_usd": 16022.713318671718
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.013974482913162278,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "ChgwT7je6pAKCXSdgirREvh2AAfN3LccJsUgiHZvpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 3,
+        "peak_multiple": 1.122220583676766,
+        "retained_peak_equivalent_valuation": 17981.018692565267,
+        "retained_peak_time": 1788255825,
+        "retained_peak_usd_per_token": 1.7981018692565267e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "LOWER_BOUND_ONLY",
+        "is_lower_bound": true,
+        "multiple": 1.122220583676766,
+        "price_usd_per_token": 1.7981018692565267e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788255825,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 17981.018692565267
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 3.3277606725043363e-06,
+        "entry_to_85_seconds": 70,
+        "first_crossing_time": 1788514260,
+        "max_proven_drawdown_7d": 0.8914453728580827,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 4.02444209041136e-06
+      },
+      "display_mint": "CitK\u2026gspump",
+      "entry": {
+        "average_execution_usd_per_token": 1.0440226756549893e-05,
+        "effective_time": 1788514190,
+        "equivalent_valuation_usd": 10440.226756549893,
+        "price_usd_per_token": 1.0440226756549893e-05,
+        "sol_usd": 104.46784087032803,
+        "timestamp": 1788514190,
+        "valuation_usd": 10440.226756549893
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.8914453728580827,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "CitKxWwGV88AwMnAUtA4RzpSegYntMKH18yjv2gspump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 85,
+        "peak_multiple": 2.7064129323499992,
+        "retained_peak_equivalent_valuation": 28255.56471059312,
+        "retained_peak_time": 1788514275,
+        "retained_peak_usd_per_token": 2.825556471059312e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 2.7064129323499992,
+        "price_usd_per_token": 2.825556471059312e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788514275,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 28255.56471059312
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.04803285940953084,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.432333470731663e-06
+      },
+      "display_mint": "DGhu\u2026ZKpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.621555647154442e-05,
+        "effective_time": 1788255990,
+        "equivalent_valuation_usd": 16215.556471544422,
+        "price_usd_per_token": 1.621555647154442e-05,
+        "sol_usd": 102.35399948162846,
+        "timestamp": 1788255990,
+        "valuation_usd": 16215.556471544422
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.04803285940953084,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "DGhuaYQoD3Q5GwG1LegLFMVjz4KxP7c6Fpn6spZKpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 0,
+        "peak_multiple": 1.0,
+        "retained_peak_equivalent_valuation": 16215.556471544422,
+        "retained_peak_time": 1788255990,
+        "retained_peak_usd_per_token": 1.621555647154442e-05,
+        "source": "SCENARIO_D_ENTRY_FLOOR"
+      },
+      "proven_high": {
+        "high_authority": "LOWER_BOUND_ONLY",
+        "is_lower_bound": false,
+        "multiple": 1.0,
+        "price_usd_per_token": 1.621555647154442e-05,
+        "strongest_high_source": "SCENARIO_D_ENTRY_FLOOR",
+        "timestamp": 1788255990,
+        "timing_precision": "RETAINED_POINT",
+        "valuation_usd": 16215.556471544422
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 3.1049870416374976e-06,
+        "entry_to_85_seconds": 388,
+        "first_crossing_time": 1788099900,
+        "max_proven_drawdown_7d": 0.9293670548446941,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 5.931935980420697e-06
+      },
+      "display_mint": "DieG\u2026xopump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6807950770680627e-05,
+        "effective_time": 1788099512,
+        "equivalent_valuation_usd": 16807.95077068063,
+        "price_usd_per_token": 1.6807950770680627e-05,
+        "sol_usd": 106.83850308026238,
+        "timestamp": 1788099512,
+        "valuation_usd": 16807.95077068063
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9293670548446941,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "DieGJFBBKYmPg1cjgDZuymUxbPiKWsyF1rKxq4xopump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 358,
+        "peak_multiple": 2.4862682486637944,
+        "retained_peak_equivalent_valuation": 41789.0743262474,
+        "retained_peak_time": 1788099870,
+        "retained_peak_usd_per_token": 4.1789074326247396e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 2.4862682486637944,
+        "price_usd_per_token": 4.1789074326247396e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788099870,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 41789.0743262474
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.161676291433955e-06,
+        "entry_to_85_seconds": 1780,
+        "first_crossing_time": 1788347580,
+        "max_proven_drawdown_7d": 0.9893666666091009,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 2.9617359622641824e-05
+      },
+      "display_mint": "DrZb\u2026dKpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.549281114677789e-05,
+        "effective_time": 1788345800,
+        "equivalent_valuation_usd": 15492.811146777889,
+        "price_usd_per_token": 1.549281114677789e-05,
+        "sol_usd": 97.88992270180071,
+        "timestamp": 1788345800,
+        "valuation_usd": 15492.811146777889
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9893666666091009,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788345976
+      },
+      "mint": "DrZbMBkhTB876NryuixQy68aoCgaMFZCdN2FzPdKpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 235,
+        "peak_multiple": 3.5961317139920745,
+        "retained_peak_equivalent_valuation": 55714.189503817885,
+        "retained_peak_time": 1788346035,
+        "retained_peak_usd_per_token": 5.5714189503817886e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 3.5961317139920745,
+        "price_usd_per_token": 5.5714189503817886e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788346035,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 55714.189503817885
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 3.1519711699309396e-06,
+        "entry_to_85_seconds": 375,
+        "first_crossing_time": 1788017040,
+        "max_proven_drawdown_7d": 0.97529720298473,
+        "peak_to_85_seconds": 60,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 1.3197168062048181e-05
+      },
+      "display_mint": "DyfG\u2026Bapump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6606802760856998e-05,
+        "effective_time": 1788016665,
+        "equivalent_valuation_usd": 16606.802760856997,
+        "price_usd_per_token": 1.6606802760856998e-05,
+        "sol_usd": 104.9433353398251,
+        "timestamp": 1788016665,
+        "valuation_usd": 16606.802760856997
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.97529720298473,
+        "peak_to_85_seconds": 60,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_STRATEGY_GRADE"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788016761
+      },
+      "mint": "DyfGK1hobTQjhp6CpSUTTznzQuq649xFoMTnygBapump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 150,
+        "peak_multiple": 3.0778315734177326,
+        "retained_peak_equivalent_valuation": 51112.94187088644,
+        "retained_peak_time": 1788016815,
+        "retained_peak_usd_per_token": 5.111294187088644e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "STRATEGY_GRADE",
+        "is_lower_bound": true,
+        "multiple": 3.0778315734177326,
+        "price_usd_per_token": 5.111294187088644e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788016815,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 51112.94187088644
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.02699201037239085,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.4224790429316178e-06
+      },
+      "display_mint": "E62o\u2026KHpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6149860286210786e-05,
+        "effective_time": 1788272666,
+        "equivalent_valuation_usd": 16149.860286210785,
+        "price_usd_per_token": 1.6149860286210786e-05,
+        "sol_usd": 102.26375809516452,
+        "timestamp": 1788272666,
+        "valuation_usd": 16149.860286210785
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.02699201037239085,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "E62oHgjBSZaVcuYAT12nJRiVcQjfCrRiW2kzZ7KHpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 4,
+        "peak_multiple": 1.1485833447318312,
+        "retained_peak_equivalent_valuation": 18549.460544487752,
+        "retained_peak_time": 1788272670,
+        "retained_peak_usd_per_token": 1.8549460544487754e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "LOWER_BOUND_ONLY",
+        "is_lower_bound": true,
+        "multiple": 1.1485833447318312,
+        "price_usd_per_token": 1.8549460544487754e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788272670,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 18549.460544487752
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 0.00040912108983457237,
+        "entry_to_85_seconds": 3684,
+        "first_crossing_time": 1788163200,
+        "max_proven_drawdown_7d": 0.9993690839993732,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 0.0005485729791949078
+      },
+      "display_mint": "EBK2\u2026sVpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.625622235023499e-05,
+        "effective_time": 1788159516,
+        "equivalent_valuation_usd": 16256.22235023499,
+        "price_usd_per_token": 1.625622235023499e-05,
+        "sol_usd": 103.05811459465353,
+        "timestamp": 1788159516,
+        "valuation_usd": 16256.22235023499
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9993690839993732,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788159600
+      },
+      "mint": "EBK2daxNw6rHfirCyemmvzpDcotvp8wH4fYZqwsVpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 129,
+        "peak_multiple": 6.043406834393715,
+        "retained_peak_equivalent_valuation": 98242.965252834,
+        "retained_peak_time": 1788159645,
+        "retained_peak_usd_per_token": 9.8242965252834e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 6.043406834393715,
+        "price_usd_per_token": 9.8242965252834e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788159645,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 98242.965252834
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.0,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.478824806223555e-06
+      },
+      "display_mint": "EMeU\u2026zKpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6525498708157034e-05,
+        "effective_time": 1788017766,
+        "equivalent_valuation_usd": 16525.498708157036,
+        "price_usd_per_token": 1.6525498708157034e-05,
+        "sol_usd": 104.65368057975121,
+        "timestamp": 1788017766,
+        "valuation_usd": 16525.498708157036
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.0,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "EMeUvL1MKdZbUNXBYeKksbXCEVGXspk2jj4LrzzKpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 24,
+        "peak_multiple": 1.2199228451580773,
+        "retained_peak_equivalent_valuation": 20159.83340171106,
+        "retained_peak_time": 1788017790,
+        "retained_peak_usd_per_token": 2.015983340171106e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "LOWER_BOUND_ONLY",
+        "is_lower_bound": true,
+        "multiple": 1.2199228451580773,
+        "price_usd_per_token": 2.015983340171106e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788017790,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 20159.83340171106
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 3.635154768524083e-05,
+        "entry_to_85_seconds": 3076,
+        "first_crossing_time": 1788463440,
+        "max_proven_drawdown_7d": 0.9959593949182487,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 7.89317389642725e-05
+      },
+      "display_mint": "EbM9\u20267Tpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.662304121378543e-05,
+        "effective_time": 1788460364,
+        "equivalent_valuation_usd": 16623.04121378543,
+        "price_usd_per_token": 1.662304121378543e-05,
+        "sol_usd": 104.61697670891627,
+        "timestamp": 1788460364,
+        "valuation_usd": 16623.04121378543
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9959593949182487,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788460441
+      },
+      "mint": "EbM9YwGHM6d6w5J1xBX5yqLsPHhMp7mDmPqpkE7Tpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 136,
+        "peak_multiple": 5.41473398836425,
+        "retained_peak_equivalent_valuation": 90009.34625026368,
+        "retained_peak_time": 1788460500,
+        "retained_peak_usd_per_token": 9.000934625026369e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 5.41473398836425,
+        "price_usd_per_token": 9.000934625026369e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788460500,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 90009.34625026368
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 7.703558805473112e-06,
+        "entry_to_85_seconds": 227,
+        "first_crossing_time": 1788017400,
+        "max_proven_drawdown_7d": 0.9787428508042385,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 1.6800763270485497e-05
+      },
+      "display_mint": "FkM6\u2026zEpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6517504379655156e-05,
+        "effective_time": 1788017173,
+        "equivalent_valuation_usd": 16517.504379655154,
+        "price_usd_per_token": 1.6517504379655156e-05,
+        "sol_usd": 104.75663373504734,
+        "timestamp": 1788017173,
+        "valuation_usd": 16517.504379655154
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9787428508042385,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788017221
+      },
+      "mint": "FkM6ZxDkpW2dAtt8QfiPsFG1aRtdgk6HPzrADzzEpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 107,
+        "peak_multiple": 4.232990170729839,
+        "retained_peak_equivalent_valuation": 69918.43368406733,
+        "retained_peak_time": 1788017280,
+        "retained_peak_usd_per_token": 6.991843368406734e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 4.232990170729839,
+        "price_usd_per_token": 6.991843368406734e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788017280,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 69918.43368406733
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.02618161057814572,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.372435781593827e-06
+      },
+      "display_mint": "FmVB\u2026snpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.5816238543958846e-05,
+        "effective_time": 1788337380,
+        "equivalent_valuation_usd": 15816.238543958847,
+        "price_usd_per_token": 1.5816238543958846e-05,
+        "sol_usd": 100.164361204516,
+        "timestamp": 1788337380,
+        "valuation_usd": 15816.238543958847
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.02618161057814572,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "FmVBbE3f7oncfPZ2TDRbWb6gZKggtky977pwqasnpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 30,
+        "peak_multiple": 1.5666179221376382,
+        "retained_peak_equivalent_valuation": 24778.002763770033,
+        "retained_peak_time": 1788337410,
+        "retained_peak_usd_per_token": 2.4778002763770033e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 1.5666179221376382,
+        "price_usd_per_token": 2.4778002763770033e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788337410,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 24778.002763770033
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.1920054443718786e-06,
+        "entry_to_85_seconds": 1925,
+        "first_crossing_time": 1788532140,
+        "max_proven_drawdown_7d": 0.9737755505723503,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 1.167306555757275e-05
+      },
+      "display_mint": "FqXi\u2026dVpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.597402364286769e-05,
+        "effective_time": 1788530215,
+        "equivalent_valuation_usd": 15974.023642867689,
+        "price_usd_per_token": 1.597402364286769e-05,
+        "sol_usd": 101.90425605158696,
+        "timestamp": 1788530215,
+        "valuation_usd": 15974.023642867689
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9737755505723503,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788530791
+      },
+      "mint": "FqXipMyKJJUrU9MASnpWqTESVcdZjkK83ttFmWdVpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 560,
+        "peak_multiple": 2.6784783618347108,
+        "retained_peak_equivalent_valuation": 42786.076678857185,
+        "retained_peak_time": 1788530775,
+        "retained_peak_usd_per_token": 4.2786076678857186e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 2.6784783618347108,
+        "price_usd_per_token": 4.2786076678857186e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788530775,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 42786.076678857185
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.556818748062855e-06,
+        "entry_to_85_seconds": 2776,
+        "first_crossing_time": 1788518280,
+        "max_proven_drawdown_7d": 0.9976411505516288,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 0.00015432046993680605
+      },
+      "display_mint": "G5vB\u2026jJpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.040289441226627e-05,
+        "effective_time": 1788515504,
+        "equivalent_valuation_usd": 10402.89441226627,
+        "price_usd_per_token": 1.040289441226627e-05,
+        "sol_usd": 104.59549622586398,
+        "timestamp": 1788515504,
+        "valuation_usd": 10402.89441226627
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9976411505516288,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788515589
+      },
+      "mint": "G5vBr81KJZEuFvD8Nf2oB5XRa6Ess7yHJefoUCjJpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 136,
+        "peak_multiple": 7.485901124688161,
+        "retained_peak_equivalent_valuation": 77875.03898079626,
+        "retained_peak_time": 1788515640,
+        "retained_peak_usd_per_token": 7.787503898079626e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 7.485901124688161,
+        "price_usd_per_token": 7.787503898079626e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788515640,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 77875.03898079626
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.9359819194474135e-06,
+        "entry_to_85_seconds": 67,
+        "first_crossing_time": 1788017700,
+        "max_proven_drawdown_7d": 0.8550722453010894,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 3.0363428635606615e-06
+      },
+      "display_mint": "GNY3\u2026gSpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6605210560619414e-05,
+        "effective_time": 1788017633,
+        "equivalent_valuation_usd": 16605.210560619413,
+        "price_usd_per_token": 1.6605210560619414e-05,
+        "sol_usd": 105.4177361960856,
+        "timestamp": 1788017633,
+        "valuation_usd": 16605.210560619413
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.8550722453010894,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "GNY3yPV5ekqC89brpHCpkpV23eVvBoniRTw6czgSpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 82,
+        "peak_multiple": 1.8051385768479598,
+        "retained_peak_equivalent_valuation": 29974.70615965724,
+        "retained_peak_time": 1788017715,
+        "retained_peak_usd_per_token": 2.997470615965724e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 1.8051385768479598,
+        "price_usd_per_token": 2.997470615965724e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788017715,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 29974.70615965724
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.0362434630745061,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 1.552832476419899e-06
+      },
+      "display_mint": "HDvw\u2026vKpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.0352216509465994e-05,
+        "effective_time": 1788519442,
+        "equivalent_valuation_usd": 10352.216509465994,
+        "price_usd_per_token": 1.0352216509465994e-05,
+        "sol_usd": 104.07746680260173,
+        "timestamp": 1788519442,
+        "valuation_usd": 10352.216509465994
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.0362434630745061,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "HDvwQ7ai3Ywi1badnXREqJSaAAzoe1q63SbZwTvKpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 8,
+        "peak_multiple": 1.9436731518281962,
+        "retained_peak_equivalent_valuation": 20121.325291361656,
+        "retained_peak_time": 1788519450,
+        "retained_peak_usd_per_token": 2.0121325291361656e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 1.9436731518281962,
+        "price_usd_per_token": 2.0121325291361656e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788519450,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 20121.325291361656
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 1.0460765909242226e-05,
+        "entry_to_85_seconds": 208,
+        "first_crossing_time": 1788465060,
+        "max_proven_drawdown_7d": 0.9748447581129807,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 1.5131683434046021e-05
+      },
+      "display_mint": "HiYH\u2026mjpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6670297992792085e-05,
+        "effective_time": 1788464852,
+        "equivalent_valuation_usd": 16670.297992792086,
+        "price_usd_per_token": 1.6670297992792085e-05,
+        "sol_usd": 105.3385978949938,
+        "timestamp": 1788464852,
+        "valuation_usd": 16670.297992792086
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9748447581129807,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788464918
+      },
+      "mint": "HiYHZmYti5f2SVvEwCs296AELFR2UMW3r4aBHFmjpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 118,
+        "peak_multiple": 5.35173918880465,
+        "retained_peak_equivalent_valuation": 89215.0870570769,
+        "retained_peak_time": 1788464970,
+        "retained_peak_usd_per_token": 8.92150870570769e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 5.35173918880465,
+        "price_usd_per_token": 8.92150870570769e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788464970,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 89215.0870570769
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.02797989463841899,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 1.565026717886738e-06
+      },
+      "display_mint": "Hpou\u20265upump",
+      "entry": {
+        "average_execution_usd_per_token": 1.0433511452578253e-05,
+        "effective_time": 1788521394,
+        "equivalent_valuation_usd": 10433.511452578254,
+        "price_usd_per_token": 1.0433511452578253e-05,
+        "sol_usd": 103.842451414026,
+        "timestamp": 1788521394,
+        "valuation_usd": 10433.511452578254
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.02797989463841899,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "HpoucnSt8mYoYf1sq7mvtc3GfHttDdtHLaEeiw5upump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 6,
+        "peak_multiple": 2.4502202876400814,
+        "retained_peak_equivalent_valuation": 25564.401432432373,
+        "retained_peak_time": 1788521400,
+        "retained_peak_usd_per_token": 2.556440143243237e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 2.4502202876400814,
+        "price_usd_per_token": 2.556440143243237e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788521400,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 25564.401432432373
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.6579345103807812,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.5063473598843274e-06
+      },
+      "display_mint": "VGpx\u2026eYpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.670898239922885e-05,
+        "effective_time": 1788464169,
+        "equivalent_valuation_usd": 16708.98239922885,
+        "price_usd_per_token": 1.670898239922885e-05,
+        "sol_usd": 105.5186335702637,
+        "timestamp": 1788464169,
+        "valuation_usd": 16708.98239922885
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.6579345103807812,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788464268
+      },
+      "mint": "VGpxjH2dtrk2PK9ynRLdVMZfWwwY5jaG7wNdJeYpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 96,
+        "peak_multiple": 5.808119492711969,
+        "retained_peak_equivalent_valuation": 97047.76637634229,
+        "retained_peak_time": 1788464265,
+        "retained_peak_usd_per_token": 9.704776637634229e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 5.808119492711969,
+        "price_usd_per_token": 9.704776637634229e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788464265,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 97047.76637634229
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.960567030853267e-06,
+        "entry_to_85_seconds": 163,
+        "first_crossing_time": 1788002820,
+        "max_proven_drawdown_7d": 0.9084620483229036,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 4.609276925218377e-06
+      },
+      "display_mint": "b8QQ\u2026Rupump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6485680299505906e-05,
+        "effective_time": 1788002657,
+        "equivalent_valuation_usd": 16485.680299505904,
+        "price_usd_per_token": 1.6485680299505906e-05,
+        "sol_usd": 103.50230161150444,
+        "timestamp": 1788002657,
+        "valuation_usd": 16485.680299505904
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9084620483229036,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "b8QQGeBdNeCuxEZC1mQYN69HtqMSH8hjgdmBPRupump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 103,
+        "peak_multiple": 2.4808993627533993,
+        "retained_peak_equivalent_valuation": 40899.313749600464,
+        "retained_peak_time": 1788002760,
+        "retained_peak_usd_per_token": 4.089931374960047e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 2.4808993627533993,
+        "price_usd_per_token": 4.089931374960047e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788002760,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 40899.313749600464
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.059933719462675006,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.445662776461126e-06
+      },
+      "display_mint": "eH9u\u2026vRpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6304418509740838e-05,
+        "effective_time": 1788518561,
+        "equivalent_valuation_usd": 16304.418509740839,
+        "price_usd_per_token": 1.6304418509740838e-05,
+        "sol_usd": 103.66279459466588,
+        "timestamp": 1788518561,
+        "valuation_usd": 16304.418509740839
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.059933719462675006,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "eH9uErNehYg3p8Y14Ujf5eUBNnX6AkaEqkxLbvRpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 19,
+        "peak_multiple": 1.8743987022670028,
+        "retained_peak_equivalent_valuation": 30560.980895876328,
+        "retained_peak_time": 1788518580,
+        "retained_peak_usd_per_token": 3.056098089587633e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 1.8743987022670028,
+        "price_usd_per_token": 3.056098089587633e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788518580,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 30560.980895876328
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.004374485006445883,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.456823017724013e-06
+      },
+      "display_mint": "iADS\u2026HKpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6378820118160088e-05,
+        "effective_time": 1787992435,
+        "equivalent_valuation_usd": 16378.820118160087,
+        "price_usd_per_token": 1.6378820118160088e-05,
+        "sol_usd": 103.34195959217783,
+        "timestamp": 1787992435,
+        "valuation_usd": 16378.820118160087
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.004374485006445883,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "iADSLGnCLWwVzQckm8HFywnS4E61493wC59HJHKpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 20,
+        "peak_multiple": 1.3127193998162094,
+        "retained_peak_equivalent_valuation": 21500.794915208768,
+        "retained_peak_time": 1787992455,
+        "retained_peak_usd_per_token": 2.150079491520877e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 1.3127193998162094,
+        "price_usd_per_token": 2.150079491520877e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1787992455,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 21500.794915208768
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.7999511169218536,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.496894957696398e-06
+      },
+      "display_mint": "kDhi\u20262Tpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6645966384642652e-05,
+        "effective_time": 1788014647,
+        "equivalent_valuation_usd": 16645.966384642652,
+        "price_usd_per_token": 1.6645966384642652e-05,
+        "sol_usd": 105.15134979701865,
+        "timestamp": 1788014647,
+        "valuation_usd": 16645.966384642652
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.7999511169218536,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788014733
+      },
+      "mint": "kDhik8Hd1sVkSH3kNyksxbKkK9ueSKXLj2GSN2Tpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 83,
+        "peak_multiple": 2.7761486753071725,
+        "retained_peak_equivalent_valuation": 46211.67752793342,
+        "retained_peak_time": 1788014730,
+        "retained_peak_usd_per_token": 4.621167752793342e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 2.7761486753071725,
+        "price_usd_per_token": 4.621167752793342e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788014730,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 46211.67752793342
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": null,
+        "entry_to_85_seconds": null,
+        "first_crossing_time": null,
+        "max_proven_drawdown_7d": 0.0629450931539749,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_NOT_PROVEN",
+        "threshold_price": 2.4709352767213845e-06
+      },
+      "display_mint": "vZd5\u2026mYpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.647290184480923e-05,
+        "effective_time": 1788519764,
+        "equivalent_valuation_usd": 16472.901844809232,
+        "price_usd_per_token": 1.647290184480923e-05,
+        "sol_usd": 104.09210723983007,
+        "timestamp": 1788519764,
+        "valuation_usd": 16472.901844809232
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.0629450931539749,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_NOT_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": false,
+        "source": null,
+        "timestamp": null
+      },
+      "mint": "vZd5wgnfqPio9rfCg8vem7ZPNBJSixGCYNZsRmYpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 31,
+        "peak_multiple": 1.580997498614772,
+        "retained_peak_equivalent_valuation": 26043.616611570058,
+        "retained_peak_time": 1788519795,
+        "retained_peak_usd_per_token": 2.604361661157006e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 1.580997498614772,
+        "price_usd_per_token": 2.604361661157006e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788519795,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 26043.616611570058
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    },
+    {
+      "collapse": {
+        "crossing_price": 2.406286615434897e-06,
+        "entry_to_85_seconds": 432,
+        "first_crossing_time": 1788553200,
+        "max_proven_drawdown_7d": 0.9548643215745017,
+        "peak_to_85_seconds": 0,
+        "rug_state": "RUG_85_PROVEN",
+        "threshold_price": 7.266277081696672e-06
+      },
+      "display_mint": "zRoY\u2026SVpump",
+      "entry": {
+        "average_execution_usd_per_token": 1.6055155683666725e-05,
+        "effective_time": 1788552768,
+        "equivalent_valuation_usd": 16055.155683666724,
+        "price_usd_per_token": 1.6055155683666725e-05,
+        "sol_usd": 101.64157279411796,
+        "timestamp": 1788552768,
+        "valuation_usd": 16055.155683666724
+      },
+      "evidence": {
+        "qualification": "STRATEGY_EVIDENCE_QUALIFIED"
+      },
+      "lifecycle": {
+        "max_7d_drawdown": 0.9548643215745017,
+        "peak_to_85_seconds": null,
+        "rug_85_state": "RUG_85_PROVEN",
+        "rug_timing_policy": "RUG_TIMING_UNRESOLVED"
+      },
+      "membership": "RESEARCH_ONLY",
+      "migration": {
+        "event_proven": true,
+        "source": "PUMPFUN_WEBSOCKET",
+        "timestamp": 1788552877
+      },
+      "mint": "zRoYAdLYogsS491qazGakt2BDvgjMMiE8xQWpSVpump",
+      "post_entry_peak": {
+        "entry_to_peak_seconds": 132,
+        "peak_multiple": 3.1441921885752437,
+        "retained_peak_equivalent_valuation": 50480.49508694434,
+        "retained_peak_time": 1788552900,
+        "retained_peak_usd_per_token": 5.048049508694434e-05,
+        "source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH"
+      },
+      "proven_high": {
+        "high_authority": "TARGET_GRADE_LOWER_BOUND",
+        "is_lower_bound": true,
+        "multiple": 3.1441921885752437,
+        "price_usd_per_token": 5.048049508694434e-05,
+        "strongest_high_source": "BIRDEYE_15S_FULLY_POST_ENTRY_HIGH",
+        "timestamp": 1788552900,
+        "timing_precision": "RETAINED_15S_CANDLE",
+        "valuation_usd": 50480.49508694434
+      },
+      "strategy": {
+        "status": "PENDING_SCORING"
+      }
+    }
+  ],
+  "schema_version": "TRADING_OPPORTUNITY_READ_MODEL_V3"
+}

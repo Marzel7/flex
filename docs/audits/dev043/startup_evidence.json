@@ -1,0 +1,11 @@
+{
+  "isolated_pid": 62652,
+  "stopped": true,
+  "observed_messages": [
+    "[WARNING] Operator schema startup failed: DEV043_ISOLATION_DENIED:foreign_file_write",
+    "[OPERATORS] Startup failed (non-fatal): cannot import name 'commit_write_and_wait' from 'src.core.db_writer'",
+    "Failed to ensure metadata_cache table: DEV runtime refuses to create SQLite state outside /private/tmp/dev043-isolated-state: /private/tmp/dev043-isolated-state/database/flex_complete_database.db",
+    "[FD_WATCHDOG] error: DEV043_ISOLATION_DENIED:subprocess.Popen"
+  ],
+  "interpretation": "Application caught startup failures and reached runtime main. This does not satisfy accepted contracts. Foreign write target was not captured; no canonical write inferred. Missing local read-only metadata cache binding also remains unresolved. No HTTP/browser acceptance attempted."
+}

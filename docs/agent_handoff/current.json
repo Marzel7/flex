@@ -1,4 +1,19 @@
 {
+  "dev039_anchor_recovery_fairness_qualification": {
+    "status": "HOLD_MINIMAL_FAIR_ORDER_QUERY_NOT_PERFORMANCE_QUALIFIED",
+    "engineering_revision": "f52609c058be6f881f15d887771160c2b3881ebd unchanged after removing unqualified trial;no new qualified source revision",
+    "isolated_branch": "codex/dev039-anchor-recovery-fairness in /Users/kevinkeaveney/.codex/worktrees/dev039-watchtower-regression-audit/flex;existing untracked rollbackarchive preserved",
+    "objective": "Give AYtRss and other waitingrows a fair existing zeroRPCanchorlookup turn without relaxingCREATEqualification,provideracquisition,replay,DBwrites ordeployment.",
+    "frozen_reference": "Prior exactcomparison establishedOct8frozen064021bd andcurrentworker bothcallreconcilelimit1 andselectoldest enqueuefirst. Existingperexaminedrowlast_anchor_lookup_at bookkeeping available. No historical rollback orreopenedattributionwork.",
+    "trial": "Only _stuck_rows ORDERBY experimentally changed toCOALESCE(last_anchor_lookup_at,0),enqueued_at,mint. Neverexaminedfirst,thenleastrecentlyexamined,deterministicties;noanchor/status/admissionpredicate changes.5purein-memoryfixtureassertionsPASS fairnessrotation,exactidentities andmissinganchorpreservation;no SQLitefixturewrites.",
+    "performance_evidence": "Two boundedreadonlycanonicalOPS SELECT/EXPLAIN qualification attempts,no writes,no repeatedunboundedscans.1plannerchose ix_wbq_priority(status,priority,enqueued_at)+TEMPB-TREE ORDERBY;1secondprogressdeadlineinterrupted.2explicitexisting ix_wbq_status(status,enqueued_at) stillTEMPB-TREE ORDERBY;2seconddeadlineinterrupted at2003.77ms. Existingindexes inspectedschemareadonly;none coverslast_anchor_lookup_at. These establish no bounded-latencyqualificationwithin testedbudgets,not an exact total latency or globalDBfailure. Queryexamines/sortswaitingpopulationbeforeLIMIT1;do not deployblindlyswitchingone starvationriskforunqualifiedcost.",
+    "disposition": "Removedtrialeditwithapply_patch;gitdiffempty afterward,onlypreexistinguntrackedrollbackarchive. No implementationcommitted/deployed. ExistingProductionlistenerV1fix andWalkbackworker untouched;CREATEanchorqualification remainsasbefore. AYtRssnotmanuallyexamined/requeued/updated;starvationnotfixedbythisattempt.",
+    "constraint_compliance": "Providerrequests0;productionchanges0;databasewrites0;runtimechanges0;replay0. Read-onlycanonicalconnectionsmode=ro/query_only withexplicitprogressdeadlines. No sourceimports/workers,DBcopies,rawretention,indexes/schemachanges,caches ornewinfrastructure. No files>=500MB created.",
+    "minimum_next_action": "Separatelyqualifyanindex-compatibleboundedfairselector ratherthanfullwaitingpopulationsort. Supportingindexorcursor/state design wouldneedexplicitscopedqualificationandisnotassumedauthorized/deployedhere. Do notweakenCREATEanchor gate. FairselectionalonecannotinventmissingCREATEevidence.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Failedisolatedqualificationwithtrialremoved;no executablechange survives this task.",
+    "next_action": "STOP_AT_HOLD. Report measuredfair-order querybudget failure and unchangedruntime. No deployment/replay/provideracquisition or automaticsecondengineeringcycle."
+  },
   "dev039_aytrss_missing_anchor_recovery_diagnosis": {
     "status": "PROVEN_ANCHOR_RECONCILIATION_HEAD_OF_LINE_STARVATION; RETAINED_CREATE_EVIDENCE_MISSING",
     "engineering_revision": "f52609c058be6f881f15d887771160c2b3881ebd listenerqualification unchanged;readonlycurrentWalkbacksourcecomparison",

@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev049-frontend-tooling",
-    "git_head": "4664b4a62b892dacf4540b3b1a7622fb156b8aa8",
+    "branch": "codex/dev049",
+    "git_head": "e15720cbac1ff4fa1815b92446ce5b5b13727e0d",
     "name": "flex",
-    "updated_at_utc": "2026-10-16T20:32:18.336193+00:00",
-    "working_tree": "DEV049 frontend cause proven and tooling correction committed separately; unchanged application candidatee15720cb passes normal and clean-checkout25tests+frontend+10browser contracts; isolated APIs stopped; no deployment."
+    "updated_at_utc": "2026-10-16T20:41:37.849229+00:00",
+    "working_tree": "DEV049 target-readinessHOLD: exact runtime transaction classifier excludesBEGIN; candidate SQLite lock precedes sharedwrite lane. Canonical cursorDB16.2GB lacks compliant file bound. Candidateunchanged, runtimeuntouched."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -30277,5 +30277,316 @@
     },
     "NEXT_ACTION": "NONE \u2014 isolated qualification complete. Separate authorization naming exact target and release is required before any deployment; protected installed tooling remains unchanged.",
     "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/DEV049_FRONTEND_GATE_STATUS.json"
+  },
+  "dev049_deployment_readiness": {
+    "DEV049_DEPLOYMENT_READINESS": "HOLD_RUNTIME_SOURCE_MISMATCH",
+    "BLOCKING_CLASSES": [
+      "HOLD_RUNTIME_SOURCE_MISMATCH",
+      "HOLD_CURSOR_STORAGE_AUTHORITY"
+    ],
+    "CURRENT_RECOVERY_RUNTIME": {
+      "command": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python\n-m src.core.walkback_worker --loop",
+      "directory": "/Users/kevinkeaveney/Production/flex-walkback-dev002",
+      "autostart": "true",
+      "autorestart": "true",
+      "startsecs": "5",
+      "stopwaitsecs": "15",
+      "stdout_logfile": "/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/walkback_worker.log",
+      "stderr_logfile": "/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/walkback_worker_err.log",
+      "environment": {
+        "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+        "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "WALKBACK_BATCH_SIZE": "8",
+        "WALKBACK_INTERVAL_SEC": "45",
+        "WALKBACK_MAX_ATTEMPTS": "3",
+        "WALKBACK_RPC_BUDGET_BATCH": "80",
+        "OPERATIONS_MODE": "MONITOR",
+        "WATCHTOWER_CANONICAL_PREDICATE_MODE": "shadow"
+      },
+      "credential_labels_only": {
+        "HELIUS_RPC_URL": "configured; value not captured",
+        "BIRDEYE": "anchor reconciliation does not acquire; authoritative paid label unchanged"
+      },
+      "pid": 73413,
+      "supervisor_pid": 73409,
+      "git_head": "afbe9e58b11eb2e4d616246da123ce31ab45700c",
+      "installed_files": {
+        "src/core/walkback_worker.py": {
+          "sha256": "a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9",
+          "size": 107124
+        },
+        "src/ops/anchor_reconciliation.py": {
+          "sha256": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7",
+          "size": 29268
+        },
+        "src/ops/create_event_ledger.py": {
+          "sha256": "64780f0d9724153581fec2a2182eb71d2dccf53b1be7abfd23b1062360249dc4",
+          "size": 17845
+        },
+        "src/utils/db_locking.py": {
+          "sha256": "ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89",
+          "size": 90547
+        },
+        "src/core/database_write_service.py": {
+          "sha256": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2",
+          "size": 67486
+        }
+      },
+      "loaded_python_identity": "UNVERIFIED; no process introspection/signalling performed"
+    },
+    "CURRENT_RECOVERY_SOURCE_SHA": {
+      "git_head": "afbe9e58b11eb2e4d616246da123ce31ab45700c",
+      "installed_files": {
+        "src/core/walkback_worker.py": {
+          "sha256": "a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9",
+          "size": 107124
+        },
+        "src/ops/anchor_reconciliation.py": {
+          "sha256": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7",
+          "size": 29268
+        },
+        "src/ops/create_event_ledger.py": {
+          "sha256": "64780f0d9724153581fec2a2182eb71d2dccf53b1be7abfd23b1062360249dc4",
+          "size": 17845
+        },
+        "src/utils/db_locking.py": {
+          "sha256": "ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89",
+          "size": 90547
+        },
+        "src/core/database_write_service.py": {
+          "sha256": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2",
+          "size": 67486
+        }
+      },
+      "working_tree": "walkback_worker.py differs from HEAD by46added/6removed lines; helper and db_locking files have no tracked diff",
+      "loaded_python": "UNVERIFIED; on-disk compatibility inspected without signalling/injecting process"
+    },
+    "CANDIDATE_SOURCE_SHA": "e15720cbac1ff4fa1815b92446ce5b5b13727e0d",
+    "CANDIDATE_REFERENCE": {
+      "candidate": "/Users/kevinkeaveney/Dev/claude/flex-releases/candidates/DEV049_CANDIDATE_e15720cbac1f",
+      "deployment_authorized": false,
+      "manifest_sha256": "85398a259453d0be6bbb47bbda333cd30e8f2aae032c8dea2d32b947d11830f5",
+      "source_sha": "e15720cbac1ff4fa1815b92446ce5b5b13727e0d",
+      "status": "PASS",
+      "tag": "DEV049_CANDIDATE_e15720cbac1f"
+    },
+    "CURSOR_STORAGE_AUTHORITY": {
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+      "table": "wt_scheduler_state",
+      "namespace": "create_anchor_recovery_v1",
+      "existing_schema": "CREATE TABLE wt_scheduler_state (key TEXT PRIMARY KEY, value_json TEXT, updated_at INTEGER)",
+      "existing_observed_keys": [
+        [
+          "main"
+        ]
+      ],
+      "initialization": "Absent cursor is initialized by INSERT/UPSERT during first bounded reconciliation transaction; would be canonical DML, never performed here",
+      "schema_or_index_migration_required": false,
+      "ownership": "Prospective dedicated key written by existing Walkback recovery pass via its OPS connection; current main scheduler namespace must remain untouched. No dedicated recovery process.",
+      "bounds": "Cursor JSON<=256characters; single row overwritten. This does not bound the containing canonical database/WAL.",
+      "actual_files": {
+        "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db": 16194387968,
+        "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db-wal": 232281512,
+        "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db-shm": 983040,
+        "supervisor_configuration_sha256": "18f39cb1b9d60d9e5b00d212acdc6697e9c0f68f1031d77c3cff91f40f3c4ccc"
+      },
+      "storage_decision": "HOLD \u2014 existing canonical DB16194387968bytes exceeds500000000; no compliant persistent write-authority/file bound established for proposed new cursor behavior. No copy, new file, migration or exemption introduced."
+    },
+    "INDEX_COMPATIBILITY": {
+      "status": "PASS_BOUNDED_READ_PATHS",
+      "evidence": {
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+        "schema": {
+          "wt_scheduler_state": "CREATE TABLE wt_scheduler_state (key TEXT PRIMARY KEY, value_json TEXT, updated_at INTEGER)",
+          "wt_walkback_queue": "CREATE TABLE wt_walkback_queue (\n            mint                TEXT NOT NULL,\n            creator             TEXT,\n            subprov             TEXT,\n            treasury            TEXT,\n            walkback_class      TEXT NOT NULL DEFAULT 'FULL_WALKBACK',\n            attribution_source  TEXT,\n            status              TEXT NOT NULL DEFAULT 'pending',\n            rpc_used            INTEGER NOT NULL DEFAULT 0,\n            attempts            INTEGER NOT NULL DEFAULT 0,\n            last_error          TEXT,\n            enqueued_at         INTEGER NOT NULL DEFAULT (strftime('%s','now')),\n            started_at          INTEGER,\n            completed_at        INTEGER,\n            updated_at          INTEGER NOT NULL DEFAULT (strftime('%s','now')), intelligence_outcome TEXT, funder_wallet TEXT, funding_mechanism TEXT, funder_amount_sol REAL, funder_sig TEXT, funder_slot INTEGER, funder_block_time INTEGER, claimed_by TEXT, claimed_at INTEGER, lease_expires_at INTEGER, next_retry_at INTEGER, path_state TEXT, termination_reason_json TEXT, create_anchor_signature TEXT, create_anchor_slot INTEGER, create_anchor_block_time INTEGER, create_anchor_source TEXT, create_anchor_audit_state TEXT, priority INTEGER NOT NULL DEFAULT 0, priority_reason TEXT, anchor_lookup_attempts INTEGER NOT NULL DEFAULT 0, last_anchor_lookup_at INTEGER, anchor_recovered_at INTEGER, anchor_recovery_source TEXT, anchor_lookup_state TEXT, infrastructure_retry_count INTEGER NOT NULL DEFAULT 0, last_infrastructure_error TEXT,\n            PRIMARY KEY (mint)\n        )"
+        },
+        "indexes": [
+          [
+            "sqlite_autoindex_wt_walkback_queue_1",
+            null
+          ],
+          [
+            "ix_wbq_status",
+            "CREATE INDEX ix_wbq_status\n            ON wt_walkback_queue(status, enqueued_at)"
+          ],
+          [
+            "ix_wbq_class",
+            "CREATE INDEX ix_wbq_class\n            ON wt_walkback_queue(walkback_class, status)"
+          ],
+          [
+            "ix_wbq_outcome",
+            "CREATE INDEX ix_wbq_outcome ON wt_walkback_queue(intelligence_outcome)"
+          ],
+          [
+            "ix_wbq_funder",
+            "CREATE INDEX ix_wbq_funder\n            ON wt_walkback_queue(funder_wallet)"
+          ],
+          [
+            "ix_wbq_priority",
+            "CREATE INDEX ix_wbq_priority ON wt_walkback_queue(status, priority DESC, enqueued_at ASC)"
+          ],
+          [
+            "ix_wbq_deep_review_page",
+            "CREATE INDEX ix_wbq_deep_review_page ON wt_walkback_queue(funder_block_time DESC,mint DESC) WHERE status='complete' AND intelligence_outcome='LINEAGE_GAP' AND funding_mechanism='WSOL_WRAP_CLOSE' AND funder_amount_sol>1.1120385 AND funder_amount_sol<1.1120395"
+          ]
+        ],
+        "scheduler_keys": [
+          [
+            "main"
+          ]
+        ],
+        "queries": [
+          {
+            "query": "tie",
+            "sql": "SELECT rowid,mint FROM wt_walkback_queue INDEXED BY ix_wbq_status WHERE status=? AND enqueued_at=? AND rowid>? ORDER BY rowid LIMIT 64",
+            "parameters": [
+              "waiting",
+              1792183063,
+              90190
+            ],
+            "plan": [
+              "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=? AND enqueued_at=? AND rowid>?)"
+            ],
+            "rows": 1,
+            "elapsed_ms": 0.13104197569191456
+          },
+          {
+            "query": "range",
+            "sql": "SELECT rowid,mint FROM wt_walkback_queue INDEXED BY ix_wbq_status WHERE status=? AND enqueued_at>? AND enqueued_at<=? ORDER BY enqueued_at,rowid LIMIT 64",
+            "parameters": [
+              "waiting",
+              1792096663,
+              1792183063
+            ],
+            "plan": [
+              "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=? AND enqueued_at>? AND enqueued_at<?)"
+            ],
+            "rows": 64,
+            "elapsed_ms": 3.4523329231888056
+          }
+        ],
+        "bounds": "mode=ro/query_only;1second progress deadline;at most64rows/query;no full counts or scans"
+      },
+      "latencies_ms": [
+        0.13104197569191456,
+        3.4523329231888056
+      ],
+      "limits": "Two measured <=64row probes at recent keys, not whole-population latency proof; one-second read-only progress deadline; no recovery-source lookups"
+    },
+    "RUNTIME_SOURCE_COMPATIBILITY": {
+      "status": "FAIL_TRANSACTION_ORDER",
+      "proof": {
+        "status": "PROVEN_RUNTIME_LOCK_ORDER_INVERSION",
+        "source": "Exact installed TrackedConnection.execute and _is_write_sql bodies; exact candidate _fair_stuck_rows body",
+        "scope": "SQLite physical locking exercised on compact disposable fixture; application lane hook records ordering, does not acquire real shared lease. No worker or background reaper imported. No provider or canonical connection.",
+        "runtime_file_sha256": "ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89",
+        "candidate_file_sha256": "226b32f79b4bb5e705f5e15acdb0ab3437470b6b25aeae95e138895c2fc6e2d6",
+        "begin_classified_as_write": false,
+        "events": [
+          {
+            "event": "after_candidate_begin",
+            "sqlite_in_transaction": true,
+            "application_lane_owned": false
+          },
+          {
+            "event": "other_sqlite_writer_blocked_before_lane_acquired",
+            "error": "database is locked"
+          },
+          {
+            "event": "acquire_application_lane",
+            "sqlite_in_transaction": true
+          }
+        ],
+        "risk": "Candidate can hold SQLite writer lock before requesting shared application lane. Another writer holding application lane while waiting for SQLite creates lock-order inversion until timeout; previous plain sqlite fixtures did not exercise this wrapper. No production deadlock was induced or observed.",
+        "fixture_bytes": 24576,
+        "canonical_writes": 0,
+        "providers": 0
+      },
+      "current_vs_candidate": "Installed limit1 oldest-first vs candidate indexed durable rotation. Recovery eligibility/validation bodies unchanged; installed worker already has matching call signature. Current ledger helper equals candidate bytes. Candidate full worker differs from installed runtime and must not replace it wholesale.",
+      "mechanism": "Current _is_write_sql excludes BEGIN; TrackedConnection.execute acquires application lane only for classified writes. Candidate obtains SQLite BEGIN IMMEDIATE first; cursor INSERT then requests application lane. Another lane-owning writer waiting for SQLite can form a lock-order inversion until timeout.",
+      "scope": "No live deadlock induced/claimed. Exact installed execute/classifier and candidate selector bodies exercised on compact fixture; lane hook observes acquisition ordering rather than using real shared lease. Full target runtime equivalence therefore NOT qualified."
+    },
+    "RETRY_BACKOFF_EQUIVALENCE": "Static contract unchanged: waiting/path/missing-anchor eligibility, no separate anchor cooldown or attempt ceiling; ordinary Walkback attempts/next_retry_at/terminal policies distinct and unchanged. Existing fixture13tests remain qualified; no live recovery run.",
+    "PROVIDER_BUDGET_EQUIVALENCE": {
+      "status": "STATIC_EQUIVALENCE",
+      "anchor_pass": "Zero-RPC local retained-evidence resolution;limit1",
+      "worker_batch": 8,
+      "interval_seconds": 45,
+      "max_attempts": 3,
+      "worker_rpc_budget_batch": 80,
+      "concurrency": "One Supervisor-owned loop; no new worker",
+      "credentials": "Existing service configuration untouched. HELIUS_RPC_URL label configured, value not retained. Anchor pass does not use Birdeye; authoritative paid BIRDEYE policy unchanged; no fallback introduced.",
+      "runtime_acceptance": "Not newly activated/exercised; no provider calls"
+    },
+    "RESTART_CONTINUITY": {
+      "isolated": "Previously qualified13focusedtests include persisted cursor,reopen,crash/rollback,duplicate prevention",
+      "target": "NOT_QUALIFIED due write-lane integration defect; no restart performed"
+    },
+    "ROLLBACK_READINESS": {
+      "status": "HOLD_TARGET_RUNTIME_NOT_QUALIFIED",
+      "current_source_and_config_fingerprinted": true,
+      "source_restore": "Original installed helper known committed5f92878d; exact helper hash preserved; worker dirty bytes/configuration need secure preservation before any future replacement",
+      "state": "Old selector ignores cursor key; retain/version it, do not reset shared table or roll back committed queue/evidence; any dedicated-key deletion/reset requires separate authorization",
+      "procedure": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/deployment-readiness/CONDITIONAL_DEPLOYMENT_AND_ROLLBACK.md"
+    },
+    "OFFLINE_RUNTIME_TESTS": {
+      "status": "DEMONSTRATED_INCOMPATIBILITY",
+      "exact_method_order_probe": {
+        "status": "PROVEN_RUNTIME_LOCK_ORDER_INVERSION",
+        "source": "Exact installed TrackedConnection.execute and _is_write_sql bodies; exact candidate _fair_stuck_rows body",
+        "scope": "SQLite physical locking exercised on compact disposable fixture; application lane hook records ordering, does not acquire real shared lease. No worker or background reaper imported. No provider or canonical connection.",
+        "runtime_file_sha256": "ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89",
+        "candidate_file_sha256": "226b32f79b4bb5e705f5e15acdb0ab3437470b6b25aeae95e138895c2fc6e2d6",
+        "begin_classified_as_write": false,
+        "events": [
+          {
+            "event": "after_candidate_begin",
+            "sqlite_in_transaction": true,
+            "application_lane_owned": false
+          },
+          {
+            "event": "other_sqlite_writer_blocked_before_lane_acquired",
+            "error": "database is locked"
+          },
+          {
+            "event": "acquire_application_lane",
+            "sqlite_in_transaction": true
+          }
+        ],
+        "risk": "Candidate can hold SQLite writer lock before requesting shared application lane. Another writer holding application lane while waiting for SQLite creates lock-order inversion until timeout; previous plain sqlite fixtures did not exercise this wrapper. No production deadlock was induced or observed.",
+        "fixture_bytes": 24576,
+        "canonical_writes": 0,
+        "providers": 0
+      },
+      "fixture_bytes": 24576,
+      "full_target_worker_or_shared_lease_started": false,
+      "initial_probe_harness": "First method extraction lacked Python __class__ cell; corrected fixture harness compiled the unchanged method inside a class, then ordering probe succeeded. Both compact fixtures preserved.",
+      "full_target_regression": "Not claimed; stop at demonstrated safety failure; existing isolated cursor/API/browser acceptance remains preserved"
+    },
+    "DEV048_RELEASE_QUALIFICATION": {
+      "unchanged_candidate_verify": "PASS",
+      "source_sha": "e15720cbac1ff4fa1815b92446ce5b5b13727e0d",
+      "manifest_hashes_reverified": 32,
+      "prior_complete_acceptance": "25Python tests+unchanged frontend+10real retained-data browser contracts and clean-checkoutPASS, hashes reverified; no unrelated retesting required",
+      "tooling_source": "4664b4a62b892dacf4540b3b1a7622fb156b8aa8",
+      "target_readiness": "HOLD despite isolated releasePASS"
+    },
+    "READY_FOR_DEPLOYMENT": false,
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "RUNTIME_DEPLOYMENT_REASON": "Read-only deployment-readiness qualification and disposable fixture test only; no executable changes or deployment authorized",
+    "PROVIDER_CALLS": 0,
+    "PRODUCTION_CHANGES": 0,
+    "PERSISTENT_DEV_CHANGES": 0,
+    "CANONICAL_DATABASE_WRITES": 0,
+    "SHARED_QUEUE_WRITES": 0,
+    "OPERATIONAL_SERVICE_RESTARTS": 0,
+    "STORAGE": {
+      "maximum_generated_file_bytes": 2000000,
+      "probe_fixture_bytes": 24576,
+      "raw_provider_retention": false,
+      "unbounded_artifact_growth_paths": 0
+    },
+    "NEXT_ACTION": "Keep deployment on HOLD. Separately qualify a write-lane-aware transaction integration in a new isolated revision, plus a cursor storage authority compliant with the per-file limit. Preserve candidatee15720cb unchanged; no canonical schema/index changes, runtime-protection bypass or deployment authorized.",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/DEV049_DEPLOYMENT_READINESS.json"
   }
 }

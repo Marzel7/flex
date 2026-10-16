@@ -28405,5 +28405,110 @@
     "guard_denial_count": 0,
     "engineering_revision": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48",
     "storage": "Compact screenshots/report only; no raw payloads, no DB copies, no large files"
+  },
+  "dev043_health_restoration_qualification": {
+    "DEV043_HEALTH_RESTORATION_STATUS": "HOLD_REQUIRED_METRIC_UNBOUNDED_AND_ACCEPTANCE_NOT_ESTABLISHED",
+    "LATEST_ACCEPTED_HEALTH_SOURCE": "Latest verified accepted presentation fixes: DEV0359cd6f014 PASS_DEPLOYED. Richer Health source recovered from d2fffdc3 template/API and b0883b68 helper, but not established as latest accepted complete implementation. Snapshot alone is not acceptance.",
+    "MISSING_HEALTH_CARDS": [
+      "Missing CREATE anchors",
+      "Birth / Migration availability",
+      "DB write degradation \u00b724h",
+      "Migration \u2192 Walkback",
+      "CREATE signature availability / creator identity availability / recovery waiting"
+    ],
+    "RESTORED_HEALTH_CARDS": [],
+    "CARD_COMPARISON": [
+      {
+        "card": "Missing CREATE anchors",
+        "candidate_source": "d2fffdc3 template + b0883b68 helper",
+        "current": "absent from8475 template/API",
+        "changed": "new/recovered/recent-unresolved 24h and historical unresolved context missing",
+        "authority": "canonical OPS wt_walkback_queue; enqueued_at,anchor_recovered_at,status,path_state",
+        "restoration": "HOLD unbounded scan/fetchall; acceptance only partial/not deployed"
+      },
+      {
+        "card": "Birth / Migration availability",
+        "candidate_source": "d2fffdc3 template/API; acquisition_availability rolling_summary",
+        "current": "additive cards absent",
+        "changed": "durable availability vs existing ingestion freshness are different contracts",
+        "authority": "core acquisition_availability_transitions",
+        "restoration": "NOT_INTEGRATED; retained acceptance partial, continuous24h durations require qualified observation"
+      },
+      {
+        "card": "DB write degradation \u00b724h",
+        "candidate_source": "d2fffdc3 template/API; db_write_degradation rolling_summary",
+        "current": "additive card absent; legacy infrastructure metrics remain",
+        "changed": "incident duration/qualification differs from cumulative errors",
+        "authority": "core db_write_degradation_incidents",
+        "restoration": "NOT_INTEGRATED due mandatory stop; additional dependencies not qualified"
+      },
+      {
+        "card": "Migration \u2192 Walkback",
+        "candidate_source": "d2fffdc3 template/API; migration_walkback_handoff_health",
+        "current": "additive card absent",
+        "changed": "eligible/durable/missing handoff diagnostics absent",
+        "authority": "core+OPS via original path projection; exact denominator not qualified in this stopped task",
+        "restoration": "NOT_INTEGRATED"
+      },
+      {
+        "card": "CREATE signature availability / creator identity availability / recovery waiting",
+        "candidate_source": "investigation targets; no separately accepted exact card identified before stop",
+        "current": "legacy recovery/creator cards exist but cannot be equated to requested24h denominator",
+        "changed": "not inferred from similar names",
+        "authority": "not established for exact requested metric",
+        "restoration": "HOLD exact authority/accepted contract unproven"
+      }
+    ],
+    "CREATE_24H_METRIC_AUTHORITY": {
+      "source": "b0883b68/eed84eaa src/ops/missing_create_anchor_monitor.py build",
+      "database": "canonical OPS wt_walkback_queue",
+      "population": "path_state='WAITING_FOR_CREATE_ANCHOR' OR anchor_recovered_at IS NOT NULL; recent unresolved additionally requires recovery timestamp null; historical unresolved count requires status waiting and path waiting",
+      "boundaries": "now-86400 <= enqueued_at < now for new; same interval on anchor_recovered_at for recovered;1h/6h/7d also calculated",
+      "denominator": "absolute event/queue counts, not percent of allCREATE transactions; not creator/signature-availability coverage",
+      "error_contract": "Original initializes counts to zero then returns error on SQLite failure; cannot present those zeros as qualified evidence",
+      "acceptance": "docs/audits/current_missing_create_anchor_rate_monitoring.v1.json: PARTIALLY_QUALIFIED; explicitly not deployed to health-serving runtime"
+    },
+    "RECOVERY_BACKLOG_METRICS": "Historical unresolved context and recent unresolved defined by original helper; worker/retry/freshness and other exact dashboard metrics not requalified after stop. No similarly named substitutes.",
+    "HEALTH_API_COMPATIBILITY": "d2fffdc3 api_health_full imports4helpers absent from that snapshot; later b0883b68 preserves missingCREATE helper. No whole main.py/template replacement attempted; preserve current DEV043 fixes.",
+    "BOUNDED_READ_STATUS": {
+      "status": "FAIL_FOR_REQUIRED_CARD",
+      "diagnostic": "EXPLAIN QUERY PLAN only, query_only immutable read,1s progress bound; no population query executed",
+      "plan": "SCAN wt_walkback_queue",
+      "source": "SELECT no LIMIT followed by fetchall and Python loops over full selected history; window filters applied after materialization",
+      "schema_changes": 0
+    },
+    "PROVIDER_FREE_TESTS": "Read-only source/hash/EXPLAIN qualification only. No modified code or runtime; no boundary/render tests claimed.",
+    "BROWSER_ACCEPTANCE": "NOT_RUN: offline qualification failed; port8145 not updated or restarted",
+    "PREVIEW_SOURCE_SHA": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48",
+    "PREVIEW_PID": "66816 last verified DEV045; no service action in this task",
+    "REMAINING_HEALTH_GAPS": [
+      "Exact latest accepted complete dashboard authority unproven",
+      "Required MissingCREATE projection is unbounded",
+      "Separate24hCREATE signature/creator coverage contract not established",
+      "Remaining helper closure and boundedness not qualified after stop"
+    ],
+    "PROVIDER_CALLS": 0,
+    "PRODUCTION_CHANGES": 0,
+    "CANONICAL_WRITES": 0,
+    "SOURCE_CHANGES": 0,
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "RUNTIME_DEPLOYMENT_REASON": "Qualification stopped before implementation; no preview update",
+    "COMPONENT_HASHES": {
+      "d2fffdc34fca2539807e1463cad68dab0b3ef042:templates/system_health_dashboard.html": {
+        "sha256": "b483f3cde9c3e8af11651d28e58f8faf7b2b53299ae1d77176ca7dbfe3af786b",
+        "bytes": 170233
+      },
+      "b0883b68874fb2a1bd39edcd4a7030f8936bb0f8:src/ops/missing_create_anchor_monitor.py": {
+        "sha256": "a65e33a0f6d96bb4a2cb204f3c60ca6b16891820c9260b73294a60f6d001d835",
+        "bytes": 2843
+      },
+      "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48:templates/system_health_dashboard.html": {
+        "sha256": "9cf315c8597bca811153cb7264ebe3df9d609b5d05f698bdcbd6cd8d203a71a8",
+        "bytes": 162839
+      }
+    },
+    "NEXT_ACTION": "Provide or identify an already qualified bounded implementation of the exact MissingCREATE contract and its acceptance evidence; otherwise separately authorize a bounded read-model design. Do not import this scan-based helper unchanged or alter metric semantics.",
+    "STORAGE": "Compact diagnostic report only; no DB copies, payloads, caches or growth paths introduced.",
+    "engineering_revision": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48"
   }
 }

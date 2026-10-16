@@ -92,3 +92,13 @@ try:
 except BaseException:
  print('DEV043_ISOLATION_EVENTS='+json.dumps(EVENTS),flush=True)
  raise
+
+finally:
+ modules=[]
+ for name,module in sorted(sys.modules.copy().items()):
+  origin=getattr(module,'__file__',None)
+  if origin:
+   path=pathlib.Path(origin).resolve()
+   if path.is_file():
+    modules.append({'module':name,'path':str(path),'sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
+ (STATE/'loaded_source_receipt.json').write_text(json.dumps({'source_root':str(ROOT),'modules':modules,'isolation_events':EVENTS,'bindings':{k:os.environ.get(k) for k in ['OPERATIONS_MODE','WT_OPS_DB_PATH','DB_PATH','MISSION_CONTROL_MONITOR_UI_DB_PATH','OPERATION_MONITOR_QUEUE_PATH','WATCHTOWER_MONITOR_QUEUE_PATH']}},indent=2)+'\n')

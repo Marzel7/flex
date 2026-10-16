@@ -1,0 +1,90 @@
+{
+  "status": "PASS",
+  "routes": [
+    {
+      "route": "/healthz",
+      "http_status": 200,
+      "response_sha256": "a0da3c8cec5c8e8fd97ab597473923b77e03c647d7411dda089a4bcc31bf239f",
+      "bytes": 1052,
+      "checks": []
+    },
+    {
+      "route": "/api/ops/operators",
+      "http_status": 200,
+      "response_sha256": "9d8a02dfe2e5fc5121c3e614f36ef4fced7c6209efa1b0279ceacfbe92dd8523",
+      "bytes": 10658,
+      "checks": []
+    },
+    {
+      "route": "/api/operations/live-monitor",
+      "http_status": 200,
+      "response_sha256": "1ce9d84f670b1905b9d5028e23ac499553b163bf9922bc7cd3fb744f2cb31136",
+      "bytes": 35881,
+      "checks": [
+        "latest20 chronology",
+        "retained entry evidence"
+      ]
+    },
+    {
+      "route": "/operations/playbooks",
+      "http_status": 200,
+      "response_sha256": "7368cc1d66b544163717d74176b6112bb058eb1be583e71c0996c35337db9aa2",
+      "bytes": 32456,
+      "checks": []
+    },
+    {
+      "route": "/operations/watchtower/playbook",
+      "http_status": 200,
+      "response_sha256": "25f72429d91368e1c8db024175e8e00945394158a67d88f0dce4a30ac2678cf1",
+      "bytes": 169858,
+      "checks": [
+        "null unavailable",
+        "no500"
+      ]
+    },
+    {
+      "route": "/operations/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334/playbook",
+      "http_status": 200,
+      "response_sha256": "1782dd1bd7e6a0f1d717429b98d70ee327afad8f63adfff6de87f6b0dc5f5b92",
+      "bytes": 524027,
+      "checks": []
+    },
+    {
+      "route": "/intelligence/operator/04265d9f-6eb2-568c-a49e-9253091a4dbb",
+      "http_status": 200,
+      "response_sha256": "967cdefaa82cd14867df23ac5358b6774dbfbdc878f39aa25a90f06a15bd1bc3",
+      "bytes": 726534,
+      "checks": []
+    },
+    {
+      "route": "/intelligence/operator/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334",
+      "http_status": 200,
+      "response_sha256": "28e95f14465077576bd3c6fc65d4cfee0732fac391923f26c7796e474b4dd9e4",
+      "bytes": 877130,
+      "checks": []
+    },
+    {
+      "route": "/intelligence/operator/bd7d7479-1454-5d41-9f68-115550348f3e",
+      "http_status": 200,
+      "response_sha256": "ae7c9b0450bdf14e94fc937de1d6794e07abc636ea6d19090a3a90a53c470473",
+      "bytes": 5165770,
+      "checks": []
+    },
+    {
+      "route": "/ops-os",
+      "http_status": 200,
+      "response_sha256": "8cc78ea96327c209c07024cabe14cfb3b8ed9bb6555c74106ba9895cf59258fd",
+      "bytes": 66392,
+      "checks": []
+    },
+    {
+      "route": "/system-health",
+      "http_status": 200,
+      "response_sha256": "58182c8f12effce7c1bdc8ac663ed487f796438243b1c9dcb665627864b712de",
+      "bytes": 194158,
+      "checks": []
+    }
+  ],
+  "provider_calls": 0,
+  "production_changes": 0
+}

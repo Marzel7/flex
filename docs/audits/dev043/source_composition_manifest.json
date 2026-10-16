@@ -1,5 +1,5 @@
 {
-  "status": "STARTUP_QUALIFIED_BROWSER_HOLD",
+  "status": "NULLABLE_TEMPLATE_QUALIFIED_PENDING_CLEAN_RESTART",
   "integration_parent": "cb882091bbd402ad826fc44cc82541a0e3d4b2ca",
   "parent_tree": "53fa6a10e6fd8435c08839caddaf3f0be5358f5b",
   "parent_files_authority": "git ls-tree -r cb882091bbd402ad826fc44cc82541a0e3d4b2ca",
@@ -1289,7 +1289,7 @@
   ],
   "qualification_harness_changes": {
     "path": "docs/audits/dev043/isolation_bootstrap.py",
-    "sha256": "1edb7ed9fba3476e011aca805ce01430a5d45a6022126861de8cfed9bbe19fe9",
+    "sha256": "4c6395cceed5baf2b2501359d98bcc7b1f343d03d42028ce93cf884f48861c82",
     "purpose": "denial path/stack diagnostics and import-only probe; guards unchanged"
   },
   "effective_isolated_bindings": {
@@ -1298,5 +1298,13 @@
     "queue": "Empty STATE/monitor/queue/{pending,retry,processing,dead_letter}; both queue env bindings match; no shared queue inspection or mutation",
     "canonical_authorities": "Same exact allowlisted immutable mode=ro/query_only authorities; WAL excluded",
     "guard": "No permission or network weakening; only target/stack diagnostics and import-only option added"
-  }
+  },
+  "presentation_corrections": [
+    {
+      "path": "templates/operation_artifact_playbook.html",
+      "original_source_sha": "064021bd7e3aef0dec2e55d067693d94b8cf1922",
+      "sha256": "d321f4fcb080e4d2ed72f5b3d4b653cccfad1d9f6f2d154b2de17ed775cda801",
+      "change": "Independent null guards for existing Entry,current/final MC,finalized ATH/Max Proven MC,multiple and JS detail formatting; no projection changes"
+    }
+  ]
 }

@@ -1,5 +1,5 @@
 {
-  "status": "TEMPLATE_PASS_CLEAN_PRIMARY_ROUTES_PASS_COMPLETE_BOUNDARY_HOLD",
+  "status": "READ_ONLY_CORRECTION_OFFLINE_PASS_PENDING_BROWSER",
   "integration_parent": "cb882091bbd402ad826fc44cc82541a0e3d4b2ca",
   "parent_tree": "53fa6a10e6fd8435c08839caddaf3f0be5358f5b",
   "parent_files_authority": "git ls-tree -r cb882091bbd402ad826fc44cc82541a0e3d4b2ca",
@@ -1289,7 +1289,7 @@
   ],
   "qualification_harness_changes": {
     "path": "docs/audits/dev043/isolation_bootstrap.py",
-    "sha256": "4c6395cceed5baf2b2501359d98bcc7b1f343d03d42028ce93cf884f48861c82",
+    "sha256": "129e4f7313e88ae7ef9dbe7e9e647d7f2c08f83b15f2fee04db6771455eb99e5",
     "purpose": "denial path/stack diagnostics and import-only probe; guards unchanged"
   },
   "effective_isolated_bindings": {
@@ -1308,5 +1308,43 @@
     }
   ],
   "tested_recovery_source": "02e9e19ed6dfc7b6043b55dd1250d238b7b4976d",
-  "loaded_runtime_manifest": "clean_loaded_source_receipt.json"
+  "loaded_runtime_manifest": "clean_loaded_source_receipt.json",
+  "read_only_corrections": [
+    {
+      "path": "src/ops/treasury_review_workspace.py",
+      "original_source": "02e9e19ed6dfc7b6043b55dd1250d238b7b4976d",
+      "original_blob": "38f4cb361a096484bed27dbfb618e5d2c7a2c096",
+      "sha256": "cedc1cf20695c8bb5b6bbe7961b1d971ec3f8b237f9eee5e62521da0e13f78bc"
+    },
+    {
+      "path": "src/ops/treasury_review_routes.py",
+      "original_source": "02e9e19ed6dfc7b6043b55dd1250d238b7b4976d",
+      "original_blob": "099a5bc2b3d9cb58b458dbccd8b93ad65cf85765",
+      "sha256": "c4e1d38449b4dce2346b56a2d1f4c367204653c3564d17392b5cde9033a314ed"
+    },
+    {
+      "path": "src/extractors/funder_incoming_extractor.py",
+      "original_source": "02e9e19ed6dfc7b6043b55dd1250d238b7b4976d",
+      "original_blob": "abbf63894cb1d256d47abbc8cbe6c47c05f25e52",
+      "sha256": "1acf6ca2da4992bb054711c7c6c64b32e4d82cd49780db810e9f7292ac4bab59"
+    },
+    {
+      "path": "src/core/ws_price_tracer.py",
+      "original_source": "02e9e19ed6dfc7b6043b55dd1250d238b7b4976d",
+      "original_blob": "8a7644413c86886dab7fada43488bf4c6a7a6578",
+      "sha256": "ad89afcdc294454b31f8aaf699b0802ca1b57b87bbab198fd1e78c5d8ea7c567"
+    },
+    {
+      "path": "src/core/operation_dashboard_routes.py",
+      "original_source": "02e9e19ed6dfc7b6043b55dd1250d238b7b4976d",
+      "original_blob": "fd8ed541416ca34aece7b4f9a4f5ace7ac1a8f53",
+      "sha256": "c53db49633404dd4b4ab59483678ae46aa8bf913892a27d8a46f4ee98a55a56b"
+    },
+    {
+      "path": "templates/treasury_review.html",
+      "original_source": "02e9e19ed6dfc7b6043b55dd1250d238b7b4976d",
+      "original_blob": "1a79854f70f29dcf65d75aafb40be58f0b4826fe",
+      "sha256": "ee92204dd2e6495069f2d156abe2550b2e35b700366fcab9eb80734c11904f69"
+    }
+  ]
 }

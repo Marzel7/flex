@@ -116,8 +116,11 @@ SESSION.headers.update({"User-Agent": "funder-transfer-extractor/2.3"})
 RPC_CACHE = None
 try:
     from src.core.rpc_cache import RPCCache
-    RPC_CACHE = RPCCache(DB_PATH)
-    logger.info("[PHASE2B] RPCCache initialized for funder_incoming_extractor")
+    if os.getenv('FLEX_DEV_READ_ONLY_QUALIFICATION') == '1':
+        logger.info('[PHASE2B] RPC cache disabled: read-only qualification; acquisition disabled')
+    else:
+        RPC_CACHE = RPCCache(DB_PATH)
+        logger.info("[PHASE2B] RPCCache initialized for funder_incoming_extractor")
 except Exception as e:
     logger.warning(f"[PHASE2B] RPCCache initialization failed: {e} (caching disabled)")
 

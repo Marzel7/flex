@@ -68,6 +68,9 @@ if '--self-test'in sys.argv:
 receipt=pathlib.Path(os.environ['DEV043_ISOLATION_RECEIPT']);attestation=json.loads(receipt.read_text());assert attestation['status']=='PASS' and attestation['state']==str(STATE) and attestation['port']==PORT;assert attestation['bootstrap_sha256']==hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest()
 for name in list(os.environ):
  if any(s in name for s in ['BIRDEYE','HELIUS','ALCHEMY','API_KEY','SECRET','PASSWORD']):del os.environ[name]
+# Only IPv4 loopback binding is permitted; do not probe IPv6 during library import.
+socket.has_ipv6=False
+os.environ['DB_FD_INTERVAL_SEC']='86400'  # Existing optional diagnostic deferred beyond bounded qualification.
 os.environ.update({'FLEX_DEV_STATE_ROOT':str(STATE),'FLEX_DEV_READ_ONLY_QUALIFICATION':'1','FLEX_DEV_HOST':'127.0.0.1','FLEX_DEV_PORT':str(PORT),'FLEX_DEV_RELOAD':'0','FLEX_DEV_OPERATIONS_MODE':'OFF','WT_OPS_DB_PATH':str(SHARED/'database/wt_ops_v2.db'),'DB_PATH':str(SHARED/'database/flex_complete_database.db'),'FLEX_DB_PATH':str(SHARED/'database/flex_complete_database.db'),'MISSION_CONTROL_MONITOR_UI_DB_PATH':str(SHARED/'.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db'),'WATCHTOWER_MONITOR_UI_DB_PATH':str(SHARED/'.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db'),'OPERATION_MONITOR_QUEUE_PATH':str(STATE/'monitor/queue'),'WATCHTOWER_MONITOR_QUEUE_PATH':str(STATE/'monitor/queue'),'OPERATION_RESEARCH_ROOT':str(ROOT),'PYTHONDONTWRITEBYTECODE':'1'})
 for queue_state in ('pending','retry','processing','dead_letter'):
  (STATE/'monitor/queue'/queue_state).mkdir(parents=True,exist_ok=True)

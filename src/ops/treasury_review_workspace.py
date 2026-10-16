@@ -621,10 +621,23 @@ def _table_exists(conn, table: str) -> bool:
     ).fetchone())
 
 
-def list_review_workspace(conn, *, status: str = "PENDING_REVIEW", sort: str = "actionable",
-                          limit: int = 20, offset: int = 0) -> dict[str, Any]:
+def prepare_review_schema(conn, *, read_only: bool = False) -> None:
+    """Read projections verify existing authority; writable callers retain bootstrap."""
+    if read_only:
+        missing = [table for table in (
+            'wt_treasury_review', 'wt_treasury_review_actions', 'wt_confirmed_treasuries',
+        ) if not _table_exists(conn, table)]
+        if missing:
+            raise WorkspaceError('Read-only treasury schema unavailable: ' + ', '.join(missing),
+                                 'READ_ONLY_SCHEMA_UNAVAILABLE', 503)
+        return
     ensure_schema(conn)
     treasury_bank._ensure_schema_once(conn)
+
+
+def list_review_workspace(conn, *, status: str = "PENDING_REVIEW", sort: str = "actionable",
+                          limit: int = 20, offset: int = 0, read_only: bool = False) -> dict[str, Any]:
+    prepare_review_schema(conn, read_only=read_only)
     review_rows = [dict(r) for r in conn.execute(
         "SELECT * FROM wt_treasury_review WHERE status=? ORDER BY detected_at DESC",
         (status,),

@@ -5596,14 +5596,23 @@ def api_intel_runtime_budget():
     # fall back gracefully when called from the API process (different interpreter).
     try:
         import importlib
-        _lcm = importlib.import_module("src.core.pumpfun_curve_listener")
+        if os.getenv('FLEX_DEV_READ_ONLY_QUALIFICATION') == '1':
+            import sys
+            _lcm = sys.modules.get('src.core.pumpfun_curve_listener')
+            if _lcm is None:
+                raise LookupError('Listener counters unavailable in read-only API process')
+        else:
+            _lcm = importlib.import_module("src.core.pumpfun_curve_listener")
         with _lcm._BUDGET_COUNTERS_LOCK:
             _lc = dict(_lcm._BUDGET_COUNTERS)
         runtime["validation_timeout"]      = _lc.get("validation_timeout", 0)
         runtime["pool_discovery_deferred"] = _lc.get("pool_discovery_deferred", 0)
         runtime["migration_deferred"]      = _lc.get("migration_deferred", 0)
     except Exception:
-        pass
+        if os.getenv('FLEX_DEV_READ_ONLY_QUALIFICATION') == '1':
+            runtime['listener_budget_counters_status'] = 'UNAVAILABLE'
+            for key in ('validation_timeout', 'pool_discovery_deferred', 'migration_deferred'):
+                runtime[key] = None
 
     # DB health — serializer metrics (in-process, no DB read)
     try:

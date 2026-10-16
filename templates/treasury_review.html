@@ -153,10 +153,11 @@
   const sort=document.getElementById('tr-sort').value;
   const status=document.getElementById('tr-status').value;
   fetch('/api/ops/treasury-review?sort='+encodeURIComponent(sort)+'&status='+encodeURIComponent(status)+'&limit=20&offset='+offset).then(r=>r.json()).then(d=>{
+   if(!d.ok)throw new Error(d.error||d.code||'Read-only evidence unavailable');
    summary(d);
    const list=document.getElementById('tr-list');
    const html=(d.items||[]).map(card).join('');if(append)list.insertAdjacentHTML('beforeend',html);else list.innerHTML=html||'<div class="tr-empty">No treasuries in this status.</div>';offset+=d.returned||0;const more=document.getElementById('tr-more');more.style.display=d.has_more?'block':'none';
-  }).catch(()=>{document.getElementById('tr-list').innerHTML='<div class="tr-empty">Treasury review workspace unavailable.</div>'});
+  }).catch(error=>{const list=document.getElementById('tr-list');list.textContent='Treasury review workspace unavailable: '+error.message;});
  }
  document.getElementById('tr-sort').addEventListener('change',()=>load(false));
  document.getElementById('tr-status').addEventListener('change',()=>load(false));

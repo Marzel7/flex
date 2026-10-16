@@ -30,11 +30,13 @@ _LOG_PATH = os.path.normpath(
     os.path.join(os.path.dirname(__file__), '..', '..', 'logs', 'ws_price_trace.log')
 )
 
+_READ_ONLY = os.getenv('FLEX_DEV_READ_ONLY_QUALIFICATION') == '1'
+
 _tracer = logging.getLogger('ws_price_tracer')
 _tracer.setLevel(logging.DEBUG)
 _tracer.propagate = False
 
-if not _tracer.handlers:
+if not _tracer.handlers and not _READ_ONLY:
     import logging.handlers as _lh
     os.makedirs(os.path.dirname(_LOG_PATH), exist_ok=True)
     _fh = _lh.RotatingFileHandler(
@@ -50,6 +52,8 @@ if not _tracer.handlers:
 
 def trace(stage: str, mint: str, detail: str = '') -> None:
     """Write one trace line.  stage is a short ALL_CAPS token, mint is full pubkey."""
+    if _READ_ONLY:
+        return  # Optional acquisition trace has no file sink in read-only qualification.
     tag = mint[:20] if mint else 'UNKNOWN'
     msg = f"{stage:<28}  {tag}  {detail}" if detail else f"{stage:<28}  {tag}"
     _tracer.info(msg)

@@ -28334,5 +28334,76 @@
       "03-retained-prices.jpg": "bedae76e537c59a71c4c07049bef756dca291c9866c8d1a9cd7e7f556b4b0045",
       "02-watchtower-prices.jpg": "cd336518e5db23b5c37a03217b9cc1abce0da87895e4f8df1544b48cdaeb9361"
     }
+  },
+  "dev045_rich_full_browser_inspection": {
+    "DEV045_STATUS": "HOLD_RUNTIME_TEMPLATE_DEPENDENCY_PARTIAL_BROWSER_INSPECTION",
+    "RUNNING_DEV_SOURCE_SHA": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48 (clean checkout, matching controlled launch; loaded-memory byte identity not independently measured)",
+    "FROZEN_REFERENCE_SHA": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48; preserved recovery source, not a complete qualified release",
+    "ACTIVE_WORKTREE": "/private/tmp/flex-rich-preview-8475",
+    "ACTIVE_DEV_PORTS": {
+      "preview": 8145,
+      "preview_pid": 66816,
+      "persistent_dev": 8100,
+      "persistent_dev_pid": 95243,
+      "production": "Separate gunicorn PID22020; untouched"
+    },
+    "DATABASE_AUTHORITY": {
+      "readonly_immutable_main_file_views": [
+        "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+        "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db"
+      ],
+      "disposable_writable_state": "/private/tmp/flex-rich-preview-state-8145",
+      "guards": "Existing filesystem, SQLite query_only/immutable and network-denial bootstrap unchanged; dedicated empty queues, operational workers disabled; WAL excluded, so retained main-file evidence is not a live-state guarantee"
+    },
+    "BROWSER_URL": "http://127.0.0.1:8145",
+    "MAIN_DASHBOARD_STATUS": "UI_DEGRADED: Mission Control renders retained counters (7 actors,1 investigation,3 inbox items), Inbox summary and working registry link. Discovery intelligence unavailable. Active Investigations link fails500. Counts not reconciled with three-operation presentation.",
+    "OPERATIONS_OVERVIEW_STATUS": "UI_DEGRADED: rich registry renders three operations, cadence, filters and retained price/history data; LIVE empty,15/20 entries unavailable, activity/coverage unavailable. Separate Operations workspace /ops UI_BLOCKED HTTP500.",
+    "TREASURY_MONITORING_STATUS": "NOT_TESTED: stopped at mandatory runtime dependency blocker",
+    "TREASURY_REVIEW_STATUS": "NOT_TESTED: stopped at mandatory runtime dependency blocker",
+    "PENDING_REVIEW_STATUS": "NOT_TESTED: no Pending request issued; prior60s finding not reattributed to current browser run",
+    "SCREENSHOT_EVIDENCE": {
+      "02-operations.jpg": {
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/dev045/full-inspection/02-operations.jpg",
+        "bytes": 71405,
+        "sha256": "d1ade552582e0631f4d58be6f4f6763f9265ca8dddd5fa0ab034dade39021869"
+      },
+      "01-dashboard.jpg": {
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/dev045/full-inspection/01-dashboard.jpg",
+        "bytes": 45698,
+        "sha256": "74675edbcfb9a21411c7daea8dbd4e7547f5ebd8a57ede28666b8f79e044db66"
+      },
+      "03-operations-blocker.jpg": {
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/dev045/full-inspection/03-operations-blocker.jpg",
+        "bytes": 16503,
+        "sha256": "f1c7c145b04cf757a9e3a85817f0f3a4879b4c4a0195e3a7cd27ffe8e7f307c7"
+      }
+    },
+    "BROWSER_ERRORS": [],
+    "API_ERRORS": [
+      "GET /ops HTTP500: src/core/operation_dashboard_routes.py:412 ops_live_page -> render_template(watchtower_dashboard.html) -> jinja2.exceptions.TemplateNotFound: watchtower_dashboard.html"
+    ],
+    "RESTORED_FEATURES_VISIBLE": [
+      "Mission Control retained counters and Inbox summary",
+      "Rich Operations Registry three-operation presentation",
+      "Monitoring cadence",
+      "Retained Watchtower history/entry/peak/multiple/time values and filter"
+    ],
+    "MISSING_OR_DEGRADED_FEATURES": [
+      "Missing watchtower_dashboard.html blocks Operations navigation",
+      "Discovery unavailable",
+      "Registry activity/coverage unavailable,15/20 selected opening values unavailable,no current LIVE rows",
+      "Treasury pages,Pending,playbooks,Watchtower/Byzantine/Nexus details and System Health NOT_TESTED in this inspection due stop condition"
+    ],
+    "PROVIDER_CALLS": 0,
+    "DATABASE_WRITES": "0 agent-issued database mutations; only read-only GETs. Existing disposable diagnostic logging continues; no claim of zero application filesystem writes.",
+    "SOURCE_CHANGES": 0,
+    "DEPLOYMENT_CHANGES": 0,
+    "RECOVERY_BASELINE_QUALIFIED": false,
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "NEXT_ACTION": "Stop. Separately authorize a targeted missing-template provenance/compatibility investigation if desired; then resume untested browser pages. No repair authorized or performed.",
+    "guard_denial_count": 0,
+    "engineering_revision": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48",
+    "storage": "Compact screenshots/report only; no raw payloads, no DB copies, no large files"
   }
 }

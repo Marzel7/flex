@@ -29500,5 +29500,55 @@
       "https://www.sqlite.org/wal.html"
     ],
     "artifact_bound": "Compactreportonly,below64KiB;noDBcopies/rawproviderpayloads/runtimegrowthpaths."
+  },
+  "dev043_safe_detail_failure_gate": {
+    "DEV043_BOUNDED_RECOVERY_STATUS": "HOLD_BACKEND_EXECUTION_AND_CONCURRENCY_UNBOUNDED",
+    "ACCEPTED_FUNCTIONAL_SCOPE": "Previously qualified registry, LIVE/HISTORY, latest20 chronology, retained price evidence, Watchtower admission/playbooks, Mission Control/core Health, Confirmed Treasury and Pending3s lifecycle correction remain preserved at5e32. No new browser PASS claimed in this stopped task.",
+    "EXCLUDED_DETAIL_SCOPE": "Complete Byzantine/Nexus expensive detail projections are not newly qualified. Exclusion does not remove the requirement to bound their server resource usage. No truncated/cached substitute applied.",
+    "DETAIL_TIMEOUT_HANDLING": {
+      "current": "Direct document navigation invokes operator_routes.operator_page -> OperatorReader.fetch_operator synchronously before template delivery. No application-level3s detail deadline,AbortController or generation guard in that route lifecycle.",
+      "pending": "Existing three-second request deadline and UNKNOWN/UNAVAILABLE handling remains untouched. No automatic retry introduced.",
+      "stopped_before_change": "No detail UI timeout implemented because the mandatory backend-safety gate failed first."
+    },
+    "SERVER_SIDE_RESOURCE_SAFETY": {
+      "status": "FAIL_EXISTING_MECHANISMS_INSUFFICIENT",
+      "query_budget": "OperatorReader._connect uses sqlite3.connect(timeout=10),a lock-wait setting,not SQL execution deadline. fetch_operator has no progress handler/interrupt. Existing progress handlers belong to fetch_active_manual_operators,not detail.",
+      "disconnect": "No request-disconnect callback cancels SQLite or Python projection work. Browser abort may leave the synchronous view running until completion/error;cannot claim it stops SQL.",
+      "concurrency": "src/dev_runtime.py main -> werkzeug.run_simple(threaded=True). Installed ThreadedWSGIServer inherits ThreadingMixIn; process_request starts a new threading.Thread per request. No fixed worker pool,semaphore or per-detail admission cap configured. OS limits are not a qualified application budget.",
+      "nexus_lock": "Existing _CACHE_LOCK serializes cold aggregation and may make overlapping requests wait;it does not cap waiting request threads or query duration.",
+      "file_limit": "Isolation bootstrap caps single written file at8MiB. No CPU-time,memory or request-concurrency limit is established by that file cap.",
+      "profiling_boundary": "Prior12s SQL/25s process deadlines existed only in the disposable profiling harness. They are not installed in5e32runtime. Do not use them as baseline safety evidence.",
+      "duplicates": "No automatic retry was added;manual revisits,filter changes and concurrent browser/API requests can overlap surviving server work. No stress/duplicate request experiment performed after static failure established.",
+      "required_minimum": "An explicitly qualified server execution/cancellation budget and bounded admission/concurrency for these requests are required before client timeouts can satisfy this gate. No solution designed or implemented in this stopped task."
+    },
+    "EVIDENCE_SELECTION_UNCHANGED": {
+      "status": true,
+      "known_limit": "Funding-edge SELECT has no ORDER BY and per-mint update overwrites earlier evidence. Index/order/population changes could change selected evidence;none performed.",
+      "query_source_unchanged": true
+    },
+    "BROWSER_ACCEPTANCE": "NOT_RUN: user stop condition reached before runtime launch or UI correction",
+    "CLEAN_CHECKOUT_RESTART": "NOT_RUN: no safe candidate qualified",
+    "FROZEN_RECOVERY_SHA": "NONE \u2014 no immutable recovery reference created",
+    "READY_FOR_PERSISTENT_DEV": false,
+    "PROVIDER_CALLS": 0,
+    "PRODUCTION_CHANGES": 0,
+    "DATABASE_WRITES": 0,
+    "SHARED_QUEUE_WRITES": 0,
+    "SOURCE_CHANGES": 0,
+    "SERVICE_ACTIONS": 0,
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "RUNTIME_DEPLOYMENT_REASON": "Read-only safety qualification stopped before implementation",
+    "engineering_revision": "5e32f2e921fbe5f7618ef7634d3c9dbefc7dc7e7",
+    "SOURCE_EVIDENCE": {
+      "/private/tmp/dev043-pending-clean-recovery/src/dev_runtime.py": "9f8afd5400045fbf96ffcc801ea2743d7e19eb62eb2e116785237ac377106036",
+      "/private/tmp/dev043-pending-clean-recovery/src/ops/operator_routes.py": "b4b3fc5ad3de58ba7ee67fb7706e135c60653a537ca0b08c187837a38d09f0e9",
+      "/private/tmp/dev043-pending-clean-recovery/src/ops/operator_reader.py": "08126192b694e0a48734038a786bfa77e4243ad05c73d5fd34a98eda202e2a66",
+      "/private/tmp/dev043-pending-clean-recovery/src/ops/live_potential_activity.py": "d3aa159f04cd7f4b9c3bf0ad375a44b82fe696479ea08194433406db929138e2",
+      "/private/tmp/dev043-pending-clean-recovery/docs/audits/dev043/isolation_bootstrap.py": "129e4f7313e88ae7ef9dbe7e9e647d7f2c08f83b15f2fee04db6771455eb99e5",
+      "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/werkzeug/serving.py": "8d44b3cbda35899fcbc1d45e5d9bac7683893e330ad37c460b386c67f494b699",
+      "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/socketserver.py": "a1402df8627949d0b72591e742795fcd48f911172610d4e3c2f16bd7dcae8128"
+    },
+    "NEXT_ACTION": "Stop. Separately authorize qualification of a server-side request execution/cancellation budget and bounded concurrency, preserving exact queries/evidence. Keep Pending3s correction; do not deploy or freeze until backend safety and remaining acceptance pass.",
+    "ARTIFACT_STORAGE": "Compact report only;no runtime,DBcopy,rawpayload or new unbounded storage path."
   }
 }

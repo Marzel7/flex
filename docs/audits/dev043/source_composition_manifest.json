@@ -1353,5 +1353,14 @@
       "sha256": "9bb9ac1e25f1a2432edd15a08f95733ff37fef3ee19d341dfcf675a8880d8419",
       "change": "qualification surfaces canonical alignment gap without attempting repair; normal reconciliation unchanged"
     }
-  ]
+  ],
+  "pending_request_lifecycle": {
+    "parent": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48",
+    "reference": "DEV036/DEV037 inline request deadline in templates/operators_index.html",
+    "changed_template": "templates/treasury_review.html",
+    "sha256": "e321f1438b6da7b7639bcd6cd2d0c69453a9b2f0382b29bcc7e54a64bcece740",
+    "tests": "node tests/dev043/pending_request_lifecycle.cjs",
+    "semantics": "GET URL/status/sort/offset/limit, backend,classification,ordering and population unchanged;3s client cancellation,generation guard,pagehide,explicitUNKNOWN/UNAVAILABLE;no automatic retry",
+    "server_risk": "Client abort does not stop Flask/SQLite query. User-triggered new filters/navigation may overlap outstanding server work; no automatic requests or retries after timeout. Bound server resources remains separate limitation."
+  }
 }

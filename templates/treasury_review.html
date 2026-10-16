@@ -147,17 +147,44 @@
    '<div class="tr-band"><details class="tr-support"><summary>Supporting evidence · '+esc(supportCount)+' signals ▸</summary><div class="tr-metrics"><span class="tr-metric"><strong>'+esc(item.wrap_close_observations)+'</strong><span>wrap-close observations</span></span><span class="tr-metric"><strong>'+esc(item.walkback_depth)+'</strong><span>walkback depth</span></span><span class="tr-metric"><strong>'+ago(item.first_observed)+'</strong><span>first observed</span></span></div>'+examples(item.relationship_examples)+evidenceBlock(item.evidence_summary)+'</details></div>'+
   '</article>';
  }
- let offset=0;
- function load(append){
+ // DEV036/DEV037: one active UI generation, deadline includes response body.
+ let offset=0, generation=0, activeRequest=null;
+ window.addEventListener('pagehide',()=>{generation++;if(activeRequest)activeRequest.cancel('Navigation cancelled request');});
+ async function load(append){
+  const current=++generation;
+  if(activeRequest)activeRequest.cancel('Superseded by filter or navigation');
   if(!append)offset=0;
   const sort=document.getElementById('tr-sort').value;
   const status=document.getElementById('tr-status').value;
-  fetch('/api/ops/treasury-review?sort='+encodeURIComponent(sort)+'&status='+encodeURIComponent(status)+'&limit=20&offset='+offset).then(r=>r.json()).then(d=>{
+  const list=document.getElementById('tr-list'),more=document.getElementById('tr-more');
+  list.setAttribute('aria-busy','true');more.style.display='none';
+  if(!append){list.textContent='Loading treasury review workspace…';document.getElementById('tr-summary').textContent='Counts UNKNOWN while loading';}
+  const controller=new AbortController();let timer;
+  const entry={};
+  const deadline=new Promise((_,reject)=>{
+   entry.cancel=reason=>{controller.abort();reject(new Error(reason));};
+   timer=setTimeout(()=>entry.cancel('Request exceeded 3 seconds; server-side query cancellation is not guaranteed.'),3000);
+  });
+  activeRequest=entry;
+  try{
+   const d=await Promise.race([
+    fetch('/api/ops/treasury-review?sort='+encodeURIComponent(sort)+'&status='+encodeURIComponent(status)+'&limit=20&offset='+offset,{signal:controller.signal}).then(async r=>{
+     if(!r.ok)throw new Error('HTTP '+r.status);
+     return await r.json();
+    }),deadline
+   ]);
+   if(current!==generation)return;
    if(!d.ok)throw new Error(d.error||d.code||'Read-only evidence unavailable');
    summary(d);
-   const list=document.getElementById('tr-list');
-   const html=(d.items||[]).map(card).join('');if(append)list.insertAdjacentHTML('beforeend',html);else list.innerHTML=html||'<div class="tr-empty">No treasuries in this status.</div>';offset+=d.returned||0;const more=document.getElementById('tr-more');more.style.display=d.has_more?'block':'none';
-  }).catch(error=>{const list=document.getElementById('tr-list');list.textContent='Treasury review workspace unavailable: '+error.message;});
+   const html=(d.items||[]).map(card).join('');if(append)list.insertAdjacentHTML('beforeend',html);else list.innerHTML=html||'<div class="tr-empty">No treasuries in this status.</div>';offset+=d.returned||0;more.style.display=d.has_more?'block':'none';
+  }catch(error){
+   if(current!==generation)return;
+   document.getElementById('tr-summary').textContent='Counts UNKNOWN — request unavailable';
+   list.textContent='UNAVAILABLE: Treasury review workspace — '+error.message+' No automatic retry; change filters or navigate manually.';
+  }finally{
+   clearTimeout(timer);
+   if(current===generation){list.setAttribute('aria-busy','false');if(activeRequest===entry)activeRequest=null;}
+  }
  }
  document.getElementById('tr-sort').addEventListener('change',()=>load(false));
  document.getElementById('tr-status').addEventListener('change',()=>load(false));

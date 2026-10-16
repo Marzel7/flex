@@ -1362,5 +1362,25 @@
     "tests": "node tests/dev043/pending_request_lifecycle.cjs",
     "semantics": "GET URL/status/sort/offset/limit, backend,classification,ordering and population unchanged;3s client cancellation,generation guard,pagehide,explicitUNKNOWN/UNAVAILABLE;no automatic retry",
     "server_risk": "Client abort does not stop Flask/SQLite query. User-triggered new filters/navigation may overlap outstanding server work; no automatic requests or retries after timeout. Bound server resources remains separate limitation."
+  },
+  "detail_resource_safety": {
+    "parent": "5e32f2e921fbe5f7618ef7634d3c9dbefc7dc7e7",
+    "scope": "Isolated READ_ONLY_QUALIFICATION only;Byzantine/Nexus HTML and API detail routes",
+    "deadline_seconds": 3,
+    "active_expensive_requests": 1,
+    "waiting_requests": 0,
+    "max_request_connections": 4,
+    "mechanisms": "request-local ContextVar,existing SQLite progress handler,bounded busy wait,cooperative projection-line deadline,bounded existing Nexus lock acquisition,finally cleanup;503 UNAVAILABLE without partial data",
+    "normal_runtime_behavior": "Unchanged; guard inactive without qualification flag. No SQL text/order/filter/attribution changes.",
+    "changed_sha256": {
+      "src/ops/detail_resource_safety.py": "0ea07beefa9a7ac46a7b8b89240c77c4dc706ca710ec7eebb4e4e7fa31c074a9",
+      "src/ops/operator_routes.py": "889d8fa82dccdc919c3e0c1abc9c02a8deaf62bfb4d0ea2126df98a8f040bb28",
+      "src/ops/live_potential_activity.py": "c84d70d167e86d842edc9e5027953edbea0d77a57116ce1f8913b62c782c12c9",
+      "templates/operation_detail_unavailable.html": "977df9482435a96a42a8ca22b4f0db632463b9338fe74ccaace1c216c48e9486"
+    },
+    "tests": "tests/test_dev043_detail_resource_safety.py;12passed;existingPendingNode testsPASS",
+    "thread_boundary": "Bounds admitted expensive work and waiting work;existingHTTP transport remains thread-per-request,capacity rejects immediately,no application waiting queue or safety-created threads. Not a global HTTP flood/slow-client protection.",
+    "disconnect": "Server budget independent of disconnect,request-owned cleanup by deadline;no assertion socketclose immediately stopsSQL.",
+    "limits": "Cooperative SQLite/Python limits;OS-levelI/O stalls not a hard process kill. No new workers,caches or queues."
   }
 }

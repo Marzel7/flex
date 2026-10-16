@@ -27,6 +27,8 @@ from src.ops.operator_model import (
 from src.ops.operator_reader import OperatorReader
 from src.ops.operator_resolver import OperatorResolver
 
+from src.ops.detail_resource_safety import bounded_detail
+
 operator_bp = Blueprint("operators", __name__)
 
 
@@ -860,6 +862,7 @@ def operator_review_candidates(operator_id: str):
 # ── Single operator ────────────────────────────────────────────────────────────
 
 @operator_bp.route("/api/ops/operators/<operator_id>")
+@bounded_detail
 def get_operator(operator_id: str):
     store = _get_store()
     op = store.fetch_operator(operator_id)
@@ -1077,6 +1080,7 @@ def search_operators():
 # ── Operator Intelligence page ──────────────────────────────────────────────────
 
 @operator_bp.route("/intelligence/operator/<operator_id>")
+@bounded_detail
 def operator_page(operator_id: str):
     from flask import render_template
     store = _get_store()

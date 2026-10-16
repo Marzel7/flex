@@ -9,6 +9,7 @@ import threading
 from collections import Counter
 from pathlib import Path
 
+from src.ops.detail_resource_safety import request_lock
 from src.ops.potential_candidate_matcher import PotentialCandidateMatchSpec, match_signature
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -166,7 +167,7 @@ def aggregate(db_path: str, now: int | None = None) -> tuple[dict[str, dict], di
         return _build_aggregate(db_path, now=now)
     global _CACHE_VALUE, _CACHE_EXPIRES_AT, _CACHE_DB_PATH
     current = time.monotonic()
-    with _CACHE_LOCK:
+    with request_lock(_CACHE_LOCK):
         if _CACHE_VALUE is not None and _CACHE_DB_PATH == db_path and current < _CACHE_EXPIRES_AT:
             return copy.deepcopy(_CACHE_VALUE)
         value = _build_aggregate(db_path)

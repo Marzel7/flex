@@ -140,6 +140,10 @@
     "sha256": "d50e234b8972e74095f623c68cd3431a13fac21259c31d53d5a0b03c5d3d4c29"
   },
   {
+    "path": "src/core/runtime_budget.py",
+    "sha256": "4310c67b3a80c8cbb9b7d42c844b38d88d97169e44d90cd376c5add4d08cc8e7"
+  },
+  {
     "path": "src/core/schema_init.py",
     "sha256": "d274043be0258d3c957a262e71bf1223cbd8a837f2b141d3bc96d097917c6ffc"
   },
@@ -360,6 +364,10 @@
     "sha256": "672d9c835ea315d16ff6a994b9f12e21762ac1dc89e4f1122dfdb98f8f423757"
   },
   {
+    "path": "src/ops/detail_resource_safety.py",
+    "sha256": "0ea07beefa9a7ac46a7b8b89240c77c4dc706ca710ec7eebb4e4e7fa31c074a9"
+  },
+  {
     "path": "src/ops/discovery_window.py",
     "sha256": "e4368b8c8bccbd2853eb43a092c9fcf78eba17c107d9426491612bb40fc900b3"
   },
@@ -425,7 +433,7 @@
   },
   {
     "path": "src/ops/live_potential_activity.py",
-    "sha256": "d3aa159f04cd7f4b9c3bf0ad375a44b82fe696479ea08194433406db929138e2"
+    "sha256": "c84d70d167e86d842edc9e5027953edbea0d77a57116ce1f8913b62c782c12c9"
   },
   {
     "path": "src/ops/manual_registry.py",
@@ -508,12 +516,16 @@
     "sha256": "08126192b694e0a48734038a786bfa77e4243ad05c73d5fd34a98eda202e2a66"
   },
   {
+    "path": "src/ops/operator_research_module.py",
+    "sha256": "a49c7883e566b8d33c0b63d4ccc4ea5309bc4899c2e7e6be6a01bc7365a2da88"
+  },
+  {
     "path": "src/ops/operator_resolver.py",
     "sha256": "5e575726a05aa249f28aef133fbcaee35059b6e73148e115c356165357b5c787"
   },
   {
     "path": "src/ops/operator_routes.py",
-    "sha256": "b4b3fc5ad3de58ba7ee67fb7706e135c60653a537ca0b08c187837a38d09f0e9"
+    "sha256": "889d8fa82dccdc919c3e0c1abc9c02a8deaf62bfb4d0ea2126df98a8f040bb28"
   },
   {
     "path": "src/ops/operator_similarity.py",

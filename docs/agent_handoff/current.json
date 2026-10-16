@@ -19270,7 +19270,7 @@
   },
   "project": {
     "branch": "codex/dev042-monitor-source-recovery",
-    "git_head": "2bf6f9703746f9b64db7983dd4ace3e1baa4fb5d",
+    "git_head": "549c0fdc2ee5f5ac0a2da4c630b13859a1a8d7eb",
     "name": "flex",
     "updated_at_utc": "2026-10-16T08:55:23.248007+00:00",
     "working_tree": "Isolated DEV042 exact source preservation and offline qualification. No runtime or production deployment. Worker and bridge source bundles are archival references, not complete qualified recovery candidates."
@@ -27730,5 +27730,77 @@
     "verification": "156 preserved source hashes,JSON,AST,latest20 ordering PASS; writer6 checks retained; startup PASS; Watchtower playbook HTTP500; no clean-checkout qualification",
     "production_flags": "Isolated API stopped; no other services changed; no operational workers, provider calls,canonical writes or shared queues",
     "storage": "All new files<8MiB; fixture process8MiB RLIMIT; no raw retention"
+  },
+  "dev043_playbook_nullable_price_20261016": {
+    "DEV043_PLAYBOOK_COMPATIBILITY_STATUS": "PASS_TARGETED_TEMPLATE; PARTIAL_INTEGRATION_HOLD_READ_ONLY_SIDE_EFFECTS",
+    "EXACT_NULLABLE_OPERAND": {
+      "expression": "t.current_final_mc_usd / 1000",
+      "source_field": "operation_monitor_facts.latest_mc_usd",
+      "mint": "3uawxC4Ci2VhFpcRw5eD1KKsK3EG317WzxcWsYEjpump",
+      "entry_mc_usd": 110847.48489945482,
+      "current_final_mc_usd": null,
+      "finalized_ath": null,
+      "final_ath_multiple": null,
+      "original_template_sha": "064021bd7e3aef0dec2e55d067693d94b8cf1922"
+    },
+    "TEMPLATE_CORRECTION": "Independent null guards around existing entry,current/final MC,finalized ATH/Max Proven MC,multiple formatting and JS detail; original numeric formats preserved",
+    "PRICE_SEMANTICS_PRESERVED": "PASS: no zero substitution, no running-peak/final-ATH fallback, no projection/schema/evidence/membership changes; historical numeric strings remain original contract; incompatible prospective type test still raises",
+    "PROVIDER_FREE_TESTS": {
+      "status": "PASS",
+      "checks": [
+        "retained model no500",
+        "existing links",
+        "exact current_final_mc_usd null operand",
+        "entry_mc_usd numeric",
+        "entry_mc_usd null",
+        "current_final_mc_usd numeric",
+        "current_final_mc_usd null",
+        "max_proven_mc_usd numeric",
+        "max_proven_mc_usd null",
+        "entry_to_max_multiple numeric",
+        "entry_to_max_multiple null",
+        "main table entry_mc_usd null",
+        "main table max_proven_mc_usd null",
+        "main table entry_to_max_multiple null",
+        "incompatible type remains failure"
+      ],
+      "retained_prospective_rows": 4,
+      "historical_rows": 51,
+      "model_unchanged": true,
+      "provider_calls": 0,
+      "database_writes": 0
+    },
+    "WATCHTOWER_PLAYBOOK_STATUS": "PASS retained55 rows,51 historical+4 prospective; null row explicit UNAVAILABLE; no500; existing links and JS detail verified",
+    "FULL_BROWSER_ACCEPTANCE": "All required pages visited and primary content rendered; PARTIAL overall because treasury-review background GET attempts canonical DDL and errors under guard; visible unavailable states preserved; no speculative repair",
+    "CLEAN_CHECKOUT_RESTART": {
+      "source": "02e9e19ed6dfc7b6043b55dd1250d238b7b4976d",
+      "path": "/private/tmp/flex-dev043-clean-restart",
+      "state": "/private/tmp/dev043-clean-state",
+      "startup": "PASS fresh-state guarded startup",
+      "primary_routes": "11/11 PASS repeated",
+      "browser": "Corrected Watchtower,null JS detail,Registry latest20/price evidence,Mission Control,System Health repeated",
+      "project_imports": "188/188 tracked in exact clean checkout;913 total module file hashes recorded; others solely recorded interpreter prefix",
+      "working_tree": "clean before and after run",
+      "complete_recovery": "NOT_QUALIFIED due guarded active-page side effects",
+      "server": "STOPPED"
+    },
+    "RECOVERY_SOURCE_SHA": "02e9e19ed6dfc7b6043b55dd1250d238b7b4976d; tested correction, not qualified complete release",
+    "FROZEN_RECOVERY_BASELINE": false,
+    "READY_FOR_PERSISTENT_DEV": false,
+    "PROVIDER_CALLS": 0,
+    "PRODUCTION_CHANGES": 0,
+    "PERSISTENT_DEV_CHANGES": 0,
+    "CANONICAL_WRITES": 0,
+    "SHARED_QUEUE_WRITES": 0,
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD_COMPLETE_ACCEPTANCE; targeted isolated template runtime PASS",
+    "NEXT_ACTION": "Separately qualify read-only handling of the observed treasury-review schema initialization,RPC cache initialization and trace-log paths; preserve canonical authorities and guard. Then repeat complete boundary/browser acceptance. No deployment.",
+    "engineering_revision": "549c0fdc2ee5f5ac0a2da4c630b13859a1a8d7eb",
+    "tested_recovery_source": "02e9e19ed6dfc7b6043b55dd1250d238b7b4976d",
+    "report": "/private/tmp/flex-dev043-integration-baseline/docs/audits/dev043/DEV043_PLAYBOOK_COMPATIBILITY_REPORT.md",
+    "report_sha256": "3feca8ba24c800e0e4b0c86a1d01dc8e1edc6ff9222313ab78c446d502c73468",
+    "production_flags": "No Production/persistent DEV changes,canonical writes,shared queues,provider calls or operational restarts; all isolated API processes stopped",
+    "storage": "Bounded fixtures/evidence<8MiB perfile; no raw retention",
+    "source_change": "Only nullable formatting expressions in existing artifact template; qualification harness adds source-hash receipt; no projection,acquisition,admission or attribution change"
   }
 }

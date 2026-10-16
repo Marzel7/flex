@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev049",
-    "git_head": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "git_head": "e15720cbac1ff4fa1815b92446ce5b5b13727e0d",
     "name": "flex",
-    "updated_at_utc": "2026-10-16T18:55:23.035381+00:00",
-    "working_tree": "DEV049 isolated baseline created; preimplementation HOLD; no source changes or APIs started; existing operational services untouched."
+    "updated_at_utc": "2026-10-16T19:09:56.581892+00:00",
+    "working_tree": "DEV049 cursor committed and initial guarded API/browser qualification PASS; clean-checkout frontend subprocess failed twice; HOLD, no deployment; operational runtime untouched."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -29963,5 +29963,179 @@
     },
     "NEXT_ACTION": "Resolve the existing durable-state scope gate before implementation: separately authorize qualification of one dedicated compact CREATE-recovery cursor in existing wt_scheduler_state, or provide an attributable already-supported cursor/index authority. Restore Serena Python tooling before source inspection; no deployment implied.",
     "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/DEV049_CREATE_RECOVERY_STATUS.json"
+  },
+  "dev049_durable_fairness": {
+    "DEV049_DURABLE_FAIRNESS_STATUS": "HOLD_CLEAN_CHECKOUT_FRONTEND_GATE",
+    "SOURCE_INSPECTION_STATUS": "PASS using existing Git/Python/filesystem tools as explicitly authorized; no packages installed",
+    "RECOVERY_WORKER_AUTHORITY": {
+      "runtime_pid": 73413,
+      "supervisor_pid": 73409,
+      "installed_checkout": "/Users/kevinkeaveney/Production/flex-walkback-dev002",
+      "installed_git_head": "afbe9e58b11eb2e4d616246da123ce31ab45700c",
+      "loaded_python_bytes": "UNVERIFIED; on-disk file provenance only",
+      "files": {
+        "anchor_reconciliation.py": {
+          "installed_sha256": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7",
+          "source_commit": "5f92878d2b5cae4637eadbb1390fb0ddbe064a14",
+          "committed_blob_sha256": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7"
+        },
+        "create_event_ledger.py": {
+          "installed_sha256": "64780f0d9724153581fec2a2182eb71d2dccf53b1be7abfd23b1062360249dc4",
+          "source_commit": "5f92878d2b5cae4637eadbb1390fb0ddbe064a14",
+          "committed_blob_sha256": "64780f0d9724153581fec2a2182eb71d2dccf53b1be7abfd23b1062360249dc4"
+        }
+      },
+      "worker_call": "reconcile_waiting_create_anchors(ops,_live,ensure_schema_first=False,limit=1)",
+      "worker_batch": 8,
+      "worker_interval_seconds": 45,
+      "worker_rpc_budget": 80,
+      "anchor_pass_provider_budget": 0,
+      "anchor_retry_contract": "No separate retry deadline/attempt ceiling in installed anchor selector. Normal Walkback next_retry_at/attempts are distinct and unchanged.",
+      "concurrency": "One Supervisor-owned loop; BEGIN IMMEDIATE serializes cursor plus effects; no queue mutation here."
+    },
+    "CURSOR_STORAGE_AUTHORITY": "Existing-compatible wt_scheduler_state; dedicated create_anchor_recovery_v1 namespace; exercised only in disposable fixtures; no canonical state writes",
+    "CURSOR_SCHEMA": {
+      "version": 1,
+      "after": "[enqueued_at,rowid] or null",
+      "ceiling": "[enqueued_at,rowid] or null",
+      "maximum_json_characters": 256,
+      "new_tables": 0,
+      "new_indexes": 0,
+      "transaction": "BEGIN IMMEDIATE; cursor and attempts/evidence effects commit together; exception/crash rolls back; caller with pending transaction rejected"
+    },
+    "INDEXED_SELECTION_PLAN": {
+      "plans": {
+        "same_timestamp_seek": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=? AND enqueued_at=? AND rowid>?)"
+        ],
+        "later_timestamp_seek": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=? AND enqueued_at>? AND enqueued_at<?)"
+        ],
+        "sweep_ceiling": [
+          "SEARCH wt_walkback_queue USING COVERING INDEX ix_wbq_status (status=?)"
+        ]
+      },
+      "aytrss_current": {
+        "mint": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump",
+        "status": "waiting",
+        "path_state": "WAITING_FOR_CREATE_ANCHOR",
+        "anchor_lookup_attempts": 0,
+        "last_anchor_lookup_at": null,
+        "create_anchor_audit_state": "MISSING_OR_MALFORMED",
+        "attempts": 0,
+        "next_retry_at": null
+      },
+      "authority": "Canonical OPS mode=ro/query_only; EXPLAIN only for population access, exact mint indexed lookup;1second progress deadline"
+    },
+    "FAIRNESS_BOUND": {
+      "rows_inspected_per_turn": 64,
+      "actual_worker_recovery_lookups_per_turn": 1,
+      "fixed_waiting_population": "Every continuously eligible row within W+1 successful selection turns; all-eligible W turns",
+      "new_arrivals": "Captured sweep ceiling prevents ongoing appends extending current sweep; at bounded Wmax across consecutive sweeps, arrivals served within 2*(Wmax+1) successful turns",
+      "limits": "No wall-clock bound under outages/contention; queue length not newly capped; stable enqueued_at/rowid required; VACUUM/rebuild requires owner-stopped cursor reset/requalification",
+      "realistic_guarded_fixture": {
+        "waiting_rows": 50000,
+        "eligible_rows": 5000,
+        "turns_to_visit_all": 5000,
+        "restart_after_turn": 2500,
+        "maximum_turn_latency_assertion_ms": 1000,
+        "fixture_file_budget_bytes": 8000000
+      },
+      "additional_initial_fixture": {
+        "waiting_rows": 100000,
+        "eligible_rows": 10000,
+        "turns": 10000,
+        "maximum_observed_turn_ms": 231.858,
+        "fixture_bytes": 13205504,
+        "scope": "Initial disposable standalone run, not the guarded file-budget fixture"
+      },
+      "timestamp_tie_test": {
+        "waiting_rows": 100000,
+        "sqlite_vm_instructions": 800,
+        "temporary_sort": false
+      }
+    },
+    "RESTART_CONTINUITY": "Focused tests PASS: reopen after persisted cursor; injected resolver failure rollback; uncommitted connection close rollback; serialized competing connection; no duplicate committed attempt within sweep",
+    "RETRY_BACKOFF_EQUIVALENCE": "Installed anchor selector has no separate cooldown or attempt exhaustion; preserve original waiting/path/missing-anchor eligibility. Ordinary next_retry_at/attempts and terminal worker policies remain unchanged. Tests preserve future retry fields and attempts99 on anchor-eligible row, exclude failed/complete rows.",
+    "CREATE_QUALIFICATION": "Original resolver/classifier/provenance/conflict/helper bodies AST-equivalent to attributed source; tests valid existing CREATE->CREATE_ANCHORED/pending, invalid/conflicting/missing remain unresolved; no attribution/admission writes",
+    "PROVIDER_BUDGET_EQUIVALENCE": "Zero-RPC local anchor lookup; at most1 resolver invocation per worker turn; normal worker batch8/interval45/budget80 untouched; no real recovery lookups executed",
+    "PROVIDER_FREE_TESTS": {
+      "initial_guarded": "25 PASS =13 focused +12 protected resource tests; unchanged inline frontend lifecycle PASS",
+      "fresh_checkouts": "25 Python tests PASS in each of2 attempts; frontend subprocess failed both with empty log; standalone same-checkout frontend test PASS; root cause UNKNOWN",
+      "guard_denials_initial_acceptance": 0,
+      "first_harness_failure": "100000-row disk fixture exceeded unchanged8MiB budget; reduced disk fixture to50000, preserved100000 in-memory tie test; guards not changed"
+    },
+    "DEV048_REGRESSION_STATUS": {
+      "baseline_verify": "PASS before implementation",
+      "candidate_verify_and_first_qualification": "PASS",
+      "real_retained_browser_contracts": 10,
+      "first_run": "eb4b28969c65",
+      "first_api_stopped": true,
+      "clean_checkout": "HOLD",
+      "failed_restore_attempts": [
+        {
+          "run_id": "d6b19431dbba",
+          "frontend_log": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/runs/d6b19431dbba/frontend.log",
+          "frontend_log_bytes": 0,
+          "frontend_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "python_tests": "25 PASS",
+          "verdict": "HOLD_FRONTEND_SUBPROCESS; no diagnostic; exit status/signal not recorded by unchanged DEV048 wrapper"
+        },
+        {
+          "run_id": "934004826c0f",
+          "frontend_log": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/runs/934004826c0f/frontend.log",
+          "frontend_log_bytes": 0,
+          "frontend_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "python_tests": "25 PASS",
+          "verdict": "HOLD_FRONTEND_SUBPROCESS; no diagnostic; exit status/signal not recorded by unchanged DEV048 wrapper"
+        }
+      ],
+      "baseline_exclusions": "UNCHANGED",
+      "no_acceptance_suite_changes": true
+    },
+    "CANDIDATE_SOURCE_SHA": "e15720cbac1ff4fa1815b92446ce5b5b13727e0d",
+    "CANDIDATE": {
+      "candidate": "/Users/kevinkeaveney/Dev/claude/flex-releases/candidates/DEV049_CANDIDATE_e15720cbac1f",
+      "deployment_authorized": false,
+      "manifest_sha256": "85398a259453d0be6bbb47bbda333cd30e8f2aae032c8dea2d32b947d11830f5",
+      "source_sha": "e15720cbac1ff4fa1815b92446ce5b5b13727e0d",
+      "status": "PASS",
+      "tag": "DEV049_CANDIDATE_e15720cbac1f"
+    },
+    "READY_FOR_DEPLOYMENT": false,
+    "RUNTIME_DEPLOYMENT_GATE": "HOLD; isolated clean-checkout acceptance incomplete; no operational deployment authorized",
+    "RUNTIME_DEPLOYMENT_REQUIRED": true,
+    "RUNTIME_TARGET": "Isolated DEV049 qualification only; no running worker replaced",
+    "CHANGED_FILES": [
+      "docs/audits/dev049/CURSOR_AND_RESTORATION.md",
+      "docs/audits/dev049/original_anchor_reconciliation.py.txt",
+      "docs/audits/dev049/source-authority.json",
+      "src/core/walkback_worker.py",
+      "src/ops/anchor_reconciliation.py",
+      "src/ops/create_event_ledger.py",
+      "tests/test_dev049_cursor.py"
+    ],
+    "SOURCE_HASHES": {
+      "src/ops/anchor_reconciliation.py": "226b32f79b4bb5e705f5e15acdb0ab3437470b6b25aeae95e138895c2fc6e2d6",
+      "src/ops/create_event_ledger.py": "64780f0d9724153581fec2a2182eb71d2dccf53b1be7abfd23b1062360249dc4",
+      "src/core/walkback_worker.py": "d36220d0b809c9034943aa6783a3cb05da1ee320161237d95415a6bcfacd545d",
+      "tests/test_dev049_cursor.py": "261eddf35719aec5f53810d4cb39050975219c709b20f8e282dec5a1f3e06ed4"
+    },
+    "STORAGE_BOUNDS": {
+      "cursor_characters": 256,
+      "guarded_fixture_file_bytes": 8000000,
+      "workflow_runtime_file_bytes": 8388608,
+      "source_archive_bytes": 256000000,
+      "raw_retention": false,
+      "new_unbounded_growth_paths": 0
+    },
+    "PROVIDER_CALLS": 0,
+    "PRODUCTION_CHANGES": 0,
+    "PERSISTENT_DEV_CHANGES": 0,
+    "CANONICAL_DATABASE_WRITES": 0,
+    "SHARED_QUEUE_WRITES": 0,
+    "DEPLOYMENT_CHANGES": 0,
+    "NEXT_ACTION": "Authorize bounded diagnosis of the unchanged DEV048 frontend subprocess exit (status/signal currently unrecorded); if a tooling defect is demonstrated, qualify its correction separately. Then repeat exact-candidate clean-checkout API/browser acceptance. No deployment or gate bypass.",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/DEV049_DURABLE_FAIRNESS_STATUS.json"
   }
 }

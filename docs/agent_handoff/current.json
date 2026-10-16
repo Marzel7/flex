@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev042-monitor-source-recovery",
-    "git_head": "43dfcddcacd8a0a6edaa9e24aaf1499a1ac655cc",
+    "git_head": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48",
     "name": "flex",
     "updated_at_utc": "2026-10-16T08:55:23.248007+00:00",
-    "working_tree": "Observed persistent DEV /private/tmp/flex-dev035-health-scope; loaded code SHA unknown. Read-only inspection only."
+    "working_tree": "Isolated rich preview /private/tmp/flex-rich-preview-8475 port8145; persistent8100 remains43dfcdd; no deployment"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -28274,5 +28274,65 @@
     "deployment_changes": 0,
     "runtime_deployment_required": false,
     "next_action": "NONE for diagnosis. Preserve richer lineage and post-baseline fixes; any later isolated qualification or deployment requires separate authorization."
+  },
+  "dev045_rich_isolated_preview": {
+    "source": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48",
+    "url": "http://127.0.0.1:8145/intelligence/operators",
+    "checks": [
+      {
+        "route": "/healthz",
+        "status": 200
+      },
+      {
+        "route": "/api/operations/live-monitor",
+        "status": 200,
+        "rows": 20,
+        "chronology": "PASS",
+        "priced_rows": 5,
+        "live_rows": 0
+      },
+      {
+        "route": "/operations/watchtower/playbook",
+        "status": 200,
+        "nullable_prices": "PASS_NO500"
+      }
+    ],
+    "guard_denials": 0,
+    "clean_checkout": true,
+    "screenshot_comparison": {
+      "three_operations_no_deep": "PASS",
+      "cadence": "PASS",
+      "history_and_filters": "PASS",
+      "CYBERCAT": "$162,776 / $274,477 / 1.69x / 26m matches screenshot",
+      "SC_1": "$125,378 / $125,378 / 1.00x / 0m matches screenshot",
+      "SC_2": "$128,917 / $168,300 / 1.31x / 6m matches screenshot",
+      "CatTok": "entry $144,176 matches; later retained peak $594,765,4.13x; now history",
+      "live_prices": "NOT_DEMONSTRATED: no current retained LIVE rows",
+      "limitations": [
+        "Walkback coverage UNAVAILABLE",
+        "24h/7d/30d operation activity unavailable",
+        "15/20 selected history entries unavailable; no fallback fabricated",
+        "Pending treasury not tested; prior HOLD unchanged"
+      ]
+    },
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "port8100_changes": 0,
+    "production_changes": 0,
+    "application_source_changes": 0,
+    "runtime_deployment_gate": "PASS_ISOLATED_RICH_PREVIEW_ONLY",
+    "ready_for_persistent_dev": false,
+    "session_id": 94187,
+    "state": "/private/tmp/flex-rich-preview-state-8145",
+    "worktree": "/private/tmp/flex-rich-preview-8475",
+    "status": "PASS_ISOLATED_PREVIEW_WITH_EXPLICIT_DATA_LIMITS",
+    "engineering_revision": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48",
+    "next_action": "Leave isolated8145 preview available for user comparison. No persistent deployment authorized; existing Pending HOLD remains.",
+    "safety": "Unchanged DEV043 bootstrap denies all outbound connections, canonical writes and foreign filesystem writes; only disposable state writable. Max single process-written file8MiB; no raw payload retention, no DB copy. Existing8100/Production not signalled or changed.",
+    "screenshots": {
+      "01-rich-layout.jpg": "766bfdd18fa80c8219042ed50d05a118b0718d8a3a6d3c8826f96bb091a0db85",
+      "03-retained-prices.jpg": "bedae76e537c59a71c4c07049bef756dca291c9866c8d1a9cd7e7f556b4b0045",
+      "02-watchtower-prices.jpg": "cd336518e5db23b5c37a03217b9cc1abce0da87895e4f8df1544b48cdaeb9361"
+    }
   }
 }

@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "shared_monitor_write",
+      "outcome": "PASS_DENIED"
+    },
+    {
+      "name": "canonical_write",
+      "outcome": "PASS_DENIED"
+    },
+    {
+      "name": "live_queue_write",
+      "outcome": "PASS_DENIED"
+    },
+    {
+      "name": "production_api_connect",
+      "outcome": "PASS_DENIED"
+    },
+    {
+      "name": "external_provider_connect",
+      "outcome": "PASS_DENIED"
+    }
+  ],
+  "state": "/private/tmp/dev043-clean-state",
+  "external_database_policy": "allowlisted,mode=ro,immutable=1,query_only",
+  "application_imported": false,
+  "port": 8143,
+  "bootstrap_sha256": "4c6395cceed5baf2b2501359d98bcc7b1f343d03d42028ce93cf884f48861c82"
+}

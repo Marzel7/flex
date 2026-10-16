@@ -1,0 +1,15 @@
+{
+  "route": "/api/ops/treasury-review",
+  "observed": "Flask ERROR Exception on GET; clean startup server.log traceback; canonical lock attempt denied",
+  "call_chain": [
+    "src/ops/treasury_review_routes.py:api_treasury_review_list",
+    "src/ops/treasury_review_workspace.py:list_review_workspace:626",
+    "ensure_schema:76",
+    "conn.executescript(AUDIT_DDL)",
+    "db_locking._acquire_write_lane",
+    "database_write_service.acquire_write_lease"
+  ],
+  "target": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db.write.lock",
+  "additional_denials": "RPC cache import schema attempt against canonical core; ws_price_trace logging outside disposable state; FD watchdog subprocess denied. All remain blocked; no transport connection events observed.",
+  "not_corrected": "Outside nullable-price template scope; no schema/projection/logging or guard changes made."
+}

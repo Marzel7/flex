@@ -1,5 +1,5 @@
 {
-  "status": "NULLABLE_TEMPLATE_QUALIFIED_PENDING_CLEAN_RESTART",
+  "status": "TEMPLATE_PASS_CLEAN_PRIMARY_ROUTES_PASS_COMPLETE_BOUNDARY_HOLD",
   "integration_parent": "cb882091bbd402ad826fc44cc82541a0e3d4b2ca",
   "parent_tree": "53fa6a10e6fd8435c08839caddaf3f0be5358f5b",
   "parent_files_authority": "git ls-tree -r cb882091bbd402ad826fc44cc82541a0e3d4b2ca",
@@ -1306,5 +1306,7 @@
       "sha256": "d321f4fcb080e4d2ed72f5b3d4b653cccfad1d9f6f2d154b2de17ed775cda801",
       "change": "Independent null guards for existing Entry,current/final MC,finalized ATH/Max Proven MC,multiple and JS detail formatting; no projection changes"
     }
-  ]
+  ],
+  "tested_recovery_source": "02e9e19ed6dfc7b6043b55dd1250d238b7b4976d",
+  "loaded_runtime_manifest": "clean_loaded_source_receipt.json"
 }

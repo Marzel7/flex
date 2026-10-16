@@ -1,0 +1,47 @@
+# DEV043 nullable-price template qualification
+
+Targeted defect: PASS. Integration baseline: PARTIAL/HOLD. No frozen release or persistent DEV readiness.
+
+**DEV043_PLAYBOOK_COMPATIBILITY_STATUS:** PASS_TARGETED_TEMPLATE; PARTIAL_INTEGRATION_HOLD_READ_ONLY_SIDE_EFFECTS
+
+**EXACT_NULLABLE_OPERAND:** {"expression": "t.current_final_mc_usd / 1000", "source_field": "operation_monitor_facts.latest_mc_usd", "mint": "3uawxC4Ci2VhFpcRw5eD1KKsK3EG317WzxcWsYEjpump", "entry_mc_usd": 110847.48489945482, "current_final_mc_usd": null, "finalized_ath": null, "final_ath_multiple": null, "original_template_sha": "064021bd7e3aef0dec2e55d067693d94b8cf1922"}
+
+**TEMPLATE_CORRECTION:** Independent null guards around existing entry,current/final MC,finalized ATH/Max Proven MC,multiple formatting and JS detail; original numeric formats preserved
+
+**PRICE_SEMANTICS_PRESERVED:** PASS: no zero substitution, no running-peak/final-ATH fallback, no projection/schema/evidence/membership changes; historical numeric strings remain original contract; incompatible prospective type test still raises
+
+**PROVIDER_FREE_TESTS:** {"status": "PASS", "checks": ["retained model no500", "existing links", "exact current_final_mc_usd null operand", "entry_mc_usd numeric", "entry_mc_usd null", "current_final_mc_usd numeric", "current_final_mc_usd null", "max_proven_mc_usd numeric", "max_proven_mc_usd null", "entry_to_max_multiple numeric", "entry_to_max_multiple null", "main table entry_mc_usd null", "main table max_proven_mc_usd null", "main table entry_to_max_multiple null", "incompatible type remains failure"], "retained_prospective_rows": 4, "historical_rows": 51, "model_unchanged": true, "provider_calls": 0, "database_writes": 0}
+
+**WATCHTOWER_PLAYBOOK_STATUS:** PASS retained55 rows,51 historical+4 prospective; null row explicit UNAVAILABLE; no500; existing links and JS detail verified
+
+**FULL_BROWSER_ACCEPTANCE:** All required pages visited and primary content rendered; PARTIAL overall because treasury-review background GET attempts canonical DDL and errors under guard; visible unavailable states preserved; no speculative repair
+
+**CLEAN_CHECKOUT_RESTART:** {"source": "02e9e19ed6dfc7b6043b55dd1250d238b7b4976d", "path": "/private/tmp/flex-dev043-clean-restart", "state": "/private/tmp/dev043-clean-state", "startup": "PASS fresh-state guarded startup", "primary_routes": "11/11 PASS repeated", "browser": "Corrected Watchtower,null JS detail,Registry latest20/price evidence,Mission Control,System Health repeated", "project_imports": "188/188 tracked in exact clean checkout;913 total module file hashes recorded; others solely recorded interpreter prefix", "working_tree": "clean before and after run", "complete_recovery": "NOT_QUALIFIED due guarded active-page side effects", "server": "STOPPED"}
+
+**RECOVERY_SOURCE_SHA:** 02e9e19ed6dfc7b6043b55dd1250d238b7b4976d; tested correction, not qualified complete release
+
+**FROZEN_RECOVERY_BASELINE:** False
+
+**READY_FOR_PERSISTENT_DEV:** False
+
+**PROVIDER_CALLS:** 0
+
+**PRODUCTION_CHANGES:** 0
+
+**PERSISTENT_DEV_CHANGES:** 0
+
+**CANONICAL_WRITES:** 0
+
+**SHARED_QUEUE_WRITES:** 0
+
+**runtime_deployment_required:** True
+
+**runtime_deployment_gate:** HOLD_COMPLETE_ACCEPTANCE; targeted isolated template runtime PASS
+
+**NEXT_ACTION:** Separately qualify read-only handling of the observed treasury-review schema initialization,RPC cache initialization and trace-log paths; preserve canonical authorities and guard. Then repeat complete boundary/browser acceptance. No deployment.
+
+The initial browser content checks passed, but final clean-run denial telemetry proves active-page side effects remain. Do not read earlier initial PASS as complete recovery. The guard blocked every external state mutation before it occurred. No provider/RPC transport was executed. Operational service processes were not signalled; only isolated DEV043 APIs were stopped.
+
+The clean checkout exercised the exact committed template and harness. Its receipt records module hashes and effective safe bindings; all 188 project modules were tracked in that checkout, with no source from another worktree. The external retained databases are explicitly declared read-only authorities, not copied runtime dependencies; WAL is excluded. Observed dependency versions remain in observed_dependencies.json.
+
+Storage: all new artifacts and fixtures below8MiB; runtime/fixture RLIMIT_FSIZE8MiB. HTTP test reads bounded to8MB in memory and stores compact hashes only (one initial2MB cap was insufficient for a retained detail page; corrected without changing application content). No raw provider retention or new operational growth path.

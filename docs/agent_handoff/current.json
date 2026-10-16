@@ -28510,5 +28510,124 @@
     "NEXT_ACTION": "Provide or identify an already qualified bounded implementation of the exact MissingCREATE contract and its acceptance evidence; otherwise separately authorize a bounded read-model design. Do not import this scan-based helper unchanged or alter metric semantics.",
     "STORAGE": "Compact diagnostic report only; no DB copies, payloads, caches or growth paths introduced.",
     "engineering_revision": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48"
+  },
+  "dev043_missing_create_bounded_qualification": {
+    "DEV043_MISSING_CREATE_HEALTH_STATUS": "HOLD_NO_SUITABLE_EXISTING_INDEXED_ACCESS",
+    "ORIGINAL_METRIC_CONTRACT": {
+      "source": "b0883b68874fb2a1bd39edcd4a7030f8936bb0f8:src/ops/missing_create_anchor_monitor.py; d2fffdc34fca2539807e1463cad68dab0b3ef042 Health API/template",
+      "acceptance": "Historical partial qualification, not deployed; no Production acceptance claimed",
+      "time": "int(time.time()) or explicit now; epoch seconds. Half-open [now-86400,now), Python int(timestamp);1h/6h/7d also supplied",
+      "population": "One row per mint PK where path_state=WAITING_FOR_CREATE_ANCHOR OR anchor_recovered_at IS NOT NULL",
+      "new": "Selected rows whose enqueued_at falls inside window, including subsequently recovered rows",
+      "recovered": "Selected rows whose anchor_recovered_at falls inside window",
+      "recent_unresolved": "Selected rows with null anchor_recovered_at and enqueued_at in window; no status waiting filter",
+      "historical_unresolved": "All-time status=waiting AND path_state=WAITING_FOR_CREATE_ANCHOR; context, excluded from24h headline",
+      "latest": "Largest enqueued_at below now across selected population; equal-timestamp mint tie unspecified in original SQL iteration",
+      "retry_terminal": "No attempts/retry/terminal exclusion in new/recovered/recent-unresolved; historical backlog only explicitly waiting; adding status restrictions changes original semantics",
+      "dedup": "mint PRIMARY KEY, one count per selected queue row; no separate signature dedup",
+      "exclusions": "Future/exact-now timestamps excluded from windows; null timestamps excluded; no canonical/admission/creator/signature eligibility predicates",
+      "signature_creator": "No missing-signature or missing-creator definition in recovered helper. Missing anchor is path-state evidence, not a raw signature-null or creator-null count.",
+      "database": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db:wt_walkback_queue"
+    },
+    "24H_DENOMINATOR": "Absolute selected queue-event counts, not all CREATE transactions or a coverage percentage; duration86400seconds",
+    "MISSING_CREATE_SIGNATURE_COUNT": "UNAVAILABLE: separate metric not defined by original helper; not computed",
+    "MISSING_CREATOR_COUNT": "UNAVAILABLE: separate metric not defined by original helper; not computed",
+    "RECOVERY_BACKLOG_COUNT": "NOT_COMPUTED: historical waiting/path population defined; read would scale with entire waiting partition. No bounded count authority established.",
+    "EXISTING_INDEX_COVERAGE": {
+      "indexes": [
+        "mint PK",
+        "status,enqueued_at",
+        "walkback_class,status",
+        "intelligence_outcome",
+        "funder_wallet",
+        "status,priority DESC,enqueued_at",
+        "narrow deep-review partial index"
+      ],
+      "failure": "No anchor_recovered_at range index; no status-independent enqueued_at or path-state/time access. Status-first index cannot exclude unspecified statuses without changing semantics; skip-scan/statistics not demonstrated and recovered time remains unindexed."
+    },
+    "BOUNDED_QUERY_PLAN": {
+      "new_24h": {
+        "sql": "SELECT count(*) FROM wt_walkback_queue WHERE (path_state='WAITING_FOR_CREATE_ANCHOR' OR anchor_recovered_at IS NOT NULL) AND enqueued_at>=? AND enqueued_at<?",
+        "plan": [
+          [
+            3,
+            0,
+            0,
+            "SCAN wt_walkback_queue"
+          ]
+        ],
+        "explain_ms": 0.02695806324481964
+      },
+      "recovered_24h": {
+        "sql": "SELECT count(*) FROM wt_walkback_queue WHERE anchor_recovered_at>=? AND anchor_recovered_at<?",
+        "plan": [
+          [
+            3,
+            0,
+            0,
+            "SCAN wt_walkback_queue"
+          ]
+        ],
+        "explain_ms": 0.05179201252758503
+      },
+      "recent_unresolved_24h": {
+        "sql": "SELECT count(*) FROM wt_walkback_queue WHERE path_state='WAITING_FOR_CREATE_ANCHOR' AND anchor_recovered_at IS NULL AND enqueued_at>=? AND enqueued_at<?",
+        "plan": [
+          [
+            3,
+            0,
+            0,
+            "SCAN wt_walkback_queue"
+          ]
+        ],
+        "explain_ms": 0.009125098586082458
+      },
+      "historical_unresolved": {
+        "sql": "SELECT count(*) FROM wt_walkback_queue WHERE status='waiting' AND path_state='WAITING_FOR_CREATE_ANCHOR'",
+        "plan": [
+          [
+            4,
+            0,
+            0,
+            "SEARCH wt_walkback_queue USING INDEX ix_wbq_priority (status=?)"
+          ]
+        ],
+        "explain_ms": 0.01058308407664299
+      },
+      "latest": {
+        "sql": "SELECT mint,enqueued_at FROM wt_walkback_queue WHERE (path_state='WAITING_FOR_CREATE_ANCHOR' OR anchor_recovered_at IS NOT NULL) AND enqueued_at<? ORDER BY enqueued_at DESC LIMIT 1",
+        "plan": [
+          [
+            4,
+            0,
+            0,
+            "SCAN wt_walkback_queue"
+          ],
+          [
+            22,
+            0,
+            0,
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        ],
+        "explain_ms": 0.04687509499490261
+      }
+    },
+    "QUERY_LATENCY": "EXPLAIN only0.009\u20130.052ms. Population queries deliberately not executed; this is not metric response latency. Diagnostic connection query_only immutable=1 with1s progress deadline.",
+    "PROVIDER_FREE_TESTS": "Source/schema/index/EXPLAIN inspection complete. No projection implemented; fixture/boundary/browser tests NOT_RUN because mandatory indexed-access stop condition failed.",
+    "HEALTH_BROWSER_ACCEPTANCE": "NOT_RUN; preview unchanged",
+    "PREVIEW_SOURCE_SHA": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48; verified clean before previous task, no source edits since",
+    "READY_FOR_INTEGRATION": false,
+    "PROVIDER_CALLS": 0,
+    "PRODUCTION_CHANGES": 0,
+    "CANONICAL_WRITES": 0,
+    "SOURCE_CHANGES": 0,
+    "PERSISTENT_DEV_CHANGES": 0,
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "RUNTIME_DEPLOYMENT_REASON": "Qualification-only HOLD before implementation",
+    "MINIMUM_MISSING_ACCESS_PATH": "At minimum, an anchor_recovered_at range access is necessary for recovered counts. Full card additionally needs exact selected-population enqueued_at access/latest ordering and a qualifying historical waiting+path count access. A suitable partial enqueued_at index for the original OR population plus recovery-time index and waiting/path access are design candidates only; no index designed/created or storage/update bounds qualified.",
+    "NEXT_ACTION": "Stop. Separately authorize access-path design/qualification if desired; current no-index/no-migration constraints prevent this restoration. Establish separate signature/creator contract provenance before adding those counts.",
+    "STORAGE": "Compact JSON diagnostics only; no data rows, raw payloads, DB copies, caches or runtime writers introduced.",
+    "engineering_revision": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48; verified clean before previous task, no source edits since"
   }
 }

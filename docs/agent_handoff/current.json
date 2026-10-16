@@ -28187,7 +28187,7 @@
     },
     "BROWSER_URL": "http://127.0.0.1:8100/ops-os",
     "MAIN_DASHBOARD_STATUS": "UI_DEGRADED: renders; API live, active operators UNKNOWN, Discovery intelligence unavailable, Inbox unavailable",
-    "OPERATIONS_OVERVIEW_STATUS": "UI_FUNCTIONAL for read-only registry navigation and four visible identities; snapshot timestamps explicitly labelled. Data correctness not qualified. Watchtower detail navigation then stalled.",
+    "OPERATIONS_OVERVIEW_STATUS": "UI_DEGRADED relative to accepted rich UI: retired Deep exposed, integrated LIVE/HISTORY and price tables absent; four links rendered but Watchtower detail stalled.",
     "TREASURY_MONITORING_STATUS": "NOT_TESTED",
     "TREASURY_REVIEW_STATUS": "NOT_TESTED",
     "PENDING_REVIEW_STATUS": "NOT_TESTED: runtime dependency stop; no Pending full-population request issued",
@@ -28232,5 +28232,47 @@
     "engineering_revision": "43dfcddcacd8a0a6edaa9e24aaf1499a1ac655cc",
     "report_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/dev045/DEV045_REPORT.json",
     "updated_at_utc": "2026-10-16T14:48:21.091511+00:00"
+  },
+  "dev045_ui_source_provenance": {
+    "status": "PASS_SOURCE_AND_RUNTIME_MISMATCH_IDENTIFIED",
+    "screenshot_matching_source": {
+      "commit": "d79c0011208a285a089de7417289155877b58623",
+      "preservation_commit": "5c81ed8f30ea111f0db55e0ff650a303c776a462",
+      "path": "templates/operators_index.html",
+      "git_blob": "439fc19f25fd8e3347474008bcc9d6df59755cdd",
+      "sha256": "1668397f6369385a5804651de5b542817e2bbb6d385507e94dee95e925f660b5",
+      "match": "Same rich presentation: three operation identities, cadence, LIVE prices and latest20 HISTORY; screenshot alone cannot prove exact historical runtime SHA or data snapshot."
+    },
+    "later_preserved_lineage": {
+      "isolated_browser_reference": "8c27f1fb199836ddc5b4051f18ec7c10da93230d; retained handoff records actual rich browser acceptance on8103, with explicit evidence limitations",
+      "recovery_source": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48",
+      "existing_template": "/private/tmp/flex-dev043-integration-baseline/templates/operators_index.html",
+      "sha256": "4dc3aee7db7ea7a4ce8be1b1c044dfc68f1f849a7fe366e91f9eb1101dfdc476"
+    },
+    "current_runtime": {
+      "pid": 95243,
+      "started": "2026-10-15 00:10:59 local",
+      "worktree": "/private/tmp/flex-dev035-health-scope",
+      "head": "43dfcddcacd8a0a6edaa9e24aaf1499a1ac655cc",
+      "loaded_python_sha": "UNKNOWN",
+      "template_sha256": "491b8d9f3778536078ea42218962ab3ad1e78d85ef11da12eab4bb37a99dc3ef",
+      "template_bytes": 11918,
+      "missing_source_sections": [
+        "LIVE TOKENS",
+        "HISTORY latest20",
+        "opening/current/running peak tables",
+        "three-operation presentation filter"
+      ]
+    },
+    "why_old_runtime": "DEV037 retained deployment record reports candidate bootstrap exit5 Input/output error; original launch plist restored byte-for-byte and rollback PID95243 accepted. Current plist WorkingDirectory and PYTHONPATH both still point to DEV035 worktree, RunAtLoad/KeepAlive true. Later rich UI preservation/isolated previews and DEV043 qualification did not replace persistent8100. Historical bootstrap failure cause not investigated; no unsupported explanation inferred.",
+    "deep": "Rich template presentation filters Byzantine/Watchtower/Nexus; old registry exposes canonical fourth identity. Historical identity retained does not imply independent Deep should be presented as current.",
+    "price_gap": "Running template lacks the integrated price renderer; missing UI tables alone do not establish loss of retained price evidence.",
+    "dev045_correction": "Registry UI_DEGRADED relative to accepted rich presentation; previous UI_FUNCTIONAL label was too broad.",
+    "provider_calls": 0,
+    "database_writes": 0,
+    "source_changes": 0,
+    "deployment_changes": 0,
+    "runtime_deployment_required": false,
+    "next_action": "NONE for diagnosis. Preserve richer lineage and post-baseline fixes; any later isolated qualification or deployment requires separate authorization."
   }
 }

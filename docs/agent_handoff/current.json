@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev048-release-workflow",
-    "git_head": "7b62d68de4d0eee3ba058507dc80cf4d88e2b084",
+    "branch": "codex/dev049",
+    "git_head": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
     "name": "flex",
-    "updated_at_utc": "2026-10-16T18:50:58.573655+00:00",
-    "working_tree": "DEV048 workflow PASS; immutable tooling installed; disposable candidate independently restored; owned APIs stopped; existing 8100/8145 unchanged; no application deployment."
+    "updated_at_utc": "2026-10-16T18:55:23.035381+00:00",
+    "working_tree": "DEV049 isolated baseline created; preimplementation HOLD; no source changes or APIs started; existing operational services untouched."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -29914,5 +29914,54 @@
     "report": "/Users/kevinkeaveney/.codex/worktrees/dev048-release-workflow/flex/docs/audits/dev048/DEV048_RELEASE_WORKFLOW_STATUS.json",
     "guide": "/Users/kevinkeaveney/.codex/worktrees/dev048-release-workflow/flex/docs/development/FLEX_DEV_WORKFLOW.md",
     "next_action": "NONE \u2014 COMPLETE. Future DEV starts through installed command; promotion requires separate explicit authorization naming exact release and target."
+  },
+  "dev049_create_recovery": {
+    "DEV049_CREATE_RECOVERY_STATUS": "HOLD_PREIMPLEMENTATION",
+    "GOLDEN_BASELINE_VERIFICATION": {
+      "status": "PASS_CREATE_VERIFIED",
+      "source_sha": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+      "tool_sha256": "8577d4e5bcd654fbad7ec9fa862668842802a3c00911075359b56e45f9dec431",
+      "source": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/source"
+    },
+    "CURRENT_RECOVERY_WORKER_AUTHORITY": {
+      "observed_pid": 73413,
+      "supervisor_pid": 73409,
+      "executable": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+      "arguments": "-m src.core.walkback_worker --loop",
+      "loaded_source_identity": "UNVERIFIED",
+      "checkout_and_queue_authority": "NOT_REVERIFIED_THIS_RUN"
+    },
+    "STARVATION_ROOT_CAUSE": "Retained DEV039: oldest enqueued waiting CREATE-anchor row selected repeatedly with reconciliation limit=1; failed lookup leaves it eligible. More than 74000 attempts on oldest row while AYtRss had zero. Not freshly reproduced in DEV049.",
+    "SELECTOR_IMPLEMENTATION": "NONE \u2014 stop before unsupported new durable scheduling state or unindexed full-population sorting",
+    "INDEXED_QUERY_PLAN": {
+      "authority": "Retained DEV039 schema-gate evidence, not rerun",
+      "existing": "ix_wbq_status(status,enqueued_at) supports bounded (enqueued_at,rowid) seek; LIMIT64 measured74.08ms with no temporary sort",
+      "missing": "No index for last_anchor_lookup_at; no existing CREATE-recovery durable cursor. A new cursor namespace in wt_scheduler_state is still new scheduling state.",
+      "prior_rejected_plan": "COALESCE(last_anchor_lookup_at,0) fairness sort used temporary B-tree; interrupted at existing1s/2s budgets."
+    },
+    "FAIRNESS_BOUND": "NOT_QUALIFIED",
+    "RESTART_FAIRNESS": "NOT_QUALIFIED \u2014 indexed rotation requires new durable cursor; in-memory workaround prohibited",
+    "AYTRSS_RECOVERY_ELIGIBILITY": "Retained DEV039: migration/handoff complete; missing CREATE signature/creator; waiting anchor with zero recovery attempts. Current token state and newer sample NOT_REVERIFIED. Fair scheduling alone cannot supply absent evidence.",
+    "CREATE_QUALIFICATION_PRESERVED": "UNCHANGED \u2014 no application changes",
+    "PROVIDER_BUDGET_EQUIVALENCE": "UNCHANGED \u2014 no application changes; no new recovery lookups",
+    "PROVIDER_FREE_TESTS": "NOT_RUN \u2014 stopped before implementation; only protected workflow create and read-only process observation completed",
+    "DEV048_REGRESSION_QUALIFICATION": "NOT_RUN; no verify/qualify/candidate PASS claimed",
+    "CANDIDATE_SOURCE_SHA": null,
+    "READY_FOR_DEPLOYMENT": false,
+    "TOOLING_BLOCKER": "Serena find_symbol failed: language server manager uninitialized; Python language server cannot find uvx or uv. Tool instructed stop without workaround. No dependency repairs attempted.",
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "RUNTIME_DEPLOYMENT_REASON": "Preimplementation HOLD; no executable change",
+    "PROVIDER_CALLS": 0,
+    "CANONICAL_DATABASE_WRITES": 0,
+    "PRODUCTION_CHANGES": 0,
+    "PERSISTENT_DEV_CHANGES": 0,
+    "SHARED_QUEUE_WRITES": 0,
+    "STORAGE": {
+      "maximum_generated_file_bytes": 2000000,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "NEXT_ACTION": "Resolve the existing durable-state scope gate before implementation: separately authorize qualification of one dedicated compact CREATE-recovery cursor in existing wt_scheduler_state, or provide an attributable already-supported cursor/index authority. Restore Serena Python tooling before source inspection; no deployment implied.",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/DEV049_CREATE_RECOVERY_STATUS.json"
   }
 }

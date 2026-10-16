@@ -50,4 +50,16 @@ with patch.dict(sys.modules,{'src.core.pumpfun_curve_listener':None}):
 with patch.dict(os.environ,{'FLEX_DEV_READ_ONLY_QUALIFICATION':'0'}),patch('importlib.import_module',return_value=listener) as importer:
  ns={'os':os,'runtime':{}};exec(compile(ast.Module(body=[block],type_ignores=[]),'budget-source','exec'),ns);assert importer.call_count==1 and ns['runtime']['validation_timeout']==7
 checks+=['read-only budget no listener import; explicit unavailable','normal listener budget import unchanged']
+main=ast.parse((ROOT/'src/core/main.py').read_text())
+branch=next(n for n in ast.walk(main) if isinstance(n,ast.If) and isinstance(n.test,ast.UnaryOp) and '_watchtower_alignment' in ast.unparse(n.test) and any(isinstance(x,ast.Raise) for x in ast.walk(n)))
+for qualification in [True,False]:
+ calls=[]
+ def reconcile(db):calls.append(db);return {'audit':{'healthy':True}}
+ with patch.dict(os.environ,{'FLEX_DEV_READ_ONLY_QUALIFICATION':'1' if qualification else '0'}):
+  ns={'os':os,'_watchtower_alignment':{'audit':{'healthy':False}},'_ops_db_path':'fixture','initialize_and_reconcile':reconcile}
+  try:exec(compile(ast.Module(body=[branch],type_ignores=[]),'startup-source','exec'),ns)
+  except RuntimeError as e:assert qualification and 'READ_ONLY_CANONICAL_ALIGNMENT_UNAVAILABLE' in str(e)
+  else:assert not qualification
+  assert len(calls)==(0 if qualification else 1)
+checks+=['read-only alignment explicit gap without repair','normal canonical reconciliation unchanged']
 print(json.dumps({'status' :'PASS','checks':checks,'provider_calls':0,'canonical_writes':0}))

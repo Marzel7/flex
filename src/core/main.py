@@ -39538,8 +39538,12 @@ try:
         finally:
             _alignment_conn.close()
     except Exception:
+        if os.getenv('FLEX_DEV_READ_ONLY_QUALIFICATION') == '1':
+            raise  # Preserve the inspection error; qualification never repairs canonical state.
         _watchtower_alignment = initialize_and_reconcile(_ops_db_path)
     if not _watchtower_alignment["audit"]["healthy"]:
+        if os.getenv('FLEX_DEV_READ_ONLY_QUALIFICATION') == '1':
+            raise RuntimeError(f"READ_ONLY_CANONICAL_ALIGNMENT_UNAVAILABLE: {_watchtower_alignment['audit']}")
         _watchtower_alignment = initialize_and_reconcile(_ops_db_path)
         if not _watchtower_alignment["audit"]["healthy"]:
             raise RuntimeError(f"WATCHTOWER canonical reconciliation incomplete: {_watchtower_alignment['audit']}")

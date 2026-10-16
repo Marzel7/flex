@@ -1345,6 +1345,13 @@
       "original_source": "02e9e19ed6dfc7b6043b55dd1250d238b7b4976d",
       "original_blob": "1a79854f70f29dcf65d75aafb40be58f0b4826fe",
       "sha256": "ee92204dd2e6495069f2d156abe2550b2e35b700366fcab9eb80734c11904f69"
+    },
+    {
+      "path": "src/core/main.py",
+      "original_source": "02e9e19ed6dfc7b6043b55dd1250d238b7b4976d",
+      "original_blob": "4373621a218345de3a88edd215dfb0e186f292c7",
+      "sha256": "9bb9ac1e25f1a2432edd15a08f95733ff37fef3ee19d341dfcf675a8880d8419",
+      "change": "qualification surfaces canonical alignment gap without attempting repair; normal reconciliation unchanged"
     }
   ]
 }

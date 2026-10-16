@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev042-monitor-source-recovery",
+    "branch": "codex/dev043-detail-resource-safety (frozen detached preview)",
     "git_head": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
     "name": "flex",
-    "updated_at_utc": "2026-10-16T17:01:40.123884+00:00",
-    "working_tree": "Frozen DEV043_BOUNDED_RECOVERY_BASELINE localtag0eb749ec;cleanrestartresource/API/browserPASS;owned8145APIsstopped;8100/Productionunchanged."
+    "updated_at_utc": "2026-10-16T17:11:16.177517+00:00",
+    "working_tree": "Frozen clean source preview running8145 PID11537;8100 PID95243 unchanged; deployment plan only."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -29811,5 +29811,25 @@
     "readiness": "Not authorized/ready for persistentDEV orProduction deployment;fullhistoricalparityexcluded",
     "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/dev045/detail-resource/DEV043_DETAIL_RESOURCE_SAFETY_STATUS.json",
     "next_action": "NONE \u2014 bounded qualification complete;futureDEV usesfrozenparent or explainsalternative."
+  },
+  "dev043_persistent_dev_readiness": {
+    "DEV043_PERSISTENT_DEV_READINESS": "PASS_PREVIEW_AND_DEPLOYMENT_PLAN_QUALIFIED_NOT_DEPLOYED",
+    "FROZEN_SOURCE_SHA": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "ISOLATED_PREVIEW_URL": "http://127.0.0.1:8145/intelligence/operators",
+    "ISOLATED_PREVIEW_PID": 11537,
+    "ISOLATED_PREVIEW_STATE": "/private/tmp/dev043-frozen-preview-20261016",
+    "PORT_8100_CURRENT_SOURCE": {
+      "checkout_sha": "43dfcddcacd8a0a6edaa9e24aaf1499a1ac655cc",
+      "path": "/private/tmp/flex-dev035-health-scope",
+      "loaded_bytes": "NOT_INDEPENDENTLY_OBSERVABLE",
+      "tracked_changes": 0,
+      "untracked_runtime_guard": "database/flex_complete_database.db.write.lock.owner.guard"
+    },
+    "READY_FOR_PERSISTENT_DEV_DEPLOYMENT": "QUALIFIED_FOR_SEPARATE_AUTHORIZATION_ONLY; deployment gate not executed",
+    "PROVIDER_CALLS": 0,
+    "PRODUCTION_CHANGES": 0,
+    "PERSISTENT_DEV_CHANGES": 0,
+    "NEXT_ACTION": "Inspect isolated8145 preview; separate explicit authorization required for documented8100 deployment.",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/dev045/persistent-readiness/DEV043_PERSISTENT_DEV_READINESS.json"
   }
 }

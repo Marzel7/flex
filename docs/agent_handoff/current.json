@@ -28629,5 +28629,110 @@
     "NEXT_ACTION": "Stop. Separately authorize access-path design/qualification if desired; current no-index/no-migration constraints prevent this restoration. Establish separate signature/creator contract provenance before adding those counts.",
     "STORAGE": "Compact JSON diagnostics only; no data rows, raw payloads, DB copies, caches or runtime writers introduced.",
     "engineering_revision": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48; verified clean before previous task, no source edits since"
+  },
+  "dev043_missing_create_access_design": {
+    "DEV043_MISSING_CREATE_ACCESS_DESIGN_STATUS": "HOLD_BUILD_AND_HARD_BOUNDS_NOT_QUALIFIED",
+    "ORIGINAL_METRIC_CONTRACT": {
+      "source": "b0883b68874fb2a1bd39edcd4a7030f8936bb0f8:src/ops/missing_create_anchor_monitor.py",
+      "health_template_api": "d2fffdc34fca2539807e1463cad68dab0b3ef042",
+      "acceptance": "Historical partial qualification, never claimed deployed/accepted in Production",
+      "P": "path_state='WAITING_FOR_CREATE_ANCHOR' OR anchor_recovered_at IS NOT NULL",
+      "new_24h": "COUNT rows in P with now-86400 <= int(enqueued_at) < now",
+      "recovered_24h": "COUNT rows with now-86400 <= int(anchor_recovered_at) < now; nonnull recovery implies P",
+      "recent_unresolved_24h": "COUNT rows in P with recovery NULL and enqueue inside24h; no status exclusion",
+      "latest": "Maximum enqueue below now within P; original keeps first equal-timestamp row in unspecified SELECT iteration order",
+      "historical_waiting": "COUNT all rows status=waiting AND path_state=WAITING_FOR_CREATE_ANCHOR, independent of24h window and recovery timestamp",
+      "denominator": "Absolute counts of unique mint queue rows, not coverage percentage;24h=86400seconds; null/future/exact-now timestamps excluded as original; retry/terminal rows not newly excluded",
+      "signature_creator_counts": "Explicitly out of scope; not introduced"
+    },
+    "MINIMUM_INDEX_SET": {
+      "two_new_range_access_candidates": [
+        {
+          "name": "design_only_missing_enqueue",
+          "key": "enqueued_at DESC",
+          "partial_predicate": "path_state='WAITING_FOR_CREATE_ANCHOR' OR anchor_recovered_at IS NOT NULL",
+          "supports": "new window count; recent-unresolved time range with row lookup for recoveryNULL; latest timestamp/max and one selected mint lookup",
+          "order": "time first because original eligibility has no status prefix. Use explicit identical P in SQL for partial-index implication. No schema SQL executed."
+        },
+        {
+          "name": "design_only_recovered_time",
+          "key": "anchor_recovered_at",
+          "partial_predicate": "anchor_recovered_at IS NOT NULL",
+          "supports": "covered recovery-time range count; no enqueue restriction because recovery may concern older rows"
+        }
+      ],
+      "existing_reused": "ix_wbq_status(status,enqueued_at) supports historical waiting prefix, residual path predicate needs table lookup; ix_wbq_priority also offers status prefix. Existing class/outcome/funder/narrow deep-review indexes do not provide required ranges.",
+      "third_index_if_backlog_must_avoid_table_lookups": {
+        "key": "status",
+        "partial_predicate": "status='waiting' AND path_state='WAITING_FOR_CREATE_ANCHOR'",
+        "benefit": "Only historical backlog entries, no table lookup; exact COUNT still traverses matching entries. Build not authorized."
+      },
+      "covering_tradeoff": "Appending recovery timestamp and mint to enqueue index can cover recent/null and latest output, but enlarges index, increases maintenance on recovery and changes natural equal-time tie order. Do not call it equivalent until original latest-mint tie contract is resolved. Small noncovering range index is preferred candidate.",
+      "minimality_limit": "Two independent unconditioned timestamp ranges need separate leading access paths without enumerating/changing statuses. Two new indexes are minimum practical candidates with existing backlog access; this is not proof that two indexes meet a fixed per-request budget. No hard population cap exists."
+    },
+    "QUERY_PLAN_FEASIBILITY": {
+      "observed_existing": "Previously saved plans: new,recovered,recent-unresolved SCAN wt_walkback_queue;latest adds TEMP B-TREE;historical SEARCH status index",
+      "proposed": "Expected range SEARCH on partial enqueue for new/recent; recovery range SEARCH on recovery index; forward DESC enqueue seek below now for latest, LIMIT1. Logical/index-order inference only; no hypothetical indexes created, no empirical new-index EXPLAIN claimed.",
+      "request_complexity": "O(logN+K_new+K_recovered+K_waiting),O(1) streaming aggregate memory; latest O(logN) plus tie handling. Indexes do not make exact COUNT constant-time.24h is a time bound, not a row bound.",
+      "construction_complexity": "Each CREATE INDEX requires reading relevant source table data to evaluate predicate and sorting/inserting entries. P is not covered by existing indexes; full target-table traversal required. No construction performed."
+    },
+    "INDEX_STORAGE_ESTIMATE": {
+      "retained_view": "Read-only immutable main-file view; WAL deliberately excluded; not transactionally current live census",
+      "main_db_bytes": 16194387968,
+      "page_size": 4096,
+      "page_count": 3953708,
+      "freelist_pages": 40552,
+      "freelist_bytes": 166100992,
+      "walkback_rows": 87902,
+      "row_count_method": "Read-only covering mint-PK count,177.43ms; no row payload retained",
+      "table_physical_bytes": "UNAVAILABLE: bounded DBSTAT diagnostic interrupted at deadline; not inferred from total database size",
+      "illustrative_only": "At assumed128bytes per entry and50percent fill, full87902-entry index ~22,502,912bytes. Two ~45,005,824;three ~67,508,736 before temporary build/journal overhead. Partial indexes may be smaller; this is a sizing scenario, not a measured or enforced maximum.",
+      "hard_limit_gaps": "Future row count, dynamic SQLite type widths, tree fill and sorter spill have no enforced cap. Schema does not enforce integer storage types. Free pages may absorb allocation but cannot make the existing16.19GB target comply with500MB single-file prohibition.",
+      "file_prohibition": "No implementation/build design currently qualifies: canonical target already >=500,000,000 bytes and would be written; journal/WAL/temp construction maxima not enforced."
+    },
+    "WAL_LOCKING_RISK": {
+      "observed_existing_wal_bytes": 57853072,
+      "observed_shm_bytes": 983040,
+      "free_disk_bytes": 17521291264,
+      "mode_caveat": "Immutable diagnostic PRAGMA journal_mode reported delete; active WAL exists. This connection output is not evidence that running writers use rollback-journal mode. No live mode change/checkpoint/lock acquisition attempted.",
+      "risk": "SQLite single writer means index-build write transaction competes with canonical writers; WAL readers may continue while writer serialized, long reader snapshots can delay checkpoints. Rollback mode has different lock escalation/read interference. Sort temp files and journal/WAL growth need explicit budgets; free disk is not a file-size guarantee.",
+      "rollback": "Uncommitted DDL transaction can rollback. Dropping a committed index is a further authorized write requiring lock and planner revalidation; freed pages generally remain in database file. Do not VACUUM/clone canonical DB. No rollback or DB action performed."
+    },
+    "EXISTING_PROJECTION_ALTERNATIVES": {
+      "wt_anchor_reconciliation_log": "Successful recovery event log, potentially multiple entries per mint; lacks original enqueue/current waiting population, so cannot replace queue counts",
+      "wt_walkback_recovery_events": "Worker/lease recovery events, different denominator",
+      "operation_fingerprint_health_snapshots": "Operator fingerprint comparison metrics, not anchor queue projection",
+      "immutable_operation_causal_anchors": "Operation causal evidence, not queue missing-anchor population",
+      "prior_health_json": "Timestamped historical snapshots cannot provide exact current counts; rejected stale substitution",
+      "new_background_aggregation": "Not designed or authorized; no existing equivalent bounded authority established"
+    },
+    "SEMANTIC_EQUIVALENCE": {
+      "population_algebra": "New and unresolved retain explicit P; recovered implies P via recovery nonnull; no extra status/creator/signature restriction. Historical remains all-time waiting/path. Counts dedup by existing mintPK.",
+      "boundary": "Same captured now and [now-86400,now); use one read snapshot for composed metrics if later authorized. Do not read separate inconsistent snapshots or replace historical debt with24h count.",
+      "unresolved_issues": [
+        "Original int(timestamp) versus SQL comparison requires integer-type qualification; INTEGER affinity is not a strict type constraint. Do not silently CAST invalid values or create expression index with changed error semantics.",
+        "Original latest mint tie order is unspecified; maximum timestamp can match but exact tied mint identity cannot be declared deterministic without qualified contract evidence.",
+        "Even proposed indexes cannot bound exact counts independently of uncapped matching populations."
+      ],
+      "verdict": "Logical count equivalence conditional on original timestamp types; full operational/boundedness qualification HOLD"
+    },
+    "READY_FOR_IMPLEMENTATION": false,
+    "PROVIDER_CALLS": 0,
+    "PRODUCTION_CHANGES": 0,
+    "DATABASE_WRITES": 0,
+    "INDEXES_CREATED": 0,
+    "DATABASE_COPIES": 0,
+    "SOURCE_CHANGES": 0,
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "RUNTIME_DEPLOYMENT_REASON": "Read-only access design only",
+    "NEXT_ACTION": "STOP. No migration authorized. Resolve compliant target/build single-file budgets and matching-population bounds before seeking any index implementation authorization; preserve original metric and clarify timestamp/tie evidence. No cache/worker workaround proposed.",
+    "sources": [
+      "https://www.sqlite.org/partialindex.html",
+      "https://www.sqlite.org/wal.html",
+      "https://www.sqlite.org/tempfiles.html",
+      "https://www.sqlite.org/dbstat.html"
+    ],
+    "engineering_revision": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48",
+    "diagnostic_artifact_bound": "Compact report below128KiB; no raw provider data, operational rows or unbounded outputs retained"
   }
 }

@@ -19270,7 +19270,7 @@
   },
   "project": {
     "branch": "codex/dev042-monitor-source-recovery",
-    "git_head": "549c0fdc2ee5f5ac0a2da4c630b13859a1a8d7eb",
+    "git_head": "1f6779f9b426ecffeceea9488ea18ed250907dfe",
     "name": "flex",
     "updated_at_utc": "2026-10-16T08:55:23.248007+00:00",
     "working_tree": "Isolated DEV042 exact source preservation and offline qualification. No runtime or production deployment. Worker and bridge source bundles are archival references, not complete qualified recovery candidates."
@@ -27802,5 +27802,53 @@
     "production_flags": "No Production/persistent DEV changes,canonical writes,shared queues,provider calls or operational restarts; all isolated API processes stopped",
     "storage": "Bounded fixtures/evidence<8MiB perfile; no raw retention",
     "source_change": "Only nullable formatting expressions in existing artifact template; qualification harness adds source-hash receipt; no projection,acquisition,admission or attribution change"
+  },
+  "dev043_read_only_side_effects_20261016": {
+    "DEV043_READ_ONLY_COMPATIBILITY_STATUS": "PARTIAL — proven side effects resolved; HOLD complete pending-view acceptance",
+    "TREASURY_REVIEW_SIDE_EFFECT": "GET -> treasury_review_routes -> list_review_workspace -> audit/treasury schema bootstrap -> canonical OPS.write.lock. Qualification now verifies existing tables without DDL; missing schema explicit503; normal writable bootstrap unchanged. Retained confirmed5-row cohort renders.",
+    "RPC_CACHE_SIDE_EFFECT": "Runtime-budget GET -> listener module -> extractor import -> RPCCache construction -> canonical core.write.lock. Qualification uses only already-loaded listener counters; extractor optional cache None skips construction when acquisition disabled. No RPCCache implementation or caching semantics changed.",
+    "TRACE_LOG_SIDE_EFFECT": "Same listener import -> ws_price_tracer module -> checkout/logs/ws_price_trace.log via mkdir/RotatingFileHandler. Optional trace sink/calls disabled in qualification; normal 50MiB/2-backup configuration unchanged.",
+    "READ_ONLY_CORRECTIONS": {
+      "source_files": 7,
+      "provenance": "read_only_side_effect_provenance.json and source_composition_manifest.json",
+      "additional_proven_startup_path": "Canonical alignment audit currently112 confirmed/111 canonical/111 ledger. Qualification reports READ_ONLY_CANONICAL_ALIGNMENT_UNAVAILABLE instead of repairing; no treasury/classification/data changes.",
+      "guards": "Filesystem/SQLite/network guard AST identical to02e9e19e. No whitelist additions.",
+      "unavailable": "Treasury missing schema/error shows explicit unavailable UI; missing listener counters and totals remain UNKNOWN rather than fabricated zero."
+    },
+    "PROVIDER_FREE_TESTS": {
+      "targeted_contract_checks": 14,
+      "targeted_status": "PASS",
+      "existing_compact_treasury_regressions": "11 PASS;1 pre-existing pytest config warning",
+      "final_HTTP_routes": "14/14 PASS including explicitly selected CONFIRMED treasury cohort and runtime-budget UNKNOWN",
+      "guard_denials": 0,
+      "canonical_writes": 0
+    },
+    "FULL_BROWSER_ACCEPTANCE": {
+      "status": "PARTIAL_REQUIRED_DEFAULT_TREASURY_VIEW_NOT_QUALIFIED",
+      "rendered": "Registry LIVE/HISTORY latest20,opening/peak evidence,Watchtower nullable playbook,Watchtower admission distinctions,Byzantine research,Nexus qualified-route details,Mission Control,System Health,confirmed treasury cards",
+      "pending_view": "Default pending browser fetch did not complete during initial bounded server run and ended Failed to fetch when isolated server stopped. Existing code composes all selected rows before pagination; retained count14768 pending. No default-filter/sort change made.",
+      "timing_limit": "One initial sequential HTTP suite also hit its60s timeout without recording the failing route; not attributed conclusively to treasury. No precise pending response duration claimed.",
+      "separate_cohort": "CONFIRMED5-row selection is genuine retained evidence but does not replace default pending acceptance."
+    },
+    "CLEAN_CHECKOUT_RESTART": "NOT_RUN_FOR_THIS_CORRECTION — full browser acceptance prerequisite unmet. Previous02e9e19e restart does not certify current correction.",
+    "GUARD_DENIAL_COUNT": 0,
+    "RECOVERY_SOURCE_SHA": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48",
+    "FROZEN_RECOVERY_BASELINE": false,
+    "READY_FOR_PERSISTENT_DEV": false,
+    "PROVIDER_CALLS": 0,
+    "PRODUCTION_CHANGES": 0,
+    "PERSISTENT_DEV_CHANGES": 0,
+    "CANONICAL_WRITES": 0,
+    "SHARED_QUEUE_WRITES": 0,
+    "RUNTIME_DEPLOYMENT_REQUIRED": true,
+    "RUNTIME_DEPLOYMENT_GATE": "HOLD_COMPLETE_ACCEPTANCE; targeted read-only runtime corrections PASS",
+    "NEXT_ACTION": "Qualify the default pending treasury projection over14768 retained rows without changing comparison/classification/global sort semantics; then repeat full browser acceptance and a fresh clean-checkout restart. Do not deploy or reconcile canonical alignment.",
+    "engineering_revision": "1f6779f9b426ecffeceea9488ea18ed250907dfe",
+    "tested_source": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48",
+    "report": "/private/tmp/flex-dev043-integration-baseline/docs/audits/dev043/DEV043_READ_ONLY_COMPATIBILITY_REPORT.md",
+    "report_sha256": "ea961aee7b745d7832f7abcb2267991f5dffb2e4008f5eb4a0ee272b7fc4d898",
+    "verification": "14 targeted checks+11 compact treasury regressions PASS;14 selected HTTP routes PASS;final runtime guard denials0;163 project modules tracked;full default pending browser acceptance incomplete",
+    "production_flags": "All isolated APIs stopped;no operational service signals/restarts,provider calls,canonical writes,shared queues or persistent DEV changes",
+    "storage": "All new artifacts<8MiB;fixture/runtime RLIMIT8MiB;no raw provider retention"
   }
 }

@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev042-monitor-source-recovery",
-    "git_head": "5e32f2e921fbe5f7618ef7634d3c9dbefc7dc7e7",
+    "git_head": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
     "name": "flex",
-    "updated_at_utc": "2026-10-16T08:55:23.248007+00:00",
-    "working_tree": "codex/dev043-pending-request-lifecycle isolatedsource5e32;cleanrestartfrontendPASS,baselineAPIHOLD;owned8145stopped. Persistent8100andProductionuntouched."
+    "updated_at_utc": "2026-10-16T17:01:40.123884+00:00",
+    "working_tree": "Frozen DEV043_BOUNDED_RECOVERY_BASELINE localtag0eb749ec;cleanrestartresource/API/browserPASS;owned8145APIsstopped;8100/Productionunchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -29552,61 +29552,264 @@
     "ARTIFACT_STORAGE": "Compact report only;no runtime,DBcopy,rawpayload or new unbounded storage path."
   },
   "dev043_detail_resource_safety": {
-    "DEV043_DETAIL_RESOURCE_SAFETY_STATUS": "PARTIAL_IMPLEMENTED_ISOLATED_TESTS_PASS_APPROVAL_REVIEW_BLOCKS_COMMIT",
-    "REQUEST_CONNECTION_OWNERSHIP": "Detail connections are created per request;ContextVar captures only guardedrequest connections. All are closed in finally,including helper leaks;unrelatedconnections are not interrupted. Maximum4 connections admitted/request.",
-    "SQL_DEADLINE_COMPATIBILITY": "3second SQLite progress/busy-wait budget pluscooperativeprojectPythonline budget andremaining-time existingNexuslock acquisition. ExistingSQL/ordering/filteringunchanged. Partial/errorfallbacks discardedafterbudgetexpiry. GenuineunrelatedSQLerrorspropagate. GuardenabledonlyisolatedREAD_ONLY_QUALIFICATION for2detailidentities.",
-    "BOUNDED_CONCURRENCY": "One admittedexpensiveByz/Nexusrequest perprocess,zero applicationwaiters;sharedHTML/APIgatefails503immediately. No newworkers,threads,caches,queues. ExistingHTTPtransport remains thread-per-request;not a globalflood/slow-client limit.",
-    "DISCONNECT_HANDLING": "No claimimmediatedisconnectcancel. Independent serverbudget closesrequest-owned connectionsandreleasecapacity. Real TCPabandonmenttested,subsequentdetailrequestobtainedslotandtimedout normally ratherthanremainingcapacityblocked. No automatic retries.",
-    "TIMEOUT_CLEANUP": "Fixture tests verifySQLiteinterrupt,busylocktimeout,existinglockrelease,closedownedconnections,capacityrelease andsubsequentsuccess.1stisolatedrealAPI slowtimeouts3.009\u20133.067s;excesscapacity3\u20135ms;unrelatedhealth25ms.",
+    "DEV043_DETAIL_RESOURCE_SAFETY_STATUS": "PASS_BOUNDED_ISOLATED_RECOVERY",
+    "REQUEST_CONNECTION_OWNERSHIP": "Only connections created in the active detail request context are tracked,progress-limited and closed;unrelated connections retain their behavior. Existing readers create request-owned connections,not pooled/shared SQLite handles. Maximum4 opened connections/request.",
+    "SQL_DEADLINE_COMPATIBILITY": "Three-second budget covers request-owned SQLite progress,busy waits,cooperative Python projection work and existing Nexus lock acquisition. SQL text,filter/order and evidence-reader source unchanged. Timeout never publishes partial/fallback detail;HTTP503 explicitUNAVAILABLE. GenuineSQLerrors remain visible.",
+    "BOUNDED_CONCURRENCY": {
+      "active_expensive_details_per_process": 1,
+      "waiting_expensive_requests": 0,
+      "admission": "Nonblocking semaphore shared by the2identities HTML/API endpoints;capacity exhausted returns503 immediately. No new request workers,caches or queues.",
+      "isolation_mode": "Enabled only with FLEX_DEV_READ_ONLY_QUALIFICATION=1;normal runtime untouched.",
+      "transport_scope": "Existing HTTP transport remains thread-per-request. The correction bounds expensive work and waiting SQL requests,not global HTTP flood/slow-client handling."
+    },
+    "DISCONNECT_HANDLING": "Immediate disconnect detection not claimed. Independent serverdeadline interrupts owned SQL/projection work and releases capacity. Real TCPabandonment test followed by successfulslotadmission;noautomaticretry.",
+    "TIMEOUT_CLEANUP": "All ownedconnections closed in finally;Nexus lock released;legacy caughtSQLitefallbacks rejected;expiredresponses replaced by503. Fixtures verify timeoutrecovery,subsequentsuccess,foreignlock/connection isolation and no safety-created threads.",
     "THREAD_CONNECTION_BOUNDS": {
-      "admitted_work": 1,
-      "application_wait_queue": 0,
-      "request_connections_max": 4,
-      "fixture_stability": "PASS repeatedtimeoutsno threadcreation/ownedconnectionleaks",
-      "first_http_census": "INCONCLUSIVE:3threads/3DBhandles before,8/8afterwhilebrowserMissionControl/Healthrequestswereconcurrent. Not attributed todetailleak;repeatbeforebrowseroncleancheckoutrequired.",
-      "remaining": "AbsoluteHTTPtransportthreadcountnotcappedbythiscorrection;failfastgatebounds admittedexpensivework only."
+      "controlled_clean_census": {
+        "pid": 7740,
+        "before": {
+          "threads": 3,
+          "database_file_handles": 3
+        },
+        "after_repeated": {
+          "threads": 3,
+          "database_file_handles": 3
+        },
+        "final": {
+          "threads": 3,
+          "database_file_handles": 3
+        },
+        "stable": true,
+        "timeouts": [
+          {
+            "path": "/api/ops/operators/bd7d7479-1454-5d41-9f68-115550348f3e",
+            "status": 503,
+            "seconds": 3.008,
+            "unavailable": true
+          },
+          {
+            "path": "/api/ops/operators/bd7d7479-1454-5d41-9f68-115550348f3e",
+            "status": 503,
+            "seconds": 3.033,
+            "unavailable": true
+          },
+          {
+            "path": "/api/ops/operators/bd7d7479-1454-5d41-9f68-115550348f3e",
+            "status": 503,
+            "seconds": 3.006,
+            "unavailable": true
+          }
+        ],
+        "concurrent": [
+          {
+            "path": "/api/ops/operators/bd7d7479-1454-5d41-9f68-115550348f3e",
+            "status": 503,
+            "seconds": 0.002,
+            "unavailable": true
+          },
+          {
+            "path": "/api/ops/operators/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334",
+            "status": 503,
+            "seconds": 3.018,
+            "unavailable": true
+          },
+          {
+            "path": "/api/ops/operators/bd7d7479-1454-5d41-9f68-115550348f3e",
+            "status": 503,
+            "seconds": 0.002,
+            "unavailable": true
+          },
+          {
+            "path": "/healthz",
+            "status": 200,
+            "seconds": 0.021
+          }
+        ],
+        "after_abandoned_client": {
+          "path": "/api/ops/operators/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334",
+          "status": 503,
+          "seconds": 3.018,
+          "unavailable": true
+        }
+      },
+      "stable_result": "3threads/3databasefilehandles before,after repeatedtimeouts andafter abandonment;no accumulated work in clean run. Earlier browser-overlapped census was inconclusive and is superseded.",
+      "sqlite_max_connections_per_request": 4
     },
     "PROVIDER_FREE_TESTS": {
-      "pytest": "12 passed in1.54s;tests/test_dev043_detail_resource_safety.py",
-      "existing_pending_Node": "PASS actualinlineJSlifecycle",
+      "fixture_command": "PYTHONDONTWRITEBYTECODE=1 python -m pytest -p no:cacheprovider tests/test_dev043_detail_resource_safety.py -q",
+      "first": "12passed1.54s",
+      "clean": "12passed1.14s",
+      "Pending_Node": "PASS on firstandcleancheckout",
       "cases": [
-        "fastfullresponse",
+        "fastcompleteunchangedresponse",
         "slowByz/NexusSQL",
-        "Pythonprojectiondeadline",
-        "concurrentcapacityreject",
-        "unrelatedhealth",
-        "lockwaitownerisolation",
+        "Pythonloopdeadline",
+        "busywaitdeadline",
+        "capacityexhaustion",
+        "parallelunrelatedhealth",
+        "existingNexuslockwait",
         "repeatedtimeoutcleanup",
         "foreignconnectionunaffected",
-        "disconnectconsumption",
-        "busywaitlockpreserved",
+        "genuineSQLerrorsnotmasked",
+        "normalruntimepassthrough",
         "subsequentsuccess",
-        "realSQLerrorsvisible",
-        "normalruntimepassthrough"
+        "actualTCPdisconnect"
       ],
-      "real_http": "first-http.json,localhost8145only",
+      "real_deadlines_seconds": "3.006\u20133.033s in cleanHTTPtests;configured budget exactly3.0s,SQLitecooperativecallback/responseoverhead reported separately",
+      "capacity_reject_seconds": 0.002,
+      "concurrent_health_seconds": 0.021,
       "guard_denials": 0
     },
-    "ISOLATED_BROWSER_ACCEPTANCE": "PASS firstpreview:detailcapacity/deadlineUNAVAILABLEpages,navigation,Registryretainedprices/historyfilter,Watchtoweradmission/playbook,MissionControl,SystemHealthUNKNOWN,Pending3sUNAVAILABLE,Confirmedretainedrecords. No wholebaselinePASS.",
-    "CLEAN_CHECKOUT_RESTART": "BLOCKED_NOT_RUN:automaticapprovalreviewrejectedstaging/commit/worktreecreationtwice",
-    "FROZEN_BOUNDED_BASELINE": "NOT_CREATED",
+    "ISOLATED_BROWSER_ACCEPTANCE": {
+      "status": "PASS bounded included scope",
+      "routes": [
+        {
+          "route": "Byzantine detail",
+          "unavailable": true
+        },
+        {
+          "route": "Nexus detail",
+          "unavailable": true
+        },
+        {
+          "route": "Registry/LIVE/HISTORY",
+          "present": true,
+          "entry": true,
+          "peak": true
+        },
+        {
+          "route": "Watchtower detail",
+          "admission": true
+        },
+        {
+          "route": "Watchtower playbook",
+          "present": true
+        },
+        {
+          "route": "Playbooks index",
+          "present": true
+        },
+        {
+          "route": "Mission Control",
+          "present": true,
+          "unavailable": true
+        },
+        {
+          "route": "Core System Health",
+          "present": true,
+          "unknown": true
+        },
+        {
+          "route": "Pending Review",
+          "timeout": true,
+          "loadingEnded": true
+        },
+        {
+          "route": "Confirmed Treasury",
+          "records": true
+        }
+      ],
+      "api_status": "PASS15boundedroutes;503UNAVAILABLE isacceptedonlyforthe2expensivedetails;otherincludedroutes200",
+      "price_and_history": "20distinctretainedhistoryrows sortedassignmenttimestampDESC,mintDESC;5entryprices,0currentLIVErows. CatTokentry144176/retainedpeak594765;CYBERCATandSCretainedvaluespreserved. Missingpricesremainunavailable.",
+      "Watchtower": "Admitted/rejected distinctions present;nullableplaybookUNAVAILABLE renderswithout500.",
+      "confirmed_treasury": "RetainedrecordsloadaftermanualfilterfromPendingtimeout",
+      "notes": "Presence isnot completehistoricalparity orproductiontelemetryvalidation."
+    },
+    "CLEAN_CHECKOUT_RESTART": {
+      "status": "PASS",
+      "checkout": "/private/tmp/dev043-resource-clean-recovery",
+      "disposable_state": "/private/tmp/dev043-detail-resource-clean-state",
+      "source": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+      "source_clean": true,
+      "loaded_project_modules": 168,
+      "untracked_runtime_dependencies": 0,
+      "project_and_external_dependency_hashes": "All matched committed project_modules.json/dependency_hashes.json;noadditional externalmodules",
+      "guard_denials": 0,
+      "api_stopped": true,
+      "owned_test_sessions": "42293(first),54681(clean),both exited0;port8100/Production not signalled"
+    },
+    "FROZEN_BOUNDED_BASELINE": {
+      "reference": "DEV043_BOUNDED_RECOVERY_BASELINE",
+      "source_sha": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+      "annotated_tag_object": "32597ef2012bd13da38af595261734f4d985e289",
+      "local_ref_verified": true,
+      "remote_source_tag_push": "NOT_PERFORMED;materialhandoffpublicationisremotetransportonly",
+      "scope": "Bounded isolated recovery,notcompletehistoricalapplication recovery"
+    },
+    "ACCEPTED_FUNCTIONAL_SCOPE": [
+      "OperationsRegistry",
+      "UnifiedLIVE/HISTORYwithretaineddata",
+      "Globallatest20chronology",
+      "Watchtoweradmitted/rejectedpresentation",
+      "Qualifiedopening/retainedpeaksemantics",
+      "OperationPlaybooks",
+      "MissionControl",
+      "CoreSystemHealth",
+      "ConfirmedTreasury",
+      "UNKNOWN/UNAVAILABLEstates",
+      "Pending3sclientfailurehandling",
+      "Byz/Nexus3sserverbudget+failfastcapacity+explicitunavailable"
+    ],
+    "KNOWN_LIMITATIONS": [
+      "FullByzantine/NexushistoricaldetailmayreturnUNAVAILABLE;notrestoredascompleteanalysis",
+      "MissingCREATE24hHealthcardsunrestored",
+      "DefaultPendingqueryperformanceunfixed;browserabortdoesnotcancelitsserverSQL;noautomaticretry;manualrequestsoverlapmaystilloccuroutsideguardeddetails",
+      "Incompleteactivity/coverage,currentLIVEabsence,15/20historyentriesunavailable",
+      "DEV042monitorworker/bridge reproducibilitygaps",
+      "Legacy/opsmissingtemplateandDiscovery/emergingunavailablebehaviorremainexcluded/degraded",
+      "Funding-edgeoverwritehasimplicitrow-orderdependency;noorder/index/evidence-selectionchangesmade",
+      "CooperativeSQL/PythondeadlineisnotanOS-levelhardI/Okill;genericHTTPtransportnotglobalfloodbounded"
+    ],
     "READY_FOR_PERSISTENT_DEV": false,
     "PROVIDER_CALLS": 0,
     "PRODUCTION_CHANGES": 0,
     "CANONICAL_WRITES": 0,
     "SHARED_QUEUE_WRITES": 0,
+    "OUTSIDE_STATE_WRITES": 0,
     "PERSISTENT_DEV_CHANGES": 0,
-    "ISOLATED_APIS_STOPPED": true,
-    "engineering_revision": "5e32f2e921fbe5f7618ef7634d3c9dbefc7dc7e7 plus uncommitted isolatedcorrection",
-    "worktree": "/private/tmp/flex-rich-preview-8475",
-    "SOURCE_CHANGES": {
-      "src/ops/detail_resource_safety.py": "0ea07beefa9a7ac46a7b8b89240c77c4dc706ca710ec7eebb4e4e7fa31c074a9",
-      "scope": "2decorators,requestbudgetmodule,existingNexuslockwrapper,unavailabletemplate,tests andmanifests. Noquerytext/evidenceselectionchanges."
-    },
-    "APPROVAL_BLOCKER": "Automatic approval review says current DEV043 authorization is from untrusted attachment/tool context and applies the older DEV045 read-only scope. Rejected staging/committing source and creating clean worktree. No workaround attempted. Explicit renewed authorization requested in chat.",
-    "NEXT_ACTION": "WaitforuserexplicitapprovaltocommitisolatedDEV043correctionandcreatecleancheckout. Thenrepeatresource/HTTPthread-handle censusbeforebrowser,exactsource/dependencychecksandboundedacceptance. Freezeonlyifallgatespass.",
     "RUNTIME_DEPLOYMENT_REQUIRED": true,
-    "RUNTIME_DEPLOYMENT_GATE": "QUALIFIED_NOT_DEPLOYED;cleanqualificationincomplete",
-    "STORAGE": "Compactsource/tests/manifests;isolatedfilecap8MiBunchanged,noDBcopies/rawproviderpayloads/newunboundedstoragewriters."
+    "RUNTIME_DEPLOYMENT_GATE": "PASS_ISOLATED_QUALIFICATION_ONLY;no persistent deployment authorized",
+    "engineering_revision": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "SOURCE_COMPOSITION_MANIFEST": "docs/audits/dev043/source_composition_manifest.json",
+    "SOURCE_COMPOSITION_MANIFEST_SHA256": "dba64cefe490f65e7655b460aa6a92dd76ef0fc8f48cba58f463b24949f9a32c",
+    "RESTORATION_INSTRUCTIONS": "docs/audits/dev043/bounded_recovery/RESTORE.md atfrozenreference;freshstate/receipt/unused8145;existinginterpreter;runprovider-freefixturesandboundedbrowser/APIacceptance,thenstopownedAPI",
+    "DEPENDENCY_VERSIONS": {
+      "python": "3.11.5",
+      "sqlite": "3.41.2",
+      "packages": {
+        "Flask": "3.1.2",
+        "Werkzeug": "3.1.4",
+        "Jinja2": "3.1.3",
+        "requests": "2.31.0",
+        "urllib3": "2.2.1"
+      }
+    },
+    "SAFE_CONFIGURATION": {
+      "OPERATIONS_MODE": "OFF",
+      "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+      "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "MISSION_CONTROL_MONITOR_UI_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db",
+      "OPERATION_MONITOR_QUEUE_PATH": "/private/tmp/dev043-detail-resource-clean-state/monitor/queue",
+      "WATCHTOWER_MONITOR_QUEUE_PATH": "/private/tmp/dev043-detail-resource-clean-state/monitor/queue"
+    },
+    "ROLLBACK_REFERENCE": "5e32f2e921fbe5f7618ef7634d3c9dbefc7dc7e7 source-only;removesdetailresourcebudget,notqualifiedforboundedruntime",
+    "NEXT_ACTION": "NONE \u2014 bounded isolated recovery qualification complete. FutureDEV starts fromDEV043_BOUNDED_RECOVERY_BASELINE or documentsdifferentparent. PersistentDEV/Production promotion requires separate authorization.",
+    "approval_review": "Resolved by renewed explicit user chat authorization;commit/cleancheckout subsequentlyapproved.",
+    "STORAGE": "NoDBcopies/rawproviderpayloads/newunboundedstoragepaths;isolatedprocesswrittenfilescapped8MiB;source/test/manifestscompact."
+  },
+  "dev043_bounded_recovery_baseline": {
+    "status": "PASS_BOUNDED_ISOLATED_RECOVERY",
+    "engineering_revision": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "reference": "DEV043_BOUNDED_RECOVERY_BASELINE",
+    "clean_checkout": "/private/tmp/dev043-resource-clean-recovery",
+    "guard_denials": 0,
+    "provider_calls": 0,
+    "production_changes": 0,
+    "persistent_dev_changes": 0,
+    "qualified_modules": 168,
+    "isolated_api_stopped": true,
+    "readiness": "Not authorized/ready for persistentDEV orProduction deployment;fullhistoricalparityexcluded",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/dev045/detail-resource/DEV043_DETAIL_RESOURCE_SAFETY_STATUS.json",
+    "next_action": "NONE \u2014 bounded qualification complete;futureDEV usesfrozenparent or explainsalternative."
   }
 }

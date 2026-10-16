@@ -44,6 +44,29 @@ _ANCHOR_LOOKUP_STATES = frozenset({
     PENDING_NOT_VISIBLE, PRESENT_VALID, PRESENT_INVALID, EXPIRED_MISSING,
 })
 
+_REQUIRED_QUEUE_COLUMNS = {
+    "mint", "status", "path_state", "create_anchor_signature",
+    "create_anchor_audit_state", "anchor_lookup_attempts",
+    "last_anchor_lookup_at", "anchor_recovered_at", "anchor_recovery_source",
+    "anchor_lookup_state",
+}
+
+
+def validate_schema(conn: sqlite3.Connection) -> str:
+    """Read-only schema-current gate for the recurring worker path."""
+    queue_columns = {row[1] for row in conn.execute("PRAGMA table_info(wt_walkback_queue)")}
+    missing = sorted(_REQUIRED_QUEUE_COLUMNS - queue_columns)
+    if missing:
+        return f"ANCHOR_RECONCILIATION_SCHEMA_MISMATCH:wt_walkback_queue:missing={','.join(missing)}"
+    log_columns = {row[1] for row in conn.execute(
+        "PRAGMA table_info(wt_anchor_reconciliation_log)"
+    )}
+    required_log = {"mint", "recovered_signature", "recovery_source", "recovery_timestamp"}
+    missing_log = sorted(required_log - log_columns)
+    if missing_log:
+        return f"ANCHOR_RECONCILIATION_SCHEMA_MISMATCH:wt_anchor_reconciliation_log:missing={','.join(missing_log)}"
+    return "VALID"
+
 
 def ensure_schema(conn: sqlite3.Connection) -> None:
     """Additive only — never alters existing wt_walkback_queue columns."""
@@ -133,14 +156,23 @@ def classify_stuck_row(
     return {"classification": "ANCHOR_PRESENT_INVALID", "signature": sig, "source": source}
 
 
-def _stuck_rows(ops_conn: sqlite3.Connection) -> list[sqlite3.Row]:
-    return ops_conn.execute(
+def _stuck_rows(
+    ops_conn: sqlite3.Connection, *, limit: Optional[int] = None,
+) -> list[sqlite3.Row]:
+    if limit is not None:
+        return _fair_stuck_rows(ops_conn, limit=limit)
+    sql = (
         "SELECT mint, creator, create_anchor_signature, create_anchor_audit_state, "
         "attempts, enqueued_at FROM wt_walkback_queue "
         "WHERE status=? AND path_state=? "
-        "AND (create_anchor_signature IS NULL OR create_anchor_audit_state=?)",
-        (WAITING_STATUS, WAITING_PATH_STATE, "MISSING_OR_MALFORMED"),
-    ).fetchall()
+        "AND (create_anchor_signature IS NULL OR create_anchor_audit_state=?) "
+        "ORDER BY enqueued_at ASC"
+    )
+    params: tuple[Any, ...] = (WAITING_STATUS, WAITING_PATH_STATE, "MISSING_OR_MALFORMED")
+    if limit is not None:
+        sql += " LIMIT ?"
+        params += (max(0, int(limit)),)
+    return ops_conn.execute(sql, params).fetchall()
 
 
 def dry_run_report(
@@ -190,9 +222,10 @@ def dry_run_report(
     }
 
 
-def reconcile_waiting_create_anchors(
+def _reconcile_waiting_create_anchors(
     ops_conn: sqlite3.Connection, live_conn: sqlite3.Connection,
-    *, dry_run: bool = False,
+    *, dry_run: bool = False, ensure_schema_first: bool = True,
+    limit: Optional[int] = None,
 ) -> dict[str, Any]:
     """Phase 3 — idempotent, zero-RPC reconciliation.
 
@@ -219,8 +252,9 @@ def reconcile_waiting_create_anchors(
     dedicated log table — giving full traceability without inventing a new
     path_state value outside the existing contract.
     """
-    ensure_schema(ops_conn)
-    rows = _stuck_rows(ops_conn)
+    if ensure_schema_first:
+        ensure_schema(ops_conn)
+    rows = _stuck_rows(ops_conn, limit=limit)
     now = int(time.time())
     recovered: list[dict[str, Any]] = []
     skipped: list[dict[str, Any]] = []
@@ -237,7 +271,10 @@ def reconcile_waiting_create_anchors(
         # classify_stuck_row() widened-source search, preserving every
         # existing classification label and behavior for backward
         # compatibility with X64.5/X64.6 callers/tests.
-        priority_result = resolve_anchor_with_priority(live_conn, ops_conn, mint, queue_creator=row["creator"])
+        priority_result = resolve_anchor_with_priority(
+            live_conn, ops_conn, mint, queue_creator=row["creator"],
+            ensure_schema_first=ensure_schema_first,
+        )
         if priority_result["confidence"] == "SAFE" and priority_result["source"] == "canonical_create_ledger":
             result = {"classification": "RECOVERABLE_VALID_ANCHOR",
                       "signature": priority_result["signature"], "source": "canonical_create_ledger"}
@@ -313,9 +350,6 @@ def reconcile_waiting_create_anchors(
             f"source={result['source']} original_state={original_state}",
             flush=True,
         )
-
-    if not dry_run:
-        ops_conn.commit()
 
     return {
         "examined": len(rows),
@@ -519,7 +553,7 @@ def apply_rpc_recovered_anchor(
 
 def resolve_anchor_with_priority(
     live_conn: sqlite3.Connection, ops_conn: sqlite3.Connection, mint: str,
-    *, queue_creator: Optional[str] = None,
+    *, queue_creator: Optional[str] = None, ensure_schema_first: bool = True,
 ) -> dict[str, Any]:
     """X64.7 Phase 9 — resolve a CREATE anchor for `mint` using the
     canonical priority order:
@@ -542,7 +576,9 @@ def resolve_anchor_with_priority(
     from src.ops import create_event_ledger
 
     # Priority 1: canonical ledger.
-    ledger_result = create_event_ledger.lookup_create_anchor(ops_conn, mint)
+    ledger_result = create_event_ledger.lookup_create_anchor(
+        ops_conn, mint, ensure_schema_first=ensure_schema_first,
+    )
     if ledger_result["confidence"] == "SAFE":
         return {"signature": ledger_result["signature"], "source": "canonical_create_ledger",
                 "creator": ledger_result.get("creator") or queue_creator, "confidence": "SAFE"}
@@ -576,3 +612,98 @@ def resolve_anchor_with_priority(
     # Nothing found through any zero-RPC source.
     return {"signature": None, "source": None, "confidence": "NONE",
             "conflict_reason": "NO_STORED_CREATE_SIGNATURE_ANY_SOURCE"}
+
+
+# DEV049: one compact namespace; queue identities and evidence stay authoritative.
+_CURSOR_KEY = "create_anchor_recovery_v1"
+_CURSOR_PAGE = 64
+
+
+def _fair_stuck_rows(conn: sqlite3.Connection, *, limit: int) -> list[sqlite3.Row]:
+    """Inspect <=64 indexed waiting rows, recover <=limit. Caller owns transaction.
+
+    Snapshot a high-water key per sweep so arrivals cannot postpone wrap forever.
+    Cursor and recovery bookkeeping commit together; rollback retries the same turn.
+    Normal Walkback retry/lease/attempt fields do not govern anchor reconciliation
+    in the installed contract and are deliberately neither filtered nor changed.
+    """
+    if not conn.in_transaction:
+        raise RuntimeError("fair selection requires an owned transaction")
+    if not 1 <= limit <= _CURSOR_PAGE:
+        raise ValueError("recovery limit must be between 1 and 64")
+    saved = conn.execute("SELECT substr(value_json,1,257) FROM wt_scheduler_state WHERE key=?", (_CURSOR_KEY,)).fetchone()
+    if saved and (not isinstance(saved[0], str) or len(saved[0]) > 256):
+        raise ValueError("oversized CREATE recovery cursor")
+    state = json.loads(saved[0]) if saved else {"version": 1, "after": None, "ceiling": None}
+    if set(state) != {"version", "after", "ceiling"} or state["version"] != 1:
+        raise ValueError("unsupported CREATE recovery cursor")
+    for key in ("after", "ceiling"):
+        value = state[key]
+        if value is not None and (not isinstance(value, list) or len(value) != 2 or any(type(x) is not int for x in value)):
+            raise ValueError("malformed CREATE recovery cursor")
+    if state["after"] is not None and (state["ceiling"] is None or state["after"] > state["ceiling"]):
+        raise ValueError("inconsistent CREATE recovery cursor")
+    if state["ceiling"] is None:
+        last = conn.execute("SELECT enqueued_at,rowid FROM wt_walkback_queue INDEXED BY ix_wbq_status WHERE status=? ORDER BY enqueued_at DESC,rowid DESC LIMIT 1", (WAITING_STATUS,)).fetchone()
+        if last is None:
+            return []
+        state["ceiling"] = list(last)
+    columns = "SELECT rowid AS cursor_rowid,mint,creator,create_anchor_signature,create_anchor_audit_state,attempts,enqueued_at,path_state FROM wt_walkback_queue INDEXED BY ix_wbq_status WHERE status=?"
+    page = []
+    # Split ties from later timestamps: SQLite does not reliably seek implicit
+    # rowid through a composite tuple range; equality unlocks its indexed tie key.
+    if state["after"] is not None:
+        stamp, rowid = state["after"]
+        sql = columns + " AND enqueued_at=? AND rowid>?"
+        params = [WAITING_STATUS, stamp, rowid]
+        if stamp == state["ceiling"][0]:
+            sql += " AND rowid<=?"
+            params.append(state["ceiling"][1])
+        page = conn.execute(sql + " ORDER BY rowid LIMIT ?", (*params, _CURSOR_PAGE)).fetchmany(_CURSOR_PAGE)
+    if len(page) < _CURSOR_PAGE and (state["after"] is None or state["after"][0] < state["ceiling"][0]):
+        sql = columns
+        params = [WAITING_STATUS]
+        if state["after"] is not None:
+            sql += " AND enqueued_at>?"
+            params.append(state["after"][0])
+        sql += " AND enqueued_at<=? ORDER BY enqueued_at,rowid LIMIT ?"
+        params.extend([state["ceiling"][0], _CURSOR_PAGE-len(page)])
+        page.extend(conn.execute(sql, params).fetchmany(_CURSOR_PAGE-len(page)))
+    selected = []
+    for row in page:
+        if [row["enqueued_at"], row["cursor_rowid"]] > state["ceiling"]:
+            state["after"] = state["ceiling"]
+            break
+        state["after"] = [row["enqueued_at"], row["cursor_rowid"]]
+        if row["path_state"] == WAITING_PATH_STATE and (row["create_anchor_signature"] is None or row["create_anchor_audit_state"] == "MISSING_OR_MALFORMED"):
+            selected.append(row)
+            if len(selected) == limit:
+                break
+    if not page or state["after"] == state["ceiling"]:
+        state["after"] = state["ceiling"] = None
+    conn.execute("INSERT INTO wt_scheduler_state(key,value_json,updated_at) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET value_json=excluded.value_json,updated_at=excluded.updated_at", (_CURSOR_KEY, json.dumps(state, separators=(",", ":")), int(time.time())))
+    return selected
+
+
+def reconcile_waiting_create_anchors(ops_conn: sqlite3.Connection, live_conn: sqlite3.Connection, *, dry_run: bool = False, ensure_schema_first: bool = True, limit: Optional[int] = None) -> dict[str, Any]:
+    """Serialize the existing single worker's bounded turn and commit atomically.
+
+    No nested/caller transaction, schema creation or silent fallback for cursor
+    authority. Legacy unlimited diagnostic callers retain original selection.
+    Dry-run rolls back bookkeeping, cursor and recovery writes together.
+    """
+    if ops_conn.in_transaction:
+        raise RuntimeError("anchor reconciliation requires no pending transaction")
+    if ensure_schema_first:
+        ensure_schema(ops_conn)
+    ops_conn.execute("BEGIN IMMEDIATE")
+    try:
+        result = _reconcile_waiting_create_anchors(ops_conn, live_conn, dry_run=dry_run, ensure_schema_first=False, limit=limit)
+        if dry_run:
+            ops_conn.rollback()
+        else:
+            ops_conn.commit()
+        return result
+    except BaseException:
+        ops_conn.rollback()
+        raise

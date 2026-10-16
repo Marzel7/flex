@@ -1,0 +1,26 @@
+{
+  "runtime_pid": 73413,
+  "supervisor_pid": 73409,
+  "installed_checkout": "/Users/kevinkeaveney/Production/flex-walkback-dev002",
+  "installed_git_head": "afbe9e58b11eb2e4d616246da123ce31ab45700c",
+  "loaded_python_bytes": "UNVERIFIED; on-disk file provenance only",
+  "files": {
+    "anchor_reconciliation.py": {
+      "installed_sha256": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7",
+      "source_commit": "5f92878d2b5cae4637eadbb1390fb0ddbe064a14",
+      "committed_blob_sha256": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7"
+    },
+    "create_event_ledger.py": {
+      "installed_sha256": "64780f0d9724153581fec2a2182eb71d2dccf53b1be7abfd23b1062360249dc4",
+      "source_commit": "5f92878d2b5cae4637eadbb1390fb0ddbe064a14",
+      "committed_blob_sha256": "64780f0d9724153581fec2a2182eb71d2dccf53b1be7abfd23b1062360249dc4"
+    }
+  },
+  "worker_call": "reconcile_waiting_create_anchors(ops,_live,ensure_schema_first=False,limit=1)",
+  "worker_batch": 8,
+  "worker_interval_seconds": 45,
+  "worker_rpc_budget": 80,
+  "anchor_pass_provider_budget": 0,
+  "anchor_retry_contract": "No separate retry deadline/attempt ceiling in installed anchor selector. Normal Walkback next_retry_at/attempts are distinct and unchanged.",
+  "concurrency": "One Supervisor-owned loop; BEGIN IMMEDIATE serializes cursor plus effects; no queue mutation here."
+}

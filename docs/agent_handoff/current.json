@@ -1,4 +1,26 @@
 {
+  "dev039_bounded_create_recovery_fairness_schema_gate": {
+    "status": "HOLD_NEW_DURABLE_CURSOR_REQUIRED; EXISTING_INDEX_SEEK_FEASIBLE",
+    "engineering_revision": "f52609c058be6f881f15d887771160c2b3881ebd unchanged;isolatedbranchcodex/dev039-anchor-recovery-fairness;no implementationchanges",
+    "scope_boundary": "User explicitly requires HOLD before workaround if fairness needs newindex orpersistentschedulingstate. Existingtable reuse alone doesnotmean recoverycursorstatealreadyexists. No migration/newcursorrow/index/sourcechange performed.",
+    "existing_authority": "CanonicalOPS wt_walkback_queue,waiting/pathWAITING_FOR_CREATE_ANCHOR/null-or-MISSING_OR_MALFORMEDsignature. Current _stuck_rows oldest enqueued_at first;workerlimit1. Perrowanchor_lookup_attempts/last_anchor_lookup_at/anchor_lookup_state exist,butareunindexedforfairselection. Successful recovery validatestoredsignature,evidence/source/conflictguards,returnsCREATE_ANCHORED/pending;missinganchor remainswaiting. Attemptcounterincrementsforselectedrow,normalWalkbackattemptsunchanged. Ordinary reconciliationzeroRPC,oneworkerpass,normalworkerbatch8/interval45 unchanged.",
+    "frozen_reference": "Oct8frozen064021bd/currentoldest-first+limit1contractalreadycompared;pre-existingstarvation. Previouslyfailedfullpopulationlastlookupsortnotrepeated.",
+    "indexes": "Existingqueueindexes:ix_wbq_status(status,enqueued_at),ix_wbq_priority(status,priority,enqueued_at),ix_wbq_class(walkback_class,status),mintPK,funder/outcome/deep_reviewindexes. Noneordersonlast_anchor_lookup_at. No indexaddedorchanged.",
+    "durable_state_inventory": "Recoverylog stores successfulrecoveries,not everyexaminedrow/globalcursor. wt_walkback_scheduler_state has scheduler_name/consecutive_high/updated_at andexistingnamespacewalkback;consecutive_high ispriorityfairnesscounter,notanchorpagecursor. wt_scheduler_state haskey/value_json/updated_at,onlyexistingnamespacemain ownedoperation_scheduler._flush_sched_state. Otherwallet/subprovcursors belongfundingacquisition. No existingCREATErecoverycursor found. Reusingdedicatednewkeyinexistinggenericstate table wouldavoidDDLbutstillintroducesnewpersistentschedulingstate,requiringexplicitauthorization undertaskHOLDclause. Do notrepurposeotherworkerfields.",
+    "bounded_access_feasibility": "Read-onlyEXPLAIN+singleboundedSELECT,mode=ro/query_only/1secondprogressdeadline: SELECT rowid,mint,enqueued_at,path_state,create_anchor_signature,create_anchor_audit_state FROM wt_walkback_queue INDEXED BY ix_wbq_status WHERE status=? AND (enqueued_at,rowid)>(?,?) ORDER BY enqueued_at,rowid LIMIT64. PlanSEARCHix_wbq_status(status=?ANDenqueued_at>?),noTEMPB-TREE. Returned64candidate rowsin74.08ms. Thisprovesboundedexistingindexseekfeasibility,notimplementedfairselector;requiresdurablepositionandwrap/eligibility/bookkeepinglogic. No newlookup/recoverycounterupdated.",
+    "selector_implementation": "NONE dueexplicitgate. A dedicateddurablecursor(enqueued_at,rowid) wouldallowboundedpageseekandrotationwithoutfullpopulationsort,newindex,newworker orproviderbudgetincrease,butisnewstateandnotimplemented. No processlocalcursorworkaround or misuseofheartbeat/prioritycounter.",
+    "fairness_bound": "NOT_QUALIFIED withoutauthorizeddurablecursor/rotationcontract. Candidatepagesize64boundsrowreads,notbyitselfAYtRssserviceopportunity. Do notclaimAYtRsswillbeexaminedorCREATEevidenceexists.",
+    "provider_free_tests": "Schema/index/ownershipinspectionandread-onlyboundedqueryplanfeasibilityonly. Largewaitingfixture/end-to-endfairness/rollback/crashcountertestsnotrunbecausemandatedpreimplementationHOLDtriggered. No fullqualificationsuitePASSclaimed.",
+    "qualified_source_sha": null,
+    "ready_for_deployment": false,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "PreimplementationfeasibilitygateHOLD;noexecutablechange.",
+    "provider_calls": 0,
+    "production_changes": 0,
+    "canonical_database_writes": 0,
+    "storage": "No newruntimefiles/caches/DBs/rawretentionorlargefiles;compactrequiredhandoffonly.",
+    "next_action": "STOP_AT_HOLD. ExplicitlyauthorizequalificationofonecompactdurableCREATErecoverycursorina dedicatednamespaceofexistingwt_scheduler_state,withboundedindexedseek/wrapandunchangedCREATEvalidation;noDDL/index/newworker orProductiondeploymentimplied. Thenqualifylargefixtures,fairnessbound,retryeligibility,idempotencyandcrashrestartsemanticsin isolation."
+  },
   "dev039_anchor_recovery_fairness_qualification": {
     "status": "HOLD_MINIMAL_FAIR_ORDER_QUERY_NOT_PERFORMANCE_QUALIFIED",
     "engineering_revision": "f52609c058be6f881f15d887771160c2b3881ebd unchanged after removing unqualified trial;no new qualified source revision",

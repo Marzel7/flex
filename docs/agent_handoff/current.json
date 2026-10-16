@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev043-detail-resource-safety (frozen detached preview)",
-    "git_head": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "branch": "codex/dev046-metrics-audit",
+    "git_head": "f34d46a50032828c49c20e14945d49299a6ff705",
     "name": "flex",
-    "updated_at_utc": "2026-10-16T17:11:16.177517+00:00",
-    "working_tree": "Frozen clean source preview running8145 PID11537;8100 PID95243 unchanged; deployment plan only."
+    "updated_at_utc": "2026-10-16T17:35:48.183226+00:00",
+    "working_tree": "DEV046 read-only audit committed; frozen8145 preview and8100 unchanged; no implementation/deployment."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -29831,5 +29831,32 @@
     "PERSISTENT_DEV_CHANGES": 0,
     "NEXT_ACTION": "Inspect isolated8145 preview; separate explicit authorization required for documented8100 deployment.",
     "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/dev045/persistent-readiness/DEV043_PERSISTENT_DEV_READINESS.json"
+  },
+  "dev046_operational_metrics_reconciliation": {
+    "status": "PASS_READ_ONLY_RECONCILIATION_NO_IMPLEMENTATION",
+    "engineering_revision": "f34d46a50032828c49c20e14945d49299a6ff705",
+    "branch": "codex/dev046-metrics-audit",
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev046-metrics-audit/flex",
+    "frozen_runtime_source": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev046-metrics-audit/flex/docs/audits/dev046/DEV046_OPERATIONAL_METRICS_AUDIT_STATUS.json",
+    "findings": {
+      "history": "All20 canonical identities/timestamps match API in main-file andWAL-aware bounded reads; browser same20 identities. No newer admission observed.",
+      "walkback": "Exact completed_at/disposition/mint-partition contract recovered; no completion time rangeindex; classifiedcounts remain UNKNOWN. No expensive endpoint repeated. DEV037 cold-cache failfast guard absent in frozen composition.",
+      "byzantine": "Completed shared-infrastructure DISTINCT funder timestamp contract preserved;200ms read budget blocks;163membershiptotal is not infrastructuretotal.",
+      "watchtower": "949displayed snapshot stale. Original rawledger+membership observation972main/974WAL;616strictmemberships. Rawcounts not admitted/clean totals. Existing role-aware475clean retained artifact covered old529mint universe; cannot substitute current authority. No newwhole50ms qualification.",
+      "nexus": "ExistingAPIcache returned2/92/254 qualified-route activity,84historicalmemberships separate. Browser earliernull windows; null latest formatted0m is proven projection defect. No aggregate triggered by audit.",
+      "potential": "63workflow rows;60selected frozen vs61richer064same-data lifecycle source (C357 resolvedLeviathan omitted in recovery). Both actionable tables cap20/no pagination. Missing Evolution/Leviathan sections and evolution_watch={} are source-composition regressions."
+    },
+    "verification": "Boundedindexed readonly diagnostics, exactsource/blob/AST comparisons, six compact contract checks PASS; no broad SQL timing scans or fullPotentialpage request.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Audit/documentation only; no application change.",
+    "provider_calls": 0,
+    "canonical_database_writes": 0,
+    "queue_mutations": 0,
+    "production_changes": 0,
+    "persistent_dev_changes": 0,
+    "dev043_changes": 0,
+    "service_actions": 0,
+    "next_action": "Stop audit; separately authorize narrow projection/source-composition/unavailable fixes. Count restoration requires exact bounded-access and exclusion equivalence; no deployment/index/admission change authorized."
   }
 }

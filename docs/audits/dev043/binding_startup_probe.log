@@ -1,0 +1,43 @@
+DEV043_DENIED={"kind": "socket.bind", "target": "('::1', 0)", "stack": ["  File \"<frozen importlib._bootstrap_external>\", line 940, in exec_module\n", "  File \"<frozen importlib._bootstrap>\", line 241, in _call_with_frames_removed\n", "  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/urllib3/util/__init__.py\", line 4, in <module>\n    from .connection import is_connection_dropped\n", "  File \"<frozen importlib._bootstrap>\", line 1176, in _find_and_load\n", "  File \"<frozen importlib._bootstrap>\", line 1147, in _find_and_load_unlocked\n", "  File \"<frozen importlib._bootstrap>\", line 690, in _load_unlocked\n", "  File \"<frozen importlib._bootstrap_external>\", line 940, in exec_module\n", "  File \"<frozen importlib._bootstrap>\", line 241, in _call_with_frames_removed\n", "  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/urllib3/util/connection.py\", line 137, in <module>\n    HAS_IPV6 = _has_ipv6(\"::1\")\n", "  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/urllib3/util/connection.py\", line 127, in _has_ipv6\n    sock.bind((host, 0))\n", "  File \"/private/tmp/flex-dev043-integration-baseline/docs/audits/dev043/isolation_bootstrap.py\", line 26, in audit\n    if address!=('127.0.0.1',PORT):reject(event,address)\n", "  File \"/private/tmp/flex-dev043-integration-baseline/docs/audits/dev043/isolation_bootstrap.py\", line 17, in reject\n    EVENTS.append({'kind':kind,'target':str(target)[:300], 'stack':traceback.format_stack(limit=12)})\n"]}
+[DEV_RUNTIME] suppressed import-time thread: db-wal-watchdog
+[UI_RECOVERY] Skipping WATCHTOWER CREATE Interceptor startup
+[UI_RECOVERY] Skipping webhook system initialization
+X65.51 prewarm scheduled delay=86400.0s
+[OPTIMIZATION] Helius optimization metrics API routes registered successfully
+[RPC_SAVINGS] RPC savings and efficiency dashboard APIs registered successfully
+[LAUNCH_PREDICTION] Phase 3.3+ launch prediction API routes registered successfully
+[ADVANCED_FARM_INTELLIGENCE] Phase 4 advanced farm intelligence API routes registered successfully
+[DEV_INTELLIGENCE] Dev intelligence graph API routes registered successfully
+[GRAPH_ANALYZER] Graph analyzer API routes registered successfully
+[FLEX_UI] FLEX UI API routes registered successfully
+[DASHBOARD] FLEX Intelligence Dashboard routes registered successfully
+[DASHBOARD] Operations v2 (operation-centric) routes registered
+[DEV_RUNTIME] suppressed import-time thread: operational-intelligence-prewarm
+[OPS_OS] Generic Operations Shell registered (/ops-os)
+[OPS_OS] Observatory Demo providers registered (/api/ops-demo/*)
+[OPS_OS] Launcher Observatory providers registered (/api/ops/launcher-observatory/*)
+[KNOWLEDGE] Knowledge Layer routes registered (/api/knowledge/*)
+[INTELLIGENCE] Entity Intelligence routes registered (/api/intelligence/*)
+[INTELLIGENCE] Entity Intelligence page registered (/intelligence/entity/<id>)
+[DISCOVERY] Provenance workspace registered (/discovery, /api/discovery/*)
+[X75.3A] Entity context routes registered (/api/discovery/entity-context/<wallet>, /api/discovery/relationship/<a>/<b>)
+[X75.0] Discovery convergence routes registered (/api/discovery/convergence)
+[X74.4] WATCHTOWER evidence integrity routes registered (/api/watchtower/evidence-integrity, /api/watchtower/launch/<mint>/evidence)
+[X74.1] Treasury Review workspace registered (/intelligence/treasury-review, /api/ops/treasury-review/*)
+[X21B] Provisioning edges routes registered (/api/ops-v2/provisioning-*)
+[OPS_OS] Buy Swarm Observatory providers registered (/api/ops/buy-swarm-observatory/*)
+[CROSS_OP] Cross-Operation Intelligence registered (/api/intelligence/entity/*/relationships)
+[OPS_OS] Lifecycle routes registered (/api/ops/<op_id>/lifecycle, /api/ops/lifecycle/platform)
+[INBOX] Analyst Inbox registered (/api/ops/inbox, /intelligence/inbox)
+[DB_WRITES] Transaction telemetry registered
+[OPERATORS] Canonical operator schema verified; WATCHTOWER treasuries aligned=111
+[OPERATORS] Operator Resolution registered.
+[OPERATORS] Operator Resolution registered (/api/ops/operators)
+[BEHAVIOUR] Behaviour Intelligence registered (/api/operators/<id>/behaviour)
+[BEHAVIOUR-CHANGE] Behaviour Change Detection registered (/api/operators/<id>/behaviour/change)
+[SIMILARITY] Operator Similarity registered (/api/operators/<id>/similarity)
+[ASSESSMENT] Intelligence Assessment registered (/api/operators/<id>/assessment)
+[FORECAST] Lifecycle Forecast registered (/api/operators/<id>/forecast)
+[PRICE_API] Token Price API routes registered successfully
+DEV043_IMPORT_PASS
+DEV043_ISOLATION_EVENTS=[{"kind": "socket.bind", "target": "('::1', 0)", "stack": ["  File \"<frozen importlib._bootstrap_external>\", line 940, in exec_module\n", "  File \"<frozen importlib._bootstrap>\", line 241, in _call_with_frames_removed\n", "  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/urllib3/util/__init__.py\", line 4, in <module>\n    from .connection import is_connection_dropped\n", "  File \"<frozen importlib._bootstrap>\", line 1176, in _find_and_load\n", "  File \"<frozen importlib._bootstrap>\", line 1147, in _find_and_load_unlocked\n", "  File \"<frozen importlib._bootstrap>\", line 690, in _load_unlocked\n", "  File \"<frozen importlib._bootstrap_external>\", line 940, in exec_module\n", "  File \"<frozen importlib._bootstrap>\", line 241, in _call_with_frames_removed\n", "  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/urllib3/util/connection.py\", line 137, in <module>\n    HAS_IPV6 = _has_ipv6(\"::1\")\n", "  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/urllib3/util/connection.py\", line 127, in _has_ipv6\n    sock.bind((host, 0))\n", "  File \"/private/tmp/flex-dev043-integration-baseline/docs/audits/dev043/isolation_bootstrap.py\", line 26, in audit\n    if address!=('127.0.0.1',PORT):reject(event,address)\n", "  File \"/private/tmp/flex-dev043-integration-baseline/docs/audits/dev043/isolation_bootstrap.py\", line 17, in reject\n    EVENTS.append({'kind':kind,'target':str(target)[:300], 'stack':traceback.format_stack(limit=12)})\n"]}]

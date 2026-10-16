@@ -1,0 +1,22 @@
+{
+  "registry": "PASS retained Byzantine,Watchtower,Nexus rows visible; membership counts163,949,84 respectively",
+  "unified": "PASS zero retained current live tokens;20 global history rows;explicit Entry unavailable and dispatcher UNKNOWN",
+  "chronology": "PASS20 rows sorted assignment_timestamp DESC,mint DESC",
+  "price_examples": [
+    "CatTok entry144176 peak594765 multiple4.13",
+    "CYBERCAT entry162776 peak274477 multiple1.69"
+  ],
+  "playbook_index": "PASS Byzantine and Watchtower links rendered",
+  "watchtower_playbook": {
+    "status": "FAIL_HTTP500",
+    "template": "templates/operation_artifact_playbook.html:11",
+    "template_source": "064021bd7e3aef0dec2e55d067693d94b8cf1922",
+    "caller": "src/ops/operator_routes.py:1109 operation_playbook_page",
+    "exception": "TypeError: unsupported operand type(s) for /: 'NoneType' and 'int'",
+    "expression": "t.entry_mc_usd /1000, t.current_final_mc_usd /1000, or other division on template line11; traceback does not identify the specific operand",
+    "exact_operand": "NOT_ESTABLISHED; no additional reconstruction after stop",
+    "reason": "Required explicit unavailable-state handling not compatible with retained null price evidence"
+  },
+  "remaining_acceptance": "Mission Control,System Health,Watchtower admitted/rejected details,Byzantine details and clean-checkout restart NOT_RUN after stop",
+  "no_browser_external_links_opened": true
+}

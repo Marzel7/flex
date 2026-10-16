@@ -1,26 +1,30 @@
-# DEV043 source compatibility correction
+# DEV043 continued source compatibility qualification
 
-Result: HOLD_CANONICAL_STARTUP_WRITE. Exact writer source correction qualified; safe application startup remains blocked.
+Result: PARTIAL — both proven startup blockers resolved; HOLD at next required template compatibility failure. No frozen baseline.
 
-**DEV043_COMPATIBILITY_STATUS:** HOLD_CANONICAL_STARTUP_WRITE
+**DEV043_COMPATIBILITY_STATUS:** PARTIAL_STARTUP_RESOLVED; HOLD_PLAYBOOK_TEMPLATE_CONTRACT
 
-**DB_WRITER_SOURCE_AUTHORITY:** d2fffdc34fca2539807e1463cad68dab0b3ef042
+**DB_WRITER_SOURCE_AUTHORITY:** d2fffdc34fca2539807e1463cad68dab0b3ef042; exact file hash in writer_source_authority.json
 
-**COMMIT_WRITE_AND_WAIT_COMPATIBILITY:** PASS exact writer; six compact contract checks PASS; unchanged prior function AST
+**COMMIT_WRITE_AND_WAIT_COMPATIBILITY:** PASS six existing fixture checks; correction e9745d8d preserved
 
-**OUTSIDE_STATE_WRITE_CAUSE:** {"module": "src.ops.operator_routes.register_operator_routes -> src.ops.operator_lifecycle_projection.persist_monitor_mode_transition -> src.core.db_writer._commit_batch -> DatabaseWriteService._execute -> acquire_write_lease", "target": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db.write.lock", "stage": "operator route registration, startup monitor-mode transition", "authority": "canonical operations state; SQL INSERT operation_monitor_mode_transitions", "required_for_read_only_ui": "No read-only startup bypass exists at this callsite; cannot redirect only this authority through existing bindings without changing operations read authority. Guard denied lock open before transaction.", "original_schema_warning": "Original run did not capture exact target/stack; current controlled probe canonical schema check passes, then mode transition attempts the exact write above. Do not equate original warning with proven current callsite."}
+**OUTSIDE_STATE_WRITE_CAUSE:** Canonical mode-transition persistence triggered by qualification MONITOR versus retained OFF. Exact blocked canonical write.lock recorded previously.
 
-**ISOLATED_BINDING_CORRECTION:** NONE — canonical state is not disposable. No redirection or guard bypass. Metadata-cache local missing binding remains unresolved after mandatory HOLD.
+**ISOLATED_BINDING_CORRECTION:** {"operations_mode": "OFF;assert matches immutable retained latest transition before app import; existing idempotence returns without write", "cache": "Existing exact metadata_cache DDL extracted from src/apis/price_api.py into empty STATE/database/flex_complete_database.db before read-only app import", "queue": "Empty STATE/monitor/queue/{pending,retry,processing,dead_letter}; both queue env bindings match; no shared queue inspection or mutation", "canonical_authorities": "Same exact allowlisted immutable mode=ro/query_only authorities; WAL excluded", "guard": "No permission or network weakening; only target/stack diagnostics and import-only option added"}
 
-**OFFLINE_TESTS:** {"status": "PASS", "checks": ["compatible imports", "post-commit independent readback", "multi-statement atomic rollback", "missing database failure receipt", "service timeout converted to failure receipt", "no best-effort queue use"], "fixture_max_bytes": 8192, "provider_calls": 0, "canonical_writes": 0}
+**ACTIVE_DEPENDENCY_CLOSURE:** FAIL API/template compatibility at Watchtower playbook; no further reconstruction
 
-**ISOLATED_STARTUP:** FAIL_QUALIFICATION: guarded import-only probe exposed canonical write; process exited; no API server started
+**OFFLINE_TESTS:** Writer six checks PASS retained; updated boundary self-test PASS; guarded startup no foreign file/path/sqlite attempts; local cache schema-only and queue fixture compact
 
-**REAL_DATA_BROWSER_ACCEPTANCE:** NOT_RUN_STOP_CONDITION
+**ISOLATED_STARTUP:** PASS with corrected bindings; localhost8143 only; stopped after browser failure; no operational workers
 
-**CLEAN_CHECKOUT_RESTART:** NOT_RUN_STOP_CONDITION
+**REAL_DATA_BROWSER_ACCEPTANCE:** {"registry": "PASS retained Byzantine,Watchtower,Nexus rows visible; membership counts163,949,84 respectively", "unified": "PASS zero retained current live tokens;20 global history rows;explicit Entry unavailable and dispatcher UNKNOWN", "chronology": "PASS20 rows sorted assignment_timestamp DESC,mint DESC", "price_examples": ["CatTok entry144176 peak594765 multiple4.13", "CYBERCAT entry162776 peak274477 multiple1.69"], "playbook_index": "PASS Byzantine and Watchtower links rendered", "watchtower_playbook": {"status": "FAIL_HTTP500", "template": "templates/operation_artifact_playbook.html:11", "template_source": "064021bd7e3aef0dec2e55d067693d94b8cf1922", "caller": "src/ops/operator_routes.py:1109 operation_playbook_page", "exception": "TypeError: unsupported operand type(s) for /: 'NoneType' and 'int'", "expression": "t.entry_mc_usd /1000, t.current_final_mc_usd /1000, or other division on template line11; traceback does not identify the specific operand", "exact_operand": "NOT_ESTABLISHED; no additional reconstruction after stop", "reason": "Required explicit unavailable-state handling not compatible with retained null price evidence"}, "remaining_acceptance": "Mission Control,System Health,Watchtower admitted/rejected details,Byzantine details and clean-checkout restart NOT_RUN after stop", "no_browser_external_links_opened": true}
 
-**QUALIFIED_SOURCE_SHA:** writer component only; enclosing commit recorded in handoff; no fully qualified integration revision
+**CLEAN_CHECKOUT_RESTART:** NOT_RUN required browser acceptance did not pass
+
+**RECOVERY_SOURCE_SHA:** Recorded actual commit in dedicated handoff; no fully qualified recovery source
+
+**FROZEN_RECOVERY_BASELINE:** False
 
 **READY_FOR_PERSISTENT_DEV:** False
 
@@ -34,12 +38,12 @@ Result: HOLD_CANONICAL_STARTUP_WRITE. Exact writer source correction qualified; 
 
 **runtime_deployment_required:** True
 
-**runtime_deployment_gate:** HOLD
+**runtime_deployment_gate:** HOLD_REQUIRED_BROWSER_CONTRACT
 
-**NEXT_ACTION:** Separately authorize a narrow read-only startup policy for canonical schema/mode-transition initialization, preserving canonical read authority and existing write semantics outside qualification; then resolve local cache binding and repeat guarded retained-data/clean-checkout acceptance. No deployment.
+**NEXT_ACTION:** Resolve only the attributable Watchtower artifact-template nullable-price contract in a separately scoped continuation; preserve evidence and UNKNOWN states, then repeat full browser acceptance and clean-checkout restart. Do not deploy.
 
-The urllib3 IPv6 feature-probe bind (::1,0) was also denied; no outbound provider connection occurred. No operational worker or server was started in this continuation. DatabaseWriteService fixture workers are disposable transaction lanes only. Existing services and DEV041 snapshot untouched.
+Existing writer implementation/tests preserved. Application business logic, persistence semantics, templates and attribution unchanged in this continuation. The only executable change is isolated qualification setup. Full prior source manifests preserved. Production, persistent DEV, DEV039 listener and DEV041 snapshot untouched. DEV039 source integration has not been certified; no completeness implied.
 
-Startup reproduction (import-only, remains HOLD): `env -i PATH=/usr/bin:/bin:/usr/sbin:/sbin HOME=/private/tmp/dev043-isolated-state DEV043_STATE_ROOT=/private/tmp/dev043-isolated-state DEV043_PORT=8143 DEV043_ISOLATION_RECEIPT=/private/tmp/flex-dev043-integration-baseline/docs/audits/dev043/isolation_preflight.json /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -I -B docs/audits/dev043/isolation_bootstrap.py --probe-startup`. Run matching --self-test first and retain only its final JSON line as receipt.
+Reproduce from isolated checkout using RESTORATION.md command and matching boundary receipt, with --probe-startup for import-only or without it for localhost8143. Updated bootstrap creates schema-only local cache and empty queue directories under DEV043_STATE_ROOT. It asserts retained operations mode OFF; do not fabricate mode if the retained authority changes. Python/packages remain recorded in observed_dependencies.json.
 
-No release frozen. Rollback isolated writer to candidate41bf4dbf if needed; no service action required. Storage bound8MiB per fixture file and diagnostic capture; observed compact artifacts, no raw payload retention, no new operational growth path.
+Storage:8MiB single-file fixture/process limit, no raw retention, no new operational growth paths. Acceptance JSON responses are compact derived API projections. API processes stopped with Ctrl-C; no other service signalled. Clean-checkout release qualification deliberately not attempted after real-data browser failure.

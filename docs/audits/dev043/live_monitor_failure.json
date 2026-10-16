@@ -1,0 +1,4 @@
+{
+  "status": 503,
+  "body": "{\"error\":\"WATCHTOWER_MONITOR_QUEUE_PATH_UNAVAILABLE\",\"monitor_authority\":\"UNAVAILABLE\"}\n"
+}

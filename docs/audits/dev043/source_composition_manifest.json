@@ -1,5 +1,5 @@
 {
-  "status": "WRITER_QUALIFIED_STARTUP_HOLD_CANONICAL_WRITE",
+  "status": "STARTUP_QUALIFIED_BROWSER_HOLD",
   "integration_parent": "cb882091bbd402ad826fc44cc82541a0e3d4b2ca",
   "parent_tree": "53fa6a10e6fd8435c08839caddaf3f0be5358f5b",
   "parent_files_authority": "git ls-tree -r cb882091bbd402ad826fc44cc82541a0e3d4b2ca",
@@ -1289,7 +1289,14 @@
   ],
   "qualification_harness_changes": {
     "path": "docs/audits/dev043/isolation_bootstrap.py",
-    "sha256": "02f3d7207a2ea5b9d061934cdbd274e27b4e390877c3c45ae9ed29135301af9f",
+    "sha256": "1edb7ed9fba3476e011aca805ce01430a5d45a6022126861de8cfed9bbe19fe9",
     "purpose": "denial path/stack diagnostics and import-only probe; guards unchanged"
+  },
+  "effective_isolated_bindings": {
+    "operations_mode": "OFF;assert matches immutable retained latest transition before app import; existing idempotence returns without write",
+    "cache": "Existing exact metadata_cache DDL extracted from src/apis/price_api.py into empty STATE/database/flex_complete_database.db before read-only app import",
+    "queue": "Empty STATE/monitor/queue/{pending,retry,processing,dead_letter}; both queue env bindings match; no shared queue inspection or mutation",
+    "canonical_authorities": "Same exact allowlisted immutable mode=ro/query_only authorities; WAL excluded",
+    "guard": "No permission or network weakening; only target/stack diagnostics and import-only option added"
   }
 }

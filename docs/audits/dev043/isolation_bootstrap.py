@@ -68,7 +68,20 @@ if '--self-test'in sys.argv:
 receipt=pathlib.Path(os.environ['DEV043_ISOLATION_RECEIPT']);attestation=json.loads(receipt.read_text());assert attestation['status']=='PASS' and attestation['state']==str(STATE) and attestation['port']==PORT;assert attestation['bootstrap_sha256']==hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest()
 for name in list(os.environ):
  if any(s in name for s in ['BIRDEYE','HELIUS','ALCHEMY','API_KEY','SECRET','PASSWORD']):del os.environ[name]
-os.environ.update({'FLEX_DEV_STATE_ROOT':str(STATE),'FLEX_DEV_READ_ONLY_QUALIFICATION':'1','FLEX_DEV_HOST':'127.0.0.1','FLEX_DEV_PORT':str(PORT),'FLEX_DEV_RELOAD':'0','FLEX_DEV_OPERATIONS_MODE':'MONITOR','WT_OPS_DB_PATH':str(SHARED/'database/wt_ops_v2.db'),'DB_PATH':str(SHARED/'database/flex_complete_database.db'),'FLEX_DB_PATH':str(SHARED/'database/flex_complete_database.db'),'MISSION_CONTROL_MONITOR_UI_DB_PATH':str(SHARED/'.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db'),'WATCHTOWER_MONITOR_UI_DB_PATH':str(SHARED/'.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db'),'OPERATION_MONITOR_QUEUE_PATH':str(STATE/'monitor/queue'),'WATCHTOWER_MONITOR_QUEUE_PATH':str(STATE/'monitor/queue'),'OPERATION_RESEARCH_ROOT':str(ROOT),'PYTHONDONTWRITEBYTECODE':'1'})
+os.environ.update({'FLEX_DEV_STATE_ROOT':str(STATE),'FLEX_DEV_READ_ONLY_QUALIFICATION':'1','FLEX_DEV_HOST':'127.0.0.1','FLEX_DEV_PORT':str(PORT),'FLEX_DEV_RELOAD':'0','FLEX_DEV_OPERATIONS_MODE':'OFF','WT_OPS_DB_PATH':str(SHARED/'database/wt_ops_v2.db'),'DB_PATH':str(SHARED/'database/flex_complete_database.db'),'FLEX_DB_PATH':str(SHARED/'database/flex_complete_database.db'),'MISSION_CONTROL_MONITOR_UI_DB_PATH':str(SHARED/'.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db'),'WATCHTOWER_MONITOR_UI_DB_PATH':str(SHARED/'.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db'),'OPERATION_MONITOR_QUEUE_PATH':str(STATE/'monitor/queue'),'WATCHTOWER_MONITOR_QUEUE_PATH':str(STATE/'monitor/queue'),'OPERATION_RESEARCH_ROOT':str(ROOT),'PYTHONDONTWRITEBYTECODE':'1'})
+for queue_state in ('pending','retry','processing','dead_letter'):
+ (STATE/'monitor/queue'/queue_state).mkdir(parents=True,exist_ok=True)
+import ast
+cache_source=ROOT/'src/apis/price_api.py'
+cache_tree=ast.parse(cache_source.read_text())
+ensure=next(n for n in cache_tree.body if isinstance(n,ast.FunctionDef) and n.name=='_ensure_metadata_cache_table')
+ddl=next(n.value for n in ast.walk(ensure) if isinstance(n,ast.Constant) and isinstance(n.value,str) and 'CREATE TABLE IF NOT EXISTS metadata_cache (' in n.value)
+cache_path=STATE/'database/flex_complete_database.db';cache_path.parent.mkdir(exist_ok=True)
+with guarded_connect(cache_path) as cache:cache.execute(ddl)
+# Match the retained authority rather than fabricate a monitor-mode transition.
+with guarded_connect((SHARED/'database/wt_ops_v2.db').as_uri()+'?mode=ro',uri=True) as authority:
+ row=authority.execute('SELECT mode FROM operation_monitor_mode_transitions ORDER BY effective_at DESC,created_at DESC LIMIT 1').fetchone()
+ assert row and row[0]=='OFF', 'Retained startup mode changed; requalify binding'
 sys.path.insert(0,str(ROOT))
 try:
  import src.dev_runtime as runtime

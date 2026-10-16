@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev049",
-    "git_head": "e15720cbac1ff4fa1815b92446ce5b5b13727e0d",
+    "branch": "codex/dev049-frontend-tooling",
+    "git_head": "4664b4a62b892dacf4540b3b1a7622fb156b8aa8",
     "name": "flex",
-    "updated_at_utc": "2026-10-16T19:09:56.581892+00:00",
-    "working_tree": "DEV049 cursor committed and initial guarded API/browser qualification PASS; clean-checkout frontend subprocess failed twice; HOLD, no deployment; operational runtime untouched."
+    "updated_at_utc": "2026-10-16T20:32:18.336193+00:00",
+    "working_tree": "DEV049 frontend cause proven and tooling correction committed separately; unchanged application candidatee15720cb passes normal and clean-checkout25tests+frontend+10browser contracts; isolated APIs stopped; no deployment."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -30136,6 +30136,146 @@
     "SHARED_QUEUE_WRITES": 0,
     "DEPLOYMENT_CHANGES": 0,
     "NEXT_ACTION": "Authorize bounded diagnosis of the unchanged DEV048 frontend subprocess exit (status/signal currently unrecorded); if a tooling defect is demonstrated, qualify its correction separately. Then repeat exact-candidate clean-checkout API/browser acceptance. No deployment or gate bypass.",
-    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/DEV049_DURABLE_FAIRNESS_STATUS.json"
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/DEV049_DURABLE_FAIRNESS_STATUS.json",
+    "resolved_by": "dev049_frontend_gate: clean-checkout gatePASS with tooling4664b4a6; original candidate/source and failed attempts preserved"
+  },
+  "dev049_frontend_gate": {
+    "DEV049_FRONTEND_GATE_STATUS": "PASS_QUALIFIED_NOT_DEPLOYED",
+    "CANDIDATE_SOURCE_SHA": "e15720cbac1ff4fa1815b92446ce5b5b13727e0d",
+    "IMMUTABLE_CANDIDATE_REFERENCE": {
+      "candidate": "/Users/kevinkeaveney/Dev/claude/flex-releases/candidates/DEV049_CANDIDATE_e15720cbac1f",
+      "deployment_authorized": false,
+      "manifest_sha256": "85398a259453d0be6bbb47bbda333cd30e8f2aae032c8dea2d32b947d11830f5",
+      "source_sha": "e15720cbac1ff4fa1815b92446ce5b5b13727e0d",
+      "status": "PASS",
+      "tag": "DEV049_CANDIDATE_e15720cbac1f"
+    },
+    "TOOLING_SOURCE_SHA": "4664b4a62b892dacf4540b3b1a7622fb156b8aa8",
+    "TOOLING_BRANCH": "codex/dev049-frontend-tooling",
+    "QUALIFIED_TOOL_SHA256": "9d8f8ca175fa9554737bf2b0fd7b56d825089607e21cc0202187be95fd77cb36",
+    "SUBPROCESS_COMMAND": {
+      "failing_reproduction": [
+        "/Users/kevinkeaveney/.volta/bin/node",
+        "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/restorations/9ffa29efe276/source/tests/dev043/pending_request_lifecycle.cjs"
+      ],
+      "qualified_normal": [
+        "/opt/homebrew/Cellar/node@22/22.23.2/bin/node",
+        "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/source/tests/dev043/pending_request_lifecycle.cjs"
+      ],
+      "qualified_clean_checkout": [
+        "/opt/homebrew/Cellar/node@22/22.23.2/bin/node",
+        "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/restorations/94cd178bbb2b/source/tests/dev043/pending_request_lifecycle.cjs"
+      ]
+    },
+    "SUBPROCESS_EXIT_CAUSE": {
+      "reproduction_returncode": -25,
+      "signal": "SIGXFSZ",
+      "elapsed_seconds": 5.271267458098009,
+      "stdout_stderr_bytes": 0,
+      "timeout_seconds": 30,
+      "file_limit_bytes": 8388608,
+      "child_reaped": true,
+      "original_two_attempts": "Exit status was not recorded; both preserve Volta bootstrap temporary files of8388608bytes. Individual historical signals remain unobserved."
+    },
+    "PASS_FAIL_ENVIRONMENT_DIFFERENCES": {
+      "source": "Identical candidate/test/template/cursor hashes across original and restored checkouts",
+      "runtime": "Initial PASS /opt/homebrew/bin/node; reproduction ambient PATH selected ~/.volta/bin/node -> volta-shim; corrected qualification uses SHA-verified concrete Node22.23.2",
+      "HOME": "Disposable test-state HOME in all workflow runs; shim attempted runtime bootstrap in that empty HOME",
+      "unchanged": "Frontend assertions,30s timeout,8MiB RLIMIT_FSIZE,merged stdout/stderr,subprocess.run lifecycle,API ports/guards; no cursor modifications",
+      "port": "Frontend harness opens no API socket;port availability is a later separate API gate"
+    },
+    "DIAGNOSTIC_REPRODUCTION": {
+      "count": 1,
+      "run_id": "054169761dac",
+      "evidence": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/frontend-resolution-4664b4a6/diagnostic/result.json",
+      "bootstrap_temp_bytes": 8388608,
+      "partial_runtime": "node-v18.17.1-darwin-arm64 under disposable .volta/tmp",
+      "bounded": "Original timeout/limits; no package/global environment repairs or operational process signals"
+    },
+    "ROOT_CAUSE": "DEV048 used ambient shutil.which(node), which could select a Volta shim. Disposable HOME caused runtime setup, which hit the file-size guard and terminated withSIGXFSZ before producing test output. Empty logs alone did not establish causality; instrumented status plus bootstrap artifacts did.",
+    "MINIMUM_CORRECTION": {
+      "changed_application_files": [],
+      "tooling_files": [
+        "tools/flex_dev.py",
+        "tests/test_dev049_frontend_tooling.py",
+        "docs/audits/dev049-frontend/*"
+      ],
+      "runtime": {
+        "path": "/opt/homebrew/Cellar/node@22/22.23.2/bin/node",
+        "sha256": "1f72236fcbfc84855d7c884fbcba0f6a7c635d600d7e493b823e77c467f2ae95",
+        "version": "v22.23.2"
+      },
+      "changes": "Pin and verify the concrete existing Node runtime; record bounded start/completion status,signal,timeout,elapsed time and log size. Missing/changed runtime fails closed; no PATH shim/install fallback.",
+      "protected_installed_tooling": "UNCHANGED; corrected tooling invoked only from its isolated committed branch",
+      "timeouts_or_limits_increased": false,
+      "frontend_assertions_changed": false
+    },
+    "CURSOR_REGRESSION_STATUS": {
+      "status": "PASS_UNCHANGED",
+      "focused_cursor_tests": 13,
+      "complete_python_tests_per_run": 25,
+      "fairness": "50000-row guarded fixture,5000eligible/5000turns;restart/crash/rollback/duplicate/attempt tests pass;100000-row tie seek test pass",
+      "provider_budget": "Zero-RPC anchor pass/limit1 and ordinary Walkback budgets unchanged"
+    },
+    "FRONTEND_GATE_STATUS": {
+      "status": "PASS",
+      "normal": {
+        "run_id": "94ab4aae54c7",
+        "exit_code": 0,
+        "elapsed_seconds": 0.33408425003290176
+      },
+      "clean_checkout": {
+        "run_id": "5440330b8873",
+        "exit_code": 0,
+        "elapsed_seconds": 0.3945158750284463
+      },
+      "tooling_unit_tests": 23,
+      "required_contract": "Actual inline script; fast/3s timeout/network/503/abort/hung-body/stale-filter/pagehide/repeated-navigation/no-auto-retry"
+    },
+    "CLEAN_CHECKOUT_ACCEPTANCE": {
+      "status": "PASS",
+      "browser_contracts_per_run": 10,
+      "normal_run": "94ab4aae54c7",
+      "restoration_run": "5440330b8873",
+      "normal_server_stopped": true,
+      "restored_server_stopped": true,
+      "loaded_project_modules": 167,
+      "focused_loaded_project_modules": 15,
+      "dependency_distributions": 46,
+      "normal_guard_denials": 0,
+      "restored_guard_denials": 0,
+      "source_and_dependency_closure": "PASS; tracked source/actual origins/hashes verified",
+      "known_exclusions": "Original bounded recovery exclusions unchanged"
+    },
+    "EVIDENCE_PRESERVATION": {
+      "directory": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/frontend-resolution-4664b4a6",
+      "manifest": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/frontend-resolution-4664b4a6/preservation-manifest.json",
+      "files": 55,
+      "original_failures_and_candidate": "Preserved; no deletion/overwrite of protected artifacts",
+      "capture_handling": "An earlier normal-run temporary browser directory was accidentally reused; that intermediate receipt is superseded. Final normal94ab4aae54c7 and restoration5440330b8873 use independently captured direct-run files; all source/destination hashes verified. Copied ambiguous receipt was rejected by automatic approval review and was not accepted.",
+      "intermediate_runs": "f39ef81675a2 API/Python/frontend passed; browser artifacts later overwritten, not relied on as final preserved evidence."
+    },
+    "RESTORATION_PROCEDURE": {
+      "tooling_revision": "4664b4a62b892dacf4540b3b1a7622fb156b8aa8",
+      "command": "<checkout-of-tooling-4664b4a6>/bin/flex-dev restore DEV049 --focused-test tests/test_dev049_cursor.py --contract-evidence /Users/kevinkeaveney/Dev/claude/flex-development/DEV049/contract-evidence.json --browser-wait 600",
+      "browser": "Capture actual current-session browser evidence, import via same corrected bin/flex-dev browser command; preserve source/run identity and direct screenshots",
+      "prerequisites": "Exact recorded concrete Node runtime, local Python/dependencies, read-only retained evidence and existing isolated DEV049 metadata; no portable runtime bundle implied"
+    },
+    "DEPLOYMENT_AND_ROLLBACK": "No deployment authorized or performed. Application candidate unchanged; no new application tag. Tooling correction is separately committed. Any target deployment requires exact target/worker dependency and configuration qualification, explicit release authorization, preserved installed source/configuration and rollback plan; existingDEV049 CURSOR_AND_RESTORATION.md remains applicable. Permanent tooling launcher not replaced.",
+    "READY_FOR_DEPLOYMENT": false,
+    "RUNTIME_DEPLOYMENT_GATE": "QUALIFIED_NOT_DEPLOYED; isolated intended qualification runtime accepted; operational worker untouched",
+    "PROVIDER_CALLS": 0,
+    "PRODUCTION_CHANGES": 0,
+    "PERSISTENT_DEV_CHANGES": 0,
+    "CANONICAL_DATABASE_WRITES": 0,
+    "SHARED_QUEUE_WRITES": 0,
+    "STORAGE_BOUNDS": {
+      "new_metadata_file_bytes": 2000000,
+      "subprocess_log_and_transient_file_limit_bytes": 8388608,
+      "raw_provider_retention": false,
+      "new_unbounded_growth_paths": 0
+    },
+    "NEXT_ACTION": "NONE \u2014 isolated qualification complete. Separate authorization naming exact target and release is required before any deployment; protected installed tooling remains unchanged.",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/DEV049_FRONTEND_GATE_STATUS.json"
   }
 }

@@ -29407,5 +29407,98 @@
     "engineering_revision": "5e32f2e921fbe5f7618ef7634d3c9dbefc7dc7e7",
     "NEXT_ACTION": "Stop. Separately authorize exactdetailaccess-path design,includingByzsubprov/status/timeandNexusglobal30daymatchingcost. PreservequalifiedPending3sfix;donotdeployorfreezebaseline.",
     "STORAGE": "Compactquery/profile/planartifacts,no operationalrows/rawproviderpayloads/DBcopies;profilingfilecap8MiB;productionandpersistentDEVunchanged."
+  },
+  "dev043_detail_access_design": {
+    "DEV043_DETAIL_ACCESS_DESIGN_STATUS": "HOLD_BUILD_LIMITS_AND_FULL_POPULATION_BOUNDS_UNQUALIFIED",
+    "source": "5e32f2e921fbe5f7618ef7634d3c9dbefc7dc7e7 clean unchanged isolatedcheckout",
+    "BYZANTINE_MINIMUM_INDEX_SET": {
+      "candidate_count": 1,
+      "table": "wt_walkback_queue",
+      "key": "(subprov, funder_block_time DESC)",
+      "partial_predicate": "status='complete' AND funder_block_time IS NOT NULL",
+      "activity_query": "SELECT DISTINCT funder_block_time FROM wt_walkback_queue WHERE subprov=? AND status='complete' AND funder_block_time IS NOT NULL",
+      "recent_query": "Same predicate,select originalmint/creator/treasury/subprov/funder_sig/time/mechanism columns ORDERBYfunder_block_timeDESC LIMIT250",
+      "feasibility": "Equalityseeksubprov thenorderedtimestamp traversal;adjacenttimestampdedupcanavoidTEMP DISTINCT,expectedcoveringactivityread. Recentquerycanread250indexentries plus250originalrows withoutsortingentirecompletedpopulation. Designinferenceonly,noindexcreated/newplanexecuted.",
+      "why_partial": "Statusconstantandnonnullpredicatearealreadyinbothoriginalqueries. Includingstatusagaininindexkeyunnecessary. General(subprov,status,funder_block_timeDESC) alternativeiswiderandindexesunusedstatuses.",
+      "covering": "Do notappendallrecent-rowTEXTfieldstominimumindex:250tablelookupsalreadyrowbounded;widecoveringentriesincreasebuild/update/storagecost.",
+      "remaining_cost": "All-timeinfrastructureDISTINCT/count/maxneedsallmatchedtimestamps/indexentries;O(I),notfixedtimebudget. Originalfuturetimestampsnotupperbounded;do notaddupperbound.",
+      "distinct_semantics": "Countdistincttimestamp,notmint,signatureorcompletedrowcount. Two launcheswithsamefundertimecountonceinactivityasoriginal.",
+      "joins_membership": "Canonicalmembermintsuseoperator_launch_membership(operator_id)andqueuePKmint;do notsubstitutemembershipforbroaderinfrastructure. Canonicalprojectionoverridesinfrastructureonmintcollision;recent250selectionandfinalchronologypreserved.",
+      "tie_gap": "OriginalORDERBYtimestampDESCdoesnottotallyorder equal-time rows;indexcanchangewhichrowswin250cutoffties. Exactidentityequivalenceatboundaryneedsretainedtieevidence/contractqualification,notnewtie-ruleinvention."
+    },
+    "NEXUS_MINIMUM_INDEX_SET": {
+      "minimum_new_range_candidate": {
+        "table": "wt_walkback_queue",
+        "key": "(funder_block_time,mint)",
+        "partial_predicate": "funder_block_time IS NOT NULL",
+        "query": "SELECT mint,funder_block_time FROM wt_walkback_queue WHERE funder_block_time>?",
+        "semantics": "Strictlowercutoffnow-30days,no statusfilter,nouppernowbound,allmatchinglaunches. Do notcopyMissingCREATEhalf-openwindowhere.",
+        "benefit": "ExpectedcoveringrangeSEARCHwithoutunrelatedqueuehistoryscan;O(logN+L),notconstantcost."
+      },
+      "existing_signature_index": "ix_wwec_mint_hop(mint,hop_depth)alreadyseeks900-mintINbatches. Keeporiginalselection_status=SELECTED ANDamount_lamportsISNOTNULL;orderby(hop_depth,signature)inPythonandconstructtuple(hop_depth,mechanism,amount_lamports).",
+      "optional_not_minimum": "Partialcovering(mint,hop_depth,signature,mechanism,amount_lamports)WHEREselection_status=SELECTEDANDamount_lamportsISNOTNULLcouldavoidtablelookups. Doesnoteliminateedgeprocessing,notrequiredtoobtainindexaccess,andduplicatehop/signaturetieorderneedsequivalencequalification.",
+      "inherent_full_population": "LetL=all30daylaunches,F=allfrozenfamilymembermints,E=allselectededgesforunion(L,F),C=allqualifiedfamilies. Existingcontractconstructsallfamily signatures,computesglobalduplicate-signaturequalification,thenmatcheseachlaunchagainstqualifiedspecs. ExactworkatleastOmega(L+E+F),plusmatcher/sortcost;notboundedby900batchsize. PriorprofileL=17658.",
+      "cannot_narrow": "Nexus-onlyfamilycomparisoncouldchangeUNIQUE_MATCH/AMBIGUOUSandcurrentlaunchpopulation;topN/statusfilters/truncationorcache-onlysnapshotwouldchangecontract.",
+      "chronology": "QueuepopulationhasnoORDERBY;finalsummarysortscreatetimeDESCwhilekeepinghistoricalmembershipandcurrentqualifiedrouteevidence. Equal-timeorderingnotfullyspecified;notinvented.",
+      "indexed_result": "Rangeindexeliminatestablescan,butindex-onlydesigncannotguaranteefixedresponse/memorybudgetforuncappedpopulation."
+    },
+    "FUNDING_EDGE_INDEX_REQUIREMENT": {
+      "query": "SELECT source_mint,funding_tx_signature,funding_block_time,funding_mechanism FROM wt_provisioning_edges WHERE edge_type='SUBPROV_TO_CREATOR' AND source_mint IN (...) ",
+      "current": "ix_wpe_type_time(edge_type,last_observed_by_flexDESC)scansedge-typepartitionwithresidualsource_mintfilter;from/toindexesandUNIQUE(edge_type,from_wallet,to_wallet)arenotmintlookups.",
+      "minimum_new_candidate": "Partial(source_mint)WHEREedge_type=SUBPROV_TO_CREATOR;alternativefull(source_mint,edge_type)ifotheredgetypesneedaccess,outsidethisminimumscope.",
+      "covering_optional": "Appendfunding_tx_signature,funding_block_time,funding_mechanismifmeasuredtablelookupcostjustifieslargerindex;notminimumstorage.",
+      "effect": "O(MlogEdges+K)lookupfororiginalprofileMmintset,returnallexactmatchedKrows. Noevidence_relationshipchanges.",
+      "critical_order_dependency": "OriginalqueryhasnoORDERBY;fetch_operatoriteratesrowsandhistory_by_mint[source_mint].update(...)overwritesfundingfields. Multipleedgespermintcanmakefinalevidenceindex-orderdependent. Rowsetequivalencedoesnotproveprojectionequivalence. Needprovenone-applicablerowpermintororiginalqualifieddeterministic-selectioncontractbeforeimplementation. NoarbitraryMIN/MAX/last/newestsubstitution."
+    },
+    "EXACT_POPULATION_EQUIVALENCE": {
+      "preserved": "Originalidentity,membership,infrastructureseparation,selected-edgepredicate,globalfamilyuniqueness,timeinequalities,allreturnedfundingevidence,originalpriceprovenance and explicitUNKNOWN semantics unchanged. Noquery/sourcebehaviorchange.",
+      "status": "Logicalpredicateequivalenceforcandidateindexesonly;fullobservableequivalenceHOLDduetiesandfundinglast-winsdependency.",
+      "source_hash_authority": "Existing5e32sourceandpriorboundedprofiles/plans;noalternateparentorcomponentimport."
+    },
+    "INDEX_STORAGE_ESTIMATE": {
+      "main_database_bytes": 16194387968,
+      "observed_wal_bytes": 84282872,
+      "row_counts_immutable_main_view": {
+        "wt_walkback_queue": 87902,
+        "wt_provisioning_edges": 51940,
+        "wt_walkback_edge_candidates": 197149
+      },
+      "count_method": "Read-onlyindex-backedCOUNTs181/271/493mswith1soverallprogressguard;nodatapayloadretention;WALexcludednotlivecensus.",
+      "table_physical_bytes": "Notestablished;priorboundedDBSTATtimedout,didnotrepeatfullstorageinspection.",
+      "illustrative_scenario": "Assume128bytes/indexentryand50percentfill,useallcurrenttablerowsasconservativepartialindexpopulation:Byz22,502,912bytes,Nexusrange22,502,912bytes,funding13,296,640bytes,total58,302,464bytesbeforebuildsort/WAL/journal. Theseareassumptions,notmeasuredorhardmaxima.",
+      "optional_signature_covering": "Assume256bytes/entryand50percentfillfor197149edges:100,940,288bytesadditional. WideunboundedTEXTandfuturegrowthinvalidateanyclaimedhardcap.",
+      "build_scans": "Eachproposedpartialindexrequiresreadsource/populationpredicateandsort/buildentries;noexistingindexedpredicateguaranteesboundedbuildwork. Noindexcreation,ANALYZE,DDLorDBcopyperformed.",
+      "500MB_rule": "Canonicaltargetalready16.19GB;indexconstructionwouldwritethatoversizedsinglefileeveniffreelistabsorbsnewpages. Nosafeexceptionapproved. Journal/WAL/sorttempandfutureindexgrowthlackenforcedmaxima;buildqualificationHOLD."
+    },
+    "WAL_LOCKING_RISK": {
+      "writer_impact": "CREATEINDEXiswriteDDL,single-writertransactioncompeteswithoperationalwriters;WALreadersmaycontinuebutlongreadsdelaycheckpointprogress. Indexmaintenancetouchesfutureinsert/update/deletepaths. Nolocking/restarts/checkpointsmade.",
+      "temporary_growth": "Sorter spill,WALorrollbackjournaldependonactualconnectionmode/cache/pages/writerload;noenforcedper-filebudgetsorboundedwriterquiescenceestablished.84.28MBexistingWALisobservationnotgrowthbound.",
+      "interrupt_rollback": "UncommittedindexDDLcanrollback,butinterruptionneedsqualifiedtransaction/processprocedure;no suchbuildexecuted. CommittedindexremovalrequiresseparateDDLwriteandplanverification;freedpagesnormallystayindatabase. NoVACUUM/clone/cleanupauthorized.",
+      "mode_note": "Readonlyimmutableviewdoesnotestablishactivewriterjournalmode;nodatabase-modechanges."
+    },
+    "BOUNDED_QUERY_FEASIBILITY": {
+      "byzantine": "Recent250candidateindexboundedretrievalplausible;all-timeDISTINCTactivitystillscaleswithmatchedinfrastructurepopulation.",
+      "nexus": "Unrelatedhistoryscancanbeavoided,butcompleteaccepted30daycomparisoninherentlyfullpopulation. Noindex-onlyfixedresourceguaranteewithoutdataenvelopes.",
+      "shared": "Mintaccessmissing;fundingresultselectionorderisadditionalcompatibilitygap.",
+      "plan_evidence": "Existingobservedplansretainedinbyzantine-plans.json/nexus-plans.jsonfrompriortask. ProposedplansexpectedfromSQLiteprefix/coveringrules,notempiricallyqualified:prohibitiononcreatingindexesobserved.",
+      "new_caches_workers": "NONEdesignedorintroduced;nosilentfull-detailreduction."
+    },
+    "READY_FOR_IMPLEMENTATION": false,
+    "PROVIDER_CALLS": 0,
+    "PRODUCTION_CHANGES": 0,
+    "DATABASE_WRITES": 0,
+    "INDEXES_CREATED": 0,
+    "SOURCE_CHANGES": 0,
+    "SERVICE_CHANGES": 0,
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "RUNTIME_DEPLOYMENT_REASON": "Design-onlyqualification",
+    "engineering_revision": "5e32f2e921fbe5f7618ef7634d3c9dbefc7dc7e7",
+    "NEXT_ACTION": "STOP. Resolve compliant build/storage budgets, uncapped full-population costs, and original funding/tie-selection authority before seeking implementation authorization. No safe index-only full-detail baseline qualification under current constraints; do not deploy or freeze.",
+    "sources": [
+      "https://www.sqlite.org/queryplanner.html",
+      "https://www.sqlite.org/partialindex.html",
+      "https://www.sqlite.org/wal.html"
+    ],
+    "artifact_bound": "Compactreportonly,below64KiB;noDBcopies/rawproviderpayloads/runtimegrowthpaths."
   }
 }

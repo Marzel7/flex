@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev068",
-    "git_head": "7e5d6cf18989a782cff7a0e2a706ea5e44766137",
+    "branch": "codex/dev069",
+    "git_head": "756935aa27f0eb4b07f61f3f78fe405f74fd0033",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T17:22:39.547823+00:00",
-    "working_tree": "DEV068 bounded neutral migration/executed coverage complete; PARTIAL strict PumpPortal provenance/full topology unknown; no proven detector correction."
+    "updated_at_utc": "2026-10-17T17:42:22.390235+00:00",
+    "working_tree": "DEV069 read-only audit complete; insufficient causal evidence; no implementation."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31656,5 +31656,19 @@
     "runtime_deployment_reason": "Read-only audit and inert derived projection controls only.",
     "engineering_evidence_publication": "Compact derived audit committed locally; minimal handoff only published.",
     "next_action": "STOP. Need bounded original PumpPortal receipt linkage for full strict cohort and exact funding-role/fanout/ancestry witnesses. A conditional2exact-signature Helius proposal for primaryLAhf is documented but NOTauthorized; receipt prerequisite first, no address-history acquisition. No implementation, canonical mutation, replay/requeue, attribution or deployment authorized."
+  },
+  "dev069_regression_audit": {
+    "status": "INSUFFICIENT_EVIDENCE_NO_CAUSAL_REGRESSION_ESTABLISHED",
+    "engineering_source_sha": "756935aa27f0eb4b07f61f3f78fe405f74fd0033",
+    "verification": "19 bounded audit consistency checks PASS; DEV048 source/dependency/isolation and committed source completeness PASS.",
+    "activation_state": "NO_ACTIVATION",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only audit only.",
+    "blocker": "First independently qualified missed launch remains unproven; causal before/after comparison cannot be completed.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "application_changes": 0,
+    "next_action": "STOP. Obtain one retained independently qualified post-boundary route witness before further causal qualification. No acquisition, implementation or deployment authorized."
   }
 }

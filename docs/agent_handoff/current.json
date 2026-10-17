@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev071",
-    "git_head": "e99559502646f3ac96ff63c10974c1c70e17efdf",
+    "git_head": "5e6c6a982d9f5c2c09ab73432bd26761bfba9116",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T19:21:58.172384+00:00",
-    "working_tree": "DEV071 eight-route comparison PARTIAL; explicit likeness ties; no runtime changes."
+    "updated_at_utc": "2026-10-17T19:31:35.912657+00:00",
+    "working_tree": "DEV071 historical amount search complete; no retained exact match; original coverage incomplete."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31726,5 +31726,19 @@
     "production_changes": 0,
     "application_changes": 0,
     "next_action": "STOP. Use the preserved relative tiers and full route comparisons for research only. No acquisition, attribution change or deployment authorized."
+  },
+  "dev071_historical_amount_search": {
+    "status": "SEARCH_COMPLETE_NO_RETAINED_EXACT_PATTERN_MATCH",
+    "engineering_source_sha": "5e6c6a982d9f5c2c09ab73432bd26761bfba9116",
+    "verification": "12 bounded search checks PASS, including preserved historical positive controls.",
+    "activation_state": "NO_ACTIVATION",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only population counting and retained evidence qualification only.",
+    "blocker": "No exact historical amount pattern was located; original funding evidence coverage remains incomplete.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "application_changes": 0,
+    "next_action": "STOP. No closer independently qualified match established. Do not relax the historical pattern or infer absence from missing evidence. No acquisition or runtime changes authorized."
   }
 }

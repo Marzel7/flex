@@ -1,0 +1,11 @@
+{
+  "DEV053_PUMPPORTAL_FIRST_AUDIT_STATUS.json": "095b58cb12cdc4c95e87587a8a53e4195229f098eb16f85229be576eb6ebfb3d",
+  "offline-audit-fixtures.py.txt": "a432b610bff0b2a541646a3c80ed8866af7dabf7f9e0372ba94a1225926e66d9",
+  "walkback-control-reference.json": "31031e2c8b4e6a52e39a4ce46477024b17131996b43f54c0a08beb1657ac446d",
+  "offline-creator-contract.json": "421626063f18ac6fcf91c157a814603915814b4b82d2f698ecdda30581bd6072",
+  "source-authority.json": "d2d37fe55f416d61896951f76caaa08a3cd359746c19277186e6c2efd43eb249",
+  "retained-frame-contract.json": "ab031ca3c01eb5de80cb54184bd9c6267d858b8ca09ea868794f6004ee0c2b8a",
+  "runtime-authority.json": "510e0e40c68f43f7420630e1641cb61f89f766a315073ba437dcddad2d7e591f",
+  "birth-control-provenance.json": "0c70c8bed30ae465153181b4b1d1dc429c2408d055a448b16a4a6b67e46fc435",
+  "design-test-references.json": "4e896db9d437006a151094f3886ac85da16537f53fecd2ed37d14005ee3e61f4"
+}

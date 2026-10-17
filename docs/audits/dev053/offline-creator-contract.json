@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "source": "April23",
+      "signature_present": true,
+      "creator": "portal_creator",
+      "provider_calls": 0,
+      "result": "PASS_PORTAL_FASTPATH_NO_RPC"
+    },
+    {
+      "source": "April23",
+      "signature_present": false,
+      "creator": "portal_creator",
+      "provider_calls": 0,
+      "result": "PASS_PORTAL_FASTPATH_NO_RPC"
+    },
+    {
+      "source": "October8",
+      "signature_present": true,
+      "creator": "portal_creator",
+      "provider_calls": 0,
+      "result": "PASS_PORTAL_FASTPATH_NO_RPC"
+    },
+    {
+      "source": "October8",
+      "signature_present": false,
+      "creator": "portal_creator",
+      "provider_calls": 0,
+      "result": "PASS_PORTAL_FASTPATH_NO_RPC"
+    },
+    {
+      "source": "installed",
+      "signature_present": true,
+      "creator": "portal_creator",
+      "provider_calls": 0,
+      "result": "PASS_PORTAL_FASTPATH_NO_RPC"
+    },
+    {
+      "source": "installed",
+      "signature_present": false,
+      "creator": "portal_creator",
+      "provider_calls": 0,
+      "result": "PASS_PORTAL_FASTPATH_NO_RPC"
+    }
+  ],
+  "test_boundary": "Exact method bodies, inert connection and enqueue objects; no real DB/provider imports; missing-signature success is creator enrichment only, not Walkback eligibility"
+}

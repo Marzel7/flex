@@ -1,0 +1,117 @@
+{
+  "6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump": {
+    "core": {
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ],
+      "rows": [
+        {
+          "mint": "6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump",
+          "earliest_tx_creator": "B5mSYJei2rJS6Bf3xKpzYMF34srFkBkAVGHime5796xg",
+          "pf_ws_creator": "B5mSYJei2rJS6Bf3xKpzYMF34srFkBkAVGHime5796xg",
+          "create_tx_signature": "ZeQmFv68t683hz7zP2beq6GuxvMMzY89VaQzoobi4b5uSeFQG6z1TTzC6EdnkZVEAUJPJ1Lj1RzUmqNJkGPbeeU",
+          "created_at": "2026-10-08T17:23:23Z",
+          "first_pre_migration_signal_at": 1791480203,
+          "migration_signal_source": "birth",
+          "migration_slot": 454610488,
+          "creator_mismatch": 0,
+          "bonding_curve_pda": null
+        }
+      ]
+    },
+    "ledger": {
+      "plan": [
+        "SEARCH wt_create_event_ledger USING INDEX idx_wt_create_event_ledger_mint (mint=?)"
+      ],
+      "rows": []
+    },
+    "detected": {
+      "plan": [
+        "SEARCH wt_detected_creates USING INDEX sqlite_autoindex_wt_detected_creates_1 (mint=?)"
+      ],
+      "rows": [
+        {
+          "mint": "6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump",
+          "creator": "B5mSYJei2rJS6Bf3xKpzYMF34srFkBkAVGHime5796xg",
+          "signature": "ZeQmFv68t683hz7zP2beq6GuxvMMzY89VaQzoobi4b5uSeFQG6z1TTzC6EdnkZVEAUJPJ1Lj1RzUmqNJkGPbeeU",
+          "slot": null,
+          "created_at": 1791480358
+        }
+      ]
+    }
+  },
+  "E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump": {
+    "core": {
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ],
+      "rows": [
+        {
+          "mint": "E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump",
+          "earliest_tx_creator": "2HF8121mrLKsSiHh5RJqcaLJNRq5EL2nu5UcKqYyeYNg",
+          "pf_ws_creator": "2HF8121mrLKsSiHh5RJqcaLJNRq5EL2nu5UcKqYyeYNg",
+          "create_tx_signature": "PhyH2pCd4jGHkwPD9DTriECJEjwC1wWpZUNSoxkTdVMQbgfYwMk6ANGNbLqPbaqnHBx2TuLQMYJvRPA6HvVD7JV",
+          "created_at": "2026-10-10T12:26:42Z",
+          "first_pre_migration_signal_at": 1791635202,
+          "migration_signal_source": "birth",
+          "migration_slot": 455255139,
+          "creator_mismatch": 0,
+          "bonding_curve_pda": null
+        }
+      ]
+    },
+    "ledger": {
+      "plan": [
+        "SEARCH wt_create_event_ledger USING INDEX idx_wt_create_event_ledger_mint (mint=?)"
+      ],
+      "rows": []
+    },
+    "detected": {
+      "plan": [
+        "SEARCH wt_detected_creates USING INDEX sqlite_autoindex_wt_detected_creates_1 (mint=?)"
+      ],
+      "rows": [
+        {
+          "mint": "E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump",
+          "creator": "2HF8121mrLKsSiHh5RJqcaLJNRq5EL2nu5UcKqYyeYNg",
+          "signature": "PhyH2pCd4jGHkwPD9DTriECJEjwC1wWpZUNSoxkTdVMQbgfYwMk6ANGNbLqPbaqnHBx2TuLQMYJvRPA6HvVD7JV",
+          "slot": null,
+          "created_at": 1791635260
+        }
+      ]
+    }
+  },
+  "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump": {
+    "core": {
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ],
+      "rows": [
+        {
+          "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+          "earliest_tx_creator": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+          "pf_ws_creator": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+          "create_tx_signature": null,
+          "created_at": 1792195770.727993,
+          "first_pre_migration_signal_at": null,
+          "migration_signal_source": null,
+          "migration_slot": 457831907,
+          "creator_mismatch": 0,
+          "bonding_curve_pda": null
+        }
+      ]
+    },
+    "ledger": {
+      "plan": [
+        "SEARCH wt_create_event_ledger USING INDEX idx_wt_create_event_ledger_mint (mint=?)"
+      ],
+      "rows": []
+    },
+    "detected": {
+      "plan": [
+        "SEARCH wt_detected_creates USING INDEX sqlite_autoindex_wt_detected_creates_1 (mint=?)"
+      ],
+      "rows": []
+    }
+  }
+}

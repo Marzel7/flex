@@ -1,0 +1,44 @@
+import pathlib,json,hashlib,subprocess,ast,asyncio,typing,types,datetime,sqlite3,time,itertools,os
+R=pathlib.Path('/Users/kevinkeaveney/Dev/claude/flex-development/DEV053/source');E=R/'docs/audits/dev053';E.mkdir(parents=True,exist_ok=True);L=pathlib.Path('/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py');save=lambda n,d:(E/n).write_text(json.dumps(d,indent=2)+'\n');sha=lambda b:hashlib.sha256(b).hexdigest()
+def show(ref,p):return subprocess.check_output(['git','-C',str(R),'show',ref+':'+p])
+refs=['5fbd2bda','907b8e59','e68d9a89','064021bd'];sources={r:{'sha':subprocess.check_output(['git','-C',str(R),'rev-parse',r],text=True).strip(),'listener_sha256':sha(show(r,'src/core/pumpfun_curve_listener.py'))} for r in refs};sources['installed_listener']={'path':str(L),'sha256':sha(L.read_bytes())};save('source-authority.json',sources)
+# Exact installed/historical async creator method with inert test-only DB boundary.
+checks=[]
+for ref,source in [('April23',show('5fbd2bda','src/core/pumpfun_curve_listener.py').decode()),('October8',show('064021bd','src/core/pumpfun_curve_listener.py').decode()),('installed',L.read_text())]:
+ tree=ast.parse(source);fn=next(n for n in ast.walk(tree) if isinstance(n,ast.AsyncFunctionDef) and n.name=='_ensure_pf_ws_creator')
+ for signature in ['birth_signature',None]:
+  calls=[]
+  class Conn:
+   def execute(self,*a):calls.append(a);return self
+   def cursor(self):return self
+   def fetchone(self):return (signature,None,None)
+   def commit(self):pass
+   def close(self):pass
+  def forbidden(*a,**k):raise AssertionError('Unexpected provider/analyzer path')
+  ns=dict(vars(typing));ns.update(asyncio=asyncio,datetime=datetime.datetime,DB_PATH='TEST_ONLY',db_connect=lambda *a,**k:Conn(),log_print=lambda *a,**k:None,PostMigrationAnalyzer=forbidden)
+  exec(compile(ast.Module(body=[fn],type_ignores=[]),'attributable_creator_method','exec'),ns)
+  async def enqueue(*a,**k):calls.append({'enqueue':k});return True
+  fake=types.SimpleNamespace(_portal_vsol={'mint':{'creator':'portal_creator'}},db_lock=asyncio.Lock(),_enqueue_creator_funding_job=enqueue)
+  value=asyncio.run(ns['_ensure_pf_ws_creator'](fake,'mint',reason='birth'));assert value=='portal_creator';assert any(isinstance(x,dict) and x['enqueue']['create_tx_signature']==signature for x in calls)
+  checks.append({'source':ref,'signature_present':signature is not None,'creator':'portal_creator','provider_calls':0,'result':'PASS_PORTAL_FASTPATH_NO_RPC'})
+save('offline-creator-contract.json',{'status':'PASS','checks':checks,'test_boundary':'Exact method bodies, inert connection and enqueue objects; no real DB/provider imports; missing-signature success is creator enrichment only, not Walkback eligibility'})
+# Read at most three small existing original frames, retain only field provenance + hashes.
+root=pathlib.Path('/Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/production/pumpportal_birth_evidence');frames=[]
+for e in itertools.islice(os.scandir(root),3):
+ if not e.is_file() or e.stat().st_size>100000:continue
+ b=pathlib.Path(e.path).read_bytes();d=json.loads(b);raw=d.get('raw_payload') or {};frames.append({'source_path':e.path,'source_sha256':sha(b),'raw_keys':sorted(raw),'txType':raw.get('txType'),'has_mint':bool(raw.get('mint')),'has_traderPublicKey':bool(raw.get('traderPublicKey')),'has_signature':bool(raw.get('signature')),'supplied_slot':raw.get('slot'),'supplied_timestamp':raw.get('timestamp'),'receive_utc_ns_locally_recorded':d.get('receive_utc_ns'),'parser_version':d.get('parser_version'),'scope':'Current retained sample, not historical control receipt; no raw payload copied'})
+save('retained-frame-contract.json',frames)
+mints=['6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump','E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump','BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump'];out={}
+for name,db,t,cols in [('core','flex_complete_database.db','token_analysis','mint,earliest_tx_creator,pf_ws_creator,create_tx_signature,created_at,first_pre_migration_signal_at,migration_signal_source,migration_slot,creator_mismatch,bonding_curve_pda'),('ledger','wt_ops_v2.db','wt_create_event_ledger','mint,signature,creator,source,slot,block_time'),('detected','flex_complete_database.db','wt_detected_creates','mint,creator,signature,slot,created_at')]:
+ c=sqlite3.connect('file:/Users/kevinkeaveney/Dev/claude/flex/database/'+db+'?mode=ro',uri=True);c.execute('pragma query_only=on');c.row_factory=sqlite3.Row
+ for mint in mints:
+  out.setdefault(mint,{})
+  sql='select '+cols+' from '+t+' where mint=? limit 3'
+  try:
+   plan=[r[3] for r in c.execute('explain query plan '+sql,(mint,))]
+   if not any('SEARCH' in p for p in plan):out[mint][name]={'status':'NOT_RUN_UNINDEXED','plan':plan};continue
+   deadline=time.monotonic()+1;c.set_progress_handler(lambda:int(time.monotonic()>deadline),1000);out[mint][name]={'plan':plan,'rows':[dict(r) for r in c.execute(sql,(mint,)).fetchmany(3)]}
+  except sqlite3.Error as x:out[mint][name]={'schema_error':str(x)}
+ c.close()
+save('birth-control-provenance.json',out)
+print(json.dumps({'offline_checks':len(checks),'sample_frames':len(frames),'provenance':out}))

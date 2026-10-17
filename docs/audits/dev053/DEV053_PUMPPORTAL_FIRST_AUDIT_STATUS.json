@@ -1,0 +1,101 @@
+{
+  "DEV053_PUMPPORTAL_FIRST_AUDIT_STATUS": "PUMPPORTAL_FIRST_CONTRACT_CONFIRMED for creator/birth ingestion; NO_PROVEN_CREATE_GATE_REGRESSION",
+  "ORIGINAL_DETECTION_ARCHITECTURE": {
+    "documented_and_executable": "5fbd2bda April23 source explicitly adds creator fast-path: PumpPortal traderPublicKey in memory/DB before analyzer retrieval. txType=create mint/signature/creator inserted together via _insert_bonding_curve_token; _ensure_pf_ws_creator returns existing or portal creator without RPC. PumpPortal birth-first is confirmed; not a rule that Walkback accepts creator-only evidence.",
+    "fallback_change": "907b8e597f7da6c436fbb832400d5f2a042c37f2 June22 gates inline missing-creator walks behind CREATOR_BACKFILL_ENABLED default0 to preserve migration critical path; commit explicitly delegates enrichment offline. This change predates Oct7-10.",
+    "later_Walkback": "e68d9a89 July26 introduces mandatory FULL_WALKBACK anchor gate in accumulated X64 work; parent lacks gate. f2ef9343 source contains anchored funding selection. April snapshot does not contain src/core/walkback_queue.py; do not conflate original birth-first architecture with later Walkback-specific entry rules.",
+    "design_evidence": "Preserved X64.7 audit/call graph documents creator/signature separation, missing-creator persistence race, disabled inline fallback and creator-independent ledger fix. Documented intent distinguished from deployed/loaded code.",
+    "runtime_limit": "October8 freeze064021bd is component/source manifest, not attestation of one deployed Walkback SHA; actual historical loaded Python and per-control branch trace not preserved."
+  },
+  "PUMPPORTAL_NEW_TOKEN_FIELDS": {
+    "direct_observed": [
+      "txType=create",
+      "mint",
+      "traderPublicKey",
+      "signature",
+      "bondingCurveKey",
+      "symbol",
+      "name",
+      "uri",
+      "marketCapSol",
+      "vSolInBondingCurve",
+      "vTokensInBondingCurve",
+      "initialBuy",
+      "solAmount",
+      "pool"
+    ],
+    "retained_original_frames": "Three bounded existing content-addressed frames inspected in canonical birth-evidence authority; only field names, file hashes and derived presence metadata retained. They are current samples, not historical control frames.",
+    "creator_role": "Parser treats traderPublicKey as creator for create events; frame alone does not independently decode Pump-specific Create/CreateV2 creator argument. Do not generalize trade/migration trader field to creator.",
+    "birth_time": "No timestamp or slot in inspected original create payloads; no universal claim every protocol version lacks optional fields.",
+    "local": [
+      "receive_utc_ns",
+      "receive_monotonic_ns",
+      "parser_utc_ns",
+      "received_at",
+      "portal cache ts",
+      "handler created_at via time.time()"
+    ],
+    "other_provider": [
+      "transaction blockTime and slot from fetched transaction when available",
+      "migration_slot is migration authority, not birth slot"
+    ],
+    "unavailable": "Original on-chain birth slot/time cannot be inferred from local receive time or migration slot."
+  },
+  "PUMPPORTAL_CREATOR_AUTHORITY": {
+    "accepted_existing_contract": "_handle_pumpportal_create_frame and original inline handler map traderPublicKey to creator; _insert_bonding_curve_token fills earliest_tx_creator and pf_ws_creator. Known creator bypasses verification fetch in _ensure_pf_ws_creator.",
+    "qualification_limit": "This is implemented feed authority, not independent Pump ABI proof. Missing/conflicting creator cannot be repaired by assigning fee payer or funding recipient.",
+    "precedence": "Birth INSERT uses existing-first COALESCE for earliest/pf/signature; later standalone resolution uses fill-empty guards. Existing inferred nonempty values are not automatically replaced by later birth. _update_token_entry_with_creator can explicitly update earliest creator; no universal immutable creator claim. No exact-token overwrite or precedence error demonstrated."
+  },
+  "BIRTH_TIMESTAMP_SLOT_AUTHORITY": "PumpPortal handler persists locally generated receive-time-like created_at and first_pre_migration_signal_at; no accepted slot-only cutoff path found. Transaction blockTime/slot is separate. Canonical created_at can also come from analyzer/provenance or minimal-entry fallback, so generic created_at alone does not establish on-chain birth timing.",
+  "CREATE_FALLBACK_PURPOSE": {
+    "original": "Recover missing creator from mint signature history when no usable birth creator. With known signature but no known creator, getTransaction -> strict CREATE validator -> existing creator inference. Can recover blockTime/curve/signature jointly.",
+    "primary_bypass": "April/Oct8/current method fixtures demonstrate portal creator can bypass RPC whether signature exists or not. Successful normal birth already carries signature for downstream cutoff.",
+    "current": "Inline fallback disabled by existing flag; separate creator_resolution_worker handles eligible missing creators. DEV051 correction installed there, not listener or Walkback. A terminal complete fallback creator with NULL signature is not automatically retried.",
+    "not_universal": "Not every known creator is reverified by transaction fetch. Not every creator-resolution result is a qualified CREATE anchor or Pump-specific creator proof."
+  },
+  "HISTORICAL_WALKBACK_GATE": {
+    "April23": "PumpPortal creator+birth signature -> creator enrichment no RPC; no Walkback queue module at that revision. Historical birth-first intent proven, not an accepted creator-only FULL_WALKBACK contract.",
+    "pre_Oct7_attributable_and_Oct8": "064021bd preserved source: known creator may come from birth/core/launch/migration sources; FULL_WALKBACK requires valid-shaped CREATE signature at enqueue. Signature may already be feed-supplied; no required RPC reacquisition. Funding cutoff before that signature. Final membership separate. Exact last loaded preOct7 runtime source is not attested.",
+    "gate_scope": "FULL_WALKBACK at queue entry, not every class; LINK_ONLY/partial classes retain different existing contracts. Canonical ledger can satisfy anchor with creatorNULL, creator lookup separate.",
+    "introduced": "e68d9a89 accumulated July26 source; not proven deployed introduction date; no postOct7 gate addition established."
+  },
+  "CURRENT_WALKBACK_GATE": "Same FULL_WALKBACK missing signature => waiting/WAITING_FOR_CREATE_ANCHOR. Local anchor reconciliation can source canonical ledger, queue, core/detected/funding authorities; safe recovery -> pending. _collect_signature_window uses before=CREATE for creator funding; no signature => latest bounded pages, not equivalent cutoff. Current installed hashes/runtime authority recorded, loaded bytes not independently inspected.",
+  "HISTORICAL_POSITIVE_CONTROLS": {
+    "mints": [
+      "6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump",
+      "E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump"
+    ],
+    "birth_source": "Both core rows retain migration_signal_source=birth and first_pre_migration_signal_at; exact original transport PumpPortal versus Helius/webhook/reconciler is NOT_PROVEN by that generic field. Both creator columns match, mismatch0.",
+    "CREATE": "Both canonical signatures match valid token_analysis-sourced queue anchors; canonical ledger lookup empty, which does not prove no birth receipt or no acquisition.",
+    "funding_cutoff": "Preserved/current executable passes queue/core CREATE signature as before cursor; both retained WSOL selected edges precede recorded birth time. No exact historical RPC payload trace claimed.",
+    "entry_traversal_admission": "Both FULL_WALKBACK complete with claims/start/end, attempts1, RPC12/9, two retained edge candidates, canonical Watchtower memberships. Distinct FundingAccount/fanout completeness not requalified.",
+    "acquisition_primary": "INSUFFICIENT_EVIDENCE to distinguish frame-supplied signature from independent RPC recovery per control. Retained signature alone cannot establish primary acquisition. No raw population scan/reacquisition used."
+  },
+  "PUMPPORTAL_TO_WALKBACK_PROPAGATION": {
+    "chain": "PumpPortal txType=create -> handler _insert_bonding_curve_token stores mint/creator/received-time/curve/signature -> ensure creator fast path -> migration core fast lookup -> funding handoff passes existing create_tx_signature -> enqueue_migration local lookup/explicit anchor -> FULL eligible -> before-signature traversal -> independent admission",
+    "persistence": "Birth persistence retries carry creator,created_at,curve,signature; current INSERT existing-first COALESCE preserves earlier nonnull fields and migrated lifecycle. Migration _update protects nonnull signature from NULL clobbering. No new blanket source-priority rule added.",
+    "recognized_historical_gap": "X64.7 documents creator-gated signature capture, creator-independent CREATE ledger correction and disabled fallback; evidence of acknowledged earlier coupling, not proof this token or Oct7 regression.",
+    "boundary_options": "Creator+birth signature: existing supported anchor, no separate fetch necessary just to supply cursor. Creator+verified birth slot alone: no accepted direct slot cutoff implemented. Strict fetched CREATE: supported recovery source, not exclusively primary. Local receipt timestamp: not equivalent. No other documented equivalent boundary qualified."
+  },
+  "FIRST_PROVEN_REGRESSION": {
+    "classification": "NO_FALLBACK_CONTRACT_REGRESSION_PROVEN; historical per-token source evidence incomplete",
+    "recent_mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump has no retained core birth signal, NULL signature, matching fallback-inferred earliest/pf27HF, generic created_at, migration_slot457831907. Current state consistent with missing birth evidence plus incomplete CREATE recovery; exact receipt loss/failure/precedence transition not established.",
+    "distinct_changes": "907b8e59 disabled inline fallback and e68d9a89 added gate historically, both beforeOct7. No proof these are newly regressed or improperly deployed now. DEV051 version/signature fixes do not establish exact-token previous retrieval attempt.",
+    "refinement_to_DEV052": "Mandatory CREATE signature does not mean mandatory CREATE RPC retrieval or primary creator inference. Feed-supplied birth signature can satisfy it. DEV052 temporal dependency remains valid."
+  },
+  "MINIMUM_SAFE_CORRECTION": "NONE qualified. Preserve PumpPortal-first birth creator+signature propagation and existing accepted Walkback temporal boundary. Do not require RPC fetch solely because birth creator already known, and do not remove signature gate. Any restoration requires retained proof of an actual dropped birth/signature or fallback handoff defect, its exact transition, and targeted tests; not a new two-stage architecture.",
+  "READY_FOR_IMPLEMENTATION": false,
+  "OFFLINE_TESTS": "6 PASS exact April/Oct8/installed creator method cases with/without stored signature, inert DB/enqueue boundary, analyzer construction forbidden. Initial fixture lacked historical cursor() API; fixed test boundary only.",
+  "DEV048_WORKFLOW": "Dedicated golden-parent DEV053; source completeness/isolation verification required after audit commit; documentation-only no full UI rerun required.",
+  "PROVIDER_CALLS": 0,
+  "CANONICAL_WRITES": 0,
+  "PRODUCTION_CHANGES": 0,
+  "RUNTIME_DEPLOYMENT_REQUIRED": false,
+  "RUNTIME_DEPLOYMENT_REASON": "Historical source/design/retained-evidence audit only; no runtime behavior changes",
+  "STORAGE_BOUNDS": {
+    "max_single_diagnostic_file_bytes": 2000000,
+    "raw_retention": false,
+    "runtime_growth_paths_added": 0
+  },
+  "NEXT_ACTION": "STOP \u2014 PumpPortal-first creator authority confirmed; no signature-free FULL_WALKBACK restoration justified. Preserve exact-token birth/fallback provenance gap; no implementation or deployment."
+}

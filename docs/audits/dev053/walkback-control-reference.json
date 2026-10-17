@@ -1,0 +1,354 @@
+{
+  "source": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV052/source/docs/audits/dev052/retained-controls.json",
+  "sha256": "99a7fa0c2124caa61843f52724728bfa7af74b8bdb5ad637c97ca5c4b77e1853",
+  "controls": {
+    "6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump": {
+      "wt_walkback_queue": {
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?)"
+        ],
+        "rows": [
+          {
+            "mint": "6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump",
+            "creator": "B5mSYJei2rJS6Bf3xKpzYMF34srFkBkAVGHime5796xg",
+            "subprov": "25hETX6m6CcQLRuSZ7DNP9PjqGXWfkm1PUMA6kg4KA1J",
+            "treasury": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+            "walkback_class": "FULL_WALKBACK",
+            "attribution_source": "unknown",
+            "status": "complete",
+            "rpc_used": 12,
+            "attempts": 1,
+            "last_error": null,
+            "enqueued_at": 1791480204,
+            "started_at": 1791480356,
+            "completed_at": 1791480358,
+            "updated_at": 1791480358,
+            "intelligence_outcome": "WATCHTOWER_CONFIRMED",
+            "funder_wallet": "25hETX6m6CcQLRuSZ7DNP9PjqGXWfkm1PUMA6kg4KA1J",
+            "funding_mechanism": "WSOL_WRAP_CLOSE",
+            "funder_amount_sol": 0.203039,
+            "funder_sig": "5oFYoLgyQWhihwmvQ3exjnEgpU7nWMrMHigdhGF6yucSPJv2zs3vp3Ze3aEHEGy4yyPW2qKcUoDWJmKPQdML2TEW",
+            "funder_slot": 454610484,
+            "funder_block_time": 1791480202,
+            "claimed_by": "walkback-73413",
+            "claimed_at": 1791480356,
+            "lease_expires_at": 1791480656,
+            "next_retry_at": null,
+            "path_state": "CLAIMED",
+            "termination_reason_json": null,
+            "create_anchor_signature": "ZeQmFv68t683hz7zP2beq6GuxvMMzY89VaQzoobi4b5uSeFQG6z1TTzC6EdnkZVEAUJPJ1Lj1RzUmqNJkGPbeeU",
+            "create_anchor_slot": null,
+            "create_anchor_block_time": null,
+            "create_anchor_source": "token_analysis",
+            "create_anchor_audit_state": "VALID",
+            "priority": 0,
+            "priority_reason": null,
+            "anchor_lookup_attempts": 0,
+            "last_anchor_lookup_at": null,
+            "anchor_recovered_at": null,
+            "anchor_recovery_source": null,
+            "anchor_lookup_state": null,
+            "infrastructure_retry_count": 0,
+            "last_infrastructure_error": null
+          }
+        ]
+      },
+      "operator_launch_membership": {
+        "plan": [
+          "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+        ],
+        "rows": [
+          {
+            "mint": "6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump",
+            "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+            "source_population_id": "walkback_watchtower_confirmed_projection_v1",
+            "assigned_at": 1791480358,
+            "event_id": "WATCHTOWER_CONFIRMED:6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump:1791480358"
+          }
+        ]
+      },
+      "wt_walkback_edge_candidates": {
+        "plan": [
+          "SEARCH wt_walkback_edge_candidates USING INDEX ix_wwec_mint_hop (mint=?)"
+        ],
+        "rows": [
+          {
+            "evidence_key": "6aca35fb7261bd1c22765c5908131a61afaafb56ecde90681a743d00a309d812",
+            "mint": "6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump",
+            "wallet": "B5mSYJei2rJS6Bf3xKpzYMF34srFkBkAVGHime5796xg",
+            "candidate_parent": "25hETX6m6CcQLRuSZ7DNP9PjqGXWfkm1PUMA6kg4KA1J",
+            "signature": "5oFYoLgyQWhihwmvQ3exjnEgpU7nWMrMHigdhGF6yucSPJv2zs3vp3Ze3aEHEGy4yyPW2qKcUoDWJmKPQdML2TEW",
+            "block_time": 1791480202,
+            "amount_lamports": 203039000,
+            "mechanism": "WSOL_WRAP_CLOSE",
+            "instruction_index": -1,
+            "inner_instruction_index": -1,
+            "pre_balance": null,
+            "post_balance": null,
+            "net_balance_change": null,
+            "anchor_signature": "ZeQmFv68t683hz7zP2beq6GuxvMMzY89VaQzoobi4b5uSeFQG6z1TTzC6EdnkZVEAUJPJ1Lj1RzUmqNJkGPbeeU",
+            "anchor_block_time": null,
+            "hop_depth": 1,
+            "owner": "",
+            "close_authority": "",
+            "close_destination": "",
+            "temporary_account": "",
+            "evidence_strength": "TRANSACTION_DERIVED",
+            "selection_status": "SELECTED",
+            "rejection_reason": "",
+            "first_observed_at": 1791480356,
+            "last_observed_at": 1791480356,
+            "observation_count": 1
+          },
+          {
+            "evidence_key": "0b906d996fbfad4c66c8a313547e2c67f970089dd8ad33d238c09a6b9eac9d96",
+            "mint": "6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump",
+            "wallet": "25hETX6m6CcQLRuSZ7DNP9PjqGXWfkm1PUMA6kg4KA1J",
+            "candidate_parent": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+            "signature": "542ZhY1i7Tzbg6yHcqcBhAw78xYtHKcQyt1KSu8jVvGg1uVgAbpFTd1n2tbHVoeScg15r6z9xMDdejmPTsE2HBZm",
+            "block_time": 1791480114,
+            "amount_lamports": 660000000000,
+            "mechanism": "PLAIN_XFER",
+            "instruction_index": -1,
+            "inner_instruction_index": -1,
+            "pre_balance": null,
+            "post_balance": null,
+            "net_balance_change": null,
+            "anchor_signature": "5oFYoLgyQWhihwmvQ3exjnEgpU7nWMrMHigdhGF6yucSPJv2zs3vp3Ze3aEHEGy4yyPW2qKcUoDWJmKPQdML2TEW",
+            "anchor_block_time": null,
+            "hop_depth": 2,
+            "owner": "",
+            "close_authority": "",
+            "close_destination": "",
+            "temporary_account": "",
+            "evidence_strength": "TRANSACTION_DERIVED",
+            "selection_status": "SELECTED",
+            "rejection_reason": "",
+            "first_observed_at": 1791480357,
+            "last_observed_at": 1791480357,
+            "observation_count": 1
+          }
+        ]
+      },
+      "wt_walkback_transaction_roles": {
+        "plan": [
+          "SEARCH wt_walkback_transaction_roles USING INDEX ix_wwtr_mint (mint=?)"
+        ],
+        "rows": [
+          {
+            "evidence_key": "70d2f312eb65bcf48bf5c06f29ca0862856b03129a237d624171bd1919d95706",
+            "projection_version": "transaction-role-v1",
+            "mint": "6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump",
+            "signature": "542ZhY1i7Tzbg6yHcqcBhAw78xYtHKcQyt1KSu8jVvGg1uVgAbpFTd1n2tbHVoeScg15r6z9xMDdejmPTsE2HBZm",
+            "anchor_signature": "5oFYoLgyQWhihwmvQ3exjnEgpU7nWMrMHigdhGF6yucSPJv2zs3vp3Ze3aEHEGy4yyPW2qKcUoDWJmKPQdML2TEW",
+            "transfer_source": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+            "transfer_destination": "25hETX6m6CcQLRuSZ7DNP9PjqGXWfkm1PUMA6kg4KA1J",
+            "transfer_lamports": 660000000000,
+            "fee_payer": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+            "signers_json": "[\"GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac\"]",
+            "outer_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"ComputeBudget111111111111111111111111111111\",\"type\":null},{\"index\":1,\"parent_index\":1,\"program_id\":\"ComputeBudget111111111111111111111111111111\",\"type\":null},{\"index\":2,\"parent_index\":2,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"}]",
+            "inner_shape_json": "[]",
+            "route_semantics": "DIRECT",
+            "provenance_digest": "efe99015fb83a6097188ab5dc7421e7cc51d5637c54360b5b7c842e4e131a3c8",
+            "first_observed_at": 1791480357,
+            "last_observed_at": 1791480357,
+            "observation_count": 1
+          },
+          {
+            "evidence_key": "3eb636368cfb003cd4c411275b28285bb80d2fa7589b2a74770911655e1065e5",
+            "projection_version": "transaction-role-v1",
+            "mint": "6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump",
+            "signature": "5oFYoLgyQWhihwmvQ3exjnEgpU7nWMrMHigdhGF6yucSPJv2zs3vp3Ze3aEHEGy4yyPW2qKcUoDWJmKPQdML2TEW",
+            "anchor_signature": "ZeQmFv68t683hz7zP2beq6GuxvMMzY89VaQzoobi4b5uSeFQG6z1TTzC6EdnkZVEAUJPJ1Lj1RzUmqNJkGPbeeU",
+            "transfer_source": null,
+            "transfer_destination": null,
+            "transfer_lamports": null,
+            "fee_payer": "25hETX6m6CcQLRuSZ7DNP9PjqGXWfkm1PUMA6kg4KA1J",
+            "signers_json": "[\"25hETX6m6CcQLRuSZ7DNP9PjqGXWfkm1PUMA6kg4KA1J\",\"HJ5FrqwDRUYhHuciaAyrPmgBb9Zki5GRq3icknfN8AMv\"]",
+            "outer_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"createAccountWithSeed\"},{\"index\":1,\"parent_index\":1,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"initializeAccount\"},{\"index\":2,\"parent_index\":2,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"closeAccount\"}]",
+            "inner_shape_json": "[]",
+            "route_semantics": "AMBIGUOUS_OR_UNSUPPORTED",
+            "provenance_digest": "6c9fb5f3cdb69c19a07b0b09bee1b842ac8d85100331a20bf35a00e627aedf15",
+            "first_observed_at": 1791480356,
+            "last_observed_at": 1791480356,
+            "observation_count": 1
+          }
+        ]
+      }
+    },
+    "E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump": {
+      "wt_walkback_queue": {
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?)"
+        ],
+        "rows": [
+          {
+            "mint": "E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump",
+            "creator": "2HF8121mrLKsSiHh5RJqcaLJNRq5EL2nu5UcKqYyeYNg",
+            "subprov": "GgeisXDxQqE6sH6Su7eK68UDUQwQyDpuLoTA4FQTc8XL",
+            "treasury": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+            "walkback_class": "FULL_WALKBACK",
+            "attribution_source": "unknown",
+            "status": "complete",
+            "rpc_used": 9,
+            "attempts": 1,
+            "last_error": null,
+            "enqueued_at": 1791635203,
+            "started_at": 1791635258,
+            "completed_at": 1791635260,
+            "updated_at": 1791635260,
+            "intelligence_outcome": "WATCHTOWER_CONFIRMED",
+            "funder_wallet": "GgeisXDxQqE6sH6Su7eK68UDUQwQyDpuLoTA4FQTc8XL",
+            "funding_mechanism": "WSOL_WRAP_CLOSE",
+            "funder_amount_sol": 1.212099,
+            "funder_sig": "4Apv92Pbo5gmGqxU9o2NFRiNAUkTdbcKdFnPDXxErughDmGJ9e4uwbboqkf5fgG3YQ4S4ho4ViMStaRF4dbFLcLo",
+            "funder_slot": 455255135,
+            "funder_block_time": 1791635200,
+            "claimed_by": "walkback-73413",
+            "claimed_at": 1791635258,
+            "lease_expires_at": 1791635558,
+            "next_retry_at": null,
+            "path_state": "CLAIMED",
+            "termination_reason_json": null,
+            "create_anchor_signature": "PhyH2pCd4jGHkwPD9DTriECJEjwC1wWpZUNSoxkTdVMQbgfYwMk6ANGNbLqPbaqnHBx2TuLQMYJvRPA6HvVD7JV",
+            "create_anchor_slot": null,
+            "create_anchor_block_time": null,
+            "create_anchor_source": "token_analysis",
+            "create_anchor_audit_state": "VALID",
+            "priority": 0,
+            "priority_reason": null,
+            "anchor_lookup_attempts": 0,
+            "last_anchor_lookup_at": null,
+            "anchor_recovered_at": null,
+            "anchor_recovery_source": null,
+            "anchor_lookup_state": null,
+            "infrastructure_retry_count": 0,
+            "last_infrastructure_error": null
+          }
+        ]
+      },
+      "operator_launch_membership": {
+        "plan": [
+          "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+        ],
+        "rows": [
+          {
+            "mint": "E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump",
+            "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+            "source_population_id": "walkback_watchtower_confirmed_projection_v1",
+            "assigned_at": 1791635260,
+            "event_id": "WATCHTOWER_CONFIRMED:E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump:1791635260"
+          }
+        ]
+      },
+      "wt_walkback_edge_candidates": {
+        "plan": [
+          "SEARCH wt_walkback_edge_candidates USING INDEX ix_wwec_mint_hop (mint=?)"
+        ],
+        "rows": [
+          {
+            "evidence_key": "2b9f66975d5712a90c47507945e320dd5addb9f139541b58d840e5d5d108dd31",
+            "mint": "E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump",
+            "wallet": "2HF8121mrLKsSiHh5RJqcaLJNRq5EL2nu5UcKqYyeYNg",
+            "candidate_parent": "GgeisXDxQqE6sH6Su7eK68UDUQwQyDpuLoTA4FQTc8XL",
+            "signature": "4Apv92Pbo5gmGqxU9o2NFRiNAUkTdbcKdFnPDXxErughDmGJ9e4uwbboqkf5fgG3YQ4S4ho4ViMStaRF4dbFLcLo",
+            "block_time": 1791635200,
+            "amount_lamports": 1212099000,
+            "mechanism": "WSOL_WRAP_CLOSE",
+            "instruction_index": -1,
+            "inner_instruction_index": -1,
+            "pre_balance": null,
+            "post_balance": null,
+            "net_balance_change": null,
+            "anchor_signature": "PhyH2pCd4jGHkwPD9DTriECJEjwC1wWpZUNSoxkTdVMQbgfYwMk6ANGNbLqPbaqnHBx2TuLQMYJvRPA6HvVD7JV",
+            "anchor_block_time": null,
+            "hop_depth": 1,
+            "owner": "",
+            "close_authority": "",
+            "close_destination": "",
+            "temporary_account": "",
+            "evidence_strength": "TRANSACTION_DERIVED",
+            "selection_status": "SELECTED",
+            "rejection_reason": "",
+            "first_observed_at": 1791635259,
+            "last_observed_at": 1791635259,
+            "observation_count": 1
+          },
+          {
+            "evidence_key": "ed15db3bbb91b00a5cded238a40d2a6b0b4ab816438652131c80d9ff3ff9edf1",
+            "mint": "E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump",
+            "wallet": "GgeisXDxQqE6sH6Su7eK68UDUQwQyDpuLoTA4FQTc8XL",
+            "candidate_parent": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+            "signature": "3mecGebVg7GZL9YLmKXZ6ufTm5d32vFR9QPbNDycNvSE8v9VjwHw8QmkFDujuEFEaqXumf78GzC96JyQQHemN5yU",
+            "block_time": 1791634496,
+            "amount_lamports": 500000000000,
+            "mechanism": "WSOL_WRAP_CLOSE",
+            "instruction_index": -1,
+            "inner_instruction_index": -1,
+            "pre_balance": null,
+            "post_balance": null,
+            "net_balance_change": null,
+            "anchor_signature": "4Apv92Pbo5gmGqxU9o2NFRiNAUkTdbcKdFnPDXxErughDmGJ9e4uwbboqkf5fgG3YQ4S4ho4ViMStaRF4dbFLcLo",
+            "anchor_block_time": null,
+            "hop_depth": 2,
+            "owner": "",
+            "close_authority": "",
+            "close_destination": "",
+            "temporary_account": "",
+            "evidence_strength": "TRANSACTION_DERIVED",
+            "selection_status": "SELECTED",
+            "rejection_reason": "",
+            "first_observed_at": 1791635259,
+            "last_observed_at": 1791635259,
+            "observation_count": 1
+          }
+        ]
+      },
+      "wt_walkback_transaction_roles": {
+        "plan": [
+          "SEARCH wt_walkback_transaction_roles USING INDEX ix_wwtr_mint (mint=?)"
+        ],
+        "rows": [
+          {
+            "evidence_key": "bdcd8d651a417138d5177552cf64569a4dcbd083c13fa0855871eb44e87b1a62",
+            "projection_version": "transaction-role-v1",
+            "mint": "E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump",
+            "signature": "3mecGebVg7GZL9YLmKXZ6ufTm5d32vFR9QPbNDycNvSE8v9VjwHw8QmkFDujuEFEaqXumf78GzC96JyQQHemN5yU",
+            "anchor_signature": "4Apv92Pbo5gmGqxU9o2NFRiNAUkTdbcKdFnPDXxErughDmGJ9e4uwbboqkf5fgG3YQ4S4ho4ViMStaRF4dbFLcLo",
+            "transfer_source": null,
+            "transfer_destination": null,
+            "transfer_lamports": null,
+            "fee_payer": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+            "signers_json": "[\"GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr\",\"41TARyW9VxwP6C6R7whKrdgY7JNbnVFX1fjxHm9p1Bm5\"]",
+            "outer_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"createAccountWithSeed\"},{\"index\":1,\"parent_index\":1,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"initializeAccount\"},{\"index\":2,\"parent_index\":2,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"closeAccount\"}]",
+            "inner_shape_json": "[]",
+            "route_semantics": "AMBIGUOUS_OR_UNSUPPORTED",
+            "provenance_digest": "7430a3dbe37d2cd1570be55647d7d2d9554a8d5d38f8e0d8af02c17fec479ca3",
+            "first_observed_at": 1791635259,
+            "last_observed_at": 1791635259,
+            "observation_count": 1
+          },
+          {
+            "evidence_key": "8e593c540890cb8142bfde6f8d2bc1706df7fbc5fde2a0c142943cb1d44b618d",
+            "projection_version": "transaction-role-v1",
+            "mint": "E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump",
+            "signature": "4Apv92Pbo5gmGqxU9o2NFRiNAUkTdbcKdFnPDXxErughDmGJ9e4uwbboqkf5fgG3YQ4S4ho4ViMStaRF4dbFLcLo",
+            "anchor_signature": "PhyH2pCd4jGHkwPD9DTriECJEjwC1wWpZUNSoxkTdVMQbgfYwMk6ANGNbLqPbaqnHBx2TuLQMYJvRPA6HvVD7JV",
+            "transfer_source": null,
+            "transfer_destination": null,
+            "transfer_lamports": null,
+            "fee_payer": "GgeisXDxQqE6sH6Su7eK68UDUQwQyDpuLoTA4FQTc8XL",
+            "signers_json": "[\"GgeisXDxQqE6sH6Su7eK68UDUQwQyDpuLoTA4FQTc8XL\",\"DBbU8bjbzA7VdS6iVJqRcH3TEVysjdEvxvU17q4WEpwz\"]",
+            "outer_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"createAccountWithSeed\"},{\"index\":1,\"parent_index\":1,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"initializeAccount\"},{\"index\":2,\"parent_index\":2,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"closeAccount\"}]",
+            "inner_shape_json": "[]",
+            "route_semantics": "AMBIGUOUS_OR_UNSUPPORTED",
+            "provenance_digest": "a7cb3ef411115985c9cabe15488934caa66ceea0a67df57b94a114da1f6f8cda",
+            "first_observed_at": 1791635259,
+            "last_observed_at": 1791635259,
+            "observation_count": 1
+          }
+        ]
+      }
+    }
+  }
+}

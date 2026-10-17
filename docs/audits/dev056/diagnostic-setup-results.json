@@ -1,0 +1,31 @@
+{
+  "runs": [
+    {
+      "state": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV056/state/bounded-access",
+      "log_sha256": "d14648f6bc1266fd87108a46d98fdd02ba192e335562d0eec6e4aed15dd5b0a2",
+      "outcome": "sqlite3.OperationalError: disk I/O error"
+    },
+    {
+      "state": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV056/state/bounded-access-compact",
+      "log_sha256": "5e41e45b61e61bf0a8dd0fc4c20e454505a6339bbd63f48467a09ba7c88900ff",
+      "outcome": "sqlite3.OperationalError: no such column: funding_mechanism"
+    },
+    {
+      "state": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV056/state/bounded-access-final",
+      "log_sha256": "8eea9343f910dd0e3a266b1dee75724a345a37208117134a725ed7c5f2cb3462",
+      "outcome": "sqlite3.OperationalError: no such column: funder_amount_sol"
+    },
+    {
+      "state": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV056/state/bounded-access-qualified-plans",
+      "log_sha256": "233137f599e8c953dbdcbd04cf967b5422629f808bf7f5e4b7663899f29718fd",
+      "outcome": "sqlite3.OperationalError: disk I/O error"
+    },
+    {
+      "state": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV056/state/bounded-access-memory-plans",
+      "log_sha256": "522b25f79c14435a636282aa4c1e455036865c0846a335cc94c1d153a66d15e1",
+      "outcome": "{\"status\": \"HOLD_INDEX_ACCESS\", \"results\": [{\"population\": 50000, \"query\": \"existing_oldest\", \"selected\": \"m00000\", \"elapsed_ms\": 0.209, \"vm_steps_approx\": 0, \"plan\": [\"SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=?)\"], \"fixtu"
+    }
+  ],
+  "first_full_and_compact_disk_fixture": "Stopped by unchanged DEV048 8MiB limit; no resource increase. Two partial-index fixture setup omissions corrected (funding_mechanism/funder_amount_sol). Final 1k/10k/50k comparison uses bounded in-memory relevant-column fixture, every existing index preserved.",
+  "no_durable_recovery_claim": true
+}

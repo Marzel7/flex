@@ -1,0 +1,204 @@
+{
+  "status": "HOLD_INDEX_ACCESS",
+  "results": [
+    {
+      "population": 1000,
+      "query": "existing_oldest",
+      "selected": "m00000",
+      "elapsed_ms": 0.076,
+      "vm_steps_approx": 0,
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=?)"
+      ],
+      "fixture_bytes": 0
+    },
+    {
+      "population": 1000,
+      "query": "least_recent_lookup",
+      "selected": "m00001",
+      "elapsed_ms": 0.689,
+      "vm_steps_approx": 13000,
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      "fixture_bytes": 0
+    },
+    {
+      "population": 1000,
+      "query": "fewest_lookup_attempts",
+      "selected": "m00001",
+      "elapsed_ms": 0.434,
+      "vm_steps_approx": 13000,
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      "fixture_bytes": 0
+    },
+    {
+      "population": 1000,
+      "query": "retry_due",
+      "selected": "m00000",
+      "elapsed_ms": 0.417,
+      "vm_steps_approx": 15000,
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      "fixture_bytes": 0
+    },
+    {
+      "population": 1000,
+      "query": "updated_order",
+      "selected": "m00000",
+      "elapsed_ms": 0.471,
+      "vm_steps_approx": 13000,
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      "fixture_bytes": 0
+    },
+    {
+      "population": 10000,
+      "query": "existing_oldest",
+      "selected": "m00000",
+      "elapsed_ms": 0.021,
+      "vm_steps_approx": 0,
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=?)"
+      ],
+      "fixture_bytes": 0
+    },
+    {
+      "population": 10000,
+      "query": "least_recent_lookup",
+      "selected": "m00001",
+      "elapsed_ms": 11.532,
+      "vm_steps_approx": 130000,
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      "fixture_bytes": 0
+    },
+    {
+      "population": 10000,
+      "query": "fewest_lookup_attempts",
+      "selected": "m00001",
+      "elapsed_ms": 19.197,
+      "vm_steps_approx": 130000,
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      "fixture_bytes": 0
+    },
+    {
+      "population": 10000,
+      "query": "retry_due",
+      "selected": "m00000",
+      "elapsed_ms": 18.936,
+      "vm_steps_approx": 150000,
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      "fixture_bytes": 0
+    },
+    {
+      "population": 10000,
+      "query": "updated_order",
+      "selected": "m00000",
+      "elapsed_ms": 52.155,
+      "vm_steps_approx": 130000,
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      "fixture_bytes": 0
+    },
+    {
+      "population": 50000,
+      "query": "existing_oldest",
+      "selected": "m00000",
+      "elapsed_ms": 0.209,
+      "vm_steps_approx": 0,
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=?)"
+      ],
+      "fixture_bytes": 0
+    },
+    {
+      "population": 50000,
+      "query": "least_recent_lookup",
+      "selected": "m00001",
+      "elapsed_ms": 23.777,
+      "vm_steps_approx": 650000,
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      "fixture_bytes": 0
+    },
+    {
+      "population": 50000,
+      "query": "fewest_lookup_attempts",
+      "selected": "m00001",
+      "elapsed_ms": 35.205,
+      "vm_steps_approx": 650000,
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      "fixture_bytes": 0
+    },
+    {
+      "population": 50000,
+      "query": "retry_due",
+      "selected": "m00000",
+      "elapsed_ms": 60.664,
+      "vm_steps_approx": 750000,
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      "fixture_bytes": 0
+    },
+    {
+      "population": 50000,
+      "query": "updated_order",
+      "selected": "m00000",
+      "elapsed_ms": 31.789,
+      "vm_steps_approx": 650000,
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      "fixture_bytes": 0
+    }
+  ],
+  "storage_max_bytes": 0,
+  "provider_calls": 0,
+  "canonical_writes": 0,
+  "sources": {
+    "src/ops/anchor_reconciliation.py": {
+      "path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/anchor_reconciliation.py",
+      "sha256": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7"
+    },
+    "src/core/walkback_worker.py": {
+      "path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py",
+      "sha256": "a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9"
+    },
+    "src/core/deep_walkback.py": {
+      "path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/deep_walkback.py",
+      "sha256": "9913a0db3e056a301b88e60308b00657e513c1fd8c14c7f3f21b0079739a468f"
+    },
+    "src/utils/db_locking.py": {
+      "path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/utils/db_locking.py",
+      "sha256": "ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89"
+    }
+  },
+  "fixture_scope": "Relevant column projection with exact affinities/PK and every existing index; unrelated unindexed columns omitted; synthetic missing-anchor waiting population; no canonical copy. No scheduling correction implemented."
+}

@@ -1,0 +1,33 @@
+import pathlib,sqlite3,json,time,hashlib,os
+R=pathlib.Path('/Users/kevinkeaveney/Dev/claude/flex-development/DEV056/source');E=R/'docs/audits/dev056';E.mkdir(parents=True,exist_ok=True);save=lambda n,d:(E/n).write_text(json.dumps(d,indent=2)+'\n')
+where="status='waiting' AND path_state='WAITING_FOR_CREATE_ANCHOR' AND (create_anchor_signature IS NULL OR create_anchor_audit_state='MISSING_OR_MALFORMED')"
+queries={'existing_oldest':f'SELECT mint FROM wt_walkback_queue WHERE {where} ORDER BY enqueued_at ASC LIMIT 1','least_recent_lookup':f'SELECT mint FROM wt_walkback_queue WHERE {where} ORDER BY last_anchor_lookup_at ASC,mint ASC LIMIT 1','fewest_lookup_attempts':f'SELECT mint FROM wt_walkback_queue WHERE {where} ORDER BY anchor_lookup_attempts ASC,enqueued_at ASC LIMIT 1','retry_due':f'SELECT mint FROM wt_walkback_queue WHERE {where} AND (next_retry_at IS NULL OR next_retry_at<=1) ORDER BY next_retry_at ASC,mint ASC LIMIT 1','updated_order':f'SELECT mint FROM wt_walkback_queue WHERE {where} ORDER BY updated_at ASC,mint ASC LIMIT 1'}
+c=sqlite3.connect('file:/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db?mode=ro',uri=True);c.execute('pragma query_only=on');columns=[dict(zip(['cid','name','type','notnull','default','pk'],r)) for r in c.execute('pragma table_info(wt_walkback_queue)')];indexes=[]
+for row in c.execute('pragma index_list(wt_walkback_queue)'):
+ indexes.append({'name':row[1],'unique':row[2],'columns':[r[2] for r in c.execute('pragma index_info('+row[1]+')')],'sql':c.execute('select sql from sqlite_master where name=?',(row[1],)).fetchone()[0]})
+canonical_plans={k:[r[3] for r in c.execute('explain query plan '+sql)] for k,sql in queries.items()};c.close();save('canonical-schema-plans.json',{'columns':columns,'indexes':indexes,'query_plans':canonical_plans,'queries':queries,'canonical_execution':'EXPLAIN only; no candidate SELECT or writes'})
+# Compact relevant-column fixture; mirror every existing index exactly, no added access path.
+fixture=pathlib.Path(os.environ['DEV043_STATE_ROOT'])/'fixtures/fairness-access.sqlite';fixture.parent.mkdir(exist_ok=True)
+f=sqlite3.connect(':memory:');f.execute('pragma journal_mode=DELETE');f.execute('pragma temp_store=MEMORY');defs=[]
+needed={name for ix in indexes for name in ix['columns']} | {'mint','status','path_state','create_anchor_signature','create_anchor_audit_state','enqueued_at','anchor_lookup_attempts','last_anchor_lookup_at','next_retry_at','updated_at','priority','funding_mechanism','funder_amount_sol'}
+for col in columns:
+ if col['name'] not in needed:continue
+ decl='"'+col['name']+'" '+(col['type'] or '')
+ if col['pk']:decl+=' PRIMARY KEY'
+ defs.append(decl)
+f.execute('create table wt_walkback_queue('+','.join(defs)+')')
+for ix in indexes:
+ if ix['sql']:f.execute(ix['sql'])
+results=[]
+for population in [1000,10000,50000]:
+ f.execute('delete from wt_walkback_queue')
+ for start in range(0,population,500):
+  f.executemany("insert into wt_walkback_queue(mint,status,path_state,create_anchor_audit_state,enqueued_at,anchor_lookup_attempts,last_anchor_lookup_at,updated_at,priority) values(?,'waiting','WAITING_FOR_CREATE_ANCHOR','MISSING_OR_MALFORMED',?,?,?,?,?)",[(f'm{i:05}',i,75000 if i==0 else 0,100 if i==0 else None,i,0) for i in range(start,min(start+500,population))])
+ f.commit();assert 0<8000000
+ for name,sql in queries.items():
+  ticks=[0];f.set_progress_handler(lambda:ticks.__setitem__(0,ticks[0]+1) or 0,100);t=time.monotonic();row=f.execute(sql).fetchone();elapsed=time.monotonic()-t;f.set_progress_handler(None,0);plan=[r[3] for r in f.execute('explain query plan '+sql)];results.append({'population':population,'query':name,'selected':row[0] if row else None,'elapsed_ms':round(elapsed*1000,3),'vm_steps_approx':ticks[0]*100,'plan':plan,'fixture_bytes':0})
+assert all(any('TEMP B-TREE' in p for p in r['plan']) for r in results if r['query']!='existing_oldest')
+f.close();sources={}
+for rel in ['src/ops/anchor_reconciliation.py','src/core/walkback_worker.py','src/core/deep_walkback.py','src/utils/db_locking.py']:
+ p=pathlib.Path('/Users/kevinkeaveney/Production/flex-walkback-dev002')/rel;sources[rel]={'path':str(p),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}
+save('fixture-access-results.json',{'status':'HOLD_INDEX_ACCESS','results':results,'storage_max_bytes':0,'provider_calls':0,'canonical_writes':0,'sources':sources,'fixture_scope':'Relevant column projection with exact affinities/PK and every existing index; unrelated unindexed columns omitted; synthetic missing-anchor waiting population; no canonical copy. No scheduling correction implemented.'});print(json.dumps({'status':'HOLD_INDEX_ACCESS','results':results[-5:]}))

@@ -1,0 +1,424 @@
+{
+  "columns": [
+    {
+      "cid": 0,
+      "name": "mint",
+      "type": "TEXT",
+      "notnull": 1,
+      "default": null,
+      "pk": 1
+    },
+    {
+      "cid": 1,
+      "name": "creator",
+      "type": "TEXT",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 2,
+      "name": "subprov",
+      "type": "TEXT",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 3,
+      "name": "treasury",
+      "type": "TEXT",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 4,
+      "name": "walkback_class",
+      "type": "TEXT",
+      "notnull": 1,
+      "default": "'FULL_WALKBACK'",
+      "pk": 0
+    },
+    {
+      "cid": 5,
+      "name": "attribution_source",
+      "type": "TEXT",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 6,
+      "name": "status",
+      "type": "TEXT",
+      "notnull": 1,
+      "default": "'pending'",
+      "pk": 0
+    },
+    {
+      "cid": 7,
+      "name": "rpc_used",
+      "type": "INTEGER",
+      "notnull": 1,
+      "default": "0",
+      "pk": 0
+    },
+    {
+      "cid": 8,
+      "name": "attempts",
+      "type": "INTEGER",
+      "notnull": 1,
+      "default": "0",
+      "pk": 0
+    },
+    {
+      "cid": 9,
+      "name": "last_error",
+      "type": "TEXT",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 10,
+      "name": "enqueued_at",
+      "type": "INTEGER",
+      "notnull": 1,
+      "default": "strftime('%s','now')",
+      "pk": 0
+    },
+    {
+      "cid": 11,
+      "name": "started_at",
+      "type": "INTEGER",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 12,
+      "name": "completed_at",
+      "type": "INTEGER",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 13,
+      "name": "updated_at",
+      "type": "INTEGER",
+      "notnull": 1,
+      "default": "strftime('%s','now')",
+      "pk": 0
+    },
+    {
+      "cid": 14,
+      "name": "intelligence_outcome",
+      "type": "TEXT",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 15,
+      "name": "funder_wallet",
+      "type": "TEXT",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 16,
+      "name": "funding_mechanism",
+      "type": "TEXT",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 17,
+      "name": "funder_amount_sol",
+      "type": "REAL",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 18,
+      "name": "funder_sig",
+      "type": "TEXT",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 19,
+      "name": "funder_slot",
+      "type": "INTEGER",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 20,
+      "name": "funder_block_time",
+      "type": "INTEGER",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 21,
+      "name": "claimed_by",
+      "type": "TEXT",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 22,
+      "name": "claimed_at",
+      "type": "INTEGER",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 23,
+      "name": "lease_expires_at",
+      "type": "INTEGER",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 24,
+      "name": "next_retry_at",
+      "type": "INTEGER",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 25,
+      "name": "path_state",
+      "type": "TEXT",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 26,
+      "name": "termination_reason_json",
+      "type": "TEXT",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 27,
+      "name": "create_anchor_signature",
+      "type": "TEXT",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 28,
+      "name": "create_anchor_slot",
+      "type": "INTEGER",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 29,
+      "name": "create_anchor_block_time",
+      "type": "INTEGER",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 30,
+      "name": "create_anchor_source",
+      "type": "TEXT",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 31,
+      "name": "create_anchor_audit_state",
+      "type": "TEXT",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 32,
+      "name": "priority",
+      "type": "INTEGER",
+      "notnull": 1,
+      "default": "0",
+      "pk": 0
+    },
+    {
+      "cid": 33,
+      "name": "priority_reason",
+      "type": "TEXT",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 34,
+      "name": "anchor_lookup_attempts",
+      "type": "INTEGER",
+      "notnull": 1,
+      "default": "0",
+      "pk": 0
+    },
+    {
+      "cid": 35,
+      "name": "last_anchor_lookup_at",
+      "type": "INTEGER",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 36,
+      "name": "anchor_recovered_at",
+      "type": "INTEGER",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 37,
+      "name": "anchor_recovery_source",
+      "type": "TEXT",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 38,
+      "name": "anchor_lookup_state",
+      "type": "TEXT",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    },
+    {
+      "cid": 39,
+      "name": "infrastructure_retry_count",
+      "type": "INTEGER",
+      "notnull": 1,
+      "default": "0",
+      "pk": 0
+    },
+    {
+      "cid": 40,
+      "name": "last_infrastructure_error",
+      "type": "TEXT",
+      "notnull": 0,
+      "default": null,
+      "pk": 0
+    }
+  ],
+  "indexes": [
+    {
+      "name": "ix_wbq_deep_review_page",
+      "unique": 0,
+      "columns": [
+        "funder_block_time",
+        "mint"
+      ],
+      "sql": "CREATE INDEX ix_wbq_deep_review_page ON wt_walkback_queue(funder_block_time DESC,mint DESC) WHERE status='complete' AND intelligence_outcome='LINEAGE_GAP' AND funding_mechanism='WSOL_WRAP_CLOSE' AND funder_amount_sol>1.1120385 AND funder_amount_sol<1.1120395"
+    },
+    {
+      "name": "ix_wbq_priority",
+      "unique": 0,
+      "columns": [
+        "status",
+        "priority",
+        "enqueued_at"
+      ],
+      "sql": "CREATE INDEX ix_wbq_priority ON wt_walkback_queue(status, priority DESC, enqueued_at ASC)"
+    },
+    {
+      "name": "ix_wbq_funder",
+      "unique": 0,
+      "columns": [
+        "funder_wallet"
+      ],
+      "sql": "CREATE INDEX ix_wbq_funder\n            ON wt_walkback_queue(funder_wallet)"
+    },
+    {
+      "name": "ix_wbq_outcome",
+      "unique": 0,
+      "columns": [
+        "intelligence_outcome"
+      ],
+      "sql": "CREATE INDEX ix_wbq_outcome ON wt_walkback_queue(intelligence_outcome)"
+    },
+    {
+      "name": "ix_wbq_class",
+      "unique": 0,
+      "columns": [
+        "walkback_class",
+        "status"
+      ],
+      "sql": "CREATE INDEX ix_wbq_class\n            ON wt_walkback_queue(walkback_class, status)"
+    },
+    {
+      "name": "ix_wbq_status",
+      "unique": 0,
+      "columns": [
+        "status",
+        "enqueued_at"
+      ],
+      "sql": "CREATE INDEX ix_wbq_status\n            ON wt_walkback_queue(status, enqueued_at)"
+    },
+    {
+      "name": "sqlite_autoindex_wt_walkback_queue_1",
+      "unique": 1,
+      "columns": [
+        "mint"
+      ],
+      "sql": null
+    }
+  ],
+  "query_plans": {
+    "existing_oldest": [
+      "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=?)"
+    ],
+    "least_recent_lookup": [
+      "SEARCH wt_walkback_queue USING INDEX ix_wbq_priority (status=?)",
+      "USE TEMP B-TREE FOR ORDER BY"
+    ],
+    "fewest_lookup_attempts": [
+      "SEARCH wt_walkback_queue USING INDEX ix_wbq_priority (status=?)",
+      "USE TEMP B-TREE FOR ORDER BY"
+    ],
+    "retry_due": [
+      "SEARCH wt_walkback_queue USING INDEX ix_wbq_priority (status=?)",
+      "USE TEMP B-TREE FOR ORDER BY"
+    ],
+    "updated_order": [
+      "SEARCH wt_walkback_queue USING INDEX ix_wbq_priority (status=?)",
+      "USE TEMP B-TREE FOR ORDER BY"
+    ]
+  },
+  "queries": {
+    "existing_oldest": "SELECT mint FROM wt_walkback_queue WHERE status='waiting' AND path_state='WAITING_FOR_CREATE_ANCHOR' AND (create_anchor_signature IS NULL OR create_anchor_audit_state='MISSING_OR_MALFORMED') ORDER BY enqueued_at ASC LIMIT 1",
+    "least_recent_lookup": "SELECT mint FROM wt_walkback_queue WHERE status='waiting' AND path_state='WAITING_FOR_CREATE_ANCHOR' AND (create_anchor_signature IS NULL OR create_anchor_audit_state='MISSING_OR_MALFORMED') ORDER BY last_anchor_lookup_at ASC,mint ASC LIMIT 1",
+    "fewest_lookup_attempts": "SELECT mint FROM wt_walkback_queue WHERE status='waiting' AND path_state='WAITING_FOR_CREATE_ANCHOR' AND (create_anchor_signature IS NULL OR create_anchor_audit_state='MISSING_OR_MALFORMED') ORDER BY anchor_lookup_attempts ASC,enqueued_at ASC LIMIT 1",
+    "retry_due": "SELECT mint FROM wt_walkback_queue WHERE status='waiting' AND path_state='WAITING_FOR_CREATE_ANCHOR' AND (create_anchor_signature IS NULL OR create_anchor_audit_state='MISSING_OR_MALFORMED') AND (next_retry_at IS NULL OR next_retry_at<=1) ORDER BY next_retry_at ASC,mint ASC LIMIT 1",
+    "updated_order": "SELECT mint FROM wt_walkback_queue WHERE status='waiting' AND path_state='WAITING_FOR_CREATE_ANCHOR' AND (create_anchor_signature IS NULL OR create_anchor_audit_state='MISSING_OR_MALFORMED') ORDER BY updated_at ASC,mint ASC LIMIT 1"
+  },
+  "canonical_execution": "EXPLAIN only; no candidate SELECT or writes"
+}

@@ -19272,8 +19272,8 @@
     "branch": "codex/dev051",
     "git_head": "d41a1bc03ab38b51b18353a350c56e79d5f263dd",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T08:56:33.762778+00:00",
-    "working_tree": "DEV051 release PASS_QUALIFIED_NOT_DEPLOYED using separately qualified DEV048 archival classification. App unchanged; clean-checkout PASS; immutable candidate sealed; isolated API stopped."
+    "updated_at_utc": "2026-10-17T09:06:22.187959+00:00",
+    "working_tree": "DEV051 deployment readiness HOLD_VERSION1_DECODER: response signature mismatch not rejected. Qualified candidate unchanged; actual worker file overlay compatible; no deployment/provider/canonical/service changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -30964,5 +30964,35 @@
     "CREATE_LOGIC_CHANGES_THIS_TASK": 0,
     "causal_limit": "No exact-token recovery/creator proof or Watchtower-gap resolution claimed; no replay/admission/attribution/DEV049changes.",
     "next_action": "NONE \u2014 requested tooling and DEV051 release qualification complete; preserve sealed candidate. Controlled promotion requires separate explicit authorization."
+  },
+  "dev051_deployment_readiness": {
+    "verdict": "HOLD_VERSION1_DECODER",
+    "engineering_source_revision": "d41a1bc03ab38b51b18353a350c56e79d5f263dd",
+    "candidate_reference": "DEV051_CANDIDATE_d41a1bc03ab3",
+    "candidate_unchanged": true,
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV051/evidence/deployment-readiness/DEV051_DEPLOYMENT_READINESS_STATUS.json",
+    "report_sha256": "c4136aa2c55fef26c64557a023c81aaeb2f773631d41f19be8fa8ed66c4ea1aa",
+    "evidence_manifest": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV051/evidence/deployment-readiness/SHA256SUMS.json",
+    "current_runtime": "Supervisor creator_resolution_worker PID38416, observed cwd/installed root /Users/kevinkeaveney/Production/flex-main-workers, on-disk Git eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215; loaded Python bytes unverified.",
+    "current_analyzer_sha256": "b7a051d2b21a860215393e9815b66c8ab9f16c14a932595755a21286a92a9443",
+    "candidate_analyzer_sha256": "96d89ec3b8b00accd010008a89c520e598eafc3156addaf278e19c65cdcff3b8",
+    "source_compatibility": "One analyzer file, exactly3versionceilings+2tokenIDs; all remaining bytes/imports/logic identical to installed file. No DEV049 dependency.",
+    "readiness_blocker": "Explicit requested correct signature matching fails: mock response bearing a different valid transaction signature accepted by strict scan, which records requested signature without correlation. Version-independent latent decoder/provenance limitation, not established missed-token cause.",
+    "version_accounts": "jsonParsed legacy/v0/v1 and resolved lookupTable keys pass; raw compiled meta.loadedAddresses not merged, outside selected jsonParsed response shape. Pump creator argument remains unqualified without bytes.",
+    "exact_token_reachability": "Creator queue terminal complete attempts1, so not eligible for scan; Walkback waiting for CREATE anchor with zero rechecks/execution. ExactTX1 scan selection unproven; known oldest-first starvation separate; no requeue or recovery.",
+    "tests": "16supplemental guarded runtime-equivalent diagnostic assertions PASS (including confirmed NOT_REJECTED mismatch);guarddenials0;actualqueue resolver entry/candidate analyzer tested in owned fixture. Original26/29/8+browser+clean-restoration receipts/source hashes remain verified; new negative fails readiness contract, not retroactive claim previous scoped qualification failed.",
+    "credentials": "Existing HELIUS_API_KEY authority equals HELIUS_RPC_URL key; no monitor override or dotenv file in target. No credentials retained, no BIRDEYE substitution or calls. Budgets/retries/timeouts/concurrency source-identical.",
+    "rollback_readiness": "Exact installed analyzer preimage preserved with hash/timestamps; Supervisor config referenced by path/hash without copying secrets. Conditional one-file plan and restart-only-creator_resolution_worker instructions prepared, never executed.",
+    "READY_FOR_TARGETED_DEPLOYMENT": false,
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "activation_state": "READ_ONLY_READINESS_AUDIT_NO_DEPLOYMENT",
+    "PROVIDER_CALLS": 0,
+    "CANONICAL_WRITES": 0,
+    "SHARED_QUEUE_WRITES": 0,
+    "PRODUCTION_CHANGES": 0,
+    "PERSISTENT_DEV_CHANGES": 0,
+    "SERVICE_RESTARTS": 0,
+    "APPLICATION_SOURCE_CHANGES": 0,
+    "next_action": "STOP readiness qualification. Separately authorize minimal response-signature correlation correction and strict positive/negative regression in a new candidate; do not modify sealed d41a1bc0 or deploy. Exact-token eligibility/creator evidence and DEV049 starvation remain separate limitations."
   }
 }

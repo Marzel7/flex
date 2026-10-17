@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev066",
-    "git_head": "2614dd250e1c1450df2bb00cf8dbfb6676ba399e",
+    "branch": "codex/dev067",
+    "git_head": "bec80f64c1d4bc9d71c2759da5acf9abe0addf0f",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T16:43:23.688391+00:00",
-    "working_tree": "DEV066 authorized single CREATE read complete; Pump creator proven; no recovery or runtime changes."
+    "updated_at_utc": "2026-10-17T16:55:13.500677+00:00",
+    "working_tree": "DEV067 exact-mint read-only reconciliation qualification complete; HOLD accepted precedence and core/OPS recovery protocol; no implementation."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31588,5 +31588,35 @@
     "runtime_deployment_reason": "Evidence-only read/decoding, no application implementation.",
     "engineering_evidence_publication": "Compact audit committed locally; minimal handoff published.",
     "next_action": "STOP. Separately authorize qualification of canonical creator/terminal-state reconciliation against proven Pump creator before any anchor persistence or Walkback execution. No further provider read, implementation, recovery, requeue or deployment authorized."
+  },
+  "dev067_creator_authority_reconciliation": {
+    "status": "HOLD_EVIDENCE_PRECEDENCE_AND_CROSS_DATABASE_RECOVERY",
+    "engineering_source_sha": "bec80f64c1d4bc9d71c2759da5acf9abe0addf0f",
+    "baseline_sha": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "target": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+    "DEV066_authority": "2614dd250e1c1450df2bb00cf8dbfb6676ba399e committed derived evidence/hash manifests verified; no reacquisition. Serialized Pump creator7KX conflicts with four populated core creator fields holding27HF.",
+    "fallback_provenance": "Exact-mint retained log shows one page964 signatures,577 candidates,80 strict checks, no strictCREATE, maxpages1/proven_endFalse. First captured fallback signaturejBrN8W returned27HF via unique writable/remaining signer inference. Original fallback transaction keys absent from indexed caches; exact account role not independently proven. Resolver drops inferred_create status then completes and fills both token fields.",
+    "current_state": "CRQcomplete/attempt1; CFQ27HFcomplete/attempt1; coreCREATEsignatureNULL; OPSqueuecreatorNULL/waiting/WAITING_FOR_CREATE_ANCHOR with attempts0/anchorlookups0. Indexed ledger/launch/member/promotion/selected route rows absent. No birth-receipt absence claim from incomplete authorities.",
+    "blockers": [
+      "No accepted ranked creator supersession policy for serialized Pump argument versus conflicting birth/fallback/transaction evidence. Existing-first projections and nonnull ledger conflict guards do not implement such policy.",
+      "Existing creator writer preserves27HF even given stronger7KX result; hypothetical reopen splits core projections/job identity. Explicit listener writer only updates earliest and side-effect enqueues; not a safe reconciler.",
+      "Core andOPS are distinctWAL authorities; existing ledger/release helpers commit independently. Fixture demonstrates OPSanchor surviving rollback of pending core correction. Existing COMPLETE migration handoff is enqueue recovery, not creator supersession protocol."
+    ],
+    "verification": "DEV048 golden/source/dependency/isolation verify PASS and committed source-completeness PASS.19 installed-contract fixture characterizations PASS including reproduced blockers; no complete reconciliation qualification claimed. Indexed point reads capped4 rows/2seconds; unindexed optional authorities refused.",
+    "funding": "Preserve DEV051850SOL Gzaa\u2192Dd6 and WSOLclose to7KX now proven Pump creator. Hmc/temp7vHX/intermediateDd6 roles remain distinct. Complete SubProviderfanout, selectedFundingAccount and admission still unqualified; no attribution promotion.",
+    "report_local": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV067/source/docs/audits/dev067/DEV067_CREATOR_RECONCILIATION_STATUS.json",
+    "report_sha256": "72fdff829541d1b262b3b9b30e61bb3953ef1e0a3598f2a4c6b1f51cf0cd52ff",
+    "ready_for_exact_mint_reconciliation": false,
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "persistent_dev_changes": 0,
+    "application_changes": 0,
+    "shared_queue_writes": 0,
+    "replay_requeue": false,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only audit and disposable fixture characterization only.",
+    "engineering_evidence_publication": "Local compact audit commit; minimal handoff only published.",
+    "next_action": "STOP. Establish accepted exact-mint creator supersession authority and separately qualify crash-recoverable core/OPS publication before any implementation or canonical execution. No manual overwrite, CREATE insertion, terminal reset, requeue, Walkback, provider acquisition or deployment authorized."
   }
 }

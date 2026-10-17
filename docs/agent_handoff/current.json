@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev053",
-    "git_head": "5ded49ce6c0aa94154307c3a147b0167f21c6b89",
+    "branch": "codex/dev054",
+    "git_head": "15e3ea578c4388beb15ee0076ce56f6c6aea5608",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T13:13:33.361433+00:00",
-    "working_tree": "DEV053 audit complete; PumpPortal-first creator contract confirmed, no CREATE-gate regression proven; no runtime changes."
+    "updated_at_utc": "2026-10-17T13:20:15.723960+00:00",
+    "working_tree": "DEV054 audit complete PARTIAL; recent PumpPortal propagation confirmed, exact BWMM receipt boundary unresolved; no runtime changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31195,5 +31195,35 @@
     "canonical_writes": 0,
     "production_changes": 0,
     "next_action": "STOP \u2014 PumpPortal-first creator authority confirmed; no signature-free FULL_WALKBACK restoration justified. Preserve exact-token birth/fallback provenance gap; no implementation or deployment."
+  },
+  "dev054_pumpportal_birth_propagation": {
+    "status": "AUDIT_COMPLETE_PARTIAL: PUMPPORTAL_DELIVERY_CONFIRMED and sampled propagation PASS; exact BWMM receipt boundary unresolved",
+    "engineering_source_sha": "15e3ea578c4388beb15ee0076ce56f6c6aea5608",
+    "branch": "codex/dev054",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV054/source/docs/audits/dev054/DEV054_PUMPPORTAL_BIRTH_STATUS.json",
+    "report_sha256": "42f05881a2512594559fdfba7672a7ce62431a2206fb8f60e66d0f6ef53bf037",
+    "current_listener": {
+      "pid": 79274,
+      "births_enabled": 1,
+      "raw_helius_birth_ws_enabled": 0,
+      "birth_reconciler_enabled": 0,
+      "webhook_drainer_enabled": 1
+    },
+    "results": {
+      "delivery": "Confirmed continuing PumpPortal births; retained32original frame sample all3fields valid syntax32/32; not whole24h population",
+      "24h_counts": "UNKNOWN no indexed receipt-time authority; no unindexed count",
+      "propagation": "4recent migrated controls with PumpPortal birth log receipts/core evidence/COMPLETEhandoff/valid anchors,3executed; no sampled signature/creator drift or ignored anchor",
+      "BWMM": "Receipt/parser/persistence attempt unproven; exact knownsig webhookrowabsent; core lacksbirthsignal/signature; resolvercomplete withoutsignature; waitingWalkbackattempts0",
+      "failure": "CREATE_FALLBACK_GAP / TERMINAL_STATE_STRANDING; originating intake transition unresolved; no qualified Watchtower false-negative claim",
+      "rawWS": "Known Create/CreateV2+Buy ordering defect reproduced4fixtures; pathdisabledcurrently; no BWMMcausality proven"
+    },
+    "DEV048_verify": "PASS",
+    "ready_for_implementation": false,
+    "runtime_deployment_required": false,
+    "reason": "Audit only",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "next_action": "STOP \u2014 recent PumpPortal intake and anchor propagation confirmed on bounded controls; preserve exact-token receipt/persistence observability gap and terminal missing-anchor state. No implementation/replay/deployment."
   }
 }

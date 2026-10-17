@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev060",
-    "git_head": "6f71a1c79f227e6cdda23e704a0120f6a65efaf0",
+    "branch": "codex/dev061",
+    "git_head": "f3ae71d98c7fd9f17d6efbdefe1c5d75668e15ac",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T14:23:23.362139+00:00",
-    "working_tree": "DEV060 audit complete locally and published to configured origin/codex/dev060; remoteHEAD verified. No runtime changes."
+    "updated_at_utc": "2026-10-17T14:32:43.592599+00:00",
+    "working_tree": "DEV061 mechanism audit complete locally; eleven persistedplaintransferrejections supported, no validWSOLfalse-rejection proven; no runtimechanges."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31342,5 +31342,23 @@
       "force": false
     },
     "next_action": "STOP \u2014 DEV060 audit publication complete; audit findings remain PARTIAL, no implementation/deployment authorized."
+  },
+  "dev061_funding_mechanism_rejections": {
+    "status": "AUDIT_COMPLETE; persisted PLAIN_XFER rejections supported; original instruction completeness limited",
+    "engineering_source_sha": "f3ae71d98c7fd9f17d6efbdefe1c5d75668e15ac",
+    "branch": "codex/dev061",
+    "report_local": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV061/source/docs/audits/dev061/DEV061_WSOL_REJECTION_AUDIT_STATUS.json",
+    "report_sha256": "debe6ec71477002c6f02e45f65219ce7bf5052f8b4024d4fc4e72d06ede2e96d",
+    "summary": "All eleven DEV060 mechanism rejection identities available. Same selected funding signature/creator/CREATE anchor agrees across queue and normalized transaction-role evidence; all eleven PLAIN_XFER, no queueWSOL->admissionPLAIN mismatch. Strict admission rejects before membership. Four rejected transaction controls and two accepted historical controls inspected; twelve exact cache point lookups had no full original response. Four synthetic classifier tests confirm heuristic token references are not strict WSOL proof.",
+    "proven_false_rejections": "NONE_ESTABLISHED; original instruction/account arguments incomplete, not a global decoder certification",
+    "minimum_correction": "NONE qualified; preserve admission; known cached-label confirmation weakness remains separate",
+    "verification": "DEV048 source/ancestry/isolation verify PASS; exact indexed mint/signature reads only",
+    "runtime_deployment_required": false,
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "ready_for_implementation": false,
+    "engineering_evidence_publication": "Local committed audit; only required minimal material handoff published. No external evidence-branch push requested/executed in this task.",
+    "next_action": "STOP \u2014 audit complete; no implementation, provider acquisition, replay or deployment."
   }
 }

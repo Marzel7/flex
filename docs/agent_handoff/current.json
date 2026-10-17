@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev062",
-    "git_head": "3772aed06bdab2da049399f79dd123356c2141de",
+    "branch": "codex/dev063",
+    "git_head": "fe11b64935cb5de4d1274a392446116aa99f4b77",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T14:45:50.441095+00:00",
-    "working_tree": "DEV062 audit complete; shared F7selectedlegs and current exclusionbypass proven, historicalbranchtrace partial; no runtimechanges."
+    "updated_at_utc": "2026-10-17T14:53:50.206726+00:00",
+    "working_tree": "DEV063 HOLD before implementation: mandatory complete positive-control preservation evidence unavailable. No runtime changes or corrected candidate."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31379,5 +31379,27 @@
     "production_changes": 0,
     "engineering_evidence_publication": "Local committed audit only; required minimal handoff published, no evidence-branch push",
     "next_action": "STOP audit; no implementation/deployment. Separate authorization/qualification needed for proposed narrow guard; genuine detection recovery remains separate."
+  },
+  "dev063_confirmation_guard_qualification": {
+    "status": "HOLD_MANDATORY_POSITIVE_CONTROL_PRESERVATION_NOT_DEMONSTRABLE",
+    "engineering_source_sha": "fe11b64935cb5de4d1274a392446116aa99f4b77",
+    "branch": "codex/dev063",
+    "report_local": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV063/source/docs/audits/dev063/DEV063_CONFIRMATION_GUARD_STATUS.json",
+    "report_sha256": "99febb1fc688d5a9c1ed9631e0aacc41523656790bbf99cac0cc13b16890d716",
+    "scope": "Dedicated DEV048 golden-parent worktree; documentation-only stop before implementation",
+    "blocker": "Three admitted FULL_WALKBACK controls retain accepted memberships, CREATE anchors and normalized WSOL shapes but targeted creator-watch, selected mint FundingAccount, atomic flow and upstream fanout witness lookups returned no complete proof. Required mixed-route/full-fingerprint preservation cannot be demonstrated. No assumption original route invalid or never existed.",
+    "authority": "Golden worker differs from installed operational worker; exact hashes recorded. Common worker completion sink has attribution/materialization/promotion side effects; outcome-only substitution not qualified.",
+    "implementation": "NONE; current cache and registered-root bypasses remain open. No source behavior correction, candidate, freeze or deployment. DEV062 eleven observations preserved by hash.",
+    "verification": "Audit-only DEV048 verify PASS; corrected focused/Python/frontend/API/browser/cleancheckout gates NOT_RUN because user mandatory positive-control HOLD reached before code edits",
+    "candidate_source_sha": null,
+    "ready_for_deployment": false,
+    "runtime_deployment_required": false,
+    "reason": "Documentation-only safety gate decision",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "persistent_dev_changes": 0,
+    "engineering_evidence_publication": "Local audit commit only; required minimal handoff published",
+    "next_action": "HOLD \u2014 obtain existing complete selected FundingAccount/temporary WSOL/creator receipt/SubProvider fanout/root-role witnesses for three admitted FULL controls and mixed-route preservation, or separately authorize evidence acquisition. No implementation/deployment until mandatory evidence gate can pass."
   }
 }

@@ -1,0 +1,89 @@
+{
+  "sql": "SELECT from_wallet,to_wallet,source_mint,funding_mechanism,funding_tx_signature,funding_block_time,last_observed_by_flex,provenance FROM wt_provisioning_edges INDEXED BY ix_wpe_type_time WHERE edge_type=? AND last_observed_by_flex>=? ORDER BY last_observed_by_flex DESC LIMIT 8",
+  "plan": [
+    "SEARCH wt_provisioning_edges USING INDEX ix_wpe_type_time (edge_type=? AND last_observed_by_flex>?)"
+  ],
+  "rows": [
+    {
+      "from_wallet": "EYy1vtN2mbMShuRtqbG5AQnFjExU3CFwPKqyfiAQ3p9Z",
+      "to_wallet": "DSzFBwxB5bJJUTXbKs2fJwYTpXQM8ih2mRNCx243s8Rk",
+      "source_mint": "N9dw7WPRG4e7ewzZJWYaz2tHXE4emVZQovaauhTpump",
+      "funding_mechanism": "PLAIN_XFER",
+      "funding_tx_signature": "5oQYexpzNi4s7WDLJ1ZmztVenuVUQXRk5V3uFt6Sby7craEJtgFFNFVw2hX5sspN3ZKaz3kuNkciWGK8Sy3BtnFs",
+      "funding_block_time": 1792217681,
+      "last_observed_by_flex": 1792220104,
+      "provenance": "WALKBACK"
+    },
+    {
+      "from_wallet": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+      "to_wallet": "GjiRH5T3oEAJBFWUd8Cm6JQwnzvj7LWmEkowPKEPVkYx",
+      "source_mint": "ANZAxu6UUMCJC31cHZYi3KpNsDxqigsxjYqeM8ehpump",
+      "funding_mechanism": "PLAIN_XFER",
+      "funding_tx_signature": "x1yDkJnRsArkzE9cBbr4Sz2ys9yy6dNoPtpZuC5Ze2aGPd2abEKrgxmirJUnzEUJ5dnpvkc881odrH9Qq9fkrxS",
+      "funding_block_time": 1792218946,
+      "last_observed_by_flex": 1792219767,
+      "provenance": "WALKBACK"
+    },
+    {
+      "from_wallet": "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg",
+      "to_wallet": "D6AQvd8CBhz3V34uz45yafxA2Ph18otisobLJMXQMyvG",
+      "source_mint": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "funding_tx_signature": "2smf7pFTjJXP7CoipzTu7Q5nvQ9wMH2sY2iFY4LzMmXEBmi88mGdSmEe98K1rQAtzemGFuHkEJehKwQMJURrySwv",
+      "funding_block_time": 1792219577,
+      "last_observed_by_flex": 1792219649,
+      "provenance": "WALKBACK"
+    },
+    {
+      "from_wallet": "GPTeFnFGtsn9PgjNpccX6KCWbV6KKszpXY9jMmHWj3rE",
+      "to_wallet": "7V7Vq2FzzQiUHcC12NQJoxc8xpaJ4HfstvqdFc8cyEVz",
+      "source_mint": "sias1giexZzKSVFm1PxRKJJKgg85rhtRH5JW6Yhpump",
+      "funding_mechanism": "PLAIN_XFER",
+      "funding_tx_signature": "4qeAy2FMtf1YETC4JYbPgnqhNp8DeQveFhdKquLBieBoP1NKYNh3iJgCeJNgHh6YwiNt3bm2tH2jucPNEeGY6Zax",
+      "funding_block_time": 1792219004,
+      "last_observed_by_flex": 1792219041,
+      "provenance": "WALKBACK"
+    },
+    {
+      "from_wallet": "BmFdpraQhkiDQE6SnfG5omcA1VwzqfXrwtNYBwWTymy6",
+      "to_wallet": "56qaUEpTsoJv26mobCs8kAkz7eZ4zsxH2dzn6gC47zN6",
+      "source_mint": "H2hgzvq6Ws4ULUengxDbbTiGDHEzsrKDWPbSp7pGpump",
+      "funding_mechanism": "PLAIN_XFER",
+      "funding_tx_signature": "3nLK8hKVuq1ZkUzSbwS5e3mrRNpUPEnbpcwrLH3xPrGjTwLA521JrdpwZPjoozdym7JnZDAFTbz2e6tNDx6NBGKK",
+      "funding_block_time": 1792217735,
+      "last_observed_by_flex": 1792218728,
+      "provenance": "WALKBACK"
+    },
+    {
+      "from_wallet": "5tzFkiKscXHK5ZXCGbXZxdw7gTjjD1mBwuoFbhUvuAi9",
+      "to_wallet": "ESGZ8ngoNTt4jzkZwMW7iQgxReY8LvcpRMgYQjtt8t2g",
+      "source_mint": "J9bbUM7qerfbsmqdF515P99v4pcuyNkA4Cn4o3xcpump",
+      "funding_mechanism": "PLAIN_XFER",
+      "funding_tx_signature": "2H73xbHtT3mtWVwrWajhnmTcGravr9FfvcrtmRkCjEVYdmNexcyq73Hjo6MTrNno2X2nms3wu75Bh9RBb8zNLgq1",
+      "funding_block_time": 1792216880,
+      "last_observed_by_flex": 1792218541,
+      "provenance": "WALKBACK"
+    },
+    {
+      "from_wallet": "9Cqr9q1siMRPcH6Cts3uUxL1hsbERCVipHzjK592eFr9",
+      "to_wallet": "F6TTRLpkQLeNQD6WCEQ5EWaojKyag9N7h2P2CiTutmtW",
+      "source_mint": "2fq5NmJHKuL2tYBG52XRgwsiC5UQ7AnumJTop4BmnQqF",
+      "funding_mechanism": "PLAIN_XFER",
+      "funding_tx_signature": "4kzQBGmcFmBUN3AS7jR3avopT5CjPX6ecsHXQTXJnRMmZFRiG9vHwmihyjpcRVVn7GNM4MD83TfayaWZ4gAxobjx",
+      "funding_block_time": 1792218303,
+      "last_observed_by_flex": 1792218401,
+      "provenance": "WALKBACK"
+    },
+    {
+      "from_wallet": "BmFdpraQhkiDQE6SnfG5omcA1VwzqfXrwtNYBwWTymy6",
+      "to_wallet": "9hRQibwwTRCkwhn1kzvbt7n343Ffc3kiW6y8pfXVUqsM",
+      "source_mint": "535ve1pyXyxyRX7MGJca2QY6msTgATAmrQT9joKYpump",
+      "funding_mechanism": "PLAIN_XFER",
+      "funding_tx_signature": "3JD1mZQPQ4sRvyrUJbMompNFoUDovuh9prbYRyj5e7vRYKkJ8Nvg7YLwa1oNGpqv2gAy19yWJ3kLyiNpocvnsR1g",
+      "funding_block_time": 1792216264,
+      "last_observed_by_flex": 1792217849,
+      "provenance": "WALKBACK"
+    }
+  ],
+  "limit": "Eight retained role-edge projections; source_mint timestamp and proof still require checking; no membership or confirmed-label predicate."
+}

@@ -1,0 +1,187 @@
+{
+  "watchtower_listener": {
+    "supervisor_program": "watchtower_listener",
+    "pid": 79274,
+    "process": [
+      "79274 73409 python -u -m src.core.pumpfun_curve_listener"
+    ],
+    "configured_directory": "/Users/kevinkeaveney/Production/flex-listener",
+    "source_file": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py",
+    "source_sha256": "139c8fbcd69484b5bb30038e76445d7843892e2ce28a7157485d917bdfccdd39",
+    "git_head": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "loaded_python_bytes": "UNVERIFIED; no live injection/signalling",
+    "database_paths": {
+      "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+    },
+    "safe_budgets": {},
+    "observed_cwd": [
+      "/Users/kevinkeaveney/Production/flex-listener"
+    ],
+    "log_path": "/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/listener.log",
+    "bounded_log_metadata": {
+      "tail_bytes": 131072,
+      "not_exhaustive_history": true,
+      "known_token_matches": {
+        "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump": 0,
+        "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump": 0
+      },
+      "error_markers": {
+        "NestedDatabaseWriteError": 0,
+        "database is locked": 0,
+        "Traceback": 0,
+        "MISSING_OR_MALFORMED": 0,
+        "WAITING_FOR_CREATE_ANCHOR": 0,
+        "429": 1
+      },
+      "stage_markers": {
+        "MIGRATION_START": 17,
+        "Marked token migrated": 10,
+        "Stored migration": 10,
+        "complete": 0,
+        "completed": 0,
+        "resolved": 14
+      }
+    }
+  },
+  "walkback_worker": {
+    "supervisor_program": "walkback_worker",
+    "pid": 73413,
+    "process": [
+      "73413 73409 /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -m src.core.walkback_worker --loop"
+    ],
+    "configured_directory": "/Users/kevinkeaveney/Production/flex-walkback-dev002",
+    "source_file": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py",
+    "source_sha256": "a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9",
+    "git_head": "afbe9e58b11eb2e4d616246da123ce31ab45700c",
+    "loaded_python_bytes": "UNVERIFIED; no live injection/signalling",
+    "database_paths": {
+      "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+    },
+    "safe_budgets": {
+      "WALKBACK_BATCH_SIZE": "8",
+      "WALKBACK_INTERVAL_SEC": "45",
+      "WALKBACK_MAX_ATTEMPTS": "3",
+      "WALKBACK_RPC_BUDGET_BATCH": "80"
+    },
+    "observed_cwd": [
+      "/Users/kevinkeaveney/Production/flex-walkback-dev002"
+    ],
+    "log_path": "/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/walkback_worker.log",
+    "bounded_log_metadata": {
+      "tail_bytes": 131072,
+      "not_exhaustive_history": true,
+      "known_token_matches": {
+        "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump": 0,
+        "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump": 0
+      },
+      "error_markers": {
+        "NestedDatabaseWriteError": 0,
+        "database is locked": 0,
+        "Traceback": 0,
+        "MISSING_OR_MALFORMED": 0,
+        "WAITING_FOR_CREATE_ANCHOR": 0,
+        "429": 0
+      },
+      "stage_markers": {
+        "MIGRATION_START": 0,
+        "Marked token migrated": 0,
+        "Stored migration": 0,
+        "complete": 0,
+        "completed": 0,
+        "resolved": 0
+      }
+    }
+  },
+  "creator_resolution_worker": {
+    "supervisor_program": "creator_resolution_worker",
+    "pid": 38416,
+    "process": [
+      "38416 73409 /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -m src.core.creator_resolution_worker"
+    ],
+    "configured_directory": "/Users/kevinkeaveney/Production/flex-main-workers",
+    "source_file": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/creator_resolution_worker.py",
+    "source_sha256": "797350867ea10fdbef03933de033241ccd18bb0d137812aacac0e328ffa5fefb",
+    "git_head": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215",
+    "loaded_python_bytes": "UNVERIFIED; no live injection/signalling",
+    "database_paths": {
+      "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+    },
+    "safe_budgets": {},
+    "observed_cwd": [
+      "/Users/kevinkeaveney/Production/flex-main-workers"
+    ],
+    "log_path": "/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/creator_resolution_worker.log",
+    "bounded_log_metadata": {
+      "tail_bytes": 131072,
+      "not_exhaustive_history": true,
+      "known_token_matches": {
+        "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump": 0,
+        "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump": 0
+      },
+      "error_markers": {
+        "NestedDatabaseWriteError": 0,
+        "database is locked": 0,
+        "Traceback": 0,
+        "MISSING_OR_MALFORMED": 0,
+        "WAITING_FOR_CREATE_ANCHOR": 0,
+        "429": 0
+      },
+      "stage_markers": {
+        "MIGRATION_START": 0,
+        "Marked token migrated": 0,
+        "Stored migration": 0,
+        "complete": 0,
+        "completed": 0,
+        "resolved": 56
+      }
+    }
+  },
+  "creator_funding_worker": {
+    "supervisor_program": "creator_funding_worker",
+    "pid": 92703,
+    "process": [
+      "92703 73409 /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -m src.core.creator_funding_worker"
+    ],
+    "configured_directory": "/Users/kevinkeaveney/Production/flex-funding",
+    "source_file": "/Users/kevinkeaveney/Production/flex-funding/src/core/creator_funding_worker.py",
+    "source_sha256": "d29a6d0e6a8c4fba9dd7be465455e17140cbf0fb7deaa0a9fac7e1e868e1da35",
+    "git_head": "f10a56a01098755328f6d3b1eba9ba010412296d",
+    "loaded_python_bytes": "UNVERIFIED; no live injection/signalling",
+    "database_paths": {
+      "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+    },
+    "safe_budgets": {},
+    "observed_cwd": [
+      "/Users/kevinkeaveney/Production/flex-funding"
+    ],
+    "log_path": "/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/creator_funding_worker.log",
+    "bounded_log_metadata": {
+      "tail_bytes": 131072,
+      "not_exhaustive_history": true,
+      "known_token_matches": {
+        "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump": 0,
+        "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump": 0
+      },
+      "error_markers": {
+        "NestedDatabaseWriteError": 0,
+        "database is locked": 0,
+        "Traceback": 0,
+        "MISSING_OR_MALFORMED": 0,
+        "WAITING_FOR_CREATE_ANCHOR": 0,
+        "429": 4
+      },
+      "stage_markers": {
+        "MIGRATION_START": 0,
+        "Marked token migrated": 0,
+        "Stored migration": 0,
+        "complete": 44,
+        "completed": 0,
+        "resolved": 1
+      }
+    }
+  }
+}

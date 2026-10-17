@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "id": "DEV050",
+  "objective": "Identify first evidence-backed post-Oct10 Watchtower processing failure using retained candidate evidence",
+  "permitted_scope": "Read-only bounded token and operational-stage diagnosis; no implementation, providers, queues, canonical writes or DEV049 redesign",
+  "level": 1,
+  "baseline_sha": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+  "source": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV050/source",
+  "state": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV050/state",
+  "port": 8150,
+  "queue": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV050/state/monitor/queue",
+  "canonical_readonly": [
+    "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+    "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+    "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db"
+  ],
+  "providers": "DENIED",
+  "workers": 0,
+  "tool_sha256": "8577d4e5bcd654fbad7ec9fa862668842802a3c00911075359b56e45f9dec431",
+  "known_exclusions": [
+    "full Byzantine/Nexus historicaldetail",
+    "complete defaultPending results/serverSQL cancellation",
+    "MissingCREATE24hHealth",
+    "fullactivity/coverage and staleWatchtower snapshot totals",
+    "missingcurrentLIVE/acquisition and incompletepricehistory",
+    "DEV042worker/bridge reproducibility",
+    "DEV046 missingPotential Evolution/Leviathan projection,C357selection drift andnull latest0m defect",
+    "legacy/ops missingtemplate,Discoveryunavailable",
+    "funding-edge order-dependent overwrite unchanged"
+  ]
+}

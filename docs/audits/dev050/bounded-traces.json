@@ -1,0 +1,1822 @@
+{
+  "observed_utc": "2026-10-17T06:55:28.090325+00:00",
+  "authorities": {
+    "core": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+    "ops": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+  },
+  "policy": "mode=ro/query_only; no application imports; indexed point/range access only; <=1second progress budget per SQL; explicit rowcaps; no raw evidence/provider payloads",
+  "traces": {
+    "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump": {
+      "token_analysis": [],
+      "migration_walkback_handoff": [],
+      "creator_funding_queue": [],
+      "creator_resolution_queue": [],
+      "wt_detected_creates": [],
+      "birth_persist_queue": [],
+      "wt_walkback_queue": [],
+      "wt_create_event_ledger": [],
+      "wt_attribution_outcomes": [],
+      "wt_watchtower_promotion_outcomes": [],
+      "operator_launch_membership": [],
+      "wt_watchtower_launches": [],
+      "wt_walkback_edge_candidates": [],
+      "wt_funding_boundary": [],
+      "migration_receipt_limit": "Exact signature unknown; no unindexed mint_hint/mint scan of receipt queues.",
+      "creator_funders": [],
+      "funding_edges_to_creator": []
+    },
+    "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump": {
+      "token_analysis": [
+        {
+          "mint": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump",
+          "created_at": 1792134255.725657,
+          "pf_ws_creator": "HgeqtdwVZjW3MWWrPVuRn1mk3f9k1Fm1hA4ocKdTPtvm",
+          "earliest_tx_creator": "HgeqtdwVZjW3MWWrPVuRn1mk3f9k1Fm1hA4ocKdTPtvm",
+          "create_tx_signature": null,
+          "migration_tx": "5w5Vc6KfCPj1MfubnHUMsaWMVgCsvi48jQvGkvJHm9hj5d1837qtcpXDZNeCcUiDRuM3ZkP1jBQodJ8HRMUAHNEn",
+          "migrated_at": 1792134255,
+          "migration_slot": 457546188,
+          "lifecycle_stage": "migrated"
+        }
+      ],
+      "migration_walkback_handoff": [
+        {
+          "mint": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump",
+          "state": "COMPLETE",
+          "migration_tx": "5w5Vc6KfCPj1MfubnHUMsaWMVgCsvi48jQvGkvJHm9hj5d1837qtcpXDZNeCcUiDRuM3ZkP1jBQodJ8HRMUAHNEn",
+          "attempt_count": 0,
+          "last_error_class": null,
+          "created_at": 1792134259,
+          "completed_at": 1792134259
+        }
+      ],
+      "creator_funding_queue": [
+        {
+          "mint": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump",
+          "creator_address": "HgeqtdwVZjW3MWWrPVuRn1mk3f9k1Fm1hA4ocKdTPtvm",
+          "status": "complete",
+          "attempts": 2,
+          "create_tx_signature": null,
+          "last_error": null,
+          "created_at": 1792136556,
+          "next_attempt_at": 1792137156
+        }
+      ],
+      "creator_resolution_queue": [
+        {
+          "mint": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump",
+          "status": "complete",
+          "attempts": 1,
+          "resolved_creator": "HgeqtdwVZjW3MWWrPVuRn1mk3f9k1Fm1hA4ocKdTPtvm",
+          "create_tx_signature": null,
+          "resolution_tier": "GENERIC",
+          "resolved_at": 1792136556,
+          "last_error": null
+        }
+      ],
+      "wt_detected_creates": [],
+      "birth_persist_queue": [],
+      "wt_walkback_queue": [
+        {
+          "mint": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump",
+          "creator": null,
+          "subprov": null,
+          "treasury": null,
+          "status": "waiting",
+          "path_state": "WAITING_FOR_CREATE_ANCHOR",
+          "attempts": 0,
+          "rpc_used": 0,
+          "anchor_lookup_attempts": 0,
+          "last_anchor_lookup_at": null,
+          "create_anchor_signature": null,
+          "create_anchor_audit_state": "MISSING_OR_MALFORMED",
+          "enqueued_at": 1792134259,
+          "completed_at": null,
+          "next_retry_at": null,
+          "last_error": null,
+          "intelligence_outcome": null,
+          "funding_mechanism": null,
+          "funder_wallet": null,
+          "funder_sig": null,
+          "funder_block_time": null,
+          "funder_amount_sol": null
+        }
+      ],
+      "wt_create_event_ledger": [],
+      "wt_attribution_outcomes": [],
+      "wt_watchtower_promotion_outcomes": [],
+      "operator_launch_membership": [],
+      "wt_watchtower_launches": [],
+      "wt_walkback_edge_candidates": [],
+      "wt_funding_boundary": [],
+      "migration_inbox": [],
+      "migration_persist_queue": []
+    },
+    "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump": {
+      "token_analysis": [
+        {
+          "mint": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump",
+          "created_at": "2026-10-17T06:46:48Z",
+          "pf_ws_creator": "D6AQvd8CBhz3V34uz45yafxA2Ph18otisobLJMXQMyvG",
+          "earliest_tx_creator": "D6AQvd8CBhz3V34uz45yafxA2Ph18otisobLJMXQMyvG",
+          "create_tx_signature": "eX7ZveXHnbWjujbKhtTkBPoPLUvEfMPrRTLFqawwGhVwx572TgVaA298SQkxXiahkdfTTB8gGHQHnMC4iRE4zgi",
+          "migration_tx": "4fx573NVuiFTCjnE1uRutcjEMAPjDs8PYtYuJadgych9FfMENSBc5p1oGWFM8mKtC3fSMDCfTz3FeAKzcy91JKnj",
+          "migrated_at": 1792219608,
+          "migration_slot": 457942111,
+          "lifecycle_stage": "migrated"
+        }
+      ],
+      "migration_walkback_handoff": [
+        {
+          "mint": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump",
+          "state": "COMPLETE",
+          "migration_tx": "4fx573NVuiFTCjnE1uRutcjEMAPjDs8PYtYuJadgych9FfMENSBc5p1oGWFM8mKtC3fSMDCfTz3FeAKzcy91JKnj",
+          "attempt_count": 0,
+          "last_error_class": null,
+          "created_at": 1792219608,
+          "completed_at": 1792219619
+        }
+      ],
+      "creator_funding_queue": [
+        {
+          "mint": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump",
+          "creator_address": "D6AQvd8CBhz3V34uz45yafxA2Ph18otisobLJMXQMyvG",
+          "status": "complete",
+          "attempts": 1,
+          "create_tx_signature": "eX7ZveXHnbWjujbKhtTkBPoPLUvEfMPrRTLFqawwGhVwx572TgVaA298SQkxXiahkdfTTB8gGHQHnMC4iRE4zgi",
+          "last_error": null,
+          "created_at": 1792219608,
+          "next_attempt_at": 1792219608
+        }
+      ],
+      "creator_resolution_queue": [],
+      "wt_detected_creates": [],
+      "birth_persist_queue": [],
+      "wt_walkback_queue": [
+        {
+          "mint": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump",
+          "creator": "D6AQvd8CBhz3V34uz45yafxA2Ph18otisobLJMXQMyvG",
+          "subprov": "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg",
+          "treasury": null,
+          "status": "complete",
+          "path_state": "CLAIMED",
+          "attempts": 1,
+          "rpc_used": 7,
+          "anchor_lookup_attempts": 0,
+          "last_anchor_lookup_at": null,
+          "create_anchor_signature": "eX7ZveXHnbWjujbKhtTkBPoPLUvEfMPrRTLFqawwGhVwx572TgVaA298SQkxXiahkdfTTB8gGHQHnMC4iRE4zgi",
+          "create_anchor_audit_state": "VALID",
+          "enqueued_at": 1792219618,
+          "completed_at": 1792219649,
+          "next_retry_at": null,
+          "last_error": null,
+          "intelligence_outcome": "LINEAGE_GAP",
+          "funding_mechanism": "WSOL_WRAP_CLOSE",
+          "funder_wallet": "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg",
+          "funder_sig": "2smf7pFTjJXP7CoipzTu7Q5nvQ9wMH2sY2iFY4LzMmXEBmi88mGdSmEe98K1rQAtzemGFuHkEJehKwQMJURrySwv",
+          "funder_block_time": 1792219577,
+          "funder_amount_sol": 99.999985
+        }
+      ],
+      "wt_create_event_ledger": [],
+      "wt_attribution_outcomes": [
+        {
+          "mint": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump",
+          "outcome_type": "LINEAGE_GAP",
+          "stop_reason": "Walkback stopped at a lineage gap. Retry only when new evidence arrives.",
+          "terminal_entity": "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg",
+          "terminal_entity_type": "INFRASTRUCTURE",
+          "completed_at": 1792219649,
+          "should_retry": 1
+        }
+      ],
+      "wt_watchtower_promotion_outcomes": [],
+      "operator_launch_membership": [],
+      "wt_watchtower_launches": [],
+      "wt_walkback_edge_candidates": [
+        {
+          "mint": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump",
+          "wallet": "D6AQvd8CBhz3V34uz45yafxA2Ph18otisobLJMXQMyvG",
+          "candidate_parent": "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg",
+          "signature": "2smf7pFTjJXP7CoipzTu7Q5nvQ9wMH2sY2iFY4LzMmXEBmi88mGdSmEe98K1rQAtzemGFuHkEJehKwQMJURrySwv",
+          "block_time": 1792219577,
+          "mechanism": "WSOL_WRAP_CLOSE",
+          "hop_depth": 1,
+          "selection_status": "SELECTED",
+          "rejection_reason": "",
+          "owner": "",
+          "close_authority": "",
+          "close_destination": ""
+        },
+        {
+          "mint": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump",
+          "wallet": "D6AQvd8CBhz3V34uz45yafxA2Ph18otisobLJMXQMyvG",
+          "candidate_parent": "EXYwZs4K29FoFhww4969Xq46pKVVCD9BqZJgrKWi1FRc",
+          "signature": "58RptURNCRFP1D7EvCG6dff6JTTZ4wG69s4f92cWWBSUPFKcSjESjm2rth77Z17jUPnXpvnELDTdqBqRoVFhQKCj",
+          "block_time": 1792219568,
+          "mechanism": "PLAIN_XFER",
+          "hop_depth": 1,
+          "selection_status": "ALTERNATIVE",
+          "rejection_reason": "LOWER_RANKED_BUT_RETAINED",
+          "owner": "",
+          "close_authority": "",
+          "close_destination": ""
+        }
+      ],
+      "wt_funding_boundary": [],
+      "migration_inbox": [],
+      "migration_persist_queue": [],
+      "creator_funders": [
+        {
+          "creator_address": "D6AQvd8CBhz3V34uz45yafxA2Ph18otisobLJMXQMyvG",
+          "funder_address": "EXYwZs4K29FoFhww4969Xq46pKVVCD9BqZJgrKWi1FRc",
+          "amount_sol": 0.009995,
+          "source_type": "original_sender"
+        }
+      ],
+      "funding_edges_to_creator": [],
+      "funder_upstream": [],
+      "retained_fanout_sample": []
+    },
+    "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump": {
+      "token_analysis": [
+        {
+          "mint": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump",
+          "created_at": "2026-10-17T05:42:33Z",
+          "pf_ws_creator": "D5x5sVX3f3dFiVzGeHFnZCoavTtknzTr1jKkdorPgrcT",
+          "earliest_tx_creator": "D5x5sVX3f3dFiVzGeHFnZCoavTtknzTr1jKkdorPgrcT",
+          "create_tx_signature": "qZ66ckfCQC8AveRzUHs4YM2bJXvk1At4JpGq1cJELgDmWZRxjzCByyJLp7qAWbBd1Gkksmj9DujaPP4eoTrV921",
+          "migration_tx": "3F9Rwjep11wQL5cfF1LaKK62eZsv9zAjiJARfRAzZy4KDiRQAgpH3K7LqF3rpF4doYuKRJfQhQu5AYotuFcN4MTq",
+          "migrated_at": 1792215754,
+          "migration_slot": 457924271,
+          "lifecycle_stage": "migrated"
+        }
+      ],
+      "migration_walkback_handoff": [
+        {
+          "mint": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump",
+          "state": "COMPLETE",
+          "migration_tx": "3F9Rwjep11wQL5cfF1LaKK62eZsv9zAjiJARfRAzZy4KDiRQAgpH3K7LqF3rpF4doYuKRJfQhQu5AYotuFcN4MTq",
+          "attempt_count": 0,
+          "last_error_class": null,
+          "created_at": 1792215754,
+          "completed_at": 1792215763
+        }
+      ],
+      "creator_funding_queue": [
+        {
+          "mint": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump",
+          "creator_address": "D5x5sVX3f3dFiVzGeHFnZCoavTtknzTr1jKkdorPgrcT",
+          "status": "complete",
+          "attempts": 1,
+          "create_tx_signature": "qZ66ckfCQC8AveRzUHs4YM2bJXvk1At4JpGq1cJELgDmWZRxjzCByyJLp7qAWbBd1Gkksmj9DujaPP4eoTrV921",
+          "last_error": null,
+          "created_at": 1792215754,
+          "next_attempt_at": 1792215754
+        }
+      ],
+      "creator_resolution_queue": [],
+      "wt_detected_creates": [],
+      "birth_persist_queue": [],
+      "wt_walkback_queue": [
+        {
+          "mint": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump",
+          "creator": "D5x5sVX3f3dFiVzGeHFnZCoavTtknzTr1jKkdorPgrcT",
+          "subprov": "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg",
+          "treasury": null,
+          "status": "complete",
+          "path_state": "CLAIMED",
+          "attempts": 1,
+          "rpc_used": 7,
+          "anchor_lookup_attempts": 0,
+          "last_anchor_lookup_at": null,
+          "create_anchor_signature": "qZ66ckfCQC8AveRzUHs4YM2bJXvk1At4JpGq1cJELgDmWZRxjzCByyJLp7qAWbBd1Gkksmj9DujaPP4eoTrV921",
+          "create_anchor_audit_state": "VALID",
+          "enqueued_at": 1792215763,
+          "completed_at": 1792215800,
+          "next_retry_at": null,
+          "last_error": null,
+          "intelligence_outcome": "LINEAGE_GAP",
+          "funding_mechanism": "WSOL_WRAP_CLOSE",
+          "funder_wallet": "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg",
+          "funder_sig": "4ZujxhBNQAxpmCAjxbPYJyL5U2NSjcA7TNPCjEXTW4HoVC94LTU6hGukvsJZKai6wTmk73RhLffmw6zaHjXRTc2N",
+          "funder_block_time": 1792215728,
+          "funder_amount_sol": 99.999985
+        }
+      ],
+      "wt_create_event_ledger": [],
+      "wt_attribution_outcomes": [
+        {
+          "mint": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump",
+          "outcome_type": "LINEAGE_GAP",
+          "stop_reason": "Walkback stopped at a lineage gap. Retry only when new evidence arrives.",
+          "terminal_entity": "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg",
+          "terminal_entity_type": "INFRASTRUCTURE",
+          "completed_at": 1792215800,
+          "should_retry": 1
+        }
+      ],
+      "wt_watchtower_promotion_outcomes": [],
+      "operator_launch_membership": [],
+      "wt_watchtower_launches": [],
+      "wt_walkback_edge_candidates": [
+        {
+          "mint": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump",
+          "wallet": "D5x5sVX3f3dFiVzGeHFnZCoavTtknzTr1jKkdorPgrcT",
+          "candidate_parent": "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg",
+          "signature": "4ZujxhBNQAxpmCAjxbPYJyL5U2NSjcA7TNPCjEXTW4HoVC94LTU6hGukvsJZKai6wTmk73RhLffmw6zaHjXRTc2N",
+          "block_time": 1792215728,
+          "mechanism": "WSOL_WRAP_CLOSE",
+          "hop_depth": 1,
+          "selection_status": "SELECTED",
+          "rejection_reason": "",
+          "owner": "",
+          "close_authority": "",
+          "close_destination": ""
+        },
+        {
+          "mint": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump",
+          "wallet": "D5x5sVX3f3dFiVzGeHFnZCoavTtknzTr1jKkdorPgrcT",
+          "candidate_parent": "69Vzcb7ARia2muAyHK441kxpxbcEK2REg9yijfP3Cy9e",
+          "signature": "2eN9nPPDBXoJTtfa8VjFRB6RmsmFu3hGTGQ6du5iBPjgsVFETeSyn9wCysrgZT1EN5yNTgAUYwRyHBLdfL865ekE",
+          "block_time": 1792215720,
+          "mechanism": "PLAIN_XFER",
+          "hop_depth": 1,
+          "selection_status": "ALTERNATIVE",
+          "rejection_reason": "LOWER_RANKED_BUT_RETAINED",
+          "owner": "",
+          "close_authority": "",
+          "close_destination": ""
+        }
+      ],
+      "wt_funding_boundary": [],
+      "migration_inbox": [],
+      "migration_persist_queue": [],
+      "creator_funders": [
+        {
+          "creator_address": "D5x5sVX3f3dFiVzGeHFnZCoavTtknzTr1jKkdorPgrcT",
+          "funder_address": "69Vzcb7ARia2muAyHK441kxpxbcEK2REg9yijfP3Cy9e",
+          "amount_sol": 0.009995,
+          "source_type": "original_sender"
+        }
+      ],
+      "funding_edges_to_creator": [],
+      "funder_upstream": [],
+      "retained_fanout_sample": []
+    }
+  },
+  "last_watchtower_membership": [
+    {
+      "mint": "E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump",
+      "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+      "assigned_at": 1791635260,
+      "assigned_at_utc": "2026-10-10T12:27:40+00:00"
+    }
+  ],
+  "queries": [
+    {
+      "database": "core",
+      "label": "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump:token_analysis",
+      "sql": "SELECT mint,created_at,pf_ws_creator,earliest_tx_creator,create_tx_signature,migration_tx,migrated_at,migration_slot,lifecycle_stage FROM token_analysis WHERE mint=? LIMIT 5",
+      "parameters": [
+        "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 14.996749814599752
+    },
+    {
+      "database": "core",
+      "label": "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump:migration_walkback_handoff",
+      "sql": "SELECT mint,state,migration_tx,attempt_count,last_error_class,created_at,completed_at FROM migration_walkback_handoff WHERE mint=? LIMIT 5",
+      "parameters": [
+        "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH migration_walkback_handoff USING INDEX sqlite_autoindex_migration_walkback_handoff_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.4579171072691679
+    },
+    {
+      "database": "core",
+      "label": "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump:creator_funding_queue",
+      "sql": "SELECT mint,creator_address,status,attempts,create_tx_signature,last_error,created_at,next_attempt_at FROM creator_funding_queue WHERE mint=? LIMIT 5",
+      "parameters": [
+        "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH creator_funding_queue USING INDEX idx_creator_funding_queue_mint (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.38862484507262707
+    },
+    {
+      "database": "core",
+      "label": "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump:creator_resolution_queue",
+      "sql": "SELECT mint,status,attempts,resolved_creator,create_tx_signature,resolution_tier,resolved_at,last_error FROM creator_resolution_queue WHERE mint=? LIMIT 5",
+      "parameters": [
+        "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH creator_resolution_queue USING INDEX sqlite_autoindex_creator_resolution_queue_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.461542047560215
+    },
+    {
+      "database": "core",
+      "label": "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump:wt_detected_creates",
+      "sql": "SELECT mint,creator,slot,signature,detected_at FROM wt_detected_creates WHERE mint=? LIMIT 5",
+      "parameters": [
+        "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_detected_creates USING INDEX sqlite_autoindex_wt_detected_creates_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.16808300279080868
+    },
+    {
+      "database": "core",
+      "label": "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump:birth_persist_queue",
+      "sql": "SELECT mint,status,retry_count,create_tx_signature,last_error,received_at,processed_at FROM birth_persist_queue WHERE mint=? LIMIT 5",
+      "parameters": [
+        "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH birth_persist_queue USING INDEX sqlite_autoindex_birth_persist_queue_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.19787508063018322
+    },
+    {
+      "database": "ops",
+      "label": "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump:wt_walkback_queue",
+      "sql": "SELECT mint,creator,subprov,treasury,status,path_state,attempts,rpc_used,anchor_lookup_attempts,last_anchor_lookup_at,create_anchor_signature,create_anchor_audit_state,enqueued_at,completed_at,next_retry_at,last_error,intelligence_outcome,funding_mechanism,funder_wallet,funder_sig,funder_block_time,funder_amount_sol FROM wt_walkback_queue WHERE mint=? LIMIT 5",
+      "parameters": [
+        "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 4.43395902402699
+    },
+    {
+      "database": "ops",
+      "label": "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump:wt_create_event_ledger",
+      "sql": "SELECT mint,creator,signature,slot,block_time,source FROM wt_create_event_ledger WHERE mint=? LIMIT 5",
+      "parameters": [
+        "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_create_event_ledger USING INDEX idx_wt_create_event_ledger_mint (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.19979220815002918
+    },
+    {
+      "database": "ops",
+      "label": "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump:wt_attribution_outcomes",
+      "sql": "SELECT mint,outcome_type,stop_reason,terminal_entity,terminal_entity_type,completed_at,should_retry FROM wt_attribution_outcomes WHERE mint=? LIMIT 5",
+      "parameters": [
+        "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_attribution_outcomes USING INDEX sqlite_autoindex_wt_attribution_outcomes_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.7001659832894802
+    },
+    {
+      "database": "ops",
+      "label": "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump:wt_watchtower_promotion_outcomes",
+      "sql": "SELECT mint,outcome,first_rejection_reason,creator_match,treasury_role_match,subprov_match,funding_mechanism_match,funder_signature_present,last_attempted_at FROM wt_watchtower_promotion_outcomes WHERE mint=? LIMIT 5",
+      "parameters": [
+        "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_watchtower_promotion_outcomes USING INDEX ix_wt_promotion_outcomes_current (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.3334579523652792
+    },
+    {
+      "database": "ops",
+      "label": "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump:operator_launch_membership",
+      "sql": "SELECT mint,operator_id,assigned_at FROM operator_launch_membership WHERE mint=? LIMIT 5",
+      "parameters": [
+        "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.2745420206338167
+    },
+    {
+      "database": "ops",
+      "label": "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump:wt_watchtower_launches",
+      "sql": "SELECT mint,creator_wallet,create_signature,create_time,treasury_wallet,subprov_wallet,wrap_close_signature,fanout_count,recorded_at FROM wt_watchtower_launches WHERE mint=? LIMIT 5",
+      "parameters": [
+        "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_watchtower_launches USING INDEX ix_launches_mint (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.14483300037682056
+    },
+    {
+      "database": "ops",
+      "label": "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump:wt_walkback_edge_candidates",
+      "sql": "SELECT mint,wallet,candidate_parent,signature,block_time,mechanism,hop_depth,selection_status,rejection_reason,owner,close_authority,close_destination FROM wt_walkback_edge_candidates WHERE mint=? LIMIT 5",
+      "parameters": [
+        "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_walkback_edge_candidates USING INDEX ix_wwec_mint_hop (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.5433338228613138
+    },
+    {
+      "database": "ops",
+      "label": "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump:wt_funding_boundary",
+      "sql": "SELECT launch_mint,subject_wallet,boundary_status,boundary_type,boundary_wallet,boundary_signature,resolution_reason FROM wt_funding_boundary WHERE launch_mint=? LIMIT 5",
+      "parameters": [
+        "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_funding_boundary USING INDEX ix_funding_boundary_mint (launch_mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.26354100555181503
+    },
+    {
+      "database": "core",
+      "label": "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump:funders",
+      "sql": "SELECT creator_address,funder_address,amount_sol,source_type FROM creator_funders WHERE creator_address=? LIMIT 5",
+      "parameters": [
+        "HnDRRw1h8F2MhEFzC6yJej8HpyfiWnrwe8jmkgqErEAJ"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH creator_funders USING INDEX idx_creator_funders_creator (creator_address=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.5503341089934111
+    },
+    {
+      "database": "ops",
+      "label": "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump:incoming",
+      "sql": "SELECT from_wallet,to_wallet,signature,amount_sol,block_time,edge_type FROM wt_ops_v2_edges WHERE to_wallet=? LIMIT 5",
+      "parameters": [
+        "HnDRRw1h8F2MhEFzC6yJej8HpyfiWnrwe8jmkgqErEAJ"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_ops_v2_edges USING INDEX ix_ov2e_to (to_wallet=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.3974169958382845
+    },
+    {
+      "database": "core",
+      "label": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump:token_analysis",
+      "sql": "SELECT mint,created_at,pf_ws_creator,earliest_tx_creator,create_tx_signature,migration_tx,migrated_at,migration_slot,lifecycle_stage FROM token_analysis WHERE mint=? LIMIT 5",
+      "parameters": [
+        "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump",
+          "created_at": 1792134255.725657,
+          "pf_ws_creator": "HgeqtdwVZjW3MWWrPVuRn1mk3f9k1Fm1hA4ocKdTPtvm",
+          "earliest_tx_creator": "HgeqtdwVZjW3MWWrPVuRn1mk3f9k1Fm1hA4ocKdTPtvm",
+          "create_tx_signature": null,
+          "migration_tx": "5w5Vc6KfCPj1MfubnHUMsaWMVgCsvi48jQvGkvJHm9hj5d1837qtcpXDZNeCcUiDRuM3ZkP1jBQodJ8HRMUAHNEn",
+          "migrated_at": 1792134255,
+          "migration_slot": 457546188,
+          "lifecycle_stage": "migrated"
+        }
+      ],
+      "elapsed_ms": 0.817999942228198
+    },
+    {
+      "database": "core",
+      "label": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump:migration_walkback_handoff",
+      "sql": "SELECT mint,state,migration_tx,attempt_count,last_error_class,created_at,completed_at FROM migration_walkback_handoff WHERE mint=? LIMIT 5",
+      "parameters": [
+        "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH migration_walkback_handoff USING INDEX sqlite_autoindex_migration_walkback_handoff_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump",
+          "state": "COMPLETE",
+          "migration_tx": "5w5Vc6KfCPj1MfubnHUMsaWMVgCsvi48jQvGkvJHm9hj5d1837qtcpXDZNeCcUiDRuM3ZkP1jBQodJ8HRMUAHNEn",
+          "attempt_count": 0,
+          "last_error_class": null,
+          "created_at": 1792134259,
+          "completed_at": 1792134259
+        }
+      ],
+      "elapsed_ms": 0.5320420023053885
+    },
+    {
+      "database": "core",
+      "label": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump:creator_funding_queue",
+      "sql": "SELECT mint,creator_address,status,attempts,create_tx_signature,last_error,created_at,next_attempt_at FROM creator_funding_queue WHERE mint=? LIMIT 5",
+      "parameters": [
+        "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH creator_funding_queue USING INDEX idx_creator_funding_queue_mint (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump",
+          "creator_address": "HgeqtdwVZjW3MWWrPVuRn1mk3f9k1Fm1hA4ocKdTPtvm",
+          "status": "complete",
+          "attempts": 2,
+          "create_tx_signature": null,
+          "last_error": null,
+          "created_at": 1792136556,
+          "next_attempt_at": 1792137156
+        }
+      ],
+      "elapsed_ms": 0.7709581404924393
+    },
+    {
+      "database": "core",
+      "label": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump:creator_resolution_queue",
+      "sql": "SELECT mint,status,attempts,resolved_creator,create_tx_signature,resolution_tier,resolved_at,last_error FROM creator_resolution_queue WHERE mint=? LIMIT 5",
+      "parameters": [
+        "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH creator_resolution_queue USING INDEX sqlite_autoindex_creator_resolution_queue_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump",
+          "status": "complete",
+          "attempts": 1,
+          "resolved_creator": "HgeqtdwVZjW3MWWrPVuRn1mk3f9k1Fm1hA4ocKdTPtvm",
+          "create_tx_signature": null,
+          "resolution_tier": "GENERIC",
+          "resolved_at": 1792136556,
+          "last_error": null
+        }
+      ],
+      "elapsed_ms": 0.805665971711278
+    },
+    {
+      "database": "core",
+      "label": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump:wt_detected_creates",
+      "sql": "SELECT mint,creator,slot,signature,detected_at FROM wt_detected_creates WHERE mint=? LIMIT 5",
+      "parameters": [
+        "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_detected_creates USING INDEX sqlite_autoindex_wt_detected_creates_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.12137508019804955
+    },
+    {
+      "database": "core",
+      "label": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump:birth_persist_queue",
+      "sql": "SELECT mint,status,retry_count,create_tx_signature,last_error,received_at,processed_at FROM birth_persist_queue WHERE mint=? LIMIT 5",
+      "parameters": [
+        "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH birth_persist_queue USING INDEX sqlite_autoindex_birth_persist_queue_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.18149986863136292
+    },
+    {
+      "database": "ops",
+      "label": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump:wt_walkback_queue",
+      "sql": "SELECT mint,creator,subprov,treasury,status,path_state,attempts,rpc_used,anchor_lookup_attempts,last_anchor_lookup_at,create_anchor_signature,create_anchor_audit_state,enqueued_at,completed_at,next_retry_at,last_error,intelligence_outcome,funding_mechanism,funder_wallet,funder_sig,funder_block_time,funder_amount_sol FROM wt_walkback_queue WHERE mint=? LIMIT 5",
+      "parameters": [
+        "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump",
+          "creator": null,
+          "subprov": null,
+          "treasury": null,
+          "status": "waiting",
+          "path_state": "WAITING_FOR_CREATE_ANCHOR",
+          "attempts": 0,
+          "rpc_used": 0,
+          "anchor_lookup_attempts": 0,
+          "last_anchor_lookup_at": null,
+          "create_anchor_signature": null,
+          "create_anchor_audit_state": "MISSING_OR_MALFORMED",
+          "enqueued_at": 1792134259,
+          "completed_at": null,
+          "next_retry_at": null,
+          "last_error": null,
+          "intelligence_outcome": null,
+          "funding_mechanism": null,
+          "funder_wallet": null,
+          "funder_sig": null,
+          "funder_block_time": null,
+          "funder_amount_sol": null
+        }
+      ],
+      "elapsed_ms": 0.23287488147616386
+    },
+    {
+      "database": "ops",
+      "label": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump:wt_create_event_ledger",
+      "sql": "SELECT mint,creator,signature,slot,block_time,source FROM wt_create_event_ledger WHERE mint=? LIMIT 5",
+      "parameters": [
+        "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_create_event_ledger USING INDEX idx_wt_create_event_ledger_mint (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.006166985258460045
+    },
+    {
+      "database": "ops",
+      "label": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump:wt_attribution_outcomes",
+      "sql": "SELECT mint,outcome_type,stop_reason,terminal_entity,terminal_entity_type,completed_at,should_retry FROM wt_attribution_outcomes WHERE mint=? LIMIT 5",
+      "parameters": [
+        "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_attribution_outcomes USING INDEX sqlite_autoindex_wt_attribution_outcomes_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.29150000773370266
+    },
+    {
+      "database": "ops",
+      "label": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump:wt_watchtower_promotion_outcomes",
+      "sql": "SELECT mint,outcome,first_rejection_reason,creator_match,treasury_role_match,subprov_match,funding_mechanism_match,funder_signature_present,last_attempted_at FROM wt_watchtower_promotion_outcomes WHERE mint=? LIMIT 5",
+      "parameters": [
+        "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_watchtower_promotion_outcomes USING INDEX ix_wt_promotion_outcomes_current (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.008792150765657425
+    },
+    {
+      "database": "ops",
+      "label": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump:operator_launch_membership",
+      "sql": "SELECT mint,operator_id,assigned_at FROM operator_launch_membership WHERE mint=? LIMIT 5",
+      "parameters": [
+        "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.14575012028217316
+    },
+    {
+      "database": "ops",
+      "label": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump:wt_watchtower_launches",
+      "sql": "SELECT mint,creator_wallet,create_signature,create_time,treasury_wallet,subprov_wallet,wrap_close_signature,fanout_count,recorded_at FROM wt_watchtower_launches WHERE mint=? LIMIT 5",
+      "parameters": [
+        "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_watchtower_launches USING INDEX ix_launches_mint (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.3835421521216631
+    },
+    {
+      "database": "ops",
+      "label": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump:wt_walkback_edge_candidates",
+      "sql": "SELECT mint,wallet,candidate_parent,signature,block_time,mechanism,hop_depth,selection_status,rejection_reason,owner,close_authority,close_destination FROM wt_walkback_edge_candidates WHERE mint=? LIMIT 5",
+      "parameters": [
+        "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_walkback_edge_candidates USING INDEX ix_wwec_mint_hop (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.30145817436277866
+    },
+    {
+      "database": "ops",
+      "label": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump:wt_funding_boundary",
+      "sql": "SELECT launch_mint,subject_wallet,boundary_status,boundary_type,boundary_wallet,boundary_signature,resolution_reason FROM wt_funding_boundary WHERE launch_mint=? LIMIT 5",
+      "parameters": [
+        "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_funding_boundary USING INDEX ix_funding_boundary_mint (launch_mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.006707850843667984
+    },
+    {
+      "database": "core",
+      "label": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump:migration_inbox",
+      "sql": "SELECT signature,status,received_at,processed_at,attempts,last_error FROM migration_inbox WHERE signature=? LIMIT 2",
+      "parameters": [
+        "5w5Vc6KfCPj1MfubnHUMsaWMVgCsvi48jQvGkvJHm9hj5d1837qtcpXDZNeCcUiDRuM3ZkP1jBQodJ8HRMUAHNEn"
+      ],
+      "row_cap": 2,
+      "plan": [
+        "SEARCH migration_inbox USING INDEX sqlite_autoindex_migration_inbox_1 (signature=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.2240838948637247
+    },
+    {
+      "database": "core",
+      "label": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump:migration_persist_queue",
+      "sql": "SELECT signature,status,received_at,processed_at,retry_count,last_error FROM migration_persist_queue WHERE signature=? LIMIT 2",
+      "parameters": [
+        "5w5Vc6KfCPj1MfubnHUMsaWMVgCsvi48jQvGkvJHm9hj5d1837qtcpXDZNeCcUiDRuM3ZkP1jBQodJ8HRMUAHNEn"
+      ],
+      "row_cap": 2,
+      "plan": [
+        "SEARCH migration_persist_queue USING INDEX sqlite_autoindex_migration_persist_queue_1 (signature=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.25174999609589577
+    },
+    {
+      "database": "core",
+      "label": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump:token_analysis",
+      "sql": "SELECT mint,created_at,pf_ws_creator,earliest_tx_creator,create_tx_signature,migration_tx,migrated_at,migration_slot,lifecycle_stage FROM token_analysis WHERE mint=? LIMIT 5",
+      "parameters": [
+        "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump",
+          "created_at": "2026-10-17T06:46:48Z",
+          "pf_ws_creator": "D6AQvd8CBhz3V34uz45yafxA2Ph18otisobLJMXQMyvG",
+          "earliest_tx_creator": "D6AQvd8CBhz3V34uz45yafxA2Ph18otisobLJMXQMyvG",
+          "create_tx_signature": "eX7ZveXHnbWjujbKhtTkBPoPLUvEfMPrRTLFqawwGhVwx572TgVaA298SQkxXiahkdfTTB8gGHQHnMC4iRE4zgi",
+          "migration_tx": "4fx573NVuiFTCjnE1uRutcjEMAPjDs8PYtYuJadgych9FfMENSBc5p1oGWFM8mKtC3fSMDCfTz3FeAKzcy91JKnj",
+          "migrated_at": 1792219608,
+          "migration_slot": 457942111,
+          "lifecycle_stage": "migrated"
+        }
+      ],
+      "elapsed_ms": 0.7541249506175518
+    },
+    {
+      "database": "core",
+      "label": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump:migration_walkback_handoff",
+      "sql": "SELECT mint,state,migration_tx,attempt_count,last_error_class,created_at,completed_at FROM migration_walkback_handoff WHERE mint=? LIMIT 5",
+      "parameters": [
+        "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH migration_walkback_handoff USING INDEX sqlite_autoindex_migration_walkback_handoff_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump",
+          "state": "COMPLETE",
+          "migration_tx": "4fx573NVuiFTCjnE1uRutcjEMAPjDs8PYtYuJadgych9FfMENSBc5p1oGWFM8mKtC3fSMDCfTz3FeAKzcy91JKnj",
+          "attempt_count": 0,
+          "last_error_class": null,
+          "created_at": 1792219608,
+          "completed_at": 1792219619
+        }
+      ],
+      "elapsed_ms": 0.9875420946627855
+    },
+    {
+      "database": "core",
+      "label": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump:creator_funding_queue",
+      "sql": "SELECT mint,creator_address,status,attempts,create_tx_signature,last_error,created_at,next_attempt_at FROM creator_funding_queue WHERE mint=? LIMIT 5",
+      "parameters": [
+        "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH creator_funding_queue USING INDEX idx_creator_funding_queue_mint (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump",
+          "creator_address": "D6AQvd8CBhz3V34uz45yafxA2Ph18otisobLJMXQMyvG",
+          "status": "complete",
+          "attempts": 1,
+          "create_tx_signature": "eX7ZveXHnbWjujbKhtTkBPoPLUvEfMPrRTLFqawwGhVwx572TgVaA298SQkxXiahkdfTTB8gGHQHnMC4iRE4zgi",
+          "last_error": null,
+          "created_at": 1792219608,
+          "next_attempt_at": 1792219608
+        }
+      ],
+      "elapsed_ms": 1.0047911200672388
+    },
+    {
+      "database": "core",
+      "label": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump:creator_resolution_queue",
+      "sql": "SELECT mint,status,attempts,resolved_creator,create_tx_signature,resolution_tier,resolved_at,last_error FROM creator_resolution_queue WHERE mint=? LIMIT 5",
+      "parameters": [
+        "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH creator_resolution_queue USING INDEX sqlite_autoindex_creator_resolution_queue_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.2009579911828041
+    },
+    {
+      "database": "core",
+      "label": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump:wt_detected_creates",
+      "sql": "SELECT mint,creator,slot,signature,detected_at FROM wt_detected_creates WHERE mint=? LIMIT 5",
+      "parameters": [
+        "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_detected_creates USING INDEX sqlite_autoindex_wt_detected_creates_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.15433295629918575
+    },
+    {
+      "database": "core",
+      "label": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump:birth_persist_queue",
+      "sql": "SELECT mint,status,retry_count,create_tx_signature,last_error,received_at,processed_at FROM birth_persist_queue WHERE mint=? LIMIT 5",
+      "parameters": [
+        "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH birth_persist_queue USING INDEX sqlite_autoindex_birth_persist_queue_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.16312487423419952
+    },
+    {
+      "database": "ops",
+      "label": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump:wt_walkback_queue",
+      "sql": "SELECT mint,creator,subprov,treasury,status,path_state,attempts,rpc_used,anchor_lookup_attempts,last_anchor_lookup_at,create_anchor_signature,create_anchor_audit_state,enqueued_at,completed_at,next_retry_at,last_error,intelligence_outcome,funding_mechanism,funder_wallet,funder_sig,funder_block_time,funder_amount_sol FROM wt_walkback_queue WHERE mint=? LIMIT 5",
+      "parameters": [
+        "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump",
+          "creator": "D6AQvd8CBhz3V34uz45yafxA2Ph18otisobLJMXQMyvG",
+          "subprov": "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg",
+          "treasury": null,
+          "status": "complete",
+          "path_state": "CLAIMED",
+          "attempts": 1,
+          "rpc_used": 7,
+          "anchor_lookup_attempts": 0,
+          "last_anchor_lookup_at": null,
+          "create_anchor_signature": "eX7ZveXHnbWjujbKhtTkBPoPLUvEfMPrRTLFqawwGhVwx572TgVaA298SQkxXiahkdfTTB8gGHQHnMC4iRE4zgi",
+          "create_anchor_audit_state": "VALID",
+          "enqueued_at": 1792219618,
+          "completed_at": 1792219649,
+          "next_retry_at": null,
+          "last_error": null,
+          "intelligence_outcome": "LINEAGE_GAP",
+          "funding_mechanism": "WSOL_WRAP_CLOSE",
+          "funder_wallet": "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg",
+          "funder_sig": "2smf7pFTjJXP7CoipzTu7Q5nvQ9wMH2sY2iFY4LzMmXEBmi88mGdSmEe98K1rQAtzemGFuHkEJehKwQMJURrySwv",
+          "funder_block_time": 1792219577,
+          "funder_amount_sol": 99.999985
+        }
+      ],
+      "elapsed_ms": 0.5224579945206642
+    },
+    {
+      "database": "ops",
+      "label": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump:wt_create_event_ledger",
+      "sql": "SELECT mint,creator,signature,slot,block_time,source FROM wt_create_event_ledger WHERE mint=? LIMIT 5",
+      "parameters": [
+        "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_create_event_ledger USING INDEX idx_wt_create_event_ledger_mint (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.006208894774317741
+    },
+    {
+      "database": "ops",
+      "label": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump:wt_attribution_outcomes",
+      "sql": "SELECT mint,outcome_type,stop_reason,terminal_entity,terminal_entity_type,completed_at,should_retry FROM wt_attribution_outcomes WHERE mint=? LIMIT 5",
+      "parameters": [
+        "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_attribution_outcomes USING INDEX sqlite_autoindex_wt_attribution_outcomes_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump",
+          "outcome_type": "LINEAGE_GAP",
+          "stop_reason": "Walkback stopped at a lineage gap. Retry only when new evidence arrives.",
+          "terminal_entity": "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg",
+          "terminal_entity_type": "INFRASTRUCTURE",
+          "completed_at": 1792219649,
+          "should_retry": 1
+        }
+      ],
+      "elapsed_ms": 0.5873339250683784
+    },
+    {
+      "database": "ops",
+      "label": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump:wt_watchtower_promotion_outcomes",
+      "sql": "SELECT mint,outcome,first_rejection_reason,creator_match,treasury_role_match,subprov_match,funding_mechanism_match,funder_signature_present,last_attempted_at FROM wt_watchtower_promotion_outcomes WHERE mint=? LIMIT 5",
+      "parameters": [
+        "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_watchtower_promotion_outcomes USING INDEX ix_wt_promotion_outcomes_current (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.12658280320465565
+    },
+    {
+      "database": "ops",
+      "label": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump:operator_launch_membership",
+      "sql": "SELECT mint,operator_id,assigned_at FROM operator_launch_membership WHERE mint=? LIMIT 5",
+      "parameters": [
+        "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.222416827455163
+    },
+    {
+      "database": "ops",
+      "label": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump:wt_watchtower_launches",
+      "sql": "SELECT mint,creator_wallet,create_signature,create_time,treasury_wallet,subprov_wallet,wrap_close_signature,fanout_count,recorded_at FROM wt_watchtower_launches WHERE mint=? LIMIT 5",
+      "parameters": [
+        "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_watchtower_launches USING INDEX ix_launches_mint (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.21908292546868324
+    },
+    {
+      "database": "ops",
+      "label": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump:wt_walkback_edge_candidates",
+      "sql": "SELECT mint,wallet,candidate_parent,signature,block_time,mechanism,hop_depth,selection_status,rejection_reason,owner,close_authority,close_destination FROM wt_walkback_edge_candidates WHERE mint=? LIMIT 5",
+      "parameters": [
+        "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_walkback_edge_candidates USING INDEX ix_wwec_mint_hop (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump",
+          "wallet": "D6AQvd8CBhz3V34uz45yafxA2Ph18otisobLJMXQMyvG",
+          "candidate_parent": "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg",
+          "signature": "2smf7pFTjJXP7CoipzTu7Q5nvQ9wMH2sY2iFY4LzMmXEBmi88mGdSmEe98K1rQAtzemGFuHkEJehKwQMJURrySwv",
+          "block_time": 1792219577,
+          "mechanism": "WSOL_WRAP_CLOSE",
+          "hop_depth": 1,
+          "selection_status": "SELECTED",
+          "rejection_reason": "",
+          "owner": "",
+          "close_authority": "",
+          "close_destination": ""
+        },
+        {
+          "mint": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump",
+          "wallet": "D6AQvd8CBhz3V34uz45yafxA2Ph18otisobLJMXQMyvG",
+          "candidate_parent": "EXYwZs4K29FoFhww4969Xq46pKVVCD9BqZJgrKWi1FRc",
+          "signature": "58RptURNCRFP1D7EvCG6dff6JTTZ4wG69s4f92cWWBSUPFKcSjESjm2rth77Z17jUPnXpvnELDTdqBqRoVFhQKCj",
+          "block_time": 1792219568,
+          "mechanism": "PLAIN_XFER",
+          "hop_depth": 1,
+          "selection_status": "ALTERNATIVE",
+          "rejection_reason": "LOWER_RANKED_BUT_RETAINED",
+          "owner": "",
+          "close_authority": "",
+          "close_destination": ""
+        }
+      ],
+      "elapsed_ms": 0.5280000623315573
+    },
+    {
+      "database": "ops",
+      "label": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump:wt_funding_boundary",
+      "sql": "SELECT launch_mint,subject_wallet,boundary_status,boundary_type,boundary_wallet,boundary_signature,resolution_reason FROM wt_funding_boundary WHERE launch_mint=? LIMIT 5",
+      "parameters": [
+        "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_funding_boundary USING INDEX ix_funding_boundary_mint (launch_mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.1432499848306179
+    },
+    {
+      "database": "core",
+      "label": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump:migration_inbox",
+      "sql": "SELECT signature,status,received_at,processed_at,attempts,last_error FROM migration_inbox WHERE signature=? LIMIT 2",
+      "parameters": [
+        "4fx573NVuiFTCjnE1uRutcjEMAPjDs8PYtYuJadgych9FfMENSBc5p1oGWFM8mKtC3fSMDCfTz3FeAKzcy91JKnj"
+      ],
+      "row_cap": 2,
+      "plan": [
+        "SEARCH migration_inbox USING INDEX sqlite_autoindex_migration_inbox_1 (signature=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.008249888196587563
+    },
+    {
+      "database": "core",
+      "label": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump:migration_persist_queue",
+      "sql": "SELECT signature,status,received_at,processed_at,retry_count,last_error FROM migration_persist_queue WHERE signature=? LIMIT 2",
+      "parameters": [
+        "4fx573NVuiFTCjnE1uRutcjEMAPjDs8PYtYuJadgych9FfMENSBc5p1oGWFM8mKtC3fSMDCfTz3FeAKzcy91JKnj"
+      ],
+      "row_cap": 2,
+      "plan": [
+        "SEARCH migration_persist_queue USING INDEX sqlite_autoindex_migration_persist_queue_1 (signature=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.006166053935885429
+    },
+    {
+      "database": "core",
+      "label": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump:funders",
+      "sql": "SELECT creator_address,funder_address,amount_sol,source_type FROM creator_funders WHERE creator_address=? LIMIT 5",
+      "parameters": [
+        "D6AQvd8CBhz3V34uz45yafxA2Ph18otisobLJMXQMyvG"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH creator_funders USING INDEX idx_creator_funders_creator (creator_address=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "creator_address": "D6AQvd8CBhz3V34uz45yafxA2Ph18otisobLJMXQMyvG",
+          "funder_address": "EXYwZs4K29FoFhww4969Xq46pKVVCD9BqZJgrKWi1FRc",
+          "amount_sol": 0.009995,
+          "source_type": "original_sender"
+        }
+      ],
+      "elapsed_ms": 0.4737498238682747
+    },
+    {
+      "database": "ops",
+      "label": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump:incoming",
+      "sql": "SELECT from_wallet,to_wallet,signature,amount_sol,block_time,edge_type FROM wt_ops_v2_edges WHERE to_wallet=? LIMIT 5",
+      "parameters": [
+        "D6AQvd8CBhz3V34uz45yafxA2Ph18otisobLJMXQMyvG"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_ops_v2_edges USING INDEX ix_ov2e_to (to_wallet=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.2662918996065855
+    },
+    {
+      "database": "ops",
+      "label": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump:funder_upstream",
+      "sql": "SELECT from_wallet,to_wallet,signature,amount_sol,block_time,edge_type FROM wt_ops_v2_edges WHERE to_wallet=? LIMIT 5",
+      "parameters": [
+        "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_ops_v2_edges USING INDEX ix_ov2e_to (to_wallet=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.24608406238257885
+    },
+    {
+      "database": "core",
+      "label": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump:fanout",
+      "sql": "SELECT funder_address,recipient_address,transaction_signature,amount_sol,block_time FROM funder_outgoing_transfers WHERE funder_address=? LIMIT 8",
+      "parameters": [
+        "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg"
+      ],
+      "row_cap": 8,
+      "plan": [
+        "SEARCH funder_outgoing_transfers USING INDEX idx_fot_funder (funder_address=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.5860831588506699
+    },
+    {
+      "database": "core",
+      "label": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump:token_analysis",
+      "sql": "SELECT mint,created_at,pf_ws_creator,earliest_tx_creator,create_tx_signature,migration_tx,migrated_at,migration_slot,lifecycle_stage FROM token_analysis WHERE mint=? LIMIT 5",
+      "parameters": [
+        "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump",
+          "created_at": "2026-10-17T05:42:33Z",
+          "pf_ws_creator": "D5x5sVX3f3dFiVzGeHFnZCoavTtknzTr1jKkdorPgrcT",
+          "earliest_tx_creator": "D5x5sVX3f3dFiVzGeHFnZCoavTtknzTr1jKkdorPgrcT",
+          "create_tx_signature": "qZ66ckfCQC8AveRzUHs4YM2bJXvk1At4JpGq1cJELgDmWZRxjzCByyJLp7qAWbBd1Gkksmj9DujaPP4eoTrV921",
+          "migration_tx": "3F9Rwjep11wQL5cfF1LaKK62eZsv9zAjiJARfRAzZy4KDiRQAgpH3K7LqF3rpF4doYuKRJfQhQu5AYotuFcN4MTq",
+          "migrated_at": 1792215754,
+          "migration_slot": 457924271,
+          "lifecycle_stage": "migrated"
+        }
+      ],
+      "elapsed_ms": 0.4933339077979326
+    },
+    {
+      "database": "core",
+      "label": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump:migration_walkback_handoff",
+      "sql": "SELECT mint,state,migration_tx,attempt_count,last_error_class,created_at,completed_at FROM migration_walkback_handoff WHERE mint=? LIMIT 5",
+      "parameters": [
+        "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH migration_walkback_handoff USING INDEX sqlite_autoindex_migration_walkback_handoff_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump",
+          "state": "COMPLETE",
+          "migration_tx": "3F9Rwjep11wQL5cfF1LaKK62eZsv9zAjiJARfRAzZy4KDiRQAgpH3K7LqF3rpF4doYuKRJfQhQu5AYotuFcN4MTq",
+          "attempt_count": 0,
+          "last_error_class": null,
+          "created_at": 1792215754,
+          "completed_at": 1792215763
+        }
+      ],
+      "elapsed_ms": 0.23441691882908344
+    },
+    {
+      "database": "core",
+      "label": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump:creator_funding_queue",
+      "sql": "SELECT mint,creator_address,status,attempts,create_tx_signature,last_error,created_at,next_attempt_at FROM creator_funding_queue WHERE mint=? LIMIT 5",
+      "parameters": [
+        "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH creator_funding_queue USING INDEX idx_creator_funding_queue_mint (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump",
+          "creator_address": "D5x5sVX3f3dFiVzGeHFnZCoavTtknzTr1jKkdorPgrcT",
+          "status": "complete",
+          "attempts": 1,
+          "create_tx_signature": "qZ66ckfCQC8AveRzUHs4YM2bJXvk1At4JpGq1cJELgDmWZRxjzCByyJLp7qAWbBd1Gkksmj9DujaPP4eoTrV921",
+          "last_error": null,
+          "created_at": 1792215754,
+          "next_attempt_at": 1792215754
+        }
+      ],
+      "elapsed_ms": 0.3044579643756151
+    },
+    {
+      "database": "core",
+      "label": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump:creator_resolution_queue",
+      "sql": "SELECT mint,status,attempts,resolved_creator,create_tx_signature,resolution_tier,resolved_at,last_error FROM creator_resolution_queue WHERE mint=? LIMIT 5",
+      "parameters": [
+        "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH creator_resolution_queue USING INDEX sqlite_autoindex_creator_resolution_queue_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.12920796871185303
+    },
+    {
+      "database": "core",
+      "label": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump:wt_detected_creates",
+      "sql": "SELECT mint,creator,slot,signature,detected_at FROM wt_detected_creates WHERE mint=? LIMIT 5",
+      "parameters": [
+        "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_detected_creates USING INDEX sqlite_autoindex_wt_detected_creates_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.12629199773073196
+    },
+    {
+      "database": "core",
+      "label": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump:birth_persist_queue",
+      "sql": "SELECT mint,status,retry_count,create_tx_signature,last_error,received_at,processed_at FROM birth_persist_queue WHERE mint=? LIMIT 5",
+      "parameters": [
+        "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH birth_persist_queue USING INDEX sqlite_autoindex_birth_persist_queue_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.006832880899310112
+    },
+    {
+      "database": "ops",
+      "label": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump:wt_walkback_queue",
+      "sql": "SELECT mint,creator,subprov,treasury,status,path_state,attempts,rpc_used,anchor_lookup_attempts,last_anchor_lookup_at,create_anchor_signature,create_anchor_audit_state,enqueued_at,completed_at,next_retry_at,last_error,intelligence_outcome,funding_mechanism,funder_wallet,funder_sig,funder_block_time,funder_amount_sol FROM wt_walkback_queue WHERE mint=? LIMIT 5",
+      "parameters": [
+        "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump",
+          "creator": "D5x5sVX3f3dFiVzGeHFnZCoavTtknzTr1jKkdorPgrcT",
+          "subprov": "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg",
+          "treasury": null,
+          "status": "complete",
+          "path_state": "CLAIMED",
+          "attempts": 1,
+          "rpc_used": 7,
+          "anchor_lookup_attempts": 0,
+          "last_anchor_lookup_at": null,
+          "create_anchor_signature": "qZ66ckfCQC8AveRzUHs4YM2bJXvk1At4JpGq1cJELgDmWZRxjzCByyJLp7qAWbBd1Gkksmj9DujaPP4eoTrV921",
+          "create_anchor_audit_state": "VALID",
+          "enqueued_at": 1792215763,
+          "completed_at": 1792215800,
+          "next_retry_at": null,
+          "last_error": null,
+          "intelligence_outcome": "LINEAGE_GAP",
+          "funding_mechanism": "WSOL_WRAP_CLOSE",
+          "funder_wallet": "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg",
+          "funder_sig": "4ZujxhBNQAxpmCAjxbPYJyL5U2NSjcA7TNPCjEXTW4HoVC94LTU6hGukvsJZKai6wTmk73RhLffmw6zaHjXRTc2N",
+          "funder_block_time": 1792215728,
+          "funder_amount_sol": 99.999985
+        }
+      ],
+      "elapsed_ms": 0.48699998296797276
+    },
+    {
+      "database": "ops",
+      "label": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump:wt_create_event_ledger",
+      "sql": "SELECT mint,creator,signature,slot,block_time,source FROM wt_create_event_ledger WHERE mint=? LIMIT 5",
+      "parameters": [
+        "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_create_event_ledger USING INDEX idx_wt_create_event_ledger_mint (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.005583977326750755
+    },
+    {
+      "database": "ops",
+      "label": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump:wt_attribution_outcomes",
+      "sql": "SELECT mint,outcome_type,stop_reason,terminal_entity,terminal_entity_type,completed_at,should_retry FROM wt_attribution_outcomes WHERE mint=? LIMIT 5",
+      "parameters": [
+        "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_attribution_outcomes USING INDEX sqlite_autoindex_wt_attribution_outcomes_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump",
+          "outcome_type": "LINEAGE_GAP",
+          "stop_reason": "Walkback stopped at a lineage gap. Retry only when new evidence arrives.",
+          "terminal_entity": "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg",
+          "terminal_entity_type": "INFRASTRUCTURE",
+          "completed_at": 1792215800,
+          "should_retry": 1
+        }
+      ],
+      "elapsed_ms": 0.510375015437603
+    },
+    {
+      "database": "ops",
+      "label": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump:wt_watchtower_promotion_outcomes",
+      "sql": "SELECT mint,outcome,first_rejection_reason,creator_match,treasury_role_match,subprov_match,funding_mechanism_match,funder_signature_present,last_attempted_at FROM wt_watchtower_promotion_outcomes WHERE mint=? LIMIT 5",
+      "parameters": [
+        "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_watchtower_promotion_outcomes USING INDEX ix_wt_promotion_outcomes_current (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.008874805644154549
+    },
+    {
+      "database": "ops",
+      "label": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump:operator_launch_membership",
+      "sql": "SELECT mint,operator_id,assigned_at FROM operator_launch_membership WHERE mint=? LIMIT 5",
+      "parameters": [
+        "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.1715831458568573
+    },
+    {
+      "database": "ops",
+      "label": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump:wt_watchtower_launches",
+      "sql": "SELECT mint,creator_wallet,create_signature,create_time,treasury_wallet,subprov_wallet,wrap_close_signature,fanout_count,recorded_at FROM wt_watchtower_launches WHERE mint=? LIMIT 5",
+      "parameters": [
+        "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_watchtower_launches USING INDEX ix_launches_mint (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.0077500008046627045
+    },
+    {
+      "database": "ops",
+      "label": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump:wt_walkback_edge_candidates",
+      "sql": "SELECT mint,wallet,candidate_parent,signature,block_time,mechanism,hop_depth,selection_status,rejection_reason,owner,close_authority,close_destination FROM wt_walkback_edge_candidates WHERE mint=? LIMIT 5",
+      "parameters": [
+        "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_walkback_edge_candidates USING INDEX ix_wwec_mint_hop (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump",
+          "wallet": "D5x5sVX3f3dFiVzGeHFnZCoavTtknzTr1jKkdorPgrcT",
+          "candidate_parent": "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg",
+          "signature": "4ZujxhBNQAxpmCAjxbPYJyL5U2NSjcA7TNPCjEXTW4HoVC94LTU6hGukvsJZKai6wTmk73RhLffmw6zaHjXRTc2N",
+          "block_time": 1792215728,
+          "mechanism": "WSOL_WRAP_CLOSE",
+          "hop_depth": 1,
+          "selection_status": "SELECTED",
+          "rejection_reason": "",
+          "owner": "",
+          "close_authority": "",
+          "close_destination": ""
+        },
+        {
+          "mint": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump",
+          "wallet": "D5x5sVX3f3dFiVzGeHFnZCoavTtknzTr1jKkdorPgrcT",
+          "candidate_parent": "69Vzcb7ARia2muAyHK441kxpxbcEK2REg9yijfP3Cy9e",
+          "signature": "2eN9nPPDBXoJTtfa8VjFRB6RmsmFu3hGTGQ6du5iBPjgsVFETeSyn9wCysrgZT1EN5yNTgAUYwRyHBLdfL865ekE",
+          "block_time": 1792215720,
+          "mechanism": "PLAIN_XFER",
+          "hop_depth": 1,
+          "selection_status": "ALTERNATIVE",
+          "rejection_reason": "LOWER_RANKED_BUT_RETAINED",
+          "owner": "",
+          "close_authority": "",
+          "close_destination": ""
+        }
+      ],
+      "elapsed_ms": 0.4475829191505909
+    },
+    {
+      "database": "ops",
+      "label": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump:wt_funding_boundary",
+      "sql": "SELECT launch_mint,subject_wallet,boundary_status,boundary_type,boundary_wallet,boundary_signature,resolution_reason FROM wt_funding_boundary WHERE launch_mint=? LIMIT 5",
+      "parameters": [
+        "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_funding_boundary USING INDEX ix_funding_boundary_mint (launch_mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.006207963451743126
+    },
+    {
+      "database": "core",
+      "label": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump:migration_inbox",
+      "sql": "SELECT signature,status,received_at,processed_at,attempts,last_error FROM migration_inbox WHERE signature=? LIMIT 2",
+      "parameters": [
+        "3F9Rwjep11wQL5cfF1LaKK62eZsv9zAjiJARfRAzZy4KDiRQAgpH3K7LqF3rpF4doYuKRJfQhQu5AYotuFcN4MTq"
+      ],
+      "row_cap": 2,
+      "plan": [
+        "SEARCH migration_inbox USING INDEX sqlite_autoindex_migration_inbox_1 (signature=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.006500165909528732
+    },
+    {
+      "database": "core",
+      "label": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump:migration_persist_queue",
+      "sql": "SELECT signature,status,received_at,processed_at,retry_count,last_error FROM migration_persist_queue WHERE signature=? LIMIT 2",
+      "parameters": [
+        "3F9Rwjep11wQL5cfF1LaKK62eZsv9zAjiJARfRAzZy4KDiRQAgpH3K7LqF3rpF4doYuKRJfQhQu5AYotuFcN4MTq"
+      ],
+      "row_cap": 2,
+      "plan": [
+        "SEARCH migration_persist_queue USING INDEX sqlite_autoindex_migration_persist_queue_1 (signature=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.00795791856944561
+    },
+    {
+      "database": "core",
+      "label": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump:funders",
+      "sql": "SELECT creator_address,funder_address,amount_sol,source_type FROM creator_funders WHERE creator_address=? LIMIT 5",
+      "parameters": [
+        "D5x5sVX3f3dFiVzGeHFnZCoavTtknzTr1jKkdorPgrcT"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH creator_funders USING INDEX idx_creator_funders_creator (creator_address=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "creator_address": "D5x5sVX3f3dFiVzGeHFnZCoavTtknzTr1jKkdorPgrcT",
+          "funder_address": "69Vzcb7ARia2muAyHK441kxpxbcEK2REg9yijfP3Cy9e",
+          "amount_sol": 0.009995,
+          "source_type": "original_sender"
+        }
+      ],
+      "elapsed_ms": 0.12179091572761536
+    },
+    {
+      "database": "ops",
+      "label": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump:incoming",
+      "sql": "SELECT from_wallet,to_wallet,signature,amount_sol,block_time,edge_type FROM wt_ops_v2_edges WHERE to_wallet=? LIMIT 5",
+      "parameters": [
+        "D5x5sVX3f3dFiVzGeHFnZCoavTtknzTr1jKkdorPgrcT"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_ops_v2_edges USING INDEX ix_ov2e_to (to_wallet=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.006207963451743126
+    },
+    {
+      "database": "ops",
+      "label": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump:funder_upstream",
+      "sql": "SELECT from_wallet,to_wallet,signature,amount_sol,block_time,edge_type FROM wt_ops_v2_edges WHERE to_wallet=? LIMIT 5",
+      "parameters": [
+        "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg"
+      ],
+      "row_cap": 5,
+      "plan": [
+        "SEARCH wt_ops_v2_edges USING INDEX ix_ov2e_to (to_wallet=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.005082925781607628
+    },
+    {
+      "database": "core",
+      "label": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump:fanout",
+      "sql": "SELECT funder_address,recipient_address,transaction_signature,amount_sol,block_time FROM funder_outgoing_transfers WHERE funder_address=? LIMIT 8",
+      "parameters": [
+        "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg"
+      ],
+      "row_cap": 8,
+      "plan": [
+        "SEARCH funder_outgoing_transfers USING INDEX idx_fot_funder (funder_address=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.006417045369744301
+    },
+    {
+      "database": "ops",
+      "label": "last_membership",
+      "sql": "SELECT mint,operator_id,assigned_at FROM operator_launch_membership WHERE operator_id=? ORDER BY assigned_at DESC LIMIT 1",
+      "parameters": [
+        "04265d9f-6eb2-568c-a49e-9253091a4dbb"
+      ],
+      "row_cap": 1,
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX ix_operator_launch_membership_operator (operator_id=?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump",
+          "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+          "assigned_at": 1791635260,
+          "assigned_at_utc": "2026-10-10T12:27:40+00:00"
+        }
+      ],
+      "elapsed_ms": 8.249917067587376
+    },
+    {
+      "database": "ops",
+      "label": "worker_heartbeat",
+      "sql": "SELECT worker_name,last_seen,status FROM wt_worker_heartbeat WHERE worker_name=? LIMIT 1",
+      "parameters": [
+        "walkback_worker"
+      ],
+      "row_cap": 1,
+      "plan": [
+        "SEARCH wt_worker_heartbeat USING INDEX sqlite_autoindex_wt_worker_heartbeat_1 (worker_name=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "worker_name": "walkback_worker",
+          "last_seen": 1792220099,
+          "status": "UNHEALTHY"
+        }
+      ],
+      "elapsed_ms": 0.210499856621027
+    },
+    {
+      "database": "core",
+      "label": "latest_migration",
+      "sql": "SELECT mint,migration_tx,migrated_at FROM token_analysis INDEXED BY idx_ta_migrated_at WHERE migrated_at>0 ORDER BY migrated_at DESC LIMIT 1",
+      "parameters": [],
+      "row_cap": 1,
+      "plan": [
+        "SEARCH token_analysis USING INDEX idx_ta_migrated_at (migrated_at>?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "9TtUfEwdoHkrP4b6igXKDY8wpYdq826mzKA2tcfupump",
+          "migration_tx": "3T3Rfd32AsP55FuXxLJ9pS3yUfV2K4TCYiUdwcB3FG8cvoTWkPRACeDcAzbp6xemda9tmBcC4dToB6KzmGtvPqbm",
+          "migrated_at": 1792220116
+        }
+      ],
+      "elapsed_ms": 0.8164590690284967
+    },
+    {
+      "database": "ops",
+      "label": "9LE_creator_birth",
+      "sql": "SELECT creator,treasury,subprov,token_mint,funding_sig,launch_sig,launched_at FROM wt_creator_birth_launch WHERE creator=? LIMIT 1",
+      "parameters": [
+        "HnDRRw1h8F2MhEFzC6yJej8HpyfiWnrwe8jmkgqErEAJ"
+      ],
+      "row_cap": 1,
+      "plan": [
+        "SEARCH wt_creator_birth_launch USING INDEX sqlite_autoindex_wt_creator_birth_launch_1 (creator=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.2707911189645529
+    }
+  ],
+  "candidate_discovery": {
+    "population": "32 latest post-Oct10 attribution completions joined to exact queue PK, independent of attribution outcome/treasury label/membership; WSOL mechanism filter after bounded retrieval",
+    "selected_mints": [
+      "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump",
+      "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump"
+    ],
+    "important_limit": "Only WSOL near-candidates, not qualified Watchtower detections. Complete upstream/fanout/funding-account role proof must be established separately.",
+    "prior_exact_deepreview_range": "Existing accepted partial-index predicate on1.1120385..1.1120395 returned0post-Oct10 rows; no threshold introduced/relaxed."
+  }
+}

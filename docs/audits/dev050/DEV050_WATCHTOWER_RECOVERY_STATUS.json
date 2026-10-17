@@ -1,0 +1,422 @@
+{
+  "DEV050_WATCHTOWER_RECOVERY_STATUS": "HOLD_QUALIFYING_EVIDENCE_INCOMPLETE",
+  "OBJECTIVE_RESULT": "Read-only traces complete for known tokens and bounded near-candidate sample. No newly proven complete Watchtower false negative or justified source correction established.",
+  "GOLDEN_BASELINE": {
+    "reference": "DEV043_BOUNDED_RECOVERY_BASELINE",
+    "source_sha": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "workflow_create": "PASS",
+    "workflow_verify": "PASS",
+    "dedicated_state": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV050/state",
+    "dedicated_queue": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV050/state/monitor/queue",
+    "providers": "DENIED",
+    "workers_started": 0,
+    "canonical_readonly": [
+      "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+      "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db"
+    ],
+    "preview_started": false
+  },
+  "LAST_CANONICAL_WATCHTOWER_MEMBERSHIP": [
+    {
+      "mint": "E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump",
+      "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+      "assigned_at": 1791635260,
+      "assigned_at_utc": "2026-10-10T12:27:40+00:00"
+    }
+  ],
+  "POST_OCT10_CANDIDATES": [
+    {
+      "mint": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump",
+      "discovery": "Independent latest32 completed outcomes, joined exact queue PK; retained WSOL_WRAP_CLOSE selected after retrieval; no membership, WATCHTOWER_CONFIRMED or treasury-label requirement",
+      "create": {
+        "signature": "eX7ZveXHnbWjujbKhtTkBPoPLUvEfMPrRTLFqawwGhVwx572TgVaA298SQkxXiahkdfTTB8gGHQHnMC4iRE4zgi",
+        "created_at": "2026-10-17T06:46:48Z",
+        "creator": "D6AQvd8CBhz3V34uz45yafxA2Ph18otisobLJMXQMyvG"
+      },
+      "migration": {
+        "signature": "4fx573NVuiFTCjnE1uRutcjEMAPjDs8PYtYuJadgych9FfMENSBc5p1oGWFM8mKtC3fSMDCfTz3FeAKzcy91JKnj",
+        "slot": 457942111,
+        "persisted_at": 1792219608
+      },
+      "intake": "Canonical migration exists",
+      "handoff": [
+        {
+          "mint": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump",
+          "state": "COMPLETE",
+          "migration_tx": "4fx573NVuiFTCjnE1uRutcjEMAPjDs8PYtYuJadgych9FfMENSBc5p1oGWFM8mKtC3fSMDCfTz3FeAKzcy91JKnj",
+          "attempt_count": 0,
+          "last_error_class": null,
+          "created_at": 1792219608,
+          "completed_at": 1792219619
+        }
+      ],
+      "walkback": {
+        "status": "complete",
+        "completed_at": 1792219649,
+        "anchor_audit": "VALID",
+        "attempts": 1,
+        "rpc_used_by_existing_worker": 7,
+        "outcome": "LINEAGE_GAP",
+        "stop_reason": "Walkback stopped at a lineage gap. Retry only when new evidence arrives.",
+        "should_retry": 1
+      },
+      "retained_funding": {
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "selected_parent": "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg",
+        "signature": "2smf7pFTjJXP7CoipzTu7Q5nvQ9wMH2sY2iFY4LzMmXEBmi88mGdSmEe98K1rQAtzemGFuHkEJehKwQMJURrySwv",
+        "amount_sol": 99.999985,
+        "block_time": 1792219577
+      },
+      "missing_topology": [
+        "Transaction-backed independent treasury ancestry",
+        "SubProvider fan-out into many Funding Accounts",
+        "Selected Funding Account to exact creator/launch topology; current selected parent is not automatically a proven SubProvider"
+      ],
+      "admission": "No exact-mint Watchtower promotion outcome located; do not equate LINEAGE_GAP with a recorded admission rejection",
+      "membership": [],
+      "first_incomplete_transition": "Selected funding evidence -> complete qualifying upstream lineage",
+      "qualified_watchtower": false,
+      "ui": "Canonical membership not established; no browser/UI defect inferred or tested"
+    },
+    {
+      "mint": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump",
+      "discovery": "Independent latest32 completed outcomes, joined exact queue PK; retained WSOL_WRAP_CLOSE selected after retrieval; no membership, WATCHTOWER_CONFIRMED or treasury-label requirement",
+      "create": {
+        "signature": "qZ66ckfCQC8AveRzUHs4YM2bJXvk1At4JpGq1cJELgDmWZRxjzCByyJLp7qAWbBd1Gkksmj9DujaPP4eoTrV921",
+        "created_at": "2026-10-17T05:42:33Z",
+        "creator": "D5x5sVX3f3dFiVzGeHFnZCoavTtknzTr1jKkdorPgrcT"
+      },
+      "migration": {
+        "signature": "3F9Rwjep11wQL5cfF1LaKK62eZsv9zAjiJARfRAzZy4KDiRQAgpH3K7LqF3rpF4doYuKRJfQhQu5AYotuFcN4MTq",
+        "slot": 457924271,
+        "persisted_at": 1792215754
+      },
+      "intake": "Canonical migration exists",
+      "handoff": [
+        {
+          "mint": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump",
+          "state": "COMPLETE",
+          "migration_tx": "3F9Rwjep11wQL5cfF1LaKK62eZsv9zAjiJARfRAzZy4KDiRQAgpH3K7LqF3rpF4doYuKRJfQhQu5AYotuFcN4MTq",
+          "attempt_count": 0,
+          "last_error_class": null,
+          "created_at": 1792215754,
+          "completed_at": 1792215763
+        }
+      ],
+      "walkback": {
+        "status": "complete",
+        "completed_at": 1792215800,
+        "anchor_audit": "VALID",
+        "attempts": 1,
+        "rpc_used_by_existing_worker": 7,
+        "outcome": "LINEAGE_GAP",
+        "stop_reason": "Walkback stopped at a lineage gap. Retry only when new evidence arrives.",
+        "should_retry": 1
+      },
+      "retained_funding": {
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "selected_parent": "8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg",
+        "signature": "4ZujxhBNQAxpmCAjxbPYJyL5U2NSjcA7TNPCjEXTW4HoVC94LTU6hGukvsJZKai6wTmk73RhLffmw6zaHjXRTc2N",
+        "amount_sol": 99.999985,
+        "block_time": 1792215728
+      },
+      "missing_topology": [
+        "Transaction-backed independent treasury ancestry",
+        "SubProvider fan-out into many Funding Accounts",
+        "Selected Funding Account to exact creator/launch topology; current selected parent is not automatically a proven SubProvider"
+      ],
+      "admission": "No exact-mint Watchtower promotion outcome located; do not equate LINEAGE_GAP with a recorded admission rejection",
+      "membership": [],
+      "first_incomplete_transition": "Selected funding evidence -> complete qualifying upstream lineage",
+      "qualified_watchtower": false,
+      "ui": "Canonical membership not established; no browser/UI defect inferred or tested"
+    }
+  ],
+  "TOKEN_9LE_INTAKE_STATUS": {
+    "mint": "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump",
+    "known_create_authority": "User/prior retained evidence: CREATE2026-10-13T00:12:41Z,slot456239759,creatorHnDRRw1h8F2MhEFzC6yJej8HpyfiWnrwe8jmkgqErEAJ; curve completion/matching Pump AMM pool corroborated historically; not reacquired here",
+    "exact_migration_signature": "UNRESOLVED",
+    "indexed_retained_observation": "No exact-mint token_analysis,birth_persist_queue,wt_detected_creates,CREATEledger,creator_funding_queue,creator_resolution_queue,migrationhandoff,Walkbackqueue,attribution,promotion or membership row. No exact-creator birth-launch or creator_funders row.",
+    "historical_treasury": "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe;131historical accepted memberships supplied, not proof for this mint",
+    "earliest_observed_gap": "Externally known CREATE/completed-curve candidate -> retained canonical intake; exact missing migration/receipt transition unresolved",
+    "limits": "Without migration signature, migration_inbox mint_hint and migration_persist_queue mint have no suitable index; those unindexed searches were not run. Current bounded log rotation has no token match, not historical absence proof. No deletion or listener root cause inferred.",
+    "qualified_false_negative": false
+  },
+  "AYTRSS_RECOVERY_STATUS": {
+    "mint": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump",
+    "migration_signature": "5w5Vc6KfCPj1MfubnHUMsaWMVgCsvi48jQvGkvJHm9hj5d1837qtcpXDZNeCcUiDRuM3ZkP1jBQodJ8HRMUAHNEn",
+    "migration_slot": 457546188,
+    "historical_migration_block_time": "2026-10-16T07:00:15Z, retained DEV039 evidence",
+    "canonical_persist_time": "2026-10-16T07:04:15Z",
+    "handoff": "COMPLETE2026-10-16T07:04:19Z",
+    "current_core_creator": "HgeqtdwVZjW3MWWrPVuRn1mk3f9k1Fm1hA4ocKdTPtvm",
+    "creator_resolution": [
+      {
+        "mint": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump",
+        "status": "complete",
+        "attempts": 1,
+        "resolved_creator": "HgeqtdwVZjW3MWWrPVuRn1mk3f9k1Fm1hA4ocKdTPtvm",
+        "create_tx_signature": null,
+        "resolution_tier": "GENERIC",
+        "resolved_at": 1792136556,
+        "last_error": null
+      }
+    ],
+    "funding_queue": "complete,attempts2,CREATEsignatureNULL",
+    "create_anchor": "NULL in core/fundingqueue/Walkback; no exact-mint canonical CREATEledger row",
+    "queue": "waiting / WAITING_FOR_CREATE_ANCHOR; creatorNULL; attempts0;rpc_used0;anchor_lookup_attempts0;lastlookupNULL;nextretryNULL",
+    "classification_admission_membership": "Not reached; no rows in exact-mint authorities checked",
+    "first_proven_blocker": "Missing qualified CREATE anchor at Walkback entry; known starvation also leaves it unexamined. Fair scheduling alone cannot invent missing signature.",
+    "scope": "No real recovery or acquisition executed; DEV049 architecture not reopened"
+  },
+  "CREATE_ANCHOR_GAPS": [
+    "9LE has no retained canonical CREATE/intake row in checked indexed authorities; migrationidentity unresolved.",
+    "AYtRss creator resolution succeeded since prior diagnosis, but valid CREATE signature remains absent; zero anchor attempts.",
+    "Two sampled recent tokens have valid core/queue CREATE signatures and completed Walkback despite no canonical CREATEledger row; ledger absence alone is not a proven blocker for them."
+  ],
+  "WALKBACK_PROCESSING_GAPS": {
+    "evidence": "Recent indexed completion sample shows ongoing processing; selected tokens finished with LINEAGE_GAP and should_retry1 only when new evidence arrives.",
+    "starvation": "Previously established and undeployed; not sufficient to explain missing9LE intake or every post-Oct10 nonmember.",
+    "unsupported_confirmation": "Previously documented treasury-label confirmations and correct admission rejections remain preserved findings; not rerun or treated as new proof for this sample."
+  },
+  "TREASURY_LINEAGE_GAPS": [
+    "No transaction-backed connection between known historical88WRB treasury and9LE mint/creator located in checked indexed retained sources.",
+    "Recent WSOL pair shares selected parent8z3o5JkU6x9nsyC2228w3d4eER7iGQ1NkP1X1hZJr6Kg; no indexed retained upstream edges or fan-out sample found in authorities checked. This is missing evidence, not proof the relationship cannot exist.",
+    "WSOL funding alone and cached labels do not establish Treasury->SubProvider->ManyFundingAccounts->SelectedFundingAccount->Creator->Launch. No thresholds or roles were invented."
+  ],
+  "QUALIFIED_FALSE_NEGATIVES": {
+    "established": [],
+    "meaning": "None established in this bounded investigation; not a claim there are no genuine missed Watchtower launches."
+  },
+  "FIRST_PROVEN_FAILURE": {
+    "genuine_complete_watchtower_launch": "NOT_ESTABLISHED: no newly traced candidate has complete independent qualification proof",
+    "9LE": "Earliest retained gap is before canonical intake; no exact migration receipt means failure mechanism remains unresolved.",
+    "AYtRss": "Known successfully captured migration blocks at missing CREATEanchor; starvation additionally prevents local recheck.",
+    "recent_pair": "First incomplete qualifying transition is upstream lineage after retained selected WSOL funding; withholding membership is not shown to be a defect."
+  },
+  "MINIMUM_SAFE_CORRECTION": {
+    "implementation": "NONE justified in this read-only task",
+    "specific_unresolved_requirement": "For9LE, exact migration transaction identity/slot/blocktime and retained receipt/intake/error evidence, plus transaction-backed treasury->subprovider->funding-account fan-out/selected-account->creator->launch chain withWSOL close proof. These are required before calling it a Watchtower false negative or changing intake code.",
+    "AYtRss": "Qualified CREATE signature tied to exact mint/provenance is still required; copying a creator or promoting a treasury label does not satisfy it.",
+    "constraints": "No new indexes, durable cursor, providerbudget increase, replay, classification or admission-policy changes proposed."
+  },
+  "OPERATIONAL_AUTHORITIES": {
+    "watchtower_listener": {
+      "supervisor_program": "watchtower_listener",
+      "pid": 79274,
+      "process": [
+        "79274 73409 python -u -m src.core.pumpfun_curve_listener"
+      ],
+      "configured_directory": "/Users/kevinkeaveney/Production/flex-listener",
+      "source_file": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py",
+      "source_sha256": "139c8fbcd69484b5bb30038e76445d7843892e2ce28a7157485d917bdfccdd39",
+      "git_head": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+      "loaded_python_bytes": "UNVERIFIED; no live injection/signalling",
+      "database_paths": {
+        "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+      },
+      "safe_budgets": {},
+      "observed_cwd": [
+        "/Users/kevinkeaveney/Production/flex-listener"
+      ],
+      "log_path": "/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/listener.log",
+      "bounded_log_metadata": {
+        "tail_bytes": 131072,
+        "not_exhaustive_history": true,
+        "known_token_matches": {
+          "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump": 0,
+          "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump": 0
+        },
+        "error_markers": {
+          "NestedDatabaseWriteError": 0,
+          "database is locked": 0,
+          "Traceback": 0,
+          "MISSING_OR_MALFORMED": 0,
+          "WAITING_FOR_CREATE_ANCHOR": 0,
+          "429": 1
+        },
+        "stage_markers": {
+          "MIGRATION_START": 17,
+          "Marked token migrated": 10,
+          "Stored migration": 10,
+          "complete": 0,
+          "completed": 0,
+          "resolved": 14
+        }
+      }
+    },
+    "walkback_worker": {
+      "supervisor_program": "walkback_worker",
+      "pid": 73413,
+      "process": [
+        "73413 73409 /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -m src.core.walkback_worker --loop"
+      ],
+      "configured_directory": "/Users/kevinkeaveney/Production/flex-walkback-dev002",
+      "source_file": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py",
+      "source_sha256": "a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9",
+      "git_head": "afbe9e58b11eb2e4d616246da123ce31ab45700c",
+      "loaded_python_bytes": "UNVERIFIED; no live injection/signalling",
+      "database_paths": {
+        "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+      },
+      "safe_budgets": {
+        "WALKBACK_BATCH_SIZE": "8",
+        "WALKBACK_INTERVAL_SEC": "45",
+        "WALKBACK_MAX_ATTEMPTS": "3",
+        "WALKBACK_RPC_BUDGET_BATCH": "80"
+      },
+      "observed_cwd": [
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002"
+      ],
+      "log_path": "/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/walkback_worker.log",
+      "bounded_log_metadata": {
+        "tail_bytes": 131072,
+        "not_exhaustive_history": true,
+        "known_token_matches": {
+          "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump": 0,
+          "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump": 0
+        },
+        "error_markers": {
+          "NestedDatabaseWriteError": 0,
+          "database is locked": 0,
+          "Traceback": 0,
+          "MISSING_OR_MALFORMED": 0,
+          "WAITING_FOR_CREATE_ANCHOR": 0,
+          "429": 0
+        },
+        "stage_markers": {
+          "MIGRATION_START": 0,
+          "Marked token migrated": 0,
+          "Stored migration": 0,
+          "complete": 0,
+          "completed": 0,
+          "resolved": 0
+        }
+      }
+    },
+    "creator_resolution_worker": {
+      "supervisor_program": "creator_resolution_worker",
+      "pid": 38416,
+      "process": [
+        "38416 73409 /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -m src.core.creator_resolution_worker"
+      ],
+      "configured_directory": "/Users/kevinkeaveney/Production/flex-main-workers",
+      "source_file": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/creator_resolution_worker.py",
+      "source_sha256": "797350867ea10fdbef03933de033241ccd18bb0d137812aacac0e328ffa5fefb",
+      "git_head": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215",
+      "loaded_python_bytes": "UNVERIFIED; no live injection/signalling",
+      "database_paths": {
+        "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+      },
+      "safe_budgets": {},
+      "observed_cwd": [
+        "/Users/kevinkeaveney/Production/flex-main-workers"
+      ],
+      "log_path": "/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/creator_resolution_worker.log",
+      "bounded_log_metadata": {
+        "tail_bytes": 131072,
+        "not_exhaustive_history": true,
+        "known_token_matches": {
+          "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump": 0,
+          "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump": 0
+        },
+        "error_markers": {
+          "NestedDatabaseWriteError": 0,
+          "database is locked": 0,
+          "Traceback": 0,
+          "MISSING_OR_MALFORMED": 0,
+          "WAITING_FOR_CREATE_ANCHOR": 0,
+          "429": 0
+        },
+        "stage_markers": {
+          "MIGRATION_START": 0,
+          "Marked token migrated": 0,
+          "Stored migration": 0,
+          "complete": 0,
+          "completed": 0,
+          "resolved": 56
+        }
+      }
+    },
+    "creator_funding_worker": {
+      "supervisor_program": "creator_funding_worker",
+      "pid": 92703,
+      "process": [
+        "92703 73409 /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -m src.core.creator_funding_worker"
+      ],
+      "configured_directory": "/Users/kevinkeaveney/Production/flex-funding",
+      "source_file": "/Users/kevinkeaveney/Production/flex-funding/src/core/creator_funding_worker.py",
+      "source_sha256": "d29a6d0e6a8c4fba9dd7be465455e17140cbf0fb7deaa0a9fac7e1e868e1da35",
+      "git_head": "f10a56a01098755328f6d3b1eba9ba010412296d",
+      "loaded_python_bytes": "UNVERIFIED; no live injection/signalling",
+      "database_paths": {
+        "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+      },
+      "safe_budgets": {},
+      "observed_cwd": [
+        "/Users/kevinkeaveney/Production/flex-funding"
+      ],
+      "log_path": "/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/creator_funding_worker.log",
+      "bounded_log_metadata": {
+        "tail_bytes": 131072,
+        "not_exhaustive_history": true,
+        "known_token_matches": {
+          "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump": 0,
+          "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump": 0
+        },
+        "error_markers": {
+          "NestedDatabaseWriteError": 0,
+          "database is locked": 0,
+          "Traceback": 0,
+          "MISSING_OR_MALFORMED": 0,
+          "WAITING_FOR_CREATE_ANCHOR": 0,
+          "429": 4
+        },
+        "stage_markers": {
+          "MIGRATION_START": 0,
+          "Marked token migrated": 0,
+          "Stored migration": 0,
+          "complete": 44,
+          "completed": 0,
+          "resolved": 1
+        }
+      }
+    }
+  },
+  "EVIDENCE_AND_LIMITS": {
+    "bounded_trace_file": "bounded-traces.json",
+    "runtime_file": "runtime-authorities.json",
+    "role_edge_discovery_file": "role-edge-discovery.json",
+    "queries": 76,
+    "all_trace_query_statuses": [
+      "PASS"
+    ],
+    "maximum_trace_query_elapsed_ms": 14.996749814599752,
+    "read_policy": "mode=ro/query_only; no application imports; indexed point/range access only; <=1second progress budget per SQL; explicit rowcaps; no raw evidence/provider payloads",
+    "snapshot": "Sequential point-in-time reads of committed WAL-aware canonical authorities, not a globally frozen cross-database snapshot",
+    "discovery_limit": "32recent completed rows plus8recent role-edge rows and0matches in the existing narrow deep-review indexed population; not exhaustive candidate coverage",
+    "log_limits": "Metadata from only128KiB tails of four relevant logs. Raw429 substring counts are not proof of HTTP throttling and are not used causally. No raw log/provider payload retained.",
+    "UI": "No browser/API acceptance performed: no membership for traced tokens, so no canonical UI omission defect established. Previously accepted UI source not assumed to be running Production.",
+    "service_loaded_bytes": "On-disk source and PIDs verified; loaded Python byte identities remain unverified."
+  },
+  "RUNTIME_DEPLOYMENT_REQUIRED": false,
+  "RUNTIME_DEPLOYMENT_REASON": "Read-only operational diagnosis/documentation only; no application source, service or deployment changes",
+  "PROVIDER_CALLS": 0,
+  "PRODUCTION_CHANGES": 0,
+  "PERSISTENT_DEV_CHANGES": 0,
+  "CANONICAL_DATABASE_WRITES": 0,
+  "QUEUE_MUTATIONS": 0,
+  "SERVICE_RESTARTS": 0,
+  "STORAGE": {
+    "maximum_generated_file_bytes": 2000000,
+    "raw_provider_retention": false,
+    "unbounded_artifact_growth_paths": 0,
+    "canonical_database_copies": 0
+  },
+  "NEXT_ACTION": "STOP read-only diagnosis. Obtain the exact9LE migration/receipt identity and complete transaction-backed Watchtower funding topology from a separately authorized evidence source before prescribing an intake correction; do not deploy DEV049, reacquire/replay tokens, or relax admission."
+}

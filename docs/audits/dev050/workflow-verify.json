@@ -1,0 +1,6 @@
+{
+  "status": "PASS",
+  "source_sha": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+  "tool_sha256": "8577d4e5bcd654fbad7ec9fa862668842802a3c00911075359b56e45f9dec431",
+  "source": "Protected golden source/imports/bindings verified; guarded startup probe only; no operational services"
+}

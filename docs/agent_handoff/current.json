@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev071",
-    "git_head": "87d746c21301a80c1a3e00ba69ada7376c83feef",
+    "git_head": "64f5760b297ab6f8742e5529a95255f8338a1858",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T19:37:01.044166+00:00",
-    "working_tree": "DEV071 since-boundary search complete; latest retained match already admitted; no runtime changes."
+    "updated_at_utc": "2026-10-17T19:47:33.377028+00:00",
+    "working_tree": "DEV071 historical structure comparison complete; new partial research family; identity qualification incomplete."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31754,5 +31754,19 @@
     "production_changes": 0,
     "application_changes": 0,
     "next_action": "STOP. Preserve the latest known match and the characterized recovery heuristic. No new missed admission or causal defect established. No acquisition, implementation or runtime changes authorized."
+  },
+  "dev071_historical_structure_comparison": {
+    "status": "COMPARISON_COMPLETE_STRUCTURAL_CANDIDATES_IDENTITY_PARTIAL",
+    "engineering_source_sha": "64f5760b297ab6f8742e5529a95255f8338a1858",
+    "verification": "15 bounded historical/comparative evidence checks PASS; DEV048 committed source completeness PASS.",
+    "activation_state": "NO_ACTIVATION",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only population counting and retained evidence qualification only.",
+    "blocker": "Partial structural candidates exist, but independent original role, timing and identity qualification remains incomplete.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "application_changes": 0,
+    "next_action": "STOP. Preserve the newly surfaced research family and qualify its retained original role, chronology and ancestry evidence before asserting missed admission. No acquisition, implementation or deployment authorized."
   }
 }

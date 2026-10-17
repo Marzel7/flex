@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev061",
-    "git_head": "f3ae71d98c7fd9f17d6efbdefe1c5d75668e15ac",
+    "branch": "codex/dev062",
+    "git_head": "3772aed06bdab2da049399f79dd123356c2141de",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T14:32:43.592599+00:00",
-    "working_tree": "DEV061 mechanism audit complete locally; eleven persistedplaintransferrejections supported, no validWSOLfalse-rejection proven; no runtimechanges."
+    "updated_at_utc": "2026-10-17T14:45:50.441095+00:00",
+    "working_tree": "DEV062 audit complete; shared F7selectedlegs and current exclusionbypass proven, historicalbranchtrace partial; no runtimechanges."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31360,5 +31360,24 @@
     "ready_for_implementation": false,
     "engineering_evidence_publication": "Local committed audit; only required minimal material handoff published. No external evidence-branch push requested/executed in this task.",
     "next_action": "STOP \u2014 audit complete; no implementation, provider acquisition, replay or deployment."
+  },
+  "dev062_f7_relay_confirmation": {
+    "status": "RELAY_INTERSECTION_AND_CURRENT_CONFIRMATION_BYPASS_PROVEN; historical branch provenance PARTIAL",
+    "engineering_source_sha": "3772aed06bdab2da049399f79dd123356c2141de",
+    "branch": "codex/dev062",
+    "report_local": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV062/source/docs/audits/dev062/DEV062_RELAY_CONTAMINATION_STATUS.json",
+    "report_sha256": "d81d9596c6ad85def5a0199e29fae431246c80fb525c8a17991843fef572124c",
+    "summary": "All eleven selected native-SOL funding legs intersect F7p3 through transaction-derived exact-signature roles. Static registry identifies Relay.link Solver, discovered-row state REJECTED_INFRASTRUCTURE, not confirmed treasury. Existing cache OR known-subprovider branch can bypass rejected-state exclusion and confirm plain transfers; registered-root traversal also reproduced without cache. No per-mint historical branch trace attested; upstream 69SN ancestry not transaction-proven by selected mint edges. Strict admission blocked all eleven.",
+    "offline_fixtures": "4 exact current-source capability cases PASS using in-memory registry and inert transport/evidence/terminal sinks; no corrected implementation",
+    "positive_controls": "2 historically admitted WSOL FULL controls preserved, their subproviders not mapped as known infrastructure; no new complete topology claim",
+    "minimum_recommendation": "Separately qualify selected creator-funder infrastructure/rejected-state guard before confirmation shortcuts; retain infrastructure observations, no blanket upstream-treasury exclusion or admission relaxation",
+    "verification": "DEV048 verify PASS; exact indexed evidence reads only",
+    "ready_for_implementation": false,
+    "runtime_deployment_required": false,
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "engineering_evidence_publication": "Local committed audit only; required minimal handoff published, no evidence-branch push",
+    "next_action": "STOP audit; no implementation/deployment. Separate authorization/qualification needed for proposed narrow guard; genuine detection recovery remains separate."
   }
 }

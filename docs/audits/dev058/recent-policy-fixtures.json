@@ -1,0 +1,86 @@
+{
+  "status": "HOLD_RECENT_FAIRNESS_NOT_QUALIFIED",
+  "candidate_window_cap": 1000,
+  "results": [
+    {
+      "scenario": "100recent_50000historical",
+      "resident_fairness": "PASS_CONDITIONAL_ALL_RECENT_FIT_K1000",
+      "cycles": 100,
+      "distinct_recent_checked": 100,
+      "elapsed_ms": 31.157,
+      "query_plan": [
+        "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=? AND enqueued_at>? AND enqueued_at<?)"
+      ],
+      "historical_rows_retained": 50000,
+      "missing_timestamp_row_retained": true
+    },
+    {
+      "scenario": "1000recent_50000historical",
+      "resident_fairness": "PASS_CONDITIONAL_ALL_RECENT_FIT_K1000",
+      "cycles": 1000,
+      "distinct_recent_checked": 1000,
+      "elapsed_ms": 2985.444,
+      "query_plan": [
+        "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=? AND enqueued_at>? AND enqueued_at<?)"
+      ],
+      "historical_rows_retained": 50000,
+      "missing_timestamp_row_retained": true
+    },
+    {
+      "scenario": "1001recent_K1000_static",
+      "result": "FAIL_RECENT_ELIGIBLE_ROW_STARVED",
+      "excluded_mint": "r0",
+      "cycles": 1010,
+      "excluded_lookups": 0,
+      "cause": "Existing indexed outerwindow never includes older eligible recentrow, regardless durable lookupcount"
+    },
+    {
+      "scenario": "newest_only",
+      "result": "FAIL_NEWEST_MONOPOLY",
+      "selected": [
+        "r99",
+        "r99",
+        "r99"
+      ]
+    },
+    {
+      "scenario": "conditional_ack_restart",
+      "result": "PASS_SIMPLE_SERIALIZED_FIXTURE_ONLY",
+      "not_qualified": "No multiworker atomicselection/claim or realsharedlane qualification; selectionread can duplicate beforeack"
+    },
+    {
+      "scenario": "retry_terminal_exhausted",
+      "observations": [
+        {
+          "mint": "exhausted",
+          "enqueued_at": 1999999997,
+          "path_state": "WAITING_FOR_CREATE_ANCHOR",
+          "create_anchor_signature": null,
+          "create_anchor_audit_state": "MISSING_OR_MALFORMED",
+          "anchor_lookup_attempts": 0,
+          "next_retry_at": null,
+          "attempts": 3
+        },
+        {
+          "mint": "future",
+          "enqueued_at": 1999999995,
+          "path_state": "WAITING_FOR_CREATE_ANCHOR",
+          "create_anchor_signature": null,
+          "create_anchor_audit_state": "MISSING_OR_MALFORMED",
+          "anchor_lookup_attempts": 0,
+          "next_retry_at": 2000000100,
+          "attempts": 0
+        }
+      ],
+      "meaning": "Current anchorselector does not use next_retry_at or executionattempts. Treating these as anchorbudget would alter eligibility. Terminalcomplete excluded. Missingtimestamp outside range retained, not expired."
+    }
+  ],
+  "least_checked_all_recent_plan": [
+    "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=? AND enqueued_at>?)",
+    "USE TEMP B-TREE FOR ORDER BY"
+  ],
+  "fixture_storage": "Bounded memory, <=51001 rows; no diskdatabase or rawpayload",
+  "provider_calls": 0,
+  "canonical_writes": 0,
+  "application_changes": 0
+}

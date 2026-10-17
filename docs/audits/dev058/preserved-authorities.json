@@ -1,0 +1,17 @@
+{
+  "prior": {
+    "DEV055": {
+      "path": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV055/source/docs/audits/dev055/DEV055_CREATE_LIFECYCLE_STATUS.json",
+      "sha256": "9f35ae0e8b75c6189c18f6cb451b196ae4a4f7ae416d9aece559d7a799f784ee"
+    },
+    "DEV056": {
+      "path": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV056/source/docs/audits/dev056/DEV056_WALKBACK_FAIRNESS_STATUS.json",
+      "sha256": "c71e943b709e72a3f5d570396cccb079394ffefb93a8918a266290796378719f"
+    }
+  },
+  "DEV057": "No dev057 key in current handoff, no matching localbranch or expecteddurableDEV057 directory; supplied established constraints used. No invented DEV057 finding or broadsearch.",
+  "installed_selector_sources": {
+    "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py": "a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9",
+    "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/anchor_reconciliation.py": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7"
+  }
+}

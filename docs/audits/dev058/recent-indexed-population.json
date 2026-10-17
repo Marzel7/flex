@@ -1,0 +1,75 @@
+{
+  "now_epoch": 1792245620,
+  "windows": "[now-duration,now); canonical token_analysis.migrated_at numeric epoch; core mintPK leftjoin queue mintPK ensures deduplication",
+  "sql": "select count(*) migrated,\nsum(case when q.status='waiting' AND q.path_state='WAITING_FOR_CREATE_ANCHOR' AND (q.create_anchor_signature IS NULL OR q.create_anchor_audit_state='MISSING_OR_MALFORMED') then 1 else 0 end) eligible_waiting,\nsum(case when q.status='waiting' AND q.path_state='WAITING_FOR_CREATE_ANCHOR' AND (q.create_anchor_signature IS NULL OR q.create_anchor_audit_state='MISSING_OR_MALFORMED') and coalesce(q.anchor_lookup_attempts,0)=0 then 1 else 0 end) zero_lookup,\nsum(case when q.create_anchor_audit_state='VALID' and q.create_anchor_signature is not null then 1 else 0 end) retained_valid_audit_anchor,\nsum(case when q.status='waiting' AND q.path_state='WAITING_FOR_CREATE_ANCHOR' AND (q.create_anchor_signature IS NULL OR q.create_anchor_audit_state='MISSING_OR_MALFORMED') and coalesce(q.next_retry_at,0)>? then 1 else 0 end) waiting_future_execution_retry,\nsum(case when q.status='waiting' AND q.path_state='WAITING_FOR_CREATE_ANCHOR' AND (q.create_anchor_signature IS NULL OR q.create_anchor_audit_state='MISSING_OR_MALFORMED') and q.attempts>=3 then 1 else 0 end) waiting_execution_attempts_ge3\nfrom token_analysis t left join ops.wt_walkback_queue q on q.mint=t.mint\nwhere t.migrated_at>=? and t.migrated_at<?",
+  "populations": {
+    "24h": {
+      "counts": {
+        "migrated": 1044,
+        "eligible_waiting": 458,
+        "zero_lookup": 458,
+        "retained_valid_audit_anchor": 586,
+        "waiting_future_execution_retry": 0,
+        "waiting_execution_attempts_ge3": 0
+      },
+      "latency_ms": 164.939,
+      "plan": [
+        "SEARCH t USING COVERING INDEX idx_psi0a_token_analysis_migrated_mint (migrated_at>? AND migrated_at<?)",
+        "SEARCH q USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?) LEFT-JOIN"
+      ]
+    },
+    "48h": {
+      "counts": {
+        "migrated": 1900,
+        "eligible_waiting": 870,
+        "zero_lookup": 870,
+        "retained_valid_audit_anchor": 1024,
+        "waiting_future_execution_retry": 0,
+        "waiting_execution_attempts_ge3": 0
+      },
+      "latency_ms": 182.006,
+      "plan": [
+        "SEARCH t USING COVERING INDEX idx_psi0a_token_analysis_migrated_mint (migrated_at>? AND migrated_at<?)",
+        "SEARCH q USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?) LEFT-JOIN"
+      ]
+    },
+    "7d": {
+      "counts": {
+        "migrated": 6779,
+        "eligible_waiting": 2663,
+        "zero_lookup": 2663,
+        "retained_valid_audit_anchor": 4103,
+        "waiting_future_execution_retry": 0,
+        "waiting_execution_attempts_ge3": 0
+      },
+      "latency_ms": 402.458,
+      "plan": [
+        "SEARCH t USING COVERING INDEX idx_psi0a_token_analysis_migrated_mint (migrated_at>? AND migrated_at<?)",
+        "SEARCH q USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?) LEFT-JOIN"
+      ]
+    }
+  },
+  "BWMM": {
+    "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+    "migrated_at": 1792195770,
+    "first_pre_migration_signal_at": null,
+    "create_tx_signature": null,
+    "earliest_tx_creator": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+    "enqueued_at": 1792195770,
+    "status": "waiting",
+    "path_state": "WAITING_FOR_CREATE_ANCHOR",
+    "anchor_lookup_attempts": 0,
+    "next_retry_at": null,
+    "attempts": 0
+  },
+  "enqueue_recent_plans": {
+    "newest": [
+      "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=? AND enqueued_at>?)"
+    ],
+    "newest_leastchecked": [
+      "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=? AND enqueued_at>?)",
+      "USE TEMP B-TREE FOR ORDER BY"
+    ]
+  },
+  "semantics": "retainedVALIDauditanchor not newly independently decodedqualification. waiting_future_execution_retry is executionretryfield; installed anchorselector ignores it. Counts not provideracquisition eligibility."
+}

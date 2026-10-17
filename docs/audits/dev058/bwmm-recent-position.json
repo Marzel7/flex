@@ -1,0 +1,10 @@
+{
+  "rank_newest_waiting_at_observation": 203,
+  "tie_limit": "Strictly newer enqueue timestamps counted; equal timestamps require deterministic tie handling not present in installed selector",
+  "query_plan": [
+    "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=? AND enqueued_at>? AND enqueued_at<?)"
+  ],
+  "age_since_migration_seconds": 49850,
+  "current24h": true,
+  "current48h": true
+}

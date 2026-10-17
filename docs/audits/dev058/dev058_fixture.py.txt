@@ -1,0 +1,41 @@
+import sqlite3,json,time,pathlib,hashlib
+E=pathlib.Path('/Users/kevinkeaveney/Dev/claude/flex-development/DEV058/source/docs/audits/dev058');c=sqlite3.connect(':memory:');c.row_factory=sqlite3.Row;c.execute('pragma temp_store=MEMORY');c.execute('create table wt_walkback_queue(mint text primary key,status text,enqueued_at integer,migrated_at integer,path_state text,create_anchor_signature text,create_anchor_audit_state text,anchor_lookup_attempts integer,last_anchor_lookup_at integer,next_retry_at integer,attempts integer)');c.execute('create index ix_wbq_status on wt_walkback_queue(status,enqueued_at)');now=2000000000;cut=now-86400;K=1000
+# No production selector or state mutation: hypothetical policy in isolated diagnostic only.
+sql="select mint,enqueued_at,path_state,create_anchor_signature,create_anchor_audit_state,anchor_lookup_attempts,next_retry_at,attempts from wt_walkback_queue where status='waiting' and enqueued_at>=? and enqueued_at<? order by enqueued_at desc limit ?"
+results=[]
+def load(recent,historical=50000,missing=0):
+ c.execute('delete from wt_walkback_queue')
+ c.executemany('insert into wt_walkback_queue values(?,?,?,?,?,NULL,?,0,NULL,NULL,0)',[(f'h{i}','waiting',cut-100000-i,cut-100000-i,'WAITING_FOR_CREATE_ANCHOR','MISSING_OR_MALFORMED') for i in range(historical)])
+ c.executemany('insert into wt_walkback_queue values(?,?,?,?,?,NULL,?,0,NULL,NULL,0)',[(f'r{i}','waiting',now-10000+i,now-10000+i,'WAITING_FOR_CREATE_ANCHOR','MISSING_OR_MALFORMED') for i in range(recent)])
+ if missing:c.execute("insert into wt_walkback_queue values('missing','waiting',NULL,NULL,'WAITING_FOR_CREATE_ANCHOR',NULL,'MISSING_OR_MALFORMED',0,NULL,NULL,0)")
+ c.commit()
+def pick(k=K):
+ rows=c.execute(sql,(cut,now,k)).fetchall()
+ eligible=[r for r in rows if r['path_state']=='WAITING_FOR_CREATE_ANCHOR' and (r['create_anchor_signature'] is None or r['create_anchor_audit_state']=='MISSING_OR_MALFORMED')]
+ return min(eligible,key=lambda r:(r['anchor_lookup_attempts'] or 0,r['enqueued_at'],r['mint'])) if eligible else None
+for n in [100,1000]:
+ load(n,50000,1);t=time.monotonic();seen=set()
+ # Simulates acknowledging local lookup count after commit. Not a change to installed implementation.
+ for i in range(n):
+  row=pick();seen.add(row['mint']);c.execute('update wt_walkback_queue set anchor_lookup_attempts=anchor_lookup_attempts+1,last_anchor_lookup_at=? where mint=?',(now+i,row['mint']));c.commit()
+ assert len(seen)==n and c.execute("select count(*) from wt_walkback_queue where mint like 'h%' and anchor_lookup_attempts<>0").fetchone()[0]==0
+ results.append({'scenario':f'{n}recent_50000historical','resident_fairness':'PASS_CONDITIONAL_ALL_RECENT_FIT_K1000','cycles':n,'distinct_recent_checked':len(seen),'elapsed_ms':round((time.monotonic()-t)*1000,3),'query_plan':[r[3] for r in c.execute('explain query plan '+sql,(cut,now,K))],'historical_rows_retained':50000,'missing_timestamp_row_retained':True})
+# Counterexample: K+1 recent waiting rows, no new arrivals necessary.
+load(1001,50000);excluded=c.execute(sql,(cut,now,K)).fetchall();excluded={r['mint'] for r in excluded};assert 'r0' not in excluded
+for i in range(1010):
+ row=pick();c.execute('update wt_walkback_queue set anchor_lookup_attempts=anchor_lookup_attempts+1,last_anchor_lookup_at=? where mint=?',(now+i,row['mint']));c.commit()
+assert c.execute("select anchor_lookup_attempts from wt_walkback_queue where mint='r0'").fetchone()[0]==0
+results.append({'scenario':'1001recent_K1000_static','result':'FAIL_RECENT_ELIGIBLE_ROW_STARVED','excluded_mint':'r0','cycles':1010,'excluded_lookups':0,'cause':'Existing indexed outerwindow never includes older eligible recentrow, regardless durable lookupcount'})
+# Newest-only is cheap but repeatedly selects same unresolvable row.
+load(100);rows=[c.execute(sql,(cut,now,1)).fetchone()['mint'] for _ in range(3)];assert len(set(rows))==1;results.append({'scenario':'newest_only','result':'FAIL_NEWEST_MONOPOLY','selected':rows})
+# Restart/ack boundaries for conditional window only, serialized fixture connections.
+load(100,0);row=pick();before=pick()['mint'];assert row['mint']==before
+c.execute('begin');c.execute('update wt_walkback_queue set anchor_lookup_attempts=anchor_lookup_attempts+1 where mint=?',(before,));c.rollback();assert pick()['mint']==before
+c.execute('update wt_walkback_queue set anchor_lookup_attempts=anchor_lookup_attempts+1 where mint=?',(before,));c.commit();assert pick()['mint']!=before
+restored=sqlite3.connect(':memory:');restored.row_factory=sqlite3.Row;c.backup(restored);assert restored.execute('select anchor_lookup_attempts from wt_walkback_queue where mint=?',(before,)).fetchone()[0]==1;restored.close();results.append({'scenario':'conditional_ack_restart','result':'PASS_SIMPLE_SERIALIZED_FIXTURE_ONLY','not_qualified':'No multiworker atomicselection/claim or realsharedlane qualification; selectionread can duplicate beforeack'})
+# Existing fields must not be relabelled as approved anchor-policy semantics.
+load(0,0);c.executemany("insert into wt_walkback_queue values(?, ?, ?, ?, 'WAITING_FOR_CREATE_ANCHOR',NULL,'MISSING_OR_MALFORMED',0,NULL,?,?)",[('future','waiting',now-5,now-5,now+100,0),('terminal','complete',now-4,now-4,None,3),('exhausted','waiting',now-3,now-3,None,3)])
+window=[dict(r) for r in c.execute(sql,(cut,now,K))];assert 'terminal' not in [r['mint'] for r in window];results.append({'scenario':'retry_terminal_exhausted','observations':window,'meaning':'Current anchorselector does not use next_retry_at or executionattempts. Treating these as anchorbudget would alter eligibility. Terminalcomplete excluded. Missingtimestamp outside range retained, not expired.'})
+# Least checked across whole recent population still needs unsupported sort.
+q="select mint from wt_walkback_queue where status='waiting' and enqueued_at>=? order by anchor_lookup_attempts,enqueued_at desc limit 1";p=[r[3] for r in c.execute('explain query plan '+q,(cut,))];assert any('TEMP B-TREE' in x for x in p)
+c.close();(E/'recent-policy-fixtures.json').write_text(json.dumps({'status':'HOLD_RECENT_FAIRNESS_NOT_QUALIFIED','candidate_window_cap':1000,'results':results,'least_checked_all_recent_plan':p,'fixture_storage':'Bounded memory, <=51001 rows; no diskdatabase or rawpayload','provider_calls':0,'canonical_writes':0,'application_changes':0},indent=2)+'\n');print(json.dumps({'status':'HOLD','scenarios':len(results),'reason':'K+1recent counterexample and noatomicmultiworkerselection contract'}))

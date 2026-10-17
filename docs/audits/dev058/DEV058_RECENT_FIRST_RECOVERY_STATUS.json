@@ -1,0 +1,164 @@
+{
+  "DEV058_RECENT_FIRST_RECOVERY_STATUS": "HOLD \u2014 RECENT_FAIRNESS_NOT_QUALIFIED_WITH_EXISTING_ACCESS",
+  "CURRENT_RECOVERY_SELECTOR": "Installed anchor_reconciliation._stuck_rows selects eligible waiting rows ORDER BY enqueued_atASC; worker calls limit1. Existing ix_wbq_status(status,enqueued_at) supports reverse ordering but noacknowledgmentrotation. Known DEV055oldhead/starvation/sourceauthorities reused; no broadruntimeaudit.",
+  "RECENT_24H_POPULATION": {
+    "counts": {
+      "migrated": 1044,
+      "eligible_waiting": 458,
+      "zero_lookup": 458,
+      "retained_valid_audit_anchor": 586,
+      "waiting_future_execution_retry": 0,
+      "waiting_execution_attempts_ge3": 0
+    },
+    "latency_ms": 164.939,
+    "plan": [
+      "SEARCH t USING COVERING INDEX idx_psi0a_token_analysis_migrated_mint (migrated_at>? AND migrated_at<?)",
+      "SEARCH q USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?) LEFT-JOIN"
+    ]
+  },
+  "RECENT_48H_POPULATION": {
+    "counts": {
+      "migrated": 1900,
+      "eligible_waiting": 870,
+      "zero_lookup": 870,
+      "retained_valid_audit_anchor": 1024,
+      "waiting_future_execution_retry": 0,
+      "waiting_execution_attempts_ge3": 0
+    },
+    "latency_ms": 182.006,
+    "plan": [
+      "SEARCH t USING COVERING INDEX idx_psi0a_token_analysis_migrated_mint (migrated_at>? AND migrated_at<?)",
+      "SEARCH q USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?) LEFT-JOIN"
+    ]
+  },
+  "RECENT_7D_POPULATION": {
+    "counts": {
+      "migrated": 6779,
+      "eligible_waiting": 2663,
+      "zero_lookup": 2663,
+      "retained_valid_audit_anchor": 4103,
+      "waiting_future_execution_retry": 0,
+      "waiting_execution_attempts_ge3": 0
+    },
+    "latency_ms": 402.458,
+    "plan": [
+      "SEARCH t USING COVERING INDEX idx_psi0a_token_analysis_migrated_mint (migrated_at>? AND migrated_at<?)",
+      "SEARCH q USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?) LEFT-JOIN"
+    ]
+  },
+  "RECENT_WAITING_COUNT": {
+    "24h": {
+      "migrated": 1044,
+      "eligible_waiting": 458,
+      "zero_lookup": 458,
+      "retained_valid_audit_anchor": 586,
+      "waiting_future_execution_retry": 0,
+      "waiting_execution_attempts_ge3": 0
+    },
+    "48h": {
+      "migrated": 1900,
+      "eligible_waiting": 870,
+      "zero_lookup": 870,
+      "retained_valid_audit_anchor": 1024,
+      "waiting_future_execution_retry": 0,
+      "waiting_execution_attempts_ge3": 0
+    },
+    "7d": {
+      "migrated": 6779,
+      "eligible_waiting": 2663,
+      "zero_lookup": 2663,
+      "retained_valid_audit_anchor": 4103,
+      "waiting_future_execution_retry": 0,
+      "waiting_execution_attempts_ge3": 0
+    }
+  },
+  "RECENT_ZERO_ATTEMPT_COUNT": {
+    "24h": 458,
+    "48h": 870,
+    "7d": 2663,
+    "meaning": "anchor_lookup_attempts0, not execution attempts or providercalls. Exact read-snapshot counts, not continuous telemetry."
+  },
+  "INDEXED_RECENT_SELECTION": {
+    "existing_index": "ix_wbq_status(status,enqueued_at) reverse range supports newest enqueue candidatewindow; migration population uses core idx_psi0a_token_analysis_migrated_mint and OPSmintPKjoins. No newindexes.",
+    "plans": {
+      "newest": [
+        "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=? AND enqueued_at>?)"
+      ],
+      "newest_leastchecked": [
+        "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=? AND enqueued_at>?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    "bounded_window": "Diagnostic LIMIT1000 outercandidatewindow bounds fetched rows, then chooses leastlookupcount amongresidenteligible rows inPython. Not implemented inruntime. Six fixture scenarios;100/1000recent+50000historical completed conditional rounds in~31/2985ms respectively for100/1000cycles; memoryfixture measurements not canonical latency promises.",
+    "unbounded_variant": "Sorting all eligible recent rows by lookupcount/time requires TEMP B-TREE and populationwork, asDEV056; reducing to24/48timewindow does not bound rowcount under arbitraryarrivalrate.",
+    "timestamp_authority": "Populationcounts use actual core migrated_at. Installed enqueue timestamp can differ under delayed handoff; reverseenqueue window is not proven exactmigrationrecency policy. Coremigrationcandidatewindow plus pointjoins has same finitewindow exclusion issue. Missingtimestamps are retained and not assigned inventedmigrationtime.",
+    "eligibility": "Currentanchorlookup ignores next_retry_at and fundingexecutionattemptcap. Fixtures show futureexecutionretry and exhaustedexecutioncounter waitingrows still inlookupcandidatewindow. Applying those as newanchorbackoff/exhaustion rules would alteracceptedsemantics, not a provenpreservation."
+  },
+  "RECENT_FAIRNESS_BOUND": {
+    "status": "FAIL_REQUIRED_GENERAL_GUARANTEE",
+    "newest_only": "Same unresolved newest row selected repeatedly, recreatesmonopoly.",
+    "resident_window": "With static membership M<=1000, leastacknowledgedlookupcount and deterministicselection can give each resident row a turn withinMsuccessful serialized acknowledgments. ConditionalfixturePASS for100/1000.",
+    "counterexample": "1001recent eligiblewaiting rows, K1000 -> older recentr0 excluded,zero lookups after1010cycles. Allremainwithin24h andunresolved; no newarrivalsneeded. More arrivals can furtherdisplaceeligible rows. Arbitrarycap is not an approved exclusion policy.",
+    "fullrecent": "Without indexedlookuporder or independentlyqualifieddurablecontinuationstate, cannot establish everyrecenteligible row boundedopportunity. No newcursor DB/state/index designed."
+  },
+  "RESTART_CONTINUITY": {
+    "status": "NOT_QUALIFIED_FOR_A_VALID_POLICY",
+    "fixture": "Serializedrollback-beforeack preservesoldcount; commitpersistsnewcount; SQLitebackup/reopen state retainsack. This is smallfixture stateboundary verification only.",
+    "remaining": "No atomic multiworker selection/claim qualified; read-beforeack can selectsame row twice. Existing sharedlane serializeswrites, not independentreadselection automatically. Crashbeforeselection leavesunchanged; afterselection/beforecommit mayretry; afterackmustnotlosecount. No completecandidate means no crash/concurrencyPASS. No sourcechange or operationalrestart.",
+    "preservation": "No novelclaims,duplicateprevention or crashguarantees inferred from a newestLIMITquery."
+  },
+  "HISTORICAL_BACKLOG_POLICY": {
+    "preservation": "All50000historicalfixture rows and missingtimestamp rows retained unchanged; no expiring/deleting/completing oldrows.",
+    "candidate_windows": "24/48h are evaluated candidates only, NOT activated exclusionrules. They permanently deny opportunities once rows ageout absent separatehistoricalslot. Fixedrecentwindow also excludesrecentrows outsideK.",
+    "historical_opportunities": "A fixedoldesthistoricalslot would preserve samehistoricalmonopoly. Fair rotatinghistoricalaccess has sameexistingindex/durablepositiondependency. Splitting existingone-lookuppercycle acrossclasses changes opportunityallocation; not implemented or deemedapproved.",
+    "required_approval": "Any qualifiedfuturewindow/exclusion/historicalservice-guarantee policy requires explicitapproval. No approval requested now because currenttechnicalqualificationfails."
+  },
+  "PROVIDER_BUDGET_EQUIVALENCE": {
+    "status": "UNCHANGED_NO_IMPLEMENTATION",
+    "installed": "One localretained-evidence lookup perworker maintenancecycle; zero providerrequests forreconciliation; existing concurrency, lookupmechanisms, retrycounters and deadlines unchanged. Executionproviderbudgets separate and untouched.",
+    "candidate": "Diagnostic simulates atmostone acknowledgedlookup percycle; no provideracquisition, retries or automaticloops connectedtolivequeues. Reading up to1000candidate rows is bounded perfixture butnot proofqualifiedglobalbudget/concurrencycontract.",
+    "strict_qualification": "CREATEsignature/mint/creator/prelaunchboundary/WSOL/topology/admission/monitoring unchanged; scheduleopportunity is not recovery orWatchtowerconfirmation."
+  },
+  "BWMM_RECENT_ELIGIBILITY": {
+    "observed": {
+      "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+      "migrated_at": 1792195770,
+      "first_pre_migration_signal_at": null,
+      "create_tx_signature": null,
+      "earliest_tx_creator": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+      "enqueued_at": 1792195770,
+      "status": "waiting",
+      "path_state": "WAITING_FOR_CREATE_ANCHOR",
+      "anchor_lookup_attempts": 0,
+      "next_retry_at": null,
+      "attempts": 0
+    },
+    "current_newest_waiting_rank": 203,
+    "age_seconds": 49850,
+    "within24h": true,
+    "within48h": true,
+    "classification": "Eligible for retainedanchorlookup but starved; not eligible forfundingexecution whilewaiting. No retainedbirthsignal/anchor. Completecreator status doesnotexclude localreconciliation.",
+    "counterfactual": "At enqueue/currenttime qualifies24/48candidatewindow on migrationtime; rankatobservation fitsK1000 if numericrank<=1000. Exact firstwindow queuearrivals andcycle snapshots notretained, so cannotclaim it would actually havebeen selectedhistorically or recoverstrictanchor.",
+    "missing_evidence": "ExternalCREATE notinserted; Pumpcreatorandcompletefundingqualification unresolved. No providercall/requeue/replay. An opportunity maystill returnmissinganchor."
+  },
+  "MINIMUM_SAFE_CORRECTION": {
+    "implementation": "NONE qualified inthis task",
+    "smallesttemptingdiff": "Changing _stuck_rows ASCtoDESC is indexed butfails newestmonopoly; adding topKleastattemptselection onlyqualifiesstaticresidentK and silentlyexcludesK+1recentrows. Not recommendedforrelease.",
+    "precise_blocker": "Need a bounded access/continuationcontract that services eligible recentrows beyond afixedsnapshot and gives atomic acknowledgedadvancement underrestart/concurrency, whilepreservingfieldmeanings. Existingindexes+lookupstate do notdemonstrateit. Newindex/durablestate/cursor notauthorized.",
+    "futuretests": "After separatecompatibleproposal: exactmigrationtimepolicy, at leastK+1/adversarialarrivals/ageout, unknowntimestamps, retries/terminaleligibility, crashack/dualselection, existinglaneintegration, strictqualification and boundedqueryplans. No implementationordeployment implied.",
+    "rollback": "No runtime diffinstalled so rollbacknotneeded; anyfuturechange needsDEV048separatequalification/deploymentauthorization."
+  },
+  "READY_FOR_IMPLEMENTATION": false,
+  "PROVIDER_CALLS": 0,
+  "CANONICAL_WRITES": 0,
+  "PRODUCTION_CHANGES": 0,
+  "RUNTIME_DEPLOYMENT_REQUIRED": false,
+  "RUNTIME_DEPLOYMENT_REASON": "Schedulingpolicy feasibility withdisposableSQLfixtures and read-onlypopulationdiagnostics; no applicationcorrection",
+  "STORAGE_BOUNDS": {
+    "max_written_single_file_bytes": 8388608,
+    "max_memory_fixture_rows": 51001,
+    "raw_retention": false,
+    "new_runtime_growth_paths": 0
+  },
+  "NEXT_ACTION": "STOP \u2014 no recent-first policy passed both boundedaccess and nonmonopolizingfairness. Preservepopulationevidence andcounterexamples; separatecompatibleaccess/continuationpolicy needed, no implementation/index/cursor/deployment."
+}

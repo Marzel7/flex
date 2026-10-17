@@ -1,0 +1,19 @@
+import pathlib,sqlite3,json,time,hashlib
+R=pathlib.Path('/Users/kevinkeaveney/Dev/claude/flex-development/DEV058/source');E=R/'docs/audits/dev058';E.mkdir(parents=True,exist_ok=True);save=lambda n,d:(E/n).write_text(json.dumps(d,indent=2)+'\n');now=int(time.time());c=sqlite3.connect('file:/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db?mode=ro',uri=True);c.row_factory=sqlite3.Row;c.execute("ATTACH DATABASE 'file:/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db?mode=ro' AS ops");c.execute('pragma query_only=on');out={}
+wait="q.status='waiting' AND q.path_state='WAITING_FOR_CREATE_ANCHOR' AND (q.create_anchor_signature IS NULL OR q.create_anchor_audit_state='MISSING_OR_MALFORMED')"
+sql=f"""select count(*) migrated,
+sum(case when {wait} then 1 else 0 end) eligible_waiting,
+sum(case when {wait} and coalesce(q.anchor_lookup_attempts,0)=0 then 1 else 0 end) zero_lookup,
+sum(case when q.create_anchor_audit_state='VALID' and q.create_anchor_signature is not null then 1 else 0 end) retained_valid_audit_anchor,
+sum(case when {wait} and coalesce(q.next_retry_at,0)>? then 1 else 0 end) waiting_future_execution_retry,
+sum(case when {wait} and q.attempts>=3 then 1 else 0 end) waiting_execution_attempts_ge3
+from token_analysis t left join ops.wt_walkback_queue q on q.mint=t.mint
+where t.migrated_at>=? and t.migrated_at<?"""
+for label,seconds in [('24h',86400),('48h',172800),('7d',604800)]:
+ args=(now,now-seconds,now);plan=[r[3] for r in c.execute('explain query plan '+sql,args)];assert all('SCAN ' not in p for p in plan),plan;t=time.monotonic();deadline=t+2;c.set_progress_handler(lambda:int(time.monotonic()>deadline),1000)
+ try:row=dict(c.execute(sql,args).fetchone());out[label]={'counts':row,'latency_ms':round((time.monotonic()-t)*1000,3),'plan':plan}
+ except sqlite3.Error as e:out[label]={'counts':'UNKNOWN','reason':str(e),'plan':plan}
+c.set_progress_handler(None,0);mint='BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump';q='select t.mint,t.migrated_at,t.first_pre_migration_signal_at,t.create_tx_signature,t.earliest_tx_creator,q.enqueued_at,q.status,q.path_state,q.anchor_lookup_attempts,q.next_retry_at,q.attempts from token_analysis t left join ops.wt_walkback_queue q on q.mint=t.mint where t.mint=?';bw=dict(c.execute(q,(mint,)).fetchone());c.close()
+O=sqlite3.connect('file:/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db?mode=ro',uri=True);O.execute('pragma query_only=on');canonicalplans={}
+for label,sql2,args in [('newest',"select mint from wt_walkback_queue where status='waiting' and enqueued_at>=? order by enqueued_at desc limit 1",(now-86400,)),('newest_leastchecked',"select mint from wt_walkback_queue where status='waiting' and enqueued_at>=? order by anchor_lookup_attempts,enqueued_at desc limit 1",(now-86400,))]:canonicalplans[label]=[r[3] for r in O.execute('explain query plan '+sql2,args)]
+O.close();save('recent-indexed-population.json',{'now_epoch':now,'windows':'[now-duration,now); canonical token_analysis.migrated_at numeric epoch; core mintPK leftjoin queue mintPK ensures deduplication','sql':sql,'populations':out,'BWMM':bw,'enqueue_recent_plans':canonicalplans,'semantics':'retainedVALIDauditanchor not newly independently decodedqualification. waiting_future_execution_retry is executionretryfield; installed anchorselector ignores it. Counts not provideracquisition eligibility.'});print(json.dumps(out))

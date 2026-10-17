@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev051-signature",
-    "git_head": "966c162be966b0ca8670b56106e3c05b35a66f78",
+    "branch": "codex/dev052",
+    "git_head": "2c8e22dfe61391cb362f357aafcf36af6668891f",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T12:41:17.858569+00:00",
-    "working_tree": "DEV051 targeted analyzer overlay deployed to creator_resolution_worker; runtime gate PASS; natural V1 acceptance pending. Engineering candidate unchanged."
+    "updated_at_utc": "2026-10-17T12:57:34.557628+00:00",
+    "working_tree": "DEV052 audit complete; discovery-only correction HOLD_NOT_QUALIFIED; no runtime changes. DEV051 deployed worker untouched."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31139,5 +31139,32 @@
     "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV051-signature/evidence/targeted-deployment/DEV051_TARGETED_DEPLOYMENT_STATUS.json",
     "report_sha256": "a025ef4db5c896ddc81e2dc3e0b1b14c150b3bcf4346a49381f9973d5b793a16",
     "next_action": "NONE \u2014 targeted installation complete; retain corrected worker. Natural live V1 evidence remains pending; no replay authorized."
+  },
+  "dev052_create_gate_audit": {
+    "status": "AUDIT_COMPLETE; HOLD_DISCOVERY_ONLY_CORRECTION_NOT_QUALIFIED",
+    "engineering_source_sha": "2c8e22dfe61391cb362f357aafcf36af6668891f",
+    "branch": "codex/dev052",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV052/source/docs/audits/dev052/DEV052_CREATE_GATE_AUDIT_STATUS.json",
+    "report_sha256": "d6f042083952c26716c5929185769be86f56c2055d44950c991493008beda17b",
+    "findings": {
+      "entry_gate": "FULL_WALKBACK missing CREATE signature waits; current and pre-Oct7 source reference same prerequisite",
+      "temporal_dependency": "Removing anchor switches to newest history; compact exact-function fixture demonstrates changed population",
+      "historical_controls": "6Ku and E8 retained admitted FULL_WALKBACK with valid CREATE and WSOL edges; complete separate funding-account/fanout proof remains limited",
+      "recent_token": "Missing CREATE actual queue entry gate; inferred creator and WSOL recipient not independently Pump creator-qualified",
+      "two_stage": "HOLD; existing execution can confirm/persist/admit, not proven provisional-only; cached-label negatives remain relevant",
+      "minimum_correction": "NONE qualified; retain gate"
+    },
+    "tests": {
+      "offline_checks": 5,
+      "status": "PASS",
+      "DEV048_verify": "PASS",
+      "canonical_query_mode": "ro/query_only indexed point lookups with1sdeadline"
+    },
+    "runtime_deployment_required": false,
+    "reason": "Audit/documentation only",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "next_action": "STOP \u2014 audit complete. Keep CREATE gate. Separate qualification required for any alternative temporal/creator authority or discovery-only execution seam; no implementation/deployment/replay authorized."
   }
 }

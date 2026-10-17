@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev071",
-    "git_head": "5e6c6a982d9f5c2c09ab73432bd26761bfba9116",
+    "git_head": "87d746c21301a80c1a3e00ba69ada7376c83feef",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T19:31:35.912657+00:00",
-    "working_tree": "DEV071 historical amount search complete; no retained exact match; original coverage incomplete."
+    "updated_at_utc": "2026-10-17T19:37:01.044166+00:00",
+    "working_tree": "DEV071 since-boundary search complete; latest retained match already admitted; no runtime changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31740,5 +31740,19 @@
     "production_changes": 0,
     "application_changes": 0,
     "next_action": "STOP. No closer independently qualified match established. Do not relax the historical pattern or infer absence from missing evidence. No acquisition or runtime changes authorized."
+  },
+  "dev071_since_oct10_amount_search": {
+    "status": "SEARCH_COMPLETE_LATEST_MATCH_PREVIOUSLY_ADMITTED",
+    "engineering_source_sha": "87d746c21301a80c1a3e00ba69ada7376c83feef",
+    "verification": "13 bounded search and offline characterization checks PASS.",
+    "activation_state": "NO_ACTIVATION",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only population counting and retained evidence qualification only.",
+    "blocker": "No later retained pattern match established; original evidence coverage remains incomplete.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "application_changes": 0,
+    "next_action": "STOP. Preserve the latest known match and the characterized recovery heuristic. No new missed admission or causal defect established. No acquisition, implementation or runtime changes authorized."
   }
 }

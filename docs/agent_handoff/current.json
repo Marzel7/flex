@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev063",
-    "git_head": "a0e9f96a11aca6c5ce1436790b2212a6be7086b2",
+    "branch": "codex/dev064",
+    "git_head": "a1bdd4a1ae513fe671574e4c91849340e716aaef",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T15:27:14.307305+00:00",
-    "working_tree": "DEV063 branch-authority contract qualified read-only; no application correction, candidate or deployment. Current bypass remains open."
+    "updated_at_utc": "2026-10-17T15:35:30.382091+00:00",
+    "working_tree": "DEV064 read-only evidence isolation complete: insufficient independent route proof; no detector defect or implementation correction established."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31450,5 +31450,29 @@
     "schema_index_changes": 0,
     "engineering_evidence_publication": "Local committed derived contract evidence; only minimal handoff is published.",
     "next_action": "Await separate targeted implementation authorization, then implement the qualified branch contract and run focused plus DEV048 release gates. Do not deploy, rewrite historical records or bypass strict admission."
+  },
+  "dev064_genuine_watchtower_failure_isolation": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "engineering_source_sha": "a1bdd4a1ae513fe671574e4c91849340e716aaef",
+    "branch": "codex/dev064",
+    "baseline_sha": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "finding": "The strongest executed retained WSOL lead has a valid CREATE anchor and matching creator/funding signature/normalized atomic close evidence. Complete independently qualified SubProvider fanout and treasury ancestry remain unproven, so no genuine detector or admission false negative is established. BWMM is still missing its canonical CREATE anchor and has zero Walkback attempts.",
+    "scope": "12 retained identities, 140 bounded indexed point checks, one preserved historical admitted FULL control, and targeted installed selector AST comparison. No global absence claim, population recount, fairness/relay investigation or DEV063 reopening.",
+    "source_comparison": "Signature boundary, sender extraction and mechanism functions match retained committed reference. Selector difference is removal of legacy P3R post-evidence hook, not changed selection ranking. Exact source loaded at the last accepted Oct10 membership is not independently attested.",
+    "verification": "DEV048 isolated golden worktree create/verify PASS; source completeness and evidence hashes PASS; canonical handles mode=ro/query_only, scan plans rejected, per-query two-second deadline and row caps. No operational application started.",
+    "report_local": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV064/source/docs/audits/dev064/DEV064_GENUINE_WATCHTOWER_STATUS.json",
+    "report_sha256": "93565668792b6b2800a9abf2f9b2ed38ae3e8e323f13af5a6cac57ba138d2049",
+    "ready_for_implementation": false,
+    "minimum_correction": "NONE QUALIFIED",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only forensic investigation; no executable change.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "persistent_dev_changes": 0,
+    "application_changes": 0,
+    "engineering_evidence_publication": "Local committed audit; only minimal handoff published.",
+    "additional_evidence": "Exact-signature proposal in bounded-evidence-escalation.json: at most three getTransaction reads, concurrency one, retries zero, ten-second timeout and 262144-byte response cap each; raw retention disabled. No authorization granted. Missing exact fanout signatures require retained witnesses before any further acquisition scope.",
+    "next_action": "Stop. Obtain separate authorization for the fixed exact-signature proposal and exact retained fanout witnesses; do not implement, acquire address history, deploy, or declare Walkback correct/defective."
   }
 }

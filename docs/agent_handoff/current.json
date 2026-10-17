@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev065",
-    "git_head": "9afe268da83ba8bcd85bb9aa84d8ff71f6dde730",
+    "branch": "codex/dev066",
+    "git_head": "62fbd2f36c8aed67e9a569aea9a7d84210933655",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T15:53:28.380739+00:00",
-    "working_tree": "DEV065 bounded read-only upstream investigation complete: unresolved incoming Djwn lineage/fanout; no detector defect or implementation correction established."
+    "updated_at_utc": "2026-10-17T16:37:47.654018+00:00",
+    "working_tree": "DEV066 bounded audit complete; no recovery or implementation. HOLD missing Pump instruction creator evidence."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31535,5 +31535,25 @@
     "DEV064_reacquisition": false,
     "engineering_evidence_publication": "Local compact derived audit; only minimal handoff published.",
     "next_action": "STOP. Need exact pre-cutoff incoming Djwn signature and distinct-recipient fanout/higher ancestry witnesses. Executable provider budget0; conditional single exact getTransaction only after signature identification and separate authorization. No address-history discovery, implementation or deployment authorized."
+  },
+  "dev066_bwmm_anchor_readiness": {
+    "status": "HOLD_MISSING_PUMP_CREATOR_EVIDENCE",
+    "engineering_source_sha": "62fbd2f36c8aed67e9a569aea9a7d84210933655",
+    "baseline_sha": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "finding": "BwMM remains waiting for CREATE anchor: zero anchor lookups and zero Walkback attempts. Creator resolution is complete with fallback-derived 27HF identity. No creator conflict or exact-mint starvation cause established.",
+    "evidence_gap": "Preserved DEV051 metadata verifies exact signature/version1 and parsed structure, but retains only data_bytes_present flag, not Pump discriminator or serialized creator argument. Fee payer is not proven Pump creator.",
+    "qualification": "22 provider-free offline checks PASS; installed decoder signature correlation and existing read-only anchor contracts compatible. No recovery writer invoked. NULL creator anchor compatibility does not qualify actual creator.",
+    "activation_boundary": "Publishing an anchor could let ordinary reconciliation release the waiting row and trigger worker execution. Existing complete creator row is not automatically reprocessed. No anchor write or requeue authorized.",
+    "report_local": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV066/source/docs/audits/dev066/DEV066_BWMM_WATCHTOWER_RECOVERY_STATUS.json",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "persistent_dev_changes": 0,
+    "application_changes": 0,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only audit and offline fixture qualification only.",
+    "ready_for_exact_mint_recovery": false,
+    "engineering_evidence_publication": "Local committed compact audit; only minimal handoff published.",
+    "next_action": "STOP. Seek separate authorization for one exact CREATE-signature Helius getTransaction: requests1/concurrency1/retries0, no raw retention, no discovery or funding reacquisition. No recovery, replay, requeue, canonical write or deployment."
   }
 }

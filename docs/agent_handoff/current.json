@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev066",
-    "git_head": "62fbd2f36c8aed67e9a569aea9a7d84210933655",
+    "git_head": "2614dd250e1c1450df2bb00cf8dbfb6676ba399e",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T16:37:47.654018+00:00",
-    "working_tree": "DEV066 bounded audit complete; no recovery or implementation. HOLD missing Pump instruction creator evidence."
+    "updated_at_utc": "2026-10-17T16:43:23.688391+00:00",
+    "working_tree": "DEV066 authorized single CREATE read complete; Pump creator proven; no recovery or runtime changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31537,7 +31537,7 @@
     "next_action": "STOP. Need exact pre-cutoff incoming Djwn signature and distinct-recipient fanout/higher ancestry witnesses. Executable provider budget0; conditional single exact getTransaction only after signature identification and separate authorization. No address-history discovery, implementation or deployment authorized."
   },
   "dev066_bwmm_anchor_readiness": {
-    "status": "HOLD_MISSING_PUMP_CREATOR_EVIDENCE",
+    "status": "SUPERSEDED_EVIDENCE_GAP_RESOLVED_BY_AUTHORIZED_SINGLE_READ",
     "engineering_source_sha": "62fbd2f36c8aed67e9a569aea9a7d84210933655",
     "baseline_sha": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
     "finding": "BwMM remains waiting for CREATE anchor: zero anchor lookups and zero Walkback attempts. Creator resolution is complete with fallback-derived 27HF identity. No creator conflict or exact-mint starvation cause established.",
@@ -31554,6 +31554,39 @@
     "runtime_deployment_reason": "Read-only audit and offline fixture qualification only.",
     "ready_for_exact_mint_recovery": false,
     "engineering_evidence_publication": "Local committed compact audit; only minimal handoff published.",
-    "next_action": "STOP. Seek separate authorization for one exact CREATE-signature Helius getTransaction: requests1/concurrency1/retries0, no raw retention, no discovery or funding reacquisition. No recovery, replay, requeue, canonical write or deployment."
+    "next_action": "See dev066_authorized_CREATE_read: creator argument verified, canonical creator conflict requires separate qualification; no recovery authorized."
+  },
+  "dev066_authorized_CREATE_read": {
+    "status": "PASS_EXACT_CREATE_V2_CREATOR_ARGUMENT_VERIFIED",
+    "recovery_status": "HOLD_CREATOR_AUTHORITY_CONFLICT_NO_RECOVERY_AUTHORIZED",
+    "engineering_source_sha": "2614dd250e1c1450df2bb00cf8dbfb6676ba399e",
+    "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+    "signature": "3wtMLEFAejTCjqN5koydeFdSSQzppmqqvqbELgRYJtKg7a9q6eT1GwWMUYcnoA7Hbggz1JM4YjirCFTCtaNF7Dxz",
+    "finding": "Exactly one authorized Helius getTransaction, no retries/fallback. Successful version1, slot457831907/blockTime1792195770, Pump CREATE_V2 discriminator and mint verified. Serialized creator argument is7KX5aXKoU5HtaHnLdgAY21nyKpxEcahxwv9rvExKSxFD, independently decoded; also payer/user/signer but no identity inference from those roles. Same CREATE scope Token2022 mint initialization and Pump-owned curve creation verified.",
+    "conflict": "Decoded Pump creator differs from previously verified canonical fallback27HF. Canonical state not refreshed or modified during this acquisition. Existing terminal complete creator state and Walkback recovery priority require separate authority reconciliation qualification. Anchor publication could cause queue release; none performed.",
+    "funding_limit": "Previously retained WSOL recipient7KX is now proven Pump creator argument. Hmc authority, tempWSOL7vHX and intermediateDd6 remain distinct. Complete SubProvider fanout/selected FundingAccount/treasury ancestry remain unqualified; no funding reacquisition.",
+    "verification": "15 derived validation checks PASS; pre-acquisition synthetic Borsh positive and three negative controls PASS. Returned response35459bytes/262144cap;0.264sec/10sec deadline. Raw response and original instruction bytes discarded; only derived evidence and hashes retained. Official Pump public ABI documentation hashed; no historical deployed binary attestation.",
+    "report_local": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV066/source/docs/audits/dev066/single-CREATE-read-status.json",
+    "report_sha256": "858328f3f53402c47a1ae1f98cf7cc8c2e56253b52cafa7dd4207665102c619c",
+    "provider_calls": 1,
+    "provider_budget": {
+      "maximum_requests": 1,
+      "concurrency": 1,
+      "retries": 0,
+      "fallbacks": 0,
+      "further_acquisition_authorized": false
+    },
+    "canonical_writes": 0,
+    "queue_writes": 0,
+    "production_changes": 0,
+    "persistent_dev_changes": 0,
+    "application_changes": 0,
+    "service_restarts": 0,
+    "replay_requeue_walkback_executions": 0,
+    "raw_retention": false,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Evidence-only read/decoding, no application implementation.",
+    "engineering_evidence_publication": "Compact audit committed locally; minimal handoff published.",
+    "next_action": "STOP. Separately authorize qualification of canonical creator/terminal-state reconciliation against proven Pump creator before any anchor persistence or Walkback execution. No further provider read, implementation, recovery, requeue or deployment authorized."
   }
 }

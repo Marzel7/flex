@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev071",
-    "git_head": "5a67376087c90e5b85ac3c25fadfd013e6616498",
+    "git_head": "e99559502646f3ac96ff63c10974c1c70e17efdf",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T18:16:38.112805+00:00",
-    "working_tree": "DEV071 read-only topology counting PARTIAL; exact population, independent total unknown."
+    "updated_at_utc": "2026-10-17T19:21:58.172384+00:00",
+    "working_tree": "DEV071 eight-route comparison PARTIAL; explicit likeness ties; no runtime changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31712,5 +31712,19 @@
     "production_changes": 0,
     "application_changes": 0,
     "next_action": "STOP. Qualify retained original identity, chronology and topology witnesses before considering a detection correction. No acquisition, implementation or deployment authorized."
+  },
+  "dev071_eight_likeness": {
+    "status": "PARTIAL_RETAINED_LIKENESS_TIERS_WITH_EXPLICIT_TIES",
+    "engineering_source_sha": "e99559502646f3ac96ff63c10974c1c70e17efdf",
+    "verification": "9 bounded retained-route comparison checks PASS; no application changes.",
+    "activation_state": "NO_ACTIVATION",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only population counting and retained evidence qualification only.",
+    "blocker": "Defining independent topology evidence remains incomplete; a precise likeness order is unsupported.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "application_changes": 0,
+    "next_action": "STOP. Use the preserved relative tiers and full route comparisons for research only. No acquisition, attribution change or deployment authorized."
   }
 }

@@ -1,0 +1,421 @@
+{
+  "DEV051_WATCHTOWER_TRANSACTION_AUDIT_STATUS": "PARTIAL_WATCHTOWER_ROUTE",
+  "TOKEN_MINT": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+  "WORKFLOW": {
+    "create": "PASS",
+    "verify": "PASS",
+    "baseline": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "operational_workers_started": 0
+  },
+  "TX1_DECODED": {
+    "file": "TX1_decoded.json",
+    "signature": "3wtMLEFAejTCjqN5koydeFdSSQzppmqqvqbELgRYJtKg7a9q6eT1GwWMUYcnoA7Hbggz1JM4YjirCFTCtaNF7Dxz",
+    "execution_succeeded": true,
+    "slot": 457831907,
+    "utc": "2026-10-17T00:09:30+00:00",
+    "fee_payer": "7KX5aXKoU5HtaHnLdgAY21nyKpxEcahxwv9rvExKSxFD",
+    "signers": [
+      "7KX5aXKoU5HtaHnLdgAY21nyKpxEcahxwv9rvExKSxFD",
+      "8uL1AGHssnSwvR9FXLncbo4MfzZ8xzQVsvhpRfGAgCwe",
+      "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+      "FXvbrPfqd7mjJS633whgkAn9dBRyufaFUmcU3qgWF3vX"
+    ],
+    "program_ids": [
+      "11111111111111111111111111111111",
+      "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+      "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+      "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+    ],
+    "outer_instruction_count": 8,
+    "inner_instruction_count": 36,
+    "mint_creation": "New token2022 mint account created, initialized and minted under Pump invocation;7KX source wallet funds creation.",
+    "abi_limit": "System/SPL parsed instructions decoded; Pump-specific outer instruction data remains UNPARSED. No raw instruction data retained; no second successful RPC lookup made. Do not conflate launch user with an independently decoded Pump creator argument."
+  },
+  "TX2_DECODED": {
+    "file": "TX2_decoded.json",
+    "signature": "67GxPwV2z4R19UMoPw7isA8cM7V7UwsYz9baUhYLdWivkSgBjkJWXFvzJ7P846DbrDH3dkih7fWjcNh3tiCtXfd7",
+    "execution_succeeded": true,
+    "slot": 457831903,
+    "utc": "2026-10-17T00:09:28+00:00",
+    "fee_payer": "Dd6hgkmaiS5oYx4yU4FFS1khUEDHMnktsBFqgtXm5TzU",
+    "signers": [
+      "Dd6hgkmaiS5oYx4yU4FFS1khUEDHMnktsBFqgtXm5TzU",
+      "HmcSKFTyc9eV1RJLRJssJFY8fnxsoPa1N9bGzY8FpRyh"
+    ],
+    "program_ids": [
+      "11111111111111111111111111111111",
+      "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+    ],
+    "outer_instruction_count": 3,
+    "inner_instruction_count": 0,
+    "mechanism": "createAccountWithSeed -> initializeAccount(native WSOL) -> closeAccount; no syncNative instruction present or required to be fabricated",
+    "gross_lamports": 253039280,
+    "fee_lamports": 10000
+  },
+  "TX3_DECODED": {
+    "file": "TX3_decoded.json",
+    "signature": "5JoHhi2js4YRMjqD35F8Eo9xJy9swjQkxDfqWnpKJJN25azZEE9q3NH1kdjFVqJem6wY4YHwDmFcubLZP2pVAUo9",
+    "execution_succeeded": true,
+    "slot": 457830541,
+    "utc": "2026-10-17T00:04:32+00:00",
+    "fee_payer": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "signers": [
+      "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac"
+    ],
+    "program_ids": [
+      "11111111111111111111111111111111",
+      "ComputeBudget111111111111111111111111111111"
+    ],
+    "outer_instruction_count": 3,
+    "inner_instruction_count": 0,
+    "transfer_lamports": 850000000000,
+    "unparsed": "ComputeBudget instructions retained as program/account metadata, not a full ABI decode."
+  },
+  "TREASURY_FUNDING_EDGE": [
+    {
+      "stage": "Supplied treasury->SubProvider",
+      "source": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+      "destination": "CRqEu31bUofuHZVhhSwLFVr9rPHsxx9PEzKRA41uCp1T",
+      "signature": null,
+      "amount_sol": null,
+      "verdict": "NOT_ESTABLISHED: no decoded edge; two additional references not located in checked retained cache/edge authorities; not acquired."
+    },
+    {
+      "stage": "Observed treasury funding",
+      "source": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+      "destination": "Dd6hgkmaiS5oYx4yU4FFS1khUEDHMnktsBFqgtXm5TzU",
+      "signature": "5JoHhi2js4YRMjqD35F8Eo9xJy9swjQkxDfqWnpKJJN25azZEE9q3NH1kdjFVqJem6wY4YHwDmFcubLZP2pVAUo9",
+      "amount_sol": "850.000000000",
+      "verdict": "VERIFIED System transfer, TX3 outer2"
+    }
+  ],
+  "SUBPROVIDER_IDENTITY": {
+    "supplied": "CRqEu31bUofuHZVhhSwLFVr9rPHsxx9PEzKRA41uCp1T",
+    "verified": false,
+    "observed_funding_recipient": "Dd6hgkmaiS5oYx4yU4FFS1khUEDHMnktsBFqgtXm5TzU",
+    "interpretation": "Dd6 is not automatically a proven SubProvider;CRq edge absent from decoded transfers and retained exact references checked."
+  },
+  "FANOUT_RECIPIENTS": {
+    "verified_multiple_distinct_funding_accounts": false,
+    "observed_selected_WSOL_authorities": [
+      "HmcSKFTyc9eV1RJLRJssJFY8fnxsoPa1N9bGzY8FpRyh"
+    ],
+    "repeated_provisioning_amounts": "NOT_ESTABLISHED: only one selected WSOL setup/close among authorized transactions",
+    "selected_membership_in_fanout": "UNVERIFIED",
+    "not_fanout": "TX1 mint-token recipients and buyers are not evidence of SubProvider SOL provisioning fan-out.",
+    "historical_contract": {
+      "source": "/Users/kevinkeaveney/Production/flex-listener/src/core/ws_cascade_store.py:record_fanout_event",
+      "sha256": "78a679bb387cfbb9eb95cbdc47c710cd8c8e1b66bfe4fff94f6da398a840a51a",
+      "observed_contract": "Recorder consumes actual decoded destination list, returns if empty, records count/amount range. has_identical_amounts is a descriptive metric for nonzero amounts within0.1%; not a new admission threshold.",
+      "qualification": "User/preserved accepted topology requires independent Treasury->SubProvider->ManyFundingAccounts->SelectedFundingAccount->Creator->Launch with WSOL closure. No numeric many threshold introduced or inferred from buyers/mint token recipients."
+    }
+  },
+  "SELECTED_FUNDING_ACCOUNT": {
+    "supplied": "HmcSKFTyc9eV1RJLRJssJFY8fnxsoPa1N9bGzY8FpRyh",
+    "proven_roles": [
+      "TX2 signer",
+      "SystemcreateAccountWithSeed base",
+      "SPL WSOL token owner/close authority"
+    ],
+    "not_proven": [
+      "Native wallet recipient from CRq",
+      "Membership in verified many-Funding-Account fan-out"
+    ],
+    "actual_native_funding_source": "Dd6hgkmaiS5oYx4yU4FFS1khUEDHMnktsBFqgtXm5TzU"
+  },
+  "TEMPORARY_WSOL_ACCOUNT": {
+    "address": "7vHXdWsdyDi7byUwndjYeEZKFAAjAhB9yym8EYPwPNqP",
+    "distinct_from_funding_authority_creator_and_payer": true,
+    "account_program_owner": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    "token_account_authority": "HmcSKFTyc9eV1RJLRJssJFY8fnxsoPa1N9bGzY8FpRyh",
+    "mint": "So11111111111111111111111111111111111111112",
+    "system_funding_source": "Dd6hgkmaiS5oYx4yU4FFS1khUEDHMnktsBFqgtXm5TzU",
+    "close_destination": "7KX5aXKoU5HtaHnLdgAY21nyKpxEcahxwv9rvExKSxFD"
+  },
+  "CREATOR_FUNDING": {
+    "stage": "Creator/launch-user funding",
+    "source": "7vHXdWsdyDi7byUwndjYeEZKFAAjAhB9yym8EYPwPNqP",
+    "destination": "7KX5aXKoU5HtaHnLdgAY21nyKpxEcahxwv9rvExKSxFD",
+    "signature": "67GxPwV2z4R19UMoPw7isA8cM7V7UwsYz9baUhYLdWivkSgBjkJWXFvzJ7P846DbrDH3dkih7fWjcNh3tiCtXfd7",
+    "amount_sol": "0.253039280 gross close proceeds",
+    "verdict": "VERIFIED closeAccount TX2 outer2, authorityHmc; creator balance delta confirms entire253039280lamports. Principal/rent split not independently measured."
+  },
+  "CREATOR_CREATE_EVIDENCE": {
+    "mint_creation_transaction": "3wtMLEFAejTCjqN5koydeFdSSQzppmqqvqbELgRYJtKg7a9q6eT1GwWMUYcnoA7Hbggz1JM4YjirCFTCtaNF7Dxz",
+    "slot": 457831907,
+    "utc": "2026-10-17T00:09:30+00:00",
+    "funded_launch_user": "7KX5aXKoU5HtaHnLdgAY21nyKpxEcahxwv9rvExKSxFD",
+    "support": "System mint creation funded by7KX, Pump invocation account, signer/fee payer, initialized mint-token account owner. Role is not inferred from signer status alone.",
+    "canonical_record": [
+      {
+        "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+        "created_at": 1792195770.727993,
+        "pf_ws_creator": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+        "earliest_tx_creator": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+        "create_tx_signature": null,
+        "migration_tx": "5efN7zWzSqVjtbRd96Gq3XxXud5NvxUMtQSJpNjnJQzk3tbmqhZFWDrzy85dur7zyHfYirEvmgVoWJ8F7yQuBeH6",
+        "migrated_at": 1792195770,
+        "migration_slot": 457831907,
+        "lifecycle_stage": "migrated"
+      }
+    ],
+    "resolution_record": [
+      {
+        "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+        "status": "complete",
+        "attempts": 1,
+        "resolved_creator": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+        "create_tx_signature": null,
+        "resolution_tier": "GENERIC",
+        "resolved_at": 1792195865,
+        "source": "crq_worker"
+      }
+    ],
+    "creator_discrepancy": "Canonical creator27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX was resolvedGENERIC; noCREATEsignature persisted. Exact Pump creator argument versus launch-user semantics not independently decoded, so do not assert overwriting canonical creator is justified.",
+    "migration": "Canonical record says migrated with signature5efN7z... andslot457831907; migration transaction not independently acquired under this budget; durablehandoffCOMPLETE is retained, not independent migration execution proof."
+  },
+  "COMPLETE_FUNDING_ROUTE": [
+    {
+      "stage": "Supplied treasury->SubProvider",
+      "source": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+      "destination": "CRqEu31bUofuHZVhhSwLFVr9rPHsxx9PEzKRA41uCp1T",
+      "signature": null,
+      "amount_sol": null,
+      "verdict": "NOT_ESTABLISHED: no decoded edge; two additional references not located in checked retained cache/edge authorities; not acquired."
+    },
+    {
+      "stage": "Observed treasury funding",
+      "source": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+      "destination": "Dd6hgkmaiS5oYx4yU4FFS1khUEDHMnktsBFqgtXm5TzU",
+      "signature": "5JoHhi2js4YRMjqD35F8Eo9xJy9swjQkxDfqWnpKJJN25azZEE9q3NH1kdjFVqJem6wY4YHwDmFcubLZP2pVAUo9",
+      "amount_sol": "850.000000000",
+      "verdict": "VERIFIED System transfer, TX3 outer2"
+    },
+    {
+      "stage": "SubProvider fan-out",
+      "source": "CRqEu31bUofuHZVhhSwLFVr9rPHsxx9PEzKRA41uCp1T",
+      "destination": "Multiple distinct Funding Accounts",
+      "signature": null,
+      "amount_sol": null,
+      "verdict": "NOT_VERIFIED. Three transactions contain no such fan-out; retained candidate/payer fan-out checks empty."
+    },
+    {
+      "stage": "Selected controller provisioning",
+      "source": "Dd6hgkmaiS5oYx4yU4FFS1khUEDHMnktsBFqgtXm5TzU",
+      "destination": "7vHXdWsdyDi7byUwndjYeEZKFAAjAhB9yym8EYPwPNqP",
+      "signature": "67GxPwV2z4R19UMoPw7isA8cM7V7UwsYz9baUhYLdWivkSgBjkJWXFvzJ7P846DbrDH3dkih7fWjcNh3tiCtXfd7",
+      "amount_sol": "0.253039280",
+      "verdict": "VERIFIED System createAccountWithSeed, TX2 outer0. SPL-program-owned account initialized to WSOL with Hmc token authority; no native transfer into Hmc wallet proved."
+    },
+    {
+      "stage": "Creator/launch-user funding",
+      "source": "7vHXdWsdyDi7byUwndjYeEZKFAAjAhB9yym8EYPwPNqP",
+      "destination": "7KX5aXKoU5HtaHnLdgAY21nyKpxEcahxwv9rvExKSxFD",
+      "signature": "67GxPwV2z4R19UMoPw7isA8cM7V7UwsYz9baUhYLdWivkSgBjkJWXFvzJ7P846DbrDH3dkih7fWjcNh3tiCtXfd7",
+      "amount_sol": "0.253039280 gross close proceeds",
+      "verdict": "VERIFIED closeAccount TX2 outer2, authorityHmc; creator balance delta confirms entire253039280lamports. Principal/rent split not independently measured."
+    },
+    {
+      "stage": "Mint creation/launch user",
+      "source": "7KX5aXKoU5HtaHnLdgAY21nyKpxEcahxwv9rvExKSxFD",
+      "destination": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+      "signature": "3wtMLEFAejTCjqN5koydeFdSSQzppmqqvqbELgRYJtKg7a9q6eT1GwWMUYcnoA7Hbggz1JM4YjirCFTCtaNF7Dxz",
+      "amount_sol": "Not a provisioning amount",
+      "verdict": "VERIFIED mint account create/initialize/metadata/mintTo CPI sequence under Pump outer0;7KX funds mint creation and signs. Separate Pump creator argument not decoded; canonicalcreator differs."
+    }
+  ],
+  "HISTORICAL_FINGERPRINT_COMPARISON": {
+    "comparison": {
+      "treasury_ancestry": "Historical accepted control records Gza->HGU/HYTK via PLAIN_XFER; current TX3 independently proves Gza->Dd6 native transfer. This does not prove Gza->CRq.",
+      "subprovider_role": "Historical ledger names HGU/HYTK; current Dd6 is proven payer/funding recipient only. SubProvider fan-out role unqualified.",
+      "fanout": "Control rows have fanout_countNULL and inspected fan-out rows unavailable. No complete original fan-out proof for new or selected controls; no invented threshold or equivalence claimed.",
+      "selected_funding_account": "Historical selected-account/temporary-account separation not preserved in chosen control records; current Hmc is proven WSOL authority/base/signature, not a verified native-funding recipient or member of a proved fan-out.",
+      "WSOL_creator_funding": "Historical retained wrap-close signatures and0.203039SOL observations compared with current independently decoded WSOLinitialize/close gross0.253039280SOL. Different amounts alone are not a mismatch.",
+      "creator_launch": "Controls have CREATE signatures plus canonical Watchtower memberships. Current TX1 proves mint creation funded by7KX; canonical GENERIC creator27HF and missingCREATEsignature remain unresolved.",
+      "verdict": "PARTIAL_COMPARISON_ONLY \u2014 accepted memberships do not fill absent transaction/fan-out evidence."
+    },
+    "accepted_retained_controls": [
+      {
+        "mint": "2cXEPqkLAEdYCw6aoRVRddxGB8gRUM7PWZoLXUwXpump",
+        "creator_wallet": "DaEjmdKxxUY3TbabsUfqD8rn5UvLDuEaBLCusdGivj1b",
+        "create_signature": "25Y7XXiHevyvWZEuaRWfSq2XX2Ab9V2SkRxV1ANCrHqFDqy59nuJmWwChZzDCU9UMrxzB1X1h9mwZq69APKJXcKF",
+        "create_time": 1789667571,
+        "treasury_wallet": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+        "subprov_wallet": "HGUo492FT7bMqACVJdBVj7P2voPjPsx6r8Y8gESMricN",
+        "wrap_close_signature": "3Phb5NGSe7wUTEUNRBWRXhZ6kYv3o9mTjpfVFzzeWEE6xm4bPMFf5FYZ14MLXy5iP8jaDj8mTcVY1m4HE2y5AiNX",
+        "fanout_count": null,
+        "wrap_close_sol": 0.203039,
+        "state": "FIRED_CREATE",
+        "membership": [
+          {
+            "mint": "2cXEPqkLAEdYCw6aoRVRddxGB8gRUM7PWZoLXUwXpump",
+            "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+            "assigned_at": 1789911252
+          }
+        ],
+        "session": [
+          {
+            "source_mint": "2cXEPqkLAEdYCw6aoRVRddxGB8gRUM7PWZoLXUwXpump",
+            "treasury": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+            "subprov": "HGUo492FT7bMqACVJdBVj7P2voPjPsx6r8Y8gESMricN",
+            "creator": "DaEjmdKxxUY3TbabsUfqD8rn5UvLDuEaBLCusdGivj1b",
+            "treasury_to_subprov_block_time": 1789666668,
+            "subprov_to_creator_block_time": 1789667569,
+            "treasury_to_subprov_mechanism": "PLAIN_XFER",
+            "subprov_to_creator_mechanism": "WSOL_WRAP_CLOSE",
+            "treasury_to_subprov_amount_sol": 1000.0,
+            "subprov_to_creator_amount_sol": 0.203039
+          }
+        ]
+      },
+      {
+        "mint": "3tUn8dGmDceJ9pCwFLUVo2jkD6FLWaZ78YEpAa3bpump",
+        "creator_wallet": "C9jPx77ZLhG2SYb43tVh3QgepBYzh2sws9NYnEBJgE9Z",
+        "create_signature": "2L1XgJKq65H1NUBHeX9PcRqR3GwJJCUoVXY1XzbKh38rAYDogD744i6Zy9HZfP5uFjzCXUh1gx5JPraDnyeXRPjm",
+        "create_time": 1789863061,
+        "treasury_wallet": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+        "subprov_wallet": "HYTKyvbBPFyBTwV9PhvxV7q5MEnS9fiC76X6SsxTxBws",
+        "wrap_close_signature": "4jBF7GosQ16haRkTg6SvxvGwwf6Ar4kLwUW3ATSDNLPEgkecirVa8CXMjYf1BFdeLLZMWHEYBR1ZUf6NteBenpA3",
+        "fanout_count": null,
+        "wrap_close_sol": 0.203039,
+        "state": "FIRED_CREATE",
+        "membership": [
+          {
+            "mint": "3tUn8dGmDceJ9pCwFLUVo2jkD6FLWaZ78YEpAa3bpump",
+            "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+            "assigned_at": 1789911252
+          }
+        ],
+        "session": [
+          {
+            "source_mint": "3tUn8dGmDceJ9pCwFLUVo2jkD6FLWaZ78YEpAa3bpump",
+            "treasury": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+            "subprov": "HYTKyvbBPFyBTwV9PhvxV7q5MEnS9fiC76X6SsxTxBws",
+            "creator": "C9jPx77ZLhG2SYb43tVh3QgepBYzh2sws9NYnEBJgE9Z",
+            "treasury_to_subprov_block_time": 1789862204,
+            "subprov_to_creator_block_time": 1789863059,
+            "treasury_to_subprov_mechanism": "PLAIN_XFER",
+            "subprov_to_creator_mechanism": "WSOL_WRAP_CLOSE",
+            "treasury_to_subprov_amount_sol": 600.0,
+            "subprov_to_creator_amount_sol": 0.203039
+          }
+        ]
+      }
+    ],
+    "artifact": "Canonical OPS wt_watchtower_launches,wt_provisioning_sessions andoperator_launch_membership exact-index records, inretained-evidence.json; not freshly decoded raw historicaltransactions."
+  },
+  "WALKBACK_PROCESSING_STATUS": {
+    "token_analysis": [
+      {
+        "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+        "created_at": 1792195770.727993,
+        "pf_ws_creator": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+        "earliest_tx_creator": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+        "create_tx_signature": null,
+        "migration_tx": "5efN7zWzSqVjtbRd96Gq3XxXud5NvxUMtQSJpNjnJQzk3tbmqhZFWDrzy85dur7zyHfYirEvmgVoWJ8F7yQuBeH6",
+        "migrated_at": 1792195770,
+        "migration_slot": 457831907,
+        "lifecycle_stage": "migrated"
+      }
+    ],
+    "creator_resolution_queue": [
+      {
+        "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+        "status": "complete",
+        "attempts": 1,
+        "resolved_creator": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+        "create_tx_signature": null,
+        "resolution_tier": "GENERIC",
+        "resolved_at": 1792195865,
+        "source": "crq_worker"
+      }
+    ],
+    "migration_walkback_handoff": [
+      {
+        "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+        "state": "COMPLETE",
+        "migration_tx": "5efN7zWzSqVjtbRd96Gq3XxXud5NvxUMtQSJpNjnJQzk3tbmqhZFWDrzy85dur7zyHfYirEvmgVoWJ8F7yQuBeH6",
+        "created_at": 1792195770,
+        "completed_at": 1792195773,
+        "last_error_class": null
+      }
+    ],
+    "creator_funding_queue": [
+      {
+        "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+        "creator_address": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+        "status": "complete",
+        "create_tx_signature": null,
+        "attempts": 1,
+        "last_error": null
+      }
+    ],
+    "wt_detected_creates": [],
+    "birth_persist_queue": [],
+    "wt_walkback_queue": [
+      {
+        "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+        "creator": null,
+        "status": "waiting",
+        "path_state": "WAITING_FOR_CREATE_ANCHOR",
+        "create_anchor_signature": null,
+        "create_anchor_audit_state": "MISSING_OR_MALFORMED",
+        "attempts": 0,
+        "rpc_used": 0,
+        "anchor_lookup_attempts": 0,
+        "last_anchor_lookup_at": null,
+        "next_retry_at": null,
+        "subprov": null,
+        "treasury": null,
+        "funder_wallet": null,
+        "funding_mechanism": null,
+        "funder_sig": null,
+        "intelligence_outcome": null
+      }
+    ],
+    "wt_create_event_ledger": [],
+    "wt_attribution_outcomes": [],
+    "wt_watchtower_promotion_outcomes": [],
+    "operator_launch_membership": [],
+    "wt_walkback_edge_candidates": []
+  },
+  "FIRST_FAILED_TRANSITION": {
+    "first_observed_retained_block": "On-chain mintcreation exists, but canonical CREATEanchor absent; queuedwaitingWAITING_FOR_CREATE_ANCHOR beforeWalkbackexecution",
+    "observed_anchor_lookup_attempts": 0,
+    "admission": "No exactmint promotion outcome, attribution decision or canonicalmembership; not a recorded admission rejection",
+    "cause_limit": "Birthcapture failure mechanism not established. Zero attempts is consistent with previously demonstrated starvation, not a new proof or reason to reopenDEV049. Missing creator signature independently blocks strict entry."
+  },
+  "FALSE_NEGATIVE_VERDICT": {
+    "status": "NOT_PROVEN",
+    "reason": "Fan-out, suppliedCRq ancestry and exact creator-role equivalence remain unverified. On-chain CREATE evidence plus missingledger alone is insufficient to prove complete Watchtowerqualification."
+  },
+  "ADDITIONAL_REFERENCES": {
+    "signatures": [
+      "2onwoXTpqzq43sTMYJvU7RAyYkazXEMm1trW4NmKcZsc9dcKUrHnykFXoTLfWb1JFC7F2d2oUnYWSiQpGPymjcpa",
+      "5NgTWzgJB3pU42GmvxMZEsBRSWH1kCnAzHnduUD1ZG96vm6iFNqzUo74vRhkPtCJVhLwTrAWPDy999q9gC2XW7kn"
+    ],
+    "provider_lookups": 0,
+    "retained_result": "Not located in exact getTransaction cache-key and retained signed-edge lookups in canonicalcore/OPS; no exhaustive archive/address-history absence claim.",
+    "additional_acquisition_required": "Yes, separately authorized exact lookups would be required if no other original artifact is supplied; not performed now."
+  },
+  "PROVIDER_CALLS": 3,
+  "SUCCESSFUL_EXACT_LOOKUPS": 3,
+  "RETRIES": 0,
+  "BIRDEYE_CALLS": 0,
+  "CANONICAL_WRITES": 0,
+  "PRODUCTION_CHANGES": 0,
+  "PERSISTENT_DEV_CHANGES": 0,
+  "QUEUE_WRITES": 0,
+  "SERVICE_RESTARTS": 0,
+  "SOURCE_IMPLEMENTATION_CHANGES": 0,
+  "RUNTIME_DEPLOYMENT_REQUIRED": false,
+  "RUNTIME_DEPLOYMENT_REASON": "Forensic transaction audit/documentation only; no deployment",
+  "STORAGE": {
+    "maximum_response_memory_bytes": 2097152,
+    "maximum_derived_file_bytes": 2000000,
+    "raw_transaction_responses_retained": false,
+    "raw_block_retention": false,
+    "unbounded_artifact_growth_paths": 0
+  },
+  "NEXT_ACTION": "STOP: three authorized lookups complete; no automatic expansion. Require exact transaction/original retained proof for CRq/observed-payer fan-out and selectedauthority membership, plus creator-role reconciliation, before fullroute or false-negative claim. No replay, writes or deployment."
+}

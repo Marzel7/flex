@@ -1,0 +1,66 @@
+{
+  "signature": "5JoHhi2js4YRMjqD35F8Eo9xJy9swjQkxDfqWnpKJJN25azZEE9q3NH1kdjFVqJem6wY4YHwDmFcubLZP2pVAUo9",
+  "returned_signature": "5JoHhi2js4YRMjqD35F8Eo9xJy9swjQkxDfqWnpKJJN25azZEE9q3NH1kdjFVqJem6wY4YHwDmFcubLZP2pVAUo9",
+  "execution_error": null,
+  "execution_succeeded": true,
+  "slot": 457830541,
+  "block_time": 1792195472,
+  "utc": "2026-10-17T00:04:32+00:00",
+  "version": "legacy",
+  "fee_payer": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+  "signers": [
+    "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac"
+  ],
+  "fee_lamports": 79934,
+  "program_ids": [
+    "11111111111111111111111111111111",
+    "ComputeBudget111111111111111111111111111111"
+  ],
+  "outer_instruction_count": 3,
+  "inner_instruction_count": 0,
+  "instructions": [
+    {
+      "outer_index": 0,
+      "inner_index": null,
+      "program_id": "ComputeBudget111111111111111111111111111111",
+      "program_label": null,
+      "type": "UNPARSED",
+      "accounts": [],
+      "data_bytes_present": true
+    },
+    {
+      "outer_index": 1,
+      "inner_index": null,
+      "program_id": "ComputeBudget111111111111111111111111111111",
+      "program_label": null,
+      "type": "UNPARSED",
+      "accounts": [],
+      "data_bytes_present": true
+    },
+    {
+      "outer_index": 2,
+      "inner_index": null,
+      "program_id": "11111111111111111111111111111111",
+      "program_label": "system",
+      "type": "transfer",
+      "info": {
+        "destination": "Dd6hgkmaiS5oYx4yU4FFS1khUEDHMnktsBFqgtXm5TzU",
+        "lamports": 850000000000,
+        "source": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac"
+      }
+    }
+  ],
+  "token_account_balance_ownership": [],
+  "native_balance_deltas_not_independently_funding_edges": [
+    {
+      "account": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+      "delta_lamports": -850000079934
+    },
+    {
+      "account": "Dd6hgkmaiS5oYx4yU4FFS1khUEDHMnktsBFqgtXm5TzU",
+      "delta_lamports": 850000000000
+    }
+  ],
+  "raw_response_sha256": "5c6b848c07c4c9a0baa634b151301977ae8cd16f7761c088c2bda47249b4729c",
+  "provenance": "Exact getTransaction jsonParsed/finalized,maxSupportedTransactionVersion1; raw response decoded in memory and not retained."
+}

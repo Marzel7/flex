@@ -1,0 +1,774 @@
+{
+  "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+  "policy": "Indexed point/prefix reads only; mode=ro/query_only; 1second progress deadline per statement; no application imports or recovery lookups",
+  "traces": {
+    "token_analysis": [
+      {
+        "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+        "created_at": 1792195770.727993,
+        "pf_ws_creator": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+        "earliest_tx_creator": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+        "create_tx_signature": null,
+        "migration_tx": "5efN7zWzSqVjtbRd96Gq3XxXud5NvxUMtQSJpNjnJQzk3tbmqhZFWDrzy85dur7zyHfYirEvmgVoWJ8F7yQuBeH6",
+        "migrated_at": 1792195770,
+        "migration_slot": 457831907,
+        "lifecycle_stage": "migrated"
+      }
+    ],
+    "creator_resolution_queue": [
+      {
+        "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+        "status": "complete",
+        "attempts": 1,
+        "resolved_creator": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+        "create_tx_signature": null,
+        "resolution_tier": "GENERIC",
+        "resolved_at": 1792195865,
+        "source": "crq_worker"
+      }
+    ],
+    "migration_walkback_handoff": [
+      {
+        "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+        "state": "COMPLETE",
+        "migration_tx": "5efN7zWzSqVjtbRd96Gq3XxXud5NvxUMtQSJpNjnJQzk3tbmqhZFWDrzy85dur7zyHfYirEvmgVoWJ8F7yQuBeH6",
+        "created_at": 1792195770,
+        "completed_at": 1792195773,
+        "last_error_class": null
+      }
+    ],
+    "creator_funding_queue": [
+      {
+        "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+        "creator_address": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+        "status": "complete",
+        "create_tx_signature": null,
+        "attempts": 1,
+        "last_error": null
+      }
+    ],
+    "wt_detected_creates": [],
+    "birth_persist_queue": [],
+    "wt_walkback_queue": [
+      {
+        "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+        "creator": null,
+        "status": "waiting",
+        "path_state": "WAITING_FOR_CREATE_ANCHOR",
+        "create_anchor_signature": null,
+        "create_anchor_audit_state": "MISSING_OR_MALFORMED",
+        "attempts": 0,
+        "rpc_used": 0,
+        "anchor_lookup_attempts": 0,
+        "last_anchor_lookup_at": null,
+        "next_retry_at": null,
+        "subprov": null,
+        "treasury": null,
+        "funder_wallet": null,
+        "funding_mechanism": null,
+        "funder_sig": null,
+        "intelligence_outcome": null
+      }
+    ],
+    "wt_create_event_ledger": [],
+    "wt_attribution_outcomes": [],
+    "wt_watchtower_promotion_outcomes": [],
+    "operator_launch_membership": [],
+    "wt_walkback_edge_candidates": []
+  },
+  "additional_reference_retained_checks": {
+    "2onwoXTpqzq43sTMYJvU7RAyYkazXEMm1trW4NmKcZsc9dcKUrHnykFXoTLfWb1JFC7F2d2oUnYWSiQpGPymjcpa": {
+      "core_cache": [],
+      "ops_cache": [],
+      "core_edges": [],
+      "ops_edges": []
+    },
+    "5NgTWzgJB3pU42GmvxMZEsBRSWH1kCnAzHnduUD1ZG96vm6iFNqzUo74vRhkPtCJVhLwTrAWPDy999q9gC2XW7kn": {
+      "core_cache": [],
+      "ops_cache": [],
+      "core_edges": [],
+      "ops_edges": []
+    }
+  },
+  "fanout_evidence": {
+    "supplied_subprovider": {
+      "events": [],
+      "watches": []
+    },
+    "decoded_payer": {
+      "events": [],
+      "watches": []
+    }
+  },
+  "accepted_historical_controls": [
+    {
+      "mint": "2cXEPqkLAEdYCw6aoRVRddxGB8gRUM7PWZoLXUwXpump",
+      "creator_wallet": "DaEjmdKxxUY3TbabsUfqD8rn5UvLDuEaBLCusdGivj1b",
+      "create_signature": "25Y7XXiHevyvWZEuaRWfSq2XX2Ab9V2SkRxV1ANCrHqFDqy59nuJmWwChZzDCU9UMrxzB1X1h9mwZq69APKJXcKF",
+      "create_time": 1789667571,
+      "treasury_wallet": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+      "subprov_wallet": "HGUo492FT7bMqACVJdBVj7P2voPjPsx6r8Y8gESMricN",
+      "wrap_close_signature": "3Phb5NGSe7wUTEUNRBWRXhZ6kYv3o9mTjpfVFzzeWEE6xm4bPMFf5FYZ14MLXy5iP8jaDj8mTcVY1m4HE2y5AiNX",
+      "fanout_count": null,
+      "wrap_close_sol": 0.203039,
+      "state": "FIRED_CREATE",
+      "membership": [
+        {
+          "mint": "2cXEPqkLAEdYCw6aoRVRddxGB8gRUM7PWZoLXUwXpump",
+          "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+          "assigned_at": 1789911252
+        }
+      ],
+      "session": [
+        {
+          "source_mint": "2cXEPqkLAEdYCw6aoRVRddxGB8gRUM7PWZoLXUwXpump",
+          "treasury": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+          "subprov": "HGUo492FT7bMqACVJdBVj7P2voPjPsx6r8Y8gESMricN",
+          "creator": "DaEjmdKxxUY3TbabsUfqD8rn5UvLDuEaBLCusdGivj1b",
+          "treasury_to_subprov_block_time": 1789666668,
+          "subprov_to_creator_block_time": 1789667569,
+          "treasury_to_subprov_mechanism": "PLAIN_XFER",
+          "subprov_to_creator_mechanism": "WSOL_WRAP_CLOSE",
+          "treasury_to_subprov_amount_sol": 1000.0,
+          "subprov_to_creator_amount_sol": 0.203039
+        }
+      ]
+    },
+    {
+      "mint": "3tUn8dGmDceJ9pCwFLUVo2jkD6FLWaZ78YEpAa3bpump",
+      "creator_wallet": "C9jPx77ZLhG2SYb43tVh3QgepBYzh2sws9NYnEBJgE9Z",
+      "create_signature": "2L1XgJKq65H1NUBHeX9PcRqR3GwJJCUoVXY1XzbKh38rAYDogD744i6Zy9HZfP5uFjzCXUh1gx5JPraDnyeXRPjm",
+      "create_time": 1789863061,
+      "treasury_wallet": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+      "subprov_wallet": "HYTKyvbBPFyBTwV9PhvxV7q5MEnS9fiC76X6SsxTxBws",
+      "wrap_close_signature": "4jBF7GosQ16haRkTg6SvxvGwwf6Ar4kLwUW3ATSDNLPEgkecirVa8CXMjYf1BFdeLLZMWHEYBR1ZUf6NteBenpA3",
+      "fanout_count": null,
+      "wrap_close_sol": 0.203039,
+      "state": "FIRED_CREATE",
+      "membership": [
+        {
+          "mint": "3tUn8dGmDceJ9pCwFLUVo2jkD6FLWaZ78YEpAa3bpump",
+          "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+          "assigned_at": 1789911252
+        }
+      ],
+      "session": [
+        {
+          "source_mint": "3tUn8dGmDceJ9pCwFLUVo2jkD6FLWaZ78YEpAa3bpump",
+          "treasury": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+          "subprov": "HYTKyvbBPFyBTwV9PhvxV7q5MEnS9fiC76X6SsxTxBws",
+          "creator": "C9jPx77ZLhG2SYb43tVh3QgepBYzh2sws9NYnEBJgE9Z",
+          "treasury_to_subprov_block_time": 1789862204,
+          "subprov_to_creator_block_time": 1789863059,
+          "treasury_to_subprov_mechanism": "PLAIN_XFER",
+          "subprov_to_creator_mechanism": "WSOL_WRAP_CLOSE",
+          "treasury_to_subprov_amount_sol": 600.0,
+          "subprov_to_creator_amount_sol": 0.203039
+        }
+      ]
+    }
+  ],
+  "queries": [
+    {
+      "authority": "core",
+      "label": "token_analysis",
+      "sql": "SELECT mint,created_at,pf_ws_creator,earliest_tx_creator,create_tx_signature,migration_tx,migrated_at,migration_slot,lifecycle_stage FROM token_analysis WHERE mint=? LIMIT 3",
+      "parameters": [
+        "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump"
+      ],
+      "cap": 3,
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+          "created_at": 1792195770.727993,
+          "pf_ws_creator": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+          "earliest_tx_creator": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+          "create_tx_signature": null,
+          "migration_tx": "5efN7zWzSqVjtbRd96Gq3XxXud5NvxUMtQSJpNjnJQzk3tbmqhZFWDrzy85dur7zyHfYirEvmgVoWJ8F7yQuBeH6",
+          "migrated_at": 1792195770,
+          "migration_slot": 457831907,
+          "lifecycle_stage": "migrated"
+        }
+      ],
+      "elapsed_ms": 22.63745805248618
+    },
+    {
+      "authority": "core",
+      "label": "creator_resolution_queue",
+      "sql": "SELECT mint,status,attempts,resolved_creator,create_tx_signature,resolution_tier,resolved_at,source FROM creator_resolution_queue WHERE mint=? LIMIT 3",
+      "parameters": [
+        "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump"
+      ],
+      "cap": 3,
+      "plan": [
+        "SEARCH creator_resolution_queue USING INDEX sqlite_autoindex_creator_resolution_queue_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+          "status": "complete",
+          "attempts": 1,
+          "resolved_creator": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+          "create_tx_signature": null,
+          "resolution_tier": "GENERIC",
+          "resolved_at": 1792195865,
+          "source": "crq_worker"
+        }
+      ],
+      "elapsed_ms": 0.8744578808546066
+    },
+    {
+      "authority": "core",
+      "label": "migration_walkback_handoff",
+      "sql": "SELECT mint,state,migration_tx,created_at,completed_at,last_error_class FROM migration_walkback_handoff WHERE mint=? LIMIT 3",
+      "parameters": [
+        "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump"
+      ],
+      "cap": 3,
+      "plan": [
+        "SEARCH migration_walkback_handoff USING INDEX sqlite_autoindex_migration_walkback_handoff_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+          "state": "COMPLETE",
+          "migration_tx": "5efN7zWzSqVjtbRd96Gq3XxXud5NvxUMtQSJpNjnJQzk3tbmqhZFWDrzy85dur7zyHfYirEvmgVoWJ8F7yQuBeH6",
+          "created_at": 1792195770,
+          "completed_at": 1792195773,
+          "last_error_class": null
+        }
+      ],
+      "elapsed_ms": 0.40095788426697254
+    },
+    {
+      "authority": "core",
+      "label": "creator_funding_queue",
+      "sql": "SELECT mint,creator_address,status,create_tx_signature,attempts,last_error FROM creator_funding_queue WHERE mint=? LIMIT 3",
+      "parameters": [
+        "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump"
+      ],
+      "cap": 3,
+      "plan": [
+        "SEARCH creator_funding_queue USING INDEX idx_creator_funding_queue_mint (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+          "creator_address": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+          "status": "complete",
+          "create_tx_signature": null,
+          "attempts": 1,
+          "last_error": null
+        }
+      ],
+      "elapsed_ms": 0.8542921859771013
+    },
+    {
+      "authority": "core",
+      "label": "wt_detected_creates",
+      "sql": "SELECT mint,creator,signature,slot,detected_at FROM wt_detected_creates WHERE mint=? LIMIT 3",
+      "parameters": [
+        "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump"
+      ],
+      "cap": 3,
+      "plan": [
+        "SEARCH wt_detected_creates USING INDEX sqlite_autoindex_wt_detected_creates_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.18691690638661385
+    },
+    {
+      "authority": "core",
+      "label": "birth_persist_queue",
+      "sql": "SELECT mint,creator,create_tx_signature,status,retry_count,received_at FROM birth_persist_queue WHERE mint=? LIMIT 3",
+      "parameters": [
+        "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump"
+      ],
+      "cap": 3,
+      "plan": [
+        "SEARCH birth_persist_queue USING INDEX sqlite_autoindex_birth_persist_queue_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.16283406876027584
+    },
+    {
+      "authority": "ops",
+      "label": "wt_walkback_queue",
+      "sql": "SELECT mint,creator,status,path_state,create_anchor_signature,create_anchor_audit_state,attempts,rpc_used,anchor_lookup_attempts,last_anchor_lookup_at,next_retry_at,subprov,treasury,funder_wallet,funding_mechanism,funder_sig,intelligence_outcome FROM wt_walkback_queue WHERE mint=? LIMIT 3",
+      "parameters": [
+        "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump"
+      ],
+      "cap": 3,
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+          "creator": null,
+          "status": "waiting",
+          "path_state": "WAITING_FOR_CREATE_ANCHOR",
+          "create_anchor_signature": null,
+          "create_anchor_audit_state": "MISSING_OR_MALFORMED",
+          "attempts": 0,
+          "rpc_used": 0,
+          "anchor_lookup_attempts": 0,
+          "last_anchor_lookup_at": null,
+          "next_retry_at": null,
+          "subprov": null,
+          "treasury": null,
+          "funder_wallet": null,
+          "funding_mechanism": null,
+          "funder_sig": null,
+          "intelligence_outcome": null
+        }
+      ],
+      "elapsed_ms": 7.366332923993468
+    },
+    {
+      "authority": "ops",
+      "label": "wt_create_event_ledger",
+      "sql": "SELECT mint,creator,signature,slot,block_time,source FROM wt_create_event_ledger WHERE mint=? LIMIT 3",
+      "parameters": [
+        "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump"
+      ],
+      "cap": 3,
+      "plan": [
+        "SEARCH wt_create_event_ledger USING INDEX idx_wt_create_event_ledger_mint (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.3963750787079334
+    },
+    {
+      "authority": "ops",
+      "label": "wt_attribution_outcomes",
+      "sql": "SELECT mint,outcome_type,stop_reason,terminal_entity,completed_at FROM wt_attribution_outcomes WHERE mint=? LIMIT 3",
+      "parameters": [
+        "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump"
+      ],
+      "cap": 3,
+      "plan": [
+        "SEARCH wt_attribution_outcomes USING INDEX sqlite_autoindex_wt_attribution_outcomes_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.5162919405847788
+    },
+    {
+      "authority": "ops",
+      "label": "wt_watchtower_promotion_outcomes",
+      "sql": "SELECT mint,outcome,first_rejection_reason,last_attempted_at FROM wt_watchtower_promotion_outcomes WHERE mint=? LIMIT 3",
+      "parameters": [
+        "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump"
+      ],
+      "cap": 3,
+      "plan": [
+        "SEARCH wt_watchtower_promotion_outcomes USING INDEX ix_wt_promotion_outcomes_current (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.4619588144123554
+    },
+    {
+      "authority": "ops",
+      "label": "operator_launch_membership",
+      "sql": "SELECT mint,operator_id,assigned_at FROM operator_launch_membership WHERE mint=? LIMIT 3",
+      "parameters": [
+        "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump"
+      ],
+      "cap": 3,
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 1.6724169254302979
+    },
+    {
+      "authority": "ops",
+      "label": "wt_walkback_edge_candidates",
+      "sql": "SELECT mint,wallet,candidate_parent,signature,mechanism,hop_depth,selection_status,rejection_reason FROM wt_walkback_edge_candidates WHERE mint=? LIMIT 3",
+      "parameters": [
+        "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump"
+      ],
+      "cap": 3,
+      "plan": [
+        "SEARCH wt_walkback_edge_candidates USING INDEX ix_wwec_mint_hop (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.372458016499877
+    },
+    {
+      "authority": "core",
+      "label": "additional_reference_cache",
+      "sql": "SELECT cache_key,method,cached_at,length(response_json) AS bytes FROM rpc_response_cache WHERE cache_key=? LIMIT 1",
+      "parameters": [
+        "getTransaction:2onwoXTpqzq43sTMYJvU7RAyYkazXEMm1trW4NmKcZsc9dcKUrHnykFXoTLfWb1JFC7F2d2oUnYWSiQpGPymjcpa"
+      ],
+      "cap": 1,
+      "plan": [
+        "SEARCH rpc_response_cache USING INDEX sqlite_autoindex_rpc_response_cache_1 (cache_key=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.6105001084506512
+    },
+    {
+      "authority": "ops",
+      "label": "additional_reference_cache",
+      "sql": "SELECT cache_key,method,cached_at,length(response_json) AS bytes FROM rpc_response_cache WHERE cache_key=? LIMIT 1",
+      "parameters": [
+        "getTransaction:2onwoXTpqzq43sTMYJvU7RAyYkazXEMm1trW4NmKcZsc9dcKUrHnykFXoTLfWb1JFC7F2d2oUnYWSiQpGPymjcpa"
+      ],
+      "cap": 1,
+      "plan": [
+        "SEARCH rpc_response_cache USING INDEX sqlite_autoindex_rpc_response_cache_1 (cache_key=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.4310421645641327
+    },
+    {
+      "authority": "core",
+      "label": "additional_reference_edges",
+      "sql": "SELECT funder_address,recipient_address,transaction_signature,amount_sol,block_time FROM funder_outgoing_transfers WHERE transaction_signature=? LIMIT 3",
+      "parameters": [
+        "2onwoXTpqzq43sTMYJvU7RAyYkazXEMm1trW4NmKcZsc9dcKUrHnykFXoTLfWb1JFC7F2d2oUnYWSiQpGPymjcpa"
+      ],
+      "cap": 3,
+      "plan": [
+        "SEARCH funder_outgoing_transfers USING INDEX idx_fot_sig (transaction_signature=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 1.1824590619653463
+    },
+    {
+      "authority": "ops",
+      "label": "additional_reference_edges",
+      "sql": "SELECT from_wallet,to_wallet,signature,amount_sol,block_time,edge_type FROM wt_ops_v2_edges WHERE signature=? LIMIT 3",
+      "parameters": [
+        "2onwoXTpqzq43sTMYJvU7RAyYkazXEMm1trW4NmKcZsc9dcKUrHnykFXoTLfWb1JFC7F2d2oUnYWSiQpGPymjcpa"
+      ],
+      "cap": 3,
+      "plan": [
+        "SEARCH wt_ops_v2_edges USING INDEX sqlite_autoindex_wt_ops_v2_edges_1 (signature=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.45487494207918644
+    },
+    {
+      "authority": "core",
+      "label": "additional_reference_cache",
+      "sql": "SELECT cache_key,method,cached_at,length(response_json) AS bytes FROM rpc_response_cache WHERE cache_key=? LIMIT 1",
+      "parameters": [
+        "getTransaction:5NgTWzgJB3pU42GmvxMZEsBRSWH1kCnAzHnduUD1ZG96vm6iFNqzUo74vRhkPtCJVhLwTrAWPDy999q9gC2XW7kn"
+      ],
+      "cap": 1,
+      "plan": [
+        "SEARCH rpc_response_cache USING INDEX sqlite_autoindex_rpc_response_cache_1 (cache_key=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.4247920587658882
+    },
+    {
+      "authority": "ops",
+      "label": "additional_reference_cache",
+      "sql": "SELECT cache_key,method,cached_at,length(response_json) AS bytes FROM rpc_response_cache WHERE cache_key=? LIMIT 1",
+      "parameters": [
+        "getTransaction:5NgTWzgJB3pU42GmvxMZEsBRSWH1kCnAzHnduUD1ZG96vm6iFNqzUo74vRhkPtCJVhLwTrAWPDy999q9gC2XW7kn"
+      ],
+      "cap": 1,
+      "plan": [
+        "SEARCH rpc_response_cache USING INDEX sqlite_autoindex_rpc_response_cache_1 (cache_key=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.006749993190169334
+    },
+    {
+      "authority": "core",
+      "label": "additional_reference_edges",
+      "sql": "SELECT funder_address,recipient_address,transaction_signature,amount_sol,block_time FROM funder_outgoing_transfers WHERE transaction_signature=? LIMIT 3",
+      "parameters": [
+        "5NgTWzgJB3pU42GmvxMZEsBRSWH1kCnAzHnduUD1ZG96vm6iFNqzUo74vRhkPtCJVhLwTrAWPDy999q9gC2XW7kn"
+      ],
+      "cap": 3,
+      "plan": [
+        "SEARCH funder_outgoing_transfers USING INDEX idx_fot_sig (transaction_signature=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.4431670531630516
+    },
+    {
+      "authority": "ops",
+      "label": "additional_reference_edges",
+      "sql": "SELECT from_wallet,to_wallet,signature,amount_sol,block_time,edge_type FROM wt_ops_v2_edges WHERE signature=? LIMIT 3",
+      "parameters": [
+        "5NgTWzgJB3pU42GmvxMZEsBRSWH1kCnAzHnduUD1ZG96vm6iFNqzUo74vRhkPtCJVhLwTrAWPDy999q9gC2XW7kn"
+      ],
+      "cap": 3,
+      "plan": [
+        "SEARCH wt_ops_v2_edges USING INDEX sqlite_autoindex_wt_ops_v2_edges_1 (signature=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.412333058193326
+    },
+    {
+      "authority": "ops",
+      "label": "supplied_subprovider_fanout",
+      "sql": "SELECT subprov_wallet,fanout_time,fanout_count,has_identical_amounts,sig_sample FROM wt_fanout_events WHERE subprov_wallet=? ORDER BY fanout_time DESC LIMIT 3",
+      "parameters": [
+        "CRqEu31bUofuHZVhhSwLFVr9rPHsxx9PEzKRA41uCp1T"
+      ],
+      "cap": 3,
+      "plan": [
+        "SEARCH wt_fanout_events USING INDEX ix_fanout_subprov_time (subprov_wallet=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.5403331015259027
+    },
+    {
+      "authority": "ops",
+      "label": "supplied_subprovider_watches",
+      "sql": "SELECT candidate_wallet,subprov_wallet,treasury_wallet,wrap_close_signature,wrap_wallet,temp_wsol_account,close_destination,funding_amount,subprov_fanout_count_at_capture FROM wt_candidate_websocket_watches WHERE subprov_wallet=? LIMIT 3",
+      "parameters": [
+        "CRqEu31bUofuHZVhhSwLFVr9rPHsxx9PEzKRA41uCp1T"
+      ],
+      "cap": 3,
+      "plan": [
+        "SEARCH wt_candidate_websocket_watches USING INDEX ix_wc_subprov_time (subprov_wallet=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.3311668988317251
+    },
+    {
+      "authority": "ops",
+      "label": "decoded_payer_fanout",
+      "sql": "SELECT subprov_wallet,fanout_time,fanout_count,has_identical_amounts,sig_sample FROM wt_fanout_events WHERE subprov_wallet=? ORDER BY fanout_time DESC LIMIT 3",
+      "parameters": [
+        "Dd6hgkmaiS5oYx4yU4FFS1khUEDHMnktsBFqgtXm5TzU"
+      ],
+      "cap": 3,
+      "plan": [
+        "SEARCH wt_fanout_events USING INDEX ix_fanout_subprov_time (subprov_wallet=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.26033399626612663
+    },
+    {
+      "authority": "ops",
+      "label": "decoded_payer_watches",
+      "sql": "SELECT candidate_wallet,subprov_wallet,treasury_wallet,wrap_close_signature,wrap_wallet,temp_wsol_account,close_destination,funding_amount,subprov_fanout_count_at_capture FROM wt_candidate_websocket_watches WHERE subprov_wallet=? LIMIT 3",
+      "parameters": [
+        "Dd6hgkmaiS5oYx4yU4FFS1khUEDHMnktsBFqgtXm5TzU"
+      ],
+      "cap": 3,
+      "plan": [
+        "SEARCH wt_candidate_websocket_watches USING INDEX ix_wc_subprov_time (subprov_wallet=?)"
+      ],
+      "status": "PASS",
+      "rows": [],
+      "elapsed_ms": 0.3693751059472561
+    },
+    {
+      "authority": "ops",
+      "label": "accepted_control_candidates",
+      "sql": "SELECT mint,creator_wallet,create_signature,create_time,treasury_wallet,subprov_wallet,wrap_close_signature,fanout_count,wrap_close_sol,state FROM wt_watchtower_launches WHERE treasury_wallet=? LIMIT 2",
+      "parameters": [
+        "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac"
+      ],
+      "cap": 2,
+      "plan": [
+        "SEARCH wt_watchtower_launches USING INDEX ix_launches_treasury (treasury_wallet=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "2cXEPqkLAEdYCw6aoRVRddxGB8gRUM7PWZoLXUwXpump",
+          "creator_wallet": "DaEjmdKxxUY3TbabsUfqD8rn5UvLDuEaBLCusdGivj1b",
+          "create_signature": "25Y7XXiHevyvWZEuaRWfSq2XX2Ab9V2SkRxV1ANCrHqFDqy59nuJmWwChZzDCU9UMrxzB1X1h9mwZq69APKJXcKF",
+          "create_time": 1789667571,
+          "treasury_wallet": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+          "subprov_wallet": "HGUo492FT7bMqACVJdBVj7P2voPjPsx6r8Y8gESMricN",
+          "wrap_close_signature": "3Phb5NGSe7wUTEUNRBWRXhZ6kYv3o9mTjpfVFzzeWEE6xm4bPMFf5FYZ14MLXy5iP8jaDj8mTcVY1m4HE2y5AiNX",
+          "fanout_count": null,
+          "wrap_close_sol": 0.203039,
+          "state": "FIRED_CREATE",
+          "membership": [
+            {
+              "mint": "2cXEPqkLAEdYCw6aoRVRddxGB8gRUM7PWZoLXUwXpump",
+              "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+              "assigned_at": 1789911252
+            }
+          ],
+          "session": [
+            {
+              "source_mint": "2cXEPqkLAEdYCw6aoRVRddxGB8gRUM7PWZoLXUwXpump",
+              "treasury": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+              "subprov": "HGUo492FT7bMqACVJdBVj7P2voPjPsx6r8Y8gESMricN",
+              "creator": "DaEjmdKxxUY3TbabsUfqD8rn5UvLDuEaBLCusdGivj1b",
+              "treasury_to_subprov_block_time": 1789666668,
+              "subprov_to_creator_block_time": 1789667569,
+              "treasury_to_subprov_mechanism": "PLAIN_XFER",
+              "subprov_to_creator_mechanism": "WSOL_WRAP_CLOSE",
+              "treasury_to_subprov_amount_sol": 1000.0,
+              "subprov_to_creator_amount_sol": 0.203039
+            }
+          ]
+        },
+        {
+          "mint": "3tUn8dGmDceJ9pCwFLUVo2jkD6FLWaZ78YEpAa3bpump",
+          "creator_wallet": "C9jPx77ZLhG2SYb43tVh3QgepBYzh2sws9NYnEBJgE9Z",
+          "create_signature": "2L1XgJKq65H1NUBHeX9PcRqR3GwJJCUoVXY1XzbKh38rAYDogD744i6Zy9HZfP5uFjzCXUh1gx5JPraDnyeXRPjm",
+          "create_time": 1789863061,
+          "treasury_wallet": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+          "subprov_wallet": "HYTKyvbBPFyBTwV9PhvxV7q5MEnS9fiC76X6SsxTxBws",
+          "wrap_close_signature": "4jBF7GosQ16haRkTg6SvxvGwwf6Ar4kLwUW3ATSDNLPEgkecirVa8CXMjYf1BFdeLLZMWHEYBR1ZUf6NteBenpA3",
+          "fanout_count": null,
+          "wrap_close_sol": 0.203039,
+          "state": "FIRED_CREATE",
+          "membership": [
+            {
+              "mint": "3tUn8dGmDceJ9pCwFLUVo2jkD6FLWaZ78YEpAa3bpump",
+              "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+              "assigned_at": 1789911252
+            }
+          ],
+          "session": [
+            {
+              "source_mint": "3tUn8dGmDceJ9pCwFLUVo2jkD6FLWaZ78YEpAa3bpump",
+              "treasury": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+              "subprov": "HYTKyvbBPFyBTwV9PhvxV7q5MEnS9fiC76X6SsxTxBws",
+              "creator": "C9jPx77ZLhG2SYb43tVh3QgepBYzh2sws9NYnEBJgE9Z",
+              "treasury_to_subprov_block_time": 1789862204,
+              "subprov_to_creator_block_time": 1789863059,
+              "treasury_to_subprov_mechanism": "PLAIN_XFER",
+              "subprov_to_creator_mechanism": "WSOL_WRAP_CLOSE",
+              "treasury_to_subprov_amount_sol": 600.0,
+              "subprov_to_creator_amount_sol": 0.203039
+            }
+          ]
+        }
+      ],
+      "elapsed_ms": 0.5580410361289978
+    },
+    {
+      "authority": "ops",
+      "label": "accepted_control_membership",
+      "sql": "SELECT mint,operator_id,assigned_at FROM operator_launch_membership WHERE mint=? LIMIT 1",
+      "parameters": [
+        "2cXEPqkLAEdYCw6aoRVRddxGB8gRUM7PWZoLXUwXpump"
+      ],
+      "cap": 1,
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "2cXEPqkLAEdYCw6aoRVRddxGB8gRUM7PWZoLXUwXpump",
+          "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+          "assigned_at": 1789911252
+        }
+      ],
+      "elapsed_ms": 0.25458307936787605
+    },
+    {
+      "authority": "ops",
+      "label": "accepted_control_session",
+      "sql": "SELECT source_mint,treasury,subprov,creator,treasury_to_subprov_block_time,subprov_to_creator_block_time,treasury_to_subprov_mechanism,subprov_to_creator_mechanism,treasury_to_subprov_amount_sol,subprov_to_creator_amount_sol FROM wt_provisioning_sessions WHERE source_mint=? LIMIT 1",
+      "parameters": [
+        "2cXEPqkLAEdYCw6aoRVRddxGB8gRUM7PWZoLXUwXpump"
+      ],
+      "cap": 1,
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "source_mint": "2cXEPqkLAEdYCw6aoRVRddxGB8gRUM7PWZoLXUwXpump",
+          "treasury": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+          "subprov": "HGUo492FT7bMqACVJdBVj7P2voPjPsx6r8Y8gESMricN",
+          "creator": "DaEjmdKxxUY3TbabsUfqD8rn5UvLDuEaBLCusdGivj1b",
+          "treasury_to_subprov_block_time": 1789666668,
+          "subprov_to_creator_block_time": 1789667569,
+          "treasury_to_subprov_mechanism": "PLAIN_XFER",
+          "subprov_to_creator_mechanism": "WSOL_WRAP_CLOSE",
+          "treasury_to_subprov_amount_sol": 1000.0,
+          "subprov_to_creator_amount_sol": 0.203039
+        }
+      ],
+      "elapsed_ms": 0.6460838485509157
+    },
+    {
+      "authority": "ops",
+      "label": "accepted_control_membership",
+      "sql": "SELECT mint,operator_id,assigned_at FROM operator_launch_membership WHERE mint=? LIMIT 1",
+      "parameters": [
+        "3tUn8dGmDceJ9pCwFLUVo2jkD6FLWaZ78YEpAa3bpump"
+      ],
+      "cap": 1,
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "mint": "3tUn8dGmDceJ9pCwFLUVo2jkD6FLWaZ78YEpAa3bpump",
+          "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+          "assigned_at": 1789911252
+        }
+      ],
+      "elapsed_ms": 0.12870808131992817
+    },
+    {
+      "authority": "ops",
+      "label": "accepted_control_session",
+      "sql": "SELECT source_mint,treasury,subprov,creator,treasury_to_subprov_block_time,subprov_to_creator_block_time,treasury_to_subprov_mechanism,subprov_to_creator_mechanism,treasury_to_subprov_amount_sol,subprov_to_creator_amount_sol FROM wt_provisioning_sessions WHERE source_mint=? LIMIT 1",
+      "parameters": [
+        "3tUn8dGmDceJ9pCwFLUVo2jkD6FLWaZ78YEpAa3bpump"
+      ],
+      "cap": 1,
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ],
+      "status": "PASS",
+      "rows": [
+        {
+          "source_mint": "3tUn8dGmDceJ9pCwFLUVo2jkD6FLWaZ78YEpAa3bpump",
+          "treasury": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+          "subprov": "HYTKyvbBPFyBTwV9PhvxV7q5MEnS9fiC76X6SsxTxBws",
+          "creator": "C9jPx77ZLhG2SYb43tVh3QgepBYzh2sws9NYnEBJgE9Z",
+          "treasury_to_subprov_block_time": 1789862204,
+          "subprov_to_creator_block_time": 1789863059,
+          "treasury_to_subprov_mechanism": "PLAIN_XFER",
+          "subprov_to_creator_mechanism": "WSOL_WRAP_CLOSE",
+          "treasury_to_subprov_amount_sol": 600.0,
+          "subprov_to_creator_amount_sol": 0.203039
+        }
+      ],
+      "elapsed_ms": 0.3400840796530247
+    }
+  ]
+}

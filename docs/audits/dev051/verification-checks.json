@@ -1,0 +1,14 @@
+{
+  "status": "PASS_DERIVED_FACT_CONSISTENCY",
+  "checks": [
+    "Three successful executions",
+    "Chronology TX3<TX2<TX1",
+    "850SOL treasury-to-actual-payer",
+    "Distinct temporary WSOL account andauthority",
+    "Native funding source differs from token-account owner",
+    "Close destination receives253039280lamports",
+    "Fresh mint creation inTX1",
+    "No decoded transfer establishes supplied CRqedge"
+  ],
+  "scope": "Pure decoded-fact assertions completed successfully; not complete Watchtower qualification; no further provider requests."
+}

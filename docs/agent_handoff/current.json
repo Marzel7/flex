@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev063",
-    "git_head": "fe11b64935cb5de4d1274a392446116aa99f4b77",
+    "git_head": "6243c007041eb4402021a57358f2b852075768d5",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T14:53:50.206726+00:00",
-    "working_tree": "DEV063 HOLD before implementation: mandatory complete positive-control preservation evidence unavailable. No runtime changes or corrected candidate."
+    "updated_at_utc": "2026-10-17T15:07:18.650281+00:00",
+    "working_tree": "DEV063 branch predicates qualified; audit-only HOLD on completion/materialization authority. No application correction or candidate."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31401,5 +31401,27 @@
     "persistent_dev_changes": 0,
     "engineering_evidence_publication": "Local audit commit only; required minimal handoff published",
     "next_action": "HOLD \u2014 obtain existing complete selected FundingAccount/temporary WSOL/creator receipt/SubProvider fanout/root-role witnesses for three admitted FULL controls and mixed-route preservation, or separately authorize evidence acquisition. No implementation/deployment until mandatory evidence gate can pass."
+  },
+  "dev063_branch_guard_qualification": {
+    "status": "HOLD_RUNTIME_COMPATIBILITY",
+    "engineering_source_sha": "6243c007041eb4402021a57358f2b852075768d5",
+    "branch": "codex/dev063",
+    "supersedes": "Earlier complete historical topology prerequisite is removed for this scope; prior DEV063 audit preserved.",
+    "verification": "DEV048 preflight PASS; 26 provider-free diagnostic cases pass: eight synthetic branch positives, nine historical-predicate branch replays, five existing bypass reproductions and four exact completion/materialization controls. Source completeness and tracked evidence hashes PASS. Audit-only DEV048 startup/import verify PASS at 2a6be1a9; subsequent commit adds diagnostic text/manifest only.",
+    "blocker": "Exact completion call with LINEAGE_GAP and no supplied treasury retains existing treasury through COALESCE. Exact outcome derivation can still yield CANONICAL_OPERATOR_REACHED from that label. Independent valid ledger and mixed-branch controls also yield canonical outcome, so indiscriminate suppression is unsafe. Decision-branch-only or outcome-only correction does not establish safe downstream authority.",
+    "limitations": "Original historical branch execution is not attested; registry/upstream fixture topology is explicitly synthetic. Corrected admission/CREATE/decoder, full runtime dependency closure, release/browser/clean-checkout gates are not claimed.",
+    "report_local": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV063/source/docs/audits/dev063/branch-qualification/DEV063_BRANCH_GUARD_STATUS.json",
+    "report_sha256": "c8242b3c12b31f3150f22bf6043bc7568186cb140c67cc7e66f5ed4cdf5df59f",
+    "application_changes": 0,
+    "candidate_source_sha": null,
+    "ready_for_deployment": false,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Diagnostic/audit only; implementation stopped before unqualified authority change.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "persistent_dev_changes": 0,
+    "engineering_evidence_publication": "Local committed audit; minimal handoff only is pushed.",
+    "next_action": "Qualify branch-specific authority through completion/materialization using existing retained observations, preserving valid independent routes without trusting unsupported labels. Then implement and run DEV048 release gates; no full-topology reacquisition or deployment."
   }
 }

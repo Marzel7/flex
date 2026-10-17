@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev063",
-    "git_head": "6243c007041eb4402021a57358f2b852075768d5",
+    "git_head": "a0e9f96a11aca6c5ce1436790b2212a6be7086b2",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T15:07:18.650281+00:00",
-    "working_tree": "DEV063 branch predicates qualified; audit-only HOLD on completion/materialization authority. No application correction or candidate."
+    "updated_at_utc": "2026-10-17T15:27:14.307305+00:00",
+    "working_tree": "DEV063 branch-authority contract qualified read-only; no application correction, candidate or deployment. Current bypass remains open."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31423,5 +31423,32 @@
     "persistent_dev_changes": 0,
     "engineering_evidence_publication": "Local committed audit; minimal handoff only is pushed.",
     "next_action": "Qualify branch-specific authority through completion/materialization using existing retained observations, preserving valid independent routes without trusting unsupported labels. Then implement and run DEV048 release gates; no full-topology reacquisition or deployment."
+  },
+  "dev063_branch_authority_contract": {
+    "status": "QUALIFIED_BRANCH_AUTHORITY_CONTRACT",
+    "engineering_source_sha": "a0e9f96a11aca6c5ce1436790b2212a6be7086b2",
+    "branch": "codex/dev063",
+    "scope": "Design and offline authority-contract qualification only; implementation not authorized and not performed.",
+    "finding": "Completion preserves inherited treasury labels; materialization resolves pooled labels to an operator before relay/incomplete-lineage checks. Legacy ledger promotion can additionally mix first observation labels with unrelated queue mechanism fields.",
+    "contract": "Keep observations visible; bind qualification to one mint/creator/CREATE anchor and signature/role witness tuple per branch. Cache/root identity alone cannot grant authority. Explicit rejection affects only its branch. Materialize Watchtower authority from independently qualified branches and hand one coherent tuple to the legacy consumer. Strict queue membership admission remains unchanged and may remain ineligible on an incomplete actual queue even when a separate branch qualifies materialization.",
+    "verification": "28 read-only controls pass: 19 synthetic authority cases, three retained historical-role controls, two exact current materializer/admission contrasts, coherent branch admission oracle, mixed-authority/admission split, and two exact legacy-consumer contrasts. Previous 26 diagnostics and all prior evidence hashes preserved. DEV048 preflight/source completeness/evidence hashes PASS; no corrected-runtime/browser/release gate claimed.",
+    "report_local": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV063/source/docs/audits/dev063/authority-contract/DEV063_BRANCH_AUTHORITY_STATUS.json",
+    "report_sha256": "29521a83ca00659e406b38b4b9d7635123b799174f4e7688b684d1815a0edd62",
+    "minimum_future_scope": "Three files: Walkback decisions/completion, attribution outcome materialization, and normalized role/legacy ledger consumer helpers. Use existing retained evidence and fields; no new schema, status, cache or authoritative durable certificate.",
+    "ready_for_implementation": true,
+    "implementation_requires_separate_instruction": true,
+    "current_bypass": "OPEN",
+    "candidate_source_sha": null,
+    "ready_for_deployment": false,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only specification and fixture qualification; no executable behavior change.",
+    "application_changes": 0,
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "persistent_dev_changes": 0,
+    "schema_index_changes": 0,
+    "engineering_evidence_publication": "Local committed derived contract evidence; only minimal handoff is published.",
+    "next_action": "Await separate targeted implementation authorization, then implement the qualified branch contract and run focused plus DEV048 release gates. Do not deploy, rewrite historical records or bypass strict admission."
   }
 }

@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev051",
-    "git_head": "5ce601f793d4a57064b3d4d8cff4f9f8c897e49e",
+    "git_head": "28a87467962f975085e2ad21ab8fb3390f8359d7",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T08:21:28.267304+00:00",
-    "working_tree": "DEV051 CREATE-anchor diagnosis HOLD at original receipt/instruction evidence boundary; read-only, zero acquisition or runtime changes."
+    "updated_at_utc": "2026-10-17T08:27:57.245374+00:00",
+    "working_tree": "DEV051 offline CREATE V1 compatibility qualification complete: unsupported ceiling0 plus retained Token2022 decoder mismatch; no implementation/deployment."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -30888,5 +30888,25 @@
     "RUNTIME_DEPLOYMENT_REQUIRED": false,
     "activation_state": "NO_DEPLOYMENT_NO_REPLAY",
     "next_action": "STOP; original PumpPortal receipt/persistence outcomes, Pump instruction discriminator/creator bytes with ABI mapping, and recovery exact-signature selection/error are required for causal qualification. No repair authorized."
+  },
+  "dev051_create_v1_compatibility": {
+    "engineering_source_revision": "28a87467962f975085e2ad21ab8fb3390f8359d7",
+    "verdict": "VERSION1_CREATE_RECOVERY_UNSUPPORTED",
+    "additional_classification": "VERSION1_DECODER_INCOMPATIBLE for retained normalized parsed transaction shape",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV051/source/docs/audits/dev051/create-v1/DEV051_CREATE_V1_COMPATIBILITY_STATUS.json",
+    "source": "Installed flex-main-workers analyzer/creator_resolution_queue at on-disk eed84eaa; loaded bytes unverified",
+    "tests": "15 offline AST-extracted cases PASS expected diagnostic assertions; signature validity PASS; no runtime imports. Synthetic positive controls explicitly separate from retained-shape cases.",
+    "finding": "Three analyzer RPC transaction sites ceiling0; ceiling1-only in-memory experiment retrieves v1 but retained Token2022 mint validation still fails because installed program constant differs. Create/CreateV2 discriminator and Pump creator bytes absent.",
+    "causal_boundary": "Creator scan occurred, exact TX1 selection/rejection unproven; Walkback anchor/execution attempts still zero. Latent compatibility defects, not proven missed-token cause.",
+    "migration_comparison": "DEV039 migration uses different helper; reuse explicit ceiling1 technique only, preserve current budgets/semantics.",
+    "READY_FOR_IMPLEMENTATION": false,
+    "recommendation": "Separate narrowly scoped ceiling1 and token-program-identity correction qualification required; do not claim complete ABI/creator support without original fields.",
+    "PROVIDER_CALLS": 0,
+    "CANONICAL_WRITES": 0,
+    "PRODUCTION_CHANGES": 0,
+    "APPLICATION_SOURCE_CHANGES": 0,
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "activation_state": "OFFLINE_ONLY_NO_DEPLOYMENT",
+    "next_action": "STOP before implementation. Review separate correction recommendation; obtain original Pump ABI fields for CreateV2/creator proof. No provider acquisition/replay authorized."
   }
 }

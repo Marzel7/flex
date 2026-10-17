@@ -19272,8 +19272,8 @@
     "branch": "codex/dev051",
     "git_head": "d41a1bc03ab38b51b18353a350c56e79d5f263dd",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T08:45:52.170739+00:00",
-    "working_tree": "DEV051 CREATE correction implemented/offline tested; release HOLD on preserved historical audit script importclosure. No candidate/deployment."
+    "updated_at_utc": "2026-10-17T08:56:33.762778+00:00",
+    "working_tree": "DEV051 release PASS_QUALIFIED_NOT_DEPLOYED using separately qualified DEV048 archival classification. App unchanged; clean-checkout PASS; immutable candidate sealed; isolated API stopped."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -30930,5 +30930,39 @@
     "PERSISTENT_DEV_CHANGES": 0,
     "rollback": "Parent28a87467/sourcebeforepatch retained; operational analyzer hash unchanged; no state/schema rollback required.",
     "next_action": "STOP. Separately qualify DEV048 treatment of preserved audit executables vs runtime importclosure; rerun mandatory gate and clean checkout. Do not delete evidence, fabricate imports or weaken safety/acceptance."
+  },
+  "dev051_historical_audit_release_gate": {
+    "verdict": "PASS_QUALIFIED_NOT_DEPLOYED",
+    "engineering_source_revision": "d41a1bc03ab38b51b18353a350c56e79d5f263dd",
+    "application_source_unchanged": true,
+    "tooling_code_revision": "0cbbdf44e622db59d9f98cc495d805e4a8fdf2ea",
+    "tooling_source_revision": "a9409270a85db9dede5ac6e391a4a99b6dc9fa8f",
+    "tooling_branch": "codex/dev048-audit-classification",
+    "durable_tooling": "/Users/kevinkeaveney/Dev/claude/flex-releases/tooling/DEV048-0cbbdf44-archive-classification",
+    "tool_sha256": "9a7af3cec866fd5495bc12e8681ea08f843c8a6ca8dd6a57e03222dcdb80ffd7",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-releases/tooling/DEV048-0cbbdf44-archive-classification/docs/audits/dev048/archive-classification/DEV051_RELEASE_GATE_STATUS.json",
+    "historical_script": "docs/audits/dev051/create-v1/offline_qualification.py",
+    "script_sha256": "88483a1db4e4a7d25ca99d6340991283d515949296b54ad78c129187236b3674",
+    "root_cause": "Original .py suffix closure conflated preserved historical diagnostic with runtime/test dependency. Exact path/hash/origin classification now rejects tampering/deletion/runtime use/executable references; all other imports required. Full archive and restoration preserve bytes.",
+    "negative_controls": "18originalunit+11newarchivecontrolsPASS;8original live invalid-candidate controlsPASS; old tests/guarded runner byte-unchanged; all original functions except qualification integration AST-identical.",
+    "qualification": "26Python+actualinlinefrontend+boundedAPI+10realretainedbrowsercontractsPASS on original d41 and fresh clean checkout; final guarddenials0; exactmanifest equality before/after.",
+    "original_run": "5d46e001bcfa",
+    "restoration_run": "1178a3891e6a",
+    "clean_checkout": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV051/restorations/pre-candidate-23a9eacc16eb/source",
+    "candidate_reference": "DEV051_CANDIDATE_d41a1bc03ab3",
+    "candidate_source_sha": "d41a1bc03ab38b51b18353a350c56e79d5f263dd",
+    "candidate_path": "/Users/kevinkeaveney/Dev/claude/flex-releases/candidates/DEV051_CANDIDATE_d41a1bc03ab3",
+    "candidate_manifest_sha256": "7fe9d2d897c7abc4a089b4c78f0d8d8bc3fb56b0ee83d8ab90210e22a91c73ff",
+    "rollback": "Protected0eb749ecd6acd0ab70ec6d09b9170c583d82374b golden source/config/instructions; sealed candidate validationPASS; archive contains exacthistoricalscript.",
+    "READY_FOR_DEPLOYMENT": "QUALIFIED_NOT_DEPLOYED; controlled target promotion not authorized",
+    "activation_state": "NO_DEPLOYMENT;owned8150APIstopped;8100/existing8145/operationalservicesuntouched;defaulttoolinglauncherunchanged",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS_TOOLING_QUALIFICATION_ONLY; APPLICATION_NOT_DEPLOYED",
+    "PROVIDER_CALLS": 0,
+    "CANONICAL_WRITES": 0,
+    "PRODUCTION_CHANGES": 0,
+    "PERSISTENT_DEV_CHANGES": 0,
+    "CREATE_LOGIC_CHANGES_THIS_TASK": 0,
+    "causal_limit": "No exact-token recovery/creator proof or Watchtower-gap resolution claimed; no replay/admission/attribution/DEV049changes.",
+    "next_action": "NONE \u2014 requested tooling and DEV051 release qualification complete; preserve sealed candidate. Controlled promotion requires separate explicit authorization."
   }
 }

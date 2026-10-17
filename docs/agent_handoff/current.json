@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev049",
-    "git_head": "e15720cbac1ff4fa1815b92446ce5b5b13727e0d",
+    "branch": "codex/dev050",
+    "git_head": "ebe1f2503ebded13b9889522c9b68d43783a5791",
     "name": "flex",
-    "updated_at_utc": "2026-10-16T21:19:29.314101+00:00",
-    "working_tree": "DEV049 integrationHOLD: external cursor/OPS WAL cross-file atomicity unqualified; four bounded commit-boundary fixture cases. Candidate/tests unchanged; no runtime/DB/provider changes."
+    "updated_at_utc": "2026-10-17T06:58:54.739117+00:00",
+    "working_tree": "DEV050 read-only diagnosisHOLD qualifying evidence:9LE no canonical intake/exactmigrationidentity;AY CREATEanchor missing;2recentWSOL lineagegaps; no established qualifiedfalseNegative; no code/runtime/provider changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -30766,5 +30766,96 @@
     "OPERATIONAL_SERVICE_RESTARTS": 0,
     "NEXT_ACTION": "Keep existing candidate and deployment on HOLD. A separately qualified durable per-turn acknowledgment/reconciliation protocol or atomic single-authority design is needed before moving cursor outside OPS. It must preserve current WAL/runtime protections, storage bounds and retry/evidence semantics; no canonical receipt/schema/journal-mode changes or new infrastructure are implied.",
     "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/DEV049_CURSOR_INTEGRATION_STATUS.json"
+  },
+  "dev050_watchtower_recovery": {
+    "DEV050_WATCHTOWER_RECOVERY_STATUS": "HOLD_QUALIFYING_EVIDENCE_INCOMPLETE",
+    "LAST_CANONICAL_WATCHTOWER_MEMBERSHIP": [
+      {
+        "mint": "E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump",
+        "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+        "assigned_at": 1791635260,
+        "assigned_at_utc": "2026-10-10T12:27:40+00:00"
+      }
+    ],
+    "TOKEN_9LE_INTAKE_STATUS": {
+      "mint": "9LEmajzfB3GJaJpKgXSu8MW5riEnY7F8AMWuwcQRpump",
+      "known_create_authority": "User/prior retained evidence: CREATE2026-10-13T00:12:41Z,slot456239759,creatorHnDRRw1h8F2MhEFzC6yJej8HpyfiWnrwe8jmkgqErEAJ; curve completion/matching Pump AMM pool corroborated historically; not reacquired here",
+      "exact_migration_signature": "UNRESOLVED",
+      "indexed_retained_observation": "No exact-mint token_analysis,birth_persist_queue,wt_detected_creates,CREATEledger,creator_funding_queue,creator_resolution_queue,migrationhandoff,Walkbackqueue,attribution,promotion or membership row. No exact-creator birth-launch or creator_funders row.",
+      "historical_treasury": "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe;131historical accepted memberships supplied, not proof for this mint",
+      "earliest_observed_gap": "Externally known CREATE/completed-curve candidate -> retained canonical intake; exact missing migration/receipt transition unresolved",
+      "limits": "Without migration signature, migration_inbox mint_hint and migration_persist_queue mint have no suitable index; those unindexed searches were not run. Current bounded log rotation has no token match, not historical absence proof. No deletion or listener root cause inferred.",
+      "qualified_false_negative": false
+    },
+    "AYTRSS_RECOVERY_STATUS": {
+      "mint": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump",
+      "migration_signature": "5w5Vc6KfCPj1MfubnHUMsaWMVgCsvi48jQvGkvJHm9hj5d1837qtcpXDZNeCcUiDRuM3ZkP1jBQodJ8HRMUAHNEn",
+      "migration_slot": 457546188,
+      "historical_migration_block_time": "2026-10-16T07:00:15Z, retained DEV039 evidence",
+      "canonical_persist_time": "2026-10-16T07:04:15Z",
+      "handoff": "COMPLETE2026-10-16T07:04:19Z",
+      "current_core_creator": "HgeqtdwVZjW3MWWrPVuRn1mk3f9k1Fm1hA4ocKdTPtvm",
+      "creator_resolution": [
+        {
+          "mint": "AYtRssFASJxzZ2RgAkLP4Wn5LbF5hPMw411rzwkbpump",
+          "status": "complete",
+          "attempts": 1,
+          "resolved_creator": "HgeqtdwVZjW3MWWrPVuRn1mk3f9k1Fm1hA4ocKdTPtvm",
+          "create_tx_signature": null,
+          "resolution_tier": "GENERIC",
+          "resolved_at": 1792136556,
+          "last_error": null
+        }
+      ],
+      "funding_queue": "complete,attempts2,CREATEsignatureNULL",
+      "create_anchor": "NULL in core/fundingqueue/Walkback; no exact-mint canonical CREATEledger row",
+      "queue": "waiting / WAITING_FOR_CREATE_ANCHOR; creatorNULL; attempts0;rpc_used0;anchor_lookup_attempts0;lastlookupNULL;nextretryNULL",
+      "classification_admission_membership": "Not reached; no rows in exact-mint authorities checked",
+      "first_proven_blocker": "Missing qualified CREATE anchor at Walkback entry; known starvation also leaves it unexamined. Fair scheduling alone cannot invent missing signature.",
+      "scope": "No real recovery or acquisition executed; DEV049 architecture not reopened"
+    },
+    "QUALIFIED_FALSE_NEGATIVES": {
+      "established": [],
+      "meaning": "None established in this bounded investigation; not a claim there are no genuine missed Watchtower launches."
+    },
+    "FIRST_PROVEN_FAILURE": {
+      "genuine_complete_watchtower_launch": "NOT_ESTABLISHED: no newly traced candidate has complete independent qualification proof",
+      "9LE": "Earliest retained gap is before canonical intake; no exact migration receipt means failure mechanism remains unresolved.",
+      "AYtRss": "Known successfully captured migration blocks at missing CREATEanchor; starvation additionally prevents local recheck.",
+      "recent_pair": "First incomplete qualifying transition is upstream lineage after retained selected WSOL funding; withholding membership is not shown to be a defect."
+    },
+    "MINIMUM_SAFE_CORRECTION": {
+      "implementation": "NONE justified in this read-only task",
+      "specific_unresolved_requirement": "For9LE, exact migration transaction identity/slot/blocktime and retained receipt/intake/error evidence, plus transaction-backed treasury->subprovider->funding-account fan-out/selected-account->creator->launch chain withWSOL close proof. These are required before calling it a Watchtower false negative or changing intake code.",
+      "AYtRss": "Qualified CREATE signature tied to exact mint/provenance is still required; copying a creator or promoting a treasury label does not satisfy it.",
+      "constraints": "No new indexes, durable cursor, providerbudget increase, replay, classification or admission-policy changes proposed."
+    },
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "RUNTIME_DEPLOYMENT_REASON": "Read-only operational diagnosis/documentation only; no application source, service or deployment changes",
+    "PROVIDER_CALLS": 0,
+    "PRODUCTION_CHANGES": 0,
+    "CANONICAL_DATABASE_WRITES": 0,
+    "NEXT_ACTION": "STOP read-only diagnosis. Obtain the exact9LE migration/receipt identity and complete transaction-backed Watchtower funding topology from a separately authorized evidence source before prescribing an intake correction; do not deploy DEV049, reacquire/replay tokens, or relax admission.",
+    "engineering_revision": "ebe1f2503ebded13b9889522c9b68d43783a5791",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV050/source/docs/audits/dev050/DEV050_WATCHTOWER_RECOVERY_STATUS.json",
+    "bounded_recent_sample": [
+      {
+        "mint": "okjZ7DpAnPRBNj3Ro8GGuLGvemAp61zzPRqTns7pump",
+        "outcome": "LINEAGE_GAP",
+        "first_incomplete_transition": "Selected funding evidence -> complete qualifying upstream lineage"
+      },
+      {
+        "mint": "TGgPWiX8ctuGdxRJJeXom3zGgKpjQSEDQgWVYbhpump",
+        "outcome": "LINEAGE_GAP",
+        "first_incomplete_transition": "Selected funding evidence -> complete qualifying upstream lineage"
+      }
+    ],
+    "runtime_pids": {
+      "watchtower_listener": 79274,
+      "walkback_worker": 73413,
+      "creator_resolution_worker": 38416,
+      "creator_funding_worker": 92703
+    },
+    "verification": "Protected baseline/workflowcreate+verifyPASS;76indexed tracequeries <=15ms maximum, source fingerprints and bounded metadata-only logs; JSON/diffchecksPASS; no application imports except guarded workflow probe; no browser/newAPIservice,provider,replay,DDL orqueuewrites."
   }
 }

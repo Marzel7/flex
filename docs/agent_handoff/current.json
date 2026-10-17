@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev067",
-    "git_head": "bec80f64c1d4bc9d71c2759da5acf9abe0addf0f",
+    "branch": "codex/dev068",
+    "git_head": "7e5d6cf18989a782cff7a0e2a706ea5e44766137",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T16:55:13.500677+00:00",
-    "working_tree": "DEV067 exact-mint read-only reconciliation qualification complete; HOLD accepted precedence and core/OPS recovery protocol; no implementation."
+    "updated_at_utc": "2026-10-17T17:22:39.547823+00:00",
+    "working_tree": "DEV068 bounded neutral migration/executed coverage complete; PARTIAL strict PumpPortal provenance/full topology unknown; no proven detector correction."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31618,5 +31618,43 @@
     "runtime_deployment_reason": "Read-only audit and disposable fixture characterization only.",
     "engineering_evidence_publication": "Local compact audit commit; minimal handoff only published.",
     "next_action": "STOP. Establish accepted exact-mint creator supersession authority and separately qualify crash-recoverable core/OPS publication before any implementation or canonical execution. No manual overwrite, CREATE insertion, terminal reset, requeue, Walkback, provider acquisition or deployment authorized."
+  },
+  "dev068_watchtower_coverage_audit": {
+    "status": "PARTIAL_BOUNDED_COVERAGE_COMPLETE_STRICT_COHORT_AND_TOPOLOGY_UNQUALIFIED",
+    "engineering_source_sha": "7e5d6cf18989a782cff7a0e2a706ea5e44766137",
+    "baseline_sha": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "membership": "Canonical Watchtower membership count616; latest1791635260 (October10 12:27:40UTC), independently operator-index verified. Membership/treasury labels never used as cohort inclusion predicates.",
+    "population": "Indexed migration window[1791590400,1792257159):7556 unique mints;4765 canonical birth markers;4867 core signature-format-valid;4752 canonicalVALIDanchors;4648 executedcomplete;2791waitinganchors separate.32row keyset batches under2sec each completed. Complete required PumpPortal-receipt-qualified cohort remainsUNKNOWN: content store keyed by whole-payload hash lacks mint/signature link; canonical birth fields not substituted as original receipt provenance.",
+    "executed_decisions": {
+      "LINEAGE_GAP": 3279,
+      "NO_ATTRIBUTION_FOUND": 1343,
+      "WATCHTOWER_CONFIRMED": 26
+    },
+    "funding_evidence": "All4648 canonical-birth/executed proxy projected without address/classification filtering:3566selectedfundingsignatures;396selectedWSOLlabels;680any-hopWSOLlabels;177normalized selected-signature atomic close-to-creator;117create+sync+close. These are normalized transaction-backed/label counts, not independently decoded full routes.",
+    "role_and_fanout_limits": "123recorded provisioningwallets,0withfundingsignature. Five new strong samples record temporaryWSOLaddress as provisioningwallet; inert installed helper confirms transfer-destination capture. Qualified FundingAccount identity/full distinct-recipient fanout/selected membership/treasury ancestry remainUNKNOWN. Additive projection is not itself proof of causal false-negative.",
+    "LINEAGE_GAP_paths": {
+      "ARCHIVAL_GAP": 548,
+      "TREASURY_CANDIDATE_SURFACED": 779,
+      "RPC_BUDGET_EXHAUSTED": 1,
+      "FAILED_TERMINAL": 228,
+      "CLAIMED": 1723
+    },
+    "finding": "No independently qualified complete Watchtower false-negative demonstrated. Recent normalizedWSOL/upstream observations preserved as unclassified research. Five new point cases; priorUrG research only in neutral aggregate, not reopened or used as Watchtower control. Loyd confirmed sample rejected treasury-evidence conflict; not shown false rejection. Two historical admitted controls lack full independent fanout topology. Funding/mechanism/unknown-upstream/processing ASTs mostly identical to preservedOct8 reference, not proof of loaded historic deployment.",
+    "evidence_gaps": "Bounded retained PumpPortal mint/signature\u2192content-hash provenance; original exact selected funding transaction roles; distinct qualified FundingAccount fanout and actual treasury ancestry. Exact inspected sample caches supply0raw transactions; no reacquisition.",
+    "verification": "DEV048 source/dependency/isolation PASS and clean committed source-completeness PASS;13bounded audit/projection controls PASS; evidence hashes and compact manifests verified. No provider transport/app worker started. No whole-directory/population unindexed scans.",
+    "report_local": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV068/source/docs/audits/dev068/DEV068_WATCHTOWER_COVERAGE_STATUS.json",
+    "report_sha256": "70e841c1acf0b1b97ce7c50d4a094fc1ef346bb7bed0c87666b170bb9583114a",
+    "ready_for_implementation": false,
+    "minimum_safe_correction": "NONE QUALIFIED",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "persistent_dev_changes": 0,
+    "application_changes": 0,
+    "shared_queue_writes": 0,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only audit and inert derived projection controls only.",
+    "engineering_evidence_publication": "Compact derived audit committed locally; minimal handoff only published.",
+    "next_action": "STOP. Need bounded original PumpPortal receipt linkage for full strict cohort and exact funding-role/fanout/ancestry witnesses. A conditional2exact-signature Helius proposal for primaryLAhf is documented but NOTauthorized; receipt prerequisite first, no address-history acquisition. No implementation, canonical mutation, replay/requeue, attribution or deployment authorized."
   }
 }

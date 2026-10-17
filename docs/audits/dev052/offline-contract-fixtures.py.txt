@@ -1,0 +1,31 @@
+import pathlib,json,ast,typing,subprocess,hashlib,sqlite3,time
+R=pathlib.Path('/Users/kevinkeaveney/Dev/claude/flex-development/DEV052/source');E=R/'docs/audits/dev052';E.mkdir(parents=True,exist_ok=True);runtime=pathlib.Path('/Users/kevinkeaveney/Production/flex-walkback-dev002');save=lambda n,d:(E/n).write_text(json.dumps(d,indent=2)+'\n');h=lambda b:hashlib.sha256(b).hexdigest()
+def git(*a):return subprocess.check_output(['git','-C',str(R),*a],text=True).strip()
+files=['src/core/walkback_queue.py','src/core/walkback_worker.py','src/core/deep_walkback.py','src/ops/anchor_reconciliation.py','src/ops/create_event_ledger.py']
+authority={p:{'runtime_sha256':h((runtime/p).read_bytes()),'frozen_sha256':h(subprocess.check_output(['git','-C',str(R),'show','064021bd:'+p]))} for p in files};save('source-authority.json',{'baseline':git('rev-parse','HEAD'),'historical_freeze':git('rev-parse','064021bd'),'gate_introduction':git('rev-parse','e68d9a89'),'pre_gate_parent':git('rev-parse','e68d9a89^'),'current_runtime_head':subprocess.check_output(['git','-C',str(runtime),'rev-parse','HEAD'],text=True).strip(),'files':authority,'loaded_bytes':'UNVERIFIED; no process injection/restart','historical_loaded_walkback':'NOT_ATTESTED by October8 freeze; source/retained outcome comparison only'})
+# Execute exact installed pure bounded history functions with in-memory transport only.
+s=(runtime/'src/core/walkback_worker.py').read_text();tree=ast.parse(s);nodes=[n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name in ['_get_sigs','_collect_signature_window']];ns=dict(vars(typing));ns.update(RpcTransport=object,SIG_LIMIT=2,SIG_PAGE_COUNT=3,SIG_PAGE_LIMIT=2)
+exec(compile(ast.Module(body=nodes,type_ignores=[]),str(runtime/'src/core/walkback_worker.py'),'exec'),ns)
+checks=[]
+def transport(method,params):
+ assert method=='getSignaturesForAddress';opts=params[1];calls.append(opts.copy());cursor=opts.get('before')
+ return {'CREATE':[{'signature':'funding','slot':9},{'signature':'older','slot':8}],None:[{'signature':'post_launch','slot':12},{'signature':'CREATE','slot':10}],'older':[]}.get(cursor,[])
+calls=[];counter=[0];a=ns['_collect_signature_window']('verified_creator',counter,before_signature='CREATE',rpc_transport=transport);assert a[0]['signature']=='funding' and all(x['slot']<10 for x in a);checks.append({'case':'CREATE_bounds_prelaunch','pass':True,'requests':counter[0]})
+calls=[];counter=[0];b=ns['_collect_signature_window']('verified_creator',counter,rpc_transport=transport);assert b[0]['signature']=='post_launch' and 'before' not in calls[0];checks.append({'case':'no_CREATE_starts_latest_not_equivalent','pass':True})
+calls=[]
+def full(method,params):calls.append(params);return [{'signature':str(len(calls))+'a'},{'signature':str(len(calls))+'b'}]
+counter=[0];assert len(ns['_collect_signature_window']('creator',counter,rpc_transport=full))==6 and counter[0]==3;checks.append({'case':'finite_pages_and_rows','pass':True,'pages':3,'rows':6})
+# Execute installed queue gating assignments without importing application or writing DB.
+qt=ast.parse((runtime/'src/core/walkback_queue.py').read_text());fun=next(n for n in qt.body if isinstance(n,ast.FunctionDef) and n.name=='enqueue_migration');gate=[n for n in fun.body if (isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id in ['initial_status','path_state'] for t in n.targets)) or (isinstance(n,ast.If) and ast.unparse(n.test)=="cls == 'FULL_WALKBACK' and (not anchor_valid)")]
+for valid in [False,True]:
+ env={'cls':'FULL_WALKBACK','anchor_valid':valid};exec(compile(ast.Module(body=gate,type_ignores=[]),'installed-enqueue-gate','exec'),env);assert env['initial_status']==('pending' if valid else 'waiting');checks.append({'case':'entry_gate_'+str(valid),'pass':True,'status':env['initial_status']})
+save('offline-fixtures.json',{'status':'PASS','checks':checks,'provider_calls':0,'no_application_imports':True,'scope':'Exact installed function ASTs; synthetic bounded temporal pages only, no real traversal; no proposed implementation'})
+# Indexed point evidence; no population scans or database copies.
+mints=['6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump','E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump','BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump','Ei6z97gFFVqfoMu4oswbSViBuBSh4fJDrd2ZMpSMpump','CjtwB9XL59Y8sgApovHGrryzUHYxTE33fZnSLLsKpump','GzDuFXiViWWN6ELoDRGH5QV6HFfjrmy69oxhmdiGpump']
+c=sqlite3.connect('file:/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db?mode=ro',uri=True);c.row_factory=sqlite3.Row;c.execute('pragma query_only=on');out={}
+for mint in mints:
+ out[mint]={}
+ for t in ['wt_walkback_queue','operator_launch_membership','wt_walkback_edge_candidates','wt_walkback_transaction_roles']:
+  sql='select * from '+t+' where mint=? limit 9';plan=[r[3] for r in c.execute('explain query plan '+sql,(mint,))];assert any('SEARCH' in p for p in plan),plan;deadline=time.monotonic()+1;c.set_progress_handler(lambda:int(time.monotonic()>deadline),1000);out[mint][t]={'plan':plan,'rows':[dict(r) for r in c.execute(sql,(mint,)).fetchmany(9)]}
+c.close();save('retained-controls.json',out)
+print(json.dumps({'status':'PASS','offline_checks':len(checks),'retained_mints':len(mints),'source':str(E)}))

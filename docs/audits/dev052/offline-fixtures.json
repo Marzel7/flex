@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "case": "CREATE_bounds_prelaunch",
+      "pass": true,
+      "requests": 2
+    },
+    {
+      "case": "no_CREATE_starts_latest_not_equivalent",
+      "pass": true
+    },
+    {
+      "case": "finite_pages_and_rows",
+      "pass": true,
+      "pages": 3,
+      "rows": 6
+    },
+    {
+      "case": "entry_gate_False",
+      "pass": true,
+      "status": "waiting"
+    },
+    {
+      "case": "entry_gate_True",
+      "pass": true,
+      "status": "pending"
+    }
+  ],
+  "provider_calls": 0,
+  "no_application_imports": true,
+  "scope": "Exact installed function ASTs; synthetic bounded temporal pages only, no real traversal; no proposed implementation"
+}

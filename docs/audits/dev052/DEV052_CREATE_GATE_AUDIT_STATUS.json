@@ -1,0 +1,150 @@
+{
+  "DEV052_CREATE_GATE_AUDIT_STATUS": "AUDIT_COMPLETE; HOLD_DISCOVERY_ONLY_CORRECTION_NOT_QUALIFIED",
+  "HISTORICAL_WALKBACK_CONTRACT": {
+    "source_reference": "064021bd7e3aef0dec2e55d067693d94b8cf1922",
+    "last_attributable_pre_Oct7_10": "064021bd preserved component/source composition plus current retained FULL_WALKBACK controls; exact historical loaded Walkback SHA not attested. This is attributable source and successful decision evidence, not proof one frozen commit was deployed.",
+    "gate_introduction": "e68d9a89f4a68f1882b69ca434b73762accf6375",
+    "provenance": "e68d9a89 July26 accumulated X41-X67 work introduces WAITING_FOR_CREATE_ANCHOR in enqueue; its parent lacks this gate. f2ef9343 July25 composition contains anchored funding traversal. Source dates alone do not prove deployment chronology.",
+    "comparison": "Frozen064 enqueue has same FULL_WALKBACK valid_signature prerequisite and optional before_signature traversal. No demonstrated post-Oct7 addition of this gate. Historical success does not imply absence of prerequisite."
+  },
+  "CURRENT_WALKBACK_CONTRACT": {
+    "git_head": "afbe9e58b11eb2e4d616246da123ce31ab45700c",
+    "runtime": {
+      "manager": "supervisord",
+      "program": "walkback_worker",
+      "pid": 73413,
+      "parent_pid": 73409,
+      "process_arguments": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -m src.core.walkback_worker --loop",
+      "configured_command": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python\n-m src.core.walkback_worker --loop",
+      "configured_directory": "/Users/kevinkeaveney/Production/flex-walkback-dev002",
+      "observed_cwd": [
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002"
+      ],
+      "git_head": "afbe9e58b11eb2e4d616246da123ce31ab45700c",
+      "source_file": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py",
+      "source_sha256": "a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9",
+      "loaded_python_bytes": "UNVERIFIED; no introspection/injection/signalling",
+      "safe_startup_environment": {
+        "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+        "WALKBACK_BATCH_SIZE": "8",
+        "WALKBACK_INTERVAL_SEC": "45",
+        "WALKBACK_MAX_ATTEMPTS": "3",
+        "WALKBACK_RPC_BUDGET_BATCH": "80"
+      },
+      "credential_labels_present": {
+        "HELIUS_API_KEY": true,
+        "HELIUS_MONITORING_API_KEY": false,
+        "HELIUS_RPC_URL": true,
+        "RPC_HTTP": false,
+        "RPC_URL": false,
+        "BIRDEYE": false,
+        "BIRDEYE_API_KEY": false
+      },
+      "credential_values": "NOT_RETAINED",
+      "process_started": "Thu Oct  8 01:00:57 2026",
+      "log_path": "/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/walkback_worker.log",
+      "provider_endpoint_labels": {
+        "HELIUS_RPC_URL": {
+          "scheme": "https",
+          "hostname": "mainnet.helius-rpc.com"
+        }
+      },
+      "HELIUS_API_KEY_matches_HELIUS_RPC_URL_key": true,
+      "analyzer": {
+        "path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/analysis/pump_fun_post_migration_analyzer.py",
+        "sha256": "b7a051d2b21a860215393e9815b66c8ab9f16c14a932595755a21286a92a9443"
+      },
+      "manager_process": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/supervisord -c /Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf"
+    },
+    "files": {
+      "src/core/walkback_queue.py": {
+        "runtime_sha256": "2741576189a84ae94d3b1858448e5899ba28be27da5324f122f6d42514fecbe9",
+        "frozen_sha256": "65ab2d44e7e96a27ba28553108aba5408363e623043c1cac5cc7e2d0f5d394f4"
+      },
+      "src/core/walkback_worker.py": {
+        "runtime_sha256": "a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9",
+        "frozen_sha256": "94611dc0f34e7529a7e8b22fe27c083bda8dcbb566cd5bd10385fe57286f72b5"
+      },
+      "src/core/deep_walkback.py": {
+        "runtime_sha256": "9913a0db3e056a301b88e60308b00657e513c1fd8c14c7f3f21b0079739a468f",
+        "frozen_sha256": "e2ee95209ee5184e9b037f641070db9b0fdc28bbc3aed526b9b93f574c0f0a46"
+      },
+      "src/ops/anchor_reconciliation.py": {
+        "runtime_sha256": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7",
+        "frozen_sha256": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7"
+      },
+      "src/ops/create_event_ledger.py": {
+        "runtime_sha256": "64780f0d9724153581fec2a2182eb71d2dccf53b1be7abfd23b1062360249dc4",
+        "frozen_sha256": "37552596ff367291b922ce4870c4880c9d27ae468dfb83c181879b3d013f57cc"
+      }
+    },
+    "contract": "FULL_WALKBACK waiting rows are not selected or lease-claimed; creator can be recovered locally only after eligible execution. Other partial/link classes have different prerequisites; no universal CREATE rule inferred.",
+    "loaded_source": "UNVERIFIED; no code injection/restart; Git HEAD is not installed module identity"
+  },
+  "CREATE_GATE_SOURCE": {
+    "enqueue": "src/core/walkback_queue.py:enqueue_migration lines500-513 valid_signature(create_signature); FULL_WALKBACK and not anchor_valid => status waiting/path WAITING_FOR_CREATE_ANCHOR",
+    "worker_selection": "src/core/walkback_worker.py:run_loop status=pending; deep_walkback.claim_with_lease only pending/expired running, not waiting",
+    "recovery": "src/ops/anchor_reconciliation.py:reconcile_waiting_create_anchors and resolve_anchor_with_priority; canonical ledger first, existing valid queue, widened local core/detected/funding sources; SAFE returns to pending. Separate CREATE acquisition belongs to recovery worker, no provider acquisition in local reconciliation.",
+    "validation_limit": "Installed deep_walkback.valid_signature checks alphanumeric length80..90, not transaction decoding or Pump creator proof. Gate presence is not itself complete signature/identity qualification."
+  },
+  "CREATOR_EVIDENCE_AUTHORITY": {
+    "PumpPortal": "newToken traderPublicKey is existing birth-source creator evidence when bound to exact mint/signature and canonical birth provenance; feed field alone is not decoded Pump ABI proof or independent conflict resolution.",
+    "canonical_birth": "Retained exact mint creator/signature source can support identity; storage alone does not independently validate original observation. Conflict must remain unresolved.",
+    "decoded_Create_CreateV2": "Transaction-backed exact mint and decoded creator argument is strongest Pump-specific proof; absent original instruction bytes is not filled by signer.",
+    "resolver": "_recover_creator_from_db prefers launch ledger, then earliest_tx_creator OR pf_ws_creator, then migrated_tokens.creator; no source-quality adjudication. Installed resolver can persist inferred fee-payer fallback even without CREATE signature.",
+    "fallback_signer_payer": "Not independently Pump creator-qualified. Existing permissive lookup is documented, not approved as safe discovery authority.",
+    "funding_recipient": "Evidence of destination only; not mint creator proof.",
+    "migration": "Migration association/creator column alone does not establish original Pump creator.",
+    "independence": "Creator identity and CREATE signature are separately nullable; canonical ledger explicitly permits creatorNULL. Their existence must not be conflated."
+  },
+  "PUMPPORTAL_CREATOR_ELIGIBILITY": "Accepted by existing birth/listener path as traderPublicKey with mint/signature provenance. Having a creator does not exempt FULL_WALKBACK from CREATE anchor. No safe ambiguous-identity selection or signature-free temporal contract was demonstrated.",
+  "CREATE_SIGNATURE_PURPOSE": {
+    "identity": "Joins launch to exact CREATE evidence; signature shape alone is not full creator validation.",
+    "funding_selection": "Used as RPC getSignaturesForAddress before cursor in hop1; candidates ranked by known treasury/subprovider then WSOL/seeded/plain mechanism, closest pre-CREATE tie-break.",
+    "temporal": "Excludes post-launch wallet activity. Hop2 anchored before selected creator-funding signature; deeper hops propagate each selected edge.",
+    "admission": "Not sufficient: final evidence/membership predicates are independent; complete queue/confirmation label is not membership proof. Existing cached shortcut can confirm without complete qualified topology."
+  },
+  "TEMPORAL_ANCHOR_DEPENDENCY": "DEMONSTRATED. Exact installed _collect_signature_window with no CREATE starts latest bounded pages, not same prelaunch population. A birth timestamp cannot be substituted without proving accepted boundary semantics and RPC pagination coverage. No equivalent supported alternative anchor established.",
+  "HISTORICAL_POSITIVE_CONTROLS": {
+    "controls": [
+      "6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump",
+      "E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump"
+    ],
+    "evidence": "Both FULL_WALKBACK, complete, attempts1, RPC12/9, claim/start/completion retained, valid token_analysis-sourced CREATE anchor, WSOL_WRAP_CLOSE creator leg, two retained edge candidates and canonical membership. Exact rows/signatures in retained-controls.json.",
+    "limits": "Selected Funding Account distinct from direct funder, temporary-account roles, complete independent reusable fan-out and original branch decision trace not fully proven for these controls. Do not invent roles or requalify entire historical chain. AwXt excluded as independent FULL control: prior audit establishes cascade/LINK_ONLY origin.",
+    "signature_use": "Consistent with entry/temporal anchor use in preserved source; no historical instruction-level execution trace proves every actual loaded call."
+  },
+  "RECENT_CANDIDATE_GATE": {
+    "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+    "state": "FULL_WALKBACK waiting/WAITING_FOR_CREATE_ANCHOR, missing signature, attempts0, no edges or membership in indexed exact lookup. Missing anchor is actual entry gate; creatorNULL at queue does not remove this gate.",
+    "identity": "Canonical fallback27HF, WSOL close recipient7KX, and Pump-specific creator are not interchangeable. No independent Pump creator argument established. Known treasury850SOL and recipient close do not prove complete fanout/mint relationship.",
+    "causality": "Gate prevents funding traversal now; not proof missed token would qualify if removed. DEV051 installation fixes future retrieval compatibility only; no replay/requeue."
+  },
+  "DISCOVERY_WITHOUT_CREATE_FEASIBILITY": {
+    "mechanical": "YES helper accepts None; bounded page requests still execute.",
+    "accepted_contract": "NO qualified semantic equivalence. No-anchor starts latest, may select postlaunch funding and changes mint/launch causality. Independently qualified creator is additionally required and unresolved for recent mint.",
+    "bounds": "Existing defaults3pages x100signatures;5 transaction reads per hop, WATCHTOWER upstream10pages, deep8hops and row80counter budget; batch80 and attempts3. These are existing limits/counter semantics, not a new hard global wall-clock proof. No extra requests performed.",
+    "restart_duplicate": "Existing mint INSERT OR IGNORE, lease, attempts and bounded retries retained; changing waiting to pending starts ordinary completion/admission, not provisional-only work. No safe extra stage/restart contract proven."
+  },
+  "TWO_STAGE_DETECTION_FEASIBILITY": "HOLD within existing accepted architecture. Edge-candidate/shadow tables exist, but process_row couples traversal to _mark_complete, promotion, attribution and membership projection; provisional rows alone do not establish safe StageA. Need independently qualified creator, accepted equivalent temporal boundary and proven no-confirm/no-membership execution seam before a separate proposal. No new infrastructure or threshold designed.",
+  "FALSE_POSITIVE_CONTROL_RESULTS": {
+    "existing": "Three DEV039 F7p3 PLAIN_XFER controls retain FULL_WALKBACK WATCHTOWER_CONFIRMED labels with no canonical membership. Cached69SN association is not ancestry proof; current classifier weakness already retained in DEV039. Recent unsupported registered-root/LINEAGE_GAP records do not become proof by later registry changes.",
+    "result": "No new promotion/membership or replay. Cannot claim a hypothetical CREATE-independent StageA passes negatives: existing unmodified process_row can label-confirm on known-subprovider OR cached treasury. Admission remains independent and blocks these three.",
+    "requirements": "Any future StageA must never call confirmation/admission, preserve WSOL and exact treasury ancestry/fanout/account/mint evidence; cached/root labels not substitutes."
+  },
+  "MINIMUM_SAFE_CORRECTION": "NONE qualified. Do not remove enqueue_migration FULL_WALKBACK anchor predicate or simply pass None. Preserve existing gate and local anchor-recovery responsibility. A future isolated proposal must first demonstrate equivalent accepted temporal anchor + unambiguous creator and discovery-only termination without _mark_complete/promotion/admission, then test historical positives/negatives and budget/lease semantics. No implementation recommended from this audit.",
+  "READY_FOR_IMPLEMENTATION": false,
+  "PROVIDER_CALLS": 0,
+  "CANONICAL_WRITES": 0,
+  "PRODUCTION_CHANGES": 0,
+  "RUNTIME_DEPLOYMENT_REQUIRED": false,
+  "RUNTIME_DEPLOYMENT_REASON": "Forensic audit and offline pure-function fixtures only; no executable runtime correction",
+  "OFFLINE_TESTS": "5 PASS: anchored before-launch, no-anchor postlaunch difference, finite paging, missing/valid FULL entry gates. Initial fixture setup missing SIG_LIMIT corrected to existing default; no source change.",
+  "STORAGE_BOUNDS": {
+    "max_diagnostic_single_file_bytes": 2000000,
+    "raw_provider_retention": false,
+    "new_runtime_growth_paths": 0
+  },
+  "NEXT_ACTION": "STOP \u2014 audit complete. Keep CREATE gate. Separate qualification required for any alternative temporal/creator authority or discovery-only execution seam; no implementation/deployment/replay authorized."
+}

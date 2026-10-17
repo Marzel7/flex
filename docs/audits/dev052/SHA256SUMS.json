@@ -1,0 +1,8 @@
+{
+  "offline-fixtures.json": "aa5444f8a99e2c7dfd46f4832e74a271df14d6ea2f0791f15ef9db0b608c9a41",
+  "offline-contract-fixtures.py.txt": "6cff178cce1ae08240c1dfcc82a5ff8e52e711aeac9bb8115d3c436f642c8276",
+  "DEV052_CREATE_GATE_AUDIT_STATUS.json": "d6f042083952c26716c5929185769be86f56c2055d44950c991493008beda17b",
+  "source-authority.json": "df599d6d4bdf61bd1a587b841cc116ce2fcbb8e87177afc5ae69128a2c9ee3ab",
+  "retained-controls.json": "99a7fa0c2124caa61843f52724728bfa7af74b8bdb5ad637c97ca5c4b77e1853",
+  "runtime-authority.json": "7005497f224256dbce40567bdee177fc92c185a853b1a3965df3287fbf0aac8a"
+}

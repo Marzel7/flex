@@ -1,0 +1,1824 @@
+{
+  "source_root": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV055/source",
+  "modules": [
+    {
+      "module": "_frozen_importlib",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/_bootstrap.py",
+      "sha256": "2aa31b7369a9725ce893fed35e33a2ffb1c908ecc7411a34d7975cb25a28f695"
+    },
+    {
+      "module": "_frozen_importlib_external",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/_bootstrap_external.py",
+      "sha256": "5b7f704fd3198cb474fea0e74cb21df2d159ceb6bde78aad5db3eb5efa883ccf"
+    },
+    {
+      "module": "zipimport",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/zipimport.py",
+      "sha256": "e84b98dd13d3a8ae3ff2094ef2889dcead41d754f0531686f0b70b8d225676cc"
+    },
+    {
+      "module": "codecs",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/codecs.py",
+      "sha256": "166ffd0f0fe40631bb7adef898ebfe59c7fb9efeb25f635b0fd50b68e9353b6a"
+    },
+    {
+      "module": "encodings.aliases",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/encodings/aliases.py",
+      "sha256": "6fdcc49ba23a0203ae6cf28e608f8e6297d7c4d77d52e651db3cb49b9564c6d2"
+    },
+    {
+      "module": "encodings",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/encodings/__init__.py",
+      "sha256": "78c4744d407690f321565488710b5aaf6486b5afa8d185637aa1e7633ab59cd8"
+    },
+    {
+      "module": "encodings.utf_8",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/encodings/utf_8.py",
+      "sha256": "ba0cac060269583523ca9506473a755203037c57d466a11aa89a30a5f6756f3d"
+    },
+    {
+      "module": "abc",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/abc.py",
+      "sha256": "e558702a95cdce3febd289da021715d2b92bc43995b8a1bc58dfa1c3d8010287"
+    },
+    {
+      "module": "io",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/io.py",
+      "sha256": "0bb3f9ba75c78b4ad69dedcfb0b360b4503188cf17a632579a70d398bd9ca0e4"
+    },
+    {
+      "module": "__main__",
+      "path": "/Users/kevinkeaveney/Dev/claude/flex-releases/tooling/DEV048-0cbbdf44-archive-classification/tools/flex_dev_guarded.py",
+      "sha256": "530a05efa0d78bed05af20b446685e250fb6d00ac3bc72aad95db86939cacb4e"
+    },
+    {
+      "module": "stat",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/stat.py",
+      "sha256": "052af0327eae6941b69b05c088b3e748f79995635f80ac4cc7125eb333eb4c77"
+    },
+    {
+      "module": "_collections_abc",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/_collections_abc.py",
+      "sha256": "ec646ef7e27aae261adef3c57b9d18822c6526b3e9562dabb9f3cb4e6803066c"
+    },
+    {
+      "module": "genericpath",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/genericpath.py",
+      "sha256": "9d58ad64056a89f12258a62596c2073cd9e52b459dde152f710edc0cffcd865b"
+    },
+    {
+      "module": "posixpath",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/posixpath.py",
+      "sha256": "115bb3d2051318ee3d951cdb13c60f118f15cea837cb69fb52cf543c12fe25c3"
+    },
+    {
+      "module": "os.path",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/posixpath.py",
+      "sha256": "115bb3d2051318ee3d951cdb13c60f118f15cea837cb69fb52cf543c12fe25c3"
+    },
+    {
+      "module": "os",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/os.py",
+      "sha256": "021bfb21a96fdaac4b2c034d40636f5e18148a8a95282661a9bc14f3fa979a99"
+    },
+    {
+      "module": "_sitebuiltins",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/_sitebuiltins.py",
+      "sha256": "b9388bc1d6d12ed6be12da420ab1feca40f99c0e33ec315d92b1e01cb69b25bc"
+    },
+    {
+      "module": "_distutils_hack",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_distutils_hack/__init__.py",
+      "sha256": "46849a60a7cc85189cf6b5ac62b3f135004862ce6a96540a81c95ef6fbc4dc3e"
+    },
+    {
+      "module": "types",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/types.py",
+      "sha256": "0c08fbb650c37535a7d8361fc12029e3f4c72a418cf564e8779dae14b979e5ba"
+    },
+    {
+      "module": "importlib._bootstrap",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/_bootstrap.py",
+      "sha256": "2aa31b7369a9725ce893fed35e33a2ffb1c908ecc7411a34d7975cb25a28f695"
+    },
+    {
+      "module": "importlib._bootstrap_external",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/_bootstrap_external.py",
+      "sha256": "5b7f704fd3198cb474fea0e74cb21df2d159ceb6bde78aad5db3eb5efa883ccf"
+    },
+    {
+      "module": "warnings",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/warnings.py",
+      "sha256": "3c36ff80a66718e3fc8449f06730e9d7bcef87d1e7f91b626b42ca4d1f30eab0"
+    },
+    {
+      "module": "importlib",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/__init__.py",
+      "sha256": "49ad4fdc8139026f7f3773e3f50f09207ff6bd8e92a2c382545525235448e525"
+    },
+    {
+      "module": "importlib._abc",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/_abc.py",
+      "sha256": "e24fa90513d1fd6e10df30dc28044dfcad857b88161c79de10f7109c18227e8d"
+    },
+    {
+      "module": "keyword",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/keyword.py",
+      "sha256": "afbe73afb68d32fa998e5ff3d081090deec457152470f5331cc2bd430a0e9d2a"
+    },
+    {
+      "module": "operator",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/operator.py",
+      "sha256": "b2af20f67667203c1730e686cc5d0427becc94db4c97f1d3efe3ed2158473f6a"
+    },
+    {
+      "module": "reprlib",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/reprlib.py",
+      "sha256": "264433cc232332db871666b3bb6e4c2cb97b092cb8d5056a45ec2e53daea2b1c"
+    },
+    {
+      "module": "collections",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/collections/__init__.py",
+      "sha256": "303701de55e434c0fbcc478ae8a79a28537d9ebe83b3150508438ffd6e3e14c7"
+    },
+    {
+      "module": "functools",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/functools.py",
+      "sha256": "6d80018a3fa9fed44c5b78f881987ee3ab3fb1238b077b4e6dcb4b76da7db73b"
+    },
+    {
+      "module": "contextlib",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/contextlib.py",
+      "sha256": "a907c5d2151782ac1253dc9eade52fd834a1db43f52cc2b5094dcc4b359de18e"
+    },
+    {
+      "module": "importlib.util",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/util.py",
+      "sha256": "de645b9f6d595f5e415d117f4d04ce77f144ce5ad2a6477659a9b5547d54b9dd"
+    },
+    {
+      "module": "importlib.machinery",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/machinery.py",
+      "sha256": "d045cd7ecf2a12b6ecbfbef79eb114e87ef2ebd756f5b705f73e6f3266e3dede"
+    },
+    {
+      "module": "site",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site.py",
+      "sha256": "6803396ba0719e4d1d6ce9351f09f0bca11ab8e9c4efe0f935f598da8e8b903e"
+    },
+    {
+      "module": "runpy",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/runpy.py",
+      "sha256": "f7af4206d8cbb27fce7731174b190edd6569ec3fad060a727d4bfcde69dd965c"
+    },
+    {
+      "module": "enum",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/enum.py",
+      "sha256": "8ab474102e3240600749088d26f3724b6005661492fe2608223e2dace93c710c"
+    },
+    {
+      "module": "re._constants",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/re/_constants.py",
+      "sha256": "3e4463dc8ba87c4a3563be46d2d593e82ca9a0fb91768cfe5a07554ed3de82c5"
+    },
+    {
+      "module": "re._parser",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/re/_parser.py",
+      "sha256": "f8dfee5093475d3454ca70299880540673443eb99547d001b47af3f56eb91a3d"
+    },
+    {
+      "module": "re._casefix",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/re/_casefix.py",
+      "sha256": "41572ac50cf96b04496e676d8a6708898bb8e752e06dad34ed4c50c5d8f1fe40"
+    },
+    {
+      "module": "re._compiler",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/re/_compiler.py",
+      "sha256": "23b13f6c11c3343aff2b701b5844a6c82a1a0add70e5aa839d6855d57f691af7"
+    },
+    {
+      "module": "copyreg",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/copyreg.py",
+      "sha256": "5499e1be7ba52d4715a911ae65ef2d703db9379d21fff2a07fad8877c318e070"
+    },
+    {
+      "module": "re",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/re/__init__.py",
+      "sha256": "029ead61f362489e9bb034f4c2503abee95462056541e9ad07715de3c353b0da"
+    },
+    {
+      "module": "fnmatch",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/fnmatch.py",
+      "sha256": "6683da36e47af523f3f41e18ad244d837783e19e98911cc0b7415dea81494ebc"
+    },
+    {
+      "module": "ntpath",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/ntpath.py",
+      "sha256": "030fdd768135c4de3b4c56ca0f13d2f4801ccbcde4144382334cf75a477dd0de"
+    },
+    {
+      "module": "urllib",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/urllib/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "module": "ipaddress",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/ipaddress.py",
+      "sha256": "c4a22d96741ef70d49120cd31f942a35094e666021af9b663446bd68dacdb9bd"
+    },
+    {
+      "module": "urllib.parse",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/urllib/parse.py",
+      "sha256": "0e67e2f5a301d0b573698e75a4e2d37c843b48cfe0e29fef894eda90d2189c27"
+    },
+    {
+      "module": "pathlib",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/pathlib.py",
+      "sha256": "3b21ac188fd9ac20bacc8ccd976fabd5d8ccf5000f8e157d3dfff005b228fb3d"
+    },
+    {
+      "module": "_json",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_json.cpython-311-darwin.so",
+      "sha256": "615f9847a83fe2c87240d983a5398d227687813e17aee9f592f16efc7e3fd95c"
+    },
+    {
+      "module": "json.scanner",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/json/scanner.py",
+      "sha256": "8604d9d03786d0d509abb49e9f069337278ea988c244069ae8ca2c89acc2cb08"
+    },
+    {
+      "module": "json.decoder",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/json/decoder.py",
+      "sha256": "9f02654649816145bc76f8c210a5fe3ba1de142d4d97a1c93105732e747c285b"
+    },
+    {
+      "module": "json.encoder",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/json/encoder.py",
+      "sha256": "7c358788fbb2a6a07f66f1f8446c52396f35fc201108f666d5be002d86f31af2"
+    },
+    {
+      "module": "json",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/json/__init__.py",
+      "sha256": "d5d41e2c29049515d295d81a6d40b4890fbec8d8482cfb401630f8ef2f77e4d5"
+    },
+    {
+      "module": "_hashlib",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_hashlib.cpython-311-darwin.so",
+      "sha256": "ebe822d7c8fdea69b651888b74d134c8cbecedfe39e75ba02d3c1a28bfd8cbc5"
+    },
+    {
+      "module": "_blake2",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_blake2.cpython-311-darwin.so",
+      "sha256": "cfa2b341f1186af011b6c7a6ac642b6e4580774d3d5cbe9c0e821fa7c117cd86"
+    },
+    {
+      "module": "hashlib",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/hashlib.py",
+      "sha256": "e2bffb462e4d43e6637b9450e259e8ba2a56626ba3037d68aa1cee68b3f61d4a"
+    },
+    {
+      "module": "math",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/math.cpython-311-darwin.so",
+      "sha256": "cf1757cf5bda259a8817de3abc05d323dfbe4bf3d243829b9603f2c5d16ef6a2"
+    },
+    {
+      "module": "_datetime",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_datetime.cpython-311-darwin.so",
+      "sha256": "cd5f899a831e1fdbfc65f684f3599e6ded6b3330f38a7511aed1d8d1f4fb6bdf"
+    },
+    {
+      "module": "datetime",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/datetime.py",
+      "sha256": "e77455fc9f87c3f29ec4f57fbae33a58c47fae11695f76365d96e183b3b14fc4"
+    },
+    {
+      "module": "collections.abc",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/collections/abc.py",
+      "sha256": "9cb4208f99128a0489b6c8e6c61637617dd7d4250c59e065491957eda084dd10"
+    },
+    {
+      "module": "_sqlite3",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_sqlite3.cpython-311-darwin.so",
+      "sha256": "94a3bed5c5419e56f5d333a0fce60baa5654d011063dbcf5b175a90bdb27a785"
+    },
+    {
+      "module": "sqlite3.dbapi2",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/sqlite3/dbapi2.py",
+      "sha256": "e49882f895bbbdad7e5af6a9079edffaae9b82bba3fd664281acb607db56c346"
+    },
+    {
+      "module": "sqlite3",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/sqlite3/__init__.py",
+      "sha256": "29878411a7bcefcd56a3751fe689dea2c99bda75a13a485d78898834a323f0c0"
+    },
+    {
+      "module": "_weakrefset",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/_weakrefset.py",
+      "sha256": "91895a451d06e9f521a1171b31b9b19bc9740f35af00d4fa106338ab7167c9ac"
+    },
+    {
+      "module": "weakref",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/weakref.py",
+      "sha256": "56f8d313fb74019e53eb9287400702fbce788b7fe30e097b0b6e06296f3f080c"
+    },
+    {
+      "module": "_typing",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_typing.cpython-311-darwin.so",
+      "sha256": "d997edf0e0ed3665cf575d65c4b66488edd2a5480391565c475ae4f063f11edb"
+    },
+    {
+      "module": "typing",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/typing.py",
+      "sha256": "e5f09501e612ea27d916be86fd664c9b4091308c48cc45269548e0fe76016f6e"
+    },
+    {
+      "module": "pkgutil",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/pkgutil.py",
+      "sha256": "54e8463bc398757aeb01253996c0ef12e2ba8fefdef89dd2e54b15bd70669228"
+    },
+    {
+      "module": "_socket",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_socket.cpython-311-darwin.so",
+      "sha256": "a68cdf76d6c2899fcc28f3afc151ee59c4f6976664b7d6364e555d0f3cde2b66"
+    },
+    {
+      "module": "select",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/select.cpython-311-darwin.so",
+      "sha256": "22c4804315daee7eaa0284f1b3f7350ed08701e34dd2ed72b4b2e9d4cb2c4e24"
+    },
+    {
+      "module": "selectors",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/selectors.py",
+      "sha256": "bcdaf1820f606726f9d8b03c95d6471edf4d578fb77d90fa5fc44f337c370775"
+    },
+    {
+      "module": "array",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/array.cpython-311-darwin.so",
+      "sha256": "f813d76e6a634bb97e359041585e41a6caab0b48eae0d98d7fe57f3b56bd32fc"
+    },
+    {
+      "module": "socket",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/socket.py",
+      "sha256": "07f2010f98b7b90c237879c12f738e7305f786d7af4bc06606c4d77fd7fa9e1b"
+    },
+    {
+      "module": "resource",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/resource.cpython-311-darwin.so",
+      "sha256": "3bd549d2149567320392dd204f0b3f696b480bffaba11b17341dc26dc3008fd9"
+    },
+    {
+      "module": "token",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/token.py",
+      "sha256": "2cabb6a81cafa84b475fc852c20b6bad45955ec0f88063720a831495215f776b"
+    },
+    {
+      "module": "tokenize",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/tokenize.py",
+      "sha256": "79aa94ebe1761811ea9b2da2ada409a8cb9abd7c6eac241d0c181a36684bb609"
+    },
+    {
+      "module": "linecache",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/linecache.py",
+      "sha256": "e814839fc75010db274ae034f45b0fff7e529ccb702319048545fef84c2045b7"
+    },
+    {
+      "module": "textwrap",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/textwrap.py",
+      "sha256": "62867e40cdea6669b361f72af4d7daf0359f207c92cbeddfc7c7506397c1f31c"
+    },
+    {
+      "module": "traceback",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/traceback.py",
+      "sha256": "575334bba6cc6d9aba810b755b9de3ffff28a6353730443d27bccf830db5feaf"
+    },
+    {
+      "module": "__future__",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/__future__.py",
+      "sha256": "981d4c398849f9ebcab72300d9c1fe288fd6d7f28957b3b3fa3a493a5836d95c"
+    },
+    {
+      "module": "_pytest._version",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/_version.py",
+      "sha256": "499638aba0077bc9d815dab227563abc2c76be9f1c70f363cb4c8812bdfc1922"
+    },
+    {
+      "module": "_pytest",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/__init__.py",
+      "sha256": "e087512619d6e571b62a568990ec67e7f4c2f56790e6d5c3485eed6dbe2f12ca"
+    },
+    {
+      "module": "ast",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/ast.py",
+      "sha256": "51c96d6b6701a83c6977f0f279689658c2a6cf63d9f7ff3c19af34a6d9fa6afe"
+    },
+    {
+      "module": "copy",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/copy.py",
+      "sha256": "27dcfc53a4b9d4fbc3d90c74e549eb6eca9301524d6d2fbff9a6589cf51b6fd5"
+    },
+    {
+      "module": "_opcode",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_opcode.cpython-311-darwin.so",
+      "sha256": "d43f352b92eef828902d743ec27212cb0b564e40fdc525d4ca1aa93e28a3f13d"
+    },
+    {
+      "module": "opcode",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/opcode.py",
+      "sha256": "e6fc6dc49ced415d6ec285aaf1076148b8c4cb253d3a4d2384a7bab994d394bf"
+    },
+    {
+      "module": "dis",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/dis.py",
+      "sha256": "42b67f8ccdafddb065ae66ded75ee50220933b69765492ee5b415cbcc3f676cc"
+    },
+    {
+      "module": "inspect",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/inspect.py",
+      "sha256": "d55ac82f84e5c93953e9f5852ec255957e6c12f47d5cc0ea456447319da0f5af"
+    },
+    {
+      "module": "dataclasses",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/dataclasses.py",
+      "sha256": "4b7e1c99ebea53b546317d218a0261895a1769f83a6b95dc0136f13578066a7f"
+    },
+    {
+      "module": "pluggy._result",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pluggy/_result.py",
+      "sha256": "dd77f2ec3ae35db61bee9b91aaec98d956e274858daba3e9ed09ee12531d8fc4"
+    },
+    {
+      "module": "pluggy._hooks",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pluggy/_hooks.py",
+      "sha256": "13a7f79d8708e9d6c4b8ed069b2eb5a3380653fe7dfdeebd902d3c6b4e8406ea"
+    },
+    {
+      "module": "pluggy._tracing",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pluggy/_tracing.py",
+      "sha256": "9d777604298381ff2327157e1cedcfab147e595e777969c5f01e001759c91a0a"
+    },
+    {
+      "module": "pluggy._warnings",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pluggy/_warnings.py",
+      "sha256": "b5dd00bd90697da9ab8820b73aab0bc31321f92cc03237e399ce7c4f9bcfde5c"
+    },
+    {
+      "module": "pluggy._callers",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pluggy/_callers.py",
+      "sha256": "804665946692615b2c676526a4d7e6602d1b755821da361b0057982afb913236"
+    },
+    {
+      "module": "pluggy._manager",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pluggy/_manager.py",
+      "sha256": "2b8229fe99048ef4f6a0e21f40fa7c0b0016a1756710d81045ccbdb651a28b4a"
+    },
+    {
+      "module": "pluggy._version",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pluggy/_version.py",
+      "sha256": "e45189369f4b924f6e3b17828d7a68086045efd02be8b18f391efe6ad06a6ffe"
+    },
+    {
+      "module": "pluggy",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pluggy/__init__.py",
+      "sha256": "0fa769d609840e3b43a7c840c1073eaab81aba59cbe2296daea90b0ddfa0f6d8"
+    },
+    {
+      "module": "_bisect",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_bisect.cpython-311-darwin.so",
+      "sha256": "cf14b694e915a35009cbc1292d4ccb0974e7694ad69d811ee6cf95fdc57a7998"
+    },
+    {
+      "module": "bisect",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/bisect.py",
+      "sha256": "e5b2ff166f48a06e70ae831d8c9b47283fcd0c254306eee12d3dae9c55e11526"
+    },
+    {
+      "module": "_pytest._code.source",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/_code/source.py",
+      "sha256": "56f37358761f4fde923b5dbc9bbb5f21d6a0677e72ba0e3a6d67e05c7ff9569f"
+    },
+    {
+      "module": "zlib",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/zlib.cpython-311-darwin.so",
+      "sha256": "229e09257fc1d2441b692e761f9ec3dd7e223f7d208edc25a6ef74e758a92838"
+    },
+    {
+      "module": "_compression",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/_compression.py",
+      "sha256": "3ad5d60627477a60939ee44fc1bb3a05dbe8fb52f0f75039b8f5d8f1a278b981"
+    },
+    {
+      "module": "_bz2",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_bz2.cpython-311-darwin.so",
+      "sha256": "a2b734266cc250c0a625ba2dd78a3f2cd6d3a7a1188595a106c72b8ba8475b01"
+    },
+    {
+      "module": "bz2",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/bz2.py",
+      "sha256": "76ab3252924e71e859d7d90e8d3db13b6554975cfcac0fdadced4de7f8779330"
+    },
+    {
+      "module": "_lzma",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_lzma.cpython-311-darwin.so",
+      "sha256": "87ecc00ebc49a7d2f4aacaea9a76c02757a90cfc562c9c9add835caa863ef541"
+    },
+    {
+      "module": "lzma",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lzma.py",
+      "sha256": "58fb9d2fdc8a8af7b25e218f17ea3b51bdfa53bdf40f440ab33c605974ca5c2e"
+    },
+    {
+      "module": "shutil",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/shutil.py",
+      "sha256": "837ab5e8abb70d203f70377b4b85cceb40187d481db47e8b0a0583e48602ddbc"
+    },
+    {
+      "module": "pygments",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pygments/__init__.py",
+      "sha256": "84e562dc5c16bab7350a3e7b689432af5b42899e9d54cf7ce367985e414f9989"
+    },
+    {
+      "module": "pygments.formatters._mapping",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pygments/formatters/_mapping.py",
+      "sha256": "d42c37ec5b9094d69c9f144a9ad94f5f89f22e85fdfedb64a39670b1c354659e"
+    },
+    {
+      "module": "pygments.plugin",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pygments/plugin.py",
+      "sha256": "93f82d24706b8830d688d8a743e87faa70d49bb1273cbb97693187dc2779a59c"
+    },
+    {
+      "module": "pygments.util",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pygments/util.py",
+      "sha256": "004558d2aa27cb210c82fe03a3674836baea500c149365d84aa1cceb9d2ecde9"
+    },
+    {
+      "module": "pygments.formatters",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pygments/formatters/__init__.py",
+      "sha256": "d60005db5b7c1460290d7a43a71e5ba94d0caea23bc653c59cf320dae5e7d109"
+    },
+    {
+      "module": "pygments.styles._mapping",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pygments/styles/_mapping.py",
+      "sha256": "f2763d6dc105d59c3d5eed1b9aa7dfa981071db359bc24078add8e5652561f29"
+    },
+    {
+      "module": "pygments.styles",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pygments/styles/__init__.py",
+      "sha256": "fef0f7922c5630656e050ac0d56cffac912d924f3dd56d040f9e62f044018420"
+    },
+    {
+      "module": "pygments.formatter",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pygments/formatter.py",
+      "sha256": "633d35c93d4d4905d317c1afb0bc494a67b3ec4ad354eb319b733a1953ee1fec"
+    },
+    {
+      "module": "pygments.token",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pygments/token.py",
+      "sha256": "0d755070b50b567d392c6eb76da822a89776147dd4ce179550199d41e5e7d54f"
+    },
+    {
+      "module": "pygments.console",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pygments/console.py",
+      "sha256": "db06795be53a4ee7490f5fcd2d4c237253296e898533dd6536fd75ffad2c7c66"
+    },
+    {
+      "module": "pygments.formatters.terminal",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pygments/formatters/terminal.py",
+      "sha256": "3ff76bec62f245320a83c2c471e08eaf9079786cc640110b03725038cbd9f150"
+    },
+    {
+      "module": "pygments.filter",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pygments/filter.py",
+      "sha256": "8f968b33d6bdc12c7a787d68cb8ef7a12909d3684658da6d065568e2cd60ff7d"
+    },
+    {
+      "module": "pygments.filters",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pygments/filters/__init__.py",
+      "sha256": "abcafc19f2b774ed36d5348725da7037087a44729b00bedc782ce885abd668dd"
+    },
+    {
+      "module": "pygments.regexopt",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pygments/regexopt.py",
+      "sha256": "8e0d402e881c60653de93412f62b0197a742aefc39cb9fbe04ffcafae164ffcb"
+    },
+    {
+      "module": "pygments.lexer",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pygments/lexer.py",
+      "sha256": "72eec89179bfb2129d7e65d7ae52f26f14594bf451049a1a6cec1066a2cf50ee"
+    },
+    {
+      "module": "pygments.lexers._mapping",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pygments/lexers/_mapping.py",
+      "sha256": "d820659686ca07d0eca3d91b91aabf2164ef0f767624eab1fc7b09ead04b0d76"
+    },
+    {
+      "module": "pygments.modeline",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pygments/modeline.py",
+      "sha256": "785daf3b82e9386a0fbc828a91b3df9f2badf214f852279b64fa5bf8160641d2"
+    },
+    {
+      "module": "pygments.lexers",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pygments/lexers/__init__.py",
+      "sha256": "b9db095dd79fca1c1451f8ac0b71366e35a1ddc00d4c4d195de5c188ab64f037"
+    },
+    {
+      "module": "pygments.lexers.diff",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pygments/lexers/diff.py",
+      "sha256": "540c80151166c8c1fceb9ac4277ec8dd3a72ae92d4a04314f7976eaf0e872d17"
+    },
+    {
+      "module": "pygments.unistring",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pygments/unistring.py",
+      "sha256": "15a51f1b5e0d04910a2d0a18f6a8fa258797ae961c2e62ae96085dc4e18568e7"
+    },
+    {
+      "module": "pygments.lexers.python",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pygments/lexers/python.py",
+      "sha256": "7e9fa972f4bb29027bfe9c586e7e2cd0e34f14e15c584451c381767be08ffc0d"
+    },
+    {
+      "module": "_pytest._py",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/_py/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "module": "_pytest._py.error",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/_py/error.py",
+      "sha256": "90643b17cfdf67a615061031faef669134014f1d2a231c6754c0b40a088e77bd"
+    },
+    {
+      "module": "_uuid",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_uuid.cpython-311-darwin.so",
+      "sha256": "b7ab0715ccd4f533cad11658dead123240fc1b601484f021e2b1dca6ee958e92"
+    },
+    {
+      "module": "uuid",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/uuid.py",
+      "sha256": "e936b632e7b14cbdad7da077edf59d1de77f5a4c8507a5e7d0028b1d336d9883"
+    },
+    {
+      "module": "_pytest._py.path",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/_py/path.py",
+      "sha256": "f8a781afa1618876530f32387b489b479566c1e88e6281fc5bf4e40fb5af18ed"
+    },
+    {
+      "module": "py.error",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/_py/error.py",
+      "sha256": "90643b17cfdf67a615061031faef669134014f1d2a231c6754c0b40a088e77bd"
+    },
+    {
+      "module": "py.path",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/_py/path.py",
+      "sha256": "f8a781afa1618876530f32387b489b479566c1e88e6281fc5bf4e40fb5af18ed"
+    },
+    {
+      "module": "py",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/py.py",
+      "sha256": "b71675b5d9845ba0814e9e88767f88dac3b3cc0d3128da028bd45edbb523e871"
+    },
+    {
+      "module": "_pytest.compat",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/compat.py",
+      "sha256": "a9c1dc647432100e933b70b4a861203b46ff63136edb7a24d264d9d2c6a1ea49"
+    },
+    {
+      "module": "unicodedata",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/unicodedata.cpython-311-darwin.so",
+      "sha256": "7848fb9e643c6a36089671293b599e92106f01e6af079a82fc07be333e62e128"
+    },
+    {
+      "module": "_pytest._io.wcwidth",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/_io/wcwidth.py",
+      "sha256": "714109ef8521c1e202c1b2af536aba9e865c3600f442504407d09f6a41986aa0"
+    },
+    {
+      "module": "_pytest._io.terminalwriter",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/_io/terminalwriter.py",
+      "sha256": "2b4a41d697c0beb281585011292a1b438c168b4a5d9a205a19bddafeffc00234"
+    },
+    {
+      "module": "_pytest._io",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/_io/__init__.py",
+      "sha256": "a642c5dbd54416be8396bdde3ad24bf2c7f8ed12c5b7525fe17d436413e56267"
+    },
+    {
+      "module": "pprint",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/pprint.py",
+      "sha256": "0b67dbc8af449d8ced3acd9df902e98c2dbc56c8f2a7a181c51cc72768db621f"
+    },
+    {
+      "module": "_pytest._io.saferepr",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/_io/saferepr.py",
+      "sha256": "1e1c7917eef98b3d3785d93e58ef3a066cbd441b911ecb898fe614ce8cdfae0a"
+    },
+    {
+      "module": "_pytest.warning_types",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/warning_types.py",
+      "sha256": "566ea71b4b0f502c82dcc06a1c7ae86570e5914f95be2d104c941a68caf21890"
+    },
+    {
+      "module": "_pytest.deprecated",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/deprecated.py",
+      "sha256": "122928623a9d94b4d981b04d4e615d3ea88fe43759a730322b045b3b6840d151"
+    },
+    {
+      "module": "_pytest.outcomes",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/outcomes.py",
+      "sha256": "a9b8074421110d12bc5bc6407da9d07f80e9e3f5bbbcda1cdafbf7a66dc7b4aa"
+    },
+    {
+      "module": "_pytest.pathlib",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/pathlib.py",
+      "sha256": "c483986bc125cb2a43d814ee4b6ffc6e1e8ec83e038cf7c13ae9641714396f54"
+    },
+    {
+      "module": "_pytest._code.code",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/_code/code.py",
+      "sha256": "1ec7a6dc4ee711db1a3e7631ab6ea0d2a5d73fd3c649fe3e47ed69659993576c"
+    },
+    {
+      "module": "_pytest._code",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/_code/__init__.py",
+      "sha256": "04a6e8c286100032a300999359d43c49240b6c106c874f9d663dd31a3b67eb23"
+    },
+    {
+      "module": "_random",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_random.cpython-311-darwin.so",
+      "sha256": "11ccd8543517a88b928f2fbd58d9a6359f12fcf81b58dd31484ab87dcea1ab10"
+    },
+    {
+      "module": "_sha512",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_sha512.cpython-311-darwin.so",
+      "sha256": "9a94dbd082b64e20c94635b7482f2c7db79117d81bd01deff1bb1e2f82a53869"
+    },
+    {
+      "module": "random",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/random.py",
+      "sha256": "b931a2d452db89ab9e1f79d59b66ce194dbd6748049cfe44699726da52b9c956"
+    },
+    {
+      "module": "tempfile",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/tempfile.py",
+      "sha256": "c9169b0ef905999b5d347544cfaa73c4f295777ac07a948aec1e4fdf3ce98a3b"
+    },
+    {
+      "module": "importlib.resources.abc",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/resources/abc.py",
+      "sha256": "d106439f012fb61aa2410e779fcd979ac1d3d677a85e0db5588baf8080100ea8"
+    },
+    {
+      "module": "importlib.resources._adapters",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/resources/_adapters.py",
+      "sha256": "a39d6d3f686956da213f7de0498c809063692df60306ac7162c69dca24598b51"
+    },
+    {
+      "module": "importlib.resources._common",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/resources/_common.py",
+      "sha256": "d4c487b710c16cbb061999417d2bf297ce6f21309f9d81d353d6e627b1126d8c"
+    },
+    {
+      "module": "importlib.resources._legacy",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/resources/_legacy.py",
+      "sha256": "4cc2e4c7a68433a53cc484443d7a8666b31b5214e23d4b8f97a1120fb45d623e"
+    },
+    {
+      "module": "importlib.resources",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/resources/__init__.py",
+      "sha256": "7af3e6d7690b818a939bea5bce6eb46cebae9ae993f08a41356169d2e332af31"
+    },
+    {
+      "module": "importlib.abc",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/abc.py",
+      "sha256": "10c316fd409976a2b5a0a379451048e418cce21d2b792820738debe5e2b74c5e"
+    },
+    {
+      "module": "_struct",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_struct.cpython-311-darwin.so",
+      "sha256": "ac34f9b8875b3a5c56361e1e0dbe94649441aff6a8e17be6701984f2cfc0c890"
+    },
+    {
+      "module": "struct",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/struct.py",
+      "sha256": "9c231f9497caf513a22dee8f790b07f969b0e45854a0bdd6dd84b492e08c2856"
+    },
+    {
+      "module": "binascii",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/binascii.cpython-311-darwin.so",
+      "sha256": "b81a24a80f1f7e6772323b50f7b99be1a3879b5fc0a74ef0baf073a8fcf33b48"
+    },
+    {
+      "module": "threading",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/threading.py",
+      "sha256": "570b087160a413ba50a02fd823f1faa3a8dfcecdc9411ece80d28d4b93741b57"
+    },
+    {
+      "module": "zipfile",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/zipfile.py",
+      "sha256": "2de79ca464499be92e607a59552b4cb9cf8a9f6e000622b3673a98471c976a57"
+    },
+    {
+      "module": "importlib.resources._itertools",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/resources/_itertools.py",
+      "sha256": "582749d46b3f90d170284372206ed33b4638df82160aed338d5552b126d9c14f"
+    },
+    {
+      "module": "importlib.resources.readers",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/resources/readers.py",
+      "sha256": "21505ac8f35d6d23d737623baec9651e021ccb5f789271703e5fd447d9942d10"
+    },
+    {
+      "module": "_pytest._io.pprint",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/_io/pprint.py",
+      "sha256": "18b04a2fa7669d1afdd869d53243733242aac74f0ea7bb5d2527a1dc07b0a276"
+    },
+    {
+      "module": "gettext",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/gettext.py",
+      "sha256": "0b514d40ef926694815e063da2696037cc9925f622adb27a243498eb87a5013e"
+    },
+    {
+      "module": "argparse",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/argparse.py",
+      "sha256": "dc1eba8adfdf615986421f981337458ba1072d3e718a0f76e3224940fd74118b"
+    },
+    {
+      "module": "glob",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/glob.py",
+      "sha256": "fa579f8a50a66313d34d339f10be0821c9b4fed6207e8ba8e29ed1c5e119f740"
+    },
+    {
+      "module": "_csv",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_csv.cpython-311-darwin.so",
+      "sha256": "393fb1bbbfe7220b3d79c79dc0928ea47680273447ef14defface0bcac236b2d"
+    },
+    {
+      "module": "csv",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/csv.py",
+      "sha256": "6c68a5186e3b85e6e267a7ef96479327a45ae2b40bf5e9f2017e4b2282b3f5b1"
+    },
+    {
+      "module": "email",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/email/__init__.py",
+      "sha256": "e4f46e3414c4602c9abb8b404a45e84412fc49dbe38a3d163f9575132dc7c93e"
+    },
+    {
+      "module": "quopri",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/quopri.py",
+      "sha256": "7070b61e5a582423a1bb405e3d23cb3e26c4faafcb142a8cbb88ec3f2d6104e9"
+    },
+    {
+      "module": "locale",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/locale.py",
+      "sha256": "2bca02e9fc154dbec3f33bb9c71bcc8c08694f1dbfd31e079d692993bf3dca0c"
+    },
+    {
+      "module": "calendar",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/calendar.py",
+      "sha256": "d3510a5f1ca1b28e816b5f509cb5d2340d765023d5a8bf94a226fdc14e448968"
+    },
+    {
+      "module": "email._parseaddr",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/email/_parseaddr.py",
+      "sha256": "4308932872acbf4a674312a45a49b870e48026e3dfedc878ee2f512ddf2f30ba"
+    },
+    {
+      "module": "base64",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/base64.py",
+      "sha256": "7de2ffc30db7b791f482ee8e6cba30a7b69452324d466231f29395be00154b4b"
+    },
+    {
+      "module": "email.base64mime",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/email/base64mime.py",
+      "sha256": "e2b4b87a5f42a8c5780e343f675513bbcc6abdd23fa14f8f1a7d4f7d72304770"
+    },
+    {
+      "module": "string",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/string.py",
+      "sha256": "24aeae1f0526250f442022022bf98df9a823b1cb330543ee79e70e44907462e9"
+    },
+    {
+      "module": "email.quoprimime",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/email/quoprimime.py",
+      "sha256": "77b454bd3ba3b5e3776be28ae3a0fd8de5d1e50d5b8ee10dd539c37c2bd68082"
+    },
+    {
+      "module": "email.errors",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/email/errors.py",
+      "sha256": "33fc889cbff57bb78c913bb6c24c5d52bd02f3cba0f4b1cb2913340294a6ec1a"
+    },
+    {
+      "module": "email.encoders",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/email/encoders.py",
+      "sha256": "690b275529788cc48e8f541a2aef321dc31e92f75764ac7924896db72d8a9555"
+    },
+    {
+      "module": "email.charset",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/email/charset.py",
+      "sha256": "3ccb2e860390656664d271f08da8c0bae9a4297cc7e90be664d7c82d364e442f"
+    },
+    {
+      "module": "email.utils",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/email/utils.py",
+      "sha256": "151a5736d6be70f9e397f3578c8d59a95d92e6490482d21287f6a5506d332fe8"
+    },
+    {
+      "module": "email.header",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/email/header.py",
+      "sha256": "4d9baa908ad5288dd8fad8cf20b3802ffac77ba1642727804a633b201c56e5ca"
+    },
+    {
+      "module": "email._policybase",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/email/_policybase.py",
+      "sha256": "967a41672b54f3443eac096968ad189d75c77be7eb42611b4d81d12a41605be9"
+    },
+    {
+      "module": "email._encoded_words",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/email/_encoded_words.py",
+      "sha256": "4178321600c0a19ca04cfe8542ce44487f339d15d89a473b58cea63c0b230217"
+    },
+    {
+      "module": "email.iterators",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/email/iterators.py",
+      "sha256": "1080a2d03779176d6d45f6ecd976dbe69f5579f7e4e83b75224c3f92fd258102"
+    },
+    {
+      "module": "email.message",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/email/message.py",
+      "sha256": "58d34f90058df562ca873c0097998ffb60ed5fe596e7e8138b5c450094d0d6c7"
+    },
+    {
+      "module": "importlib.metadata._functools",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/metadata/_functools.py",
+      "sha256": "3ec636fb8aeb297e1155e442d681a9d65075a660bd78a37cf3f7fe6c3f6e3a80"
+    },
+    {
+      "module": "importlib.metadata._text",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/metadata/_text.py",
+      "sha256": "1c2b0592c66924b7933f734493f9e0ac079755146d4ebb7287d78e001a113f80"
+    },
+    {
+      "module": "importlib.metadata._adapters",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/metadata/_adapters.py",
+      "sha256": "07a7c28b9fbc98b543154663de4ac8e67028fa62a9d5d1ffa886afc88c85ac9b"
+    },
+    {
+      "module": "importlib.metadata._meta",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/metadata/_meta.py",
+      "sha256": "c920f8096b01e6a23a15375520bf3de6b418504df58d6e506f2fb203395d4512"
+    },
+    {
+      "module": "importlib.metadata._collections",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/metadata/_collections.py",
+      "sha256": "089d0e4c21c88d6034648552e2fa0e440b27d91e11d9c40112d3ec6442690126"
+    },
+    {
+      "module": "importlib.metadata._itertools",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/metadata/_itertools.py",
+      "sha256": "72faffdaff0145bc5c225e71e6575fa9d1e3848f188bcb3cca4e741bf9e6ea34"
+    },
+    {
+      "module": "importlib.metadata",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/metadata/__init__.py",
+      "sha256": "eb3b92dd8302f491ce00ca5625963507a0593079c3f14025ffbf13eba16e2573"
+    },
+    {
+      "module": "shlex",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/shlex.py",
+      "sha256": "42ab6060f316e121e374e6621d8c1c98b8db323903c3df289a810c45a8ae46a7"
+    },
+    {
+      "module": "_pytest.config.compat",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/config/compat.py",
+      "sha256": "7630edfd74cfc170c88279e8a6d8b6655aeab70ccee6115688c86053976020ce"
+    },
+    {
+      "module": "_pytest.config.exceptions",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/config/exceptions.py",
+      "sha256": "e959bdcb3c143b12469b5ed93066f0ebdbff8b4ee64f52a607010d336b1c2a19"
+    },
+    {
+      "module": "iniconfig.exceptions",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/iniconfig/exceptions.py",
+      "sha256": "9a2a50fda3310fd0af4af156375a135d8e10b919ca00c6757f7b027668c34d4d"
+    },
+    {
+      "module": "iniconfig._parse",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/iniconfig/_parse.py",
+      "sha256": "e6770197b30042268f367a51aecf45478b7a1ba0e480e52ce39f0e63fd42476f"
+    },
+    {
+      "module": "iniconfig",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/iniconfig/__init__.py",
+      "sha256": "5cbe5ea94623e26b2400ea2b6798df4408a726f2734c8f9f271a4fe317d7b5ac"
+    },
+    {
+      "module": "_pytest.config.findpaths",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/config/findpaths.py",
+      "sha256": "d22abddac47a73a81504569cc0c356fa0145ce57ef58d3b8e9d5fdc77f609c88"
+    },
+    {
+      "module": "_pytest.config.argparsing",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/config/argparsing.py",
+      "sha256": "7438f0b58f6785343d435e196dd53e106c2840a645b95641d4fb34c1c960e7fa"
+    },
+    {
+      "module": "_pytest.hookspec",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/hookspec.py",
+      "sha256": "bb1c4432b56a49fe4fe327308fb4c454e7df55666d1708548cdd392c5102ffc1"
+    },
+    {
+      "module": "_pytest.stash",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/stash.py",
+      "sha256": "e69137903c78abce794d6f5a56f61376b9242a530353afb1897e25b8aa491202"
+    },
+    {
+      "module": "_pytest.config",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/config/__init__.py",
+      "sha256": "ff967dc8cbd4baeaa10b2e370f638ead045306b13926b06d06eb778c3f81e1ea"
+    },
+    {
+      "module": "_pytest.assertion.util",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/assertion/util.py",
+      "sha256": "6102f243b9d81d0bb4ba2e52781eb6281d0a8eeb9e1721f0821193fe9d5d7e63"
+    },
+    {
+      "module": "_pytest.mark.expression",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/mark/expression.py",
+      "sha256": "df4ad2eb9c8c09d7e7d545a208fff88a67f349e584b4ffeacf8ff6255dd8d7e5"
+    },
+    {
+      "module": "_pytest.raises",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/raises.py",
+      "sha256": "f3a57e8686398586daebd9e9cab1fbaf891035bf108e8b986fc4b27462e68d57"
+    },
+    {
+      "module": "_pytest.scope",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/scope.py",
+      "sha256": "a41ee3b228acb61d7a3c115a715d58c5ddcf8f7600c767669529866c6e26c3a0"
+    },
+    {
+      "module": "_pytest.mark.structures",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/mark/structures.py",
+      "sha256": "918f3cb7d117aca993d949c8873b50a02119294493c037e3d93227402b59c392"
+    },
+    {
+      "module": "_pytest.mark",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/mark/__init__.py",
+      "sha256": "dfc1fbc21da4dd264c64d6700213db1c1c693f161b9fec33995b465188a0bf37"
+    },
+    {
+      "module": "_pytest.nodes",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/nodes.py",
+      "sha256": "693b0385b2c45646767200bc517416e776c10c3e58ee5ed937007491be4d868e"
+    },
+    {
+      "module": "_pytest.reports",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/reports.py",
+      "sha256": "2e9272a67cde38b925eba24a288b2ef77f741c0daa22da6fbce53ee6e58fa41d"
+    },
+    {
+      "module": "bdb",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/bdb.py",
+      "sha256": "314d8bf11b4824d47471ad25dab64bda895e39673fb744e88e7f622a3dd374f2"
+    },
+    {
+      "module": "_pytest.timing",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/timing.py",
+      "sha256": "94f70a1da33578a1efd7fd9981468f2bd877161b6a1af64062e731fcb49d670d"
+    },
+    {
+      "module": "_pytest.runner",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/runner.py",
+      "sha256": "8d784b2b3e23b05f4c4edd3f5263eb11964e86b6e16d2c814c5fcb2125dc4ea4"
+    },
+    {
+      "module": "_pytest.main",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/main.py",
+      "sha256": "7ca2b20cc41fbfc2761bcb231eecb26967d553651035c40000f44d70e174b693"
+    },
+    {
+      "module": "_pytest.fixtures",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/fixtures.py",
+      "sha256": "eff80aa15502a5fa38b022f2dd3d3ba760efff16b9c761e7283299bbcf380de6"
+    },
+    {
+      "module": "_pytest.assertion.rewrite",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/assertion/rewrite.py",
+      "sha256": "376adab93672026552858ffaca009cbef553f082f2e4dee87ace75e7966d4b10"
+    },
+    {
+      "module": "_pytest.assertion.truncate",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/assertion/truncate.py",
+      "sha256": "daf394de44b88546610c32f45dacf5a4cee85bfd74c0c7342776ff9446d2cd02"
+    },
+    {
+      "module": "_pytest.assertion",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/assertion/__init__.py",
+      "sha256": "3a39c99b88fa5478306232af5bc77e28579f8c474e48e345178cf5d28f6bede8"
+    },
+    {
+      "module": "_pytest.cacheprovider",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/cacheprovider.py",
+      "sha256": "40229d89ea544a4b8f344c790e58484076c0e35dccc0d5257782c8a55d7a156f"
+    },
+    {
+      "module": "_pytest.capture",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/capture.py",
+      "sha256": "92e96e989751747bbbce8a2c3abe257c747471ee8bb0eb616aef41cabc3cc55e"
+    },
+    {
+      "module": "unittest.util",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/unittest/util.py",
+      "sha256": "fdcc640c3505d16deab9c32eae7c3f5f67c3b5e81c563dc6698fa7fcf403854d"
+    },
+    {
+      "module": "unittest.result",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/unittest/result.py",
+      "sha256": "eb3f6ed6a6d339b8113479f6878f1946bf082b8818a89daf85f0b63a5be1f9c1"
+    },
+    {
+      "module": "_heapq",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_heapq.cpython-311-darwin.so",
+      "sha256": "aaf709af854a4bf4e0397e97851dd0276963fb00c628d8ed2fc03370f34fa737"
+    },
+    {
+      "module": "heapq",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/heapq.py",
+      "sha256": "6d43277e5c76fc0f073cd388fcff852d14d068f6bb6d4886c340f8b75a1229a9"
+    },
+    {
+      "module": "difflib",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/difflib.py",
+      "sha256": "0c6afc23568d55b3e9ac914f9c5361e3033e778aa5b58d3cc82835fc5c638679"
+    },
+    {
+      "module": "unittest.case",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/unittest/case.py",
+      "sha256": "f062e82d6bcdc231865b62bd3f8fc8847e49211f4884c685ec696216e227b957"
+    },
+    {
+      "module": "unittest.suite",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/unittest/suite.py",
+      "sha256": "ed2da92bc9f97c53403ee2d3d12cc53b16a96e85d596ebc887b5a93458f3f6bc"
+    },
+    {
+      "module": "unittest.loader",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/unittest/loader.py",
+      "sha256": "e2c4f0a37e8984bba340f382cbcd483d6c4e43a564dd838fec84021c1fafedf7"
+    },
+    {
+      "module": "signal",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/signal.py",
+      "sha256": "6ae9e49fe09b607bc161fc80067de9763aa48f523567a34992f00be06057f00a"
+    },
+    {
+      "module": "unittest.signals",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/unittest/signals.py",
+      "sha256": "f8286e818ca56e10e03745bc056cdfd31147678f9a1dc8cb6b0fe96ef9a4362a"
+    },
+    {
+      "module": "unittest.runner",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/unittest/runner.py",
+      "sha256": "bc559dd2b01b373929ef342697b1a4c102f10259d96351c3961e9364de5097b8"
+    },
+    {
+      "module": "unittest.main",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/unittest/main.py",
+      "sha256": "a05b67e605dfd82e5232735d4093c36496a818ab9e4e7db7190d05cd8405caa9"
+    },
+    {
+      "module": "unittest",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/unittest/__init__.py",
+      "sha256": "2a24d1843801ba82eef666abecfa49768422a8058f442af8666bf71baf68d752"
+    },
+    {
+      "module": "_pytest.debugging",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/debugging.py",
+      "sha256": "26457b39bef0439dd3146910d136bdea300c606b9b81d5e212cdfd4fb14fcc74"
+    },
+    {
+      "module": "platform",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/platform.py",
+      "sha256": "37873f52bbab88175d6c18f28c7b43aba374d5834c1581e77e0284f55dbd3da9"
+    },
+    {
+      "module": "_pytest.python",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/python.py",
+      "sha256": "fd28318a23e7afb8cf81794ab3cb028ddb0148df80a14666cc8bc9320324561e"
+    },
+    {
+      "module": "numbers",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/numbers.py",
+      "sha256": "6d70991643a109e9c99e94d6ea2734a995fa8e89114a70ea09737413fa9ae292"
+    },
+    {
+      "module": "_decimal",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_decimal.cpython-311-darwin.so",
+      "sha256": "4c1c0d0c3930120a3b9c569ed5335c926cc51b30eb9ce2e9d085b881a61c0065"
+    },
+    {
+      "module": "decimal",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/decimal.py",
+      "sha256": "000c00bad31d126b054c6ec7f3e02b27c0f9a4d579f987d3c4f879cee1bacb81"
+    },
+    {
+      "module": "_pytest.python_api",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/python_api.py",
+      "sha256": "a78d14cf1ab2676a66e88a32d5d06627b52268eed59b1ef38726736bf1795490"
+    },
+    {
+      "module": "_pytest.doctest",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/doctest.py",
+      "sha256": "1a08dd58ec47f9f57d790a1643ba6e29e8dc15d0351cfb46f98eea6e9fb92fc7"
+    },
+    {
+      "module": "_pytest.freeze_support",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/freeze_support.py",
+      "sha256": "5fde08c62a6a79b780fc7833261f1d6e3a869ebb44405b8c202e612bb486597c"
+    },
+    {
+      "module": "fcntl",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/fcntl.cpython-311-darwin.so",
+      "sha256": "f19b3d9ffb6843742c6aa9582f7831c4692731589912f06af493d5e39709b888"
+    },
+    {
+      "module": "_posixsubprocess",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_posixsubprocess.cpython-311-darwin.so",
+      "sha256": "c94cab07aa3878b752d57b1af98175159b38247132621643ba41b1f6d195b1ff"
+    },
+    {
+      "module": "subprocess",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/subprocess.py",
+      "sha256": "2ff641d58f8696496e8718538cd96cd7afcd503ae271fb23da22422b3aee9fc7"
+    },
+    {
+      "module": "_pytest.monkeypatch",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/monkeypatch.py",
+      "sha256": "597dffe9ccd42e1bdcdf0485fb437c55eb1bbfdc0637777096261c0ef4fc11fb"
+    },
+    {
+      "module": "_pytest.tmpdir",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/tmpdir.py",
+      "sha256": "d9f10512bc4bfdc0e94bd78adfdbb32fd534903d9ca50b4f6ad474ffed031e55"
+    },
+    {
+      "module": "_pytest.pytester",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/pytester.py",
+      "sha256": "c746a6f5b5c7cf740f0533d73f295c6267cff2c1a1562e510bf28f8fa8371e7e"
+    },
+    {
+      "module": "_pytest.terminal",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/terminal.py",
+      "sha256": "e2fe406f930e795d09026746e8209a9a7142ac704fc0a0200af9e4f74d2104d0"
+    },
+    {
+      "module": "_pytest.legacypath",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/legacypath.py",
+      "sha256": "fe5eaff1a90d31f4dce53023bdb73a33efedd79ee9f5013afb5d7c58cd0346df"
+    },
+    {
+      "module": "logging",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/logging/__init__.py",
+      "sha256": "bcd33f1595a7fe3858e99cdfe336071200ea5b64cdc95005b311acb2f61d1ad5"
+    },
+    {
+      "module": "_pytest.logging",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/logging.py",
+      "sha256": "4d9ebb2503ffdd896dd29d750f627af0bfe8b3d825b2e82032f79cd07963b5bf"
+    },
+    {
+      "module": "_pytest.recwarn",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/recwarn.py",
+      "sha256": "e1aeacf165aa9fec82087caa82707f7df73fce4c170463c2baf0bed372fae5ce"
+    },
+    {
+      "module": "_pytest.subtests",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/subtests.py",
+      "sha256": "f8eccea44d23f7cbc358c02c23ec4c27415c61bea29cbaba60f1ffd2d132538e"
+    },
+    {
+      "module": "pytest",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pytest/__init__.py",
+      "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+    },
+    {
+      "module": "_pytest._argcomplete",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/_argcomplete.py",
+      "sha256": "821d299daebaa782d56f60fc493e39ebc586c6f7489c64f8de6eac95886a36a5"
+    },
+    {
+      "module": "_pytest.helpconfig",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/helpconfig.py",
+      "sha256": "ea2cb6d6850351119e759a41dde992cda142c5e353fc44529122192c8c4c26f5"
+    },
+    {
+      "module": "_pytest.unittest",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/unittest.py",
+      "sha256": "869a3c76e2c19ba64ff9ef6fa63860b80a69e22916db770f5a1e7e57dfceea29"
+    },
+    {
+      "module": "_pytest.skipping",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/skipping.py",
+      "sha256": "5824731d5a311780f418eac9a094e7cf1fd63a82d3b0cd5e9e5498cc6ecd127c"
+    },
+    {
+      "module": "_pytest.pastebin",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/pastebin.py",
+      "sha256": "a7ddb326d48dcfdfb10c4173a90df37a662081745a0e7c43e97e08ca2b5ebdb0"
+    },
+    {
+      "module": "xml",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/xml/__init__.py",
+      "sha256": "34296f728e7fe68cccb97a9f6edbf3bf3a686f44044c744fe85f207a92ed4811"
+    },
+    {
+      "module": "xml.etree",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/xml/etree/__init__.py",
+      "sha256": "91950edfb196c105d93886f8af7ea3c0a79e06a6b63be3e5a4ea09804e8672a6"
+    },
+    {
+      "module": "xml.etree.ElementPath",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/xml/etree/ElementPath.py",
+      "sha256": "ae8a80a8b51567b4f0965481682705e70c73dd6bfa145283f630d6833f1b4975"
+    },
+    {
+      "module": "pyexpat",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/pyexpat.cpython-311-darwin.so",
+      "sha256": "40e856c3436294edbe688644b0a888b828b35d7102b7bf64988f6d1b1a746a04"
+    },
+    {
+      "module": "_elementtree",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_elementtree.cpython-311-darwin.so",
+      "sha256": "4c24b079d673460f17c7ec5d9a788e0a6e232114d1a2ef06dc1d6630305ee10b"
+    },
+    {
+      "module": "xml.etree.ElementTree",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/xml/etree/ElementTree.py",
+      "sha256": "ff904b02de3a86888001f47f1518204d04d4e790d4ed85352d8544347ae7e940"
+    },
+    {
+      "module": "_pytest.junitxml",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/junitxml.py",
+      "sha256": "d71198950cf33bd1c7dc782167986ee130427fc57e221046e6455dc7a5b63d5a"
+    },
+    {
+      "module": "_pytest.setuponly",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/setuponly.py",
+      "sha256": "06c46b0b81110d5af8dbed86fcbd00c61354e175706ccb32e52d253af2abf300"
+    },
+    {
+      "module": "_pytest.setupplan",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/setupplan.py",
+      "sha256": "97ec9c14dc4364fc98e76c21e1fef26aa87367b496d628d22a740b9aacc36560"
+    },
+    {
+      "module": "_pytest.tracemalloc",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/tracemalloc.py",
+      "sha256": "942501fd85006fa475beaabf6fe2d26125f2f9389d6e7da6eed7f3996014ae39"
+    },
+    {
+      "module": "_pytest.unraisableexception",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/unraisableexception.py",
+      "sha256": "74d681a411e4381e293884a868c75abb6a23ac6a1cfe2e2ec7be835572cb4fec"
+    },
+    {
+      "module": "_pytest.threadexception",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/threadexception.py",
+      "sha256": "85371ca73654aeb4240d1395140a87817c00538f3571ae0cab8080e1807b9b2e"
+    },
+    {
+      "module": "_pytest.warnings",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/warnings.py",
+      "sha256": "c89303afbbd27a28fe9f24ee95d13bc0bdb964bfcbba640663a3c96695e243e2"
+    },
+    {
+      "module": "_pytest.faulthandler",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_pytest/faulthandler.py",
+      "sha256": "d5cec3a51b4fd3f0b7ce91544b0d41391a401bc1ac883b49f730ae59d1222dcd"
+    },
+    {
+      "module": "anyio._core",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/_core/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "module": "sniffio._version",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/sniffio/_version.py",
+      "sha256": "8957ace71c2c1de4734037b105a021cb1fed68db76b9c7c0ec2580a38403b7a4"
+    },
+    {
+      "module": "_contextvars",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_contextvars.cpython-311-darwin.so",
+      "sha256": "fbcc47d04d21dd7445af2034f41c5abc08e3e48893750614537eab311c0ea7e1"
+    },
+    {
+      "module": "contextvars",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/contextvars.py",
+      "sha256": "5ed260be8d1f4fe92261b7810b4bb1e8539c42093d7493f677d076e1a87f459a"
+    },
+    {
+      "module": "sniffio._impl",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/sniffio/_impl.py",
+      "sha256": "526505319a62b8eadc8e7b8786e62260cc5e08d59faaef6406568f7f4c64e97f"
+    },
+    {
+      "module": "sniffio",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/sniffio/__init__.py",
+      "sha256": "f562442655eeef296e3f462d239490f4cf4e4d07db34791a75aacad6f5c60cf3"
+    },
+    {
+      "module": "anyio._core._eventloop",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/_core/_eventloop.py",
+      "sha256": "b82c16c06b4df537f8ea791c58bca4bbc8981055829128cf5b40240db9e908cd"
+    },
+    {
+      "module": "anyio._core._exceptions",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/_core/_exceptions.py",
+      "sha256": "c149a10eef34a8407bcfd11d0aa53054484d525344a24e3f5b6fab0bab020144"
+    },
+    {
+      "module": "anyio.abc._eventloop",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/abc/_eventloop.py",
+      "sha256": "40eb641070a4a04f1ccc6bb844dcd9feafb13630b49d1ca84b4410279293bd85"
+    },
+    {
+      "module": "anyio.abc._resources",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/abc/_resources.py",
+      "sha256": "28124fdf019bbd27ca7d38df38b2f840225d7a268dc2aa85ffa1703ec990b2c3"
+    },
+    {
+      "module": "anyio._core._typedattr",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/_core/_typedattr.py",
+      "sha256": "4136da2306447b087000abdb04714170efdc46134ffe55e30286c495dcc4c425"
+    },
+    {
+      "module": "anyio.abc._tasks",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/abc/_tasks.py",
+      "sha256": "ab76c46c2178e88dad4236126d175b69abead11fc7395f49023cd0afc6e2a6b5"
+    },
+    {
+      "module": "anyio.abc._streams",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/abc/_streams.py",
+      "sha256": "1b3493e50db3426c55cddac0aad6d2c8737190f9480bd033799260fd8c8f017c"
+    },
+    {
+      "module": "anyio.abc._sockets",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/abc/_sockets.py",
+      "sha256": "5dd678d93435a2664df447371d47d33161bf8bedb5c8c8d743f145b25019b734"
+    },
+    {
+      "module": "anyio.abc._subprocesses",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/abc/_subprocesses.py",
+      "sha256": "72e9803c94e4b4e42dc3adc8a86d250e9c99aaefe5d44125bd01cc8b02602f4f"
+    },
+    {
+      "module": "anyio.abc._testing",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/abc/_testing.py",
+      "sha256": "122584688572d79947b333b4d345e9e05b01d7735b06f0b506951c8b8ec1e73b"
+    },
+    {
+      "module": "anyio.lowlevel",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/lowlevel.py",
+      "sha256": "d1ac27321d39900e5650d68e0684194889818f4c4b3519583ae3061a2ced5a73"
+    },
+    {
+      "module": "anyio._core._tasks",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/_core/_tasks.py",
+      "sha256": "a6f5445f6170d79f6c7f4ca900f7abba42ac660451c2f14579d556e769d1d959"
+    },
+    {
+      "module": "anyio._core._testing",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/_core/_testing.py",
+      "sha256": "8bded2e6b496205a9f0863e6e2610c76225a52956c924f9c5848daad64de5d7b"
+    },
+    {
+      "module": "anyio._core._synchronization",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/_core/_synchronization.py",
+      "sha256": "877a3a75659bcd5adc3668bb8b69908c4811b67231906b639982bb28ca5d95a1"
+    },
+    {
+      "module": "concurrent",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/concurrent/__init__.py",
+      "sha256": "87ad5c8954dd56fbbca04517bf87477ff4dce575170c7dd1281d7ef1f4214ac8"
+    },
+    {
+      "module": "concurrent.futures._base",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/concurrent/futures/_base.py",
+      "sha256": "8c6d5f09f7c535d40fa1c30ebfcb35e0601c2abf32286a82cf151af7ddf72473"
+    },
+    {
+      "module": "concurrent.futures",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/concurrent/futures/__init__.py",
+      "sha256": "9bcec785db3eddc6d462883957ba6d3ff4370501fece505101444bae542883e8"
+    },
+    {
+      "module": "_queue",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_queue.cpython-311-darwin.so",
+      "sha256": "ce8cb25a878529bae44b164ebd154fcc1e79adc39436a4d17fc7c879fe0232a7"
+    },
+    {
+      "module": "queue",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/queue.py",
+      "sha256": "f6c37fc37cd7440979f7d22d40ee818fa3b714c573610c08fa52911d541193f0"
+    },
+    {
+      "module": "concurrent.futures.thread",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/concurrent/futures/thread.py",
+      "sha256": "b06f8899881193efc72cfc3ebf2836dce4e668b3856ad35f4016616d643a519e"
+    },
+    {
+      "module": "anyio.from_thread",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/from_thread.py",
+      "sha256": "513118fcdb22a9046e90edcbdeb890c7811e82e963dd1c8b95b213273ee9bcb3"
+    },
+    {
+      "module": "anyio.abc",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/abc/__init__.py",
+      "sha256": "538e3fb3706094bf01a235908aad0aba892f0aa92e9c8a7ec921f71b2457c407"
+    },
+    {
+      "module": "anyio.to_thread",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/to_thread.py",
+      "sha256": "58cd8943631b56c7790f908cd3c6d0893c33648be9b068df1f5172db8ecaa034"
+    },
+    {
+      "module": "anyio._core._fileio",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/_core/_fileio.py",
+      "sha256": "65da772f4fd3ee6302698ab76c54c26feb9d4e72249caa7370b12f1caf9399b7"
+    },
+    {
+      "module": "anyio._core._resources",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/_core/_resources.py",
+      "sha256": "35b994e4ee545f7c44c800a7926617dbc166c1d97e7fe9f2d2d1f29b6e9ed30d"
+    },
+    {
+      "module": "anyio._core._signals",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/_core/_signals.py",
+      "sha256": "ac3395c6dba0643802e4085f5b796bc2cadeda7f4f8ff69da11522741885e9d0"
+    },
+    {
+      "module": "_ssl",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_ssl.cpython-311-darwin.so",
+      "sha256": "cee2ee8937a728ddccbd2a12c722e28447900951741b85cbe891b7727fbba5b3"
+    },
+    {
+      "module": "ssl",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/ssl.py",
+      "sha256": "2039165d9e3d5aa7817e171e2e136e66283a0ff03040ad48f21cbe2650307551"
+    },
+    {
+      "module": "anyio.streams",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/streams/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "module": "anyio.streams.stapled",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/streams/stapled.py",
+      "sha256": "534f690ab98ec3d9243617bab4aa29b26d5020c4f59454c5bed6fe03b4887b89"
+    },
+    {
+      "module": "anyio.streams.tls",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/streams/tls.py",
+      "sha256": "7affbac8d38670893388891c21f2a3f1598ba90256fa20c126db5a2a0283b05e"
+    },
+    {
+      "module": "anyio._core._sockets",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/_core/_sockets.py",
+      "sha256": "1f038c834c543f0d13ecdf9a8a9c6aff838433bd3796587723dfd8220f5ae173"
+    },
+    {
+      "module": "anyio.streams.memory",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/streams/memory.py",
+      "sha256": "6ea37d63000f03a66d76884eb2afd80692c59511d1e64f96f32d290ff8f39dbf"
+    },
+    {
+      "module": "anyio._core._streams",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/_core/_streams.py",
+      "sha256": "67c6654d8eb1a26e44b33accb20093dd3a61893e09225406fb2df70ab0f43506"
+    },
+    {
+      "module": "anyio._core._subprocesses",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/_core/_subprocesses.py",
+      "sha256": "64b2cd5c0b654467dbc82e2c38896d601d64dcd25adedaa4ff1fc5b276dcb353"
+    },
+    {
+      "module": "anyio",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/__init__.py",
+      "sha256": "0b153120738838d2372a9b032c283e748ea541a0e45bfe1986dbb98d6b755cef"
+    },
+    {
+      "module": "anyio.pytest_plugin",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/anyio/pytest_plugin.py",
+      "sha256": "4c181101f4fe3b1cba79f84ed53ce2ab9e0d343dc9cb87519b090c9905d2be12"
+    },
+    {
+      "module": "asyncio.constants",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/constants.py",
+      "sha256": "e1f33a8145945247a97bfe7b25713bc4c4eb90bd523586ef5dfbb25b86daf2af"
+    },
+    {
+      "module": "asyncio.coroutines",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/coroutines.py",
+      "sha256": "8b60928d13116c28bbd2e1df0a34a6cc87c3416d89c31291677ed63f77b54580"
+    },
+    {
+      "module": "asyncio.format_helpers",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/format_helpers.py",
+      "sha256": "6377b672b3f4ba8b6f0f7a5f0ea00cde24c8cddc0ca764e3329f302763477f59"
+    },
+    {
+      "module": "asyncio.base_futures",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/base_futures.py",
+      "sha256": "385a1fd5e8688f1f79e0fdfea8c27d7ca6dd78a770f0bd9a438863628a7589fb"
+    },
+    {
+      "module": "asyncio.exceptions",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/exceptions.py",
+      "sha256": "a5971f88be14cd1417d59adf539ae48c5d818f95362a4e0eb00017e3690ab37b"
+    },
+    {
+      "module": "asyncio.base_tasks",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/base_tasks.py",
+      "sha256": "70f6b21a2371eaa8e7a3beab9700cd1920329b02708975ae6c9450dc77d64502"
+    },
+    {
+      "module": "_asyncio",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/_asyncio.cpython-311-darwin.so",
+      "sha256": "1a76b45aa060daa89038b760aba68f778f2121f09482f9f3095f30755f48fb57"
+    },
+    {
+      "module": "asyncio.events",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/events.py",
+      "sha256": "c0cec01aeee2701040e37cae7f97d3aa131e444927a4a70d2fa22bc115c3f30b"
+    },
+    {
+      "module": "asyncio.futures",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/futures.py",
+      "sha256": "a1b23b2d0a1333a27115676a934157057b3007306957f005100e1ff27276baed"
+    },
+    {
+      "module": "asyncio.protocols",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/protocols.py",
+      "sha256": "1d1b49988c338b4ef06e30f9e92d9db2e00080c341f0a3f573bb8312deb8aff6"
+    },
+    {
+      "module": "asyncio.transports",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/transports.py",
+      "sha256": "940108bc133de399f38928cad3274f463096168d8a3ee5148f2478d3cb636f1c"
+    },
+    {
+      "module": "asyncio.log",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/log.py",
+      "sha256": "80e4cc3ded4b138baba486519e7444801a23d6ac35f229d336a407a96af7e8d2"
+    },
+    {
+      "module": "asyncio.sslproto",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/sslproto.py",
+      "sha256": "3728924fd68354c7c149a2025d4609381724748133665b882fa8cf5127001c75"
+    },
+    {
+      "module": "asyncio.mixins",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/mixins.py",
+      "sha256": "8f4a3e16eca845ebfba422550cbcee7340ec8166d2bff6b750a8ed0de6b9ae3c"
+    },
+    {
+      "module": "asyncio.tasks",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/tasks.py",
+      "sha256": "ef6b91aef5d9aa44525fca38256a97058adccd5e15d332ae6acd3e4c5110e2b9"
+    },
+    {
+      "module": "asyncio.locks",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/locks.py",
+      "sha256": "3c8d4862ec147ca51c6a18a160ff2c954ecf90ac2348a3ec0bc4907216a11eb9"
+    },
+    {
+      "module": "asyncio.staggered",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/staggered.py",
+      "sha256": "ff289bdc20a50ad9620393479d785bc653e71c2e3298f53ab27907cd136498e9"
+    },
+    {
+      "module": "asyncio.trsock",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/trsock.py",
+      "sha256": "c0eac37debcc51b702b808f6b7ed3e417343f5ff5f57125dad600a27eb082328"
+    },
+    {
+      "module": "asyncio.base_events",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/base_events.py",
+      "sha256": "f2acc35cc35011f8cfbc1a40f5dac893edd781f75c4905896057044fb0e4cf56"
+    },
+    {
+      "module": "asyncio.runners",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/runners.py",
+      "sha256": "0f11dcd59cd7f9e24a092d55dd1e7037288f3a524da53e882114b11326de21dd"
+    },
+    {
+      "module": "asyncio.queues",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/queues.py",
+      "sha256": "8f020744ebd1f557dcb051a1530b504447660df906c2127a94bbcc8450ea7ef9"
+    },
+    {
+      "module": "asyncio.streams",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/streams.py",
+      "sha256": "d1495f50d2167000d9c72463358f440ddf07ff7c3e2287ec838d2718a95ff150"
+    },
+    {
+      "module": "asyncio.subprocess",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/subprocess.py",
+      "sha256": "b903c84ac5641b8706046e810432b6afb64dd9f7d0d21e2f5094a5fd4fc5626b"
+    },
+    {
+      "module": "asyncio.taskgroups",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/taskgroups.py",
+      "sha256": "361d254e065790c6a26047da018e8dbd0bf88cb7aa794d87c59906d6535cb045"
+    },
+    {
+      "module": "asyncio.timeouts",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/timeouts.py",
+      "sha256": "d9211b8a3fff682e1302150b4cd4a088071825619c2a4f4dada1c5d864ec70ed"
+    },
+    {
+      "module": "asyncio.threads",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/threads.py",
+      "sha256": "39d37295383641565f0c08bd992e2f661dc8051eb17e890b834fce96bde0910e"
+    },
+    {
+      "module": "asyncio.base_subprocess",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/base_subprocess.py",
+      "sha256": "d69ba8f97bf8c89564cadce49427574ddb98103a5db6f04b98798240332e7adf"
+    },
+    {
+      "module": "asyncio.selector_events",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/selector_events.py",
+      "sha256": "9d4a92f5ca741722448dd42fb029ad01989d9df7b620fe653e2fe9ec0dfb3fa0"
+    },
+    {
+      "module": "asyncio.unix_events",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/unix_events.py",
+      "sha256": "e789647c5e4a9e3f12c93cb59770d83d44ae3b08049b2987bf7185e05693e103"
+    },
+    {
+      "module": "asyncio",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/__init__.py",
+      "sha256": "d70b5f90b186ae41464b740f0ee1f2c2ab2dcf02f1403e749edc48002ba27426"
+    },
+    {
+      "module": "typing_extensions",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/typing_extensions.py",
+      "sha256": "433d11d170d3a24d2eb065ebc1bfe848cea7e3d7ce68567ab52bea2d4c2f7ed8"
+    },
+    {
+      "module": "pytest_asyncio.plugin",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pytest_asyncio/plugin.py",
+      "sha256": "121cb98d74596a9e5db3269a4be7131baeeeab3754b5996a9b26c228910863aa"
+    },
+    {
+      "module": "email.feedparser",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/email/feedparser.py",
+      "sha256": "ca333e0462c96505d8c510f260192256306fa889c011c6f2eaa8d50c70503cce"
+    },
+    {
+      "module": "email.parser",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/email/parser.py",
+      "sha256": "7a665bc106e9d4f6f8f2c8de53b2c1d5b97f5105cc7da638b82d731f6f9e354e"
+    },
+    {
+      "module": "pytest_asyncio",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/pytest_asyncio/__init__.py",
+      "sha256": "932a980c5911992375e3feafff5dbc8388ea68ef49ae13277cc0cc8b093267c4"
+    },
+    {
+      "module": "readline",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/lib-dynload/readline.cpython-311-darwin.so",
+      "sha256": "f2ca2b262cbba0faa3877ee5993f3778c61d6bfdbd836f3bfc996f073e7c88e7"
+    },
+    {
+      "module": "cmd",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/cmd.py",
+      "sha256": "fb82a8c4e44e5b559c88d516d79051534cec69a463df97defe05ac8a261f0a0d"
+    },
+    {
+      "module": "codeop",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/codeop.py",
+      "sha256": "3d26b2db4b9f92ade8b88c66afddb31d43cc2dd30c45962e166ef0e207e59539"
+    },
+    {
+      "module": "code",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/code.py",
+      "sha256": "266841655656d5b2370e80addcdb959f5173142d5e3778b489e734802447c5e8"
+    },
+    {
+      "module": "pdb",
+      "path": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/pdb.py",
+      "sha256": "e30a30ec5d1b6ce96facf8c36994186b065d49efdf94c1060425f10e96e6e86b"
+    },
+    {
+      "module": "test_lifecycle",
+      "path": "/private/tmp/dev055-tests/test_lifecycle.py",
+      "sha256": "7c351d896a054bf07584750e835c21559637c328a7b819855aee2c98f6adb4d7"
+    }
+  ],
+  "isolation_events": [],
+  "bindings": {
+    "fixture_root": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV055/state/runtime-signature-a605ad8dfa10"
+  }
+}

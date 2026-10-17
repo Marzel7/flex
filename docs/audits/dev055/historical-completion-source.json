@@ -1,0 +1,6 @@
+{
+  "commit": "c8cd164f68797b47fb6a53f7832ec25fa47636de",
+  "file": "src/core/creator_resolution_queue.py",
+  "sha256": "1a8990d591c0b8543c9290b2e1f9fa96bb71184a2763b85a31cf255d32b6e90e",
+  "contract": "process_queue creator result + optional create_tx_signature => complete; strict anchor not mandatory. Existing standalone extraction/hardening source June25; not assertion first ever implementation or attested loaded runtime."
+}

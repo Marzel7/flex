@@ -1,0 +1,486 @@
+{
+  "observed_epoch": 1792243505.8418958,
+  "controls_from": "DEV054 recent-positive-controls.json fixed4mints",
+  "rows": {
+    "7NZjxNKmhdQJ8de2gUHKXkEQ8EBWgghUPevign3pump": {
+      "core": [
+        {
+          "mint": "7NZjxNKmhdQJ8de2gUHKXkEQ8EBWgghUPevign3pump",
+          "earliest_tx_creator": "FTaDGbAjaGhToJN6t636VrsJGhW3PkKgVccPLo85Xfui",
+          "pf_ws_creator": "FTaDGbAjaGhToJN6t636VrsJGhW3PkKgVccPLo85Xfui",
+          "create_tx_signature": "WKDcgXoKiKaQgqrjPJ8JVAZG4tBFQpPNW1rBUzsTPA9ggoB1qpsqBiAkT9bsdnVp7oEqLUBQ2M7nrPUyTYeWLtH",
+          "first_pre_migration_signal_at": 1792243025,
+          "migration_signal_source": "birth",
+          "migrated_at": 1792243025
+        }
+      ],
+      "creator_resolution": [],
+      "funding": [
+        {
+          "mint": "7NZjxNKmhdQJ8de2gUHKXkEQ8EBWgghUPevign3pump",
+          "creator_address": "FTaDGbAjaGhToJN6t636VrsJGhW3PkKgVccPLo85Xfui",
+          "create_tx_signature": "WKDcgXoKiKaQgqrjPJ8JVAZG4tBFQpPNW1rBUzsTPA9ggoB1qpsqBiAkT9bsdnVp7oEqLUBQ2M7nrPUyTYeWLtH",
+          "status": "complete",
+          "attempts": 1
+        }
+      ],
+      "handoff": [
+        {
+          "mint": "7NZjxNKmhdQJ8de2gUHKXkEQ8EBWgghUPevign3pump",
+          "creator": "FTaDGbAjaGhToJN6t636VrsJGhW3PkKgVccPLo85Xfui",
+          "state": "COMPLETE",
+          "created_at": 1792243025,
+          "completed_at": 1792243026
+        }
+      ],
+      "walkback": [
+        {
+          "mint": "7NZjxNKmhdQJ8de2gUHKXkEQ8EBWgghUPevign3pump",
+          "creator": "FTaDGbAjaGhToJN6t636VrsJGhW3PkKgVccPLo85Xfui",
+          "status": "complete",
+          "walkback_class": "FULL_WALKBACK",
+          "attempts": 1,
+          "enqueued_at": 1792243026,
+          "create_anchor_signature": "WKDcgXoKiKaQgqrjPJ8JVAZG4tBFQpPNW1rBUzsTPA9ggoB1qpsqBiAkT9bsdnVp7oEqLUBQ2M7nrPUyTYeWLtH",
+          "create_anchor_source": "token_analysis",
+          "create_anchor_audit_state": "VALID",
+          "path_state": "CLAIMED",
+          "anchor_lookup_attempts": 0,
+          "last_anchor_lookup_at": null,
+          "anchor_lookup_state": null,
+          "rpc_used": 9
+        }
+      ]
+    },
+    "7pM6FxVd5257AwLfBS1SYoQJRZKnvNgFfPf9h3pGpump": {
+      "core": [
+        {
+          "mint": "7pM6FxVd5257AwLfBS1SYoQJRZKnvNgFfPf9h3pGpump",
+          "earliest_tx_creator": "D9Z4gmwaP8F4CxGq4XZWQtv4rDP9CxdztGeiWNLsAfk",
+          "pf_ws_creator": "D9Z4gmwaP8F4CxGq4XZWQtv4rDP9CxdztGeiWNLsAfk",
+          "create_tx_signature": "35h5gZaXZmYhx4cmBJLTgYEFbWuYdrgYPxjJF7LW2QdAisySBjuRzPP7GU1RnB3bEg8oEYnfe7sM2eJuQ5dCgHE7",
+          "first_pre_migration_signal_at": 1792241637,
+          "migration_signal_source": "birth",
+          "migrated_at": 1792242900
+        }
+      ],
+      "creator_resolution": [],
+      "funding": [
+        {
+          "mint": "7pM6FxVd5257AwLfBS1SYoQJRZKnvNgFfPf9h3pGpump",
+          "creator_address": "D9Z4gmwaP8F4CxGq4XZWQtv4rDP9CxdztGeiWNLsAfk",
+          "create_tx_signature": "35h5gZaXZmYhx4cmBJLTgYEFbWuYdrgYPxjJF7LW2QdAisySBjuRzPP7GU1RnB3bEg8oEYnfe7sM2eJuQ5dCgHE7",
+          "status": "retry",
+          "attempts": 2
+        }
+      ],
+      "handoff": [
+        {
+          "mint": "7pM6FxVd5257AwLfBS1SYoQJRZKnvNgFfPf9h3pGpump",
+          "creator": "D9Z4gmwaP8F4CxGq4XZWQtv4rDP9CxdztGeiWNLsAfk",
+          "state": "COMPLETE",
+          "created_at": 1792242900,
+          "completed_at": 1792242904
+        }
+      ],
+      "walkback": [
+        {
+          "mint": "7pM6FxVd5257AwLfBS1SYoQJRZKnvNgFfPf9h3pGpump",
+          "creator": "D9Z4gmwaP8F4CxGq4XZWQtv4rDP9CxdztGeiWNLsAfk",
+          "status": "complete",
+          "walkback_class": "FULL_WALKBACK",
+          "attempts": 1,
+          "enqueued_at": 1792242901,
+          "create_anchor_signature": "35h5gZaXZmYhx4cmBJLTgYEFbWuYdrgYPxjJF7LW2QdAisySBjuRzPP7GU1RnB3bEg8oEYnfe7sM2eJuQ5dCgHE7",
+          "create_anchor_source": "token_analysis",
+          "create_anchor_audit_state": "VALID",
+          "path_state": "CLAIMED",
+          "anchor_lookup_attempts": 0,
+          "last_anchor_lookup_at": null,
+          "anchor_lookup_state": null,
+          "rpc_used": 8
+        }
+      ]
+    },
+    "7Qsbm71fSh9SCtZhh7SYQ2gVEBHwJ2CRKToa1Dkmpump": {
+      "core": [
+        {
+          "mint": "7Qsbm71fSh9SCtZhh7SYQ2gVEBHwJ2CRKToa1Dkmpump",
+          "earliest_tx_creator": "MbhV4WwzPbTfij8dzc3W1FRgG8maTfXSkQp4poJYGNr",
+          "pf_ws_creator": "MbhV4WwzPbTfij8dzc3W1FRgG8maTfXSkQp4poJYGNr",
+          "create_tx_signature": "AZMCeRE9WwHPr7hWVFpDWeyRVTTxLTc5BHtwLtdR1kUoGSW3wf5r935SKMvJqLtRH3Z5wAyjAc95BdM1Gz2zdMP",
+          "first_pre_migration_signal_at": 1792242812,
+          "migration_signal_source": "birth",
+          "migrated_at": 1792242869
+        }
+      ],
+      "creator_resolution": [],
+      "funding": [
+        {
+          "mint": "7Qsbm71fSh9SCtZhh7SYQ2gVEBHwJ2CRKToa1Dkmpump",
+          "creator_address": "MbhV4WwzPbTfij8dzc3W1FRgG8maTfXSkQp4poJYGNr",
+          "create_tx_signature": "AZMCeRE9WwHPr7hWVFpDWeyRVTTxLTc5BHtwLtdR1kUoGSW3wf5r935SKMvJqLtRH3Z5wAyjAc95BdM1Gz2zdMP",
+          "status": "complete",
+          "attempts": 1
+        }
+      ],
+      "handoff": [
+        {
+          "mint": "7Qsbm71fSh9SCtZhh7SYQ2gVEBHwJ2CRKToa1Dkmpump",
+          "creator": "MbhV4WwzPbTfij8dzc3W1FRgG8maTfXSkQp4poJYGNr",
+          "state": "COMPLETE",
+          "created_at": 1792242870,
+          "completed_at": 1792242875
+        }
+      ],
+      "walkback": [
+        {
+          "mint": "7Qsbm71fSh9SCtZhh7SYQ2gVEBHwJ2CRKToa1Dkmpump",
+          "creator": "MbhV4WwzPbTfij8dzc3W1FRgG8maTfXSkQp4poJYGNr",
+          "status": "complete",
+          "walkback_class": "FULL_WALKBACK",
+          "attempts": 1,
+          "enqueued_at": 1792242870,
+          "create_anchor_signature": "AZMCeRE9WwHPr7hWVFpDWeyRVTTxLTc5BHtwLtdR1kUoGSW3wf5r935SKMvJqLtRH3Z5wAyjAc95BdM1Gz2zdMP",
+          "create_anchor_source": "token_analysis",
+          "create_anchor_audit_state": "VALID",
+          "path_state": "FAILED_TERMINAL",
+          "anchor_lookup_attempts": 0,
+          "last_anchor_lookup_at": null,
+          "anchor_lookup_state": null,
+          "rpc_used": 49
+        }
+      ]
+    },
+    "GSuoFY4mcCCL8Emv1GsBpLuXFciimWoavDv7Y7TCpump": {
+      "core": [
+        {
+          "mint": "GSuoFY4mcCCL8Emv1GsBpLuXFciimWoavDv7Y7TCpump",
+          "earliest_tx_creator": "BY4hmLWBGWQ1Z6bn6s1sy4a4wHqnDKR2AjPY5wjvGtqC",
+          "pf_ws_creator": "BY4hmLWBGWQ1Z6bn6s1sy4a4wHqnDKR2AjPY5wjvGtqC",
+          "create_tx_signature": "9phwjuF4vVhFuDmmNFsySUeBe7ZDkSDavrwGMQeknTcwHHP7S8aHdxpKhALYwrxyEmv2o81JsQCs2RYSy7XegWB",
+          "first_pre_migration_signal_at": 1792242181,
+          "migration_signal_source": "birth",
+          "migrated_at": 1792242696
+        }
+      ],
+      "creator_resolution": [],
+      "funding": [
+        {
+          "mint": "GSuoFY4mcCCL8Emv1GsBpLuXFciimWoavDv7Y7TCpump",
+          "creator_address": "BY4hmLWBGWQ1Z6bn6s1sy4a4wHqnDKR2AjPY5wjvGtqC",
+          "create_tx_signature": "9phwjuF4vVhFuDmmNFsySUeBe7ZDkSDavrwGMQeknTcwHHP7S8aHdxpKhALYwrxyEmv2o81JsQCs2RYSy7XegWB",
+          "status": "retry",
+          "attempts": 3
+        }
+      ],
+      "handoff": [
+        {
+          "mint": "GSuoFY4mcCCL8Emv1GsBpLuXFciimWoavDv7Y7TCpump",
+          "creator": "BY4hmLWBGWQ1Z6bn6s1sy4a4wHqnDKR2AjPY5wjvGtqC",
+          "state": "COMPLETE",
+          "created_at": 1792242696,
+          "completed_at": 1792242699
+        }
+      ],
+      "walkback": [
+        {
+          "mint": "GSuoFY4mcCCL8Emv1GsBpLuXFciimWoavDv7Y7TCpump",
+          "creator": "BY4hmLWBGWQ1Z6bn6s1sy4a4wHqnDKR2AjPY5wjvGtqC",
+          "status": "complete",
+          "walkback_class": "PARTIAL_TREASURY",
+          "attempts": 1,
+          "enqueued_at": 1792242696,
+          "create_anchor_signature": "9phwjuF4vVhFuDmmNFsySUeBe7ZDkSDavrwGMQeknTcwHHP7S8aHdxpKhALYwrxyEmv2o81JsQCs2RYSy7XegWB",
+          "create_anchor_source": "token_analysis",
+          "create_anchor_audit_state": "VALID",
+          "path_state": "CLAIMED",
+          "anchor_lookup_attempts": 0,
+          "last_anchor_lookup_at": null,
+          "anchor_lookup_state": null,
+          "rpc_used": 7
+        }
+      ]
+    },
+    "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump": {
+      "core": [
+        {
+          "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+          "earliest_tx_creator": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+          "pf_ws_creator": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+          "create_tx_signature": null,
+          "first_pre_migration_signal_at": null,
+          "migration_signal_source": null,
+          "migrated_at": 1792195770
+        }
+      ],
+      "creator_resolution": [
+        {
+          "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+          "status": "complete",
+          "attempts": 1,
+          "resolved_creator": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+          "create_tx_signature": null,
+          "source": "crq_worker",
+          "created_at": 1792195837,
+          "resolved_at": 1792195865,
+          "updated_at": 1792195865,
+          "resolution_tier": "GENERIC",
+          "skip_reason": null
+        }
+      ],
+      "funding": [
+        {
+          "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+          "creator_address": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+          "create_tx_signature": null,
+          "status": "complete",
+          "attempts": 1
+        }
+      ],
+      "handoff": [
+        {
+          "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+          "creator": null,
+          "state": "COMPLETE",
+          "created_at": 1792195770,
+          "completed_at": 1792195773
+        }
+      ],
+      "walkback": [
+        {
+          "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+          "creator": null,
+          "status": "waiting",
+          "walkback_class": "FULL_WALKBACK",
+          "attempts": 0,
+          "enqueued_at": 1792195770,
+          "create_anchor_signature": null,
+          "create_anchor_source": null,
+          "create_anchor_audit_state": "MISSING_OR_MALFORMED",
+          "path_state": "WAITING_FOR_CREATE_ANCHOR",
+          "anchor_lookup_attempts": 0,
+          "last_anchor_lookup_at": null,
+          "anchor_lookup_state": null,
+          "rpc_used": 0
+        }
+      ]
+    }
+  },
+  "oldest_selected_waiting": [
+    {
+      "mint": "AygKukhewZAmQ1rt6cboEBD1sygUEHakzNQfbUGipump",
+      "enqueued_at": 1785783265,
+      "anchor_lookup_attempts": 75850,
+      "last_anchor_lookup_at": 1792243500,
+      "anchor_lookup_state": "PENDING_NOT_VISIBLE"
+    }
+  ],
+  "queue_indexes": [
+    {
+      "name": "ix_wbq_deep_review_page",
+      "columns": [
+        "funder_block_time",
+        "mint"
+      ]
+    },
+    {
+      "name": "ix_wbq_priority",
+      "columns": [
+        "status",
+        "priority",
+        "enqueued_at"
+      ]
+    },
+    {
+      "name": "ix_wbq_funder",
+      "columns": [
+        "funder_wallet"
+      ]
+    },
+    {
+      "name": "ix_wbq_outcome",
+      "columns": [
+        "intelligence_outcome"
+      ]
+    },
+    {
+      "name": "ix_wbq_class",
+      "columns": [
+        "walkback_class",
+        "status"
+      ]
+    },
+    {
+      "name": "ix_wbq_status",
+      "columns": [
+        "status",
+        "enqueued_at"
+      ]
+    },
+    {
+      "name": "sqlite_autoindex_wt_walkback_queue_1",
+      "columns": [
+        "mint"
+      ]
+    }
+  ],
+  "query_plans": [
+    {
+      "sql": "select mint,earliest_tx_creator,pf_ws_creator,create_tx_signature,first_pre_migration_signal_at,migration_signal_source,migrated_at from token_analysis where mint=?",
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,status,attempts,resolved_creator,create_tx_signature,source,created_at,resolved_at,updated_at,resolution_tier,skip_reason from creator_resolution_queue where mint=?",
+      "plan": [
+        "SEARCH creator_resolution_queue USING INDEX sqlite_autoindex_creator_resolution_queue_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator_address,create_tx_signature,status,attempts from creator_funding_queue where mint=? limit 3",
+      "plan": [
+        "SEARCH creator_funding_queue USING INDEX idx_creator_funding_queue_mint (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator,state,created_at,completed_at from migration_walkback_handoff where mint=?",
+      "plan": [
+        "SEARCH migration_walkback_handoff USING INDEX sqlite_autoindex_migration_walkback_handoff_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator,status,walkback_class,attempts,enqueued_at,create_anchor_signature,create_anchor_source,create_anchor_audit_state,path_state,anchor_lookup_attempts,last_anchor_lookup_at,anchor_lookup_state,rpc_used from wt_walkback_queue where mint=?",
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,earliest_tx_creator,pf_ws_creator,create_tx_signature,first_pre_migration_signal_at,migration_signal_source,migrated_at from token_analysis where mint=?",
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,status,attempts,resolved_creator,create_tx_signature,source,created_at,resolved_at,updated_at,resolution_tier,skip_reason from creator_resolution_queue where mint=?",
+      "plan": [
+        "SEARCH creator_resolution_queue USING INDEX sqlite_autoindex_creator_resolution_queue_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator_address,create_tx_signature,status,attempts from creator_funding_queue where mint=? limit 3",
+      "plan": [
+        "SEARCH creator_funding_queue USING INDEX idx_creator_funding_queue_mint (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator,state,created_at,completed_at from migration_walkback_handoff where mint=?",
+      "plan": [
+        "SEARCH migration_walkback_handoff USING INDEX sqlite_autoindex_migration_walkback_handoff_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator,status,walkback_class,attempts,enqueued_at,create_anchor_signature,create_anchor_source,create_anchor_audit_state,path_state,anchor_lookup_attempts,last_anchor_lookup_at,anchor_lookup_state,rpc_used from wt_walkback_queue where mint=?",
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,earliest_tx_creator,pf_ws_creator,create_tx_signature,first_pre_migration_signal_at,migration_signal_source,migrated_at from token_analysis where mint=?",
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,status,attempts,resolved_creator,create_tx_signature,source,created_at,resolved_at,updated_at,resolution_tier,skip_reason from creator_resolution_queue where mint=?",
+      "plan": [
+        "SEARCH creator_resolution_queue USING INDEX sqlite_autoindex_creator_resolution_queue_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator_address,create_tx_signature,status,attempts from creator_funding_queue where mint=? limit 3",
+      "plan": [
+        "SEARCH creator_funding_queue USING INDEX idx_creator_funding_queue_mint (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator,state,created_at,completed_at from migration_walkback_handoff where mint=?",
+      "plan": [
+        "SEARCH migration_walkback_handoff USING INDEX sqlite_autoindex_migration_walkback_handoff_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator,status,walkback_class,attempts,enqueued_at,create_anchor_signature,create_anchor_source,create_anchor_audit_state,path_state,anchor_lookup_attempts,last_anchor_lookup_at,anchor_lookup_state,rpc_used from wt_walkback_queue where mint=?",
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,earliest_tx_creator,pf_ws_creator,create_tx_signature,first_pre_migration_signal_at,migration_signal_source,migrated_at from token_analysis where mint=?",
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,status,attempts,resolved_creator,create_tx_signature,source,created_at,resolved_at,updated_at,resolution_tier,skip_reason from creator_resolution_queue where mint=?",
+      "plan": [
+        "SEARCH creator_resolution_queue USING INDEX sqlite_autoindex_creator_resolution_queue_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator_address,create_tx_signature,status,attempts from creator_funding_queue where mint=? limit 3",
+      "plan": [
+        "SEARCH creator_funding_queue USING INDEX idx_creator_funding_queue_mint (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator,state,created_at,completed_at from migration_walkback_handoff where mint=?",
+      "plan": [
+        "SEARCH migration_walkback_handoff USING INDEX sqlite_autoindex_migration_walkback_handoff_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator,status,walkback_class,attempts,enqueued_at,create_anchor_signature,create_anchor_source,create_anchor_audit_state,path_state,anchor_lookup_attempts,last_anchor_lookup_at,anchor_lookup_state,rpc_used from wt_walkback_queue where mint=?",
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,earliest_tx_creator,pf_ws_creator,create_tx_signature,first_pre_migration_signal_at,migration_signal_source,migrated_at from token_analysis where mint=?",
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,status,attempts,resolved_creator,create_tx_signature,source,created_at,resolved_at,updated_at,resolution_tier,skip_reason from creator_resolution_queue where mint=?",
+      "plan": [
+        "SEARCH creator_resolution_queue USING INDEX sqlite_autoindex_creator_resolution_queue_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator_address,create_tx_signature,status,attempts from creator_funding_queue where mint=? limit 3",
+      "plan": [
+        "SEARCH creator_funding_queue USING INDEX idx_creator_funding_queue_mint (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator,state,created_at,completed_at from migration_walkback_handoff where mint=?",
+      "plan": [
+        "SEARCH migration_walkback_handoff USING INDEX sqlite_autoindex_migration_walkback_handoff_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator,status,walkback_class,attempts,enqueued_at,create_anchor_signature,create_anchor_source,create_anchor_audit_state,path_state,anchor_lookup_attempts,last_anchor_lookup_at,anchor_lookup_state,rpc_used from wt_walkback_queue where mint=?",
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,enqueued_at,anchor_lookup_attempts,last_anchor_lookup_at,anchor_lookup_state from wt_walkback_queue where status=? and path_state=? and (create_anchor_signature is null or create_anchor_audit_state=?) order by enqueued_at asc limit 1",
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=?)"
+      ]
+    }
+  ]
+}

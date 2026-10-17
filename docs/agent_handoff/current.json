@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev052",
-    "git_head": "2c8e22dfe61391cb362f357aafcf36af6668891f",
+    "branch": "codex/dev053",
+    "git_head": "5ded49ce6c0aa94154307c3a147b0167f21c6b89",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T12:57:34.557628+00:00",
-    "working_tree": "DEV052 audit complete; discovery-only correction HOLD_NOT_QUALIFIED; no runtime changes. DEV051 deployed worker untouched."
+    "updated_at_utc": "2026-10-17T13:13:33.361433+00:00",
+    "working_tree": "DEV053 audit complete; PumpPortal-first creator contract confirmed, no CREATE-gate regression proven; no runtime changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31166,5 +31166,34 @@
     "canonical_writes": 0,
     "production_changes": 0,
     "next_action": "STOP \u2014 audit complete. Keep CREATE gate. Separate qualification required for any alternative temporal/creator authority or discovery-only execution seam; no implementation/deployment/replay authorized."
+  },
+  "dev053_pumpportal_first_contract": {
+    "status": "PUMPPORTAL_FIRST_CONTRACT_CONFIRMED for creator/birth ingestion; NO_PROVEN_CREATE_GATE_REGRESSION",
+    "engineering_source_sha": "5ded49ce6c0aa94154307c3a147b0167f21c6b89",
+    "branch": "codex/dev053",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV053/source/docs/audits/dev053/DEV053_PUMPPORTAL_FIRST_AUDIT_STATUS.json",
+    "report_sha256": "095b58cb12cdc4c95e87587a8a53e4195229f098eb16f85229be576eb6ebfb3d",
+    "findings": {
+      "original": "April5fbd2bda creator fast-path uses PumpPortal traderPublicKey without RPC; birth handler persists supplied signature; Oct8/current preserve this",
+      "signature_distinction": "Mandatory CREATE signature is not mandatory RPC retrieval; PumpPortal birth signature can supply Walkback before cursor",
+      "timing": "Three retained original frame samples have no slot/timestamp; local receive fields are not on-chain birth time",
+      "historical_controls": "6Ku and E8 birth signals/signatures/accepted FULL_WALKBACK retained; generic birth field cannot distinguish PumpPortal from other birth transports or prove independent CREATE fetch",
+      "recent_token": "No retained birth signal/signature; fallback27HF; missing receipt/fallback transition not proven",
+      "regression": "No postOct7 CREATE-gate regression or birth handoff defect proven; June22 inline-fallback flag and July26 gate introduction are historical changes",
+      "minimum_correction": "NONE qualified; preserve birth+signature propagation and temporal gate"
+    },
+    "tests": {
+      "creator_contract_cases": 6,
+      "provider_calls": 0,
+      "DEV048_verify": "PASS",
+      "source_completeness": "PASS"
+    },
+    "ready_for_implementation": false,
+    "runtime_deployment_required": false,
+    "reason": "Audit/documentation only",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "next_action": "STOP \u2014 PumpPortal-first creator authority confirmed; no signature-free FULL_WALKBACK restoration justified. Preserve exact-token birth/fallback provenance gap; no implementation or deployment."
   }
 }

@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev064",
-    "git_head": "a1bdd4a1ae513fe671574e4c91849340e716aaef",
+    "git_head": "740f66851b4823c4fd3838dfc7b99810691ab21b",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T15:35:30.382091+00:00",
-    "working_tree": "DEV064 read-only evidence isolation complete: insufficient independent route proof; no detector defect or implementation correction established."
+    "updated_at_utc": "2026-10-17T15:43:33.457884+00:00",
+    "working_tree": "DEV064 three explicitly authorized exact-signature reads complete; budget exhausted. Derived funding path agrees with selected records; full fanout/ancestry qualification remains partial. No application change."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31473,6 +31473,42 @@
     "application_changes": 0,
     "engineering_evidence_publication": "Local committed audit; only minimal handoff published.",
     "additional_evidence": "Exact-signature proposal in bounded-evidence-escalation.json: at most three getTransaction reads, concurrency one, retries zero, ten-second timeout and 262144-byte response cap each; raw retention disabled. No authorization granted. Missing exact fanout signatures require retained witnesses before any further acquisition scope.",
-    "next_action": "Stop. Obtain separate authorization for the fixed exact-signature proposal and exact retained fanout witnesses; do not implement, acquire address history, deploy, or declare Walkback correct/defective."
+    "next_action": "Superseded by dev064_authorized_exact_transaction_reads: the three proposed reads were separately authorized and completed. Do not reacquire; budget exhausted. Initial report remains preserved."
+  },
+  "dev064_authorized_exact_transaction_reads": {
+    "status": "COMPLETE_3_OF_3_FULL_FINGERPRINT_PARTIAL",
+    "engineering_source_sha": "740f66851b4823c4fd3838dfc7b99810691ab21b",
+    "branch": "codex/dev064",
+    "authorization": "User explicitly approved exactly the three signatures in preserved bounded-evidence-escalation.json; list/required fields and plan/configuration hashes checked before acquisition.",
+    "finding": "Exact CREATE_V2 mint and creator account agree with Walkback. Creator-funding WSOL source/authority, temporary account and close destination agree. Selected upstream transaction proves an earlier 5050 SOL WSOL transfer into that source wallet. Chronology and rounded net-receipt amount reconcile, including creator-paid transaction fee. No selected funding-route discrepancy proven.",
+    "limits": "No many-account SubProvider fanout or independently qualified treasury ancestry beyond the observed upstream payer is established. Serialized creator-byte candidate matches decoded creator account, but its exact argument IDL schema is not independently certified. Wallet source, token owner/authority, temporary token account and higher operational roles remain distinguished.",
+    "budget": {
+      "provider": "Existing approved Helius Supervisor credential; no fallback",
+      "provider_calls": 3,
+      "maximum": 3,
+      "remaining": 0,
+      "concurrency": 1,
+      "retries": 0,
+      "timeout_seconds": 10,
+      "response_cap_bytes": 262144,
+      "method": "getTransaction only",
+      "statuses": "3 SUCCESS",
+      "stop": "THREE_AUTHORIZED_READS_COMPLETE_NO_EXPANSION",
+      "raw_retention": false
+    },
+    "verification": "17 offline derived-evidence assertions PASS; exact returned signatures, context/role/account binding, WSOL mint and closure, chronology, amount reconciliation, byte/time bounds and derived-only inventory. DEV048 source completeness and evidence hashes PASS. No corrected-runtime qualification claimed.",
+    "report_local": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV064/source/docs/audits/dev064/authorized-three-reads/DEV064_EXACT_READ_STATUS.json",
+    "report_sha256": "53e65661034ffd2553651315038c99f677903f15f1cc033c028f004d785e7062",
+    "ready_for_implementation": false,
+    "minimum_correction": "NONE QUALIFIED",
+    "application_changes": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "persistent_dev_changes": 0,
+    "service_restarts": 0,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Authorized acquisition and compact derived audit only; no executable behavior change.",
+    "engineering_evidence_publication": "Local compact derived audit commit; minimal handoff only published.",
+    "next_action": "STOP. Authorized acquisition complete and budget exhausted. Full Watchtower qualification needs exact retained SubProvider fanout and higher ancestry witnesses; no further provider/discovery/replay/implementation/deployment authorized."
   }
 }

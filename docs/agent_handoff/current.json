@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev051",
-    "git_head": "d41a1bc03ab38b51b18353a350c56e79d5f263dd",
+    "branch": "codex/dev051-signature",
+    "git_head": "966c162be966b0ca8670b56106e3c05b35a66f78",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T09:06:22.187959+00:00",
-    "working_tree": "DEV051 deployment readiness HOLD_VERSION1_DECODER: response signature mismatch not rejected. Qualified candidate unchanged; actual worker file overlay compatible; no deployment/provider/canonical/service changes."
+    "updated_at_utc": "2026-10-17T09:19:14.394426+00:00",
+    "working_tree": "DEV051 signature correlation PASS_QUALIFIED_NOT_DEPLOYED. New immutable candidate sealed after full/fresh checkout; originald41 candidate and operational source unchanged; preview8151stopped."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -30994,5 +30994,39 @@
     "SERVICE_RESTARTS": 0,
     "APPLICATION_SOURCE_CHANGES": 0,
     "next_action": "STOP readiness qualification. Separately authorize minimal response-signature correlation correction and strict positive/negative regression in a new candidate; do not modify sealed d41a1bc0 or deploy. Exact-token eligibility/creator evidence and DEV049 starvation remain separate limitations."
+  },
+  "dev051_signature_correlation": {
+    "verdict": "PASS_QUALIFIED_NOT_DEPLOYED",
+    "engineering_source_revision": "966c162be966b0ca8670b56106e3c05b35a66f78",
+    "parent_candidate_source_sha": "d41a1bc03ab38b51b18353a350c56e79d5f263dd",
+    "branch": "codex/dev051-signature",
+    "worktree": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV051-signature/source",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV051-signature/evidence/signature-correlation/DEV051_SIGNATURE_CORRELATION_STATUS.json",
+    "report_sha256": "1dd6d8be46cb3c4b9dca7617ef01705fa9fb3cae61e22410604b762c6035525f",
+    "implementation": "One bounded helper plus4consumer guards: RPC result.transaction.signatures[0] or explicit enhanced data[0].signature must exactly match request and Base58decode64bytes. Missing/malformed/wrong-field/mismatch rejected before acceptance/retention. No requested identity substituted.",
+    "scope": "No newimports/config/selection/retry/timeouts/concurrency/CREATEcriteria/creatorheuristic/storage/DEV049 changes. Exact inversehelper+guards reproduces parent moduleSHA96d89ec3.",
+    "runtime_analyzer_sha256": "b4f2064305faa285f13672217013243c7d5d6a001566b6891b663c79973101ac",
+    "runtime_equivalent_acceptance": "Actual installed creator_resolution_queue resolver entry with candidate analyzer passes matching and rejects valid mismatch withoutanchor;16guardedruntime fixturesPASS. Operational analyzer remainsb7a051d2, installed worker checkouteed84eaa; loaded productionbytes unverified and untouched.",
+    "tests": "53focusedPASS;65guardedPython+actualinlinefrontend+boundedAPI+10realretainedbrowsercontractsPASS on original andfreshcheckout;29tooling+8originalliveinvalidcandidatecontrolsPASS;guarddenials0.",
+    "qualification_run": "20c97846a84c",
+    "restoration_run": "d0f74cfa2fe3",
+    "clean_checkout": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV051-signature/restorations/pre-candidate-a00b8dce9357/source",
+    "source_manifest_equality": "PASS before/aftercleancheckout",
+    "new_candidate_reference": "DEV051-signature_CANDIDATE_966c162be966",
+    "new_candidate_path": "/Users/kevinkeaveney/Dev/claude/flex-releases/candidates/DEV051-signature_CANDIDATE_966c162be966",
+    "new_candidate_source_sha": "966c162be966b0ca8670b56106e3c05b35a66f78",
+    "candidate_manifest_sha256": "09eb8d6cc63c791bd5912ccf46ac013717f005c37547047c7cb71997015017c3",
+    "original_candidate": "DEV051_CANDIDATE_d41a1bc03ab3 verified unchanged; preserved",
+    "rollback": "Originald41candidate and exactparentfile recovery verified; earlier currentoperationalb7a051d2preimage/configreferences preserved; permanentgoldenrollback retained.",
+    "READY_FOR_DEPLOYMENT": "QUALIFIED_NOT_DEPLOYED; no installation/restart authorized",
+    "RUNTIME_DEPLOYMENT_GATE": "QUALIFIED_NOT_DEPLOYED",
+    "activation_state": "NO_DEPLOYMENT;owned8151APIstopped;8100/8145/operationalservicesuntouched",
+    "exact_token": "Creator-resolution complete,canonicalCREATEsignatureNULL;WalkbackWAITING_FOR_CREATE_ANCHOR,attempts0,anchorlookup0;Pumpcreatorunqualified. No requeue/replay/backfill/anchorinsertion/admission/attribution.",
+    "PROVIDER_CALLS": 0,
+    "CANONICAL_WRITES": 0,
+    "PRODUCTION_CHANGES": 0,
+    "PERSISTENT_DEV_CHANGES": 0,
+    "OPERATIONAL_SERVICE_RESTARTS": 0,
+    "next_action": "NONE \u2014 requested isolated signature correction and release qualification complete. Preserve new and original immutable candidates; any operational installation/restart or exact-token recovery requires separate explicit authorization."
   }
 }

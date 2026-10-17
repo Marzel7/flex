@@ -1,0 +1,22 @@
+{
+  "frozen_reference": "064021bd7e3aef0dec2e55d067693d94b8cf1922",
+  "function_comparison": {
+    "_collect_signature_window": "IDENTICAL_AST",
+    "_find_funder_via_rpc": "DIFFERENT_OR_NOT_BOTH_PRESENT",
+    "_extract_sol_sender": "IDENTICAL_AST",
+    "_detect_mechanism": "IDENTICAL_AST",
+    "_is_known_treasury": "IDENTICAL_AST",
+    "_is_known_subprov": "IDENTICAL_AST",
+    "_cached_watchtower_treasury": "IDENTICAL_AST",
+    "_is_cached_watchtower_treasury": "IDENTICAL_AST",
+    "_expand_unknown_upstream": "IDENTICAL_AST"
+  },
+  "installed_files": {
+    "src/core/watchtower_registry_promotion.py": "cd5508da7d20b76a0770eaa44aaa4d694d715e3612c7426a4f850d9b20d28370",
+    "src/ops/watchtower_canonical_integration.py": "b867c1572fcf4bcca244955a185248c94a74d5c01648f046aa8aba4ecd373694",
+    "src/ops/watchtower_canonical_adapters.py": "b5295c6a2d0739596d9211df67786ed59bf72fd8b459b16d396a552705db6ec8",
+    "src/ops/attribution_outcome.py": "4907e3ac01c7139048310c51e9493ca261a9eb2895451f3452cb9434af66e73f"
+  },
+  "role_validator_provenance": "7fb29c0d Sept28 committed role-normalized registry repair; earlier than Oct10, not proof exact deployed transition",
+  "loaded_runtime_limit": "Frozen/current files and static AST not proof provider responses, original loaded bytes or dataregistry state equivalent"
+}

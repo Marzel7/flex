@@ -1,0 +1,59 @@
+{
+  "walkback": {
+    "manager": "supervisord",
+    "program": "walkback_worker",
+    "pid": 73413,
+    "parent_pid": 73409,
+    "process_arguments": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -m src.core.walkback_worker --loop",
+    "configured_command": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python\n-m src.core.walkback_worker --loop",
+    "configured_directory": "/Users/kevinkeaveney/Production/flex-walkback-dev002",
+    "observed_cwd": [
+      "/Users/kevinkeaveney/Production/flex-walkback-dev002"
+    ],
+    "git_head": "afbe9e58b11eb2e4d616246da123ce31ab45700c",
+    "source_file": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py",
+    "source_sha256": "a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9",
+    "loaded_python_bytes": "UNVERIFIED; no introspection/injection/signalling",
+    "safe_startup_environment": {
+      "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+      "WALKBACK_BATCH_SIZE": "8",
+      "WALKBACK_INTERVAL_SEC": "45",
+      "WALKBACK_MAX_ATTEMPTS": "3",
+      "WALKBACK_RPC_BUDGET_BATCH": "80"
+    },
+    "credential_labels_present": {
+      "HELIUS_API_KEY": true,
+      "HELIUS_MONITORING_API_KEY": false,
+      "HELIUS_RPC_URL": true,
+      "RPC_HTTP": false,
+      "RPC_URL": false,
+      "BIRDEYE": false,
+      "BIRDEYE_API_KEY": false
+    },
+    "credential_values": "NOT_RETAINED",
+    "process_started": "Thu Oct  8 01:00:57 2026",
+    "log_path": "/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/walkback_worker.log",
+    "provider_endpoint_labels": {
+      "HELIUS_RPC_URL": {
+        "scheme": "https",
+        "hostname": "mainnet.helius-rpc.com"
+      }
+    },
+    "HELIUS_API_KEY_matches_HELIUS_RPC_URL_key": true,
+    "analyzer": {
+      "path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/analysis/pump_fun_post_migration_analyzer.py",
+      "sha256": "b7a051d2b21a860215393e9815b66c8ab9f16c14a932595755a21286a92a9443"
+    },
+    "manager_process": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/supervisord -c /Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf"
+  },
+  "supervisor_configuration": {
+    "path": "/Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf",
+    "sha256": "18f39cb1b9d60d9e5b00d212acdc6697e9c0f68f1031d77c3cff91f40f3c4ccc"
+  },
+  "creator_analyzer_overlay": {
+    "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/analysis/pump_fun_post_migration_analyzer.py",
+    "sha256": "b4f2064305faa285f13672217013243c7d5d6a001566b6891b663c79973101ac"
+  },
+  "loaded_bytes": "Not memory-introspected; no service signalling/restart"
+}

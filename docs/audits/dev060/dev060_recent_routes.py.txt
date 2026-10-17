@@ -1,0 +1,32 @@
+import pathlib,json,sqlite3,time,hashlib,subprocess
+R=pathlib.Path('/Users/kevinkeaveney/Dev/claude/flex-development/DEV060/source');E=R/'docs/audits/dev060';save=lambda n,d:(E/n).write_text(json.dumps(d,indent=2)+'\n');p=json.load(open(E/'refined-population-for-routes.json'));c=sqlite3.connect('file:/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db?mode=ro',uri=True);c.row_factory=sqlite3.Row;c.execute('pragma query_only=on');plans=[]
+def q(sql,args=(),cap=6):
+ plan=[r[3] for r in c.execute('explain query plan '+sql,args)];plans.append({'sql':sql,'plan':plan})
+ if any(x.startswith('SCAN ') for x in plan):return {'status':'UNKNOWN_UNINDEXED_NOT_EXECUTED'}
+ t=time.monotonic();c.set_progress_handler(lambda:int(time.monotonic()-t>2),1000)
+ try:return [dict(r) for r in c.execute(sql,args).fetchmany(cap)]
+ except sqlite3.Error as e:return {'status':'UNKNOWN_DEADLINE','error':str(e)}
+counts={}
+rows={};groups={}
+for group,key in [('recent_wsol','recent_wsol_max5'),('no_attribution','recent_noattribution_max2')]:
+ for row in p[key].get('rows',[]):rows[row['mint']]=row;groups.setdefault(row['mint'],[]).append(group)
+out={}
+for mint,row in rows.items():
+ d={'groups':groups[mint],'queue':row};out[mint]=d
+ for name,sql in [('promotion','select * from wt_watchtower_promotion_outcomes where mint=? order by last_attempted_at desc limit 3'),('membership','select * from operator_launch_membership where mint=?'),('ledger','select mint,creator_wallet,create_signature,treasury_wallet,subprov_wallet,wrap_close_signature,create_time,state,funding_mechanism,confidence,creator_extraction_method,fanout_count,detection_source from wt_watchtower_launches where mint=? limit 3'),('edges','select * from wt_walkback_edge_candidates where mint=? order by hop_depth limit 9'),('roles','select * from wt_walkback_transaction_roles where mint=? limit 5'),('funding_account','select * from wt_provisioning_wallets where mint=?')]:d[name]=q(sql,(mint,),9 if name=='edges' else 5)
+ # Exact existing authority probes only; no rawtransaction/fanout reconstruction.
+ wallet=row.get('subprov') or row.get('funder_wallet')
+ if wallet:
+  d['subprov_registry']=q('select * from wt_discovered_subprovs where subprov=?',(wallet,),1)
+  d['session']=q('select subprov_wallet,treasury_wallet,funding_signature,funding_amount,funding_time,subprov_known,treasury_rotated,funding_mechanism from wt_active_subprov_sessions where subprov_wallet=? limit 3',(wallet,),3)
+  d['fanout_observations']=q('select candidate_wallet,subprov_wallet,treasury_wallet,wrap_wallet,temp_wsol_account,close_destination,wrap_close_signature,funding_amount,funding_mechanism,subprov_fanout_count_at_capture,state from wt_candidate_websocket_watches where subprov_wallet=? limit 4',(wallet,),4)
+ treasury=row.get('treasury')
+ if treasury:d['treasury_registry']=q('select * from wt_confirmed_treasuries where treasury=?',(treasury,),1)
+save('recent-route-details.json',{'counts_by_indexed_actual_label':counts,'count_scope':'Global queue executions started in timewindow; peractual retained label indexedqueries. Zero counts mean no matching rows for that label/timepopulation; other actual labels remainUNKNOWN, not inferredabsent. Different scope from migrationcohort group that timedout.','sample_scope':'All16latest postOct10confirmations plus5recentWSOL,2NO_ATTRIBUTION and3historical controls; overlaps deduplicated bymint','routes':out,'plans':plans})
+# Exact installed code authority and function-equivalence evidence, no execution replay.
+root=pathlib.Path('/Users/kevinkeaveney/Production/flex-walkback-dev002');sources={}
+for path in ['src/core/walkback_worker.py','src/core/deep_walkback.py','src/ops/watchtower_confirmed_membership.py','src/ops/canonical_watchtower.py','src/ops/canonical_membership_outbox.py']:
+ f=root/path
+ if f.exists():sources[path]={'sha256':hashlib.sha256(f.read_bytes()).hexdigest()}
+save('installed-source-reference.json',{'root':str(root),'git_head':subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip(),'files':sources,'loaded_bytes':'Not independently attested; no signalling/restart','historical':'064021bd preserved sourcecomposition, not singularloadedruntime; DEV039priorbranchcomparison reused'})
+print(json.dumps({'counts':counts,'sample_summary':[{ 'mint':m,'group':v['groups'],'outcome':v['queue']['intelligence_outcome'],'mech':v['queue']['funding_mechanism'],'promotion':[(r['outcome'],r['first_rejection_reason']) for r in v['promotion']] if isinstance(v['promotion'],list) else v['promotion'],'member':len(v['membership']) if isinstance(v['membership'],list) else v['membership'],'edges':len(v['edges']) if isinstance(v['edges'],list) else v['edges'],'accounts':len(v['funding_account']) if isinstance(v['funding_account'],list) else v['funding_account']} for m,v in out.items()]}))

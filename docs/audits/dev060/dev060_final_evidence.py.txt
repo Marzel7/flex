@@ -1,0 +1,22 @@
+import pathlib,json,sqlite3,time,hashlib,ast,subprocess
+R=pathlib.Path('/Users/kevinkeaveney/Dev/claude/flex-development/DEV060/source');E=R/'docs/audits/dev060';save=lambda n,d:(E/n).write_text(json.dumps(d,indent=2)+'\n');a=json.load(open(E/'retained-route-admission.json'))['routes'];a.update(json.load(open(E/'recent-route-details.json'))['routes']);c=sqlite3.connect('file:/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db?mode=ro',uri=True);c.row_factory=sqlite3.Row;c.execute('pragma query_only=on');extra={}
+def q(sql,args):
+ plan=[r[3] for r in c.execute('explain query plan '+sql,args)]
+ if any(p.startswith('SCAN ') for p in plan):return {'status':'UNKNOWN_UNINDEXED_NOT_EXECUTED','plan':plan}
+ t=time.monotonic();c.set_progress_handler(lambda:int(time.monotonic()-t>1),1000)
+ try:return {'rows':[dict(r) for r in c.execute(sql,args).fetchmany(3)],'plan':plan}
+ except sqlite3.Error as e:return {'status':'UNKNOWN','reason':str(e)}
+for m,v in a.items():
+ d={'session':q('select * from wt_provisioning_sessions where source_mint=?',(m,))};extra[m]=d;root=None
+ if isinstance(d['session'].get('rows'),list) and d['session']['rows']:root=d['session']['rows'][0]['treasury']
+ treasury=v['queue'].get('treasury')
+ if root and treasury and root!=treasury:d['role_bridge']=q("select sender,recipient,signature,relationship_type from wt_lineage_verified_session_edges where sender=? and recipient=? and relationship_type='DIRECT_SOL_TRANSFER' limit 1",(treasury,root))
+ reason=v['queue'].get('termination_reason_json')
+ if reason:
+  try:w=json.loads(reason).get('deepest_wallet')
+  except (ValueError,TypeError):w=None
+  if w:
+   d['deepest_confirmed_registry']=q('select treasury,method,confidence,provenance,confirmed_at from wt_confirmed_treasuries where treasury=?',(w,));d['deepest_potential']=q('select wallet,candidate_role,confidence,status,review_state,distinct_launches,distinct_subproviders,lifecycle_quality from wt_infrastructure_candidates where wallet=?',(w,))
+c.close();save('session-role-boundaries.json',extra)
+root=pathlib.Path('/Users/kevinkeaveney/Production/flex-walkback-dev002');rel='src/core/walkback_worker.py';old=subprocess.check_output(['git','-C',str(R),'show','064021bd:'+rel],text=True);cur=(root/rel).read_text();nodes=lambda s:{n.name:ast.dump(n,include_attributes=False) for n in ast.parse(s).body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))};o=nodes(old);n=nodes(cur);names=['_collect_signature_window','_find_funder_via_rpc','_extract_sol_sender','_detect_mechanism','_is_known_treasury','_is_known_subprov','_cached_watchtower_treasury','_is_cached_watchtower_treasury','_expand_unknown_upstream'];cmp={k:('IDENTICAL_AST' if o.get(k)==n.get(k) and k in o else 'DIFFERENT_OR_NOT_BOTH_PRESENT') for k in names};paths=['src/core/watchtower_registry_promotion.py','src/ops/watchtower_canonical_integration.py','src/ops/watchtower_canonical_adapters.py','src/ops/attribution_outcome.py'];save('source-contract-comparison.json',{'frozen_reference':'064021bd7e3aef0dec2e55d067693d94b8cf1922','function_comparison':cmp,'installed_files':{p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in paths if (root/p).exists()},'role_validator_provenance':'7fb29c0d Sept28 committed role-normalized registry repair; earlier than Oct10, not proof exact deployed transition','loaded_runtime_limit':'Frozen/current files and static AST not proof provider responses, original loaded bytes or dataregistry state equivalent'})
+print(json.dumps({'functions':cmp,'sample_promotions':{m:[r['first_rejection_reason'] for r in v['promotion']] if isinstance(v['promotion'],list) else 'UNKNOWN' for m,v in a.items() if 'confirmed' in v['groups']},'role_conflicts':{m:v for m,v in extra.items() if 'role_bridge' in v}}))

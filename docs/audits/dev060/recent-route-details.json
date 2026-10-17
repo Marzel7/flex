@@ -1,0 +1,1629 @@
+{
+  "counts_by_indexed_actual_label": {},
+  "count_scope": "Global queue executions started in timewindow; peractual retained label indexedqueries. Zero counts mean no matching rows for that label/timepopulation; other actual labels remainUNKNOWN, not inferredabsent. Different scope from migrationcohort group that timedout.",
+  "sample_scope": "All16latest postOct10confirmations plus5recentWSOL,2NO_ATTRIBUTION and3historical controls; overlaps deduplicated bymint",
+  "routes": {
+    "4hitw2qrw8vZa7Z9j1H4oDBPyvzD2XK1LZKHnLtJpump": {
+      "groups": [
+        "recent_wsol"
+      ],
+      "queue": {
+        "mint": "4hitw2qrw8vZa7Z9j1H4oDBPyvzD2XK1LZKHnLtJpump",
+        "creator": "Ef77qT4f7WcuQPHTawQ8aqozsr8oYxv24C5e2EDDBg9z",
+        "subprov": "BoaigncB5ggfozFdYzvQciJvNLBJp5JC4Js9kBbxWzBY",
+        "treasury": "8AScAkXSyPwqv5x4d5uScQLZFMABDyQWuT8wqmYt4BhV",
+        "walkback_class": "PARTIAL_TREASURY",
+        "attribution_source": "wt_wrap_close_candidates",
+        "status": "complete",
+        "rpc_used": 5,
+        "attempts": 1,
+        "last_error": null,
+        "enqueued_at": 1792245939,
+        "started_at": 1792245999,
+        "completed_at": 1792246000,
+        "updated_at": 1792246000,
+        "intelligence_outcome": "LINEAGE_GAP",
+        "funder_wallet": "8AScAkXSyPwqv5x4d5uScQLZFMABDyQWuT8wqmYt4BhV",
+        "funding_mechanism": "WSOL_WRAP_CLOSE",
+        "funder_amount_sol": 0.001514,
+        "funder_sig": "4vkk4ej2jQM3mLN7qKPq6ZkDMwBDhuQuSQ9wpwcCMKWnERccJ4qYv1ULXusTrYT5wLjmXmidduE1AYqFxQr54qHP",
+        "funder_slot": 456083887,
+        "funder_block_time": 1791816203,
+        "claimed_by": "walkback-73413",
+        "claimed_at": 1792245999,
+        "lease_expires_at": 1792246299,
+        "next_retry_at": null,
+        "path_state": "CLAIMED",
+        "termination_reason_json": null,
+        "create_anchor_signature": "4NWBHFNCL6Uj6T8U3Z8Y44irDxUEpJW528VmVZbCkLbdc5P5vHkKVt25EjvMB2t1hcjwURa5BLMv2WGzZj69JwR",
+        "create_anchor_slot": null,
+        "create_anchor_block_time": null,
+        "create_anchor_source": "token_analysis",
+        "create_anchor_audit_state": "VALID",
+        "priority": 0,
+        "priority_reason": null,
+        "anchor_lookup_attempts": 0,
+        "last_anchor_lookup_at": null,
+        "anchor_recovered_at": null,
+        "anchor_recovery_source": null,
+        "anchor_lookup_state": null,
+        "infrastructure_retry_count": 0,
+        "last_infrastructure_error": null
+      },
+      "promotion": [],
+      "membership": [],
+      "ledger": [],
+      "edges": [],
+      "roles": [
+        {
+          "evidence_key": "401a24c7222ca21b48a56756cc4fb9e10def7b6c20abfbcf61311f8b675f55e5",
+          "projection_version": "transaction-role-v1",
+          "mint": "4hitw2qrw8vZa7Z9j1H4oDBPyvzD2XK1LZKHnLtJpump",
+          "signature": "4vkk4ej2jQM3mLN7qKPq6ZkDMwBDhuQuSQ9wpwcCMKWnERccJ4qYv1ULXusTrYT5wLjmXmidduE1AYqFxQr54qHP",
+          "anchor_signature": null,
+          "transfer_source": null,
+          "transfer_destination": null,
+          "transfer_lamports": null,
+          "fee_payer": "4VkxXhkxS2DtgpghAjDiWLYoaUK4Q4S3pLZehVpAcpge",
+          "signers_json": "[\"4VkxXhkxS2DtgpghAjDiWLYoaUK4Q4S3pLZehVpAcpge\",\"8AScAkXSyPwqv5x4d5uScQLZFMABDyQWuT8wqmYt4BhV\"]",
+          "outer_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"ComputeBudget111111111111111111111111111111\",\"type\":null},{\"index\":1,\"parent_index\":1,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":2,\"parent_index\":2,\"program_id\":\"ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL\",\"type\":\"createIdempotent\"},{\"index\":3,\"parent_index\":3,\"program_id\":\"6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P\",\"type\":null}]",
+          "inner_shape_json": "[{\"index\":0,\"parent_index\":2,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"getAccountDataSize\"},{\"index\":1,\"parent_index\":2,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"createAccount\"},{\"index\":2,\"parent_index\":2,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"initializeImmutableOwner\"},{\"index\":3,\"parent_index\":2,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"initializeAccount3\"},{\"index\":4,\"parent_index\":3,\"program_id\":\"pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ\",\"type\":null},{\"index\":5,\"parent_index\":3,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"transferChecked\"},{\"index\":6,\"parent_index\":3,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":7,\"parent_index\":3,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":8,\"parent_index\":3,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":9,\"parent_index\":3,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":10,\"parent_index\":3,\"program_id\":\"6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P\",\"type\":null}]",
+          "route_semantics": "INTERMEDIARY",
+          "provenance_digest": "c0245df3edb0038f6b2b811abc0d18c8cb6da0d3a9f75681d1b2b76efcd2297a",
+          "first_observed_at": 1792246000,
+          "last_observed_at": 1792246000,
+          "observation_count": 1
+        }
+      ],
+      "funding_account": [],
+      "subprov_registry": [
+        {
+          "subprov": "BoaigncB5ggfozFdYzvQciJvNLBJp5JC4Js9kBbxWzBY",
+          "first_creator": "Ef77qT4f7WcuQPHTawQ8aqozsr8oYxv24C5e2EDDBg9z",
+          "creator_count": 1,
+          "treasury": null,
+          "treasury_known": 0,
+          "first_seen": 1791823507,
+          "last_seen": 1791823611,
+          "immediate_funder": null,
+          "funder_is_subprov": 0,
+          "confidence": 0.5,
+          "state": "PROVISION_CANDIDATE",
+          "wrap_close_count": 1,
+          "topup_count": 0,
+          "rejected_reason": null,
+          "buy_swarm_count": 0,
+          "create_count": 0,
+          "buy_swarm_ratio": 0.0,
+          "subprov_type": "UNKNOWN",
+          "seeded_account_count": 0,
+          "discovery_source": null,
+          "funding_mechanism": null
+        }
+      ],
+      "session": [],
+      "fanout_observations": [],
+      "treasury_registry": []
+    },
+    "UrG7yCCJFJJXvxJy7mfYvP46xuywceVHmfMhGAtpump": {
+      "groups": [
+        "recent_wsol"
+      ],
+      "queue": {
+        "mint": "UrG7yCCJFJJXvxJy7mfYvP46xuywceVHmfMhGAtpump",
+        "creator": "5NtoTMsBhgbLnJyhbEpCMcEii4QtNXU6wkue4k71RQzd",
+        "subprov": "GL1NEq2Gs6iifHWBYL9nA3mXEpiuP2MGeDvxX91em218",
+        "treasury": null,
+        "walkback_class": "FULL_WALKBACK",
+        "attribution_source": "unknown",
+        "status": "complete",
+        "rpc_used": 26,
+        "attempts": 1,
+        "last_error": null,
+        "enqueued_at": 1792245500,
+        "started_at": 1792245567,
+        "completed_at": 1792245571,
+        "updated_at": 1792245610,
+        "intelligence_outcome": "LINEAGE_GAP",
+        "funder_wallet": "GL1NEq2Gs6iifHWBYL9nA3mXEpiuP2MGeDvxX91em218",
+        "funding_mechanism": "WSOL_WRAP_CLOSE",
+        "funder_amount_sol": 99.999986,
+        "funder_sig": "26RDqkFwzW1KVFXq2GvgxN7njwtKnhbatW4oJryf8HyubiNAsqoE5gDUawouGpewscg1f8pCipYqdzvaBKnLHUJC",
+        "funder_slot": 458060731,
+        "funder_block_time": 1792245339,
+        "claimed_by": "walkback-73413",
+        "claimed_at": 1792245567,
+        "lease_expires_at": 1792245867,
+        "next_retry_at": null,
+        "path_state": "ARCHIVAL_GAP",
+        "termination_reason_json": "{\"deepest_wallet\": \"DjwnsLVMLYd7vaGdhMLPtpNyJcJHc8932ztQ1ziqheTi\", \"hop_depth\": 2, \"review_lead\": \"inserted\"}",
+        "create_anchor_signature": "4mHR9dm95CpGfECwSXDpu6F9CcEQrq4aQYZr8CkvQwKhvSbRm2Uhsxtw2QSioK6CXx8VCjD2m7y3uQmSZ7TQnkWt",
+        "create_anchor_slot": null,
+        "create_anchor_block_time": null,
+        "create_anchor_source": "creator_funding_queue",
+        "create_anchor_audit_state": "VALID",
+        "priority": 0,
+        "priority_reason": null,
+        "anchor_lookup_attempts": 0,
+        "last_anchor_lookup_at": null,
+        "anchor_recovered_at": null,
+        "anchor_recovery_source": null,
+        "anchor_lookup_state": null,
+        "infrastructure_retry_count": 0,
+        "last_infrastructure_error": null
+      },
+      "promotion": [],
+      "membership": [],
+      "ledger": [],
+      "edges": [
+        {
+          "evidence_key": "9db3a9460689695506d0a840472f05ce394c3cca7249e5c8a49b3c38dd0b271f",
+          "mint": "UrG7yCCJFJJXvxJy7mfYvP46xuywceVHmfMhGAtpump",
+          "wallet": "5NtoTMsBhgbLnJyhbEpCMcEii4QtNXU6wkue4k71RQzd",
+          "candidate_parent": "GL1NEq2Gs6iifHWBYL9nA3mXEpiuP2MGeDvxX91em218",
+          "signature": "26RDqkFwzW1KVFXq2GvgxN7njwtKnhbatW4oJryf8HyubiNAsqoE5gDUawouGpewscg1f8pCipYqdzvaBKnLHUJC",
+          "block_time": 1792245339,
+          "amount_lamports": 99999986000,
+          "mechanism": "WSOL_WRAP_CLOSE",
+          "instruction_index": -1,
+          "inner_instruction_index": -1,
+          "pre_balance": null,
+          "post_balance": null,
+          "net_balance_change": null,
+          "anchor_signature": "4mHR9dm95CpGfECwSXDpu6F9CcEQrq4aQYZr8CkvQwKhvSbRm2Uhsxtw2QSioK6CXx8VCjD2m7y3uQmSZ7TQnkWt",
+          "anchor_block_time": null,
+          "hop_depth": 1,
+          "owner": "",
+          "close_authority": "",
+          "close_destination": "",
+          "temporary_account": "",
+          "evidence_strength": "TRANSACTION_DERIVED",
+          "selection_status": "SELECTED",
+          "rejection_reason": "",
+          "first_observed_at": 1792245568,
+          "last_observed_at": 1792245568,
+          "observation_count": 1
+        },
+        {
+          "evidence_key": "8152d45ccfc4043fb630ece25a402e2931e6ade926b5c75712e2e8803ba2c3c3",
+          "mint": "UrG7yCCJFJJXvxJy7mfYvP46xuywceVHmfMhGAtpump",
+          "wallet": "5NtoTMsBhgbLnJyhbEpCMcEii4QtNXU6wkue4k71RQzd",
+          "candidate_parent": "AUNMj4QL1gEm2fGGPfbohabNsADJ9Ne6rai8fcrUofmn",
+          "signature": "1R8RQGoSwdrxhHkLqe6ismZa5kwJYFuWpXQq3mcFVhZHKvpYLk5Mnn6CMiRj9ZkcgmL2TPunyjqVvTtMUP2XgKv",
+          "block_time": 1792245354,
+          "amount_lamports": 0,
+          "mechanism": "PLAIN_XFER",
+          "instruction_index": -1,
+          "inner_instruction_index": -1,
+          "pre_balance": null,
+          "post_balance": null,
+          "net_balance_change": null,
+          "anchor_signature": "4mHR9dm95CpGfECwSXDpu6F9CcEQrq4aQYZr8CkvQwKhvSbRm2Uhsxtw2QSioK6CXx8VCjD2m7y3uQmSZ7TQnkWt",
+          "anchor_block_time": null,
+          "hop_depth": 1,
+          "owner": "",
+          "close_authority": "",
+          "close_destination": "",
+          "temporary_account": "",
+          "evidence_strength": "TRANSACTION_DERIVED",
+          "selection_status": "ALTERNATIVE",
+          "rejection_reason": "LOWER_RANKED_BUT_RETAINED",
+          "first_observed_at": 1792245568,
+          "last_observed_at": 1792245568,
+          "observation_count": 1
+        },
+        {
+          "evidence_key": "107f1848cfaf031d0a6db2a8b80a03bb1f068fa64760e356a0806c0143f63a7c",
+          "mint": "UrG7yCCJFJJXvxJy7mfYvP46xuywceVHmfMhGAtpump",
+          "wallet": "5NtoTMsBhgbLnJyhbEpCMcEii4QtNXU6wkue4k71RQzd",
+          "candidate_parent": "9jfwU3UDyekVStdYymhn6PXR2VUM37uip22n82sRfnGZ",
+          "signature": "oszwJRWpe9uPpbTZxGF8hmHUZKT96gRvYhmvaBRpWgSy94ssxARVEhTafaF6c7ZERaFDTKgnhzzWSRWitbaDiyZ",
+          "block_time": 1792245324,
+          "amount_lamports": 99995000,
+          "mechanism": "PLAIN_XFER",
+          "instruction_index": -1,
+          "inner_instruction_index": -1,
+          "pre_balance": null,
+          "post_balance": null,
+          "net_balance_change": null,
+          "anchor_signature": "4mHR9dm95CpGfECwSXDpu6F9CcEQrq4aQYZr8CkvQwKhvSbRm2Uhsxtw2QSioK6CXx8VCjD2m7y3uQmSZ7TQnkWt",
+          "anchor_block_time": null,
+          "hop_depth": 1,
+          "owner": "",
+          "close_authority": "",
+          "close_destination": "",
+          "temporary_account": "",
+          "evidence_strength": "TRANSACTION_DERIVED",
+          "selection_status": "ALTERNATIVE",
+          "rejection_reason": "LOWER_RANKED_BUT_RETAINED",
+          "first_observed_at": 1792245568,
+          "last_observed_at": 1792245568,
+          "observation_count": 1
+        },
+        {
+          "evidence_key": "e905ab82ed21010127198ad37257625b8d3477e7a46e336e61610b9461492258",
+          "mint": "UrG7yCCJFJJXvxJy7mfYvP46xuywceVHmfMhGAtpump",
+          "wallet": "GL1NEq2Gs6iifHWBYL9nA3mXEpiuP2MGeDvxX91em218",
+          "candidate_parent": "DjwnsLVMLYd7vaGdhMLPtpNyJcJHc8932ztQ1ziqheTi",
+          "signature": "81FW1Fh8Jxk8hicHf7QuMXdqeBef3M9jGgDiEC89z6KbjDLzezdseWrLBX9YEMry4GxpytF6bUMhBFgLprJSyL4",
+          "block_time": 1790817789,
+          "amount_lamports": 5050000000000,
+          "mechanism": "WSOL_WRAP_CLOSE",
+          "instruction_index": -1,
+          "inner_instruction_index": -1,
+          "pre_balance": null,
+          "post_balance": null,
+          "net_balance_change": null,
+          "anchor_signature": "26RDqkFwzW1KVFXq2GvgxN7njwtKnhbatW4oJryf8HyubiNAsqoE5gDUawouGpewscg1f8pCipYqdzvaBKnLHUJC",
+          "anchor_block_time": null,
+          "hop_depth": 2,
+          "owner": "",
+          "close_authority": "",
+          "close_destination": "",
+          "temporary_account": "",
+          "evidence_strength": "TRANSACTION_DERIVED",
+          "selection_status": "SELECTED",
+          "rejection_reason": "",
+          "first_observed_at": 1792245569,
+          "last_observed_at": 1792245569,
+          "observation_count": 1
+        },
+        {
+          "evidence_key": "bdf2a62603325071af6aad3e54549dcc1c2a6cbf6c6e5856389183ed5b1e24e8",
+          "mint": "UrG7yCCJFJJXvxJy7mfYvP46xuywceVHmfMhGAtpump",
+          "wallet": "GL1NEq2Gs6iifHWBYL9nA3mXEpiuP2MGeDvxX91em218",
+          "candidate_parent": "GytjADTbi86JMJu9cXTtJ5z2oTq513whEg5KcgbeseWH",
+          "signature": "39gWxuLzmeKvdbkwesNeHUSALujyHTqSb72DKW63fpmRBm9JbEj3SVa3yWPU3VrqqywHNTFT3o1r7tUXPaum9tzo",
+          "block_time": 1790818599,
+          "amount_lamports": 97775577000,
+          "mechanism": "WSOL_WRAP_CLOSE",
+          "instruction_index": -1,
+          "inner_instruction_index": -1,
+          "pre_balance": null,
+          "post_balance": null,
+          "net_balance_change": null,
+          "anchor_signature": "26RDqkFwzW1KVFXq2GvgxN7njwtKnhbatW4oJryf8HyubiNAsqoE5gDUawouGpewscg1f8pCipYqdzvaBKnLHUJC",
+          "anchor_block_time": null,
+          "hop_depth": 2,
+          "owner": "",
+          "close_authority": "",
+          "close_destination": "",
+          "temporary_account": "",
+          "evidence_strength": "TRANSACTION_DERIVED",
+          "selection_status": "ALTERNATIVE",
+          "rejection_reason": "LOWER_RANKED_BUT_RETAINED",
+          "first_observed_at": 1792245569,
+          "last_observed_at": 1792245569,
+          "observation_count": 1
+        },
+        {
+          "evidence_key": "9ad83f785a3a6ce80b5795aed9e398ca64fec27fc806b2b8876192949a56260b",
+          "mint": "UrG7yCCJFJJXvxJy7mfYvP46xuywceVHmfMhGAtpump",
+          "wallet": "GL1NEq2Gs6iifHWBYL9nA3mXEpiuP2MGeDvxX91em218",
+          "candidate_parent": "DjwnsLVMLYd7vaGdhMLPtpNyJcJHc8932ztQ1ziqheTi",
+          "signature": "3YALxV31khdp4Y5zQYpbiCnErrZowYifw6y14wrAUdp8oZBSSBMsddasi4fYLvBCSFNXZnwDohu5gRm3mUC5zoDB",
+          "block_time": 1790818610,
+          "amount_lamports": 100000000,
+          "mechanism": "WSOL_WRAP_CLOSE",
+          "instruction_index": -1,
+          "inner_instruction_index": -1,
+          "pre_balance": null,
+          "post_balance": null,
+          "net_balance_change": null,
+          "anchor_signature": "26RDqkFwzW1KVFXq2GvgxN7njwtKnhbatW4oJryf8HyubiNAsqoE5gDUawouGpewscg1f8pCipYqdzvaBKnLHUJC",
+          "anchor_block_time": null,
+          "hop_depth": 2,
+          "owner": "",
+          "close_authority": "",
+          "close_destination": "",
+          "temporary_account": "",
+          "evidence_strength": "TRANSACTION_DERIVED",
+          "selection_status": "ALTERNATIVE",
+          "rejection_reason": "LOWER_RANKED_BUT_RETAINED",
+          "first_observed_at": 1792245569,
+          "last_observed_at": 1792245569,
+          "observation_count": 1
+        }
+      ],
+      "roles": [
+        {
+          "evidence_key": "0a7e3b3cad699d1eaefcec61abcf90177db12242b9447e8476a5af5cec34fc58",
+          "projection_version": "transaction-role-v1",
+          "mint": "UrG7yCCJFJJXvxJy7mfYvP46xuywceVHmfMhGAtpump",
+          "signature": "1R8RQGoSwdrxhHkLqe6ismZa5kwJYFuWpXQq3mcFVhZHKvpYLk5Mnn6CMiRj9ZkcgmL2TPunyjqVvTtMUP2XgKv",
+          "anchor_signature": "4mHR9dm95CpGfECwSXDpu6F9CcEQrq4aQYZr8CkvQwKhvSbRm2Uhsxtw2QSioK6CXx8VCjD2m7y3uQmSZ7TQnkWt",
+          "transfer_source": null,
+          "transfer_destination": null,
+          "transfer_lamports": null,
+          "fee_payer": "AUNMj4QL1gEm2fGGPfbohabNsADJ9Ne6rai8fcrUofmn",
+          "signers_json": "[\"AUNMj4QL1gEm2fGGPfbohabNsADJ9Ne6rai8fcrUofmn\"]",
+          "outer_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":1,\"parent_index\":1,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":2,\"parent_index\":2,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":3,\"parent_index\":3,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":4,\"parent_index\":4,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":5,\"parent_index\":5,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":6,\"parent_index\":6,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":7,\"parent_index\":7,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":8,\"parent_index\":8,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":9,\"parent_index\":9,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":10,\"parent_index\":10,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":11,\"parent_index\":11,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":12,\"parent_index\":12,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":13,\"parent_index\":13,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":14,\"parent_index\":14,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":15,\"parent_index\":15,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":16,\"parent_index\":16,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":17,\"parent_index\":17,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":18,\"parent_index\":18,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"}]",
+          "inner_shape_json": "[]",
+          "route_semantics": "INTERMEDIARY",
+          "provenance_digest": "4dcaa0726869a13c49f0fd6dae02b48e6d5a50ef11609bc63438c61ea0d6010a",
+          "first_observed_at": 1792245568,
+          "last_observed_at": 1792245568,
+          "observation_count": 1
+        },
+        {
+          "evidence_key": "e4ca383053ebcbceead565ab0b1c97feb566f878a6d875a3712177f4426b2cc0",
+          "projection_version": "transaction-role-v1",
+          "mint": "UrG7yCCJFJJXvxJy7mfYvP46xuywceVHmfMhGAtpump",
+          "signature": "26RDqkFwzW1KVFXq2GvgxN7njwtKnhbatW4oJryf8HyubiNAsqoE5gDUawouGpewscg1f8pCipYqdzvaBKnLHUJC",
+          "anchor_signature": "4mHR9dm95CpGfECwSXDpu6F9CcEQrq4aQYZr8CkvQwKhvSbRm2Uhsxtw2QSioK6CXx8VCjD2m7y3uQmSZ7TQnkWt",
+          "transfer_source": "GL1NEq2Gs6iifHWBYL9nA3mXEpiuP2MGeDvxX91em218",
+          "transfer_destination": "CjnGMu5FxjjQ6GkrTn4CvVVS7buv5ETkxGAcxgp8gx8z",
+          "transfer_lamports": 99998507560,
+          "fee_payer": "5NtoTMsBhgbLnJyhbEpCMcEii4QtNXU6wkue4k71RQzd",
+          "signers_json": "[\"5NtoTMsBhgbLnJyhbEpCMcEii4QtNXU6wkue4k71RQzd\",\"GL1NEq2Gs6iifHWBYL9nA3mXEpiuP2MGeDvxX91em218\"]",
+          "outer_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"ComputeBudget111111111111111111111111111111\",\"type\":null},{\"index\":1,\"parent_index\":1,\"program_id\":\"ComputeBudget111111111111111111111111111111\",\"type\":null},{\"index\":2,\"parent_index\":2,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"createAccountWithSeed\"},{\"index\":3,\"parent_index\":3,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"initializeAccount3\"},{\"index\":4,\"parent_index\":4,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":5,\"parent_index\":5,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"syncNative\"},{\"index\":6,\"parent_index\":6,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"closeAccount\"}]",
+          "inner_shape_json": "[]",
+          "route_semantics": "DIRECT",
+          "provenance_digest": "f0140f76e03568e69dbcee11c4b356cb6f6e9b246ec1519ccd61ffeaedc9b3dc",
+          "first_observed_at": 1792245568,
+          "last_observed_at": 1792245568,
+          "observation_count": 1
+        },
+        {
+          "evidence_key": "22c2ea7b77ad5f3736af6477233fe877bd02de0a02b9a081a239b036a3b6745a",
+          "projection_version": "transaction-role-v1",
+          "mint": "UrG7yCCJFJJXvxJy7mfYvP46xuywceVHmfMhGAtpump",
+          "signature": "39gWxuLzmeKvdbkwesNeHUSALujyHTqSb72DKW63fpmRBm9JbEj3SVa3yWPU3VrqqywHNTFT3o1r7tUXPaum9tzo",
+          "anchor_signature": "26RDqkFwzW1KVFXq2GvgxN7njwtKnhbatW4oJryf8HyubiNAsqoE5gDUawouGpewscg1f8pCipYqdzvaBKnLHUJC",
+          "transfer_source": "GytjADTbi86JMJu9cXTtJ5z2oTq513whEg5KcgbeseWH",
+          "transfer_destination": "xV4zwAzrLh9xYQRjpF5BzibatJu6cwPsia2npPCgJkD",
+          "transfer_lamports": 97774088282,
+          "fee_payer": "DjwnsLVMLYd7vaGdhMLPtpNyJcJHc8932ztQ1ziqheTi",
+          "signers_json": "[\"DjwnsLVMLYd7vaGdhMLPtpNyJcJHc8932ztQ1ziqheTi\",\"GytjADTbi86JMJu9cXTtJ5z2oTq513whEg5KcgbeseWH\"]",
+          "outer_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"createAccountWithSeed\"},{\"index\":1,\"parent_index\":1,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"initializeAccount3\"},{\"index\":2,\"parent_index\":2,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":3,\"parent_index\":3,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"syncNative\"},{\"index\":4,\"parent_index\":4,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"closeAccount\"}]",
+          "inner_shape_json": "[]",
+          "route_semantics": "DIRECT",
+          "provenance_digest": "f6b0889dfb0623d9152ba7b2809f6516dc15edde96d0453b6d2a77e99052f927",
+          "first_observed_at": 1792245569,
+          "last_observed_at": 1792245569,
+          "observation_count": 1
+        },
+        {
+          "evidence_key": "a0f4c5dfecaecbb09a186d5c6734a79b84e2c36cf09cca2d874e5905b962d2cb",
+          "projection_version": "transaction-role-v1",
+          "mint": "UrG7yCCJFJJXvxJy7mfYvP46xuywceVHmfMhGAtpump",
+          "signature": "3YALxV31khdp4Y5zQYpbiCnErrZowYifw6y14wrAUdp8oZBSSBMsddasi4fYLvBCSFNXZnwDohu5gRm3mUC5zoDB",
+          "anchor_signature": "26RDqkFwzW1KVFXq2GvgxN7njwtKnhbatW4oJryf8HyubiNAsqoE5gDUawouGpewscg1f8pCipYqdzvaBKnLHUJC",
+          "transfer_source": "DjwnsLVMLYd7vaGdhMLPtpNyJcJHc8932ztQ1ziqheTi",
+          "transfer_destination": "7bzFxDWXW7hEF75dJQwEzmMKCr9XXB9CKuGB3UvdKoTX",
+          "transfer_lamports": 98511560,
+          "fee_payer": "DjwnsLVMLYd7vaGdhMLPtpNyJcJHc8932ztQ1ziqheTi",
+          "signers_json": "[\"DjwnsLVMLYd7vaGdhMLPtpNyJcJHc8932ztQ1ziqheTi\"]",
+          "outer_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"createAccountWithSeed\"},{\"index\":1,\"parent_index\":1,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"initializeAccount3\"},{\"index\":2,\"parent_index\":2,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":3,\"parent_index\":3,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"syncNative\"},{\"index\":4,\"parent_index\":4,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"closeAccount\"}]",
+          "inner_shape_json": "[]",
+          "route_semantics": "DIRECT",
+          "provenance_digest": "258494e94a1eb4470b9209b5e814e1b33738c5624c441a92a1ab6b3bdd68dfe9",
+          "first_observed_at": 1792245569,
+          "last_observed_at": 1792245569,
+          "observation_count": 1
+        },
+        {
+          "evidence_key": "25bb79e9ef95e160e5fc6f4dd0c2af8f51348acaec210e240d47ed44b69101b0",
+          "projection_version": "transaction-role-v1",
+          "mint": "UrG7yCCJFJJXvxJy7mfYvP46xuywceVHmfMhGAtpump",
+          "signature": "81FW1Fh8Jxk8hicHf7QuMXdqeBef3M9jGgDiEC89z6KbjDLzezdseWrLBX9YEMry4GxpytF6bUMhBFgLprJSyL4",
+          "anchor_signature": "26RDqkFwzW1KVFXq2GvgxN7njwtKnhbatW4oJryf8HyubiNAsqoE5gDUawouGpewscg1f8pCipYqdzvaBKnLHUJC",
+          "transfer_source": "DjwnsLVMLYd7vaGdhMLPtpNyJcJHc8932ztQ1ziqheTi",
+          "transfer_destination": "CNfrQwFye5yRSpZUnFJpBdryYeeJt8VGqT9tea5ieJHS",
+          "transfer_lamports": 5049998511560,
+          "fee_payer": "DjwnsLVMLYd7vaGdhMLPtpNyJcJHc8932ztQ1ziqheTi",
+          "signers_json": "[\"DjwnsLVMLYd7vaGdhMLPtpNyJcJHc8932ztQ1ziqheTi\"]",
+          "outer_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"createAccountWithSeed\"},{\"index\":1,\"parent_index\":1,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"initializeAccount3\"},{\"index\":2,\"parent_index\":2,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":3,\"parent_index\":3,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"syncNative\"},{\"index\":4,\"parent_index\":4,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"closeAccount\"}]",
+          "inner_shape_json": "[]",
+          "route_semantics": "DIRECT",
+          "provenance_digest": "b9cb12486d7a42a9ed535ceef59229b88e9ba966336f5c65e1a73659e09cc82d",
+          "first_observed_at": 1792245569,
+          "last_observed_at": 1792245569,
+          "observation_count": 1
+        }
+      ],
+      "funding_account": [
+        {
+          "mint": "UrG7yCCJFJJXvxJy7mfYvP46xuywceVHmfMhGAtpump",
+          "subprov_wallet": "GL1NEq2Gs6iifHWBYL9nA3mXEpiuP2MGeDvxX91em218",
+          "creator_wallet": "5NtoTMsBhgbLnJyhbEpCMcEii4QtNXU6wkue4k71RQzd",
+          "provisioning_wallet": "CjnGMu5FxjjQ6GkrTn4CvVVS7buv5ETkxGAcxgp8gx8z",
+          "mechanism": "WSOL_WRAP_CLOSE",
+          "funding_signature": null,
+          "recovery_method": "LIVE_CAPTURE",
+          "reconstructed": 0,
+          "recorded_at": 1792245570
+        }
+      ],
+      "subprov_registry": [
+        {
+          "subprov": "GL1NEq2Gs6iifHWBYL9nA3mXEpiuP2MGeDvxX91em218",
+          "first_creator": "5NtoTMsBhgbLnJyhbEpCMcEii4QtNXU6wkue4k71RQzd",
+          "creator_count": 1,
+          "treasury": null,
+          "treasury_known": 0,
+          "first_seen": 1792245500,
+          "last_seen": 1792245571,
+          "immediate_funder": null,
+          "funder_is_subprov": 0,
+          "confidence": 0.5,
+          "state": "PROVISION_CANDIDATE",
+          "wrap_close_count": 1,
+          "topup_count": 0,
+          "rejected_reason": null,
+          "buy_swarm_count": 0,
+          "create_count": 0,
+          "buy_swarm_ratio": 0.0,
+          "subprov_type": "UNKNOWN",
+          "seeded_account_count": 0,
+          "discovery_source": null,
+          "funding_mechanism": null
+        }
+      ],
+      "session": [],
+      "fanout_observations": []
+    },
+    "3p5ytAsA2Bkw6AefJ4ny4UaQd5pxVZmjwuSGQXjupump": {
+      "groups": [
+        "recent_wsol"
+      ],
+      "queue": {
+        "mint": "3p5ytAsA2Bkw6AefJ4ny4UaQd5pxVZmjwuSGQXjupump",
+        "creator": "7gSRQnjDtK173TJ2r7bx8XoHD4ZActeryubFMe141KBp",
+        "subprov": "6J8VGXdgDge1MeuGL97h6k81NpvkGpg2bDo76mmrUJsx",
+        "treasury": null,
+        "walkback_class": "FULL_WALKBACK",
+        "attribution_source": "unknown",
+        "status": "complete",
+        "rpc_used": 26,
+        "attempts": 1,
+        "last_error": null,
+        "enqueued_at": 1792240299,
+        "started_at": 1792240309,
+        "completed_at": 1792240316,
+        "updated_at": 1792240348,
+        "intelligence_outcome": "LINEAGE_GAP",
+        "funder_wallet": "6J8VGXdgDge1MeuGL97h6k81NpvkGpg2bDo76mmrUJsx",
+        "funding_mechanism": "WSOL_WRAP_CLOSE",
+        "funder_amount_sol": 0.180044,
+        "funder_sig": "3pnuTBY23PqNZWPdfLdBs5tM4j29Y5rKfHPPjYfeLg7eEDFmhbC8VW2UVpy481qn23FnSMh6t2kjwxwo6x12shri",
+        "funder_slot": 457612280,
+        "funder_block_time": 1792148255,
+        "claimed_by": "walkback-73413",
+        "claimed_at": 1792240309,
+        "lease_expires_at": 1792240609,
+        "next_retry_at": null,
+        "path_state": "FAILED_TERMINAL",
+        "termination_reason_json": "{\"deepest_wallet\": \"8abF12uDrUKpowh7RTtgxJJ3s59vNVJyeh42Wb8kokM1\", \"hop_depth\": 4, \"review_lead\": \"updated\"}",
+        "create_anchor_signature": "4Q16LNxo3MNyF6Qzdo4x8iKKSHqMhyXvVCmvYFb3MEXAqjvHHqXPpUvZeq9UGbno65sWzpqRSPjo7P8xuDmxQVMF",
+        "create_anchor_slot": null,
+        "create_anchor_block_time": null,
+        "create_anchor_source": "token_analysis",
+        "create_anchor_audit_state": "VALID",
+        "priority": 0,
+        "priority_reason": null,
+        "anchor_lookup_attempts": 0,
+        "last_anchor_lookup_at": null,
+        "anchor_recovered_at": null,
+        "anchor_recovery_source": null,
+        "anchor_lookup_state": null,
+        "infrastructure_retry_count": 0,
+        "last_infrastructure_error": null
+      },
+      "promotion": [],
+      "membership": [],
+      "ledger": [],
+      "edges": [
+        {
+          "evidence_key": "f252de7f971f2be48ae83212bce1ca97ae5e57c4badd804d40e90340083b09f9",
+          "mint": "3p5ytAsA2Bkw6AefJ4ny4UaQd5pxVZmjwuSGQXjupump",
+          "wallet": "7gSRQnjDtK173TJ2r7bx8XoHD4ZActeryubFMe141KBp",
+          "candidate_parent": "6J8VGXdgDge1MeuGL97h6k81NpvkGpg2bDo76mmrUJsx",
+          "signature": "3pnuTBY23PqNZWPdfLdBs5tM4j29Y5rKfHPPjYfeLg7eEDFmhbC8VW2UVpy481qn23FnSMh6t2kjwxwo6x12shri",
+          "block_time": 1792148255,
+          "amount_lamports": 180044000,
+          "mechanism": "WSOL_WRAP_CLOSE",
+          "instruction_index": -1,
+          "inner_instruction_index": -1,
+          "pre_balance": null,
+          "post_balance": null,
+          "net_balance_change": null,
+          "anchor_signature": "4Q16LNxo3MNyF6Qzdo4x8iKKSHqMhyXvVCmvYFb3MEXAqjvHHqXPpUvZeq9UGbno65sWzpqRSPjo7P8xuDmxQVMF",
+          "anchor_block_time": null,
+          "hop_depth": 1,
+          "owner": "",
+          "close_authority": "",
+          "close_destination": "",
+          "temporary_account": "",
+          "evidence_strength": "TRANSACTION_DERIVED",
+          "selection_status": "SELECTED",
+          "rejection_reason": "",
+          "first_observed_at": 1792240310,
+          "last_observed_at": 1792240310,
+          "observation_count": 1
+        },
+        {
+          "evidence_key": "adb0bc70e321163fe137ceb2b18aa7db2ff45f56195bea7842d58c92b0a7c083",
+          "mint": "3p5ytAsA2Bkw6AefJ4ny4UaQd5pxVZmjwuSGQXjupump",
+          "wallet": "6J8VGXdgDge1MeuGL97h6k81NpvkGpg2bDo76mmrUJsx",
+          "candidate_parent": "D8cJRpXaCWVK8c3doDq7Ymoz2XE4WyhFhbgNytWwqptA",
+          "signature": "5BudV6NjEkKuHVVv2TdSAUUcSmmF2zAjSkphxDt1jxA2tRWdRepih4pkgLL7pvHMDtGJqDGrQUub1yDtwU4KkJhP",
+          "block_time": 1792148255,
+          "amount_lamports": 1488000,
+          "mechanism": "WSOL_WRAP_CLOSE",
+          "instruction_index": -1,
+          "inner_instruction_index": -1,
+          "pre_balance": null,
+          "post_balance": null,
+          "net_balance_change": null,
+          "anchor_signature": "3pnuTBY23PqNZWPdfLdBs5tM4j29Y5rKfHPPjYfeLg7eEDFmhbC8VW2UVpy481qn23FnSMh6t2kjwxwo6x12shri",
+          "anchor_block_time": null,
+          "hop_depth": 2,
+          "owner": "",
+          "close_authority": "",
+          "close_destination": "",
+          "temporary_account": "",
+          "evidence_strength": "TRANSACTION_DERIVED",
+          "selection_status": "SELECTED",
+          "rejection_reason": "",
+          "first_observed_at": 1792240310,
+          "last_observed_at": 1792240310,
+          "observation_count": 1
+        },
+        {
+          "evidence_key": "bad9c0794da4fe7545de0b67d84865c813557d5e7b94125581a62567e73eebf3",
+          "mint": "3p5ytAsA2Bkw6AefJ4ny4UaQd5pxVZmjwuSGQXjupump",
+          "wallet": "D8cJRpXaCWVK8c3doDq7Ymoz2XE4WyhFhbgNytWwqptA",
+          "candidate_parent": "8abF12uDrUKpowh7RTtgxJJ3s59vNVJyeh42Wb8kokM1",
+          "signature": "4FwKSmR9WkoymTs2qxscBroHKpL3pMaRuVhxWzHUjx2X1dWV2arxU7fyXpy6D1Jt52spGmW52bMdT9PhHSpomENQ",
+          "block_time": 1792146794,
+          "amount_lamports": 1505000,
+          "mechanism": "WSOL_WRAP_CLOSE",
+          "instruction_index": -1,
+          "inner_instruction_index": -1,
+          "pre_balance": null,
+          "post_balance": null,
+          "net_balance_change": null,
+          "anchor_signature": "5BudV6NjEkKuHVVv2TdSAUUcSmmF2zAjSkphxDt1jxA2tRWdRepih4pkgLL7pvHMDtGJqDGrQUub1yDtwU4KkJhP",
+          "anchor_block_time": null,
+          "hop_depth": 3,
+          "owner": "",
+          "close_authority": "",
+          "close_destination": "",
+          "temporary_account": "",
+          "evidence_strength": "TRANSACTION_DERIVED",
+          "selection_status": "SELECTED",
+          "rejection_reason": "",
+          "first_observed_at": 1792240312,
+          "last_observed_at": 1792240312,
+          "observation_count": 1
+        },
+        {
+          "evidence_key": "1eb9aaaa5365e42e244450a765dc66538c6e47afd1a69ef3860e64e1dd3abe11",
+          "mint": "3p5ytAsA2Bkw6AefJ4ny4UaQd5pxVZmjwuSGQXjupump",
+          "wallet": "8abF12uDrUKpowh7RTtgxJJ3s59vNVJyeh42Wb8kokM1",
+          "candidate_parent": "D8cJRpXaCWVK8c3doDq7Ymoz2XE4WyhFhbgNytWwqptA",
+          "signature": "3988Mem5PuzZthUeFaxUoDBb8WJKU4dYpoPfMFcBdvnFTJky9nh5vu4U5zCNd9ALf1X1BasZ26Ko1H8muN5RVoXf",
+          "block_time": 1792146794,
+          "amount_lamports": 1560000,
+          "mechanism": "WSOL_WRAP_CLOSE",
+          "instruction_index": -1,
+          "inner_instruction_index": -1,
+          "pre_balance": null,
+          "post_balance": null,
+          "net_balance_change": null,
+          "anchor_signature": "4FwKSmR9WkoymTs2qxscBroHKpL3pMaRuVhxWzHUjx2X1dWV2arxU7fyXpy6D1Jt52spGmW52bMdT9PhHSpomENQ",
+          "anchor_block_time": null,
+          "hop_depth": 4,
+          "owner": "",
+          "close_authority": "",
+          "close_destination": "",
+          "temporary_account": "",
+          "evidence_strength": "TRANSACTION_DERIVED",
+          "selection_status": "SELECTED",
+          "rejection_reason": "",
+          "first_observed_at": 1792240316,
+          "last_observed_at": 1792240316,
+          "observation_count": 1
+        }
+      ],
+      "roles": [
+        {
+          "evidence_key": "d0d553880aa388616d4e48821b82f2ba3417ab22a26ac806259cc77999d540a1",
+          "projection_version": "transaction-role-v1",
+          "mint": "3p5ytAsA2Bkw6AefJ4ny4UaQd5pxVZmjwuSGQXjupump",
+          "signature": "3988Mem5PuzZthUeFaxUoDBb8WJKU4dYpoPfMFcBdvnFTJky9nh5vu4U5zCNd9ALf1X1BasZ26Ko1H8muN5RVoXf",
+          "anchor_signature": "4FwKSmR9WkoymTs2qxscBroHKpL3pMaRuVhxWzHUjx2X1dWV2arxU7fyXpy6D1Jt52spGmW52bMdT9PhHSpomENQ",
+          "transfer_source": null,
+          "transfer_destination": null,
+          "transfer_lamports": null,
+          "fee_payer": "D8cJRpXaCWVK8c3doDq7Ymoz2XE4WyhFhbgNytWwqptA",
+          "signers_json": "[\"D8cJRpXaCWVK8c3doDq7Ymoz2XE4WyhFhbgNytWwqptA\"]",
+          "outer_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL\",\"type\":\"createIdempotent\"}]",
+          "inner_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"getAccountDataSize\"},{\"index\":1,\"parent_index\":0,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"createAccount\"},{\"index\":2,\"parent_index\":0,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"initializeImmutableOwner\"},{\"index\":3,\"parent_index\":0,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"initializeAccount3\"}]",
+          "route_semantics": "AMBIGUOUS_OR_UNSUPPORTED",
+          "provenance_digest": "4e8bbeab3634806a4c04878584a3215db80b20f9e7155b5955bca2dfda360c13",
+          "first_observed_at": 1792240316,
+          "last_observed_at": 1792240316,
+          "observation_count": 1
+        },
+        {
+          "evidence_key": "ebd780f57f0c0b14f95581b1bbc44ee68e384f69c283c3c6eaa56b0ca7ae184b",
+          "projection_version": "transaction-role-v1",
+          "mint": "3p5ytAsA2Bkw6AefJ4ny4UaQd5pxVZmjwuSGQXjupump",
+          "signature": "3pnuTBY23PqNZWPdfLdBs5tM4j29Y5rKfHPPjYfeLg7eEDFmhbC8VW2UVpy481qn23FnSMh6t2kjwxwo6x12shri",
+          "anchor_signature": "4Q16LNxo3MNyF6Qzdo4x8iKKSHqMhyXvVCmvYFb3MEXAqjvHHqXPpUvZeq9UGbno65sWzpqRSPjo7P8xuDmxQVMF",
+          "transfer_source": null,
+          "transfer_destination": null,
+          "transfer_lamports": null,
+          "fee_payer": "D8cJRpXaCWVK8c3doDq7Ymoz2XE4WyhFhbgNytWwqptA",
+          "signers_json": "[\"D8cJRpXaCWVK8c3doDq7Ymoz2XE4WyhFhbgNytWwqptA\"]",
+          "outer_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"mayan34VedncxdK2XobtvWFDXQASUTBXhUVzt2kKgny\",\"type\":null},{\"index\":1,\"parent_index\":1,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"}]",
+          "inner_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"closeAccount\"},{\"index\":1,\"parent_index\":0,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"}]",
+          "route_semantics": "INTERMEDIARY",
+          "provenance_digest": "f3a51e541ac54678319ca1581496798c1646efdc6d9ba34560ea3cf2ede0ae67",
+          "first_observed_at": 1792240310,
+          "last_observed_at": 1792240310,
+          "observation_count": 1
+        },
+        {
+          "evidence_key": "87816c5edec5154f06bee6507536a7d224e315c63b80c0c8defbee6bc58ee2e2",
+          "projection_version": "transaction-role-v1",
+          "mint": "3p5ytAsA2Bkw6AefJ4ny4UaQd5pxVZmjwuSGQXjupump",
+          "signature": "4FwKSmR9WkoymTs2qxscBroHKpL3pMaRuVhxWzHUjx2X1dWV2arxU7fyXpy6D1Jt52spGmW52bMdT9PhHSpomENQ",
+          "anchor_signature": "5BudV6NjEkKuHVVv2TdSAUUcSmmF2zAjSkphxDt1jxA2tRWdRepih4pkgLL7pvHMDtGJqDGrQUub1yDtwU4KkJhP",
+          "transfer_source": null,
+          "transfer_destination": null,
+          "transfer_lamports": null,
+          "fee_payer": "D8cJRpXaCWVK8c3doDq7Ymoz2XE4WyhFhbgNytWwqptA",
+          "signers_json": "[\"D8cJRpXaCWVK8c3doDq7Ymoz2XE4WyhFhbgNytWwqptA\"]",
+          "outer_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"mayan34VedncxdK2XobtvWFDXQASUTBXhUVzt2kKgny\",\"type\":null},{\"index\":1,\"parent_index\":1,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"}]",
+          "inner_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"transferChecked\"},{\"index\":1,\"parent_index\":0,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"closeAccount\"}]",
+          "route_semantics": "INTERMEDIARY",
+          "provenance_digest": "ec2ba6d2cc6037739d1ec06baacb0b50bc45ddf2a7f276505f9661f1cd0c6c9f",
+          "first_observed_at": 1792240312,
+          "last_observed_at": 1792240312,
+          "observation_count": 1
+        },
+        {
+          "evidence_key": "e8efe2e34db74092872c1a2b0d9193e4bfaa62d1dbd24954b97cb037ac7fd707",
+          "projection_version": "transaction-role-v1",
+          "mint": "3p5ytAsA2Bkw6AefJ4ny4UaQd5pxVZmjwuSGQXjupump",
+          "signature": "5BudV6NjEkKuHVVv2TdSAUUcSmmF2zAjSkphxDt1jxA2tRWdRepih4pkgLL7pvHMDtGJqDGrQUub1yDtwU4KkJhP",
+          "anchor_signature": "3pnuTBY23PqNZWPdfLdBs5tM4j29Y5rKfHPPjYfeLg7eEDFmhbC8VW2UVpy481qn23FnSMh6t2kjwxwo6x12shri",
+          "transfer_source": null,
+          "transfer_destination": null,
+          "transfer_lamports": null,
+          "fee_payer": "D8cJRpXaCWVK8c3doDq7Ymoz2XE4WyhFhbgNytWwqptA",
+          "signers_json": "[\"D8cJRpXaCWVK8c3doDq7Ymoz2XE4WyhFhbgNytWwqptA\"]",
+          "outer_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL\",\"type\":\"createIdempotent\"}]",
+          "inner_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"getAccountDataSize\"},{\"index\":1,\"parent_index\":0,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"createAccount\"},{\"index\":2,\"parent_index\":0,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"initializeImmutableOwner\"},{\"index\":3,\"parent_index\":0,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"initializeAccount3\"}]",
+          "route_semantics": "AMBIGUOUS_OR_UNSUPPORTED",
+          "provenance_digest": "cfc4b647b91ba66c88ec09e4d6980434629202fd63dc140085c6ed562911172b",
+          "first_observed_at": 1792240310,
+          "last_observed_at": 1792240310,
+          "observation_count": 1
+        }
+      ],
+      "funding_account": [],
+      "subprov_registry": [
+        {
+          "subprov": "6J8VGXdgDge1MeuGL97h6k81NpvkGpg2bDo76mmrUJsx",
+          "first_creator": "7gSRQnjDtK173TJ2r7bx8XoHD4ZActeryubFMe141KBp",
+          "creator_count": 1,
+          "treasury": null,
+          "treasury_known": 0,
+          "first_seen": 1792240299,
+          "last_seen": 1792240316,
+          "immediate_funder": null,
+          "funder_is_subprov": 0,
+          "confidence": 0.5,
+          "state": "PROVISION_CANDIDATE",
+          "wrap_close_count": 1,
+          "topup_count": 0,
+          "rejected_reason": null,
+          "buy_swarm_count": 0,
+          "create_count": 0,
+          "buy_swarm_ratio": 0.0,
+          "subprov_type": "UNKNOWN",
+          "seeded_account_count": 0,
+          "discovery_source": null,
+          "funding_mechanism": null
+        }
+      ],
+      "session": [],
+      "fanout_observations": []
+    },
+    "BF7RBi4Z9zmumCN3Ai6cHoLuPwdjiTCNFcp3T8cFpump": {
+      "groups": [
+        "recent_wsol"
+      ],
+      "queue": {
+        "mint": "BF7RBi4Z9zmumCN3Ai6cHoLuPwdjiTCNFcp3T8cFpump",
+        "creator": "DhavMhkMfzuwW5nYJjPajtUSTfr1yVtjTGCDMePfaxSW",
+        "subprov": "FHpcNSe6tb2n15bAdq4BkeYWGyZKFD7yLYrH92ng7wCT",
+        "treasury": null,
+        "walkback_class": "FULL_WALKBACK",
+        "attribution_source": "unknown",
+        "status": "complete",
+        "rpc_used": 12,
+        "attempts": 1,
+        "last_error": null,
+        "enqueued_at": 1792237491,
+        "started_at": 1792237543,
+        "completed_at": 1792237544,
+        "updated_at": 1792237544,
+        "intelligence_outcome": "LINEAGE_GAP",
+        "funder_wallet": "FHpcNSe6tb2n15bAdq4BkeYWGyZKFD7yLYrH92ng7wCT",
+        "funding_mechanism": "WSOL_WRAP_CLOSE",
+        "funder_amount_sol": 0.001488,
+        "funder_sig": "2Yn6ewsCEvc9wSNdehHvAaQKDXzfjP5X46v5Z8iDbx9sWRXy1YEE8LjicimCHdVc5BWVNW16tNj9CTnR49aWVhPT",
+        "funder_slot": 458015993,
+        "funder_block_time": 1792235631,
+        "claimed_by": "walkback-73413",
+        "claimed_at": 1792237543,
+        "lease_expires_at": 1792237843,
+        "next_retry_at": null,
+        "path_state": "CLAIMED",
+        "termination_reason_json": null,
+        "create_anchor_signature": "4aLtNGKajXVYJoGVqnqJdj4ZhKfGE1hfKR6aNsD4XMTpCQduGLyyGhHYrj2QxDAqmmmCmrATJNZtgS2Rmq3RWJiM",
+        "create_anchor_slot": null,
+        "create_anchor_block_time": null,
+        "create_anchor_source": "creator_funding_queue",
+        "create_anchor_audit_state": "VALID",
+        "priority": 0,
+        "priority_reason": null,
+        "anchor_lookup_attempts": 0,
+        "last_anchor_lookup_at": null,
+        "anchor_recovered_at": null,
+        "anchor_recovery_source": null,
+        "anchor_lookup_state": null,
+        "infrastructure_retry_count": 0,
+        "last_infrastructure_error": null
+      },
+      "promotion": [],
+      "membership": [],
+      "ledger": [],
+      "edges": [
+        {
+          "evidence_key": "8b0e71f999f91e20b38d67f8a7b01cf9dc46cd0b8bac0ce6d33012192b3edcd7",
+          "mint": "BF7RBi4Z9zmumCN3Ai6cHoLuPwdjiTCNFcp3T8cFpump",
+          "wallet": "DhavMhkMfzuwW5nYJjPajtUSTfr1yVtjTGCDMePfaxSW",
+          "candidate_parent": "FHpcNSe6tb2n15bAdq4BkeYWGyZKFD7yLYrH92ng7wCT",
+          "signature": "2Yn6ewsCEvc9wSNdehHvAaQKDXzfjP5X46v5Z8iDbx9sWRXy1YEE8LjicimCHdVc5BWVNW16tNj9CTnR49aWVhPT",
+          "block_time": 1792235631,
+          "amount_lamports": 1488000,
+          "mechanism": "WSOL_WRAP_CLOSE",
+          "instruction_index": -1,
+          "inner_instruction_index": -1,
+          "pre_balance": null,
+          "post_balance": null,
+          "net_balance_change": null,
+          "anchor_signature": "4aLtNGKajXVYJoGVqnqJdj4ZhKfGE1hfKR6aNsD4XMTpCQduGLyyGhHYrj2QxDAqmmmCmrATJNZtgS2Rmq3RWJiM",
+          "anchor_block_time": null,
+          "hop_depth": 1,
+          "owner": "",
+          "close_authority": "",
+          "close_destination": "",
+          "temporary_account": "",
+          "evidence_strength": "TRANSACTION_DERIVED",
+          "selection_status": "SELECTED",
+          "rejection_reason": "",
+          "first_observed_at": 1792237544,
+          "last_observed_at": 1792237544,
+          "observation_count": 1
+        }
+      ],
+      "roles": [
+        {
+          "evidence_key": "c8c832fbc1986e33b7dde07da2a509a8017538f62a2606a71ff40ad7b6d18cd5",
+          "projection_version": "transaction-role-v1",
+          "mint": "BF7RBi4Z9zmumCN3Ai6cHoLuPwdjiTCNFcp3T8cFpump",
+          "signature": "2Yn6ewsCEvc9wSNdehHvAaQKDXzfjP5X46v5Z8iDbx9sWRXy1YEE8LjicimCHdVc5BWVNW16tNj9CTnR49aWVhPT",
+          "anchor_signature": "4aLtNGKajXVYJoGVqnqJdj4ZhKfGE1hfKR6aNsD4XMTpCQduGLyyGhHYrj2QxDAqmmmCmrATJNZtgS2Rmq3RWJiM",
+          "transfer_source": null,
+          "transfer_destination": null,
+          "transfer_lamports": null,
+          "fee_payer": "FHpcNSe6tb2n15bAdq4BkeYWGyZKFD7yLYrH92ng7wCT",
+          "signers_json": "[\"FHpcNSe6tb2n15bAdq4BkeYWGyZKFD7yLYrH92ng7wCT\",\"DhavMhkMfzuwW5nYJjPajtUSTfr1yVtjTGCDMePfaxSW\"]",
+          "outer_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"ComputeBudget111111111111111111111111111111\",\"type\":null},{\"index\":1,\"parent_index\":1,\"program_id\":\"ComputeBudget111111111111111111111111111111\",\"type\":null},{\"index\":2,\"parent_index\":2,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"transferChecked\"},{\"index\":3,\"parent_index\":3,\"program_id\":\"ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL\",\"type\":\"createIdempotent\"},{\"index\":4,\"parent_index\":4,\"program_id\":\"6Vo3245eszAb5wuqEMw8mGdbfRUdKbHhDHP5LcaGuTAB\",\"type\":null},{\"index\":5,\"parent_index\":5,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":6,\"parent_index\":6,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"transferChecked\"}]",
+          "inner_shape_json": "[{\"index\":0,\"parent_index\":3,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"getAccountDataSize\"},{\"index\":1,\"parent_index\":3,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"createAccount\"},{\"index\":2,\"parent_index\":3,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"initializeImmutableOwner\"},{\"index\":3,\"parent_index\":3,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"initializeAccount3\"},{\"index\":4,\"parent_index\":4,\"program_id\":\"JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4\",\"type\":null},{\"index\":5,\"parent_index\":4,\"program_id\":\"LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo\",\"type\":null},{\"index\":6,\"parent_index\":4,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"transferChecked\"},{\"index\":7,\"parent_index\":4,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"transferChecked\"},{\"index\":8,\"parent_index\":4,\"program_id\":\"LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo\",\"type\":null},{\"index\":9,\"parent_index\":4,\"program_id\":\"LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo\",\"type\":null},{\"index\":10,\"parent_index\":4,\"program_id\":\"JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4\",\"type\":null},{\"index\":11,\"parent_index\":4,\"program_id\":\"pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA\",\"type\":null},{\"index\":12,\"parent_index\":4,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"transferChecked\"},{\"index\":13,\"parent_index\":4,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"transferChecked\"},{\"index\":14,\"parent_index\":4,\"program_id\":\"pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA\",\"type\":null},{\"index\":15,\"parent_index\":4,\"program_id\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"type\":\"closeAccount\"}]",
+          "route_semantics": "INTERMEDIARY",
+          "provenance_digest": "e9f02dbe3801077eef349aa6ac2deb91e2ac7894340dde5be6c3eec9160bbbd2",
+          "first_observed_at": 1792237544,
+          "last_observed_at": 1792237544,
+          "observation_count": 1
+        }
+      ],
+      "funding_account": [],
+      "subprov_registry": [
+        {
+          "subprov": "FHpcNSe6tb2n15bAdq4BkeYWGyZKFD7yLYrH92ng7wCT",
+          "first_creator": "BVys3XSHsBwiyyPKgHwx35uyqWZCrJj1wc1oeFygR5DV",
+          "creator_count": 1,
+          "treasury": null,
+          "treasury_known": 0,
+          "first_seen": 1784788172,
+          "last_seen": 1784801764,
+          "immediate_funder": null,
+          "funder_is_subprov": 0,
+          "confidence": 0.5,
+          "state": "PROVISION_CANDIDATE",
+          "wrap_close_count": 1,
+          "topup_count": 0,
+          "rejected_reason": null,
+          "buy_swarm_count": 0,
+          "create_count": 0,
+          "buy_swarm_ratio": 0.0,
+          "subprov_type": "UNKNOWN",
+          "seeded_account_count": 0,
+          "discovery_source": null,
+          "funding_mechanism": null
+        }
+      ],
+      "session": [],
+      "fanout_observations": []
+    },
+    "4gUDKqmY7q1khHYRQjxfub2CHdpDRTMSsT4hgEs9pump": {
+      "groups": [
+        "recent_wsol"
+      ],
+      "queue": {
+        "mint": "4gUDKqmY7q1khHYRQjxfub2CHdpDRTMSsT4hgEs9pump",
+        "creator": "FMUjW6RMPk37b2fRG7MytRaLXMLGGwJSbH7DerdD9P3W",
+        "subprov": "GGztubnfeeYWxA3VWgnckmuhLuccBEuCDgXHvw4Rekbb",
+        "treasury": "FMUjW6RMPk37b2fRG7MytRaLXMLGGwJSbH7DerdD9P3W",
+        "walkback_class": "PARTIAL_TREASURY",
+        "attribution_source": "wt_wrap_close_candidates",
+        "status": "complete",
+        "rpc_used": 7,
+        "attempts": 1,
+        "last_error": null,
+        "enqueued_at": 1792235117,
+        "started_at": 1792235187,
+        "completed_at": 1792235188,
+        "updated_at": 1792235188,
+        "intelligence_outcome": "LINEAGE_GAP",
+        "funder_wallet": "FMUjW6RMPk37b2fRG7MytRaLXMLGGwJSbH7DerdD9P3W",
+        "funding_mechanism": "WSOL_WRAP_CLOSE",
+        "funder_amount_sol": 0.002074,
+        "funder_sig": "2qK8knk5iHEBaTuYVNjbqFEgVQ2fM5ucMPmrGveJ5CoKJ6dcC8VpqEPd2q98jefVkSUUrQVsfLiMqALM3G5Km3RQ",
+        "funder_slot": 442769737,
+        "funder_block_time": 1788058236,
+        "claimed_by": "walkback-73413",
+        "claimed_at": 1792235187,
+        "lease_expires_at": 1792235487,
+        "next_retry_at": null,
+        "path_state": "CLAIMED",
+        "termination_reason_json": null,
+        "create_anchor_signature": "26G96EraikMCtT8weTvtZBsRTBqDbZnwZkV941BfgxHkygZt3xnQXWK8eXf7QAeybv7hf9QzmkuDH8yjt1hzSmXQ",
+        "create_anchor_slot": null,
+        "create_anchor_block_time": null,
+        "create_anchor_source": "token_analysis",
+        "create_anchor_audit_state": "VALID",
+        "priority": 0,
+        "priority_reason": null,
+        "anchor_lookup_attempts": 0,
+        "last_anchor_lookup_at": null,
+        "anchor_recovered_at": null,
+        "anchor_recovery_source": null,
+        "anchor_lookup_state": null,
+        "infrastructure_retry_count": 0,
+        "last_infrastructure_error": null
+      },
+      "promotion": [],
+      "membership": [],
+      "ledger": [],
+      "edges": [],
+      "roles": [
+        {
+          "evidence_key": "54399a5e921d2de71b876164ea1c502f57cf64e8a5f192168a9d900e9a6ee7de",
+          "projection_version": "transaction-role-v1",
+          "mint": "4gUDKqmY7q1khHYRQjxfub2CHdpDRTMSsT4hgEs9pump",
+          "signature": "2qK8knk5iHEBaTuYVNjbqFEgVQ2fM5ucMPmrGveJ5CoKJ6dcC8VpqEPd2q98jefVkSUUrQVsfLiMqALM3G5Km3RQ",
+          "anchor_signature": null,
+          "transfer_source": null,
+          "transfer_destination": null,
+          "transfer_lamports": null,
+          "fee_payer": "FMUjW6RMPk37b2fRG7MytRaLXMLGGwJSbH7DerdD9P3W",
+          "signers_json": "[\"FMUjW6RMPk37b2fRG7MytRaLXMLGGwJSbH7DerdD9P3W\",\"DfQZ3M1pFJ5ByPXGqH5ZHjnxqhgmmmhZzZSvxfvrpump\"]",
+          "outer_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"ComputeBudget111111111111111111111111111111\",\"type\":null},{\"index\":1,\"parent_index\":1,\"program_id\":\"ComputeBudget111111111111111111111111111111\",\"type\":null},{\"index\":2,\"parent_index\":2,\"program_id\":\"6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P\",\"type\":null},{\"index\":3,\"parent_index\":3,\"program_id\":\"ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL\",\"type\":\"createIdempotent\"},{\"index\":4,\"parent_index\":4,\"program_id\":\"6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P\",\"type\":null},{\"index\":5,\"parent_index\":5,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"}]",
+          "inner_shape_json": "[{\"index\":0,\"parent_index\":2,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"createAccount\"},{\"index\":1,\"parent_index\":2,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"initializeMetadataPointer\"},{\"index\":2,\"parent_index\":2,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"initializeMint2\"},{\"index\":3,\"parent_index\":2,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"createAccount\"},{\"index\":4,\"parent_index\":2,\"program_id\":\"ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL\",\"type\":\"create\"},{\"index\":5,\"parent_index\":2,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"getAccountDataSize\"},{\"index\":6,\"parent_index\":2,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"createAccount\"},{\"index\":7,\"parent_index\":2,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"initializeImmutableOwner\"},{\"index\":8,\"parent_index\":2,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"initializeAccount3\"},{\"index\":9,\"parent_index\":2,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":10,\"parent_index\":2,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"initializeTokenMetadata\"},{\"index\":11,\"parent_index\":2,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"updateTokenMetadataAuthority\"},{\"index\":12,\"parent_index\":2,\"program_id\":\"MAyhSmzXzV1pTf7LsNkrNwkWKTo4ougAJ1PPg47MD4e\",\"type\":null},{\"index\":13,\"parent_index\":2,\"program_id\":\"ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL\",\"type\":\"create\"},{\"index\":14,\"parent_index\":2,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"getAccountDataSize\"},{\"index\":15,\"parent_index\":2,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"createAccount\"},{\"index\":16,\"parent_index\":2,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"initializeImmutableOwner\"},{\"index\":17,\"parent_index\":2,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"initializeAccount3\"},{\"index\":18,\"parent_index\":2,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"createAccount\"},{\"index\":19,\"parent_index\":2,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"mintTo\"},{\"index\":20,\"parent_index\":2,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"mintTo\"},{\"index\":21,\"parent_index\":2,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"setAuthority\"},{\"index\":22,\"parent_index\":2,\"program_id\":\"6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P\",\"type\":null},{\"index\":23,\"parent_index\":3,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"getAccountDataSize\"},{\"index\":24,\"parent_index\":3,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"createAccount\"},{\"index\":25,\"parent_index\":3,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"initializeImmutableOwner\"},{\"index\":26,\"parent_index\":3,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"initializeAccount3\"},{\"index\":27,\"parent_index\":4,\"program_id\":\"pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ\",\"type\":null},{\"index\":28,\"parent_index\":4,\"program_id\":\"TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb\",\"type\":\"transferChecked\"},{\"index\":29,\"parent_index\":4,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":30,\"parent_index\":4,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":31,\"parent_index\":4,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":32,\"parent_index\":4,\"program_id\":\"6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P\",\"type\":null}]",
+          "route_semantics": "INTERMEDIARY",
+          "provenance_digest": "1d46cf9dddc864340333410bc288d9989bef2bbc932af55f24b50ef6c0b9a0de",
+          "first_observed_at": 1792235188,
+          "last_observed_at": 1792235188,
+          "observation_count": 1
+        }
+      ],
+      "funding_account": [],
+      "subprov_registry": [
+        {
+          "subprov": "GGztubnfeeYWxA3VWgnckmuhLuccBEuCDgXHvw4Rekbb",
+          "first_creator": "FMUjW6RMPk37b2fRG7MytRaLXMLGGwJSbH7DerdD9P3W",
+          "creator_count": 1,
+          "treasury": null,
+          "treasury_known": 0,
+          "first_seen": 1788186540,
+          "last_seen": 1788186577,
+          "immediate_funder": null,
+          "funder_is_subprov": 0,
+          "confidence": 0.5,
+          "state": "PROVISION_CANDIDATE",
+          "wrap_close_count": 1,
+          "topup_count": 0,
+          "rejected_reason": null,
+          "buy_swarm_count": 0,
+          "create_count": 0,
+          "buy_swarm_ratio": 0.0,
+          "subprov_type": "UNKNOWN",
+          "seeded_account_count": 0,
+          "discovery_source": null,
+          "funding_mechanism": null
+        }
+      ],
+      "session": [],
+      "fanout_observations": [],
+      "treasury_registry": []
+    },
+    "GxCEZaNR7FPUJq37Zov8tdFWWuwAiEeVqxGykbqNpump": {
+      "groups": [
+        "no_attribution"
+      ],
+      "queue": {
+        "mint": "GxCEZaNR7FPUJq37Zov8tdFWWuwAiEeVqxGykbqNpump",
+        "creator": "8NDEs4AbGHioyciNhTbNAp8pRNXYAbBm2ozjvsMLTGsZ",
+        "subprov": null,
+        "treasury": null,
+        "walkback_class": "FULL_WALKBACK",
+        "attribution_source": "unknown",
+        "status": "complete",
+        "rpc_used": 11,
+        "attempts": 1,
+        "last_error": null,
+        "enqueued_at": 1792244643,
+        "started_at": 1792244695,
+        "completed_at": 1792244697,
+        "updated_at": 1792244697,
+        "intelligence_outcome": "NO_ATTRIBUTION_FOUND",
+        "funder_wallet": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+        "funding_mechanism": "PLAIN_XFER",
+        "funder_amount_sol": 4.0,
+        "funder_sig": "3V6SV8Dwkc8dLPqVPFd3iA1DBNUQAMLx3VwV2YjkoyTY5LBeVV2zAkLYjYUJMMshX3zwXDiYsPQmZc2DbMncMED7",
+        "funder_slot": 458050714,
+        "funder_block_time": 1792243165,
+        "claimed_by": "walkback-73413",
+        "claimed_at": 1792244695,
+        "lease_expires_at": 1792244995,
+        "next_retry_at": null,
+        "path_state": "CLAIMED",
+        "termination_reason_json": null,
+        "create_anchor_signature": "9gQh2VaKCBvWYhxRiHBykJ7gTWDaDQaXUSsuV4SWmRZ5PRV1sJfyvvChUShSCLAMoGijg1fWvUgUhhJfu8rZD9K",
+        "create_anchor_slot": null,
+        "create_anchor_block_time": null,
+        "create_anchor_source": "token_analysis",
+        "create_anchor_audit_state": "VALID",
+        "priority": 0,
+        "priority_reason": null,
+        "anchor_lookup_attempts": 0,
+        "last_anchor_lookup_at": null,
+        "anchor_recovered_at": null,
+        "anchor_recovery_source": null,
+        "anchor_lookup_state": null,
+        "infrastructure_retry_count": 0,
+        "last_infrastructure_error": null
+      },
+      "promotion": [],
+      "membership": [],
+      "ledger": [],
+      "edges": [
+        {
+          "evidence_key": "d96ddac69784ef6d586b273ecaf6409e5506fd1185faa85e717e8659703b4ec5",
+          "mint": "GxCEZaNR7FPUJq37Zov8tdFWWuwAiEeVqxGykbqNpump",
+          "wallet": "8NDEs4AbGHioyciNhTbNAp8pRNXYAbBm2ozjvsMLTGsZ",
+          "candidate_parent": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+          "signature": "3V6SV8Dwkc8dLPqVPFd3iA1DBNUQAMLx3VwV2YjkoyTY5LBeVV2zAkLYjYUJMMshX3zwXDiYsPQmZc2DbMncMED7",
+          "block_time": 1792243165,
+          "amount_lamports": 4000000000,
+          "mechanism": "PLAIN_XFER",
+          "instruction_index": -1,
+          "inner_instruction_index": -1,
+          "pre_balance": null,
+          "post_balance": null,
+          "net_balance_change": null,
+          "anchor_signature": "9gQh2VaKCBvWYhxRiHBykJ7gTWDaDQaXUSsuV4SWmRZ5PRV1sJfyvvChUShSCLAMoGijg1fWvUgUhhJfu8rZD9K",
+          "anchor_block_time": null,
+          "hop_depth": 1,
+          "owner": "",
+          "close_authority": "",
+          "close_destination": "",
+          "temporary_account": "",
+          "evidence_strength": "TRANSACTION_DERIVED",
+          "selection_status": "SELECTED",
+          "rejection_reason": "",
+          "first_observed_at": 1792244695,
+          "last_observed_at": 1792244695,
+          "observation_count": 1
+        }
+      ],
+      "roles": [
+        {
+          "evidence_key": "cef9d5f72e9aed0a49ac5cf2802035ffba429475e51f5bbdb5385cf47e8a1b9a",
+          "projection_version": "transaction-role-v1",
+          "mint": "GxCEZaNR7FPUJq37Zov8tdFWWuwAiEeVqxGykbqNpump",
+          "signature": "3V6SV8Dwkc8dLPqVPFd3iA1DBNUQAMLx3VwV2YjkoyTY5LBeVV2zAkLYjYUJMMshX3zwXDiYsPQmZc2DbMncMED7",
+          "anchor_signature": "9gQh2VaKCBvWYhxRiHBykJ7gTWDaDQaXUSsuV4SWmRZ5PRV1sJfyvvChUShSCLAMoGijg1fWvUgUhhJfu8rZD9K",
+          "transfer_source": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+          "transfer_destination": "8NDEs4AbGHioyciNhTbNAp8pRNXYAbBm2ozjvsMLTGsZ",
+          "transfer_lamports": 4000000000,
+          "fee_payer": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+          "signers_json": "[\"is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV\"]",
+          "outer_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"advanceNonce\"},{\"index\":1,\"parent_index\":1,\"program_id\":\"ComputeBudget111111111111111111111111111111\",\"type\":null},{\"index\":2,\"parent_index\":2,\"program_id\":\"ComputeBudget111111111111111111111111111111\",\"type\":null},{\"index\":3,\"parent_index\":3,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"}]",
+          "inner_shape_json": "[]",
+          "route_semantics": "DIRECT",
+          "provenance_digest": "58a340bf87902fb9114f3205d61b0043add11b9635f805aeac269f37004cc29c",
+          "first_observed_at": 1792244695,
+          "last_observed_at": 1792244695,
+          "observation_count": 1
+        }
+      ],
+      "funding_account": [],
+      "subprov_registry": [
+        {
+          "subprov": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+          "first_creator": "H2Aov47Cdr9EWrMNcYdLAgRcjwuwomJAfAJNreEPAXcJ",
+          "creator_count": 1,
+          "treasury": null,
+          "treasury_known": 0,
+          "first_seen": 1784091610,
+          "last_seen": 1784091613,
+          "immediate_funder": null,
+          "funder_is_subprov": 0,
+          "confidence": 0.5,
+          "state": "REJECTED_INFRASTRUCTURE",
+          "wrap_close_count": 1,
+          "topup_count": 0,
+          "rejected_reason": "KNOWN_INFRASTRUCTURE_REGISTRY_MATCH",
+          "buy_swarm_count": 0,
+          "create_count": 0,
+          "buy_swarm_ratio": 0.0,
+          "subprov_type": "UNKNOWN",
+          "seeded_account_count": 0,
+          "discovery_source": null,
+          "funding_mechanism": null
+        }
+      ],
+      "session": [
+        {
+          "subprov_wallet": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+          "treasury_wallet": "69SNcRC8NqjHBSXEcugCN5oFKRQoKmddmWzZYc3tqtxk",
+          "funding_signature": "12igJ5omUBWyYEnSgXYmob92gvwWAQMUA67ZoLWSRb9LrNSmbfT1odX3ukPoQTyQRaFESS7F65DW7i6WxZRX2x3",
+          "funding_amount": 0.211801133,
+          "funding_time": 1759797459,
+          "subprov_known": 1,
+          "treasury_rotated": 0,
+          "funding_mechanism": "WSOL_WRAP_CLOSE"
+        },
+        {
+          "subprov_wallet": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+          "treasury_wallet": "69SNcRC8NqjHBSXEcugCN5oFKRQoKmddmWzZYc3tqtxk",
+          "funding_signature": "2EEz94jVMzU6LzmV5FYhT13QtELRWJx9F3pjj6eprCMYywipxumyJGnJs5u2dqJP8YbZQdHcQWVf4vKxgGXYMBMD",
+          "funding_amount": 2.000002076,
+          "funding_time": 1782699698,
+          "subprov_known": 1,
+          "treasury_rotated": 0,
+          "funding_mechanism": "WSOL_WRAP_CLOSE"
+        },
+        {
+          "subprov_wallet": "is6MTRHEgyFLNTfYcuV4QBWLjrZBfmhVNYR6ccgr8KV",
+          "treasury_wallet": "EFKVdKPrxMpofZMkPBWNe9Jp3hREmtoMZmNo7yFAMUo5",
+          "funding_signature": "2K5M9LqNJrwva1hobRcK8mySoyQrstM2jp1QgqPfvsYjMHMjt1H6NJEC5ekabarDg6wXFrDp8Dczrmoq5AGB1L5p",
+          "funding_amount": 4.995101,
+          "funding_time": 1783130798,
+          "subprov_known": 0,
+          "treasury_rotated": 0,
+          "funding_mechanism": "WSOL_WRAP_CLOSE"
+        }
+      ],
+      "fanout_observations": []
+    },
+    "AA1GWMNerTmz7bkyeUfiRKYyvhTrUjJXaEaiG3wApump": {
+      "groups": [
+        "no_attribution"
+      ],
+      "queue": {
+        "mint": "AA1GWMNerTmz7bkyeUfiRKYyvhTrUjJXaEaiG3wApump",
+        "creator": "GD54rKjw9UrsyQM6wwa5JdzxWh5TJB5VavzZFaUtdJVt",
+        "subprov": null,
+        "treasury": null,
+        "walkback_class": "FULL_WALKBACK",
+        "attribution_source": "unknown",
+        "status": "complete",
+        "rpc_used": 14,
+        "attempts": 1,
+        "last_error": null,
+        "enqueued_at": 1792244029,
+        "started_at": 1792244059,
+        "completed_at": 1792244061,
+        "updated_at": 1792244061,
+        "intelligence_outcome": "NO_ATTRIBUTION_FOUND",
+        "funder_wallet": "FBK2cgqh9g2Nue2Vp8BFqLjb3TyKZ41tvtowmtcxwWDB",
+        "funding_mechanism": "PLAIN_XFER",
+        "funder_amount_sol": 484.670381,
+        "funder_sig": "5fHe9tTqehmpJedggN8xQzRhsQZybCTAY53MNZHU49hzYLs22xmq7fsFx7urUR7wtAWBZXoRCjppV5wEkaGRZyVr",
+        "funder_slot": 458054312,
+        "funder_block_time": 1792243947,
+        "claimed_by": "walkback-73413",
+        "claimed_at": 1792244059,
+        "lease_expires_at": 1792244359,
+        "next_retry_at": null,
+        "path_state": "CLAIMED",
+        "termination_reason_json": null,
+        "create_anchor_signature": "3Zfx21kkeJ4bckEehv6mXioyNXV1y8DbqaKBRb5nqJehpQsEzeTyQD2JNetVNGMh6au6ttg3rdGdEKApfwLY8R6T",
+        "create_anchor_slot": null,
+        "create_anchor_block_time": null,
+        "create_anchor_source": "token_analysis",
+        "create_anchor_audit_state": "VALID",
+        "priority": 0,
+        "priority_reason": null,
+        "anchor_lookup_attempts": 0,
+        "last_anchor_lookup_at": null,
+        "anchor_recovered_at": null,
+        "anchor_recovery_source": null,
+        "anchor_lookup_state": null,
+        "infrastructure_retry_count": 0,
+        "last_infrastructure_error": null
+      },
+      "promotion": [],
+      "membership": [],
+      "ledger": [],
+      "edges": [
+        {
+          "evidence_key": "ade040f59bbd42bd998069673ac5b73ab3393116766a22ef60da79f508e2d293",
+          "mint": "AA1GWMNerTmz7bkyeUfiRKYyvhTrUjJXaEaiG3wApump",
+          "wallet": "GD54rKjw9UrsyQM6wwa5JdzxWh5TJB5VavzZFaUtdJVt",
+          "candidate_parent": "FBK2cgqh9g2Nue2Vp8BFqLjb3TyKZ41tvtowmtcxwWDB",
+          "signature": "5fHe9tTqehmpJedggN8xQzRhsQZybCTAY53MNZHU49hzYLs22xmq7fsFx7urUR7wtAWBZXoRCjppV5wEkaGRZyVr",
+          "block_time": 1792243947,
+          "amount_lamports": 484670381000,
+          "mechanism": "PLAIN_XFER",
+          "instruction_index": -1,
+          "inner_instruction_index": -1,
+          "pre_balance": null,
+          "post_balance": null,
+          "net_balance_change": null,
+          "anchor_signature": "3Zfx21kkeJ4bckEehv6mXioyNXV1y8DbqaKBRb5nqJehpQsEzeTyQD2JNetVNGMh6au6ttg3rdGdEKApfwLY8R6T",
+          "anchor_block_time": null,
+          "hop_depth": 1,
+          "owner": "",
+          "close_authority": "",
+          "close_destination": "",
+          "temporary_account": "",
+          "evidence_strength": "TRANSACTION_DERIVED",
+          "selection_status": "SELECTED",
+          "rejection_reason": "",
+          "first_observed_at": 1792244060,
+          "last_observed_at": 1792244060,
+          "observation_count": 1
+        }
+      ],
+      "roles": [
+        {
+          "evidence_key": "efb081a38218b83bdb2497c73e1bfddd9d4741d7a754fedaa27309f86a166616",
+          "projection_version": "transaction-role-v1",
+          "mint": "AA1GWMNerTmz7bkyeUfiRKYyvhTrUjJXaEaiG3wApump",
+          "signature": "5fHe9tTqehmpJedggN8xQzRhsQZybCTAY53MNZHU49hzYLs22xmq7fsFx7urUR7wtAWBZXoRCjppV5wEkaGRZyVr",
+          "anchor_signature": "3Zfx21kkeJ4bckEehv6mXioyNXV1y8DbqaKBRb5nqJehpQsEzeTyQD2JNetVNGMh6au6ttg3rdGdEKApfwLY8R6T",
+          "transfer_source": null,
+          "transfer_destination": null,
+          "transfer_lamports": null,
+          "fee_payer": "FBK2cgqh9g2Nue2Vp8BFqLjb3TyKZ41tvtowmtcxwWDB",
+          "signers_json": "[\"FBK2cgqh9g2Nue2Vp8BFqLjb3TyKZ41tvtowmtcxwWDB\",\"8jzy3zfuoU8t17fQ7nwJLdZdLHqvktQDWAqwUDEdvRWf\"]",
+          "outer_shape_json": "[{\"index\":0,\"parent_index\":0,\"program_id\":\"ComputeBudget111111111111111111111111111111\",\"type\":null},{\"index\":1,\"parent_index\":1,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":2,\"parent_index\":2,\"program_id\":\"11111111111111111111111111111111\",\"type\":\"transfer\"},{\"index\":3,\"parent_index\":3,\"program_id\":\"MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr\",\"type\":null}]",
+          "inner_shape_json": "[]",
+          "route_semantics": "INTERMEDIARY",
+          "provenance_digest": "3c01d3766f1e5e24cb20bc6e1c00eb45c92aa9b699f9b7ddc71f26e1257c3be6",
+          "first_observed_at": 1792244060,
+          "last_observed_at": 1792244060,
+          "observation_count": 1
+        }
+      ],
+      "funding_account": [],
+      "subprov_registry": [],
+      "session": [],
+      "fanout_observations": []
+    }
+  },
+  "plans": [
+    {
+      "sql": "select * from wt_watchtower_promotion_outcomes where mint=? order by last_attempted_at desc limit 3",
+      "plan": [
+        "SEARCH wt_watchtower_promotion_outcomes USING INDEX ix_wt_promotion_outcomes_current (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from operator_launch_membership where mint=?",
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator_wallet,create_signature,treasury_wallet,subprov_wallet,wrap_close_signature,create_time,state,funding_mechanism,confidence,creator_extraction_method,fanout_count,detection_source from wt_watchtower_launches where mint=? limit 3",
+      "plan": [
+        "SEARCH wt_watchtower_launches USING INDEX ix_launches_mint (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_walkback_edge_candidates where mint=? order by hop_depth limit 9",
+      "plan": [
+        "SEARCH wt_walkback_edge_candidates USING INDEX ix_wwec_mint_hop (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_walkback_transaction_roles where mint=? limit 5",
+      "plan": [
+        "SEARCH wt_walkback_transaction_roles USING INDEX ix_wwtr_mint (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_provisioning_wallets where mint=?",
+      "plan": [
+        "SEARCH wt_provisioning_wallets USING INDEX sqlite_autoindex_wt_provisioning_wallets_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_discovered_subprovs where subprov=?",
+      "plan": [
+        "SEARCH wt_discovered_subprovs USING INDEX sqlite_autoindex_wt_discovered_subprovs_1 (subprov=?)"
+      ]
+    },
+    {
+      "sql": "select subprov_wallet,treasury_wallet,funding_signature,funding_amount,funding_time,subprov_known,treasury_rotated,funding_mechanism from wt_active_subprov_sessions where subprov_wallet=? limit 3",
+      "plan": [
+        "SEARCH wt_active_subprov_sessions USING INDEX sqlite_autoindex_wt_active_subprov_sessions_1 (subprov_wallet=?)"
+      ]
+    },
+    {
+      "sql": "select candidate_wallet,subprov_wallet,treasury_wallet,wrap_wallet,temp_wsol_account,close_destination,wrap_close_signature,funding_amount,funding_mechanism,subprov_fanout_count_at_capture,state from wt_candidate_websocket_watches where subprov_wallet=? limit 4",
+      "plan": [
+        "SEARCH wt_candidate_websocket_watches USING INDEX ix_wc_subprov_time (subprov_wallet=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_confirmed_treasuries where treasury=?",
+      "plan": [
+        "SEARCH wt_confirmed_treasuries USING INDEX sqlite_autoindex_wt_confirmed_treasuries_1 (treasury=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_watchtower_promotion_outcomes where mint=? order by last_attempted_at desc limit 3",
+      "plan": [
+        "SEARCH wt_watchtower_promotion_outcomes USING INDEX ix_wt_promotion_outcomes_current (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from operator_launch_membership where mint=?",
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator_wallet,create_signature,treasury_wallet,subprov_wallet,wrap_close_signature,create_time,state,funding_mechanism,confidence,creator_extraction_method,fanout_count,detection_source from wt_watchtower_launches where mint=? limit 3",
+      "plan": [
+        "SEARCH wt_watchtower_launches USING INDEX ix_launches_mint (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_walkback_edge_candidates where mint=? order by hop_depth limit 9",
+      "plan": [
+        "SEARCH wt_walkback_edge_candidates USING INDEX ix_wwec_mint_hop (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_walkback_transaction_roles where mint=? limit 5",
+      "plan": [
+        "SEARCH wt_walkback_transaction_roles USING INDEX ix_wwtr_mint (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_provisioning_wallets where mint=?",
+      "plan": [
+        "SEARCH wt_provisioning_wallets USING INDEX sqlite_autoindex_wt_provisioning_wallets_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_discovered_subprovs where subprov=?",
+      "plan": [
+        "SEARCH wt_discovered_subprovs USING INDEX sqlite_autoindex_wt_discovered_subprovs_1 (subprov=?)"
+      ]
+    },
+    {
+      "sql": "select subprov_wallet,treasury_wallet,funding_signature,funding_amount,funding_time,subprov_known,treasury_rotated,funding_mechanism from wt_active_subprov_sessions where subprov_wallet=? limit 3",
+      "plan": [
+        "SEARCH wt_active_subprov_sessions USING INDEX sqlite_autoindex_wt_active_subprov_sessions_1 (subprov_wallet=?)"
+      ]
+    },
+    {
+      "sql": "select candidate_wallet,subprov_wallet,treasury_wallet,wrap_wallet,temp_wsol_account,close_destination,wrap_close_signature,funding_amount,funding_mechanism,subprov_fanout_count_at_capture,state from wt_candidate_websocket_watches where subprov_wallet=? limit 4",
+      "plan": [
+        "SEARCH wt_candidate_websocket_watches USING INDEX ix_wc_subprov_time (subprov_wallet=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_watchtower_promotion_outcomes where mint=? order by last_attempted_at desc limit 3",
+      "plan": [
+        "SEARCH wt_watchtower_promotion_outcomes USING INDEX ix_wt_promotion_outcomes_current (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from operator_launch_membership where mint=?",
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator_wallet,create_signature,treasury_wallet,subprov_wallet,wrap_close_signature,create_time,state,funding_mechanism,confidence,creator_extraction_method,fanout_count,detection_source from wt_watchtower_launches where mint=? limit 3",
+      "plan": [
+        "SEARCH wt_watchtower_launches USING INDEX ix_launches_mint (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_walkback_edge_candidates where mint=? order by hop_depth limit 9",
+      "plan": [
+        "SEARCH wt_walkback_edge_candidates USING INDEX ix_wwec_mint_hop (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_walkback_transaction_roles where mint=? limit 5",
+      "plan": [
+        "SEARCH wt_walkback_transaction_roles USING INDEX ix_wwtr_mint (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_provisioning_wallets where mint=?",
+      "plan": [
+        "SEARCH wt_provisioning_wallets USING INDEX sqlite_autoindex_wt_provisioning_wallets_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_discovered_subprovs where subprov=?",
+      "plan": [
+        "SEARCH wt_discovered_subprovs USING INDEX sqlite_autoindex_wt_discovered_subprovs_1 (subprov=?)"
+      ]
+    },
+    {
+      "sql": "select subprov_wallet,treasury_wallet,funding_signature,funding_amount,funding_time,subprov_known,treasury_rotated,funding_mechanism from wt_active_subprov_sessions where subprov_wallet=? limit 3",
+      "plan": [
+        "SEARCH wt_active_subprov_sessions USING INDEX sqlite_autoindex_wt_active_subprov_sessions_1 (subprov_wallet=?)"
+      ]
+    },
+    {
+      "sql": "select candidate_wallet,subprov_wallet,treasury_wallet,wrap_wallet,temp_wsol_account,close_destination,wrap_close_signature,funding_amount,funding_mechanism,subprov_fanout_count_at_capture,state from wt_candidate_websocket_watches where subprov_wallet=? limit 4",
+      "plan": [
+        "SEARCH wt_candidate_websocket_watches USING INDEX ix_wc_subprov_time (subprov_wallet=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_watchtower_promotion_outcomes where mint=? order by last_attempted_at desc limit 3",
+      "plan": [
+        "SEARCH wt_watchtower_promotion_outcomes USING INDEX ix_wt_promotion_outcomes_current (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from operator_launch_membership where mint=?",
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator_wallet,create_signature,treasury_wallet,subprov_wallet,wrap_close_signature,create_time,state,funding_mechanism,confidence,creator_extraction_method,fanout_count,detection_source from wt_watchtower_launches where mint=? limit 3",
+      "plan": [
+        "SEARCH wt_watchtower_launches USING INDEX ix_launches_mint (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_walkback_edge_candidates where mint=? order by hop_depth limit 9",
+      "plan": [
+        "SEARCH wt_walkback_edge_candidates USING INDEX ix_wwec_mint_hop (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_walkback_transaction_roles where mint=? limit 5",
+      "plan": [
+        "SEARCH wt_walkback_transaction_roles USING INDEX ix_wwtr_mint (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_provisioning_wallets where mint=?",
+      "plan": [
+        "SEARCH wt_provisioning_wallets USING INDEX sqlite_autoindex_wt_provisioning_wallets_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_discovered_subprovs where subprov=?",
+      "plan": [
+        "SEARCH wt_discovered_subprovs USING INDEX sqlite_autoindex_wt_discovered_subprovs_1 (subprov=?)"
+      ]
+    },
+    {
+      "sql": "select subprov_wallet,treasury_wallet,funding_signature,funding_amount,funding_time,subprov_known,treasury_rotated,funding_mechanism from wt_active_subprov_sessions where subprov_wallet=? limit 3",
+      "plan": [
+        "SEARCH wt_active_subprov_sessions USING INDEX sqlite_autoindex_wt_active_subprov_sessions_1 (subprov_wallet=?)"
+      ]
+    },
+    {
+      "sql": "select candidate_wallet,subprov_wallet,treasury_wallet,wrap_wallet,temp_wsol_account,close_destination,wrap_close_signature,funding_amount,funding_mechanism,subprov_fanout_count_at_capture,state from wt_candidate_websocket_watches where subprov_wallet=? limit 4",
+      "plan": [
+        "SEARCH wt_candidate_websocket_watches USING INDEX ix_wc_subprov_time (subprov_wallet=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_watchtower_promotion_outcomes where mint=? order by last_attempted_at desc limit 3",
+      "plan": [
+        "SEARCH wt_watchtower_promotion_outcomes USING INDEX ix_wt_promotion_outcomes_current (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from operator_launch_membership where mint=?",
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator_wallet,create_signature,treasury_wallet,subprov_wallet,wrap_close_signature,create_time,state,funding_mechanism,confidence,creator_extraction_method,fanout_count,detection_source from wt_watchtower_launches where mint=? limit 3",
+      "plan": [
+        "SEARCH wt_watchtower_launches USING INDEX ix_launches_mint (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_walkback_edge_candidates where mint=? order by hop_depth limit 9",
+      "plan": [
+        "SEARCH wt_walkback_edge_candidates USING INDEX ix_wwec_mint_hop (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_walkback_transaction_roles where mint=? limit 5",
+      "plan": [
+        "SEARCH wt_walkback_transaction_roles USING INDEX ix_wwtr_mint (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_provisioning_wallets where mint=?",
+      "plan": [
+        "SEARCH wt_provisioning_wallets USING INDEX sqlite_autoindex_wt_provisioning_wallets_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_discovered_subprovs where subprov=?",
+      "plan": [
+        "SEARCH wt_discovered_subprovs USING INDEX sqlite_autoindex_wt_discovered_subprovs_1 (subprov=?)"
+      ]
+    },
+    {
+      "sql": "select subprov_wallet,treasury_wallet,funding_signature,funding_amount,funding_time,subprov_known,treasury_rotated,funding_mechanism from wt_active_subprov_sessions where subprov_wallet=? limit 3",
+      "plan": [
+        "SEARCH wt_active_subprov_sessions USING INDEX sqlite_autoindex_wt_active_subprov_sessions_1 (subprov_wallet=?)"
+      ]
+    },
+    {
+      "sql": "select candidate_wallet,subprov_wallet,treasury_wallet,wrap_wallet,temp_wsol_account,close_destination,wrap_close_signature,funding_amount,funding_mechanism,subprov_fanout_count_at_capture,state from wt_candidate_websocket_watches where subprov_wallet=? limit 4",
+      "plan": [
+        "SEARCH wt_candidate_websocket_watches USING INDEX ix_wc_subprov_time (subprov_wallet=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_confirmed_treasuries where treasury=?",
+      "plan": [
+        "SEARCH wt_confirmed_treasuries USING INDEX sqlite_autoindex_wt_confirmed_treasuries_1 (treasury=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_watchtower_promotion_outcomes where mint=? order by last_attempted_at desc limit 3",
+      "plan": [
+        "SEARCH wt_watchtower_promotion_outcomes USING INDEX ix_wt_promotion_outcomes_current (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from operator_launch_membership where mint=?",
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator_wallet,create_signature,treasury_wallet,subprov_wallet,wrap_close_signature,create_time,state,funding_mechanism,confidence,creator_extraction_method,fanout_count,detection_source from wt_watchtower_launches where mint=? limit 3",
+      "plan": [
+        "SEARCH wt_watchtower_launches USING INDEX ix_launches_mint (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_walkback_edge_candidates where mint=? order by hop_depth limit 9",
+      "plan": [
+        "SEARCH wt_walkback_edge_candidates USING INDEX ix_wwec_mint_hop (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_walkback_transaction_roles where mint=? limit 5",
+      "plan": [
+        "SEARCH wt_walkback_transaction_roles USING INDEX ix_wwtr_mint (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_provisioning_wallets where mint=?",
+      "plan": [
+        "SEARCH wt_provisioning_wallets USING INDEX sqlite_autoindex_wt_provisioning_wallets_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_discovered_subprovs where subprov=?",
+      "plan": [
+        "SEARCH wt_discovered_subprovs USING INDEX sqlite_autoindex_wt_discovered_subprovs_1 (subprov=?)"
+      ]
+    },
+    {
+      "sql": "select subprov_wallet,treasury_wallet,funding_signature,funding_amount,funding_time,subprov_known,treasury_rotated,funding_mechanism from wt_active_subprov_sessions where subprov_wallet=? limit 3",
+      "plan": [
+        "SEARCH wt_active_subprov_sessions USING INDEX sqlite_autoindex_wt_active_subprov_sessions_1 (subprov_wallet=?)"
+      ]
+    },
+    {
+      "sql": "select candidate_wallet,subprov_wallet,treasury_wallet,wrap_wallet,temp_wsol_account,close_destination,wrap_close_signature,funding_amount,funding_mechanism,subprov_fanout_count_at_capture,state from wt_candidate_websocket_watches where subprov_wallet=? limit 4",
+      "plan": [
+        "SEARCH wt_candidate_websocket_watches USING INDEX ix_wc_subprov_time (subprov_wallet=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_watchtower_promotion_outcomes where mint=? order by last_attempted_at desc limit 3",
+      "plan": [
+        "SEARCH wt_watchtower_promotion_outcomes USING INDEX ix_wt_promotion_outcomes_current (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from operator_launch_membership where mint=?",
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select mint,creator_wallet,create_signature,treasury_wallet,subprov_wallet,wrap_close_signature,create_time,state,funding_mechanism,confidence,creator_extraction_method,fanout_count,detection_source from wt_watchtower_launches where mint=? limit 3",
+      "plan": [
+        "SEARCH wt_watchtower_launches USING INDEX ix_launches_mint (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_walkback_edge_candidates where mint=? order by hop_depth limit 9",
+      "plan": [
+        "SEARCH wt_walkback_edge_candidates USING INDEX ix_wwec_mint_hop (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_walkback_transaction_roles where mint=? limit 5",
+      "plan": [
+        "SEARCH wt_walkback_transaction_roles USING INDEX ix_wwtr_mint (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_provisioning_wallets where mint=?",
+      "plan": [
+        "SEARCH wt_provisioning_wallets USING INDEX sqlite_autoindex_wt_provisioning_wallets_1 (mint=?)"
+      ]
+    },
+    {
+      "sql": "select * from wt_discovered_subprovs where subprov=?",
+      "plan": [
+        "SEARCH wt_discovered_subprovs USING INDEX sqlite_autoindex_wt_discovered_subprovs_1 (subprov=?)"
+      ]
+    },
+    {
+      "sql": "select subprov_wallet,treasury_wallet,funding_signature,funding_amount,funding_time,subprov_known,treasury_rotated,funding_mechanism from wt_active_subprov_sessions where subprov_wallet=? limit 3",
+      "plan": [
+        "SEARCH wt_active_subprov_sessions USING INDEX sqlite_autoindex_wt_active_subprov_sessions_1 (subprov_wallet=?)"
+      ]
+    },
+    {
+      "sql": "select candidate_wallet,subprov_wallet,treasury_wallet,wrap_wallet,temp_wsol_account,close_destination,wrap_close_signature,funding_amount,funding_mechanism,subprov_fanout_count_at_capture,state from wt_candidate_websocket_watches where subprov_wallet=? limit 4",
+      "plan": [
+        "SEARCH wt_candidate_websocket_watches USING INDEX ix_wc_subprov_time (subprov_wallet=?)"
+      ]
+    }
+  ]
+}

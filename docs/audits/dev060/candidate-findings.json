@@ -1,0 +1,288 @@
+[
+  {
+    "mint": "HYSnHe719YFudUdQft6QePedYes5rVyAyNrUM8dqpump",
+    "group": [
+      "confirmed"
+    ],
+    "classification": "NO_QUALIFIED_WATCHTOWER_ROUTE",
+    "first_evidence_boundary": "First membership gate FUNDING_MECHANISM_MISMATCH; queue label insufficient",
+    "queue_outcome": "WATCHTOWER_CONFIRMED",
+    "mechanism": "PLAIN_XFER",
+    "rpc_used": 3
+  },
+  {
+    "mint": "LoydYZwX6EWqTHsuiYYQXtQgY1GE3NGYuwaabwjpump",
+    "group": [
+      "confirmed"
+    ],
+    "classification": "INSUFFICIENT_EVIDENCE",
+    "first_evidence_boundary": "Treasury-role conflict rejects before projection; separateFundingAccount/fanout and bridge proof incomplete; no false rejection proven",
+    "queue_outcome": "WATCHTOWER_CONFIRMED",
+    "mechanism": "WSOL_WRAP_CLOSE",
+    "rpc_used": 27
+  },
+  {
+    "mint": "ip623MjNNPmgNUiGYjmtRrAZs3EmTbDJgbCzrnYpump",
+    "group": [
+      "confirmed"
+    ],
+    "classification": "INSUFFICIENT_EVIDENCE",
+    "first_evidence_boundary": "Treasury-role conflict rejects before projection; separateFundingAccount/fanout and bridge proof incomplete; no false rejection proven",
+    "queue_outcome": "WATCHTOWER_CONFIRMED",
+    "mechanism": "WSOL_WRAP_CLOSE",
+    "rpc_used": 23
+  },
+  {
+    "mint": "RBgEki8XNdpx6xB9ozWsMcKpqTasjvgH6riqRzHpump",
+    "group": [
+      "confirmed"
+    ],
+    "classification": "INSUFFICIENT_EVIDENCE",
+    "first_evidence_boundary": "Treasury-role conflict rejects before projection; separateFundingAccount/fanout and bridge proof incomplete; no false rejection proven",
+    "queue_outcome": "WATCHTOWER_CONFIRMED",
+    "mechanism": "WSOL_WRAP_CLOSE",
+    "rpc_used": 24
+  },
+  {
+    "mint": "Ei6z97gFFVqfoMu4oswbSViBuBSh4fJDrd2ZMpSMpump",
+    "group": [
+      "confirmed"
+    ],
+    "classification": "REGISTRY_LABEL_FALSE_CONFIRMATION",
+    "first_evidence_boundary": "First membership gate FUNDING_MECHANISM_MISMATCH; queue label insufficient",
+    "queue_outcome": "WATCHTOWER_CONFIRMED",
+    "mechanism": "PLAIN_XFER",
+    "rpc_used": 3
+  },
+  {
+    "mint": "CjtwB9XL59Y8sgApovHGrryzUHYxTE33fZnSLLsKpump",
+    "group": [
+      "confirmed"
+    ],
+    "classification": "REGISTRY_LABEL_FALSE_CONFIRMATION",
+    "first_evidence_boundary": "First membership gate FUNDING_MECHANISM_MISMATCH; queue label insufficient",
+    "queue_outcome": "WATCHTOWER_CONFIRMED",
+    "mechanism": "PLAIN_XFER",
+    "rpc_used": 3
+  },
+  {
+    "mint": "GzDuFXiViWWN6ELoDRGH5QV6HFfjrmy69oxhmdiGpump",
+    "group": [
+      "confirmed"
+    ],
+    "classification": "REGISTRY_LABEL_FALSE_CONFIRMATION",
+    "first_evidence_boundary": "First membership gate FUNDING_MECHANISM_MISMATCH; queue label insufficient",
+    "queue_outcome": "WATCHTOWER_CONFIRMED",
+    "mechanism": "PLAIN_XFER",
+    "rpc_used": 3
+  },
+  {
+    "mint": "HdvuSVpXfpdhQx7c2J76DuzcaUvfJnuXqcHimcZcpump",
+    "group": [
+      "confirmed"
+    ],
+    "classification": "NO_QUALIFIED_WATCHTOWER_ROUTE",
+    "first_evidence_boundary": "First membership gate FUNDING_MECHANISM_MISMATCH; queue label insufficient",
+    "queue_outcome": "WATCHTOWER_CONFIRMED",
+    "mechanism": "PLAIN_XFER",
+    "rpc_used": 3
+  },
+  {
+    "mint": "BSNfupWif2at8PsnTUm123vafPeUoZqr9H4sYYD8pump",
+    "group": [
+      "confirmed"
+    ],
+    "classification": "NO_QUALIFIED_WATCHTOWER_ROUTE",
+    "first_evidence_boundary": "First membership gate FUNDING_MECHANISM_MISMATCH; queue label insufficient",
+    "queue_outcome": "WATCHTOWER_CONFIRMED",
+    "mechanism": "PLAIN_XFER",
+    "rpc_used": 3
+  },
+  {
+    "mint": "3LCLQxuvU9kNcY5VV7ujwqDpfGaVtnSEpSkYokpMpump",
+    "group": [
+      "confirmed"
+    ],
+    "classification": "NO_QUALIFIED_WATCHTOWER_ROUTE",
+    "first_evidence_boundary": "First membership gate FUNDING_MECHANISM_MISMATCH; queue label insufficient",
+    "queue_outcome": "WATCHTOWER_CONFIRMED",
+    "mechanism": "PLAIN_XFER",
+    "rpc_used": 3
+  },
+  {
+    "mint": "Ht3Ct27dNu6wpYHAuxLMnv4amrCTMtQ1FJchT3Kmpump",
+    "group": [
+      "confirmed"
+    ],
+    "classification": "NO_QUALIFIED_WATCHTOWER_ROUTE",
+    "first_evidence_boundary": "First membership gate FUNDING_MECHANISM_MISMATCH; queue label insufficient",
+    "queue_outcome": "WATCHTOWER_CONFIRMED",
+    "mechanism": "PLAIN_XFER",
+    "rpc_used": 3
+  },
+  {
+    "mint": "D7gDjeXBKT3p3Qs5kVUGD7KrntPsJW4kJLnXHMSpump",
+    "group": [
+      "confirmed"
+    ],
+    "classification": "INSUFFICIENT_EVIDENCE",
+    "first_evidence_boundary": "Treasury-role conflict rejects before projection; separateFundingAccount/fanout and bridge proof incomplete; no false rejection proven",
+    "queue_outcome": "WATCHTOWER_CONFIRMED",
+    "mechanism": "WSOL_WRAP_CLOSE",
+    "rpc_used": 26
+  },
+  {
+    "mint": "ZSQhojF6qe6jhJggETrimLCgVePzLCoAwkPJaTHpump",
+    "group": [
+      "confirmed"
+    ],
+    "classification": "INSUFFICIENT_EVIDENCE",
+    "first_evidence_boundary": "Treasury-role conflict rejects before projection; separateFundingAccount/fanout and bridge proof incomplete; no false rejection proven",
+    "queue_outcome": "WATCHTOWER_CONFIRMED",
+    "mechanism": "WSOL_WRAP_CLOSE",
+    "rpc_used": 24
+  },
+  {
+    "mint": "BYY9699AuAArjVfiBBUaUYtvs1Eiv8MmjUyJ1mMDpons",
+    "group": [
+      "confirmed"
+    ],
+    "classification": "NO_QUALIFIED_WATCHTOWER_ROUTE",
+    "first_evidence_boundary": "First membership gate FUNDING_MECHANISM_MISMATCH; queue label insufficient",
+    "queue_outcome": "WATCHTOWER_CONFIRMED",
+    "mechanism": "PLAIN_XFER",
+    "rpc_used": 3
+  },
+  {
+    "mint": "Fyxfj2E3LFJvg7ELPEqJCAuHeQzRmFpwfBJXE5D4pump",
+    "group": [
+      "confirmed"
+    ],
+    "classification": "NO_QUALIFIED_WATCHTOWER_ROUTE",
+    "first_evidence_boundary": "First membership gate FUNDING_MECHANISM_MISMATCH; queue label insufficient",
+    "queue_outcome": "WATCHTOWER_CONFIRMED",
+    "mechanism": "PLAIN_XFER",
+    "rpc_used": 3
+  },
+  {
+    "mint": "4FMSyEXUnXPJq7wKBVScRrCaYWPdDUNcqeuJuhC7pump",
+    "group": [
+      "confirmed"
+    ],
+    "classification": "NO_QUALIFIED_WATCHTOWER_ROUTE",
+    "first_evidence_boundary": "First membership gate FUNDING_MECHANISM_MISMATCH; queue label insufficient",
+    "queue_outcome": "WATCHTOWER_CONFIRMED",
+    "mechanism": "PLAIN_XFER",
+    "rpc_used": 3
+  },
+  {
+    "mint": "2fDAjAjyvCFATm5ERrJnyqqcqiZ9akV9vEFZLLGfpump",
+    "group": [
+      "historical"
+    ],
+    "classification": "HISTORICALLY_ADMITTED_CONTROL",
+    "first_evidence_boundary": "Preserve accepted membership; not complete independent replay proof",
+    "queue_outcome": "WATCHTOWER_CONFIRMED",
+    "mechanism": "WSOL_WRAP_CLOSE",
+    "rpc_used": 9
+  },
+  {
+    "mint": "EHFJLG7CbNnnuPHXHNtdeWfRQ3UFwBfBZRe11hnppump",
+    "group": [
+      "historical"
+    ],
+    "classification": "HISTORICALLY_ADMITTED_CONTROL",
+    "first_evidence_boundary": "Preserve accepted membership; not complete independent replay proof",
+    "queue_outcome": "WATCHTOWER_CONFIRMED",
+    "mechanism": "WSOL_WRAP_CLOSE",
+    "rpc_used": 11
+  },
+  {
+    "mint": "DNtZMNDZ65hAJbJXRiP9NnV98ZTrwLTEJZ78fWKCpump",
+    "group": [
+      "historical"
+    ],
+    "classification": "HISTORICALLY_ADMITTED_CONTROL",
+    "first_evidence_boundary": "Preserve accepted membership; not complete independent replay proof",
+    "queue_outcome": "WATCHTOWER_CONFIRMED",
+    "mechanism": "WSOL_WRAP_CLOSE",
+    "rpc_used": 11
+  },
+  {
+    "mint": "4hitw2qrw8vZa7Z9j1H4oDBPyvzD2XK1LZKHnLtJpump",
+    "group": [
+      "recent_wsol"
+    ],
+    "classification": "INSUFFICIENT_EVIDENCE",
+    "first_evidence_boundary": "Retained full independent topology not established",
+    "queue_outcome": "LINEAGE_GAP",
+    "mechanism": "WSOL_WRAP_CLOSE",
+    "rpc_used": 5
+  },
+  {
+    "mint": "UrG7yCCJFJJXvxJy7mfYvP46xuywceVHmfMhGAtpump",
+    "group": [
+      "recent_wsol"
+    ],
+    "classification": "ARCHIVAL_EVIDENCE_GAP",
+    "first_evidence_boundary": "No recovered parent beyond retained hop2; provider archival vs bounded lookup failure not distinguishable",
+    "queue_outcome": "LINEAGE_GAP",
+    "mechanism": "WSOL_WRAP_CLOSE",
+    "rpc_used": 26
+  },
+  {
+    "mint": "3p5ytAsA2Bkw6AefJ4ny4UaQd5pxVZmjwuSGQXjupump",
+    "group": [
+      "recent_wsol"
+    ],
+    "classification": "NO_QUALIFIED_WATCHTOWER_ROUTE",
+    "first_evidence_boundary": "Retained funding cycle; no independent qualified root reached",
+    "queue_outcome": "LINEAGE_GAP",
+    "mechanism": "WSOL_WRAP_CLOSE",
+    "rpc_used": 26
+  },
+  {
+    "mint": "BF7RBi4Z9zmumCN3Ai6cHoLuPwdjiTCNFcp3T8cFpump",
+    "group": [
+      "recent_wsol"
+    ],
+    "classification": "INSUFFICIENT_EVIDENCE",
+    "first_evidence_boundary": "Retained full independent topology not established",
+    "queue_outcome": "LINEAGE_GAP",
+    "mechanism": "WSOL_WRAP_CLOSE",
+    "rpc_used": 12
+  },
+  {
+    "mint": "4gUDKqmY7q1khHYRQjxfub2CHdpDRTMSsT4hgEs9pump",
+    "group": [
+      "recent_wsol"
+    ],
+    "classification": "INSUFFICIENT_EVIDENCE",
+    "first_evidence_boundary": "Retained full independent topology not established",
+    "queue_outcome": "LINEAGE_GAP",
+    "mechanism": "WSOL_WRAP_CLOSE",
+    "rpc_used": 7
+  },
+  {
+    "mint": "GxCEZaNR7FPUJq37Zov8tdFWWuwAiEeVqxGykbqNpump",
+    "group": [
+      "no_attribution"
+    ],
+    "classification": "INSUFFICIENT_EVIDENCE",
+    "first_evidence_boundary": "Retained full independent topology not established",
+    "queue_outcome": "NO_ATTRIBUTION_FOUND",
+    "mechanism": "PLAIN_XFER",
+    "rpc_used": 11
+  },
+  {
+    "mint": "AA1GWMNerTmz7bkyeUfiRKYyvhTrUjJXaEaiG3wApump",
+    "group": [
+      "no_attribution"
+    ],
+    "classification": "INSUFFICIENT_EVIDENCE",
+    "first_evidence_boundary": "Retained full independent topology not established",
+    "queue_outcome": "NO_ATTRIBUTION_FOUND",
+    "mechanism": "PLAIN_XFER",
+    "rpc_used": 14
+  }
+]

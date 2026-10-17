@@ -1,0 +1,14 @@
+import pathlib,json,sqlite3,time
+E=pathlib.Path('/Users/kevinkeaveney/Dev/claude/flex-development/DEV060/source/docs/audits/dev060');p=json.load(open(E/'executed-population.json'));c=sqlite3.connect('file:/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db?mode=ro',uri=True);c.row_factory=sqlite3.Row;c.execute("attach database 'file:/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db?mode=ro' as ops");c.execute('pragma query_only=on');out={}
+def q(name,sql,args,cap):
+ plan=[r[3] for r in c.execute('explain query plan '+sql,args)];t=time.monotonic();c.set_progress_handler(lambda:int(time.monotonic()-t>2),1000)
+ try:out[name]={'rows':[dict(r) for r in c.execute(sql,args).fetchmany(cap)],'latency_ms':round((time.monotonic()-t)*1000,3),'plan':plan}
+ except sqlite3.Error as e:out[name]={'status':'UNKNOWN_DEADLINE','reason':str(e),'plan':plan}
+base='from token_analysis t INDEXED BY idx_psi0a_token_analysis_migrated_mint CROSS JOIN ops.wt_walkback_queue q ON q.mint=t.mint where t.migrated_at>=? and t.migrated_at<? and q.started_at>=? and q.attempts>0 and q.status=\'complete\''
+a=(p['cutoff_epoch'],p['now_epoch'],p['cutoff_epoch'])
+q('migration_cohort_decisions','select q.intelligence_outcome,count(*) count,min(q.completed_at) first_completed,max(q.completed_at) latest_completed '+base+' group by q.intelligence_outcome',a,20)
+q('recent_wsol','select q.* '+base+" and q.funding_mechanism='WSOL_WRAP_CLOSE' order by t.migrated_at desc limit 5",a,5)
+q('recent_noattr','select q.* '+base+" and q.intelligence_outcome='NO_ATTRIBUTION_FOUND' order by t.migrated_at desc limit 2",a,2)
+c.close();(E/'refined-indexed-sample.json').write_text(json.dumps({'reason':'Earlier diagnostic planner chose queue status first and exceeded deadline. CROSS JOIN fixes diagnostic driver to canonical indexed migrationtime; no runtime/query implementation change.','observations':out},indent=2)+'\n');print(json.dumps({k:([{z:r[z] for z in ['intelligence_outcome','count','first_completed','latest_completed']} for r in v['rows']] if k=='migration_cohort_decisions' and 'rows' in v else [r['mint'] for r in v.get('rows',[])]) for k,v in out.items()}))
+# Persist revised sampling references for existing bounded route reader, preserving original evidencefile.
+p['recent_wsol_max5']=out['recent_wsol'];p['recent_noattribution_max2']=out['recent_noattr'];(E/'refined-population-for-routes.json').write_text(json.dumps(p,indent=2)+'\n')

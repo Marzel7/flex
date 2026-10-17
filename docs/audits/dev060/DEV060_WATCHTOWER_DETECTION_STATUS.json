@@ -1,0 +1,194 @@
+{
+  "DEV060_WATCHTOWER_DETECTION_STATUS": "PARTIAL \u2014 executed detection/admission boundaries identified; no complete qualified false negative established",
+  "POST_OCT10_MIGRATION_POPULATION": {
+    "cutoff": "2026-10-10T00:00:00Z",
+    "now_epoch": 1792246371,
+    "counts": {
+      "rows": [
+        {
+          "migrated": 7409,
+          "handoffs": 7396,
+          "completed_handoffs": 7396,
+          "queued": 7396,
+          "waiting": 2731,
+          "retained_valid_anchor": 4665,
+          "executed": 4563,
+          "executed_complete": 4563,
+          "executed_failed_retry_pending": 0,
+          "pending_unexecuted": 0
+        }
+      ],
+      "latency_ms": 1211.06
+    },
+    "deduplication": "CoremintPK migrationcohort [cutoff,now), leftjoined uniquequeue/handoffmintPK; migrationtime distinct fromexecution/admission time. Unknown/missingqueuerows not treated as failedexecutions.",
+    "scope_limit": "Read-only existingmigrationtimestamp/PKindexes,2squerydeadlines; not an entirequeueexecution census."
+  },
+  "POST_OCT10_EXECUTED_WALKBACK": {
+    "migration_cohort_executed": 4563,
+    "completed": 4563,
+    "failed_retry_pending": 0,
+    "pending_unexecuted": 0,
+    "definition": "started_at>=Oct10 and attempts>0, statuscomplete fordecisions; zeroRPC LINK_ONLY recordswithoutclaim excluded. Within this definedmigrationcohort only.",
+    "global_time_cohort": {
+      "status": "UNKNOWN_UNINDEXED_NOT_EXECUTED",
+      "plan": [
+        "SCAN ops.wt_walkback_queue"
+      ]
+    },
+    "meaning": "started_at lacks supportingindex; fullglobalcountUNKNOWN ratherthan unindexedscan. Earliermigrations executedafterOct10 mayexist outsidecount."
+  },
+  "POST_OCT10_DECISION_COUNTS": {
+    "migration_cohort": {
+      "rows": [
+        {
+          "intelligence_outcome": "LINEAGE_GAP",
+          "count": 3219,
+          "first_completed": 1791590641,
+          "latest_completed": 1792246249
+        },
+        {
+          "intelligence_outcome": "NO_ATTRIBUTION_FOUND",
+          "count": 1318,
+          "first_completed": 1791590550,
+          "latest_completed": 1792244697
+        },
+        {
+          "intelligence_outcome": "WATCHTOWER_CONFIRMED",
+          "count": 26,
+          "first_completed": 1791599094,
+          "latest_completed": 1792182501
+        }
+      ],
+      "latency_ms": 708.962,
+      "plan": [
+        "SEARCH t USING COVERING INDEX idx_psi0a_token_analysis_migrated_mint (migrated_at>? AND migrated_at<?)",
+        "SEARCH q USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?)",
+        "USE TEMP B-TREE FOR GROUP BY"
+      ]
+    },
+    "retained_actual_outcomes": [
+      {
+        "outcome": "LINEAGE_GAP",
+        "count": 3219
+      },
+      {
+        "outcome": "NO_ATTRIBUTION_FOUND",
+        "count": 1318
+      },
+      {
+        "outcome": "WATCHTOWER_CONFIRMED",
+        "count": 26
+      }
+    ],
+    "time_authority": "First/latest completed_at from each observed completeexecuted outcome. Exact epochs inrefined-indexed-sample.json. These3sum4563withincohort. No inventedzero for ROUTE_EVIDENCE_INCOMPLETE/TREASURY_EVIDENCE_CONFLICT: those occur downstreamadmission, not necessarilyqueue labels.",
+    "diagnostic_correction": "Original queue-first joinplan timedout; final read-only CROSSJOIN drives indexedmigrationrange and queuePK,samecohortsemantics. No runtimequerychange. Perlabelqueuecount variantsalso hitdeadlines, preservedasUNKNOWN; no timeoutincrease."
+  },
+  "WATCHTOWER_CONFIRMATIONS": {
+    "global_indexed_label_count": {
+      "rows": [
+        {
+          "count": 26,
+          "first_started": 1791599093,
+          "latest_started": 1792182500
+        }
+      ],
+      "latency_ms": 404.585
+    },
+    "bounded_sample": "16latest actualexecutedWATCHTOWER_CONFIRMED sinceOct10; all16traced. 10additionalconfirmedrecords outside detailedsample, not globally certified or treatedasfalse.",
+    "sample_rejections": {
+      "FUNDING_MECHANISM_MISMATCH": 11,
+      "TREASURY_EVIDENCE_CONFLICT": 5
+    },
+    "sample_memberships": 0,
+    "promotion_vs_membership": "Ledgerrow canexist despite durablemembershiprejection; ledgerprojection is not canonicalmembership authority. Allselected16 retainedrejection evidence beforecanonicalprojection.",
+    "last_canonical_membership": {
+      "rows": [
+        {
+          "count": 616,
+          "last_assigned": 1791635260
+        }
+      ],
+      "latency_ms": 0.385
+    },
+    "after_last_1791635260": {
+      "rows": [],
+      "latency_ms": 0.141
+    },
+    "date": "Last1791635260=2026-10-10T12:27:40Z; sinceOct10midnight populationincludesvalidOct10admissions, so26confirmations doesnotmean26failures afterlastmembership."
+  },
+  "ADMISSION_REJECTIONS": {
+    "first_failed_transition": "project_watchtower_confirmed_membership -> validate_role_normalized_queue_funding_route beforemembershipcommit. 11fundingmechanismmismatch,5treasuryconflict in16sample.",
+    "11_plain": "PLAIN_XFER cannot satisfy existingWSOLroute requirement. Known3F7p3negativecontrols retain unsupportedcacheassociation; admissionblocks them. No relaxation justified.",
+    "5_wsol": "Queue treasury differs from immediateprovisioning-sessiontreasury; validationaccepts a retaineddirectrole-distinguishing edge only. RecordedTREASURY_EVIDENCE_CONFLICT. Directbridge table has no usableindex, so exactbridgeauditsNOTEXECUTED; not falselyreportedabsent. Durable rejection plus source defines historicaldecision, not independently completecurrentfalse-rejectionproof.",
+    "later_checks": "Validatorreturns atfirstfailure. NULL creator/subprov/roleflags inpromotionrecords are unexecuted/unknown, not passes or additionalfailures. Sessioncreator/subprov sourcefields retained forcomparison.",
+    "outbox": "Selected16rejectedbeforecanonicalmembershipwrite, so qualifiedmembership/outbox delivery not reached. canonicaloutbox lacks mintindex; no rawfullscan. No admittedafterlastmembershipidentity found to traceAPI/UI; UI propagationNOT_APPLICABLE toclaimednewmembership, no UIlossasserted.",
+    "generic_admission": "LegacyWatchtower promotionoutcomes are actualdecisionauthorityhere; genericoperation-admissiontable not substituted as equivalent."
+  },
+  "RECENT_WSOL_ROUTES": {
+    "sample": [
+      "4hitw2qrw8vZa7Z9j1H4oDBPyvzD2XK1LZKHnLtJpump",
+      "UrG7yCCJFJJXvxJy7mfYvP46xuywceVHmfMhGAtpump",
+      "3p5ytAsA2Bkw6AefJ4ny4UaQd5pxVZmjwuSGQXjupump",
+      "BF7RBi4Z9zmumCN3Ai6cHoLuPwdjiTCNFcp3T8cFpump",
+      "4gUDKqmY7q1khHYRQjxfub2CHdpDRTMSsT4hgEs9pump",
+      "GxCEZaNR7FPUJq37Zov8tdFWWuwAiEeVqxGykbqNpump",
+      "AA1GWMNerTmz7bkyeUfiRKYyvhTrUjJXaEaiG3wApump"
+    ],
+    "details": "recent-route-details.json includes5recentexecutedWSOLLINEAGE_GAP and2NO_ATTRIBUTIONcontrols, corequeueCREATEanchor,creator,fundersignatures,retainededges androleprojections.",
+    "UrG": "UrG7yCCJFJJXvxJy7mfYvP46xuywceVHmfMhGAtpump: selectedWSOLcreatorfunding andhop2WSOL; terminalARCHIVAL_GAP atdepth2/RPC26. No completequalifiedroot/fanout recovered.",
+    "3p5": "3p5ytAsA2Bkw6AefJ4ny4UaQd5pxVZmjwuSGQXjupump: selectedWSOLchain cyclesbetweenD8c... and8ab... bydepth4,FAILED_TERMINAL/RPC26. Not proofaWatchtower false negative.",
+    "others": "One-hop orno retainededge projections despitequeueWSOLlabels; fullroot/selectedFundingAccount/fanout absent orunestablished. Missingretainedrows do not proveonchainabsence or decoderfailure.",
+    "role_warning": "Some live wt_provisioning_wallets provisioning_wallet values equal temp_wsol_account whilewrap_walletNULL andfundingsignatureNULL; do not treat these as independentlyproved selectedFundingAccount roles. No accountrole repair made."
+  },
+  "HISTORICAL_POSITIVE_CONTROLS": {
+    "mints": [
+      "2fDAjAjyvCFATm5ERrJnyqqcqiZ9akV9vEFZLLGfpump",
+      "EHFJLG7CbNnnuPHXHNtdeWfRQ3UFwBfBZRe11hnppump",
+      "DNtZMNDZ65hAJbJXRiP9NnV98ZTrwLTEJZ78fWKCpump"
+    ],
+    "source": "Three latest canonicalWatchtower admittedFULL_WALKBACK beforeOct10midnight selectedthroughoperatorindex+queuePK. Acceptedrecords keptclosed.",
+    "retained": "All3PROMOTED,memberpresent,creator/CREATE,fundersignatures,WSOLcreatorleg1.212099SOL; sessionupstream500SOLWSOL viaGozg..., queueattributionroot2ghj...,2selectededges,claims/executionretained. Exactfields inretained-route-admission/session-role-boundaries.",
+    "limits": "SeparateFundingAccount/temp mapping andcompletefanoutwitness notretainedin theseboundedlookups. Historicalacceptance doesnotitselfprovefullindependent topology norjustifynewcriterion. Rolebridge readunindexedskipped evenforhistorical; priorPROMOTED not overturned.",
+    "comparison": "Recent5WSOLconflicts sessionsinitialupstreamPLAIN_XFER anddifferentcapital amounts/rootroles; selectedcreatorlegs stillWSOL. This is observation, not provenchangedWatchtower fingerprint or newlyrotatedlegitimatecohort."
+  },
+  "TREASURY_ROTATION_EVIDENCE": {
+    "registry_dependency": "Installed _is_known_treasury checks existenceinwt_confirmed_treasuries; _is_known_subprov acceptsnonREJECTEDrow; cachedledgerassociation canterminatewalk beforeindependentupstreamreconstruction. Unknownroots canexpandup to8hops andsurfaceSHADOWreview, but are not independentlyautoattributedthroughfanoutalone. Detectorusesregistry/cacheauthority; not registry-independent topologyqualification.",
+    "recent": "LoydqueueHbt... vs sessionB4y...; ip623queue9uY... vs session4Rnb...; selectedmulti-hopPLAINedges retained. Their directfunders remainPROVISIONAL_SUBPROV withsingleobservedrecipient inboundedfanoutread. Registrylabel andtreasuryrotationflag not exacttokenancestryproof.",
+    "potential_roots": "Deepestwallet registry/potentialcandidatePKprobes in session-role-boundaries; unknown/candidate root not promoted/reclassified. No fullrotationcensus.",
+    "false_confirmation": "Cachedknownlabels and nonREJECTEDprovisionalbranch can assignWATCHTOWER_CONFIRMED withoutcomplete treasury/SubProvider/selectedFundingAccount/fanoutevidence. PreviouslyprovenDEV039weakness, notpostOct10regressionproof."
+  },
+  "FUNDING_TRAVERSAL_COMPARISON": {
+    "source": "ActualinstalledProduction/flex-walkback-dev002; runtimeownershipandhashes recorded; loadedPython notindependentlyattested. Frozen064021bdcomponentreference notoneguaranteedworkingdeployedSHA.",
+    "unchanged_helpers": "ASTidentical signaturewindow, sender extraction, mechanismdecoder,knownregistry/cachehelpers,deepupstream expansion. _find_funder_via_rpc differs; no blanketequivalenceclaim. ExistingX77collect/persistsemantics and currentsourceinspected.",
+    "selection": "Creatorhistory beforeCREATEsignature, boundedpages/txfetches; strongestknownroot/subprov prioritization thenWSOL/seeded/plainmechanisms. Upstreamusesbeforeselectedfundingsignature/oldestboundededge. Not a fullchainhistoryscan.",
+    "budgets": "Default3signaturepagesx100,5txreadsperhop; selectedWatchtowerlikehop2up to10pages; deep8hops/rowcounter80, workerbatchbudget80. SampleRPC5-49doesnotaloneprovecompletecoverage orprematurebudgetfailure. ARCHIVAL_GAP means boundedlookupno parent, not necessarilyproviderarchivedeletion.",
+    "latent_boundary": "Walkback owngetTransaction request ceiling0 is distinct fromdeployedcreatorresolverceiling1. Fundingtransactionversions/providererrors notretainedforselectedfailures; no causalclaim or new acquisition proposed.",
+    "admission_provenance": "Role-normalized validatorcommitted7fb29c0dSeptember28; exactsourcehashrecorded. Laterconditionaloutboxprojection notprovenlossbecause sampledroutevalidationsrejectfirst."
+  },
+  "QUALIFIED_FALSE_NEGATIVES": {
+    "established": [],
+    "meaning": "No selectedpostOct10candidate has completeindependentWatchtowerqualification proving traversalfalse-negative/admissionfalse-rejection. This is insufficientevidence, notassertionnoneexist.",
+    "needed_evidence": "Exact mint/creatorCREATErelationship, selectedfundingtransactiondecodedroles distinguishingFundingAccount andtempaccount, reusableSubProviderfanout witness withselectedaccount, completeverifiedtreasuryancestry/rolebridge withprovenance/order, andpersisteddecisioninput. No sharedtreasury/cachelabelsubstitution."
+  },
+  "FIRST_PROVEN_FAILURE": {
+    "sampled_confirmation_pipeline": "Unsupportedorconflicting routeevidence -> durableadmissionrejection -> no canonicalmembership. This explains selected16without claimingall26orallpostOct10absence.",
+    "known_classifier_defect": "REGISTRY_LABEL_FALSE_CONFIRMATION for3preservedF7p3negativecontrols; preexistingcachebranch. No newlygenuineWatchtowerfalse-negative proven.",
+    "recent_traversal": "ARCHIVAL_EVIDENCE_GAP andcycle/fundingrole/fanoutgaps observed; noqualifiedcompletepath establishesFUNDING_TRAVERSAL_FAILURE/WSOL_DECODING_FAILURE/FUNDING_ACCOUNT_SELECTION_FAILURE.",
+    "persistence": "No ADMISSION_FALSE_REJECTION or MEMBERSHIP_PERSISTENCE_FAILURE established. No qualifiedacceptedpostlast row found totraceoutboxAPIUI.",
+    "scope": "PopulationAexecutedonly; missinganchorstarvation notused toexplainthesecompleteddecisions."
+  },
+  "MINIMUM_SAFE_CORRECTION": "NONE qualifiedfor genuinepostOct10detection/admissionfailure. Preservestrictadmission. Existingcached-labelconfirmationweakness remainsseparatelyknown; no newguard/fingerprint/rootclassification proposal withoutcompletepositive/negativecontrolclosure. Missingboundary is independentlyqualifiedmulti-hoprole/fanout/fundingaccount evidence for5WSOLconflicts andcompleteupstream evidenceforrecentgaps; separateauthorization requiredforanyprovideracquisition. No schema/index/queryruntimechange recommendedhere.",
+  "READY_FOR_IMPLEMENTATION": false,
+  "VERIFICATION": "DEV048 isolatedgoldenparent; indexedreadonlydiagnosticswith2sdeadlines, SQLparams/deduplicatedmintjoins,sourceASTcomparisons; no provider orapplicationtestsneededforauditonly. Finalsourceverify required.",
+  "PROVIDER_CALLS": 0,
+  "CANONICAL_WRITES": 0,
+  "PRODUCTION_CHANGES": 0,
+  "RUNTIME_DEPLOYMENT_REQUIRED": false,
+  "RUNTIME_DEPLOYMENT_REASON": "Read-only executed-population andretainedroute/admissionaudit; no executablebehaviorchange",
+  "STORAGE_BOUNDS": {
+    "max_diagnostic_file_bytes": 2000000,
+    "raw_provider_retention": false,
+    "runtime_growth_paths_added": 0
+  },
+  "NEXT_ACTION": "STOP \u2014 retainedexecutedroutes explain sampledrejections but genuine missedroute notqualified. Preserve exactfunding-role/fanout/ancestry evidencegap; no implementation,classificationchange,replay ordeployment."
+}

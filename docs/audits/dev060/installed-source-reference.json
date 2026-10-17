@@ -1,0 +1,14 @@
+{
+  "root": "/Users/kevinkeaveney/Production/flex-walkback-dev002",
+  "git_head": "afbe9e58b11eb2e4d616246da123ce31ab45700c",
+  "files": {
+    "src/core/walkback_worker.py": {
+      "sha256": "a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9"
+    },
+    "src/core/deep_walkback.py": {
+      "sha256": "9913a0db3e056a301b88e60308b00657e513c1fd8c14c7f3f21b0079739a468f"
+    }
+  },
+  "loaded_bytes": "Not independently attested; no signalling/restart",
+  "historical": "064021bd preserved sourcecomposition, not singularloadedruntime; DEV039priorbranchcomparison reused"
+}

@@ -1,0 +1,711 @@
+{
+  "HYSnHe719YFudUdQft6QePedYes5rVyAyNrUM8dqpump": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_27d8dcc4b350780c75a4e67721d96dde",
+          "source_mint": "HYSnHe719YFudUdQft6QePedYes5rVyAyNrUM8dqpump",
+          "treasury": null,
+          "subprov": "F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe",
+          "creator": "Gsi2EeN31W1a6xcb2jhjyefm7w8SD3jXGiwX5QJxY29n",
+          "treasury_to_subprov_block_time": null,
+          "subprov_to_creator_block_time": 1792180595,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": null,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": null,
+          "subprov_to_creator_mechanism": "PLAIN_XFER",
+          "treasury_to_subprov_amount_sol": null,
+          "subprov_to_creator_amount_sol": 3.380585,
+          "recorded_at": 1792182501
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    }
+  },
+  "LoydYZwX6EWqTHsuiYYQXtQgY1GE3NGYuwaabwjpump": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_3c9d8a1cd58f6debda4966b2130373ca",
+          "source_mint": "LoydYZwX6EWqTHsuiYYQXtQgY1GE3NGYuwaabwjpump",
+          "treasury": "B4yhj1e8LcN9aewbbeW4bL9jzX9AFEf8r6eWy39j7Y1v",
+          "subprov": "9qTK4gXqvJ8C9qTdHNbN4JWtXaX35NZZ6YaLoS6Ymwmv",
+          "creator": "HM6CqdUvgYXoGT9dNJez5gAGA8VHiJtFs2EzyS21pSgv",
+          "treasury_to_subprov_block_time": 1792127660,
+          "subprov_to_creator_block_time": 1792127661,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": 1,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": "PLAIN_XFER",
+          "subprov_to_creator_mechanism": "WSOL_WRAP_CLOSE",
+          "treasury_to_subprov_amount_sol": 1.139639,
+          "subprov_to_creator_amount_sol": 1.13963,
+          "recorded_at": 1792165583
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    },
+    "role_bridge": {
+      "status": "UNKNOWN_UNINDEXED_NOT_EXECUTED",
+      "plan": [
+        "SCAN wt_lineage_verified_session_edges"
+      ]
+    }
+  },
+  "ip623MjNNPmgNUiGYjmtRrAZs3EmTbDJgbCzrnYpump": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_556ea814da538e49068d93356bc1a487",
+          "source_mint": "ip623MjNNPmgNUiGYjmtRrAZs3EmTbDJgbCzrnYpump",
+          "treasury": "4RnbLv3jFMDndKHceDtXSJp6PMmNH9oyAofMgC3kG3Tw",
+          "subprov": "CnQ3f1LY3k2r7QTapP53q4hR35a7PUCw8H7mXo8Lh7Tn",
+          "creator": "2RQyJoXzHpTo4k12PfMnuVXaQ74mS5paRyyuRcZy4J2A",
+          "treasury_to_subprov_block_time": 1791929454,
+          "subprov_to_creator_block_time": 1791929456,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": 2,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": "PLAIN_XFER",
+          "subprov_to_creator_mechanism": "WSOL_WRAP_CLOSE",
+          "treasury_to_subprov_amount_sol": 1.132924,
+          "subprov_to_creator_amount_sol": 1.132915,
+          "recorded_at": 1792079712
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    },
+    "role_bridge": {
+      "status": "UNKNOWN_UNINDEXED_NOT_EXECUTED",
+      "plan": [
+        "SCAN wt_lineage_verified_session_edges"
+      ]
+    }
+  },
+  "RBgEki8XNdpx6xB9ozWsMcKpqTasjvgH6riqRzHpump": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_655d74eb2571da6b9dcb2350d81405c1",
+          "source_mint": "RBgEki8XNdpx6xB9ozWsMcKpqTasjvgH6riqRzHpump",
+          "treasury": "5tLyQ1DRQn9JNKog5pfaef96CRPR5TciDQPBGnQToJHX",
+          "subprov": "AwcyT8JYNVtax9HGihofpUgCpNbcijqX2W9rbzB6HefF",
+          "creator": "BjDbDmLZsYTZF1MKDUUmz63iPN9PXVZqBYakrMX2mEC9",
+          "treasury_to_subprov_block_time": 1790105504,
+          "subprov_to_creator_block_time": 1790105506,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": 2,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": "PLAIN_XFER",
+          "subprov_to_creator_mechanism": "WSOL_WRAP_CLOSE",
+          "treasury_to_subprov_amount_sol": 1.423571,
+          "subprov_to_creator_amount_sol": 1.423562,
+          "recorded_at": 1792057063
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    },
+    "role_bridge": {
+      "status": "UNKNOWN_UNINDEXED_NOT_EXECUTED",
+      "plan": [
+        "SCAN wt_lineage_verified_session_edges"
+      ]
+    }
+  },
+  "Ei6z97gFFVqfoMu4oswbSViBuBSh4fJDrd2ZMpSMpump": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_3b2d34109d0a6d17e1c18708e06a3caf",
+          "source_mint": "Ei6z97gFFVqfoMu4oswbSViBuBSh4fJDrd2ZMpSMpump",
+          "treasury": null,
+          "subprov": "F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe",
+          "creator": "EmBreT9fbPNbm4tF2oqGVNmvs45AZeX39PPgCBjeHYD7",
+          "treasury_to_subprov_block_time": null,
+          "subprov_to_creator_block_time": 1791996428,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": null,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": null,
+          "subprov_to_creator_mechanism": "PLAIN_XFER",
+          "treasury_to_subprov_amount_sol": null,
+          "subprov_to_creator_amount_sol": 2.359169,
+          "recorded_at": 1792004127
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    }
+  },
+  "CjtwB9XL59Y8sgApovHGrryzUHYxTE33fZnSLLsKpump": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_1fad6b980010d983207efb6642dc61b5",
+          "source_mint": "CjtwB9XL59Y8sgApovHGrryzUHYxTE33fZnSLLsKpump",
+          "treasury": null,
+          "subprov": "F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe",
+          "creator": "BQyEzLmJqPGhk1Si5Pu4TEdmrCDt9TY7qZuyn6B3x3Ma",
+          "treasury_to_subprov_block_time": null,
+          "subprov_to_creator_block_time": 1791996428,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": null,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": null,
+          "subprov_to_creator_mechanism": "PLAIN_XFER",
+          "treasury_to_subprov_amount_sol": null,
+          "subprov_to_creator_amount_sol": 2.359169,
+          "recorded_at": 1791999726
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    }
+  },
+  "GzDuFXiViWWN6ELoDRGH5QV6HFfjrmy69oxhmdiGpump": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_ddfcdde014df5b64bfd1c07e6bd0a61a",
+          "source_mint": "GzDuFXiViWWN6ELoDRGH5QV6HFfjrmy69oxhmdiGpump",
+          "treasury": null,
+          "subprov": "F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe",
+          "creator": "B6m6vs4bbPXouVCXarhauT9yQfmt7EqcaNc7uw6sC7Tu",
+          "treasury_to_subprov_block_time": null,
+          "subprov_to_creator_block_time": 1791978382,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": null,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": null,
+          "subprov_to_creator_mechanism": "PLAIN_XFER",
+          "treasury_to_subprov_amount_sol": null,
+          "subprov_to_creator_amount_sol": 0.901207,
+          "recorded_at": 1791981182
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    }
+  },
+  "HdvuSVpXfpdhQx7c2J76DuzcaUvfJnuXqcHimcZcpump": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_2e20227ead35bf7c47c995af7e9bf16f",
+          "source_mint": "HdvuSVpXfpdhQx7c2J76DuzcaUvfJnuXqcHimcZcpump",
+          "treasury": null,
+          "subprov": "F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe",
+          "creator": "Cw9VHDizCmivg6qZqBnpCbM1z1txYegGbJ2dm982FxAm",
+          "treasury_to_subprov_block_time": null,
+          "subprov_to_creator_block_time": 1791453759,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": null,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": null,
+          "subprov_to_creator_mechanism": "PLAIN_XFER",
+          "treasury_to_subprov_amount_sol": null,
+          "subprov_to_creator_amount_sol": 1.087218,
+          "recorded_at": 1791924094
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    }
+  },
+  "BSNfupWif2at8PsnTUm123vafPeUoZqr9H4sYYD8pump": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_ba5e464faafcf6ddf5134d460d3da9fa",
+          "source_mint": "BSNfupWif2at8PsnTUm123vafPeUoZqr9H4sYYD8pump",
+          "treasury": null,
+          "subprov": "F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe",
+          "creator": "EZYeJnBPBKPt7BK2cbU77TSmkxVv4LGga68Kxt9dweKr",
+          "treasury_to_subprov_block_time": null,
+          "subprov_to_creator_block_time": 1791907187,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": null,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": null,
+          "subprov_to_creator_mechanism": "PLAIN_XFER",
+          "treasury_to_subprov_amount_sol": null,
+          "subprov_to_creator_amount_sol": 5.621683,
+          "recorded_at": 1791908483
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    }
+  },
+  "3LCLQxuvU9kNcY5VV7ujwqDpfGaVtnSEpSkYokpMpump": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_519b314e9726b2646f4af1fc6c5407c5",
+          "source_mint": "3LCLQxuvU9kNcY5VV7ujwqDpfGaVtnSEpSkYokpMpump",
+          "treasury": null,
+          "subprov": "F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe",
+          "creator": "G1Z4wNngFiMRuPKrKSNMdV5fDHdUi6QVykktWnzLTa4P",
+          "treasury_to_subprov_block_time": null,
+          "subprov_to_creator_block_time": 1791899308,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": null,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": null,
+          "subprov_to_creator_mechanism": "PLAIN_XFER",
+          "treasury_to_subprov_amount_sol": null,
+          "subprov_to_creator_amount_sol": 4.194047,
+          "recorded_at": 1791904829
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    }
+  },
+  "Ht3Ct27dNu6wpYHAuxLMnv4amrCTMtQ1FJchT3Kmpump": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_c89432f5ebd5757a3852ca212a1a0cfb",
+          "source_mint": "Ht3Ct27dNu6wpYHAuxLMnv4amrCTMtQ1FJchT3Kmpump",
+          "treasury": null,
+          "subprov": "F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe",
+          "creator": "CPP2uLeFuA6YEzUV8AwKyAUc5gmorXVbhg7nEAEpiGN",
+          "treasury_to_subprov_block_time": null,
+          "subprov_to_creator_block_time": 1791899310,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": null,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": null,
+          "subprov_to_creator_mechanism": "PLAIN_XFER",
+          "treasury_to_subprov_amount_sol": null,
+          "subprov_to_creator_amount_sol": 4.749727,
+          "recorded_at": 1791902820
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    }
+  },
+  "D7gDjeXBKT3p3Qs5kVUGD7KrntPsJW4kJLnXHMSpump": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_b3c9de77dfdaef499cb117c50df13032",
+          "source_mint": "D7gDjeXBKT3p3Qs5kVUGD7KrntPsJW4kJLnXHMSpump",
+          "treasury": "3JLBsyUSDfNQ9Bge8HZactod4EBsEeJF1799ouXetmVC",
+          "subprov": "88xLquW9Ja5QVC7ugtsyUejqiA1UwvcmpNYbxWwhj53b",
+          "creator": "BzrkLZTCfhKEVA6QEJhv454qckNZcvn5dcCU4q3FuBHm",
+          "treasury_to_subprov_block_time": 1791868954,
+          "subprov_to_creator_block_time": 1791868958,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": 4,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": "PLAIN_XFER",
+          "subprov_to_creator_mechanism": "WSOL_WRAP_CLOSE",
+          "treasury_to_subprov_amount_sol": 2.643265,
+          "subprov_to_creator_amount_sol": 2.643256,
+          "recorded_at": 1791878630
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    },
+    "role_bridge": {
+      "status": "UNKNOWN_UNINDEXED_NOT_EXECUTED",
+      "plan": [
+        "SCAN wt_lineage_verified_session_edges"
+      ]
+    }
+  },
+  "ZSQhojF6qe6jhJggETrimLCgVePzLCoAwkPJaTHpump": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_02a6ddec1bdea1c0ede04ebdb7f04ec2",
+          "source_mint": "ZSQhojF6qe6jhJggETrimLCgVePzLCoAwkPJaTHpump",
+          "treasury": "3L4XtNhhG9ypmL318KZQ5fRcAtWw9EtVgMC2UMbU45My",
+          "subprov": "JDjCsQ971Co7HbV2cdF8S2hRi6FR9DchDfzGKkc3F3Ne",
+          "creator": "DFY8czeAsYkHkH9hvjjsVR3Vgit6N1Pa6o4YbTCmZ96a",
+          "treasury_to_subprov_block_time": 1791866690,
+          "subprov_to_creator_block_time": 1791866691,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": 1,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": "PLAIN_XFER",
+          "subprov_to_creator_mechanism": "WSOL_WRAP_CLOSE",
+          "treasury_to_subprov_amount_sol": 2.228028,
+          "subprov_to_creator_amount_sol": 2.228018,
+          "recorded_at": 1791874008
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    },
+    "role_bridge": {
+      "status": "UNKNOWN_UNINDEXED_NOT_EXECUTED",
+      "plan": [
+        "SCAN wt_lineage_verified_session_edges"
+      ]
+    }
+  },
+  "BYY9699AuAArjVfiBBUaUYtvs1Eiv8MmjUyJ1mMDpons": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_ac7150a02abb709ac77f07d80a0edaed",
+          "source_mint": "BYY9699AuAArjVfiBBUaUYtvs1Eiv8MmjUyJ1mMDpons",
+          "treasury": null,
+          "subprov": "F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe",
+          "creator": "BcPY5m587nQCKYdmupDM8VbQXyJBYD5wnsTUdtsvEME6",
+          "treasury_to_subprov_block_time": null,
+          "subprov_to_creator_block_time": 1791836365,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": null,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": null,
+          "subprov_to_creator_mechanism": "PLAIN_XFER",
+          "treasury_to_subprov_amount_sol": null,
+          "subprov_to_creator_amount_sol": 1.611287,
+          "recorded_at": 1791839540
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    }
+  },
+  "Fyxfj2E3LFJvg7ELPEqJCAuHeQzRmFpwfBJXE5D4pump": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_34337da6cdeef4b49565db5a383849ed",
+          "source_mint": "Fyxfj2E3LFJvg7ELPEqJCAuHeQzRmFpwfBJXE5D4pump",
+          "treasury": null,
+          "subprov": "F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe",
+          "creator": "5iLHijwPjwnBzq7nh3X2DxYX19YymLi9Ww9Rr5EJQAa5",
+          "treasury_to_subprov_block_time": null,
+          "subprov_to_creator_block_time": 1791828589,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": null,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": null,
+          "subprov_to_creator_mechanism": "PLAIN_XFER",
+          "treasury_to_subprov_amount_sol": null,
+          "subprov_to_creator_amount_sol": 0.92475,
+          "recorded_at": 1791830167
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    }
+  },
+  "4FMSyEXUnXPJq7wKBVScRrCaYWPdDUNcqeuJuhC7pump": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_217dda6f8ebb0bc05f56f9a495fec9d9",
+          "source_mint": "4FMSyEXUnXPJq7wKBVScRrCaYWPdDUNcqeuJuhC7pump",
+          "treasury": null,
+          "subprov": "F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe",
+          "creator": "aR2tJcG4oi4NkpYtZ8z7segopi1buyGn5yqT1tJ6c1Y",
+          "treasury_to_subprov_block_time": null,
+          "subprov_to_creator_block_time": 1791806380,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": null,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": null,
+          "subprov_to_creator_mechanism": "PLAIN_XFER",
+          "treasury_to_subprov_amount_sol": null,
+          "subprov_to_creator_amount_sol": 0.89382,
+          "recorded_at": 1791807673
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    }
+  },
+  "2fDAjAjyvCFATm5ERrJnyqqcqiZ9akV9vEFZLLGfpump": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_2a32fb4edf0120839ead564ce4b6fff9",
+          "source_mint": "2fDAjAjyvCFATm5ERrJnyqqcqiZ9akV9vEFZLLGfpump",
+          "treasury": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+          "subprov": "2atAXFgjC4g6BFArvA73nTrFHoJ6Rk821R4GaMgrwEcr",
+          "creator": "AxRNvGQNf93Vmaesds69ksAkDKjprYF8vem6yft5gZXv",
+          "treasury_to_subprov_block_time": 1791576541,
+          "subprov_to_creator_block_time": 1791576622,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": 81,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": "WSOL_WRAP_CLOSE",
+          "subprov_to_creator_mechanism": "WSOL_WRAP_CLOSE",
+          "treasury_to_subprov_amount_sol": 500.0,
+          "subprov_to_creator_amount_sol": 1.212099,
+          "recorded_at": 1791576773
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    },
+    "role_bridge": {
+      "status": "UNKNOWN_UNINDEXED_NOT_EXECUTED",
+      "plan": [
+        "SCAN wt_lineage_verified_session_edges"
+      ]
+    }
+  },
+  "EHFJLG7CbNnnuPHXHNtdeWfRQ3UFwBfBZRe11hnppump": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_486413dbbc0e1ddec547f0bb501ba89b",
+          "source_mint": "EHFJLG7CbNnnuPHXHNtdeWfRQ3UFwBfBZRe11hnppump",
+          "treasury": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+          "subprov": "GmtBqApuKzW3hWvXQ47ojZJbEAPvNZAHgEpXkEq7Q2Fh",
+          "creator": "ABa3E1McKWYG398V9Ppd8MFtMfRNa4EbdnM7sk2CERLd",
+          "treasury_to_subprov_block_time": 1791571848,
+          "subprov_to_creator_block_time": 1791571927,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": 79,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": "WSOL_WRAP_CLOSE",
+          "subprov_to_creator_mechanism": "WSOL_WRAP_CLOSE",
+          "treasury_to_subprov_amount_sol": 500.0,
+          "subprov_to_creator_amount_sol": 1.212099,
+          "recorded_at": 1791571963
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    },
+    "role_bridge": {
+      "status": "UNKNOWN_UNINDEXED_NOT_EXECUTED",
+      "plan": [
+        "SCAN wt_lineage_verified_session_edges"
+      ]
+    }
+  },
+  "DNtZMNDZ65hAJbJXRiP9NnV98ZTrwLTEJZ78fWKCpump": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_33dc56dfce8f148b97a8bb6f4d82bd86",
+          "source_mint": "DNtZMNDZ65hAJbJXRiP9NnV98ZTrwLTEJZ78fWKCpump",
+          "treasury": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+          "subprov": "5agJqLjFEM1ovweWgCeTvBrsUsynjFahFNd2jGzCURUp",
+          "creator": "EzL3naq57MkxZFs6DX2S69tbK6hB4EnnVxxYenwrvMPw",
+          "treasury_to_subprov_block_time": 1791490742,
+          "subprov_to_creator_block_time": 1791490838,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": 96,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": "WSOL_WRAP_CLOSE",
+          "subprov_to_creator_mechanism": "WSOL_WRAP_CLOSE",
+          "treasury_to_subprov_amount_sol": 500.0,
+          "subprov_to_creator_amount_sol": 1.212099,
+          "recorded_at": 1791490876
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    },
+    "role_bridge": {
+      "status": "UNKNOWN_UNINDEXED_NOT_EXECUTED",
+      "plan": [
+        "SCAN wt_lineage_verified_session_edges"
+      ]
+    }
+  },
+  "4hitw2qrw8vZa7Z9j1H4oDBPyvzD2XK1LZKHnLtJpump": {
+    "session": {
+      "rows": [],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    }
+  },
+  "UrG7yCCJFJJXvxJy7mfYvP46xuywceVHmfMhGAtpump": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_3c9eeb0b5ccb4afc75e2345b0e3b2e03",
+          "source_mint": "UrG7yCCJFJJXvxJy7mfYvP46xuywceVHmfMhGAtpump",
+          "treasury": "DjwnsLVMLYd7vaGdhMLPtpNyJcJHc8932ztQ1ziqheTi",
+          "subprov": "GL1NEq2Gs6iifHWBYL9nA3mXEpiuP2MGeDvxX91em218",
+          "creator": "5NtoTMsBhgbLnJyhbEpCMcEii4QtNXU6wkue4k71RQzd",
+          "treasury_to_subprov_block_time": 1790817789,
+          "subprov_to_creator_block_time": 1792245339,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": 1427550,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": "WSOL_WRAP_CLOSE",
+          "subprov_to_creator_mechanism": "WSOL_WRAP_CLOSE",
+          "treasury_to_subprov_amount_sol": 5050.0,
+          "subprov_to_creator_amount_sol": 99.999986,
+          "recorded_at": 1792245570
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    },
+    "deepest_confirmed_registry": {
+      "rows": [],
+      "plan": [
+        "SEARCH wt_confirmed_treasuries USING INDEX sqlite_autoindex_wt_confirmed_treasuries_1 (treasury=?)"
+      ]
+    },
+    "deepest_potential": {
+      "rows": [],
+      "plan": [
+        "SEARCH wt_infrastructure_candidates USING INDEX sqlite_autoindex_wt_infrastructure_candidates_1 (wallet=?)"
+      ]
+    }
+  },
+  "3p5ytAsA2Bkw6AefJ4ny4UaQd5pxVZmjwuSGQXjupump": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_27497a786ae78855c69a64acf5cf0b98",
+          "source_mint": "3p5ytAsA2Bkw6AefJ4ny4UaQd5pxVZmjwuSGQXjupump",
+          "treasury": "D8cJRpXaCWVK8c3doDq7Ymoz2XE4WyhFhbgNytWwqptA",
+          "subprov": "6J8VGXdgDge1MeuGL97h6k81NpvkGpg2bDo76mmrUJsx",
+          "creator": "7gSRQnjDtK173TJ2r7bx8XoHD4ZActeryubFMe141KBp",
+          "treasury_to_subprov_block_time": 1792148255,
+          "subprov_to_creator_block_time": 1792148255,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": 0,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": "WSOL_WRAP_CLOSE",
+          "subprov_to_creator_mechanism": "WSOL_WRAP_CLOSE",
+          "treasury_to_subprov_amount_sol": 0.001488,
+          "subprov_to_creator_amount_sol": 0.180044,
+          "recorded_at": 1792240311
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    },
+    "deepest_confirmed_registry": {
+      "rows": [],
+      "plan": [
+        "SEARCH wt_confirmed_treasuries USING INDEX sqlite_autoindex_wt_confirmed_treasuries_1 (treasury=?)"
+      ]
+    },
+    "deepest_potential": {
+      "rows": [
+        {
+          "wallet": "8abF12uDrUKpowh7RTtgxJJ3s59vNVJyeh42Wb8kokM1",
+          "candidate_role": "MIXED_CAPITAL_RESERVOIR",
+          "confidence": "LOW_REVIEW",
+          "status": "SHADOW",
+          "review_state": "PENDING_REVIEW",
+          "distinct_launches": 1,
+          "distinct_subproviders": 1,
+          "lifecycle_quality": "UNKNOWN"
+        }
+      ],
+      "plan": [
+        "SEARCH wt_infrastructure_candidates USING INDEX sqlite_autoindex_wt_infrastructure_candidates_1 (wallet=?)"
+      ]
+    }
+  },
+  "BF7RBi4Z9zmumCN3Ai6cHoLuPwdjiTCNFcp3T8cFpump": {
+    "session": {
+      "rows": [
+        {
+          "session_id": "session_524b20cc3132b61abf417451e5ce792c",
+          "source_mint": "BF7RBi4Z9zmumCN3Ai6cHoLuPwdjiTCNFcp3T8cFpump",
+          "treasury": null,
+          "subprov": "FHpcNSe6tb2n15bAdq4BkeYWGyZKFD7yLYrH92ng7wCT",
+          "creator": "DhavMhkMfzuwW5nYJjPajtUSTfr1yVtjTGCDMePfaxSW",
+          "treasury_to_subprov_block_time": null,
+          "subprov_to_creator_block_time": 1792235631,
+          "creator_launch_time": null,
+          "treasury_to_subprov_latency_seconds": null,
+          "subprov_to_creator_latency_seconds": null,
+          "creator_to_launch_latency_seconds": null,
+          "treasury_to_subprov_mechanism": null,
+          "subprov_to_creator_mechanism": "WSOL_WRAP_CLOSE",
+          "treasury_to_subprov_amount_sol": null,
+          "subprov_to_creator_amount_sol": 0.001488,
+          "recorded_at": 1792237544
+        }
+      ],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    }
+  },
+  "4gUDKqmY7q1khHYRQjxfub2CHdpDRTMSsT4hgEs9pump": {
+    "session": {
+      "rows": [],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    }
+  },
+  "GxCEZaNR7FPUJq37Zov8tdFWWuwAiEeVqxGykbqNpump": {
+    "session": {
+      "rows": [],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    }
+  },
+  "AA1GWMNerTmz7bkyeUfiRKYyvhTrUjJXaEaiG3wApump": {
+    "session": {
+      "rows": [],
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    }
+  }
+}

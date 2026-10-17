@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev051",
-    "git_head": "28a87467962f975085e2ad21ab8fb3390f8359d7",
+    "git_head": "d41a1bc03ab38b51b18353a350c56e79d5f263dd",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T08:27:57.245374+00:00",
-    "working_tree": "DEV051 offline CREATE V1 compatibility qualification complete: unsupported ceiling0 plus retained Token2022 decoder mismatch; no implementation/deployment."
+    "updated_at_utc": "2026-10-17T08:45:52.170739+00:00",
+    "working_tree": "DEV051 CREATE correction implemented/offline tested; release HOLD on preserved historical audit script importclosure. No candidate/deployment."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -30908,5 +30908,27 @@
     "RUNTIME_DEPLOYMENT_REQUIRED": false,
     "activation_state": "OFFLINE_ONLY_NO_DEPLOYMENT",
     "next_action": "STOP before implementation. Review separate correction recommendation; obtain original Pump ABI fields for CreateV2/creator proof. No provider acquisition/replay authorized."
+  },
+  "dev051_create_compatibility_correction": {
+    "engineering_source_revision": "d41a1bc03ab38b51b18353a350c56e79d5f263dd",
+    "tested_source_sha": "d7dcf756c6cccb5473ea55d2dcc89a1e6bae279b",
+    "source_patch_commit": "d437389520557823082ddfeb6f2871efc16bcfd1",
+    "verdict": "HOLD_RELEASE_QUALIFICATION",
+    "implementation": "Three analyzer ceilings0->1 and two SPL/Token2022 IDs corrected from independently installed solana0.36.10 constants; exact reverse5literal prior-file hash verified. No strict validation/creator/persistence/retry/concurrency logic changed.",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV051/source/docs/audits/dev051/create-correction/DEV051_CREATE_COMPATIBILITY_CORRECTION_STATUS.json",
+    "tests": "14focusedPASS;26guardedPythonPASS; actualinlinefrontendPASS; boundedAPIchecksPASS;10realbrowsercontractsPASS; final API/test guarddenials0. First fixture imported optional urllib3IPv6 probe blocked, then test-only has_ipv6False avoided it; guards unchanged.",
+    "blocker": "DEV048 mandatory changed-Python importclosure includes preserved docs/audits/dev051/create-v1/offline_qualification.py; not imported by current API/tests. Gate unchanged; historical evidence preserved; no fabricated import.",
+    "clean_checkout_restoration": "NOT_RUN; candidate gate HOLD",
+    "candidate_source_sha": null,
+    "READY_FOR_DEPLOYMENT": false,
+    "RUNTIME_DEPLOYMENT_GATE": "HOLD_NOT_DEPLOYED",
+    "activation_state": "NO_DEPLOYMENT;owned8150APIstopped;Production/persistentDEVuntouched",
+    "causal_boundary": "Does not restore exact token or prove version rejection caused missing anchor; original Pump creator/selection unresolved; no recovery run.",
+    "PROVIDER_CALLS": 0,
+    "CANONICAL_WRITES": 0,
+    "PRODUCTION_CHANGES": 0,
+    "PERSISTENT_DEV_CHANGES": 0,
+    "rollback": "Parent28a87467/sourcebeforepatch retained; operational analyzer hash unchanged; no state/schema rollback required.",
+    "next_action": "STOP. Separately qualify DEV048 treatment of preserved audit executables vs runtime importclosure; rerun mandatory gate and clean checkout. Do not delete evidence, fabricate imports or weaken safety/acceptance."
   }
 }

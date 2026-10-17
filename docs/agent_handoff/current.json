@@ -19272,8 +19272,8 @@
     "branch": "codex/dev051-signature",
     "git_head": "966c162be966b0ca8670b56106e3c05b35a66f78",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T12:34:13.130838+00:00",
-    "working_tree": "DEV051 final runtime readiness READY_FOR_TARGETED_DEPLOYMENT; no deployment authorized or performed. Exact token remains unresolved."
+    "updated_at_utc": "2026-10-17T12:41:17.858569+00:00",
+    "working_tree": "DEV051 targeted analyzer overlay deployed to creator_resolution_worker; runtime gate PASS; natural V1 acceptance pending. Engineering candidate unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31107,5 +31107,37 @@
       "actions": "No requeue,replay,backfill,signatureinsertion,admission or attribution. File-only compatibility correction does not make terminal row eligible."
     },
     "next_action": "Await separate authorization for exact file-only deployment; do not claim exact-token recovery."
+  },
+  "dev051_targeted_deployment": {
+    "status": "PASS",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "candidate_source_sha": "966c162be966b0ca8670b56106e3c05b35a66f78",
+    "runtime_git_head": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215",
+    "installed_overlay_sha256": "b4f2064305faa285f13672217013243c7d5d6a001566b6891b663c79973101ac",
+    "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/analysis/pump_fun_post_migration_analyzer.py",
+    "old_new_worker_pid": [
+      38416,
+      86067
+    ],
+    "supervisor": "creator_resolution_worker        RUNNING   pid 86067, uptime 0:00:59",
+    "restart_count": 1,
+    "provider_free_installed_tests": {
+      "status": "PASS",
+      "tests": 15,
+      "guard_denials": 0
+    },
+    "installation_acceptance": "PASS",
+    "v1_functional_acceptance": "PENDING_LIVE_EVIDENCE",
+    "activation": "INSTALLED_AND_RUNNING",
+    "deployment_initiated_provider_calls": 0,
+    "normal_runtime_provider_calls": "Existing budgeted activity allowed; exact count not independently observable in bounded evidence",
+    "canonical_migrations": 0,
+    "persistent_dev_changes": 0,
+    "manual_queue_mutations": 0,
+    "rollback": "NOT_REQUIRED; exact preimage preserved",
+    "exact_token": "NOT_RECOVERED; no replay or requeue",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV051-signature/evidence/targeted-deployment/DEV051_TARGETED_DEPLOYMENT_STATUS.json",
+    "report_sha256": "a025ef4db5c896ddc81e2dc3e0b1b14c150b3bcf4346a49381f9973d5b793a16",
+    "next_action": "NONE \u2014 targeted installation complete; retain corrected worker. Natural live V1 evidence remains pending; no replay authorized."
   }
 }

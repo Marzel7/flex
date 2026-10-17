@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev064",
-    "git_head": "740f66851b4823c4fd3838dfc7b99810691ab21b",
+    "branch": "codex/dev065",
+    "git_head": "9afe268da83ba8bcd85bb9aa84d8ff71f6dde730",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T15:43:33.457884+00:00",
-    "working_tree": "DEV064 three explicitly authorized exact-signature reads complete; budget exhausted. Derived funding path agrees with selected records; full fanout/ancestry qualification remains partial. No application change."
+    "updated_at_utc": "2026-10-17T15:53:28.380739+00:00",
+    "working_tree": "DEV065 bounded read-only upstream investigation complete: unresolved incoming Djwn lineage/fanout; no detector defect or implementation correction established."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31510,5 +31510,30 @@
     "runtime_deployment_reason": "Authorized acquisition and compact derived audit only; no executable behavior change.",
     "engineering_evidence_publication": "Local compact derived audit commit; minimal handoff only published.",
     "next_action": "STOP. Authorized acquisition complete and budget exhausted. Full Watchtower qualification needs exact retained SubProvider fanout and higher ancestry witnesses; no further provider/discovery/replay/implementation/deployment authorized."
+  },
+  "dev065_upstream_funding_qualification": {
+    "status": "INSUFFICIENT_EVIDENCE_UNRESOLVED_UPSTREAM_LINEAGE",
+    "engineering_source_sha": "9afe268da83ba8bcd85bb9aa84d8ff71f6dde730",
+    "branch": "codex/dev065",
+    "baseline_sha": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "finding": "Existing retained evidence shows two Djwn transfers to the same GL1NE recipient: previously verified 5050 SOL and an additional indexed atomic 0.1 SOL witness. This does not establish many-FundingAccount fanout. Djwn is PENDING_REVIEW, not confirmed treasury; higher ancestry/operational role remains unresolved.",
+    "walkback": "UrG selected route reaches Djwn at retained depth2, then LINEAGE_GAP/ARCHIVAL_GAP with rpc_used26. No incoming Djwn edge for that mint is retained. Installed no-usable-parent path explains the state, but original provider errors/empty history/filtering/window cause is not attested. No independently retained parent transaction contradicts traversal.",
+    "limits": "Global candidate-wallet and verified-session recipient searches lacked indexed access and were not scanned. Indexed incoming authorities did not locate a parent witness; no global/on-chain absence claim. Historical admitted control retains incomplete original fanout/role evidence and is not treated as complete proof.",
+    "verification": "DEV048 isolated baseline source/dependency/isolation verify PASS; source completeness/evidence hashes PASS;14 derived preservation/semantic checks PASS.47 targeted plans, six unindexed/sorting plans refused; exact indexed reads capped20 rows/two seconds. No provider acquisition or application service launch.",
+    "report_local": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV065/source/docs/audits/dev065/DEV065_UPSTREAM_FUNDING_STATUS.json",
+    "report_sha256": "4a1d055cd3788b5ca1df4cbcc26c059f00ca77b840d6f02c2b825c6472995657",
+    "ready_for_implementation": false,
+    "minimum_correction": "NONE QUALIFIED",
+    "research_interest": "Preserve existing unresolved-lineage and pending treasury-review observations; no automatic Watchtower classification.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "persistent_dev_changes": 0,
+    "application_changes": 0,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only forensic audit only; no executable correction.",
+    "DEV064_reacquisition": false,
+    "engineering_evidence_publication": "Local compact derived audit; only minimal handoff published.",
+    "next_action": "STOP. Need exact pre-cutoff incoming Djwn signature and distinct-recipient fanout/higher ancestry witnesses. Executable provider budget0; conditional single exact getTransaction only after signature identification and separate authorization. No address-history discovery, implementation or deployment authorized."
   }
 }

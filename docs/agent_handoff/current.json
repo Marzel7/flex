@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev056",
-    "git_head": "99aae76b5b695172ad98e1e36214692011231806",
+    "branch": "codex/dev058",
+    "git_head": "49e6f4cb5f200719306eef14875ea312f8e47338",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T13:33:24.594026+00:00",
-    "working_tree": "DEV056 HOLD_INDEX_ACCESS; existing-state fairness lacks bounded indexed order; no implementation or runtime changes."
+    "updated_at_utc": "2026-10-17T14:02:59.893076+00:00",
+    "working_tree": "DEV058 HOLD recentfairness; newestmonopoly and finitewindowexclusion demonstrated; no runtimechanges."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31277,5 +31277,46 @@
     "canonical_writes": 0,
     "production_changes": 0,
     "next_action": "STOP \u2014 HOLD_INDEX_ACCESS. No boundedexisting-index fairness candidate qualified; separate access-path authorization/qualification required. Do not implement, migrate, deploy or alter waitingstate."
+  },
+  "dev058_recent_first_anchor_policy": {
+    "status": "HOLD \u2014 RECENT_FAIRNESS_NOT_QUALIFIED_WITH_EXISTING_ACCESS",
+    "engineering_source_sha": "49e6f4cb5f200719306eef14875ea312f8e47338",
+    "branch": "codex/dev058",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV058/source/docs/audits/dev058/DEV058_RECENT_FIRST_RECOVERY_STATUS.json",
+    "report_sha256": "6843edf64bf522d985d39e36353b1705c0aefa5e907655d569da8ffd07c6b13a",
+    "populations": {
+      "24h": {
+        "migrated": 1044,
+        "waiting": 458,
+        "zero_lookup": 458
+      },
+      "48h": {
+        "migrated": 1900,
+        "waiting": 870,
+        "zero_lookup": 870
+      },
+      "7d": {
+        "migrated": 6779,
+        "waiting": 2663,
+        "zero_lookup": 2663
+      }
+    },
+    "findings": {
+      "indexed": "Reverse(status,enqueued)recentcandidatewindow bounded; unrestrictedleastlookuprecentorderrequiresTEMPsort",
+      "newest_only": "Failsnewestmonopoly",
+      "window": "100/1000recent+50000historical conditionalstaticresidentPASS;1001recent,K1000excludedrow0after1010cycles",
+      "restart_concurrency": "Smallserializedrollback/commit/restorefixturePASS only; noqualifiedatomicdualselection/globalfairness",
+      "BWMM": "Within24/48h atsnapshot, recentwaitingrank203; localrecoveryeligiblestarved, missinganchor; exacthistoricalselectionnotproven",
+      "historical": "Allhistoricalfixture rows retained;24/48exclusionsnotapproved; nohistoricalretryguaranteeassumed",
+      "minimum": "NONEqualified; boundedcontinuation/accessandatomicackpolicyneeded, noimplementation/newindex/cursor/deployment"
+    },
+    "DEV048_verify": "PASS",
+    "ready_for_implementation": false,
+    "runtime_deployment_required": false,
+    "reason": "Schedulingpolicyauditonly",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "next_action": "STOP \u2014 no recent-first policy passed both boundedaccess and nonmonopolizingfairness. Preservepopulationevidence andcounterexamples; separatecompatibleaccess/continuationpolicy needed, no implementation/index/cursor/deployment."
   }
 }

@@ -1,0 +1,13 @@
+{
+  "offline-audit-fixtures.py.txt": "4b588e4cd418824d2033e64d73cc0dba288a3d3f91a3bb358971b4b89f5fb6ca",
+  "retained-receipt-sample.json": "f70759b6a4c667cd117a8675969d397dd6ca50d8ef5ec536137d6a2b4d3e0a90",
+  "recent-positive-controls.json": "34b8b7f64073ea8a13f56e5a3c05d56e5e57a104a49b1fc35bc5882eb0ebe029",
+  "raw-ws-ordering-fixtures.json": "71004009e47295523de220db2d0c0339ae38148ae2c88f018ee8dc260e401b4c",
+  "DEV054_PUMPPORTAL_BIRTH_STATUS.json": "42f05881a2512594559fdfba7672a7ce62431a2206fb8f60e66d0f6ef53bf037",
+  "receipt-point-joins.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+  "runtime-authority.json": "f4ee366d6d454b8ae706b8634651b90e86de26c2e4544563e720e7430adfff06",
+  "sample-field-coverage.json": "d93664c9eab74ab8a1a16af1e673a8be582f5a9b9ab31b1121b99daefb07baec",
+  "bounded-log-observations.json": "3ac6e8af8dcb5848b48144dab6cc2045d806887466c307058530fda971850d0b",
+  "indexed-propagation.json": "055dc6c2ac4cea0fb616eaa5de9f01eafce947903e22d37de80aeb4c2401f94f",
+  "bwmm-exact-webhook-signature.json": "1d29443f6e1cc57f47f3b71a05d131a94c9d6bd776a02104d1c80c7fcd7574ed"
+}

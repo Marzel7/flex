@@ -1,0 +1,9 @@
+{
+  "path": "/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/listener.log",
+  "offset": 4329267,
+  "bytes_inspected": 524288,
+  "birth_messages": 945,
+  "latest_observed_birth_prefix": "4FJjJT1S73nq2aLd",
+  "connection_events_in_segment": [],
+  "scope": "Log success label follows awaited insert method, which can swallow persistence failure; not independently committed receipt proof. Latest within inspected segment only; no 24h total or historical absence inference."
+}

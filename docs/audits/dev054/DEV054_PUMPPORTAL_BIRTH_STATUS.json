@@ -1,0 +1,392 @@
+{
+  "DEV054_PUMPPORTAL_BIRTH_STATUS": "AUDIT_COMPLETE_PARTIAL: PUMPPORTAL_DELIVERY_CONFIRMED and sampled propagation PASS; exact BWMM receipt boundary unresolved",
+  "CURRENT_LISTENER_RUNTIME": {
+    "listener": {
+      "manager": "supervisord",
+      "program": "watchtower_listener",
+      "pid": 79274,
+      "parent_pid": 73409,
+      "process_arguments": "python -u -m src.core.pumpfun_curve_listener",
+      "configured_command": "/bin/bash /Users/kevinkeaveney/Production/flex-listener/run_listener.sh",
+      "configured_directory": "/Users/kevinkeaveney/Production/flex-listener",
+      "observed_cwd": [
+        "/Users/kevinkeaveney/Production/flex-listener"
+      ],
+      "git_head": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+      "source_file": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py",
+      "source_sha256": "139c8fbcd69484b5bb30038e76445d7843892e2ce28a7157485d917bdfccdd39",
+      "loaded_python_bytes": "UNVERIFIED; no introspection/injection/signalling",
+      "safe_startup_environment": {
+        "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+        "CREATOR_BACKFILL_ENABLED": "0"
+      },
+      "credential_labels_present": {
+        "HELIUS_API_KEY": true,
+        "HELIUS_MONITORING_API_KEY": false,
+        "HELIUS_RPC_URL": true,
+        "RPC_HTTP": false,
+        "RPC_URL": false,
+        "BIRDEYE": false,
+        "BIRDEYE_API_KEY": false
+      },
+      "credential_values": "NOT_RETAINED",
+      "process_started": "Fri Oct 16 16:32:07 2026",
+      "log_path": "/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/listener.log",
+      "provider_endpoint_labels": {
+        "HELIUS_RPC_URL": {
+          "scheme": "https",
+          "hostname": "mainnet.helius-rpc.com"
+        }
+      },
+      "HELIUS_API_KEY_matches_HELIUS_RPC_URL_key": true,
+      "analyzer": {
+        "path": "/Users/kevinkeaveney/Production/flex-listener/src/analysis/pump_fun_post_migration_analyzer.py",
+        "sha256": "b7a051d2b21a860215393e9815b66c8ab9f16c14a932595755a21286a92a9443"
+      },
+      "manager_process": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/supervisord -c /Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf"
+    },
+    "supervisor_configuration": {
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/config/supervisor/supervisord.conf",
+      "sha256": "18f39cb1b9d60d9e5b00d212acdc6697e9c0f68f1031d77c3cff91f40f3c4ccc"
+    },
+    "safe_environment": {
+      "LISTENER_PUMPPORTAL_BIRTHS_ENABLED": "1",
+      "HELIUS_BIRTH_WS_ENABLED": "0",
+      "PUMPFUN_BIRTH_RECONCILER_ENABLED": "0",
+      "LISTENER_WEBHOOK_BIRTH_DRAINER_ENABLED": "1",
+      "CREATOR_BACKFILL_ENABLED": "0",
+      "PUMPPORTAL_CANONICAL_BIRTH_RETENTION_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/production/pumpportal_birth_evidence"
+    },
+    "run_listener_sha256": "d7a0db20c7aa8b8a5210774541e6b43bfdb422bd86723a21d3112d2152f3b8e3"
+  },
+  "PUMPPORTAL_SUBSCRIPTION_STATUS": {
+    "source": "listen_pumpportal_websocket wss://pumpportal.fun/api/data sends subscribeNewToken; current effective births_enabled1, rawHeliusWS0, birth_reconciler0, webhookdrainer1",
+    "retained": "Indexed acquisition_availability_transitions capability BIRTH returned latest8DOWN/AVAILABLE events; latest retained AVAILABLE effective_at1792237509, reason subscribeNewToken sent. Availability means send/connection state, not provider acknowledgment or gap-free delivery. Current tail has continuing parsed birth messages.",
+    "runtime_distinction": "Supervisor listener79274; cwdProduction/flex-listener; Git and file hashes in runtime-authority; loaded bytes not independently attested. No restart/signalling."
+  },
+  "LATEST_RETAINED_BIRTH": {
+    "globally_latest": "UNKNOWN without indexed receipt timestamp or whole directory/log history scan",
+    "latest_in_bounded_log_segment": "4FJjJT1S73nq2aLd",
+    "latest_in32frame_sample": {
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/production/pumpportal_birth_evidence/5292623d23de28e2c6fa43964adf58bff35cea23beacc8978670951aa734be94.json",
+      "sha256": "f2e83a0acf6551d468e1221a925e52e3df2c25a8fe647a14b2c320dccf953df1",
+      "mint": "8xdpKPRDhZq1AWGTSmB5uBKqreCRehHqTxVVzJLPpump",
+      "creator": "EGrY5w3s1XD1g1mEZuRkrbFXmCBUWdwvtNNQZxEN2iqh",
+      "signature": "xzTucYDKV4QnYZWZ3p2a4u6uKRA1hCVumwkBCZ929XDiTW1J3wt7KQ9AMHkFn7qHN7aephJ6GPxaR6gG3G5dZFP",
+      "receive_utc_ns": 1792166907028068000,
+      "received_at": 1792166907,
+      "txType": "create",
+      "direct_fields_present": true
+    },
+    "meaning": "Original retained sample contains October16 receipts after October10; current log/core joined examples extend to October17. No total coverage claim."
+  },
+  "24H_BIRTH_COVERAGE": {
+    "receipt_parse_commit_counts": "UNKNOWN; content-addressed raw-frame store lacks receipt-time index; canonical birth retry queue only status and mint indexes, webhook queue signature only. No unindexed exact counts executed. token_analysis.created_at index exists but mixed local/ISO creation authorities and no PumpPortal receipt provenance, so not substituted as receipt denominator.",
+    "sample_only": {
+      "retained_original_frames": 32,
+      "all3_fields": 32,
+      "invalid_syntax": 0
+    },
+    "reconnects": "Latest8 indexed transitions show retained reconnect intervals, not exhaustive24h gap count. Observed down/up pairs6-7seconds; no provider omission inferred.",
+    "retry_deadletter": "Exact control/BWMM birth retry rows and exact known-signature webhook lookup retained. No global failure/deadletter count without indexed time; bounded logs do not prove absence of errors outside segment."
+  },
+  "CREATOR_FIELD_COVERAGE": {
+    "sample": 32,
+    "denominator": 32,
+    "24h": "UNKNOWN",
+    "authority": "traderPublicKey from txType=create; feed-assigned creator not independent Pump ABI decoding"
+  },
+  "BIRTH_SIGNATURE_COVERAGE": {
+    "sample": 32,
+    "denominator": 32,
+    "24h": "UNKNOWN",
+    "identity": "Raw payload signature maps directly create_tx_signature. Parser does not repair alternative fields."
+  },
+  "CANONICAL_BIRTH_PERSISTENCE": {
+    "mapping": "listen_pumpportal_websocket extracts mint/signature; _handle_pumpportal_create_frame reads traderPublicKey, bondingCurveKey; _insert_bonding_curve_token stores earliest_tx_creator,pf_ws_creator,create_tx_signature,created_at,first_pre_migration_signal_at/migration_signal_source=birth. Handler requires truthy mint+signature; creator optional. No strict address/Base58/Pump instruction validation at this parser boundary; no alternative payload keys invented.",
+    "normalization": "time.time local string created_at; creator fields direct, existing-first COALESCE retains nonnull values. Slot not supplied by sampled frame.",
+    "retry": "Primary insert failure -> birth_persist_queue; queue write failure -> existing file fallback; drainer retries and marksPROCESSED. Handler exception can queue pumpportal_retry webhook frame. Insert helper can swallow errors after durable retry attempt; Birth success log alone is not commit acknowledgment. Positive controls independently joined committed core rows.",
+    "observability_limit": "No source-proven failure in sampled recent committed paths; reliability of entire population not certified."
+  },
+  "MIGRATION_HANDOFF_PROPAGATION": {
+    "status": "PASS_SAMPLE",
+    "evidence": "Recent controls retain matching core creator/signature and COMPLETE migration_walkback_handoff plus queue records. Handoff table itself has no CREATE-signature column; downstream reads canonical core/funding evidence. Absence from handoff schema is not automatically lost evidence.",
+    "precedence": "Existing-first COALESCE can preserve previously inferred nonempty values; no observed sampled mismatch or proof of prior PumpPortal value overwritten. No precedence correction justified."
+  },
+  "WALKBACK_ANCHOR_PROPAGATION": {
+    "status": "PASS_SAMPLE",
+    "evidence": "Current FULL controls copy core signature to create_anchor_signature, source token_analysis, VALID; executed examples attempts1. No sampled eligible retained anchor ignored by resolver. Gate still necessary for accepted before-signature cutoff.",
+    "resolver": "Existing canonical ledger/queue/core/detected/funding local lookup; zero-RPC resolution does not itself acquire absent signature."
+  },
+  "RECENT_POSITIVE_CONTROLS": [
+    {
+      "mint": "7NZjxNKmhdQJ8de2gUHKXkEQ8EBWgghUPevign3pump",
+      "creator": "FTaDGbAjaGhToJN6t636VrsJGhW3PkKgVccPLo85Xfui",
+      "birth_signature": "WKDcgXoKiKaQgqrjPJ8JVAZG4tBFQpPNW1rBUzsTPA9ggoB1qpsqBiAkT9bsdnVp7oEqLUBQ2M7nrPUyTYeWLtH",
+      "PumpPortal_receipt": "Unique mint-prefix PumpPortal birth log plus indexed full-mint canonical row; no raw per-control payload recovered",
+      "birth_persisted": true,
+      "migration_tx": "wixQDekEiYx7eBTUapKiB25VNVE7LLouJ2NPtBM7DiqNFpekkuuUFdnJ8ThefQwSzBd3RCximeCnbEp3Tusvtsf",
+      "migration_slot": 458050064,
+      "birth_time_authority": "Local receive-derived created_at/first_pre_migration_signal; migration slot not birth slot",
+      "handoff": [
+        {
+          "mint": "7NZjxNKmhdQJ8de2gUHKXkEQ8EBWgghUPevign3pump",
+          "creator": "FTaDGbAjaGhToJN6t636VrsJGhW3PkKgVccPLo85Xfui",
+          "migration_tx": "wixQDekEiYx7eBTUapKiB25VNVE7LLouJ2NPtBM7DiqNFpekkuuUFdnJ8ThefQwSzBd3RCximeCnbEp3Tusvtsf",
+          "migrated_at": 1792243025,
+          "state": "COMPLETE",
+          "attempt_count": 0,
+          "next_attempt_at": 1792243025,
+          "last_attempt_at": null,
+          "last_error_class": null,
+          "last_error_message": null,
+          "created_at": 1792243025,
+          "completed_at": 1792243026,
+          "terminal_at": null
+        }
+      ],
+      "walkback": {
+        "mint": "7NZjxNKmhdQJ8de2gUHKXkEQ8EBWgghUPevign3pump",
+        "creator": "FTaDGbAjaGhToJN6t636VrsJGhW3PkKgVccPLo85Xfui",
+        "status": "pending",
+        "attempts": 0,
+        "walkback_class": "FULL_WALKBACK",
+        "create_anchor_signature": "WKDcgXoKiKaQgqrjPJ8JVAZG4tBFQpPNW1rBUzsTPA9ggoB1qpsqBiAkT9bsdnVp7oEqLUBQ2M7nrPUyTYeWLtH",
+        "create_anchor_source": "token_analysis",
+        "create_anchor_audit_state": "VALID",
+        "path_state": "CREATE_ANCHORED",
+        "rpc_used": 0,
+        "intelligence_outcome": null
+      }
+    },
+    {
+      "mint": "7pM6FxVd5257AwLfBS1SYoQJRZKnvNgFfPf9h3pGpump",
+      "creator": "D9Z4gmwaP8F4CxGq4XZWQtv4rDP9CxdztGeiWNLsAfk",
+      "birth_signature": "35h5gZaXZmYhx4cmBJLTgYEFbWuYdrgYPxjJF7LW2QdAisySBjuRzPP7GU1RnB3bEg8oEYnfe7sM2eJuQ5dCgHE7",
+      "PumpPortal_receipt": "Unique mint-prefix PumpPortal birth log plus indexed full-mint canonical row; no raw per-control payload recovered",
+      "birth_persisted": true,
+      "migration_tx": "sVL9JLdsStoeAUPGwR5He9QzzCLZ4pjsqqTdibeLpvUnh5FFUD5pBfWzg7QMYMXQiuHYwfVDGZMscwGh1oaFEKV",
+      "migration_slot": 458049480,
+      "birth_time_authority": "Local receive-derived created_at/first_pre_migration_signal; migration slot not birth slot",
+      "handoff": [
+        {
+          "mint": "7pM6FxVd5257AwLfBS1SYoQJRZKnvNgFfPf9h3pGpump",
+          "creator": "D9Z4gmwaP8F4CxGq4XZWQtv4rDP9CxdztGeiWNLsAfk",
+          "migration_tx": "sVL9JLdsStoeAUPGwR5He9QzzCLZ4pjsqqTdibeLpvUnh5FFUD5pBfWzg7QMYMXQiuHYwfVDGZMscwGh1oaFEKV",
+          "migrated_at": 1792242900,
+          "state": "COMPLETE",
+          "attempt_count": 0,
+          "next_attempt_at": 1792242900,
+          "last_attempt_at": null,
+          "last_error_class": null,
+          "last_error_message": null,
+          "created_at": 1792242900,
+          "completed_at": 1792242904,
+          "terminal_at": null
+        }
+      ],
+      "walkback": {
+        "mint": "7pM6FxVd5257AwLfBS1SYoQJRZKnvNgFfPf9h3pGpump",
+        "creator": "D9Z4gmwaP8F4CxGq4XZWQtv4rDP9CxdztGeiWNLsAfk",
+        "status": "complete",
+        "attempts": 1,
+        "walkback_class": "FULL_WALKBACK",
+        "create_anchor_signature": "35h5gZaXZmYhx4cmBJLTgYEFbWuYdrgYPxjJF7LW2QdAisySBjuRzPP7GU1RnB3bEg8oEYnfe7sM2eJuQ5dCgHE7",
+        "create_anchor_source": "token_analysis",
+        "create_anchor_audit_state": "VALID",
+        "path_state": "CLAIMED",
+        "rpc_used": 8,
+        "intelligence_outcome": "NO_ATTRIBUTION_FOUND"
+      }
+    },
+    {
+      "mint": "7Qsbm71fSh9SCtZhh7SYQ2gVEBHwJ2CRKToa1Dkmpump",
+      "creator": "MbhV4WwzPbTfij8dzc3W1FRgG8maTfXSkQp4poJYGNr",
+      "birth_signature": "AZMCeRE9WwHPr7hWVFpDWeyRVTTxLTc5BHtwLtdR1kUoGSW3wf5r935SKMvJqLtRH3Z5wAyjAc95BdM1Gz2zdMP",
+      "PumpPortal_receipt": "Unique mint-prefix PumpPortal birth log plus indexed full-mint canonical row; no raw per-control payload recovered",
+      "birth_persisted": true,
+      "migration_tx": "45L3qqmPZR4GWBqQS5DJRcuMM9akzTvk2FcDAnLAtjATaeaJGV6brCwiW89nD4f87beQvjKkkn4gnfFoVTi6ukws",
+      "migration_slot": 458049343,
+      "birth_time_authority": "Local receive-derived created_at/first_pre_migration_signal; migration slot not birth slot",
+      "handoff": [
+        {
+          "mint": "7Qsbm71fSh9SCtZhh7SYQ2gVEBHwJ2CRKToa1Dkmpump",
+          "creator": "MbhV4WwzPbTfij8dzc3W1FRgG8maTfXSkQp4poJYGNr",
+          "migration_tx": "45L3qqmPZR4GWBqQS5DJRcuMM9akzTvk2FcDAnLAtjATaeaJGV6brCwiW89nD4f87beQvjKkkn4gnfFoVTi6ukws",
+          "migrated_at": 1792242869,
+          "state": "COMPLETE",
+          "attempt_count": 0,
+          "next_attempt_at": 1792242870,
+          "last_attempt_at": null,
+          "last_error_class": null,
+          "last_error_message": null,
+          "created_at": 1792242870,
+          "completed_at": 1792242875,
+          "terminal_at": null
+        }
+      ],
+      "walkback": {
+        "mint": "7Qsbm71fSh9SCtZhh7SYQ2gVEBHwJ2CRKToa1Dkmpump",
+        "creator": "MbhV4WwzPbTfij8dzc3W1FRgG8maTfXSkQp4poJYGNr",
+        "status": "complete",
+        "attempts": 1,
+        "walkback_class": "FULL_WALKBACK",
+        "create_anchor_signature": "AZMCeRE9WwHPr7hWVFpDWeyRVTTxLTc5BHtwLtdR1kUoGSW3wf5r935SKMvJqLtRH3Z5wAyjAc95BdM1Gz2zdMP",
+        "create_anchor_source": "token_analysis",
+        "create_anchor_audit_state": "VALID",
+        "path_state": "FAILED_TERMINAL",
+        "rpc_used": 49,
+        "intelligence_outcome": "LINEAGE_GAP"
+      }
+    },
+    {
+      "mint": "GSuoFY4mcCCL8Emv1GsBpLuXFciimWoavDv7Y7TCpump",
+      "creator": "BY4hmLWBGWQ1Z6bn6s1sy4a4wHqnDKR2AjPY5wjvGtqC",
+      "birth_signature": "9phwjuF4vVhFuDmmNFsySUeBe7ZDkSDavrwGMQeknTcwHHP7S8aHdxpKhALYwrxyEmv2o81JsQCs2RYSy7XegWB",
+      "PumpPortal_receipt": "Unique mint-prefix PumpPortal birth log plus indexed full-mint canonical row; no raw per-control payload recovered",
+      "birth_persisted": true,
+      "migration_tx": "33JggwVVFXUqGAUVr3CnxnVKQ6Hg43wD2BUqew6jeBMbRVG1uomMRQFmHzyqygtHQ9hJLLEbZxWfnAYREXL2D6ss",
+      "migration_slot": 458048540,
+      "birth_time_authority": "Local receive-derived created_at/first_pre_migration_signal; migration slot not birth slot",
+      "handoff": [
+        {
+          "mint": "GSuoFY4mcCCL8Emv1GsBpLuXFciimWoavDv7Y7TCpump",
+          "creator": "BY4hmLWBGWQ1Z6bn6s1sy4a4wHqnDKR2AjPY5wjvGtqC",
+          "migration_tx": "33JggwVVFXUqGAUVr3CnxnVKQ6Hg43wD2BUqew6jeBMbRVG1uomMRQFmHzyqygtHQ9hJLLEbZxWfnAYREXL2D6ss",
+          "migrated_at": 1792242696,
+          "state": "COMPLETE",
+          "attempt_count": 0,
+          "next_attempt_at": 1792242696,
+          "last_attempt_at": null,
+          "last_error_class": null,
+          "last_error_message": null,
+          "created_at": 1792242696,
+          "completed_at": 1792242699,
+          "terminal_at": null
+        }
+      ],
+      "walkback": {
+        "mint": "GSuoFY4mcCCL8Emv1GsBpLuXFciimWoavDv7Y7TCpump",
+        "creator": "BY4hmLWBGWQ1Z6bn6s1sy4a4wHqnDKR2AjPY5wjvGtqC",
+        "status": "complete",
+        "attempts": 1,
+        "walkback_class": "PARTIAL_TREASURY",
+        "create_anchor_signature": "9phwjuF4vVhFuDmmNFsySUeBe7ZDkSDavrwGMQeknTcwHHP7S8aHdxpKhALYwrxyEmv2o81JsQCs2RYSy7XegWB",
+        "create_anchor_source": "token_analysis",
+        "create_anchor_audit_state": "VALID",
+        "path_state": "CLAIMED",
+        "rpc_used": 7,
+        "intelligence_outcome": "LINEAGE_GAP"
+      }
+    }
+  ],
+  "TOKEN_BWMM_BIRTH_STATUS": {
+    "classification": [
+      "PUMPPORTAL_RECEIPT_UNPROVEN",
+      "CREATE_FALLBACK_GAP",
+      "TERMINAL_STATE_STRANDING"
+    ],
+    "exact_evidence": {
+      "core": {
+        "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+        "earliest_tx_creator": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+        "pf_ws_creator": "27HFmP7ccLadGswvQfvea4o3juLw75cPF4V6jWpHM3MX",
+        "create_tx_signature": null,
+        "created_at": 1792195770.727993,
+        "first_pre_migration_signal_at": null,
+        "migration_signal_source": null,
+        "migrated_at": 1792195770,
+        "migration_tx": "5efN7zWzSqVjtbRd96Gq3XxXud5NvxUMtQSJpNjnJQzk3tbmqhZFWDrzy85dur7zyHfYirEvmgVoWJ8F7yQuBeH6",
+        "migration_slot": 457831907,
+        "lifecycle_stage": "migrated"
+      },
+      "log_receipt_prefix_in_bounded_tail": false,
+      "handoff": [
+        {
+          "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+          "creator": null,
+          "migration_tx": "5efN7zWzSqVjtbRd96Gq3XxXud5NvxUMtQSJpNjnJQzk3tbmqhZFWDrzy85dur7zyHfYirEvmgVoWJ8F7yQuBeH6",
+          "migrated_at": 1792195770,
+          "state": "COMPLETE",
+          "attempt_count": 0,
+          "next_attempt_at": 1792195770,
+          "last_attempt_at": null,
+          "last_error_class": null,
+          "last_error_message": null,
+          "created_at": 1792195770,
+          "completed_at": 1792195773,
+          "terminal_at": null
+        }
+      ],
+      "creator_resolution": [
+        {
+          "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+          "status": "complete",
+          "attempts": 1,
+          "create_tx_signature": null,
+          "resolution_tier": "GENERIC"
+        }
+      ],
+      "birth_retry": [],
+      "walkback": [
+        {
+          "mint": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+          "creator": null,
+          "status": "waiting",
+          "attempts": 0,
+          "walkback_class": "FULL_WALKBACK",
+          "create_anchor_signature": null,
+          "create_anchor_source": null,
+          "create_anchor_audit_state": "MISSING_OR_MALFORMED",
+          "path_state": "WAITING_FOR_CREATE_ANCHOR",
+          "rpc_used": 0,
+          "intelligence_outcome": null
+        }
+      ],
+      "ledger": []
+    },
+    "known_signature_webhook_lookup": {
+      "plan": [
+        "SEARCH webhook_birth_queue USING INDEX sqlite_autoindex_webhook_birth_queue_1 (signature=?)"
+      ],
+      "rows": []
+    },
+    "proven_boundary": "No retained canonical birth signal/signature; core fallback creator27HF, migration handoff COMPLETE with creatorNULL, resolver terminalcomplete without qualifiedCREATE; Walkbackwaiting attempts0. No retained raw receipt/parser/persistence attempt linked to exact mint established by bounded evidence.",
+    "limits": "Sample directory/log nonmatch is not proof of no receipt. Do not infer supplier outage, false-negative Watchtower qualification or complete fanout. Known chain creation signature not inserted or replayed. No existing retained canonical anchor was demonstrated ignored.",
+    "stranding": "Existing eligibility targets missing creators; a complete creator without CREATE can remain stranded when no local anchor later arrives. Not proof mathematically permanent: separate qualified stored evidence could release it. DEV051 compatibility installation does not reopen terminal row."
+  },
+  "RAW_WS_FALLBACK_STATUS": {
+    "current": "HELIUS_BIRTH_WS_ENABLED0 and PUMPFUN_BIRTH_RECONCILER_ENABLED0; raw fallback not scheduled by current task registration. Webhook drainer enabled is separate, not proof upstream webhook delivery.",
+    "if_enabled": "Helius logsSubscribe Pump program -> signature from log notification -> _is_pumpfun_create_candidate -> handle_birth fetch/strictvalidate/infer/persist. Existing deduplication seen/completed sets, durable retry queues; no retrospective event replay guaranteed after reconnect.",
+    "known_gap": "Exact installed predicate checks migrate then buy/sell BEFORE create/createV2. Four inert fixtures reproduce valid create aloneTRUE and Create/CreateV2+BuyFALSE. This preserves DEV039 known ordering finding; cannot affect disabled path currently and historical coverage at BWMM launch not attested.",
+    "minimum_separate_fix": "If separately authorized, narrowly prioritize legitimate CREATE over Buy while preserving migrate exclusions and strict downstream validation; positive Create/CreateV2+Buy and negative Buy/Sell/migrate tests, existing budgets. Not deployed/implemented or asserted BWMM cause."
+  },
+  "HISTORICAL_CURRENT_COMPARISON": {
+    "DEV053_report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV053/source/docs/audits/dev053/DEV053_PUMPPORTAL_FIRST_AUDIT_STATUS.json",
+    "sha256": "095b58cb12cdc4c95e87587a8a53e4195229f098eb16f85229be576eb6ebfb3d",
+    "historical": "April PumpPortal-first creator+signature persistence retained in Oct8 and current installed handler; no demonstrated source change dropping creator/signature. X78.19 durable retry improvements address known write-lane failures; not proof of current loss.",
+    "fallback": "Inline creator backfill disabled byJune907b8e59; current separate resolver deployedDEV051version/token/signature correction. RawWS disabled current flags; historical continuous fallback not established.",
+    "Walkback": "July e68 mandatoryFULL anchor same frozen/current. Local receive time not substituted for before signature. No new postOct10 anchor requirement demonstrated.",
+    "earliest_observed_divergence": "Positive path birth+signature present; BWMM first retained path lacks birth signal/signature before migration/Walkback. Receipt-vs-parse-vs-persistence distinction unresolved for exactmint."
+  },
+  "FIRST_PROVEN_FAILURE": {
+    "delivery": "PUMPPORTAL_DELIVERY_CONFIRMED on recent retained samples, not complete reliability",
+    "propagation": "No CREATOR_PROPAGATION_FAILURE/SIGNATURE_PROPAGATION_FAILURE/ANCHOR_RESOLVER_FAILURE established in sampled paths",
+    "BWMM": "CREATE_FALLBACK_GAP + TERMINAL_STATE_STRANDING demonstrated; originating delivery/parse/persist transition INSUFFICIENT_EVIDENCE. Stop boundary reached.",
+    "rawWS": "RAW_WS_FALLBACK_GAP source predicate known, activefallbackdisabled; not token-causal proof"
+  },
+  "MINIMUM_SAFE_CORRECTION": "No intake/propagation correction qualified. Keep successful PumpPortal path and anchor gate. Precisely missing evidence is an exact-mint/signature receipt record with parser disposition and commit/retry outcome around00:09:30UTC, plus original recovery attempt evidence. Separately qualify handling of complete creator rows lacking anchors only with preserved budgets/terminal semantics; no scheduling redesign here. Known rawWS predicate correction remains a separate disabled-path recommendation, not a detection fix for BWMM.",
+  "READY_FOR_IMPLEMENTATION": false,
+  "PROVIDER_CALLS": 0,
+  "CANONICAL_WRITES": 0,
+  "PRODUCTION_CHANGES": 0,
+  "RUNTIME_DEPLOYMENT_REQUIRED": false,
+  "RUNTIME_DEPLOYMENT_REASON": "Read-only operational/source audit with inert predicate fixtures; no executable changes",
+  "STORAGE_BOUNDS": {
+    "maximum_new_single_file_bytes": 2000000,
+    "raw_payload_retention": false,
+    "runtime_growth_paths_added": 0
+  },
+  "NEXT_ACTION": "STOP \u2014 recent PumpPortal intake and anchor propagation confirmed on bounded controls; preserve exact-token receipt/persistence observability gap and terminal missing-anchor state. No implementation/replay/deployment."
+}

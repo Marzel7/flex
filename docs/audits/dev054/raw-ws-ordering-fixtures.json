@@ -1,0 +1,33 @@
+{
+  "checks": [
+    {
+      "logs": [
+        "Program log: Instruction: Create"
+      ],
+      "result": true
+    },
+    {
+      "logs": [
+        "Program log: Instruction: CreateV2"
+      ],
+      "result": true
+    },
+    {
+      "logs": [
+        "Program log: Instruction: CreateV2",
+        "Program log: Instruction: Buy"
+      ],
+      "result": false
+    },
+    {
+      "logs": [
+        "Program log: Instruction: Create",
+        "Program log: Instruction: Buy"
+      ],
+      "result": false
+    }
+  ],
+  "status": "PASS_REPRODUCED_EXISTING_GAP",
+  "network_calls": 0,
+  "note": "Known DEV039 ordering finding preserved; no source change; disabled fallback limits current applicability"
+}

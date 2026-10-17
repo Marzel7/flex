@@ -1,0 +1,13 @@
+{
+  "population": "bounded first32 retained frames; not24h population or random sample",
+  "size": 32,
+  "populated": {
+    "mint": 32,
+    "creator": 32,
+    "signature": 32
+  },
+  "all3": 32,
+  "missing_or_invalid_syntax": 0,
+  "syntax_only": "Does not decode Pump creator argument or establish transaction semantics",
+  "exact_24h_counts": "UNKNOWN; no indexed receipt-time authority queried"
+}

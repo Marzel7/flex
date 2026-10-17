@@ -1,0 +1,6 @@
+{
+  "plan": [
+    "SEARCH webhook_birth_queue USING INDEX sqlite_autoindex_webhook_birth_queue_1 (signature=?)"
+  ],
+  "rows": []
+}

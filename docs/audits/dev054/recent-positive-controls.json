@@ -1,0 +1,162 @@
+[
+  {
+    "mint": "7NZjxNKmhdQJ8de2gUHKXkEQ8EBWgghUPevign3pump",
+    "creator": "FTaDGbAjaGhToJN6t636VrsJGhW3PkKgVccPLo85Xfui",
+    "birth_signature": "WKDcgXoKiKaQgqrjPJ8JVAZG4tBFQpPNW1rBUzsTPA9ggoB1qpsqBiAkT9bsdnVp7oEqLUBQ2M7nrPUyTYeWLtH",
+    "PumpPortal_receipt": "Unique mint-prefix PumpPortal birth log plus indexed full-mint canonical row; no raw per-control payload recovered",
+    "birth_persisted": true,
+    "migration_tx": "wixQDekEiYx7eBTUapKiB25VNVE7LLouJ2NPtBM7DiqNFpekkuuUFdnJ8ThefQwSzBd3RCximeCnbEp3Tusvtsf",
+    "migration_slot": 458050064,
+    "birth_time_authority": "Local receive-derived created_at/first_pre_migration_signal; migration slot not birth slot",
+    "handoff": [
+      {
+        "mint": "7NZjxNKmhdQJ8de2gUHKXkEQ8EBWgghUPevign3pump",
+        "creator": "FTaDGbAjaGhToJN6t636VrsJGhW3PkKgVccPLo85Xfui",
+        "migration_tx": "wixQDekEiYx7eBTUapKiB25VNVE7LLouJ2NPtBM7DiqNFpekkuuUFdnJ8ThefQwSzBd3RCximeCnbEp3Tusvtsf",
+        "migrated_at": 1792243025,
+        "state": "COMPLETE",
+        "attempt_count": 0,
+        "next_attempt_at": 1792243025,
+        "last_attempt_at": null,
+        "last_error_class": null,
+        "last_error_message": null,
+        "created_at": 1792243025,
+        "completed_at": 1792243026,
+        "terminal_at": null
+      }
+    ],
+    "walkback": {
+      "mint": "7NZjxNKmhdQJ8de2gUHKXkEQ8EBWgghUPevign3pump",
+      "creator": "FTaDGbAjaGhToJN6t636VrsJGhW3PkKgVccPLo85Xfui",
+      "status": "pending",
+      "attempts": 0,
+      "walkback_class": "FULL_WALKBACK",
+      "create_anchor_signature": "WKDcgXoKiKaQgqrjPJ8JVAZG4tBFQpPNW1rBUzsTPA9ggoB1qpsqBiAkT9bsdnVp7oEqLUBQ2M7nrPUyTYeWLtH",
+      "create_anchor_source": "token_analysis",
+      "create_anchor_audit_state": "VALID",
+      "path_state": "CREATE_ANCHORED",
+      "rpc_used": 0,
+      "intelligence_outcome": null
+    }
+  },
+  {
+    "mint": "7pM6FxVd5257AwLfBS1SYoQJRZKnvNgFfPf9h3pGpump",
+    "creator": "D9Z4gmwaP8F4CxGq4XZWQtv4rDP9CxdztGeiWNLsAfk",
+    "birth_signature": "35h5gZaXZmYhx4cmBJLTgYEFbWuYdrgYPxjJF7LW2QdAisySBjuRzPP7GU1RnB3bEg8oEYnfe7sM2eJuQ5dCgHE7",
+    "PumpPortal_receipt": "Unique mint-prefix PumpPortal birth log plus indexed full-mint canonical row; no raw per-control payload recovered",
+    "birth_persisted": true,
+    "migration_tx": "sVL9JLdsStoeAUPGwR5He9QzzCLZ4pjsqqTdibeLpvUnh5FFUD5pBfWzg7QMYMXQiuHYwfVDGZMscwGh1oaFEKV",
+    "migration_slot": 458049480,
+    "birth_time_authority": "Local receive-derived created_at/first_pre_migration_signal; migration slot not birth slot",
+    "handoff": [
+      {
+        "mint": "7pM6FxVd5257AwLfBS1SYoQJRZKnvNgFfPf9h3pGpump",
+        "creator": "D9Z4gmwaP8F4CxGq4XZWQtv4rDP9CxdztGeiWNLsAfk",
+        "migration_tx": "sVL9JLdsStoeAUPGwR5He9QzzCLZ4pjsqqTdibeLpvUnh5FFUD5pBfWzg7QMYMXQiuHYwfVDGZMscwGh1oaFEKV",
+        "migrated_at": 1792242900,
+        "state": "COMPLETE",
+        "attempt_count": 0,
+        "next_attempt_at": 1792242900,
+        "last_attempt_at": null,
+        "last_error_class": null,
+        "last_error_message": null,
+        "created_at": 1792242900,
+        "completed_at": 1792242904,
+        "terminal_at": null
+      }
+    ],
+    "walkback": {
+      "mint": "7pM6FxVd5257AwLfBS1SYoQJRZKnvNgFfPf9h3pGpump",
+      "creator": "D9Z4gmwaP8F4CxGq4XZWQtv4rDP9CxdztGeiWNLsAfk",
+      "status": "complete",
+      "attempts": 1,
+      "walkback_class": "FULL_WALKBACK",
+      "create_anchor_signature": "35h5gZaXZmYhx4cmBJLTgYEFbWuYdrgYPxjJF7LW2QdAisySBjuRzPP7GU1RnB3bEg8oEYnfe7sM2eJuQ5dCgHE7",
+      "create_anchor_source": "token_analysis",
+      "create_anchor_audit_state": "VALID",
+      "path_state": "CLAIMED",
+      "rpc_used": 8,
+      "intelligence_outcome": "NO_ATTRIBUTION_FOUND"
+    }
+  },
+  {
+    "mint": "7Qsbm71fSh9SCtZhh7SYQ2gVEBHwJ2CRKToa1Dkmpump",
+    "creator": "MbhV4WwzPbTfij8dzc3W1FRgG8maTfXSkQp4poJYGNr",
+    "birth_signature": "AZMCeRE9WwHPr7hWVFpDWeyRVTTxLTc5BHtwLtdR1kUoGSW3wf5r935SKMvJqLtRH3Z5wAyjAc95BdM1Gz2zdMP",
+    "PumpPortal_receipt": "Unique mint-prefix PumpPortal birth log plus indexed full-mint canonical row; no raw per-control payload recovered",
+    "birth_persisted": true,
+    "migration_tx": "45L3qqmPZR4GWBqQS5DJRcuMM9akzTvk2FcDAnLAtjATaeaJGV6brCwiW89nD4f87beQvjKkkn4gnfFoVTi6ukws",
+    "migration_slot": 458049343,
+    "birth_time_authority": "Local receive-derived created_at/first_pre_migration_signal; migration slot not birth slot",
+    "handoff": [
+      {
+        "mint": "7Qsbm71fSh9SCtZhh7SYQ2gVEBHwJ2CRKToa1Dkmpump",
+        "creator": "MbhV4WwzPbTfij8dzc3W1FRgG8maTfXSkQp4poJYGNr",
+        "migration_tx": "45L3qqmPZR4GWBqQS5DJRcuMM9akzTvk2FcDAnLAtjATaeaJGV6brCwiW89nD4f87beQvjKkkn4gnfFoVTi6ukws",
+        "migrated_at": 1792242869,
+        "state": "COMPLETE",
+        "attempt_count": 0,
+        "next_attempt_at": 1792242870,
+        "last_attempt_at": null,
+        "last_error_class": null,
+        "last_error_message": null,
+        "created_at": 1792242870,
+        "completed_at": 1792242875,
+        "terminal_at": null
+      }
+    ],
+    "walkback": {
+      "mint": "7Qsbm71fSh9SCtZhh7SYQ2gVEBHwJ2CRKToa1Dkmpump",
+      "creator": "MbhV4WwzPbTfij8dzc3W1FRgG8maTfXSkQp4poJYGNr",
+      "status": "complete",
+      "attempts": 1,
+      "walkback_class": "FULL_WALKBACK",
+      "create_anchor_signature": "AZMCeRE9WwHPr7hWVFpDWeyRVTTxLTc5BHtwLtdR1kUoGSW3wf5r935SKMvJqLtRH3Z5wAyjAc95BdM1Gz2zdMP",
+      "create_anchor_source": "token_analysis",
+      "create_anchor_audit_state": "VALID",
+      "path_state": "FAILED_TERMINAL",
+      "rpc_used": 49,
+      "intelligence_outcome": "LINEAGE_GAP"
+    }
+  },
+  {
+    "mint": "GSuoFY4mcCCL8Emv1GsBpLuXFciimWoavDv7Y7TCpump",
+    "creator": "BY4hmLWBGWQ1Z6bn6s1sy4a4wHqnDKR2AjPY5wjvGtqC",
+    "birth_signature": "9phwjuF4vVhFuDmmNFsySUeBe7ZDkSDavrwGMQeknTcwHHP7S8aHdxpKhALYwrxyEmv2o81JsQCs2RYSy7XegWB",
+    "PumpPortal_receipt": "Unique mint-prefix PumpPortal birth log plus indexed full-mint canonical row; no raw per-control payload recovered",
+    "birth_persisted": true,
+    "migration_tx": "33JggwVVFXUqGAUVr3CnxnVKQ6Hg43wD2BUqew6jeBMbRVG1uomMRQFmHzyqygtHQ9hJLLEbZxWfnAYREXL2D6ss",
+    "migration_slot": 458048540,
+    "birth_time_authority": "Local receive-derived created_at/first_pre_migration_signal; migration slot not birth slot",
+    "handoff": [
+      {
+        "mint": "GSuoFY4mcCCL8Emv1GsBpLuXFciimWoavDv7Y7TCpump",
+        "creator": "BY4hmLWBGWQ1Z6bn6s1sy4a4wHqnDKR2AjPY5wjvGtqC",
+        "migration_tx": "33JggwVVFXUqGAUVr3CnxnVKQ6Hg43wD2BUqew6jeBMbRVG1uomMRQFmHzyqygtHQ9hJLLEbZxWfnAYREXL2D6ss",
+        "migrated_at": 1792242696,
+        "state": "COMPLETE",
+        "attempt_count": 0,
+        "next_attempt_at": 1792242696,
+        "last_attempt_at": null,
+        "last_error_class": null,
+        "last_error_message": null,
+        "created_at": 1792242696,
+        "completed_at": 1792242699,
+        "terminal_at": null
+      }
+    ],
+    "walkback": {
+      "mint": "GSuoFY4mcCCL8Emv1GsBpLuXFciimWoavDv7Y7TCpump",
+      "creator": "BY4hmLWBGWQ1Z6bn6s1sy4a4wHqnDKR2AjPY5wjvGtqC",
+      "status": "complete",
+      "attempts": 1,
+      "walkback_class": "PARTIAL_TREASURY",
+      "create_anchor_signature": "9phwjuF4vVhFuDmmNFsySUeBe7ZDkSDavrwGMQeknTcwHHP7S8aHdxpKhALYwrxyEmv2o81JsQCs2RYSy7XegWB",
+      "create_anchor_source": "token_analysis",
+      "create_anchor_audit_state": "VALID",
+      "path_state": "CLAIMED",
+      "rpc_used": 7,
+      "intelligence_outcome": "LINEAGE_GAP"
+    }
+  }
+]

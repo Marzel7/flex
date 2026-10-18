@@ -19269,8 +19269,8 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev084",
-    "git_head": "ef7af7390d97189e8137b42584bcab6ab1c6cc22",
+    "branch": "codex/dev085",
+    "git_head": "a6f870bda23228920f49b0b06403063f6ab66320",
     "name": "flex",
     "updated_at_utc": "2026-10-18T11:29:09.291520+00:00",
     "working_tree": "DEV084 Inbox read-only correction component PASS; release HOLD at clean Byzantine browser timeout-only contract. Both isolated APIs stopped; no candidate or deployment."
@@ -32297,5 +32297,28 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED component; release HOLD",
     "storage": "No new runtime persistent state/worker/acquisition; compact fixtures/logs8MiB; no raw provider retention or canonical copies.",
     "next_action": "Separately qualify Byzantine browser contract for correct full detail and safe unavailable outcomes, preserving strict assertions; repeat DEV084 clean-checkout acceptance before immutable candidate. Then separately compose Inbox pair with DEV082 unchanged worker and repeat combined gates. Do not deploy."
+  },
+  "dev085_byzantine_browser_contract": {
+    "DEV085_BYZANTINE_BROWSER_CONTRACT_STATUS": "HOLD_QUERY_BOUNDS",
+    "EXPECTED_BEHAVIOUR": "Existing browser contract requires UNAVAILABLE \u2014 Operation detail and Request exceeded 3 seconds. Application permits completion within deadline.",
+    "OBSERVED_BEHAVIOUR": "Retained DEV084 clean run c279ab3c2a0c rendered full Byzantine detail; earlier independent API request returned 503 in 3.018057333998513 seconds. Exact successful browser response status and duration were not retained. No new historical population request executed.",
+    "DATA_SOURCE_AUTHORITY": "Golden 0eb749ecd6acd0ab70ec6d09b9170c583d82374b detail modules byte-identical to DEV084; canonical OPS read-only schema/query plans. Current installed API detail modules differ; no deployment equivalence asserted.",
+    "QUERY_BOUNDS": "Infrastructure activity uses status-only ix_wbq_priority plus temporary DISTINCT tree, then collects all matching timestamps in Python. Recent infrastructure uses same status-only access plus temporary ORDER BY tree; LIMIT 250 bounds output, not examined population. Three-second deadline, capacity one and four connections do not impose row/memory bounds.",
+    "HISTORICAL_DETAIL_EXCLUSIONS": "Full Byzantine/Nexus historical detail remains excluded. Infrastructure observations must remain separate from canonical membership; historical ByZc corroboration is not membership.",
+    "ROOT_CAUSE": "Fixed browser assertion assumes deterministic timeout although application permits fast completion. Successful rendering alone is insufficient authority to accept this historical data path because indexed population/memory bounds are not demonstrated.",
+    "MINIMUM_CORRECTION": "NONE: widening assertion is not qualified. Application/query/index changes outside DEV085 scope.",
+    "NEGATIVE_CONTROLS": "61 existing DEV048/DEV080 tooling controls PASS; 12 existing detail resource-safety tests PASS. No assertions changed.",
+    "DEV048_TOOLING_QUALIFICATION": "PARTIAL: unchanged controls pass; full frontend/API/browser and clean-checkout suite not repeated after query-bound HOLD. No candidate.",
+    "DEV084_RELEASE_UNBLOCKED": false,
+    "DEV082_RELEASE_UNBLOCKED": false,
+    "NEXT_ACTION": "Qualify a separately authorized bounded exact detail access path, or an explicit safe unavailable application contract; then revisit browser alternatives and repeat release acceptance. No database or source change authorized here.",
+    "PROVIDER_CALLS": 0,
+    "CANONICAL_WRITES": 0,
+    "PRODUCTION_CHANGES": 0,
+    "APPLICATION_CHANGES": 0,
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "runtime_reason": "Diagnosis and documentation only",
+    "storage": "Compact derived query plans/documentation; no raw payload retention, canonical copies or unbounded output paths; generated files below 8 MiB.",
+    "retained_browser_evidence": "DEV084/evidence/c279ab3c2a0c/byzantine_detail.txt and .png; existing artifacts unchanged."
   }
 }

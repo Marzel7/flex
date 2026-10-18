@@ -19272,8 +19272,8 @@
     "branch": "codex/dev090",
     "git_head": "ac7b88633f53c854559770c4109b14c6f0d53ceb",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T18:56:51.370294+00:00",
-    "working_tree": "DEV090 read-only contract decision: TARGET_CONTRACT_PRESERVED_TEST_SCOPE_MISMATCH; code/tests unchanged; target release still pending qualified contract selection"
+    "updated_at_utc": "2026-10-18T19:00:27.424771+00:00",
+    "working_tree": "DEV090 DEV002 release HOLD_STORAGE before test selection edits; source/tests/candidates unchanged"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32772,5 +32772,29 @@
     "test_changes": 0,
     "restarts": 0,
     "next_action": "Stop at contract decision. Separately qualify proposed target-specific test/manifest classification retaining all applicable negative controls, then repeat offline release gates; no code/P3R restoration or deployment implied."
+  },
+  "dev090_dev002_release_storage_precondition": {
+    "status": "HOLD_STORAGE_BEFORE_QUALIFICATION",
+    "engineering_source_sha": "ac7b88633f53c854559770c4109b14c6f0d53ceb",
+    "contract": "Preserved target-contract mismatch decision and per-case proposal remain authority; no P3R/d3de restoration or global assertion exclusion",
+    "free_bytes": 658636800,
+    "reserve_bytes": 2000000000,
+    "fixture_peak_bytes": 1000000000,
+    "required_combined_bytes": 3000000000,
+    "qualification": "Not started; no applicable tests failed or passed anew. Existing crash/release evidence preserved.",
+    "report": "DEV090/dev002-release-storage-preflight/DEV090_DEV002_RELEASE_STATUS.json",
+    "supervisor_ownership": "UNRESOLVED separate deployment prerequisite",
+    "ready_for_offline_release": false,
+    "ready_for_deployment": false,
+    "target_candidate_sha": null,
+    "original_candidate_unchanged": true,
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "source_changes": 0,
+    "test_changes": 0,
+    "restarts": 0,
+    "cleanup": false,
+    "next_action": "Restore at least3GB available capacity through separately authorized storage relief, then resume the preserved target-specific test-selection proposal in DEV090 without changing application behaviour or original candidates. No storage investigation/cleanup performed in this task."
   }
 }

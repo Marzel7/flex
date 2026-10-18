@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev079",
-    "git_head": "5036bcd7ae1b4d2294de51474e0d27b00dddb31d",
+    "branch": "codex/dev080",
+    "git_head": "9a718366fec18213b29283d2e8372d59dd89711c",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T10:15:30.115057+00:00",
-    "working_tree": "DEV079 standalone V1/signature correction committed; component tests pass; immutable release HOLD at unchanged browser Health contract; isolated API stopped."
+    "updated_at_utc": "2026-10-18T10:37:23.956822+00:00",
+    "working_tree": "DEV080 tooling qualification PASS; engineering branch remotely verified; isolated APIs stopped; no application candidate or deployment."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32160,5 +32160,25 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED component; release additionallyHOLD",
     "safety": "No new schema/index/state/worker; provider budgets unchanged; no raw responses or sensitive runtime configuration published; engineering branch not pushed.",
     "next_action": "Separately qualify unchanged Health fixture/browser contract mismatch without weakening gate; then repeat complete browser and clean-checkout qualification before candidate creation. Do not deploy."
+  },
+  "dev080_health_contract": {
+    "status": "PASS",
+    "engineering_source_sha": "9a718366fec18213b29283d2e8372d59dd89711c",
+    "qualified_tooling_source_sha": "83de53ced956b45a03080fe3db0f82ee8f780a7d",
+    "tooling_sha256": "a0a2caf1945c0bb90c22a4ea7f2cc743e7003edd63fd60fb347f355f371c8340",
+    "report": "docs/audits/dev080/DEV080_HEALTH_CONTRACT_STATUS.json",
+    "root_cause": "Fixed UNKNOWN browser assertion contradicted retained CRITICAL API evidence; baseline and candidate Health templates byte-identical. Isolated acquisition disabled. Genuine Critical remains visible.",
+    "correction": "Session/source/port/hash-bound Health API evidence must match visible banner; reject contradictory or missing authority. Accepted DEV049 concrete Node and archival tooling controls preserved.",
+    "verification": "61 tooling controls PASS (18 original negatives,5 Node,11 archival,27 Health);39 guarded Python PASS; frontend30s/8MiB unchanged PASS; API PASS;10 real browser contracts PASS initially and from fresh clean checkout; final unexpected guard denials0; source/dependency closure PASS.",
+    "dev074_application_sha_unchanged": "a34f6968e12c9d9c12ae1c00917fbe241f3892d9",
+    "dev079_application_sha_unchanged": "5036bcd7ae1b4d2294de51474e0d27b00dddb31d",
+    "release_scope": "Shared Health blocker cleared only. No DEV074/DEV079 candidates created or deployment qualified here.",
+    "remote_preservation": "origin codex/dev080 HEAD verified 9a718366fec18213b29283d2e8372d59dd89711c",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Separately qualified release tooling/tests only; executed in isolated DEV080 and clean restoration, no persistent launcher replacement.",
+    "next_action": "Rerun DEV074 and DEV079 candidate-specific release qualification with qualified DEV080 tooling; do not deploy."
   }
 }

@@ -1,0 +1,13 @@
+{
+  "new_literal_credentials_introduced": false,
+  "inherited_credential_locations": [
+    {
+      "path": "src/core/walkback_worker.py",
+      "classification": "Already present verbatim in protected golden and installed preimages; value not copied into audit or handoff"
+    }
+  ],
+  "engineering_branch_published": false,
+  "publication_scope": "Sanitized agent-handoff only; no credential/source excerpts or raw runtime data",
+  "raw_provider_responses_added": false,
+  "approved_compact_derived_regression_fixtures_only": true
+}

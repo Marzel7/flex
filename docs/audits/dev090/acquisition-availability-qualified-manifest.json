@@ -1,0 +1,41 @@
+{
+  "status": "PASS_MODULE_CONTRACT_ONLY",
+  "module_path": "src/ops/acquisition_availability.py",
+  "sha256": "135907c90de858ac403da6ab92cf1a00b5714b5c0c61acc730dd917aed7458ad",
+  "original_source_commit": "b0883b68874fb2a1bd39edcd4a7030f8936bb0f8",
+  "installed_checkout_sha": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+  "installed_bytes_unchanged": true,
+  "module_modified": false,
+  "export": "AcquisitionAvailability(db_path, runtime_id); transition(capability,state,reason,connection_id=None,now=None) -> bool",
+  "transitive_imports": [
+    "__future__.annotations",
+    "hashlib",
+    "json",
+    "os",
+    "sqlite3",
+    "time",
+    "pathlib.Path"
+  ],
+  "nonstdlib_dependencies": [],
+  "tests": {
+    "passed": 10,
+    "test_source_sha256": "89acd88e907f593c6565d49ce0099e765867193eace91240693ddb00300cd052",
+    "test_log_sha256": "e81e61959ae43919180dab36c20176daea30a3506d5bcf384bb6d7794fdb7aa0",
+    "unexpected_guard_denials": 0,
+    "import_and_constructor_io": false,
+    "additional_workers": 0,
+    "provider_calls": 0,
+    "canonical_writes": 0
+  },
+  "tested_behaviour": [
+    "import/constructor without SQLite access",
+    "normal BIRTH transitions and persisted provenance",
+    "same-state deduplication and restart continuity",
+    "invalid capability/state without file creation",
+    "unavailable storage returns false",
+    "missing summary evidence yields UNKNOWN, not zero availability",
+    "connect/read/insert/commit failures return false"
+  ],
+  "runtime_storage": "Existing transition method performs schema/index initialization and persistence only when invoked; no production activation authorized. Test fixtures less than1MiB each, runner cap8MiB. Runtime retention/growth qualification not claimed.",
+  "compatibility_scope": "Exact installed symbol/signature matches existing listener call sites. Complete listener import acceptance FAILED; module PASS is not complete release qualification."
+}

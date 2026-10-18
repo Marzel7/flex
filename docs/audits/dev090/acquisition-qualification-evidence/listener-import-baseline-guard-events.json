@@ -1,0 +1,56 @@
+[
+  {
+    "kind": "socket.bind",
+    "target": "('::1', 0)",
+    "stack": [
+      "  File \"<frozen importlib._bootstrap_external>\", line 940, in exec_module\n",
+      "  File \"<frozen importlib._bootstrap>\", line 241, in _call_with_frames_removed\n",
+      "  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/urllib3/util/__init__.py\", line 4, in <module>\n    from .connection import is_connection_dropped\n",
+      "  File \"<frozen importlib._bootstrap>\", line 1176, in _find_and_load\n",
+      "  File \"<frozen importlib._bootstrap>\", line 1147, in _find_and_load_unlocked\n",
+      "  File \"<frozen importlib._bootstrap>\", line 690, in _load_unlocked\n",
+      "  File \"<frozen importlib._bootstrap_external>\", line 940, in exec_module\n",
+      "  File \"<frozen importlib._bootstrap>\", line 241, in _call_with_frames_removed\n",
+      "  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/urllib3/util/connection.py\", line 137, in <module>\n    HAS_IPV6 = _has_ipv6(\"::1\")\n",
+      "  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/urllib3/util/connection.py\", line 127, in _has_ipv6\n    sock.bind((host, 0))\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 26, in audit\n    if address!=('127.0.0.1',PORT):reject(event,address)\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 17, in reject\n    EVENTS.append({'kind':kind,'target':str(target)[:300], 'stack':traceback.format_stack(limit=12)})\n"
+    ]
+  },
+  {
+    "kind": "foreign_path_mutation",
+    "target": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/logs",
+    "stack": [
+      "  File \"<frozen importlib._bootstrap_external>\", line 940, in exec_module\n",
+      "  File \"<frozen importlib._bootstrap>\", line 241, in _call_with_frames_removed\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/src/core/pumpfun_curve_listener.py\", line 45, in <module>\n    from src.core.ws_price_tracer import trace as _wstrace\n",
+      "  File \"<frozen importlib._bootstrap>\", line 1176, in _find_and_load\n",
+      "  File \"<frozen importlib._bootstrap>\", line 1147, in _find_and_load_unlocked\n",
+      "  File \"<frozen importlib._bootstrap>\", line 690, in _load_unlocked\n",
+      "  File \"<frozen importlib._bootstrap_external>\", line 940, in exec_module\n",
+      "  File \"<frozen importlib._bootstrap>\", line 241, in _call_with_frames_removed\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/src/core/ws_price_tracer.py\", line 41, in <module>\n    os.makedirs(os.path.dirname(_LOG_PATH), exist_ok=True)\n",
+      "  File \"<frozen os>\", line 225, in makedirs\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 35, in audit\n    if not inside(target):reject('foreign_path_mutation',target)\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 17, in reject\n    EVENTS.append({'kind':kind,'target':str(target)[:300], 'stack':traceback.format_stack(limit=12)})\n"
+    ]
+  },
+  {
+    "kind": "foreign_file_write",
+    "target": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/logs/ws_price_trace.log",
+    "stack": [
+      "  File \"<frozen importlib._bootstrap>\", line 1176, in _find_and_load\n",
+      "  File \"<frozen importlib._bootstrap>\", line 1147, in _find_and_load_unlocked\n",
+      "  File \"<frozen importlib._bootstrap>\", line 690, in _load_unlocked\n",
+      "  File \"<frozen importlib._bootstrap_external>\", line 940, in exec_module\n",
+      "  File \"<frozen importlib._bootstrap>\", line 241, in _call_with_frames_removed\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/src/core/ws_price_tracer.py\", line 42, in <module>\n    _fh = _lh.RotatingFileHandler(\n",
+      "  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/logging/handlers.py\", line 155, in __init__\n    BaseRotatingHandler.__init__(self, filename, mode, encoding=encoding,\n",
+      "  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/logging/handlers.py\", line 58, in __init__\n    logging.FileHandler.__init__(self, filename, mode=mode,\n",
+      "  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/logging/__init__.py\", line 1181, in __init__\n    StreamHandler.__init__(self, self._open())\n",
+      "  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/logging/__init__.py\", line 1213, in _open\n    return open_func(self.baseFilename, self.mode,\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 31, in audit\n    if write and name!='/dev/null'and not inside(name):reject('foreign_file_write',name)\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 17, in reject\n    EVENTS.append({'kind':kind,'target':str(target)[:300], 'stack':traceback.format_stack(limit=12)})\n"
+    ]
+  }
+]

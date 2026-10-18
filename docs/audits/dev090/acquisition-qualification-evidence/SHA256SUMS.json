@@ -1,0 +1,11 @@
+{
+  "dependency-contract.txt.command.json": "5b1e134109bfa84e459ef87077daca5043cdd251e9597e818c324ba225e5e532",
+  "listener-import.txt": "f3dce09099ce5450508d9d5016aacb98b19bb845915366c60c2ada5d3e79b2c5",
+  "listener-import-baseline.txt": "f95e4008af2ed04c63dab91e4d3314eb169ee1d94e2089e5b883241c02efbd61",
+  "listener-import-baseline-guard-events.json": "29a32af78dd61bd0b38ce701ef62e8965245f285172ab9205ff873e084c4d1d9",
+  "listener-import-guard-events.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+  "dependency-contract.txt": "e81e61959ae43919180dab36c20176daea30a3506d5bcf384bb6d7794fdb7aa0",
+  "listener-import.txt.command.json": "742c682f6938c4868f02a0cdfba2002a16b3b29b2d3018949ffbadb07974db56",
+  "listener-import-baseline.txt.command.json": "cf8a73090f0c5ff38ed0bf0933919246c536d015cce134daff335a0f4c791e2b",
+  "dependency-contract-guard-events.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+}

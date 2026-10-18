@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+    "-I",
+    "-B",
+    "/Users/kevinkeaveney/Dev/claude/flex-development/DEV080/source/tools/flex_dev_guarded.py",
+    "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source",
+    "tests/test_dev090_listener_import_closure.py"
+  ],
+  "cwd": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source",
+  "elapsed_seconds": 0.8793162500005565,
+  "environment": {
+    "HOME": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/state/listener-import",
+    "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+    "TMPDIR": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/state/listener-import"
+  },
+  "file_limit_bytes": 8388608,
+  "log_bytes": 10946,
+  "returncode": 1,
+  "signal": null,
+  "status": "FAIL",
+  "stderr": "STDOUT",
+  "stdout": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/state/listener-import.log",
+  "timeout_seconds": 120
+}

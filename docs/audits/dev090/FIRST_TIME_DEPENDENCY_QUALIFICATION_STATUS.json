@@ -1,0 +1,33 @@
+{
+  "DEV090_DEPENDENCY_CLOSURE_STATUS": "PARTIAL_MODULE_QUALIFIED_RELEASE_HOLD",
+  "MISSING_MODULE_AUTHORITY": "135907c90de858ac403da6ab92cf1a00b5714b5c0c61acc730dd917aed7458ad",
+  "QUALIFIED_SOURCE_PROVENANCE": "Exact installed and b0883b68 committed bytes; first-time 10-test guarded module qualification now preserved in acquisition-availability-qualified-manifest.json",
+  "TRANSITIVE_IMPORT_CLOSURE": "Module standard-library closure PASS; complete listener closure HOLD on existing import-time isolation side effects",
+  "WALKBACK_SOURCE_UNCHANGED": true,
+  "INBOX_SOURCE_UNCHANGED": true,
+  "MODULE_MODIFIED": false,
+  "RELEASE_REGRESSION_RESULTS": "Module10PASS, zero unexpected module guard events. Real listener import probe FAIL; stop before repeated full regressions/browser/crash suite. Prior accepted results preserved, no fresh PASS claimed.",
+  "LISTENER_FAILURE": {
+    "first_diagnostic": "Overstrict diagnostic denied existing db_locking reaper startup; fixture corrected to establish already-qualified shared-writer baseline, not alter application or guards. Original failure preserved.",
+    "final_diagnostic": "Actual listener import with existing shared-writer baseline, explicit disposable runtime paths and no dependency stubs",
+    "guard_denials": 3,
+    "events": [
+      "urllib3 IPv6 capability probe bind(::1,0)",
+      "ws_price_tracer source/logs directory creation",
+      "ws_price_tracer source/logs/ws_price_trace.log write"
+    ],
+    "stack": "pumpfun_curve_listener.py:45 imports ws_price_tracer; ws_price_tracer.py:42 constructs RotatingFileHandler; unchanged filesystem guard denies opening source-tree log",
+    "application_changes_to_fix_failure": false,
+    "guards_weakened": false
+  },
+  "CLEAN_CHECKOUT_RESTORATION": "NOT_RUN \u2014 mandatory listener import safety gate failed",
+  "CANDIDATE_SOURCE_SHA": null,
+  "READY_FOR_TARGETED_DEPLOYMENT": false,
+  "NEXT_ACTION": "Separately scope qualification of the existing listener import-time dependencies and supported isolated bindings for ws_price_tracer/urllib3 capability probing. Preserve the now-qualified module and all application logic; do not bypass guards or create candidate before full closure and restoration pass.",
+  "RUNTIME_DEPLOYMENT_GATE": "QUALIFIED_NOT_DEPLOYED",
+  "PROVIDER_CALLS": 0,
+  "CANONICAL_WRITES": 0,
+  "PRODUCTION_CHANGES": 0,
+  "OPERATIONAL_RESTARTS": 0,
+  "DEPLOYMENT": false
+}

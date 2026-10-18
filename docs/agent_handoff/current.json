@@ -19272,8 +19272,8 @@
     "branch": "codex/dev090",
     "git_head": "c604991687e7dd4aaf065fddd047dab6c993ccab",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T20:42:33.973042+00:00",
-    "working_tree": "DEV090 candidate unchanged; final deployment HOLD before operational changes"
+    "updated_at_utc": "2026-10-18T20:48:10.033671+00:00",
+    "working_tree": "DEV090 read-only preflight READY_FOR_CONTROLLED_DEPLOYMENT; immutable candidate and operational state unchanged"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32937,6 +32937,23 @@
     "runtime_deployment_gate": "HOLD",
     "ready_for_golden_baseline": false,
     "safety": "providers0;canonical writes0;Production changes0;service starts/restarts/signals0;noqueuechanges",
-    "next_action": "Qualify actual installed creator db_locking dependency compatibility and complete bounded OPS health evidence before separately authorized deployment retry. No broader infrastructure repairs or candidate mutation."
+    "next_action": "Qualify actual installed creator db_locking dependency compatibility and complete bounded OPS health evidence before separately authorized deployment retry. No broader infrastructure repairs or candidate mutation.",
+    "superseded_by": "dev090_remaining_deployment_preflight: compatible installed dependency and bounded-health scope established"
+  },
+  "dev090_remaining_deployment_preflight": {
+    "engineering_revision": "c604991687e7dd4aaf065fddd047dab6c993ccab",
+    "status": "READY_FOR_CONTROLLED_DEPLOYMENT",
+    "locking_compatibility": "Preserve installed creator db_lockingcf60acfa7306b771c3c3bf0e88d3eee0e680a09ee3f5ef1cc64bad2d22332390. Only SQLwrite-prefix constant and TrackedConnection execute/commit/rollback changed versus ecb8d551. Installed BEGIN IMMEDIATE/EXCLUSIVE enters unchanged shared lane first, correcting inversion. Imports/lease ownership/other methods unchanged;6in-memory method cases pass commit/rollback/failure. No installed overwrite.",
+    "bounded_ops_health": "Accessible schema/indexes and PK exact-mint SEARCH/roundtrip pass; page/file counts consistent; CoreWAL0/OPSWALabsent; no DB/lock handles or worker/manager observed; actual claim query0. Status index excludes completed/skipped history; temporary sort currently at most1 running status candidate. Not a permanent growth bound.",
+    "integrity_limit": "No full integrity claim: prior five-second table check incomplete. Bounded checks do not visit every historical overflow/btree page. No full scan/checkpoint/repair/REINDEX/VACUUM.",
+    "schema_safety": "Exact initialize fixture passed precommit atomic rollback, disabled committed state, duplicate invocation rejection/unchanged state. Primitive not idempotent: deployment must inspect exact existing schema/control before retry; never blindly rerun. Actual operational schema absent; no migration performed.",
+    "candidate": "c604991687e7 immutable release/sealed hashes and268checks/7crashes/10browser/clean-restoration evidence reverified; installed target preimages unchanged. Candidate untouched.",
+    "storage": "Final10.655GB free;2GBreserve+256MiBconservative incremental budget; existing main-file exception unchanged, no hard VFS quota claimed.",
+    "evidence": "DEV090/dev002-release-qualification/remaining-preflight/READINESS.json plus compatibility and bounded database health receipts",
+    "supervisor": "Previously qualified selective15program config identity unchanged; no IPC/manager started. Future discoveryflag0 and serialized writer settings required.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "safety": "providers0;canonical writes0;Production changes0;service starts/signals0;no operational state changes",
+    "next_action": "Await explicit controlled deployment execution: exact guarded schema state/epoch, target installation retaining compatible creatorcf60 dependency, selective two-worker start and real commit/prospective acceptance. No deployment in this preflight-only task."
   }
 }

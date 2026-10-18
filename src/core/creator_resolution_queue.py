@@ -693,6 +693,9 @@ def process_queue(
     lock_seconds: int = 180,
     schema_ready: bool = False,
 ) -> Dict[str, Any]:
+    from src.ops.walkback_create_handoff import producer_preflight
+    with _read_db(db_path) as _handoff_preflight:
+        producer_preflight(_handoff_preflight, core_path=db_path, ops_path=_OPS_DB_PATH)
     now = int(time.time())
     processed = resolved = failed = skipped = funding_enqueued = 0
     errors: List[Dict[str, str]] = []

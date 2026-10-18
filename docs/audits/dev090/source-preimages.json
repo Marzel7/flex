@@ -82,7 +82,7 @@
     "authority": "DEV074 a34f6968 /Users/kevinkeaveney/Dev/claude/flex-development/DEV074/source/src/core/creator_resolution_queue.py",
     "sha256": "4412b6c7ef5e84e133a205a0e81706b663e15debc513c6b30bc16e8c2b72d741",
     "role": "Qualified creator safeguard; preserve installed DEV051 corrections",
-    "candidate_sha256": "62ab712ef76f5eeb5c96e2755997e92548f1aaf787bdec2daa91df791e6ff0e1"
+    "candidate_sha256": "840b1273fa8befa3e5bb024bcdd217e3c651b85d524955bb7e07e47cd2c329ef"
   },
   {
     "path": "src/core/creator_resolution_worker.py",

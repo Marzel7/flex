@@ -241,3 +241,15 @@ def set_birth_retry_source(conn,mint,source):
         changed=conn.execute('UPDATE wb_create_control SET birth_retry_admitted=birth_retry_admitted+1 WHERE id=1 AND birth_retry_admitted<100000')
         if changed.rowcount!=1:raise Unavailable('BIRTH_PROVENANCE_CAPACITY')
         conn.execute('UPDATE birth_persist_queue SET wb_birth_source=? WHERE mint=?',(source,mint))
+
+
+def producer_preflight(conn,*,core_path,ops_path,now=None):
+    """Read-only check before job claim/RPC. Stage rechecks atomically on commit."""
+    if not activated(conn):return 'DISABLED'
+    row=conn.execute('SELECT activated_at,pending_count,ack_count,admitted,core_base,ops_base FROM wb_create_control WHERE id=1').fetchone()
+    start,pending,ack,admitted,core_base,ops_base=row
+    now=int(time.time() if now is None else now)
+    storage_check(core_path,ops_path,core_base=core_base,ops_base=ops_base)
+    if now>=start+EXPIRY:raise Unavailable('ACTIVATION_EXPIRED')
+    if pending>=MAX_PENDING or ack>=MAX_ACK or admitted>=MAX_ADMITTED:raise Unavailable('INTENT_CAPACITY')
+    return 'READY'

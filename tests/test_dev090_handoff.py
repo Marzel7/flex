@@ -415,3 +415,17 @@ def test_create_committed_before_migration_uses_existing_enqueue_and_executes(f,
     assert w.drain_batch(ops,batch_size=1)['processed']==0
     assert ops.execute('SELECT COUNT(*) FROM watchtower_token_attribution').fetchone()[0]==0
     ops.close()
+
+
+def test_producer_pressure_stops_before_claim_or_rpc(f,monkeypatch):
+    from src.core import creator_resolution_queue as q
+    monkeypatch.setattr(q,'_read_db',f.read)
+    monkeypatch.setattr(q,'_OPS_DB_PATH',str(f.ops))
+    def forbidden(*a,**k):raise AssertionError('claim/RPC forbidden under pressure')
+    monkeypatch.setattr(q,'_db',forbidden)
+    monkeypatch.setattr(q,'_resolve_creator_rpc',forbidden)
+    f.write(f.core,lambda c:c.execute('UPDATE wb_create_control SET pending_count=?',(h.MAX_PENDING,)))
+    monkeypatch.setattr(h.time,'time',lambda:200)
+    with pytest.raises(h.Unavailable,match='INTENT_CAPACITY'):
+        q.process_queue(str(f.core),schema_ready=True)
+    assert f.row(f.core,'SELECT COUNT(*) FROM wb_create_delivery')==(0,)

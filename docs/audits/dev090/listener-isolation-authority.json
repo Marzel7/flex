@@ -1,0 +1,30 @@
+{
+  "status": "PASS_IMPORT_ONLY",
+  "application_changes": false,
+  "test": "tests/test_dev090_listener_import_closure.py",
+  "fixture_sha256": "9906e29faed0e4578f423b275f51e6881d1f3d1a1082947badfa14477ce48efa",
+  "existing_mechanisms": [
+    {
+      "setting": "socket.has_ipv6=False",
+      "authority": "tests/test_dev051_create_compatibility.py:module and frozen isolation_bootstrap.py",
+      "effect": "Suppress optional urllib3 import-time probe; all network guards unchanged"
+    },
+    {
+      "setting": "FLEX_DEV_READ_ONLY_QUALIFICATION=1",
+      "authority": "src/core/ws_price_tracer.py preserved cb12063d / frozen DEV043 bootstrap",
+      "effect": "Skip optional trace mkdir/file sink; production remains unchanged"
+    }
+  ],
+  "imports": "Actual listener and actual dependencies; no module stubs",
+  "guard_denials": 0,
+  "startup_scope": "Module import and dependency compatibility only. Listener constructor/run loop and operational startup NOT exercised. Existing shared-writer baseline established before checking additional workers.",
+  "storage": {
+    "before_free_bytes": 6411022336,
+    "fixture_file_cap": 1048576,
+    "runner_file_cap": 8388608,
+    "max_planned_temporary_bytes": 1000000000,
+    "reserve_bytes": 2000000000,
+    "raw_retention": false
+  },
+  "test_log_sha256": "87f425da17b27821049aecd8bbe5790cc4dedccb4e89a73d9a0d8646c429c573"
+}

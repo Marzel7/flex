@@ -8,6 +8,10 @@ import pytest
 def test_actual_listener_import_closure(tmp_path,monkeypatch):
     for key,name in [('PREMIGRATION_LOG_PATH','premigration.txt'),('RPC_METRICS_DB','rpc-metrics.db'),('DB_PATH','fixture-core.db'),('MIGRATION_LOG_PATH','migration.txt')]:
         monkeypatch.setenv(key,str(tmp_path/name))
+    # Reuse qualified DEV043 read-only trace binding and DEV051 optional
+    # IPv6 probe suppression. All actual dependency imports remain intact.
+    monkeypatch.setenv('FLEX_DEV_READ_ONLY_QUALIFICATION','1')
+    monkeypatch.setattr(socket,'has_ipv6',False)
     # Existing shared-writer reaper is part of DEV090's already-qualified
     # database dependency, not a worker introduced by this module. Establish
     # that baseline before checking for additional listener import workers.

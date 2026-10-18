@@ -418,6 +418,14 @@ def seal(directory):
  for p in sorted(directory.rglob('*'),key=lambda p:len(p.parts),reverse=True)+[directory]:
   need(p.stat().st_size<CAP if p.is_file() else True,'candidate storage budget')
   p.chmod(0o555 if p.is_dir() else 0o444);os.chflags(p,p.stat().st_flags|stat.UF_IMMUTABLE)
+def preserve_health_snapshot(item,destination):
+ """Keep the acceptance authority with future release evidence, fail closed."""
+ src=P(item['health_api_path']);need(digest(src)==item['health_api_sha256'],'Health API evidence changed before preservation')
+ data=src.read_bytes();need(len(data)<SMALL,'Health API artifact budget')
+ need(not P(destination).exists(),'Health evidence artifact already exists')
+ with P(destination).open('xb') as out:out.write(data)
+ return digest(destination)
+
 def candidate(dev):
  d,manifest,q=eligible(dev);need(RELEASE.is_dir(),'rollback reference missing');golden(dev.repo)
  import shutil
@@ -438,6 +446,7 @@ def candidate(dev):
  b=dest/'browser';b.mkdir()
  for feature,e in q['browser']['features'].items():
   shutil.copyfile(e['dom_path'],b/(feature+'.txt'));shutil.copyfile(e['screenshot_path'],b/(feature+'.jpg'))
+  if 'health_api_path' in e:preserve_health_snapshot(e,b/(feature+'.api.json'))
  save(dest/'SHA256SUMS.json',{str(p.relative_to(dest)):digest(p) for p in dest.rglob('*') if p.is_file()})
  git(dev.source,'tag','-a',name,sha,'-m','Qualified candidate; manifest '+digest(dest/'release.json')+'; NO DEPLOYMENT AUTHORIZATION')
  tagpath=P(git(dev.source,'rev-parse','--git-path','refs/tags/'+name).strip()).resolve();tagpath.chmod(0o444);os.chflags(tagpath,tagpath.stat().st_flags|stat.UF_IMMUTABLE)

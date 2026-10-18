@@ -72,3 +72,13 @@ def test_preserved_control_corpus_is_exact_and_executable():
         for cls in vars(module).values():
             if isinstance(cls,type) and issubclass(cls,unittest.TestCase):count+=len(unittest.defaultTestLoader.getTestCaseNames(cls))
     assert count==34  # Original release, accepted Node and archival controls; unchanged assertions.
+
+def test_health_snapshot_preserved_without_candidate_creation(tmp_path):
+    doc,session,hp=browser_fixture(tmp_path)
+    item={'health_api_path':str(hp),'health_api_sha256':f.digest(hp)}
+    dest=tmp_path/'preserved-health.api.json'
+    assert f.preserve_health_snapshot(item,dest)==item['health_api_sha256'] and dest.read_bytes()==hp.read_bytes()
+    with pytest.raises(f.Hold,match='already exists'):f.preserve_health_snapshot(item,dest)
+    hp.write_text(json.dumps(api('UNKNOWN')))
+    with pytest.raises(f.Hold,match='changed'):f.preserve_health_snapshot(item,tmp_path/'must-not-exist.json')
+    assert not (tmp_path/'must-not-exist.json').exists()

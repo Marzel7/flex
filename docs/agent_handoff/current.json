@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev081",
-    "git_head": "59c66d3f5991fc48180e8d1ec1ccd0719d90297a",
+    "branch": "codex/dev082",
+    "git_head": "a504e25ce9f8f76720fddbd8bdbc3854c0053f78",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T10:51:42.940298+00:00",
-    "working_tree": "DEV081 terminal PARTIAL: DEV074 immutable candidate qualified; DEV079 offline PASS but installed-worker preimage drift HOLD. All isolated APIs stopped; no deployment."
+    "updated_at_utc": "2026-10-18T11:03:23.706961+00:00",
+    "working_tree": "DEV082 V1/signature component preserved against current installed preimage; release HOLD at read-only Inbox/shared-writer isolation failure; isolated API stopped; no candidate or deployment."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32216,5 +32216,35 @@
     "all_isolated_servers_stopped": true,
     "storage": "Compact fixtures only; candidate largest file62075344bytes; no canonical copies/raw provider retention; free space approximately13GiB before/11GiB after.",
     "next_action": "DEV074 candidate available for separately authorized targeted installation. DEV079 requires separately authorized current-runtime source requalification preserving newer funding/promotion functions; no source changes or deployment under DEV081."
+  },
+  "dev082_walkback_v1_current_integration": {
+    "status": "HOLD_RELEASE_ACCEPTANCE_COMPONENT_QUALIFIED_NOT_DEPLOYED",
+    "engineering_source_sha": "a504e25ce9f8f76720fddbd8bdbc3854c0053f78",
+    "tested_component_sha": "048d178f3b0c05b6c83e585862fd42c629e47d34",
+    "report": "docs/audits/dev082/DEV082_WALKBACK_V1_INTEGRATION_STATUS.json",
+    "installed_source_git_sha": "ec2b75e1274ee76761d51247d345b59d77341ee9",
+    "installed_worker_preimage_sha256": "145a3368dc319a6e901f2365e645b65dd60d1727815f99e3b498d9fa1c3041dc",
+    "candidate_worker_sha256": "4ec85aff7a0fad193211e62198e7475a027879f789fd82efeaeae8d8f72e12ca",
+    "scope": "Only_get_tx differs from installed worker: version ceiling1 and exact first response signature correlation. Reversing only this function reproduces exact full installed worker bytes. Newer funding/promotion functions untouched; exact required current dependency composition retained.",
+    "verification": "41 focused controls and53 full guarded Python PASS; original23 DEV079 controls retained;61 DEV080 tooling controls PASS including18 original negatives; frontend30s/8MiB PASS; scoped API checks PASS. New post-commit P3R retrigger, promotion enforcement and queue idempotency exercised offline.",
+    "browser": "Registry/history retained prices, Watchtower admission and both playbooks observed. Mission Control Inbox unavailable; full10-contract browser gate not passed.",
+    "blocker": "GET /api/ops/inbox/summary -> InboxStore.__init__ -> ensure_inbox_schema -> current TrackedConnection._acquire_write_lane -> acquire_write_lease tries canonical OPS .write.lock outside DEV082 state. Unchanged filesystem guard blocked2 attempts before SQLite execution. No whitelist or writer downgrade.",
+    "clean_checkout": "Exact clean detached checkout prepared, not started/qualified after initial acceptance failure.",
+    "guard_denials": 2,
+    "candidate_source_sha": null,
+    "ready_for_targeted_deployment": false,
+    "installed_worker_unchanged": true,
+    "DEV074_candidate_unchanged": true,
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED component; release HOLD",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "shared_queue_writes": 0,
+    "production_changes": 0,
+    "deployment_changes": 0,
+    "operational_signals_or_restarts": 0,
+    "isolated_api": "Stopped via verified DEV082-owned qualifier context; port8187 closed. No server started8188.",
+    "storage": "Compact fixtures/logs8MiB; no raw provider retention or canonical copies; compatibility patch adds no storage path.",
+    "next_action": "Separately qualify read-only Inbox/current shared-writer compatibility without canonical lock allowlisting, writer downgrade, or weakened assertions; then repeat complete DEV082 browser/zero-denial and clean-checkout gates before immutable candidate. Do not deploy."
   }
 }

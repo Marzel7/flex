@@ -33073,5 +33073,26 @@
     "report": "DEV090/listener-maintenance-qualification/QUALIFICATION_AND_PREFLIGHT.json",
     "report_sha256": "26817121e12e9349e5eeaa407ddfac06ad4809b0df5b6fbe34a86cbae6961003",
     "updated_utc": "2026-10-18T22:22:12.158815+00:00"
+  },
+  "dev090_retention_free_listener_contract": {
+    "engineering_revision": "96687a393b024f3008ada9ad3e10441ebcdd0d64",
+    "status": "HOLD_RETENTION_CONTRACT",
+    "configuration_only": false,
+    "normal_path": "Existing PUMPPORTAL_CANONICAL_BIRTH_RETENTION_ENABLED=0 correctly prevents normal audit queue/writer/raw files.",
+    "single_limitation": "Separate outer birth-handler exception fallback unconditionally writes _json.dumps(data) to webhook_birth_queue.payload; no configuration predicate. With births enabled, audit flag0 does not disable raw retry retention. Disabling drainer only stops consumption.",
+    "exact_source": "Qualified listener SHA256c2bd4292; _handle_pumpportal_create_frame exception boundary around11031-11047. Source/candidate unchanged.",
+    "evidence": "4 provider-free diagnostics +45existing compact handoff/birth/migration/crash/retry regressions +6prospective controls =55PASS, zero unexpected guard denials. Negative control with audit0 persisted entire synthetic event/unrelated sentinel field across reopen; duplicate signature retained1row. If retry write also fails, error log exists but no durable retry receipt; guaranteed recovery not established. No genuine raw provider payload acquired/retained.",
+    "compact_evidence_boundary": "Existing normal compact persistence and handoff paths remain passing; this does not prove a raw-free durable fallback for every escaped handler failure. No new storage subsystem proposed or implemented.",
+    "preservation": "No application/live configuration/candidate changes, no workers restarted, no services started, no canonical/queue writes or historical replay. Existing persisted activation-boundary proposal remains valid and inactive.",
+    "release_decision": "Configuration-only prerequisite fails; full release/startup preflight not rerun or bypassed. No safe startup profile promoted.",
+    "next_action": "Authorize minimal source correction of existing outer exception/retry boundary to reuse compact durable recovery instead of retaining raw event; qualify all outcomes/bounds before release. Do not start listener.",
+    "provider_calls": 0,
+    "canonical_writes_by_task": 0,
+    "production_changes": 0,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Source/config diagnosis and disposable-fixture tests only; parent deployment HOLD.",
+    "report": "DEV090/listener-retention-qualification/RETENTION_CONTRACT_RESULT.json",
+    "report_sha256": "20e33160be40210b408c159957aaef75c63fd22cf16cdbd2806291f762267eff",
+    "updated_utc": "2026-10-18T22:27:52.260211+00:00"
   }
 }

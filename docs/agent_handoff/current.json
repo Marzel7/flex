@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev075",
-    "git_head": "7c1c628c2ded5a11b755cc9542b9bb2040f34de8",
+    "branch": "codex/dev076",
+    "git_head": "eaa9698b1dc4c296b9293f694dba62d90a05043f",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T08:37:17.030837+00:00",
-    "working_tree": "DEV075 retained anchor scheduling trace committed; no runtime changes."
+    "updated_at_utc": "2026-10-18T09:05:14.792528+00:00",
+    "working_tree": "DEV076 feasibility HOLD; audit-only source unchanged; no candidate or deployment."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31916,5 +31916,25 @@
     "runtime_changes": 0,
     "runtime_deployment_required": false,
     "next_action": "Separately authorize narrowly scoped fair anchor-reconciliation qualification; no replay, requeue or implementation performed."
+  },
+  "dev076_late_create_handoff": {
+    "status": "HOLD_DURABLE_HANDOFF_AND_CREATE_PROOF",
+    "engineering_source_sha": "eaa9698b1dc4c296b9293f694dba62d90a05043f",
+    "baseline_sha": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "evidence": "docs/audits/dev076/DEV076_LATE_CREATE_HANDOFF_STATUS.json",
+    "tests": "DEV048 create/verify PASS. Five compact offline cases using extracted installed migration retry functions: Core rollback preserved; post-Core-commit restart loses late notification; existing-row retry short-circuits; OPS rollback has no retry intent; duplicate COMPLETE retry does no work. Feasibility failure demonstrated, not release acceptance.",
+    "blocker": "Existing migration COMPLETE is not pending late-anchor work; retry treats any existing queue row as success. Fail-open postcommit lifecycle telemetry is not transactional delivery authority. Installed resolver does not persist independent serialized creator proof plus authoritative CREATE slot/time or durable activation generation.",
+    "application_changes": 0,
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "runtime_changes": 0,
+    "candidate_source_sha": null,
+    "ready_for_targeted_deployment": false,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Offline feasibility audit; conditional implementation stopped at mandatory gate.",
+    "DEV051_preserved": true,
+    "DEV074_included": false,
+    "next_action": "Separate authorization for minimal durable late-CREATE authority/activation and CREATE-proof design; do not implement callback-only handoff or replay target."
   }
 }

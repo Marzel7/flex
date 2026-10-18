@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev078",
-    "git_head": "fd31ddf6a3fb08b635f00c2657424d96a04fabed",
+    "branch": "codex/dev079",
+    "git_head": "5036bcd7ae1b4d2294de51474e0d27b00dddb31d",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T09:56:56.057077+00:00",
-    "working_tree": "DEV078 continuation: proposed V1/correlation patch qualified offline; release HOLD at bounded reconciler/creator authority; no application or runtime changes."
+    "updated_at_utc": "2026-10-18T10:15:30.115057+00:00",
+    "working_tree": "DEV079 standalone V1/signature correction committed; component tests pass; immutable release HOLD at unchanged browser Health contract; isolated API stopped."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32136,5 +32136,29 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Qualification and proposed patch only; no executable source changes.",
     "next_action": "Qualify minimal indexed retry/progress access and durable independent creator authority, then integrate source and repeat complete release gates. No deployment."
+  },
+  "dev079_walkback_v1_release": {
+    "status": "COMPONENT_QUALIFIED_RELEASE_HOLD_HEALTH_BROWSER_CONTRACT",
+    "engineering_source_sha": "5036bcd7ae1b4d2294de51474e0d27b00dddb31d",
+    "tested_source_sha": "4f1d294419cb69ea59a8deea19c275f78eff1a69",
+    "worktree": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV079/source",
+    "report": "docs/audits/dev079/DEV079_WALKBACK_V1_STATUS.json",
+    "operational_change": "Installed Walkback_get_tx version ceiling1 and exact response-signature guard only. Five startup-contract source modules preserved byte-identical from installed composition; deploy target would be worker file only, not those dependency imports.",
+    "installed_worker_preimage_sha256": "a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9",
+    "tests": "23 focused PASS;35 guarded workflow Python PASS; frontend PASS with concrete Node22 and30s/8MiB unchanged; API PASS;18 DEV048 negative controls PASS; guarded test/API dependency closure PASS; unexpected guard denials0; full-file rollback roundtrip PASS.",
+    "browser": "Registry/history prices, admission, playbooks and bounded detail views observed. Required Health literalSystem Health Unknown absent; actualCritical \u2014 Live ingestion unavailable. Mission Control/Pending full contracts incomplete before180s session expiry; no PASS receipt submitted.",
+    "health_cause": "Unchanged baseline template renders CRITICAL incidents from retained/api/health/full evidence (stale birth/migration and UNKNOWN connectivity), while fixed workflow assertsUNKNOWN label. No Health/gate modification.",
+    "candidate_source_sha": null,
+    "ready_for_targeted_deployment": false,
+    "clean_checkout_restoration": "NOT_RUN: mandatory initial browser gate failed; no immutable candidate.",
+    "activation": "NONE; isolated API stopped, operational workers and existing previews untouched",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "deployment_changes": 0,
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED component; release additionallyHOLD",
+    "safety": "No new schema/index/state/worker; provider budgets unchanged; no raw responses or sensitive runtime configuration published; engineering branch not pushed.",
+    "next_action": "Separately qualify unchanged Health fixture/browser contract mismatch without weakening gate; then repeat complete browser and clean-checkout qualification before candidate creation. Do not deploy."
   }
 }

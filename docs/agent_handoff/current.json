@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev090",
-    "git_head": "f4ddfe4aff71a39c742e1be64763d7d978102083",
+    "git_head": "ac7b88633f53c854559770c4109b14c6f0d53ceb",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T18:44:22.060646+00:00",
-    "working_tree": "DEV090 target integration HOLD unresolved live Supervisor ownership; no overlays implemented; existing immutable candidate preserved"
+    "updated_at_utc": "2026-10-18T18:50:36.371998+00:00",
+    "working_tree": "DEV090 configured-target overlay preserved; HOLD mandatory original funding/promotion contract; no new candidate/deployment"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32708,5 +32708,37 @@
     "service_restarts": 0,
     "candidate_mutation": false,
     "next_action": "Establish authoritative Supervisor ownership for targets, or explicitly authorize isolated source qualification against stopped configured runtime paths without requiring live ownership. Then resume exact minimal overlays; no operational restart/deployment implied."
+  },
+  "dev090_stopped_target_overlay_qualification": {
+    "status": "HOLD_MANDATORY_OFFLINE_REGRESSION",
+    "engineering_source_sha": "ac7b88633f53c854559770c4109b14c6f0d53ceb",
+    "authorization": "Isolated stopped configured source qualification explicitly authorized despite unresolved Supervisor; no operational service action authorized",
+    "supervisor_ownership": "UNRESOLVED; hard deployment prerequisite remains",
+    "creator_overlay": "Already-qualified DEV074 safeguards + DEV090 preflight/staging retained; exact installed ad225e20 lineage verified, creator worker/analyzer unchanged",
+    "walkback_overlay": "Configured a45ccc0d source copied only into isolated DEV090; _get_tx V1/signature and maintenance hook applied. Reversal reproduces exact installed file, all other configured bytes preserved. Overlay hashbca037dfd7194f304493cac051ec894916ef3eac2d897871570dafbdaa56023d.",
+    "tests": {
+      "focused_passed": 229,
+      "focused_failed": 9,
+      "real_process_crash_cases": 7,
+      "crash_status": "PASS",
+      "unexpected_guard_denials": 0,
+      "exact_reversal": "PASS",
+      "DEV075_exact_mint_fixture": "PASS offline synthetic authority fixture only; no replay",
+      "initial_fixture_collection_error": "New helper module import path corrected; original failed diagnostic preserved, no behavioral assertion change"
+    },
+    "single_blocker": "Preserved DEV082 contracts require newer worker P3R mid-walk admission and terminal P3R/d3de projections absent from configured flex-walkback-dev002. Seven behavioral assertions and two original newer-source pin checks fail. No implementation outside narrow overlays or assertion relaxation performed.",
+    "remaining_release_gates": "Stopped after mandatory regression failure; full workflow/browser/clean restoration/candidate not run for target overlay",
+    "original_candidate": "DEV090_CANDIDATE_f4ddfe4aff71 unchanged; immutable flags/all sealed hashes reverified. Prior qualified results not invalidated.",
+    "report": "docs/audits/dev090/target-overlay-evidence/TARGET_INTEGRATION_STATUS.json",
+    "target_candidate_sha": null,
+    "ready_for_targeted_deployment": false,
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "operational_restarts": 0,
+    "shared_queue_changes": 0,
+    "historical_replay": false,
+    "runtime_deployment_gate": "HOLD_TARGET_OVERLAY; original release remains QUALIFIED_NOT_DEPLOYED",
+    "next_action": "Resolve intended funding/promotion acceptance authority: preserve configured a45ccc0d semantics versus require previously qualified newer145a3368 semantics. Separately qualify that contract decision before further target release work; do not add projections or weaken assertions implicitly. Verify live runtime ownership before any deployment."
   }
 }

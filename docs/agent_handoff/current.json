@@ -19272,8 +19272,8 @@
     "branch": "codex/dev090",
     "git_head": "f4ddfe4aff71a39c742e1be64763d7d978102083",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T18:16:24.675541+00:00",
-    "working_tree": "DEV090 release qualification PASS; immutable candidate independently restored; QUALIFIED_NOT_DEPLOYED"
+    "updated_at_utc": "2026-10-18T18:31:29.141311+00:00",
+    "working_tree": "DEV090 targeted deployment HOLD_SOURCE_DRIFT; immutable candidate preserved; no operational changes"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32638,5 +32638,31 @@
     "storage": "No cleanup, canonical clones or raw retention. Candidate archive63,807,324bytes; compact test fixture/output limits unchanged. Prior compact Core/OPS exception/residual concurrent WAL risk unchanged; future operational headroom/lock checks mandatory.",
     "next_action": "NONE — RELEASE QUALIFICATION COMPLETE. Await separate targeted deployment authorization; no automatic promotion or operational restart.",
     "publication": "Sanitized handoff only; local source/candidate archive and tag not pushed."
+  },
+  "dev090_targeted_deployment_preflight": {
+    "status": "HOLD_SOURCE_DRIFT",
+    "engineering_source_sha": "f4ddfe4aff71a39c742e1be64763d7d978102083",
+    "candidate": "DEV090_CANDIDATE_f4ddfe4aff71",
+    "candidate_hash_verification": "PASS; unchanged immutable release",
+    "authorization": "Conditional targeted deployment authorized; mandatory source precondition failed before installation",
+    "first_blocker": {
+      "component": "creator_resolution_queue.py in configured flex-main-workers runtime",
+      "accepted_preimage_sha256": "4412b6c7ef5e84e133a205a0e81706b663e15debc513c6b30bc16e8c2b72d741",
+      "actual_sha256": "ad225e20c8b9428739fb20f2142f7d1c53d58890c4491db8f728f38a8c1e2612",
+      "action": "STOP; no overwrite, merge or runtime repair"
+    },
+    "other_runtime_authority": "Configured Walkback points flex-walkback-dev002 a45ccc0d preimage; qualified candidate composition used newer flex-walkback145a3368 preimage. No target substitution selected. No Supervisor/relevant operational Python workers observed in local bounded process snapshot; configured paths not loaded-code proof.",
+    "disk_snapshot": "Approximately9GB free; Core35.65GB, OPS16.19GB; WAL/SHM absent at snapshot. No lock holder observed, OPS read handles belong existing isolated preview. This is not complete capacity/commit/lock health qualification.",
+    "remaining_preflight": "Disk peak, recent errors, SQLite health, operational schema migration and rollback checkpoint NOT qualified after mandated source stop. No full database copy, cleanup or write probe.",
+    "report": "DEV090/deployment-preflight/DEV090_TARGETED_DEPLOYMENT_STATUS.json",
+    "deployment_attempts": 0,
+    "restarted_services": [],
+    "deployment_initiated_provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "runtime_deployment_gate": "HOLD",
+    "live_acceptance": "NOT_STARTED",
+    "ready_for_golden_baseline": false,
+    "next_action": "Qualify exact current creator-resolution source preimage with minimal DEV090 integration, resolve configured Walkback target/preimage, and preserve existing immutable candidate. Then repeat full mandatory targeted deployment preflight under a qualified candidate; do not replace mismatched code."
   }
 }

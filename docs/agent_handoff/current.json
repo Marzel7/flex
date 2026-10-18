@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev090",
-    "git_head": "f10bc88d967a26a78b0350cccf528bb98d7ee85c",
+    "git_head": "f4ddfe4aff71a39c742e1be64763d7d978102083",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T17:56:02.824020+00:00",
-    "working_tree": "DEV090 exact availability module qualified; HOLD complete listener import isolation; no candidate/deployment"
+    "updated_at_utc": "2026-10-18T18:16:24.675541+00:00",
+    "working_tree": "DEV090 release qualification PASS; immutable candidate independently restored; QUALIFIED_NOT_DEPLOYED"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32489,7 +32489,8 @@
     "operational_restarts": 0,
     "publication": "Sanitized transport only. Engineering source branch not published; inherited protected-baseline credential literal remains excluded from handoff.",
     "next_action": "Qualify composition of preserved explicit read-only Inbox correction with current writer dependencies, then repeat unchanged full release and clean-checkout browser acceptance. No candidate/deployment until all gates pass.",
-    "superseded_release_blocker": "See dev090_final_inbox_integration: Inbox corrected and all ten browser contracts pass; remaining listener runtime dependency closure HOLD."
+    "superseded_release_blocker": "See dev090_final_inbox_integration: Inbox corrected and all ten browser contracts pass; remaining listener runtime dependency closure HOLD.",
+    "superseded_release_status": "See dev090_final_bounded_release_qualification: complete offline release qualification PASS and immutable candidate restored; no deployment."
   },
   "dev090_final_inbox_integration": {
     "status": "HOLD_LISTENER_RUNTIME_DEPENDENCY_CLOSURE",
@@ -32523,7 +32524,8 @@
     "persistent_dev_changes": 0,
     "operational_restarts": 0,
     "next_action": "Resolve exact installed-listener dependency composition and real provider-free producer-module qualification; repeat full source closure and fresh clean-checkout browser restoration before candidate creation. Preserve Inbox and handoff implementations. No deployment authorized.",
-    "publication_scope": "Sanitized agent-handoff only; engineering branch not published."
+    "publication_scope": "Sanitized agent-handoff only; engineering branch not published.",
+    "superseded_release_status": "See dev090_final_bounded_release_qualification: complete offline release qualification PASS and immutable candidate restored; no deployment."
   },
   "dev090_listener_dependency_authority": {
     "status": "HOLD_MISSING_QUALIFIED_DEPENDENCY",
@@ -32549,7 +32551,8 @@
     "application_changes": 0,
     "operational_restarts": 0,
     "next_action": "Supply existing qualified manifest for exact module hash, or separately authorize first-time qualification of attributable installed module; no stub, replacement, deployment or candidate under present condition.",
-    "superseded": "First-time exact module qualification now PASS; see dev090_acquisition_module_qualification for remaining actual listener import isolation HOLD."
+    "superseded": "First-time exact module qualification now PASS; see dev090_acquisition_module_qualification for remaining actual listener import isolation HOLD.",
+    "superseded_release_status": "See dev090_final_bounded_release_qualification: complete offline release qualification PASS and immutable candidate restored; no deployment."
   },
   "dev090_acquisition_module_qualification": {
     "status": "PARTIAL_MODULE_QUALIFIED_RELEASE_HOLD",
@@ -32573,6 +32576,67 @@
     "production_changes": 0,
     "operational_restarts": 0,
     "deployment": false,
-    "next_action": "Separately scope supported isolated listener import bindings for existing ws_price_tracer and urllib3 capability probe; preserve guards and application logic. Then repeat full release/clean-checkout gates before candidate creation."
+    "next_action": "Separately scope supported isolated listener import bindings for existing ws_price_tracer and urllib3 capability probe; preserve guards and application logic. Then repeat full release/clean-checkout gates before candidate creation.",
+    "superseded_release_status": "See dev090_final_bounded_release_qualification: complete offline release qualification PASS and immutable candidate restored; no deployment."
+  },
+  "dev090_final_bounded_release_qualification": {
+    "status": "PASS_QUALIFIED_NOT_DEPLOYED",
+    "engineering_source_sha": "f4ddfe4aff71a39c742e1be64763d7d978102083",
+    "application_behaviour": "Walkback handoff, installed funding/promotion and Inbox correction unchanged. Previously qualified exact AcquisitionAvailability retained. This final step changes only reproducible test isolation and documentation.",
+    "isolation_authority": "Existing DEV043 read-only tracer configuration suppresses optional mkdir/file sink; existing DEV051 socket.has_ipv6=False suppresses optional IPv6 probe. No guard edits, module stubs, source replacements or operational config changes.",
+    "listener_scope": "Actual complete listener import/dependency closure PASS; listener service construction/run loop and operational startup NOT executed or claimed.",
+    "tests": {
+      "full_python_per_run": 247,
+      "frontend": "PASS unchanged30-second deadline/8-MiB limit",
+      "api": "PASS retained evidence and bounded failure contracts",
+      "browser_contracts_per_run": 10,
+      "tooling_controls": 61,
+      "real_process_crash_cases": 7,
+      "clean_checkout_crash_cases": 7,
+      "unexpected_guard_denials": 0,
+      "runs": [
+        {
+          "run_id": "b7d6a1278f46",
+          "status": "PASS",
+          "restoring": false
+        },
+        {
+          "run_id": "71bf8827fa38",
+          "status": "PASS",
+          "restoring": true
+        },
+        {
+          "run_id": "933976a88b57",
+          "status": "PASS",
+          "restoring": true
+        }
+      ]
+    },
+    "clean_checkout_restoration": "PASS before candidate creation and again via DEV048 candidate restore; all APIs stopped",
+    "immutable_candidate": {
+      "tag": "DEV090_CANDIDATE_f4ddfe4aff71",
+      "source_sha": "f4ddfe4aff71a39c742e1be64763d7d978102083",
+      "manifest_sha256": "ab11249efccdb11ac72ab064b8c6d5ffc2db5bc1be2c47ab43daad3e7a60cc2e",
+      "archive_bytes": 63807324,
+      "files_verified": 5585,
+      "archive_and_source_hashes": "PASS",
+      "local_filesystem_immutable": true,
+      "remote_candidate_publication": false
+    },
+    "release_report": "DEV090/release-qualification/DEV090_FINAL_ISOLATION_STATUS.json",
+    "targeted_deployment_and_rollback_plan": "DEV090/release-qualification/TARGETED_DEPLOYMENT_AND_ROLLBACK.md",
+    "blocker": null,
+    "ready_for_targeted_deployment": "OFFLINE_QUALIFIED; separate explicit authorization and current target/preimage/disk/write-lock/schema/activation prerequisites required",
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "deployment_authorized": false,
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "persistent_dev_changes": 0,
+    "operational_restarts": 0,
+    "known_exclusions": "Existing bounded recovery exclusions unchanged; no full historical parity, live monitoring or operational listener startup claim.",
+    "storage": "No cleanup, canonical clones or raw retention. Candidate archive63,807,324bytes; compact test fixture/output limits unchanged. Prior compact Core/OPS exception/residual concurrent WAL risk unchanged; future operational headroom/lock checks mandatory.",
+    "next_action": "NONE — RELEASE QUALIFICATION COMPLETE. Await separate targeted deployment authorization; no automatic promotion or operational restart.",
+    "publication": "Sanitized handoff only; local source/candidate archive and tag not pushed."
   }
 }

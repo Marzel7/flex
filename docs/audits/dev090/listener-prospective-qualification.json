@@ -1,0 +1,51 @@
+{
+  "status": "SOURCE_SCOPE_VERIFIED",
+  "parent_commit": "c604991687e7dd4aaf065fddd047dab6c993ccab",
+  "installed_listener_sha256": "139c8fbcd69484b5bb30038e76445d7843892e2ce28a7157485d917bdfccdd39",
+  "qualified_listener_sha256": "c2bd4292d7c2ae786f89d1ae98831dccfc0b26011d6a29ceb145b2c2d72792a5",
+  "candidate_listener_sha256": "5e20041abac80da00c27a8adcfc0a2355d20fad14fea8b4f9cfb8b1d0598ed00",
+  "new_function_changes": [
+    "_process_creator_resolution_queue_periodic"
+  ],
+  "existing_qualified_changes_from_installed": [
+    "_fallback_append_birth",
+    "_reconcile_fallback_file_into_queue",
+    "_insert_bonding_curve_token",
+    "_handle_pumpportal_create_frame",
+    "drain_birth_persist_queue"
+  ],
+  "configuration_only": "INSUFFICIENT installed helper has no flag; listener flag check added before helper import/sleep/database/provider work",
+  "setting": "CRQ_HISTORICAL_DISCOVERY_ENABLED=0",
+  "contract": "Disable listener periodic historical discovery and inline resolver. Direct migration enqueue and birth handlers unchanged; deployed qualified creator worker owns bounded RPC fallback. Default1 retains previous loop.",
+  "provider_budget": "Subscriptions/reconnects and provider budget literals unchanged; no new calls. Disabled inline resolver reduces competing acquisition.",
+  "runtime_files_preserved": [
+    "creator_resolution_queue.py",
+    "walkback_worker.py",
+    "walkback_create_handoff.py"
+  ],
+  "rollback": "Restore exact installed listener139c8fbc; do not downgrade running workers; no schema changes. Deployment requires separate authorization and complete runtime dependencies.",
+  "storage": {
+    "new_growth_paths": 0,
+    "raw_retention_added": false,
+    "fixture_file_cap_bytes": 8388608,
+    "archive_cap_bytes": 256000000
+  },
+  "operational_changes": 0,
+  "focused_tests": {
+    "passed": 93,
+    "unexpected_guard_denials": 0,
+    "log_sha256": "2e3df7233fa4d0fdbb59f3a6efccf09843a298ca05f6329e9e96215654aeb893"
+  },
+  "required_listener_installation_files": {
+    "src/core/pumpfun_curve_listener.py": "5e20041abac80da00c27a8adcfc0a2355d20fad14fea8b4f9cfb8b1d0598ed00",
+    "src/ops/walkback_create_handoff.py": "00543c3a7d1ac2d8630af687809f0379f89bcf594934d7d9e6471980f78f0363"
+  },
+  "deployment_prerequisites": [
+    "Separate authorization",
+    "Listener flag CRQ_HISTORICAL_DISCOVERY_ENABLED=0 explicit in its own environment",
+    "Verify exact installed source and helper closure",
+    "Fresh disk/WAL/write-lock safety",
+    "Keep existing creator and Walkback runtime unchanged",
+    "No raw retention enabled by this change; existing intake retention requires operational preflight"
+  ]
+}

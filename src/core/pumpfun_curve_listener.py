@@ -5359,6 +5359,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
     async def _process_creator_resolution_queue_periodic(self) -> None:
         """Drain P0 missing-creator jobs before creator funding extraction."""
+        # In prospective-only mode the deployed creator worker owns resolution.
+        # Exit before importing the listener-local historical queue helper.
+        if os.environ.get("CRQ_HISTORICAL_DISCOVERY_ENABLED", "1") != "1":
+            return
         await asyncio.sleep(2)
         while True:
             sleep_seconds = 15

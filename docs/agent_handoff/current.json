@@ -19272,8 +19272,8 @@
     "branch": "codex/dev090",
     "git_head": "2d40af06c320d1a4688d65c9d195214ec69f5378",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T19:59:48.412695+00:00",
-    "working_tree": "DEV090 DEV002 target offline release PASS; immutable candidate preserved; not deployed"
+    "updated_at_utc": "2026-10-18T20:06:43.667209+00:00",
+    "working_tree": "DEV090 preserved uncommitted historical-discovery guard; HOLD_STORAGE, not deployed"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32892,5 +32892,18 @@
     "safety": "provider calls0; canonical queue updates15019; token evidence writes0; operational changes limited to authorized queue retirement; worker starts0; deploymentfalse",
     "runtime_deployment_required": false,
     "next_action": "Review untouched running exception and historical creator auto-enqueue scope before claiming wholly prospective restoration; no startup or deployment performed."
+  },
+  "dev090_historical_reenqueue_safeguard": {
+    "engineering_revision": "2d40af06c320d1a4688d65c9d195214ec69f5378 plus preserved uncommitted isolated guard",
+    "status": "HOLD_STORAGE_DURING_OFFLINE_QUALIFICATION",
+    "finding": "No existing disable setting; enqueue limit0 clamps to1. Prepared source switch CRQ_HISTORICAL_DISCOVERY_ENABLED=0 early-returns before schema/read/write in both historical discovery functions, retaining direct migration paths/default old behaviour. New source hash2226407ba6ba81d95b9ef23a23f2fd20343dbb0b12733c6738f5a8eb2ccd6b95; tests prepared, NOT PASSED.",
+    "correction": "Existing creator skipped row is reconsidered by sweep but normal enqueue preserves skipped status; the actual repopulation risk includes previously unqueued old tokens. Walkback skipped tombstones preserved except explicit force override.",
+    "blocker": "First seven-case process-crash harness failed at existing handoff DISK_HEADROOM guard; current free space380633088bytes, below2GB mandatory reserve. No further qualification or candidate creation. No cleanup authorized/performed.",
+    "retirement": "Read-only counts unchanged: requested waiting/pending/retry0 in both queues; Walkback skipped15396,complete74334,running1; creator complete19664,ignored143,skipped3854.",
+    "candidate": "DEV090_CANDIDATE_2d40af06c320 unchanged",
+    "evidence": "DEV090/dev002-release-qualification/HISTORICAL_REENQUEUE_STATUS.json; state/discovery-guard-process.log.command.json",
+    "runtime_deployment_gate": "HOLD",
+    "safety": "provider calls0;canonical writes0;Production changes0;operational starts0;no deployment",
+    "next_action": "Restore capacity via separately authorized bounded cleanup or expansion, then qualify preserved focused tests/crash cases/fullDEV048 and clean restoration. Never install unqualified patch."
   }
 }

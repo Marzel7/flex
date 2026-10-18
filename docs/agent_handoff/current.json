@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev088",
-    "git_head": "768e26dc16ed77bca2e49262fc042e56e3d5570d",
+    "branch": "codex/dev089",
+    "git_head": "7cf01a18e9914ec6f8bd9969eb5e93e0160c5a0e",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T12:07:18.515777+00:00",
-    "working_tree": "DEV088 design measured; operational authorization HOLD; no implementation or deployment"
+    "updated_at_utc": "2026-10-18T12:23:49.037375+00:00",
+    "working_tree": "DEV089 HOLD_EXISTING_STATE_INSUFFICIENT; no application correction, candidate or deployment"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32422,5 +32422,37 @@
     "runtime_deployment_required": false,
     "runtime_reason": "Design/offline disposable models only; no runtime implementation or candidate.",
     "next_action": "User reviews proposed exception; explicit policy approval plus separately qualified existing-writer WAL/transaction reservation and commit-pressure controls required before implementation; separate operational migration/deployment authorization still required. No automatic approval, policy edit or writes."
+  },
+  "dev089_minimal_walkback": {
+    "DEV089_MINIMAL_WALKBACK_STATUS": "HOLD_EXISTING_STATE_INSUFFICIENT",
+    "EXISTING_CORE_EVIDENCE_AUTHORITY": "Installed creator_resolution_queue.process_queue commits token_analysis creator/CREATE and completion status. Retained Core evidence survives restart, but completion indexes do not distinguish undelivered OPS readiness. Existing actual status/updated indexes inspected only through EXPLAIN; no canonical population query executed.",
+    "EXISTING_OPS_QUEUE_AUTHORITY": "Configured installed flex-walkback-dev002, wt_walkback_queue mint PK, status/path_state/create_anchor_signature. Exact-mint indexed access is available; knowing which qualified Core records still require delivery is the issue. Original oldest-row LIMIT1 defect retained, not broadly reinvestigated.",
+    "MINIMUM_CORRECTION": "NONE implemented. Tested bounded Core prefix/anti-join approaches and reuse of existing migration handoff without new state. Fixed prefix cannot prove coverage after restart; anti-join/order plan uses unbounded completion-prefix work/temp sort. Existing indexed handoff consumer completes on queue existence instead of anchor eligibility.",
+    "CRASH_RESTART_RESULT": "FAIL_REQUIRED_BEHAVIOUR in compact installed-code probe: after a durable Core CREATE commit and hypothetical atomic PENDING rearm, freshly invoked installed run_maintenance(t0=None) acknowledges COMPLETE while OPS remains waiting/WAITING_FOR_CREATE_ANCHOR/null anchor/attempts0. No actual process kill or full worker execution test claimed; fresh connections/namespace model restart. Per mandatory stopping rule, no implementation/full acceptance pursued after this failure.",
+    "STARVATION_PREVENTION": "NOT_QUALIFIED.100 versus5000 completed-prefix fixture increases anti-join VMsteps1838->90033. Canonical EXPLAIN confirms status-index+TEMP ORDER BY. Forced updated-index LIMIT16 is bounded but replays the same prefix on restart and misses the eligible tail. No volatile cursor or hidden population scan accepted.",
+    "CREATOR_QUALIFICATION": "DEV074 strict creator safeguard and DEV051/DEV082 evidence unchanged, not newly integrated. Synthetic creator/signature probe inputs test control flow only; they are not independent Pump CREATE qualification. No signer promotion, altered mint/program validation or relaxed admission.",
+    "WALKBACK_FUNCTIONAL_ACCEPTANCE": "NOT_PASS \u2014 no token made runnable or executed by a qualified correction. Known regression token untouched; remaining mandatory pipeline/creator/funding tests not run after restart failure. No mock execution promoted to success.",
+    "PROVIDER_BUDGET_EQUIVALENCE": "Operational provider code unchanged;0calls; fixture socket transport forbidden. No acquisition, replay, callback-only recovery or provider-budget modifications.",
+    "SOURCE_CHANGES": "Evidence/probe procedure only in docs/audits/dev089. No executable application, runtime configuration, operational database, schema/index/column, cursor, worker or outbox change. No UI/Inbox/Byzantine merge.",
+    "READY_FOR_RELEASE_QUALIFICATION": false,
+    "SINGLE_REMAINING_BLOCKER": "Missing proof-aware durable indexed recovery progress: current completion acknowledges queue existence, not committed delivery of the same qualified creator/CREATE to a runnable OPS row. Existing Core completion indexes alone cannot select outstanding readiness with a fixed bound across restarts.",
+    "NEXT_ACTION": "Stop DEV089 at the demonstrated restart failure. Resolve this exact existing readiness/acknowledgement contract before any implementation/release claim; do not begin another DEV, scheduler or storage architecture automatically. No deployment.",
+    "PROVIDER_CALLS": 0,
+    "CANONICAL_WRITES": 0,
+    "PRODUCTION_CHANGES": 0,
+    "shared_queue_writes": 0,
+    "service_restarts": 0,
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "runtime_reason": "Diagnostic-only existing-code control-flow and compact fixtures; no executable runtime change.",
+    "timebox": {
+      "started_utc": "2026-10-18T12:15:04Z",
+      "stopped_utc": "2026-10-18T12:23:25.069086+00:00",
+      "maximum_minutes": 90,
+      "stopped_on": "Mandatory restart behaviour failed;90minutes is a ceiling, not required duration."
+    },
+    "storage": "Max retained fixture file24576bytes; bounded5001row in-memory selection model; compact receipts only; no raw provider retention or canonical copies; no file>=500MB.",
+    "limits": "Counterexamples disqualify the tested current mechanisms; they are not a proof that every conceivable extension of existing records is impossible. No new persistent meaning or schema introduced to bypass this task constraints.",
+    "engineering_source_sha": "7cf01a18e9914ec6f8bd9969eb5e93e0160c5a0e",
+    "flex_dev_verify": "PASS evidence-only source verification; not functional or release qualification"
   }
 }

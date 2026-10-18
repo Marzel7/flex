@@ -59,3 +59,16 @@ def test_browser_rejects_missing_tool_snapshot(tmp_path):
 def test_health_response_hash_stays_checked_after_acceptance(tmp_path):
  doc,session,hp=browser_fixture(tmp_path);accepted=f.validate_browser(doc,session,tmp_path);hp.write_text(json.dumps(api('UNKNOWN')))
  with pytest.raises(f.Hold,match='Health API evidence changed'):f.check_browser_files({'features':accepted})
+
+def test_preserved_control_corpus_is_exact_and_executable():
+    import hashlib,unittest
+    records=json.loads((P.parents[1]/'docs/audits/dev080/preserved-tooling-controls.json').read_text())
+    count=0
+    for index,(name,expected) in enumerate(records.items()):
+        path=P.parents[1]/'tests'/name
+        assert hashlib.sha256(path.read_bytes()).hexdigest()==expected
+        cs=importlib.util.spec_from_file_location('dev080_preserved_controls_'+str(index),path)
+        module=importlib.util.module_from_spec(cs);sys.modules[cs.name]=module;cs.loader.exec_module(module)
+        for cls in vars(module).values():
+            if isinstance(cls,type) and issubclass(cls,unittest.TestCase):count+=len(unittest.defaultTestLoader.getTestCaseNames(cls))
+    assert count==34  # Original release, accepted Node and archival controls; unchanged assertions.

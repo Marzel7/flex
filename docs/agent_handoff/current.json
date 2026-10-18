@@ -19272,8 +19272,8 @@
     "branch": "codex/dev090",
     "git_head": "c604991687e7dd4aaf065fddd047dab6c993ccab",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T20:58:14.011379+00:00",
-    "working_tree": "DEV090 controlled schema attempt rolled back; candidate/installed sources unchanged; services stopped"
+    "updated_at_utc": "2026-10-18T21:15:09.142080+00:00",
+    "working_tree": "DEV090 deployed exact target source; two workers healthy under selective Supervisor; natural live acceptance pending"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32969,6 +32969,24 @@
     "runtime_deployment_gate": "HOLD",
     "ready_for_golden_baseline": false,
     "safety": "provider calls0;Core schema transaction attempted1/committed0;persisted schema/token/queue changes0;sourcefilesinstalled0;service starts/signals0;shared lock metadata acquire/release only",
-    "next_action": "New controlled-attempt authorization required after exact schema-object verifier includes qualified implicit UNIQUE index; repeat fresh gates. Do not modify candidate or rerun under consumed one-attempt authorization."
+    "next_action": "New controlled-attempt authorization required after exact schema-object verifier includes qualified implicit UNIQUE index; repeat fresh gates. Do not modify candidate or rerun under consumed one-attempt authorization.",
+    "superseded_by": "dev090_controlled_deployment_retry2: authorized retry installed successfully; first-attempt rollback evidence retained"
+  },
+  "dev090_controlled_deployment_retry2": {
+    "engineering_revision": "c604991687e7dd4aaf065fddd047dab6c993ccab",
+    "status": "DEPLOYED_WORKERS_RUNNING_HEALTHY__LIVE_ACCEPTANCE_PENDING",
+    "authorization": "Second controlled attempt explicitly authorized; corrected five-object schema validation",
+    "implementation": "Core handoff schema5objects including implicit UNIQUE index plus nullable birth metadata committed disabled, then fixed persisted epoch enabled; four exact candidate files installed (creator queue, DEV002worker, shared helper in both roots). Installed creatorcf60 locking/permanent Supervisor config preserved. Candidate unchanged.",
+    "runtime": "Selective Supervisor74390; creator_resolution_worker74394;walkback_worker74410. All15initiallySTOPPED; only2explicit starts;13others remainSTOPPED. Child cwd/source/parent identities and DB_WRITE_SERIALIZE=1 verified; creator discoveryflag0 effective and persisted in protected selective config.",
+    "installed_hashes": "creator queue2226407ba6ba81d95b9ef23a23f2fd20343dbb0b12733c6738f5a8eb2ccd6b95;DEV002workerbca037dfd7194f304493cac051ec894916ef3eac2d897871570dafbdaa56023d;sharedhelper00543c3a7d1ac2d8630af687809f0379f89bcf594934d7d9e6471980f78f0363",
+    "acceptance": "Two bounded snapshots verify fresh persisted Core creator heartbeat through4cycles and OPSHEALTHYheartbeat; no new ENOSPC/write-timeout/import failures. Durable control enabled;admitted/pending/ACK0;no new creator jobs processed/enqueued. This is real heartbeat commit evidence, not a token handoff/execution success claim.",
+    "historical_preservation": "All15019retired identities independently remain skipped; creator counts unchanged; completed Walkback74334unchanged;active requested backlog0. Normal startup maintenance terminalized the exhausted running attempts3 row tofailed; noattemptreset/RPCreplay,failed2to3/running1to0.",
+    "live_acceptance": "PROSPECTIVE_WALKBACK_EXECUTION=PENDING;LATE_CREATE=PENDING;FULL_PIPELINE=PENDING. Listener remains stopped; no independently active intake claimed; no synthetic tokens injected.",
+    "storage": "Final6.376GB free, sidecars withinqualified limits; canonical boundedstorage exception preserved. No cleanup.",
+    "evidence": "DEV090/operational-restoration/controlled-attempt-c604991687e7-retry2/DEV090_DEPLOYMENT_EXECUTION_STATUS.json and SHA256SUMS.json; protected config/rollback references retained locally, credentials not published.",
+    "runtime_deployment_gate": "HOLD",
+    "runtime_gate_reason": "Live prospective and lateCREATE acceptance evidence pending, not a deployment failure; do not markDEV_COMPLETE or golden/FLEX_STABLE_V2.",
+    "safety": "manual provider calls0;observed creator/Walkback job executions0;authorized Core schema/control+worker heartbeat writes occurred;4sourcefiles installed,2workers+managerstarted;unrelatedstarts0;nohistoricalreplay/backfill",
+    "next_action": "Await naturally eligible work with authorized intake. Do not start listener/API/Cascade/other13services without separate authorization. Preserve active selective configuration and exact-target rollback; no further source changes required by this observation."
   }
 }

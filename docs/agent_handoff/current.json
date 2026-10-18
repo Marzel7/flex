@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev075",
-    "git_head": "4abe4aace13dd112d7b253e6ab14ace28cb5bdef",
+    "git_head": "8175d0af02045bb87d5f1ec21a8951346f21f98b",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T08:28:23.734906+00:00",
-    "working_tree": "DEV075 audit committed; exact transaction acquisition requires separate authorization; no runtime changes."
+    "updated_at_utc": "2026-10-18T08:34:53.400824+00:00",
+    "working_tree": "DEV075 authorized three reads complete; compact derived audit committed; no runtime changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31873,5 +31873,28 @@
     "activation": "NONE; no implementation/deployment/replay",
     "blocker": "Original instruction/account evidence absent from examined retained authorities; full topology and Pump creator cannot be independently established.",
     "next_action": "Separately authorize exact three-signature proposal; maximum 3 Helius getTransaction requests, concurrency 1, retries 0, no raw retention. No requests yet."
+  },
+  "dev075_authorized_exact_reads": {
+    "status": "THREE_EXACT_READS_VERIFIED_TOPOLOGY_PARTIAL",
+    "engineering_source_sha": "8175d0af02045bb87d5f1ec21a8951346f21f98b",
+    "target_mint": "68yywen51ppvR2zWptcpvmc5H5a5SC6tsz8evAP2pump",
+    "verified_creator": "7ijDgEvd3zZdX3jFrZRzREd4dcugzkexBxGdtrbYDHSn",
+    "creator_authority": "Serialized Pump CREATE_V2 argument verified; matches core recorded creator and this transaction fee payer. No creator conflict demonstrated.",
+    "verified_route": "Gzaa treasury transferred800 SOL to Haux; Haux funded seeded WSOL account with0.253039280 SOL;9gdBt was seed base/token owner/closure authority; account closed to verified creator one second before CREATE.",
+    "fanout": "No retained provisioning/fanout projection rows for Haux or9gdBt. Separate SubProvider, many Funding Accounts and membership unproven; no complete WT false-negative claim.",
+    "first_proven_gap": "Walkback creator/anchor null, waiting with anchor lookups0 and attempts0 despite matching core CREATE evidence. No selected route or admission rejection.",
+    "evidence": "docs/audits/dev075/DEV075_AUTHORIZED_TRANSACTION_FINDINGS.json",
+    "tests": "Exact signature/success, serialized creator, funding/WSOL roles/amounts and chronology assertions PASS; bounded indexed retained comparisons; JSON/hash/size/sanitization PASS.",
+    "provider_calls": 3,
+    "maximum_authorized_requests": 3,
+    "concurrency": 1,
+    "retries": 0,
+    "raw_retention": false,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "runtime_changes": 0,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Derived evidence audit only",
+    "next_action": "Review partial topology and separately scope any fanout evidence or anchor-scheduling correction. No further acquisition, replay or implementation authorized."
   }
 }

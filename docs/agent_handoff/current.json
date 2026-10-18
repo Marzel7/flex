@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev071",
-    "git_head": "64f5760b297ab6f8742e5529a95255f8338a1858",
+    "branch": "codex/dev074",
+    "git_head": "a34f6968e12c9d9c12ae1c00917fbe241f3892d9",
     "name": "flex",
-    "updated_at_utc": "2026-10-17T19:47:33.377028+00:00",
-    "working_tree": "DEV071 historical structure comparison complete; new partial research family; identity qualification incomplete."
+    "updated_at_utc": "2026-10-18T07:51:42.173294+00:00",
+    "working_tree": "IsolatedDEV074 source committed; releasequalification HOLD at existingfrontend gate; no deployment."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31800,5 +31800,24 @@
     "production_changes": 0,
     "application_changes": 0,
     "next_action": "A larger bounded metadata pass is needed to establish a full manifest. Current enumeration cannot resume after process exit without another directory pass; acknowledge metadata rereads before proceeding. Do not infer absence or resume payload reads by ordinal position."
+  },
+  "dev074_creator_authority": {
+    "status": "HOLD_FRONTEND_RELEASE_GATE",
+    "engineering_source_sha": "a34f6968e12c9d9c12ae1c00917fbe241f3892d9",
+    "branch": "codex/dev074",
+    "baseline_sha": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "implementation": "Prospective queue provenance/qualification guard; atomic authority conflict checks; bounded provisional diagnostics and exhausted-validation retry handling; installedDEV051analyzer/worker preserved. Historical records unchanged.",
+    "verification": "77focused/DEV051testsPASS; fullDEV048Python89PASS; negativecontrols18PASS; unexpectedguarddenials0.",
+    "blocker": "Existing frontend subprocess gate failed with0byte log. API not started; browser and clean-checkout gates not reached. No immutable candidate.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "activation_state": "NOT_DEPLOYED",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "persistent_dev_changes": 0,
+    "service_restarts": 0,
+    "ready_for_targeted_deployment": false,
+    "next_action": "Resolve the failing existing DEV048 frontend subprocess gate in a separately attributable tooling task without weakening assertions or thresholds; then rerun DEV074 qualification and clean-checkout acceptance before candidate creation. No deployment."
   }
 }

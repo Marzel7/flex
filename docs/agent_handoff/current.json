@@ -19270,7 +19270,7 @@
   },
   "project": {
     "branch": "codex/dev090",
-    "git_head": "96687a393b024f3008ada9ad3e10441ebcdd0d64",
+    "git_head": "ef70c8718d030a0d96e6b71aa17cedb75c379ae5",
     "name": "flex",
     "updated_at_utc": "2026-10-18T21:15:09.142080+00:00",
     "working_tree": "DEV090 deployed exact target source; two workers healthy under selective Supervisor; natural live acceptance pending"
@@ -33093,6 +33093,36 @@
     "runtime_deployment_reason": "Source/config diagnosis and disposable-fixture tests only; parent deployment HOLD.",
     "report": "DEV090/listener-retention-qualification/RETENTION_CONTRACT_RESULT.json",
     "report_sha256": "20e33160be40210b408c159957aaef75c63fd22cf16cdbd2806291f762267eff",
-    "updated_utc": "2026-10-18T22:27:52.260211+00:00"
+    "updated_utc": "2026-10-18T22:27:52.260211+00:00",
+    "superseded_by": "dev090_compact_birth_recovery_release: source correction qualified in new candidate only; installed listener remains unchanged/stopped"
+  },
+  "dev090_compact_birth_recovery_release": {
+    "engineering_revision": "ef70c8718d030a0d96e6b71aa17cedb75c379ae5",
+    "status": "PASS_OFFLINE_QUALIFIED_NOT_DEPLOYED",
+    "candidate": "DEV090_CANDIDATE_ef70c8718d03",
+    "candidate_source_sha": "ef70c8718d030a0d96e6b71aa17cedb75c379ae5",
+    "candidate_release_sha256": "3071cefd184dba481eb89b7e5f57f5e8306d950c47cd90bd1cb6fbdaa55ffe97",
+    "implementation": "Whitelist/versioned compact envelope in existing signature-unique webhook_birth_queue.payload; raw audit0 in candidate launcher; full-event serialization removed. Mint,creator,signature,original receipt ns,provenance,bonding curve,symbol/name retained. No new table,index,store or worker.",
+    "acknowledgement": "Existing birth persistence method now returns explicit bool only; all existing transaction/proof/metadata statements preserved. Retry consumption requiresTrue plus exact token readback; receive-time completed cache cannot acknowledge compact retries. Duplicate receipt and consumed identity preserved.",
+    "failure_contract": "PrimaryFalse/exception attempts compact admission. Consumer failures stayunconsumed/retry_count visible. No RPC fallback for malformed PP records. Both storage paths/capacity failure emitsUNRECOVERABLE_BIRTH_RETRY with persistence/durable retryUNCONFIRMED; no silent recovery guarantee or raw/file fallback.",
+    "bounds": "4096bytes/envelope,2048total lifetime retained webhook rows including consumed/legacy;8MiB logicalpayload/~32MiB conservative main pages;atomic bounded INSERT quota plus existing main/WAL/journal/free-space authority.50rows/200KiB payload perpoll. No new log sink;existing Supervisor20MBstdout/10MBstderr rotation. At capacity failclosed,no pruning. Current queue row snapshot0.",
+    "qualification": "77focused checks,300Pythonchecks eachsource/clean run,frontend/API PASS,all10fresh retained-data browser contracts eachrun PASS,61toolingcontrols PASS;zero unexpected guard denials;APIsstopped. Actual sourceclosure+unrelated AST/preimage+ack reversal PASS.",
+    "runs": [
+      "fd15a6b252c9",
+      "51f26b78e948"
+    ],
+    "restoration": "Fresh independent clean checkout accepted;sealed archive5610files independently SHA256matched. Prior96687andc604 immutable releases unchanged.",
+    "runtime_preservation": "Existing observer1792363881 verifies unchanged creator/Walkback installed hashes and fresh committed healthy heartbeats;samePIDs74394/74410;all15019retiredjobsstillskipped;listener/Cascade/other11remainstopped. No operational source/config changes.",
+    "startup_binding": "Candidate launcher disables normal raw audit and both historical discovery loops. Reuse existing private fixed-activation Supervisor proposalT0=1792357618 (hash0f1d9f3c...);no runtime config applied.",
+    "rollback": "Stop listener,preserve compact pending envelopes and all durable intents. Do not start older consumer while pending records require new provenance/ack semantics. No raw downgrade/schema rewind;runningworkers unaffected.",
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "Separate authorized listener-only preflight/install/start with this immutable candidate and fixed persisted activation binding. Fresh source/disk/WAL/lock/retry checks required;live migration/coverage acceptance not performed;no golden/FLEX_STABLE_V2 claim.",
+    "provider_calls": 0,
+    "canonical_writes_by_task": 0,
+    "production_changes": 0,
+    "operational_starts": 0,
+    "report": "DEV090/compact-birth-release-qualification/DEV090_COMPACT_BIRTH_RECOVERY_STATUS.json",
+    "report_sha256": "cd9f48649959039ed482c69e47d7458e8baad4a80a287f5fd38d71578f0ada4b",
+    "updated_utc": "2026-10-18T22:54:27.492969+00:00"
   }
 }

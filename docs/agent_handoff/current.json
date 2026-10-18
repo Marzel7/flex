@@ -19272,7 +19272,7 @@
     "branch": "codex/dev090",
     "git_head": "2d40af06c320d1a4688d65c9d195214ec69f5378",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T19:50:56.407079+00:00",
+    "updated_at_utc": "2026-10-18T19:59:48.412695+00:00",
     "working_tree": "DEV090 DEV002 target offline release PASS; immutable candidate preserved; not deployed"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -32876,5 +32876,21 @@
     "runtime_deployment_required": false,
     "safety": "providers=0;canonical writes=0;Production changes=0;worker starts=0;no indexes/schema/queue changes",
     "next_action": "Qualify missing enqueue authority for legacy/missing timestamps and exact bounded ordering/access design before implementation; do not deploy or relax historical exclusion."
+  },
+  "dev090_authorized_historical_queue_retirement": {
+    "engineering_revision": "2d40af06c320d1a4688d65c9d195214ec69f5378",
+    "status": "PARTIAL_RETIRED_WITH_EXCEPTION",
+    "authorization": "One-time operational retirement of obsolete waiting/pending/retry jobs; no startup/deployment",
+    "changes": "15015 waiting+4 pending Walkback rows -> existing skipped state in151transactions; only status changed. Creator requested active population0; no Core changes.",
+    "verification": "15019 per-row hashes independently read back; other fields unchanged; SQLite authorizer denied unrelated writes/DDL. Completed Walkback74334,failed2,running1 unchanged. Waiting/pending/retry after0; actual installed claim query returns0.",
+    "exceptions": "One expired running row with attempts3 untouched as outside requested states. Creator3854 pre-existing skipped rows outside requested scope can be reconsidered by existing auto-enqueue; previously unqueued historical tokens also not fenced. Explicit force enqueue remains override. Do not claim all future historical acquisition prevented.",
+    "protected_handoffs": "No committed unacknowledged DEV090 intents: Core handoff table absent, Core WAL0 at preflight.",
+    "write_authority": "Installed synchronous shared acquire_write_lease before SQLite transaction; thread starts denied; no db_locking reaper/checkpoint import. Initial auto-review concern resolved with guarded import test before approved revised execution.",
+    "storage": "3.724GB before/3.717GB after;100rows per transaction; WALadmission32MiB; largest receipt2.012MB; no raw retention; no cleanup/VACUUM",
+    "evidence": "DEV090/dev002-release-qualification/queue-retirement-20261018T205832/REPORT.json plus exact row identities, before/after hashes, prepared/commit receipts and SHA256SUMS",
+    "candidate": "Immutable candidate unchanged",
+    "safety": "provider calls0; canonical queue updates15019; token evidence writes0; operational changes limited to authorized queue retirement; worker starts0; deploymentfalse",
+    "runtime_deployment_required": false,
+    "next_action": "Review untouched running exception and historical creator auto-enqueue scope before claiming wholly prospective restoration; no startup or deployment performed."
   }
 }

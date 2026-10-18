@@ -19272,7 +19272,7 @@
     "branch": "codex/dev090",
     "git_head": "2d40af06c320d1a4688d65c9d195214ec69f5378",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T19:44:06.251091+00:00",
+    "updated_at_utc": "2026-10-18T19:47:41.740629+00:00",
     "working_tree": "DEV090 DEV002 target offline release PASS; immutable candidate preserved; not deployed"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -32854,5 +32854,16 @@
     "runtime_deployment_required": false,
     "safety": "providers=0; canonical writes=0; Production changes=0; operational service starts=0; dummy program starts=2; fixture file limit8MiB; no raw retention",
     "next_action": "Selective procedure qualification complete. Await separately scoped operational schema/install/start authorization after fresh preflight; do not deploy automatically."
+  },
+  "dev090_controlled_restoration_preflight": {
+    "engineering_revision": "2d40af06c320d1a4688d65c9d195214ec69f5378",
+    "status": "HOLD_PROSPECTIVE_ONLY_EXECUTION_GATE",
+    "finding": "Stopped before any operational change: candidate Walkback drain_batch selection at line1714 and creator_resolution_queue process_queue at line725 include existing pending/retry/expired-lease rows without a prospective epoch cutoff. New durable handoff activation does not fence old queue consumers. Starting these normal loops cannot guarantee the authorized prohibition on historical backlog processing.",
+    "candidate": "DEV090_CANDIDATE_2d40af06c320 unchanged; offline qualification remains preserved",
+    "evidence": "DEV090/dev002-release-qualification/CONTROLLED_RESTORATION_PREFLIGHT.json",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "safety": "provider calls=0; canonical writes=0; Production changes=0; service starts=0; no schema/config/install/queue changes",
+    "next_action": "Qualify minimum prospective-only execution boundary for both queue consumers while preserving immutable candidate and historical queues, or obtain explicit revision of backlog restriction. Do not deploy/start automatically."
   }
 }

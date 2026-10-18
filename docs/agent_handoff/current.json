@@ -19272,7 +19272,7 @@
     "branch": "codex/dev090",
     "git_head": "2d40af06c320d1a4688d65c9d195214ec69f5378",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T19:26:06.440454+00:00",
+    "updated_at_utc": "2026-10-18T19:33:45.739207+00:00",
     "working_tree": "DEV090 DEV002 target offline release PASS; immutable candidate preserved; not deployed"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -32815,5 +32815,17 @@
     "evidence": "DEV090/dev002-release-qualification/DEV090_DEV002_RELEASE_STATUS.json; committed docs/audits/dev090/dev002-test-selection/contract.json",
     "safety": "provider calls=0; canonical writes=0; shared queue writes=0; Production changes=0; operational restarts=0; deployment=false; no P3R/d3de restoration",
     "next_action": "NONE \u2014 offline qualification complete. Deployment requires independently verified runtime/Supervisor ownership, exact source preimages, operational schema/storage/activation prerequisites and separate targeted authorization."
+  },
+  "dev090_runtime_ownership_verification": {
+    "engineering_revision": "2d40af06c320d1a4688d65c9d195214ec69f5378",
+    "status": "HOLD_RUNTIME_AUTHORITY",
+    "finding": "Bounded ps/process and UNIX socket census plus user/system launchd and installed plists found no current Supervisor, Walkback or creator-resolution owner/process. Retained Supervisor log records shutdown request 2026-10-18 09:05:23 local. Configured socket and pidfile absent. Historical Supervisor commands/configuration established; current manager instance and live effective database bindings remain unverified.",
+    "source_identity": "Configured Walkback a45ccc0d and creator queue ad225e20/worker79735086 remain exact qualified preimages; target candidate unchanged.",
+    "candidate": "DEV090_CANDIDATE_2d40af06c320 unchanged; offline PASS retained",
+    "evidence": "DEV090/dev002-release-qualification/RUNTIME_OWNERSHIP_VERIFICATION.json",
+    "runtime_deployment_required": false,
+    "reason": "read-only ownership diagnosis",
+    "safety": "providers=0; canonical writes=0; Production changes=0; service signals/starts/restarts=0",
+    "next_action": "Establish authorized operational owner and exact launch authority for stopped services before separate deployment/start authorization. No infrastructure repair or deployment performed."
   }
 }

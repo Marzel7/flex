@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev087",
-    "git_head": "fa87ff8937d2ffdb205a5bdad6773242f99452ba",
+    "branch": "codex/dev088",
+    "git_head": "768e26dc16ed77bca2e49262fc042e56e3d5570d",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T11:29:09.291520+00:00",
-    "working_tree": "DEV087 audit/schema fixture gate HOLD; no runtime implementation or candidate; no deployment"
+    "updated_at_utc": "2026-10-18T12:07:18.515777+00:00",
+    "working_tree": "DEV088 design measured; operational authorization HOLD; no implementation or deployment"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32395,5 +32395,32 @@
     "RUNTIME_DEPLOYMENT_REQUIRED": false,
     "runtime_reason": "Schema/access design qualification stopped before executable runtime changes.",
     "governance": "AGENTS.md section4: Any new feature that writes or grows files ... A design capable of producing a single file of500,000,000bytes or more fails qualification. DEV087 section4 requires HOLD if durability cannot qualify. No size-policy exception inferred from fixture-only schema authorization."
+  },
+  "dev088_storage_authority": {
+    "status": "PARTIAL_DESIGN_MEASURED; HOLD_PHYSICAL_GROWTH_ENFORCEMENT",
+    "engineering_source_sha": "768e26dc16ed77bca2e49262fc042e56e3d5570d",
+    "report": "docs/audits/dev088/DEV088_STORAGE_AUTHORITY_STATUS.json",
+    "policy_proposal": "docs/audits/dev088/PROPOSED_STORAGE_EXCEPTION.md",
+    "authority": "Core35652194304bytes/OPS16194387968bytes; persistent headers WAL; no WAL/SHM at observation; immutable base free pages3331166208/460341248bytes are not reserved. No writes/checkpoints/cleanup.",
+    "policy": "Actual AGENTS unchanged; no literal blanket ban on every in-place legacy-file write, but no legacy exemption for new storage-producing feature. Draft exception only, not implicitly granted.",
+    "measurements": "5000record fixture Core561.152bytes/record; simplified OPS163.84bytes/update; Core net index104.0384bytes/record. Batched synthetic samples, not hard canonical maxima.10000/day no-cleanup combined90day652492800bytes.",
+    "wal_counterexample": "Pinned reader allowed164832byte WAL despite16384journal_size_limit/autocheckpoint1; checkpoint0/40/0. Existing pragmas not hard WAL quota.",
+    "controls": "Seven real fixture-child interruption points + duplicate restart models; three injected commit-failure rollbacks; real SQLite_FULL page-cap test; retry/BLOCKED retention, logical capacity, conditional ACK cleanup and OPS update size controls. No actual OS ENOSPC or installed-writer crash qualification claimed.",
+    "proposed_limits": "Draft:1024byte typed proof;10000nonACK/70000ACK;Core64MiB+OPS64MiB additional main high-water;WAL64MiB/database with48MiB cutoff+verified16MiB transaction reservation;rollbackjournal16MiB;16dispatch/cycle;five retries then retainedBLOCKED;diagnostics1.5MiB;expires30days/100000migrations. These physical reservations are not yet enforced/qualified.",
+    "options": "A existing Core/OPS conditional preference, needs explicit exception and writer enforcement. B no existing compact same-Core atomic authority qualified. C newDB/worker not authorized and does not eliminate Core atomic-intent need.",
+    "blocker": "No verified installed shared-writer mechanism guarantees proposed WAL/transaction growth reservations under concurrent writers/pinned readers. Exact canonical row/index rewrite bounds, integrated ACK idempotency retention and OS ENOSPC commit handling remain prerequisites.",
+    "flex_dev_verify": "PASS design-only clean committed source against golden baseline; tool8577d4e5bcd654fbad7ec9fa862668842802a3c00911075359b56e45f9dec431",
+    "ready_for_storage_authorization": false,
+    "ready_for_implementation": false,
+    "policy_exception_granted": false,
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "persistent_dev_changes": 0,
+    "operational_restarts": 0,
+    "application_changes": 0,
+    "runtime_deployment_required": false,
+    "runtime_reason": "Design/offline disposable models only; no runtime implementation or candidate.",
+    "next_action": "User reviews proposed exception; explicit policy approval plus separately qualified existing-writer WAL/transaction reservation and commit-pressure controls required before implementation; separate operational migration/deployment authorization still required. No automatic approval, policy edit or writes."
   }
 }

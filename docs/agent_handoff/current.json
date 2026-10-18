@@ -31839,5 +31839,20 @@
     "operational_restarts": 0,
     "files_removed": 0,
     "next_action": "Qualify the Health browser-contract mismatch against current retained-data health semantics in a scoped tooling decision without changing DEV074 behavior or weakening safety checks; then rerun complete browser and clean-checkout release qualification. No cleanup or deployment needed/authorized."
+  },
+  "dev043_preview_restart_20261018": {
+    "status": "PASS_EXISTING_PREVIEW_AVAILABILITY",
+    "runtime_source_sha": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "activation": "ISOLATED_READ_ONLY_PREVIEW_RUNNING",
+    "port": 8145,
+    "pid": 4599,
+    "verification": "Protected baseline cloned locally after old temporary source/state absent; bootstrap hash and isolation self-testsPASS; registryHTTP200 and dev-runtime health read-only/networkblocked; actual browser registry/LIVE/HISTORY/retainedprices visible. Not complete release qualification.",
+    "limits": "Disposable state only; canonicalallowlist read-only; all outboundblocked; no operationalworkers;8MiBfilecap.",
+    "DEV074": "Application unchanged and not deployed; prior Health browser-contract HOLD remains.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "next_action": "User inspect existing8145preview; leave running. No additional development or deployment authorized.",
+    "updated_at": "2026-10-18T08:21:55.888726+00:00"
   }
 }

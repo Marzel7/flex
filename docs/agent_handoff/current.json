@@ -19272,7 +19272,7 @@
     "branch": "codex/dev090",
     "git_head": "2d40af06c320d1a4688d65c9d195214ec69f5378",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T19:47:41.740629+00:00",
+    "updated_at_utc": "2026-10-18T19:50:56.407079+00:00",
     "working_tree": "DEV090 DEV002 target offline release PASS; immutable candidate preserved; not deployed"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -32865,5 +32865,16 @@
     "runtime_deployment_gate": "HOLD",
     "safety": "provider calls=0; canonical writes=0; Production changes=0; service starts=0; no schema/config/install/queue changes",
     "next_action": "Qualify minimum prospective-only execution boundary for both queue consumers while preserving immutable candidate and historical queues, or obtain explicit revision of backlog restriction. Do not deploy/start automatically."
+  },
+  "dev090_prospective_selection_qualification": {
+    "engineering_revision": "2d40af06c320d1a4688d65c9d195214ec69f5378",
+    "status": "HOLD_INDEXED_SELECTION_AND_ENQUEUE_AUTHORITY",
+    "finding": "Existing creator index lacks creation-time range and exact CASE ordering; cutoff still temp-sorts. Walkback status/enqueue range index exists but exact priority+lease selection still temp-sorts. Creator initialization rewrites zero/NULL created_at to now, so historical records can appear prospective; seconds-only collision also needs explicit activation protocol.",
+    "tests": "Read-only schema/EXPLAIN only on canonical main files; compact in-memory diagnostic selected same1new row with1000/10000historical rows but VM work rose9000to90100steps. LIMIT does not bound historical visits. No canonical population scan.",
+    "implementation": "NONE: authority/access prerequisite gates failed; no selector changes, release suite or new candidate. Existing immutable candidate and application source unchanged.",
+    "evidence": "DEV090/dev002-release-qualification/PROSPECTIVE_SELECTION_QUALIFICATION.json",
+    "runtime_deployment_required": false,
+    "safety": "providers=0;canonical writes=0;Production changes=0;worker starts=0;no indexes/schema/queue changes",
+    "next_action": "Qualify missing enqueue authority for legacy/missing timestamps and exact bounded ordering/access design before implementation; do not deploy or relax historical exclusion."
   }
 }

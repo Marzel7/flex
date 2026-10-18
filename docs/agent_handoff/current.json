@@ -95,7 +95,7 @@
     "manual_database_writes": 0,
     "replay": 0,
     "storage": "Compactderiveddiagnostichandoffonly;no rawtransactionretention,DBcopies ornewgrowthpaths;nofile>=500MB.",
-    "next_action": "NONE — COMPLETE for migrationV1retrieval/persistence/handoffqualification. Leavecorrectedlistenerinstalled;no furtherproviderrequests,replay,admissionchanges orengineering."
+    "next_action": "NONE \u2014 COMPLETE for migrationV1retrieval/persistence/handoffqualification. Leavecorrectedlistenerinstalled;no furtherproviderrequests,replay,admissionchanges orengineering."
   },
   "dev039_two_latest_completed_migration_version_checks": {
     "status": "BOTH_VERSION0_HANDOFFS_COMPLETE; V1_FUNCTIONAL_ACCEPTANCE_PENDING_LIVE_EVIDENCE",
@@ -477,7 +477,7 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Read-onlytoken-specificevidenceaudit.",
     "safety": "Provider calls0;productionchanges0;DBwrites0;no source/service/registry/policy/UI changes,replay/backfill or evidence relocation. Canonicalmode=ro/query_only2seconddeadlines,smallidentityqueries/staticbirthpersistencereferenceandboundedartifactsearchonly. No DBcopies/rawpayloadretention;compactrequiredhandoffonly.",
-    "next_action": "STOP — requestexistingretainedCREATE/fundingreferenceorcreatorforthisexactmint; no correctionordeploymentauthorized."
+    "next_action": "STOP \u2014 requestexistingretainedCREATE/fundingreferenceorcreatorforthisexactmint; no correctionordeploymentauthorized."
   },
   "dev039_completed_post_oct10_provisioning_candidate_search": {
     "status": "COMPLETE_EXACT_PREVIOUSLY_TIMED_OUT_SEARCH_ZERO_MATCHES",
@@ -498,7 +498,7 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Read-only bounded evidence search only.",
     "safety": "Provider calls0;productionchanges0;DBwrites0;no source/service/subscription/UI/policychanges,replay/backfill or databasecopies. Requiredcompacthandoffonly; no runtimefilegrowth.",
-    "next_action": "NONE — exact timed-out search COMPLETE. Stop; no missedgenuinelaunch proven and no correction justified by zero retainedmatches."
+    "next_action": "NONE \u2014 exact timed-out search COMPLETE. Stop; no missedgenuinelaunch proven and no correction justified by zero retainedmatches."
   },
   "dev039_post_oct10_false_negative_investigation": {
     "status": "INSUFFICIENT_EVIDENCE_NO_QUALIFIED_FALSE_NEGATIVE_ESTABLISHED",
@@ -536,7 +536,7 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Read-onlyfalse-negativeevidenceauditonly.",
     "safety": "Provider calls0;productionchanges0;databasewrites0;no source/service/subscription/policy/UI changes,replay,backfill,DBcopies or researchchanges. Canonicalmode=ro/query_only2seconddeadlines; compactrequiredhandoffonly.",
-    "next_action": "STOP — insufficientretainedproof,notprovenabsenceofgenuinelaunches. No implementationordeployment. Do not expand into newacquisitionorbroadhistorywithout separateauthority."
+    "next_action": "STOP \u2014 insufficientretainedproof,notprovenabsenceofgenuinelaunches. No implementationordeployment. Do not expand into newacquisitionorbroadhistorywithout separateauthority."
   },
   "dev039_walkback_to_ui_contract_verification": {
     "status": "PARTIAL_PROCESSING_AND_UI_PROPAGATION_VERIFIED_GENUINE_QUALIFICATION_PARITY_NOT_ESTABLISHED",
@@ -767,7 +767,7 @@
     "runtime_deployment_required": true,
     "persistent_deployment": "NOT_AUTHORIZED_NOT_PERFORMED",
     "safety": "Provider calls0;production changes0;canonical/DEV evidence DBwrites0; fixtures in-memory only. Attribution/admission/detection/history/research untouched. New feature performs read-only projection and creates no runtime files: storage growth rule not applicable. Existing untracked owner guard preserved. No DBcopies/raw payload retention.",
-    "next_action": "NONE — COMPLETE isolated presentation correction. Leave8103 preview running for inspection; no persistent deployment or further detector work."
+    "next_action": "NONE \u2014 COMPLETE isolated presentation correction. Leave8103 preview running for inspection; no persistent deployment or further detector work."
   },
   "dev039_two_token_classification_trace": {
     "status": "DIFFERENT_CLASSIFICATION_PATHS_PROVEN_NO_CHANGES",
@@ -969,7 +969,7 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Read-only artifact existence check; no implementation or runtime changes.",
     "safety": "Provider calls 0; production changes 0; database queries/writes 0; no replay, acquisition, restarts, evidence relocation or raw payload retention. Only compact required handoff publication; no runtime storage impact.",
-    "next_action": "STOP — ARTIFACT_NOT_RETAINED in searched preserved authorities. No implementation, replay, acquisition or deployment."
+    "next_action": "STOP \u2014 ARTIFACT_NOT_RETAINED in searched preserved authorities. No implementation, replay, acquisition or deployment."
   },
   "dev039_oct8_route_recovery": {
     "status": "PARTIAL_ACCOUNT_ROLE_EVIDENCE_GAP_STOPPED",
@@ -1010,7 +1010,7 @@
     "cascade_reference": "PreservedX65.4fanoutproofin064021bd;root9hGcxVHFajR4xMZVUBQBwbxN2J3tt1aXE5KrUB87EZk4,SubProviderHA71615XkBEcLC6Spn1zW9VRavtYiQXgcBEvekVUUqZq,FundingAccount7FqyKpX3Qdtx3xaH8sVtU5Z7e7m5oP9DNq6P93iNVD6R,tempWSOL7BUQw5MAnxuCXLtuEiVA1JvVCNYKhEtfPmR6mdVnCb3V,Creator8ZbWuDTaMimLmrRjtynXMXdgJ7YbfboTbh2UNafr5dQZ. Fulltransactionsignaturesandfanout2retainedinprecedinghandoff; controls arecascadeaccepted,notsynonymouswithstrictmembershiporindependentWalkback.",
     "queue_record": "ExactmintPK:walkback_classLINK_ONLY,attribution_sourcewt_watchtower_launches,statuscomplete,intelligence_outcomeWATCHTOWER_CONFIRMED,rpc_used0,attempts0,started_atNULL,completed_atNULL,enqueued_at=updated_at1783768661(2026-07-11T11:17:41Z). creator/subprov/treasurymatchcascade;funder_wallet/funder_sig/funder_slot/funder_block_time/funding_mechanismNULL;claim/path/anchorfieldsNULL. No retainedworkerclaim/startorindependentreconstructionproven.",
     "decision_origin": "Frozen/currentclassify_creatorASTidentical:existingwt_watchtower_launchescreatorwithsubprov/treasuryreturnsLINK_ONLY/sourcewt_watchtower_launches. enqueue_migrationmapsLINK_ONLYtoWATCHTOWER_CONFIRMEDandcompleteimmediatelywithoutRPC. CurrentenqueuehasothersourcedifferencesbutthiszeroRPCdecisioncontractretained. wt_attribution_outcomesCANONICAL_OPERATOR_REACHED/HIGH/evidenceattribution_sourcewt_watchtower_launches/walkback_classLINK_ONLY:completed_at1783768661,materialized_at1783965175(2026-07-13T17:52:55Z). Thisisderivedprojection,notanindependentclassifierobservation. ActualhistoricalloadedsourceSHAunavailable.",
-    "route_comparison": "Exactmintwt_walkback_edge_candidatesempty;wt_walkback_transaction_rolesempty;watchtower_token_attributionempty. NoindependentWalkbacktreasuryedge,fanoutreference,selectededge,slotormechretainedinqueue. wt_provisioning_walletsrecordhasmatching7Fqy/3XjEf...WSOLbutreconstructed1/PERSISTED_SIGNATURE_DECODE/recorded1784755188(2026-07-22T21:19:48Z),eleven days aftercascadeJuly11—cannotattributeitautomaticallytotheoriginalWalkbackworker. FundingAccount/tempWSOLrolesremainseparate.",
+    "route_comparison": "Exactmintwt_walkback_edge_candidatesempty;wt_walkback_transaction_rolesempty;watchtower_token_attributionempty. NoindependentWalkbacktreasuryedge,fanoutreference,selectededge,slotormechretainedinqueue. wt_provisioning_walletsrecordhasmatching7Fqy/3XjEf...WSOLbutreconstructed1/PERSISTED_SIGNATURE_DECODE/recorded1784755188(2026-07-22T21:19:48Z),eleven days aftercascadeJuly11\u2014cannotattributeitautomaticallytotheoriginalWalkbackworker. FundingAccount/tempWSOLrolesremainseparate.",
     "cascade_timeline": "WSOL1783768542=2026-07-11T11:15:42Z;CREATE1783768545=11:15:45Z;LINK_ONLYqueue11:17:41Z. Sharedaddresses/signaturesmatchcascadeproofbutdonotestablishindependentreconstruction. Treasuryfunding2n9dCDjv...,selectedprovisioning3XjEfL47...,CREATEGBr9kiRp...aresourceevidenceonlynotWalkbackdecisionproof.",
     "historical_audits": "Frozenwatchtower_confirmed_membership_projection_repair_20260825.jsonincludesAwXtintheaffectedpopulation;summary889missing_verified_route/0projectedand957->68membershipscleanup. ThisartifactdoesnotproveAwXtindependentWalkbackqualification. Populationmanifestsalsoincludeexactmint/creatorbutonlyprovepopulationidentity. Currentmembershipandpromotion-outcomerowsempty. Nochangesmade.",
     "cached_label_dependence": "NoevidenceAwXttraversedFULL_WALKBACKcachedtreasuryshortcut. DemonstratedderivedpathisLINK_ONLYusingexistingcascadeledger,notcachedfunderlookup. ZeroRPCandabsentselectededgesarenotproofofindependentqualification. Historicalever-processedclaimcannotbeexhaustivelyexcludedbecausefullqueuehistory/workerprovenancemissing.",
@@ -1159,7 +1159,7 @@
     "registry_writer": "Automatic operation_scheduler.run_subprov_discovery_job -> treasury_bank.auto_confirm_from_launch_chain in current scheduler worktree /Users/kevinkeaveney/Production/flex-operation-scheduler-77492. wt_treasury_fingerprint_decisions at1792057118 recordsCONFIRMED,reasonlaunchchain,subprovEVeH...,creator7vihi...,mintWRAP_CLOSE,evidence_txs_jsonempty,source_migrationNULL. Sourcecallpassesmint=resultstring andcreate_sig=None. Decisionrecordmatchesexactcall-site defect. No approval-audit/review-action orattribution_evidence rowforthistreasuryfound; no manualapproval established.",
     "confirmation_contract": "Automaticbehavioralrule: detectcreatorwrapclosefromrecentmigrationcreator, rejectknowninfrastructuresubprov,findsubprovinbound>1SOLlargestbalance-decrease sender ifnotknownroot,thenauto-confirm. Writeritselfchecksnonemptytreasury/creator/mintandexistingregistryonly,trustscaller,doesnotvalidatecompleteupstreamancestryormintsyntax/signatures. ThusCONFIRMED_LAUNCH_CHAINmeanslocalbehavioralpromotionunderthiswriter,notindependentproofofacceptedrootcontrol. Registryalignmentcopiesidentityfromconfirmedrow,notnewtransactionqualification.",
     "route_verification": "Retainedselected3qd->EVeHplaintransfer signature3c6mZfDpK5qfVfJKcdxMCnm6TUQm7jNdAARzuXx8VtEodSwrdexJHEjqVkrokgCBqtsqRV6YsVFxnQgHkij26yQQ firstobserved1792056650. Atomiccreatorfunding signature2Wot8HLTFoK24Wgn4z9YNq6SzPyyM9iCobEwjuaG1QKD7FiFxx8RgcvvA8mbzVtvxuJ1JHccsgEtMgRkFBeeMsXV source/ownerEVeH2iSo7SMBKWRbcX9VSNGvK1yGZjtin3YexqKxFVDa creates/syncs/closesFundingAccountGxfDL4jPcM1kX6VtGF496WmNEwihhceNBMGungMmorzu toCreator7vihiQ2Vez6mF53g7dgLc889aXvegXn9CW5ghpBr4DiZ. Theseedgespredatewalkbackcompletion. DecisionhasnoconcreteCREATEsignatureormintreference; launchidentitycorrelationisviaretainedcandidate/session/creator,notdecisionmintfield. No furtherupstreamcontrolinferred.",
-    "before_after_evidence": "Hop1/2firstretained09:30:50Z;hop3at09:30:51Z,hop4at09:30:57Z,hop5at09:31:13Z—allbefore09:31:25completion. ExistingtreasuryreviewstillPENDING_REVIEW,detected09:30:50Z,containsexact3qd->EVeHsignature. Schedulercheckedcreator09:38:37ZWRAP_CLOSE andupdatedimmediatefunder3qd;subprovtreasuryremainsNULL. Sourceperformsproviderlookupsindependentlybutdecisionretainsnosignatures,soexactnewlyfetchedtransactionidentityandanynewindependentancestrybetweencompletionandpromotioncannotbeestablished. Auditmade0providercalls.",
+    "before_after_evidence": "Hop1/2firstretained09:30:50Z;hop3at09:30:51Z,hop4at09:30:57Z,hop5at09:31:13Z\u2014allbefore09:31:25completion. ExistingtreasuryreviewstillPENDING_REVIEW,detected09:30:50Z,containsexact3qd->EVeHsignature. Schedulercheckedcreator09:38:37ZWRAP_CLOSE andupdatedimmediatefunder3qd;subprovtreasuryremainsNULL. Sourceperformsproviderlookupsindependentlybutdecisionretainsnosignatures,soexactnewlyfetchedtransactionidentityandanynewindependentancestrybetweencompletionandpromotioncannotbeestablished. Auditmade0providercalls.",
     "delay_classification": "DELAYED_PROJECTION_OF_EXISTING_EVIDENCE for the demonstrable local partial-chain relationship. NOT NEW_QUALIFIED_EVIDENCE_AFTER_WALKBACK. CompleteindependentWatchtowntreasuryancestryremainsINSUFFICIENT_EVIDENCE; do notinterpretbehaviorallabelasacceptedfullrouteproof. Provenance-defectmintWRAP_CLOSE/emptytxrefsmeansregistryconfirmationcannotbyitselfsupportreclassification.",
     "requalification_eligibility": "Notestablished. Existingtreasuryalignmentreconcilesoperator_entities/identityassetsfromregistry,notwalkbackoutcomes. Existingreconcile_confirmed_watchtower_membershipsselectsonlyWATCHTOWER_CONFIRMED,notthecandidateLINEAGE_GAP. No establishedautomaticrequalificationofthiscompletedgapdemonstratedbythesedirectpaths. Nothingexecuted. Laterregistrylabelcouldchangeknown-treasuryinputsbutdoesnotlegitimatelyprovetheoriginaloutcomewrong.",
     "minimum_safe_next_action": "Stop. Preservequeueoutcomeandmembershipabsence. Separatelyqualifytheauto-confirmation'sactualmint/CREATEandtransactionreferencesandacceptedtreasurycriteriausingretainedrecords,beforeanyauthorizedrequalification. No automaticreplayorrelabelingjustified.",
@@ -1509,7 +1509,7 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS_ISOLATED_8103_PREVIEW",
     "persistent_deployment_authorized": false,
-    "next_action": "NONE — COMPLETE for globalchronologycorrection. Leave8103preview forinspection;coverage remains separatelyHOLD/unavailable. No automaticfollow-onengineering orpersistentdeployment."
+    "next_action": "NONE \u2014 COMPLETE for globalchronologycorrection. Leave8103preview forinspection;coverage remains separatelyHOLD/unavailable. No automaticfollow-onengineering orpersistentdeployment."
   },
   "dev037_global_history_walkback_coverage_qualification": {
     "status": "HOLD_NO_BOUNDED_EQUIVALENT_COVERAGE_READ_PATH_NO_IMPLEMENTATION",
@@ -1591,7 +1591,7 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS_ISOLATED_8103_PREVIEW",
     "persistent_deployment_authorized": false,
-    "next_action": "NONE — COMPLETE for selected-identity price join. Leave8103preview running for user inspection; no additional engineering or persistent deployment."
+    "next_action": "NONE \u2014 COMPLETE for selected-identity price join. Leave8103preview running for user inspection; no additional engineering or persistent deployment."
   },
   "dev037_watchtower_opening_peak_readonly_reconciliation": {
     "status": "PASS_AUDIT_PROVEN_BOUNDED_JOIN_DEFECT_NO_IMPLEMENTATION",
@@ -1749,7 +1749,7 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS_ISOLATED_PREVIEW_ONLY",
     "ready_for_persistent_dev_deployment": false,
-    "next_action": "NONE — requested isolatedunifiedpresentationcomplete; leave8103foruserinspection. User approval and separateauthorizationrequired before anypersistentDEVdeployment. Noautomaticfurtherengineering."
+    "next_action": "NONE \u2014 requested isolatedunifiedpresentationcomplete; leave8103foruserinspection. User approval and separateauthorizationrequired before anypersistentDEVdeployment. Noautomaticfurtherengineering."
   },
   "dev037_preview_queue_binding_correction": {
     "status": "PASS_QUEUE_BINDING_AND_RETAINED_UI_DISPLAY_FULL_HISTORICAL_RECOVERY_PARTIAL",
@@ -1837,7 +1837,7 @@
   "dev037_latest_oct12_13_application_recovery_analysis": {
     "status": "HOLD_COMPLETE_LATEST_ACCEPTED_COMPOSITION_NOT_PROVEN",
     "engineering_revision": "Audited current persistent DEV43dfcddcacd8a0a6edaa9e24aaf1499a1ac655cc PID95243; preview d10a690e5dc02c7a962bc14d299286d4eca57c56 unchanged. Historical shared base580508a70c80e7fc944e0069f85e67b851a117fa is not a complete working application identity.",
-    "target": "Newest accepted October12–13 application, not October8 or older frozen/production fallback. October8 screenshot is minimum feature contract only. d10 technical read-path acceptance does not qualify it as full accepted application recovery.",
+    "target": "Newest accepted October12\u201313 application, not October8 or older frozen/production fallback. October8 screenshot is minimum feature contract only. d10 technical read-path acceptance does not qualify it as full accepted application recovery.",
     "chronology": [
       "2026-10-12 19:00:06 BST handoff69f4cbf6: DEV022 deployed APIcd459a99017f4495188c875af710bde115038137 to dev020-runtime/flex, PID22020; healthz200 and103Watchtower rows with lifecycle_processing. Actual API deployment proof, not full shared8100 universal/history UI proof.",
       "2026-10-12 22:28:32 BST handoff937fc4ac: DEV029 restored scheduler77492d22497e31a5984a234e2bb1f5cd2fc10613 PID66022. Does not install or prove DEV UI/API source.",
@@ -1846,14 +1846,14 @@
       "2026-10-13 08:17:53 BST handoff13567451: DEV034 fundingc3565a9d5c2e5199c5362ac96573246a8d5a42dc RUNNING PID58561 but schema no such table creator_funders; PARTIAL/HOLD, not all-system PASS. This does not imply UI was unusable.",
       "2026-10-13 09:40:25 BST earlyDEV035 handoff83cd5eab: persistent8100 PIDs22967/14001 manually running shared src.dev_runtime, three health endpoints200. Fresh DEV runtime evidence before persistent repointing, but after firstDEV035 commit09:32; not a pre-development whole-UI browser test. Existing browser table PASS records carried forward from October3 must not be redatedOctober13."
     ],
-    "last_proven_working_timestamp": "No exact complete12–13October UI acceptance timestamp established. Fresh latest relevant DEV liveness evidence09:40:25BST October13 and separate complete-identity API acceptance19:00:06BST October12 are distinct; neither proves all requested application features together.",
+    "last_proven_working_timestamp": "No exact complete12\u201313October UI acceptance timestamp established. Fresh latest relevant DEV liveness evidence09:40:25BST October13 and separate complete-identity API acceptance19:00:06BST October12 are distinct; neither proves all requested application features together.",
     "historical_runtime": "Shared /Users/kevinkeaveney/Dev/claude/flex, manual/controller python -m src.dev_runtime, anaconda algotrader interpreter, base580508 plus modified/untracked UI/API/runtime modules. Canonical ops/core read-only, monitor dev_005a and universal policy/work state in DEV authority. Full screenshot/PID-matched source diff and environment snapshot absent. Current .dev_runtime/run/dev_api.json retains PID14001/source-root/command but is not a timestamped October12/13 full-byte manifest.",
     "component_matrix": [
       {
         "component": "Operations OS/navigation/lifecycle/discovery",
         "source": "Shared ops_shell_index.html blob8adf3e159b929792562da26e17f1faa45314b223 is in580508; sidebar shared85039a6cba523ecc5c329f24176a9db00a1dc91e differs from base6048f40c44b58a049a417538498183d73435b260",
         "dependencies": "Existing shell providers/lifecycle/discovery endpoints",
-        "runtime_evidence": "Historical shell surfaces retained; no one12–13 full-panel acceptance record. Preserve newer qualified74988482/02a62a2b nonblocking shell and9cd6f014 health behavior, not older equivalents."
+        "runtime_evidence": "Historical shell surfaces retained; no one12\u201313 full-panel acceptance record. Preserve newer qualified74988482/02a62a2b nonblocking shell and9cd6f014 health behavior, not older equivalents."
       },
       {
         "component": "Live price/cadence/latest20 renderer",
@@ -1899,7 +1899,7 @@
     "production_changes": 0,
     "database_writes": 0,
     "service_actions": 0,
-    "next_action": "STOP — report newest complete recovery composition unresolved. No source reconstruction/deployment authorized or performed; do not promote d10. A separately authorized preservation/compatibility qualification of the identified local matched UI/API/enrichment snapshot is the smallest actionable path, not another older rollback."
+    "next_action": "STOP \u2014 report newest complete recovery composition unresolved. No source reconstruction/deployment authorized or performed; do not promote d10. A separately authorized preservation/compatibility qualification of the identified local matched UI/API/enrichment snapshot is the smallest actionable path, not another older rollback."
   },
   "dev037_actual_october8_ui_provenance_comparison": {
     "status": "PARTIAL_ACCEPTED_VISUAL_CONTRACT_IDENTIFIED_EXACT_COMPLETE_GIT_COMPOSITION_UNPROVEN",
@@ -1977,7 +1977,7 @@
     "production_changes": 0,
     "database_writes": 0,
     "service_actions": 0,
-    "next_action": "STOP — accepted visual contract located but exact complete committed composition unresolved. Request separate authorization to preserve/hash and qualify matching local API/enrichment composition against screenshot contract; do not promote d10 or change either running application."
+    "next_action": "STOP \u2014 accepted visual contract located but exact complete committed composition unresolved. Request separate authorization to preserve/hash and qualify matching local API/enrichment composition against screenshot contract; do not promote d10 or change either running application."
   },
   "dev037_recovered_ui_preview_8102": {
     "status": "PASS_PREVIEW_RUNNING_FOR_USER_INSPECTION",
@@ -1999,7 +1999,7 @@
     "production_changes": 0,
     "database_writes": 0,
     "port_8100_changes": 0,
-    "next_action": "USER_INSPECTION — preview remains running at8102; no persistent deployment or additional engineering authorized."
+    "next_action": "USER_INSPECTION \u2014 preview remains running at8102; no persistent deployment or additional engineering authorized."
   },
   "dev037_safe_rollback_and_deployment_attempt": {
     "status": "HOLD_CANDIDATE_BOOTSTRAP_FAILED_ROLLBACK_VERIFIED",
@@ -2018,7 +2018,7 @@
     "production_changes": 0,
     "provider_calls": 0,
     "canonical_database_writes": 0,
-    "next_action": "STOP — qualified candidate deployment blocked by exact launchd bootstrap error5. Previous runtime restored and verified. Any further bounded registration recovery requires separate authorization; no new engineering or retry performed."
+    "next_action": "STOP \u2014 qualified candidate deployment blocked by exact launchd bootstrap error5. Previous runtime restored and verified. Any further bounded registration recovery requires separate authorization; no new engineering or retry performed."
   },
   "dev037_controlled_deployment_preflight": {
     "status": "HOLD_BEFORE_SERVICE_CHANGE_ZERO_WRITE_ROLLBACK_UNAVAILABLE",
@@ -2056,7 +2056,7 @@
     "provider_calls": 0,
     "production_changes": 0,
     "persistent_service_actions": 0,
-    "next_action": "STOP — isolated adapter qualification complete. Await explicit authorization before persistent DEV deployment of d10a690e with verified read-only monitor/queue bindings; no further reconstruction."
+    "next_action": "STOP \u2014 isolated adapter qualification complete. Await explicit authorization before persistent DEV deployment of d10a690e with verified read-only monitor/queue bindings; no further reconstruction."
   },
   "dev037_live_monitor_module_provenance": {
     "status": "READ_ONLY_PROVENANCE_COMPLETE_SOURCE_COMPOSITION_MISMATCH",
@@ -2078,7 +2078,7 @@
     ],
     "additional_direct_symbol_mismatch": "Candidate src.core.db_writer exists but lacks imported DurableWriteReceipt and commit_write_and_wait definitions; cd459 defines both. Present imports include WriteItem, ClaimedMessage/EvidenceIntakeQueue and token_data_provider_bindings. Function-local worker imports also include canonical_launch_birth/current_mc_overlay/entry_reference_policy_adapters/byzantine_live_cluster_recurrence/historical_lifecycle_jobs and others absent from candidate; these are acquisition/reconciliation dependencies, not necessary to an already-preserved read-only queue adapter.",
     "queue_contract": "Candidate call production_queue().queue matches cd459 production_queue API. It constructs MonitorQueue -> EvidenceIntakeQueue(root, enabled, limits); constructor stores state only. initialize/enqueue/claim are separate mutations and must not run in UI. Configuration uses OPERATION_MONITOR_QUEUE_PATH, OPERATIONS_MODE or MONITOR_INFRASTRUCTURE_ENABLED plus optional scheduling bindings. Worker transports and writer functions must not execute during provider-free qualification. No module imported or queue instantiated in this audit.",
-    "complete_composition": "YES, preserved cd459 source contains worker and full top-level static source-import closure:23 modules checked, no unresolved module paths, no pending traversal. This is static closure evidence, not execution qualification for every optional function-local acquisition branch. Source exists in codex/dev022-automatic-price-lifecycle and descendant DEV023–DEV026 branches. Most importantly accepted cd459 operator_routes._monitor_live_projection uses _monitor_store_connection and _monitor_queue_root, opening dedicated monitor SQLite mode=ro and reading bound queue files directly. It does NOT import worker/production_queue. Candidate's older worker-dependent read consumer is incompatible with this component composition.",
+    "complete_composition": "YES, preserved cd459 source contains worker and full top-level static source-import closure:23 modules checked, no unresolved module paths, no pending traversal. This is static closure evidence, not execution qualification for every optional function-local acquisition branch. Source exists in codex/dev022-automatic-price-lifecycle and descendant DEV023\u2013DEV026 branches. Most importantly accepted cd459 operator_routes._monitor_live_projection uses _monitor_store_connection and _monitor_queue_root, opening dedicated monitor SQLite mode=ro and reading bound queue files directly. It does NOT import worker/production_queue. Candidate's older worker-dependent read consumer is incompatible with this component composition.",
     "minimum_recovery_action": "Under separate authorization, prefer qualifying the preserved near-period read-only Live Monitor adapter and its directly required projection dependencies against current candidate/UI contracts, rather than copying acquisition worker plus writer/provider closure merely to read queue metadata. Do not wholesale replace current API, guards or health fixes. If worker restoration is chosen, qualify its full matching dependencies, never one file alone.",
     "data_changes_required": "NONE for source compatibility. Established canonical/monitor DB paths and retained queue can be read without schema, membership, attribution or research changes. Research artifacts remain independent; no evidence opened for modification, copied or relocated.",
     "runtime_deployment_required": false,
@@ -2227,9 +2227,9 @@
     "runtime_deployment_gate": "PASS",
     "runtime": "Persistent DEV deployment completed 2026-10-14: /Users/kevinkeaveney/Library/LaunchAgents/com.flex.dev035-api.plist is registered in gui/501, PID 35040, worktree=/private/tmp/flex-dev035-health-scope, source=9cd6f014a3bcaf2e878164cc4dc20cd43090156b. One explicitly authorized bounded kickstart of this existing service completed; no second restart was performed. It retains /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -m src.dev_runtime, FLEX_DEV_RELOAD=0, host=127.0.0.1, port=8100, the existing state root and bindings. Wrapper SHA-256=cf5d3f07b8f58a6e8417843f6cdc781ad655a94a84d3a8c6d8024c46d373d7cf; registry SHA-256=887475ae9c9f0b9123cc815992d2ac5ba782018983c86733a61deaa07a004eb8.",
     "safety": "DEV only; provider calls=0; production changes=0; no production or operational database mutation, migration, raw-payload retention, unrelated service restart, or provider transport. Wrapper source and registry hashes are unchanged; /dev-runtime/health reported production_databases=read-only and outbound_network=blocked. Startup workers remain suppressed. The dirty shared checkout was not modified. The watchdog threshold remains 12; host descriptor inspection found 0 open flex_complete_database.db descriptors for PID 17618.",
-    "acceptance": "Host-context acceptance passed: port 8100 listens; /healthz=HTTP 200 healthy=true/db=ok; /api/health/full=HTTP 200 in 116.937 ms with status=UNKNOWN and only current qualified capability evidence; /dev-runtime/health=HTTP 200 with source_root=/private/tmp/flex-dev035-health-scope, production_databases=read-only and outbound_network=blocked. Browser-visible Mission Control renders the DEVELOPMENT — READ ONLY label, API live separately, System Health Unknown, and Platform NEUTRAL/WATCHTOWER UNKNOWN from the same current evidence snapshot. PID 35040 has 0 open canonical database FDs.",
+    "acceptance": "Host-context acceptance passed: port 8100 listens; /healthz=HTTP 200 healthy=true/db=ok; /api/health/full=HTTP 200 in 116.937 ms with status=UNKNOWN and only current qualified capability evidence; /dev-runtime/health=HTTP 200 with source_root=/private/tmp/flex-dev035-health-scope, production_databases=read-only and outbound_network=blocked. Browser-visible Mission Control renders the DEVELOPMENT \u2014 READ ONLY label, API live separately, System Health Unknown, and Platform NEUTRAL/WATCHTOWER UNKNOWN from the same current evidence snapshot. PID 35040 has 0 open canonical database FDs.",
     "blocker": null,
-    "next_action": "NONE — COMPLETE."
+    "next_action": "NONE \u2014 COMPLETE."
   },
   "dev035_health_reconciliation": {
     "engineering_revision": "02a62a2bb0fb8f0e27eddaa690e0d271963866cf, persistent DEV runtime /private/tmp/flex-dev036-nonblocking-ui-runtime, PID 17618.",
@@ -2255,13 +2255,13 @@
     "deployment": "The original repoint attempt failed at launchctl bootstrap after bootout. Under separate explicit recovery authority, one bounded registration using the unchanged validated plist succeeded. gui/501/com.flex.dev035-api is running as PID 32336 from the qualified worktree; port 8100 listens and direct health/UI/browser acceptance passed.",
     "safety": "DEV only; provider calls=0; production changes=0; no database migration, production database mutation, provider transport, raw payload retention, or unrelated service action. Existing safety wrapper, FLEX_DEV_RELOAD=0, network denial, read-only production SQLite and FD watchdog configuration were preserved in the attempted plist.",
     "blocker": null,
-    "next_action": "NONE — COMPLETE."
+    "next_action": "NONE \u2014 COMPLETE."
   },
   "dev035_final_health_presentation": {
     "engineering_revision": "9cd6f014a3bcaf2e878164cc4dc20cd43090156b on codex/dev035-health-scope, isolated worktree /private/tmp/flex-dev035-health-scope.",
     "status": "PASS_DEPLOYED",
     "frozen_baseline": "Reference 6877f6e41477f7357463225d071f7a50f29c743e rendered a healthy banner solely from an empty active-incident list. The current correction retains frozen capability classifications and incident history, while using the existing full-health aggregate as the banner's authoritative current-evidence status.",
-    "implementation": "The top banner and Platform consume the same fullHealth snapshot and severity ordering: CRITICAL and WARNING remain proven states, UNKNOWN is shown whenever required evidence is absent, stale, or unavailable, and HEALTHY is shown only by the qualified aggregate. An empty active-incident list cannot create System Healthy. A failed core full-health refresh now records the last successful timestamp, preserves useful rendered detail, explicitly marks System Health Stale and Platform operational evidence stale, and never retains an unqualified healthy banner. API liveness remains a separate /healthz-driven shell indicator. The existing DEVELOPMENT — READ ONLY — PRODUCTION DATA CANNOT BE MODIFIED label makes suppressed DEV workers non-evidence of a production outage.",
+    "implementation": "The top banner and Platform consume the same fullHealth snapshot and severity ordering: CRITICAL and WARNING remain proven states, UNKNOWN is shown whenever required evidence is absent, stale, or unavailable, and HEALTHY is shown only by the qualified aggregate. An empty active-incident list cannot create System Healthy. A failed core full-health refresh now records the last successful timestamp, preserves useful rendered detail, explicitly marks System Health Stale and Platform operational evidence stale, and never retains an unqualified healthy banner. API liveness remains a separate /healthz-driven shell indicator. The existing DEVELOPMENT \u2014 READ ONLY \u2014 PRODUCTION DATA CANNOT BE MODIFIED label makes suppressed DEV workers non-evidence of a production outage.",
     "tests": "52 passed: tests/test_dev035_mission_control.py, tests/test_mc1_1_capability_layer.py, tests/test_dev035_api_liveness_bounds.py. Coverage includes healthy/unknown/warning/critical aggregation, empty incidents with missing telemetry, shared banner/Platform scope, resolved incidents, stale failed core refresh rendering, liveness independence, and guarded DEV presentation.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS",
@@ -2269,7 +2269,7 @@
     "safety": "DEV only; provider calls=0; production changes=0; no database writes, migrations, provider transport, raw payload retention, new worker, or unrelated service action. src.dev_runtime remains active with read-only production SQLite, blocked outbound network, suppressed startup workers, and the existing FD watchdog; 0 canonical database FDs were observed for PID 35040.",
     "storage": "No new storage-producing path or raw-retention path was introduced.",
     "blocker": null,
-    "next_action": "NONE — COMPLETE."
+    "next_action": "NONE \u2014 COMPLETE."
   },
   "dev036_active_operations_registry_diagnosis": {
     "engineering_revision": "9cd6f014a3bcaf2e878164cc4dc20cd43090156b, running clean DEV worktree /private/tmp/flex-dev035-health-scope.",
@@ -2298,7 +2298,7 @@
     "runtime_deployment_gate": "PASS",
     "safety": "DEV only; provider calls=0; production changes=0; operational database writes=0; no schema/index, membership, attribution, shared-checkout, plist, unrelated-service or provider change. No database copies, raw payload retention, new workers or unbounded storage path; compact stack fixtures/artifacts only.",
     "blocker": null,
-    "next_action": "NONE — Registry blocker task COMPLETE. This does not claim Live Monitor or operation-detail performance acceptance."
+    "next_action": "NONE \u2014 Registry blocker task COMPLETE. This does not claim Live Monitor or operation-detail performance acceptance."
   },
   "dev036_nonblocking_registry_implementation": {
     "engineering_revision": "Installed 67740c4dbcf7663b51ddae4fb65aaf53a1a1ea11 in /private/tmp/flex-dev035-health-scope; isolated qualification commit 45b38e1edb89a5ff5762016760318d49bed5006c.",
@@ -2561,7 +2561,7 @@
     "qualified_start_receive_utc_ns_exclusive": 1786568002689241000
   },
   "ad_hoc_funding_analytics_addendum": {
-    "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator→bridge_funder→target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
+    "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator\u2192bridge_funder\u2192target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
     "indexes": "Good current paths: creator_funders creator/funder and CEX indexes, token_analysis creator/created_at, graph creator/funder/first_seen/last_seen, Walkback parent/mint-hop and queue funder/status, provisioning from/to/type-time, session treasury/subprov, and operator membership by operator. High-value future candidates, not created: composite creator_funders(funder_address, first_detected_at), creator_funders(creator_address, first_detected_at), queue(funder_sig) or signature index, provisioning sessions creator/time, and a normalized epoch time expression/materialization if mixed first_detected_at typing remains a performance concern.",
     "next_action": "Before any funding-table retirement, separately qualify and, if necessary, migrate exact creator_networks snapshot semantics, funding-network ID/name mapping, and funding_chains full historical first-leg provenance.",
     "preserved_analytics": "creator_funders is the retained canonical creator-to-direct-funder relation with amount, first detection, CEX classification, and creator/funder indexes. token_analysis provides mint/creator launch history and created_at index. Walkback queue/edge candidates/transaction roles/atomic flows retain selected-parent, signature, slot/block-time, amount, mechanism and raw role facts. Provisioning edges/sessions retain treasury-to-subprov-to-creator topology. Operator membership and Potential Operation evidence associations support operation joins.",
@@ -3585,7 +3585,7 @@
     "audit": "docs/audits/byzantine_15s_request_contract_correction.v1.json sha256 6ff8b88d6940f2a04deb931aea577160a8e48619b03b855aad47b7096f05c2a3",
     "blocker": "HTTP_400_ROOT_CAUSE=NOT_IDENTIFIED because error payload retention is forbidden and the retained request dimensions have no material mismatch. The validation-call ceiling was reached.",
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; diagnostic-only scripts and compact audit remain uncommitted",
-    "finding": "The exact successful Nika 2h MCAP 15s request was recovered from the retained actual-entry ATH backfill and compared to the failed coverage request. Endpoint, GET method, address, type=15s, chart_type=mcap, currency=usd, mode=range, padding=false, canonical headers, seconds timestamps, and 7200-second range match. Only Entry-based time boundaries differ. The one permitted Nika Entry→+2h validation was dispatched through the exact successful ohlcv builder with the resolved project credential and returned HTTP 400 again. No sanitized retained error identifies the cause.",
+    "finding": "The exact successful Nika 2h MCAP 15s request was recovered from the retained actual-entry ATH backfill and compared to the failed coverage request. Endpoint, GET method, address, type=15s, chart_type=mcap, currency=usd, mode=range, padding=false, canonical headers, seconds timestamps, and 7200-second range match. Only Entry-based time boundaries differ. The one permitted Nika Entry\u2192+2h validation was dispatched through the exact successful ohlcv builder with the resolved project credential and returned HTTP 400 again. No sanitized retained error identifies the cause.",
     "next_action": "NONE_UNTIL_SANITIZED_PROVIDER_ERROR_IS_RECONCILED",
     "safety": "Birdeye=1; Helius=0; retries/pagination/1m=0; raw response retained=0; Entry/ATH/UI/runtime/production/Supervisor/trading=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "HOLD_REQUEST_CONTRACT_STILL_INVALID"
@@ -3769,7 +3769,7 @@
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; uncommitted bounded acquisition runner and compact DEV-only artifacts",
     "finding": "The frozen DEV Byzantine authority is 12 rows (11 waiting plus one active Scenario-D). All 11 create slots were recovered once, then one replacement signature page per waiting mint and at most eight chronological decodes selected nine actual Pump.fun/PumpSwap economic trades. Nine received actual-trade Entry MC and adaptive 15s MCAP ATH facts. ORANGE (9o4u...) and GIFT (4LMq...) have no qualifying actual entry within eight decodes and remain explicit failed-closed rows.",
     "next_action": "NONE_FOR_QUALIFIED_BYZANTINE_ENTRY_ATH_UI; retain ORANGE and GIFT as failed closed unless separately authorized.",
-    "safety": "No raw provider/block/signature-page payload retained; compact candidate items and coverage only. candle.l/drawdown/85/terminal/ENDED semantics unused; Scenario-D provenance unchanged. DEV-only db/projection/UI was updated and visually verified. Production, Supervisor and trading unchanged. RUNTIME_DEPLOYMENT_GATE=PASS for port-8100 source/runtime: API health 200, 12 Byzantine rows, nine values reconcile, drawdown null/—.",
+    "safety": "No raw provider/block/signature-page payload retained; compact candidate items and coverage only. candle.l/drawdown/85/terminal/ENDED semantics unused; Scenario-D provenance unchanged. DEV-only db/projection/UI was updated and visually verified. Production, Supervisor and trading unchanged. RUNTIME_DEPLOYMENT_GATE=PASS for port-8100 source/runtime: API health 200, 12 Byzantine rows, nine values reconcile, drawdown null/\u2014.",
     "status": "PARTIAL_9_QUALIFIED_2_FAILED_CLOSED_WITHIN_BOUND"
   },
   "byzantine_ajq48_monitor_admission_trace": {
@@ -4015,7 +4015,7 @@
     "next_action": "RESTORE_OR_RELEASE_THE_EXISTING_PORT_8100_DEV_LISTENER_THEN_VISUALLY_VERIFY_THE_NINE_BYZANTINE_ROWS",
     "runtime_deployment_reason": "The DEV evidence-store update changes only provenance for identical values; the existing port holder was not modified and no target runtime was deployed.",
     "runtime_deployment_required": false,
-    "safety": "Raw payload/key retention=0; price×1B remains comparison-only; production/Supervisor/trading=0. Port 8100 is held by existing PIDs 36592/44543 but refuses HTTP; a fresh DEV runtime correctly declined to start because the port is in use. No process was killed or altered, so browser visual QA is unavailable.",
+    "safety": "Raw payload/key retention=0; price\u00d71B remains comparison-only; production/Supervisor/trading=0. Port 8100 is held by existing PIDs 36592/44543 but refuses HTTP; a fresh DEV runtime correctly declined to start because the port is in use. No process was killed or altered, so browser visual QA is unavailable.",
     "status": "PASS_PROVEN_ATH_ROUTE_REPLAYED_UI_VISUAL_QA_UNAVAILABLE"
   },
   "byzantine_historical_canonical_birth_backfill_design": {
@@ -4068,7 +4068,7 @@
   },
   "byzantine_historical_price_supply_ath_qualification_20261003": {
     "audit": "docs/audits/byzantine_historical_price_supply_ath_qualification.v1.json sha256 ef2327daa82854478d6054ba74b167bbb7e3d87afb582d37b91e7a69224e24f9",
-    "blocker": "FIXED_SUPPLY_SEMANTICS_VERIFIED=false for the four validation mints; historical price × 1B is not eligible for current Byzantine ATH correction.",
+    "blocker": "FIXED_SUPPLY_SEMANTICS_VERIFIED=false for the four validation mints; historical price \u00d7 1B is not eligible for current Byzantine ATH correction.",
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; provider-free audit only",
     "finding": "The exact retained historical implementation is Birdeye /defi/v3/ohlcv price/USD/15s candles, candle.h maximum, fixed 1B UI-token multiplication, and an entry-to-min(migration+60s, entry+10m) bounded horizon. However, the only 1B evidence is a different Pump.fun control. The repository's later per-mint supply policy explicitly forbids promoting a generic Pump.fun supply convention when mint-specific supply and constancy evidence is absent. No such evidence was retained for FNC, Pumpkinu, Cassie, or INU, so the required stop gate prevented derived ATH comparison or any provider request.",
     "next_action": "STOP_PROVIDER_WORK_AND_SELECT_ANOTHER_HISTORICAL_SOURCE",
@@ -4104,7 +4104,7 @@
     "interpretation": "BEST_PRACTICAL_COLLAPSE_THRESHOLD=NONE: all thresholds materially right-censored and complete-no-crossing controls=0. Retain all PRICE_DRAWDOWN_50/75/90 separately.",
     "next_action": "Stop. No threshold selection/strategy claim from censored evidence.",
     "production_flags": "Provider/on-chain calls=0; raw retention=0; frozen price evidence only.",
-    "progression": "50→75=25 proven,5 censored; 50→90=21 proven,9 censored; 75→90=21 proven,4 censored; zero proven non-progression. No recovery conclusion because retained reduced ledger lacks qualifying post-crossing series.",
+    "progression": "50\u219275=25 proven,5 censored; 50\u219290=21 proven,9 censored; 75\u219290=21 proven,4 censored; zero proven non-progression. No recovery conclusion because retained reduced ledger lacks qualifying post-crossing series.",
     "result": "103 trajectories; reaches 50/75/90=30/25/21. Median peak-to-threshold=900s for all, but all values are 15-minute candle quantized. First-post-peak crossings=25/22/19; >1 candle=5/3/2.",
     "tests": "Python compile and JSON read-back validation; provider-disabled retained-observation replay PASS.",
     "verdict": "BYZANTINE_MULTI_THRESHOLD_COLLAPSE_PARTIAL"
@@ -4125,7 +4125,7 @@
     "next_action": "No action required; refresh localhost:5002/operations/playbooks and open Byzantine.",
     "production_flags": "watchtower_api only restarted to load UI template/read-model formatting. Provider/RPC calls=0; canonical membership writes=0; research artifacts/calculations unchanged.",
     "result": "The Playbook now prioritizes operation context and lifecycle findings: 110/52/19/33 hero, severity counts, concise evidence strip and boundary notice, top-10 drawdown-first table with filters/sorting/View-all, abbreviated copyable mints, human-readable USD/token displays, and collapsible methodology. Canonical coverage remains separate and research-only mints are not promoted.",
-    "tests": "13 focused tests passed. Restarted localhost route verified hero metrics, 52 COMPLETE/12 DATA PENDING status strip, membership-boundary notice, View all 52 progressive disclosure, and 4CgD…Qbpump truncation.",
+    "tests": "13 focused tests passed. Restarted localhost route verified hero metrics, 52 COMPLETE/12 DATA PENDING status strip, membership-boundary notice, View all 52 progressive disclosure, and 4CgD\u2026Qbpump truncation.",
     "verdict": "OPERATION_PLAYBOOK_LIFECYCLE_PRESENTATION_QUALIFIED"
   },
   "byzantine_playbook_population_identity_check": {
@@ -4609,7 +4609,7 @@
     "next_action": "QUALIFY_CONSERVATIVE_POST_SCENARIO_D_PUMPFUN_EXIT_EXECUTION_EVIDENCE",
     "runtime_verification": "watchtower_api was restarted after route implementation; localhost:5002/operations/playbooks and the Byzantine Playbook API both returned HTTP 200.",
     "status": "HOLD",
-    "strategy_blocker": "Scenario D retained-only pre-migration endpoint analysis: all 101 qualified D entries reach the 410.8801681207574-SOL graduation endpoint by proven migration, with D→graduation multiples min 2.57936, P25 2.61615, median 2.62509, P75 2.63345, max 6.66768; all clear 1.5x/2x/2.5x. Event timestamp to migration is qualified for 99 entries: min 31s, P25 72s, median 109s, P75 177s, max 576s. This proves an endpoint opportunity but retained opening evidence does not establish conservative executable target exits, sell fees, or slippage after position 13; no trade/Playbook candidate is fabricated. Scenario D source digest e0533a9e5edcd778608763f991ac34a24dc35f87ab5bf3e30bb7ff4b63a1e49c materialized additively, second run changed 0. Provider calls 0; no Watchtower/trading activation. Post-migration regime replay v1 retained all 101 Scenario-D rows but only 99 have usable retained migration timestamps; the two migration-anchor-insufficient rows are explicitly retained as outcome-insufficient. Creator chronological baseline (59 non-cold predictions) has balanced accuracy 0.4909, precision 0 and false-runner rate 1.0; short-horizon drawdown baselines likewise do not qualify. No conditional model or Playbook promotion is created.",
+    "strategy_blocker": "Scenario D retained-only pre-migration endpoint analysis: all 101 qualified D entries reach the 410.8801681207574-SOL graduation endpoint by proven migration, with D\u2192graduation multiples min 2.57936, P25 2.61615, median 2.62509, P75 2.63345, max 6.66768; all clear 1.5x/2x/2.5x. Event timestamp to migration is qualified for 99 entries: min 31s, P25 72s, median 109s, P75 177s, max 576s. This proves an endpoint opportunity but retained opening evidence does not establish conservative executable target exits, sell fees, or slippage after position 13; no trade/Playbook candidate is fabricated. Scenario D source digest e0533a9e5edcd778608763f991ac34a24dc35f87ab5bf3e30bb7ff4b63a1e49c materialized additively, second run changed 0. Provider calls 0; no Watchtower/trading activation. Post-migration regime replay v1 retained all 101 Scenario-D rows but only 99 have usable retained migration timestamps; the two migration-anchor-insufficient rows are explicitly retained as outcome-insufficient. Creator chronological baseline (59 non-cold predictions) has balanced accuracy 0.4909, precision 0 and false-runner rate 1.0; short-horizon drawdown baselines likewise do not qualify. No conditional model or Playbook promotion is created.",
     "strategy_coverage_audit": "101/103 canonical rows are lifecycle qualified and contain collapse.max_drawdown_percent, collapse.peak_fdv_usd, threshold hits, and post-collapse recovery. Recomputed retained facts: median drawdown 97.7047%, P25 94.4322%, P75 99.2236%; 80/101 reach 92.5% and 71/101 reach 95%; median observed peak FDV $97,062.29; 92.5%-hit median peak-to-hit time 148.5 seconds; median post-collapse recovery 4.8896%. Frozen entry artifacts have now been deterministically materialized into facts_json.strategy_inputs: scenarios A/B/C each QUALIFIED for 101 rows, source digest 745a51f8e59ee7c4e31a7344c86304d8580ce0ac5723d0e2e4f2ca1931249efb; second materialization changed 0 rows.",
     "strategy_reference_audit": "A compact manifest-driven trajectory reference is materialized in existing canonical operator_lifecycle_projection facts_json: 101 qualified mints and 494 successful logical windows, each with explicit raw path/digest and no copied OHLC. Frozen seven-tier model digest 0ce254c6818c51675480a3f570bd11434818146218342e489314f1e44639472a. Coverage has zero unintended gaps/overlaps. Offline reader reads only explicit indexed paths; two-run replay matches all 101 materialized collapse facts with digest 6e18d42fe710a050348e6429871ebb4174b903ea9a892dbd46b8aa94087db144. Birth references resolve retained transaction blockTime 101/103; migration source is 101 qualified/2 insufficient; membership authority strict 36/continuity 67. New offline artifact docs/audits/byzantine_lifecycle_103/byzantine_103_post_migration_regime_analysis.json has deterministic feature/outcome/walk-forward/regime digests f81b85997ae7f151cf61546b2bc2565effdf368f85ade12cd837bb3cd7203c8f / 92b8e8dd5abf726566884f5704430e8e07ed071008c0a6e9036759595e124fb3 / baa0397f513804ef8bf888b7990524abb4a50ff97352b3c3cd7c2bdd8ab002cf / 2c3233ee90b447f93b3bce8f1913271cb30efc175d26ca93a761b3e6bd8754fa.",
     "validation": "78 provider-free tests passed after the navigation correction: lifecycle/identity/playbook index/sidebar/API, Watchtower registry/membership/legacy reader/funnel/confirmation, and birth/migration tests. X73's minimal fixture declares the existing operation_qualification_contracts and retained queue read-schema contracts; production OperatorReader was not changed.",
@@ -4769,7 +4769,7 @@
         "result": "PASS"
       }
     ],
-    "milestone": "B2N-P2D — collect and bind existing immutable provenance",
+    "milestone": "B2N-P2D \u2014 collect and bind existing immutable provenance",
     "next_action": "COMPLETE_B2N_HUMAN_PROVENANCE_REVIEW",
     "production_flags": {
       "cohort_mode": "OFF",
@@ -5012,17 +5012,17 @@
   },
   "dev014_cattok_overdue_next_check_diagnosis_20261009": {
     "actual_ui_route": "GET /intelligence/operators is operator_bp.operators_index at src/ops/operator_routes.py:1072, rendering templates/operators_index.html. Its browser code fetches same-origin /api/operations/live-monitor and renders live_tokens.",
-    "cadence_verdict": "The same dashboard advertises Policy C: 0–2h/15m, 2–6h/30m, 6–12h/1h, 12–24h/2h. CatTok age was about 2.7h, so its advertised applicable cadence is 30m. The deployed worker does not use that Policy C schedule for this fact: its natural successor path permits repeated dispatch attempts at approximately now+15 seconds. During the read-only observation, CatTok provider_call_count advanced 228 to 232 while no new observation timestamp was persisted; the successor reported NO_COMPLETED_15M_BOUNDARY/last provider status 200. These were natural worker actions, not task-initiated provider calls. This proves a scheduler/cadence-contract defect in addition to the stale presentation field.",
+    "cadence_verdict": "The same dashboard advertises Policy C: 0\u20132h/15m, 2\u20136h/30m, 6\u201312h/1h, 12\u201324h/2h. CatTok age was about 2.7h, so its advertised applicable cadence is 30m. The deployed worker does not use that Policy C schedule for this fact: its natural successor path permits repeated dispatch attempts at approximately now+15 seconds. During the read-only observation, CatTok provider_call_count advanced 228 to 232 while no new observation timestamp was persisted; the successor reported NO_COMPLETED_15M_BOUNDARY/last provider status 200. These were natural worker actions, not task-initiated provider calls. This proves a scheduler/cadence-contract defect in addition to the stale presentation field.",
     "cattok_read_only_evidence": "Bounded exact-mint monitor-store read at 1791500460 found state MONITORING_ACTIVE; last_observation_at/latest_mc_timestamp=1791497700; fact next_observation_at=1791497760; entry=144175.59776543334; latest=129085.52462970038; running peak=145913.92372796897; provider_call_count=232. The fact-level due timestamp is 2,700 seconds after the last observation, explaining the screenshot's approximately -40m to -45m display at the observed time.",
     "engineering_revision": "Read-only DEV-014 Watchtower Price/Live continuation. The clean deployed monitor worker observed at PID 66087 is rooted at /private/tmp/flex-watchtower-terminal-assignment-worker-1c8022b5, SHA 1c8022b53d10db168f90afabbed08cc646007912. The dashboard actually serving 127.0.0.1:8100 is a separate Werkzeug development runtime rooted at legacy dirty checkout /Users/kevinkeaveney/Dev/claude/flex, committed SHA 580508a70c80e7fc944e0069f85e67b851a117fa with 3,682 status entries; it is execution evidence only, not a correction authority.",
     "minimum_correction": "Keep this within the existing DEV-014 Watchtower Price/Live follow-up. First provider-free qualify one compact schedule authority: derive both queue eligibility and display next-check from the same age-aware Policy C interval and completed-candle boundary; preserve 20/4 budget, watermark, queue identity, and fail-closed incomplete-candle behaviour. Then project the actual queue deadline (or label the fact marker explicitly) and render expired work as 'due now', not a misleading negative duration. Do not edit the dirty port-8100 checkout directly; start from a clean remote-backed API/worker authority after separate V2 admission.",
-    "next_action": "STOP. Do not deploy, replay, alter queue data, or change the legacy dashboard. Separately admit a narrow provider-free DEV-014 implementation to unify cadence/queue/display semantics and add regression coverage for 2–6h scheduling, incomplete 15m boundaries, and expired display labels.",
+    "next_action": "STOP. Do not deploy, replay, alter queue data, or change the legacy dashboard. Separately admit a narrow provider-free DEV-014 implementation to unify cadence/queue/display semantics and add regression coverage for 2\u20136h scheduling, incomplete 15m boundaries, and expired display labels.",
     "next_check_semantics": "_recent_operation_tokens maps next_check_at from operation_monitor_facts.next_observation_at. operators_index.html formats next_check_at-d.now with A(x), which directly rounds signed seconds to m/h. Therefore -40m means the fact-level timestamp was 40 minutes before the API response now; it is not a timezone or unit conversion. Unlike the deployed operations_live_monitor.html, which labels an expired timestamp 'due now', this legacy dashboard presents a signed negative duration.",
-    "root_cause": "Two linked defects: (1) API/dashboard projection exposes stale fact.next_observation_at rather than the current durable queue deadline and formats it as a negative signed duration; (2) the active worker's successor/reconstruction contract does not implement the dashboard's Policy C 2–6h 30-minute cadence and can repeatedly acquire before a new completed 15m boundary. A negative countdown alone did not establish missed work; the durable CatTok envelope and natural provider activity established that it was scheduled, but under the wrong cadence.",
+    "root_cause": "Two linked defects: (1) API/dashboard projection exposes stale fact.next_observation_at rather than the current durable queue deadline and formats it as a negative signed duration; (2) the active worker's successor/reconstruction contract does not implement the dashboard's Policy C 2\u20136h 30-minute cadence and can repeatedly acquire before a new completed 15m boundary. A negative countdown alone did not establish missed work; the durable CatTok envelope and natural provider activity established that it was scheduled, but under the wrong cadence.",
     "runtime_deployment_gate": "HOLD_PROVIDER_FREE_SCHEDULER_AND_PROJECTION_QUALIFICATION_REQUIRED",
     "runtime_deployment_required": true,
     "safety": "Agent-initiated provider calls=0; live DB/queue writes=0; Supervisor/service/listener actions=0; source changes=0; no raw provider retention. Observed natural worker activity was not modified or replayed. No new storage-producing artifact was created; single-file bound and raw-retention state are unchanged.",
-    "scheduler_and_queue": "The active service loop runs every 5 seconds (bounded 1–60). A CatTok ENTRY_REFERENCE_QUALIFIED successor envelope was present in pending with original assignment=1791490876, last_observation=1791497700, and a reconstructed next_eligible_dispatch_at near the current time. It was not blocked by watermark or budget: compact backoff state was READY, last_success_at=1791500444, no retry/processing/dead-letter CatTok envelope was present, and active config retains provider limits 20 global/4 per mint. The worker's queue reconstruction/successor code sets eligibility to max(fact next_observation_at, now+15), while a successful nonterminal write sets the fact next_observation_at to observation timestamp+60. The legacy dashboard reads only the old fact timestamp and not the queue envelope deadline.",
+    "scheduler_and_queue": "The active service loop runs every 5 seconds (bounded 1\u201360). A CatTok ENTRY_REFERENCE_QUALIFIED successor envelope was present in pending with original assignment=1791490876, last_observation=1791497700, and a reconstructed next_eligible_dispatch_at near the current time. It was not blocked by watermark or budget: compact backoff state was READY, last_success_at=1791500444, no retry/processing/dead-letter CatTok envelope was present, and active config retains provider limits 20 global/4 per mint. The worker's queue reconstruction/successor code sets eligibility to max(fact next_observation_at, now+15), while a successful nonterminal write sets the fact next_observation_at to observation timestamp+60. The legacy dashboard reads only the old fact timestamp and not the queue envelope deadline.",
     "status": "HOLD_STALE_FACT_LEVEL_NEXT_CHECK_AND_POLICY_CADENCE_MISMATCH"
   },
   "dev014_cattok_terminal_collapse_diagnosis_20261009": {
@@ -6804,7 +6804,7 @@
     "provider_guidance_capture": "DEV-009 continuous-live overwrite repair is PASS_OFFLINE and real-world confirmed. In the continued normal scheduler window, each of three 429s retained retry_after_raw=1, reset/remaining=NOT_PRESENT and correct shared escalation. The last was at 1790199645 for Deep BmkJ..., with deadline_source=FALLBACK, level=4 and next_eligible_at=1790199675. The structured record was not overwritten.",
     "queue_safety_observation": "The existing queue also contains a pending F1kzi8... Watchtower message although its retained DEV fact is PRICE_MONITOR_COMPLETE_COLLAPSED with 19 completed 15m candles. No mutation was made. This stale terminal queue residue must be classified before allowing repeated normal cycles, because terminal tokens must remain excluded from live polling.",
     "requirement": "The authorized DEV-005 completion soak requires both WATCHTOWER and WATCHTOWER_DEEP using genuine already-qualified DEV tokens, without fabricating membership or an entry boundary.",
-    "resume_result": "Four genuine monitors activated (WATCHTOWER=1, WATCHTOWER_DEEP=3). The first eight DEV-012 budget admissions were fair: each active mint received two. A later normal eligible tick admitted Watchtower EQ8k then Deep 517r; no usable observation resulted and 517r returned real HTTP 429. Queue depth 6→5; DEV DB +12,288 bytes; WAL +0; logs +0; monitor storage +19,398 bytes. Production unchanged.",
+    "resume_result": "Four genuine monitors activated (WATCHTOWER=1, WATCHTOWER_DEEP=3). The first eight DEV-012 budget admissions were fair: each active mint received two. A later normal eligible tick admitted Watchtower EQ8k then Deep 517r; no usable observation resulted and 517r returned real HTTP 429. Queue depth 6\u21925; DEV DB +12,288 bytes; WAL +0; logs +0; monitor storage +19,398 bytes. Production unchanged.",
     "resumption_preflight": "Retained queue population is exactly six unique messages: five nonterminal admissions (WATCHTOWER=1, WATCHTOWER_DEEP=4) and one legitimate F1 WATCHTOWER_TERMINAL_ATH_FINALIZATION. Four nonterminal admissions are pending; one existing WATCHTOWER admission is retrying after HTTP_429. F1 is not an active fact and was not re-enrolled. Existing DEV facts contain five earlier terminal WATCHTOWER lifecycles, which are historical supporting evidence rather than newly admitted work. No duplicate message identity was observed.",
     "safe_progress": "The deterministic two-operation soak remains valid only as scheduler/resource behavior coverage. The prior real MO Watchtower terminal proof remains intact. Production path/inode/size/mtime snapshots were unchanged across the DEV attempt.",
     "status": "BLOCKED_PROVIDER_CAPACITY"
@@ -6844,7 +6844,7 @@
     "engineering_revision": "Dirty DEV checkout; terminal normal-work pre-provider guard and compact empty-OHLCV retry path qualified with DEV-011 live activation; no production/runtime change",
     "next_action": "Keep DEV-005 paused. DEV-010 requires no further engineering; any F1 terminal-finalizer acquisition remains a naturally eligible, separately bounded finalization action rather than a live-monitor retry.",
     "non_goals": "No provider calls, queue reset, admission recreation, manual active monitor, Deep forcing, cadence/budget change, opening/evidence semantic change, production mutation, or Monitor redesign.",
-    "provenance": "F1kzi8's pending row is WATCHTOWER_TERMINAL_ATH_FINALIZATION, enqueued at 1790188729 with POST_COMMIT_TERMINAL_COLLAPSE—not a stale opening/OHLCV polling envelope. It was created after terminalization, and no restart/recovery or second admission recreated it.",
+    "provenance": "F1kzi8's pending row is WATCHTOWER_TERMINAL_ATH_FINALIZATION, enqueued at 1790188729 with POST_COMMIT_TERMINAL_COLLAPSE\u2014not a stale opening/OHLCV polling envelope. It was created after terminalization, and no restart/recovery or second admission recreated it.",
     "real_f1_finalizer_scope": "F1 has 19 retained 15m candles, but clone qualification measured entry=1790135459, first=1790136000, last=1790183700, terminal=1790188729, first gap=541s, tail gap=4129s, and max internal gap=18000s. Its one WATCHTOWER_TERMINAL_ATH_FINALIZATION job is legitimate bounded finalization recovery, not a stale opening/OHLCV envelope. POST_TERMINAL_LIVE_PROVIDER_CALLS=0 applies to live monitoring; this separate finalizer remains allowed through the shared provider gate.",
     "scope": "Trace F1kzi8 terminal queue provenance and qualify two narrow Monitor lifecycle contracts: authoritative terminal state prevents all pre-provider acquisition, and HTTP-200/no-usable-OHLCV is explicit, bounded, coalesced, and distinct from a usable observation or HTTP 429.",
     "separation": "DEV-008 remains the separate BeqTt4qq Deep-route audit. DEV-010 neither modifies nor supersedes it.",
@@ -6986,7 +6986,7 @@
     "history": "Preserved without modification: wt_dust_markers=11, wt_dust_observations=27, wt_dust_recipient_lifecycle=22, wt_dust_pending_sigs=0.",
     "history_reverified": "Historical Dust rows remain unchanged: wt_dust_markers=11, wt_dust_observations=27, wt_dust_recipient_lifecycle=22, wt_dust_pending_sigs=0.",
     "implemented": "Removed the Dust Supervisor definition from source config; removed all ws_cascade Dust marker initialization, low-priority subscriptions, kind=dust callback/enqueue path, and in-process writer/enricher startup; deleted Dust telemetry module and page template; removed the Dust API/detail/page routes, sidebar entry, and Operational Intelligence summary-card client/presentation code.",
-    "next_action": "CREATOR_FUNDING_GRAPH_LIFECYCLE_AUDIT — read-only first; do not implement without a separate authorization.",
+    "next_action": "CREATOR_FUNDING_GRAPH_LIFECYCLE_AUDIT \u2014 read-only first; do not implement without a separate authorization.",
     "runtime_continuity": "All previously RUNNING services retained identical PIDs: alert_evaluator=33558, creator_funding_worker=34645, creator_resolution_worker=33576, operation_scheduler=35254, walkback_worker=33579, watchtower_api=37424, watchtower_listener=33586, watchtower_ngrok=33589, ws_cascade=39633. Intended stopped services remained STOPPED; dust_observatory_enricher and watchtower_helius_monitor are absent.",
     "safeguards_preserved": "src.utils.dust_addresses and realtime creator-funding exclusion; Walkback manual wt_known_spam_wallets exclusion and wallet-quality environmental annotation; conservative unknown-funder edge-quality classifier; static CEX/infra mapping. New tests/test_dust_observatory_retirement_safeguards.py proves live Dust removal does not remove these paths.",
     "safety": "Only permitted Supervisor reread and targeted removal of the stopped Dust entry were performed. No broad update, unrelated Supervisor activation, runtime restart, provider/RPC, DB/schema/history deletion, Walkback/funding/topology/P3R/Operation/Potential/Evidence change occurred.",
@@ -7000,7 +7000,7 @@
     "consumers": "Runtime reader surface is retained UI/API only: /api/ops-v2/dust-observatory, recipient detail, Dust page, and the operational-intelligence summary card. Static source found no Watchtower detection, Byzantium, other Operations, Potential Operations, P3R, FundingTopology, FundingAnalytics, or operation-membership/confidence/alert consumer of observation/lifecycle outputs. The unknown-funder audit script is historical/analytical only.",
     "cross_process": "NO: a separate python -m src.core.dust_observatory process creates a different module-global queue and its CLI runs only enricher_loop; it neither starts writer nor polls a durable signature source. It cannot consume ws_cascade queue entries.",
     "current_ownership": "ws_cascade imports Dust at startup and calls init(start_enricher=True), starting its daemon writer and enricher threads. The dust notification handler calls enqueue_sig(wallet, sig); the same-process writer performs getTransaction and writes observations/lifecycle, while the same-process enricher classifies lifecycle rows every configured 120 seconds.",
-    "next_action": "RETIRE_DUST_SERVICE — separately authorized narrow Supervisor/config/documentation removal only; retain Dust module, in-process ws_cascade ownership, tables, retained UI, and strict non-authority boundary. Subsequent optimization ranking: creator_funding_graph lifecycle; Evidence compact-fixture work; main.py dead-code/decomposition; P5A stage/delta micro-audit.",
+    "next_action": "RETIRE_DUST_SERVICE \u2014 separately authorized narrow Supervisor/config/documentation removal only; retain Dust module, in-process ws_cascade ownership, tables, retained UI, and strict non-authority boundary. Subsequent optimization ranking: creator_funding_graph lifecycle; Evidence compact-fixture work; main.py dead-code/decomposition; P5A stage/delta micro-audit.",
     "preferred_architecture": "IN_PROCESS_DUST_OWNERSHIP. Preserve the current single-owner ws_cascade producer+writer+enricher topology, then separately qualify explicit in-process observability and bounded loss semantics. Do not retain the duplicate Supervisor process. A durable separate worker would require a real DB queue with producer persistence-before-return and a consumer; it is not required for current non-authoritative telemetry.",
     "queue": "PROCESS_LOCAL_MEMORY_QUEUE: Python stdlib queue.Queue(maxsize=500), module-global at src/core/dust_observatory.py:209. It is thread-shared only inside the importing process; put_nowait drops silently when full. The wt_dust_pending_sigs table exists but has no writer or reader in the current source, so it is not a functioning durable queue.",
     "risk": "TELEMETRY_LOSS_RISK. On ws_cascade restart, queued but unprocessed signatures are lost; full queues also silently drop and RPC/decode failures are not retried. This cannot affect protected attribution or operation decisions because Dust has no such consumers, but observations may be unrecoverable without separate historical discovery.",
@@ -12022,7 +12022,7 @@
       "retained_to_replayable_rate": 1,
       "shared_acquisitions": 15,
       "shared_to_completion_rate": 1,
-      "verdict": "B — MATERIAL_MIGRATION_TO_SHARED_ACQUISITION_GAP",
+      "verdict": "B \u2014 MATERIAL_MIGRATION_TO_SHARED_ACQUISITION_GAP",
       "window_endpoint": "20_DISTINCT_QUALIFIED_MIGRATIONS"
     },
     "oip_v2_2e_2b2k_observation_gate": {
@@ -16721,7 +16721,7 @@
       "artifact": "docs/audits/psi0h_h4_historical_operation_census_from_h8_projection_continuity.json",
       "artifact_digest": "cf18ed4c461d811c3485d9af31ce45694080f2f68017e730e59a214fecd005d7",
       "notes": [
-        "discovered 150 populations from H7D-backed H8 evidence via H8→H4 continuity adapter",
+        "discovered 150 populations from H7D-backed H8 evidence via H8\u2192H4 continuity adapter",
         "projection uses normalized runtime evidence+primitive rows and lineage refs (evidence_refs/primitive_refs)",
         "non-authoritative census-only outputs",
         "no provider/service/monitoring activity"
@@ -17008,7 +17008,7 @@
     "engineering_revision": "Read-only audit of /Users/kevinkeaveney/Dev/claude/flex at committed SHA 580508a70c80e7fc944e0069f85e67b851a117fa. No workspace, Git metadata, runtime, database, queue, provider, Supervisor, listener, cache, or source mutation occurred.",
     "inventory": "24,418 Git status entries: 110 tracked changes, 21,565 untracked entries, and 2,743 ignored entries. Aggregate category counts and regular-file logical bytes: REMOTE_EXACT=187/4,797,572; REMOTE_SUPERSEDED=0/0 (not claimed without semantic provenance); UNIQUE_VALUABLE=803/37,458,800; GENERATED_REBUILDABLE=16/107,074; RUNTIME_PROTECTED=2,713/55,343,913,069; UNKNOWN=20,699/2,538,351,110. Directory entries have zero logical-file-byte accounting; unknown includes about 2.33 GiB of audit/research candidates not individually content-hashed.",
     "next_action": "STOP. SAFE_RETIREMENT_READINESS=NO. A separate preservation plan must first assign remote-backed capture, archival, or explicit non-value disposition to every remote-unmatched and unknown/protected category; it must not delete, reset, clean, archive, prune, merge, or retire any workspace automatically.",
-    "normalization_recommendation": "B — establish a new clean default checkout from the remote-backed post-freeze baseline for future development, while retaining the legacy workspace unchanged until the 803 remote-unmatched candidates and 20,699 unknown/protected entries receive explicit preservation disposition. Do not clean the current shared checkout in place.",
+    "normalization_recommendation": "B \u2014 establish a new clean default checkout from the remote-backed post-freeze baseline for future development, while retaining the legacy workspace unchanged until the 803 remote-unmatched candidates and 20,699 unknown/protected entries receive explicit preservation disposition. Do not clean the current shared checkout in place.",
     "protected_authority": "Original tag watchtower-operational-baseline-20261008-d3c0d4ed and post-freeze tag watchtower-operational-baseline-postfreeze-20261008 remain remote-present. DEV-019 is clean at e8f6f01652d090a5a0a582f382b88c6fd6b3058e. DEV-024 engineering is clean at 6dd0d575a5930941945ee68b9d4fcfcf8fa54154 and deployed runtime is clean at 6806d2b2268bd5240f52be184bfbde1642070f76. Active Supervisor config remains SHA256 22721ba7526cadddb443f52add1add76f8df6c1cbb305154155f98e47fc837a8 and byte-matches its retained local artifact. Clean API, monitor worker, cascade, and bridge roots retain their recorded post-freeze identities.",
     "runtime_deployment_reason": "Read-only preservation audit only.",
     "runtime_deployment_required": false,
@@ -17017,7 +17017,7 @@
   },
   "legacy_funding_analytics_migration": {
     "cache": "creator_funding_graph remains CURRENT_REQUIRED_CACHE / REBUILDABLE_BOUNDED_CACHE: the realtime creator-funding extractor imports its cache, which reads/writes creator/funder first_seen/last_seen/inbound totals and has TTL cleanup. It remains protected and is not authority.",
-    "chain_audit": "Representative first 25 legacy funding_chains: 15 exact amount/direction matches and 10 semantic matches, 0 conflicts/legacy-only in that sample. Full local existence check: 1032/1123 chains have both retained source→bridge outgoing and bridge→target direct-funder legs; 1020/1123 have both exact recorded amounts. The 91 exceptions all retain bridge→target direct-funder evidence, but have neither a retained creator_outgoing_transfers nor funder_incoming_transfers source→bridge record. Their source creator, bridge, source→bridge amount, source block time and legacy confidence are unique historical first-leg facts. funding_chains decision: MIGRATE_UNIQUE_FACTS_THEN_DROP; no migration or DROP was performed in this milestone.",
+    "chain_audit": "Representative first 25 legacy funding_chains: 15 exact amount/direction matches and 10 semantic matches, 0 conflicts/legacy-only in that sample. Full local existence check: 1032/1123 chains have both retained source\u2192bridge outgoing and bridge\u2192target direct-funder legs; 1020/1123 have both exact recorded amounts. The 91 exceptions all retain bridge\u2192target direct-funder evidence, but have neither a retained creator_outgoing_transfers nor funder_incoming_transfers source\u2192bridge record. Their source creator, bridge, source\u2192bridge amount, source block time and legacy confidence are unique historical first-leg facts. funding_chains decision: MIGRATE_UNIQUE_FACTS_THEN_DROP; no migration or DROP was performed in this milestone.",
     "contract": "Canonical direct funding=creator_funders; launches=token_analysis; technical selected funding=Walkback queue/candidates/roles/atomic flows; treasury/subprov/creator=provisioning sessions/edges; CEX=stored creator_funders classification cross-checked with active cex_wallets; Operations=operator launch membership by mint; Potential Operations=evidence association by key. Funding, launch, technical and provisioning timestamps remain distinct.",
     "gates": "creator_networks NOT_QUALIFIED (schema recreation/writers and snapshot semantics); funding_networks and funding_network_members NOT_QUALIFIED (unregistered legacy builder source and exact legacy-ID projection still pending purge); funding_chains NOT_QUALIFIED (91 rows lack both retained legs); creator_funding_graph excluded from DROP. AD_HOC_FUNDING_ANALYTICS is preserved for canonical retained facts, but legacy-chain migration remains required for table-retirement parity.",
     "implementation": "Added src/ops/funding_analytics.py and docs/contracts/read_only_funding_analytics.v1.md. FundingAnalytics is deliberately derived, read-only and non-authoritative: it queries supplied main/operations SQLite connections only and owns no schema, cache, network identity or operational decision path. It now explicitly covers both direct multi-funder directions, amount rankings, retained treasury/subprov/creator relationships, and shared funders across Operations.",
@@ -17219,7 +17219,7 @@
     "milestone": "MACROHARD retained-local historical SOL/USD source audit",
     "network": "0 external price, Helius, Alchemy, GMGN, PumpPortal, or Solana RPC calls.",
     "replay_digest": "bd3bb840b1c6040731a8173ecb310299590261fde5cbe3817264b9e4f48f943c",
-    "result": "A retained direct DexScreener token_price_snapshots row at 1788250326 (7 seconds before creation) contains both USD and SOL token prices. Its same-row ratio is exactly 102.70 USD/SOL and is corroborated by four cached local copies in the ±30-second window. It converts qualified first-slot MC from $16,203.41 after buy #1 to a $16,655.03 peak after buy #5 and $16,535.23 at slot end.",
+    "result": "A retained direct DexScreener token_price_snapshots row at 1788250326 (7 seconds before creation) contains both USD and SOL token prices. Its same-row ratio is exactly 102.70 USD/SOL and is corroborated by four cached local copies in the \u00b130-second window. It converts qualified first-slot MC from $16,203.41 after buy #1 to a $16,655.03 peak after buy #5 and $16,535.23 at slot end.",
     "safety": "Read-only local database/artifact audit plus additive audit artifact only; no production/source/Walkback/schema/UI/code mutation or suppression.",
     "status": "COMPLETE",
     "temporal_quality": "WITHIN_30_SECONDS",
@@ -17314,7 +17314,7 @@
     "Rerun completed: synthetic H6-bridged artifact enabled H7 PASS/READY_H7_BOUND_PLAN with 1 reconstructable source (flex_complete_database.db). H8 now runs but returns 0 rows with stop condition NO_RECONSTRUCTABLE_ROWS due schema mismatch: no normalized_evidence_records/primitive_observations in selected source.",
     "Latest run refreshed H6/H7/H8 from current flex_complete_database.db identity and completed H8 (150/150 emitted) with H9 reporting no action due source lacks normalized primitive evidence tables; H9 remains PASS with schema-gap recommendation preserved.",
     "H4 run using current PSI0H-H1 artifact + manifest bound produced operation_count=2 (PASS, watchtower/three_sw2); no H4 population expansion observed. Next fork: narrow H8 normalization split adaptation before retest H8/H9/H1/H2/H3.",
-    "H8→H4 compatibility projection now implemented as deterministic, minimal adapter from H8 evidence/primitive rows to PSI0G-B runtime schema.",
+    "H8\u2192H4 compatibility projection now implemented as deterministic, minimal adapter from H8 evidence/primitive rows to PSI0G-B runtime schema.",
     "Rerun H4 with projection manifest produced 150 operation populations (PASS), so we now have a material expansion from previous operation_count=2.",
     "Continuity-compatible projection artifact: docs/audits/psi0h_h7_historical_backfill/psi0h_h8_bounded_historical_backfill_execution_from_h7d_bridge_next2.json",
     "H4 census preserved 150 operations from fixed 150-op H7D-backed source: docs/audits/psi0h_h4_historical_operation_census_from_h8_projection_continuity.json",
@@ -17704,7 +17704,7 @@
   "operations_db_writer_restart_checkpoint": {
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
     "next_action": "Observe only post-watermark natural writer activity, canary, errors, and duplicate/false-terminal state before declaring the incident resolved.",
-    "restart": "Restarted only ws_cascade 26899→31671, walkback_worker 10747→31683, watchtower_listener 65928→31757, and standalone operation_scheduler 9514→31778. Each is one RUNNING managed instance. Funding 5448, Monitor 5450, and API 25464 were not restarted.",
+    "restart": "Restarted only ws_cascade 26899\u219231671, walkback_worker 10747\u219231683, watchtower_listener 65928\u219231757, and standalone operation_scheduler 9514\u219231778. Each is one RUNNING managed instance. Funding 5448, Monitor 5450, and API 25464 were not restarted.",
     "startup_health": "PASS at watermark; normal bare runtime paths=0; sole named emergency exemption=emergency_ops_recovery_connect.",
     "status": "DEPLOYED_SOAK_PENDING",
     "watermark": "2026-09-18T00:19:00Z; ws inode/offset 836753327/7934730; walkback 817446381/4878155; scheduler 421165185/10280157; listener 847298526/6613834. Pre-watermark historical timeout lines excluded."
@@ -17721,7 +17721,7 @@
   "operations_intelligence_ui_completion_20261003": {
     "audit": "docs/audits/operations_intelligence_ui_completion.v1.json",
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; DEV-only template/read-projection update",
-    "finding": "Port-8100 now renders separate LIVE/ENDED Watchtower and Byzantine sections. Live Watchtower uses operational fields; Ended Watchtower omits current/freshness/next/calls. Live Byzantine omits drawdown and shows nine retained actual Entry/ATH/multiple/time-to-ATH facts, with ORANGE/GIFT retained as visible — failures. Ended Byzantine has zero rows.",
+    "finding": "Port-8100 now renders separate LIVE/ENDED Watchtower and Byzantine sections. Live Watchtower uses operational fields; Ended Watchtower omits current/freshness/next/calls. Live Byzantine omits drawdown and shows nine retained actual Entry/ATH/multiple/time-to-ATH facts, with ORANGE/GIFT retained as visible \u2014 failures. Ended Byzantine has zero rows.",
     "next_action": "NONE_FOR_CURRENT_OPERATIONS_INTELLIGENCE_UI",
     "safety": "UI-only; provider calls=0; evidence/provenance unchanged; production/Supervisor untouched. DEV runtime health=200.",
     "status": "PASS_DEV_UI_COMPLETE_AND_VISUALLY_VERIFIED",
@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev090",
-    "git_head": "ac7b88633f53c854559770c4109b14c6f0d53ceb",
+    "git_head": "2d40af06c320d1a4688d65c9d195214ec69f5378",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T19:00:27.424771+00:00",
-    "working_tree": "DEV090 DEV002 release HOLD_STORAGE before test selection edits; source/tests/candidates unchanged"
+    "updated_at_utc": "2026-10-18T19:26:06.440454+00:00",
+    "working_tree": "DEV090 DEV002 target offline release PASS; immutable candidate preserved; not deployed"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -19426,7 +19426,7 @@
     "milestone": "MACROHARD target-era Pump deployment and ExtendAccount semantics audit",
     "network": "3 program/ProgramData getAccountInfo calls; 0 getTransaction; 7 bounded official-source lookup operations; no GMGN/PumpPortal/history scan.",
     "replay": "4228e886d7c4e7dd6fed9d53e1cc632eee7b8bbc9625dccec9b8916d24e74e2f twice.",
-    "result": "The active upgradeable Pump ProgramData account is B5MvUwX...2BQu; its current deployment slot 433095571 precedes target slot 443375107 and its ELF SHA-256 is 5d65238ffd3513fa5980c01ba1eb2da9cc050091ad9c46b75916ce4a09b02bbf. Official Pump documentation describes ExtendAccount as growing BondingCurve accounts for creator-fee/future fields, not a reserve transform. Retained ExtendAccountEvent confirms 115→151 bytes and has no reserve field.",
+    "result": "The active upgradeable Pump ProgramData account is B5MvUwX...2BQu; its current deployment slot 433095571 precedes target slot 443375107 and its ELF SHA-256 is 5d65238ffd3513fa5980c01ba1eb2da9cc050091ad9c46b75916ce4a09b02bbf. Official Pump documentation describes ExtendAccount as growing BondingCurve accounts for creator-fee/future fields, not a reserve transform. Retained ExtendAccountEvent confirms 115\u2192151 bytes and has no reserve field.",
     "safety": "Additive audit artifacts only; no production/source/Walkback/schema/UI/code/classifier/suppression mutation.",
     "status": "PARTIAL",
     "verdict": "TARGET_DEPLOYMENT_BOUND_SOURCE_SEMANTICS_NOT_BINARY_BOUND_BOUNDARY_REMAINS_PRECISE"
@@ -21652,7 +21652,7 @@
   "watchtower_2yre_birdeye_trade_schema_corrected_probe": {
     "artifact": "docs/audits/watchtower_2yre_birdeye_trade_schema_corrected_probe.v1.json (sha256 2ab8228510199b1c3f214884cc0ac855c2c43420f741c35c4885f818842cd0f4)",
     "engineering_revision": "e21867c1 plus single-call corrected 2YrE V3 trade-schema control",
-    "next_action": "The 2YrE schema/control gate permits separately authorized identical bounded 2dDD and 3C8N probes, retaining raw per request and applying timestamp-group—not cross-transaction exact-order—analysis. Do not derive an actionable MC or policy from 2YrE alone.",
+    "next_action": "The 2YrE schema/control gate permits separately authorized identical bounded 2dDD and 3C8N probes, retaining raw per request and applying timestamp-group\u2014not cross-transaction exact-order\u2014analysis. Do not derive an actionable MC or policy from 2YrE alone.",
     "production_flags": "Birdeye V3 trade calls=1; RPC/Helius/getBlock/getTransaction/GMGN calls=0; new full-block artifacts/bytes=0; production/UI/playbook/Byzantine/Nexus writes=0; no actionability or trading policy derived.",
     "result": "The T0-1 lower-bound correction returned 49 rows spanning 1789391594 through 1789391603. Exact known signature was provider position 46 and reconciled timestamp 1789391594, buyer CRaSC..., PumpSwap pool HkeR..., source pump_amm, and token-centric BUY using SOL. The explicit SOL from-leg was 59.802690583, exactly the retained pool-side SOL delta (0 difference; 0.797309417 below the 60.6 gross wallet debit). The correction is bounded by the earlier empirical proof that after_time=T0 excludes T0. There are 14 T0 rows with 10 unique signatures and 35 rows overlap the prior T+1-to-T+9 raw response. Same-second cross-transaction ordering remains unqualified, so future analysis must use TIMESTAMP_GROUP_SEQUENCE, not an exact transaction sequence. No 2dDD/3C8N calls occurred in this task.",
     "status": "PASS",
@@ -22039,10 +22039,10 @@
     "byzantine_historical_acquisition_recovery": "PASS_RETAINED_EVIDENCE_AUDIT_NO_ACTUAL_ENTRY_COORDINATE: inventory identifies pinned commit 59b89d55 64-token mixed-resolution Birdeye OHLCV lifecycle artifacts and retained 36-token WSOL_WRAP_CLOSE funding signatures. Historical Entry is SCENARIO_D_ACTIONABLE_COUNTERFACTUAL_ENTRY_FLOOR, distinct from 1m-first-2h/15m-through-7d lifecycle points. All three frozen controls retain create and funding signatures/times but no trade, buyer, migration, Pump.fun/PumpSwap, price, MC, ATH, or lifecycle coordinate. The 428 claim has no retained 428-wide transaction ledger; matrix reports only evidenced counts. Birdeye no-trade explanation remains E (unresolved from retention). No provider/raw recovery/source/UI/runtime changes. Next: bounded address/signature lookup to establish actual Entry coordinates, then rebase only independently observed lifecycle metrics.",
     "byzantine_mcap_low_scale_diagnostic": "HOLD_DRAWDOWN_85_MCAP_LOW_SCALE_DISCONTINUITY: retained MCAP candles show MC-scale highs/opens/closes but selected lows around 1e-6. This fabricates near-100% drawdowns and means 85% is reached artificially for all three, not missed because opening candles are low. ATH-from-high remains separate evidence; Max Drawdown and 85% research coordinates are held pending low-field semantic qualification. Read-only; provider calls=0; no Entry/ATH/UI/provenance/runtime change.",
     "byzantine_opening_horizon_pilot": "COMPLETE_NO_ENTRY_WITHIN_15M: retained create coordinates were reused; Helius=0 and 30-second requests=0. Each frozen control received exactly three non-overlapping Birdeye windows (30s-2m, 2m-5m, 5m-15m), total=9. None yielded a deterministic post-create-slot trade, so common entries=0, Stage1=0, Stage2=0. No expansion/retry/raw retention or Byzantine/UI/production changes.",
-    "byzantine_replacement_7d_lifecycle": "PARTIAL_REPLACEMENT_COVERAGE_INSUFFICIENT: explicit clean-replacement authorization was executed exactly: 3 Stage1 1m + 3 Stage2 15m Birdeye MCAP requests, total=6, Helius=0, no Entry/pricing reacquisition. Compact normalized candles plus per-request first/last/count/status were retained (279,265-byte audit; no raw payload). All requests HTTP 200, but all three return their first candle after requested time_from and have an unobserved aligned-bucket Stage1/Stage2 gap (2J=240s, 2Br=540s, 2Gw=420s). Coverage—not row count—therefore fails: complete=0. Old pilot is excluded; ATH/multiple/drawdown remain unqualified; no backfill/UI/provenance/runtime change. Next: review/authorize a coverage policy that permits bounded alignment padding or a different source.",
+    "byzantine_replacement_7d_lifecycle": "PARTIAL_REPLACEMENT_COVERAGE_INSUFFICIENT: explicit clean-replacement authorization was executed exactly: 3 Stage1 1m + 3 Stage2 15m Birdeye MCAP requests, total=6, Helius=0, no Entry/pricing reacquisition. Compact normalized candles plus per-request first/last/count/status were retained (279,265-byte audit; no raw payload). All requests HTTP 200, but all three return their first candle after requested time_from and have an unobserved aligned-bucket Stage1/Stage2 gap (2J=240s, 2Br=540s, 2Gw=420s). Coverage\u2014not row count\u2014therefore fails: complete=0. Old pilot is excluded; ATH/multiple/drawdown remain unqualified; no backfill/UI/provenance/runtime change. Next: review/authorize a coverage policy that permits bounded alignment padding or a different source.",
     "ccc_monitor_state_diagnostic": "PASS_READ_ONLY: ccc mint 7ymYkLjTxCg4PExwFXpWMYixmAgRdePjM5UpJA25pump is a current confirmed WATCHTOWER operator_launch_membership assigned at 1790958180, but has no operation_monitor_facts row. The live-monitor projection explicitly emits NOT_MONITORED for assigned Monitor-capable memberships with no fact; membership does not itself admit/start a monitor or issue provider calls. No state/data/runtime/provider/UI/production/Supervisor changes were made.",
     "current_ui_backfill": "PARTIAL: one current-population Entry was appended; WWWCAT, ccc, and MICRODOG gained retained terminal lifecycle facts through four Stage-1 and one conditional Stage-2 Birdeye calls. ROACH failed closed on insufficient Stage-2 coverage. Current snapshots yielded no qualified replacement values for remaining blank rows; no fabrication, retries, UI/renderer/production/DEV018 changes.",
-    "dev018_live_ended_ui": "PASS_DEV_UI_UPDATED_AND_VERIFIED: port-8100 DEV source at /Users/kevinkeaveney/Dev/claude/flex now projects Watchtower LIVE unless retained lifecycle_status=QUALIFIED_TERMINAL and terminal_reason=DRAWDOWN_85, which is ENDED. The UI visibly separates LIVE WATCHTOWER and ENDED WATCHTOWER. Newly assigned ccc 7ym...A25pump appears LIVE before Entry (Entry MC —); nine qualified terminal rows appear ENDED. Current MC remains the retained live-only field and terminal lifecycle facts remain available in existing Watchtower detail readback. Existing post-commit DEV monitor reconciliation remains the idempotent admission/opening path; no new polling/provider calls were added. 5 focused tests passed, zero failed; API returned 20 rows, 8 Watchtower LIVE and 9 ENDED, and 3 non-Watchtower rows remained in the existing table. Production/Supervisor/trading untouched.",
+    "dev018_live_ended_ui": "PASS_DEV_UI_UPDATED_AND_VERIFIED: port-8100 DEV source at /Users/kevinkeaveney/Dev/claude/flex now projects Watchtower LIVE unless retained lifecycle_status=QUALIFIED_TERMINAL and terminal_reason=DRAWDOWN_85, which is ENDED. The UI visibly separates LIVE WATCHTOWER and ENDED WATCHTOWER. Newly assigned ccc 7ym...A25pump appears LIVE before Entry (Entry MC \u2014); nine qualified terminal rows appear ENDED. Current MC remains the retained live-only field and terminal lifecycle facts remain available in existing Watchtower detail readback. Existing post-commit DEV monitor reconciliation remains the idempotent admission/opening path; no new polling/provider calls were added. 5 focused tests passed, zero failed; API returned 20 rows, 8 Watchtower LIVE and 9 ENDED, and 3 non-Watchtower rows remained in the existing table. Production/Supervisor/trading untouched.",
     "diagnostic": "Read-only port-8100/API review after restart confirms Entry is projected for all six current rows. Their Current MC remains null because no live observation is retained; the five newly backfilled rows plus other non-terminal rows have null ATH/Peak because no qualified lifecycle result is retained. This is evidence absence, not renderer state gating.",
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; data-only DEV provenance append",
     "finding": "The frozen seven-mint Watchtower set each received exactly one Helius canonical create lookup and one Birdeye opening acquisition through watchtower_first_available_mc.collect_first_available. All seven qualified and appended immutable WATCHTOWER_FIRST_AVAILABLE_MC_V1 facts. Port-8100's live-monitor API exposes six currently populated rows with retained Entry MC/quality/policy; legacy SI is not currently in the 20-row population.",
@@ -22321,12 +22321,12 @@
     "artifact": "docs/audits/watchtower_buy3_mc_convention/result.v1.json",
     "artifact_digest": "777f0d335b9145a3452987be26ee30039dc983dd0dfae54f80372606d60a011c",
     "canonical_field": "pumpfun_curve_implied_mc = ((virtual_SOL_lamports/1e9)/(virtual_token_raw/1e6))*CreateEvent.total_supply_UI; retain GMGN post-migration AMM metrics separately.",
-    "gmgn": "GMGN's first 30-second candle begins at 1788275130, 25 seconds after migration/curve completion, and is PumpSwap AMM price evidence (~$112.5k-$137.2k on its fixed-1B chart scale). It is not the curve-completion valuation. Its direct ATH MC also equals ath_price × 1B exactly despite a current reported 985,149,050 supply.",
+    "gmgn": "GMGN's first 30-second candle begins at 1788275130, 25 seconds after migration/curve completion, and is PumpSwap AMM price evidence (~$112.5k-$137.2k on its fixed-1B chart scale). It is not the curve-completion valuation. Its direct ATH MC also equals ath_price \u00d7 1B exactly despite a current reported 985,149,050 supply.",
     "mint": "BuY3MHzaDEd2ipwub6uAhddH8Ah95oHoZfNDVkVVpump",
     "network": "2 GMGN API requests (token info + bounded 30s kline); 0 Helius/Alchemy requests; no external web lookup.",
     "next_action": "Use explicit separate curve and post-migration AMM fields in any later lifecycle display; do not mix their timestamps or labels.",
     "replay_digest": "44f4a1ff98a876293220002a4c82804dc68e37c3d78fb0f1b6b07cb29d4bbc49",
-    "resolution": "The qualified $41.68k value is the Pump.fun curve-completion MC: event-implied virtual-reserve spot price × the CreateEvent 1B UI supply. GMGN directly reports migration_market_cap=410.84 SOL, matching the retained 410.880168121 SOL curve result within display rounding.",
+    "resolution": "The qualified $41.68k value is the Pump.fun curve-completion MC: event-implied virtual-reserve spot price \u00d7 the CreateEvent 1B UI supply. GMGN directly reports migration_market_cap=410.84 SOL, matching the retained 410.880168121 SOL curve result within display rounding.",
     "safety": "Read-only plus one additive audit artifact; no production/source/Walkback/schema/UI/code/suppression change.",
     "status": "COMPLETE",
     "verdict": "WATCHTOWER_OPENING_MC_CONVENTION_READ_ONLY_AUDIT_COMPLETE"
@@ -22475,7 +22475,7 @@
   },
   "watchtower_codedx_wal_holder_owner_identification_20261008": {
     "connection_mode": "The launch command proves canonical SQLite opened mode=ro with query_only=ON. Current lsof confirms canonical DB fd 3 is read-only; WAL/SHM descriptors are SQLite support handles, not evidence of a write-capable connection.",
-    "correlation": "The PID start time 2026-10-08 00:57:55 local falls inside completed session turn 01a118cd-2392-7be3-b515-cb68edd0a492 ('CRITICAL — WATCHTOWER LIVE SUPERVISOR INCIDENT'). Its exact completed command was a python -u stdin diagnostic that opened canonical and operations SQLite DBs with URI mode=ro, executed PRAGMA query_only=ON, performed schema reads, and called close. The command completed, so the continuing python-stdin child is an orphaned diagnostic process from that completed turn, not active user work.",
+    "correlation": "The PID start time 2026-10-08 00:57:55 local falls inside completed session turn 01a118cd-2392-7be3-b515-cb68edd0a492 ('CRITICAL \u2014 WATCHTOWER LIVE SUPERVISOR INCIDENT'). Its exact completed command was a python -u stdin diagnostic that opened canonical and operations SQLite DBs with URI mode=ro, executed PRAGMA query_only=ON, performed schema reads, and called close. The command completed, so the continuing python-stdin child is an orphaned diagnostic process from that completed turn, not active user work.",
     "engineering_revision": "Read-only Codex session/process correlation only; no process termination, database, Supervisor, service, provider, listener, source, or configuration action.",
     "next_action": "OBTAIN_EXPLICIT_AUTHORIZATION_TO_SIGTERM_ONLY_ORPHAN_PID_72810_THEN_RUN_BOUNDED_WAL_RECOVERY_VERIFICATION_BEFORE_RETURNING_TO_WATCHTOWER_TARGET_TRANSITION_PREFLIGHT",
     "owner": "PID 72810 belongs to the currently active local Codex session 01a112e3-ab55-7703-8af1-ede39a909842, titled 'Complete 96-record audit ledger', cwd /Users/kevinkeaveney/Dev/claude/flex. No other active local Codex task was reported by the app.",
@@ -22487,10 +22487,10 @@
   },
   "watchtower_cohort_dashboard_and_finalized_multiple_audit": {
     "audit": "cohorts sha256 5a01a9f5ee462f235c1efda9d7a6da3baab8c825d1eabd43cdd48996af32e323; consolidation sha256 182f4ce248a8d92678171aec7c276eb1fcaa44df6a823e47ae3dd8d8a8763b4b",
-    "dashboard": "Public Watchtower cohort selector is ALL WATCHTOWER/HISTORICAL/PROSPECTIVE. Cards expose historical=51, prospective=2, all=53; prospective displays the deterministic Early prospective sample · N=2 notice below N<10.",
+    "dashboard": "Public Watchtower cohort selector is ALL WATCHTOWER/HISTORICAL/PROSPECTIVE. Cards expose historical=51, prospective=2, all=53; prospective displays the deterministic Early prospective sample \u00b7 N=2 notice below N<10.",
     "denominators": "Rates retain numerator / assigned population; ATH qualification is qualified / assigned.",
     "engineering_revision": "e21867c1 working tree",
-    "multiple_presentation": "Live Monitor table header is Multiple. Active uses current_multiple; finalized collapsed uses final_ath_multiple; selected detail retains FINAL / ENTRY and ATH × separately.",
+    "multiple_presentation": "Live Monitor table header is Multiple. Active uses current_multiple; finalized collapsed uses final_ath_multiple; selected detail retains FINAL / ENTRY and ATH \u00d7 separately.",
     "network_calls": "Birdeye=0; RPC=0; local API/page readback only.",
     "next_action": "None. No SVG chart is currently rendered by these Watchtower views; apply ENTRY/ATH/FINAL terminology if chart markers are introduced.",
     "readback": "Managed watchtower_api restarted; Watchtower Playbook, Live Monitor API, and Live Monitor page each returned 200. API mode=MONITOR. HXpDL current=0.0165763462 / ATH=8.1779421880; 7xXQV current=0.0148372895 / ATH=1.8706650581; both QUALIFIED and collapsed.",
@@ -22594,7 +22594,7 @@
     "target": "/private/tmp/watchtower-fallback-reconstructed on branch codex/watchtower-fallback-reconstructed; status clean and unmodified."
   },
   "watchtower_controlled_runtime_transition_preflight_20261008": {
-    "boundary": "The qualified uninstalled template defines exactly watchtower_api and operation_monitor_worker with default-off capture/evaluation, but it intentionally does not define the live watchtower_listener program or a complete merged Supervisor configuration. The active listener stanza instead points to /Users/kevinkeaveney/Production/flex-listener with the existing canonical/ops DB paths. Consequently the required pre-replacement artifact—an exact byte-reviewed combined configuration change that preserves every unrelated live program and provides rollback—does not yet exist. It would be unsafe to request approval for an unspecified composition or infer a listener rewrite.",
+    "boundary": "The qualified uninstalled template defines exactly watchtower_api and operation_monitor_worker with default-off capture/evaluation, but it intentionally does not define the live watchtower_listener program or a complete merged Supervisor configuration. The active listener stanza instead points to /Users/kevinkeaveney/Production/flex-listener with the existing canonical/ops DB paths. Consequently the required pre-replacement artifact\u2014an exact byte-reviewed combined configuration change that preserves every unrelated live program and provides rollback\u2014does not yet exist. It would be unsafe to request approval for an unspecified composition or infer a listener rewrite.",
     "engineering_revision": "1bfacfc8683b03c4c0ac1cf5276d3bedf47990b1 clean in /Users/kevinkeaveney/.codex/worktrees/watchtower-shadow-prep/flex; candidate template SHA256=58c6b36b63d58e0e0db2ea1fa9aa598590797a2f926f554a21b9f1552275ce4d",
     "next_action": "AUTHORIZE_PREPARATION_AND_ISOLATED_QUALIFICATION_OF_AN_EXACT_IN_PLACE_LISTENER_PLUS_API_PLUS_WORKER_SUPERVISOR_COMPOSITION_THEN_PRESENT_ITS_BYTE_DIFF_BACKUP_ROLLBACK_AND_SERVICE ACTIONS_FOR_EXPLICIT_APPROVAL",
     "runtime_deployment_gate": "HOLD_EXACT_LIVE_SUPERVISOR_COMPOSITION_REQUIRED",
@@ -23129,7 +23129,7 @@
   "watchtower_first_established_1s_market_reference": {
     "artifact": "docs/audits/watchtower_three_token_first_established_1s_market_reference.v1.json (sha256 4d7274b07bdbbf42cef8aafc18359582147bc7bdfd9289e054e735ab2b226b6c)",
     "engineering_revision": "e21867c1 plus provider-disabled retained-candle first-established-reference audit",
-    "next_action": "A separately authorized 10–15 token validation may test the shadow semantic with retained/new evidence; do not promote it to production without that validation.",
+    "next_action": "A separately authorized 10\u201315 token validation may test the shadow semantic with retained/new evidence; do not promote it to production without that validation.",
     "production_flags": "Provider/RPC/Helius/getBlock/getTransaction/GMGN/network calls=0; production/UI/playbook/Byzantine/Nexus writes=0.",
     "result": "All three retained 60-second responses already cover T+0 through T+9, so no call was required. T+1 OPEN exactly equals T+0 CLOSE in each series: 2YrE $117,390.37685034382, 2dDD $81,517.2787970803, and 3C8N $85,973.02289660266. The simple shadow semantic FIRST_FULL_POST_MIGRATION_SECOND_OPEN excludes the mixed migration-second open, is knowable at T+1, and equals the transition-end state. Gaps later in the sequence mean no natural-stability candidate was defined. Exact actionability and theoretical on-chain facts remain unchanged; policy is not promoted.",
     "status": "PASS",
@@ -23189,7 +23189,7 @@
   },
   "watchtower_four_launch_birdeye_historical_recovery_20261008": {
     "acquisition": "Eight sequential Birdeye requests, no retries or fallback: one 1m Entry-to-collapse range plus one 120-second 1s peak/Entry window per mint. All HTTP 200; no rate-limit or resource stop. Raw payloads and candle lists were not stored. Compact derived evidence was 3,803 bytes total, below 256 KiB per mint and 2 MiB total.",
-    "comparison_and_persistence": "The original sampled 15m peaks are corroborated for 9Jt, 7JVD, and 6Ldj. 6Ku’s existing Entry-only fallback missed a bounded early 1s high by 1.3017798922%. This is provider evidence, not an overwrite of monitor facts. Persistence is NOT_READY: any later append-only proposal must retain provider provenance, distinguish partial coverage, preserve Entry immutability, and not claim terminal/lifetime metrics.",
+    "comparison_and_persistence": "The original sampled 15m peaks are corroborated for 9Jt, 7JVD, and 6Ldj. 6Ku\u2019s existing Entry-only fallback missed a bounded early 1s high by 1.3017798922%. This is provider evidence, not an overwrite of monitor facts. Persistence is NOT_READY: any later append-only proposal must retain provider provenance, distinguish partial coverage, preserve Entry immutability, and not claim terminal/lifetime metrics.",
     "coverage": "All four full 1m ranges are incomplete through their persisted terminal-collapse boundary: 9Jt has 181 candles and a max 1080s gap; 7JVD 15/2340s; 6Ku 8/no internal gap but no terminal-boundary coverage; 6Ldj 53/1620s. Fine 1s windows refine local peak timing only and do not fill lifecycle gaps. Results are HISTORICAL_PEAK_PARTIAL, not lifetime ATH. Strict chronological maximum drawdown and terminal MC are unqualified; no final ATH/History field was written or queue envelope replayed.",
     "engineering_revision": "Clean isolated source /private/tmp/flex-watchtower-monitor-schema-compat at d3c5b7be61a5705477880829e5c8e724d1ff5765; deployed monitor authority ac00b1e77c3bd030d711143efa73dd609dfe48ee was read only and unchanged.",
     "next_action": "STOP. Do not persist partial peaks, replay terminal envelopes, reacquire broad history, or alter running services. A separate approval is required for any append-only partial-evidence persistence proposal or additional specifically bounded coverage recovery.",
@@ -23205,7 +23205,7 @@
     "engineering_revision": "Read-only assessment of compact evidence published in 53c4a35f26360366f2cfb299d7c3eb09f2182d4a and monitor facts at ac00b1e77c3bd030d711143efa73dd609dfe48ee; no source, provider, database, queue, or service action occurred.",
     "next_action": "STOP. Before any new acquisition, separately authorize either compact gap-coordinate recovery or explicitly bounded per-tail probes, with no claim that they close unknown internal gaps.",
     "qualification": "Lifetime ATH and strict maximum drawdown remain infeasible for all four pending complete coverage. Terminal MC is potentially testable only through one targeted tail request per mint, but remains unqualified. Existing Entry values and partial peak provenance remain unchanged. Historical pre-watermark exclusions and terminal-envelope safety are unaffected.",
-    "recoverability": "Four one-request 1m terminal-tail probes are the smallest possible tests of the four known tails, but they cannot close 9Jt/7JVD/6Ldj’s unknown-coordinate internal gaps. A compliant minimum request set to close every gap is therefore UNKNOWN, not four. 6Ku is the only mint whose retained summary has no internal gap, so a successful complete tail response could potentially qualify its interval; that remains unproven. No further batch is proposed because recoverability of every required interval is not demonstrable from retained compact evidence alone.",
+    "recoverability": "Four one-request 1m terminal-tail probes are the smallest possible tests of the four known tails, but they cannot close 9Jt/7JVD/6Ldj\u2019s unknown-coordinate internal gaps. A compliant minimum request set to close every gap is therefore UNKNOWN, not four. 6Ku is the only mint whose retained summary has no internal gap, so a successful complete tail response could potentially qualify its interval; that remains unproven. No further batch is proposed because recoverability of every required interval is not demonstrable from retained compact evidence alone.",
     "root_cause": "The exact range requests used the qualified Birdeye V3 mcap range interface and returned HTTP 200. Retained evidence cannot distinguish zero-trade intervals from provider omission/normalization behavior for absent candles; it contains no provider pagination state and the qualified range client has no pagination loop. Therefore incorrect request bounds, unsupported resolution, incomplete pagination, missing trading activity, and provider response limitation cannot be separated further without new provider evidence. Do not infer a zero price or continuity from an absent candle.",
     "runtime_deployment_reason": "Read-only evidence assessment only.",
     "runtime_deployment_required": false,
@@ -23688,7 +23688,7 @@
     "audit_window_utc": "2026-10-05T23:01:09Z/2026-10-06T08:01:09Z",
     "coverage": "migration=3/3; qualified opening=2/3; qualified-to-lifecycle-observation=2/2; terminal=2/2; strict provider requests=3 (one per assigned token); lifecycle provider calls=8; terminal finalization calls=0; unbounded strict retry=false.",
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; read-only audit against canonical wt_ops_v2.db and DEV dev_005a monitor authority",
-    "finding": "Three natural WATCHTOWER assignments occurred. CQP3…fpump (AGENCY) and CNWX…Rpump (AGENCY) both retained qualified strict openings, retained lifecycle observations, and authoritative PRICE_MONITOR_COMPLETE_COLLAPSED terminal facts. HRin…cpump (COOK) retained one strict 1s Birdeye opening attempt at migration+83s, HTTP 200/TARGET_SECOND_ABSENT, and durable retry-budget exhaustion, so it correctly remains WAITING_FOR_ENTRY_REFERENCE without a synthetic Entry. Current authoritative Watchtower live count is zero.",
+    "finding": "Three natural WATCHTOWER assignments occurred. CQP3\u2026fpump (AGENCY) and CNWX\u2026Rpump (AGENCY) both retained qualified strict openings, retained lifecycle observations, and authoritative PRICE_MONITOR_COMPLETE_COLLAPSED terminal facts. HRin\u2026cpump (COOK) retained one strict 1s Birdeye opening attempt at migration+83s, HTTP 200/TARGET_SECOND_ABSENT, and durable retry-budget exhaustion, so it correctly remains WAITING_FOR_ENTRY_REFERENCE without a synthetic Entry. Current authoritative Watchtower live count is zero.",
     "limits": "Qualified-opening physical strict-attempt timestamps for the two successful rows were compacted; only COOK retains an exact diagnostic attempt timestamp. The UI API was unavailable on ports 5002 and 8100 during the audit, so live UI-row verification was not claimed; source confirms recent History is an assigned-launch projection, not terminal-state proof.",
     "next_action": "TRACE_ONLY_THE_FRESH_POST_FIX_OPENING_FAILURES_IF_A_NEW_COHORT_SHOWS_SYSTEMATIC_UNQUALIFIED_OPENINGS",
     "runtime_deployment_reason": "Read-only audit only.",
@@ -23913,7 +23913,7 @@
   },
   "watchtower_mission_control_monitor_authority_deployment": {
     "authority": "Port-8100 /api/operations/live-monitor reads .dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db via absolute path -> Path.as_uri -> fixed mode=ro; stale fallback=false.",
-    "browser_controls": "8n1 ACTIVE / $691.0K / 336; 9DPU COLLAPSED / $4298 / 273; 2n3 COLLAPSED / Entry — / $2575 / 2. Browser table to authoritative-fact mismatch count=0; 8n1 observations route returns timestamp/mc_usd/resolution=15m.",
+    "browser_controls": "8n1 ACTIVE / $691.0K / 336; 9DPU COLLAPSED / $4298 / 273; 2n3 COLLAPSED / Entry \u2014 / $2575 / 2. Browser table to authoritative-fact mismatch count=0; 8n1 observations route returns timestamp/mc_usd/resolution=15m.",
     "contract_sha256": "fc49456bc3d2f91e02f52847e418186da2a5600ca28dfa66a9fff7065eb5a13f",
     "execution_audit": "docs/audits/watchtower_mission_control_monitor_authority_execution.v1.json sha256 c5b129c2b17ae654701b64c9b0422380e18428fced1a5ac546444b64b877b9f3",
     "next_action": "WATCHTOWER_15M_MONITORING_UI_COMPLETE",
@@ -23929,7 +23929,7 @@
     "audit": "docs/audits/watchtower_mission_control_monitor_authority_isolated_qualification.v1.json sha256 12b87aa57c2dfb8e54e83826cc5c99e0dc0d291248171e48bd0234b8159dc490",
     "authority": "MISSION_CONTROL_MONITOR_UI_DB_PATH selects .dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db using absolute path -> Path.as_uri -> fixed mode=ro. Missing, invalid-schema, and URI-injected paths fail closed; no stale DB fallback.",
     "contract": "docs/audits/watchtower_mission_control_monitor_authority_deployment_contract.v1.json sha256 fc49456bc3d2f91e02f52847e418186da2a5600ca28dfa66a9fff7065eb5a13f; authorized=false; deployment expects one automatic src.dev_runtime reload only.",
-    "controls": "8n1 ACTIVE / 691005.2750094017 / calls 336 / 39 observations; 9DPU COLLAPSED / 4297.798952511155 / calls 273 / 7 observations; 2n3 COLLAPSED / null entry rendered — / 2574.7519733977383 / calls 2 / 9 observations.",
+    "controls": "8n1 ACTIVE / 691005.2750094017 / calls 336 / 39 observations; 9DPU COLLAPSED / 4297.798952511155 / calls 273 / 7 observations; 2n3 COLLAPSED / null entry rendered \u2014 / 2574.7519733977383 / calls 2 / 9 observations.",
     "isolated_root": "/private/tmp/mc-authority-iso.doZrx4",
     "live_safety": "Live workspace source/config/schema/database/process/provider/RPC/data-copy/backfill changes=0. Port-8100 listener remains PID 66447.",
     "next_action": "AUTHORIZE_MISSION_CONTROL_MONITOR_AUTHORITY_DEPLOYMENT",
@@ -24134,7 +24134,7 @@
   "watchtower_original_shadow_gate_recovery_20261008": {
     "blockers": "The limited baseline is source-qualified but not a live runtime deployment authority. Required runtime configuration must provide the exact candidate root/PYTHONPATH, WATCHTOWER_FINAL_SHA, WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH to the read-only 96 ledger, the canonical DB/ops DB/queue paths, and normal monitor mode while activation remains disabled. The retained records do not prove that the current launcher/UI service forwards the ledger path or that an exact live runtime exists. Injector import and retained materialization/history recovery precede any shadow run; otherwise the historical executor can reacquire an Opening, which is prohibited.",
     "engineering_revision": "read-only recovery from retained 2026-10-06 agent-handoff history and committed source; limited baseline tag watchtower-opening-price-live-env-qualified-20261008-daca3e8d",
-    "execution_order": "(1) deploy/verify exact runtime authority and clean config; (2) make the read-only 96-record ledger path available to the UI/API; (3) run the singleton retained INJECTOR import, which materializes the qualified historical opening before promoting the waiting fact; (4) run only bounded retained lifecycle/history recovery which reuses that qualified record and must make zero new INJECTOR Opening calls; (5) observe new natural Watchtower tokens under t+1→t→t+2 in shadow with no activation; (6) accept only after explicit shadow criteria are met; (7) separately authorize controlled activation/normal forward +2 processing.",
+    "execution_order": "(1) deploy/verify exact runtime authority and clean config; (2) make the read-only 96-record ledger path available to the UI/API; (3) run the singleton retained INJECTOR import, which materializes the qualified historical opening before promoting the waiting fact; (4) run only bounded retained lifecycle/history recovery which reuses that qualified record and must make zero new INJECTOR Opening calls; (5) observe new natural Watchtower tokens under t+1\u2192t\u2192t+2 in shadow with no activation; (6) accept only after explicit shadow criteria are met; (7) separately authorize controlled activation/normal forward +2 processing.",
     "implementation": "The implementation is the shared strict reducer and normal monitor flow in the frozen ancestry, with read-only audit projection via WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH. There is no separate shadow executor/feature flag evidenced for the +2 policy: shadowing is operationally the normal live monitor path constrained to observation/comparison, with activation withheld. The audit UI projection is explicitly non-mutating.",
     "next_action": "AUTHORIZE_A_SEPARATE_LIVE_RUNTIME_PREPARATION_GATE_TO_VERIFY_EXACT_CONFIG_PATH_PROPAGATION_AND_BOUNDED_RETAINED_INJECTOR_HISTORY_ORDER_BEFORE_ANY_NATURAL_TOKEN_SHADOW_EXECUTION",
     "original_gate": "The qualified +2 policy handoff 165d576dc0e0c0a9fbca915667f36eb53b5a9bb6 explicitly requires SHADOW_VALIDATE_PLUS2_ON_NEW_NATURAL_WATCHTOWER_TOKENS_BEFORE_LIVE_ACTIVATION. Policy is strict t+1 then t then t+2 only; +3/+4/nearest/unbounded fail closed. Shadow must not change an Opening decision or promote audit candidates into Entry/History/LIVE state.",
@@ -24965,7 +24965,7 @@
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee plus artifact-backed Watchtower rich Playbook read model",
     "next_action": "No strategy or policy change is implied by this UI presentation. Any downstream operational decision requires separate authorization and retained-evidence review.",
     "production_flags": "Birdeye/RPC/Helius/getBlock/getTransaction/full-block/GMGN calls=0; no Watchtower entry, peak, performance, policy, membership, Byzantine, or Nexus fact changes; no database writes. This is retained-data presentation work only.",
-    "result": "The Watchtower route now presents the frozen 15-token research cohort in the richer operation-playbook architecture: First Actionable MC, post-entry peak, PENDING/NOT RUN strategy card, all retained 7-day metrics, selectable First Actionable MC → Max Proven MC → 7-Day Outcome detail, lifecycle behaviour, and methodology/evidence limits. All 15 UI rows map exactly to the recalculation and lifecycle artifacts. Controls reproduce 2YrE=$118435.10/1.41x, 2dDD=$159351.87/5.01x, and 3C8N=$177043.57/5.92x. The old theoretical FDV is explicitly provenance only.",
+    "result": "The Watchtower route now presents the frozen 15-token research cohort in the richer operation-playbook architecture: First Actionable MC, post-entry peak, PENDING/NOT RUN strategy card, all retained 7-day metrics, selectable First Actionable MC \u2192 Max Proven MC \u2192 7-Day Outcome detail, lifecycle behaviour, and methodology/evidence limits. All 15 UI rows map exactly to the recalculation and lifecycle artifacts. Controls reproduce 2YrE=$118435.10/1.41x, 2dDD=$159351.87/5.01x, and 3C8N=$177043.57/5.92x. The old theoretical FDV is explicitly provenance only.",
     "status": "PASS",
     "tests": "tests/test_watchtower_operation_playbook_ui.py: 4 passed; provider-free Flask route parity audit passed; local browser readback at /operations/watchtower/playbook confirmed the rich header, three cards, 15 rows, selected-token flow, lifecycle section, and methodology boundary.",
     "verdict": "WATCHTOWER_RICH_PLAYBOOK_UI_PROMOTION_COMPLETE"
@@ -25727,7 +25727,7 @@
     "verdict": "MIGRATION_PLAN_QUALIFIED_FUTURE_PATH_LEGACY_ROWS_UNBOUND"
   },
   "wt_to_generic_lifecycle_bridge_audit": {
-    "conclusion": "No authoritative operation_uuid→operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
+    "conclusion": "No authoritative operation_uuid\u2192operator_id relationship exists. A bridge would have to infer identity from non-authoritative labels or create membership, both forbidden. Preserve Watchtower compatibility and plan an explicit audited migration/identity-binding stage before generic lifecycle consumers exist.",
     "mapping_result": "29 wt_token_lifecycle rows: 6 distinct non-null operation_uuid values plus 3 null-UUID rows. Joining lifecycle mint to canonical operator_launch_membership yields 0 operator_id values for every group; exactly-mapped=0, unmappable=7 groups, ambiguous=0.",
     "readers": "operational_intelligence, emerging_operator_service, observation_providers, watchtower funnel/dashboard and related Watchtower analytics.",
     "status": "HOLD",
@@ -25865,7 +25865,7 @@
   "shared_monitorqueue_original_ownership_recovery_20261009": {
     "status": "SPLIT_OWNERSHIP_VERIFIED",
     "engineering_revision": "Read-only provenance investigation from codex/dev014-current-mc-freshness at bea6e551380b0617a29a5bc54827a1726525a7cd; no engineering source was changed.",
-    "monitor_queue_origin_commit": "ba793b29374c4224a5a697f19e1d618f81545a95 (Assemble qualified price source line, 2026-10-04): introduces the active-line src/ops/operation_monitor_worker.py including MonitorQueue. Its generic durable dependency EvidenceIntakeQueue predates it in dcdb100a34d5e255262d1fb78a29553328636449 (EP1.0 – Evidence Platform Foundation).",
+    "monitor_queue_origin_commit": "ba793b29374c4224a5a697f19e1d618f81545a95 (Assemble qualified price source line, 2026-10-04): introduces the active-line src/ops/operation_monitor_worker.py including MonitorQueue. Its generic durable dependency EvidenceIntakeQueue predates it in dcdb100a34d5e255262d1fb78a29553328636449 (EP1.0 \u2013 Evidence Platform Foundation).",
     "provider_budget_origin_commit": "ba793b29374c4224a5a697f19e1d618f81545a95: introduces src/ops/dev_provider_budget.py and MonitorQueue.admit_provider_dispatch together. DEV-012 (Unified DEV Provider Budget Boundary) documents the 20-global/4-per-mint semantics on classification-attribution-axis; 29a1bbfdb83d64c9ed4e55ac523fd56ace2726ec is a later DEV-014 consumer-side malformed-ledger tightening and is not in the active 71b6 runtime ancestry.",
     "original_workstream": "The original implementation lineage is the qualified price-source/Unified DEV Provider Budget (DEV-012) line, not DEV-014 and not X78. Historical branch labels alone do not establish a single current maintainer.",
     "active_monitor_source": "Primary Supervisor PID 73409 is running config SHA-256 5e7e8c3c719d396f1f39edda30620a74e160972e0cba03c773839e8e06636c6b. operation_monitor_worker PID 9126 (PPID 73409) and operation_monitor_bridge PID 21106 (PPID 73409) are RUNNING. The installed worker stanza pins /private/tmp/flex-dev014-early-minimum-worker at clean SHA 71b6e338cfb54057ec4984d41bfbe02477c90dba; ba793b29 is its ancestor, while 9561568e and 29a1bbfd are not.",
@@ -27199,7 +27199,7 @@
     "storage": "Compact journal=/private/tmp/dev020-watchtower-prepeak/journal.db (1146880 bytes); provider ledger=1047 bytes. No raw provider payload retention, no unbounded writer, and no file approaches 500 MB.",
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_NO_CODE_CHANGE",
-    "next_action": "NONE — COMPLETE."
+    "next_action": "NONE \u2014 COMPLETE."
   },
   "dev021_watchtower_price_behaviour_and_documentation_20261012": {
     "status": "PASS",
@@ -27212,7 +27212,7 @@
     "storage": "One compact JSON analysis artifact and one Markdown document; no raw payload retention, unbounded writer, or 500 MB path.",
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_DOCUMENTATION_AND_LOCAL_ANALYSIS",
-    "next_action": "NONE — DEV021 COMPLETE. Future automatic token processing remains a separately authorized integration milestone."
+    "next_action": "NONE \u2014 DEV021 COMPLETE. Future automatic token processing remains a separately authorized integration milestone."
   },
   "dev022_watchtower_lifecycle_job_projection_20261012": {
     "status": "QUALIFIED_NOT_DEPLOYED",
@@ -27236,7 +27236,7 @@
     "storage": "Compact job table is capped at 64 MiB; no raw provider retention or unbounded writer; no 500 MB path.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS",
-    "next_action": "NONE — DEV022 COMPLETE. Enabling automatic lifecycle job projection or any provider acquisition requires separate explicit authorization."
+    "next_action": "NONE \u2014 DEV022 COMPLETE. Enabling automatic lifecycle job projection or any provider acquisition requires separate explicit authorization."
   },
   "dev023_watchtower_dip_entry_backtest_20261012": {
     "status": "PASS_EVIDENCE_FEASIBILITY_COMPLETE",
@@ -27248,7 +27248,7 @@
     "artifact": "docs/audits/dev023_watchtower_dip_entry_backtest_20261012.v1.json; compact/no raw payload/no growth path.",
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_PROVIDER_FREE_ANALYSIS",
-    "next_action": "NONE — DEV023 evidence-feasibility milestone complete. A future executable backtest requires separately authorized ordered observation retention; do not launch acquisition automatically."
+    "next_action": "NONE \u2014 DEV023 evidence-feasibility milestone complete. A future executable backtest requires separately authorized ordered observation retention; do not launch acquisition automatically."
   },
   "dev024_watchtower_recovery_stop_analysis_20261012": {
     "status": "PASS_CONDITIONAL_ASSOCIATION_ANALYSIS_COMPLETE",
@@ -27260,7 +27260,7 @@
     "artifact": "docs/audits/dev024_watchtower_recovery_stop_analysis_20261012.v1.json; compact/no raw payload/no growth path.",
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_PROVIDER_FREE_ANALYSIS",
-    "next_action": "NONE — DEV024 complete. A realistic experiment requires separately authorized ordered-path retention, not historical reacquisition by default."
+    "next_action": "NONE \u2014 DEV024 complete. A realistic experiment requires separately authorized ordered-path retention, not historical reacquisition by default."
   },
   "dev025_watchtower_post_peak_opening_breakdown_20261012": {
     "status": "PASS_CONDITIONED_POST_PEAK_ANALYSIS_COMPLETE",
@@ -27272,19 +27272,19 @@
     "artifact": "docs/audits/dev025_watchtower_post_peak_opening_breakdown_20261012.v1.json; compact/no raw payload/no growth path.",
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_PROVIDER_FREE_ANALYSIS",
-    "next_action": "NONE — DEV025 complete. A practical exit rule requires separately authorized unselected ordered post-peak path and fill evidence."
+    "next_action": "NONE \u2014 DEV025 complete. A practical exit rule requires separately authorized unselected ordered post-peak path and fill evidence."
   },
   "dev026_watchtower_catastrophic_post_peak_candle_feasibility_20261012": {
     "status": "PASS_EVIDENCE_FEASIBILITY_COMPLETE",
     "engineering_revision": "d60e7befb5ab43d1d9bcd7807022fc4221b3bc5f on codex/dev026-catastrophic-candle-feasibility; remote verified",
     "scope": "Provider-free DEV-only retained-evidence inspection; no credential/provider/RPC/trading/acquisition/mutation/deployment/production action.",
-    "result": "539 eligible comparable tokens; 0 with retained ordered post-peak candles; 0 proven >=85% open-to-close crash candles. DEV014 journals retain compact extrema, timestamps, coverage, request metadata, and aggregate peak_to_subsequent_trough only—no candle open/close path or raw payload.",
+    "result": "539 eligible comparable tokens; 0 with retained ordered post-peak candles; 0 proven >=85% open-to-close crash candles. DEV014 journals retain compact extrema, timestamps, coverage, request metadata, and aggregate peak_to_subsequent_trough only\u2014no candle open/close path or raw payload.",
     "boundary": "Post-peak trough, ATH-to-trough drawdown, and latest MC cannot substitute for a crash candle. Pre-crash/opening ratios, first crash timestamps, and time from peak to crash are uncomputable without inventing evidence.",
     "minimum_future_acquisition": "Separately authorize at most one bounded 1-minute MC OHLCV range per eligible mint from retained observed peak to retained lifecycle-window end, compactly retaining only the first qualifying >=85% candle or explicit none; fixed byte cap, no raw payload/retry/pagination, shared budget. Not authorized here.",
     "artifact": "docs/audits/dev026_watchtower_catastrophic_post_peak_candle_feasibility_20261012.v1.json; compact/no raw payload/no growth path.",
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_PROVIDER_FREE_ANALYSIS",
-    "next_action": "NONE — DEV026 feasibility milestone complete."
+    "next_action": "NONE \u2014 DEV026 feasibility milestone complete."
   },
   "dev026_single_token_post_ath_crash_candle_proof_20261012": {
     "status": "PASS_NO_85_PERCENT_CANDLE_OBSERVED",
@@ -27296,7 +27296,7 @@
     "interpretation": "NO_85_PERCENT_CANDLE_OBSERVED is confined to the one bounded response and does not prove that no crash occurred. The retained aggregate 98.6489698999511% post-peak drawdown was not treated as a candle event.",
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_DATA_ONLY_PROOF",
-    "next_action": "NONE — one-token proof complete; no further provider request is authorized."
+    "next_action": "NONE \u2014 one-token proof complete; no further provider request is authorized."
   },
   "dev026_earlier_watchtower_crash_candle_reconciliation_20261012": {
     "status": "PASS_RETAINED_EVIDENCE_RECONCILED",
@@ -27310,19 +27310,19 @@
     "artifact": "docs/audits/dev026_earlier_watchtower_crash_candle_reconciliation_20261012.v1.json; compact/no raw payload/no growth path.",
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY_RECONCILIATION",
-    "next_action": "NONE — requested historical recovery is complete; retain the existing detector rather than creating another."
+    "next_action": "NONE \u2014 requested historical recovery is complete; retain the existing detector rather than creating another."
   },
   "dev027_watchtower_price_pattern_discovery_20261012": {
     "status": "PASS_PROVIDER_FREE_ANALYSIS_COMPLETE",
     "engineering_revision": "8e7c687bd88c2f5a9172a55f8f8e61eb67760667 on codex/dev027-price-patterns; remote verified",
     "scope": "DEV-only, read-only analysis of retained DEV014 lifecycle journals, DEV019 openings, DEV020 pre-peak journal, and compact DEV014 30-second evidence. Provider/RPC calls=0; no evidence, journal, runtime, deployment, or production mutation.",
     "coverage": "549 observed peaks; 539 opening-to-peak pairs (415 contiguous, 111 sparse, 13 insufficient pre-peak); 526 pre-peak paths; 528 opening-linked post-peak observations; 11 valid but partial 30-second crash-candle records.",
-    "findings": "Opening MC has negligible correlation with observed peak multiple (log r=-0.071, n=539). The strongest exploratory relationship is a 70%+ observed pre-peak drawdown group (n=88) with median observed peak multiple 0.095x versus 1.459x–2.153x for shallower 10–70% groups. Post-peak collapse is descriptively severe in every positive-peak stratum, but is future-dependent and not a trading signal. UTC/hour and weekday variation is not robust.",
+    "findings": "Opening MC has negligible correlation with observed peak multiple (log r=-0.071, n=539). The strongest exploratory relationship is a 70%+ observed pre-peak drawdown group (n=88) with median observed peak multiple 0.095x versus 1.459x\u20132.153x for shallower 10\u201370% groups. Post-peak collapse is descriptively severe in every positive-peak stratum, but is future-dependent and not a trading signal. UTC/hour and weekday variation is not robust.",
     "signal_boundary": "A 70% real-time drawdown state is the strongest prospective research candidate, not a validated strategy. Opening MC should be a normalizer rather than a primary entry filter. Existing post-peak and crash-candle evidence cannot support executable exits, profitability, or a crash predictor.",
     "artifact": "docs/audits/dev027_watchtower_price_pattern_discovery.md; 7,598-byte compact report; raw payload retention=false; no growth path approaches 500 MB.",
     "runtime_deployment_required": false,
     "runtime_deployment_gate": "NOT_APPLICABLE_READ_ONLY_ANALYSIS",
-    "next_action": "NONE — DEV027 complete. A future practical strategy test needs separately authorized prospective ordered OHLC coverage plus fill/liquidity/cost evidence; no acquisition is implied."
+    "next_action": "NONE \u2014 DEV027 complete. A future practical strategy test needs separately authorized prospective ordered OHLC coverage plus fill/liquidity/cost evidence; no acquisition is implied."
   },
   "dev029_watchtower_intake_outage_preflight_20261012": {
     "status": "HOLD_UNQUALIFIED_SHARED_SOURCE",
@@ -27335,7 +27335,7 @@
     "smallest_correction": "Prepare and verify a clean approved production scheduler source/config baseline, update the Supervisor execution target only under separate deployment authorization, then rerun this narrow preflight. Only after that and explicit restart authorization may the exact command be used: /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/supervisorctl -c /Users/kevinkeaveney/Production/flex-scheduler/config/supervisor/supervisord.conf start operation_scheduler.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD",
-    "next_action": "AUTHORIZE_CLEAN_PRODUCTION_SCHEDULER_BASELINE_PREPARATION — do not start operation_scheduler from the dirty shared checkout."
+    "next_action": "AUTHORIZE_CLEAN_PRODUCTION_SCHEDULER_BASELINE_PREPARATION \u2014 do not start operation_scheduler from the dirty shared checkout."
   },
   "dev029_clean_scheduler_restoration_preparation_20261012": {
     "status": "PASS_READY_FOR_RESTART_AUTHORIZATION",
@@ -27358,7 +27358,7 @@
     "required_correction": "Review and separately authorize the scheduler-only equivalent repoint against the active daemon configuration file, after verifying flex-scheduler source identity against 77492d22 or selecting the clean 77492 worktree as the target. Rerun effective-config verification before a new start. Do not start from the current loaded target without that explicit decision.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD",
-    "next_action": "AUTHORIZE_EFFECTIVE_SUPERVISOR_CONFIG_REPOINT — scheduler remains STOPPED pending a source-identity decision for the active daemon configuration."
+    "next_action": "AUTHORIZE_EFFECTIVE_SUPERVISOR_CONFIG_REPOINT \u2014 scheduler remains STOPPED pending a source-identity decision for the active daemon configuration."
   },
   "dev029_active_supervisor_scheduler_restoration_20261012": {
     "status": "PASS_WATCHTOWER_INTAKE_RESTORED",
@@ -27371,7 +27371,7 @@
     "storage": "One timestamped Supervisor-config backup only; raw provider payload retention=false; no new unbounded growth path or 500 MB-capable file introduced.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS",
-    "next_action": "NONE — Watchtower intake scheduler restored. Historical missed-launch assessment remains a separate authorized task."
+    "next_action": "NONE \u2014 Watchtower intake scheduler restored. Historical missed-launch assessment remains a separate authorized task."
   },
   "dev029_post_freeze_scheduler_regression_investigation_20261012": {
     "status": "PASS_SPECIFIC_CONTROL_PLANE_REGRESSION_IDENTIFIED",
@@ -27384,7 +27384,7 @@
     "minimum_correction": "The scheduler has already been restored from clean 77492d22 source. Prevent recurrence by making isolated Supervisor validation use an endpoint-only test configuration with no production supervisorctl section and reject any socket/PID endpoint equivalence before issuing a control command. This is a future bounded hardening change, not applied here.",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Read-only incident provenance reconciliation; runtime remains the already-restored scheduler deployment.",
-    "next_action": "NONE — specific regression identified and restoration remains intact. Any validation-isolation hardening requires separate authorization."
+    "next_action": "NONE \u2014 specific regression identified and restoration remains intact. Any validation-isolation hardening requires separate authorization."
   },
   "dev030_supervisor_test_control_plane_isolation_20261012": {
     "status": "PASS_INCIDENT_PATH_BLOCKED",
@@ -27397,7 +27397,7 @@
     "storage": "Temporary test sockets only; cleaned by fixture. Raw retention=false; no unbounded file path or 500 MB-capable artifact introduced.",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "DEV tooling, provider-free tests, and engineering guidance only; no executable production runtime behavior changed.",
-    "next_action": "NONE — DEV030 complete. Use the offline validator for any future Supervisor validation; any actual isolated control harness must pass the guard before constructing commands."
+    "next_action": "NONE \u2014 DEV030 complete. Use the offline validator for any future Supervisor validation; any actual isolated control harness must pass the guard before constructing commands."
   },
   "dev031_frozen_twenty_token_crash_study_execution_20261013": {
     "status": "PARTIAL_OBSERVATION_COMPLETE_NO_FURTHER_ACQUISITION_AUTHORIZED",
@@ -27411,7 +27411,7 @@
     "budget": "Existing ledger parsed before and after execution. Six-second pacing, serial execution, and real rolling budget admission were used; final ledger contains 10 active rolling-window entries, with expired entries pruned by the existing ledger semantics.",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "The authorized work was a bounded manual DEV CLI session from the exact qualified worktree; no installed runtime behavior was changed.",
-    "next_action": "STOP — frozen manifest fully consumed. Treat the two events only as partial-coverage observations; any new acquisition or cohort inference requires separate authorization."
+    "next_action": "STOP \u2014 frozen manifest fully consumed. Treat the two events only as partial-coverage observations; any new acquisition or cohort inference requires separate authorization."
   },
   "dev032_watchtower_crash_mc_relationship_20261013": {
     "status": "PASS_EXPLORATORY_READ_ONLY_ANALYSIS_COMPLETE",
@@ -27425,7 +27425,7 @@
     "storage": "One 6,023-byte Markdown audit; raw provider retention=false; unbounded growth paths=0; no file may reach 500 MB.",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Read-only analysis artifact only; executable runtime behavior is unchanged.",
-    "next_action": "NONE — DEV032 complete. The highest-value future evidence, if separately authorized, is complete chronological 30-second post-peak coverage with non-crash controls."
+    "next_action": "NONE \u2014 DEV032 complete. The highest-value future evidence, if separately authorized, is complete chronological 30-second post-peak coverage with non-crash controls."
   },
   "dev033_chronological_backtest_phase_a_20261013": {
     "status": "PASS_PHASE_A_FROZEN_PILOT_READY_FOR_SEPARATE_REVIEW",
@@ -27438,7 +27438,7 @@
     "storage_and_feasibility": "Compact ordered normalization only; raw retention=false; per-token <=256 KiB, aggregate <=8 MiB, journal/temp <=4 MiB, expected ~1.2 MiB. This can support provider-free strategies capped at 120-minute horizon but not executable net-SOL claims: liquidity, fee, slippage, and fill evidence is absent.",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Planning artifacts only; executable runtime behavior remains unchanged.",
-    "next_action": "STOP — Phase B requires separate explicit authorization for exactly this frozen 30-request manifest and fresh preflight."
+    "next_action": "STOP \u2014 Phase B requires separate explicit authorization for exactly this frozen 30-request manifest and fresh preflight."
   },
   "dev033_phase_b_execution_preflight_20261013": {
     "status": "HOLD_QUALIFIED_EXECUTION_PATH_MISSING",
@@ -27486,7 +27486,7 @@
     "storage": "Backtest audit=4,835 bytes; compact generated summary=3,347 bytes; raw retention=false; unbounded growth paths=0; no file may reach 500 MB.",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Provider-free manual analysis only; no runtime behavior changed.",
-    "next_action": "NONE — Phase C complete. Do not optimize or deploy from this pilot. A separately authorized, pre-registered contiguous validation cohort with liquidity/execution evidence would be required before any stronger conclusion."
+    "next_action": "NONE \u2014 Phase C complete. Do not optimize or deploy from this pilot. A separately authorized, pre-registered contiguous validation cohort with liquidity/execution evidence would be required before any stronger conclusion."
   },
   "dev029_post_restoration_operational_check_20261013": {
     "status": "INTAKE_STALLED",
@@ -27590,7 +27590,7 @@
       "unbounded_growth_paths": 0
     },
     "remaining_data_loss": "150 complete original journals remain unlocated in bounded searched authorities.149 identities retain derived DEV020 peak evidence;1 has request authorization only. This is not a claim of irreversible global loss. No synthetic journal reconstruction.",
-    "next_action": "NONE — authorized DEV041 preservation and bounded recovery search complete. Keep durable snapshot;150 full journals remain unrecovered. Further authorities or provider reacquisition require separate authorization."
+    "next_action": "NONE \u2014 authorized DEV041 preservation and bounded recovery search complete. Keep durable snapshot;150 full journals remain unrecovered. Further authorities or provider reacquisition require separate authorization."
   },
   "dev042_running_monitor_source_preservation_20261016": {
     "status": "PARTIAL_SOURCE_PRESERVED; HOLD_COMPLETE_COMPOSITION_AND_DEPLOYMENT_READINESS",
@@ -27804,7 +27804,7 @@
     "source_change": "Only nullable formatting expressions in existing artifact template; qualification harness adds source-hash receipt; no projection,acquisition,admission or attribution change"
   },
   "dev043_read_only_side_effects_20261016": {
-    "DEV043_READ_ONLY_COMPATIBILITY_STATUS": "PARTIAL — proven side effects resolved; HOLD complete pending-view acceptance",
+    "DEV043_READ_ONLY_COMPATIBILITY_STATUS": "PARTIAL \u2014 proven side effects resolved; HOLD complete pending-view acceptance",
     "TREASURY_REVIEW_SIDE_EFFECT": "GET -> treasury_review_routes -> list_review_workspace -> audit/treasury schema bootstrap -> canonical OPS.write.lock. Qualification now verifies existing tables without DDL; missing schema explicit503; normal writable bootstrap unchanged. Retained confirmed5-row cohort renders.",
     "RPC_CACHE_SIDE_EFFECT": "Runtime-budget GET -> listener module -> extractor import -> RPCCache construction -> canonical core.write.lock. Qualification uses only already-loaded listener counters; extractor optional cache None skips construction when acquisition disabled. No RPCCache implementation or caching semantics changed.",
     "TRACE_LOG_SIDE_EFFECT": "Same listener import -> ws_price_tracer module -> checkout/logs/ws_price_trace.log via mkdir/RotatingFileHandler. Optional trace sink/calls disabled in qualification; normal 50MiB/2-backup configuration unchanged.",
@@ -27830,7 +27830,7 @@
       "timing_limit": "One initial sequential HTTP suite also hit its60s timeout without recording the failing route; not attributed conclusively to treasury. No precise pending response duration claimed.",
       "separate_cohort": "CONFIRMED5-row selection is genuine retained evidence but does not replace default pending acceptance."
     },
-    "CLEAN_CHECKOUT_RESTART": "NOT_RUN_FOR_THIS_CORRECTION — full browser acceptance prerequisite unmet. Previous02e9e19e restart does not certify current correction.",
+    "CLEAN_CHECKOUT_RESTART": "NOT_RUN_FOR_THIS_CORRECTION \u2014 full browser acceptance prerequisite unmet. Previous02e9e19e restart does not certify current correction.",
     "GUARD_DENIAL_COUNT": 0,
     "RECOVERY_SOURCE_SHA": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48",
     "FROZEN_RECOVERY_BASELINE": false,
@@ -27867,7 +27867,7 @@
       "projection": "src.ops.treasury_review_workspace.list_review_workspace",
       "materialization": "fetchall of status population, canonical exclusions, shared operation references, compose_review_item for every eligible row, global Python sort, then slice",
       "default_order": "comparison_triage.sort_rank ASC, -(last_walkback_at or detected_at or0),treasury ASC",
-      "rank_authority": "_operation_matches using retained role/funding/topology evidence,confirmed operation reference profiles and exact identity overlaps; _comparison_triage categorical ranks1–5; not persisted/indexed",
+      "rank_authority": "_operation_matches using retained role/funding/topology evidence,confirmed operation reference profiles and exact identity overlaps; _comparison_triage categorical ranks1\u20135; not persisted/indexed",
       "population_summaries": "Global triage_counts and eligible totals also require population coverage; only selected-page watchtower_candidates is page scoped",
       "bottleneck": "Instrumented server handler fails to produce a response within60s without browser rendering. No browser-render bottleneck measurement needed to establish server bottleneck."
     },
@@ -27962,7 +27962,7 @@
         "provider_calls": 0,
         "canonical_writes": 0
       },
-      "retained_candidate_pages": "NOT_RUN — no candidate passes mandatory plan/semantics gate; no first/middle/final retained-page PASS claimed"
+      "retained_candidate_pages": "NOT_RUN \u2014 no candidate passes mandatory plan/semantics gate; no first/middle/final retained-page PASS claimed"
     },
     "QUERY_LATENCY": {
       "status": "DEADLINE_EXCEEDED_60S",
@@ -27990,8 +27990,8 @@
       "provider_calls": 0,
       "canonical_writes": 0
     },
-    "FULL_BROWSER_ACCEPTANCE": "NOT_RUN_THIS_STAGE — mandatory bounded projection gate not met. Loading is not accepted.",
-    "CLEAN_CHECKOUT_RESTART": "NOT_RUN — browser prerequisite not met; no release frozen",
+    "FULL_BROWSER_ACCEPTANCE": "NOT_RUN_THIS_STAGE \u2014 mandatory bounded projection gate not met. Loading is not accepted.",
+    "CLEAN_CHECKOUT_RESTART": "NOT_RUN \u2014 browser prerequisite not met; no release frozen",
     "GUARD_DENIAL_COUNT": 0,
     "RECOVERY_SOURCE_SHA": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48 executable source unchanged; current branch metadata includes later evidence commits",
     "FROZEN_RECOVERY_BASELINE": false,
@@ -28136,7 +28136,7 @@
       "No full retained-data rank equivalence or enforced persisted file/WAL/recovery bound qualified",
       "Canonical exclusion-by-operation ties need original uniqueness/selection proof"
     ],
-    "NEXT_ACTION": "STOP — design qualification only. Establish an authorized finite input/maintenance envelope and complete mutation coverage, or explicitly agree versioned snapshot/fail-closed availability semantics in a separately scoped design decision. No implementation,migration,index,cache,worker or deployment authorized.",
+    "NEXT_ACTION": "STOP \u2014 design qualification only. Establish an authorized finite input/maintenance envelope and complete mutation coverage, or explicitly agree versioned snapshot/fail-closed availability semantics in a separately scoped design decision. No implementation,migration,index,cache,worker or deployment authorized.",
     "RUNTIME_DEPLOYMENT_REQUIRED": false,
     "runtime_deployment_reason": "Design and in-memory fixture evidence only; no application implementation or service run.",
     "engineering_revision": "fb3a061c1686b7069550befafefe2156671cbe29",
@@ -28412,8 +28412,8 @@
     "MISSING_HEALTH_CARDS": [
       "Missing CREATE anchors",
       "Birth / Migration availability",
-      "DB write degradation ·24h",
-      "Migration → Walkback",
+      "DB write degradation \u00b724h",
+      "Migration \u2192 Walkback",
       "CREATE signature availability / creator identity availability / recovery waiting"
     ],
     "RESTORED_HEALTH_CARDS": [],
@@ -28435,7 +28435,7 @@
         "restoration": "NOT_INTEGRATED; retained acceptance partial, continuous24h durations require qualified observation"
       },
       {
-        "card": "DB write degradation ·24h",
+        "card": "DB write degradation \u00b724h",
         "candidate_source": "d2fffdc3 template/API; db_write_degradation rolling_summary",
         "current": "additive card absent; legacy infrastructure metrics remain",
         "changed": "incident duration/qualification differs from cumulative errors",
@@ -28443,7 +28443,7 @@
         "restoration": "NOT_INTEGRATED due mandatory stop; additional dependencies not qualified"
       },
       {
-        "card": "Migration → Walkback",
+        "card": "Migration \u2192 Walkback",
         "candidate_source": "d2fffdc3 template/API; migration_walkback_handoff_health",
         "current": "additive card absent",
         "changed": "eligible/durable/missing handoff diagnostics absent",
@@ -28613,7 +28613,7 @@
         "explain_ms": 0.04687509499490261
       }
     },
-    "QUERY_LATENCY": "EXPLAIN only0.009–0.052ms. Population queries deliberately not executed; this is not metric response latency. Diagnostic connection query_only immutable=1 with1s progress deadline.",
+    "QUERY_LATENCY": "EXPLAIN only0.009\u20130.052ms. Population queries deliberately not executed; this is not metric response latency. Diagnostic connection query_only immutable=1 with1s progress deadline.",
     "PROVIDER_FREE_TESTS": "Source/schema/index/EXPLAIN inspection complete. No projection implemented; fixture/boundary/browser tests NOT_RUN because mandatory indexed-access stop condition failed.",
     "HEALTH_BROWSER_ACCEPTANCE": "NOT_RUN; preview unchanged",
     "PREVIEW_SOURCE_SHA": "8475b3372dc507a2a72c8ae9fbf5dd125e5fde48; verified clean before previous task, no source edits since",
@@ -28797,7 +28797,7 @@
     "REQUEST_TIMEOUT_CAUSE": "Original treasury_review.html fetch/json chain had no deadline,abort,supersession or navigation cleanup; catch only ran on eventual error,so spinner remained69seconds.",
     "DEADLINE_HANDLING": "3seconds via Promise.race covering fetch+JSON body;AbortController,clearTimeout,failure ends aria-busy,UNKNOWN counts,UNAVAILABLE reason;no automatic retry. Exact backend URL sort/status/limit20/offset semantics retained.",
     "ABORT_STALE_RESPONSE_PROTECTION": "Cancel previous controller and reject prior race on filter/manual pagination;generation guards all UI writes;pagehide increments generation and cancels;late responses ignored even if transport ignores abort.",
-    "UNAVAILABLE_STATE": "UNAVAILABLE: Treasury review workspace — Request exceeded3seconds;server-side query cancellation is not guaranteed. CountsUNKNOWN;loadingends;filters/navigation remainusable;noempty/zero fallback on failure.",
+    "UNAVAILABLE_STATE": "UNAVAILABLE: Treasury review workspace \u2014 Request exceeded3seconds;server-side query cancellation is not guaranteed. CountsUNKNOWN;loadingends;filters/navigation remainusable;noempty/zero fallback on failure.",
     "BACKEND_QUERY_UNCHANGED": true,
     "SERVER_SIDE_RESOURCE_RISK": "Abort stops browser consumption,not Flask/SQLite execution. Outstanding expensive requests may continue;manual filtering/navigation/revisits may create concurrent server work. No automatic retry,polling or overlapping dispatch loop added. Server CPU/query lifetime and concurrent manual requests remain unbounded by this frontend change;not claimed repaired.",
     "PROVIDER_FREE_TESTS": {
@@ -29528,7 +29528,7 @@
     },
     "BROWSER_ACCEPTANCE": "NOT_RUN: user stop condition reached before runtime launch or UI correction",
     "CLEAN_CHECKOUT_RESTART": "NOT_RUN: no safe candidate qualified",
-    "FROZEN_RECOVERY_SHA": "NONE — no immutable recovery reference created",
+    "FROZEN_RECOVERY_SHA": "NONE \u2014 no immutable recovery reference created",
     "READY_FOR_PERSISTENT_DEV": false,
     "PROVIDER_CALLS": 0,
     "PRODUCTION_CHANGES": 0,
@@ -29655,7 +29655,7 @@
         "subsequentsuccess",
         "actualTCPdisconnect"
       ],
-      "real_deadlines_seconds": "3.006–3.033s in cleanHTTPtests;configured budget exactly3.0s,SQLitecooperativecallback/responseoverhead reported separately",
+      "real_deadlines_seconds": "3.006\u20133.033s in cleanHTTPtests;configured budget exactly3.0s,SQLitecooperativecallback/responseoverhead reported separately",
       "capacity_reject_seconds": 0.002,
       "concurrent_health_seconds": 0.021,
       "guard_denials": 0
@@ -29793,7 +29793,7 @@
       "WATCHTOWER_MONITOR_QUEUE_PATH": "/private/tmp/dev043-detail-resource-clean-state/monitor/queue"
     },
     "ROLLBACK_REFERENCE": "5e32f2e921fbe5f7618ef7634d3c9dbefc7dc7e7 source-only;removesdetailresourcebudget,notqualifiedforboundedruntime",
-    "NEXT_ACTION": "NONE — bounded isolated recovery qualification complete. FutureDEV starts fromDEV043_BOUNDED_RECOVERY_BASELINE or documentsdifferentparent. PersistentDEV/Production promotion requires separate authorization.",
+    "NEXT_ACTION": "NONE \u2014 bounded isolated recovery qualification complete. FutureDEV starts fromDEV043_BOUNDED_RECOVERY_BASELINE or documentsdifferentparent. PersistentDEV/Production promotion requires separate authorization.",
     "approval_review": "Resolved by renewed explicit user chat authorization;commit/cleancheckout subsequentlyapproved.",
     "STORAGE": "NoDBcopies/rawproviderpayloads/newunboundedstoragepaths;isolatedprocesswrittenfilescapped8MiB;source/test/manifestscompact."
   },
@@ -29810,7 +29810,7 @@
     "isolated_api_stopped": true,
     "readiness": "Not authorized/ready for persistentDEV orProduction deployment;fullhistoricalparityexcluded",
     "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/dev045/detail-resource/DEV043_DETAIL_RESOURCE_SAFETY_STATUS.json",
-    "next_action": "NONE — bounded qualification complete;futureDEV usesfrozenparent or explainsalternative."
+    "next_action": "NONE \u2014 bounded qualification complete;futureDEV usesfrozenparent or explainsalternative."
   },
   "dev043_persistent_dev_readiness": {
     "DEV043_PERSISTENT_DEV_READINESS": "PASS_PREVIEW_AND_DEPLOYMENT_PLAN_QUALIFIED_NOT_DEPLOYED",
@@ -29872,7 +29872,7 @@
     "isolation": "Unchangedbootstrap;allowlisted canonical immutable mode=ro/query_only mainfiles;ownstate/emptyqueue;alloutbounddenied;guarddenials0;provider/canonical/sharedqueuewrites0",
     "protection": "Local63files/directories readonly+macOSUF_IMMUTABLE;writeopenDENIED;bareGitdeny-allreceivehook;append-onlypolicy;no remoteGitHubserverrulesetclaim",
     "policy": "/Users/kevinkeaveney/Dev/claude/flex-releases/DEV043_BOUNDED_RECOVERY_BASELINE-0eb749ec/instructions/GOLDEN_BASELINE_RULES.md",
-    "future_workflow": "Golden Baseline → Isolated DEV → Tests → Integration Acceptance → Candidate Release → Controlled Promotion → New Golden Baseline",
+    "future_workflow": "Golden Baseline \u2192 Isolated DEV \u2192 Tests \u2192 Integration Acceptance \u2192 Candidate Release \u2192 Controlled Promotion \u2192 New Golden Baseline",
     "mandatory_dev_records": [
       "parentbaselineSHA",
       "changedfiles",
@@ -29892,7 +29892,7 @@
     "persistent_dev_changes": 0,
     "baseline_changes": 0,
     "report": "/Users/kevinkeaveney/.codex/worktrees/dev047-golden-baseline/flex/docs/audits/dev047/DEV047_GOLDEN_BASELINE_STATUS.json",
-    "next_action": "NONE — COMPLETE. Future DEV uses golden parent/workflow; persistentDEV/Production promotion separately authorized."
+    "next_action": "NONE \u2014 COMPLETE. Future DEV uses golden parent/workflow; persistentDEV/Production promotion separately authorized."
   },
   "dev048_release_workflow": {
     "status": "PASS",
@@ -29904,7 +29904,7 @@
     "candidate_reference": "DEV048-test_CANDIDATE_cceff76deda8",
     "qualification": "18 tooling unit tests, 8 live invalid-candidate rejections, 12 original resource tests, frontend lifecycle, 10 real retained-data browser contracts in qualification and fresh restoration PASS; 168 project modules/46 loaded distributions recorded; zero normal guard denials. APIs stopped.",
     "promotion": "PASS_FIXTURE_DRY_RUN only; no operational target readiness or deployment authorization; no actions executed",
-    "runtime_deployment_gate": "PASS_TOOLING_ONLY — installed immutable command exercised; application unchanged",
+    "runtime_deployment_gate": "PASS_TOOLING_ONLY \u2014 installed immutable command exercised; application unchanged",
     "providers": 0,
     "canonical_writes": 0,
     "shared_queue_writes": 0,
@@ -29913,7 +29913,7 @@
     "known_limitations": "Original bounded golden exclusions unchanged; local dependency/database prerequisites; trusted operator browser receipts; higher-risk changes require per-DEV subsystem evidence.",
     "report": "/Users/kevinkeaveney/.codex/worktrees/dev048-release-workflow/flex/docs/audits/dev048/DEV048_RELEASE_WORKFLOW_STATUS.json",
     "guide": "/Users/kevinkeaveney/.codex/worktrees/dev048-release-workflow/flex/docs/development/FLEX_DEV_WORKFLOW.md",
-    "next_action": "NONE — COMPLETE. Future DEV starts through installed command; promotion requires separate explicit authorization naming exact release and target."
+    "next_action": "NONE \u2014 COMPLETE. Future DEV starts through installed command; promotion requires separate explicit authorization naming exact release and target."
   },
   "dev049_create_recovery": {
     "DEV049_CREATE_RECOVERY_STATUS": "HOLD_PREIMPLEMENTATION",
@@ -29932,7 +29932,7 @@
       "checkout_and_queue_authority": "NOT_REVERIFIED_THIS_RUN"
     },
     "STARVATION_ROOT_CAUSE": "Retained DEV039: oldest enqueued waiting CREATE-anchor row selected repeatedly with reconciliation limit=1; failed lookup leaves it eligible. More than 74000 attempts on oldest row while AYtRss had zero. Not freshly reproduced in DEV049.",
-    "SELECTOR_IMPLEMENTATION": "NONE — stop before unsupported new durable scheduling state or unindexed full-population sorting",
+    "SELECTOR_IMPLEMENTATION": "NONE \u2014 stop before unsupported new durable scheduling state or unindexed full-population sorting",
     "INDEXED_QUERY_PLAN": {
       "authority": "Retained DEV039 schema-gate evidence, not rerun",
       "existing": "ix_wbq_status(status,enqueued_at) supports bounded (enqueued_at,rowid) seek; LIMIT64 measured74.08ms with no temporary sort",
@@ -29940,11 +29940,11 @@
       "prior_rejected_plan": "COALESCE(last_anchor_lookup_at,0) fairness sort used temporary B-tree; interrupted at existing1s/2s budgets."
     },
     "FAIRNESS_BOUND": "NOT_QUALIFIED",
-    "RESTART_FAIRNESS": "NOT_QUALIFIED — indexed rotation requires new durable cursor; in-memory workaround prohibited",
+    "RESTART_FAIRNESS": "NOT_QUALIFIED \u2014 indexed rotation requires new durable cursor; in-memory workaround prohibited",
     "AYTRSS_RECOVERY_ELIGIBILITY": "Retained DEV039: migration/handoff complete; missing CREATE signature/creator; waiting anchor with zero recovery attempts. Current token state and newer sample NOT_REVERIFIED. Fair scheduling alone cannot supply absent evidence.",
-    "CREATE_QUALIFICATION_PRESERVED": "UNCHANGED — no application changes",
-    "PROVIDER_BUDGET_EQUIVALENCE": "UNCHANGED — no application changes; no new recovery lookups",
-    "PROVIDER_FREE_TESTS": "NOT_RUN — stopped before implementation; only protected workflow create and read-only process observation completed",
+    "CREATE_QUALIFICATION_PRESERVED": "UNCHANGED \u2014 no application changes",
+    "PROVIDER_BUDGET_EQUIVALENCE": "UNCHANGED \u2014 no application changes; no new recovery lookups",
+    "PROVIDER_FREE_TESTS": "NOT_RUN \u2014 stopped before implementation; only protected workflow create and read-only process observation completed",
     "DEV048_REGRESSION_QUALIFICATION": "NOT_RUN; no verify/qualify/candidate PASS claimed",
     "CANDIDATE_SOURCE_SHA": null,
     "READY_FOR_DEPLOYMENT": false,
@@ -30275,7 +30275,7 @@
       "raw_provider_retention": false,
       "new_unbounded_growth_paths": 0
     },
-    "NEXT_ACTION": "NONE — isolated qualification complete. Separate authorization naming exact target and release is required before any deployment; protected installed tooling remains unchanged.",
+    "NEXT_ACTION": "NONE \u2014 isolated qualification complete. Separate authorization naming exact target and release is required before any deployment; protected installed tooling remains unchanged.",
     "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV049/DEV049_FRONTEND_GATE_STATUS.json"
   },
   "dev049_deployment_readiness": {
@@ -30390,7 +30390,7 @@
         "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db-shm": 983040,
         "supervisor_configuration_sha256": "18f39cb1b9d60d9e5b00d212acdc6697e9c0f68f1031d77c3cff91f40f3c4ccc"
       },
-      "storage_decision": "HOLD — existing canonical DB16194387968bytes exceeds500000000; no compliant persistent write-authority/file bound established for proposed new cursor behavior. No copy, new file, migration or exemption introduced."
+      "storage_decision": "HOLD \u2014 existing canonical DB16194387968bytes exceeds500000000; no compliant persistent write-authority/file bound established for proposed new cursor behavior. No copy, new file, migration or exemption introduced."
     },
     "INDEX_COMPATIBILITY": {
       "status": "PASS_BOUNDED_READ_PATHS",
@@ -30606,7 +30606,7 @@
       "existing_contract": "Acquire in-process/shared application write lane before SQLite write lock; connection owns lease until commit/rollback/close. Do not acquire another independent nested database lease.",
       "candidate_defect": "BEGIN IMMEDIATE is excluded by runtime _is_write_sql, so candidate takes SQLite lock before the shared lane. Previously demonstrated, unchanged.",
       "minimum_order_design": "Use the existing tracked connection write-lane owner before BEGIN; keep the lane through the existing transaction acknowledgment and release on every failed BEGIN/commit/rollback path. No competing writer or second lane.",
-      "implementation": "NONE — external cursor atomicity gate failed before a partial production-candidate correction was introduced."
+      "implementation": "NONE \u2014 external cursor atomicity gate failed before a partial production-candidate correction was introduced."
     },
     "SHARED_WRITE_LANE_COMPATIBILITY": {
       "authority": "Installed database_write_service.acquire_write_lease/release_write_lease and TrackedConnection",
@@ -30729,7 +30729,7 @@
       "new_cross_file_fairness": "NOT_QUALIFIED because cursor can skip or repeat work at commit boundary",
       "no_fallback": "No in-memory rotation or oldest-row fallback introduced"
     },
-    "PROVIDER_BUDGET_EQUIVALENCE": "UNCHANGED — no application source modification, real lookups or new transport; existing anchor pass zero-RPC/limit1 and worker budgets preserved",
+    "PROVIDER_BUDGET_EQUIVALENCE": "UNCHANGED \u2014 no application source modification, real lookups or new transport; existing anchor pass zero-RPC/limit1 and worker budgets preserved",
     "STORAGE_BOUNDS": {
       "fixture_max_file_bytes": 8192,
       "maximum_probe_file_limit_bytes": 8388608,
@@ -30752,7 +30752,7 @@
       "new_implementation": "NONE due explicit atomicity stop condition",
       "previous_gates": "Normal and clean checkout25Python tests, unchanged frontend,10browser contracts,0guarddenials remain historical accepted evidence; no new releasePASS claimed",
       "tooling_source": "4664b4a62b892dacf4540b3b1a7622fb156b8aa8",
-      "new_full_suite": "NOT_RUN — no corrected candidate exists; do not rerun unrelated browser acceptance to mask failed durability design"
+      "new_full_suite": "NOT_RUN \u2014 no corrected candidate exists; do not rerun unrelated browser acceptance to mask failed durability design"
     },
     "NEW_CANDIDATE_SHA": null,
     "READY_FOR_DEPLOYMENT": false,
@@ -30963,7 +30963,7 @@
     "PERSISTENT_DEV_CHANGES": 0,
     "CREATE_LOGIC_CHANGES_THIS_TASK": 0,
     "causal_limit": "No exact-token recovery/creator proof or Watchtower-gap resolution claimed; no replay/admission/attribution/DEV049changes.",
-    "next_action": "NONE — requested tooling and DEV051 release qualification complete; preserve sealed candidate. Controlled promotion requires separate explicit authorization."
+    "next_action": "NONE \u2014 requested tooling and DEV051 release qualification complete; preserve sealed candidate. Controlled promotion requires separate explicit authorization."
   },
   "dev051_deployment_readiness": {
     "verdict": "HOLD_VERSION1_DECODER",
@@ -31027,7 +31027,7 @@
     "PRODUCTION_CHANGES": 0,
     "PERSISTENT_DEV_CHANGES": 0,
     "OPERATIONAL_SERVICE_RESTARTS": 0,
-    "next_action": "NONE — requested isolated signature correction and release qualification complete. Preserve new and original immutable candidates; any operational installation/restart or exact-token recovery requires separate explicit authorization."
+    "next_action": "NONE \u2014 requested isolated signature correction and release qualification complete. Preserve new and original immutable candidates; any operational installation/restart or exact-token recovery requires separate explicit authorization."
   },
   "dev051_final_runtime_readiness": {
     "status": "READY_FOR_TARGETED_DEPLOYMENT",
@@ -31138,7 +31138,7 @@
     "exact_token": "NOT_RECOVERED; no replay or requeue",
     "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV051-signature/evidence/targeted-deployment/DEV051_TARGETED_DEPLOYMENT_STATUS.json",
     "report_sha256": "a025ef4db5c896ddc81e2dc3e0b1b14c150b3bcf4346a49381f9973d5b793a16",
-    "next_action": "NONE — targeted installation complete; retain corrected worker. Natural live V1 evidence remains pending; no replay authorized."
+    "next_action": "NONE \u2014 targeted installation complete; retain corrected worker. Natural live V1 evidence remains pending; no replay authorized."
   },
   "dev052_create_gate_audit": {
     "status": "AUDIT_COMPLETE; HOLD_DISCOVERY_ONLY_CORRECTION_NOT_QUALIFIED",
@@ -31165,7 +31165,7 @@
     "provider_calls": 0,
     "canonical_writes": 0,
     "production_changes": 0,
-    "next_action": "STOP — audit complete. Keep CREATE gate. Separate qualification required for any alternative temporal/creator authority or discovery-only execution seam; no implementation/deployment/replay authorized."
+    "next_action": "STOP \u2014 audit complete. Keep CREATE gate. Separate qualification required for any alternative temporal/creator authority or discovery-only execution seam; no implementation/deployment/replay authorized."
   },
   "dev053_pumpportal_first_contract": {
     "status": "PUMPPORTAL_FIRST_CONTRACT_CONFIRMED for creator/birth ingestion; NO_PROVEN_CREATE_GATE_REGRESSION",
@@ -31194,7 +31194,7 @@
     "provider_calls": 0,
     "canonical_writes": 0,
     "production_changes": 0,
-    "next_action": "STOP — PumpPortal-first creator authority confirmed; no signature-free FULL_WALKBACK restoration justified. Preserve exact-token birth/fallback provenance gap; no implementation or deployment."
+    "next_action": "STOP \u2014 PumpPortal-first creator authority confirmed; no signature-free FULL_WALKBACK restoration justified. Preserve exact-token birth/fallback provenance gap; no implementation or deployment."
   },
   "dev054_pumpportal_birth_propagation": {
     "status": "AUDIT_COMPLETE_PARTIAL: PUMPPORTAL_DELIVERY_CONFIRMED and sampled propagation PASS; exact BWMM receipt boundary unresolved",
@@ -31224,7 +31224,7 @@
     "provider_calls": 0,
     "canonical_writes": 0,
     "production_changes": 0,
-    "next_action": "STOP — recent PumpPortal intake and anchor propagation confirmed on bounded controls; preserve exact-token receipt/persistence observability gap and terminal missing-anchor state. No implementation/replay/deployment."
+    "next_action": "STOP \u2014 recent PumpPortal intake and anchor propagation confirmed on bounded controls; preserve exact-token receipt/persistence observability gap and terminal missing-anchor state. No implementation/replay/deployment."
   },
   "dev055_terminal_creator_anchor_lifecycle": {
     "status": "AUDIT_COMPLETE; EXPECTED_CREATOR_ONLY_COMPLETION + RECOVERY_ELIGIBLE_BUT_STARVED + TERMINAL_STATE_STRANDING; HOLD further recovery qualification",
@@ -31253,7 +31253,7 @@
     "provider_calls": 0,
     "canonical_writes": 0,
     "production_changes": 0,
-    "next_action": "STOP — audit complete. Keep creator/CREATE distinction and gate. Treat existing DEV049 selection qualification and missing-anchor evidence/acquisition authorization as separate dependencies; no implementation, replay or deployment."
+    "next_action": "STOP \u2014 audit complete. Keep creator/CREATE distinction and gate. Treat existing DEV049 selection qualification and missing-anchor evidence/acquisition authorization as separate dependencies; no implementation, replay or deployment."
   },
   "dev056_existing_state_anchor_fairness": {
     "status": "HOLD_INDEX_ACCESS",
@@ -31276,10 +31276,10 @@
     "provider_calls": 0,
     "canonical_writes": 0,
     "production_changes": 0,
-    "next_action": "STOP — HOLD_INDEX_ACCESS. No boundedexisting-index fairness candidate qualified; separate access-path authorization/qualification required. Do not implement, migrate, deploy or alter waitingstate."
+    "next_action": "STOP \u2014 HOLD_INDEX_ACCESS. No boundedexisting-index fairness candidate qualified; separate access-path authorization/qualification required. Do not implement, migrate, deploy or alter waitingstate."
   },
   "dev058_recent_first_anchor_policy": {
-    "status": "HOLD — RECENT_FAIRNESS_NOT_QUALIFIED_WITH_EXISTING_ACCESS",
+    "status": "HOLD \u2014 RECENT_FAIRNESS_NOT_QUALIFIED_WITH_EXISTING_ACCESS",
     "engineering_source_sha": "49e6f4cb5f200719306eef14875ea312f8e47338",
     "branch": "codex/dev058",
     "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV058/source/docs/audits/dev058/DEV058_RECENT_FIRST_RECOVERY_STATUS.json",
@@ -31317,10 +31317,10 @@
     "provider_calls": 0,
     "canonical_writes": 0,
     "production_changes": 0,
-    "next_action": "STOP — no recent-first policy passed both boundedaccess and nonmonopolizingfairness. Preservepopulationevidence andcounterexamples; separatecompatibleaccess/continuationpolicy needed, no implementation/index/cursor/deployment."
+    "next_action": "STOP \u2014 no recent-first policy passed both boundedaccess and nonmonopolizingfairness. Preservepopulationevidence andcounterexamples; separatecompatibleaccess/continuationpolicy needed, no implementation/index/cursor/deployment."
   },
   "dev060_executed_watchtower_admission": {
-    "status": "PARTIAL — audit complete; complete genuine missed-route qualification remains unproven",
+    "status": "PARTIAL \u2014 audit complete; complete genuine missed-route qualification remains unproven",
     "engineering_source_sha": "6f71a1c79f227e6cdda23e704a0120f6a65efaf0",
     "branch": "codex/dev060",
     "report_local": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV060/source/docs/audits/dev060/DEV060_WATCHTOWER_DETECTION_STATUS.json",
@@ -31341,7 +31341,7 @@
       "payload_review": "17 intended docs/audits/dev060 files,582287bytes;16manifesthashes verified; no credentials/rawproviderpayload/unrelatedfiles found",
       "force": false
     },
-    "next_action": "STOP — DEV060 audit publication complete; audit findings remain PARTIAL, no implementation/deployment authorized."
+    "next_action": "STOP \u2014 DEV060 audit publication complete; audit findings remain PARTIAL, no implementation/deployment authorized."
   },
   "dev061_funding_mechanism_rejections": {
     "status": "AUDIT_COMPLETE; persisted PLAIN_XFER rejections supported; original instruction completeness limited",
@@ -31359,7 +31359,7 @@
     "production_changes": 0,
     "ready_for_implementation": false,
     "engineering_evidence_publication": "Local committed audit; only required minimal material handoff published. No external evidence-branch push requested/executed in this task.",
-    "next_action": "STOP — audit complete; no implementation, provider acquisition, replay or deployment."
+    "next_action": "STOP \u2014 audit complete; no implementation, provider acquisition, replay or deployment."
   },
   "dev062_f7_relay_confirmation": {
     "status": "RELAY_INTERSECTION_AND_CURRENT_CONFIRMATION_BYPASS_PROVEN; historical branch provenance PARTIAL",
@@ -31400,7 +31400,7 @@
     "production_changes": 0,
     "persistent_dev_changes": 0,
     "engineering_evidence_publication": "Local audit commit only; required minimal handoff published",
-    "next_action": "HOLD — obtain existing complete selected FundingAccount/temporary WSOL/creator receipt/SubProvider fanout/root-role witnesses for three admitted FULL controls and mixed-route preservation, or separately authorize evidence acquisition. No implementation/deployment until mandatory evidence gate can pass."
+    "next_action": "HOLD \u2014 obtain existing complete selected FundingAccount/temporary WSOL/creator receipt/SubProvider fanout/root-role witnesses for three admitted FULL controls and mixed-route preservation, or separately authorize evidence acquisition. No implementation/deployment until mandatory evidence gate can pass."
   },
   "dev063_branch_guard_qualification": {
     "status": "HOLD_RUNTIME_COMPATIBILITY",
@@ -31603,7 +31603,7 @@
       "Core andOPS are distinctWAL authorities; existing ledger/release helpers commit independently. Fixture demonstrates OPSanchor surviving rollback of pending core correction. Existing COMPLETE migration handoff is enqueue recovery, not creator supersession protocol."
     ],
     "verification": "DEV048 golden/source/dependency/isolation verify PASS and committed source-completeness PASS.19 installed-contract fixture characterizations PASS including reproduced blockers; no complete reconciliation qualification claimed. Indexed point reads capped4 rows/2seconds; unindexed optional authorities refused.",
-    "funding": "Preserve DEV051850SOL Gzaa→Dd6 and WSOLclose to7KX now proven Pump creator. Hmc/temp7vHX/intermediateDd6 roles remain distinct. Complete SubProviderfanout, selectedFundingAccount and admission still unqualified; no attribution promotion.",
+    "funding": "Preserve DEV051850SOL Gzaa\u2192Dd6 and WSOLclose to7KX now proven Pump creator. Hmc/temp7vHX/intermediateDd6 roles remain distinct. Complete SubProviderfanout, selectedFundingAccount and admission still unqualified; no attribution promotion.",
     "report_local": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV067/source/docs/audits/dev067/DEV067_CREATOR_RECONCILIATION_STATUS.json",
     "report_sha256": "72fdff829541d1b262b3b9b30e61bb3953ef1e0a3598f2a4c6b1f51cf0cd52ff",
     "ready_for_exact_mint_reconciliation": false,
@@ -31640,7 +31640,7 @@
       "CLAIMED": 1723
     },
     "finding": "No independently qualified complete Watchtower false-negative demonstrated. Recent normalizedWSOL/upstream observations preserved as unclassified research. Five new point cases; priorUrG research only in neutral aggregate, not reopened or used as Watchtower control. Loyd confirmed sample rejected treasury-evidence conflict; not shown false rejection. Two historical admitted controls lack full independent fanout topology. Funding/mechanism/unknown-upstream/processing ASTs mostly identical to preservedOct8 reference, not proof of loaded historic deployment.",
-    "evidence_gaps": "Bounded retained PumpPortal mint/signature→content-hash provenance; original exact selected funding transaction roles; distinct qualified FundingAccount fanout and actual treasury ancestry. Exact inspected sample caches supply0raw transactions; no reacquisition.",
+    "evidence_gaps": "Bounded retained PumpPortal mint/signature\u2192content-hash provenance; original exact selected funding transaction roles; distinct qualified FundingAccount fanout and actual treasury ancestry. Exact inspected sample caches supply0raw transactions; no reacquisition.",
     "verification": "DEV048 source/dependency/isolation PASS and clean committed source-completeness PASS;13bounded audit/projection controls PASS; evidence hashes and compact manifests verified. No provider transport/app worker started. No whole-directory/population unindexed scans.",
     "report_local": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV068/source/docs/audits/dev068/DEV068_WATCHTOWER_COVERAGE_STATUS.json",
     "report_sha256": "70e841c1acf0b1b97ce7c50d4a094fc1ef346bb7bed0c87666b170bb9583114a",
@@ -31827,7 +31827,7 @@
     "tooling_sha256": "9d8f8ca175fa9554737bf2b0fd7b56d825089607e21cc0202187be95fd77cb36",
     "verification": "Fresh89PythonPASS; frontendPASS exit0 in0.44s with30s/8MiBlimits; APIchecksPASS;18original+5toolingcontrolsPASS; sourceclosurePASS; unexpectedguarddenials0;9of10browsercontractsPASS.",
     "storage": "Capacity already available at task start; no files deleted; protected evidence and operational data untouched. Historical ENOSPC recovery cause unproven.",
-    "blocker": "Existing coreHealth browser assertion requires System Health Unknown; actual retained-data page renders Critical — Live ingestion unavailable. No falsePASS or candidate.",
+    "blocker": "Existing coreHealth browser assertion requires System Health Unknown; actual retained-data page renders Critical \u2014 Live ingestion unavailable. No falsePASS or candidate.",
     "clean_checkout_restoration": "NOT_RUN due mandatory browser gate failure",
     "candidate_created": false,
     "activation_state": "NOT_DEPLOYED",
@@ -32146,7 +32146,7 @@
     "operational_change": "Installed Walkback_get_tx version ceiling1 and exact response-signature guard only. Five startup-contract source modules preserved byte-identical from installed composition; deploy target would be worker file only, not those dependency imports.",
     "installed_worker_preimage_sha256": "a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9",
     "tests": "23 focused PASS;35 guarded workflow Python PASS; frontend PASS with concrete Node22 and30s/8MiB unchanged; API PASS;18 DEV048 negative controls PASS; guarded test/API dependency closure PASS; unexpected guard denials0; full-file rollback roundtrip PASS.",
-    "browser": "Registry/history prices, admission, playbooks and bounded detail views observed. Required Health literalSystem Health Unknown absent; actualCritical — Live ingestion unavailable. Mission Control/Pending full contracts incomplete before180s session expiry; no PASS receipt submitted.",
+    "browser": "Registry/history prices, admission, playbooks and bounded detail views observed. Required Health literalSystem Health Unknown absent; actualCritical \u2014 Live ingestion unavailable. Mission Control/Pending full contracts incomplete before180s session expiry; no PASS receipt submitted.",
     "health_cause": "Unchanged baseline template renders CRITICAL incidents from retained/api/health/full evidence (stale birth/migration and UNKNOWN connectivity), while fixed workflow assertsUNKNOWN label. No Health/gate modification.",
     "candidate_source_sha": null,
     "ready_for_targeted_deployment": false,
@@ -32300,7 +32300,7 @@
   },
   "dev085_byzantine_browser_contract": {
     "DEV085_BYZANTINE_BROWSER_CONTRACT_STATUS": "HOLD_QUERY_BOUNDS",
-    "EXPECTED_BEHAVIOUR": "Existing browser contract requires UNAVAILABLE — Operation detail and Request exceeded 3 seconds. Application permits completion within deadline.",
+    "EXPECTED_BEHAVIOUR": "Existing browser contract requires UNAVAILABLE \u2014 Operation detail and Request exceeded 3 seconds. Application permits completion within deadline.",
     "OBSERVED_BEHAVIOUR": "Retained DEV084 clean run c279ab3c2a0c rendered full Byzantine detail; earlier independent API request returned 503 in 3.018057333998513 seconds. Exact successful browser response status and duration were not retained. No new historical population request executed.",
     "DATA_SOURCE_AUTHORITY": "Golden 0eb749ecd6acd0ab70ec6d09b9170c583d82374b detail modules byte-identical to DEV084; canonical OPS read-only schema/query plans. Current installed API detail modules differ; no deployment equivalence asserted.",
     "QUERY_BOUNDS": "Infrastructure activity uses status-only ix_wbq_priority plus temporary DISTINCT tree, then collects all matching timestamps in Python. Recent infrastructure uses same status-only access plus temporary ORDER BY tree; LIMIT 250 bounds output, not examined population. Three-second deadline, capacity one and four connections do not impose row/memory bounds.",
@@ -32322,7 +32322,7 @@
     "retained_browser_evidence": "DEV084/evidence/c279ab3c2a0c/byzantine_detail.txt and .png; existing artifacts unchanged."
   },
   "dev086_byzantine_safe_unavailable": {
-    "DEV086_BYZANTINE_SAFE_UNAVAILABLE_STATUS": "PARTIAL — correction qualified offline; release HOLD",
+    "DEV086_BYZANTINE_SAFE_UNAVAILABLE_STATUS": "PARTIAL \u2014 correction qualified offline; release HOLD",
     "UNBOUNDED_QUERY_PATH": "operator detail -> fetch_operator -> _byzantine_infrastructure_activity: all DISTINCT timestamps; status-only access and temporary sort. Queries unchanged and not entered by refused detail requests.",
     "SAFE_FAILURE_CONTRACT": "Exact Byzantine HTML/API detail routes return503 UNAVAILABLE before store access, independent of environment. Reason: Historical detail unavailable: bounded indexed access is not qualified. No false zero/history projection and no fabricated timeout.",
     "REGISTRY_SUMMARY_PRESERVATION": "Only get_operator/operator_page decorated. Registry and summary source unchanged; retained registry/history API acceptance PASS,20rows and exact price assertions PASS; actual registry browser renders retained prices. Watchtower/playbook/Health API acceptance PASS; Nexus existing deadline unchanged.",
@@ -32350,7 +32350,7 @@
     }
   },
   "dev087_walkback_recovery": {
-    "DEV087_WALKBACK_RECOVERY_STATUS": "HOLD_DURABLE_STORAGE_AUTHORITY — no runtime implementation",
+    "DEV087_WALKBACK_RECOVERY_STATUS": "HOLD_DURABLE_STORAGE_AUTHORITY \u2014 no runtime implementation",
     "CURRENT_INSTALLED_WALKBACK_SOURCE": {
       "configured_supervisor_target": "flex-walkback-dev002",
       "worker_sha256": "a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9",
@@ -32381,7 +32381,7 @@
       "unbounded_runtime_growth_paths_introduced": 0,
       "blocker": "Core/OPS already exceed file ceiling; new proof/intent writes into them cannot meet literal AGENTS large-file qualification. No compact alternate authority is qualified and task forbids new databases. Outstanding-intent retention/WAL capacity/cleanup integration also not qualified."
     },
-    "WALKBACK_FUNCTIONAL_ACCEPTANCE": "NOT_QUALIFIED — no claim of repaired operation",
+    "WALKBACK_FUNCTIONAL_ACCEPTANCE": "NOT_QUALIFIED \u2014 no claim of repaired operation",
     "DEV048_FULL_RELEASE_STATUS": "NOT_RUN after mandatory durable/storage HOLD; no UI/Inbox/Byzantine changes, no bypassed gates. No immutable candidate.",
     "CANDIDATE_SOURCE_SHA": null,
     "READY_FOR_TARGETED_DEPLOYMENT": false,
@@ -32431,7 +32431,7 @@
     "CRASH_RESTART_RESULT": "FAIL_REQUIRED_BEHAVIOUR in compact installed-code probe: after a durable Core CREATE commit and hypothetical atomic PENDING rearm, freshly invoked installed run_maintenance(t0=None) acknowledges COMPLETE while OPS remains waiting/WAITING_FOR_CREATE_ANCHOR/null anchor/attempts0. No actual process kill or full worker execution test claimed; fresh connections/namespace model restart. Per mandatory stopping rule, no implementation/full acceptance pursued after this failure.",
     "STARVATION_PREVENTION": "NOT_QUALIFIED.100 versus5000 completed-prefix fixture increases anti-join VMsteps1838->90033. Canonical EXPLAIN confirms status-index+TEMP ORDER BY. Forced updated-index LIMIT16 is bounded but replays the same prefix on restart and misses the eligible tail. No volatile cursor or hidden population scan accepted.",
     "CREATOR_QUALIFICATION": "DEV074 strict creator safeguard and DEV051/DEV082 evidence unchanged, not newly integrated. Synthetic creator/signature probe inputs test control flow only; they are not independent Pump CREATE qualification. No signer promotion, altered mint/program validation or relaxed admission.",
-    "WALKBACK_FUNCTIONAL_ACCEPTANCE": "NOT_PASS — no token made runnable or executed by a qualified correction. Known regression token untouched; remaining mandatory pipeline/creator/funding tests not run after restart failure. No mock execution promoted to success.",
+    "WALKBACK_FUNCTIONAL_ACCEPTANCE": "NOT_PASS \u2014 no token made runnable or executed by a qualified correction. Known regression token untouched; remaining mandatory pipeline/creator/funding tests not run after restart failure. No mock execution promoted to success.",
     "PROVIDER_BUDGET_EQUIVALENCE": "Operational provider code unchanged;0calls; fixture socket transport forbidden. No acquisition, replay, callback-only recovery or provider-budget modifications.",
     "SOURCE_CHANGES": "Evidence/probe procedure only in docs/audits/dev089. No executable application, runtime configuration, operational database, schema/index/column, cursor, worker or outbox change. No UI/Inbox/Byzantine merge.",
     "READY_FOR_RELEASE_QUALIFICATION": false,
@@ -32636,7 +32636,7 @@
     "operational_restarts": 0,
     "known_exclusions": "Existing bounded recovery exclusions unchanged; no full historical parity, live monitoring or operational listener startup claim.",
     "storage": "No cleanup, canonical clones or raw retention. Candidate archive63,807,324bytes; compact test fixture/output limits unchanged. Prior compact Core/OPS exception/residual concurrent WAL risk unchanged; future operational headroom/lock checks mandatory.",
-    "next_action": "NONE — RELEASE QUALIFICATION COMPLETE. Await separate targeted deployment authorization; no automatic promotion or operational restart.",
+    "next_action": "NONE \u2014 RELEASE QUALIFICATION COMPLETE. Await separate targeted deployment authorization; no automatic promotion or operational restart.",
     "publication": "Sanitized handoff only; local source/candidate archive and tag not pushed."
   },
   "dev090_targeted_deployment_preflight": {
@@ -32674,7 +32674,7 @@
     "root_cause": "Installed queue is byte-identical to a34f6968 parent and d41a1bc0 queue, not an unknown newer queue. DEV074 strict authority/conflict/terminal-diagnostic guards are absent, as are DEV090 preflight and atomic intent staging. Installed analyzer and creator worker already exactly match qualified DEV090 files.",
     "function_diff": "Changed queue functions: _resolve_creator_rpc, process_queue, enqueue_missing_creator, enqueue_missing_migrated_tokens; DEV074 adds3 authority symbols and json import. Shared database scopes, funding helper and provider tier/budgets unchanged. No unique newer installed queue fixes found.",
     "DEV051": "Actual analyzer has3V1 sites, response signature correlation and correct Token2022, exact candidate hash. Queue lacks DEV074 provenance correlation at persistence boundary.",
-    "walkback_target": "Supervisor program walkback_worker, configured flex-walkback-dev002, sourcea45ccc0d…; no running Supervisor/worker PID or socket observed. Candidate uses newer145a3368… preimage. Funding/promotion/deep-route/run-loop functions differ; do not wholesale replace.",
+    "walkback_target": "Supervisor program walkback_worker, configured flex-walkback-dev002, sourcea45ccc0d\u2026; no running Supervisor/worker PID or socket observed. Candidate uses newer145a3368\u2026 preimage. Funding/promotion/deep-route/run-loop functions differ; do not wholesale replace.",
     "walkback_patch": "Preserved configured-preimage patch passes git apply --check only; _get_tx V1/signature and maintenance_tick hook. No patch applied.",
     "minimum_path": "Qualify exact existing DEV074+DEV090 creator queue deltas against ad225e20, and narrow Walkback overlay against configured a45ccc0d with target-specific funding/promotion preservation tests. Keep existing worker/analyzer unchanged where hashes already match. Preserve immutable candidate; separately qualify installed-composition candidate.",
     "qualification_preserved": "All sealed candidate hashes/immutable flag and previous release evidence manifest reverified; previous functional results remain valid.",
@@ -32795,6 +32795,25 @@
     "test_changes": 0,
     "restarts": 0,
     "cleanup": false,
-    "next_action": "Restore at least3GB available capacity through separately authorized storage relief, then resume the preserved target-specific test-selection proposal in DEV090 without changing application behaviour or original candidates. No storage investigation/cleanup performed in this task."
+    "next_action": "Restore at least3GB available capacity through separately authorized storage relief, then resume the preserved target-specific test-selection proposal in DEV090 without changing application behaviour or original candidates. No storage investigation/cleanup performed in this task.",
+    "superseded_by": "dev090_dev002_target_release_qualification; capacity sufficient, no cleanup performed"
+  },
+  "dev090_dev002_target_release_qualification": {
+    "engineering_revision": "2d40af06c320d1a4688d65c9d195214ec69f5378",
+    "status": "PASS_OFFLINE_QUALIFIED_NOT_DEPLOYED",
+    "target_contract": "DEV002 retirement afbe9e58b11eb2e4d616246da123ce31ab45700c and accepted post-freeze ec9def968a44b39f167f28b6f0f9e32db53428e3",
+    "application_source": "Unchanged from ac7b88633f53c854559770c4109b14c6f0d53ceb. Only target-specific tests and contract evidence committed. Nine foreign expectations individually justified; original suites unchanged.",
+    "tests": "252 Python checks, frontend/API and all ten retained-data browser contracts PASS in source, fresh clean checkout and immutable candidate restore; seven process-crash cases PASS in source and clean checkout; 61 tooling controls PASS; zero unexpected guard denials. All isolated APIs stopped.",
+    "candidate": "DEV090_CANDIDATE_2d40af06c320",
+    "candidate_manifest_sha256": "86d0dc23cc8928e6411a27d7421c6c2a3c521d167acc553742eccae29424ce69",
+    "original_candidate": "DEV090_CANDIDATE_f4ddfe4aff71 preserved unchanged",
+    "tooling_sha256": "a0a2caf1945c0bb90c22a4ea7f2cc743e7003edd63fd60fb347f355f371c8340",
+    "supervisor_ownership": "UNRESOLVED",
+    "ready_for_offline_release": true,
+    "ready_for_deployment": false,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "evidence": "DEV090/dev002-release-qualification/DEV090_DEV002_RELEASE_STATUS.json; committed docs/audits/dev090/dev002-test-selection/contract.json",
+    "safety": "provider calls=0; canonical writes=0; shared queue writes=0; Production changes=0; operational restarts=0; deployment=false; no P3R/d3de restoration",
+    "next_action": "NONE \u2014 offline qualification complete. Deployment requires independently verified runtime/Supervisor ownership, exact source preimages, operational schema/storage/activation prerequisites and separate targeted authorization."
   }
 }

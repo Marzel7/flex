@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev076",
-    "git_head": "eaa9698b1dc4c296b9293f694dba62d90a05043f",
+    "branch": "codex/dev077",
+    "git_head": "82cb182628fbc90cc9af2b581a232c4555d28d0c",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T09:05:14.792528+00:00",
-    "working_tree": "DEV076 feasibility HOLD; audit-only source unchanged; no candidate or deployment."
+    "updated_at_utc": "2026-10-18T09:32:00.857209+00:00",
+    "working_tree": "DEV077 design HOLD; no implementation, migration or deployment."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31936,5 +31936,24 @@
     "DEV051_preserved": true,
     "DEV074_included": false,
     "next_action": "Separate authorization for minimal durable late-CREATE authority/activation and CREATE-proof design; do not implement callback-only handoff or replay target."
+  },
+  "dev077_durable_late_create_design": {
+    "status": "HOLD_SCHEMA_PROOF_AND_ACTIVATION_AUTHORITY_REQUIRED",
+    "engineering_source_sha": "82cb182628fbc90cc9af2b581a232c4555d28d0c",
+    "baseline_sha": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "evidence": "docs/audits/dev077/DEV077_DURABLE_LATE_CREATE_STATUS.json",
+    "design": "Same-Core-transaction qualified proof plus pending intent; exact-mint OPS conditional update; OPS commit precedes proof-bound Core ACK; idempotent replay. Durable activation epoch/sequence, not mutable timestamps. No new database/worker.",
+    "existing_options": "OPS admission/membership outboxes wrong authority/category. Core migration handoff closest owner but no independent proof/late-delivery phase/activation; unchanged reuse not qualified.",
+    "proof_refinement": "Preserve PumpPortal-first accepted birth contract without extra RPC; verified CREATE signature can serve existing before_signature boundary when slot/time unavailable. RPC signer-only creator insufficient.",
+    "verification": "DEV048 create/verify PASS. Three fresh existing-outbox schema negative controls PASS; three existing indexed query plans PASS; compact fixture151552bytes; installed source hashes matchDEV076. Proposed schema not created;18-case proposed crash matrix NOT_RUN at mandatory schema/proof HOLD.",
+    "blocker": "Required durable proof, pending/ACK and activation authority absent; minimum Core schema/due access and storage qualification needed. Current large canonical authorities are not qualified write/storage destinations for this addition.",
+    "ready_for_implementation": false,
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "application_changes": 0,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Architecture qualification only; implementation prohibited.",
+    "next_action": "Separately authorize minimum durable Core proof/intent/activation schema and bounded storage design; preserve all existing evidence, no historical processing."
   }
 }

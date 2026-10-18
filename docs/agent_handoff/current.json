@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev090",
-    "git_head": "2d40af06c320d1a4688d65c9d195214ec69f5378",
+    "git_head": "c604991687e7dd4aaf065fddd047dab6c993ccab",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T20:06:43.667209+00:00",
-    "working_tree": "DEV090 preserved uncommitted historical-discovery guard; HOLD_STORAGE, not deployed"
+    "updated_at_utc": "2026-10-18T20:27:36.530497+00:00",
+    "working_tree": "DEV090 clean committed historical discovery safeguard; immutable candidate qualified/restored; not deployed"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32904,6 +32904,25 @@
     "evidence": "DEV090/dev002-release-qualification/HISTORICAL_REENQUEUE_STATUS.json; state/discovery-guard-process.log.command.json",
     "runtime_deployment_gate": "HOLD",
     "safety": "provider calls0;canonical writes0;Production changes0;operational starts0;no deployment",
-    "next_action": "Restore capacity via separately authorized bounded cleanup or expansion, then qualify preserved focused tests/crash cases/fullDEV048 and clean restoration. Never install unqualified patch."
+    "next_action": "Restore capacity via separately authorized bounded cleanup or expansion, then qualify preserved focused tests/crash cases/fullDEV048 and clean restoration. Never install unqualified patch.",
+    "superseded_by": "dev090_historical_discovery_release: storage resolved and exact preserved safeguard fully qualified"
+  },
+  "dev090_historical_discovery_release": {
+    "engineering_revision": "c604991687e7dd4aaf065fddd047dab6c993ccab",
+    "status": "PASS_OFFLINE_QUALIFIED_NOT_DEPLOYED",
+    "implementation": "Six source lines: two early returns at common historical missing-creator and missing-funding discovery helpers when CRQ_HISTORICAL_DISCOVERY_ENABLED!=1. Bind0 explicitly in future selective creator-worker configuration; default1 preserves old behaviour. Direct migration enqueue, strict creator authority, V1/signature, durable handoff and DEV002 funding/promotion unchanged.",
+    "tests": "268 Python checks;frontend/API;all ten retained browser contracts PASS in source, fresh clean checkout and new candidate restoration;seven process crashes PASS;61 tooling controls PASS;zero unexpected guard denials;all isolated APIs stopped. No timeout/assertion weakening.",
+    "candidate": "DEV090_CANDIDATE_c604991687e7",
+    "candidate_source_sha": "c604991687e7dd4aaf065fddd047dab6c993ccab",
+    "candidate_release_manifest_sha256": "04fc44992274dc220630c3b786c6a477e620e2329de80fa9864b7a5c590f4551",
+    "preservation": "New candidate sealed hashes and5606archive files verified; original2d40/f4 candidates verified unchanged.",
+    "retirement": "Read-only requested waiting/pending/retry counts0 both queues; Walkback skipped15396/complete74334/running1 unchanged; creator complete19664/ignored143/skipped3854 unchanged. No repeated retirement.",
+    "storage": "Previous disk hold resolved; final10.687GB free. CoreWAL0/OPSWAL0orabsent; no DB/lock handles after isolated shutdown; installed source preimages match. Core handoff schema still absent; no operational migration.",
+    "correction": "Earlier skipped-recreation interpretation corrected: creator enqueue preserves existing skipped status; disabled historical discovery prevents previously unqueued old tokens and historical funding rediscovery. Explicit force/manual historical enqueue remains an operator override, not authorized.",
+    "evidence": "DEV090/dev002-release-qualification/historical-discovery-qualified/DEV090_HISTORICAL_REENQUEUE_STATUS.json",
+    "deployment_plan": "Same evidence directory/TARGETED_DEPLOYMENT_AND_ROLLBACK.md; committed docs/audits/dev090/HISTORICAL_DISCOVERY_GUARD.md",
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "safety": "provider calls0;canonical writes0;Production changes0;operational starts0;no install/schema/config changes;no new runtime storage/index/cursor/worker",
+    "next_action": "Separately authorize exact candidate Core disabled schema preparation, target-file installation and selective two-worker startup with discoveryflag0 after fresh operational preflight. Do not start listener/API/Cascade. No new intake means live end-to-end acceptance pending, not fabricated."
   }
 }

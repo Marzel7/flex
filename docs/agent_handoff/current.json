@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev090",
-    "git_head": "9073fd34819145615b7883ba1c7cc499174d68f9",
+    "git_head": "3059da4c52b8d414e645bbc98ca70bb7d9af7b17",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T17:43:52.723371+00:00",
-    "working_tree": "DEV090 final Inbox integration qualified; HOLD listener dependency closure; no candidate or deployment"
+    "updated_at_utc": "2026-10-18T17:47:25.753557+00:00",
+    "working_tree": "DEV090 HOLD_MISSING_QUALIFIED_DEPENDENCY; documentation only, application unchanged"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32524,5 +32524,30 @@
     "operational_restarts": 0,
     "next_action": "Resolve exact installed-listener dependency composition and real provider-free producer-module qualification; repeat full source closure and fresh clean-checkout browser restoration before candidate creation. Preserve Inbox and handoff implementations. No deployment authorized.",
     "publication_scope": "Sanitized agent-handoff only; engineering branch not published."
+  },
+  "dev090_listener_dependency_authority": {
+    "status": "HOLD_MISSING_QUALIFIED_DEPENDENCY",
+    "engineering_source_sha": "3059da4c52b8d414e645bbc98ca70bb7d9af7b17",
+    "application_source_unchanged": "9a572e26882bb4e6af191feb61387fb84248535f",
+    "module": "src.ops.acquisition_availability",
+    "imported_symbol": "AcquisitionAvailability",
+    "installed_checkout_sha": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "module_original_commit": "b0883b68874fb2a1bd39edcd4a7030f8936bb0f8",
+    "module_sha256": "135907c90de858ac403da6ab92cf1a00b5714b5c0c61acc730dd917aed7458ad",
+    "authority_result": "Installed clean tracked file matches installed HEAD and original committed snapshot; no existing qualified composition entry established in bounded known manifests. Retained DEV043 qualification explicitly says the richer b0883b68 recovery source was not established as accepted complete implementation. Committed provenance is not qualification.",
+    "transitive_static_imports": "Standard library only; module import itself defines symbols/constants without writes. Runtime transition method performs existing SQLite availability instrumentation; not executed.",
+    "prospective_role": "Unconditional listener import and construction, BIRTH/MIGRATION connection-state transitions; no CREATE/handoff logic altered.",
+    "tests": "Stopped at explicit qualified-authority condition; no new acceptance or restoration run. Prior accepted test evidence preserved.",
+    "report": "docs/audits/dev090/DEPENDENCY_CLOSURE_STATUS.json",
+    "candidate_source_sha": null,
+    "ready_for_targeted_deployment": false,
+    "runtime_deployment_required": false,
+    "reason": "Read-only provenance diagnosis and documentation only",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "application_changes": 0,
+    "operational_restarts": 0,
+    "next_action": "Supply existing qualified manifest for exact module hash, or separately authorize first-time qualification of attributable installed module; no stub, replacement, deployment or candidate under present condition."
   }
 }

@@ -1,0 +1,99 @@
+{
+  "authority": {
+    "frozen_baseline": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "worker_retirement": "afbe9e58b11eb2e4d616246da123ce31ab45700c",
+    "DEV_acceptance": "ec9def968a44b39f167f28b6f0f9e32db53428e3 DEV-002 COMPLETE/PASS37; not Production approval"
+  },
+  "nine_foreign_cases": [
+    {
+      "test": "tests/test_dev079_walkback_v1.py::test_budget_constants_and_nonpatch_source_unchanged",
+      "expected": "Match DEV079 manifest worker hash (later updated to original DEV090 newer composition); RPC_BUDGET_BATCH80 and TX_FETCH_LIMIT>0",
+      "actual": "Hash differs because configured a45ccc0d overlay is bca037df\u2026 instead of a20d4f75\u2026; budget values remain80/positive, but assertion fails before reaching them",
+      "origin": "4f1d294419cb69ea59a8deea19c275f78eff1a69 DEV079 composition; DEV090361acbc4 updated hash to original newer-worker handoff composition",
+      "accepted_for_target": "Source pin NO; numeric budget controls YES",
+      "other_composition": "flex-walkback ec2b75e1 / original DEV090, not flex-walkback-dev002",
+      "proposal": "Target-specific literal preimage/candidate hash manifest with same dependency and numeric budget assertions; do not remove budget control"
+    },
+    {
+      "test": "tests/test_dev082_current_walkback.py::test_exact_reverse_patch_and_dependency_hashes",
+      "expected": "Removing handoff hook and reversing _get_tx reproduces145a3368\u2026; imported dependency hashes match DEV082 manifest",
+      "actual": "Reversal reproduces a45ccc0d\u2026 exactly as separately passed by configured-target test;145a source belongs other worker",
+      "origin": "048d178f3b0c05b6c83e585862fd42c629e47d34; handoff-hook reversal added in DEV090361acbc4",
+      "accepted_for_target": "145a pin NO; exact reversibility and complete dependency hashes YES",
+      "other_composition": "DEV082 source-composition.json explicitly pins installed GitHEADec2b75e1 and worker145a3368",
+      "proposal": "Use exact a45ccc0d reversal plus bca037df overlay pin; retain all non-worker dependency hashes and complete closure"
+    },
+    {
+      "test": "tests/test_dev082_current_walkback.py::test_midwalk_admission_runs_after_edge_commit_and_failure_isolated[False]",
+      "expected": "After funding edge commit, call admit_unambiguous_p3r_match once with no open transaction; handle optional matcher failure without losing edge; 3RPC fixture budget",
+      "actual": "Funding edge selection/commit remains; no P3R call by design, seen=[] causes failure. No restored P3R acquisition/admission is implied",
+      "origin": "Mid-walk call attributable to f661ae4593e5aaf434c4d0c91e9fb8dc2afd4f08 snapshot; test added048d178f; call explicitly removedafbe9e58",
+      "accepted_for_target": "P3R call NO, commit/budget/failure-isolation guarantees for active paths YES",
+      "other_composition": "Pre-retirement ec2b75e1 worker retained in DEV082",
+      "proposal": "Assert exact funding/WSOL selection and committed evidence with same3calls; fail if retired P3R is invoked. Keep active funding failure/commit safety; do not simulate retired matcher as a required active dependency"
+    },
+    {
+      "test": "tests/test_dev082_current_walkback.py::test_midwalk_admission_runs_after_edge_commit_and_failure_isolated[True]",
+      "expected": "After funding edge commit, call admit_unambiguous_p3r_match once with no open transaction; handle optional matcher failure without losing edge; 3RPC fixture budget",
+      "actual": "Funding edge selection/commit remains; no P3R call by design, seen=[] causes failure. No restored P3R acquisition/admission is implied",
+      "origin": "Mid-walk call attributable to f661ae4593e5aaf434c4d0c91e9fb8dc2afd4f08 snapshot; test added048d178f; call explicitly removedafbe9e58",
+      "accepted_for_target": "P3R call NO, commit/budget/failure-isolation guarantees for active paths YES",
+      "other_composition": "Pre-retirement ec2b75e1 worker retained in DEV082",
+      "proposal": "Assert exact funding/WSOL selection and committed evidence with same3calls; fail if retired P3R is invoked. Keep active funding failure/commit safety; do not simulate retired matcher as a required active dependency"
+    },
+    {
+      "test": "tests/test_dev082_current_walkback.py::test_newer_promotion_order_and_enforcement_preserved[legacy-REJECTED-True]",
+      "expected": "Project900b,P3R,d3de,Byzantine in order; WATCHTOWER promotion=True for mode=legacy,decision=REJECTED; telemetry and post-commit drift",
+      "actual": "Configured worker calls retained900b andByzantine, omits retiredP3R/d3de. First order assertion fails before remaining checks; preserved mode gate is statically present, not freshly PASS-asserted in this failed case",
+      "origin": "TerminalP3R26e528b0a (blame); d3de860ca4ae4ad7c981382d15fbce5e55677a932737; tests048d178f. P3R/d3de calls explicitly removedafbe9e58. Mode-aware predicate originally f2ef93437",
+      "accepted_for_target": "P3R/d3de order NO; retained projector order, all5 mode decisions, no false admission, telemetry, post-commit failure isolation YES",
+      "other_composition": "DEV082/newer145a worker; not configured retired-operation target",
+      "proposal": "Keep same5 mode/decision/promotion cases; require900b->Byzantine with zero retired projector calls, preserve rejection/review fail-closed checks, telemetry and post-commit drift; do not drop these modes"
+    },
+    {
+      "test": "tests/test_dev082_current_walkback.py::test_newer_promotion_order_and_enforcement_preserved[shadow-REJECTED-True]",
+      "expected": "Project900b,P3R,d3de,Byzantine in order; WATCHTOWER promotion=True for mode=shadow,decision=REJECTED; telemetry and post-commit drift",
+      "actual": "Configured worker calls retained900b andByzantine, omits retiredP3R/d3de. First order assertion fails before remaining checks; preserved mode gate is statically present, not freshly PASS-asserted in this failed case",
+      "origin": "TerminalP3R26e528b0a (blame); d3de860ca4ae4ad7c981382d15fbce5e55677a932737; tests048d178f. P3R/d3de calls explicitly removedafbe9e58. Mode-aware predicate originally f2ef93437",
+      "accepted_for_target": "P3R/d3de order NO; retained projector order, all5 mode decisions, no false admission, telemetry, post-commit failure isolation YES",
+      "other_composition": "DEV082/newer145a worker; not configured retired-operation target",
+      "proposal": "Keep same5 mode/decision/promotion cases; require900b->Byzantine with zero retired projector calls, preserve rejection/review fail-closed checks, telemetry and post-commit drift; do not drop these modes"
+    },
+    {
+      "test": "tests/test_dev082_current_walkback.py::test_newer_promotion_order_and_enforcement_preserved[enforce-REJECTED-False]",
+      "expected": "Project900b,P3R,d3de,Byzantine in order; WATCHTOWER promotion=False for mode=enforce,decision=REJECTED; telemetry and post-commit drift",
+      "actual": "Configured worker calls retained900b andByzantine, omits retiredP3R/d3de. First order assertion fails before remaining checks; preserved mode gate is statically present, not freshly PASS-asserted in this failed case",
+      "origin": "TerminalP3R26e528b0a (blame); d3de860ca4ae4ad7c981382d15fbce5e55677a932737; tests048d178f. P3R/d3de calls explicitly removedafbe9e58. Mode-aware predicate originally f2ef93437",
+      "accepted_for_target": "P3R/d3de order NO; retained projector order, all5 mode decisions, no false admission, telemetry, post-commit failure isolation YES",
+      "other_composition": "DEV082/newer145a worker; not configured retired-operation target",
+      "proposal": "Keep same5 mode/decision/promotion cases; require900b->Byzantine with zero retired projector calls, preserve rejection/review fail-closed checks, telemetry and post-commit drift; do not drop these modes"
+    },
+    {
+      "test": "tests/test_dev082_current_walkback.py::test_newer_promotion_order_and_enforcement_preserved[enforce-REVIEW_REQUIRED-False]",
+      "expected": "Project900b,P3R,d3de,Byzantine in order; WATCHTOWER promotion=False for mode=enforce,decision=REVIEW_REQUIRED; telemetry and post-commit drift",
+      "actual": "Configured worker calls retained900b andByzantine, omits retiredP3R/d3de. First order assertion fails before remaining checks; preserved mode gate is statically present, not freshly PASS-asserted in this failed case",
+      "origin": "TerminalP3R26e528b0a (blame); d3de860ca4ae4ad7c981382d15fbce5e55677a932737; tests048d178f. P3R/d3de calls explicitly removedafbe9e58. Mode-aware predicate originally f2ef93437",
+      "accepted_for_target": "P3R/d3de order NO; retained projector order, all5 mode decisions, no false admission, telemetry, post-commit failure isolation YES",
+      "other_composition": "DEV082/newer145a worker; not configured retired-operation target",
+      "proposal": "Keep same5 mode/decision/promotion cases; require900b->Byzantine with zero retired projector calls, preserve rejection/review fail-closed checks, telemetry and post-commit drift; do not drop these modes"
+    },
+    {
+      "test": "tests/test_dev082_current_walkback.py::test_newer_promotion_order_and_enforcement_preserved[enforce-ACCEPTED-True]",
+      "expected": "Project900b,P3R,d3de,Byzantine in order; WATCHTOWER promotion=True for mode=enforce,decision=ACCEPTED; telemetry and post-commit drift",
+      "actual": "Configured worker calls retained900b andByzantine, omits retiredP3R/d3de. First order assertion fails before remaining checks; preserved mode gate is statically present, not freshly PASS-asserted in this failed case",
+      "origin": "TerminalP3R26e528b0a (blame); d3de860ca4ae4ad7c981382d15fbce5e55677a932737; tests048d178f. P3R/d3de calls explicitly removedafbe9e58. Mode-aware predicate originally f2ef93437",
+      "accepted_for_target": "P3R/d3de order NO; retained projector order, all5 mode decisions, no false admission, telemetry, post-commit failure isolation YES",
+      "other_composition": "DEV082/newer145a worker; not configured retired-operation target",
+      "proposal": "Keep same5 mode/decision/promotion cases; require900b->Byzantine with zero retired projector calls, preserve rejection/review fail-closed checks, telemetry and post-commit drift; do not drop these modes"
+    }
+  ],
+  "foreign_test_hashes": {
+    "tests/test_dev079_walkback_v1.py": "ff359402a8d877b94dca33a42110d52f5363e44d678dca8a007b6356a5b20e70",
+    "tests/test_dev082_current_walkback.py": "b49c4200927a6eac6b21b692ba309bd8cae71f4a32bfe7e981529dfd0dac1599"
+  },
+  "worker_preimage_sha256": "a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9",
+  "worker_overlay_sha256": "bca037dfd7194f304493cac051ec894916ef3eac2d897871570dafbdaa56023d",
+  "test_selection": "Delegate all unchanged DEV079 tests except foreign composition pin; all four applicable DEV082 functions including original marks. Replace foreign pins and retired-call assertions with target-bound controls; no global skip or foreign-file edits.",
+  "Supervisor_ownership": "UNRESOLVED; mandatory deployment prerequisite",
+  "disk_before_bytes": 13080031232
+}

@@ -19272,7 +19272,7 @@
     "branch": "codex/dev090",
     "git_head": "2d40af06c320d1a4688d65c9d195214ec69f5378",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T19:38:58.491170+00:00",
+    "updated_at_utc": "2026-10-18T19:44:06.251091+00:00",
     "working_tree": "DEV090 DEV002 target offline release PASS; immutable candidate preserved; not deployed"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -32839,5 +32839,20 @@
     "runtime_deployment_required": false,
     "safety": "providers=0; canonical writes=0; Production changes=0; starts/restarts/signals=0; no configuration changes",
     "next_action": "Authorize and qualify selective Supervisor startup/configuration procedure, or separately authorize all eight existing autostart services; then separately authorize exact source/schema/activation/start steps. Do not start old workers or execute plan yet."
+  },
+  "dev090_selective_supervisor_qualification": {
+    "engineering_revision": "2d40af06c320d1a4688d65c9d195214ec69f5378",
+    "status": "PASS_PROCEDURE_QUALIFIED_NOT_EXECUTED",
+    "supervisor_version": "4.3.0",
+    "method": "Disposable exact configuration derivative sets all15 program autostart=false (eight currently true), preserves every command/environment and original IPC, resolves original here-relative logfile/childlogdir paths. No CLI no-autostart flag; no permanent config changes or credential-bearing config generation.",
+    "tests": "All15 dummy programs stopped at startup; only two explicitly selected dummy workers started;13 unrelated remained stopped. Stop/shutdown/PID/socket checks PASS; second same-socket manager rejected exit2; canonical-read/network negative controls PASS; isolated manager exited and IPC removed.",
+    "operational_authority": "Future manager uses existing configured socket/PID after absence/ownership verification; do not launch parallel manager or use start all/reload/update. Actual operational services remain stopped.",
+    "candidate": "DEV090_CANDIDATE_2d40af06c320 unchanged; prior offline acceptance retained",
+    "evidence": "DEV090/dev002-release-qualification/selective-supervisor/DEV090_SELECTIVE_SUPERVISOR_STATUS.json",
+    "procedure": "DEV090/dev002-release-qualification/selective-supervisor/SELECTIVE_STARTUP_PROCEDURE.md",
+    "remaining_prerequisites": "Fresh storage/lock preflight; separately authorized schema preparation disabled then exact-file installation; explicit selective startup and fixed epoch activation. Listener/upstream readiness must be addressed separately for live pipeline acceptance; two-worker startup alone does not create new birth intake.",
+    "runtime_deployment_required": false,
+    "safety": "providers=0; canonical writes=0; Production changes=0; operational service starts=0; dummy program starts=2; fixture file limit8MiB; no raw retention",
+    "next_action": "Selective procedure qualification complete. Await separately scoped operational schema/install/start authorization after fresh preflight; do not deploy automatically."
   }
 }

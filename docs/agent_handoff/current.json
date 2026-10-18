@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev078",
-    "git_head": "d6b96d3d707736ad2cd8e6ff8eb37364f43e9641",
+    "git_head": "fd31ddf6a3fb08b635f00c2657424d96a04fabed",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T09:50:34.921975+00:00",
-    "working_tree": "DEV078 initialized once after original instructions supplied; qualification evidence only; reconciler/authority HOLD."
+    "updated_at_utc": "2026-10-18T09:56:56.057077+00:00",
+    "working_tree": "DEV078 continuation: proposed V1/correlation patch qualified offline; release HOLD at bounded reconciler/creator authority; no application or runtime changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32116,5 +32116,25 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Qualification stopped before executable changes.",
     "next_action": "Review exact predicate/fairness/authority failures; qualify safe existing-state selection/proof before source integration. No release candidate, deployment or historical processing."
+  },
+  "dev078_existing_reconciler_continuation": {
+    "status": "PARTIAL_COMPONENT_PROPOSAL_QUALIFIED_RELEASE_HOLD",
+    "engineering_source_sha": "fd31ddf6a3fb08b635f00c2657424d96a04fabed",
+    "evidence": "docs/audits/dev078/DEV078_CONTINUATION_STATUS.json",
+    "version1": "Exact installed-source proposed patch raises Walkback ceiling to1 and rejects mismatched/missing response signature.13 focused controls PASS; git apply --check PASS; patch NOT applied. No worker/decoder/release PASS claimed.",
+    "fairness": "50000-row compact fixture5984256bytes:100 oldest-row rechecks leave last row0; least-recent-lookup requires temp sort with existing indexes; volatile keyset resets on restart.",
+    "authority": "Accept-all-SAFE predicate probe still fails signer/conflicting-creator controls; no reconciler source integration qualified.",
+    "DEV048_verify": "PASS after clean audit-only commit; not full release qualification.",
+    "full_release_and_clean_checkout": "NOT_RUN due mandatory bounded fairness/creator authority failures. No candidate.",
+    "application_changes": 0,
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "deployment_changes": 0,
+    "candidate_source_sha": null,
+    "ready_for_targeted_deployment": false,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Qualification and proposed patch only; no executable source changes.",
+    "next_action": "Qualify minimal indexed retry/progress access and durable independent creator authority, then integrate source and repeat complete release gates. No deployment."
   }
 }

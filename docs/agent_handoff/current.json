@@ -32988,5 +32988,21 @@
     "runtime_gate_reason": "Live prospective and lateCREATE acceptance evidence pending, not a deployment failure; do not markDEV_COMPLETE or golden/FLEX_STABLE_V2.",
     "safety": "manual provider calls0;observed creator/Walkback job executions0;authorized Core schema/control+worker heartbeat writes occurred;4sourcefiles installed,2workers+managerstarted;unrelatedstarts0;nohistoricalreplay/backfill",
     "next_action": "Await naturally eligible work with authorized intake. Do not start listener/API/Cascade/other13services without separate authorization. Preserve active selective configuration and exact-target rollback; no further source changes required by this observation."
+  },
+  "dev090_pumpportal_activation_preflight": {
+    "engineering_revision": "c604991687e7dd4aaf065fddd047dab6c993ccab",
+    "observed_utc": "2026-10-18T21:37:51.659107+00:00",
+    "status": "HOLD_LISTENER_SOURCE_AUTHORITY_AND_HISTORICAL_DISCOVERY",
+    "runtime_deployment_required": true,
+    "listener_started": false,
+    "installed_listener_sha256": "139c8fbcd69484b5bb30038e76445d7843892e2ce28a7157485d917bdfccdd39",
+    "qualified_listener_sha256": "c2bd4292d7c2ae786f89d1ae98831dccfc0b26011d6a29ceb145b2c2d72792a5",
+    "installed_listener_queue_sha256": "0b364cf1e5becfa020c866c1f063ed8d8e5a632a2d0c28b165b2411ad1a9d071",
+    "blocker": "Installed listener differs from qualified DEV090 composition. Its periodic creator task at line5344 invokes enqueue_missing_migrated_tokens every15sec; installed queue line315 ignores max_age_seconds and has no historical-discovery guard. Listener environment has no CRQ_HISTORICAL_DISCOVERY_ENABLED setting; creator worker flag0 does not govern this separate process. No listener shared handoff module present. Source/config replacement prohibited by current authorization.",
+    "service_states": "Existing Supervisor confirms creator74394 and Walkback74410 RUNNING; listener/Cascade and other11 STOPPED. No services changed.",
+    "storage": "Fresh available10284077056bytes. Full startup storage/database gates not completed because source gate already fails.",
+    "acceptance": "No observation window started; coverage/latency/lateCREATE UNKNOWN/PENDING. Fresh heartbeat/retired-row/database health not requalified after source gate failure.",
+    "safety": "Provider calls initiated0;canonical writes by this task0;Production changes0;existing workers continue independently. Candidate/source unchanged.",
+    "next_action": "Authorize narrowly scoped listener composition qualification/installation and historical-discovery disabling before retrying activation; preserve current two workers and immutable candidate. No automatic repair."
   }
 }

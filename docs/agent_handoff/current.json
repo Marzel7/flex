@@ -19272,8 +19272,8 @@
     "branch": "codex/dev090",
     "git_head": "ac7b88633f53c854559770c4109b14c6f0d53ceb",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T18:50:36.371998+00:00",
-    "working_tree": "DEV090 configured-target overlay preserved; HOLD mandatory original funding/promotion contract; no new candidate/deployment"
+    "updated_at_utc": "2026-10-18T18:56:51.370294+00:00",
+    "working_tree": "DEV090 read-only contract decision: TARGET_CONTRACT_PRESERVED_TEST_SCOPE_MISMATCH; code/tests unchanged; target release still pending qualified contract selection"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32740,5 +32740,37 @@
     "historical_replay": false,
     "runtime_deployment_gate": "HOLD_TARGET_OVERLAY; original release remains QUALIFIED_NOT_DEPLOYED",
     "next_action": "Resolve intended funding/promotion acceptance authority: preserve configured a45ccc0d semantics versus require previously qualified newer145a3368 semantics. Separately qualify that contract decision before further target release work; do not add projections or weaken assertions implicitly. Verify live runtime ownership before any deployment."
+  },
+  "dev090_target_contract_decision": {
+    "status": "TARGET_CONTRACT_PRESERVED_TEST_SCOPE_MISMATCH",
+    "engineering_source_sha": "ac7b88633f53c854559770c4109b14c6f0d53ceb",
+    "scope": "Nine failing expectations only; stopped configured DEV target, not operational Production acceptance",
+    "evidence": {
+      "golden_baseline": "0eb749ec worker already omits midwalkP3R and terminalP3R/d3de",
+      "target_retirement": "afbe9e58 explicitly removed those calls from ec2b75e1 parent",
+      "accepted_DEV_contract": "ec9def96 retirement record and DEV-002 registry DEV_COMPLETE/PASS37/devUIverified; explicitly noProductionapproval",
+      "foreign_test_composition": "DEV0794f1d2944 / DEV082048d178f manifests pin ec2b75e1 and145a3368 worker which retains the calls"
+    },
+    "nine_expectations": {
+      "foreign_source_pins": 2,
+      "retired_midwalk_P3R_calls": 2,
+      "retired_terminal_P3R_d3de_order": 5,
+      "per_case_mapping": "DEV090/target-contract-decision/nine-failed-expectations.json"
+    },
+    "decision": "No required active P3R/d3de functionality is missing from configured retired-operation target. Do not restore it automatically. Mixed budget/enforcement/failure-isolation assertions remain applicable; do not simply deselect whole functions.",
+    "proposed_regression_selection": "DEV090/target-contract-decision/target-regression-selection-proposal.json; target literal reversal/dependency pins, same budget values, committed funding evidence/no retired admission, same5canonical predicate mode controls and retained active-projector failure isolation. Keep all applicable signature/creator/queue/topology/no-invented-membership/crash/DEV048 controls. Proposal only; no assertions edited.",
+    "report": "DEV090/target-contract-decision/DEV090_TARGET_CONTRACT_DECISION.json",
+    "preservation": "Current overlay clean at ac7b8863 and original immutable candidate/hashes unchanged. No suite rerun or new releasePASS claimed.",
+    "supervisor_ownership": "UNRESOLVED; separate deployment prerequisite",
+    "ready_for_targeted_deployment": false,
+    "runtime_deployment_required": false,
+    "reason": "Read-only contract decision only",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "source_changes": 0,
+    "test_changes": 0,
+    "restarts": 0,
+    "next_action": "Stop at contract decision. Separately qualify proposed target-specific test/manifest classification retaining all applicable negative controls, then repeat offline release gates; no code/P3R restoration or deployment implied."
   }
 }

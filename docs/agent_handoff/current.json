@@ -31768,5 +31768,22 @@
     "production_changes": 0,
     "application_changes": 0,
     "next_action": "STOP. Preserve the newly surfaced research family and qualify its retained original role, chronology and ancestry evidence before asserting missed admission. No acquisition, implementation or deployment authorized."
+  },
+  "dev073_bwmm_birth_search": {
+    "status": "SEARCH_INCOMPLETE_CHECKPOINT_UNVERIFIABLE",
+    "engineering_source_sha": "64f5760b297ab6f8742e5529a95255f8338a1858",
+    "verification": "Previous receipt summaries inspected; scoped checkpoint-name inventory found no matching receipt. No birth payload reread in DEV073. Prior reported106528 files/137533867bytes cannot be verified as unique snapshot coverage.",
+    "blocker": "FAIL: prior tool summaries contain counts only. No durable per-file manifest, file hashes, snapshot identity or resumable checkpoint was created. Two independent os.scandir traversals used ordinal skip29056; directory order is not guaranteed stable. Uniqueness/remaining population cannot be verified.",
+    "original_birth_event": "NOT_LOCATED; full retained-store coverage unproven",
+    "parser_disposition": "UNPROVEN",
+    "persistence_outcome": "UNPROVEN",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only retained-evidence checkpoint qualification.",
+    "activation_state": "NO_ACTIVATION",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "application_changes": 0,
+    "next_action": "Obtain original verifiable checkpoint if available; otherwise approve fresh snapshot-based search with acknowledged rereads. Do not resume by ordinal skip."
   }
 }

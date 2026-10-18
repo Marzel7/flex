@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev080",
-    "git_head": "9a718366fec18213b29283d2e8372d59dd89711c",
+    "branch": "codex/dev081",
+    "git_head": "59c66d3f5991fc48180e8d1ec1ccd0719d90297a",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T10:37:23.956822+00:00",
-    "working_tree": "DEV080 tooling qualification PASS; engineering branch remotely verified; isolated APIs stopped; no application candidate or deployment."
+    "updated_at_utc": "2026-10-18T10:51:42.940298+00:00",
+    "working_tree": "DEV081 terminal PARTIAL: DEV074 immutable candidate qualified; DEV079 offline PASS but installed-worker preimage drift HOLD. All isolated APIs stopped; no deployment."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32180,5 +32180,41 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Separately qualified release tooling/tests only; executed in isolated DEV080 and clean restoration, no persistent launcher replacement.",
     "next_action": "Rerun DEV074 and DEV079 candidate-specific release qualification with qualified DEV080 tooling; do not deploy."
+  },
+  "dev081_release_qualification": {
+    "status": "PARTIAL_DEV074_QUALIFIED_DEV079_RUNTIME_HOLD",
+    "engineering_source_sha": "59c66d3f5991fc48180e8d1ec1ccd0719d90297a",
+    "report": "docs/audits/dev081/DEV081_RELEASE_QUALIFICATION_STATUS.json",
+    "tooling_source_sha": "83de53ced956b45a03080fe3db0f82ee8f780a7d",
+    "published_tooling_head": "9a718366fec18213b29283d2e8372d59dd89711c",
+    "tooling_hash": "a0a2caf1945c0bb90c22a4ea7f2cc743e7003edd63fd60fb347f355f371c8340",
+    "DEV074": {
+      "source_sha": "a34f6968e12c9d9c12ae1c00917fbe241f3892d9",
+      "status": "PASS_QUALIFIED_NOT_DEPLOYED",
+      "candidate_tag": "DEV074_CANDIDATE_a34f6968e12c",
+      "candidate_path": "/Users/kevinkeaveney/Dev/claude/flex-releases/candidates/DEV074_CANDIDATE_a34f6968e12c",
+      "candidate_manifest_sha256": "f4c2cb8e2f9fced82d219c65772c9625a440a3ff9b0c6330be63f9be4e78a466",
+      "tests": "89 guarded Python PASS including77 creator/DEV051 controls; frontend/API PASS;10/10 clean-checkout real retained browser contracts;0 guard denials;167 API/19 test project modules; installed queue/analyzer/worker preimages match; rollback PASS; sealed candidate hashes verified."
+    },
+    "DEV079": {
+      "source_sha": "5036bcd7ae1b4d2294de51474e0d27b00dddb31d",
+      "status": "OFFLINE_PASS_RELEASE_HOLD_RUNTIME_PREIMAGE_DRIFT",
+      "candidate": null,
+      "tests": "35 guarded Python PASS including23 V1/signature/provider-budget controls; frontend/API and10/10 clean-checkout browser contracts PASS;0 guard denials; full-file original rollback roundtrip PASS.",
+      "blocker": "Actual pinned installed worker changed since recorded preimage. Installed HEAD ec2b75e1274ee76761d51247d345b59d77341ee9; worker145a3368dc319a6e901f2365e645b65dd60d1727815f99e3b498d9fa1c3041dc differs from expected a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9. Changed _find_funder_via_rpc and _promote_if_canonical_watchtower;5 support files match; ceiling remains0. Do not overwrite newer behavior or use old runtime rollback."
+    },
+    "release_tooling_controls": "61/61 PASS, including all18 original negative controls; pinned Python/concrete Node;30s frontend and8MiB limits unchanged.",
+    "application_sources_unchanged": true,
+    "merged_corrections": false,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "DEV081 qualification/evidence only; application changes remain qualified-not-deployed.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "shared_queue_writes": 0,
+    "production_changes": 0,
+    "deployment_changes": 0,
+    "all_isolated_servers_stopped": true,
+    "storage": "Compact fixtures only; candidate largest file62075344bytes; no canonical copies/raw provider retention; free space approximately13GiB before/11GiB after.",
+    "next_action": "DEV074 candidate available for separately authorized targeted installation. DEV079 requires separately authorized current-runtime source requalification preserving newer funding/promotion functions; no source changes or deployment under DEV081."
   }
 }

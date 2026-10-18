@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev075",
-    "git_head": "8175d0af02045bb87d5f1ec21a8951346f21f98b",
+    "git_head": "7c1c628c2ded5a11b755cc9542b9bb2040f34de8",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T08:34:53.400824+00:00",
-    "working_tree": "DEV075 authorized three reads complete; compact derived audit committed; no runtime changes."
+    "updated_at_utc": "2026-10-18T08:37:17.030837+00:00",
+    "working_tree": "DEV075 retained anchor scheduling trace committed; no runtime changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31896,5 +31896,25 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Derived evidence audit only",
     "next_action": "Review partial topology and separately scope any fanout evidence or anchor-scheduling correction. No further acquisition, replay or implementation authorized."
+  },
+  "dev075_anchor_scheduling_trace": {
+    "status": "AUDIT_COMPLETE_HEAD_OF_LINE_STARVATION",
+    "engineering_source_sha": "7c1c628c2ded5a11b755cc9542b9bb2040f34de8",
+    "timeline_utc": "00:20:56 migration/waiting enqueue;00:20:58 handoff COMPLETE;00:22:23 creator/CREATE resolved;00:23:33 funding complete on2026-10-18",
+    "cause": "Migration handoff success means durable queue row, not resolved anchor. Later core resolver does not wake existing OPS row. Normal drain excludes waiting. Recovery chooses oldest enqueued waiting LIMIT1 with no rotation/backoff.",
+    "blocking_row": "AygKukhewZAmQ1rt6cboEBD1sygUEHakzNQfbUGipump",
+    "blocking_row_anchor_lookups": 76721,
+    "blocking_row_core_anchor": "NULL in token_analysis and creator_funding_queue",
+    "target_anchor_lookups": 0,
+    "target_walkback_attempts": 0,
+    "evidence": "docs/audits/dev075/DEV075_ANCHOR_HANDOFF_SCHEDULING_TRACE.json",
+    "verification": "8 bounded read-only indexed queries; exact installed source hashes/excerpts; no application imports or changes. Per-cycle loaded-code attestation unavailable.",
+    "provider_calls_this_task": 0,
+    "provider_calls_prior_authorized_task": 3,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "runtime_changes": 0,
+    "runtime_deployment_required": false,
+    "next_action": "Separately authorize narrowly scoped fair anchor-reconciliation qualification; no replay, requeue or implementation performed."
   }
 }

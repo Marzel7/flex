@@ -1,0 +1,58 @@
+{
+  "source_sha": "a941f0dff4319f0d10219272a95aee7de212113b",
+  "run_id": "95346bfa226c",
+  "status": "HOLD",
+  "features": {
+    "registry": {
+      "url": "http://127.0.0.1:8197/intelligence/operators",
+      "dom": "registry.txt",
+      "screenshot": "registry.png"
+    },
+    "history_prices": {
+      "url": "http://127.0.0.1:8197/intelligence/operators",
+      "dom": "history_prices.txt",
+      "screenshot": "history_prices.png"
+    },
+    "watchtower_admission": {
+      "url": "http://127.0.0.1:8197/intelligence/operator/04265d9f-6eb2-568c-a49e-9253091a4dbb",
+      "dom": "watchtower_admission.txt",
+      "screenshot": "watchtower_admission.png"
+    },
+    "watchtower_playbook": {
+      "url": "http://127.0.0.1:8197/operations/watchtower/playbook",
+      "dom": "watchtower_playbook.txt",
+      "screenshot": "watchtower_playbook.png"
+    },
+    "byzantine_playbook": {
+      "url": "http://127.0.0.1:8197/operations/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334/playbook",
+      "dom": "byzantine_playbook.txt",
+      "screenshot": "byzantine_playbook.png"
+    },
+    "mission_control": {
+      "url": "http://127.0.0.1:8197/ops-os",
+      "dom": "mission_control.txt",
+      "screenshot": "mission_control.png"
+    },
+    "core_health": {
+      "url": "http://127.0.0.1:8197/system-health",
+      "dom": "core_health.txt",
+      "screenshot": "core_health.png"
+    },
+    "pending": {
+      "url": "http://127.0.0.1:8197/intelligence/treasury-review",
+      "dom": "pending.txt",
+      "screenshot": "pending.png"
+    },
+    "byzantine_detail": {
+      "url": "http://127.0.0.1:8197/intelligence/operator/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334",
+      "dom": "byzantine_detail.txt",
+      "screenshot": "byzantine_detail.png"
+    },
+    "nexus_detail": {
+      "url": "http://127.0.0.1:8197/intelligence/operator/bd7d7479-1454-5d41-9f68-115550348f3e",
+      "dom": "nexus_detail.txt",
+      "screenshot": "nexus_detail.png"
+    }
+  },
+  "gate_result": "Mission Control data still loading/unavailable"
+}

@@ -1,0 +1,136 @@
+{
+  "DEV090_WALKBACK_HANDOFF_STATUS": "PARTIAL \u2014 FUNCTIONALLY_QUALIFIED_RELEASE_BLOCKED",
+  "STORAGE_EXCEPTION_SCOPE": "Only compact qualified Core proof/intent, exact existing OPS eligibility update and Core ACK. No operational migration executed.",
+  "CURRENT_DISK_HEADROOM": {
+    "before_bytes": 13437906944,
+    "after_bytes": 11883286528,
+    "minimum_reserve_bytes": 2000000000,
+    "fixture_peak_budget_bytes": 1000000000
+  },
+  "DISK_PRECONDITION_PASS": "PASS for isolated compact tests only; operational prerequisites not qualified",
+  "STORAGE_RELIEF_REQUIRED": false,
+  "CORE_PROOF_INTENT_IMPLEMENTATION": "Atomic in producer Core transaction; explicit disabled schema/activation; typed compact proof, immutable digest, no raw payload",
+  "OPS_EXACT_MINT_DELIVERY": "Indexed mint primary-key lookup; existing prospective waiting row only, authority/conflict checks, no historical scan",
+  "DURABLE_ACKNOWLEDGEMENT": "Exact seq/epoch/digest ACK only after shared OPS writer returns committed; idempotent duplicate delivery",
+  "CRASH_RESTART_TESTS": "Seven real process exit boundaries PASS in source and clean checkout; committed-execution CAS model distinct from actual worker completion tests",
+  "ENOSPC_BEHAVIOUR": "Fixture SQLITE_FULL rollback before authority/OPS/ACK and admission pressure controls PASS; producer preflight stops before job claim/RPC; atomic stage rechecks",
+  "CREATOR_AUTHORITY": "DEV074 strict creator safeguard, installed DEV051/DEV082 version/signature validation preserved; signer-only/conflict fail closed; explicit PumpPortal provenance",
+  "PROSPECTIVE_ACTIVATION": "Disabled by default; epoch activation boundary, 30-day enrollment, exact current Core authority recheck",
+  "HISTORICAL_BACKLOG_PRESERVATION": "New handoff does not scan or activate historical rows. Existing legacy reconciler unchanged; no historical canonical writes performed.",
+  "STORAGE_GROWTH_BUDGET": {
+    "max_pending": 10000,
+    "max_retained_ack": 70000,
+    "max_lifetime_intents": 100000,
+    "max_birth_retry_provenance_rows": 100000,
+    "batch": 16,
+    "max_delivery_failures": 5,
+    "failure_terminal": "BLOCKED retained, explicit repair required; not silently deleted",
+    "ack_retention_days": 7,
+    "main_growth_admission_bytes_per_database": 67108864,
+    "wal_admission_stop_bytes": 50331648,
+    "rollback_journal_admission_stop_bytes": 16777216,
+    "fixture_max_bytes": 4194304,
+    "test_output_limit_bytes": 8388608,
+    "raw_retention": false,
+    "physical_wal_hard_cap": false,
+    "residual_risk": "Concurrent writers, pinned readers and legacy-row updates may exceed observed admission thresholds. No hard physical WAL guarantee; future activation requires current operational headroom/write-lane checks."
+  },
+  "WALKBACK_FUNCTIONAL_ACCEPTANCE": "163 focused PASS; actual producer transactions and actual worker claim/completion fixture tests; funding/provider acquisition mocked, no live traversal claimed",
+  "DEV048_RELEASE_STATUS": {
+    "status": "HOLD",
+    "python_tests": 175,
+    "frontend": "PASS unchanged 30-second/8-MiB limit",
+    "api": "PASS required routes/retained 20-row chronology/prices",
+    "tooling_controls": 61,
+    "browser": "HOLD Mission Control numeric Inbox contract unavailable",
+    "guard_denials": 2,
+    "denied_target": "canonical OPS write.lock; guards prevented writes",
+    "other_observation": "Discovery/emerging-operator GET disk I/O errors retained in local server log; not investigated or changed",
+    "clean_checkout": "163 focused + seven process crash cases PASS; full API/browser restoration not qualified",
+    "first_attempt": "ae51be9f91eb browser receipt missing before fixed 180-second deadline; orchestration incomplete, not an application-failure claim",
+    "second_attempt": "95346bfa226c actual ten-view browser capture, unchanged gate rejected Inbox",
+    "isolated_api_stopped": true,
+    "workflow_terminal_reason": "browser acceptance missing; API stopped without qualification (rejected browser receipt not accepted)"
+  },
+  "QUALIFIED_IMPLEMENTATION_SHA": "a941f0dff4319f0d10219272a95aee7de212113b",
+  "CANDIDATE_SOURCE_SHA": null,
+  "READY_FOR_TARGETED_DEPLOYMENT": false,
+  "NEXT_ACTION": "Qualify composition of the separately preserved explicit read-only Inbox correction with current writer dependencies, then repeat the unchanged full release and clean-checkout browser gates. No deployment authorized.",
+  "RUNTIME_DEPLOYMENT_GATE": "QUALIFIED_NOT_DEPLOYED",
+  "PROVIDER_CALLS": 0,
+  "CANONICAL_WRITES": 0,
+  "PRODUCTION_CHANGES": 0,
+  "PERSISTENT_DEV_CHANGES": 0,
+  "OPERATIONAL_RESTARTS": 0,
+  "OPERATIONAL_MIGRATIONS": 0,
+  "ROLLBACK": "No installation occurred. Frozen/current source preimages and per-worker patch identities retained; disable new enrollment and drain obligations before future downgrade, coordinate producer pause to avoid claiming uncovered late-CREATE delivery.",
+  "PUBLICATION_SCOPE": "Sanitized handoff only; engineering branch not pushed due inherited baseline credential literal. No new credential or raw provider response introduced.",
+  "SOURCE_DEPENDENCY_CLOSURE": "DEV048 startup/focused-test loaded-source manifests passed; final full-release closure not reached after browser HOLD",
+  "INSTALLED_SOURCE_RECHECK": [
+    {
+      "path": "src/core/walkback_worker.py",
+      "installed_sha256": "145a3368dc319a6e901f2365e645b65dd60d1727815f99e3b498d9fa1c3041dc",
+      "matches_recorded_preimage": true
+    },
+    {
+      "path": "src/core/walkback_queue.py",
+      "installed_sha256": "2741576189a84ae94d3b1858448e5899ba28be27da5324f122f6d42514fecbe9",
+      "matches_recorded_preimage": true
+    },
+    {
+      "path": "src/core/treasury_bank.py",
+      "installed_sha256": "a959b16f666f3dab911beebf32e954bd8a0e22aec5e083169929f71f81dabea0",
+      "matches_recorded_preimage": true
+    },
+    {
+      "path": "src/ops/anchor_reconciliation.py",
+      "installed_sha256": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7",
+      "matches_recorded_preimage": true
+    },
+    {
+      "path": "src/ops/attribution_outcome.py",
+      "installed_sha256": "4907e3ac01c7139048310c51e9493ca261a9eb2895451f3452cb9434af66e73f",
+      "matches_recorded_preimage": true
+    },
+    {
+      "path": "src/ops/operation_fingerprint_drift.py",
+      "installed_sha256": "cf0345ccec1f8a4578d09fede013ad59634adc10f9efdf6f9bfede25adc6ba55",
+      "matches_recorded_preimage": true
+    },
+    {
+      "path": "src/ops/p3r_profile_candidate_matcher.py",
+      "installed_sha256": "f06d5ea57229eb5bf5e84983c296f1cb9fb628c132a44e0d19e83f2b17697f23",
+      "matches_recorded_preimage": true
+    },
+    {
+      "path": "src/ops/d3de_operation.py",
+      "installed_sha256": "b0faa8ff11a899170c0107d2b7e75363ca1290fb713aeede77e5e56b17ea09ed",
+      "matches_recorded_preimage": true
+    },
+    {
+      "path": "src/utils/db_locking.py",
+      "installed_sha256": "ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89",
+      "matches_recorded_preimage": true
+    },
+    {
+      "path": "src/ops/treasury_topology_classifier.py",
+      "installed_sha256": "f51637e839c0fc15339ce0cca67f74e5dc9878a85b127da8c35e7906fd4d644e",
+      "matches_recorded_preimage": true
+    },
+    {
+      "path": "src/core/database_write_service.py",
+      "installed_sha256": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2",
+      "matches_recorded_preimage": true
+    },
+    {
+      "path": "src/core/db_writer.py",
+      "installed_sha256": "fa5c7ce795d0391c10aa7f7b60823f2624a936ed0cf298e07cb92c0c85807b32",
+      "matches_recorded_preimage": true
+    },
+    {
+      "path": "src/core/pumpfun_curve_listener.py",
+      "installed_sha256": "139c8fbcd69484b5bb30038e76445d7843892e2ce28a7157485d917bdfccdd39",
+      "matches_recorded_preimage": true
+    }
+  ]
+}

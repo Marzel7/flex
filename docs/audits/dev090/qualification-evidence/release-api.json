@@ -1,0 +1,147 @@
+{
+  "/healthz": {
+    "sha256": "6c45be2f2ef9ec53f0ce591651e421ef0a7a3cf2c32d3bde54df89c1c7eddc33",
+    "status": 200
+  },
+  "/intelligence/operator/04265d9f-6eb2-568c-a49e-9253091a4dbb": {
+    "sha256": "030cfb7e99319984af4bde268a75ea7a29ce721dee64937f31939471d2b52799",
+    "status": 200
+  },
+  "/operations/playbooks": {
+    "sha256": "7368cc1d66b544163717d74176b6112bb058eb1be583e71c0996c35337db9aa2",
+    "status": 200
+  },
+  "/operations/watchtower/playbook": {
+    "sha256": "25f72429d91368e1c8db024175e8e00945394158a67d88f0dce4a30ac2678cf1",
+    "status": 200
+  },
+  "/ops-os": {
+    "sha256": "8cc78ea96327c209c07024cabe14cfb3b8ed9bb6555c74106ba9895cf59258fd",
+    "status": 200
+  },
+  "/system-health": {
+    "sha256": "58182c8f12effce7c1bdc8ac663ed487f796438243b1c9dcb665627864b712de",
+    "status": 200
+  },
+  "bd7d7479-1454-5d41-9f68-115550348f3e": {
+    "seconds": 3.01396920800471,
+    "status": 503
+  },
+  "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334": {
+    "seconds": 3.007153291000577,
+    "status": 503
+  },
+  "registry_history_prices": {
+    "identity_timestamps": [
+      [
+        "8CFJ8VDqcyZNFMJxQGZJ1FYGVqDVhdbeimygjRs5pump",
+        1792070494
+      ],
+      [
+        "3sNeCmwJmYShfkPK5WhZeucxjhs4QCtWn4XuYY8Ppump",
+        1791908876
+      ],
+      [
+        "GDfMmjnrEgUDbGB7adoJ4FmayM6rHAQj3JJ6SLmgpump",
+        1791901483
+      ],
+      [
+        "373DCoHsmYm5ofmsGDWZ91XtfwqLocmVvBn6tusopump",
+        1791788762
+      ],
+      [
+        "3514q8XEGVM8EYmk9vLVC8GmHsCGTyZGNALPGZWtpump",
+        1791739051
+      ],
+      [
+        "HzF53xWyUs18UkUfTTJxpgXs8ixZpQU6oRimqyvvpump",
+        1791738393
+      ],
+      [
+        "E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump",
+        1791635260
+      ],
+      [
+        "HZ9hrbhNFJR5hZTRVk1EJPwo1iijHVTBb2Rc5dR2pump",
+        1791634876
+      ],
+      [
+        "DhCWYmhBCbenvFn518q8itJZRxGBUYL9rh65HCWcpump",
+        1791618321
+      ],
+      [
+        "2fDAjAjyvCFATm5ERrJnyqqcqiZ9akV9vEFZLLGfpump",
+        1791576774
+      ],
+      [
+        "EHFJLG7CbNnnuPHXHNtdeWfRQ3UFwBfBZRe11hnppump",
+        1791571964
+      ],
+      [
+        "x33HfyZcxTQpwidGcn98sMediyhpnQgbhhSzs14pump",
+        1791564041
+      ],
+      [
+        "HrUaeM5FRu3orFZxJnu6jFCZJ2SHYFJKyJUGL2XPpump",
+        1791562351
+      ],
+      [
+        "1DKg5vh5mAkPNLULYkbMdHGbHtSNM1EqTqnWXXspump",
+        1791543007
+      ],
+      [
+        "DNtZMNDZ65hAJbJXRiP9NnV98ZTrwLTEJZ78fWKCpump",
+        1791490876
+      ],
+      [
+        "6LdjC13zbAxmruKrqsAQ4znUrjNe7gXXVeCHDBMYpump",
+        1791482713
+      ],
+      [
+        "6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump",
+        1791480358
+      ],
+      [
+        "7JVDPbS8iYHoUD4yWYxQH9yHcop5oPeBnfBvXkiqpump",
+        1791478464
+      ],
+      [
+        "9JtPfLbN32CszHmstoXYdWaazFLaoxhfqf9mKgQMpump",
+        1791476569
+      ],
+      [
+        "HNHbG4WQw2BmW53Ju2HRj2s6bz23YG9NAp77cgkjpump",
+        1791456532
+      ]
+    ],
+    "price_provenance": [
+      [
+        "DNtZMNDZ65hAJbJXRiP9NnV98ZTrwLTEJZ78fWKCpump",
+        "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+        "RETAINED PEAK"
+      ],
+      [
+        "6LdjC13zbAxmruKrqsAQ4znUrjNe7gXXVeCHDBMYpump",
+        "MIGRATION_SECOND_MC_FALLBACK",
+        "RETAINED PEAK"
+      ],
+      [
+        "6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump",
+        "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+        "RETAINED PEAK"
+      ],
+      [
+        "7JVDPbS8iYHoUD4yWYxQH9yHcop5oPeBnfBvXkiqpump",
+        "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+        "RETAINED PEAK"
+      ],
+      [
+        "9JtPfLbN32CszHmstoXYdWaazFLaoxhfqf9mKgQMpump",
+        "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+        "RETAINED PEAK"
+      ]
+    ],
+    "rows": 20,
+    "status": "PASS"
+  }
+}

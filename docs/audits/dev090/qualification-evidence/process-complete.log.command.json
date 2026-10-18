@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+    "-I",
+    "-B",
+    "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/tests/dev090_process_crash_driver.py",
+    "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source",
+    "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/state/process-complete"
+  ],
+  "cwd": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source",
+  "elapsed_seconds": 3.5014389580028364,
+  "environment": {
+    "HOME": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/state/process-complete",
+    "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+    "TMPDIR": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/state/process-complete"
+  },
+  "file_limit_bytes": 8388608,
+  "log_bytes": 75,
+  "returncode": 0,
+  "signal": null,
+  "status": "PASS",
+  "stderr": "STDOUT",
+  "stdout": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/state/process-complete.log",
+  "timeout_seconds": 120
+}

@@ -1,0 +1,45 @@
+Browser tab: 10, Title: "Operation detail unavailable", URL: "http://127.0.0.1:8197/intelligence/operator/bd7d7479-1454-5d41-9f68-115550348f3e".
+1 AXWebArea Operation detail unavailable, URL: 127.0.0.1:8197/intelligence/operator/bd7d7479-1454-5d41-9f68-115550348f3e
+	2 text DEVELOPMENT — READ ONLY — PRODUCTION DATA CANNOT BE MODIFIED
+	3 container
+		4 text FLEX
+		5 text OPERATIONS OS
+		6 container Primary
+			7 link Description: ◆ Mission Control, Value: 127.0.0.1:8197/ops-os
+			8 text INTELLIGENCE
+			9 link Description: Operations Registry & Live Monitor, Value: 127.0.0.1:8197/intelligence/operators
+			10 link Description: ▤ Operation Playbook, Value: 127.0.0.1:8197/operations/playbooks
+			11 link Description: Potential Operations, Value: 127.0.0.1:8197/intelligence/potential-operations
+			12 button (collapsed) SYSTEM ▸, Secondary Actions: Expand
+				13 text SYSTEM
+				14 text ▸
+		15 container sys-health-strip
+			16 text API
+			17 text DETAIL
+			18 text API live · detailed health in System Health
+	19 container
+		20 heading UNAVAILABLE — Operation detail, Value: 1
+			21 text UNAVAILABLE — Operation detail
+		22 text Request exceeded 3 seconds Historical detail could not complete within this request's resource budget.
+		23 link Description: Return to Operations Registry & Live Monitor, Value: 127.0.0.1:8197/intelligence/operators
+
+The focused UI element is 1 AXWebArea Operation detail unavailable, URL: 127.0.0.1:8197/intelligence/operator/bd7d7479-1454-5d41-9f68-115550348f3e
+DEVELOPMENT — READ ONLY — PRODUCTION DATA CANNOT BE MODIFIED
+FLEX
+OPERATIONS OS
+◆ Mission Control
+INTELLIGENCE
+Operations Registry & Live Monitor
+▤ Operation Playbook
+Potential Operations
+SYSTEM
+API
+DETAIL
+API live · detailed health in System Health
+UNAVAILABLE — Operation detail
+
+Request exceeded 3 seconds
+
+Historical detail could not complete within this request's resource budget.
+
+Return to Operations Registry & Live Monitor

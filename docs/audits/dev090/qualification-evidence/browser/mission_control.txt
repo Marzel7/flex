@@ -1,0 +1,100 @@
+Browser tab: 10, Title: "Mission Control — Operations OS", URL: "http://127.0.0.1:8197/ops-os".
+1 AXWebArea Mission Control — Operations OS, URL: 127.0.0.1:8197/ops-os
+	2 text DEVELOPMENT — READ ONLY — PRODUCTION DATA CANNOT BE MODIFIED
+	3 container
+		4 text FLEX
+		5 text OPERATIONS OS
+		6 container Primary
+			7 link Description: ◆ Mission Control, Value: 127.0.0.1:8197/ops-os
+			8 text INTELLIGENCE
+			9 link Description: Operations Registry & Live Monitor, Value: 127.0.0.1:8197/intelligence/operators
+			10 link Description: ▤ Operation Playbook, Value: 127.0.0.1:8197/operations/playbooks
+			11 link Description: Potential Operations, Value: 127.0.0.1:8197/intelligence/potential-operations
+			12 button (collapsed) SYSTEM ▸, Secondary Actions: Expand
+				13 text SYSTEM
+				14 text ▸
+		15 container sys-health-strip
+			16 text API
+			17 text DETAIL
+			47 text API live · detailed health in System Health
+	19 heading Mission Control, Value: 1
+		20 text Mission Control
+	21 text CURRENT
+	48 text 0s ago
+	22 text What requires analyst attention today?
+	23 container mc-situation
+		24 link Description: ACTIVE OPERATORS 7 known actors, Value: 127.0.0.1:8197/intelligence/operators
+		25 link Description: PROMOTION CANDIDATES — awaiting review, Value: 127.0.0.1:8197/intelligence/operators?focus=review, ID: sit-armed-cell
+		26 link Description: ACTIVE INVESTIGATIONS 1 requiring context, Value: 127.0.0.1:8197/ops
+		27 link Description: INBOX — active items, Value: 127.0.0.1:8197/intelligence/inbox
+		28 link Description: RECENT INTELLIGENCE — Latest activity 16h ago, Value: 127.0.0.1:8197/discovery
+	29 text RECENT INTELLIGENCE
+	30 text Meaningful Intelligence
+	31 link Description: Open Discovery →, Value: 127.0.0.1:8197/discovery
+	49 container mc-transitions
+		50 text ○
+		51 text Discovery intelligence unavailable.
+	33 button (collapsed) LEVEL 2 Active investigation detail ▸, Secondary Actions: Expand
+		34 text LEVEL 2
+		35 text Active investigation detail
+		36 text ▸
+	37 text INBOX
+	52 container mc-attn
+		53 text ○
+		54 text Inbox unavailable.
+	39 text START AN INVESTIGATION
+	40 text SEARCH EXISTING INTELLIGENCE
+	41 text field (settable) mc-search-input
+	42 button Investigate →
+	43 link Description: Discovery, Value: 127.0.0.1:8197/discovery
+	44 link Description: Entity Intelligence, Value: 127.0.0.1:8197/intelligence/entity/
+	45 link Description: Cross-Operation, Value: 127.0.0.1:8197/intelligence/cross-operation
+	46 link Description: Knowledge Base, Value: 127.0.0.1:8197/intelligence/knowledge
+
+The focused UI element is 1 AXWebArea Mission Control — Operations OS, URL: 127.0.0.1:8197/ops-os
+DEVELOPMENT — READ ONLY — PRODUCTION DATA CANNOT BE MODIFIED
+FLEX
+OPERATIONS OS
+◆ Mission Control
+INTELLIGENCE
+Operations Registry & Live Monitor
+▤ Operation Playbook
+Potential Operations
+SYSTEM
+API
+DETAIL
+API live · detailed health in System Health
+Mission Control
+CURRENT
+0s ago
+What requires analyst attention today?
+ACTIVE OPERATORS
+7
+known actors
+PROMOTION CANDIDATES
+—
+awaiting review
+ACTIVE INVESTIGATIONS
+1
+requiring context
+INBOX
+—
+active items
+RECENT INTELLIGENCE
+—
+Latest activity 16h ago
+RECENT INTELLIGENCE
+Meaningful Intelligence
+Open Discovery →
+Discovery intelligence unavailable.
+LEVEL 2
+Active investigation detail
+INBOX
+Inbox unavailable.
+START AN INVESTIGATION
+SEARCH EXISTING INTELLIGENCE
+Investigate →
+Discovery
+Entity Intelligence
+Cross-Operation
+Knowledge Base

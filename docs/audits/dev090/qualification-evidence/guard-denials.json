@@ -1,0 +1,38 @@
+[
+  {
+    "kind": "foreign_file_write",
+    "target": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db.write.lock",
+    "stack": [
+      "  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/flask/app.py\", line 1511, in wsgi_app\n    response = self.full_dispatch_request()\n",
+      "  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/flask/app.py\", line 917, in full_dispatch_request\n    rv = self.dispatch_request()\n",
+      "  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/flask/app.py\", line 902, in dispatch_request\n    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/src/ops/inbox_routes.py\", line 59, in inbox_for_op\n    store = _get_store()\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/src/ops/inbox_routes.py\", line 29, in _get_store\n    _store = InboxStore(str(OPS_DB_PATH))\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/src/ops/inbox.py\", line 183, in __init__\n    ensure_inbox_schema(conn)\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/src/ops/inbox.py\", line 166, in ensure_inbox_schema\n    conn.execute(stmt)\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/src/utils/db_locking.py\", line 929, in execute\n    self._acquire_write_lane()\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/src/utils/db_locking.py\", line 754, in _acquire_write_lane\n    self._cross_process_lease = acquire_write_lease(\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/src/core/database_write_service.py\", line 848, in acquire_write_lease\n    lock_file = open(lock_path, \"a+\")\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 31, in audit\n    if write and name!='/dev/null'and not inside(name):reject('foreign_file_write',name)\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 17, in reject\n    EVENTS.append({'kind':kind,'target':str(target)[:300], 'stack':traceback.format_stack(limit=12)})\n"
+    ]
+  },
+  {
+    "kind": "foreign_file_write",
+    "target": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db.write.lock",
+    "stack": [
+      "  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/flask/app.py\", line 1511, in wsgi_app\n    response = self.full_dispatch_request()\n",
+      "  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/flask/app.py\", line 917, in full_dispatch_request\n    rv = self.dispatch_request()\n",
+      "  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/flask/app.py\", line 902, in dispatch_request\n    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/src/ops/inbox_routes.py\", line 50, in inbox_summary\n    store = _get_store()\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/src/ops/inbox_routes.py\", line 29, in _get_store\n    _store = InboxStore(str(OPS_DB_PATH))\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/src/ops/inbox.py\", line 183, in __init__\n    ensure_inbox_schema(conn)\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/src/ops/inbox.py\", line 166, in ensure_inbox_schema\n    conn.execute(stmt)\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/src/utils/db_locking.py\", line 929, in execute\n    self._acquire_write_lane()\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/src/utils/db_locking.py\", line 754, in _acquire_write_lane\n    self._cross_process_lease = acquire_write_lease(\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/src/core/database_write_service.py\", line 848, in acquire_write_lease\n    lock_file = open(lock_path, \"a+\")\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 31, in audit\n    if write and name!='/dev/null'and not inside(name):reject('foreign_file_write',name)\n",
+      "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 17, in reject\n    EVENTS.append({'kind':kind,'target':str(target)[:300], 'stack':traceback.format_stack(limit=12)})\n"
+    ]
+  }
+]

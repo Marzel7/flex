@@ -1,0 +1,69 @@
+Browser tab: 10, Title: "Treasury Review — Analyst Workspace", URL: "http://127.0.0.1:8197/intelligence/treasury-review".
+1 AXWebArea Treasury Review — Analyst Workspace, URL: 127.0.0.1:8197/intelligence/treasury-review
+	2 text DEVELOPMENT — READ ONLY — PRODUCTION DATA CANNOT BE MODIFIED
+	3 container
+		4 text FLEX
+		5 text OPERATIONS OS
+		6 container Primary
+			7 link Description: ◆ Mission Control, Value: 127.0.0.1:8197/ops-os
+			8 text INTELLIGENCE
+			9 link Description: Operations Registry & Live Monitor, Value: 127.0.0.1:8197/intelligence/operators
+			10 link Description: ▤ Operation Playbook, Value: 127.0.0.1:8197/operations/playbooks
+			11 link Description: Potential Operations, Value: 127.0.0.1:8197/intelligence/potential-operations
+			12 button (collapsed) SYSTEM ▸, Secondary Actions: Expand
+				13 text SYSTEM
+				14 text ▸
+		15 container sys-health-strip
+			16 text API
+			17 text DETAIL
+			18 text API live · detailed health in System Health
+	19 container
+		20 link Description: Mission Control, Value: 127.0.0.1:8197/ops-os
+		21 text › Treasury Review
+		22 heading Treasury Review, Value: 1
+			23 text Treasury Review
+		24 text Analyst investigation workspace Decide whether each treasury expands an existing Operator Identity, represents a new Operation, or should be rejected — not merely approve/reject a queue.
+		39 text Counts UNKNOWN — request unavailable
+		26 text Comparison informs triage only. Governance remains analyst-controlled.
+		27 pop up button (collapsed, settable) Value: Actionable first · newest within group, ID: tr-sort, Secondary Actions: Expand
+			28 menu
+				29 (selected) Actionable first · newest within group
+				30 Newest
+				31 Oldest
+				32 Launch count
+		33 pop up button (collapsed, settable) Value: Status: Pending, ID: tr-status, Secondary Actions: Expand
+			34 menu
+				35 (selected) Status: Pending
+				36 Status: Investigating
+				37 Status: Rejected
+				38 Status: Confirmed
+		40 text UNAVAILABLE: Treasury review workspace — Request exceeded 3 seconds; server-side query cancellation is not guaranteed. No automatic retry; change filters or navigate manually.
+
+The focused UI element is 1 AXWebArea Treasury Review — Analyst Workspace, URL: 127.0.0.1:8197/intelligence/treasury-review
+DEVELOPMENT — READ ONLY — PRODUCTION DATA CANNOT BE MODIFIED
+FLEX
+OPERATIONS OS
+◆ Mission Control
+INTELLIGENCE
+Operations Registry & Live Monitor
+▤ Operation Playbook
+Potential Operations
+SYSTEM
+API
+DETAIL
+API live · detailed health in System Health
+Mission Control›Treasury Review
+Treasury Review
+Analyst investigation workspace
+Decide whether each treasury expands an existing Operator Identity, represents a new Operation, or should be rejected — not merely approve/reject a queue.
+Counts UNKNOWN — request unavailable
+Comparison informs triage only. Governance remains analyst-controlled.
+Actionable first · newest within group
+Newest
+Oldest
+Launch count
+Status: Pending
+Status: Investigating
+Status: Rejected
+Status: Confirmed
+UNAVAILABLE: Treasury review workspace — Request exceeded 3 seconds; server-side query cancellation is not guaranteed. No automatic retry; change filters or navigate manually.

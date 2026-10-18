@@ -1,0 +1,72 @@
+{
+  "status": "PASS",
+  "source_root": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/clean-source",
+  "source_hashes": {
+    "src/ops/walkback_create_handoff.py": "00543c3a7d1ac2d8630af687809f0379f89bcf594934d7d9e6471980f78f0363",
+    "tests/test_dev090_handoff.py": "81d629da3bbe8f16a458c8e9d571aee8d39434f60e6c39d12ed9c2eec8dbea8e",
+    "tests/dev090_process_crash_driver.py": "9ecfebbca948a79f45f36c1339bf8274eb52542d6cb687ba6b449893ce99891b",
+    "docs/audits/dev043/isolation_bootstrap.py": "129e4f7313e88ae7ef9dbe7e9e647d7f2c08f83b15f2fee04db6771455eb99e5"
+  },
+  "cases": [
+    {
+      "status": "PASS",
+      "committed_execution_model_count": 0,
+      "duplicate_count": 0,
+      "point": "before_core_commit",
+      "mode": "recover",
+      "isolation_events": []
+    },
+    {
+      "status": "PASS",
+      "committed_execution_model_count": 1,
+      "duplicate_count": 1,
+      "point": "after_core_commit",
+      "mode": "recover",
+      "isolation_events": []
+    },
+    {
+      "status": "PASS",
+      "committed_execution_model_count": 1,
+      "duplicate_count": 1,
+      "point": "before_ops",
+      "mode": "recover",
+      "isolation_events": []
+    },
+    {
+      "status": "PASS",
+      "committed_execution_model_count": 1,
+      "duplicate_count": 1,
+      "point": "during_ops",
+      "mode": "recover",
+      "isolation_events": []
+    },
+    {
+      "status": "PASS",
+      "committed_execution_model_count": 1,
+      "duplicate_count": 1,
+      "point": "after_ops_commit",
+      "mode": "recover",
+      "isolation_events": []
+    },
+    {
+      "status": "PASS",
+      "committed_execution_model_count": 1,
+      "duplicate_count": 1,
+      "point": "before_ack",
+      "mode": "recover",
+      "isolation_events": []
+    },
+    {
+      "status": "PASS",
+      "committed_execution_model_count": 1,
+      "duplicate_count": 1,
+      "point": "after_ack",
+      "mode": "recover",
+      "isolation_events": []
+    }
+  ],
+  "provider_calls": 0,
+  "canonical_writes": 0,
+  "unexpected_guard_denials": 0,
+  "limits": "Seven real process exits; CAS execution model is separate from actual worker completion test. Frozen guards active in every child; parent is bounded outer orchestrator only."
+}

@@ -1,0 +1,323 @@
+Browser tab: 10, Title: "Mission Control", URL: "http://127.0.0.1:8197/system-health".
+1 AXWebArea Mission Control, URL: 127.0.0.1:8197/system-health
+	2 text DEVELOPMENT — READ ONLY — PRODUCTION DATA CANNOT BE MODIFIED
+	3 container
+		4 text FLEX
+		5 text OPERATIONS OS
+		6 container Primary
+			7 link Description: ◆ Mission Control, Value: 127.0.0.1:8197/ops-os
+			8 text INTELLIGENCE
+			9 link Description: Operations Registry & Live Monitor, Value: 127.0.0.1:8197/intelligence/operators
+			10 link Description: ▤ Operation Playbook, Value: 127.0.0.1:8197/operations/playbooks
+			11 link Description: Potential Operations, Value: 127.0.0.1:8197/intelligence/potential-operations
+			12 container
+				13 button (expanded) SYSTEM ▸, Secondary Actions: Collapse
+					14 text SYSTEM
+					15 text ▸
+				16 link Description: System Health, Value: 127.0.0.1:8197/system-health
+		17 container sys-health-strip
+			18 text API
+			19 text DETAIL
+			51 text API live · detailed health in System Health
+	21 container
+		22 heading  Mission Control, Value: 1
+			23 text 
+			24 text  Mission Control
+		25 text Platform · Ingestion · Intelligence · Infrastructure
+		26 button  Refresh, ID: refreshBtn
+			27 text 
+			28 text  Refresh
+		52 text Last updated: 18:26:40
+	30 container mc-banner
+		53 text 
+		54 text Critical — Live ingestion unavailable Creator Funding WARNING · Operational Intelligence WARNING
+	55 container mc-cap-strip
+		56 container
+			57 text  Live Ingestion
+		58 container
+			59 text  Creator Funding
+		60 container
+			61 text  Operational Intelligence
+		62 container
+			63 text  Infrastructure
+	64 container mc-incidents
+		65 text 
+		66 text CRITICAL Live ingestion unavailable 49s ago
+		67 text STARTED
+		68 text 17:25 UTC
+		69 text TREND
+		70 text IMPACT
+		71 content list
+			72 container
+				73 AXListMarker • 
+				74 text Birth rate collapsed
+			75 container
+				76 AXListMarker • 
+				77 text Migration activity below expected profile
+			78 container
+				79 AXListMarker • 
+				80 text PumpPortal unavailable
+			81 container
+				82 AXListMarker • 
+				83 text PumpSwap unavailable
+		84 text CONTRIBUTING SIGNALS
+		85 content list
+			86 container
+				87 AXListMarker • 
+				88 text Birth rate collapsed: historical throughput evidence unavailable within endpoint budget
+			89 container
+				90 AXListMarker • 
+				91 text Migration activity below expected profile: 563.2min since last migration (band=critical)
+			92 container
+				93 AXListMarker • 
+				94 text PumpPortal unavailable: UNKNOWN
+			95 container
+				96 AXListMarker • 
+				97 text PumpSwap unavailable: UNKNOWN
+		98 link Description:  Jump to Live Ingestion, Value: 127.0.0.1:8197/system-health#mc-cap-live_ingestion
+		99 container
+			100 text  WARNING Creator funding degraded 49s ago
+		101 container
+			102 text  WARNING Operational intelligence degraded 49s ago
+	103 container mc-capability-grid
+		104 container mc-cap-live_ingestion
+			105 text Live Ingestion
+			106 text BIRTHS
+			107 text Observed baseline unavailable Last event 9h 23m ago Birth queue 0
+			108 text MIGRATIONS
+			109 text 🔴 Critical
+			110 text 563 minutes since last migration Migration queue 0
+			111 container
+				112 text CRITICAL Evidence 4/6 signals 
+		113 container mc-cap-creator_funding
+			114 container
+				115 text Creator Funding 
+			116 text Worker stopped, Heartbeat stale
+		117 container mc-cap-operational_intelligence
+			118 container
+				119 text Operational Intelligence 
+			120 text Resolution stale
+			121 text 
+			122 text WATCHTOWER (Operation): WARNING
+		123 container mc-cap-infrastructure
+			124 container
+				125 text Infrastructure 
+			126 text Healthy
+	127 container grp-platform
+		128 container
+			129 text  Platform
+			130 text CRITICAL
+			131 text WATCHTOWER CRITICAL · RECOVERY MODE
+			132 text 
+		133 container grp-platform-body
+			134 text STATUS
+			135 text CRITICAL
+			136 text MODE
+			137 text RECOVERY
+			138 text SUBSYSTEMS
+			139 text 7 tracked
+			140 container wt-subsystem-pills
+				141 text LISTENER
+				142 text DEGRADED
+				143 text PP:UNKNOWN · PS:UNKNOWN
+				144 text CASCADE
+				145 text UNKNOWN
+				146 text DATABASE
+				147 text HEALTHY
+				148 text p99 0ms
+				149 text API
+				150 text HEALTHY
+				151 text INTELLIGENCE
+				152 text DEGRADED
+				153 text CRQ 0 · FW STALLED
+	154 container grp-ingestion
+		155 container
+			156 text  Ingestion Pipeline
+			157 text WARNING
+			158 text Listener ✓ · Funding queue loading · births 9h ago
+			159 text 
+		160 container grp-ingestion-body
+			161 text LISTENER
+			162 text RUNNING
+			163 text QUEUE
+			164 text Loading…
+			165 text PROCESSING (24H)
+			166 text Loading…
+			167 text OLDEST SIGNAL
+			168 text 9h ago
+			169 text CONNECTIONS PumpPortal  UNKNOWN PumpSwap  UNKNOWN Birth Reconciler  IDLE Log Age  — QUEUES Birth Queue  0  pending Migration Queue  0  pending,  0  retry Funding Queue  Loading… Funding Failed  —
+			170 container
+				171 text Migrations/hr: 
+				172 text 0 this hour
+			173 text ISSUES
+			174 text • No births in 563m
+			175 text • Migration activity: 563 minutes since last migration (exceeds expected burst profile)
+			176 button  Show ingestion detail, ID: ing-l3-btn
+				177 text 
+				178 text Show ingestion detail
+	179 container grp-intelligence
+		180 container
+			181 text  Intelligence
+			182 text WARNING
+			183 text Creator Queue 0 pending · Funding Worker STALLED · Walkback UNKNOWN
+			184 text 
+		185 container grp-intelligence-body
+			186 text CREATOR QUEUE
+			187 text 0 pending
+			188 text MISSING CREATORS (1H)
+			189 text 0
+			190 text ISSUES
+			191 text • Funding worker heartbeat stale (9h ago)
+			192 text 
+			193 text FUNDING WORKER STALLED Queue Depth  89 Oldest Item  — Processing Rate  0.5/min Last Cycle  10h ago
+			194 text 
+			195 text WALKBACK CANDIDATE GENERATION
+			196 text Walkback candidate health unavailable.
+	46 container
+		47 text  Infrastructure
+		197 text HEALTHY
+		198 text DB HEALTHY · 0 locks/1h · WAL 0MB
+		50 text 
+
+The focused UI element is 1 AXWebArea Mission Control, URL: 127.0.0.1:8197/system-health
+DEVELOPMENT — READ ONLY — PRODUCTION DATA CANNOT BE MODIFIED
+FLEX
+OPERATIONS OS
+◆ Mission Control
+INTELLIGENCE
+Operations Registry & Live Monitor
+▤ Operation Playbook
+Potential Operations
+SYSTEM
+System Health
+API
+DETAIL
+API live · detailed health in System Health
+ Mission Control
+
+Platform · Ingestion · Intelligence · Infrastructure
+
+ Refresh
+Last updated: 18:26:40
+Critical — Live ingestion unavailable
+Creator Funding WARNING · Operational Intelligence WARNING
+Live Ingestion
+Creator Funding
+Operational Intelligence
+Infrastructure
+CRITICAL
+Live ingestion unavailable
+49s ago
+STARTED
+17:25 UTC
+TREND
+IMPACT
+Birth rate collapsed
+Migration activity below expected profile
+PumpPortal unavailable
+PumpSwap unavailable
+CONTRIBUTING SIGNALS
+Birth rate collapsed: historical throughput evidence unavailable within endpoint budget
+Migration activity below expected profile: 563.2min since last migration (band=critical)
+PumpPortal unavailable: UNKNOWN
+PumpSwap unavailable: UNKNOWN
+Jump to Live Ingestion
+WARNING
+Creator funding degraded
+49s ago
+WARNING
+Operational intelligence degraded
+49s ago
+Live Ingestion
+BIRTHS
+Observed
+baseline unavailable
+Last event
+9h 23m ago
+Birth queue
+0
+MIGRATIONS
+🔴 Critical
+563 minutes since last migration
+Migration queue
+0
+CRITICAL
+Evidence 4/6 signals
+Creator Funding
+Worker stopped, Heartbeat stale
+Operational Intelligence
+Resolution stale
+WATCHTOWER (Operation): WARNING
+Infrastructure
+Healthy
+Platform
+CRITICAL
+WATCHTOWER CRITICAL · RECOVERY MODE
+STATUS
+CRITICAL
+MODE
+RECOVERY
+SUBSYSTEMS
+7 tracked
+LISTENER
+DEGRADED
+PP:UNKNOWN · PS:UNKNOWN
+CASCADE
+UNKNOWN
+DATABASE
+HEALTHY
+p99 0ms
+API
+HEALTHY
+INTELLIGENCE
+DEGRADED
+CRQ 0 · FW STALLED
+Ingestion Pipeline
+WARNING
+Listener ✓ · Funding queue loading · births 9h ago
+LISTENER
+RUNNING
+QUEUE
+Loading…
+PROCESSING (24H)
+Loading…
+OLDEST SIGNAL
+9h ago
+CONNECTIONS
+PumpPortal 
+UNKNOWN
+PumpSwap 
+UNKNOWN
+Birth Reconciler 
+IDLE
+Log Age —
+QUEUES
+Birth Queue 0 pending
+Migration Queue 0 pending, 0 retry
+Funding Queue Loading…
+Funding Failed —
+Migrations/hr:  0 this hour
+ISSUES
+• No births in 563m
+• Migration activity: 563 minutes since last migration (exceeds expected burst profile)
+Show ingestion detail
+Intelligence
+WARNING
+Creator Queue 0 pending · Funding Worker STALLED · Walkback UNKNOWN
+CREATOR QUEUE
+0 pending
+MISSING CREATORS (1H)
+0
+ISSUES
+• Funding worker heartbeat stale (9h ago)
+FUNDING WORKER
+STALLED
+Queue Depth 89
+Oldest Item —
+Processing Rate 0.5/min
+Last Cycle 10h ago
+WALKBACK CANDIDATE GENERATION
+Walkback candidate health unavailable.
+Infrastructure
+HEALTHY
+DB HEALTHY · 0 locks/1h · WAL 0MB

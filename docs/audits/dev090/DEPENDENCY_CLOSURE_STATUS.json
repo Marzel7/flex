@@ -1,0 +1,74 @@
+{
+  "DEV090_DEPENDENCY_CLOSURE_STATUS": "HOLD_MISSING_QUALIFIED_DEPENDENCY",
+  "DEV090_SOURCE_AUTHORITY": "9073fd34819145615b7883ba1c7cc499174d68f9",
+  "MISSING_MODULE_AUTHORITY": {
+    "installed_path": "/Users/kevinkeaveney/Production/flex-listener/src/ops/acquisition_availability.py",
+    "installed_checkout_sha": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "original_source_commit": "b0883b68874fb2a1bd39edcd4a7030f8936bb0f8",
+    "git_blob": "6756ded3fe241c7ebf0e80a0c347671f13c49643",
+    "sha256": "135907c90de858ac403da6ab92cf1a00b5714b5c0c61acc730dd917aed7458ad",
+    "bytes": 4112,
+    "installed_matches_HEAD_and_original_commit": true,
+    "module_worktree_clean": true,
+    "loaded_process_identity": "NOT_ATTESTED; installed file authority only"
+  },
+  "IMPORTED_SYMBOL": "AcquisitionAvailability",
+  "LISTENER_CALL_PATH": {
+    "import_line": 34,
+    "constructor_line": 1647,
+    "startup_transitions": [
+      1648,
+      1649
+    ],
+    "migration_available_line": 10697,
+    "migration_down_line": 10860,
+    "birth_available_line": 11108,
+    "birth_down_line": 11200,
+    "role": "Listener intake availability instrumentation; instantiated at listener construction and called on birth/migration websocket state changes. Not the CREATE proof or OPS delivery implementation, but unconditional dependency of the prospective intake module."
+  },
+  "QUALIFIED_SOURCE_PROVENANCE": {
+    "result": "NOT_ESTABLISHED",
+    "original_commit_purpose": "Freeze API static import closure candidate",
+    "retained_evidence": "dev043_health_restoration_qualification.LATEST_ACCEPTED_HEALTH_SOURCE explicitly says d2fffdc3/b0883b68 richer recovery source was not established as latest accepted complete implementation; snapshot alone is not acceptance.",
+    "checked_authorities": [
+      "actual installed flex-listener tracked file/history",
+      "current DEV090 source and source-preimages",
+      "known DEV078\u2013DEV090 audit authority/composition manifests",
+      "DEV047 protected DEV043 release dependency manifests",
+      "existing durable candidate source/dependency/qualification manifests"
+    ],
+    "matching_qualified_manifest_entries": 0,
+    "interpretation": "Attributable committed source exists. Existing qualified composition evidence was not found in the bounded authorized authorities. This is not a claim that the module never operated successfully."
+  },
+  "TRANSITIVE_IMPORT_CLOSURE": {
+    "static_direct_imports": [
+      "__future__.annotations",
+      "hashlib",
+      "json",
+      "os",
+      "sqlite3",
+      "time",
+      "pathlib.Path"
+    ],
+    "nonstdlib_imports": [],
+    "import_time_calls_or_writes": "None: imports/constants/class/function definitions only",
+    "runtime_effects": "transition() uses SQLite, creates availability table/index if needed and records transition; constructor itself stores two fields. Existing behaviour observed, not executed or changed.",
+    "complete_listener_import_qualification": "NOT_RUN because mandatory existing-qualified-authority condition unmet"
+  },
+  "WALKBACK_SOURCE_UNCHANGED": true,
+  "INBOX_SOURCE_UNCHANGED": true,
+  "APPLICATION_FILES_CHANGED": [],
+  "RELEASE_REGRESSION_RESULTS": "NOT_RERUN: explicit stop at missing qualified dependency authority. Prior 236 Python, seven crash cases, ten browser contracts and 61 tooling controls remain preserved; no fresh PASS substituted.",
+  "CLEAN_CHECKOUT_RESTORATION": "NOT_RUN; release remains unqualified",
+  "CANDIDATE_SOURCE_SHA": null,
+  "READY_FOR_TARGETED_DEPLOYMENT": false,
+  "NEXT_ACTION": "Provide an existing qualified source-composition manifest covering this exact module hash, or separately authorize first-time qualification of the attributable installed module. Do not restore or create a candidate under the current existing-qualified-authority condition.",
+  "RUNTIME_DEPLOYMENT_REQUIRED": false,
+  "RUNTIME_DEPLOYMENT_REASON": "Read-only dependency provenance qualification and documentation only; no executable changes",
+  "STORAGE": "Compact report only, below 64 KiB; no new runtime storage, raw retention or unbounded growth paths",
+  "PROVIDER_CALLS": 0,
+  "CANONICAL_WRITES": 0,
+  "PRODUCTION_CHANGES": 0,
+  "SERVICE_RESTARTS": 0,
+  "DEPLOYMENT": false
+}

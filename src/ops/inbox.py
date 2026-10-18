@@ -19,6 +19,7 @@ Design rules:
 from __future__ import annotations
 
 import sqlite3
+from pathlib import Path
 import time
 import uuid
 from dataclasses import dataclass, field, asdict
@@ -169,6 +170,18 @@ def ensure_inbox_schema(conn: sqlite3.Connection) -> None:
 
 # ── InboxStore ────────────────────────────────────────────────────────────────
 
+class InboxUnavailableError(RuntimeError):
+    """Existing Inbox evidence cannot be read; never initialize it in read-only mode."""
+
+
+class _ReadOnlyInboxConnection(sqlite3.Connection):
+    def __exit__(self, *args):
+        try:
+            return super().__exit__(*args)
+        finally:
+            self.close()
+
+
 class InboxStore:
     """
     Read/write access to the analyst_inbox table.
@@ -177,15 +190,38 @@ class InboxStore:
     the hot token DB.
     """
 
-    def __init__(self, db_path: str) -> None:
+    def __init__(self, db_path: str, *, read_only: bool = False) -> None:
         self._path = db_path
-        with self._connect() as conn:
-            ensure_inbox_schema(conn)
+        self._read_only = read_only
+        if read_only:
+            try:
+                conn = self._connect()
+                try:
+                    # Validate the existing projection without DDL or writer registration.
+                    conn.execute("SELECT item_id,dedup_key,operation_id,entity_id,subject_type,"
+                                 "priority,confidence,headline,summary,reason,recommended_action,"
+                                 "created_at,updated_at,status,meta FROM analyst_inbox LIMIT 0")
+                finally:
+                    conn.close()
+            except sqlite3.Error as exc:
+                raise InboxUnavailableError("Read-only Inbox evidence/schema unavailable") from exc
+        else:
+            with self._connect() as conn:
+                ensure_inbox_schema(conn)
 
     def _connect(self) -> sqlite3.Connection:
-        conn = sqlite3.connect(self._path, timeout=5)
+        if self._read_only:
+            uri = Path(self._path).resolve().as_uri() + "?mode=ro"
+            conn = sqlite3.connect(uri, uri=True, timeout=5, factory=_ReadOnlyInboxConnection)
+            conn.execute("PRAGMA query_only=ON")
+        else:
+            conn = sqlite3.connect(self._path, timeout=5)
         conn.row_factory = sqlite3.Row
         return conn
+
+    def _require_writable(self) -> None:
+        if self._read_only:
+            raise PermissionError("Inbox store is read-only")
 
     # ── Write ─────────────────────────────────────────────────────────────────
 
@@ -197,6 +233,7 @@ class InboxStore:
         - Do NOT reset status (analyst may have already acknowledged it).
         - Do NOT update created_at.
         """
+        self._require_writable()
         import json
         now = int(time.time())
         with self._connect() as conn:
@@ -243,6 +280,7 @@ class InboxStore:
             conn.commit()
 
     def set_status(self, item_id: str, status: str) -> bool:
+        self._require_writable()
         if status not in STATUSES_VALID:
             return False
         with self._connect() as conn:
@@ -255,6 +293,7 @@ class InboxStore:
 
     def expire_resolved(self, older_than_seconds: int = 86400 * 7) -> int:
         """Mark RESOLVED items older than threshold as EXPIRED."""
+        self._require_writable()
         cutoff = int(time.time()) - older_than_seconds
         with self._connect() as conn:
             cur = conn.execute(

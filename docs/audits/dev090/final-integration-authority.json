@@ -1,0 +1,22 @@
+{
+  "parent": "9999c2178e9cb11d2b1c0a83c2e6d917d8de7252",
+  "DEV084_implementation": "9d32e5b6d6e045c334b02dfc7ec409dac5c78f8f",
+  "source_preimage_compatibility": "EXACT",
+  "imports": {
+    "src/ops/inbox.py": "626078fa7bd9e8fe26eb757e5b2740cf8e7a2b46aef52abb8df70d133d6f3b3d",
+    "src/ops/inbox_routes.py": "b58ecdb820379b16220fa2ca5499d21bb040577fb682f39a521f0335fb4d8c97",
+    "tests/test_dev084_inbox_readonly.py": "cef7eca615659e1750bd1ea74440f347b4482df83f66f2a99482e2d287875d21",
+    "tests/test_ops_x7_inbox.py": "384c796fcb312a4484a1feda19622ceeca8095ae96d9c2ab4945024c028febbc",
+    "docs/audits/dev084/source-authority.json": "05f2678877fd874e581bb6a41b27c181b88ab442c7997adad5bab21e8dfe19e2"
+  },
+  "walkback_changes": false,
+  "unchanged_handoff_sha256": "00543c3a7d1ac2d8630af687809f0379f89bcf594934d7d9e6471980f78f0363",
+  "disk": {
+    "time_utc": "2026-10-18T17:37:49.442362+00:00",
+    "free_bytes": 10967752704,
+    "fixture_peak_budget_bytes": 1000000000,
+    "reserve_bytes": 2000000000,
+    "precondition": "PASS isolated tests only"
+  },
+  "operational_authorization": false
+}

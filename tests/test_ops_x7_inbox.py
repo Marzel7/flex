@@ -19,6 +19,16 @@ import json
 import pytest
 
 
+@pytest.fixture(autouse=True)
+def isolated_adapter_evidence(tmp_path, monkeypatch):
+    # Legacy adapter tests exercise empty/error sources; bind those reads to
+    # disposable evidence rather than the source tree's absent OPS database.
+    import src.core.db as db
+    path = tmp_path / "adapter-evidence.db"
+    sqlite3.connect(path).close()
+    monkeypatch.setattr(db, "OPS_DB_PATH", path)
+
+
 # ── helpers ──────────────────────────────────────────────────────────────────
 
 def _make_item(**overrides):
@@ -331,6 +341,7 @@ def client():
 
     from src.ops.inbox import InboxStore
     ir._store = InboxStore(db_path)
+    ir._read_store = InboxStore(db_path, read_only=True)
 
     app = Flask(__name__, template_folder=os.path.join(root, "templates"),
                 static_folder=os.path.join(root, "static"))
@@ -340,6 +351,8 @@ def client():
     with app.test_client() as c:
         yield c
 
+    ir._store = None
+    ir._read_store = None
     try:
         os.unlink(db_path)
     except OSError:

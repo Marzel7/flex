@@ -12,29 +12,48 @@ GET  /intelligence/inbox                → inbox page
 from __future__ import annotations
 
 import time
+import sqlite3
+from functools import wraps
 from flask import Blueprint, jsonify, request, render_template
 
-from src.ops.inbox import InboxStore, STATUSES_VALID
+from src.ops.inbox import InboxStore, InboxUnavailableError, STATUSES_VALID
 from src.ops.inbox_adapters import refresh_inbox
 
 inbox_bp = Blueprint("inbox", __name__)
 
 _store: InboxStore | None = None
+_read_store: InboxStore | None = None
 
 
-def _get_store() -> InboxStore:
-    global _store
+def _get_store(*, read_only: bool = False) -> InboxStore:
+    global _store, _read_store
+    if read_only:
+        if _read_store is None:
+            from src.core.db import OPS_DB_PATH
+            _read_store = InboxStore(str(OPS_DB_PATH), read_only=True)
+        return _read_store
     if _store is None:
         from src.core.db import OPS_DB_PATH
         _store = InboxStore(str(OPS_DB_PATH))
     return _store
 
 
+def _readonly_errors(view):
+    @wraps(view)
+    def guarded(*args, **kwargs):
+        try:
+            return view(*args, **kwargs)
+        except (InboxUnavailableError, sqlite3.Error):
+            return jsonify({"ok": False, "error": "Read-only Inbox evidence/schema unavailable"}), 503
+    return guarded
+
+
 # ── API routes ────────────────────────────────────────────────────────────────
 
 @inbox_bp.route("/api/ops/inbox")
+@_readonly_errors
 def inbox_all():
-    store = _get_store()
+    store = _get_store(read_only=True)
     limit = min(int(request.args.get("limit", 50)), 200)
     items = store.fetch_active(limit=limit)
     return jsonify({
@@ -46,8 +65,9 @@ def inbox_all():
 
 
 @inbox_bp.route("/api/ops/inbox/summary")
+@_readonly_errors
 def inbox_summary():
-    store = _get_store()
+    store = _get_store(read_only=True)
     summary = store.fetch_summary()
     summary["ok"] = True
     summary["generated_at"] = int(time.time())
@@ -55,8 +75,9 @@ def inbox_summary():
 
 
 @inbox_bp.route("/api/ops/inbox/<op_id>")
+@_readonly_errors
 def inbox_for_op(op_id: str):
-    store = _get_store()
+    store = _get_store(read_only=True)
     limit = min(int(request.args.get("limit", 50)), 200)
     items = store.fetch_active(operation_id=op_id, limit=limit)
     return jsonify({

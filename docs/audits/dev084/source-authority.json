@@ -1,0 +1,34 @@
+{
+  "files": [
+    {
+      "path": "src/ops/inbox.py",
+      "authority": "/Users/kevinkeaveney/Production/flex-api-dev002",
+      "preimage_sha256": "df9c5f53058db9ed19bd2b4781cb9c157e5d8077ce43c759ed720210e9bab879",
+      "role": "Application correction target",
+      "candidate_sha256": "626078fa7bd9e8fe26eb757e5b2740cf8e7a2b46aef52abb8df70d133d6f3b3d"
+    },
+    {
+      "path": "src/ops/inbox_routes.py",
+      "authority": "/Users/kevinkeaveney/Production/flex-api-dev002",
+      "preimage_sha256": "bec34000afc8da0d0ce88bd493ed09819e5b3c99f3b89225fdc1ce8d7a27bd52",
+      "role": "Application correction target",
+      "candidate_sha256": "b58ecdb820379b16220fa2ca5499d21bb040577fb682f39a521f0335fb4d8c97"
+    },
+    {
+      "path": "src/utils/db_locking.py",
+      "authority": "/Users/kevinkeaveney/Production/flex-walkback",
+      "preimage_sha256": "ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89",
+      "role": "Exact existing writer dependency; not a deployment target",
+      "candidate_sha256": "ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89"
+    },
+    {
+      "path": "src/core/database_write_service.py",
+      "authority": "/Users/kevinkeaveney/Production/flex-walkback",
+      "preimage_sha256": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2",
+      "role": "Exact existing writer dependency; not a deployment target",
+      "candidate_sha256": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2"
+    }
+  ],
+  "DEV082_source_unchanged": "a504e25ce9f8f76720fddbd8bdbc3854c0053f78",
+  "DEV082_integration": "Two Inbox files only; writer dependencies already identical in DEV082; Walkback source untouched"
+}

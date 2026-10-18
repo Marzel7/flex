@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev074",
-    "git_head": "a34f6968e12c9d9c12ae1c00917fbe241f3892d9",
+    "branch": "codex/dev075",
+    "git_head": "4abe4aace13dd112d7b253e6ab14ace28cb5bdef",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T08:16:01.054897+00:00",
-    "working_tree": "DEV074 unchanged; storage available without cleanup; frontend/API pass; release HOLD at Health browser contract; isolated server stopped."
+    "updated_at_utc": "2026-10-18T08:28:23.734906+00:00",
+    "working_tree": "DEV075 audit committed; exact transaction acquisition requires separate authorization; no runtime changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31854,5 +31854,24 @@
     "production_changes": 0,
     "next_action": "User inspect existing8145preview; leave running. No additional development or deployment authorized.",
     "updated_at": "2026-10-18T08:21:55.888726+00:00"
+  },
+  "dev075_exact_token_audit": {
+    "status": "INSUFFICIENT_EVIDENCE_AWAITING_AUTHORIZATION",
+    "engineering_source_sha": "4abe4aace13dd112d7b253e6ab14ace28cb5bdef",
+    "baseline_sha": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "target_mint": "68yywen51ppvR2zWptcpvmc5H5a5SC6tsz8evAP2pump",
+    "first_proven_gap": "Core creator/CREATE resolution complete, Walkback creator/anchor null; waiting with anchor lookups=0 and attempts=0. No demonstrated admission rejection.",
+    "creator_authority": "Recorded creator is CREATE fee-payer heuristic; serialized Pump creator argument unverified.",
+    "qualification": "DEV048 create/verify PASS; bounded indexed read-only queries and EXPLAIN plans preserved; JSON/hashes/size/sanitization checks PASS. No full transaction decode in examined caches.",
+    "audit_path": "docs/audits/dev075/DEV075_WATCHTOWER_EXACT_TOKEN_STATUS.json",
+    "proposal_path": "docs/audits/dev075/three-exact-transaction-read-proposal.json",
+    "runtime_deployment_required": false,
+    "reason": "Audit-only; no executable application changes.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "activation": "NONE; no implementation/deployment/replay",
+    "blocker": "Original instruction/account evidence absent from examined retained authorities; full topology and Pump creator cannot be independently established.",
+    "next_action": "Separately authorize exact three-signature proposal; maximum 3 Helius getTransaction requests, concurrency 1, retries 0, no raw retention. No requests yet."
   }
 }

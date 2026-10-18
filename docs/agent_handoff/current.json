@@ -31785,5 +31785,20 @@
     "production_changes": 0,
     "application_changes": 0,
     "next_action": "Obtain original verifiable checkpoint if available; otherwise approve fresh snapshot-based search with acknowledged rereads. Do not resume by ordinal skip."
+  },
+  "dev073_deterministic_birth_search": {
+    "status": "HOLD_READ_BUDGET",
+    "engineering_source_sha": "64f5760b297ab6f8742e5529a95255f8338a1858",
+    "verification": "One bounded metadata pass reached1000000 regular files/1290974063 sourcebytes before exhaustion;999424 metadata rows preserved in244sorted chunks. No birth payload reads. No complete manifest or payload budget qualified.",
+    "blocker": "Predeclared metadata cap of 1000000 regular files exhausted before directory enumeration completed. This cap was insufficient, not proof that a larger search is intrinsically unsafe. Complete inventory size and payload read budget not established.",
+    "partial_inventory_sha256": "1d07f55e264206d7ec050d434beeec40116f2bcced8130c16ecc01f5312589b4",
+    "activation_state": "NO_ACTIVATION",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Forensic metadata inventory only.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "application_changes": 0,
+    "next_action": "A larger bounded metadata pass is needed to establish a full manifest. Current enumeration cannot resume after process exit without another directory pass; acknowledge metadata rereads before proceeding. Do not infer absence or resume payload reads by ordinal position."
   }
 }

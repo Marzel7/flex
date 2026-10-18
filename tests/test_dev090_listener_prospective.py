@@ -1,44 +1,39 @@
-"""Exact listener discovery boundary: provider-free extracted active method."""
-import ast
-import asyncio
-import os
+"""Existing launcher switches isolate historical work; no production execution."""
+import ast,hashlib,os
 from pathlib import Path
 import pytest
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=ROOT/'src/core/pumpfun_curve_listener.py'
-def method():
+LAUNCHER=ROOT/'run_listener.sh'
+def gate(setting):
  tree=ast.parse(SOURCE.read_text())
- node=next(n for n in ast.walk(tree) if isinstance(n,ast.AsyncFunctionDef) and n.name=='_process_creator_resolution_queue_periodic')
- module=ast.Module(body=[node],type_ignores=[])
- calls=[]
- class Boundary:
-  async def sleep(self,*a):
-   calls.append('enabled-loop');raise RuntimeError('fixture stops before database or provider')
- namespace={'os':os,'asyncio':Boundary()}
- exec(compile(module,str(SOURCE),'exec'),namespace)
- return namespace[node.name],calls
-@pytest.mark.parametrize('value',['0','', 'invalid'])
-def test_disabled_startup_restart_never_imports_scans_or_processes(monkeypatch,value):
- monkeypatch.setenv('CRQ_HISTORICAL_DISCOVERY_ENABLED',value)
- f,calls=method()
- for _ in range(2):asyncio.run(f(object()))
- assert calls==[]
-@pytest.mark.parametrize('value',[None,'1'])
-def test_normal_production_periodic_contract_preserved(monkeypatch,value):
- if value is None:monkeypatch.delenv('CRQ_HISTORICAL_DISCOVERY_ENABLED',raising=False)
- else:monkeypatch.setenv('CRQ_HISTORICAL_DISCOVERY_ENABLED',value)
- f,calls=method()
- with pytest.raises(RuntimeError,match='fixture stops'):asyncio.run(f(object()))
- assert calls==['enabled-loop']
-def test_direct_migration_and_birth_paths_not_gated():
- tree=ast.parse(SOURCE.read_text())
- for name in ['_store_analysis','_handle_pumpportal_create_frame','_insert_bonding_curve_token']:
-  n=next(n for n in ast.walk(tree) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name==name)
-  assert 'CRQ_HISTORICAL_DISCOVERY_ENABLED' not in ast.get_source_segment(SOURCE.read_text(),n)
+ candidates=[n for n in ast.walk(tree) if isinstance(n,ast.If) and setting in ast.unparse(n.test)]
+ assert len(candidates)==1
+ n=candidates[0];seen=[]
+ class Tasks:
+  def create_task(self,value):seen.append(value)
+ class Listener:
+  def _process_creator_resolution_queue_periodic(self):return 'creator-sweep'
+  def _migration_reconciler_loop(self):return 'migration-history'
+ exec(compile(ast.Module(body=[n],type_ignores=[]),str(SOURCE),'exec'),{'os':os,'asyncio':Tasks(),'self':Listener(),'log_print':lambda *a,**k:None})
+ return seen
+@pytest.mark.parametrize('setting',['LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED','LISTENER_MIGRATION_RECONCILER_ENABLED'])
+def test_disabled_startup_restart_no_historical_worker(monkeypatch,setting):
+ monkeypatch.setenv(setting,'0')
+ for _ in range(2):assert gate(setting)==[]
+@pytest.mark.parametrize('setting',['LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED','LISTENER_MIGRATION_RECONCILER_ENABLED'])
+def test_enabled_existing_contract_is_not_changed(monkeypatch,setting):
+ monkeypatch.setenv(setting,'1');assert len(gate(setting))==1
 
-def test_exact_listener_preimage_and_provider_subscription_equivalence():
- import hashlib
- text=SOURCE.read_text()
- guard='        # In prospective-only mode the deployed creator worker owns resolution.\n        # Exit before importing the listener-local historical queue helper.\n        if os.environ.get("CRQ_HISTORICAL_DISCOVERY_ENABLED", "1") != "1":\n            return\n'
- assert text.count(guard)==1
- assert hashlib.sha256(text.replace(guard,'').encode()).hexdigest()=='c2bd4292d7c2ae786f89d1ae98831dccfc0b26011d6a29ceb145b2c2d72792a5'
+def test_launcher_exact_installed_preimage_with_single_configuration_change():
+ text=LAUNCHER.read_text()
+ assert 'export LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED=0' in text
+ assert text.count('export LISTENER_MIGRATION_RECONCILER_ENABLED=0')==1
+ old=text.replace('export LISTENER_MIGRATION_RECONCILER_ENABLED=0','export LISTENER_MIGRATION_RECONCILER_ENABLED=1')
+ assert hashlib.sha256(old.encode()).hexdigest()=='d7a0db20c7aa8b8a5210774541e6b43bfdb422bd86723a21d3112d2152f3b8e3'
+
+def test_qualified_listener_and_all_direct_provider_contracts_unchanged():
+ assert hashlib.sha256(SOURCE.read_bytes()).hexdigest()=='c2bd4292d7c2ae786f89d1ae98831dccfc0b26011d6a29ceb145b2c2d72792a5'
+ assert 'export LISTENER_PUMPPORTAL_BIRTHS_ENABLED=1' in LAUNCHER.read_text()
+ assert 'export LISTENER_DISCOVERY_RPC_CONCURRENCY=3' in LAUNCHER.read_text()
+ assert 'export LISTENER_GETTX_RETRY_DELAYS=1' in LAUNCHER.read_text()

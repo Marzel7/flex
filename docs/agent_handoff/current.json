@@ -19272,8 +19272,8 @@
     "branch": "codex/dev090",
     "git_head": "f4ddfe4aff71a39c742e1be64763d7d978102083",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T18:36:43.433034+00:00",
-    "working_tree": "DEV090 source drift resolved to minimal overlay recommendation; no implementation/deployment; immutable candidate unchanged"
+    "updated_at_utc": "2026-10-18T18:44:22.060646+00:00",
+    "working_tree": "DEV090 target integration HOLD unresolved live Supervisor ownership; no overlays implemented; existing immutable candidate preserved"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32688,5 +32688,25 @@
     "service_restarts": 0,
     "candidate_mutation": false,
     "next_action": "Authorize/qualify minimal installed-preimage overlay only, including exact reversal hashes, creator authority, seven crash cases, configured Walkback funding/promotion/provider-budget regressions and complete release gates. Establish live Supervisor ownership and repeat deployment prerequisites before separately authorized installation."
+  },
+  "dev090_target_integration_ownership_preflight": {
+    "status": "HOLD_UNRESOLVED_RUNTIME_AUTHORITY",
+    "engineering_source_sha": "f4ddfe4aff71a39c742e1be64763d7d978102083",
+    "source_revalidation": "Creatorqueue ad225e20, configuredWalkback a45ccc0d, creatorworker79735086, analyzerb4f20643 and qualified Core/OPS writer hashes unchanged. Full hashes in local report.",
+    "supervisor": "Known configuration ownerUID501, configured walkback_worker->flex-walkback-dev002 and creator_resolution_worker->flex-main-workers. Configured socket/PIDfile absent; read-only supervisorctl status exits4 with no such file. No corresponding Supervisor/operational worker process observed. Active owner/loaded source cannot be attested.",
+    "stop_authority": "User instruction section1 explicitly requires stopping when runtime ownership or source authority cannot be established.",
+    "implementation": "NONE; no isolated overlay, source replacement, test stubs or runtime repairs",
+    "existing_candidate": "DEV090_CANDIDATE_f4ddfe4aff71 immutable flag/sealed hashes PASS; prior offline results unchanged",
+    "target_specific_tests": "NOT_RUN after mandatory pre-implementation stop; no new candidate or deployment readiness claim",
+    "report": "DEV090/target-integration-preflight/DEV090_TARGET_INTEGRATION_STATUS.json",
+    "ready_for_targeted_deployment": false,
+    "runtime_deployment_gate": "HOLD",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "source_changes": 0,
+    "service_restarts": 0,
+    "candidate_mutation": false,
+    "next_action": "Establish authoritative Supervisor ownership for targets, or explicitly authorize isolated source qualification against stopped configured runtime paths without requiring live ownership. Then resume exact minimal overlays; no operational restart/deployment implied."
   }
 }

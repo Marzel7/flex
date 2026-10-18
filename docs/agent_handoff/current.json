@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev077",
-    "git_head": "82cb182628fbc90cc9af2b581a232c4555d28d0c",
+    "branch": "codex/dev078",
+    "git_head": "d6b96d3d707736ad2cd8e6ff8eb37364f43e9641",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T09:32:00.857209+00:00",
-    "working_tree": "DEV077 design HOLD; no implementation, migration or deployment."
+    "updated_at_utc": "2026-10-18T09:50:34.921975+00:00",
+    "working_tree": "DEV078 initialized once after original instructions supplied; qualification evidence only; reconciler/authority HOLD."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32091,6 +32091,30 @@
     "production_changes": 0,
     "runtime_changes": 0,
     "next_action": "User supplies existingDEV078 worktree path and original stabilization instructions; resume there without creating a separate project.",
-    "runtime_deployment_required": false
+    "runtime_deployment_required": false,
+    "context_blocker_resolved": "Original instructions supplied; DEV078 initialized once through mandatory flex-dev. Prior missing-context HOLD superseded."
+  },
+  "dev078_walkback_stabilization": {
+    "status": "HOLD_EXISTING_RECONCILER_AUTHORITY_AND_BOUNDED_FAIRNESS",
+    "engineering_source_sha": "d6b96d3d707736ad2cd8e6ff8eb37364f43e9641",
+    "worktree": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV078/source",
+    "evidence": "docs/audits/dev078/DEV078_WALKBACK_STABILIZATION_STATUS.json",
+    "installed_version_summary": "Listener migration retrieval1/trade-context0; creator analyzer three sites1; Walkback_get_tx0; Cascade three sites0. Source hashes and supervisor authority recorded; loaded bytes not attested.",
+    "first_failures": "Oldest waiting LIMIT1 starves later rows; reconciler discards SAFE widened-Core source unless canonical ledger; classifier requires funding row before fallback. Accept-all-SAFE probe fails signer and conflicting-creator negatives.",
+    "tests": "12 bounded fixture controls: demonstrate defects; narrow OPS commit-failure/restart/duplicate recovery succeeds; V1 ceiling1 mock probe supportsV0/V1 one request each. No full execution/decoder/crash acceptance claimed. DEV048 verify PASS after clean audit-only commit.",
+    "proof_refinement": "Retained Core evidence can survive interruption, so outbox necessity not proven solely by callback loss. Must qualify bounded fair selection and independent creator proof; DEV077 fallback remains unimplemented.",
+    "DEV051_preserved": true,
+    "DEV074_integrated": false,
+    "new_durable_state_created": false,
+    "candidate_source_sha": null,
+    "ready_for_targeted_deployment": false,
+    "application_changes": 0,
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "runtime_changes": 0,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Qualification stopped before executable changes.",
+    "next_action": "Review exact predicate/fairness/authority failures; qualify safe existing-state selection/proof before source integration. No release candidate, deployment or historical processing."
   }
 }

@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev086",
-    "git_head": "781b150a15755b0ed06f50d86e7d8e3c816d6fdf",
+    "branch": "codex/dev087",
+    "git_head": "fa87ff8937d2ffdb205a5bdad6773242f99452ba",
     "name": "flex",
     "updated_at_utc": "2026-10-18T11:29:09.291520+00:00",
-    "working_tree": "DEV084 Inbox read-only correction component PASS; release HOLD at clean Byzantine browser timeout-only contract. Both isolated APIs stopped; no candidate or deployment."
+    "working_tree": "DEV087 audit/schema fixture gate HOLD; no runtime implementation or candidate; no deployment"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32348,5 +32348,52 @@
       "seconds": 0.0008329579995915992,
       "status": 503
     }
+  },
+  "dev087_walkback_recovery": {
+    "DEV087_WALKBACK_RECOVERY_STATUS": "HOLD_DURABLE_STORAGE_AUTHORITY \u2014 no runtime implementation",
+    "CURRENT_INSTALLED_WALKBACK_SOURCE": {
+      "configured_supervisor_target": "flex-walkback-dev002",
+      "worker_sha256": "a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9",
+      "separate_pinned_flex_walkback_sha256": "145a3368dc319a6e901f2365e645b65dd60d1727815f99e3b498d9fa1c3041dc",
+      "running_loaded_bytes": "NOT_ATTESTED; no matching worker in bounded process snapshot"
+    },
+    "DEV074_CREATOR_AUTHORITY_COMPATIBILITY": "Candidate a34f6968e12c unchanged. Not integrated before mandatory durable-storage gate; signer-only evidence remains insufficient. No full compatibility PASS claimed.",
+    "DEV082_V1_COMPATIBILITY": "a504e25c unchanged. Exact separate pinned preimage matches prior DEV082; configured dev002 worker is different and still requests version0. Reference patch retained but not applied wholesale. Future integration must transplant only _get_tx ceiling/signature changes into configured preimage and rerun controls.",
+    "LATE_CREATE_HANDOFF_STATUS": "NOT_FIXED. Existing waiting-row principal defect and DEV075 exact-mint evidence preserved. No token replay/requeue.",
+    "DURABLE_DELIVERY_PROTOCOL": "Selected fallback design: same-Core commit of independently qualified CREATE proof plus pending intent; existing worker due-index reads; exact-mint conditional OPS update/commit; proof-bound Core ACK afterward. Repeated delivery must be idempotent, not cross-database atomic. Schema proposal/6 fixture controls only; full protocol not implemented or crash-qualified.",
+    "CREATE_PROOF_AUTHORITY": "Strict PumpPortal/RPC creator+mint+signature+program+prelaunch boundary required; conflicting/signer-only evidence must fail closed. Proposed proof JSON shape and digest do not themselves establish evidence truth.",
+    "CORE_OPS_CRASH_SAFETY": "One-transaction rollback tested in schema fixture; complete Core/OPS interruption/restart matrix NOT_RUN after storage HOLD. No false end-to-end safety claim.",
+    "PROSPECTIVE_ACTIVATION": "Proposed explicit durable epoch, producer disabled until approved activation, no historical sweep. Not implemented/activated.",
+    "EXACT_MINT_INDEXED_DELIVERY": "Existing OPS mint PK retained; proposed Core due index(state,next_attempt_at,sequence) EXPLAIN-qualified with no SCAN/TEMP sort on compact fixture. Operational index/schema not created.",
+    "HISTORICAL_STARVATION_ISOLATION": "Existing oldest waiting LIMIT1 and fallback authority failures retained from DEV078; not retested or accepted as fixed. Durable pending-intent selection is intended to avoid old waiting population but not implemented.",
+    "END_TO_END_WALKBACK_TESTS": "NOT_RUN: mandatory storage qualification failed before implementation. Six proposed schema/access/storage controls PASS; not lifecycle acceptance.",
+    "WATCHTOWER_TOPOLOGY_PRESERVATION": "Funding traversal/classification/admission source unchanged; no DEV063 incorporation. No new topology qualification claimed.",
+    "NON_WATCHTOWER_NEGATIVE_CONTROLS": "Existing evidence preserved; fresh pipeline controls NOT_RUN before storage gate.",
+    "WORKER_HEALTH_EVIDENCE": "Bounded process observation and 32KiB tails per configured log; retained write-lane60s failures and ENOSPC. Last successful commit/queue progress not freshly established. See worker-health-summary.json.",
+    "PROVIDER_BUDGET_EQUIVALENCE": "No runtime/provider code edited;0requests. Proposed handoff consumes retained evidence only. Full integrated equivalence not claimed.",
+    "STORAGE_SAFETY": {
+      "core_bytes": 35652194304,
+      "ops_bytes": 16194387968,
+      "project_single_file_prohibition": 500000000,
+      "fixture_bound_bytes": 1048576,
+      "proof_field_max_bytes": 2048,
+      "raw_retention": false,
+      "unbounded_runtime_growth_paths_introduced": 0,
+      "blocker": "Core/OPS already exceed file ceiling; new proof/intent writes into them cannot meet literal AGENTS large-file qualification. No compact alternate authority is qualified and task forbids new databases. Outstanding-intent retention/WAL capacity/cleanup integration also not qualified."
+    },
+    "WALKBACK_FUNCTIONAL_ACCEPTANCE": "NOT_QUALIFIED \u2014 no claim of repaired operation",
+    "DEV048_FULL_RELEASE_STATUS": "NOT_RUN after mandatory durable/storage HOLD; no UI/Inbox/Byzantine changes, no bypassed gates. No immutable candidate.",
+    "CANDIDATE_SOURCE_SHA": null,
+    "READY_FOR_TARGETED_DEPLOYMENT": false,
+    "NEXT_ACTION": "Resolve storage authority explicitly: authorize a narrowly scoped policy for capped proof/intent and WAL growth in the pre-existing large Core/OPS files, or separately qualify a compliant compact authority within the no-new-database boundary. Then qualify producer proof authority/retention and complete the crash-safe existing-worker integration. No deployment authorization implied.",
+    "PROVIDER_CALLS": 0,
+    "CANONICAL_WRITES": 0,
+    "PRODUCTION_CHANGES": 0,
+    "shared_queue_writes": 0,
+    "service_restarts": 0,
+    "application_changes": 0,
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "runtime_reason": "Schema/access design qualification stopped before executable runtime changes.",
+    "governance": "AGENTS.md section4: Any new feature that writes or grows files ... A design capable of producing a single file of500,000,000bytes or more fails qualification. DEV087 section4 requires HOLD if durability cannot qualify. No size-policy exception inferred from fixture-only schema authorization."
   }
 }

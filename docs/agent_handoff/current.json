@@ -31955,5 +31955,142 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Architecture qualification only; implementation prohibited.",
     "next_action": "Separately authorize minimum durable Core proof/intent/activation schema and bounded storage design; preserve all existing evidence, no historical processing."
+  },
+  "dev078_amendment_preflight": {
+    "status": "HOLD_EXISTING_DEV078_CONTEXT_NOT_LOCATED",
+    "engineering_source_reference": "DEV077 remains82cb182628fbc90cc9af2b581a232c4555d28d0c; noDEV078 candidate composed",
+    "installed_transaction_version_matrix": [
+      {
+        "authority": "flex-listener",
+        "path": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py",
+        "sha256": "139c8fbcd69484b5bb30038e76445d7843892e2ce28a7157485d917bdfccdd39",
+        "line": 2982,
+        "function": "_get_trade_transaction_context",
+        "setting": "\"maxSupportedTransactionVersion\": 0,",
+        "loaded_bytes_attested": false
+      },
+      {
+        "authority": "flex-listener",
+        "path": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py",
+        "sha256": "139c8fbcd69484b5bb30038e76445d7843892e2ce28a7157485d917bdfccdd39",
+        "line": 4359,
+        "function": "_get_transaction_cached",
+        "setting": "\"maxSupportedTransactionVersion\": 1,",
+        "loaded_bytes_attested": false
+      },
+      {
+        "authority": "flex-listener",
+        "path": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py",
+        "sha256": "139c8fbcd69484b5bb30038e76445d7843892e2ce28a7157485d917bdfccdd39",
+        "line": 4370,
+        "function": "_get_transaction_cached",
+        "setting": "\"maxSupportedTransactionVersion\": 1,",
+        "loaded_bytes_attested": false
+      },
+      {
+        "authority": "flex-listener",
+        "path": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py",
+        "sha256": "139c8fbcd69484b5bb30038e76445d7843892e2ce28a7157485d917bdfccdd39",
+        "line": 6433,
+        "function": "_fetch_mint_from_transaction",
+        "setting": "[signature, {\"encoding\": \"json\", \"maxSupportedTransactionVersion\": 1}],",
+        "loaded_bytes_attested": false
+      },
+      {
+        "authority": "flex-listener",
+        "path": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py",
+        "sha256": "139c8fbcd69484b5bb30038e76445d7843892e2ce28a7157485d917bdfccdd39",
+        "line": 6541,
+        "function": "_extract_pool_from_migration_tx",
+        "setting": "[signature, {\"encoding\": \"json\", \"maxSupportedTransactionVersion\": 1}],",
+        "loaded_bytes_attested": false
+      },
+      {
+        "authority": "flex-listener",
+        "path": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py",
+        "sha256": "139c8fbcd69484b5bb30038e76445d7843892e2ce28a7157485d917bdfccdd39",
+        "line": 10506,
+        "function": "delayed_mint_recheck",
+        "setting": "\"maxSupportedTransactionVersion\": 1,",
+        "loaded_bytes_attested": false
+      },
+      {
+        "authority": "flex-main-workers",
+        "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/analysis/pump_fun_post_migration_analyzer.py",
+        "sha256": "b4f2064305faa285f13672217013243c7d5d6a001566b6891b663c79973101ac",
+        "line": 439,
+        "function": "fetch_tx_with_retry",
+        "setting": "\"params\": [sig, {\"encoding\": \"jsonParsed\", \"maxSupportedTransactionVersion\": 1}],",
+        "loaded_bytes_attested": false
+      },
+      {
+        "authority": "flex-main-workers",
+        "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/analysis/pump_fun_post_migration_analyzer.py",
+        "sha256": "b4f2064305faa285f13672217013243c7d5d6a001566b6891b663c79973101ac",
+        "line": 1223,
+        "function": "_get_blocktime_for_signature",
+        "setting": "\"params\": [sig, {\"encoding\": \"jsonParsed\", \"maxSupportedTransactionVersion\": 1}],",
+        "loaded_bytes_attested": false
+      },
+      {
+        "authority": "flex-main-workers",
+        "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/analysis/pump_fun_post_migration_analyzer.py",
+        "sha256": "b4f2064305faa285f13672217013243c7d5d6a001566b6891b663c79973101ac",
+        "line": 1385,
+        "function": "extract_bonding_curve_from_creation_tx",
+        "setting": "\"params\": [sig, {\"encoding\": \"jsonParsed\", \"maxSupportedTransactionVersion\": 1}],",
+        "loaded_bytes_attested": false
+      },
+      {
+        "authority": "flex-walkback-dev002",
+        "path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py",
+        "sha256": "a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9",
+        "line": 152,
+        "function": "_get_tx",
+        "setting": "\"maxSupportedTransactionVersion\": 0,",
+        "loaded_bytes_attested": false
+      },
+      {
+        "authority": "flex-cascade",
+        "path": "/Users/kevinkeaveney/Production/flex-cascade/src/core/ws_cascade.py",
+        "sha256": "217d547913d8cf773354860f4457ded2b2ba635318ed9a4cb57037e60d6aee84",
+        "line": 746,
+        "function": "_get_tx_raw",
+        "setting": "return _rpc(\"getTransaction\", [sig, {\"encoding\": \"jsonParsed\", \"maxSupportedTransactionVersion\": 0,",
+        "loaded_bytes_attested": false
+      },
+      {
+        "authority": "flex-cascade",
+        "path": "/Users/kevinkeaveney/Production/flex-cascade/src/core/ws_cascade.py",
+        "sha256": "217d547913d8cf773354860f4457ded2b2ba635318ed9a4cb57037e60d6aee84",
+        "line": 1110,
+        "function": "_pending_create_fetch_loop",
+        "setting": "\"maxSupportedTransactionVersion\": 0,",
+        "loaded_bytes_attested": false
+      },
+      {
+        "authority": "flex-cascade",
+        "path": "/Users/kevinkeaveney/Production/flex-cascade/src/core/ws_cascade.py",
+        "sha256": "217d547913d8cf773354860f4457ded2b2ba635318ed9a4cb57037e60d6aee84",
+        "line": 1677,
+        "function": "_fetch_and_check",
+        "setting": "\"maxSupportedTransactionVersion\": 0,",
+        "loaded_bytes_attested": false
+      }
+    ],
+    "walkback_v1": "Installed _get_tx explicitly requests0; no change or compatibility PASS claimed. DEV051 installed analyzer remainsV1/Token2022/correlated.",
+    "reconciler_first_failure": "classify_stuck_row exits MINT_NOT_FOUND if creator_funding_queue has no row before Core fallback. In-memory extracted installed functions confirm branch reachability: same Core signature ignored with no funding row, reached when a null-signature funding row exists. Stub validator used only for control-flow test, not qualification.",
+    "DEV075_distinction": "ExactDEV075 already has funding row; oldest waiting LIMIT1 selection is its earlier blocker.",
+    "minimum_correction": "Not implemented; must qualify fallback independently of queue existence plus bounded starvation prevention, creator authority, crash/restart and storage before candidate.",
+    "new_durable_state_required": "UNDETERMINED until amended existing-mechanism qualification; DEV077 fallback retained.",
+    "candidate_integration_readiness": false,
+    "blocker": "NoDEV078 directory in configured development root, registered worktree or handoff record found; originalDEV078 stabilization instructions absent. User asked not to create/restartDEV078.",
+    "tests": "Read-only installed source inspection, two in-memory branch controls; no source edits or full crash/release suite.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "runtime_changes": 0,
+    "next_action": "User supplies existingDEV078 worktree path and original stabilization instructions; resume there without creating a separate project.",
+    "runtime_deployment_required": false
   }
 }

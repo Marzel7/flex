@@ -33053,5 +33053,25 @@
     "report": "DEV090/listener-deployment-preflight/DEV090_PUMPPORTAL_DEPLOYMENT_STATUS.json",
     "report_sha256": "0edc1d2e0e46d8ed2d2edc6b5c267834197c76de89d6e9cb138af873b0e3ad46",
     "updated_utc": "2026-10-18T22:15:17.834082+00:00"
+  },
+  "dev090_legacy_maintenance_boundary_qualification": {
+    "engineering_revision": "96687a393b024f3008ada9ad3e10441ebcdd0d64",
+    "status": "BOUNDARY_PASS__DEPLOYMENT_PREFLIGHT_HOLD_RAW_RETENTION",
+    "qualification": "14 guarded provider-free fixture tests PASS against exact preserved legacy module00deb459; boundary-1 excluded,boundary/+1 included,indexed discovery,existing durable-intent preservation,retry/restart/idempotency and crash after OPS commit recovery. No application source changes.",
+    "boundary": "Use persisted Core wb_create_control epochDEV090-20261018T210658Z-c6049916 activated_at1792357618. No new cutoff generated. Inactive private config proposal changes only stopped listener HANDOFF_DURABILITY_T0 from1789027814 to1792357618. Active config unchanged; do not publish credential-bearing config.",
+    "intent_caveat": "T0 filters discovery only; existing due durable intents remain eligible. Preflight must reject historical pending intents rather than delete them. Fresh bounded queries show all four retry authorities empty. No canonical intents modified.",
+    "workers": "Manager74390;creator74394 andWalkback74410 unchanged. Fresh persisted heartbeats/source hashes PASS,queuesnoactivejobs,all15019retiredidentitiesremain skipped;listener/Cascade/other11stopped.",
+    "storage": "9.70GB available;Core/OPSWAL+journal0bytes;sampledlockhandlesnone;no new ENOSPC/write errors in existing bounded observer. No whole-integrity claim or cleanup.",
+    "remaining_blocker": "Deployment hard constraint forbids raw provider retention. Installed birth audit defaults enabled because PUMPPORTAL_CANONICAL_BIRTH_RETENTION_ENABLED is absent in manager/config/launcher. It records raw_payload and writes full JSON; listener failure fallback also serializes raw event into webhook_birth_queue.payload. Disabling audit alone does not cover failure fallback. No raw acquisition or retention executed by this task.",
+    "next_action": "Qualify raw-retention-free normal birth audit AND failure fallback, or obtain explicit narrow retention exception. Preserve candidate/workers/durable intents; no listener startup. Reuse qualified persisted-activation proposal at later deployment.",
+    "ready_for_controlled_deployment": false,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Current work is fixture/config qualification plus read-only preflight; parent runtime deployment remains HOLD.",
+    "providers": 0,
+    "canonical_writes_by_task": 0,
+    "production_changes": 0,
+    "report": "DEV090/listener-maintenance-qualification/QUALIFICATION_AND_PREFLIGHT.json",
+    "report_sha256": "26817121e12e9349e5eeaa407ddfac06ad4809b0df5b6fbe34a86cbae6961003",
+    "updated_utc": "2026-10-18T22:22:12.158815+00:00"
   }
 }

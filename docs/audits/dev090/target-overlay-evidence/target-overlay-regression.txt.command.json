@@ -1,0 +1,35 @@
+{
+  "command": [
+    "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+    "-I",
+    "-B",
+    "/Users/kevinkeaveney/Dev/claude/flex-development/DEV080/source/tools/flex_dev_guarded.py",
+    "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source",
+    "tests/test_dev090_configured_target.py",
+    "tests/test_dev090_listener_import_closure.py",
+    "tests/test_dev090_acquisition_availability.py",
+    "tests/test_dev084_inbox_readonly.py",
+    "tests/test_ops_x7_inbox.py",
+    "tests/test_dev090_handoff.py",
+    "tests/test_dev074_creator_authority.py",
+    "tests/test_dev051_create_compatibility.py",
+    "tests/test_dev051_signature_correlation.py",
+    "tests/test_dev079_walkback_v1.py",
+    "tests/test_dev082_current_walkback.py"
+  ],
+  "cwd": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source",
+  "elapsed_seconds": 4.714192999999796,
+  "environment": {
+    "HOME": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/state/target-overlay-regression",
+    "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+    "TMPDIR": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/state/target-overlay-regression"
+  },
+  "file_limit_bytes": 8388608,
+  "log_bytes": 16898,
+  "returncode": 1,
+  "signal": null,
+  "status": "FAIL",
+  "stderr": "STDOUT",
+  "stdout": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/state/target-overlay-regression.log",
+  "timeout_seconds": 120
+}

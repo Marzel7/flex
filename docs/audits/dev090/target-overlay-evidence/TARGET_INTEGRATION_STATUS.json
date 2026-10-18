@@ -1,0 +1,68 @@
+{
+  "DEV090_TARGET_INTEGRATION_STATUS": "HOLD_MANDATORY_OFFLINE_REGRESSION",
+  "SUPERVISOR_RUNTIME_OWNERSHIP": "UNRESOLVED; user explicitly authorized stopped-source qualification only; verified ownership remains hard prerequisite for deployment",
+  "CURRENT_INSTALLED_SOURCE_AUTHORITY": {
+    "creator_queue": "ad225e20c8b9428739fb20f2142f7d1c53d58890c4491db8f728f38a8c1e2612",
+    "configured_walkback": "a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9",
+    "source_paths": "Verified stopped configured source copies only; not asserted active runtime",
+    "operational_files_unchanged": true
+  },
+  "CREATOR_QUEUE_OVERLAY": "Existing isolated DEV074 guards plus DEV090 producer preflight/staging retained exactly; installed preimage equals DEV074 parent. Creator worker/analyzer unchanged.",
+  "WALKBACK_OVERLAY": {
+    "candidate_sha256": "bca037dfd7194f304493cac051ec894916ef3eac2d897871570dafbdaa56023d",
+    "scope": "Only _get_tx V1/signature and existing-loop maintenance_tick hook",
+    "reverse_overlay": "PASS exact a45ccc0d preimage; every other source byte preserved",
+    "installed_file_changed": false
+  },
+  "DEV074_AUTHORITY_PRESERVATION": "Creator positive/negative controls pass in combined run",
+  "DEV082_V1_COMPATIBILITY": "Legacy/V0/V1 and signature controls pass; DEV082 newer funding/promotion contract fails on configured source",
+  "DEV090_DURABLE_HANDOFF": "All handoff focused controls passed; no handoff logic change",
+  "FUNDING_PROMOTION_PRESERVATION": "Configured preimage preserved exactly except two authorized overlay locations. That configured behavior is not equivalent to original candidate newer-worker contract.",
+  "PROSPECTIVE_WALKBACK_TESTS": {
+    "passed": 229,
+    "failed": 9,
+    "exact_preimage_reversal": "PASS",
+    "DEV075_exact_mint_birth_first_and_late_create_fixture": "PASS; synthetic other authority fields explicitly labelled, not live replay",
+    "actual_producer_and_worker_fixture_controls": "PASS inherited controls",
+    "guard_denials": 0
+  },
+  "CRASH_RESTART_TESTS": "Seven external process-crash cases PASS, zero unexpected guard events. Execution CAS model remains distinct from actual worker fixture controls.",
+  "HISTORICAL_BACKLOG_ISOLATION": "Prospective tests and historical-oldest fixture controls pass; no canonical history reads/writes/replay",
+  "STORAGE_PRECHECK": {
+    "before_free_bytes": 3947393024,
+    "after_free_bytes": 3757654016,
+    "planned_peak_bytes": 1000000000,
+    "reserve_bytes": 2000000000,
+    "compact_fixture_cap_bytes": 4194304,
+    "runner_file_cap_bytes": 8388608,
+    "raw_provider_retention": false,
+    "cleanup": false
+  },
+  "DEV048_RELEASE_STATUS": "HOLD at mandatory unchanged focused regression contract; frontend/API/browser/tooling/full clean restoration not rerun after failure",
+  "SINGLE_PRECISE_BLOCKER": "Configured flex-walkback-dev002 lacks the original DEV082 contract for mid-walk P3R admission and terminal P3R/d3de projections. Two additional source-pin assertions bind to original newer145a3368 worker. Source preservation and original acceptance contract cannot both pass as presently specified.",
+  "FAILED_CONTROLS": {
+    "source_identity": 2,
+    "midwalk_P3R": 2,
+    "terminal_projection_order": 5,
+    "files": [
+      "tests/test_dev079_walkback_v1.py",
+      "tests/test_dev082_current_walkback.py"
+    ],
+    "assertions_modified": false
+  },
+  "FIXTURE_CORRECTION": "Initial new-test collection failed from test import path; corrected only the newly added fixture loader before any behavioral interpretation. Both receipts preserved.",
+  "CLEAN_CHECKOUT_RESTORATION": "NOT_RUN target-specific source; mandatory test failed",
+  "TARGET_CANDIDATE_SHA": null,
+  "ORIGINAL_IMMUTABLE_CANDIDATE": "DEV090_CANDIDATE_f4ddfe4aff71",
+  "ORIGINAL_CANDIDATE_UNCHANGED": "PASS sealed hashes and immutable flag",
+  "READY_FOR_TARGETED_DEPLOYMENT": false,
+  "NEXT_ACTION": "Resolve the intended target funding/promotion acceptance authority: configured a45ccc0d behavior versus the original qualified newer145a3368 behavior. A separately qualified contract decision is required before another target release attempt; do not add missing projections or weaken assertions implicitly. No deployment authorized.",
+  "RUNTIME_DEPLOYMENT_GATE": "QUALIFIED_NOT_DEPLOYED_ORIGINAL_ONLY; target overlay HOLD",
+  "PROVIDER_CALLS": 0,
+  "CANONICAL_WRITES": 0,
+  "PRODUCTION_CHANGES": 0,
+  "OPERATIONAL_RESTARTS": 0,
+  "SHARED_QUEUE_CHANGES": 0,
+  "HISTORICAL_REPLAY": false,
+  "DEPLOYMENT": false
+}

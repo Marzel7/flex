@@ -501,21 +501,6 @@ def _find_funder_via_rpc(wallet: str, rpc_counter: list,
                 flows = deep_walkback.materialize_atomic_wsol(tx, sig or "")
                 deep_walkback.persist_atomic_flows(ops, source_mint, flows)
         ops.commit()
-        # Evidence completion for source_mint can happen here, independently of
-        # (and possibly after) the one-shot terminal-walkback P3R admission
-        # attempt in _promote_if_canonical_watchtower. Without this retrigger,
-        # a mint whose full atomic WSOL_WRAP_CLOSE evidence only becomes
-        # complete mid-walk (rather than by the time the walk terminates)
-        # would never be re-evaluated and would sit as a permanent, silent
-        # admission backlog (see docs/audits/leviathan_membership_backlog_reconciliation.v1.json).
-        # Scoped to source_mint only — never a broad rescan.
-        try:
-            from src.ops.p3r_profile_candidate_matcher import admit_unambiguous_p3r_match
-            p3r_action = admit_unambiguous_p3r_match(ops, source_mint, core_db_path=LIVE_DB_PATH)
-            if p3r_action == "admitted":
-                print(f"[WALKBACK] P3R membership (mid-walk evidence completion) → {source_mint[:14]}… admitted", flush=True)
-        except Exception as exc:  # noqa: BLE001 -- must never affect the funding-edge commit that already succeeded
-            print(f"[WALKBACK] P3R mid-walk admission check failed mint={source_mint}: {exc}", flush=True)
     reason = _PRIORITY_REASON.get(best_priority, "PLAIN_XFER")
     print(f"[WALKBACK] selected_funder={best[0][:14]}… reason={reason} "
           f"candidates_seen={len(candidates)} wallet={wallet[:14]}…", flush=True)
@@ -704,9 +689,8 @@ def _promote_if_canonical_watchtower(ops: sqlite3.Connection, mint: str,
     if not materialized:
         return
 
-    # Review-only 900b projection.  This runs after the terminal walkback
-    # commit, consumes only retained selected-edge evidence, and is independent
-    # of both P3R admission and WATCHTOWER's strict confirmed route gate.
+    # Review-only 900b projection. This runs after the terminal walkback
+    # commit and consumes only retained selected-edge evidence.
     try:
         from src.ops.provisional_operations import project_900b_completed_walkback
         provisional_action = project_900b_completed_walkback(ops, mint, core_db_path=LIVE_DB_PATH)
@@ -714,28 +698,6 @@ def _promote_if_canonical_watchtower(ops: sqlite3.Connection, mint: str,
             print(f"[WALKBACK] 900b provisional review → {mint[:14]}… {provisional_action}", flush=True)
     except Exception as exc:  # must never affect a completed walkback
         print(f"[WALKBACK] 900b provisional check failed mint={mint}: {exc}", flush=True)
-
-    # P3R and P3R_13A04 have reviewed, address-independent automatic-admission
-    # contracts. P3R is the unified former AF500/EC1 identity; 13A04 remains
-    # its separate exact-ladder identity. This is independent of WATCHTOWER.
-    try:
-        from src.ops.p3r_profile_candidate_matcher import admit_unambiguous_p3r_match
-        p3r_action = admit_unambiguous_p3r_match(ops, mint, core_db_path=LIVE_DB_PATH)
-        if p3r_action == "admitted":
-            print(f"[WALKBACK] P3R membership → {mint[:14]}… admitted", flush=True)
-    except Exception as exc:  # noqa: BLE001 -- must never break terminal walkback state
-        print(f"[WALKBACK] P3R membership check failed mint={mint}: {exc}", flush=True)
-
-    # d3de is a separately confirmed, fully address-independent four-hop
-    # selected-ladder operation. Its strict D0 projector has no literal-wallet
-    # inputs and no dependency on optional atomic or alternative evidence.
-    try:
-        from src.ops.d3de_operation import project_completed_walkback as project_d3de_completed_walkback
-        d3de_action = project_d3de_completed_walkback(ops, mint, core_db_path=LIVE_DB_PATH)
-        if d3de_action == "admitted":
-            print(f"[WALKBACK] d3de membership → {mint[:14]}… admitted", flush=True)
-    except Exception as exc:  # noqa: BLE001 -- must never break terminal walkback state
-        print(f"[WALKBACK] d3de membership check failed mint={mint}: {exc}", flush=True)
 
     # Approved 063e current-child operation: exact retained B1 route only.
     try:
@@ -823,12 +785,13 @@ def _promote_if_canonical_watchtower(ops: sqlite3.Connection, mint: str,
             print(f"[WALKBACK] registry promotion FAILED mint={mint}: {result['error']}", flush=True)
         elif result["action"] == "promoted":
             print(f"[WALKBACK] registry promotion → {mint[:14]}… promoted (WALKBACK_RECOVERED)", flush=True)
-        if result["action"] in {"promoted", "already_present"}:
-            membership = project_watchtower_confirmed_membership(
-                ops, mint, core_db_path=LIVE_DB_PATH,
-            )
-            if membership["action"] == "projected":
-                print(f"[WALKBACK] WATCHTOWER membership projection → {mint[:14]}…", flush=True)
+        # The legacy launch-ledger result is not the role-normalized queue
+        # admission decision.  Always project a durable terminal queue state.
+        membership = project_watchtower_confirmed_membership(
+            ops, mint, core_db_path=LIVE_DB_PATH,
+        )
+        if membership["action"] == "projected":
+            print(f"[WALKBACK] WATCHTOWER membership projection → {mint[:14]}…", flush=True)
     except Exception as exc:  # noqa: BLE001 -- must never break the caller's terminal transition
         if ops.in_transaction:
             ops.rollback()
@@ -890,6 +853,44 @@ def _notify_living_after_walkback_commit(ops: sqlite3.Connection, mint: str, tes
                 "sqlite_errorcode": getattr(exc, "sqlite_errorcode", None),
                 "sqlite_errorname": getattr(exc, "sqlite_errorname", None),
                 "error_stage": "PUBLISHER" if test_failure_injector is not None else "LIVING_HANDLER", "error": str(exc)[:500]}
+
+
+_DEEP_REVIEW_CURSOR: tuple[int, str] | None = None
+
+
+def _review_deep_routes_after_commit(ops: sqlite3.Connection) -> None:
+    """Bounded prospective Deep REVIEW persistence; no DDL, provider I/O or admission."""
+    global _DEEP_REVIEW_CURSOR
+    if getattr(ops, "in_transaction", False):
+        return
+    try:
+        from src.ops.operation_admission_adapter import record_review_only_candidate
+        from src.ops.prospective_anchor_order_retention import stage_missing_slot_intents, validate_retention_schema
+        from src.ops.watchtower_deep_prospective import DEEP_OPERATOR_ID
+        from src.ops.watchtower_deep_review import persist_review_lead, run_review_sweep_page
+        def _publish(mint: str, route_assessment: dict) -> None:
+            retention_schema = validate_retention_schema(ops)
+            review = persist_review_lead(ops, mint, route_assessment)
+            if review.get("action") != "review_lead_recorded": return
+            digest = review["route_digest"]
+            route = route_assessment["route"]
+            if retention_schema["state"] == "READY":
+                stage_missing_slot_intents(ops, operation_id=DEEP_OPERATOR_ID, mint=mint,
+                    parent_signature=route["pool_signature"], child_signature=route["upper_signature"],
+                    source_evidence_id=digest, now=int(time.time()))
+            else:
+                print(f"[WALKBACK_DEEP_REVIEW] retention_deferred state={retention_schema['state']}", flush=True)
+            nomination = {"operation_id": DEEP_OPERATOR_ID, "mint": mint, "nomination_type": "RETAINED_DEEP_REVIEW", "nomination_semantic_version": "WATCHTOWER_DEEP_NOMINATION_V1", "nomination_evidence_id": digest}
+            assessment = {"state": "QUALIFIED_PROSPECTIVE_MEMBER", "assessment_id": digest, "semantic_version": "WATCHTOWER_DEEP_ASSESSMENT_V1", "causal_witness_id": digest, "capital_continuity_id": digest, "transaction_order_id": digest, "evidence_complete": True}
+            policy = {"policy_id": "WATCHTOWER_DEEP_ADMISSION_POLICY_V1", "policy_version": "v1", "required_assessment_outcome": "QUALIFIED_PROSPECTIVE_MEMBER", "positive_action": "REVIEW"}
+            record_review_only_candidate(ops, nomination, assessment, policy, int(time.time()))
+            ops.commit()
+        result = run_review_sweep_page(OPS_DB_PATH, _publish, cursor=_DEEP_REVIEW_CURSOR, limit=8)
+        _DEEP_REVIEW_CURSOR = result["cursor"]
+    except Exception as exc:
+        try: ops.rollback()
+        except Exception: pass
+        print(f"[WALKBACK_DEEP_REVIEW] deferred error={type(exc).__name__}", flush=True)
 
 
 def _mark_complete(ops: sqlite3.Connection, mint: str, outcome: str,
@@ -2026,6 +2027,7 @@ def run_loop() -> None:
                     _write_heartbeat(ops)
                 else:
                     print(f"[WALKBACK] queue empty (pending=0), sleeping {INTERVAL_SEC}s", flush=True)
+                _review_deep_routes_after_commit(ops)
             finally:
                 ops.close()
             trace_boundary("cycle_completed")

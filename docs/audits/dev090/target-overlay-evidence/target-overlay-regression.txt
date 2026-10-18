@@ -1,0 +1,121 @@
+DEV043_DENIED={"kind": "foreign_sqlite_write_or_authority", "target": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db", "stack": ["  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV080/source/tools/flex_dev_guarded.py\", line 5, in <module>\n    try:runpy.run_path(sys.argv[0],run_name='__main__')\n", "  File \"<frozen runpy>\", line 291, in run_path\n", "  File \"<frozen runpy>\", line 98, in _run_module_code\n", "  File \"<frozen runpy>\", line 88, in _run_code\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 58, in <module>\n    denial('shared_monitor_write',lambda:guarded_connect(str(SHARED/'.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db')))\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 55, in denial\n    try:fn()\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 58, in <lambda>\n    denial('shared_monitor_write',lambda:guarded_connect(str(SHARED/'.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db')))\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 46, in guarded_connect\n    if path not in DATABASES or params.get('mode')!=['ro']:reject('foreign_sqlite_write_or_authority',path)\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 17, in reject\n    EVENTS.append({'kind':kind,'target':str(target)[:300], 'stack':traceback.format_stack(limit=12)})\n"]}
+DEV043_DENIED={"kind": "foreign_sqlite_write_or_authority", "target": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db", "stack": ["  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV080/source/tools/flex_dev_guarded.py\", line 5, in <module>\n    try:runpy.run_path(sys.argv[0],run_name='__main__')\n", "  File \"<frozen runpy>\", line 291, in run_path\n", "  File \"<frozen runpy>\", line 98, in _run_module_code\n", "  File \"<frozen runpy>\", line 88, in _run_code\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 59, in <module>\n    denial('canonical_write',lambda:guarded_connect(str(SHARED/'database/wt_ops_v2.db')))\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 55, in denial\n    try:fn()\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 59, in <lambda>\n    denial('canonical_write',lambda:guarded_connect(str(SHARED/'database/wt_ops_v2.db')))\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 46, in guarded_connect\n    if path not in DATABASES or params.get('mode')!=['ro']:reject('foreign_sqlite_write_or_authority',path)\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 17, in reject\n    EVENTS.append({'kind':kind,'target':str(target)[:300], 'stack':traceback.format_stack(limit=12)})\n"]}
+DEV043_DENIED={"kind": "foreign_file_write", "target": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue/DEV043_MUST_NOT_EXIST", "stack": ["  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV080/source/tools/flex_dev_guarded.py\", line 5, in <module>\n    try:runpy.run_path(sys.argv[0],run_name='__main__')\n", "  File \"<frozen runpy>\", line 291, in run_path\n", "  File \"<frozen runpy>\", line 98, in _run_module_code\n", "  File \"<frozen runpy>\", line 88, in _run_code\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 60, in <module>\n    denial('live_queue_write',lambda:open(SHARED/'.dev_runtime/monitor/dev_005a/queue/DEV043_MUST_NOT_EXIST','wb'))\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 55, in denial\n    try:fn()\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 60, in <lambda>\n    denial('live_queue_write',lambda:open(SHARED/'.dev_runtime/monitor/dev_005a/queue/DEV043_MUST_NOT_EXIST','wb'))\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 31, in audit\n    if write and name!='/dev/null'and not inside(name):reject('foreign_file_write',name)\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 17, in reject\n    EVENTS.append({'kind':kind,'target':str(target)[:300], 'stack':traceback.format_stack(limit=12)})\n"]}
+DEV043_DENIED={"kind": "socket.connect", "target": "network", "stack": ["  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV080/source/tools/flex_dev_guarded.py\", line 5, in <module>\n    try:runpy.run_path(sys.argv[0],run_name='__main__')\n", "  File \"<frozen runpy>\", line 291, in run_path\n", "  File \"<frozen runpy>\", line 98, in _run_module_code\n", "  File \"<frozen runpy>\", line 88, in _run_code\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 61, in <module>\n    denial('production_api_connect',lambda:socket.socket().connect(('127.0.0.1',5002)))\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 55, in denial\n    try:fn()\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 61, in <lambda>\n    denial('production_api_connect',lambda:socket.socket().connect(('127.0.0.1',5002)))\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 23, in audit\n    reject(event,'network')\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 17, in reject\n    EVENTS.append({'kind':kind,'target':str(target)[:300], 'stack':traceback.format_stack(limit=12)})\n"]}
+DEV043_DENIED={"kind": "socket.connect", "target": "network", "stack": ["  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV080/source/tools/flex_dev_guarded.py\", line 5, in <module>\n    try:runpy.run_path(sys.argv[0],run_name='__main__')\n", "  File \"<frozen runpy>\", line 291, in run_path\n", "  File \"<frozen runpy>\", line 98, in _run_module_code\n", "  File \"<frozen runpy>\", line 88, in _run_code\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 62, in <module>\n    denial('external_provider_connect',lambda:socket.socket().connect(('1.1.1.1',443)))\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 55, in denial\n    try:fn()\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 62, in <lambda>\n    denial('external_provider_connect',lambda:socket.socket().connect(('1.1.1.1',443)))\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 23, in audit\n    reject(event,'network')\n", "  File \"/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/docs/audits/dev043/isolation_bootstrap.py\", line 17, in reject\n    EVENTS.append({'kind':kind,'target':str(target)[:300], 'stack':traceback.format_stack(limit=12)})\n"]}
+{"status": "PASS", "checks": [{"name": "shared_monitor_write", "outcome": "PASS_DENIED"}, {"name": "canonical_write", "outcome": "PASS_DENIED"}, {"name": "live_queue_write", "outcome": "PASS_DENIED"}, {"name": "production_api_connect", "outcome": "PASS_DENIED"}, {"name": "external_provider_connect", "outcome": "PASS_DENIED"}], "state": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/state/target-overlay-regression", "external_database_policy": "allowlisted,mode=ro,immutable=1,query_only", "application_imported": false, "port": 8197, "bootstrap_sha256": "129e4f7313e88ae7ef9dbe7e9e647d7f2c08f83b15f2fee04db6771455eb99e5"}
+============================= test session starts ==============================
+platform darwin -- Python 3.11.5, pytest-9.0.2, pluggy-1.6.0
+rootdir: /Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source
+configfile: pytest.ini
+plugins: anyio-4.3.0, asyncio-1.3.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 238 items
+
+../../source/tests/test_dev090_configured_target.py ...                  [  1%]
+../../source/tests/test_dev090_listener_import_closure.py .              [  1%]
+../../source/tests/test_dev090_acquisition_availability.py ..........    [  5%]
+../../source/tests/test_dev084_inbox_readonly.py ......................  [ 15%]
+../../source/tests/test_ops_x7_inbox.py ................................ [ 28%]
+.......                                                                  [ 31%]
+../../source/tests/test_dev090_handoff.py .............................. [ 44%]
+...............                                                          [ 50%]
+../../source/tests/test_dev074_creator_authority.py .................... [ 58%]
+....                                                                     [ 60%]
+../../source/tests/test_dev051_create_compatibility.py ..............    [ 66%]
+../../source/tests/test_dev051_signature_correlation.py ................ [ 73%]
+.......................                                                  [ 82%]
+../../source/tests/test_dev079_walkback_v1.py ....................F..    [ 92%]
+../../source/tests/test_dev082_current_walkback.py F.......FFFFFFF...    [100%]
+
+=================================== FAILURES ===================================
+_____________ test_budget_constants_and_nonpatch_source_unchanged ______________
+../../source/tests/test_dev079_walkback_v1.py:101: in test_budget_constants_and_nonpatch_source_unchanged
+    assert hashlib.sha256((ROOT/item['path']).read_bytes()).hexdigest()==item['candidate_sha256']
+E   AssertionError: assert 'bca037dfd719...dafbdaa56023d' == 'a20d4f75e72a...ff6ccc93d11db'
+E     
+E     - a20d4f75e72a6fa1485ef36a79995608313769a72f7845ea61cff6ccc93d11db
+E     + bca037dfd7194f304493cac051ec894916ef3eac2d897871570dafbdaa56023d
+________________ test_exact_reverse_patch_and_dependency_hashes ________________
+../../source/tests/test_dev082_current_walkback.py:29: in test_exact_reverse_patch_and_dependency_hashes
+    assert hashlib.sha256(''.join(lines).encode()).hexdigest() == '145a3368dc319a6e901f2365e645b65dd60d1727815f99e3b498d9fa1c3041dc'
+E   AssertionError: assert 'a45ccc0db0a3...a11f8f771e5b9' == '145a3368dc31...8d9fa1c3041dc'
+E     
+E     - 145a3368dc319a6e901f2365e645b65dd60d1727815f99e3b498d9fa1c3041dc
+E     + a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9
+__ test_midwalk_admission_runs_after_edge_commit_and_failure_isolated[False] ___
+../../source/tests/test_dev082_current_walkback.py:77: in test_midwalk_admission_runs_after_edge_commit_and_failure_isolated
+    assert seen == [('MINT', False, 1)]
+E   AssertionError: assert [] == [('MINT', False, 1)]
+E     
+E     Right contains one more item: ('MINT', False, 1)
+E     Use -v to get more diff
+----------------------------- Captured stdout call -----------------------------
+[WALKBACK] selected_funder=PARENT… reason=PLAIN_XFER candidates_seen=1 wallet=CREATOR…
+___ test_midwalk_admission_runs_after_edge_commit_and_failure_isolated[True] ___
+../../source/tests/test_dev082_current_walkback.py:77: in test_midwalk_admission_runs_after_edge_commit_and_failure_isolated
+    assert seen == [('MINT', False, 1)]
+E   AssertionError: assert [] == [('MINT', False, 1)]
+E     
+E     Right contains one more item: ('MINT', False, 1)
+E     Use -v to get more diff
+----------------------------- Captured stdout call -----------------------------
+[WALKBACK] selected_funder=PARENT… reason=PLAIN_XFER candidates_seen=1 wallet=CREATOR…
+__ test_newer_promotion_order_and_enforcement_preserved[legacy-REJECTED-True] __
+../../source/tests/test_dev082_current_walkback.py:109: in test_newer_promotion_order_and_enforcement_preserved
+    assert events[:4] == ['900b', 'p3r', 'd3de', 'byzantine']
+E   AssertionError: assert ['900b', 'byz...rift', False)] == ['900b', 'p3r..., 'byzantine']
+E     
+E     At index 1 diff: 'byzantine' != 'p3r'
+E     Use -v to get more diff
+----------------------------- Captured stdout call -----------------------------
+[WALKBACK] registry promotion call failed mint=MINT: no such table: wt_walkback_queue
+__ test_newer_promotion_order_and_enforcement_preserved[shadow-REJECTED-True] __
+../../source/tests/test_dev082_current_walkback.py:109: in test_newer_promotion_order_and_enforcement_preserved
+    assert events[:4] == ['900b', 'p3r', 'd3de', 'byzantine']
+E   AssertionError: assert ['900b', 'byz...rift', False)] == ['900b', 'p3r..., 'byzantine']
+E     
+E     At index 1 diff: 'byzantine' != 'p3r'
+E     Use -v to get more diff
+----------------------------- Captured stdout call -----------------------------
+[WALKBACK] registry promotion call failed mint=MINT: no such table: wt_walkback_queue
+_ test_newer_promotion_order_and_enforcement_preserved[enforce-REJECTED-False] _
+../../source/tests/test_dev082_current_walkback.py:109: in test_newer_promotion_order_and_enforcement_preserved
+    assert events[:4] == ['900b', 'p3r', 'd3de', 'byzantine']
+E   AssertionError: assert ['900b', 'byz...rift', False)] == ['900b', 'p3r..., 'byzantine']
+E     
+E     At index 1 diff: 'byzantine' != 'p3r'
+E     Right contains one more item: 'byzantine'
+E     Use -v to get more diff
+----------------------------- Captured stdout call -----------------------------
+[X67.21] ENFORCE mode: mint=MINT authoritative_decision=REJECTED reason=fixture -- promotion withheld
+_ test_newer_promotion_order_and_enforcement_preserved[enforce-REVIEW_REQUIRED-False] _
+../../source/tests/test_dev082_current_walkback.py:109: in test_newer_promotion_order_and_enforcement_preserved
+    assert events[:4] == ['900b', 'p3r', 'd3de', 'byzantine']
+E   AssertionError: assert ['900b', 'byz...rift', False)] == ['900b', 'p3r..., 'byzantine']
+E     
+E     At index 1 diff: 'byzantine' != 'p3r'
+E     Right contains one more item: 'byzantine'
+E     Use -v to get more diff
+----------------------------- Captured stdout call -----------------------------
+[X67.21] ENFORCE mode: mint=MINT authoritative_decision=REVIEW_REQUIRED reason=fixture -- promotion withheld
+_ test_newer_promotion_order_and_enforcement_preserved[enforce-ACCEPTED-True] __
+../../source/tests/test_dev082_current_walkback.py:109: in test_newer_promotion_order_and_enforcement_preserved
+    assert events[:4] == ['900b', 'p3r', 'd3de', 'byzantine']
+E   AssertionError: assert ['900b', 'byz...rift', False)] == ['900b', 'p3r..., 'byzantine']
+E     
+E     At index 1 diff: 'byzantine' != 'p3r'
+E     Use -v to get more diff
+----------------------------- Captured stdout call -----------------------------
+[WALKBACK] registry promotion call failed mint=MINT: no such table: wt_walkback_queue
+=========================== short test summary info ============================
+FAILED ../../source/tests/test_dev079_walkback_v1.py::test_budget_constants_and_nonpatch_source_unchanged
+FAILED ../../source/tests/test_dev082_current_walkback.py::test_exact_reverse_patch_and_dependency_hashes
+FAILED ../../source/tests/test_dev082_current_walkback.py::test_midwalk_admission_runs_after_edge_commit_and_failure_isolated[False]
+FAILED ../../source/tests/test_dev082_current_walkback.py::test_midwalk_admission_runs_after_edge_commit_and_failure_isolated[True]
+FAILED ../../source/tests/test_dev082_current_walkback.py::test_newer_promotion_order_and_enforcement_preserved[legacy-REJECTED-True]
+FAILED ../../source/tests/test_dev082_current_walkback.py::test_newer_promotion_order_and_enforcement_preserved[shadow-REJECTED-True]
+FAILED ../../source/tests/test_dev082_current_walkback.py::test_newer_promotion_order_and_enforcement_preserved[enforce-REJECTED-False]
+FAILED ../../source/tests/test_dev082_current_walkback.py::test_newer_promotion_order_and_enforcement_preserved[enforce-REVIEW_REQUIRED-False]
+FAILED ../../source/tests/test_dev082_current_walkback.py::test_newer_promotion_order_and_enforcement_preserved[enforce-ACCEPTED-True]
+======================== 9 failed, 229 passed in 3.88s =========================

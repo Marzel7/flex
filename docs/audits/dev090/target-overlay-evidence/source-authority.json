@@ -1,0 +1,22 @@
+{
+  "status": "PREPARED_FOR_OFFLINE_TESTS",
+  "Supervisor_ownership": "UNRESOLVED",
+  "deployment_hard_prerequisite": "Verified current runtime ownership required before installation",
+  "stopped_configured_authority_authorized": true,
+  "original_candidate": "DEV090_CANDIDATE_f4ddfe4aff71",
+  "creator_preimage_sha256": "ad225e20c8b9428739fb20f2142f7d1c53d58890c4491db8f728f38a8c1e2612",
+  "creator_overlay_sha256": "840b1273fa8befa3e5bb024bcdd217e3c651b85d524955bb7e07e47cd2c329ef",
+  "creator_change": "Existing DEV074+DEV090 source equals required isolated overlay; no new edit",
+  "walkback_preimage_sha256": "a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9",
+  "walkback_overlay_sha256": "bca037dfd7194f304493cac051ec894916ef3eac2d897871570dafbdaa56023d",
+  "reversal_exact": true,
+  "walkback_scope": [
+    "_get_tx V1/signature correlation",
+    "run_loop existing-loop maintenance_tick call"
+  ],
+  "other_function_bytes_unchanged": true,
+  "installed_source_modified": false,
+  "free_bytes_before": 3947393024,
+  "planned_peak_bytes": 1000000000,
+  "reserve_bytes": 2000000000
+}

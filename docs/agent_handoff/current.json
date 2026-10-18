@@ -19270,7 +19270,7 @@
   },
   "project": {
     "branch": "codex/dev090",
-    "git_head": "c604991687e7dd4aaf065fddd047dab6c993ccab",
+    "git_head": "96687a393b024f3008ada9ad3e10441ebcdd0d64",
     "name": "flex",
     "updated_at_utc": "2026-10-18T21:15:09.142080+00:00",
     "working_tree": "DEV090 deployed exact target source; two workers healthy under selective Supervisor; natural live acceptance pending"
@@ -33003,6 +33003,37 @@
     "storage": "Fresh available10284077056bytes. Full startup storage/database gates not completed because source gate already fails.",
     "acceptance": "No observation window started; coverage/latency/lateCREATE UNKNOWN/PENDING. Fresh heartbeat/retired-row/database health not requalified after source gate failure.",
     "safety": "Provider calls initiated0;canonical writes by this task0;Production changes0;existing workers continue independently. Candidate/source unchanged.",
-    "next_action": "Authorize narrowly scoped listener composition qualification/installation and historical-discovery disabling before retrying activation; preserve current two workers and immutable candidate. No automatic repair."
+    "next_action": "Authorize narrowly scoped listener composition qualification/installation and historical-discovery disabling before retrying activation; preserve current two workers and immutable candidate. No automatic repair.",
+    "superseded_by": "dev090_listener_prospective_release; installed launcher already disables creator queue loop; no source guard required"
+  },
+  "dev090_listener_prospective_release": {
+    "engineering_revision": "96687a393b024f3008ada9ad3e10441ebcdd0d64",
+    "status": "PASS_OFFLINE_QUALIFIED_NOT_DEPLOYED",
+    "scope": "Minimum prospective-only listener configuration and existing qualified birth handoff composition; no operational changes",
+    "correction_to_prior_preflight": "Installed run_listener.sh already exports LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED=0; constructor skips historical creator loop. Prior activation-blocker claim missed this launcher binding. CRQflag alone is ignored by old helper but that caller is already disabled.",
+    "minimum_correction": "Existing launcher LISTENER_MIGRATION_RECONCILER_ENABLED1->0 prevents recent-signature historical migration discovery; newer installed diagnostic environment fallback preserved. No new Python guard, schema, worker, timestamp cutoff or cursor.",
+    "source_authority": "Installed listener139c8fbc; final listener exact qualifiedc2bd4292. Five already-qualified DEV090 birth provenance/retry/handoff functions are the only Python differences from installed source. No creator/Walkback changes.",
+    "candidate": "DEV090_CANDIDATE_96687a393b02",
+    "candidate_source_sha": "96687a393b024f3008ada9ad3e10441ebcdd0d64",
+    "release_manifest_sha256": "cd1017d9661202cbf21e502bd75eee3d0f68f53894c353aab653875cd047181e",
+    "qualification": "92 focused controls;274 Python checks in each final source/clean run;frontend/API PASS;all10 actual browser contracts in each run PASS;61 tooling controls PASS;zero unexpected guard denials;isolated APIs stopped.",
+    "runs": [
+      "38ecb730aef5",
+      "12d5ecf93ced"
+    ],
+    "restoration": "Fresh clean checkout source/dependency closure PASS; sealed archive5608files independently SHA256-verified without extraction.",
+    "rollback": "Listener-only exact-preimage restoration; preserve durable proof/intent/ACK and existing deployed workers/schema. No deployment authorized.",
+    "runtime_preserved": "Creator74394 and Walkback74410 remain RUNNING samePIDs;listener/Cascade/other11 remainSTOPPED. Installed hashes unchanged. Original c604 sealed release unchanged.",
+    "superseded_candidate": "Exploratory6db4cca4 candidate retained as evidence only; redundant Python guard removed from final source; do not deploy it.",
+    "browser_receipt_correction": "An auto-review rejected copying captures from previous output directory. All10 final clean-session pages recaptured directly into new current-session artifacts and unchanged validator PASS; no prior acceptance substituted.",
+    "storage": "8MiB fixture/file and256MB archive caps;no new unbounded runtime growth/raw-retention path;11.67GB available at closure;no cleanup.",
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "Separate listener-only deployment authorization plus fresh installed-source,disk/WAL/lock,selective Supervisor and retained-retry preflight. No historical replay; preserve running workers. No automatic startup.",
+    "providers": 0,
+    "canonical_writes_by_task": 0,
+    "production_changes": 0,
+    "report": "DEV090/listener-release-qualification/DEV090_PUMPPORTAL_LISTENER_STATUS.json",
+    "report_sha256": "7bf7f62121a5cdcd6cbc3a8217f2f96639c0e2bb9a301c84c6cb34dbdef87bc7",
+    "updated_utc": "2026-10-18T22:09:40.528550+00:00"
   }
 }

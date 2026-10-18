@@ -19272,8 +19272,8 @@
     "branch": "codex/dev090",
     "git_head": "c604991687e7dd4aaf065fddd047dab6c993ccab",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T20:27:36.530497+00:00",
-    "working_tree": "DEV090 clean committed historical discovery safeguard; immutable candidate qualified/restored; not deployed"
+    "updated_at_utc": "2026-10-18T20:42:33.973042+00:00",
+    "working_tree": "DEV090 candidate unchanged; final deployment HOLD before operational changes"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32924,5 +32924,19 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "safety": "provider calls0;canonical writes0;Production changes0;operational starts0;no install/schema/config changes;no new runtime storage/index/cursor/worker",
     "next_action": "Separately authorize exact candidate Core disabled schema preparation, target-file installation and selective two-worker startup with discoveryflag0 after fresh operational preflight. Do not start listener/API/Cascade. No new intake means live end-to-end acceptance pending, not fabricated."
+  },
+  "dev090_final_deployment_preflight": {
+    "engineering_revision": "c604991687e7dd4aaf065fddd047dab6c993ccab",
+    "status": "HOLD_PREFLIGHT_NO_OPERATIONAL_CHANGES",
+    "authorization": "One conditional controlled deployment; stopped before schema/source/startup on mandatory gate failure",
+    "candidate": "DEV090_CANDIDATE_c604991687e7 sealed file hashes verified unchanged; offline acceptance preserved",
+    "blocking_identity": "Creator runtime src/utils/db_locking.py installedcf60acfa7306b771c3c3bf0e88d3eee0e680a09ee3f5ef1cc64bad2d22332390 differs from qualified compositionecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89. Direct dependency of creator queue and handoff transaction authority; not silently replaced.",
+    "database_health": "Creator queue table-scoped integrity_check ok; OPS Walkback queue check interrupted at5second diagnostic cap. Incomplete evidence, not corruption finding.",
+    "preflight": "Fresh10.662GBfree;CoreWAL0/OPSWALabsent;noDB/lock handles or operational worker/Supervisor observed. No lease/write/migration/installation performed.",
+    "evidence": "DEV090/dev002-release-qualification/FINAL_DEPLOYMENT_PREFLIGHT.json",
+    "runtime_deployment_gate": "HOLD",
+    "ready_for_golden_baseline": false,
+    "safety": "providers0;canonical writes0;Production changes0;service starts/restarts/signals0;noqueuechanges",
+    "next_action": "Qualify actual installed creator db_locking dependency compatibility and complete bounded OPS health evidence before separately authorized deployment retry. No broader infrastructure repairs or candidate mutation."
   }
 }

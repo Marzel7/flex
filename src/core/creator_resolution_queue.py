@@ -359,6 +359,9 @@ def enqueue_missing_migrated_tokens(
     max_age_seconds: int = None,
     schema_ready: bool = False,
 ) -> int:
+    # Prospective-only restoration disables discovery, never direct migration enqueue.
+    if os.environ.get("CRQ_HISTORICAL_DISCOVERY_ENABLED", "1") != "1":
+        return 0
     if not schema_ready:
         initialize_schema(db_path)
 
@@ -507,6 +510,9 @@ def enqueue_missing_funding_jobs(
     schema_ready: bool = False,
 ) -> int:
     """Backfill migrated tokens that already have a creator but no funding job."""
+    # Prospective-only restoration disables discovery, never direct migration enqueue.
+    if os.environ.get("CRQ_HISTORICAL_DISCOVERY_ENABLED", "1") != "1":
+        return 0
     now = int(time.time())
     enqueued = 0
     telemetry_rows = []

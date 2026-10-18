@@ -1,0 +1,10 @@
+{
+  "parent": "2d40af06c320d1a4688d65c9d195214ec69f5378",
+  "file": "src/core/creator_resolution_queue.py",
+  "preimage_sha256": "840b1273fa8befa3e5bb024bcdd217e3c651b85d524955bb7e07e47cd2c329ef",
+  "candidate_sha256": "2226407ba6ba81d95b9ef23a23f2fd20343dbb0b12733c6738f5a8eb2ccd6b95",
+  "setting": "CRQ_HISTORICAL_DISCOVERY_ENABLED=0",
+  "default": "1 preserves existing behaviour",
+  "scope": "early return before schema/read/write for missing creator and missing funding discovery; direct migration enqueue and strict completion unchanged",
+  "deployment": false
+}

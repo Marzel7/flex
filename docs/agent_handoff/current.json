@@ -19269,8 +19269,8 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev085",
-    "git_head": "a6f870bda23228920f49b0b06403063f6ab66320",
+    "branch": "codex/dev086",
+    "git_head": "781b150a15755b0ed06f50d86e7d8e3c816d6fdf",
     "name": "flex",
     "updated_at_utc": "2026-10-18T11:29:09.291520+00:00",
     "working_tree": "DEV084 Inbox read-only correction component PASS; release HOLD at clean Byzantine browser timeout-only contract. Both isolated APIs stopped; no candidate or deployment."
@@ -32320,5 +32320,33 @@
     "runtime_reason": "Diagnosis and documentation only",
     "storage": "Compact derived query plans/documentation; no raw payload retention, canonical copies or unbounded output paths; generated files below 8 MiB.",
     "retained_browser_evidence": "DEV084/evidence/c279ab3c2a0c/byzantine_detail.txt and .png; existing artifacts unchanged."
+  },
+  "dev086_byzantine_safe_unavailable": {
+    "DEV086_BYZANTINE_SAFE_UNAVAILABLE_STATUS": "PARTIAL \u2014 correction qualified offline; release HOLD",
+    "UNBOUNDED_QUERY_PATH": "operator detail -> fetch_operator -> _byzantine_infrastructure_activity: all DISTINCT timestamps; status-only access and temporary sort. Queries unchanged and not entered by refused detail requests.",
+    "SAFE_FAILURE_CONTRACT": "Exact Byzantine HTML/API detail routes return503 UNAVAILABLE before store access, independent of environment. Reason: Historical detail unavailable: bounded indexed access is not qualified. No false zero/history projection and no fabricated timeout.",
+    "REGISTRY_SUMMARY_PRESERVATION": "Only get_operator/operator_page decorated. Registry and summary source unchanged; retained registry/history API acceptance PASS,20rows and exact price assertions PASS; actual registry browser renders retained prices. Watchtower/playbook/Health API acceptance PASS; Nexus existing deadline unchanged.",
+    "PROVIDER_FREE_TESTS": "24 PASS:12 new refusal/other-identity/route-binding controls plus12 original deadline controls; repeat24 PASS fresh clean checkout. Guarded workflow24 PASS.61 unchanged tooling controls PASS.",
+    "DEV048_RELEASE_QUALIFICATION": "HOLD: frontend PASS; scoped API PASS; ten actual browser views captured but no all-ten PASS. Unchanged Byzantine assertion requires Request exceeded 3 seconds, incompatible with truthful immediate refusal. Mission Control browser also lacks required Inbox term; no unrelated Inbox change incorporated. Tool timed out awaiting accepted browser receipt and stopped isolated API.",
+    "DEV082_INTEGRATION_READINESS": "Minimal route patch plus helper/template can compose without changing Walkback. Combined release acceptance not yet passed; not deployment-ready.",
+    "DEV084_INTEGRATION_READINESS": "No Inbox edits. Compose separately qualified Inbox correction only in explicit integration, then repeat full release gates.",
+    "CANDIDATE_SOURCE_SHA": null,
+    "qualified_component_source_sha": "1528d1136cd286fe97b1858dc09081552dec7dd9",
+    "READY_FOR_TARGETED_DEPLOYMENT": false,
+    "NEXT_ACTION": "Qualify strict browser acceptance for immediate503 bounded-access refusal without weakening safety assertions; perform explicit DEV084/DEV082 composition and fresh full clean-checkout browser acceptance. Do not deploy.",
+    "PROVIDER_CALLS": 0,
+    "CANONICAL_WRITES": 0,
+    "PRODUCTION_CHANGES": 0,
+    "guard_isolation_events": [],
+    "clean_checkout": "24tests PASS and tracked source clean; full server/browser restoration NOT QUALIFIED.",
+    "runtime_compatibility": "Exact installed-route reversible patch preserved; original route source0b14efeca9e1706f8f6907badd6fac3708bcc8206ea04e726fedfe3cb3ca7936. Installed source untouched; no global module replacement.",
+    "rollback": "Reversible route import/decorators; remove new helper/template only after authorized deployment. No data/schema changes.",
+    "RUNTIME_DEPLOYMENT_GATE": "QUALIFIED_NOT_DEPLOYED",
+    "RUNTIME_DEPLOYMENT_REQUIRED": true,
+    "storage": "No runtime storage writes; compact fixture/log limit8MiB; browser evidence individual files<8MiB; no raw provider retention or500MB files.",
+    "api_byzantine": {
+      "seconds": 0.0008329579995915992,
+      "status": 503
+    }
   }
 }

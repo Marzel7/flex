@@ -13,6 +13,7 @@ import json
 import os
 import re
 import sqlite3
+import socket
 from src.utils.db_locking import db_connect, managed_db_connect, db_write_lock, AsyncDbWriteLock
 from src.utils.db_write_retry import async_write_batch_with_retry, async_write_with_retry, get_health_metrics as _db_write_health_metrics
 from src.core.database_write_service import (
@@ -22,6 +23,7 @@ import sys
 import time
 import threading
 from pathlib import Path
+from urllib.parse import urlparse
 import websockets
 import aiohttp
 import requests
@@ -29,6 +31,7 @@ from src.core.pumpportal_birth_audit import configured_birth_audit
 from src.core.pumpfun_delivery_latency import configured_pumpfun_delivery_latency_capture
 from src.ops.byzantine_birth_signal import ByzantineBirthSignalEmitter, load_proven_creators
 from src.core.pumpportal_migration_census import configured_migration_census
+from src.ops.acquisition_availability import AcquisitionAvailability
 from datetime import datetime
 from src.core import runtime_budget as _budget
 from enum import Enum
@@ -63,22 +66,22 @@ class Colors:
 # === Logging Helper ===
 
 # Migration log: pool discovery/detection events only
-_MIGRATION_LOG_PATH = os.path.join(
+_MIGRATION_LOG_PATH = os.environ.get("MIGRATION_LOG_PATH") or os.path.join(
     os.path.dirname(__file__), "../../migration.log"
 )
 
 # Pre-migration signal debug log: ALL PF signal inputs, parsing, and outputs
-PREMIG_LOG_PATH = os.path.join(
+PREMIG_LOG_PATH = os.environ.get("PREMIGRATION_LOG_PATH") or os.path.join(
     os.path.dirname(__file__), "../../logs/premigration.log"
 )
-CURVE_WATCH_STATE_PATH = os.path.join(
+CURVE_WATCH_STATE_PATH = os.environ.get("CURVE_WATCH_STATE_PATH") or os.path.join(
     os.path.dirname(__file__), "../../logs/curve_watch_state.json"
 )
 # The listener process does the bulk of DB writes, but its serializer metrics are in-memory and
 # per-process — the API process can't read them directly. The listener periodically snapshots
 # db_locking.serializer_metrics() to this file so the dashboard endpoint (API process) can surface
 # the REAL write load. JSON file (not DB) keeps measurement off the write lane it measures.
-DB_SERIALIZER_METRICS_PATH = os.path.join(
+DB_SERIALIZER_METRICS_PATH = os.environ.get("DB_SERIALIZER_METRICS_PATH") or os.path.join(
     os.path.dirname(__file__), "../../logs/db_serializer_metrics.json"
 )
 # MC1.4 -- same cross-process-visibility problem as DB_SERIALIZER_METRICS_PATH
@@ -87,9 +90,15 @@ DB_SERIALIZER_METRICS_PATH = os.path.join(
 # this process's memory holds). Snapshotted on the same cadence/thread as
 # the serializer metrics so the API process can build an authoritative,
 # same-population Birth Durability panel instead of inferring it from logs.
-BIRTH_DURABILITY_METRICS_PATH = os.path.join(
+BIRTH_DURABILITY_METRICS_PATH = os.environ.get("BIRTH_DURABILITY_METRICS_PATH") or os.path.join(
     os.path.dirname(__file__), "../../logs/birth_durability_metrics.json"
 )
+
+
+def _listener_ops_db_path() -> str:
+    """Resolve the listener's operations authority independently of its checkout."""
+    from src.core.db import resolve_ops_db_path
+    return resolve_ops_db_path()
 
 
 def premig_log(message: str) -> None:
@@ -334,6 +343,112 @@ def log_print(*args, **kwargs):
         clean = _re.sub(r"\033\[[0-9;]*m", "", line)
         if any(clean.lstrip().startswith(p) for p in _MIGRATION_LOG_PREFIXES):
             _write_migration_log(clean)
+
+
+# DEV-020: compact resolver-boundary diagnostics.  These helpers are deliberately
+# fail-open and are called only at the existing websocket failure/success boundary;
+# they neither resolve names nor alter connection/retry behaviour.
+DEV_020_RESOLVER_FAILURE_SNAPSHOT_V1 = "DEV_020_RESOLVER_FAILURE_SNAPSHOT_V1"
+_RESOLVER_DIAGNOSTIC_GENERATION_STARTED_AT = time.time()
+_RESOLVER_DIAGNOSTIC_MAX_BYTES = 256 * 1024
+_RESOLVER_DIAGNOSTIC_SEEN: set[tuple] = set()
+_RESOLVER_DIAGNOSTIC_LAST_EMITTED: dict[tuple, float] = {}
+_RESOLVER_DIAGNOSTIC_LOCK = threading.Lock()
+
+
+def _resolver_diagnostic_path() -> Path:
+    """Return the opt-in-safe bounded diagnostic location without reading secrets."""
+    configured = os.environ.get("LISTENER_RESOLVER_DIAGNOSTIC_PATH")
+    if configured:
+        return Path(configured)
+    return Path(__file__).resolve().parents[2] / "logs" / "diagnostics" / "resolver_failure.jsonl"
+
+
+def _resolver_snapshot_fingerprints() -> tuple[dict, dict, dict]:
+    """Metadata-only fingerprints; never perform DNS, route, or interface discovery."""
+    runtime = {
+        "python_major_minor": f"{sys.version_info.major}.{sys.version_info.minor}",
+        "platform": sys.platform,
+        "pid": os.getpid(),
+    }
+    resolver = {
+        "socket_has_ipv6": bool(socket.has_ipv6),
+        "default_timeout": socket.getdefaulttimeout(),
+        "active_resolution": "not_performed",
+    }
+    network = {"interface": "not_collected", "route": "not_collected"}
+    return runtime, resolver, network
+
+
+def _resolver_generation_identity() -> str:
+    return f"pid:{os.getpid()}:started:{int(_RESOLVER_DIAGNOSTIC_GENERATION_STARTED_AT)}"
+
+
+def _resolver_endpoint_details(endpoint: str) -> tuple[str, int]:
+    parsed = urlparse(endpoint)
+    return (parsed.hostname or "unknown", parsed.port or (443 if parsed.scheme == "wss" else 0))
+
+
+def _record_resolver_snapshot(
+    *, provider: str, endpoint: str, event: str, exc: BaseException | None = None,
+    attempt_number: int = 0, backoff_seconds: float = 0.0,
+) -> bool:
+    """Append one bounded, secret-safe resolver snapshot.  Never raises to the loop."""
+    try:
+        hostname, port = _resolver_endpoint_details(endpoint)
+        errno = getattr(exc, "errno", None) if exc else None
+        exc_type = type(exc).__name__ if exc else None
+        key = (_resolver_generation_identity(), provider, event, hostname, errno, exc_type)
+        now_mono = time.monotonic()
+        with _RESOLVER_DIAGNOSTIC_LOCK:
+            if event == "resolver_failure" and key in _RESOLVER_DIAGNOSTIC_SEEN:
+                return False
+            last = _RESOLVER_DIAGNOSTIC_LAST_EMITTED.get(key)
+            if last is not None and now_mono - last < 60.0:
+                return False
+            runtime, resolver, network = _resolver_snapshot_fingerprints()
+            try:
+                loop = asyncio.get_running_loop()
+                loop_identity = f"{type(loop).__name__}:{id(loop)}"
+            except RuntimeError:
+                loop_identity = "none"
+            snapshot = {
+                "schema_version": DEV_020_RESOLVER_FAILURE_SNAPSHOT_V1,
+                "event": event,
+                "timestamp": datetime.utcnow().isoformat(timespec="milliseconds") + "Z",
+                "monotonic_timestamp": now_mono,
+                "pid": os.getpid(),
+                "generation_identity": _resolver_generation_identity(),
+                "provider": provider,
+                "hostname": hostname,
+                "port": port,
+                "family": "AF_UNSPEC",
+                "socket_type": "SOCK_STREAM",
+                "protocol": "IPPROTO_TCP",
+                "flags": 0,
+                "exception_type": exc_type,
+                "errno": errno,
+                "exception_message": str(exc)[:160] if exc else None,
+                "event_loop_identity": loop_identity,
+                "execution_context": f"thread:{threading.current_thread().name}",
+                "attempt_number": attempt_number,
+                "backoff_seconds": backoff_seconds,
+                "runtime_fingerprint": runtime,
+                "resolver_fingerprint": resolver,
+                "network_fingerprint": network,
+            }
+            encoded = (json.dumps(snapshot, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
+            path = _resolver_diagnostic_path()
+            path.parent.mkdir(parents=True, exist_ok=True)
+            if path.exists() and path.stat().st_size + len(encoded) > _RESOLVER_DIAGNOSTIC_MAX_BYTES:
+                return False
+            with path.open("ab") as handle:
+                handle.write(encoded)
+            _RESOLVER_DIAGNOSTIC_SEEN.add(key)
+            _RESOLVER_DIAGNOSTIC_LAST_EMITTED[key] = now_mono
+        return True
+    except Exception:
+        return False
 
 # === Global Database Write Lock ===
 try:
@@ -963,20 +1078,50 @@ def _check_watchtower_migration(mint: str, migrated_at: int, migration_tx: str |
                     # remains the backstop if this local read or close fails.
                     conn.close()
                     conn = None
-                    _ops_path = __import__('os').environ.get(
-                            "WT_OPS_DB_PATH",
-                            __import__('os').path.join(
-                                __import__('os').path.dirname(__import__('os').path.abspath(__file__)),
-                                "..", "..", "database", "wt_ops_v2.db"))
+                    _ops_path = _listener_ops_db_path()
                     from src.core.walkback_queue import enqueue_migration as _enq
                     from src.core.database_write_service import database_write_service
+                    from src.ops.migration_walkback_handoff_retry import (
+                        ensure_schema as _ensure_handoff_schema,
+                        mark_attempt_failure as _handoff_failure,
+                        mark_complete as _handoff_complete,
+                        record_intent as _record_handoff_intent,
+                    )
+                    # This is a separate main-DB durability boundary.  It is
+                    # committed before touching OPS, so an OPS SQLITE_BUSY
+                    # cannot erase the intent to enqueue Walkback work.
+                    _handoff_selector = f"main-handoff:{__import__('os').path.realpath(DB_PATH)}"
+                    database_write_service.register_database(_handoff_selector, DB_PATH)
+                    database_write_service.submit(
+                        _handoff_selector, "listener-walkback-handoff-intent",
+                        lambda _handoff_conn: (
+                            _ensure_handoff_schema(_handoff_conn),
+                            _record_handoff_intent(
+                                _handoff_conn, mint=mint, creator=_creator_for_wb,
+                                migration_tx=migration_tx, migrated_at=migrated_at,
+                            ),
+                        ),
+                    )
                     _ops_selector = f"operations:{__import__('os').path.realpath(_ops_path)}"
                     database_write_service.register_database(_ops_selector, _ops_path)
-                    _cls = database_write_service.submit(
-                        _ops_selector, "listener-walkback-enqueue",
-                        lambda _ops_conn: _enq(
-                            _ops_conn, mint=mint, creator=_creator_for_wb
-                        ),
+                    try:
+                        _cls = database_write_service.submit(
+                            _ops_selector, "listener-walkback-enqueue",
+                            lambda _ops_conn: _enq(
+                                _ops_conn, mint=mint, creator=_creator_for_wb
+                            ),
+                        )
+                    except Exception as _enqueue_error:
+                        database_write_service.submit(
+                            _handoff_selector, "listener-walkback-handoff-failure",
+                            lambda _handoff_conn: _handoff_failure(
+                                _handoff_conn, mint, _enqueue_error
+                            ),
+                        )
+                        raise
+                    database_write_service.submit(
+                        _handoff_selector, "listener-walkback-handoff-complete",
+                        lambda _handoff_conn: _handoff_complete(_handoff_conn, mint),
                     )
                     if _cls:
                         log_print(f"[WATCHTOWER] walkback enqueued mint={mint[:20]} cls={_cls} creator={(_creator_for_wb or '')[:20]}", flush=True)
@@ -1218,8 +1363,135 @@ def _fallback_file_path() -> str:
     return f"{base}.birth_fallback.jsonl"
 
 
+class MigrationTerminalDurabilityRisk(RuntimeError):
+    """The migration could not be made durable by either persistence layer."""
+
+
+def _migration_fallback_file_path() -> str:
+    """The last-resort journal for migration queue-enqueue failures.
+
+    This deliberately sits beside the DB, like the birth journal, so it is
+    retained by the same local-volume backup and restart lifecycle.
+    """
+    base = DB_PATH or "flex_complete_database.db"
+    return f"{base}.migration_fallback.jsonl"
+
+
+def _migration_terminal_risk_file_path() -> str:
+    base = DB_PATH or "flex_complete_database.db"
+    return f"{base}.migration_terminal_durability_risk.jsonl"
+
+
+def _durable_jsonl_append(path: str, record: dict) -> None:
+    """Append exactly one compact record and force it to the local volume."""
+    import json as _json
+    payload = (_json.dumps(record, separators=(",", ":"), sort_keys=True) + "\n").encode("utf-8")
+    fd = os.open(path, os.O_APPEND | os.O_CREAT | os.O_WRONLY, 0o600)
+    try:
+        # A single O_APPEND write prevents one fallback envelope overwriting
+        # another.  fsync is the durability boundary before we return.
+        written = os.write(fd, payload)
+        if written != len(payload):
+            raise OSError(f"short fallback journal write: {written}/{len(payload)}")
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def _migration_fallback_append(mint, migration_signature, received_at, source, last_error,
+                               migration_slot=None) -> None:
+    """Persist the minimal data needed to recreate migration_persist_queue."""
+    _durable_jsonl_append(_migration_fallback_file_path(), {
+        "version": 1,
+        "mint": mint,
+        "signature": migration_signature,
+        "received_at": received_at,
+        "source": source,
+        "migration_slot": migration_slot,
+        "last_error": str(last_error)[:1000],
+    })
+
+
+def _migration_fallback_file_line_count() -> int:
+    try:
+        with open(_migration_fallback_file_path(), encoding="utf-8") as f:
+            return sum(1 for line in f if line.strip())
+    except FileNotFoundError:
+        return 0
+    except Exception:
+        return 0
+
+
+def _migration_terminal_risk_count() -> int:
+    try:
+        with open(_migration_terminal_risk_file_path(), encoding="utf-8") as f:
+            return sum(1 for line in f if line.strip())
+    except FileNotFoundError:
+        return 0
+    except Exception:
+        return 0
+
+
+def _retain_migration_terminal_risk(mint, signature, received_at, queue_error, fallback_error) -> None:
+    """Keep an explicit operator-visible record when the normal journal fails."""
+    _durable_jsonl_append(_migration_terminal_risk_file_path(), {
+        "version": 1,
+        "state": "MIGRATION_TERMINAL_DURABILITY_RISK",
+        "mint": mint,
+        "signature": signature,
+        "received_at": received_at,
+        "queue_error": str(queue_error)[:1000],
+        "fallback_error": str(fallback_error)[:1000],
+    })
+
+
+def _reconcile_migration_fallback_file_into_queue() -> int:
+    """Commit journalled migrations to the existing queue before acknowledging.
+
+    The journal is intentionally retained on *any* import/cleanup failure.
+    Queue uniqueness (signature) makes retrying an interrupted import safe.
+    """
+    import json as _json
+    path = _migration_fallback_file_path()
+    try:
+        with open(path, encoding="utf-8") as f:
+            records = [_json.loads(line) for line in f if line.strip()]
+    except FileNotFoundError:
+        return 0
+    except Exception:
+        return 0
+    records = [r for r in records if r.get("mint") and r.get("signature")]
+    if not records:
+        return 0
+    try:
+        import sqlite3 as _sq
+        conn = _sq.connect(DB_PATH, timeout=5, priority=PRIORITY_P0_CRITICAL_INGESTION)
+        with conn:
+            for r in records:
+                conn.execute(
+                    """INSERT INTO migration_persist_queue
+                       (signature, source, mint, received_at, status, last_error)
+                       VALUES (?, ?, ?, ?, 'PENDING', ?)
+                       ON CONFLICT(signature) DO UPDATE SET
+                           last_error=excluded.last_error,
+                           last_attempt_at=excluded.received_at,
+                           status=CASE WHEN migration_persist_queue.status='PROCESSED'
+                                       THEN 'PROCESSED' ELSE 'PENDING' END""",
+                    (r["signature"], r.get("source") or "mark_migrated", r["mint"],
+                     r.get("received_at") or int(time.time()), r.get("last_error")),
+                )
+        conn.close()
+    except Exception:
+        return 0
+    try:
+        os.remove(path)  # queue commit is the acknowledgement boundary
+    except Exception:
+        return 0
+    return len(records)
+
+
 def _fallback_append_birth(mint, creator, created_at, bonding_curve_pda,
-                            create_tx_signature, symbol, name, received_at, last_error) -> None:
+                            create_tx_signature, symbol, name, received_at, last_error, birth_evidence_source=None) -> None:
     """X78.19 last-resort backstop -- caught live 2026-08-09 during production
     validation: sqlite3.connect(DB_PATH, ...) is globally intercepted
     (db_locking.py _patched_connect) and routed through the SAME
@@ -1237,8 +1509,22 @@ def _fallback_append_birth(mint, creator, created_at, bonding_curve_pda,
         "bonding_curve_pda": bonding_curve_pda, "create_tx_signature": create_tx_signature,
         "symbol": symbol, "name": name, "received_at": received_at, "last_error": last_error,
     }
+    if birth_evidence_source == "PUMPPORTAL_NEW_TOKEN":
+        record["birth_evidence_source"] = birth_evidence_source
+        record["last_error"] = str(last_error)[:500]
+        import os as _os
+        if (_os.path.exists(_fallback_file_path()) and _os.path.getsize(_fallback_file_path()) >= 2_000_000) or len(_json.dumps(record).encode()) > 4096:
+            raise RuntimeError("BIRTH_PROVENANCE_FALLBACK_CAPACITY")
     with open(_fallback_file_path(), "a", encoding="utf-8") as f:
-        f.write(_json.dumps(record) + "\n")
+        if birth_evidence_source == "PUMPPORTAL_NEW_TOKEN":
+            import fcntl as _fcntl, os as _os
+            _fcntl.flock(f.fileno(), _fcntl.LOCK_EX | _fcntl.LOCK_NB)
+            payload = _json.dumps(record) + "\n"
+            if _os.fstat(f.fileno()).st_size + len(payload.encode()) > 2_000_000:
+                raise RuntimeError("BIRTH_PROVENANCE_FALLBACK_CAPACITY")
+            f.write(payload)
+        else:
+            f.write(_json.dumps(record) + "\n")
 
 
 def _fallback_file_line_count() -> int:
@@ -1296,6 +1582,8 @@ def _reconcile_fallback_file_into_queue() -> int:
                      r.get("bonding_curve_pda"), r.get("create_tx_signature"),
                      r.get("symbol"), r.get("name"), r.get("received_at"), r.get("last_error")),
                 )
+                from src.ops.walkback_create_handoff import set_birth_retry_source
+                set_birth_retry_source(conn, r.get("mint"), r.get("birth_evidence_source"))
         conn.close()
     except Exception:
         return 0  # lane still busy -- file left intact, try again next cycle
@@ -1356,6 +1644,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
         # exactly what population "received" etc. cover (this process's
         # lifetime, not an arbitrary log-tail boundary).
         self._process_started_at = int(time.time())
+        self._acquisition_availability = AcquisitionAvailability(DB_PATH, f"listener:{os.getpid()}:{self._process_started_at}")
+        self._acquisition_availability.transition("BIRTH", "UNKNOWN", "listener startup")
+        self._acquisition_availability.transition("MIGRATION", "UNKNOWN", "listener startup")
         self.seen_mints: Set[str] = set()
         self.processing_migrations: Set[str] = set()
         self.completed_migrations: Set[str] = set()
@@ -1474,7 +1765,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
         # Background job queue (deferred execution during critical window)
         self.background_job_queue = asyncio.Queue()
         self.background_jobs_processing = False
-        self._creator_funding_queue_wakeup = asyncio.Event()
         asyncio.create_task(self._process_background_queue())
 
         # Periodic TX cache cleanup (prevent memory leak on long-running listener)
@@ -1484,15 +1774,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             log_print("[STARTUP] Creator resolution queue enabled", flush=True)
         else:
             log_print("[STARTUP] Skipping creator resolution queue due to LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED=0", flush=True)
-        if __import__('os').environ.get("LISTENER_CREATOR_FUNDING_QUEUE_ENABLED", "1") != "0":
-            asyncio.create_task(self._process_creator_funding_queue_periodic())
-            log_print("[STARTUP] Creator funding queue enabled (in-listener loop — "
-                      "DEPRECATED as of X73.2, standalone creator_funding_worker is canonical)", flush=True)
-        else:
-            log_print("[STARTUP] Creator funding queue in-listener loop disabled "
-                      "(LISTENER_CREATOR_FUNDING_QUEUE_ENABLED=0 — correct as of X73.2: "
-                      "the standalone creator_funding_worker supervisord process is now "
-                      "the sole canonical consumer)", flush=True)
+        log_print("[STARTUP] Creator funding is owned by the standalone creator_funding_worker", flush=True)
         # DISABLED: _periodic_cluster_rebuild reprocessed ~3000 creators every 10min (O(n) funding
         # walk + heavy super_clusters rewrite) — the listener's 113% CPU hog and a major live-db
         # write/lock-storm source. It's network-ANALYSIS, not needed for launch detection; the
@@ -1548,7 +1830,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 log_print(f"[STARTUP] ws_snapshot_log={_ws_log_abs}", flush=True)
                 log_print(f"[STARTUP] cwd={os.getcwd()}", flush=True)
                 log_print(f"[STARTUP] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", flush=True)
-                self.price_worker = get_price_worker()
+                self.price_worker = get_price_worker(DB_PATH)
                 self.price_worker.start()
                 log_print(f"[INIT] ✅ Price worker started pid={os.getpid()} worker=0x{id(self.price_worker):x}", flush=True)
             except Exception as e:
@@ -2474,7 +2756,31 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     )
                 _qc.close()
             except Exception as _qe:
-                log_print(f"[MIGRATION_VERIFY] ⚠ Failed to queue migration retry for {mint[:16]}: {_qe}", flush=True)
+                # The queue is normally the durable boundary.  If its own
+                # insert loses the DB write lane, use a compact fsync'd local
+                # journal rather than returning with an untracked migration.
+                try:
+                    _migration_fallback_append(
+                        mint=mint,
+                        migration_signature=migration_tx or mint,
+                        received_at=migrated_ts,
+                        source="mark_migrated",
+                        last_error=f"final_write={exc}; queue_insert={_qe}",
+                        migration_slot=migration_slot,
+                    )
+                    log_print(f"[MIGRATION_VERIFY] ⚠ queue unavailable; retained migration fallback mint={mint[:16]}", flush=True)
+                except Exception as _fe:
+                    # A separate risk journal lets Health surface the loss of
+                    # the primary fallback where the filesystem remains usable.
+                    try:
+                        _retain_migration_terminal_risk(
+                            mint, migration_tx or mint, migrated_ts, _qe, _fe,
+                        )
+                    except Exception as _risk_exc:
+                        log_print(f"[MIGRATION_VERIFY] 🔴 MIGRATION_TERMINAL_DURABILITY_RISK mint={mint[:16]} queue={_qe} fallback={_fe} risk_journal={_risk_exc}", flush=True)
+                    raise MigrationTerminalDurabilityRisk(
+                        f"MIGRATION_TERMINAL_DURABILITY_RISK mint={mint}"
+                    ) from _fe
             return
 
         if TOKEN_PREDICTION_RUNTIME_ENABLED:
@@ -4065,7 +4371,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         {
                             "encoding": "jsonParsed",
                             "commitment": "confirmed",
-                            "maxSupportedTransactionVersion": 0,
+                            # Version 1 migrations remain compatible with legacy/v0.
+                            "maxSupportedTransactionVersion": 1,
                         },
                     ],
                 }
@@ -4076,7 +4383,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     [signature, {
                         "encoding": "jsonParsed",
                         "commitment": "confirmed",
-                        "maxSupportedTransactionVersion": 0,
+                        "maxSupportedTransactionVersion": 1,
                     }],
                     timeout=timeout
                 )
@@ -4421,21 +4728,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 last_detected_at TIMESTAMP,
                 is_pool_address INTEGER DEFAULT 0,
                 UNIQUE(creator_address, destination_address)
-            )
-        """)
-
-        # Creator networks - identifies groups of creators sharing destinations
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS creator_networks (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                creator_address TEXT NOT NULL,
-                connected_creators TEXT NOT NULL,  -- JSON array of connected creator addresses
-                shared_destinations TEXT NOT NULL,  -- JSON array of shared destination addresses
-                network_size INTEGER,  -- Number of creators in network
-                network_risk_level TEXT,  -- CRITICAL, HIGH, MEDIUM, LOW based on connected ruggers
-                detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE(creator_address)
             )
         """)
 
@@ -4932,7 +5224,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 flush=True,
             )
             premig_log(f"[TIMING] mint={mint} enqueued source={source} t={now}")
-            self._creator_funding_queue_wakeup.set()
             return True
         else:
             log_print(f"[FUNDING_QUEUE] ⚠ Failed to enqueue funding for {creator[:16]}...: {result[1]}", flush=True)
@@ -5109,457 +5400,6 @@ class PumpFunCurveListener(FastLaneDiscovery):
         """Legacy clustering — disabled (super_clusters superseded by WATCHTOWER ops model)."""
         return
 
-    async def _process_creator_funding_queue_periodic(self) -> None:
-        """DEPRECATED (X73.2) — process durable creator funding work after the
-        critical window.
-
-        Replaced by the standalone src.core.creator_funding_worker daemon
-        (supervisord [program:creator_funding_worker], autostart=true), which
-        is now the sole canonical consumer of creator_funding_queue. This
-        in-listener loop is gated off via LISTENER_CREATOR_FUNDING_QUEUE_ENABLED=0
-        in run_listener.sh -- do NOT re-enable it; doing so would reintroduce
-        a second, redundant consumer racing the standalone worker for the
-        same rows. Left in place (not deleted) only so the env-var kill
-        switch remains meaningful and reversible if the standalone worker
-        needs to be rolled back.
-        """
-        await asyncio.sleep(2)
-        last_idle_log_at = 0
-        while True:
-            try:
-                now = int(time.time())
-                stale_running_recovered = 0
-                overdue_ready_count = 0
-                oldest_overdue_seconds = 0
-                conn = None     # tracked so the loop's except can close on any failure
-                def _poll_queue(_now=now):
-                    conn = db_connect(DB_PATH, timeout=30)
-                    conn.execute("PRAGMA journal_mode=WAL")
-                    conn.execute("PRAGMA synchronous=NORMAL")
-                    conn.execute("PRAGMA busy_timeout=30000")
-                    conn.row_factory = sqlite3.Row
-                    cursor = conn.cursor()
-                    try:
-                        cursor.execute(
-                            """
-                            UPDATE creator_funding_queue
-                            SET status = 'complete',
-                                locked_until = 0,
-                                attempts = attempts + 1,
-                                last_error = NULL,
-                                funding_extracted_at = COALESCE(funding_extracted_at, ?),
-                                updated_at = ?
-                            WHERE (
-                                  (status = 'running' AND locked_until > 0 AND locked_until < ?)
-                               OR status = 'retry'
-                              )
-                              AND EXISTS (
-                                  SELECT 1
-                                  FROM creator_funders cf
-                                  WHERE cf.creator_address = creator_funding_queue.creator_address
-                                  LIMIT 1
-                              )
-                              AND COALESCE(observation_required, 0) = 0
-                            """,
-                            (_now, _now, _now),
-                        )
-                        _recovered_completed = int(cursor.rowcount or 0)
-                        if _recovered_completed:
-                            log_print(f"[FUNDING_QUEUE] ✅ Recovered {_recovered_completed} stale running job(s) with extracted funders", flush=True)
-                        cursor.execute(
-                            """
-                            UPDATE creator_funding_queue
-                            SET status = 'retry',
-                                locked_until = 0,
-                                last_error = COALESCE(last_error, 'stale running job recovered'),
-                                updated_at = ?
-                            WHERE status = 'running'
-                              AND locked_until > 0
-                              AND locked_until < ?
-                            """,
-                            (_now, _now),
-                        )
-                        _stale = int(cursor.rowcount or 0)
-                        if _stale:
-                            log_print(f"[FUNDING_QUEUE] ♻ Recovered {_stale} stale running job(s)", flush=True)
-                        _qs = cursor.execute(
-                            """
-                            SELECT
-                                SUM(CASE WHEN status = 'running' THEN 1 ELSE 0 END) AS running_count,
-                                SUM(CASE WHEN status IN ('pending', 'retry') AND locked_until < ? AND next_attempt_at <= ? THEN 1 ELSE 0 END) AS ready_count,
-                                MIN(CASE WHEN status IN ('pending', 'retry') AND locked_until < ? AND next_attempt_at <= ? THEN next_attempt_at END) AS oldest_ready_at
-                            FROM creator_funding_queue
-                            """,
-                            (_now, _now, _now, _now),
-                        ).fetchone()
-                        _running = int((_qs["running_count"] or 0) if _qs else 0)
-                        _ready = int((_qs["ready_count"] or 0) if _qs else 0)
-                        _oldest_at = int(_qs["oldest_ready_at"] or 0) if _qs and _qs["oldest_ready_at"] else 0
-                        _oldest_secs = max(0, _now - _oldest_at) if _oldest_at else 0
-                        _rows = cursor.execute(
-                            """
-                            SELECT creator_address, mint, migration_timestamp, create_tx_signature, attempts,
-                                   COALESCE(job_priority, 0) as job_priority,
-                                   COALESCE(priority_reason, 'unknown') as priority_reason,
-                                   COALESCE(observation_required, 0) as observation_required
-                            FROM creator_funding_queue
-                            WHERE status IN ('pending', 'retry')
-                              AND locked_until < ?
-                              AND next_attempt_at <= ?
-                            ORDER BY COALESCE(job_priority, 0) DESC, next_attempt_at ASC, created_at ASC
-                            LIMIT 3
-                            """,
-                            (_now, _now),
-                        ).fetchall()
-                        _rows = [dict(r) for r in _rows]
-                        if _rows:
-                            _lock_until = _now + 180
-                            cursor.executemany(
-                                """
-                                UPDATE creator_funding_queue
-                                SET status = 'running', locked_until = ?, updated_at = ?
-                                WHERE creator_address = ? AND mint = ?
-                                """,
-                                [(_lock_until, _now, str(r["creator_address"]), str(r["mint"])) for r in _rows],
-                            )
-                            conn.commit()
-                            log_print(f"[FUNDING_QUEUE] 📦 Claimed {len(_rows)} job(s) ready={_ready} running={_running} oldest_overdue={_oldest_secs}s", flush=True)
-                        return {"rows": _rows, "running_count": _running, "overdue_ready_count": _ready, "oldest_overdue_seconds": _oldest_secs, "stale_running_recovered": _stale}
-                    finally:
-                        conn.close()
-
-                _poll_result = await asyncio.to_thread(_poll_queue)
-                rows = _poll_result["rows"]
-                running_count = _poll_result["running_count"]
-                overdue_ready_count = _poll_result["overdue_ready_count"]
-                oldest_overdue_seconds = _poll_result["oldest_overdue_seconds"]
-                stale_running_recovered = _poll_result["stale_running_recovered"]
-
-                if not rows and overdue_ready_count > 0 and now - last_idle_log_at >= 30:
-                    log_print(
-                        f"[FUNDING_QUEUE] ⏳ Ready work waiting ready={overdue_ready_count} running={running_count} oldest_overdue={oldest_overdue_seconds}s",
-                        flush=True,
-                    )
-                    last_idle_log_at = now
-
-                for row in rows:
-                    creator = str(row["creator_address"])
-                    mint = str(row["mint"])
-                    migration_timestamp = row["migration_timestamp"]
-                    if not migration_timestamp:
-                        # Fall back to migrated_at from token_analysis, then now
-                        try:
-                            def _read_migrated_at(_m=mint):
-                                _c = db_connect(DB_PATH, timeout=5)
-                                _r = _c.execute("SELECT migrated_at FROM token_analysis WHERE mint = ? LIMIT 1", (_m,)).fetchone()
-                                _c.close()
-                                return _r
-                            _mt_row = await asyncio.to_thread(_read_migrated_at)
-                            if _mt_row and _mt_row[0]:
-                                from datetime import timezone
-                                migration_timestamp = datetime.utcfromtimestamp(int(_mt_row[0])).replace(tzinfo=timezone.utc).isoformat()
-                            else:
-                                migration_timestamp = datetime.utcnow().isoformat() + "Z"
-                        except Exception:
-                            migration_timestamp = datetime.utcnow().isoformat() + "Z"
-                    create_tx_signature = row["create_tx_signature"]
-                    attempts = int(row["attempts"] or 0)
-                    try:
-                        job_started_at = time.time()
-                        _pr = str(row["priority_reason"]) if row["priority_reason"] else "unknown"
-                        _jp = int(row["job_priority"]) if row["job_priority"] else 0
-                        log_print(
-                            f"[FUNDING_QUEUE] 🚀 Processing creator funding for {creator[:8]}... mint={mint[:8]} priority={'HIGH' if _jp else 'normal'} reason={_pr}",
-                            flush=True,
-                        )
-                        try:
-                            _extraction_call = (
-                                extract_funding_for_new_token(
-                                    creator,
-                                    migration_timestamp,
-                                    create_tx_signature,
-                                    mint,
-                                    observation_required=True,
-                                )
-                                if bool(row.get("observation_required", 0))
-                                else extract_funding_for_new_token(
-                                    creator,
-                                    migration_timestamp,
-                                    create_tx_signature,
-                                    mint,
-                                )
-                            )
-                            _extraction_result = await asyncio.wait_for(
-                                _extraction_call,
-                                timeout=self.CREATOR_FUNDING_JOB_TIMEOUT_SECONDS,
-                            )
-                        except asyncio.TimeoutError as timeout_exc:
-                            raise TimeoutError(
-                                f"creator funding timed out after {self.CREATOR_FUNDING_JOB_TIMEOUT_SECONDS}s"
-                            ) from timeout_exc
-                        _extraction_errored = bool(
-                            isinstance(_extraction_result, dict) and _extraction_result.get("error")
-                        )
-                        # X63 — candidate generation only. The generic funding extractor
-                        # already persisted the creator-funding signature; quick launches
-                        # spend one transaction lookup to test the ephemeral WSOL handoff.
-                        # The resulting row only raises walkback priority and never assigns
-                        # WATCHTOWER attribution.
-                        try:
-                            if _extraction_errored:
-                                raise RuntimeError("creator funding extraction did not complete")
-
-                            def _x63_candidate(_mint=mint, _creator=creator):
-                                from src.ops.watchtower_candidates import (
-                                    funding_signature_for_quick_launch,
-                                    evaluate_transaction_candidate,
-                                )
-                                from src.core.walkback_worker import _get_tx
-                                live = db_connect(DB_PATH, timeout=30)
-                                live.row_factory = sqlite3.Row
-                                funding_sig = funding_signature_for_quick_launch(
-                                    live, mint=_mint, creator=_creator,
-                                )
-                                if not funding_sig:
-                                    live.close()
-                                    return None
-                                tx = _get_tx(funding_sig)
-                                if not tx:
-                                    live.close()
-                                    return None
-                                ops_path = os.environ.get(
-                                    "WT_OPS_DB_PATH",
-                                    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "database", "wt_ops_v2.db"),
-                                )
-                                ops = db_connect(ops_path, timeout=30)
-                                ops.row_factory = sqlite3.Row
-                                try:
-                                    return evaluate_transaction_candidate(
-                                        ops, mint=_mint, creator=_creator, signature=funding_sig,
-                                        tx=tx, live_conn=live,
-                                    )
-                                finally:
-                                    ops.close()
-                                    live.close()
-                            _x63_result = await asyncio.to_thread(_x63_candidate)
-                            if _x63_result:
-                                log_print(
-                                    f"[WATCHTOWER_CANDIDATE] queued mint={mint[:16]} "
-                                    f"creator={creator[:12]} variant={_x63_result['variant']}",
-                                    flush=True,
-                                )
-                        except Exception as _x63_error:
-                            log_print(f"[WATCHTOWER_CANDIDATE] evaluation failed mint={mint[:16]}: {_x63_error}", flush=True)
-                        # If creator_funders is still empty, scan immediately in background thread
-                        # so prediction can move from PENDING_FUNDING to a real score
-                        try:
-                            def _count_funders(_cr=creator):
-                                with db_connect(DB_PATH, timeout=10) as _c:
-                                    return _c.execute("SELECT COUNT(*) FROM creator_funders WHERE creator_address=?", (_cr,)).fetchone()[0]
-                            _cf_count = await asyncio.to_thread(_count_funders)
-                            if _cf_count == 0:
-                                log_print(f"[FRESH_CREATOR] ⏳ No funders found — scanning immediately: {creator[:8]}", flush=True)
-                                def _scan_funders(_creator, _mint):
-                                    try:
-                                        # Use extract_funder_transfers (sync) which already knows DB_PATH
-                                        from src.extractors.funder_incoming_extractor import extract_for_creator as _extract
-                                        import os as _os
-                                        _os.environ.setdefault('DB_PATH', DB_PATH)
-                                        _extract(_creator)
-                                        log_print(f"[FRESH_CREATOR] ✅ Funder extraction complete: {_creator[:8]}", flush=True)
-                                    except Exception as _e:
-                                        log_print(f"[FRESH_CREATOR] ⚠ Funder scan failed: {_e}", flush=True)
-                                # BOUNDED pool, not a fresh per-creator thread — these block on the DB
-                                # (timeout=30) under lock contention and accumulated unbounded.
-                                _TOKEN_WORK_POOL.submit(_scan_funders, creator, mint)
-                        except Exception as _fc_e:
-                            log_print(f"[FRESH_CREATOR] ⚠ Failed to start scan thread: {_fc_e}", flush=True)
-                        if get_migration_setting('auto_extract_funders', False):
-                            try:
-                                log_print(f"[FUNDER_EXTRACTION] ⏳ Starting funder transfer extraction for {creator[:8]}...", flush=True)
-                                await extract_funder_transfers_async(creator)
-                                log_print(f"[FUNDER_EXTRACTION] ✅ Funder transfer extraction complete", flush=True)
-                            except Exception as funder_exc:
-                                log_print(f"[FUNDER_EXTRACTION] ⚠️ Error in funder extraction: {funder_exc}", flush=True)
-                        else:
-                            log_print(f"[FUNDER_EXTRACTION] ⏭️ Skipped (auto_extract_funders toggle is OFF)", flush=True)
-                        try:
-                            from src.core.risk_scoring_builder import RiskScoringBuilder as _RSB
-                            _RSB(DB_PATH).score_creator_now(creator)
-                            log_print(f"[RISK_SCORE] ✅ Creator scored mint={mint[:16]} creator={creator[:8]}", flush=True)
-                        except Exception as _rs_e:
-                            log_print(f"[RISK_SCORE] ⚠ Creator score failed: {_rs_e}", flush=True)
-                        # Cluster rebuild is now scheduled periodically — skip per-extraction
-                        # trigger to avoid long write locks on every funding completion.
-
-                        # Verify funders were actually written before marking complete.
-                        # A DB lock during _flush_page_batch could silently lose rows.
-                        _funder_count = 0
-                        try:
-                            def _verify_funder_count(_cr=creator):
-                                with db_connect(DB_PATH, timeout=10) as _c:
-                                    return _c.execute("SELECT COUNT(*) FROM creator_funders WHERE creator_address=?", (_cr,)).fetchone()[0]
-                            _funder_count = await asyncio.to_thread(_verify_funder_count)
-                        except Exception as _ve:
-                            log_print(f"[FUNDING_QUEUE] ⚠ Funder count check failed: {_ve}", flush=True)
-
-                        if _extraction_errored and _funder_count == 0 and attempts < 3:
-                            # Extraction ran but wrote nothing — retry in 60s
-                            def _retry_no_funders(_creator=creator, _mint=mint, _att=attempts):
-                                _c = db_connect(DB_PATH, timeout=30)
-                                _c.execute("PRAGMA busy_timeout=30000")
-                                _c.execute(
-                                    """
-                                    UPDATE creator_funding_queue
-                                    SET status = 'retry',
-                                        locked_until = 0,
-                                        attempts = ?,
-                                        next_attempt_at = ?,
-                                        last_error = 'no_funders_written',
-                                        updated_at = ?
-                                    WHERE creator_address = ? AND mint = ?
-                                    """,
-                                    (_att + 1, int(time.time()) + 60, int(time.time()), _creator, _mint),
-                                )
-                                _c.commit()
-                                _c.close()
-                            await asyncio.to_thread(_retry_no_funders)
-                            log_print(f"[FUNDING_QUEUE] ⚠ No funders written — queued for retry (attempt {attempts+1}): {creator[:8]}", flush=True)
-                        else:
-                            _now = int(time.time())
-                            _mark_complete_ok = await async_write_batch_with_retry(
-                                DB_PATH,
-                                [
-                                    (
-                                        """
-                                        UPDATE creator_funding_queue
-                                        SET status = 'complete',
-                                            locked_until = 0,
-                                            attempts = ?,
-                                            last_error = NULL,
-                                            funding_extracted_at = ?,
-                                            updated_at = ?
-                                        WHERE creator_address = ?
-                                          AND mint = ?
-                                        """,
-                                        (attempts + 1, _now, _now, creator, mint),
-                                    ),
-                                    (
-                                        "UPDATE token_analysis SET funding_extracted_slot = ? WHERE mint = ?",
-                                        (_now, mint),
-                                    ),
-                                ],
-                                label=f"funding_queue_complete:{mint[:8]}",
-                                max_attempts=6,
-                                base_delay=0.5,
-                            )
-                            if not _mark_complete_ok:
-                                log_print(f"[FUNDING_QUEUE] ⚠ mark-complete dead-lettered — stale-lock recovery will handle: creator={creator[:8]} mint={mint[:8]}", flush=True)
-                        elapsed = time.time() - job_started_at
-                        log_print(f"[FUNDING_QUEUE] ✅ Completed creator funding for {creator[:8]}... mint={mint[:8]}... funders={_funder_count} elapsed={elapsed:.1f}s", flush=True)
-                        # Auto-enqueue unclassified funders for second-hop lite scan
-                        # so fresh creators don't stay with unknown fund source
-                        try:
-                            def _shl_enqueue(_cr=creator):
-                                with db_connect(DB_PATH, timeout=10) as _c:
-                                    _rows = _c.execute("""
-                                        SELECT funder_address FROM creator_funders
-                                        WHERE creator_address = ?
-                                          AND is_cex = 0
-                                          AND is_classified = 0
-                                          AND funder_address NOT IN (
-                                              SELECT funder_address FROM second_hop_lite_queue
-                                          )
-                                    """, (_cr,)).fetchall()
-                                    if _rows:
-                                        _now = int(time.time())
-                                        _c.executemany("""
-                                            INSERT OR IGNORE INTO second_hop_lite_queue (
-                                                funder_address, priority, reason_codes,
-                                                status, attempts, last_error, rpc_calls_used,
-                                                created_at, scanned_at, next_attempt_at
-                                            ) VALUES (?, 170, '["fresh_creator_auto"]',
-                                                'pending', 0, NULL, 0, ?, NULL, ?)
-                                        """, [(r[0], _now, _now) for r in _rows])
-                                    return len(_rows) if _rows else 0
-                            _shl_count = await asyncio.to_thread(_shl_enqueue)
-                            if _shl_count:
-                                log_print(f"[SHL_AUTO] ✅ Enqueued {_shl_count} unclassified funder(s) for second-hop scan: {creator[:8]}", flush=True)
-                        except Exception as _shl_e:
-                            log_print(f"[SHL_AUTO] ⚠ Failed to enqueue SHL: {_shl_e}", flush=True)
-                        # Immediate provisional network assignment — best-effort, non-blocking
-                        try:
-                            from src.core.network_membership_builder import assign_live_network_for_creator
-                            net_result = assign_live_network_for_creator(DB_PATH, creator)
-                            if net_result.get('assigned'):
-                                log_print(f"[LIVE_NETWORK] ✅ {creator[:8]} → {net_result['network_name']} (provisional={net_result['provisional']})", flush=True)
-                            else:
-                                log_print(f"[LIVE_NETWORK] No shared funders for {creator[:8]}", flush=True)
-                        except Exception as _lne:
-                            log_print(f"[LIVE_NETWORK] Error: {_lne}", flush=True)
-                        # Targeted intelligence refresh (debounced, background)
-                        asyncio.create_task(
-                            self._post_extraction_intelligence_refresh(creator)
-                        )
-
-                        # Phase 1 dual-write: mark creator as baselined in creator_profile
-                        # so Phase 2 cache check fires immediately for this creator on next token.
-                        try:
-                            from src.creators.migration_bridge import dual_write_creator_resolved
-                            from src.creators.repository import CreatorRepository
-                            from src.creators.helius_watch import register_creator_address
-                            _repo = CreatorRepository(CREATOR_DB_PATH, self.db_lock)
-                            await dual_write_creator_resolved(
-                                creator, mint,
-                                create_tx_signature=create_tx_signature,
-                                reason="extraction_complete",
-                                repo=_repo,
-                                register_webhook_fn=register_creator_address,
-                            )
-                        except Exception as _dw_e:
-                            log_print(f"[FUNDING_QUEUE] ⚠ dual_write failed creator={creator[:8]}: {_dw_e}", flush=True)
-                    except Exception as e:
-                        retry_at = int(time.time()) + min(900, 120 * (attempts + 1))
-                        def _retry_exception(_creator=creator, _mint=mint, _att=attempts, _err=str(e), _rat=retry_at):
-                            _c = db_connect(DB_PATH, timeout=30)
-                            _c.execute("PRAGMA busy_timeout=30000")
-                            _c.execute(
-                                """
-                                UPDATE creator_funding_queue
-                                SET status = 'retry',
-                                    locked_until = 0,
-                                    attempts = ?,
-                                    next_attempt_at = ?,
-                                    last_error = ?,
-                                    updated_at = ?
-                                WHERE creator_address = ?
-                                  AND mint = ?
-                                """,
-                                (_att + 1, _rat, _err, int(time.time()), _creator, _mint),
-                            )
-                            _c.commit()
-                            _c.close()
-                        await asyncio.to_thread(_retry_exception)
-                        elapsed = time.time() - job_started_at
-                        log_print(
-                            f"[FUNDING_QUEUE] ⚠ Funding extraction failed for {creator[:8]}... mint={mint[:8]} elapsed={elapsed:.1f}s retry_at={retry_at}: {e}",
-                            flush=True,
-                        )
-            except Exception as e:
-                log_print(f"[FUNDING_QUEUE] ⚠ Queue processor error: {e}", flush=True)
-            finally:
-                # guarantee the per-iteration connection is released even when a query
-                # above raised before its close — this was the WAL-hang / lock-storm leak
-                if conn is not None:
-                    try:
-                        conn.close()
-                    except Exception:
-                        pass
-            try:
-                await asyncio.wait_for(self._creator_funding_queue_wakeup.wait(), timeout=2.0)
-                self._creator_funding_queue_wakeup.clear()
-            except asyncio.TimeoutError:
-                pass
 
     async def _store_analysis(self, mint: str, analysis: dict, signature: str = None, pool_address: str = None):
         """Store post-migration analysis results"""
@@ -5954,6 +5794,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         create_tx_signature: Optional[str] = None,
         symbol: Optional[str] = None,
         name: Optional[str] = None,
+        birth_evidence_source: Optional[str] = None,
     ) -> None:
         """Insert a token at birth into token_analysis without creating duplicates."""
         analyzed_at = time.time()
@@ -6003,6 +5844,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         birth_seen_at,
                     ),
                 )
+                from src.ops.walkback_create_handoff import stage_birth_completion
+                stage_birth_completion(conn, mint, creator, create_tx_signature, core_path=DB_PATH,
+                                       ops_path=_listener_ops_db_path(), birth_evidence_source=birth_evidence_source)
                 conn.commit()
 
         _birth_telemetry_incr("received")
@@ -6032,6 +5876,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         (mint, creator, created_at, bonding_curve_pda, create_tx_signature,
                          symbol, name, birth_seen_at, str(e)),
                     )
+                    from src.ops.walkback_create_handoff import set_birth_retry_source
+                    set_birth_retry_source(_qc, mint, birth_evidence_source)
                 _qc.close()
                 _birth_telemetry_incr("queued_for_retry")
                 log_print(f"[BIRTH_RETRY] queued mint={mint[:16]} for durable retry", flush=True)
@@ -6051,7 +5897,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 _birth_telemetry_incr("write_timeouts")
                 try:
                     _fallback_append_birth(mint, creator, created_at, bonding_curve_pda,
-                                            create_tx_signature, symbol, name, birth_seen_at, str(_qe))
+                                            create_tx_signature, symbol, name, birth_seen_at, str(_qe), birth_evidence_source=birth_evidence_source)
                     _birth_telemetry_incr("fallback_activations")
                     log_print(f"[BIRTH_RETRY] 🟡 queue write also failed for mint={mint[:16]}: {_qe} — appended to file-based fallback instead", flush=True)
                 except Exception as _fe:
@@ -6441,12 +6287,46 @@ class PumpFunCurveListener(FastLaneDiscovery):
             # is idempotent on signature: this call only fills a NULL
             # creator or updates last_seen_at, it never re-creates the row
             # or reverts the PENDING write above.
-            _write_create_ledger_durable(
+            _enriched_ledger_result = _write_create_ledger_durable(
                 signature=signature, mint=mint, creator=creator, slot=_slot,
                 source="WEBSOCKET", parser_path="handle_birth",
                 raw_detection_method="logsSubscribe_pumpfun_program",
                 creator_resolution_state=("RESOLVED" if creator else "UNRESOLVED"),
             )
+
+            # Optional priority acceleration is dispatched only after the
+            # resolved CREATE-ledger write has committed. It is isolated from
+            # birth ingestion: a failure leaves the normal migration fallback
+            # untouched and cannot turn a receipt into a priority request.
+            if (creator and _enriched_ledger_result.get("written")
+                    and os.environ.get("OPERATION_EVIDENCE_PRIORITY_ENABLED", "0").lower() in {"1", "true", "yes"}):
+                try:
+                    from src.ops.byzantine_priority_walkback_binding import submit_committed_launch
+                    await asyncio.to_thread(
+                        submit_committed_launch, mint=mint, creator=creator,
+                        create_signature=signature, create_slot=_slot,
+                        launch_committed_at=_enriched_ledger_result["committed_at"],
+                    )
+                except Exception as _priority_binding_error:
+                    log_print(f"[PRIORITY_WALKBACK] post-commit handoff failed mint={mint[:16]}... err={_priority_binding_error}", flush=True)
+
+            # Generic passive opening-action evidence is deliberately bound
+            # only after the durable CREATE ledger commit above.  The binding
+            # performs a bounded local raw+spool transaction and is feature
+            # OFF by default; block/state resolution remains worker-side.
+            if os.environ.get("PUMPFUN_OPENING_ACTION_EVIDENCE_ENABLED", "0") == "1":
+                try:
+                    from src.ops.pumpfun_opening_action_worker import bind_committed_transaction
+                    _opening_store = os.environ.get(
+                        "PUMPFUN_OPENING_ACTION_EVIDENCE_DB",
+                        os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "database", "research_evidence", "pumpfun_opening_actions.sqlite"),
+                    )
+                    await asyncio.to_thread(
+                        bind_committed_transaction, _opening_store, tx_data,
+                        signature=signature, slot=int(_slot),
+                    )
+                except Exception as _opening_evidence_error:
+                    log_print(f"[PUMPFUN_OPENING_EVIDENCE] post-commit handoff failed sig={signature[:20]}... err={_opening_evidence_error}", flush=True)
 
             if creator:
                 log_print(f"[CREATE_ENRICHMENT_ENQUEUED] sig={signature[:20]}... mint={mint[:16]}... "
@@ -6572,7 +6452,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 # Use discovery RPC tier for mint extraction (critical path)
                 data = await self.call_discovery_rpc(
                     "getTransaction",
-                    [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}],
+                    [signature, {"encoding": "json", "maxSupportedTransactionVersion": 1}],
                     timeout=15
                 )
 
@@ -6680,7 +6560,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         # Use discovery RPC tier (still part of pool detection pipeline)
                         data = await self.call_discovery_rpc(
                             "getTransaction",
-                            [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}],
+                            [signature, {"encoding": "json", "maxSupportedTransactionVersion": 1}],
                             timeout=10
                         )
 
@@ -7987,7 +7867,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 is_stale=False,
             )
 
-            worker = self.price_worker or get_price_worker()
+            worker = self.price_worker or get_price_worker(DB_PATH)
             worker._on_price_fetched(token_mint, token_price)
         except Exception as e:
             log_print(f"[PRICE_CANONICAL] ⚠ Failed to persist {token_mint[:16]}... via worker sink: {e}", flush=True)
@@ -8740,7 +8620,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             def _first_price_fast_lane(mint: str) -> None:
                 try:
                     from src.core.price_worker import get_price_worker
-                    worker = get_price_worker()
+                    worker = get_price_worker(DB_PATH)
                     deadline = time.time() + 60
                     interval = 3.0
                     while time.time() < deadline:
@@ -10645,7 +10525,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 {
                                     "encoding": "jsonParsed",
                                     "commitment": "finalized",
-                                    "maxSupportedTransactionVersion": 0,
+                                    "maxSupportedTransactionVersion": 1,
                                 },
                             ],
                             timeout=20
@@ -10733,6 +10613,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
         current_endpoint_idx = 0
         reconnect_delay = 5
         _consecutive_failures = 0
+        _resolver_failure_seen = False
+        _record_resolver_snapshot(
+            provider="PUMPSWAP_HELIUS", endpoint=endpoints[current_endpoint_idx][0],
+            event="generation_start",
+        )
 
         # Track last activity times for dead-subscription detection
         _last_any_msg_at = time.time()
@@ -10758,6 +10643,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     max_size=10 * 1024 * 1024,
                 ) as ws:
                     self.websocket_connected = True
+                    if _resolver_failure_seen:
+                        _record_resolver_snapshot(
+                            provider="PUMPSWAP_HELIUS", endpoint=endpoint,
+                            event="resolver_success_after_failure",
+                            attempt_number=_consecutive_failures + 1,
+                        )
+                        _resolver_failure_seen = False
                     # Only reset reconnect_delay after subscription confirmed, not just connection
                     log_print(f"[WEBSOCKET][PUMPSWAP] ✓ Connected via {name}", flush=True)
 
@@ -10802,6 +10694,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 _last_any_msg_at = time.time()
                                 _last_migration_at = time.time()
                                 log_print(f"[WEBSOCKET][PUMPSWAP] ✓ Subscription confirmed (id={subscription_id})", flush=True)
+                                self._acquisition_availability.transition("MIGRATION", "AVAILABLE", "logsSubscribe confirmed", str(subscription_id))
                                 premig_log(f"[WS_SUBSCRIBED] program=pumpswap subscription_id={subscription_id}")
                                 break
                         except asyncio.TimeoutError:
@@ -10964,6 +10857,15 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
             except Exception as e:
                 self.websocket_connected = False
+                self._acquisition_availability.transition("MIGRATION", "DOWN", f"websocket failure: {type(e).__name__}")
+                if isinstance(e, socket.gaierror):
+                    _resolver_failure_seen = True
+                    _record_resolver_snapshot(
+                        provider="PUMPSWAP_HELIUS", endpoint=endpoint,
+                        event="resolver_failure", exc=e,
+                        attempt_number=_consecutive_failures + 1,
+                        backoff_seconds=reconnect_delay,
+                    )
                 error_str = str(e).lower()
                 if "401" in str(e) or "unauthorized" in error_str:
                     log_print(f"[WEBSOCKET][PUMPSWAP] ⚠ Auth error (401) - falling back to public RPC", flush=True)
@@ -10977,6 +10879,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
                 _consecutive_failures += 1
                 if _consecutive_failures >= 10:
+                    if isinstance(e, socket.gaierror):
+                        _record_resolver_snapshot(
+                            provider="PUMPSWAP_HELIUS", endpoint=endpoint,
+                            event="fatal_exhaustion", exc=e,
+                            attempt_number=_consecutive_failures,
+                        )
                     msg = (
                         f"[WEBSOCKET][PUMPSWAP] FATAL: {_consecutive_failures} consecutive failures "
                         f"— exiting for supervisord restart"
@@ -11108,6 +11016,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     mint, creator, str(int(time.time())),
                     bonding_curve_pda=bonding_curve_pda,
                     create_tx_signature=signature,
+                    birth_evidence_source="PUMPPORTAL_NEW_TOKEN",
                     symbol=symbol,
                     name=name,
                 )
@@ -11159,6 +11068,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
         _consecutive_failures = 0
         _last_connected_at: float = 0.0
         _outage_started_at: float = 0.0
+        _resolver_failure_seen = False
+        _record_resolver_snapshot(
+            provider="PUMPPORTAL", endpoint=PUMPPORTAL_WS, event="generation_start",
+        )
 
         while True:
             _attempt += 1
@@ -11182,10 +11095,17 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     _last_connected_at = time.time()
                     _outage_started_at = 0.0
                     self._pumpportal_connected = True
+                    if _resolver_failure_seen:
+                        _record_resolver_snapshot(
+                            provider="PUMPPORTAL", endpoint=PUMPPORTAL_WS,
+                            event="resolver_success_after_failure", attempt_number=_attempt,
+                        )
+                        _resolver_failure_seen = False
                     log_print("[PUMPPORTAL] ✓ Connected", flush=True)
 
                     await ws.send(json.dumps({"method": "subscribeNewToken"}))
                     await ws.send(json.dumps({"method": "subscribeMigration"}))
+                    self._acquisition_availability.transition("BIRTH", "AVAILABLE", "subscribeNewToken sent on connected PumpPortal websocket")
                     log_print("[PUMPPORTAL] Subscribed to newToken + migration", flush=True)
 
                     # X78.18: seed trade-subscription read moved off the connect hot path.
@@ -11277,6 +11197,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                     await ws.send(json.dumps({"method": "unsubscribeTokenTrade", "keys": [mint]}))
 
             except Exception as e:
+                self._acquisition_availability.transition("BIRTH", "DOWN", f"websocket failure: {type(e).__name__}")
+                if isinstance(e, socket.gaierror):
+                    _resolver_failure_seen = True
+                    _record_resolver_snapshot(
+                        provider="PUMPPORTAL", endpoint=PUMPPORTAL_WS,
+                        event="resolver_failure", exc=e, attempt_number=_attempt,
+                        backoff_seconds=reconnect_delay,
+                    )
                 _consecutive_failures += 1
                 _subs_desc = f"newToken,migration,trades={len(tracked_trade_mints)}"
                 log_print(
@@ -11297,6 +11225,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     _outage_started_at,
                     now=_now,
                 ):
+                    if isinstance(e, socket.gaierror):
+                        _record_resolver_snapshot(
+                            provider="PUMPPORTAL", endpoint=PUMPPORTAL_WS,
+                            event="fatal_exhaustion", exc=e,
+                            attempt_number=_attempt,
+                        )
                     _mins_in_outage = (_now - _outage_started_at) / 60
                     msg = (
                         f"[PUMPPORTAL] FATAL: {_consecutive_failures} consecutive failures, "
@@ -11411,6 +11345,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
         log_print("[STARTUP] Migration persist queue drainer started", flush=True)
         while True:
             try:
+                _reconciled = _reconcile_migration_fallback_file_into_queue()
+                if _reconciled:
+                    log_print(f"[MIGRATION_RETRY] reconciled {_reconciled} migration(s) from file fallback into migration_persist_queue", flush=True)
                 conn = _sq.connect(DB_PATH, timeout=10)
                 conn.row_factory = _sq.Row
                 rows = conn.execute(
@@ -11519,6 +11456,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             row["created_at"] or str(row["received_at"]),
                             bonding_curve_pda=row["bonding_curve_pda"],
                             create_tx_signature=row["create_tx_signature"],
+                            birth_evidence_source=row["wb_birth_source"] if "wb_birth_source" in row.keys() else None,
                             symbol=row["symbol"],
                             name=row["name"],
                         )
@@ -11558,6 +11496,25 @@ class PumpFunCurveListener(FastLaneDiscovery):
             except Exception as exc:
                 log_print(f"[LISTENER] ⚠ birth persist drain error: {exc}", flush=True)
             await asyncio.sleep(10)
+
+    async def drain_migration_walkback_handoff_retry(self):
+        """Existing listener drain lifecycle; one bounded, guarded handoff tick per 10s."""
+        import asyncio as _asyncio
+        import os as _os
+        from src.core.db import resolve_ops_db_path
+        from src.ops.migration_walkback_handoff_retry import SCHEDULER_CADENCE_SECONDS, run_maintenance
+        if not hasattr(self, "_migration_walkback_handoff_drain_lock"):
+            self._migration_walkback_handoff_drain_lock = _asyncio.Lock()
+        raw_t0 = _os.environ.get("HANDOFF_DURABILITY_T0")
+        t0 = int(raw_t0) if raw_t0 and raw_t0.isdigit() else None
+        while True:
+            if not self._migration_walkback_handoff_drain_lock.locked():
+                try:
+                    async with self._migration_walkback_handoff_drain_lock:
+                        await _asyncio.to_thread(run_maintenance, DB_PATH, resolve_ops_db_path(), t0=t0)
+                except Exception as exc:
+                    log_print(f"[LISTENER] migration-walkback handoff drain error: {exc}", flush=True)
+            await _asyncio.sleep(SCHEDULER_CADENCE_SECONDS)
 
 
 def _mark_consumed(db_path: str, row_id: int) -> None:
@@ -12098,9 +12055,25 @@ class PumpFunCurveListener(PumpFunCurveListener):  # type: ignore[no-redef]
             self.drain_webhook_birth_queue(),
             self.drain_migration_persist_queue(),
             self.drain_birth_persist_queue(),
+            self.drain_migration_walkback_handoff_retry(),
             self._loop_lag_watchdog(),
             self._db_fd_watchdog(),
         ]
+        # Separate passive PumpSwap program-log research capture.  It shares this
+        # listener's configured provider endpoint but has no migration callback,
+        # transaction submission, or canonical-state write path.  The raw flag
+        # defaults OFF, so this registration is inert until explicitly enabled.
+        from src.ops.pumpswap_live_runtime import ListenerPumpSwapRuntime, default_evidence_paths
+        from src.ops.pumpswap_research_supervisor import Supervisor as PumpSwapResearchSupervisor
+        _raw_store, _materialization_store = default_evidence_paths()
+        self.pumpswap_research_runtime = ListenerPumpSwapRuntime(
+            self, raw_store=_raw_store, materialization_store=_materialization_store)
+        self.pumpswap_research_supervisor = PumpSwapResearchSupervisor()
+        _pumpswap_materializer = self.pumpswap_research_runtime.bind_materializer(asyncio.get_running_loop(), os.environ)
+        _tasks.append(self.pumpswap_research_supervisor.run(
+            lambda: self.pumpswap_research_runtime.task(os.environ).run(), os.environ))
+        _tasks.append(_pumpswap_materializer.run())
+        _tasks.append(self.pumpswap_research_runtime.semantic_workers.run())
         _desc = "pumpswap WS + pumpportal WS + birth drainer + migration persist drainer + birth persist retry drainer"
         if _helius_birth_enabled:
             _tasks.append(self.listen_pumpfun_websocket())
@@ -12293,10 +12266,10 @@ class PumpFunCurveListener(PumpFunCurveListener):  # type: ignore[no-redef]
             _last_snapshot = now
 
             ts_str = _time.strftime("%Y%m%d_%H%M%S", _time.gmtime(now))
-            snap_path = _os.path.join(
-                _os.path.dirname(_os.path.dirname(_os.path.dirname(__file__))),
-                "logs", f"loop_lag_snapshot_{ts_str}.txt"
+            snap_dir = _os.environ.get("LISTENER_LOOP_LAG_SNAPSHOT_DIR") or _os.path.join(
+                _os.path.dirname(_os.path.dirname(_os.path.dirname(__file__))), "logs"
             )
+            snap_path = _os.path.join(snap_dir, f"loop_lag_snapshot_{ts_str}.txt")
 
             lines = []
             lines.append(f"=== LOOP_LAG SNAPSHOT {ts_str} UTC  lag={lag:.1f}s ===\n")
@@ -12372,7 +12345,7 @@ class PumpFunCurveListener(PumpFunCurveListener):  # type: ignore[no-redef]
             # 6. last 50 TIMING_PROBE lines from the supervisor log
             lines.append("--- recent TIMING_PROBE (last 50) ---\n")
             try:
-                log_path = _os.path.join(
+                log_path = _os.environ.get("SUPERVISOR_LISTENER_LOG_PATH") or _os.path.join(
                     _os.path.dirname(_os.path.dirname(_os.path.dirname(__file__))),
                     "logs", "supervisor", "listener.log"
                 )
@@ -12663,12 +12636,18 @@ def start_rpc_metrics_api():
         log_print(f"[INIT] ⚠️ Could not start RPC Metrics API: {e}", flush=True)
 
 
-if __name__ == "__main__":
-    # Start RPC Metrics API before listener
-    start_rpc_metrics_api()
+def run_listener_entrypoint() -> None:
+    # Preserve the historical default for existing launches. An isolated
+    # supervised source cutover can explicitly leave this side process alone.
+    if os.environ.get("LISTENER_RPC_METRICS_API_START_ENABLED", "1") != "0":
+        start_rpc_metrics_api()
 
     # Start WAL checkpoint daemon (every 5 min)
     _start_wal_checkpoint_worker(DB_PATH, interval_seconds=300)
 
     # Start listener
     asyncio.run(main())
+
+
+if __name__ == "__main__":
+    run_listener_entrypoint()

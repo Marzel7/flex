@@ -1,0 +1,157 @@
+import ast
+import hashlib
+import json
+import pathlib
+import sqlite3
+from types import SimpleNamespace
+import pytest
+from src.core import walkback_worker as w, walkback_queue, deep_walkback
+from src.ops import p3r_profile_candidate_matcher as p3r, d3de_operation as d3de
+from src.ops import provisional_operations as provisional, wsol_10_sol_four_step_operation as byzantine
+from src.ops import treasury_topology_classifier as topology
+from src.core import watchtower_registry_promotion as registry
+from src.ops import watchtower_canonical_integration as integration
+from src.ops import watchtower_canonical_adapters as adapters
+
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+AUDIT = ROOT / 'docs/audits/dev082'
+S = '1' * 88
+
+def test_exact_reverse_patch_and_dependency_hashes():
+    source = (ROOT / 'src/core/walkback_worker.py').read_text()
+    node = next(n for n in ast.parse(source).body if isinstance(n, ast.FunctionDef) and n.name == '_get_tx')
+    lines = source.splitlines(keepends=True)
+    lines[node.lineno - 1:node.end_lineno] = (AUDIT / 'get-tx-preimage.py.txt').read_text().splitlines(keepends=True)
+    assert hashlib.sha256(''.join(lines).encode()).hexdigest() == '145a3368dc319a6e901f2365e645b65dd60d1727815f99e3b498d9fa1c3041dc'
+    for entry in json.loads((AUDIT / 'source-composition.json').read_text())['files']:
+        actual = hashlib.sha256((ROOT / entry['path']).read_bytes()).hexdigest()
+        assert actual == entry['candidate_sha256']
+        if entry['path'] != 'src/core/walkback_worker.py':
+            assert actual == entry['installed_sha256']
+
+@pytest.mark.parametrize('response', [1, 'bad', [], {'transaction': 1}, {'transaction': {'signatures': None}}, {'transaction': {'signatures': [None]}}, {'transaction': {'signatures': [S + 'x']}}])
+def test_additional_malformed_signatures(response):
+    calls = []
+    def transport(*args):
+        calls.append(args)
+        return response
+    assert w._get_tx(S, rpc_transport=transport) is None
+    assert len(calls) == 1
+
+
+def funding_tx(sig=S, slot=10):
+    return {'version': 1, 'slot': slot, 'blockTime': 100, 'transaction': {'signatures': [sig], 'message': {'accountKeys': ['PARENT', 'CREATOR'], 'instructions': []}}, 'meta': {'err': None, 'preBalances': [2000000000, 0], 'postBalances': [1000000000, 1000000000]}}
+
+@pytest.mark.parametrize('matcher_fails', [False, True])
+def test_midwalk_admission_runs_after_edge_commit_and_failure_isolated(monkeypatch, matcher_fails):
+    conn = sqlite3.connect(':memory:')
+    deep_walkback.ensure_schema(conn)
+    seen = []
+    def admit(ops, mint, **kwargs):
+        seen.append((mint, ops.in_transaction, ops.execute('select count(*) from wt_walkback_edge_candidates where mint=?', (mint,)).fetchone()[0]))
+        if matcher_fails:
+            raise RuntimeError('fixture matcher failure')
+        return 'admitted'
+    monkeypatch.setattr(p3r, 'admit_unambiguous_p3r_match', admit)
+    monkeypatch.setattr(w, '_is_known_spam_sender', lambda *a: False)
+    monkeypatch.setattr(w, '_is_known_treasury', lambda *a: False)
+    monkeypatch.setattr(w, '_is_known_subprov', lambda *a: False)
+    calls = []
+    def transport(method, params):
+        calls.append(method)
+        if method == 'getSignaturesForAddress':
+            assert params[1]['before'] == 'CREATE_BOUNDARY'
+            return [{'signature': S, 'slot': 10, 'err': None}]
+        if method == 'getTransaction':
+            return funding_tx()
+        if method == 'getAccountInfo':
+            return {'value': {'owner': '11111111111111111111111111111111'}}
+        raise AssertionError(method)
+    counter = [0]
+    result = w._find_funder_via_rpc('CREATOR', counter, conn, before_signature='CREATE_BOUNDARY', source_mint='MINT', rpc_transport=transport)
+    assert result[:2] == ('PARENT', S)
+    assert seen == [('MINT', False, 1)]
+    assert counter == [3]
+    assert calls == ['getSignaturesForAddress', 'getTransaction', 'getAccountInfo']
+    assert not conn.in_transaction
+    conn.close()
+
+@pytest.mark.parametrize('mode,decision,promotes', [('legacy', 'REJECTED', True), ('shadow', 'REJECTED', True), ('enforce', 'REJECTED', False), ('enforce', 'REVIEW_REQUIRED', False), ('enforce', 'ACCEPTED', True)])
+def test_newer_promotion_order_and_enforcement_preserved(monkeypatch, mode, decision, promotes):
+    conn = sqlite3.connect(':memory:')
+    conn.execute('create table receipt(event text)')
+    events = []
+    def project(name):
+        def call(ops, mint, **kwargs):
+            events.append(name)
+            ops.execute('insert into receipt values (?)', (name,))
+            return 'not_matched'
+        return call
+    monkeypatch.setattr(provisional, 'project_900b_completed_walkback', project('900b'))
+    monkeypatch.setattr(p3r, 'admit_unambiguous_p3r_match', project('p3r'))
+    monkeypatch.setattr(d3de, 'project_completed_walkback', project('d3de'))
+    monkeypatch.setattr(byzantine, 'project_completed_walkback', project('byzantine'))
+    monkeypatch.setattr(registry, 'is_canonical_watchtower_outcome', lambda *a: False)
+    monkeypatch.setattr(integration, 'get_canonical_predicate_mode', lambda: mode)
+    monkeypatch.setattr(adapters, 'build_evidence_for_walkback_queue', lambda *a, **k: {})
+    monkeypatch.setattr(integration, 'evaluate_canonical_decision', lambda **k: SimpleNamespace(mode=mode, authoritative_decision=decision, authoritative_reason='fixture'))
+    monkeypatch.setattr(integration, 'record_comparison_telemetry', lambda ops, *a, **k: ops.execute("insert into receipt values ('telemetry')"))
+    def promote(*a, **k):
+        events.append('watchtower')
+        return {'action': 'not_eligible'}
+    monkeypatch.setattr(registry, 'promote_walkback_confirmed_watchtower', promote)
+    monkeypatch.setattr(w, '_observe_fingerprint_drift', lambda ops, mint: events.append(('drift', ops.in_transaction)))
+    w._promote_if_canonical_watchtower(conn, 'MINT', {'outcome_type': 'NOT_CANONICAL', 'operator_id': None})
+    assert events[:4] == ['900b', 'p3r', 'd3de', 'byzantine']
+    assert ('watchtower' in events) is promotes
+    assert events[-1] == ('drift', False)
+    assert conn.execute('select count(*) from receipt').fetchone()[0] == 5
+    conn.close()
+
+
+def test_newer_matcher_contracts_do_not_invent_membership():
+    conn = sqlite3.connect(':memory:')
+    conn.executescript("""create table operators(operator_id text,display_name text,status text);
+      create table operation_registry_dispositions(operator_id text,disposition text);
+      create table operation_behavioural_profiles(operator_id text,provenance_json text);
+      create table operator_launch_membership(mint text,operator_id text);
+    """)
+    deep_walkback.ensure_schema(conn)
+    assert p3r.evaluate_mint(conn, 'MISSING') is None
+    assert p3r.admit_unambiguous_p3r_match(conn, 'MISSING') == 'not_unambiguous_p3r'
+    assert d3de.project_completed_walkback(conn, 'MISSING') == 'not_d3de_d0'
+    assert conn.execute('select count(*) from operator_launch_membership').fetchone()[0] == 0
+    evidence = [{'hop_depth': d, 'mechanism': m, 'amount_lamports': a} for d, m, a in d3de.SELECTED_ROUTE]
+    assert d3de.is_d0_match(evidence)
+    evidence[0]['amount_lamports'] += 1
+    assert not d3de.is_d0_match(evidence)
+    conn.close()
+
+
+def test_queue_claim_idempotency_retry_and_lease_recovery(monkeypatch):
+    conn = sqlite3.connect(':memory:')
+    walkback_queue.ensure_schema(conn)
+    conn.execute("insert into wt_walkback_queue(mint,status,attempts) values('MINT','pending',0)")
+    conn.commit()
+    assert deep_walkback.claim_with_lease(conn, 'MINT', 'worker-A', 300)
+    assert not deep_walkback.claim_with_lease(conn, 'MINT', 'worker-B', 300)
+    assert conn.execute("select attempts from wt_walkback_queue where mint='MINT'").fetchone()[0] == 1
+    conn.execute("update wt_walkback_queue set lease_expires_at=0,next_retry_at=9999999999 where mint='MINT'")
+    conn.commit()
+    assert not deep_walkback.claim_with_lease(conn, 'MINT', 'worker-B', 300)
+    conn.execute("update wt_walkback_queue set next_retry_at=0 where mint='MINT'")
+    conn.commit()
+    assert deep_walkback.claim_with_lease(conn, 'MINT', 'worker-B', 300)
+    assert conn.execute("select attempts from wt_walkback_queue where mint='MINT'").fetchone()[0] == 2
+    conn.close()
+
+
+def test_topology_existing_review_authority(monkeypatch):
+    conn = sqlite3.connect(':memory:')
+    conn.execute('create table wt_treasury_review(treasury text,status text)')
+    conn.execute("insert into wt_treasury_review values ('ROOT','CONFIRMED')")
+    conn.commit()
+    monkeypatch.setattr(topology, 'classify_unknown_treasury', lambda *a, **k: {'verdict': 'INSUFFICIENT_EVIDENCE'})
+    assert topology.surface_runtime_topology_candidate(conn, 'ROOT')['action'] == 'not_qualified'
+    assert conn.execute('select status from wt_treasury_review').fetchone()[0] == 'CONFIRMED'
+    conn.close()

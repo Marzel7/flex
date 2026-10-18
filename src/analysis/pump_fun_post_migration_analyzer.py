@@ -192,8 +192,8 @@ PUMPFUN_PROGRAM_IDS = {
 }
 
 SYSTEM_PROGRAM = "11111111111111111111111111111111"
-TOKEN_PROGRAM = "TokenkegQfeZyiNwAJsyFbPtrKbVs73Cw6Xj2Yg5MNg"
-TOKEN_2022 = "TokenzQdBbjFD8aff5ZZUwWWwG6Go5rm5KWQEypdCU8"
+TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+TOKEN_2022 = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
 TOKEN_METADATA_PROGRAM = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"  # Metaplex Metadata
 
 SYSTEM_PROGRAMS = {SYSTEM_PROGRAM, TOKEN_PROGRAM, TOKEN_2022}
@@ -411,6 +411,23 @@ class PostMigrationAnalyzer:
         async with sem:
             return await self.fetch_tx_with_retry(session, sig)
 
+    def _transaction_signature_matches(self, tx: dict, requested: str, *, enhanced: bool = False) -> bool:
+        """Correlate authoritative response identity; never fill it from the request."""
+        if not isinstance(tx, dict) or not isinstance(requested, str) or not 64 <= len(requested) <= 88:
+            return False
+        if enhanced:
+            actual = tx.get("signature")
+        else:
+            transaction = tx.get("transaction")
+            signatures = transaction.get("signatures") if isinstance(transaction, dict) else None
+            actual = signatures[0] if isinstance(signatures, list) and signatures else None
+        if not isinstance(actual, str) or actual != requested:
+            return False
+        try:
+            return len(base58.b58decode(actual)) == 64
+        except (ValueError, TypeError):
+            return False
+
     async def fetch_tx_with_retry(self, session: aiohttp.ClientSession, sig: str):
         for attempt in range(MAX_RETRIES):
             for rpc_url in RPC_URLS:
@@ -419,7 +436,7 @@ class PostMigrationAnalyzer:
                         "jsonrpc": "2.0",
                         "id": 1,
                         "method": "getTransaction",
-                        "params": [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}],
+                        "params": [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 1}],
                     }
 
                     async with session.post(rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=RPC_TIMEOUT)) as resp:
@@ -438,6 +455,8 @@ class PostMigrationAnalyzer:
 
                         result = data.get("result")
                         if result:
+                            if not self._transaction_signature_matches(result, sig):
+                                return None
                             return result
                         continue
                 except asyncio.TimeoutError:
@@ -1146,6 +1165,8 @@ class PostMigrationAnalyzer:
                         return None
 
                     tx = data[0]
+                    if not self._transaction_signature_matches(tx, create_tx_sig, enhanced=True):
+                        return None
                     validation = self._validate_pumpfun_create_tx(tx)
                     if not validation["is_pumpfun_create"]:
                         print(f"[CREATOR] ❌ Helius-parsed tx FAILED strict CREATE validation", flush=True)
@@ -1199,10 +1220,12 @@ class PostMigrationAnalyzer:
             "jsonrpc": "2.0",
             "id": 1,
             "method": "getTransaction",
-            "params": [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}],
+            "params": [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 1}],
         }
         tx_data = await self._post_rpc_with_fallback(payload, timeout=15)
         tx = (tx_data or {}).get("result") or {}
+        if not self._transaction_signature_matches(tx, sig):
+            return None
         bt = tx.get("blockTime")
         return bt if isinstance(bt, int) else None
 
@@ -1359,12 +1382,14 @@ class PostMigrationAnalyzer:
                         "jsonrpc": "2.0",
                         "id": 1,
                         "method": "getTransaction",
-                        "params": [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}],
+                        "params": [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 1}],
                     }
 
                     tx_data = await self._post_rpc_with_fallback(tx_payload, timeout=10)
                     tx = (tx_data or {}).get("result")
                     if not tx:
+                        continue
+                    if not self._transaction_signature_matches(tx, sig):
                         continue
 
                     tx_bt = tx.get("blockTime")

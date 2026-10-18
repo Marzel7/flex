@@ -1,0 +1,65 @@
+{
+  "DEV051_CREATE_COMPATIBILITY_CORRECTION_STATUS": "HOLD_RELEASE_QUALIFICATION",
+  "IMPLEMENTATION_STATUS": "OFFLINE_TARGETED_CORRECTION_VERIFIED",
+  "AUTHORITATIVE_TOKEN2022_PROGRAM_ID": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+  "AUTHORITY": "Installed solana0.36.10 spl/token/constants.py with recorded hash; existing listener/vault/pool source; retained TX1 Token2022 program and mint owner corroborate. Validator fields correct; constants wrong. Legacy SPL ID corrected from same independent authority to satisfy required regression.",
+  "AFFECTED_RETRIEVAL_SITES": [
+    "PostMigrationAnalyzer.fetch_tx_with_retry:422",
+    "PostMigrationAnalyzer._get_blocktime_for_signature:1202",
+    "PostMigrationAnalyzer.extract_bonding_curve_from_creation_tx:1362"
+  ],
+  "VERSION0_REGRESSION": "PASS legacy+v0 across all3 retrieval sites; legacy SPL validation PASS",
+  "VERSION1_RETRIEVAL": "PASS mocked version1 across all3 retrieval sites with ceiling1; provider errors retain bounded failure and no qualified signature. No live provider proof claimed.",
+  "TOKEN2022_VALIDATION": "PASS retained normalized TX1 parsed curve/mint creation+initialize evidence; authoritativeprogram IDs used. No raw response or missing Pump instruction bytes invented.",
+  "STRICT_CREATE_QUALIFICATION": "PASS unchanged code: curve+mint evidence required; wrongprogram/wrongmint/missingmint/missingcurve/missingall rejected; malformed signature rejected. Pump Create/CreateV2 discriminator and Pump creator remain UNQUALIFIED. Existing fee-payer creator heuristic unchanged, not independent creator proof.",
+  "PROVIDER_BUDGET_EQUIVALENCE": "PASS full prior-file SHA reconstructed by reverse5literal substitutions; retries,timeouts,concurrency,page/candidate/deadline limits unchanged. Tests exercise60/15/10s timeout parameters with one request/site successful and unsupported-version failure cases.",
+  "PROVIDER_FREE_TESTS": {
+    "focused": "14 passed",
+    "guarded_regression": "26 passed (12protectedresource+14focused)",
+    "frontend": "PASS unchanged actualinline frontend lifecycle assertions",
+    "api": "PASS bounded baseline checks including chronology/prices/admission/detail deadlines",
+    "browser": "PASS10 required realbrowser contracts, source/sessionbound artifacts ~620KB",
+    "first_run": "26tests passed but optional urllib3 IPv6 import probe caused one blocked socket.bind(::1,0). Test-only socket.has_ipv6False before import avoids optional probe; frozen guards unchanged.",
+    "final_run_guard_denials": 0,
+    "test_module_import": "Actual corrected analyzer imported from isolated checkout; no Production worker imported/started. Metrics/dotenv optional sideeffects suppressed in test fixture only."
+  },
+  "SOURCE_COMPLETENESS": "verify PASS; final full qualification fails mandatory changed-Python importclosure for preserved historical audit executable only.",
+  "CLEAN_CHECKOUT_ACCEPTANCE": "NOT_RUN: required qualification HOLD prevents immutable candidate and workflow restore. No bypass or unsupported PASS claim.",
+  "CANDIDATE_SOURCE_SHA": null,
+  "TESTED_SOURCE_SHA": "d7dcf756c6cccb5473ea55d2dcc89a1e6bae279b",
+  "SOURCE_CORRECTION_COMMIT": "d437389520557823082ddfeb6f2871efc16bcfd1",
+  "FIXTURE_CORRECTION_COMMIT": "d7dcf756c6cccb5473ea55d2dcc89a1e6bae279b",
+  "IMMUTABLE_CANDIDATE": "NOT_CREATED",
+  "READY_FOR_DEPLOYMENT": false,
+  "RUNTIME_DEPLOYMENT_GATE": "HOLD; NOT_DEPLOYED",
+  "DEPLOYMENT_AUTHORIZED": false,
+  "QUALIFICATION_BLOCKER": {
+    "reason": "changed Python module not exercised/import-qualified by API or focused tests",
+    "missing": [
+      "docs/audits/dev051/create-v1/offline_qualification.py"
+    ],
+    "preservation": "Historical diagnostic remains unchanged; no weakening/filtering of mandatory gate, fabricated import receipt, or deletion of evidence.",
+    "run_id": "7dc650bd6b9d",
+    "session_status": "STOPPED_HOLD"
+  },
+  "ROLLBACK_PREPARATION": "Parent28a87467 preserved; reverse exact5literal source patch verified. Canonical data/schema/queues unchanged; no operational rollback needed. No sealed candidate to deploy.",
+  "CAUSAL_BOUNDARY": "No token restoration or Watchtower detection-gap resolution claimed. Exact TX1 selection/rejection and original Pump creator unresolved. Last observed Walkback attempts0; no recovery/replay executed.",
+  "SAFETY": {
+    "production_analyzer_hash_unchanged": true,
+    "golden_sha": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+    "isolated_API_8150_stopped": true,
+    "port8100_and_persistent_preview": "untouched",
+    "canonical_writes": 0,
+    "queue_writes": 0,
+    "provider_calls": 0,
+    "raw_retention": false,
+    "runtime_storage_growth_paths_added": 0,
+    "maximum_runtime_artifact_file_bytes": 8388608,
+    "maximum_release_artifact_bytes": 256000000,
+    "canonical_database_copies": 0
+  },
+  "PROVIDER_CALLS": 0,
+  "PRODUCTION_CHANGES": 0,
+  "PERSISTENT_DEV_CHANGES": 0,
+  "NEXT_ACTION": "STOP before candidate/deployment. Separately qualify DEV048 handling of preserved audit executables versus runtime dependency closure, then rerun unchanged full gate and clean-checkout restoration. Do not import historical side-effectful audit code merely to satisfy counts, remove evidence, or weaken guard/test assertions."
+}

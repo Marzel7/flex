@@ -1,0 +1,32 @@
+{
+  "n": 1000,
+  "schema": "actual typed DEV090 proof/control schema; no JSON payload column",
+  "main_growth_excluding_preseeded_Core_tokens": 417792,
+  "bytes_per_intent_physical_sample": 417.792,
+  "max_WAL_bytes_with_fixture_checkpoint_every16_individual_commits": 506792,
+  "cumulative_WAL_bytes": 26872656,
+  "btree_bytes": [
+    [
+      "sqlite_autoindex_wb_create_delivery_1",
+      61440
+    ],
+    [
+      "wb_create_ack",
+      24576
+    ],
+    [
+      "wb_create_control",
+      4096
+    ],
+    [
+      "wb_create_delivery",
+      319488
+    ],
+    [
+      "wb_create_due",
+      28672
+    ]
+  ],
+  "not_a_hard_bound": "Canonical row/index updates, pinned readers and concurrent writers differ. Fixture-only checkpoints; no operational checkpoint.",
+  "helper_sha256": "d86e1d4cc62e80cf4011c9f3cd1efc55dcd1f24d0c9b8bfff70ef36864890716"
+}

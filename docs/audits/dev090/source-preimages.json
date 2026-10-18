@@ -1,0 +1,115 @@
+[
+  {
+    "path": "src/core/walkback_worker.py",
+    "authority": "/Users/kevinkeaveney/Production/flex-walkback/src/core/walkback_worker.py",
+    "sha256": "145a3368dc319a6e901f2365e645b65dd60d1727815f99e3b498d9fa1c3041dc",
+    "role": "Newer installed funding/promotion composition, preserved per DEV082; configured dev002 alternate separately recorded, no loaded-process identity assumed",
+    "configured_alternate_preimage": "a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9",
+    "candidate_sha256": "a20d4f75e72a6fa1485ef36a79995608313769a72f7845ea61cff6ccc93d11db"
+  },
+  {
+    "path": "src/core/walkback_queue.py",
+    "authority": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_queue.py",
+    "sha256": "2741576189a84ae94d3b1858448e5899ba28be27da5324f122f6d42514fecbe9",
+    "role": "Current configured worker/support preimage; no deployment of support implied",
+    "candidate_sha256": "2741576189a84ae94d3b1858448e5899ba28be27da5324f122f6d42514fecbe9"
+  },
+  {
+    "path": "src/core/treasury_bank.py",
+    "authority": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/treasury_bank.py",
+    "sha256": "a959b16f666f3dab911beebf32e954bd8a0e22aec5e083169929f71f81dabea0",
+    "role": "Current configured worker/support preimage; no deployment of support implied",
+    "candidate_sha256": "a959b16f666f3dab911beebf32e954bd8a0e22aec5e083169929f71f81dabea0"
+  },
+  {
+    "path": "src/ops/anchor_reconciliation.py",
+    "authority": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/anchor_reconciliation.py",
+    "sha256": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7",
+    "role": "Current configured worker/support preimage; no deployment of support implied",
+    "candidate_sha256": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7"
+  },
+  {
+    "path": "src/ops/attribution_outcome.py",
+    "authority": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/attribution_outcome.py",
+    "sha256": "4907e3ac01c7139048310c51e9493ca261a9eb2895451f3452cb9434af66e73f",
+    "role": "Current configured worker/support preimage; no deployment of support implied",
+    "candidate_sha256": "4907e3ac01c7139048310c51e9493ca261a9eb2895451f3452cb9434af66e73f"
+  },
+  {
+    "path": "src/ops/operation_fingerprint_drift.py",
+    "authority": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/operation_fingerprint_drift.py",
+    "sha256": "cf0345ccec1f8a4578d09fede013ad59634adc10f9efdf6f9bfede25adc6ba55",
+    "role": "Current configured worker/support preimage; no deployment of support implied",
+    "candidate_sha256": "cf0345ccec1f8a4578d09fede013ad59634adc10f9efdf6f9bfede25adc6ba55"
+  },
+  {
+    "path": "src/ops/p3r_profile_candidate_matcher.py",
+    "authority": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/p3r_profile_candidate_matcher.py",
+    "sha256": "f06d5ea57229eb5bf5e84983c296f1cb9fb628c132a44e0d19e83f2b17697f23",
+    "role": "Current configured worker/support preimage; no deployment of support implied",
+    "candidate_sha256": "f06d5ea57229eb5bf5e84983c296f1cb9fb628c132a44e0d19e83f2b17697f23"
+  },
+  {
+    "path": "src/ops/d3de_operation.py",
+    "authority": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/d3de_operation.py",
+    "sha256": "b0faa8ff11a899170c0107d2b7e75363ca1290fb713aeede77e5e56b17ea09ed",
+    "role": "Current configured worker/support preimage; no deployment of support implied",
+    "candidate_sha256": "b0faa8ff11a899170c0107d2b7e75363ca1290fb713aeede77e5e56b17ea09ed"
+  },
+  {
+    "path": "src/utils/db_locking.py",
+    "authority": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/utils/db_locking.py",
+    "sha256": "ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89",
+    "role": "Current configured worker/support preimage; no deployment of support implied",
+    "candidate_sha256": "ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89"
+  },
+  {
+    "path": "src/ops/treasury_topology_classifier.py",
+    "authority": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/treasury_topology_classifier.py",
+    "sha256": "f51637e839c0fc15339ce0cca67f74e5dc9878a85b127da8c35e7906fd4d644e",
+    "role": "Current configured worker/support preimage; no deployment of support implied",
+    "candidate_sha256": "f51637e839c0fc15339ce0cca67f74e5dc9878a85b127da8c35e7906fd4d644e"
+  },
+  {
+    "path": "src/core/database_write_service.py",
+    "authority": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/database_write_service.py",
+    "sha256": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2",
+    "role": "Current configured worker/support preimage; no deployment of support implied",
+    "candidate_sha256": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2"
+  },
+  {
+    "path": "src/core/creator_resolution_queue.py",
+    "authority": "DEV074 a34f6968 /Users/kevinkeaveney/Dev/claude/flex-development/DEV074/source/src/core/creator_resolution_queue.py",
+    "sha256": "4412b6c7ef5e84e133a205a0e81706b663e15debc513c6b30bc16e8c2b72d741",
+    "role": "Qualified creator safeguard; preserve installed DEV051 corrections",
+    "candidate_sha256": "62ab712ef76f5eeb5c96e2755997e92548f1aaf787bdec2daa91df791e6ff0e1"
+  },
+  {
+    "path": "src/core/creator_resolution_worker.py",
+    "authority": "DEV074 a34f6968 /Users/kevinkeaveney/Dev/claude/flex-development/DEV074/source/src/core/creator_resolution_worker.py",
+    "sha256": "797350867ea10fdbef03933de033241ccd18bb0d137812aacac0e328ffa5fefb",
+    "role": "Qualified creator safeguard; preserve installed DEV051 corrections",
+    "candidate_sha256": "797350867ea10fdbef03933de033241ccd18bb0d137812aacac0e328ffa5fefb"
+  },
+  {
+    "path": "src/analysis/pump_fun_post_migration_analyzer.py",
+    "authority": "DEV074 a34f6968 /Users/kevinkeaveney/Dev/claude/flex-development/DEV074/source/src/analysis/pump_fun_post_migration_analyzer.py",
+    "sha256": "b4f2064305faa285f13672217013243c7d5d6a001566b6891b663c79973101ac",
+    "role": "Qualified creator safeguard; preserve installed DEV051 corrections",
+    "candidate_sha256": "b4f2064305faa285f13672217013243c7d5d6a001566b6891b663c79973101ac"
+  },
+  {
+    "path": "src/core/db_writer.py",
+    "authority": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/db_writer.py",
+    "sha256": "fa5c7ce795d0391c10aa7f7b60823f2624a936ed0cf298e07cb92c0c85807b32",
+    "role": "Current Core writer dependency, not an installation target",
+    "candidate_sha256": "fa5c7ce795d0391c10aa7f7b60823f2624a936ed0cf298e07cb92c0c85807b32"
+  },
+  {
+    "path": "src/core/pumpfun_curve_listener.py",
+    "authority": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py",
+    "sha256": "139c8fbcd69484b5bb30038e76445d7843892e2ce28a7157485d917bdfccdd39",
+    "role": "Current installed listener preimage",
+    "candidate_sha256": "c2bd4292d7c2ae786f89d1ae98831dccfc0b26011d6a29ceb145b2c2d72792a5"
+  }
+]

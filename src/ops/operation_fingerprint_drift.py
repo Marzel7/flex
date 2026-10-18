@@ -41,6 +41,36 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
     conn.executescript(DDL)
 
 
+_REQUIRED_SCHEMA = {
+    "operation_fingerprint_drift_evidence": (
+        {"drift_id", "operator_id", "fingerprint_id", "mint", "classification", "matching_dimensions_json", "differing_dimensions_json", "observed_json", "expected_json", "infrastructure_json", "drift_signature", "first_seen", "latest_seen"},
+        ("operator_id", "fingerprint_id", "mint"),
+    ),
+    "operation_fingerprint_health_snapshots": (
+        {"snapshot_id", "operator_id", "fingerprint_id", "observed_at", "accepted_exact_matches", "external_exact_matches", "observable_comparison_count", "uniqueness_percent", "trend"},
+        ("operator_id", "fingerprint_id", "observed_at"),
+    ),
+    "operation_fingerprint_drift_clusters": (
+        {"cluster_id", "operator_id", "fingerprint_id", "drift_signature", "classification", "mint_count", "first_seen", "latest_seen", "related_potential_operation_id", "relationship_type", "reason"},
+        ("operator_id", "fingerprint_id", "drift_signature"),
+    ),
+}
+
+
+def validate_schema(conn: sqlite3.Connection) -> str:
+    """Read-only startup contract; never provision schema from a completion."""
+    for table, (required_columns, unique_columns) in _REQUIRED_SCHEMA.items():
+        if not conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table,)).fetchone():
+            return f"FINGERPRINT_SCHEMA_MISSING:{table}"
+        columns = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
+        if not required_columns <= columns:
+            return f"FINGERPRINT_SCHEMA_COLUMNS_MISSING:{table}"
+        indexes = conn.execute(f"PRAGMA index_list({table})").fetchall()
+        if not any(index[2] and tuple(row[2] for row in conn.execute(f"PRAGMA index_info({index[1]})")) == unique_columns for index in indexes):
+            return f"FINGERPRINT_SCHEMA_UNIQUE_MISSING:{table}"
+    return "VALID"
+
+
 def _rows(conn: sqlite3.Connection, mint: str) -> list[dict[str, Any]] | None:
     try:
         rows = conn.execute("SELECT hop_depth,mechanism,amount_lamports,wallet,candidate_parent,signature FROM wt_walkback_edge_candidates WHERE mint=? AND selection_status='SELECTED' ORDER BY hop_depth,signature", (mint,)).fetchall()
@@ -87,18 +117,33 @@ def _active_operations(conn: sqlite3.Connection) -> list[dict[str, Any]]:
 def _exact_profiles(conn: sqlite3.Connection, mint: str) -> set[str]:
     """Observe exact status through the existing detector predicates only."""
     result: set[str] = set()
+    from src.ops.d3de_operation import is_d0_match, selected_evidence as d3de_evidence
     from src.ops.wsol_10_sol_four_step_operation import is_strict_match, selected_evidence as byz_evidence
+    from src.ops.p3r_profile_candidate_matcher import evaluate_mint
+    if is_d0_match(d3de_evidence(conn, mint)):
+        result.add("FOUR_STEP_30_SOL_14_479K_WSOL_LADDER")
     if is_strict_match(byz_evidence(conn, mint)):
         result.add("Byzantine")
+    p3r = evaluate_mint(conn, mint)
+    if p3r:
+        result.update(p3r.matching_profiles)
     # WATCHTOWER remains owned by its strict canonical integration; observing
     # existing membership is intentionally the monitor's only exact signal.
     return result
 
 
 def _expected_route(conn: sqlite3.Connection, display_name: str) -> tuple[tuple[int, str, int], ...] | None:
+    if display_name == "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER":
+        from src.ops.d3de_operation import SELECTED_ROUTE
+        return SELECTED_ROUTE
     if display_name == "Byzantine":
         from src.ops.wsol_10_sol_four_step_operation import AMOUNT_LAMPORTS
         return ((1, "WSOL_WRAP_CLOSE", AMOUNT_LAMPORTS),)
+    if display_name in {"P3R", "P3R_13A04"}:
+        from src.ops.p3r_profile_candidate_matcher import load_contracts
+        for contract in load_contracts(conn):
+            if contract.display_name == display_name:
+                return contract.route
     if display_name == "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K":
         return ((1, "WSOL_WRAP_CLOSE", 999985000),)
     return None
@@ -138,28 +183,44 @@ def _refresh_clusters(conn: sqlite3.Connection, operation: dict[str, Any], now: 
 
 def observe_completed_walkback(conn: sqlite3.Connection, mint: str, *, now: int | None = None) -> dict[str, int]:
     """Best-effort secondary projection. It has no membership write statements."""
-    ensure_schema(conn)
-    now = int(now or time.time())
-    rows = _rows(conn, mint)
-    observed = _route(rows)
-    exact_profiles = _exact_profiles(conn, mint) if rows is not None else set()
-    counts = Counter()
-    for operation in _active_operations(conn):
-        name = operation["display_name"]
-        if name not in DEFINITIONS:
-            continue
-        expected = _expected_route(conn, name)
-        if expected is None:
+    try:
+        # Startup validates the provisioned schema read-only. Each optional
+        # monitoring write is independent. Never
+        # retain the shared writer lane while the full-table health/cluster reads
+        # below run: these projections are secondary and do not need one atomic
+        # transaction spanning evidence, aggregate reads, and snapshots.
+        conn.commit()
+        now = int(now or time.time())
+        rows = _rows(conn, mint)
+        observed = _route(rows)
+        exact_profiles = _exact_profiles(conn, mint) if rows is not None else set()
+        counts = Counter()
+        for operation in _active_operations(conn):
+            name = operation["display_name"]
+            if name not in DEFINITIONS:
+                continue
+            expected = _expected_route(conn, name)
+            if expected is None:
+                _refresh_health(conn, operation, now)
+                conn.commit()
+                continue
+            classification, matching, differing = compare_route(expected, observed)
+            if name in exact_profiles:
+                classification, matching, differing = "EXACT_MATCH", ["topology", "semantic_sequence", "amount_vector"], []
+            _upsert_evidence(conn, operation, mint, classification, matching, differing, observed, expected, rows, now)
+            conn.commit()
+            counts[classification] += 1
             _refresh_health(conn, operation, now)
-            continue
-        classification, matching, differing = compare_route(expected, observed)
-        if name in exact_profiles:
-            classification, matching, differing = "EXACT_MATCH", ["topology", "semantic_sequence", "amount_vector"], []
-        _upsert_evidence(conn, operation, mint, classification, matching, differing, observed, expected, rows, now)
-        counts[classification] += 1
-        _refresh_health(conn, operation, now)
-        _refresh_clusters(conn, operation, now)
-    return dict(counts)
+            conn.commit()
+            _refresh_clusters(conn, operation, now)
+            conn.commit()
+        return dict(counts)
+    except Exception:
+        # A best-effort projection failure must not leak a transaction/write
+        # lease into the caller's subsequent work.
+        if conn.in_transaction:
+            conn.rollback()
+        raise
 
 
 def latest_health(conn: sqlite3.Connection, operator_id: str, fingerprint_id: str) -> dict[str, Any] | None:

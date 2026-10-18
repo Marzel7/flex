@@ -1,0 +1,17 @@
+{
+  "observed_before_persistent_tests": true,
+  "available_bytes_before": 13437906944,
+  "available_bytes_current": 11936649216,
+  "core_database_bytes": 35652194304,
+  "ops_database_bytes": 16194387968,
+  "wal_and_journal_files_at_snapshot": "Absent for both",
+  "holders": "lsof exact-file snapshot: one OPS read-only descriptor PID4599; no observed open Core writer or lock-file holder. Snapshot does not establish future concurrency or loaded Python identity.",
+  "lock_health": "Historical metadata and retained60s timeouts/ENOSPC known; no current lock holder observed. No lock acquired or altered. Operational lock safety remains a deployment prerequisite.",
+  "isolated_plan_peak_bytes": 1000000000,
+  "minimum_reserve_bytes": 2000000000,
+  "plan": "Capped compact fixtures<=4MiB per SQLite file, logs8MiB; one clean checkout and release state; reserve1GB for aggregate test/source artifacts plus2GB rollback/recovery headroom. No canonical clone, VACUUM, checkpoint or migration.",
+  "DISK_PRECONDITION_PASS": true,
+  "qualification_scope": "Isolated implementation/testing ONLY; not approval of an operational migration, restart, VACUUM or deployment.",
+  "STORAGE_RELIEF_REQUIRED": false,
+  "canonical_writes": 0
+}

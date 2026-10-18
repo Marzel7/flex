@@ -1,0 +1,50 @@
+{
+  "installed_git_head": "afbe9e58b11eb2e4d616246da123ce31ab45700c",
+  "files": [
+    {
+      "path": "src/core/walkback_worker.py",
+      "installed_sha256": "a45ccc0db0a34269b8811975fef1b9297a27acad745074a3674a11f8f771e5b9",
+      "baseline_sha256": "6274a14614c6a7e680f03ac334a757666507c9bbf5b81bfa262c975b7553528e",
+      "reason": "Preserve installed worker composition and direct startup validate_schema contract; no installed behavior changes except _get_tx patch",
+      "candidate_sha256": "d68ab50f9b60e883b578ae2d492abc7c5e54e33fa04ee3cd93348416be4577a2"
+    },
+    {
+      "path": "src/core/walkback_queue.py",
+      "installed_sha256": "2741576189a84ae94d3b1858448e5899ba28be27da5324f122f6d42514fecbe9",
+      "baseline_sha256": "a42566018adcf6a03e478a0491199e15c074b63f0d596f272278eba3e955ce45",
+      "reason": "Preserve installed worker composition and direct startup validate_schema contract; no installed behavior changes except _get_tx patch",
+      "candidate_sha256": "2741576189a84ae94d3b1858448e5899ba28be27da5324f122f6d42514fecbe9"
+    },
+    {
+      "path": "src/core/treasury_bank.py",
+      "installed_sha256": "a959b16f666f3dab911beebf32e954bd8a0e22aec5e083169929f71f81dabea0",
+      "baseline_sha256": "63da17e8fd5c61ab4722cedc4db0a19aa272481a774e63642b1015a6d8723e97",
+      "reason": "Preserve installed worker composition and direct startup validate_schema contract; no installed behavior changes except _get_tx patch",
+      "candidate_sha256": "a959b16f666f3dab911beebf32e954bd8a0e22aec5e083169929f71f81dabea0"
+    },
+    {
+      "path": "src/ops/anchor_reconciliation.py",
+      "installed_sha256": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7",
+      "baseline_sha256": "d74ea4ee5a35052e16fc08352502ca4108b4033f03c642163f109f8a0d599c34",
+      "reason": "Preserve installed worker composition and direct startup validate_schema contract; no installed behavior changes except _get_tx patch",
+      "candidate_sha256": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7"
+    },
+    {
+      "path": "src/ops/attribution_outcome.py",
+      "installed_sha256": "4907e3ac01c7139048310c51e9493ca261a9eb2895451f3452cb9434af66e73f",
+      "baseline_sha256": "78684828e1ff4fb24f204e7d805367722279f0b0856f4456a0a816fedd0bb28a",
+      "reason": "Preserve installed worker composition and direct startup validate_schema contract; no installed behavior changes except _get_tx patch",
+      "candidate_sha256": "4907e3ac01c7139048310c51e9493ca261a9eb2895451f3452cb9434af66e73f"
+    },
+    {
+      "path": "src/ops/operation_fingerprint_drift.py",
+      "installed_sha256": "cf0345ccec1f8a4578d09fede013ad59634adc10f9efdf6f9bfede25adc6ba55",
+      "baseline_sha256": "e69f5a59ef6f622877831c5235d9ae8cd499eea0ed292feeb0b6db39a0d4c087",
+      "reason": "Preserve installed worker composition and direct startup validate_schema contract; no installed behavior changes except _get_tx patch",
+      "candidate_sha256": "cf0345ccec1f8a4578d09fede013ad59634adc10f9efdf6f9bfede25adc6ba55"
+    }
+  ],
+  "operational_diff": "Only _get_tx version ceiling1 and response-signature guard. Startup dependency modules copied exactly from installed source; no reconciler/queue logic correction.",
+  "operational_diff_verified": "AST identical except _get_tx; installed support modules byte-identical",
+  "standalone_deployment": "Install patched walkback_worker.py only against exact installed preimage, never deploy copied dependency modules or golden baseline source."
+}

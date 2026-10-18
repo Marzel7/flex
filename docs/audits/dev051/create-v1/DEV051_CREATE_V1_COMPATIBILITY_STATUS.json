@@ -1,0 +1,100 @@
+{
+  "DEV051_CREATE_V1_COMPATIBILITY_STATUS": "VERSION1_CREATE_RECOVERY_UNSUPPORTED",
+  "ADDITIONAL_CLASSIFICATIONS": [
+    "VERSION1_DECODER_INCOMPATIBLE",
+    "RECOVERY_NOT_ATTEMPTED for Walkback anchor recheck/execution; exact-TX1 retrieval unproven"
+  ],
+  "TOKEN_MINT": "BwMMU8aFzdCFyhyFFBp7Ao6RaKnF1iRAbsbCeZBqpump",
+  "CREATE_SIGNATURE": "3wtMLEFAejTCjqN5koydeFdSSQzppmqqvqbELgRYJtKg7a9q6eT1GwWMUYcnoA7Hbggz1JM4YjirCFTCtaNF7Dxz",
+  "PARENT_SOURCE_SHA": "5ce601f793d4a57064b3d4d8cff4f9f8c897e49e",
+  "CREATE_RECOVERY_SOURCE": {
+    "worker_checkout": "/Users/kevinkeaveney/Production/flex-main-workers",
+    "on_disk_git_head": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215",
+    "loaded_bytes": "UNVERIFIED; no injection/restart/signalling",
+    "call_chain": "creator_resolution_queue._resolve_creator_rpc -> PostMigrationAnalyzer.get_creator_from_earliest_tx -> extract_bonding_curve_from_creation_tx -> _post_rpc_with_fallback -> aiohttp session.post",
+    "request_sites": {
+      "fetch_tx_with_retry": 422,
+      "_get_blocktime_for_signature": 1202,
+      "extract_bonding_curve_from_creation_tx": 1362
+    },
+    "decoder": "_validate_pumpfun_create_tx scopes Pump instruction accounts, requires curve System.createAccount and mint create/initialize; version field not itself rejected by structural decoder.",
+    "creator": "Strict path assigns fee payer to _create_tx_creator; fallback infers signer. Neither is independent Pump creator ABI decoding. No proposed reinterpretation.",
+    "signature_persistence": "Analyzer stores strict signature only on successful structural validation; _resolve_creator_rpc exports it only if is_pumpfun_create; process_queue COALESCE writes and funding handoff existing signature. Failed retrieval/strict validation never qualifies fallback signature.",
+    "eligibility": "Exact mint Walkback remains waiting; local reconciliation limit=1 oldest-first; normal drain excludes waiting; DEV049 unchanged."
+  },
+  "CURRENT_MAX_SUPPORTED_VERSION": 0,
+  "VERSION0_COMPATIBILITY": {
+    "retrieval": "Mock version-0 response can be retrieved with ceiling 0; synthetic configured-program positive control qualifies/stores signature. Legacy likewise retrieved.",
+    "retained_shape": "TX1 parsed evidence reconstructed with version label 0 still fails strict validation due to program ID mismatch; version-0 transport support does not imply decoder completeness."
+  },
+  "VERSION1_COMPATIBILITY": {
+    "retrieval": "Installed ceiling 0 receives synthetic unsupported-version RPC error and stores no signature. This models API version negotiation, not a live provider observation.",
+    "forced_response": "Even if supplied independently of the ceiling, retained TX1 parsed shape fails mint validation.",
+    "ceiling1_design_experiment": "In-memory three-literal 0->1 substitution retrieves version1 within identical call/time bounds; retained shape still rejected. Synthetic configured-program positive control succeeds. No application source changed.",
+    "verdict": "Ceiling-only migration approach is insufficient for complete CREATE compatibility."
+  },
+  "CREATEV2_DECODER_STATUS": {
+    "verdict": "INSUFFICIENT_EVIDENCE for discriminator and Pump-specific creator; VERSION1_DECODER_INCOMPATIBLE for retained parsed Token2022 shape",
+    "installed_TOKEN_2022": "TokenzQdBbjFD8aff5ZZUwWWwG6Go5rm5KWQEypdCU8",
+    "retained_program_and_owner": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+    "reproduced": "Curve found, mint_create=False, mint_init=False, strict_create=False with retained normalized parsed instructions. Rejection occurs regardless of version label or ceiling1.",
+    "other_constant": "Installed TOKEN_PROGRAM also differs from retained TX2 SPL program; not modified or expanded into separate runtime investigation.",
+    "missing_instruction_bytes": "Pump outer0 remains UNPARSED with account mappings and data_bytes_present only. No discriminator/serialized creator bytes retained; no Create/CreateV2 or Pump creator fabricated.",
+    "controls": "Synthetic configured-program fixtures substitute source-configured program ID only to exercise positive control; these are not claimed as authentic on-chain transactions."
+  },
+  "EXACT_MINT_RECOVERY_SELECTION": {
+    "creator_resolution": "One GENERIC attempt occurred; retained logs show one page / first 80 candidates, no strict CREATE, fallback inference.",
+    "exact_TX1_selected": "UNPROVEN: full selected-signature/error history absent; do not equate zero Walkback anchor attempts with no earlier creator scan.",
+    "walkback": "Fresh indexed readonly check: attempts=0,anchor_lookup_attempts=0,lastlookup=NULL,signature=NULL,status waiting.",
+    "starvation": "Oldest-first limit=1 is known exposure; this task does not prove starvation alone or version rejection caused missing birth/anchor."
+  },
+  "VERSION_REJECTION_EVIDENCE": {
+    "offline": "Synthetic -32015 unsupported-version error returned over HTTP200; helper returns RPC dictionary, scanner sees no result and continues bounded scan with no strict signature. Error is not surfaced as a distinct persistent version failure. Simulated transport failure also produces no qualified signature.",
+    "live_exact_TX1": "NOT_LOCATED / NOT_ESTABLISHED; no provider calls.",
+    "causal_verdict": "Latent compatibility defects, not proven causal explanation of this token."
+  },
+  "MINIMUM_SAFE_CORRECTION": {
+    "implementation": "NONE; recommendation only",
+    "migration_comparison": "DEV039 f52609c058be6f881f15d887771160c2b3881ebd changed five listener migration request ceilings 0->1. CREATE analyzer uses different transport/history/decoder helpers. Reuse explicit-ceiling technique, not migration helper wholesale.",
+    "separate_recommendation": [
+      "Qualify explicit ceiling1 consistently at the three analyzer transaction request sites, retaining endpoint policy/timeouts/retry budgets.",
+      "Separately qualify token-program identity correction against attributable retained Token2022 evidence and legacy/Token2022 negative controls; ceiling-only release is insufficient.",
+      "Preserve strict curve+mint evidence, mint matching, signature validation and creator-null handling. Do not replace missing Pump creator argument with signer/payer.",
+      "Keep exact-mint selected-signature/provider-version outcome distinguishable in future bounded diagnostics if authorized; no retry or acquisition expansion."
+    ],
+    "required_before_implementation_release": "Authorize narrowly scoped analyzer correction and regression qualification; establish attributable Create/CreateV2 discriminator/account/creator fixture before claiming ABI creator support. No canonical repair/replay authorized.",
+    "rollback": "Prior pinned worker source eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215, actual loaded bytes unverified; no deployment performed."
+  },
+  "PROVIDER_BUDGET_EQUIVALENCE": {
+    "design_experiment": "Only three integer ceilings changed in memory; AST bodies/selection/retry/timeouts otherwise unchanged. One mocked history + one mocked transaction per single-candidate case for original and design.",
+    "preserved": "80 candidates/page; configured page/deadline limits; _post_rpc_with_fallback one pass over configured endpoints, default 10s/call; blocktime 15s; generic/high-priority worker budgets unchanged; fetch_tx_with_retry retains existing retry schedule. No new worker/concurrency/cache.",
+    "decoder_correction": "Not implemented or qualified; no claim full correction is release-ready."
+  },
+  "OFFLINE_TESTS": {
+    "result": "15 cases PASS expected assertions plus signature validity assertions",
+    "runtime": "Existing algotrader Python3.11; no dependency installation",
+    "safety": "AST methods executed only; application top-level env/metrics/startup never imported; mock transport plus Internet socket/DNS deny guard; no DB writes.",
+    "initial_harness_repairs": "Initialized omitted analyzer fields, copied set constants from source, supplied typing annotation namespace. First retained-shape expectation exposed real token-program mismatch; revised explicit positive/negative controls preserve observed behaviour. No runtime code altered.",
+    "scope": "Tests demonstrate current unsupported/failure behaviours; PASS of diagnostic tests is not application qualification."
+  },
+  "READY_FOR_IMPLEMENTATION": false,
+  "READINESS_REASON": "Ceiling-only correction insufficient; separate source-identity/decoder correction and original ABI evidence required to qualify complete CREATE handling. Narrow recommendation prepared, no implementation authorized in this task.",
+  "PROVIDER_CALLS": 0,
+  "CANONICAL_WRITES": 0,
+  "PRODUCTION_CHANGES": 0,
+  "PERSISTENT_DEV_CHANGES": 0,
+  "APPLICATION_SOURCE_CHANGES": 0,
+  "RUNTIME_DEPLOYMENT_REQUIRED": false,
+  "STORAGE": {
+    "single_generated_or_transient_file_cap_bytes": 2000000,
+    "raw_retention": false,
+    "unbounded_growth_paths": 0,
+    "canonical_copies": 0
+  },
+  "NEXT_ACTION": "STOP before implementation/deployment. Review separate ceiling1 + token-program-identity correction recommendation; obtain original Pump ABI fields before claiming CreateV2/creator compatibility. Keep exact-token causality unproven.",
+  "SOURCE_HASHES": {
+    "/Users/kevinkeaveney/Production/flex-main-workers/src/analysis/pump_fun_post_migration_analyzer.py": "b7a051d2b21a860215393e9815b66c8ab9f16c14a932595755a21286a92a9443",
+    "/Users/kevinkeaveney/Production/flex-main-workers/src/core/creator_resolution_queue.py": "ad225e20c8b9428739fb20f2142f7d1c53d58890c4491db8f728f38a8c1e2612",
+    "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py": "139c8fbcd69484b5bb30038e76445d7843892e2ce28a7157485d917bdfccdd39"
+  }
+}

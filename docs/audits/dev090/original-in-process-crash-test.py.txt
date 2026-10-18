@@ -1,0 +1,25 @@
+@pytest.mark.parametrize('point',['before_core_commit','after_core_commit','before_ops','during_ops','after_ops_commit','before_ack','after_ack'])
+def test_real_process_interruption(tmp_path,point):
+    f=Fixture(tmp_path);f.add_waiting()
+    script="""import sys,os
+sys.path.insert(0,sys.argv[1]);sys.path.insert(0,sys.argv[1]+'/tests')
+from test_dev090_handoff import Fixture
+f=Fixture(sys.argv[2],create=False);point=sys.argv[3]
+def die():os._exit(0)
+if point=='before_core_commit':f.publish(stop=die)
+f.publish()
+if point=='after_core_commit':die()
+def crash(stage):
+ if stage==point:die()
+f.dispatch(fault=crash,ops_before_commit=die if point=='during_ops' else None)
+"""
+    root=str(Path(__file__).parents[1]);r=subprocess.run([sys.executable,'-B','-c',script,root,str(tmp_path),point],capture_output=True,timeout=10)
+    assert r.returncode==0,r.stderr.decode()
+    restarted=Fixture(tmp_path,create=False);restarted.dispatch(now=1000)
+    if point=='before_core_commit':
+        assert restarted.row(restarted.core,'SELECT COUNT(*) FROM token_analysis')==(0,)
+        assert restarted.row(restarted.ops,'SELECT status FROM wt_walkback_queue')==('waiting',)
+    else:
+        assert restarted.row(restarted.core,'SELECT state FROM wb_create_delivery')==('ACK',)
+        assert restarted.execute_claim_model()==1
+        restarted.dispatch(now=2000);assert restarted.execute_claim_model()==1

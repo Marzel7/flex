@@ -1,0 +1,76 @@
+{
+  "installed_git_head": "ec2b75e1274ee76761d51247d345b59d77341ee9",
+  "DEV079_source_sha": "5036bcd7ae1b4d2294de51474e0d27b00dddb31d",
+  "files": [
+    {
+      "path": "src/core/walkback_worker.py",
+      "installed_sha256": "145a3368dc319a6e901f2365e645b65dd60d1727815f99e3b498d9fa1c3041dc",
+      "candidate_sha256": "a20d4f75e72a6fa1485ef36a79995608313769a72f7845ea61cff6ccc93d11db",
+      "reason": "Current installed worker; only_get_tx correction"
+    },
+    {
+      "path": "src/core/walkback_queue.py",
+      "installed_sha256": "2741576189a84ae94d3b1858448e5899ba28be27da5324f122f6d42514fecbe9",
+      "candidate_sha256": "2741576189a84ae94d3b1858448e5899ba28be27da5324f122f6d42514fecbe9",
+      "reason": "Exact installed dependency composition, not a deployment target"
+    },
+    {
+      "path": "src/core/treasury_bank.py",
+      "installed_sha256": "a959b16f666f3dab911beebf32e954bd8a0e22aec5e083169929f71f81dabea0",
+      "candidate_sha256": "a959b16f666f3dab911beebf32e954bd8a0e22aec5e083169929f71f81dabea0",
+      "reason": "Exact installed dependency composition, not a deployment target"
+    },
+    {
+      "path": "src/ops/anchor_reconciliation.py",
+      "installed_sha256": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7",
+      "candidate_sha256": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7",
+      "reason": "Exact installed dependency composition, not a deployment target"
+    },
+    {
+      "path": "src/ops/attribution_outcome.py",
+      "installed_sha256": "4907e3ac01c7139048310c51e9493ca261a9eb2895451f3452cb9434af66e73f",
+      "candidate_sha256": "4907e3ac01c7139048310c51e9493ca261a9eb2895451f3452cb9434af66e73f",
+      "reason": "Exact installed dependency composition, not a deployment target"
+    },
+    {
+      "path": "src/ops/operation_fingerprint_drift.py",
+      "installed_sha256": "cf0345ccec1f8a4578d09fede013ad59634adc10f9efdf6f9bfede25adc6ba55",
+      "candidate_sha256": "cf0345ccec1f8a4578d09fede013ad59634adc10f9efdf6f9bfede25adc6ba55",
+      "reason": "Exact installed dependency composition, not a deployment target"
+    },
+    {
+      "path": "src/ops/p3r_profile_candidate_matcher.py",
+      "installed_sha256": "f06d5ea57229eb5bf5e84983c296f1cb9fb628c132a44e0d19e83f2b17697f23",
+      "candidate_sha256": "f06d5ea57229eb5bf5e84983c296f1cb9fb628c132a44e0d19e83f2b17697f23",
+      "reason": "Exact installed dependency composition, not a deployment target"
+    },
+    {
+      "path": "src/ops/d3de_operation.py",
+      "installed_sha256": "b0faa8ff11a899170c0107d2b7e75363ca1290fb713aeede77e5e56b17ea09ed",
+      "candidate_sha256": "b0faa8ff11a899170c0107d2b7e75363ca1290fb713aeede77e5e56b17ea09ed",
+      "reason": "Exact installed dependency composition, not a deployment target"
+    },
+    {
+      "path": "src/utils/db_locking.py",
+      "installed_sha256": "ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89",
+      "candidate_sha256": "ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89",
+      "reason": "Exact installed direct worker dependency; no deployment change"
+    },
+    {
+      "path": "src/ops/treasury_topology_classifier.py",
+      "installed_sha256": "f51637e839c0fc15339ce0cca67f74e5dc9878a85b127da8c35e7906fd4d644e",
+      "candidate_sha256": "f51637e839c0fc15339ce0cca67f74e5dc9878a85b127da8c35e7906fd4d644e",
+      "reason": "Exact installed direct worker dependency; no deployment change"
+    },
+    {
+      "path": "src/core/database_write_service.py",
+      "installed_sha256": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2",
+      "candidate_sha256": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2",
+      "reason": "Exact shared write-lane dependency of installed db_locking; no deployment change"
+    }
+  ],
+  "operational_diff": "Only_get_tx: version ceiling1 and response signature correlation; all newer source byte-preserved",
+  "source_preimage_equivalence": "PASS exact reverse-only_get_tx bytes",
+  "deployment_target": "walkback_worker.py only; support modules preserved for independently qualified composition",
+  "DEV090_explicit_extension": "Only qualified _get_tx and exact maintenance_tick hook; original newer installed worker preimage still reversed and checked."
+}

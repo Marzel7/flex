@@ -1,0 +1,33 @@
+--- a/src/core/walkback_worker.py
++++ b/src/core/walkback_worker.py
+@@ -147,11 +147,18 @@
+ 
+ def _get_tx(sig: str, *, rpc_transport: Optional[RpcTransport] = None) -> Optional[dict]:
+     """getTransaction — 1cr. Never uses the enhanced endpoint."""
+-    return (rpc_transport or _rpc)("getTransaction", [sig, {
++    tx = (rpc_transport or _rpc)("getTransaction", [sig, {
+         "encoding": "jsonParsed",
+-        "maxSupportedTransactionVersion": 0,
++        "maxSupportedTransactionVersion": 1,
+         "commitment": "confirmed",
+     }])
++    if not isinstance(tx, dict):
++        return None
++    transaction = tx.get("transaction")
++    signatures = transaction.get("signatures") if isinstance(transaction, dict) else None
++    if not isinstance(signatures, list) or not signatures or signatures[0] != sig:
++        return None
++    return tx
+ 
+ 
+ _SYSTEM_PROGRAM = "11111111111111111111111111111111"
+@@ -1950,6 +1957,9 @@
+                 # a transient failure here is logged and skipped, matching the
+                 # existing recover_stalled_running_jobs/finalize_exhausted_pending
+                 # pattern above, never crashes the loop.
++                from src.ops.walkback_create_handoff import maintenance_tick
++                maintenance_tick(LIVE_DB_PATH, OPS_DB_PATH)
++
+                 trace_boundary("anchor_reconciliation_attempted")
+                 _t0 = time.monotonic()
+                 try:

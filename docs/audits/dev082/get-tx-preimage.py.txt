@@ -1,0 +1,7 @@
+def _get_tx(sig: str, *, rpc_transport: Optional[RpcTransport] = None) -> Optional[dict]:
+    """getTransaction — 1cr. Never uses the enhanced endpoint."""
+    return (rpc_transport or _rpc)("getTransaction", [sig, {
+        "encoding": "jsonParsed",
+        "maxSupportedTransactionVersion": 0,
+        "commitment": "confirmed",
+    }])

@@ -1,0 +1,78 @@
+{
+  "signature": "67GxPwV2z4R19UMoPw7isA8cM7V7UwsYz9baUhYLdWivkSgBjkJWXFvzJ7P846DbrDH3dkih7fWjcNh3tiCtXfd7",
+  "returned_signature": "67GxPwV2z4R19UMoPw7isA8cM7V7UwsYz9baUhYLdWivkSgBjkJWXFvzJ7P846DbrDH3dkih7fWjcNh3tiCtXfd7",
+  "execution_error": null,
+  "execution_succeeded": true,
+  "slot": 457831903,
+  "block_time": 1792195768,
+  "utc": "2026-10-17T00:09:28+00:00",
+  "version": "legacy",
+  "fee_payer": "Dd6hgkmaiS5oYx4yU4FFS1khUEDHMnktsBFqgtXm5TzU",
+  "signers": [
+    "Dd6hgkmaiS5oYx4yU4FFS1khUEDHMnktsBFqgtXm5TzU",
+    "HmcSKFTyc9eV1RJLRJssJFY8fnxsoPa1N9bGzY8FpRyh"
+  ],
+  "fee_lamports": 10000,
+  "program_ids": [
+    "11111111111111111111111111111111",
+    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+  ],
+  "outer_instruction_count": 3,
+  "inner_instruction_count": 0,
+  "instructions": [
+    {
+      "outer_index": 0,
+      "inner_index": null,
+      "program_id": "11111111111111111111111111111111",
+      "program_label": "system",
+      "type": "createAccountWithSeed",
+      "info": {
+        "base": "HmcSKFTyc9eV1RJLRJssJFY8fnxsoPa1N9bGzY8FpRyh",
+        "lamports": 253039280,
+        "newAccount": "7vHXdWsdyDi7byUwndjYeEZKFAAjAhB9yym8EYPwPNqP",
+        "owner": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "seed": "YCJdhB9JWNBx3KZVhp6C2D",
+        "source": "Dd6hgkmaiS5oYx4yU4FFS1khUEDHMnktsBFqgtXm5TzU",
+        "space": 165
+      }
+    },
+    {
+      "outer_index": 1,
+      "inner_index": null,
+      "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "program_label": "spl-token",
+      "type": "initializeAccount",
+      "info": {
+        "account": "7vHXdWsdyDi7byUwndjYeEZKFAAjAhB9yym8EYPwPNqP",
+        "mint": "So11111111111111111111111111111111111111112",
+        "owner": "HmcSKFTyc9eV1RJLRJssJFY8fnxsoPa1N9bGzY8FpRyh",
+        "rentSysvar": "SysvarRent111111111111111111111111111111111"
+      }
+    },
+    {
+      "outer_index": 2,
+      "inner_index": null,
+      "program_id": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "program_label": "spl-token",
+      "type": "closeAccount",
+      "info": {
+        "account": "7vHXdWsdyDi7byUwndjYeEZKFAAjAhB9yym8EYPwPNqP",
+        "destination": "7KX5aXKoU5HtaHnLdgAY21nyKpxEcahxwv9rvExKSxFD",
+        "owner": "HmcSKFTyc9eV1RJLRJssJFY8fnxsoPa1N9bGzY8FpRyh"
+      }
+    }
+  ],
+  "token_account_balance_ownership": [],
+  "native_balance_deltas_not_independently_funding_edges": [
+    {
+      "account": "Dd6hgkmaiS5oYx4yU4FFS1khUEDHMnktsBFqgtXm5TzU",
+      "delta_lamports": -253049280
+    },
+    {
+      "account": "7KX5aXKoU5HtaHnLdgAY21nyKpxEcahxwv9rvExKSxFD",
+      "delta_lamports": 253039280
+    }
+  ],
+  "raw_response_sha256": "004dbfb54ab845a7168b0539aff4e7006455acfee63a750f0bd7abbbacd2bb7b",
+  "provenance": "Exact getTransaction jsonParsed/finalized,maxSupportedTransactionVersion1; raw response decoded in memory and not retained."
+}

@@ -9,6 +9,7 @@ creator_funding_queue so funder extraction can proceed normally.
 from __future__ import annotations
 
 import asyncio
+import json
 import os
 import sqlite3
 import time
@@ -61,6 +62,37 @@ class _BudgetExceeded(Exception):
         super().__init__(
             f"BUDGET_EXCEEDED tier={tier} pages={pages} sigs={sigs} runtime={runtime:.1f}s"
         )
+
+
+class _CreatorAuthorityError(RuntimeError):
+    """A bounded diagnostic, never an authoritative creator or CREATE anchor."""
+
+
+def _creator_authority_error(data: Dict[str, Any], reason: str) -> str:
+    # Existing last_error retains the current failed attempt's provenance.
+    # Full wallet/signature identities fit; notes are supplementary and bounded.
+    evidence = {
+        "reason": reason,
+        "creator": data.get("creator"),
+        "source_tx": data.get("inference_signature") or data.get("create_tx_signature"),
+        "status": data.get("validation_status"),
+        "strict": bool(data.get("is_pumpfun_create")),
+        "budget": bool(data.get("budget_exceeded")),
+        "notes": str(data.get("validation_notes") or "")[:80],
+    }
+    text = "CREATOR_AUTHORITY:" + json.dumps(evidence, sort_keys=True, separators=(",", ":"))
+    if len(text) > 500:
+        evidence.pop("notes")
+        text = "CREATOR_AUTHORITY:" + json.dumps(evidence, sort_keys=True, separators=(",", ":"))
+    if len(text) > 500:
+        # Unexpected upstream types must not be promoted or retained unboundedly.
+        return 'CREATOR_AUTHORITY:{"reason":"INVALID_PROVENANCE_SHAPE"}'
+    return text
+
+
+def _authority_failure_exhausted(row: sqlite3.Row) -> bool:
+    return (row["status"] == "failed" and int(row["attempts"] or 0) >= 6
+            and str(row["last_error"] or "").startswith("CREATOR_AUTHORITY:"))
 
 
 def connect(db_path: str, timeout: int = 30) -> sqlite3.Connection:
@@ -268,6 +300,13 @@ def enqueue_missing_creator(
     if (row["lifecycle_stage"] or "") != "migrated":
         return False
 
+    previous = conn.execute(
+        "SELECT status, attempts, last_error FROM creator_resolution_queue WHERE mint=?",
+        (mint,),
+    ).fetchone()
+    if previous and _authority_failure_exhausted(previous):
+        return False
+
     now = int(time.time())
     next_attempt_at = now + max(0, int(delay_seconds or 0))
     cur = conn.execute(
@@ -335,6 +374,8 @@ def enqueue_missing_migrated_tokens(
               AND mint NOT IN (
                   SELECT mint FROM creator_resolution_queue
                   WHERE status IN ('pending','retry','running','complete','ignored')
+                     OR (status='failed' AND attempts>=6
+                         AND last_error LIKE 'CREATOR_AUTHORITY:%')
               )
             ORDER BY COALESCE(migrated_at, created_at, analyzed_at, 0) DESC
             LIMIT ?
@@ -617,36 +658,32 @@ def _resolve_creator_rpc(
     sigs_seen  = int(getattr(analyzer, "_sigs_examined",   0))
     budget_hit = bool(getattr(analyzer, "_budget_exceeded", False))
 
-    creator = (provenance or {}).get("creator")
-
-    if budget_hit and not creator:
-        raise _BudgetExceeded(
-            pages=pages_seen, sigs=sigs_seen, runtime=round(elapsed, 2), tier=tier
-        )
-
-    if not creator:
-        raise RuntimeError("creator not found from earliest transaction")
-
-    created_at = None
-    if (provenance or {}).get("blockTime"):
-        created_at = datetime.utcfromtimestamp(provenance["blockTime"]).isoformat() + "Z"
-
-    is_pf_create = bool((provenance or {}).get("is_pumpfun_create"))
-    create_tx = (
-        getattr(analyzer, "_create_tx_signature", None)
-        if is_pf_create and hasattr(analyzer, "_create_tx_signature")
-        else None
-    )
-    return {
-        "creator":             creator,
-        "created_at":          created_at,
-        "bonding_curve_pda":   (provenance or {}).get("bonding_curve_pda"),
+    provenance = provenance or {}
+    creator = provenance.get("creator")
+    is_pf_create = bool(provenance.get("is_pumpfun_create"))
+    stored_signature = getattr(analyzer, "_create_tx_signature", None)
+    create_tx = stored_signature if is_pf_create and provenance.get("create_sig") == stored_signature else None
+    data = {
+        "creator": creator,
+        "creator_source": "rpc_pump_create" if is_pf_create else "signer_inference" if creator else "unresolved",
+        "is_pumpfun_create": is_pf_create,
+        "validation_status": provenance.get("status"),
+        "validation_notes": provenance.get("validation_notes") or [],
+        "inference_signature": provenance.get("create_sig") if not is_pf_create else None,
+        "budget_exceeded": budget_hit,
+        "created_at": datetime.utcfromtimestamp(provenance["blockTime"]).isoformat() + "Z" if provenance.get("blockTime") else None,
+        "bonding_curve_pda": provenance.get("bonding_curve_pda"),
         "create_tx_signature": create_tx,
-        "pages_examined":      pages_seen,
-        "sigs_examined":       sigs_seen,
-        "runtime_secs":        round(elapsed, 2),
-        "tier":                tier,
+        "pages_examined": pages_seen,
+        "sigs_examined": sigs_seen,
+        "runtime_secs": round(elapsed, 2),
+        "tier": tier,
     }
+    if budget_hit and not (creator and is_pf_create and create_tx):
+        error = _BudgetExceeded(pages=pages_seen, sigs=sigs_seen, runtime=round(elapsed, 2), tier=tier)
+        error.args = (_creator_authority_error(data, "SEARCH_BUDGET_EXCEEDED"),)
+        raise error
+    return data
 
 
 def process_queue(
@@ -739,17 +776,27 @@ def process_queue(
 
         try:
             data    = _resolve_creator_rpc(mint, max_runtime_secs=max_runtime, max_pages=max_pages_v, tier=tier)
-            creator = data["creator"]
+            creator = data.get("creator")
+            if not (creator and data.get("is_pumpfun_create") is True
+                    and data.get("creator_source") == "rpc_pump_create"
+                    and data.get("create_tx_signature")
+                    and data.get("validation_status") != "inferred_create"):
+                raise _CreatorAuthorityError(_creator_authority_error(data, "UNQUALIFIED_CREATOR"))
 
             did_enqueue = False
             with _db(db_path) as conn:
                 token = conn.execute(
-                    "SELECT migrated_at, created_at, create_tx_signature FROM token_analysis WHERE mint=?",
+                    "SELECT migrated_at, created_at, create_tx_signature, earliest_tx_creator, pf_ws_creator FROM token_analysis WHERE mint=?",
                     (mint,),
                 ).fetchone()
-                migration_ts = _iso_from_epoch(token["migrated_at"] if token else None)
-                create_tx = data.get("create_tx_signature") or (token["create_tx_signature"] if token else None)
-                conn.execute(
+                if not token:
+                    raise _CreatorAuthorityError(_creator_authority_error(data, "TOKEN_NOT_FOUND"))
+                existing_creators = {(token[key] or "").strip() for key in ("earliest_tx_creator", "pf_ws_creator")} - {""}
+                if existing_creators - {creator} or (token["create_tx_signature"] and token["create_tx_signature"] != data["create_tx_signature"]):
+                    raise _CreatorAuthorityError(_creator_authority_error(data, "CONFLICTING_AUTHORITY"))
+                migration_ts = _iso_from_epoch(token["migrated_at"])
+                create_tx = data["create_tx_signature"]
+                updated = conn.execute(
                     """
                     UPDATE token_analysis
                     SET earliest_tx_creator = COALESCE(NULLIF(TRIM(earliest_tx_creator), ''), ?),
@@ -759,10 +806,15 @@ def process_queue(
                         create_tx_signature = COALESCE(create_tx_signature, ?),
                         creator_resolved_slot = COALESCE(creator_resolved_slot, migration_slot, curve_completed_slot)
                     WHERE mint = ?
+                      AND (NULLIF(TRIM(earliest_tx_creator), '') IS NULL OR TRIM(earliest_tx_creator)=?)
+                      AND (NULLIF(TRIM(pf_ws_creator), '') IS NULL OR TRIM(pf_ws_creator)=?)
+                      AND (create_tx_signature IS NULL OR create_tx_signature=?)
                     """,
                     (creator, creator, data.get("created_at"),
-                     data.get("bonding_curve_pda"), create_tx, mint),
+                     data.get("bonding_curve_pda"), create_tx, mint, creator, creator, create_tx),
                 )
+                if updated.rowcount != 1:
+                    raise _CreatorAuthorityError(_creator_authority_error(data, "CONCURRENT_AUTHORITY_CONFLICT"))
                 did_enqueue = _enqueue_funding_handoff(
                     conn, creator=creator, mint=mint,
                     migration_timestamp=migration_ts, create_tx_signature=create_tx,
@@ -783,6 +835,8 @@ def process_queue(
                      data.get("pages_examined"), data.get("sigs_examined"), data.get("runtime_secs"),
                      tier, int(time.time()), int(time.time()), mint),
                 )
+                from src.ops.walkback_create_handoff import stage_rpc_completion
+                stage_rpc_completion(conn, mint, data, core_path=db_path, ops_path=_OPS_DB_PATH)
                 conn.commit()
                 resolved += 1
             if did_enqueue and not record_event_fail_open(
@@ -806,7 +860,7 @@ def process_queue(
                     WHERE mint=?
                     """,
                     (attempts + 1, bx.pages, bx.sigs, bx.runtime,
-                     bx.tier, str(bx)[:200], int(time.time()), mint),
+                     bx.tier, str(bx)[:500], int(time.time()), mint),
                 )
                 conn.commit()
 

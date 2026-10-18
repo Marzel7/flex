@@ -1,0 +1,360 @@
+class InstalledStrictDecoder:
+
+    def _normalize_account_keys(self, keys: list) -> list:
+        out = []
+        for k in keys or []:
+            if isinstance(k, str):
+                out.append(k)
+            elif isinstance(k, dict):
+                pubkey = k.get('pubkey') or k.get('account') or k.get('address')
+                if pubkey:
+                    out.append(pubkey)
+        return [x for x in out if x]
+
+    def _get_message_and_instructions(self, tx: dict) -> Tuple[dict, list]:
+        if 'transaction' in tx:
+            msg = (tx.get('transaction') or {}).get('message') or {}
+            return (msg, msg.get('instructions') or [])
+        if 'instructions' in tx:
+            account_keys = tx.get('accountKeys') or tx.get('accounts') or []
+            account_keys = self._normalize_account_keys(account_keys)
+            msg = {'accountKeys': account_keys, 'instructions': tx.get('instructions') or []}
+            return (msg, msg['instructions'])
+        return ({}, [])
+
+    def _resolve_account_key(self, message: dict, idx: int) -> Optional[str]:
+        keys = message.get('accountKeys') or []
+        if not 0 <= idx < len(keys):
+            return None
+        k = keys[idx]
+        return k if isinstance(k, str) else k.get('pubkey') if isinstance(k, dict) else None
+
+    def _is_system_create_compiled(self, ix: dict) -> bool:
+        data = ix.get('data')
+        if not data or not isinstance(data, str):
+            return False
+        try:
+            raw = base58.b58decode(data)
+            if len(raw) < 4:
+                return False
+            tag, = struct.unpack('<I', raw[:4])
+            return tag in (0, 3)
+        except Exception:
+            return False
+
+    def _decode_system_create_owner_program(self, ix: dict) -> Optional[str]:
+        data = ix.get('data')
+        if not data or not isinstance(data, str):
+            return None
+        try:
+            raw = base58.b58decode(data)
+            if len(raw) < 4:
+                return None
+            tag, = struct.unpack('<I', raw[:4])
+            if tag == 0:
+                if len(raw) < 4 + 8 + 8 + 32:
+                    return None
+                owner_bytes = raw[4 + 8 + 8:4 + 8 + 8 + 32]
+                return base58.b58encode(owner_bytes).decode('ascii')
+            if tag == 3:
+                if len(raw) < 4 + 32 + 4:
+                    return None
+                offset = 4 + 32
+                seed_len, = struct.unpack('<I', raw[offset:offset + 4])
+                offset += 4
+                if len(raw) < offset + seed_len + 8 + 8 + 32:
+                    return None
+                offset += seed_len
+                offset += 8
+                offset += 8
+                owner_bytes = raw[offset:offset + 32]
+                return base58.b58encode(owner_bytes).decode('ascii')
+            return None
+        except Exception:
+            return None
+
+    def _system_create_new_account_pubkey(self, message: dict, instr: dict) -> Optional[str]:
+        parsed = instr.get('parsed')
+        if isinstance(parsed, dict):
+            info = parsed.get('info') or {}
+            payer = info.get('source') or info.get('from')
+            for key in ('newAccount', 'newAccountPubkey'):
+                v = info.get(key)
+                if isinstance(v, str) and v:
+                    return v
+            for key in ('account', 'to'):
+                v = info.get(key)
+                if isinstance(v, str) and v and (v != payer):
+                    return v
+        accs = instr.get('accounts')
+        if isinstance(accs, list) and len(accs) >= 2:
+            new_acc = accs[1]
+            if isinstance(new_acc, int):
+                return self._resolve_account_key(message, new_acc)
+            if isinstance(new_acc, str) and new_acc:
+                return new_acc
+        return None
+
+    def _iter_relevant_instructions_for_create(self, tx: dict, create_outer_index: Optional[int]=None):
+        message, top = self._get_message_and_instructions(tx)
+        for ix in top:
+            yield (ix, False)
+        if create_outer_index is not None:
+            inner_sets = (tx.get('meta') or {}).get('innerInstructions')
+            if inner_sets is None:
+                inner_sets = tx.get('innerInstructions')
+            inner_sets = inner_sets or []
+            for inner in inner_sets:
+                parent_idx = None
+                if isinstance(inner, dict):
+                    parent_idx = inner.get('index')
+                    if parent_idx is None:
+                        parent_idx = inner.get('parentIndex')
+                    if parent_idx is None:
+                        parent_idx = inner.get('outerInstructionIndex')
+                if parent_idx != create_outer_index:
+                    continue
+                if isinstance(inner, dict):
+                    for ix in inner.get('instructions') or []:
+                        yield (ix, True)
+                elif isinstance(inner, list):
+                    for ix in inner:
+                        yield (ix, True)
+
+    def _extract_accounts_from_parsed_info(self, parsed_info: dict) -> Optional[list]:
+        """Generic extraction of pubkey-like strings from parsed.info."""
+        try:
+            accounts = []
+            for v in (parsed_info or {}).values():
+                if isinstance(v, str) and 32 <= len(v) <= 60:
+                    accounts.append(v)
+                elif isinstance(v, dict):
+                    for kk in ('pubkey', 'address', 'account'):
+                        vv = v.get(kk)
+                        if isinstance(vv, str):
+                            accounts.append(vv)
+            return accounts if accounts else None
+        except Exception:
+            return None
+
+    def _find_pumpfun_create_outer_index(self, tx: dict) -> Optional[int]:
+        """Find outer instruction index that looks like Pump.fun CREATE (contains mint in its accounts)."""
+        try:
+            message, instructions = self._get_message_and_instructions(tx)
+            for ix_idx, ix in enumerate(instructions):
+                program_id = ix.get('programId')
+                if not program_id and 'programIdIndex' in ix:
+                    program_id = self._resolve_account_key(message, ix.get('programIdIndex'))
+                if program_id not in PUMPFUN_PROGRAM_IDS and program_id not in (PUMPFUN_AMM_PROGRAM, PUMPFUN_BONDING_CURVE_PROGRAM):
+                    continue
+                accounts = ix.get('accounts')
+                if accounts is None and 'parsed' in ix:
+                    accounts = self._extract_accounts_from_parsed_info((ix.get('parsed') or {}).get('info') or {})
+                if not accounts:
+                    continue
+                pubkeys = []
+                for a in accounts:
+                    if isinstance(a, int):
+                        k = self._resolve_account_key(message, a)
+                        if k:
+                            pubkeys.append(k)
+                    elif isinstance(a, str):
+                        pubkeys.append(a)
+                    elif isinstance(a, dict) and 'pubkey' in a:
+                        pubkeys.append(a['pubkey'])
+                if self.token_mint in pubkeys:
+                    return ix_idx
+            return None
+        except Exception:
+            return None
+
+    def _find_system_create_accounts(self, tx: dict, create_outer_index: Optional[int]) -> List[dict]:
+        """
+        Return list of dicts:
+          {
+            "created": <pubkey>,
+            "owner": <program_id or None>,
+            "is_inner": bool,
+            "parsed": bool
+          }
+        for SystemProgram createAccount variants under the scoped parent + top-level.
+        """
+        out = []
+        message, _ = self._get_message_and_instructions(tx)
+        system_program = SYSTEM_PROGRAM
+        create_types = {'createaccount', 'createaccountwithseed', 'create'}
+        for instr, is_inner in self._iter_relevant_instructions_for_create(tx, create_outer_index):
+            program_id = instr.get('programId')
+            if not program_id and 'programIdIndex' in instr:
+                program_id = self._resolve_account_key(message, instr.get('programIdIndex'))
+            if program_id != system_program:
+                continue
+            owner_program = None
+            parsed = False
+            if 'parsed' in instr and isinstance(instr.get('parsed'), dict):
+                parsed = True
+                p = instr.get('parsed') or {}
+                ptype = (p.get('type') or '').lower()
+                if ptype in create_types:
+                    owner_program = (p.get('info') or {}).get('owner')
+                else:
+                    continue
+            else:
+                if not self._is_system_create_compiled(instr):
+                    continue
+                owner_program = self._decode_system_create_owner_program(instr)
+            created = self._system_create_new_account_pubkey(message, instr)
+            if created:
+                out.append({'created': created, 'owner': owner_program, 'is_inner': is_inner, 'parsed': parsed})
+        return out
+
+    def _flatten_all_instructions(self, tx: dict) -> list:
+        """
+        Return a flat list of all instructions in tx:
+        - top-level instructions
+        - all inner instructions (any schema variant)
+        """
+        message, top = self._get_message_and_instructions(tx)
+        inner = (tx.get('meta') or {}).get('innerInstructions')
+        if inner is None:
+            inner = tx.get('innerInstructions')
+        inner = inner or []
+        out = list(top)
+        for item in inner:
+            if isinstance(item, dict) and 'instructions' in item:
+                out.extend(item.get('instructions') or [])
+            elif isinstance(item, dict):
+                out.append(item)
+            elif isinstance(item, list):
+                out.extend(item)
+        return out
+
+    def _find_token_initialize_mint(self, tx: dict) -> bool:
+        """
+        Detect initializeMint / initializeMint2 for self.token_mint across ALL instructions.
+        Works with Solana RPC jsonParsed and Helius parsed tx schemas.
+        """
+        message, _ = self._get_message_and_instructions(tx)
+        all_ix = self._flatten_all_instructions(tx)
+        for instr in all_ix:
+            parsed = instr.get('parsed')
+            if not isinstance(parsed, dict):
+                continue
+            ptype = (parsed.get('type') or '').lower()
+            if ptype not in ('initializemint', 'initializemint2'):
+                continue
+            program_id = instr.get('programId')
+            if not program_id and 'programIdIndex' in instr:
+                idx = instr.get('programIdIndex')
+                if isinstance(idx, int):
+                    program_id = self._resolve_account_key(message, idx)
+            program_name = (instr.get('program') or '').lower()
+            is_token_program = program_id in (TOKEN_PROGRAM, TOKEN_2022) or program_name in ('spl-token', 'spl-token-2022')
+            if not is_token_program:
+                continue
+            info = parsed.get('info') or {}
+            mint = info.get('mint')
+            if mint == self.token_mint:
+                print(f'[CREATOR] ✓ Found {ptype} for mint={mint} via program_id={program_id} program={program_name}', flush=True)
+                return True
+        return False
+
+    def _validate_pumpfun_create_tx(self, tx: dict) -> dict:
+        """
+        STRICT validation:
+          A) bonding curve PDA created by System.createAccount where owner == PUMPFUN_BONDING_CURVE_PROGRAM
+        AND
+          B) mint creation evidence in SAME tx:
+               - System.createAccount creates mint where created == token_mint AND owner == TOKEN_PROGRAM or TOKEN_2022
+                 OR
+               - token initializeMint/initializeMint2 for token_mint
+        """
+        result = {'is_pumpfun_create': False, 'mint_in_accounts': False, 'pumpfun_program_found': False, 'program_ids': [], 'slot': tx.get('slot'), 'blockTime': tx.get('blockTime'), 'bonding_curve': None, 'mint_create_found': False, 'mint_init_found': False, 'validation_notes': []}
+        message, instructions = self._get_message_and_instructions(tx)
+        account_keys = message.get('accountKeys') or []
+        if not isinstance(account_keys, list):
+            account_keys = []
+        account_pubkeys = account_keys if all((isinstance(k, str) for k in account_keys)) else self._normalize_account_keys(account_keys)
+        if self.token_mint in account_pubkeys:
+            result['mint_in_accounts'] = True
+        inner_instructions = (tx.get('meta') or {}).get('innerInstructions')
+        if inner_instructions is None:
+            inner_instructions = tx.get('innerInstructions')
+        inner_instructions = inner_instructions or []
+        all_instructions = list(instructions)
+        for inner in inner_instructions:
+            if isinstance(inner, dict) and 'instructions' in inner:
+                all_instructions.extend(inner.get('instructions') or [])
+            elif isinstance(inner, dict):
+                all_instructions.append(inner)
+            elif isinstance(inner, list):
+                all_instructions.extend(inner)
+        for instr in all_instructions:
+            program_id = instr.get('programId')
+            if not program_id and 'programIdIndex' in instr:
+                idx = instr.get('programIdIndex')
+                if isinstance(idx, int):
+                    program_id = self._resolve_account_key(message, idx)
+            if program_id:
+                result['program_ids'].append(program_id)
+                if program_id in PUMPFUN_PROGRAM_IDS:
+                    result['pumpfun_program_found'] = True
+        create_outer_index = self._find_pumpfun_create_outer_index(tx)
+        if create_outer_index is None:
+            result['validation_notes'].append('could not scope create_outer_index; scanning top-level only')
+        creates = self._find_system_create_accounts(tx, create_outer_index)
+        bonding_curve_candidates = [c for c in creates if c.get('owner') == PUMPFUN_BONDING_CURVE_PROGRAM and isinstance(c.get('created'), str)]
+        if len(bonding_curve_candidates) == 1:
+            result['bonding_curve'] = bonding_curve_candidates[0]['created']
+        elif len(bonding_curve_candidates) > 1:
+            result['validation_notes'].append(f'multiple bonding curve creates (ambiguous): {len(bonding_curve_candidates)}')
+        bonding_curve_ok = result['bonding_curve'] is not None
+        for c in creates:
+            if c.get('created') == self.token_mint and c.get('owner') in (TOKEN_PROGRAM, TOKEN_2022):
+                result['mint_create_found'] = True
+                break
+        result['mint_init_found'] = self._find_token_initialize_mint(tx)
+        mint_ok = result['mint_create_found'] or result['mint_init_found']
+        if not mint_ok:
+            result['validation_notes'].append('mint not created/initialized in this tx (likely pool-init or swap)')
+        result['is_pumpfun_create'] = bool(bonding_curve_ok and mint_ok)
+        if not result['pumpfun_program_found']:
+            result['validation_notes'].append('pumpfun program id not found; relying on strict system/mint evidence')
+        return result
+
+    def _infer_creator_from_tx(self, tx_data: dict) -> Optional[str]:
+        """
+        Fallback creator inference when strict CREATE validation fails.
+
+        Tier 2: STRONG INFERENCE
+        - Extract signer accounts from tx message
+        - Remove known program/system accounts
+        - Prefer a single writable signer if present
+        - Otherwise accept a single remaining signer
+        """
+        try:
+            message = tx_data.get('transaction', {}).get('message', {})
+            account_keys = message.get('accountKeys', []) or []
+            excluded = {SYSTEM_PROGRAM, TOKEN_PROGRAM, TOKEN_2022, 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL', 'So11111111111111111111111111111111111111112', PUMPFUN_AMM_PROGRAM, PUMPFUN_BONDING_CURVE_PROGRAM, TOKEN_METADATA_PROGRAM}
+            candidates = []
+            for acc in account_keys:
+                if isinstance(acc, dict):
+                    pubkey = acc.get('pubkey')
+                    signer = acc.get('signer', False)
+                    writable = acc.get('writable', False)
+                else:
+                    pubkey = str(acc)
+                    signer = False
+                    writable = False
+                if signer and pubkey and (pubkey not in excluded):
+                    candidates.append((pubkey, writable))
+            writable_candidates = [pubkey for pubkey, writable in candidates if writable]
+            if len(writable_candidates) == 1:
+                return writable_candidates[0]
+            unique_candidates = list(dict.fromkeys((pubkey for pubkey, _ in candidates)))
+            if len(unique_candidates) == 1:
+                return unique_candidates[0]
+            return None
+        except Exception as e:
+            print(f'[CREATOR] ⚠ Error in creator inference fallback: {e}', flush=True)
+            return None

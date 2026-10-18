@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev083",
-    "git_head": "4ab1760ca153c70aa5fdcd38f68633ffc752ccdb",
+    "branch": "codex/dev084",
+    "git_head": "ef7af7390d97189e8137b42584bcab6ab1c6cc22",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T11:10:47.968243+00:00",
-    "working_tree": "DEV083 HOLD: no supported Inbox read-only initialization mode; application correction required, not authorized here. Diagnosis6 PASS; no API started, no app/tool changes."
+    "updated_at_utc": "2026-10-18T11:29:09.291520+00:00",
+    "working_tree": "DEV084 Inbox read-only correction component PASS; release HOLD at clean Byzantine browser timeout-only contract. Both isolated APIs stopped; no candidate or deployment."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32268,5 +32268,34 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Test/documentation-only diagnosis; stopped before application implementation.",
     "next_action": "Separately authorize minimal two-file Inbox read-only application correction, then qualify against current writer and repeat DEV082 browser/zero-denial/clean-checkout gates. Do not deploy."
+  },
+  "dev084_inbox_readonly_correction": {
+    "status": "HOLD_RELEASE_GATE_INBOX_COMPONENT_PASS",
+    "engineering_source_sha": "ef7af7390d97189e8137b42584bcab6ab1c6cc22",
+    "tested_source_sha": "9d32e5b6d6e045c334b02dfc7ec409dac5c78f8f",
+    "report": "docs/audits/dev084/DEV084_INBOX_READONLY_STATUS.json",
+    "implementation": "Only Inbox module/routes behavior corrected: explicit read_only=False default; GET reader uses existing schema SELECT validation, mode=ro/query_only and deterministic close; no DDL, writer registration/lane/lock or worker. Missing evidence503, no false counts. Reader mutations reject before connection. POST keeps original writable store and business logic.",
+    "provenance": "Installed Inbox preimages df9c5f53... and bec34000... identical to DEV082/golden; exact current writer dependencies preserved byte-identically, not deployment targets.",
+    "tests": "39 original Inbox checks+22 new PASS; all original assertions preserved. Full guarded73 PASS in both initial and fresh checkouts;0unexpected test/API guard events. Current production writer lane/DDL/commit verified on disposable fixture; read-only first/repeated/concurrent GET and missing-schema/mutation negatives PASS.",
+    "tooling": "DEV08083de53ce/published9a718366 unchanged;61controls PASS including18 original negatives;30s frontend/8MiB fixtures/logs unchanged.",
+    "initial_acceptance": "PASS frontend/API/all10 real browser contracts/source closure (167API/26test project modules);0guard denials.",
+    "clean_acceptance": "Python73/frontend/scopedAPI PASS, actual retained InboxGETs PASS (3active), MissionControl PASS,0guard denials. Full browser gate HOLD byzantine_detail: full retained Byzantine page completed, while fixed tool requires UNAVAILABLE/3seconds. Did not force timeout, retry to cherry-pick failure or weaken assertion.",
+    "blocker": "Accepted browser contract has no successful full-detail alternative. Must separately qualify completed-detail versus bounded-unavailable evidence before repeating clean acceptance; no unrelated detail/query changes made.",
+    "candidate_source_sha": null,
+    "ready_for_targeted_deployment": false,
+    "DEV082_integration": "Exact Inbox two-file patch git apply --check PASS against unchanged a504e25c; worker4ec85aff... unchanged. Prepare isolated composition only, then rerun combined release gates; no DEV082 edit or automatic merge.",
+    "rollback": "Exact original Inbox file-pair bytes verified against protected baseline and current installed preimages. Future file-only deployment requires separate authorization; never replace worker/writer dependencies or data.",
+    "DEV074_candidate_unchanged": true,
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "shared_queue_writes": 0,
+    "production_changes": 0,
+    "deployment_changes": 0,
+    "operational_signals_or_restarts": 0,
+    "isolated_APIs": "8190 and8191 stopped and verified closed",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED component; release HOLD",
+    "storage": "No new runtime persistent state/worker/acquisition; compact fixtures/logs8MiB; no raw provider retention or canonical copies.",
+    "next_action": "Separately qualify Byzantine browser contract for correct full detail and safe unavailable outcomes, preserving strict assertions; repeat DEV084 clean-checkout acceptance before immutable candidate. Then separately compose Inbox pair with DEV082 unchanged worker and repeat combined gates. Do not deploy."
   }
 }

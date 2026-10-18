@@ -19270,10 +19270,10 @@
   },
   "project": {
     "branch": "codex/dev090",
-    "git_head": "9999c2178e9cb11d2b1c0a83c2e6d917d8de7252",
+    "git_head": "9073fd34819145615b7883ba1c7cc499174d68f9",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T17:30:17.169945+00:00",
-    "working_tree": "DEV090 PARTIAL: durable handoff functionally qualified; full release blocked; no deployment"
+    "updated_at_utc": "2026-10-18T17:43:52.723371+00:00",
+    "working_tree": "DEV090 final Inbox integration qualified; HOLD listener dependency closure; no candidate or deployment"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32488,6 +32488,41 @@
     "persistent_dev_changes": 0,
     "operational_restarts": 0,
     "publication": "Sanitized transport only. Engineering source branch not published; inherited protected-baseline credential literal remains excluded from handoff.",
-    "next_action": "Qualify composition of preserved explicit read-only Inbox correction with current writer dependencies, then repeat unchanged full release and clean-checkout browser acceptance. No candidate/deployment until all gates pass."
+    "next_action": "Qualify composition of preserved explicit read-only Inbox correction with current writer dependencies, then repeat unchanged full release and clean-checkout browser acceptance. No candidate/deployment until all gates pass.",
+    "superseded_release_blocker": "See dev090_final_inbox_integration: Inbox corrected and all ten browser contracts pass; remaining listener runtime dependency closure HOLD."
+  },
+  "dev090_final_inbox_integration": {
+    "status": "HOLD_LISTENER_RUNTIME_DEPENDENCY_CLOSURE",
+    "engineering_source_sha": "9073fd34819145615b7883ba1c7cc499174d68f9",
+    "tested_integration_sha": "9a572e26882bb4e6af191feb61387fb84248535f",
+    "parent_source": "9999c2178e9cb11d2b1c0a83c2e6d917d8de7252",
+    "implementation": "Exact DEV084 9d32e5b6 two Inbox application files; exact preimages and shared writer dependencies match. GET read-only, no DDL/lock, controlled missing-schema 503; production mutation behaviour preserved. All prior Walkback/creator/listener handoff source byte-identical.",
+    "report": "docs/audits/dev090/DEV090_FINAL_RELEASE_STATUS.json",
+    "tests": {
+      "focused_python": 224,
+      "full_workflow_python": 236,
+      "real_process_crash_cases": 7,
+      "Inbox_checks": 61,
+      "frontend": "PASS unchanged 30-second/8-MiB limits",
+      "api": "PASS",
+      "browser_contracts": 10,
+      "browser_status": "PASS",
+      "unexpected_guard_denials": 0,
+      "tooling_controls": 61,
+      "new_clean_checkout_restoration": "NOT_RUN: final full-release closure failed before candidate creation"
+    },
+    "blocker": "DEV048 rejects changed listener module not observed in API/focused import closure. Mandatory top-level dependency src.ops.acquisition_availability is absent from DEV090. Extracted producer transaction tests do not qualify complete listener startup. No artificial imports, dependency stubs or gate bypass.",
+    "storage": "Current headroom sufficient for bounded isolated testing, no cleanup; prior narrow compact Core/OPS exception unchanged, no operational schema migration.",
+    "candidate_source_sha": null,
+    "ready_for_targeted_deployment": false,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "isolated_api_stopped": true,
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "persistent_dev_changes": 0,
+    "operational_restarts": 0,
+    "next_action": "Resolve exact installed-listener dependency composition and real provider-free producer-module qualification; repeat full source closure and fresh clean-checkout browser restoration before candidate creation. Preserve Inbox and handoff implementations. No deployment authorized.",
+    "publication_scope": "Sanitized agent-handoff only; engineering branch not published."
   }
 }

@@ -19269,11 +19269,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev082",
-    "git_head": "a504e25ce9f8f76720fddbd8bdbc3854c0053f78",
+    "branch": "codex/dev083",
+    "git_head": "4ab1760ca153c70aa5fdcd38f68633ffc752ccdb",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T11:03:23.706961+00:00",
-    "working_tree": "DEV082 V1/signature component preserved against current installed preimage; release HOLD at read-only Inbox/shared-writer isolation failure; isolated API stopped; no candidate or deployment."
+    "updated_at_utc": "2026-10-18T11:10:47.968243+00:00",
+    "working_tree": "DEV083 HOLD: no supported Inbox read-only initialization mode; application correction required, not authorized here. Diagnosis6 PASS; no API started, no app/tool changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32246,5 +32246,27 @@
     "isolated_api": "Stopped via verified DEV082-owned qualifier context; port8187 closed. No server started8188.",
     "storage": "Compact fixtures/logs8MiB; no raw provider retention or canonical copies; compatibility patch adds no storage path.",
     "next_action": "Separately qualify read-only Inbox/current shared-writer compatibility without canonical lock allowlisting, writer downgrade, or weakened assertions; then repeat complete DEV082 browser/zero-denial and clean-checkout gates before immutable candidate. Do not deploy."
+  },
+  "dev083_inbox_readonly": {
+    "status": "HOLD_APPLICATION_READONLY_CONTRACT_REQUIRED",
+    "engineering_source_sha": "4ab1760ca153c70aa5fdcd38f68633ffc752ccdb",
+    "report": "docs/audits/dev083/DEV083_INBOX_READONLY_STATUS.json",
+    "authority": "DEV082 a504e25ce9f8f76720fddbd8bdbc3854c0053f78 and installed worker145a3368... verified unchanged; DEV080 tooling83de53ce/published9a718366 unchanged.",
+    "cause": "First Inbox GET->_get_store->InboxStore(db_path)->ensure_inbox_schema submits table+4index DDL and commits. Current TrackedConnection acquires the canonical OPS write lane before SQLite sees existing-schema no-op DDL. No Inbox read_only constructor/config exists; accepted qualification flag already set but unconsumed.",
+    "production_contract": "Schema provisioning and normal upsert/status/expiration/refresh remain legitimate; no import-time database startup.",
+    "diagnostics": "6 compact guarded controls PASS;0 unexpected guard events;5 unchanged isolation preflight negative controls PASS_DENIED. Exact writer-method sentinel probe reproduces lane request on existing readonly schema. Actual summary read methods need no DDL/lane; missing schema raises instead of zero. Probe is not an application workaround.",
+    "required_application_correction": "src/ops/inbox.py:explicit read_only=False default, readonly skipsDDL/validates existing schema, usesRO connections and rejects mutations before lease. src/ops/inbox_routes.py:GET factory selects supported mode from existing readonly runtime config; explicit missing-evidence errors. Production default unchanged. Not implemented per mandatory tooling-only boundary.",
+    "release_qualification": "NOT_RUN after proven application-change HOLD; no new frontend/API/browser/clean-checkout PASS claimed; no API started. Tooling/app source unchanged.",
+    "DEV082_release_unblocked": false,
+    "DEV074_candidate_unchanged": true,
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "shared_queue_writes": 0,
+    "production_changes": 0,
+    "deployment_changes": 0,
+    "operational_restarts": 0,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Test/documentation-only diagnosis; stopped before application implementation.",
+    "next_action": "Separately authorize minimal two-file Inbox read-only application correction, then qualify against current writer and repeat DEV082 browser/zero-denial/clean-checkout gates. Do not deploy."
   }
 }

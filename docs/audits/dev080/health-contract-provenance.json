@@ -1,0 +1,15 @@
+{
+  "original_assertion_commit": "601420fa",
+  "accepted_tooling_parent": "0cbbdf44",
+  "Node_correction": "4664b4a62b892dacf4540b3b1a7622fb156b8aa8",
+  "Health_template_sha256": "9cf315c8597bca811153cb7264ebe3df9d609b5d05f698bdcbd6cd8d203a71a8",
+  "application_sources_unchanged": [
+    "DEV074",
+    "DEV079"
+  ],
+  "exact_initial_health_api_sha256": "bc076e891ffa474463b3f88fad9df62dd4ab6cc4d35c6a1c9dc053d555296504",
+  "initial_health_api_path": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV080/evidence/initial-health-response.json",
+  "initial_rendered_path": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV080/evidence/initial-health.txt",
+  "root_cause": "Fixed UNKNOWN banner assertion while unchanged Health renders retained read-only API stateCRITICAL; isolated live workers/providers are disabled. API state describes retained operational evidence, not a proof isolated ingestion is running.",
+  "correction": "Require same-source/session/url/hash tool-captured Health response and exact corresponding visible banner; reject falseHealthy, unknown degradation suppression and inconsistent API evidence. Preserve all other assertions."
+}

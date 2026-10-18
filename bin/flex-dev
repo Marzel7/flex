@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -I -B "$(dirname "$0")/../tools/flex_dev.py" "$@"

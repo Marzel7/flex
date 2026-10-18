@@ -19272,8 +19272,8 @@
     "branch": "codex/dev074",
     "git_head": "a34f6968e12c9d9c12ae1c00917fbe241f3892d9",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T07:51:42.173294+00:00",
-    "working_tree": "IsolatedDEV074 source committed; releasequalification HOLD at existingfrontend gate; no deployment."
+    "updated_at_utc": "2026-10-18T08:16:01.054897+00:00",
+    "working_tree": "DEV074 unchanged; storage available without cleanup; frontend/API pass; release HOLD at Health browser contract; isolated server stopped."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -31819,5 +31819,25 @@
     "service_restarts": 0,
     "ready_for_targeted_deployment": false,
     "next_action": "Resolve the failing existing DEV048 frontend subprocess gate in a separately attributable tooling task without weakening assertions or thresholds; then rerun DEV074 qualification and clean-checkout acceptance before candidate creation. No deployment."
+  },
+  "dev074_storage_recovery": {
+    "status": "STORAGE_AVAILABLE_NO_CLEANUP; RELEASE_HOLD_BROWSER_HEALTH_CONTRACT",
+    "engineering_source_sha": "a34f6968e12c9d9c12ae1c00917fbe241f3892d9",
+    "tooling_source_sha": "4664b4a62b892dacf4540b3b1a7622fb156b8aa8",
+    "tooling_sha256": "9d8f8ca175fa9554737bf2b0fd7b56d825089607e21cc0202187be95fd77cb36",
+    "verification": "Fresh89PythonPASS; frontendPASS exit0 in0.44s with30s/8MiBlimits; APIchecksPASS;18original+5toolingcontrolsPASS; sourceclosurePASS; unexpectedguarddenials0;9of10browsercontractsPASS.",
+    "storage": "Capacity already available at task start; no files deleted; protected evidence and operational data untouched. Historical ENOSPC recovery cause unproven.",
+    "blocker": "Existing coreHealth browser assertion requires System Health Unknown; actual retained-data page renders Critical \u2014 Live ingestion unavailable. No falsePASS or candidate.",
+    "clean_checkout_restoration": "NOT_RUN due mandatory browser gate failure",
+    "candidate_created": false,
+    "activation_state": "NOT_DEPLOYED",
+    "runtime_deployment_gate": "HOLD",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "persistent_dev_changes": 0,
+    "operational_restarts": 0,
+    "files_removed": 0,
+    "next_action": "Qualify the Health browser-contract mismatch against current retained-data health semantics in a scoped tooling decision without changing DEV074 behavior or weakening safety checks; then rerun complete browser and clean-checkout release qualification. No cleanup or deployment needed/authorized."
   }
 }

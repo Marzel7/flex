@@ -19272,8 +19272,8 @@
     "branch": "codex/dev090",
     "git_head": "c604991687e7dd4aaf065fddd047dab6c993ccab",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T20:48:10.033671+00:00",
-    "working_tree": "DEV090 read-only preflight READY_FOR_CONTROLLED_DEPLOYMENT; immutable candidate and operational state unchanged"
+    "updated_at_utc": "2026-10-18T20:58:14.011379+00:00",
+    "working_tree": "DEV090 controlled schema attempt rolled back; candidate/installed sources unchanged; services stopped"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -32955,5 +32955,20 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "safety": "providers0;canonical writes0;Production changes0;service starts/signals0;no operational state changes",
     "next_action": "Await explicit controlled deployment execution: exact guarded schema state/epoch, target installation retaining compatible creatorcf60 dependency, selective two-worker start and real commit/prospective acceptance. No deployment in this preflight-only task."
+  },
+  "dev090_controlled_deployment_execution": {
+    "engineering_revision": "c604991687e7dd4aaf065fddd047dab6c993ccab",
+    "status": "HOLD_SCHEMA_VALIDATION_ROLLED_BACK",
+    "authorization": "One controlled attempt; consumed at schema transaction; no automatic retry",
+    "preflight": "Candidate sealed hashes/preimages verified;8.495GBfree;WAL/journals0orabsent;noowner/process/DBhandles;rollback files and mode0600 selective15-autostartfalse config prepared. Installed creatorcf60 locking preserved.",
+    "failure": "Operator schema verifier expected4named objects but exact qualified UNIQUE(epoch,mint) also creates sqlite_autoindex_wb_create_delivery_1. Assertion failed before commit. This is an operator allowlist error, not an SQLite error or new candidate defect.",
+    "rollback": "Verified all new handoff objects and nullable birth column absent after transaction rollback; all installed source preimages unchanged, helper destinations absent; no Supervisor/worker start.",
+    "diagnosis": "In-memory exact-module fixture proves expected5objects including implicit UNIQUE index; fixture rollback passes. Correct expected-object set preserved for review; no operational retry.",
+    "evidence": "DEV090/operational-restoration/controlled-attempt-c604991687e7/FAILURE_AND_ROLLBACK.json and verified-schema-object-allowlist.json",
+    "candidate": "DEV090_CANDIDATE_c604991687e7 unchanged",
+    "runtime_deployment_gate": "HOLD",
+    "ready_for_golden_baseline": false,
+    "safety": "provider calls0;Core schema transaction attempted1/committed0;persisted schema/token/queue changes0;sourcefilesinstalled0;service starts/signals0;shared lock metadata acquire/release only",
+    "next_action": "New controlled-attempt authorization required after exact schema-object verifier includes qualified implicit UNIQUE index; repeat fresh gates. Do not modify candidate or rerun under consumed one-attempt authorization."
   }
 }

@@ -1,0 +1,26 @@
+{
+  "files": [
+    {
+      "path": "docs/audits/dev080/DEV080_HEALTH_CONTRACT_STATUS.json",
+      "bytes": 6383,
+      "sha256": "4fd7308ac2fbb4bc3425c5358829e3bb098e21b380d5d9cfd87a6dba9f3e0f79"
+    },
+    {
+      "path": "docs/audits/dev080/TOOLING_USAGE.md",
+      "bytes": 773,
+      "sha256": "2563946272d6f78396767d8524256222b285e1b73c57d04f2d54e596a366ed76"
+    },
+    {
+      "path": "docs/audits/dev080/health-contract-provenance.json",
+      "bytes": 1162,
+      "sha256": "7a82b5a4a4493a313524251822a44abdd24bcf2cb7b27a2b820619d15db5f4ad"
+    },
+    {
+      "path": "docs/audits/dev080/preserved-tooling-controls.json",
+      "bytes": 320,
+      "sha256": "9a6525c0d47abca721c9553edc567fe849b3c0316dc851914978a0ee78fb7f0c"
+    }
+  ],
+  "qualified_tooling_sha": "83de53ced956b45a03080fe3db0f82ee8f780a7d",
+  "application_changes": 0
+}

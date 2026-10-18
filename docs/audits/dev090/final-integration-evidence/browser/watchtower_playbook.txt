@@ -1,0 +1,2035 @@
+Browser tab: 11, Title: "FLEX", URL: "http://127.0.0.1:8197/operations/watchtower/playbook".
+1 AXWebArea FLEX, URL: 127.0.0.1:8197/operations/watchtower/playbook
+	2 text DEVELOPMENT — READ ONLY — PRODUCTION DATA CANNOT BE MODIFIED
+	3 container
+		4 text FLEX
+		5 text OPERATIONS OS
+		6 container Primary
+			7 link Description: ◆ Mission Control, Value: 127.0.0.1:8197/ops-os
+			8 text INTELLIGENCE
+			9 link Description: Operations Registry & Live Monitor, Value: 127.0.0.1:8197/intelligence/operators
+			10 link Description: ▤ Operation Playbook, Value: 127.0.0.1:8197/operations/watchtower/playbook
+			11 link Description: Potential Operations, Value: 127.0.0.1:8197/intelligence/potential-operations
+			12 button (collapsed) SYSTEM ▸, Secondary Actions: Expand
+				13 text SYSTEM
+				14 text ▸
+		15 container sys-health-strip
+			16 text API
+			17 text DETAIL
+			18 text API live · detailed health in System Health
+	19 container
+		20 link Description: ← Operation Playbooks, Value: 127.0.0.1:8197/operations/playbooks
+		21 text QUALIFIED RETAINED RESEARCH · WATCHTOWER_PRICE_FACT_CONTRACT_V1
+		22 heading WATCHTOWER — Operation Playbook, Value: 1
+			23 text WATCHTOWER  — Operation Playbook
+		24 text 285 canonical Watchtower members. This view contains 15 frozen validation tokens, 36 recent out-of-sample tokens, and 51 combined price-research tokens; it is not the entire operation.
+		25 text 285
+		26 text Canonical members
+		27 text 51
+		28 text Combined research rows
+		29 text 51 / 51
+		30 text Lifecycle horizons covered
+		31 text RESEARCH COHORTS
+		32 heading All Watchtower Research, Value: 2
+			33 text All Watchtower Research
+		34 text 55 tokens · 51 historical + 4 prospective
+		35 text ALL WATCHTOWER · 55
+		36 container
+			37 text HISTORICAL 51 Qualified baseline Frozen research cohort · ATH QUALIFIED 51/51 qualified MEDIAN ENTRY · MEDIAN ATH × · MEAN ATH × REACHED 2× 27/51 · REACHED 5× 4/51 · REACHED 10× 1/51
+		38 container
+			39 text PROSPECTIVE 4 Live Monitor cohort Grows with new Watchtower assignments · Early prospective sample · N=4 ATH QUALIFIED 3/4 qualified · COLLAPSED 3/4 REACHED 2× 2/4 · REACHED 5× 1/4 · REACHED 10× 0/4
+		40 container
+			41 text ALL WATCHTOWER 55 Total research population Historical + prospective · ATH QUALIFIED 54/55 qualified MEDIAN ENTRY · MEDIAN ATH × · MEAN ATH × REACHED 2× 29/55 · REACHED 5× 5/55 · REACHED 10× 1/55
+		42 text MEDIAN ENTRY · MEDIAN ATH × · MEAN ATH × · REACHED 2× / 5× / 10× · COLLAPSED. Every rate uses its full assigned-population denominator; ATH qualification is shown as qualified / assigned.
+		43 text GENERIC PRICE-FACT RESEARCH
+		44 heading Token lifecycle evidence, Value: 2
+			45 text Token lifecycle evidence
+		46 text FIRST_FULL_POST_MIGRATION_SECOND_MC · not an executable fill
+		47 text 51 HISTORICAL · 4 PROSPECTIVE
+		48 button ALL WATCHTOWER
+		49 button HISTORICAL
+		50 button PROSPECTIVE
+		51 table watchtower-table
+			52 row
+				53 cell
+					54 text TOKEN
+				55 cell
+					56 text COHORT
+				57 cell
+					58 text MEMBERSHIP
+				59 cell
+					60 text FIRST ACTIONABLE MC
+				61 cell
+					62 text MAX PROVEN MC
+				63 cell
+					64 text ENTRY → MAX
+				65 cell
+					66 text TIME TO MAX
+				67 cell
+					68 text 2X
+				69 cell
+					70 text 5X
+				71 cell
+					72 text 10X
+				73 cell
+					74 text 24H
+				75 cell
+					76 text 72H
+				77 cell
+					78 text 7D
+				79 cell
+					80 text 85% COLLAPSE
+				81 cell
+					82 text STATE
+			83 row
+				84 cell
+					85 link Description: 2YrE…pump, Help: Open 2YrEhbVAKGojhZn2SYjQc7EYLixrBLHmqFjME69Gpump on GMGN, Value: gmgn.ai/sol/token/2YrEhbVAKGojhZn2SYjQc7EYLixrBLHmqFjME69Gpump
+				86 cell
+					87 text HISTORICAL
+				88 cell
+					89 text CANONICAL RESEARCH
+				90 cell
+					91 text $118.4K
+				92 cell
+					93 text $167.5K
+				94 cell
+					95 text 1.41×
+				96 cell
+					97 text 1005s
+				98 cell
+					99 text —
+				100 cell
+					101 text —
+				102 cell
+					103 text —
+				104 cell
+					105 text 0.016349419760362971967367763604896341401291982529290
+				106 cell
+					107 text 0.016349419760362971967367763604896341401291982529290
+				108 cell
+					109 text 0.016349419760362971967367763604896341401291982529290
+				110 cell
+					111 text YES
+				112 cell
+					113 text COMPLETE_7D
+			114 row
+				115 cell
+					116 link Description: 2dDD…pump, Help: Open 2dDDtevvn5V3sHCRQtMiSM3KoTDRfYdDkFrdigHNpump on GMGN, Value: gmgn.ai/sol/token/2dDDtevvn5V3sHCRQtMiSM3KoTDRfYdDkFrdigHNpump
+				117 cell
+					118 text HISTORICAL
+				119 cell
+					120 text CANONICAL RESEARCH
+				121 cell
+					122 text $159.4K
+				123 cell
+					124 text $799.0K
+				125 cell
+					126 text 5.01×
+				127 cell
+					128 text 9113s
+				129 cell
+					130 text YES
+				131 cell
+					132 text YES
+				133 cell
+					134 text —
+				135 cell
+					136 text 0.014494448992785901253455593515639151805594092919346
+				137 cell
+					138 text 0.013970358540713248421381584399778241161265403350297
+				139 cell
+					140 text 0.014553306506548123074623032279980374766306593431662
+				141 cell
+					142 text YES
+				143 cell
+					144 text COMPLETE_7D
+			145 row
+				146 cell
+					147 link Description: 2dV9…pump, Help: Open 2dV9NZ8WEKDX98GrvpjRLUb5DiwBtwPZ52fRLQxEpump on GMGN, Value: gmgn.ai/sol/token/2dV9NZ8WEKDX98GrvpjRLUb5DiwBtwPZ52fRLQxEpump
+				148 cell
+					149 text HISTORICAL
+				150 cell
+					151 text CANONICAL RESEARCH
+				152 cell
+					153 text $146.3K
+				154 cell
+					155 text $280.6K
+				156 cell
+					157 text 1.92×
+				158 cell
+					159 text 2288s
+				160 cell
+					161 text —
+				162 cell
+					163 text —
+				164 cell
+					165 text —
+				166 cell
+					167 text 0.014325940541659281332312971232098262866789120059384
+				168 cell
+					169 text 0.014147933199080321904108253860839486572950785541927
+				170 cell
+					171 text 0.014147933199080321904108253860839486572950785541927
+				172 cell
+					173 text YES
+				174 cell
+					175 text COMPLETE_7D
+			176 row
+				177 cell
+					178 link Description: 38FA…pump, Help: Open 38FAP2Sst1sEy41VTeobVtDdk1rpPxaAs5ivS8tMpump on GMGN, Value: gmgn.ai/sol/token/38FAP2Sst1sEy41VTeobVtDdk1rpPxaAs5ivS8tMpump
+				179 cell
+					180 text HISTORICAL
+				181 cell
+					182 text CANONICAL RESEARCH
+				183 cell
+					184 text $173.0K
+				185 cell
+					186 text $273.0K
+				187 cell
+					188 text 1.58×
+				189 cell
+					190 text 553s
+				191 cell
+					192 text —
+				193 cell
+					194 text —
+				195 cell
+					196 text —
+				197 cell
+					198 text 0.010769299058314121770888092874716161306984216195463
+				199 cell
+					200 text 0.010769299058314121770888092874716161306984216195463
+				201 cell
+					202 text 0.010769299058314121770888092874716161306984216195463
+				203 cell
+					204 text YES
+				205 cell
+					206 text COMPLETE_7D
+			207 row
+				208 cell
+					209 link Description: 3C8N…pump, Help: Open 3C8NJBaCK1uTnuquThMj12UQdzmrwkx3hk5fbT7Vpump on GMGN, Value: gmgn.ai/sol/token/3C8NJBaCK1uTnuquThMj12UQdzmrwkx3hk5fbT7Vpump
+				210 cell
+					211 text HISTORICAL
+				212 cell
+					213 text CANONICAL RESEARCH
+				214 cell
+					215 text $177.0K
+				216 cell
+					217 text $1.0M
+				218 cell
+					219 text 5.92×
+				220 cell
+					221 text 5944s
+				222 cell
+					223 text YES
+				224 cell
+					225 text YES
+				226 cell
+					227 text —
+				228 cell
+					229 text 0.011933633021342412852797627453582247746640529082541
+				230 cell
+					231 text 0.012058545334710996919723775520976749447189513075857
+				232 cell
+					233 text 0.012144449439594781522403266690339752413589586955486
+				234 cell
+					235 text YES
+				236 cell
+					237 text COMPLETE_7D
+			238 row
+				239 cell
+					240 link Description: 3v1P…pump, Help: Open 3v1PbHcWLTtQ6mEJdUwXWE1qMC5RRunwjEePtrc6pump on GMGN, Value: gmgn.ai/sol/token/3v1PbHcWLTtQ6mEJdUwXWE1qMC5RRunwjEePtrc6pump
+				241 cell
+					242 text HISTORICAL
+				243 cell
+					244 text CANONICAL RESEARCH
+				245 cell
+					246 text $135.7K
+				247 cell
+					248 text $383.1K
+				249 cell
+					250 text 2.82×
+				251 cell
+					252 text 3068s
+				253 cell
+					254 text YES
+				255 cell
+					256 text —
+				257 cell
+					258 text —
+				259 cell
+					260 text 0.015208608232335404281119575830445070604568724134813
+				261 cell
+					262 text 0.014657898630491169043498349294036780579197575835582
+				263 cell
+					264 text 0.014657898630491169043498349294036780579197575835582
+				265 cell
+					266 text YES
+				267 cell
+					268 text COMPLETE_7D
+			269 row
+				270 cell
+					271 link Description: 3wRM…pump, Help: Open 3wRMLKQN1NXfEJWUnCq5BqdDNQhj6kADWJBfRAufpump on GMGN, Value: gmgn.ai/sol/token/3wRMLKQN1NXfEJWUnCq5BqdDNQhj6kADWJBfRAufpump
+				272 cell
+					273 text HISTORICAL
+				274 cell
+					275 text CANONICAL RESEARCH
+				276 cell
+					277 text $118.9K
+				278 cell
+					279 text $1.5M
+				280 cell
+					281 text 12.24×
+				282 cell
+					283 text 19996s
+				284 cell
+					285 text YES
+				286 cell
+					287 text YES
+				288 cell
+					289 text YES
+				290 cell
+					291 text 0.019632081381874694037974828089318939576133739350338
+				292 cell
+					293 text 0.017902253453001671474801171291536386676805850637510
+				294 cell
+					295 text 0.017480191990950039780048656864407369869527811227051
+				296 cell
+					297 text YES
+				298 cell
+					299 text COMPLETE_7D
+			300 row
+				301 cell
+					302 link Description: 4y4r…pump, Help: Open 4y4rbYoG3RXDGeJ2w5McbDEuZhT9cQrXEGoP4svppump on GMGN, Value: gmgn.ai/sol/token/4y4rbYoG3RXDGeJ2w5McbDEuZhT9cQrXEGoP4svppump
+				303 cell
+					304 text HISTORICAL
+				305 cell
+					306 text CANONICAL RESEARCH
+				307 cell
+					308 text $121.1K
+				309 cell
+					310 text $266.4K
+				311 cell
+					312 text 2.20×
+				313 cell
+					314 text 1159s
+				315 cell
+					316 text YES
+				317 cell
+					318 text —
+				319 cell
+					320 text —
+				321 cell
+					322 text 0.016174743583845594855523480272623682268933071691789
+				323 cell
+					324 text 0.016110622766877850298262174724282355272107450988682
+				325 cell
+					326 text 0.016110622766877850298262174724282355272107450988682
+				327 cell
+					328 text YES
+				329 cell
+					330 text COMPLETE_7D
+			331 row
+				332 cell
+					333 link Description: 559G…pump, Help: Open 559GgZwhhxFiHJhdGW1my2VE9xGbGtTe4tDMiApEpump on GMGN, Value: gmgn.ai/sol/token/559GgZwhhxFiHJhdGW1my2VE9xGbGtTe4tDMiApEpump
+				334 cell
+					335 text HISTORICAL
+				336 cell
+					337 text CANONICAL RESEARCH
+				338 cell
+					339 text $120.3K
+				340 cell
+					341 text $120.3K
+				342 cell
+					343 text 1.00×
+				344 cell
+					345 text 0s
+				346 cell
+					347 text —
+				348 cell
+					349 text —
+				350 cell
+					351 text —
+				352 cell
+					353 text 0.015483714365340752223433787448522537846874895856743
+				354 cell
+					355 text 0.015483714365340752223433787448522537846874895856743
+				356 cell
+					357 text 0.015483714365340752223433787448522537846874895856743
+				358 cell
+					359 text YES
+				360 cell
+					361 text COMPLETE_7D
+			362 row
+				363 cell
+					364 link Description: 5CRA…pump, Help: Open 5CRAcjv4hMzNSdSzVALVEEfWhtvtqUn7mXuWK9copump on GMGN, Value: gmgn.ai/sol/token/5CRAcjv4hMzNSdSzVALVEEfWhtvtqUn7mXuWK9copump
+				365 cell
+					366 text HISTORICAL
+				367 cell
+					368 text CANONICAL RESEARCH
+				369 cell
+					370 text $147.3K
+				371 cell
+					372 text $303.2K
+				373 cell
+					374 text 2.06×
+				375 cell
+					376 text 1148s
+				377 cell
+					378 text YES
+				379 cell
+					380 text —
+				381 cell
+					382 text —
+				383 cell
+					384 text 0.013298778692677083239813636687898165020232411914511
+				385 cell
+					386 text 0.013235068125725327940867283429072470067614997620443
+				387 cell
+					388 text 0.013235068125725327940867283429072470067614997620443
+				389 cell
+					390 text YES
+				391 cell
+					392 text COMPLETE_7D
+			393 row
+				394 cell
+					395 link Description: 5Eyv…pump, Help: Open 5EyvP6FCPLAcAUMY9xbsbGXeY3AH5KeMJg9KEx2Gpump on GMGN, Value: gmgn.ai/sol/token/5EyvP6FCPLAcAUMY9xbsbGXeY3AH5KeMJg9KEx2Gpump
+				396 cell
+					397 text HISTORICAL
+				398 cell
+					399 text CANONICAL RESEARCH
+				400 cell
+					401 text $120.6K
+				402 cell
+					403 text $216.0K
+				404 cell
+					405 text 1.79×
+				406 cell
+					407 text 484s
+				408 cell
+					409 text —
+				410 cell
+					411 text —
+				412 cell
+					413 text —
+				414 cell
+					415 text 0.016816972051042568594132672541441002865295593044517
+				416 cell
+					417 text 0.017053241284491004628750657277949157599388681887383
+				418 cell
+					419 text 0.017053241284491004628750657277949157599388681887383
+				420 cell
+					421 text YES
+				422 cell
+					423 text COMPLETE_7D
+			424 row
+				425 cell
+					426 link Description: 5Fjd…pump, Help: Open 5FjdF5v4Hs6y3EX8tNvrF9Rno1SKf3okugVrSrtnpump on GMGN, Value: gmgn.ai/sol/token/5FjdF5v4Hs6y3EX8tNvrF9Rno1SKf3okugVrSrtnpump
+				427 cell
+					428 text HISTORICAL
+				429 cell
+					430 text CANONICAL RESEARCH
+				431 cell
+					432 text $128.8K
+				433 cell
+					434 text $323.8K
+				435 cell
+					436 text 2.51×
+				437 cell
+					438 text 5066s
+				439 cell
+					440 text YES
+				441 cell
+					442 text —
+				443 cell
+					444 text —
+				445 cell
+					446 text 0.015352812628634189872861270470478371339193096033531
+				447 cell
+					448 text 0.017536608143973801123155061969422324256729757732205
+				449 cell
+					450 text 0.017536608143973801123155061969422324256729757732205
+				451 cell
+					452 text YES
+				453 cell
+					454 text COMPLETE_7D
+			455 row
+				456 cell
+					457 link Description: 5dgY…pump, Help: Open 5dgYsznRVkYTnab747xLeegcBhFi8xRLgNdhayYXpump on GMGN, Value: gmgn.ai/sol/token/5dgYsznRVkYTnab747xLeegcBhFi8xRLgNdhayYXpump
+				458 cell
+					459 text HISTORICAL
+				460 cell
+					461 text CANONICAL RESEARCH
+				462 cell
+					463 text $156.7K
+				464 cell
+					465 text $253.0K
+				466 cell
+					467 text 1.61×
+				468 cell
+					469 text 1290s
+				470 cell
+					471 text —
+				472 cell
+					473 text —
+				474 cell
+					475 text —
+				476 cell
+					477 text 0.012827287006601964711093174029304801506386932212013
+				478 cell
+					479 text 0.012827287006601964711093174029304801506386932212013
+				480 cell
+					481 text 0.012827287006601964711093174029304801506386932212013
+				482 cell
+					483 text YES
+				484 cell
+					485 text COMPLETE_7D
+			486 row
+				487 cell
+					488 link Description: 6DGK…pump, Help: Open 6DGK7gsXHTpgXrBm1qZGbp57AvrQHBNMM9pEsEWNpump on GMGN, Value: gmgn.ai/sol/token/6DGK7gsXHTpgXrBm1qZGbp57AvrQHBNMM9pEsEWNpump
+				489 cell
+					490 text HISTORICAL
+				491 cell
+					492 text CANONICAL RESEARCH
+				493 cell
+					494 text $148.8K
+				495 cell
+					496 text $201.1K
+				497 cell
+					498 text 1.35×
+				499 cell
+					500 text 103s
+				501 cell
+					502 text —
+				503 cell
+					504 text —
+				505 cell
+					506 text —
+				507 cell
+					508 text 0.012649733395184136918280663566786821326782096450483
+				509 cell
+					510 text 0.012649733395184136918280663566786821326782096450483
+				511 cell
+					512 text 0.012649733395184136918280663566786821326782096450483
+				513 cell
+					514 text YES
+				515 cell
+					516 text COMPLETE_7D
+			517 row
+				518 cell
+					519 link Description: 6gPE…pump, Help: Open 6gPE8WJ1zsozg3yskPm6N7Xn5exBgcmLjh2DoJizpump on GMGN, Value: gmgn.ai/sol/token/6gPE8WJ1zsozg3yskPm6N7Xn5exBgcmLjh2DoJizpump
+				520 cell
+					521 text HISTORICAL
+				522 cell
+					523 text CANONICAL RESEARCH
+				524 cell
+					525 text $121.0K
+				526 cell
+					527 text $202.6K
+				528 cell
+					529 text 1.67×
+				530 cell
+					531 text 91s
+				532 cell
+					533 text —
+				534 cell
+					535 text —
+				536 cell
+					537 text —
+				538 cell
+					539 text 0.017194349746145507555694256865035216841755511311826
+				540 cell
+					541 text 0.016326890092564516179055240585651243544829227576581
+				542 cell
+					543 text 0.015893309528027353691026765308963795935579419036095
+				544 cell
+					545 text YES
+				546 cell
+					547 text COMPLETE_7D
+			548 row
+				549 cell
+					550 link Description: 78Yk…pump, Help: Open 78YkcXHRsqAwgMG1cnCS4HvpyHQmsoZNmAVACk6Epump on GMGN, Value: gmgn.ai/sol/token/78YkcXHRsqAwgMG1cnCS4HvpyHQmsoZNmAVACk6Epump
+				551 cell
+					552 text HISTORICAL
+				553 cell
+					554 text CANONICAL RESEARCH
+				555 cell
+					556 text $119.5K
+				557 cell
+					558 text $119.5K
+				559 cell
+					560 text 1.00×
+				561 cell
+					562 text 0s
+				563 cell
+					564 text —
+				565 cell
+					566 text —
+				567 cell
+					568 text —
+				569 cell
+					570 text 0.016383763767765023643012211660518271904634710933928
+				571 cell
+					572 text 0.015343347851722895938093870618196374636760547279186
+				573 cell
+					574 text 0.015343347851722895938093870618196374636760547279186
+				575 cell
+					576 text YES
+				577 cell
+					578 text COMPLETE_7D
+			579 row
+				580 cell
+					581 link Description: 7McE…pump, Help: Open 7McEWYQfbCc1m744nJUeJgvt78FiJTWWsgoCrUG4pump on GMGN, Value: gmgn.ai/sol/token/7McEWYQfbCc1m744nJUeJgvt78FiJTWWsgoCrUG4pump
+				582 cell
+					583 text HISTORICAL
+				584 cell
+					585 text CANONICAL RESEARCH
+				586 cell
+					587 text $121.7K
+				588 cell
+					589 text $255.0K
+				590 cell
+					591 text 2.10×
+				592 cell
+					593 text 1041s
+				594 cell
+					595 text YES
+				596 cell
+					597 text —
+				598 cell
+					599 text —
+				600 cell
+					601 text 0.016499961084051076804900042423916028734136224393911
+				602 cell
+					603 text 0.016792470972961544568203579198916119375836445356630
+				604 cell
+					605 text 0.016792470972961544568203579198916119375836445356630
+				606 cell
+					607 text YES
+				608 cell
+					609 text COMPLETE_7D
+			610 row
+				611 cell
+					612 link Description: 7Wwn…pump, Help: Open 7WwnnH5YnupC7wdhFcUe7HL1BjTiM8nkbnCedteRpump on GMGN, Value: gmgn.ai/sol/token/7WwnnH5YnupC7wdhFcUe7HL1BjTiM8nkbnCedteRpump
+				613 cell
+					614 text HISTORICAL
+				615 cell
+					616 text CANONICAL RESEARCH
+				617 cell
+					618 text $120.2K
+				619 cell
+					620 text $254.7K
+				621 cell
+					622 text 2.12×
+				623 cell
+					624 text 605s
+				625 cell
+					626 text YES
+				627 cell
+					628 text —
+				629 cell
+					630 text —
+				631 cell
+					632 text 0.015970148457201146022483748876837023642425965810963
+				633 cell
+					634 text 0.015779852612202503170246865584358221011932108449685
+				635 cell
+					636 text 0.015775509115537049107278280141386869085586519317377
+				637 cell
+					638 text YES
+				639 cell
+					640 text COMPLETE_7D
+			641 row
+				642 cell
+					643 link Description: 84uu…pump, Help: Open 84uuSMjPYDEAcsr8FXoBvCK2HwZS94c6BA8kk4jNpump on GMGN, Value: gmgn.ai/sol/token/84uuSMjPYDEAcsr8FXoBvCK2HwZS94c6BA8kk4jNpump
+				644 cell
+					645 text HISTORICAL
+				646 cell
+					647 text CANONICAL RESEARCH
+				648 cell
+					649 text $139.5K
+				650 cell
+					651 text $350.0K
+				652 cell
+					653 text 2.51×
+				654 cell
+					655 text 5112s
+				656 cell
+					657 text YES
+				658 cell
+					659 text —
+				660 cell
+					661 text —
+				662 cell
+					663 text 0.015269957532738321084356097839737210607420103821389
+				664 cell
+					665 text 0.015813925348031694944488323732902378958365490276966
+				666 cell
+					667 text 0.015813925348031694944488323732902378958365490276966
+				668 cell
+					669 text YES
+				670 cell
+					671 text COMPLETE_7D
+			672 row
+				673 cell
+					674 link Description: 8KGG…pump, Help: Open 8KGGEASotRFLqdvTrxaxz3sSSvyCP25qtwrt82XEpump on GMGN, Value: gmgn.ai/sol/token/8KGGEASotRFLqdvTrxaxz3sSSvyCP25qtwrt82XEpump
+				675 cell
+					676 text HISTORICAL
+				677 cell
+					678 text CANONICAL RESEARCH
+				679 cell
+					680 text $120.6K
+				681 cell
+					682 text $338.2K
+				683 cell
+					684 text 2.80×
+				685 cell
+					686 text 2745s
+				687 cell
+					688 text YES
+				689 cell
+					690 text —
+				691 cell
+					692 text —
+				693 cell
+					694 text 0.016244341064023430964579932385881501882460362166103
+				695 cell
+					696 text 0.016244341064023430964579932385881501882460362166103
+				697 cell
+					698 text 0.016244341064023430964579932385881501882460362166103
+				699 cell
+					700 text YES
+				701 cell
+					702 text COMPLETE_7D
+			703 row
+				704 cell
+					705 link Description: 8Vu1…pump, Help: Open 8Vu1DV5skQ4ik4S3Jt8ZR1gG5BLTmC5tmvi1ftFDpump on GMGN, Value: gmgn.ai/sol/token/8Vu1DV5skQ4ik4S3Jt8ZR1gG5BLTmC5tmvi1ftFDpump
+				706 cell
+					707 text HISTORICAL
+				708 cell
+					709 text CANONICAL RESEARCH
+				710 cell
+					711 text $119.2K
+				712 cell
+					713 text $294.8K
+				714 cell
+					715 text 2.47×
+				716 cell
+					717 text 3404s
+				718 cell
+					719 text YES
+				720 cell
+					721 text —
+				722 cell
+					723 text —
+				724 cell
+					725 text 0.017200783166236409984879665356961664685748799365769
+				726 cell
+					727 text 0.017200783166236409984879665356961664685748799365769
+				728 cell
+					729 text 0.017200783166236409984879665356961664685748799365769
+				730 cell
+					731 text YES
+				732 cell
+					733 text COMPLETE_7D
+			734 row
+				735 cell
+					736 link Description: 8epB…pump, Help: Open 8epBCVHVZHdiAYweM9vAF57ngKtGVLC9k7oRTh2pump on GMGN, Value: gmgn.ai/sol/token/8epBCVHVZHdiAYweM9vAF57ngKtGVLC9k7oRTh2pump
+				737 cell
+					738 text HISTORICAL
+				739 cell
+					740 text CANONICAL RESEARCH
+				741 cell
+					742 text $178.5K
+				743 cell
+					744 text $1.6M
+				745 cell
+					746 text 9.05×
+				747 cell
+					748 text 20663s
+				749 cell
+					750 text YES
+				751 cell
+					752 text YES
+				753 cell
+					754 text —
+				755 cell
+					756 text 0.013581578068708943206253527233865006458691908520461
+				757 cell
+					758 text 0.013329647468215846013981424550457536665771141953711
+				759 cell
+					760 text 0.013443666154357234436287475914303765915904087805658
+				761 cell
+					762 text YES
+				763 cell
+					764 text COMPLETE_7D
+			765 row
+				766 cell
+					767 link Description: 8zP8…pump, Help: Open 8zP8DhqoTGNGXHXdQfHPPWrAijWt7FkgyporQ4FHpump on GMGN, Value: gmgn.ai/sol/token/8zP8DhqoTGNGXHXdQfHPPWrAijWt7FkgyporQ4FHpump
+				768 cell
+					769 text HISTORICAL
+				770 cell
+					771 text CANONICAL RESEARCH
+				772 cell
+					773 text $193.3K
+				774 cell
+					775 text $553.2K
+				776 cell
+					777 text 2.86×
+				778 cell
+					779 text 2533s
+				780 cell
+					781 text YES
+				782 cell
+					783 text —
+				784 cell
+					785 text —
+				786 cell
+					787 text 0.010239939616027943956208188868968999489679818195739
+				788 cell
+					789 text 0.010342447983749880279274146140803617259247532103384
+				790 cell
+					791 text 0.010445059358052568333287322948036168002463752035517
+				792 cell
+					793 text YES
+				794 cell
+					795 text COMPLETE_7D
+			796 row
+				797 cell
+					798 link Description: 9gMy…pump, Help: Open 9gMyvDXBRUb4BaWSmoG7msm5eX8cCBggoBnU72Fupump on GMGN, Value: gmgn.ai/sol/token/9gMyvDXBRUb4BaWSmoG7msm5eX8cCBggoBnU72Fupump
+				799 cell
+					800 text HISTORICAL
+				801 cell
+					802 text CANONICAL RESEARCH
+				803 cell
+					804 text $163.1K
+				805 cell
+					806 text $441.3K
+				807 cell
+					808 text 2.71×
+				809 cell
+					810 text 486s
+				811 cell
+					812 text YES
+				813 cell
+					814 text —
+				815 cell
+					816 text —
+				817 cell
+					818 text 0.011923090104409179860054824554784899929595323031620
+				819 cell
+					820 text 0.012431338458337779827475967630403876342627803252680
+				821 cell
+					822 text 0.012399129102304400537337407601226015542180202505387
+				823 cell
+					824 text YES
+				825 cell
+					826 text COMPLETE_7D
+			827 row
+				828 cell
+					829 link Description: 9qAE…pump, Help: Open 9qAEt2qwBhArELGriCvSHyNtE7X1bKt15nrAHyBUpump on GMGN, Value: gmgn.ai/sol/token/9qAEt2qwBhArELGriCvSHyNtE7X1bKt15nrAHyBUpump
+				830 cell
+					831 text HISTORICAL
+				832 cell
+					833 text CANONICAL RESEARCH
+				834 cell
+					835 text $125.3K
+				836 cell
+					837 text $289.5K
+				838 cell
+					839 text 2.31×
+				840 cell
+					841 text 3238s
+				842 cell
+					843 text YES
+				844 cell
+					845 text —
+				846 cell
+					847 text —
+				848 cell
+					849 text 0.014876037840851720450918758713510302563608506196684
+				850 cell
+					851 text 0.014876037840851720450918758713510302563608506196684
+				852 cell
+					853 text 0.014876037840851720450918758713510302563608506196684
+				854 cell
+					855 text YES
+				856 cell
+					857 text COMPLETE_7D
+			858 row
+				859 cell
+					860 link Description: AAJo…pump, Help: Open AAJodE6Wbc4FGY1hRoepynLGyp5gFC5NpMs4QgwCpump on GMGN, Value: gmgn.ai/sol/token/AAJodE6Wbc4FGY1hRoepynLGyp5gFC5NpMs4QgwCpump
+				861 cell
+					862 text HISTORICAL
+				863 cell
+					864 text CANONICAL RESEARCH
+				865 cell
+					866 text $170.2K
+				867 cell
+					868 text $452.7K
+				869 cell
+					870 text 2.66×
+				871 cell
+					872 text 2733s
+				873 cell
+					874 text YES
+				875 cell
+					876 text —
+				877 cell
+					878 text —
+				879 cell
+					880 text 0.011925656422066863523442679746557772063850594498410
+				881 cell
+					882 text 0.011574550811243488466394127322029048981193074626527
+				883 cell
+					884 text 0.011574550811243488466394127322029048981193074626527
+				885 cell
+					886 text YES
+				887 cell
+					888 text COMPLETE_7D
+			889 row
+				890 cell
+					891 link Description: ANeb…pump, Help: Open ANeb72CQNVaWvAMH47kDWpiMP81AB4r8Kvj4oPRCpump on GMGN, Value: gmgn.ai/sol/token/ANeb72CQNVaWvAMH47kDWpiMP81AB4r8Kvj4oPRCpump
+				892 cell
+					893 text HISTORICAL
+				894 cell
+					895 text CANONICAL RESEARCH
+				896 cell
+					897 text $121.0K
+				898 cell
+					899 text $271.2K
+				900 cell
+					901 text 2.24×
+				902 cell
+					903 text 681s
+				904 cell
+					905 text YES
+				906 cell
+					907 text —
+				908 cell
+					909 text —
+				910 cell
+					911 text 0.016912945021990652983292612073856385721817597578757
+				912 cell
+					913 text 0.016562310126971667066532880886413797821499091980604
+				914 cell
+					915 text 0.016562310126971667066532880886413797821499091980604
+				916 cell
+					917 text YES
+				918 cell
+					919 text COMPLETE_7D
+			920 row
+				921 cell
+					922 link Description: AUdV…pump, Help: Open AUdV6ALv3WDb23VPiP4BCyXg4czFscktgWhvN8t3pump on GMGN, Value: gmgn.ai/sol/token/AUdV6ALv3WDb23VPiP4BCyXg4czFscktgWhvN8t3pump
+				923 cell
+					924 text HISTORICAL
+				925 cell
+					926 text CANONICAL RESEARCH
+				927 cell
+					928 text $117.7K
+				929 cell
+					930 text $132.6K
+				931 cell
+					932 text 1.13×
+				933 cell
+					934 text 399s
+				935 cell
+					936 text —
+				937 cell
+					938 text —
+				939 cell
+					940 text —
+				941 cell
+					942 text 0.015587764828445144022898344886307689549966378868254
+				943 cell
+					944 text 0.015587764828445144022898344886307689549966378868254
+				945 cell
+					946 text 0.015587764828445144022898344886307689549966378868254
+				947 cell
+					948 text YES
+				949 cell
+					950 text COMPLETE_7D
+			951 row
+				952 cell
+					953 link Description: BTdi…pump, Help: Open BTdiQvaguCrtygLFfZmdpUCxzGQ1WCaYT2Jx3oCcpump on GMGN, Value: gmgn.ai/sol/token/BTdiQvaguCrtygLFfZmdpUCxzGQ1WCaYT2Jx3oCcpump
+				954 cell
+					955 text HISTORICAL
+				956 cell
+					957 text CANONICAL RESEARCH
+				958 cell
+					959 text $120.5K
+				960 cell
+					961 text $242.5K
+				962 cell
+					963 text 2.01×
+				964 cell
+					965 text 727s
+				966 cell
+					967 text YES
+				968 cell
+					969 text —
+				970 cell
+					971 text —
+				972 cell
+					973 text 0.016107816304308964159855618848310188614709868828787
+				974 cell
+					975 text 0.016107816304308964159855618848310188614709868828787
+				976 cell
+					977 text 0.015302507611258212977119123589568535462499239374307
+				978 cell
+					979 text YES
+				980 cell
+					981 text COMPLETE_7D
+			982 row
+				983 cell
+					984 link Description: BeZk…pump, Help: Open BeZkvfUYYa76LXU3UjagSq22fa7pU4c4cTLnaDB3pump on GMGN, Value: gmgn.ai/sol/token/BeZkvfUYYa76LXU3UjagSq22fa7pU4c4cTLnaDB3pump
+				985 cell
+					986 text HISTORICAL
+				987 cell
+					988 text CANONICAL RESEARCH
+				989 cell
+					990 text $164.8K
+				991 cell
+					992 text $420.8K
+				993 cell
+					994 text 2.55×
+				995 cell
+					996 text 1172s
+				997 cell
+					998 text YES
+				999 cell
+					1000 text —
+				1001 cell
+					1002 text —
+				1003 cell
+					1004 text 0.015339593831170825202349785842897423609361971348632
+				1005 cell
+					1006 text 0.013629908116978824354404013686497876927016774937392
+				1007 cell
+					1008 text 0.013629908116978824354404013686497876927016774937392
+				1009 cell
+					1010 text YES
+				1011 cell
+					1012 text COMPLETE_7D
+			1013 row
+				1014 cell
+					1015 link Description: Bobw…pump, Help: Open Bobw9yYiRS4Qvcy1Moa1amCa9z1KvpjAuP4RXQ9Wpump on GMGN, Value: gmgn.ai/sol/token/Bobw9yYiRS4Qvcy1Moa1amCa9z1KvpjAuP4RXQ9Wpump
+				1016 cell
+					1017 text HISTORICAL
+				1018 cell
+					1019 text CANONICAL RESEARCH
+				1020 cell
+					1021 text $134.4K
+				1022 cell
+					1023 text $355.2K
+				1024 cell
+					1025 text 2.64×
+				1026 cell
+					1027 text 3150s
+				1028 cell
+					1029 text YES
+				1030 cell
+					1031 text —
+				1032 cell
+					1033 text —
+				1034 cell
+					1035 text 0.015339532984267487026860190036495846675679423421110
+				1036 cell
+					1037 text 0.016965300667028522009092745427988775775329481528776
+				1038 cell
+					1039 text 0.016965300667028522009092745427988775775329481528776
+				1040 cell
+					1041 text YES
+				1042 cell
+					1043 text COMPLETE_7D
+			1044 row
+				1045 cell
+					1046 link Description: C796…pump, Help: Open C7962B3qAPC2ova24tVYDAy6Hi4hNFeXvBYn9A72pump on GMGN, Value: gmgn.ai/sol/token/C7962B3qAPC2ova24tVYDAy6Hi4hNFeXvBYn9A72pump
+				1047 cell
+					1048 text HISTORICAL
+				1049 cell
+					1050 text CANONICAL RESEARCH
+				1051 cell
+					1052 text $163.5K
+				1053 cell
+					1054 text $485.6K
+				1055 cell
+					1056 text 2.97×
+				1057 cell
+					1058 text 4395s
+				1059 cell
+					1060 text YES
+				1061 cell
+					1062 text —
+				1063 cell
+					1064 text —
+				1065 cell
+					1066 text 0.012165403000568837804604682053096018711352491490026
+				1067 cell
+					1068 text 0.012448837291311403562544854638878402517980220539553
+				1069 cell
+					1070 text 0.012448837291311403562544854638878402517980220539553
+				1071 cell
+					1072 text YES
+				1073 cell
+					1074 text COMPLETE_7D
+			1075 row
+				1076 cell
+					1077 link Description: CMCP…pump, Help: Open CMCPJ4g6Deqtaf8FkvCk1dubbw2k87SRWWwRqiVJpump on GMGN, Value: gmgn.ai/sol/token/CMCPJ4g6Deqtaf8FkvCk1dubbw2k87SRWWwRqiVJpump
+				1078 cell
+					1079 text HISTORICAL
+				1080 cell
+					1081 text CANONICAL RESEARCH
+				1082 cell
+					1083 text $121.9K
+				1084 cell
+					1085 text $255.5K
+				1086 cell
+					1087 text 2.10×
+				1088 cell
+					1089 text 2521s
+				1090 cell
+					1091 text YES
+				1092 cell
+					1093 text —
+				1094 cell
+					1095 text —
+				1096 cell
+					1097 text 0.016467776711916541805911501221629814805499425588036
+				1098 cell
+					1099 text 0.016467776711916541805911501221629814805499425588036
+				1100 cell
+					1101 text 0.016467776711916541805911501221629814805499425588036
+				1102 cell
+					1103 text YES
+				1104 cell
+					1105 text COMPLETE_7D
+			1106 row
+				1107 cell
+					1108 link Description: CxBq…pump, Help: Open CxBq6G2yGkZPaVWYkwAAYtLg2Jby5Y85NQjYvGPXpump on GMGN, Value: gmgn.ai/sol/token/CxBq6G2yGkZPaVWYkwAAYtLg2Jby5Y85NQjYvGPXpump
+				1109 cell
+					1110 text HISTORICAL
+				1111 cell
+					1112 text CANONICAL RESEARCH
+				1113 cell
+					1114 text $163.2K
+				1115 cell
+					1116 text $178.5K
+				1117 cell
+					1118 text 1.09×
+				1119 cell
+					1120 text 7s
+				1121 cell
+					1122 text —
+				1123 cell
+					1124 text —
+				1125 cell
+					1126 text —
+				1127 cell
+					1128 text 0.010988493883583136852846818302771057595523643762728
+				1129 cell
+					1130 text 0.010988493883583136852846818302771057595523643762728
+				1131 cell
+					1132 text 0.010988493883583136852846818302771057595523643762728
+				1133 cell
+					1134 text YES
+				1135 cell
+					1136 text COMPLETE_7D
+			1137 row
+				1138 cell
+					1139 link Description: DSF4…pump, Help: Open DSF4CyuWmB5c7S5ig5by3jMHQvqmj1KtgyjE8Sthpump on GMGN, Value: gmgn.ai/sol/token/DSF4CyuWmB5c7S5ig5by3jMHQvqmj1KtgyjE8Sthpump
+				1140 cell
+					1141 text HISTORICAL
+				1142 cell
+					1143 text CANONICAL RESEARCH
+				1144 cell
+					1145 text $167.8K
+				1146 cell
+					1147 text $203.6K
+				1148 cell
+					1149 text 1.21×
+				1150 cell
+					1151 text 632s
+				1152 cell
+					1153 text —
+				1154 cell
+					1155 text —
+				1156 cell
+					1157 text —
+				1158 cell
+					1159 text 0.011408571732353388171638626265087968593998742011214
+				1160 cell
+					1161 text 0.011408571732353388171638626265087968593998742011214
+				1162 cell
+					1163 text 0.011408571732353388171638626265087968593998742011214
+				1164 cell
+					1165 text YES
+				1166 cell
+					1167 text COMPLETE_7D
+			1168 row
+				1169 cell
+					1170 link Description: Dexq…pump, Help: Open Dexq6sNqoR7t8mYErbdtKeyQG3ad8kF9eYHoPuAipump on GMGN, Value: gmgn.ai/sol/token/Dexq6sNqoR7t8mYErbdtKeyQG3ad8kF9eYHoPuAipump
+				1171 cell
+					1172 text HISTORICAL
+				1173 cell
+					1174 text CANONICAL RESEARCH
+				1175 cell
+					1176 text $148.2K
+				1177 cell
+					1178 text $199.4K
+				1179 cell
+					1180 text 1.35×
+				1181 cell
+					1182 text 701s
+				1183 cell
+					1184 text —
+				1185 cell
+					1186 text —
+				1187 cell
+					1188 text —
+				1189 cell
+					1190 text 0.013412238390220603508565501975300013123792235421440
+				1191 cell
+					1192 text 0.013562503528576246970721389396735559046232053486707
+				1193 cell
+					1194 text 0.013551074977998518659439109316677923103046406190510
+				1195 cell
+					1196 text YES
+				1197 cell
+					1198 text COMPLETE_7D
+			1199 row
+				1200 cell
+					1201 link Description: DnQf…pump, Help: Open DnQfdskpwzr4aAAahmGX27yupt4NPxX69N5onLSJpump on GMGN, Value: gmgn.ai/sol/token/DnQfdskpwzr4aAAahmGX27yupt4NPxX69N5onLSJpump
+				1202 cell
+					1203 text HISTORICAL
+				1204 cell
+					1205 text CANONICAL RESEARCH
+				1206 cell
+					1207 text $119.7K
+				1208 cell
+					1209 text $119.7K
+				1210 cell
+					1211 text 1.00×
+				1212 cell
+					1213 text 0s
+				1214 cell
+					1215 text —
+				1216 cell
+					1217 text —
+				1218 cell
+					1219 text —
+				1220 cell
+					1221 text 0.015601306394585344846411562061774660258406440203123
+				1222 cell
+					1223 text 0.015601306394585344846411562061774660258406440203123
+				1224 cell
+					1225 text 0.015601306394585344846411562061774660258406440203123
+				1226 cell
+					1227 text YES
+				1228 cell
+					1229 text COMPLETE_7D
+			1230 row
+				1231 cell
+					1232 link Description: E48e…pump, Help: Open E48e1En3hWSBE8LgNDkDaKFvxDgjHHk83AwSxqicpump on GMGN, Value: gmgn.ai/sol/token/E48e1En3hWSBE8LgNDkDaKFvxDgjHHk83AwSxqicpump
+				1233 cell
+					1234 text HISTORICAL
+				1235 cell
+					1236 text CANONICAL RESEARCH
+				1237 cell
+					1238 text $168.4K
+				1239 cell
+					1240 text $202.1K
+				1241 cell
+					1242 text 1.20×
+				1243 cell
+					1244 text 794s
+				1245 cell
+					1246 text —
+				1247 cell
+					1248 text —
+				1249 cell
+					1250 text —
+				1251 cell
+					1252 text 0.012934329733735263774613659050380571240770310818919
+				1253 cell
+					1254 text 0.012292386630913339712321165216489423948045735816150
+				1255 cell
+					1256 text 0.012292386630913339712321165216489423948045735816150
+				1257 cell
+					1258 text YES
+				1259 cell
+					1260 text COMPLETE_7D
+			1261 row
+				1262 cell
+					1263 link Description: F1H5…pump, Help: Open F1H5APtToTN4cQV4B5aLvu8AMTNQSUgbC82mJrcYpump on GMGN, Value: gmgn.ai/sol/token/F1H5APtToTN4cQV4B5aLvu8AMTNQSUgbC82mJrcYpump
+				1264 cell
+					1265 text HISTORICAL
+				1266 cell
+					1267 text CANONICAL RESEARCH
+				1268 cell
+					1269 text $141.2K
+				1270 cell
+					1271 text $246.4K
+				1272 cell
+					1273 text 1.75×
+				1274 cell
+					1275 text 2091s
+				1276 cell
+					1277 text —
+				1278 cell
+					1279 text —
+				1280 cell
+					1281 text —
+				1282 cell
+					1283 text 0.013577606908484620476464691361431926486826230935661
+				1284 cell
+					1285 text 0.013577606908484620476464691361431926486826230935661
+				1286 cell
+					1287 text 0.013577606908484620476464691361431926486826230935661
+				1288 cell
+					1289 text YES
+				1290 cell
+					1291 text COMPLETE_7D
+			1292 row
+				1293 cell
+					1294 link Description: Fb8W…pump, Help: Open Fb8Wsxhb3y3mnkmcjoacMoueXrd1L4GpgzFnYjUUpump on GMGN, Value: gmgn.ai/sol/token/Fb8Wsxhb3y3mnkmcjoacMoueXrd1L4GpgzFnYjUUpump
+				1295 cell
+					1296 text HISTORICAL
+				1297 cell
+					1298 text CANONICAL RESEARCH
+				1299 cell
+					1300 text $92.6K
+				1301 cell
+					1302 text $167.5K
+				1303 cell
+					1304 text 1.81×
+				1305 cell
+					1306 text 804s
+				1307 cell
+					1308 text —
+				1309 cell
+					1310 text —
+				1311 cell
+					1312 text —
+				1313 cell
+					1314 text 0.021551146913339942252511330756284106116242546643176
+				1315 cell
+					1316 text 0.021551146913339942252511330756284106116242546643176
+				1317 cell
+					1318 text 0.021551146913339942252511330756284106116242546643176
+				1319 cell
+					1320 text YES
+				1321 cell
+					1322 text COMPLETE_7D
+			1323 row
+				1324 cell
+					1325 link Description: GAwW…pump, Help: Open GAwWiCEK3juW5jCURX3Eb1r3Mj8zuqMxR6wuSxbppump on GMGN, Value: gmgn.ai/sol/token/GAwWiCEK3juW5jCURX3Eb1r3Mj8zuqMxR6wuSxbppump
+				1326 cell
+					1327 text HISTORICAL
+				1328 cell
+					1329 text CANONICAL RESEARCH
+				1330 cell
+					1331 text $166.8K
+				1332 cell
+					1333 text $374.4K
+				1334 cell
+					1335 text 2.25×
+				1336 cell
+					1337 text 910s
+				1338 cell
+					1339 text YES
+				1340 cell
+					1341 text —
+				1342 cell
+					1343 text —
+				1344 cell
+					1345 text 0.011753874419594420058371376483069420577142381816080
+				1346 cell
+					1347 text 0.011753874419594420058371376483069420577142381816080
+				1348 cell
+					1349 text 0.011753874419594420058371376483069420577142381816080
+				1350 cell
+					1351 text YES
+				1352 cell
+					1353 text COMPLETE_7D
+			1354 row
+				1355 cell
+					1356 link Description: GHkX…pump, Help: Open GHkX4EcWr9DLmSoZ4mdaFd6ciaPEf5aSfDqDxdUgpump on GMGN, Value: gmgn.ai/sol/token/GHkX4EcWr9DLmSoZ4mdaFd6ciaPEf5aSfDqDxdUgpump
+				1357 cell
+					1358 text HISTORICAL
+				1359 cell
+					1360 text CANONICAL RESEARCH
+				1361 cell
+					1362 text $151.4K
+				1363 cell
+					1364 text $454.9K
+				1365 cell
+					1366 text 3.00×
+				1367 cell
+					1368 text 1806s
+				1369 cell
+					1370 text YES
+				1371 cell
+					1372 text —
+				1373 cell
+					1374 text —
+				1375 cell
+					1376 text 0.013501942001045382837689719248656604175100304412532
+				1377 cell
+					1378 text 0.013264122746820534265447905069812150248920102232143
+				1379 cell
+					1380 text 0.013370139647145000877832980115758220023124246253248
+				1381 cell
+					1382 text YES
+				1383 cell
+					1384 text COMPLETE_7D
+			1385 row
+				1386 cell
+					1387 link Description: GaBd…pump, Help: Open GaBdgBaDCcBsPuWrc8HJ9eX1vLBvAMmrGtjGR3eNpump on GMGN, Value: gmgn.ai/sol/token/GaBdgBaDCcBsPuWrc8HJ9eX1vLBvAMmrGtjGR3eNpump
+				1388 cell
+					1389 text HISTORICAL
+				1390 cell
+					1391 text CANONICAL RESEARCH
+				1392 cell
+					1393 text $120.9K
+				1394 cell
+					1395 text $333.9K
+				1396 cell
+					1397 text 2.76×
+				1398 cell
+					1399 text 2243s
+				1400 cell
+					1401 text YES
+				1402 cell
+					1403 text —
+				1404 cell
+					1405 text —
+				1406 cell
+					1407 text 0.018508037599142700325815313639435606638946808418405
+				1408 cell
+					1409 text 0.018736054894584124323552584414340169872118480339768
+				1410 cell
+					1411 text 0.018736054894584124323552584414340169872118480339768
+				1412 cell
+					1413 text YES
+				1414 cell
+					1415 text COMPLETE_7D
+			1416 row
+				1417 cell
+					1418 link Description: GiwM…pump, Help: Open GiwMipRgtHGG2qPxBRioQ7ZLzFneKm6py4jKKs6ipump on GMGN, Value: gmgn.ai/sol/token/GiwMipRgtHGG2qPxBRioQ7ZLzFneKm6py4jKKs6ipump
+				1419 cell
+					1420 text HISTORICAL
+				1421 cell
+					1422 text CANONICAL RESEARCH
+				1423 cell
+					1424 text $132.5K
+				1425 cell
+					1426 text $292.6K
+				1427 cell
+					1428 text 2.21×
+				1429 cell
+					1430 text 423s
+				1431 cell
+					1432 text YES
+				1433 cell
+					1434 text —
+				1435 cell
+					1436 text —
+				1437 cell
+					1438 text 0.015188029161206075787995570752902918064033855191458
+				1439 cell
+					1440 text 0.016054819110531908305779660438499932009571939038071
+				1441 cell
+					1442 text 0.014911927843573469123138918281185471238148532128484
+				1443 cell
+					1444 text YES
+				1445 cell
+					1446 text COMPLETE_7D
+			1447 row
+				1448 cell
+					1449 link Description: H26x…pump, Help: Open H26xtm2DKHKrUtAtR2JXyzD9fGqTBvp9yhWc2WWbpump on GMGN, Value: gmgn.ai/sol/token/H26xtm2DKHKrUtAtR2JXyzD9fGqTBvp9yhWc2WWbpump
+				1450 cell
+					1451 text HISTORICAL
+				1452 cell
+					1453 text CANONICAL RESEARCH
+				1454 cell
+					1455 text $168.3K
+				1456 cell
+					1457 text $168.3K
+				1458 cell
+					1459 text 1.00×
+				1460 cell
+					1461 text 0s
+				1462 cell
+					1463 text —
+				1464 cell
+					1465 text —
+				1466 cell
+					1467 text —
+				1468 cell
+					1469 text 0.010998877302042323206995481036581618535703094371028
+				1470 cell
+					1471 text 0.011287816004074382917485138200334418249173904530534
+				1472 cell
+					1473 text 0.010807537581472811809131685968345481003982784434268
+				1474 cell
+					1475 text YES
+				1476 cell
+					1477 text COMPLETE_7D
+			1478 row
+				1479 cell
+					1480 link Description: HBi1…pump, Help: Open HBi13pSK28sr9YqQF1KU5BwTcDGzwNF3aTt9xgZ6pump on GMGN, Value: gmgn.ai/sol/token/HBi13pSK28sr9YqQF1KU5BwTcDGzwNF3aTt9xgZ6pump
+				1481 cell
+					1482 text HISTORICAL
+				1483 cell
+					1484 text CANONICAL RESEARCH
+				1485 cell
+					1486 text $135.4K
+				1487 cell
+					1488 text $192.5K
+				1489 cell
+					1490 text 1.42×
+				1491 cell
+					1492 text 793s
+				1493 cell
+					1494 text —
+				1495 cell
+					1496 text —
+				1497 cell
+					1498 text —
+				1499 cell
+					1500 text 0.014576661687570329471772677722531048018619334762363
+				1501 cell
+					1502 text 0.014491836133373459074676768906210769137939794756081
+				1503 cell
+					1504 text 0.014491836133373459074676768906210769137939794756081
+				1505 cell
+					1506 text YES
+				1507 cell
+					1508 text COMPLETE_7D
+			1509 row
+				1510 cell
+					1511 link Description: HEaQ…pump, Help: Open HEaQQ8RFCyCyxGAkSKbd7ZFt7JTfqn9LdGBk11rPpump on GMGN, Value: gmgn.ai/sol/token/HEaQQ8RFCyCyxGAkSKbd7ZFt7JTfqn9LdGBk11rPpump
+				1512 cell
+					1513 text HISTORICAL
+				1514 cell
+					1515 text CANONICAL RESEARCH
+				1516 cell
+					1517 text $164.8K
+				1518 cell
+					1519 text $164.8K
+				1520 cell
+					1521 text 1.00×
+				1522 cell
+					1523 text 0s
+				1524 cell
+					1525 text —
+				1526 cell
+					1527 text —
+				1528 cell
+					1529 text —
+				1530 cell
+					1531 text 0.011202419922142721909751345504356085020418656011008
+				1532 cell
+					1533 text 0.011202419922142721909751345504356085020418656011008
+				1534 cell
+					1535 text 0.011202419922142721909751345504356085020418656011008
+				1536 cell
+					1537 text YES
+				1538 cell
+					1539 text COMPLETE_7D
+			1540 row
+				1541 cell
+					1542 link Description: HbWG…pump, Help: Open HbWGyCLkN6kkCgfzUzhrJMdqei3WQcQiKwcm2cyDpump on GMGN, Value: gmgn.ai/sol/token/HbWGyCLkN6kkCgfzUzhrJMdqei3WQcQiKwcm2cyDpump
+				1543 cell
+					1544 text HISTORICAL
+				1545 cell
+					1546 text CANONICAL RESEARCH
+				1547 cell
+					1548 text $121.5K
+				1549 cell
+					1550 text $121.5K
+				1551 cell
+					1552 text 1.00×
+				1553 cell
+					1554 text 0s
+				1555 cell
+					1556 text —
+				1557 cell
+					1558 text —
+				1559 cell
+					1560 text —
+				1561 cell
+					1562 text 0.015227813276343724820223602232668568270963348088305
+				1563 cell
+					1564 text 0.015012985472623613209266888749020454488335406728242
+				1565 cell
+					1566 text 0.015012985472623613209266888749020454488335406728242
+				1567 cell
+					1568 text YES
+				1569 cell
+					1570 text COMPLETE_7D
+			1571 row
+				1572 cell
+					1573 link Description: HzUq…pump, Help: Open HzUqJLF7B8SUHGKNA2AePoMauuyYxax6RSv27J1zpump on GMGN, Value: gmgn.ai/sol/token/HzUqJLF7B8SUHGKNA2AePoMauuyYxax6RSv27J1zpump
+				1574 cell
+					1575 text HISTORICAL
+				1576 cell
+					1577 text CANONICAL RESEARCH
+				1578 cell
+					1579 text $129.5K
+				1580 cell
+					1581 text $173.9K
+				1582 cell
+					1583 text 1.34×
+				1584 cell
+					1585 text 1122s
+				1586 cell
+					1587 text —
+				1588 cell
+					1589 text —
+				1590 cell
+					1591 text —
+				1592 cell
+					1593 text 0.015366594766877424445447460975679383666399945561310
+				1594 cell
+					1595 text 0.015366594766877424445447460975679383666399945561310
+				1596 cell
+					1597 text 0.015366594766877424445447460975679383666399945561310
+				1598 cell
+					1599 text YES
+				1600 cell
+					1601 text COMPLETE_7D
+			1602 row
+				1603 cell
+					1604 link Description: UnWK…pump, Help: Open UnWKsud5vxqBB2fG1LHGhakMh9L2ywXBz4CXnT2pump on GMGN, Value: gmgn.ai/sol/token/UnWKsud5vxqBB2fG1LHGhakMh9L2ywXBz4CXnT2pump
+				1605 cell
+					1606 text HISTORICAL
+				1607 cell
+					1608 text CANONICAL RESEARCH
+				1609 cell
+					1610 text $138.6K
+				1611 cell
+					1612 text $184.5K
+				1613 cell
+					1614 text 1.33×
+				1615 cell
+					1616 text 154s
+				1617 cell
+					1618 text —
+				1619 cell
+					1620 text —
+				1621 cell
+					1622 text —
+				1623 cell
+					1624 text 0.013605826617510470835754060289153260452196887328730
+				1625 cell
+					1626 text 0.013824374626710860771037725904709543273676977140591
+				1627 cell
+					1628 text 0.013939348868250495781396651545982669428815910453923
+				1629 cell
+					1630 text YES
+				1631 cell
+					1632 text COMPLETE_7D
+			1633 row
+				1634 cell
+					1635 link Description: ocxa…pump, Help: Open ocxaNGGrN6QdQKA4EyPHDAJw4rxAdJLAfcRjVCtpump on GMGN, Value: gmgn.ai/sol/token/ocxaNGGrN6QdQKA4EyPHDAJw4rxAdJLAfcRjVCtpump
+				1636 cell
+					1637 text HISTORICAL
+				1638 cell
+					1639 text CANONICAL RESEARCH
+				1640 cell
+					1641 text $137.4K
+				1642 cell
+					1643 text $220.9K
+				1644 cell
+					1645 text 1.61×
+				1646 cell
+					1647 text 226s
+				1648 cell
+					1649 text —
+				1650 cell
+					1651 text —
+				1652 cell
+					1653 text —
+				1654 cell
+					1655 text 0.013750663525161353993896202291814342132312563133678
+				1656 cell
+					1657 text 0.013750663525161353993896202291814342132312563133678
+				1658 cell
+					1659 text 0.013750663525161353993896202291814342132312563133678
+				1660 cell
+					1661 text YES
+				1662 cell
+					1663 text COMPLETE_7D
+			1664 row
+				1665 cell
+					1666 link Description: 7xXQ…pump, Help: Open 7xXQVWbn3ac6XoQW3RA5jqPj6eTBaBKe2o3Hk6w3pump on GMGN, Value: gmgn.ai/sol/token/7xXQVWbn3ac6XoQW3RA5jqPj6eTBaBKe2o3Hk6w3pump
+				1667 cell
+					1668 text PROSPECTIVE
+				1669 cell
+					1670 text MONITOR ADMITTED
+				1671 cell
+					1672 text $123.4K
+				1673 cell
+					1674 text $230.8K
+				1675 cell
+					1676 text 1.87×
+				1677 cell
+					1678 text 554s
+				1679 cell
+					1680 text —
+				1681 cell
+					1682 text —
+				1683 cell
+					1684 text —
+				1685 cell
+					1686 text INSUFFICIENT
+				1687 cell
+					1688 text INSUFFICIENT
+				1689 cell
+					1690 text INSUFFICIENT
+				1691 cell
+					1692 text YES
+				1693 cell
+					1694 text FINALIZED
+			1695 row
+				1696 cell
+					1697 link Description: HXpD…pump, Help: Open HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump on GMGN, Value: gmgn.ai/sol/token/HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump
+				1698 cell
+					1699 text PROSPECTIVE
+				1700 cell
+					1701 text MONITOR ADMITTED
+				1702 cell
+					1703 text $124.2K
+				1704 cell
+					1705 text $1.0M
+				1706 cell
+					1707 text 8.18×
+				1708 cell
+					1709 text 7533s
+				1710 cell
+					1711 text YES
+				1712 cell
+					1713 text YES
+				1714 cell
+					1715 text —
+				1716 cell
+					1717 text INSUFFICIENT
+				1718 cell
+					1719 text INSUFFICIENT
+				1720 cell
+					1721 text INSUFFICIENT
+				1722 cell
+					1723 text YES
+				1724 cell
+					1725 text FINALIZED
+			1726 row
+				1727 cell
+					1728 link Description: 7guA…pump, Help: Open 7guAAEFPKxPH3VsffZWh1upJzxqHxqUSCbQxL55Gpump on GMGN, Value: gmgn.ai/sol/token/7guAAEFPKxPH3VsffZWh1upJzxqHxqUSCbQxL55Gpump
+				1729 cell
+					1730 text PROSPECTIVE
+				1731 cell
+					1732 text MONITOR ADMITTED
+				1733 cell
+					1734 text $128.1K
+				1735 cell
+					1736 text $396.8K
+				1737 cell
+					1738 text 3.10×
+				1739 cell
+					1740 text 1511s
+				1741 cell
+					1742 text YES
+				1743 cell
+					1744 text —
+				1745 cell
+					1746 text —
+				1747 cell
+					1748 text INSUFFICIENT
+				1749 cell
+					1750 text INSUFFICIENT
+				1751 cell
+					1752 text INSUFFICIENT
+				1753 cell
+					1754 text YES
+				1755 cell
+					1756 text FINALIZED
+			1757 row
+				1758 cell
+					1759 link Description: 3uaw…pump, Help: Open 3uawxC4Ci2VhFpcRw5eD1KKsK3EG317WzxcWsYEjpump on GMGN, Value: gmgn.ai/sol/token/3uawxC4Ci2VhFpcRw5eD1KKsK3EG317WzxcWsYEjpump
+				1760 cell
+					1761 text PROSPECTIVE
+				1762 cell
+					1763 text MONITOR ADMITTED
+				1764 cell
+					1765 text $110.8K
+				1766 cell
+					1767 text UNAVAILABLE
+				1768 cell
+					1769 text UNAVAILABLE
+				1770 cell
+					1771 text 0s
+				1772 cell
+					1773 text —
+				1774 cell
+					1775 text —
+				1776 cell
+					1777 text —
+				1778 cell
+					1779 text INSUFFICIENT
+				1780 cell
+					1781 text INSUFFICIENT
+				1782 cell
+					1783 text INSUFFICIENT
+				1784 cell
+					1785 text —
+				1786 cell
+					1787 text PENDING
+		1788 text Select a token to view its retained evidence and lifecycle path.
+		1789 container
+			1790 text Methodology & evidence.  FIRST_FULL_POST_MIGRATION_SECOND_MC is the First Actionable Market Reference, not a guaranteed execution fill.  EXECUTABLE_FILL_PROVEN = false.  LARGE_TO_SMALL_TIMESTAMP_GROUP_TRANSITION is retained solely as historical frozen-validation provenance, not the generic method.
+	1791 container
+		1792 text PROSPECTIVE MONITOR COHORT
+		1793 heading Automatically admitted Watchtower assignments, Value: 2
+			1794 text Automatically admitted Watchtower assignments
+		1795 text Rows remain prospective regardless of outcome or evidence completeness. 4 PROSPECTIVE
+		1796 table
+			1797 row
+				1798 cell
+					1799 text TOKEN
+				1800 cell
+					1801 text COHORT
+				1802 cell
+					1803 text ENTRY MC
+				1804 cell
+					1805 text FINAL MC
+				1806 cell
+					1807 text FINAL ATH
+				1808 cell
+					1809 text ATH ×
+				1810 cell
+					1811 text 2X
+				1812 cell
+					1813 text 5X
+				1814 cell
+					1815 text 10X
+				1816 cell
+					1817 text STATE
+				1818 cell
+					1819 text EVIDENCE
+			1820 row
+				1821 cell
+					1822 link Description: 7xXQ…pump, Value: gmgn.ai/sol/token/7xXQVWbn3ac6XoQW3RA5jqPj6eTBaBKe2o3Hk6w3pump
+				1823 cell
+					1824 text PROSPECTIVE
+				1825 cell
+					1826 text $123.4K
+				1827 cell
+					1828 text $1.83K
+				1829 cell
+					1830 text $230.8K
+				1831 cell
+					1832 text 1.87×
+				1833 cell
+					1834 text —
+				1835 cell
+					1836 text —
+				1837 cell
+					1838 text —
+				1839 cell
+					1840 text COLLAPSED
+				1841 cell
+					1842 text BIRDEYE 15M OHLC HIGH
+			1843 row
+				1844 cell
+					1845 link Description: HXpD…pump, Value: gmgn.ai/sol/token/HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump
+				1846 cell
+					1847 text PROSPECTIVE
+				1848 cell
+					1849 text $124.2K
+				1850 cell
+					1851 text $2.06K
+				1852 cell
+					1853 text $1.02M
+				1854 cell
+					1855 text 8.18×
+				1856 cell
+					1857 text YES
+				1858 cell
+					1859 text YES
+				1860 cell
+					1861 text —
+				1862 cell
+					1863 text COLLAPSED
+				1864 cell
+					1865 text BIRDEYE 15M OHLC HIGH
+			1866 row
+				1867 cell
+					1868 link Description: 7guA…pump, Value: gmgn.ai/sol/token/7guAAEFPKxPH3VsffZWh1upJzxqHxqUSCbQxL55Gpump
+				1869 cell
+					1870 text PROSPECTIVE
+				1871 cell
+					1872 text $128.1K
+				1873 cell
+					1874 text $2.04K
+				1875 cell
+					1876 text $396.8K
+				1877 cell
+					1878 text 3.10×
+				1879 cell
+					1880 text YES
+				1881 cell
+					1882 text —
+				1883 cell
+					1884 text —
+				1885 cell
+					1886 text COLLAPSED
+				1887 cell
+					1888 text BIRDEYE 15M OHLC HIGH
+			1889 row
+				1890 cell
+					1891 link Description: 3uaw…pump, Value: gmgn.ai/sol/token/3uawxC4Ci2VhFpcRw5eD1KKsK3EG317WzxcWsYEjpump
+				1892 cell
+					1893 text PROSPECTIVE
+				1894 cell
+					1895 text $110.8K
+				1896 cell
+					1897 text UNAVAILABLE
+				1898 cell
+					1899 text UNAVAILABLE
+				1900 cell
+					1901 text UNAVAILABLE
+				1902 cell
+					1903 text —
+				1904 cell
+					1905 text —
+				1906 cell
+					1907 text —
+				1908 cell
+					1909 text COLLAPSED
+				1910 cell
+					1911 text None
+
+The focused UI element is 1 AXWebArea FLEX, URL: 127.0.0.1:8197/operations/watchtower/playbook
+DEVELOPMENT — READ ONLY — PRODUCTION DATA CANNOT BE MODIFIED
+FLEX
+OPERATIONS OS
+◆ Mission Control
+INTELLIGENCE
+Operations Registry & Live Monitor
+▤ Operation Playbook
+Potential Operations
+SYSTEM
+API
+DETAIL
+API live · detailed health in System Health
+← Operation Playbooks
+QUALIFIED RETAINED RESEARCH · WATCHTOWER_PRICE_FACT_CONTRACT_V1
+WATCHTOWER — Operation Playbook
+
+285 canonical Watchtower members. This view contains 15 frozen validation tokens, 36 recent out-of-sample tokens, and 51 combined price-research tokens; it is not the entire operation.
+
+285
+Canonical members
+51
+Combined research rows
+51 / 51
+Lifecycle horizons covered
+RESEARCH COHORTS
+All Watchtower Research
+55 tokens · 51 historical + 4 prospective
+ALL WATCHTOWER · 55
+HISTORICAL
+51
+Qualified baseline
+Frozen research cohort · ATH QUALIFIED 51/51 qualified
+MEDIAN ENTRY · MEDIAN ATH × · MEAN ATH ×
+REACHED 2× 27/51 · REACHED 5× 4/51 · REACHED 10× 1/51
+PROSPECTIVE
+4
+Live Monitor cohort
+Grows with new Watchtower assignments · Early prospective sample · N=4
+ATH QUALIFIED 3/4 qualified · COLLAPSED 3/4
+REACHED 2× 2/4 · REACHED 5× 1/4 · REACHED 10× 0/4
+ALL WATCHTOWER
+55
+Total research population
+Historical + prospective · ATH QUALIFIED 54/55 qualified
+MEDIAN ENTRY · MEDIAN ATH × · MEAN ATH ×
+REACHED 2× 29/55 · REACHED 5× 5/55 · REACHED 10× 1/55
+MEDIAN ENTRY · MEDIAN ATH × · MEAN ATH × · REACHED 2× / 5× / 10× · COLLAPSED. Every rate uses its full assigned-population denominator; ATH qualification is shown as qualified / assigned.
+GENERIC PRICE-FACT RESEARCH
+Token lifecycle evidence
+FIRST_FULL_POST_MIGRATION_SECOND_MC · not an executable fill
+51 HISTORICAL · 4 PROSPECTIVE
+ALL WATCHTOWER
+HISTORICAL
+PROSPECTIVE
+TOKEN	COHORT	MEMBERSHIP	FIRST ACTIONABLE MC	MAX PROVEN MC	ENTRY → MAX	TIME TO MAX	2X	5X	10X	24H	72H	7D	85% COLLAPSE	STATE
+2YrE…pump	HISTORICAL	CANONICAL RESEARCH	$118.4K	$167.5K	1.41×	1005s	—	—	—	0.016349419760362971967367763604896341401291982529290	0.016349419760362971967367763604896341401291982529290	0.016349419760362971967367763604896341401291982529290	YES	COMPLETE_7D
+2dDD…pump	HISTORICAL	CANONICAL RESEARCH	$159.4K	$799.0K	5.01×	9113s	YES	YES	—	0.014494448992785901253455593515639151805594092919346	0.013970358540713248421381584399778241161265403350297	0.014553306506548123074623032279980374766306593431662	YES	COMPLETE_7D
+2dV9…pump	HISTORICAL	CANONICAL RESEARCH	$146.3K	$280.6K	1.92×	2288s	—	—	—	0.014325940541659281332312971232098262866789120059384	0.014147933199080321904108253860839486572950785541927	0.014147933199080321904108253860839486572950785541927	YES	COMPLETE_7D
+38FA…pump	HISTORICAL	CANONICAL RESEARCH	$173.0K	$273.0K	1.58×	553s	—	—	—	0.010769299058314121770888092874716161306984216195463	0.010769299058314121770888092874716161306984216195463	0.010769299058314121770888092874716161306984216195463	YES	COMPLETE_7D
+3C8N…pump	HISTORICAL	CANONICAL RESEARCH	$177.0K	$1.0M	5.92×	5944s	YES	YES	—	0.011933633021342412852797627453582247746640529082541	0.012058545334710996919723775520976749447189513075857	0.012144449439594781522403266690339752413589586955486	YES	COMPLETE_7D
+3v1P…pump	HISTORICAL	CANONICAL RESEARCH	$135.7K	$383.1K	2.82×	3068s	YES	—	—	0.015208608232335404281119575830445070604568724134813	0.014657898630491169043498349294036780579197575835582	0.014657898630491169043498349294036780579197575835582	YES	COMPLETE_7D
+3wRM…pump	HISTORICAL	CANONICAL RESEARCH	$118.9K	$1.5M	12.24×	19996s	YES	YES	YES	0.019632081381874694037974828089318939576133739350338	0.017902253453001671474801171291536386676805850637510	0.017480191990950039780048656864407369869527811227051	YES	COMPLETE_7D
+4y4r…pump	HISTORICAL	CANONICAL RESEARCH	$121.1K	$266.4K	2.20×	1159s	YES	—	—	0.016174743583845594855523480272623682268933071691789	0.016110622766877850298262174724282355272107450988682	0.016110622766877850298262174724282355272107450988682	YES	COMPLETE_7D
+559G…pump	HISTORICAL	CANONICAL RESEARCH	$120.3K	$120.3K	1.00×	0s	—	—	—	0.015483714365340752223433787448522537846874895856743	0.015483714365340752223433787448522537846874895856743	0.015483714365340752223433787448522537846874895856743	YES	COMPLETE_7D
+5CRA…pump	HISTORICAL	CANONICAL RESEARCH	$147.3K	$303.2K	2.06×	1148s	YES	—	—	0.013298778692677083239813636687898165020232411914511	0.013235068125725327940867283429072470067614997620443	0.013235068125725327940867283429072470067614997620443	YES	COMPLETE_7D
+5Eyv…pump	HISTORICAL	CANONICAL RESEARCH	$120.6K	$216.0K	1.79×	484s	—	—	—	0.016816972051042568594132672541441002865295593044517	0.017053241284491004628750657277949157599388681887383	0.017053241284491004628750657277949157599388681887383	YES	COMPLETE_7D
+5Fjd…pump	HISTORICAL	CANONICAL RESEARCH	$128.8K	$323.8K	2.51×	5066s	YES	—	—	0.015352812628634189872861270470478371339193096033531	0.017536608143973801123155061969422324256729757732205	0.017536608143973801123155061969422324256729757732205	YES	COMPLETE_7D
+5dgY…pump	HISTORICAL	CANONICAL RESEARCH	$156.7K	$253.0K	1.61×	1290s	—	—	—	0.012827287006601964711093174029304801506386932212013	0.012827287006601964711093174029304801506386932212013	0.012827287006601964711093174029304801506386932212013	YES	COMPLETE_7D
+6DGK…pump	HISTORICAL	CANONICAL RESEARCH	$148.8K	$201.1K	1.35×	103s	—	—	—	0.012649733395184136918280663566786821326782096450483	0.012649733395184136918280663566786821326782096450483	0.012649733395184136918280663566786821326782096450483	YES	COMPLETE_7D
+6gPE…pump	HISTORICAL	CANONICAL RESEARCH	$121.0K	$202.6K	1.67×	91s	—	—	—	0.017194349746145507555694256865035216841755511311826	0.016326890092564516179055240585651243544829227576581	0.015893309528027353691026765308963795935579419036095	YES	COMPLETE_7D
+78Yk…pump	HISTORICAL	CANONICAL RESEARCH	$119.5K	$119.5K	1.00×	0s	—	—	—	0.016383763767765023643012211660518271904634710933928	0.015343347851722895938093870618196374636760547279186	0.015343347851722895938093870618196374636760547279186	YES	COMPLETE_7D
+7McE…pump	HISTORICAL	CANONICAL RESEARCH	$121.7K	$255.0K	2.10×	1041s	YES	—	—	0.016499961084051076804900042423916028734136224393911	0.016792470972961544568203579198916119375836445356630	0.016792470972961544568203579198916119375836445356630	YES	COMPLETE_7D
+7Wwn…pump	HISTORICAL	CANONICAL RESEARCH	$120.2K	$254.7K	2.12×	605s	YES	—	—	0.015970148457201146022483748876837023642425965810963	0.015779852612202503170246865584358221011932108449685	0.015775509115537049107278280141386869085586519317377	YES	COMPLETE_7D
+84uu…pump	HISTORICAL	CANONICAL RESEARCH	$139.5K	$350.0K	2.51×	5112s	YES	—	—	0.015269957532738321084356097839737210607420103821389	0.015813925348031694944488323732902378958365490276966	0.015813925348031694944488323732902378958365490276966	YES	COMPLETE_7D
+8KGG…pump	HISTORICAL	CANONICAL RESEARCH	$120.6K	$338.2K	2.80×	2745s	YES	—	—	0.016244341064023430964579932385881501882460362166103	0.016244341064023430964579932385881501882460362166103	0.016244341064023430964579932385881501882460362166103	YES	COMPLETE_7D
+8Vu1…pump	HISTORICAL	CANONICAL RESEARCH	$119.2K	$294.8K	2.47×	3404s	YES	—	—	0.017200783166236409984879665356961664685748799365769	0.017200783166236409984879665356961664685748799365769	0.017200783166236409984879665356961664685748799365769	YES	COMPLETE_7D
+8epB…pump	HISTORICAL	CANONICAL RESEARCH	$178.5K	$1.6M	9.05×	20663s	YES	YES	—	0.013581578068708943206253527233865006458691908520461	0.013329647468215846013981424550457536665771141953711	0.013443666154357234436287475914303765915904087805658	YES	COMPLETE_7D
+8zP8…pump	HISTORICAL	CANONICAL RESEARCH	$193.3K	$553.2K	2.86×	2533s	YES	—	—	0.010239939616027943956208188868968999489679818195739	0.010342447983749880279274146140803617259247532103384	0.010445059358052568333287322948036168002463752035517	YES	COMPLETE_7D
+9gMy…pump	HISTORICAL	CANONICAL RESEARCH	$163.1K	$441.3K	2.71×	486s	YES	—	—	0.011923090104409179860054824554784899929595323031620	0.012431338458337779827475967630403876342627803252680	0.012399129102304400537337407601226015542180202505387	YES	COMPLETE_7D
+9qAE…pump	HISTORICAL	CANONICAL RESEARCH	$125.3K	$289.5K	2.31×	3238s	YES	—	—	0.014876037840851720450918758713510302563608506196684	0.014876037840851720450918758713510302563608506196684	0.014876037840851720450918758713510302563608506196684	YES	COMPLETE_7D
+AAJo…pump	HISTORICAL	CANONICAL RESEARCH	$170.2K	$452.7K	2.66×	2733s	YES	—	—	0.011925656422066863523442679746557772063850594498410	0.011574550811243488466394127322029048981193074626527	0.011574550811243488466394127322029048981193074626527	YES	COMPLETE_7D
+ANeb…pump	HISTORICAL	CANONICAL RESEARCH	$121.0K	$271.2K	2.24×	681s	YES	—	—	0.016912945021990652983292612073856385721817597578757	0.016562310126971667066532880886413797821499091980604	0.016562310126971667066532880886413797821499091980604	YES	COMPLETE_7D
+AUdV…pump	HISTORICAL	CANONICAL RESEARCH	$117.7K	$132.6K	1.13×	399s	—	—	—	0.015587764828445144022898344886307689549966378868254	0.015587764828445144022898344886307689549966378868254	0.015587764828445144022898344886307689549966378868254	YES	COMPLETE_7D
+BTdi…pump	HISTORICAL	CANONICAL RESEARCH	$120.5K	$242.5K	2.01×	727s	YES	—	—	0.016107816304308964159855618848310188614709868828787	0.016107816304308964159855618848310188614709868828787	0.015302507611258212977119123589568535462499239374307	YES	COMPLETE_7D
+BeZk…pump	HISTORICAL	CANONICAL RESEARCH	$164.8K	$420.8K	2.55×	1172s	YES	—	—	0.015339593831170825202349785842897423609361971348632	0.013629908116978824354404013686497876927016774937392	0.013629908116978824354404013686497876927016774937392	YES	COMPLETE_7D
+Bobw…pump	HISTORICAL	CANONICAL RESEARCH	$134.4K	$355.2K	2.64×	3150s	YES	—	—	0.015339532984267487026860190036495846675679423421110	0.016965300667028522009092745427988775775329481528776	0.016965300667028522009092745427988775775329481528776	YES	COMPLETE_7D
+C796…pump	HISTORICAL	CANONICAL RESEARCH	$163.5K	$485.6K	2.97×	4395s	YES	—	—	0.012165403000568837804604682053096018711352491490026	0.012448837291311403562544854638878402517980220539553	0.012448837291311403562544854638878402517980220539553	YES	COMPLETE_7D
+CMCP…pump	HISTORICAL	CANONICAL RESEARCH	$121.9K	$255.5K	2.10×	2521s	YES	—	—	0.016467776711916541805911501221629814805499425588036	0.016467776711916541805911501221629814805499425588036	0.016467776711916541805911501221629814805499425588036	YES	COMPLETE_7D
+CxBq…pump	HISTORICAL	CANONICAL RESEARCH	$163.2K	$178.5K	1.09×	7s	—	—	—	0.010988493883583136852846818302771057595523643762728	0.010988493883583136852846818302771057595523643762728	0.010988493883583136852846818302771057595523643762728	YES	COMPLETE_7D
+DSF4…pump	HISTORICAL	CANONICAL RESEARCH	$167.8K	$203.6K	1.21×	632s	—	—	—	0.011408571732353388171638626265087968593998742011214	0.011408571732353388171638626265087968593998742011214	0.011408571732353388171638626265087968593998742011214	YES	COMPLETE_7D
+Dexq…pump	HISTORICAL	CANONICAL RESEARCH	$148.2K	$199.4K	1.35×	701s	—	—	—	0.013412238390220603508565501975300013123792235421440	0.013562503528576246970721389396735559046232053486707	0.013551074977998518659439109316677923103046406190510	YES	COMPLETE_7D
+DnQf…pump	HISTORICAL	CANONICAL RESEARCH	$119.7K	$119.7K	1.00×	0s	—	—	—	0.015601306394585344846411562061774660258406440203123	0.015601306394585344846411562061774660258406440203123	0.015601306394585344846411562061774660258406440203123	YES	COMPLETE_7D
+E48e…pump	HISTORICAL	CANONICAL RESEARCH	$168.4K	$202.1K	1.20×	794s	—	—	—	0.012934329733735263774613659050380571240770310818919	0.012292386630913339712321165216489423948045735816150	0.012292386630913339712321165216489423948045735816150	YES	COMPLETE_7D
+F1H5…pump	HISTORICAL	CANONICAL RESEARCH	$141.2K	$246.4K	1.75×	2091s	—	—	—	0.013577606908484620476464691361431926486826230935661	0.013577606908484620476464691361431926486826230935661	0.013577606908484620476464691361431926486826230935661	YES	COMPLETE_7D
+Fb8W…pump	HISTORICAL	CANONICAL RESEARCH	$92.6K	$167.5K	1.81×	804s	—	—	—	0.021551146913339942252511330756284106116242546643176	0.021551146913339942252511330756284106116242546643176	0.021551146913339942252511330756284106116242546643176	YES	COMPLETE_7D
+GAwW…pump	HISTORICAL	CANONICAL RESEARCH	$166.8K	$374.4K	2.25×	910s	YES	—	—	0.011753874419594420058371376483069420577142381816080	0.011753874419594420058371376483069420577142381816080	0.011753874419594420058371376483069420577142381816080	YES	COMPLETE_7D
+GHkX…pump	HISTORICAL	CANONICAL RESEARCH	$151.4K	$454.9K	3.00×	1806s	YES	—	—	0.013501942001045382837689719248656604175100304412532	0.013264122746820534265447905069812150248920102232143	0.013370139647145000877832980115758220023124246253248	YES	COMPLETE_7D
+GaBd…pump	HISTORICAL	CANONICAL RESEARCH	$120.9K	$333.9K	2.76×	2243s	YES	—	—	0.018508037599142700325815313639435606638946808418405	0.018736054894584124323552584414340169872118480339768	0.018736054894584124323552584414340169872118480339768	YES	COMPLETE_7D
+GiwM…pump	HISTORICAL	CANONICAL RESEARCH	$132.5K	$292.6K	2.21×	423s	YES	—	—	0.015188029161206075787995570752902918064033855191458	0.016054819110531908305779660438499932009571939038071	0.014911927843573469123138918281185471238148532128484	YES	COMPLETE_7D
+H26x…pump	HISTORICAL	CANONICAL RESEARCH	$168.3K	$168.3K	1.00×	0s	—	—	—	0.010998877302042323206995481036581618535703094371028	0.011287816004074382917485138200334418249173904530534	0.010807537581472811809131685968345481003982784434268	YES	COMPLETE_7D
+HBi1…pump	HISTORICAL	CANONICAL RESEARCH	$135.4K	$192.5K	1.42×	793s	—	—	—	0.014576661687570329471772677722531048018619334762363	0.014491836133373459074676768906210769137939794756081	0.014491836133373459074676768906210769137939794756081	YES	COMPLETE_7D
+HEaQ…pump	HISTORICAL	CANONICAL RESEARCH	$164.8K	$164.8K	1.00×	0s	—	—	—	0.011202419922142721909751345504356085020418656011008	0.011202419922142721909751345504356085020418656011008	0.011202419922142721909751345504356085020418656011008	YES	COMPLETE_7D
+HbWG…pump	HISTORICAL	CANONICAL RESEARCH	$121.5K	$121.5K	1.00×	0s	—	—	—	0.015227813276343724820223602232668568270963348088305	0.015012985472623613209266888749020454488335406728242	0.015012985472623613209266888749020454488335406728242	YES	COMPLETE_7D
+HzUq…pump	HISTORICAL	CANONICAL RESEARCH	$129.5K	$173.9K	1.34×	1122s	—	—	—	0.015366594766877424445447460975679383666399945561310	0.015366594766877424445447460975679383666399945561310	0.015366594766877424445447460975679383666399945561310	YES	COMPLETE_7D
+UnWK…pump	HISTORICAL	CANONICAL RESEARCH	$138.6K	$184.5K	1.33×	154s	—	—	—	0.013605826617510470835754060289153260452196887328730	0.013824374626710860771037725904709543273676977140591	0.013939348868250495781396651545982669428815910453923	YES	COMPLETE_7D
+ocxa…pump	HISTORICAL	CANONICAL RESEARCH	$137.4K	$220.9K	1.61×	226s	—	—	—	0.013750663525161353993896202291814342132312563133678	0.013750663525161353993896202291814342132312563133678	0.013750663525161353993896202291814342132312563133678	YES	COMPLETE_7D
+7xXQ…pump	PROSPECTIVE	MONITOR ADMITTED	$123.4K	$230.8K	1.87×	554s	—	—	—	INSUFFICIENT	INSUFFICIENT	INSUFFICIENT	YES	FINALIZED
+HXpD…pump	PROSPECTIVE	MONITOR ADMITTED	$124.2K	$1.0M	8.18×	7533s	YES	YES	—	INSUFFICIENT	INSUFFICIENT	INSUFFICIENT	YES	FINALIZED
+7guA…pump	PROSPECTIVE	MONITOR ADMITTED	$128.1K	$396.8K	3.10×	1511s	YES	—	—	INSUFFICIENT	INSUFFICIENT	INSUFFICIENT	YES	FINALIZED
+3uaw…pump	PROSPECTIVE	MONITOR ADMITTED	$110.8K	UNAVAILABLE	UNAVAILABLE	0s	—	—	—	INSUFFICIENT	INSUFFICIENT	INSUFFICIENT	—	PENDING
+Select a token to view its retained evidence and lifecycle path.
+Methodology & evidence. FIRST_FULL_POST_MIGRATION_SECOND_MC is the First Actionable Market Reference, not a guaranteed execution fill. EXECUTABLE_FILL_PROVEN = false. LARGE_TO_SMALL_TIMESTAMP_GROUP_TRANSITION is retained solely as historical frozen-validation provenance, not the generic method.
+PROSPECTIVE MONITOR COHORT
+Automatically admitted Watchtower assignments
+Rows remain prospective regardless of outcome or evidence completeness.
+4 PROSPECTIVE
+TOKEN	COHORT	ENTRY MC	FINAL MC	FINAL ATH	ATH ×	2X	5X	10X	STATE	EVIDENCE
+7xXQ…pump	PROSPECTIVE	$123.4K	$1.83K	$230.8K	1.87×	—	—	—	COLLAPSED	BIRDEYE 15M OHLC HIGH
+HXpD…pump	PROSPECTIVE	$124.2K	$2.06K	$1.02M	8.18×	YES	YES	—	COLLAPSED	BIRDEYE 15M OHLC HIGH
+7guA…pump	PROSPECTIVE	$128.1K	$2.04K	$396.8K	3.10×	YES	—	—	COLLAPSED	BIRDEYE 15M OHLC HIGH
+3uaw…pump	PROSPECTIVE	$110.8K	UNAVAILABLE	UNAVAILABLE	UNAVAILABLE	—	—	—	COLLAPSED	None

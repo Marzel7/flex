@@ -1,0 +1,77 @@
+{
+  "DEV090_FINAL_RELEASE_STATUS": "HOLD \u2014 Inbox integration qualified; complete listener runtime dependency closure missing",
+  "DEV090_SOURCE_AUTHORITY": {
+    "parent": "9999c2178e9cb11d2b1c0a83c2e6d917d8de7252",
+    "integrated_tested_sha": "9a572e26882bb4e6af191feb61387fb84248535f",
+    "changed_file_manifest": [
+      "docs/audits/dev084/source-authority.json",
+      "docs/audits/dev090/final-integration-authority.json",
+      "src/ops/inbox.py",
+      "src/ops/inbox_routes.py",
+      "tests/test_dev084_inbox_readonly.py",
+      "tests/test_ops_x7_inbox.py"
+    ],
+    "DEV084_exact_implementation": "9d32e5b6d6e045c334b02dfc7ec409dac5c78f8f",
+    "source_manifest": "final-integration-evidence/verification.json"
+  },
+  "DEV084_INBOX_INTEGRATION": "Exact tested Inbox files, exact compatible preimages and already-identical shared writer dependencies; controlled missing-schema 503, no DDL/writer in GET, write-capable POST behaviour preserved",
+  "DURABLE_HANDOFF_PRESERVED": "Byte-identical to previously qualified DEV090 parent; no handoff/worker/creator/analyzer changes",
+  "CRASH_RECOVERY_RESULTS": "Seven real process-crash boundaries PASS; 224 focused checks PASS including 61 Inbox checks. Actual worker execution fixture tests preserved, process crash execution CAS model not claimed as live funding traversal.",
+  "CREATOR_AUTHORITY_COMPATIBILITY": "DEV074 positive/negative controls PASS, exact prior implementation unchanged",
+  "TRANSACTION_V1_COMPATIBILITY": "DEV051/DEV079/DEV082 controls PASS, provider budgets/retries unchanged",
+  "INBOX_READONLY_ACCEPTANCE": "PASS: existing retained Inbox data rendered, explicit read-only GET fixture tests, no canonical lock/DDL; production writer/mutation controls pass",
+  "FRONTEND_API_ACCEPTANCE": {
+    "python": 236,
+    "focused": 224,
+    "frontend": "PASS unchanged 30-second timeout and 8-MiB file limit",
+    "api": "PASS",
+    "provider_calls": 0
+  },
+  "BROWSER_ACCEPTANCE": {
+    "status": "PASS",
+    "contracts": 10,
+    "run_id": "894dc312d5b3",
+    "guard_denials": 0,
+    "capture_note": "First numeric-label validation rejected CSS-uppercase capture. Captured actual underlying original-case DOM link text with normalized whitespace; unchanged validator PASS. No assertion or application modification.",
+    "known_observations": "Discovery unavailable remains documented baseline exclusion; browser console reports pre-existing Byzantine playbook SyntaxError. Included browser assertions unchanged, no full historical parity claim."
+  },
+  "DEV048_TOOLING_CONTROLS": {
+    "status": "PASS",
+    "count": 61,
+    "tooling_source": "DEV080 published HEAD 9a718366; corrected contract 83de53ce"
+  },
+  "CLEAN_CHECKOUT_RESTORATION": "NOT_RUN for new integration: final release closure gate failed before candidate creation. Prior DEV090 clean-checkout tests are not substituted.",
+  "RUNTIME_DEPENDENCY_CLOSURE": {
+    "status": "HOLD",
+    "gate": "changed Python module not exercised/import-qualified by API or focused tests",
+    "unimported_changed_modules": [
+      "src/core/pumpfun_curve_listener.py"
+    ],
+    "required_missing_direct_import": "src.ops.acquisition_availability",
+    "location": "src/core/pumpfun_curve_listener.py unconditional top-level import",
+    "evidence": "Existing tests execute extracted actual producer transaction function; this does not establish whole-module startup compatibility. No artificial import, stub module or gate bypass added.",
+    "source_manifest_complete": "Tracked-source/hash verification and API startup closure pass; complete operational listener closure not established"
+  },
+  "ROLLBACK_VERIFICATION": "Inbox exact preimages preserved by parent commit; other runtime hashes unchanged. No install occurred. Full candidate restoration/rollback eligibility not claimed.",
+  "DISK_HEADROOM": {
+    "precondition": "PASS isolated tests only",
+    "before_bytes": 10967752704,
+    "after_bytes": 9862725632,
+    "test_peak_budget_bytes": 1000000000,
+    "reserve_bytes": 2000000000,
+    "cleanup": false
+  },
+  "STORAGE_EXCEPTION": "Existing compact Core/OPS handoff record exception only; no operational schema activation, database cleanup or VACUUM. Soft admission stop thresholds/residual concurrent SQLite WAL risk unchanged.",
+  "CANDIDATE_SOURCE_SHA": null,
+  "READY_FOR_TARGETED_DEPLOYMENT": false,
+  "NEXT_ACTION": "Authorize minimum installed-listener dependency composition and real provider-free producer-module qualification for src.ops.acquisition_availability (and only proven direct closure requirements), then repeat final release and fresh clean-checkout restoration. No Walkback redesign or deployment.",
+  "RUNTIME_DEPLOYMENT_GATE": "QUALIFIED_NOT_DEPLOYED",
+  "ISOLATED_API_STOPPED": true,
+  "PROVIDER_CALLS": 0,
+  "CANONICAL_WRITES": 0,
+  "PRODUCTION_CHANGES": 0,
+  "OPERATIONAL_SERVICE_RESTARTS": 0,
+  "PERSISTENT_DEV_CHANGES": 0,
+  "CANONICAL_MIGRATIONS": 0,
+  "PUBLICATION": "Sanitized handoff only; engineering branch not pushed, inherited protected-baseline literal credential remains excluded."
+}

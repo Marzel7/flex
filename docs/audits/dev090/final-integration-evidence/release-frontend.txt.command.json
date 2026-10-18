@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/opt/homebrew/Cellar/node@22/22.23.2/bin/node",
+    "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source/tests/dev043/pending_request_lifecycle.cjs"
+  ],
+  "cwd": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/source",
+  "elapsed_seconds": 0.4010675000026822,
+  "environment": {
+    "HOME": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/state/tests-894dc312d5b3",
+    "PATH": "/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/kevinkeaveney/.volta/bin:/Users/kevinkeaveney/.bun/bin:/Users/kevinkeaveney/.yarn/bin:/Users/kevinkeaveney/.config/yarn/global/node_modules/.bin:/Library/Frameworks/Python.framework/Versions/3.11/bin:/usr/bin/python3:/bin:/usr/bin:/usr/local/bin:/sbin:/Users/kevinkeaveney/.local/share/solana/install/active_release/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/opt/pmk/env/global/bin:/usr/local/go/bin:/Users/kevinkeaveney/.codex/tmp/arg0-macos/codex-arg0CVlQ8l:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/kevinkeaveney/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/kevinkeaveney/anaconda3/envs/algotrader/bin:/Users/kevinkeaveney/anaconda3/condabin:/Users/kevinkeaveney/.volta/bin:/Users/kevinkeaveney/.bun/bin:/Users/kevinkeaveney/.yarn/bin:/Users/kevinkeaveney/.config/yarn/global/node_modules/.bin:/Library/Frameworks/Python.framework/Versions/3.11/bin:/usr/bin/python3:/Users/kevinkeaveney/.local/share/solana/install/active_release/bin:/Users/kevinkeaveney/.cargo/bin:/Users/kevinkeaveney/.foundry/bin:/Users/kevinkeaveney/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS:/Users/kevinkeaveney/.foundry/bin:/Users/kevinkeaveney/.foundry/bin"
+  },
+  "file_limit_bytes": 8388608,
+  "log_bytes": 144,
+  "returncode": 0,
+  "signal": null,
+  "status": "PASS",
+  "stderr": "STDOUT",
+  "stdout": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/runs/894dc312d5b3/frontend.log",
+  "timeout_seconds": 30
+}

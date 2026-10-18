@@ -1,0 +1,261 @@
+Browser tab: 11, Title: "Operator · 04265d9f-6eb… — Intelligence", URL: "http://127.0.0.1:8197/intelligence/operator/04265d9f-6eb2-568c-a49e-9253091a4dbb".
+1 AXWebArea Operator · 04265d9f-6eb… — Intelligence, URL: 127.0.0.1:8197/intelligence/operator/04265d9f-6eb2-568c-a49e-9253091a4dbb
+	2 text DEVELOPMENT — READ ONLY — PRODUCTION DATA CANNOT BE MODIFIED
+	3 container
+		4 text FLEX
+		5 text OPERATIONS OS
+		6 container Primary
+			7 link Description: ◆ Mission Control, Value: 127.0.0.1:8197/ops-os
+			8 text INTELLIGENCE
+			9 link Description: Operations Registry & Live Monitor, Value: 127.0.0.1:8197/intelligence/operators
+			10 link Description: ▤ Operation Playbook, Value: 127.0.0.1:8197/operations/04265d9f-6eb2-568c-a49e-9253091a4dbb/playbook
+			11 link Description: Potential Operations, Value: 127.0.0.1:8197/intelligence/potential-operations
+			12 button (collapsed) SYSTEM ▸, Secondary Actions: Expand
+				13 text SYSTEM
+				14 text ▸
+		15 container sys-health-strip
+			16 text API
+			17 text DETAIL
+			18 text API live · detailed health in System Health
+	19 container
+		20 link Description: Mission Control, Value: 127.0.0.1:8197/ops-os
+		21 text ›
+		22 link Description: Operators, Value: 127.0.0.1:8197/intelligence/operators
+		23 text › 04265d9f-6eb…
+	24 container oi-dossier
+		25 container
+			26 text CONFIRMED OPERATION
+			27 text Watchtower
+			28 text Canonical operator promoted from legacy:WATCHTOWER after analyst review. STATE
+			29 text CONFIRMED
+			30 text Review State 
+			31 text REVIEWED
+			32 text ACTIVITY
+			33 text ACTIVE
+			34 text Current operational lifecycle WHY WE'RE CONFIDENT
+			35 text Evidence-backed identity
+			36 text 69 observations · — unresolved contradictions
+		37 container Description: Operator profile sections, ID: oi-tabs
+			38 button Summary
+		39 container
+			40 container oi-summary-model
+				41 container
+					42 heading Watchtower · VERY_ACTIVE, Value: 2
+						43 text Watchtower · VERY_ACTIVE
+					44 text Fingerprint: WSOL-ROUTE-STRICT-v1
+					45 text Strict completed funding-route lifecycle with rotating launch roles. 9 Launches 24h 71 Launches 7d 398 Launches 30d 0 min Median gap
+				46 container
+					47 heading Current Activity, Value: 2
+						48 text Current Activity
+					49 text 98 Exact observations 12 / 47 / 53 Exact · 24h / 7d / 30d 27/08/2026, 21:38:38 Last exact Current Queue Census · frozen high-water 35620
+				50 container
+					51 heading Evolution Watch, Value: 2
+						52 text Evolution Watch
+					53 AXListMarker • 
+					54 text Near:
+					55 text  0
+					56 AXListMarker • 
+					57 text Status:
+					58 text  Dynamic role monitoring
+					59 AXListMarker • 
+					60 text Mutation monitoring: Dynamic role discovery.
+				61 container
+					62 heading Behaviour, Value: 2
+						63 text Behaviour
+					64 content list
+						65 container
+							66 AXListMarker • 
+							67 text Observed role path: Treasury → sub-provider → creator
+						68 container
+							69 AXListMarker • 
+							70 text Mechanism:  PLAIN_XFER
+						71 container
+							72 AXListMarker • 
+							73 text Addresses:  Treasury and sub-provider infrastructure recur across retained launches
+				74 container
+					75 heading Fingerprint Health, Value: 2
+						76 text Fingerprint Health
+					77 AXListMarker • 
+					78 text Consistency:
+					79 text  93 current members
+					80 AXListMarker • 
+					81 text Qualified uniqueness:
+					82 text  Not yet measured
+					83 AXListMarker • 
+					84 text Current uniqueness:
+					85 text  100%
+					86 AXListMarker • 
+					87 text Drift:
+					88 text  None observed
+					89 AXListMarker • 
+					90 text Potential mutation:
+					91 text  None detected
+				92 container
+					93 heading Infrastructure Evidence, Value: 2
+						94 text Infrastructure Evidence
+					95 text DYNAMIC_ROLE_INFRASTRUCTURE 115 treasuries; 1143 confirmed sub-providers Common root: NOT_PROVEN Not required for behavioural detection.
+				96 container
+					97 heading Recent Launches, Value: 2
+						98 text Recent Launches
+					99 text Confirmed / admitted memberships: 616 · Ledger observations below are not membership evidence.
+					100 text REJECTED / NOT ADMITTED
+					101 text  · FUNDING_MECHANISM_MISMATCH · WATCHTOWER_CONFIRMED · CLAIMED · WALKBACK_RECOVERED
+					102 link Description: 69SNcRC8…qtxk, Help: 69SNcRC8NqjHBSXEcugCN5oFKRQoKmddmWzZYc3tqtxk, Value: solscan.io/account/69SNcRC8NqjHBSXEcugCN5oFKRQoKmddmWzZYc3tqtxk
+					103 text →
+					104 link Description: F7p3dFrj…gmNe, Help: F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe, Value: solscan.io/account/F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe
+					105 text →
+					106 link Description: 2PCpRwVA…EVhK, Help: 2PCpRwVAZsKmFoKk9QH5nJnGrAnQErsWNKQ9qiqZEVhK, Value: solscan.io/account/2PCpRwVAZsKmFoKk9QH5nJnGrAnQErsWNKQ9qiqZEVhK
+					107 text →
+					108 link Description: 7LN8UNns…pump, Help: 7LN8UNnsWmeo7dm3fRg33q32d2JbPa4n3SM6XUGapump, Value: solscan.io/token/7LN8UNnsWmeo7dm3fRg33q32d2JbPa4n3SM6XUGapump
+					109 link Description: Open token on GMGN, Value: gmgn.ai/sol/token/7LN8UNnsWmeo7dm3fRg33q32d2JbPa4n3SM6XUGapump
+					110 text Observed funding path PLAIN_XFER 18 Oct 2026
+					111 text REJECTED / NOT ADMITTED
+					112 text  · FUNDING_MECHANISM_MISMATCH · WATCHTOWER_CONFIRMED · CLAIMED · WALKBACK_RECOVERED
+					113 link Description: 69SNcRC8…qtxk, Help: 69SNcRC8NqjHBSXEcugCN5oFKRQoKmddmWzZYc3tqtxk, Value: solscan.io/account/69SNcRC8NqjHBSXEcugCN5oFKRQoKmddmWzZYc3tqtxk
+					114 text →
+					115 link Description: F7p3dFrj…gmNe, Help: F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe, Value: solscan.io/account/F7p3dFrjRTbtRp8FRF6qHLomXbKRBzpvBLjtQcfcgmNe
+					116 text →
+					117 link Description: Gsi2EeN3…Y29n, Help: Gsi2EeN31W1a6xcb2jhjyefm7w8SD3jXGiwX5QJxY29n, Value: solscan.io/account/Gsi2EeN31W1a6xcb2jhjyefm7w8SD3jXGiwX5QJxY29n
+					118 text →
+					119 link Description: HYSnHe71…pump, Help: HYSnHe719YFudUdQft6QePedYes5rVyAyNrUM8dqpump, Value: solscan.io/token/HYSnHe719YFudUdQft6QePedYes5rVyAyNrUM8dqpump
+					120 link Description: Open token on GMGN, Value: gmgn.ai/sol/token/HYSnHe719YFudUdQft6QePedYes5rVyAyNrUM8dqpump
+					121 text Observed funding path PLAIN_XFER 16 Oct 2026
+					122 text LINEAGE INCOMPLETE / NOT ADMITTED
+					123 text  · LINEAGE_GAP · TREASURY_CANDIDATE_SURFACED · OPENING_CATCHUP
+					124 link Description: EPkTkDSu…zDwB, Help: EPkTkDSu5SGq982RZoLx3PJQqFQVfKm8bqL5mRPgzDwB, Value: solscan.io/account/EPkTkDSu5SGq982RZoLx3PJQqFQVfKm8bqL5mRPgzDwB
+					125 text →
+					126 link Description: 9UQ3F6hs…QDGH, Help: 9UQ3F6hsWgHWtyMf2BkWzmfc955Td8AJpz1BSrNxQDGH, Value: solscan.io/account/9UQ3F6hsWgHWtyMf2BkWzmfc955Td8AJpz1BSrNxQDGH
+					127 text →
+					128 link Description: GKyjptzm…2pKq, Help: GKyjptzmSTJBRFC2iAvawTHGp9YykqRv3GLunyWR2pKq, Value: solscan.io/account/GKyjptzmSTJBRFC2iAvawTHGp9YykqRv3GLunyWR2pKq
+					129 text →
+					130 link Description: xpobox1H…pump, Help: xpobox1HU5SKAr2RFxnT4t5SrF8WowmWnbWauCrpump, Value: solscan.io/token/xpobox1HU5SKAr2RFxnT4t5SrF8WowmWnbWauCrpump
+					131 link Description: Open token on GMGN, Value: gmgn.ai/sol/token/xpobox1HU5SKAr2RFxnT4t5SrF8WowmWnbWauCrpump
+					132 text Observed funding path WSOL_WRAP_CLOSE 16 Oct 2026
+					133 link Description: Selected Walkback Tx 5rtrriNQ…fyjc ↗, Value: solscan.io/tx/5rtrriNQRKoUqFtfHQ1tJGyf7dEUj1P81PtdtGRKPPbrsvMq6wo9NT3Nx7nPWZBows4XTvLycQRm5eRvJi1nfyjc
+					134 button (collapsed) View all 250 retained launch observations →, Secondary Actions: Expand
+						135 text View all 250 retained launch observations →
+			136 button (collapsed) Secondary Actions: Expand, QUICK ACTIONS · CONFIRMED-ONLY WORKFLOW Identity GovernanceIdentity confirmed · merge status not recorded · no pending expansion · last review 97d ago Manage identity →
+				137 text QUICK ACTIONS · CONFIRMED-ONLY WORKFLOW
+				138 text Identity Governance
+				139 text Identity confirmed · merge status not recorded · no pending expansion · last review 97d ago
+				140 text Manage identity →
+
+The focused UI element is 1 AXWebArea Operator · 04265d9f-6eb… — Intelligence, URL: 127.0.0.1:8197/intelligence/operator/04265d9f-6eb2-568c-a49e-9253091a4dbb
+DEVELOPMENT — READ ONLY — PRODUCTION DATA CANNOT BE MODIFIED
+FLEX
+OPERATIONS OS
+◆ Mission Control
+INTELLIGENCE
+Operations Registry & Live Monitor
+▤ Operation Playbook
+Potential Operations
+SYSTEM
+API
+DETAIL
+API live · detailed health in System Health
+Mission Control › Operators › 04265d9f-6eb…
+CONFIRMED OPERATION
+Watchtower
+Canonical operator promoted from legacy:WATCHTOWER after analyst review.
+STATE
+CONFIRMED
+Review State REVIEWED
+ACTIVITY
+ACTIVE
+Current operational lifecycle
+WHY WE'RE CONFIDENT
+Evidence-backed identity
+69 observations · — unresolved contradictions
+Summary
+Watchtower · VERY_ACTIVE
+
+Fingerprint: WSOL-ROUTE-STRICT-v1
+
+Strict completed funding-route lifecycle with rotating launch roles.
+
+9
+Launches 24h
+71
+Launches 7d
+398
+Launches 30d
+0 min
+Median gap
+Current Activity
+98
+Exact observations
+12 / 47 / 53
+Exact · 24h / 7d / 30d
+27/08/2026, 21:38:38
+Last exact
+
+Current Queue Census · frozen high-water 35620
+
+Evolution Watch
+Near: 0
+Status: Dynamic role monitoring
+Mutation monitoring: Dynamic role discovery.
+Behaviour
+Observed role path: Treasury → sub-provider → creator
+Mechanism: PLAIN_XFER
+Addresses: Treasury and sub-provider infrastructure recur across retained launches
+Fingerprint Health
+Consistency: 93 current members
+Qualified uniqueness: Not yet measured
+Current uniqueness: 100%
+Drift: None observed
+Potential mutation: None detected
+Infrastructure Evidence
+DYNAMIC_ROLE_INFRASTRUCTURE
+
+115 treasuries; 1143 confirmed sub-providers
+
+Common root: NOT_PROVEN
+
+Not required for behavioural detection.
+
+Recent Launches
+
+Confirmed / admitted memberships: 616 · Ledger observations below are not membership evidence.
+
+REJECTED / NOT ADMITTED · FUNDING_MECHANISM_MISMATCH · WATCHTOWER_CONFIRMED · CLAIMED · WALKBACK_RECOVERED
+69SNcRC8…qtxk
+→
+F7p3dFrj…gmNe
+→
+2PCpRwVA…EVhK
+→
+7LN8UNns…pump
+◉
+Observed funding path
+PLAIN_XFER
+18 Oct 2026
+REJECTED / NOT ADMITTED · FUNDING_MECHANISM_MISMATCH · WATCHTOWER_CONFIRMED · CLAIMED · WALKBACK_RECOVERED
+69SNcRC8…qtxk
+→
+F7p3dFrj…gmNe
+→
+Gsi2EeN3…Y29n
+→
+HYSnHe71…pump
+◉
+Observed funding path
+PLAIN_XFER
+16 Oct 2026
+LINEAGE INCOMPLETE / NOT ADMITTED · LINEAGE_GAP · TREASURY_CANDIDATE_SURFACED · OPENING_CATCHUP
+EPkTkDSu…zDwB
+→
+9UQ3F6hs…QDGH
+→
+GKyjptzm…2pKq
+→
+xpobox1H…pump
+◉
+Observed funding path
+WSOL_WRAP_CLOSE
+16 Oct 2026
+Selected Walkback Tx 5rtrriNQ…fyjc ↗
+View all 250 retained launch observations →
+QUICK ACTIONS · CONFIRMED-ONLY WORKFLOW
+Identity GovernanceIdentity confirmed · merge status not recorded · no pending expansion · last review 97d ago
+Manage identity →

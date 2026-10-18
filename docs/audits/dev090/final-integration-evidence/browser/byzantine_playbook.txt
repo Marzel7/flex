@@ -1,0 +1,1687 @@
+Browser tab: 11, Title: "FLEX", URL: "http://127.0.0.1:8197/operations/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334/playbook".
+1 AXWebArea FLEX, URL: 127.0.0.1:8197/operations/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334/playbook
+	2 text DEVELOPMENT — READ ONLY — PRODUCTION DATA CANNOT BE MODIFIED
+	3 container
+		4 text FLEX
+		5 text OPERATIONS OS
+		6 container Primary
+			7 link Description: ◆ Mission Control, Value: 127.0.0.1:8197/ops-os
+			8 text INTELLIGENCE
+			9 link Description: Operations Registry & Live Monitor, Value: 127.0.0.1:8197/intelligence/operators
+			10 link Description: ▤ Operation Playbook, Value: 127.0.0.1:8197/operations/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334/playbook
+			11 link Description: Potential Operations, Value: 127.0.0.1:8197/intelligence/potential-operations
+			12 button (collapsed) SYSTEM ▸, Secondary Actions: Expand
+				13 text SYSTEM
+				14 text ▸
+		15 container sys-health-strip
+			16 text API
+			17 text DETAIL
+			18 text API live · detailed health in System Health
+	19 container
+		20 text CONFIRMED · MATURE COHORT COMPLETE
+		21 heading Byzantine — Operation Playbook, Value: 1
+			22 text Byzantine  — Operation Playbook
+		23 text Lifecycle research evaluates rapid post-launch price expansion and subsequent retained-point drawdown. Research cohort membership is analytically scoped and does not define canonical operation membership.
+		24 text 163
+		25 text Canonical members
+		26 text 103
+		27 text Current research launches
+		28 text 64
+		29 text Mature 7-day lifecycles
+		30 text 39
+		31 text Horizon not elapsed
+		32 text 24
+		33 text Canonical overlap
+		34 text 40
+		35 text Research only
+		36 container Trading Opportunity
+			37 text Trading opportunity
+			38 heading Trading Opportunity, Value: 2, ID: opportunity-title
+				39 text Trading Opportunity
+			40 text 64 mature seven-day lifecycles · Scenario-D counterfactual entries
+			41 text RESEARCH EVIDENCE · 64 / 64 QUALIFIED
+			42 container
+				43 text First possible buy $16.26K Median equivalent entry valuation 64 / 64 qualified · 0.25 SOL counterfactual
+			44 container
+				45 text Post-entry peak 1.81× Median retained peak multiple ≥2× 25 / 64 · ≥5× 16 / 64 · ≥10×
+				46 text 10 / 64
+			47 container
+				48 text Strategy performance PENDING Entry → exit scoring not yet run NOT RUN
+			49 container Trading opportunity filters
+				50 search text field (settable) Description: Search token, ID: op-search
+				51 pop up button (collapsed, settable) Description: Membership filter, Value: All membership, ID: op-membership, Secondary Actions: Expand
+					52 menu
+						53 (selected) All membership
+						54 Canonical
+						55 Research only
+				56 pop up button (collapsed, settable) Description: Rug-state filter, Value: All rug states, ID: op-rug, Secondary Actions: Expand
+					57 menu
+						58 (selected) All rug states
+						59 ≥85% proven
+						60 ≥85% not proven
+				61 pop up button (collapsed, settable) Description: Peak-multiple filter, Value: All multiples, ID: op-multiple, Secondary Actions: Expand
+					62 menu
+						63 (selected) All multiples
+						64 <1.5×
+						65 1.5–<2×
+						66 2–<5×
+						67 5–<10×
+						68 ≥10×
+				69 text 64 cases
+			70 table opportunity-table
+				71 row
+					72 cell
+						73 text RANK
+					74 cell
+						75 text TOKEN
+					76 cell
+						77 text MEMBERSHIP
+					78 cell
+						79 text ENTRY
+					80 cell Highest market cap proven by retained lifecycle evidence; not an absolute all-time-high claim.
+						81 text MAX PROVEN MC
+					82 cell
+						83 text ENTRY → MAX  LATEST ENTRY
+					84 cell
+						85 text ENTRY→MAX TIME
+					86 cell
+						87 text 7D DRAWDOWN
+					88 cell Uses the independent drawdown-reference peak.
+						89 text 85% COLLAPSE
+					90 cell
+						91 text STATE
+				92 row
+					93 cell
+						94 text 1
+					95 cell
+						96 link Description: 4ZXX…cYpump, Help: Open 4ZXXiMMyN3wotCEW2QfmRbesHg3pS7S3rovnrKcYpump on GMGN, Value: gmgn.ai/sol/token/4ZXXiMMyN3wotCEW2QfmRbesHg3pS7S3rovnrKcYpump
+						97 text M
+					98 cell
+						99 text RESEARCH ONLY
+					100 cell
+						101 text $16.1K
+					102 cell
+						103 text ≥$48.7K
+					104 cell
+						105 text ≥3.03×
+					106 cell Time from entry to retained lifecycle maximum
+						107 text 3.6m
+					108 cell
+						109 text 67.53%
+					110 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						111 text NOT PROVEN
+					112 cell
+						113 text NOT PROVEN
+				114 row
+					115 cell
+						116 text 2
+					117 cell
+						118 link Description: zRoY…SVpump, Help: Open zRoYAdLYogsS491qazGakt2BDvgjMMiE8xQWpSVpump on GMGN, Value: gmgn.ai/sol/token/zRoYAdLYogsS491qazGakt2BDvgjMMiE8xQWpSVpump
+						119 text M
+					120 cell
+						121 text RESEARCH ONLY
+					122 cell
+						123 text $16.1K
+					124 cell
+						125 text ≥$55.5K
+					126 cell
+						127 text ≥3.46×
+					128 cell Time from entry to retained lifecycle maximum
+						129 text 5.3m
+					130 cell
+						131 text 95.49%
+					132 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						133 text —
+					134 cell
+						135 text PROVEN
+				136 row
+					137 cell
+						138 text 3
+					139 cell
+						140 link Description: FqXi…dVpump, Help: Open FqXipMyKJJUrU9MASnpWqTESVcdZjkK83ttFmWdVpump on GMGN, Value: gmgn.ai/sol/token/FqXipMyKJJUrU9MASnpWqTESVcdZjkK83ttFmWdVpump
+						141 text M
+					142 cell
+						143 text RESEARCH ONLY
+					144 cell
+						145 text $16.0K
+					146 cell
+						147 text ≥$85.9K
+					148 cell
+						149 text ≥5.38×
+					150 cell Time from entry to retained lifecycle maximum
+						151 text 27.3m
+					152 cell
+						153 text 97.38%
+					154 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						155 text —
+					156 cell
+						157 text PROVEN
+				158 row
+					159 cell
+						160 text 4
+					161 cell
+						162 link Description: BSMY…5kpump, Help: Open BSMYixMm6XHgi49bBG117FeeowTQz9dJmUmjwx5kpump on GMGN, Value: gmgn.ai/sol/token/BSMYixMm6XHgi49bBG117FeeowTQz9dJmUmjwx5kpump
+					163 cell
+						164 text RESEARCH ONLY
+					165 cell
+						166 text $16.1K
+					167 cell
+						168 text ≥$23.3K
+					169 cell
+						170 text ≥1.45×
+					171 cell Time from entry to retained lifecycle maximum
+						172 text 0.7m
+					173 cell
+						174 text 87.85%
+					175 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						176 text —
+					177 cell
+						178 text PROVEN
+				179 row
+					180 cell
+						181 text 5
+					182 cell
+						183 link Description: 9oqk…fTpump, Help: Open 9oqkfbJiPTHpXMWzucEfHtxc2QrjSJ1T2oYtW5fTpump on GMGN, Value: gmgn.ai/sol/token/9oqkfbJiPTHpXMWzucEfHtxc2QrjSJ1T2oYtW5fTpump
+					184 cell
+						185 text RESEARCH ONLY
+					186 cell
+						187 text $16.2K
+					188 cell
+						189 text ≥$3.0K
+					190 cell
+						191 text ≥0.18×
+					192 cell Time from entry to retained lifecycle maximum
+						193 text 2963.3m
+					194 cell
+						195 text 3.73%
+					196 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						197 text —
+					198 cell
+						199 text NOT PROVEN
+				200 row
+					201 cell
+						202 text 6
+					203 cell
+						204 link Description: Hpou…5upump, Help: Open HpoucnSt8mYoYf1sq7mvtc3GfHttDdtHLaEeiw5upump on GMGN, Value: gmgn.ai/sol/token/HpoucnSt8mYoYf1sq7mvtc3GfHttDdtHLaEeiw5upump
+					205 cell
+						206 text RESEARCH ONLY
+					207 cell
+						208 text $10.4K
+					209 cell
+						210 text ≥$2.9K
+					211 cell
+						212 text ≥0.28×
+					213 cell Time from entry to retained lifecycle maximum
+						214 text 1.1m
+					215 cell
+						216 text 2.80%
+					217 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						218 text —
+					219 cell
+						220 text NOT PROVEN
+				221 row
+					222 cell
+						223 text 7
+					224 cell
+						225 link Description: 3jW7…pUpump, Help: Open 3jW73wn4skHyLMEDTZ5dzGzcF9C1YEbYuk9y61pUpump on GMGN, Value: gmgn.ai/sol/token/3jW73wn4skHyLMEDTZ5dzGzcF9C1YEbYuk9y61pUpump
+						226 text M
+					227 cell
+						228 text RESEARCH ONLY
+					229 cell
+						230 text $10.4K
+					231 cell
+						232 text ≥$58.5K
+					233 cell
+						234 text ≥5.64×
+					235 cell Time from entry to retained lifecycle maximum
+						236 text 1.0m
+					237 cell
+						238 text 67.62%
+					239 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						240 text —
+					241 cell
+						242 text NOT PROVEN
+				243 row
+					244 cell
+						245 text 8
+					246 cell
+						247 link Description: 2gJq…3opump, Help: Open 2gJqYu9unk6oNJWG3sZbeGrJbDtia1svkxpgbR3opump on GMGN, Value: gmgn.ai/sol/token/2gJqYu9unk6oNJWG3sZbeGrJbDtia1svkxpgbR3opump
+					248 cell
+						249 text RESEARCH ONLY
+					250 cell
+						251 text $16.5K
+					252 cell
+						253 text ≥$2.9K
+					254 cell
+						255 text ≥0.18×
+					256 cell Time from entry to retained lifecycle maximum
+						257 text 0.8m
+					258 cell
+						259 text 0.10%
+					260 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						261 text —
+					262 cell
+						263 text NOT PROVEN
+				264 row
+					265 cell
+						266 text 9
+					267 cell
+						268 link Description: ArUM…w9pump, Help: Open ArUMvNV4pwZ3whWQ37bjkBmmnZDijrfzxjeqzRw9pump on GMGN, Value: gmgn.ai/sol/token/ArUMvNV4pwZ3whWQ37bjkBmmnZDijrfzxjeqzRw9pump
+					269 cell
+						270 text RESEARCH ONLY
+					271 cell
+						272 text $16.4K
+					273 cell
+						274 text ≥$2.9K
+					275 cell
+						276 text ≥0.18×
+					277 cell Time from entry to retained lifecycle maximum
+						278 text 0.7m
+					279 cell
+						280 text 2.65%
+					281 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						282 text —
+					283 cell
+						284 text NOT PROVEN
+				285 row
+					286 cell
+						287 text 10
+					288 cell
+						289 link Description: vZd5…mYpump, Help: Open vZd5wgnfqPio9rfCg8vem7ZPNBJSixGCYNZsRmYpump on GMGN, Value: gmgn.ai/sol/token/vZd5wgnfqPio9rfCg8vem7ZPNBJSixGCYNZsRmYpump
+					290 cell
+						291 text RESEARCH ONLY
+					292 cell
+						293 text $16.5K
+					294 cell
+						295 text ≥$3.0K
+					296 cell
+						297 text ≥0.19×
+					298 cell Time from entry to retained lifecycle maximum
+						299 text 6.3m
+					300 cell
+						301 text 6.29%
+					302 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						303 text —
+					304 cell
+						305 text NOT PROVEN
+				306 row
+					307 cell
+						308 text 11
+					309 cell
+						310 link Description: HDvw…vKpump, Help: Open HDvwQ7ai3Ywi1badnXREqJSaAAzoe1q63SbZwTvKpump on GMGN, Value: gmgn.ai/sol/token/HDvwQ7ai3Ywi1badnXREqJSaAAzoe1q63SbZwTvKpump
+					311 cell
+						312 text RESEARCH ONLY
+					313 cell
+						314 text $10.4K
+					315 cell
+						316 text ≥$3.0K
+					317 cell
+						318 text ≥0.29×
+					319 cell Time from entry to retained lifecycle maximum
+						320 text 2.6m
+					321 cell
+						322 text 3.62%
+					323 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						324 text —
+					325 cell
+						326 text NOT PROVEN
+				327 row
+					328 cell
+						329 text 12
+					330 cell
+						331 link Description: eH9u…vRpump, Help: Open eH9uErNehYg3p8Y14Ujf5eUBNnX6AkaEqkxLbvRpump on GMGN, Value: gmgn.ai/sol/token/eH9uErNehYg3p8Y14Ujf5eUBNnX6AkaEqkxLbvRpump
+					332 cell
+						333 text RESEARCH ONLY
+					334 cell
+						335 text $16.3K
+					336 cell
+						337 text ≥$3.0K
+					338 cell
+						339 text ≥0.19×
+					340 cell Time from entry to retained lifecycle maximum
+						341 text 0.3m
+					342 cell
+						343 text 5.99%
+					344 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						345 text —
+					346 cell
+						347 text NOT PROVEN
+				348 row
+					349 cell
+						350 text 13
+					351 cell
+						352 link Description: G5vB…jJpump, Help: Open G5vBr81KJZEuFvD8Nf2oB5XRa6Ess7yHJefoUCjJpump on GMGN, Value: gmgn.ai/sol/token/G5vBr81KJZEuFvD8Nf2oB5XRa6Ess7yHJefoUCjJpump
+						353 text M
+					354 cell
+						355 text RESEARCH ONLY
+					356 cell
+						357 text $10.4K
+					358 cell
+						359 text ≥$1.1M
+					360 cell
+						361 text ≥102.09×
+					362 cell Time from entry to retained lifecycle maximum
+						363 text 44.0m
+					364 cell
+						365 text 99.76%
+					366 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						367 text —
+					368 cell
+						369 text PROVEN
+				370 row
+					371 cell
+						372 text 14
+					373 cell
+						374 link Description: CitK…gspump, Help: Open CitKxWwGV88AwMnAUtA4RzpSegYntMKH18yjv2gspump on GMGN, Value: gmgn.ai/sol/token/CitKxWwGV88AwMnAUtA4RzpSegYntMKH18yjv2gspump
+					375 cell
+						376 text RESEARCH ONLY
+					377 cell
+						378 text $10.4K
+					379 cell
+						380 text ≥$26.8K
+					381 cell
+						382 text ≥2.57×
+					383 cell Time from entry to retained lifecycle maximum
+						384 text 0.2m
+					385 cell
+						386 text 89.14%
+					387 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						388 text —
+					389 cell
+						390 text PROVEN
+				391 row
+					392 cell
+						393 text 15
+					394 cell
+						395 link Description: BcwD…Wrpump, Help: Open BcwDGmnYzWquSVrWHMZqPaewCmxLD8kk7eVGM2Wrpump on GMGN, Value: gmgn.ai/sol/token/BcwDGmnYzWquSVrWHMZqPaewCmxLD8kk7eVGM2Wrpump
+						396 text M
+					397 cell
+						398 text RESEARCH ONLY
+					399 cell
+						400 text $16.5K
+					401 cell
+						402 text ≥$356.1K
+					403 cell
+						404 text ≥21.58×
+					405 cell Time from entry to retained lifecycle maximum
+						406 text 13.0m
+					407 cell
+						408 text 99.33%
+					409 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						410 text —
+					411 cell
+						412 text PROVEN
+				413 row
+					414 cell
+						415 text 16
+					416 cell
+						417 link Description: BeEv…s5pump, Help: Open BeEvn8SCgkduNn16fHprLXVYQN11yHX8nkPp2Vs5pump on GMGN, Value: gmgn.ai/sol/token/BeEvn8SCgkduNn16fHprLXVYQN11yHX8nkPp2Vs5pump
+					418 cell
+						419 text RESEARCH ONLY
+					420 cell
+						421 text $10.4K
+					422 cell
+						423 text ≥$2.9K
+					424 cell
+						425 text ≥0.28×
+					426 cell Time from entry to retained lifecycle maximum
+						427 text 288.9m
+					428 cell
+						429 text 0.00%
+					430 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						431 text —
+					432 cell
+						433 text NOT PROVEN
+				434 row
+					435 cell
+						436 text 17
+					437 cell
+						438 link Description: HiYH…mjpump, Help: Open HiYHZmYti5f2SVvEwCs296AELFR2UMW3r4aBHFmjpump on GMGN, Value: gmgn.ai/sol/token/HiYHZmYti5f2SVvEwCs296AELFR2UMW3r4aBHFmjpump
+						439 text M
+					440 cell
+						441 text RESEARCH ONLY
+					442 cell
+						443 text $16.7K
+					444 cell
+						445 text ≥$136.2K
+					446 cell
+						447 text ≥8.17×
+					448 cell Time from entry to retained lifecycle maximum
+						449 text 3.1m
+					450 cell
+						451 text 97.48%
+					452 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						453 text —
+					454 cell
+						455 text PROVEN
+				456 row
+					457 cell
+						458 text 18
+					459 cell
+						460 link Description: 5eBc…h4pump, Help: Open 5eBcmVpmC4aDrzqu37KsYk8xdvfqMEmyAGwEy6h4pump on GMGN, Value: gmgn.ai/sol/token/5eBcmVpmC4aDrzqu37KsYk8xdvfqMEmyAGwEy6h4pump
+					461 cell
+						462 text RESEARCH ONLY
+					463 cell
+						464 text $16.6K
+					465 cell
+						466 text ≥$3.7K
+					467 cell
+						468 text ≥0.22×
+					469 cell Time from entry to retained lifecycle maximum
+						470 text 405.4m
+					471 cell
+						472 text 1.10%
+					473 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						474 text —
+					475 cell
+						476 text NOT PROVEN
+				477 row
+					478 cell
+						479 text 19
+					480 cell
+						481 link Description: VGpx…eYpump, Help: Open VGpxjH2dtrk2PK9ynRLdVMZfWwwY5jaG7wNdJeYpump on GMGN, Value: gmgn.ai/sol/token/VGpxjH2dtrk2PK9ynRLdVMZfWwwY5jaG7wNdJeYpump
+						482 text M
+					483 cell
+						484 text RESEARCH ONLY
+					485 cell
+						486 text $16.7K
+					487 cell
+						488 text ≥$8.1K
+					489 cell
+						490 text ≥0.48×
+					491 cell Time from entry to retained lifecycle maximum
+						492 text 1.9m
+					493 cell
+						494 text 65.79%
+					495 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						496 text —
+					497 cell
+						498 text NOT PROVEN
+				499 row
+					500 cell
+						501 text 20
+					502 cell
+						503 link Description: 5F2u…9tpump, Help: Open 5F2uun8KhzjEY3jMXaP6eGG1rS1LaG6KoikSqc9tpump on GMGN, Value: gmgn.ai/sol/token/5F2uun8KhzjEY3jMXaP6eGG1rS1LaG6KoikSqc9tpump
+						504 text M
+					505 cell
+						506 text RESEARCH ONLY
+					507 cell
+						508 text $16.6K
+					509 cell
+						510 text ≥$131.1K
+					511 cell
+						512 text ≥7.89×
+					513 cell Time from entry to retained lifecycle maximum
+						514 text 6.6m
+					515 cell
+						516 text 97.34%
+					517 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						518 text —
+					519 cell
+						520 text PROVEN
+				521 row
+					522 cell
+						523 text 21
+					524 cell
+						525 link Description: EbM9…7Tpump, Help: Open EbM9YwGHM6d6w5J1xBX5yqLsPHhMp7mDmPqpkE7Tpump on GMGN, Value: gmgn.ai/sol/token/EbM9YwGHM6d6w5J1xBX5yqLsPHhMp7mDmPqpkE7Tpump
+						526 text M
+					527 cell
+						528 text RESEARCH ONLY
+					529 cell
+						530 text $16.6K
+					531 cell
+						532 text ≥$547.5K
+					533 cell
+						534 text ≥32.94×
+					535 cell Time from entry to retained lifecycle maximum
+						536 text 43.2m
+					537 cell
+						538 text 99.60%
+					539 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						540 text —
+					541 cell
+						542 text PROVEN
+				543 row
+					544 cell
+						545 text 22
+					546 cell
+						547 link Description: B8gZ…rWpump, Help: Open B8gZpcJRRr9am23PmBMG51korwxYXD8Q6wnsprWpump on GMGN, Value: gmgn.ai/sol/token/B8gZpcJRRr9am23PmBMG51korwxYXD8Q6wnsprWpump
+					548 cell
+						549 text RESEARCH ONLY
+					550 cell
+						551 text $16.4K
+					552 cell
+						553 text ≥$2.9K
+					554 cell
+						555 text ≥0.18×
+					556 cell Time from entry to retained lifecycle maximum
+						557 text 39.6m
+					558 cell
+						559 text 0.59%
+					560 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						561 text —
+					562 cell
+						563 text NOT PROVEN
+				564 row
+					565 cell
+						566 text 23
+					567 cell
+						568 link Description: 7Syr…x5pump, Help: Open 7SyrcuqYg3zUSGpZLzzx8EwyvrNxdbxdNd22uEx5pump on GMGN, Value: gmgn.ai/sol/token/7SyrcuqYg3zUSGpZLzzx8EwyvrNxdbxdNd22uEx5pump
+						569 text M
+					570 cell
+						571 text RESEARCH ONLY
+					572 cell
+						573 text $16.3K
+					574 cell
+						575 text ≥$53.0K
+					576 cell
+						577 text ≥3.25×
+					578 cell Time from entry to retained lifecycle maximum
+						579 text 1.6m
+					580 cell
+						581 text 94.88%
+					582 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						583 text —
+					584 cell
+						585 text PROVEN
+				586 row
+					587 cell
+						588 text 24
+					589 cell
+						590 link Description: BoRn…Ecpump, Help: Open BoRniH1ALDv4jqZhki3HWKQuufBRLttBTGhDAoEcpump on GMGN, Value: gmgn.ai/sol/token/BoRniH1ALDv4jqZhki3HWKQuufBRLttBTGhDAoEcpump
+					591 cell
+						592 text RESEARCH ONLY
+					593 cell
+						594 text $15.9K
+					595 cell
+						596 text ≥$30.1K
+					597 cell
+						598 text ≥1.89×
+					599 cell Time from entry to retained lifecycle maximum
+						600 text 0.9m
+					601 cell
+						602 text 90.62%
+					603 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						604 text —
+					605 cell
+						606 text PROVEN
+				607 row
+					608 cell
+						609 text 25
+					610 cell
+						611 link Description: 8u9v…mRpump, Help: Open 8u9vXyvEfwk8znA4K3PCsa26jGUgvPfvxVYTYemRpump on GMGN, Value: gmgn.ai/sol/token/8u9vXyvEfwk8znA4K3PCsa26jGUgvPfvxVYTYemRpump
+					612 cell
+						613 text RESEARCH ONLY
+					614 cell
+						615 text $16.0K
+					616 cell
+						617 text ≥$2.9K
+					618 cell
+						619 text ≥0.18×
+					620 cell Time from entry to retained lifecycle maximum
+						621 text 572.4m
+					622 cell
+						623 text 0.98%
+					624 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						625 text —
+					626 cell
+						627 text NOT PROVEN
+				628 row
+					629 cell
+						630 text 26
+					631 cell
+						632 link Description: DrZb…dKpump, Help: Open DrZbMBkhTB876NryuixQy68aoCgaMFZCdN2FzPdKpump on GMGN, Value: gmgn.ai/sol/token/DrZbMBkhTB876NryuixQy68aoCgaMFZCdN2FzPdKpump
+						633 text M
+					634 cell
+						635 text RESEARCH ONLY
+					636 cell
+						637 text $15.5K
+					638 cell
+						639 text ≥$235.0K
+					640 cell
+						641 text ≥15.17×
+					642 cell Time from entry to retained lifecycle maximum
+						643 text 28.9m
+					644 cell
+						645 text 98.94%
+					646 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						647 text —
+					648 cell
+						649 text PROVEN
+				650 row
+					651 cell
+						652 text 27
+					653 cell
+						654 link Description: 5dfU…3kpump, Help: Open 5dfUHdDeo6CmX36FjpbLGK7XM1uzrZzuFAcGPh3kpump on GMGN, Value: gmgn.ai/sol/token/5dfUHdDeo6CmX36FjpbLGK7XM1uzrZzuFAcGPh3kpump
+					655 cell
+						656 text RESEARCH ONLY
+					657 cell
+						658 text $15.7K
+					659 cell
+						660 text ≥$30.9K
+					661 cell
+						662 text ≥1.96×
+					663 cell Time from entry to retained lifecycle maximum
+						664 text 0.3m
+					665 cell
+						666 text 91.03%
+					667 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						668 text —
+					669 cell
+						670 text PROVEN
+				671 row
+					672 cell
+						673 text 28
+					674 cell
+						675 link Description: 5vYF…6tpump, Help: Open 5vYF97goB1Jxf3dVHE6r7PZSCyTxLuX3yLZS5Y6tpump on GMGN, Value: gmgn.ai/sol/token/5vYF97goB1Jxf3dVHE6r7PZSCyTxLuX3yLZS5Y6tpump
+					676 cell
+						677 text RESEARCH ONLY
+					678 cell
+						679 text $15.7K
+					680 cell
+						681 text ≥$31.0K
+					682 cell
+						683 text ≥1.98×
+					684 cell Time from entry to retained lifecycle maximum
+						685 text 0.1m
+					686 cell
+						687 text 90.91%
+					688 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						689 text —
+					690 cell
+						691 text PROVEN
+				692 row
+					693 cell
+						694 text 29
+					695 cell
+						696 link Description: FmVB…snpump, Help: Open FmVBbE3f7oncfPZ2TDRbWb6gZKggtky977pwqasnpump on GMGN, Value: gmgn.ai/sol/token/FmVBbE3f7oncfPZ2TDRbWb6gZKggtky977pwqasnpump
+					697 cell
+						698 text RESEARCH ONLY
+					699 cell
+						700 text $15.8K
+					701 cell
+						702 text ≥$3.0K
+					703 cell
+						704 text ≥0.19×
+					705 cell Time from entry to retained lifecycle maximum
+						706 text 5827.0m
+					707 cell
+						708 text 2.62%
+					709 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						710 text —
+					711 cell
+						712 text NOT PROVEN
+				713 row
+					714 cell
+						715 text 30
+					716 cell
+						717 link Description: 3bTg…5cpump, Help: Open 3bTgy1xLE2ht6B97SWMhmqQjkdU8UAYzm4kaCj5cpump on GMGN, Value: gmgn.ai/sol/token/3bTgy1xLE2ht6B97SWMhmqQjkdU8UAYzm4kaCj5cpump
+					718 cell
+						719 text RESEARCH ONLY
+					720 cell
+						721 text $15.8K
+					722 cell
+						723 text ≥$2.8K
+					724 cell
+						725 text ≥0.18×
+					726 cell Time from entry to retained lifecycle maximum
+						727 text 2.1m
+					728 cell
+						729 text 1.31%
+					730 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						731 text —
+					732 cell
+						733 text NOT PROVEN
+				734 row
+					735 cell
+						736 text 31
+					737 cell
+						738 link Description: 2fDU…fwpump, Help: Open 2fDUfKj62axPjHLxQvXtF1erwxR7ugzRjmtCF6fwpump on GMGN, Value: gmgn.ai/sol/token/2fDUfKj62axPjHLxQvXtF1erwxR7ugzRjmtCF6fwpump
+					739 cell
+						740 text RESEARCH ONLY
+					741 cell
+						742 text $15.9K
+					743 cell
+						744 text ≥$2.8K
+					745 cell
+						746 text ≥0.18×
+					747 cell Time from entry to retained lifecycle maximum
+						748 text 1.2m
+					749 cell
+						750 text 2.59%
+					751 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						752 text —
+					753 cell
+						754 text NOT PROVEN
+				755 row
+					756 cell
+						757 text 32
+					758 cell
+						759 link Description: A82W…Jnpump, Help: Open A82WhnkYPidBub8zkeu9Hei3w9NB1m6XpzeX7nJnpump on GMGN, Value: gmgn.ai/sol/token/A82WhnkYPidBub8zkeu9Hei3w9NB1m6XpzeX7nJnpump
+					760 cell
+						761 text RESEARCH ONLY
+					762 cell
+						763 text $16.0K
+					764 cell
+						765 text ≥$3.0K
+					766 cell
+						767 text ≥0.19×
+					768 cell Time from entry to retained lifecycle maximum
+						769 text 6761.8m
+					770 cell
+						771 text 0.38%
+					772 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						773 text —
+					774 cell
+						775 text NOT PROVEN
+				776 row
+					777 cell
+						778 text 33
+					779 cell
+						780 link Description: 12GD…LCpump, Help: Open 12GDLxNHvw4QKuBM1SMr6FhTiEVLeWQJYWfEjLCpump on GMGN, Value: gmgn.ai/sol/token/12GDLxNHvw4QKuBM1SMr6FhTiEVLeWQJYWfEjLCpump
+					781 cell
+						782 text RESEARCH ONLY
+					783 cell
+						784 text $15.9K
+					785 cell
+						786 text ≥$3.0K
+					787 cell
+						788 text ≥0.19×
+					789 cell Time from entry to retained lifecycle maximum
+						790 text 6764.0m
+					791 cell
+						792 text 0.97%
+					793 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						794 text —
+					795 cell
+						796 text NOT PROVEN
+				797 row
+					798 cell
+						799 text 34
+					800 cell
+						801 link Description: E62o…KHpump, Help: Open E62oHgjBSZaVcuYAT12nJRiVcQjfCrRiW2kzZ7KHpump on GMGN, Value: gmgn.ai/sol/token/E62oHgjBSZaVcuYAT12nJRiVcQjfCrRiW2kzZ7KHpump
+					802 cell
+						803 text RESEARCH ONLY
+					804 cell
+						805 text $16.1K
+					806 cell
+						807 text ≥$2.9K
+					808 cell
+						809 text ≥0.18×
+					810 cell Time from entry to retained lifecycle maximum
+						811 text 2.6m
+					812 cell
+						813 text 2.70%
+					814 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						815 text —
+					816 cell
+						817 text NOT PROVEN
+				818 row
+					819 cell
+						820 text 35
+					821 cell
+						822 link Description: BKcS…rrpump, Help: Open BKcSqBWmyTAVLj5VojbmC9j9Kg2Hxoi5LDusx4rrpump on GMGN, Value: gmgn.ai/sol/token/BKcSqBWmyTAVLj5VojbmC9j9Kg2Hxoi5LDusx4rrpump
+					823 cell
+						824 text RESEARCH ONLY
+					825 cell
+						826 text $16.2K
+					827 cell
+						828 text ≥$29.9K
+					829 cell
+						830 text ≥1.85×
+					831 cell Time from entry to retained lifecycle maximum
+						832 text 1.5m
+					833 cell
+						834 text 90.71%
+					835 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						836 text —
+					837 cell
+						838 text PROVEN
+				839 row
+					840 cell
+						841 text 36
+					842 cell
+						843 link Description: 2QLv…ZJpump, Help: Open 2QLvzb6LK2hZzWXyuQxmo1SJdtRhhJVcsMK3nkZJpump on GMGN, Value: gmgn.ai/sol/token/2QLvzb6LK2hZzWXyuQxmo1SJdtRhhJVcsMK3nkZJpump
+					844 cell
+						845 text RESEARCH ONLY
+					846 cell
+						847 text $16.3K
+					848 cell
+						849 text ≥$3.5K
+					850 cell
+						851 text ≥0.22×
+					852 cell Time from entry to retained lifecycle maximum
+						853 text 0.1m
+					854 cell
+						855 text 19.70%
+					856 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						857 text —
+					858 cell
+						859 text NOT PROVEN
+				860 row
+					861 cell
+						862 text 37
+					863 cell
+						864 link Description: DGhu…ZKpump, Help: Open DGhuaYQoD3Q5GwG1LegLFMVjz4KxP7c6Fpn6spZKpump on GMGN, Value: gmgn.ai/sol/token/DGhuaYQoD3Q5GwG1LegLFMVjz4KxP7c6Fpn6spZKpump
+					865 cell
+						866 text RESEARCH ONLY
+					867 cell
+						868 text $16.2K
+					869 cell
+						870 text ≥$2.9K
+					871 cell
+						872 text ≥0.18×
+					873 cell Time from entry to retained lifecycle maximum
+						874 text 1.5m
+					875 cell
+						876 text 4.80%
+					877 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						878 text —
+					879 cell
+						880 text NOT PROVEN
+				881 row
+					882 cell
+						883 text 38
+					884 cell
+						885 link Description: 7rRj…FJpump, Help: Open 7rRjovexyYfTFELzRKKdnQWgcKUef1NHLHCvafFJpump on GMGN, Value: gmgn.ai/sol/token/7rRjovexyYfTFELzRKKdnQWgcKUef1NHLHCvafFJpump
+					886 cell
+						887 text RESEARCH ONLY
+					888 cell
+						889 text $16.1K
+					890 cell
+						891 text ≥$2.9K
+					892 cell
+						893 text ≥0.18×
+					894 cell Time from entry to retained lifecycle maximum
+						895 text 4290.5m
+					896 cell
+						897 text 0.91%
+					898 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						899 text —
+					900 cell
+						901 text NOT PROVEN
+				902 row
+					903 cell
+						904 text 39
+					905 cell
+						906 link Description: Chgw…Zvpump, Help: Open ChgwT7je6pAKCXSdgirREvh2AAfN3LccJsUgiHZvpump on GMGN, Value: gmgn.ai/sol/token/ChgwT7je6pAKCXSdgirREvh2AAfN3LccJsUgiHZvpump
+					907 cell
+						908 text RESEARCH ONLY
+					909 cell
+						910 text $16.0K
+					911 cell
+						912 text ≥$2.9K
+					913 cell
+						914 text ≥0.18×
+					915 cell Time from entry to retained lifecycle maximum
+						916 text 2.3m
+					917 cell
+						918 text 1.40%
+					919 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						920 text —
+					921 cell
+						922 text NOT PROVEN
+				923 row
+					924 cell
+						925 text 40
+					926 cell
+						927 link Description: 4AB7…d9pump, Help: Open 4AB7xdAuoDac6k23JdqJeXbPhqYctgDvG4u2rZd9pump on GMGN, Value: gmgn.ai/sol/token/4AB7xdAuoDac6k23JdqJeXbPhqYctgDvG4u2rZd9pump
+						928 text M
+					929 cell
+						930 text RESEARCH ONLY
+					931 cell
+						932 text $16.4K
+					933 cell
+						934 text ≥$305.4K
+					935 cell
+						936 text ≥18.58×
+					937 cell Time from entry to retained lifecycle maximum
+						938 text 24.4m
+					939 cell
+						940 text 99.10%
+					941 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						942 text —
+					943 cell
+						944 text PROVEN
+				945 row
+					946 cell
+						947 text 41
+					948 cell
+						949 link Description: 2GAd…4mpump, Help: Open 2GAd4qECH8cN4oQWwhiaBMADNupKCv8h9m9x3a4mpump on GMGN, Value: gmgn.ai/sol/token/2GAd4qECH8cN4oQWwhiaBMADNupKCv8h9m9x3a4mpump
+						950 text M
+					951 cell
+						952 text RESEARCH ONLY
+					953 cell
+						954 text $16.4K
+					955 cell
+						956 text ≥$80.2K
+					957 cell
+						958 text ≥4.89×
+					959 cell Time from entry to retained lifecycle maximum
+						960 text 3.3m
+					961 cell
+						962 text 96.39%
+					963 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						964 text —
+					965 cell
+						966 text PROVEN
+				967 row
+					968 cell
+						969 text 42
+					970 cell
+						971 link Description: 8yfR…iVpump, Help: Open 8yfRhViJa9bf9yUTpt18RcCndFTQKxE89UZ4rViVpump on GMGN, Value: gmgn.ai/sol/token/8yfRhViJa9bf9yUTpt18RcCndFTQKxE89UZ4rViVpump
+					972 cell
+						973 text RESEARCH ONLY
+					974 cell
+						975 text $16.3K
+					976 cell
+						977 text ≥$2.9K
+					978 cell
+						979 text ≥0.18×
+					980 cell Time from entry to retained lifecycle maximum
+						981 text 2.9m
+					982 cell
+						983 text 0.82%
+					984 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						985 text —
+					986 cell
+						987 text NOT PROVEN
+				988 row
+					989 cell
+						990 text 43
+					991 cell
+						992 link Description: 67f1…ampump, Help: Open 67f1tMppyWvGfpiLoRi21HTpoRk9ktnsA19dzMampump on GMGN, Value: gmgn.ai/sol/token/67f1tMppyWvGfpiLoRi21HTpoRk9ktnsA19dzMampump
+					993 cell
+						994 text RESEARCH ONLY
+					995 cell
+						996 text $16.1K
+					997 cell
+						998 text ≥$2.9K
+					999 cell
+						1000 text ≥0.18×
+					1001 cell Time from entry to retained lifecycle maximum
+						1002 text 0.4m
+					1003 cell
+						1004 text 0.70%
+					1005 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1006 text —
+					1007 cell
+						1008 text NOT PROVEN
+				1009 row
+					1010 cell
+						1011 text 44
+					1012 cell
+						1013 link Description: 4Br5…rypump, Help: Open 4Br5uAvyWD6s84FQtB5SS39xxGVuDQhSeHs5oArypump on GMGN, Value: gmgn.ai/sol/token/4Br5uAvyWD6s84FQtB5SS39xxGVuDQhSeHs5oArypump
+						1014 text M
+					1015 cell
+						1016 text RESEARCH ONLY
+					1017 cell
+						1018 text $16.3K
+					1019 cell
+						1020 text ≥$188.9K
+					1021 cell
+						1022 text ≥11.62×
+					1023 cell Time from entry to retained lifecycle maximum
+						1024 text 14.9m
+					1025 cell
+						1026 text 98.53%
+					1027 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1028 text —
+					1029 cell
+						1030 text PROVEN
+				1031 row
+					1032 cell
+						1033 text 45
+					1034 cell
+						1035 link Description: EBK2…sVpump, Help: Open EBK2daxNw6rHfirCyemmvzpDcotvp8wH4fYZqwsVpump on GMGN, Value: gmgn.ai/sol/token/EBK2daxNw6rHfirCyemmvzpDcotvp8wH4fYZqwsVpump
+						1036 text M
+					1037 cell
+						1038 text RESEARCH ONLY
+					1039 cell
+						1040 text $16.3K
+					1041 cell
+						1042 text ≥$3.7M
+					1043 cell
+						1044 text ≥227.56×
+					1045 cell Time from entry to retained lifecycle maximum
+						1046 text 54.8m
+					1047 cell
+						1048 text 99.94%
+					1049 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1050 text —
+					1051 cell
+						1052 text PROVEN
+				1053 row
+					1054 cell
+						1055 text 46
+					1056 cell
+						1057 link Description: 53Eq…mqpump, Help: Open 53EquyksZ769BkVDZT658w66cA45t6uiYtkN2imqpump on GMGN, Value: gmgn.ai/sol/token/53EquyksZ769BkVDZT658w66cA45t6uiYtkN2imqpump
+					1058 cell
+						1059 text RESEARCH ONLY
+					1060 cell
+						1061 text $16.2K
+					1062 cell
+						1063 text ≥$29.3K
+					1064 cell
+						1065 text ≥1.81×
+					1066 cell Time from entry to retained lifecycle maximum
+						1067 text 0.4m
+					1068 cell
+						1069 text 90.17%
+					1070 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1071 text —
+					1072 cell
+						1073 text PROVEN
+				1074 row
+					1075 cell
+						1076 text 47
+					1077 cell
+						1078 link Description: 3zSP…6Ypump, Help: Open 3zSPF9RDvLhzvPB8BwqdM3EacsA335xS4KY2gs6Ypump on GMGN, Value: gmgn.ai/sol/token/3zSPF9RDvLhzvPB8BwqdM3EacsA335xS4KY2gs6Ypump
+						1079 text M
+					1080 cell
+						1081 text RESEARCH ONLY
+					1082 cell
+						1083 text $16.2K
+					1084 cell
+						1085 text ≥$68.3K
+					1086 cell
+						1087 text ≥4.21×
+					1088 cell Time from entry to retained lifecycle maximum
+						1089 text 3.1m
+					1090 cell
+						1091 text 95.22%
+					1092 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1093 text —
+					1094 cell
+						1095 text PROVEN
+				1096 row
+					1097 cell
+						1098 text 48
+					1099 cell
+						1100 link Description: 2WSP…V7pump, Help: Open 2WSPxpq8CdPujQmo4u1NT1zWG9xCQ2DEMT6Yn9V7pump on GMGN, Value: gmgn.ai/sol/token/2WSPxpq8CdPujQmo4u1NT1zWG9xCQ2DEMT6Yn9V7pump
+						1101 text M
+					1102 cell
+						1103 text RESEARCH ONLY
+					1104 cell
+						1105 text $16.2K
+					1106 cell
+						1107 text ≥$817.4K
+					1108 cell
+						1109 text ≥50.52×
+					1110 cell Time from entry to retained lifecycle maximum
+						1111 text 22.1m
+					1112 cell
+						1113 text 99.71%
+					1114 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1115 text —
+					1116 cell
+						1117 text PROVEN
+				1118 row
+					1119 cell
+						1120 text 49
+					1121 cell
+						1122 link Description: AiSi…4rpump, Help: Open AiSiwKxkbNg4TGMHq8GEvwf8mpma1a3Ee7m3TB4rpump on GMGN, Value: gmgn.ai/sol/token/AiSiwKxkbNg4TGMHq8GEvwf8mpma1a3Ee7m3TB4rpump
+						1123 text M
+					1124 cell
+						1125 text RESEARCH ONLY
+					1126 cell
+						1127 text $16.7K
+					1128 cell
+						1129 text ≥$702.5K
+					1130 cell
+						1131 text ≥42.06×
+					1132 cell Time from entry to retained lifecycle maximum
+						1133 text 33.0m
+					1134 cell
+						1135 text 99.65%
+					1136 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1137 text —
+					1138 cell
+						1139 text PROVEN
+				1140 row
+					1141 cell
+						1142 text 50
+					1143 cell
+						1144 link Description: 9RtE…yxpump, Help: Open 9RtEo6KYbp5MExNBMsAuMehe3mcs4Ui88UNNXwyxpump on GMGN, Value: gmgn.ai/sol/token/9RtEo6KYbp5MExNBMsAuMehe3mcs4Ui88UNNXwyxpump
+					1145 cell
+						1146 text RESEARCH ONLY
+					1147 cell
+						1148 text $16.9K
+					1149 cell
+						1150 text ≥$26.3K
+					1151 cell
+						1152 text ≥1.56×
+					1153 cell Time from entry to retained lifecycle maximum
+						1154 text 1.2m
+					1155 cell
+						1156 text 89.44%
+					1157 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1158 text —
+					1159 cell
+						1160 text PROVEN
+				1161 row
+					1162 cell
+						1163 text 51
+					1164 cell
+						1165 link Description: DieG…xopump, Help: Open DieGJFBBKYmPg1cjgDZuymUxbPiKWsyF1rKxq4xopump on GMGN, Value: gmgn.ai/sol/token/DieGJFBBKYmPg1cjgDZuymUxbPiKWsyF1rKxq4xopump
+					1166 cell
+						1167 text RESEARCH ONLY
+					1168 cell
+						1169 text $16.8K
+					1170 cell
+						1171 text ≥$39.5K
+					1172 cell
+						1173 text ≥2.35×
+					1174 cell Time from entry to retained lifecycle maximum
+						1175 text 4.5m
+					1176 cell
+						1177 text 92.94%
+					1178 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1179 text —
+					1180 cell
+						1181 text PROVEN
+				1182 row
+					1183 cell
+						1184 text 52
+					1185 cell
+						1186 link Description: 7ncZ…yNpump, Help: Open 7ncZBJH12i7cA4Xv7FwSyYm2Cd7wTZtjGrFVNuyNpump on GMGN, Value: gmgn.ai/sol/token/7ncZBJH12i7cA4Xv7FwSyYm2Cd7wTZtjGrFVNuyNpump
+					1187 cell
+						1188 text RESEARCH ONLY
+					1189 cell
+						1190 text $16.6K
+					1191 cell
+						1192 text ≥$31.4K
+					1193 cell
+						1194 text ≥1.90×
+					1195 cell Time from entry to retained lifecycle maximum
+						1196 text 1.2m
+					1197 cell
+						1198 text 90.59%
+					1199 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1200 text —
+					1201 cell
+						1202 text PROVEN
+				1203 row
+					1204 cell
+						1205 text 53
+					1206 cell
+						1207 link Description: EMeU…zKpump, Help: Open EMeUvL1MKdZbUNXBYeKksbXCEVGXspk2jj4LrzzKpump on GMGN, Value: gmgn.ai/sol/token/EMeUvL1MKdZbUNXBYeKksbXCEVGXspk2jj4LrzzKpump
+					1208 cell
+						1209 text RESEARCH ONLY
+					1210 cell
+						1211 text $16.5K
+					1212 cell
+						1213 text ≥$2.9K
+					1214 cell
+						1215 text ≥0.18×
+					1216 cell Time from entry to retained lifecycle maximum
+						1217 text 28.9m
+					1218 cell
+						1219 text 0.00%
+					1220 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1221 text —
+					1222 cell
+						1223 text NOT PROVEN
+				1224 row
+					1225 cell
+						1226 text 54
+					1227 cell
+						1228 link Description: GNY3…gSpump, Help: Open GNY3yPV5ekqC89brpHCpkpV23eVvBoniRTw6czgSpump on GMGN, Value: gmgn.ai/sol/token/GNY3yPV5ekqC89brpHCpkpV23eVvBoniRTw6czgSpump
+					1229 cell
+						1230 text RESEARCH ONLY
+					1231 cell
+						1232 text $16.6K
+					1233 cell
+						1234 text ≥$20.2K
+					1235 cell
+						1236 text ≥1.22×
+					1237 cell Time from entry to retained lifecycle maximum
+						1238 text 0.1m
+					1239 cell
+						1240 text 85.51%
+					1241 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1242 text —
+					1243 cell
+						1244 text PROVEN
+				1245 row
+					1246 cell
+						1247 text 55
+					1248 cell
+						1249 link Description: FkM6…zEpump, Help: Open FkM6ZxDkpW2dAtt8QfiPsFG1aRtdgk6HPzrADzzEpump on GMGN, Value: gmgn.ai/sol/token/FkM6ZxDkpW2dAtt8QfiPsFG1aRtdgk6HPzrADzzEpump
+						1250 text M
+					1251 cell
+						1252 text RESEARCH ONLY
+					1253 cell
+						1254 text $16.5K
+					1255 cell
+						1256 text ≥$143.9K
+					1257 cell
+						1258 text ≥8.71×
+					1259 cell Time from entry to retained lifecycle maximum
+						1260 text 3.4m
+					1261 cell
+						1262 text 97.87%
+					1263 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1264 text —
+					1265 cell
+						1266 text PROVEN
+				1267 row
+					1268 cell
+						1269 text 56
+					1270 cell
+						1271 link Description: DyfG…Bapump, Help: Open DyfGK1hobTQjhp6CpSUTTznzQuq649xFoMTnygBapump on GMGN, Value: gmgn.ai/sol/token/DyfGK1hobTQjhp6CpSUTTznzQuq649xFoMTnygBapump
+						1272 text M
+					1273 cell
+						1274 text RESEARCH ONLY
+					1275 cell
+						1276 text $16.6K
+					1277 cell
+						1278 text ≥$155.3K
+					1279 cell
+						1280 text ≥9.35×
+					1281 cell Time from entry to retained lifecycle maximum
+						1282 text 6.7m
+					1283 cell
+						1284 text 97.53%
+					1285 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1286 text 1.0m
+					1287 cell
+						1288 text PROVEN
+				1289 row
+					1290 cell
+						1291 text 57
+					1292 cell
+						1293 link Description: kDhi…2Tpump, Help: Open kDhik8Hd1sVkSH3kNyksxbKkK9ueSKXLj2GSN2Tpump on GMGN, Value: gmgn.ai/sol/token/kDhik8Hd1sVkSH3kNyksxbKkK9ueSKXLj2GSN2Tpump
+						1294 text M
+					1295 cell
+						1296 text RESEARCH ONLY
+					1297 cell
+						1298 text $16.6K
+					1299 cell
+						1300 text ≥$43.6K
+					1301 cell
+						1302 text ≥2.62×
+					1303 cell Time from entry to retained lifecycle maximum
+						1304 text 1.7m
+					1305 cell
+						1306 text 80.00%
+					1307 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1308 text —
+					1309 cell
+						1310 text NOT PROVEN
+				1311 row
+					1312 cell
+						1313 text 58
+					1314 cell
+						1315 link Description: 78FR…NSpump, Help: Open 78FRWVpjK476fLThDU2U8V4Y1CTnvhtqboNmY4NSpump on GMGN, Value: gmgn.ai/sol/token/78FRWVpjK476fLThDU2U8V4Y1CTnvhtqboNmY4NSpump
+					1316 cell
+						1317 text RESEARCH ONLY
+					1318 cell
+						1319 text $16.5K
+					1320 cell
+						1321 text ≥$71.6K
+					1322 cell
+						1323 text ≥4.33×
+					1324 cell Time from entry to retained lifecycle maximum
+						1325 text 3.1m
+					1326 cell
+						1327 text 95.71%
+					1328 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1329 text —
+					1330 cell
+						1331 text PROVEN
+				1332 row
+					1333 cell
+						1334 text 59
+					1335 cell
+						1336 link Description: b8QQ…Rupump, Help: Open b8QQGeBdNeCuxEZC1mQYN69HtqMSH8hjgdmBPRupump on GMGN, Value: gmgn.ai/sol/token/b8QQGeBdNeCuxEZC1mQYN69HtqMSH8hjgdmBPRupump
+					1337 cell
+						1338 text RESEARCH ONLY
+					1339 cell
+						1340 text $16.5K
+					1341 cell
+						1342 text ≥$30.7K
+					1343 cell
+						1344 text ≥1.86×
+					1345 cell Time from entry to retained lifecycle maximum
+						1346 text 0.7m
+					1347 cell
+						1348 text 90.85%
+					1349 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1350 text —
+					1351 cell
+						1352 text PROVEN
+				1353 row
+					1354 cell
+						1355 text 60
+					1356 cell
+						1357 link Description: 36F3…pYpump, Help: Open 36F3yEK5ngLhxZfbEoFVBFBmLxtjSTpczsLihWpYpump on GMGN, Value: gmgn.ai/sol/token/36F3yEK5ngLhxZfbEoFVBFBmLxtjSTpczsLihWpYpump
+					1358 cell
+						1359 text RESEARCH ONLY
+					1360 cell
+						1361 text $16.4K
+					1362 cell
+						1363 text ≥$4.3K
+					1364 cell
+						1365 text ≥0.26×
+					1366 cell Time from entry to retained lifecycle maximum
+						1367 text 1205.2m
+					1368 cell
+						1369 text 32.55%
+					1370 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1371 text —
+					1372 cell
+						1373 text NOT PROVEN
+				1374 row
+					1375 cell
+						1376 text 61
+					1377 cell
+						1378 link Description: 4CgD…Qbpump, Help: Open 4CgDVUCZVwJosK8e4mTKHnFJKvyN3kxPcWRUnNQbpump on GMGN, Value: gmgn.ai/sol/token/4CgDVUCZVwJosK8e4mTKHnFJKvyN3kxPcWRUnNQbpump
+					1379 cell
+						1380 text RESEARCH ONLY
+					1381 cell
+						1382 text $16.5K
+					1383 cell
+						1384 text ≥$32.2K
+					1385 cell
+						1386 text ≥1.95×
+					1387 cell Time from entry to retained lifecycle maximum
+						1388 text 0.7m
+					1389 cell
+						1390 text 90.98%
+					1391 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1392 text —
+					1393 cell
+						1394 text PROVEN
+				1395 row
+					1396 cell
+						1397 text 62
+					1398 cell
+						1399 link Description: 3n7R…FWpump, Help: Open 3n7RAG3G2KGH6sg29MoKop245V7ACXP35ZEWCMFWpump on GMGN, Value: …
+					1400 cell
+						1401 text RESEARCH ONLY
+					1402 cell
+						1403 text $16.3K
+					1404 cell
+						1405 text ≥$3.0K
+					1406 cell
+						1407 text ≥0.18×
+					1408 cell Time from entry to retained lifecycle maximum
+						1409 text 1352.0m
+					1410 cell
+						1411 text 0.26%
+					1412 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1413 text —
+					1414 cell
+						1415 text NOT PROVEN
+				1416 row
+					1417 cell
+						1418 text 63
+					1419 cell
+						1420 link Description: 2MmE…Bhpump, Help: Open 2MmEYtGfRFLd5L6d9Veg1WLcH23NSxQKVhR7y1Bhpump on GMGN, Value: …
+						1421 text M
+					1422 cell
+						1423 text RESEARCH ONLY
+					1424 cell
+						1425 text $16.4K
+					1426 cell
+						1427 text ≥$342.0K
+					1428 cell
+						1429 text ≥20.86×
+					1430 cell Time from entry to retained lifecycle maximum
+						1431 text 16.9m
+					1432 cell
+						1433 text 98.99%
+					1434 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1435 text —
+					1436 cell
+						1437 text PROVEN
+				1438 row
+					1439 cell
+						1440 text 64
+					1441 cell
+						1442 link Description: iADS…HKpump, Help: Open iADSLGnCLWwVzQckm8HFywnS4E61493wC59HJHKpump on GMGN, Value: …
+					1443 cell
+						1444 text RESEARCH ONLY
+					1445 cell
+						1446 text $16.4K
+					1447 cell
+						1448 text ≥$2.9K
+					1449 cell
+						1450 text ≥0.18×
+					1451 cell Time from entry to retained lifecycle maximum
+						1452 text 0.1m
+					1453 cell
+						1454 text 0.44%
+					1455 cell Uses the independent drawdown-reference peak; not Max Proven MC.
+						1456 text —
+					1457 cell
+						1458 text NOT PROVEN
+			1459 container op-detail
+				1460 link Description: 4ZXX…cYpump, Help: Open full mint on GMGN, Value: …
+				1461 text RESEARCH ONLY NOT PROVEN
+				1462 text M
+				1463 text Migration event retained
+				1464 text Token lifecycle · retained research evidence
+				1465 container
+					1466 text Entry $16.1K Scenario-D Entry · 0.25 SOL counterfactual 04/09/2026, 21:22:30
+				1467 text →
+				1468 text 3.6m
+				1469 container
+					1470 text Max Proven MC ≥$48.7K 3.03× · 04/09/2026, 21:26:06 + 3.6m · RETAINED POINT
+				1471 text →
+				1472 text —
+				1473 container
+					1474 text ≥85% not proven NOT PROVEN No retained crossing within 7d. NOT PROVEN
+				1475 text Entry $16.1K → Max Proven MC $48.7K (≥3.03×) in 3.6m → ≥85% collapse not proven within 7d.
+				1476 text Max 7D drawdown  67.53% SOL/USD at entry  $102.17 Evidence  STRATEGY_EVIDENCE_QUALIFIED
+			1477 button (collapsed) Methodology & evidence definitions, Secondary Actions: Expand
+				1478 text Methodology & evidence definitions
+		1479 container lifecycle-behaviour
+			1480 heading Lifecycle Behaviour, Value: 2
+				1481 text Lifecycle Behaviour
+			1482 container
+				1483 text 64 mature seven-day lifecycles qualified ·  24 CANONICAL 40 RESEARCH_ONLY
+			1484 text MATURE COHORT COMPLETE
+			1485 text 33
+			1486 text ≥80.0% · 51.6%
+			1487 text 33
+			1488 text ≥85.0% · 51.6%
+			1489 text 29
+			1490 text ≥90.0% · 45.3%
+			1491 text 21
+			1492 text ≥92.5% · 32.8%
+			1493 text 19
+			1494 text ≥95.0% · 29.7%
+			1495 text Qualified mature seven-day lifecycle cohort — denominator 64. Counts are not Byzantine collapse rates.
+			1496 text 64 MATURE COMPLETE
+			1497 text 0 MATURE PENDING
+			1498 text 39 HORIZON NOT ELAPSED
+			1499 text 39 additional research launches had not completed the seven-day horizon at the frozen cutoff.
+			1500 text Research cohort ≠ canonical membership
+			1501 text 40 mature-qualified lifecycle research cases are not canonical Byzantine members.
+			1502 button (collapsed) Why this matters, Secondary Actions: Expand
+				1503 text Why this matters
+		1504 button (collapsed) Lifecycle evidence details Technical retained-point table (64 cases), Secondary Actions: Expand
+			1505 text Lifecycle evidence details
+			1506 text Technical retained-point table (64 cases)
+		1507 button (collapsed) Methodology & Evidence, Secondary Actions: Expand
+			1508 text Methodology & Evidence
+
+The focused UI element is 1 AXWebArea FLEX, URL: 127.0.0.1:8197/operations/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334/playbook
+DEVELOPMENT — READ ONLY — PRODUCTION DATA CANNOT BE MODIFIED
+FLEX
+OPERATIONS OS
+◆ Mission Control
+INTELLIGENCE
+Operations Registry & Live Monitor
+▤ Operation Playbook
+Potential Operations
+SYSTEM
+API
+DETAIL
+API live · detailed health in System Health
+CONFIRMED · MATURE COHORT COMPLETE
+Byzantine — Operation Playbook
+
+Lifecycle research evaluates rapid post-launch price expansion and subsequent retained-point drawdown. Research cohort membership is analytically scoped and does not define canonical operation membership.
+
+163
+Canonical members
+103
+Current research launches
+64
+Mature 7-day lifecycles
+39
+Horizon not elapsed
+24
+Canonical overlap
+40
+Research only
+Trading opportunity
+Trading Opportunity
+64 mature seven-day lifecycles · Scenario-D counterfactual entries
+RESEARCH EVIDENCE · 64 / 64 QUALIFIED
+First possible buy
+$16.26K
+Median equivalent entry valuation
+64 / 64 qualified · 0.25 SOL counterfactual
+Post-entry peak
+1.81×
+Median retained peak multiple
+≥2× 25 / 64 · ≥5× 16 / 64 · ≥10×
+10 / 64
+Strategy performance
+PENDING
+Entry → exit scoring not yet run
+NOT RUN
+All membership
+Canonical
+Research only
+All rug states
+≥85% proven
+≥85% not proven
+All multiples
+<1.5×
+1.5–<2×
+2–<5×
+5–<10×
+≥10×
+64 cases
+RANK	TOKEN	MEMBERSHIP	ENTRY	MAX PROVEN MC	ENTRY → MAX	ENTRY→MAX TIME	7D DRAWDOWN	85% COLLAPSE	STATE
+1	4ZXX…cYpumpM	RESEARCH ONLY	$16.1K	≥$48.7K	≥3.03×	3.6m	67.53%	NOT PROVEN	NOT PROVEN
+2	zRoY…SVpumpM	RESEARCH ONLY	$16.1K	≥$55.5K	≥3.46×	5.3m	95.49%	—	PROVEN
+3	FqXi…dVpumpM	RESEARCH ONLY	$16.0K	≥$85.9K	≥5.38×	27.3m	97.38%	—	PROVEN
+4	BSMY…5kpump	RESEARCH ONLY	$16.1K	≥$23.3K	≥1.45×	0.7m	87.85%	—	PROVEN
+5	9oqk…fTpump	RESEARCH ONLY	$16.2K	≥$3.0K	≥0.18×	2963.3m	3.73%	—	NOT PROVEN
+6	Hpou…5upump	RESEARCH ONLY	$10.4K	≥$2.9K	≥0.28×	1.1m	2.80%	—	NOT PROVEN
+7	3jW7…pUpumpM	RESEARCH ONLY	$10.4K	≥$58.5K	≥5.64×	1.0m	67.62%	—	NOT PROVEN
+8	2gJq…3opump	RESEARCH ONLY	$16.5K	≥$2.9K	≥0.18×	0.8m	0.10%	—	NOT PROVEN
+9	ArUM…w9pump	RESEARCH ONLY	$16.4K	≥$2.9K	≥0.18×	0.7m	2.65%	—	NOT PROVEN
+10	vZd5…mYpump	RESEARCH ONLY	$16.5K	≥$3.0K	≥0.19×	6.3m	6.29%	—	NOT PROVEN
+11	HDvw…vKpump	RESEARCH ONLY	$10.4K	≥$3.0K	≥0.29×	2.6m	3.62%	—	NOT PROVEN
+12	eH9u…vRpump	RESEARCH ONLY	$16.3K	≥$3.0K	≥0.19×	0.3m	5.99%	—	NOT PROVEN
+13	G5vB…jJpumpM	RESEARCH ONLY	$10.4K	≥$1.1M	≥102.09×	44.0m	99.76%	—	PROVEN
+14	CitK…gspump	RESEARCH ONLY	$10.4K	≥$26.8K	≥2.57×	0.2m	89.14%	—	PROVEN
+15	BcwD…WrpumpM	RESEARCH ONLY	$16.5K	≥$356.1K	≥21.58×	13.0m	99.33%	—	PROVEN
+16	BeEv…s5pump	RESEARCH ONLY	$10.4K	≥$2.9K	≥0.28×	288.9m	0.00%	—	NOT PROVEN
+17	HiYH…mjpumpM	RESEARCH ONLY	$16.7K	≥$136.2K	≥8.17×	3.1m	97.48%	—	PROVEN
+18	5eBc…h4pump	RESEARCH ONLY	$16.6K	≥$3.7K	≥0.22×	405.4m	1.10%	—	NOT PROVEN
+19	VGpx…eYpumpM	RESEARCH ONLY	$16.7K	≥$8.1K	≥0.48×	1.9m	65.79%	—	NOT PROVEN
+20	5F2u…9tpumpM	RESEARCH ONLY	$16.6K	≥$131.1K	≥7.89×	6.6m	97.34%	—	PROVEN
+21	EbM9…7TpumpM	RESEARCH ONLY	$16.6K	≥$547.5K	≥32.94×	43.2m	99.60%	—	PROVEN
+22	B8gZ…rWpump	RESEARCH ONLY	$16.4K	≥$2.9K	≥0.18×	39.6m	0.59%	—	NOT PROVEN
+23	7Syr…x5pumpM	RESEARCH ONLY	$16.3K	≥$53.0K	≥3.25×	1.6m	94.88%	—	PROVEN
+24	BoRn…Ecpump	RESEARCH ONLY	$15.9K	≥$30.1K	≥1.89×	0.9m	90.62%	—	PROVEN
+25	8u9v…mRpump	RESEARCH ONLY	$16.0K	≥$2.9K	≥0.18×	572.4m	0.98%	—	NOT PROVEN
+26	DrZb…dKpumpM	RESEARCH ONLY	$15.5K	≥$235.0K	≥15.17×	28.9m	98.94%	—	PROVEN
+27	5dfU…3kpump	RESEARCH ONLY	$15.7K	≥$30.9K	≥1.96×	0.3m	91.03%	—	PROVEN
+28	5vYF…6tpump	RESEARCH ONLY	$15.7K	≥$31.0K	≥1.98×	0.1m	90.91%	—	PROVEN
+29	FmVB…snpump	RESEARCH ONLY	$15.8K	≥$3.0K	≥0.19×	5827.0m	2.62%	—	NOT PROVEN
+30	3bTg…5cpump	RESEARCH ONLY	$15.8K	≥$2.8K	≥0.18×	2.1m	1.31%	—	NOT PROVEN
+31	2fDU…fwpump	RESEARCH ONLY	$15.9K	≥$2.8K	≥0.18×	1.2m	2.59%	—	NOT PROVEN
+32	A82W…Jnpump	RESEARCH ONLY	$16.0K	≥$3.0K	≥0.19×	6761.8m	0.38%	—	NOT PROVEN
+33	12GD…LCpump	RESEARCH ONLY	$15.9K	≥$3.0K	≥0.19×	6764.0m	0.97%	—	NOT PROVEN
+34	E62o…KHpump	RESEARCH ONLY	$16.1K	≥$2.9K	≥0.18×	2.6m	2.70%	—	NOT PROVEN
+35	BKcS…rrpump	RESEARCH ONLY	$16.2K	≥$29.9K	≥1.85×	1.5m	90.71%	—	PROVEN
+36	2QLv…ZJpump	RESEARCH ONLY	$16.3K	≥$3.5K	≥0.22×	0.1m	19.70%	—	NOT PROVEN
+37	DGhu…ZKpump	RESEARCH ONLY	$16.2K	≥$2.9K	≥0.18×	1.5m	4.80%	—	NOT PROVEN
+38	7rRj…FJpump	RESEARCH ONLY	$16.1K	≥$2.9K	≥0.18×	4290.5m	0.91%	—	NOT PROVEN
+39	Chgw…Zvpump	RESEARCH ONLY	$16.0K	≥$2.9K	≥0.18×	2.3m	1.40%	—	NOT PROVEN
+40	4AB7…d9pumpM	RESEARCH ONLY	$16.4K	≥$305.4K	≥18.58×	24.4m	99.10%	—	PROVEN
+41	2GAd…4mpumpM	RESEARCH ONLY	$16.4K	≥$80.2K	≥4.89×	3.3m	96.39%	—	PROVEN
+42	8yfR…iVpump	RESEARCH ONLY	$16.3K	≥$2.9K	≥0.18×	2.9m	0.82%	—	NOT PROVEN
+43	67f1…ampump	RESEARCH ONLY	$16.1K	≥$2.9K	≥0.18×	0.4m	0.70%	—	NOT PROVEN
+44	4Br5…rypumpM	RESEARCH ONLY	$16.3K	≥$188.9K	≥11.62×	14.9m	98.53%	—	PROVEN
+45	EBK2…sVpumpM	RESEARCH ONLY	$16.3K	≥$3.7M	≥227.56×	54.8m	99.94%	—	PROVEN
+46	53Eq…mqpump	RESEARCH ONLY	$16.2K	≥$29.3K	≥1.81×	0.4m	90.17%	—	PROVEN
+47	3zSP…6YpumpM	RESEARCH ONLY	$16.2K	≥$68.3K	≥4.21×	3.1m	95.22%	—	PROVEN
+48	2WSP…V7pumpM	RESEARCH ONLY	$16.2K	≥$817.4K	≥50.52×	22.1m	99.71%	—	PROVEN
+49	AiSi…4rpumpM	RESEARCH ONLY	$16.7K	≥$702.5K	≥42.06×	33.0m	99.65%	—	PROVEN
+50	9RtE…yxpump	RESEARCH ONLY	$16.9K	≥$26.3K	≥1.56×	1.2m	89.44%	—	PROVEN
+51	DieG…xopump	RESEARCH ONLY	$16.8K	≥$39.5K	≥2.35×	4.5m	92.94%	—	PROVEN
+52	7ncZ…yNpump	RESEARCH ONLY	$16.6K	≥$31.4K	≥1.90×	1.2m	90.59%	—	PROVEN
+53	EMeU…zKpump	RESEARCH ONLY	$16.5K	≥$2.9K	≥0.18×	28.9m	0.00%	—	NOT PROVEN
+54	GNY3…gSpump	RESEARCH ONLY	$16.6K	≥$20.2K	≥1.22×	0.1m	85.51%	—	PROVEN
+55	FkM6…zEpumpM	RESEARCH ONLY	$16.5K	≥$143.9K	≥8.71×	3.4m	97.87%	—	PROVEN
+56	DyfG…BapumpM	RESEARCH ONLY	$16.6K	≥$155.3K	≥9.35×	6.7m	97.53%	1.0m	PROVEN
+57	kDhi…2TpumpM	RESEARCH ONLY	$16.6K	≥$43.6K	≥2.62×	1.7m	80.00%	—	NOT PROVEN
+58	78FR…NSpump	RESEARCH ONLY	$16.5K	≥$71.6K	≥4.33×	3.1m	95.71%	—	PROVEN
+59	b8QQ…Rupump	RESEARCH ONLY	$16.5K	≥$30.7K	≥1.86×	0.7m	90.85%	—	PROVEN
+60	36F3…pYpump	RESEARCH ONLY	$16.4K	≥$4.3K	≥0.26×	1205.2m	32.55%	—	NOT PROVEN
+61	4CgD…Qbpump	RESEARCH ONLY	$16.5K	≥$32.2K	≥1.95×	0.7m	90.98%	—	PROVEN
+62	3n7R…FWpump	RESEARCH ONLY	$16.3K	≥$3.0K	≥0.18×	1352.0m	0.26%	—	NOT PROVEN
+63	2MmE…BhpumpM	RESEARCH ONLY	$16.4K	≥$342.0K	≥20.86×	16.9m	98.99%	—	PROVEN
+64	iADS…HKpump	RESEARCH ONLY	$16.4K	≥$2.9K	≥0.18×	0.1m	0.44%	—	NOT PROVEN
+4ZXX…cYpump
+RESEARCH ONLY
+NOT PROVEN
+M
+Migration event retained
+Token lifecycle · retained research evidence
+Entry
+$16.1K
+Scenario-D Entry · 0.25 SOL counterfactual
+04/09/2026, 21:22:30
+3.6m
+Max Proven MC
+≥$48.7K
+3.03× · 04/09/2026, 21:26:06
++ 3.6m · RETAINED POINT
+—
+≥85% not proven
+NOT PROVEN
+No retained crossing within 7d.
+NOT PROVEN
+Entry $16.1K → Max Proven MC $48.7K (≥3.03×) in 3.6m → ≥85% collapse not proven within 7d.
+Max 7D drawdown 67.53%
+SOL/USD at entry $102.17
+Evidence STRATEGY_EVIDENCE_QUALIFIED
+Methodology & evidence definitions
+Lifecycle Behaviour
+64 mature seven-day lifecycles qualified · 24 CANONICAL 40 RESEARCH_ONLY
+MATURE COHORT COMPLETE
+33
+≥80.0% · 51.6%
+33
+≥85.0% · 51.6%
+29
+≥90.0% · 45.3%
+21
+≥92.5% · 32.8%
+19
+≥95.0% · 29.7%
+
+Qualified mature seven-day lifecycle cohort — denominator 64. Counts are not Byzantine collapse rates.
+
+64 MATURE COMPLETE
+0 MATURE PENDING
+39 HORIZON NOT ELAPSED
+
+39 additional research launches had not completed the seven-day horizon at the frozen cutoff.
+
+Research cohort ≠ canonical membership
+40 mature-qualified lifecycle research cases are not canonical Byzantine members.
+Why this matters
+Lifecycle evidence details Technical retained-point table (64 cases)
+Methodology & Evidence

@@ -1,0 +1,95 @@
+{
+  "features": {
+    "byzantine_detail": {
+      "dom_path": "/private/tmp/dev090-final-browser-894dc312d5b3/byzantine_detail.txt",
+      "dom_sha256": "8b9addce49e51fa0d790d4a5d81e2558312664bdb294e8b53c718b018190cc85",
+      "screenshot_path": "/private/tmp/dev090-final-browser-894dc312d5b3/byzantine_detail.png",
+      "screenshot_sha256": "859f5841042999e32db0967441361ddc514188093285b8448781de7598f5fa0f",
+      "status": "PASS",
+      "url": "http://127.0.0.1:8197/intelligence/operator/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+    },
+    "byzantine_playbook": {
+      "dom_path": "/private/tmp/dev090-final-browser-894dc312d5b3/byzantine_playbook.txt",
+      "dom_sha256": "942eaa56e6e96041ca50229ffb35f6f0fcb293b2ce0b422ba42aedb225abec3e",
+      "screenshot_path": "/private/tmp/dev090-final-browser-894dc312d5b3/byzantine_playbook.png",
+      "screenshot_sha256": "0ed59246a73d981b72c91271db794a24d92883a6b92ba4edd60faeefab24c6be",
+      "status": "PASS",
+      "url": "http://127.0.0.1:8197/operations/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334/playbook"
+    },
+    "core_health": {
+      "dom_path": "/private/tmp/dev090-final-browser-894dc312d5b3/core_health.txt",
+      "dom_sha256": "9aec1eddec08bb0c2d3232ac15ae2fb8940b8fb46089d273036c64236f3f2f0d",
+      "health": {
+        "authority": "retained read-only operational evidence",
+        "expected_banner": "Critical \u2014 Live ingestion unavailable",
+        "isolated_live_acquisition": false,
+        "status": "CRITICAL"
+      },
+      "health_api_path": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/runs/894dc312d5b3/health-api.json",
+      "health_api_sha256": "2f19dbfe59c72d32e3a610e9c4ef4dfd5659489df22fc5c1fb8ee74e7e444485",
+      "screenshot_path": "/private/tmp/dev090-final-browser-894dc312d5b3/core_health.png",
+      "screenshot_sha256": "24df2471ef58b94c2f86b52ba8759fe028db4474abfce69092e15c06646fb799",
+      "status": "PASS",
+      "url": "http://127.0.0.1:8197/system-health"
+    },
+    "history_prices": {
+      "dom_path": "/private/tmp/dev090-final-browser-894dc312d5b3/history_prices.txt",
+      "dom_sha256": "986a41c9ce7a3dea4357fe0dbc313fd5e8b203b719025bd0ff9e7b3783f2fd81",
+      "screenshot_path": "/private/tmp/dev090-final-browser-894dc312d5b3/history_prices.png",
+      "screenshot_sha256": "78c53b354e2855c41f5f4f831decad30e877af4eb83a873ffee49cd48d2e58de",
+      "status": "PASS",
+      "url": "http://127.0.0.1:8197/intelligence/operators"
+    },
+    "mission_control": {
+      "dom_path": "/private/tmp/dev090-final-browser-894dc312d5b3/mission_control.txt",
+      "dom_sha256": "7f383daf4bc2a903441f1bfa23d4b4a65d27d006f017dc44d97360e4827a559a",
+      "screenshot_path": "/private/tmp/dev090-final-browser-894dc312d5b3/mission_control.png",
+      "screenshot_sha256": "c6b1182c8870a01a13112f3cae975dbb581bf1197978d5e3f48bf21fc4f24383",
+      "status": "PASS",
+      "url": "http://127.0.0.1:8197/ops-os"
+    },
+    "nexus_detail": {
+      "dom_path": "/private/tmp/dev090-final-browser-894dc312d5b3/nexus_detail.txt",
+      "dom_sha256": "258e4c42d51a459a4355064edba1e0ab4594fb928ce91ddd7da47d18ea821458",
+      "screenshot_path": "/private/tmp/dev090-final-browser-894dc312d5b3/nexus_detail.png",
+      "screenshot_sha256": "859f5841042999e32db0967441361ddc514188093285b8448781de7598f5fa0f",
+      "status": "PASS",
+      "url": "http://127.0.0.1:8197/intelligence/operator/bd7d7479-1454-5d41-9f68-115550348f3e"
+    },
+    "pending": {
+      "dom_path": "/private/tmp/dev090-final-browser-894dc312d5b3/pending.txt",
+      "dom_sha256": "e8b94841466980d92d24280f091d8616d645e556c52582ce8bef3f411cec32ab",
+      "screenshot_path": "/private/tmp/dev090-final-browser-894dc312d5b3/pending.png",
+      "screenshot_sha256": "12b955a5b435629d15d4985f9efff359e96df3553990c2543cff692552d2d99e",
+      "status": "PASS",
+      "url": "http://127.0.0.1:8197/intelligence/treasury-review"
+    },
+    "registry": {
+      "dom_path": "/private/tmp/dev090-final-browser-894dc312d5b3/registry.txt",
+      "dom_sha256": "986a41c9ce7a3dea4357fe0dbc313fd5e8b203b719025bd0ff9e7b3783f2fd81",
+      "screenshot_path": "/private/tmp/dev090-final-browser-894dc312d5b3/registry.png",
+      "screenshot_sha256": "78c53b354e2855c41f5f4f831decad30e877af4eb83a873ffee49cd48d2e58de",
+      "status": "PASS",
+      "url": "http://127.0.0.1:8197/intelligence/operators"
+    },
+    "watchtower_admission": {
+      "dom_path": "/private/tmp/dev090-final-browser-894dc312d5b3/watchtower_admission.txt",
+      "dom_sha256": "3ecc6db19a2c22849ca467fd359fa29db67d397cec644617efa14f9da9c435dc",
+      "screenshot_path": "/private/tmp/dev090-final-browser-894dc312d5b3/watchtower_admission.png",
+      "screenshot_sha256": "35265385e85bd77558e17cefd8cddccd91886ac91586f8dce175c387a22648d7",
+      "status": "PASS",
+      "url": "http://127.0.0.1:8197/intelligence/operator/04265d9f-6eb2-568c-a49e-9253091a4dbb"
+    },
+    "watchtower_playbook": {
+      "dom_path": "/private/tmp/dev090-final-browser-894dc312d5b3/watchtower_playbook.txt",
+      "dom_sha256": "925025b36d877f7b7c9b6f5d84e1863bdd4430f9b6df92130e362e38c1f7deae",
+      "screenshot_path": "/private/tmp/dev090-final-browser-894dc312d5b3/watchtower_playbook.png",
+      "screenshot_sha256": "b6f73d66897260b1d070f2c97133cbeb7e001745b5d656638d7a0c4a27a35ad0",
+      "status": "PASS",
+      "url": "http://127.0.0.1:8197/operations/watchtower/playbook"
+    }
+  },
+  "run_id": "894dc312d5b3",
+  "source_sha": "9a572e26882bb4e6af191feb61387fb84248535f",
+  "status": "PASS"
+}

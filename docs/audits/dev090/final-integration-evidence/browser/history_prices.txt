@@ -1,0 +1,614 @@
+Browser tab: 11, Title: "Active Operations Registry", URL: "http://127.0.0.1:8197/intelligence/operators".
+0 AXWebArea Active Operations Registry, URL: 127.0.0.1:8197/intelligence/operators
+	1 text DEVELOPMENT — READ ONLY — PRODUCTION DATA CANNOT BE MODIFIED
+	2 container
+		3 text FLEX
+		4 text OPERATIONS OS
+		5 container Primary
+			6 link Description: ◆ Mission Control, Value: 127.0.0.1:8197/ops-os
+			7 text INTELLIGENCE
+			8 link Description: Operations Registry & Live Monitor, Value: 127.0.0.1:8197/intelligence/operators
+			9 link Description: ▤ Operation Playbook, Value: 127.0.0.1:8197/operations/playbooks
+			10 link Description: Potential Operations, Value: 127.0.0.1:8197/intelligence/potential-operations
+			11 button (collapsed) SYSTEM ▸, Secondary Actions: Expand
+				12 text SYSTEM
+				13 text ▸
+		14 container sys-health-strip
+			15 text API
+			16 text DETAIL
+			17 text API live · detailed health in System Health
+	18 container Description: Operations Live Monitor, ID: live-monitor-host
+		19 text ● ACTIVE · DEV MODE
+		20 heading UNIVERSAL PRICE MONITOR, Value: 2
+			21 text UNIVERSAL PRICE MONITOR
+		22 text Operation detected → Entry captured → Live market monitoring → Peak/ATH retained → Terminal → Ended
+		23 text Guarded DEV · dispatcher status UNKNOWN · read-only evidence · Updated 18:38:41
+		24 text 3
+		25 text OPERATIONS
+		26 text 0
+		27 text ACTIVE MONITORING
+		28 text 0
+		29 text NEW / OPENING
+		30 text 0
+		31 text ENDING SOON
+		32 text 0
+		33 text ENDED
+		34 text 15
+		35 text HISTORICAL ENTRY MISSING
+		36 heading WALKBACK COVERAGE · COMPLETED TOKENS · LAST 24 HOURS, Value: 3
+			37 text WALKBACK COVERAGE · COMPLETED TOKENS · LAST 24 HOURS
+		38 text Deduplicated by canonical mint. Coverage is separate from universal-monitor state.
+		39 text —
+		40 text COMPLETED WALKBACK TOKENS
+		41 text 24-hour denominator
+		42 text —
+		43 text CONFIRMED OP COVERAGE
+		44 text UNAVAILABLE
+		45 text —
+		46 text POTENTIAL OPERATIONS
+		47 text UNAVAILABLE
+		48 text —
+		49 text CEX / INFRASTRUCTURE
+		50 text UNAVAILABLE
+		51 text —
+		52 text UNKNOWN / UNATTRIBUTED
+		53 text UNAVAILABLE
+		54 heading OPERATIONS, Value: 3
+			55 text OPERATIONS
+		56 text Nexus activity remains its retained detector / qualified-route projection; it is not recast as canonical membership.
+		57 table
+			58 row
+				59 cell
+					60 text OPERATION
+				61 cell
+					62 text TOKENS
+				63 cell
+					64 text 24H
+				65 cell
+					66 text 7D
+				67 cell
+					68 text 30D
+				69 cell
+					70 text LATEST
+			71 row
+				72 cell
+					73 link Description: Byzantine, Value: 127.0.0.1:8197/intelligence/operator/d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334
+				74 cell
+					75 text 163
+				76 cell
+					77 text —
+				78 cell
+					79 text —
+				80 cell
+					81 text —
+				82 cell
+					83 text 76.3h
+			84 row
+				85 cell
+					86 link Description: Watchtower, Value: 127.0.0.1:8197/intelligence/operator/04265d9f-6eb2-568c-a49e-9253091a4dbb
+				87 cell
+					88 text 949
+				89 cell
+					90 text —
+				91 cell
+					92 text —
+				93 cell
+					94 text —
+				95 cell
+					96 text 197.2h
+			97 row
+				98 cell
+					99 link Description: Nexus, Value: 127.0.0.1:8197/intelligence/operator/bd7d7479-1454-5d41-9f68-115550348f3e
+				100 cell
+					101 text 84
+				102 cell
+					103 text —
+				104 cell
+					105 text —
+				106 cell
+					107 text —
+				108 cell
+					109 text 1180.9h
+		110 heading MONITORING CADENCE (POLICY C V1), Value: 3
+			111 text MONITORING CADENCE (POLICY C V1)
+		112 text 0–2 hours
+		113 text Every 15 minutes
+		114 text 2–6 hours
+		115 text Every 30 minutes
+		116 text 6–12 hours
+		117 text Every 1 hour
+		118 text 12–24 hours
+		119 text Every 2 hours
+		120 text >24 hours
+		121 text Stop monitoring
+		122 heading LIVE TOKENS, Value: 3
+			123 text LIVE TOKENS
+		124 table
+			125 row
+				126 cell
+					127 text TOKEN
+				128 cell
+					129 text OPERATION
+				130 cell
+					131 text AGE
+				132 cell
+					133 text OPENING / ENTRY MC
+				134 cell
+					135 text CURRENT MC
+				136 cell
+					137 text RUNNING PEAK
+				138 cell
+					139 text RUNNING MULTIPLE
+				140 cell
+					141 text TIME TO PEAK
+				142 cell
+					143 text NEXT CHECK
+				144 cell
+					145 text STATUS
+			146 row
+				147 cell
+					148 text No tokens currently in this retained state.
+		149 heading HISTORY — LAST 20 TOKENS LATEST 20 · RETAINED READ PROJECTION, Value: 3
+			150 text HISTORY — LAST 20 TOKENS  LATEST 20 · RETAINED READ PROJECTION
+		151 text Latest 20 selected operation-assigned launches, not the complete historical database. Missing evidence remains unavailable.
+		152 container
+			153 button ALL
+			154 button Byzantine
+			155 button WATCHTOWER
+		156 table
+			157 row
+				158 cell
+					159 text TOKEN
+				160 cell
+					161 text OPERATION
+				162 cell
+					163 text AGE
+				164 cell
+					165 text OPENING / ENTRY MC
+				166 cell
+					167 text ATH / PEAK
+				168 cell
+					169 text MAX MULTIPLE
+				170 cell
+					171 text TIME TO ATH / PEAK
+				172 cell
+					173 text EVIDENCE
+			174 row
+				175 cell
+					176 link Description: XZON, Value: gmgn.ai/sol/token/8CFJ8VDqcyZNFMJxQGZJ1FYGVqDVhdbeimygjRs5pump
+				177 cell
+					178 text Byzantine
+				179 cell
+					180 text 76.3h
+				181 cell
+					182 text —
+				183 cell
+					184 text — —
+				185 cell
+					186 text —
+				187 cell
+					188 text —
+				189 cell
+					190 text Entry unavailable
+			191 row
+				192 cell
+					193 link Description: GEN, Value: gmgn.ai/sol/token/3sNeCmwJmYShfkPK5WhZeucxjhs4QCtWn4XuYY8Ppump
+				194 cell
+					195 text Byzantine
+				196 cell
+					197 text 121.2h
+				198 cell
+					199 text —
+				200 cell
+					201 text — —
+				202 cell
+					203 text —
+				204 cell
+					205 text —
+				206 cell
+					207 text Entry unavailable
+			208 row
+				209 cell
+					210 link Description: Buck, Value: gmgn.ai/sol/token/GDfMmjnrEgUDbGB7adoJ4FmayM6rHAQj3JJ6SLmgpump
+				211 cell
+					212 text Byzantine
+				213 cell
+					214 text 123.2h
+				215 cell
+					216 text —
+				217 cell
+					218 text — —
+				219 cell
+					220 text —
+				221 cell
+					222 text —
+				223 cell
+					224 text Entry unavailable
+			225 row
+				226 cell
+					227 link Description: Shrimpcore, Value: gmgn.ai/sol/token/373DCoHsmYm5ofmsGDWZ91XtfwqLocmVvBn6tusopump
+				228 cell
+					229 text Byzantine
+				230 cell
+					231 text 154.5h
+				232 cell
+					233 text —
+				234 cell
+					235 text — —
+				236 cell
+					237 text —
+				238 cell
+					239 text —
+				240 cell
+					241 text Entry unavailable
+			242 row
+				243 cell
+					244 link Description: s, Value: gmgn.ai/sol/token/3514q8XEGVM8EYmk9vLVC8GmHsCGTyZGNALPGZWtpump
+				245 cell
+					246 text Byzantine
+				247 cell
+					248 text 168.4h
+				249 cell
+					250 text —
+				251 cell
+					252 text — —
+				253 cell
+					254 text —
+				255 cell
+					256 text —
+				257 cell
+					258 text Entry unavailable
+			259 row
+				260 cell
+					261 link Description: pumpfun, Value: gmgn.ai/sol/token/HzF53xWyUs18UkUfTTJxpgXs8ixZpQU6oRimqyvvpump
+				262 cell
+					263 text Byzantine
+				264 cell
+					265 text 168.5h
+				266 cell
+					267 text —
+				268 cell
+					269 text — —
+				270 cell
+					271 text —
+				272 cell
+					273 text —
+				274 cell
+					275 text Entry unavailable
+			276 row
+				277 cell
+					278 link Description: SIB, Value: gmgn.ai/sol/token/E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump
+				279 cell
+					280 text WATCHTOWER
+				281 cell
+					282 text 197.2h
+				283 cell
+					284 text —
+				285 cell
+					286 text — —
+				287 cell
+					288 text —
+				289 cell
+					290 text —
+				291 cell
+					292 text Entry unavailable
+			293 row
+				294 cell
+					295 link Description: GINU, Value: gmgn.ai/sol/token/HZ9hrbhNFJR5hZTRVk1EJPwo1iijHVTBb2Rc5dR2pump
+				296 cell
+					297 text Byzantine
+				298 cell
+					299 text 197.3h
+				300 cell
+					301 text —
+				302 cell
+					303 text — —
+				304 cell
+					305 text —
+				306 cell
+					307 text —
+				308 cell
+					309 text Entry unavailable
+			310 row
+				311 cell
+					312 link Description: QUANT, Value: gmgn.ai/sol/token/DhCWYmhBCbenvFn518q8itJZRxGBUYL9rh65HCWcpump
+				313 cell
+					314 text Byzantine
+				315 cell
+					316 text 201.9h
+				317 cell
+					318 text —
+				319 cell
+					320 text — —
+				321 cell
+					322 text —
+				323 cell
+					324 text —
+				325 cell
+					326 text Entry unavailable
+			327 row
+				328 cell
+					329 link Description: QPAWS, Value: gmgn.ai/sol/token/2fDAjAjyvCFATm5ERrJnyqqcqiZ9akV9vEFZLLGfpump
+				330 cell
+					331 text WATCHTOWER
+				332 cell
+					333 text 213.4h
+				334 cell
+					335 text —
+				336 cell
+					337 text — —
+				338 cell
+					339 text —
+				340 cell
+					341 text —
+				342 cell
+					343 text Entry unavailable
+			344 row
+				345 cell
+					346 link Description: QPAD, Value: gmgn.ai/sol/token/EHFJLG7CbNnnuPHXHNtdeWfRQ3UFwBfBZRe11hnppump
+				347 cell
+					348 text WATCHTOWER
+				349 cell
+					350 text 214.8h
+				351 cell
+					352 text —
+				353 cell
+					354 text — —
+				355 cell
+					356 text —
+				357 cell
+					358 text —
+				359 cell
+					360 text Entry unavailable
+			361 row
+				362 cell
+					363 link Description: GLEMO, Value: gmgn.ai/sol/token/x33HfyZcxTQpwidGcn98sMediyhpnQgbhhSzs14pump
+				364 cell
+					365 text Byzantine
+				366 cell
+					367 text 217.0h
+				368 cell
+					369 text —
+				370 cell
+					371 text — —
+				372 cell
+					373 text —
+				374 cell
+					375 text —
+				376 cell
+					377 text Entry unavailable
+			378 row
+				379 cell
+					380 link Description: Stockla, Value: gmgn.ai/sol/token/HrUaeM5FRu3orFZxJnu6jFCZJ2SHYFJKyJUGL2XPpump
+				381 cell
+					382 text Byzantine
+				383 cell
+					384 text 217.4h
+				385 cell
+					386 text —
+				387 cell
+					388 text — —
+				389 cell
+					390 text —
+				391 cell
+					392 text —
+				393 cell
+					394 text Entry unavailable
+			395 row
+				396 cell
+					397 link Description: SIGMAPHIL, Value: gmgn.ai/sol/token/1DKg5vh5mAkPNLULYkbMdHGbHtSNM1EqTqnWXXspump
+				398 cell
+					399 text Byzantine
+				400 cell
+					401 text 222.8h
+				402 cell
+					403 text —
+				404 cell
+					405 text — —
+				406 cell
+					407 text —
+				408 cell
+					409 text —
+				410 cell
+					411 text Entry unavailable
+			412 row
+				413 cell
+					414 link Description: CatTok, Value: gmgn.ai/sol/token/DNtZMNDZ65hAJbJXRiP9NnV98ZTrwLTEJZ78fWKCpump
+				415 cell
+					416 text WATCHTOWER
+				417 cell
+					418 text 237.3h
+				419 cell
+					420 text $144,176
+				421 cell
+					422 text $594,765 RETAINED PEAK
+				423 cell
+					424 text 4.13×
+				425 cell
+					426 text 8.9h
+				427 cell
+					428 text 226.4h · Retained reference
+			429 row
+				430 cell
+					431 link Description: CYBERCAT, Value: gmgn.ai/sol/token/6LdjC13zbAxmruKrqsAQ4znUrjNe7gXXVeCHDBMYpump
+				432 cell
+					433 text WATCHTOWER
+				434 cell
+					435 text 239.6h
+				436 cell
+					437 text $162,776
+				438 cell
+					439 text $274,477 RETAINED PEAK
+				440 cell
+					441 text 1.69×
+				442 cell
+					443 text 26m
+				444 cell
+					445 text 238.1h · Retained reference
+			446 row
+				447 cell
+					448 link Description: SC, Value: gmgn.ai/sol/token/6KuKphbVWZoz4kagf5QGaJEsUxJBY99LdBetfvwtpump
+				449 cell
+					450 text WATCHTOWER
+				451 cell
+					452 text 240.3h
+				453 cell
+					454 text $125,378
+				455 cell
+					456 text $125,378 RETAINED PEAK
+				457 cell
+					458 text 1.00×
+				459 cell
+					460 text 0m
+				461 cell
+					462 text 240.1h · Retained reference
+			463 row
+				464 cell
+					465 link Description: SC, Value: gmgn.ai/sol/token/7JVDPbS8iYHoUD4yWYxQH9yHcop5oPeBnfBvXkiqpump
+				466 cell
+					467 text WATCHTOWER
+				468 cell
+					469 text 240.7h
+				470 cell
+					471 text $128,917
+				472 cell
+					473 text $168,300 RETAINED PEAK
+				474 cell
+					475 text 1.31×
+				476 cell
+					477 text 6m
+				478 cell
+					479 text 239.9h · Retained reference
+			480 row
+				481 cell
+					482 link Description: GUNNER, Value: gmgn.ai/sol/token/9JtPfLbN32CszHmstoXYdWaazFLaoxhfqf9mKgQMpump
+				483 cell
+					484 text WATCHTOWER
+				485 cell
+					486 text 241.3h
+				487 cell
+					488 text $105,600
+				489 cell
+					490 text $222,175 RETAINED PEAK
+				491 cell
+					492 text 2.10×
+				493 cell
+					494 text 1.6h
+				495 cell
+					496 text 237.6h · Retained reference
+			497 row
+				498 cell
+					499 link Description: [cat], Value: gmgn.ai/sol/token/HNHbG4WQw2BmW53Ju2HRj2s6bz23YG9NAp77cgkjpump
+				500 cell
+					501 text Byzantine
+				502 cell
+					503 text 246.8h
+				504 cell
+					505 text —
+				506 cell
+					507 text — —
+				508 cell
+					509 text —
+				510 cell
+					511 text —
+				512 cell
+					513 text Entry unavailable
+		514 heading OPERATIONS · SYSTEM STATUS, Value: 3
+			515 text OPERATIONS · SYSTEM STATUS
+		516 container
+			517 text Byzantine · 0 active   WATCHTOWER · 0 active   Nexus · — active
+			518 text Birdeye budget: 120/hour · 2400/day · retained budget evidence only
+
+The focused UI element is 0 AXWebArea Active Operations Registry, URL: 127.0.0.1:8197/intelligence/operators
+DEVELOPMENT — READ ONLY — PRODUCTION DATA CANNOT BE MODIFIED
+FLEX
+OPERATIONS OS
+◆ Mission Control
+INTELLIGENCE
+Operations Registry & Live Monitor
+▤ Operation Playbook
+Potential Operations
+SYSTEM
+API
+DETAIL
+API live · detailed health in System Health
+● ACTIVE · DEV MODE
+UNIVERSAL PRICE MONITOR
+Operation detected → Entry captured → Live market monitoring → Peak/ATH retained → Terminal → Ended
+Guarded DEV · dispatcher status UNKNOWN · read-only evidence · Updated 18:38:41
+3
+OPERATIONS
+0
+ACTIVE MONITORING
+0
+NEW / OPENING
+0
+ENDING SOON
+0
+ENDED
+15
+HISTORICAL ENTRY MISSING
+WALKBACK COVERAGE · COMPLETED TOKENS · LAST 24 HOURS
+Deduplicated by canonical mint. Coverage is separate from universal-monitor state.
+—
+COMPLETED WALKBACK TOKENS
+24-hour denominator
+—
+CONFIRMED OP COVERAGE
+UNAVAILABLE
+—
+POTENTIAL OPERATIONS
+UNAVAILABLE
+—
+CEX / INFRASTRUCTURE
+UNAVAILABLE
+—
+UNKNOWN / UNATTRIBUTED
+UNAVAILABLE
+OPERATIONS
+Nexus activity remains its retained detector / qualified-route projection; it is not recast as canonical membership.
+OPERATION	TOKENS	24H	7D	30D	LATEST
+Byzantine	163	—	—	—	76.3h
+Watchtower	949	—	—	—	197.2h
+Nexus	84	—	—	—	1180.9h
+MONITORING CADENCE (POLICY C V1)
+0–2 hours
+Every 15 minutes
+2–6 hours
+Every 30 minutes
+6–12 hours
+Every 1 hour
+12–24 hours
+Every 2 hours
+>24 hours
+Stop monitoring
+LIVE TOKENS
+TOKEN	OPERATION	AGE	OPENING / ENTRY MC	CURRENT MC	RUNNING PEAK	RUNNING MULTIPLE	TIME TO PEAK	NEXT CHECK	STATUS
+No tokens currently in this retained state.
+HISTORY — LAST 20 TOKENS LATEST 20 · RETAINED READ PROJECTION
+Latest 20 selected operation-assigned launches, not the complete historical database. Missing evidence remains unavailable.
+ALLByzantineWATCHTOWER
+TOKEN	OPERATION	AGE	OPENING / ENTRY MC	ATH / PEAK	MAX MULTIPLE	TIME TO ATH / PEAK	EVIDENCE
+XZON	Byzantine	76.3h	—	— —	—	—	Entry unavailable
+GEN	Byzantine	121.2h	—	— —	—	—	Entry unavailable
+Buck	Byzantine	123.2h	—	— —	—	—	Entry unavailable
+Shrimpcore	Byzantine	154.5h	—	— —	—	—	Entry unavailable
+s	Byzantine	168.4h	—	— —	—	—	Entry unavailable
+pumpfun	Byzantine	168.5h	—	— —	—	—	Entry unavailable
+SIB	WATCHTOWER	197.2h	—	— —	—	—	Entry unavailable
+GINU	Byzantine	197.3h	—	— —	—	—	Entry unavailable
+QUANT	Byzantine	201.9h	—	— —	—	—	Entry unavailable
+QPAWS	WATCHTOWER	213.4h	—	— —	—	—	Entry unavailable
+QPAD	WATCHTOWER	214.8h	—	— —	—	—	Entry unavailable
+GLEMO	Byzantine	217.0h	—	— —	—	—	Entry unavailable
+Stockla	Byzantine	217.4h	—	— —	—	—	Entry unavailable
+SIGMAPHIL	Byzantine	222.8h	—	— —	—	—	Entry unavailable
+CatTok	WATCHTOWER	237.3h	$144,176	$594,765 RETAINED PEAK	4.13×	8.9h	226.4h · Retained reference
+CYBERCAT	WATCHTOWER	239.6h	$162,776	$274,477 RETAINED PEAK	1.69×	26m	238.1h · Retained reference
+SC	WATCHTOWER	240.3h	$125,378	$125,378 RETAINED PEAK	1.00×	0m	240.1h · Retained reference
+SC	WATCHTOWER	240.7h	$128,917	$168,300 RETAINED PEAK	1.31×	6m	239.9h · Retained reference
+GUNNER	WATCHTOWER	241.3h	$105,600	$222,175 RETAINED PEAK	2.10×	1.6h	237.6h · Retained reference
+[cat]	Byzantine	246.8h	—	— —	—	—	Entry unavailable
+OPERATIONS · SYSTEM STATUS
+Byzantine · 0 active   WATCHTOWER · 0 active   Nexus · — active
+Birdeye budget: 120/hour · 2400/day · retained budget evidence only

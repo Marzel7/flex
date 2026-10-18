@@ -33035,5 +33035,23 @@
     "report": "DEV090/listener-release-qualification/DEV090_PUMPPORTAL_LISTENER_STATUS.json",
     "report_sha256": "7bf7f62121a5cdcd6cbc3a8217f2f96639c0e2bb9a301c84c6cb34dbdef87bc7",
     "updated_utc": "2026-10-18T22:09:40.528550+00:00"
+  },
+  "dev090_listener_controlled_deployment_preflight": {
+    "engineering_revision": "96687a393b024f3008ada9ad3e10441ebcdd0d64",
+    "status": "HOLD_HISTORICAL_HANDOFF_DISCOVERY_BOUNDARY",
+    "candidate": "DEV090_CANDIDATE_96687a393b02 identity/tag/release SHA verified unchanged",
+    "installation": "NOT_STARTED",
+    "runtime": "Same creator74394 and Walkback74410 RUNNING;listener/Cascade/other11 STOPPED; no service changes",
+    "retry_evidence": "Completed bounded read-only queries found no pending birth-persist,migration-persist,unconsumed-webhook or legacy-handoff rows; birth/migration fallback files absent. No raw payloads read/copied.",
+    "first_blocking_predicate": "Installed listener drain_migration_walkback_handoff_retry remains automatic. It passes configured HANDOFF_DURABILITY_T0=1789027814 (2026-09-10) to legacy run_maintenance, whose migrated_at>=t0 discovery can create missing historical intents. Current persisted DEV090 activation is1792357618 (October18). This path is independent of both disabled sweep switches.",
+    "bounded_database_evidence": "Exact legacy query plan uses idx_ta_migrated_at range;20rows span1789027866..1789029009. One historical mint lacks legacy intent and OPS row. Actual creator classification, enqueue or execution not invoked/claimed; historical activation cannot be excluded.",
+    "storage": "10.78GB fresh free;Core/OPS WAL/journal0bytes. No cleanup. Further deployment write/peak-space gates not completed after mandatory replay gate failed.",
+    "live_acceptance": "No window started;coverage/recovery/completion/latency UNKNOWN;lateCREATE pending;goldenbaseline false",
+    "safety": "Provider calls0;canonical writes by task0;Production changes0;candidate/source/queues preserved",
+    "next_action": "Qualify existing legacy maintenance configuration against persisted DEV090 activation authority or supported no-discovery durable-intent mode; no invented cutoff or record mutation. Then repeat preflight. No listener startup authorized by this HOLD.",
+    "runtime_deployment_gate": "HOLD",
+    "report": "DEV090/listener-deployment-preflight/DEV090_PUMPPORTAL_DEPLOYMENT_STATUS.json",
+    "report_sha256": "0edc1d2e0e46d8ed2d2edc6b5c267834197c76de89d6e9cb138af873b0e3ad46",
+    "updated_utc": "2026-10-18T22:15:17.834082+00:00"
   }
 }

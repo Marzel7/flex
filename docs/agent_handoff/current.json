@@ -19272,7 +19272,7 @@
     "branch": "codex/dev090",
     "git_head": "2d40af06c320d1a4688d65c9d195214ec69f5378",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T19:33:45.739207+00:00",
+    "updated_at_utc": "2026-10-18T19:38:58.491170+00:00",
     "working_tree": "DEV090 DEV002 target offline release PASS; immutable candidate preserved; not deployed"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -32827,5 +32827,17 @@
     "reason": "read-only ownership diagnosis",
     "safety": "providers=0; canonical writes=0; Production changes=0; service signals/starts/restarts=0",
     "next_action": "Establish authorized operational owner and exact launch authority for stopped services before separate deployment/start authorization. No infrastructure repair or deployment performed."
+  },
+  "dev090_supervisor_restoration_preflight": {
+    "engineering_revision": "2d40af06c320d1a4688d65c9d195214ec69f5378",
+    "status": "HOLD_SELECTIVE_SUPERVISOR_STARTUP",
+    "finding": "Mac reboot verified09:05:36 local after Supervisor shutdown09:05:23 on October18. No registered Supervisor launchd/login startup found; no manager/required worker processes. Worker autostart does not start Supervisor after login. Existing config autostarts eight services, so manager startup is not two-worker-only restoration.",
+    "preflight": "About7.50GB free; Core35.65GB/OPS16.19GB existing exceptions; CoreWAL0/OPSWAL absent; no observed DB/lock handles. Prior ENOSPC/write timeouts retained, current write health not claimed. Core durable handoff schema and birth provenance absent; separately authorized disabled shared-lane initialization required.",
+    "candidate": "All sealed hashes reverified; DEV090_CANDIDATE_2d40af06c320 unchanged; installed target preimages unchanged; offline PASS preserved",
+    "plan": "DEV090/dev002-release-qualification/SUPERVISOR_CONTROLLED_RESTORATION_PLAN.md",
+    "report": "DEV090/dev002-release-qualification/SUPERVISOR_RESTORATION_PREFLIGHT.json",
+    "runtime_deployment_required": false,
+    "safety": "providers=0; canonical writes=0; Production changes=0; starts/restarts/signals=0; no configuration changes",
+    "next_action": "Authorize and qualify selective Supervisor startup/configuration procedure, or separately authorize all eight existing autostart services; then separately authorize exact source/schema/activation/start steps. Do not start old workers or execute plan yet."
   }
 }

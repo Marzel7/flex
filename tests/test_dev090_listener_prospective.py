@@ -29,11 +29,12 @@ def test_launcher_exact_installed_preimage_with_single_configuration_change():
  text=LAUNCHER.read_text()
  assert 'export LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED=0' in text
  assert text.count('export LISTENER_MIGRATION_RECONCILER_ENABLED=0')==1
- old=text.replace('export LISTENER_MIGRATION_RECONCILER_ENABLED=0','export LISTENER_MIGRATION_RECONCILER_ENABLED=1')
+ assert 'export PUMPPORTAL_CANONICAL_BIRTH_RETENTION_ENABLED=0' in text
+ old=text.replace('export PUMPPORTAL_CANONICAL_BIRTH_RETENTION_ENABLED=0\n','').replace('export LISTENER_MIGRATION_RECONCILER_ENABLED=0','export LISTENER_MIGRATION_RECONCILER_ENABLED=1')
  assert hashlib.sha256(old.encode()).hexdigest()=='d7a0db20c7aa8b8a5210774541e6b43bfdb422bd86723a21d3112d2152f3b8e3'
 
 def test_qualified_listener_and_all_direct_provider_contracts_unchanged():
- assert hashlib.sha256(SOURCE.read_bytes()).hexdigest()=='c2bd4292d7c2ae786f89d1ae98831dccfc0b26011d6a29ceb145b2c2d72792a5'
+ assert hashlib.sha256(SOURCE.read_bytes()).hexdigest()==__import__('json').loads((ROOT/'docs/audits/dev090/compact-birth-recovery.json').read_text())['candidate_listener_sha256']
  assert 'export LISTENER_PUMPPORTAL_BIRTHS_ENABLED=1' in LAUNCHER.read_text()
  assert 'export LISTENER_DISCOVERY_RPC_CONCURRENCY=3' in LAUNCHER.read_text()
  assert 'export LISTENER_GETTX_RETRY_DELAYS=1' in LAUNCHER.read_text()

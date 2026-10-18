@@ -1,0 +1,54 @@
+{
+  "preimage_listener_sha256": "c2bd4292d7c2ae786f89d1ae98831dccfc0b26011d6a29ceb145b2c2d72792a5",
+  "candidate_listener_sha256": "5e173f0a44b3a32997cad632e7a1b5304f7dcd12ee60ca23cfd1d0ec048a1e4e",
+  "unchanged_ast_sha256": "7bdffc35e8a8bf73d6829f26d6e9b9021b64094a45d9bc3ea45dd27471f79c86",
+  "changed_existing_functions": [
+    "_handle_pumpportal_create_frame",
+    "drain_webhook_birth_queue",
+    "_insert_bonding_curve_token"
+  ],
+  "new_helpers": [
+    "_compact_pumpportal_birth_retry",
+    "_decode_compact_pumpportal_birth_retry",
+    "_compact_birth_retry_storage_check"
+  ],
+  "new_constants": {
+    "_PP_BIRTH_RETRY_MAX_BYTES": 4096,
+    "_PP_BIRTH_RETRY_MAX_ROWS": 2048
+  },
+  "storage": "Single bounded INSERT count/admission;2048 lifetime queue rows including consumed;4096bytes/envelope;no pruning;fail closed at capacity. No new standalone files. Existing Core/OPS storage exception and WAL/journal stop checks retained.",
+  "raw_retention": "Normal audit disabled in launcher; full-event retry serialization removed; legacy rows read only under4096byte cap, oversized retained unconsumed and reported.",
+  "scope": "No creator/Walkback/handoff implementation changes; no schema/index/worker additions",
+  "acknowledgement_change": "Only explicit bool return:False on handled failure;True after existing successful path. All persistence, proof, metadata and acquisition statements unchanged.",
+  "insert_preimage_ast_sha256": "9c90cbac8671c39f2d98b7835d5fabb650522d6e94d7c60341edd165b7b1e346",
+  "retained_retry_snapshot": "Bounded read-only count LIMIT2049 found0 rows in operational webhook_birth_queue; no rows modified.",
+  "configuration": {
+    "PUMPPORTAL_CANONICAL_BIRTH_RETENTION_ENABLED": "0 in candidate launcher",
+    "LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED": "0 already in installed launcher",
+    "LISTENER_MIGRATION_RECONCILER_ENABLED": "0 preserved in candidate launcher",
+    "HANDOFF_DURABILITY_T0": "1792357618 via previously qualified inactive Supervisor proposal; fixed persisted DEV090 epoch, not restart time"
+  },
+  "failure_contract": "Escaped primary failure -> compact queue commit verified ->pending; consumer requires producer boolean commit acknowledgement AND exact token readback before consumed1. Duplicate signature preserves first receipt/consumed state. Both storage paths failing reports UNRECOVERABLE_BIRTH_RETRY; no raw/file fallback or recovery guarantee.",
+  "bounds": {
+    "max_envelope_bytes": 4096,
+    "max_retained_webhook_rows": 2048,
+    "max_new_logical_payload_bytes": 8388608,
+    "conservative_new_main_pages_bytes": 33554432,
+    "batch_rows": 50,
+    "max_loaded_payload_bytes_per_poll": 204800,
+    "canonical_main_exception": "Existing qualified Core/OPS bounds, main growth64MiB/WAL48MiB/journal16MiB/free2GB. Checks are stop conditions, not VFS hard quotas.",
+    "new_standalone_runtime_files": 0,
+    "new_unbounded_growth_paths": 0,
+    "test_file_limit_bytes": 8388608,
+    "candidate_archive_limit_bytes": 256000000,
+    "supervisor_listener_logs": "Existing stdout20MBx4 and stderr10MBx3; no new log sink."
+  },
+  "focused_tests": {
+    "passed": 77,
+    "log_sha256": "3bd254d1865710bf895bfd5d1a295724ba44aea39d44c4c801107b6451e1a72d",
+    "unexpected_guard_denials": 0
+  },
+  "parent_source_sha": "96687a393b024f3008ada9ad3e10441ebcdd0d64",
+  "startup_and_rollback": "Listener-only source/launcher overlay, fixed persisted activation proposal retained; no creator/Walkback/handoff module changes. Keep listener stopped until separate installation/preflight authorization. Exact source rollback preserves pending compact retry rows: old listener cannot be restored and started while compact rows remain pending without compatible consumer; no deletion or raw downgrade.",
+  "legacy_compatibility": "Existing small legacy JSON and signature-only Helius rows retain original paths; oversized legacy records stay unconsumed with explicit PAYLOAD_CAPACITY. No historical rows automatically replayed; fresh preflight must still show historical retry authorities empty."
+}

@@ -1596,6 +1596,59 @@ def _reconcile_fallback_file_into_queue() -> int:
     return len(records)
 
 
+# Compact envelopes use the existing signature-keyed webhook queue, not a new store.
+# Count all retained queue rows (including consumed rows) before admission so
+# lifetime growth cannot be hidden by successful consumption. Capacity never deletes evidence.
+_PP_BIRTH_RETRY_MAX_BYTES = 4096
+_PP_BIRTH_RETRY_MAX_ROWS = 2048
+
+
+def _compact_pumpportal_birth_retry(data, *, mint, signature, receive_utc_ns):
+    fields = {"_birth_retry_schema": 1, "mint": mint, "signature": signature,
+              "traderPublicKey": data.get("traderPublicKey"),
+              "bondingCurveKey": data.get("bondingCurveKey"),
+              "symbol": data.get("symbol"), "name": data.get("name"),
+              "receive_utc_ns": receive_utc_ns, "provenance": "PUMPPORTAL_NEW_TOKEN"}
+    for key, maximum, required in [("mint", 64, True), ("signature", 128, True),
+                                   ("traderPublicKey", 64, False), ("bondingCurveKey", 64, False),
+                                   ("symbol", 1024, False), ("name", 1024, False)]:
+        value = fields[key]
+        if value is None and not required:
+            continue
+        if not isinstance(value, str) or len(value) > maximum or (required and not value):
+            raise ValueError("INVALID_COMPACT_BIRTH_FIELD")
+    if type(receive_utc_ns) is not int or not 0 < receive_utc_ns < 2**63:
+        raise ValueError("INVALID_BIRTH_RECEIPT_TIME")
+    encoded = json.dumps(fields, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    if len(encoded.encode("utf-8")) > _PP_BIRTH_RETRY_MAX_BYTES:
+        raise ValueError("COMPACT_BIRTH_CAPACITY")
+    return encoded
+
+
+def _decode_compact_pumpportal_birth_retry(data, signature):
+    if (type(data.get("_birth_retry_schema")) is not int or data["_birth_retry_schema"] != 1
+            or data.get("signature") != signature or data.get("provenance") != "PUMPPORTAL_NEW_TOKEN"):
+        raise ValueError("INVALID_COMPACT_BIRTH_PROVENANCE")
+    canonical = json.loads(_compact_pumpportal_birth_retry(
+        data, mint=data.get("mint"), signature=signature, receive_utc_ns=data.get("receive_utc_ns")))
+    if data != canonical:
+        raise ValueError("UNEXPECTED_COMPACT_BIRTH_FIELDS")
+    return canonical
+
+
+def _compact_birth_retry_storage_check(core_path, ops_path):
+    import sqlite3 as _sq
+    from src.ops.walkback_create_handoff import storage_check
+    conn = _sq.connect(f"file:{core_path}?mode=ro", uri=True, timeout=5)
+    try:
+        baseline = conn.execute("SELECT core_base,ops_base FROM wb_create_control WHERE id=1").fetchone()
+        if baseline is None:
+            raise RuntimeError("BIRTH_RETRY_STORAGE_AUTHORITY_UNAVAILABLE")
+    finally:
+        conn.close()
+    storage_check(core_path, ops_path, core_base=baseline[0], ops_base=baseline[1])
+
+
 def _ensure_webhook_birth_queue_schema(db_path: str) -> None:
     import sqlite3 as _sq
     conn = _sq.connect(db_path, timeout=10)
@@ -5795,7 +5848,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         symbol: Optional[str] = None,
         name: Optional[str] = None,
         birth_evidence_source: Optional[str] = None,
-    ) -> None:
+    ) -> bool:
         """Insert a token at birth into token_analysis without creating duplicates."""
         analyzed_at = time.time()
         birth_seen_at = int(analyzed_at)
@@ -5910,7 +5963,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     # answerable only by grepping for this log line.
                     _birth_telemetry_incr("permanently_lost")
                     log_print(f"[BIRTH_RETRY] 🔴 CRITICAL: failed to queue mint={mint[:16]} for retry AND fallback file write failed: {_fe} — birth may be lost", flush=True)
-            return
+            return False
 
         await self._upsert_birth_metadata_cache(mint, symbol, name)
 
@@ -5948,6 +6001,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         if name:
             event["name"] = name
         asyncio.get_running_loop().run_in_executor(None, _broadcast_to_flask, event)
+        return True
 
     async def _ensure_pf_ws_creator(self, mint: str, reason: str = "premig") -> Optional[str]:
         """
@@ -11012,7 +11066,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             if bonding_curve_pda:
                 self._remember_bonding_curve_token(mint, bonding_curve_pda)
             try:
-                await self._insert_bonding_curve_token(
+                committed = await self._insert_bonding_curve_token(
                     mint, creator, str(int(time.time())),
                     bonding_curve_pda=bonding_curve_pda,
                     create_tx_signature=signature,
@@ -11020,6 +11074,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     symbol=symbol,
                     name=name,
                 )
+                if committed is False:
+                    raise RuntimeError("BIRTH_TRANSACTION_NOT_ACKNOWLEDGED")
                 log_print(
                     f"[PUMPPORTAL] 🟢 Birth: {mint[:16]}... symbol={symbol} creator={creator[:8] if creator else '?'}",
                     flush=True,
@@ -11029,20 +11085,45 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     self._ensure_pf_ws_creator(mint, reason="birth")
                 )
             except Exception as e:
-                log_print(f"[PUMPPORTAL] ⚠ Birth insert error {mint[:16]}: {e} — queuing for retry", flush=True)
+                self.completed_launches.discard(signature)
+                log_print(f"[PUMPPORTAL] Birth persistence unconfirmed mint={mint[:16]} error={type(e).__name__[:80]}", flush=True)
+                _qconn = None
                 try:
-                    import sqlite3 as _sq, json as _json
+                    import sqlite3 as _sq
+                    encoded = _compact_pumpportal_birth_retry(
+                        data, mint=mint, signature=signature, receive_utc_ns=receive_utc_ns)
+                    _compact_birth_retry_storage_check(DB_PATH, _listener_ops_db_path())
                     _qconn = _sq.connect(DB_PATH, timeout=5)
                     with _qconn:
+                        # One INSERT owns both the bounded capacity check and write under
+                        # the existing shared lane; there is no second competing writer.
                         _qconn.execute(
                             """INSERT OR IGNORE INTO webhook_birth_queue
                                (signature, payload, source, consumed)
-                               VALUES (?, ?, 'pumpportal_retry', 0)""",
-                            (signature, _json.dumps(data)),
+                               SELECT ?, ?, 'pumpportal_retry', 0
+                               WHERE (SELECT COUNT(*) FROM
+                                   (SELECT id FROM webhook_birth_queue LIMIT ?)) < ?""",
+                            (signature, encoded, _PP_BIRTH_RETRY_MAX_ROWS, _PP_BIRTH_RETRY_MAX_ROWS),
                         )
-                    _qconn.close()
+                        retained = _qconn.execute(
+                            "SELECT CASE WHEN length(CAST(payload AS BLOB))<=? THEN payload END, source, consumed "
+                            "FROM webhook_birth_queue WHERE signature=?",
+                            (_PP_BIRTH_RETRY_MAX_BYTES, signature)).fetchone()
+                        if not retained or retained[1] != 'pumpportal_retry' or not retained[0]:
+                            raise RuntimeError("COMPACT_BIRTH_QUEUE_CAPACITY")
+                        previous = _decode_compact_pumpportal_birth_retry(json.loads(retained[0]), signature)
+                        if previous['mint'] != mint or previous['traderPublicKey'] != creator:
+                            raise RuntimeError("COMPACT_BIRTH_IDENTITY_CONFLICT")
+                    outcome = "ALREADY_CONSUMED" if retained[2] else "PENDING"
+                    log_print(f"[PUMPPORTAL] COMPACT_BIRTH_RETRY_{outcome} mint={mint[:16]}", flush=True)
                 except Exception as _qe:
-                    log_print(f"[PUMPPORTAL] ⚠ Failed to queue birth retry for {mint[:16]}: {_qe}", flush=True)
+                    # No raw event/file fallback. This is observable loss of the
+                    # retry guarantee, not a claim that persistence succeeded.
+                    log_print(f"[PUMPPORTAL] UNRECOVERABLE_BIRTH_RETRY mint={mint[:16]} "
+                              f"error={type(_qe).__name__[:80]} primary_persistence=UNCONFIRMED durable_retry=UNCONFIRMED", flush=True)
+                finally:
+                    if _qconn is not None:
+                        _qconn.close()
 
             # Subscribe to trades if already near migration threshold
             if v_sol >= migration_sol_threshold and mint not in tracked_trade_mints:
@@ -11248,8 +11329,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
         """
         Drains the webhook_birth_queue table.  Runs forever on a 5-second poll cadence.
 
-        Rows with a payload column (source=pumpportal_retry) are replayed directly from
-        the stored JSON — no getTransaction RPC needed.  Helius-sourced rows (no payload)
+        Compact PumpPortal records and retained legacy payloads are processed without
+        getTransaction RPC. Compact records are acknowledged only after exact durable
+        token readback; completed-launch memory is not a persistence acknowledgement.
+        Helius-sourced rows (no payload)
         fall back to handle_birth(sig, []).
 
         A row is only marked consumed AFTER successful processing so a crash or lock error
@@ -11264,7 +11347,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 conn.row_factory = _sq.Row
                 try:
                     rows = conn.execute(
-                        "SELECT id, signature, payload, source FROM webhook_birth_queue WHERE consumed = 0 ORDER BY id LIMIT 50"
+                        "SELECT id, signature, CASE WHEN length(CAST(payload AS BLOB))<=4096 THEN payload END AS payload, "
+                        "length(CAST(payload AS BLOB)) AS payload_bytes, source FROM webhook_birth_queue WHERE consumed = 0 ORDER BY id LIMIT 50"
                     ).fetchall()
                 except Exception:
                     # payload/source columns may not exist yet if ALTER TABLE lost the race
@@ -11282,37 +11366,69 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     raw    = row["payload"]
                     row_id = row["id"]
 
-                    if sig in self.completed_launches:
-                        # Already processed this birth — just mark consumed.
+                    compact = False
+                    if raw:
+                        try:
+                            decoded = _json.loads(raw)
+                            compact = any(k in decoded for k in ("_birth_retry_schema", "provenance", "receive_utc_ns"))
+                        except (ValueError, TypeError):
+                            pass
+                    oversized = isinstance(row, _sq.Row) and (row["payload_bytes"] or 0) > _PP_BIRTH_RETRY_MAX_BYTES
+                    if sig in self.completed_launches and source != 'pumpportal_retry' and not compact and not oversized:
+                        # Preserve the existing legacy cache shortcut; compact retries
+                        # must prove durable persistence even in the receiving process.
                         _mark_consumed(DB_PATH, row_id)
                         continue
 
                     success = False
-                    if raw:
-                        # Fast path: raw PumpPortal payload available — insert directly.
+                    if oversized:
+                        log_print(f"[WEBHOOK_BIRTH] RETRY_UNAVAILABLE sig={sig[:16]} reason=PAYLOAD_CAPACITY", flush=True)
+                    elif raw:
+                        # Legacy payload reading is retained, but no new raw events are stored.
                         try:
                             data = _json.loads(raw)
+                            if not isinstance(data, dict):
+                                raise ValueError("INVALID_BIRTH_RETRY_RECORD")
+                            if compact:
+                                data = _decode_compact_pumpportal_birth_retry(data, sig)
                             _mint    = data.get("mint", "")
                             _creator = data.get("traderPublicKey")
                             _bcp     = data.get("bondingCurveKey")
                             _symbol  = data.get("symbol")
                             _name    = data.get("name")
                             if _mint:
-                                await self._insert_bonding_curve_token(
-                                    _mint, _creator, str(int(time.time())),
+                                committed = await self._insert_bonding_curve_token(
+                                    _mint, _creator, str(data["receive_utc_ns"] // 1_000_000_000) if compact else str(int(time.time())),
                                     bonding_curve_pda=_bcp,
                                     create_tx_signature=sig,
                                     symbol=_symbol,
                                     name=_name,
+                                    **({"birth_evidence_source": data["provenance"]} if compact else {}),
                                 )
+                                if compact:
+                                    if committed is not True:
+                                        raise RuntimeError("BIRTH_TRANSACTION_NOT_ACKNOWLEDGED")
+                                    _compact_birth_retry_storage_check(DB_PATH, _listener_ops_db_path())
+                                    _verify = _sq.connect(DB_PATH, timeout=5)
+                                    try:
+                                        persisted = _verify.execute(
+                                            "SELECT create_tx_signature,earliest_tx_creator,pf_ws_creator FROM token_analysis WHERE mint=?", (_mint,)).fetchone()
+                                    finally:
+                                        _verify.close()
+                                    if (not persisted or persisted[0] != sig or (_creator and
+                                            (_creator not in persisted[1:] or any(v and v != _creator for v in persisted[1:])))):
+                                        raise RuntimeError("BIRTH_PERSISTENCE_NOT_ACKNOWLEDGED")
                                 if _bcp:
                                     self._remember_bonding_curve_token(_mint, _bcp)
                                 self.seen_mints.add(_mint)
                                 self.completed_launches.add(sig)
-                                premig_log(f"[WEBHOOK_BIRTH] sig={sig[:16]} source={source} mint={_mint[:16]} replayed_from_payload")
+                                premig_log(f"[WEBHOOK_BIRTH] sig={sig[:16]} source={source} mint={_mint[:16]} "
+                                           f"outcome=PERSISTED record={'compact' if compact else 'legacy'}")
                                 success = True
                         except Exception as _re:
-                            log_print(f"[WEBHOOK_BIRTH] ⚠ payload replay failed sig={sig[:16]}: {_re}", flush=True)
+                            log_print(f"[WEBHOOK_BIRTH] RETRY_PENDING sig={sig[:16]} error={type(_re).__name__[:80]}", flush=True)
+                    elif source == 'pumpportal_retry':
+                        log_print(f"[WEBHOOK_BIRTH] RETRY_UNAVAILABLE sig={sig[:16]} reason=MISSING_COMPACT_RECORD", flush=True)
                     else:
                         # Helius-sourced rows: use handle_birth which fetches the tx.
                         try:
@@ -11328,6 +11444,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     else:
                         # Increment retry_count so runaway rows are visible.
                         try:
+                            if source == 'pumpportal_retry':
+                                _compact_birth_retry_storage_check(DB_PATH, _listener_ops_db_path())
                             _rc = _sq.connect(DB_PATH, timeout=5)
                             with _rc:
                                 _rc.execute("UPDATE webhook_birth_queue SET retry_count = retry_count + 1 WHERE id = ?", (row_id,))

@@ -142,3 +142,7 @@ def test_delivery_and_ack_are_separate_canonical_dimensions():
  r=summarize_birth_coverage([{'mint':M}],[],[],cohort_complete=True,walkback=[job],deliveries=[delivery]);assert r['late_create_handoff_delivered']==1 and r['late_create_handoff_acknowledged']==0
  delivery['state']='ACK';r=summarize_birth_coverage([{'mint':M}],[],[],cohort_complete=True,walkback=[job],deliveries=[delivery]);assert r['late_create_handoff_acknowledged']==1
  delivery['state']='PENDING';job['create_anchor_signature']=None;assert summarize_birth_coverage([{'mint':M}],[],[],cohort_complete=True,walkback=[job],deliveries=[delivery])['late_create_handoff_delivered']==0
+
+
+def test_restart_qualification_uses_persisted_original_pp_receipt(tmp_path):
+ a=actor(tmp_path);i=record(a);assert a.accepted_birth(M,C,S) is None;a.record_outcome(i,outcome='COMMITTED',canonical=(C,C,S));b=actor(tmp_path);assert b.accepted_birth(M,C,S)==(C,S);assert b.accepted_birth(M,encoded(98),S) is None

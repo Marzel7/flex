@@ -124,3 +124,7 @@ def test_portal_creator_fastpath_never_uses_trade_signer():
  tree=ast.parse((ROOT/'src/core/pumpfun_curve_listener.py').read_text());method=next(n for n in ast.walk(tree) if isinstance(n,ast.AsyncFunctionDef) and n.name=='_ensure_pf_ws_creator');assignment=next(n for n in ast.walk(method) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='portal_creator' for t in n.targets))
  ns={'self':types.SimpleNamespace(_portal_vsol={M:{'creator':C,'birth_creator':None}}),'mint':M};exec(compile(ast.Module(body=[assignment],type_ignores=[]),'actual-fastpath','exec'),ns);assert ns['portal_creator'] is None
  ns['self']._portal_vsol[M]['birth_creator']=C;exec(compile(ast.Module(body=[assignment],type_ignores=[]),'actual-fastpath','exec'),ns);assert ns['portal_creator']==C
+
+
+def test_actual_listener_consults_optional_persisted_proof_before_core_lane():
+ tree=ast.parse((ROOT/'src/core/pumpfun_curve_listener.py').read_text());method=next(n for n in ast.walk(tree) if isinstance(n,ast.AsyncFunctionDef) and n.name=='_mark_token_migrated_in_db');text=ast.unparse(method);assert text.index('audit.accepted_birth(')<text.index('enqueue_prospective_migration(conn') and 'read_only=True' in text

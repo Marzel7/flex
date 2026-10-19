@@ -2811,6 +2811,17 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 prior_ops = ops.execute("SELECT status,enqueued_at,creator,create_anchor_signature,create_anchor_audit_state FROM wt_walkback_queue WHERE mint=?", (mint,)).fetchone()
             portal = self._portal_vsol.get(mint) or {}
             accepted_birth = (portal.get("birth_creator"), portal.get("birth_signature"))
+            audit = getattr(self, "_eb_birth_audit", None)
+            # Optional qualified compact evidence survives listener restart. Close
+            # this exact Core read before the shared writer; recheck at enqueue.
+            if not all(accepted_birth) and callable(getattr(audit, "accepted_birth", None)):
+                try:
+                    with managed_db_connect(DB_PATH, timeout=5, read_only=True) as read:
+                        prior = read.execute("SELECT earliest_tx_creator,pf_ws_creator,create_tx_signature FROM token_analysis WHERE mint=?", (mint,)).fetchone()
+                    if prior and prior[0] == prior[1] and prior[0] and prior[2]:
+                        accepted_birth = audit.accepted_birth(mint, prior[0], prior[2]) or accepted_birth
+                except Exception:
+                    log_print("[PUMPPORTAL] COMPACT_QUALIFICATION_READ_UNAVAILABLE", flush=True)
             with managed_db_connect(DB_PATH, timeout=30, priority=PRIORITY_P0_CRITICAL_INGESTION) as conn:
                 cursor = conn.cursor()
                 cursor.execute(

@@ -1,6 +1,6 @@
 {
   "preimage_listener_sha256": "c2bd4292d7c2ae786f89d1ae98831dccfc0b26011d6a29ceb145b2c2d72792a5",
-  "candidate_listener_sha256": "5af2087337bcfdbbdd57c5eb7ec539b57b1211905d4c50a19e62e1e841e88e73",
+  "candidate_listener_sha256": "6db4a1c8230ea233d26fd212bac5988437bb0b8f29d9dbed0f282ad10f39b634",
   "unchanged_ast_sha256": "6e61efe697c202d109833032b58df0ddef02a6d92cd2ae7f70633e4fd5b85a36",
   "changed_existing_functions": [
     "_handle_pumpportal_create_frame",

@@ -183,6 +183,18 @@ class PumpPortalBirthAudit:
         except (OSError,ValueError,TypeError,KeyError):
             self.last_receipt_error="COMPACT_OUTCOME_UNAVAILABLE";return False
 
+    def accepted_birth(self,mint,creator,signature):
+        """Exact read-only persisted PP proof, independent of current Core fields."""
+        if self.compact_path is None:return None
+        try:
+            ident,_=self._identity(mint,creator,signature)
+            row=self._read_receipt(self.compact_path/(ident+'.json'))
+            if row.get('source')=='PUMPPORTAL_NEW_TOKEN' and row.get('persistence_outcome')=='COMMITTED' and row.get('accepted_at_utc_ns') and not row.get('canonical_conflict') and self._validation(mint,creator,signature)=='IDENTITIES_VALID_UNVERIFIED_CHAIN':
+                return creator,signature
+        except (OSError,ValueError,TypeError):
+            return None
+        return None
+
     def note_handoff(self,mint,migration_signature,*,at_utc_ns=None):
         if self.compact_path is None:return False
         try:

@@ -14285,6 +14285,25 @@
     },
     "updated_utc": "2026-10-19T11:05:43.950823+00:00"
   },
+  "dev090_paired_create_history_final": {
+    "canonical_writes": 0,
+    "engineering_source_revision": "e3002467ce44a66487c9842a8dd79f51358fc593",
+    "finding": "Four serial authorized history reads completed. CREATE_V2 curve page contains eight signatures and verified CREATE is candidate1; mint full page omits it. Legacy mint and curve full pages both omit verified CREATE.",
+    "local_report_sha256": "3bbfadc2dff26f5f6274449807458cebbff6dc980daeec117e47fb3851f5fcfd",
+    "max_authorized_provider_calls": 4,
+    "milestone_verdict": "COMPLETED_MIXED_RESULT_NO_IMPLEMENTATION",
+    "next_action": "Separate authorization for prospective same-total-budget curve-target qualification; no automatic implementation or extra history fallback.",
+    "pagination": 0,
+    "production_activation": "No services changed or signalled",
+    "production_changes": 0,
+    "provider_calls": 4,
+    "qualification_decision": "INSUFFICIENT_EVIDENCE for general replacement; positive improvement proven for CREATE_V2 control only.",
+    "raw_retention": false,
+    "retries": 0,
+    "runtime_deployment_required": false,
+    "source_changes": 0,
+    "transaction_detail_calls": 0
+  },
   "dev090_paired_create_history_legacy_continuation": {
     "actual_provider_calls": 0,
     "blocker": "Authoritative configured RPC credential unavailable in inspected installed resolver binding; prior Supervisor socket absent. No alternate credential or provider used.",

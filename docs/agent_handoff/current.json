@@ -35345,5 +35345,24 @@
     "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "source_changes": 0, "database_changes": 0, "deployment": false},
     "remote_handoff": "NOT_ATTEMPTED: disclosure approval remains unavailable.",
     "next_action": "Define and authorize a provider-free process-boundary or equivalent isolated integration harness for the two durable-handoff tests; do not merge service source roots, deploy, or promote before it passes."
+  },
+  "flex_stable_v2_final_cross_service_handoff_qualification": {
+    "status": "PASS_READY_FOR_GOLDEN_PROMOTION_REVIEW",
+    "qualified_at_utc": "2026-10-19T23:40:01Z",
+    "candidate_commit": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+    "source_changes": 0,
+    "harness": "Disposable process-boundary harness outside the candidate checkout: separate CPython interpreters, creator-resolution PYTHONPATH only for producer/pressure and Walkback PYTHONPATH only for consumer checks; socket.connect denied in every subprocess.",
+    "original_contracts": {
+      "test_actual_rpc_producer_transaction_and_real_worker_execution": "PASS: strict creator resolution persisted the CREATE evidence, durable delivery became PENDING, OPS delivery became pending, then actual Walkback drain completed exactly once with NO_ATTRIBUTION_FOUND and a second drain processed 0.",
+      "test_producer_pressure_stops_before_claim_or_rpc": "PASS: intent-capacity pressure raised INTENT_CAPACITY before claim/RPC, created no delivery, and a separate Walkback interpreter confirmed zero Core delivery and zero OPS queue rows."
+    },
+    "crash_retry_idempotency": "The first original contract requires one post-completion redrain to process 0; this passed. Its original assertion set does not inject a crash/retry branch. The second contract asserts pressure prevents a claim/RPC and durable row creation; this passed.",
+    "preserved_regression_evidence": "162 applicable isolated provider-free tests remain: listener 38, creator-resolution 18, Walkback 106. The two formerly deselected contracts are now separately qualified through the isolated process boundary.",
+    "integrity_recheck": {"source_hashes": "2049 checked; 0 mismatches", "runtime_lock": "PASS 58bd43d469351f1d16a01e82a5fc4e3f07ed95c6dd6d7a5f21b19842c25bb676", "test_lock": "PASS 19c3e93e9c2fbeabcb79cdb9ffd8f7bf902b6ff9107978eaaf18c7d0b17538c9", "manifest_json": "PASS", "candidate_worktree": "clean"},
+    "final_promotion_readiness": "READY_FOR_GOLDEN_PROMOTION_REVIEW: all required source, lock, isolated import, provider-free regression, and cross-service handoff gates are evidenced. Formal promotion/deployment remains explicitly unauthorized.",
+    "remaining_limitations": ["Dependency reconstruction is platform-bound to macOS arm64/Python 3.11.5 and establishes exact-version-equivalent artifacts, not historical installer identity.", "Database-content backup/recovery remains outside the source/configuration baseline."],
+    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "source_changes": 0, "database_changes": 0, "deployment": false},
+    "remote_handoff": "NOT_ATTEMPTED: disclosure approval remains unavailable.",
+    "next_action": "Obtain the designated formal promotion decision. Do not deploy automatically."
   }
 }

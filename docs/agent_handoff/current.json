@@ -12971,6 +12971,22 @@
     "verification": "15019 per-row hashes independently read back; other fields unchanged; SQLite authorizer denied unrelated writes/DDL. Completed Walkback74334,failed2,running1 unchanged. Waiting/pending/retry after0; actual installed claim query returns0.",
     "write_authority": "Installed synchronous shared acquire_write_lease before SQLite transaction; thread starts denied; no db_locking reaper/checkpoint import. Initial auto-review concern resolved with guarded import test before approved revised execution."
   },
+  "dev090_budget_neutral_create_selection": {
+    "application_source_changes": 0,
+    "blocker": "Missing retained complete page, inspected candidate identities and qualified CREATE position",
+    "canonical_writes": 0,
+    "engineering_source_revision": "e3002467ce44a66487c9842a8dd79f51358fc593",
+    "finding": "Existing selection is oldest-first within the newest returned page, fixed 80-candidate prefix, without deduplication. Retained five-job evidence lacks complete candidate lists and independently verified CREATE positions. No real positive witness qualifies a replacement strategy.",
+    "local_report_sha256": "bb6083b4ad57b0031dfb85a8efcbb4611a48189319a37881fdd897d6005a1c66",
+    "milestone_verdict": "HOLD_NO_QUALIFIED_SELECTION_IMPROVEMENT",
+    "next_action": "Separate authorization for compact prospective candidate/outcome witnesses under unchanged budgets; no replay or additional acquisition in this task",
+    "production_activation": "Existing deployment unchanged",
+    "production_changes": 0,
+    "provider_calls": 0,
+    "release_qualification": "NOT_ENTERED_IMPLEMENTATION_GATE_UNMET",
+    "runtime_deployment_required": false,
+    "tests": "13 compact provider-free source-extracted metadata comparisons; deterministic selection within 80 entries. Synthetic target selection is not strict CREATE qualification or real-cohort improvement."
+  },
   "dev090_compact_birth_recovery_release": {
     "acknowledgement": "Existing birth persistence method now returns explicit bool only; all existing transaction/proof/metadata statements preserved. Retry consumption requiresTrue plus exact token readback; receive-time completed cache cannot acknowledge compact retries. Duplicate receipt and consumed identity preserved.",
     "bounds": "4096bytes/envelope,2048total lifetime retained webhook rows including consumed/legacy;8MiB logicalpayload/~32MiB conservative main pages;atomic bounded INSERT quota plus existing main/WAL/journal/free-space authority.50rows/200KiB payload perpoll. No new log sink;existing Supervisor20MBstdout/10MBstderr rotation. At capacity failclosed,no pruning. Current queue row snapshot0.",

@@ -14507,6 +14507,24 @@
     "runtime_deployment_required": false,
     "source_changes": 0
   },
+  "dev090_prospective_curve_first_trial": {
+    "actual_provider_calls": 0,
+    "application_source_changes": 0,
+    "candidate": "NONE_NEW",
+    "canonical_writes": 0,
+    "engineering_source_revision": "e3002467ce44a66487c9842a8dd79f51358fc593",
+    "finding": "Pure installed validator and actual helper methods tested with retained legacy transaction. Genuine positive and wrong-mint rejection pass. Changing only execution error metadata causes validator to still return strict-createTrue; mandatory failed-transaction rejection negative fails.",
+    "local_report_sha256": "d71faa066c8d26e8c36e8219b30238744def080f9831f4a9ab1eaea866692e1f",
+    "milestone_verdict": "HOLD_MANDATORY_STRICT_VALIDATION_CONTROL",
+    "next_action": "Separately authorize narrow shared strict-CREATE failed-execution rejection correction and regressions before trial; do not silently mix into selection-only change.",
+    "production_activation": "No source,configuration or operational process changed",
+    "production_changes": 0,
+    "prospective_sample_size": 0,
+    "recommended_default": "RETAIN_MINT_FIRST_UNCHANGED",
+    "release_qualification": "NOT_ENTERED_MANDATORY_SAFETY_GATE_FAILED",
+    "runtime_deployment_required": false,
+    "scope": "Offline isolated method contract, not live false qualification or production incident. Existing signature-history error prefilter does not establish response-level negative check."
+  },
   "dev090_prospective_selection_qualification": {
     "engineering_revision": "2d40af06c320d1a4688d65c9d195214ec69f5378",
     "evidence": "DEV090/dev002-release-qualification/PROSPECTIVE_SELECTION_QUALIFICATION.json",

@@ -1649,6 +1649,51 @@ def _compact_birth_retry_storage_check(core_path, ops_path):
     storage_check(core_path, ops_path, core_base=baseline[0], ops_base=baseline[1])
 
 
+
+def enqueue_prospective_migration(conn, mint, *, core_path, ops_path, ops_row=None, accepted_birth=None):
+    """Exact-mint enqueue in the migration's existing shared Core transaction.
+
+    No provider, DDL, commit, population discovery or OPS mutation. Prior OPS
+    state is read before entering the Core writer, never nested write lanes.
+    """
+    from src.ops.walkback_create_handoff import identity, producer_preflight
+    if not conn.in_transaction:
+        raise RuntimeError("MIGRATION_TRANSACTION_REQUIRED")
+    control = conn.execute("SELECT activated_at,enabled FROM wb_create_control WHERE id=1").fetchone()
+    if not control or not control[1]:
+        return "OUTSIDE_ACTIVATION"
+    token = conn.execute("SELECT earliest_tx_creator,pf_ws_creator,create_tx_signature,migrated_at FROM token_analysis WHERE mint=?", (mint,)).fetchone()
+    if not token or token[3] is None or token[3] < control[0]:
+        return "HISTORICAL"
+    if ops_row and (ops_row[0] in ("skipped","complete","COMPLETE","ignored","failed") or ops_row[1] is None or ops_row[1] < control[0]):
+        return "OPS_PROTECTED"
+    previous = conn.execute("SELECT status,resolved_creator,create_tx_signature FROM creator_resolution_queue WHERE mint=?", (mint,)).fetchone()
+    creators = {v.strip() for v in token[:2] if v and v.strip()}
+    if len(creators) > 1:
+        return "CREATOR_CONFLICT"
+    if previous and previous[0] in ("complete","ignored","skipped","failed"):
+        return "QUEUE_TERMINAL"
+    if previous and previous[0] in ("pending","retry","running"):
+        return "ALREADY_ACTIVE"
+    if ops_row and len(ops_row)>4 and ops_row[4]=="VALID" and creators=={ops_row[2]} and token[2]==ops_row[3]:
+        return "QUALIFIED_OPS_ANCHOR"
+    # Plain Core fields are not themselves proof of source. Live PumpPortal
+    # evidence must match exactly; a persisted qualified proof also suffices.
+    if accepted_birth and len(accepted_birth)==2:
+        creator, signature = accepted_birth
+        if creators == {creator} and token[2] == signature and identity(creator,range(32,45),32) and identity(signature,range(64,89),64):
+            return "QUALIFIED_PUMPPORTAL"
+    proof = conn.execute("SELECT creator,signature FROM wb_create_delivery WHERE epoch=(SELECT epoch FROM wb_create_control WHERE id=1) AND mint=?", (mint,)).fetchone()
+    if proof and creators == {proof[0]} and token[2] == proof[1]:
+        return "QUALIFIED_CORE_PROOF"
+    producer_preflight(conn,core_path=core_path,ops_path=ops_path)
+    now = int(time.time())
+    changed = conn.execute("""INSERT OR IGNORE INTO creator_resolution_queue
+        (mint,status,priority,reason,source,next_attempt_at,locked_until,attempts,last_error,create_tx_signature,migrated_at,created_at,updated_at)
+        VALUES(?,'pending',200,'prospective_migration_anchor','migration_direct',?,0,0,NULL,?,?,?,?)""",
+        (mint,now,token[2],token[3],now,now))
+    return "ENQUEUED" if changed.rowcount else "ALREADY_ACTIVE"
+
 def _ensure_webhook_birth_queue_schema(db_path: str) -> None:
     import sqlite3 as _sq
     conn = _sq.connect(db_path, timeout=10)
@@ -2757,6 +2802,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
         migrated_ts = int(migrated_at or time.time())
 
         def _do_write():
+            # Close the exact OPS read before entering the shared Core writer.
+            with managed_db_connect(_listener_ops_db_path(), timeout=5, read_only=True) as ops:
+                prior_ops = ops.execute("SELECT status,enqueued_at,creator,create_anchor_signature,create_anchor_audit_state FROM wt_walkback_queue WHERE mint=?", (mint,)).fetchone()
+            portal = self._portal_vsol.get(mint) or {}
+            accepted_birth = (portal.get("creator"), portal.get("birth_signature"))
             with managed_db_connect(DB_PATH, timeout=30, priority=PRIORITY_P0_CRITICAL_INGESTION) as conn:
                 cursor = conn.cursor()
                 cursor.execute(
@@ -2790,6 +2840,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         migration_slot,
                     ),
                 )
+                enqueue_prospective_migration(conn, mint, core_path=DB_PATH, ops_path=_listener_ops_db_path(),
+                                              ops_row=prior_ops, accepted_birth=accepted_birth)
                 conn.commit()
 
         try:
@@ -11057,6 +11109,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 "symbol": symbol or "",
                 "name": name or "",
                 "creator": creator or "",
+                "birth_signature": signature,
                 "ts": int(time.time()),
             }
 

@@ -1,0 +1,10 @@
+{
+  "parent_source": "ef70c8718d030a0d96e6b71aa17cedb75c379ae5",
+  "installed_listener_preimage_sha256": "5e173f0a44b3a32997cad632e7a1b5304f7dcd12ee60ca23cfd1d0ec048a1e4e",
+  "scope": "P1 listener-only; exact-mint OPS read closes before Core lane; atomic migration and enqueue in existing Core transaction. Qualified queue INSERT semantics from2226407b, no worker module replacement.",
+  "activation": "Existing immutable persisted migrated_at and wb_create_control activation. No restart or mutable retry cutoff.",
+  "qualification": "Qualified source-bound PP memory pair, qualified Core proof or matching VALID OPS anchor avoids reacquisition. Plain signer fields do not qualify. Terminal OPS/creator jobs protected; duplicates preserve attempts/backoff.",
+  "storage": "No new files/stores/schema at runtime. Existing qualified Core/OPS main64MiB growth/WAL48MiB/journal16MiB/free2GB stopchecks before queue admission; existing large canonical files remain authorized exception. Isolated fixtures8MiB/file, releasearchive256MB;no raw retention/newunboundedpaths.",
+  "rollback": "Listener-only source rollback; alreadycommitted jobs survive for unchanged creator worker. No schema/queue rewind. All services untouched in this task.",
+  "deployment_authorized": false
+}

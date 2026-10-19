@@ -1,16 +1,18 @@
 {
   "preimage_listener_sha256": "c2bd4292d7c2ae786f89d1ae98831dccfc0b26011d6a29ceb145b2c2d72792a5",
-  "candidate_listener_sha256": "5e173f0a44b3a32997cad632e7a1b5304f7dcd12ee60ca23cfd1d0ec048a1e4e",
-  "unchanged_ast_sha256": "7bdffc35e8a8bf73d6829f26d6e9b9021b64094a45d9bc3ea45dd27471f79c86",
+  "candidate_listener_sha256": "99bb7a4f285aaae73050a9aa560961fc34dcd0825b129e61fa17b6e0a89c74a8",
+  "unchanged_ast_sha256": "beda1f4e00b9b84b87db4e73d470bc1cacf96ffad6c33045d020d4607d046449",
   "changed_existing_functions": [
     "_handle_pumpportal_create_frame",
     "drain_webhook_birth_queue",
-    "_insert_bonding_curve_token"
+    "_insert_bonding_curve_token",
+    "_mark_token_migrated_in_db"
   ],
   "new_helpers": [
     "_compact_pumpportal_birth_retry",
     "_decode_compact_pumpportal_birth_retry",
-    "_compact_birth_retry_storage_check"
+    "_compact_birth_retry_storage_check",
+    "enqueue_prospective_migration"
   ],
   "new_constants": {
     "_PP_BIRTH_RETRY_MAX_BYTES": 4096,
@@ -50,5 +52,6 @@
   },
   "parent_source_sha": "96687a393b024f3008ada9ad3e10441ebcdd0d64",
   "startup_and_rollback": "Listener-only source/launcher overlay, fixed persisted activation proposal retained; no creator/Walkback/handoff module changes. Keep listener stopped until separate installation/preflight authorization. Exact source rollback preserves pending compact retry rows: old listener cannot be restored and started while compact rows remain pending without compatible consumer; no deletion or raw downgrade.",
-  "legacy_compatibility": "Existing small legacy JSON and signature-only Helius rows retain original paths; oversized legacy records stay unconsumed with explicit PAYLOAD_CAPACITY. No historical rows automatically replayed; fresh preflight must still show historical retry authorities empty."
+  "legacy_compatibility": "Existing small legacy JSON and signature-only Helius rows retain original paths; oversized legacy records stay unconsumed with explicit PAYLOAD_CAPACITY. No historical rows automatically replayed; fresh preflight must still show historical retry authorities empty.",
+  "pre_p1_listener_sha256": "5e173f0a44b3a32997cad632e7a1b5304f7dcd12ee60ca23cfd1d0ec048a1e4e"
 }

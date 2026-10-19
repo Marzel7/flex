@@ -14046,48 +14046,184 @@
     },
     "WALKBACK_COMPLETION_PERCENT": null,
     "WALKBACK_EXECUTION": "Existing worker remainedrunning; no P1/P2 end-to-end success claimed.",
+    "superseded_current_runtime": "dev090_p1_p2_retry;previousrollback retained as historical attempt",
     "updated_utc": "2026-10-19T10:23:17.810224+00:00"
   },
   "dev090_p1_p2_retry": {
-    "APPLICATION_READINESS": "31compact births committed/readback;firstprospective missing-anchor migration enqueued increator_resolution_queue.",
-    "CONTROLLER_WAIT_SECONDS": 30,
-    "DEV090_P1_P2_RETRY_STATUS": "INSTALLED_READY_LIVE_ACCEPTANCE_IN_PROGRESS",
-    "NEXT_ACTION": "Continue existing fixed30minute observer; do not restart/redeploy. Stop/rollback on mandated safety violation; finalize prospective outcome and preserved evidence.",
-    "RUNTIME_DEPLOYMENT_GATE": "LIVE_ACCEPTANCE_PENDING",
-    "SUPERVISOR_ACK_SECONDS": 10.932512044906616,
-    "candidate": "DEV090_CANDIDATE_e3002467ce44",
-    "deployment_authorized": true,
-    "initial_coverage": {
-      "late_create_handoff_acknowledged": 0,
-      "late_create_handoff_delivered": 0,
-      "pp_birth_canonical_conflicts": 0,
-      "pp_birth_evidence_incomplete": 0,
-      "pp_birth_evidence_incomplete_or_late": 0,
-      "pp_birth_provenance_unknown": 1,
-      "pp_birth_qualified_at_migration": 0,
-      "pp_birth_receipt_retained": 0,
-      "pp_birth_signature_retained": 0,
-      "pp_creator_retained": 0,
-      "pp_handoff_timing_unknown": 0,
-      "qualified_pp_birth_coverage_percent": 0.0,
-      "rpc_create_recovered": 0,
-      "rpc_recovery_percent": 0.0,
-      "semantics": "Verified retained accepted evidence before recorded OPS handoff initiation; not a PumpPortal delivery-rate claim. RPC recovery may overlap PP receipts. No on-chain receipt-time inference.",
-      "total_unique_migrations": 1,
-      "walkback_completed": 0,
-      "walkback_completion_percent": 0.0,
-      "walkback_eligible": 0,
-      "walkback_executed": 0
+    "APPLICATION_READINESS": {
+      "committed_birth_receipts_total": 511,
+      "evidence": "New source-bound compact receipts haveCOMMITTED+readback acceptance; newprospective creator jobs committed; fullWalkback completions committed. This is separate from Supervisor acknowledgment.",
+      "one_listener_no_duplicates": true,
+      "receipt_read_errors": [],
+      "retained_birth_receipts_total": 517,
+      "status": "PASS"
     },
-    "observations": "DEV090/p1p2-controlled-retry-e300;bounded read-only observer active until window end",
-    "restart_scope": "Listener only; creator-resolution and DEV002Walkback original PIDs preserved;12unrelatedservicesSTOPPED.",
-    "safety_errors": [],
-    "source_sha": "e3002467ce44a66487c9842a8dd79f51358fc593",
-    "updated_utc": "2026-10-19T10:37:09.470111+00:00",
-    "window": [
-      1792406060,
-      1792407860
-    ]
+    "CANDIDATE_INSTALLATION": {
+      "candidate": "DEV090_CANDIDATE_e3002467ce44",
+      "immutable_candidate_unchanged": true,
+      "installed_hashes": {
+        "run_listener.sh": "b1dd5b99db29e3cad76999c7baf343d205bb2118c6785c66db805537ea32c434",
+        "src/core/pumpfun_curve_listener.py": "6db4a1c8230ea233d26fd212bac5988437bb0b8f29d9dbed0f282ad10f39b634",
+        "src/core/pumpportal_birth_audit.py": "6103d23ec5ea82748bb53ce89985c1dd8885af2c281872a4f3672b1b2781416c"
+      },
+      "new_application_engineering": false,
+      "source_sha": "e3002467ce44a66487c9842a8dd79f51358fc593",
+      "target": "existing PumpPortal listener;only3qualifiedfiles"
+    },
+    "CANONICAL_WRITES": {
+      "manual_replay_or_requeue": 0,
+      "operator_direct": 0,
+      "runtime": "Authorized natural birth,migration,creatorqueue andWalkback commits observed;not a zero-write task.",
+      "schema_changes": 0
+    },
+    "CONTROLLER_WAIT_SECONDS": 30,
+    "CREATOR_ENQUEUE_COVERAGE": {
+      "budget_terminal_reasons": {
+        "BUDGET_EXCEEDED": 5
+      },
+      "cohort_without_qualified_PP": 5,
+      "completed_resolution_jobs": 0,
+      "new_missing_anchor_jobs_enqueued": 5,
+      "note": "Prospective migration_direct/anchor rows demonstrate automatic enqueue;terminalsearch-budget outcomes are not successful CREATE recovery and were not retried. No new provider budget was granted.",
+      "queue_presence_percent_among_non_PP_cohort": 100.0,
+      "queue_states": {
+        "skipped": 5
+      }
+    },
+    "DATABASE_WRITE_HEALTH": {
+      "final_storage": {
+        "flex_complete_database.db": {
+          "journal": 0,
+          "main_bytes": 35652194304,
+          "wal": 0
+        },
+        "wt_ops_v2.db": {
+          "journal": 0,
+          "main_bytes": 16194387968,
+          "wal": 0
+        }
+      },
+      "free_bytes_after": 10409426944,
+      "free_bytes_before": 5053566976,
+      "minimum_observed_free_bytes": 5036302336,
+      "new_enospc": 0,
+      "new_write_timeouts": 0,
+      "no_full_integrity_claim": true,
+      "status": "PASS_BOUNDED_CHECKS"
+    },
+    "DEV090_P1_P2_RETRY_STATUS": "DEPLOYED_CHANGED_FUNCTIONS_PASS_PIPELINE_COVERAGE_PARTIAL",
+    "FRESH_PREFLIGHT": "PASS: candidate/preimages/rollback verified;3healthy owned services;disk/WAL/indexed lookups/shared-writer contracts verified;existing schema/activation retained.",
+    "HISTORICAL_DISCOVERY_STATUS": {
+      "exact15019count_not_required": true,
+      "historical_active_queue_rows_detected": false,
+      "no_replay_or_manual_queue_changes": true,
+      "runtime_flags": {
+        "CREATOR_BACKFILL_ENABLED": "0",
+        "LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED": "0",
+        "LISTENER_MIGRATION_RECONCILER_ENABLED": "0",
+        "PUMPFUN_BIRTH_RECONCILER_ENABLED": "0",
+        "PUMPPORTAL_CANONICAL_BIRTH_RETENTION_ENABLED": "0",
+        "PUMPPORTAL_COMPACT_BIRTH_RECEIPTS_ENABLED": "1"
+      },
+      "status": "DISABLED_VERIFIED"
+    },
+    "LATE_CREATE_HANDOFF": {
+      "acknowledged": 0,
+      "delivered": 0,
+      "live_path_exercised": false,
+      "no_persistent_delivery_failure_observed": true,
+      "status": "NOT_EXERCISED_NO_NEW_QUALIFIED_RPC_PROOF"
+    },
+    "LIVE_MIGRATIONS": {
+      "cohort_complete": true,
+      "seconds": 1800,
+      "source": "Indexed immutable canonical migrated_at half-open window;not receipt denominator;max256qualifiedcohortbudget",
+      "unique": 12,
+      "window_end_utc": "2026-10-19T11:04:20+00:00",
+      "window_start_utc": "2026-10-19T10:34:20+00:00"
+    },
+    "MIGRATION_TO_COMPLETION_LATENCY_SECONDS": {
+      "count": 9,
+      "maximum": 134,
+      "mean": 69.33333333333333,
+      "median": 64,
+      "minimum": 31
+    },
+    "NEXT_ACTION": "Keep deployed P1/P2. Separately qualify the existing creator-resolution search-budget exits and remaining anchor gaps before claiming complete late-CREATE recovery or establishing FLEX_STABLE_V2.",
+    "PP_BIRTH_COVERAGE": {
+      "canonical_conflicts": 0,
+      "cohort_receipt_retained": 7,
+      "incomplete_or_late": 0,
+      "percent": 58.333333333333336,
+      "qualified_before_handoff": 7,
+      "semantics": "Verified retained accepted evidence before recorded OPS handoff initiation; not a PumpPortal delivery-rate claim. RPC recovery may overlap PP receipts. No on-chain receipt-time inference.",
+      "total_migrations": 12,
+      "unknown_does_not_mean_PP_non_delivery": true,
+      "unknown_provenance": 5
+    },
+    "PRODUCTION_CHANGES": {
+      "installed_source_files": 3,
+      "restarted_services": [
+        "watchtower_listener"
+      ],
+      "unrelated_service_starts": 0,
+      "worker_restarts": 0
+    },
+    "PROVIDER_CALLS": {
+      "existing_budgets_unchanged": true,
+      "ledger_limitation": "Log events are not a complete provider billing ledger.",
+      "operator_direct": 0,
+      "runtime_log_observed_requests": 59
+    },
+    "RAW_RETENTION": "OFF;runtimeflag0,qualifiedcompactfallbackpreserved,compactreceiptwhitelistreadback;no rawproviderpayload copies",
+    "READY_FOR_GOLDEN_BASELINE": false,
+    "RESULT": "PARTIAL",
+    "ROLLBACK_STATUS": {
+      "no_safety_gate_failed": true,
+      "performed_in_this_retry": false,
+      "previous_failedattempt_androllback_evidence_preserved": true,
+      "prior_ef70_exact3filebackup_preserved": true
+    },
+    "RPC_CREATE_RECOVERY": {
+      "creator_worker_completed": 0,
+      "other_origin_claim": "UNKNOWN unless independently source-bound; no RPC success inferred from pf_ws_creator alone",
+      "qualified_STRICT_RPC_DEV074_proofs_observed": 0
+    },
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "RUNTIME_GATE_SCOPE": "P1 automatic enqueue andP2 source-bound birthprovenance installed and functioning. Broader missing-anchor recovery/late-CREATE livecoverage remains separately limited.",
+    "SOURCE_OR_RELEASE_ASSERTION_CHANGES": 0,
+    "STORAGE_BOUNDS": {
+      "cohort_rows_limit": 256,
+      "diagnostic_file_bytes_limit": 2000000,
+      "diagnostic_snapshots_limit": 32,
+      "raw_provider_retention": false,
+      "receipt_file_bytes_limit": 4096,
+      "receipt_files_limit": 4096,
+      "unbounded_new_growth_paths": 0
+    },
+    "SUPERVISOR_STARTUP": {
+      "configuration_changed": false,
+      "configured_startsecs": 10,
+      "control_ack_seconds": 10.932512044906616,
+      "service_transition": "Onlylistener restarted once inthisretry;creator/Walkback PIDs unchanged;12unrelatedservicesSTOPPED",
+      "start_wait_seconds": 30,
+      "status": "PASS"
+    },
+    "WALKBACK_COMPLETION": {
+      "completed_full_jobs": 9,
+      "duplicate_completed_state_transitions_observed": false,
+      "eligible_full_jobs": 9,
+      "executed_all_classes": 9,
+      "limitation": "No universal exactly-once claim beyond uniquequeue identity,unchanged idempotency contracts and observed stable committed completions.",
+      "percent_all_migrations": 75.0,
+      "percent_eligible_full_jobs": 100.0,
+      "queue_states": {
+        "complete": 9,
+        "waiting": 3
+      },
+      "unresolved_anchor_count": 3
+    },
+    "updated_utc": "2026-10-19T11:05:43.950823+00:00"
   },
   "dev090_prospective_selection_qualification": {
     "engineering_revision": "2d40af06c320d1a4688d65c9d195214ec69f5378",
@@ -26820,8 +26956,8 @@
     "branch": "codex/dev090",
     "git_head": "e3002467ce44a66487c9842a8dd79f51358fc593",
     "name": "flex",
-    "updated_at_utc": "2026-10-19T10:37:09.470111+00:00",
-    "working_tree": "P1/P2 candidate installed inlistener; liveacceptance inprogress. Original two workers unchanged. Do not act on older rollback-only handoff as current runtime."
+    "updated_at_utc": "2026-10-19T11:05:43.950823+00:00",
+    "working_tree": "P1/P2 exactcandidate installed inlistener and30minute prospective observation complete. Creator/Walkback originalprocesses preserved. See retry report for unresolved searchbudget/anchor limits;no goldenpromotion."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

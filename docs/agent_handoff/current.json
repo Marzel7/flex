@@ -34835,5 +34835,49 @@
     "source_changes": 0,
     "production_changes": 0,
     "updated_at_utc": "2026-10-19T20:28:19.430199+00:00"
+  },
+  "dev090_compact_receipt_capacity_relief": {
+    "objective": "Bounded, reversible relief of the PumpPortal compact provenance receipt capacity without affecting Core ingestion, creator evidence, migration, retry, or Walkback processing.",
+    "verdict": "HOLD_NO_SAFE_LOW_WATERMARK_RELIEF",
+    "updated_at_utc": "2026-10-19T20:55:27Z",
+    "engineering_source_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "runtime_listener_revision": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only operational assessment; no executable, configuration, database, or service change was made.",
+    "receipt_store": {
+      "active_path": "logs/pumpportal_compact_birth_receipts",
+      "initial_active_count": 4096,
+      "final_active_count": 4096,
+      "initial_and_final_bytes": 2275280,
+      "free_bytes": 15553548288,
+      "max_files": 4096,
+      "safe_archivable_count": 5,
+      "protected_count": 4091,
+      "archive_moves": 0,
+      "integrity_manifest": "NOT_CREATED_NO_MOVE"
+    },
+    "retention_policy": {
+      "recent_retention": "Preserve every receipt younger than six hours.",
+      "active_reference_protection": "Preserve any receipt overlapping active creator resolution, funding, Walkback, pending retry, migration, or durable-handoff evidence; preserve unverified dependencies.",
+      "independent_eligibility": "Only terminal migrated PumpPortal birth receipts with terminal Walkback and durable-handoff evidence, no active overlap, and no pending retry were eligible.",
+      "minimum_low_watermark": "Active count <=3584 (at least 512 free slots), derived from the observed 3950 birth receipts over 8.64 hours, approximately 457 births/hour, to provide a little over one hour of compact-provenance headroom."
+    },
+    "hold_reason": "Only five independently eligible terminal receipts were found. Moving them would leave 4091 active files, 507 slots short of the minimum 512-slot low watermark; therefore no move, archive, manifest, or readback verification was performed.",
+    "runtime_health": {
+      "watchtower_listener": "RUNNING pid 10722",
+      "creator_resolution_worker": "RUNNING pid 10708",
+      "walkback_worker": "RUNNING pid 10716",
+      "ws_cascade": "STOPPED"
+    },
+    "safety": {
+      "provider_calls": 0,
+      "canonical_database_writes": 0,
+      "source_changes": 0,
+      "service_restarts": 0,
+      "deleted_evidence": 0,
+      "historical_replay": false
+    },
+    "provenance_state": "The full 4096-file store cannot persist new compact receipts; prior log evidence shows Core birth persistence and downstream processing continue while compact provenance is unavailable. No natural COMMITTED receipt could be observed after this no-move decision.",
+    "next_action": "Obtain explicit authorization for a separately reviewed retention/archive policy that can identify at least 512 independently safe receipts, or provision approved additional receipt-store headroom; then execute a new bounded reversible operation."
   }
 }

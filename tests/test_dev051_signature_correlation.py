@@ -11,7 +11,8 @@ OTHER=json.loads((c.ROOT/'docs/audits/dev051/TX2_decoded.json').read_text())['si
 
 def mutate(tx,case,enhanced):
     if enhanced:
-        message=tx['transaction']['message'];tx={'signature':c.SIG,'slot':tx['slot'],'blockTime':tx['blockTime'],'accountKeys':message['accountKeys'],'instructions':message['instructions'],'innerInstructions':tx['meta']['innerInstructions']}
+        execution_error=tx['meta']['err']  # Preserve independently retained raw execution status.
+        message=tx['transaction']['message'];tx={'transactionError':execution_error,'signature':c.SIG,'slot':tx['slot'],'blockTime':tx['blockTime'],'accountKeys':message['accountKeys'],'instructions':message['instructions'],'innerInstructions':tx['meta']['innerInstructions']}
         if case=='valid_mismatch':tx['signature']=OTHER
         elif case=='missing':del tx['signature']
         elif case=='malformed':tx['signature']='not-a-signature'

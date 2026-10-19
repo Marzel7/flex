@@ -1017,6 +1017,11 @@ class PostMigrationAnalyzer:
             "validation_notes": [],
         }
 
+        meta = tx.get("meta")
+        if not isinstance(meta, dict) or "err" not in meta or meta["err"] is not None:
+            result["validation_notes"].append("transaction execution success is not established")
+            return result
+
         message, instructions = self._get_message_and_instructions(tx)
         account_keys = message.get("accountKeys") or []
         if not isinstance(account_keys, list):
@@ -1167,6 +1172,12 @@ class PostMigrationAnalyzer:
                     tx = data[0]
                     if not self._transaction_signature_matches(tx, create_tx_sig, enhanced=True):
                         return None
+                    if "transactionError" not in tx or tx["transactionError"] is not None:
+                        return None
+                    if "meta" not in tx:
+                        tx = dict(tx)
+                        tx["meta"] = {"err": tx["transactionError"],
+                                      "innerInstructions": tx.get("innerInstructions", [])}
                     validation = self._validate_pumpfun_create_tx(tx)
                     if not validation["is_pumpfun_create"]:
                         print(f"[CREATOR] ❌ Helius-parsed tx FAILED strict CREATE validation", flush=True)

@@ -14285,6 +14285,21 @@
     },
     "updated_utc": "2026-10-19T11:05:43.950823+00:00"
   },
+  "dev090_paired_create_history_legacy_continuation": {
+    "actual_provider_calls": 0,
+    "blocker": "Authoritative configured RPC credential unavailable in inspected installed resolver binding; prior Supervisor socket absent. No alternate credential or provider used.",
+    "canonical_writes": 0,
+    "engineering_source_revision": "e3002467ce44a66487c9842a8dd79f51358fc593",
+    "finding": "Genuine retained legacy CREATE control qualified: successful signature, exact legacy instruction discriminator, serialized creator, Pump program and curve/PDA association; distinct from CREATE_V2. Both paired controls now qualified.",
+    "local_report_sha256": "9407d730da6b3a7176e8a000b5d2528e76397b5e1e0c5b1ef4360001f9778862",
+    "max_authorized_provider_calls": 4,
+    "milestone_verdict": "HOLD_RPC_CREDENTIAL_AUTHORITY",
+    "next_action": "Identify authoritative configured RPC credential binding, then resume four authorized history reads without reacquiring control transactions.",
+    "production_activation": "No services modified, started or signalled; current ownership not independently established",
+    "production_changes": 0,
+    "runtime_deployment_required": false,
+    "source_changes": 0
+  },
   "dev090_paired_create_history_qualification": {
     "blocker": "Mandatory independently verified legacy positive control missing",
     "canonical_writes": 0,

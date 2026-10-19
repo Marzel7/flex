@@ -34728,5 +34728,86 @@
         }
       ]
     }
+  },
+  "dev090_two_hour_operational_monitoring": {
+    "status": "MONITORING_IN_PROGRESS",
+    "engineering_source_revision": "38ddf8b4f4a6e650c075f918e5238ddf5ed47fff",
+    "runtime_deployment_required": false,
+    "window_start_utc": "2026-10-19T17:59:40+00:00",
+    "window_end_utc": "2026-10-19T19:59:40+00:00",
+    "baseline": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/fingerprint-bypass-qualification/deployment/attempt-55beb2ea3d26/two-hour-monitor-1792432780/baseline.json",
+    "automation_id": "dev090-two-hour-operational-monitoring",
+    "checkpoints": "T+0 captured; T+10 through T+120 scheduled, finite12 wakes",
+    "services": {
+      "alert_evaluator": {
+        "state": "STOPPED",
+        "pid": null
+      },
+      "creator_funding_worker": {
+        "state": "STOPPED",
+        "pid": null
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 10708
+      },
+      "evidence_writer": {
+        "state": "STOPPED",
+        "pid": null
+      },
+      "infra_sync_scheduler": {
+        "state": "STOPPED",
+        "pid": null
+      },
+      "intelligence_snapshot_scheduler": {
+        "state": "STOPPED",
+        "pid": null
+      },
+      "operation_monitor_bridge": {
+        "state": "STOPPED",
+        "pid": null
+      },
+      "operation_monitor_worker": {
+        "state": "STOPPED",
+        "pid": null
+      },
+      "operation_scheduler": {
+        "state": "STOPPED",
+        "pid": null
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 10716
+      },
+      "watchtower_api": {
+        "state": "STOPPED",
+        "pid": null
+      },
+      "watchtower_listener": {
+        "state": "RUNNING",
+        "pid": 10722
+      },
+      "watchtower_ngrok": {
+        "state": "STOPPED",
+        "pid": null
+      },
+      "webhook_worker": {
+        "state": "STOPPED",
+        "pid": null
+      },
+      "ws_cascade": {
+        "state": "STOPPED",
+        "pid": null
+      }
+    },
+    "disk_free_start_bytes": 16906846208,
+    "swap_start": "vm.swapusage: total = 2048.00M  used = 1616.94M  free = 431.06M  (encrypted)",
+    "serena_pyright": {
+      "serena": [],
+      "pyright": []
+    },
+    "provider_calls_by_monitor": 0,
+    "canonical_writes_by_monitor": 0,
+    "next_action": "Read-only10-minute checkpoints; fixed-window final report afterT+120; no repairs/extension."
   }
 }

@@ -13045,6 +13045,20 @@
     "safety": "provider calls=0; canonical writes=0; Production changes=0; service starts=0; no schema/config/install/queue changes",
     "status": "HOLD_PROSPECTIVE_ONLY_EXECUTION_GATE"
   },
+  "dev090_creator_budget_exhaustion_audit": {
+    "blocker": "Insufficient candidate-level evidence to qualify a recovery correction for the three unresolved tokens",
+    "canonical_writes": 0,
+    "engineering_source_revision": "e3002467ce44a66487c9842a8dd79f51358fc593",
+    "finding": "Five original resolver jobs reached the configured one-page limit after an 80-candidate prefix, without strict CREATE proof. Three remained anchor-gated; two completed through separately persisted anchors. Seven PumpPortal-first controls completed.",
+    "local_report_sha256": "bd3ebf1e588e25119d109b1d0223a80b09867dd1b096615051cf1717786f28e2",
+    "milestone_verdict": "AUDIT_COMPLETE_COVERAGE_PARTIAL",
+    "next_action": "Qualify budget-neutral candidate selection with compact exact candidate/outcome witnesses; do not increase budgets or replay historical work",
+    "production_activation": "Existing accepted deployment unchanged by this read-only audit",
+    "production_changes": 0,
+    "provider_calls": 0,
+    "qualification_limit": "Exact CREATE position and actual request totals were not retained; no version or decoder failure causally established.",
+    "runtime_deployment_required": false
+  },
   "dev090_creator_enqueue_pp_provenance_qualification": {
     "CANDIDATE_SOURCE_SHA": null,
     "CANONICAL_WRITES": 0,

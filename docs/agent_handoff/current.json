@@ -35265,5 +35265,22 @@
     "runtime_preservation": ["PumpPortal listener unchanged", "creator-resolution worker unchanged", "Walkback worker unchanged", "fingerprint bypass preserved", "Cascade remains stopped", "historical discovery remains disabled"],
     "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0, "deployment": false},
     "next_action": "Resolve the three fixture-contract discrepancies and create a verified dependency artifact lock before any golden-baseline promotion. Do not deploy this recovery package."
+  },
+  "flex_stable_v2_final_recovery_qualification": {
+    "status": "HOLD_DEPENDENCY_ARTIFACT_LOCK",
+    "updated_at_utc": "2026-10-19T23:02:52Z",
+    "source_package_commit": "add62f1f04329876ec977d4e8ac1c8c1a6c71fce",
+    "qualification_commit": "8bea5506023f10505a2cd4548552b2d4abc1716e",
+    "qualification_scope": "two stale fixture-contract corrections and final offline verification only; no packaged application-source change",
+    "clean_checkout_source_hashes": {"checked": 2049, "mismatches": 0, "listener_launcher_mode": "0755"},
+    "provider_free_regressions": {"listener": "38 passed", "creator_resolution": "18 passed", "walkback": "106 passed; 2 deselected because they require a combined creator-resolution/Walkback src namespace"},
+    "fixture_rebaselining": ["listener websocket fixture now supplies the constructor-established availability collaborator", "creator-resolution empty-database fixture now initializes schema before its installed durable-handoff preflight"],
+    "dependency_lock": {"status": "HOLD_ARTIFACTS_UNAVAILABLE", "python": "3.11.5", "installed_distributions": 251, "verified_conda_metadata_records": 15, "unverified_distribution_artifacts": 236, "substitutions_or_upgrades": 0},
+    "schema_compatibility": "Required Core/OPS relations and WAL mode were verified read-only. Core 847 and OPS 766 remain retained DEV090 labels, not independently encoded in SQLite user_version.",
+    "rollback": "Source package and sanitized runtime manifest restore cleanly; a clean dependency-environment restore is held pending original artifacts.",
+    "golden_baseline_ready": false,
+    "remote_handoff": "NOT_ATTEMPTED: prior sanitized handoff transport remains disclosure-blocked; local evidence retained.",
+    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0, "deployment": false},
+    "next_action": "Acquire the original platform-appropriate package artifacts or a verified approved artifact source, then recreate and hash-lock the Python 3.11.5 environment before reconsidering golden-baseline promotion."
   }
 }

@@ -13867,6 +13867,26 @@
     "transaction_detail_calls": 0,
     "variant_coverage": "CREATE_V2 only; external historical controls excluded"
   },
+  "dev090_legacy_curve_discovery_validation": {
+    "actual_provider_calls": 0,
+    "canonical_writes": 0,
+    "causal_limit": "Cannotestablishlegacyadvantage,legacymintfallbackneed oruniversalnonregression fromoneboth-failcontrol. KeepV2positiveevidenceseparate.",
+    "complete_legacy_pairs": 1,
+    "engineering_source_revision": "e3002467ce44a66487c9842a8dd79f51358fc593",
+    "finding": "Required independently verified legacycontrol retained, both priorfull1000pagesmissCREATE; pairreused. Noadditionalqualifiedlegacycontrol inboundeddecodedcatalog; historicaltopologyfixturecannotestablishinstructionidentity.",
+    "legacy_control_count": 1,
+    "legacy_curve_successes": 0,
+    "legacy_mint_successes": 0,
+    "local_report_sha256": "3f28afc76e019638a72a0247f1be4891543fd168904b6c37384dc68eb116ecf7",
+    "max_authorized_provider_calls": 20,
+    "milestone_verdict": "INSUFFICIENT_LEGACY_EVIDENCE",
+    "next_action": "Preserveexistingresolver; need independently decodedretainedlegacycontrols beforeexpandedpairedvalidation. No implementation.",
+    "production_activation": "Servicesunchanged; knownSupervisorauthorityunresolvedinboundedstatuscheck",
+    "production_changes": 0,
+    "reused_prior_history_requests": 2,
+    "runtime_deployment_required": false,
+    "source_changes": 0
+  },
   "dev090_legacy_maintenance_boundary_qualification": {
     "boundary": "Use persisted Core wb_create_control epochDEV090-20261018T210658Z-c6049916 activated_at1792357618. No new cutoff generated. Inactive private config proposal changes only stopped listener HANDOFF_DURABILITY_T0 from1789027814 to1792357618. Active config unchanged; do not publish credential-bearing config.",
     "canonical_writes_by_task": 0,

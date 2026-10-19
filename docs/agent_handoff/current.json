@@ -14285,6 +14285,21 @@
     },
     "updated_utc": "2026-10-19T11:05:43.950823+00:00"
   },
+  "dev090_paired_create_history_qualification": {
+    "blocker": "Mandatory independently verified legacy positive control missing",
+    "canonical_writes": 0,
+    "engineering_source_revision": "e3002467ce44a66487c9842a8dd79f51358fc593",
+    "finding": "Paired history acquisition stopped before spending requests: verified CREATE_V2 control available but no independently verified legacy CREATE mint/signature/curve control in inspected retained authorities. Legacy test label applies to a reused CREATE_V2 fixture and cannot substitute.",
+    "local_report_sha256": "65406d55e2615ef3a2cf41734eaa6ae52c05062eacb4d87b1cee11bb3fc17ee4",
+    "max_authorized_provider_calls": 4,
+    "milestone_verdict": "INSUFFICIENT_EVIDENCE",
+    "next_action": "Identify retained independently decoded legacy CREATE mint/signature/curve evidence before resuming conditional four-read comparison",
+    "production_activation": "Existing deployment unchanged",
+    "production_changes": 0,
+    "provider_calls": 0,
+    "runtime_deployment_required": false,
+    "source_changes": 0
+  },
   "dev090_prospective_selection_qualification": {
     "engineering_revision": "2d40af06c320d1a4688d65c9d195214ec69f5378",
     "evidence": "DEV090/dev002-release-qualification/PROSPECTIVE_SELECTION_QUALIFICATION.json",

@@ -13254,6 +13254,20 @@
     "tooling_identity": "a0a2caf1945c0bb90c22a4ea7f2cc743e7003edd63fd60fb347f355f371c8340",
     "updated_utc": "2026-10-19T08:50:48.540221+00:00"
   },
+  "dev090_curve_first_budget_neutral_qualification": {
+    "application_source_changes": 0,
+    "canonical_writes": 0,
+    "engineering_source_revision": "e3002467ce44a66487c9842a8dd79f51358fc593",
+    "finding": "Early provider-free non-regression gate: single curve allocation reaches retained CREATE_V2 positive but loses required synthetic mint-only legacy/V2 success controls. Curve then mint adds history acquisition. No qualified local selector preserves both.",
+    "local_report_sha256": "fb61e3065ca47e8bf658e5ccf37392c3d2697ea1f897678192b09ac7636e6f1e",
+    "milestone_verdict": "HOLD_BUDGET_OR_LEGACY_REGRESSION",
+    "next_action": "No implementation under current contract. Any later qualification needs a justified local target selector preserving mint-only successes within one history allocation; no additional fallback or budget increase.",
+    "production_activation": "Operational source/configuration/services unchanged",
+    "production_changes": 0,
+    "provider_calls": 0,
+    "runtime_deployment_required": false,
+    "tests": "Four early modeled selection controls using retained verified identities; synthetic page placement explicitly distinguished from real histories. No strict decoder qualification claimed. Remaining mandatory controls and release qualification NOT_RUN after stop gate."
+  },
   "dev090_dev002_release_storage_precondition": {
     "canonical_writes": 0,
     "cleanup": false,

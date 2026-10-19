@@ -35331,5 +35331,19 @@
     "remote_handoff": "NOT_ATTEMPTED: disclosure approval remains unavailable; this local handoff is retained.",
     "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "application_source_changes": 0, "database_changes": 0, "deployment": false},
     "next_action": "Obtain the required independent promotion review; do not deploy or label the baseline golden until that review accepts the platform-bound exact-version-equivalent artifact evidence and the two-test isolation limitation."
+  },
+  "flex_stable_v2_independent_promotion_review": {
+    "status": "HOLD_REQUIRED_CROSS_SERVICE_CONTRACT_UNQUALIFIED",
+    "reviewed_at_utc": "2026-10-19T23:34:55Z",
+    "candidate_commit": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+    "fresh_detached_checkout": {"source_hashes": "2049 checked; 0 mismatches", "runtime_lock_sha256": "PASS 58bd43d469351f1d16a01e82a5fc4e3f07ed95c6dd6d7a5f21b19842c25bb676", "test_lock_sha256": "PASS 19c3e93e9c2fbeabcb79cdb9ffd8f7bf902b6ff9107978eaaf18c7d0b17538c9", "service_specific_imports": "listener/creator_resolution/walkback PASS", "runtime_roots_unchanged_since_35165ba1": true},
+    "test_evidence": {"retained_clean_environment_result": "162 applicable provider-free tests passed: listener 38, creator-resolution 18, Walkback 106", "independent_recheck": "tests/test_dev090_handoff.py under isolated Walkback root: 43 passed, 2 deliberately deselected", "deselected_contract": "test_actual_rpc_producer_transaction_and_real_worker_execution and test_producer_pressure_stops_before_claim_or_rpc exercise creator-resolution producer to Walkback durable-handoff behavior."},
+    "hold_reason": "The two deselected tests cover a required cross-service contract. They require resolver producer and Walkback consumer in one src namespace, while the recovery package deliberately preserves separate source roots. Their passing in a single-root/package-isolated clean environment is therefore not established. The retained 162-test result does not remove this precise coverage gap.",
+    "runtime_restart_check": {"creator_resolution_worker": "RUNNING pid 60207; process start 2026-10-20T00:26:25+01:00", "installed_source_commit": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215", "worker_file_sha256_matches_packaged_manifest": true, "supervisor_directory": "/Users/kevinkeaveney/Production/flex-main-workers", "provider_budget_settings": "CREATOR_RESOLUTION_MAX_PAGES=1, MAX_RUNTIME_SECS=15, HIGH_PRIORITY_MAX_PAGES=5000, HIGH_PRIORITY_MAX_RUNTIME_SECS=120; no provider call made"},
+    "limitations_confirmed": ["Dependency reconstruction is platform-bound to macOS arm64/Python 3.11.5 and proves exact-version-equivalent artifacts, not historical installer identity.", "Database-content backup and recovery are explicitly outside the source/configuration package."],
+    "promotion_decision": "HOLD: do not formally promote FLEX_STABLE_V2 until the durable producer-to-Walkback consumer contract is qualified without violating service-specific isolation, or an explicit contract decision changes that mandatory gate.",
+    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "source_changes": 0, "database_changes": 0, "deployment": false},
+    "remote_handoff": "NOT_ATTEMPTED: disclosure approval remains unavailable.",
+    "next_action": "Define and authorize a provider-free process-boundary or equivalent isolated integration harness for the two durable-handoff tests; do not merge service source roots, deploy, or promote before it passes."
   }
 }

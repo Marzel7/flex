@@ -34849,7 +34849,7 @@
       "initial_active_count": 4096,
       "final_active_count": 4096,
       "initial_and_final_bytes": 2275280,
-      "free_bytes": 15553548288,
+      "free_bytes": 15552524288,
       "max_files": 4096,
       "safe_archivable_count": 5,
       "protected_count": 4091,

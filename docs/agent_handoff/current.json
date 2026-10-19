@@ -34995,5 +34995,122 @@
       "restarts": 0
     },
     "next_action": "If desired, separately authorize the listed small targeted correction and its offline qualification only; do not authorize a global cap increase by itself."
+  },
+  "flex_stable_v2_provisional_recovery_snapshot": {
+    "baseline_identity": "FLEX_STABLE_V2_PROVISIONAL_RECOVERY_SNAPSHOT",
+    "classification": "PROTECTED_RUNTIME_RECOVERY_BASELINE_NOT_FULL_OPERATIONAL_ACCEPTANCE",
+    "created_at_utc": "2026-10-19T22:17:07Z",
+    "verdict": "PASS_RUNTIME_COMPOSITION_PINNED_DATABASE_CONTENT_NOT_SNAPSHOTTED",
+    "purpose": "Recover the exact observed PumpPortal, creator-resolution, and Walkback runtime composition only. This is not a golden baseline, deployment acceptance, or a claim that all DEV090 requirements passed.",
+    "runtime_composition": {
+      "supervisor_config_sha256": "18f39cb1b9d60d9e5b00d212acdc6697e9c0f68f1031d77c3cff91f40f3c4ccc",
+      "watchtower_listener": {
+        "status": "RUNNING",
+        "pid": 10722,
+        "started_utc": "2026-10-19T18:26:32Z",
+        "runtime_path": "/Users/kevinkeaveney/Production/flex-listener",
+        "git_commit": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+        "entrypoint_sha256": "b1dd5b99db29e3cad76999c7baf343d205bb2118c6785c66db805537ea32c434",
+        "listener_sha256": "6db4a1c8230ea233d26fd212bac5988437bb0b8f29d9dbed0f282ad10f39b634",
+        "receipt_writer_sha256": "6103d23ec5ea82748bb53ce89985c1dd8885af2c281872a4f3672b1b2781416c"
+      },
+      "creator_resolution_worker": {
+        "status": "RUNNING",
+        "pid": 10708,
+        "started_utc": "2026-10-19T18:26:21Z",
+        "runtime_path": "/Users/kevinkeaveney/Production/flex-main-workers",
+        "git_commit": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215",
+        "worker_sha256": "797350867ea10fdbef03933de033241ccd18bb0d137812aacac0e328ffa5fefb",
+        "strict_create_validator_sha256": "971e4932eb2394a98bf4dfc504f68fa75194fca19f4023aeaae3815b14510eff"
+      },
+      "walkback_worker": {
+        "status": "RUNNING",
+        "pid": 10716,
+        "started_utc": "2026-10-19T18:26:26Z",
+        "runtime_path": "/Users/kevinkeaveney/Production/flex-walkback-dev002",
+        "git_commit": "afbe9e58b11eb2e4d616246da123ce31ab45700c",
+        "worker_sha256": "aeae403fdfb802bfe5da4f5416d09af8209d2e7fc19dcf7dcddcc6e96d266df6"
+      },
+      "creator_funding_worker": "STOPPED_NOT_STARTED_PRESERVED_AS_OBSERVED",
+      "ws_cascade": "STOPPED_NOT_STARTED_INTENTIONALLY_DISABLED"
+    },
+    "effective_feature_state": {
+      "pumpportal_births": "ENABLED",
+      "compact_birth_receipts": "ENABLED",
+      "canonical_birth_retention": "DISABLED",
+      "pumpfun_birth_reconciler": "DISABLED",
+      "migration_reconciler": "DISABLED",
+      "creator_backfill": "DISABLED",
+      "helius_birth_websocket": "DISABLED",
+      "historical_discovery": "DISABLED_BY_OPERATIONAL_COMPOSITION",
+      "mint_first_create_resolver": "PRESERVED: resolver searches mint signature history oldest-to-newest under its configured page/runtime limits",
+      "installed_create_validator": "STRICT validator installed and pinned above; requires bonding-curve candidate plus mint create/initialization. Separately qualified fingerprint bypass is NOT deployed.",
+      "fingerprint_monitoring_bypass": "QUALIFIED_NOT_DEPLOYED; candidate DEV090_CANDIDATE_38ddf8b4f4a6 only"
+    },
+    "database_bindings_and_health": {
+      "core": {
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "inode": 549513179,
+        "size_bytes": 35652194304,
+        "schema_version": 847,
+        "journal_mode": "wal",
+        "wal_bytes": 0,
+        "required_tables_present": ["token_analysis", "creator_resolution_queue", "creator_funding_queue", "migration_inbox", "migration_persist_queue", "migration_walkback_handoff"]
+      },
+      "ops": {
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+        "inode": 421043107,
+        "size_bytes": 16194387968,
+        "schema_version": 766,
+        "journal_mode": "wal",
+        "wal_bytes": 0
+      },
+      "filesystem_available_bytes": 14244597760,
+      "compatibility": "RUNNING workers bind to the stated Core and OPS paths; schema presence and WAL mode verified read-only. Database content is live and intentionally not snapshotted."
+    },
+    "provider_and_budget_identity": {
+      "credential_values": "NOT_RECORDED",
+      "walkback_helius_rpc": "CONFIGURED",
+      "walkback_rpc_budget_per_batch": 80,
+      "walkback_batch_size": 8,
+      "creator_resolution": {"batch_size": 25, "max_runtime_seconds": 15, "max_pages": 1, "high_priority_max_runtime_seconds": 120, "high_priority_max_pages": 5000},
+      "cascade_provider_configuration": "PRESENT_BUT_SERVICE_STOPPED; no provider interaction performed"
+    },
+    "dev090_retained_evidence": {
+      "handoff_source_commit": "e7326e6e814b0a22d920e39c8515e2a864ca14a6",
+      "two_hour_monitor": {
+        "window_utc": "2026-10-19T17:59:40Z/2026-10-19T19:59:40Z",
+        "status": "COMPLETE_PARTIAL_WITH_EVIDENCE_GAPS",
+        "report_sha256": "1532115dbd7a7213c4e50a85bef76d2410018dd709b6e4bb7f01e773538ca425",
+        "unique_migrations": 133,
+        "full_walkback_completed": 70,
+        "full_walkback_all_migrations_percent": 52.63,
+        "full_walkback_late_snapshot_anchor_present_percent": 97.22,
+        "lineage_gap_count": 45,
+        "watchtower_attribution": "UNCERTAIN; no claim beyond retained monitor evidence"
+      },
+      "release_candidate": "DEV090_CANDIDATE_38ddf8b4f4a6; offline PASS, deployment unauthorized",
+      "fingerprint_bypass_release_report_sha256": "00c4df716a44a19f9dcb215bb18f229a92dc602b66e154f200331793241289ec",
+      "rollback_instruction": "Restore only the pinned checkout/configuration hashes after separate restart authorization; verify database schema and safe environment keys before any Supervisor action. No restart was performed for this snapshot."
+    },
+    "known_limitations": [
+      "Compact receipt store is at 4096/4096 files (2275280 bytes); no safe low-watermark relief population was established.",
+      "Two-hour monitor has missing T+70 through T+120 checkpoints and cannot support a clean reliability or golden-baseline claim.",
+      "RPC migration-direct terminal completion share in retained evidence is 33.57%; RPC recovery is not equivalent to PumpPortal provenance.",
+      "Late-CREATE-specific durable-handoff rate is UNKNOWN because retained handoff rows lack that discriminator.",
+      "Watchtower attribution remains uncertain; fingerprint bypass is deliberately not installed.",
+      "Creator funding and Cascade are stopped; this snapshot preserves rather than corrects that state.",
+      "Mutable Core/OPS database contents are not a recoverable snapshot under this no-copy/no-write scope."
+    ],
+    "restoration_procedure": [
+      "Before any restoration, obtain separate authorization for any restart or deployment action.",
+      "Verify Git object availability and checkout identity for listener bf1bdfc59b4acfed0338a493189d91d212bda50f, resolver eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215, and Walkback afbe9e58b11eb2e4d616246da123ce31ab45700c.",
+      "Verify the listed executable hashes and Supervisor configuration SHA-256; compare only sanitized feature flags and database paths, never secrets.",
+      "Read-only verify Core schema 847 and OPS schema 766, WAL health, and required Core tables before any Supervisor action; stop on mismatch.",
+      "Restore only the recorded running/stopped topology after authorization, then verify PIDs, start times, working directories, and safe feature flags against this manifest."
+    ],
+    "recovery_verification": "PASS for immutable executable/configuration identity, process ownership, safe runtime flags, database binding/schema fingerprints, and remote-handoff source evidence. NOT a database-content recovery image or full acceptance baseline.",
+    "safety": {"provider_calls": 0, "canonical_writes": 0, "source_changes": 0, "configuration_changes": 0, "service_restarts": 0, "historical_replay": 0},
+    "next_action": "Keep this provisional snapshot immutable. Separately authorize either a safe compact-receipt capacity remedy or a targeted runtime change; neither is included in this baseline."
   }
 }

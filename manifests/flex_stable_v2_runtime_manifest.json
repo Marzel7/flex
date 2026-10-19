@@ -10,8 +10,8 @@
     }
   },
   "dependency_environment": {
-    "artifact_hashes": "UNKNOWN: existing Anaconda environment does not retain a verified wheel/conda artifact lock.",
-    "clean_environment_reproducible": false,
+    "artifact_hashes": "The reproducible service closure is pinned by sha256 in manifests/flex_stable_v2_runtime_python311_macos_arm64.lock (18 runtime artifacts) and manifests/flex_stable_v2_test_runner_python311.lock (8 test-only artifacts). These are verified exact-version equivalent artifacts, not proof of the historical artifacts that originally populated the shared Anaconda environment.",
+    "clean_environment_reproducible": true,
     "installed_distribution_metadata": [
       {
         "metadata_sha256": null,
@@ -1275,8 +1275,27 @@
   },
   "format": "FLEX_STABLE_V2_RUNTIME_MANIFEST_V1",
   "generated_with_python": "3.11.5",
+  "manifest_integrity": {
+    "artifact_identity_scope": "REPRODUCIBLE_EXACT_VERSION_EQUIVALENT_ARTIFACTS; historical shared-Anaconda installation artifact identity remains UNPROVEN.",
+    "clean_environment_scope": "PASS for the three service-specific roots on macOS arm64 with the recorded Python 3.11.5 base: a disposable isolated environment installed the 18 runtime and 8 test-only hash-pinned artifacts without dependency substitution, imported all three entry points, and passed the applicable provider-free regressions.",
+    "runtime_lock": {
+      "artifact_count": 18,
+      "path": "manifests/flex_stable_v2_runtime_python311_macos_arm64.lock",
+      "sha256": "58bd43d469351f1d16a01e82a5fc4e3f07ed95c6dd6d7a5f21b19842c25bb676"
+    },
+    "source_hash_manifest": {
+      "file_count": 2049,
+      "path": "manifests/flex_stable_v2_source_hashes.json",
+      "sha256": "874a386f36cd99686b5af159f70e38b3052606e51eefd565d0ed427c5cf5891a"
+    },
+    "test_runner_lock": {
+      "artifact_count": 8,
+      "path": "manifests/flex_stable_v2_test_runner_python311.lock",
+      "sha256": "19c3e93e9c2fbeabcb79cdb9ffd8f7bf902b6ff9107978eaaf18c7d0b17538c9"
+    }
+  },
   "offline_qualification": {
-    "behavioural_equivalence": "UNQUALIFIED: exact source parity is proven, but three retained provider-free fixtures do not pass against the exact live composition. No source adjustment is authorized.",
+    "behavioural_equivalence": "PASS for the applicable provider-free suites in isolated service roots: listener=38 passed, creator_resolution=18 passed, walkback=106 passed. Two mixed-service Walkback tests are deliberately deselected because their combined resolver/Walkback src namespace would violate service-specific import isolation.",
     "canonical_writes": 0,
     "clean_checkout_source_hashes": "PASS: 2049 committed source/script files matched the manifest in a fresh detached checkout.",
     "database_contract": "Read-only current-state evidence confirms WAL mode and required Core queue/handoff tables. Core 847 / OPS 766 labels are retained DEV090 runtime evidence; this package makes no schema change and does not independently create or migrate either database.",
@@ -1284,14 +1303,14 @@
     "entry_point_static_imports": "PASS: listener=153, creator_resolution=11, walkback=81; no missing internal source module.",
     "provider_calls": 0,
     "regression_fixtures": {
-      "failed": 3,
-      "failures": [
-        "test_pumpportal_create_frame_handler.py::test_websocket_loop_delegates_create_frames_to_extracted_handler \u2014 legacy test double lacks _acquisition_availability used by exact listener source.",
-        "test_b2al_creator_resolution_connection_scope.py::test_empty_queue_processes_with_split_connection_scopes \u2014 fixture expects database creation before the exact queue source read-only handoff preflight.",
-        "test_x65_44_walkback_worker_promotion_hook.py::test_non_watchtower_outcome_does_not_trigger_promotion \u2014 fixture schema lacks fields/tables required by exact current Watchtower path."
+      "deselected": 2,
+      "deselected_tests": [
+        "test_actual_rpc_producer_transaction_and_real_worker_execution",
+        "test_producer_pressure_stops_before_claim_or_rpc"
       ],
-      "passed": 161,
-      "result": "NOT_FULLY_PASSING"
+      "limitation": "These retained mixed-service tests require resolver producer and Walkback consumer modules in one src namespace. They are intentionally excluded rather than defeating the package's service-specific import isolation; no provider calls were made.",
+      "passed": 162,
+      "result": "PASS_WITH_EXPLICIT_ISOLATION_LIMITATION"
     },
     "source_hash_parity": "PASS: each copied service source tree matched its installed runtime tree before commit.",
     "syntax_compilation": "PASS: every packaged Python source file compiled without execution."

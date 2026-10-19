@@ -13413,21 +13413,29 @@
   },
   "dev090_enhanced_create_validation": {
     "application_source_unchanged": true,
-    "archives": "c89eec874139 and b93e93256fdf archived reversibly after explicit authorization; hashes and identities preserved; capacity20to18,then19 after attempt; limit20 unchanged",
-    "browser": "NOT_RUN; rendered-only capture and numeric Active Operators/Inbox waits prepared",
+    "archive": "Explicitly authorized4f7780a65b10 archived reversibly withhashes preserved;capacity20to19;limit20unchanged",
+    "browser": "Both MissionControlnumericcounters awaited;renderedCriticalHealthmatchedAPI;no scriptcontents;allartifacthashesverified;submission50.325seconds afterprewindowHealthsnapshot",
     "candidate": "NONE_NEW",
     "canonical_writes": 0,
-    "clean_checkout": "NOT_RUN; stopped at first mandatory gate failure",
+    "clean_checkout": "NOT_RUN; stopped at mandatoryclosurefailure",
     "engineering_source_revision": "1ffe47c87203f0bb32065546fdea75dc87c0de11",
-    "local_report_sha256": "59a5d707b5bf0acb619711c08837ebe97391c603d1c436d3cf408bb474762401",
-    "milestone_verdict": "HOLD_TOOLING_CONTROL_INVOCATION",
-    "next_action": "Use previously accepted direct tooling-control invocation,then a newly authorized bounded qualification with capacity and prepared numeric counter waits. No source or assertion changes,deployment,provider calls or canonical writes.",
+    "guard_denials": 0,
+    "local_report_sha256": "f8256d8598bc04d0f0223de62da5bf0087fbd92c9eadb5987fb11bf47d9d304b",
+    "milestone_verdict": "HOLD_CHANGED_SOURCE_IMPORT_COVERAGE",
+    "next_action": "Qualify existing complete applicable DEV090 regressionselection to exercise inheritedchangedmodules;preserveforeign-testcontractexclusions and unchangedsource;newqualification requiresauthorization. No deployment.",
     "production_changes": 0,
     "provider_calls": 0,
-    "release_blocker": "Agent nested tooling controls inside application-fixture run_log with8MiB hard RLIMIT_FSIZE. Two unchanged controls need to establish DEV048 own CAP and failed to raise inherited hard limit. This is invocation error,not application defect. No corrected rerun after failure.",
-    "runtime_deployment_reason": "Qualification-only; installed runtime untouched",
+    "release_blocker": "Final DEV048 sourceclosure rejected18changedPythonmodules not exercised by selected4focusedmodules:5runtime and13tests. Exacthashboundlist inlocalreport. Source exists;this is coverage deficiency,not established applicationdefect. No imports/assertions/source changed.",
+    "runtime_deployment_reason": "Qualification-only;installedruntimeuntouched",
     "runtime_deployment_required": false,
-    "tests": "160 Python PASS; frontend/API PASS; tooling controls54PASS2FAIL"
+    "runtime_modules_missing_import_qualification": [
+      "src/core/pumpfun_curve_listener.py",
+      "src/core/pumpportal_birth_audit.py",
+      "src/ops/acquisition_availability.py",
+      "src/ops/anchor_reconciliation.py",
+      "src/ops/treasury_topology_classifier.py"
+    ],
+    "tests": "56tooling controls PASS with accepted direct invocation;160Python PASS;frontend/API PASS;all10browsercontracts PASS"
   },
   "dev090_failed_create_validation_correction": {
     "canonical_writes": 0,

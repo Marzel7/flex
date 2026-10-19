@@ -13126,7 +13126,8 @@
     "production_changes": "One exactvalidator install reverted;3authorizedservices started then stopped",
     "next_action": "Bounded read-only diagnosis of Walkback first-cycle stall before another deployment attempt;preserve candidate and runtime evidence. No automatic retry.",
     "evidence_directory": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/enhanced-create-validation/create-validator-deployment/restore-attempt-6529fbef695c",
-    "local_report_sha256": "9fef0f9f6d45e65a98d097764c65165a04d7c9dc134bd8941e546caa8246b926"
+    "local_report_sha256": "9fef0f9f6d45e65a98d097764c65165a04d7c9dc134bd8941e546caa8246b926",
+    "subsequent_readonly_correction": "Two jobs committed; SQL traces prove synchronous analytics delay and batch-level heartbeat gap, not absence of execution. See dev090_walkback_firstcycle_diagnosis. Deployment rollback remains unchanged."
   },
   "dev090_create_version_distribution": {
     "blocker": "Missing independently decoded original creation instructions for recent migration population; no qualified additional recent paired controls.",
@@ -27349,8 +27350,8 @@
     "branch": "codex/dev090",
     "git_head": "1ffe47c87203f0bb32065546fdea75dc87c0de11",
     "name": "flex",
-    "updated_at_utc": "2026-10-19T16:40:48.336871+00:00",
-    "working_tree": "DEV090 exact validator retry rolled back after Walkback failed runtime progress/heartbeat acceptance; all15 services stopped; candidate preserved."
+    "updated_at_utc": "2026-10-19T16:46:02.071962+00:00",
+    "working_tree": "Read-only DEV090 diagnosis complete: retained SQL traces locate fingerprint global-count and wallet reverse-scan delays; no implementation or runtime changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -34381,5 +34382,34 @@
     "source_authority": "Local X78 branch commits exist: WAL holder provenance 4f7821a09cb586ccfc30c3a4b2ecf82f767384ef, checkpoint-execution bound 2f5c8116af59867220e98e6cf9841d9e926df94b, and SQLite lifecycle serialization cb441a2899bb6f1de80dbdf08674d2dd2148acfc. Subsequent origin check remotely verified only codex/operations-sqlite-lifecycle-provenance at cb441a2899bb6f1de80dbdf08674d2dd2148acfc; the two WAL branches were not listed remotely, so they remain local qualified historical authority and must not be deployed without requalification/remote publication.",
     "status": "X78_ACCEPTED_DIAGNOSIS_COMPLETE_REMEDIATION_NOT_AUTHORIZED",
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
+  },
+  "dev090_walkback_firstcycle_diagnosis": {
+    "status": "DIAGNOSED_SYNCHRONOUS_ANALYTICS_DELAY",
+    "engineering_source_revision": "1ffe47c87203f0bb32065546fdea75dc87c0de11",
+    "runtime_deployment_required": false,
+    "reason": "Read-only source/log/query-plan diagnosis only",
+    "candidate": "DEV090_CANDIDATE_1ffe47c87203",
+    "candidate_changed": false,
+    "correction_to_prior_assessment": "Two jobs actually committed in first batch. Earlier no-completion assessment was incomplete; heartbeat alone did not prove execution stalled.",
+    "first_completion_to_second_claim_seconds": 107,
+    "first_postcommit_global_count_calls": 6,
+    "first_postcommit_global_count_ms": 104230.682,
+    "perhop_unindexed_wallet_ms": 50484.543,
+    "causal_conclusion": "MainThread delayed by global fingerprint health COUNT(DISTINCT) after commit and global wallet reverse scans during shadow candidate scoring. Heartbeat is written before cycle and after whole drain_batch, so completed rows did not refresh heartbeat. No evidence validator caused delay.",
+    "smallest_safe_correction_proposal": [
+      "Bound optional fingerprint monitoring on a separate read-only connection with a real SQLite execution deadline; stop optional work and report UNAVAILABLE on budget exhaustion, never zero or changed membership. Reuse one exact count per invocation only if it completes within bound; this alone does not qualify the full-table query.",
+      "Apply bounded access/deadline to shadow score_candidate wallet reverse lookup; if exact scoring cannot finish, preserve durable route evidence and mark scoring unavailable, never substitute empty parent set or promote default scores. Preserve funding/admission decisions.",
+      "Refresh worker liveness at existing committed row boundaries and distinguish active batch work from throughput; retain stale-heartbeat failures and do not merely raise timeout.",
+      "Qualify these changes separately; no implementation, index, configuration or runtime change in this diagnostic."
+    ],
+    "limitations": "SQL timings prove exact expensive statements; no preserved Python stack at signal time. Last count had statement_start without statement_end when worker stopped. No full integrity or general query audit.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "source_changes": 0,
+    "restarts": 0,
+    "deployment_changes": 0,
+    "next_action": "Authorize narrowly scoped bounded secondary-analytics and per-row progress correction in existing DEV090, preserving strict CREATE, funding and admission semantics. Do not redeploy unchanged candidate as if this blocker were fixed.",
+    "report_path": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/enhanced-create-validation/create-validator-deployment/restore-attempt-6529fbef695c/firstcycle-readonly-diagnosis/diagnosis.json",
+    "report_sha256": "3b1366794a90fc9385fde9034b131d67cd8155ba33e377dae39dcc90ab5e1686"
   }
 }

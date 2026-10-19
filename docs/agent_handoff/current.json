@@ -13109,31 +13109,24 @@
     "source_changes": 0
   },
   "dev090_create_validator_deployment": {
-    "candidate": "DEV090_CANDIDATE_1ffe47c87203",
-    "candidate_file_sha256": "5c1e13c421e95c6c2eba62f0499721d5d0ceb2c2c749a5a97dbf6649628239b4",
-    "candidate_verification": "FreshPASS immutabletagandmanifesthashes;preimageb4unchanged",
-    "canonical_writes": 0,
-    "database_write_health": "Notqualifiedthisattempt;stopbeforeDBchecks/operationalchanges",
-    "disk_headroom": {
-      "available_bytes": 11803508736,
-      "required_floor_bytes": 2500000000,
-      "status": "PASS"
-    },
+    "milestone_verdict": "HOLD_CONTROLLED_TRANSITION_FAILURE",
     "engineering_source_revision": "1ffe47c87203f0bb32065546fdea75dc87c0de11",
-    "installation": "NOT_ATTEMPTED",
-    "installed_preimage_sha256": "b4f2064305faa285f13672217013243c7d5d6a001566b6891b663c79973101ac",
-    "live_acceptance": "NOT_STARTED;no naturallyarrivingwork orhandoffhealthclaimed",
-    "local_report_sha256": "9f9b31754a96595f51801e6eab56cf8ada0b28bf0e50f24a78a8381fc6168749",
-    "milestone_verdict": "HOLD_RUNTIME_AUTHORITY",
-    "next_action": "Separateauthorizationrequiredtoestablish/restorequalifiedSupervisorandrequiredpipeline;thenretryexactvalidatordeployment. Nostartuporcleanupperformed.",
-    "preflight_blocker": "Renewedreadonlyretry:qualifiedSupervisorendpointandPIDfileabsent;statuscode4;nomatchingrequiredprocessesobserved. Runtimeauthorityunverified;noalternativeownerassumed.",
-    "production_changes": 0,
-    "provider_calls": 0,
-    "ready_for_curve_first_trial": false,
-    "rollback": "NOT_REQUIRED;candidateandrollbackpreimagepreserved",
-    "runtime_deployment_gate": "HOLD",
+    "candidate": "DEV090_CANDIDATE_1ffe47c87203",
     "runtime_deployment_required": true,
-    "service_transitions": "NONE"
+    "runtime_deployment_gate": "HOLD",
+    "preflight": "PASS source, dependency compatibility, disk, bounded DB and lock checks",
+    "failure": "Post-start workerPythonidentity assertion: ps comm executable identity did not equal configured Python realpath. Not established as application failure. No further attempt.",
+    "installation": "Exact validator installed then rolled back to verified b4f2064305faa285f13672217013243c7d5d6a001566b6891b663c79973101ac",
+    "service_transitions": "Qualified Supervisor restored PID1131; three authorized services started then stopped by rollback; all15 programs verified STOPPED; Cascade never started",
+    "rollback": "PASS exact source restored; schema and durable intents preserved; Supervisor remains running",
+    "live_acceptance": "NOT_COMPLETED",
+    "provider_calls": "No diagnostic provider requests; worker requests during brief startup UNKNOWN",
+    "canonical_writes": "No manual SQL writes; worker commits during startup UNKNOWN",
+    "production_changes": "Supervisor startup and brief three-service starts; validator installation reverted",
+    "ready_for_curve_first_trial": false,
+    "next_action": "Resolve controller executable-identity evidence using qualified process executable authority; obtain a new bounded attempt before deployment. Do not start services now.",
+    "evidence_directory": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/enhanced-create-validation/create-validator-deployment/restore-attempt-d703196de7ce",
+    "local_report_sha256": "52cff2707d8ac3b5890060fdd78949374d56c7200921518a0519829a922d3f86"
   },
   "dev090_create_version_distribution": {
     "blocker": "Missing independently decoded original creation instructions for recent migration population; no qualified additional recent paired controls.",
@@ -27356,8 +27349,8 @@
     "branch": "codex/dev090",
     "git_head": "1ffe47c87203f0bb32065546fdea75dc87c0de11",
     "name": "flex",
-    "updated_at_utc": "2026-10-19T11:05:43.950823+00:00",
-    "working_tree": "P1/P2 exactcandidate installed inlistener and30minute prospective observation complete. Creator/Walkback originalprocesses preserved. See retry report for unresolved searchbudget/anchor limits;no goldenpromotion."
+    "updated_at_utc": "2026-10-19T16:31:00.352759+00:00",
+    "working_tree": "DEV090 validator deployment rolled back after controller executable identity assertion; all15 Supervisor programs stopped; immutable candidate preserved."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

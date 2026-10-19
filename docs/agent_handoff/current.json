@@ -35144,5 +35144,46 @@
     "interpretation": "Overall checkout hashes differ because afbe9e5 contains other Walkback changes and the active worktree has an overlay. The function-level identity plus matching pre-start bytecode proves the bypass is active; do not infer bypass absence from the checkout commit alone.",
     "safety": {"provider_calls": 0, "canonical_writes": 0, "source_changes": 0, "service_restarts": 0, "deployment_actions": 0, "historical_replay": 0},
     "next_action": "Treat this supplemental record as the authoritative runtime correction while preserving the provisional snapshot unchanged. Any future restoration must preserve the listed function overlay or explicitly requalify an alternative."
+  },
+  "flex_stable_v2_single_commit_consolidation": {
+    "status": "GOLDEN_BASELINE_HOLD",
+    "updated_at_utc": "2026-10-19T22:28:00Z",
+    "objective": "Read-only feasibility and isolated-release preparation for one source commit representing the live PumpPortal listener, creator resolver, and Walkback composition.",
+    "isolated_release_worktree": {
+      "path": "/Users/kevinkeaveney/.codex/worktrees/flex-stable-v2-single/flex",
+      "branch_base": "38ddf8b4f4a6e650c075f918e5238ddf5ed47fff",
+      "clean_checkout_verified": true,
+      "release_commit_created": false
+    },
+    "current_component_authorities": {
+      "listener": {"checkout": "bf1bdfc59b4acfed0338a493189d91d212bda50f", "worktree_modified": true},
+      "creator_resolver": {"checkout": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215", "worktree_modified": true},
+      "walkback": {"checkout": "afbe9e58b11eb2e4d616246da123ce31ab45700c", "worktree_modified": true, "fingerprint_bypass": "ACTIVE via runtime overlay"}
+    },
+    "candidate_assessment": {
+      "commit": "38ddf8b4f4a6e650c075f918e5238ddf5ed47fff",
+      "primary_service_files_match_live": ["src/core/pumpfun_curve_listener.py", "src/core/creator_resolution_worker.py", "src/core/walkback_worker.py"],
+      "not_a_complete_live_closure": true,
+      "tracked_src_differences_against_live": {"listener": 115, "resolver": 211, "walkback": 62},
+      "untracked_runtime_modules_present": true
+    },
+    "required_closure_conflicts": [
+      "src.analysis.cross_funding_network_analyzer", "src.analysis.pump_fun_post_migration_analyzer", "src.core.creator_resolution_queue", "src.core.creator_resolution_worker", "src.core.db", "src.core.db_writer", "src.core.deep_walkback", "src.core.intelligence_refresh", "src.core.launch_price_logger", "src.core.pumpfun_curve_listener", "src.core.pumpportal_birth_audit", "src.core.rpc_cache", "src.core.token_prediction_builder", "src.core.treasury_bank", "src.core.walkback_queue", "src.core.walkback_worker", "src.core.watchtower_registry_promotion", "src.core.wrap_close_detector", "src.core.ws_cascade_store", "src.core.ws_price_tracer", "src.core.ws_snapshot_logger", "src.metrics.usage_tracker", "src.ops.anchor_reconciliation", "src.ops.attribution_outcome", "src.ops.birth_anchored_opening_acquisition", "src.ops.create_event_ledger", "src.ops.known_spam_wallets", "src.ops.lineage_quarantine", "src.ops.manual_registry", "src.ops.operation_fingerprint_drift", "src.ops.operator_identity_governance", "src.ops.walkback_health", "src.ops.watchtower_candidates", "src.ops.watchtower_deep_prospective", "src.ops.watchtower_deep_review", "src.utils.build_networks_release", "src.utils.db_locking", "src.utils.db_write_retry"
+    ],
+    "behavioral_conflict_examples": {
+      "walkback_registry_promotion": "181-line candidate/live difference (146 additions, 35 deletions in live worktree comparison)",
+      "walkback_db_writer": "24-line deletion difference",
+      "strict_create_and_resolution": "Analyzer and resolution-queue implementations differ across live worktrees",
+      "untracked_contracts": "Live worktrees include untracked handoff/admission/prospective/deep-review modules; none can be selected without an explicit behavior-preservation decision."
+    },
+    "configuration_and_dependency_blockers": {
+      "active_supervisor_config_sha256": "18f39cb1b9d60d9e5b00d212acdc6697e9c0f68f1031d77c3cff91f40f3c4ccc",
+      "candidate_supervisor_config_sha256": "8e39eef8e969ad2896095702846103dc44038a71c4b5bcd3d6a473ab9e04b8ff",
+      "dependency_manifest": "No standard requirements, pyproject, poetry, Pipfile, or environment lock was discoverable in candidate 38dd; active Anaconda environment is not commit-pinned.",
+      "schema_observation": "Current Core schema 847 and OPS schema 766 are WAL-compatible with the active composition; clean unified-candidate compatibility is unqualified."
+    },
+    "decision": "STOPPED_BEFORE_RECONCILIATION. A one-commit restoration cannot be claimed without choosing among conflicting behavior-bearing live modules and capturing a reproducible dependency environment.",
+    "safety": {"provider_calls": 0, "canonical_writes": 0, "source_changes": 0, "configuration_changes": 0, "service_restarts": 0, "deployment": false, "historical_replay": 0},
+    "next_action": "Obtain an explicit reconciliation contract for every required closure conflict, then create one source commit and one pinned dependency/configuration manifest in the isolated release worktree. Do not promote or deploy the current composition."
   }
 }

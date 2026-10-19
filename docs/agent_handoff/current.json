@@ -13411,6 +13411,20 @@
       "tooling_controls": 61
     }
   },
+  "dev090_failed_create_validation_correction": {
+    "canonical_writes": 0,
+    "engineering_source_revision": "e3002467ce44a66487c9842a8dd79f51358fc593",
+    "implementation": "Isolated5lineguardrequiresmetadict,expliciterrkeyandexactNonebeforeCREATEvalidation. Reverseonlyguardreproducesinstalledsourceexactly. Installedsourceunchanged.",
+    "local_report_sha256": "f498858f78cda4298dda88edf292f4ab338f41f7065c3736c2e72210b00a7f25",
+    "milestone_verdict": "HOLD_ENHANCED_EXECUTION_METADATA_COMPATIBILITY",
+    "next_action": "Qualifyauthoritativeenhancedexecutionstatusnormalizationwithmissingstatusfailclosed; reconcilehistoricalexactdiffcontrolsagainstapprovedguardpreimageproof. No deployment or trial resumption yet.",
+    "production_activation": "No installedsource/configuration/serviceschanged; isolateddiff/testpreserveduncommitted",
+    "production_changes": 0,
+    "provider_calls": 0,
+    "release_qualification": "NOT_ENTERED_FOCUSED_FAILURE; noimmutablecandidate",
+    "runtime_deployment_required": false,
+    "tests": "18newexecutionstatuscontrolsPASS; combined66PASS/5FAIL.3enhancedpositivefixturesomitexecutionmetadataandfailclosed;2historicalexactdiffhashassertionsdetectnewguard. Noexistingassertionsweakened."
+  },
   "dev090_final_bounded_release_qualification": {
     "application_behaviour": "Walkback handoff, installed funding/promotion and Inbox correction unchanged. Previously qualified exact AcquisitionAvailability retained. This final step changes only reproducible test isolation and documentation.",
     "blocker": null,

@@ -13533,57 +13533,119 @@
     "updated_utc": "2026-10-18T23:31:38.769221+00:00"
   },
   "dev090_final_p1_p2_release": {
-    "API_FRONTEND_ACCEPTANCE": "NOT_RUN: verification failed first",
-    "ARCHIVED_RUN_IDENTITIES": [
-      "07d184977b36"
+    "API_FRONTEND_ACCEPTANCE": "PASS both original and clean-checkout sessions",
+    "ARCHIVED_RUNS": [
+      {
+        "after_slots": 19,
+        "before_slots": 20,
+        "bytes": 25347,
+        "manifest_sha256": "d1b591d7a616c82e1d0468db5b583d0660a067244b9fa3f620273e43688f8fbd",
+        "run_id": "07d184977b36",
+        "runner_room_check": "PASS_UNCHANGED_LIMIT20",
+        "same_filesystem_inode_preserved": true,
+        "status": "ARCHIVED_HASH_VERIFIED"
+      },
+      {
+        "after_slots": 19,
+        "before_slots": 20,
+        "bytes": 25706,
+        "manifest_sha256": "4bbfb0a626b8540a71a9012f9b4d297b7f5ee0ddb7de296d8704d8b06a12290a",
+        "run_id": "a8fb867c5f4b",
+        "runner_room_check": "PASS_UNCHANGED_LIMIT20",
+        "same_filesystem_inode_preserved": true,
+        "status": "ARCHIVED_HASH_VERIFIED"
+      }
     ],
-    "BROWSER_ACCEPTANCE": "NOT_RUN",
+    "BROTLI_OWNERSHIP": {
+      "binary_sha256": "bca78448a427b05d8b3ed7b6969094fd3e2e1dede8c17cb63d26177cc775b89a",
+      "bytes": 1920128,
+      "canonical_writes": 0,
+      "correction": "Use exact existing qualified launcher interpreter with -I -B for controller; no mapping whitelist, package install or source change.",
+      "distribution": "brotli",
+      "existing_mapping": [
+        "brotli"
+      ],
+      "metadata_directory": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/brotli-1.2.0.dist-info",
+      "metadata_hashes": {
+        "INSTALLER": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508",
+        "METADATA": "f9d12d5184b5090b146b2e5f0d62931521b2b1435ea466433a239bb7c41fc962",
+        "RECORD": "89c907b53ac6a028153f0b6467a9e7a51ce647b24c5adacf61f537884a5129a4",
+        "WHEEL": "55635ce4d1f80c3a100e473be11fa73193f36b744627a69cd9a6e355bbc2fb49"
+      },
+      "module": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/_brotli.cpython-311-darwin.so",
+      "negative_controls": {
+        "arbitrary_unknown_module_rejected": true,
+        "binary_hash_drift_rejected": true
+      },
+      "new_application_or_tooling_changes": false,
+      "provider_calls": 0,
+      "python": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+      "python_version": "3.11.5 (main, Sep 11 2023, 08:31:25) [Clang 14.0.6 ]",
+      "record_hash_matches": true,
+      "root_cause": "Previous orchestration used Framework Python to map external paths loaded by algotrader Python. DEV080 bin/flex-dev explicitly runs algotrader Python; that environment already owns/maps _brotli.",
+      "runtime_versions": {
+        "distributions": {
+          "brotli": "1.2.0"
+        },
+        "identity": "exact loaded file hashes plus distribution versions; not a portable wheel bundle",
+        "python": "3.11.5 (main, Sep 11 2023, 08:31:25) [Clang 14.0.6 ]",
+        "sqlite": "3.41.2"
+      },
+      "status": "PASS_EXISTING_MAPPING_NO_TOOLING_EDIT",
+      "tool_id": "a0a2caf1945c0bb90c22a4ea7f2cc743e7003edd63fd60fb347f355f371c8340",
+      "version": "1.2.0"
+    },
+    "BROWSER_ACCEPTANCE": "Original ten contracts accepted, but original Registry artifacts were subsequently overwritten by erroneous clean-checkout capture helper; original receipt is no longer valid. Clean session incomplete, not submitted. No PASS claim.",
     "CANDIDATE_SOURCE_SHA": null,
     "CANONICAL_WRITES": 0,
-    "CLEAN_CHECKOUT_RESTORATION": "NOT_RUN",
-    "DEV048_CAPACITY_BEFORE_AFTER": [
-      20,
-      19
-    ],
-    "DEV090_FINAL_P1_P2_RELEASE_STATUS": "HOLD_DEPENDENCY_VERSION_MAPPING",
+    "CAPACITY_CURRENT": 20,
+    "CLEAN_CHECKOUT_RESTORATION": "Source hashes match;361 Python/frontend/API PASS; browser incomplete. STOPPED_HOLD.",
+    "DEV090_DEPENDENCY_VERIFICATION_STATUS": "PASS_EXISTING_MAPPING_CORRECT_INTERPRETER",
+    "DEV090_FINAL_P1_P2_RELEASE_STATUS": "HOLD_BROWSER_EVIDENCE_INTEGRITY",
     "ENGINEERING_SOURCE_SHA": "e3002467ce44a66487c9842a8dd79f51358fc593",
-    "EVIDENCE_PRESERVATION": {
-      "archive": "DEV090/enqueue-provenance-qualification/archived-runs/07d184977b36",
-      "bytes": 25347,
-      "files": 6,
-      "hashes_and_inodes_verified": true,
-      "manifest": "DEV090/enqueue-provenance-qualification/07d184977b36-archival-manifest.json",
-      "manifest_sha256": "d1b591d7a616c82e1d0468db5b583d0660a067244b9fa3f620273e43688f8fbd",
-      "reference_review": "Candidate/golden/rollback/DEV090 source/restoration/state/current handoff metadata inspected; selected external hits are inventory-only, no protected dependency. Other four incomplete attempts preserved.",
-      "rollback": "Verify archived hashes, original absent, room below20, then rename back and fsync both parents; no evidence overwritten.",
-      "runner_room_check": "PASS;20 unchanged",
-      "same_filesystem_rename": true
+    "EVIDENCE_INTEGRITY_FAILURE": {
+      "cause": "Reused browser capture helper retained previous output-directory binding; two Registry files written into prior session directory. Caught before candidate creation; original qualification/browser receipts preserved unchanged.",
+      "incident": "DEV090/enqueue-provenance-qualification/browser-capture-integrity-incident",
+      "mismatches": [
+        {
+          "expected": "2bb382b2d7f7ba7a2497ab15d3890d94c5d9bf2252528b8ab46d4a577ff1b806",
+          "feature": "registry",
+          "field": "dom_path",
+          "observed": "0ff317316841cc2234ea6fb938fd24b1ef84701934f4b4876c681844db40fab5",
+          "path": "/private/tmp/dev090-final-browser-c011dfa831af/registry.txt"
+        },
+        {
+          "expected": "7e07d01de7ebb816eda64dd73ad97923f054f3c19689fd01a7de9d6b9b8525e1",
+          "feature": "registry",
+          "field": "screenshot_path",
+          "observed": "8ca4982514debb9d12f03cf09ec02a933b954eb11a77407750de7c153ffe0d17",
+          "path": "/private/tmp/dev090-final-browser-c011dfa831af/registry.png"
+        }
+      ],
+      "no_receipt_or_assertion_amendment": true
     },
-    "FAILED_GATE": {
-      "call": "qualify -> verify -> runtime_versions -> need(distributions)",
-      "error": "unmapped runtime dependency version: _brotli",
-      "qualified_tool": "DEV080/source/tools/flex_dev.py",
-      "source_or_assertions_changed": false,
-      "verification_state": "DEV090/state/verify-19d5186fd5f1"
-    },
-    "INCOMPLETE_RUNS": [
-      "07d184977b36",
-      "894dc312d5b3",
-      "95346bfa226c",
-      "a8fb867c5f4b",
-      "ae51be9f91eb"
-    ],
-    "NEXT_ACTION": "Authorize narrowly scoped diagnosis of the _brotli distribution-version mapping in DEV048 dependency verification. Preserve all assertions and source; rerun qualification only after an attributable correction qualifies. No deployment.",
+    "LIMIT": 20,
+    "NEXT_ACTION": "Re-establish fresh source-bound browser evidence and full qualification with explicit per-session output paths and exclusive-create capture writes. Original run cannot qualify a candidate with mismatched artifacts. Additional retention disposition must meet the existing reference-preserving contract; no limit increase. No application engineering or deployment.",
     "OPERATIONAL_SERVICE_ACTIONS": 0,
-    "P1_CREATOR_ENQUEUE_STATUS": "IMPLEMENTED_PRIOR_FUNCTIONAL_PASS",
-    "P2_PUMPPORTAL_PROVENANCE_STATUS": "IMPLEMENTED_PRIOR_FUNCTIONAL_PASS",
     "PRODUCTION_CHANGES": 0,
     "PROVIDER_CALLS": 0,
-    "PYTHON_REGRESSIONS": "Prior361 PASS;61 tooling controls;7 crash cases. No fresh full suite reached.",
+    "PYTHON_REGRESSIONS": {
+      "clean_passed": 361,
+      "clean_run": "4b2e425c9ac2",
+      "release_passed": 361,
+      "release_run": "c011dfa831af"
+    },
     "READY_FOR_TARGETED_DEPLOYMENT": false,
-    "RUNTIME_COMPATIBILITY": "Fresh mandatory dependency gate failed before application acceptance; operational services unchanged by this task.",
-    "RUNTIME_DEPLOYMENT_GATE": "QUALIFIED_NOT_DEPLOYED; mandatory release qualification blocked",
-    "updated_utc": "2026-10-19T09:10:03.425552+00:00"
+    "RUNTIME_COMPATIBILITY": "No installation or live acceptance; isolated API stopped and8197 verified not listening. Operational services not signalled.",
+    "SOURCE_CHANGES": 0,
+    "SOURCE_DEPENDENCY_CLOSURE": "PASS using configured algotrader interpreter; no package drift detected",
+    "TOOLING_CONTROLS": {
+      "passed": 61,
+      "receipt": "DEV090/enqueue-provenance-qualification/tooling-controls-final-result.json"
+    },
+    "TOOLING_CORRECTION": "NONE. Existing qualified interpreter and mapping work; orchestration invocation corrected only. No package or tool changes.",
+    "TOOLING_SOURCE_CHANGES": 0,
+    "updated_utc": "2026-10-19T09:24:21.029576+00:00"
   },
   "dev090_historical_discovery_release": {
     "candidate": "DEV090_CANDIDATE_c604991687e7",
@@ -26646,7 +26708,7 @@
     "branch": "codex/dev090",
     "git_head": "e3002467ce44a66487c9842a8dd79f51358fc593",
     "name": "flex",
-    "updated_at_utc": "2026-10-19T09:10:03.425552+00:00",
+    "updated_at_utc": "2026-10-19T09:24:21.029576+00:00",
     "working_tree": "Clean isolated DEV090 P1/P2 code committed; functional regressions PASS; release HOLD at20-run evidence budget. Operational source remains deployedef70, unchanged. No new candidate/deployment."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",

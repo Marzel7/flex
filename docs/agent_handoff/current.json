@@ -13411,6 +13411,21 @@
       "tooling_controls": 61
     }
   },
+  "dev090_enhanced_create_validation": {
+    "candidate": "NONE_NEW_IMMUTABLE_CANDIDATE",
+    "canonical_writes": 0,
+    "engineering_source_revision": "1ffe47c87203f0bb32065546fdea75dc87c0de11",
+    "finding": "Enhanced responses now require explicit transactionError:null, normalized without inferring success. Failed/missing/conflicting execution evidence rejects CREATE. Fixtures preserve their retained raw status. Original source-identity assertion bodies remain unchanged and run against exact reconstructed preimage; current delta is fully pinned.",
+    "local_report_sha256": "f2c197430ef7a46d3ee6f7ee2789d4fc75aaa7b738c551df8d89d55726d3d76c",
+    "milestone_verdict": "FUNCTIONAL_COMPATIBILITY_PASS_RELEASE_HOLD_CAPACITY",
+    "next_action": "Review reference-preserving run archival to restore capacity, then rerun mandatory qualification and clean restoration. No deployment or prospective trial resumption yet.",
+    "production_activation": "Installed source and all operational services unchanged; isolated source committed only",
+    "production_changes": 0,
+    "provider_calls": 0,
+    "release_blocker": "DEV048 qualify stopped at unchanged20-run retention limit; no archive/delete performed. Frontend/API/browser and clean-checkout gates NOT_RUN this attempt.",
+    "runtime_deployment_required": false,
+    "tests": "148 guarded focused regressions PASS;7 guarded process crash/restart cases PASS; DEV048 source/dependency verification PASS."
+  },
   "dev090_failed_create_validation_correction": {
     "canonical_writes": 0,
     "engineering_source_revision": "e3002467ce44a66487c9842a8dd79f51358fc593",
@@ -27295,7 +27310,7 @@
   },
   "project": {
     "branch": "codex/dev090",
-    "git_head": "e3002467ce44a66487c9842a8dd79f51358fc593",
+    "git_head": "1ffe47c87203f0bb32065546fdea75dc87c0de11",
     "name": "flex",
     "updated_at_utc": "2026-10-19T11:05:43.950823+00:00",
     "working_tree": "P1/P2 exactcandidate installed inlistener and30minute prospective observation complete. Creator/Walkback originalprocesses preserved. See retry report for unresolved searchbudget/anchor limits;no goldenpromotion."

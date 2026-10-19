@@ -35295,5 +35295,19 @@
     "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "application_source_changes": 0},
     "remote_handoff": "NOT_ATTEMPTED: disclosure approval remains unavailable.",
     "next_action": "Authorize a separately hash-pinned test-runner closure, or define an approved non-pytest clean-environment regression harness; then rerun clean-environment provider-free regressions before any golden-baseline decision."
+  },
+  "flex_stable_v2_final_isolated_regression_qualification": {
+    "status": "TESTS_PASS_MANIFEST_RECONCILIATION_HOLD",
+    "source_package_commit": "add62f1f04329876ec977d4e8ac1c8c1a6c71fce",
+    "fixture_qualification_commit": "8bea5506023f10505a2cd4548552b2d4abc1716e",
+    "dependency_lock_commit": "35165ba1f6f4d445c7100718b552939f0b3eeb00",
+    "frozen_locks": {"runtime": "manifests/flex_stable_v2_runtime_python311_macos_arm64.lock (18 artifacts)", "test_runner": "manifests/flex_stable_v2_test_runner_python311.lock (8 artifacts)"},
+    "isolated_results": {"runtime_wheels_sha256": "18/18 PASS", "test_wheels_sha256": "8/8 PASS", "pip_check": "PASS", "listener": "38 passed", "creator_resolution": "18 passed", "walkback": "106 passed; 2 mixed-service namespace tests intentionally deselected", "source_hashes": "2049 checked; 0 mismatches"},
+    "schema_contract": "Read-only required Core/OPS relations and WAL mode PASS; retained Core 847 / OPS 766 labels unchanged.",
+    "golden_baseline_ready": false,
+    "hold_reason": "The existing frozen runtime manifest still records clean_environment_reproducible=false and artifact_hashes=UNKNOWN. It conflicts with the newly frozen artifact locks; do not silently treat the supplemental locks as an updated one-manifest golden configuration.",
+    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "application_source_changes": 0},
+    "remote_handoff": "NOT_ATTEMPTED: disclosure approval remains unavailable.",
+    "next_action": "Separately authorize a manifest-only reconciliation that incorporates the two verified locks into one authoritative frozen runtime configuration manifest, then re-run the clean-checkout manifest binding before golden promotion review."
   }
 }

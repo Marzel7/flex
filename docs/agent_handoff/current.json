@@ -13412,19 +13412,21 @@
     }
   },
   "dev090_enhanced_create_validation": {
-    "candidate": "NONE_NEW_IMMUTABLE_CANDIDATE",
+    "application_source_unchanged": true,
+    "archive": "ae51be9f91eb preserved by reversible same-filesystem rename;6files24465bytes; integrity verified",
+    "candidate": "NONE_NEW",
     "canonical_writes": 0,
+    "capacity": "20 to19 after archival;20 after new qualification run;limit unchanged20",
     "engineering_source_revision": "1ffe47c87203f0bb32065546fdea75dc87c0de11",
-    "finding": "Enhanced responses now require explicit transactionError:null, normalized without inferring success. Failed/missing/conflicting execution evidence rejects CREATE. Fixtures preserve their retained raw status. Original source-identity assertion bodies remain unchanged and run against exact reconstructed preimage; current delta is fully pinned.",
-    "local_report_sha256": "f2c197430ef7a46d3ee6f7ee2789d4fc75aaa7b738c551df8d89d55726d3d76c",
-    "milestone_verdict": "FUNCTIONAL_COMPATIBILITY_PASS_RELEASE_HOLD_CAPACITY",
-    "next_action": "Review reference-preserving run archival to restore capacity, then rerun mandatory qualification and clean restoration. No deployment or prospective trial resumption yet.",
-    "production_activation": "Installed source and all operational services unchanged; isolated source committed only",
+    "local_report_sha256": "d02bad1da6db9823a281254b08e5eae5dee4933797c5fa014b2955fbb1174d72",
+    "milestone_verdict": "HOLD_BROWSER_SUBMISSION_DEADLINE",
+    "next_action": "Obtain authorization for another bounded qualification attempt with capacity restored and timely browser submission; no deployment",
     "production_changes": 0,
     "provider_calls": 0,
-    "release_blocker": "DEV048 qualify stopped at unchanged20-run retention limit; no archive/delete performed. Frontend/API/browser and clean-checkout gates NOT_RUN this attempt.",
+    "release_blocker": "Run f28bc2779cc2 expired fixed180-second browser evidence window before submission; isolated API STOPPED_HOLD. Ten captures preserved and hash-verified but not accepted. Clean checkout not run.",
+    "runtime_deployment_reason": "Qualification-only; no installed runtime changes",
     "runtime_deployment_required": false,
-    "tests": "148 guarded focused regressions PASS;7 guarded process crash/restart cases PASS; DEV048 source/dependency verification PASS."
+    "tests": "160 Python PASS; prior148 regressions and7 crash controls preserved;frontend PASS;API PASS"
   },
   "dev090_failed_create_validation_correction": {
     "canonical_writes": 0,

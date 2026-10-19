@@ -14414,6 +14414,33 @@
     "storage": "Final10.655GB free;2GBreserve+256MiBconservative incremental budget; existing main-file exception unchanged, no hard VFS quota claimed.",
     "supervisor": "Previously qualified selective15program config identity unchanged; no IPC/manager started. Future discoveryflag0 and serialized writer settings required."
   },
+  "dev090_retained_create_version_recovery": {
+    "canonical_writes": 0,
+    "create_v2_count": 0,
+    "decoded_create_instruction_count": 0,
+    "engineering_source_revision": "e3002467ce44a66487c9842a8dd79f51358fc593",
+    "finding": "Fixed cohort exact indexed joins recovered signature/provenance coverage but no independent discriminator evidence. No cache, CREATE ledger or exact transaction-role witness for inspected signatures. Absence limited to inspected authorities.",
+    "known_only_ratio": "UNDEFINED",
+    "legacy_count": 0,
+    "local_report_sha256": "f1f4560f727864b1f05046fa6efdbc95319ce6732c2c14cdce89945da9ae5596",
+    "milestone_verdict": "RECOVERED_COVERAGE_DISTRIBUTION_UNRESOLVED",
+    "next_action": "Review separate at-most-four exact transaction read proposal selected from fixed chronological positions; missing-signature sample position retained, no replacement or acquisition performed. Diagnostic sample cannot establish representative population ratio.",
+    "pp_birth_receipt_count": 16,
+    "production_activation": "No services or configuration changed",
+    "production_changes": 0,
+    "provider_calls": 0,
+    "retained_create_signature_count": 252,
+    "runtime_deployment_required": false,
+    "source_changes": 0,
+    "total_unique_migrations": 466,
+    "unknown_count": 466,
+    "unknown_evidence_breakdown": {
+      "NO_CREATE_SIGNATURE": 214,
+      "SIGNATURE_PRESENT_NO_TX_EVIDENCE": 252
+    },
+    "window_end_utc": "2026-10-19T12:36:11Z",
+    "window_start_utc": "2026-10-18T12:36:11Z"
+  },
   "dev090_retention_free_listener_contract": {
     "canonical_writes_by_task": 0,
     "compact_evidence_boundary": "Existing normal compact persistence and handoff paths remain passing; this does not prove a raw-free durable fallback for every escaped handler failure. No new storage subsystem proposed or implemented.",

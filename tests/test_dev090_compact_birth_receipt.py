@@ -134,3 +134,11 @@ def test_future_coverage_rejects_incomplete_or_unbounded_inputs():
 
 def test_compact_cannot_reuse_historical_raw_authority(tmp_path):
  with pytest.raises(ValueError,match='COMPACT_AUTHORITY_MUST_DIFFER_FROM_RAW'):PumpPortalBirthAudit(enabled=False,path=str(tmp_path),compact_path=str(tmp_path))
+
+
+def test_delivery_and_ack_are_separate_canonical_dimensions():
+ from src.core.pumpportal_birth_audit import summarize_birth_coverage
+ delivery={'mint':M,'creator':C,'signature':S,'state':'PENDING'};job={'mint':M,'creator':C,'create_anchor_signature':S,'create_anchor_source':'CORE_QUALIFIED_CREATE'}
+ r=summarize_birth_coverage([{'mint':M}],[],[],cohort_complete=True,walkback=[job],deliveries=[delivery]);assert r['late_create_handoff_delivered']==1 and r['late_create_handoff_acknowledged']==0
+ delivery['state']='ACK';r=summarize_birth_coverage([{'mint':M}],[],[],cohort_complete=True,walkback=[job],deliveries=[delivery]);assert r['late_create_handoff_acknowledged']==1
+ delivery['state']='PENDING';job['create_anchor_signature']=None;assert summarize_birth_coverage([{'mint':M}],[],[],cohort_complete=True,walkback=[job],deliveries=[delivery])['late_create_handoff_delivered']==0

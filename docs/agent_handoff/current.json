@@ -13109,23 +13109,23 @@
     "source_changes": 0
   },
   "dev090_create_validator_deployment": {
-    "milestone_verdict": "HOLD_PREFLIGHT_OPS_NONEMPTY_WAL",
+    "milestone_verdict": "HOLD_APPROVAL_WAL_AWARE_READ_MODE",
     "engineering_source_revision": "1ffe47c87203f0bb32065546fdea75dc87c0de11",
     "candidate": "DEV090_CANDIDATE_1ffe47c87203",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD",
     "identity_correction": "Kernel proc_pidpath plus samefile comparison qualified against configured Python; positive and different-executable negative controls passed. Controller correction preserved, not executed. Prior ps comm mismatch cause not independently established.",
     "preflight": "Original strict empty-WAL and immutable-read checks retained; existing exact Supervisor verified with all15 STOPPED",
-    "failure": "OPS WAL135992bytes, journal0; fails existing stopped-writer empty-WAL gate. Not evidence of corruption. No checkpoint, repair or deletion attempted.",
+    "failure": "WAL qualified:135992bytes,33 valid checksummed frames,5 commits,no open owners,free write lock,RO snapshot and indexed lookup passed,WAL unchanged. Auto-review rejected replacing immutable=1 with mode=ro for WAL-aware preflight; explicit approval required. No deployment.",
     "installation": "NOT_ATTEMPTED; prior validator preimage preserved",
     "service_transitions": "NONE this retry; all15 stopped at preflight; Supervisor remains running",
     "provider_calls": 0,
     "canonical_writes": 0,
     "production_changes": 0,
     "ready_for_curve_first_trial": false,
-    "next_action": "Qualify the retained OPS WAL and ownership under an explicitly approved WAL-aware read-only preflight before retry. Preserve WAL; no deployment or startup.",
+    "next_action": "Obtain explicit authorization to use mode=ro plus query_only instead of immutable=1 for hash-bound WAL-aware preflight; then retry exact deployment. No checkpoint or deletion.",
     "evidence_directory": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/enhanced-create-validation/create-validator-deployment/restore-attempt-e2af62afb3c5",
-    "local_report_sha256": "9bd7df667151fc32d4f285dcbd10eb2ffd090d2dd7d5597059e332fb69b5f70f"
+    "local_report_sha256": "4601d89ae024c65409983740d88fbd0b6392a1cfc2958ecc7429b88823850f63"
   },
   "dev090_create_version_distribution": {
     "blocker": "Missing independently decoded original creation instructions for recent migration population; no qualified additional recent paired controls.",
@@ -27348,7 +27348,7 @@
     "branch": "codex/dev090",
     "git_head": "1ffe47c87203f0bb32065546fdea75dc87c0de11",
     "name": "flex",
-    "updated_at_utc": "2026-10-19T16:32:32.906451+00:00",
+    "updated_at_utc": "2026-10-19T16:33:50.993286+00:00",
     "working_tree": "DEV090 retry stopped before installation: nonempty OPS WAL fails strict preflight; kernel executable identity correction qualified; immutable candidate preserved."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",

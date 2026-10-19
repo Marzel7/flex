@@ -13109,24 +13109,23 @@
     "source_changes": 0
   },
   "dev090_create_validator_deployment": {
-    "milestone_verdict": "HOLD_CONTROLLED_TRANSITION_FAILURE",
+    "milestone_verdict": "HOLD_PREFLIGHT_OPS_NONEMPTY_WAL",
     "engineering_source_revision": "1ffe47c87203f0bb32065546fdea75dc87c0de11",
     "candidate": "DEV090_CANDIDATE_1ffe47c87203",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "HOLD",
-    "preflight": "PASS source, dependency compatibility, disk, bounded DB and lock checks",
-    "failure": "Post-start workerPythonidentity assertion: ps comm executable identity did not equal configured Python realpath. Not established as application failure. No further attempt.",
-    "installation": "Exact validator installed then rolled back to verified b4f2064305faa285f13672217013243c7d5d6a001566b6891b663c79973101ac",
-    "service_transitions": "Qualified Supervisor restored PID1131; three authorized services started then stopped by rollback; all15 programs verified STOPPED; Cascade never started",
-    "rollback": "PASS exact source restored; schema and durable intents preserved; Supervisor remains running",
-    "live_acceptance": "NOT_COMPLETED",
-    "provider_calls": "No diagnostic provider requests; worker requests during brief startup UNKNOWN",
-    "canonical_writes": "No manual SQL writes; worker commits during startup UNKNOWN",
-    "production_changes": "Supervisor startup and brief three-service starts; validator installation reverted",
+    "identity_correction": "Kernel proc_pidpath plus samefile comparison qualified against configured Python; positive and different-executable negative controls passed. Controller correction preserved, not executed. Prior ps comm mismatch cause not independently established.",
+    "preflight": "Original strict empty-WAL and immutable-read checks retained; existing exact Supervisor verified with all15 STOPPED",
+    "failure": "OPS WAL135992bytes, journal0; fails existing stopped-writer empty-WAL gate. Not evidence of corruption. No checkpoint, repair or deletion attempted.",
+    "installation": "NOT_ATTEMPTED; prior validator preimage preserved",
+    "service_transitions": "NONE this retry; all15 stopped at preflight; Supervisor remains running",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
     "ready_for_curve_first_trial": false,
-    "next_action": "Resolve controller executable-identity evidence using qualified process executable authority; obtain a new bounded attempt before deployment. Do not start services now.",
-    "evidence_directory": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/enhanced-create-validation/create-validator-deployment/restore-attempt-d703196de7ce",
-    "local_report_sha256": "52cff2707d8ac3b5890060fdd78949374d56c7200921518a0519829a922d3f86"
+    "next_action": "Qualify the retained OPS WAL and ownership under an explicitly approved WAL-aware read-only preflight before retry. Preserve WAL; no deployment or startup.",
+    "evidence_directory": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/enhanced-create-validation/create-validator-deployment/restore-attempt-e2af62afb3c5",
+    "local_report_sha256": "9bd7df667151fc32d4f285dcbd10eb2ffd090d2dd7d5597059e332fb69b5f70f"
   },
   "dev090_create_version_distribution": {
     "blocker": "Missing independently decoded original creation instructions for recent migration population; no qualified additional recent paired controls.",
@@ -27349,8 +27348,8 @@
     "branch": "codex/dev090",
     "git_head": "1ffe47c87203f0bb32065546fdea75dc87c0de11",
     "name": "flex",
-    "updated_at_utc": "2026-10-19T16:31:00.352759+00:00",
-    "working_tree": "DEV090 validator deployment rolled back after controller executable identity assertion; all15 Supervisor programs stopped; immutable candidate preserved."
+    "updated_at_utc": "2026-10-19T16:32:32.906451+00:00",
+    "working_tree": "DEV090 retry stopped before installation: nonempty OPS WAL fails strict preflight; kernel executable identity correction qualified; immutable candidate preserved."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

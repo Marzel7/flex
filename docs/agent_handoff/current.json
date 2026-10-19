@@ -13791,6 +13791,37 @@
     "status": "HOLD_STORAGE_DURING_OFFLINE_QUALIFICATION",
     "superseded_by": "dev090_historical_discovery_release: storage resolved and exact preserved safeguard fully qualified"
   },
+  "dev090_large_sample_curve_search": {
+    "canonical_writes": 0,
+    "complete_pairs": 4,
+    "curve_success_rate": 0.5,
+    "engineering_source_revision": "e3002467ce44a66487c9842a8dd79f51358fc593",
+    "finding": "Curve adds1observed recovery; no observed mint-only loss. Small biasedV2-only sample cannot qualify universal replacement. Dual-target histories add cost.",
+    "local_report_sha256": "7cac204a17a01799359d3b1763383ac91e72c8a1adf803b495fd1abbbf6824fb",
+    "max_authorized_provider_calls": 60,
+    "milestone_verdict": "COMPLETED_SMALL_VERIFIED_SAMPLE_INSUFFICIENT_GENERAL_COVERAGE",
+    "mint_success_rate": 0.25,
+    "next_action": "NONE\u2014comparison complete for available qualified cohort; no spend on unqualified controls",
+    "pagination": 0,
+    "paired_outcomes": {
+      "BOTH_FIRST_80": 1,
+      "CURVE_ONLY_FIRST_80": 1,
+      "INCOMPLETE_PAIR": 0,
+      "MINT_ONLY_FIRST_80": 0,
+      "NEITHER_FIRST_80": 2
+    },
+    "production_activation": "No operational services modified; configured Supervisor authority unresolved in bounded status check",
+    "production_changes": 0,
+    "provider_calls": 8,
+    "qualified_controls": 4,
+    "raw_retention": false,
+    "recommendation": "INSUFFICIENT_EVIDENCE; preserve existing resolver, no implementation",
+    "retries": 0,
+    "runtime_deployment_required": false,
+    "source_changes": 0,
+    "transaction_detail_calls": 0,
+    "variant_coverage": "CREATE_V2 only; external historical controls excluded"
+  },
   "dev090_legacy_maintenance_boundary_qualification": {
     "boundary": "Use persisted Core wb_create_control epochDEV090-20261018T210658Z-c6049916 activated_at1792357618. No new cutoff generated. Inactive private config proposal changes only stopped listener HANDOFF_DURABILITY_T0 from1789027814 to1792357618. Active config unchanged; do not publish credential-bearing config.",
     "canonical_writes_by_task": 0,

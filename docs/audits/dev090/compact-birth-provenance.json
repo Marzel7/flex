@@ -1,0 +1,39 @@
+{
+  "scope": "P2, separately attributable from P1. Existing PumpPortalBirthAudit gains explicit compact-only mode; existing raw mode remains separate and disabled by qualified launcher. No new database/table/index/worker.",
+  "parent_p1_source": "0c618a0b11471ac73e795fe1c6160017840fd803",
+  "receipt_fields": [
+    "receipt_identity",
+    "source",
+    "mint",
+    "supplied_creator",
+    "supplied_birth_signature",
+    "receipt_utc_ns",
+    "validation_result",
+    "persistence_outcome",
+    "accepted_at_utc_ns when commit+readback qualify",
+    "canonical_conflict boolean"
+  ],
+  "source_authority": "Original PP-supplied fields remain immutable and separate from canonical comparison. Receipt timestamp is local arrival, not chain time. Accepted PP source does not mean independently RPC-decoded CREATE.",
+  "identity": "SHA256 canonical source/mint/supplied creator/signature; first local receipt timestamp preserved across reconnect/restart. Conflicting supplied fields form distinct evidence, never overwrite the original values.",
+  "storage_authority": "Explicit dedicated compact path in existing audit component; raw authority cannot be reused. Class-wide lock under single qualified listener process. Four-KiB whitelist files; atomic temp/fsync/rename/directory-fsync. No asynchronous audit worker is started in compact mode.",
+  "bounds": {
+    "max_single_file_bytes": 4096,
+    "max_durable_files_including_birth_receipts_and_handoff_markers": 4096,
+    "max_additional_transient_files": 1,
+    "max_payload_bytes": 16777216,
+    "max_transient_file_bytes": 4096,
+    "filesystem_reserve_design_bytes": 67108864,
+    "minimum_free_bytes": 2000000000,
+    "maximum_cohort_migrations": 256,
+    "maximum_measurement_receipts": 4096,
+    "maximum_measurement_handoffs": 4096,
+    "raw_retention": false,
+    "new_unbounded_growth_paths": 0
+  },
+  "retention": "Finite retained population, no automatic deletion or cleanup. At capacity, new provenance fails visibly to UNKNOWN; ingestion and existing durable birth retries continue under their original contracts. This is not unlimited retention or a guarantee of gap-free telemetry. Later deployment must verify single writer, exact dedicated path, filesystem ownership, capacity and headroom.",
+  "failure_contract": "Receipt failure cannot claim provenance success. Primary/retry failure remains explicit. Retry reconstructs same receipt from existing compact envelope and updates only after verified Core persistence. Core commit and sidecar commit are not one atomic transaction: interruption may leave UNCONFIRMED/UNKNOWN, never fabricated success.",
+  "handoff_marker": "Separate typed metadata immediately before existing OPS submit; denotes initiation/ATTEMPTED, not successful OPS commit. First marker immutable across duplicate migrations. Actual delivery/ACK/execution are read from their canonical authorities.",
+  "measurement": "Complete unique canonical migration cohort required. Count retained structurally valid PP-source receipts with verified Core commit/readback accepted before recorded OPS initiation. RPC recovery is separately qualified and may overlap. Missing receipt means UNKNOWN delivery provenance. Empty/incomplete denominator gives UNKNOWN percentages; over-budget input rejected, never approximated.",
+  "rollback": "P2 listener/collector/launcher-only rollback; preserve compact sidecars and pending retry/intents. Existing raw mode must remain off. P1 can remain installed independently. No schema or queue rewind.",
+  "release_status": "PENDING_FULL_RELEASE: DEV048 run evidence retention count20 reached; no candidate and no deployment authorized."
+}

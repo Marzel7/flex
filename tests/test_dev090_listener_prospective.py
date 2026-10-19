@@ -30,6 +30,7 @@ def test_launcher_exact_installed_preimage_with_single_configuration_change():
  assert 'export LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED=0' in text
  assert text.count('export LISTENER_MIGRATION_RECONCILER_ENABLED=0')==1
  assert 'export PUMPPORTAL_CANONICAL_BIRTH_RETENTION_ENABLED=0' in text
+ text='\n'.join(line for line in text.split('\n') if not line.startswith(('export PUMPPORTAL_COMPACT_BIRTH_RECEIPTS_ENABLED=','export PUMPPORTAL_COMPACT_BIRTH_RECEIPTS_PATH=')))
  old=text.replace('export PUMPPORTAL_CANONICAL_BIRTH_RETENTION_ENABLED=0\n','').replace('export LISTENER_MIGRATION_RECONCILER_ENABLED=0','export LISTENER_MIGRATION_RECONCILER_ENABLED=1')
  assert hashlib.sha256(old.encode()).hexdigest()=='d7a0db20c7aa8b8a5210774541e6b43bfdb422bd86723a21d3112d2152f3b8e3'
 

@@ -33,6 +33,8 @@ export CROSS_FUNDING_CLUSTER_ANALYZER_ENABLED=0
 export TRADING_SIM_AUTO_BUY_ENABLED=0
 export LISTENER_PUMPPORTAL_BIRTHS_ENABLED=1
 export PUMPPORTAL_CANONICAL_BIRTH_RETENTION_ENABLED=0
+export PUMPPORTAL_COMPACT_BIRTH_RECEIPTS_ENABLED=1
+export PUMPPORTAL_COMPACT_BIRTH_RECEIPTS_PATH="${PUMPPORTAL_COMPACT_BIRTH_RECEIPTS_PATH:-/Users/kevinkeaveney/Dev/claude/flex/logs/pumpportal_compact_birth_receipts}"
 # Helius logsSubscribe on PUMPFUN_PROGRAM — DO NOT enable: ~96MB/5min bandwidth (full firehose).
 export HELIUS_BIRTH_WS_ENABLED=0
 # RPC reconciler: getSignaturesForAddress on PUMPFUN_PROGRAM, runs only when PumpPortal is down.

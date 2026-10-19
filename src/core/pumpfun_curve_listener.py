@@ -1105,6 +1105,10 @@ def _check_watchtower_migration(mint: str, migrated_at: int, migration_tx: str |
                     _ops_selector = f"operations:{__import__('os').path.realpath(_ops_path)}"
                     database_write_service.register_database(_ops_selector, _ops_path)
                     try:
+                        from src.core.pumpportal_birth_audit import configured_birth_audit
+                        if not configured_birth_audit().note_handoff(mint,migration_tx):
+                            if os.environ.get("PUMPPORTAL_COMPACT_BIRTH_RECEIPTS_ENABLED","0")=="1":
+                                log_print("[PUMPPORTAL] COMPACT_HANDOFF_PROVENANCE_UNAVAILABLE",flush=True)
                         _cls = database_write_service.submit(
                             _ops_selector, "listener-walkback-enqueue",
                             lambda _ops_conn: _enq(
@@ -11061,6 +11065,20 @@ class PumpFunCurveListener(FastLaneDiscovery):
         except Exception as _e:
             log_print(f"[PUMPPORTAL] ⚠ Seed subscription failed (deferred, non-fatal): {_e}", flush=True)
 
+    async def _record_pp_birth_outcome(self, receipt_id, mint, committed):
+        if not committed:
+            self._eb_birth_audit.record_outcome(receipt_id, outcome="RETRY_PENDING")
+            return
+        try:
+            def readback():
+                with managed_db_connect(DB_PATH,timeout=5,read_only=True) as conn:
+                    return conn.execute("SELECT earliest_tx_creator,pf_ws_creator,create_tx_signature FROM token_analysis WHERE mint=?",(mint,)).fetchone()
+            row=await asyncio.to_thread(readback)
+            if row is None or not self._eb_birth_audit.record_outcome(receipt_id,outcome="COMMITTED",canonical=tuple(row)):
+                raise RuntimeError("COMPACT_OUTCOME_UNCONFIRMED")
+        except Exception:
+            log_print("[PUMPPORTAL] COMPACT_BIRTH_OUTCOME_UNAVAILABLE",flush=True)
+
     async def _handle_pumpportal_create_frame(
         self,
         data,
@@ -11080,7 +11098,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         name = data.get("name")
         v_sol = float(data.get("vSolInBondingCurve") or 0)
         mc_sol = float(data.get("marketCapSol") or 0)
-        self._eb_birth_audit.record(
+        birth_receipt_id = self._eb_birth_audit.record(
             receive_utc_ns=receive_utc_ns,
             receive_monotonic_ns=receive_monotonic_ns,
             parser_utc_ns=time.time_ns(), signature=signature,
@@ -11088,6 +11106,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
             virtual_sol_reserves=v_sol, bonding_curve=bonding_curve_pda,
             raw_payload=data,
         )
+        if getattr(self._eb_birth_audit, "compact_path", None) is not None and not birth_receipt_id:
+            log_print("[PUMPPORTAL] COMPACT_BIRTH_PROVENANCE_UNAVAILABLE", flush=True)
+        if birth_receipt_id and (not mint or not signature):
+            self._eb_birth_audit.record_outcome(birth_receipt_id, outcome="INCOMPLETE")
         self._pumpfun_delivery_latency.observe_pumpportal(
             signature=signature, mint=mint,
             receive_monotonic_ns=receive_monotonic_ns,
@@ -11130,6 +11152,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 )
                 if committed is False:
                     raise RuntimeError("BIRTH_TRANSACTION_NOT_ACKNOWLEDGED")
+                if birth_receipt_id:
+                    await self._record_pp_birth_outcome(birth_receipt_id, mint, committed is True)
                 log_print(
                     f"[PUMPPORTAL] 🟢 Birth: {mint[:16]}... symbol={symbol} creator={creator[:8] if creator else '?'}",
                     flush=True,
@@ -11169,8 +11193,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         if previous['mint'] != mint or previous['traderPublicKey'] != creator:
                             raise RuntimeError("COMPACT_BIRTH_IDENTITY_CONFLICT")
                     outcome = "ALREADY_CONSUMED" if retained[2] else "PENDING"
+                    if birth_receipt_id:
+                        self._eb_birth_audit.record_outcome(birth_receipt_id, outcome="RETRY_PENDING")
                     log_print(f"[PUMPPORTAL] COMPACT_BIRTH_RETRY_{outcome} mint={mint[:16]}", flush=True)
                 except Exception as _qe:
+                    if birth_receipt_id:
+                        self._eb_birth_audit.record_outcome(birth_receipt_id, outcome="UNRECOVERABLE")
                     # No raw event/file fallback. This is observable loss of the
                     # retry guarantee, not a claim that persistence succeeded.
                     log_print(f"[PUMPPORTAL] UNRECOVERABLE_BIRTH_RETRY mint={mint[:16]} "
@@ -11474,6 +11502,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                     if (not persisted or persisted[0] != sig or (_creator and
                                             (_creator not in persisted[1:] or any(v and v != _creator for v in persisted[1:])))):
                                         raise RuntimeError("BIRTH_PERSISTENCE_NOT_ACKNOWLEDGED")
+                                if compact and getattr(self._eb_birth_audit,"compact_path",None) is not None:
+                                    receipt_id=self._eb_birth_audit.record(receive_utc_ns=data["receive_utc_ns"],receive_monotonic_ns=0,parser_utc_ns=time.time_ns(),signature=sig,mint=_mint,creator=_creator)
+                                    if receipt_id:
+                                        await self._record_pp_birth_outcome(receipt_id,_mint,True)
+                                    else:
+                                        log_print("[PUMPPORTAL] COMPACT_BIRTH_PROVENANCE_UNAVAILABLE",flush=True)
                                 if _bcp:
                                     self._remember_bonding_curve_token(_mint, _bcp)
                                 self.seen_mints.add(_mint)

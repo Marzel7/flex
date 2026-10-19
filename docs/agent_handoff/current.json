@@ -34941,5 +34941,59 @@
       "historical_replay": 0
     },
     "next_action": "Approve a bounded retention-evidence collection and capacity policy before any receipt retirement; do not infer a safe multi-day window from the present ten-hour receipt cohort."
+  },
+  "dev090_seven_day_receipt_retention_feasibility": {
+    "verdict": "SMALL_TARGETED_CORRECTION_QUALIFIED_NOT_AUTHORIZED",
+    "updated_at_utc": "2026-10-19T21:31:24Z",
+    "engineering_source_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only feasibility qualification; no source, runtime, receipt, database, or service change occurred.",
+    "current_writer": {
+      "path": "Production/flex-listener/src/core/pumpportal_birth_audit.py",
+      "file_cap": 4096,
+      "record_cap_bytes": 4096,
+      "free_space_floor_bytes": 2000000000,
+      "directory_scan": "flat os.scandir before every write",
+      "automatic_retirement": false,
+      "atomic_write": "temp file fsync, os.replace, directory fsync"
+    },
+    "current_usage": {
+      "receipts": 4096,
+      "payload_bytes": 2275280,
+      "available_bytes": 15512948736,
+      "observed_scan_4096_median_ms": 3.657,
+      "observed_scan_4096_p95_ms": 3.811
+    },
+    "seven_day_model": {
+      "birth_rate_per_hour": 457.221,
+      "expected_receipts": 76813,
+      "expected_payload_bytes": 42668819,
+      "minimum_4096_byte_allocation_bytes": 314626048,
+      "flat_directory_scan_entries_per_hour": 35103541,
+      "conclusion": "Payload and minimum allocation fit above the two-gigabyte safety floor, but a 76813-entry flat directory would multiply the synchronous per-birth scan by 18.75 and is not qualified."
+    },
+    "minimum_future_scope": [
+      "Use deterministic receipt-identity prefix buckets under the existing compact root, with a bounded per-bucket cap such as 384 across 256 buckets.",
+      "Route new writes, outcomes, handoffs, and accepted_birth lookup through one bucket resolver; preserve flat-root legacy lookup fallback without moving existing receipts.",
+      "Add a fail-closed, bounded per-bucket retirement selector that considers only receipts older than seven days and excludes active/protected dependencies; do not delete if eligibility is unresolved.",
+      "Retain existing atomic write, four-KiB record bound, two-gigabyte headroom floor, identity validation, and no-raw-payload contract.",
+      "Qualify with small offline bucket fixtures, legacy-lookup/restart fixtures, protected-reference fixtures, and measured bounded write latency before deployment."
+    ],
+    "tradeoffs": {
+      "late_migrations": "An unprotected unmigrated birth older than seven days may lose PumpPortal-first provenance and use RPC CREATE recovery; recovery is not equivalent to retained receipt evidence.",
+      "migration_direct_complete_share_percent": 33.57,
+      "active_protection": "Pending migration, creator-resolution, Walkback, retry, handoff, and protected-audit references must fail closed."
+    },
+    "safe_to_implement_now": false,
+    "blocker": "Implementation and deployment are not authorized. Raising the existing global file cap alone would retain an O(n) hot-path directory enumeration and fails bounded-write-latency qualification.",
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "source_changes": 0,
+      "production_changes": 0,
+      "receipt_moves_or_deletes": 0,
+      "restarts": 0
+    },
+    "next_action": "If desired, separately authorize the listed small targeted correction and its offline qualification only; do not authorize a global cap increase by itself."
   }
 }

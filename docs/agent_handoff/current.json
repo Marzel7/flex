@@ -13045,6 +13045,155 @@
     "safety": "provider calls=0; canonical writes=0; Production changes=0; service starts=0; no schema/config/install/queue changes",
     "status": "HOLD_PROSPECTIVE_ONLY_EXECUTION_GATE"
   },
+  "dev090_creator_enqueue_pp_provenance_qualification": {
+    "CANDIDATE_SOURCE_SHA": null,
+    "CANONICAL_WRITES": 0,
+    "COMPACT_RECEIPT_AUTHORITY": "Explicit compact-only mode in existing PumpPortalBirthAudit; dedicated capped sidecar directory separate from historical raw authority. Existing listener is the single authoritative process; existing shared class lock serializes threads/instances. No new DB, table, index, background audit worker or provider call.",
+    "CREATOR_ENQUEUE_FIRST_FAILURE": "Existing original21 audit proved12 CREATOR_RESOLUTION_NOT_ENQUEUED, no qualified Core creator/signature or durable proof. Global discovery was off and direct migration branch did not enqueue unresolved jobs.",
+    "CURRENT_INSTALLED_SOURCE": {
+      "creator_walkback_targets_unchanged": true,
+      "deployed_listener_candidate": "DEV090_CANDIDATE_ef70c8718d03",
+      "installed_listener_hashes": {
+        "run_listener.sh": "2408a74c69d6ada6e74073abc10a3768dbc865aabed9dd57921a1a19a1faebc3",
+        "src/core/pumpfun_curve_listener.py": "5e173f0a44b3a32997cad632e7a1b5304f7dcd12ee60ca23cfd1d0ec048a1e4e",
+        "src/core/pumpportal_birth_audit.py": "d6c96e15121684ea74cd39bd73ef65e2c2ebe5b2e9b21af1ce5f7a4c7b49b9be",
+        "src/ops/walkback_create_handoff.py": "00543c3a7d1ac2d8630af687809f0379f89bcf594934d7d9e6471980f78f0363"
+      },
+      "operational_configuration": "Unchanged; historical discovery and raw capture remain disabled. New compact flags are isolated source only."
+    },
+    "DEV090_CREATOR_ENQUEUE_AND_PP_PROVENANCE_STATUS": "IMPLEMENTED_FOCUSED_AND_PYTHON_PASS_RELEASE_HOLD_RETENTION_BUDGET",
+    "DEV_COMPLETE": false,
+    "ENGINEERING_SOURCE_SHA": "e3002467ce44a66487c9842a8dd79f51358fc593",
+    "EXACT_BLOCKER": {
+      "call": "qualify \u2192 room(dev.root/runs,\"*\",20)",
+      "code": "DEV048_RUN_RETENTION_BUDGET",
+      "disk_free_bytes": 10955169792,
+      "limit": 20,
+      "message": "retention budget reached; preserve/review, no automatic cleanup",
+      "no_cleanup_or_budget_override_performed": true,
+      "not_a_disk_full_claim": true,
+      "protected_run_count": 20,
+      "qualified_tool": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV080/source/tools/flex_dev.py"
+    },
+    "HISTORICAL_DISCOVERY_PRESERVATION": "Existing switches remain0; no provider/history population scan or mutable retry cutoff. All15019 retired rows verified skipped in initial read-only cohort audit; task enqueued/changed no operational rows.",
+    "IMMUTABLE_CANDIDATE_CREATED": false,
+    "INDEPENDENT_ATTRIBUTION": "P1 standalone commit0c618a0b retained. P2 distinct commits and optional integratione3002467; P1 works without compact mode. P2 adds measurement, not required canonical queue authority. Independent full releases remain unqualified until mandatory gates can run.",
+    "NEXT_ACTION": "Review/authorize a reference-preserving retention disposition for the20 existing DEV090 run receipts. Do not delete evidence or raise limits merely to pass. Then run unchanged DEV048 API/frontend/10browser/clean-checkout gates independently and create candidates only after PASS. Deployment remains separately unauthorized.",
+    "OPERATIONAL_SERVICE_ACTIONS": 0,
+    "P1_REGRESSION_RESULTS": {
+      "complete_combined_python_passed": 361,
+      "coverage": [
+        "PP fast path",
+        "creator missing signature",
+        "creator+signature absent",
+        "migration before birth",
+        "later strict CREATE",
+        "duplicate migration/enqueue",
+        "restart",
+        "crash before/after commit",
+        "historical skipped/unqueued",
+        "discovery disabled",
+        "completed Walkback",
+        "qualified Core/OPS proof",
+        "signer-only/trader fallback",
+        "creator conflict"
+      ],
+      "new_focused_cases": 30,
+      "unexpected_guard_denials": 0
+    },
+    "P1_RELEASE_STATUS": "HOLD: mandatory release run cannot start because20 protected receipts meet DEV048 limit; P1 source independently preserved, no immutable P1 candidate created.",
+    "P2_COMMIT_SERIES": [
+      "af70cc11",
+      "bf458948"
+    ],
+    "P2_REGRESSION_RESULTS": {
+      "complete_combined_python_passed": 361,
+      "covers": [
+        "normal successful birth",
+        "missing creator/signature",
+        "duplicate and original timestamp",
+        "before/after migration marker",
+        "retry success/failure",
+        "both primary/retry fail",
+        "crash before/after receipt commit",
+        "restart",
+        "RPC creator conflict",
+        "receipt capacity and unknown storage failures",
+        "no raw payload/background thread",
+        "complete/empty/incomplete denominator",
+        "bounded input rejection",
+        "separate RPC recovery and delivery/ACK",
+        "persisted PP qualification after restart"
+      ],
+      "new_cases": 28
+    },
+    "P2_RELEASE_STATUS": "HOLD: focused and complete Python regressions PASS; full mandatory release acceptance blocked by same protected-run budget. No immutable P2 or combined candidate.",
+    "PP_NORMAL_BIRTH_PROVENANCE_GAP": "Normal prior successes retained canonical values and abbreviated logs; full original PP source binding/receipt time/outcome were not independently durable.",
+    "PP_RECEIPT_FIELDS": [
+      "full mint",
+      "PP-supplied creator",
+      "PP-supplied birth signature",
+      "original local receipt ns",
+      "PUMPPORTAL_NEW_TOKEN source",
+      "structural validation result",
+      "verified persistence outcome",
+      "SHA256 receipt identity",
+      "accepted local time after confirmed commit/readback",
+      "conflict indicator preserving original values"
+    ],
+    "PP_RECEIPT_STORAGE_BOUNDS": {
+      "additional_transient_files": 1,
+      "atomicity": "Core and receipt sidecar are not one atomic transaction. Sidecar fsync/rename/directory-fsync makes its own commit durable; interruption can leave UNKNOWN/UNCONFIRMED, never an invented successful outcome.",
+      "capacity_behavior": "No automatic deletion. At capacity, new provenance becomes explicitly unavailable/UNKNOWN; existing birth persistence and durable retry stay under original contracts. Finite lifetime capacity, not unlimited retention.",
+      "durable_file_limit_including_migration_markers": 4096,
+      "filesystem_reserve_bytes": 67108864,
+      "future_cohort_limit": 256,
+      "logical_durable_bytes_limit": 16777216,
+      "minimum_free_bytes": 2000000000,
+      "new_unbounded_growth_paths": 0,
+      "raw_retention": false,
+      "receipt_and_marker_input_limit_each": 4096,
+      "single_file_bytes": 4096,
+      "test_fixture_file_limit": 8388608,
+      "transient_file_bytes_limit": 4096
+    },
+    "PRODUCTION_CHANGES": 0,
+    "PROSPECTIVE_ENQUEUE_CORRECTION": {
+      "P1_commit_series": [
+        "bc6766c4",
+        "e991c2c6",
+        "0c618a0b"
+      ],
+      "contract": "Exact OPS read closes before shared Core writer. Existing migration upsert and exact creator-resolution INSERT commit/rollback together. Persisted original migrated_at and activation authority exclude historical rows. No DDL, new scheduler or worker. Active jobs preserve attempts/backoff; terminal OPS/creator jobs remain protected.",
+      "integration_commit": "e3002467",
+      "qualification": "Qualified PP birth creator/signature kept separate from trade-wallet cache; matching Core proof or VALID OPS anchor skips recovery. Plain/inferred signer fields cannot qualify fast path. Source-bound compact proof is optional and can be reread after listener restart without reacquisition; tuple rechecked inside Core transaction.",
+      "scope": "Listener-only runtime patch; no replacement of installed standalone creator queue or DEV-002 Walkback module.",
+      "standalone_P1_source": "0c618a0b11471ac73e795fe1c6160017840fd803"
+    },
+    "PROVIDER_CALLS": 0,
+    "PUMPPORTAL_COVERAGE_MEASUREMENT_CONTRACT": "Use complete unique canonical migrations, max256. Compare immutable supplied PP fields and verified committed/readback acceptance before separately recorded pre-OPS handoff initiation. Local timestamps are not chain CREATE time. Keep retained receipt, creator, signature, incomplete/late/conflicting/unknown provenance, strict RPC recovery, eligibility/execution/completion and delivered/ACK dimensions separate. RPC can overlap PP. Incomplete/empty denominator returns UNKNOWN; oversized inputs rejected. Handoff marker ATTEMPTED is not proof OPS committed.",
+    "READY_FOR_TARGETED_DEPLOYMENT": false,
+    "RUNTIME_DEPLOYMENT_GATE": "HOLD_REQUIRED_RELEASE_GATES_NOT_RUN; NO_DEPLOYMENT_AUTHORIZATION",
+    "changed_file_manifest": {
+      "docs/audits/dev090/compact-birth-provenance.json": "9b8b569f947108d58679147fc36f3cbf1f5da2f3bb8bec3a2c1c1e8bf9e2a58a",
+      "docs/audits/dev090/compact-birth-recovery.json": "d4a60a08ebe92b82366cbc9b1e9e06dc630a50293de665939efe63343bb4614a",
+      "docs/audits/dev090/prospective-enqueue-correction.json": "f181fb2d4c24a43544af78854b0651ab9801e99d6b2ff8ff1a4a7db516e2d762",
+      "run_listener.sh": "b1dd5b99db29e3cad76999c7baf343d205bb2118c6785c66db805537ea32c434",
+      "src/core/pumpfun_curve_listener.py": "6db4a1c8230ea233d26fd212bac5988437bb0b8f29d9dbed0f282ad10f39b634",
+      "src/core/pumpportal_birth_audit.py": "6103d23ec5ea82748bb53ce89985c1dd8885af2c281872a4f3672b1b2781416c",
+      "tests/test_dev090_compact_birth_receipt.py": "2cf904942a7074f923b8e82fe61c067155b9fbf0f9fda66a97bc3d5a7a1b751e",
+      "tests/test_dev090_listener_prospective.py": "24a4b234cbb37d6aeaacdfe7cb3d72e2e9eff056fbcc6c9f695cf015f70e9157",
+      "tests/test_dev090_prospective_enqueue.py": "0c6ab0dd53e3730d33b848900268d975594564f0a4111486d3669d99279dda6b"
+    },
+    "engineering_revision": "e3002467ce44a66487c9842a8dd79f51358fc593",
+    "protected_run_inventory_sha256": "563c2ca86a5c7455c8c4d9fdc7e3ac6d8feeb90c2e6b33b1b5938708625143c9",
+    "qualification_summary": "361 complete guarded Python tests PASS;61 unchanged tooling controls PASS;7 fresh real process crash cases PASS;Node lifecycle PASS30sec/8MiB;actual source closure PASS;zero unexpected guard denials. API/browser/clean-checkout release NOT_RUN, no prior acceptance substituted.",
+    "report": "DEV090/enqueue-provenance-qualification/DEV090_CREATOR_ENQUEUE_AND_PP_PROVENANCE_STATUS.json",
+    "report_sha256": "bb5b12e0ecc4d9defc256b4928c4e4ad787ae4c6ef9cbbcad49b720cd51dc055",
+    "rollback": "Listener/collector-only future rollback; retain jobs,intents,compact receipts. No schema or operational queue rewind; raw remains off. Plans recorded, full restoration gate remains blocked.",
+    "tooling_identity": "a0a2caf1945c0bb90c22a4ea7f2cc743e7003edd63fd60fb347f355f371c8340",
+    "updated_utc": "2026-10-19T08:50:48.540221+00:00"
+  },
   "dev090_dev002_release_storage_precondition": {
     "canonical_writes": 0,
     "cleanup": false,
@@ -13620,6 +13769,7 @@
     },
     "engineering_revision": "ef70c8718d030a0d96e6b71aa17cedb75c379ae5",
     "evidence_sha256": "3da4ed92e9fc4fd28597838de48b863bf3530b39f3821188c21aff4d51c24e0e",
+    "implementation_followup": "dev090_creator_enqueue_pp_provenance_qualification",
     "per_token_first_missing_transition": [
       {
         "anchor_lookup_count": 417,
@@ -26441,10 +26591,10 @@
   },
   "project": {
     "branch": "codex/dev090",
-    "git_head": "ef70c8718d030a0d96e6b71aa17cedb75c379ae5",
+    "git_head": "e3002467ce44a66487c9842a8dd79f51358fc593",
     "name": "flex",
-    "updated_at_utc": "2026-10-19T07:49:41.050747+00:00",
-    "working_tree": "DEV090 deployed sources unchanged. Read-only original21 audit proves12 missing direct creator-resolution enqueues; no implementation/restart. Golden baseline not ready."
+    "updated_at_utc": "2026-10-19T08:50:48.540221+00:00",
+    "working_tree": "Clean isolated DEV090 P1/P2 code committed; functional regressions PASS; release HOLD at20-run evidence budget. Operational source remains deployedef70, unchanged. No new candidate/deployment."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

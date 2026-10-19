@@ -110,3 +110,11 @@ def test_actual_listener_migration_transaction_and_restart(f,monkeypatch,crash):
 
 def test_existing_valid_ops_anchor_not_reacquired_after_restart(f):
  f.token(C,S);assert f.run(ops_row=('pending',f.start+10,C,S,'VALID'))=='QUALIFIED_OPS_ANCHOR';assert not f.jobs()
+
+
+def test_trade_metadata_cannot_replace_original_birth_authority(f):
+ tree=ast.parse((ROOT/'src/core/pumpfun_curve_listener.py').read_text());method=next(n for n in ast.walk(tree) if isinstance(n,ast.AsyncFunctionDef) and n.name=='listen_pumpportal_websocket')
+ trade=next(n.value for n in ast.walk(method) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Subscript) and ast.unparse(t.value)=='self._portal_vsol' for t in n.targets) and isinstance(n.value,ast.Dict))
+ row=eval(compile(ast.Expression(trade),'fixture','eval'),{'existing':{'creator':C,'birth_creator':None,'birth_signature':S},'data':{'traderPublicKey':C},'v_sol':0,'mc_sol':0,'time':time})
+ assert row['birth_creator'] is None and row['birth_signature']==S
+ f.token(C,S);assert f.run(accepted_birth=(row['birth_creator'],row['birth_signature']))=='ENQUEUED'

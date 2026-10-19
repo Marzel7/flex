@@ -2806,7 +2806,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             with managed_db_connect(_listener_ops_db_path(), timeout=5, read_only=True) as ops:
                 prior_ops = ops.execute("SELECT status,enqueued_at,creator,create_anchor_signature,create_anchor_audit_state FROM wt_walkback_queue WHERE mint=?", (mint,)).fetchone()
             portal = self._portal_vsol.get(mint) or {}
-            accepted_birth = (portal.get("creator"), portal.get("birth_signature"))
+            accepted_birth = (portal.get("birth_creator"), portal.get("birth_signature"))
             with managed_db_connect(DB_PATH, timeout=30, priority=PRIORITY_P0_CRITICAL_INGESTION) as conn:
                 cursor = conn.cursor()
                 cursor.execute(
@@ -11110,6 +11110,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 "name": name or "",
                 "creator": creator or "",
                 "birth_signature": signature,
+                "birth_creator": creator,
                 "ts": int(time.time()),
             }
 
@@ -11309,6 +11310,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 "symbol": existing.get("symbol", ""),
                                 "name": existing.get("name", ""),
                                 "creator": existing.get("creator", "") or data.get("traderPublicKey", ""),
+                                "birth_creator": existing.get("birth_creator"),
+                                "birth_signature": existing.get("birth_signature"),
                                 "ts": int(time.time()),
                             }
                             # If not yet tracking this token but it's near migration, subscribe

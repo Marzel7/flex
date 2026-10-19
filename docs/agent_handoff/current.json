@@ -34879,5 +34879,67 @@
     },
     "provenance_state": "The full 4096-file store cannot persist new compact receipts; prior log evidence shows Core birth persistence and downstream processing continue while compact provenance is unavailable. No natural COMMITTED receipt could be observed after this no-move decision.",
     "next_action": "Obtain explicit authorization for a separately reviewed retention/archive policy that can identify at least 512 independently safe receipts, or provision approved additional receipt-store headroom; then execute a new bounded reversible operation."
+  },
+  "dev090_birth_migration_retention": {
+    "verdict": "HOLD_RETENTION_WINDOW_NOT_QUALIFIED",
+    "updated_at_utc": "2026-10-19T21:10:11Z",
+    "engineering_source_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only retained-evidence analysis; no executable, database, service, configuration, receipt, or provider action occurred.",
+    "observation": {
+      "compact_receipt_window_utc": "2026-10-19T10:34:21.719507Z through 2026-10-19T19:12:42.634053Z",
+      "receipt_birth_rows": 3950,
+      "distinct_birth_mints": 3917,
+      "qualified_pumpportal_birth_migration_pairs": 35,
+      "right_censored_unmigrated_distinct_mints": 3840,
+      "migration_before_local_receipt_distinct_mints": 42,
+      "on_chain_create_timestamp_pairs": 0,
+      "canonical_migration_30_day_count": 33126,
+      "core_numeric_created_at_proxy_pairs": 159,
+      "core_created_at_text_or_after_migration": 32967
+    },
+    "timing": {
+      "pumpportal_receipt_pair_seconds": {
+        "mean": 673.522,
+        "median": 126.861,
+        "p75": 423.014,
+        "p90": 948.206,
+        "p95": 2166.382,
+        "p99": 12589.777,
+        "min": 0.044,
+        "max": 12589.777
+      },
+      "limitation": "Receipt-local timing covers only the current 10.4-hour retained window. No retained independently verified on-chain CREATE timestamp joined to a 30-day migration exists, so no multi-day PumpPortal or on-chain distribution is qualified."
+    },
+    "retention_capacity": {
+      "observed_birth_rate_per_hour": 457.221,
+      "active_file_cap": 4096,
+      "cap_duration_hours": 8.958,
+      "seven_day_expected_receipts": 76813,
+      "seven_day_expected_bytes": 42668819,
+      "conclusion": "The ceiling is a file-count constraint rather than a disk-space constraint and cannot support any evidence-justified multi-day active window."
+    },
+    "rpc_and_handoff": {
+      "creator_resolution_complete": 19711,
+      "creator_resolution_budget_exceeded": 3947,
+      "overall_complete_share_of_complete_or_budget_exceeded": 83.32,
+      "migration_direct_complete": 47,
+      "migration_direct_budget_exceeded": 93,
+      "migration_direct_complete_share_of_complete_or_budget_exceeded": 33.57,
+      "durable_handoff_complete": 43708,
+      "durable_handoff_terminal": 307,
+      "late_create_specific_handoff_rate": "UNKNOWN: durable handoff rows have no retained late-CREATE discriminator."
+    },
+    "recommendation": "Do not retire compact receipts by age under the current evidence. Qualify a two-tier policy only after retaining a longer, independently timestamped cohort: keep active/recent and all protected dependencies in the active store, retain terminal canonical evidence reversibly outside it, and use RPC only as recovery. Separate authorization is required for capacity and any archive operation.",
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "source_changes": 0,
+      "production_changes": 0,
+      "receipt_moves_or_deletes": 0,
+      "restarts": 0,
+      "historical_replay": 0
+    },
+    "next_action": "Approve a bounded retention-evidence collection and capacity policy before any receipt retirement; do not infer a safe multi-day window from the present ten-hour receipt cohort."
   }
 }

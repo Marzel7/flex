@@ -27348,10 +27348,10 @@
   },
   "project": {
     "branch": "codex/dev090",
-    "git_head": "1ffe47c87203f0bb32065546fdea75dc87c0de11",
+    "git_head": "38ddf8b4f4a6e650c075f918e5238ddf5ed47fff",
     "name": "flex",
-    "updated_at_utc": "2026-10-19T16:51:05.131044+00:00",
-    "working_tree": "DEV090 analytics dependency audit complete;no supported configuration-only disablement;all application/runtime/candidate state preserved."
+    "updated_at_utc": "2026-10-19T17:10:08.237532+00:00",
+    "working_tree": "DEV090 fingerprint-only bypass fully offline qualified;immutable38ddf8b4candidate restored;no deployment or operational restart."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -34428,5 +34428,39 @@
     "production_changes": 0,
     "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/enhanced-create-validation/secondary-analytics-dependency-audit/report.json",
     "report_sha256": "05c49cea05335e41c66a53bc3d0895298c295186d828c3aa8183b016d79869b7"
+  },
+  "dev090_fingerprint_monitoring_bypass": {
+    "engineering_source_revision": "38ddf8b4f4a6e650c075f918e5238ddf5ed47fff",
+    "parent_source_revision": "1ffe47c87203f0bb32065546fdea75dc87c0de11",
+    "milestone_verdict": "PASS_OFFLINE_QUALIFIED_NOT_DEPLOYED",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "change": "Two-line earlyreturn in _observe_fingerprint_drift only;candidate scoring andmonitor code/UI/data preserved",
+    "tests": {
+      "python_each": 390,
+      "crash_each": 7,
+      "tooling": 56,
+      "browser_each": 10,
+      "initial_run": "8e056dd831e5",
+      "clean_run": "7760bf539bb0",
+      "source_dependency_closure": "PASS",
+      "guard_denials": 0
+    },
+    "candidate": {
+      "candidate": "/Users/kevinkeaveney/Dev/claude/flex-releases/candidates/DEV090_CANDIDATE_38ddf8b4f4a6",
+      "deployment_authorized": false,
+      "manifest_sha256": "ead7738b4f1e14037ffc2b77d94260e522942de78449f20a6eeb19dd1c20b2c1",
+      "source_sha": "38ddf8b4f4a6e650c075f918e5238ddf5ed47fff",
+      "status": "PASS",
+      "tag": "DEV090_CANDIDATE_38ddf8b4f4a6"
+    },
+    "archive_restoration": "PASS5618files153986498bytes",
+    "known_limitation": "Walkback-originated fingerprint health/drift evidence,uniqueness/trend snapshots and clusters stop refreshing. Existing rows,monitor code and UI/API endpoints retained. Views may be stale;no freshness improvement or UI change claimed.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "next_action": "NONE for offlinequalification. Separate authorization andfresh targetedruntimepreflight required before installation;do not deploy automatically.",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/fingerprint-bypass-qualification/FINAL_RELEASE_STATUS.json",
+    "report_sha256": "00c4df716a44a19f9dcb215bb18f229a92dc602b66e154f200331793241289ec"
   }
 }

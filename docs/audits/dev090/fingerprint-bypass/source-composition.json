@@ -1,0 +1,18 @@
+{
+  "parent_source": "1ffe47c87203f0bb32065546fdea75dc87c0de11",
+  "frozen_parent": "0eb749ecd6acd0ab70ec6d09b9170c583d82374b",
+  "change": "Only two inserted lines at start of _observe_fingerprint_drift: explanatory staleness comment and return. Both existing callers stay intact;monitor implementation/UI/data retained.",
+  "runtime_file": {
+    "path": "src/core/walkback_worker.py",
+    "preimage_sha256": "bca037dfd7194f304493cac051ec894916ef3eac2d897871570dafbdaa56023d",
+    "candidate_sha256": "aeae403fdfb802bfe5da4f5416d09af8209d2e7fc19dcf7dcddcc6e96d266df6"
+  },
+  "reversal": "Remove exact BYPASS lines pinned by tests;full source reproduces prior installed hash. No schema or state rollback.",
+  "primary_equivalence": "390 applicable guarded tests PASS;enabled/bypassed actual _mark_complete controls compare terminal queue rows,attribution rows and downstream call order for3outcomes;existing funding/provider/retry/deep/admission/handoff controls unchanged.",
+  "source_contracts": "Original exact-source assertions retained and executed against hash-proven reversed preimage via tests/test_dev090_fingerprint_contract.py,following established DEV090 mechanism.",
+  "stale_views": "Walkback-originated fingerprint drift evidence,uniqueness/trend health snapshots and drift clusters stop refreshing. Existing records/endpoints remain;no claim of freshness.",
+  "performance": "Removes104.230682s of six retained global counts for the observed first completed job,not a universal latency guarantee. Candidate-scoring50.484543s and existing Health aggregate costs remain.",
+  "storage": "Runtime bypass produces no new files or growth;raw retention unchanged;test fixtures8MiB,command logs bounded1MiB;no new unbounded runtime growth paths.",
+  "deployment_authorized": false,
+  "candidate_frozen": false
+}

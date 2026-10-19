@@ -805,6 +805,8 @@ def _promote_if_canonical_watchtower(ops: sqlite3.Connection, mint: str,
 
 def _observe_fingerprint_drift(ops: sqlite3.Connection, mint: str) -> None:
     """Secondary monitoring only; it cannot affect a completed walkback."""
+    # DEV090 temporary bypass: fingerprint health/drift views may become stale.
+    return
     try:
         from src.ops.operation_fingerprint_drift import observe_completed_walkback
         result = observe_completed_walkback(ops, mint)

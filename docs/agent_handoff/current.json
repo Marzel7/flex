@@ -34624,7 +34624,7 @@
     "updated_at_utc": "2026-10-19T17:36:35.102935+00:00"
   },
   "dev090_deployed_pumpportal_birth_provenance": {
-    "milestone_verdict": "PARTIAL_PROVENANCE_ACTIVE_CURRENT_STORAGE_GUARD_BLOCKED",
+    "milestone_verdict": "PASS_RECEIPT_PERSISTENCE_RESUMED",
     "engineering_source_revision": "38ddf8b4f4a6e650c075f918e5238ddf5ed47fff",
     "runtime_deployment_required": false,
     "runtime_authority": {
@@ -34695,11 +34695,38 @@
     },
     "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/fingerprint-bypass-qualification/deployment/attempt-55beb2ea3d26/deployed-birth-provenance/report.json",
     "report_sha256": "ee23751f680497ac4083aec11c8b271458b9d67e647ae005cd74a7e963dbe506",
-    "next_action": "Stop at read-only finding. Obtain separate authorization to restore safe disk headroom; do not clean, change configuration or restart under this audit.",
+    "next_action": "NONE \u2014 disk floor restored and new COMMITTED receipts observed; original two birth deliveries remain UNPROVEN. No restart, source change or manual replay.",
     "provider_calls": 0,
     "canonical_writes": 0,
     "source_changes": 0,
     "production_changes": 0,
-    "updated_at_utc": "2026-10-19T17:40:47.688068+00:00"
+    "updated_at_utc": "2026-10-19T17:52:32.798751+00:00",
+    "storage_recheck": {
+      "checked_epoch": 1792432339.932404,
+      "disk_free_bytes": 16926699520,
+      "above_2GB_receipt_floor": true,
+      "birth_receipt_files": 1599,
+      "listener": "10722  1131 25:47",
+      "latest_receipts": [
+        {
+          "mint": "FXvqWLP1JC8D8mHuUm2Ro4jKCFMwqxWniL6r7EvmzCh8",
+          "receipt_utc_ns": 1792432336402475000,
+          "accepted_at_utc_ns": 1792432336482379000,
+          "persistence_outcome": "COMMITTED"
+        },
+        {
+          "mint": "2Letux15EhVoh7CsDDkecuYqhqxrgw8jAFMhHfJUpHXa",
+          "receipt_utc_ns": 1792432335516453000,
+          "accepted_at_utc_ns": 1792432335584190000,
+          "persistence_outcome": "COMMITTED"
+        },
+        {
+          "mint": "EYSqEWASTBbbAmchMCyteJLHJYk4NZJfbuwf3s4Bpump",
+          "receipt_utc_ns": 1792432330985618000,
+          "accepted_at_utc_ns": 1792432331060224000,
+          "persistence_outcome": "COMMITTED"
+        }
+      ]
+    }
   }
 }

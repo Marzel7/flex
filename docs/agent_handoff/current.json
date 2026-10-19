@@ -35112,5 +35112,37 @@
     "recovery_verification": "PASS for immutable executable/configuration identity, process ownership, safe runtime flags, database binding/schema fingerprints, and remote-handoff source evidence. NOT a database-content recovery image or full acceptance baseline.",
     "safety": {"provider_calls": 0, "canonical_writes": 0, "source_changes": 0, "configuration_changes": 0, "service_restarts": 0, "historical_replay": 0},
     "next_action": "Keep this provisional snapshot immutable. Separately authorize either a safe compact-receipt capacity remedy or a targeted runtime change; neither is included in this baseline."
+  },
+  "dev090_fingerprint_bypass_runtime_supplement": {
+    "report_type": "SUPPLEMENTAL_EVIDENCE_DOES_NOT_OVERWRITE_FLEX_STABLE_V2_PROVISIONAL_RECOVERY_SNAPSHOT",
+    "updated_at_utc": "2026-10-19T22:22:04Z",
+    "definitive_status": "BYPASS_ACTIVE",
+    "snapshot_correction": "The provisional snapshot statement that the fingerprint-monitoring bypass was QUALIFIED_NOT_DEPLOYED is incorrect for the live Walkback worker. The separately named candidate remains an offline qualification artifact, but the active Walkback worktree contains the qualified bypass overlay.",
+    "running_worker": {
+      "pid": 10716,
+      "started_utc": "2026-10-19T18:26:26Z",
+      "working_directory": "/Users/kevinkeaveney/Production/flex-walkback-dev002",
+      "checkout_commit": "afbe9e58b11eb2e4d616246da123ce31ab45700c",
+      "working_tree_state": "src/core/walkback_worker.py modified relative to checkout commit",
+      "loaded_source_proof": "Timestamp-based CPython bytecode header source timestamp 2026-10-19T17:26:21Z and source size 107651 exactly match the installed source; bytecode mtime 2026-10-19T17:26:26Z coincides with process start."
+    },
+    "function_comparison": {
+      "installed_file_sha256": "aeae403fdfb802bfe5da4f5416d09af8209d2e7fc19dcf7dcddcc6e96d266df6",
+      "function": "_observe_fingerprint_drift",
+      "installed_lines": "806-816",
+      "installed_function_sha256": "2ccd2aa603283bcff9252157780768841281b3d8ece264d4fdffd40cee79d390",
+      "candidate_commit": "38ddf8b4f4a6e650c075f918e5238ddf5ed47fff",
+      "candidate_function_sha256": "2ccd2aa603283bcff9252157780768841281b3d8ece264d4fdffd40cee79d390",
+      "matching_qualified_behavior": "Function returns immediately before importing or calling operation_fingerprint_drift.observe_completed_walkback."
+    },
+    "retained_deployment_evidence": {
+      "deployment_report": "DEV090/fingerprint-bypass-qualification/deployment/attempt-55beb2ea3d26/FINAL_DEPLOYMENT_REPORT.json",
+      "fingerprint_global_count_calls": 0,
+      "two_hour_checkpoints": "Retained checkpoints record fingerprint_count_calls=0.",
+      "release_report_sha256": "00c4df716a44a19f9dcb215bb18f229a92dc602b66e154f200331793241289ec"
+    },
+    "interpretation": "Overall checkout hashes differ because afbe9e5 contains other Walkback changes and the active worktree has an overlay. The function-level identity plus matching pre-start bytecode proves the bypass is active; do not infer bypass absence from the checkout commit alone.",
+    "safety": {"provider_calls": 0, "canonical_writes": 0, "source_changes": 0, "service_restarts": 0, "deployment_actions": 0, "historical_replay": 0},
+    "next_action": "Treat this supplemental record as the authoritative runtime correction while preserving the provisional snapshot unchanged. Any future restoration must preserve the listed function overlay or explicitly requalify an alternative."
   }
 }

@@ -13091,6 +13091,28 @@
     "safety": "provider calls=0; canonical writes=0; Production changes=0; service starts=0; no schema/config/install/queue changes",
     "status": "HOLD_PROSPECTIVE_ONLY_EXECUTION_GATE"
   },
+  "dev090_create_version_distribution": {
+    "blocker": "Missing independently decoded original creation instructions for recent migration population; no qualified additional recent paired controls.",
+    "canonical_writes": 0,
+    "create_v2_count": 0,
+    "engineering_source_revision": "e3002467ce44a66487c9842a8dd79f51358fc593",
+    "finding": "Complete indexed canonical migration population enumerated; inspected retained decoded corpus has no cohort identity match. All variants remain unknown, not evidence either instruction is absent. One existing CREATE_V2 paired control shows curve benefit; consistency cannot be inferred.",
+    "known_only_create_v2_percent": null,
+    "legacy_create_count": 0,
+    "local_report_sha256": "a2854e19b69d03205c721baee81944d4a3bcbacc4b9134858aa4f3cd4c22607f",
+    "milestone_verdict": "POPULATION_ENUMERATED_VARIANT_EVIDENCE_INSUFFICIENT",
+    "next_action": "Qualify compact instruction-level variant evidence for a fixed recent cohort before requesting any separate exact-address paired-history acquisition. Preserve legacy/mint coverage; do not justify target change from unknown distribution.",
+    "production_activation": "No services or configuration changed",
+    "production_changes": 0,
+    "provider_calls": 0,
+    "runtime_deployment_required": false,
+    "source_changes": 0,
+    "tests": "Fixed half-open24h window, indexed streaming enumeration, retained decoded identity matching, reuse of existing paired results only.",
+    "total_migrated": 466,
+    "unknown_count": 466,
+    "window_end_utc": "2026-10-19T12:36:11+00:00",
+    "window_start_utc": "2026-10-18T12:36:11+00:00"
+  },
   "dev090_creator_budget_exhaustion_audit": {
     "blocker": "Insufficient candidate-level evidence to qualify a recovery correction for the three unresolved tokens",
     "canonical_writes": 0,

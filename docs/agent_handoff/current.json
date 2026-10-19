@@ -13371,6 +13371,7 @@
     "candidate": "DEV090_CANDIDATE_ef70c8718d03",
     "candidate_release_sha256": "3071cefd184dba481eb89b7e5f57f5e8306d950c47cd90bd1cb6fbdaa55ffe97",
     "engineering_revision": "ef70c8718d030a0d96e6b71aa17cedb75c379ae5",
+    "followup_diagnosis": "dev090_live_create_anchor_gap_audit",
     "installed_listener_hashes": {
       "run_listener.sh": "2408a74c69d6ada6e74073abc10a3768dbc865aabed9dd57921a1a19a1faebc3",
       "src/core/pumpfun_curve_listener.py": "5e173f0a44b3a32997cad632e7a1b5304f7dcd12ee60ca23cfd1d0ec048a1e4e",
@@ -13508,6 +13509,208 @@
     "storage": "8MiB fixture/file and256MB archive caps;no new unbounded runtime growth/raw-retention path;11.67GB available at closure;no cleanup.",
     "superseded_candidate": "Exploratory6db4cca4 candidate retained as evidence only; redundant Python guard removed from final source; do not deploy it.",
     "updated_utc": "2026-10-18T22:09:40.528550+00:00"
+  },
+  "dev090_live_create_anchor_gap_audit": {
+    "CANONICAL_WRITES": 0,
+    "CREATOR_RESOLUTION_COMPLETED": 0,
+    "CREATOR_RESOLUTION_ENQUEUED": 0,
+    "CREATOR_RESOLUTION_EXECUTED": 0,
+    "DEV090_CREATE_ANCHOR_GAP_STATUS": "AUDIT_COMPLETE_ENQUEUE_GAP_PROVEN_NO_IMPLEMENTATION",
+    "DEV090_HANDOFF_HEALTH": {
+      "current_control": {
+        "ack_count": 0,
+        "activated_at": 1792357618,
+        "admitted": 0,
+        "birth_retry_admitted": 0,
+        "core_base": 35652194304,
+        "enabled": 1,
+        "epoch": "DEV090-20261018T210658Z-c6049916",
+        "id": 1,
+        "ops_base": 16194387968,
+        "pending_count": 0
+      },
+      "live_end_to_end_qualification": "UNPROVEN; absence of a qualified producer event is not a demonstrated dispatcher failure",
+      "pending_intent_states": [],
+      "waiting12": "NOT_REACHED; no independently qualified Core CREATE evidence, no intent, no pending delivery/conflict/ACK rejection"
+    },
+    "DISK_HEADROOM": {
+      "available_bytes": 11387387904,
+      "qualified_floor_bytes": 2500000000
+    },
+    "DURABLE_INTENT_COMMITTED": 0,
+    "FIRST_PROVEN_SYSTEMIC_FAILURE": "No unconditional prospective creator-resolution enqueue on the exercised migration path. Disabling population discovery removes the catch-up path, while inline backfill is off. All12 remain absent from creator_resolution_queue.",
+    "FULL_WALKBACK_COMPLETIONS": 8,
+    "HEALTH_STATUS_VARIATION": {
+      "final_walkback_status": "HEALTHY",
+      "initial_walkback_status": "UNHEALTHY",
+      "intermediate_reason": "pending work exists but completed_per_minute is zero",
+      "intermediate_snapshot_epoch": 1792395995.207335,
+      "note": "Status variation retained; no service intervention, no unrelated Health investigation.",
+      "write_failures_last_hour": 0
+    },
+    "LINK_ONLY_COMPLETIONS": 1,
+    "MINIMUM_CORRECTION_IF_REQUIRED": "Separately authorize a narrowly scoped exact-mint enqueue_missing_creator after successful prospective migration persistence, using the qualified queue/shared-writer contract and existing schema. Preserve terminal retirement, idempotency, retries, budgets and CRQ_HISTORICAL_DISCOVERY_ENABLED=0. Do not enable population scans or replay these retained jobs in this audit.",
+    "NEXT_ACTION": "Authorize and qualify that direct prospective migration-to-creator-resolution handoff; separately retain sufficient compact source-bound birth receipt metadata for strict coverage. Do not redesign durable CREATE delivery or enable historical discovery.",
+    "ORIGINAL_WINDOW_END_UTC": "2026-10-18T23:31:00+00:00",
+    "ORIGINAL_WINDOW_START_UTC": "2026-10-18T23:01:00+00:00",
+    "PP_BIRTH_PROVENANCE_UNKNOWN": {
+      "D_no_attributable_birth_acknowledgement": 12,
+      "full_original_signature_provenance_unresolved": 21,
+      "non_delivery_claim": false
+    },
+    "PP_BIRTH_QUALIFIED_AT_MIGRATION": {
+      "A_independently_proven": 0,
+      "B_incomplete_retained_birth_acknowledgements": 9,
+      "actual_population_total": "UNPROVEN",
+      "birth_ack_before_migration_event": 8,
+      "qualification_note": "0 proven is an evidence count, not a claim that none were qualified. The eight successful full controls have valid OPS anchors and explicit PumpPortal birth acknowledgements."
+    },
+    "PP_BIRTH_RECEIPT_RETAINED": {
+      "compact_retry_receipts_for_cohort": 0,
+      "complete_original_receipts_independently_located": 0,
+      "explanation": "Existing explicit PumpPortal birth-success logs name mint prefix and creator prefix; current Core contains full fields. These support source-correlated intake but do not independently bind every original full signature/creator field. No raw store traversal permitted/performed.",
+      "incomplete_source_attributable_birth_acknowledgements": 9
+    },
+    "PRODUCTION_CHANGES": 0,
+    "PROVIDER_CALLS": 0,
+    "READY_FOR_GOLDEN_BASELINE": false,
+    "RPC_CREATE_RECOVERED": {
+      "C_verified_for_cohort": 0,
+      "basis": "No creator-resolution job, resolved result, strict RPC completion proof or recorded anchor recovery for these21; migration/funding RPC traffic is not CREATE recovery."
+    },
+    "RUNTIME_DEPLOYMENT_REASON": "Read-only exact-cohort operational audit; no executable change.",
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "SECONDARY_ANCHOR_RECONCILER_FINDING": {
+      "interpretation": "Restart-persistent opportunity imbalance is visible; secondary to proven absent creator-resolution job. No scheduler investigation/change in this audit.",
+      "oldest_cohort_mint": "2m8cdZsrsdSrWHB9kxKRQ5qGua9i47ha3WWecEefpump",
+      "oldest_lookup_count": 417,
+      "other11_lookup_counts": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "TOTAL_UNIQUE_MIGRATIONS": 21,
+    "WAITING_CREATE_ANCHORS": 12,
+    "current_pids": {
+      "creator_resolution_worker": "12455",
+      "walkback_worker": "74410",
+      "watchtower_listener": "84914"
+    },
+    "effective_safe_flags": {
+      "creator_resolution_worker": {
+        "CRQ_HISTORICAL_DISCOVERY_ENABLED": "0"
+      },
+      "walkback_worker": {},
+      "watchtower_listener": {
+        "CREATOR_BACKFILL_ENABLED": "0",
+        "HANDOFF_DURABILITY_T0": "1792357618",
+        "LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED": "0",
+        "LISTENER_MIGRATION_RECONCILER_ENABLED": "0",
+        "PUMPPORTAL_CANONICAL_BIRTH_RETENTION_ENABLED": "0"
+      }
+    },
+    "engineering_revision": "ef70c8718d030a0d96e6b71aa17cedb75c379ae5",
+    "evidence_sha256": "3da4ed92e9fc4fd28597838de48b863bf3530b39f3821188c21aff4d51c24e0e",
+    "per_token_first_missing_transition": [
+      {
+        "anchor_lookup_count": 417,
+        "creator_queue_row_present": false,
+        "mint": "2m8cdZsrsdSrWHB9kxKRQ5qGua9i47ha3WWecEefpump",
+        "primary": "CREATOR_RESOLUTION_NOT_ENQUEUED"
+      },
+      {
+        "anchor_lookup_count": 0,
+        "creator_queue_row_present": false,
+        "mint": "FiHUA8XhdxW99nZZFjnLo2VyV6LJ5V6XgWtuaW7dpump",
+        "primary": "CREATOR_RESOLUTION_NOT_ENQUEUED"
+      },
+      {
+        "anchor_lookup_count": 0,
+        "creator_queue_row_present": false,
+        "mint": "FigxCgf9tB4AUdBNhnvrnKuzshk4GZtiB3ezXgtzpump",
+        "primary": "CREATOR_RESOLUTION_NOT_ENQUEUED"
+      },
+      {
+        "anchor_lookup_count": 0,
+        "creator_queue_row_present": false,
+        "mint": "EFrSFEvTTwWFFyW1StJqZYss9ASBB7ByzCTZcFzipump",
+        "primary": "CREATOR_RESOLUTION_NOT_ENQUEUED"
+      },
+      {
+        "anchor_lookup_count": 0,
+        "creator_queue_row_present": false,
+        "mint": "26iZpLxcZcAznrmWeo7QyHsC4h28cPvmQgJsTP6mpump",
+        "primary": "CREATOR_RESOLUTION_NOT_ENQUEUED"
+      },
+      {
+        "anchor_lookup_count": 0,
+        "creator_queue_row_present": false,
+        "mint": "3ipi9AnSqpwQ7PVGELivWrt5CNe3TArXmCPi6iwbpump",
+        "primary": "CREATOR_RESOLUTION_NOT_ENQUEUED"
+      },
+      {
+        "anchor_lookup_count": 0,
+        "creator_queue_row_present": false,
+        "mint": "CT2KvYJmhUSC3i5TsyBpAM4roEBxA7Gdn25uWhc8pump",
+        "primary": "CREATOR_RESOLUTION_NOT_ENQUEUED"
+      },
+      {
+        "anchor_lookup_count": 0,
+        "creator_queue_row_present": false,
+        "mint": "Hzon2GTgPq9cEjkrjfG2TU7WAeQURAu74vzaG7Uupump",
+        "primary": "CREATOR_RESOLUTION_NOT_ENQUEUED"
+      },
+      {
+        "anchor_lookup_count": 0,
+        "creator_queue_row_present": false,
+        "mint": "HRB3fYQgFLURdVh9vAA3KFT8gyk841u8nmgUzbDCpump",
+        "primary": "CREATOR_RESOLUTION_NOT_ENQUEUED"
+      },
+      {
+        "anchor_lookup_count": 0,
+        "creator_queue_row_present": false,
+        "mint": "MLEi83RfmPgzhsnzD35hPzBdTtJ2N7kgmwkja2gpump",
+        "primary": "CREATOR_RESOLUTION_NOT_ENQUEUED"
+      },
+      {
+        "anchor_lookup_count": 0,
+        "creator_queue_row_present": false,
+        "mint": "5PiiAkuNhsNTqcZHyhuEp2DP8cjWp6E6ju6cNYXxpump",
+        "primary": "CREATOR_RESOLUTION_NOT_ENQUEUED"
+      },
+      {
+        "anchor_lookup_count": 0,
+        "creator_queue_row_present": false,
+        "mint": "44ybDhwHd69UC1z3VygBuYyTf2bnNcZ1wQZWJu4wpump",
+        "primary": "CREATOR_RESOLUTION_NOT_ENQUEUED"
+      }
+    ],
+    "primary_transition_counts": {
+      "CREATOR_RESOLUTION_NOT_ENQUEUED": 12
+    },
+    "query_plan_evidence": "Six exact-mint authorities use existing indexes; durable query uses(epoch,mint) unique index. No provider/raw-store/history scan.",
+    "report": "DEV090/live-create-anchor-gap-audit/DEV090_CREATE_ANCHOR_GAP_STATUS.json",
+    "report_sha256": "4d00109245b18766195c2f5a5eddae2905386823b9ccbf23d5879248777e847e",
+    "retired_jobs_verified_skipped": 15019,
+    "source_and_service_changes": 0,
+    "source_sha256": {
+      "creator_queue": "2226407ba6ba81d95b9ef23a23f2fd20343dbb0b12733c6738f5a8eb2ccd6b95",
+      "creator_worker": "797350867ea10fdbef03933de033241ccd18bb0d137812aacac0e328ffa5fefb",
+      "handoff": "00543c3a7d1ac2d8630af687809f0379f89bcf594934d7d9e6471980f78f0363",
+      "listener": "5e173f0a44b3a32997cad632e7a1b5304f7dcd12ee60ca23cfd1d0ec048a1e4e",
+      "listener_creator_queue": "0b364cf1e5becfa020c866c1f063ed8d8e5a632a2d0c28b165b2411ad1a9d071",
+      "walkback_worker": "bca037dfd7194f304493cac051ec894916ef3eac2d897871570dafbdaa56023d"
+    },
+    "updated_utc": "2026-10-19T07:49:41.050747+00:00"
   },
   "dev090_prospective_selection_qualification": {
     "engineering_revision": "2d40af06c320d1a4688d65c9d195214ec69f5378",
@@ -26240,8 +26443,8 @@
     "branch": "codex/dev090",
     "git_head": "ef70c8718d030a0d96e6b71aa17cedb75c379ae5",
     "name": "flex",
-    "updated_at_utc": "2026-10-18T23:31:38.769221+00:00",
-    "working_tree": "DEV090 exact listener candidate installed and running; original creator/Walkback PIDs and sources preserved; live acceptance PARTIAL, no golden baseline"
+    "updated_at_utc": "2026-10-19T07:49:41.050747+00:00",
+    "working_tree": "DEV090 deployed sources unchanged. Read-only original21 audit proves12 missing direct creator-resolution enqueues; no implementation/restart. Golden baseline not ready."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

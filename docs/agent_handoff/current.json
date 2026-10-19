@@ -13952,6 +13952,102 @@
     },
     "updated_utc": "2026-10-19T07:49:41.050747+00:00"
   },
+  "dev090_p1_p2_controlled_deployment": {
+    "CANDIDATE_VERIFICATION": {
+      "browser_contracts_per_run": 10,
+      "candidate": "DEV090_CANDIDATE_e3002467ce44",
+      "clean_checkout_and_archive_restoration": "PASS",
+      "crash_cases": 7,
+      "manifest_sha256": "bb210865ec2b2756b3237ef40c06b684b65d38df66c19bdbe1736396423135e7",
+      "python_per_release_run": 361,
+      "source_sha": "e3002467ce44a66487c9842a8dd79f51358fc593",
+      "status": "PASS_UNCHANGED",
+      "tooling_controls": 61
+    },
+    "CANONICAL_WRITES": {
+      "operator_direct": 0,
+      "runtime": "Existing authorized workers/listener continued natural writes; exact write count not independently established.",
+      "schema_changes": 0
+    },
+    "CREATOR_ENQUEUE_COVERAGE": "NOT_MEASURED_NO_QUALIFIED_LIVE_WINDOW",
+    "DATABASE_WRITE_HEALTH": {
+      "bounded_preflight": "PASS indexed exact-mint access; existing schema and activation unchanged",
+      "limitation": "Old undated stderr tracebacks retained; no full database integrity claim.",
+      "new_enospc": 0,
+      "new_write_timeouts": 0,
+      "wal_bytes": {
+        "flex_complete_database.db": 0,
+        "wt_ops_v2.db": 721032
+      }
+    },
+    "DEV090_P1_P2_DEPLOYMENT_STATUS": "HOLD_CONTROL_ACK_TIMEOUT_ROLLBACK_COMPLETE",
+    "DISK_HEADROOM_BEFORE_AFTER": {
+      "after_bytes": 7158226944,
+      "before_bytes": 7208570880,
+      "peak_install_rollback_allowance_bytes": 69158941,
+      "required_floor_bytes": 2500000000
+    },
+    "ELIGIBLE_FULL_WALKBACK_COMPLETION_PERCENT": null,
+    "EXACT_BLOCKER": {
+      "cause": "exec of read-only preflight helper replaced the install controller helper with its10secondtimeout. The installer intended30seconds. This allowed no Supervisor startup acknowledgment margin.",
+      "code": "DEPLOYMENT_CONTROLLER_TIMEOUT_EQUALS_STARTSECS",
+      "controller_timeout_seconds": 10,
+      "new_application_defect_established": false,
+      "rollback_control_timeout_seconds": 30,
+      "rollback_start_ack_seconds": 11.24066686630249,
+      "supervisor_startsecs": 10
+    },
+    "HISTORICAL_DISCOVERY_DISABLED": {
+      "queue_policy": "No historical replay,deletion,requeue or exact15019count gate; underlying canonical evidence unchanged by operator.",
+      "status": "VERIFIED0 in restoredlistener and existingcreator config"
+    },
+    "INSTALLED_SOURCE_HASHES": {
+      "run_listener.sh": "2408a74c69d6ada6e74073abc10a3768dbc865aabed9dd57921a1a19a1faebc3",
+      "src/core/pumpfun_curve_listener.py": "5e173f0a44b3a32997cad632e7a1b5304f7dcd12ee60ca23cfd1d0ec048a1e4e",
+      "src/core/pumpportal_birth_audit.py": "d6c96e15121684ea74cd39bd73ef65e2c2ebe5b2e9b21af1ce5f7a4c7b49b9be"
+    },
+    "LATE_CREATE_HANDOFF_SUCCESS": "NOT_QUALIFIED_IN_CANDIDATE_WINDOW",
+    "LIVE_ACCEPTANCE": "NOT_COMPLETED;30minute candidate observation neverbegan. No fabricated denominator/percentages.",
+    "NEXT_ACTION": "Authorize one further controlled candidate deployment attempt using an isolated30second Supervisor control helper (existingstartsecs10 unchanged), followed by the required30minute prospective acceptance. Preserve candidate and redo current safety preflight. Do not change application or release assertions.",
+    "PROCESSING_LATENCY": "NOT_MEASURED",
+    "PRODUCTION_CHANGES": {
+      "final_candidate_files_active": 0,
+      "listener_service_transitions": "candidate attempt then rollback;creator/Walkback untouched",
+      "prior_listener_restored": true,
+      "temporary_candidate_files_installed": 3
+    },
+    "PROVIDER_CALLS": {
+      "listener_log_observed_request_events_during_attempt_and_rollback": 5,
+      "note": "Natural authorized runtime activity; log event count is not a complete provider billing ledger. Existing budgets unchanged; no additional diagnostic acquisition.",
+      "operator_initiated_rpc_reads": 0
+    },
+    "PUMPPORTAL_BIRTH_RECEIPTS": "No compact receipt directory/events established during short candidate startup; P2 not active after rollback. No PP-delivery absence inference.",
+    "QUALIFIED_PP_BIRTH_COVERAGE_PERCENT": null,
+    "READY_FOR_GOLDEN_BASELINE": false,
+    "ROLLBACK_STATUS": {
+      "configuration_changed": false,
+      "queue_rewinds": 0,
+      "raw_retention_disabled": true,
+      "schema_changes": 0,
+      "source_hashes_restored": true,
+      "status": "PASS_PREVIOUS_LISTENER_RUNNING",
+      "worker_pids_preserved": true
+    },
+    "RPC_CREATE_RECOVERY": "NOT_QUALIFIED_IN_CANDIDATE_WINDOW",
+    "RUNTIME_DEPLOYMENT_GATE": "HOLD;P1/P2 offlinequalification remainsvalid but deployment rolledback",
+    "SERVICE_TRANSITION": {
+      "candidate_attempts": 1,
+      "candidate_start_failure_not_proven": true,
+      "creator_resolution_and_walkback": "RUNNING;original PIDs unchanged;no worker restart",
+      "current_listener_release": "ef70c8718d030a0d96e6b71aa17cedb75c379ae5",
+      "outcome": "Exact candidate3files installed, start acknowledgment exceeded controller10sec, listener stopped and exact prior3files restored. Prior listener restarted successfully as rollback.",
+      "scope": "listener only",
+      "unrelated_services": "all12STOPPED;Cascade remainsSTOPPED"
+    },
+    "WALKBACK_COMPLETION_PERCENT": null,
+    "WALKBACK_EXECUTION": "Existing worker remainedrunning; no P1/P2 end-to-end success claimed.",
+    "updated_utc": "2026-10-19T10:23:17.810224+00:00"
+  },
   "dev090_prospective_selection_qualification": {
     "engineering_revision": "2d40af06c320d1a4688d65c9d195214ec69f5378",
     "evidence": "DEV090/dev002-release-qualification/PROSPECTIVE_SELECTION_QUALIFICATION.json",
@@ -26683,8 +26779,8 @@
     "branch": "codex/dev090",
     "git_head": "e3002467ce44a66487c9842a8dd79f51358fc593",
     "name": "flex",
-    "updated_at_utc": "2026-10-19T10:07:01.523327+00:00",
-    "working_tree": "Clean DEV090 source e3002467; immutable P1/P2 candidate qualified and archive-restored. No deployment; running operational source unchanged."
+    "updated_at_utc": "2026-10-19T10:23:17.810224+00:00",
+    "working_tree": "Clean e3002467 source and immutablecandidate unchanged. One deployment attempt rolledback after controller timeout; prior ef70 listener running, creator and DEV002 Walkback untouched. P1/P2 liveacceptance incomplete."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

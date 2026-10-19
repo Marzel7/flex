@@ -35364,5 +35364,21 @@
     "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "source_changes": 0, "database_changes": 0, "deployment": false},
     "remote_handoff": "NOT_ATTEMPTED: disclosure approval remains unavailable.",
     "next_action": "Obtain the designated formal promotion decision. Do not deploy automatically."
+  },
+  "flex_stable_v2_golden_baseline_promotion": {
+    "status": "PROMOTED_METADATA_ONLY",
+    "promoted_at_utc": "2026-10-19T23:42:19Z",
+    "golden_source_commit": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+    "golden_tag": {"name": "FLEX_STABLE_V2", "annotated_tag_object": "02566f7db0938d2efa53242719fe66541c4d5c98", "peeled_commit": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb", "local_object_verification": "PASS"},
+    "immutable_identity": {"runtime_manifest_sha256": "f0d3d933109f3572023af677729feef4db6e432657c7b7095b5bae05f2821dc7", "source_hash_manifest_sha256": "874a386f36cd99686b5af159f70e38b3052606e51eefd565d0ed427c5cf5891a", "runtime_lock_sha256": "58bd43d469351f1d16a01e82a5fc4e3f07ed95c6dd6d7a5f21b19842c25bb676", "test_lock_sha256": "19c3e93e9c2fbeabcb79cdb9ffd8f7bf902b6ff9107978eaaf18c7d0b17538c9", "source_files": "2049 checked; 0 mismatches"},
+    "qualification_acceptance": {"provider_free_regressions": "162 passed: listener 38, creator-resolution 18, Walkback 106", "process_isolated_handoff": "both formerly deselected durable-handoff contracts PASS", "source_configuration_authority": "one commit plus frozen sanitized runtime manifest; no worktree overlay required"},
+    "rollback_authority": "Checkout golden commit 2d825bbcf27f802bd0bfcef90cedeba43cc968eb (or tag FLEX_STABLE_V2) and use its frozen sanitized manifest. Database-content recovery remains separate.",
+    "preserved": ["previous golden baselines", "FLEX_STABLE_V2 provisional recovery snapshot", "all prior release commits and qualification evidence"],
+    "remaining_limitations": ["Dependency reconstruction remains platform-bound to macOS arm64/Python 3.11.5 and uses verified exact-version-equivalent artifacts rather than historical installer identity.", "Database-content backup/recovery is outside this baseline."],
+    "repository_protection": "Annotated tag created locally and verified to peel only to the golden commit. Remote tag-policy enforcement was not assessed because disclosure-controlled remote publication was not permitted.",
+    "deployment": "NOT_AUTHORIZED; promotion metadata does not alter runtime configuration, services, databases, or application source.",
+    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "source_changes": 0, "database_changes": 0},
+    "remote_handoff": "NOT_ATTEMPTED: disclosure control did not permit remote verification.",
+    "next_action": "NONE for baseline promotion. Use the golden tag only through separately authorized deployment or rollback procedures."
   }
 }

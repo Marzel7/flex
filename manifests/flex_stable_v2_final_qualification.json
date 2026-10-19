@@ -1,0 +1,71 @@
+{
+  "format": "FLEX_STABLE_V2_FINAL_QUALIFICATION_V1",
+  "qualified_from_source_commit": "add62f1f04329876ec977d4e8ac1c8c1a6c71fce",
+  "scope": "offline provider-free qualification; no runtime application source change",
+  "source_package": {
+    "files_checked": 2049,
+    "hash_mismatches": 0,
+    "listener_launcher_mode": "0755",
+    "source_package_unchanged": true
+  },
+  "dependency_lock": {
+    "status": "HOLD_ARTIFACTS_UNAVAILABLE",
+    "python": "3.11.5",
+    "installed_distributions": 251,
+    "verified_conda_metadata_records": 15,
+    "unverified_distribution_artifacts": 236,
+    "evidence": [
+      "conda explicit metadata identified osx-arm64 package coordinates but did not provide a complete artifact-hash lock",
+      "conda-meta retained 15 records with artifact hashes",
+      "no direct_url.json records were retained for the 251 Python distributions",
+      "no reusable conda or pip package artifacts were retained locally"
+    ],
+    "substitutions_or_upgrades": 0
+  },
+  "fixture_contracts": {
+    "rebased_without_application_change": [
+      {
+        "fixture": "test_pumpportal_create_frame_handler.py::test_websocket_loop_delegates_create_frames_to_extracted_handler",
+        "reason": "fixture intentionally bypasses the listener constructor; it now supplies the constructor-established no-op availability collaborator"
+      },
+      {
+        "fixture": "test_b2al_creator_resolution_connection_scope.py::test_empty_queue_processes_with_split_connection_scopes",
+        "reason": "fixture now initializes its empty database before the installed read-only durable-handoff preflight"
+      }
+    ],
+    "historical_fixture_evidence_preserved": true,
+    "cross_service_tests": {
+      "status": "SERVICE_ISOLATION_REQUIRED",
+      "excluded": [
+        "test_actual_rpc_producer_transaction_and_real_worker_execution",
+        "test_producer_pressure_stops_before_claim_or_rpc"
+      ],
+      "reason": "these tests require the live creator-resolution producer and Walkback consumer in one Python src namespace; the recovery package deliberately preserves isolated service-specific module trees"
+    }
+  },
+  "provider_free_regressions": {
+    "listener": "38 passed",
+    "creator_resolution": "18 passed",
+    "walkback": "106 passed, 2 deselected service-isolation tests",
+    "runner_contract": "neutral working directory, --import-mode=importlib, service-specific PYTHONPATH"
+  },
+  "schema_contract": {
+    "core_required_relations_present": true,
+    "ops_required_relations_present": true,
+    "core_journal_mode": "wal",
+    "ops_journal_mode": "wal",
+    "retained_dev090_labels": {
+      "core": 847,
+      "ops": 766
+    },
+    "limitation": "SQLite user_version does not independently encode the retained DEV090 labels"
+  },
+  "runtime_manifest_and_import_isolation": "PASS_SERVICE_SPECIFIC_STATIC_CLOSURE",
+  "clean_source_restoration": "PASS",
+  "clean_dependency_environment_restoration": "HOLD_ARTIFACTS_UNAVAILABLE",
+  "rollback": "SOURCE_AND_SANITIZED_RUNTIME_MANIFEST_READY; dependency-environment restoration remains held",
+  "provider_calls": 0,
+  "canonical_writes": 0,
+  "production_changes": 0,
+  "golden_baseline_ready": false
+}

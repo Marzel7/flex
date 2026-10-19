@@ -57,7 +57,11 @@ def test_priority_check_uses_read_only_scope():
 def test_empty_queue_processes_with_split_connection_scopes(tmp_path):
     from src.core import creator_resolution_queue as queue
 
-    result = queue.process_queue(str(tmp_path / "queue.db"), limit=2)
+    # The current durable-handoff preflight is intentionally read-only and
+    # therefore requires an initialized database before process_queue runs.
+    db_path = str(tmp_path / "queue.db")
+    queue.initialize_schema(db_path)
+    result = queue.process_queue(db_path, limit=2)
 
     assert result == {
         "status": "ok",

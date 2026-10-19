@@ -165,6 +165,16 @@ async def test_websocket_loop_delegates_create_frames_to_extracted_handler(monke
     listener = object.__new__(PumpFunCurveListener)
     listener._pumpportal_connected = False
 
+    # The production constructor now always installs this availability
+    # collaborator before entering the websocket loop.  This focused loop
+    # fixture intentionally bypasses __init__, so provide a no-op stand-in
+    # rather than exercising database-backed availability reporting here.
+    class _Availability:
+        def transition(self, *_args, **_kwargs):
+            return None
+
+    listener._acquisition_availability = _Availability()
+
     async def handle(data, **kwargs):
         delegated.append((data, kwargs))
         raise asyncio.CancelledError

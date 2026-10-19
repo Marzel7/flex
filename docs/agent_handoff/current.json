@@ -27350,8 +27350,8 @@
     "branch": "codex/dev090",
     "git_head": "38ddf8b4f4a6e650c075f918e5238ddf5ed47fff",
     "name": "flex",
-    "updated_at_utc": "2026-10-19T17:10:08.237532+00:00",
-    "working_tree": "DEV090 fingerprint-only bypass fully offline qualified;immutable38ddf8b4candidate restored;no deployment or operational restart."
+    "updated_at_utc": "2026-10-19T17:15:38.755424+00:00",
+    "working_tree": "DEV090 DEV-only deployment preflight HOLD: live configuredworker would acquireprovidertransactions;currentuserrequestforbidsnewacquisition. No installationorstartup."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -34462,5 +34462,27 @@
     "next_action": "NONE for offlinequalification. Separate authorization andfresh targetedruntimepreflight required before installation;do not deploy automatically.",
     "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/fingerprint-bypass-qualification/FINAL_RELEASE_STATUS.json",
     "report_sha256": "00c4df716a44a19f9dcb215bb18f229a92dc602b66e154f200331793241289ec"
+  },
+  "dev090_fingerprint_dev_deployment": {
+    "engineering_source_revision": "38ddf8b4f4a6e650c075f918e5238ddf5ed47fff",
+    "milestone_verdict": "HOLD_PROVIDER_ACQUISITION_BOUNDARY",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "installed_identity": {
+      "checkout_commit": "afbe9e58b11eb2e4d616246da123ce31ab45700c",
+      "effective_worker_sha256": "bca037dfd7194f304493cac051ec894916ef3eac2d897871570dafbdaa56023d",
+      "candidate_installed": false
+    },
+    "candidate_verification": "PASS integrityandexact2linediff",
+    "runtime_health": "All15 qualified Supervisor programs STOPPED;Supervisor available. No start/restart/reload performed. Runtime acceptance NOT_TESTED.",
+    "blocker": "HOLD \u2014 configuredworker startup would perform newprovider acquisition forbiddenby currentrequest. One due FULL_WALKBACK row withcreatorandanchor confirmed viaindexedRO LIMIT2;not merelyhypothetical futuretraffic.",
+    "next_action": "Clarify/authorize normal prospective DEVworker RPC under unchangedexistingbudgets,or designate an existing provider-free DEVruntime withqualifiedacceptance. Do not start or install under currentno-acquisition boundary. No infrastructure repair proposed.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0,
+    "source_changes": 0,
+    "service_changes": 0,
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/fingerprint-bypass-qualification/dev-deployment-preflight-d0e88c46beb6/report.json",
+    "report_sha256": "ee680565d08fc7aab9c96b66a4737d5817bb926f69be1eb2a039eada40f1f466"
   }
 }

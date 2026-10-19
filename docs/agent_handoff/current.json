@@ -35309,5 +35309,27 @@
     "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "application_source_changes": 0},
     "remote_handoff": "NOT_ATTEMPTED: disclosure approval remains unavailable.",
     "next_action": "Separately authorize a manifest-only reconciliation that incorporates the two verified locks into one authoritative frozen runtime configuration manifest, then re-run the clean-checkout manifest binding before golden promotion review."
+  },
+  "flex_stable_v2_manifest_reconciliation": {
+    "status": "READY_FOR_GOLDEN_PROMOTION_REVIEW_NOT_PROMOTED",
+    "updated_at_utc": "2026-10-19T23:29:37Z",
+    "final_source_commit": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+    "parent_qualified_commit": "35165ba1f6f4d445c7100718b552939f0b3eeb00",
+    "change_scope": "Manifest-only: flex_stable_v2_runtime_manifest.json. The 2,049 packaged service-source files are unchanged.",
+    "manifest_sha256": "f0d3d933109f3572023af677729feef4db6e432657c7b7095b5bae05f2821dc7",
+    "integrity_references": {
+      "source_hash_manifest": {"path": "manifests/flex_stable_v2_source_hashes.json", "sha256": "874a386f36cd99686b5af159f70e38b3052606e51eefd565d0ed427c5cf5891a", "files": 2049},
+      "runtime_lock": {"path": "manifests/flex_stable_v2_runtime_python311_macos_arm64.lock", "sha256": "58bd43d469351f1d16a01e82a5fc4e3f07ed95c6dd6d7a5f21b19842c25bb676", "artifacts": 18},
+      "test_lock": {"path": "manifests/flex_stable_v2_test_runner_python311.lock", "sha256": "19c3e93e9c2fbeabcb79cdb9ffd8f7bf902b6ff9107978eaaf18c7d0b17538c9", "artifacts": 8}
+    },
+    "fresh_clean_checkout": {"commit": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb", "manifest_json": "PASS", "integrity_reference_hashes": "3/3 PASS", "source_hashes": "2049 checked; 0 mismatches", "service_roots_unchanged_from_35165ba1": true, "isolated_entry_imports": "listener/creator_resolution/walkback PASS"},
+    "clean_environment_evidence": {"result": "PASS for the service-specific package closure on macOS arm64/Python 3.11.5", "runtime_artifacts": "18/18 sha256 verified", "test_artifacts": "8/8 sha256 verified", "provider_free_regressions": "listener 38 passed; creator-resolution 18 passed; Walkback 106 passed"},
+    "historical_artifact_identity": "UNPROVEN: the shared original Anaconda environment's historical wheel/source artifacts were not retained. The committed locks establish reproducible exact-version equivalent artifacts, not identity of the historical installer inputs.",
+    "explicit_coverage_limitation": "Two retained Walkback tests remain deliberately deselected because they require resolver and Walkback modules in one src namespace, contrary to service-specific import isolation. No assertion was weakened and no provider calls were made.",
+    "schema_contract": "Read-only Core required relations/WAL and OPS required relations/WAL remain compatible with retained DEV090 Core 847 and OPS 766 labels; no schema migration or database write occurred.",
+    "golden_baseline_ready": "READY_FOR_PROMOTION_REVIEW_ONLY: one immutable commit now contains the source package, frozen sanitized manifest, and two hash-pinned locks. Promotion and deployment remain unauthorized.",
+    "remote_handoff": "NOT_ATTEMPTED: disclosure approval remains unavailable; this local handoff is retained.",
+    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "application_source_changes": 0, "database_changes": 0, "deployment": false},
+    "next_action": "Obtain the required independent promotion review; do not deploy or label the baseline golden until that review accepts the platform-bound exact-version-equivalent artifact evidence and the two-test isolation limitation."
   }
 }

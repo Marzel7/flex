@@ -35375,7 +35375,7 @@
     "write_path": "One target-bucket capacity check, atomic temporary-write/fsync/replace/fsync, no Core/OPS query or bucket enumeration; compact persistence failure remains telemetry-only.",
     "legacy": "Existing flat receipts remain exact-readable and outcome/handoff-update compatible; no automatic migration.",
     "maintenance": "Explicit bounded command only; read-only indexed dependency checks, UNKNOWN fail-closed retention, same-filesystem reversible move plus SHA-256 readback, bounded .retired archive, no scheduler/worker/schema/index.",
-    "qualification": {"tests": "4 new service-isolated provider-free contract tests passed in fresh detached checkout", "latency": "100 writes: median 0.628 ms, p95 0.818 ms", "source_integrity": "base 2,049-file manifest plus candidate source-delta describes 2,051 application files"},
+    "qualification": {"tests": "7 new service-isolated provider-free contract tests passed in fresh detached checkout", "latency": "100 writes: median 0.628 ms, p95 0.818 ms", "source_integrity": "base 2,049-file manifest plus candidate source-delta describes 2,051 application files"},
     "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0, "deployment": false},
     "next_action": "Separately authorize a deployment preflight and installation if continuous production provenance is required; do not deploy automatically."
   },

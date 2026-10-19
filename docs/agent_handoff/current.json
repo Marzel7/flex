@@ -34730,84 +34730,110 @@
     }
   },
   "dev090_two_hour_operational_monitoring": {
-    "status": "MONITORING_IN_PROGRESS",
+    "status": "COMPLETE_PARTIAL_WITH_EVIDENCE_GAPS",
+    "milestone_verdict": "PARTIAL",
     "engineering_source_revision": "38ddf8b4f4a6e650c075f918e5238ddf5ed47fff",
     "runtime_deployment_required": false,
     "window_start_utc": "2026-10-19T17:59:40+00:00",
     "window_end_utc": "2026-10-19T19:59:40+00:00",
-    "baseline": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/fingerprint-bypass-qualification/deployment/attempt-55beb2ea3d26/two-hour-monitor-1792432780/baseline.json",
-    "automation_id": "dev090-two-hour-operational-monitoring",
-    "checkpoints": "T+0 captured; T+10 through T+120 scheduled, finite12 wakes",
-    "services": {
-      "alert_evaluator": {
-        "state": "STOPPED",
-        "pid": null
+    "automation_status": "PAUSED; no extension",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/fingerprint-bypass-qualification/deployment/attempt-55beb2ea3d26/two-hour-monitor-1792432780/FINAL_MONITORING_REPORT.json",
+    "report_sha256": "1532115dbd7a7213c4e50a85bef76d2410018dd709b6e4bb7f01e773538ca425",
+    "metrics": {
+      "TOTAL_UNIQUE_MIGRATIONS": 133,
+      "COMMITTED_BIRTH_RECEIPTS": {
+        "observed_with_receipt_and_acceptance_in_window": 2138,
+        "unique_birth_receipts_with_event_in_window": 2171,
+        "missing_fields": 0,
+        "creator_retained": 2171,
+        "signature_retained": 2171,
+        "completeness": "Lower bound if receipts could not be produced at capacity; no non-delivery inference"
       },
-      "creator_funding_worker": {
-        "state": "STOPPED",
-        "pid": null
+      "PP_BIRTH_COVERAGE_PERCENT": {
+        "retained_receipt_matches": 30,
+        "retained_match_percent": 22.56,
+        "absence": "UNPROVEN delivery, not non-delivery"
       },
-      "creator_resolution_worker": {
-        "state": "RUNNING",
-        "pid": 10708
+      "QUALIFIED_PP_CREATE_AT_MIGRATION": {
+        "persisted_identity_evidence_preceding_migration": 22,
+        "percent": 16.54,
+        "authority": "COMMITTED PUMPPORTAL_NEW_TOKEN receipt and matching current identities, accepted timestamp before migration; not independently decoded execution proof"
       },
-      "evidence_writer": {
-        "state": "STOPPED",
-        "pid": null
+      "RPC_RESOLUTION_JOBS": 84,
+      "RPC_CREATE_RECOVERED": 28,
+      "LATE_CREATE_HANDOFFS": {
+        "retained_intents": 28,
+        "acknowledged_before_window_end": 27,
+        "still_pending_late_snapshot": 0
       },
-      "infra_sync_scheduler": {
-        "state": "STOPPED",
-        "pid": null
+      "WALKBACK_ELIGIBLE": {
+        "late_snapshot_full_anchor_present": 72,
+        "known_eligible_by_deadline_completed_full": 70,
+        "exact_eligible_at_deadline": "UNKNOWN: availability timestamp for all remaining anchors not preserved"
       },
-      "intelligence_snapshot_scheduler": {
-        "state": "STOPPED",
-        "pid": null
+      "WALKBACK_COMPLETED": {
+        "all_investigations_committed_before_deadline": 76,
+        "full_walkback_class": 70,
+        "other_classes": {
+          "PARTIAL_TREASURY": 6,
+          "FULL_WALKBACK": 70
+        },
+        "delayed_completions_after_deadline": 3,
+        "not_complete_by_deadline": 57
       },
-      "operation_monitor_bridge": {
-        "state": "STOPPED",
-        "pid": null
+      "WALKBACK_COMPLETION_PERCENT": {
+        "full_all_migrations": 52.63,
+        "full_eligible": "UNKNOWN exact deadline denominator;70/72=97.22% against late-snapshot eligible population only",
+        "all_committed_investigations_all_migrations": 57.14
       },
-      "operation_monitor_worker": {
-        "state": "STOPPED",
-        "pid": null
+      "LINEAGE_GAP_COUNT": 45,
+      "MEDIAN_PROCESSING_LATENCY": 2.0,
+      "P95_PROCESSING_LATENCY": 52,
+      "MAX_PROCESSING_LATENCY": 55,
+      "DISK_HEADROOM_START_END_MINIMUM": {
+        "start_bytes": 16906846208,
+        "end_bytes": "UNKNOWN \u2014 no deadline-time resource sample",
+        "minimum_observed_in_window_bytes": 16696438784,
+        "late_snapshot_bytes": 15686344704
       },
-      "operation_scheduler": {
-        "state": "STOPPED",
-        "pid": null
+      "SERENA_PYRIGHT_PROCESS_COUNTS": {
+        "maximum_observed": {
+          "serena": 0,
+          "pyright": 0
+        }
       },
-      "walkback_worker": {
-        "state": "RUNNING",
-        "pid": 10716
+      "WRITE_LOCK_AND_ENOSPC_ERRORS": {
+        "in_completed_in_window_checkpoints": {
+          "enospc": 0,
+          "write_lock_failures": 0,
+          "provenance_failure": 0,
+          "unrecoverable_retry": 0
+        },
+        "unsampled_segment_including_postwindow": {
+          "enospc": 0,
+          "write_lock_failures": 0,
+          "provenance_failure": 2388,
+          "unrecoverable_retry": 0
+        },
+        "window_attribution": "Final segment counts not assigned wholly to two-hour window"
       },
-      "watchtower_api": {
-        "state": "STOPPED",
-        "pid": null
-      },
-      "watchtower_listener": {
-        "state": "RUNNING",
-        "pid": 10722
-      },
-      "watchtower_ngrok": {
-        "state": "STOPPED",
-        "pid": null
-      },
-      "webhook_worker": {
-        "state": "STOPPED",
-        "pid": null
-      },
-      "ws_cascade": {
-        "state": "STOPPED",
-        "pid": null
-      }
+      "GOLDEN_BASELINE_READINESS": false
     },
-    "disk_free_start_bytes": 16906846208,
-    "swap_start": "vm.swapusage: total = 2048.00M  used = 1616.94M  free = 431.06M  (encrypted)",
-    "serena_pyright": {
-      "serena": [],
-      "pyright": []
-    },
+    "limitations": [
+      "Late final wake at2026-10-19T20:26:46.671404+00:00; noT+70,+80,+90,+100,+110,+120 on-time samples",
+      "Final snapshot is reconstruction of fixed cohort, not extension",
+      "No independent serialized Pump creator proof: current strict resolver records CREATE fee payer",
+      "CREATE instruction version unknown absent independently retained decode",
+      "Database row states mutable; only persisted timestamps support event cutoff",
+      "Final logs contain later events; not counted as wholly within window",
+      "Eligible denominator72 is a late-snapshot anchor-present count, not independently timestamped eligibility at deadline."
+    ],
+    "blocker": "Compact provenance receipt store reached4096-file capacity. Late log segment records2388 provenance warnings including post-window events. MissingT+70..120 observations; no clean2hour reliability claim.",
+    "next_action": "Monitoring stopped. Separately scope bounded receipt-capacity handling before claiming reliable continuous birth provenance; no repair or golden baseline created. Do not extend this monitoring window.",
     "provider_calls_by_monitor": 0,
     "canonical_writes_by_monitor": 0,
-    "next_action": "Read-only10-minute checkpoints; fixed-window final report afterT+120; no repairs/extension."
+    "source_changes": 0,
+    "production_changes": 0,
+    "updated_at_utc": "2026-10-19T20:28:19.430199+00:00"
   }
 }

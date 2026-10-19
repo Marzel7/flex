@@ -13111,25 +13111,29 @@
   "dev090_create_validator_deployment": {
     "candidate": "DEV090_CANDIDATE_1ffe47c87203",
     "candidate_file_sha256": "5c1e13c421e95c6c2eba62f0499721d5d0ceb2c2c749a5a97dbf6649628239b4",
-    "candidate_verification": "PASS immutabletagandallmanifesthashes; priorofflinequalificationremainsPASS",
+    "candidate_verification": "FreshPASS immutabletagandmanifesthashes;preimageb4unchanged",
     "canonical_writes": 0,
     "database_write_health": "Notqualifiedthisattempt;stopbeforeDBchecks/operationalchanges",
-    "disk_headroom": "Approximately1.11GBavailable,belowpriorqualifiedDEV0902.5GBoperationalfloor. No cleanup.",
+    "disk_headroom": {
+      "available_bytes": 11803508736,
+      "required_floor_bytes": 2500000000,
+      "status": "PASS"
+    },
     "engineering_source_revision": "1ffe47c87203f0bb32065546fdea75dc87c0de11",
-    "installation": "NOT_ATTEMPTED;oldvalidatorunchanged",
+    "installation": "NOT_ATTEMPTED",
     "installed_preimage_sha256": "b4f2064305faa285f13672217013243c7d5d6a001566b6891b663c79973101ac",
     "live_acceptance": "NOT_STARTED;no naturallyarrivingwork orhandoffhealthclaimed",
-    "local_report_sha256": "037499758a476c37fdfc47184ae009734c68a8380838426279e415e87927cd12",
-    "milestone_verdict": "HOLD_PREFLIGHT_RUNTIME_AUTHORITY_AND_HEADROOM",
-    "next_action": "Separately establish/restorequalifiedSupervisorandrequiredpipelineauthorityandsufficientheadroom;thenauthorizeanewtargeteddeploymentattempt. No curvefirstdeployment or unrelatedservicechanges.",
-    "preflight_blocker": "QualifiedSupervisorendpointandPIDfileabsent;statuscommandexit4;no matchingSupervisor orrequiredworkerprocessesobserved. Actualrunningruntimeauthorityunverified. No alternativeownerassumed.",
+    "local_report_sha256": "9f9b31754a96595f51801e6eab56cf8ada0b28bf0e50f24a78a8381fc6168749",
+    "milestone_verdict": "HOLD_RUNTIME_AUTHORITY",
+    "next_action": "Separateauthorizationrequiredtoestablish/restorequalifiedSupervisorandrequiredpipeline;thenretryexactvalidatordeployment. Nostartuporcleanupperformed.",
+    "preflight_blocker": "Renewedreadonlyretry:qualifiedSupervisorendpointandPIDfileabsent;statuscode4;nomatchingrequiredprocessesobserved. Runtimeauthorityunverified;noalternativeownerassumed.",
     "production_changes": 0,
     "provider_calls": 0,
     "ready_for_curve_first_trial": false,
     "rollback": "NOT_REQUIRED;candidateandrollbackpreimagepreserved",
     "runtime_deployment_gate": "HOLD",
     "runtime_deployment_required": true,
-    "service_transitions": "NONE;PumpPortal/Walkback notstarted,restartedorsignaled;creatornotrestarted;Cascade untouched"
+    "service_transitions": "NONE"
   },
   "dev090_create_version_distribution": {
     "blocker": "Missing independently decoded original creation instructions for recent migration population; no qualified additional recent paired controls.",

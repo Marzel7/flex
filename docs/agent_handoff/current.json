@@ -35282,5 +35282,18 @@
     "remote_handoff": "NOT_ATTEMPTED: prior sanitized handoff transport remains disclosure-blocked; local evidence retained.",
     "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0, "deployment": false},
     "next_action": "Acquire the original platform-appropriate package artifacts or a verified approved artifact source, then recreate and hash-lock the Python 3.11.5 environment before reconsidering golden-baseline promotion."
+  },
+  "flex_stable_v2_isolated_dependency_restoration": {
+    "status": "PARTIAL_RESTORATION_GOLDEN_BASELINE_HOLD",
+    "source_package_commit": "add62f1f04329876ec977d4e8ac1c8c1a6c71fce",
+    "qualification_commit": "8bea5506023f10505a2cd4548552b2d4abc1716e",
+    "artifact_acquisition": {"approved_exact_wheels": 18, "downloaded": 18, "sha256_verified": 18, "cache_bytes": 26474914, "largest_file_bytes": 24883435},
+    "isolated_environment": {"interpreter": "Python 3.11.5", "system_site_packages": false, "pip_check": "PASS", "exact_versions": "18/18", "entry_imports": "listener/creator_resolution/walkback PASS", "compiled_extensions": "aiohttp, charset_normalizer, frozenlist, multidict, psutil, solders, websockets, yarl PASS"},
+    "clean_checkout": {"source_files_checked": 2049, "hash_mismatches": 0, "listener_launcher_mode": "0755"},
+    "schema_contract": "Read-only required Core/OPS relation and WAL checks passed; retained Core 847 / OPS 766 labels remain external DEV090 evidence.",
+    "limitation": "pytest is not among the 18 authorized hash-pinned artifacts. It was not installed or substituted, so provider-free pytest regressions were not run in the clean isolated environment.",
+    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "application_source_changes": 0},
+    "remote_handoff": "NOT_ATTEMPTED: disclosure approval remains unavailable.",
+    "next_action": "Authorize a separately hash-pinned test-runner closure, or define an approved non-pytest clean-environment regression harness; then rerun clean-environment provider-free regressions before any golden-baseline decision."
   }
 }

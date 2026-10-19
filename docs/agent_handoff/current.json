@@ -13533,54 +13533,57 @@
     "updated_utc": "2026-10-18T23:31:38.769221+00:00"
   },
   "dev090_final_p1_p2_release": {
-    "API_FRONTEND_ACCEPTANCE": "Full release NOT_RUN; prior Node lifecycle PASS",
-    "ARCHIVED_RUN_IDENTITIES": [],
+    "API_FRONTEND_ACCEPTANCE": "NOT_RUN: verification failed first",
+    "ARCHIVED_RUN_IDENTITIES": [
+      "07d184977b36"
+    ],
     "BROWSER_ACCEPTANCE": "NOT_RUN",
     "CANDIDATE_SOURCE_SHA": null,
     "CANONICAL_WRITES": 0,
     "CLEAN_CHECKOUT_RESTORATION": "NOT_RUN",
     "DEV048_CAPACITY_BEFORE_AFTER": [
       20,
-      20
+      19
     ],
-    "DEV090_FINAL_P1_P2_RELEASE_STATUS": "HOLD_NO_EXISTING_RUN_ARCHIVAL_PROCEDURE",
+    "DEV090_FINAL_P1_P2_RELEASE_STATUS": "HOLD_DEPENDENCY_VERSION_MAPPING",
     "ENGINEERING_SOURCE_SHA": "e3002467ce44a66487c9842a8dd79f51358fc593",
-    "EVIDENCE_PRESERVATION": "No files moved, deleted or overwritten. Existing 15 PASS and5 incomplete run directories preserved. No archival eligibility asserted without reference verification and an authorized existing procedure.",
-    "EXACT_BLOCKER": "Qualified DEV080 flex_dev.py exposes no run archival command. DEV048 workflow requires preservation review at20 runs and forbids automatic cleanup; it defines no reference-preserving run archival procedure. Source-artifact archival classification is unrelated to run retention. Current instructions permit only the existing archival procedure and prohibit new engineering.",
-    "NEXT_ACTION": "Authorize a separately specified reference-preserving archival procedure (including reference verification and immutable file-hash manifests) for minimum two eligible run slots needed for qualification and fresh restoration, or supply the existing approved procedure. No run selected or archival destination approved in this task.",
+    "EVIDENCE_PRESERVATION": {
+      "archive": "DEV090/enqueue-provenance-qualification/archived-runs/07d184977b36",
+      "bytes": 25347,
+      "files": 6,
+      "hashes_and_inodes_verified": true,
+      "manifest": "DEV090/enqueue-provenance-qualification/07d184977b36-archival-manifest.json",
+      "manifest_sha256": "d1b591d7a616c82e1d0468db5b583d0660a067244b9fa3f620273e43688f8fbd",
+      "reference_review": "Candidate/golden/rollback/DEV090 source/restoration/state/current handoff metadata inspected; selected external hits are inventory-only, no protected dependency. Other four incomplete attempts preserved.",
+      "rollback": "Verify archived hashes, original absent, room below20, then rename back and fsync both parents; no evidence overwritten.",
+      "runner_room_check": "PASS;20 unchanged",
+      "same_filesystem_rename": true
+    },
+    "FAILED_GATE": {
+      "call": "qualify -> verify -> runtime_versions -> need(distributions)",
+      "error": "unmapped runtime dependency version: _brotli",
+      "qualified_tool": "DEV080/source/tools/flex_dev.py",
+      "source_or_assertions_changed": false,
+      "verification_state": "DEV090/state/verify-19d5186fd5f1"
+    },
+    "INCOMPLETE_RUNS": [
+      "07d184977b36",
+      "894dc312d5b3",
+      "95346bfa226c",
+      "a8fb867c5f4b",
+      "ae51be9f91eb"
+    ],
+    "NEXT_ACTION": "Authorize narrowly scoped diagnosis of the _brotli distribution-version mapping in DEV048 dependency verification. Preserve all assertions and source; rerun qualification only after an attributable correction qualifies. No deployment.",
+    "OPERATIONAL_SERVICE_ACTIONS": 0,
     "P1_CREATOR_ENQUEUE_STATUS": "IMPLEMENTED_PRIOR_FUNCTIONAL_PASS",
     "P2_PUMPPORTAL_PROVENANCE_STATUS": "IMPLEMENTED_PRIOR_FUNCTIONAL_PASS",
     "PRODUCTION_CHANGES": 0,
     "PROVIDER_CALLS": 0,
-    "PYTHON_REGRESSIONS": "Prior361 PASS,61 tooling controls,7 crash cases; not rerun because release capacity remains blocked.",
+    "PYTHON_REGRESSIONS": "Prior361 PASS;61 tooling controls;7 crash cases. No fresh full suite reached.",
     "READY_FOR_TARGETED_DEPLOYMENT": false,
-    "RUNTIME_COMPATIBILITY": "No new runtime qualification or service actions; no deployment readiness claim.",
-    "RUNTIME_DEPLOYMENT_GATE": "QUALIFIED_NOT_DEPLOYED; full release qualification incomplete",
-    "engineering_changes": 0,
-    "operational_actions": 0,
-    "run_ids": [
-      "07d184977b36",
-      "0be981c16e7a",
-      "12baf2d5ad42",
-      "12d5ecf93ced",
-      "27c048bc47c2",
-      "38ecb730aef5",
-      "51f26b78e948",
-      "557dc937a4b0",
-      "71bf8827fa38",
-      "7d5ba98eab44",
-      "894dc312d5b3",
-      "933976a88b57",
-      "95346bfa226c",
-      "a8fb867c5f4b",
-      "ae51be9f91eb",
-      "b7d6a1278f46",
-      "b93e93256fdf",
-      "e6d7e150a3d4",
-      "ec731d644bf2",
-      "fd15a6b252c9"
-    ],
-    "updated_utc": "2026-10-19T09:01:08.676156+00:00"
+    "RUNTIME_COMPATIBILITY": "Fresh mandatory dependency gate failed before application acceptance; operational services unchanged by this task.",
+    "RUNTIME_DEPLOYMENT_GATE": "QUALIFIED_NOT_DEPLOYED; mandatory release qualification blocked",
+    "updated_utc": "2026-10-19T09:10:03.425552+00:00"
   },
   "dev090_historical_discovery_release": {
     "candidate": "DEV090_CANDIDATE_c604991687e7",
@@ -26643,7 +26646,7 @@
     "branch": "codex/dev090",
     "git_head": "e3002467ce44a66487c9842a8dd79f51358fc593",
     "name": "flex",
-    "updated_at_utc": "2026-10-19T09:01:08.676156+00:00",
+    "updated_at_utc": "2026-10-19T09:10:03.425552+00:00",
     "working_tree": "Clean isolated DEV090 P1/P2 code committed; functional regressions PASS; release HOLD at20-run evidence budget. Operational source remains deployedef70, unchanged. No new candidate/deployment."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",

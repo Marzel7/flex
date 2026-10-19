@@ -27350,8 +27350,8 @@
     "branch": "codex/dev090",
     "git_head": "38ddf8b4f4a6e650c075f918e5238ddf5ed47fff",
     "name": "flex",
-    "updated_at_utc": "2026-10-19T17:15:38.755424+00:00",
-    "working_tree": "DEV090 DEV-only deployment preflight HOLD: live configuredworker would acquireprovidertransactions;currentuserrequestforbidsnewacquisition. No installationorstartup."
+    "updated_at_utc": "2026-10-19T17:30:04.195206+00:00",
+    "working_tree": "DEV090 exact fingerprint/validator composition deployed to authorized DEV worker paths; three services running; bounded live commit acceptance PASS."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -34464,25 +34464,103 @@
     "report_sha256": "00c4df716a44a19f9dcb215bb18f229a92dc602b66e154f200331793241289ec"
   },
   "dev090_fingerprint_dev_deployment": {
+    "DEV090_FINGERPRINT_BYPASS_DEPLOYMENT_STATUS": "PASS_BOUNDED_DEV_RUNTIME_ACCEPTANCE",
     "engineering_source_revision": "38ddf8b4f4a6e650c075f918e5238ddf5ed47fff",
-    "milestone_verdict": "HOLD_PROVIDER_ACQUISITION_BOUNDARY",
-    "runtime_deployment_required": true,
-    "runtime_deployment_gate": "HOLD",
-    "installed_identity": {
-      "checkout_commit": "afbe9e58b11eb2e4d616246da123ce31ab45700c",
-      "effective_worker_sha256": "bca037dfd7194f304493cac051ec894916ef3eac2d897871570dafbdaa56023d",
-      "candidate_installed": false
+    "candidate": "DEV090_CANDIDATE_38ddf8b4f4a6",
+    "CANDIDATE_VERIFICATION": "PASS: immutable source/archive/manifests; prior 390 Python, seven crash controls, ten browser contracts, 56 tooling controls and clean restoration preserved",
+    "CREATE_VALIDATOR_COMPATIBILITY": "PASS: exact fingerprint candidate includes qualified 1ffe validator; two-file composition installed",
+    "CURRENT_DISK_HEADROOM": {
+      "before_bytes": 5418962944,
+      "after_bytes": 5399187456
     },
-    "candidate_verification": "PASS integrityandexact2linediff",
-    "runtime_health": "All15 qualified Supervisor programs STOPPED;Supervisor available. No start/restart/reload performed. Runtime acceptance NOT_TESTED.",
-    "blocker": "HOLD \u2014 configuredworker startup would perform newprovider acquisition forbiddenby currentrequest. One due FULL_WALKBACK row withcreatorandanchor confirmed viaindexedRO LIMIT2;not merelyhypothetical futuretraffic.",
-    "next_action": "Clarify/authorize normal prospective DEVworker RPC under unchangedexistingbudgets,or designate an existing provider-free DEVruntime withqualifiedacceptance. Do not start or install under currentno-acquisition boundary. No infrastructure repair proposed.",
-    "provider_calls": 0,
-    "canonical_writes": 0,
-    "production_changes": 0,
-    "source_changes": 0,
-    "service_changes": 0,
-    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/fingerprint-bypass-qualification/dev-deployment-preflight-d0e88c46beb6/report.json",
-    "report_sha256": "ee680565d08fc7aab9c96b66a4737d5817bb926f69be1eb2a039eada40f1f466"
+    "WAL_WRITE_LOCK_HEALTH": "PASS bounded WAL-aware read-only checks, successful live commits, no observed ENOSPC/lock failures; no full integrity claim",
+    "SUPERVISOR_OWNERSHIP": {
+      "verified": true,
+      "pid": 1131,
+      "control_wait_seconds": 30
+    },
+    "INSTALLED_SOURCE_HASHES": {
+      "validator": "5c1e13c421e95c6c2eba62f0499721d5d0ceb2c2c749a5a97dbf6649628239b4",
+      "walkback": "aeae403fdfb802bfe5da4f5416d09af8209d2e7fc19dcf7dcddcc6e96d266df6",
+      "candidate_scoring_unchanged": "9913a0db3e056a301b88e60308b00657e513c1fd8c14c7f3f21b0079739a468f"
+    },
+    "STARTED_SERVICES": {
+      "creator_resolution_worker": 10708,
+      "walkback_worker": 10716,
+      "watchtower_listener": 10722
+    },
+    "UNRELATED_SERVICES_STOPPED": 12,
+    "FINGERPRINT_BYPASS_ACTIVE": true,
+    "FINGERPRINT_GLOBAL_COUNT_CALLS": 0,
+    "CANDIDATE_SCORING_PRESERVED": {
+      "source_unchanged": true,
+      "live_scoring_queries": 7,
+      "query_seconds_total": 39.159284,
+      "prior_different_workload_seconds": 50.484543,
+      "paired_speedup_claim": false
+    },
+    "WALKBACK_EXECUTION": {
+      "new_migration_receipts": 5,
+      "new_eligible_ops_rows": 4,
+      "new_worker_committed": 3,
+      "newly_arrived_completed": 2,
+      "outcomes": [
+        "LINEAGE_GAP",
+        "LINEAGE_GAP",
+        "NO_ATTRIBUTION_FOUND"
+      ],
+      "admission_note": "No new positive Watchtower admission observed; rejection/lineage-gap outcomes preserved, no forced admission"
+    },
+    "WALKBACK_COMPLETION": "PASS: actual committed rows, not heartbeat alone; single attempt per observed completed row",
+    "DURABLE_HANDOFF_ACCEPTANCE": {
+      "ack_count_before": 2,
+      "ack_count_after": 4,
+      "pending": 0,
+      "two_new_completed_rows_anchor_source": "CORE_QUALIFIED_CREATE"
+    },
+    "LIVE_LATENCY": {
+      "observation_seconds": 194.37680411338806,
+      "processing": {
+        "n": 3,
+        "median": 3,
+        "p95_nearest_rank": 55
+      },
+      "new_enqueue_to_completion_seconds": [
+        116,
+        79
+      ],
+      "limits": "Three-job sample; no universal 104-second improvement claim"
+    },
+    "HISTORICAL_DISCOVERY_DISABLED": true,
+    "historical_retirements_preserved": {
+      "creator": 3854,
+      "walkback": 15396
+    },
+    "ROLLBACK_STATUS": "NOT_REQUIRED; both exact source preimages retained; source rollback does not rewind committed database state",
+    "READY_FOR_GOLDEN_BASELINE": false,
+    "NEXT_ACTION": "NONE \u2014 controlled deployment acceptance complete. No FLEX_STABLE_V2 created; broad golden-baseline qualification is outside this bounded deployment.",
+    "PROVIDER_CALLS": {
+      "manual_diagnostic": 0,
+      "normal_runtime_authorized": true,
+      "recorded_completed_walkback_rpc_units": 72,
+      "total_three_service_requests": "UNKNOWN; no unsupported exact total claimed",
+      "budgets_unchanged": true
+    },
+    "CANONICAL_WRITES": "Authorized normal runtime commits observed; no manual queue/schema writes",
+    "PRODUCTION_CHANGES": "Two explicitly authorized operational target files installed and three configured DEV services started; no unrelated runtime changes",
+    "monitoring_limitation": "Fingerprint health/drift views may be stale while bypass is active",
+    "raw_retention": "disabled; compact birth receipts retained under existing bounds",
+    "candidate_modified": false,
+    "new_engineering": false,
+    "runtime_deployment_gate": "PASS",
+    "updated_at_utc": "2026-10-19T17:30:04.195206+00:00",
+    "evidence": {
+      "startup_sha256": "9d600c413cd338753c5abbb533cd7b0a39ca5514fee001094a303aa8d9acfbac",
+      "live_summary_sha256": "9ba6039e7b4fb0225c974e168d0c7466de35d3d61be809c4ce603eedfae9cf70"
+    },
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/fingerprint-bypass-qualification/deployment/attempt-55beb2ea3d26/FINAL_DEPLOYMENT_REPORT.json",
+    "report_sha256": "b3e586a92573c323b26de99c53f8b6a1ac0c05d00df597ef5df5d5ca5410eb26",
+    "milestone_verdict": "PASS",
+    "blocker": null
   }
 }

@@ -12971,6 +12971,21 @@
     "verification": "15019 per-row hashes independently read back; other fields unchanged; SQLite authorizer denied unrelated writes/DDL. Completed Walkback74334,failed2,running1 unchanged. Waiting/pending/retry after0; actual installed claim query returns0.",
     "write_authority": "Installed synchronous shared acquire_write_lease before SQLite transaction; thread starts denied; no db_locking reaper/checkpoint import. Initial auto-review concern resolved with guarded import test before approved revised execution."
   },
+  "dev090_bonding_curve_create_search": {
+    "application_source_changes": 0,
+    "canonical_writes": 0,
+    "engineering_source_revision": "e3002467ce44a66487c9842a8dd79f51358fc593",
+    "finding": "Local deterministic bonding-curve derivation matches an independently retained V1 CREATE_V2 Token2022 account association. Twelve cohort curves derived. No paired mint and curve signature histories establish a missed CREATE recovered within the same budget.",
+    "limitation": "Legacy coverage and paired-history CREATE positions remain unqualified. Correct PDA association does not prove search efficiency.",
+    "local_report_sha256": "5beca2378001b4d9ee91f3d3528dda62f373789a84351582da4a11f7e5ff435b",
+    "milestone_verdict": "INSUFFICIENT_RETAINED_EVIDENCE",
+    "next_action": "Separately authorize bounded paired-history witnesses for independently decoded legacy and CREATE_V2 controls before target replacement; no implementation qualified.",
+    "production_activation": "Existing deployment unchanged",
+    "production_changes": 0,
+    "provider_calls": 0,
+    "runtime_deployment_required": false,
+    "tests": "Pure local PDA derivation, retained instruction-account comparison and bounded exact-mint read-only field inspection; no provider acquisition or application imports."
+  },
   "dev090_budget_neutral_create_selection": {
     "application_source_changes": 0,
     "blocker": "Missing retained complete page, inspected candidate identities and qualified CREATE position",

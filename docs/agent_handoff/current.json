@@ -13091,6 +13091,23 @@
     "safety": "provider calls=0; canonical writes=0; Production changes=0; service starts=0; no schema/config/install/queue changes",
     "status": "HOLD_PROSPECTIVE_ONLY_EXECUTION_GATE"
   },
+  "dev090_create_v2_migration_volume": {
+    "active_hour_rates": "UNKNOWN\u2014complete uptime intervals unavailable; no normalized rate or causal claim",
+    "canonical_writes": 0,
+    "engineering_source_revision": "e3002467ce44a66487c9842a8dd79f51358fc593",
+    "finding": "Proxy full UTC days around verified transaction-compatibility deployment:883 recorded migrationsOct16 versus367Oct18; calendar count change minus58.4percent. Source mix differs. Original recent half-open window reconciles exactly466.",
+    "introduction_boundary": "First Pump CREATE_V2 instruction support not established; verifiedOct17 creator analyzer deployment changed transaction version ceiling/token identities/signature correlation, not listener detection.",
+    "local_report_sha256": "02c934160a0052e3cac70c0839ffa0632a7d91e584cb148e74e2dcf62c7a6adb",
+    "milestone_verdict": "PARTIAL_COUNTS_VERIFIED_ACTIVE_HOUR_CAUSAL_COMPARISON_UNPROVEN",
+    "next_action": "Treat calendar counts as descriptive only; active-hour/causal conclusion needs retained instruction-support activation and complete listener uptime intervals. No application/provider action authorized.",
+    "processing_comparison": "Retrospective valid-anchor and completion coverage recorded separately; current queue state subject to historical retirement/recovery, not comparable historical enqueue ledger.",
+    "production_activation": "No services/configuration changed",
+    "production_changes": 0,
+    "provider_calls": 0,
+    "runtime_deployment_required": false,
+    "sample_evidence": "Four independently decoded CREATE_V2 recent controls; no representative distribution inference.",
+    "source_changes": 0
+  },
   "dev090_create_version_distribution": {
     "blocker": "Missing independently decoded original creation instructions for recent migration population; no qualified additional recent paired controls.",
     "canonical_writes": 0,

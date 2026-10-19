@@ -34622,5 +34622,84 @@
     "production_changes": 0,
     "next_action": "NONE \u2014 audit complete. PP birth provenance remains UNPROVEN for these exact tokens; do not label them PP delivery failures. Any creator-argument authority qualification requires separate scope.",
     "updated_at_utc": "2026-10-19T17:36:35.102935+00:00"
+  },
+  "dev090_deployed_pumpportal_birth_provenance": {
+    "milestone_verdict": "PARTIAL_PROVENANCE_ACTIVE_CURRENT_STORAGE_GUARD_BLOCKED",
+    "engineering_source_revision": "38ddf8b4f4a6e650c075f918e5238ddf5ed47fff",
+    "runtime_deployment_required": false,
+    "runtime_authority": {
+      "process_present": true,
+      "pid": 10722,
+      "expected_module": true,
+      "ppid": 1131,
+      "flags": {
+        "PUMPPORTAL_COMPACT_BIRTH_RECEIPTS_PATH": "/Users/kevinkeaveney/Dev/claude/flex/logs/pumpportal_compact_birth_receipts",
+        "PUMPPORTAL_COMPACT_BIRTH_RECEIPTS_ENABLED": "1",
+        "PUMPPORTAL_CANONICAL_BIRTH_RETENTION_ENABLED": "0",
+        "CREATOR_BACKFILL_ENABLED": "0",
+        "LISTENER_MIGRATION_RECONCILER_ENABLED": "0",
+        "PUMPFUN_BIRTH_RECONCILER_ENABLED": "0",
+        "HELIUS_BIRTH_WS_ENABLED": "0"
+      },
+      "loaded_source_authority": "Verified startup PID/source hashes and unchanged installed hashes, plus normal successful receipt output from same observation window; no claim of in-memory bytecode introspection"
+    },
+    "installed_hashes": {
+      "src/core/pumpfun_curve_listener.py": "6db4a1c8230ea233d26fd212bac5988437bb0b8f29d9dbed0f282ad10f39b634",
+      "src/core/pumpportal_birth_audit.py": "6103d23ec5ea82748bb53ce89985c1dd8885af2c281872a4f3672b1b2781416c",
+      "run_listener.sh": "b1dd5b99db29e3cad76999c7baf343d205bb2118c6785c66db805537ea32c434"
+    },
+    "normal_success_authority": {
+      "kind": "bounded fsync JSON files, NOT a database table",
+      "root": "/Users/kevinkeaveney/Dev/claude/flex/logs/pumpportal_compact_birth_receipts",
+      "identity": "SHA256(canonical JSON of source,mint,supplied_creator,supplied_birth_signature)",
+      "maximum_file_bytes": 4096,
+      "maximum_files": 4096,
+      "minimum_free_bytes": 2000000000,
+      "automatic_retention_deletion": false,
+      "on_capacity_failure": "record returns unavailable; explicit provenance-unavailable log",
+      "normal_success": "PUMPPORTAL_BIRTH receipt plus COMMITTED canonical readback",
+      "failure_retry": "Core webhook_birth_queue keyed by UNIQUE signature, source pumpportal_retry; separate from normal receipt files"
+    },
+    "positive_controls": {
+      "count": 3,
+      "same_observation_window": true,
+      "outcome": "COMMITTED with exact Core creator/signature match",
+      "validation": "IDENTITIES_VALID_UNVERIFIED_CHAIN, not independent chain execution proof"
+    },
+    "exact_two_birth_deliveries": "UNPROVEN; prior compact snapshot had migration receipts only; exact deterministic birth lookups and retry-signature lookups found no birth evidence",
+    "later_rpc_source": "STRICT_RPC, independently established by prior exact-token audit",
+    "current_storage_limitation": {
+      "files": 1281,
+      "bytes": 712918,
+      "limit": 4096,
+      "free_bytes": 164851712,
+      "first_provenance_warning_relative_line": 3864,
+      "two_migration_relative_lines": [
+        65,
+        329
+      ],
+      "interpretation": "File count below 4096. Current free disk is below the writer minimum 2,000,000,000 bytes; source _store_receipt rejects below that floor. Later provenance warnings follow both audited migrations; disk condition is not proven cause of their missing births.",
+      "first_warning_approx_utc": "2026-10-19T17:37:35+00:00"
+    },
+    "warnings": {
+      "bytes_examined": 371782,
+      "window_complete": true,
+      "sha256": "e7029410e6a0f3500b5596959d0a4da4475a1adbebddfb951913a15f4e7c00e8",
+      "provenance_unavailable": 60,
+      "outcome_unavailable": 0,
+      "unrecoverable_retry": 0,
+      "exact_tokens_birth_lines": {
+        "CLyMG9vf7RzcdodudnYrNhiNDt3fEVJP9ck2BNoFpump": [],
+        "21Wi1YkXAReFMLuaRXpnNCQsqYh1BXuvQGgf7pkypump": []
+      }
+    },
+    "report": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/fingerprint-bypass-qualification/deployment/attempt-55beb2ea3d26/deployed-birth-provenance/report.json",
+    "report_sha256": "ee23751f680497ac4083aec11c8b271458b9d67e647ae005cd74a7e963dbe506",
+    "next_action": "Stop at read-only finding. Obtain separate authorization to restore safe disk headroom; do not clean, change configuration or restart under this audit.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "source_changes": 0,
+    "production_changes": 0,
+    "updated_at_utc": "2026-10-19T17:40:47.688068+00:00"
   }
 }

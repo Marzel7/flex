@@ -14048,6 +14048,47 @@
     "WALKBACK_EXECUTION": "Existing worker remainedrunning; no P1/P2 end-to-end success claimed.",
     "updated_utc": "2026-10-19T10:23:17.810224+00:00"
   },
+  "dev090_p1_p2_retry": {
+    "APPLICATION_READINESS": "31compact births committed/readback;firstprospective missing-anchor migration enqueued increator_resolution_queue.",
+    "CONTROLLER_WAIT_SECONDS": 30,
+    "DEV090_P1_P2_RETRY_STATUS": "INSTALLED_READY_LIVE_ACCEPTANCE_IN_PROGRESS",
+    "NEXT_ACTION": "Continue existing fixed30minute observer; do not restart/redeploy. Stop/rollback on mandated safety violation; finalize prospective outcome and preserved evidence.",
+    "RUNTIME_DEPLOYMENT_GATE": "LIVE_ACCEPTANCE_PENDING",
+    "SUPERVISOR_ACK_SECONDS": 10.932512044906616,
+    "candidate": "DEV090_CANDIDATE_e3002467ce44",
+    "deployment_authorized": true,
+    "initial_coverage": {
+      "late_create_handoff_acknowledged": 0,
+      "late_create_handoff_delivered": 0,
+      "pp_birth_canonical_conflicts": 0,
+      "pp_birth_evidence_incomplete": 0,
+      "pp_birth_evidence_incomplete_or_late": 0,
+      "pp_birth_provenance_unknown": 1,
+      "pp_birth_qualified_at_migration": 0,
+      "pp_birth_receipt_retained": 0,
+      "pp_birth_signature_retained": 0,
+      "pp_creator_retained": 0,
+      "pp_handoff_timing_unknown": 0,
+      "qualified_pp_birth_coverage_percent": 0.0,
+      "rpc_create_recovered": 0,
+      "rpc_recovery_percent": 0.0,
+      "semantics": "Verified retained accepted evidence before recorded OPS handoff initiation; not a PumpPortal delivery-rate claim. RPC recovery may overlap PP receipts. No on-chain receipt-time inference.",
+      "total_unique_migrations": 1,
+      "walkback_completed": 0,
+      "walkback_completion_percent": 0.0,
+      "walkback_eligible": 0,
+      "walkback_executed": 0
+    },
+    "observations": "DEV090/p1p2-controlled-retry-e300;bounded read-only observer active until window end",
+    "restart_scope": "Listener only; creator-resolution and DEV002Walkback original PIDs preserved;12unrelatedservicesSTOPPED.",
+    "safety_errors": [],
+    "source_sha": "e3002467ce44a66487c9842a8dd79f51358fc593",
+    "updated_utc": "2026-10-19T10:37:09.470111+00:00",
+    "window": [
+      1792406060,
+      1792407860
+    ]
+  },
   "dev090_prospective_selection_qualification": {
     "engineering_revision": "2d40af06c320d1a4688d65c9d195214ec69f5378",
     "evidence": "DEV090/dev002-release-qualification/PROSPECTIVE_SELECTION_QUALIFICATION.json",
@@ -26779,8 +26820,8 @@
     "branch": "codex/dev090",
     "git_head": "e3002467ce44a66487c9842a8dd79f51358fc593",
     "name": "flex",
-    "updated_at_utc": "2026-10-19T10:23:17.810224+00:00",
-    "working_tree": "Clean e3002467 source and immutablecandidate unchanged. One deployment attempt rolledback after controller timeout; prior ef70 listener running, creator and DEV002 Walkback untouched. P1/P2 liveacceptance incomplete."
+    "updated_at_utc": "2026-10-19T10:37:09.470111+00:00",
+    "working_tree": "P1/P2 candidate installed inlistener; liveacceptance inprogress. Original two workers unchanged. Do not act on older rollback-only handoff as current runtime."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

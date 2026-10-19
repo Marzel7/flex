@@ -118,3 +118,9 @@ def test_trade_metadata_cannot_replace_original_birth_authority(f):
  row=eval(compile(ast.Expression(trade),'fixture','eval'),{'existing':{'creator':C,'birth_creator':None,'birth_signature':S},'data':{'traderPublicKey':C},'v_sol':0,'mc_sol':0,'time':time})
  assert row['birth_creator'] is None and row['birth_signature']==S
  f.token(C,S);assert f.run(accepted_birth=(row['birth_creator'],row['birth_signature']))=='ENQUEUED'
+
+
+def test_portal_creator_fastpath_never_uses_trade_signer():
+ tree=ast.parse((ROOT/'src/core/pumpfun_curve_listener.py').read_text());method=next(n for n in ast.walk(tree) if isinstance(n,ast.AsyncFunctionDef) and n.name=='_ensure_pf_ws_creator');assignment=next(n for n in ast.walk(method) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='portal_creator' for t in n.targets))
+ ns={'self':types.SimpleNamespace(_portal_vsol={M:{'creator':C,'birth_creator':None}}),'mint':M};exec(compile(ast.Module(body=[assignment],type_ignores=[]),'actual-fastpath','exec'),ns);assert ns['portal_creator'] is None
+ ns['self']._portal_vsol[M]['birth_creator']=C;exec(compile(ast.Module(body=[assignment],type_ignores=[]),'actual-fastpath','exec'),ns);assert ns['portal_creator']==C

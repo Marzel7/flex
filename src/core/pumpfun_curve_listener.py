@@ -6113,7 +6113,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             return existing_pf_ws_creator
 
         # Fast path: PumpPortal already gave us the creator in-memory at birth — no RPC needed
-        portal_creator = (self._portal_vsol.get(mint) or {}).get('creator')
+        portal_creator = (self._portal_vsol.get(mint) or {}).get('birth_creator')
         if portal_creator:
             log_print(f"[PF_WS_CREATOR] ⚡ Portal fast-path: creator={portal_creator[:8]}... for {mint[:8]}... trigger={reason}", flush=True)
             try:

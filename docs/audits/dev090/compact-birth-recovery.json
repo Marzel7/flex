@@ -1,13 +1,14 @@
 {
   "preimage_listener_sha256": "c2bd4292d7c2ae786f89d1ae98831dccfc0b26011d6a29ceb145b2c2d72792a5",
-  "candidate_listener_sha256": "9796586aeb3a328672c9712690d1a3a6f408a6875a60ab9c7ee007185aa7da86",
-  "unchanged_ast_sha256": "b040ed8d64c052a9ba44606b16d37c8b111b42d8afebd373b840ed3a834f97ad",
+  "candidate_listener_sha256": "ffce8fa316e704dc16d20643567a778e204ce44ed8f15bffeeb4528339a64957",
+  "unchanged_ast_sha256": "beffdae92ac4c6af893a4dc33e6577263a1b3805175b9792d4ff0cc0378647df",
   "changed_existing_functions": [
     "_handle_pumpportal_create_frame",
     "drain_webhook_birth_queue",
     "_insert_bonding_curve_token",
     "_mark_token_migrated_in_db",
-    "listen_pumpportal_websocket"
+    "listen_pumpportal_websocket",
+    "_ensure_pf_ws_creator"
   ],
   "new_helpers": [
     "_compact_pumpportal_birth_retry",
